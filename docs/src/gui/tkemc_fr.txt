@@ -189,7 +189,7 @@ s'affiche en rouge.
 
 .Exemple de dépassement de limite et incréments de jog[[cap:Override-Limits]]
 
-image::tkemc_override_limits.png[]
+image::images/tkemc-override-limits.png[]
 
 ==== Le groupe de boutons «Broche»(((broche)))
 
@@ -213,7 +213,7 @@ pas en marche ni mise en mode MDI, l'entrée de code n'est pas possible.
 
 .Le champ de saisie des entrées manuelles
 
-image::tkemc_mdi.png[]
+image::images/tkemc-mdi.png[]
 
 ==== MDI:
 

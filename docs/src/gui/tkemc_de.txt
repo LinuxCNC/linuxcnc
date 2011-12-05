@@ -120,7 +120,7 @@ start the backplot window by selecting View->Backplot.
 
 .TkEMC Interpreter / program control[[cap:TkEMC-Interpreter]]
 
-image::tkemc_interp.png[]
+image::images/tkemc-interp.png[]
 
 ==== Buttons for control
 
@@ -174,7 +174,7 @@ color).
 
 .TkEMC Override Limits & Jogging increments example[[cap:Override-Limits]]
 
-image::tkemc_override_limits.png[]
+image::images/tkemc-override-limits.png[]
 
 ==== The “Spindle (((spindle)))” group
 
@@ -199,7 +199,7 @@ on, and not set to MDI mode, the code entry controls are unavailable.
 
 .The Code Entry tab[[cap:The-Code-Entry]]
 
-image::tkemc_mdi.png[]
+image::images/tkemc-mdi.png[]
 
 ==== MDI:
 
