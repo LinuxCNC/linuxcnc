@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-= GladeVCP
+= L'outil de création d'interfaces graphiques GladeVCP
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -18,531 +18,558 @@
 //[source,{hal}]
 //[source,{ngc}]
 
+== Qu'est-ce que GladeVCP?
 
-== What is GladeVCP?
+GladeVCP est un composant d'EMC2 qui donne la possibilité d'ajouter 
+de nouvelles interfaces graphiques utilisateur à EMC2 telles qu'Axis ou Touchy. 
+À la différence de PyVCP, GladeVCP n'est pas limité à l'affichage et aux
+réglages des pins de HAL, toutes les actions peuvent être exécutées en code
+Python. En fait, une interface utilisateur EMC2 complète peut être construite 
+avec GladeVCP et Python.
 
-GladeVCP is an EMC2 component which adds the ability to add a new user
-interface panel to EMC user interfaces like Axis or Touchy. Unlike
-PyVCP, GladeVCP is not limitied to displaying and setting HAL pins, as
-arbitrary actions can be executed in Python code - in fact, a
-complete EMC2 user interface could be built with GladeVCP and Python.
+GladeVCP utilise l'environnement graphique et WYSIWYG http://glade.gnome.org/[Glade] 
+qui simplifie l'édition et la création visuelles de panneaux esthétiquement très
+réussis. Il s'appuie sur les liaisons entre http://www.pygtk.org/[PyGTK] et le
+riche jeu de widgets http://www.gtk.org/[GTK+], finalement, tous peuvent être 
+utilisés dans une application GladeVCP et pas seulement les widgets spécialisés
+pour interagir avec HAL et EMC2 présentés ici.
 
-GladeVCP users the http://glade.gnome.org/[Glade] WYSIWYG user
-interface editor, which makes it easy to create visually pleasing
-panels. It relies on the http://www.pygtk.org/[PyGTK] bindings to the
-rich http://www.gtk.org/[GTK+] widget set, and in fact all of these
-may be used in a GladeVCP application - not just the specialized
-widgets for interacting with HAL and EMC, which are documented here.
+=== PyVCP par rapport à GladeVCP
 
-
-=== PyVCP versus GladeVCP at a glance
-
-Both support the creation of panels with 'HAL widgets' - user
-interface elements like LED's, buttons, sliders etc whose values are
-linked to a HAL pin, which in turn interfaces to the rest of EMC2.
+Tous les deux supportent la création de panneaux avec des 'widgets de HAL', des 
+éléments utilisateur visuels tels que boutons, Leds, curseurs etc. dont les 
+valeurs sont liées à des pins de HAL qui à leur tour, sont des interfaces pour
+le reste d'EMC2.
 
 *PyVCP:*
 
- - widget set: uses TkInter widgets
- - user interface creation: "edit XML file / run result / evaluate looks" cycle
- - no support for embedding user-defined event handling
- - no EMC2 interaction beyond HAL pin I/O supported
+ - Jeu de widgets: utilise les widgets TkInter.
+ - Cycle de création d'interfaces utilisateur: "éditer les fichiers XML/ lancer / évaluer le look".
+ - Pas de support pour intégrer une gestion des événements définie par l'utilisateur.
+ - Pas d'interaction avec EMC2 au-delà des interactions avec les pins d'E/S de HAL supportées.
 
 *GladeVCP:*
 
- - widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
- - user interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor
- - any HAL pin change may be directed to call back into a user-defined Python event handler
- - any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
- - direct EMC2 interaction: arbitrary command execution, like initiating MDI
-commands to call a G-code subroutine, plus support for status change operations through Action Widgets LINKHERE
- - several independent GladeVCP panels may be run in different tabs
- - separation of user interface appearance and functionality: change appearance without touching any code
+ - Jeu de widgets: Liaison avec le jeu de widgets de http://www.gtk.org/[GTK+].
+ - Création d'interface utilisateur: utilise l'interface graphique http://glade.gnome.org/[Glade] 
+   qui est un éditeur WYSIWYG.
+ - Tout changement sur une pin de HAL peut diriger un appel vers une gestion d'événements 
+   définie en Python par l'utilisateur.
+ - Tous les signaux GTK (touches/appui sur un bouton, fenêtre, E/S, timer, événements réseau) 
+   peuvent être associés avec la gestion d'événements définie en Python par l'utilisateur.
+ - Interaction directe avec EMC2: exécution de commandes, telle qu'initialiser une
+   commande MDI pour appeler un sous-programme G-code.
+ - Plusieurs panneaux GladeVCP indépendants peuvent tourner dans des onglets différents.
+ - Séparation entre l'apparence de l'interface et les fonctionnalités: change d'apparence 
+   sans passer par aucun code.
 
-== A Quick Tour with the Example Panel
+== Description du fonctionnement, avec un exemple de panneau
 
-GladeVCP panel windows may be run in three different setups:
+Une fenêtre de panneau GladeVCP peut démarrer avec trois différentes configuration:
 
- - always visible integrated into Axis at the right side, exactly like PyVCP panels
- - as a tab in Axis and Touchy; in Axis this would create a third tab besides the Preview and DRO tabs which must be raised explicitly
- - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
+ - Toujours visible, intégré dans Axis, du côté droit, exactement comme un panneau PyVCP.
+ - Dans un onglet dans Axis ou Touchy; dans Axis un troisième onglet sera créé
+   à côté des deux d'origine, ils doivent être choisis explicitement.
+ - Comme une fenêtre indépendante, qui peut être iconisée ou agrandie, 
+   indépendamment de la fenêtre principale.
 
-Run the sample GladeVCP panel integrated into Axis like PyVCP as follows:
+Lancer un panneau GladeVCP simple, intégré dans Axis comme PyVCP, taper les 
+commandes suivantes:
 
- $ cd configs/sim
- $ emc gladevcp_panel.ini
+*+$ cd configs/sim/gladevcp+*
+
+*+$ emc gladevcp_panel.ini+*
 
 image::images/example-panel-small.png[]
 
-Run the same panel, but as a tab inside Axis:
+Lancer le même panneau, mais dans un onglet d'Axis:
 
- $ cd configs/sim
- $ emc gladevcp_tab.ini
+*+$ cd configs/sim/gladevcp+*
+
+*+$ emc gladevcp_tab.ini+*
 
 image::images/example-tabbed-small.png[]
 
-To run this panel as a standalone toplevel window besides Axis, just
-start Axis in the background and start gladevcp as follows:
+Pour lancer ce même panneau comme une fenêtre d'avant plan sur Axis, démarrer 
+Axis en arrière plan puis démarrer gladevcp de la manière suivante:
 
- $ cd configs/sim
- $ emc axis.ini &
- $ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+*+$ cd configs/sim/gladevcp+*
+
+*+$ emc axis.ini &+*
+
+*+$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui+*
 
 image::images/example-float-small.png[]
 
-To run this panel inside 'Touchy':
+Pour lancer ce panneau dans 'Touchy':
 
- $ cd configs/sim
- $ emc gladevcp_touchy.ini
+*+$ cd configs/sim+*
+
+*+$ emc gladevcp_touchy.ini+*
 
 image::images/touchy-tab-33.png[]
 
+Fonctionnellement, ces configurations sont identiques. La seule différence
+porte sur l'état et la visibilité de l'écran. Puisqu'il est possible de lancer 
+plusieurs composants GladeVCP en parallèle (avec des noms de modules 
+de HAL différents), le mélange des configurations est également possible.
+Par exemple, un panneau sur le côté droit et un ou plusieurs en onglets pour des
+parties d'interface moins souvent utilisées.
 
-Functionally these setups are identical - they only differ in screen
-real estate requirements and visibility. Since it is possible to run
-several GladeVCP components in parallel (with different HAL module
-names), mixed setups are possible as well - for instance a panel on
-the right hand side, and one or more tabs for less-frequently used
-parts of the interface.
+=== Description de l'exemple de panneau
 
-=== Exploring the example panel
+Pendant qu'Axis est en marche, explorons 'Afficher configuration de HAL' dans
+lequel nous trouvons le composant de HAL 'gladevcp' et dont nous pouvons 
+observer la valeur des pins pendant l'interaction avec les widgets du panneau. 
+La configuration de HAL peut être trouvée dans 'configs/gladevcp/manual-example.hal'.
 
-While running Axis, explore 'Show HAL Configuration' - you will find
-the 'gladevcp' HAL component and may observe their pin values while
-interacting with the widgets in the panel. The HAL setup can be
-found in 'configs/gladevcp/manual-example.hal'.
+Usage des deux cadres en partie basse. Le panneau est configuré pour que, quand 
+l'Arrêt d'Urgence est désactivé, le cadre 'Settings' s'active et mette la
+machine en marche, ce qui active à son tour le cadre 'Commands' du dessous. 
+Les widgets de HAL du cadre 'Settings' sont liés aux Leds et labels du cadre 
+'Status' ainsi qu'au numéros de l'outil courant et à celui de l'outil préparé. 
+Les utiliser pour bien voir leur effet. L'exécution des commandes 
+'T<numéro d'outil>' et 'M6' dans la fenêtre du MDI aura pour effet de changer 
+les numéros de l'outil courant et de l'outil préparé dans les champs respectifs.
 
-The example panel has two frames at the bottom. The panel is
-configured so that resetting ESTOP activates the Settings frame and
-turning the machine on  enables the Commands frame at the bottom. The HAL
-widgets in the Settings frame are linked to LEDs and labels in the
-'Status' frame, and to the current and prepared tool number - play
-with them to see the effect. Executing the 'T<toolnumber>' and 'M6'
-commands in the MDI window will change the current and prepared tool
-number fields.
+Les boutons du cadre 'Commands' sont des 'widgets d'action MDI'. Les presser
+exécutera une commande MDI dans l'interpréteur. Le troisième bouton 
+'Execute Oword subroutine' est un exemple avancé, il prends plusieurs pins de HAL
+du cadre 'Settings' et leur passe comme paramètres, le 'sous-programme Oword'. 
+Les paramètres actuels reçus par la routine sont affichés par une commande
+'(DEBUG, )'. Voir 'configs/gladevcp/nc_files/oword.ngc' pour le corps du
+sous-programme.
 
-The buttons in the 'Commands' frame are 'MDI Action widgets' -
-pressing them will execute an MDI command in the interpreter.  The
-third button 'Execute Oword subroutine' is an advanced example - it
-takes several HAL pin values from the 'Settings' frame, and passes
-them as parameters to the Oword subroutine. The actual parameters
-received by the routine are displayed by '(DEBUG, )' commands - see
-'configs/gladevcp/nc_files/oword.ngc' for the subroutine body.
+Pour voir comment le panneau est intégré dans Axis, voir la déclaration de 
+'[DISPLAY]GLADEVCP' dans gladevcp_panel.ui, ainsi que les déclarations de
+'[DISPLAY]EMBED*' et de '[HAL]POSTGUI_HALFILE' dans 'gladevcp_tab.ini', 
+respectivement.
 
-To see how the panel is integrated into Axis, see the
-'[DISPLAY]GLADEVCP' statements in gladevcp_panel.ui, and the
-'[DISPLAY]EMBED*' and '[HAL]POSTGUI_HALFILE' statements in
-gladevcp_tab.ini respectively.
+=== Description de l'éditeur de Glade
 
-=== Exploring the User Interface description
+L'interface utilisateur est créée avec l'éditeur graphique de Glade. Pour 
+l'essayer il faut avoir le pré-requis nécessaire, <<gladevcp:Prerequis,que glade soit installé>>. 
+Pour éditer l'interface utilisateur, lancer la commande:
 
-The user interface is created with the glade UI editor - to explore
-it, you need to have <<gladevcp:Prerequisites, glade installed>>. To
-edit the user interface, run the command
+*+$ glade configs/gladevcp/manual-example.ui+*
 
- $ glade configs/gladevcp/manual-example.ui
+La zone centrale de la fenêtre montre l'apparence de l'interface en création. 
+Tous les objets de l'interface et les objets supportés se trouvent dans la partie
+haute à droite de la fenêtre, où il est possible de choisir un widget spécifique
+(ou en cliquant sur lui au centre de la fenêtre). Les propriétés du widget choisi
+sont affichées et peuvent être modifiées, dans le bas à droite de la fenêtre.
 
-The center window shows the appearance of the UI. All user
-interface objects and support objects are found in the right top
-window, where you can select a specific widget (or by clicking on it
-in the center window). The properties of the selected widget are
-displayed, and can be changed, in the right bottom window.
+Pour voir comment les commandes MDI sont passées depuis les widgets d'action MDI,
+explorer la liste des widgets sous 'Actions' en haut à droite de la fenêtre,
+et dans le bas à droite de la fenêtre, sous l'onglet 'Général', les propriétés
+des 'commandes MDI'.
 
-To see how MDI commands are passed from the MDI Action widgets,
-explore the widgets listed under 'Actions' in the top right window,
-and in the right bottom window, unter the 'General' tab, the 'MDI
-command' property.
+=== Explorer le callback de Python
+Voici comment un callback Python est intégré dans l'exemple:
 
-=== Exploring the Python callback
-See how a Python callback is integrated into the example:
+ - Dans glade, regarder le label du widget +hits+ (un widget GTK+).
+ - Dans le widget +button1+, regarder dans l'onglet 'Signaux' et trouver le
+   signal 'pressed' associé avec le gestionnaire 'on_button_press'.
+ - Dans ../gladevcp/hitcounter.py, regarder la méthode 'on_button_press' 
+   et comment elle place la propriété du label dans l'objet 'hits'.
 
- - in glade, see the +hits+ label widget (a plain GTK+ widget)
- - in the +button1+ widget, look at the 'Signals' tab, and find the signal 'pressed' associated with the handler 'on_button_press'
- - in ../gladevcp/hitcounter.py, see the method 'on_button_press' and see how it sets the label property in the 'hits' object
+C'était juste pour toucher le concept du doigt. Le mécanisme de callback sera
+détaillé plus en détails dans la section <<gladevcp:GladeVCP_Programming,
+Programmation de GladeVCP>>.
 
-The is just touching upon the concept - the callback mechanism will be
-handled in more detail in the <<gladevcp:GladeVCP_Programming,
-GladeVCP Programming>> section.
+== Créer et intégrer une interface utilisateur Glade
 
-== Creating and Integrating a Glade user interface
+[[gladevcp:Prerequis]]
+=== Prérequis: Installation de Glade
 
-=== Prerequisite: Glade installation[[gladevcp::Prerequisites]]
+Pour visualiser ou modifier les fichiers d'une interface Glade, Glade doit
+être installé. Ce n'est pas nécessaire pour seulement essayer un panneau GladeVCP. 
+Si la commande +*glade*+ est manquante, l'installer de la manière suivante:
 
-To view or modify Glade UI files, you need glade installed - it is not
-needed just to run a GladeVCP panel. If the glade command is ḿissing,
-install it with the command:
+*+$ sudo apt-get install glade+*
 
- $ sudo apt-get install glade
+Vérifier ensuite la version installée, qui doit être égale ou supérieure à 3.6.7:
 
-Verify the version number to be greater than 3.6.7:
+*+$ glade --version+*
 
- $ glade --version
- glade3 3.6.7
+*+glade3 3.6.7+*
 
-=== Running Glade to create a new user interface
-This section just outlines the initial EMC2-specific steps. For more
-information and a tutorial on glade, see http://glade.gnome.org. Some
-glade tips & tricks may also be found on
-http://www.youtube.com[youtube].
+=== Lancer Glade pour créer une nouvelle interface utilisateur
+Cette section souligne juste les étapes initiales spécifiques à EMC2. Pour plus
+d'informations et un tutoriel sur Glade, voir http://glade.gnome.org. Certains
+trucs & astuces sur Glade, peuvent aussi être trouvés sur http://www.youtube.com[youtube].
 
-Either modify an existing UI component by running +glade <file>.ui+
-or start a new one by just running the +glade+ command from the shell.
+Soit modifier une interface existante en lançant +glade <fichier>.ui+ ou,
+démarrer une nouvelle en lançant juste la commande +glade+ depuis un terminal.
 
-- If EMC2 was not installed from a package, the EMC2 shell environment needs to be set up with
-+. <emcdir>/scripts/emc-environment+, otherwise glade won't find the EMC2-specific widgets.
-- When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
-- From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
-by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
-- In the left tab, scroll down and expand  'HAL Python' and 'EMC Actions'.
-- add a container like a HAL_Box or a HAL_Table from 'HAL Python' to the frame
-- pick and place some elements like LED, button, etc. within a container
+- Si EMC2 n'a pas été installé depuis un paquetage, l'environnement EMC2 du 
+shell doit être configuré avec 
++. <emcdir>/scripts/emc-environment+, autrement Glade ne trouvera pas les widgets
+spécifiques à EMC2.
+- Quand l'éditeur demande pour enregistrer les préférences, accepter ce qui est
+proposé par défaut et presser 'Close'.
+- Depuis les 'Niveaux supérieurs' (cadre de gauche), choisir 'Fenêtre' (première icône) 
+en haut des Niveaux supérieurs, par défaut cette fenêtre sera nommée 'window1'. 
+Ne pas changer ce nom, GladeVCP lui est relié.
+- Dans le bas des onglets de gauche, dérouler 'HAL Python' et 'EMC Actions'.
+- Ajouter au nouveau cadre, un conteneur comme une boîte HAL_Box ou une 
+HAL_Table depuis 'HAL Python'.
+- Pointer et placer dans un conteneur d'autres éléments, comme une LED, un bouton, etc.
 
-This will look like so:
+Le résultat pourrait ressembler à cela:
 
 image::images/glade-manual-small.png[]
 
-Glade tends to write a lot of messages to the shell window, which
-mostly can be ignored.  Select 'File->Save as', give it a name like
-'myui.ui' and make sure it's saved as 'GtkBuilder' file (radio button
-left bottom corner in Save dialog). GladeVCP will also process the
-older 'libglade' format correctly but there is no point in using it. The
-convention for GtkBuilder file extension is '.ui'.
+Glade a tendance à écrire beaucoup de messages dans la fenêtre du terminal, la
+plupart peuvent être ignorés. Sélectionner 'Fichier->Enregistrer sous', donner lui
+un nom comme 'myui.ui' et bien vérifier qu'il sera enregistré comme un fichier
+'GtkBuilder' (bouton radio en bas à gauche du dialogue d'enregistrement). 
+GladeVCP peut aussi traiter correctement l'ancien format 'libglade' mais il n'y 
+a aucune raison de l'utiliser. Par convention, l'extension des fichier GtkBuilder 
+est '.ui'.
 
-=== Testing a panel
-You're now ready to give it a try (while EMC2, e.g. Axis is running) it with:
+=== Tester un panneau
+Vous êtes maintenant prêt à faire un essai (avec EMC2, par exemple Axis en marche)
+faites:
 
-    gladevcp myui.ui
+*+gladevcp myui.ui+*
 
-GladeVCP creates a HAL component named like the basename of the UI
-file - 'myui' in this case - unless overriden by the +-c <component
-name>+ option.  If running Axis, just try 'Show HAL configuration' and
-inspect its pins.
+GladeVCP crée le composant de HAL portant le nom qui a été donné au fichier, par 
+exemple, le très original 'myui.ui' dans notre cas, à moins qu'il n'ait été 
+surchargé pat l'option +-c <nom du composant>+. Si Axis est en marche, essayer 
+de trouver le composant dans 'Afficher configuration de HAL' et inspecter ses pins.
 
-You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear
-greyed out (inactive). HAL containers have an associated HAL pin which
-is off by default, which causes all contained widgets to render
-inactive. A common use case would be to associate these container HAL
-pins with +halui.machine.is-on+ or one of the +halui.mode.+ signals,
-to assure some widgets appear active only in a certain state.
+Vous vous demandez peut être pourquoi les widgets conteneurs comme 'HAL_Hbox' ou
+'HAL_Table' apparaissent grisés (inactifs). Les conteneurs HAL ont une pin de HAL
+associée qui est désactivée par défaut, c'est ce qui cause ce rendu grisé des
+widgets conteneurs inactifs. Un cas d'utilisation courante pourrait être pour
+associer les pins de HAL du conteneur +halui.machine.is-on+ ou un des signaux
++halui.mode.+, pour s'assurer que certains widgets n'apparaissent actif que dans
+un certain état.
 
-To just activate a container, execute the HAL command +setp gladevcp.<container-name> 1+.
+Pour activer un conteneur, exécuter la commande HAL +setp gladevcp.<nom-du-conteneur> 1+.
 
-=== Preparing the HAL command file
-The suggested way of linking HAL pins in a GladeVCP panel is to
-collect them in a separate file with extension +.hal+. This file is
-passed via the +POSTGUI_HALFILE=+ option in the +HAL+ section of your
-ini file.
+=== Préparer le fichier de commande HAL
+La voie suggérée pour lier les pins de HAL dans un panneau GladeVCP consiste à
+les collecter dans un fichier séparé portant l'extension +.hal+. Ce fichier est
+passé via l'option +POSTGUI_HALFILE=+, dans la section +[HAL]+ du fichier de
+configuration.
 
-CAUTION: Do not add the GladeVCP HAL command file to the Axis +[HAL]HALFILE=+ ini
-section, this will not have the desired effect - see the following sections.
+ATTENTION: Ne pas ajouter le fichier de commandes HAL de GladeVCP à la section
+ini d'Axis +[HAL]HALFILE=+, ça n'aurait pas l'effet souhaité. Voir les sections
+suivantes.
 
-=== Integrating into Axis like PyVCP
+=== Intégration dans Axis comme pour PyVCP
 
-Place the GladeVCP panel in the righthand side panel by specifying the
-following in the ini file:
+Pour placer le panneau GladeVCP dans la partie droite d'Axis, ajouter les lignes
+suivantes dans le fichier ini:
 
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
-# add GladeVCP panel where PyVCP used to live:
+# ajouter le panneau GladeVCP à l'emplacement de PyVCP:
 GLADEVCP= -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
 
 [HAL]
-# HAL commands for GladeVCP components in a tab must be executed via POSTGUI_HALFILE
+# Les commandes HAL pour les composants GladeVCP dans un onglet, doivent être 
+exécutées via POSTGUI_HALFILE
 POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 
 [RS274NGC]
-# gladevcp Demo specific Oword subs live here
+# les sous-programmes Oword spécifiques à gladevcp se placent ici
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
-The HAL component name of a GladeVCP application started with the  the GLADEVCP option is fixed:  +gladevcp+.
-The command line actually run by Axis in the above configuration is as follows:
+Le nom de composant HAL d'une application GladeVCP lancé avec l'option GLADEVCP 
+est toujours: +gladevcp+.
+La ligne de commande actuellement lancée par Axis dans la configuration ci-dessous
+est la suivante:
 
- halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments to GLADEVCP=>
+ halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP=>
 
-This means you may add arbitrary gladevcp options here, as long as
-they dont collide with the above command line options.
+Ce qui veux dire que n'importe quelle option gladevcp, peut être ajoutée ici, tant 
+qu'elle n'entre pas en collision avec les options des lignes de commande suivantes.
 
 [NOTE]
-The +[RS274NGC]SUBROUTINE_PATH=+ option is only set so the example
-panel will find the Oword subroutine for the MDI Command widget. It
-might not be needed in your setup.
+L'option +[RS274NGC]SUBROUTINE_PATH=+ est fixée seulement pour que l'exemple de
+panneau puisse trouver le sous-programme Oword pour le widget de commande MDI. Il
+n'est peut être pas nécessaire dans votre configuration.
 
-=== Integrating into Axis as a tab next to DRO and Preview
+=== Intégration dans un nouvel onglet d'Axis à la suite des autres
 
-To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
-file as follows:
+Pour cela, éditer le fichier .ini et ajouter dans les sections DISPLAY et HAL,
+les lignes suivantes:
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
-# add GladeVCP panel as a tab next to Preview/DRO:
+# ajoute le panneau GladeVCP dans un nouvel onglet:
 EMBED_TAB_NAME=GladeVCP demo
 EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
 
 [HAL]
-# HAL commands for GladeVCP components in a tab must be executed via POSTGUI_HALFILE
+# commandes HAL pour le composant GladeVCP dans un onglet doit être exécuté via POSTGUI_HALFILE
 POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 
 [RS274NGC]
-# gladevcp Demo specific Oword subs live here
+# les sous-programmes Oword spécifiques à gladevcp se placent ici
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
-Note the 'halcmd loadusr' way of starting the tab command - this
-assures that 'POSTGUI_HALFILE' will only be run after the HAL
-component is ready. In rare cases you might run a a command here which
-uses a tab but does not have an associated HAL component. Such a
-command can be started without 'halcmd loadusr', and this signifies to
-Axis that it does not have to wait for a HAL component since there is
-none.
+Noter le 'halcmd loadusr' pour charger la commande d'onglet, elle assure que
+'POSTGUI_HALFILE' ne sera lancé que seulement après que le composant de HAL ne soit 
+prêt. Dans de rares cas, une commande pourrait être lancée ici, pour utiliser 
+un onglet sans être associée à un composant de HAL. Une telle commande pourrait 
+être lancée sans 'halcmd loadusr', ce qui indiquerait à Axis qu'il ne doit plus 
+attendre un composant de HAL, puisqu'il n'existe pas.
 
-When changing the component name in the above example, note that the
-names used in +-Wn <component>+ and +-c <component>+ must be
-identical.
+Noter que quand le nom du composant est changé dans l'exemple suivant, les noms 
+utilisés dans +-Wn <composant>+ et +-c <composant>+ doivent être identiques.
 
-Try it out by running Axis - there should be a new tab called
-'GladeVCP demo' near the DRO tab. Select that tab, you should see the
-example panel nicely fit within Axis.
+Essayer en lançant Axis, il doit avoir un nouvel onglet appelé 'GladeVCP demo' 
+à droite de l'onglet de la visu. Sélectionner cet onglet, le panneau de l'exemple
+devrait être visible, bien intégré à Axis.
 
 [NOTE]
-Make sure the UI file is the last option passed to GladeVCP in
-both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
+Bien vérifier que le fichier de l'interface est la dernière option passée à 
+GladeVCP dans les deux déclarations +GLADEVCP=+ et +EMBED_TAB_COMMAND=+.
 
-=== Integrating into Touchy
-To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
+=== Intégration dans Touchy
+Pour ajouter un onglet GladeVCP à 'Touchy', éditer le fichier .ini comme cela:
 [source,{ini}]
 -------------------------------------------------------
 [DISPLAY]
-# add GladeVCP panel as a tab
+# ajoute un panneau GladeVCP dans un onglet
 EMBED_TAB_NAME=GladeVCP demo
 EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H ../gladevcp/gladevcp-touchy.hal  ../gladevcp/manual-example.ui
 
 [RS274NGC]
-# gladevcp Demo specific Oword subs live here
+# les sous-programmes Oword spécifiques à gladevcp se placent ici
 SUBROUTINE_PATH = ../gladevcp/nc_files/
 -------------------------------------------------------
 
-Note the following differences to the Axis tab setup:
+Noter les différences suivantes avec la configuration de l'onglet d'Axis:
 
- - The HAL command file is slightly modified since 'Touchy' does not
- use the 'halui' components so its signals are not available and some
- shortcuts have been taken.
+ - Le fichier de commandes HAL est légèrement modifié puisque 'Touchy' n'utilise
+   pas le composant 'halui', ses signaux ne sont donc pas disponibles et certains
+   raccourcis ont été pris.
 
- - there is no 'POSTGUI_HALFILE=' ini option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
+ - Il n'y a pas d'option 'POSTGUI_HALFILE=', mais il est correct, de passer le 
+   fichier de commandes HAL, par la ligne 'EMBED_TAB_COMMAND='.
 
- - the 'halcmd loaduser -Wn ...' incantation is not needed.
+ - L'appel 'halcmd loaduser -Wn ...' n'est pas nécessaire.
 
-== GladeVCP command line options
+== Options de GladeVCP en ligne de commande
 
-See also 'man gladevcp' . These are the gladevcp command line options:
+Voir également, 'man gladevcp'. Ce sont les options pour cette ligne de 
+commande:
 
 Usage: gladevcp [options] myfile.ui
 
 Options:
 
 -h, --help::
-    show this help message and exit
+    Affiche ce message d'aide et sort.
 
 -c NAME::
-    Set component name to NAME. Default is base name of UI file
+    Fixe le nom du composant à NAME. Par défaut, le nom de base des fichiers UI
 
 -d::
-    Enable debug output
+    Active la sortie débogage
 
 -g GEOMETRY::
-     Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
-    XOFFSET/YOFFSET is referenced from top left of screen.
-    Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just
-    position 
+     Fixe la géométrie à WIDTHxHEIGHT+XOFFSET+YOFFSET. Les valueurs sont en pixels,
+    XOFFSET/YOFFSET est référencé à partir du coin haut, à gauche de l'écran.
+    Utilise -g WIDTHxHEIGHT pour fixer une taille ou -g +XOFFSET+YOFFSET pour 
+    fixer une position 
 
 -H FILE::
-    execute hal statements from FILE with halcmd after the
-    component is set up and ready
+    exécute les déclarations de HAL depuis FILE, avec halcmd après que le composant 
+    soit chargé et prêt
 
 -m MAXIMUM::
-    force panel window to maximize.  Together with the -g geometry option 
-    one can move the panel to a second monitor and force it to use all of the screen
+    force la fenêtre du panneau à se maximiser. Toutefois avec l'option -g geometry 
+    le panneau est déplaçable d'un moniteur à un autre en le forçant à utiliser 
+    toute l'écran
 
 -t THEME::
-    set gtk theme. Default is system theme. Different panels can have different themes.
-    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[EMC Wiki].
+    fixe le thème gtk. Par défaut, le thème système. Différents panneaux peuvent
+    avoir différents thèmes.
+    Un exemple de thème peut être trouvé sur le http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[Wiki d'EMC2].
 
 -x XID::
-     Re-parent GladeVCP into an existing window XID instead of creating a
-    new top level window
+    Redonne un parent GladeVCP dans une fenêtre existante XID au lieu d'en 
+    créer une nouvelle au niveau supérieur
 
 -u FILE::
-    Use File's as additional user defined modules with handlers
+    Utilise les FILE comme modules définis par l'utilisateur avec le gestionnaire
 
 -U USEROPT::
-    pass USEROPTs to Python modules
+    passe les modules python USEROPT
 
-== HAL Widget reference
+== Références des Widgets HAL
 
-GladeVcp includes a collection of Gtk widgets with attached HAL pins
-called HAL Widgets, intended to control, display or otherwise interact
-with the EMC HAL layer. They are intended to be used with the Glade
-user interface editor. With proper installation, the HAL Widgets should
-show up in Glade's 'HAL Python' widget group. Many HAL specific fields
-in the Glade 'General' section have an associated mouse-over tool tip.
+GladeVcp inclus une collection de widgets Gtk qui ont des pins de HAL attachées,
+appelés widgets HAL, il sont destinés à contrôler, à afficher et à avoir d'autres
+interactions avec la couche HAL EMC. Il sont destinés à être utilisés avec les 
+interfaces créées par l'éditeur de Glade. Avec une installation correcte, les 
+widgets HAL devraient être visible, dans l'éditeur Glade, dans le groupe des 
+Widgets 'HAL Python'. Beaucoup de champs spécifiques à HAL dans l'onglet 'Général'
+affichent une bulle d'information au survol de la souris.
 
-HAL signals come in two variants, bits and numbers. Bits are off/on
-signals. Numbers can be "float", "s32" or "u32". For more information
-on HAL data types see the <<sec:Hal-Data,HAL manual>>. The GladeVcp
-widgets can either display the value of the signal with an indicator
-widget, or modify the signal value with a control widget. Thus there
-are four classes of GladeVcp widgets that you can connect to a HAL
-signal. Another class of helper widgets allow you to organize and
-label your panel.
+Il y a deux variantes de signaux de HAL, bits et nombres. Les signaux
+bits sont les on/off. Les nombres peuvent être des "float", des "s32" ou
+des "u32". Pour plus d'informations sur les types de données de HAL, 
+voir le manuel de HAL. Les widgets GladeVcp peuvent soit, 
+afficher la valeur d'un signal avec un widget d'indication, soit, modifier la 
+valeur d'un signal avec un widget de contrôle. Ainsi, il existe quatre classes 
+de widgets gladvcp qui peuvent être connectés à un signal de HAL. Une autre 
+classe de widgets d'aide permettent d'organiser et d'étiqueter les panneaux.
 
- - Widgets for indicating "bit" signals: <<gladevcp:HAL_LED,HAL_LED>>
- - Widgets for controlling "bit" signals: <<gladevcp:HAL_Button,HAL_Button>>,
-   <<gladevcp:HAL_RadioButton,HAL_RadioButton>>,
-   <<gladevcp:HAL_CheckButton,HAL_CheckButton>>
- - Widgets for indicating "number" signals: <<gladevcp:HAL_Label>>,
-   <<gladevcp:HAL_ProgressBar,HAL_ProgressBar>>,
-   <<gladevcp:HAL_HBar,HAL_HBar>>, <<gladevcp:HAL_VBar,HAL_VBar>>,
-   <<gladevcp:HAL_Meter,HAL_Meter>>
- - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
-   <<gladevcp:HAL_HScale,HAL_HScale>>,
-   <<gladevcp:HAL_VScale,HAL_VScale>>
- - Helper widgets: <<gladevcp:HAL_Table,HAL_Table>>, <<gladevcp:HAL_HBox,HAL_HBox>>
- - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
+ - Widgets d'indications "bit" signals: <<gladevcp:HAL_LED,LED HAL>>
+ - Widgets de contrôle "bit" signals: <<gladevcp:HAL_Button,HAL Bouton>>,
+   <<gladevcp:HAL_Button,HAL Bouton Radio>>,
+   <<gladevcp:HAL_Button,HAL Case à cocher>>
+ - Widgets d'indications "nombre" signals: <<gladevcp:HAL_Label>>,
+   <<gladevcp:HAL_ProgressBar,HAL Barre de progression>>,
+   <<gladevcp:HAL_HBar,HAL HBar>>, <<gladevcp:HAL_HBar,HAL VBar>>,
+   <<gladevcp:HAL_Meter,HAL Indicateur à aiguille>>
+ - Widgets de contrôle "nombre" signals: <<gladevcp:HAL_SpinButton,Roue codeuse>>,
+   <<gladevcp:HAL_HScale,HAL HScale>>,
+   <<gladevcp:HAL_HScale,HAL VScale>>
+ - widgets d'aide: <<gladevcp:HAL_HBox,HAL Table>>, <<gladevcp:HAL_HBox,HAL HBox>>
+ - Tracé du parcours d'outil: <<gladevcp:HAL_Gremlin,HAL Gremlin>>
 
-HAL Widgets inherit methods, properties and signals from the
-underlying Gtk widgets, so it is helpful to consult the
-http://www.gtk.org/[GTK+] and http://www.pygtk.org/[PyGTK bindings]
-documentation as well.
+Les widgets HAL héritent des méthodes, propriétés et signaux des widgets Gtk 
+sous-jacents, il est donc utile de consulter le site du http://www.gtk.org/[GTK+] 
+ainsi que celui de la documentation des http://www.pygtk.org/[liaisons PyGTK].
 
+=== Nommage des Widgets HAL et de leurs pins
 
-=== Widget and HAL pin naming
+La plupart des widgets HAL on une simple pin de HAL associée et portant le même 
+nom que le widget (glade: Général->Nom).
 
-Most HAL widgets have a single associated HAL pin with the same name
-as the widget (glade: General->Name).
+Les exceptions à cette règle sont actuellement:
 
-Exceptions to this rule currently are.
+- 'HAL_Spinbutton' et 'HAL_ComboBox', qui ont deux pins: une pin 
+   +<widgetname>-f+ (float) et une pin +<widgetname>-s+ (s32)
+- 'HAL_ProgressBar', qui a une pin d'entrée +<widgetname>-value+, et une pin 
+d'entrée +<widgetname>-scale+.
 
-- 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
-- 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
+=== Donner des valeurs aux Widgets HAL et à leurs pins
 
-=== Setting pin and widget values
+En règle générale, si une valeur doit être attribuée à la sortie d'un widget HAL
+depuis un code Python, le faire en appelant le 'setter' Gtk sous-jacent (par
+exemple +set_active()+, +set_value()+), ne pas essayer de donner directement la 
+valeur à la pin associée par un +halcomp[nompin] = value+, parce-que le widget
+ne verra jamais le changement!.
 
-As a general rule, if you need to set a HAL output widget's value from
-Python code, do so by calling the underlying Gtk 'setter' (e.g.
-+set_active()+, +set_value()+) - do not try to set the associated pin's
-value by +halcomp[pinname] = value+ directly because the widget will not
-take notice of the change!.
+Il pourrait être tentant de 'fixer une pin d'entrée de widget HAL' par programme.
+Noter que cela va à l'encontre du but premier d'une pin d'entrée. Elle devrait 
+être attachée à un autre composant de HAL et réagir au signal qu'il génère. Bien
+qu'aucune protection, empêchant d'écrire sur les pins d'entrée HAL Python, ne soit 
+présente actuellement, cela n'aurait aucun sens. Il faut utiliser +setp nompin valeur+
+dans un fichier Hal associé, pour les essais.
 
-It might be tempting to 'set HAL widget input pins' programmatically.
-Note this defeats the purpose of an input pin in the first place - it
-should be linked to, and react to signals generated by other HAL
-components. While there is currently no write protection on writing to
-input pins in HAL Python, this doesn't make sense. You might use setp
-pinname value in the associated halfile for testing though.
+Il est par contre, parfaitement autorisé de mettre une valeur sur une pin de 
+sortie de Hal avec +halcomp[nompin] = valeur+ à condition que cette pin ne soit
+pas déjà associée avec un autre widget, ce qui aurait pu être créé par la méthode 
++hal_glib.GPin(halcomp.newpin(<nom>,<type>,<direction>)+. Voir <<gladevcp:GladeVCP_Programming,Programmation de GladeVCP>> pour d'autres exemples.
 
-It is perfectly OK to set an output HAL pin's value with
-+halcomp[pinname] = value+ provided this HAL pin is not associated with a
-widget, that is, has been created by the
-+hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
-GladeVCP Programming for an example).
+[[gladevcp::hal-pin-changed_signal]]
+=== Le signal 'hal-pin-changed'
 
-=== The hal-pin-changed signal[[gladevcp::hal-pin-changed_signal]]
+La programmation événementielle signifie que l'interface graphique indique au 
+code quand "quelque chose se produit", grâce à un callback, comme quand un 
+bouton est pressé, la sortie du widget HAL (ceux qui affichent la valeur des pins 
+de HAL) comme une LED, une barre, une VBar, un indicateur à aiguille etc, 
+supportent le signal 'hal-pin-changed' qui peut provoquer un callback dans le 
+code Python quand une pin de HAL change de valeur. Cela veut dire qu'il n'est 
+plus nécessaire d'interroger en permanence les pins de HAL dans le code pour 
+connaitre les changements, les widgets font ça en arrière plan et le font savoir.
 
-Event-driven programming means that the UI tells your code when "something
-happens" - through a callback, like when a button was pressed. The
-output HAL widgets (those which display a HAL pin's value) like LED,
-Bar, VBar, Meter etc, support the 'hal-pin-changed' signal which may
-cause a callback into your Python code when - well, a HAL pin changes
-its value. This means there's no more need for permanent polling of HAL
-pin changes in your code, the widgets do that in the background and let
-you know.
-
-Here is an example how to set a +hal-pin-changed+ signal for a HAL_LED
-in the Glade UI editor:
+Voici un exemple montrant comment régler un signal +hal-pin-changed+ pour
+une Hal Led, dans l'éditeur de Glade:
 
 image::images/hal-pin-change-66.png[]
-The example in +configs/gladevcp/examples/complex+ shows how
-this is handled in Python.
+L'exemple dans +configs/gladevcp/examples/complex+ montre comment c'est géré 
+en Python.
+
+[[gladevcp:HAL_Button]]
+=== Les boutons
+
+Ce groupe de widgets est dérivé de divers boutons Gtk, ce sont les widgets
+HAL_Button, HAL_ToggleButton, HAL_RadioButton et CheckButton. Tous ont une seule
+pin de sortie BIT portant un nom identique au widget. Les boutons n'ont pas d'autres
+propriétés additionnelles, contrairement à leurs classes de base Gtk.
+
+ - HAL_Button: Action instantanée, ne retient pas l'état. 
+   Signal important: +pressed+.
+ - HAL_ToggleButton, HAL_CheckButton: Retiennent l'état on/off. 
+   Signal important: +toggled+.
+ - HAL_RadioButton: Un parmi un groupe. Signal important: +toggled+ (par bouton).
+ - Importante méthodes commune: +set_active()+, +get_active()+
+ - Importante propriétés: +label+, +image+
 
 
-
-
-=== Buttons[[gladevcp:HAL_Button]][[gladevcp:HAL_RadioButton]][[gladevcp:HAL_CheckButton]]
-
-This group of widgets are derived from various Gtk buttons and consists
-of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
-widgets. All of them have a single output BIT pin named identical to
-the widget. Buttons have no additional properties compared to their
-base Gtk classes.
-
- - HAL_Button: instantaneous action, does not retain state. Important
-   signal: +pressed+
- - HAL_ToggleButton, HAL_CheckButton: retains on/off state. Important
-   signal: +toggled+
- - HAL_RadioButton: a one-of-many group. Important signal: +toggled+ (per
-   button).
- - Important common methods: +set_active()+, +get_active()+
- - Important properties: +label+, +image+
-
-
-// .Buttons
-Check button:
+// .Boutons
+Case à cocher:
 image:images/checkbutton.png[]
-Radio buttons:
+Boutons radio:
 image:images/radiobutton.png[]
-Toggle button:
+Bouton à bascule:
 image:images/button.png[]
-.
+
 
 [TIP]
-======================================
-Defining radio button groups in Glade:
+====
+Définir les groupes de boutons radio dans Glade:
 
-- decide on default active button
+- Décider du bouton actif par défaut
 
-- in the other button's 'General->Group' select the default active
-button's name in the 'Choose a Radio Button in this project' dialog.
+- Dans les boutons radio, 'Général->Groupe' sélectionner le nom du bouton actif 
+  par défaut dans le dialogue 'Choisir un Bouton radio pour ce projet'.
 
-See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
-and UI file for working with radio buttons.
-======================================
+Voir +configs/gladevcp/by-widget/radiobutton+ pour une application GladeVCP avec 
+un fichier d'interface utilisateur, pour travailler sur les boutons radio.
+====
 
-=== Scales[[gladevcp:HAL_HScale]][[gladevcp:HAL_VScale]]
+[[gladevcp:HAL_VScale]]
 
-HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
-respectively. They have one output FLOAT pin with name equal to widget
-name. Scales have no additional properties.
+[[gladevcp:HAL_HScale]]
+=== Les échelles (scales)
 
-To make a scale useful in Glade, add an 'Adjustment'
-(General->Adjustment->New or existing adjustment) and edit the
-adjustment object. It defines the default/min/max/increment 
-values. Also, set adjustment 'Page size' and 'Page increment' to zero
-to avoid warnings.
+HAL_HScale et HAL_VScale sont respectivement dérivées de GtkHScale et GtkVScale. 
+Elles ont une pin de sortie FLOAT portant le même nom que le widget. Les échelles
+n'ont pas de propriété additionnelle.
 
-Example HAL_HScale:
+Pour créer une échelle fonctionnelle dans Glade, ajouter un 'Ajustement'
+(Général->Ajustement->Nouveau ou existant) et éditer l'objet ajustement. Il défini
+les valeurs défaut/min/max/incrément. Fixer également les 'Page size' et 
+'Page incrément' de l'ajustement à zéro pour éviter les warnings.
+
+Exemple d'échelle (HAL_hscale):
 image:images/hscale.png[]
 .
 
+[[gladevcp:HAL_SpinButton]]
+=== La roue codeuse (SpinButton)
 
-=== SpinButton[[gladevcp:HAL_SpinButton]]
-
-HAL SpinButton is derived from GtkSpinButton and holds two pins:
+La roue codeuse de HAL est dérivée de GtkSpinButton et a deux pins:
 
 <widgetname>-f::
 	 out FLOAT pin
 <widgetname>-s::
 	 out S32 pin
 
-To be useful, Spinbuttons need an adjustment value like scales,
-see above.
+Pour être fonctionnelle, Spinbuttons doit avoir une valeur d'adjustment comme scales,
+vue précédemment.
 
-Example SpinButton:
+Exemple de roue codeus:
 image:images/spinbutton.png[]
 .
 
-
-=== Label[[gladevcp:HAL_Label]]
+[[gladevcp:HAL_Label]]
+=== Les labels
 
 HAL_Label is a simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format.
@@ -561,8 +588,10 @@ text_template::
 	3 fractional digits padded with zeros for a FLOAT pin.
 
 
+[[gladevcp:HAL_Table]]
 
-=== Containers: HAL_HBox and HAL_Table[[gladevcp:HAL_Table]][[gladevcp:HAL_HBox]]
+[[gladevcp:HAL_HBox]]
+=== Containers: HAL_HBox and HAL_Table
 
 Compared to their Gtk counterparts they have one input BIT pin which
 controls if their child widgets are sensitive or not. If the pin is low
@@ -572,7 +601,8 @@ then child widgets are inactive which is the default.
 If you find some part of your GladeVCP application is 'grayed
 out' (insensitive), see whether a container's pin is unset.
 
-=== LED[[gladevcp:HAL_LED]]
+[[gladevcp:HAL_LED]]
+=== LED
 
 The hal_led simulates a real indicator LED. It has a single input BIT
 pin which controls it's state: ON or OFF. LEDs have several properties
@@ -616,7 +646,8 @@ Example LEDs:
 image:images/leds.png[]
 .
 
-=== ProgressBar[[gladevcp:HAL_ProgressBar]]
+[[gladevcp:HAL_ProgressBar]]
+=== ProgressBar
 
 [NOTE]
 This widget might go away. Use the HAL_HBar and HAL_VBar widgets
@@ -651,7 +682,8 @@ Example HAL_ProgressBar:
 image:images/progressbar2.png[]
 .
 
-=== ComboBox[[gladevcp:HAL_ComboBox]]
+[[gladevcp:HAL_ComboBox]]
+=== ComboBox
 
 HAL_ComboBox is derived from gtk.ComboBox. It enables choice of a
 value from a dropdown list.
@@ -685,7 +717,10 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-=== Bars[[gladevcp:HAL_VBar]][[gladevcp:HAL_HBar]]
+[[gladevcp:HAL_VBar]]
+
+[[gladevcp:HAL_HBar]]
+=== Bars
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the
@@ -729,7 +764,8 @@ Vertical bar:
 image:images/vscale.png[]
 .
 
-=== Meter[[gladevcp:HAL_Meter]]
+[[gladevcp:HAL_Meter]]
+=== Meter
 
 HAL Meter is a widget similar to PyVCP meter - it represents a float value and has 
 one input FLOAT hal pin. HAL Meter has the following properties:
@@ -766,8 +802,8 @@ Example HAL Meters:
 image::images/hal_meter.png[]
 .
 
-
-=== Gremlin tool path preview for .ngc files[[gladevcp:HAL_Gremlin]]
+[[gladevcp:HAL_Gremlin]]
+=== Gremlin tool path preview for .ngc files
 
 Gremlin is a plot preview widget similar to the Axis preview window.
 It assumes a running EMC environment like Axis or Touchy. To connect to
@@ -993,8 +1029,8 @@ signals:
   - +interp-waiting+
 
 
-
-== GladeVCP Programming[[gladevcp:GladeVCP_Programming]]
+[[gladevcp:GladeVCP_Programming]]
+== Programmation de GladeVCP
 
 === User Defined Actions
 
@@ -1034,11 +1070,11 @@ others, to execute MDI commands. Here's how you do it:
 Write a Python module like so and save as e.g. handlers.py:
 
 [source,python]
-----------------------------------
+----
 nhits = 0
 def on_button_press(gtkobj,data=None):
     global nhits nhits += 1 gtkobj.set_label("hits: %d" % nhits)
-----------------------------------
+----
 
 In Glade, define a button or HAL button, select the 'Signals' tab, and
 in the GtkButton properties select the 'pressed' line. Enter
@@ -1364,7 +1400,8 @@ is detected, a console message will hint about that happened, and the
 bad inifile will be renamed to have the .BAD suffix. Subsequent bad ini
 files overwrite earlier .BAD files.
 
-=== Adding HAL pins[[gladevcp:Adding_HAL_pins]]
+[[gladevcp:Adding_HAL_pins]]
+=== Adding HAL pins
 
 If you need HAL pins which are not associated with a specific HAL
 widget, add them as follows:

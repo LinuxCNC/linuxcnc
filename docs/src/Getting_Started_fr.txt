@@ -1,35 +1,22 @@
+:lang: fr
+:toc:
 Guide de démarrage V2.5, {localdate}
 ====================================
-The EMC Team
-
 :language: fr
-
 :masterdir: {indir}
-
 :leveloffset: 1
-
+The EMC Team
 image::common/images/emc2-intro.*[]
-
 include::common/overleaf_fr.txt[]
-
 include::common/outdated-notice_fr.txt[]
-
 include::common/System_Requirements_fr.txt[]
-
 include::common/Getting_EMC_fr.txt[]
-
 include::quickstart/stepper_quickstart_fr.txt[]
-
 include::config/stepconf_fr.txt[]
-
 include::config/pncconf_fr.txt[]
-
 include::common/Linux_FAQ_fr.txt[]
-
 include::common/GPLD_Copyright_fr.txt[]
-
-// = Index
-
+// Index
 // vim: set syntax=asciidoc:
 
 

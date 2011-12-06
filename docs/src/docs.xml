@@ -343,9 +343,9 @@
 <doc name="config/lathe_config_fr.html" title="Configuration des tours"/>
 <doc name="config/emc2hal_fr.html" title="Interface entre EMC2 et HAL"/>
 <doc name="config/stepper_fr.html" title="Configuration des moteurs pas &agrave; pas"/>
-<doc name="hal/pyvcp_fr.html" title="Panneau de commande virtuel Python (PyVCP)"/>
+<doc name="hal/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>
 <doc name="hal/pyvcp_examples_fr.html" title="Exemples avec PyVCP"/>
-<doc name="gui/gladevcp_fr.html" title="Panneau de commande virtuel Glade"/>
+<doc name="gui/gladevcp_fr.html" title="Outil de cr&eacute;ation d'interfaces graphiques GladeVCP"/>
 <doc name="hal/parallel_port_fr.html" title="Pilote de port parall&egrave;le"/>
 <doc name="drivers/AX5214H_fr.html" title="Pilote AX5214H"/>
 <doc name="drivers/GS2_fr.html" title="Pilote GS2"/>
