@@ -141,6 +141,8 @@ doc package to the or-list of the Recommends line of the emc2/emc2-sim
 package.
 
 Add the new language to the DOCS_PACKAGES variable in debian/configure.
+If there is a texlive-lang-$NEWLANGUAGE package for your new language,
+add it to all the appropriate EXTRA_BUILD lines in debian/configure.
 
 Add the 'emc2-doc-$NEWLANG.files.in' file for the new package, probably
 by copying and editing "debian/emc2-doc-en.files.in".
