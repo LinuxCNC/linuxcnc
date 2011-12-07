@@ -1,5 +1,64 @@
 README for Document Writers
 
+Warning: So that the data in the header of asciidoc files
+are interpreted well it is necessary to respect this
+
+TITLE
+=====
+header parameter
+header parameter
+header parameter
+header parameter
+header parameter
+
+Other given or text
+
+
+Example
+Life's Mysteries
+================
+:author: Hu Nose
+:doctype: book
+:toc:
+:icons:
+:data-uri:
+:lang: en
+:encoding: iso-8859-1
+
+bla bla bla
+
+
+Bad example
+Getting Started V2.5, {localdate}
+=================================
+The EMC Team
+
+:language: en  
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+
+After modification it is good
+Getting Started V2.5, {localdate}
+=================================
+:lang: en
+:masterdir: {indir}
+:leveloffset: 1
+The EMC Team
+
+Note : the parameter:lang: is well, not :language:
+
+The parameters are interpreted well before the load files lang-xx.conf and the other files .conf
+It is particularly important for the parameters as :lang:
+
+The typical authorized attributes : doctype, lang, encoding, icons, data-uri, toc, numbered
+
+More information here
+http://www.methods.co.nz/asciidoc/userguide.html#_introduction
+8.2 Header
+
 AsciiDoc Update:
 ----------------
 If you want to update docs just edit .txt file and run 'make docs'. Any text editor
