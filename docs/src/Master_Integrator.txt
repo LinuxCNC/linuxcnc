@@ -1,10 +1,11 @@
 Integrator Manual V2.5, {localdate}
 ===================================
-The EMC Team
 
-:language: en
+:lang: en
 
 :masterdir: {indir}
+
+The EMC Team
 
 :leveloffset: 1
 
@@ -12,12 +13,12 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
-
 include::common/Integrator_Concepts.txt[]
 
 :leveloffset: 0
+
 = Configuration
+
 :leveloffset: 1
 
 include::install/Latency_Test.txt[]
@@ -33,7 +34,9 @@ include::config/emc2hal.txt[]
 include::config/stepper.txt[]
 
 :leveloffset: 0
+
 = GUI
+
 :leveloffset: 1
 
 include::hal/pyvcp.txt[]
@@ -43,7 +46,9 @@ include::hal/pyvcp_examples.txt[]
 include::gui/gladevcp.txt[]
 
 :leveloffset: 0
+
 = Advanced Topics
+
 :leveloffset: 1
 
 include::motion/kinematics.txt[]
@@ -53,7 +58,9 @@ include::motion/tweaking_steppers.txt[]
 include::motion/pid_theory.txt[]
 
 :leveloffset: 0
+
 = Ladder Logic
+
 :leveloffset: 1
 
 include::ladder/ladder_intro.txt[]
@@ -63,7 +70,9 @@ include::ladder/classic_ladder.txt[]
 include::ladder/ladder_examples.txt[]
 
 :leveloffset: 0
+
 = Hardware Examples
+
 :leveloffset: 1
 
 include::examples/pci_parallel_port.txt[]
@@ -75,7 +84,9 @@ include::examples/mpg.txt[]
 include::examples/gs2_example.txt[]
 
 :leveloffset: 0
+
 = Diagnostics & FAQ
+
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]

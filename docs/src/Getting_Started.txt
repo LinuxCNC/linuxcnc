@@ -1,12 +1,9 @@
 Getting Started V2.5, {localdate}
 =================================
-The EMC Team
-
-:language: en
-
+:lang: en
 :masterdir: {indir}
-
 :leveloffset: 1
+The EMC Team
 
 image::common/images/emc2-intro.*[]
 
