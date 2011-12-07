@@ -7,8 +7,11 @@ The EMC2 Team
 :language: fr
 :masterdir: {indir}
 :leveloffset: 1
+
 image::common/images/emc2-intro.*[]
+
 include::common/overleaf_fr.txt[]
+
 include::common/outdated-notice_fr.txt[]
 include::common/userforeword_fr.txt[]
 include::common/user_intro_fr.txt[]

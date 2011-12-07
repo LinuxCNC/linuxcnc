@@ -6,8 +6,11 @@ Guide de démarrage V2.5  {localdate}
 The EMC2 Team
 :masterdir: {indir}
 :leveloffset: 1
+
 image::common/images/emc2-intro.*[]
+
 include::common/overleaf_fr.txt[]
+
 include::common/outdated-notice_fr.txt[]
 include::common/System_Requirements_fr.txt[]
 include::common/Getting_EMC_fr.txt[]

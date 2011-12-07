@@ -148,7 +148,7 @@ respectivement.
 === Description de l'éditeur de Glade
 
 L'interface utilisateur est créée avec l'éditeur graphique de Glade. Pour 
-l'essayer il faut avoir le pré-requis nécessaire, <<gladevcp:Prerequis,que glade soit installé>>. 
+l'essayer il faut avoir le pré-requis nécessaire, <<gladevcp:Pre-requis,que glade soit installé>>. 
 Pour éditer l'interface utilisateur, lancer la commande:
 
 *+$ glade configs/gladevcp/manual-example.ui+*
@@ -179,8 +179,8 @@ Programmation de GladeVCP>>.
 
 == Créer et intégrer une interface utilisateur Glade
 
-[[gladevcp:Prerequis]]
-=== Prérequis: Installation de Glade
+[[gladevcp:Pre-requis]]
+=== Pré-requis: Installation de Glade
 
 Pour visualiser ou modifier les fichiers d'une interface Glade, Glade doit
 être installé. Ce n'est pas nécessaire pour seulement essayer un panneau GladeVCP. 
@@ -259,7 +259,7 @@ ATTENTION: Ne pas ajouter le fichier de commandes HAL de GladeVCP à la section
 ini d'Axis +[HAL]HALFILE=+, ça n'aurait pas l'effet souhaité. Voir les sections
 suivantes.
 
-=== Intégration dans Axis comme pour PyVCP
+=== Intégration dans Axis, comme pour PyVCP
 
 Pour placer le panneau GladeVCP dans la partie droite d'Axis, ajouter les lignes
 suivantes dans le fichier ini:
@@ -295,7 +295,7 @@ L'option +[RS274NGC]SUBROUTINE_PATH=+ est fixée seulement pour que l'exemple de
 panneau puisse trouver le sous-programme Oword pour le widget de commande MDI. Il
 n'est peut être pas nécessaire dans votre configuration.
 
-=== Intégration dans un nouvel onglet d'Axis à la suite des autres
+=== Intégration dans un nouvel onglet d'Axis, à la suite des autres
 
 Pour cela, éditer le fichier .ini et ajouter dans les sections DISPLAY et HAL,
 les lignes suivantes:
@@ -410,9 +410,9 @@ Options:
 
 GladeVcp inclus une collection de widgets Gtk qui ont des pins de HAL attachées,
 appelés widgets HAL, il sont destinés à contrôler, à afficher et à avoir d'autres
-interactions avec la couche HAL EMC. Il sont destinés à être utilisés avec les 
+interactions avec la couche HAL d'EMC. Il sont destinés à être utilisés avec les 
 interfaces créées par l'éditeur de Glade. Avec une installation correcte, les 
-widgets HAL devraient être visible, dans l'éditeur Glade, dans le groupe des 
+widgets HAL devraient être visibles, dans l'éditeur Glade, dans le groupe des 
 Widgets 'HAL Python'. Beaucoup de champs spécifiques à HAL dans l'onglet 'Général'
 affichent une bulle d'information au survol de la souris.
 
@@ -425,9 +425,9 @@ valeur d'un signal avec un widget de contrôle. Ainsi, il existe quatre classes
 de widgets gladvcp qui peuvent être connectés à un signal de HAL. Une autre 
 classe de widgets d'aide permettent d'organiser et d'étiqueter les panneaux.
 
- - Widgets d'indications "bit" signals: <<gladevcp:HAL_LED,LED HAL>>
+ - Widgets d'indications "bit" signals: <<gladevcp:HAL_LED,Led HAL>>
  - Widgets de contrôle "bit" signals: <<gladevcp:HAL_Button,HAL Bouton>>,
-   <<gladevcp:HAL_Button,HAL Bouton Radio>>,
+   <<gladevcp:HAL_Button,HAL Bouton radio>>,
    <<gladevcp:HAL_Button,HAL Case à cocher>>
  - Widgets d'indications "nombre" signals: <<gladevcp:HAL_Label>>,
    <<gladevcp:HAL_ProgressBar,HAL Barre de progression>>,
@@ -441,7 +441,7 @@ classe de widgets d'aide permettent d'organiser et d'étiqueter les panneaux.
 
 Les widgets HAL héritent des méthodes, propriétés et signaux des widgets Gtk 
 sous-jacents, il est donc utile de consulter le site du http://www.gtk.org/[GTK+] 
-ainsi que celui de la documentation des http://www.pygtk.org/[liaisons PyGTK].
+ainsi que la documentation pour les liaisons avec http://www.pygtk.org/[PyGTK].
 
 === Nommage des Widgets HAL et de leurs pins
 
@@ -451,9 +451,9 @@ nom que le widget (glade: Général->Nom).
 Les exceptions à cette règle sont actuellement:
 
 - 'HAL_Spinbutton' et 'HAL_ComboBox', qui ont deux pins: une pin 
-   +<widgetname>-f+ (float) et une pin +<widgetname>-s+ (s32)
-- 'HAL_ProgressBar', qui a une pin d'entrée +<widgetname>-value+, et une pin 
-d'entrée +<widgetname>-scale+.
+   +<nomwidget>-f+ (float) et une pin +<nomwidget>-s+ (s32)
+- 'HAL_ProgressBar', qui a une pin d'entrée +<nomwidget>-value+, et une pin 
+d'entrée +<nomwidget>-scale+.
 
 === Donner des valeurs aux Widgets HAL et à leurs pins
 
@@ -495,7 +495,7 @@ L'exemple dans +configs/gladevcp/examples/complex+ montre comment c'est géré
 en Python.
 
 [[gladevcp:HAL_Button]]
-=== Les boutons
+=== Les boutons (HAL Button)
 
 Ce groupe de widgets est dérivé de divers boutons Gtk, ce sont les widgets
 HAL_Button, HAL_ToggleButton, HAL_RadioButton et CheckButton. Tous ont une seule
@@ -507,8 +507,8 @@ propriétés additionnelles, contrairement à leurs classes de base Gtk.
  - HAL_ToggleButton, HAL_CheckButton: Retiennent l'état on/off. 
    Signal important: +toggled+.
  - HAL_RadioButton: Un parmi un groupe. Signal important: +toggled+ (par bouton).
- - Importante méthodes commune: +set_active()+, +get_active()+
- - Importante propriétés: +label+, +image+
+ - Importantes méthodes communes: +set_active()+, +get_active()+
+ - Importantes propriétés: +label+, +image+
 
 
 // .Boutons
@@ -536,7 +536,7 @@ un fichier d'interface utilisateur, pour travailler sur les boutons radio.
 [[gladevcp:HAL_VScale]]
 
 [[gladevcp:HAL_HScale]]
-=== Les échelles (scales)
+=== Les échelles (Scales)
 
 HAL_HScale et HAL_VScale sont respectivement dérivées de GtkHScale et GtkVScale. 
 Elles ont une pin de sortie FLOAT portant le même nom que le widget. Les échelles
@@ -544,8 +544,8 @@ n'ont pas de propriété additionnelle.
 
 Pour créer une échelle fonctionnelle dans Glade, ajouter un 'Ajustement'
 (Général->Ajustement->Nouveau ou existant) et éditer l'objet ajustement. Il défini
-les valeurs défaut/min/max/incrément. Fixer également les 'Page size' et 
-'Page incrément' de l'ajustement à zéro pour éviter les warnings.
+les valeurs défaut/min/max/incrément. Fixer la 'Sensibilité de l'incrément' de 
+l'ajustement sur automatique pour éviter les warnings.
 
 Exemple d'échelle (HAL_hscale):
 image:images/hscale.png[]
@@ -554,11 +554,11 @@ image:images/hscale.png[]
 [[gladevcp:HAL_SpinButton]]
 === La roue codeuse (SpinButton)
 
-La roue codeuse de HAL est dérivée de GtkSpinButton, elle a deux pins:
+La roue codeuse de HAL est dérivée de GtkSpinButton, elle a deux pins de sortie:
 
-<nomduwidget>-f::
+<nomwidget>-f::
 	 out FLOAT pin
-<nomduwidget>-s::
+<nomwidget>-s::
 	 out S32 pin
 
 Pour être fonctionnelle, Spinbutton doit avoir une valeur d'ajustement comme 
@@ -598,13 +598,13 @@ les enfants des widgets sont sensitifs ou non. Si la pin est basse, alors
 les widgets enfants sont inactifs, ce qui est le comportement par défaut.
 
 [TIP]
-Si vous trouvez certaines parties de votre application GladeVCP sont 'grisées' 
+Si vous trouvez que certaines parties de votre application GladeVCP sont 'grisées' 
 (insensible), vérifiez que les pins d'un conteneur ne soient pas inutilisées.
 
 [[gladevcp:HAL_LED]]
 === Les Leds
 
-La Led hal simule un vrai indicateur à Led. Il a une seule pin d'entrée BIT
+La Led hal simule un vrai indicateur à Led. Elle a une seule pin d'entrée BIT
 qui contrôle son état: ON ou OFF. Les Leds ont quelques propriétés pour
 contrôler leur aspect:
 
@@ -616,17 +616,17 @@ off_color::
    gtk.gdk.Color ou la valeur spéciale `dark`. `dark` signifie que la couleur OFF
    sera fixée à 0.4 valeur de la couleur ON. Ne fonctionne pas sous Ubuntu 8.04.
 pick_color_on, pick_color_off::
-   Couleurs pour les états ON et OFF peuvent être représentés par une chaine
+   Couleurs pour les états ON et OFF peuvent être représentées par une chaine
    comme `#RRRRGGGGBBBB`. Ces propriétés optionnelles ont la précédence sur 
    `on_color` et `off_color`.
 led_size::
    Rayon de la Led (pour une Led carrée, 1/2 côté)
 led_shape::
-   Forme de la Led Shape. Les valeurs valides sont 0 pour ronde, 1 pour ovale
+   Forme de la Led Shape. Les valeurs permises sont 0 pour ronde, 1 pour ovale
    et 2 pour carrée.
 led_blink_rate::
-   Si utilisée et que la Led est ON alors la Led clignotera. La fréquence du
-   clignotement est égal a la valeur de "led_blink_rate" spécifiée en millisecondes.
+   Si utilisée et que la Led est ON, alors la Led clignotera. La fréquence du
+   clignotement est égal à la valeur de "led_blink_rate", spécifiée en millisecondes.
 
 Comme un widget d'entrée, la Led aussi supporte le +hal-pin-changed signal+. Si
 vous voulez avoir une notification dans votre code quand les pins des Leds HAL
@@ -649,17 +649,17 @@ image:images/leds.png[]
 === La barre de progression (ProgressBar)
 
 [NOTE]
-Ce widget pourrait disparaître. Utiliser les widgets HAL_HBar et HAL_VBar à sa
+Ce widget pourrait disparaître. Utilisez les widgets HAL_HBar et HAL_VBar à sa
 place.
 
-Le HAL_ProgressBar est dérivé de gtk.ProgressBar et a deux pins d'entrée de HAL float:
+La HAL_ProgressBar est dérivée de gtk.ProgressBar et a deux pins d'entrée de HAL float:
 
 <nomwidget>::
 	la valeur courante à afficher.
 <nomwidget>-scale::
 	la valeur maximum absolue en entrée.
 
-Il a les propriétés suivantes:
+Elle a les propriétés suivantes:
 
 scale::
 	Valeur d'échelle. fixe la valeur maximum absolue en entrée. Pareil que la 
@@ -680,7 +680,7 @@ image:images/progressbar2.png[]
 
 
 [[gladevcp:HAL_ComboBox]]
-=== La boîte combinée (comboBox)
+=== La boîte combinée (ComboBox)
 
 La comboBox HAL est dérivée de gtk.ComboBox. Elle valide le choix d'une valeur 
 dans une liste déroulante.
@@ -692,17 +692,17 @@ Elle exporte deux pins de HAL:
  <nomwidget>-s::
 		  La valeur courante, de type S32
 
-Elle a la propriété suivante qui est configurable dans Glade:
+Elle a la propriété suivante, qui est configurable dans Glade:
 
 column::
 	 L'index de colonne, type S32, défaut à -1, échelle de -1 à 100.
 
-En mode par défault, ces réglages du widget mettent les pins à la valeur d'index 
+En mode par défaut, ces réglages du widget mettent les pins à la valeur d'index 
 de l'entrée choisie dans la liste. Aussi, si le widget a trois labels, il peut
-seilement assumer les valeurs 0,1 et 2.
+seulement assumer les valeurs 0, 1 et 2.
 
 En mode colonne (colonne > -1), la valeur reportée est choisie dans le tableau
-de stockage de la liste définie dans Glade. Ainsi, tipiquement la défibiton du
+de stockage de liste défini dans Glade. Ainsi, typiquement la définition du
 widget devrait comprendre deux colonnes dans le tableau de stockage, une avec
 le texte affiché dans la liste déroulante, l'autre une valeur entière ou flottante
 correspondante au choix.
@@ -712,7 +712,7 @@ Il y a un exemple dans
 colonne pour prendre une valeur flottante dans un stockage de liste.
 
 Si comme moi, vous êtes désorienté pour éditer une liste de stockage de ComboBox
-et de CellRenderer, voyez http://www.youtube.com/watch?v=Z5_F-rW2cL8.
+ou de CellRenderer, voyez http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
 [[gladevcp:HAL_VBar]]
 
@@ -720,261 +720,261 @@ et de CellRenderer, voyez http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 === Les barres
 
 Les widgets HAL, HBar et VBar pour barres Horizontale et Verticale, représentent
-Des valeurs flottantes. Elles ont une pin d'entrée de HAL FLOAT. Chaque barre a
+des valeurs flottantes. Elles ont une pin d'entrée de HAL FLOAT. Chaque barre a
 les propriétés suivantes:
 
 invert::
-   Swap min and max direction. An inverted HBar grows from right
-   to left, an inverted VBar from top to bottom.
+   Inverse les directions min avec max. Une HBar inversée croît de la droite 
+   vers la gauche, un VBar inversée croît du haut vers le bas.
 min, max::
-   Minimum and maximum value of desired range. It is not an
-   error condition if the current value is outside this range.
+   Valeurs minimum et maximum de l'étendue souhaitée. Ce n'est pas une erreur si
+   la valeur courante dépasse cette étendue.
 zero::
-   Zero point of range. If it's inside of min/max range then the
-   bar will grow from that value and not from the left (or right) side of
-   the widget. Useful to represent values that may be both positive or
-   negative.
+   Point le plus bas de l'étendue. Si il est entre min et max, alors la barre
+   croît à partir de cette valeur et non de la gauche du widget (ou de sa droite). 
+   Utile pour représenter des valeurs qui peuvent être à la fois, positives ou
+   négatives.
 force_width, force_height::
-   Forced width or height of widget. If not
-   set then size will be deduced from packing or from fixed widget size
-   and bar will fill whole area.
+   Force la largeur ou la hauteur du widget. Si inutilisés, la taille sera déduite
+   du conteneur ou de la taille des widgets et des barres qui remplissent la zone.
 text_template::
-   Like in Label sets text format for min/max/current
-   values. Can be used to turn off value display.
+   Détermine le texte à afficher, comme pour le Label, pour les valeurs 
+   min/max/courante. Peut être utilisé pour arrêter l'affichage de la valeur.
 bg_color::
-   Background (inactive) color of bar.
+   Couleur de fond pour la barre (inactive).
 z0_color, z1_color, z2_color::
-   Colors of different value zones.
-   Defaults are `green`, `yellow` and `red`. For description of zones see
-   `z*_border` properties.
+   Couleurs des zones des différentes valeurs.
+   Par défaut, `green`, `yellow` et `red`. Pour une description des zones voir
+   propriétés des `z*_border`.
 z0_border, z1_border::
-   Define up bounds of color zones. By default
-   only one zone is enabled. If you want more then one zone set
-   `z0_border` and `z1_border` to desired values so zone 0 will fill from
-   0 to first border, zone 1 will fill from first to second border and
-   zone 2 -- from last border to 1. Borders are set as fractions, values
-   from 0 to 1.
+   Définissent les limites des zones de couleur. Par défaut, seule une zone est validée. 
+   Pour en activer plus d'une, fixer `z0_border` et `z1_border` aux valeurs
+   souhaitées. Ainsi, zone 0 va remplir depuis 0 à la première bordure, zone 1 va
+   remplir de la première à la seconde bordure et zone 2 depuis la dernière bordure
+   jusqu'à 1. Les bordures se règlent comme des fractions, les valeurs vont de 0 à 1.
 
-Horizontal bar:
+Barre horizontale:
 image:images/hal_hbar.png[]
-Vertical bar:
+Barre verticale:
 image:images/vscale.png[]
 .
 
 [[gladevcp:HAL_Meter]]
-=== Meter
+=== L'indicateur à aiguille (HAL Meter)
 
-HAL Meter is a widget similar to PyVCP meter - it represents a float value and has 
-one input FLOAT hal pin. HAL Meter has the following properties:
+L'indicateur à aiguille (HAL Meter) est un widget similaire à celui de PyVCP, 
+il représente une valeur flottante et a une pin d'entrée de HAL FLOAT. 
+L'indicateur à aiguille a les deux propriétés suivantes:
 
 min, max::
-   Minimum and maximum value of desired range. It is not an
-   error condition if the current value is outside this range.
+   Valeurs minimum et maximum de l'étendue souhaitée. Ce n'est pas une erreur si
+   la valeur courante dépasse cette étendue.
 force_size::
-   Forced diameter of widget. If not set then size will be
-   deduced from packing or from fixed widget size and meter will fill all
-   available space with respect to aspect ratio.
+   Force le diamètre du widget. Si inutilisé, alors la taille sera déduite du
+   conteneur ou des dimensions d'un widget à taille fixe. L'indicateur à aiguille
+   occupera alors l'espace le plus grand disponible, tout en respectant les
+   proportions.
 text_template::
-   Like in Label sets text format for current value. Can
-   be used to turn off value display.
+   Détermine le texte à afficher, comme pour le Label, pour la valeur 
+   courante. Peut être utilisé pour arrêter l'affichage de la valeur.
 label::
-   Large label above center of meter.
+   Label large au dessus du centre de l'indicateur.
 sublabel::
-   Small label below center of meter.
+   Petit label, sous le centre de l'indicateur.
 bg_color::
-   Background color of meter.
+   Couleur de fond de l'indicateur.
 z0_color, z1_color, z2_color::
-   Colors of different value
-   zones. Defaults are `green`, `yellow` and `red`. For description of
+   Valeurs des couleurs des différentes zones. Par défaut, `green`, `yellow` et `red`. 
+   For description of
    zones see `z*_border` properties.
 z0_border, z1_border::
-   Define up bounds of color zones. By default only
-   one zone is enabled. If you want more then one zone set `z0_border` and
-   `z1_border` to desired values so zone 0 will fill from min to first
-   border, zone 1 will fill from first to second border and zone 2 -- from
-   last border to max. Borders are set as values in range min-max.
+   Définissent les limites externes des zones de couleur. Par défaut, une seule zone 
+   de couleur est définie. Pour en activer plus d'une, fixer `z0_border` et 
+   `z1_border` aux valeurs souhaitées. Ainsi, zone 0 va remplir depuis min à la 
+   première bordure, zone 1 va remplir de la première à la seconde bordure et 
+   zone 2 depuis la dernière bordure jusqu'à max. Les bordures se règlent sur une
+   étendue comprise en min et max.
 
-Example HAL Meters:
+Exemples d'indicateurs à aiguille:
 
 image::images/hal_meter.png[]
 .
 
 [[gladevcp:HAL_Gremlin]]
-=== Gremlin tool path preview for .ngc files
+===  Gremlin, visualiseur de parcours d'outil pour fichiers .ngc
 
-Gremlin is a plot preview widget similar to the Axis preview window.
-It assumes a running EMC environment like Axis or Touchy. To connect to
-it, inspects the INI_FILE_NAME environment variable. Gremlin displays
-the current .ngc file - it does monitor for changes and reloads the ngc
-file if the file name in Axis/Touchy changes. If you run it in a
-GladeVCP application when EMC is not running, you might get a traceback
-because the Gremlin widget can't find EMC status, like the current file
-name.
+Gremlin est un traceur de parcours d'outil similaire à celui d'Axis.
+Il demande un environnement EMC en fonctionnement, comme Axis ou Touchy. 
+Pour se connecter à lui, inspecter la variable d'environnement INI_FILE_NAME. 
+Gremlin affiche le fichiers .ngc courant. Si le fichier ngc est modifié,
+il doit être rechargé pour actualiser le tracé. Si il est lancé dans une application
+GladeVCP quand EMC n'est pas en marche, un message va être affiché parce-que 
+le widget Gremlin ne trouve pas le statut d'EMC, comme le nom du fichier courant.
 
-Gremlin does not export any HAL pins. It has the following properties:
+Gremlin n'exporte aucune pin de HAL. Il a les propriétés suivantes:
 
 view ::
-   may be any of `x`, `y`, `z`, `p` (perspective) . Defaults to
-   `z` view.
+   Peut être la vue en `x`, `y`, `z`, `p` (perspective) . Par défaut, vue en `z`.
 enable_dro ::
-   boolean; whether to draw a DRO on the plot or not.
-   Defaults to `True`.
+   Booléen; afficher une visu sur le tracé ou non.
+   Par défaut,à `True`.
 
-Example:
+Exemple:
 
 image::images/gremlin.png[]
 
 
-=== Animated function diagrams: HAL widgets in a bitmap
+=== Fonction de diagrammes animés: Widgets HAL dans un bitmap
 
-For some applications it might be desirable to have background image -
-like a functional diagram - and position widgets at appropriate places
-in that diagram. A good combination is setting a bitmap background
-image, like from a .png file, making the gladevcp window fixed-size,
-and use the glade Fixed widget to position widgets on this image.
+Pour certaines applications, il est intéressant d'avoir une image de fond,
+comme un diagramme fonctionnel et positionner les widgets aux endroits appropriés
+dans le diagramme. Une bonne combinaison consiste à placer une image de fond 
+comme un fichier .png, mettre la fenêtre GladeVCP en taille fixe, et utiliser
+Glade pour fixer la postion du widget sur cette image.
 
-The code for the below example can be found in +configs/gladevcp/animated-backdrop+:
+Le code pour l'exemple ci-dessus peut être trouvé dans +configs/gladevcp/animated-backdrop+:
 
 image::images/small-screenshot.png[]
 
-== Action Widgets reference
+== Références des Widgets EMC Action
 
-GladeVcp includes a collection of "canned actions" called EMC Action
-Widgets for the Glade user interface editor. Other than HAL widgets,
-which interact with HAL pins, EMC Actions interact with EMC and the
-G-code interpreter.
+GladeVcp inclus une collection d'actions préprogrammées appelées widgets `EMC Action`
+qui sont des Widgets pour l'éditeur Glade. À la différence des widgets HAL,
+qui interagissent avec les pins de HAL, les widgets EMC Actions, interagissent 
+avec EMC et son interpréteur de G-code.
 
-EMC Action Widgets are derived from the Gtk.Action widget. The Action
-widget in a nutshell:
+Les widgets EMC Action sont dérivés du widget Gtk.Action. Le widget EMC Action
+en quelques mots:
 
- - it is an object available in Glade
- - it has no visual appearance by itself
- -  it's purpose: associate a visible, sensitive UI component like menu,
-   toolbutton, button with a command. See these widget's 'General->Related
-   Action' property.
- -  the "canned action" will be executed when the associated UI component
-   is triggered (button press, menu click..)
- -  it provides an easy way to execute commands without resorting to
-   Python programming.
+ - C'est un objet disponible dans l'éditeur Glade.
+ - Il n'a pas d'apparence visuelle par lui-même.
+ - Son but: associer à un composant d'interface visible, à un composant 
+   d'interface sensitif, comme un menu, un bouton outil, un bouton avec une
+   commande. Voir les propriétés des widgets Action dans 'Général->Related
+   Action' de l'éditeur.
+ - L'action préprogrammée sera exécutée quand l'état du composant associé basculera
+   (bouton pressé, menu cliqué...)
+ - Ils fournissent une voie facile pour exécuter des commandes sans avoir à faire
+   appel à la programmation en Python.
 
-The appearance of EMC Actions in Glade is roughly as follows:
+L'apparence des EMC Actions dans Glade est approximativement la suivante:
 
 image::images/emc-actions.png[]
 
-Tooltip hovers provide a description.
+Le survol de la souris donne une description.
 
+=== Les widgets EMC Action
 
-=== EMC Action widgets
+Les widgets EMC Action sont des widgets de type 'un seul coup'. Ils implémentent
+une seule action par l'usage, d'un seul bouton, d'une option de menu, d'un 
+bouton radio ou d'une case à cocher.
 
-EMC Action widgets are one-shot type widgets. They implement a single action and
-are for use in simple buttons, menu entries or radio/check groups.
+=== Les widgets EMC bascule action (ToggleAction)
 
-=== EMC ToggleAction widgets
+Ce sont des widgets double état. Ils implémentent deux actions ou utilisent un
+second état (habituellement, 'pressé') pour indiquer qu'une action est actuellement
+en cours. Les bascules action sont prévues pour être utilisées avec les boutons
+bascule (ToggleButtons) et les boutons bascule d'outil (ToggleToolButtons) ou 
+encore, pour basculer les items de menu. Un exemple simple est le bouton bascule
+d'Arrêt d'Urgence (EStop).
 
-These are bi-modal widgets. They implement two actions or use a second
-(usually pressed) state to indicate that currently an action is
-running. Toggle actions are aimed for use in ToggleButtons,
-ToggleToolButtons or toggling menu items. A simplex example is the
-ESTOP toggle button.
+Actuellement, les widgets suivants sont disponibles:
 
-Currently the following widgets are available:
+ - La bascule `d'Arrêt d'Urgence` (ESTOP) envoie la commande ESTOP ou ESTOP_RESET 
+   à EMC, selon l'état courant.
+ - La bascule `ON/OFF` envoie la commande STATE_ON ou STATE_OFF.
+ - La bascule `Pause/Reprise` envoie la commande AUTO_PAUSE ou AUTO_RESUME.
 
- - The ESTOP toggle sends ESTOP or ESTOP_RESET commands to EMC depending
-   on it's state.
- - The ON/OFF toggle sends STATE_ON and STATE_OFF commands.
- - Pause/Resume sends AUTO_PAUSE or AUTO_RESUME commands.
+Les bascules action suivantes ont seulement une commande associée et utilisent
+l'état 'pressé' pour indiquer que l'opération demandée est lancée:
 
-The following toggle actions have only one associated command and use
-the 'pressed' state to indicate that the requested operation is
-running:
+ - La bascule `Run` envoie la commande AUTO_RUN et attends dans l'état pressé
+   jusqu'à ce que l'interpréteur soit de nouveau au repos.
+ - La bascule `Stop` est inactive jusqu'à ce que l'interpréteur passe à l'état actif
+   (Un G-code est lancé) et permet alors à l'utilisateur d'envoyer la commande
+   AUTO_ABORT.
+ - La bascule `MDI` envoie la commande passée dans le MDI et attends sa complétion
+   dans l'état inactif 'pressé'.
 
- - The Run toggle sends an AUTO_RUN command and waits in the pressed
-   state until the interpreter is idle again.
- - The Stop toggle is inactive until the interpreter enters the active
-   state (is running G-code) and then allows user to send AUTO_ABORT
-   command.
- - The MDI toggle sends given MDI command and waits for its completion in
-   'pressed' inactive state.
+=== La bascule Action_MDI et les widgets Action_MDI
 
-=== The Action_MDI Toggle and Action_MDI widgets
+Ces widgets fournissent le moyen d'exécuter des commandes MDI. Le widget Action_MDI 
+n'attends pas la complétion de la commande, comme le fait la bascule Action_MDI,
+qui reste elle, désactivée tant que la commande n'est pas terminée.
 
-These widgets provide a means to execute arbitrary MDI commands. The
-Action_MDI widget does not wait for command completion as the
-Action_MDI Toggle does, which remains disabled until command complete.
+=== Un exemple simple: Exécuter une commande MDI lors de l'appui sur un bouton.
 
-=== A simple example: Execute MDI command on button press
++configs/gladevcp/mdi-command-example/whoareyou.ui+ est un fichier UI Glade qui
+transmet cette action basique:
 
-+configs/gladevcp/mdi-command-example/whoareyou.ui+ is a Glade UI file which conveys the basics:
-
-Open it in Glade and study how it's done. Start Axis, and then start
-this from a terminal window with `gladevcp whoareyou.ui`. See the
-+hal_action_mdi1+ Action and it's +MDI command+ property - this just
-executes +(MSG, "Hi, I'm an EMC_Action_MDI")+ so there should be a
-message popup in Axis like so:
+L'ouvrir dans Glade et étudier comment il est fait. Lancer Axis puis dans un 
+terminal faire: `gladevcp whoareyou.ui`. Voir l'action +hal_action_mdi1+ et les
+propriétés de +MDI command+ qui exécute juste +(MSG, "Hi, I'm an EMC_Action_MDI")+ 
+ce qui ouvre un popup de message dans Axis, comme ci-dessous:
 
 image::images/whoareyou.png[]
 
-You'll notice that the button associated with the Action_MDI action is
-grayed out if the machine is off, in E-Stop or the interpreter is running.
-It will automatically become active when the machine is turned on and
-out of E-Stop, and the program is idle.
+Noter que le bouton, associé à l'Action_MDI, est grisé si la machine est arrêtée, 
+en A/U ou si l'interpréteur est déjà en marche. Il deviendra automatiquement actif
+quand la machine sera mise en marche donc, sortie de l'A/U (E-Stop), et que le
+programme est au repos.
 
-=== Parameter passing with Action_MDI and ToggleAction_MDI widgets
+=== Paramètres passés avec les widgets Action_MDI et ToggleAction_MDI
 
-Optionally, 'MDI command' strings may have parameters substituted
-before they are passed to the interpreter. Parameters currently may be
-names of HAL pins in the GladeVCP component. This is how it works:
+Optionnellement, la chaine 'MDI command' peut avoir des paramètres substitués
+avant d'être passée à l'interpréteur. Ces paramètres sont actuellement les noms
+des pins de HAL dans les composants GladeVCP. Voici comment cela fonctionne:
 
- - assume you have a 'HAL SpinBox' named +speed+, and you want to pass it's
-   current value as a parameter in an MDI command.
- - The HAL SpinBox will have a float-type HAL pin named speed-f (see
-   HalWidgets description).
- - To substitute this value in the MDI command, insert the HAL pin name
-   enclosed like so: `${pin-name}`
- - for the above HAL SpinBox, we could use `(MSG, "The speed is:
-   ${speed-f}")` just to show what's happening.
+ - Supposons que nous avons une 'SpinBox HAL' nommée +speed+, nous voulons passer
+   sa valeur courante comme paramètre dans une commande MDI.
+ - La SpinBox HAL aura une pin de HAL de type flottant, nommée speed-f (voir
+   la description des Widgets Hal).
+ - Pour substituer cette valeur dans la commande MDI, insérons le nom de la pin de HAL
+   encadré de cette manière: `${pin-name}`
+ - Pour la spinbox HAL précédente, il aurait été possible d'utiliser
+   `(MSG, "La vitesse est: ${speed-f}")` juste pour montrer ce qui se passe.
 
-The example UI file is +configs/gladevcp/mdi-command-example/speed.ui+. Here's what you get when running it:
-
+L'exemple de fichier UI est +configs/gladevcp/mdi-command-example/speed.ui+. 
+Voici ce qui ce qui est obtenu en le lançant:
 
 image::images/speed.png[]
 
-=== An advanced example: Feeding parameters to an O-word subroutine
+=== Un exemple plus avancé: Passer des paramètres à un sous-programme O-word
 
-It's perfectly OK to call an O-word subroutine in an MDI command, and
-pass HAL pin values as actual parameters. An example UI file
-is in +configs/gladevcp/mdi-command-example/owordsub.ui+.
+Il est parfaitement permis d'appeler un sous-programme O-word dans une commande
+MDI et passer la valeur des pins de HAL comme paramètres actuels. Un exemple de
+ fichier UI est dans +configs/gladevcp/mdi-command-example/owordsub.ui+.
 
-Place +configs/gladevcp/nc_files/oword.ngc+ so Axis can find it, and run `gladevcp owordsub.ui` from
-a terminal window. This looks like so:
+Placer +configs/gladevcp/nc_files/oword.ngc+ de sorte qu'Axis puisse le trouver,
+et lancer `gladevcp owordsub.ui` depuis un terminal. Ce qui devrait ressembler à celà:
 
 image::images/oword.png[]
 
-=== Preparing for an MDI Action, and cleaning up afterwards
+=== Préparation pour une Action_MDI et nettoyage par la suite
 
-The EMC G-Code interpreter has a single global set of variables, like
-feed, spindle speed, relative/absolute mode and others. If you use G
-code commands or O-word subs, some of these variables might get changed
-by the command or subroutine - for example, a probing subroutine will
-very likely set the feed value quite low. With no further precautions,
-your previous feed setting will be overwritten by the probing
-subroutine's value.
+L'interpréteur de G-code d'EMC a un simple jeu de variables globales, comme
+vitesse, vitesse broche, mode relatif/absolu et autres. Si on utilise des commandes
+G-code ou des sous-programmes O-word, certaines de ces variables doivent être
+modifiées par la commande ou le sous-programme. Par exemple, un sous-programme
+de sonde a très probablement besoin de définir la vitesse d'avance à une valeur
+très faible. Sans autres précautions, le réglage de vitesse précédent serait 
+écrasé par la valeur du sous-programme de sonde.
 
-To deal with this surprising and undesirable side effect of a given
-O-word subroutine or G-code statement executed with an EMC
-ToggleAction_MDI, you might associate pre-MDI and post-MDI handlers
-with a given EMC ToggleAction_MDI. These handlers are optional and
-provide a way to save any state before executing the MDI Action, and to
-restore it to previous values afterwards. The signal names are +mdi-command-start+
-and +mdi-command-stop+; the handler names can be set in Glade like any
-other handler.
+Pour faire avec ce surprenant, autant qu'indésirable effet de bord, produit par 
+un sous-programme O-word ou un G-code exécuté avec une bascule Action MDI, 
+le gestionnaire pré-MDI et post-MDI doit être associé avec une EMC bascule Action_MDI
+donnée. Ces gestionnaires sont optionnels et fournissent une voie pour sauver tous 
+les états avant d'exécuter l'action MDI et pour les restaurer ensuite aux valeurs 
+précédentes. Les noms de signaux sont +mdi-command-start+ et +mdi-command-stop+,
+les noms de gestionnaires peuvent être fixés dans Glade comme tout autre gestionnaire.
 
-Here's an example how a feed value might be saved and restored by such
-handlers (note that EMC command and status channels are available as
-+self.emc+ and +self.stat+ through the EMC_ActionBase class:
+Voici un exemple, montrant comment la valeur de la vitesse d'avance est sauvée
+ et restaurée par de tels gestionnaires, noter que la commande EMC et le statut 
+des voies sont disponibles comme +self.emc+ et +self.stat+ à travers la classe
+EMC_ActionBase:
 
 [source,python]
-----------------------------------
+----
     def on_mdi_command_start(self, action, userdata=None):
         action.stat.poll()
         self.start_feed = action.stat.settings[1]
@@ -983,13 +983,14 @@ handlers (note that EMC command and status channels are available as
         action.emc.mdi('F%.1f' % (self.start_feed))
         while action.emc.wait_complete() == -1:
             pass
-----------------------------------
+----
 
-Only the Action_MDI Toggle widget supports these signals.
+Seule le widget de la bascule Action_MDI, supporte ces signaux.
 
 [NOTE]
-In a later release of EMC2, the new M-codes M70-M72 are available which
-make it saving state before a subroutine call, and restoring state on return much easier.
+Dans une prochaine version d'EMC2, les nouveaux M-codes M70 à M72 seront disponnibles,
+ils sauveront l'état avant l'appel du sous-programme, la restauration de l'état
+au retour sera plus aisée.
 
 === Using the EMC Stat object to deal with status changes
 
@@ -1201,7 +1202,7 @@ as signal handlers. Only method names which do not begin with an '_'
 
 Note that regardless whether you're using the libglade or the new
 GtkBuilder format for your Glade UI, widgets can always be referred to
-as `builder.get_object(<widgetname>)`. Also, the complete list of
+as `builder.get_object(<nomwidget>)`. Also, the complete list of
 widgets is available as `builder.get_objects()` regardless of UI
 format.
 

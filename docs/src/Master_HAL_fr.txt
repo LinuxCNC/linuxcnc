@@ -6,8 +6,11 @@ Manuel de HAL V2.5  {localdate}
 The EMC Team
 :masterdir: {indir}
 :leveloffset: 1
+
 image::common/images/emc2-intro.*[]
+
 include::common/overleaf_fr.txt[]
+
 include::common/outdated-notice_fr.txt[]
 :leveloffset: 0
 = HAL
