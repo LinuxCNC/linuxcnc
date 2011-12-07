@@ -1,11 +1,11 @@
 :lang: fr
 :toc:
-Guide de démarrage V2.5, {localdate}
+:localdate: {sys: date +%d/%m/%Y}
+Guide de démarrage V2.5  {localdate}
 ====================================
-:language: fr
+The EMC2 Team
 :masterdir: {indir}
 :leveloffset: 1
-The EMC Team
 image::common/images/emc2-intro.*[]
 include::common/overleaf_fr.txt[]
 include::common/outdated-notice_fr.txt[]
@@ -18,5 +18,3 @@ include::common/Linux_FAQ_fr.txt[]
 include::common/GPLD_Copyright_fr.txt[]
 // Index
 // vim: set syntax=asciidoc:
-
-

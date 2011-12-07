@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-﻿= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))
+= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
 sorties Mesa et des ports parallèles (3). Il est destiné à la configuration de 
@@ -38,11 +38,11 @@ Il est possible de naviguer dans l'assistant, revenir sur des pages, annuler des
 choix, obtenir de l'aide et des diagrammes puis enfin, de valider la configuration 
 par la page de sortie du programme.
 
-*************************************************
+****
 NDT: Certaines divergences entre cette traduction et l'aspect réel de l'interface
 peuvent apparaitre pendant la phase de développement de PNCconf. Elles disparaitront
 quand le logiciel sera finalisé.
-*************************************************
+****
 
 == Instructions pas à pas
 
@@ -144,7 +144,6 @@ Il faut choisir un équilibre. Garder à l'esprit que sur un mécanisme en boucl
 une modification de la période d'asservissement nécessitera de réajuster l'ensemble 
 des paramètres de la boucle.
 
-//I/O Control Ports/Boards::
 Carte d'entrées/sorties::
      PNCconf est capable de configurer une machines avec deux cartes Mesa et 
     trois ports parallèles. Les ports parallèles ne sont utilisables que pour 
@@ -167,8 +166,6 @@ Mesa::
     Si la configuration est créée pour deux cartes, elles doivent être installées 
     pour que les tests fonctionnent.
 
-
-//Parallèle Port::
 Ports parallèle::
      Jusqu'à 3 ports parallèles, appelés `parports` par Mesa, peuvent être utilisés 
     comme de simples entrées sorties. L'adresse du port parallèle doit être définie. 
@@ -191,7 +188,6 @@ Ports parallèle::
     nombre d'entrées sur ce port ou "out" pour un maximum de sorties. Par défaut,
     les ports parallèles sont configurés en "out".
 
-//GUI Frontend list::
 Les interfaces graphiques::
     Spécifie les interfaces utilisateur graphiques que EMC2 peut utiliser.
     Chacune a des options particulières. 
@@ -224,7 +220,6 @@ Les interfaces graphiques::
  Fenêtre graphique séparée.
  Pas d'intégration de panneau de contrôle.
 
-//== External Configuration
 == Configuration externe
 
 Cette page permet de sélectionner des contrôles externes pour la commande 
@@ -258,12 +253,10 @@ Joystick USB pour le jogging::
 
 Les manettes de jeu utilisées en jogging utilisent HALUI et le composant hal_input.
 
-//External buttons::
 Boutons externes::
      Permet le jogging de l'axe avec de simples boutons à une vitesse spécifiée.
     Probablement mieux adapté pour le jogging en vtesse rapide. 
 
-//MPG Jogging::
 Manivelle à micro impulsions::
      Permet d'utiliser un générateur d'impulsions (MPG) manuel pour faire du 
     jogging sur les axes de la machine.
@@ -276,12 +269,10 @@ Manivelle à micro impulsions::
     composant mux16. Ce composant dispose d'options telles que l'anti-rebond et 
     l'utilisation du code Gray pour filtrer l'entrée physique du commutateur.
 
-//Overrides::
 Correcteurs de vitesses::
      PNCconf permet de modifier les vitesses d'avances ou de broche en utilisant 
     une manivelle à micros impulsions (MPG) ou un commutateur rotatif.
- 
-//== GUI Configuration
+
 == Configuration de la GUI
 
 Ici vous pouvez configurer l'interface graphique utilisateur (GUI), lui 
@@ -373,43 +364,28 @@ au centre ou sur le côté droit, avec Touchy il peut être dans le centre.
 
 Defaults and Options::
 
-////
-        Require homing before MDI / Running:
-////
 Aquisition d'origine obligatoire avant MDI / exécution::
 - Pour pouvoir déplacer la machine sans passer par une recherche du point 
     d'origine machine décochez la case.
-////
-      Popup Tool Prompt: 
-////
+
 Fenêtre de changement d'outils::
 - Permet le choix entre l'utilisation d'un écran de changement d'outil et 
 l'exportation d'un signal standard pour utiliser un changeur d'outils externe 
 et la table d'outils.
-////
-        Leave spindle on during tool change: 
-////
+
 Laisser tourner la broche pendant le changement d'outil::
 - Laisse tourner la broche pendant le changement d'outil. Pour les tours.
-////
-        Force individual manual homing: 
-////
+
 Oblige à faire la POM de chaque axe individuellement::
 - Oblige à fixer le point zéro de chaque axe individuellement.
-////
-        Move spindle up before tool change: 
-////
+
 Position haute de la broche avant le changement d'outil::
 - Met la broche en position haute avant le changement d'outil.
-////
-        Restore joint position after shutdown:
-////    
+  
 Retrouver la position après une extinction:: 
 - Mémorise la position des articulations à l'extinction. Utilisé pour les 
     machines a cinématique complexe.
-////
-        Random position toolchangers:
-////
+
 Changeur d'outil à position changeante::		
 - Utilisé pour les changeurs d'outils qui ne reçoivent pas toujours les outils
 au mêmes emplacements. Des codes HAL doivent être ajoutés pour le support ces 
@@ -425,7 +401,6 @@ choix et le paramétrage des composants nécessaires à la machine.
 
 image::images/pncconf-mesa-config.png[]
 
-//Mesa parport adress::
 Adresse du port parallèle MESA:: 
      Un port parallèle est utilisé seulement avec la carte Mesa 7i43. 
     Les ports parallèles sur la carte mère ont généralement les adresses 0x378 et 
@@ -438,7 +413,6 @@ Adresse du port parallèle MESA::
 IMPORTANT: Noter que beaucoup de cartes PCI ne prennent pas en charge le 
     protocole EPP correctement.
 
-//PDM PWM et 3PWM base frequency : 
 Fréquence de base PDM, PWM et 3PWM:: footnote:[PDM: acronyme de Modulation de 
 Densité d'Impulsions, PWM: acronyme de Modulation de Largeur d'Impulsions]
     Règle l'équilibrage entre entrainement et linéarité.
@@ -453,7 +427,6 @@ Par exemple....::
 - La carte 7i40 demande un PWM et une fréquence de base de 50 Khz
 - La carte 7i48 demande un PWM et une fréquence de base de 24 Khz
 
-//Watchdog time out :
 Durée du Watchdog::
      Définit le délai durant lequel la carte Mesa va attendre avant de 
     déconnecter les sorties si la communication est interrompue avec l'ordinateur. 
@@ -462,9 +435,6 @@ Durée du Watchdog::
     est inactive son niveau logique est à 1 soit environ 5 volts. S'assurer 
     que l'équipement est en sécurité quand le watchdog est déclenché. 
 
-//Num of encoders
-//Num of pwm generators
-//Num of step générators
 Nombre de codeurs::
 Nombre de générateur de PWM::
 Nombre de générateur de PAS::
@@ -491,7 +461,6 @@ Nombre de générateur de PAS::
     des E / S. Seuls les onglets nécessaires seront affichés pour les connexions 
     disponibles, selon les documents de Mesa.
 
-//== Mesa I/O Setup
 == Réglages des E/S Mesa
 
 Les onglets sont utilisés pour configurer les broches d'entrée et de sortie 
@@ -523,7 +492,6 @@ Les sorties générateur de pas et de direction peuvent être inversées.
 Noter que l'inversion d'un signal Step Gen modifie les délais de pas, 
 il doivent correspondre à ce que le contrôleur attend.
 
-//== Parport configuration
 Configuration des ports parallèles
 
 
@@ -532,7 +500,6 @@ image::images/pncconf-parport.png[]
 Les ports parallèles peuvent être utilisés comme de simples E/S similaires aux 
 broches GPIO Mesa.
 
-//== Axis Configuration
 == Configuration des axes
 
 
@@ -544,7 +511,6 @@ Cette page permet de configurer et tester un moteur combiné ou non à un codeur
 Si un servomoteur est utilisé, un test en boucle ouverte est disponible. 
 si un moteur pas à pas est utilisé, un test de réglage est disponible.
 
-//*Open Loop Test* +
 Test en boucle ouverte::
      Le test en boucle ouverte est important car il confirme la bonne direction du 
     moteur et du codeur. Le moteur doit se déplacer dans le sens positif sur l'axe 
@@ -572,7 +538,6 @@ Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
      Deux valeurs de mise à l'échelle, `Max Output` et `Offset` sont utilisées 
     pour linéariser le DAC (convertisseur digital analogique).
 
-//*From the manual:* 
 *Théorie:*
      Ces deux valeurs sont les facteurs d'échelle et d'offset de la sortie vers
     l’amplificateur moteur, de l'axe. La deuxième valeur, l'offset, est soustraite 
@@ -598,9 +563,7 @@ Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
 
 .Construire une table de calibration pour la sortie. 
 Piloter le DAC avec la tension souhaitée et mesurez le résultat:
-////
- Output Voltage Measurements
-////
+
 Mesure des tensions de sortie:
 
 [width="50%"]
@@ -623,7 +586,6 @@ Mesure des tensions de sortie:
 . Par conséquent, les coefficients a et b de l'ajustement linéaire peuvent être 
     utilisés directement comme échelle et offset pour le contrôleur. 
 
-//MAX OUTPUT:
 Valeur maximale de sortie::
      La valeur maximale pour la sortie de compensation PID qui est écrite sur 
     l'ampli moteur, exprimée en volts. La valeur de sortie calculée est alignée 
@@ -631,7 +593,6 @@ Valeur maximale de sortie::
     de sortie effective. La valeur est appliquée de manière symétrique aux deux 
     limites, positive et négative.
 
-//*Tuning Test* +
 Test de réglage::
      Le test de réglage ne fonctionne, malheureusement, qu'avec les systèmes à 
 base moteur pas à pas. Encore une fois vérifier que les directions de déplacements 
@@ -644,7 +605,6 @@ ne sont pas fonctionnels pendant ce test. Un temps de pause peut être défini
 entre chaque mouvement d'essai. Cela permet de vérifier la position de l’axe et 
 de voir si des pas sont perdus.
 
-//*Stepper Timing* 
 Timing des moteur pas à pas::
      La séquence de signaux des sorties pas a pas, doit être adaptée aux exigences 
 du pilote des moteurs. Pncconf propose par défaut, certaines de ces séquences et il
@@ -654,7 +614,6 @@ trouver des séquences pour le matériel le plus commun (n'hésitez pas à ajout
 celles que vous avez expérimenté). En cas de doute utiliser une valeur élevée 
 comme 5000, cela ne fera que limiter la vitesse maximale.
 
-//*Brushless Motor Control* +
 Contrôle de moteur Brushless::
      Ces options sont utilisées pour permettre le contrôle bas niveau des 
 moteurs `brushless` avec un micro logiciel spécial et des cartes filles. 
@@ -792,14 +751,12 @@ Course négative::
     Si la valeur entrée dans PNCconf n'est pas négative, elle sera déduite des 
     autres valeurs.
 
-//(Final) HOME POSITION::
 Position de l'origine::
      C'est la position ou se termine la séquence de prise d'origine machine. 
     Elle est référencée par rapport à l'origine et peut être positive, si cette 
     position finale est du coté positif ou négative, si cette position finale est 
     du coté négatif.
-	
-//HOME SWITCH LOCATION::
+
 Position du contact d'origine machine::
      C'est la distance depuis le contact d'origine jusqu'à la position de l'origine. 
     Il peut être négatif ou positif selon de quel côté de l'origine il est placé. 
@@ -808,43 +765,35 @@ Position du contact d'origine machine::
     Si il est mis à zéro, l'origine sera à l'emplacement du contact (plus la distance
     éventuelle pour attendre l'index suivant, si une règle de mesure, ou un codeur 
     de position avec index sont utilisés).
-	
-//Home Search Velocity::
+
 Vitesse de recherche du contact d'origine machine::    
 	 Vitesse utilisée pendant le déplacement vers le contact d'origine machine en 
     unités par minute.
-   
-//Home Search Direction::
+
 Direction de recherche du contact d'origine machine::
     Direction de la recherche de l'origine machine. Négatif ou Positif selon le
     coté de l'axe où se trouve le contact d'origine machine. 
 
-//Home Latch Velocity::
 Vitesse d'acquisition du contact d'origine machine::
     Vitesse lente de détection du contact d'origine machine, en unités par minute.
 
-//Home Final Velocity::
 Vitesse vers la position de l'origine::
      Vitesse utilisée pour déplacer le mobile de la position d'acquisition du contact
     d'origine machine, vers la position finale de l'origine, en unités par minute. 
     Si réglée à 0 c'est la vitesse de déplacement rapide qui sera utilisée.
 
-//Home latch Direction::
 Direction d'acquisition du contact d'origine machine::
      Direction d'acquisition de l'origine machine, peut être dans la même direction 
     que la recherche, ou à l'opposé.  
 
-//Use Encoder Index For Home::
 Origine machine sur l'index du codeur::
      EMC2 attendra l'impulsion d'index du codeur après l’acquisition du contact 
     d'origine machine.
 
-//Use Compensation File::
 Utiliser un fichier de compensation de jeu::
     Permet de spécifier le nom et le type d'un fichier de compensation de jeu. 
     Permet une compensation sophistiquée. Voir le manuel.
 
-//Use Backlash Compensation::
 Utiliser la compensation de jeu::
      Permet de régler la compensation du jeu de la vis, ne peut pas être utilisé 
     en même temps qu'un fichier de compensation. Voir le manuel.
@@ -866,7 +815,6 @@ Si le chariot était déplacé jusqu'à la limite positive, nous mesurerions 10 
 entre la limite négative et la came du côté négatif du chariot (fin de course 
 bord gauche du chariot).
 
-//== Spindle Configuration
 Configuration de la broche
 
 Si un signal de contrôle de la broche est présent, cette page permet de le configurer.
@@ -905,7 +853,6 @@ carte et le numéro de codeur selon besoins) dans le fichier HAL personnalisé.
 Lire la section codeurs dans Hostmot2 pour plus d'information sur les modes de 
 comptage.
 
-//== Advanced Options
 == Options avancées
 
 Cette page permet de régler les commandes HALUI, de charger classicladder. Elle
@@ -930,7 +877,6 @@ classicladder dans le manuel.
 
 image::images/pncconf-advanced.png[]
 
-//== HAL Components
 == Composants de HAL
 
 Cette page permet d'ajouter des composants de HAL supplémentaires qui seront utilisés
@@ -950,7 +896,6 @@ et pncconf ajoutera ce qui est nécessaire.
 Si 2 composants sont nécessaires et que pncconf à besoin d'un composant interne, 
 il chargera 3 composants et utilisera le dernier.
 
-//Custom Component Commands:
 Composants de commande personnalisés::
      Cette sélection permettra de charger des composants de HAL que pncconf 
     n'utilise pas. 
@@ -959,7 +904,6 @@ Composants de commande personnalisés::
     Les composants seront ajoutés au thread entre la lecture des entrées et 
     l'écriture des sorties, dans l'ordre ou ils sont écrits dans `thread command`.
 
-//== Advanced Usage Of PNCconf
 == Utilisation avancée de PNCConf
 
 PNCconf fait de son mieux pour permettre un personnalisation souple à l'utilisateur, 
@@ -975,7 +919,6 @@ il sera possible d'utiliser PNCCONF pour construire une configuration de base,
 ou d'utiliser une des configurations fournies en standards par EMC2 et de l'éditer
 pour obtenir ce que est souhaité. 
 
-//Custom Signal Names::
 Nom de signaux personnalisés::
 
 Si un composant doit être connecté à quelque chose dans un fichier HAL personnalisé, 
@@ -1005,7 +948,6 @@ ajouteront des suffixes au nom du signal personnalisé.
 De cette façon on peut établir des connexions à ces signaux dans les fichiers 
 personnalisés de HAL et avoir toujours la possibilité de les déplacer plus tard.
 
-//Loading Custom Firmware::
 Charger un microprogramme personnalisé::
 
 PNCconf cherche le microprogramme sur le système et cherche ensuite le fichier XML 
@@ -1024,7 +966,6 @@ Demander sur la liste de diffusion EMC2 ou sur le forum pour des renseignements
 pour convertir un microprogramme personnalisé. 
 Tous les microprogrammes ne peuvent pas être utilisés avec PNCCONF.
 
-//Custom HAL Files::
 Fichiers HAL Personnalisés::
     Il y a quatre fichiers personnalisés utilisables pour ajouter des commandes a HAL:
 - custom.hal est prévu pour les commandes HAL utilisées avant le chargement de 

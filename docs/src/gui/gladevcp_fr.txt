@@ -554,177 +554,174 @@ image:images/hscale.png[]
 [[gladevcp:HAL_SpinButton]]
 === La roue codeuse (SpinButton)
 
-La roue codeuse de HAL est dérivée de GtkSpinButton et a deux pins:
+La roue codeuse de HAL est dérivée de GtkSpinButton, elle a deux pins:
 
-<widgetname>-f::
+<nomduwidget>-f::
 	 out FLOAT pin
-<widgetname>-s::
+<nomduwidget>-s::
 	 out S32 pin
 
-Pour être fonctionnelle, Spinbuttons doit avoir une valeur d'adjustment comme scales,
-vue précédemment.
+Pour être fonctionnelle, Spinbutton doit avoir une valeur d'ajustement comme 
+l'échelle, vue précédemment.
 
-Exemple de roue codeus:
+Exemple de roue codeuse:
 image:images/spinbutton.png[]
-.
+
 
 [[gladevcp:HAL_Label]]
 === Les labels
 
-HAL_Label is a simple widget based on GtkLabel which represents a HAL
-pin value in a user-defined format.
+Le Label HAL est un simple widget basé sur GtkLabel qui représente la valeur 
+d'une pin de HAL dans un format défini par l'utilisateur.
 
-label_pin_type::
-	The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
-	on 'General->HAL pin type '(note this is different from PyVCP which has
-	three label widgets, one for each type).
+HAL pin type::
+	Les pins de HAL sont des types (0:S32, 1:float ou 2:U32), voir aussi la bulle
+    d'info sur 'Général->HAL pin type', (noter que c'est différent de PyVCP qui
+    lui, a trois widgets label, un pour chaque type).
 
-text_template::
-	Determines the text displayed - a Python
-	format string to convert the pin value to text. Defaults to +%s+ (values
-	are converted by the str() function) but may contain any legit as an
-	argument to Pythons format() method. +
-	Example: +Distance: %.03f+ will display the text and the pin value with
-	3 fractional digits padded with zeros for a FLOAT pin.
+text template::
+	Détermine le texte à afficher, une chaine au format Python pour convertir
+	la valeur de la pin en texte. Par défauts, à +%s+ (les valeurs sont 
+	converties par la fonction str()), mais peut contenir n'importe quel argument
+    légal pour la méthode format() de Python.
+	Exemple: +Distance: %.03f+ va afficher le texte et la valeur de la pin avec
+    3 digits fractionnaires remplis avec des zéros pour une pin FLOAT.
 
 
 [[gladevcp:HAL_Table]]
 
 [[gladevcp:HAL_HBox]]
-=== Containers: HAL_HBox and HAL_Table
+=== Les conteneurs: HAL_HBox et HAL_Table
 
-Compared to their Gtk counterparts they have one input BIT pin which
-controls if their child widgets are sensitive or not. If the pin is low
-then child widgets are inactive which is the default.
+Comparés à leurs contreparties Gtk ils ont une pin d'entrée BIT qui contrôle si
+les enfants des widgets sont sensitifs ou non. Si la pin est basse, alors 
+les widgets enfants sont inactifs, ce qui est le comportement par défaut.
 
 [TIP]
-If you find some part of your GladeVCP application is 'grayed
-out' (insensitive), see whether a container's pin is unset.
+Si vous trouvez certaines parties de votre application GladeVCP sont 'grisées' 
+(insensible), vérifiez que les pins d'un conteneur ne soient pas inutilisées.
 
 [[gladevcp:HAL_LED]]
-=== LED
+=== Les Leds
 
-The hal_led simulates a real indicator LED. It has a single input BIT
-pin which controls it's state: ON or OFF. LEDs have several properties
-which control their look and feel:
+La Led hal simule un vrai indicateur à Led. Il a une seule pin d'entrée BIT
+qui contrôle son état: ON ou OFF. Les Leds ont quelques propriétés pour
+contrôler leur aspect:
 
 on_color::
-   a String defining ON color of LED. May be any valid
-   gtk.gdk.Color name. Not working on Ubuntu 8.04.
+   Une chaine définissant la couleur ON de la Led. Peut être tout nom valide de
+   gtk.gdk.Color. Ne fonctionne pas sous Ubuntu 8.04.
 off_color::
-   String defining OFF color of LED. May be any valid
-   gtk.gdk.Color name or special value `dark`. `dark` means that OFF color
-   will be set to 0.4 value of ON color. Not working on Ubuntu 8.04.
+   Un chaine définissant la couleur OFF de la Led. Peut être tout nom valide de
+   gtk.gdk.Color ou la valeur spéciale `dark`. `dark` signifie que la couleur OFF
+   sera fixée à 0.4 valeur de la couleur ON. Ne fonctionne pas sous Ubuntu 8.04.
 pick_color_on, pick_color_off::
-   Colors for ON and OFF states may be
-   represented as `#RRRRGGGGBBBB` strings. These are optional properties
-   which have precedence over `on_color` and `off_color`.
+   Couleurs pour les états ON et OFF peuvent être représentés par une chaine
+   comme `#RRRRGGGGBBBB`. Ces propriétés optionnelles ont la précédence sur 
+   `on_color` et `off_color`.
 led_size::
-   LED radius (for square - half of LED's side)
+   Rayon de la Led (pour une Led carrée, 1/2 côté)
 led_shape::
-   LED Shape. Valid values are 0 for round, 1 for oval and 2
-   for square shapes.
+   Forme de la Led Shape. Les valeurs valides sont 0 pour ronde, 1 pour ovale
+   et 2 pour carrée.
 led_blink_rate::
-   if set and LED is ON then it's blinking. Blink
-   period is equal to "led_blink_rate" specified in milliseconds.
+   Si utilisée et que la Led est ON alors la Led clignotera. La fréquence du
+   clignotement est égal a la valeur de "led_blink_rate" spécifiée en millisecondes.
 
-As an input widget, LED also supports the +hal-pin-changed signal+. If
-you want to get a notification in your code when the LED's HAL pin was
-changed, then connect this signal to a handler, for example
-+on_led_pin_changed+ and provide the handler as follows:
+Comme un widget d'entrée, la Led aussi supporte le +hal-pin-changed signal+. Si
+vous voulez avoir une notification dans votre code quand les pins des Leds HAL
+ont changé d'état, alors connectez ce signal au gestionnaire, par exemple
++on_led_pin_changed+ et passez ce qui suit au gestionnaire:
 
 [source,python]
-----------------------------------
+----
 def on_led_pin_changed(self,hal_led,data=None):
     print "on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get()
-----------------------------------
+----
 
-This will be called at any edge of the signal and also during program
-start up to report the current value.
+Ce code sera appelé à chaque front du signal et également au démarrage du programme
+pour reporter la valeur courante.
 
-Example LEDs:
+Exemple de Leds:
 image:images/leds.png[]
-.
 
 [[gladevcp:HAL_ProgressBar]]
-=== ProgressBar
+=== La barre de progression (ProgressBar)
 
 [NOTE]
-This widget might go away. Use the HAL_HBar and HAL_VBar widgets
-instead.
+Ce widget pourrait disparaître. Utiliser les widgets HAL_HBar et HAL_VBar à sa
+place.
 
-The HAL_ProgressBar is derived from gtk.ProgressBar and has two float
-HAL input pins:
+Le HAL_ProgressBar est dérivé de gtk.ProgressBar et a deux pins d'entrée de HAL float:
 
-<widgetname>::
-	the current value to be displayed
-<widgetname>-scale::
-	the maximum absolute value of input
+<nomwidget>::
+	la valeur courante à afficher.
+<nomwidget>-scale::
+	la valeur maximum absolue en entrée.
 
-It has the following properties:
+Il a les propriétés suivantes:
 
 scale::
-	value scale. set maximum absolute value of input. Same as
-	setting the <widgetname>.scale pin. A float, range from
-	-2^24^ à +2^24^.
+	Valeur d'échelle. fixe la valeur maximum absolue en entrée. Pareil que la 
+    configuration de la pin <nomwidget>.scale. Un flottant, compris entre
+	*-2^24^* et *+2^24^*.
 green_limit::
-      green zone limit lower limit
+      Limite basse de la zone verte
 yellow_limit::
-      yellow zone limit lower limit
+      Limite basse de la zone jaune
 red_limit::
-      red zone limit lower limit
+      Limite basse de la zone rouge
 text_template::
-      Text template to display the current value of the
-      +<widgetname>+ pin. Python formatting may be used for dict
-      +{"value":value}+
+      Texte modèle pour afficher la valeur courante de la pin +<nomwidget>+. 
+      Formaté pour Python, peut être utilisé pour dict +{"valeur":valeur}+.
 
-Example HAL_ProgressBar:
+Exemple de barre de progression:
 image:images/progressbar2.png[]
-.
+
 
 [[gladevcp:HAL_ComboBox]]
-=== ComboBox
+=== La boîte combinée (comboBox)
 
-HAL_ComboBox is derived from gtk.ComboBox. It enables choice of a
-value from a dropdown list.
+La comboBox HAL est dérivée de gtk.ComboBox. Elle valide le choix d'une valeur 
+dans une liste déroulante.
 
-It exports two HAL pins:
+Elle exporte deux pins de HAL:
 
- <widgetname>-f::
-		  the current value, type FLOAT
- <widgetname>-s::
-		  the current value, type S32
+ <nomwidget>-f::
+		  La valeur courante, de type FLOAT
+ <nomwidget>-s::
+		  La valeur courante, de type S32
 
-It has the following property which can be set in Glade:
+Elle a la propriété suivante qui est configurable dans Glade:
 
 column::
-	 the column index, type S32, defaults to -1, range from -1..100 .
+	 L'index de colonne, type S32, défaut à -1, échelle de -1 à 100.
 
-In default mode this widgets sets the pins to the index of the chosen
-list entry. So if your widget has three labels, it may only assume
-values 0,1 and 2.
+En mode par défault, ces réglages du widget mettent les pins à la valeur d'index 
+de l'entrée choisie dans la liste. Aussi, si le widget a trois labels, il peut
+seilement assumer les valeurs 0,1 et 2.
 
-In column mode (column > -1), the value reported is chosen from the
-ListStore array as defined in Glade. So typically your widget
-definition would have two columns in the ListStore , one with text
-displayed in the dropdown, and an int or float value to use for that
-choice.
+En mode colonne (colonne > -1), la valeur reportée est choisie dans le tableau
+de stockage de la liste définie dans Glade. Ainsi, tipiquement la défibiton du
+widget devrait comprendre deux colonnes dans le tableau de stockage, une avec
+le texte affiché dans la liste déroulante, l'autre une valeur entière ou flottante
+correspondante au choix.
 
-There's an example in
-+configs/gladevcp/by-widget/combobox/combobox.{py,ui}+ which uses column
-mode to pick a float value from the ListStore.
+Il y a un exemple dans
++configs/gladevcp/by-widget/combobox/combobox.{py,ui}+ qui utilise le mode 
+colonne pour prendre une valeur flottante dans un stockage de liste.
 
-If you're confused like me about how to edit ComboBox ListStores and
-CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
+Si comme moi, vous êtes désorienté pour éditer une liste de stockage de ComboBox
+et de CellRenderer, voyez http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
 [[gladevcp:HAL_VBar]]
 
 [[gladevcp:HAL_HBar]]
-=== Bars
+=== Les barres
 
-HAL Bar and VBar widgets for horizontal and vertical bars representing
-float values. They have one input FLOAT hal pin. Both bars have the
-following properties:
+Les widgets HAL, HBar et VBar pour barres Horizontale et Verticale, représentent
+Des valeurs flottantes. Elles ont une pin d'entrée de HAL FLOAT. Chaque barre a
+les propriétés suivantes:
 
 invert::
    Swap min and max direction. An inverted HBar grows from right
