@@ -188,7 +188,7 @@ Z1.5
 
 4. Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z3
 
-image:G81ex1.png[]
+image:images/G81ex1.png[]
 
 Exemple 2: Supposons que la position courante soit, X1, Y2, Z3 dans le
 plan XY, la ligne de codes suivante est interprétée:
@@ -244,7 +244,7 @@ Y17, Z4.2
 3. Un déplacement en vitesse rapide, parallèle à l'axe Z vers X13,
 Y17, Z4.8
 
-image:G81ex2.png[]
+image:images/G81ex2.png[]
 
 Exemple 3 - G81 en position relative
 
@@ -255,7 +255,7 @@ mouvement, mais puisque la valeur initiale de Z est inférieure à la
 valeur spécifiée dans R, un premier mouvement de Z sera effectué durant
 le mouvement préliminaire.
 
-image:G81.png[]
+image:images/G81.png[]
 
 Exemple 4 - G81 en absolu avec R > Z
 
@@ -270,7 +270,7 @@ vers cet emplacement. Après ce premier déplacement initial de Z, la
 répétition fonctionne de manière identique à celle de l'exemple 3 avec
 le mouvement final de Z à 0.6 en dessous de la valeur de R.
 
-image:G81a.png[]
+image:images/G81a.png[]
 
 Exemple 5 - Position relative R > Z
 
@@ -433,7 +433,7 @@ X,Y location.
 
 13. Restart the spindle in the direction it was going before.
 
-image:G87pre.png[]
+image:images/G87pre.png[]
 
 Exemple 6 - Backbore
 
@@ -456,13 +456,13 @@ the hole axis along the path just made by the tool. The amount of
 offset required should be just enough that the tool tip will slide down
 through the bore.
 
-image:G87s1.png[]
+image:images/G87s1.png[]
 
 Next the canned cycle moves the tool down in z and at the bottom
 location represented in the block by the Z 0.4 value it moves the tool
 back to the center of the bore.
 
-image:G87s5.png[]
+image:images/G87s5.png[]
 
 Now the g87 canned cycle turns the spindle on and moves back up into
 the bore at the programmed feed rate. This is the real cutting action
@@ -474,7 +474,7 @@ When the tool has reached the K position it is returned to the bottom
 location, the spindle is stopped and oriented and follows the earlier
 path back out of the bore to the initial position above.
 
-image:G87s12.png[]
+image:images/G87s12.png[]
 
 This canned cycle assumes spindle orientation which has not been
 implemented in the EMC to date. The proper alignment of the tool tip to
@@ -534,11 +534,11 @@ l'option (2), programmer G98(((G98))). Ne pas oublier que le mot R a
 différentes significations en mode de déplacement absolu et en mode de
 déplacement incrémental.
 
-image:G81g98d.png[]
+image:images/G81g98d.png[]
 
 Utilisation de G98
 
-image:G81ret.png[]
+image:images/G81ret.png[]
 
 Utilisation de G99
 
@@ -568,7 +568,7 @@ g80 (révocation du cycle G81)
 m2 (fin de programme)
 ----
 
-image:Eight.png[]
+image:images/eight.png[]
 
 Exemple 8 - Douze trous en carré
 
@@ -590,7 +590,7 @@ Z0
 M2 (fin de programme)
 ----
 
-image:Twelve.png[]
+image:images/twelve.png[]
 
 La deuxième raison d'utiliser les cycles de perçages, c'est qu'il
 produisent un mouvement préliminaire et retournent à une position

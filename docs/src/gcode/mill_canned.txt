@@ -1,6 +1,7 @@
+:lang: en
+:toc:
+
 = Canned Cycles (((Canned Cycles)))
-
-
 
 Canned Cycles G81 through G89 have been implemented for milling. This
 section describes how each cycle has been implemented. In addition G80
@@ -82,14 +83,18 @@ motion modes. In the EMC interpreter, G80 is one of the modal codes so
 any other code will replace it. The result of the following lines of
 code is the same.
 
-    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
-    G80 (turn off canned cycle motion) 
-    G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
+G80 (turn off canned cycle motion) 
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
 
 produces the same final position and machine state as
 
-    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)  
-    G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)  
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
 
 The advantage of the first set is that, the G80 line clearly turns off
 the G81 canned cycle. With the first set of blocks, the programmer must
@@ -104,22 +109,23 @@ code that contains an X, Y, or Z word. The following file drills (G81)
 a set of eight holes as shown. (note the z position change after the
 first four holes.)
 
-    G90 G0 X0 Y0 Z0 (coordinate home)  
-    G1 X0 G4 P0.1  
-    G81 X1 Y0 Z0 R1 (canned drill cycle)  
-    X2  
-    X3  
-    X4  
-    Y1 Z0.5  
-    X3  
-    X2  
-    X1  
-    G80 (turn off canned cycle)  
-    G0 X0 (rapid home moves)  
-    Y0  
-    Z0  
-    M2 (program end)
-
+----
+G90 G0 X0 Y0 Z0 (coordinate home)  
+G1 X0 G4 P0.1  
+G81 X1 Y0 Z0 R1 (canned drill cycle)  
+X2  
+X3  
+X4  
+Y1 Z0.5  
+X3  
+X2  
+X1  
+G80 (turn off canned cycle)  
+G0 X0 (rapid home moves)  
+Y0  
+Z0  
+M2 (program end)
+----
     
 .G81 Cycle[[cap:G81-Cycle]]
     
@@ -134,8 +140,8 @@ to the canned cycle.
 If you use G80 and do not set another modal motion code soon after,
 you may get one of the following error messages.
 
-    Cannot use axis commands with G80 
-    Coordinate setting given with G80
+`Cannot use axis commands with G80`
+`Coordinate setting given with G80`
 
 These should serve as a reminder that you need to write in a new
 motion word.
@@ -156,13 +162,20 @@ Example 2 - Absolute Position G81
 Suppose the current position is (1, 2, 3) and the following line of NC
 code is interpreted.
 
+----
 G90 G81 G98 X4 Y5 Z1.5 R2.8
+----
 
 This calls for absolute distance mode (G90) and OLD_Z retract mode
-(G98) and calls for the G81 drilling cycle to be performed once. The X
-value and X position are 4. The Y value and Y position are 5. The Z
-value and Z position are 1.5. The R value and clear Z are 2.8. OLD_Z is
-3.
+(G98) and calls for the G81 drilling cycle to be performed once.
+
+The X value and X position are 4.
+
+The Y value and Y position are 5.
+
+The Z value and Z position are 1.5.
+
+The R value and clear Z are 2.8. OLD_Z is 3.
 
 The following moves take place.
 
@@ -174,14 +187,16 @@ The following moves take place.
 
 4. a traverse parallel to the Z-axis to (4,5,3)
 
-image:G81ex1.png[]
+image:images/G81ex1.png[]
 
-Example 2 - Absolute Position G81
+Example 2 - Reletive Position G81
 
 Suppose the current position is (1, 2, 3) and the following line of NC
 code is interpreted.
 
+----
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+----
 
 This calls for incremental distance mode (G91) and OLD_Z retract mode
 (G98). It also calls for the G81 drilling cycle to be repeated three
@@ -219,7 +234,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 3. a traverse parallel to the Z-axis to (13,17,4.8)
 
-image:G81ex2.png[]
+image:images/G81ex2.png[]
 
 Example 3 - Relative Position G81
 
@@ -231,20 +246,22 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image:G81.png[]
+image:images/G81.png[]
 
 Example 4 - Absolute G81 R > Z
 
 This is a plot of the path of motion for the second g81 block of code.
 
+----
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+----
 
 Since this plot starts with (0, 0, 0), the interpreter adds the
 initial Z 0 and R 1.8 and rapids to that location. After that initial z
 move, the repeat feature works the same as it did in example 3 with the
 final z depth being 0.6 below the R value.
 
-image:G81a.png[]
+image:images/G81a.png[]
 
 Example 5 - Relative position R > Z
 
@@ -263,7 +280,9 @@ canned cycle looks just like g81 with the addition of a dwell at the
 bottom of the Z move. The length of the dwell is specified by a p# word
 in the g82 block.
 
+----
 G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
+----
 
 Would be equivalent to example 2 above with a dwell added at the
 bottom of the hole.
@@ -289,13 +308,17 @@ to the Z position, whichever is less deep.
 
 6. Retract the Z-axis at traverse rate to clear Z.
 
-NIST lists the elements of the command as G83 X- Y- Z- A- B- C- R- L-
-Q-
+NIST lists the elements of the command as G83 X- Y- Z- A- B- C- R- L- Q-
 
 I find this command very handy for many of my deep drilling projects.
 I have not tried to use the L for a repeat so can't say much about that
-feature. A typical g83 line that I would write might look like G83
-X0.285 Y0.00 Z-0.500 R0.2 L1 Q0.05. EMC moves to position X0.285 Y0.00
+feature. A typical g83 line that I would write might look like:
+
+----
+G83 X0.285 Y0.00 Z-0.500 R0.2 L1 Q0.05.
+----
+
+EMC moves to position X0.285 Y0.00
 at the z height before the block. It then pecks its way down to
 Z-0.500. Each peck pulls the drill tip up to R0.2 after moving Q0.05.
 
@@ -404,7 +427,7 @@ X,Y location.
 
 13. Restart the spindle in the direction it was going before.
 
-image:G87pre.png[]
+image:images/G87pre.png[]
 
 Example 6 - Backbore
 
@@ -412,17 +435,15 @@ Example six uses a incremental distances from (0, 0, 0) so the
 preliminary moves look much like those in example five but they are
 done using the G87 backbore canned cycle.
 
+----
 G91 G87 M3 S1000 X1 Y1 Z-0.4 R1.4 I-0.1 J-0.1 K-0.1
-
-
+----
 
 Now the g87 canned cycle turns the spindle on and moves back up into
 the bore at the programmed feed rate. This is the real cutting action
 of this canned cycle. With the proper tool in a boring bar this cycle
 will produce a chamfer on the bottom side of the bore. G87 can also be
 used to produce a larger diameter bore on the bottom side of the bore.
-
-
 
 This canned cycle assumes spindle orientation which has not been
 implemented in the EMC to date. The proper alignment of the tool tip to
@@ -474,9 +495,10 @@ incremental distance mode.
 
 Example
 
+----
 G0 X1 Y2 Z3
-
 G90 G98 G81 X4 Y5 Z-0.6 R1.8 F10
+----
 
 The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
@@ -512,6 +534,22 @@ for the canned cycle. It does not follow exactly the same path nor does
 it drill in the same order as the earlier example. But the program
 writing economy of a good canned cycle should be obvious.
 
+Example 7 - Eight Holes Revisited 
+----
+G90 G0 X0 Y0 Z0 (move coordinate home)
+G1 F10 X0 G4 P0.1
+G91 G81 X1 Y0 Z-1 R1 L4(canned drill cycle)
+G90 G0 X0 Y1
+Z0
+G91 G81 X1 Y0 Z-0.5 R1 L4(canned drill cycle)
+G80 (turn off canned cycle)
+M2 (program end)
+----
+The G98 to the second line above means that the return move will be to
+the value of Z in the first line since it is higher that the R value
+specified.
+
+image:images/eight.png[]
 
 
 Example 8 - Twelve holes in a square
@@ -521,7 +559,21 @@ incremental drill cycles for successive blocks of code within the same
 G81 motion mode. Here we produce 12 holes using five lines of code in
 the canned motion mode.
 
+----
+G90 G0 X0 Y0 Z0 (move coordinate home)
+G1 F50 X0 G4 P0.1
+G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
+X0 Y1 R0 L3 (repeat)
+X-1 Y0 L3 (repeat)
+X0 Y-1 L2 (repeat)
+G80 (turn off canned cycle)
+G90 G0 X0 (rapid home)
+Y0
+Z0
+M2 (program end)
+----
 
+image:images/twelve.png
 
 The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control

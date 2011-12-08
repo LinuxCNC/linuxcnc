@@ -174,7 +174,7 @@ The following moves take place.
 
 4. a traverse parallel to the Z-axis to (4,5,3)
 
-image:G81ex1.png[]
+image:images/G81ex1.png[]
 
 Example 2 - Absolute Position G81
 
@@ -219,7 +219,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 3. a traverse parallel to the Z-axis to (13,17,4.8)
 
-image:G81ex2.png[]
+image:images/G81ex2.png[]
 
 Example 3 - Relative Position G81
 
@@ -231,7 +231,7 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image:G81.png[]
+image:images/G81.png[]
 
 Example 4 - Absolute G81 R > Z
 
@@ -244,7 +244,7 @@ initial Z 0 and R 1.8 and rapids to that location. After that initial z
 move, the repeat feature works the same as it did in example 3 with the
 final z depth being 0.6 below the R value.
 
-image:G81a.png[]
+image:images/G81a.png[]
 
 Example 5 - Relative position R > Z
 
@@ -404,7 +404,7 @@ X,Y location.
 
 13. Restart the spindle in the direction it was going before.
 
-image:G87pre.png[]
+image:images/G87pre.png[]
 
 Example 6 - Backbore
 
