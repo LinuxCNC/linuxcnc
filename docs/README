@@ -59,6 +59,17 @@ More information here
 http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
+AsciiDoc Formatting:
+--------------------
+
+G Code and other code that you don't want to word wrap.
+---- < 4 dashes start of code
+lines of code
+...
+more code
+---- < 4 dashes end of code
+
+
 AsciiDoc Update:
 ----------------
 If you want to update docs just edit .txt file and run 'make docs'. Any text editor
