@@ -69,6 +69,17 @@ lines of code
 more code
 ---- < 4 dashes end of code
 
+Images
+
+put all images in the images subdirectory
+
+image::<target>[<attributes>]
+
+example
+image::images/axis.png[]
+
+If the image is small and displays too big in the pdf you can
+use the scaledwidth="60%" attribute
 
 AsciiDoc Update:
 ----------------
