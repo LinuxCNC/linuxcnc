@@ -841,7 +841,7 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 .Lathe Tool Shape[[cap:Lathe-Tool-Shape]]
 
-image::axis-lathe-tool.png[]
+image:images/axis-lathe-tool.png[]
 
 == Advanced Configuration
 
@@ -882,7 +882,7 @@ series of holes along the circumference of a circle.
 
 .Circular Holes[[cap:Circular-Holes]]
 
-image::holes.png[]
+image::images/holes.png[]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form

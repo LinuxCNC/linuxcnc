@@ -338,7 +338,7 @@ Quick Reference::
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
- . image:images/tool_estop.gif[align="center"] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
+ . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
 
  . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
 
@@ -372,7 +372,7 @@ From left to right in the Axis display, the toolbar buttons (keyboard shortcuts 
 
  . image:images/tool_axis_p.gif[] Perspective view
 
- . image:images/tool_rotate.gif[align="center"] Toggle between Drag and Rotate Mode [D]
+ . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
 
  . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
 
@@ -386,11 +386,11 @@ It shows the position of the machine.
 To the left of the axis name, an origin symbol is shown 
 if the axis has been homed. 
 
-image:images/axis-homed.png[align="center"] 
+image:images/axis-homed.png[] 
 
 A limit symbol is shown if the axis is on one of its limit switches.
 
-image:images/axis-limit.png[align="center"]
+image:images/axis-limit.png[]
 
 To properly interpret these numbers, refer to the "Position:"
 indicator in the status bar. If the position is "Absolute", then the
@@ -399,7 +399,7 @@ displayed number is in the machine coordinate system. If it is
 system. When the coordinates displayed are relative and an offset has
 been set, the display will include a cyan "machine origin" marker. 
 
-image:images/axis-machineorigin.png[align="center"]
+image:images/axis-machineorigin.png[]
 
 If the position is "Commanded", then it is the ideal position 
 --for instance, the exact coordinate given in a `G0` command. 
@@ -629,7 +629,7 @@ running, the MDI controls are unavailable.
 
 .The MDI tab[[cap:The-MDI-tab]]
 
-image::images/axis-mdi.png[]
+image::images/axis-mdi.png[scaledwidth="40%"]
 
 History:::
     This shows MDI commands that have been typed earlier in this session.
@@ -843,7 +843,7 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 .Lathe Tool Shape[[cap:Lathe-Tool-Shape]]
 
-image::axis-lathe-tool.png[]
+image:images/axis-lathe-tool.png[]
 
 == Advanced Configuration
 
@@ -884,7 +884,7 @@ series of holes along the circumference of a circle.
 
 .Circular Holes[[cap:Circular-Holes]]
 
-image::holes.png[]
+image::images/holes.png[]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form

@@ -1,6 +1,6 @@
 = Image-to-gcode: Milling “depth maps”
 
-image:image-to-gcode.png[]
+image:images/image-to-gcode.png[]
 
 == What is a depth map?
 
@@ -173,5 +173,5 @@ offset is 0.1 inches.
 
 .Roughing passes and final pass[[cap:Roughing-passes-and]]
 
-image::i2g-roughing.png[]
+image::images/i2g-roughing.png[]
 

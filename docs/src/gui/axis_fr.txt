@@ -934,7 +934,7 @@ une série de trous suivant un arc de cercle.
 
 .Perçages circulaires 
 
-image::holes.png[]
+image::images/holes.png[]
 
 Si la variable d'environnement: AXIS_PROGRESS_BAR est active, alors
 les lignes seront écrites sur stderr de la forme:

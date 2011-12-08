@@ -4,7 +4,7 @@
 
 .The Mini Graphical Interface (upon starting)[[fig:startmini]]
 
-image::mini01.png[]
+image::images/mini01.png[]
 
 Mini(((mini))) was designed to be a full screen graphical interface.
 It was first written for the Sherline(((Sherline))) CNC(((CNC))) but is
@@ -20,7 +20,7 @@ written for that mill by Joe Martin and Ray Henry.
 
 .Mini Display for a Running EMC[[fig:runmini]]
 
-image::mini02.png[]
+image::images/mini02.png[]
 
 The Mini screen is laid out in several sections. See Figure 
 (<<fig:startmini>>). These include a menu across the top, a set of main
@@ -182,7 +182,7 @@ through the available sizes.
 
 .Manual Mode Buttons[[cap:Manual-Mode-Buttons]]
 
-image::miniman.png[]
+image::images/miniman.png[]
 
 .From the Sherline CNC Operators Manual: 
 ***********************************************************************
@@ -245,7 +245,7 @@ the same as they do with the tkemc graphical interface.
 
 .Auto Mode[[cap:Auto-Mode]]
 
-image::miniauto.png[]
+image::images/miniauto.png[]
 
 Auto mode does not normally display the active or modal codes. If the
 operator wishes to check these, use menu Info -> Active_G-Codes. This
@@ -449,7 +449,7 @@ described in detail below.
 
 .Mini Text Editor[[cap:Mini-Text-Editor]]
 
-image::miniedit.png[]
+image::images/miniedit.png[]
 
 The editor is rather limited compared to many modern text editors. It
 does not have 'undo' nor 'paste' between windows with the clipboard. 
@@ -470,7 +470,7 @@ when you click on the editor button on the top menu.
 
 .Minis Backplotter[[cap:Minis-Backplotter]]
 
-image::minibkplot.png[]
+image::images/minibkplot.png[]
 
 Backplot [Backplot] will show the tool path that can be viewed from a
 chosen direction. '3-D' is the default. Other choices and controls are
@@ -507,7 +507,7 @@ is running or when the program is paused.
 
 .Mini Tool Display[[cap:Mini-Tool-Display]]
 
-image::minitool.png[]
+image::images/minitool.png[]
 
 The [Add Tools] and [Remove Tools] buttons work on the bottom of the
 tool list so you will want to fill in tool information in descending
@@ -526,7 +526,7 @@ an axis to a teach position.
 
 .Mini Offset Display[[cap:Mini-Offset-Display]]
 
-image::minioffsets.png[]
+image::images/minioffsets.png[]
 
 You can also teach using an edgefinder by adding the radius and length
 to the offset_by widgets. When you do this you may need to add or
