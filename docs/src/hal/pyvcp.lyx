@@ -1183,7 +1183,7 @@ Spinbox controls a FLOAT pin.
 \newline
     <max_>33</max_>
 \newline
-    <inival>0</inival>
+    <initval>0</initval>
 \newline
     <resolution>0.1</resolution>
 \newline
