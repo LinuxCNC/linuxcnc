@@ -79,20 +79,23 @@ EMC et doivent toujours avoir la section et le nom donné à l'item.
 
 == TWOPASS (deux passes)
 
-EMC2.5 supporte le processus dit TWOPASS (deux passes) des fichiers de configuration hal, ce qui aide à la modularisation des fichiers hal et devrait améliorer leur lisibilité.
+EMC2.5 supporte le processus dit TWOPASS (deux passes) des fichiers de configuration hal, 
+ce qui aide à la modularité des fichiers hal et devrait améliorer leur lisibilité.
 (les fichiers Hal sont spécifiés dans le fichier ini d'EMC, dans l'instance HAL sous la forme
-[HAL]HALFILE=nomfichier).
+*+[HAL]HALFILE=nomfichier)+*.
 
 Normalement, un jeu de un ou plusieurs fichiers de configuration HAL doivent utiliser une seule et unique ligne loadrt pour charger le module du kernel qui pourra gérer de multiples instances d'un même composant.  Par exemple: si vous utilisez en entrée deux portes AND, composant (and2) à trois endroits différents de votre configuration, vous ne devez avoir que cette seule ligne quelque part pour le spécifier:
-
+----
    loadrt and2 count=3
+----
 
 Ce qui fournira finalement les composants and2.0, and2.1, and2.2.
 
 Les configurations seront plus lisibles si vous spécifiez les composants sous la forme
 names=option quand c'est supporté, par exemple:
-
+----
   loadrt and2 names=aa,ab,ac
+----
 
 Ce qui nommera les composants aa,ab,ac.
 
@@ -102,16 +105,18 @@ vous devrez trouver et mettre à jour, la ligne de directives de loadrt, applica
 à ce composant.
 
 Le processus TWOPASS est activé par inclusion d'un paramètre dans le fichier ini:
-
-  [HAL]TWOPASS=anything
+----
+[HAL]TWOPASS=anything
+----
 
 Avec ce réglage, vous pouvez avoir de multiples spécifications comme:
-
+----
   loadrt and2 names=aa
   ...
   loadrt and2 names=ab,ac
   ...
   loadrt and2 names=ad
+----
 
 Ces commandes peuvent être placées dans différents fichiers HALFILES. Les HALFILES
 sont traités dans leur ordre d'apparition dans le fichier ini.
@@ -138,10 +143,11 @@ avec la configuration. Par exemple: si vous utilisez un composant 'dérivé' pou
 donnera un composant au nom ésotérique comme ddt.0, ddt.1, ddt.2, etc.
 
 Alternativement, l'utilisation de names=option comme:
-
+----
    loadrt ddt names=xvit,yvit,zvit
    ...
    loadrt ddt names=xacel,yacel,zacel
+----
 
 donnera des composants plus parlants, nommés xvel,yvel,zvel, xacel,yacel,zacel.
 
@@ -150,8 +156,9 @@ et supportent la méthode names=option. Il s'agit notamment de composants logiqu
 qui sont les briques de beaucoup de configurations HAL.
 
 Exemples d'inclusions:
-
+----
   and2,ddt,deadzone,flipflop,or2,or4,mux2,mux4,scale,sum2,timedelay,lowpass
+----
 
 et beaucoup d'autres.
 
@@ -247,7 +254,7 @@ HAL avec la syntaxe suivante:
 
 === Définitions
 
-Machine Unit:: #(unité de la machine)
+Machine Unit #(unité de la machine)::
      L'unité de mesure pour un axe est déterminée par les paramètres de
     la section [TRAJ]. Une unité machine est égale à une unité telle 
     que spécifiée par LINEAR_UNITS ou ANGULAR_UNITS.
@@ -368,7 +375,7 @@ INCREMENTS = 1 mm, .5 mm, ...::
     Si aucune unité n'est spécifiée, les unités natives de la machine seront utilisées. 
     Distances métriques et impériales peuvent être mélangées:: 
 
-    INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um sont des entrées valides.
+    *INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um sont des entrées valides.*
 
 OPEN_FILE = /full/path/to/file.ngc::
     Le fichier NC à utiliser au démarrage d'AXIS. Utilisez une chaîne 
@@ -425,8 +432,8 @@ HELP_FILE = tkemc.txt::
 
 AXIS la possibilité d'envoyer les fichiers chargés au travers d'un programme de filtrage.
 Ce filtrage peut réaliser toutes sortes de tâches: Parfois aussi simple que s'assurer que le programme se termine bien par M2, ou parfois aussi compliqué que détecter si le fichier d'entrée est une image et générer le g-code pour graver la forme qu'il à ainsi défini.
-La section [FILTER] du fichier ini, contrôle comment les filtres fonctionnent.
-Premièrement, pour chaque type de fichier, écrire une ligne PROGRAM_EXTENSION.
+La section *[FILTER]* du fichier ini, contrôle comment les filtres fonctionnent.
+Premièrement, pour chaque type de fichier, écrire une ligne *PROGRAM_EXTENSION*.
 Puis, spécifier le programme à exécuter pour chaque type de filtre. Ce 
 programme reçoit le nom du fichier d'entrée dans son premier argument, il
 doit écrire le code RS274NGC sur la sortie standard. C'est cette sortie qui
@@ -437,21 +444,24 @@ exécutée par EMC quand il sera en marche.
 
 Si votre fichier de sortie est tout en majuscules, vous devez ajouter 
 la ligne suivante:
-
-*PROGRAM_EXTENSION = .NGC XYZ Post Processor*
+----
+PROGRAM_EXTENSION = .NGC XYZ Post Processor
+----
 
 Les lignes suivantes ajoutent le support pour le convertisseur 'image-to-gcode'
 fourni avec EMC2:
-
-*PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image* +
-    *png = image-to-gcode* +
-    *gif = image-to-gcode* +
-    *jpg = image-to-gcode*
+----
+PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
+    png = image-to-gcode
+    gif = image-to-gcode
+    jpg = image-to-gcode
+----
 
 Il est également possible de spécifier un interpréteur:
-
-*PROGRAM_EXTENSION = .py Python Script* +
+----
+PROGRAM_EXTENSION = .py Python Script
     *py = python*
+----
 
 De cette façon, n'importe quel scrypt Python pourra être ouvert et ses sorties seront traitées
 comme du g-code. Un exemple de script de ce genre est disponible: nc_files/holecircle.py.
@@ -461,8 +471,9 @@ http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emc
 
 Si la variable d'environnement AXIS_PROGRESS_BAR est activée, alors les lignes
 écrites sur stderr de la forme
-
-*FILTER_PROGRESS=%d*
+----
+FILTER_PROGRESS=%d
+----
 
 activeront la barre de progression d'AXIS qui donnera le pourcentage. Cette fonctionnalité
 devrait être utilisée par tous les filtres susceptibles de fonctionner pendant un long moment.
@@ -591,27 +602,24 @@ HALFILE = example.hal::
     (`core_stepper.hal`) et un qui spécifie le brochage des sorties
     (`xxx_pinout.hal`)
 
-    HAL = command::
+HAL = command::
+    Exécute 'command' comme étant une simple commande hal. Si *HAL*  est
+    spécifié plusieurs fois, les commandes sont exécutées dans
+    l'ordre où elles apparaissent dans le fichier ini. Les lignes *HAL*
+    sont exécutées après toutes les lignes *HALFILE*.
 
-Exécute 'command' comme étant une simple commande hal. Si *HAL*  est
-spécifié plusieurs fois, les commandes sont exécutées dans
-l'ordre où elles apparaissent dans le fichier ini. Les lignes *HAL*
-sont exécutées après toutes les lignes *HALFILE*.
+SHUTDOWN = shutdown.hal::
+    Exécute le fichier 'shutdown.hal' quand emc s'arrête. Selon les
+    pilotes de matériel utilisés, il est ainsi possible de positionner les
+    sorties sur des valeurs définies quand emc s'arrête normalement.
+    Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
+    exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
+    remplace pas une véritable chaîne physique d'arrêt d'urgence ou
+    d'autres logiciels de protection des défauts de fonctionnement.
 
-    SHUTDOWN = shutdown.hal::
-
-Exécute le fichier 'shutdown.hal' quand emc s'arrête. Selon les
-pilotes de matériel utilisés, il est ainsi possible de positionner les
-sorties sur des valeurs définies quand emc s'arrête normalement.
-Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
-exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
-remplace pas une véritable chaîne physique d'arrêt d'urgence ou
-d'autres logiciels de protection des défauts de fonctionnement.
-
-    POSTGUI_HALFILE = example2.hal::
-
-'(Seulement avec les interfaces TOUCHY et AXIS)' Exécute 'example2.hal' après que
-l'interface graphique ait créé ses HAL pins. 
+POSTGUI_HALFILE = example2.hal::
+    '(Seulement avec les interfaces TOUCHY et AXIS)' Exécute 'example2.hal' 
+    après que l'interface graphique ait créé ses HAL pins. 
 
 === Section HALUI[[sub:Section-HALUI]]
 
@@ -773,13 +781,13 @@ COMP_FILE_TYPE = 0 ou 1::
      *Si 0:* Les deuxième et troisième valeurs spécifient 
     la position en avant (de combien l'axe est en déplacement vers l'avant) et 
     la position en arrière (de combien l'axe est en déplacement vers l'arrière), 
-    positions qui correspondent à la position nominale. +
+    positions qui correspondent à la position nominale.
      *Si 1:* Les deuxième et troisième valeurs spécifient 
     l'ajustement avant (à quelle distance de la valeur nominale lors d'un déplacement vers l'avant) et 
     l'ajustement arrière (à quelle distance de la valeur nominale lors d'un déplacement vers l'arrière), 
     positions qui correspondent à la position nominale. 
 
-    Exemple de triplet avec COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
+    Exemple de triplet avec COMP_FILE_TYPE = 0: 1.00 1.01 0.99
     Exemple de triplet avec COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
 MIN_LIMIT = -1000::
@@ -899,9 +907,9 @@ Ayez la prudence de ne pas chercher à aller en dessous d'une impulsion de codeu
 
 Exemple de calcul en unités machine par top de codeur à utiliser pour décider de la valeur de DEADBAND (bande morte): 
 
-X pouces / top de codeur = 
-1 tour / 1000 top de codeur * 1 top de codeur / 4 top en quadrature * 0.2 pouce / tour =
-0.200 pouce / 4000 top de codeur = 0.000050 pouce / top de codeur.
+*+X pouces / top de codeur =+*
+*+1 tour / 1000 top de codeur * 1 top de codeur / 4 top en quadrature * 0.2 pouce / tour =+*
+*+0.200 pouce / 4000 top de codeur = 0.000050 pouce / top de codeur.+*
 
 BIAS = 0.000::
      (in HAL) '(Parfois appelé *offset*)' il est utilisé par hm2-servo et quelques autres. 
@@ -972,38 +980,38 @@ OUTPUT_OFFSET = 0.000::
     Volts pour un amplificateur DAC. Cette mise à l'échelle ressemble à
     cela: 
 
-    raw = output-offset/scale
+*+raw = output-offset/scale+*
 
-     La valeur d'échelle peut être obtenue par analyse des unités, exemple: les unités
-    sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur 
-    une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
-    donne une vitesse de 250 mm/sec :
+la valeur d'échelle peut être obtenue par analyse des unités, exemple: les unités
+sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur 
+une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
+donne une vitesse de 250 mm/sec :
     
-    amplifier [volts] = (output[mm/s] - offset[mm/s]) / 250mm/(sec/Volt)
-    
-    Notez que les unités d'offset sont en unités machine, exemple:
-    mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
-    valeur de cet offset est obtenue en prenant la valeur de votre sortie
-    qui donne 0,0 sur la sortie de l'actuateur. Si le DAC est linéarisé,
-    cet offset est normalement de 0.0.  
+*+amplifier [volts] = (output[mm/s] - offset[mm/s]) / 250mm/(sec/Volt)+*
+   
+Notez que les unités d'offset sont en unités machine, exemple:
+mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
+valeur de cet offset est obtenue en prenant la valeur de votre sortie
+qui donne 0,0 sur la sortie de l'actuateur. Si le DAC est linéarisé,
+cet offset est normalement de 0.0.  
 
-     L'échelle et l'offset peuvent être utilisés pour linéariser les DAC,
-    d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
-    de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
-    suivez cette procédure: 
-      . Construire un tableau de calibrage pour la sortie, piloter le DAC
-       avec la tension souhaitée et mesurer le résultat. Voir le tableau 
-       <<cap:Mesure-des-tensions-de-sortie>> pour un exemple de mesures de
-       tension.
-      . Effectuer un “least squares” linéaire pour obtenir les
-       coefficients a,b tels que: mesure = a*raw+b
-      . Notez que nous voulons des sorties brutes de sorte que nos résultats
-       mesurés soient identiques à la sortie commandée. Ce qui signifie:
-        . cmd = a*raw+b
-        . raw = (cmd-b)/a
-      .  En conséquence, les coefficients a et b d'ajustement linéaire
-       peuvent être directement utilisés comme valeurs d'échelle et 
-       d'offset pour le contrôleur. 
+L'échelle et l'offset peuvent être utilisés pour linéariser les DAC,
+d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
+de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
+suivez cette procédure:
+
+- Construire un tableau de calibrage pour la sortie, piloter le DAC
+   avec la tension souhaitée et mesurer le résultat. Voir le tableau 
+   ci-dessous pour un exemple de mesures de tension.
+- Par la méthode des moindres carrés, obtenir les coefficients a,b 
+   tels que: *+mesure = a*raw+b+*
+- Notez que nous voulons des sorties brutes de sorte que nos résultats
+   mesurés soient identiques à la sortie commandée. Ce qui signifie:
+- *+cmd = a*raw+b+*
+- *+raw = (cmd-b)/a+*
+-  En conséquence, les coefficients a et b d'ajustement linéaire
+   peuvent être directement utilisés comme valeurs d'échelle et 
+   d'offset pour le contrôleur. 
 
 .Mesure des tensions de sortie[[cap:Mesure des tensions de sortie]]
 
@@ -1027,33 +1035,33 @@ MAX_OUTPUT = 10::
     manière symétrique aux deux le plus et le côté négatif.
 
 INPUT_SCALE = 20000::
-(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui
-correspond à un mouvement d'une unité machine. 
-Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
-Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
-Un second chiffre, si spécifié, sera ignoré. 
-Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
-réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
+    (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui
+    correspond à un mouvement d'une unité machine. 
+    Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
+    Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
+    Un second chiffre, si spécifié, sera ignoré. 
+    Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
+    réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
 
-INPUT_SCALE = 2000 top/tour * 10 tour/pouce = 20000 top/pouce
+*+INPUT_SCALE = 2000 top/tour * 10 tour/pouce = 20000 top/pouce+*
 
 ==== Variables relatives aux moteurs pas à pas[[sub:Variables relatives aux moteurs pas a pas]]
 
 SCALE = 4000::
-(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
-mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
-Pour les systèmes à moteurs pas à pas, c'est 
-le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
-Pour un axe linéaire, une unité machine sera égale à la valeur de LINEAR_UNITS. 
-Pour un axe angulaire, une unité est égale à la valeur de ANGULAR_UNITS. 
-Pour les systèmes à servomoteurs, c'est le nombre d'impulsions
-de retour signifiant que le mobile a avancé d'une unité machine. 
-Un second nombre, si spécifié, sera ignoré. 
-Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une
-réduction de 10 tours/pouce et des unités souhaitées en mm, nous
-avons:
+    (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
+    mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
+    Pour les systèmes à moteurs pas à pas, c'est 
+    le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
+    Pour un axe linéaire, une unité machine sera égale à la valeur de LINEAR_UNITS. 
+    Pour un axe angulaire, une unité est égale à la valeur de ANGULAR_UNITS. 
+    Pour les systèmes à servomoteurs, c'est le nombre d'impulsions
+    de retour signifiant que le mobile a avancé d'une unité machine. 
+    Un second nombre, si spécifié, sera ignoré. 
+    Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une
+    réduction de 10 tours/pouce et des unités souhaitées en mm, nous
+    avons:
 
-scale = 2 pas/1.8 degrés * 360 degrés/tour * 10 tour/pouce = 4000 pas/pouce
+*+scale = 2 pas/1.8 degrés * 360 degrés/tour * 10 tour/pouce = 4000 pas/pouce+*
 
 (D'anciens fichiers de .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
 

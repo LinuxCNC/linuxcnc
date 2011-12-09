@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-= L'outil de création d'interfaces graphiques GladeVCP
+= Création d'interfaces graphiques avec GladeVCP
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -93,11 +93,12 @@ image::images/example-tabbed-small.png[]
 Pour lancer ce même panneau comme une fenêtre d'avant plan sur Axis, démarrer 
 Axis en arrière plan puis démarrer gladevcp de la manière suivante:
 
-*+$ cd configs/sim/gladevcp+*
+*_$ cd configs/sim/gladevcp_*
 
-*+$ emc axis.ini &+*
+*_$ emc axis.ini &_*
 
-*+$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui+*
+*_$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H 
+../gladevcp/manual-example.hal ../gladevcp/manual-example.ui_*
 
 image::images/example-float-small.png[]
 
@@ -164,8 +165,8 @@ explorer la liste des widgets sous 'Actions' en haut à droite de la fenêtre,
 et dans le bas à droite de la fenêtre, sous l'onglet 'Général', les propriétés
 des 'commandes MDI'.
 
-=== Explorer le callback de Python
-Voici comment un callback Python est intégré dans l'exemple:
+=== Explorer la fonction de rappel de Python
+Voici comment une fonction de rappel Python est intégrée dans l'exemple:
 
  - Dans glade, regarder le label du widget +hits+ (un widget GTK+).
  - Dans le widget +button1+, regarder dans l'onglet 'Signaux' et trouver le
@@ -173,8 +174,8 @@ Voici comment un callback Python est intégré dans l'exemple:
  - Dans ../gladevcp/hitcounter.py, regarder la méthode 'on_button_press' 
    et comment elle place la propriété du label dans l'objet 'hits'.
 
-C'était juste pour toucher le concept du doigt. Le mécanisme de callback sera
-détaillé plus en détails dans la section <<gladevcp:GladeVCP_Programming,
+C'était juste pour toucher le concept du doigt. Le mécanisme de fonction de rappel
+sera détaillé plus en détails dans la section <<gladevcp:GladeVCP_Programming,
 Programmation de GladeVCP>>.
 
 == Créer et intégrer une interface utilisateur Glade
@@ -244,7 +245,7 @@ Vous vous demandez peut être pourquoi les widgets conteneurs comme 'HAL_Hbox' o
 associée qui est désactivée par défaut, c'est ce qui cause ce rendu grisé des
 widgets conteneurs inactifs. Un cas d'utilisation courante pourrait être pour
 associer les pins de HAL du conteneur +halui.machine.is-on+ ou un des signaux
-+halui.mode.+, pour s'assurer que certains widgets n'apparaissent actif que dans
++halui.mode.+, pour s'assurer que certains widgets n'apparaissent actifs que dans
 un certain état.
 
 Pour activer un conteneur, exécuter la commande HAL +setp gladevcp.<nom-du-conteneur> 1+.
@@ -284,8 +285,9 @@ Le nom de composant HAL d'une application GladeVCP lancé avec l'option GLADEVCP
 est toujours: +gladevcp+.
 La ligne de commande actuellement lancée par Axis dans la configuration ci-dessous
 est la suivante:
-
- halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP=>
+----
+halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP=>
+----
 
 Ce qui veux dire que n'importe quelle option gladevcp, peut être ajoutée ici, tant 
 qu'elle n'entre pas en collision avec les options des lignes de commande suivantes.
@@ -304,10 +306,12 @@ les lignes suivantes:
 [DISPLAY]
 # ajoute le panneau GladeVCP dans un nouvel onglet:
 EMBED_TAB_NAME=GladeVCP demo
-EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
+EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u 
+../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
 
 [HAL]
-# commandes HAL pour le composant GladeVCP dans un onglet doit être exécuté via POSTGUI_HALFILE
+# commandes HAL pour le composant GladeVCP dans un onglet doit être exécuté via 
+POSTGUI_HALFILE
 POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 
 [RS274NGC]
@@ -335,17 +339,19 @@ GladeVCP dans les deux déclarations +GLADEVCP=+ et +EMBED_TAB_COMMAND=+.
 
 === Intégration dans Touchy
 Pour ajouter un onglet GladeVCP à 'Touchy', éditer le fichier .ini comme cela:
+
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # ajoute un panneau GladeVCP dans un onglet
 EMBED_TAB_NAME=GladeVCP demo
-EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H ../gladevcp/gladevcp-touchy.hal  ../gladevcp/manual-example.ui
+EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H 
+../gladevcp/gladevcp-touchy.hal ../gladevcp/manual-example.ui
 
 [RS274NGC]
 # les sous-programmes Oword spécifiques à gladevcp se placent ici
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 Noter les différences suivantes avec la configuration de l'onglet d'Axis:
 
@@ -353,8 +359,8 @@ Noter les différences suivantes avec la configuration de l'onglet d'Axis:
    pas le composant 'halui', ses signaux ne sont donc pas disponibles et certains
    raccourcis ont été pris.
 
- - Il n'y a pas d'option 'POSTGUI_HALFILE=', mais il est correct, de passer le 
-   fichier de commandes HAL, par la ligne 'EMBED_TAB_COMMAND='.
+ - Il n'y a pas d'option 'POSTGUI_HALFILE=', mais il est correct, de passer le fichier de commandes HAL, + 
+   par la ligne 'EMBED_TAB_COMMAND='.
 
  - L'appel 'halcmd loaduser -Wn ...' n'est pas nécessaire.
 
@@ -377,10 +383,9 @@ Options:
     Active la sortie débogage
 
 -g GEOMETRY::
-     Fixe la géométrie à WIDTHxHEIGHT+XOFFSET+YOFFSET. Les valueurs sont en pixels,
-    XOFFSET/YOFFSET est référencé à partir du coin haut, à gauche de l'écran.
-    Utilise -g WIDTHxHEIGHT pour fixer une taille ou -g +XOFFSET+YOFFSET pour 
-    fixer une position 
+     Fixe la géométrie à WIDTHxHEIGHT+XOFFSET+YOFFSET. Les valueurs sont en pixels, +
+    XOFFSET/YOFFSET est référencé à partir du coin haut, à gauche de l'écran. +
+    Utilise -g WIDTHxHEIGHT pour fixer une taille ou -g +XOFFSET+YOFFSET pour fixer une position 
 
 -H FILE::
     exécute les déclarations de HAL depuis FILE, avec halcmd après que le composant 
@@ -394,7 +399,8 @@ Options:
 -t THEME::
     fixe le thème gtk. Par défaut, le thème système. Différents panneaux peuvent
     avoir différents thèmes.
-    Un exemple de thème peut être trouvé sur le http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[Wiki d'EMC2].
+    Un exemple de thème peut être trouvé sur le 
+    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[Wiki d'EMC2].
 
 -x XID::
     Redonne un parent GladeVCP dans une fenêtre existante XID au lieu d'en 
@@ -414,7 +420,7 @@ interactions avec la couche HAL d'EMC. Il sont destinés à être utilisés avec
 interfaces créées par l'éditeur de Glade. Avec une installation correcte, les 
 widgets HAL devraient être visibles, dans l'éditeur Glade, dans le groupe des 
 Widgets 'HAL Python'. Beaucoup de champs spécifiques à HAL dans l'onglet 'Général'
-affichent une bulle d'information au survol de la souris.
+affichent une infobulle au survol de la souris.
 
 Il y a deux variantes de signaux de HAL, bits et nombres. Les signaux
 bits sont les on/off. Les nombres peuvent être des "float", des "s32" ou
@@ -432,7 +438,7 @@ classe de widgets d'aide permettent d'organiser et d'étiqueter les panneaux.
  - Widgets d'indications "nombre" signals: <<gladevcp:HAL_Label>>,
    <<gladevcp:HAL_ProgressBar,HAL Barre de progression>>,
    <<gladevcp:HAL_HBar,HAL HBar>>, <<gladevcp:HAL_HBar,HAL VBar>>,
-   <<gladevcp:HAL_Meter,HAL Indicateur à aiguille>>
+   <<gladevcp:HAL_Meter,HAL Indicateur>>
  - Widgets de contrôle "nombre" signals: <<gladevcp:HAL_SpinButton,Roue codeuse>>,
    <<gladevcp:HAL_HScale,HAL HScale>>,
    <<gladevcp:HAL_HScale,HAL VScale>>
@@ -450,7 +456,7 @@ nom que le widget (glade: Général->Nom).
 
 Les exceptions à cette règle sont actuellement:
 
-- 'HAL_Spinbutton' et 'HAL_ComboBox', qui ont deux pins: une pin 
+- 'HAL_Spinbutton' et 'HAL_ComboBox', qui ont deux pins: une pin +
    +<nomwidget>-f+ (float) et une pin +<nomwidget>-s+ (s32)
 - 'HAL_ProgressBar', qui a une pin d'entrée +<nomwidget>-value+, et une pin 
 d'entrée +<nomwidget>-scale+.
@@ -472,18 +478,19 @@ dans un fichier Hal associé, pour les essais.
 
 Il est par contre, parfaitement autorisé de mettre une valeur sur une pin de 
 sortie de Hal avec +halcomp[nompin] = valeur+ à condition que cette pin ne soit
-pas déjà associée avec un autre widget, ce qui aurait pu être créé par la méthode 
-+hal_glib.GPin(halcomp.newpin(<nom>,<type>,<direction>)+. Voir <<gladevcp:GladeVCP_Programming,Programmation de GladeVCP>> pour d'autres exemples.
+pas déjà associée avec un autre widget, ce qui aurait pu être créé par la méthode +
++hal_glib.GPin(halcomp.newpin(<nom>,<type>,<direction>)+. 
+Voir <<gladevcp:GladeVCP_Programming,Programmation de GladeVCP>> pour d'autres exemples.
 
 [[gladevcp::hal-pin-changed_signal]]
 === Le signal 'hal-pin-changed'
 
 La programmation événementielle signifie que l'interface graphique indique au 
-code quand "quelque chose se produit", grâce à un callback, comme quand un 
+code quand "quelque chose se produit", grâce à une fonction de rappel, comme quand un 
 bouton est pressé, la sortie du widget HAL (ceux qui affichent la valeur des pins 
 de HAL) comme une LED, une barre, une VBar, un indicateur à aiguille etc, 
-supportent le signal 'hal-pin-changed' qui peut provoquer un callback dans le 
-code Python quand une pin de HAL change de valeur. Cela veut dire qu'il n'est 
+supportent le signal 'hal-pin-changed' qui peut provoquer une fonction de rappel 
+dans le code Python quand une pin de HAL change de valeur. Cela veut dire qu'il n'est 
 plus nécessaire d'interroger en permanence les pins de HAL dans le code pour 
 connaitre les changements, les widgets font ça en arrière plan et le font savoir.
 
@@ -575,7 +582,7 @@ Le Label HAL est un simple widget basé sur GtkLabel qui représente la valeur
 d'une pin de HAL dans un format défini par l'utilisateur.
 
 HAL pin type::
-	Les pins de HAL sont des types (0:S32, 1:float ou 2:U32), voir aussi la bulle
+	Les pins de HAL sont des types (0:S32, 1:float ou 2:U32), voir aussi l'infobulle
     d'info sur 'Général->HAL pin type', (noter que c'est différent de PyVCP qui
     lui, a trois widgets label, un pour chaque type).
 
@@ -760,18 +767,18 @@ image:images/vscale.png[]
 .
 
 [[gladevcp:HAL_Meter]]
-=== L'indicateur à aiguille (HAL Meter)
+=== L'indicateur (HAL Meter)
 
-L'indicateur à aiguille (HAL Meter) est un widget similaire à celui de PyVCP, 
+L'indicateur est un widget similaire à celui de PyVCP, 
 il représente une valeur flottante et a une pin d'entrée de HAL FLOAT. 
-L'indicateur à aiguille a les deux propriétés suivantes:
+L'indicateur a les deux propriétés suivantes:
 
 min, max::
    Valeurs minimum et maximum de l'étendue souhaitée. Ce n'est pas une erreur si
    la valeur courante dépasse cette étendue.
 force_size::
    Force le diamètre du widget. Si inutilisé, alors la taille sera déduite du
-   conteneur ou des dimensions d'un widget à taille fixe. L'indicateur à aiguille
+   conteneur ou des dimensions d'un widget à taille fixe. L'indicateur
    occupera alors l'espace le plus grand disponible, tout en respectant les
    proportions.
 text_template::
@@ -795,7 +802,7 @@ z0_border, z1_border::
    zone 2 depuis la dernière bordure jusqu'à max. Les bordures se règlent sur une
    étendue comprise en min et max.
 
-Exemples d'indicateurs à aiguille:
+Exemples d'indicateurs:
 
 image::images/hal_meter.png[]
 .
@@ -874,8 +881,8 @@ bouton radio ou d'une case à cocher.
 Ce sont des widgets double état. Ils implémentent deux actions ou utilisent un
 second état (habituellement, 'pressé') pour indiquer qu'une action est actuellement
 en cours. Les bascules action sont prévues pour être utilisées avec les boutons
-bascule (ToggleButtons) et les boutons bascule d'outil (ToggleToolButtons) ou 
-encore, pour basculer les items de menu. Un exemple simple est le bouton bascule
+à bascule (ToggleButtons) et les boutons à bascule d'outil (ToggleToolButtons) ou 
+encore, pour basculer les items de menu. Un exemple simple est le bouton à bascule
 d'Arrêt d'Urgence (EStop).
 
 Actuellement, les widgets suivants sont disponibles:
@@ -950,26 +957,26 @@ et lancer `gladevcp owordsub.ui` depuis un terminal. Ce qui devrait ressembler �
 
 image::images/oword.png[]
 
-=== Préparation pour une Action_MDI et nettoyage par la suite
+=== Préparation d'une Action_MDI
 
-L'interpréteur de G-code d'EMC a un simple jeu de variables globales, comme
-vitesse, vitesse broche, mode relatif/absolu et autres. Si on utilise des commandes
-G-code ou des sous-programmes O-word, certaines de ces variables doivent être
-modifiées par la commande ou le sous-programme. Par exemple, un sous-programme
-de sonde a très probablement besoin de définir la vitesse d'avance à une valeur
-très faible. Sans autres précautions, le réglage de vitesse précédent serait 
-écrasé par la valeur du sous-programme de sonde.
+L'interpréteur de G-code d'EMC dispose d'un simple jeu de variables globales, 
+comme la vitesse travail, la vitesse broche, le mode relatif/absolu et autres. 
+Si on utilise des commandes G-code ou des sous-programmes O-word, certaines de 
+ces variables doivent être modifiées par la commande ou le sous-programme. 
+Par exemple, un sous-programme de sonde a très probablement besoin de définir 
+la vitesse d'avance à une valeur très faible. Sans autres précautions, le 
+réglage de vitesse précédent serait écrasé par la valeur du sous-programme de sonde.
 
-Pour faire avec ce surprenant, autant qu'indésirable effet de bord, produit par 
+Pour faire avec ce surprenant, autant qu'indésirable effet de bord produit par 
 un sous-programme O-word ou un G-code exécuté avec une bascule Action MDI, 
-le gestionnaire pré-MDI et post-MDI doit être associé avec une EMC bascule Action_MDI
+le gestionnaire pré-MDI et post-MDI doit être associé avec une bascule Action_MDI
 donnée. Ces gestionnaires sont optionnels et fournissent une voie pour sauver tous 
 les états avant d'exécuter l'action MDI et pour les restaurer ensuite aux valeurs 
 précédentes. Les noms de signaux sont +mdi-command-start+ et +mdi-command-stop+,
-les noms de gestionnaires peuvent être fixés dans Glade comme tout autre gestionnaire.
+les noms de gestionnaire peuvent être fixés dans Glade comme tout autre gestionnaire.
 
 Voici un exemple, montrant comment la valeur de la vitesse d'avance est sauvée
- et restaurée par de tels gestionnaires, noter que la commande EMC et le statut 
+puis restaurée par de tels gestionnaires, noter que la commande EMC et le statut 
 des voies sont disponibles comme +self.emc+ et +self.stat+ à travers la classe
 EMC_ActionBase:
 
@@ -988,38 +995,37 @@ EMC_ActionBase:
 Seule le widget de la bascule Action_MDI, supporte ces signaux.
 
 [NOTE]
-Dans une prochaine version d'EMC2, les nouveaux M-codes M70 à M72 seront disponnibles,
-ils sauveront l'état avant l'appel du sous-programme, la restauration de l'état
+Dans une prochaine version d'EMC2, les nouveaux M-codes M70 à M72 seront disponibles,
+ils enregistreront l'état avant l'appel du sous-programme, la restauration de l'état
 au retour sera plus aisée.
 
-=== Using the EMC Stat object to deal with status changes
+=== Utiliser l'objet EMC Stat pour traiter les changements de statut
 
-Many actions depend on EMC status - is it in manual, MDI or auto mode?
-is a program running, paused or idle? You cannot start an MDI command
-while a G-code program is running, so this needs to be taken care of.
-Many EMC actions take care of this themselves, and related buttons and
-menu entries are deactivated when the operation is currently
-impossible.
+Beaucoup d'actions dépendent du statut d'EMC, est-il en mode manuel, en mode MDI
+ou en mode auto ? Un programme est-il en cours d'exécution, est-il en pause 
+ou au repos ? Il est impossible de lancer une commande MDI tant qu'un programme 
+G-code est en cours d'exécution, cela doit donc être pris en compte.
+Beaucoup d'actions EMC prennent cela en compte d'elle même, les boutons et les
+options de menu sont désactivés quand leurs actions sont rendues impossibles.
 
-When using Python event handlers - which are at a lower level than
-Actions - one needs to take care of dealing with status dependencies
-oneself. For this purpose, there's the EMC Stat widget: to associate
-EMC status changes with event handlers.
+Avec l'utilisation des gestionnaires d'événements Python, qui sont à un niveau 
+inférieur aux Actions, on doit prendre soin de traiter les dépendances de statut
+soit-même. À cette fin, existe le widget 'EMC Stat', il associe les changements de
+statut d'EMC avec les gestionnaires d'événements.
 
-EMC Stat has no visible component - you just add it to your UI with
-Glade. Once added, you can associate handlers with its following
-signals:
+EMC Stat n'a pas de composant visible, il suffi de l'ajouter dans l'éditeur Glade.
+Une fois ajouté, vous pouvez associer des gestionnaires avec les signaux suivants:
 
-* state-related:     emitted when E-Stop condition occurs, is reset, machine is turned on, or is turned off
-  - +state-estop+
-  - +state-estop-reset+
-  - +state-on+,
-  - +state-off+
-* mode-related:    emitted when EMC enters that particular mode
-  - +mode-manual+
+* relatif au statut:    émis quand l'arrêt d'urgence est activé, ou désactivé, 
+  - +state-estop+       la machine est totalement arrêtée, puissance coupée.
+  - +state-estop-reset+ la machine passe à l'arrêt. 
+  - +state-on+,         la machine est mise en marche 
+  - +state-off+         la machine passe à l'arrêt.
+* relatif au mode:    émis quand EMC entre dans un de ces modes particuliers
+  - +mode-manual+ 
   - +mode-mdi+
   - +mode-auto+
-* interpreter-related:  emitted when the G-code interpreter changes into that mode
+* relatif à l'interpréteur: émis quand l'interpréteur de G-code passe dans un de ces modes
   - +interp-run+
   - +interp-idle+
   - +interp-paused+
@@ -1030,42 +1036,43 @@ signals:
 [[gladevcp:GladeVCP_Programming]]
 == Programmation de GladeVCP
 
-=== User Defined Actions
+=== Actions définies par l'utilisateur
 
-Most widget sets, and their associated user interface editors, support
-the concept of callbacks - functions in user-written code which are
-executed when 'something happens' in the UI - events like mouse clicks,
-characters typed, mouse movement, timer events, window hiding and
-exposure and so forth.
+La plupart des jeux de widgets, par le biais de l'éditeur Glade, supportent le 
+concept de fonction de rappel, fonctions écrites par l'utilisateur, qui sont 
+exécutées quand 'quelque chose arrive' dans l'UI, événements tels que clics 
+de souris, caractère tapé, mouvement de souris, événements d'horloge, fenêtre 
+iconisée ou agrandie et ainsi de suite.
 
-HAL output widgets typically map input-type events like a button press
-to a value change of the associated HAL pin by means of such a -
-predefined - callback. Within PyVCP, this is really the only type of event
-handling supported - doing something more complex, like executing MDI
-commands to call a G-code subroutine, is not supported.
+Les widgets de sortie HAL, typiquement, scrutent les événements de type 'entrée',
+tels qu'un bouton pressé, provoquant un changement de la valeur d'une pin HAL 
+associée par le biais d'une telle fonction de rappel prédéfinie. Dans PyVCP, 
+c'est réellement le seul type d'événement qui peut être défini à la main. Faire 
+quelque chose de plus complexe, comme exécuter une commande MDI pour appeler un 
+sous-programme G-code, n'est pas supporté.
 
-Within GladeVCP, HAL pin changes are just one type of the general
-class of events (called signals) in GTK+. Most widgets may originate such
-signals, and the Glade editor supports associating such a signal with a
-Python method or function name.
+Dans GladeVCP, les changement sur les pins de HAL sont juste un type de la classe 
+générale d'événements (appelés signaux) dans GTK+. La plupart des widgets peuvent
+générer de tels signaux et l'éditeur de Glade supporte l'association de ces
+signaux avec une méthode Python ou nom de fonction.
 
-If you decide to use user-defined actions, your job is to write a
-Python module whose class methods - or in the simple case, just
-functions - can be referred to in Glade as event handlers. GladeVCP
-provides a way to import your module(s) at startup and will
-automatically link your event handlers with the widget signals as set
-in the Glade UI description.
+Si vous décidez d'utiliser les actions définies par l'utilisateur, votre travail 
+consistera à écrire un module Python dont la méthode, une fonction suffit
+dans les cas simples, peut être référencée à un gestionnaire d'événements dans 
+Glade. GladeVCP fournit un moyen d'importer votre module au démarrage, il sera 
+alors lié automatiquement au gestionnaire d'événements avec les signaux de 
+widget comme un ensemble dans la description de l'éditeur Glade.
 
-=== An example: adding custom user callbacks in Python
+=== Un exemple: ajouter une fonction de rappel en Python
 
-This is just a minimal example to convey the idea - details are laid
-out in the rest of this section.
+Ceci est juste un exemple minimal pour exprimer l'idée, les détails sont donnés 
+dans le reste de cette section.
 
-GladeVCP can not only manipulate or display HAL pins, you can also
-write regular event handlers in Python. This could be used, among
-others, to execute MDI commands. Here's how you do it:
+GladeVCP peut, non seulement manipuler ou afficher les pins de HAL, il est possible
+aussi d'écrire des gestionnaires d'événements en Python. Ce qui peut être utilisé,
+entre autre, pour exécuter des commandes MDI. Voici comment faire:
 
-Write a Python module like so and save as e.g. handlers.py:
+Écrire un module Python comme le suivant, et l'enregistrer sous le nom handlers.py
 
 [source,python]
 ----
@@ -1074,67 +1081,66 @@ def on_button_press(gtkobj,data=None):
     global nhits nhits += 1 gtkobj.set_label("hits: %d" % nhits)
 ----
 
-In Glade, define a button or HAL button, select the 'Signals' tab, and
-in the GtkButton properties select the 'pressed' line. Enter
-'on_button_press' there, and save the Glade file.
+Dans Glade, définir un bouton ou un bouton HAL, sélectionner l'onglet 'Signal', 
+et dans les propriétés GtkButton sélectionner la ligne 'pressed'. Entrer
+'on_button_press' ici, puis enregistrer le fichier Glade.
 
-Then add the option '-u handlers.py' to the gladevcp command line. If
-your event handlers are spread over several files, just add multiple
-'-u <pyfilename>' options.
+Ensuite, ajouter l'option '-u handlers.py' à la ligne de commande de gladevcp. 
+Si les gestionnaires d'événements son répartis sur plusieurs fichiers, ajouter de
+multiples options '-u <pynomfichier>'.
 
-Now, pressing the button should change its label since it's set in the
-callback function.
+Maintenant, presser le bouton devrait modifier son label car il est défini dans 
+la fonction de rappel.
 
-What the +-u+ flag does: all Python functions in this file are
-collected and setup as potential callback handlers for your Gtk widgets
-- they can be referenced from Glade 'Signals' tabs. The callback
-handlers are called with the particular object instance as parameter,
-like the GtkButton instance above, so you can apply any GtkButton
-method from there.
+Que fait le drapeau +-u+: toutes les fonctions Python dans ce fichier sont
+collectées et configurées comme des gestionnaires de fonction de rappel potentiels
+pour les widgets Gtk, ils peuvent être référencés depuis l'onglet 'Signaux' de Glade.  
+Le gestionnaire de fonction de rappel est appelé avec l'instance de l'objet 
+particulier comme paramètre, comme l'instance du GtkButton précédente, ainsi, 
+il est possible d'appliquer n'importe quelle méthode GtkButton depuis ici.
 
-Or do some more useful stuff, like calling an MDI command!
+Ou faire des choses plus utiles, par exemple, appeler une commande MDI!
 
-=== HAL value change events
+=== L'événement valeur de HAL modifiée
 
-HAL input widgets, like a LED, automatically associate their HAL pin state
-(on/off) with the optical appearance of the widget (LED lit/dark).
+Les widgets d'entrée HAL, comme la Led, ont l'état de leur pin de HAL (on/off), 
+automatiquement associé avec l'apparence optique du widget (Led allumée/éteinte).
 
-Beyond this builtin functionality, one may associate a change
-callback with any HAL pin, including those of predefined HAL
-widgets. This fits nicely with the event-driven structure of a typical
-widget application: every activity, be it mouse click, key, timer
-expired, or the change of a HAL pin's value, generates a callback and
-is handled by the same orthogonal mechanism.
+Au delà de cette fonctionnalité primitive, on peut associer n'importe quelle pin
+de HAL avec une fonction de rappel, y compris les widgets de HAL prédéfinis. 
+Cela correspond bien avec la structure événementielle de l'application typique 
+du widget: chaque activité, qu'elle soit un simple clic de souris, une touche 
+pressée, une horloge expirée ou le changement de valeur d'une pin de HAL, 
+générera une fonction de rappel et sera gérée par le même mécanisme.
 
-For user-defined HAL pins not associated with a particular HAL widget,
-the signal name is 'value-changed'. See the
-<<gladevcp:Adding_HAL_pins,Adding HAL pins>> section below for
-details.
+Pour les pins de HAL définies par l'utilisateur, non associées à un widget de 
+HAL particulier, le nom du signal est 'value-changed'. Voir la section 
+<<gladevcp:Adding_HAL_pins,Ajouter des pins de HAL>> pour plus de détails.
 
-HAL widgets come with a pre-defined signal called 'hal-pin-changed'. See the
-<<gladevcp::hal-pin-changed_signal,Hal Widgets section>> for details. 
+Les widgets HAL sont fournis avec un signal pédéfini appelé 'hal-pin-changed'.
+Voir la section sur <<gladevcp::hal-pin-changed_signal,les Widgets HAL>> pour
+d'autres détails. 
 
+=== Modèle de programmation
 
-=== Programming model
+L'approche globale est la suivante:
 
-The overall approach is as follows:
+ - Concevoir l'interface graphique avec Glade, fixer les gestionnaires de signaux
+   associés aux widgets action.
+ - Écrire un module Python qui contient des objets appelables (voir 'gestionnaire 
+   de modèles, plus loin)
+ - Passer le chemin du modules à gladevcp avec l'option '-u <module>'.
+ - gladevcp importe le module, inspecte les gestionnaires de signaux et
+   les connecte à l'arbre des widgets.
+ - La boucle principale d'événements est exécutée.
 
- - design your UI with Glade, and set signal handlers where you want
-   actions associated with a widget
- - write a Python module which contains callable objects (see 'handler
-   models' below)
- - pass your module's path name to gladevcp with the '-u <module>' option
- - gladevcp imports the module, inspects it for signal handlers and
-   connects them to the widget tree
- - the main event loop is run.
+==== Modèle du gestionnaire simple
 
-==== The simple handler model
-
-For simple tasks it's sufficient to define functions named after the
-Glade signal handlers. These will be called when the corresponding
-event happens in the widget tree. Here's a trivial example - it assumes
-that the 'pressed' signal of a Gtk Button or HAL Button is linked to a
-callback called 'on_button_press':
+Pour des tâches simple, il est suffisant de définir des fonctions nommées
+après les gestionnaires de signaux de Glade. Elles seront appelées quand 
+l'événement correspondant se produira dans l'arbre des widgets. Voici un exemple
+très simple, il suppose que le signal 'pressed' d'un bouton Gtk ou d'un bouton HAL
+est lié à une fonction de rappel appelée 'on_button_press':
 
 [source,python]
 ----------------------------------
@@ -1145,28 +1151,28 @@ def on_button_press(gtkobj,data=None):
     gtkobj.set_label("hits: %d" % nhits)
 ----------------------------------
 
-Add this function to a Python file and run as follows:
+Ajouter cette fonction dans un fichier Python et le lancer avec:
 
-    gladevcp -u <myhandler>.py mygui.ui
+    *+gladevcp -u <myhandler>.py mygui.ui+*
 
-Note communication between handlers has to go through global
-variables, which does not scale well and is positively un-pythonic.
-This is why we came up with the class-based handler model.
+Noter que la communication entre les gestionnaires doit passer par des variables 
+globales, qui s'adaptent mal est ne sont pas très "pythonique".
+C'est pourquoi nous en arrivons au gestionnaire de classes.
 
-==== The class-based handler model
+==== Modèle de gestionnaire basé sur les classes
 
-The idea here is: handlers are linked to class methods. The underlying
-class(es) are instantiated and inspected during GladeVCP startup and
-linked to the widget tree as signal handlers. So the task now is to
-write:
+L'idée ici est la suivante: les gestionnaires sont liés aux méthodes de classe. 
+La classe sous-jacente est instanciée et inspectée durant le démarrage de GladeVCP 
+et liée à l'arbre des widgets comme gestionnaire de signaux. Donc, la tâche est
+maintenant d'écrire:
 
- -  one or more several class definition(s) with one or several methods,
-   in one module or split over several modules,
- -  a function 'get_handlers' in each module which will return a list of
-   class instances to GladeVCP - their method names will be linked to
-   signal handlers
+ -  Une ou plusieurs définitions de classe avec une ou plusieurs méthodes, dans 
+    un module ou répartis sur plusieurs modules.
+ -  Une fonction 'get_handlers' dans chaque module, qui retournera la liste
+    des instances de classe à GladeVCP, leurs noms de méthode seront liés aux
+    gestionnaires de signaux.
 
-Here is a minimum user-defined handler example module:
+Voici un exemple minimaliste de module de gestionnaire définit par l'utilisateur:
 
 [source,python]
 ----------------------------------
@@ -1177,94 +1183,95 @@ class MyCallbacks :
         return [MyCallbacks ()]
 ----------------------------------
 
-Now, 'on_this_signal' will be available as signal handler to your
-widget tree.
+Maintenant, 'on_this_signal' est disponible comme gestionnaire de signal dans
+l'arbre des widgets.
 
-==== The get_handlers protocol
+==== Le protocole get_handlers
 
-If during module inspection GladeVCP finds a function `get_handlers`,
-it calls it as follows:
+Si durant l'inspection du module GladeVCP trouve une fonction `get_handlers`,
+Il l'appelle de la manière suivante:
 
     get_handlers(halcomp,builder,useropts)
 
-the arguments are:
+Les arguments sont:
 
- - halcomp - refers to the HAL component under construction
- - builder - widget tree - result of reading the UI definition (either
-   referring to a GtkBuilder or libglade-type object)
- - useropts - a list of strings collected from the gladevcp 
-   command line `-U <useropts>` option
+ - halcomp - Se réfère au composant de HAL en construction.
+ - builder - arbre du widget - résulte de la lecture de la définition de l'UI 
+   (soit, en référence à un objet de type GtkBuilder ou de type libglade).
+ - useropts - Une liste de chaines collectée par l'option de la ligne de 
+   commande de gladevcp `-U <useropts>`.
 
-GladeVCP then inspects the list of class instances and retrieves their
-method names. Qualifying method names are connected to the widget tree
-as signal handlers. Only method names which do not begin with an '_'
-(underscore) are considered.
+GladeVCP inspecte alors la liste des instances de classe et récupère leurs noms.
+Les noms de méthode sont connectés à l'arbre des widgets comme gestionnaire de 
+signaux. Seuls, les noms de méthode ne commençant pas par un '_'
+(tiret bas) sont considérés.
 
-Note that regardless whether you're using the libglade or the new
-GtkBuilder format for your Glade UI, widgets can always be referred to
-as `builder.get_object(<nomwidget>)`. Also, the complete list of
-widgets is available as `builder.get_objects()` regardless of UI
-format.
+Noter que peu importe si la libglade ou le nouveau format GtkBuilder est utilisé
+pour l'UI Glade, les widgets peuvent toujours être soumis au 
+`builder.get_object(<nomwidget>)`. En outre, la liste complète des widgets est
+disponible par `builder.get_objects()`, indépendamment du format de l'UI.
 
-=== Initialization sequence
+=== Séquence d'initialisation
 
-It is important to know in which state of affairs your `get_handlers()`
-function is called so you know what is safe to do there and what not.
-First, modules are imported and initialized in command line order.
-After successful import, `get_handlers()` is called in the following
-state:
+Il est important de connaitre pour quoi faire, la fonction `get_handlers()`
+est appelée, et connaitre ce qui est sûr et ce qui ne l'est pas.
+Tout d'abord, les modules sont importés et initialisés dans leur ordre
+d'apparition sur la ligne de commande.
+Après le succès de l'importation, `get_handlers()` est appelé selon les étapes
+suivantes:
 
- -  the widget tree is created, but not yet realized (no toplevel
-   `window.show()` has been executed yet)
- -  the halcomp HAL component is set up and all HAL widget's pins have
-   already been added to it
- -  it is safe to add more HAL pins because `halcomp.ready()` has not yet
-   been called at this point, so you may add your own pins, for instance
-   in the class `__init__()` method.
+ -  L'arbre du widget est créé, mais pas encore réalisé (pas tant que le niveau 
+    supérieur `window.show()` n'aura pas été exécuté)
+ -  Le composant de HAL, halcomp, est configuré et toutes les pins de HAL des
+    widgets lui sont ajoutées.
+ -  Il est sûr d'ajouter plus de pins de HAL parce-que `halcomp.ready()` n'a pas
+    encore été appelé à ce point, ainsi, on peut ajouter ses propres pins, par
+    exemple, dans la méthode de classe `__init__()`.
 
-Once all modules have been imported and method names extracted, the
-following steps happen:
+Après que tous les modules ont été importés et que les noms des méthodes ont
+été extraits, les étapes suivantes se produisent:
 
- -  all qualifying method names will be connected to the widget tree with
-   `connect_signals()/signal_autoconnect()` (depending on the type of UI
-   imported - GtkBuilder vs the old libglade format).
- - the HAL component is finalized with halcomp.ready()
- -  if a window ID was passed as argument, the widget tree is re-parented
-   to run in this window, and Glade's toplevel window1 is abandoned (see
-   FAQ)
- -  if a HAL command file was passed with `-H halfile`, it is executed
-   with halcmd
- - the Gtk main loop is run.
+ - Tous les noms de méthode qualifiés seront connectés à l'arbre du widget 
+    avec `connect_signals() ou signal_autoconnect()` (selon le type de l'UI
+   importée, format GtkBuilder ou l'ancien libglade).
+ - Le composant de HAL est finalisé avec halcomp.ready().
+ - Si un ID de fenêtre est passé comme argument, l'arbre du widget est re-apparenté
+   pour démarrer dans cette fenêtre, et la fenêtre de niveau supérieur de Glade,
+   window1 est abandonnée (voir la FAQ)
+ - Si un fichier de commandes de HAL, est passé avec `-H halfile`, il est exécuté
+   avec halcmd.
+ - La boucle principal de Gtk est lancée.
 
-So when your handler class is initialized, all widgets are existent
-but not yet realized (displayed on screen). And the HAL component isn't
-ready as well, so its unsafe to access pins values in your `__init__()`
-method.
+Ainsi, lorsque le gestionnaire de classe est initialisé, tous les widgets sont 
+existants mais pas encore réalisés (affichés à l'écran). Et le composant de HAL 
+n'est pas prêt non plus, de sorte qu'il n'est pas sûr d'accéder aux valeurs des 
+pins dans la méthode `__init__()`.
 
-If you want to have a callback to execute at program start after it is
-safe to access HAL pins, then a connect a handler to the realize signal
-of the top level window1 (which might be its only real purpose). At
-this point GladeVCP is done with all setup tasks, the halfile has been
-run, and GladeVCP is about to enter the Gtk main loop.
+Si on doit avoir une fonction de rappel à exécuter au démarrage du programme
+mais, après qu'il soit sûr d'accéder aux pins de HAL, alors connecter un 
+gestionnaire au signal de la fenêtre de niveau supérieur réalisée, window1 
+(qui pourrait être sa seule raison d'être). A ce point, GladeVCP een a terminé
+avec toutes les configurations, le halfile a bien été lancé et GladeVCP est 
+sur le point d'entrer dans la boucle principale Gtk.
 
-=== Multiple callbacks with the same name
+=== Multiple fonctions de rappel avec le même nom
 
-Within a class, method names must be unique. However, it is OK to have
-multiple class instances passed to GladeVCP by get_handlers() with
-identically named methods. When the corresponding signal occurs, these
-methods will be called in definition order - module by module, and
-within a module, in the order class instances are returned by
-`get_handlers()`.
+Dans une classe, les noms de méthode doivent être unique. Cependant, il est permis
+d'avoir de multiples instances de classe passées à GladeVCP par get_handlers() 
+avec des méthodes portant le même nom. Lorsque le signal correspondant survient, 
+les méthodes sont appelées dans l'ordre dans lequel elles ont été définies,
+module par module et dans un module, dans l'ordre des instances de classe 
+retourné `get_handlers()`.
 
-=== The GladeVCP `-U <useropts>` flag
+=== Le drapeau GladeVCP `-U <useropts>`
 
-Instead of extending GladeVCP for any conceivable option which could
-potentially be useful for a handler class, you may use the -U
-<useroption> flag (repeatedly if you wish). This flag collects a list
-of <useroption> strings. This list is passed to the get_handlers()
-function (useropts argument). Your code is free to interpret these
-strings as you see fit. An possible usage would be to pass them to the
-Python exec function in your `get_handlers()` as follows:
+Au lieu d'étendre GladeVCP à toutes les options concevables qui pourraient 
+potentiellement être utilisées par un gestionnaire de classe, on peut utiliser
+le drapeau -U<useroption> (répétitivement si nécessaire). Ce drapeau collecte la
+liste des chaines de <useroption>. Cette liste est passée à la fonction get_handlers()
+(argument useropts). Le code est libre d'interpréter ces chaines comme bon
+lui semble. Un utilisation possible serait de les passer à la foction exec de
+Python dans le `get_handlers()`, comme suit:
 
 [source,python]
 ----------------------------------
@@ -1272,228 +1279,238 @@ debug = 0
 ...
 def get_handlers(halcomp,builder,useropts):
     ...
-    global debug # assuming there's a global var
-    for cmd in useropts:
+    global debug # suppose qu'il y a une variable globale 
+    pour cmd dans useropts:
         exec cmd in globals()
 ----------------------------------
 
-This way you can pass arbitrary Python statements to your module
-through the gladevcp -U option, for example:
+De cette façon, on peut passer des déclarations Python arbitraires au module
+grâce à l'option gladevcp -U, Par exemple:
 
     gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
 
-This should set debug to 2 and confirm that your module actually did it.
+Debug devrait être mis à 2, et confirmer ce que le module fait actuellement.
 
-=== Persistent variables in GladeVCP
+=== Variables persistantes dans GladeVCP
 
-A annoying aspect of GladeVCP in its earlier form and pyvcp is the
-fact that you may change values and HAL pins through text entry,
-sliders, spin boxes, toggle buttons etc, but their settings are not
-saved and restored at the next run of EMC - they start at the default
-value as set in the panel or widget definition.
+Un aspet gênant de GladeVCP dans sa forme initiale avec pyvcp est le fait qu'on
+peut changer les valeurs des pins de HAL au travers du texte saisi,
+curseurs, bouton tournant, bouton à bascule etc, mais leurs paramètres ne sont
+pas enregistrés ni restaurés à la prochaine exécution d'EMC2. Ils commencent aux
+valeurs par défaut fixées dans le panneau ou la définition du widget.
 
-GladeVCP has an easy-to-use mechanism to save and restore the state of
-HAL widgets, and program variables (in fact any instance attribute of
-type int, float, bool or string).
+GladeVCP dispose d'un mécanisme facile à utiliser pour enregistrer et restaurer
+l'état des widgets de HAL, ainsi que les variables du programme
+(en fait, n'importe quel attribut d'instance de type int, float, bool ou string).
 
-This mechanism uses the popular '.ini' file format to save and reload
-persistent attributes.
+Ce mécanisme utilise le format du populaire fichier '.ini' pour enregistrer et
+recharger les attributs persistants.
 
-==== Persistence, program versions and the signature check
+==== Examen de la persistance, de la version et de la signature du programme
 
-Imagine renaming, adding or deleting widgets in Glade:
-an .ini file lying around from a previous program version, or an
-entirely different user interface, would be not be able to restore the
-state properly since variables and types might have changed.
+Imaginons renommer, ajouter ou supprimer des widgets dans Glade:
+un fichier .ini qui traîne depuis une version précédente du programme, ou une
+interface utilisateur entièrement différente, ne serait pas en mesure de restaurer
+correctement l'état des variables et des types puisqu'ils ont changé depuis.
 
-GladeVCP detects this situation by a signature which depends on all
-object names and types which are saved and to be restored. In the case
-of signature mismatch, a new .ini file with default settings is
-generated.
+GladeVCP détecte cette situation par la signature qui dépends de tous les noms
+d'objets et de types qui ont été enregistrés et qui doivent être restaurés. 
+Dans le cas de signatures incompatibles, un nouveau fichier .ini avec la 
+configuration pas défaut est généré.
 
-=== Using persistent variables
+=== Utilisation des variables persistantes
 
-If you want any of Gtk widget state, HAL widgets output pin's values
-and/or class attributes of your handler class to be retained across
-invocations, proceed as follows:
+Pour que tous les états des widgets Gtk, que toutes les valeurs des pins de 
+sortie des widget HAL et/ou que tous les attributs de classe du gestionnaire de 
+classe soient conservés entre les invocations, procéder comme suit:
 
- - import the +gladevcp.persistence+ module
- - decide which instance attributes, and their default values you want to
-   have retained, if any
- - decide which widgets should have their state retained
- - describe these decisions in your handler class' +__init__()+ method
-   through a nested dictionary as follows:
+ - Importer le module +gladevcp.persistence+.
+ - Décider quels attributs d'instance et leurs valeurs par défaut doivent être
+   conservés, le cas échéant,
+ - décider quels widgets doivent avoir leur état conservé.
+ - Décrire ces décisions dans le gestionnaire de classe par la méthode
+   +__init__()+ grâce à un dictionnaire imbriqué comme suit:
 
 [source,python]
-----------------------------------
+----
 def __init__(self, halcomp,builder,useropts):
     self.halcomp = halcomp
     self.builder = builder
     self.useropts = useropts
     self.defaults = {
-        # the following names will be saved/restored as method attributes
-        # the save/restore mechanism is strongly typed - the variables type will be derived from the type of the
-        # initialization value. Currently supported types are: int, float, bool, string
+        # les noms suivants seront enregistrés/restaurés comme attributs de méthode,
+        # le mécanisme d'enregistrement/restauration est fortement typé,  
+        # les types de variables sont dérivés depuis le type de la valeur initiale.
+        # les types couramment supportées sont: int, float, bool, string
         IniFile.vars : { 'nhits' : 0, 'a': 1.67, 'd': True ,'c' : "a string"},
-        # to save/restore all widget's state which might remotely make sense, add this:
+        # pour enregistrer/restaurer l'état de tous les widgets pour lesquels
+        # c'est sensé, ajouter cela:
         IniFile.widgets : widget_defaults(builder.get_objects())
-        # a sensible alternative might be to retain only all HAL output widgets' state:
-        # IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)),
+        # une alternative sensée pourrait être de ne retenir que l'état de 
+        # tous les widgets de sortie HAL:
+        # IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(), 
+hal_only=True,output_only = True)),
     }
-----------------------------------
+----
 
-Then associate an .ini file with this descriptor:
+Puis associer un fichier .ini avec ce descripteur:
 
 [source,python]
-----------------------------------
+----
 self.ini_filename = __name__ + '.ini'
 self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
 self.ini.restore_state(self)
-----------------------------------
+----
 
-After `restore_state()`, self will have attributes set if as running the
-following:
+Ensuite `restore_state()`, aura automatiquement les attributs définis si ce qui
+suit a été exécuté:
 
 [source,python]
-----------------------------------
+----
 self.nhits = 0
 self.a = 1.67
 self.d = True
 self.c = "a string"
-----------------------------------
+----
 
-Note that types are saved and preserved on restore. This example
-assumes that the ini file didn't exist or had the default values from
-self.defaults.
+Noter que les types sont enregistrés et conservés lors de la restauration. Cet
+exemple suppose que le fichier .ini n'existe pas ou qu'il contient les valeurs 
+par défaut depuis self.defaults.
 
-After this incantation, you can use the following IniFil methods:
+Après cette incantation, on peut utiliser les méthodes IniFil suivantes:
 
 ini.save_state(obj)::
-	 saves objs's attributes as per IniFil.vars
-	 dictionary and the widget state as described in IniFile.widgets in
-	 self.defaults
+	 enregistre les attributs des objets depuis le dictionnaire IniFil.vars
+	 l'état du widget comme décrit par IniFile.widgets dans self.defaults
 ini.create_default_ini()::
-	 create a .ini file with default values
+	 crée un fichier .ini avec les valeurs par défaut
 ini.restore_state(obj)::
-	restore HAL out pins and obj's attributes as
-   	saved/initialized to default as above
+	restaure les pins de HAL et les attributs des objets enregistrés/initialisés
+   	par défaut comme précédamment
 
-To save the widget and/or variable state on exit, connect a signal
-handler to the +window1+ (toplevel) destroy event:
+Pour enregistrer le widget et/ou l'état des variables en quittant, connecter un
+gestionnaire de signal à la fenêtre de niveau supérieur +window1+, détruire
+l'événement:
 
 [source,python]
-----------------------------------
+----
 def on_destroy(self,obj,data=None):
     self.ini.save_state(self)
-----------------------------------
+----
 
-Next time you start the GladeVCP application, the widgets should come
-up in the state when the application was closed.
+La prochaine fois que l'application GladeVCP démarrera, les widgets doivent 
+retrouver l'état qu'ils avaient à la fermeture de l'application.
 
-=== Hand-editing .ini files
+=== Édition manuelle des fichiers .ini
 
-You can do that, but note that the values in self.defaults override
-your edits if there is a syntax or type error in your edit. The error
-is detected, a console message will hint about that happened, and the
-bad inifile will be renamed to have the .BAD suffix. Subsequent bad ini
-files overwrite earlier .BAD files.
+Il est possible de faire cela, mais noter que les valeurs dans self.defaults 
+écraseront votre édition si il y a erreur de frappe ou de syntaxe. Une erreur
+détéctée, un message émis dans la console, donneront des indices sur ce qui s'est
+passé et le mauvais fichier ini sera renommé avec le suffixe .BAD. Après une
+mauvaise initialisation, les fichiers .BAD les plus anciens seront écrasés.
 
 [[gladevcp:Adding_HAL_pins]]
-=== Adding HAL pins
+=== Ajouter des pins de HAL
 
-If you need HAL pins which are not associated with a specific HAL
-widget, add them as follows:
+Si il faut des pins de HAL non associées avec un widget HAL, les ajouter comme
+ci-dessous:
 
 [source,python]
-----------------------------------
+----
 import hal_glib
 ...
-# in your handler class __init__():
+# dans le gestionnaire de classe __init__():
 self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
-----------------------------------
+----
 
-To get a callback when this pin's value changes, associate a
-+value-change+ callback with this pin, add:
+Pour appeler une fonction de rappel quand la valeur de cette pin change il faut
+associer une fonction de rappel +value-changed+ avec cette pin, ajouter pour
+cela:
 
 [source,python]
-----------------------------------
+----
 self.example_trigger.connect('value-changed', self._on_example_trigger_change)
-----------------------------------
+----
 
-and define a callback method (or function, in this case leave out the
-+self+ parameter):
+et définir une méthode de fonction de rappel (ou une fonction, dans ce cas 
+laisser tomber le paramètre +self+):
 
 [source,python]
-----------------------------------
-# note '_' - this method will not be visible to the widget tree
+----
+# noter '_' - cette méthode n'est pas visible dans l'arbre du widget
 def _on_example_trigger_change(self,pin,userdata=None):
     print "pin value changed to:" % (pin.get())
-----------------------------------
+----
 
-=== Adding timers
+=== Ajout de timers
 
-Since GladeVCP uses Gtk widgets which rely on the
-http://www.pygtk.org/pygtk2reference/gobject-functions.html[GObject]
-base class, the full glib functionally is available. Here is an
-example for a timer callback:
+Depuis que GladeVCP utilise les widgets Gtk qui se rattachent sur les classes
+de base http://www.pygtk.org/pygtk2reference/gobject-functions.html[GObject], 
+la totalité des fonctionnalités de la glib est disponible. Voici un exemple d'
+horloge de fonction de rappel:
 
 [source,python]
-----------------------------------
+----
 def _on_timer_tick(self,userdata=None):
     ...
-    return True # to restart the timer; return False for on-shot
+    return True # pour relancer l'horloge; return False pour monostable
 ...
-# demonstrate a slow background timer - granularity is one second
-# for a faster timer (granularity 1 ms), use this:
+# démonstration d'une horloge lente en tâche de fond - la granularité est de une seconde
+# pour une horloge rapide (granularité 1 ms), utiliser cela:
 # glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
 glib.timeout_add_seconds(1, self._on_timer_tick)
-----------------------------------
+----
 
-=== Examples, and rolling your own GladeVCP application
+=== Exemples, et lancez votre propre application GladeVCP
 
-Visit +emc2/configs/gladevcp+ for running examples and starters for your own projects.
+Visiter +emc2/configs/gladevcp+ pour des exemples prêt à l'emploi et points de 
+départ de vos propres projets.
 
+:paradef-default: qanda
 
-== FAQ
+== Q & R
 
-[qanda]
-I get an unexpected unmap event in my handler function right after startup. What's this?::
-   This is a consequence of your Glade UI file
-   having the window1 Visible property set to True, together with
-   re-parenting the GladeVCP window into Axis or touchy. The GladeVCP
-   widget tree is created, including a top level window, and then
-   'reparented into Axis', leaving that toplevel window laying around
-   orphaned. To avoid having this useless empty window hanging around, it
-   is unmapped (made invisible), which is the cause of the unmap signal
-   you get. Suggested fix: set window1.visible to False, and ignore an
-   initial unmap event.
-My GladeVCP program starts, but no window appears where I expect it to be?::
-   The window Axis allocates for GladeVCP will obtain the 'natural
-   size' of all its child widgets combined. It's the child widget's job to
-   request a size (width and/or height). However, not all widgets do
-   request a width greater than 0, for instance the Graph widget in its
-   current form. If there's such a widget in your Glade file and it's the
-   one which defines the layout you might want to set its width
-   explicitly. Note that setting the window1 width and height properties
-   in Glade does not make sense because this window will be orphaned
-   during re-parenting and hence its geometry will have no impact on
-   layout (see above). The general rule is: if you manually run a UI file
-   with 'gladevcp <uifile>' and its window has reasonable geometry, it
-   should come up in Axis properly as well.
+*+1. Je reçois un événement unmap inattendu dans ma fonction de gestionnaire juste après le démarrage. Qu'est-ce que c'est?+*
 
-I want a blinking LED, so I ticked the checkbutton to let it blink with 100msec interval. 
-It wont blink, and I get a startup warning: Warning: value "0" of type `gint' is 
-invalid or out of range for property `led-blink-rate' of type `gint'?::
-   This seems to be a glade bug. Just type over the blink rate field, and save again - this works for me.
+   C'est la conséquence d'avoir dans votre fichier d'UI Glade la propriété de 
+   la fenêtre window1 visible fixée à True, il y a changement de parents de
+   la fenêtre GladeVCP dans Axis ou touchy. L'arbre de widget de GladeVCP est
+   créé, incluant une fenêtre de niveau supérieur puis 'reparenté dans Axis', 
+   laissant trainer les orphelins de la fenêtre de niveau supérieur. 
+   Pour éviter d'avoir cette fenêtre vide qui traine, elle est unmapped 
+   (rendue invisible) et la cause du signal unmap que vous avez eux. 
+   Suggestion pour fixer le problème: fixer window1.visible à False et ignorer
+   le message initial d'événement unmap.
 
-My gladevcp panel in Axis doesnt save state when I close Axis,although I defined 
-an on_destroy handler linked to the window destroy signal:: 
-   Very likely this handler is linked to window1,
-   which due to reparenting isnt usable for this purpose. Please link
-   the on_destroy handler to the destroy signal of an interior
-   window. For instance, I have a notebook inside window1, and linked
-   on_destroy to the notebooks destroy signal, and that works fine. It
-   doesnt work for window1.
+*+2. Mon programme GladeVCP démarre, mais aucune fenêtre n'apparait alors qu'elle devrait?+*
+
+   La fenêtre allouée par Axis pour GladeVCP obtient la 'taille naturelle' 
+   de tous ses enfants combinés. C'est au widget enfant a réclamer une taille
+   (largeur et/ou hauteur). Cependant, toutes le fenêtres ne demandent pas une
+   plus grande que 0, par exemple, le widget Graph dans sa forme courante.
+   Si il y a un tel widget dans votre fichier Glade et que c'est lui qui
+   défini la disposition vous devrez fixer sa largeur explicitement. 
+   Noter que la largeur et la hauteur de la fenêtre window1 dans Glade n'a pas
+   de sens puisque cette fenêtre sera orpheline lors du changement de parent
+   et donc sa géométrie n'aura aucun impact sur les mise en page (voir ci-dessus). 
+   La règle générale est la suivante: si vous exécutez manuellement un fichier
+   UI avec 'gladevcp <fichierui>' et que sa fenêtre a une géométrie raisonnable,
+   elle devrait apparaitre correctement dans Axis.
+
+*+3. Je veux une Led clignotante, alors j'ai coché une case pour la laisser clignoter avec un intervalle de 100ms. Elle devrait clignoter, mais je reçois un : Warning: value "0" le type `gint' est invalide ou hors de l'étendue pour les propriétés de `led-blink-rate', c'est quoi le type `gint'?+*
+
+   Il semble qu'il s'agisse d'un bug de Glade. Il faut resaisir une valeur sur 
+   le champ de la fréquence de clignotement et enregistrer à nouveau.
+   Ça a marché pour moi.
+
+*+4. Mon panneau gladevcp ne marche pas dans Axis, il n'enregistre pas les états quand je ferme Axis, j'ai pourtant défini un gestionnaire on_destroy attaché au signal destroy de la fenêtre.+*
+
+   Ce gestionnaire est très probablement lié à window1,
+   qiu en raison du changement de parent ne peux pas assurer cette fonction. 
+   Attachez le gestionnaire on_destroy handler au signal destroy d'une
+   fenêtre intérieure. Par exemple: J'ai un  notebook dans window1, attaché
+   on_destroy au signal destroy de notebooks et ça marche bien. Il ne marcherait
+   pas pour window1.
 
 // FIXME this is out of date
 == Troubleshooting
@@ -1513,28 +1530,29 @@ an on_destroy handler linked to the window destroy signal::
    an HAL pin associated with it which is off by default. This pin
    controls whether these container's children are active or not.
 
-== Implementation note: Key handling in Axis
+== Notes d'implémentation: la gestion des touches dans Axis
 
-We believe key handling works OK, but since it is new code, we're
-telling about it you so you can watch out for problems; please let us
-know of errors or odd behavior. This is the story:
+Nous pensons que la gestion des touches fonctionne bien, mais comme c'est un 
+nouveau code, nous devons vous informer à ce propos pour que vous
+puissiez surveiller ces problèmes; S'il vous plaît, faites nous savoir
+si vous connaissez des erreurs ou des choses bizarres. Voici l'histoire:
 
-Axis uses the TkInter widget set. GladeVCP applications use Gtk
-widgets and run in a separate process context. They are hooked into
-Axis with the Xembed protocol. This allows a child application like
-GladeVCP to properly fit in a parent's window, and - in theory - have
-integrated event handling.
+Axis utilise le jeu de widget de TkInter. L'application GladeVCP utilise 
+les widgets Gtk et démarre dans un contexte de processus différent. 
+Ils sont attachés dans Axis avec le protocole Xembed. Ce qui permet à une
+application enfant comme GladeVCP de bien tenir proprement dans la
+fenêtre d'un parent et, en théorie, d'être intégrée au gestionnaire
+d'événements.
 
-However, this assumes that both parent and child application properly
-support the Xembed protocol, which Gtk does, but TkInter doesn't. A
-consequence of this is that certain keys would not be forwarded from a
-GladeVCP panel to Axis properly under all circumstances. One of these
-situations was the case when an Entry, or SpinButton widget had focus:
-in this case, for instance an Escape key would not have been forwarded
-to Axis and cause an abort as it should, with potentially disastrous
-consequences.
+Toutefois, cela suppose que parent et enfant supportent tous les deux proprement
+le protocole Xembed, c'est le cas avec Gtk, pas avec TkInter. Une
+conséquence de cela, c'est que certaines touches ne sont pas transmises 
+correctement dans toutes les circonstances depuis un panneau GladeVCP vers 
+Axis. Une d'elle est la touche 'Entrée`. Ou quand le widget SpinButton a
+le focus, dans ce cas, par exemple la touche Échap n'est pas bien transmise à
+Axis et cause un abandon avec des conséquences potentiellement désastreuses.
 
-Therefore, key events in GladeVCP are explicitly handled, and
-selectively forwarded to Axis, to assure that such situations cannot
-arise. For details, see the `keyboard_forward()` function in
-`lib/python/gladevcp/xembed.py`.
+Par conséquent, les événements touches dans GladeVCP, sont traités explicitement,
+et sélectivement transmises à Axis, pour assurer que de telles situations ne 
+puissent pas survenir. Pour des détails, voir la fonction `keyboard_forward()` 
+dans la `lib/python/gladevcp/xembed.py`.
