@@ -45,10 +45,10 @@ pas, se règlent indépendamment et n'importe quelle combinaison peut
 être choisie.
 
 .Diagramme bloc du générateur de pas stepgen (en mode position)[[fig:Diagramme-bloc-stepgen]]
-image::stepgen-block-diag.eps[]
+image::images/stepgen-block-diag.eps[]
 
 .Diagramme bloc du générateur de pas stepgen (en mode vitesse)[[fig:Diagramme-bloc-freqgen]]
-image::freqgen-block-diag.eps[]
+image::images/freqgen-block-diag.eps[]
 
 === L'installer
 ---------------------------------------------------------------

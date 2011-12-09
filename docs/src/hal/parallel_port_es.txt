@@ -96,7 +96,7 @@ address, it is an error.
 
 .Parport Block Diagram[[fig:Parport-block-diag]]
 
-image::parport-block-diag.eps[]
+image::images/parport-block-diag.eps[]
 
 === Pins
 

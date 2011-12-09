@@ -338,8 +338,8 @@ la case sera cochée et fausse si la case est décochée.
 
     <checkbutton>
 
-Une case non cochée: image:pyvcp_checkbutton1.png[] et une case
-cochée: image:pyvcp_checkbutton2.png[]
+Une case non cochée: image:/images/pyvcp_checkbutton1.png[] et une case
+cochée: image:images/pyvcp_checkbutton2.png[]
 
 Exemple de code:
 

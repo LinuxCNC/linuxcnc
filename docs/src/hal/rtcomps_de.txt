@@ -36,11 +36,11 @@ step type are set independently, and any combination can be selected.
 
 .Step Pulse Generator Block Diagram (position mode)[[fig:Stepgen-Block-Diag]]
 
-image::stepgen-block-diag.eps[]
+image::images/stepgen-block-diag.eps[]
 
 .Step Pulse Generator Block Diagram (velocity mode)[[fig:Freqgen-Block-Diag]]
 
-image::freqgen-block-diag.eps[]
+image::images/freqgen-block-diag.eps[]
 
 === Installing
 
@@ -163,7 +163,7 @@ still be limited.
 
 .Step and Direction Timing[[fig:StepDir-timing]]
 
-image::stepgen-type0.eps[]
+image::images/stepgen-type0.eps[]
 
 Step type 1 has two outputs, up and down. Pulses appear on one or the
 other, depending on the direction of travel. Each pulse is `steplen` ns
@@ -183,15 +183,15 @@ limit.
 
 .Two-and-Three-Phase Step Types[[fig:Two-and-Three-Phase]]
 
-image::stepgen-type2-4.eps[]
+image::images/stepgen-type2-4.eps[]
 
 .Four-Phase Step Types[[fig:Four-Phase]]
 
-image::stepgen-type5-10.eps[]
+image::images/stepgen-type5-10.eps[]
 
 .Five-Phase Step Types[[fig:Five-Phase]]
 
-image::stepgen-type11-14.eps[]
+image::images/stepgen-type11-14.eps[]
 
 === Functions
 
@@ -334,7 +334,7 @@ diagram of one channel of encoder counter.
 
 .Encoder Counter Block Diagram[[fig:Encoder-Block-Diag]]
 
-image::encoder-block-diag.eps[]
+image::images/encoder-block-diag.eps[]
 
 === Installing
 
@@ -450,7 +450,7 @@ block diagram of a single PID loop.
 
 .PID Loop Block Diagram[[fig:PID-block-diag]]
 
-image::pid-block-diag.eps[]
+image::images/pid-block-diag.eps[]
 
 === Installing
 

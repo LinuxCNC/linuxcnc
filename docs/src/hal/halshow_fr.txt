@@ -41,7 +41,7 @@ complète depuis le menu `Arborescence`.
 
 L'onglet Montrer[[cap:onglet-Montrer]]
 
-image::halshow-3.png[]
+image::images/halshow-3.png[]
 
 === Zone de l'onglet MONTRER
 
@@ -231,7 +231,7 @@ machine ne sera pas mise en marche.
 
 L'onglet WATCH
 
-image::halshow-4.png[]
+image::images/halshow-4.png[]
 
 Les cercles de deux couleurs, simili Leds, sont toujours bruns foncé
 quand un signal est faux. Elle sont jaunes quand le signal est vrai.
