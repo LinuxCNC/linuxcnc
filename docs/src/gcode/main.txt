@@ -1138,6 +1138,162 @@ Section <<sub:Path-Control-Mode>> for a discussion of these modes.
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
 
+== G90, G91 Set Distance Mode[[sec:G90-G91-Set]]
+
+(((G90, G91 Set Distance Mode)))
+
+    G90 is Absolute Distance Mode +
+    G91 is Incremental Distance Mode
+
+Interpretation of G Code can be in one of two distance modes: absolute
+or incremental.
+
+To go into absolute distance mode, program `G90`. In absolute 
+distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W) 
+usually represent positions in terms of the currently active coordinate 
+system. Any exceptions to that rule are described explicitly in 
+section <<sec:G81-G89>>. 
+
+To go into incremental distance mode, program `G91`. In incremental 
+distance mode, axis numbers usually represent 
+increments from the current coordinate. 
+
+== G90.1, G91.1 Arc Distance Mode[[sec:G90.1-G91.1]]
+
+(((Arc Distance Mode)))
+
+G90.1 Absolute Distance Mode for I, J & K offsets.
+
+ - I and J both must be specified or it is an error
+
+G91.1 Incremental Distance Mode for I, J & K offsets.
+
+ - Returns I, J & K to their normal behavior.
+
+== G92, G92.1, G92.2, G92.3 Coordinate System Offsets[[sec:G92-G92.1-G92.2-G92.3]]
+
+(((G92, G92.1, G92.2, G92.3 Offsets)))
+
+    G92 X- Y- Z- A- B- C- U- V- W-
+
+See Section <<cha:Coordinate-System>> for an overview of coordinate
+systems.
+
+See Section <<sec:G92-Offsets>> for more information on Offsets.
+
+To make the current point have the coordinates you want (without
+motion), program `G92 X- Y- Z- A- B- C- U- V- W-`  , where the axis
+words contain the axis numbers you want. All axis
+words are optional, except that at least one must be used. If an axis
+word is not used for a given axis, the coordinate on that axis of the
+current point is not changed. It is an error if:
+
+ - all axis words are omitted.
+
+When `G92` is executed, the origins of all coordinate systems move.
+They move
+such that the value of the current controlled point, in the currently
+active coordinate system, becomes the specified value. All coordinate
+system's origins are offset this same distance.
+
+For example, suppose the current point is at X=4 and there is
+currently no `G92` offset active. Then `G92 x7` is programmed. This
+moves all origins -3 in X, which causes the
+current point to become X=7. This -3 is saved in parameter 5211.
+
+Being in incremental distance mode has no effect on the action of `G92`.
+
+`G92` offsets may be already be in effect when the `G92`  is called.
+If this is the case, the offset is replaced with a new
+offset that makes the current point become the specified value.
+
+To reset axis offsets to zero, program `G92.1` or `G92.2`. `G92.1`
+sets parameters 5211 to 5219 to zero, whereas `G92.2` leaves their
+current values alone.
+
+To set the axis offset to the values saved in parameters 5211 to 5219,
+program `G92.3`.
+
+You can set axis offsets in one program and use the same offsets in
+another program. Program `G92`  in the first program. This will set
+parameters 5211 to 5219. Do not
+ use `G92.1`  in the remainder of the first program. The parameter
+values will be
+saved when the first program exits and restored when the second one
+ starts up. Use `G92.3`  near the beginning of the second program. That
+will restore the
+offsets saved in the first program.
+
+EMC2 stores the G92 offsets and reuses them on the next run of a
+program. To prevent this, one can program a G92.1 (to erase them), or
+program a G92.2 (to remove them - they are still stored).
+
+== G93, G94, G95: Set Feed Rate Mode[[sec:G93-G94-G95-Mode]]
+
+(((G93, G94, G95: Feed Rate Mode)))
+
+    G93 is Inverse Time Mode
+    G94 is Units per Minute Mode
+    G95 is Units per Revolution Mode.
+
+Three feed rate modes are recognized: units per minute, inverse time,
+and units per revolution. Program G94 to start the units per minute
+mode. Program G93 to start the inverse time mode. Program G95 to start
+the units per revolution mode.
+
+In units per minute feed rate mode, an F word is interpreted to mean
+the controlled point should move at a certain number of inches per
+minute, millimeters per minute, or degrees per minute, depending upon
+what length units are being used and which axis or axes are moving.
+
+In units per revolution mode, an F word is interpreted to mean the
+controlled point should move a certain number of inches per revolution
+of the spindle, depending on what length units are being used and which
+axis or axes are moving. G95 is not suitable for threading, for
+threading use G33 or G76.
+
+In inverse time feed rate mode, an F word means the move should be
+completed in [one divided by the F number] minutes. For example, if the
+F number is 2.0, the move should be completed in half a minute.
+
+When the inverse time feed rate mode is active, an F word must appear
+on every line which has a G1, G2, or G3 motion, and an F word on a line
+that does not have G1, G2, or G3 is ignored. Being in inverse time feed
+rate mode does not affect G0 (rapid traverse) motions.
+
+It is an error if:
+
+ - Inverse time feed rate mode is active and a line with G1, G2, or G3
+   (explicitly or implicitly) does not have an F word.
+ - A new feed rate is not specified after switching to G94 or G95
+
+== G96, G97 Spindle Control Mode[[sec:G96-G97-Spindle]]
+
+(((G96, G97 Spindle Control Mode)))
+
+    G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode +
+    G97 is RPM Mode
+
+Two spindle control modes are recognized: revolutions per minute, and
+CSS (constant surface speed). Program G96 D- S- to select constant
+surface speed of S feet per minute (if G20 is in effect) or meters per
+minute (if G21 is in effect). The maximum spindle speed is set by the
+D- number in revolutions per minute. 
+
+When using G96, ensure that X0 in
+the current coordinate system (including offsets and tool lengths) is
+the center of rotation or EMC will not give the desired spindle speed. 
+G96 is not affected by radius or diameter mode.
+
+Program G97 to select RPM mode.
+
+It is an error if:
+
+ - S is not specified with G96
+ - A feed move is specified in G96 mode while the spindle is not turning
+
+= Canned Cycles[[cha:Canned Cycles]]
+
 == G73 Drilling Cycle with Chip Breaking[[sec:G73-Drilling-Cycle]]
 
 (((G73 Drilling Cycle Chip Break)))
@@ -1291,9 +1447,7 @@ Program `G80` to ensure no axis motion will occur. It is an error if:
 
  -  Axis words are programmed when G80 is active, unless a modal 
    group 0 Gcode is programmed which uses axis words.
-
-== Canned Cycles[[sec:G81-G89]]
-
+[[sec:G81-G89]]
 (((Canned Cycles G81-G89)))
 (((G81-G89 Canned Cycles)))
 
@@ -1314,14 +1468,14 @@ active plane is one of the XYZ family, the UVW axis words are not
 allowed.  Likewise, when the active plane is one of the UVW family, the
 XYZ axis words are not allowed.
 
-=== Common Words
+== Common Words
 
 All canned cycles use X, Y, Z, or U, V, W groups depending on the
 plane selected and R words. The R (usually meaning retract) position is
 along the axis perpendicular to the currently selected plane (Z-axis
 for XY-plane, etc.) Some canned cycles use additional arguments.
 
-=== Sticky Words
+== Sticky Words
 
 For canned cycles, we will call a number "sticky" if, when the same
 cycle is used on several lines of code in a row, the number must be
@@ -1335,7 +1489,7 @@ Z-axis position before the move involving Z takes place. In absolute
 distance mode, the X, Y, R, and Z numbers are absolute positions in the
 current coordinate system.
 
-=== Repeat Cycle
+== Repeat Cycle
 
 The L number is optional and represents the number of repeats.
 latexmath:[L=0] is not allowed. If the repeat feature is used, it is
@@ -1353,7 +1507,7 @@ latexmath:[L>1] means "do the same cycle in the same place several
 times", Omitting the L word is equivalent to specifying
 latexmath:[L=1].
 
-=== Retract Mode
+== Retract Mode
 
 The height of the retract move at the end of each repeat (called
 "clear Z" in the descriptions below) is determined by the setting of
@@ -1361,7 +1515,7 @@ the retract mode: either to the original Z position (if that is above
 the R position and the retract mode is `G98`, OLD_Z), or otherwise to
 the R position. See Section <<sec:G98-G99-Set>>
 
-=== Canned Cycle Errors
+== Canned Cycle Errors
 
 It is an error if:
 
@@ -1383,7 +1537,7 @@ if:
 If other planes are active, the error conditions are analogous to the
 XY conditions above.
 
-=== Preliminary and In-Between Motion
+== Preliminary and In-Between Motion
 
 At the very beginning of the execution of any of the canned cycles, if
 the current Z position is below the R position, the Z-axis is traversed
@@ -1577,160 +1731,6 @@ where P specifies the number of seconds to dwell.
  . Move the Z-axis only at the current feed rate to the Z position. 
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
-
-== G90, G91 Set Distance Mode[[sec:G90-G91-Set]]
-
-(((G90, G91 Set Distance Mode)))
-
-    G90 is Absolute Distance Mode +
-    G91 is Incremental Distance Mode
-
-Interpretation of G Code can be in one of two distance modes: absolute
-or incremental.
-
-To go into absolute distance mode, program `G90`. In absolute 
-distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W) 
-usually represent positions in terms of the currently active coordinate 
-system. Any exceptions to that rule are described explicitly in 
-section <<sec:G81-G89>>. 
-
-To go into incremental distance mode, program `G91`. In incremental 
-distance mode, axis numbers usually represent 
-increments from the current coordinate. 
-
-== G90.1, G91.1 Arc Distance Mode[[sec:G90.1-G91.1]]
-
-(((Arc Distance Mode)))
-
-G90.1 Absolute Distance Mode for I, J & K offsets.
-
- - I and J both must be specified or it is an error
-
-G91.1 Incremental Distance Mode for I, J & K offsets.
-
- - Returns I, J & K to their normal behavior.
-
-== G92, G92.1, G92.2, G92.3 Coordinate System Offsets[[sec:G92-G92.1-G92.2-G92.3]]
-
-(((G92, G92.1, G92.2, G92.3 Offsets)))
-
-    G92 X- Y- Z- A- B- C- U- V- W-
-
-See Section <<cha:Coordinate-System>> for an overview of coordinate
-systems.
-
-See Section <<sec:G92-Offsets>> for more information on Offsets.
-
-To make the current point have the coordinates you want (without
-motion), program `G92 X- Y- Z- A- B- C- U- V- W-`  , where the axis
-words contain the axis numbers you want. All axis
-words are optional, except that at least one must be used. If an axis
-word is not used for a given axis, the coordinate on that axis of the
-current point is not changed. It is an error if:
-
- - all axis words are omitted.
-
-When `G92` is executed, the origins of all coordinate systems move.
-They move
-such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
-
-For example, suppose the current point is at X=4 and there is
-currently no `G92` offset active. Then `G92 x7` is programmed. This
-moves all origins -3 in X, which causes the
-current point to become X=7. This -3 is saved in parameter 5211.
-
-Being in incremental distance mode has no effect on the action of `G92`.
-
-`G92` offsets may be already be in effect when the `G92`  is called.
-If this is the case, the offset is replaced with a new
-offset that makes the current point become the specified value.
-
-To reset axis offsets to zero, program `G92.1` or `G92.2`. `G92.1`
-sets parameters 5211 to 5219 to zero, whereas `G92.2` leaves their
-current values alone.
-
-To set the axis offset to the values saved in parameters 5211 to 5219,
-program `G92.3`.
-
-You can set axis offsets in one program and use the same offsets in
-another program. Program `G92`  in the first program. This will set
-parameters 5211 to 5219. Do not
- use `G92.1`  in the remainder of the first program. The parameter
-values will be
-saved when the first program exits and restored when the second one
- starts up. Use `G92.3`  near the beginning of the second program. That
-will restore the
-offsets saved in the first program.
-
-EMC2 stores the G92 offsets and reuses them on the next run of a
-program. To prevent this, one can program a G92.1 (to erase them), or
-program a G92.2 (to remove them - they are still stored).
-
-== G93, G94, G95: Set Feed Rate Mode[[sec:G93-G94-G95-Mode]]
-
-(((G93, G94, G95: Feed Rate Mode)))
-
-    G93 is Inverse Time Mode
-    G94 is Units per Minute Mode
-    G95 is Units per Revolution Mode.
-
-Three feed rate modes are recognized: units per minute, inverse time,
-and units per revolution. Program G94 to start the units per minute
-mode. Program G93 to start the inverse time mode. Program G95 to start
-the units per revolution mode.
-
-In units per minute feed rate mode, an F word is interpreted to mean
-the controlled point should move at a certain number of inches per
-minute, millimeters per minute, or degrees per minute, depending upon
-what length units are being used and which axis or axes are moving.
-
-In units per revolution mode, an F word is interpreted to mean the
-controlled point should move a certain number of inches per revolution
-of the spindle, depending on what length units are being used and which
-axis or axes are moving. G95 is not suitable for threading, for
-threading use G33 or G76.
-
-In inverse time feed rate mode, an F word means the move should be
-completed in [one divided by the F number] minutes. For example, if the
-F number is 2.0, the move should be completed in half a minute.
-
-When the inverse time feed rate mode is active, an F word must appear
-on every line which has a G1, G2, or G3 motion, and an F word on a line
-that does not have G1, G2, or G3 is ignored. Being in inverse time feed
-rate mode does not affect G0 (rapid traverse) motions.
-
-It is an error if:
-
- -  inverse time feed rate mode is active and a line with G1, G2, or G3
-   (explicitly or implicitly) does not have an F word.
- - A new feed rate is not specified after switching to G94 or G95
-
-== G96, G97 Spindle Control Mode[[sec:G96-G97-Spindle]]
-
-(((G96, G97 Spindle Control Mode)))
-
-    G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode +
-    G97 is RPM Mode
-
-Two spindle control modes are recognized: revolutions per minute, and
-CSS (constant surface speed). Program G96 D- S- to select constant
-surface speed of S feet per minute (if G20 is in effect) or meters per
-minute (if G21 is in effect). The maximum spindle speed is set by the
-D- number in revolutions per minute. 
-
-When using G96, ensure that X0 in
-the current coordinate system (including offsets and tool lengths) is
-the center of rotation or EMC will not give the desired spindle speed. 
-G96 is not affected by radius or diameter mode.
-
-Program G97 to select RPM mode.
-
-It is an error if:
-
- - S is not specified with G96
- - A feed move is specified in G96 mode while the spindle is not turning
 
 == G98, G99 Set Canned Cycle Return Level[[sec:G98-G99-Set]]
 
