@@ -5,7 +5,8 @@ The EMC Team
 :language: en
 
 :masterdir: {indir}
-
+:leveloffset: 0
+= EMC2 Introduction
 :leveloffset: 1
 
 image::common/images/emc2-intro.*[]
