@@ -589,7 +589,7 @@ and rolling your mouse-wheel.
     <halpin>"my-spinbox"</halpin>
     <min_>-12</min_>
     <max_>33</max_>
-    <inival>0</inival>
+    <initval>0</initval>
     <resolution>0.1</resolution>
     <format>"2.3f"</format>
     <font>("Arial",30)</font>
