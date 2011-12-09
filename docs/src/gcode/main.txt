@@ -122,8 +122,8 @@ It is an error if:
 |G41, G42      | Cutter Compensation                            | <<sec:G41-G42>>
 |G41.1, G42.1  | Cutter Compensation Transient                  | <<sec:G41.1-G42.1>>
 |G43, G43.1    | Use Tool Length Offset from Tool Table         | <<sec:G43-G43.1-Tool>>
-|G49           | Cancel Tool Length Offset                      | <<sub:G49-Tool>>
-|G53           | Motion in Machine Coordinate System            | <<sub:G53-Move-in>>
+|G49           | Cancel Tool Length Offset                      | <<sec:G49-Tool>>
+|G53           | Motion in Machine Coordinate System            | <<sec:G53-Move-in>>
 |G54-G59       | Select Coordinate System (1 - 6)               | <<sec:G54-G59.3>>
 |G59.1-G59.3   | Select Coordinate System (7 - 9)               | <<sec:G54-G59.3>>
 |G61, G61.1    | Path Control Mode                              | <<sec:G61-G61.1-G64>>
@@ -160,12 +160,12 @@ It is an error if:
 |M6         | Tool Change             | <<sec:M6-Tool-Change>>
 |M7, M8, M9 | Coolant Control         | <<sec:M7-M8-M9>>
 |M30, M60   | Pallet Shuttle          | <<sec:M0-M1-M2>>
-|M48        | Override Controls       | <<sub:M48-Both-Override>>
-|M49        | Override Controls       | <<sub:M49-Neither-Override>>
-|M50        | Override Controls       | <<sub:M50-Feed-Override>>
-|M51        | Override Controls       | <<sub:M51-Spindle-Override>>
-|M52        | Override Controls       | <<sub:M52-Adaptive-Feed-Control>>
-|M53        | Override Controls       | <<sub:M53-Feed-Stop-Control>>
+|M48        | Override Controls       | <<sec:M48-Both-Override>>
+|M49        | Override Controls       | <<sec:M49-Neither-Override>>
+|M50        | Override Controls       | <<sec:M50-Feed-Override>>
+|M51        | Override Controls       | <<sec:M51-Spindle-Override>>
+|M52        | Override Controls       | <<sec:M52-Adaptive-Feed-Control>>
+|M53        | Override Controls       | <<sec:M53-Feed-Stop-Control>>
 |M61        | Set Current Tool Number | <<sec:M61-Set-Current-Tool-Number>>
 |M62-65     | Output Control          | <<sec:M62-to-M65>>
 |M66        | Input Control           | <<sec:M66-Input-Control>>
@@ -173,9 +173,9 @@ It is an error if:
 |M68        | Analog Output Control   | <<sec:M68-Analog-Output>>
 |M100-M199  | User Defined M-Codes    | <<sec:M100-to-M199>>
 |O          | O Codes                 | <<cha:O-Codes>>
-|F          | Feed                    | <<sub:F-Set-Feed>>
-|S          | Spindle Speed           | <<sub:S-Set-Spindle>>
-|T          | Tool Select             | <<sub:T-Select-Tool>>
+|F          | Feed                    | <<sec:F-Set-Feed>>
+|S          | Spindle Speed           | <<sec:S-Set-Spindle>>
+|T          | Tool Select             | <<sec:T-Select-Tool>>
 |========================================
 
 == G0 Rapid Motion[[sec:G0-Rapid]]
@@ -196,7 +196,7 @@ If cutter radius compensation is active, the motion will differ from
 the above; see Section <<sec:Cutter-Radius-Compensation>>.
 
 If `G53` is programmed on the same line, the motion will also differ;
-see Section <<sub:G53-Move-in>>.
+see Section <<sec:G53-Move-in>>.
 
 It is an error if:
 
@@ -219,7 +219,7 @@ If cutter radius compensation is active, the motion will differ from
 the above; see Section <<sec:Cutter-Radius-Compensation>>.
 
 If `G53` is programmed on the same line, the motion will also differ;
-see Section  <<sub:G53-Move-in>>.
+see Section  <<sec:G53-Move-in>>.
 
 It is an error if:
 
@@ -1029,7 +1029,7 @@ It is an error if:
 
  - motion is commanded on the same line as `G43.1`
 
-=== G49: Cancel tool length compensation[[sub:G49-Tool]]
+=== G49: Cancel tool length compensation[[sec:G49-Tool]]
 
 To use no tool length offset, program G49.
 
@@ -1037,7 +1037,7 @@ It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
 used.
 
-== G53 Move in Absolute Coordinates[[sub:G53-Move-in]]
+== G53 Move in Absolute Coordinates[[sec:G53-Move-in]]
 
 (((G53 Absolute Coordinates)))
 
@@ -1134,7 +1134,7 @@ the naive cam algorithm for lines. Thus, line-arc, arc-arc, and
 arc-line cases as well as line-line benefit from the "naive cam
 detector". This improves contouring performance by simplifying the
 path. It is OK to program for the mode that is already active. See also
-Section <<sub:Path-Control-Mode>> for a discussion of these modes. 
+Section <<sec:Path-Control-Mode>> for a discussion of these modes. 
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
 
@@ -1848,7 +1848,7 @@ Section (<<sec:Manual-Tool-Change>>)
 
 To change a tool in the spindle from the tool currently in the spindle
 to the tool most recently selected (using a T word - see Section 
-<<sub:T-Select-Tool>>), program `M6`. 
+<<sec:T-Select-Tool>>), program `M6`. 
 When the tool change is complete:
 
  - The spindle will be stopped. 
@@ -1890,20 +1890,20 @@ regardless of what coolant is on or off.
 
 == M48-M53 Overrides[[sec:Overrides]]
 
-=== M48, M49 Override Control[[sub:M48-Both-Override]][[sub:M49-Neither-Override]]
+=== M48, M49 Override Control[[sec:M48-Both-Override]][[sec:M49-Neither-Override]]
 
 (((M48, M49 Override Control)))
 
 To enable the spindle speed and feed rate override controls, program `M48`. 
 To disable both controls, program `M49`. 
-See Section <<sub:Feed-Interaction>> for more details. 
+See Section <<sec:Feed-Interaction>> for more details. 
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
 These controls can also be toggled individually 
 using M50 and M51 as described in the 
-sections <<sub:M50-Feed-Override>> and <<sub:M51-Spindle-Override>>.
+sections <<sec:M50-Feed-Override>> and <<sec:M51-Spindle-Override>>.
 
-=== M50 Feed Override Control[[sub:M50-Feed-Override]]
+=== M50 Feed Override Control[[sec:M50-Feed-Override]]
 
 (((M50 Feed Override Control)))
 
@@ -1914,7 +1914,7 @@ While disabled the feed override will have no influence,
 and the motion will be executed at programmed feed rate. 
 (unless there is an adaptive feed rate override active).
 
-=== M51 Spindle Speed Override Control[[sub:M51-Spindle-Override]]
+=== M51 Spindle Speed Override Control[[sec:M51-Spindle-Override]]
 
 (((M51 Spindle Speed Override)))
 
@@ -1924,9 +1924,9 @@ To disable the control program `M51 P0`.
 While disabled the spindle speed override 
 will have no influence, and the spindle speed 
 will have the exact program specified value
-(using the S-word as described in <<sub:S-Set-Spindle>>).
+(using the S-word as described in <<sec:S-Set-Spindle>>).
 
-=== M52 Adaptive Feed Control[[sub:M52-Adaptive-Feed-Control]]
+=== M52 Adaptive Feed Control[[sec:M52-Adaptive-Feed-Control]]
 
 (((M52 Adaptive Feed Control)))
 
@@ -1940,7 +1940,7 @@ In EMC2, the HAL pin `motion.adaptive-feed` is used for this purpose.
 Values on `motion.adaptive-feed` should range 
 from 0 (feed hold) to 1 (full speed).
 
-=== M53 Feed Stop Control[[sub:M53-Feed-Stop-Control]]
+=== M53 Feed Stop Control[[sec:M53-Feed-Stop-Control]]
 
 (((M53 Feed Stop Control)))
 
@@ -2239,9 +2239,9 @@ The O-number may be given by a parameter or calculation.
 
 == Computing values in O-words
 
-In O-words, Parameters (section  <<sub:Numbered-Parameters>>),
-Expressions (section  <<sub:Expressions>>), 
-Binary Operators (section <<sub:Binary-Operators>>), 
+In O-words, Parameters (section  <<sec:Numbered-Parameters>>),
+Expressions (section  <<sec:Expressions>>), 
+Binary Operators (section <<sec:Binary-Operators>>), 
 and Functions (table <<cap:Functions>>) are particularly useful.
 
 == Calling Files
@@ -2267,17 +2267,17 @@ file must be a valid file.
 
 = Other Codes
 
-== F: Set Feed Rate[[sub:F-Set-Feed]]
+== F: Set Feed Rate[[sec:F-Set-Feed]]
 
 (((F: Set Feed Rate)))
 
 To set the feed rate, program `F<n>` where "n" is a number. 
 The application of the feed rate is as described in Section 
-<<sub:Feed-Rate>>, unless inverse time feed rate mode is in effect, 
+<<sec:Feed-Rate>>, unless inverse time feed rate mode is in effect, 
 in which case the feed rate is as described in 
 Section <<sec:G93-G94-G95-Mode>>.
 
-== S: Set Spindle Speed[[sub:S-Set-Spindle]]
+== S: Set Spindle Speed[[sec:S-Set-Spindle]]
 
 (((S: Set Spindle Speed)))
 
@@ -2300,7 +2300,7 @@ effect. The speed and feed rates will still be synchronized. In this
 case, the speed may differ from what is programmed, even if the speed
 override switch is set at 100%.
 
-== T: Select Tool[[sub:T-Select-Tool]]
+== T: Select Tool[[sec:T-Select-Tool]]
 
 (((T: Select Tool)))
 
@@ -2360,7 +2360,7 @@ The rest of the characters before the right parenthesis are considered to
 be a message. Messages should be displayed on the message display
 device. Comments not containing messages need not be displayed there.
 
-== Probe Logging[[sub:Probe-Logging]]
+== Probe Logging[[sec:Probe-Logging]]
 
 (((Probe Logging)))
 
@@ -2370,7 +2370,7 @@ probing. See section <<sec:G38.x-Straight-Probe>>.
 Often, general logging is more useful than probe logging. Using
 general logging, the format of the output data can be controlled.
 
-=== General Logging[[sub:General-logging]]
+=== General Logging[[sec:General-logging]]
 
 (((General Logging)))
 
@@ -2392,7 +2392,7 @@ If the log file is open, it is closed.
 The message “…” is expanded as described below and then written to the
 log file if it is open.
 
-=== Debugging Messages[[sub:Debugging-messages]]
+=== Debugging Messages[[sec:Debugging-messages]]
 
 (((G Code Debugging Messages)))
 
