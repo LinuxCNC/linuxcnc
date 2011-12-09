@@ -104,7 +104,7 @@ version simplifiée de l'hexapode).
 
 .Définir un bipode[[cap:Bipod-setup]]
 
-image::bipod.png[]
+image::images/bipod.png[]
 
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
 placés sur un mur, à cet appareil un mobile est suspendu par des fils.
