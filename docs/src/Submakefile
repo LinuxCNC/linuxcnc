@@ -205,7 +205,7 @@ DOC_SRCS := \
 	gcode/coordinates_es.txt \
 	gcode/coordinates_fr.txt \
 	gcode/coordinates_pl.txt \
-	gcode/main.txt \
+	gcode/gcode.txt \
 	gcode/main_de.txt \
 	gcode/main_es.txt \
 	gcode/main_fr.txt \
@@ -502,7 +502,7 @@ htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 checkref: checkref_en 
 #checkref: checkref_en checkref_fr checkref_de checkref_es checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/main.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/main_de.html

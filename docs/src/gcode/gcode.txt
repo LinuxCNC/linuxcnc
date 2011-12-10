@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = G Code Reference
 (((G Codes)))
 
@@ -202,7 +205,7 @@ It is an error if:
 
  - An axis letter is without a real value.
 
-== G1 Linear Motion[[sec:G1-Linear-Motion]]
+== G1 Linear Feed[[sec:G1-Linear-Motion]]
 
 (((G1 Linear Motion)))
 
@@ -225,7 +228,7 @@ It is an error if:
 
  - No feed rate has been set.
 
-== G2, G3 Arc[[sec:G2-G3-Arc]]
+== G2, G3 Arc Feed[[sec:G2-G3-Arc]]
 
 (((G2, G3 Arc)))
 
@@ -523,18 +526,18 @@ More information on NURBs can be found here:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
 
-== G7 Diameter Mode[[sec:G7-Diameter-Mode]]
+== G7 Lathe Diameter Mode[[sec:G7-Diameter-Mode]]
 
-(((G7 Diameter Mode)))
+(((G7 Lathe Diameter Mode)))
 
 Program G7 to enter the diameter mode for axis X on a lathe. When in
 the Diameter mode the X axis moves on a lathe will be 1/2 the distance
 to the center of the lathe. For example X1 would move the cutter to
 0.500” from the center of the lathe thus giving a 1” diameter part.
 
-== G8 Radius Mode[[sec:G8-Radius-Mode]]
+== G8 Lathe Radius Mode[[sec:G8-Radius-Mode]]
 
-(((G8 Radius Mode)))
+(((G8 Lathe Radius Mode)))
 
 Program G8 to enter the radius mode for axis X on a lathe. When in
 Radius mode the X axis moves on a lathe will be the distance from the
@@ -695,7 +698,7 @@ It is an error if:
  - The P number does not evaluate to an integer in the range 0 to 9.
  - An axis is programmed that is not defined in the configuration.
 
-== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection[[sec:G17-G18-G19]]
+== G17, G18, G19 Plane Selection[[sec:G17-G18-G19]]
 
 (((G17 XY Plane)))
 (((G18 XZ Plane)))
@@ -716,7 +719,7 @@ These codes set the current plane as follows:
 The effects of having a plane selected are discussed in Section 
 <<sec:G2-G3-Arc>> and Section <<sec:G81-G89>>
 
-== G20, G21 Length Units[[sec:G20-G21-Units]]
+== G20, G21 Units[[sec:G20-G21-Units]]
 
 (((G20 Inches)))
 (((G21 Millimeters)))
@@ -772,9 +775,9 @@ It is an error if :
 
  - Radius compensation is turned on
 
-== G33 Spindle-Synchronized Motion[[sec:G33-Spindle-Sync]]
+== G33 Spindle Synchronized Motion[[sec:G33-Spindle-Sync]]
 
-(((G33 Spindle-Synchronized Motion)))
+(((G33 Spindle Synchronized Motion)))
 
     G33 X- Y- Z- K-
 

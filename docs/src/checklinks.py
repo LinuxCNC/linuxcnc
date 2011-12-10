@@ -8,7 +8,7 @@ else:
 if len(sys.argv) > 2:
     main = sys.argv[2]
 else:
-    main = ref.replace("gcode", "gcode_main")
+    main = ref.replace("gcode", "gcode_gcode")
 
 def get(attr, attrs, default=""):
     attr = attr.lower()
