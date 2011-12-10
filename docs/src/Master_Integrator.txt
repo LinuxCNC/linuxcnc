@@ -7,6 +7,10 @@ Integrator Manual V2.5, {localdate}
 
 The EMC Team
 
+:leveloffset: 0
+
+= EMC2 Introduction
+
 :leveloffset: 1
 
 image::common/images/emc2-intro.*[]

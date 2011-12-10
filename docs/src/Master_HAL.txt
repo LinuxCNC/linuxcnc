@@ -1,10 +1,11 @@
 HAL Manual V2.5, {localdate}
 ============================
-The EMC Team
 
-:language: en
+:lang: en
 
 :masterdir: {indir}
+
+The EMC Team
 
 :leveloffset: 1
 
@@ -12,10 +13,10 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (DE,ES translator-needed)(FR outdated-notice)
-
 :leveloffset: 0
-= HAL
+
+= Hardware Abstract Layer
+
 :leveloffset: 1
 
 include::hal/intro.txt[]
@@ -47,7 +48,9 @@ include::hal/comp.txt[]
 include::hal/halmodule.txt[]
 
 :leveloffset: 0
+
 = Hardware Drivers
+
 :leveloffset: 1
 
 include::drivers/AX5214H.txt[]

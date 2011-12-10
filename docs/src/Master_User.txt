@@ -8,7 +8,9 @@ User Manual V2.5, {localdate}
 The EMC Team
 
 :leveloffset: 0
+
 = EMC2 Introduction
+
 :leveloffset: 1
 
 image::common/images/emc2-intro.*[]
@@ -22,7 +24,9 @@ include::common/user_intro.txt[]
 include::common/User_Concepts.txt[]
 
 :leveloffset: 0
+
 = User Interfaces
+
 :leveloffset: 1
 
 include::gui/axis.txt[]
@@ -38,7 +42,9 @@ include::gui/mini.txt[]
 include::gui/keystick.txt[]
 
 :leveloffset: 0
+
 = Using EMC
+
 :leveloffset: 1
 
 include::common/machining_center.txt[]

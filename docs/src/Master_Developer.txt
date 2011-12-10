@@ -1,18 +1,17 @@
 Developer Manual V2.5, {localdate}
-====================================
-The EMC Team
+==================================
 
-:language: en
+:lang: en
 
 :masterdir: {indir}
+
+The EMC Team
 
 :leveloffset: 1
 
 image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
-
-// (No other languages to give notice to here)
 
 :leveloffset: 0
 == EMC2 Code Notes
@@ -27,7 +26,9 @@ include::code/Code_Notes.txt[]
 include::code/NML_Messages.txt[]
 
 :leveloffset: 0
+
 = Coding Style Guide
+
 :leveloffset: 1
 
 include::code/Style_Guide.txt[]
