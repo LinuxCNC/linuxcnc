@@ -1146,7 +1146,6 @@ class Data:
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
             self[temp+"outputscale"]= 10
-            self[temp+"outputoffset"]= 0
             self[temp+"maxoutput"]= 10
             self[temp+"P"]= 1.0
             self[temp+"I"]= 0
@@ -1209,6 +1208,9 @@ class Data:
         self.sfiltergain = .1
         self.suseatspeed = False
         self.ssingleinputencoder = False
+        self.spotminlimit = 0
+        self.spotmaxlimit = 100
+        self.spotmaxoutput = 100
 
     def load(self, filename, app=None, force=False):
         self.pncconf_loaded_version = 0.0
@@ -1550,6 +1552,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         closedloop = False
         if stepgen and (encoder or resolver): closedloop = True
         if (encoder or resolver) and (pwmgen or tppwmgen) : closedloop = True
+        if closedloop and letter == "s": closedloop = False
         #print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
 
         print >>file
@@ -1587,7 +1590,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                 temp = -1
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
-            print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
 
         if stepgen:
@@ -1770,7 +1772,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         print let + " is closedloop? "+ str(closedloop)
         print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
         print " PWM:",pwmpinname," 3PWM:",tppwmpinname," 8i20:",amp8i20pinname
-        print " STEPPER:",steppinname, "Potentiometer:",potpinname
+        print " STEPPER:",steppinname, "POTENTIOMETER:",potpinname
 
         lat = self.latency
         print >>file, "#*******************"
@@ -1881,7 +1883,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if amp8i20pinname:
                 print >>file, "# ---8i20 amplifier card signals/setup---"
                 print >>file
-                print >>file, "setp       %s.max_current %03f"% (amp8i20pinname,self[let+"8i20maxcurrent"])
+                print >>file, "setp       %s.max_current %.3f"% (amp8i20pinname,self[let+"8i20maxcurrent"])
                 print >>file, "net %s-meas-angle =>       %s.angle"% (let,amp8i20pinname)
                 print >>file, "net %s-bldc-current =>     %s.current"% (let,amp8i20pinname)
                 print >>file, "net %s-enable =>            %s.amp_enable"% (let,amp8i20pinname)
@@ -1890,14 +1892,14 @@ If you have a REALLY large config that you wish to convert to this newer version
         if potpinname:
                 print >>file, "# ---digital potentionmeter output signals/setup---"
                 print >>file
-                print >>file, "setp   "+potpinname+".SpinOut-maxlim 100"
-                print >>file, "setp   "+potpinname+".SpinOut-mixlim 0"
-                print >>file, "setp   "+potpinname+".SpinOut-scalemax 100"
+                print >>file, "setp   "+potpinname+".SpinOut-maxlim   %.1f"% self.spotminlimit
+                print >>file, "setp   "+potpinname+".SpinOut-mixlim   %.1f"% self.spotmaxlimit
+                print >>file, "setp   "+potpinname+".SpinOut-scalemax %.1f"% self.spotmaxoutput
                 for i in potinvertlist:
                     if i == POTO:
-                        print >>file, "setp   "+potpinname+".SpinDir-invert true"
+                        print >>file, "setp   "+potpinname+".SpinDir-invert   true"
                     if i == POTE:
-                        print >>file, "setp   "+potpinname+".SpinEna-invert true"
+                        print >>file, "setp   "+potpinname+".SpinEna-invert   true"
                 print >>file
                 if closedloop:
                     print >>file, "net spindle-output      => " + potpinname + ".SpinOut"
@@ -4333,9 +4335,11 @@ Ok to reset data and start a new configuration?"),False):
                 elif k == "TPPWM": 
                     l = modules[i].find("numinstances").text;#print l,k
                     tppwmgen = int(l)
-                elif k == "SSERIAL": 
+                elif k == "SSerial": 
                     l = modules[i].find("numinstances").text;#print l,k
                     sserialports = int(l)
+                elif k == "None": 
+                    l = modules[i].find("numinstances").text;#print l,k
                 elif k in ("IOPort","AddrX","MuxedQCountSel"):
                     continue
                 else:
@@ -4356,7 +4360,9 @@ Ok to reset data and start a new configuration?"),False):
             pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
             pinconverttppwm = {"PWM A (out)":TPPWMA,"PWM B (out)":TPPWMB,"PWM C (out)":TPPWMC,"PWM /A (out)":TPPWMAN,"PWM /B (out)":TPPWMBN,
                 "PWM /C (out)":TPPWMCN,"Fault (in)":TPPWMF,"Enable (out)":TPPWME}
-            pinconvertsserial = {"RXData":RXDATA0,"TXData":TXDATA0,"TXE":TXEN0}
+            pinconvertsserial = {"RXData1":RXDATA0,"TXData1":TXDATA0,"TXE1":TXEN0,"RXData2":RXDATA1,"TXData2":TXDATA1,"TXE2":TXEN1,
+                                "RXData3":RXDATA2,"TXData3":TXDATA2,"TXE3":TXEN2,"RXData4":RXDATA3,"TXData4":TXDATA3,"TXE4":TXEN3}
+            pinconvertnone = {"Not Used":NUSED}
             for i,j in enumerate(pins):
                 temppinunit = []
                 temp = pins[i].find("connector").text
@@ -4375,11 +4381,14 @@ Ok to reset data and start a new configuration?"),False):
                         convertedname = pinconvertstep[temp]
                     elif modulename == "TPPWM":
                         convertedname = pinconverttppwm[temp]
-                    elif modulename == "SSERIAL":
+                    elif modulename == "SSerial":
                         convertedname = pinconvertsserial[temp]
+                    elif modulename == "None":
+                        convertedname = pinconvertnone[temp]
                     else: raise ValueError
                 except:
                     # must be GPIO pins if there is no secondary mudule name
+                    # or if pinconvert fails eg. StepTable instance default to GPIO 
                     temppinunit.append(GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
@@ -6891,6 +6900,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
+        spindlepot = False
         if self.data.findsignal("%s-8i20"% axis):amp_8i20 = True
         if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
@@ -6898,6 +6908,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         if self.data.findsignal(axis+"-resolver"): encoder = resolver = True
         if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
         if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True ; tppwm = True
+        if self.data.findsignal(axis+"-pot-output"): spindlepot = True
 
         model = w[axis+"drivertype"].get_model()
         model.clear()
@@ -6919,7 +6930,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         set_value("dirhold")
         set_value("dirsetup")
         set_value("outputscale")
-        set_value("outputoffset")
         set_value("3pwmscale")
         set_value("3pwmdeadtime")
         set_active("invertmotor")
@@ -6969,11 +6979,45 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        w[axis + "servo_info"].set_sensitive(encoder) 
+        if encoder and not axis == "s":
+            w[axis + "servo_info"].show()
+        else:
+            w[axis + "servo_info"].hide()
+        if stepdriven:
+            w[axis + "output_info"].hide()
+        else:
+            w[axis + "output_info"].show()
         w[axis + "invertencoder"].set_sensitive(encoder)
         w[axis + "encoderscale"].set_sensitive(encoder)
-        w[axis + "stepper_info"].set_sensitive(stepdriven) 
         w[axis + "stepscale"].set_sensitive(stepdriven)
+        if stepdriven:
+            w[axis + "stepper_info"].show()
+        else:
+            w[axis + "stepper_info"].hide()
+        if pwmgen:
+            w[axis + "outputscale"].show()
+            w[axis + "maxoutput"].show()
+            w[axis + "outputscalelabel"].show()
+            w[axis + "maxoutputlabel"].show()
+        else:
+            w[axis + "outputscale"].hide()
+            w[axis + "maxoutput"].hide()
+            w[axis + "outputscalelabel"].hide()
+            w[axis + "maxoutputlabel"].hide()
+        if spindlepot:
+            w[axis + "potminlimit"].show()
+            w[axis + "potmaxlimit"].show()
+            w[axis + "potmaxoutput"].show()
+            w[axis + "potminlimitlabel"].show()
+            w[axis + "potmaxlimitlabel"].show()
+            w[axis + "potmaxoutputlabel"].show()
+        else:
+            w[axis + "potminlimit"].hide()
+            w[axis + "potmaxlimit"].hide()
+            w[axis + "potmaxoutput"].hide()
+            w[axis + "potminlimitlabel"].hide()
+            w[axis + "potmaxlimitlabel"].hide()
+            w[axis + "potmaxoutputlabel"].hide()
         if pwmgen or amp_8i20: w[axis + "bldcframe"].show()
         else: w[axis + "bldcframe"].hide()
         if tppwm:
@@ -6993,10 +7037,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w[axis + "dirhold"].set_value(d[axis + "dirhold"])
             w[axis + "dirsetup"].set_value(d[axis + "dirsetup"])
         gobject.idle_add(lambda: self.motor_encoder_sanity_check(None,axis))
-
-        w[axis + "outputscale"].set_sensitive(pwmgen)
-        w[axis + "outputoffset"].set_sensitive(pwmgen)
-        w[axis + "maxoutput"].set_sensitive(pwmgen)
 
         if axis == "s":
             unit = "rev"
@@ -7038,8 +7078,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
             w["ssingleinputencoder"].show()
-            w["sservo_info"].set_sensitive(pwmgen)
-            w["saxistest"].set_sensitive(pwmgen)
+            if spindlepot:
+                set_value("potminlimit")
+                set_value("potmaxlimit")
+                set_value("potmaxoutput")
+            w["saxistest"].set_sensitive(pwmgen or spindlepot)
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
@@ -7215,7 +7258,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         get_pagevalue("dirhold")
         get_pagevalue("dirsetup")
         get_pagevalue("outputscale")
-        get_pagevalue("outputoffset")
         get_pagevalue("3pwmscale")
         get_pagevalue("3pwmdeadtime")
         get_pagevalue("maxoutput")
@@ -7288,6 +7330,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
+            get_pagevalue("potminlimit")
+            get_pagevalue("potmaxlimit")
+            get_pagevalue("potmaxoutput")
 
     def configure_bldc(self,axis):
         d = self.data
@@ -7476,10 +7521,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w["calscale"].set_text("")
 
     def motor_encoder_sanity_check(self,widgets,axis):
-        stepdrive = encoder = bad = resolver = False
+        stepdrive = encoder = bad = resolver = pot = False
         if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-resolver"): resolver = True
+        if self.data.findsignal(axis+"-pot-outpot"): pot = True
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1: bad = True
         if stepdrive:
@@ -7577,7 +7623,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         return True
 
     def has_spindle_speed_control(self):
-        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake"):
+        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
+                    "s-pot-output"):
             has_spindle = self.data.findsignal(test)
             if has_spindle:
                 return True
@@ -8632,19 +8679,28 @@ But there is not one in the machine-named folder.."""),True)
 
     # openloop servo test
     def test_axis(self, axis):
-        # one needs real time, pwm gen and an encoder for open loop testing.
+        # can't test with a simulator
         if not self.check_for_rt(self):
             return
+        # one needs real time, pwm gen and an encoder for open loop testing.
         temp = self.data.findsignal( (axis + "-encoder-a"))
         self.enc = self.data.make_pinname(temp)
         temp = self.data.findsignal( (axis + "-resolver"))
         self.res = self.data.make_pinname(temp)
         pwm_sig = self.data.findsignal( (axis + "-pwm-pulse"))
-        pwm = self.data.make_pinname(pwm_sig)
+        self.pwm = self.data.make_pinname(pwm_sig)
+        pot_sig = self.data.findsignal(axis+"-pot-output")
+        self.pot = self.data.make_pinname(pot_sig)
 
-        if not pwm or (not self.enc and not self.res) :
-             self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
-             return
+        if axis == "s":
+            if (not self.pwm and not self.pot) and (not self.enc and not self.res):
+                self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal for this axis test") , True)
+                return
+        else:
+            if not self.pwm or (not self.enc and not self.res) :
+                self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
+                return           
+
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
         data = self.data
         widgets = self.widgets
@@ -8655,6 +8711,9 @@ But there is not one in the machine-named folder.."""),True)
         dacspeed = widgets.Dac_speed_fast.get_active()
         dac_scale = get_value(widgets[axis+"outputscale"])
         max_dac = get_value(widgets[axis+"maxoutput"])
+        spindleminlimit = get_value(widgets[axis+"potminlimit"])
+        spindlemaxlimit = get_value(widgets[axis+"potmaxlimit"])
+        spindlemaxoutput = get_value(widgets[axis+"potmaxoutput"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
@@ -8674,9 +8733,23 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write( "sets estop-out false\n")
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
-        # setup pwm generator
 
-        if pwm:
+        # setup sserial potentiometer 
+        if self.pot:
+            halrun.write("net dac " + self.pot + ".SpinOut")
+            halrun.write("net enable " + self.pot +".SpinEna")
+            halrun.write("net dir " + self.pot +".SpinDir")
+            halrun.write("setp   "+self.pot+".SpinOut-maxlim   %.1f"% spindleminlimit)
+            halrun.write("setp   "+self.pot+".SpinOut-mixlim   %.1f"% spindlemaxlimit)
+            halrun.write("setp   "+self.pot+".SpinOut-scalemax %.1f"% spindlemaxoutput)
+            potinvertlist = self.data.spindle_invert_pins(pot_sig)
+            for i in potinvertlist:
+                    if i == POTO:
+                        halrun.write("setp   "+self.pot+".SpinDir-invert   true")
+                    if i == POTE:
+                        halrun.write("setp   "+self.pot+".SpinEna-invert   true")
+        # setup pwm generator
+        if self.pwm:
             pwmtype = self.data[pwm_sig+"type"]
             if  pwmtype == PWMP: pulsetype = 1
             elif pwmtype == PDMP: pulsetype = 3
@@ -8684,13 +8757,13 @@ But there is not one in the machine-named folder.."""),True)
             else: 
                 print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
                 return
-            halrun.write("setp %s %d \n"%  (pwm +".output-type", pulsetype))
-            halrun.write("net dac %s \n"%  (pwm +".value"))
-            halrun.write("net enable %s \n"%  (pwm +".enable"))
-            halrun.write("setp %s \n"%  (pwm +".scale %f"% dac_scale))
+            halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
+            halrun.write("net dac %s \n"%  (self.pwm +".value"))
+            halrun.write("net enable %s \n"%  (self.pwm +".enable"))
+            halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
             halrun.write("loadusr halmeter -s sig enable -g 0 475 330\n")
-            halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
-            halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
+            halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (self.pwm +".value"))
+            halrun.write("loadusr halmeter pin %s -g 550 375\n"% (self.pwm +".value") )
         # set up encoder     
         if self.enc:
             print self.enc
@@ -8710,7 +8783,6 @@ But there is not one in the machine-named folder.."""),True)
         self.axis_under_test = axis
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
-        widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
         widgets.testenc_scale.set_value(float(enc_scale))
         widgets.fastdac.set_range(0,max_dac)
         widgets.slowdac.set_range(0,max_dac)
@@ -8729,7 +8801,6 @@ But there is not one in the machine-named folder.."""),True)
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
-            widgets[axis+"outputoffset"].set_value(widgets.testoutputoffset.get_value())
             widgets[axis+"encoderscale"].set_value(widgets.testenc_scale.get_value())
             #widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
         self.axis_under_test = None
@@ -8752,8 +8823,7 @@ But there is not one in the machine-named folder.."""),True)
             output = output * -1
         elif not self.jogplus == 1:
             output = 0
-        if self.widgets.testinvertmotor.get_active() == True: 
-            output = output * -1
+        invertmotor = self.widgets.testinvertmotor.get_active()
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
         halrun.write("sets estop-out %d\n"% ( self.enable_amp))
@@ -8763,7 +8833,18 @@ But there is not one in the machine-named folder.."""),True)
         if self.res:
             halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.res, 'scale': (enc_scale * enc_invert)})
             halrun.write("""sets resolver-reset %(reset)d\n""" % { 'reset': self.res_reset})
-        halrun.write("""sets dac %(output)f\n""" % { 'output': output})
+        if self.pwm:
+            if invertmotor:
+                output = output * -1
+            halrun.write("""sets dac %(output)f\n""" % { 'output': output})
+        if self.pot:
+            if invertmotor:
+                output = output * -1
+            if output < 0:
+                halrun.write("sets dir true")
+            else:
+                halrun.write("sets dir false")
+            halrun.write("""sets dac %(output)f\n""" % { 'output': abs(output)})
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
