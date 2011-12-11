@@ -17,8 +17,9 @@ restant dans les limites permises par la machine.
 Un programme en G-code ne peut jamais être exactement suivi. Par
 exemple imaginez que vous spécifiez dans une ligne du programme les
 mouvements suivants:
-
-   G1 X10 F100 (G1 un mouvement linéaire, X10 la destination, F100 la vitesse)
+----
+G1 X10 F100 (G1 un mouvement linéaire, X10 la destination, F100 la vitesse)
+----
 
 En réalité, la totalité du mouvement ne peut pas être effectuée à
 F100, puisque la machine commence le mouvement à une vitesse nulle,
@@ -42,7 +43,7 @@ trajectoire peut suivre différents parcours, tous sont bons dans
 certains cas; il peut décélérer et s'arrêter exactement sur les
 coordonnées du sommet de l'angle, puis accélérer dans la direction
 perpendiculaire. Il peut également faire ce qui est appelé le mode
-«trajectoire continue», qui consiste à maintenir la vitesse d'avance en
+*trajectoire continue*, qui consiste à maintenir la vitesse d'avance en
 passant vers le sommet de l'angle, ce qui nécessite d'arrondir l'angle
 de façon à respecter les contraintes machine. Vous pouvez remarquer
 qu'il y a dans ce cas un compromis: vous pouvez ralentir pour avoir un
@@ -68,7 +69,7 @@ G61.1::
 G64::
      (mode trajectoire continue sans tolérance) Le mode G64 est le mode
     par défaut au démarrage d'EMC2. G64 est juste une trajectoire continue, 
-    le «naive cam detector» n'est pas activé. G64 et G64 P0 indiquent au 
+    le 'naive cam detector' n'est pas activé. G64 et G64 P0 indiquent au 
     planificateur de sacrifier la précision de suivi du parcours pour 
     conserver une vitesse d'avance élevée. Ce mode est nécessaire pour 
     certains types de matériaux ou d'outillages pour lesquels l'arrêt exact 
@@ -144,7 +145,7 @@ image::images/naive-cam.png[]
 
 === Planification des mouvements
 
-Assurez-vous que les mouvements soient "assez longs" pour convenir à
+Assurez-vous que les mouvements soient 'assez longs' pour convenir à
 votre machine/matériel. Principalement en raison de la règle selon
 laquelle "la machine ne pourra jamais se déplacer à une vitesse ne lui
 permettant pas de venir s'arrêter complètement à la fin du mouvement
@@ -162,17 +163,17 @@ machine est un peu inférieure à celle du fichier ini.
 Pour maintenir la vitesse d'avance, le mouvement doit être plus long
 que la distance qui lui est nécessaire pour accélérer de zéro à la
 vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant A
-comme étant 1/2 de la variable MAX_ACCELERATION du fichier ini et 
-F comme étant la vitesse d'avance *en unités par seconde*,
-le temps d'accélération sera t~a~ = F/A et la distance d'accélération sera 
-d~a~ = F*t~a~/2. Les temps et distance de décélération sont les mêmes, ce qui 
-fait que la distance critique d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A.
+comme étant *+1/2+* de la variable *MAX_ACCELERATION* du fichier ini et 
+*F* comme étant la vitesse d'avance *en unités par seconde*,
+le temps d'accélération sera *+t~a~ = F/A+* et la distance d'accélération sera 
+*+d~a~ = F*t~a~/2+*. Les temps et distance de décélération sont les mêmes, ce qui 
+fait que la distance critique *+d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A+*.
 
-Par exemple, pour une vitesse d'avance de 25mm par seconde et une
-accélération de 250 mm/sec^2^, la distance critique sera de 
-10^2^/100 = 100/100 = 1mm.
-Pour une vitesse d'avance de 5mm par seconde, la distance critique ne serait que de
-5^2^/100 = 25/100 = 0.25mm.
+Par exemple, pour une vitesse d'avance de *25mm par seconde* et une
+accélération de *250 mm/sec^2^*, la distance critique sera de 
+*10^2^/100 = 100/100 = 1mm*.
+Pour une vitesse d'avance de *5mm par seconde*, la distance critique ne serait que de
+*5^2^/100 = 25/100 = 0.25mm*.
 
 == G-code
 
@@ -180,7 +181,7 @@ Pour une vitesse d'avance de 5mm par seconde, la distance critique ne serait que
 
 Quand EMC2 démarre pour la première fois beaucoup de G et M codes sont
 chargés par défaut. Les codes actifs courants sont visibles dans l'interface
-Axis, dans l'onglet "Données manuelles" dans le champ "G-codes actifs".
+Axis, dans l'onglet *Données manuelles* dans le champ *G-codes actifs*
 Ces codes G et M définissent le comportement d'EMC2 et il est important
 de bien comprendre la signification de chacun avant de démarrer EMC2.
 Ces codes par défaut peuvent être modifiés lors du lancement d'un fichier
@@ -188,16 +189,14 @@ de G-codes puis laissés dans différents états qui seront identiques lors
 d'une nouvelle session d'EMC2. La bonne pratique consiste à mettre dans 
 le préambule de chaque fichier de G-codes les codes nécessaires pour le
 travail demandé et ne pas supposer que ceux par défaut conviendront.
-Imprimer la page des références rapides du G-code 
- peut aider à se rappeler la signification
+Imprimer la page des références rapides du G-code peut aider à se rappeler la signification
 de chacun d'eux.
 
 === Vitesse d'avance
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section "vitesse d'avance"xxxxxx du
-manuel de l'utilisateur.
+comprendre la section *vitesse d'avance* du *manuel de l'utilisateur*.
 
 === Compensation de rayon d'outil
 
@@ -208,8 +207,8 @@ diamètre de l'outil courant, une erreur est signalée. Un diamètre
 d'outil inférieur est peut être utilisable sans erreur pour le même
 parcours. Ce qui signifie que quand ce type de problème se présente, il
 est possible de programmer un outil plus petit pour usiner le même
-parcours sans erreur. Voir la section compensation de rayon d'outil 
-xxxxxxx pour plus d'informations.
+parcours sans erreur. Voir la section compensation de rayon d'outil pour plus 
+d'informations.
 
 == Prise d'origine machine
 
@@ -217,15 +216,15 @@ Après le démarrage d'EMC2 chaque axe doit être référencé sur sont
 point d'origine machine avant tout mouvement ou commande MDI.
 
 Pour déroger à ce comportement par défaut, ou pour utiliser
-l'interface Mini, il est possible d'ajuster l'option NO_FORCE_HOMING =
-1 dans la section [TRAJ] du fichier ini.
+l'interface Mini, il est possible d'ajuster l'option *NO_FORCE_HOMING = 1* dans 
+la section *[TRAJ]* du fichier ini.
 
 == Changement d'outil
 
 Il existe plusieurs options pour effectuer un changement d'outil. Voir
 la section [EMCIO] dans le manuel de l'intégrateur pour les
 informations sur la configuration de ces options. Voir également les
-sections G28 xxxxx et G30 xxxxx du manuel de l'utilisateur.
+sections G28 et G30 du manuel de l'utilisateur.
 
 == Systèmes de coordonnées
 
@@ -252,15 +251,15 @@ vous êtes dans le système de coordonnées G54.
 Normalement vous utilisez le système de coordonnées G54. Quand un décalage 
 est appliqué au système de coordonnées utilisateur courant, dans Axis,
 une petite sphère bleue avec des rayons est affichée à l'emplacement
-de l'origine machine quand la visu affiche "Position: Relative Actuelle".
+de l'origine machine quand la visu affiche *Position: Relative Actuelle*.
 Si votre décalage utilise temporairement les coordonnées machine, depuis 
-le menu Machine ou en programmant 'G10 L2 P1 X0 Y0 Z0' à la fin du programme G-Code.
-Modifiez la valeur du mot "P" en fonction du système de coordonnées dont vous voulez
+le menu Machine ou en programmant *+G10 L2 P1 X0 Y0 Z0+* à la fin du programme G-Code.
+Modifiez la valeur du mot *P* en fonction du système de coordonnées dont vous voulez
 effacer le décalage.
 
  -  Les décalages stockés dans un système de coordonnées utilisateur sont conservés
    à l'arrêt d'EMC.
- -  Dans Axis, utiliser le bouton "Toucher" décalera le système de coordonnées utilisateur
+ -  Dans Axis, utiliser le bouton *Toucher* décalera le système de coordonnées utilisateur
    choisi.
 
 === Quand vous êtes perdu
@@ -270,13 +269,13 @@ vous pensez que vous devriez l'avoir, c'est peut être provoqué par plusieurs
 décalages programmés et qu'il conviendrait de supprimer. 
 Pour cela:
 
- - Placez vous sur l'origine machine avec G53 G0 X0 Y0 Z0
- - Supprimez tous les décalages G92 avec G92.1
- - Utilisez les coordonnées utilisateur avec G54
- - Rendez les coordonnées utilisateur G54, identiques aux 
-   coordonnées machine avec G10 L2 P1 X0 Y0 Z0
- - Annulez les offsets d'outil avec G49
- - Activez l'affichage des coordonnées relatives depuis le menu
+ - Placez vous sur l'origine machine avec *+G53 G0 X0 Y0 Z0+*
+ - Supprimez tous les décalages *+G92+* avec *+G92.1+*
+ - Utilisez les coordonnées utilisateur avec *+G54+*
+ - Rendez les coordonnées utilisateur *+G54+*, identiques aux 
+   coordonnées machine avec *+G10 L2 P1 X0 Y0 Z0+*
+ - Annulez les offsets d'outil avec *+G49+*
+ - Activez l'affichage des coordonnées relatives depuis le menu.
 
 Maintenant vous devriez être, à l'origine machine X0 Y0 Z0 et le système 
 de coordonnées relatives devrait être le même que le système de coordonnées machine.

@@ -17,7 +17,7 @@ image::images/touchy.png[]
 
 === Connections avec HAL
 
-Touchy requiert qu'un fichier nommé `touchy.hal` soit créé, dans le même 
+Touchy requiert qu'un fichier nommé *touchy.hal* soit créé, dans le même 
 répertoire de configuration que le fichier ini, pour y connecter ses contrôles. 
 Touchy exécute les commandes de HAL dans ce fichier après qu'il a créé ses propres
 pins, lesquelles sont disponibles pour connexion.
@@ -25,39 +25,39 @@ pins, lesquelles sont disponibles pour connexion.
 Touchy dispose de plusieurs pins de sortie destinées à être connectées au 
 contrôleur de mouvement pour gérer les manivelles de jogging:
 
- - `touchy.jog.wheel.increment`,
-	qui doit être connecté à la pin `axis.N.jog-scale` de chacun des N axes.
+ - *touchy.jog.wheel.increment*,
+	qui doit être connecté à la pin *axis.N.jog-scale* de chacun des N axes.
 
- - `touchy.jog.wheel.N`, qui doit être connecté à `axis.N.jog-enable` pour
+ - *touchy.jog.wheel.N*, qui doit être connecté à *axis.N.jog-enable* pour
     chacun des N axes.
 
- - En plus d'être connecté à `touchy.wheel-counts`, le compteur d'impulsions 
-    de la manivelle doit aussi être connecté à `axis.N.jog-counts` pour chacun 
-    des N axes. Si le composant de HAL `ilowpass` est utilisé pour adoucir les
+ - En plus d'être connecté à *touchy.wheel-counts*, le compteur d'impulsions 
+    de la manivelle doit aussi être connecté à *axis.N.jog-counts* pour chacun 
+    des N axes. Si le composant de HAL *ilowpass* est utilisé pour adoucir les
     mouvements de jogging à la manivelle, il faut l'appliquer uniquement sur 
-    `axis.N.jog-counts` et non sur `touchy.wheel-counts`.
+    *axis.N.jog-counts* et non sur *touchy.wheel-counts*.
 
 ==== Contrôles requis
 
- - Un bouton `Abandon` (contact momentané) connecté sur la HAL pin `touchy.abort`
- - Un bouton de `Départ cycle` (contact momentané) connecté à `touchy.cycle-start`
- - Volant/Manivelle/MPG, connecté à `touchy.wheel-counts` et à la pin de mouvement
+ - Un bouton *Abandon* (contact momentané) connecté sur la HAL pin *touchy.abort*
+ - Un bouton de *Départ cycle* (contact momentané) connecté à *touchy.cycle-start*
+ - Volant/Manivelle/MPG, connecté à *touchy.wheel-counts* et à la pin de mouvement
    comme décrit précédemment.
- - Un bouton à bascule simple (contact à deux positions) connecté à `touchy.single-block`
+ - Un bouton à bascule simple (contact à deux positions) connecté à *touchy.single-block*
 
 ==== Contrôles optionnels
 
  -  Pour le jog continu, un interrupteur à trois positions avec retour au centre
    (ou deux boutons momentanés) pour chacun des axes concernés, attaché à 
-    `touchy.jog.continuous.x.negative` et à `touchy.jog.continuous.x.positive`, 
+    *touchy.jog.continuous.x.negative* et à *touchy.jog.continuous.x.positive*, 
     etc. pour les autres axes.
  -  Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa course
-    en grande vitesse), un bouton à contact momentané sera connecté à `touchy.quill-up`.
+    en grande vitesse), un bouton à contact momentané sera connecté à *touchy.quill-up*.
 
 ==== Voyants de panneau optionnels
 
- - `touchy.jog.active` indique quand les contrôles de jog du panneau sont actifs.
- - `touchy.status-indicator` est allumé en continu quand la machine exécute un 
+ - *touchy.jog.active* indique quand les contrôles de jog du panneau sont actifs.
+ - *touchy.status-indicator* est allumé en continu quand la machine exécute un 
     G-code et clignote quand la machine est en marche mais en pause, ou en
     vitesse à zéro.
 
@@ -68,10 +68,10 @@ contrôleur de mouvement pour gérer les manivelles de jogging:
 
 == Réglage
 
-Pour utiliser Touchy, dans la section `[DISPLAY]` du fichier ini de la machine,
-modifier la ligne de cette manière: `DISPLAY = touchy`
+Pour utiliser Touchy, dans la section *[DISPLAY]* du fichier ini de la machine,
+modifier la ligne de cette manière: *DISPLAY = touchy*
 
-Quand Touchy démarre pour la première fois, vérifier l'onglet `Préférences`.
+Quand Touchy démarre pour la première fois, vérifier l'onglet *Préférences*.
 Dans le cas d'un écran tactile, choisir de cacher le pointeur dans les options,
 pour obtenir les meilleurs résultats.
 
