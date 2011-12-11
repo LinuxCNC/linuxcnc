@@ -21,7 +21,7 @@ h.ready()
 try:
     while 1:
         time.sleep(1)
-        h[’out’] = h[’in’]
+        h['out'] = h['in']
 except KeyboardInterrupt:
     raise SystemExit
 ----
