@@ -64,14 +64,14 @@ est requis par le fichier INI durant le démarrage d'EMC2. Dans l'exemple
 ci-dessous, qui utilise (((G55)))G55, la valeur de chacun des axes de G55
 est enregistrée dans une variable numérotée.
 
--------------------
-5241  0.000000
-5242  0.000000
-5243  0.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 0.000000
+|5242 | 0.000000
+|5243 | 0.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 Dans le schéma d'un fichier VAR, la première variable contient la
 valeur du décalage de l'axe X, la seconde variable le décalage de l'axe
@@ -84,14 +84,14 @@ modifiant le fichier VAR lui-même, puis faire un [reset], pour qu' EMC2
 lise les nouvelles valeurs. Pour notre exemple, nous allons éditer
 directement le fichier pour que G55 prenne les valeurs suivantes:
 
--------------------
-5241  2.000000
-5242  1.000000
-5243 -2.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 2.000000
+|5242 | 1.000000
+|5243 |-2.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 Vous pouvez voir que les positions zéro de G55 sont passées en X = 2, 
 Y = 1, et Z = -2 éloignées donc de l'origine absolue (machine).
@@ -258,14 +258,14 @@ Parfois, les valeurs de décalage d'un G92 restent bloquées dans le
 fichier VAR. Quand ça arrive, une ré-initialisation ou un redémarrage
 peut les rendre de nouveau actives. Les variables sont numérotées: 
 
----------------------------------------
-5211    0.000000
-5212    0.000000
-5213    0.000000
-5214    0.000000
-5215    0.000000
-5216    0.000000
----------------------------------------
+|==============
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
+|==============
 
 où 5211 est le numéro du décalage de l'axe X et ainsi de suite. Si
 vous voyez des positions inattendues à la suite d'une commande de

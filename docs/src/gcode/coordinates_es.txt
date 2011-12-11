@@ -52,14 +52,14 @@ the INI file during the startup of an EMC. In our example below we'll
 use (((G55)))G55. The values for each axis for G55 are stored as
 variable numbers.
 
--------------------
-5241  0.000000
-5242  0.000000
-5243  0.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 0.000000
+|5242 | 0.000000
+|5243 | 0.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all six axes. There are numbered
@@ -72,14 +72,14 @@ this is not the recommended way. G10, G92, G28.1, etc are better ways
 to affect variables. For our example let's directly edit the file so
 that G55 takes on the following values.
 
--------------------
-5241  2.000000
-5242  1.000000
-5243 -2.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 2.000000
+|5242 | 1.000000
+|5243 |-2.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero
@@ -238,14 +238,14 @@ can happen when a file is aborted during processing that has G92
 offsets in effect. When this happens reset or a startup will cause them
 to become active again. The variables are named: 
 
----------------------------------------
-5211    0.000000
-5212    0.000000
-5213    0.000000
-5214    0.000000
-5215    0.000000
-5216    0.000000
----------------------------------------
+|==============
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
+|==============
 
 where 5211 is the X axis offset and so on. If you are seeing
 unexpected positions as the result of a commanded move, as a result of
