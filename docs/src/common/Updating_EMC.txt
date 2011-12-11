@@ -70,9 +70,9 @@ The tool table will automatically be converted to the new format.
 
 The hostmot2 firmware images are now a separate package. You can:
 
- - Continue using an already-installed `emc2-firmware-mesa-*` 2.3.x package
+ - Continue using an already-installed 'emc2-firmware-mesa-*' 2.3.x package
  - Install the new packages from the synaptic package manager. 
-   The new packages are named `hostmot2-firmware-*`
+   The new packages are named 'hostmot2-firmware-*'
  - Download the firmware images as tar files from 
    http://emergent.unpy.net/01267622561 and install them manually 
 
