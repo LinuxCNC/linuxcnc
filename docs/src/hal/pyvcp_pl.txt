@@ -694,10 +694,10 @@ true or false.
 
 [source,xml]
 -----------------------------------------------------------
-<image name=’fwd’ file=’fwd.gif’/>
-<image name=’rev’ file=’rev.gif’/>
+<image name='fwd' file='fwd.gif'/>
+<image name='rev' file='rev.gif'/>
 <vbox>
-    <image_bit halpin=’selectimage’ images=’fwd rev’/>
+    <image_bit halpin='selectimage' images='fwd rev'/>
 </vbox>
 -----------------------------------------------------------
 
@@ -716,11 +716,11 @@ and 1 for the second image etc.
 
 [source,xml]
 ---------------------------------------------------------------------
-<image name=’stb’ file=’stb.gif’/>
-<image name=’fwd’ file=’fwd.gif’/>
-<image name=’rev’ file=’rev.gif’/>
+<image name='stb' file='stb.gif'/>
+<image name='fwd' file='fwd.gif'/>
+<image name='rev' file='rev.gif'/>
 <vbox>
-    <image_u32 halpin=’selectimage’ images=’stb fwd rev’/>
+    <image_u32 halpin='selectimage' images='stb fwd rev'/>
 </vbox>
 ---------------------------------------------------------------------
 
@@ -884,7 +884,7 @@ Example:
     <label text="E (cell 2,1)"/>
     <tablesticky sticky="nsew"/>
     <tablespan rows="2"/>
-    <label text="’spans\n2 rows’"/>
+    <label text="'spans\n2 rows'"/>
     <tablesticky sticky="new"/>
     <label text="G (cell 2,3)"/>
     <label text="H (cell 2,4)"/>

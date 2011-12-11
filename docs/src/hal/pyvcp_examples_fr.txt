@@ -394,7 +394,7 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
     </label> 
     <width>5</width> 
      <hbox> 
-    <label width=”2”/> <!-- utilisé pour centrer la Led --> 
+    <label width="2"/> <!-- utilisé pour centrer la Led --> 
     <rectled> 
     <halpin>"on-led"</halpin> 
     <height>"30"</height> 
@@ -414,7 +414,7 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
     <font>("Helvetica",18)</font> 
     <width>5</width> 
     </label> 
-    <label width=”2”/> 
+    <label width="2"/> 
     <rectled> 
     <halpin>"fwd-led"</halpin> 
     <height>"30"</height> 
@@ -433,7 +433,7 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
     <font>("Helvetica",18)</font> 
     <width>5</width> 
     </label> 
-    <label width=”2”/> 
+    <label width="2"/> 
     <rectled> 
     <halpin>"rev-led"</halpin> 
     <height>"30"</height> 
