@@ -286,7 +286,7 @@ est toujours: +gladevcp+.
 La ligne de commande actuellement lancée par Axis dans la configuration ci-dessous
 est la suivante:
 ----
-halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP=>
+halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP>
 ----
 
 Ce qui veux dire que n'importe quelle option gladevcp, peut être ajoutée ici, tant 
