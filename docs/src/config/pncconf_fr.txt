@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))
+[[cha:Assistant-graphique-Mesa]]
+= Assistant graphique de configuration Mesa PNCconf(((Assistant graphique de configuration Mesa pncconf)))
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
 sorties Mesa et des ports parallèles (3). Il est destiné à la configuration de 
@@ -30,7 +31,7 @@ il est possible d'ajouter à la main les nouvelles fonctionnalités.
 PCNConf est bien adapté pour cette utilisation.
  
 - La seconde consiste à l'utiliser pour construire une configuration la plus 
-proche possible de ce que est souhaité, puis à la modifier à la main pour 
+proche possible de ce qui est souhaité, puis à la modifier à la main pour 
 l'adapter aux besoins. C'est le bon choix si les besoins de modifications vont 
 au-delà des possibilités de PNCconf ou pour expérimenter et en apprendre plus sur EMC2.
 
@@ -47,7 +48,7 @@ quand le logiciel sera finalisé.
 == Instructions pas à pas
 
 Démarrer le programme depuis le menu CNC->PnCConf ou depuis un terminal
-avec la commande `pncconf`. 
+avec la commande *+pncconf+*. 
 
 .Écran d'accueil de PnCConf
 
@@ -56,14 +57,14 @@ image::images/pncconf-splash.png[]
 == Créer ou éditer une configuration
 
 Il est possible de créer une nouvelle configuration ou d'en modifier une ancienne.
-Si 'Modify a configuration' est choisi, suivi d'un clic sur 'Next', une boite de 
+Si *+Modify a configuration+* est choisi, suivi d'un clic sur *+Next+*, une boite de 
 sélection apparait. Pncconf présélectionne le dernier fichier enregistré. 
 Choisir alors, la configuration à modifier. Vous pouvez aussi cocher les options 
-suivantes `Create a desktop shortcut` qui créera un raccourci sur le bureau 
-pointant sur ce nouveau fichier de configuration, `Create a desktop launcher` qui
+suivantes *+Create a desktop shortcut+* qui créera un raccourci sur le bureau 
+pointant sur ce nouveau fichier de configuration, *+Create a desktop launcher+* qui
 créera un lanceur sur le bureau pour EMC2 dans cette configuration.
 Si ces options ne sont pas utilisées, le nouveau fichier de configuration se trouvera
-dans le dossier `~/emc2/configs`. Il est toujours  possible de lancez EMC2 
+dans le dossier *+~/emc2/configs+*. Il est toujours  possible de lancez EMC2 
 normalement et de sélectionner la configuration souhaitée dans la liste.
 
 == Informations de base sur la machine
@@ -72,31 +73,33 @@ normalement et de sélectionner la configuration souhaitée dans la liste.
 
 image::images/pncconf-basic.png[]
 
-Informations de base sur la machine::
 
-- Machine Name:: 
+Machine Name::
      Préciser ici le nom de la configuration, les espaces dans les noms seront 
     remplacés par des '_' (en règle générale,  Linux n'aime pas les espaces dans 
     les noms de fichiers). 
 
-- Axis configuration:: 
+Axis configuration:: 
      Cette liste déroulante précise le nombre d'axe de votre machine, 
-    sélectionnez selon la machine XYZ (fraiseuse), XYZA (fraiseuse 4-axe) 
+    sélectionnez selon la machine XYZ (fraiseuse), XYZA (fraiseuse 4-axes) 
     ou XZ (tour).
 
 Machine Units::
      Définit l'unité de mesure utilisée par la machine, impérial ou métrique 
     (Pouce ou mm), toutes les données de mesure introduites par la suite devront 
     être dans l'unité précisée ici.
-     *Avertissement*: Les valeurs par défaut déjà introduites ne sont pas converties 
+
+    Les valeurs par défaut déjà introduites ne sont pas converties 
     dans l'unité choisie, bien vérifier ces valeurs.
 
-- Computer Response Time::
-     The servo period: C'est l'horloge du système. La latence donne la variation 
+Computer Response Time:
+
+Actual servo period::
+     C'est l'horloge du système. La latence donne la variation 
     de cette horloge. EMC2 demande une chronologie serrée et cohérente, sinon 
     des problèmes surviendront.
  
-EMC2 requiert et utilise un système `temps réel` ce qui signifie qu'il a une 
+EMC2 requiert et utilise un système *temps réel*, ce qui signifie qu'il a une 
 latence faible et un temps de réponse très court. Les évènements arrivent avec 
 précision dans le temps quand EMC2 nécessite pour ses calculs, de ne pas être 
 interrompu par des demandes (interruption) de priorités inférieures comme des 
@@ -109,27 +112,27 @@ leur permet de supporter une latence supérieure à celle d'un système utilisan
 les ports parallèles de la carte mère.
 
 Le test standard dans EMC2, consiste à vérifier la latence de base. Un appui sur 
-le bouton `test base period jitter` lancera le test de latence, il est également 
-possible de le lancer depuis le menu `application->cnc->latency test`. Ce test 
+le bouton *test base period jitter* lancera le test de latence, il est également 
+possible de le lancer depuis le menu *application->cnc->latency test*. Ce test 
 doit fonctionner plusieurs minutes, en fait, le plus longtemps possible. 
-15 minutes est un minimum. Pendant le test, essayer de d'utilisez le plus possible 
+15 minutes est un minimum. Pendant le test, essayer d'utilisez le plus possible 
 l'ordinateur, le réseau, le port USB, les disques durs, l'affichage. 
 Observer et noter si une action particulière dégrade le temps de latence. 
-A la fin, il sera possible de connaitre la "base period jitter"+
+A la fin, il sera possible de connaitre la *base period jitter* +
 Un valeur en dessous de 20000 est excellente et permet une génération rapide des 
 impulsions de pas avec cette machine.+
 20000 à 50000 est assez bon pour la génération de pas. +
 50000 à 100000 ce n'est pas très bon mais la machine peu encore servir pour la 
-génération de pas avec une carte ayant des temps de réponse courts.+
+génération de pas avec une carte ayant des temps de réponse courts. +
 Plus grand que 100000, la machine n'est pas utilisable pour cette fonction.
 
 Si la latence est médiocre ou si des problèmes intermittents surviennent 
 régulièrement il sera toujours possible de l'améliorer.
 
-TIP: Il y a une liste d'équipements et de leurs temps de latences sur le wiki EMC : +
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test +
+TIP: Il y a une liste d'équipements et de leurs temps de latences sur 
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test[le wiki d'EMC2] +
 SVP, pensez à ajouter vos infos à la liste. Sur cette page il y a des liens vers 
-des informations pour résoudre les problèmes de latence.
+des informations pour résoudre certains problèmes de latence.
 
 Maintenant que nous avons un temps de latence acceptable nous devons choisir 
 une période d'asservissement (servo period).
@@ -155,7 +158,7 @@ Mesa::
     génération de signaux PWM. La liste de sélection des cartes Mesa présentes 
     dans la liste de sélection est construite selon les micros logiciels des 
     cartes trouvées sur le système. Il existe des options permettant d'ajouter 
-    des micros logiciels personnalisés ou pour ignorer 'blacklist' certaines 
+    des micros logiciels personnalisés ou pour ignorer *blacklister* certaines 
     versions de micros logiciels ou certaines cartes, en utilisant un fichier 
     de préférence.
      Si aucune carte n'est détectée PNCconf affichera un avertissement et 
@@ -166,8 +169,8 @@ Mesa::
     Si la configuration est créée pour deux cartes, elles doivent être installées 
     pour que les tests fonctionnent.
 
-Ports parallèle::
-     Jusqu'à 3 ports parallèles, appelés `parports` par Mesa, peuvent être utilisés 
+Ports parallèles::
+     Jusqu'à 3 ports parallèles, appelés *parports* par Mesa, peuvent être utilisés 
     comme de simples entrées sorties. L'adresse du port parallèle doit être définie. 
     Il est possible soit d'entrer le N° du port parallèle selon le système
     de numérotation de Linux 0, 1 ou 2 ou, d'entrer l'adresse réelle en hexadécimal. 
@@ -180,13 +183,13 @@ Ports parallèle::
     comme SSP, EPP, etc, sur certains ordinateurs cette information est affichée
     pendant quelques secondes lors du démarrage du PC.
     Pour les ports parallèles sur carte PCI les adresses sont trouvées en cliquant 
-    sur le bouton 'parport address search' qui affichera la liste des périphériques 
+    sur le bouton *parport address search* qui affichera la liste des périphériques 
     PCI découverts. Dans cette liste, se trouvera une référence aux ports 
     parallèles avec une liste d'adresses. Une de ces adresses doit fonctionner. 
     Noter que tous les ports parallèles PCI ne fonctionnent pas correctement. 
-    Chaque port peut être sélectionné comme "in" pour augmenter le
-    nombre d'entrées sur ce port ou "out" pour un maximum de sorties. Par défaut,
-    les ports parallèles sont configurés en "out".
+    Chaque port peut être sélectionné comme *in* pour augmenter le
+    nombre d'entrées sur ce port ou *out* pour un maximum de sorties. Par défaut,
+    les ports parallèles sont configurés en *out*.
 
 Les interfaces graphiques::
     Spécifie les interfaces utilisateur graphiques que EMC2 peut utiliser.
@@ -203,9 +206,9 @@ Les interfaces graphiques::
 *TOUCHY*::
  Touchy est une interface minimale conçue pour les écrans tactiles. 
  Permet l'usage de contacts physiques et d'une manivelle de jog à micro impulsions (MPG)
- Demande les boutons `Départ cycle`, `Abandon`, `Marche par pas`
- Demande aussi un bouton de sélection d'axe sur le jog si est multiaxe.  
- Il est basé sur GTK et intègre GLADE VCP (panneaux de contrôle virtuel).
+ Demande les boutons *Départ cycle*, *Abandon*, *Marche par pas*
+ Demande aussi un bouton de sélection d'axe sur le jog si est multi-axes.  
+ Il est basé sur GTK et intègre GladeVCP (création de panneaux de contrôle).
  Permet d'intégrer un panneau de contrôle virtuel (VCP).
  N'a pas de fenêtre de suivi du parcours d'outil.
  L'aspect peut être modifié avec des thèmes personnalisés.
@@ -242,20 +245,20 @@ Joystick USB pour le jogging::
      Demande des règlages spécifiques personnalisés pour être installé dans le 
     système. Il s'agi d'un fichier qui est utilisé par EMC2 pour se connecter à 
     liste des périphériques Linux. PNCconf aidera à la construction de ce fichier.
-- 'Search for device rule' va rechercher les règles dans le système, utilisable
+- *Search for device rule* va rechercher les règles dans le système, utilisable
     pour trouver le nom des périphériques déjà construits avec PNCconf.
 
-- 'Add a device rule' S'utilise pour configurer un nouveau périphérique 
+- *Add a device rule* S'utilise pour configurer un nouveau périphérique 
     en suivant les instructions. Le périphérique doit être branché et disponible.
 
-- 'test device' permet de charger un périphérique et d'afficher ses noms de 
+- *test device* permet de charger un périphérique et d'afficher ses noms de 
     broches et visualiser ses fonctions avec l’outil halmeter.
 
 Les manettes de jeu utilisées en jogging utilisent HALUI et le composant hal_input.
 
 Boutons externes::
      Permet le jogging de l'axe avec de simples boutons à une vitesse spécifiée.
-    Probablement mieux adapté pour le jogging en vtesse rapide. 
+    Probablement mieux adapté pour le jogging en vitesse rapide. 
 
 Manivelle à micro impulsions::
      Permet d'utiliser un générateur d'impulsions (MPG) manuel pour faire du 
@@ -289,8 +292,8 @@ Les options par défaut permettent aux règles générales d'être choisies pour
 n'importe quel écran d'affichage.
 
 AXIS defaults:: 
-     Ici se trouve les options spécifiques à AXIS. Si une des options `size`, 
-    `position` ou `maximisez la zone` et choisie, il sera possible de modifier 
+     Ici se trouve les options spécifiques à AXIS. Si une des options *size*, 
+    *position* ou *maximisez la zone* et choisie, il sera possible de modifier 
     les valeurs de vitesse minimale ou maximale, le choix de l'éditeur de fichiers, 
     la géométrie de la machine affichée. Ensuite, PNCconf demandera si il peut
     écraser le fichier de préférences (.Axisrc). 
@@ -315,50 +318,47 @@ Options de VCP::
 PyVCP::
      PyVCPs est un écran construit par un fichier XML. Il ne peut pas être 
     construit à la main. PyVCPs s'intègrent naturellement avec AXIS car ils 
-    utilisent tous les deux Tkinter. Des `HAL pins` sont créées pour que 
+    utilisent tous les deux Tkinter. Des *HAL pins* sont créées pour que 
     l'utilisateur puisse les connecter dans son fichier HAL personnalisé.
     Il existe par exemple, un tachymètre pour la vitesse de broche ou un panneau 
     de boutons XYZ pour le jogging, l'utilisateur peut les utiliser tel quel ou 
     les reconstruire à son gout.
-    Sélectionner un fichier vide où les contrôles («widgets») personnel seront 
+    Sélectionner un fichier vide où les contrôles (widgets) personnels seront 
     enregistrés ou sélectionner un des modèles d'affichage prêts à l'emploi,
     PCCcong établira alors lui-même les bonnes connexions avec HAL.
-////
- Modification pour correspondre a l'application
-////
     Si AXIS est utilisé, le panneau sera intégré sur le côté droit. 
     Si AXIS n'est pas utilisé, le panneau sera distinct ("stand-alone") de l'écran 
     frontal. Il est possible d'utiliser les options de géométrie et de dimensions 
-    pour déplacer le panneau, par exemple si le système le permet vers un second 
-    écran. Si le bouton `Display sample panel` est pressé, les données de 
+    et de déplacer le panneau, par exemple si le système le permet vers un second 
+    écran. Si le bouton *Display sample panel* est pressé, les données de 
     géométrie et de dimensions seront utilisées et le panneau affiché.
 
-GLADE VCP::
-     VCPs GLADE s'intègrent naturellement à l'intérieur de l'écran TOUCHY car ils 
+GladeVCP::
+     GladeVCP s'intègre naturellement à l'intérieur de l'écran TOUCHY car ils 
     utilisent tous les deux GTK pour leurs interfaces, mais en modifiant le thème 
-    de GLADE VCP il se fond très bien dans AXIS. Il utilise un éditeur graphique 
-    pour créer ses fichiers XML. Des `HAL pins` sont créées, que l'utilisateur 
+    de GladeVCP il se fond très bien dans AXIS. Il utilise un éditeur graphique 
+    pour créer ses fichiers XML. Des *HAL pins* sont créées, que l'utilisateur 
     pourra connecter dans son fichier HAL personnalisé.
-    GLADE VCP permet aussi une interaction de programmation beaucoup plus 
+    GladeVCP permet aussi une interaction de programmation beaucoup plus 
     sophistiquée et compliquée, ce qui n'est actuellement pas possible par PNCconf. 
-    (Voir GLADE VCP dans le manuel)
+    Voir le chapitre sur GladeVCP et <<cha:GladeVCP, la création d'interfaces 
+    graphiques>>
 
 PNCconf propose des exemples de panneaux à utiliser tel quel ou à reconstruire. 
-Avec PNCconf, GLADE VCP permettra de sélectionner différentes options d'affichage 
-sur le modèle. Sous "sample options" sélectionner l'option souhaitée. 
+Avec PNCconf, GladeVCP permettra de sélectionner différentes options d'affichage 
+sur le modèle. Sous *sample options* sélectionner l'option souhaitée. 
 Les boutons de zéro utilisent des commandes HALUI qui pourront être modifiées 
-ultérieurement dans la section HALUI. Auto Z nécessite le programme "Touch-off' de 
+ultérieurement dans la section HALUI. Auto Z nécessite le programme *Touch-off* de 
 classicladder et que l'entrée de sonde soit sélectionnée. Il faut aussi un palpeur 
 qui peut être réalisé avec une plaque conductrice reliée à la masse. Pour avoir 
-une idée sur la façon dont cela fonctionne voir: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadderExamples#Single_button_probe_touchoff 
+une idée sur la façon dont cela fonctionne voir: http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadderExamples#Single_button_probe_touchoff[ Simple bouton "Toucher"] 
 
-Sous 'Display Options', les options de géométrie et de dimensions permettent de
+Sous *Display Options*, les options de géométrie et de dimensions permettent de
 déplacer le panneau, par exemple vers un second écran, si le système le permet.
 Sélectionner un thème GTK pour définir l'aspect du panneaux.
 En général, on le souhaite identique à l'aspect de l'écran frontal.
-Ces options seront utilisées en appuyant sur le bouton "Display sample button".
-GLADE VCP placé sur l'écran frontal permet de sélectionner la position du panneau 
+Ces options seront utilisées en appuyant sur le bouton *Display sample button*.
+GladeVCP placé sur l'écran frontal permet de sélectionner la position du panneau 
 sur celui-ci. Il peut fonctionner de manière autonome ou avec AXIS, il peut être 
 au centre ou sur le côté droit, avec Touchy il peut être dans le centre.
 
@@ -388,14 +388,15 @@ Retrouver la position après une extinction::
 
 Changeur d'outil à position changeante::		
 - Utilisé pour les changeurs d'outils qui ne reçoivent pas toujours les outils
-au mêmes emplacements. Des codes HAL doivent être ajoutés pour le support ces 
+au mêmes emplacements. Des codes HAL doivent être ajoutés pour le support de ces 
 changeurs d'outils.
 
-== Configuration Mesa::
-     Les pages de configuration Mesa permettent d'utiliser des micros logiciels 
-    différents. Sur la page de base, si une carte Mesa a été sélectionnée, 
-    ici s'effectue le choix du micro logiciel parmi ceux disponibles, puis le 
-choix et le paramétrage des composants nécessaires à la machine.
+== Configuration Mesa
+
+Les pages de configuration Mesa permettent d'utiliser des micros logiciels 
+différents. Sur la page de base, si une carte Mesa a été sélectionnée, ici 
+s'effectue le choix du micro logiciel parmi ceux disponibles, puis le choix et 
+le paramétrage des composants nécessaires à la machine.
 
 .Configuration Mesa
 
@@ -457,7 +458,7 @@ Nombre de générateur de PAS::
     n'est pas toujours possible. Bien que nous essayons de rendre PNCconf aussi 
     souple que possible.
     Après avoir choisi toutes les options, appuyer sur le bouton 
-    `Accept Component Changes` et PNCconf mettra à jour les pages de configuration 
+    *Accept Component Changes* et PNCconf mettra à jour les pages de configuration 
     des E / S. Seuls les onglets nécessaires seront affichés pour les connexions 
     disponibles, selon les documents de Mesa.
 
@@ -480,7 +481,7 @@ l'architecture des cartes filles.
 
 image::images/pncconf-mesa-io3.png[]
 Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois 
-chiffres, ils correspondent au numéros des `HAL pins`. Les broches GPIO 
+chiffres, ils correspondent au numéros des *HAL pins*. Les broches GPIO 
 peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent 
 être inversées.
 
@@ -525,7 +526,7 @@ Test en boucle ouverte::
     codeur. Le codeur doit compter dans le même sens, même sans la puissance sur le 
     moteur, mais cela dépend de la manière dont le codeur est alimenté.
 
-[red]#AVERTISSEMENT:# Si le moteur et le codeur ne comptent pas dans le même sens 
+[red]#AVERTISSEMENT:# Si le moteur et le codeur ne comptent pas dans le même sens, 
 le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle 
 fermée sous régulation PID.footnote:[ PID: acronyme de Proportionnelle, Intégrale, 
 Dérivée. Ce sont les 3 composantes de la régulation en boucle fermée de type PID.]
@@ -535,8 +536,8 @@ ces réglages sont vraiment, pour quand vous rééditerez une configuration pour
 mettre vos paramètres PID testés...
 
 Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
-     Deux valeurs de mise à l'échelle, `Max Output` et `Offset` sont utilisées 
-    pour linéariser le DAC (convertisseur digital analogique).
+     Deux valeurs de mise à l'échelle, *Max Output* et *Offset* sont utilisées 
+    pour linéariser le DAC.
 
 *Théorie:*
      Ces deux valeurs sont les facteurs d'échelle et d'offset de la sortie vers
@@ -549,7 +550,7 @@ Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
     sortie concernée, qui est en quasi-unités SI, en valeurs brute d'actionneur. 
     Par exemple, des Volts pour un amplificateur DAC. La valeur de l'échelle peut 
     être obtenue en analysant l'unité c'est-à-dire en déterminant le rapport 
-    `[sortie unités SI]/[unités actionneur]`.
+    *[sortie unités SI]/[unités actionneur]*.
     Par exemple, sur une machine avec un amplificateur en mode vitesse, qui fourni 
     1 Volt pour une vitesse résultante de 250 mm/s. Noter que les unités de 
     l'offset sont en unités machine, ici des mm/s et qu'elles sont pré-soustraites 
@@ -577,13 +578,13 @@ Mesure des tensions de sortie:
 | 10            | *10.07*
 |========================================
 
-. Par la méthode des moindres carrés, déterminer les coefficients a, b tels que 
-   `Mesure=a*Sortiebrute+b`
+. Par la méthode des moindres carrés, déterminer les coefficients *+a+*, *+b+* tels que 
+   *+Mesure=a*Sortiebrute+b+*
 . Noter que nous voulons une sortie effective telle que la valeur mesurée soit 
     identique à la consigne. Cela signifie 
- .. `cmd=a*Sortiebrute+b`
- .. `Sortiebrute=(cmd-b)/a`
-. Par conséquent, les coefficients a et b de l'ajustement linéaire peuvent être 
+ .. *+cmd=a*Sortiebrute+b+*
+ .. *+Sortiebrute=(cmd-b)/a+*
+. Par conséquent, les coefficients *+a+* et *+b+* de l'ajustement linéaire peuvent être 
     utilisés directement comme échelle et offset pour le contrôleur. 
 
 Valeur maximale de sortie::
@@ -616,7 +617,7 @@ comme 5000, cela ne fera que limiter la vitesse maximale.
 
 Contrôle de moteur Brushless::
      Ces options sont utilisées pour permettre le contrôle bas niveau des 
-moteurs `brushless` avec un micro logiciel spécial et des cartes filles. 
+moteurs *brushless* avec un micro logiciel spécial et des cartes filles. 
 Elles permettent également la conversion des capteurs à effet Hall d'un fabricant 
 à l'autre. Ce n'est que partiellement pris en charge et aura besoin d’une 
 intervention pour terminer les connexions de HAL. Contacter la mail-liste ou un 
@@ -626,9 +627,9 @@ forum pour avoir de l'aide.
 
 image::images/pncconf-scale-calc.png[]
 Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le 
-bouton `calculer échelle` pour être assisté. Utiliser les cases à cocher pour 
-sélectionner les calculs appropriés. Noter que `pulley teeth` exige le nombre de 
-dents et non le rapport de réduction. `Worm turn ratio`, le rapport de vis sans fin,
+bouton *calculer échelle* pour être assisté. Utiliser les cases à cocher pour 
+sélectionner les calculs appropriés. Noter que *pulley teeth* exige le nombre de 
+dents et non le rapport de réduction. *Worm turn ratio*, le rapport de vis sans fin,
 est exactement le contraire, il exige le rapport de réduction. Si vous êtes à 
 l’aise avec la notion d'échelle vous pouvez la saisir directement sans passer par 
 l'assistant.
@@ -728,7 +729,7 @@ Point d'origine machine::
     jamais l'atteindre. EMC2 utilise la position du contact d'origine machine 
     pour calculer la position d'origine. Si la machine ne dispose pas de contact 
     il faudra la positionner manuellement sur les points d'origine, cocher les axes 
-    l'un après l'autre et pour chacun, presser le bouton `POM des axes`. 
+    l'un après l'autre et pour chacun, presser le bouton *POM des axes*. 
     Dans Axis, le symbole indiquant que l'origine machine de l'axe est connue 
     s'affichera alors à droite de la visu de l'axe concerné.
 
@@ -819,7 +820,7 @@ Configuration de la broche
 
 Si un signal de contrôle de la broche est présent, cette page permet de le configurer.
 
-Astuce: Beaucoup d'options de cette page ne sont visibles que si les sélections 
+TIP: Beaucoup d'options de cette page ne sont visibles que si les sélections 
 appropriées ont été choisies dans les pages précédentes. Si des signaux de broche 
 ont été sélectionnés, alors cette page est disponible pour les configurer.
 
@@ -832,7 +833,7 @@ quelques différences: À moins que l'on ait choisi un moteur pas à pas pour la
 conduite de la broche il n'y a pas d'accélération ni de limitation de vitesse.
 Il n'y a pas de support pour les changements de vitesse ni pour les gammes de vitesses.  
 Si une option VCP d'affichage de vitesse broche est choisie, alors la 
-`vitesse broche atteinte`, `l'échelle`, `la vitesse` et `les réglages de filtres`
+*vitesse broche atteinte*, *l'échelle*, *la vitesse* et *les réglages de filtres*
 seront visibles. L’information sur la vitesse de broche permet à EMC2 d'attendre 
 que celle-ci ait atteint la vitesse de consigne, avant de déplacer les axes. 
 C'est particulièrement pratique sur les tours, lors de l'utilisation d'une vitesse 
@@ -841,12 +842,12 @@ d'information par codeur ou par un signal de vitesse broche numérique, typiquem
 connecté à un variateur de vitesse (VFD). 
 
 En utilisant le retour d'information d'un codeur, il est possible de choisir une 
-plage de `vitesse broche atteinte` comme tolérance de vitesse, au delà de laquelle,
+plage de *vitesse broche atteinte* comme tolérance de vitesse, au delà de laquelle,
 la vitesse broche sera admise comme étant la vitesse de consigne.
 
 En utilisant le retour d'information d'un codeur, l'affichage de vitesse VCP peut 
 être irrégulier, des filtres peuvent dans ce cas, être utilisés pour corriger l'affichage. 
-L'échelle du codeur doit être réglée à la valeur `comptage codeur/rapport de réduction utilisé`.
+L'échelle du codeur doit être réglée à la valeur *comptage codeur/rapport de réduction utilisé*.
 Si une seule entrée est utilisée pour le codeur de broche, la ligne suivante doit 
 être ajoutée: setp hm2_7i43.0.encoder.00.counter-mode 1 (Changer le nom de la 
 carte et le numéro de codeur selon besoins) dans le fichier HAL personnalisé. 
@@ -857,7 +858,7 @@ comptage.
 
 Cette page permet de régler les commandes HALUI, de charger classicladder. Elle
 propose des exemples de programmes en Ladder.
-Si l'option GLADE VCP a été choisie, comme pour la mise à zéro de l'axe sur 
+Si l'option GladeVCP a été choisie, comme pour la mise à zéro de l'axe sur 
 l'origine pièce.  Les commandes nécessaires s'afficheront. 
 Voir le manuel de HALUI pour utiliser des commandes personnalisées halcmds. 
 Parmi les exemples de programmes ladder: Le programme Estop permet de gérer un 
@@ -865,10 +866,10 @@ contact externe d'arrêt d'urgence ou permet à l'interface graphique de déclen
 l'arrêt d'urgence. La commande périodique de la pompe du graissage centralisé est 
 disponible. +
 Le contact de mise au zéro pièce de l'axe Z (longueur d'outil) s'utilise avec 
-une plaque de référence, le contact (touch-off) de GLADE VCP et les commandes 
+une plaque de référence, le contact (touch-off) de GladeVCP et les commandes 
 spéciales HALUI sont là pour permettre rapidement, une recherche de l'origine pièce.
 
-Le programme série `modbus` est un squelette de programme, vierge, préréglé pour 
+Le programme série *modbus* est un squelette de programme, vierge, préréglé pour 
 l'utilisation de classicladder avec le protocole série modbus. Voir la section 
 classicladder dans le manuel.
 
@@ -899,10 +900,10 @@ il chargera 3 composants et utilisera le dernier.
 Composants de commande personnalisés::
      Cette sélection permettra de charger des composants de HAL que pncconf 
     n'utilise pas. 
-    Ajoute les commandes loadrt ou loadusr dans l'entête 'loading command'. 
-    Ajoute la commande addf dans l'entête 'Thread command'.
+    Ajoute les commandes loadrt ou loadusr dans l'entête *loading command*. 
+    Ajoute la commande addf dans l'entête *Thread command*.
     Les composants seront ajoutés au thread entre la lecture des entrées et 
-    l'écriture des sorties, dans l'ordre ou ils sont écrits dans `thread command`.
+    l'écriture des sorties, dans l'ordre ou ils sont écrits dans *thread command*.
 
 == Utilisation avancée de PNCConf
 
@@ -955,12 +956,12 @@ qu'il peut convertir et qu'il comprend. Ces fichiers XML sont seulement fournis
 pour les microprogrammes officiellement délivrés par l'équipe EMC2. Pour utiliser 
 un microprogramme personnalisé, il faut le convertir en tableau que PNCconf comprend 
 et ajouter son chemin dans le fichier de préférences de PNCCONF. Par défaut 
-le chemin recherché est sur le bureau, dans un dossier nommé `custom_firmware` 
+le chemin recherché est sur le bureau, dans un dossier nommé *custom_firmware* 
 contenant un fichier nommé firmware.py.
 
 Le fichier caché des préférence est dans le dossier home de l'utilisateur et se 
-nomme .pncconf-preferences, pour l'éditer il faut sélectionner `afficher les 
-fichiers cachés`. On peut voir le contenu de ce fichier au premier démarrage de 
+nomme .pncconf-preferences, pour l'éditer il faut sélectionner *afficher les 
+fichiers cachés*. On peut voir le contenu de ce fichier au premier démarrage de 
 PNCCONF. Presser le bouton d'aide et regarder la page de sortie.
 Demander sur la liste de diffusion EMC2 ou sur le forum pour des renseignements 
 pour convertir un microprogramme personnalisé. 

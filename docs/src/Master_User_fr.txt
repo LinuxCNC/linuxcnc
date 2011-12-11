@@ -3,12 +3,12 @@
 :localdate: {sys: date +%d/%m/%Y}
 Manuel de l'utilisateur V2.5  {localdate}
 =========================================
-The EMC2 Team
-:language: fr
 :masterdir: {indir}
 :leveloffset: 1
 
 image::common/images/emc2-intro.*[]
+
+The EMC2 Team
 
 include::common/overleaf_fr.txt[]
 
@@ -26,6 +26,7 @@ include::gui/tkemc_fr.txt[]
 include::gui/mini_fr.txt[]
 include::gui/keystick_fr.txt[]
 :leveloffset: 0
+
 = L'utilisation d'EMC2
 :leveloffset: 1
 include::common/machining_center_fr.txt[]

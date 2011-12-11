@@ -3,7 +3,6 @@
 :localdate: {sys: date +%d/%m/%Y}
 Manuel de l'intégrateur V2.5  {localdate}
 =========================================
-:language: fr
 :masterdir: {indir}
 :leveloffset: 1
 

@@ -19,11 +19,12 @@ Life's Mysteries
 ================
 :author: Hu Nose
 :doctype: book
+:lang: en     <-- :lang: before :toc:
 :toc:
 :icons:
 :data-uri:
-:lang: en
 :encoding: iso-8859-1
+:localdate: {sys: date +%d/%m/%Y} <- adapt for your country
 
 bla bla bla
 
@@ -68,7 +69,7 @@ lines of code
 ...
 more code
 ---- < 4 dashes end of code
-
+     < 1 blank line after end of code
 Images
 
 put all images in the images subdirectory

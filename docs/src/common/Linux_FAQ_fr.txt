@@ -13,12 +13,12 @@ pages.
 Quand vous installez EMC2 avec le CD-Live Ubuntu, par défaut vous
 devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
 activer le login automatique ouvrez le menu 
-«Système» -> «Administration» -> «Fenêtre de connexion». 
+*+Système+* -> *+Administration+* -> *+Fenêtre de connexion+*. 
 Si l'installation est 
 récente la fenêtre de connexion peut prendre quelques secondes pour
 s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
 pour accéder à la fenêtre des préférences. Ouvrez alors l'onglet
-«Sécurité», cochez la case «Activer les connexions automatiques» et
+*Sécurité*, cochez la case *Activer les connexions automatiques* et
 saisissez votre nom d'utilisateur ou choisissez en un dans la liste
 déroulante. Vous êtes maintenant dispensé de la fenêtre de connexion.
 
@@ -32,34 +32,35 @@ et les commandes de Linux.
 
 Pour visualiser une man page ouvrez un terminal depuis Applications >
 Accessoires > Terminal. Par exemple si vous voulez trouver quelques
-choses concernant la commande «find», tapez alors dans le terminal:
+choses concernant la commande *find*, tapez alors dans le terminal:
 
-`man find`
+*+man find+*
 
-Utilisez les touches «Vers le haut» et «Vers le bas» pour faire
-défiler le texte et la touche «Q» pour quitter.
+Utilisez les touches *Vers le haut* et *Vers le bas* pour faire
+défiler le texte et la touche *Q* pour quitter.
 
 == Lister les modules du noyau
 
 En cas de problème il est parfois utile de connaître la liste des
 modules du noyau qui sont chargés. Ouvrez une console et tapez:
 
-`lsmod`
+*+lsmod+*
 
 Si vous voulez, pour le consulter tranquillement, envoyer le résultat
 de la commande dans un fichier, tapez la sous cette forme:
 
-`lsmod > mes_modules.txt`
+*+lsmod > mes_modules.txt+*
 
-Le fichier mes_modules.txt résultant se trouvera alors dans votre
+Le fichier mes_modules.txt résultant, se trouvera alors dans votre
 répertoire home si c'est de là que vous avez ouvert la console.
 
-== Editer un fichier en root[[sec:Editer-un-fichier-en-root]]
+== Éditer un fichier en root[[sec:Editer-un-fichier-en-root]]
 
-(((Editer un fichier en root)))
+(((Éditer un fichier en root)))
 
-Editer certains fichiers du système en root peut donner des résultats
-inattendus! Soyez trés vigilant quand vous éditez en root. Vous pouvez
+Éditer certains fichiers du système en root peut donner des résultats
+inattendus! Soyez très vigilant quand vous éditez en root, une erreur peut
+compromettre tout le système et l'empêcher de redémarrer. Vous pouvez
 ouvrir et lire de nombreux fichiers systèmes appartenant au root qui
 sont en mode lecture seule.
 
@@ -67,21 +68,21 @@ sont en mode lecture seule.
 
 (((sudo gedit)))
 
-Ouvrir un terminal depuis Applications > Accessoires > Terminal.
+Ouvrir un terminal depuis *Applications > Accessoires > Terminal*.
 
 Dans ce terminal, tapez:
 
-`sudo gedit`
+*+sudo gedit+*
 
-Ouvrez un fichier depuis Fichiers, Ouvrir puis éditez le.
+Ouvrez un fichier depuis *Fichiers > Ouvrir* puis éditez le.
 
 === En mode graphique
 
 (((gksudo)))
 
- . Faites un click droit sur le bureau et choisissez Créer un lanceur.
- . Tapez un nom tel que «éditeur, dans la zone «Nom»».
- . Entrez` gksudo “gnome-open %u”` dans la zone «Commande» et validez.
+ . Faites un clic droit sur le bureau et choisissez *Créer un lanceur*.
+ . Tapez un nom tel que *+éditeur+*, dans la zone *Nom*.
+ . Entrez *+gksudo gnome-open %u+* dans la zone *Commande* et validez.
  .  Glissez un fichier et déposez le sur votre lanceur, il s'ouvrira alors
    dans l'éditeur.
 
@@ -95,7 +96,7 @@ Ouvrez un fichier depuis Fichiers, Ouvrir puis éditez le.
 
 Pour afficher le chemin du répertoire courant dans le terminal tapez:
 
-`pwd`
+*+pwd+*
 
 === Changer de répertoire
 
@@ -103,55 +104,55 @@ Pour afficher le chemin du répertoire courant dans le terminal tapez:
 
 Pour remonter dans le répertoire précédent, tapez dans le terminal:
 
-` cd ..`
+*+cd ..+*
 
 Pour remonter de deux niveaux de répertoire, tapez dans le terminal:
 
-` cd ../..`
+*+cd ../..+*
 
 Pour aller directement dans le sous-répertoire emc2/configs tapez:
 
-`cd emc2/configs`
+*+cd emc2/configs+*
 
 === Lister les fichiers du répertoire courant
 
-(((Lister le rÃ©pertoire courant)))(((dir)))(((ls)))
+(((Lister le répertoire courant)))(((dir)))(((ls)))
 
 Pour voir le contenu du répertoire courant tapez:
 
-`dir`
+*+dir+*
 
 ou
 
-`ls`
+*+ls+*
 
 === Trouver un fichier
 
 (((Trouver un fichier)))(((find)))
 
-La commande «find» peut être un peu déroutante pour le nouvel
+La commande *find* peut être un peu déroutante pour le nouvel
 utilisateur de Linux. La syntaxe de base est:
 
-`find répertoire_de_départ paramètres actions`
+*+find _répertoire_de_départ_ paramètres actions+*
 
 Par exemple, pour trouver tous les fichiers .ini dans votre répertoire
-emc2 utilisez d'abord la commande «pwd» pour trouver le répertoire
+emc2 utilisez d'abord la commande *pwd* pour trouver le répertoire
 courant. Ouvrez un nouveau terminal et tapez:
 
-`pwd`
+*+pwd+*
 
 il vous est retourné par exemple le résultat suivant:
 
-`/home/robert`
++/home/robert+
 
 Avec cette information vous pouvez taper, par exemple, la commande:
 
-`find /home/robert/emc2 -name *.ini -print`
+*+find /home/robert/emc2 -name *.ini -print+*
 
-Le '-name' est le nom de fichier que vous recherchez et le '-print'
-indique à find d'afficher le résultat dans le terminal. Le '*.ini'
+Le *-name* est le nom du fichier que vous recherchez et le *-print*
+indique à find d'afficher le résultat dans le terminal. Le **.ini*
 indique à find de retourner tous les fichiers contenant l'extension
-'.ini'
+*.ini*
 
 === Rechercher un texte
 
@@ -159,7 +160,7 @@ indique à find de retourner tous les fichiers contenant l'extension
 
 Tapez dans un terminal:
 
-`grep -lir "texte à rechercher" *`
+*+grep -lir "texte à rechercher" *+*
 
 Pour trouver tous les fichiers contenant le texte "texte à rechercher"  dans le 
 répertoire _courant_ et tous ses sous-répertoires et en ignorant la casse. 
@@ -167,33 +168,50 @@ Le paramètre -l demande de ne pas afficher les résultats normaux mais à la pl
 d'indiquer le nom des fichiers pour lesquels des résultats auraient été affichés. 
 Le paramètre -i demande d'ignorer la casse. Le paramètre -r demande une recherche 
 récursive (qui inclus tous les sous-répertoires dans la recherche). 
-Le caractère * est un jocker indiquant «tous les fichiers».
+Le caractère * est un jocker indiquant *tous les fichiers*.
 
 === Messages du boot
 
-Pour visualiser les messages du boot utilisez la commande «dmesg»
-depuis un terminal. Pour enregistrer ces messages dans un fichier
+Pour visualiser les messages du boot utilisez la commande *dmesg*
+depuis un terminal. Pour enregistrer ces messages dans un fichier,
 redirigez les avec:
 
-     `dmesg > dmesg.txt`
+*+dmesg > dmesg.txt+*
 
 Le contenu de ce fichier pourra alors être copié et collé à
 destination des personnes en ligne qui vous aideront à diagnostiquer
 votre problème.
 
-== Problémes matériels
+Pour nettoyer le tampon des messages tapez cette commande:
+
+*+sudo dmesg -c+*
+
+C'est utile avant de lancer EMC2, pour que ne soit enregistrés que les messages 
+relatifs au fonctionnement courant d'EMC2. 
+
+Pour trouver les adresses des ports parallèles de la machine, tapez cette
+commande grep pour filtrer les informations contenues dans dmesg.
+
+*+dmesg|grep parport+*
+
+== Problèmes matériels
 
 === Informations sur le matériel
 
-Pour voir la liste du matériel utilisé par votre carte mère, tapez la
-commande suivante dans un terminal:
+Pour voir la liste du matériel installé sur les ports PCI de votre carte mère, 
+tapez la commande suivante dans un terminal:
 
-    
+*+lspci -v+*
+
+Pour voir la liste du matériel installé sur les ports USB de votre carte mère, 
+tapez la commande suivante dans un terminal:
+
+*+lsusb -v+*
 
 === Résolution du moniteur
 
-Lors de l'installation d'Ubuntu les réglages du moniteur sont
-détectés. Il peut arriver que ça fonctionne mal et que la résolution ne
+Lors de l'installation d'Ubuntu les réglages du moniteur sont automatiquement
+détectés. Il peut arriver que la détection fonctionne mal et que la résolution ne
 soit que celle d'un moniteur générique en 800x600.
 
 Pour résoudre ce cas, suivez les instructions données ici:

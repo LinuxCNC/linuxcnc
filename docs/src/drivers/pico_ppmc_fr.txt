@@ -1,96 +1,99 @@
 = Pico PPMC
 
-Pico Systems has a family of boards for doing analog servo, stepper,
-and PWM (digital) servo control. The boards connect to the PC through a
-parallel port working in EPP mode. Although most users connect one
-board to a parallel port, in theory any mix of up to 8 or 16 boards can
-be used on a single parport. One driver serves all types of boards. The
-final mix of I/O depends on the connected board(s). The driver doesn't
-distinguish between boards, it simply numbers I/O channels (encoders,
-etc) starting from 0 on the first board.
+Le *Pico Systems* est une famille de cartes pour contrôler les servos analogiques,
+les moteurs pas à pas et les servos numériques pilotés en PWM. Les cartes
+se connectent sur le PC par le port parallèle configuré en mode EPP. Bien que
+la plupart des utilisateurs ne connectent qu'une seule carte par port
+parallèle, en théorie toutes les combinaisons de cartes entre 8 et 16 peuvent
+être utilisées sur un seul port parallèle. Un pilote servant pour tous les
+types de cartes. La combinaison finale d'entrées/sorties dépends du nombre de
+cartes installées. Le pilote ne distingue pas entre les cartes, il s'agit
+simplement d'un numéro de canal d'entrées/sorties (codeur, etc) commençant à 0
+sur la première carte.
 
-Installing:
-
+Installation:
+----
     loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
+----
 
-The `port_addr` parameter tells the driver what parallel port(s) to 
-check. By default, `<addr1>` is 0x0378, and `<addr2>` and following 
-are not used. The driver searches the entire address 
-space of the enhanced parallel port(s) at `port_addr`, looking for 
-any board(s) in the PPMC family. It then exports HAL 
-pins for whatever it finds. During loading (or attempted loading) the 
-driver prints some useful debugging messages to the kernel log, which 
-can be viewed with `dmesg`. 
+Le paramètres `port_addr` indique au pilote quel port parallèle utiliser.
+Par défaut, `<addr1>` est en 0x0378, `<addr2>` et les suivantes ne sont pas 
+utilisées. Le pilote cherche sur l'espace entier de l'adresse du port
+parallèle étendu (EPP) indiquée par `port_addr`, scrutant pour toute carte(s)
+de la famille PPMC. Il exporte ensuite les pins de HAL de tout ce qu'il a trouvé.
+Durant le chargement, ou la tentative de chargement, le pilote affiche tous
+les messages de débogage utiles dans le log du noyau, qui pourra être visualisé
+avec `dmesg`. 
 
-Up to 3 parport busses may be used, and each bus may have up to 8
-devices on it.
+Un maximum de 3 bus parport peuvent êtres utilisés, et chaque bus peut recevoir
+un maximum de 8 périphériques.
 
 == Pins
 
-In the following pins, parameters, and functions, <board> is the board
-ID. According to the naming conventions the first board should always
-have an ID of zero. However, this driver sets the ID based on switches
-on the board, so it may be non-zero even if there is only one board.
+Dans ce qui suit, pour les pins, les paramètres et les fonctions, <board>  
+représente l'ID de la carte. Selon nos conventions de nommage, la première carte 
+devrait toujours avoir l'ID zéro. Toutefois, le driver fixera l'ID en se basant 
+sur les switches de la carte, de sorte qu'il peut être différent de zéro même si 
+il n'y a qu'une seule carte.
 
- - `(All s32 output) ppmc.<port>.encoder.<channel>.count` -- Encoder
-   position, in counts.
- - `(All s32 output) ppmc.<port>.encoder.<channel>.delta` -- Change in
-   counts since last read, in raw encoder count units.
- - (All float output) `ppmc.<port>.encoder.<channel>.velocity`  --
-   Velocity scaled in user units per second. On PPMC and USC this is
-   derived from raw encoder counts per servo period, and hence is affected
-   by encoder granularity. On UPC boards with the 8/21/09 and later
-   firmware, velocity estimation by timestamping encoder counts can be
-   used to improve the smoothness of this velocity output. This can be fed
-   to the PID HAL component to produce a more stable servo response. This
-   function has to be enabled in the HAL command line that starts the PPMC
-   driver, with the timestamp=0x00 option.
+ - `(All s32 output) ppmc.<port>.encoder.<channel>.count` -- Position codeur, 
+   en nombre de top comptés.
+ - `(all s32 output) ppmc.<port>.encoder.<channel>.delta` -- Différence de
+   top comptés depuis la dernière lecture, en unités de comptage codeur brutes.
+ - `(All float output) ppmc.<port>.encoder.<channel>.velocity`  --
+   Vitesse mise à l'échelle en unités utilisateur par seconde. Sur PPMC et USC 
+   ces valeurs sont dérivées du nombre de top codeur par période servo, elle est
+   donc affectée par la granularité du codeur. Sur les cartes UPC avec les
+   micro-logiciels du 8/21/09 et suivants, la vitesse est estimée par
+   timestamping sur le comptage du codeur, ce qui peut être utilisé pour
+   accroitre la finesse de cette sortie vitesse. Cela peut être régulé par
+   un composant PID de HAL pour produire une réponse servo plus stable. Cette
+   fonction doit être validée dans la ligne de commande HAL qui démarre le 
+   pilote PPMC, avec une option `timestamp=0x00`.
  - `(All float output) ppmc.<port>.encoder.<channel>.position` --
-   Encoder position, in user units.
+   Position codeur, en unités utilisateur.
  - `(All bit bidir) ppmc.<port>.encoder.<channel>.index-enable`  --
-   Connect to axis.#.index-enable for home-to-index. This is a
-   bidirectional HAL signal. Setting it to true causes the encoder
-   hardware to reset the count to zero on the next encoder index pulse.
-   The driver will detect this and set the signal back to false.
- - `(UPC bit input) ppmc.<port>.pwm.<channel>.enable` -- Enables a
-   PWM generator.
- - `(UPC float input) ppmc.<port>.pwm.<channel>.value`  -- Value
-   which determines the duty cycle of the PWM waveforms. The
-   value is divided by `pwm.<channel>.scale`, and if the result is 0.6
-   the duty cycle will be 60%, and so on. 
-   Negative values result in the duty cycle being based on the absolute
-   value, and the direction pin is set to indicate negative.
+   Connecte l'index `axis.#.index-enable` pour `home-to-index`. C'et un signal
+   de HAL bi-directionnel. Le fixer à TRUE, causera une remise à zéro hardware
+   du codeur sur la prochaine impulsions d'index du codeur.
+   Le pilote détectera cela et remettra le signal sur FALSE.
+ - `(UPC bit input) ppmc.<port>.pwm.<channel>.enable` -- Valide un générateur
+   de PWM.
+ - `(UPC float input) ppmc.<port>.pwm.<channel>.value`  -- Valeur qui détermine
+   le rapport cyclique de l'onde PWM. La valeur est divisée par
+   `pwm.<channel>.scale` et si le résultat est 0.6, le rapport cyclique sera
+   de 60%, et ainsi de suite. 
+   Les valeurs de rapport cyclique négatives finiront en valeurs absolues, la 
+   pin de direction sera positionnée pour indiquer ce négatif.
  - `(USC bit input) ppmc.<port>.stepgen.<channel>.enable` --
-   Enables a step pulse generator.
+   Valide un générateur d'impulsions de pas.
  - `(USC float input) ppmc.<port>.stepgen.<channel>.velocity`  --
-   Value which determines the step frequency. The value is multiplied
-   by `stepgen.<channel>.scale` , and the result is the frequency in
-   steps per second. Negative values
-   result in the frequency being based on the absolute value, and the
-   direction pin is set to indicate negative.
- - `(All bit output) ppmc.<port>.in-<channel>` -- State of digital
-   input pin, see canonical digital input.
- - `(All bit output) ppmc.<port>.in.<channel>-not` -- Inverted
-   state of digital input pin, see canonical digital input.
- - `(All bit input) ppmc.<port>.out-<channel>`  -- Value to be
-   written to digital output, seen canonical digital output. 
- - `(Option float input) ppmc.<port>.DAC8-<channel>.value`  -- Value to
-   be written to analog output, range from 0 to 255. This
-   sends 8 output bits to J8, which should have a Spindle DAC board
-   connected to it. 0 corresponds to zero Volts, 255 corresponds to 10
-   Volts. The polarity of the output can be set for always minus, always
-   plus, or can be controlled by the state of SSR1 (plus when on) and SSR2
-   (minus when on). You must specify extradac = 0x00 on the HAL command
-   line that loads the PPMC driver to enable this function on the first
-   USC ur UPC board.
- - `(Option bit input) ppmc.<port>.dout-<channel>.out`  -- Value to be
-   written to one of the 8 extra digital output pins on
-   J8. You must specify extradout = 0x00 on the HAL command line that
-   loads the ppmc driver to enable this function on the first USC or UPC
-   board. extradac and extradout are mutually exclusive features as they
-   use the same signal lines for different purposes.
+   Valeur qui détermine la fréquence de pas. La valeur est multipliée
+   par `stepgen.<channel>.scale` et le résultat est la fréquence en pas par 
+   seconde. Les valeurs négatives résultent en fréquence basée sur une valeur
+   absolue, et la pin de direction est positionnée pour indiquer ce négatif.
+ - `(All bit output) ppmc.<port>.in-<channel>` -- État d'une pin d'entrée
+   numérique, voir l'entrée numérique canonique.
+ - `(All bit input) ppmc.<port>.in.<channel>-not` -- État inversé d'une pin
+   d'entrée numérique, voir l'entrée numérique canonique.
+ - `(All bit output) ppmc.<port>.out-<channel>`  -- Valeur  à écrire sur
+   sur une sortie numérique, voir la sortie numérique canonique. 
+ - `(Option float output) ppmc.<port>.DAC8-<channel>.value`  -- Valeur à écrire
+   sur une sortie analogique, étendue entre 0 et 255. Ce qui envoie 8 bits de
+   sortie sur J8, sur laquelle doit être connectée une carte DAC de broche. 
+   0 corresponds à zéro Volts, 255 corresponds à 10Volts. La polarité de la
+   sortie peut être fixée sur; toujours négative, toujours positive, ou peut être
+   contrôlée par l'état de SSR1 (positive quand on) et SSR2 (négative quand on). 
+   Vous devez spécifier `extradac = 0x00` sur la ligne de commande HAL qui charge 
+   le pilote PPMC, pour valider cette fonction sur la première carte USC ou UPC.
+ - `(Option bit input) ppmc.<port>.dout-<channel>.out`  -- Valeur à écrire sur
+   une des 8 pins de sorties extra numériques de J8. Vous devez spécifier
+   `extradout = 0x00` sur la ligne de commande HAL qui charge le pilote PPMC 
+   pour valider cette fonction sur la première carte  USC ou UPC. 
+   `extradac` et `extradout` sont des caractéristiques exclusives comme elles
+   utilisent les mêmes lignes de signal à des fins différentes.
 
-== Parameters
+== Paramètres
 
  - `(All float) ppmc.<port>.enc.<channel>.scale` -- The number of
    counts / user unit (to convert from counts to units).
@@ -141,7 +144,7 @@ on the board, so it may be non-zero even if there is only one board.
  - `(Option bit) ppmc.<port>.dout.<channel>-invert` -- Inverts a
    digital output pin of J8, see canonical digital output.
 
-== Functions
+== Fonctions
 
  - `(All funct) ppmc.<port>.read` -- Reads all inputs (digital inputs
    and encoder counters) on one port. These reads are organized into 
