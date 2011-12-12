@@ -77,14 +77,16 @@ l'opérateur corriger les vitesses nécessaires pour la broche et
 l'avance travail, il peut ainsi augmenter ou réduire les vitesses
 programmées.
 
-=== Bouton d'effacement de bloc[[sub:Bouton-effacement-de-block]]
+[[sub:Bouton-effacement-de-block]]
+=== Bouton d'effacement de bloc
 
 (((Bouton effacement de bloc)))
 
 Un centre d'usinage peut être équipé d'un bouton d'effacement de
 bloc. Voir la section <<sub:Interaction-effacement-de-block>>.
 
-=== Bouton d'arrêt optionnel du programme[[sub:arret-optionnel]]
+[[sub:arret-optionnel]]
+=== Bouton d'arrêt optionnel du programme
 
 (((arrêt optionnel)))
 
@@ -98,6 +100,8 @@ Voir la section <<sub:Interaction-arrets-optionnels>>.
 Les axes X, Y et Z forment un système de coordonnées orthogonales
 standard. La position d'un axe s'exprime en utilisant ses coordonnées.
 
+=== Axes linéaires secondaires
+
 Les axes U, V et W forment également un système de coordonnées
 standard. X et U sont parallèles, Y et V sont parallèles enfin Z et W
 sont parallèles.
@@ -110,18 +114,8 @@ footnote:[Si les parallèlismes sont particuliers, le constructeur du
 système devra indiquer à quels sens de rotation correspondent 
 horaire et anti-horaire.]
 
-== Ne pas utiliser les numéros de ligne
-
-Les numéros de ligne n'apportent rien. Quand des numéros de ligne sont
-rapportés dans les messages d'erreur, ces numéros font référence aux
-numéros de lignes àterclockwise turn from the point of view of the
-workpiece is accomplished by turning the turntable in a direction that
-(for most common machine configurations) looks clockwise from the point
-of view of someone standing next to the machine. footnote:[If the
-parallelism requirement is violated, the system builder will
-have to say how to distinguish clockwise from counterclockwise.]
-
-=== Point contrôlé[[sub:Point-controle]]
+[[sub:Point-controle]]
+=== Point contrôlé
 
 (((point contrôlé)))
 
@@ -138,7 +132,8 @@ l'outil ou (correction du rayon de bec) légèrement en retrait du point
 d'intersection des droites perpendiculaires formées par l'axe des
 points de tangence à la pièce, de face et sur le côté de l'outil.
 
-=== Mouvement linéaire coordonné[[sub:Mouvement-lineaire-coordonne]]
+[[sub:Mouvement-lineaire-coordonne]]
+=== Mouvement linéaire coordonné
 
 Pour mener un outil sur une trajectoire spécifiée, un centre d'usinage
 doit coordonner les mouvements de plusieurs axes. Nous utilisons le
@@ -162,13 +157,14 @@ rotation de la broche. Si les limites physique de l'axe rendent le
 déplacement impossible, tous les axes seront ralentis pour maintenir 
 le chemin prévu.
 
-=== Vitesse[[sub:Vitesse-d-avance]]
+[[sub:Vitesse-d-avance]]
+=== Vitesse
 
 (((vitesse d'avance)))
 
 La vitesse à laquelle le point contrôlé se déplace est ajustable par
-l'opérateur. Sauf cas particulier, (vitesse inverse du temps, vitesse
-par tour, voir la section <<sec:G93-G94-G95-Set>>), dans
+l'opérateur. Sauf cas particulier, vitesse inverse du temps, vitesse
+par tour, voir la section <<sec:G93-G94-G95-Set, des modes de vitesse>>, dans
 l'interpréteur, l'interprétation des vitesses est la suivante:
 
  . Si le déplacement concerne un des axes XYZ, F est en unités machine
@@ -183,17 +179,16 @@ l'interpréteur, l'interprétation des vitesses est la suivante:
 === Arrosage (((arrosage)))
 
 Arrosage fluide ou brouillard (gouttelettes) peuvent être activés
-séparément. Le langage RS274/NGC les arrête ensemble (voir la section 
-<<sec:M7-M8-M9>>).
+séparément. Le langage RS274/NGC les arrête ensemble, voir la section 
+<<sec:M7-M8-M9, des contrôles d'arrosage>>.
 
 === Temporisation (((tempo)))
 
 Une temporisation peut être commandée (ex: pour immobiliser tous les
 axes) pendant une durée spécifique. La broche n'est pas arrêtée pendant
-une temporisation! Sans s'occuper du mode de contrôle de trajectoire
-(voir la section <<sub:Modes-de-controle-trajectoires>>) la machine
-s'arrêtera exactement à la fin du dernier mouvement avant la
-temporisation.
+une temporisation! Sans s'occuper <<sub:Modes-de-controle-trajectoires, du mode 
+de contrôle de trajectoire>> la machine s'arrêtera exactement à la fin du 
+dernier mouvement avant la temporisation.
 
 === Unités (((unites)))
 
@@ -203,7 +198,7 @@ la broche est en tours par minute. Les positions des axes rotatifs sont
 exprimées en degrés. Les vitesses d'avance sont exprimées en unités
 machine par minute ou en degrés par minute ou en unités de longueur par
 tour de broche, comme décrit dans la section 
-<<sub:Vitesse-d-avance>>.
+<<sub:Vitesse-d-avance, des vitesses>>.
 
 === Position courante
 
@@ -216,7 +211,8 @@ l'absence de tout mouvement des axes si un de ces événements a lieu:
  . La compensation de longueur d'outil a changé.
  . Le décalage d'origine a changé. 
 
-=== Choix du plan de travail[[sub:Choix-du-plan-de-travail]]
+[[sub:Choix-du-plan-de-travail]]
+=== Choix du plan de travail
 
 Il y a toujours un plan sélectionné, qui doit être le plan XY, le plan
 YZ, ou le plan XZ de la machine. L'axe Z est, bien sûr, perpendiculaire
@@ -247,9 +243,9 @@ en position d'usinage.
 Les boutons des correcteurs de vitesses peuvent être activés (ils
 fonctionnent normalement) ou rendus inopérents (Ils n'ont plus aucun
 effet). Le langage RS274/NGC dispose d'une commande qui active tous les
-boutons et une autre qui les désactive. Voir la sections 
-<<sec:M48-Activation-Correcteurs-Vitesse>> et <<sec:M49-Inhibition-Correcteurs-Vitesse>>. 
-Voir la section <<sub:Interaction-vitesses>> pour d'autres détails. 
+boutons et une autre qui les désactive. Voir  
+<<sec:M48-Activation-Correcteurs-Vitesse, l'inhibition et l'activation des correcteurs>>
+Voir également <<sub:Interaction-vitesses, ici pour d'autres détails>>. 
 
 === Modes de contrôle de trajectoire[[sub:Modes-de-controle-trajectoires]]
 
@@ -262,7 +258,7 @@ programmée aussi précisément que possible, ralentissant ou s'arrêtant
 si nécessaire aux angles vifs du parcours. En mode trajectoire
 continue, les angles vifs du parcours peuvent être légèrement arrondis
 pour que la vitesse soit maintenue (sans dépasser la tolérance, si elle
-est spécifiée). Voir la section <<sec:G61-G61.1-G64>>.
+est spécifiée). Voir les types <<sec:G61-G61.1-G64, de contrôle de trajectoire>>.
 
 == Interaction de l'interpréteur avec les boutons
 
@@ -270,7 +266,8 @@ L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas
 l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
-=== Boutons de correction de vitesses[[sub:Interaction-vitesses]]
+[[sub:Interaction-vitesses]]
+=== Boutons de correction de vitesses
 
 L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
 l'action des boutons d'ajustement des vitesses. Pour certains
@@ -280,25 +277,28 @@ filetage, les boutons sont neutralisés automatiquement.
 EMC2 réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
-=== Bouton d'effacement de block Switch[[sub:Interaction-effacement-de-block]]
+[[sub:Interaction-effacement-de-block]]
+=== Bouton d'effacement de block Switch
 
 (((effacement de block)))
 
-Si le bouton “Effacement de block” est actif, les lignes de code
+Si le bouton *Effacement de block* est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
 d'effacement de block) ne sont pas interprétées. Si le bouton est
 désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
 d'effacement de block doit être positionné avant de lancer le programme
 NGC.
 
-=== Bouton d'arrêt optionnel du programme[[sub:Interaction-arrets-optionnels]]
+[[sub:Interaction-arrets-optionnels]]
+=== Bouton d'arrêt optionnel du programme
 
 (((Arrets optionnels)))
 
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
 est mis en pause.
 
-== Fichier d'outils[[sub:Fichier-Outils]]
+[[sub:Fichier-Outils]]
+== Fichier d'outils
 
 Un fichier d'outils est requis par l'interpréteur. Le fichier indique
 dans quels emplacements du carrousel sont placés les outils, la
@@ -326,10 +326,11 @@ or
 TOOL_TABLE = EMC-AXIS-SIM.tbl
 ---------------------------------------
 
-Pour plus d'informations sur les spécificités du format de tableau outil, 
-voir les <<sec:Tool-Table-Format>> section.
+Pour plus d'informations ici les spécificités du 
+<<sec:Tool-Table-Format, format de la table d'outils>>.
 
-== Paramètres[[sub:Parametres]]
+[[sub:Parametres]]
+== Paramètres
 
 (((parametres)))
 
@@ -346,110 +347,109 @@ programmes de Code G.
 
 1-30::
      Subroutine paramètres locaux des arguments d'appel. Ces paramètres 
-     sont locales à la sous-routine. Voir <<cha:O-Codes>>
+     sont locales à la sous-routine. Voir <<cha:O-Codes, les sous-programme>>.
 
 1-5000::
      Paramètres de l'utilisateur G-Code. Ces paramètres sont globales 
-     dans le fichier G Code.
+     dans le fichier G-code.
 
 5061-5070::
-     Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
+     Result of *G38.2* Probe for X, Y, Z, A, B, C, U, V & W.
 
 5161-5169::
-     "G28" Home for X, Y, Z, A, B, C, U, V & W.
+     *G28* Origine pour X, Y, Z, A, B, C, U, V & W.
 
 5181-5189::
-     "G30" Home for X, Y, Z, A, B, C, U, V & W.
+     *G30* Origine pour X, Y, Z, A, B, C, U, V & W.
 
 5211-5219::
-     "G92" offset for X, Y, Z, A, B, C, U, V & W.
+     *G92* offset pour X, Y, Z, A, B, C, U, V & W.
 
 5220::
-     Coordinate System number 1 - 9 for G54 - G59.3.
+     Système de coordonnées numéro 1 à 9 pour G54 à G59.3.
 
 5221-5229::
-     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 1, G54 pour X, Y, Z, A, B, C, U, V & W.
 
 5241-5249::
-     Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 2, G55 pour X, Y, Z, A, B, C, U, V & W.
 
 5261-5269::
-     Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 3, G56 pour X, Y, Z, A, B, C, U, V & W.
 
 5281-5289::
-     Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 4, G57 pour X, Y, Z, A, B, C, U, V & W.
 
 5301-5309::
-     Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 5, G58 pour X, Y, Z, A, B, C, U, V & W.
 
 5321-5329::
-     Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 6, G59 pour X, Y, Z, A, B, C, U, V & W.
 
 5341-5349::
-     Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 7, G59.1 pour X, Y, Z, A, B, C, U, V & W.
 
 5361-5369::
-     Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 8, G59.2 pour X, Y, Z, A, B, C, U, V & W.
 
 5381-5389::
-     Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+     Système de coordonnées numéro 9, G59.3 pour X, Y, Z, A, B, C, U, V & W.
 
 5399::
-     Result of M66 - Check or wait for input
+     Résultat de M66 - scrute ou attends une entrée
 
 5400::
-     Tool Number
+     Numéro d'outil
 
 5401::
-     Tool X Offset
+     Offset d'outil en X
 
 5402::
-     Tool Y Offset
+     Offset d'outil en Y
 
 5403::
-     Tool Z Offset
+     Offset d'outil en Z
 
 5404::
-     Tool A Offset
+     Offset d'outil en A
 
 5405::
-     Tool B Offset
+     Offset d'outil en B
 
 5406::
-     Tool C Offset
+     Offset d'outil en C
 
 5407::
-     Tool U Offset
+     Offset d'outil en U
 
 5408::
-     Tool V Offset
+     Offset d'outil en V
 
 5409::
-     Tool W Offset
+     Offset d'outil en W
 
 5410::
-     Tool Diameter
+     Diamètre d'outil
 
 5411::
-     Tool Front Angle
+     Angle avant de l'outil
 
 5412::
-     Tool Back Angle
+     Angle de dos de l'outil
 
 5413::
-     Tool Orientation
+     Orientation de l'outil
 
 5420-5428::
-     Current Position including all offsets and in the current program 
-     units for X, Y, Z, A, B, C, U, V & W.
+     Position courante, incluant tous les offsets dans les unités courantes du 
+     programme pour X, Y, Z, A, B, C, U, V & W.
 
-Le format d'un fichier de paramètres est visible dans la table 
-<<cap:Format-fichier-de-parametres>>. Le fichier est composé d'un
-certain nombre de lignes d'en-tête, suivie par une ligne vide, suivie
-d'un nombre quelconque de lignes de données. Les lignes d'en-tête sont
-ignorées par l'interpréteur. Il est important qu'il y ait une ligne
-vide (sans espace ni tabulation), avant les données. La ligne d'en-tête
-montrée dans ce tableau <<cap:Format-fichier-de-parametres>>, décrit
+Le format d'un fichier de paramètres <<cap:Format-fichier-de-parametres, est 
+visible ici>>. Le fichier est composé d'un certain nombre de lignes d'en-tête, 
+suivie par une ligne vide, suivie d'un nombre quelconque de lignes de données. 
+Les lignes d'en-tête sont ignorées par l'interpréteur. Il est important qu'il y 
+ait une ligne vide (sans espace ni tabulation), avant les données. La ligne 
+d'en-tête montrée <<cap:Format-fichier-de-parametres, dans ce tableau>>, décrit
 les colonnes de données, il est donc proposé (mais pas obligatoire) que
 cette ligne soit toujours présente.
 
@@ -460,19 +460,19 @@ Chaque ligne du fichier contient le numéro d'index d'un paramètre dans
 la première colonne et la valeur attribuée à ce paramètre, dans la
 deuxième colonne. La valeur est représentée par une nombre flottant en
 double précision à l'intérieur de l'interpréteur, mais le point décimal
-n'est pas exigé dans le fichier. Le format des paramètres visible dans
-le tableau <<cap:Format-fichier-de-parametres>> est obligatoire et
-doit être utilisé pour tous les fichiers de paramètres, à l'exception
-des paramètres représentant une valeur sur un axe rotatif inutilisé,
-qui peuvent être omis. Une erreur sera signalée si un paramètre requis
-est absent. Un fichier de paramètres peut inclure tout autre paramètre,
-tant que son numéro est compris dans une fourchette de 1 à 5400. Les
+n'est pas exigé dans le fichier. Le format des <<cap:Format-fichier-de-parametres,
+paramètres visible ici>>, est obligatoire et doit être utilisé pour tous les 
+fichiers de paramètres, à l'exception des paramètres représentant une valeur sur 
+un axe rotatif inutilisé, qui peuvent être omis. Une erreur sera signalée si un 
+paramètre requis est absent. Un fichier de paramètres peut inclure tout autre 
+paramètre, tant que son numéro est compris dans une fourchette de 1 à 5400. Les
 numéros de paramètre doivent être disposés dans l'ordre croîssant.
 Sinon, une erreur sera signalée. Le fichier original est copié comme
 fichier de sauvegarde lorsque le nouveau fichier est écrit. Les
 commentaires ne sont pas conservés lorsque le fichier est écrit.
 
-.Format d'un fichier de paramètres[[cap:Format-fichier-de-parametres]]
+[[cap:Format-fichier-de-parametres]]
+.Format d'un fichier de paramètres
 
 [width="90%", options="header"]
 |========================================

@@ -1,6 +1,7 @@
 :lang: fr
 :toc:
 
+[[cha:Axis]]
 = L'interface graphique AXIS
 
 == Introduction
@@ -19,13 +20,13 @@ image::images/axis_2.3_fr.png[]
 == Commencer avec AXIS
 
 Pour choisir AXIS comme interface graphique d'emc2, éditez le fichier
-.ini et dans la section `[DISPLAY]` changez la ligne `DISPLAY` comme
+.ini et dans la section *[DISPLAY]* changez la ligne *DISPLAY* comme
 ceci:
 
     DISPLAY = axis
 
 Puis, lancez emc2 et choisissez le fichier ini. La configuration
-simplifiée `sim/axis.ini` est déjà configurée pour utiliser AXIS comme
+simplifiée *sim/axis.ini* est déjà configurée pour utiliser AXIS comme
 interface graphique.
 
 Quand vous démarrez AXIS, une fenêtre telle que celle de la figure 
@@ -34,15 +35,15 @@ Quand vous démarrez AXIS, une fenêtre telle que celle de la figure
 === Une session typique avec AXIS
 
  . Lancez emc et sélectionnez un fichier de configuration.
- . Relâchez le bouton d'arrêt d'urgence `A/U`(((A/U))) et pressez
-   celui de `Marche` machine.
- . Faites les prises d'origine machine `POM` pour chacun des axes.
+ . Relâchez le bouton d'arrêt d'urgence *A/U*(((A/U))) et pressez
+   celui de *Marche* machine.
+ . Faites les prises d'origine machine *POM* pour chacun des axes.
  . Chargez un fichier d'usinage.
  . Utilisez l'affichage du parcours d'outil pour vérifier que le
    programme est correct.
  . Bridez le brut à usiner sur la table.
- . Faites les prises d'origine pièce `POP` de chacun des axes avec le jog
-   et en utilisant le bouton `Toucher`.(((Toucher)))
+ . Faites les prises d'origine pièce *POP* de chacun des axes avec le jog
+   et en utilisant le bouton *Toucher*.(((Toucher)))
  . Lancez le programme.
  . Pour usiner le même fichier une nouvelle fois, retournez à l'étape 6.
    Pour usiner un fichier différent, retournez à l'étape 4. Quand vous
@@ -53,28 +54,28 @@ Quand vous démarrez AXIS, une fenêtre telle que celle de la figure
 La fenêtre d'AXIS contient les éléments suivants:
 
  - Un espace d'affichage qui montre une pré-visualisation du fichier
-   chargé (dans ce cas, «axis.ngc»), ainsi que la position courante du
+   chargé (dans ce cas, *axis.ngc*), ainsi que la position courante du
    point programmé par la machine. Plus tard, cette zone
    affichera le parcours de l'outil déplacé par la machine, cette zone
-   est appelée le parcours d'outil («backplot»)
+   est appelée le parcours d'outil (*backplot*)
  - Une barre de menus, une barre d'outils, des curseurs et des onglets
    permettant d'effectuer différentes actions.
- - L'onglet `Contrôle manuel`(((Contrôle manuel))), qui permet de faire 
+ - L'onglet *Contrôle manuel*(((Contrôle manuel))), qui permet de faire 
    des mouvements d'axe, de mettre la broche en rotation ou de l'arrêter,
    de mettre l'arrosage en marche ou de l'arrêter.
- - L'onglet `Données manuelles` (appelé aussi MDI), (((Données manuelles)))
+ - L'onglet *Données manuelles* (appelé aussi MDI), (((Données manuelles)))
    où les blocs de programme G-code peuvent être entrés et exécutés à 
    la main, une ligne à la fois. 
- - Les curseurs `Correcteurs de vitesse`(((Correcteurs de vitesse))), 
+ - Les curseurs *Correcteurs de vitesse*(((Correcteurs de vitesse))), 
    qui permettent d'augmenter ou de diminuer la vitesse de la 
    fonction concernée. 
  - Une zone de textes qui affiche le G-code du fichier chargé.
  - Une barre d'état qui affiche l'état de la machine. Dans cette capture
    d'écran, la machine est en marche, aucun outil n'est monté, la position
-   affichée est `relative`(((Position: Relative))) à l'origine machine
-   (par opposition à une position `absolue`)(((Position: Absolue))) et
-   `actuelle`(((Position: Actuelle))) (par opposition à une position
-   `commandée`)(((Position: Commandée)))
+   affichée est *relative*(((Position: Relative))) à l'origine machine
+   (par opposition à une position *absolue*)(((Position: Absolue))) et
+   *actuelle*(((Position: Actuelle))) (par opposition à une position
+   *commandée*)(((Position: Commandée)))
 
 === Options des menus
 
@@ -99,7 +100,7 @@ Recharger...::
      Recharge le fichier G-code courant. Si le fichier a été édité, il doit
     être rechargé pour que les modifications prennent effet. Si un programme
     a été stoppé, pour le reprendre depuis le début, le recharger. 
-    Le bouton `Recharger` a le même effet que l'option de menu.
+    Le bouton *Recharger* a le même effet que l'option de menu.
 
 Enregistrer le G-code sous...::
      Enregistre le fichier courant sous un nouveau nom.
@@ -155,7 +156,7 @@ Stopper...::
 Arrêt sur M1...::
      Si un M1 est rencontré et que cette option est cochée, l'exécution
     du programme s'interrompra à la ligne du M1. 
-    Presser `Reprise` pour continuer.
+    Presser *Reprise* pour continuer.
 
 Sauter les lignes avec "/"...::
      Si une ligne commençant par / est rencontrée et que cette option est 
@@ -177,12 +178,12 @@ Calibration...::
 
 Afficher configuration de HAL...::
      Ouvre une fenêtre sur la configuration de HAL depuis laquelle il est
-    possible de visualiser tous les `Components`, `HAL Pins`, `Parameters`, 
-    `Signals`, `Functions` et `Threads` de HAL.
+    possible de visualiser tous les *Components*, *HAL Pins*, *Parameters*, 
+    *Signals*, *Functions* et *Threads* de HAL.
 
 HAL Mètre...::
      Ouvre une fenêtre dans laquelle il est possible de visualiser un seul
-    `Signal, `HAL Pin`, ou `Parameter` de HAL.
+    *Signal, *HAL Pin*, ou *Parameter* de HAL.
 
 HAL Scope...::
      Ouvre un oscilloscope virtuel qui permet de tracer dans le temps,
@@ -205,34 +206,34 @@ Annulation décalage d'origine...::
     Annule les décalages d'origine du système de coordonnées choisi.
 
 L'outil touchera la pièce...::
-     Lorsqu'un `Toucher` est effectué, la valeur entrée est relative au
-    système de coordonnées pièce actuel (`G5x`), tel que modifié par
-    le décalage d'axe (`G92`). Quand la séquence de `Toucher` est
+     Lorsqu'un *Toucher* est effectué, la valeur entrée est relative au
+    système de coordonnées pièce actuel (*G5x*), tel que modifié par
+    le décalage d'axe (*G92*). Quand la séquence de *Toucher* est
     complète, la coordonnée relative pour l'axe choisi prendra la valeur
-    entrée. (Voir aussi `G10 L10`)
+    entrée. (Voir aussi *G10 L10*)
 
 L'outil touchera le porte-pièce...::
-     Lorsqu'un `Toucher` est effectué, la valeur entrée est relative au 9ème
-    système de coordonnées (`G59.3`), le décalage d'axe (`G92`) est ignoré.
+     Lorsqu'un *Toucher* est effectué, la valeur entrée est relative au 9ème
+    système de coordonnées (*G59.3*), le décalage d'axe (*G92*) est ignoré.
     Mode destiné aux machines possédant un porte-pièce référencé à un endroit,
-    sur lequel s'effectue le `Toucher`. Le 9ème système de coordonnées doit 
-    être ajusté pour que la pointe d'un outil de "longueur nulle" 
+    sur lequel s'effectue le *Toucher*. Le 9ème système de coordonnées doit 
+    être ajusté pour que la pointe d'un outil de *longueur nulle* 
     (le nez de broche), soit à l'origine du porte-pièce quand les coordonnées 
-    relatives sont à 0. (Voir aussi `G10 L11`)
+    relatives sont à 0. (Voir aussi *G10 L11*)
 
 ==== Menu Vues
 
 .Tout est dans le point de vue...
-*******************************************************************************
-Les icônes de choix du type d'affichage et du menu `Vues` d'AXIS se référent
-à des `Vue de dessus`, `Vue de face` et `Vue de côté`. 
+****
+Les icônes de choix du type d'affichage et du menu *Vues* d'AXIS se référent
+à des *Vue de dessus*, *Vue de face* et *Vue de côté*. 
 Ces termes sont corrects si la machine CNC a un axe Z vertical, avec une valeur
 de Z positive en haut. C'est vrai pour les fraiseuses verticales, qui sont 
 probablement les plus populaires, c'est également vrai pour toutes les machines
 d'électro-érosion et aussi les tours verticaux, sur lesquels la pièce tourne
 sous l'outil. 
 
-Les termes `Vue de dessus`, `Vue de face` et `Vue de côté` sont cependant 
+Les termes *Vue de dessus*, *Vue de face* et *Vue de côté* sont cependant 
 source de confusion sur d'autres machines CNC, comme un tour standard, sur
 lequel l'axe Z est horizontal, ou sur une fraiseuse horizontale, qui a également 
 l'axe Z horizontal, ou même un tour vertical inversé, sur lequel la pièce tourne
@@ -242,7 +243,7 @@ Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et
 plus positif en s'éloignant de celle-ci. 
 Soyez familiarisé avec la cinématique de vos machines, vous interpréterez alors
 l'affichage comme il se doit.  
-*******************************************************************************
+****
 
 Vue de dessus...::
      La vue de dessus (ou vue de Z) affiche l'aspect du G-code vu depuis le côté
@@ -359,14 +360,14 @@ Afficher la position actuelle...::
 
 Afficher la position machine...::
     C'est la position par rapport à l'origine machine, telle qu'établie par la 
-   prise d'origine machine `(POM)`.
+   prise d'origine machine *(POM)*.
     
 Afficher la position relative...::
     C'est la position par rapport à l'origine pièce, telle qu'établie par la
-   prise d'origine pièce `(POP)`. 
+   prise d'origine pièce *(POP)*. 
    On peut aussi représenter cette position comme étant l'origine machine
    à laquelle on a appliqué les codes de décalages des systèmes de 
-   coordonnées `G5x`, `G92` et `G43`.
+   coordonnées *G5x*, *G92* et *G43*.
     
 ==== Menu Aide
 
@@ -380,7 +381,7 @@ Aide rapide...::
 
 Signification des boutons de la fenêtre d'AXIS, de gauche à droite:
 
- . image:images/tool_estop.gif[align="center"] «Arrêt d'urgence» (A/U) 
+ . image:images/tool_estop.gif[align="center"] *Arrêt d'urgence* (A/U) 
     (en Anglais, E-Stop)(((Arrêt d'urgence)))
 
  . image:images/tool_power.gif[] Marche/Arrêt puissance machine(((Marche/Arret)))
@@ -397,7 +398,7 @@ Signification des boutons de la fenêtre d'AXIS, de gauche à droite:
 
  . image:images/tool_stop.gif[] Stopper l'exécution du programme
 
- . image:images/tool_blockdelete.gif[] Sauter ou non les lignes commençant par «/»
+ . image:images/tool_blockdelete.gif[] Sauter ou non les lignes commençant par */*
 
  . image:images/tool_optpause.gif[] Avec ou sans pause optionnelle 
 
@@ -405,15 +406,15 @@ Signification des boutons de la fenêtre d'AXIS, de gauche à droite:
 
  . image:images/tool_zoomout.gif[] Zoom moins
 
- . image:images/tool_axis_z.gif[] Vue prédéfinie «Z» (vue de dessus)
+ . image:images/tool_axis_z.gif[] Vue prédéfinie *Z* (vue de dessus)
 
- . image:images/tool_axis_z2.gif[] Vue prédéfinie «Z basculée»
+ . image:images/tool_axis_z2.gif[] Vue prédéfinie *Z basculée*
 
- . image:images/tool_axis_x.gif[] Vue prédéfinie «X» (vue de côté)
+ . image:images/tool_axis_x.gif[] Vue prédéfinie *X* (vue de côté)
 
- . image:images/tool_axis_y.gif[] Vue prédéfinie «Y» (vue de face) 
+ . image:images/tool_axis_y.gif[] Vue prédéfinie *Y* (vue de face) 
 
- . image:images/tool_axis_p.gif[] Vue prédéfinie «P» (vue en perspective)
+ . image:images/tool_axis_p.gif[] Vue prédéfinie *P* (vue en perspective)
 
  . image:images/tool_rotate.gif[align="center"] Orienter la vue avec le bouton gauche de la souris
 
@@ -438,37 +439,37 @@ un de ses capteurs de limite.
 image:images/axis-limit.png[] Symbole de limite d'axe.
 
 Pour interpréter correctement ces valeurs, référez vous à l'indicateur
-`Position` de la barre d'état. Si la position est `Absolue`, alors les
+*Position* de la barre d'état. Si la position est *Absolue*, alors les
 valeurs affichées sont exprimées en coordonnées machine. Si la position
-est `Relative`, alors les valeurs affichées sont exprimées en
+est *Relative*, alors les valeurs affichées sont exprimées en
 coordonnées relatives à la pièce. Quand les coordonnées affichées sont
 relatives, une marque d'origine de couleur cyan est visible pour
-représenter `l'origine machine`. 
+représenter *l'origine machine*. 
 
 image:images/axis-machineorigin.png[] Symbole d'origine machine. 
 
-Si la position est «Commandée», alors il s'agit de la position à atteindre. 
-Par exemple, les coordonnées passées dans une commande `G0`. 
-Si la position est `Actuelle`, alors il s'agit de la position à 
+Si la position est *Commandée*, alors il s'agit de la position à atteindre. 
+Par exemple, les coordonnées passées dans une commande *G0*. 
+Si la position est *Actuelle*, alors il s'agit de la position à 
 laquelle la machine vient de se déplacer. 
 Ces valeurs peuvent varier pour certaines raisons: 
 erreur de suivi, bande morte, résolution d'encodeur, ou taille de pas. 
 Par exemple, si vous demandez un mouvement à X 0.08 à votre fraiseuse, 
 mais un pas du moteur fait 0.03, 
-alors la position `Commandée` sera de 0.08, 
-mais la position `Actuelle` sera de 0.06 (2 pas) ou 0.09 (3 pas).
+alors la position *Commandée* sera de 0.08, 
+mais la position *Actuelle* sera de 0.06 (2 pas) ou 0.09 (3 pas).
 
 ==== Vue du parcours d'outil
 (((Chemin d'outil)))
 
 Quand un fichier est chargé, 
 une vue du parcours d'outil qu'il produira est visible dans la zone graphique. 
-Les mouvements en vitesse rapide (tels ceux produits par une commande `G0`) 
+Les mouvements en vitesse rapide (tels ceux produits par une commande *G0*) 
 sont affichés en lignes pointillées vertes. 
-Les déplacements en vitesse travail (tels ceux produits par une commande `G1`) 
+Les déplacements en vitesse travail (tels ceux produits par une commande *G1*) 
 sont affichés en lignes continues blanches. 
-Les arrêts temporisés (tels ceux produits par la commande `G4`) 
-sont représentés par une petite marque «X».
+Les arrêts temporisés (tels ceux produits par la commande *G4*) 
+sont représentés par une petite marque *X*.
 
 Un mouvement G0 (Vitesse rapide) avant un déplacement en vitesse travail 
 ne sera pas affiché sur l'écran des parcours d'outil. 
@@ -480,7 +481,7 @@ programmer un G1 sans déplacement, juste avant le G0.
 ==== Étendues du programme
 (((Étendues du programme)))
 
-Les `étendues` du programme sont affichées pour chacun des axes. 
+Les *étendues* du programme sont affichées pour chacun des axes. 
 Aux extrémités, les coordonnées minimales et maximales sont indiquées. 
 Au centres, la différence, entre ces deux coordonnées, est indiquée.
 
@@ -491,7 +492,7 @@ sur l'axe X, comme l'indique le rectangle entourant la valeur de la coordonnée.
 Le déplacement X minimal du programme est de -1.95, la course maximale est 
 de 1.88 en X et le programme nécessite un déplacement en X de 3.83 pouces. 
 Le déplacement total demandé par le programme est donc possible. Pour cela, 
-se déplacer en jogging vers la gauche puis `Toucher` à nouveau pour corriger
+se déplacer en jogging vers la gauche puis *Toucher* à nouveau pour corriger
 l'origine pièce.
 
 .Limites logicielles[[cap:Etendues-Depassees]]
@@ -501,12 +502,12 @@ image::images/axis-outofrange.png[]
 ==== Le cône d'outil
 
 Si aucun outil n'est chargé, l'emplacement de la pointe de l'outil est
-indiqué par le `cône d'outil`. 
-Le `cône d'outil` ne donne aucune indication sur la forme, 
+indiqué par le *cône d'outil*. 
+Le *cône d'outil* ne donne aucune indication sur la forme, 
 la longueur, ou le rayon de l'outil.
 
-Quand un outil est chargé, par exemple dans le MDI, avec la commande `T1 M6`, 
-le 'cône d'outil` passe de conique à cylindrique, il indique alors la proportion
+Quand un outil est chargé, par exemple dans le MDI, avec la commande *T1 M6*, 
+le *cône d'outil* passe de conique à cylindrique, il indique alors la proportion
 du diamètre de l'outil lu dans le fichier de la table d'outils.
 
 ==== Parcours d'outil
@@ -527,7 +528,7 @@ Un clic droit dans une zone vide enlève la surbrillance.
 En déplaçant la souris avec son bouton gauche appuyé, 
 la vue est glissée sur l'écran.
 
-En déplaçant la souris avec le bouton `Maj` enfoncé, 
+En déplaçant la souris avec le bouton *Maj* enfoncé, 
 ou en glissant avec la molette de la souris appuyée, la vue est tournée. 
 Si une ligne du tracé est en surbrillance, elle devient le centre de rotation 
 de la vue. Autrement, le centre de rotation est le milieu du fichier dans son 
@@ -535,10 +536,10 @@ ensemble.
 
 En tournant la molette de la souris, ou en glissant la souris avec son 
 bouton droit enfoncé, ou encore en glissant la souris avec son bouton gauche 
-enfoncé et la touche `Ctrl` appuyée, le tracé sera zoomé en plus ou en moins.
+enfoncé et la touche *Ctrl* appuyée, le tracé sera zoomé en plus ou en moins.
 
 En cliquant sur une des icônes de vue pré-définie de la barre d'outils, 
-ou en pressant la touche `V`, cette vue est sélectionnée.
+ou en pressant la touche *V*, cette vue est sélectionnée.
 
 === Zone texte d'affichage du programme
 
@@ -557,40 +558,36 @@ image::images/axis-currentandselected_fr.png[]
 (((Contrôle manuel)))
 
 Quand la machine est en marche mais qu'aucun programme n'est exécuté,
-les éléments graphiques de l'onglet `Contrôle manuel` peuvent être utilisés pour 
+les éléments graphiques de l'onglet *Contrôle manuel* peuvent être utilisés pour 
 actionner la machine ou mettre en marche et arrêter ses différents organes.
 
 Quand la machine n'est pas en marche, ou quand un programme est en cours 
 d'exécution, le contrôle manuel n'est pas disponible.
 
 Certains des éléments décrits plus bas ne sont pas disponibles sur toutes 
-les machines. Quand AXIS détecte qu'une «pin» particulière n'est pas connectée 
-dans le fichier HAL, l'élément correspondant de l'onglet `Contrôle manuel` est
-supprimé. Par exemple, si la pin HAL `motion.spindle-brake` n'est pas connectée, 
-alors le bouton `Frein de broche` n'apparaîtra pas sur l'écran. 
-Si la variable d'environnement `AXIS_NO_AUTOCONFIGURE` est mise à 1, 
+les machines. Quand AXIS détecte qu'une *pin* particulière n'est pas connectée 
+dans le fichier HAL, l'élément correspondant de l'onglet *Contrôle manuel* est
+supprimé. Par exemple, si la pin HAL *motion.spindle-brake* n'est pas connectée, 
+alors le bouton *Frein de broche* n'apparaîtra pas sur l'écran. 
+Si la variable d'environnement *AXIS_NO_AUTOCONFIGURE* est mise à 1, 
 ce comportement est désactivé et tous les boutons sont visibles. 
 
-==== Le groupe de cases et boutons `Axes`
+==== Le groupe de cases et boutons *Axes*
 
-Les cases à cocher du groupe `Axes` permettent de choisir l'axe de la machine 
-à actionner manuellement. Cette action s'appelle le `jog`.
+Les cases à cocher du groupe *Axes* permettent de choisir l'axe de la machine 
+à actionner manuellement. Cette action s'appelle le *jog*.
 Premièrement sélectionnez l'axe à actionner en cochant sa case. 
-Puis cliquez le bouton `+` ou `-` selon le sens de déplacement souhaité. 
+Puis cliquez le bouton *+* ou *-* selon le sens de déplacement souhaité. 
 Les quatre premiers axes peuvent aussi être déplacés avec les touches fléchées 
 pour X et Y, avec les touches Page précédente et Page suivante pour (Z) et les 
 touches [ et ] pour A.
 
-Si `En continu` est sélectionné, le mouvement continuera tant que la touche ou 
+Si *En continu* est sélectionné, le mouvement continuera tant que la touche ou 
 le bouton resteront appuyés. Si une autre valeur est sélectionnée, la machine 
 se déplacera juste de la distance affichée à chaque fois que la touche ou le 
 bouton seront appuyés. Par défaut, les valeurs disponibles sont:
 
-[quote]
-________________________________________
-0.1000 0.0100 0.0010 0.0001
-________________________________________
-
+    0.1000 0.0100 0.0010 0.0001
 
 Voir le Manuel de l'intégrateur pour plus d'informations sur la configuration 
 des incréments de jog.
@@ -598,52 +595,54 @@ des incréments de jog.
 ==== La prise d'origine machine
 
 Si votre machine dispose de contacts d'origine machine et a une séquence de
-prise d'origine définie dans le fichier ini, le bouton `POM générale` lancera
+prise d'origine définie dans le fichier ini, le bouton *POM générale* lancera
 cette séquence pour tous les axes, la touche Ctrl-HOME aura le même effet.
 
 Si votre machine dispose pas de contacts d'origine mais n'a pas de séquence de
-prise d'origine définie dans le fichier ini, le bouton `POM générale` effectuera 
+prise d'origine définie dans le fichier ini, le bouton *POM générale* effectuera 
 uniquement la prise d'origine de l'axe sélectionné. 
 Cette procédure doit être réalisée, séparément pour chacun des axes.
 
 Si votre machine ne dispose d'aucun contact d'origine défini dans 
-la configuration, le bouton `POM générale` définira la position actuelle de
+la configuration, le bouton *POM générale* définira la position actuelle de
 l'axe comme étant sa position d'origine machine et l'axe sera marqué comme
 ayant sa prise d'origine machine faite.
 
+[[cap:Toucher]]
 ==== Toucher
 
-Si le bouton `Toucher` ou la touche FIN sont appuyés, le décalage
-d'origine pièce de l'axe Z, sur la figure <<cap:Toucher>>: P1 G54,
+Si le bouton *Toucher* ou la touche FIN sont appuyés, le décalage
+d'origine pièce de l'axe Z, sur la figure ci-dessous: P1 G54,
 prendra la valeur spécifiée dans le champ de la boite de dialogue. Les
 expressions peuvent être entrées en suivant les règles de programmation
 rs274ngc, sauf les variables qui ne peuvent pas être utilisées. La
 valeur résultante sera affichée sous le champ. Exemple, pour faire la prise
 d'origine pièce, on affleure l'outil sur une cale de 5mm d'épaisseur posée 
-sur le bloc, on presse le bouton `Toucher` et on saisi 5 dans le champ de la
+sur le bloc, on presse le bouton *Toucher* et on saisi 5 dans le champ de la
 boîte de dialogue. La pointe de l'outil sera alors référencée à 0 sur la surface
 du bloc.
 
-.Toucher[[cap:Toucher]]
+
+.Fenêtre du Toucher
 
 image::images/touchoff_fr.png[]
 
-Voir aussi les options du menu Machine: `Toucher la pièce` et 
-`Toucher le porte-pièce`. 
+Voir aussi les options du menu Machine: *Toucher la pièce* et 
+*Toucher le porte-pièce*. 
 
 ==== Dépassement de limite
 
-En appuyant sur `Dépassement de limite`, la machine sera temporairement 
+En appuyant sur *Dépassement de limite*, la machine sera temporairement 
 autorisée à se déplacer au delà d'un contact de limite physique. 
 Cette case à cocher n'est disponible que lorsqu'un fin de course est pressé. 
 Elle est désactivée après chaque mouvement de jogging. 
 Si l'axe est configuré avec des contacts positifs et négatifs séparés, 
 EMC2 permettra le jogging uniquement dans le sens du dégagement. 
-`Dépassement de limite` ne permettra pas un jogging au delà d'une limite 
+*Dépassement de limite* ne permettra pas un jogging au delà d'une limite 
 logicielle. La seule façon de désactiver une limite logicielle sur un axe 
 est d'annuler sa prise d'origine.
 
-==== Le groupe `Broche`
+==== Le groupe *Broche*
 (((Broche)))
 
 Les boutons de la première rangée permettent de sélectionner la
@@ -653,10 +652,10 @@ fréquence de rotation. La case à cocher de la troisième rangée permet
 d'engager ou de relâcher le frein de broche. Selon la configuration de
 votre machine, ces éléments n'apparaîtront peut être pas tous.
 
-==== Le groupe `Arrosage`
+==== Le groupe *Arrosage*
 (((Arrosage)))
 
-Ces deux boutons permettent d'activer les `gouttelettes` et l'`Arrosage fluide`
+Ces deux boutons permettent d'activer les *gouttelettes* et l'*Arrosage fluide*
 ou de les désactiver. Selon la configuration de votre machine, ces
 boutons n'apparaîtront peut être pas tous.
 
@@ -681,9 +680,9 @@ Commande MDI:::
     le bouton <Envoi>.
 
 G-Codes actifs:::
-    Ce champ affiche les `codes modaux` actuellement actifs dans
-    l'interpréteur. Par exemple, `G54` indique que le système de décalage 
-    d'origine actuel est `G54` qu'il s'appliquera à toutes les coordonnées 
+    Ce champ affiche les *codes modaux* actuellement actifs dans
+    l'interpréteur. Par exemple, *G54* indique que le système de décalage 
+    d'origine actuel est *G54* qu'il s'appliquera à toutes les coordonnées 
     qui seront entrées.
 
 === Correcteurs de vitesse
@@ -691,8 +690,8 @@ G-Codes actifs:::
 
 En déplaçant le curseur, la vitesse de déplacement programmée peut
 être modifiée. Par exemple, si un programme requiert une vitesse à
-`F600` et que le curseur est placé sur 120%, alors la vitesse
-résultante sera de `F720`.
+*F600* et que le curseur est placé sur 120%, alors la vitesse
+résultante sera de *F720*.
 
 === Correcteur de vitesse de broche
 (((Correcteur de vitesse broche)))
@@ -700,8 +699,8 @@ résultante sera de `F720`.
 En déplaçant ce curseur, la vitesse programmée de la broche peut être
 modifiée. Par exemple, si un programme requiert une vitesse à F8000 et
 que le curseur est placé sur 80%, alors la fréquence de rotation
-résultante sera de `F6400`. Cet élément n'apparaît que si la «HAL pin»
-`motion.spindle-speed-out` est connectée dans le fichier .hal.
+résultante sera de *F6400*. Cet élément n'apparaît que si la *HAL pin*
+*motion.spindle-speed-out* est connectée dans le fichier .hal.
 
 === Vitesse de Jog
 (((Vitesse de jog))) 
@@ -735,10 +734,10 @@ ces raccourcis sont inaccessible en mode Entrées manuelles.
 Touches des correcteurs de vitesse.
 
 Les touches des correcteurs de vitesse se comportent différemment en mode manuel. 
-Les touches `12345678` sélectionneront l'axe correspondant, si il est programmé. 
-Si vous avez 3 axes, alors «`» sélectionnera l'axe 0, 1 sélectionnera l'axe 1, 
+Les touches *12345678* sélectionneront l'axe correspondant, si il est programmé. 
+Si vous avez 3 axes, alors *** sélectionnera l'axe 0, 1 sélectionnera l'axe 1, 
 et 2 sera de sélectionnera l'axe 2.  
-Lors de l'exécution d'un programme, les touches `0123456789` fixeront la 
+Lors de l'exécution d'un programme, les touches *0123456789* fixeront la 
 correction de vitesse travail entre 0% et 100%.
 
 Les raccourcis clavier les plus fréquents sont visibles dans la table 
@@ -751,8 +750,8 @@ Les raccourcis clavier les plus fréquents sont visibles dans la table
 |Touches          | Actions produites                           | Mode
 |F1               | Bascule l'arrêt d'urgence                   | Tous
 |F2               | Bascule le marche/arrêt machine             | Tous
-|`, 1 .. 9, 0     | Correcteurs de vitesse de 0% à 100%         | Varies
-|X, `             | Active le premier axe                       | Manuel
+|*, 1 .. 9, 0     | Correcteurs de vitesse de 0% à 100%         | Varies
+|X, *             | Active le premier axe                       | Manuel
 |Y, 1             | Active le deuxième axe                      | Manuel
 |Z, 2             | Active le troisième axe                     | Manuel
 |A, 3             | Active le quatrième axe                     | Manuel
@@ -779,7 +778,7 @@ Les raccourcis clavier les plus fréquents sont visibles dans la table
 
 == Affichage de l'état d'EMC (emctop)
 
-AXIS inclut un programme appelé «emctop» qui affiche en détail l'état
+AXIS inclut un programme appelé *emctop* qui affiche en détail l'état
 d'emc. Ce programme est accessible dans le menu Machine > Fenêtre
 d'état d'EMC.
 
@@ -799,12 +798,13 @@ Vous pouvez lancer ce programme en ouvrant une console et en tapant:
 
     mdi /chemin/vers/emc.nml
 
-En cours d'exécution il affiche le prompt: `MDI>`. Quand une ligne 
+En cours d'exécution il affiche le prompt: *MDI>*. Quand une ligne 
 vide est entrée, la position courante de la machine est affichée. 
 Quand une commande est entrée, elle est passée à EMC qui l'exécute. 
 
 C'est un exemple de session de MDI.
 
+----
      $ MDI ~/emc2/configs/sim/emc.nml
      MDI>
      (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
@@ -813,25 +813,27 @@ C'est un exemple de session de MDI.
      (0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0)
      MDI>
      (1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)
+----
+
 
 == axis-remote: Commande à distance de l'interface graphique d'AXIS
 
-AXIS inclut un programme appelé «axis-remote» qui permet d'envoyer
+AXIS inclut un programme appelé *axis-remote* qui permet d'envoyer
 certaines commandes vers l'application AXIS fonctionnant à distance.
-Les commandes disponibles sont visibles en faisant: `axis-remote
---help` pour vérifier qu'AXIS est en marche, inclure: (`--ping`),
-charger un fichier, recharger le fichier courant avec: (`--reload`) et
-quitter le programme AXIS avec: (`--quit`).
+Les commandes disponibles sont visibles en faisant: *axis-remote
+--help* pour vérifier qu'AXIS est en marche, inclure: (*--ping*),
+charger un fichier, recharger le fichier courant avec: (*--reload*) et
+quitter le programme AXIS avec: (*--quit*).
 
 == hal_manualtoolchange: Dialogue de changement d'outil manuel[[sec:Changement-D-Outil-Manuel]]
 (((Changement D'Outil Manuel)))
 
-EMC2 inclut un composant userspace HAL de appelé «hal_manualtoolchange», 
+EMC2 inclut un composant userspace HAL de appelé *hal_manualtoolchange*, 
 il ouvre une fenêtre d'appel d'outil (Figure <<cap:Changement-manuel-d-outil>>)
-quand la commande `M6` est invoquée. Dés que le bouton Continuer est
+quand la commande *M6* est invoquée. Dés que le bouton Continuer est
 pressé, l'exécution du programme reprend.
 
-Le fichier de configuration HAL `configs/sim/axis_manualtoolchange.hal` 
+Le fichier de configuration HAL *configs/sim/axis_manualtoolchange.hal* 
 montre les commandes HAL nécessaires pour l'utilisation de ce composant. 
 
 hal_manualtoolchange peut être utilisé même si l'interface graphique
@@ -845,7 +847,8 @@ en vitesse travail. Ceci peut être source de confusion pour l'opérateur.
 Pour contourner cette particularité, ajoutez toujours un G1 sans mouvement
 après un M6 T<n>.
 
-.La fenêtre de changement manuel d'outil[[cap:Changement-manuel-d-outil]]
+[[cap:Changement-manuel-d-outil]]
+.La fenêtre de changement manuel d'outil
 
 image::images/manualtoolchange_fr.png[]
 
@@ -853,21 +856,21 @@ image::images/manualtoolchange_fr.png[]
 
 AXIS(((AXIS))) inclut plusieurs modules en Python(((Python))) qui
 peuvent être très utiles. Pour des informations complètes sur ces
-modules, faites: «`pydoc <nom du module`» ou lisez son code source.
+modules, faites: *pydoc <nom du module* ou lisez son code source.
 Modules inclus:
 
- - `emc` fournit l'accès aux commandes d'emc, à son état et aux chaînes d'erreur
- - `gcode` fournit l'accès à l'interpréteur RS274NGC
- - `rs274` fournit des outils supplémentaires pour travailler sur les fichiers RS274NGC
- - `hal` permet la création par l'utilisateur de composants de HAL écrits en Python
- - `_togl` fournit des éléments OpenGL utilisables dans les applications Tkinter
- - `minigl` fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS
+ - *emc* fournit l'accès aux commandes d'emc, à son état et aux chaînes d'erreur
+ - *gcode* fournit l'accès à l'interpréteur RS274NGC
+ - *rs274* fournit des outils supplémentaires pour travailler sur les fichiers RS274NGC
+ - *hal* permet la création par l'utilisateur de composants de HAL écrits en Python
+ - *_togl* fournit des éléments OpenGL utilisables dans les applications Tkinter
+ - *minigl* fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS
 
 Pour utiliser ces modules dans vos propres scripts, assurez-vous que
 le répertoire où ils se trouvent est dans le chemin d'accès des modules
 Python. Avec une version installée d'EMC2, ça se fera automatiquement.
-Avec une version installée en «in-place», ça peut être fait avec l'aide
-de: `/scripts/emc-environment`.
+Avec une version installée en *in-place*, ça peut être fait avec l'aide
+de: */scripts/emc-environment*.
 
 == Utiliser AXIS en mode tour
 (((AXIS avec un tour)))
@@ -879,11 +882,11 @@ En incluant la ligne
 dans la section [DISPLAY] du fichier ini, AXIS sélectionnera le mode tour. 
 L'axe Y ne s'affiche pas parmi les coordonnées, la vue est modifiée pour
 placer la broche à gauche, l'axe Z horizontalement avec son côté positif vers
-la droite `(Z+)` et l'axe X s'étendant vers le bas de l'écran `(X+)`.
+la droite *(Z+)* et l'axe X s'étendant vers le bas de l'écran *(X+)*.
 Plusieurs contrôles (tels que ceux des vues prédéfinies) sont supprimés. 
 Les lectures de coordonnées pour X sont désormais en diamètre et en rayon.
 
-La touche «V» agit alors sur le zoom pour afficher le tracé complet du
+La touche *V* agit alors sur le zoom pour afficher le tracé complet du
 fichier chargé.
 
 En mode tour (lathe), la forme de l'outil chargé est visible.
@@ -901,20 +904,20 @@ sur la configuration dans le manuel de l'intégrateur.
 === Filtres de programme
 
 AXIS a la capacité d'envoyer des fichiers chargés à travers un 
-`filtre de programme`. Ce filtre peut faire diverses tâches: 
-Simple, comme s'assurer que le programme se termine bien par un '`M2`' ou 
+*filtre de programme*. Ce filtre peut faire diverses tâches: 
+Simple, comme s'assurer que le programme se termine bien par un '*M2*' ou 
 complexe, comme détecter que l'entrée est une image et générer le g-code 
 qui permettra d'usiner sa forme.
 
-La section `[FILTER]` du fichier ini défini comment les filtres
+La section *[FILTER]* du fichier ini défini comment les filtres
 doivent agir. Premièrement, pour chaque type de fichier, écrire une ligne
- `PROGRAM_EXTENSION` puis, spécifier le programme à exécuter pour chaque 
+ *PROGRAM_EXTENSION* puis, spécifier le programme à exécuter pour chaque 
 type de fichier. Ce programme reçoit comme argument le nom du fichier d'entrée, 
 il doit produire le G-code selon le standard rs274ngc, en sortie. Les lignes de
 cette sortie s'affichent alors dans la zone de texte, le parcours d'outil
 résultant est visible dans la zone graphique, enfin il sera exécuté quand emc 
-recevra la commande `Exécuter le programme`. Les lignes suivantes fournissent 
-la possibilité d'utiliser «image-to-gcode», le convertisseur d'images 
+recevra la commande *Exécuter le programme*. Les lignes suivantes fournissent 
+la possibilité d'utiliser *image-to-gcode*, le convertisseur d'images 
 fourni avec EMC2:
 
     [FILTER]
@@ -929,7 +932,7 @@ Il est également possible de spécifier un interpréteur:
 
 De cette manière, n'importe quel script Python pourra être ouvert et
 sa sortie traitée comme du G-code. Un autre exemple est disponible
-dans: `/nc_files/holecircle.py` . Ce script crée le G-code pour percer
+dans: */nc_files/holecircle.py* . Ce script crée le G-code pour percer
 une série de trous suivant un arc de cercle.
 
 .Perçages circulaires 
@@ -949,10 +952,10 @@ suffisamment longtemps.
 
 Les couleurs de la plupart des éléments de l'interface utilisateur
 d'AXIS peuvent être personnalisées grâce à la base de données X. Le
-fichier `axis_light_background` modifie les couleurs de la fenêtre du
-parcours d'outil sur le modèle «lignes noires et fond blanc», 
+fichier *axis_light_background* modifie les couleurs de la fenêtre du
+parcours d'outil sur le modèle *lignes noires et fond blanc*, 
 il sert aussi de référence des éléments configurables dans l'écran graphique. 
-L'exemple de fichier `axis_big_dro` évolution de la position de lecture 
+L'exemple de fichier *axis_big_dro* évolution de la position de lecture 
 à une police plus grande taille. Pour utiliser ces fichiers:
 
     xrdb -merge /usr/share/doc/emc2/axis_light_background
@@ -968,34 +971,29 @@ d'AXIS, par défaut ces réglages sont ignorés. Pour que les éléments des
 ressources X écrasent ceux par défaut dans AXIS, il faut inclure cette
 ligne dans vos ressources X:
 
-///////////////////////////////////////////////////////////
-L'astérisque non pour éviter "gras",
-///////////////////////////////////////////////////////////
     *Axis*optionLevel: widgetDefault
-///////////////////////////////////////////////////////////
-dans ce cas, nous voulons les astérisques pour effectivement apparaître en gras.
-///////////////////////////////////////////////////////////
 
 ce qui entraînera la construction des options au niveau
-«widgetDefault», de sorte que les ressources X (qui sont elles, au
-niveau «userDefault») puissent l'emporter.
+*widgetDefault*, de sorte que les ressources X (qui sont elles, au
+niveau *userDefault*) puissent l'emporter.
 
-=== Manivelle de jog[[sub:Manivelle de jog]]
+[[sub:Manivelle-de-jog]]
+=== Manivelle de jog
 
 Pour accroître l'interaction d'AXIS avec une manivelle de jog
 physique, l'axe actif courant sélectionné dans l'interface graphique
-est aussi reporté sur une «pin HAL» avec un nom comme `axisui.jog.x` .
+est aussi reporté sur une *pin HAL* avec un nom comme *axisui.jog.x* .
 Excepté pendant un court instant après que l'axe courant ait changé,
-une seule de ces pins à la fois est `TRUE`, les autres restent `FALSE`.
+une seule de ces pins à la fois est *TRUE*, les autres restent *FALSE*.
 
-Après qu'AXIS ait créé ces «HAL pins», il exécute le fichier hal 
-déclaré avec: `[HAL]POSTGUI_HALFILE`. Ce qui diffère de `[HAL]HALFILE,`
+Après qu'AXIS ait créé ces *HAL pins*, il exécute le fichier hal 
+déclaré avec: *[HAL]POSTGUI_HALFILE*. Ce qui diffère de *[HAL]HALFILE,*
 qui lui ne s'utilise qu'une seule fois.
 
 === ~/.axisrc
 (((.axisrc)))
 
-Si il existe, le contenu de: `~/.axisrc` est exécuté comme un code
+Si il existe, le contenu de: *~/.axisrc* est exécuté comme un code
 source Python juste avant l'ouverture de
 l'interface graphique d'AXIS. Les détails de ce qui peut être écrit
 dans .axisrc sont sujets à changement durant le cycle de développement.
@@ -1012,10 +1010,10 @@ l'option “Distance restante” par défaut.
 === Éditeur externe
 (((Éditeur externe)))
 
-En définissant: `[DISPLAY]EDITOR` , les options de menu: Fichier >
+En définissant: *[DISPLAY]EDITOR* , les options de menu: Fichier >
 Éditer ainsi que Fichier > Éditer la table d'outils, deviennent accessibles. 
-Deux valeurs qui fonctionnent bien:`EDITOR=gedit` et 
-`EDITOR=gnome-terminal -e nano`.
+Deux valeurs qui fonctionnent bien:*EDITOR=gedit* et 
+*EDITOR=gnome-terminal -e nano*.
 
 === Panneau de contrôle virtuel
 (((Panneau de contrôle virtuel)))

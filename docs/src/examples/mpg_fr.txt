@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= Utilisation d'une manivelle (MPG) [[cha:Manivelle-Electronique]]
+[[cha:Manivelle-Electronique]]
+= Utilisation d'une manivelle (MPG) 
 
 Cet exemple explique comment relier une manivelle, facile à trouver
 aujourd'hui sur le marché. Cet exemple utilisera la manivelle MPG3 avec
@@ -9,8 +10,8 @@ une carte d'interface C22 de chez CNC4PC et un second port parallèle
 placé sur un slot PCI. Cet exemple fournira trois axes avec chacun
 trois incréments de pas: 0.1, 0.01, 0.001.
 
-Dans le fichier `custom.hal` ou dans un autre fichier .hal, ajouter
-ce qui suit en vérifiant bien que les composants `mux4` ou `encoder` ne
+Dans le fichier *custom.hal* ou dans un autre fichier .hal, ajouter
+ce qui suit en vérifiant bien que les composants *mux4* ou *encoder* ne
 soient pas déjà utilisés. Si c'était le cas vous auriez juste à
 augmenter le nombre de ces composants.
 
