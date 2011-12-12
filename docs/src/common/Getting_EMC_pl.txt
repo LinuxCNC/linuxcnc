@@ -34,14 +34,6 @@
   provide motion such as PUMA or SCARA robots.
 * EMC2 runs on Linux using real time extensions. 
 
- +
- +
- +
- +
- +
- +
- +
-
 == The Operating System
 
 Ubuntu has been chosen because it fits perfectly into the Open Source
@@ -139,14 +131,13 @@ and follow the Download link.
 
 If the file is too large to download in one session 
 because of a bad or slow Internet connection, 
-use `wget` (or bittorrent) to allow 
-resuming after an interrupted download. 
+use 'wget' to allow resuming after an interrupted download. 
 
 === Wget Linux (((Wget Linux)))
 
 Open a terminal window. In Ubuntu it is Applications/Accessories/Terminal. 
-Use `cd` to change to the directory where you would like to store the ISO. 
-Use `mkdir` to create a new directory if needed. 
+Use 'cd' to change to the directory where you would like to store the ISO. 
+Use 'mkdir' to create a new directory if needed. 
 
 Note that actual file names may change so you might have to go to 
 http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
@@ -166,7 +157,7 @@ wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 For the European mirror: 
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
 
-The md5sum of the above file is: `5283b33b7e23e79da1ee561ad476b05f` 
+The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f' 
 *********************************************************************
 
 To continue a partial download that was interrupted 
@@ -189,27 +180,8 @@ wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
 For the European mirror: 
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
-The md5sum of the above file is: `1bab052ec879f941628927c988863f14`
+The md5sum of the above file is: '1bab052ec879f941628927c988863f14'
 *********************************************************************
-
-.Ubuntu 6.06 Dapper Drake and EMC2 (not supported anymore)
-***********************************************************************
-If you require an older version of Ubuntu, you can download Ubuntu 6.06. 
-The CD image below has the old emc 2.2.x on it, but can be upgraded to 
-2.3.x by following instructions on the LinuxCNC.org wiki here: 
-`http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3`
-
-Because Dapper Drake is not supported anymore, there is no current 
-version of EMC2 (2.4.x) for Dapper Drake.:
-
-For the USA mirror: 
-wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
-
-For the European mirror: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=emc2.2.2-1-ubuntu6.06-desktop-i386.iso
-
-The md5sum of the above file is: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
-***********************************************************************
 
 After the download is complete you will find the ISO file in the 
 directory that you selected. Next we will burn the CD.
@@ -232,28 +204,13 @@ First you have to change to the directory where wget is installed in.
 Typically it is in C:\Program Files\GnuWin32\bin so 
 in the Command Prompt window type:
 
-`cd C:\Program Files\GnuWin32\bin`
+----
+cd C:\Program Files\GnuWin32\bin
+----
 
-and the prompt should change to: `C:\Program Files\GnuWin32\bin>`
+and the prompt should change to: 'C:\Program Files\GnuWin32\bin>'
 
 Type the wget command into the window and press enter as above.
-
-=== Bittorrent
-
-Bittorrent is a downloading method that is easy and reliable. 
-
-At this time, EMC2 users are setting up a bittorrent link, 
-ask in IRC or search the wiki for the latest information. 
-
-For info on bittorrent clients for Ubuntu, see: 
-
-https://help.ubuntu.com/community/BitTorrent
-
-(Ubuntu may have "Transmission" already installed.)
-
-For info on bittorrent clients for Windows, see: 
-
-http://www.bittorrent.com/ or http://www.vuze.com/
 
 == Burning the CD
 
@@ -272,17 +229,23 @@ In Ubuntu it is Applications/Accessories/Terminal.
 
 Change to the directory where the ISO was downloaded to.
 
-`cd download_directory`
+----
+cd download_directory
+----
 
 Then run the md5sum command with the file name you saved.
 
-`md5sum -b ubuntu-10.04-linuxcnc1-i386.iso`
+----
+md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
+----
 
 The md5sum should print out a single line after 
 calculating the hash. 
 On slower computers this might take a minute or two.
 
-`5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso`
+----
+5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso
+----
 
 Now compare it to the md5sum value that it should be.
 
@@ -290,11 +253,15 @@ If you downloaded the md5sum as well as the iso,
 you can ask the md5sum program to do the checking for you. 
 In the same directory: 
 
-`md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5`
+----
+md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5
+----
 
 If all is well, after a short delay the terminal will print: 
 
-`ubuntu-10.04-linuxcnc1-i386.iso: OK`
+----
+ubuntu-10.04-linuxcnc1-i386.iso: OK
+----
 
 ==== Burning the ISO to a CD
 
@@ -350,17 +317,6 @@ and the password. Once the install process is complete and you go on
 line the update manager will pop up and allow you to upgrade to the
 latest stable version of EMC2.
 
-== Axis Interface
-
-The AXIS interface is one of the interfaces to choose from. It can be
-configured to add a Virtual Control Panel to customize the interface to
-suit your needs. AXIS is the default user interface and is actively
-being developed.
-
-.Axis User Interface[[cap:Axis-User-Interface]]
-
-image::images/axis-2.5.png[]
-
 == Updates to EMC2 (((Updates to EMC2)))
 
 With the normal install the Update Manager will notify you of updates
@@ -368,7 +324,7 @@ to EMC2 when you go on line and allow you to easily upgrade with no
 Linux knowledge needed. 
 If you want to upgrade to 10.04 from 8.04 a
 clean install from the Live-CD is recommended. 
-It is OK to upgrade EMC when asked to.
+It is OK to upgrade everything except the operating system when asked to.
 
 Warning: Do not upgrade Ubuntu to a new but non-LTS version 
 (like 8.04 to 8.10) as it will prevent EMC from running.
