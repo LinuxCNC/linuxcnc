@@ -136,7 +136,7 @@ C'est une erreur si:
 |G41.1, G42.1  | Comp. dynamique de rayon d'outil à gauche, à droite  | <<sec:G41.1-G42.1>>
 |G43, G43.1    | Comp. de longueur d'outil, compensation dynamique    | <<sec:G43-G43.1-Longueur-Outil>>
 |G49           | Révocation de la compensation de longueur d'outil    | <<sec:G49-Revocation-Longueur-Outil>>
-|G53           | Déplacements en coordonnées machine (Absolues)       | <<sec:G53-Mouvement-Coordonnees-Absolues->>
+|G53           | Déplacements en coordonnées machine (Absolues)       | <<sec:G53-Mouvement-Coordonnees-Absolues>>
 |G54 - G59     | Choix du système de coordonnées (1 a 6)              | <<sec:G54-a-G59.3>>
 |G59.1 - G59.3 | Choix du système de coordonnées (7 a 9)              | <<sec:G54-a-G59.3>>
 |G61, G61.1    | Mode trajectoire exacte, mode arrêt exact            | <<sec:G61-G61.1-G64>>
