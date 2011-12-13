@@ -241,7 +241,7 @@ version is running from G Code.
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
 
-[[sub:Expressions]]
+[[sec:Expressions]]
 == Expressions
 
 An expression is a set of characters starting with a left bracket `[`
@@ -252,7 +252,7 @@ produce a number. The expressions on a line are evaluated when the line
 is read, before anything on the line is executed. An example of an
 expression is `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-[[sub:Binary-Operators]]
+[[sec:Binary-Operators]]
 == Binary Operators
 
 Binary operators only appear inside expressions. There are four basic

@@ -46,7 +46,7 @@ include::gcode/coordinates_pl.txt[]
 
 include::gcode/tool_compensation_pl.txt[]
 
-include::gcode/main_pl.txt[]
+include::gcode/gcode_pl.txt[]
 
 include::gcode/mill_canned_pl.txt[]
 

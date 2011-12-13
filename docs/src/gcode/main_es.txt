@@ -1,6 +1,12 @@
 = G Código de Referencia
 (((G Codes)))
 
+////
+Just in case this document is not a product of google translate it remains. 
+If it is really translated delete gcode_es.txt then fix the links that will break
+due to the link names being translated.
+////
+
 Convenciones utilizadas en esta sección
 
 En los prototipos Código G del guión (`-`) representa un valor real.

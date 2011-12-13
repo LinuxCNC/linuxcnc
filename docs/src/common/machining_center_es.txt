@@ -181,7 +181,7 @@ A machining center may be commanded to dwell (i.e., keep all axes
 unmoving) for a specific amount of time. The most common use of dwell
 is to break and clear chips, so the spindle is usually turning during a
 dwell. Regardless of the Path Control Mode (see Section 
-<<sub:Path-Control-Mode>>) the machine will stop exactly at the end of
+<<sec:Path-Control-Mode>>) the machine will stop exactly at the end of
 the previous programmed move, as though it was in exact path mode.
 
 === Units (((units)))
@@ -231,10 +231,10 @@ The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Sections 
-<<sub:M48-Ambos-Override>> and <<sub:M49-Ni-Anular>>). 
+<<sec:M48-Both-Override>> and <<sec:M49-Neither-Override>>). 
 See Section  <<sec:Feed-Interaction>> for further details.
 
-=== Path Control Mode[[sub:Path-Control-Mode]]
+=== Path Control Mode[[sec:Path-Control-Mode]]
 
 (((path control mode)))
 
@@ -276,7 +276,7 @@ switch should be set before starting the NGC program.
 
 === Optional Program Stop Switch[[sub:Optional-Program-Stop-Interaction]]
 
-(((optional program stop))) 
+(((optional program stop)))
 
 If this switch is on and an M1 code is encountered, program execution
 is paused.
@@ -311,7 +311,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, 
 see the <<sec:Tool-Table-Format>> section. 
 
-== Parameters[[sub:Parameters]]
+== Parameters[[sec:Parameters]]
 
 (((parameters)))
 
@@ -330,7 +330,7 @@ All parameters are available for use in G Code programs.
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. See  <<cha:O-codigos>>
+    local to the subroutine. See  <<cha:O-Codes>>
 
 1-5000::
     G-Code user parameters. These parameters are global in the G Code file.

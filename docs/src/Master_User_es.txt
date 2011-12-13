@@ -48,7 +48,7 @@ include::gcode/coordinates_es.txt[]
 
 include::gcode/tool_compensation_es.txt[]
 
-include::gcode/main_es.txt[]
+include::gcode/gcode_es.txt[]
 
 include::gcode/mill_canned_es.txt[]
 

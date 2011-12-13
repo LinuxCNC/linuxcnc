@@ -206,10 +206,10 @@ DOC_SRCS := \
 	gcode/coordinates_fr.txt \
 	gcode/coordinates_pl.txt \
 	gcode/gcode.txt \
-	gcode/main_de.txt \
-	gcode/main_es.txt \
+	gcode/gcode_de.txt \
+	gcode/gcode_es.txt \
 	gcode/main_fr.txt \
-	gcode/main_pl.txt \
+	gcode/gcode_pl.txt \
 	gcode/mill_canned.txt \
 	gcode/mill_canned_de.txt \
 	gcode/mill_canned_es.txt \
@@ -506,16 +506,16 @@ checkref: checkref_en
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/main_de.html
+checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/main_es.html
+checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/main_pl.html
+checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
