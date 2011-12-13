@@ -329,7 +329,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 Pour plus d'informations ici les spécificités du 
 <<sec:Tool-Table-Format, format de la table d'outils>>.
 
-[[sub:Parametres]]
+[[cha:Parametres]]
 == Paramètres
 
 (((parametres)))
@@ -347,7 +347,7 @@ programmes de Code G.
 
 1-30::
      Subroutine paramètres locaux des arguments d'appel. Ces paramètres 
-     sont locales à la sous-routine. Voir <<cha:O-Codes, les sous-programme>>.
+     sont locales à la sous-routine. Voir <<sec:O-Codes, les sous-programme>>.
 
 1-5000::
      Paramètres de l'utilisateur G-Code. Ces paramètres sont globales 

@@ -123,8 +123,7 @@ http://www.linuxcnc.org/index.php?lang=french
 
 Si le fichier est trop important pour être téléchargé en une seule
 fois parce que votre connexion Internet est lente ou mauvaise,
-utilisez *+wget+* (ou *+bittorrent+*) qui permettent 
-la reprise après un téléchargement interrompu.
+utilisez *+wget+* qui permet la reprise après un téléchargement interrompu.
 
 ===  La commande Wget sous Linux (((Wget Linux)))
 
@@ -222,23 +221,6 @@ c'est le cas, tapez la commande:
 et le prompt devrait changer pour: `C:\Program Files\GnuWin32>`
 
 Tapez les commandes wget dans la fenêtre et pressez Entrée comme précédemment. 
-
-=== Par Bittorrent
-
-Bittorrent est une méthode de téléchargement qui est facile et fiable.
-
-Actuellement, les utilisateurs d'EMC2 ont mis en place un lien BitTorrent,
-demandez sur IRC ou rechercher sur le wiki pour les dernières informations.
-
-Pour des infos sur les clients bittorrent pour Ubuntu, voir:
-
-http://doc.ubuntu-fr.org/bittorrent
-
-(Ubuntu peut avoir «Transmission» déjà installés.)
-
-Pour des infos sur les clients BitTorrent pour Windows, voir:
-
-http://www.bittorrent.com/ ou http://www.vuze.com
 
 == Graver le CD
 

@@ -825,12 +825,14 @@ Les commandes disponibles sont visibles en faisant: *axis-remote
 charger un fichier, recharger le fichier courant avec: (*--reload*) et
 quitter le programme AXIS avec: (*--quit*).
 
-== hal_manualtoolchange: Dialogue de changement d'outil manuel[[sec:Changement-D-Outil-Manuel]]
+[[sec:Changement-D-Outil-Manuel]]
+== hal_manualtoolchange: Dialogue de changement d'outil manuel
+
 (((Changement D'Outil Manuel)))
 
 EMC2 inclut un composant userspace HAL de appelé *hal_manualtoolchange*, 
-il ouvre une fenêtre d'appel d'outil (Figure <<cap:Changement-manuel-d-outil>>)
-quand la commande *M6* est invoquée. Dés que le bouton Continuer est
+il ouvre une fenêtre d'appel d'outil visible ci-dessous,
+quand la commande *M6* est invoquée. Dés que le bouton *Continuer* est
 pressé, l'exécution du programme reprend.
 
 Le fichier de configuration HAL *configs/sim/axis_manualtoolchange.hal* 
@@ -841,7 +843,7 @@ AXIS n'est pas en service. Cette composante est particulièrement
 utile si vous avez des outils de pré-réglage et que vous utilisez la 
 table d'outils.
 
-[IMPORTANT]Le parcours d'outil d'un mouvement en vitesse rapide ne sera pas
+IMPORTANT: Le parcours d'outil d'un mouvement en vitesse rapide ne sera pas
 visible s'il suit un changement d'outil T<n> et ce jusqu'au prochain mouvement
 en vitesse travail. Ceci peut être source de confusion pour l'opérateur. 
 Pour contourner cette particularité, ajoutez toujours un G1 sans mouvement

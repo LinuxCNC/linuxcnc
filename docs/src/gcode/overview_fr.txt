@@ -26,14 +26,14 @@ Le langage RS274/NGC(((RS274NGC))) n'a pas d'indicateur de début et de
 fin de programme. L'interpréteur cependant traite les fichiers. Un
 programme simple peut être en un seul fichier, mais il peut aussi être
 partagé sur plusieurs fichiers. Un fichier peut être délimité par le
-signe pourcent de la manière suivante. La première ligne non vide d'un
+signe pour-cent de la manière suivante. La première ligne non vide d'un
 fichier peut contenir un signe *%* seul, éventuellement encadré
 d'espaces blancs, ensuite, à la fin du fichier on doit trouver une
 ligne similaire. Délimiter un fichier avec des % est facultatif si le
 fichier comporte un *M2* ou un *M30* , mais est requis sinon. Une
 erreur sera signalée si un fichier a une
-ligne pourcent au début, mais pas à la fin. Le contenu utile d'un
-fichier délimité par pourcent s'arrête après la seconde ligne pourcent.
+ligne pour-cent au début, mais pas à la fin. Le contenu utile d'un
+fichier délimité par pour-cent s'arrête après la seconde ligne pour-cent.
 Tout le reste est ignoré.
 
 Le langage RS274/NGC prévoit les deux commandes (*M2* ou *M30* ) pour
@@ -47,7 +47,7 @@ Une ligne de code permise par la norme RS274/NGC est construite de la
 façon suivante, dans l'ordre avec la restriction à un maximum de 256
 caractères sur la même ligne.
 
- . Un block optionnel contenant le caractère d'effacement de ligne, barre
+ . Un bloc optionnel contenant le caractère d'effacement de ligne, barre
    de fraction */*. 
  . Un numéro de ligne optionnel.
  . N'importe quel nombre de mots, valeurs de paramètres et commentaires.
@@ -71,6 +71,7 @@ indifféremment des majuscules ou des minuscules sans changer la
 signification de la ligne.
 
 == Numéro de ligne
+
 (((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
@@ -82,6 +83,7 @@ pratique normale. L'utilisation d'un numéro de ligne n'est pas
 obligatoire, mais si il est utilisé, il doit être à sa place.
 
 == Les mots
+
 (((mots)))
 
 Un mot est une lettre, autre que N, suivie d'un nombre réel.
@@ -126,7 +128,8 @@ sont pas valides sur une machine n'ayant pas les axes correspondants.
 |Z      | Axe Z de la machine
 |========================================
 
-=== Nombres[[sub:Nombres]]
+[[sec:Nombres]]
+=== Nombres
 
 Les règles suivantes sont employées pour des nombres (explicites).
 Dans ces règles un chiffre est un caractère simple entre 0 et 9.
@@ -150,7 +153,7 @@ Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-[[sub:Parametres-Numerotes]]
+[[cha:Parametres-Numerotes]]
 === Paramètres numérotés
 
 Un paramètre numéroté commence par le caractère *#* suivi par un
@@ -188,7 +191,7 @@ L'interpréteur maintient cette liste de paramètres, concernant l'outil courant
  - #5412 Tool Backangle 
  - #5413 Tool Orientation
 
-[[sub:Parametres-Nommes]]
+[[sec:Parametres-Nommes]]
 === Paramètres nommés
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
@@ -243,7 +246,7 @@ version is running from G Code.
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
 
-[[sub:Expressions]]
+[[sec:Expressions]]
 === Expressions
 
 Une expression est un groupe de caractères commençant avec le crochet
@@ -255,7 +258,7 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
  éxécuté sur cette ligne. 
 Un exemple d'expression: *[1 + acos[0] - [#3 ** [4.0/2]]]*.
 
-[[sub:Operateurs-Binaires]]
+[[sec:Operateurs-Binaires]]
 === Opérateurs binaires
 
 Les opérateurs binaires ne se rencontrent que dans les expressions. Il
@@ -296,14 +299,15 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-[[sub:Operations-unaires]]
+
+[[sec:Operations-unaires]]
 === Fonctions
 
 Une fonction commence par son nom, ex: *ATAN* * suivi par une
 expression divisée par une autre expression (par
  exemple *ATAN[2]/[1+3]*) ou tout autre nom de fonction suivi par une
 expression (par exemple *SIN[90]*). Les fonctions disponibles sont
-visibles <<cap:Fonctions, dans ce tableau>>. Les arguments pour les opérations 
+visibles <<sec:Fonctions, dans ce tableau>>. Les arguments pour les opérations 
 unaires sur des angles ( *COS*, *SIN* et *TAN* ) sont en degrés. Les valeurs 
 retournées par les opérations sur les angles ( *ACOS*, *ASIN* et *ATAN* ) sont 
 également en degrés.
@@ -313,7 +317,7 @@ négatif), par exemple: *FIX[2.8] =2* et *FIX[-2.8] = -3* . L'opérateur
 *FUP* arrondi vers la droite (plus positif ou moins négatif), par
 exemple: *FUP[2.8] = 3* et *FUP[-2.8] = -2* .
 
-[[cap:Fonctions]]
+[[sec:Fonctions]]
 .Fonctions
 
 [width="90%", options="header"]
@@ -408,6 +412,7 @@ présentent. Par exemple, G4 (tempo) est non modale.
 
 [[sec:Groupes-modaux]]
 == Groupes modaux
+
 (((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés *groupes
@@ -498,6 +503,7 @@ passant un commentaire spécial.
 
 [[sec:Ordre-d-execution]]
 = Ordre d'exécution
+
 (((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est essentiel à la
@@ -529,6 +535,7 @@ l'ordre indiqué ci-dessous, si ils se trouvent sur la même ligne.
  . Arrêt (M0, M1, M2, M30, M60).
 
 = G-Code: Bonnes pratiques
+
 (((G-Code bonnes pratiques)))
 
 == Utiliser un nombre de décimales approprié
