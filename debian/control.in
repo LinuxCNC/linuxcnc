@@ -5,7 +5,7 @@ Maintainer: Jeff Epler <jepler@unpythonic.net>
 Build-Depends: debhelper (>> 4.0.0),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
-    libxaw7-dev, libncurses-dev, libreadline5-dev,
+    libxaw7-dev, libncurses-dev, libreadline5-dev | libreadline-dev,
     lyx-qt | lyx, xsltproc, groff,
     python, python-dev, python-tk,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
