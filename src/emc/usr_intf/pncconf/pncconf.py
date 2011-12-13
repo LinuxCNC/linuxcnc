@@ -1773,6 +1773,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             potinvertlist = self.spindle_invert_pins(self.potoutput_sig(let))
         if steppinname and encoderpinname and not let == 's': closedloop = True
         if (encoderpinname or resolverpinname) and (pwmpinname or tppwmpinname or amp8i20pinname): closedloop = True
+        if let == "s": closedloop = False
         print let + " is closedloop? "+ str(closedloop)
         print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
         print " PWM:",pwmpinname," 3PWM:",tppwmpinname," 8i20:",amp8i20pinname
