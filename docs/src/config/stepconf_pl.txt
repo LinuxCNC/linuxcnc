@@ -1,13 +1,16 @@
-= Stepconf Wizard[[cha:Stepconf-Wizard]]
-(((Stepconf Wizard)))
+﻿:lang: en
+:toc:
+
+[[cha:Stepconf-Wizard]]
+= Stepconf Wizard(((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 
 
 Stepconf is a program that generates configuration files for EMC2 
 for a specific class of CNC machine: 
-those that are controlled via a *standard parallel port*, and 
-controlled by signals of type *step & direction*.
+those that are controlled via a 'standard parallel port', and 
+controlled by signals of type 'step & direction'.
 
 Stepconf is installed when you install EMC2 and is in the CNC menu.
 
@@ -126,7 +129,7 @@ Min Base Period::
 Onscreen Prompt For Tool Change::
     (((Onscreen Prompt For Tool Change)))
     If this box is checked, EMC will pause and prompt you 
-    to change the tool when *M6* is encountered.
+    to change the tool when 'M6' is encountered.
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom HAL file
 
@@ -136,8 +139,8 @@ While the test is running, you should "abuse" the computer. Move
 windows around on the screen. Surf the web. Copy some large files
 around on the disk. Play some music. Run an OpenGL program such as
 glxgears. The idea is to put the PC through its paces while the latency
-test checks to see what the worst case numbers are. *Do not run EMC2
-while the latency test is running.*  Run the test at least a few
+test checks to see what the worst case numbers are. 'Do not run EMC2
+while the latency test is running.'  Run the test at least a few
 minutes. The longer you run the test the
 better it will be at catching events that might occour at less frequent
 intervals. This is a test for your computer only, so no hardware needs
@@ -158,14 +161,14 @@ factor in determining latency. Motherboards, video cards, USB ports,
 SMI issues, and a number of other things can hurt the latency.
 
 .Troubleshooting SMI Issues (LinuxCNC.org Wiki)
-****
+************************************************************
 Fixing Realtime problems caused by SMI on Ubuntu
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
-****
+************************************************************
 
-The important numbers are the "max jitter". In the example above 7085
-nanoseconds, or 7.085 microseconds, is the highest jitter. 
+The important numbers are the "max jitter". In the example above 9075
+nanoseconds, or 9.075 microseconds, is the highest jitter. 
 Record this number, and enter it in
 the Base Period Maximum Jitter box.
 
@@ -300,7 +303,7 @@ Home Search Velocity::
     before the switch opens again, and homing must always be started from
     the same side of the switch. 
     If the machine moves the wrong direction at the beginning of the
-    homing procedure, negate the value of *Home Search Velocity*.
+    homing procedure, negate the value of 'Home Search Velocity'.
 
 Home Latch Direction::
     (((Home Latch Direction)))
@@ -321,7 +324,7 @@ Distance to accelerate to max speed::
 Pulse rate at max speed::
     (((Pulse rate at max speed)))
     Information computed based on the values entered above. 
-    The greatest *Pulse rate at max speed* determines the *BASE_PERIOD*. 
+    The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'. 
     Values above 20000Hz may lead to slow response time or even lockups 
     (the fastest usable pulse rate varies from computer to computer)
 
@@ -344,8 +347,11 @@ With Stepconf it is easy to try different values for acceleration and velocity.
 
 ==== Finding Maximum Velocity[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
 
-Begin with a low Acceleration (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ]) and 
-the velocity you hope to attain. 
+Begin with a low Acceleration 
+// comment out latexmath until a fix is found for the html docs
+// (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])
+(for example, *+2 inches/s^2^+* or *+50 mm/s^2^+*)
+and the velocity you hope to attain. 
 Using the buttons provided, jog the axis to near the center of travel. 
 Take care because with a low acceleration value, 
 it can take a surprising distance for the axis to decelerate to a stop.
@@ -358,8 +364,8 @@ The machine will begin to move back and forth along this axis.
 In this test, it is important that the combination of Acceleration and 
 Test Area allow the machine to reach the selected Velocity and "cruise" for 
 at least a short distance -- the more distance, the better this test is. 
-The formula 
-latexmath:[ d = 0.5 * v * v/a ] 
+The formula *+d = 0.5 * v * v/a+*
+// latexmath:[ d = 0.5 * v * v/a ] 
 gives the minimum distance required to reach the 
 specified velocity with the given acceleration. 
 If it is convenient and safe to do so, 
@@ -402,7 +408,7 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 image::images/stepconf-spindle.png[]
 
 This page only appears when "Spindle PWM" is chosen in the 
-*Parallel Port Pinout* page for one of the outputs.
+'Parallel Port Pinout' page for one of the outputs.
 
 === Spindle Speed Control[[sub:Spindle-Speed-Control]](((spindle speed control)))
 
@@ -451,13 +457,13 @@ on the pinout, the following information should be entered:
 
 Cycles per revolution::
     (((Cycles per revolution)))
-    The number of cycles of the *Spindle A* signal during one revolution of the spindle. 
+    The number of cycles of the 'Spindle A' signal during one revolution of the spindle. 
     This option is only enabled when an input has been set to "Spindle Phase A"
 
 Maximum speed in thread::
     The maximum spindle speed used in threading. 
     For a high spindle RPM or a spindle encoder with high resolution, 
-    a low value of *BASE_PERIOD* is required. 
+    a low value of 'BASE_PERIOD' is required. 
 
 === Determining Spindle Calibration[[sub:Determining-Spindle-Calibration]]
 (((Determining Spindle Calibration)))
@@ -466,8 +472,8 @@ Enter the following values in the Spindle Configuration page:
 
 [width="100%"]
 |========================================
-|Speed 1: | *0*    | PWM 1: | *0*
-|Speed 2: | *1000* | PWM 2: | *1*
+|Speed 1: | 0    | PWM 1: | 0
+|Speed 2: | 1000 | PWM 2: | 1
 |========================================
 
 Finish the remaining steps of the configuration process, 
@@ -520,35 +526,35 @@ Later, you can re-run this program and tweak the settings you entered before.
 (((Axis Travel)))(((Home Location)))(((Home Switch Location)))
 
 For each axis, there is a limited range of travel. 
-The physical end of travel is called the *hard stop*.
+The physical end of travel is called the 'hard stop'.
 
-Before the *hard stop* there is a *limit switch*. 
+Before the 'hard stop' there is a 'limit switch'. 
 If the limit switch is encountered during normal operation, 
 EMC shuts down the motor amplifier. 
-The distance between the *hard stop* and *limit switch* 
+The distance between the 'hard stop' and 'limit switch' 
 must be long enough to allow an unpowered motor to coast to a stop.
 
-Before the *limit switch* there is a *soft limit*. 
+Before the 'limit switch' there is a 'soft limit'. 
 This is a limit enforced in software after homing. 
 If a MDI command or g code program would pass the soft limit, it is not executed. 
 If a jog would pass the soft limit, it is terminated at the soft limit.
 
-The *home switch* can be placed anywhere within the travel (between hard stops). 
+The 'home switch' can be placed anywhere within the travel (between hard stops). 
 As long as external hardware does not deactivate the motor amplifiers 
 when the limit switch is reached, one of the limit switches 
 can be used as a home switch.
 
-The *zero position* is the location on the axis that is 0 in 
+The 'zero position' is the location on the axis that is 0 in 
 the machine coordinate system. 
-Usually the *zero position* will be within the *soft limits*.
-On lathes, constant surface speed mode requires that machine *X=0* 
+Usually the 'zero position' will be within the 'soft limits'.
+On lathes, constant surface speed mode requires that machine 'X=0' 
 correspond to the center of spindle rotation when no tool offset is in effect.
 
-The *home position* is the location within travel that the axis will
+The 'home position' is the location within travel that the axis will
 be moved to at the end of the homing sequence. 
-This value must be within the *soft limits*. 
-In particular, the *home position* 
-should never be exactly equal to a *soft limit*.
+This value must be within the 'soft limits'. 
+In particular, the 'home position' 
+should never be exactly equal to a 'soft limit'.
 
 === Operating without Limit Switches[[sub:Operating-without-Limit]]
 (((Operating without Limit Switches)))
@@ -563,7 +569,7 @@ Soft limits only operate after the machine has been homed.
 A machine can be operated without home switches. 
 If the machine has limit switches, but no home switches, 
 it is best to use a limit switch as the home switch 
-(e.g., choose *Minimum Limit + Home X*  in the pinout). 
+(e.g., choose 'Minimum Limit + Home X'  in the pinout). 
 If the machine has no switches at all, or the limit
 switches cannot be used as home switches for another reason, then the
 machine must be homed "by eye" or by using match marks. Homing by eye
@@ -593,15 +599,15 @@ Typically for a parallel port you might use 47k.
 
 .Normally Closed Switches[[cap:Normally-Closed-Switches]]
 
-image::images/switch-nc-series.eps[]
-
 Wiring N/C switches in series (simplified diagram)
+
+image::images/switch-nc-series.eps[]
 
 .Normally Open Switches[[cap:Normally-Open-Switches]]
 
-image::images/switch-no-parallel.eps[]
-
 Wiring N/O switches in parallel (simplified diagram)
+
+image::images/switch-no-parallel.eps[]
 
 The following combinations of switches are permitted in Stepconf:
 
@@ -610,9 +616,6 @@ The following combinations of switches are permitted in Stepconf:
  - Combine both limit switches for one axis
  - Combine both limit switches and the home switch for one axis
  - Combine one limit switch and the home switch for one axis
-
-The last two combinations are also appropriate 
-when a "home to limit" is used.
 
 // vim: set syntax=asciidoc:
 

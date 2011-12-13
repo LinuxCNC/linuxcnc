@@ -1,5 +1,8 @@
-= Stepconf Wizard[[cha:Stepconf-Wizard]]
-(((Stepconf Wizard)))
+﻿:lang: en
+:toc:
+
+[[cha:Stepconf-Wizard]]
+= Stepconf Wizard(((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 
@@ -344,8 +347,11 @@ With Stepconf it is easy to try different values for acceleration and velocity.
 
 ==== Finding Maximum Velocity[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
 
-Begin with a low Acceleration (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ]) and 
-the velocity you hope to attain. 
+Begin with a low Acceleration 
+// comment out latexmath until a fix is found for the html docs
+// (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])
+(for example, *+2 inches/s^2^+* or *+50 mm/s^2^+*)
+and the velocity you hope to attain. 
 Using the buttons provided, jog the axis to near the center of travel. 
 Take care because with a low acceleration value, 
 it can take a surprising distance for the axis to decelerate to a stop.
@@ -358,8 +364,8 @@ The machine will begin to move back and forth along this axis.
 In this test, it is important that the combination of Acceleration and 
 Test Area allow the machine to reach the selected Velocity and "cruise" for 
 at least a short distance -- the more distance, the better this test is. 
-The formula 
-latexmath:[ d = 0.5 * v * v/a ] 
+The formula *+d = 0.5 * v * v/a+*
+// latexmath:[ d = 0.5 * v * v/a ] 
 gives the minimum distance required to reach the 
 specified velocity with the given acceleration. 
 If it is convenient and safe to do so, 
