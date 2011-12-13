@@ -1,4 +1,4 @@
-﻿:lang: en
+:lang: en
 :toc:
 
 [[cha:Stepconf-Wizard]]
