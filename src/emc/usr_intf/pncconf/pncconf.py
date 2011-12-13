@@ -378,6 +378,30 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i69", "7i69", 0,[], 0,0,0,0,0,0,0,0,
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i70", "7i70", 0,[], 0,0,0,0,0,0,0,0,
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i71", "7i71", 0,[], 0,0,0,0,0,0,0,0,
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["7i76", "7i76-m0", 0,[], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -604,10 +628,13 @@ S_TPPWM_A, S_TPPWM_B,S_TPPWM_C,S_TPPWM_AN,S_TPPWM_BN,S_TPPWM_CN,S_TPPWM_ENABLE,S
 human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[]],[ _("Y Axis BL Driver"),[]],
     [_("Z Axis BL Driver"),[]],[_("A Axis BL Driver"),[]],[_("S Axis BL Driver"),[]],[_("Custom Signals"),[]] ]
 
-(UNUSED_SSERIAL,A8I20_T,A8I20_R,A8I20_E,I7I64_T,I7I64_R,I7I64_E,I7I76_M0_T,I7I76_M0_R,I7I76_M0_E) = hal_sserial_names = ["unused-sserial",
-"8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i76-m0-t","7i76-m0-r","7i76-m0-e"]
+(UNUSED_SSERIAL,A8I20_T,A8I20_R,A8I20_E,I7I64_T,I7I64_R,I7I64_E,I7I69_T,I7I69_R,I7I69_E,
+I7I70_T,I7I70_R,I7I70_E,I7I71_T,I7I71_R,I7I71_E,I7I76_M0_T,I7I76_M0_R,I7I76_M0_E) = hal_sserial_names = ["unused-sserial",
+"8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e","7i70-t","7i70-r","7i70-e",
+"7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e"]
  
-human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]] ]
+human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
+                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]] ]
 prefs = preferences.preferences()
 
 def md5sum(filename):
@@ -3547,7 +3574,6 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 halboardnum = 1
             if 'serial' in test:
                 # sample pin name = mesa0sserial0_0pin24
-                # at this point we can assume the 7i64 or 7i76
                 pinnum = int(test[18:])
                 portnum = int(test[12:13])
                 channel = int(test[14:15])
@@ -3575,7 +3601,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         if ptype == GPIOI:
                             comptype = "digin"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
-                    elif "7i76" in(subboardname):
+                    elif "7i76" in(subboardname) or "7i69" in (subboardname) or "7i70" in (subboardname) or "7i71" in (subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             if pinnum <24:
@@ -6525,16 +6551,34 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[tab].set_text(temp + "\n Tab 2")
                                 table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
                                 self.widgets[table].show()
+                                table = "mesa%dsserial%d_%dtable3"% (boardnum, portnum, channelnum)
+                                self.widgets[table].show()
                                 if "7i76" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i76-m0"
                                 elif "7i64" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i64"
+                                    self.widgets[table].hide()
+                                elif "7i69" in temp:
+                                    self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i69"
+                                    self.widgets[table].hide()
+                                elif "7i70" in temp:
+                                    self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i70"
+                                    self.widgets[table].hide()
+                                elif "7i71" in temp:
+                                    self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i71"
+                                    self.widgets[table].hide()
                                 elif "8i20" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "8i20"
                                     self.widgets[table].hide()
+                                    table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                    self.widgets[table].hide()
                                 else:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "none"
-                                    self.widgets["mesa%dsserialtab%d"% (boardnum,channelnum + 1)].hide()
+                                    self.widgets[table].hide()
+                                    table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                    self.widgets[table].hide()
+                                    table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
+                                    self.widgets[table].hide()
                                     return
                                 print p,temp," set at",self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
                                 self.set_sserial_options(boardnum,portnum,channelnum)
