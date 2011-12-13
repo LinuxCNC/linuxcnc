@@ -1897,7 +1897,7 @@ regardless of what coolant is on or off.
 
 To enable the spindle speed and feed rate override controls, program `M48`. 
 To disable both controls, program `M49`. 
-See Section <<sub:Feed-Interaction>> for more details. 
+See Section <<sec:Feed-Interaction>> for more details. 
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
 These controls can also be toggled individually 
@@ -2274,7 +2274,7 @@ file must be a valid file.
 
 To set the feed rate, program `F<n>` where "n" is a number. 
 The application of the feed rate is as described in Section 
-<<sub:Feed-Rate>>, unless inverse time feed rate mode is in effect, 
+<<sec:Feed-Rate>>, unless inverse time feed rate mode is in effect, 
 in which case the feed rate is as described in 
 Section <<sec:G93-G94-G95-Mode>>.
 

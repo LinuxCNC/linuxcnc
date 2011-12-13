@@ -1887,7 +1887,7 @@ independientemente de lo que el refrigerante está encendido o apagado.
 
 Para permitir que la velocidad de giro y los controles de velocidad de avance de invalidación, el programa `M48. 
 Para desactivar los controles, el programa 'M49'. 
-Vea la sección <<sub:Feed-Interaction>> para más detalles. 
+Vea la sección <<sec:Feed-Interaction>> para más detalles. 
 Está bien para activar o desactivar los controles cuando 
 que ya están activados o desactivados. 
 Estos controles también se puede activar de forma individual 
@@ -2262,7 +2262,7 @@ archivo debe ser un archivo válido.
 
 Para configurar la velocidad de avance, el programa `F<n>` donde "n" es un número. 
 La aplicación de la tasa de alimentación es como se describe en la Sección 
-<<sub:Feed-Rate>>, A menos que alimentar a tiempo inverso modo de índice es, en efecto, 
+<<sec:Feed-Rate>>, A menos que alimentar a tiempo inverso modo de índice es, en efecto, 
 en cuyo caso la tasa de alimentación es como se describe en 
 Sección <<sec:G93-G94-G95-modo>>.
 

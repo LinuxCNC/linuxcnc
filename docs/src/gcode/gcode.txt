@@ -2242,7 +2242,7 @@ The O-number may be given by a parameter or calculation.
 
 == Computing values in O-words
 
-In O-words, Parameters (section  <<sec:Numbered-Parameters>>),
+In O-words, Parameters (section  <<sec:Parameters>>),
 Expressions (section  <<sec:Expressions>>), 
 Binary Operators (section <<sec:Binary-Operators>>), 
 and Functions (table <<cap:Functions>>) are particularly useful.

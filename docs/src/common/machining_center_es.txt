@@ -63,7 +63,7 @@ coolant they can be controlled by G-Codes.
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
 speed used in machining at some percentage of the programmed rate. See
-Section  <<sub:Feed-Interaction>>.
+Section  <<sec:Feed-Interaction>>.
 
 === Block Delete Switch[[sub:Block-Delete-Switch]]
 
@@ -150,7 +150,7 @@ feed rate, or at traverse rate, or it may be synchronized to the
 spindle rotation. If physical limits on axis speed make the desired
 rate unobtainable, all axes are slowed to maintain the desired path.
 
-=== Feed Rate[[sub:Feed-Rate]]
+=== Feed Rate[[sec:Feed-Rate]]
 
 (((feed rate)))
 
@@ -193,7 +193,7 @@ specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in Section 
-<<sub:Feed-Rate>>. 
+<<sec:Feed-Rate>>. 
 
 === Current Position
 
@@ -232,7 +232,7 @@ expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Sections 
 <<sub:M48-Ambos-Override>> and <<sub:M49-Ni-Anular>>). 
-See Section  <<sub:Feed-Interaction>> for further details.
+See Section  <<sec:Feed-Interaction>> for further details.
 
 === Path Control Mode[[sub:Path-Control-Mode]]
 
@@ -254,7 +254,7 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-=== Feed and Speed Override Switches[[sub:Feed-Interaction]]
+=== Feed and Speed Override Switches[[sec:Feed-Interaction]]
 
 The Interpreter will interpret RS274/NGC commands which enable (`M48`)
 or disable (`M49`) the feed and speed override switches. For certain
