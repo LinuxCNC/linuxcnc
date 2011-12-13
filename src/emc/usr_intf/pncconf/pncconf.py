@@ -5403,7 +5403,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
     def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
-        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+        self.widgets.druid1.set_buttons_sensitive(0,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -5523,7 +5523,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         numofsserialchannels = self.data["mesa%d_numof_sserialchannels"% boardnum]
         subboardname = self.data["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
         if subboardname == "none":return
-        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+        self.widgets.druid1.set_buttons_sensitive(0,0,1,1)
         self.pbar.set_text("Setting up Mesa Smart Serial tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -5794,11 +5794,16 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # ---SETUP SMART SERIAL COMPONENTS---
                 # smart serial has port numbers (0-3) and channels (0-7).
                 # so the component number check is different from other components it checks the port number and channel number
-                elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN2,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,SS7I76M0,SS7I76M2):
+                elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,
+                                    TXDATA4,RXDATA4,TXEN4,TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2):
                     channelnum = 1
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): channelnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2,SS7I76M2): channelnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): channelnum = 4
+                    if firmptype in (TXDATA4,RXDATA4,TXEN4): channelnum = 5
+                    if firmptype in (TXDATA5,RXDATA5,TXEN5): channelnum = 6
+                    if firmptype in (TXDATA6,RXDATA6,TXEN6): channelnum = 7
+                    if firmptype in (TXDATA7,RXDATA7,TXEN7): channelnum = 8
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
                     #print "sserial channel:%d"% numofsserialchannels
                     if numofsserialports >= (compnum + 1) and numofsserialchannels >= (channelnum):
@@ -6227,8 +6232,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
-                elif dataptype in( TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2) and widgetptype in( TXDATA0,SS7I76M0,
-                                    TXDATA1,TXDATA2,TXDATA3,SS7I76M2):
+                elif dataptype in( TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,SS7I76M0,SS7I76M2) and \
+                                  widgetptype in( TXDATA0,SS7I76M0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,SS7I76M2):
                     print "SMART SERIAL", dataptype,widgetptype
                     if widgetptype == TXDATA0:
                         self.widgets[ptype].set_active(0)
