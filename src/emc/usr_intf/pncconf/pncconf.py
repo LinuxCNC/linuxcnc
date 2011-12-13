@@ -1897,21 +1897,21 @@ If you have a REALLY large config that you wish to convert to this newer version
         if potpinname:
                 print >>file, "# ---digital potentionmeter output signals/setup---"
                 print >>file
-                print >>file, "setp   "+potpinname+".SpinOut-maxlim   %.1f"% self.spotminlimit
-                print >>file, "setp   "+potpinname+".SpinOut-mixlim   %.1f"% self.spotmaxlimit
-                print >>file, "setp   "+potpinname+".SpinOut-scalemax %.1f"% self.spotmaxoutput
+                print >>file, "setp   "+potpinname+".spinout-maxlim   %.1f"% self.spotminlimit
+                print >>file, "setp   "+potpinname+".spinout-mixlim   %.1f"% self.spotmaxlimit
+                print >>file, "setp   "+potpinname+".spinout-scalemax %.1f"% self.spotmaxoutput
                 for i in potinvertlist:
                     if i == POTO:
-                        print >>file, "setp   "+potpinname+".SpinDir-invert   true"
+                        print >>file, "setp   "+potpinname+".spindir-invert   true"
                     if i == POTE:
-                        print >>file, "setp   "+potpinname+".SpinEna-invert   true"
+                        print >>file, "setp   "+potpinname+".spinena-invert   true"
                 print >>file
                 if closedloop:
-                    print >>file, "net spindle-output      => " + potpinname + ".SpinOut"
+                    print >>file, "net spindle-output      => " + potpinname + ".spinout"
                 else:
-                    print >>file, "net spindle-vel-cmd     => " + potpinname + ".SpinOut"
-                print >>file, "net spindle-enable      => " + potpinname +".SpinEna"
-                print >>file, "net spindle-ccw         => " + potpinname +".SpinDir"
+                    print >>file, "net spindle-vel-cmd     => " + potpinname + ".spinout"
+                print >>file, "net spindle-enable      => " + potpinname +".spinena"
+                print >>file, "net spindle-ccw         => " + potpinname +".spindir"
                 print >>file
 
         if pwmpinname:
@@ -2280,16 +2280,16 @@ If you have a REALLY large config that you wish to convert to this newer version
                         if p == (sig+"-output"):
                             pinname = self.make_pinname(pname) 
                             print >>file, "\n# ---",sig.upper(),"---"
-                            print >>file, "net %s            =>  "% (sig+"-enable")+pinname +".SpinEna"  
-                            print >>file, "net %s            =>  "% (sig+"-output")+pinname +".SpinOut" 
-                            print >>file, "net %s          =>  "% (sig+"-direction")+pinname +".SpinDir"
+                            print >>file, "net %s            =>  "% (sig+"-enable")+pinname +".spinena"  
+                            print >>file, "net %s            =>  "% (sig+"-output")+pinname +".spinout" 
+                            print >>file, "net %s          =>  "% (sig+"-direction")+pinname +".spindir"
                             pinlist = self.list_related_pins([POTO,POTE], boardnum, port, channel, pin, 0)
                             for i in pinlist:
                                 if self[i[0]+"inv"]:
                                     if self[i[0]+"type"] == POTO:
-                                        print >>file, "setp    "+pinname+".SpinDir-invert true"
+                                        print >>file, "setp    "+pinname+".spindir-invert true"
                                     if self[i[0]+"type"] == POTE:
-                                        print >>file, "setp    "+pinname+".SpinEna-invert true"
+                                        print >>file, "setp    "+pinname+".spinena-invert true"
                             break
         # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
@@ -3539,7 +3539,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",
                 UDMU:"pwmgen",UDMD:"pwmgen", UDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
-                TPPWME:"tppwmgen",TPPWMF:"tppwmgen",AMP8I20:"8i20",POTO:"SpinOut",POTE:"SpinEna",POTD:"SpinDir","Error":"None" }
+                TPPWME:"tppwmgen",TPPWMF:"tppwmgen",AMP8I20:"8i20",POTO:"spinout",POTE:"spinena",POTD:"spindir","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
             ptype = self[pin+"type"]
@@ -8776,18 +8776,18 @@ But there is not one in the machine-named folder.."""),True)
 
         # setup sserial potentiometer 
         if self.pot:
-            halrun.write("net dac " + self.pot + ".SpinOut")
-            halrun.write("net enable " + self.pot +".SpinEna")
-            halrun.write("net dir " + self.pot +".SpinDir")
-            halrun.write("setp   "+self.pot+".SpinOut-maxlim   %.1f"% spindleminlimit)
-            halrun.write("setp   "+self.pot+".SpinOut-mixlim   %.1f"% spindlemaxlimit)
-            halrun.write("setp   "+self.pot+".SpinOut-scalemax %.1f"% spindlemaxoutput)
+            halrun.write("net dac " + self.pot + ".spinout")
+            halrun.write("net enable " + self.pot +".spinena")
+            halrun.write("net dir " + self.pot +".spindir")
+            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f"% spindleminlimit)
+            halrun.write("setp   "+self.pot+".spinout-mixlim   %.1f"% spindlemaxlimit)
+            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f"% spindlemaxoutput)
             potinvertlist = self.data.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == POTO:
-                        halrun.write("setp   "+self.pot+".SpinDir-invert   true")
+                        halrun.write("setp   "+self.pot+".spindir-invert   true")
                     if i == POTE:
-                        halrun.write("setp   "+self.pot+".SpinEna-invert   true")
+                        halrun.write("setp   "+self.pot+".spinena-invert   true")
         # setup pwm generator
         if self.pwm:
             pwmtype = self.data[pwm_sig+"type"]
