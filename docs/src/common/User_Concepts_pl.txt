@@ -1,9 +1,12 @@
-= User Concepts
+:lang: en
+:toc:
+
+= User Concepts(((User Concepts)))
 
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
-== Trajectory Control
+== Trajectory Control(((Trajectory Control)))
 
 === Trajectory Planning
 
@@ -14,7 +17,9 @@ limits of your machinery.
 A G Code program can never be fully obeyed. For example, imagine you
 specify as a single-line program the following move:
 
-    G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
+----
+G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
+----
 
 In reality, the whole move can't be made at F10, since the machine
 must accelerate from a stop, move toward X=1, and then decelerate to
@@ -47,7 +52,7 @@ Rapid moves also obey the current trajectory control. With moves long
 enough to reach maximum velocity on a machine with low acceleration and
 no path tolerance specified, you can get a fairly round corner.
 
-=== Programming the Planner
+=== Programming the Planner(((Programming the Planner)))
 
 The trajectory control commands are as follows:
 
@@ -142,6 +147,27 @@ total axis acceleration to equal the ini file MAX_ACCELERATION. In
 other cases, the actual machine acceleration is somewhat less than the
 ini file acceleration
 
+// This is a duplicate paragraph to the one below without latexmath.
+
+To keep up the feed rate, the move must be longer than the distance it
+takes to accelerate from 0 to the desired feed rate and then stop
+again. Using A as *1/2* the ini file MAX_ACCELERATION 
+and F as the feed rate *in units per second*, the acceleration time is 
+*t~a~ = F/A* and the acceleration distance is 
+*d~a~ = F*t~a~/2*. The deceleration time 
+and distance are the same, making the critical distance 
+*d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*. 
+
+For example, for a feed rate of 1 inch per second and an acceleration of
+*10 inch/sec^2^*, the critical distance is 
+*1^2^/10 = 1/10 = 0.1 inch*.
+
+For a feed rate of 0.5 inch per second, the critical distance is 
+*5^2^/100 = 25/10 = 0.025inch* inch.
+
+////
+This section has been commented out until latexmath is working again.
+
 To keep up the feed rate, the move must be longer than the distance it
 takes to accelerate from 0 to the desired feed rate and then stop
 again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION 
@@ -156,7 +182,7 @@ latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is
 latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch. 
 For a feed rate of 0.5 inch per second, the critical distance is 
 latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
-
+////
 == G Code
 
 === Defaults
@@ -170,7 +196,7 @@ running a G-Code file and left in a different state than when you
 started your EMC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
 that the defaults have not changed. Printing out the G-Code Quick
-Reference <<sec:Quick-Reference-Table>> page can help you remember
+Reference (<<sec:Quick-Reference-Table>>) page can help you remember
 what each one is.
 
 === Feed Rate
@@ -236,7 +262,7 @@ Normally you use the G54 Coordinate System. When an offset is applied
 to a current user coordinate system a small blue ball with lines will
 be at the machine origin when your DRO is displaying "Position:
 Relative Actual" in Axis. If your offsets are temporary use the Zero
-Coordinate System from the Machine menu or program `G10 L2 P1 X0 Y0 Z0`
+Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
 at the end of your G Code file. Change the "P" number to suit the
 coordinate system you wish to clear the offset in.
 
