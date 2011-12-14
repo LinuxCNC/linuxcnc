@@ -135,7 +135,7 @@ Es un error si:
 | G61, G61.1 | modo de control de ruta | <<sec:G61-G61.1-G64>>
 | G64 | modo de control de ruta con la tolerancia opcional | <<sec:G61-G61.1-G64>>
 | G73 | Ciclo de taladrado con rotura de virutas | <<sec:G73-Perforacion-del-ciclo>>
-| G76 | Multipass Threading de ciclo (Tornos) | <<sec:G76-Threading-Conservas>>
+| G76 | Multipass Threading de ciclo (Tornos) | <<sec:G76-Threading-Canned>>
 | G80 | Cancelar movimiento Modos | <<sec:G80-Cancelar-Modal>>
 | G81 | Ciclo de taladrado | <<sec:G81-Perforacion-del-ciclo>>
 | G82 | Ciclo de taladrado con temporización | <<sec:G82-Perforacion-Dwell>>
@@ -1157,7 +1157,7 @@ Es un error si:
 
 - El número Q es negativo o cero.
 
-== G76 Roscado ciclo[[sec:G76-Threading-Conservas]]
+== G76 Roscado ciclo[[sec:G76-Threading-Canned]]
 
 (((G76 Threading)))
 
