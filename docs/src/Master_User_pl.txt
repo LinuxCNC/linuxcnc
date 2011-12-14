@@ -2,7 +2,7 @@ User Manuelle V0.1, {localdate}
 =============================
 The EMC Team
 
-:language: pl
+:lang: pl
 
 :masterdir: {indir}
 

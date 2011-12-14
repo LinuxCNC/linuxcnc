@@ -2,7 +2,7 @@ HAL-Handbuch V0.1, {localdate}
 ============================
 The EMC Team
 
-:language: de
+:lang: de
 
 :masterdir: {indir}
 

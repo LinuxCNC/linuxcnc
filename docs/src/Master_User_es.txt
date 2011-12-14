@@ -2,7 +2,7 @@ Manual del Usuario V0.1, {localdate}
 ====================================
 The EMC Team
 
-:language: es
+:lang: es
 
 :masterdir: {indir}
 
