@@ -307,19 +307,17 @@
 
 <doc name="common/userforeword_fr.html" title="Avant-propos"/>
 <doc name="common/user_intro_fr.html" title="Introduction"/>
-<doc name="common/User_Concepts_fr.html" title="Concepts importantes pour l'utilisateur"/>
 <doc name="gui/axis_fr.html" title="L'interface graphique Axis"/>
 <doc name="gui/touchy_fr.html" title="L'interface graphique Touchy"/>
 <doc name="gui/ngcgui_fr.html" title="L'interface graphique NGCGUI"/>
 <doc name="gui/tkemc_fr.html" title="L'interface graphique TkEMC"/>
 <doc name="gui/mini_fr.html" title="L'interface graphique Mini"/>
 <doc name="gui/keystick_fr.html" title="L'interface textuelle KeyStick"/>
-<doc name="common/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
-<doc name="gcode/overview_fr.html" title="Vue d'ensemble du G-code"/>
+<doc name="gcode/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
+<doc name="common/User_Concepts_fr.html" title="Concepts importantes pour l'utilisateur"/>
 <doc name="gcode/main_fr.html" title="Guide de r&eacute;f&eacute;rence du langage G-code d'EMC2"/>
 <doc name="gcode/coordinates_fr.html" title="Les syst&egrave;mes de coordonn&eacute;es"/>
 <doc name="gcode/tool_compensation_fr.html" title="Les compensations d'outil"/>
-<doc name="gcode/mill_canned_fr.html" title="Les cycles de per&ccedil;age"/>
 <doc name="lathe/lathe-user_fr.html" title="Informations sp&eacute;cifiques aux tours"/>
 <doc name="examples/gcode_fr.html" title="Exemple de programmes en G-code"/>
 <doc name="gui/image-to-gcode_fr.html" title="Les fonctionnalit&eacute;s d'Image-to-gcode"/>

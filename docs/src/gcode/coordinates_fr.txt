@@ -1,8 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Systemes-de-coordonnees]]
-= Systèmes de coordonnées et décalages
+= Systèmes de coordonnées et décalages[[sec:Systemes-de-coordonnees]]
 
 (((Systèmes de coordonnées)))
 

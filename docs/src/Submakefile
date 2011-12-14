@@ -53,7 +53,6 @@ DOC_SRCS := \
 	common/machining_center.txt \
 	common/machining_center_de.txt \
 	common/machining_center_es.txt \
-	common/machining_center_fr.txt \
 	common/machining_center_pl.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
@@ -211,15 +210,14 @@ DOC_SRCS := \
 	gcode/gcode_es.txt \
 	gcode/main_fr.txt \
 	gcode/gcode_pl.txt \
+	gcode/machining_center_fr.txt \
 	gcode/mill_canned.txt \
 	gcode/mill_canned_de.txt \
 	gcode/mill_canned_es.txt \
-	gcode/mill_canned_fr.txt \
 	gcode/mill_canned_pl.txt \
 	gcode/overview.txt \
 	gcode/overview_de.txt \
 	gcode/overview_es.txt \
-	gcode/overview_fr.txt \
 	gcode/overview_pl.txt \
 	gcode/rs274ngc.txt \
 	gcode/rs274ngc_de.txt \
