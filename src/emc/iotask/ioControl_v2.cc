@@ -1005,8 +1005,9 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
 	{
-	    int p = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d\n",p);
+	    int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+	    int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
 	    // it doesn't make sense to prep the spindle pocket
 	    if (random_toolchanger && p == 0)
@@ -1018,6 +1019,9 @@ int main(int argc, char *argv[])
 		*(iocontrol_data->tool_prep_number) = 0;
 	    } else {
 		*(iocontrol_data->tool_prep_number) = emcioStatus.tool.toolTable[p].toolno;
+		if (emcioStatus.tool.toolTable[p].toolno != t) // sanity check
+		    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE: mismatch: tooltable[%d]=%d, got %d\n", 
+				    p, emcioStatus.tool.toolTable[p].toolno, t);
 	    }
 
 	    if ((proto > V1) && *(iocontrol_data->toolchanger_faulted)) { // informational
