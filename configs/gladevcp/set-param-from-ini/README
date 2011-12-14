@@ -1,0 +1,8 @@
+setting HAL widgets programmatically
+------------------------------------
+
+This example reads values from an ini file, and sets the HAL Meter 
+widget min and max properties from them
+
+$ export INI_FILE_NAME=demo.ini
+$ gladevcp -u meter_scale.py meter_scale.ui 
