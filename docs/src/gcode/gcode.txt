@@ -1,9 +1,10 @@
+:lang: en
+:toc:
+
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-:lang: en
-:toc:
 
 = G Code Reference
 
@@ -196,7 +197,6 @@ It is an error if:
 (((G0 Rapid)))
 (((Rapid)))
 
-[source,{ngc}]
 -------------------
 G0 axes
 -------------------
@@ -222,7 +222,6 @@ It is an error if:
 
 (((G1 Linear Motion)))
 
-[source,{ngc}]
 -------------------
 G1 axes
 -------------------
@@ -311,9 +310,9 @@ It is an error if:
 
 When the XY-plane is selected program:
 
-----
+----------------
 G2 or G3 axes I- J-
-----
+----------------
 
 The axis words are all optional except that at least one of X and Y
 must be used to program an arc of less than 360 degrees. I and J are
@@ -329,9 +328,9 @@ It is an error if:
 
 When the XZ-plane is selected program:
 
-----
+----------------
 G2 or G3 axes I- K-
-----
+----------------
 
 The axis words are all optional except that at least one of X and Z
 must be used to program an arc of less than 360 degrees. 
@@ -347,9 +346,9 @@ It is an error if:
 
 When the YZ-plane is selected program:
 
-----
+----------------
 G2 or G3 axes J- K- 
-----
+----------------
 
 The axis words are all optional except that at least one of Y and Z
 must be used to program an arc of less than 360 degrees. J and K are
@@ -379,9 +378,11 @@ axis. In this case only an I offset is needed.
 
 The code for the example:
 
-----
+[source,{ngc}]
+----------------
 G2 X1 Y1 I1 F10
-----
+----------------
+
 
 .G2 Example[[fig:G2-Example]]
 
@@ -395,10 +396,12 @@ offset is -0.5.
 
 The g code for the following example:
 
-----
+[source,{ngc}]
+----------------
 G2 X0 Y1 I1 J0.5 F25
 G3 X0 Y0 I1 J-0.5 F25
-----
+----------------
+
 
 .G2-G3 Example[[fig:G2/3-Example]]
 
@@ -406,9 +409,10 @@ image::images/g2-3.png[]
 
 Here is an example of a center format command to mill a helix:
 
-----
+[source,{ngc}]
+----------------
 G17 G2 X10 Y16 I3 J4 Z9
-----
+----------------
 
 That means to make a clockwise (as viewed from the positive z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -432,9 +436,9 @@ Deciphering the Error message 'Radius to end of arc differs from radius to start
 
 === Full Circles
 
-----
+----------------
 G2 or G3 I- J- K-
-----
+----------------
 
 To do a full 360 circle from the current location only program the I,
 J or K offset from the current location for the G2/G3. To program a 360
@@ -477,9 +481,10 @@ are even worse. Other size arcs (in the range tiny to 165 degrees or
 
 Here is an example of a radius format command to mill an arc: 
 
-----
+[source,{ngc}]
+----------------
 G17 G2 X10 Y15 R20 Z5
-----
+----------------
 
 That means to make a clockwise (as viewed from the positive Z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -491,9 +496,9 @@ otherwise it is a helical arc.
 
 (((G4 Dwell)))
 
-----
+----------------
 G4 P[seconds]
-----
+----------------
 
 For a dwell, program G4 P- . This will keep the axes unmoving for the
 period of time in seconds specified by the P number.
@@ -506,9 +511,10 @@ It is an error if:
 
 (((G5.1 Quadratic B-spline)))
 
-----
+
+----------------
 G5.1 Xn Yn I[X offset] J[Y offset]
-----
+----------------
 
 G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
 
@@ -538,7 +544,8 @@ weights.
 
 Sample NURBs Code
 
-----
+[source,{ngc}]
+----------------
 G0 X0 Y0
 F10 
 G5.2 X0 Y1 P1 L3
@@ -552,7 +559,7 @@ G0 X0 Y1
    X2 Y0
    X0 Y0
 M2
-----
+---------------
 
 .Sample NURBs Output
 
@@ -644,18 +651,20 @@ If it is currently active, the new coordinates take effect immediately.
 
 Examples:
 
-----
-G10 L2 P1 X3.5 Y17.2
-----
+[source,{ngc}]
+----------------
+G10 L2 P1 X3.5 Y17.2
+----------------
 
 Sets the origin of the first coordinate system (the one selected by 'G54') 
 to be X=3.5 and Y=17.2. 
 Because only X and Y are specified, the origin point is only moved in X and Y; 
 the other coordinates are not changed.
 
-----
-G10 L2 P1 X0 Y0 Z0
-----
+[source,{ngc}]
+----------------
+G10 L2 P1 X0 Y0 Z0
+----------------
 
 Sets the XYZ coordinates of the G54 origin to the unoffset origin.
 
@@ -819,9 +828,9 @@ It is an error if :
 
 (((G33 Spindle Synchronized Motion)))
 
-----
+----------------
 G33 X- Y- Z- K-
-----
+----------------
 
 For spindle-synchronized motion in one direction, code 'G33 X- Y- Z- K-' 
 where K gives the distance moved in XYZ for each revolution of the spindle. 
@@ -849,9 +858,9 @@ It is an error if:
 
 (((G33.1 Rigid Tapping)))
 
-----
+----------------
 G33.1 X- Y- Z- K-
-----
+----------------
 
 For rigid tapping (spindle synchronized motion with return), 
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved 
@@ -887,12 +896,13 @@ It is an error if:
 
 Example:
 
-----
+[source,{ngc}]
+----------------
 ;move to starting position
 G0 X1.000 Y1.000 Z0.100
 ;rigid tapping a 20 TPI thread
 G33.1 Z-0.750 K0.05
-----
+----------------
 
 == G38.x Straight Probe[[sec:G38.x-Straight-Probe]]
 
@@ -1484,10 +1494,11 @@ executed on any machine using the 'sim/lathe.ini' configuration.
 
 The following example shows the result of running this G-Code:
 
-----
+[source,{ngc}]
+----------------
 G0 Z-.5 X .2
 G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
-----
+---------------
 
 The tool is in the final position after the G76 cycle is completed.
 You can see the entry path on the right from the Q29.5 and the exit
@@ -1630,9 +1641,11 @@ Example 1 Suppose the current position is (1, 2, 3) and the
 XY-plane has been
 selected, and the following line of NC code is interpreted.
 
-----
+
+[source,{ngc}]
+---------------
 G90 G81 G98 X4 Y5 Z1.5 R2.8
-----
+---------------
 
 This calls for absolute distance mode ('G90') and OLD_Z retract mode
 ('G98') and calls for the 'G81'  drilling cycle to be performed once.
@@ -1650,9 +1663,10 @@ Example 2  Suppose the current position is (1, 2, 3) and the
 XY-plane has been
 selected, and the following line of NC code is interpreted.
 
-----
+[source,{ngc}]
+---------------
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
-----
+---------------
 
 This calls for incremental distance mode ('G91') and OLD_Z retract
 mode ('G98') and calls for the 'G81'  drilling cycle to be repeated
@@ -2434,29 +2448,33 @@ and Functions (table <<cap:Functions>>) are particularly useful.
 
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in
-the directory pointed to by PROGRAM_PREFIX. The file name can include
+the directory pointed to by PROGRAM_PREFIX, or one of the directories
+in SUBROUTINE_PATH. The file name can include
 lowercase letters, numbers, dash, and underscore only.
 
-----
+[source,{ngc}]
+---------------
 o<myfile> call (a named file)
-----
+---------------
+
 
 or
 
-----
+[source,{ngc}]
+----------------
 o123 call (a number file)
-----
+----------------
 
 In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
-----
-myfile.ngc
+[source,{ngc}]
+---------------
 o<myfile> sub
 ...
 o<myfile> endsub
 M2
-----
+--------------
 
 = Other Codes
 
@@ -2538,9 +2556,11 @@ end of the line. Comments may not be nested; it is an error if a left
 parenthesis is found after the start of a comment and before the end of
 the comment. Here is an example of a line containing a comment: 
 
-----
+[source,{ngc}]
+---------------
 G80 M5 (stop motion)
-----
+---------------
+
 
 Comments are only informative, they do not cause a machine to do anything. 
 
@@ -2602,7 +2622,10 @@ stderr with special handling for parameters.
 
 A comment of the form:
 
+[source,{ngc}]
+---------------
  (abort, <message>)
+---------------
 
 will cause `message` to set interpreter's current error message and 
 fail the execution. Any named and numbered parameters in `message` are
@@ -2616,9 +2639,10 @@ message are expanded.
 For example: to print a named global variable to stderr (the default
 console window) add a line to your gcode like...
 
-----
+[source,{ngc}]
+---------------
 (print,endmill dia = #<_endmill_dia>)
-----
+---------------
 
 Inside the above types of comments, sequences like '#123' are replaced
 by the value of the parameter 123. Sequences like '#<named parameter>' 
