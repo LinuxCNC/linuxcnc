@@ -24,7 +24,9 @@ Regardless of any offsets that may be in effect, putting a G53 in a
 block of code tells the interpreter to go to the real or absolute axis
 positions commanded in the block. For example
 
-    G53 G0 X0 Y0 Z0 
+----
+G53 G0 X0 Y0 Z0 
+----
 
 will get you to the actual position where these three axes are zero.
 You might use a command like this if you have a favorite position for
@@ -52,14 +54,14 @@ the INI file during the startup of an EMC. In our example below we'll
 use (((G55)))G55. The values for each axis for G55 are stored as
 variable numbers.
 
-|===============
+|==============
 |5241 | 0.000000
 |5242 | 0.000000
 |5243 | 0.000000
 |5244 | 0.000000
 |5245 | 0.000000
 |5246 | 0.000000
-|===============
+|==============
 
 In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all six axes. There are numbered
@@ -72,14 +74,14 @@ this is not the recommended way. G10, G92, G28.1, etc are better ways
 to affect variables. For our example let's directly edit the file so
 that G55 takes on the following values.
 
-|===============
+|==============
 |5241 | 2.000000
 |5242 | 1.000000
 |5243 |-2.000000
 |5244 | 0.000000
 |5245 | 0.000000
 |5246 | 0.000000
-|===============
+|==============
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero
@@ -95,7 +97,7 @@ reference for each of the locations and all of the work to be done
 there. The following code is offered as an example of making a square
 using the G55 offsets that we set above.
 
--------------------
+----
 G55 G0 X0 Y0 Z0
 G1 F2 Z-0.2000
 X1
@@ -105,9 +107,9 @@ Y0
 G0 Z0
 G54 X0 Y0 Z0
 M2
--------------------
+----
 
-"But," you say, "why is there a G54 in there near the end." Many
+But, you say, why is there a G54 in there near the end. Many
 programmers leave the G54 coordinate system with all zero values so
 that there is a modal code for the absolute machine based axis
 positions. This program assumes that we have done that and use the
@@ -117,7 +119,7 @@ not have been modal and any commands issued after it would have
 returned to using the G55 offsets because that coordinate system would
 still be in effect. 
 
------------------------------------------------------------
+----
 G54   use preset work coordinate system 1(((G54)))
 G55   use preset work coordinate system 2(((G55)))
 G56   use preset work coordinate system 3(((G56)))
@@ -127,7 +129,7 @@ G59   use preset work coordinate system 6(((G59)))
 G59.1 use preset work coordinate system 7(((G59.1)))
 G59.2 use preset work coordinate system 8(((G59.3)))
 G59.3 use preset work coordinate system 9(((G59.3)))
------------------------------------------------------------
+----
 
 === Default coordinate system
 
@@ -182,8 +184,8 @@ much as you would expect.
 
 A user must understand the correct ways that the G92 values work. They
 are set based upon the location of each axis when the G92 command is
-invoked. The NIST document is clear that, "To make the  current point
-have the coordinates" X0, Y0, and Z0 you would use G92 X0 Y0 Z0. 
+invoked. The NIST document is clear that, To make the  current point
+have the coordinates X0, Y0, and Z0 you would use G92 X0 Y0 Z0. 
 G92 'does not work from absolute machine coordinates'. 
 It works from 'current location'. 
 
@@ -216,7 +218,7 @@ There are at least two ways to set G92 values.
 Both of these work from the current location of the axis to which the
 offset is to be applied.
 
-Issuing `G92 X Y Z A B C U V W` does in fact set values to the G92 variables 
+Issuing 'G92 X Y Z A B C U V W' does in fact set values to the G92 variables 
 such that each axis takes on the value associated with its name. 
 These values are assigned to the current position of the machine axis. 
 These results satisfy paragraphs one and two of the NIST document. 
@@ -225,10 +227,10 @@ G92 commands work from current axis location and add and subtract
 correctly to give the current axis position the value assigned by the
 G92 command. The effects work even though previous offsets are in.
 
-So if the X axis is currently showing 2.0000 as its position a `G92 X0`
+So if the X axis is currently showing 2.0000 as its position a 'G92 X0'
 will set an offset of -2.0000 so that the current location of X becomes
-zero. A `G92 X2` will set an offset of 0.0000 and the displayed position
-will not change. A `G92 X5.0000` will set an offset of 3.0000 so that the
+zero. A 'G92 X2' will set an offset of 0.0000 and the displayed position
+will not change. A 'G92 X5.0000' will set an offset of 3.0000 so that the
 current displayed position becomes 5.0000.
 
 === G92 Cautions
@@ -239,12 +241,12 @@ offsets in effect. When this happens reset or a startup will cause them
 to become active again. The variables are named: 
 
 |==============
-|5211 | 0.000000
-|5212 | 0.000000
-|5213 | 0.000000
-|5214 | 0.000000
-|5215 | 0.000000
-|5216 | 0.000000
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
 |==============
 
 where 5211 is the X axis offset and so on. If you are seeing
@@ -259,7 +261,7 @@ set as machine zero everything will be correct. Once home has been
 established using real machine switches, or by moving each axis to a known
 home position and issuing an axis home command, any G92 offsets will be 
 applied. If you have a G92 X1 in effect when you home the X axis the
-DRO will read "X: 1.000" instead of the expected "X: 0.000" because the
+DRO will read 'X: 1.000' instead of the expected 'X: 0.000' because the
 G92 was applied to the machine origin. If you issue a G92.1 and the DRO
 now reads all zeros then you had a G92 offset in effect when you last
 ran EMC.

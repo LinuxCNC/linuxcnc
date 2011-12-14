@@ -10,16 +10,16 @@ tool table automatically.
 
 Typical steps for updating the tool table:
 
- . After homing load a tool with "Tn M6" where "n" is the tool number. 
+ . After homing load a tool with 'Tn M6' where 'n' is the tool number. 
  . Move tool to an established point using a gauge or take a test cut and
    measure.
- . Select "Tool Table" in the Coordinate System drop down box.
+ . Select 'Tool Table' in the Coordinate System drop down box.
  . Enter the gauge or measured dimension and select OK.
 
 The Tool Table will be changed with the correct Z length to make the
 DRO display the correct Z position and a G43 command will be issued so
 the new tool Z length will be in effect. Tool table touch off is only
-available when a tool is loaded with "TnM6".
+available when a tool is loaded with 'TnM6'.
 
 .Touch Off Tool Table[[cap:Touch-Off-Tool]]
 
@@ -41,9 +41,9 @@ G10 L11 P(tool no.) - Set offset(s) so current position w/ fixture 9 becomes a v
 
 == Tool Table
 
-The "Tool Table" is a text file that contains information about each
+The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
-and is called "tool.tbl". The tools might be in a tool changer or just
+and is called 'tool.tbl'. The tools might be in a tool changer or just
 changed manually. The file can be edited with a text editor or be
 updated using G10 L1. See the Lathe Specifics Section for lathe tool
 table example. The maximum number of entries in the tool table is 56.
@@ -129,7 +129,7 @@ scheme used in your toolchanger, and the pocket numbers you use must
 make sense on your machine.  
 
 .Data Offset Numbers (optional)
-The "Data Offset" columns (XYZABCUVW) contain real numbers which 
+The 'Data Offset' columns (XYZABCUVW) contain real numbers which 
 represent tool offsets in each axis. This number will be used if tool 
 length offsets are being used and this tool is selected. 
 These numbers can be positive, zero, or negative, and are in fact 
@@ -170,8 +170,8 @@ readers only. The comment must be preceded by a semicolon.
 
 === Tool Changers
 
-EMC supports three types of tool changers: "manual", "random location"
-and "fixed location". Information about configuring an EMC tool changer
+EMC supports three types of tool changers: 'manual', 'random location'
+and 'fixed location'. Information about configuring an EMC tool changer
 is in the Integrator Manual.
 
 ==== Manual Tool Changer
@@ -189,7 +189,7 @@ tool and the manual tool changer should not be used.
 Fixed location tool changers always return the tools to a 
 fixed position in the tool changer. This would also include 
 designs like lathe turrets. When EMC is configured for a fixed
-location tool changer the "P" number is ignored (but read, preserved
+location tool changer the 'P' number is ignored (but read, preserved
 and rewritten) by EMC, so you can use P for any bookkeeping number you
 want.
 
