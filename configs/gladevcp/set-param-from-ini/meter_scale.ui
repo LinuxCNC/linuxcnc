@@ -20,14 +20,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkLabel" id="label">
-            <property name="visible">True</property>
-            <property name="label" translatable="yes">label</property>
-          </object>
-          <packing>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
-          </packing>
+          <placeholder/>
         </child>
       </object>
     </child>
