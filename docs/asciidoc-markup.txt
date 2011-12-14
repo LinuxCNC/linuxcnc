@@ -1,0 +1,5 @@
+This document is a guide for using asciidoc markup
+
+Escaping a character.
+Normally characters like ' and * would not print unless you use \' or \* then
+they will print as normal characters.
