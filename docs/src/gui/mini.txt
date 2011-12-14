@@ -1,20 +1,24 @@
 = MINI
 
-== Introduction  footnote:[Much of this chapter quotes from a chapter of the Sherline CNC Operators Manual. ]
+(((Mini GUI)))
+
+== Introduction
 
 .The Mini Graphical Interface (upon starting)[[fig:startmini]]
 
 image::images/mini01.png[]
 
-Mini(((mini))) was designed to be a full screen graphical interface.
-It was first written for the Sherline(((Sherline))) CNC(((CNC))) but is
+Mini was designed to be a full screen graphical interface.
+It was first written for the Sherline(((Sherline))) CNC but is
 available for anyone to use, copy, and distribute under the terms of
 the GPL copyright.
 
 Rather than popup new windows for each thing that an operator might
 want to do, Mini allows you to display these within the regular screen.
 Parts of this chapter are copied from the instructions that were
-written for that mill by Joe Martin and Ray Henry.
+written for that mill by Joe Martin and Ray Henry. 
+footnote:[Much of this chapter quotes from a chapter of the Sherline CNC
+Operators Manual.]
 
 == Screen layout
 
@@ -32,9 +36,8 @@ When you compare figure <<fig:startmini>> with figure <<fig:runmini>>
 you will see many differences. In the second figure
 
  - each axis has been homed -- the display numbers are dark green
- - the EMC mode is auto(((Auto))) -- the auto button has a light green
-   background
- - the backplotter has been turned on -- backplot(((backplot))) is
+ - the EMC mode is auto -- the auto button has a light green background
+ - the backplotter has been turned on -- backplot is
    visible in the pop-in window
  - the tool path from the program is showing in the display. 
 
@@ -90,8 +93,7 @@ View::
     
     Show_Split_Right;;
           changes the nature of the right hand column so that it shows both
-    mode
-        and pop-in information.
+    mode and pop-in information.
     
     Show_Mode_Full;;
          changes the right hand column so that the mode buttons or displays
@@ -294,7 +296,7 @@ to end your program with an acceptable code like %, M2, M30, or M60.
 ***********************************************************************
 
 
-=== MDI (((MDI)))
+=== MDI
 
 The MDI button or <F5> sets the Manual Data Input mode. This mode
 displays a single line of text for block entry and shows the currently
@@ -319,7 +321,7 @@ control.
 Since many of the keyboard keys are needed for entry, most of the
 bindings that were available in auto mode are not available here.
 
-=== [FEEDHOLD] -- [CONTINUE](((feedhold)))(((continue)))
+=== [FEEDHOLD] -- [CONTINUE]
 
 Feedhold is a toggle. When the EMC is ready to handle or is handling a
 motion command this button shows the feedhold label on a red
@@ -330,7 +332,7 @@ toggle between zero speed and whatever feed rate override was active
 before it was pressed. This button and the function that it activates
 is also bound to the pause button on most keyboards.
 
-=== [ABORT](((abort)))
+=== [ABORT]
 
 The abort button stops any motion when it is pressed. It also removes
 the motion command from the EMC. No further motions are cued up after
@@ -340,17 +342,17 @@ of the line that was executing when it was pressed. You can use this
 line number to restart the program after you have cleared up the
 reasons for pressing it.
 
-=== [ESTOP (((ESTOP)))]
+=== [ESTOP]
 
 The estop button is also a toggle but it works in three possible
 settings.
 
  -  When Mini starts up it will show a raised button with red background
-   with black letters that say “ESTOP PUSH.” This is the correct state of
+   with black letters that say 'ESTOP PUSH'. This is the correct state of
    the machine when you want to run a program or jog an axis. Estop is
    ready to work for you when it looks like this.
  -  If you push the estop button while a motion is being executed, you
-   will see a recessed gray button that says “ESTOPPED.” You will not be
+   will see a recessed gray button that says 'ESTOPPED'. You will not be
    able to move an axis or do any work from the Mini gui when the estop
    button displays this way. Pressing it with your mouse will return Mini
    to normal ready condition.
@@ -359,7 +361,7 @@ settings.
    Normally this only happens when <F1> estop has been pressed but <F2>
    has not been pressed.
 
-Joe Martin says, “When all else fails press a software [ESTOP].” This
+Joe Martin says, "When all else fails press a software [ESTOP]." This
 does everything that abort does but adds in a reset so that the EMC
 returns to the standard settings that it wakes up on. If you have an
 external estop circuit that watches the relevant parallel port or DIO
