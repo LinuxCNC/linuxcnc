@@ -59,12 +59,14 @@ This can be confusing at first how this works in incremental mode.
 For example if you have the following program you might expect it to
 be a square pattern.
 
-    F100 G1 @.5 ^90 
-    G91 @.5 ^90 
-    @.5 ^90
-    @.5 ^90
-    @.5 ^90
-    G90 G0 X0 Y0 M2
+----
+F100 G1 @.5 ^90 
+G91 @.5 ^90 
+@.5 ^90
+@.5 ^90
+@.5 ^90
+G90 G0 X0 Y0 M2
+----
 
 You can see from the following figure that the output is not what you
 might expect. Because we added 0.5 to the distance each time the 
@@ -76,12 +78,14 @@ image::images/polar01.png[]
 
 The following code will produce our square pattern.
 
-    F100 G1 @.5 ^90 
-    G91 ^90
-    ^90
-    ^90
-    ^90
-    G90 G0 X0 Y0 M2
+----
+F100 G1 @.5 ^90 
+G91 ^90
+^90
+^90
+^90
+G90 G0 X0 Y0 M2
+----
 
 As you can see by only adding to the angle by 90 degrees each time the
 end point distance is the same for each line.
@@ -187,7 +191,9 @@ It is an error if:
 (((G0 Rapid)))
 (((Rapid)))
 
-    G0 axes
+----
+G0 axes
+----
 
 For rapid linear (straight line) motion, program 'G0 'axes'', where
 all the axis words are optional. The 'G0' is optional if the current
@@ -210,7 +216,9 @@ It is an error if:
 
 (((G1 Linear Motion)))
 
-    G1 axes
+----
+G1 axes
+----
 
 For linear (straight line) motion at programed feed rate (for cutting
 or not), program 'G1 'axes'', where all the axis words are optional.
@@ -296,7 +304,9 @@ It is an error if:
 
 When the XY-plane is selected program:
 
-    G2 or G3 axes I- J-
+----
+G2 or G3 axes I- J-
+----
 
 The axis words are all optional except that at least one of X and Y
 must be used to program an arc of less than 360 degrees. I and J are
@@ -312,7 +322,9 @@ It is an error if:
 
 When the XZ-plane is selected program:
 
-    G2 or G3 axes I- K-
+----
+G2 or G3 axes I- K-
+----
 
 The axis words are all optional except that at least one of X and Z
 must be used to program an arc of less than 360 degrees. 
@@ -328,7 +340,9 @@ It is an error if:
 
 When the YZ-plane is selected program:
 
-    G2 or G3 axes J- K- 
+----
+G2 or G3 axes J- K- 
+----
 
 The axis words are all optional except that at least one of Y and Z
 must be used to program an arc of less than 360 degrees. J and K are
@@ -358,7 +372,9 @@ axis. In this case only an I offset is needed.
 
 The code for the example:
 
-    G2 X1 Y1 I1 F10
+----
+G2 X1 Y1 I1 F10
+----
 
 .G2 Example[[fig:G2-Example]]
 
@@ -372,8 +388,10 @@ offset is -0.5.
 
 The g code for the following example:
 
-    G2 X0 Y1 I1 J0.5 F25
-    G3 X0 Y0 I1 J-0.5 F25
+----
+G2 X0 Y1 I1 J0.5 F25
+G3 X0 Y0 I1 J-0.5 F25
+----
 
 .G2-G3 Example[[fig:G2/3-Example]]
 
@@ -381,7 +399,9 @@ image::images/g2-3.png[]
 
 Here is an example of a center format command to mill a helix:
 
-    G17 G2 X10 Y16 I3 J4 Z9
+----
+G17 G2 X10 Y16 I3 J4 Z9
+----
 
 That means to make a clockwise (as viewed from the positive z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -405,7 +425,9 @@ Deciphering the Error message 'Radius to end of arc differs from radius to start
 
 === Full Circles
 
-    G2 or G3 I- J- K-
+----
+G2 or G3 I- J- K-
+----
 
 To do a full 360 circle from the current location only program the I,
 J or K offset from the current location for the G2/G3. To program a 360
@@ -448,7 +470,9 @@ are even worse. Other size arcs (in the range tiny to 165 degrees or
 
 Here is an example of a radius format command to mill an arc: 
 
-    G17 G2 X10 Y15 R20 Z5
+----
+G17 G2 X10 Y15 R20 Z5
+----
 
 That means to make a clockwise (as viewed from the positive Z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -460,7 +484,9 @@ otherwise it is a helical arc.
 
 (((G4 Dwell)))
 
-    G4 P[seconds]
+----
+G4 P[seconds]
+----
 
 For a dwell, program G4 P- . This will keep the axes unmoving for the
 period of time in seconds specified by the P number.
@@ -473,7 +499,9 @@ It is an error if:
 
 (((G5.1 Quadratic B-spline)))
 
-    G5.1 Xn Yn I[X offset] J[Y offset]
+----
+G5.1 Xn Yn I[X offset] J[Y offset]
+----
 
 G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
 
@@ -503,21 +531,21 @@ weights.
 
 Sample NURBs Code
 
--------------------------------------------------
-    G0 X0 Y0
-    F10 
-    G5.2 X0 Y1 P1 L3
-         X2 Y2 P1
-         X2 Y0 P1
-         X0 Y0 P2
-    G5.3
-    / The rapid moves show the same path without the NURBs Block
-    G0 X0 Y1
-       X2 Y2
-       X2 Y0
-       X0 Y0
-    M2
--------------------------------------------------
+----
+G0 X0 Y0
+F10 
+G5.2 X0 Y1 P1 L3
+     X2 Y2 P1
+     X2 Y0 P1
+     X0 Y0 P2
+G5.3
+/ The rapid moves show the same path without the NURBs Block
+G0 X0 Y1
+   X2 Y2
+   X2 Y0
+   X0 Y0
+M2
+----
 
 .Sample NURBs Output
 
@@ -549,11 +577,9 @@ G8 is default at power up.
 
 (((G10 L1 Tool Table)))
 
-    G10 L1 P[tool number] R[radius] 
-        X[offset] Y[offset] Z[offset] 
-        A[offset] B[offset] C[offset] 
-        U[offset] V[offset] W[offset] 
-        I[frontangle] J[backangle] Q[orientation] 
+G10 L1 P[tool number] R[radius] X[offset] Y[offset] Z[offset] 
+A[offset] B[offset] C[offset] U[offset] V[offset] W[offset] 
+I[frontangle] J[backangle] Q[orientation] 
 
 Program a G10 L1 to set a tool table entry 
 from a program or the MDI window.  
@@ -571,10 +597,10 @@ see the <<cap:Lathe-Tool-Orientations>> diagram.
 
 (((G10 L2 Coordinate System)))
 
-    G10 L2 P[coordinate system] R[XY rotation about Z] 
-        X[offset] Y[offset] Z[offset] 
-        A[offset] B[offset] C[offset] 
-        U[offset] V[offset] W[offset] 
+G10 L2 P[coordinate system] R[XY rotation about Z] 
+X[offset] Y[offset] Z[offset] 
+A[offset] B[offset] C[offset] 
+U[offset] V[offset] W[offset] 
 
 The coordinate system is described in Section <<cha:Coordinate-System>>.
 
@@ -611,14 +637,20 @@ If it is currently active, the new coordinates take effect immediately.
 
 Examples:
 
-G10 L2 P1 X3.5 Y17.2::
-     Sets the origin of the first coordinate system (the one selected by 'G54') 
-    to be X=3.5 and Y=17.2. 
-    Because only X and Y are specified, the origin point is only moved in X and Y; 
-    the other coordinates are not changed.
+----
+G10 L2 P1 X3.5 Y17.2
+----
 
-G10 L2 P1 X0 Y0 Z0::
-     Sets the XYZ coordinates of the G54 origin to the unoffset origin.
+Sets the origin of the first coordinate system (the one selected by 'G54') 
+to be X=3.5 and Y=17.2. 
+Because only X and Y are specified, the origin point is only moved in X and Y; 
+the other coordinates are not changed.
+
+----
+G10 L2 P1 X0 Y0 Z0
+----
+
+Sets the XYZ coordinates of the G54 origin to the unoffset origin.
 
 .Set Coordinate System[[cap:Set-Coordinate-System]]
 
@@ -641,11 +673,11 @@ G10 L2 P1 X0 Y0 Z0::
 
 (((G10 L10 Set Tool Table)))
 
-    G10 L10 P[tool number] R[radius]
-        X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
-        A[set_curr_sys_to] B[set_curr_sys_to] C[set_curr_sys_to] 
-        U[set_curr_sys_to] V[set_curr_sys_to] W[set_curr_sys_to] 
-        I[frontangle] J[backangle] Q[orientation] 
+G10 L10 P[tool number] R[radius]
+X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
+A[set_curr_sys_to] B[set_curr_sys_to] C[set_curr_sys_to] 
+U[set_curr_sys_to] V[set_curr_sys_to] W[set_curr_sys_to] 
+I[frontangle] J[backangle] Q[orientation] 
 
 G10 L10 changes the tool table entry for tool P so that if the 
 tool offset is reloaded, with the machine in its current position 
@@ -661,11 +693,11 @@ It is an error if:
 
 (((G10 L11 Set Tool Table)))
 
-    G10 L11 P[tool number] R[radius]
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
-        I[frontangle] J[backangle] Q[orientation] 
+G10 L11 P[tool number] R[radius]
+X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
+A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
+U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
+I[frontangle] J[backangle] Q[orientation] 
 
 G10 L11 is just like G10 L10 except that instead of setting the entry
 according to the current offsets, it is set so that the current
@@ -685,10 +717,10 @@ It is an error if:
 
 (((G10 L20 Set Coordinate System)))
 
-    G10 L20 P[coordinate system] R[rotation about Z] 
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
+G10 L20 P[coordinate system] R[rotation about Z] 
+X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
+A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
+U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
 
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
@@ -780,7 +812,9 @@ It is an error if :
 
 (((G33 Spindle Synchronized Motion)))
 
-    G33 X- Y- Z- K-
+----
+G33 X- Y- Z- K-
+----
 
 For spindle-synchronized motion in one direction, code 'G33 X- Y- Z- K-' 
 where K gives the distance moved in XYZ for each revolution of the spindle. 
@@ -808,7 +842,9 @@ It is an error if:
 
 (((G33.1 Rigid Tapping)))
 
-    G33.1 X- Y- Z- K-
+----
+G33.1 X- Y- Z- K-
+----
 
 For rigid tapping (spindle synchronized motion with return), 
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved 
@@ -819,13 +855,13 @@ A rigid tapping move consists of the following sequence:
    the given ratio and starting with a spindle index pulse.
  - When reaching the endpoint, a command to reverse the spindle (e.g.,
    from clockwise to counterclockwise).
- - Continued synchronized motion *beyond* the specified end coordinate
+ - Continued synchronized motion beyond the specified end coordinate
    until the spindle actually stops and reverses.
  - Continued synchronized motion back to the original coordinate.
  - When reaching the original coordinate, 
    a command to reverse the spindle a second time 
    (e.g., from counterclockwise to clockwise).
- - Continued synchronized motion *beyond* the original coordinate 
+ - Continued synchronized motion beyond the original coordinate 
    until the spindle actually stops and reverses.
  - An *unsynchronized* move back to the original coordinate.
 
@@ -844,10 +880,12 @@ It is an error if:
 
 Example:
 
-    ;move to starting position
-    G0 X1.000 Y1.000 Z0.100
-    ;rigid tapping a 20 TPI thread
-    G33.1 Z-0.750 K0.05
+----
+;move to starting position
+G0 X1.000 Y1.000 Z0.100
+;rigid tapping a 20 TPI thread
+G33.1 Z-0.750 K0.05
+----
 
 == G38.x Straight Probe[[sec:G38.x-Straight-Probe]]
 
@@ -905,7 +943,7 @@ After unsuccessful probing, they are set to the coordinates of the programmed po
 Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed. 
 If the probing operation failed, G38.2 and G38.4 will signal an error 
 by posting an message onscreen if the selected GUI supports that. 
-(And by halting program execution? *FIXME* TODO ) 
+And by halting program execution. 
 
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of 
@@ -929,7 +967,9 @@ It is an error if:
 (((G41 Radius Compensation)))
 (((G42 Radius Compensation)))
 
-    G41 or G42 D[tool]
+----
+G41 or G42 D[tool]
+----
 
 To start tool radius compensation to the left of the part profile, use G41. 
 G41 starts cutter radius compensation to the left of the programmed line 
@@ -975,7 +1015,9 @@ It is an error if:
 (((G41.1 Dynamic Radius Compensation)))
 (((G42.1 Dynamic Radius Compensation)))
 
-    G41.1 or G42.1 D[diameter] <L[orientation]>
+----
+G41.1 or G42.1 D[diameter] <L[orientation]>
+----
 
 To turn cutter radius compensation on left, program 'G41.1 D- L-'. 
 
@@ -1112,16 +1154,18 @@ systems.
 (((Path Control)))
 (((Trajectory Control)))
 
-    G61 Exact Path Mode
-    G61.1 Exact Stop Mode
-    G64 Best Possible Speed
-    G64 P- (motion blending tolerance) Q- (naive cam tolerance) 
-
+.G61 Exact Path Mode
 G61 visits the programmed point exactly, even though that means 
 temporarily coming to a complete stop.
 
+.G61.1 Exact Stop Mode
+Same as G61
+
+G64 Best Possible Speed:
 G64 without P means to keep the  best speed possible, no matter how
 far away from the programmed point  you end up.
+
+.G64 P- (motion blending tolerance) Q- (naive cam tolerance)
 
 G64 P- Q- is a way to fine tune your system for best compromise
 between speed and accuracy. The P- tolerance means that the actual path
@@ -1146,17 +1190,18 @@ use the value of P-.
 
 (((G90, G91 Set Distance Mode)))
 
-    G90 is Absolute Distance Mode +
-    G91 is Incremental Distance Mode
-
 Interpretation of G Code can be in one of two distance modes: absolute
 or incremental.
+
+.G90 is Absolute Distance Mode
 
 To go into absolute distance mode, program 'G90'. In absolute 
 distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W) 
 usually represent positions in terms of the currently active coordinate 
 system. Any exceptions to that rule are described explicitly in 
 section <<sec:G81-G89>>. 
+
+.G91 is Incremental Distance Mode
 
 To go into incremental distance mode, program 'G91'. In incremental 
 distance mode, axis numbers usually represent 
@@ -1178,7 +1223,9 @@ G91.1 Incremental Distance Mode for I, J & K offsets.
 
 (((G92, G92.1, G92.2, G92.3 Offsets)))
 
-    G92 X- Y- Z- A- B- C- U- V- W-
+----
+G92 X- Y- Z- A- B- C- U- V- W-
+----
 
 See Section <<cha:Coordinate-System>> for an overview of coordinate
 systems.
@@ -1190,7 +1237,9 @@ motion), program 'G92 X- Y- Z- A- B- C- U- V- W-'  , where the axis
 words contain the axis numbers you want. All axis
 words are optional, except that at least one must be used. If an axis
 word is not used for a given axis, the coordinate on that axis of the
-current point is not changed. It is an error if:
+current point is not changed. 
+
+It is an error if:
 
  - all axis words are omitted.
 
@@ -1236,25 +1285,12 @@ program a G92.2 (to remove them - they are still stored).
 
 (((G93, G94, G95: Feed Rate Mode)))
 
-    G93 is Inverse Time Mode
-    G94 is Units per Minute Mode
-    G95 is Units per Revolution Mode.
-
 Three feed rate modes are recognized: units per minute, inverse time,
 and units per revolution. Program G94 to start the units per minute
 mode. Program G93 to start the inverse time mode. Program G95 to start
 the units per revolution mode.
 
-In units per minute feed rate mode, an F word is interpreted to mean
-the controlled point should move at a certain number of inches per
-minute, millimeters per minute, or degrees per minute, depending upon
-what length units are being used and which axis or axes are moving.
-
-In units per revolution mode, an F word is interpreted to mean the
-controlled point should move a certain number of inches per revolution
-of the spindle, depending on what length units are being used and which
-axis or axes are moving. G95 is not suitable for threading, for
-threading use G33 or G76.
+.G93 is Inverse Time Mode
 
 In inverse time feed rate mode, an F word means the move should be
 completed in [one divided by the F number] minutes. For example, if the
@@ -1264,6 +1300,22 @@ When the inverse time feed rate mode is active, an F word must appear
 on every line which has a G1, G2, or G3 motion, and an F word on a line
 that does not have G1, G2, or G3 is ignored. Being in inverse time feed
 rate mode does not affect G0 (rapid traverse) motions.
+
+.G94 is Units per Minute Mode
+
+In units per minute feed rate mode, an F word is interpreted to mean
+the controlled point should move at a certain number of inches per
+minute, millimeters per minute, or degrees per minute, depending upon
+what length units are being used and which axis or axes are moving.
+
+.G95 is Units per Revolution Mode
+
+In units per revolution mode, an F word is interpreted to mean the
+controlled point should move a certain number of inches per revolution
+of the spindle, depending on what length units are being used and which
+axis or axes are moving. G95 is not suitable for threading, for
+threading use G33 or G76.
+
 
 It is an error if:
 
@@ -1275,8 +1327,9 @@ It is an error if:
 
 (((G96, G97 Spindle Control Mode)))
 
-    G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode +
-    G97 is RPM Mode
+G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode
+
+G97 is RPM Mode
 
 Two spindle control modes are recognized: revolutions per minute, and
 CSS (constant surface speed). Program G96 D- S- to select constant
@@ -1302,7 +1355,9 @@ It is an error if:
 
 (((G73 Drilling Cycle Chip Break)))
 
-    G73 X- Y- Z- A- B- C- R- L- Q-
+----
+G73 X- Y- Z- A- B- C- R- L- Q-
+----
 
 The 'G73' cycle is intended for deep drilling or milling with chip breaking. 
 The retracts in this cycle cut off any long stringers (which are common 
@@ -1324,7 +1379,9 @@ It is an error if:
 
 (((G76 Threading)))
 
-    G76 P- Z- I- J- R- K- Q- H- E- L-
+----
+G76 P- Z- I- J- R- K- Q- H- E- L-
+----
 
 It is an error if:
 
@@ -1339,34 +1396,29 @@ It is an error if:
 
 image::images/g76-threads.png[]
 
-Drive Line::
-    A line through the initial X position parallel to the Z.
+[horizontal]
+Drive Line:: A line through the initial X position parallel to the Z.
 
-P-::
-    The 'thread pitch' in distance per revolution.
+P-:: The 'thread pitch' in distance per revolution.
 
-Z-::
-     The final position of threads. At the end of the cycle the tool will
+Z-:: The final position of threads. At the end of the cycle the tool will
     be at this Z position.
 
-I-::
-     The 'thread peak' offset from the 'drive line'. Negative 'I' values
+I-:: The 'thread peak' offset from the 'drive line'. Negative 'I' values
     are external threads, and positive 'I' values are internal threads.
     Generally the material has been turned
     to this size before the 'G76' cycle.
 
-J-::
-     A positive value specifying the 'initial cut depth'. The first
+J-:: A positive value specifying the 'initial cut depth'. The first
     threading cut will be 'J' beyond the 'thread peak' position.
 
-K-::
-     A positive value specifying the 'full thread depth'. The final
+K-:: A positive value specifying the 'full thread depth'. The final
     threading cut will be 'K' beyond the 'thread peak' position.
 
 Optional settings
 
-R-::
-     The 'depth degression'. 'R1.0' selects constant depth on successive
+[horizontal]
+R-:: The 'depth degression'. 'R1.0' selects constant depth on successive
     threading passes. 'R2.0' selects constant area. Values between 1.0 and
     2.0 select decreasing
     depth but increasing area. Values above 2.0 select decreasing area.
@@ -1374,29 +1426,23 @@ R-::
     number of passes to be used. (degression = a descent by stages or
     steps.)
 
-Q-::
-     The 'compound slide angle' is the angle (in degrees) describing to
+Q-:: The 'compound slide angle' is the angle (in degrees) describing to
     what extent successive passes should be offset along the drive line.
     This is used to cause one side of the tool to remove more material than
     the other. A positive 'Q' value causes the leading edge of the tool to
     cut more heavily.
     Typical values are 29, 29.5 or 30.
 
-H-::
-     The number of 'spring passes'. Spring passes are additional passes at
+H-:: The number of 'spring passes'. Spring passes are additional passes at
     full thread depth. If no additional passes are desired, program 'H0'.
 
-Tapered entry and exit moves can be programmed using 'E-' and 'L-'.
-
-E-::
-     Specifies the distance along the drive line used for the taper. The
+E-:: Specifies the distance along the drive line used for the taper. The
     angle of the taper will be so the last pass tapers to the thread crest
     over the distance specified with E.' E0.2'  will give a taper for the
     first/last 0.2 length units along the
     thread. For a 45 degree taper program E the same as K
 
-L-::
-      Specifies which ends of the thread get the taper. Program 'L0' for no
+L-:: Specifies which ends of the thread get the taper. Program 'L0' for no
     taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
      for both entry and exit tapers. Entry tapers will pause at the drive
     line to synchronize with the index pulse then feed in to the beginning
@@ -1431,8 +1477,10 @@ executed on any machine using the 'sim/lathe.ini' configuration.
 
 The following example shows the result of running this G-Code:
 
-    G0 Z-.5 X .2
-    G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+----
+G0 Z-.5 X .2
+G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+----
 
 The tool is in the final position after the G76 cycle is completed.
 You can see the entry path on the right from the Q29.5 and the exit
@@ -1561,7 +1609,9 @@ analogous.
 
 (((G81 Drilling Cycle)))
 
-    G81 (X- Y- Z-) or (U- V- W-) R- L-
+----
+G81 (X- Y- Z-) or (U- V- W-) R- L-
+----
 
 The 'G81' cycle is intended for drilling.
 
@@ -1569,11 +1619,13 @@ The 'G81' cycle is intended for drilling.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at traverse rate to clear Z. 
 
-*Example 1.* Suppose the current position is (1, 2, 3) and the
+Example 1 Suppose the current position is (1, 2, 3) and the
 XY-plane has been
 selected, and the following line of NC code is interpreted.
 
-    G90 G81 G98 X4 Y5 Z1.5 R2.8
+----
+G90 G81 G98 X4 Y5 Z1.5 R2.8
+----
 
 This calls for absolute distance mode ('G90') and OLD_Z retract mode
 ('G98') and calls for the 'G81'  drilling cycle to be performed once.
@@ -1587,11 +1639,13 @@ take place.
  . a feed parallel to the Z-axis to (4,5,1.5) 
  . a traverse parallel to the Z-axis to (4,5,3) 
 
-*Example 2.*  Suppose the current position is (1, 2, 3) and the
+Example 2  Suppose the current position is (1, 2, 3) and the
 XY-plane has been
 selected, and the following line of NC code is interpreted.
 
-    G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+----
+G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+----
 
 This calls for incremental distance mode ('G91') and OLD_Z retract
 mode ('G98') and calls for the 'G81'  drilling cycle to be repeated
@@ -1628,7 +1682,9 @@ The third repeat consists of 3 moves. The X position is reset to 13
 
 (((G82 Drilling Cycle Dwell)))
 
-    G82 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+G82 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
 
 The 'G82' cycle is intended for drilling with a dwell at the bottom of
 the hole.
@@ -1642,7 +1698,9 @@ the hole.
 
 (((G83 Peck Drilling)))
 
-    G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+----
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+----
 
 The 'G83' cycle (often called peck drilling) is intended for deep
 drilling or
@@ -1677,7 +1735,9 @@ behavior is undefined. See sections
 
 (((G85 Boring, No Dwell, Feed Out)))
 
-    G85 (X- Y- Z-) or (U- V- W-) R- L-
+----
+G85 (X- Y- Z-) or (U- V- W-) R- L-
+----
 
 The 'G85' cycle is intended for boring or reaming, but could be used
 for drilling or milling.
@@ -1690,7 +1750,9 @@ for drilling or milling.
 
 (((G86 Boring, Spindle Stop, Rapid Out)))
 
-    G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
 
 The 'G86' cycle is intended for boring. This cycle uses a P number
 for the number of seconds to dwell.
@@ -1725,7 +1787,9 @@ behavior is undefined.
 
 (((G89 Boring, Dwell, Feed Out)))
 
-    G89 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+G89 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
 
 The 'G89' cycle is intended for boring. This cycle uses a P number,
 where P specifies the number of seconds to dwell.
@@ -1739,9 +1803,10 @@ where P specifies the number of seconds to dwell.
 
 (((G98, G99 Canned Cycle Return)))
 
-   G98 Retract to the position that axis was in just before this series
-       of one or more contiguous canned cycles was started. +
-   G99 Retract to the position specified by the R word of the canned cycle. 
+G98 Retract to the position that axis was in just before this series
+of one or more contiguous canned cycles was started.
+
+G99 Retract to the position specified by the R word of the canned cycle. 
 
 When the spindle retracts during canned cycles, there
 are two options to indicate how it retracts: (1) Withdrawal perpendicular 
@@ -1962,7 +2027,7 @@ a M61 Qxx in the MDI window. One use is when you power up EMC with a
 tool currently in the spindle you can set that tool number without
 doing a tool change.
 
-    It is an error if:
+It is an error if:
 
  - Q- is not 0 or greater
 
@@ -2026,12 +2091,12 @@ M66::(((M66)))
  - The E- word specifies the analog input number. 
  - The L- word specifies the wait type:
 
-   0:: WAIT_MODE_IMMEDIATE - no waiting, returns immediately. 
+   0: WAIT_MODE_IMMEDIATE - no waiting, returns immediately. 
        The current value of the input is stored in parameter #5399
-   1:: WAIT_MODE_RISE - waits for the selected input to perform a rise event.
-   2:: WAIT_MODE_FALL - waits for the selected input to perform a fall event.
-   3:: WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
-   4:: WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
+   1: WAIT_MODE_RISE - waits for the selected input to perform a rise event.
+   2: WAIT_MODE_FALL - waits for the selected input to perform a fall event.
+   3: WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
+   4: WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
 
  -  The Q-word specifies the timeout in seconds for waiting. If the timeout is
    exceeded, the wait is interrupt, and the variable #5399 will be holding
@@ -2064,7 +2129,7 @@ output commands synchronized with motion.
 
 (((M68 Analog Aux Output Control)))
 
-To control an analog output immediately, program 'M68 E- Q-, ' where
+To control an analog output immediately, program 'M68 E- Q-', where
 the E word ranges from 0 to the default maximum of 3 and Q is
 the value to set. The number of I/O can be increased by using the
 num_aio parameter when loading the motion controller. See the 'EMC2 and
@@ -2098,17 +2163,20 @@ parport pin is not connected to anything in a HAL file.
 
 M101 (file name)
 
-    #!/bin/sh
-    # file to turn on parport pin 14 to open the collet closer
-    halcmd setp parport.0.pin-14-out True
-    exit 0
+----
+#!/bin/sh
+# file to turn on parport pin 14 to open the collet closer
+halcmd setp parport.0.pin-14-out True
+exit 0
+----
 
 M102 (file name)
-
-    #!/bin/sh
-    # file to turn off parport pin 14 to open the collet closer
-    halcmd setp parport.0.pin-14-out False
-    exit 0
+----
+#!/bin/sh
+# file to turn off parport pin 14 to open the collet closer
+halcmd setp parport.0.pin-14-out False
+exit 0
+----
 
 To pass a variable to a M1nn file you use the P and Q option like this:
 
@@ -2116,12 +2184,14 @@ To pass a variable to a M1nn file you use the P and Q option like this:
 
 In your M100 file it might look like this:
 
-    #!/bin/sh
-    voltage=$1
-    feedrate=$2
-    halcmd setp thc.voltage $voltage
-    halcmd setp thc.feedrate $feedrate
-    exit 0
+----
+#!/bin/sh
+voltage=$1
+feedrate=$2
+halcmd setp thc.voltage $voltage
+halcmd setp thc.feedrate $feedrate
+exit 0
+----
 
 = O Codes[[cha:O-Codes]]
 
@@ -2146,11 +2216,13 @@ inside the subroutine (the 'body') are not executed in
 order; instead, they are executed each time the subroutine is called
 with 'O- call'. 
 
-    O100 sub (subroutine to move to machine home)
-    G0 X0 Y0 Z0
-    O100 endsub
-    (many intervening lines)
-    O100 call
+----
+O100 sub (subroutine to move to machine home)
+G0 X0 Y0 Z0
+O100 endsub
+(many intervening lines)
+O100 call
+----
 
 Inside a subroutine, 'O- return'  can be executed. This immediately
 returns to the calling code, just
@@ -2169,7 +2241,9 @@ Because '1 2 3' is parsed as the number 123, the parameters must be
 enclosed in
 square brackets. The following calls a subroutine with 3 arguments:
 
-    O200 call [1] [2] [3]
+----
+O200 call [1] [2] [3]
+----
 
 Subroutine bodies may not be nested. They may only be called after
 they are defined. They may be called from other functions, and may call
@@ -2189,14 +2263,16 @@ The 'while loop' has two structures: while/endwhile, and do/while. In
 each case, the loop is exited when the 'while' condition evaluates to
 false.
 
-    (draw a sawtooth shape)
-    F100
-    #1 = 0
-    O101 while [#1 lt 10]
-    G1 X0
-    G1 Y[#1/10] X1
-    #1 = [#1+1]
-    O101 endwhile
+----
+(draw a sawtooth shape)
+F100
+#1 = 0
+O101 while [#1 lt 10]
+G1 X0
+G1 Y[#1/10] X1
+#1 = [#1+1]
+O101 endwhile
+----
 
 Inside a while loop, 'O- break' immediately exits the loop, and 'O-
 continue' immediately skips to the next evaluation of the 'while' 
@@ -2210,12 +2286,14 @@ it is false, it exits the loop.
 The 'if' conditional executes one group of statements if a condition
 is true and another if it is false.
 
-    (Set feed rate depending on a variable)
-    O102 if [#2 GT 5]
-    F100
-    O102 else
-    F200
-    O102 endif
+----
+(Set feed rate depending on a variable)
+O102 if [#2 GT 5]
+F100
+O102 else
+F200
+O102 endif
+----
 
 == Repeat
 (((Repeat)))
@@ -2225,20 +2303,24 @@ repeat/endrepeat the specified number of times. The example shows how
 you might mill a diagonal series of shapes starting at the present
 position.
 
-    (Mill 5 diagonal shapes)
-    G91 (Incremental mode)
-    O103 repeat [5]
-    ... (insert milling code here)
-    G0 X1 Y1 (diagonal move to next position)
-    O103 endrepeat
-    G90 (Absolute mode)
+----
+(Mill 5 diagonal shapes)
+G91 (Incremental mode)
+O103 repeat [5]
+... (insert milling code here)
+G0 X1 Y1 (diagonal move to next position)
+O103 endrepeat
+G90 (Absolute mode)
+----
 
 == Indirection
 (((Indirection)))
 
 The O-number may be given by a parameter or calculation.
 
-    O[#101+2] call
+----
+O[#101+2] call
+----
 
 == Computing values in O-words
 
@@ -2255,18 +2337,26 @@ your call and include a sub and endsub in the file. The file must be in
 the directory pointed to by PROGRAM_PREFIX. The file name can include
 lowercase letters, numbers, dash, and underscore only.
 
-    o<myfile> call (a named file)
+----
+o<myfile> call (a named file)
+----
+
 or
-    o123 call (a number file)
+
+----
+o123 call (a number file)
+----
 
 In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
-    myfile.ngc
-    o<myfile> sub
-    ...
-    o<myfile> endsub
-    M2
+----
+myfile.ngc
+o<myfile> sub
+...
+o<myfile> endsub
+M2
+----
 
 = Other Codes
 
@@ -2416,7 +2506,9 @@ message are expanded.
 For example: to print a named global variable to stderr (the default
 console window) add a line to your gcode like...
 
-    (print,endmill dia = #<_endmill_dia>)
+----
+(print,endmill dia = #<_endmill_dia>)
+----
 
 Inside the above types of comments, sequences like '#123' are replaced
 by the value of the parameter 123. Sequences like '#<named parameter>' 
