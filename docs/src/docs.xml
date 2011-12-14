@@ -315,7 +315,7 @@
 <doc name="gui/keystick_fr.html" title="L'interface textuelle KeyStick"/>
 <doc name="gcode/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
 <doc name="common/User_Concepts_fr.html" title="Concepts importantes pour l'utilisateur"/>
-<doc name="gcode/main_fr.html" title="Guide de r&eacute;f&eacute;rence du langage G-code d'EMC2"/>
+<doc name="gcode/gcode_fr.html" title="Guide de r&eacute;f&eacute;rence du langage G-code d'EMC2"/>
 <doc name="gcode/coordinates_fr.html" title="Les syst&egrave;mes de coordonn&eacute;es"/>
 <doc name="gcode/tool_compensation_fr.html" title="Les compensations d'outil"/>
 <doc name="lathe/lathe-user_fr.html" title="Informations sp&eacute;cifiques aux tours"/>

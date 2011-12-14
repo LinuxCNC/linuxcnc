@@ -208,7 +208,7 @@ DOC_SRCS := \
 	gcode/gcode.txt \
 	gcode/gcode_de.txt \
 	gcode/gcode_es.txt \
-	gcode/main_fr.txt \
+	gcode/gcode_fr.txt \
 	gcode/gcode_pl.txt \
 	gcode/machining_center_fr.txt \
 	gcode/mill_canned.txt \
