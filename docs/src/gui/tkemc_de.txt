@@ -15,12 +15,14 @@ image::images/tkemc.png[]
 == Getting Started
 
 To select TkEMC as the front-end for EMC2, edit the .ini file. In the
-section `[DISPLAY]` change the `DISPLAY` line to read
+section '[DISPLAY]' change the 'DISPLAY' line to read
 
-    DISPLAY = tkemc
+----
+DISPLAY = tkemc
+----
 
-Then, start EMC2 and select that ini file. The sample configuration
-`sim/tkemc.ini` is already configured to use TkEMC as its front-end.
+hen, start EMC2 and select that ini file. The sample configuration
+'sim/tkemc.ini' is already configured to use TkEMC as its front-end.
 
 When you start EMC2 with TkEMC, a window like the one in Figure 
 <<cap:TkEMC-Window>> is shown.
@@ -28,9 +30,9 @@ When you start EMC2 with TkEMC, a window like the one in Figure
 === A typical session with TkEMC
 
  . Start EMC2 and select a configuration file.
- . Clear the “E-STOP(((ESTOP)))” condition and turn the machine on (by
+ . Clear the 'E-STOP' condition and turn the machine on (by
    pressing F1 then F2).
- . “Home(((home)))” each axis.
+ . 'Home' each axis.
  . Load the file to be milled.
  . Put the stock to be milled on the table.
  . Set the proper offsets for each axis by jogging and either homing
@@ -50,11 +52,11 @@ The TkEMC window contains the following elements:
    start/stop spindle and other relevant I/O ;
  - Status bar for various offset related displays ;
  - Coordinate display area ;
- - A set of sliders which control “Jogging speed(((jog speed)))”, “Feed
-   Override(((feed override)))”, and “Spindle speed Override(((spindle
-   speed override)))” which allow you to increase or decrease those
+ - A set of sliders which control 'Jogging speed', 'Feed Override' 
+   , and 'Spindle speed Override'
+   which allow you to increase or decrease those
    settings ;
- - Manual data input text box (((MDI))); 
+ - Manual data input text box 'MDI'; 
  - Status bar display with active G-codes, M-codes, F- and S-words ;
  - Interpreter related buttons ;
  - A text display area that shows the G-code source of the loaded file.
@@ -63,18 +65,18 @@ The TkEMC window contains the following elements:
 
 From left to right, the buttons are:
 
- . Machine enable: “ESTOP(((ESTOP)))” / “ESTOP RESET” / “ON” 
- . Toggle mist coolant(((mist)))(((coolant)))
+ . Machine enable: 'ESTOP' / 'ESTOP RESET' / 'ON' 
+ . Toggle mist coolant
  . Decrease spindle speed
- .  Set spindle(((spindle))) direction “SPINDLE OFF” / “SPINDLE FORWARD” /
-   “SPINDLE REVERSE”
+ .  Set spindle direction 'SPINDLE OFF' / 'SPINDLE FORWARD' /
+   'SPINDLE REVERSE'
  . Increase spindle speed
  . Abort
 
 then on the second line:
 
- . Operation mode: “MANUAL(((Manual)))” / “MDI(((MDI)))” / “AUTO(((Auto)))”
- . Toggle flood coolant(((flood)))(((coolant)))
+ . Operation mode: 'MANUAL' / 'MDI' / 'AUTO'
+ . Toggle flood coolant
  . Toggle spindle brake control
 
 === Offset display status bar
@@ -93,20 +95,20 @@ the current axis TkEMC will use red letter to show that. (for example
 if an hardware limit switch is tripped).
 
 To properly interpret these numbers, refer to the radio boxes on the
-right. If the position is “Machine”, then the displayed number is in
-the machine coordinate system. If it is “Relative”, then the displayed
+right. If the position is 'Machine', then the displayed number is in
+the machine coordinate system. If it is 'Relative', then the displayed
 number is in the offset coordinate system. Further down the choices can
-be “actual” or “commanded”. Actual refers to the feedback coming from
-encoders (if you have a servo machine), and the “commanded” refers to
+be 'actual' or 'commanded'. Actual refers to the feedback coming from
+encoders (if you have a servo machine), and the 'commanded' refers to
 the position command send out to the motors. These values can differ
 for several reasons: Following error, deadband, encoder resolution, or
 step size. For instance, if you command a movement to X 0.0033 on your
 mill, but one step of your stepper motor is 0.00125, then the
-“Commanded” position will be 0.0033 but the “Actual” position will be
+'Commanded' position will be 0.0033 but the 'Actual' position will be
 0.0025 (2 steps) or 0.00375 (3 steps).
 
-Another set of radio buttons allows you to choose between “joint” and
-“world” view. These make little sense on a normal type of machine (e.g.
+Another set of radio buttons allows you to choose between 'joint' and
+'world' view. These make little sense on a normal type of machine (e.g.
 trivial kinematics), but help on machines with non-trivial kinematics
 like robots or stewart platforms. (you can read more about kinematics
 in the Integrator Manual).
@@ -126,11 +128,11 @@ image::images/tkemc-interp.png[]
 
 The buttons in the lower part of TkEMC (seen in Figure 
 <<cap:TkEMC-Interpreter>>) are used to control the execution of a
-program: “Open(((open)))” to load a program, “Verify(((verify)))” to
-check it for errors, “Run(((run)))” to start the actual cutting,
-“Pause(((pause)))” to stop it while running, “Resume(((resume)))” to
-resume an already paused program, “Step(((step)))” to advance one line
-in the program and “Optional Stop(((optional stop)))” to toggle the
+program: 'Open' to load a program, 'Verify' to
+check it for errors, 'Run' to start the actual cutting,
+'Pause' to stop it while running, 'Resume' to
+resume an already paused program, 'Step' to advance one line
+in the program and 'Optional Stop' to toggle the
 optional stop switch (if the button is green the program execution will
 be stopped on any M1 encountered).
 
@@ -145,38 +147,33 @@ show the current line.
 ==== Implicit keys
 
 TkEMC allows you to manually move the machine. This action is known as
-“jogging”. First, select the axis to be moved by clicking it. Then,
-click and hold the “+” or “-” button depending on the desired direction
+'jogging'. First, select the axis to be moved by clicking it. Then,
+click and hold the '+' or '-' button depending on the desired direction
 of motion. The first four axes can also be moved by the keyboard arrow keys 
-(X and Y), the PAGE UP and PAGE DOWN keys (Z) and the “[“ and “]“ keys (A/4th). 
+(X and Y), the PAGE UP and PAGE DOWN keys (Z) and the '[' and ']' keys (A/4th). 
 
-If “Continuous” is selected, the motion will continue as long as the
+If 'Continuous' is selected, the motion will continue as long as the
 button or key is pressed. If another value is selected, the machine
 will move exactly the displayed distance each time the button is
 clicked or the key is pressed. The available values are:
+'1.0000, 0.1000, 0.0100, 0.0010, 0.0001'
 
-[quote]
-________________________________________
-1.0000, 0.1000, 0.0100, 0.0010, 0.0001
-________________________________________
-
-
-By pressing “Home” or the HOME key, the selected axis will be homed.
+By pressing 'Home' or the HOME key, the selected axis will be homed.
 Depending on your configuration, this may just set the axis value to be
 the absolute position 0.0, or it may make the machine move to a
-specific home location through use of “home switches”. See the
+specific home location through use of 'home switches'. See the
 Integrator Manual for more information on homing.
 
-By pressing “Override Limits”, the machine will temporarily be
+By pressing 'Override Limits', the machine will temporarily be
 permitted to jog outside the limits defined in the .ini file. (Note: if
-“Override Limits” is active the button will be displayed using a red
+'Override Limits' is active the button will be displayed using a red
 color).
 
 .TkEMC Override Limits & Jogging increments example[[cap:Override-Limits]]
 
 image::images/tkemc-override-limits.png[]
 
-==== The “Spindle (((spindle)))” group
+==== The Spindle group
 
 The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
@@ -185,9 +182,9 @@ on the second row allows the spindle brake to be engaged or released.
 Depending on your machine configuration, not all the items in this
 group may have an effect.
 
-==== The “Coolant (((coolant)))” group
+==== The Coolant group
 
-The two buttons allow the “Mist” and “Flood” coolants to be turned on
+The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
 this group may appear.
 
@@ -208,8 +205,8 @@ command by pressing Enter.
 
 ==== Active G-Codes
 
-This shows the “modal codes” that are active in the interpreter. For
-instance, “G54” indicates that the “G54 offset” is applied to all
+This shows the 'modal codes' that are active in the interpreter. For
+instance, 'G54' indicates that the 'G54 offset' is applied to all
 coordinates that are entered.
 
 === Jog Speed 
@@ -222,7 +219,7 @@ number to be entered.
 === Feed Override
 
 By moving this slider, the programmed feed rate can be modified. For
-instance, if a program requests `F60`  and the slider is set to 120%,
+instance, if a program requests 'F60'  and the slider is set to 120%,
 then the resulting feed rate will be
 72. The text box with the number is clickable. Once clicked a popup
 window will appear, allowing for a number to be entered.
