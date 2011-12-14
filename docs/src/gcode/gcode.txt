@@ -1496,7 +1496,7 @@ current coordinate system.
 == Repeat Cycle
 
 The L number is optional and represents the number of repeats.
-latexmath:[L=0] is not allowed. If the repeat feature is used, it is
+L=0 is not allowed. If the repeat feature is used, it is
 normally used in incremental distance mode, so that the same sequence
 of motions is repeated in several equally spaced places along a
 straight line. When L- is greater than 1 in incremental mode with the
@@ -1507,9 +1507,8 @@ go-around (on the repetitions). Thus, if you program 'L10' , you will
 get 10 cycles. The first cycle will be distance X,Y from
 the original location. The R and Z positions do not change during the
 repeats. The L number is not sticky. In absolute distance mode,
-latexmath:[L>1] means 'do the same cycle in the same place several
-times', Omitting the L word is equivalent to specifying
-latexmath:[L=1].
+L>1 means 'do the same cycle in the same place several
+times', Omitting the L word is equivalent to specifying L=1.
 
 == Retract Mode
 
