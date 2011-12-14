@@ -30,8 +30,8 @@ A repeat feature has been implemented. The L word represents the
 number of repeats. If the repeat feature is used, it is normally used
 in incremental distance mode, so that the same sequence of motions is
 repeated in several equally spaced places along a straight line. EMC
-allows L > 1 in absolute distance mode to mean "do the same cycle in
-the same place several times." Omitting the L value is equivalent to
+allows L > 1 in absolute distance mode to mean 'do the same cycle in
+the same place several times.' Omitting the L value is equivalent to
 specifying L=1.
 
 When L>1 in incremental mode, the X and Y positions are determined by
@@ -46,7 +46,7 @@ repeat feature by placing a new L word on each line for which you want
 repeats.
 
 The height of the retract move at the end of each repeat (called
-"clear Z" in the descriptions below) is determined by the setting of
+'clear Z' in the descriptions below) is determined by the setting of
 the retract_mode: either to the original Z position (if that is above
 the R position and the retract_mode is G98, OLD_Z), or otherwise to the
 R position. (See G98/G99 below)
@@ -140,8 +140,8 @@ to the canned cycle.
 If you use G80 and do not set another modal motion code soon after,
 you may get one of the following error messages.
 
-`Cannot use axis commands with G80`
-`Coordinate setting given with G80`
+'Cannot use axis commands with G80'
+'Coordinate setting given with G80'
 
 These should serve as a reminder that you need to write in a new
 motion word.
@@ -292,7 +292,7 @@ bottom of the hole.
 The G83 cycle is intended for deep drilling or milling with chip
 breaking. The dwell in this cycle causes any long stringers (which are
 common when drilling in aluminum) to be cut off. This cycle takes a Q
-value which represents a "delta" increment along the Z-axis. Machinists
+value which represents a 'delta' increment along the Z-axis. Machinists
 often refer to this as peck drilling.
 
 1. Preliminary motion, as described above.
