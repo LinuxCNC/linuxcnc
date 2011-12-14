@@ -1420,6 +1420,34 @@ def _on_timer_tick(self,userdata=None):
 glib.timeout_add_seconds(1, self._on_timer_tick)
 ----------------------------------
 
+=== Setting HAL widget properties programmatically
+
+With glade, widget properties are typically set fixed while editing.
+You can, however, set widget properties at runtime, for instance from
+ini file values. This would typically be done in the handler
+initialisation code. Assuming a HAL Meter widget called `meter`, the
+meter's min and max values could be set dynamically from  ini file
+values:
+
+[source,python]
+----------------------------------
+import emc
+import os
+
+class HandlerClass:
+
+    def __init__(self, halcomp,builder,useropts):
+	self.builder = builder
+
+	inifile = emc.ini(os.getenv("INI_FILE_NAME"))
+	mmin = float(inifile.find("METER", "MIN") or 0.0)
+	mmax = float(inifile.find("METER", "MAX") or 100.0)
+
+        self.builder.get_object('meter').min = mmin
+        self.builder.get_object('meter').max = mmax
+----------------------------------
+
+
 === Examples, and rolling your own GladeVCP application
 
 Visit +emc2/configs/gladevcp+ for running examples and starters for your own projects.
