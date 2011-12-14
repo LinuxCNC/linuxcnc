@@ -2,7 +2,7 @@ Erste Schritte V0.1, {localdate}
 =================================
 The EMC Team
 
-:language: de
+:lang: de
 
 :masterdir: {indir}
 
@@ -10,9 +10,7 @@ The EMC Team
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf.txt[]
-
-include::common/translator-needed_de.txt[]
+include::common/overleaf_de.txt[]
 
 include::common/System_Requirements_de.txt[]
 
