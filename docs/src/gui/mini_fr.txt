@@ -1,9 +1,16 @@
-= L'interface MINI
+:lang: fr
+:toc:
 
-== Introduction  footnote:[Much of this chapter quotes from a 
+[[cha:Mini]]
+= L'interface graphique MINI
+
+== Introduction  
+
+footnote:[Much of this chapter quotes from a 
 chapter of the Sherline CNC operators manual.]
 
-.L'interface graphique Mini[[fig:startminif]]
+[[fig:startminif]]
+.L'interface graphique Mini
 image::images/mini01_fr.png[]
 
 Mini(((mini))) a été prévu pour être une interface graphique plein
@@ -18,19 +25,21 @@ instructions écrites par Joe Martin et Ray Henry.
 
 == L'écran
 
-.Affichage de Mini lors du fonctionnement d'EMC[[fig:runminif]]
-image::images/mini_fr.jpg[]
+[[fig:runminif]]
+.Affichage de Mini lors du fonctionnement d'EMC
+image:images/mini_fr.jpg[]
 
- L'écran de Mini est visible dans plusieurs sections, voir la figure
-<<fig:startminif>>. Il inclu une barre de menu, un jeu de boutons de
+L'écran de Mini est visible dans plusieurs sections, voir la figure
+ci-dessus. Il inclu une barre de menu, un jeu de boutons de
 contrôle juste en dessous et deux larges colonnes d'information
 montrant l'état de la machine et permettant à l'opérateur d'entrer des
 commandes ou des programmes.
 
-Quand on compare entre la figure <<fig:startminif>> et la figure 
-<<fig:runminif>> des différences apparaissent. Dans la seconde figure:
+Quand on compare <<fig:startminif, entre l'écran d'accueil>> et <<fig:runminif, 
+l'écran en cours de fonctionnement>>, des différences apparaissent. Sur la seconde
+image:
 
- - Chaque axe a été référencé sur son origine -- L'affichage est vert
+ - Chaque axe a été référencé sur son origine -- L'affichage de la visu est vert
    sombre
  - EMC est en mode auto(((Auto))) -- le bouton est vert clair
  - Le parcours d'outil a été activé -- le parcours (((parcours outil)))
@@ -53,7 +62,7 @@ possibilités qu'il offre.
 Le menu inclus chacune des sections et sous-sections suivantes:
 
 Programme::
-     ce menu inclus les deux fonctions «reset» et «quitter». Reset renvoie
+     ce menu inclus les deux fonctions *reset* et *quitter*. Reset renvoie
     EMC dans l'état dans lequel il était quand il à démarré. Certains items
     de conditions de démarrage comme les unités du programme peuvent être
     spécifiés dans le fichier ini. 
@@ -69,7 +78,7 @@ Vues::
         machine (absolues) ou en coordonnées pièce (relatives), si la
         position affichée est actuelle ou commandée et si l'unité et 
         le pouce le millimètre. Ce qui peut être modifié en agissant 
-        sur le menu «Réglages» décrit plus loin. 
+        sur le menu *Réglages* décrit plus loin. 
    
     Informations_outil;;
          cet item ajoute une ligne immédiatement sous l'afficheur principal,
@@ -127,7 +136,7 @@ Réglages::
          régle l'affichage principal pour qu'il affiche les valeurs de la
         position courante en incluant tous les offsets comme les origines
         pièces qui seraient actives. Pour plus de détails voir le chapitre
-        sur les «Systèmes de coordonnées».
+        sur les *Systèmes de coordonnées*.
 
 Informations::
      Indique diverses activités en affichant des valeurs dans la zône MESSAGES. 
@@ -168,22 +177,22 @@ droit de la souris.
 
 Sous la ligne de menu se trouve une ligne de boutons de contrôle. Ce
 sont les boutons principaux de l'interface. En utilisant ces boutons il
-est possible de changer de mode cycliquement entre «MANUEL» puis «AUTO»
-puis «MDI» (Manual Data Input). Ces boutons ont un fond vert clair
+est possible de changer de mode cycliquement entre *MANUEL* puis *AUTO*
+puis *MDI* (Manual Data Input). Ces boutons ont un fond vert clair
 quand le mode correspondant est actif.
 
-Il est également possible d'utiliser les boutons «VITESSE-0», 
-«ABANDON» et «A/U» pour contrôler les mouvements du programme.
+Il est également possible d'utiliser les boutons *VITESSE-0*, 
+*ABANDON* et *A/U* pour contrôler les mouvements du programme.
 
 === MANUEL (((Manuel)))
 
-Ce bouton, ou la touche «F3» placent EMC en mode Manuel et affiche un
+Ce bouton, ou la touche *F3* placent EMC en mode Manuel et affiche un
 jeu condensé de boutons que l'opérateur peut utiliser pour effectuer
 des commandes de mouvements manuels. Les labels des boutons de jog
 varient pour refléter l'axe actif. Quand en plus de ce mode manuel, la
 vue en mode complet est activée, les boutons de la broche et du
-lubrifiant sont visibles en plus de ceux de mouvement. La touche «i» ou
-«I» basculera entre jog en continu et jog par incréments. Presser cette
+lubrifiant sont visibles en plus de ceux de mouvement. La touche *i* ou
+*I* basculera entre jog en continu et jog par incréments. Presser cette
 touche plusieurs fois provoquera le changement cyclique de la taille de
 l'incrément de jog.
 
@@ -206,8 +215,8 @@ indique que l'axe X est l'axe actif. Il est l'axe cible pour les
 mouvements de jog faits par appui sur les boutons 'plus' ou 'moins'.
 Il est possible de changer l'axe actif en cliquant sur l'affichage 
 d'un autre axe. C'est également possible en mode manuel en pressant la 
-touche de son nom sur le clavier. La casse n'a pas d'importance «Y» ou 
-«y» donneront le focus à l'axe Y. «A» ou «a» le donneront à l'axe A. 
+touche de son nom sur le clavier. La casse n'a pas d'importance *Y* ou 
+*y* donneront le focus à l'axe Y. *A* ou *a* le donneront à l'axe A. 
 Pour aider à se rappeller quel est l'axe actif avant de faire un jog,
 son nom est indiqué sur les boutons de jog. 
 
@@ -216,13 +225,13 @@ que le bouton est maintenu pressé, si le jog est réglé sur 'continu' ,
 ou il peut se déplacer d'une valeur prédéfinie, quand il est réglé
 sur 'incrément' s. Il est aussi possible de faire un jog de l'axe
 actif en pressant 
-les touches «+» ou moins «-» du clavier. De nouveau, la casse n'a pas
+les touches *+* ou moins *-* du clavier. De nouveau, la casse n'a pas
 d'importance pour les jogs au clavier. Les deux petits boutons situés
 entre les deux gros du jog, permettent de choisir quel type de jog est
 souhaîté. Quand on est en mode incréments, les boutons de taille
 d'incréments sont accessibles. La sélection d'une taille d'incrément se
 fait par clic sur la case à cocher avec la souris ou cycliquement en
-pressant la touche «i» ou «I» sur le clavier. Le jog par incréments 
+pressant la touche *i* ou *I* sur le clavier. Le jog par incréments 
 présente quelques effets intéressants autant qu'inattendus. Si vous
 pressez le bouton de jog alors qu'un mouvement de jog est déjà en
 cours, la distance à laquelle il était lorsqu'est arrivée la commande
@@ -233,18 +242,18 @@ devez attendre que le premier soit terminé avant d'envoyer le second.
  La vitesse de jog est affichée au dessus du curseur. Il est possible
 de régler le curseur en cliquant dans la glissière du curseur, du côté
 où vous voulez son déplacement, ou en cliquant sur les boutons
-«Défault» ou «Rapide». Ces réglages n'affectent que les mouvements de
+*Défault* ou *Rapide*. Ces réglages n'affectent que les mouvements de
 jog en mode manuel. Tant qu'un mouvement de jog est en cours, un
 changement de la vitesse de jog est sans effet sur le jog. Par exemple,
 disons que vous avez réglé le jog par incréments de 10mm. Même si vous
-pressez le bouton «Jog», le déplacement de dix millimètres se finira à
+pressez le bouton *Jog*, le déplacement de dix millimètres se finira à
 la vitesse à laquelle il a commencé. 
 ________________________________________
 
 
 === AUTO (((Auto)))
 
-Quand le bouton Auto est pressé, ou «F4» sur le clavier, EMC passe
+Quand le bouton Auto est pressé, ou *F4* sur le clavier, EMC passe
 dans ce mode, un jeu de boutons traditionnels des opérations en auto
 est affiché et une petite fenêtre textuelle s'ouvre, montrant une
 partie du programme. Durant un usinage, la ligne active est affichée en
@@ -252,8 +261,8 @@ surbrillance blanche sur fond rouge.
 
 Dans le mode auto, beaucoup de touches sont liées aux contrôles. Par
 exemple, les touches numérotées au dessus du clavier sont liées aux
-réglages du correcteur de vitesse d'avance travail. Le «0» l'ajuste à
-100%, le «9» l'ajuste à 90% etc. D'autres touches fonctionnent de la
+réglages du correcteur de vitesse d'avance travail. Le *0* l'ajuste à
+100%, le *9* l'ajuste à 90% etc. D'autres touches fonctionnent de la
 même manière qu'avec l'interface TkEMC.
 
 .Mode Auto
@@ -261,8 +270,8 @@ même manière qu'avec l'interface TkEMC.
 image::images/miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
-Si l'opérateur veut les voir, il doit utiliser le menu «Informations ->
-G-codes actifs» et afficher ainsi la liste des codes modaux dans la
+Si l'opérateur veut les voir, il doit utiliser le menu *Informations ->
+G-codes actifs* et afficher ainsi la liste des codes modaux dans la
 zône de texte MESSAGES.
 
 Si un Arrêt d'Urgence ou un Abandon est pressé pendant un usinage, un
@@ -281,26 +290,26 @@ avec EMC. Au dessus de la fenêtre un jeu de boutons qui contrôlent ce
 qui se passe en mode auto. En dessous, la fenêtre montrant la partie du
 programme en cours d'exécution. Quand le programme est lancé, la ligne
 active s'affiche en surbrillance blanche sur fond rouge. Les trois
-premiers boutons, «Ouvrir», «Lancer» et «Pause» font ce que leurs noms
-indiquent. «Pause» stoppe le programme en cours d'exécution là où il
-est. Le bouton suivant, «Reprise», reprend le mouvement. Le résultat
-est le même si le bouton «Vitesse-0» était pressé au lieu du bouton
-«Pause», le mouvement est stoppé, «Pas à pas» reprend aussi le
+premiers boutons, *Ouvrir*, *Lancer* et *Pause* font ce que leurs noms
+indiquent. *Pause* stoppe le programme en cours d'exécution là où il
+est. Le bouton suivant, *Reprise*, reprend le mouvement. Le résultat
+est le même si le bouton *Vitesse-0* était pressé au lieu du bouton
+*Pause*, le mouvement est stoppé, *Pas à pas* reprend aussi le
 mouvement, mais il ne continue que jusqu'à la fin du bloc courant.
-Presser une nouvelle fois «Pas à pas» exécutera le mouvement du bloc
-suivant. Presser «Reprise» à ce moment là et l'interpréteur reviendra
-en arrière lire et relancer le programme. La combinaison entre «Pause» 
-et «Pas à pas» marche un peu comme un seul bloc dans plusieurs
-interpréteurs. Avec la différence que «Pause» ne laisse pas le
+Presser une nouvelle fois *Pas à pas* exécutera le mouvement du bloc
+suivant. Presser *Reprise* à ce moment là et l'interpréteur reviendra
+en arrière lire et relancer le programme. La combinaison entre *Pause* 
+et *Pas à pas* marche un peu comme un seul bloc dans plusieurs
+interpréteurs. Avec la différence que *Pause* ne laisse pas le
 mouvement se poursuivre jusqu'à la fin du bloc courant. Le correcteur
 de vitesse d'avance travail peut se révéler très pratique pour
 s'approchez de la matière pour un premièr usinage. Le placer sur 100%
 pour les déplacements rapides, le régler sur 10% et basculez entre
-«Vitesse-0» et 10% en utilisant le bouton «Pause». Quand vous êtes
+*Vitesse-0* et 10% en utilisant le bouton *Pause*. Quand vous êtes
 satisfait et que les choses se présentent bien, pressez le zéro à la
 droite du neuf en haut du clavier, et c'est parti. 
 
- Le bouton «Vérifier» passe le code dans l'interpréteur sans production
+ Le bouton *Vérifier* passe le code dans l'interpréteur sans production
 de mouvements. Si Vérifier trouve un problème il stoppe la lecture
 juste derrière le bloc posant problème et affiche un message. La
 plupart du temps vous serez en mesure de régler le problème avec votre
@@ -317,7 +326,7 @@ ________________________________________
 
 === MDI[[sub:MDI]](((MDI)))
 
-Le bouton MDI ou la touche «F5» activent le mode d'entrée de données
+Le bouton MDI ou la touche *F5* activent le mode d'entrée de données
 en manuel (Manual Data Input). Ce mode affiche un simple champ de
 saisie d'une ligne de texte et montre les codes modaux actuellement
 actifs dans l'interpréteur.
@@ -337,7 +346,7 @@ regarde dans la liste si G80 est actif. G80 stoppe tous les mouvements.
 Si il y est je me rappelle de mettre un bloc comme G00 X0 Y0 Z0. Dans
 le MDI, vous entrez du texte depuis le clavier, ainsi toutes les
 touches principales ne fonctionnent pas comme raccourcis clavier pour
-les commandes machine. «F1» engage l'Arrêt d'Urgence. 
+les commandes machine. *F1* engage l'Arrêt d'Urgence. 
 ________________________________________
 
 
@@ -345,19 +354,19 @@ Puisque les touches du clavier sont nécessaires à la saisie du texte,
 beaucoup des raccourcis clavier disponibles en mode auto ne le sont pas
 ici.
 
-=== «VITESSE-0» -- «CONTINUER»
+=== *VITESSE-0* -- *CONTINUER*
 
 Vitesse-0 est une bascule. Quand EMC est prêt pour exécuter, ou qu'il
 exécute une commande de mouvement, ce bouton affiche son label
-«VITESSE-0» sur fond rouge. Si Vitesse-0 a été pressé il affiche le
-label «CONTINUER». Utiliser ce bouton pour faire une pause dans un
+*VITESSE-0* sur fond rouge. Si Vitesse-0 a été pressé il affiche le
+label *CONTINUER*. Utiliser ce bouton pour faire une pause dans un
 mouvement présente l'avantage d'être capable de relancer le programme
 d'où il a été stoppé. Vitesse-0 bascule simplement entre vitesse zéro
 et la vitesse d'avance travail avec l'éventuel correcteur qui était
 actif au moment de l'arrêt. Ce bouton et la fonction qu'il active sont
 également liés à la touche pause de la plupart des claviers.
 
-=== «ABANDON»
+=== *ABANDON*
 
 Le bouton Abandon stoppe tous les mouvements quand il est pressé. Il
 désactive aussi la commande de marche d'EMC. Plus aucun mouvement ne
@@ -367,29 +376,29 @@ enregistre aussi le numéro de la ligne qui s'exécutait quand il a été
 pressé. Vous pouvez vous servir de ce numéro de ligne pour redémarrer
 le programme après avoir supprimé la raison de l'appui...
 
-=== «A/U»(((ESTOP)))
+=== *A/U*(((ESTOP)))
 
 Le bouton d'Arrêt d'Urgence est une bascule mais il a trois
 fonctionnements possibles.
 
- -  Au démarrage de Mini c'est un bouton avec le texte «A/U» écrit en noir
+ -  Au démarrage de Mini c'est un bouton avec le texte *A/U* écrit en noir
    sur fond rouge. C'est état de la machine est correct pour charger un
    programme ou faire un jog sur un axe. L'Arrêt d'Urgence est libéré
    quand il s'affiche dans cet état.
  -  Si vous pressez sur le bouton d'Arrêt d'Urgence pendant qu'un
-   mouvement est exécuté, le texte sur le bouton devient «A/U Engagé» sur
+   mouvement est exécuté, le texte sur le bouton devient *A/U Engagé* sur
    fond gris et le bouton s'enfonce. Plus aucun mouvement n'est possible
    et plus rien ne réagi sur l'interface Mini tant que l'Arrêt d'Urgence
    est dans cet état. Le presser à nouveau à la souris le fera repasser en
    conditions normales de fonctionnement.
  -  Un troisième état est encore possible. Un bouton enfoncé portant le
-   texte «A/U Libéré» sur fond vert signifie que l'A/U a bien été libéré
+   texte *A/U Libéré* sur fond vert signifie que l'A/U a bien été libéré
    mais que la machine n'a pas été mise en marche. Normalement cet état
    apparaît quand l'A/U était libéré mais que la touche Marche Machine
-   «F2» a été pressée.
+   *F2* a été pressée.
 
-Joe Martin disait, «Quand tout le reste a échoué, pressez 
-un 'Arrêt d'Urgence' software.» Si vous avez un circuit externe qui 
+Joe Martin disait, *Quand tout le reste a échoué, pressez 
+un 'Arrêt d'Urgence' software.* Si vous avez un circuit externe qui 
 gère l'A/U en surveillant une broche du port parallèle ou celle 
 d'une carte d'entrées/sorties, un arrêt d'urgence software pourra 
 couper la puissance sur les moteurs.
@@ -404,7 +413,7 @@ même, on est prêt pour relancer le programme. Si on renvoie l'outil à
 la même place ou il était avant, EMC va fonctionner parfaitement. Il
 est aussi possible de se déplacer sur la ligne suivante ou précédente
 de celle ou c'est produit l'abandon. Si vous pressez le bouton
-«Arrière» ou «Avant» vous voyez une ligne en surbrillance bleue
+*Arrière* ou *Avant* vous voyez une ligne en surbrillance bleue
 montrant l'écart entre la ligne sur laquelle l'abandon s'est produit
 (restée en surbrillance rouge) et la ligne à laquelle EMC va
 redémarrer. En réfléchissant à ce qui va se produire au moment de la
@@ -412,7 +421,7 @@ reprise vous serez en mesure de placer l'arête de l'outil là où la
 reprise pourra se faire de manière acceptable. Vous aurez peut être à
 solutionner certaines difficultés comme celles créées par les
 compensations de rayon d'outil le long d'une ligne diagonale et vous
-devrez être sûr de vous avant de presser sur le bouton «Reprise». 
+devrez être sûr de vous avant de presser sur le bouton *Reprise*. 
 ________________________________________
 
 
@@ -436,7 +445,7 @@ couleur des afficheurs est importante.
    points d'origine.
 
 Le type de position affichée peut varier, selon les options choisies
-dans le menus «Réglages». Les réglages par défaut, ou de démarrage,
+dans le menus *Réglages*. Les réglages par défaut, ou de démarrage,
 peuvent être changés dans le fichier ini pour correspondre à vos
 besoins.
 
@@ -469,13 +478,13 @@ d'outil par exemple, vous pouvez aussi ajouter une ligne de code dans
 le programme qui s'affichera sur l'écran, dans la boîte de messages. Un
 exemple pourrait être: (msg, Montez l'outil N°3 puis pressez Reprise).
 Cette ligne de code, incluse dans un programme, va 
-afficher «Montez l'outil 3 puis pressez Reprise» dans la boîte 
+afficher *Montez l'outil 3 puis pressez Reprise* dans la boîte 
 de messages. Le mot msg, (avec la virgule) est la commande qui fait 
 apparaître le commentaire, sans 'msg,' le message ne serait pas affiché.
 
 Pour effacer les messages cliquer simplement sur le bandeau
---MESSAGES-- au dessus du bloc-notes ou au clavier, presser «m» tout en
-maintenant la touche «Alt» appuyée.
+--MESSAGES-- au dessus du bloc-notes ou au clavier, presser *m* tout en
+maintenant la touche *Alt* appuyée.
 
 == Colonne de droite
 
@@ -505,7 +514,7 @@ et de soumettre celui-ci à l'interpréteur d'EMC depuis le même menu. Il
 est possible de travailler sur un fichier ouvert dans cet éditeur puis
 de l'enregistrer et de le recharger si EMC est en mode Auto. Si vous
 avez lancé un fichier et que vous avez besoin de l'éditer, ce fichier
-sera placé dans l'éditeur quand vous cliquez sur le bouton «Editeur» du
+sera placé dans l'éditeur quand vous cliquez sur le bouton *Editeur* du
 menu.
 
 === Parcours d'outil(((trace d'outil )))
@@ -514,9 +523,9 @@ menu.
 
 image::images/minibkplot_fr.png[]
 
- Le bouton «Parcours d'outil» du menu, affiche un tracé produit par le
+ Le bouton *Parcours d'outil* du menu, affiche un tracé produit par le
 cheminement de l'outil pendant l'usinage. Cette trace est affichable
-selon plusieurs plans et en «3-D» qui est le mode par défaut. Les choix
+selon plusieurs plans et en *3-D* qui est le mode par défaut. Les choix
 sont affichés au dessus et à droite de cette fenêtre. Si l'usinage est
 déjà en cours depuis un certain temps quand cette fenêtre est activée,
 il lui faudra un peu de temps pour recalculer la vue du parcours.
@@ -526,8 +535,8 @@ l'angle depuis lequel l'opérateur voit le tracé du parcours d'outil. En
 dessous, une série de curseurs permettent de modifier les angles et la
 taille de la vue. Il est possible de contrôler les modifications en
 regardant l'attitude de la petite pyramide. Les modifications ne
-prendront effet qu'après appui sur le bouton «Rafraîchir». Le bouton
-«Reset» efface toutes les traces du parcours affiché et prépare la
+prendront effet qu'après appui sur le bouton *Rafraîchir*. Le bouton
+*Reset* efface toutes les traces du parcours affiché et prépare la
 fenêtre pour un nouveau lancement du programme, il conserve toutefois
 les orientations et le niveau de zoom actuellement définis.
 
@@ -546,7 +555,7 @@ enregistrer un chemin d'outil sur une longue période de temps.
 
 La page des outils permet d'ajuster la longueur et le diamètre des
 outils, ces valeurs deviennent effectives dès l'appui sur la touche
-«Entrée». Il est nécessaire de définir les paramètres des outils avant
+*Entrée*. Il est nécessaire de définir les paramètres des outils avant
 de lancer le programme. Les offsets d'outils ne peuvent pas être
 modifiés une fois le programme démarré ni quand il est en pause.
 
@@ -554,14 +563,14 @@ modifiés une fois le programme démarré ni quand il est en pause.
 
 image::images/minitool_fr.png[]
 
-Les boutons «Ajouter un outil» et «Enlever le dernier outil» portent
+Les boutons *Ajouter un outil* et *Enlever le dernier outil* portent
 sur la fin de la liste des outils de sorte que l'ajout d'outils
 s'effectuent vers le bas. Quand un nouvel outil est ajouté, il est
 utilisable dans le programme avec la commande G-code habituelle. Le
 nombre maximum d'outils est de 32 dans le fichier de configuration
 d'EMC mais vous serez arrivé au bout des possibilités d'affichage de
-Mini bien avant celà. A la place vous pouvez utiliser le «menu» ->
-«Vues» -> «Afficher dans toute la fenêtre» pour voir plus d'outils si
+Mini bien avant celà. A la place vous pouvez utiliser le *menu* ->
+*Vues* -> *Afficher dans toute la fenêtre* pour voir plus d'outils si
 nécessaire.
 
 === Page des offsets
@@ -578,15 +587,15 @@ position d'apprentissage.
 image::images/minioffsets_fr.png[]
 
  Il est également possible d'utiliser une pinnule puis d'ajouter le
-rayon et la longueur par le bouton «Apprentissage». Pour celà, il peur
+rayon et la longueur par le bouton *Apprentissage*. Pour celà, il peur
 être nécessaire d'ajouter ou de soustraire le rayon de la pinnule selon
-la surface qui est touchée. C'est la case à cocher «Soustraire» ou
-«Ajouter» qui permet ce choix.
+la surface qui est touchée. C'est la case à cocher *Soustraire* ou
+*Ajouter* qui permet ce choix.
 
-Le bouton «Tous les Gxx à zéro» enléve tous les décalages du système
+Le bouton *Tous les Gxx à zéro* enléve tous les décalages du système
 courant visibles sur l'écran mais ne modifie pas les variables dans le
-fichier tant que le bouton «écrire et recharger» n'est pas pressé. Le
-bouton «écrire et recharger» est à presser pour valider et recharger
+fichier tant que le bouton *écrire et recharger* n'est pas pressé. Le
+bouton *écrire et recharger* est à presser pour valider et recharger
 tous les changements effectués sur les valeurs des systèmes de
 coordonnées.
 

@@ -1,18 +1,26 @@
 Getting Started V2.5, {localdate}
 =================================
-The EMC Team
-
-:language: en
+:lang: en
 
 :masterdir: {indir}
 
+The EMC Team
+
+:leveloffset: 0
+
+= EMC2 Introduction
+
 :leveloffset: 1
 
-image::common/emc2-intro.*[]
+image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
+:leveloffset: 0
+
+= Getting Started
+
+:leveloffset: 1
 
 include::common/System_Requirements.txt[]
 

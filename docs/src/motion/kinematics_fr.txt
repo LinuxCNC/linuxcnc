@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = La cinématique dans EMC2
 
 == Introduction
@@ -52,7 +55,12 @@ machines le passage, du plan de l'espace Cartésien (le programme
 G-code) au plan de l'espace articulation (l'actuateur actuel de la
 machine), est trivial. C'est un simple plan 1:1:
 
-    pos->tran.x = joints[0];
+    pos->tran.x = joints[0]; 
+    pos->tran.y = joints[1]; 
+    pos->tran.z = joints[2]; 
+    pos->a = joints[3]; 
+    pos->b = joints[4]; 
+    pos->c = joints[5];
     
 Dans l'extrait de code ci-dessus, nous pouvons voir comment le plan
 est fait: la position X est identique avec la articulation 0, Y avec la
@@ -61,7 +69,12 @@ directe (une transformation avant), tandis que dans l'extrait de code
 suivant il est fait référence à une cinématique inverse (ou une
 transformation inverse):
 
-    joints[0] = pos->tran.x;
+    joints[0] = pos->tran.x; 
+    joints[1] = pos->tran.y; 
+    joints[2] = pos->tran.z; 
+    joints[3] = pos->a; 
+    joints[4] = pos->b; 
+    joints[5] = pos->c;
 
 Comme on peut le voir, c'est assez simple de faire la transformation
 d'une machine à cinématique banale (ou Cartésienne). Cela devient un
@@ -91,7 +104,7 @@ version simplifiée de l'hexapode).
 
 .Définir un bipode[[cap:Bipod-setup]]
 
-image::bipod.png[]
+image::images/bipod.png[]
 
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
 placés sur un mur, à cet appareil un mobile est suspendu par des fils.
@@ -118,43 +131,50 @@ Cartésien nous allons utiliser quelques règles de trigonomètrie (le
 triangle rectangle déterminé par les points (0,0), (Dx,0), (Dx,Dy) et
 le triangle rectangle (Dx,0), (Bx,0) et (Dx,Dy).
 
-Nous pouvons voir aisément que latexmath:[$AD^{2}=x^{2}+y^{2}$], de
-même que latexmath:[$BD^{2}=(Bx-x)^{2}+y^{2}$].
+Nous pouvons voir aisément que *AD^2^=x^2^+y^2^*, de même que *BD^2^=(Bx-x)^2^+y^2^*.
 
-Si nous soustrayons l'un de l'autre nous aurons:
+Si nous soustrayons l'un de l'autre nous aurons: 
+*AD^2^-BD^2^=x^2^+y^2^-x^2^+2*x*Bx-Bx^2^-y^2^*
 
-latexmath:[[AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]]
+et par conséquent: *x=(AD^2^-BD^2^+Bx^2^)/(2*Bx)*
 
-et par conséquent:
+De là nous calculons: *y=sqrt(AD^2^-x^2^)*
 
-latexmath:[[x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]]
-
-De là nous calculons:
-
-latexmath:[[y=\sqrt{AD^{2}-x^{2}}\]]
 
 Noter que le calcul inclus la racine carrée de la différence, mais
-qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnées
+qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnée
 Cartésienne pour la position de cette articulation, alors la position est
 dite singulière. Dans ce cas, la cinématique inverse retourne -1.
 
 Traduction en code:
-
-    double AD2 = joints[0] * joints[0];
+----
+    double AD2 = joints[0] * joints[0]; 
+    double BD2 = joints[1] * joints[1]; 
+    double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx); 
+    double y2 = AD2 - x * x; 
+    if(y2 < 0) return -1; 
+    pos->tran.x = x; 
+    pos->tran.y = sqrt(y2); 
     return 0;
+----
 
 === Transformation inverse[[sec:Inverse-transformation]]
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:
 
-latexmath:[[AD=\sqrt{x^{2}+y^{2}}\]]
+*AD=sqrt(x^2^+y^2^)*
 
-latexmath:[[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
+*BD=sqrt((Bx-x)^2^+y^2^)*
 
 ou traduite en code:
-
-    double x2 = pos->tran.x * pos->tran.x;
+----
+    double x2 = pos->tran.x * pos->tran.x; 
+    double y2 = pos->tran.y * pos->tran.y; 
+    joints[0] = sqrt(x2 + y2); 
+    joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
+    return 0;
+----
 
 == Détails d'implémentation
 

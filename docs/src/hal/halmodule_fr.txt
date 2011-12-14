@@ -1,15 +1,17 @@
-= Créer des composants de l'espace utilisateur Python avec les modules de 'hal'
+:lang: fr
+:toc:
 
-== Utilisation de base
+= Créer des composants de l'espace utilisateur 
+
+== Utilisation de base en Python
 
 Un composant de l'espace utilisateur commence par créer ses pins et
-ses paramètres, puis il entre dans une boucle de laquelle il va
+ses paramètres, puis il entre dans une boucle dans laquelle il va
 positionner périodiquement toutes ses sorties en fonction de ses
 entrées. Le composant suivant, un passe-tout, copie la valeur vue sur
 ses pins d'entrée (`passe_tout.in`) vers ses pins de sortie
 (`passe_tout.out`) approximativement une fois par seconde.
-
-----------------------------------------------------------
+----
 #!/usr/bin/python
 import hal, time
 h = hal.component("passe_tout")
@@ -19,10 +21,10 @@ h.ready()
 try:
     while 1:
         time.sleep(1)
-        h[’out’] = h[’in’]
+        h['out'] = h['in']
 except KeyboardInterrupt:
     raise SystemExit
-----------------------------------------------------------
+----
 
 Copier le listing précédent dans un fichier nommé `passe_tout`, le
 rendre exécutable par un `chmod +x` et le placer dans son `$PATH`. 
@@ -87,7 +89,7 @@ nom suffixe, type de paramètre et direction du paramètre.
 
 .Noms des options de HAL
 
-[width="90%", options="header"]
+[width="95%", options="header"]
 |========================================
 |*Types de Pin et Paramètre:* | HAL_BIT | HAL_FLOAT | HAL_S32 | HAL_U32
 |*Directions des pins:* | HAL_IN | HAL_OUT | HAL_IO | 

@@ -2,13 +2,13 @@ Primeros pasos V0.1, {localdate}
 =================================
 The EMC Team
 
-:language: es
+:lang: es
 
 :masterdir: {indir}
 
 :leveloffset: 1
 
-image::common/emc2-intro.*[]
+image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 

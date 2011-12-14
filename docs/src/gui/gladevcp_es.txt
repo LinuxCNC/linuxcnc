@@ -166,7 +166,7 @@ GladeVCP Programming>> section.
 [[gladevcp:Prerequisites]]
 === Prerequisite: Glade installation
 To view or modify Glade UI files, you need glade installed - it is not
-needed just to run a GladeVCP panel. If the glade command is ḿissing,
+needed just to run a GladeVCP panel. If the glade command is missing,
 install it with the command:
 
  $ sudo apt-get install glade
@@ -256,7 +256,7 @@ SUBROUTINE_PATH = ../gladevcp/nc_files/
 The HAL component name of a GladeVCP application started with the  the GLADEVCP option is fixed:  +gladevcp+.
 The command line actually run by Axis in the above configuration is as follows:
 
- halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments to GLADEVCP=>
+ halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments to GLADEVCP>
 
 This means you may add arbitrary gladevcp options here, as long as
 they dont collide with the above command line options.

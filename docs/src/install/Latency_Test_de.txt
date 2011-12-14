@@ -47,7 +47,7 @@ You should see something like this:
 
 .HAL Latency Test
 
-image::images/latency.png[]
+image::../config/images/latency.png[]
 
 While the test is running, you should "abuse" the computer. 
 Move windows around on the screen. Surf the web. Copy some large files 
@@ -60,7 +60,7 @@ the latency test checks to see what the worst case numbers are.
 Do not run EMC2 or Stepconf while the latency test is running.
 
 The important numbers are the "max jitter". 
-In the example above, that is 7555 nanoseconds, or 7.555 microseconds. 
+In the example above, that is 9075 nanoseconds, or 9.075 microseconds. 
 Record this number, and enter it in Stepconf when it is requested.
 
 In the example above, latency-test only ran for a few seconds. 

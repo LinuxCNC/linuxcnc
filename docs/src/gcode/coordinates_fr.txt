@@ -1,19 +1,22 @@
-= Systèmes de coordonnées et décalage G92[[cha:Systemes-de-coordonnees]]
+:lang: fr
+:toc:
+
+= Systèmes de coordonnées et décalages[[sec:Systemes-de-coordonnees]]
 
 (((Systèmes de coordonnées)))
 
 == Introduction
 
-Vous avez vu comme il est pratique d'utiliser la compensation de
-longueur d'outil, elle évite au programmeur d'avoir à connaitre en tout
-temps la hauteur de l'outil quand il écrit un programme. De la même
-manière, il est très intéressant d'utiliser un point de référence sur
-le brut ou la pièce et de faire travailler le programme à partir de ce
-point, sans avoir à tenir compte d'où est placée la pièce sur la
-machine pendant l'usinage.
+Dans ce chapitre, nous allons tenter de démystifier les systèmes de coordonnées.
+C'est une notion capitale pour maitriser le fonctionnement d'une machine CNC, sa
+configuration et son utilisation.
 
-Ce chapitre va introduire les décalages et comment ils sont utilisés
-par EMC. Ce qui inclus:
+Nous montrerons également, qu'il est très intéressant d'utiliser un point de 
+référence sur le brut ou la pièce et de faire travailler le programme à partir 
+de ce point, sans avoir à tenir compte d'où est placée la pièce sur la
+machine pendant l'usinage.
+Ce chapitre va donc introduire les décalages et comment ils sont utilisés
+par EMC2:
 
  - Les coordonnées machine.(G53)(((G53))) 
  - Les neuf décalages d'origine pièce.(G54 à G59.3)(((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3))) 
@@ -38,37 +41,37 @@ zone de travail et accéder à la pièce dans l'étau.
 G53 est une commande non modale. Elle doit être utilisée sur chaque
 ligne où un mouvement basé sur les coordonnées machine est souhaité.
 
+[[fig:decalages-ilots]]
 == Décalages pièce (G54 à G59.3).(((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3)))
 
 image::images/offsets.png[]
 
-.Décalages pour 8 ilots[[fig:decalages-ilots]]
+.Décalages pour 8 ilots
 
-Note du tradtucteur: le terme anglais fixture, souvent rencontré, signifie porte-pièce.
+footnote: [Note du traducteur: le terme anglais fixture, souvent rencontré, signifie porte-pièce.]
 
 Le décalage d'origine est utilisé pour séparer le point de référence
 de la pièce, de l'origine machine, créant ainsi un système de
 coordonnées (relatif), propre à chaque pièce et séparé du système de
 coordonnées machine (absolu). Il permet, entre autre, dans le cas de
-pièces multiples mais semblables, de créer en décalant ses origine, le
+pièces multiples mais semblables, de créer en décalant ses origines, le
 système de coordonnées de chaque pièce, le programme restant le même.
 Un cas typique d'utilisation de cette fonctionnalité, pour usiner huit
-ilots identiques sur la même pièce est illustré sur la figure 
-<<fig:decalages-ilots>>
+ilots identiques sur la même pièce, est illustré sur la figure.
 
 Les valeurs des décalages sont enregistrées dans le fichier VAR qui
-est requis par le fichier INI durant le démarrage d'EMC. Dans l'exemple
-ci-dessous qui utilise (((G55)))G55 la valeur de chacun des axes de G55
+est requis par le fichier INI durant le démarrage d'EMC2. Dans l'exemple
+ci-dessous, qui utilise (((G55)))G55, la valeur de chacun des axes de G55
 est enregistrée dans une variable numérotée.
 
--------------------
-5241  0.000000
-5242  0.000000
-5243  0.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 0.000000
+|5242 | 0.000000
+|5243 | 0.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 Dans le schéma d'un fichier VAR, la première variable contient la
 valeur du décalage de l'axe X, la seconde variable le décalage de l'axe
@@ -77,18 +80,18 @@ ce genre pour chacun des décalages pièce.
 
 Chacune des interfaces graphiques offre un moyen de fixer les valeurs
 de ces décalages. Vous pouvez également définir ces valeurs en
-modifiant le fichier VAR lui-même, puis faire un [reset], pour qu' EMC
+modifiant le fichier VAR lui-même, puis faire un [reset], pour qu' EMC2
 lise les nouvelles valeurs. Pour notre exemple, nous allons éditer
 directement le fichier pour que G55 prenne les valeurs suivantes:
 
--------------------
-5241  2.000000
-5242  1.000000
-5243 -2.000000
-5244  0.000000
-5245  0.000000
-5246  0.000000
--------------------
+|==============
+|5241 | 2.000000
+|5242 | 1.000000
+|5243 |-2.000000
+|5244 | 0.000000
+|5245 | 0.000000
+|5246 | 0.000000
+|==============
 
 Vous pouvez voir que les positions zéro de G55 sont passées en X = 2, 
 Y = 1, et Z = -2 éloignées donc de l'origine absolue (machine).
@@ -98,14 +101,14 @@ ligne de programme décalera le point de référence zéro, l'origine, vers
 les valeurs enregistrées. La ligne suivante décalera chacun des axes
 vers sa nouvelle position d'origine. Contrairement à G53, les commandes
 G54 à G59.3 sont modales. Elles agissent sur toutes les lignes de
-g-code du programme après qu'une ait été rencontrée. Voyons le
+G-code du programme après qu'une ait été rencontrée. Voyons le
 programme qui pourrait être écrit à l'aide de la figure
-<<fig:decalages-ilots>>, il suffira d'un seul point de référence pour
+<<fig:decalages-ilots, des décalages d'ilots>>, il suffira d'un seul point de référence pour
 chacune des pièces pour faire tout le travail. Le code suivant est
 proposé comme exemple pour faire un rectangle, il utilisera les
 décalages G55 que nous avons expliqué ci-dessus.
 
--------------------
+----
 G55 G0 X0 Y0 Z0
 G1 F2 Z-0.2000
 X1
@@ -115,7 +118,7 @@ Y0
 G0 Z0
 G54 X0 Y0 Z0
 M2
--------------------
+----
 
 “Mais,” dites vous, “pourquoi y a-t-il un G54 vers la fin ?” C'est une
 pratique courante de quitter le système de coordonnées G54 avec
@@ -126,7 +129,7 @@ d'arriver au même endroit, mais la commande n'aurait pas été modale,
 les commandes suivantes auraient voulu retourner dans le système de
 coordonnées du G55 toujours actif.
 
----------------------------------------------------------------------
+----
 G54   utilise les réglages du système de coordonnées 1(((G54)))
 G55   utilise les réglages du système de coordonnées 2(((G55)))
 G56   utilise les réglages du système de coordonnées 3(((G56)))
@@ -136,29 +139,29 @@ G59   utilise les réglages du système de coordonnées 6(((G59)))
 G59.1 utilise les réglages du système de coordonnées 7(((G59.1)))
 G59.2 utilise les réglages du système de coordonnées 8(((G59.2)))
 G59.3 utilise les réglages du système de coordonnées 9(((G59.3)))
----------------------------------------------------------------------
+----
 
 === Système de coordonnées par défaut
 
 Une autre variable dans le fichier VAR joue un rôle important dans les
 décalages, c'est la variable 5220. Dans les fichiers par défaut, sa
-valeur est fixée à 1,00000. Ce qui signifie que lorsque EMC démarre, il
+valeur est fixée à 1,00000. Ce qui signifie que lorsque EMC2 démarre, il
 doit utiliser le premier système de coordonnées comme système par
 défaut. Si vous définissez celui-ci à 9,00000 le neuvième système
 décalé sera utilisé par défaut au démarrage du système et aux
 réinitialisations. Toute valeur autre qu'un entier compris entre 1 et
 9, ou l'absence de la variable 5220, provoquera au démarrage le retour
-d'EMC à la valeur par défaut de 1.00000.
+d'EMC2 à la valeur par défaut de 1.00000.
 
 === Réglage des décalages avec G10
 
 La commande G10 L- peut être utilisée pour modifier les valeurs des
 décalages dans un système de coordonnées. (add here)
 
-== G92 Décalages d'axes(((G92)))
+== Décalages d'axes G92(((G92)))
 
 G92 est la plus incomprise et la plus maligne des commandes
-programmables avec EMC. La façon dont elle fonctionne a un peu changé
+programmables avec EMC2. La façon dont elle fonctionne a un peu changé
 entre les premières versions et l'actuelle. Ces changements ont sans
 doute déconcerté de nombreux utilisateurs. Elle devrait être vue comme
 une commande produisant un décalage temporaire, qui s'applique à tous
@@ -195,16 +198,16 @@ fonctionneront à peu près comme vous vous y attendiez.
 
 L'utilisateur doit bien comprendre le fonctionnement des valeurs de
 G92. Elles sont basées sur l'emplacement de chaque axe au moment où la
-commande G92 est invoquée. Le document du NIST est clair, `` pour faire
-en sorte que le point actuel ait les coordonnées'' X0, Y0 et Z0 nous
-utiliserons G92 X0 Y0 Z0. G92 'ne fonctionne pas depuis le système de
-coordonnées machine absolues'. 'Il fonctionne à partir de l'emplacement
-actuel.'
+commande G92 est invoquée. Le document du NIST est clair, *pour faire
+en sorte que le point actuel ait les coordonnées X0, Y0 et Z0 nous
+utiliserons G92 X0 Y0 Z0*. *G92 ne fonctionne pas depuis le système de
+coordonnées machine absolues*. *Il fonctionne à partir de l'emplacement
+actuel.*
 
 G92 travaille également à partir d'un emplacement actuel déjà modifié
 par tout autre décalage actif au moment où la commande G92 est
 invoquée. Lors de test des différences entre les décalages de travail
-et les décalages réels, il a été constaté qu'un décalage g54 pouvait
+et les décalages réels, il a été constaté qu'un décalage G54 pouvait
 annuler un G92 et ainsi, donner l'apparence qu'aucun décalage n'était
 actif. Toutefois, le G92 était toujours actif, pour toutes les
 coordonnées et il a produit les décalages attendus pour tous les autres
@@ -213,7 +216,7 @@ systèmes de coordonnées.
 Il est probable que l'absence de contact d'origine machine et d'une
 bonne procédure de prise d'origine machine se traduira par de très
 grandes erreurs dans l'application des valeurs de G92 si elles existent
-dans le fichier VAR. Beaucoup d'utilisateurs d'EMC n'ont pas de contact
+dans le fichier VAR. Beaucoup d'utilisateurs d'EMC2 n'ont pas de contact
 d'origine machine sur leurs machines. Pour eux, l'origine machine
 devrait être trouvée en déplaçant chaque axe à l'emplacement supposé et
 en utilisant la commande de prise d'origine. Lorsque chaque axe est
@@ -234,7 +237,7 @@ Il y a au moins deux façons d'établir les valeurs de G92.
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
 auquel le déplacement doit être appliqué.
 
-Programmer `G92 X Y Z A B C U V W` fixe les valeurs des variables de G92
+Programmer *G92 X Y Z A B C U V W* fixe les valeurs des variables de G92
 de sorte que chaque axe prenne la valeur associée à son nom. Ces
 valeurs sont assignées à la position courante des axes. Ces résultats
 satisfont les paragraphes un et deux du document du NIST.
@@ -244,25 +247,25 @@ l'axe, à laquelle elles ajoutent ou soustraient des valeurs pour donner
 à la position courante la valeur assignée par la commande G92. Elles
 prennent effet même si d'autres décalages sont déjà actifs.
 
-Ainsi, si l'axe X est actuellement en position X=2.0000, un `G92 X0`
+Ainsi, si l'axe X est actuellement en position X=2.0000, un *G92 X0*
 fixera un décalage de -2.0000, de sorte que l'emplacement actuel de X
-devienne X=0.0000. Un nouveau `G92 X5.0000` fixera un décalage de 3.0000
+devienne X=0.0000. Un nouveau *G92 X5.0000* fixera un décalage de 3.0000
 et l'affichage indiquera une position courante X=5.0000.
 
 === Prudence avec G92 
 
 Parfois, les valeurs de décalage d'un G92 restent bloquées dans le
 fichier VAR. Quand ça arrive, une ré-initialisation ou un redémarrage
-peut les rendre de nouveau actifs. Les variables sont numérotées: 
+peut les rendre de nouveau actives. Les variables sont numérotées: 
 
----------------------------------------
-5211    0.000000
-5212    0.000000
-5213    0.000000
-5214    0.000000
-5215    0.000000
-5216    0.000000
----------------------------------------
+|==============
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
+|==============
 
 où 5211 est le numéro du décalage de l'axe X et ainsi de suite. Si
 vous voyez des positions inattendues à la suite d'une commande de
@@ -271,54 +274,54 @@ position lorsque vous démarrez, regardez ces variables dans le fichier
 VAR pour vérifier si elles contiennent des valeurs. Si c'est le cas,
 les mettre à zéro devrait solutionner le problème.
 
-Si G92 valeurs existent dans le fichier VAR quand EMC2 démarre, le G92
-valeurs dans le fichier var sera appliqué aux valeurs du courant
-l'emplacement de chaque axe. Si ce n'est sa position d'origine et la position de la maison est
-défini comme tout ce zéro machine sera correct. Une fois que la maison a été
-établi en utilisant les commutateurs vraie machine, ou en déplaçant chaque axe à un mécanisme connu
-position d'origine et la délivrance d'une commande à domicile axe, toute G92 décalages seront
-appliquée. Si vous avez un X1 G92 en vigueur lorsque vous la maison de l'axe X de la
-DRO lira «X: 1.000» au lieu de l'attendu «X: 0.000» parce que le
-G92 a été appliquée à l'origine de la machine. Si vous émettez une G92.1 et le scrutateur
-lit maintenant tous les zéros, puis vous avez eu un effet de l'offset G92 lors de la dernière
-EMC a couru.
+Si des valeurs G92 existent dans le fichier VAR quand EMC2 démarre, ces 
+valeurs seront appliquées aux valeurs courantes des emplacements d'axe. 
+Si c'est sa position d'origine et que l'origine est définie au zéro machine, tout
+sera correct. Une fois que l'origine machine a été établie en utilisant les 
+contacts d'origine machine, ou en déplaçant chaque axe à une position connue, puis
+en envoyant la commande de prise d'origine de l'axe, tous les décalages G92 seront
+appliqués. Si un X1 G92 est actif lors de la prise d'origine machine de l'axe X,
+la visu affichera *X: 1.000* au lieu du «X: 0.000» attendu, c'est parce-que le 
+G92 a été appliqué à l'origine machine. Si vous passez un G92.1 et que la visu
+affiche tous à zéro, alors c'est que vous avez encore l'effet de l'offset G92 
+de la dernière session d'EMC2.
 
 Sauf si votre intention est d'utiliser les mêmes décalages G92 dans le prochain
-programme, la meilleure pratique consiste à délivrer un G92.1 à la fin de tout code G
-fichiers où vous utilisez G92 compensations.
+programme, la meilleure pratique consiste à envoyer un G92.1 à la fin de tout 
+fichier de G-code dans lequel vous utilisez les compensations G92.
 
 == Exemple de programme utilisant les décalages d'axes
 
-Cet exemple de projet de gravure fraise un jeu de quatre cercles de
+Cet exemple de projet de gravure, usine un jeu de quatre cercles de
 rayon .1 pouce dans une forme grossière d'étoile au centre du cercle.
 Nous pouvons configurer individuellement les formes de la façon
 suivante:
 
----------------------------------------------------------------------
-G10 L2 P1 X0 Y0 Z0 (assure que g54 a mis la machine à zéro) 
+----
+G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro) 
 G0 X-0.1 Y0 Z0
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 M2
----------------------------------------------------------------------
+----
 
 Nous pouvons émettre une série de commandes pour créer des décalages
 pour les quatre autres cercles comme cela.
 
------------------------------------------------------------
+----
 G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces)
 G10 L2 P3 X-0.5 (décalages G56 X valeur de -0.5 pouces)
 G10 L2 P4 Y0.5 (décalages G57 valeur Y de 0.5 pouces)
 G10 L2 P5 Y-0.5 (décalages G58 valeur Y de -0.5 pouces)
------------------------------------------------------------
+----
 
-Nous mettons ces ensemble dans le programme suivant:
+Nous mettons ces ensembles dans le programme suivant:
 
----------------------------------------------------------------------
+----
 (Un programme de fraisage de cinq petits cercles dans un losange)
 
-G10 L2 P1 X0 Y0 Z0 (assure que g54 a mis la machine à zéro)
+G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro)
 G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces) 
 G10 L2 P3 X-0.5 (décalages G56 X la valeur de -0.5 pouces) 
 G10 L2 P4 Y0.5 (décalages G57 X la valeur de 0.5 pouces) 
@@ -329,39 +332,39 @@ G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 
-G55 G0 X-0.1 Y0 Z0 (premier cercle compensée)
+G55 G0 X-0.1 Y0 Z0 (premier cercle compensé)
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 
-G56 G0 X-0.1 Y0 Z0 (deuxième cercle compensée)
+G56 G0 X-0.1 Y0 Z0 (deuxième cercle compensé)
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 
-G57 G0 X-0.1 Y0 Z0 (troisième cercle compensée)
+G57 G0 X-0.1 Y0 Z0 (troisième cercle compensé)
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 
-G58 G0 X-0.1 Y0 Z0 (quatrième cercle compensée)
+G58 G0 X-0.1 Y0 Z0 (quatrième cercle compensé)
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G54 G0 X0 Y0 Z0
 
 M2
----------------------------------------------------------------------
+----
 
 Maintenant vient le moment où l'on applique une série de décalages G92
-à ce programme. Vous verrez qu'il c'est fait dans chaque cas de z0. Si
-la machine étaient à la position de zéro, un g92 z1.0000 placé en tête
-de programme le décalera d'un pouce. Vous pouvez également modifier
+à ce programme. Vous verrez que c'est fait dans chaque cas de Z0. Si
+la machine étaient à la position zéro, un G92 Z1.0000 placé en tête
+de programme le décalerait d'un pouce. Vous pouvez également modifier
 l'ensemble du dessin dans le plan XY en ajoutant quelques décalages x
-et y avec g92. Si vous faites cela, vous devez ajouter une commande
-G92.1 juste avant le m2 qui termine le programme. Si vous ne le faites
-pas, d'autres programmes que vous pourriez lancer après celui-ci,
-utiliseront également les décalages g92. En outre, cela permettrait
-d'éviter d'écrire les valeurs de g92 lorsque vous arrêtez EMC et donc,
+et y avec G92. Si vous faites cela, vous devez ajouter une commande
+G92.1 juste avant le M2 qui termine le programme. Si vous ne le faites
+pas, les programmes que vous pourriez lancer après celui-ci,
+utiliseront également les décalages G92. En outre, cela permettrait
+d'éviter d'écrire les valeurs de G92 lorsque vous arrêtez EMC2 et donc,
 d'éviter de les recharger quand vous démarrez à nouveau le programme.
 
 

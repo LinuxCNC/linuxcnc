@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = PyVCP[[cha:Panneau-Virtuel-Control]]
 
 (((Panneau de Contrôle Virtuel)))
@@ -118,7 +121,7 @@ au démarrage, nous devons préciser ce qui suit dans la section
 
 -------------------------------------------------
 
-    PYVCP = broche.xml
+PYVCP = broche.xml
 
 -------------------------------------------------
 
@@ -129,7 +132,7 @@ spécifié, de la manière suivante, dans la section [HAL] du fichier .ini:
 
 -------------------------------------------------
 
-    POSTGUI_HALFILE = broche_vers_pyvcp.hal
+POSTGUI_HALFILE = broche_vers_pyvcp.hal
 
 -------------------------------------------------
 
@@ -139,7 +142,7 @@ juste la commande suivante:
 
 -------------------------------------------------
 
-    net spindle-rpm-filtered  => pyvcp.spindle-speed
+net spindle-rpm-filtered  => pyvcp.spindle-speed
 
 -------------------------------------------------
 
@@ -217,7 +220,7 @@ Pour ajouter un commentaire utiliser la syntaxe de xml.
 
 -------------------------------------------------
 
-    <!--Mon commentaire-->
+<!--Mon commentaire-->
 
 -------------------------------------------------
 
@@ -335,8 +338,8 @@ la case sera cochée et fausse si la case est décochée.
 
     <checkbutton>
 
-Une case non cochée: image:pyvcp_checkbutton1.png[] et une case
-cochée: image:pyvcp_checkbutton2.png[]
+Une case non cochée: image:/images/pyvcp_checkbutton1.png[] et une case
+cochée: image:images/pyvcp_checkbutton2.png[]
 
 Exemple de code:
 

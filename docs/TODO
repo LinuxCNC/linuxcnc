@@ -1,65 +1,7 @@
 To Do 
 
-*** All Manuals
+Locate and fix markup inconsistencies
 
-	Are they printing (pdf) too close to the right edge for some printers? 
-	(Looks on-screen like less than 1/2", maybe 3/8". is that enough?)
-	(Yes, pdf can "print to fit", but still, why be wrong to start with?)
-	(Also, possible issues if printed duplex and punched? Usual 3/4" margin?)
+Locate and remove outdated material
 
-	Is the overall font size (pdf) too small? (I'd like to see us come up to 
-	about the same font size we had on the old manuals, if that's possible?) 
-
-	At least some (all?) chapter-links (non-internet links, circled in red) are broken in pdf?
-	(If I hover the old manuals, it says "Go to page 10, 15, 20, whatever")
-	(If I hover the new manuals, it says "Go to page i", the front cover)
-	(The table of contents works in pdf, and everything works in html.)
-
-*** Getting Started Manual
-
-	update the updating section (changes "skeletoned" in -Kim)
-
-	pncconfig needs new images and updated... a lot of improvements have been made
-
-	make a diagram of homing for stepconf
-
-
-
-*** User Manual
-
-
-
-*** Integrator Manual
-
-
-
-*** HAL Manual
-
-
-
-*** Developer Manual
-
-
-
-
-(anyone who wants to, add your name here ---> )
-(we can use all the inspectors we can get)
-
-Doc checked & approved by:         John            Kim            tissf            ????            ????
-----------------------------------------------------------------------------------------------------------------
-
-Scan "Getting Started" for        [ OK ]          [ OK ]          [ OK ]          [    ]          [    ]
-conversion (or any?) errors 
-
-Scan "User Manual" for            [ OK ]          [ OK ]          [    ]          [    ]          [    ]
-conversion (or any?) errors  
-
-Scan "Integrator Manual" for      [    ]          [    ]          [    ]          [    ]          [    ]
-conversion (or any?) errors 
-
-Scan "HAL Manual" for             [ OK ]          [ OK ]          [    ]          [    ]          [    ]
-conversion (or any?) errors 
- 
-Scan "Developer Manual" for       [ ok ]          [ OK ]          [    ]          [    ]          [    ]
-conversion (or any?) errors  
-
+Add Cutter Comp gcode example to src/examples.gcode.txt

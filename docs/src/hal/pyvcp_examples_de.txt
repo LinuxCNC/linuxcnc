@@ -80,7 +80,7 @@ widgets.
     <labelframe text="Jog Buttons"> 
     <font>("Helvetica",16)</font>
 
-    <!--- the X jog buttons ---> 
+    <!-- the X jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -98,7 +98,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Y jog buttons ---> 
+    <!-- the Y jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -116,7 +116,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Z jog buttons ---> 
+    <!-- the Z jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -134,7 +134,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the jog speed slider ---> 
+    <!-- the jog speed slider --> 
     <vbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -388,7 +388,7 @@ To create the panel we add the following to the .xml file.
     </label> 
     <width>5</width> 
      <hbox> 
-    <label width=”2”/> <!-- used to center the led --> 
+    <label width="2"/> <!-- used to center the led --> 
     <rectled> 
     <halpin>"on-led"</halpin> 
     <height>"30"</height> 
@@ -408,7 +408,7 @@ To create the panel we add the following to the .xml file.
     <font>("Helvetica",18)</font> 
     <width>5</width> 
     </label> 
-    <label width=”2”/> 
+    <label width="2"/> 
     <rectled> 
     <halpin>"fwd-led"</halpin> 
     <height>"30"</height> 
@@ -427,7 +427,7 @@ To create the panel we add the following to the .xml file.
     <font>("Helvetica",18)</font> 
     <width>5</width> 
     </label> 
-    <label width=”2”/> 
+    <label width="2"/> 
     <rectled> 
     <halpin>"rev-led"</halpin> 
     <height>"30"</height> 

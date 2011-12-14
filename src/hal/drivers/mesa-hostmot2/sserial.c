@@ -610,7 +610,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                  hm2->sserial.instance[i].module_index != port ; i++){
             }
             if (i >= hm2->sserial.num_instances) {
-                HM2_ERR("sserial port %i not found", port);
+                HM2_ERR("sserial port %i not found\n", port);
                 *hm2->sserial.hal->read = 0;
                 *hm2->sserial.hal->write = 0;
                 return;
@@ -681,7 +681,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
 
             if (tram == NULL) { // didn't find a tram...
                 HM2_ERR("Unable to find a supported device for the specified "
-                        "channel");
+                        "channel\n");
                 *hm2->sserial.hal->read = 0;
                 *hm2->sserial.hal->write = 0;
                 return;
@@ -700,7 +700,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             *inst->command_reg_write = 0x80000000; // write mask
             if (*inst->run != 0) {
                 *hm2->sserial.hal->state = 20;
-                return;}
+                break;}
             timer += period;
             if (*inst->command_reg_read != 0) {
                 if (timer > 50000000) {
@@ -739,7 +739,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             *inst->command_reg_write = 0x80000000; // write mask
             if (*inst->run != 0) {
                 *hm2->sserial.hal->state = 20;
-                return;}
+                break;}
             timer += period;
             if (*inst->command_reg_read != 0) {
                 if (timer > 50000000) {
@@ -809,7 +809,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             }
             // write command setup
             *tram->reg_0_write = *hm2->sserial.hal->value;
-            buff = 0x65000000 | (*hm2->sserial.hal->parameter & 0x00FFFFFF);
+            buff = 0x65000000 | (*hm2->sserial.hal->parameter & 0x0000FFFF);
             hm2->llio->write(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
             // Do It command
             *inst->command_reg_write = 0x1000 | (1 << tram->index);
@@ -845,7 +845,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             if (!(*hm2->sserial.hal->parameter & 0xFF000000)) {
                 *inst->command_reg_write = 0x800;
                 *hm2->sserial.hal->state = 22;
-                return;
+                break;
             }
             buff = (*hm2->sserial.hal->parameter & 0xFF000000); //flag
             hm2->llio->write(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
@@ -868,7 +868,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 break;
             }
             if (*inst->data_reg_read & (1 << tram->index)){
-                HM2_ERR("Channel-not-ready error in parameter write case 21\n"
+                HM2_ERR("Channel-not-ready error in case 21, clearing flags\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
                         *inst->data_reg_read, *tram->reg_cs_read);
             }
@@ -887,17 +887,17 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 break;
             }
             *hm2->sserial.hal->state = 0;
-            if (*inst->data_reg_read & (1 << tram->index)){
-                HM2_ERR("Channel-not-ready error in parameter write case 22\n"
-                        "Data Reg = %08X\nCS Reg = %08X\n",
-                        *inst->data_reg_read, *tram->reg_cs_read);
-            }
             break;
 
         default:
             HM2_ERR("Unsupported state (%i) in sserial setup\n", *hm2->sserial.hal->state);
             *hm2->sserial.hal->state = 0;
             break;
+    }
+    if (*hm2->sserial.hal->state != 0){
+        HM2_DBG("COM(r/w):%08x/%08x, DATA:%08x, CS:%08x, USER0:%08x\n", 
+                *inst->command_reg_read, *inst->command_reg_write, 
+                *inst->data_reg_read, buff, *tram->reg_0_write);
     }
 
 }

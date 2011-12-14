@@ -1,0 +1,55 @@
+This document is a guide for using asciidoc markup
+
+
+Master Document file Headers, first line replace en with two letter language code
+---------------------------------------------------------------------------------
+
+Getting Started V2.5, {localdate}
+=================================
+:lang: en
+:masterdir: {indir}
+:leveloffset: 1
+The EMC Team
+
+The parameters are interpreted well before the load files lang-xx.conf and the other files .conf
+It is particularly important for the parameters as :lang:
+
+The typical authorized attributes : doctype, lang, encoding, icons, data-uri, toc, numbered
+
+More information here
+http://www.methods.co.nz/asciidoc/userguide.html#_introduction
+8.2 Header
+
+AsciiDoc Formatting:
+--------------------
+
+G Code and other code that you don't want to word wrap.
+---- < 4 dashes start of code
+lines of code
+...
+more code
+---- < 4 dashes end of code
+     < 1 blank line after end of code
+Images
+
+put all images in the images subdirectory
+
+image::<target>[<attributes>]
+
+example
+image::images/axis.png[]
+
+If the image is small and displays too big in the pdf you can
+use the scaledwidth="60%" attribute
+
+
+Escaping a character.
+Normally characters like ' and * would not print unless you use \' or \* then
+they will print as normal characters.
+
+Making a horizontal labeled list.
+[horizontal]
+Label:: The text about the label
+
+check asciidoc cheatsheet http://powerman.name/doc/asciidoc or user manual
+http://www.methods.co.nz/asciidoc/userguide.html for details about format.

@@ -89,7 +89,7 @@ In English it means "loadusr wait for name spindle component gs2_vfd name spindl
 The command "net" creates a "connection" between a signal and and one
 or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The direction
-indicators "<= and =>" are only to make it easier for humans to follow
+indicators `<=` and `=>` are only to make it easier for humans to follow
 the logic and are not used by the net command.
 
 The syntax and an example:

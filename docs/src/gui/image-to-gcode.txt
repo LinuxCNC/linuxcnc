@@ -1,6 +1,9 @@
-= Image-to-gcode: Milling “depth maps”
+:lang: en
+:toc:
 
-image:image-to-gcode.png[]
+= Image-to-gcode
+
+image::images/image-to-gcode.png[]
 
 == What is a depth map?
 
@@ -9,16 +12,18 @@ corresponds to the depth (or height) of the object at each point.
 
 == Integrating image-to-gcode with the AXIS user interface
 
-Add the following lines to the `[FILTER]`  section of your .ini file
+Add the following lines to the '[FILTER]'  section of your .ini file
 to make AXIS automatically invoke
-image-to-gcode when you open a .png, .gif, or .jpg image:
+image-to-gcode when you open a .png, .gif, or .jpg image
 
-    PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
-    png = image-to-gcode
-    gif = image-to-gcode
-    jpg = image-to-gcode
+----
+PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
+png = image-to-gcode
+gif = image-to-gcode
+jpg = image-to-gcode
+----
 
-The standard `sim/axis.ini` configuration file is already configured
+The standard 'sim/axis.ini' configuration file is already configured
 this way.
 
 == Using image-to-gcode
@@ -26,7 +31,9 @@ this way.
 Start image-to-gcode either by opening an image file in AXIS, or by
 invoking image-to-gcode from the terminal, as follows:
 
-    image-to-gcode torus.png > torus.ngc
+----
+image-to-gcode torus.png > torus.ngc
+----
 
 Verify all the settings in the right-hand column, then press OK to
 create the gcode. Depending on the image size and options chosen, this
@@ -40,7 +47,7 @@ image-to-gcode option screen again, allowing you to tweak them.
 === Units
 
 Specifies whether to use G20 (inches) or G21 (mm) in the generated
-g-code and as the units for each option labeled *(units)*.
+g-code and as the units for each option labeled '(units)'.
 
 === Invert Image
 
@@ -50,19 +57,19 @@ the white pixel is the lowest point.
 
 === Normalize Image
 
-If “yes”, the darkest pixel is remapped to black, the lightest pixel
+If 'yes', the darkest pixel is remapped to black, the lightest pixel
 is remapped to white.
 
 === Expand Image Border
 
-If “None”, the input image is used as-is, and details which are at the
-very edges of the image may be cut off. If “White” or “Black”, then a
+If 'None', the input image is used as-is, and details which are at the
+very edges of the image may be cut off. If 'White' or 'Black', then a
 border of pixels equal to the tool diameter is added on all sides, and
 details which are at the very edges of the images will not be cut off.
 
 === Tolerance (units)
 
-When a series of points are within *tolerance* of being a straight
+When a series of points are within 'tolerance' of being a straight
 line, they are output as a straight line.
 Increasing tolerance can lead to better contouring performance in EMC2,
 but can also remove or blur small details in the image.
@@ -110,16 +117,16 @@ Possible scan directions are:
 
 === Depth (units)
 
-The top of material is always at *Z=0*. The deepest cut into the
-material is *Z=-depth.*
+The top of material is always at 'Z=0'. The deepest cut into the
+material is 'Z=-depth.'
 
 === Step Over (pixels)
 
 The distance between adjacent rows or columns. To find the number of
-pixels for a given units distance, compute *distance/pixel size* and
-round to the nearest whole number'.' For example, if *pixel size=.006*
-and the desired step over *distance=.015*, then use a Step Over of 2 or
-3 pixels, because *.015/.006=2.5*'.'
+pixels for a given units distance, compute 'distance/pixel size' and
+round to the nearest whole number. For example, if 'pixel size=.006'
+and the desired step over 'distance=.015', then use a Step Over of 2 or
+3 pixels, because '.015/.006=2.5''.'
 
 === Tool Diameter
 
@@ -128,7 +135,7 @@ The diameter of the cutting part of the tool.
 === Safety Height
 
 The height to move to for traverse movements. image-to-gcode always
-assumes the top of material is at *Z=0*.
+assumes the top of material is at 'Z=0'.
 
 === Tool Type
 
@@ -155,14 +162,14 @@ columns are being milled. Possible bounding options are:
 
 === Contact angle
 
-When *Lace bounding* is not `None`, slopes greater than *Contact angle* 
-are considered to be “strong” slopes, and slopes less than that angle
+When 'Lace bounding' is not 'None', slopes greater than 'Contact angle' 
+are considered to be 'strong' slopes, and slopes less than that angle
 are considered to be weak slopes.
 
 === Roughing offset and depth per pass
 
 Image-to-gcode can optionally perform rouging passes. The depth of
-successive roughing passes is given by “Roughing depth per pass”. For
+successive roughing passes is given by 'Roughing depth per pass'. For
 instance, entering 0.2 will perform the first roughing pass with a
 depth of 0.2, the second roughing pass with a depth of 0.4, and so on
 until the full Depth of the image is reached. No part of any roughing
@@ -173,5 +180,5 @@ offset is 0.1 inches.
 
 .Roughing passes and final pass[[cap:Roughing-passes-and]]
 
-image::i2g-roughing.png[]
+image::images/i2g-roughing.png[]
 

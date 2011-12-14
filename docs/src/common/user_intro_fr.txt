@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = EMC2
 
 [float]
@@ -13,7 +16,8 @@ chapitres suivants.
 La documentation complète sur l'installation et
 la configuration se trouve dans le manuel de l'intégrateur.
 
-== Comment marche EMC2[[sec:Comment-marche-EMC2]]
+[[sec:Comment-Fonctionne-EMC2]]
+== Comment fonctionne EMC2
 
 EMC2 est un peu plus que juste un autre programme de fraiseuse
 CNC(((CNC))). Il est capable de contrôler des machines-outils, des
@@ -21,7 +25,7 @@ robots ou d'autres automatismes. Il est capable de contrôler des
 servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres
 mécanismes relatifs aux machines-outils. 
 
-Il y a quatre principales composantes du logiciel EMC2: 
+Il y a quatre principales composantes du logiciel EMC2:: 
 - un contrôleur de mouvement (EMCMOT), 
 - une contrôleur d'entrées/sorties discrètes (EMCIO), 
 - un exécuteur des tâches qui les coordonne (EMCTASK), 
@@ -30,11 +34,10 @@ Il y a quatre principales composantes du logiciel EMC2:
 En outre il y a une couche appelée HAL (couche d'abstraction du matériel) 
 qui permet la configuration d'EMC2 sans avoir besoin de recompiler.
 
-.Machine simple contrôlée par EMC2[[fig:Machine-typique]]
 
-image::whatstep1.png[]
+image::whatstep1.png[Machine simple contrôlée par EMC2]
 
-La figure <<fig:Machine-typique>> montre un diagramme bloc
+La figure ci-dessus montre un diagramme bloc
 représentant une machine 3 axes typique comme EMC2 les aime. Cette
 figure montre un système basé sur des moteurs pas à pas. Le PC,
 tournant sous Linux(((Linux))) contrôle les interfaces de puissance des
@@ -46,18 +49,8 @@ parallèle étendu connecté à une carte de contrôle externe. Quand nous
 examinerons chacun des composants qui forment un système EMC2, nous
 nous référerons à cette machine typique.
 
-`
-`
-`
-`
-`
-`
-`
-`
-`
-`
-
-== Interfaces utilisateur graphiques[[sub:Interfaces-utilisateur-graphiques]]
+[[sub:Interfaces-utilisateur-graphiques]]
+== Interfaces utilisateur graphiques
 
 L'interface graphique est la partie d'EMC2 qui interagit avec
 l'opérateur de la machine-outil. EMC2 est fourni avec plusieurs
@@ -66,14 +59,14 @@ interfaces utilisateurs graphiques:
 
 - *AXIS*, une GUI basée sur OpenGL, avec prévisualisation du G-Code.
    Elle offre un aperçu permanent du parcours d'outil.
-   C'est l'interface qui a le développement le plus actif. <<fig:Interface-graphique-AXIS>>
+   C'est l'interface qui a le développement le plus actif.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
 
 image::images/axis_2.3_fr.png[]
 
 
-- *Mini*(((mini))), une Tcl/Tk GUI <<fig:Interface-graphique-Mini>> 
+- *Mini*(((mini))), une Tcl/Tk GUI 
 
 .L'interface graphique Mini[[fig:Interface-graphique-Mini]]
 
@@ -81,19 +74,19 @@ image::images/mini_fr.jpg[]
 
 
 - *TkEMC*(((tkemc))), une interface basée sur Tcl/Tk.
-    C'est l'interface la plus populaire après Axis <<fig:L-interface-graphique-TkEmc>> 
+    C'est l'interface la plus populaire après Axis
 
 .L'interface graphique TkEmc[[fig:L-interface-graphique-TkEmc]]
 
 image::images/tkemc_fr.png[]
 
 
-- *Keystick*(((keystick))), c'est une interface minimaliste textuelle, appropriée pour
-    les installations légères (sans serveur X par exemple). <<fig:L-interface-Keystick>>
+- *Keystick*(((keystick))), c'est une interface minimaliste textuelle, 
+appropriée pour les installations légères (sans serveur X par exemple).
 
 .L'interface textuelle Keystick[[fig:L-interface-Keystick]]
 
-image::keystick.png[]
+image::images/keystick.png[]
 
 - *Xemc*, un programme X-Windows(((xemc)))
 
@@ -105,19 +98,18 @@ image::keystick.png[]
 
 == Langues
 
-EMC2 utilise des fichiers de traduction pour traduire les 
-interfaces utilisateur EMC2 fonctionne dans de nombreuses langues. 
-Vous avez juste besoin de vous loguer avec la langue que vous souhaitez 
-utiliser et quand vous démarrerez EMC2 sera dans cette langue. 
-Si votre langue n'a pas encore été traduite contactez un développeur sur 
-l'IRC ou sur la mailing liste si vous pouvez aider à la traduction.
+EMC2 utilise des fichiers traduits pour les interfaces utilisateur. 
+Il fonctionne dans plusieurs langues et démarre dans la langue de la 
+session ouverte par l'utilisateur au démarrage du PC. Si votre langue n'a pas 
+encore été traduite contactez un développeur sur l'IRC ou sur la mailing liste 
+si vous pouvez aider à la traduction.
 
 == Penser comme un opérateur sur CNC[[sec:Penser-operateur]]
 
 Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une
 fraiseuse. Devenir un opérateur expérimenté prends beaucoup de temps et
-demande beaucoup de travail. Un auteur a dit un jour, «Nous apprenons
-par l'expérience, si on la possède toute». Les outils cassés, les étaux
+demande beaucoup de travail. Un auteur a dit un jour, *Nous apprenons
+par l'expérience, si on la possède toute*. Les outils cassés, les étaux
 attaqués et les cicatrices sont les preuves des leçons apprises. Une
 belle finition, des tolérances serrées et la prudence pendant le
 travail sont les preuves des leçons retenues. Aucune machine, aucun
@@ -127,10 +119,10 @@ Maintenant que vous commencez à travailler avec le programme EMC2,
 vous devez vous placer dans la peau d'un opérateur. Vous devez être 
 dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
 machine qui attendra vos commandes puis qui exécutera les ordres que
-vous lui donnerez. Dans ces pages nous donnerons les explications qui
-vous aideront à devenir un bon opérateur de CNC avec EMC2. 
-Vous aurez besoin de quelques bonnes informations ici devant moi afin 
-que les pages suivantes de sens pour vous.
+vous lui donnerez. Dans ces pages, nous donnerons les explications qui
+vous aideront à devenir un bon opérateur de CNC avec EMC2. Vous aurez besoin
+de bonnes informations ici, devant vous, c'est là que les pages suivantes 
+prendront tout leur sens.
 
 == Modes opératoires[[sub:Modes-operatoires]]
 
@@ -144,28 +136,28 @@ L'opérateur peut lancer l'exécution complète d'un programme de G-codes
 en mode auto mais pas en mode manuel ni en MDI.
 
 En mode manuel, chaque commande est entrée séparément. En termes
-humains une commande manuelle pourrait être «active l'arrosage» ou «jog
-l'axe X à 250 millimètres par minute.» C'est en gros, équivalent à
+humains, une commande manuelle pourrait être *active l'arrosage* ou *jog
+l'axe X à 250 millimètres par minute.* C'est en gros, équivalent à
 basculer un interrupteur ou à tourner la manivelle d'un axe. Ces
 commandes sont normalement contrôlées en pressant un bouton de
 l'interface graphique avec la souris ou en maintenant appuyée une
 touche du clavier. En mode auto, un bouton similaire ou l'appui d'une
-touche peuvent être utilisés pour charger ou lancer l'exécution
+touche peut être utilisé pour charger ou lancer l'exécution
 complète d'un programme de G-codes stocké dans un fichier. En mode
 d'entrée de données manuelles (MDI) l'opérateur peut saisir un bloc de
 codes est dire à la machine de l'exécuter en pressant la touche
-<Return> ou <Entrée> du clavier.
+*Return* ou *Entrée* du clavier.
 
 Certaines commandes de mouvement sont disponibles et produisent les
 mêmes effets dans tous les modes. Il s'agit des commandes
-abort(((ABORT))), estop(((ESTOP))) et feed rate override(((feed
-override))). Ces commandes se dispensent d'explications.
+*Abandon*(((ABANDON))), *Arrêt d'Urgence*(((ESTOP))) et *Correcteur de vitesse 
+travail* (((correcteur de vitesse))). Ces commandes se dispensent d'explications.
 
 L'interface utilisateur graphique AXIS supprime certaines distinctions
 entre Auto et les autres modes en rendant automatique la disponibilité
 des commandes, la plupart du temps. Il rend également floue la
 distinction entre Manuel et MDI parce que certaines commandes manuelles
-comme "Toucher", sont également implémentées en envoyant une commande
+comme *Toucher*, sont également implémentées en envoyant une commande
 MDI. Il fait cela en changeant automatiquement le mode qui est 
 nécessaire pour l'action que l'utilisateur a demandé. 
 

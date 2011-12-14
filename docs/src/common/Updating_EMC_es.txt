@@ -3,39 +3,7 @@ Upgrading EMC2
 
 == Upgrading from 2.4.x to 2.5.x
 
-Put
-
-some
-
-text
-
-here
-
-
-== Changes between 2.4.x and 2.5.x
-
-Put
-
-some
-
-text
-
-here
-
-
-=== Details on thing 1 changes (2.4.x to 2.5.x)
-
-Put some 
-
-text here
-
-
-=== Details on thing 2 changes (2.4.x to 2.5.x)
-
-Put some 
-
-text here
-
+No configuration changes need to be made to upgrade from 2.4.x to 2.5.x
 
 == Upgrading from 2.3.x to 2.4.x
 
@@ -102,9 +70,9 @@ The tool table will automatically be converted to the new format.
 
 The hostmot2 firmware images are now a separate package. You can:
 
- - Continue using an already-installed `emc2-firmware-mesa-*` 2.3.x package
+ - Continue using an already-installed 'emc2-firmware-mesa-*' 2.3.x package
  - Install the new packages from the synaptic package manager. 
-   The new packages are named `hostmot2-firmware-*`
+   The new packages are named 'hostmot2-firmware-*'
  - Download the firmware images as tar files from 
    http://emergent.unpy.net/01267622561 and install them manually 
 

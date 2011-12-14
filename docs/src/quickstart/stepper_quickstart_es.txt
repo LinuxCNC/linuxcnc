@@ -92,18 +92,11 @@ per user unit which is used for SCALE in the .ini file.
 the stepper motor one revolution. 
 Typical is 200.
 
-*Micro Steps* is how many CNC-output-steps the drive needs 
-to move the stepper motor one stepper-motor-step. 
+*Micro Steps* is how many steps the drive needs 
+to move the stepper motor one full step. 
 If microstepping is not used, this number will be 1. 
-If microstepping is used, typical values will be 
-near 4-16, perhaps 8 or 10. 
-
-[NOTE]
-Smaller values don't help that much, 
-because the approximation of the sine and cosine waves 
-involved is too coarse. 
-Larger values don't help by requiring too many steps 
-from the CNC output and slowing down the maximum speed. 
+If microstepping is used the value will depend on the 
+stepper drive hardware. 
 
 *Motor Teeth* and *Leadscrew Teeth* is if you have some reduction 
 (gears, chain, timing belt, etc.) between the motor and the leadscrew. 
@@ -163,28 +156,6 @@ latexmath:[
 \frac{1 leadscrew revs}{5.000 mm} 
 = \frac{960 microsteps}{mm} 
 ]
-
-== Configuration Wizard
-
-Run the Stepconf Wizard in chapter (<<cha:Stepconf-Wizard>>)
-
-== Link on the desktop (shortcut)
-
-It is possible to create a link on the desktop 
-after the use of Assistant Stepconf. 
-Since the start EMC2 CNC menu and choose 
-newly created configuration in the list. 
-Tick "Create desktop shortcut" and confirm with OK. 
-There is now a shortcut on the desktop that 
-can be run directly from this configuration. 
-
-== Modifying
-
-To change something in the basic configuration created 
-by Stepconf Wizard run the wizard again. 
-Select "Modify a Configuration", then pick the configuration file 
-*.stepconf* you wish to modify in the emc2/configs folder. 
-The file headers tell you if the file can be manually edited or not.
 
 // vim: set syntax=asciidoc:
 

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Démarrage d'EMC2
 
 == Fichiers
@@ -10,9 +13,16 @@ EMC2 est lancé avec le fichier de script EMC.
         -v = verbose - informations de fonctionnement
         -d = commandes d'échos à l'écran pour le débogage
 
-Le fichier de script 'emc' lit le fichier ini et lance EMC. La section [HAL] du fichier .ini spécifie l'ordre de chargement des fichiers de HAL, si plusieurs sont utilisés. Après que les fichiers HAL soient chargés, l'interface graphique est chargée à son tour puis le fichier HAL POSTGUI. Si des objets pyvcp ont été créés avec des pins de HAL, le fichier postgui HAL doit être pour effectuer les raccordements à ces pins.
+Le fichier de script *emc* lit le fichier ini et lance EMC. La section [HAL] du 
+fichier .ini spécifie l'ordre de chargement des fichiers de HAL, si plusieurs 
+sont utilisés. Après que les fichiers HAL soient chargés, l'interface graphique 
+est chargée à son tour puis le fichier HAL POSTGUI. Si des objets pyvcp ont été 
+créés avec des pins de HAL, le fichier postgui HAL doit être pour effectuer les 
+raccordements à ces pins.
 
-Si aucun fichier ini n'est passé en argument au script 'emc' le sélecteur de configuration est lancé pour permettre à l'utilisateur de choisir parmis les exemples de configuration.
+Si aucun fichier ini n'est passé en argument au script *emc* le sélecteur de 
+configuration est lancé pour permettre à l'utilisateur de choisir parmis les 
+exemples de configuration.
 
 == Fichiers utilisés pour la configuration
 
@@ -66,7 +76,7 @@ NML::
     l'utilisateur, il a été créé pour enregistrer le nom du répertoire
     lorsque l'utilisateur choisit sa première configuration
     d'EMC.footnote:[Habituellement, ce fichier est dans le répertoire home
-    de l'utilisateur (ex: /home/user/ )]
+    de l'utilisateur (ex: */home/user/* )]
 
 Les éléments avec le repère *(hal)* sont utilisés seulement pour les
 fichiers de HAL en exemples. C'est
@@ -74,24 +84,32 @@ une bonne convention. D'autres éléments sont utilisés directement par
 EMC et doivent toujours avoir la section et le nom donné à l'item.
 
 
-== TWOPASS (deux passes)
+== Double passe (TWOPASS) 
 
-EMC2.5 supporte le processus dit TWOPASS (deux passes) des fichiers de configuration hal, ce qui aide à la modularisation des fichiers hal et devrait améliorer leur lisibilité.
-(les fichiers Hal sont spécifiés dans le fichier ini d'EMC, dans l'instance HAL sous la forme
-[HAL]HALFILE=nomfichier).
+EMC2.5 supporte le processus dit TWOPASS des fichiers de configuration hal, 
+ce qui aide à la modularité des fichiers hal et améliore leur lisibilité.
+(les fichiers Hal sont spécifiés dans le fichier ini d'EMC, dans l'instance HAL 
+sous la forme *+[HAL]HALFILE=nomfichier)+*.
 
-Normalement, un jeu de un ou plusieurs fichiers de configuration HAL doivent utiliser une seule et unique ligne loadrt pour charger le module du kernel qui pourra gérer de multiples instances d'un même composant.  Par exemple: si vous utilisez en entrée deux portes AND, composant (and2) à trois endroits différents de votre configuration, vous ne devez avoir que cette seule ligne quelque part pour le spécifier:
-
+Normalement, un jeu de un ou plusieurs fichiers de configuration HAL doivent 
+utiliser une seule et unique ligne loadrt pour charger le module du kernel qui 
+pourra gérer de multiples instances d'un même composant.  Par exemple: si vous 
+utilisez une portes AND à deux entrées, composant (and2), à trois endroits 
+différents de votre configuration, vous ne devez avoir que cette seule ligne 
+quelque part pour le spécifier:
+----
    loadrt and2 count=3
+----
 
 Ce qui fournira finalement les composants and2.0, and2.1, and2.2.
 
 Les configurations seront plus lisibles si vous spécifiez les composants sous la forme
 names=option quand c'est supporté, par exemple:
-
+----
   loadrt and2 names=aa,ab,ac
+----
 
-Ce qui nommera les composants aa,ab,ac.
+Ce qui nommera les composants aa, ab, ac.
 
 Il pourrait apparaitre un problème de maintenance pour garder la trace des
 composants et de leur noms après avoir ajouté (ou enlevé) un composant,
@@ -99,21 +117,23 @@ vous devrez trouver et mettre à jour, la ligne de directives de loadrt, applica
 à ce composant.
 
 Le processus TWOPASS est activé par inclusion d'un paramètre dans le fichier ini:
-
-  [HAL]TWOPASS=anything
+----
+[HAL]TWOPASS=anything
+----
 
 Avec ce réglage, vous pouvez avoir de multiples spécifications comme:
-
+----
   loadrt and2 names=aa
   ...
   loadrt and2 names=ab,ac
   ...
   loadrt and2 names=ad
+----
 
 Ces commandes peuvent être placées dans différents fichiers HALFILES. Les HALFILES
 sont traités dans leur ordre d'apparition dans le fichier ini.
 
-Avec le processus TWOPASS, tous les [HAL]HALFILES sont lu une première fois et les
+Avec le processus double passe, tous les [HAL]HALFILES sont lus une première fois et les
 multiples apparitions de la directive loadrt sont cumulées pour chaque module. 
 Aucune commande hal n'est exécutée lors de cette passe initiale.
 
@@ -122,40 +142,43 @@ en nombre égal au nombre total lors de l'utilisation de count=option ou
 de tous les noms spécifiés individuellement lors de l'utilisation de names=option.
 
 Une seconde passe est alors faite pour exécuter toutes les autres instructions de hal
-spécifiées dans le HALFILES.  Les commandes addf qui associent les fonctions de composants
-avec l'exécution du thread sont exécutées selon leur ordre d'apparition avec les autres commandes
-dans cette seconde passe.
+spécifiées dans les HALFILES.  Les commandes addf qui associent les fonctions de 
+composants avec l'exécution du thread sont exécutées selon leur ordre d'apparition 
+avec les autres commandes dans cette seconde passe.
 
 Bien que vous puissiez utiliser indifféremment les options avec count= ou names=,
 elles sont toutefois exclusives. Un seul type peut être utilisé pour un même module.
 
 Le processus TWOPASS n'est pas effectif lors de l'usage de names=option.
 Cette option permet d'avoir un nom unique qui soit mnémonique ou plus pertinent 
-avec la configuration. Par exemple: si vous utilisez un composant 'dérivé' pour estimer la vitesse et l'accélération de chacun des coordonnées (x,y,z), utiliser la méthode count=
-donnera un composant au nom ésotérique comme ddt.0, ddt.1, ddt.2, etc.
+avec la configuration. Par exemple: si vous utilisez un composant *dérivé* pour 
+estimer la vitesse et l'accélération de chacun des coordonnées (x,y,z), utiliser 
+la méthode count= donnera un composant au nom ésotérique comme ddt.0, ddt.1, ddt.2, etc.
 
 Alternativement, l'utilisation de names=option comme:
-
+----
    loadrt ddt names=xvit,yvit,zvit
    ...
-   loadrt ddt names=xacel,yacel,zacel
+   loadrt ddt names=xaccel,yaccel,zaccel
+----
 
-donnera des composants plus parlants, nommés xvel,yvel,zvel, xacel,yacel,zacel.
+donnera des composants plus parlants, nommés xvit,yvit,zvit, xaccel,yaccel,zaccel.
 
-Beaucoup de composants fournis avec la distribution ont été créés avec  'comp utility' 
+Beaucoup de composants fournis avec la distribution ont été créés avec  *comp utility* 
 et supportent la méthode names=option. Il s'agit notamment de composants logiques
 qui sont les briques de beaucoup de configurations HAL.
 
 Exemples d'inclusions:
-
+----
   and2,ddt,deadzone,flipflop,or2,or4,mux2,mux4,scale,sum2,timedelay,lowpass
+----
 
 et beaucoup d'autres.
 
-Les composants utilisateur créés avec 'comp utility' supportent également automatiquement
+Les composants utilisateur créés avec *comp utility* supportent également automatiquement
 la méthode names=option.  En plus des composants générés
-avec 'comp utility', quelques autres composants comme 'encoder' et
-'pid' supportent aussi names=option.
+avec *comp utility*, quelques autres composants comme *encoder* et
+*pid* supportent aussi names=option.
 
 = Fichier INI
 
@@ -172,7 +195,7 @@ ligne ou retour chariot crée un nouvel élément.
 
 === Commentaires (((commentaires)))
 
-Une ligne de commentaires débute avec un ; ou un #. Si le logiciel qui
+Une ligne de commentaires débute avec un *;* ou un *#*. Si le logiciel qui
 analyse le fichier ini rencontre l'un ou l'autre de ces caractères, le
 reste de la ligne est ignorée. Les commentaires peuvent être utilisés
 pour décrire ce que font les éléments du fichier INI.
@@ -181,22 +204,24 @@ pour décrire ce que font les éléments du fichier INI.
 
 Des commentaires peuvent également être utilisés pour choisir entre
 plusieurs valeurs d'une seule variable.
-
+----
     DISPLAY = axis
     # DISPLAY = touchy
+----
 
 Dans cette liste, la variable DISPLAY est positionnée sur
 axis puisque toutes les autres sont commentées. Si quelqu'un édite une
 liste comme celle-ci et, par erreur, dé-commente deux lignes, c'est la
 première rencontrée qui sera utilisée.
 
-Notez que dans une ligne de variables, les caractères `#` et `;` 
+Notez que dans une ligne de variables, les caractères *#* et *;* 
 n'indiquent pas un commentaire.
-
+----
     INCORRECT = value     # and a comment
 
     # Correct Comment
     CORRECT = value
+----
 
 === Sections
 
@@ -207,17 +232,17 @@ L'ordre des sections est sans importance.
 
 Les sections suivantes sont utilisées par EMC:
 
-- [EMC] informations générales <<Section-EMC>>
-- [DISPLAY] sélection du type d'interface graphique <<sub:Section-DISPLAY>>
-- [FILTER] settings input filter programs <<sub:Section-FILTER>>
-- [RS274NGC] ajustements utilisés par l'interpréteur de g-code <<sub:Section-RS274NGC>>
-- [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel <<sub:Section-EMCMOT>>
-- [TASK] Réglages utilisés par le contrôleur de tâche <<sub:Section-TASK>>
-- [HAL] spécifications des fichiers .hal <<sub:Section-HAL>>
-- [HALUI] Commandes MDI utilisées par HALUI. <<sub:Section-HALUI>>
-- [TRAJ] Réglages additionnels utilisés par le contrôleur de mouvements temps réel <<sub:Section-TRAJ>>
-- [AXIS_0] ... [AXIS_n] Groupes de variables pour AXIS <<sub:Section-AXIS>>
-- [EMCIO] Réglages utilisés par le contrôleur d'entrées/sorties <<sub:Section-EMCIO>>
+- [EMC] informations <<Section-EMC,générales>>.
+- [DISPLAY] sélection du type <<sec:Section-DISPLAY,d'interface graphique>>. 
+- [FILTER] settings input <<sec:Section-FILTER,filter programs>>.
+- [RS274NGC] ajustements utilisés par <<sec:Section-RS274NGC,l'interpréteur de g-code>>. 
+- [EMCMOT] Réglages utilisés par le <<sec:Section-EMCMOT,contrôleur de mouvements>> temps réel. 
+- [TASK] Réglages utilisés par <<sec:Section-TASK,le contrôleur de tâche>>. 
+- [HAL] spécifications des <<sec:Section-HAL,fichiers .hal>>. 
+- [HALUI] Commandes MDI <<sec:Section-HALUI,utilisées par HALUI>>. 
+- [TRAJ] Réglages additionnels utilisés par <<sec:Section-TRAJ,le contrôleur de mouvements>> temps réel. 
+- [AXIS_0] ... [AXIS_n] Groupes de variables <<sec:Section-AXIS,relatives aux axes>> 
+- [EMCIO] Réglages utilisés par <<sec:Section-EMCIO,le contrôleur d'entrées/sorties>> 
 
 === Variables
 
@@ -244,16 +269,18 @@ HAL avec la syntaxe suivante:
 
 === Définitions
 
-Machine Unit:: #(unité de la machine)
+Machine Unit #(unité de la machine)::
      L'unité de mesure pour un axe est déterminée par les paramètres de
     la section [TRAJ]. Une unité machine est égale à une unité telle 
     que spécifiée par LINEAR_UNITS ou ANGULAR_UNITS.
 
-== Définition des variables du fichier ini[[sub:Details fichier INI]]
+[[sec:Details-fichier-INI]]
+== Définition des variables du fichier ini
 
-=== Section EMC[[Section-EMC]]
 
-(((Section [EMC] du fichier ini)))
+[[Section-EMC]]
+=== Section EMC(((Section [EMC] du fichier ini)))
+
 
 VERSION = $Revision: 1.5 $::
      Le numéro de version du fichier INI. La valeur indiquée ici semble
@@ -274,15 +301,16 @@ DEBUG = 0::
     généralement utiles pour les développeurs. Voir 
     ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
 
-=== Section DISPLAY[[sub:Section-DISPLAY]]
+[[sec:Section-DISPLAY]]
+=== Section DISPLAY
 
 (((Section [DISPLAY] du fichier ini)))
 
 Les différentes interfaces graphiques utilisent différentes options 
 qui ne sont pas supportées par toutes les interfaces utilisateur. 
-Les deux principales interfaces pour EMC sont «AXIS» et «Touchy». «Axis» est une 
+Les deux principales interfaces pour EMC sont *AXIS* et *Touchy*. *Axis* est une 
 interface pour une utilisation avec un ordinateur habituel et son moniteur, 
-«Touchy» est à utiliser avec les ordinateurs avec écran tactile.
+*Touchy* est à utiliser avec les ordinateurs avec écran tactile.
 Pour plus d'informations, voire la section Interfaces du Manuel de l'utilisateur.
 
 DISPLAY = axis:: 
@@ -360,19 +388,20 @@ MAX_ANGULAR_VELOCITY = 1.0::
 INCREMENTS = 1 mm, .5 mm, ...::
     Définit les incréments disponibles pour le jog incremental. 
     Les incréments peuvent être utilisées pour remplacer la valeur par défaut.
-    Ces valeurs doivent contenir des nombres décimaux (ex. 0.1000) ou des nombres fractionnaires (ex. 1/16), 
-    éventuellement suivis par une unité (une parmi 'cm', 'mm', 'um', 'inch', 'in', ou 'mil'). 
-    Si aucune unité n'est spécifiée, les unités natives de la machine seront utilisées. 
+    Ces valeurs doivent contenir des nombres décimaux (ex. 0.1000) ou des nombres 
+    fractionnaires (ex. 1/16), éventuellement suivis par une unité 
+    (une parmi *cm*, *mm*, *um*, *inch*, *in*, ou *mil*). Si aucune unité n'est 
+    spécifiée, les unités natives de la machine seront utilisées. 
     Distances métriques et impériales peuvent être mélangées:: 
 
-    INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um sont des entrées valides.
+    *INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um sont des entrées valides.*
 
 OPEN_FILE = /full/path/to/file.ngc::
     Le fichier NC à utiliser au démarrage d'AXIS. Utilisez une chaîne 
     vide "" et aucun fichier sera chargé au démarrage.
 
 EDITOR = gedit::
-     L'éditeur à utiliser lors du choix 'Éditer fichier' du menu d'AXIS, pour éditer le G-code.
+     L'éditeur à utiliser lors du choix *Éditer fichier* du menu d'AXIS, pour éditer le G-code.
     Ceci doit être configuré pour que cet item de menu fonctionne.
     Une autre possibilité valide est: gnome-terminal -e vim. 
 
@@ -386,9 +415,9 @@ LATHE = 1::
 GEOMETRY = XYZABCUVW::
      Contrôle de prévisualisation et chemein d'outil d'un mouvement rotatif.
     Cet item consiste en une suite de lettre d'axe, optionnellement précédé
-    d'un signe "-". Seuls, les axes définis par `[TRAJ]AXES` peuvent être
+    d'un signe *-*. Seuls, les axes définis par *[TRAJ]AXES* peuvent être
     utilisés. Cette séquence spécifie l'ordre dans lequel l'effet de chaque 
-    axe est appliqué. Un signe "-" inverse le sens de la rotation. 
+    axe est appliqué. Un signe *-* inverse le sens de la rotation. 
      La chaine GEOMETRY correcte dépend de la configuration de la machine et
     de la cinématique utilisée pour la contrôler. La chaine exemple GEOMETRY=XYZBCUVW
     est pour une machine à 5 axes pour laquelle la cinématique déplace UVW
@@ -416,55 +445,64 @@ MDI_HISTORY_FILE =::
 HELP_FILE = tkemc.txt::
     Chemin du fichier d'aide (non utilisé avec AXIS).
 
-=== Section FILTER[[sub:Section-FILTER]]
+[[sec:Section-FILTER]]
+=== Section FILTER
 
 (((Section [FILTER] du fichier ini))) 
 
-AXIS la possibilité d'envoyer les fichiers chargés au travers d'un programme de filtrage.
-Ce filtrage peut réaliser toutes sortes de tâches: Parfois aussi simple que s'assurer que le programme se termine bien par M2, ou parfois aussi compliqué que détecter si le fichier d'entrée est une image et générer le g-code pour graver la forme qu'il à ainsi défini.
-La section [FILTER] du fichier ini, contrôle comment les filtres fonctionnent.
-Premièrement, pour chaque type de fichier, écrire une ligne PROGRAM_EXTENSION.
+AXIS a la possibilité d'envoyer les fichiers chargés au travers d'un programme de 
+filtrage. Ce filtrage peut réaliser toutes sortes de tâches. Parfois aussi simple 
+que s'assurer que le programme se termine bien par M2, ou parfois aussi compliqué 
+que détecter si le fichier d'entrée est une image et en générer le G-code pour 
+graver la forme qu'il à ainsi défini.
+La section *[FILTER]* du fichier ini, contrôle comment les filtres fonctionnent.
+Premièrement, pour chaque type de fichier, écrire une ligne *PROGRAM_EXTENSION*.
 Puis, spécifier le programme à exécuter pour chaque type de filtre. Ce 
 programme reçoit le nom du fichier d'entrée dans son premier argument, il
 doit écrire le code RS274NGC sur la sortie standard. C'est cette sortie qui
-sera affichée dans la zone de texte, pré-visualisée dans la zone d'affichage et enfin 
-exécutée par EMC quand il sera en marche.
+sera affichée dans la zone de texte, pré-visualisée dans la zone du parcours
+d'outil et enfin, exécutée par EMC2 quand il sera mis en marche.
 
 *PROGRAM_EXTENSION = .extension Description*
 
 Si votre fichier de sortie est tout en majuscules, vous devez ajouter 
 la ligne suivante:
+----
+PROGRAM_EXTENSION = .NGC XYZ Post Processor
+----
 
-*PROGRAM_EXTENSION = .NGC XYZ Post Processor*
-
-Les lignes suivantes ajoutent le support pour le convertisseur 'image-to-gcode'
+Les lignes suivantes ajoutent le support pour le convertisseur *image-to-gcode*
 fourni avec EMC2:
-
-*PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image* +
-    *png = image-to-gcode* +
-    *gif = image-to-gcode* +
-    *jpg = image-to-gcode*
+----
+PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
+    png = image-to-gcode
+    gif = image-to-gcode
+    jpg = image-to-gcode
+----
 
 Il est également possible de spécifier un interpréteur:
-
-*PROGRAM_EXTENSION = .py Python Script* +
+----
+PROGRAM_EXTENSION = .py Python Script
     *py = python*
+----
 
-De cette façon, n'importe quel scrypt Python pourra être ouvert et ses sorties seront traitées
+De cette façon, n'importe quel script Python pourra être ouvert et ses sorties seront traitées
 comme du g-code. Un exemple de script de ce genre est disponible: nc_files/holecircle.py.
 Ce script crée le g-code pour percer une série de trous séquents à la périphérie d'un cercle.
 De nombreux générateur de G-code sont par ailleurs disponibles sur le wiki: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl].
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[à la rubrique des générateurs de G-code].
 
 Si la variable d'environnement AXIS_PROGRESS_BAR est activée, alors les lignes
 écrites sur stderr de la forme
-
-*FILTER_PROGRESS=%d*
+----
+FILTER_PROGRESS=%d
+----
 
 activeront la barre de progression d'AXIS qui donnera le pourcentage. Cette fonctionnalité
 devrait être utilisée par tous les filtres susceptibles de fonctionner pendant un long moment.
 
-=== Section RS274NGC[[sub:Section-RS274NGC]]
+[[sec:Section-RS274NGC]]
+=== Section RS274NGC
 
 (((Section [RS274NGC] du fichier ini)))
 
@@ -491,14 +529,14 @@ SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs::
     aucun espace blanc.
 
 USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes::
-    (((USER M PATH))) Spécifie une liste de répaertoires, séparée par (:) (sans aucun espace blanc) 
+    (((USER M PATH))) Spécifie une liste de répertoires, séparés par (:) (sans aucun espace blanc) 
     pour les fonctions définies par l'utilisateur. Le nombre maximum de répertoires est défini
-    au moment de la compilation par: +`USER_DEFINED_FUNCTION_MAX_DIRS=5`. 
+    au moment de la compilation par: *+USER_DEFINED_FUNCTION_MAX_DIRS=5+*. 
     Les répertoires sont spécifiés relativement
     au répertoire courant du fichier ini ou par des chemins absolus. La liste ne doit contenir
     aucun espace blanc. 
 
-Une recherche est faite pour chaque fonction utilisateur définie possible, typiquement (M100 à M199).
+Une recherche est faite pour chaque fonction utilisateur définie possible, typiquement *M100* à *M199*.
     L'ordre de recherche est le suivant:
 
  . [DISPLAY]PROGRAM_PREFIX (si il est spécifié)
@@ -507,18 +545,19 @@ Une recherche est faite pour chaque fonction utilisateur définie possible, typi
 
 Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 
-=== Section EMCMOT[[sub:Section-EMCMOT]]
+[[sec:Section-EMCMOT]]
+=== Section EMCMOT
 
 (((Section [EMCMOT] du fichier ini)))
 
 Vous pouvez trouver d'autres entrées dans cette section, elles ne doivent pas être changées.
 
 BASE_PERIOD = 50000::
-    (((BASE PERIOD))) (HAL) “Période de base” des tâches, exprimée en nanosecondes. 
+    (((BASE PERIOD))) (HAL) *Période de base* des tâches, exprimée en nanosecondes. 
     C'est la plus rapide des horloges de la machine.
      Avec un système à servomoteurs, il n'y a généralement pas de raison
     pour que *BASE_PERIOD* soit plus petite que *SERVO_PERIOD*.  
-    Sur une machine de type “step&direction” avec génération logicielle
+    Sur une machine de type *step&direction* avec génération logicielle
     des impulsions de pas, c'est *BASE_PERIOD*  qui détermine le nombre
     maximum de pas par seconde. Si de longues
     impulsions de pas ou de longs espaces entre les impulsions ne sont pas
@@ -526,14 +565,13 @@ BASE_PERIOD = 50000::
     par *BASE_PERIOD*. Ainsi, la *BASE_PERIOD*  utilisée ici donnera une
     fréquence de pas maximum absolue de 20000
     pas par seconde. 50000ns est une valeur assez large. La plus petite
-    valeur utilisable est liée au résultat du test de latence 
-    (<<sec:Test-de-latence-IM>>), à la longueur des impulsions de pas 
-    nécessaire et à la vitesse du µP. 
+    valeur utilisable est liée au résultat <<sec:Test-de-latence-IM,du test de latence>>, 
+    à la longueur des impulsions de pas nécessaire et à la vitesse du µP. 
     Choisir une BASE_PERIOD trop basse peut amener à des messages
-    “Unexpected realtime delay”, des bloquages ou des reboots spontanés.
+    *Unexpected realtime delay*, des bloquages ou des reboots spontanés.
 
 SERVO_PERIOD = 1000000::
-    (((SERVO PERIOD))) (hal) Période de la tâche “Servo”, exprimée également en nanosecondes. 
+    (((SERVO PERIOD))) (hal) Période de la tâche *Servo*, exprimée également en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *BASE_PERIOD*. 
     Elle est utilisée aussi sur des systèmes basés sur des moteurs pas à pas.
     C'est la vitesse avec laquelle la nouvelle position des moteurs est
@@ -543,13 +581,14 @@ SERVO_PERIOD = 1000000::
     s'agit du taux de mise à jour du planificateur de mouvement de bas niveau.
 
 TRAJ_PERIOD = 1000000::
-    (((TRAJ PERIOD)))      (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
+    (((TRAJ PERIOD))) (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *SERVO_PERIOD*. 
     Excepté pour les machines avec une cinématique particulière 
     (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur
     supérieure à *SERVO_PERIOD*.
 
-=== Section TASK[[sub:Section-TASK]]
+[[sec:Section-TASK]]
+=== Section TASK
 
 (((Section [TASK] du fichier ini)))
 
@@ -568,58 +607,57 @@ CYCLE_TIME = 0.010::
     une commande provenant d'une interface utilisateur est acceptée. Il
     n'est généralement pas nécessaire de modifier cette valeur.
 
-=== Section HAL[[sub:Section-HAL]]
+[[sec:Section-HAL]]
+=== Section HAL
 
 (((Section [HAL] du fichier ini )))
 
 TWOPASS=ON::
-    Utilise le processus 'two pass' (double pase) pour charger les composants HAL.
+    Utilise le processus *twopass* (double passe) pour charger les composants HAL.
     Avec le processus TWOPASS, tous les fichiers [HAL]HALFILES sont premièrement lus
-    et les occurences multiples des directives à loadrt pour chaque module sont cumulées.
+    et les occurrences multiples des directives à loadrt pour chaque module sont cumulées.
     Aucune commande HAL n'est exécutée à la première passe.
 
 HALFILE = example.hal::
-     Exécute le fichier 'example.hal' au démarrage. Si *HALFILE*  est
+     Exécute le fichier *example.hal* au démarrage. Si *HALFILE*  est
     spécifié plusieurs fois, les fichiers sont exécutés dans l'ordre
     de leur apparition dans le fichier ini. Presque toutes les
     configurations auront au moins un *HALFILE* . Les systèmes à moteurs
     pas à pas ont généralement deux de ces
     fichiers, un qui spécifie la configuration générale des moteurs
-    (`core_stepper.hal`) et un qui spécifie le brochage des sorties
-    (`xxx_pinout.hal`)
+    *core_stepper.hal* et un qui spécifie le brochage des sorties
+    *xxx_pinout.hal*.
 
-    HAL = command::
+HAL = command::
+    Exécute *command* comme étant une simple commande hal. Si *HAL*  est
+    spécifié plusieurs fois, les commandes sont exécutées dans
+    l'ordre où elles apparaissent dans le fichier ini. Les lignes *HAL*
+    sont exécutées après toutes les lignes *HALFILE*.
 
-Exécute 'command' comme étant une simple commande hal. Si *HAL*  est
-spécifié plusieurs fois, les commandes sont exécutées dans
-l'ordre où elles apparaissent dans le fichier ini. Les lignes *HAL*
-sont exécutées après toutes les lignes *HALFILE*.
+SHUTDOWN = shutdown.hal::
+    Exécute le fichier *shutdown.hal* quand emc s'arrête. Selon les
+    pilotes de matériel utilisés, il est ainsi possible de positionner les
+    sorties sur des valeurs définies quand emc s'arrête normalement.
+    Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
+    exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
+    remplace pas une véritable chaîne physique d'arrêt d'urgence ou
+    d'autres logiciels de protection des défauts de fonctionnement.
 
-    SHUTDOWN = shutdown.hal::
+POSTGUI_HALFILE = example2.hal::
+    *(Seulement avec les interfaces TOUCHY et AXIS)* Exécute *example2.hal* 
+    après que l'interface graphique ait créé ses HAL pins. 
 
-Exécute le fichier 'shutdown.hal' quand emc s'arrête. Selon les
-pilotes de matériel utilisés, il est ainsi possible de positionner les
-sorties sur des valeurs définies quand emc s'arrête normalement.
-Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
-exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
-remplace pas une véritable chaîne physique d'arrêt d'urgence ou
-d'autres logiciels de protection des défauts de fonctionnement.
-
-    POSTGUI_HALFILE = example2.hal::
-
-'(Seulement avec les interfaces TOUCHY et AXIS)' Exécute 'example2.hal' après que
-l'interface graphique ait créé ses HAL pins. 
-
-=== Section HALUI[[sub:Section-HALUI]]
+[[sec:Section-HALUI]]
+=== Section HALUI
 
 (((Section [HALUI] du fichier ini )))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
-     Une commande MDI peut être exécuté en utilisant halui.mdi-command-00. 
-    Incrément le nombre pour chaque commande énumérés dans la section [HALUI].
+     Une commande MDI peut être exécuté en utilisant *halui.mdi-command-00*. 
+    Incrémente le nombre pour chaque commande énumérée dans la section [HALUI].
 
-=== Section TRAJ[[sub:Section-TRAJ]]
-
+[[sec:Section-TRAJ]]
+=== Section TRAJ
 (((Section [TRAJ] du fichier ini )))
 
 La section [TRAJ] contient les paramètres généraux du module
@@ -627,17 +665,16 @@ planificateur de trajectoires d' EMCMOT. Vous n'aurez pas à modifier
 ces valeurs si vous utilisez EMC avec une machine à trois axes en
 provenance des USA. Si vous êtes dans une zone métrique, utilisant des
 éléments matériels métriques, vous pourrez utiliser le fichier
-stepper_mm.ini dans lequel les valeurs sont déjà configurées dans cette
+*stepper_mm.ini* dans lequel les valeurs sont déjà configurées dans cette
 unité.
 
 COORDINATES = X Y Z::
       Les noms des axes à contrôler. X, Y, Z, A, B, C, U, V, et W sont
     valides. Seuls les axes nommés dans *COORDINATES*  seront acceptés dans
-    le g-code. Cela n'a aucun effet sur
-    l'ordonnancement des noms d'axes depuis le G-code (X- Y- Z-) jusqu'aux
-    numéros d'articulations. Pour une “cinématique triviale”, X est
-    toujours l'articulation 0, A est toujours l'articulation 4, U est
-    toujours l'articulation 7 et ainsi de suite. Il est permis d'écrire les
+    le G-code. Cela n'a aucun effet sur l'ordonnancement des noms d'axes depuis 
+    le G-code (X- Y- Z-) jusqu'aux numéros d'articulations. Pour une *cinématique 
+    triviale*, X est toujours l'articulation 0, A est toujours l'articulation 4, 
+    U est toujours l'articulation 7 et ainsi de suite. Il est permis d'écrire les
     noms d'axe par paire (ex: X Y Y Z pour une machine à portique) mais
     cela n'a aucun effet.
 
@@ -645,7 +682,7 @@ AXES = 3::
       Une unité de plus que le plus grand numéro d'articulation du système.
     Pour une machine XYZ, les articulations sont numérotées 0, 1 et 2. Dans
     ce cas, les AXES sont 3. Pour un système XYUV utilisant une
-    “cinématique triviale”, l'articulation V est numérotée 7 et donc les
+    *cinématique triviale*, l'articulation V est numérotée 7 et donc les
     AXES devraient être 8. Pour une machine à cinématique non triviale (ex:
     scarakins) ce sera généralement le nombre d'articulations contrôlées.
 
@@ -657,14 +694,14 @@ HOME = 0 0 0::
 
 LINEAR_UNITS=<units>::
       (((LINEAR UNITS)))Le nom des unités utilisées dans le fichier INI.
-    Les choix possibles sont 'in', 'inch', 'imperial', 'metric', 'mm'.  
-     Cela n'affecte pas les unités linéaires du code NC (pour cela il y a
+     Les choix possibles sont *in*, *inch*, *imperial*, *metric*, *mm*.  
+    Cela n'affecte pas les unités linéaires du code NC (pour cela il y a
     les mots G20 et G21). 
 
 ANGULAR_UNITS=<units>::
      (((ANGULAR UNITS)))Le nom des unités utilisées dans le fichier INI.
-    Les choix possibles sont 'deg', 'degree' (360 pour un cercle), 'rad',
-    'radian' (2pi pour un cercle), 'grad', ou 'gon' (400 pour un cercle). 
+    Les choix possibles sont *deg*, *degree* (360 pour un cercle), *rad*,
+    *radian* (2pi pour un cercle), *grad*, ou *gon* (400 pour un cercle). 
      Cela n'affecte pas les unités angulaires du code NC. Dans le code
     RS274NGC, les mots A-, B- et C- sont toujours exprimés en degrés.
 
@@ -674,15 +711,15 @@ DEFAULT_VELOCITY = 0.0167::
 
 DEFAULT_ACCELERATION = 2.0::
       Dans les machines à cinématique non triviale, l'accélération utilisée
-    pour “teleop” jog (espace cartésien), en unités machine par seconde par seconde. 
+    pour *teleop* jog (espace cartésien), en unités machine par seconde par seconde. 
 
 MAX_VELOCITY = 5.0::
-      (((MAX VELOCITY)))Vitesse maximale de déplacement pour les axes,
+      (((MAX VELOCITY))) Vitesse maximale de déplacement pour les axes,
     exprimée en unités machine par seconde. La valeur indiquée est égale à
     300 unités par minute.
 
 MAX_ACCELERATION = 20.0::
-      (((MAX ACCELERATION)))Accélération maximale pour les axes, exprimée
+      (((MAX ACCELERATION))) Accélération maximale pour les axes, exprimée
     en unités machine par seconde par seconde.
 
 POSITION_FILE = position.txt::
@@ -703,11 +740,12 @@ NO_FORCE_HOMING = 1::
     sécurité lors de la phase de mise au point de la machine. 
 
 [WARNING]
-NO_FORCE_HOMING mise à 1 permettra à la machine de franchir les 
-limites logicielles pendant les mouvements ce qui n'est pas souhaîtable 
+*NO_FORCE_HOMING* mise à 1 permettra à la machine de franchir les 
+limites logicielles pendant les mouvements ce qui n'est pas souhaitable 
 pour un fonctionnement normal!
 
-=== Section AXIS_n[[sub:Section-AXIS]]
+[[sec:Section-AXIS]]
+=== Section AXIS_n
 
 (((Section [AXIS_n] du fichier ini)))
 
@@ -757,7 +795,7 @@ BACKLASH = 0.000::
 
 COMP_FILE = file.extension::
      Fichier dans lequel est enregistrée une structure de compensation
-    spécifique à cet axe. Le fichier peut être nommé xscrew.comp, 
+    spécifique à cet axe. Le fichier peut être nommé *xscrew.comp*, 
     par exemple, pour l'axe X. Les noms de fichiers sont sensibles à la 
     casse et peuvent contenir des lettres et/ou des chiffres. Les valeurs 
     sont des triplets par ligne séparés par un espace. La première valeur 
@@ -768,15 +806,15 @@ COMP_FILE = file.extension::
 
 COMP_FILE_TYPE = 0 ou 1::
      *Si 0:* Les deuxième et troisième valeurs spécifient 
-    la position en avant (de combien l'axe est en déplacement vers l'avant) et 
-    la position en arrière (de combien l'axe est en déplacement vers l'arrière), 
-    positions qui correspondent à la position nominale. +
-     *Si 1:* Les deuxième et troisième valeurs spécifient 
-    l'ajustement avant (à quelle distance de la valeur nominale lors d'un déplacement vers l'avant) et 
-    l'ajustement arrière (à quelle distance de la valeur nominale lors d'un déplacement vers l'arrière), 
-    positions qui correspondent à la position nominale. 
+    la position en avant (de combien l'axe est en avance) et 
+    la position en arrière (de combien l'axe est en retard), 
+    positions qui correspondent à la position nominale.
+     *Si 1:* Les deuxième et troisième valeurs spécifient l'ajustement avant 
+    (à quelle distance de la valeur nominale lors d'un déplacement vers l'avant) et 
+    l'ajustement arrière (à quelle distance de la valeur nominale lors d'un 
+    déplacement vers l'arrière), positions qui correspondent à la position nominale. 
 
-    Exemple de triplet avec COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
+    Exemple de triplet avec COMP_FILE_TYPE = 0: 1.00 1.01 0.99
     Exemple de triplet avec COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
 MIN_LIMIT = -1000::
@@ -817,13 +855,14 @@ FERROR = 1.0::
     ajuster interactivement et vérifier les résultats, de sorte que les
     valeurs puissent être mises dans le fichier INI avec un minimum de
     difficultés. Cet utilitaire est accessible dans Axis depuis le menu
-    «Machine» puis «Calibration» et dans TkEMC depuis le menu «Réglages»
-    puis «Calibration».
+    *Machine* puis *Calibration* et dans TkEMC depuis le menu *Réglages*
+    puis *Calibration*.
 
-==== Variables relatives aux prises d'origines[[sub:Variables relatives aux origines]]
+[[sec:Variables-relatives-aux-origines]]
+==== Variables relatives aux prises d'origines
 
 Les paramètres suivants sont relatifs aux prises d'origine, pour plus
-d'informations, lire le chapitre sur la POM. <<sec:Prises-d-origine>>
+d'informations, lire <<sec:Prises-d-origine, le chapitre sur la POM>>.
 
 HOME = 0.0::
      La position à laquelle le joint ira à la fin de la séquence de prise d'origine. 
@@ -867,9 +906,9 @@ HOME_IS_SHARED = <n>::
 
 HOME_SEQUENCE = <n>::
      Utilisé pour définir l'ordre dans lequel les axes se succéderont lors
-    d'une séquence de «POM générale». <n> commence à 0, aucun numéro ne
+    d'une séquence de *POM générale*. *<n>* commence à 0, aucun numéro ne
     peut être sauté. Si cette variable est absente ou à -1, la POM de l'axe
-    ne pourra pas être exécutée par la commande «POM générale». La POM de
+    ne pourra pas être exécutée par la commande *POM générale*. La POM de
     plusieurs axes peut se dérouler simultanément.
 
 VOLATILE_HOME = 0::
@@ -878,30 +917,35 @@ VOLATILE_HOME = 0::
      Ceci est utile si la machine possède des contacts d'origine mais n'a pas de retour 
      de position comme une machine à moteur pas à pas de type pas/direction.
 
-==== Variables relatives aux servomoteurs[[sub:Variables relatives aux servomoteurs]]
+[[sec:Variables-relatives-aux-servomoteurs]]
+==== Variables relatives aux servomoteurs
 
 Les éléments suivants sont pour les systèmes à servomoteurs et à pseudos servomoteurs. 
 Cette description suppose que les unités en sortie du composant PID sont des Volts.
 
 DEADBAND = 0.000015::
-    (in HAL) Quelle distance est assez proche de la consigne pour considérer le moteur en position,
-en uLoosernités machine. Cette variable est fréquemment réglée pour une distance équivalente à 1, 1.5, 2, 
-ou 3 impulsions de comptage du codeur, mais cela n'a rien d'une règle stricte. 
-Un réglage lâche (large) permet de moins solliciter le servo au détriment de la précision. 
-Un réglage serré (petit) permettra d'atteindre une grande précision mais le servo sera plus sollicité. 
-Est-ce vraiment plus précis si c'est plus incertain ? 
-En règle générale, il est préférable d'éviter le plus possible de solliciter le servo,  si c'est possible. 
+    (in HAL) Quelle distance est assez proche de la consigne pour considérer le 
+moteur en position, en unités machine. Cette variable est fréquemment réglée pour 
+une distance équivalente à 1, 1.5, 2, ou 3 impulsions de comptage du codeur, 
+mais cela n'a rien d'une règle stricte. Un réglage lâche (large) permet de moins 
+solliciter le servo au détriment de la précision. Un réglage serré (petit) 
+permettra d'atteindre une grande précision mais le servo sera plus sollicité. 
+Est-ce vraiment plus précis si c'est plus incertain ? En règle générale, il est 
+préférable d'éviter le plus possible de solliciter le servo,  si c'est possible. 
 
-Aillez la prudence de ne pas chercher à aller en dessous d'une impulsion de codeur, sinon vous enverrez votre servo quelque part où il ne sera pas heureux ! Cela peut arriver entre réglage lent et réglage nerveux et même un réglage impropre peut provoquer des couinements, des grincements dus aux oscillations provoquées par ce mauvais réglage. Il est préférable de perdre une ou deux impulsions au début des réglages, au moins  jusqu'à avoir bien dégrossis les réglages. 
+Ayez la prudence de ne pas chercher à aller en dessous d'une impulsion de codeur, 
+sinon vous enverrez votre servo quelque part où il ne sera pas heureux ! Cela 
+peut arriver entre réglage lent et réglage nerveux et même un réglage impropre 
+peut provoquer des couinements, des grincements dus aux oscillations provoquées 
+par ce mauvais réglage. Il est préférable de perdre une ou deux impulsions au 
+début des réglages, au moins  jusqu'à avoir bien dégrossis les réglages. 
 
-Example of calculating machine units per encoder count to use in deciding DEADBAND value: 
+Exemple de calcul en unités machine par top de codeur à utiliser pour décider de 
+la valeur de DEADBAND (bande morte): 
 
-latexmath:[ \frac{X\, inches}{1\, encoder\, count} = 
-\frac{1\, revolution}{1000\, encoder\, lines} \times 
-\frac{1\, encoder\, line}{4\, quadrature\, counts} \times 
-\frac{0.200\, inches}{1\, revolution} = 
-\frac{0.200\, inches}{4000\, encoder\, counts} = 
-\frac{0.000050\, inches}{1\, encoder\, count} ]
+*+X pouces / top de codeur =+*
+*+1 tour / 1000 top de codeur * 1 top de codeur / 4 top en quadrature * 0.2 pouce / tour =+*
+*+0.200 pouce / 4000 top de codeur = 0.000050 pouce / top de codeur.+*
 
 BIAS = 0.000::
      (in HAL) '(Parfois appelé *offset*)' il est utilisé par hm2-servo et quelques autres. 
@@ -913,13 +957,12 @@ BIAS = 0.000::
     tous les autres composants de la sortie.
 
 P = 50::
-     (hal) La composante *p* proportionnelle du gain de l'ampli moteur de
+     (hal) La composante *p* roportionnelle du gain de l'ampli moteur de
     cet axe. Cette valeur
     multiplie l'erreur entre la position commandée et la position actuelle
     en unités machine, elle entre dans le calcul de la tension appliquée à
      l'ampli moteur. Les unités du gain *P*  sont des Volts sur des unités
-    machine, exemple:
-    latexmath:[$\frac{volt}{mm}$] si l'unité machine est le millimètre.
+    machine, par exemple: Volt/mm si l'unité machine est le millimètre.
 
 I = 0::
       (hal) La composante *i* ntégrale du gain de l'ampli moteur de cet
@@ -927,8 +970,7 @@ I = 0::
     l'erreur cumulative entre la position commandée et la position actuelle
     en unités machine, elle entre dans le calcul de la tension appliquée à
      l'ampli moteur. Les unités du gain *I* sont des Volts sur des unités
-    machine par seconde, exemple:
-    latexmath:[$\frac{volt}{mm\, s}$] si l'unité machine est le millimètre.
+    machine par seconde, exemple: Volt/mm*s si l'unité machine est le millimètre.
 
 D = 0::
       (hal) La composante *d* érivée du gain de l'ampli moteur de cet axe.
@@ -936,30 +978,27 @@ D = 0::
     différence entre l'erreur courante et les précédentes, elle entre dans
      le calcul de la tension appliquée à l'ampli moteur. Les unités du gain
     *D* sont des Volts sur des unités machine sur des secondes, exemple:
-    latexmath:[$\frac{volt}{mm/s}$] si l'unité machine est le millimètre.
+    Volt/(mm/s) si l'unité machine est le millimètre.
 
 FF0 = 0::
-      (hal) Gain à priori (feedforward) d'ordre 0. Cette valeur est
-    multipliée par
-    la position commandée, elle entre dans le calcul de la tension
-    appliquée à l'ampli moteur. Les unités du gain FF0 sont des Volts sur
-    des unités machine, exemple: latexmath:[$\frac{volt}{mm}$] si l'unité
-    machine est le millimètre.
+     (hal) Gain à priori (retour vitesse) d'ordre 0. Cette valeur est multipliée
+    par la position commandée, elle entre dans le calcul de la tension appliquée 
+    à l'ampli moteur. Les unités du gain FF0 sont des Volts sur des unités 
+    machine, exemple: *+Volt/mm+* si l'unité machine est le millimètre.
 
 FF1 = 0::
      (hal) Gain à priori (feedforward) de premier ordre. Cette valeur est
     multipliée par l'écart de la position commandée par seconde, elle entre
     dans le calcul de la tension appliquée à l'ampli moteur. Les unités du
     gain FF1 sont des Volts sur des unités machine par seconde, exemple:
-    latexmath:[$\frac{volt}{mm\, s}$] si l'unité machine est le millimètre.
+    *+Volt/(mm/s)+* si l'unité machine est le millimètre.
 
 FF2 = 0::
      (hal)  Gain à priori (feedforward) de second ordre. Cette valeur est
     multipliée par l'écart de la position commandée par seconde au carré,
     elle entre dans le calcul de la tension appliquée à l'ampli moteur. Les
     unités du gain FF2 sont des Volts sur des unités machine par des
-    secondes au carré, exemple: latexmath:[$\frac{volt}{mm\, s^{2}}$] si
-    l'unité machine est le millimètre.
+    secondes au carré, exemple: *+Volt/mm/s^2^+* si l'unité machine est le millimètre.
 
 OUTPUT_SCALE = 1.000::
     
@@ -977,38 +1016,38 @@ OUTPUT_OFFSET = 0.000::
     Volts pour un amplificateur DAC. Cette mise à l'échelle ressemble à
     cela: 
 
-    latexmath:[[raw=\frac{{output-offset}}{scale}\]] 
+*+raw = output-offset/scale+*
 
-     La valeur d'échelle peut être obtenue par analyse des unités, exemple: les unités
-    sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur 
-    une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
-    donne une vitesse de 250 mm/sec :
+la valeur d'échelle peut être obtenue par analyse des unités, exemple: les unités
+sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur 
+une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
+donne une vitesse de 250 mm/sec :
     
-    latexmath:[ amplifier [ volts ] = ( output [ \frac{mm}{sec} ] - offset [ \frac{mm}{sec} ] ) / 250 \frac{mm}{sec\, volt} ] ]
-    
-    Notez que les unités d'offset sont en unités machine, exemple:
-    mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
-    valeur de cet offset est obtenue en prenant la valeur de votre sortie
-    qui donne 0,0 sur la sortie de l'actuateur. Si le DAC est linéarisé,
-    cet offset est normalement de 0.0.  
+*+amplifier [volts] = (output[mm/s] - offset[mm/s]) / 250mm/(sec/Volt)+*
+   
+Notez que les unités d'offset sont en unités machine, exemple:
+mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
+valeur de cet offset est obtenue en prenant la valeur de votre sortie
+qui donne 0,0 sur la sortie de l'actuateur. Si le DAC est linéarisé,
+cet offset est normalement de 0.0.  
 
-     L'échelle et l'offset peuvent être utilisés pour linéariser les DAC,
-    d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
-    de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
-    suivez cette procédure: 
-      . Construire un tableau de calibrage pour la sortie, piloter le DAC
-       avec la tension souhaitée et mesurer le résultat. Voir le tableau 
-       <<cap:Mesure-des-tensions-de-sortie>> pour un exemple de mesures de
-       tension.
-      . Effectuer un “least squares” linéaire pour obtenir les
-       coefficients a,b tels que:latexmath:[meas=a*raw+b]
-      . Notez que nous voulons des sorties brutes de sorte que nos résultats
-       mesurés soient identiques à la sortie commandée. Ce qui signifie:
-        . latexmath:[cmd=a*raw+b]
-        . latexmath:[raw=(cmd-b)/a]
-      .  En conséquence, les coefficients a et b d'ajustement linéaire
-       peuvent être directement utilisés comme valeurs d'échelle et 
-       d'offset pour le contrôleur. 
+L'échelle et l'offset peuvent être utilisés pour linéariser les DAC,
+d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
+de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
+suivez cette procédure:
+
+- Construire un tableau de calibrage pour la sortie, piloter le DAC
+   avec la tension souhaitée et mesurer le résultat. Voir le tableau 
+   ci-dessous pour un exemple de mesures de tension.
+- Par la méthode des moindres carrés, obtenir les coefficients *a*,*b* 
+   tels que: *+mesure = a*raw+b+*
+- Notez que nous voulons des sorties brutes de sorte que nos résultats
+   mesurés soient identiques à la sortie commandée. Ce qui signifie:
+- *+cmd = a*raw+b+*
+- *+raw = (cmd-b)/a+*
+-  En conséquence, les coefficients *a* et *b* d'ajustement linéaire
+   peuvent être directement utilisés comme valeurs d'échelle et 
+   d'offset pour le contrôleur. 
 
 .Mesure des tensions de sortie[[cap:Mesure des tensions de sortie]]
 
@@ -1032,55 +1071,53 @@ MAX_OUTPUT = 10::
     manière symétrique aux deux le plus et le côté négatif.
 
 INPUT_SCALE = 20000::
-(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui
-correspond à un mouvement d'une unité machine. 
-Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
-Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
-Un second chiffre, si spécifié, sera ignoré. 
-Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
-réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
+    (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui
+    correspond à un mouvement d'une unité machine. 
+    Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
+    Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
+    Un second chiffre, si spécifié, sera ignoré. 
+    Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
+    réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
 
-latexmath:[ INPUT\_SCALE = 
-\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
-\frac{20000\, counts}{inch} ]
+*+INPUT_SCALE = 2000 top/tour * 10 tour/pouce = 20000 top/pouce+*
 
-==== Variables relatives aux moteurs pas à pas[[sub:Variables relatives aux moteurs pas a pas]]
+[[sec:Variables-relatives-aux-moteurs-pas-a-pas]]
+==== Variables relatives aux moteurs pas à pas
 
 SCALE = 4000::
-(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
-mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
-Pour les systèmes à moteurs pas à pas, c'est 
-le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
-Pour un axe linéaire, une unité machine sera égale à la valeur de LINEAR_UNITS. 
-Pour un axe angulaire, une unité est égale à la valeur de ANGULAR_UNITS. 
-Pour les systèmes à servomoteurs, c'est le nombre d'impulsions
-de retour signifiant que le mobile a avancé d'une unité machine. 
-Un second nombre, si spécifié, sera ignoré. 
-Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une
-réduction de 10 tours/pouce et des unités souhaitées en mm, nous
-avons:
+    (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
+    mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
+    Pour les systèmes à moteurs pas à pas, c'est 
+    le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
+    Pour un axe linéaire, une unité machine sera égale à la valeur de LINEAR_UNITS. 
+    Pour un axe angulaire, une unité est égale à la valeur de ANGULAR_UNITS. 
+    Pour les systèmes à servomoteurs, c'est le nombre d'impulsions
+    de retour signifiant que le mobile a avancé d'une unité machine. 
+    Un second nombre, si spécifié, sera ignoré. 
+    Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une
+    réduction de 10 tours/pouce et des unités souhaitées en mm, nous
+    avons:
 
-latexmath:[ scale = 
-\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
-\frac{4000\, steps}{inch} ]
+*+scale = 2 pas/1.8 degrés * 360 degrés/tour * 10 tour/pouce = 4000 pas/pouce+*
 
-(D'anciens fichiers de .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
+(D'anciens fichiers .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
 
 STEPGEN_MAXACCEL = 21.0::
      (hal) Limite d'accélération pour le générateur de pas. Elle doit être
     1% à 10% supérieure à celle de l'axe MAX_ACCELERATION. Cette valeur améliore
-    les réglages de la “boucle de position” de stepgen. Si une correction
+    les réglages de la *boucle de position* de stepgen. Si une correction
     de backlash a été appliquée sur un axe, alors STEPGEN_MAXACCEL doit
     être 1,5 à 2 fois plus grande que MAX_ACCELERATION.
 
 STEPGEN_MAXVEL = 1.4::
      (hal) Les anciens fichiers de configuration avaient également une
-    limite de vitesse du générateur de pas. Si spécifiée, elle doit auss être 
+    limite de vitesse du générateur de pas. Si spécifiée, elle doit aussi être 
     1% à 10% supérieure à celle de l'axe MAX_VELOCITY. Des tests ultérieurs ont
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 
-=== Section EMCIO[[sub:Section-EMCIO]]
+[[sec:Section-EMCIO]]
+=== Section EMCIO
 
 (((Section [EMCIO] du fichier ini)))
 

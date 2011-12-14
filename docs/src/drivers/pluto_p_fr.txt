@@ -157,7 +157,7 @@ VCC::
 
 .Pluto-Servo Pinout[[fig:Pluto-Servo-Pinout]](((pluto-servo pinout)))
 
-image::images/pluto-pinout.eps[]
+image::images/pluto-pinout.png[]
 
 .Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
 
@@ -264,7 +264,7 @@ connector.
 
 .Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
 
-image::images/pluto-step-pinout.eps[]
+image::images/pluto-step-pinout.png[]
 
 === Input latching and output updating
 
@@ -277,7 +277,7 @@ image::images/pluto-step-pinout.eps[]
 
 The firmware and driver enforce step length, space, and direction
 change times. Timings are rounded up to the next multiple of
-latexmath:[1.6μs], with a maximum of latexmath:[49.6μs]. The timings
+*_1.6μs_*, with a maximum of *_49.6μs_*. The timings
 are the same as for the software stepgen component, except that
 “dirhold” and “dirsetup” have been merged into a single parameter
 “dirtime” which should be the maximum of the two, and that the same
@@ -285,7 +285,7 @@ step timings are always applied to all channels.
 
 .Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
 
-image::images/pluto_step_waveform.eps[]
+image::images/pluto_step_waveform.png[]
 
 === HAL Functions, Pins and Parameters
 

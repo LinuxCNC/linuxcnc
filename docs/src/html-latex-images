@@ -70,9 +70,9 @@ def latex(txt, block=False):
 def substitute(f):
     xml = ET.parse(open(f), ET.HTMLParser())
     images = 0
-    for e in xml.xpath('//xhtml:span[@class="latexmath"]', namespaces=nsmap):
+    for e in xml.xpath('//span[@class="latexmath"]', namespaces=nsmap):
         images += build_img(f, e, block=False)
-    for e in xml.xpath('//xhtml:div[@class="latexmath"]', namespaces=nsmap):
+    for e in xml.xpath('//div[@class="latexmath"]', namespaces=nsmap):
         images += build_img(f, e, block=True)
     if not images: return
     print "Added %d images" % images

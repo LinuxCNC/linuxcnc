@@ -10,7 +10,8 @@ Build-Depends: debhelper (>= 6),
     python, python-dev, python-support, python-tk, python-lxml,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
     libgtk2.0-dev, libgnomeprintui2.2-dev,
-    gettext, autoconf, libboost-python-dev
+    gettext, autoconf, libboost-python-dev,
+    texlive-lang-cyrillic
 Standards-Version: 2.1.0
 
 Package: @EMC2_PACKAGE_NAME@-dev
@@ -35,7 +36,7 @@ Replaces: emc2, emc2-axis
 Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
 Architecture: any
-Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr | emc2-doc-de | emc2-doc-es
+Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr | emc2-doc-de | emc2-doc-es | emc2-doc-pl
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
@@ -98,4 +99,16 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in Spanish.
+
+Package: emc2-doc-pl
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ EMC2 is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in Polish.
 

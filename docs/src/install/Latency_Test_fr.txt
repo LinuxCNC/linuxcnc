@@ -1,7 +1,11 @@
+:lang: fr
+:toc:
+
 Test des capacités temps réel
 =============================
 
-== Test de latence[[sec:Test-de-latence-IM]]
+[[sec:Test-de-latence-IM]]
+== Test de latence
 
 Ce test est le premier test qui doit être effectué sur un PC 
 pour savoir si celui-ci est capable de piloter une machine CNC.
@@ -15,7 +19,7 @@ seront les pas des moteurs.
 
 Le temps de latence est beaucoup plus important que la vitesse du processeur. 
 Un vieux Pentium III qui répond aux interruptions avec 10 microsecondes 
-entre chacune peut donner de meilleurs résultats
+entre chacune, peut donner de meilleurs résultats
 qu'un rapide P4 en Hyperthreading.
 
 Le CPU n'est pas le seul facteur déterminant le temps de latence.
@@ -37,15 +41,14 @@ ont aussi quelques inconvénients:
 
 La seule façon de découvrir ce qu'il en est sur votre PC 
 est d'exécuter le test de latence de HAL.
-Pour exécuter ce test, ouvrez une fenêtre de terminal
-(Dans Ubuntu, à partir de Applications -> Accessoires -> Terminal)
-et exécutez la commande suivante:
+Pour exécuter ce test, ouvrez une fenêtre de terminal à partir de *Applications 
+-> Accessoires -> Terminal* et exécutez la commande suivante:
 
-    `latency-test` 
+*+latency-test+* 
 
 Vous devriez voir quelque chose comme ceci:
 
-image::images/latency.png[]
+image::../config/images/latency.png[]
 
 Alors que le test est en cours d'exécution, vous devriez «abuser» de l'ordinateur.
 Déplacer les fenêtres sur l'écran. Surfez sur le Web. Écouter de la musique.
@@ -54,11 +57,11 @@ L'idée est de charger le PC au maximum pour que le temps de latence soit mesur�
 dans le cas le plus défavorable et donc, connaitre la latence la plus grande. 
 
 [NOTE]
-Ne pas exécuter EMC2 ou Stepconf pendant que latency-test est 
+Ne pas exécuter *EMC2* ou *Stepconf* pendant que *latency-test* est 
 en cours d'exécution. 
 
-Le chiffre "max jitter" de l'exemple ci-dessous est de 6762.
-Ce qui représente 6762 nanosecondes, soit 6.762 microsecondes.
+La colonne 'max jitter' et la ligne 'Base Thread' de l'exemple ci-dessous 
+donne 9075. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes.
 Notez bien ce nombre et entrez le dans Stepconf quand il le demande.
 
 Dans cet exemple de test de latence il n'a fallu que quelques
@@ -106,13 +109,13 @@ fournissent un ou deux ports parallèles.
 Pour trouver les adresses d'entrées/sorties de ces cartes, ouvrir
 une console et utiliser la commande en ligne:
 
-    `lspci -v`
+*+lspci -v+*
 
 Rechercher ensuite dans la liste de matériel fourni, le nom du
 chipset de la nouvelle carte, dans cette exemple c'est l'entrée
 NetMos Technology pour une carte à deux ports:
 
--------------------------------------------------
+----
   0000:01:0a.0 Communication controller: \
         Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
         Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel adapter)
@@ -123,7 +126,7 @@ NetMos Technology pour une carte à deux ports:
         I/O ports at c400 [size=8]
         I/O ports at c800 [size=8]
         I/O ports at cc00 [size=16]
--------------------------------------------------
+----
 
 Après expérimentation, il se trouve que le premier port (incorporé
 à la carte) utilise la troisième adresse de la liste (c000) et le
@@ -133,7 +136,7 @@ deuxième port (raccordé par une nappe) utilise la première adresse
 Il est alors possible d'ouvrir dans l'éditeur le fichier .hal de la
 machine et d'insérer l'adresse trouvée à l'endroit approprié.
 
-    `loadrt hal\_parport cfg="0x378 0xc000"`
+*+loadrt hal\_parport cfg="0x378 0xc000"+*
 
 Noter la présence des guillemets "" encadrant les deux adresses,
 ils sont obligatoires dès qu'il y a plus d'une carte.
@@ -142,8 +145,9 @@ Il est nécessaire également d'ajouter les fonctions de lecture
 (read) et d'écriture (write) pour la nouvelle carte. Par
 exemple,
 
-    `addf parport.1.read base-thread 1`
-    `addf parport.1.write base-thread -1`
+*+addf parport.1.read base-thread 1+*
+
+*+addf parport.1.write base-thread -1+*
 
 Noter que les valeurs peuvent être différentes de celles de cet
 exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc

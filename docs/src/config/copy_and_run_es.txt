@@ -1,4 +1,7 @@
-= Running EMC2
+:lang: en
+:toc:
+
+= Running EMC2(((Running EMC2)))
 
 == Invoking EMC2
 
@@ -33,18 +36,9 @@ to add an icon on the Ubuntu desktop
 to directly launch this configuration 
 without showing the Configuration Selector screen. 
 
-If you select a configuration from the Sample Configurations section, 
-you will be asked to copy the configuration 
-to a location in your home directory. 
-It is safe to say "yes" to this prompt. 
-If you say "no", EMC2 may start but will behave strangely --for instance, 
-offsets entered with Touch Off will be cleared unexpectedly. 
-This is because the files are read only 
-if you don't save a copy to your home directory.
-
-.Copy Configuration Dialog
-
-image::images/copy-configuration.png[]
+When you select a configuration from the Sample Configurations section, 
+it will automaticly place a copy of that config in the
+emc/configs directory. 
 
 == Next steps in configuration
 

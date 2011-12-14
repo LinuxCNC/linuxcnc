@@ -1,6 +1,12 @@
 = G Código de Referencia
 (((G Codes)))
 
+////
+Just in case this document is not a product of google translate it remains. 
+If it is really translated delete gcode_es.txt then fix the links that will break
+due to the link names being translated.
+////
+
 Convenciones utilizadas en esta sección
 
 En los prototipos Código G del guión (`-`) representa un valor real.
@@ -98,57 +104,57 @@ Es un error si:
 [Width="100%", options="header"]
 |====================================================================
 | Código | Descripción | Sección
-| G0 | movimiento coordinado recta rápida | <<sec:G0-Rapid>>
-| G1 | Coordinado movimiento recto Velocidad de alimentación | <<sec:G1-Linear-Motion>>
-| G2, G3 | movimiento coordinado helicoidal velocidad de alimentación | <<sec:G2-G3-Arc>>
-| G4 | Mora | <<sec:G4-Dwell>>
-| G5.1 | cuadráticas B-Spline | <<sec:G5.1-B-spline>>
+| G0 | movimiento coordinado recta rápida | <<sec:G0-Rapido>>
+| G1 | Coordinado movimiento recto Velocidad de alimentación | <<sec:G1-lineal-de-movimiento>>
+| G2, G3 | movimiento coordinado helicoidal velocidad de alimentación | <<sec:G2-G3-Arco>>
+| G4 | Mora | <<sec:G4-Mora>>
+| G5.1 | cuadráticas B-Spline | <<sec:G5.1-B-spline-cuadratica>>
 | G5.2, G5.3 | NURBS Bloquear | <<sec:G5.2-G5.3-NURBs>>
-| G7 | Diámetro Mode (torno) | <<sec:G7-Diameter-Mode>>
-| G8 | Radio Mode (torno) | <<sec:G8-Radius-Mode>>
+| G7 | Diámetro Mode (torno) | <<sec:G7-Diametro-Modo>>
+| G8 | Radio Mode (torno) | <<sec:G8-Radio-Mode>>
 | G10 L1 | Juego de herramientas de entrada de la tabla | <<sec:G10-L1_>>
 | G10 L10 | Establecer tabla de herramientas, calculado, piezas | <<sec:G10-L10>>
 | G10 L11 | Establecer tabla de herramientas, calculado, Fixture | <<sec:G10-L11>>
 | G10 L2 | Sistema de coordenadas Configuración de Origen | <<sec:G10-L2_>>
 | G10 L20 | Sistema de coordenadas Configuración de Origen Calculado | <<sec:G10-L20>>
 | G17 - G19.1 | Plano Seleccionar | <<sec:G17-G18-G19>>
-| G20, G21 | Unidades de Medida | <<sec:G20-G21-Units>>
+| G20, G21 | Unidades de Medida | <<sec:G20-G21-Unidades>>
 | G28 - G28.1 | Ir a las posiciones predefinidas | <<sec:G28-G28.1>>
 | G30 - G30.1 | Ir a las posiciones predefinidas | <<sec:G30-G30.1>>
-| G33 | Movimiento eje sincronizado | <<sec:G33-Spindle-Sync>>
-| G33.1 | Roscado | <<sec:G33.1-Rigid-Tapping>>
+| G33 | Movimiento eje sincronizado | <<sec:G33-eje-Sync>>
+| G33.1 | Roscado | <<sec:G33.1-rigido-Tapping>>
 | G38.2 - G38.5 | Sondeo | <<sec:G38.x-Straight-Probe>>
 | G40 | Compensación de corte cancelar | <<sec:G40>>
 | G41, G42 | Cortador de Compensación | <<sec:G41-G42>>
 | G41.1, G42.1 | Compensación de corte transitorio | <<sec:G41.1-G42.1>>
 | G43, G43.1 | El uso de herramientas desplazamiento de longitud de la tabla de Herr | <<sec:G43-G43.1-Tool>>
-| G49 | Duración herramienta Cancelar offset | <<sub:G49-Tool>>
+| G49 | Duración herramienta Cancelar offset | <<sub:G49-herramientas>>
 | G53 | movimiento en la máquina del sistema de coordenadas | <<sub:G53-Move-in>>
 | G54-G59 | Seleccionar sistema de coordenadas (1-6) | <<sec:G54-G59.3>>
 | G59.1-G59.3 | Seleccionar sistema de coordenadas (7-9) | <<sec:G54-G59.3>>
 | G61, G61.1 | modo de control de ruta | <<sec:G61-G61.1-G64>>
 | G64 | modo de control de ruta con la tolerancia opcional | <<sec:G61-G61.1-G64>>
-| G73 | Ciclo de taladrado con rotura de virutas | <<sec:G73-Drilling-Cycle>>
+| G73 | Ciclo de taladrado con rotura de virutas | <<sec:G73-Perforacion-del-ciclo>>
 | G76 | Multipass Threading de ciclo (Tornos) | <<sec:G76-Threading-Canned>>
-| G80 | Cancelar movimiento Modos | <<sec:G80-Cancel-Modal>>
-| G81 | Ciclo de taladrado | <<sec:G81-Drilling-Cycle>>
-| G82 | Ciclo de taladrado con temporización | <<sec:G82-Drilling-Dwell>>
-| G83 | Ciclo de taladrado con Peck | <<sec:G83-Drilling-Peck>>
-| G84 | Mano Derecha * Tapping ciclo (no implementada) * | <<sec:G84-Right-Hand-Tapping>>
-| G85 | Ciclo de aburrido, no de permanencia, salida de alimentación | <<sec:G85-Boring-Feed-Out>>
-| G86 | Ciclo aburrido, Stop, salida rápida | <<sec:G86-Boring-Rapid-Out>>
-| G87 | Back-Aburrido Ciclo * (no implementada) * | <<sec:G87-Back-Boring>>
-| G88 | Ciclo aburrido, Stop, Manl Out * (no implementada) * | <<sec:G88-Boring-Manual-Out>>
-| G89 | Ciclo aburrido, permanencia, salida de alimentación | <<sec:G89-Boring-Dwell>>
+| G80 | Cancelar movimiento Modos | <<sec:G80-Cancelar-Modal>>
+| G81 | Ciclo de taladrado | <<sec:G81-Perforacion-del-ciclo>>
+| G82 | Ciclo de taladrado con temporización | <<sec:G82-Perforacion-Dwell>>
+| G83 | Ciclo de taladrado con Peck | <<sec:G83-Perforacion-Peck>>
+| G84 | Mano Derecha * Tapping ciclo (no implementada) * | <<sec:G84-de-la-mano-derecha-Tapping>>
+| G85 | Ciclo de aburrido, no de permanencia, salida de alimentación | <<sec:G85-aburrido-Feed-Out>>
+| G86 | Ciclo aburrido, Stop, salida rápida | <<sec:G86-aburrido-Rapid-Out>>
+| G87 | Back-Aburrido Ciclo * (no implementada) * | <<sec:G87-Back-Aburrido>>
+| G88 | Ciclo aburrido, Stop, Manl Out * (no implementada) * | <<sec:G88-aburrido-Manual-Out>>
+| G89 | Ciclo aburrido, permanencia, salida de alimentación | <<sec:G89-aburrido-Dwell>>
 | G90, G91 | Modo Distancia | <<sec:G90-G91-Set>>
 | G90.1, G91.1 | Modo Distancia Arco | <<sec:G90.1-G91.1>>
 | G92 | de los sistemas de coordenadas y parámetros de Set | <<sec:G92-G92.1-G92.2-G92.3>>
 | G92.1 | Compensaciones cancelar | <<sec:G92-G92.1-G92.2-G92.3>>
 | G92.2 | Compensaciones cancelar | <<sec:G92-G92.1-G92.2-G92.3>>
 | G92.3 | Aplicar los parámetros de compensación de sistemas de coordenadas | <<sec:G92-G92.1-G92.2-G92.3>>
-| G93, G94, G95 | Modos de alimentación | <<sec:G93-G94-G95-Mode>>
-| G96 | velocidad de corte constante | <<sec:G96-G97-Spindle>>
-| G97 | RPM Mode | <<sec:G96-G97-Spindle>>
+| G93, G94, G95 | Modos de alimentación | <<sec:G93-G94-G95-modo>>
+| G96 | velocidad de corte constante | <<sec:G96-G97-eje>>
+| G97 | RPM Mode | <<sec:G96-G97-eje>>
 | G98, G99 | Ciclo enlatados Z retracción Simple | <<sec:G98-G99-Set>>
 |====================================================================
 
@@ -157,25 +163,25 @@ Es un error si:
 | Código | Descripción | Sección
 | M0, M1, M2 | Programa de Control | <<sec:M0-M1-M2>>
 | M3, M4, M5 | Eje de Control | <<sec:M3-M4-M5>>
-| M6 | Herramienta de Cambio | <<sec:M6-Tool-Change>>
+| M6 | Herramienta de Cambio | <<sec:M6-Tool-Cambio>>
 | M7, M8, M9 | Refrigerante de Control | <<sec:M7-M8-M9>>
 | M30, M60 | Shuttle Palet | <<sec:M0-M1-M2>>
-| M48 | Controles anulación | <<sub:M48-Both-Override>>
-| M49 | Controles anulación | <<sub:M49-Neither-Override>>
-| M50 | Controles anulación | <<sub:M50-Feed-Override>>
-| M51 | Controles anulación | <<sub:M51-Spindle-Override>>
-| M52 | Controles anulación | <<sub:M52-Adaptive-Feed-Control>>
+| M48 | Controles anulación | <<sub:M48-Ambos-Override>>
+| M49 | Controles anulación | <<sub:M49-Ni-Anular>>
+| M50 | Controles anulación | <<sub:M50-Feed-Anular>>
+| M51 | Controles anulación | <<sub:M51-eje-Anular>>
+| M52 | Controles anulación | <<sub:M52-adaptativa-Feed-Control>>
 | M53 | Controles anulación | <<sub:M53-Feed-Stop-Control>>
-| M61 | Establecer Herramienta Número actual | <<sec:M61-Set-Current-Tool-Number>>
-| M62-65 | Control de Salida | <<sec:M62-to-M65>>
+| M61 | Establecer Herramienta Número actual | <<sec:M61-Set-actual-Tool-Numero>>
+| M62-65 | Control de Salida | <<sec:M62-a-M65>>
 | M66 | Entrada de control | <<sec:M66-Input-Control>>
-| M67 | Control de salida analógica | <<sec:M67-Analog-Output>>
-| M68 | Control de salida analógica | <<sec:M68-Analog-Output>>
-| M100-M199 | Definido por el usuario M-Codes | <<sec:M100-to-M199>>
-| S | S | Códigos | <<cha:O-Codes>>
+| M67 | Control de salida analógica | <<sec:M67-analogico-de-salida>>
+| M68 | Control de salida analógica | <<sec:M68-analogico de salida>>
+| M100-M199 | Definido por el usuario M-Codes | <<sec:M100-a-M199>>
+| S | S | Códigos | <<cha:O-codigos>>
 | F | Feed | <<sub:F-Set-Feed>>
-| S | Velocidad del eje | <<sub:S-Set-Spindle>>
-| T | Herramienta de selección | <<sub:T-Select-Tool>>
+| S | Velocidad del eje | <<sub:S-Set-eje>>
+| T | Herramienta de selección | <<sub:T-Seleccionar-Herramienta>>
 |========================================
 
 == G0 movimiento rápido[[sec:G0-Rapido]]
@@ -704,7 +710,7 @@ Estos códigos de establecer el plano actual de la siguiente manera:
 |========================================
 
 Los efectos de contar con un plano seleccionado se discuten en la Sección 
-<<sec:G2-G3-Arc>> Y en la sección <<sec:G81-G89>>
+<<sec:G2-G3-Arco>> Y en la sección <<sec:G81-G89>>
 
 == G20, G21 Unidades de longitud[[sec:G20-G21-Unidades]]
 
@@ -718,7 +724,7 @@ Por lo general es una buena idea del programa ya sea del G20 o G21, cerca de la
 inicio de un programa antes de que cualquier movimiento se produce, y no utilizar
 uno en el resto del programa.
 
-== G28, G28.1 Ir a las posiciones predefinidas[[sec:G28-G28-G28.1]]
+== G28, G28.1 Ir a las posiciones predefinidas[[sec:G28-G28.1]]
 
 (((G28)))
 (((G28.1)))
@@ -871,7 +877,7 @@ cuando el punto programado se alcanza,
 o cuando el cambio solicitado en la entrada de la sonda se lleva a cabo, 
 lo que ocurra primero. 
 
-La tabla <<cap:Probing-codes>> muestra la importancia de
+La tabla <<cap:El-sondeo-de-codigos>> muestra la importancia de
 diferentes códigos de sondeo.
 
 .Códigos de sondeo[[cap:El-sondeo-de-codigos]]
@@ -1151,7 +1157,7 @@ Es un error si:
 
 - El número Q es negativo o cero.
 
-== G76 Roscado ciclo[[sec:G76-Threading-Conservas]]
+== G76 Roscado ciclo[[sec:G76-Threading-Canned]]
 
 (((G76 Threading)))
 
@@ -1505,7 +1511,7 @@ Es un error si:
 
 Este código no está implementada en EMC2. Se acepta, pero el
 comportamiento no está definido. Vea las secciones 
-<<sec:G33-Spindle-Sync>> Y <<sec:G33.1-Rigid-Tapping>>
+<<sec:G33-eje-Sync>> Y <<sec:G33.1-rigido-Tapping>>
 
 == G85 aburrido, no de permanencia, salida de alimentación[[sec:G85-aburrido-Feed-Out]]
 
@@ -1839,7 +1845,7 @@ Sección (<<sec:Manual-Tool-Change>>)
 
 Para cambiar una herramienta en el eje de la herramienta que está en el eje
 a la herramienta más recientemente seleccionado (usando una palabra T - véase la Sección 
-<<sub:T-Select-Tool>>), El programa `M6`. 
+<<sub:T-Seleccionar-Herramienta>>), El programa `M6`. 
 Cuando el cambio de herramienta es completa:
 
 - El eje se detendrá. 
@@ -1887,12 +1893,12 @@ independientemente de lo que el refrigerante está encendido o apagado.
 
 Para permitir que la velocidad de giro y los controles de velocidad de avance de invalidación, el programa `M48. 
 Para desactivar los controles, el programa 'M49'. 
-Vea la sección <<sub:Feed-Interaction>> para más detalles. 
+Vea la sección <<sec:Feed-Interaction>> para más detalles. 
 Está bien para activar o desactivar los controles cuando 
 que ya están activados o desactivados. 
 Estos controles también se puede activar de forma individual 
 con M50 y M51 como se describe en el 
-secciones <<sub:M50-Feed-Override>> y <<sub:M51-Spindle-Override>>.
+secciones <<sub:M50-Feed-Anular>> y <<sub:M51-eje-Anular>>.
 
 === M50 Alimentación anulación de control[[sub:M50-Feed-Anular]]
 
@@ -1915,7 +1921,7 @@ Para desactivar el programa de control 'M51' P0.
 Mientras que la velocidad de giro con discapacidad anular 
 no tendrá ninguna influencia, y la velocidad del husillo 
 tendrá el valor exacto del programa especificado
-(Con el S-palabra como se describe en <<sub:S-Set-Spindle>>).
+(Con el S-palabra como se describe en <<sub:S-Set-eje>>).
 
 === M52 control adaptativo de la alimentación[[sub:M52-adaptativa-Feed-Control]]
 
@@ -2262,9 +2268,9 @@ archivo debe ser un archivo válido.
 
 Para configurar la velocidad de avance, el programa `F<n>` donde "n" es un número. 
 La aplicación de la tasa de alimentación es como se describe en la Sección 
-<<sub:Feed-Rate>>, A menos que alimentar a tiempo inverso modo de índice es, en efecto, 
+<<sec:Feed-Rate>>, A menos que alimentar a tiempo inverso modo de índice es, en efecto, 
 en cuyo caso la tasa de alimentación es como se describe en 
-Sección <<sec:G93-G94-G95-Mode>>.
+Sección <<sec:G93-G94-G95-modo>>.
 
 == S: Velocidad conjunto de ejes[[sub:S-Set-eje]]
 
@@ -2282,7 +2288,7 @@ Es un error si:
 
 - El número S es negativo.
 
-Como se describe en la sección <<sec:G84-Right-Hand-Tapping>>, si un 'G84' 
+Como se describe en la sección <<sec:G84-de-la-mano-derecha-Tapping>>, si un 'G84' 
 (Tapping) ciclo fijo se activa y anular el avance y la velocidad
 interruptores están habilitadas, el conjunto de uno en la posición más baja se
 efecto. La velocidad y la velocidad de avance aún se sincronizarán. En este
@@ -2296,7 +2302,7 @@ interruptor de corrección se establece en 100%.
 Para seleccionar una herramienta, el programa `T` <n>, donde el número <n> es el
 carrusel de ranura de la herramienta. La herramienta está 
 no cambió hasta que un M6 `está programado (ver Sección 
-<<sec:M6-Tool-Change>>). La palabra T puede 
+<<sec:M6-Tool-Cambio>>). La palabra T puede 
 aparecen en la misma línea que el 'M6' o en una línea anterior. Está bien,
 pero normalmente no útil, si las palabras de T 
 aparecen en dos o más líneas sin cambiar de herramienta. El carrusel se puede mover

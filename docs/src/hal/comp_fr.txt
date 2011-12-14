@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = 'comp': un outil pour créer les modules HAL
 
 == Introduction
@@ -139,12 +142,11 @@ DOC::
     descendant, FALSE pour montant»` ou au format Python «triples
     guillemets», pouvant inclure des 
     caractères newlines et des guillements, comme:
-        param rw bit zot=TRUE
-    
+        param rw bit zot=TRUE    
     La chaine documentation est en format «groff -man». Pour plus
     d'informations sur ce format de markup, voyez `groff_man(7)` . Souvenez
     vous que comp interpréte backslash comme Echap dans les
-     chaines, ainsi par exemple pour passer le mot 'example' en font
+    chaines, ainsi par exemple pour passer le mot 'example' en font
     italique, ecrivez `«\\fIexample\\fB`».
 
 TYPE::
@@ -219,7 +221,7 @@ OPT, VALUE::
         
         In new components, 'variable' should be used instead.
     
-    option extra_setup yes::
+    option extra_setup yes;;
         (défaut: no)
     
     option extra_cleanup yes;;
@@ -275,7 +277,7 @@ variable ::
     'CTYPE NAME'['SIZE'];
 
 variable ::
-    'CTYPE NAME' = 'default';
+    'CTYPE NAME = default';
 
 variable ::
     'CTYPE NAME'['SIZE'] = 'default';
@@ -552,8 +554,7 @@ fixe:
 === rand
 
 Ce composant de l'espace utilisateur modifie la valeur de ses pins de
-sortie vers une nouvelle valeur aléatoire dans l'étendue
-latexmath:[(0,1)] à chaque 1ms.
+sortie vers une nouvelle valeur aléatoire dans l'étendue (0,1) à chaque 1ms.
 
 [source,c]
 -------------------------------------------------

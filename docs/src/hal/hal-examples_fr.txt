@@ -1,140 +1,150 @@
+:lang: fr
+:toc:
+
 = Exemples pour HAL
 
-NOTE: En cours de construction.
+NOTE: En cours de rédaction.
 
-Tous ces exemples impliquent la disponibilité de deux “threads base”
-et de “servo-thread”.
+Tous ces exemples impliquent la disponibilité de deux threads, *threads base*
+et *servo-thread*.
 
 == Calculer la vitesse
 
-Cet exemple utilise `ddt` pour calculer la vitesse d'un axe.
+Cet exemple utilise *ddt* pour calculer la vitesse d'un axe.
+----
+loadrt ddt count=1 
+loadrt hypot count =1
 
-    *loadrt ddt count=1 
-    loadrt hypot count =1*
+addf ddt.0 servo-thread 
+addf hypot.0 servo-thread
 
-    *addf ddt.0 servo-thread 
-    addf hypot.0 servo-thread*
+net X-vel ddt.0.out => ddt.1.in
+----
 
-    *net X-vel ddt.0.out => ddt.1.in *
+= Autres exemples
 
+Tous ces exemples s'appuient sur une configuration basée sur Stepconf, elle a
+deux threads, *base-thread* et *servo-thread*. L'assistant de configuration
+Stepconf aura créé le fichier vide *custom.hal* et le fichier *custom_postgui.hal*.
+Le fichier *custom.hal* sera chargé après le fichier de configuration de HAL, 
+le fichier *custom_postgui.hal* sera chargé après que l'interface graphique le
+soit.
 
-= HAL Examples
+== Changement d'outil manuel
 
-All of these examples assume you are starting with a stepconf based
-configuration and have two threads base-thread and servo-thread. The
-stepconf wizard will create an empty custom.hal and a
-custom_postgui.hal file. The custom.hal file will be loaded after the
-configuration HAL file and the custom_postgui.hal file is loaded after
-the GUI has been loaded.
+Dans cet exemple, il est supposé que la configuration a été réalisée et  
+qu'il faut lui ajouter la fenêtre de changement d'outil de HAL. Le composant
+de changement d'outil manuel de HAL est surtout intéressant si les outils
+sont mesurables avec précision en longueur et que les offsets sont stockés 
+dans la table d'outils. Si il est nécessaire de faire un *Toucher* pour chaque
+outil, il sera préférable de scinder le programme G-code en plusieurs tronçons. 
+Pour utiliser la fenêtre de changement manuel d'outil de HAL, il faut d'abord 
+charger le composant de HAL *hal_manualtoolchange* puis envoyer l'ordre 
+*iocontrol tool change* vers le *change* de *hal_manualtoolchange* ainsi 
+qu'envoyer le *changed* de *hal_manualtoolchange* en retour sur le 
+*iocontrol tool changed*.
 
-== Manual Toolchange
-
-In this example it is assumed that you're "rolling your own"
-configuration and wish to add the HAL Manual Toolchange window. The HAL
-Manual Toolchange is primarily useful if you have presettable tools and
-you store the offsets in the tool table. If you need to touch off for
-each tool change then it is best just to split up your g code. To use
-the HAL Manual Toolchange window you basically have to load the 
-hal_manualtoolchange component then send the iocontrol "tool change" to 
-the hal_manualtoolchange "change" and send the hal_manualtoolchange 
-"changed" back to the iocontrol "tool changed".
-
-This is an example of manual toolchange *with* 
-the HAL Manual Toolchange component: 
-
+Voici un exemple *avec* utilisation du composant de HAL, pour clarifier tout cela: 
+----
 loadusr -W hal_manualtoolchange 
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
 net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed 
 net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number 
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
+----
 
-This is an example of manual toolchange *without* 
-the HAL Manual Toolchange component: 
-
+Et voici un exemple *sans* le composant de changement manuel: 
+----
 net tool-number <= iocontrol.0.tool-prep-number 
 net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed 
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
+----
 
-== Compute Velocity
+== Calcul de vitesse
 
-This example uses "ddt", "mult2" and "abs" to compute the velocity of
-a single axis. For more information on the real time components see the
-man pages or the Realtime Components section.
+Cet exemple utilise *ddt*, *mult2* et *abs* pour calculer la vitesse de déplacement
+sur un axe. Pour plus d'informations voir la section <<sec:Composants-de-HAL>>.
 
-The first thing is to check your configuration to make sure you are
-not using any of the real time components all ready. You can do this by
-opening up the HAL Configuration window and look for the components in
-the pin section. If you are then find the .hal file that they are being
-loaded in and increase the counts and adjust the instance to the
-correct value. Add the following to your custom.hal file.
+En premier il convient de vérifier si la configuration contient déjà des 
+composants temps réel. Il est possible de le vérifier en ouvrant la fenêtre de 
+Halshow et en cherchant les composants dans la section des pins. Si il y en a
+déjà en activité, il faudra augmenter leur nombre et ajuster l'instance de ces 
+composants à la valeur correcte. Ajouter le code suivant dans le fichier *custom.hal*.
 
-Load the realtime components.
+Charger les composants temps réel.
+----
+loadrt ddt count=1 
+loadrt mult2 count=1 
+loadrt abs count=1 
+----
 
-    loadrt ddt count=1 
-    loadrt mult2 count=1 
-    loadrt abs count=1 
+Ajouter les fonctions au thread pour qu'elles soient rafraîchies.
+----
+addf ddt.0 servo-thread 
+addf mult2.0 servo-thread 
+addf abs.0 servo-thread 
+----
 
-Add the functions to a thread so it will get updated.
+Faire les connections.
+----
+setp mult2.in1 60 
+net xpos-cmd ddt.0.in 
+net X-IPS mult2.0.in0 <= ddt.0.out 
+net X-ABS abs.0.in <= mult2.0.out 
+net X-IPM abs.0.out 
+----
 
-    addf ddt.0 servo-thread 
-    addf mult2.0 servo-thread 
-    addf abs.0 servo-thread 
+Dans la dernière section, nous avons fixé le *mult2.0.in1* à 60 pour convertir
+les unités par seconde en unités par minute (dans cet exemple, des pouces/mn), 
+nous l'obtenons sur la sortie *ddt.0.out*.
 
-Make the connections.
+La commande *xpos-cmd* envoie la position commandée à l'entrée *ddt.0.in*. 
+Le *ddt* calcule la dérivée de la variation du signal sur son entrée.
 
-    setp mult2.in1 60 
-    net xpos-cmd ddt.0.in 
-    net X-IPS mult2.0.in0 <= ddt.0.out 
-    net X-ABS abs.0.in <= mult2.0.out 
-    net X-IPM abs.0.out 
+La sortie ddt2.0.out est multipliée par 60 pour obtenir des unités par minute.
 
-In this last section we are setting the mult2.0.in1 to 60 to convert
-the inch per second to inch per minute that we get from the ddt.0.out.
+La sortie mult2.0.out est envoyée au composant *abs* pour obtenir la valeur absolue.
 
-The xpos-cmd sends the commanded position to the ddt.0.in. The ddt
-computes the derivative of the change of the input.
+La figure suivante montre le résultat quand l'axe X se déplace à 15 unités/mn 
+dans la direction négative. Noter que la valeur absolue peut être prise sur
+la pin *abs.0.out* ou le signal X-IPM.
 
-The ddt2.0.out is multiplied by 60 to give IPM.
-
-The mult2.0.out is sent to the abs to get the absolute value.
-
-The following figure shows the result when the X axis is moving at 15
-IPM in the minus direction. Notice that we can get the absolute value
-from either the abs.0.out pin or the X-IPM signal.
-
-.Velocity Example[[cap:Velocity-Example]]
+.Exemple avec la vitesse[[cap:Velocity-Example]]
 
 image::images/velocity-01.png[]
 
-== Soft Start
+== Amortissement d'un signal
 
-This example shows how the HAL components "lowpass", "limit2" or
-"limit3" can be used to limit how fast a signal changes.
+Cette exemple montre comment les composants de HAL *lowpass*, *limit2* ou
+*limit3* peuvent être utilisés pour amortir de brusques changements d'un signal.
 
-In this example we have a servo motor driving a lathe spindle. If we
-just used the commanded spindle speeds on the servo it will try to go
-from present speed to commanded speed as fast as it can. This could
-cause a problem or damage the drive. To slow the rate of change we can
-send the motion.spindle-speed-out through a limiter before the PID, so
-that the PID command value changes to new settings more slowly.
+Nous sommes sur un tour dont la broche est pilotée par un servomoteur. Si nous 
+envoyions directement la consigne de vitesse de broche sur le servo, celui-ci
+chercherait, à partir de la vitesse courante, à atteindre la vitesse commandée
+le plus vite possible. Cette situation est problématique et peut détériorer
+le matériel. Pour amortir ce changement de vitesse, nous pouvons faire passer 
+la sortie *motion.spindle-speed-out* à travers un limiteur avant d'aller au PID, 
+de sorte que la valeur de commande du PID soit amortie.
 
-Three built-in components that limit a signal are:
+Les trois composants intégrés pour amortir le signal seront:
 
 limit2::
-    limits the range and first derivative of a signal. 
+- Limite le signal de sortie pour qu’il soit entre min et max.
+- Limite sa vitesse de montée à moins de MaxV par seconde. (dérivée première)
 
 limit3::
-    limits the range, first and second derivatives of a signal. 
+- Limite le signal de sortie pour qu’il soit entre min et max.
+- Limite sa vitesse de montée à moins de MaxV par seconde. (dérivée première)
+- Limite sa vitesse de montée à moins de MaxV par seconde^2^. (dérivée seconde)
 
 lowpass::
-    uses an exponentially-weighted moving average to track an input signal. 
+- Filtre passe-bas. 
 
-To find more information on these HAL components check the man pages.
+Pour plus d'informations voir <<sec:Composants-de-HAL>> ou les man pages des
+composants concernés.
 
-Place the following in a text file called softstart.hal. If you're not
-familiar with Linux place the file in your home directory.
-
--------------------------------------------------
+Placer le code suivant dans un fichier appelé `softstart.hal`. 
+----
     loadrt threads period1=1000000 name1=thread  
     loadrt siggen  
     loadrt lowpass  
@@ -155,46 +165,46 @@ familiar with Linux place the file in your home directory.
     addf limit3.0 thread  
     start  
     loadusr halscope 
--------------------------------------------------
+----
 
-Open a terminal window and run the file with the following command.
+Ouvrir un terminal et et lancer le fichier avec la commande suivante:
 
-$ *halrun -I softstart.hal*+ 
++*halrun -I softstart.hal*+ 
 
-When the HAL Oscilloscope first starts up click "OK" to accept the
-default thread.
+Pour démarrer l'oscilloscope de HAL pour la première fois, cliquer *OK* pour
+accepter le thread par défaut.
 
-Next you have to add the signals to the channels. Click on channel 1
-then select "square" from the Signals tab. Repeat for channels 2-4 and
-add lowpass, limit2, and limit3.
+Ensuite, il faut ajouter les signaux à suivre aux canaux du scope. Cliquer sur 
+le canal 1 puis sélectionner *square* depuis l'onglet Signaux. Répéter pour les 
+canaux suivants et ajouter *lowpass*, *limit2* et *limit3*.
 
-Next to set up a trigger signal click on the Source None button and
-select square. The button will change to Source Chan 1.
+Ensuite, pour régler le signal du trigger cliquer sur le bouton *Source None* est
+sélectionner *square*. Le bouton devrait changer pour *Source Chan 1*.
 
-Next click on Single in the Run Mode radio buttons box. This will
-start a run and when it finishes you will see your traces.
+Puis, cliquer sur *Single* dans la boîte de boutons radio *Run Mode*. L'oscillo 
+devrait faire un balayage puis, afficher les traces.
 
-To separate the signals so you can see them better click on a channel
-then use the Pos slider in the Vertical box to set the positions.
+Pour séparer les signaux et mieux les visualiser, cliquer sur un canal et 
+utiliser le curseur de position verticale pour positionner les traces.
 
-.Softstart[[cap:Softstart]]
+.Amortissement d'un signal carré[[cap:Softstart]]
 
 image::images/softstart-scope.png[]
 
-To see the effect of changing the set point values of any of the
-components you can change them in the terminal window. To see what
-different gain settings do for lowpass just type the following in the
-terminal window and try different settings.
+Pour voir l'effet d'un changement du point de réglage des valeurs des composants,
+il est possible de passer des commandes depuis le terminal. Par exemple,pour 
+voir différentes valeurs de gain pour le passe-bas, taper la commande suivante,
+puis essayer différentes valeurs:
 
-+setp lowpass.0.gain *.01*+
++*setp lowpass.0.gain .01*+
 
-After changing a setting run the oscilloscope again to see the change.
+Après un changement de réglage, relancer Halscope pour visualiser l'effet.
 
-When you're finished type "exit" in the terminal window to shut down
-halrun and close the halscope. Don't close the terminal window with
-halrun running as it might leave some things in memory that could
-prevent EMC from loading.
+Pour terminer, taper *exit* dans le terminal pour fermer halrun et halscope. 
+Ne pas refermer le terminal avec halrun en marche, la mémoire ne serait pas
+vidée proprement, ce qui pourrait empêcher EMC2 de se charger.
 
-For more information on Halscope see the HAL manual.
+Pour tout savoir sur Halscope et Halrun, voir le tutoriel de HAL:
+ <<cha:Tutoriel-HAL>>
 
 

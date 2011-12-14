@@ -1,89 +1,60 @@
-Manuel de l'intégrateur V2.5, {localdate}
+:lang: fr
+:toc:
+:localdate: {sys: date +%d/%m/%Y}
+Manuel de l'intégrateur V2.5  {localdate}
 =========================================
-The EMC Team
-
-:language: fr
-
 :masterdir: {indir}
-
 :leveloffset: 1
 
-image::common/emc2-intro.*[]
+image::common/images/emc2-intro.png[]
+
+The EMC2 Team
 
 include::common/overleaf_fr.txt[]
 
 include::common/outdated-notice_fr.txt[]
-
 include::common/Integrator_Concepts_fr.txt[]
-
 :leveloffset: 0
 = Configuration d'EMC2
 :leveloffset: 1
-
 include::install/Latency_Test_fr.txt[]
-
 include::config/ini_config_fr.txt[]
-
 include::config/ini_homing_fr.txt[]
-
 include::config/lathe_config_fr.txt[]
-
 include::config/emc2hal_fr.txt[]
-
 include::config/stepper_fr.txt[]
-
 :leveloffset: 0
-= GUI
+= Interfaces graphiques utilisateur
 :leveloffset: 1
-
 include::hal/pyvcp_fr.txt[]
-
 include::hal/pyvcp_examples_fr.txt[]
-
 include::gui/gladevcp_fr.txt[]
-
 :leveloffset: 0
-= Advanced Topics
+
+= Notions avancées
 :leveloffset: 1
-
 include::motion/kinematics_fr.txt[]
-
 include::motion/tweaking_steppers_fr.txt[]
-
 include::motion/pid_theory_fr.txt[]
-
 :leveloffset: 0
 = La logique Ladder
 :leveloffset: 1
-
 include::ladder/ladder_intro_fr.txt[]
-
 include::ladder/classic_ladder_fr.txt[]
-
 include::ladder/ladder_examples_fr.txt[]
-
 :leveloffset: 0
 = Exemples d'utilisation
 :leveloffset: 1
-
 include::examples/pci_parallel_port_fr.txt[]
-
 include::examples/spindle_fr.txt[]
-
 include::examples/mpg_fr.txt[]
-
 include::examples/gs2_example_fr.txt[]
-
 :leveloffset: 0
 = Diagnostics & FAQ
 :leveloffset: 1
-
 include::common/Stepper_Diagnostics_fr.txt[]
-
 include::common/Linux_FAQ_fr.txt[]
-
 include::common/Glossary_fr.txt[]
-
 include::common/GPLD_Copyright.txt[]
 
 // = Index

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Avant-propos
 
 EMC2 est souple et modulaire. Ces attributs l'ont fait apparaître à

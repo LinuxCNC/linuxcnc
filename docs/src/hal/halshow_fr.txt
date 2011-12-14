@@ -1,4 +1,9 @@
-== Halshow
+:lang: fr
+:toc:
+
+= Les fonctionnalités de Halshow
+
+== Le script Halshow
 
 Le script halshow peut vous aider à retrouver votre chemin dans un HAL
 en fonctionnement. Il s'agit d'un système très spécialisé qui doit se
@@ -12,7 +17,7 @@ lui même est un des facteurs clés pour arriver à un système CNC
 optimum.
 
 On peut accéder à Halshow depuis Axis, pour cela, aller dans le menu
-«Machine» puis choisir «Afficher la configuration de HAL».
+`Machine` puis choisir `Afficher la configuration de HAL`.
 
 === Zone de l'arborescence de Hal
 
@@ -23,7 +28,7 @@ MONTRER et WATCH.
 
 Ecran de Halshow[[cap:Fenetre-Halshow]]
 
-image::halshow-1.png[]
+image::images/halshow-1_fr.png[]
 
 L'arborescence montre toutes les parties principales de HAL. En face
 de chacune d'entre elles, se trouve un petit signe + ou - dans une
@@ -32,19 +37,19 @@ l'arborescence et affichera son contenu. Si cette case affiche un signe
 moins, cliquer dessus repliera cette section de l'arborescence.
 
 Il est également possible de déployer et de replier l'arborescence
-complète depuis le menu «Arborescence».
+complète depuis le menu `Arborescence`.
 
 L'onglet Montrer[[cap:onglet-Montrer]]
 
-image::halshow-3.png[]
+image::images/halshow-3.png[]
 
 === Zone de l'onglet MONTRER
 
 En cliquant sur un nom dans l'arborescence plutôt que sur son signe
-plus ou moins, par exemple le mot «Components», HAL affichera tout ce
+plus ou moins, par exemple le mot `Components`, HAL affichera tout ce
 qu'il connait du contenu de celui-ci. La figure 
 <<cap:Fenetre-Halshow>> montre une liste comme celle que vous verrez si
-vous cliquez sur «Components» avec une carte servo standard m5i20 en
+vous cliquez sur `Components` avec une carte servo standard m5i20 en
 fonctionnement. L'affichage des informations est exactement le même que
 celui des traditionnels outils d'analyse de HAL en mode texte.
 L'avantage ici, c'est que nous y avons accès d'un clic de souris. Accès
@@ -71,7 +76,7 @@ sur le fonctionnement de HAL. Les commandes que vous entrez ici et leur
 effet sur HAL, ne sont pas enregistrés. Elles persisteront tant qu'EMC
 tournera, mais disparaîtront dès son arrêt.
 
-Le champ de saisie marqué «Tester une commande HAL:» acceptera
+Le champ de saisie marqué `Tester une commande HAL:` acceptera
 n'importe quelle commande valide pour halcmd. Elles incluent:
 
 - Loadrt, unloadrt (chargement / déchargement en temps réel du module)
@@ -81,7 +86,7 @@ n'importe quelle commande valide pour halcmd. Elles incluent:
 - setp (jeu de paramètres (ou broches) à une valeur)
 
 Ce petit éditeur entrera une commande à chaque fois que vous presserez
-«Entrée» ou que vous cliquerez sur le bouton «Exécuter». Si une
+`Entrée` ou que vous cliquerez sur le bouton `Exécuter`. Si une
 commande y est mal formée, un dialogue d'erreur s'affichera. Si vous
 n'êtes pas sûr de savoir comment formuler une commande, vous trouverez
 la réponse dans la documentation de halcmd et des modules spécifiques
@@ -91,23 +96,18 @@ Nous allons utiliser cet éditeur pour ajouter un module différentiel à
 HAL et le connecter à la position d'un axe pour voir le ratio de
 changement de position, par exemple, l'accélération. Il faut d'abord
 charger un module de HAL nommé blocks, l'ajouter au thread servo et le
-connectet à la pin position d'un axe. Une fois cela fait, nous pourrons
-retrouver la sortie du différentiateur dans halscope. Alors allons-y.
+connecter à la pin position d'un axe. Une fois cela fait, nous pourrons
+retrouver la sortie du différenciateur dans halscope. Alors allons-y.
 (oui j'ai vérifié).
 
 Ndt: le message qui s'affiche au chargement de blocks ne l'empêche pas
 de fonctionner.
-
-----------------------------------------------------------------------
-
+----
 loadrt blocks ddt=1 
-
-----------------------------------------------------------------------
+----
 
 Maintenant, regardez dans components, vous devriez y voir blocks.
-
-----------------------------------------------------------------------
-
+----
     Loaded HAL Components: 
     ID Type        Name 
     10 User halcmd29800 
@@ -118,15 +118,12 @@ Maintenant, regardez dans components, vous devriez y voir blocks.
     04   RT     stepgen 
     03   RT      motmod 
     02 User   iocontrol 
-
-----------------------------------------------------------------------
+----
 
 Effectivement, il est là. Dans notre cas l'id est 08. Ensuite nous
 devons savoir quelles fonctions sont disponibles avec lui, nous
 regardons dans Functions.
-
-----------------------------------------------------------------------
-
+----
     Exported Functions: 
     Owner  CodeAddr      Arg  FP Users Name 
       08   E0B97630 E0DC7674 YES     0 ddt.0 
@@ -140,8 +137,7 @@ regardons dans Functions.
       04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
       04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
       04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
-
-----------------------------------------------------------------------
+----
 
 Ici, nous cherchons owner #08 et voyons que blocks a exporté une
 fonction nommée ddt.0. Nous devrions être en mesure d'ajouter ddt.0 au
@@ -155,12 +151,9 @@ Nous connaissons déjà functname=ddt.0, pour trouver le nom du thread,
 déployons l'arborescence des Threads. Nous y trouvons deux threads,
 servo-thread et base-thread. La position de ddt.0 dans le thread n'est
 pas critique. Passons la commande:
-
-----------------------------------------------------------------------
-
+----
 addf ddt.0 servo-thread 
-
-----------------------------------------------------------------------
+----
 
 Comme c'est juste pour visualiser, nous laissons la position en blanc
 pour obtenir la dernière position dans le thread. La figure 
@@ -169,97 +162,83 @@ commande a été exécutée.
 
 Commande Addf[[cap:Commande-addf]]
 
-image::halshow-2.png[]
+image::images/halshow-2_fr.png[]
 
 Ensuite, nous devons connecter ce block à quelque chose. Mais comment
 savoir quelles pins sont disponibles? La réponse se trouve dans
 l'arbre, en regardant sous Pins. On y trouve ddt et on voit:
-
-----------------------------------------------------------------------
-
+----
     Component Pins: 
     Owner Type  Dir Value       Name 
     08    float R-  0.00000e+00 ddt.0.in 
     08    float -W  0.00000e+00 ddt.0.out 
-
-----------------------------------------------------------------------
+----
 
 Cela semble assez facile à comprendre, mais à quel signal ou pin
 voulons-nous nous connecter, ça pourrait être une pin d'axe, une pin de
 stepgen, ou un signal. On vois cela en regardant dans axis.0.
-
-----------------------------------------------------------------------
-
+----
     Component Pins: 
     Owner Type  Dir Value       Name 
     03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd 
-
-----------------------------------------------------------------------
+----
 
 Donc, il semble que Xpos-cmd devrait être un bon signal à utiliser.
 Retour à l'éditeur et entrons la commande suivante:
-
-----------------------------------------------------------------------
-
+----
 linksp Xpos-cmd ddt.0.in 
-
-----------------------------------------------------------------------
+----
 
 Maintenant si on regarde le signal Xpos-cmd dans l'arbre, on voit ce
 qu'on a fait.
-
-----------------------------------------------------------------------
-
+----
     Signals: 
     Type Value Name 
     float 0.00000e+00 Xpos-cmd 
     <== axis.0.motor-pos-cmd 
     ==> ddt.0.in 
     ==> stepgen.0.position-cmd 
-
-----------------------------------------------------------------------
+----
 
 Nous voyons que ce signal provient de axis.0.motor-pos-cmd et va, à la
 fois, sur ddt.0.in et sur stepgen.0.position-cmd. En connectant notre
 block au signal nous avons évité les complications avec le flux normal
 de cette commande de mouvement.
 
-La zone de l'onglet «Montrer» utilise halcmd pour découvrir ce qui se
+La zone de l'onglet `Montrer` utilise halcmd pour découvrir ce qui se
 passe à l'intérieur de HAL pendant son fonctionnement. Il vous donne
 une information complète de ce qu'il découvre. Il met aussi à jour dès
 qu'une commande est envoyée depuis le petit éditeur pour modifier ce
 HAL. Il arrive un temps ou vous voulez autre chose d'affiché, sans la
 totalité des informations disponibles dans cette zone. C'est la grande
-valeur de l'onglet HAL WATCH d'offrir cela.
+valeur de l'onglet `WATCH` d'offrir cela graphiquement.
 
-=== Zone de l'onglet Montrer
+=== Zone de l'onglet WATCH
 
-En cliquant sur l'onglet Montrer, une zone vide s'affichera. Vous pouvez
-ajouter des signaux et des pins dans cette zone et visualiser leurs
-valeurs.footnote:[Le taux de rafraîchissement de la zone Watch est plus
-lent que celui
-de Halmeter ou de Halscope. Si vous avez besoin d'une bonne résolution
-dans le timming des signaux, ces outils sont plus efficaces. 
+En cliquant sur l'onglet Watch, une zone vide s'affichera.
+footnote:[Le taux de rafraîchissement de la zone Watch est plus
+lent que celui de Halmeter ou de Halscope. Si vous avez besoin d'une bonne résolution
+dans le timming des signaux, ces outils sont plus efficaces.] 
 Vous pouvez ajouter des pins ou des signaux quand l'onglet Watch est
 ouvert, en cliquant sur leurs noms. La figure <<cap:onglet-Montrer>>
-Montre cette zone avec plusieurs signaux de type «bit». Parmis ces
+Montre cette zone avec plusieurs signaux de type `bit`. Parmis ces
 signaux, les enable-out pour les trois premiers axes et deux de la
-branche iocontrol, les signaux «estop». Notez que les axes ne sont pas
+branche iocontrol, les signaux `estop`. Notez que les axes ne sont pas
 activés même si les signaux estop disent qu'EMC n'est pas en estop. Un
-bref regard sur themc en arrière plan, montre que l'état d'EMC est
+bref regard sur TkEMC en arrière plan, montre que l'état d'EMC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la
 machine ne sera pas mise en marche.
 
-L'onglet Montrer
+L'onglet WATCH
 
-image::halshow-4.png[]
+image::images/halshow-4.png[]
 
-Les cercles de deux couleurs, simili leds, sont toujours bruns foncé
+Les cercles de deux couleurs, simili Leds, sont toujours bruns foncé
 quand un signal est faux. Elle sont jaunes quand le signal est vrai.
 Quand une pin ou un signal est sélectionné mais n'est pas de type bit,
 sa valeur numérique s'affiche.
 
-Montrer permet de visualiser rapidement le résultat de tests sur des
+Watch permet de visualiser rapidement le résultat de tests sur des
 contacts ou de voir l'effet d'un changement que vous faites dans EMC en
 utilisant l'interface graphique. Le taux de rafraîchissement de Watch
 est un peu trop lent pour visualiser les impulsions de pas d'un moteur

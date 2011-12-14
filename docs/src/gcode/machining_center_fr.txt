@@ -1,0 +1,472 @@
+:lang: fr
+:toc:
+
+= Aperçu global d'une machine CNC
+
+Cette section donne une description des différents organes constituant une 
+machine à commande numérique (CNC).
+
+== Composants mécaniques
+
+Une machine à commande numérique dispose de beaucoup de composants mécaniques
+pouvant être contrôlés, ou qui peuvent avoir une incidence sur la façon
+dont le contrôle de la machine s'effectue. Cette section décrit les
+composants qui interagissent avec l'interpréteur. Les autres composants
+mécaniques, comme les boutons de jog, ne seront pas décrits ici, même si 
+ils affectent le contrôle.
+
+=== Axes (((axes)))
+
+Toute machine à commande numérique dispose d'un ou de plusieurs axes. Les
+différents types de machines ont différentes combinaisons d'axes. Par
+exemple, une fraiseuse 4 axes peut avoir la combinaison d'axes XYZA ou
+XYZB. Un tour classique aura les axes XZ. Une machine de découpe à fil
+chaud aura les axes XYUV.footnote:[Si le mouvement des composants
+mécaniques n'est pas indépendant, comme
+sur une machine hexapode, le langage RS274/NGC et les fonctions
+standards seront quand même utilisables, tant que le contrôle de bas
+niveau sait comment contrôler les mécanismes actuels pour produire le
+mouvement relatif de l'outil et de la pièce qui auraient été produits
+par des axes indépendants. C'est appelé, la cinématique.]
+footnote:[Avec EMC2, le cas de la machine à portique XYYZ avec deux
+moteurs pour un axe est mieux traité par la cinématique que par un 
+axe linéaire supplémentaire.]
+
+==== Axes linéaires primaires (((axes linéaires primaires)))
+
+Les axes X, Y et Z produisent des mouvements linéaires dans trois
+directions, mutuellement orthogonales.
+
+==== Axes linéaires secondaires (((axes linéaires secondaires)))
+
+Les axes U, V et W produisent des mouvements linéaires dans trois
+directions, mutuellement orthogonales. Habituellement, X et U sont
+parallèles, Y et V sont parallèles et Z et W sont parallèles.
+
+==== Axes rotatifs (((Axes rotatifs)))
+
+Les axes A, B et C produisent des mouvements angulaires (rotations).
+Habituellement, l'axe de rotation de A est parallèle à X, l'axe de
+rotation de B est parallèle à Y et l'axe de rotation de C est parallèle
+à Z.
+
+=== Broche (((broche)))
+
+Une machine à commande numérique est équipée d'une broche qui maintient un outil
+coupant, un palpeur ou d'autres outils. La broche peut tourner dans les
+deux sens. Elle peut être conçue pour tourner à vitesse constante mais
+réglable. Excepté sur les machines dont la broche est montée sur un axe
+rotatif, l'axe de la broche est maintenu parallèle à l'axe Z et il est
+coïncident avec l'axe Z quand X et Y sont à zéro. La broche peut être
+stoppée sur une position fixée ou non.
+
+=== Arrosages (((arrosage)))
+
+Une machine à commande numérique peut être équipée d'un système fournissant
+l'arrosage fluide ou un arrosage par gouttelettes.
+
+=== Correcteurs de vitesse d'avance et de broche
+(((correcteurs vitesse)))
+(((correcteur vitesse broche)))
+
+Une machine à commande numérique est équipée de boutons de réglage de la vitesse
+d'avance et de la vitesse de rotation de la broche, ils laissent
+l'opérateur corriger les vitesses nécessaires pour la broche et
+l'avance travail, il peut ainsi augmenter ou réduire les vitesses
+programmées.
+
+=== Bouton d'effacement de bloc[[sec:Bouton-effacement-de-block]]
+
+(((Bouton effacement de bloc)))
+
+Une machine à commande numérique peut être équipée d'un bouton d'effacement de
+bloc. Voir la section <<sec:Interaction-effacement-de-bloc>>.
+
+=== Bouton d'arrêt optionnel du programme[[sec:arret-optionnel]]
+
+(((arrêt optionnel)))
+
+Une machine à commande numérique peut être équipée d'un bouton d'arrêt du programme.
+Voir la section <<sec:Interaction-arrets-optionnels>>.
+
+== Composants de contrôle et de données
+
+=== Axes linéaires
+
+Les axes X, Y et Z forment un système de coordonnées orthogonales
+standard. La position d'un axe s'exprime en utilisant ses coordonnées.
+
+=== Axes linéaires secondaires
+
+Les axes U, V et W forment également un système de coordonnées
+standard. X et U sont parallèles, Y et V sont parallèles enfin Z et W
+sont parallèles.
+
+=== Axes rotatifs
+
+Les axes rotatifs se mesurent en degrés. Leur sens de rotation positif
+est le sens anti-horaire quand l'observateur est placé face à l'axe.
+footnote:[Si les parallélismes sont particuliers, le constructeur du
+système devra indiquer à quels sens de rotation correspondent 
+horaire et anti-horaire.]
+
+=== Point contrôlé[[sec:Point-controle]]
+
+(((point contrôlé)))
+
+Le point contrôlé est le point dont la position et la vitesse de
+déplacement sont contrôlés. Quand la compensation de longueur d'outil
+est à zéro (valeur par défaut), c'est un point situé sur l'axe de la
+broche et proche de la fin de celle-ci. Cette position peut être
+déplacée le long de l'axe de la broche en spécifiant une compensation
+de longueur d'outil. Cette compensation correspond généralement à la
+longueur de l'outil coupant courant. Ainsi, le point contrôlé est à la
+pointe de l'outil. Sur un tour, les correcteurs d'outil peuvent être
+spécifiés pour les axes X et Z, le point contrôlé est à la pointe de
+l'outil ou (correction du rayon de bec) légèrement en retrait du point
+d'intersection des droites perpendiculaires formées par l'axe des
+points de tangence à la pièce, de face et sur le côté de l'outil.
+
+[[sec:Mouvement-lineaire-coordonne]]
+=== Mouvement linéaire coordonné
+
+Pour mener un outil sur une trajectoire spécifiée, une machine à commande numérique
+doit coordonner les mouvements de plusieurs axes. Nous utilisons le
+terme *mouvement linéaire coordonné* pour décrire une situation dans
+laquelle, nominalement, chacun des axes se déplace à vitesse constante
+et tous les axes se déplacent de leur point de départ à leur point
+d'arrivée en même temps. Si deux des axes X, Y, Z (ou les trois) se
+déplacent, ceci produit un mouvement en ligne droite, d'où le mot
+*linéaire* dans le terme. Dans les véritables mouvements, ce n'est
+souvent pas possible de maintenir la vitesse constante à cause des
+accélérations et décélérations nécessaires en début et fin de
+mouvement. C'est faisable, cependant, de contrôler les axes ainsi,
+chaque axe doit en permanence faire la même fraction du mouvement
+requis que les autres axes. Ceci déplace l'outil le long du même
+parcours et nous appelons aussi ce genre de mouvement, mouvement
+linéaire coordonné.
+
+Un mouvement linéaire coordonné peut être exécuté soit en vitesse
+travail, soit en vitesse rapide, ou il peut être synchronisé à la
+rotation de la broche. Si les limites physiques de l'axe rendent le
+déplacement impossible, tous les axes seront ralentis pour maintenir 
+le parcours prévu.
+
+=== Vitesse[[sec:Vitesse-d-avance]]
+
+(((vitesse d'avance)))
+
+La vitesse à laquelle le point contrôlé se déplace est ajustable par
+l'opérateur. Sauf cas particulier, vitesse inverse du temps, vitesse
+par tour, voir la section <<sec:G93-G94-G95-Set, sur les modes de vitesse>>, dans
+l'interpréteur, l'interprétation des vitesses est la suivante:
+
+ . Si le déplacement concerne un des axes XYZ, F est en unités machine
+   par minute dans le système Cartésien XYZ et les mouvements des autres
+   axes (UVWABC) sont également dans un même mode de coordonnées.
+ . Autrement, si le déplacement concerne un des axes UVW, F est en unités
+   machine par minute dans le système Cartésien UVW, tous les autres axes
+   (ABC) se déplacent dans un même mode de coordonnées.
+ . Autrement, le mouvement est purement rotatif et le mot F est en unités
+   de rotation dans le système pseudo-Cartésien ABC.
+
+=== Arrosage (((arrosage)))
+
+Arrosage fluide ou par gouttelettes peuvent être activés
+séparément. Le langage RS274/NGC les arrête ensemble, voir la section 
+<<sec:M7-M8-M9, des contrôles d'arrosage>>.
+
+=== Temporisation (((tempo)))
+
+Une temporisation peut être commandée (ex: pour immobiliser tous les
+axes) pendant une durée spécifique. La broche n'est pas arrêtée pendant
+une temporisation! Sans s'occuper <<sec:Modes-de-controle-trajectoires, du mode 
+de contrôle de trajectoire>> la machine s'arrêtera exactement à la fin du 
+dernier mouvement avant la temporisation.
+
+=== Unités (((unités)))
+
+Les unités utilisées pour les distances le long des axes X, Y et Z
+peuvent être les pouces ou les millimètres. La vitesse de rotation de
+la broche est en tours par minute. Les positions des axes rotatifs sont
+exprimées en degrés. Les vitesses d'avance sont exprimées en unités
+machine par minute ou en degrés par minute ou en unités de longueur par
+tour de broche, comme décrit dans la section 
+<<sec:Vitesse-d-avance, des vitesses>>.
+
+=== Position courante
+
+Le point contrôlé est toujours à un emplacement appelé la *position
+courante*, et le contrôleur sait toujours où est cette position. Les
+valeurs représentant la position courante doivent être ajustées en
+l'absence de tout mouvement des axes si un de ces événements a lieu:
+
+ . Les unités de longueur ont changé.
+ . La compensation de longueur d'outil a changé.
+ . Le décalage d'origine a changé. 
+
+=== Choix du plan de travail[[sec:Choix-du-plan-de-travail]]
+
+Il y a toujours un plan sélectionné, qui doit être le plan XY, le plan
+YZ, ou le plan XZ de la machine. L'axe Z est, bien sûr, perpendiculaire
+au plan XY, l'axe X perpendiculaire au plan YZ et l'axe Y
+perpendiculaire au plan XZ.
+
+=== carrousel d'outils
+
+Aucun ou un outil est assigné à chaque emplacement dans le carrousel.
+
+=== Changeur d'outil
+
+Une machine à commande numérique peut commander un changeur d'outils.
+
+=== Chargeur de pièce
+
+Les deux porte-pièces peuvent être intervertis par commande.
+
+=== Chargeur de pièces (((chargement)))
+
+Une machine à commande numérique peut être équipée d'un système de chargement des
+pièces. Le système se compose de deux porte-pièces sur lesquels sont
+fixés les bruts des pièces à usiner. Un seul porte-pièce à la fois est
+en position d'usinage.
+
+=== Boutons des correcteurs de vitesses
+
+Les boutons des correcteurs de vitesses peuvent être activés (ils
+fonctionnent normalement) ou rendus inopérants (Ils n'ont plus aucun
+effet). Le langage RS274/NGC dispose d'une commande qui active tous les
+boutons et une autre qui les désactive. Voir l'inhibition et l'activation   
+<<sec:M48-Activation-Correcteurs-Vitesse, des correcteurs>>.
+Voir également <<sec:Interaction-vitesses, ici pour d'autres détails>>. 
+
+=== Modes de contrôle de trajectoire[[sec:Modes-de-controle-trajectoires]]
+
+La machine peut être placée dans un de ces trois modes de contrôle de
+trajectoire: 
+
+* mode arrêt exact::
+    En mode arrêt exact, le mobile s'arrête brièvement à la fin de chaque mouvement
+    programmé.
+* mode trajectoire exacte:: 
+    En mode trajectoire exacte, le mobile suit la trajectoire
+    programmée aussi précisément que possible, ralentissant ou s'arrêtant
+    si nécessaire aux angles vifs du parcours.
+* mode trajectoire continue avec tolérance optionnelle::
+    En mode trajectoire continue, les angles vifs du parcours peuvent être 
+    légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la 
+    tolérance, si elle est spécifiée). 
+    
+Voir également les G-codes <<sec:G61-G61.1-G64, de contrôle de trajectoire>>.
+
+== Interaction de l'interpréteur avec les boutons
+
+L'interpréteur interagit avec plusieurs boutons de commande. Cette
+section décrit ces interactions plus en détail. En aucun cas
+l'interpréteur ne connait ce que sont les réglages de ces boutons.
+
+=== Boutons de correction de vitesses[[sec:Interaction-vitesses]]
+
+L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
+l'action des boutons d'ajustement des vitesses. Pour certains
+mouvements, tels que la sortie de filet à la fin d'un cycle de
+filetage, les boutons sont neutralisés automatiquement.
+
+EMC2 réagit aux réglages de ces boutons seulement quand ils sont
+autorisés.
+
+=== Bouton d'effacement de bloc[[sec:Interaction-effacement-de-bloc]]
+
+(((effacement de bloc)))
+
+Si le bouton *Effacement de bloc* est actif, les lignes de code
+RS274/NGC commençant par le caractère barre de fraction (caractère
+d'effacement de bloc) ne sont pas interprétées. Si le bouton est
+désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
+d'effacement de bloc doit être positionné avant de lancer le programme G-code.
+
+=== Bouton d'arrêt optionnel du programme[[sec:Interaction-arrets-optionnels]]
+
+(((Arrêts optionnels)))
+
+Si ce bouton est actif et qu'un code M1 est rencontré, le programme
+est mis en pause.
+
+== Fichier d'outils[[sec:Fichier-Outils]]
+
+Un fichier d'outils est requis par l'interpréteur. Le fichier indique
+dans quels emplacements du carrousel sont placés les outils, la
+longueur et le diamètre de chacun des outils.
+Le nom de la table d'outils est défini sous cette forme dans le fichier ini:
+----
+[EMCIO]
+
+# tool table file
+TOOL_TABLE = tooltable.tbl
+----
+
+Il est également possible de donner à la table d'outils le même nom que le 
+fichier ini, mais avec une extension tbl, par exemple:
+----
+TOOL_TABLE = acme_300.tbl
+----
+
+ou encore:
+----
+TOOL_TABLE = EMC-AXIS-SIM.tbl
+----
+
+D'autres informations sont disponibles sur les spécificités du 
+<<sec:Tool-Table-Format, format de la table d'outils>>.
+
+== Paramètres[[sec:Parametres]]
+
+(((paramètres)))
+
+Dans le langage RS274/NGC, la machine maintient un tableau
+de 5400 paramètres numériques. La plupart d'entre eux ont un usage
+spécifique. Le tableau de paramètres est persistant, même quand la
+machine est mise hors tension. EMC2 utilise un fichier de paramètres et
+assure sa persistance, il donne à l'interpréteur la responsabilité
+d'actualiser le fichier. L'interpréteur lit le fichier quand il démarre
+et l'écrit juste avant de s'arrêter.
+
+Tous les paramètres sont disponibles pour une utilisation dans les 
+programmes de G-code.
+
+1-30::
+     Paramètres locaux d'arguments d'appel de sous-programme. Ces paramètres 
+     sont locaux au sous-programme. Voir <<sec:O-Codes, les sous-programme>>.
+
+1-5000::
+     Paramètres du G-code utilisateur. Ces paramètres sont globaux 
+     dans le fichier G-code.
+
+5061-5070::
+     Résultats de *G38.2* Probe for X, Y, Z, A, B, C, U, V & W.
+
+5161-5169::
+     *G28* Origine pour X, Y, Z, A, B, C, U, V & W.
+
+5181-5189::
+     *G30* Origine pour X, Y, Z, A, B, C, U, V & W.
+
+5211-5219::
+     *G92* offset pour X, Y, Z, A, B, C, U, V & W.
+
+5220::
+     Système de coordonnées numéro 1 à 9 pour G54 à G59.3.
+
+5221-5229::
+     Système de coordonnées numéro 1, G54 pour X, Y, Z, A, B, C, U, V & W.
+
+5241-5249::
+     Système de coordonnées numéro 2, G55 pour X, Y, Z, A, B, C, U, V & W.
+
+5261-5269::
+     Système de coordonnées numéro 3, G56 pour X, Y, Z, A, B, C, U, V & W.
+
+5281-5289::
+     Système de coordonnées numéro 4, G57 pour X, Y, Z, A, B, C, U, V & W.
+
+5301-5309::
+     Système de coordonnées numéro 5, G58 pour X, Y, Z, A, B, C, U, V & W.
+
+5321-5329::
+     Système de coordonnées numéro 6, G59 pour X, Y, Z, A, B, C, U, V & W.
+
+5341-5349::
+     Système de coordonnées numéro 7, G59.1 pour X, Y, Z, A, B, C, U, V & W.
+
+5361-5369::
+     Système de coordonnées numéro 8, G59.2 pour X, Y, Z, A, B, C, U, V & W.
+
+5381-5389::
+     Système de coordonnées numéro 9, G59.3 pour X, Y, Z, A, B, C, U, V & W.
+
+5399::
+     Résultat de M66 - scrute ou attends une entrée
+
+5400::
+     Numéro d'outil
+
+5401::
+     Offset d'outil en X
+
+5402::
+     Offset d'outil en Y
+
+5403::
+     Offset d'outil en Z
+
+5404::
+     Offset d'outil en A
+
+5405::
+     Offset d'outil en B
+
+5406::
+     Offset d'outil en C
+
+5407::
+     Offset d'outil en U
+
+5408::
+     Offset d'outil en V
+
+5409::
+     Offset d'outil en W
+
+5410::
+     Diamètre d'outil
+
+5411::
+     Angle avant de l'outil
+
+5412::
+     Angle de dos de l'outil
+
+5413::
+     Orientation de l'outil
+
+5420-5428::
+     Position courante, incluant tous les offsets dans les unités courantes du 
+     programme pour X, Y, Z, A, B, C, U, V & W.
+
+Le format d'un fichier de paramètres <<sec:Format-fichier-de-parametres, est 
+visible ici>>. Le fichier est composé d'un certain nombre de lignes d'en-tête, 
+suivie par une ligne vide, suivie d'un nombre quelconque de lignes de données. 
+Les lignes d'en-tête sont ignorées par l'interpréteur. Il est important qu'il y 
+ait une ligne vide (sans espace ni tabulation), avant les données. La ligne 
+d'en-tête montrée dans le tableau ci-dessous, décrit
+les colonnes de données, il est donc proposé (mais pas obligatoire) que
+cette ligne soit toujours présente.
+
+L'interpréteur lit seulement les deux premières colonnes du tableau.
+Il ignore la troisième colonne, Commentaire.
+
+Chaque ligne du fichier contient le numéro d'index d'un paramètre dans
+la première colonne et la valeur attribuée à ce paramètre, dans la
+deuxième colonne. La valeur est représentée par une nombre flottant en
+double précision à l'intérieur de l'interpréteur, mais le point décimal
+n'est pas exigé dans le fichier. Le format des paramètres décrit ci-dessous, 
+est obligatoire et doit être utilisé pour tous les 
+fichiers de paramètres, à l'exception des paramètres représentant une valeur sur 
+un axe rotatif inutilisé, qui peuvent être omis. Une erreur sera signalée si un 
+paramètre requis est absent. Un fichier de paramètres peut inclure tout autre 
+paramètre, tant que son numéro est compris dans une fourchette de 1 à 5400. Les
+numéros de paramètre doivent être disposés dans l'ordre croissant.
+Sinon, une erreur sera signalée. Le fichier original est copié comme
+fichier de sauvegarde lorsque le nouveau fichier est écrit. Les
+commentaires ne sont pas conservés lorsque le fichier est écrit.
+
+
+.Format d'un fichier de paramètres[[sec:Format-fichier-de-parametres]]
+
+[width="90%", options="header"]
+|========================================
+|Numéro d'index | Valeur | Commentaire
+|5161 | 0.0 | G28 pom X
+|5162 | 0.0 | G28 pom Y
+|========================================
+

@@ -188,6 +188,5 @@ making step 4 active and step 2 inactive. +
 Step 3 is active and waiting for %B2 to be true. +
 Step 4 is active and is waiting for %B3 to be true. +
 WOW, that was quite a mouthful!! +
-[display sequential program]
 
 

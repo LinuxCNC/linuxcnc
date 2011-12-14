@@ -1,25 +1,9 @@
-= Informations générales
+:lang: fr
+:toc:
 
-== Notation[[sec:GR-Notation]]
+= Conventions générales
 
-=== Conventions typographiques
-
-Les lignes de commandes sont représentées en police `bold typewriter`.
-Les réponses de l'ordinateur sont en police `typewriter`. Depuis début
-2006, plus aucune commande ne nécessite les privilèges 
-du root, de sorte que tous les exemples seront précédés par le prompt 
-utilisateur normal, `$`. Le texte entre crochets est un texte
-optionnel `[comme-cela]`. Le texte entre crochets `<comme-cela>` 
-représente un champ qui peut prendre différentes valeurs, le
-paragraphe suivant explique les valeurs appropriées. Les items de texte
-séparés par une barre verticale signifie que l'un ou l'autre, mais pas
-plus, doit être présent. Toutes les lignes de commandes des exemples
- supposent que vous êtes dans le répertoire d' `emc2/` ou vous avez
-configuré ou compilé emc2 avec l'option --run-in-place.
-Les chemins seront par conséquent, affichés en accord avec cet
-emplacement.
-
-=== Noms
+== Les noms
 
 Toutes les entités de HAL sont accessibles et manipulées par leurs
 noms, donc, documenter les noms des pins, signaux, paramètres, etc, est
@@ -161,15 +145,14 @@ Les champs individuels sont:
 ==== Exemples
 
 motenc.0.encoder.2.position::
-      -- la sortie position du troisième canal codeur sur la première carte
-    Motenc.
+     La sortie position du troisième canal codeur sur la première carte Motenc.
 
 stg.0.din.03.in::
-      -- l'état de la quatrième entrée numérique sur la première carte
-    Servo-to-Go.
+     L'état de la quatrième entrée numérique sur la première carte Servo-to-Go.
 
 ppmc.0.pwm.00-03.frequency::
-     -- la fréquence porteuse utilisée sur les canaux PWM de 0 à 3 sur la première carte Pico Systems ppmc.
+     La fréquence porteuse utilisée sur les canaux PWM de 0 à 3 sur la 
+    première carte Pico Systems ppmc.
 
 === Noms des fonctions
 
@@ -216,22 +199,16 @@ motenc.0.encoder.read::
      -- lit tous les codeurs sur la première carte motenc.
 
 generic8255.0.din.09-15.read::
-      -- lit le deuxième port 8 bits sur la première carte
+     Lit le deuxième port 8 bits sur la première carte
     d'entrées/sorties à base de 8255.
 
 ppmc.0.write::
-      -- écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
+     Écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
     la première carte Pico Systems ppmc.
 
 = Périphériques d'interfaces canoniques[[cha:Pripheriques-canoniques]]
 
-.Note
-*********************************************************************
-En version 2.1, les pilotes HAL devrait avoir tous été mis à jour
-correspondent à ces spécifications. Envoyer un e-mail si vous repérez tous les problèmes.
-*********************************************************************
-
-Les sections qui suivent expliquent les pins, paramètres et functions
+Les sections qui suivent expliquent les pins, paramètres et fonctions
 qui sont fournies par les «périphériques canoniques». Tous les pilotes
 de périphériques HAL devraient fournir les mêmes pins et paramètres et
 implémenter les mêmes comportements.
@@ -247,16 +224,19 @@ L'entrée numérique canonique (I/O type: `digin`) est assez simple.
 
 === Pins
 
- - (bit) *in* -- état de l'entrée matérielle.
- - (bit) *in-not* -- état inversé de l'entrée matérielle.
+(bit) *in*::
+   État de l'entrée matérielle.
+(bit) *in-not*::
+   État inversé de l'entrée matérielle.
 
 === Paramètres
 
- - Aucun
+Aucun
 
 === Fonctions
 
- - (funct) *read* -- lire le matériel et ajuster les HAL pins `in` et `in-not`.
+(funct) *read*::
+     Lire le matériel et ajuster les HAL pins `in` et `in-not`.
 
 == Sortie numérique (Digital Output)[[sec:CanonDigOut]]
 
@@ -264,15 +244,18 @@ La sortie numérique canonique est également très simple (I/O type: `digout`).
 
 === Pins
 
- -  (bit) *out* -- Valeur à écrire (éventuellement inversée) sur une sortie matérielle.
+(bit) *out*::
+    Valeur à écrire (éventuellement inversée) sur une sortie matérielle.
 
 === Paramètres
 
- -  (bit) *invert* -- Si TRUE, *out* est inversée avant écriture sur la matériel.
+(bit) *invert*::
+    Si TRUE, *out* est inversée avant écriture sur la matériel.
 
 === Fonctions
 
- -  (funct) *write* -- Lit *out* et *invert* et ajuste la sortie en conséquence.
+(funct) *write*::
+    Lit *out* et *invert* et ajuste la sortie en conséquence.
 
 == Entrée analogique (Analog Input)
 
@@ -283,26 +266,30 @@ une échelle continue de valeurs.
 
 === Pins
 
- - (float) *value* -- Lecture du matériel, avec mise à l'échelle ajustée
-   par les paramètres *scale* et *offset*. +
-   *Value* = ((lecture entrée, en unités dépendantes du matériel) x *scale*) - *offset*
+(float) *value*::
+     Lecture du matériel, avec mise à l'échelle ajustée par les 
+    paramètres *scale* et *offset*. *Value* = ((lecture entrée, en unités 
+    dépendantes du matériel) x *scale*) - *offset*
 
 === Paramètres
 
- - (float) *scale* -- La tension d'entrée (ou l'intensité) sera
-   multipliée par *scale* avant d'être placée dans *value*.
- - (float) *offset* -- Sera soustrait à la tension d'entrée (ou
-   l'intensité) après que la mise à l'échelle par scale ait été appliquée.
- - (float) *bit_weight* -- Valeur du bit le moins significatif (LSB).
-   C'est effectivement, la granularité de lecture en entrée.
- - (float) *hw_offset* -- Valeur présente sur l'entrée quand 0 volts
-   sont appliqués sur la pin d'entrée.
+(float) *scale*::
+     La tension d'entrée (ou l'intensité) sera
+    multipliée par *scale* avant d'être placée dans *value*.
+(float) *offset*::
+     Sera soustrait à la tension d'entrée (ou l'intensité) après que 
+    la mise à l'échelle par scale ait été appliquée.
+(float) *bit_weight*::
+     Valeur du bit le moins significatif (LSB). C'est effectivement, la 
+    granularité de lecture en entrée.
+(float) *hw_offset*::
+     Valeur présente sur l'entrée quand 0 volts sont appliqués sur la pin d'entrée.
 
 === Fonctions
 
- - (funct) *read* -- Lit les valeurs de ce canal d'entrée analogique.
-   Peut être utilisé pour lire un canal individuellement, ou pour 
-   lire tous les canaux à la fois. 
+(funct) *read*::
+     Lit les valeurs de ce canal d'entrée analogique. Peut être utilisé pour 
+    lire un canal individuellement, ou pour lire tous les canaux à la fois. 
 
 == Sortie analogique (Analog Output)
 
@@ -313,42 +300,44 @@ convertisseurs numérique/analogique ou les générateurs de PWM.
 
 === Pins
 
- - (float) *value* -- La valeur à écrire. La valeur réelle sur la sortie
-   matérielle dépends de la mise à l'échelle des paramètres d'offset.
- - (bit) *enable* -- Si fausse, la sortie matérielle passera à 0,
-   indépendamment de la pin *value*.
+(float) *value*::
+     La valeur à écrire. La valeur réelle sur la sortie matérielle dépends 
+    de la mise à l'échelle des paramètres d'offset.
+(bit) *enable*::
+     Si fausse, la sortie matérielle passera à 0, indépendamment de la pin *value*.
 
 === Paramètres
 
- - (float) *offset* -- Sera ajouté à *value* avant l'actualisation du
+(float) *offset*::
+     Sera ajouté à *value* avant l'actualisation du
    matériel.
- - (float) *scale* -- Doit être défini de sorte qu'une entrée avec 1 dans
-   *value* produira 1V 
- - (float) *high_limit* (optionnel) -- Quand la valeur en sortie
-   matérielle est calculée, si *value* + *offset* est plus grande que
-   *high_limit*, alors *high_limit* lui sera substitué.
- - (float) *low_limit* (optionnel) -- Quand la valeur en sortie
-   matérielle est calculée, si *value* + *offset* est plus petite que
-   *low_limit*, alors *low_limit* lui sera substitué.
- - (float) *bit_weight* (optionnel) -- La valeur du bit le moins
-   significatif (LSB), en Volts
-   (ou mA, pour les sorties courant)
- - (float) *hw_offset* (optionnel) -- La tension actuelle (ou
-   l'intensité) présente sur la
-   sortie quand 0 est écrit sur le matériel.
+(float) *scale*::
+     Doit être défini de sorte qu'une entrée avec 1 dans *value* produira 1V 
+(float) *high_limit*::
+     (optionnel) Quand la valeur en sortie matérielle est calculée, 
+    si *value* + *offset* est plus grande que *high_limit*, alors *high_limit* 
+    lui sera substitué.
+(float) *low_limit*::
+     (optionnel) Quand la valeur en sortie matérielle est calculée, 
+    si *value* + *offset* est plus petite que *low_limit*, alors *low_limit* 
+    lui sera substitué.
+(float) *bit_weight*::
+     (optionnel) La valeur du bit le moins significatif (LSB), en Volts
+    (ou mA, pour les sorties courant)
+(float) *hw_offset*::
+     (optionnel) La tension actuelle (ou l'intensité) présente sur la
+    sortie quand 0 est écrit sur le matériel.
 
 === Fonctions
 
-(funct) *write* -- Ecrit la valeur calculée sur la sortie matérielle.
-Si enable est
- fausse, la sortie passera à 0, indépendamment des valeurs de *value*,
-*scale* et *offset* . La signification de «0» dépend du matériel. Par
-exemple, un
-convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
-alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
- Si enable est vraie, l'échelle, l'offset et la valeur sont traités et
-(*scale* * *value*) + *offset* sont envoyés en sortie de l'adc . Si
-enable est faux, la sortie passe
-à 0.
+(funct) *write*::
+     Ecrit la valeur calculée sur la sortie matérielle. Si enable est FALSE, 
+    la sortie passera à 0, indépendamment des valeurs de *value*, *scale* et 
+    *offset* . La signification de «0» dépend du matériel. Par exemple, un 
+    convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
+    alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
+    Si enable est TRUE, l'échelle, l'offset et la valeur sont traités et
+    (*scale* * *value*) + *offset* sont envoyés à la sortie du DAC . Si
+    enable est FALSE, la sortie passe à 0.
 
 

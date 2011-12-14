@@ -71,9 +71,9 @@ follow these rules:
    of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.]
  - Use only lowercase letters and numbers in names. 
 
-== Hardware Driver Naming Conventions[[sec:GR-Driver-Naming]]footnote:[Most 
-drivers do not follow these conventions as of version 2.0. This chapter 
-is really a guide for future development.]
+== Hardware Driver Naming Conventions == [[sec:GR-Driver-Naming]]
+footnote:[Most drivers do not follow these conventions as of version 2.0.
+This chapter is really a guide for future development.]
 
 === Pin/Parameter names
 

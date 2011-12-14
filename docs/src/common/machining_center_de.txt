@@ -12,13 +12,13 @@ Interpreter. Mechanical components that do not interact directly with
 the Interpreter, such as the jog buttons, are not described here, even
 if they affect control.
 
-=== Axes (((axes)))
+=== Axes
 
 Any CNC machine has one or more Axes. Different types of CNC machines
-have different combinations. For instance, a "4-axis milling machine"
+have different combinations. For instance, a '4-axis milling machine'
 may have XYZA or XYZB axes. A lathe typically has XZ axes. A
 foam-cutting machine may have XYUV axes. In EMC, the case of a XYYZ
-"gantry" machine with two motors for one axis is better handled by
+'gantry' machine with two motors for one axis is better handled by
 kinematics rather than by a second linear axis. footnote:[If the 
 motion of mechanical components is not independent, as with 
 hexapod machines, the RS274/NGC language and the canonical machining
@@ -63,7 +63,7 @@ coolant they can be controlled by G-Codes.
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
 speed used in machining at some percentage of the programmed rate. See
-Section  <<sub:Feed-Interaction>>.
+Section  <<sec:Feed-Interaction>>.
 
 === Block Delete Switch[[sub:Block-Delete-Switch]]
 
@@ -96,7 +96,7 @@ parallel (when A, B, and C are rotated to zero).
 The rotational axes are measured in degrees as wrapped linear axes in
 which the direction of positive rotation is counterclockwise when
 viewed from the positive end of the corresponding X, Y, or Z-axis. By
-“wrapped linear axis,” we mean one on which the angular position
+'wrapped linear axis', we mean one on which the angular position
 increases without limit (goes towards plus infinity) as the axis turns
 counterclockwise and deceases without limit (goes towards minus
 infinity) as the axis turns clockwise. Wrapped linear axes are used
@@ -126,18 +126,18 @@ This amount is normally the length of the cutting tool in use, so that
 the controlled point is at the end of the cutting tool. On a lathe,
 tool length offsets can be specified for X and Z axes, and the
 controlled point is either at the tool tip or slightly outside it
-(where the perpendicular, axis-aligned lines touched by the “front” and
-“side” of the tool intersect).
+(where the perpendicular, axis-aligned lines touched by the 'front' and
+'side' of the tool intersect).
 
 === Coordinated Linear Motion[[sub:Coordinate-Linear-Motion]]
 
 To drive a tool along a specified path, a machining center must often
-coordinate the motion of several axes. We use the term “coordinated
-linear motion” to describe the situation in which, nominally, each axis
+coordinate the motion of several axes. We use the term 'coordinated
+linear motion' to describe the situation in which, nominally, each axis
 moves at constant speed and all axes move from their starting positions
 to their end positions at the same time. If only the X, Y, and Z axes
 (or any one or two of them) move, this produces motion in a straight
-line, hence the word “linear” in the term. In actual motions, it is
+line, hence the word 'linear' in the term. In actual motions, it is
 often not possible to maintain constant speed because acceleration or
 deceleration is required at the beginning and/or end of the motion. It
 is feasible, however, to control the axes so that, at all times, each
@@ -150,15 +150,15 @@ feed rate, or at traverse rate, or it may be synchronized to the
 spindle rotation. If physical limits on axis speed make the desired
 rate unobtainable, all axes are slowed to maintain the desired path.
 
-=== Feed Rate[[sub:Feed-Rate]]
+=== Feed Rate[[sec:Feed-Rate]]
 
 (((feed rate)))
 
 The rate at which the controlled point or the axes move is nominally a
 steady rate which may be set by the user. In the Interpreter, the
-interpretation of the feed rate is as follows unless “inverse time
-feed” or “feed per revolution” modes are being used (see Section 
-<<sub:G93,-G94:-Set>>).
+interpretation of the feed rate is as follows unless 'inverse time
+feed' or 'feed per revolution' modes are being used (see Section 
+<<sec:G93-G94-G95-Mode>>).
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (ABCUVW) move so as to start and
@@ -167,13 +167,13 @@ feed” or “feed per revolution” modes are being used (see Section
    UVW cartesian system, and all other axes (ABC) move so as to start and
    stop in coordinated fashion. 
  .  Otherwise, the move is pure rotary motion and the F word is in rotary
-   units in the ABC “pseudo-cartesian” system.
+   units in the ABC 'pseudo-cartesian' system.
 
 === Coolant (((coolant)))
 
 Flood coolant and mist coolant may each be turned on independently.
 The RS274/NGC language turns them off together (see Section 
-<<sub:M7,-M8,-M9>>).
+<<sec:M7-M8-M9>>).
 
 === Dwell (((dwell)))
 
@@ -181,7 +181,7 @@ A machining center may be commanded to dwell (i.e., keep all axes
 unmoving) for a specific amount of time. The most common use of dwell
 is to break and clear chips, so the spindle is usually turning during a
 dwell. Regardless of the Path Control Mode (see Section 
-<<sub:Path-Control-Mode>>) the machine will stop exactly at the end of
+<<sec:Path-Control-Mode>>) the machine will stop exactly at the end of
 the previous programmed move, as though it was in exact path mode.
 
 === Units (((units)))
@@ -193,12 +193,12 @@ specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in Section 
-<<sub:Feed-Rate>>. 
+<<sec:G93-G94-G95-Mode>>. 
 
 === Current Position
 
-The controlled point is always at some location called the “current
-position,” and the controller always knows where that is. The numbers
+The controlled point is always at some location called the 'current
+position', and the controller always knows where that is. The numbers
 representing the current position must be adjusted in the absence of
 any axis motion if any of several events take place:
 
@@ -208,7 +208,7 @@ any axis motion if any of several events take place:
 
 === Selected Plane[[sub:Selected-Plane]]
 
-There is always a “selected plane”, which must be the XY-plane, the
+There is always a 'selected plane', which must be the XY-plane, the
 YZ-plane, or the XZ-plane of the machining center. The Z-axis is, of
 course, perpendicular to the XY-plane, the X-axis to the YZ-plane, and
 the Y-axis to the XZ-plane.
@@ -231,10 +231,10 @@ The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Sections 
-<<sub:M48-Both-Override>> and <<sub:M49-Neither-Override>>). 
-See Section  <<sub:Feed-Interaction>> for further details.
+<<sec:M48-Both-Override>> and <<sec:M49-Neither-Override>>). 
+See Section  <<sec:Feed-Interaction>> for further details.
 
-=== Path Control Mode[[sub:Path-Control-Mode]]
+=== Path Control Mode[[sec:Path-Control-Mode]]
 
 (((path control mode)))
 
@@ -254,10 +254,10 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-=== Feed and Speed Override Switches[[sub:Feed-Interaction]]
+=== Feed and Speed Override Switches[[sec:Feed-Interaction]]
 
-The Interpreter will interpret RS274/NGC commands which enable (`M48`)
-or disable (`M49`) the feed and speed override switches. For certain
+The Interpreter will interpret RS274/NGC commands which enable 'M48'
+or disable 'M49' the feed and speed override switches. For certain
 moves, such as the
 traverse out of the end of a thread during a threading cycle, the
 switches are disabled automatically.
@@ -267,7 +267,7 @@ switches are enabled.
 
 === Block Delete Switch[[sub:Block-Delete-Switch-Interaction]]
 
-(((block delete))) 
+(((block delete)))
 
 If the block delete switch is on, lines of RS274/NGC code which start
 with a slash (the block delete character) are not interpreted. If the
@@ -276,7 +276,7 @@ switch should be set before starting the NGC program.
 
 === Optional Program Stop Switch[[sub:Optional-Program-Stop-Interaction]]
 
-(((optional program stop))) 
+(((optional program stop)))
 
 If this switch is on and an M1 code is encountered, program execution
 is paused.
@@ -287,31 +287,31 @@ A tool table is required to use the Interpreter. The file tells which
 tools are in which tool changer slots and what the size and type of 
 each tool is. The name of the tool table is defined in the ini file: 
 
----------------------------------------
+----
 [EMCIO]
 
 # tool table file
 TOOL_TABLE = tooltable.tbl
----------------------------------------
+----
 
 The default filename probably looks something like the above, but 
 you may prefer to give your machine its own tool table, using the 
 same name as your ini file, but with a tbl extension: 
 
----------------------------------------
+----
 TOOL_TABLE = acme_300.tbl
----------------------------------------
+----
 
 or
 
----------------------------------------
+----
 TOOL_TABLE = EMC-AXIS-SIM.tbl
----------------------------------------
+----
 
 For more information on the specifics of the tool table format, 
 see the <<sec:Tool-Table-Format>> section. 
 
-== Parameters[[sub:Parameters]]
+== Parameters[[sec:Parameters]]
 
 (((parameters)))
 
@@ -437,7 +437,7 @@ suggested (but not required) that that line always be included in the
 header.
 
 The Interpreter reads only the first two columns of the table. The
-third column, "Comment," is not read by the Interpreter.
+third column, 'Comment', is not read by the Interpreter.
 
 Each line of the file contains the index number of a parameter in the
 first column and the value to which that parameter should be set in the
