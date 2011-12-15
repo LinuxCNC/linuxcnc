@@ -1,3 +1,6 @@
+:lang: pl
+:toc:
+
 == Halshow
 
 The script halshow can help you find your way around a running HAL.
@@ -60,10 +63,12 @@ pins and parameters that show more than one reply. This is due to the
 nature of the search routines in halcmd itself. If you search one pin
 you may get two, like this:
 
-    Component Pins: 
-    Owner  Type  Dir  Value  Name 
-    06     bit    -W   TRUE  parport.0.pin-10-in 
-    06     bit    -W  FALSE  parport.0.pin-10-in-not 
+----
+Component Pins: 
+Owner  Type  Dir  Value  Name 
+06     bit    -W   TRUE  parport.0.pin-10-in 
+06     bit    -W  FALSE  parport.0.pin-10-in-not 
+----
 
 The second pin's name contains the complete name of the first.
 
@@ -95,38 +100,44 @@ blocks, add it to the servo thread, then connect it to the position pin
 of an axis. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
 
-+*loadrt blocks ddt=1*+ 
+----
+loadrt blocks ddt=1
+----
 
 Now look at the components node and you should see blocks in there
 someplace.
 
-    Loaded HAL Components: 
-    ID Type        Name 
-    10 User halcmd29800 
-    09 User halcmd29374 
-    08   RT      blocks 
-    06   RT hal_parport 
-    05   RT    scope_rt 
-    04   RT     stepgen 
-    03   RT      motmod 
-    02 User   iocontrol 
+----
+Loaded HAL Components: 
+ID Type        Name 
+10 User halcmd29800 
+09 User halcmd29374 
+08   RT      blocks 
+06   RT hal_parport 
+05   RT    scope_rt 
+04   RT     stepgen 
+03   RT      motmod 
+02 User   iocontrol 
+----
 
 Sure enough there it is. Notice that its ID is 08. Next we need to
 find out what functions are available with it so we look at functions:
 
-    Exported Functions: 
-    Owner  CodeAddr      Arg  FP Users Name 
-      08   E0B97630 E0DC7674 YES     0 ddt.0 
-      03   E0DEF83C 00000000 YES     1 motion-command-handler 
-      03   E0DF0BF3 00000000 YES     1 motion-controller 
-      06   E0B541FE E0DC75B8  NO     1 parport.0.read 
-      06   E0B54270 E0DC75B8  NO     1 parport.0.write 
-      06   E0B54309 E0DC75B8  NO     0 parport.read-all 
-      06   E0B5433A E0DC75B8  NO     0 parport.write-all 
-      05   E0AD712D 00000000  NO     0 scope.sample 
-      04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
-      04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
-      04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
+----
+Exported Functions: 
+Owner  CodeAddr      Arg  FP Users Name 
+  08   E0B97630 E0DC7674 YES     0 ddt.0 
+  03   E0DEF83C 00000000 YES     1 motion-command-handler 
+  03   E0DF0BF3 00000000 YES     1 motion-controller 
+  06   E0B541FE E0DC75B8  NO     1 parport.0.read 
+  06   E0B54270 E0DC75B8  NO     1 parport.0.write 
+  06   E0B54309 E0DC75B8  NO     0 parport.read-all 
+  06   E0B5433A E0DC75B8  NO     0 parport.write-all 
+  05   E0AD712D 00000000  NO     0 scope.sample 
+  04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
+  04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
+  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
+----
 
 Here we look for owner #08 and see that blocks has exported a function
 named ddt.0. We should be able to add ddt.0 to the servo thread and it
@@ -134,14 +145,18 @@ will do its math each time the servo thread is updated. Once again we
 look up the addf command and find that it uses three arguments like
 this:
 
-    addf <functname> <threadname> [<position>]
+----
+addf <functname> <threadname> [<position>]
+----
 
 We already know the functname=ddt.0 so let's get the thread name right
 by expanding the thread node in the tree. Here we see two threads,
 servo-thread and base-thread. The position of ddt.0 in the thread is
 not critical. So we add the function ddt.0 to the servo-thread:
 
-+*addf ddt.0 servo-thread*+ 
+----
+addf ddt.0 servo-thread
+----
 
 This is just for viewing, so we leave position blank and get the last
 position in the thread. Figure  <<cap:Addf-Command>> shows the state of
@@ -155,33 +170,41 @@ Next we need to connect this block to something. But how do we know
 what pins are available? The answer is to look under pins. There we
 find ddt and see this:
 
-    Component Pins: 
-    Owner Type  Dir Value       Name 
-    08    float R-  0.00000e+00 ddt.0.in 
-    08    float -W  0.00000e+00 ddt.0.out 
+----
+Component Pins: 
+Owner Type  Dir Value       Name 
+08    float R-  0.00000e+00 ddt.0.in 
+08    float -W  0.00000e+00 ddt.0.out 
+----
 
 That looks easy enough to understand, but what signal or pin do we
 want to connect to it? It could be an axis pin, a stepgen pin, or a
 signal. We see this when we look at axis.0:
 
-    Component Pins: 
-    Owner Type  Dir Value       Name 
-    03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd 
+----
+Component Pins: 
+Owner Type  Dir Value       Name 
+03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd 
+----
 
 So it looks like Xpos-cmd should be a good signal to use. Back to the
 editor where we enter the following command:
 
-+*linksp Xpos-cmd ddt.0.in*+ 
+----
+linksp Xpos-cmd ddt.0.in
+----
 
 Now if we look at the Xpos-cmd signal using the tree node we'll see
 what we've done:
 
-    Signals: 
-    Type Value Name 
-    float 0.00000e+00 Xpos-cmd 
-    <== axis.0.motor-pos-cmd 
-    ==> ddt.0.in 
-    ==> stepgen.0.position-cmd 
+----
+Signals: 
+Type Value Name 
+float 0.00000e+00 Xpos-cmd 
+<== axis.0.motor-pos-cmd 
+==> ddt.0.in 
+==> stepgen.0.position-cmd 
+----
 
 We see that this signal comes from axis.o.motor-pos-cmd and goes to
 both ddt.0.in and stepgen.0.position-cmd. By connecting our block to
