@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = HAL Components[[cha:HAL-Components]]
 
 == Commands and Userspace Components[[sec:Commands-and-Userspace-Components]]
@@ -6,597 +9,381 @@ All of the commands in the following list have man pages.
 Some will have expanded descriptions, some will have limited descriptions. 
 Also, all of the components listed below have man pages.
 From these two lists you know what components exist, 
-and you can use `man n name` to get additional information. 
+and you can use 'man n name' to get additional information. 
 To view the information in the man page, in a terminal window type: 
 
-*man axis* (or perhaps *man 1 axis* if your system requires it.)
-
-*axis* = AXIS EMC (The Enhanced Machine Controller) Graphical User Interface. +
-*axis-remote* = AXIS Remote Interface. +
-*comp* = Build, compile and install EMC HAL components. +
-*emc* = EMC (The Enhanced Machine Controller). +
-*gladevcp* = Virtual Control Panel for EMC2 based on Glade, Gtk and HAL widgets. +
-*gs2* = HAL userspace component for Automation Direct GS2 VFD's. +
-*halcmd* = Manipulate the Enhanced Machine Controller HAL from the command line. +
-*hal_input* = Control HAL pins with any Linux input device, including USB HID devices. +
-*halmeter* = Observe HAL pins, signals, and parameters. +
-*halrun* = Manipulate the Enhanced Machine Controller HAL from the command line. +
-*halsampler* = Sample data from HAL in realtime. +
-*halstreamer* = Stream file data into HAL in real time. +
-*halui* = Observe HAL pins and command EMC through NML. +
-*io* = Accepts NML I/O commands, interacts with HAL in userspace. +
-*iocontrol* = Accepts NML I/O commands, interacts with HAL in userspace. +
-*pyvcp* = Virtual Control Panel for EMC2. +
-*shuttlexpress* = control HAL pins with the ShuttleXpress device made by Contour Design. +
+----
+man axis (or perhaps 'man 1 axis' if your system requires it.)
+----
+[horizontal]
+axis:: AXIS EMC (The Enhanced Machine Controller) Graphical User Interface.
+axis-remote:: AXIS Remote Interface.
+comp:: Build, compile and install EMC HAL components.
+emc:: EMC (The Enhanced Machine Controller).
+gladevcp:: Virtual Control Panel for EMC2 based on Glade, Gtk and HAL widgets.
+gs2:: HAL userspace component for Automation Direct GS2 VFD's.
+halcmd:: Manipulate the Enhanced Machine Controller HAL from the command line.
+hal_input:: Control HAL pins with any Linux input device, including USB HID devices.
+halmeter:: Observe HAL pins, signals, and parameters.
+halrun:: Manipulate the Enhanced Machine Controller HAL from the command line.
+halsampler:: Sample data from HAL in realtime.
+halstreamer:: Stream file data into HAL in real time.
+halui:: Observe HAL pins and command EMC through NML.
+io:: Accepts NML I/O commands, interacts with HAL in userspace.
+iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
+pyvcp:: Virtual Control Panel for EMC2.
+shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
 == Realtime Components[[sec:Realtime-Components]]
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
-From this list you know what components exist and can use `man n name` to
+From this list you know what components exist and can use 'man n name' to
 get additional information in a terminal window.
 
-=== abs (((abs)))
+[horizontal]
+abs:: (((abs)))Compute the absolute value and sign of the input signal. 
 
-Compute the absolute value and sign of the input signal. 
+and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true. 
 
-=== and2 (((and2)))
+at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning. 
 
-Two-input AND gate. For out to be true both inputs must be true. 
+axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime. 
 
-=== at_pid (((at_pid)))
+biquad:: (((biquad)))Biquad IIR filter
 
-Proportional/integral/derivative controller with auto tuning. 
+bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors. 
 
-=== axis (((axis)))
+blend:: (((blend)))Perform linear interpolation between two values. 
 
-Accepts NML motion commands, interacts with HAL in realtime. 
+charge_pump:: (((charge_pump)))Create a square-wave for the 'charge pump' input of some controller boards. 
 
-=== biquad (((biquad)))
+clarke2:: (((clarke2)))Two input version of Clarke transform. 
 
-Biquad IIR filter
+clarke3:: (((clarke3)))Clarke (3 phase to cartesian) transform. 
 
-=== bldc_hall3 (((bldc_hall3)))
+clarkeinv:: (((clarkeinv)))Inverse Clarke transform. 
 
-3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors. 
+classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See Classic Ladder manual for more information. 
 
-=== blend (((blend)))
+comp:: (((comp)))Two input comparator with hysteresis. 
 
-Perform linear interpolation between two values. 
+constant:: (((constant)))Use a parameter to set the value of a pin. 
 
-=== charge_pump (((charge_pump)))
+conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32. 
 
-Create a square-wave for the "charge pump" input of some controller boards. 
+conv_bit_u32:: (((conv_bit_u32)))Convert a value from bit to u32. 
 
-=== clarke2 (((clarke2)))
+conv_float_s32:: (((conv_float_s32)))Convert a value from float to s32. 
 
-Two input version of Clarke transform. 
+conv_float_u32:: (((conv_float_u32)))Convert a value from float to u32. 
 
-=== clarke3 (((clarke3)))
+conv_s32_bit:: (((conv_s32_bit)))Convert a value from s32 to bit. 
 
-Clarke (3 phase to cartesian) transform. 
+conv_s32_float:: (((conv_s32_float)))Convert a value from s32 to float. 
 
-=== clarkeinv (((clarkeinv)))
+conv_s32_u32:: (((conv_s32_u32)))Convert a value from s32 to u32. 
 
-Inverse Clarke transform. 
+conv_u32_bit:: (((conv_u32_bit)))Convert a value from u32 to bit. 
 
-=== classicladder (((classicladder)))
+conv_u32_float:: (((conv_u32_float)))Convert a value from u32 to float. 
 
-Realtime software PLC based on ladder logic. See Classic Ladder manual for more information. 
+conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32. 
 
-=== comp (((comp)))
+counter:: (((counter)))Counts input pulses (deprecated).
+Use the 'encoder' component See <<sec:Encoder>>. 
 
-Two input comparator with hysteresis. 
+ddt:: (((ddt)))Compute the derivative of the input function. 
 
-=== constant (((constant)))
+deadzone:: (((deadzone)))Return the center if within the threshold. 
 
-Use a parameter to set the value of a pin. 
+debounce:: (((debounce)))Filter noisy digital inputs, for more information see <<sec:Debounce>>. 
 
-=== conv_bit_s32 (((conv_bit_s32)))
+edge:: (((edge)))Edge detector. 
 
-Convert a value from bit to s32. 
-
-=== conv_bit_u32 (((conv_bit_u32)))
-
-Convert a value from bit to u32. 
-
-=== conv_float_s32 (((conv_float_s32)))
-
-Convert a value from float to s32. 
-
-=== conv_float_u32 (((conv_float_u32)))
-
-Convert a value from float to u32. 
-
-=== conv_s32_bit (((conv_s32_bit)))
-
-Convert a value from s32 to bit. 
-
-=== conv_s32_float (((conv_s32_float)))
-
-Convert a value from s32 to float. 
-
-=== conv_s32_u32 (((conv_s32_u32)))
-
-Convert a value from s32 to u32. 
-
-=== conv_u32_bit (((conv_u32_bit)))
-
-Convert a value from u32 to bit. 
-
-=== conv_u32_float (((conv_u32_float)))
-
-Convert a value from u32 to float. 
-
-=== conv_u32_s32 (((conv_u32_s32)))
-
-Convert a value from u32 to s32. 
-
-=== counter (((counter)))
-
-Counts input pulses (deprecated). +
-Use the *encoder* component with "...counter-mode" = TRUE. See <<sec:Encoder>>. 
-
-=== ddt (((ddt)))
-
-Compute the derivative of the input function. 
-
-=== deadzone (((deadzone)))
-
-Return the center if within the threshold. 
-
-=== debounce (((debounce)))
-
-Filter noisy digital inputs, for more information see <<sec:Debounce>>. 
-
-=== edge (((edge)))
-
-Edge detector. 
-
-=== encoder (((encoder)))
-
-Software counting of quadrature encoder signals, for more information
+encoder:: (((encoder)))Software counting of quadrature encoder signals, for more information
 see <<sec:Encoder>>. 
 
-=== encoder_ratio (((encoder_ratio)))
+encoder_ratio:: (((encoder_ratio)))An electronic gear to synchronize two axes. 
 
-An electronic gear to synchronize two axes. 
+estop_latch:: (((estop_latch)))ESTOP latch. 
 
-=== estop_latch (((estop_latch)))
+feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to the feed rate. 
 
-ESTOP latch. 
+flipflop:: (((flipflop)))D type flip-flop. 
 
-=== feedcomp (((feedcomp)))
+freqgen:: (((freqgen)))Software step pulse generation. 
 
-Multiply the input by the ratio of current velocity to the feed rate. 
+gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints. 
 
-=== flipflop (((flipflop)))
+gearchange:: (((gearchange)))Select from one of two speed ranges. 
 
-D type flip-flop. 
-
-=== freqgen (((freqgen)))
-
-Software step pulse generation. 
-
-=== gantrykins (((gantrykins)))
-
-A kinematics module that maps one axis to multiple joints. 
-
-=== gearchange (((gearchange)))
-
-Select from one of two speed ranges. 
-
-=== genhexkins (((genhexkins)))
-
-Gives six degrees of freedom in position and orientation (XYZABC). 
+genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC). 
 The location of the motors is defined at compile time.
 
-=== genserkins (((genserkins)))
-
-Kinematics that can model a general serial-link manipulator with up to
+genserkins:: (((genserkins)))Kinematics that can model a general serial-link manipulator with up to
 6 angular joints.
 
-=== gladevcp (((gladevcp)))
+gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade. 
 
-Displays Virtual Control Panels built with GTK/Glade. 
-
-=== hm2_7i43 (((hm2_7i43)))
-
-HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
+hm2_7i43:: (((hm2_7i43)))HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
 HostMot2. 
 
-=== hm2_pci (((hm2_pci)))
-
-HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68
+hm2_pci:: (((hm2_pci)))HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68
 Anything I/O boards, with HostMot2 firmware. 
 
-=== hostmot2 (((hostmot2)))
+hostmot2:: (((hostmot2)))HAL driver for the Mesa Electronics HostMot2 firmware. 
 
-HAL driver for the Mesa Electronics HostMot2 firmware. 
+hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator. 
 
-=== hypot (((hypot)))
+ilowpass:: (((ilowpass)))Low-pass filter with integer inputs and outputs. 
 
-Three-input hypotenuse (Euclidean distance) calculator. 
+integ:: (((integ)))Integrator. 
 
-=== ilowpass (((ilowpass)))
+invert:: (((invert)))Compute the inverse of the input signal. 
 
-Low-pass filter with integer inputs and outputs. 
+joyhandle:: (((joyhandle)))Sets nonlinear joypad movements, deadbands and scales. 
 
-=== integ (((integ)))
+kins:: (((kins)))kinematics definitions for EMC2. 
 
-Integrator. 
+knob2float:: (((knob2float)))Convert counts (probably from an encoder) to a float value. 
 
-=== invert (((invert)))
+limit1:: (((limit1)))Limit the output signal to fall between min and max. footnote:[When the input 
+is a position, this means that the 'position' is limited.] 
 
-Compute the inverse of the input signal. 
+limit2:: (((limit2)))Limit the output signal to fall between min and max.
+Limit its slew rate to less than maxv per second. footnote:[When the input 
+is a position, this means that 'position' and 'velocity' are limited.] 
 
-=== joyhandle (((joyhandle)))
+limit3:: (((limit3)))Limit the output signal to fall between min and max.
+Limit its slew rate to less than maxv per second.
+Limit its second derivative to less than MaxA per second squared. footnote:[When 
+the input is a position, this means that the 'position', 'velocity', and 
+'acceleration' are limited.]
 
-Sets nonlinear joypad movements, deadbands and scales. 
+logic:: (((logic)))Experimental general logic function component. 
 
-=== kins (((kins)))
+lowpass:: (((lowpass)))Low-pass filter
 
-kinematics definitions for EMC2. 
+lut5:: (((lut5)))Arbitrary 5-input logic function based on a look-up table. 
 
-=== knob2float (((knob2float)))
+maj3:: (((maj3)))Compute the majority of 3 inputs. 
 
-Convert counts (probably from an encoder) to a float value. 
+match8:: (((match8)))8-bit binary match detector. 
 
-=== limit1 (((limit1)))
-
-1) Limit the output signal to fall between min and max. footnote:[When the input 
-is a position, this means that the *position* is limited.] 
-
-=== limit2 (((limit2)))
-
-1) Limit the output signal to fall between min and max. +
-2) Limit its slew rate to less than maxv per second. footnote:[When the input 
-is a position, this means that *position* and *velocity* are limited.] 
-
-=== limit3 (((limit3)))
-
-1) Limit the output signal to fall between min and max. +
-2) Limit its slew rate to less than maxv per second. +
-3) Limit its second derivative to less than MaxA per second squared. footnote:[When 
-the input is a position, this means that the *position*, *velocity*, and 
-*acceleration* are limited.]
-
-=== logic (((logic)))
-
-Experimental general logic function component. 
-
-=== lowpass (((lowpass)))
-
-Low-pass filter
-
-=== lut5 (((lut5)))
-
-Arbitrary 5-input logic function based on a look-up table. 
-
-=== maj3 (((maj3)))
-
-Compute the majority of 3 inputs. 
-
-=== match8 (((match8)))
-
-8-bit binary match detector. 
-
-=== maxkins (((maxkins)))
-
-Kinematics for a tabletop 5 axis mill named "max" with tilting head (B axis) and 
+maxkins:: (((maxkins)))Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and 
 horizontal rotary mounted to the table (C axis). 
 Provides UVW motion in the rotated coordinate system. 
 The source file, maxkins.c, may be a useful starting point for other 5-axis systems. 
 
-=== mesa_7i65 (((7i65)))
+mesa_7i65:: (((7i65)))Support for the Mesa 7i65 eight-axis servo card. 
 
-Support for the Mesa 7i65 eight-axis servo card. 
+minmax:: (((minmax)))Track the minimum and maximum values of the input to the outputs. 
 
-=== minmax (((minmax)))
+motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime. 
 
-Track the minimum and maximum values of the input to the outputs. 
+mult2:: (((mult2)))Product of two inputs. 
 
-=== motion (((motion)))
+mux16:: (((mux16)))Select from one of sixteen input values. 
 
-Accepts NML motion commands, interacts with HAL in realtime. 
+mux2:: (((mux2)))Select from one of two input values. 
 
-=== mult2 (((mult2)))
+mux4:: (((mux4)))Select from one of four input values. 
 
-Product of two inputs. 
+mux8:: (((mux8)))Select from one of eight input values. 
 
-=== mux16 (((mux16)))
+near:: (((near)))Determine whether two values are roughly equal. 
 
-Select from one of sixteen input values. 
+not:: (((not)))Inverter. 
 
-=== mux2 (((mux2)))
+offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value. 
 
-Select from one of two input values. 
+oneshot:: (((oneshot)))One-shot pulse generator. 
 
-=== mux4 (((mux4)))
+or2:: (((or2)))Two-input OR gate. 
 
-Select from one of four input values. 
-
-=== mux8 (((mux8)))
-
-Select from one of eight input values. 
-
-=== near (((near)))
-
-Determine whether two values are roughly equal. 
-
-=== not (((not)))
-
-Inverter. 
-
-=== offset (((offset)))
-
-Adds an offset to an input, and subtracts it from the feedback value. 
-
-=== oneshot (((oneshot)))
-
-One-shot pulse generator. 
-
-=== or2 (((or2)))
-
-Two-input OR gate. 
-
-=== pid (((pid)))
-
-Proportional/integral/derivative controller, for more information 
+pid:: (((pid)))Proportional/integral/derivative controller, for more information 
 see <<sec:PID>>. 
 
-=== pluto_servo (((pluto_servo)))
-
-Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
+pluto_servo:: (((pluto_servo)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
 use with servos. 
 
-=== pluto_step (((pluto_step)))
-
-Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
+pluto_step:: (((pluto_step)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
 use with steppers. 
 
-=== pumakins (((pumakins)))
+pumakins:: (((pumakins)))Kinematics for PUMA-style robots. 
 
-Kinematics for PUMA-style robots. 
+pwmgen:: (((pwmgen)))Software PWM/PDM generation, for more information see  <<sec:PWMgen>>. 
 
-=== pwmgen (((pwmgen)))
+rotatekins:: (((rotatekins)))The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. 
 
-Software PWM/PDM generation, for more information see  <<sec:PWMgen>>. 
+sample_hold:: (((sample_hold)))Sample and Hold. 
 
-=== rotatekins (((rotatekins)))
+sampler:: (((sampler)))Sample data from HAL in real time. 
 
-The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. 
+scale:: (((scale)))Applies a scale and offset to its input. 
 
-=== sample_hold (((sample_hold)))
+scarakins:: (((scarakins)))Kinematics for SCARA-type robots. 
 
-Sample and Hold. 
+select8:: (((select8)))8-bit binary match detector. 
 
-=== sampler (((sampler)))
+serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 16550 serial port. 
 
-Sample data from HAL in real time. 
+siggen:: (((siggen)))Signal generator, for more information see <<sec:Siggen>>. 
 
-=== scale (((scale)))
+sim_encoder:: (((sim_encoder)))Simulated quadrature encoder, for more information see <<sec:Simulated-Encoder>>. 
 
-Applies a scale and offset to its input. 
+sphereprobe:: (((sphereprobe)))Probe a pretend hemisphere. 
 
-=== scarakins (((scarakins)))
+stepgen:: (((stepgen)))Software step pulse generation, for more information see <<sec:Stepgen>>. 
 
-Kinematics for SCARA-type robots. 
+steptest:: (((steptest)))Used by Stepconf to allow testing of acceleration and velocity values for an axis. 
 
-=== select8 (((select8)))
+streamer:: (((streamer)))Stream file data into HAL in real time. 
 
-8-bit binary match detector. 
+sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset. 
 
-=== serport (((serport)))
+supply:: (((supply)))Set output pins with values from parameters (deprecated). 
 
-Hardware driver for the digital I/O bits of the 8250 and 16550 serial port. 
+thc:: (((torch height control)))Torch Height Control using a Mesa THC card.
 
-=== siggen (((siggen)))
+threads:: (((threads)))Creates hard realtime HAL threads. 
 
-Signal generator, for more information see <<sec:Siggen>>. 
+threadtest:: (((threadtest)))Component for testing thread behavior. 
 
-=== sim_encoder (((sim_encoder)))
+time:: (((time)))Accumulated run-time timer counts HH:MM:SS of 'active' input. 
 
-Simulated quadrature encoder, for more information see <<sec:Simulated-Encoder>>. 
+timedelay:: (((timedelay)))The equivalent of a time-delay relay. 
 
-=== sphereprobe (((sphereprobe)))
+timedelta:: (((timedelta)))Component that measures thread scheduling timing behavior. 
 
-Probe a pretend hemisphere. 
+toggle2nist:: (((toggle2nist)))Toggle button to nist logic. 
 
-=== stepgen (((stepgen)))
+toggle:: (((toggle)))Push-on, push-off from momentary pushbuttons. 
 
-Software step pulse generation, for more information see <<sec:Stepgen>>. 
-
-=== steptest (((steptest)))
-
-Used by Stepconf to allow testing of acceleration and velocity values for an axis. 
-
-=== streamer (((streamer)))
-
-Stream file data into HAL in real time. 
-
-=== sum2 (((sum2)))
-
-Sum of two inputs (each with a gain) and an offset. 
-
-=== sum2 (((sum2)))
-
-Set output pins with values from parameters (deprecated). 
-
-=== thc
-
-Torch Height Control using a Mesa THC card.
-
-=== threads (((threads)))
-
-Creates hard realtime HAL threads. 
-
-=== threadtest (((threadtest)))
-
-Component for testing thread behavior. 
-
-=== time (((time)))
-
-Accumulated run-time timer counts HH:MM:SS of "active" input. 
-
-=== timedelay (((timedelay)))
-
-The equivalent of a time-delay relay. 
-
-=== timedelta (((timedelta)))
-
-Component that measures thread scheduling timing behavior. 
-
-=== toggle2nist (((toggle2nist)))
-
-Toggle button to nist logic. 
-
-=== toggle (((toggle)))
-
-Push-on, push-off from momentary pushbuttons. 
-
-=== tripodkins (((tripodkins)))
-
-The joints represent the distance of the controlled point from three
+tripodkins:: (((tripodkins)))The joints represent the distance of the controlled point from three
 predefined locations (the motors), giving three degrees of freedom in
 position (XYZ). 
 
-=== tristate_bit (((tristate_bit)))
-
-Place a signal on an I/O pin only when enabled, similar to a tristate
+tristate_bit:: (((tristate_bit)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics. 
 
-=== tristate_float (((tristate_float)))
-
-Place a signal on an I/O pin only when enabled, similar to a tristate
+tristate_float:: (((tristate_float)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics. 
 
-=== trivkins (((trivkins)))
-
-There is a 1:1 correspondence between joints and axes. Most standard
+trivkins:: (((trivkins)))There is a 1:1 correspondence between joints and axes. Most standard
 milling machines and lathes use the trivial kinematics module.
 
-=== updown (((updown)))
+updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior. 
 
-Counts up or down, with optional limits and wraparound behavior. 
+watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'. 
 
-=== watchdog (((watchdog)))
+wcomp:: (((wcomp)))Window comparator. 
 
-Monitor one to thirty-two inputs for a "heartbeat". 
+weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer. 
 
-=== wcomp (((wcomp)))
+xor2:: (((xor2)))Two-input XOR (exclusive OR) gate. 
 
-Window comparator. 
+== HAL API calls
+....
+hal_add_funct_to_thread.3hal
+hal_bit_t.3hal
+hal_create_thread.3hal
+hal_del_funct_from_thread.3hal
+hal_exit.3hal
+hal_export_funct.3hal
+hal_float_t.3hal
+hal_get_lock.3hal
+hal_init.3hal
+hal_link.3hal
+hal_malloc.3hal
+hal_param_bit_new.3hal
+hal_param_bit_newf.3hal
+hal_param_float_new.3hal
+hal_param_float_newf.3hal
+hal_param_new.3hal
+hal_param_s32_new.3hal
+hal_param_s32_newf.3hal
+hal_param_u32_new.3hal
+hal_param_u32_newf.3hal
+hal_parport.3hal
+hal_pin_bit_new.3hal
+hal_pin_bit_newf.3hal
+hal_pin_float_new.3hal
+hal_pin_float_newf.3hal
+hal_pin_new.3hal
+hal_pin_s32_new.3hal
+hal_pin_s32_newf.3hal
+hal_pin_u32_new.3hal
+hal_pin_u32_newf.3hal
+hal_ready.3hal
+hal_s32_t.3hal
+hal_set_constructor.3hal
+hal_set_lock.3hal
+hal_signal_delete.3hal
+hal_signal_new.3hal
+hal_start_threads.3hal
+hal_type_t.3hal
+hal_u32_t.3hal
+hal_unlink.3hal
+intro.3hal
+undocumented.3hal
+....
 
-=== weighted_sum (((weighted_sum)))
-
-Convert a group of bits to an integer. 
-
-=== xor2 (((xor2)))
-
-Two-input XOR (exclusive OR) gate. 
-
-
-== HAL and RTAPI (list of man 3 pages)
-
-As long as we have just given a list of man 1 and man 9 pages, 
-let's finish the job and give a list of the man 3 pages. 
-Maybe some of the files are for housekeeping and don't really belong here. 
-This should probably be fixed up later somehow. 
-Consider this a *FIX ME* note, or a TODO note. 
-Anyway, here's the list: 
-
-EXPORT_FUNCTION.3rtapi +
-hal_add_funct_to_thread.3hal +
-hal_bit_t.3hal +
-hal_create_thread.3hal +
-hal_del_funct_from_thread.3hal +
-hal_exit.3hal +
-hal_export_funct.3hal +
-hal_float_t.3hal +
-hal_get_lock.3hal +
-hal_init.3hal +
-hal_link.3hal +
-hal_malloc.3hal +
-hal_param_bit_new.3hal +
-hal_param_bit_newf.3hal +
-hal_param_float_new.3hal +
-hal_param_float_newf.3hal +
-hal_param_new.3hal +
-hal_param_s32_new.3hal +
-hal_param_s32_newf.3hal +
-hal_param_u32_new.3hal +
-hal_param_u32_newf.3hal +
-hal_parport.3hal +
-hal_pin_bit_new.3hal +
-hal_pin_bit_newf.3hal +
-hal_pin_float_new.3hal +
-hal_pin_float_newf.3hal +
-hal_pin_new.3hal +
-hal_pin_s32_new.3hal +
-hal_pin_s32_newf.3hal +
-hal_pin_u32_new.3hal +
-hal_pin_u32_newf.3hal +
-hal_ready.3hal +
-hal_s32_t.3hal +
-hal_set_constructor.3hal +
-hal_set_lock.3hal +
-hal_signal_delete.3hal +
-hal_signal_new.3hal +
-hal_start_threads.3hal +
-hal_type_t.3hal +
-hal_u32_t.3hal +
-hal_unlink.3hal +
-intro.3hal +
-intro.3rtapi +
-MODULE_AUTHOR.3rtapi +
-MODULE_DESCRIPTION.3rtapi +
-MODULE_LICENSE.3rtapi +
-PM_ROTATION_VECTOR.3 +
-rtapi_app_exit.3rtapi +
-rtapi_app_main.3rtapi +
-rtapi_clock_set_period.3rtapi +
-rtapi_delay.3rtapi +
-rtapi_delay_max.3rtapi +
-rtapi_exit.3rtapi +
-rtapi_get_clocks.3rtapi +
-rtapi_get_msg_level.3rtapi +
-rtapi_get_time.3rtapi +
-rtapi_inb.3rtapi +
-rtapi_init.3rtapi +
-rtapi_module_param.3rtapi +
-RTAPI_MP_ARRAY_INT.3rtapi +
-RTAPI_MP_ARRAY_LONG.3rtapi +
-RTAPI_MP_ARRAY_STRING.3rtapi +
-RTAPI_MP_INT.3rtapi +
-RTAPI_MP_LONG.3rtapi +
-RTAPI_MP_STRING.3rtapi +
-rtapi_mutex.3rtapi +
-rtapi_outb.3rtapi +
-rtapi_print.3rtapi +
-rtapi_prio.3rtapi +
-rtapi_prio_highest.3rtapi +
-rtapi_prio_lowest.3rtapi +
-rtapi_prio_next_higher.3rtapi +
-rtapi_prio_next_lower.3rtapi +
-rtapi_region.3rtapi +
-rtapi_release_region.3rtapi +
-rtapi_request_region.3rtapi +
-rtapi_set_msg_level.3rtapi +
-rtapi_shmem.3rtapi +
-rtapi_shmem_delete.3rtapi +
-rtapi_shmem_getptr.3rtapi +
-rtapi_shmem_new.3rtapi +
-rtapi_snprintf.3rtapi +
-rtapi_task_delete.3rtpi +
-rtapi_task_new.3rtapi +
-rtapi_task_pause.3rtapi +
-rtapi_task_resume.3rtapi +
-rtapi_task_start.3rtapi +
-rtapi_task_wait.3rtapi +
-skeleton.3hal +
-skeleton.3rtapi +
-undocumented.3hal +
-undocumented.3rtapi +
-
+== RTAPI calls
+....
+EXPORT_FUNCTION.3rtapi
+MODULE_AUTHOR.3rtapi
+MODULE_DESCRIPTION.3rtapi
+MODULE_LICENSE.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+intro.3rtapi
+rtapi_app_exit.3rtapi
+rtapi_app_main.3rtapi
+rtapi_clock_set_period.3rtapi
+rtapi_delay.3rtapi
+rtapi_delay_max.3rtapi
+rtapi_exit.3rtapi
+rtapi_get_clocks.3rtapi
+rtapi_get_msg_level.3rtapi
+rtapi_get_time.3rtapi
+rtapi_inb.3rtapi
+rtapi_init.3rtapi
+rtapi_module_param.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+rtapi_mutex.3rtapi
+rtapi_outb.3rtapi
+rtapi_print.3rtap
+rtapi_prio.3rtapi
+rtapi_prio_highest.3rtapi
+rtapi_prio_lowest.3rtapi
+rtapi_prio_next_higher.3rtapi
+rtapi_prio_next_lower.3rtapi
+rtapi_region.3rtapi
+rtapi_release_region.3rtapi
+rtapi_request_region.3rtapi
+rtapi_set_msg_level.3rtapi
+rtapi_shmem.3rtapi
+rtapi_shmem_delete.3rtapi
+rtapi_shmem_getptr.3rtapi
+rtapi_shmem_new.3rtapi
+rtapi_snprintf.3rtapi
+rtapi_task_delete.3rtpi
+rtapi_task_new.3rtapi
+rtapi_task_pause.3rtapi
+rtapi_task_resume.3rtapi
+rtapi_task_start.3rtapi
+rtapi_task_wait.3rtapi
+undocumented.3rtapi
+....
 
