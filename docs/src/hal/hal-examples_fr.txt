@@ -143,7 +143,7 @@ lowpass::
 Pour plus d'informations voir <<sec:Composants-de-HAL>> ou les man pages des
 composants concernés.
 
-Placer le code suivant dans un fichier appelé `softstart.hal`. 
+Placer le code suivant dans un fichier appelé *softstart.hal*. 
 ----
     loadrt threads period1=1000000 name1=thread  
     loadrt siggen  
@@ -204,7 +204,6 @@ Pour terminer, taper *exit* dans le terminal pour fermer halrun et halscope.
 Ne pas refermer le terminal avec halrun en marche, la mémoire ne serait pas
 vidée proprement, ce qui pourrait empêcher EMC2 de se charger.
 
-Pour tout savoir sur Halscope et Halrun, voir le tutoriel de HAL:
- <<cha:Tutoriel-HAL>>
+Pour tout savoir sur Halscope et Halrun <<cha:Tutoriel-HAL, voir le tutoriel de HAL>>
 
 
