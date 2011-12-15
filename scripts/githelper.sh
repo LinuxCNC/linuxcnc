@@ -7,6 +7,9 @@
 # attempts to detect the current branch (this will fail if the repo is in a
 # detached HEAD state).
 #
+# Sets DEB_COMPONENT based on the branch.  Official release branches get
+# their own component, all other branches go in "scratch".
+#
 # Sets GIT_TAG to the most recent signed tag (this will fall back to the
 # most recent tag of any kind if no signed tag is found).
 #
@@ -26,15 +29,19 @@ function githelper() {
     case $GIT_BRANCH in
         master)
             GIT_TAG_GLOB="v2.6*"
+            DEB_COMPONENT="master"
             ;;
         v2.5_branch)
             GIT_TAG_GLOB="v2.5*"
+            DEB_COMPONENT="v2.5_branch"
             ;;
         v2.4_branch)
             GIT_TAG_GLOB="v2.4*"
+            DEB_COMPONENT="v2.4_branch"
             ;;
         *)
             GIT_TAG_GLOB="*"
+            DEB_COMPONENT="scratch"
             ;;
     esac
 
