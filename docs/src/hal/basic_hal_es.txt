@@ -23,9 +23,11 @@ real time space.
 
 The syntax and an example:
 
-+loadrt <component> <options>+ 
+----
+loadrt <component> <options>
 
-+loadrt mux4 count=1+ 
+loadrt mux4 count=1
+----
 
 
 === addf
@@ -46,10 +48,11 @@ have two threads.
 
 The syntax and an example:
 
-+addf <component> <thread>+ 
+----
+addf <component> <thread>
 
-+addf mux4 servo-thread+ 
-
+addf mux4 servo-thread
+----
 
 === loadusr
 
@@ -60,44 +63,43 @@ components into user space.
 
 Flags may be one or more of the following:
 
--W::
-     to wait for the component to become ready. The component is assumed to
+[horizontal]
+-W:: to wait for the component to become ready. The component is assumed to
     have the same name as the first argument of the command.
 
--Wn <name>::
-    to wait for the component, which will have the given <name>.
+-Wn <name>:: to wait for the component, which will have the given <name>.
 
--w::
-    to wait for the program to exit
+-w:: to wait for the program to exit
 
--i::
-    to ignore the program return value (with -w) 
+-i:: to ignore the program return value (with -w) 
 
 The syntax and examples:
 
-+loadusr <component> <options>+ 
+----
+loadusr <component> <options>
 
-+loadusr halui+ 
+loadusr halui
 
-+loadusr -Wn spindle gs2_vfd -n spindle+ 
+loadusr -Wn spindle gs2_vfd -n spindle
+----
 
-
-In English it means "loadusr wait for name spindle component gs2_vfd name spindle."
+In English it means 'loadusr wait for name spindle component gs2_vfd name spindle'.
 
 === net
 
 The command "net" creates a "connection" between a signal and and one
 or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The direction
-indicators `<=` and `=>` are only to make it easier for humans to follow
+indicators '<=' and '=>' are only to make it easier for humans to follow
 the logic and are not used by the net command.
 
 The syntax and an example:
 
-+net <signal-name> <pin-name> <opt-direction> <opt-pin-name>+ 
+----
+net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 
-+net both-home-y <= parport.0.pin-11-in+ 
-
+net both-home-y <= parport.0.pin-11-in
+----
 
 Each signal can only have one source (a HAL "Dir out” pin) and as many
 readers (a HAL "Dir in" pin) as you like. In the Dir column of the HAL
@@ -115,17 +117,19 @@ parport.0.pin-08-out. Basically the value of stepgen.0.out is send to
 the signal xStep and that value is then sent to parport.0.pin-02-out
 and parport.0.pin-08-out.
 
------------------------------------------------------------
-     signal    source            destination          destination 
+----
+    signal    source            destination          destination 
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out 
------------------------------------------------------------
+----
 
 Since the signal xStep contains the value of stepgen.0.out (the
 source) you can use the same signal again to send the value to another
 reader. To do this just use the signal with the readers on another
 line.
 
-+net xStep <= stepgen.0.out => parport.0.pin-02-out+ 
+----
+net xStep <= stepgen.0.out => parport.0.pin-02-out
+----
 
 The so called I/O pins like index-enable do not follow this rule.
 
@@ -143,23 +147,25 @@ use setp on a pin that is connected to a signal.
 
 The syntax and an example:
 
-+setp <pin/parameter-name> <value>+ 
+----
+setp <pin/parameter-name> <value>
 
-+setp parport.0.pin-08-out TRUE+ 
-
+setp parport.0.pin-08-out TRUE
+----
 
 === unlinkp
 
 The command "unlinkp" unlinks a pin from the connected signal. If no
 signal was connected to the pin prior running the command, nothing
-happens.
+happens. The 'unlinkp' command is useful for trouble shooting.
 
 The syntax and an example:
 
-+unlinkp <pin-name>+ 
+----
+unlinkp <pin-name>
 
-+unlinkp parport.0.pin-02-out+ 
-
+unlinkp parport.0.pin-02-out
+----
 
 === Obsolete Commands
 
@@ -170,10 +176,10 @@ pin.
 
 The syntax and an example:
 
-+linksp <signal-name> <pin-name>+ 
-
-+linksp X-step parport.0.pin-02-out+ 
-
+----
+linksp <signal-name> <pin-name>
+linksp X-step parport.0.pin-02-out
+----
 
 The "linksp" command has been superseded by the "net" command.
 
@@ -184,10 +190,11 @@ signal. It is the same as linksp but the arguments are reversed.
 
 The syntax and an example:
 
-+linkps <pin-name> <signal-name>+ 
+----
+linkps <pin-name> <signal-name>
 
-+linkps parport.0.pin-02-out X-Step+ 
-
+linkps parport.0.pin-02-out X-Step
+----
 
 The "linkps" command has been superseded by the "net" command.
 
@@ -199,9 +206,11 @@ and the data type of <type>. Type must be "bit", "s32", "u32" or
 
 The syntax and an example:
 
-+newsig <signame> <type>+ 
+----
+newsig <signame> <type>
 
-+newsig Xstep bit+ 
+newsig Xstep bit
+----
 
 More information can be found in the HAL manual or the man pages for
 halrun.
@@ -287,11 +296,13 @@ shows the output based on each combination of input.
 
 Syntax
 
-+and2 [count=N] or [names=name1[,name2...]]+ 
+----
+and2 [count=N] or [names=name1[,name2...]]
+----
 
 Functions
 
-+and2.n+ 
+and2.n
 
 Pins
 
@@ -316,7 +327,9 @@ The "not" component is a bit inverter.
 
 Syntax
 
-+not [count=n] or [names=name1[,name2...]]+ 
+----
+not [count=n] or [names=name1[,name2...]]
+----
 
 Functions
 
@@ -343,7 +356,9 @@ The "or2" component is a two input OR gate.
 
 Syntax
 
-+or2[count=n] or [names=name1[,name2...]]+ 
+----
+or2[count=n] or [names=name1[,name2...]]
+----
 
 Functions
 
@@ -351,9 +366,9 @@ Functions
 
 Pins
 
-or2.n.in0 (bit, in) 
-or2.n.in1 (bit, in) 
-or2.n.out (bit, out) 
+    or2.n.in0 (bit, in) 
+    or2.n.in1 (bit, in) 
+    or2.n.out (bit, out) 
 
 Truth Table
 
@@ -372,7 +387,9 @@ The "xor2" component is a two input XOR (exclusive OR)gate.
 
 Syntax
 
-+xor2[count=n] or [names=name1[,name2...]]+ 
+----
+xor2[count=n] or [names=name1[,name2...]]
+----
 
 Functions
 
@@ -399,16 +416,17 @@ Truth Table
 
 An "and2" example connecting two inputs to one output.
 
-+loadrt and2 count=1+ 
+----
+loadrt and2 count=1
 
-+addf and2.0 servo-thread+ 
+addf and2.0 servo-thread
 
-+net my-sigin1 and2.0.in0 <= parport.0.pin-11-in+ 
+net my-sigin1 and2.0.in0 <= parport.0.pin-11-in
 
-+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in+ 
+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in 
 
-+net both-on parport.0.pin-14-out <= and2.0.out+ 
-
+net both-on parport.0.pin-14-out <= and2.0.out 
+----
 
 In the above example one copy of and2 is loaded into real time space
 and added to the servo thread. Next pin 11 of the parallel port is
@@ -429,14 +447,18 @@ will not change.
 
 The following syntax is used to load the weighted_sum component.
 
-+loadrt weighted_sum wsum_sizes=size[,size,...]+ 
+----
+loadrt weighted_sum wsum_sizes=size[,size,...]
+----
 
 Creates weighted sum groups each with the given number of input bits
 (size).
 
 To update the weighted_sum you need to attach process_wsums to a thread.
 
-+addf process_wsums servo-thread+ 
+----
+addf process_wsums servo-thread
+----
 
 This updates the weighted_sum component.
 
