@@ -44,7 +44,15 @@ Lists
 ** bullet
 
 . numbered
-.. numbered     
+.. numbered
+
+List Item Continuation
+* List item paragaph one
+  continued with a single plus hard left.
++
+List item one continued 
+   with a second paragraph
+   and first line of second paragraph must be hard left.
      
 Images
 
