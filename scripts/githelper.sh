@@ -7,8 +7,8 @@
 # attempts to detect the current branch (this will fail if the repo is in a
 # detached HEAD state).
 #
-# Sets GIT_TAG to the most recent signed tag (this will remain unset if no
-# signed tag is found).
+# Sets GIT_TAG to the most recent signed tag (this will fall back to the
+# most recent tag of any kind if no signed tag is found).
 #
 
 
