@@ -24,10 +24,18 @@ function githelper() {
     fi
 
     case $GIT_BRANCH in
-        master) GIT_TAG_GLOB="v2.6*";;
-        v2.5_branch) GIT_TAG_GLOB="v2.5*";;
-        v2.4_branch) GIT_TAG_GLOB="v2.4*";;
-        *) GIT_TAG_GLOB="*";;
+        master)
+            GIT_TAG_GLOB="v2.6*"
+            ;;
+        v2.5_branch)
+            GIT_TAG_GLOB="v2.5*"
+            ;;
+        v2.4_branch)
+            GIT_TAG_GLOB="v2.4*"
+            ;;
+        *)
+            GIT_TAG_GLOB="*"
+            ;;
     esac
 
     for TAG in $(git tag -l "$GIT_TAG_GLOB" | sort -r); do
