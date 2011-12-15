@@ -4,4 +4,6 @@ Locate and fix markup inconsistencies
 
 Locate and remove outdated material
 
+Find out why .eps files are not showing up in the HTML docs
+
 Add Cutter Comp gcode example to src/examples.gcode.txt
