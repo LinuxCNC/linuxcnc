@@ -22,14 +22,30 @@ http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 
 AsciiDoc Formatting:
 --------------------
-
-G Code and other code that you don't want to word wrap.
----- < 4 dashes start of code
+Listing Block for G Code and terminal output
+---- < 4 dashes start of block
 lines of code
 ...
 more code
----- < 4 dashes end of code
-     < 1 blank line after end of code
+---- < 4 dashes end of block
+     < 1 blank line after
+
+Literal blocks
+.... < 4 periods start the block
+literal block
+will show up
+just as you type it.
+.... < 4 periods end the block
+     < 1 blank line after
+
+
+Lists
+* bullet
+** bullet
+
+. numbered
+.. numbered     
+     
 Images
 
 put all images in the images subdirectory
