@@ -12,8 +12,5 @@ fi
 
 githelper $1
 
-git describe --match "$GIT_TAG"
-if [ $? -ne 0 ]; then
-    echo v$(git show HEAD:VERSION)~${GIT_BRANCH}~$(git log --pretty=format:%h HEAD~..HEAD)
-fi
+echo $DEB_COMPONENT
 

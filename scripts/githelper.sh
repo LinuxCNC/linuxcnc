@@ -7,8 +7,11 @@
 # attempts to detect the current branch (this will fail if the repo is in a
 # detached HEAD state).
 #
-# Sets GIT_TAG to the most recent signed tag (this will remain unset if no
-# signed tag is found).
+# Sets DEB_COMPONENT based on the branch.  Official release branches get
+# their own component, all other branches go in "scratch".
+#
+# Sets GIT_TAG to the most recent signed tag (this will fall back to the
+# most recent tag of any kind if no signed tag is found).
 #
 
 
@@ -24,10 +27,22 @@ function githelper() {
     fi
 
     case $GIT_BRANCH in
-        master) GIT_TAG_GLOB="v2.6*";;
-        v2.5_branch) GIT_TAG_GLOB="v2.5*";;
-        v2.4_branch) GIT_TAG_GLOB="v2.4*";;
-        *) GIT_TAG_GLOB="*";;
+        master)
+            GIT_TAG_GLOB="v2.6*"
+            DEB_COMPONENT="master"
+            ;;
+        v2.5_branch)
+            GIT_TAG_GLOB="v2.5*"
+            DEB_COMPONENT="v2.5_branch"
+            ;;
+        v2.4_branch)
+            GIT_TAG_GLOB="v2.4*"
+            DEB_COMPONENT="v2.4_branch"
+            ;;
+        *)
+            GIT_TAG_GLOB="*"
+            DEB_COMPONENT="scratch"
+            ;;
     esac
 
     for TAG in $(git tag -l "$GIT_TAG_GLOB" | sort -r); do
