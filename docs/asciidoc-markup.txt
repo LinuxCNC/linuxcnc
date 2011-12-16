@@ -75,5 +75,8 @@ Making a horizontal labeled list.
 [horizontal]
 Label:: The text about the label
 
+Latexmath is broken at the moment and trashes the HTML. A work around is to use open office math
+to create the math image and gimp to screen capture and save to a png.
+
 check asciidoc cheatsheet http://powerman.name/doc/asciidoc or user manual
 http://www.methods.co.nz/asciidoc/userguide.html for details about format.
