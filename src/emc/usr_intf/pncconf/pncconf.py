@@ -5977,18 +5977,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[pinv].set_active(datapinv)
                     return
 
+                # type GPIO
+                # if compnum  = 100  then it means that the GPIO type can not
+                # be changed from what the firmware designates it as.
                 if widgetptype in (GPIOI,GPIOO,GPIOD):
                         #print "data ptype index:",pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
-                        # if compnum  = 100  then it means that the component type can not
-                        # be changed from what the firmware designates it as.
                         # signal names for GPIO INPUT
                         #print "compnum = ",compnum
                         if compnum == 100: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.data[pinv])
-                        self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
-                        if dataptype == GPIOI:
+                        try:
+                            self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
+                        except:
+                            self.widgets[ptype].set_active( pintype_gpio.index(widgetptype) )
+                        # if GPIOI or dataptype not in GPIO family force it GPIOI
+                        if dataptype == GPIOI or dataptype not in(GPIOO,GPIOI,GPIOD):
                             human = human_input_names
                             signal = hal_input_names
                             tree = self.data._gpioisignaltree
@@ -6043,7 +6048,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else:
                         temp = (0) # set unused encoder if no match
                     #print temp
-                    if dataptype == ENCA:
+                    if widgetptype == ENCA:
                         treeiter = self.data._encodersignaltree.get_iter(temp)
                     else:
                         treeiter = self.data._muxencodersignaltree.get_iter(temp)
@@ -6117,7 +6122,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._8i20signaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
-                # Type potentiometer
+                # Type potentiometer (7i76"s spindle control)
                 elif widgetptype in (POTO,POTE):
                     self.widgets[pinv].set_active(self.data[pinv])
                     try:
@@ -6200,7 +6205,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._pwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
  
-                # type tp 3 pwm
+                # type tp 3 pwm for direct brushless motor control 
                 elif widgetptype == TPPWMA:
                     #print "3 pwm"
                     count = -7
@@ -6233,6 +6238,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         temp = (0) # set unused stepper
                     treeiter = self.data._tppwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
+
                 # type step gen
                 elif widgetptype == STEPA:
                     #print "stepper", dataptype
@@ -6270,6 +6276,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
+                # type smartserial  
                 elif widgetptype in( TXDATA0,SS7I76M0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,SS7I76M2):
                     #print "SMART SERIAL", dataptype,widgetptype
                     self.widgets[pinv].set_active(datapinv)
