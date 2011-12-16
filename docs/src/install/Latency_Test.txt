@@ -1,3 +1,7 @@
+:lang: en
+:toc:
+
+
 Hardware
 ========
 
@@ -8,7 +12,7 @@ to see if it is able to drive a CNC machine.
 
 Latency is how long it takes the PC to stop what it is doing and 
 respond to an external request. For EMC2 the request is 
-BASE_THREAD that makes the periodic "heartbeat" that serves as a 
+BASE_THREAD that makes the periodic 'heartbeat' that serves as a 
 timing reference for the step pulses. The lower the latency, the 
 faster you can run the heartbeat, and the faster and smoother the 
 step pulses will be.
@@ -41,7 +45,9 @@ To run the test, open a terminal window
 (In Ubuntu, from Applications -> Accessories -> Terminal) 
 and run the following command: 
 
-    `latency-test` 
+----
+latency-test
+----
 
 You should see something like this:
 
@@ -49,7 +55,7 @@ You should see something like this:
 
 image::../config/images/latency.png[]
 
-While the test is running, you should "abuse" the computer. 
+While the test is running, you should 'abuse' the computer. 
 Move windows around on the screen. Surf the web. Copy some large files 
 around on the disk. Play some music. 
 Run an OpenGL program such as glxgears. 
@@ -59,7 +65,7 @@ the latency test checks to see what the worst case numbers are.
 [NOTE]
 Do not run EMC2 or Stepconf while the latency test is running.
 
-The important numbers are the "max jitter". 
+The important numbers are the 'max jitter'. 
 In the example above, that is 9075 nanoseconds, or 9.075 microseconds. 
 Record this number, and enter it in Stepconf when it is requested.
 
@@ -86,7 +92,10 @@ use software stepping or not.
 Note that if you get high numbers, there may be ways to improve 
 them. Another PC had very bad latency (several milliseconds) when 
 using the onboard video. But a $5 used video card solved the 
-problem - EMC does not require bleeding edge hardware.
+problem.
+
+[NOTE]
+EMC does not require bleeding edge hardware.
 
 For more information on stepper tuning see the Stepper Tuning 
 chapter (<<cha:Stepper-Tuning>>).
@@ -105,22 +114,24 @@ It has good +5V signals, and can come in a single or dual ports.
 To find the I/O addresses for these cards open a terminal window 
 and use the list pci command:
 
-    `lspci -v`
+----
+lspci -v
+----
 
 Look for the entry with "Netmos" in it. Example of a 2-port card:
 
--------------------------------------------------
-  0000:01:0a.0 Communication controller: \
-        Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
-	Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter) 
-	Flags: medium devsel, IRQ 5
-	I/O ports at b800 [size=8]
-	I/O ports at bc00 [size=8] 
-	I/O ports at c000 [size=8] 
-	I/O ports at c400 [size=8] 
-	I/O ports at c800 [size=8] 
-	I/O ports at cc00 [size=16]
--------------------------------------------------
+----
+0000:01:0a.0 Communication controller: \
+      Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
+Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter) 
+Flags: medium devsel, IRQ 5
+I/O ports at b800 [size=8]
+I/O ports at bc00 [size=8] 
+I/O ports at c000 [size=8] 
+I/O ports at c400 [size=8] 
+I/O ports at c800 [size=8] 
+I/O ports at cc00 [size=16]
+----
 
 From experimentation, I've found the first port (the on-card 
 port) uses the third address listed (c000), and the second port 
@@ -130,13 +141,17 @@ address listed (b800).
 You can then open an editor and put the addresses into the 
 appropriate place in your .hal file.
 
-    `loadrt hal_parport cfg="0x378 0xc000"`
+----
+loadrt hal_parport cfg="0x378 0xc000"
+----
 
-You must also direct EMC to run the "read" and "write" functions 
+You must also direct EMC to run the 'read' and 'write' functions 
 for the second card. For example,
 
-    `addf parport.1.read base-thread 1` 
-    `addf parport.1.write base-thread -1`
+----
+addf parport.1.read base-thread 1
+addf parport.1.write base-thread -1
+----
 
 Please note that your values will differ. The Netmos cards are 
 Plug-N-Play, and might change their settings depending on which 
