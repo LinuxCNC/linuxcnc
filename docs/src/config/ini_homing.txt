@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 == Homing[[sec:Homing]]
 
 === Overview
@@ -16,7 +19,7 @@ following section.
 
 .Homing Sequences[[fig:motion-homing-sequence-diagram]]
 
-image::images/emc2-motion-homing-diag.eps[]
+image::images/emc2-motion-homing-diag.png[]
 
 === Configuration
 
