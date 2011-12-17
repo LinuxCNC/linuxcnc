@@ -20,7 +20,19 @@ More information here
 http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
-AsciiDoc Formatting:
+Links
+-----
+[[anchor]]
+<<anchor,caption>>
+
+Example
+[[sub:torpodeos]]
+
+<<sub:torpodeos,bombs>>
+
+only bombs will show in the text with an underline so always provide a caption for a link
+
+AsciiDoc Formatting
 --------------------
 Listing Block for G Code and terminal output
 ---- < 4 dashes start of block
@@ -37,7 +49,6 @@ will show up
 just as you type it.
 .... < 4 periods end the block
      < 1 blank line after
-
 
 Lists
 * bullet
@@ -65,7 +76,6 @@ image::images/axis.png[]
 
 If the image is small and displays too big in the pdf you can
 use the scaledwidth="60%" attribute
-
 
 Escaping a character.
 Normally characters like ' and * would not print unless you use \' or \* then
