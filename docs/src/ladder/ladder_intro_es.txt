@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = Ladder Programming (((Classic Ladder)))
 
 == Introduction
@@ -7,7 +10,7 @@ electrical logic schematics. It is now a graphical language very
 popular for programming Programmable Logic Controllers (PLCs). It was
 originally invented to describe logic made from relays. The name is
 based on the observation that programs in this language resemble
-ladders, with two vertical "rails" and a series of horizontal "rungs" 
+ladders, with two vertical 'rails' and a series of horizontal 'rungs' 
 between them. In Germany and elsewhere in Europe, the style is to 
 draw the rails horizontally along the top and bottom of the page 
 while the rungs are drawn vertically from left to right.
@@ -24,13 +27,19 @@ hardwired relay circuits. As programmable logic controllers became more
 sophisticated it has also been used in very complex automation systems.
 
 Ladder logic can be thought of as a rule-based language, rather than a
-procedural language. A "rung" in the ladder represents a rule. When
+procedural language. A 'rung' in the ladder represents a rule. When
 implemented with relays and other electromechanical devices, the
-various rules "execute" simultaneously and immediately. When
+various rules 'execute' simultaneously and immediately. When
 implemented in a programmable logic controller, the rules are typically
 executed sequentially by software, in a loop. By executing the loop
 fast enough, typically many times per second, the effect of
 simultaneous and immediate execution is obtained.
+
+Ladder logic follows these general steps for operation.
+
+* Read Inputs
+* Solve Logic
+* Update Outputs 
 
 == Example
 
@@ -51,7 +60,7 @@ outputs and other), which get evaluated left to right.
 
 This example is the simplest rung:
 
-image:images/example_link_contact_coil.png[]
+image::images/example_link_contact_coil.png[align="center"]
 
 The input on the left, B0, a normally open contact, is connected to the
 coil (output) on the right, Q0. Now imagine a voltage gets applied to the
@@ -76,11 +85,11 @@ example, we will give it the same number as the coil that drives it.
 This is the standard practice followed in all ladder programming, 
 although it may seem strange at first to see a switch labeled the 
 same as a coil. So let's call this auxilliary contact Q0 and 
-connect it across the B0 "pushbutton" contact from our earlier example. 
+connect it across the B0 'pushbutton' contact from our earlier example. 
 
 Let's take a look at it: 
 
-image:images/example_link_contact_coil2.png[]
+image::images/example_link_contact_coil2.png[align="center"]
 
 As before, when the user presses pushbutton B0, coil Q0 comes on. 
 And when coil Q0 comes on, switch Q0 comes on. Now the interesting 
@@ -88,16 +97,16 @@ part happens. When the user releases pushbutton B0, coil Q0
 does not stop as it did before. This is because switch Q0  
 of this circuit is effectively holding the user's pushbutton 
 pressed. So we see that switch Q0 is still holding coil Q0 on 
-after the "start" pushbutton has been released. 
+after the 'start' pushbutton has been released. 
 
 This type of contact on a coil or relay, used in this way, is 
-often called a "holding contact", because it "holds on" the 
+often called a 'holding contact', because it 'holds on' the 
 coil that it is associated with. It is also occasionally called 
-a "seal" contact, and when it is active it is said that the 
-circuit is "sealed". 
+a 'seal' contact, and when it is active it is said that the 
+circuit is 'sealed'. 
 
 Unfortunately, our circuit so far has little practical use, 
-because, although we have an "on" or "start" button in the form of 
+because, although we have an 'on' or 'start' button in the form of 
 pushbutton B0, we have no way to shut this circuit off once 
 it is started. But that's easy to fix. All we need is a way to 
 interrupt the power to coil Q0. So let's add a normally-closed 
@@ -105,14 +114,14 @@ interrupt the power to coil Q0. So let's add a normally-closed
 
 Here's how that would look: 
 
-image:images/example_link_contact_coil3.png[]
+image::images/example_link_contact_coil3.png[align="center"]
 
-Now we have added "off" or "stop" pushbutton B1. If the user 
+Now we have added 'off' or 'stop' pushbutton B1. If the user 
 pushes it, contact from the rung to the coil is broken. 
 When coil Q0 loses power, it drops to 0/off/false. When 
-coil Q0 goes off, so does switch Q0, so the "holding contact" 
-is broken, or the circuit is "unsealed". When the user releases 
-the "stop" pushbutton, contact is restored from the rung to 
+coil Q0 goes off, so does switch Q0, so the 'holding contact' 
+is broken, or the circuit is 'unsealed'. When the user releases 
+the 'stop' pushbutton, contact is restored from the rung to 
 coil Q0, but the rung has gone dead, so the coil doesn't 
 come back on. 
 
@@ -120,8 +129,8 @@ This circuit has been used for decades on virtually every
 machine that has a three-phase motor controlled by 
 a contactor, so it was inevitable that it would be 
 adopted by ladder/PLC programmers. It is also a very safe 
-circuit, in that if "start" and "stop" are both pressed at 
-the same time, the "stop" function always wins. 
+circuit, in that if 'start' and 'stop' are both pressed at 
+the same time, the 'stop' function always wins. 
 
 This is the basic building block of much of ladder programming, 
 so if you are new to it, you would do well to make sure that 
