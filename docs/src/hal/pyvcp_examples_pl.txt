@@ -1,3 +1,6 @@
+:lang: pl
+:toc:
+
 = PyVCP Examples
 
 == AXIS
@@ -6,33 +9,36 @@ To create a PyVCP panel to use with the AXIS interface that is
 attached to the right of AXIS you need to do the following basic
 things.
 
- - Create an .xml file that contains your panel description and put it in
+* Create an .xml file that contains your panel description and put it in
    your config directory.
- - Add the PyVCP entry to the [DISPLAY] section of the ini file with your
+* Add the PyVCP entry to the [DISPLAY] section of the ini file with your
    .xml file name.
- - Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file
+* Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file
    with the name of your postgui HAL file name.
- - Add the links to HAL pins for your panel in the postgui.hal file to
-   "connect" your PyVCP panel to EMC.
+* Add the links to HAL pins for your panel in the postgui.hal file to
+   'connect' your PyVCP panel to EMC.
 
 == Floating
 
 To create floating PyVCP panels that can be used with any interface
 you need to do the following basic things.
 
- - Create an .xml file that contains your panel description and put it in
+* Create an .xml file that contains your panel description and put it in
    your config directory.
- - Add a loadusr line to your .hal file to load each panel.
- - Add the links to HAL pins for your panel in the postgui.hal file to
-   "connect" your PyVCP panel to EMC.
+* Add a loadusr line to your .hal file to load each panel.
+* Add the links to HAL pins for your panel in the postgui.hal file to
+   'connect' your PyVCP panel to EMC.
 
 The following is an example of a loadusr command to load two PyVCP
 panels and name each one so the connection names in HAL will be known.
 
-    loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
-    loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
+[source-c]
+----
+loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
+loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
+----
 
-The -Wn makes HAL "Wait for name" to be loaded before proceeding. The
+The -Wn makes HAL 'Wait for name' to be loaded before proceeding. The
 pyvcp -c makes PyVCP name the panel.
 
 The HAL pins from panel1.xml will be named btnpanel.<pin name>
@@ -50,7 +56,7 @@ generated configuration. First we run the Stepconf Wizard and configure
 our machine, then on the Advanced Configuration Options page we make a
 couple of selections to add a blank PyVCP panel as shown in the
 following figure. For this example we named the configuration
-"pyvcp_xyz" on the Basic Machine Information page of the Stepconf
+'pyvcp_xyz' on the Basic Machine Information page of the Stepconf
 Wizard.
 
 .XYZ Wizard Configuration[[cap:XYZ-Wizard-Configuration]]
@@ -64,7 +70,7 @@ you will have a link to those files on your desktop.
 === Create the Widgets
 
 Open up the custompanel.xml file by right clicking on it and selecting
-"open with text editor". Between the <pyvcp></pyvcp> tags we will add
+'open with text editor'. Between the <pyvcp></pyvcp> tags we will add
 the widgets for our panel.
 
 Look in the PyVCP Widgets Reference section of the manual for more
@@ -74,92 +80,89 @@ In your custompanel.xml file we will add the description of the
 widgets.
 
 [source,xml]
------------------------------------------------------------
-    <pyvcp>
-
-    <labelframe text="Jog Buttons"> 
+----
+<pyvcp>
+  <labelframe text="Jog Buttons"> 
     <font>("Helvetica",16)</font>
 
-    <!-- the X jog buttons --> 
-    <hbox> 
-    <relief>RAISED</relief> 
-    <bd>3</bd> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"x-plus"</halpin> 
-    <text>"X+"</text> 
-    </button> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"x-minus"</halpin> 
-    <text>"X-"</text> 
-    </button> 
-    </hbox>
+      <!-- the X jog buttons --> 
+      <hbox> 
+      <relief>RAISED</relief> 
+      <bd>3</bd> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"x-plus"</halpin> 
+        <text>"X+"</text> 
+      </button> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"x-minus"</halpin> 
+        <text>"X-"</text> 
+      </button> 
+      </hbox>
 
-    <!-- the Y jog buttons --> 
-    <hbox> 
-    <relief>RAISED</relief> 
-    <bd>3</bd> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"y-plus"</halpin> 
-    <text>"Y+"</text> 
-    </button> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"y-minus"</halpin> 
-    <text>"Y-"</text> 
-    </button> 
-    </hbox>
+      <!-- the Y jog buttons --> 
+      <hbox> 
+      <relief>RAISED</relief> 
+      <bd>3</bd> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"y-plus"</halpin> 
+        <text>"Y+"</text> 
+      </button> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"y-minus"</halpin> 
+        <text>"Y-"</text> 
+      </button> 
+      </hbox>
 
-    <!-- the Z jog buttons --> 
-    <hbox> 
-    <relief>RAISED</relief> 
-    <bd>3</bd> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"z-plus"</halpin> 
-    <text>"Z+"</text> 
-    </button> 
-    <button> 
-    <font>("Helvetica",20)</font> 
-    <width>3</width> 
-    <halpin>"z-minus"</halpin> 
-    <text>"Z-"</text> 
-    </button> 
-    </hbox>
+      <!-- the Z jog buttons --> 
+      <hbox> 
+      <relief>RAISED</relief> 
+      <bd>3</bd> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"z-plus"</halpin> 
+        <text>"Z+"</text> 
+      </button> 
+      <button> 
+        <font>("Helvetica",20)</font> 
+        <width>3</width> 
+        <halpin>"z-minus"</halpin> 
+        <text>"Z-"</text> 
+      </button> 
+      </hbox>
 
-    <!-- the jog speed slider --> 
-    <vbox> 
-    <relief>RAISED</relief> 
-    <bd>3</bd> 
-    <label> 
-    <text>"Jog Speed"</text> 
-    <font>("Helvetica",16)</font> 
-    </label> 
-    <scale> 
-    <font>("Helvetica",14)</font> 
-    <halpin>"jog-speed"</halpin> 
-    <resolution>1</resolution> 
-    <orient>HORIZONTAL</orient> 
-    <min_>0</min_> 
-    <max_>80</max_> 
-    </scale> 
-    </vbox>
-
-    </labelframe>
-
-    </pyvcp>
------------------------------------------------------------
+      <!-- the jog speed slider --> 
+      <vbox> 
+      <relief>RAISED</relief> 
+      <bd>3</bd> 
+      <label> 
+        <text>"Jog Speed"</text> 
+        <font>("Helvetica",16)</font> 
+      </label> 
+      <scale> 
+        <font>("Helvetica",14)</font> 
+        <halpin>"jog-speed"</halpin> 
+        <resolution>1</resolution> 
+        <orient>HORIZONTAL</orient> 
+        <min_>0</min_> 
+        <max_>80</max_> 
+      </scale> 
+      </vbox>
+  </labelframe>
+</pyvcp>
+----
 
 After adding the above you now will have a PyVCP panel that looks like
 the following attached to the right side of AXIS. It looks nice but it
-does not do anything until you "connect" the buttons to halui. If you
+does not do anything until you 'connect' the buttons to halui. If you
 get an error when you try and run scroll down to the bottom of the pop
 up window and usually the error is a spelling or syntax error and it
 will be there.
@@ -173,22 +176,22 @@ image::images/xyz_buttons.png[]
 To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
------------------------------------------------------------
-    # connect the X PyVCP buttons 
-    net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus 
-    net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
+----
+# connect the X PyVCP buttons 
+net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus 
+net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
 
-    # connect the Y PyVCP buttons 
-    net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus 
-    net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
+# connect the Y PyVCP buttons 
+net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus 
+net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
 
-    # connect the Z PyVCP buttons 
-    net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus 
-    net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
+# connect the Z PyVCP buttons 
+net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus 
+net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
 
-    # connect the PyVCP jog speed slider  
-    net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
------------------------------------------------------------
+# connect the PyVCP jog speed slider  
+  net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
+----
 
 After resetting the E-Stop and putting it into jog mode and moving the
 jog speed slider in the PyVCP panel to a value greater than zero the
@@ -204,7 +207,7 @@ First create the ptest.xml file with the following code to create the
 panel description.
 
 [source,xml]
------------------------------------------------------------
+----
 <!-- Test panel for the parallel port cfg for out -->
 <pyvcp>
   <hbox>
@@ -264,7 +267,7 @@ panel description.
     </led>
   </hbox>
 </pyvcp>
------------------------------------------------------------
+----
 
 This will create the following floating panel which contains a couple
 of in pins and a couple of out pins.
@@ -277,7 +280,7 @@ To run the HAL commands that we need to get everything up and running
 we put the following in our ptest.hal file.
 
 [source,c]
------------------------------------------------------------
+----
 loadrt hal_parport cfg="0x378 out"
 loadusr -Wn ptest pyvcp -c ptest ptest.xml
 loadrt threads name1=porttest period1=1000000
@@ -288,11 +291,13 @@ net pin02 ptest.btn02 parport.0.pin-02-out ptest.led-02
 net pin10 parport.0.pin-10-in ptest.led-10
 net pin11 parport.0.pin-11-in ptest.led-11
 start
------------------------------------------------------------
+----
 
 To run the HAL file we use the following command from a terminal window.
 
-`~$ halrun -I -f ptest.hal`
+----
+~$ halrun -I -f ptest.hal
+----
 
 The following figure shows what a complete panel might look like.
 
@@ -306,7 +311,7 @@ To add the rest of the parallel port pins just modify the .xml and
 To show the pins after running the HAL script use the following
 command at the halcmd prompt:
 
------------------------------------------------------------
+----
 halcmd: show pin
 Component Pins:
 Owner Type  Dir Value  Name
@@ -337,8 +342,8 @@ Owner Type  Dir Value  Name
     4 bit   IN  FALSE  ptest.led-01 <== pin01
     4 bit   IN  FALSE  ptest.led-02 <== pin02
     4 bit   IN  TRUE   ptest.led-10 <== pin10
-    4 bit   IN  TRUE   ptest.led-11 <== pin11`
------------------------------------------------------------
+    4 bit   IN  TRUE   ptest.led-11 <== pin11
+----
 
 This will show you what pins are IN and what pins are OUT as well as
 any connections.
@@ -355,90 +360,90 @@ on the GS2 example in the Hardware Examples section this manual.
 To create the panel we add the following to the .xml file.
 
 [source,xml]
------------------------------------------------------------
-    <pyvcp>
+----
+<pyvcp>
 
-    <!-- the RPM meter --> 
-    <hbox> 
+  <!-- the RPM meter --> 
+  <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
     <meter> 
-    <halpin>"spindle_rpm"</halpin> 
-    <text>"Spindle"</text> 
-    <subtext>"RPM"</subtext> 
-    <size>200</size> 
-    <min_>0</min_> 
-    <max_>3000</max_> 
-    <majorscale>500</majorscale> 
-    <minorscale>100</minorscale> 
-    <region1>0,10,"yellow"</region1> 
+      <halpin>"spindle_rpm"</halpin> 
+      <text>"Spindle"</text> 
+      <subtext>"RPM"</subtext> 
+      <size>200</size> 
+      <min_>0</min_> 
+      <max_>3000</max_> 
+      <majorscale>500</majorscale> 
+      <minorscale>100</minorscale> 
+      <region1>0,10,"yellow"</region1> 
     </meter> 
-    </hbox>
+  </hbox>
 
-    <!-- the On Led --> 
-    <hbox> 
-    <relief>RAISED</relief> 
-    <bd>3</bd> 
-    <vbox> 
+  <!-- the On Led --> 
+  <hbox> 
+  <relief>RAISED</relief> 
+  <bd>3</bd> 
+  <vbox> 
+  <relief>RAISED</relief> 
+  <bd>2</bd> 
+  <label> 
+  <text>"On"</text> 
+  <font>("Helvetica",18)</font> 
+  </label> 
+  <width>5</width> 
+   <hbox> 
+  <label width="2"/> <!-- used to center the led --> 
+  <rectled> 
+  <halpin>"on-led"</halpin> 
+  <height>"30"</height> 
+  <width>"30"</width> 
+  <on_color>"green"</on_color> 
+  <off_color>"red"</off_color> 
+  </rectled> 
+  </hbox> 
+  </vbox>
+
+  <!-- the FWD Led --> 
+  <vbox> 
     <relief>RAISED</relief> 
     <bd>2</bd> 
     <label> 
-    <text>"On"</text> 
-    <font>("Helvetica",18)</font> 
-    </label> 
-    <width>5</width> 
-     <hbox> 
-    <label width="2"/> <!-- used to center the led --> 
-    <rectled> 
-    <halpin>"on-led"</halpin> 
-    <height>"30"</height> 
-    <width>"30"</width> 
-    <on_color>"green"</on_color> 
-    <off_color>"red"</off_color> 
-    </rectled> 
-    </hbox> 
-    </vbox>
-
-    <!-- the FWD Led --> 
-    <vbox> 
-    <relief>RAISED</relief> 
-    <bd>2</bd> 
-    <label> 
-    <text>"FWD"</text> 
-    <font>("Helvetica",18)</font> 
-    <width>5</width> 
-    </label> 
-    <label width="2"/> 
-    <rectled> 
-    <halpin>"fwd-led"</halpin> 
-    <height>"30"</height> 
-    <width>"30"</width> 
-    <on_color>"green"</on_color> 
-    <off_color>"red"</off_color> 
-    </rectled> 
-    </vbox>
-
-    <!-- the REV Led --> 
-    <vbox> 
-    <relief>RAISED</relief> 
-    <bd>2</bd> 
-    <label> 
-    <text>"REV"</text> 
-    <font>("Helvetica",18)</font> 
-    <width>5</width> 
+      <text>"FWD"</text> 
+      <font>("Helvetica",18)</font> 
+      <width>5</width> 
     </label> 
     <label width="2"/> 
     <rectled> 
-    <halpin>"rev-led"</halpin> 
-    <height>"30"</height> 
-    <width>"30"</width> 
-    <on_color>"red"</on_color> 
-    <off_color>"green"</off_color> 
+      <halpin>"fwd-led"</halpin> 
+      <height>"30"</height> 
+      <width>"30"</width> 
+      <on_color>"green"</on_color> 
+      <off_color>"red"</off_color> 
     </rectled> 
-    </vbox> 
-    </hbox> 
-    </pyvcp>
------------------------------------------------------------
+  </vbox>
+
+  <!-- the REV Led --> 
+  <vbox> 
+  <relief>RAISED</relief> 
+  <bd>2</bd> 
+    <label> 
+      <text>"REV"</text> 
+      <font>("Helvetica",18)</font> 
+       <width>5</width> 
+    </label> 
+    <label width="2"/> 
+    <rectled> 
+      <halpin>"rev-led"</halpin> 
+      <height>"30"</height> 
+      <width>"30"</width> 
+      <on_color>"red"</on_color> 
+      <off_color>"green"</off_color> 
+    </rectled> 
+  </vbox> 
+  </hbox> 
+</pyvcp>
+----
 
 The above gives us a PyVCP panel that looks like the following.
 
@@ -451,23 +456,23 @@ image::images/gs2_panel.png[]
 To make it work we add the following code to the custom_postgui.hal
 file.
 
------------------------------------------------------------
-    # display the rpm based on freq * rpm per hz 
-    loadrt mult2 
-    addf mult2.0 servo-thread 
-    setp mult2.0.in1 28.75 
-    net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out 
-    net speed_out pyvcp.spindle_rpm <= mult2.0.out 
+----
+# display the rpm based on freq * rpm per hz 
+loadrt mult2 
+addf mult2.0 servo-thread 
+setp mult2.0.in1 28.75 
+net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out 
+net speed_out pyvcp.spindle_rpm <= mult2.0.out 
 
-    # run led 
-    net gs2-run => pyvcp.on-led
+# run led 
+net gs2-run => pyvcp.on-led
 
-    # fwd led 
-    net gs2-fwd => pyvcp.fwd-led
+# fwd led 
+net gs2-fwd => pyvcp.fwd-led
 
-    # rev led 
-    net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
------------------------------------------------------------
+# rev led 
+net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
+----
 
 Some of the lines might need some explanations. The fwd led line uses
 the signal created in the custom.hal file whereas the rev led needs to
