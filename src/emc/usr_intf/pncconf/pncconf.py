@@ -5179,6 +5179,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltree = self.data._sserialsignaltree
                     ptypetree = self.data._sserialliststore
                     signaltocheck = hal_sserial_names
+                # this suppresses errors because of unused and unintialized sserial instances
+                elif pintype == None and "sserial" in ptype: return
                 else :
                     print "**** ERROR mesa-data-transfer: error unknown pin type:",pintype,"of ",ptype
                     return
