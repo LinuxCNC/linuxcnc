@@ -1,7 +1,9 @@
+:lang: es
+:toc:
+
 = Opto22 PCI
 
-PCI AC5 ADAPTER CARD / HAL DRIVER This page is considered current as
-of November 2008.
+PCI AC5 ADAPTER CARD / HAL DRIVER
 
 == The Adapter Card
 
@@ -28,7 +30,9 @@ card. The HAL driver is a realtime module. It will support 4 cards as
 is (more cards are possible with a change in the source code). Load the 
 basic driver like so: 
 
-    loadrt opto_ac5
+----
+loadrt opto_ac5
+----
 
 This will load the driver which will search for max 4 boards. It will
 set I/O of each board's 2 ports to a default setting. The default
@@ -36,60 +40,60 @@ configuration is for 12 inputs then 12 outputs. The pin name numbers
 correspond to the position on the relay rack. For example the pin names
 for the default I/O setting of port 0 would be:
 
-opto_ac5.0.port0.in-00 They would be numbered from 00 to 11
+* 'opto_ac5.0.port0.in-00' - They would be numbered from 00 to 11
 
-opto_ac5.0.port0.out-12 They would be numbered 12 to 23 port 1 would 
+* 'opto_ac5.0.port0.out-12' - They would be numbered 12 to 23 port 1 would 
 be the same.
 
-== PINS
+== Pins
 
-opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER] OUT bit
+* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER] OUT bit' -
 
-opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit
-
+* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit' -
 Connect a HAL bit signal to this pin to read an I/O point from the
 card. The PINNUMBER represents the position in the relay rack. Eg.
 PINNUMBER 0 is position 0 in a Opto22 relay rack and would be pin 47 on
 the 50 pin header connector. The -not pin is inverted so that LOW gives
 TRUE and HIGH gives FALSE.
 
-opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit
-
+* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit' -
 Connect a HAL bit signal to this pin to write to an I/O point of the
 card. The PINNUMBER represents the position in the relay rack.Eg.
 PINNUMBER 23 is position 23 in a Opto22 relay rack and would be pin 1
 on the 50 pin header connector.
 
-opto_ac5.[BOARDNUMBER].led[NUMBER] OUT bit
-
+* 'opto_ac5.[BOARDNUMBER].led[NUMBER] OUT bit' -
 Turns one of the 4 onboard LEDs on/off. LEDs are numbered 0 to 3.
 
 BOARDNUMBER can be 0-3 PORTNUMBER can be 0 or 1. Port 0 is closest to
 the card bracket.
 
-== PARAMETERS
+== Parameters
 
-opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit
-
+* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit' -
 When TRUE, invert the meaning of the corresponding -out pin so that
 TRUE gives LOW and FALSE gives HIGH.
 
 == FUNCTIONS 
 
-opto_ac5.0.digital-read Add this to a thread to read all the input
+* 'opto_ac5.0.digital-read' - Add this to a thread to read all the input
 points.
 
-opto_ac5.0.digital-write Add this to a thread to write all the output
+* 'opto_ac5.0.digital-write' - Add this to a thread to write all the output
 points and LEDs.
 
 For example the pin names for the default I/O setting of port 0 would
 be:
 
+----
 opto_ac5.0.port0.in-00
+----
 
 They would be numbered from 00 to 11
 
+----
 opto_ac5.0.port0.out-12
+----
 
 They would be numbered 12 to 23 port 1 would be the same.
 
@@ -97,7 +101,9 @@ They would be numbered 12 to 23 port 1 would be the same.
 
 To change the default setting load the driver something like so:
 
-    loadrt opto_ac5 portconfig0=0xffff portconfig1=0xff0000
+----
+loadrt opto_ac5 portconfig0=0xffff portconfig1=0xff0000
+----
 
 Of course changing the numbers to match the I/O you would like. Each
 port can be set up different.
