@@ -348,8 +348,7 @@ Owner Type  Dir Value  Name
 This will show you what pins are IN and what pins are OUT as well as
 any connections.
 
-[[sec:GS2-RPM-Meter]]
-== GS2 RPM Meter
+== GS2 RPM Meter[[gs2-rpm-meter]]
 
 The following example uses the Automation Direct GS2 VDF driver and
 displays the RPM and other info in a PyVCP panel. This example is based
