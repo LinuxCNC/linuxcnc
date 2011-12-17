@@ -30,17 +30,26 @@ is acceptable but not required.
 
 Put the opening brace last on the line, and put the closing brace first:
 
-    if(x) { 
+[source,c]
+----
+if(x) { 
+----
 
 The closing brace is on a line of its own, except in the cases where
-it is followed by a continuation of the same statement, i.e. a "while"
-in a do-statement or an "else" in an if-statement, like this:
+it is followed by a continuation of the same statement, i.e. a 'while'
+in a do-statement or an 'else' in an if-statement, like this:
 
-    do {
+[source,c]
+----
+do {
+----
 
 and
 
-    if(x == y) { 
+[source,c]
+----
+if(x == y) { 
+----
 
 This brace-placement also minimizes the number of empty (or almost
 empty) lines, which allows a greater amount of code or comments to be
@@ -51,17 +60,17 @@ visible at once in a terminal of a fixed size.
 C is a Spartan language, and so should your naming be. Unlike Modula-2
 and Pascal programmers, C programmers do not use cute names like
 ThisVariableIsATemporaryCounter. A C programmer would call that
-variable "tmp", which is much easier to write, and not the least more
+variable 'tmp', which is much easier to write, and not the least more
 difficult to understand.
 
 However, descriptive names for global variables are a must. To call a
-global function "foo" is a shooting offense.
+global function 'foo' is a shooting offense.
 
 GLOBAL variables (to be used only if you *really*  need them) need to
 have descriptive names, as do global functions. If
 you have a function that counts the number of active users, you should
- call that "count_active_users()" or similar, you should *not* call it
-"cntusr()".
+ call that 'count_active_users()' or similar, you should *not* call it
+'cntusr()'.
 
 Encoding the type of a function into the name (so-called Hungarian
 notation) is brain damaged - the compiler knows the types anyway and
@@ -69,9 +78,9 @@ can check those, and it only confuses the programmer. No wonder
 Microsoft makes buggy programs.
 
 LOCAL variable names should be short, and to the point. If you have
-some random integer loop counter, it should probably be called "i".
-Calling it "loop_counter" is non-productive, if there is no chance of
-it being misunderstood. Similarly, "tmp" can be just about any type of
+some random integer loop counter, it should probably be called 'i'.
+Calling it 'loop_counter' is non-productive, if there is no chance of
+it being misunderstood. Similarly, 'tmp' can be just about any type of
 variable that is used to hold a temporary value.
 
 If you are afraid to mix up your local variable names, you have
@@ -165,7 +174,7 @@ and use an 'is' prefix (not to be confused with methods that manipulate
 a boolean). Rationale: Identifies the return value as TRUE or FALSE and
 nothing else. e.g. isOpen, isHomed
 
-Do NOT use "Not" in a boolean name, it leads only leads to confusion
+Do NOT use 'Not' in a boolean name, it leads only leads to confusion
 when doing logical tests. e.g. isNotOnLimit or is_not_on_limit are BAD.
 
 Variable names should avoid the use of upper case and underscores
