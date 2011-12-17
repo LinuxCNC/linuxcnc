@@ -7,3 +7,5 @@ Locate and remove outdated material
 Find out why .eps files are not showing up in the HTML docs
 
 Add Cutter Comp gcode example to src/examples.gcode.txt
+
+verify gs2 pyvcp example code is correct, the open and closing tags don't match
