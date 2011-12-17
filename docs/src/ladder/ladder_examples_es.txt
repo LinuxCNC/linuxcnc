@@ -1,8 +1,11 @@
-== Ladder Examples (((Classic Ladder)))
+:lang: es
+:toc:
+
+== Ladder Examples [[ladder-examples]] (((Classic Ladder)))
 
 === Wrapping Counter
 
-To have a counter that "wraps around" you have to use the preset pin
+To have a counter that 'wraps around' you have to use the preset pin
 and the reset pin. When you create the counter set the preset at the
 number you wish to reach before wrapping around to 0. The logic is if
 the counter value is over the preset then reset the counter and if the
@@ -44,14 +47,18 @@ First we have to open the E-Stop loop in the main HAL file by
 commenting out by adding the pound sign as shown or removing the
 following lines.
 
-    # net estop-out <= iocontrol.0.user-enable-out 
-    # net estop-out => iocontrol.0.emc-enable-in
+----
+# net estop-out <= iocontrol.0.user-enable-out 
+# net estop-out => iocontrol.0.emc-enable-in
+----
 
 Next we add Classic Ladder to our custom.hal file by adding these two
 lines:
 
-    loadrt classicladder_rt 
-    addf classicladder.0.refresh servo-thread
+----
+loadrt classicladder_rt 
+addf classicladder.0.refresh servo-thread
+----
 
 Next we run our config and build the ladder as shown here.
 
@@ -64,8 +71,10 @@ estop.clp
 
 Now add the following line to your custom.hal file.
 
-    # Load the ladder 
-    loadusr classicladder --nogui estop.clp
+----
+# Load the ladder 
+loadusr classicladder --nogui estop.clp
+----
 
 I/O assignments
 
@@ -79,52 +88,54 @@ I/O assignments
 
 Next we add the following lines to the custom_postgui.hal file
 
-    # E-Stop example using pyVCP buttons to simulate external components
+----
+# E-Stop example using pyVCP buttons to simulate external components
 
-    # The pyVCP checkbutton simulates a normally closed external E-Stop 
-    net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
+# The pyVCP checkbutton simulates a normally closed external E-Stop 
+net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
 
-    # Request E-Stop Enable from EMC 
-    net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
+# Request E-Stop Enable from EMC 
+net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
 
-    # Request E-Stop Enable from pyVCP or external source 
-    net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
+# Request E-Stop Enable from pyVCP or external source 
+net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
 
-    # This line resets the E-Stop from EMC 
-     net emc-reset-estop iocontrol.0.user-request-enable =>
-    classicladder.0.in-02
+# This line resets the E-Stop from EMC 
+ net emc-reset-estop iocontrol.0.user-request-enable =>
+classicladder.0.in-02
 
-    # This line enables EMC to unlatch the E-Stop in Classic Ladder 
-    net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
+# This line enables EMC to unlatch the E-Stop in Classic Ladder 
+net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
 
-    # This line turns on the green indicator when out of E-Stop 
-    net estop-all-ok => pyvcp.py-es-status
+# This line turns on the green indicator when out of E-Stop 
+net estop-all-ok => pyvcp.py-es-status
+----
 
 Next we add the following lines to the panel.xml file. Note you have
 to open it with the text editor not the default html viewer.
 
 [source,xml]
--------------------------------------------------
-    <pyvcp> 
-    <vbox> 
-    <label><text>"E-Stop Demo"</text></label> 
-    <led> 
-    <halpin>"py-es-status"</halpin> 
-    <size>50</size> 
-    <on_color>"green"</on_color> 
-    <off_color>"red"</off_color> 
-    </led> 
-    <checkbutton> 
-    <halpin>"py-estop"</halpin> 
-    <text>"E-Stop"</text> 
-    </checkbutton> 
-    </vbox> 
-    <button> 
-    <halpin>"py-reset"</halpin> 
-    <text>"Reset"</text> 
-    </button> 
-    </pyvcp>
--------------------------------------------------
+----
+<pyvcp> 
+<vbox> 
+<label><text>"E-Stop Demo"</text></label> 
+<led> 
+<halpin>"py-es-status"</halpin> 
+<size>50</size> 
+<on_color>"green"</on_color> 
+<off_color>"red"</off_color> 
+</led> 
+<checkbutton> 
+<halpin>"py-estop"</halpin> 
+<text>"E-Stop"</text> 
+</checkbutton> 
+</vbox> 
+<button> 
+<halpin>"py-reset"</halpin> 
+<text>"Reset"</text> 
+</button> 
+</pyvcp>
+----
 
 Now start up your config and it should look like this.
 
@@ -173,20 +184,24 @@ above. [display turret sample]
 === Sequential Example
 
  - This Example is not complete yet.
+///////////////////////////////////////////////////////////////////////////////
+This is a sequential program.
+When the program is first started step one is active.
+Then when %B0 is true, steps 2 and 3 are then active
+and step one is inactive.
+Then when %B1 and/or %B2 are true, step 4 and/or 5
+are active and step 2 and/or 3 are inactive.
+Then when either %B3 OR %B4 are true, step 6 is true and
+steps 4 and 5 are inactive.
+Then when %B5 is true step 1 is active and step 6 is
+inactive and it all starts again. 
 
-This is a sequential program. +
-When the program is first started step one is active. +
-Then when %B0 is true, steps 2 and 3 are then active and step one is inactive. +
-Then when %B1 and/or %B2 are true, step 4 and/or 5 are active and step 2 and/or 3 are inactive. +
-Then when either %B3 OR %B4 are true, step 6 is true and steps 4 and 5 are inactive. +
-Then when %B5 is true step 1 is active and step 6 is inactive and it all starts again. 
-
-As shown, the sequence has been: +
-%B0 was true making step 2 and 3 active, then %B1 became true +
-(and still is-see the pink line through %B1) +
-making step 4 active and step 2 inactive. +
-Step 3 is active and waiting for %B2 to be true. +
-Step 4 is active and is waiting for %B3 to be true. +
-WOW, that was quite a mouthful!! +
-
+As shown, the sequence has been:
+%B0 was true making step 2 and 3 active, then %B1 became true
+(and still is-see the pink line through %B1)
+making step 4 active and step 2 inactive.
+Step 3 is active and waiting for %B2 to be true.
+Step 4 is active and is waiting for %B3 to be true.
+WOW, that was quite a mouthful!!
+///////////////////////////////////////////////////////////////////////////////
 
