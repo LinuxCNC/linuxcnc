@@ -1,3 +1,5 @@
+:toc:
+
 = Classic Ladder[[cha:Classic Ladder]](((Classic Ladder)))
 
 == Introduction
@@ -61,8 +63,8 @@ The most common language used when working with Classic Ladder is
 
 There are 2 components to Classic Ladder.
 
- - The real time module classicladder_rt
- - The user space module (including a GUI) classicladder
+* The real time module classicladder_rt
+* The user space module (including a GUI) classicladder
 
 === Files
 
@@ -81,8 +83,10 @@ first line loads real time the Classic Ladder module. The second line
 adds the function classicladder.0.refresh to the servo thread. This
 line makes Classic Ladder update at the servo thread rate.
 
-    loadrt classicladder_rt 
-    addf classicladder.0.refresh servo-thread
+----
+loadrt classicladder_rt 
+addf classicladder.0.refresh servo-thread
+----
 
 The speed of the thread that Classic Ladder is running in directly
 affects the responsiveness to inputs and outputs. If you can turn a
@@ -105,7 +109,7 @@ default values.
 
 .Default Variable Count[[cap:Default-Variable-Count]]
 
-[width="90%", options="header"]
+[width="90%", options="header", cols="<8,<4,<2"]
 |========================================
 |Object Name | Variable Name | Default Value
 |Number of rungs | (numRungs) | 100
@@ -136,14 +140,18 @@ HAL signed integers (+- integer range) pins are available.
 
 For example (you don't need all of these to change just a few):
 
-     loadrt classicladder_rt numRungs=12 numBits=100 numWords=10
-    numTimers=10 numMonostables=10 numCounters=10 numPhysInputs=10
-    numPhysOutputs=10 numArithmExpr=100 numSections=4 numSymbols=200
-    numS32in=5 numS32out=5
+----
+loadrt classicladder_rt numRungs=12 numBits=100 numWords=10
+numTimers=10 numMonostables=10 numCounters=10 numPhysInputs=10
+numPhysOutputs=10 numArithmExpr=100 numSections=4 numSymbols=200
+numS32in=5 numS32out=5
+----
 
 To load the default number of objects:
 
-    loadrt classicladder_rt
+----
+loadrt classicladder_rt
+----
 
 == Loading the Classic Ladder user module
 
@@ -154,29 +162,35 @@ file.
 
 To load the user module:
 
-    loadusr classicladder
+----
+loadusr classicladder
+----
 
 To load a ladder file:
 
-    loadusr classicladder myladder.clp
+----
+loadusr classicladder myladder.clp
+----
 
 Classic Ladder Loading Options
 
- - `--nogui` (loads without the ladder editor) normally used after
+* '--nogui' - (loads without the ladder editor) normally used after
    debugging is finished.
- - `--modbus_port=port` (loads the modbus port number)
- - `--modmaster` (initializes MODBUS master) should load the ladder
+* '--modbus_port=port' - (loads the modbus port number)
+* '--modmaster' - (initializes MODBUS master) should load the ladder
    program at the same time or the TCP is default port.
- - `--modslave` (initializes MODBUS slave) only TCP
+* '--modslave' - (initializes MODBUS slave) only TCP
 
 To use Classic Ladder with HAL without EMC: 
 
-    loadusr -w classicladder
+----
+loadusr -w classicladder
+----
 
 The -w tells HAL not to close down the HAL environment 
 until Classic Ladder is finished.
 
-If you first load ladder program with the `--nogui` option then load
+If you first load ladder program with the '--nogui' option then load
 Classic Ladder again with no options the GUI
 will display the last loaded ladder program.
 
@@ -317,35 +331,35 @@ Starting from the top left image:
 
 A short description of each of the buttons:
 
- - The SELECTOR ARROW button allows you to select existing objects and
+* 'Selector' - allows you to select existing objects and
    modify the information. 
- - The ERASER erases an object. 
- - The N.O. CONTACT is a normally open contact. It can be an external
+* 'Eraser' -  erases an object. 
+* 'N.O. Contact' - creates a normally open contact. It can be an external
    HAL-pin (%I) input contact, an internal-bit coil (%B) contact or a
    external coil (%Q) contact. The HAL-pin input contact is closed when
    the HAL-pin is true. The coil contacts are closed when the
    corresponding coil is active (%Q2 contact closes when %Q2 coil is
    active). 
- - The N.C. CONTACT is a normally closed contact. It is the same as the
+* 'N.C. Contact' - creates a normally closed contact. It is the same as the
    N.O. contact except that the contact is open when the HAL-pin is true
    or the coil is active.
- - The RISING-EDGE CONTACT is a contact that is closed when the HAL-pin
+* 'Rising Edge Contact - creates a contact that is closed when the HAL-pin
    goes from False to true, or the coil from not-active to active. 
- - The FALLING-EDGE CONTACT is a contact that is closed when the HAL-pin
+* 'Falling Edge Contact' - creates a contact that is closed when the HAL-pin
    goes from true to false or the coil from active to not. 
- - The HORIZONTAL CONNECTION connects the 'signal' to objects
-   horizontally. 
- - The VERTICAL CONNECTION connects the 'signal' to objects vertically. 
- - The HORIZONTAL-RUNNING CONNECTION is a quick way to connect a long run
-   of 'signal wire' horizontally. 
- - The IEC TIMER replaces the TIMER and the MONSTABLE.
- - The TIMER is a Timer Module. 
- - The MONOSTABLE is monostable module (one-shot) 
- - The COUNTER is a counter module. 
- - The COMPARE button allows you to compare variable to values or other
+* 'Horizontal Connection' - creates a horizontal connection to objects. 
+* 'Vertical Connection' - creates a vertical connection to horizontal lines. 
+* 'Horizontal Running Connection' - creates a horizontal connection between
+   two objects and is a quick way to connect objects that are more than one
+   block apart. 
+* 'IEC Timer' - creates a timer and replaces the 'Timer'.
+* 'Timer' - creates a Timer Module (depreciated use IEC Timer instead). 
+* 'Monostable' - creates a one-shot monostable module
+* 'Counter' - creates a counter module. 
+* 'Compare' - creates a compare block to compare variable to values or other
    variables. (eg %W1<=5 or %W1=%W2) Compare cannot be placed in the right
    most side of the section display. 
- - The VARIABLE ASSIGNMENT button allows you to assign values to
+* 'Variable Assignment' - creates an assignment block so you to assign values to
    variables. (eg %W2=7 or %W1=%W2) ASSIGNMENT functions can only be
    placed at the right most side of the section display.
 
@@ -376,13 +390,13 @@ like to call it). If %B7 coil is 'energized' (on, true, etc) then %B7
 N.O. contact would be on. If %Q1 coil is 'energized' then %Q1 N.O.
 contact would be on (and HAL pin classicladder.0.out-01 would be true.)
 
- - N.O. CONTACT image:images/ladder_action_load.png[] (Normally Open)
+* 'N.O. Contact' -  image:images/ladder_action_load.png[] (Normally Open)
    When the variable is false the switch is off.
- - N.C. CONTACT image:images/ladder_action_loadbar.png[] (Normally
+* 'N.C. Contact' - image:images/ladder_action_loadbar.png[] (Normally
    Closed) When the variable is false the switch is on.
- - RISING EDGE CONTACT - When the variable changes from false to true,
+* 'Rising Edge Contact' - When the variable changes from false to true,
    the switch is PULSED on.
- - FALLING EDGE CONTACT - When the variable changes from true to false,
+* 'Falling Edge Contact' - When the variable changes from true to false,
    the switch is PULSED on.
 
 === IEC TIMERS
@@ -392,17 +406,17 @@ Monostables.
 
 IEC Timers have 2 contacts.
 
- - I = input 
- - Q = output 
+* 'I' - input contact
+* 'Q' - output contact
 
 There are three modes - TON, TOF, TP.
 
- - TON : When timer input is true countdown begins and continues as long
+* 'TON' - When timer input is true countdown begins and continues as long
    as input remains true. After countdown is done and as long as timer
    input is still true the output will be true. 
- - TOF : When timer input is true, sets output true. When the input is
+* 'TOF' - When timer input is true, sets output true. When the input is
    false the timer counts down then sets output false.
- - TP : When timer input is pulsed true or held true timer sets output
+* 'TP' - When timer input is pulsed true or held true timer sets output
    true till timer counts down. (one-shot) 
 
 The time intervals can be set in multiples of 100ms, seconds, or
@@ -411,9 +425,9 @@ minutes.
 There are also Variables for IEC timers that can be read and/or
 written to in compare or operate blocks.
 
- - %TMxxx.Q timer done (Boolean, read write)
- - %TMxxx.P timer preset (read write)
- - %TMxxx.V timer value (read write)
+* '%TMxxx.Q' - timer done (Boolean, read write)
+* '%TMxxx.P' - timer preset (read write)
+* '%TMxxx.V' - timer value (read write)
 
 === TIMERS
 
@@ -422,20 +436,20 @@ Timers.
 
 Timers have 4 contacts.
 
- - E = enable (input) - starts timer when true, resets when goes false
- - C = control (input) - must be on for the timer to run (usually connect to E)
- -  D = done (output) - true when timer times out and as long as E remains true
- - R = running (output) - true when timer is running
+* 'E' - enable (input) starts timer when true, resets when goes false
+* 'C' - control (input) must be on for the timer to run (usually connect to E)
+* 'D' - done (output) true when timer times out and as long as E remains true
+* 'R' - running (output) true when timer is running
 
 The timer base can be multiples of milliseconds, seconds, or minutes.
 
 There are also Variables for timers that can be read and/or written to
 in compare or operate blocks.
 
- - %Txx.R : Timer xx running (Boolean, read only) 
- - %Txx.D : Timer xx done (Boolean, read only) 
- - %Txx.V : Timer xx current value (integer, read only) 
- - %Txx.P : Timer xx preset (integer, read or write)
+* '%Txx.R' - Timer xx running (Boolean, read only) 
+* '%Txx.D' - Timer xx done (Boolean, read only) 
+* '%Txx.V' - Timer xx current value (integer, read only) 
+* '%Txx.P' - Timer xx preset (integer, read or write)
 
 === MONOSTABLES
 
@@ -444,8 +458,8 @@ deprecated and replaced by IEC Timers.
 
 Monostables have 2 contacts, I and R.
 
- - I (input) -input -will start the mono timer running. 
- - R (output) -running -will be true while timer is running.
+* 'I' - input (input) will start the mono timer running. 
+* 'R' - running (output) will be true while timer is running.
 
 The I contact is rising edge sensitive meaning it starts the timer
 only when changing from false to true (or off to on). While the timer
@@ -457,25 +471,25 @@ minutes.
 There are also Variables for monostables that can be read and/or
 written to in compare or operate blocks.
 
- - %Mxx.R : Monostable xx running (Boolean, read only) 
- - %Mxx.V : Monostable xx current value (integer, read only) 
- - %Mxx.P : Monostable xx preset (integer, read or write)
+* '%Mxx.R' - Monostable xx running (Boolean, read only) 
+* '%Mxx.V' - Monostable xx current value (integer, read only) 
+* '%Mxx.P' - Monostable xx preset (integer, read or write)
 
 === COUNTERS
 
-- Represent up/down counters.
+Represent up/down counters.
 
-- There are 7 contacts:
+There are 7 contacts:
 
- - R (input) -reset -will reset the count to 0.
- - P (input) -preset -will set the count to the preset number assigned
+* 'R' - reset (input) will reset the count to 0.
+* 'P' - preset (input) will set the count to the preset number assigned
    from the edit menu.
- - U (input) -up count -will add one to the count. 
- - D (input) -down count -will subtract one from the count. 
- - E (output) -under flow -will be true when the count rolls over from 0
+* 'U' - up count (input) will add one to the count. 
+* 'D' - down count (input) will subtract one from the count. 
+* 'E' - under flow (output) will be true when the count rolls over from 0
    to 9999.
- - D (output) -done -will be true when the count equals the preset. 
- - F (output) -overflow -will be true when the count rolls over from 9999
+* 'D' - done (output) will be true when the count equals the preset. 
+* 'F' - overflow (output) will be true when the count rolls over from 9999
    to 0. 
 
 The up and down count contacts are edge sensitive meaning they only
@@ -487,11 +501,11 @@ The range is 0 to 9999.
 There are also Variables for counters that can be read and/or written
 to in compare or operate blocks.
 
- - %Cxx.D : Counter xx done (Boolean, read only) 
- - %Cxx.E : Counter xx empty overflow (Boolean, read only) 
- - %Cxx.F : Counter xx full overflow (Boolean, read only) 
- - %Cxx.V : Counter xx current value (integer, read or write) 
- - %Cxx.P : Counter xx preset (integer, read or write)
+* '%Cxx.D' - Counter xx done (Boolean, read only) 
+* '%Cxx.E' - Counter xx empty overflow (Boolean, read only) 
+* '%Cxx.F' - Counter xx full overflow (Boolean, read only) 
+* '%Cxx.V' - Counter xx current value (integer, read or write) 
+* '%Cxx.P' - Counter xx preset (integer, read or write)
 
 === COMPARE
 
@@ -501,12 +515,12 @@ evaluated number)
 The compare block will be true when comparison is true. you can use
 most math symbols:
 
- - +, - ,* , /, = (standard math symbols)
- -  < (less than), > (greater than), <= (less or equal), >= (greater or
+* +, - ,* , /, = (standard math symbols)
+*  < (less than), > (greater than), <= (less or equal), >= (greater or
    equal), <> (not equal)
- - (, ) grouping
- - ^ (exponent),% (modulus),& (and),| (or),. - 
- - ABS (absolute), MOY (french for average) ,AVG (average)
+* (, ) grouping
+* ^ (exponent),% (modulus),& (and),| (or),. - 
+* ABS (absolute), MOY (french for average) ,AVG (average)
 
 For example ABS(%W2)=1, MOY(%W1,%W2)<3.
 
@@ -521,11 +535,15 @@ be sure and delete the # symbol when you enter a compare.
 To find out if word variable #1 is less than 2 times the current value
 of counter #0 the syntax would be:
 
-    %W1<2*%C0.V
+----
+%W1<2*%C0.V
+----
 
 To find out if S32in bit 2 is equal to 10 the syntax would be:
 
-    %IW2=10
+----
+%IW2=10
+----
 
 Note: Compare uses the arithmetic equals not the double equals that
 programmers are used to.
@@ -543,11 +561,15 @@ When a new variable assignment block is opened be sure to delete the
 To assign a value of 10 to the timer preset of IEC Timer 0 the syntax
 would be:
 
-    %TM0.P=10
+----
+%TM0.P=10
+----
 
 To assign the value of 12 to s32out bit 3 the syntax would be:
 
-    %QW3=12
+----
+%QW3=12
+----
 
 The following figure shows an Assignment and a Comparison Example.
 %QW0 is a S32out bit and %IW0 is a S32in bit. In this case the HAL pin
@@ -571,23 +593,24 @@ digit number eg. %Q3, or %B123. Q coils control HAL out pins, e.g. if
 %Q15 is energized then HAL pin classicladder.0.out-15 will be true. B
 coils are internal coils used to control program flow.
 
- - N.O. COIL -(a relay coil.) When coil is energized it's N.O. contact
+* 'N.O. COIL' - (a relay coil.) When coil is energized it's N.O. contact
    will be closed (on, true, etc)
- - N.C. COIL -(a relay coil that inverses its contacts.) When coil is
+* 'N.C. COIL' - (a relay coil that inverses its contacts.) When coil is
    energized it"s N.O. contact will be open (off, false, etc) 
- - SET COIL -(a relay coil with latching contacts) When coil is energized
+* 'SET COIL' - (a relay coil with latching contacts) When coil is energized
    it's N.O. contact will be latched closed. 
- - RESET COIL -(a relay coil with latching contacts) When coil is
+* 'RESET COIL' - (a relay coil with latching contacts) When coil is
    energized It's N.0. contact will be latched open. 
- - JUMP COIL -(a "goto" coil) when coil is energized ladder program jumps
+* 'JUMP COIL' - (a 'goto' coil) when coil is energized ladder program jumps
    to a rung (in the CURRENT section) -jump points are designated by a
    rung label. (Add rung labels in the section display, top left label
    box) 
- - CALL COIL -(a "gosub" coil) when coil is energized program jumps to a
+* 'CALL COIL' - (a 'gosub' coil) when coil is energized program jumps to a
    subroutine section designated by a subroutine number -subroutines are
    designated SR0 to SR9 (designate them in the section manager)
 
-***WARNING*** if you use a N.C. contact with a N.C. coil the logic
+[WARNING]
+If you use a N.C. contact with a N.C. coil the logic
 will work (when the coil is energized the contact will be closed) but
 that is really hard to follow!
 
@@ -635,41 +658,42 @@ preset, or seeing if a timer is done running.
 
 List of variables :
 
- - %Bxxx : Bit memory xxx (Boolean) 
- - %Wxxx : Word memory xxx (32 bits signed integer) 
- - %IWxxx : Word memory xxx (S32 in pin)
- - %QWxxx : Word memory xxx (S32 out pin)
- - %IFxx : Word memory xx (Float in pin) (*converted to S32 in Classic
+* '%Bxxx' - Bit memory xxx (Boolean) 
+* '%Wxxx' - Word memory xxx (32 bits signed integer) 
+* '%IWxxx' - Word memory xxx (S32 in pin)
+* '%QWxxx' - Word memory xxx (S32 out pin)
+* '%IFxx' - Word memory xx (Float in pin) (*converted to S32 in Classic
    Ladder*)
- - %QFxx : Word memory xx (Float out pin) (*converted to S32 in Classic
+* '%QFxx' - Word memory xx (Float out pin) (*converted to S32 in Classic
    Ladder*)
- - %Txx.R : Timer xx running (Boolean, user read only) 
- - %Txx.D : Timer xx done (Boolean, user read only) 
- - %Txx.V : Timer xx current value (integer, user read only) 
- - %Txx.P : Timer xx preset (integer) 
- - %TMxxx.Q : Timer xxx done (Boolean, read write)
- - %TMxxx.P : Timer xxx preset (integer, read write)
- - %TMxxx.V : Timer xxx value (integer, read write)
- - %Mxx.R : Monostable xx running (Boolean) 
- - %Mxx.V : Monostable xx current value (integer, user read only) 
- - %Mxx.P : Monostable xx preset (integer) 
- - %Cxx.D : Counter xx done (Boolean, user read only) 
- - %Cxx.E : Counter xx empty overflow (Boolean, user read only) 
- - %Cxx.F : Counter xx full overflow (Boolean, user read only) 
- - %Cxx.V : Counter xx current value (integer) 
- - %Cxx.P : Counter xx preset (integer) 
- - %Ixxx : Physical input xxx (Boolean) - HAL input bit - 
- - %Qxxx : Physical output xxx (Boolean) - HAL output bit - 
- - %Xxxx : Activity of step xxx (sequential language) 
- - %Xxxx.V : Time of activity in seconds of step xxx (sequential language)
- - %Exx : Errors (Boolean, read write(will be overwritten))
- - Indexed or vectored variables These are variables indexed by another
+* '%Txx.R' - Timer xx running (Boolean, user read only) 
+* '%Txx.D' - Timer xx done (Boolean, user read only) 
+* '%Txx.V' - Timer xx current value (integer, user read only) 
+* '%Txx.P' - Timer xx preset (integer) 
+* '%TMxxx.Q' - Timer xxx done (Boolean, read write)
+* '%TMxxx.P' - Timer xxx preset (integer, read write)
+* '%TMxxx.V' - Timer xxx value (integer, read write)
+* '%Mxx.R' - Monostable xx running (Boolean) 
+* '%Mxx.V' - Monostable xx current value (integer, user read only) 
+* '%Mxx.P' - Monostable xx preset (integer) 
+* '%Cxx.D' - Counter xx done (Boolean, user read only) 
+* '%Cxx.E' - Counter xx empty overflow (Boolean, user read only) 
+* '%Cxx.F' - Counter xx full overflow (Boolean, user read only) 
+* '%Cxx.V' - Counter xx current value (integer) 
+* '%Cxx.P' - Counter xx preset (integer) 
+* '%Ixxx' - Physical input xxx (Boolean) (HAL input bit)
+* '%Qxxx' - Physical output xxx (Boolean) (HAL output bit)
+* '%Xxxx' - Activity of step xxx (sequential language) 
+* '%Xxxx.V' - Time of activity in seconds of step xxx (sequential language)
+* '%Exx' - Errors (Boolean, read write(will be overwritten))
+* 'Indexed or vectored variables' - These are variables indexed by another
    variable. Some might call this vectored variables. Example: %W0[%W4] =>
    if %W4 equals 23 it corresponds to %W23 
 
 == GRAFCET Programming
 
-* WARNING - This is probably the least used and most poorly understood 
+[WARNING]
+This is probably the least used and most poorly understood 
 feature of Classic Ladder. 
 Sequential programming is used to make sure a series of
 ladder events always happen in a prescribed order. Sequential programs
@@ -677,20 +701,20 @@ do not work alone. There is always a ladder program as well that
 controls the variables. Here are the basic rules governing sequential
 programs:
 
- - Rule 1 : Initial situation - The initial situation is characterized by
+* Rule 1 : Initial situation - The initial situation is characterized by
    the initial steps which are by definition in the active state at the
    beginning of the operation.There shall be at least one initial step. 
- - Rule 2 : R2, Clearing of a transition - A transition is either enabled
+* Rule 2 : R2, Clearing of a transition - A transition is either enabled
    or disabled. It is said to be enabled when all immediately preceding
    steps linked to its corresponding transition symbol are active,
    otherwise it is disabled. A transition cannot be cleared unless it is
    enabled, and its associated transition condition is true. 
- - Rule 3 : R3, Evolution of active steps - The clearing of a transition
+* Rule 3 : R3, Evolution of active steps - The clearing of a transition
    simultaneously leads to the active state of the immediately following
    step(s) and to the inactive state of the immediately preceding step(s).
- - Rule 4 : R4, Simultaneous clearing of transitions - All simultaneous
+* Rule 4 : R4, Simultaneous clearing of transitions - All simultaneous
    cleared transitions are simultaneously cleared. 
- - Rule 5 : R5, Simultaneous activation and deactivation of a step - If
+* Rule 5 : R5, Simultaneous activation and deactivation of a step - If
    during operation, a step is simultaneously activated and deactivated,
    priority is given to the activation.
 
@@ -700,22 +724,22 @@ Transition , Step and Transition Transition Link-Downside , Transition
 Link-Upside Pass-through Link-Downside , Pass-through Link-Upside Jump
 Link Comment Box [show sequential program]
 
- - ORDINARY STEP - has a unique number for each one 
- - STARTING STEP - a sequential program must have one. This is where the
+* 'ORDINARY STEP' - has a unique number for each one 
+* 'STARTING STEP' - a sequential program must have one. This is where the
    program will start.
- - TRANSITION - This shows the variable that must be true for control to
+* 'TRANSITION' - This shows the variable that must be true for control to
    pass through to the next step.
- - STEP AND TRANSITION - Combined for convenience
- - TRANSITION LINK-DOWNSIDE - splits the logic flow to one of two possible
+* 'STEP AND TRANSITION' - Combined for convenience
+* 'TRANSITION LINK-DOWNSIDE' - splits the logic flow to one of two possible
    lines based on which of the next steps is true first (Think OR logic) 
- - TRANSITION LINK=UPSIDE - combines two (OR) logic lines back in to one 
- - PASS-THROUGH LINK-DOWNSIDE - splits the logic flow to two lines that
+* 'TRANSITION LINK=UPSIDE' - combines two (OR) logic lines back in to one 
+* 'PASS-THROUGH LINK-DOWNSIDE' - splits the logic flow to two lines that
    BOTH must be true to continue (Think AND logic) 
- - PASS-THROUGH LINK-UPSIDE - combines two concurrent (AND logic) logic
+* 'PASS-THROUGH LINK-UPSIDE' - combines two concurrent (AND logic) logic
    lines back together
- - JUMP LINK - connects steps that are not underneath each other such as
+* 'JUMP LINK' - connects steps that are not underneath each other such as
    connecting the last step to the first 
- - COMMENT BOX - used to add comments
+* 'COMMENT BOX' - used to add comments
 
 To use links, you must have steps already placed. Select the type of
 link, then select the two steps or transactions one at a time. It
@@ -734,28 +758,28 @@ to the beginning step?)
 
 Things to consider:
 
- - Modbus is a userspace program so it might have latency issues on a
+* Modbus is a userspace program so it might have latency issues on a
    heavily laden computer.
- - Modbus is not really suited to Hard real time events such as position
+* Modbus is not really suited to Hard real time events such as position
    control of motors or to control E-stop. 
- - The Classic Ladder GUI must be running for Modbus to be running.
- - Modbus is not fully finished so it does not do all modbus functions.
+* The Classic Ladder GUI must be running for Modbus to be running.
+* Modbus is not fully finished so it does not do all modbus functions.
 
 To get MODBUS to initialize you must specify that when loading the
 Classic Ladder userspace program, e.g., loadusr -w classicladder 
-`--modmaster` myprogram.clp (assuming myprogram.clp is present -w makes
+'--modmaster' myprogram.clp (assuming myprogram.clp is present -w makes
 HAL wait till you close Classic Ladder before closing realtime session)
 my idea behind this is to get a working modbus solution out there, then
 we can decide how it should be done in the best way. As it stands now
 Classic Ladder also loads a TCP modbus slave (if you add 
-`--modserver` on command line) - I have not tested this nor have I tested
+'--modserver' on command line) - I have not tested this nor have I tested
 the TCP modbus master. I have done some testing with the serial port
 and had to add some functions to get it to talk to my VFD, but it does
 work. Modbus function 1,2,3,4,5,6,8,15,16 (read coils, read inputs, read
 holding registers, read input registers, write single coils, write
 single register, echo test, write multiple coils, write multiple 
 registers) are currently available. If you do not specify a 
-`-- modmaster` when loading the Classic Ladder user program 
+'-- modmaster' when loading the Classic Ladder user program 
 this (next) page will not be displayed.
 
 .Config I/O[[cap:Config-I/O]]
@@ -766,74 +790,55 @@ image::images/Config-io.png[]
 
 image::images/Config-com.png[]
 
-SERIAL PORT::
-     - For IP blank. For serial the location/name of serial driver eg.
+* 'SERIAL PORT' - For IP blank. For serial the location/name of serial driver eg.
     /dev/ttyS0 ( or /dev/ttyUSB0 for a USB-to-serial converter).
 
-SERIAL SPEED::
-     - Should be set to speed the slave is set for - 300, 600, 1200, 2400,
+* 'SERIAL SPEED' - Should be set to speed the slave is set for - 300, 600, 1200, 2400,
     4800, 9600, 19200, 38400, 57600, 115200 are supported.
 
-PAUSE AFTER TRANSMIT::
-     - Pause (milliseconds) after transmit and before receiving answer, 
+* 'PAUSE AFTER TRANSMIT' - Pause (milliseconds) after transmit and before receiving answer, 
     some devices need more time (e.g., USB-to-serial converters).
 
-PAUSE INTER-FRAME::
-     - Pause (milliseconds) after receiving answer from slave. This sets
+* 'PAUSE INTER-FRAME' - Pause (milliseconds) after receiving answer from slave. This sets
     the duty cycle of requests (it's a pause for EACH request). 
 
-REQUEST TIMEOUT LENGTH::
-     - Length (milliseconds) of time before we decide that the slave didn't
+* 'REQUEST TIMEOUT LENGTH' - Length (milliseconds) of time before we decide that the slave didn't
     answer.
 
-MODBUS ELEMENT OFFSET::
-     - used to offset the element numbers by 1 (for manufacturers numbering
+* 'MODBUS ELEMENT OFFSET' - used to offset the element numbers by 1 (for manufacturers numbering
     differences).
 
-DEBUG LEVEL::
-     - Set this to 0-3 (0 to stop printing debug info besides no-response
+* 'DEBUG LEVEL' - Set this to 0-3 (0 to stop printing debug info besides no-response
     errors).
 
-READ COILS/INPUTS MAP TO::
-    - Select what variables that read coils/inputs will update. (B or Q).
+* 'READ COILS/INPUTS MAP TO' - Select what variables that read coils/inputs will update. (B or Q).
 
-WRITE COILS MAP TO::
-    - Select what variables that write coils will updated.from (B,Q,or I).
+* 'WRITE COILS MAP TO' - Select what variables that write coils will updated.from (B,Q,or I).
 
-READ REGISTERS/HOLDING::
-    - Select what variables that read registers will update. (W or QW).
+* 'READ REGISTERS/HOLDING' - Select what variables that read registers will update. (W or QW).
 
-WRITE REGISTERS MAP TO::
-     - Select what variables that read registers will updated from. (W, QW,
+* 'WRITE REGISTERS MAP TO' - Select what variables that read registers will updated from. (W, QW,
     or IW).
 
-SLAVE ADDRESS::
-     - For serial the slaves ID number usually settable on the slave device
+* 'SLAVE ADDRESS' - For serial the slaves ID number usually settable on the slave device
     (usually 1-256) For IP the slave IP address plus optionally the port
     number. 
 
-TYPE ACCESS::
-     - This selects the MODBUS function code to send to the slave (eg what
+* 'TYPE ACCESS' - This selects the MODBUS function code to send to the slave (eg what
     type of request). 
 
-COILS / INPUTS::
-     - Inputs and Coils (bits) are read from/written to I, B, or Q variables (user selects). 
+* 'COILS / INPUTS' - Inputs and Coils (bits) are read from/written to I, B, or Q variables (user selects). 
 
-REGISTERS (WORDS)::
-     - Registers (Words/Numbers) map to IW, W, or QW variables (user selects). 
+* 'REGISTERS (WORDS)' - Registers (Words/Numbers) map to IW, W, or QW variables (user selects). 
 
-1st MODBUS ELEMENT::
-     - The address (or register number) of the first element in a group.
+* '1st MODBUS ELEMENT' - The address (or register number) of the first element in a group.
     (remember to set MODBUS ELEMENT OFFSET properly). 
 
-NUMBER OF ELEMENTS::
-    - The number of elements in this group. 
+* 'NUMBER OF ELEMENTS' - The number of elements in this group. 
 
-LOGIC::
-    - You can invert the logic here. 
+* 'LOGIC' - You can invert the logic here. 
 
-1st%I%Q IQ WQ MAPPED::
-     - This is the starting number of %B, %I, %Q, %W, %IW, or %QW variables
+* '1st%I%Q IQ WQ MAPPED' - This is the starting number of %B, %I, %Q, %W, %IW, or %QW variables
     that are mapped onto/from the modbus element group (starting at the
     first modbus element number). 
 
@@ -880,39 +885,39 @@ in a terminal to see the message.
 
 Serial:
 
- - Classic Ladder uses RTU protocol (not ASCII). 
- - 8 data bits, No parity is used, and 1 stop bit is also known as 8-N-1. 
- - Baud rate must be the same for slave and master. Classic Ladder can
+* Classic Ladder uses RTU protocol (not ASCII). 
+* 8 data bits, No parity is used, and 1 stop bit is also known as 8-N-1. 
+* Baud rate must be the same for slave and master. Classic Ladder can
    only have one baud rate so all the slaves must be set to the same rate.
- - Pause inter frame is the time to pause after receiving an answer.
- - MODBUS_TIME_AFTER_TRANSMIT is the length of pause after sending a
+* Pause inter frame is the time to pause after receiving an answer.
+* MODBUS_TIME_AFTER_TRANSMIT is the length of pause after sending a
    request and before receiving an answer (this apparently helps with USB
    converters which are slow). 
 
 === MODBUS Info
 
- - Classic Ladder can use distributed inputs/outputs on modules using the
+* Classic Ladder can use distributed inputs/outputs on modules using the
    modbus protocol ("master": polling slaves).
- - The slaves and theirs I/O can be configured in the config window.
- - 2 exclusive modes are available : ethernet using Modbus/TCP and serial
+* The slaves and theirs I/O can be configured in the config window.
+* 2 exclusive modes are available : ethernet using Modbus/TCP and serial
    using Modbus/RTU.
- - No parity is used.
- - If no port name for serial is set, TCP/IP mode will be used...
- - The slave address is the slave address (Modbus/RTU) or the IP address.
- - The IP address can be followed per the port number to use
+* No parity is used.
+* If no port name for serial is set, TCP/IP mode will be used...
+* The slave address is the slave address (Modbus/RTU) or the IP address.
+* The IP address can be followed per the port number to use
    (xx.xx.xx.xx:pppp) else the port 9502 will be used per default.
- - 2 products have been used for tests: a Modbus/TCP one (Adam-6051,
+* 2 products have been used for tests: a Modbus/TCP one (Adam-6051,
    http://www.advantech.com) and a serial Modbus/RTU one
    (http://www.ipac.ws). 
- - See examples: adam-6051 and modbus_rtu_serial.
- - Web links: http://www.modbus.org and this interesting one:
+* See examples: adam-6051 and modbus_rtu_serial.
+* Web links: http://www.modbus.org and this interesting one:
    http://www.iatips.com/modbus.html
- - MODBUS TCP SERVER INCLUDED
- - Classic Ladder has a Modbus/TCP server integrated. Default port is 9502.
+* MODBUS TCP SERVER INCLUDED
+* Classic Ladder has a Modbus/TCP server integrated. Default port is 9502.
    (the previous standard 502 requires that the application must be
    launched with root privileges).
- - List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
- - Modbus bits and words correspondence table is actually not parametric
+* List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
+* Modbus bits and words correspondence table is actually not parametric
    and correspond directly to the %B and %W variables.
 
 Info on modbus protocol are available here:
@@ -932,16 +937,16 @@ error. A timer could be used to stop the machine if timed out, etc.
 
 === MODBUS Bugs
 
- - In compare blocks the function %W=ABS(%W1-%W2) is accepted but does
+* In compare blocks the function %W=ABS(%W1-%W2) is accepted but does
    not compute properly. only %W0=ABS(%W1) is currently legal. 
- - When loading a ladder program it will load Modbus info but will not
+* When loading a ladder program it will load Modbus info but will not
    tell Classic Ladder to initialize Modbus. You must initialize Modbus
-   when you first load the GUI by adding `--modmaster`. 
- - If the section manager is placed on top of the section display, across
+   when you first load the GUI by adding '--modmaster'. 
+* If the section manager is placed on top of the section display, across
    the scroll bar and exit is clicked the user program crashes.
- - When using `--modmaster` you must load the ladder program at the same
+* When using '--modmaster' you must load the ladder program at the same
    time or else only TCP will work.
- - reading/writing multiple registers in Modbus has checksum errors. 
+* reading/writing multiple registers in Modbus has checksum errors. 
 
 == Setting up Classic Ladder
 
@@ -963,11 +968,15 @@ done by adding a couple of lines to the custom.hal file.
 
 This line loads the real time module:
 
-    loadrt classicladder_rt
+----
+loadrt classicladder_rt
+----
 
 This line adds the Classic Ladder function to the servo thread:
 
-    addf classicladder.0.refresh servo-thread
+----
+addf classicladder.0.refresh servo-thread
+----
 
 === Adding Ladder Logic
 
@@ -1026,7 +1035,9 @@ To manually add a ladder you need to add add a line to your custom.hal
 file that will load your ladder file. Close your EMC2 session and add
 this line to your custom.hal file.
 
-    loadusr -w classicladder `--nogui` MyLadder.clp
+----
+loadusr -w classicladder --nogui MyLadder.clp
+----
 
 Now if you start up your EMC2 config your ladder program will be
 running as well. If you select "File/Ladder Editor", the program you
