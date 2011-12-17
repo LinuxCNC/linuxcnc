@@ -2228,15 +2228,17 @@ If you have a REALLY large config that you wish to convert to this newer version
                         else:
                             print >>file, "net %s %s"% (p,pinname)
                     else:
-                        # extra set up for mainboard GPIOO
-                        if not "sserial" in pname:
+                        if "sserial" in pname:
+                            # different sserial have different endings
+                            if "7i64" in pinname:
+                                temp = pinname + ".out"
+                            else:
+                                temp = pinname
+                        # mainboard GPIOO require extra setup commands
+                        else:
                             print >>file, "setp %s true"% (pinname + ".is_output")
                             if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
-                        # different sserial have different endings
-                        if "7i64" in pinname:
                             temp = pinname + ".out"
-                        else:
-                            temp = pinname
                         # set pin true if force-pin-true otherwise connect to a signal
                         if p == "force-pin-true":
                             print >>file, "setp %s true"% (temp)
