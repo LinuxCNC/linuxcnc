@@ -9,10 +9,10 @@
   GNU General Public License (GPL and LGPL)
 * EMC2 provides:
 ** a graphical user interface (actually several interfaces to choose from)
-** an interpreter for "G-code" (the RS-274 machine tool programming language)
+** an interpreter for 'G-code' (the RS-274 machine tool programming language)
 ** a realtime motion planning system with look-ahead
 ** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use "breadboard" layer for quickly creating a unique 
+** an easy to use 'breadboard' layer for quickly creating a unique 
    configuration for your machine
 ** a software PLC programmable with ladder diagrams
 ** easy installation with a Live-CD
@@ -23,7 +23,7 @@
   interfaces.
 * The control can operate true servos (analog or PWM) with the feedback
   loop closed by the EMC software at the computer, or open loop with
-  "step-servos" or stepper motors.
+  step-servos or stepper motors.
 * Motion control features include: cutter radius and length
   compensation, path deviation limited to a specified tolerance, lathe
   threading, synchronized axis motion, adaptive feedrate, operator feed
@@ -40,7 +40,7 @@ Ubuntu has been chosen because it fits perfectly into the Open Source
 views of EMC2:
 
  - Ubuntu will always be free of charge, and there is no extra fee for
-   the "enterprise edition", we make our very best work available to
+   the 'enterprise edition', we make our very best work available to
    everyone on the same Free terms.
  - EMC2 is paired with the LTS versions of Ubuntu which provide support
    and security fixes from the Ubuntu team for 3 - 5 years.
@@ -85,14 +85,11 @@ Some IRC etiquette:
 The most common way to share files on the IRC is to upload the file 
 to one of the following or a similar service and paste the link:
 
-For text::
-    http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
+* 'For text' - http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
 
-For pictures:: 
-    http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
+* 'For pictures' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-For files::
-    http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'For files' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
 == Mailing List
 
@@ -265,15 +262,15 @@ ubuntu-10.04-linuxcnc1-i386.iso: OK
 
 ==== Burning the ISO to a CD
 
- . Insert a blank CD into your burner. A "CD/DVD Creator" or 
-   "Choose Disc Type" window will pop up. 
+ . Insert a blank CD into your burner. A 'CD/DVD Creator' or 
+   'Choose Disc Type' window will pop up. 
    Close this, as we will not be using it.
  . Browse to the downloaded ISO image in the file browser.
  . Right click on the ISO image file and choose Write to Disc.
  . Select the write speed. If you are burning a Ubuntu Live CD, it is
    recommended that you write at the lowest possible speed.
  . Start the burning process.
- . If a "choose a file name for the disc image" window pops up, just pick OK.
+ . If a 'choose a file name for the disc image' window pops up, just pick OK.
 
 === Burn with Windows
 
@@ -306,7 +303,7 @@ To try out EMC2 from the Applications/CNC menu pick EMC2. Then select
 a sim configuration to try out.
 
 To see if your computer is suitable for software step pulse generation
-run the Latency Test as outlined in Section (<<sec:Latency-Test>>)
+run the Latency Test as shown <<latency-test,here>>.
 
 == Installing EMC2
 

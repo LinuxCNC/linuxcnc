@@ -7,7 +7,7 @@ No configuration changes need to be made to upgrade from 2.4.x to 2.5.x
 
 == Upgrading from 2.3.x to 2.4.x
 
-The following instructions only apply to Ubuntu 8.04 "Hardy Heron". 
+The following instructions only apply to Ubuntu 8.04 'Hardy Heron'. 
 EMC 2.4 is not available for older releases of Ubuntu.
 
 Because there are several minor incompatibilities between 2.3.5 
@@ -24,21 +24,21 @@ lines for linuxcnc.org.
 
 For each of them:
 
- - Select the line and click Edit
- - On the Components line, change emc2.3 to emc2.4
- - Click OK 
- - Close the "Software Preferences" window
- - Click "Reload" as instructed
- - Click "Mark All Upgrades"
+* Select the line and click Edit
+* On the Components line, change emc2.3 to emc2.4
+* Click OK 
+* Close the 'Software Preferences' window
+* Click 'Reload' as instructed
+* Click 'Mark All Upgrades'
    
 .Mesa card and hostmot2 users:
 **********
 If you use a mesa card, find the proper hostmot2-firmware package 
 for your card and mark it for installation. Hint: do a search for 
-"hostmot2-firmware in the synaptic package manager.
+'hostmot2-firmware' in the synaptic package manager.
 **********
 
- - Click "Apply" 
+* Click 'Apply' 
 
 == Changes between 2.3.x and 2.4.x
 

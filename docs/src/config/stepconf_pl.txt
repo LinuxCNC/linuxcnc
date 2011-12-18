@@ -1,8 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:Stepconf-Wizard]]
-= Stepconf Wizard(((Stepconf Wizard)))
+= Stepconf Wizard[[stepconf-wizard]](((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 
@@ -133,7 +132,7 @@ Onscreen Prompt For Tool Change::
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom HAL file
 
-== Latency Test[[sec:Latency-Test]](((Latency Test)))
+== Latency Test[[latency-test]](((Latency Test)))
 
 While the test is running, you should "abuse" the computer. Move
 windows around on the screen. Surf the web. Copy some large files
