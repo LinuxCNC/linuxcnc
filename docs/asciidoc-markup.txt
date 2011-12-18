@@ -73,6 +73,7 @@ image::<target>[<attributes>]
 
 example
 image::images/axis.png[]
+image::images/tiger.png["Tiger image",align="center"]
 
 If the image is small and displays too big in the pdf you can
 use the scaledwidth="60%" attribute
