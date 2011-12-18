@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = EMC2
 
 [float]
@@ -30,7 +33,7 @@ which allows configuration of EMC2 without the need of recompiling.
 
 .Simple EMC2 Controlled Machine[[fig:Typical_machine]]
 
-image::whatstep1.png[]
+image::images/whatstep1.png[align="center"]
 
 Figure  <<fig:Typical_machine>> shows a simple block diagram showing
 what a typical 3-axis EMC2 system might look like. This diagram shows a
