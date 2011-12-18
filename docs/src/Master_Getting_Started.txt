@@ -1,14 +1,11 @@
 Getting Started V2.5, {localdate}
 =================================
+
 :lang: en
 
 :masterdir: {indir}
 
 The EMC Team
-
-:leveloffset: 0
-
-= EMC2 Introduction
 
 :leveloffset: 1
 

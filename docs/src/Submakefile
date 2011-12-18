@@ -392,11 +392,11 @@ DOC_SRCS := \
 	quickstart/stepper_quickstart_es.txt \
 	quickstart/stepper_quickstart_fr.txt \
 	quickstart/stepper_quickstart_pl.txt \
-	Getting_Started.txt \
-	Getting_Started_de.txt \
-	Getting_Started_es.txt \
-	Getting_Started_fr.txt \
-	Getting_Started_pl.txt \
+	Master_Getting_Started.txt \
+	Master_Getting_Started_de.txt \
+	Master_Getting_Started_es.txt \
+	Master_Getting_Started_fr.txt \
+	Master_Getting_Started_pl.txt \
 	Master_User.txt \
 	Master_User_de.txt \
 	Master_User_es.txt \
@@ -530,15 +530,15 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
 		
-$(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
+$(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Getting_Started_de.pdf
+$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Master_Getting_Started_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Getting_Started_es.pdf
+$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
+$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Getting_Started_pl.pdf
+$(DOC_DIR)/EMC2_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Master_Getting_Started_pl.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
