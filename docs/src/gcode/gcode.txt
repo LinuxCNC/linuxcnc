@@ -116,7 +116,7 @@ It is an error if:
 |G8            | Radius Mode (lathe)                            | <<sec:G8-Radius-Mode>>
 |G10 L1        | Set Tool Table Entry                           | <<sec:G10-L1_>>
 |G10 L10       | Set Tool Table, Calculated, Workpiece          | <<sec:G10-L10>>
-|G10 L11       | Set Tool Table, Calculated, Fixture            | <<sec:G10-L11>>
+|G10 L11       | Set Tool Table, Calculated, Fixture            | <<G10-L11>>
 |G10 L2        | Coordinate System Origin Setting               | <<sec:G10-L2_>>
 |G10 L20       | Coordinate System Origin Setting Calculated    | <<sec:G10-L20>>
 |G17 - G19.1   | Plane Select                                   | <<sec:G17-G18-G19>>
@@ -689,7 +689,7 @@ It is an error if:
 
  - Cutter Compensation is on
 
-== G10 L11 Set Tool Table[[sec:G10-L11]]
+== G10 L11 Set Tool Table[[G10-L11]]
 
 (((G10 L11 Set Tool Table)))
 
