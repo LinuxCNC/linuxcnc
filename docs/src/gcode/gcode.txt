@@ -99,7 +99,7 @@ It is an error if:
  - An incremental move is started at the origin
  - A mix of Polar and and X or Y words are used
 
-== Quick Reference Table[[sec:Quick-Reference-Table]]
+== Quick Reference Table[[quick-reference-table]]
 
 (((G Code Table)))
 

@@ -202,8 +202,8 @@ changed EMC rewrites the pocket number to keep track of where the tools
 are. T can be any number but P must be a number that makes sense for
 the machine.
 
-[[sec:Cutter-Radius-Compensation]]
-== Cutter Radius Compensation
+
+== Cutter Radius Compensation[[cutter-radius-compensation]]
 
 Cutter Radius Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the

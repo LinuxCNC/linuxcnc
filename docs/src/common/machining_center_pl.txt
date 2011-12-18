@@ -150,7 +150,7 @@ feed rate, or at traverse rate, or it may be synchronized to the
 spindle rotation. If physical limits on axis speed make the desired
 rate unobtainable, all axes are slowed to maintain the desired path.
 
-=== Feed Rate[[sec:Feed-Rate]]
+=== Feed Rate[[feed-rate]]
 
 (((feed rate)))
 
