@@ -53,7 +53,7 @@ You should see something like this:
 
 .HAL Latency Test
 
-image::../config/images/latency.png[]
+image::../config/images/latency.png[align="center"]
 
 While the test is running, you should 'abuse' the computer. 
 Move windows around on the screen. Surf the web. Copy some large files 
@@ -97,8 +97,8 @@ problem.
 [NOTE]
 EMC does not require bleeding edge hardware.
 
-For more information on stepper tuning see the Stepper Tuning 
-chapter (<<cha:Stepper-Tuning>>).
+For more information on stepper tuning see the 
+<<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
 
 == Port Address
 
