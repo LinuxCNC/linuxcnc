@@ -1,5 +1,7 @@
-[[cha:Language-Overview]]
-= G Code Overview
+:lang: en
+:toc:
+
+= G Code Overview[[cha:Language-Overview]]
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -42,10 +44,10 @@ A permissible line of input code consists of the following, in order,
 with the restriction that there is a maximum (currently 256) to the
 number of characters allowed on a line.
 
- . an optional block delete character, which is a slash '/' . 
- . an optional line number.
- . any number of words, parameter settings, and comments.
- . an end of line marker (carriage return or line feed or both). 
+* an optional block delete character, which is a slash '/'. 
+* an optional line number.
+* any number of words, parameter settings, and comments.
+* an end of line marker (carriage return or line feed or both). 
 
 Any input not explicitly allowed is illegal and will cause the
 Interpreter to signal an error.
@@ -76,8 +78,8 @@ required to be used, but must be in the proper place if used.
 
 A word is a letter other than N followed by a real value.
 
-Words may begin with any of the letters shown in Table 
-<<cap:Words-and-their>>. The table includes N for completeness, even
+Words may begin with any of the letters shown in the following Table.
+The table includes N for completeness, even
 though, as defined above, line numbers are not words. Several letters
 (I, J, K, L, P, R) may have different meanings in different contexts.
 Letters which refer to axis names are not valid on a machine which does
@@ -85,34 +87,34 @@ not have the corresponding axis.
 
 .Words and their meanings[[cap:Words-and-their]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^1,<5"]
 |========================================
 |Letter | Meaning
-|A | A axis of machine
-|B | B axis of machine
-|C | C axis of machine
-|D | Tool radius compensation number
-|F | Feed rate
-|G | General function (See table <<cap:Modal-Groups>>)
-|H | Tool length offset index
-|I | X offset for arcs and G87 canned cycles
-|J | Y offset for arcs and G87 canned cycles
-|K | Z offset for arcs and G87 canned cycles.
-|  | Spindle-Motion Ratio for G33 synchronized movements.
-|M | Miscellaneous function (See table <<cap:Modal-Groups>>)
-|N | Line number
-|P | Dwell time in canned cycles and with G4.
-|  | Key used with G10.
-|Q | Feed increment in G73, G83 canned cycles
-|R | Arc radius or canned cycle plane
-|S | Spindle speed
-|T | Tool selection
-|U | U axis of machine
-|V | V axis of machine
-|W | W axis of machine
-|X | X axis of machine
-|Y | Y axis of machine
-|Z | Z axis of machine
+|A |A axis of machine
+|B |B axis of machine
+|C |C axis of machine
+|D |Tool radius compensation number
+|F |Feed rate
+|G |General function (See table <<cap:Modal-Groups,Modal Groups>>)
+|H |Tool length offset index
+|I |X offset for arcs and G87 canned cycles
+|J |Y offset for arcs and G87 canned cycles
+.2+|K |Z offset for arcs and G87 canned cycles.
+<|Spindle-Motion Ratio for G33 synchronized movements.
+|M |Miscellaneous function (See table <<cap:Modal-Groups,Modal Groups>>)
+|N |Line number
+.2+|P |Dwell time in canned cycles and with G4.
+<|Key used with G10.
+|Q |Feed increment in G73, G83 canned cycles
+|R |Arc radius or canned cycle plane
+|S |Spindle speed
+|T |Tool selection
+|U |U axis of machine
+|V |V axis of machine
+|W |W axis of machine
+|X |X axis of machine
+|Y |Y axis of machine
+|Z |Z axis of machine
 |========================================
 
 [[sub:Number]]
@@ -121,16 +123,16 @@ not have the corresponding axis.
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
- - A number consists of (1) an optional plus or minus sign, followed by
+* A number consists of (1) an optional plus or minus sign, followed by
    (2) zero to many digits, followed, possibly, by (3) one decimal point,
    followed by (4) zero to many digits - provided that there is at least
    one digit somewhere in the number.
- - There are two kinds of numbers: integers and decimals. An integer does
+* There are two kinds of numbers: integers and decimals. An integer does
    not have a decimal point in it; a decimal does.
- - Numbers may have any number of digits, subject to the limitation on
+* Numbers may have any number of digits, subject to the limitation on
    line length. Only about seventeen significant figures will be retained,
    however (enough for all known applications).
- - A non-zero number with no sign as the first character is assumed to be
+* A non-zero number with no sign as the first character is assumed to be
    positive.
 
 Notice that initial (before the decimal point and the first non-zero
@@ -178,20 +180,20 @@ example '##2'  means the value of the parameter whose index is the
 The interpreter maintains a number of read-only parameters for a loaded
 tool:
 
- - #5400 Tool number 
- - #5401 Tool X offset 
- - #5402 Tool Y offset 
- - #5403 Tool Z offset 
- - #5404 Tool A offset 
- - #5405 Tool B offset 
- - #5406 Tool C offset 
- - #5407 Tool U offset 
- - #5408 Tool V offset 
- - #5409 Tool W offset 
- - #5410 Tool Diameter 
- - #5411 Tool Frontangle 
- - #5412 Tool Backangle 
- - #5413 Tool Orientation
+* #5400 Tool number 
+* #5401 Tool X offset 
+* #5402 Tool Y offset 
+* #5403 Tool Z offset 
+* #5404 Tool A offset 
+* #5405 Tool B offset 
+* #5406 Tool C offset 
+* #5407 Tool U offset 
+* #5408 Tool V offset 
+* #5409 Tool W offset 
+* #5410 Tool Diameter 
+* #5411 Tool Frontangle 
+* #5412 Tool Backangle 
+* #5413 Tool Orientation
 
 [[sub:Named-Parameters]]
 == Named Parameters
@@ -215,17 +217,23 @@ numeric parameters. They are not stored in files.
 
 Examples:
 
- - Declaration of named global variable
+* Declaration of named global variable
 
-    #<_endmill_dia> = 0.049 
+----
+#<_endmill_dia> = 0.049 
+----
 
- - Reference to previously declared global variable
+* Reference to previously declared global variable
 
-    #<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
+#<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
 
- - Mixed literal and named parameters
+* Mixed literal and named parameters
 
-    o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+----
+o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+----
 
 Notes:
 
@@ -239,11 +247,9 @@ Bword, Cword, etc.
 Two global read only named parameters are available to check which
 version is running from G Code.
 
-#<_vmajor>::
-    Major package version. If current version was 2.6.2 would return 2.6.
+* '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
 
-#<_vminor>::
-    Minor package version. If current version was 2.6.2 would return 0.2.
+* '#<_vminor>' - Minor package version. If current version was 2.5.2 would return 0.2.
 
 [[sec:Expressions]]
 == Expressions
@@ -287,7 +293,7 @@ false, and any non-zero number is equivalent to logical true.
 
 .Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))
 
-[width="90%", options="header"]
+[width="60%", options="header", cols="2*^"]
 |========================================
 |Operators | Precedence
 |** | 'highest'
@@ -312,7 +318,7 @@ angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
 
 .Functions[[cap:Functions]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^,<"]
 |========================================
 |Function Name | Function result
 |ATAN[Y]/[X] | Four quadrant inverse tangent
@@ -346,8 +352,8 @@ parameter or an expression.
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group (see Section  <<sec:Modal-Groups>>) may not appear on the
-same line.
+modal group may not appear on the
+same line See the <<sec:Modal-Groups,Modal Groups>> Section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -419,16 +425,15 @@ general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
 measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in Table 
-<<cap:Modal-Groups>>.
+being in effect. The modal groups are shown in the following Table.
 
 .Modal Groups[[cap:Modal-Groups]]
 
 [width="90%", cols="1,2", options="header"]
 |========================================
 |Modal Group Meaning          | Member Words
-|Motion ("Group 1")           | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
-|                             | G82, G83, G84, G85, G86, G87, G88, G89
+.2+|Motion ("Group 1")           | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+                             | G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection              | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode                | G90, G91
 |Arc IJK Distance Mode        | G90.1, G91.1
@@ -436,7 +441,7 @@ being in effect. The modal groups are shown in Table
 |Units                        | G20, G21
 |Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
 |Tool Length Offset           | G43, G43.1, G49
-|Return Mode in Canned Cycles | G98, G99
+|Canned Cycles Return Mode | G98, G99
 |Coordinate System Selection  | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
 |Control Mode                 | G61, G61.1, G64
 |Spindle Speed Mode           | G96, G97
@@ -503,31 +508,31 @@ special comments.
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
- . Comment (including message)
- . Set feed rate mode (G93, G94). 
- . Set feed rate (F). 
- . Set spindle speed (S). 
- . Select tool (T). 
- . HAL pin I/O (M62-M68).
- . Change tool (M6) and Set Tool Number (M61).
- . Spindle on or off (M3, M4, M5).
- . Save State (M70, M73), Restore State (M72), Invalidate State (M71).
- . Coolant on or off (M7, M8, M9).
- . Enable or disable overrides (M48, M49,M50,M51,M52,M53).
- . User-defined Commands (M100-M199).
- . Dwell (G4). 
- . Set active plane (G17, G18, G19). 
- . Set length units (G20, G21).
- . Cutter radius compensation on or off (G40, G41, G42) 
- . Cutter length compensation on or off (G43, G49) 
- . Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
- . Set path control mode (G61, G61.1, G64)
- . Set distance mode (G90, G91). 
- . Set retract mode (G98, G99).
- . Go to reference location (G28, G30) or change coordinate system 
+* Comment (including message)
+* Set feed rate mode (G93, G94). 
+* Set feed rate (F). 
+* Set spindle speed (S). 
+* Select tool (T). 
+* HAL pin I/O (M62-M68).
+* Change tool (M6) and Set Tool Number (M61).
+* Spindle on or off (M3, M4, M5).
+* Save State (M70, M73), Restore State (M72), Invalidate State (M71).
+* Coolant on or off (M7, M8, M9).
+* Enable or disable overrides (M48, M49,M50,M51,M52,M53).
+* User-defined Commands (M100-M199).
+* Dwell (G4). 
+* Set active plane (G17, G18, G19). 
+* Set length units (G20, G21).
+* Cutter radius compensation on or off (G40, G41, G42) 
+* Cutter length compensation on or off (G43, G49) 
+* Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
+* Set path control mode (G61, G61.1, G64)
+* Set distance mode (G90, G91). 
+* Set retract mode (G98, G99).
+* Go to reference location (G28, G30) or change coordinate system 
    data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
- . Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
- . Stop (M0, M1, M2, M30, M60).
+* Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
+* Stop (M0, M1, M2, M30, M60).
 
 = G Code Best Practices
 (((G Code Best Practices)))
