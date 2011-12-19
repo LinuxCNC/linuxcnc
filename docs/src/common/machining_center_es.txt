@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = CNC Machine Overview
 
 This section gives a brief description of how a CNC machine is viewed
@@ -63,21 +66,21 @@ coolant they can be controlled by G-Codes.
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
 speed used in machining at some percentage of the programmed rate. See
-Section  <<sec:Feed-Interaction>>.
+the <<feed-interaction,Feed Interaction>> Section.
 
 === Block Delete Switch[[sub:Block-Delete-Switch]]
 
 (((optional block delete)))
 
-A CNC machine can have a block delete switch. See Section 
-<<sub:Block-Delete-Switch-Interaction>>.
+A CNC machine can have a block delete switch. See the
+<<sub:Block-Delete-Switch-Interaction,Block Delete>> Section.
 
 === Optional Program Stop Switch[[sub:Optional-Program-Stop]]
 
 (((optional program stop)))
 
-A CNC machine can have an optional program stop switch. See Section 
-<<sub:Optional-Program-Stop-Interaction>>.
+A CNC machine can have an optional program stop switch. See the 
+<<sub:Optional-Program-Stop-Interaction,Optional Program Stop>> Section.
 
 == Control and Data Components
 
@@ -157,8 +160,8 @@ rate unobtainable, all axes are slowed to maintain the desired path.
 The rate at which the controlled point or the axes move is nominally a
 steady rate which may be set by the user. In the Interpreter, the
 interpretation of the feed rate is as follows unless 'inverse time
-feed' or 'feed per revolution' modes are being used (see Section 
-<<sec:G93-G94-G95-Mode>>).
+feed' or 'feed per revolution' modes are being used see Section 
+<<sec:G93-G94-G95-Mode,G93 G94 G95>>.
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (ABCUVW) move so as to start and
@@ -172,8 +175,8 @@ feed' or 'feed per revolution' modes are being used (see Section
 === Coolant (((coolant)))
 
 Flood coolant and mist coolant may each be turned on independently.
-The RS274/NGC language turns them off together (see Section 
-<<sec:M7-M8-M9>>).
+The RS274/NGC language turns them off together see Section 
+<<sec:M7-M8-M9,M7 M8 M9>>.
 
 === Dwell (((dwell)))
 
@@ -181,7 +184,7 @@ A machining center may be commanded to dwell (i.e., keep all axes
 unmoving) for a specific amount of time. The most common use of dwell
 is to break and clear chips, so the spindle is usually turning during a
 dwell. Regardless of the Path Control Mode (see Section 
-<<sec:Path-Control-Mode>>) the machine will stop exactly at the end of
+<<sec:Path-Control-Mode,Path Control>>) the machine will stop exactly at the end of
 the previous programmed move, as though it was in exact path mode.
 
 === Units (((units)))
@@ -193,7 +196,7 @@ specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in Section 
-<<sec:G93-G94-G95-Mode>>. 
+<<sec:G93-G94-G95-Mode,G93 G94 G95>>. 
 
 === Current Position
 
@@ -230,9 +233,9 @@ The two pallets may be exchanged by command.
 The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
-both switches and one command that disables both (see Sections 
-<<sec:M48-Both-Override>> and <<sec:M49-Neither-Override>>). 
-See Section  <<sec:Feed-Interaction>> for further details.
+both switches and one command that disables both see Sections 
+<<sec:M48-Both-Override,M48>> and <<sec:M49-Neither-Override,M49>>. 
+See Section  <<feed-interaction,Feed Interaction>> for further details.
 
 === Path Control Mode[[sec:Path-Control-Mode]]
 
@@ -246,7 +249,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Section <<sec:G61-G61.1-G64>>. 
+Section <<sec:G61-G61.1-G64,G61-G64>>. 
 
 == Interpreter Interaction with Switches
 
@@ -254,7 +257,7 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-=== Feed and Speed Override Switches[[sec:Feed-Interaction]]
+=== Feed and Speed Override Switches[[feed-interaction]]
 
 The Interpreter will interpret RS274/NGC commands which enable 'M48'
 or disable 'M49' the feed and speed override switches. For certain
@@ -309,7 +312,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----
 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format>> section. 
+see the <<sec:Tool-Table-Format,Tool Table>> Section. 
 
 == Parameters[[sec:Parameters]]
 
@@ -328,111 +331,48 @@ it exits.
 
 All parameters are available for use in G Code programs.
 
-1-30::
-     Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. See  <<cha:O-Codes>>
-
-1-5000::
-    G-Code user parameters. These parameters are global in the G Code file.
-
-5061-5070::
-    Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
-
-5161-5169::
-    "G28" Home for X, Y, Z, A, B, C, U, V & W.
-
-5181-5189::
-    "G30" Home for X, Y, Z, A, B, C, U, V & W.
-
-5211-5219::
-    "G92" offset for X, Y, Z, A, B, C, U, V & W.
-
-5220::
-    Coordinate System number 1 - 9 for G54 - G59.3.
-
-5221-5229::
-    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
-
-5241-5249::
-    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
-
-5261-5269::
-    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
-
-5281-5289::
-    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
-
-5301-5309::
-    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
-
-5321-5329::
-    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
-
-5341-5349::
-    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
-
-5361-5369::
-    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
-
-5381-5389::
-    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
-
-5399::
-    Result of M66 - Check or wait for input
-
-5400::
-    Tool Number
-
-5401::
-    Tool X Offset
-
-5402::
-    Tool Y Offset
-
-5403::
-    Tool Z Offset
-
-5404::
-    Tool A Offset
-
-5405::
-    Tool B Offset
-
-5406::
-    Tool C Offset
-
-5407::
-    Tool U Offset
-
-5408::
-    Tool V Offset
-
-5409::
-    Tool W Offset
-
-5410::
-    Tool Diameter
-
-5411::
-    Tool Front Angle
-
-5412::
-    Tool Back Angle
-
-5413::
-    Tool Orientation
-
-5420-5428::
-     Current Position including all offsets and in the current program
+* '1-30' - Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. See the <<cha:O-Codes,O Codes>> Section.
+* '1-5000' - G-Code user parameters. These parameters are global in the G Code file.
+* '5061-5070' - Result of 'G38.2' Probe for X, Y, Z, A, B, C, U, V & W.
+* '5161-5169' - 'G28' Home for X, Y, Z, A, B, C, U, V & W.
+* '5181-5189' - 'G30' Home for X, Y, Z, A, B, C, U, V & W.
+* '5211-5219' - 'G92' offset for X, Y, Z, A, B, C, U, V & W.
+* '5220' - Coordinate System number 1 - 9 for G54 - G59.3.
+* '5221-5229' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+* '5241-5249' - Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+* '5261-5269' - Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+* '5281-5289' - Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+* '5301-5309' - Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+* '5321-5329' - Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+* '5341-5349' - Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+* '5361-5369' - Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+* '5381-5389' - Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+* '5399' - Result of M66 - Check or wait for input
+* '5400' - Tool Number
+* '5401' - Tool X Offset
+* '5402' - Tool Y Offset
+* '5403' - Tool Z Offset
+* '5404' - Tool A Offset
+* '5405' - Tool B Offset
+* '5406' - Tool C Offset
+* '5407' - Tool U Offset
+* '5408' - Tool V Offset
+* '5409' - Tool W Offset
+* '5410' - Tool Diameter
+* '5411' - Tool Front Angle
+* '5412' - Tool Back Angle
+* '5413' - Tool Orientation
+* '5420-5428' - Current Position including all offsets and in the current program
     units for X, Y, Z, A, B, C, U, V & W.
 
-The format of a parameter file is shown in Table 
-<<cap:Parameter-File-Format>>. The file consists of any number of
+The format of a parameter file is shown in the following table.
+The file consists of any number of
 header lines, followed by one blank line, followed by any number of
 lines of data. The Interpreter skips over the header lines. It is
 important that there be exactly one blank line (with no spaces or tabs,
-even) before the data. The header line shown in Table 
-<<cap:Parameter-File-Format>> describes the data columns, so it is
+even) before the data. The header line shown in the following table 
+describes the data columns, so it is
 suggested (but not required) that that line always be included in the
 header.
 
@@ -443,8 +383,8 @@ Each line of the file contains the index number of a parameter in the
 first column and the value to which that parameter should be set in the
 second column. The value is represented as a double-precision floating
 point number inside the Interpreter, but a decimal point is not
-required in the file. All of the parameters shown in Table 
-<<cap:Parameter-File-Format>> are required parameters and must be
+required in the file. All of the parameters shown in the following table 
+are required parameters and must be
 included in any parameter file, except that any parameter representing
 a rotational axis value for an unused axis may be omitted. An error
 will be signalled if any required parameter is missing. A parameter
@@ -457,7 +397,7 @@ is written. Comments are not preserved when the file is written.
 
 .Parameter File Format[[cap:Parameter-File-Format]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^,^,<"]
 |========================================
 |Parameter Number | Parameter Value | Comment
 |5161 | 0.0 | G28 Home X
