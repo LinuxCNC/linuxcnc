@@ -3,7 +3,7 @@
 
 = Image-to-gcode
 
-image::images/image-to-gcode.png[]
+image::images/image-to-gcode.png[align="center"]
 
 == What is a depth map?
 

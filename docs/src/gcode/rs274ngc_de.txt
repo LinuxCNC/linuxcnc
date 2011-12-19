@@ -1,3 +1,6 @@
+:lang: de
+:toc:
+
 = RS274NGC
 
 == Differences that change the meaning of RS274NGC programs
