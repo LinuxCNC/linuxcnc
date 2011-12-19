@@ -784,7 +784,7 @@ Typically (but not always):
 ==== Homing[[sub:Homing-related-items]]
 
 These parameters are Homing related, for a better explanation read the
-Homing Section (<<sec:Homing>>).
+<<sec:Homing,Homing>> Section.
 
 * 'HOME = 0.0' - 
      The position that the joint will go to upon completion of the homing
@@ -852,13 +852,13 @@ DEADBAND = 0.000015' -
     (in HAL) How close is close enough to consider the motor in position, 
 in machine units. This is often set to a distance equivalent to 1, 1.5, 2, 
 or 3 encoder counts, but there are no strict rules. 
-Looser (larger) settings allow less servo "hunting" at the expense of lower accuracy. 
-Tighter (smaller) settings attempt higher accuracy at the expense of more servo "hunting". 
+Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy. 
+Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'. 
 Is it really more accurate if it's also more uncertain? 
-As a general rule, it's good to avoid, or at least limit, servo "hunting" if you can. 
+As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you can. 
 
 Be careful about going below 1 encoder count, since you may create a condition where 
-there is no place that your servo is happy. This can go beyond "hunting" (slow) to 
+there is no place that your servo is happy. This can go beyond 'hunting' (slow) to 
 "nervous" (rapid), and even to "squealing" which is easy to confuse with 
 oscillation caused by improper tuning. Better to be a count or two loose 
 here at first, until you've been through "gross tuning" at least. 
@@ -877,7 +877,7 @@ latexmath:[ \frac{X\, inches}{1\, encoder\, count} =
 image::images/encoder-counts-math.png[align="center"]
 
 * 'BIAS = 0.000' - 
-     (in HAL) '(Sometimes called *offset*)' This is used by hm2-servo and some others. 
+     (in HAL) (Sometimes called 'offset') This is used by hm2-servo and some others. 
     Bias is a constant amount 
     that is added to the output. In most cases it should be left at zero.
     However, it can sometimes be useful to compensate for offsets in servo
@@ -994,8 +994,7 @@ To do this, follow this procedure.
 . As a result, the a and b coefficients from the linear fit can be
    used as the scale and offset for the controller directly. 
 
-See table <<cap:Output-Voltage-Measurements>> for an example of
-   voltage measurements.
+See the following table for an example of voltage measurements.
    
 // latexmath:[ meas=a*raw+b ]  
 // latexmath:[ cmd=a*raw+b ]

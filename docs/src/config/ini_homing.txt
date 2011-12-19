@@ -19,7 +19,7 @@ following section.
 
 .Homing Sequences[[fig:motion-homing-sequence-diagram]]
 
-image::images/emc2-motion-homing-diag.png[]
+image::images/emc2-motion-homing-diag.png[align="center"]
 
 === Configuration
 
@@ -27,18 +27,17 @@ There are six pieces of information that determine exactly how the
 home sequence behaves. They are defined in an [AXIS] section of the
 inifile.
 
-[width="90%", options="header"]
+[width="80%", options="header", cols="4*^"]
 |==========================================================
 |Homing Type      |SEARCH_VEL |LATCH_VEL    |USE_INDEX
 |Immediate        |0          |0            |NO
-|error            |0          |0            |YES
-|error            |0          |nonzero      |NO
 |Index-only       |0          |nonzero      |YES
-|error            |nonzero    |0            |NO
-|error            |nonzero    |0            |YES
 |Switch-only      |nonzero    |nonzero      |NO
 |Switch and Index |nonzero    |nonzero      |YES
 |==========================================================
+
+[NOTE]
+Any other combinations may result in an error.
 
 ==== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
 
