@@ -81,7 +81,7 @@ chapter, we only use the HAL API as defined in emc2/src/hal/hal.h.
 
 == Block diagrams and Data Flow
 
-Figure  <<fig:motion-joint-controller-block-diag>> is a block diagram
+The following figure is a block diagram
 of a joint controller. There is one joint controller per joint. The
 joint controllers work at a lower level than the kinematics, a level
 where all joints are completely independent. All the data for a joint
@@ -89,11 +89,11 @@ is in a single joint structure. Some members of that structure are
 visible in the block diagram, such as coarse_pos, pos_cmd, and
 motor_pos_fb.
 
-image::emc2-motion-joint-controller-block-diag.png[]
+image::emc2-motion-joint-controller-block-diag.png[align="center"]
 
 .Joint Controller Block Diagram[[fig:motion-joint-controller-block-diag]]
 
-Figure <<fig:motion-joint-controller-block-diag>> shows five of the
+The above figure shows five of the
 seven sets of position information that form the main data flow through
 the motion controller. The seven forms of position data are as follows:
 
@@ -752,10 +752,10 @@ The buffer is dynamically allocated at run time to allow for greater
 flexibility of the CMS/NML sub-system. The buffer size must be large
 enough to accommodate the largest message, a small amount for internal
 use and allow for the message to be encoded if this option is chosen
-(encoded data will be covered later). Figure  <<fig:CMS-buffer>> is an
+(encoded data will be covered later). The following figure is an
 internal view of the buffer space.
 
-image::CMS_buffer.png[]
+image::CMS_buffer.png[align="center"]
 
 .CMS buffer[[fig:CMS-buffer]]
 
