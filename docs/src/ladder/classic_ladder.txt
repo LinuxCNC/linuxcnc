@@ -209,7 +209,7 @@ Manager window.
 
 .Sections Manager Default Window[[cap:Sections-Manager-Default]]
 
-image::images/Default_Sections_Manager.png[]
+image::images/Default_Sections_Manager.png[align="center"]
 
 This window allows you to name, create or delete sections and choose
 what language that section uses. This is also how you name a subroutine
@@ -222,7 +222,7 @@ Display window.
 
 .Section Display Default Window[[cap:Section-Display-Default]]
 
-image::images/Default_Section_Display.png[]
+image::images/Default_Section_Display.png[align="center"]
 
 Most of the buttons are self explanatory:
 
@@ -264,7 +264,7 @@ display one, the other, both, then none of the variable windows.
 
 .Bit Status Window[[cap:Bit-Status-Window]]
 
-image::images/Bit_Status.png[]
+image::images/Bit_Status.png[align="center"]
 
 The Bit Status Window displays some of the boolean (on/off) variable data. 
 Notice all variables start with the % sign. The %I variables represent
@@ -282,7 +282,7 @@ unchecked if off.
 
 .Watch Window[[cap:Watch-Window]]
 
-image::images/watch_window.png[]
+image::images/watch_window.png[align="center"]
 
 The Watch Window displays variable status. The edit box beside it is
 the number stored in the variable and the drop-down box beside that
@@ -299,7 +299,7 @@ number/name and press the Enter Key.
 
 .Symbol Names window[[cap:Symbol-Names-window]]
 
-image::images/Default_Symbols_names.png[]
+image::images/Default_Symbols_names.png[align="center"]
 
 This is a list of 'symbol' names to use instead of variable names to
 be displayed in the section window when the 'display symbols' check box
@@ -317,7 +317,7 @@ ladder program is connected to!
 
 .Editor Window[[cap:Editor-Window]]
 
-image::images/Editor.png[]
+image::images/Editor.png[align="center"]
 
 Starting from the top left image:
 
@@ -371,7 +371,7 @@ setup tabs.
 
 .Config Window[[cap:Config-Window]]
 
-image::images/Config.png[]
+image::images/Config.png[align="center"]
 
 == Ladder objects
 
@@ -580,8 +580,8 @@ will be set to True.
 
 .Assign/Compare Example[[cap:Assign/Compare-Example]]
 
-image::images/AssignCompare-Ladder.png[]
-
+image::images/AssignCompare-Ladder.png[align="center"]
+[
 image:images/Assignment_Expression.png[] image:images/Comparison_Expression.png[]
 
 === COILS
@@ -785,11 +785,11 @@ this (next) page will not be displayed.
 
 .Config I/O[[cap:Config-I/O]]
 
-image::images/Config-io.png[]
+image::images/Config-io.png[align="center"]
 
 .Config Coms[[cap:Config-Coms]]
 
-image::images/Config-com.png[]
+image::images/Config-com.png[align="center"]
 
 * 'SERIAL PORT' - For IP blank. For serial the location/name of serial driver eg.
     /dev/ttyS0 ( or /dev/ttyUSB0 for a USB-to-serial converter).
@@ -957,7 +957,7 @@ Options page of Stepconf Wizard check off "Include Classic Ladder PLC".
 
 .Stepconf Classic Ladder[[cap:Stepconf-Classicladder]]
 
-image::images/stepconf_ladder.png[]
+image::images/stepconf_ladder.png[align="center"]
 
 === Add the Modules
 
@@ -991,20 +991,20 @@ input, a connector line and one output.
 
 .Section Display with Grid[[cap:Section-Display-with-Grid]]
 
-image::images/Section_Display_Grid.png[]
+image::images/Section_Display_Grid.png[align="center"]
 
 Now click on the N.O. Input in the Editor Window.
 
 .Editor Window[[cap:Editor-Window-NO]]
 
-image::images/Editor_N.O.Input.png[]
+image::images/Editor_N.O.Input.png[align="center"]
 
 Now click in the upper left grid to place the N.O. Input into the
 ladder.
 
 .Section Display with Input[[cap:Section-Display-with-Input]]
 
-image::images/Section_Display_Build01.png[]
+image::images/Section_Display_Build01.png[align="center"]
 
 Repeat the above steps to add a N.O. Output to the upper right grid
 and use the Horizontal Connection to connect the two. It should look
@@ -1012,14 +1012,14 @@ like the following. If not, use the Eraser to remove unwanted sections.
 
 .Section Display with Rung[[cap:Section-Display-with-Rung]]
 
-image::images/Section_Display_Build02.png[]
+image::images/Section_Display_Build02.png[align="center"]
 
 Now click on the OK button in the Editor window. Now your Section
 Display should look like this.
 
 .Section Display Finished[[cap:Section-Display-Finished]]
 
-image::images/Section_Display_Build03.png[]
+image::images/Section_Display_Build03.png[align="center"]
 
 To save the new file select Save As and give it a name. The .clp
 extension will be added automatically. It should default to the running
@@ -1027,7 +1027,7 @@ config directory as the place to save it.
 
 .Save As Dialog[[cap:Save-As-Dialog]]
 
-image::images/SaveAs.png[]
+image::images/SaveAs.png[align="center"]
 
 Again if you used the Stepconf Wizard to add Classic Ladder you can
 skip this step.

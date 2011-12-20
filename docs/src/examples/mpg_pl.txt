@@ -1,4 +1,4 @@
-// :lang: pl does not work at this time for Polish Docs
+// :lang: pl
 :toc:
 
 = MPG Pendant

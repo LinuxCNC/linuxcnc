@@ -92,21 +92,21 @@ In the 0-10 volt example the line
     'net spindle-speed-scale motion.spindle-speed-out => scale.0.in'
 is changed as shown in the following example:
 
-.Intro to HAL components "limit2" and "near":
+.Intro to HAL components limit2 and near:
 *********************************************************************
 In case you have not run across them before, here's a quick introduction 
 to the two HAL components used in the following example. 
 
- - A "limit2" is a HAL component (floating point) that accepts an 
+* A "limit2" is a HAL component (floating point) that accepts an 
    input value and provides an output that has been limited to a 
    max/min range, and also limited to not exceed a specified 
    rate of change. 
 
- - A "near" is a HAL component (floating point) with a binary output 
+* A "near" is a HAL component (floating point) with a binary output 
    that says whether two inputs are approximately equal. 
 
-More info is available from the documentation for HAL components, 
-or from the man pages, just enter 'man limit2' or 'man near'. 
+More info is available in the documentation for HAL components, 
+or from the man pages, just say 'man limit2' or 'man near' in a terminal. 
 *********************************************************************
 
 ----

@@ -1,3 +1,6 @@
+:lang: de
+:toc:
+
 = GS2 Spindle[[gs2-spindle]]
 
 This example shows the connections needed to use an Automation Direct
