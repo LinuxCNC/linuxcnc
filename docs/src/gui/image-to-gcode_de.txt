@@ -173,12 +173,12 @@ successive roughing passes is given by 'Roughing depth per pass'. For
 instance, entering 0.2 will perform the first roughing pass with a
 depth of 0.2, the second roughing pass with a depth of 0.4, and so on
 until the full Depth of the image is reached. No part of any roughing
-pass will cut closer than Roughing Offset to the final part. Figure 
-<<cap:Roughing-passes-and>> shows a tall vertical feature being milled.
+pass will cut closer than Roughing Offset to the final part. The following
+figure shows a tall vertical feature being milled.
 In this image, Roughing depth per pass is 0.2 inches and roughing
 offset is 0.1 inches.
 
-.Roughing passes and final pass[[cap:Roughing-passes-and]]
+.Roughing passes and final pass[[roughing-passes]]
 
 image::images/i2g-roughing.png[]
 
