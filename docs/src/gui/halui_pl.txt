@@ -1,4 +1,4 @@
-:lang: pl
+//:lang: pl
 :toc:
 
 [[cha:Hal User Interface]]
@@ -86,10 +86,22 @@ loadusr halui -ini /path/to/inifile.ini
 * 'halui.jog-speed' (float, in) - pin for setting jog speed for minus/plus jogging
 * 'halui.jog.<n>.analog' (float, in) - analog velocity input for jogging 
    (useful with joysticks or other analog devices)
+* 'halui.jog.<n>.increment' (float,in) - pin for setting the jog increment for
+   axis <n> when using increment-minus or increment-plus to jog.
+* 'halui.jog.<n>.increment-minus' (bit, in) - pin for moving the <n> axis one
+   increment in the minus direction for each off to on transition.
+* 'halui.jog.<n>.increment-plus' (bit, in) - pin for moving the <n> axis one
+   increment in the plus direction for each off to on transition.
 * 'halui.jog.<n>.minus' (bit, in) - pin for jogging axis <n> in negative 
    direction at the halui.jog.speed velocity
 * 'halui.jog.<n>.plus' (bit, in) - pin for jogging axis <n> in positive 
    direction at the halui.jog.speed velocity
+* 'halui.jog.selected.increment' (float,in) - pin for setting the jog increment
+   for the selected axis when using increment-minus or incremet-plus to jog.
+* 'halui.jog.selected.increment-minus' (bit, in) - pin for moving the selected axis
+   one increment in the minus direction for each off to on transition.
+* 'halui.jog.selected.increment-plus' (bit, in) - pin for moving the selected axis
+   one increment in the plus direction for each off to on transition.
 * 'halui.jog.selected.minus' (bit, in) - pin for jogging the selected axis 
    in negative direction at the halui.jog.speed velocity
 * 'halui.jog.selected.plus' (bit, in) - pin for jogging the selected axis 
