@@ -149,8 +149,73 @@ example), M codes, and G codes multiplied by ten. A decimal number
 which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
+
+== Parameters (Variables)[[parameters]](((Parameters)))
+
+The RS274/NGC language supports 'parameters' - what in other
+programming languages would be called 'variables'. There are several
+types of parameter of different purpose and appearance, each described
+in the following sections. The only value type supported by parameters
+is floating-point; there are no string, boolean or integer types in
+G-code like in other programming languages. However, logic expressions
+can be formulated with <<sub:Binary-Operators,boolean operators>>
+( 'AND', 'OR', 'XOR', and the comparison operators
+'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
+'FIX' <<cap:Functions,operators>> support integer arithmetic.
+
+Parameters differ in syntax, scope, behaviour when not yet
+initialized, mode, persistence and intended use.
+
+Syntax:: There are three kinds of syntactic appearance:
+* 'numbered' -  #4711
+* 'named local' -  #<localvalue>
+* 'named global' - #<_globalvalue>
+
+Scope:: The scope of a parameter is either global, or local within a
+subroutine. Subroutine parameters and local named variables have local
+scope. Global named parameters and numbered parameters starting from
+number 31 are global in scope. RS274NGC uses 'lexical scoping' - 
+in a subroutine only the local variables defined therein, and any
+global variables are visible. The local variables of a
+calling procedure are not visible in a called procedure.
+
+Behaviour of uninitialized parameters::
+ . unitialized global parameters, and unused subroutine parameters 
+   return the value zero when used in an expression.
+ . unitialized named parameters signal an error when used in an expression.
+
+Mode:: Most parameters are read/write and may be assigned to
+within an assignment statement.  However, for many predefined
+parameters this does not make sense, so they are are read-only - they
+may appear in expressions, but not on the left-hand side of an
+assignment statement.
+
+Persistence:: When EMC is shut down, volatile parameters lose their
+values. All parameters except numbered parameters in the current
+persistent range footnoteref:[persistent range,The range of persistent
+parameters may change as development progresses. This range is
+currently 5161- 5390. It is defined in the '_required_parameters array'
+in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
+Persistent parameters are saved in the <<var_file_format,.var file>>
+restored to their previous values when EMC is started again. Volatile
+numbered parameters are reset to zero.
+
+Intended Use::
+ . user parameters:: numbered parameters in the range 31..5000, and named
+global and local parameters except predefined parameters. These are
+available for general-purpose storage of floating-point values, like
+intermediate results, flags etc, throughout program execution.  They
+are read/write (can be assigned a value).
+ . <<sub:Subroutine-Parameters,subroutine parameters>>:: these are used to hold the actual parameters 
+passed to a subroutine. 
+ . persistent numbered parameters:: most of these are used to access offsets of
+coordinate systems - see below.
+ . <<sec:Predefined-Named-Parameters,predefined named parameters>>:: used to determine interpreter and
+machine state, for instance '#<_relative>' returns 1 if G91 is on, and
+0 if G90 is set. They are read-only.
+
 [[sub:Numbered-Parameters]]
-== Numbered Parameters
+=== Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and 5399. The parameter is referred
@@ -180,23 +245,43 @@ example '##2'  means the value of the parameter whose index is the
 The interpreter maintains a number of read-only parameters for a loaded
 tool:
 
-* #5400 Tool number 
-* #5401 Tool X offset 
-* #5402 Tool Y offset 
-* #5403 Tool Z offset 
-* #5404 Tool A offset 
-* #5405 Tool B offset 
-* #5406 Tool C offset 
-* #5407 Tool U offset 
-* #5408 Tool V offset 
-* #5409 Tool W offset 
-* #5410 Tool Diameter 
-* #5411 Tool Frontangle 
-* #5412 Tool Backangle 
-* #5413 Tool Orientation
+* '1-30' - Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. See the <<cha:O-Codes,O Codes>> Section.
+* '1-5000' - G-Code user parameters. These parameters are global in the G Code file.
+* '5061-5070' - Result of 'G38.2' Probe for X, Y, Z, A, B, C, U, V & W.
+* '5161-5169' - 'G28' Home for X, Y, Z, A, B, C, U, V & W.
+* '5181-5189' - 'G30' Home for X, Y, Z, A, B, C, U, V & W.
+* '5211-5219' - 'G92' offset for X, Y, Z, A, B, C, U, V & W.
+* '5220' - Coordinate System number 1 - 9 for G54 - G59.3.
+* '5221-5229' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+* '5241-5249' - Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+* '5261-5269' - Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+* '5281-5289' - Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+* '5301-5309' - Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+* '5321-5329' - Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+* '5341-5349' - Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+* '5361-5369' - Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+* '5381-5389' - Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+* '5399' - Result of M66 - Check or wait for input
+* '5400' - Tool Number
+* '5401' - Tool X Offset
+* '5402' - Tool Y Offset
+* '5403' - Tool Z Offset
+* '5404' - Tool A Offset
+* '5405' - Tool B Offset
+* '5406' - Tool C Offset
+* '5407' - Tool U Offset
+* '5408' - Tool V Offset
+* '5409' - Tool W Offset
+* '5410' - Tool Diameter
+* '5411' - Tool Front Angle
+* '5412' - Tool Back Angle
+* '5413' - Tool Orientation
+* '5420-5428' - Current Position including all offsets and in the current program
+    units for X, Y, Z, A, B, C, U, V & W.
 
 [[sub:Named-Parameters]]
-== Named Parameters
+=== Named Parameters
 
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
@@ -502,7 +587,7 @@ part programs. In Axis sections of the preview can be turned off using
 special comments.
 
 [[sec:Order-of-Execution]]
-= G Code Order of Execution
+== G Code Order of Execution
 (((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
@@ -534,27 +619,27 @@ position of each item on the line, but by the following list:
 * Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
 
-= G Code Best Practices
+== G Code Best Practices
 (((G Code Best Practices)))
 
-== Use an appropriate decimal precision
+=== Use an appropriate decimal precision
 
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
-== Use consistent white space
+=== Use consistent white space
 
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-== Use Center-format arcs
+=== Use Center-format arcs
 
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
-== Put important modal settings at the top of the file
+=== Put important modal settings at the top of the file
 
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
@@ -576,24 +661,24 @@ do not include G20 or G21, then different machines will mill the
 program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
-== Don't put too many things on one line
+=== Don't put too many things on one line
 
 Ignore everything in Section <<sec:Order-of-Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
-== Don't set & use a parameter on the same line
+=== Don't set & use a parameter on the same line
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 '#1=[#1+#2'] is ok.
 
-== Don't use line numbers
+=== Don't use line numbers
 
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.
 
-== When moving more than one coordinate system, consider inverse time feed mode
+== Linear and Rotary Axis
 
 Because the meaning of an F-word in feed-per-minute mode varies
 depending on which axes are commanded to move, and because the amount

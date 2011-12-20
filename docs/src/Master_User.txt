@@ -47,7 +47,7 @@ include::gui/keystick.txt[]
 
 :leveloffset: 1
 
-include::common/machining_center.txt[]
+include::gcode/machining_center.txt[]
 
 include::gcode/overview.txt[]
 

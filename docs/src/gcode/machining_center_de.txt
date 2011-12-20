@@ -1,4 +1,4 @@
-:lang: en
+:lang: de
 :toc:
 
 = CNC Machine Overview
@@ -331,41 +331,6 @@ it exits.
 
 All parameters are available for use in G Code programs.
 
-* '1-30' - Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. See the <<cha:O-Codes,O Codes>> Section.
-* '1-5000' - G-Code user parameters. These parameters are global in the G Code file.
-* '5061-5070' - Result of 'G38.2' Probe for X, Y, Z, A, B, C, U, V & W.
-* '5161-5169' - 'G28' Home for X, Y, Z, A, B, C, U, V & W.
-* '5181-5189' - 'G30' Home for X, Y, Z, A, B, C, U, V & W.
-* '5211-5219' - 'G92' offset for X, Y, Z, A, B, C, U, V & W.
-* '5220' - Coordinate System number 1 - 9 for G54 - G59.3.
-* '5221-5229' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
-* '5241-5249' - Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
-* '5261-5269' - Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
-* '5281-5289' - Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
-* '5301-5309' - Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
-* '5321-5329' - Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
-* '5341-5349' - Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
-* '5361-5369' - Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
-* '5381-5389' - Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
-* '5399' - Result of M66 - Check or wait for input
-* '5400' - Tool Number
-* '5401' - Tool X Offset
-* '5402' - Tool Y Offset
-* '5403' - Tool Z Offset
-* '5404' - Tool A Offset
-* '5405' - Tool B Offset
-* '5406' - Tool C Offset
-* '5407' - Tool U Offset
-* '5408' - Tool V Offset
-* '5409' - Tool W Offset
-* '5410' - Tool Diameter
-* '5411' - Tool Front Angle
-* '5412' - Tool Back Angle
-* '5413' - Tool Orientation
-* '5420-5428' - Current Position including all offsets and in the current program
-    units for X, Y, Z, A, B, C, U, V & W.
-
 The format of a parameter file is shown in the following table.
 The file consists of any number of
 header lines, followed by one blank line, followed by any number of
@@ -403,4 +368,6 @@ is written. Comments are not preserved when the file is written.
 |5161 | 0.0 | G28 Home X
 |5162 | 0.0 | G28 Home Y
 |========================================
+
+See the <<parameters,Parameters>> section for more information.
 

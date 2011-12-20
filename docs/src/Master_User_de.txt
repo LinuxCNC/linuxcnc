@@ -40,7 +40,7 @@ include::gui/keystick_de.txt[]
 = Using EMC
 :leveloffset: 1
 
-include::common/machining_center_de.txt[]
+include::gcode/machining_center_de.txt[]
 
 include::gcode/overview_de.txt[]
 

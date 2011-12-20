@@ -645,7 +645,7 @@ The most frequently used keyboard shortcuts are shown in the following Table
 
 .Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
 
-[width="100%", options="header"]
+[width="80%", options="header", cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode
 |F1               | Toggle Emergency Stop                     | All

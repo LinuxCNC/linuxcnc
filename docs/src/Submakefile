@@ -50,10 +50,6 @@ DOC_SRCS := \
 	common/Linux_FAQ_es.txt \
 	common/Linux_FAQ_fr.txt \
 	common/Linux_FAQ_pl.txt \
-	common/machining_center.txt \
-	common/machining_center_de.txt \
-	common/machining_center_es.txt \
-	common/machining_center_pl.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
 	common/overleaf_de.txt \
@@ -201,6 +197,7 @@ DOC_SRCS := \
 	examples/spindle_fr.txt \
 	examples/spindle_pl.txt \
 	gcode/coordinates.txt \
+	gcode/coordinates.txt \
 	gcode/coordinates_de.txt \
 	gcode/coordinates_es.txt \
 	gcode/coordinates_fr.txt \
@@ -210,7 +207,11 @@ DOC_SRCS := \
 	gcode/gcode_es.txt \
 	gcode/gcode_fr.txt \
 	gcode/gcode_pl.txt \
+	gcode/machining_center.txt \
+	gcode/machining_center_de.txt \
+	gcode/machining_center_es.txt \
 	gcode/machining_center_fr.txt \
+	gcode/machining_center_pl.txt \
 	gcode/mill_canned.txt \
 	gcode/mill_canned_de.txt \
 	gcode/mill_canned_es.txt \
