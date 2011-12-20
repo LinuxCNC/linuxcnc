@@ -1,3 +1,4 @@
+//:lang: pl
 :toc:
 
 = Pluto-P
@@ -96,7 +97,7 @@ Some additional information about it is available from
 http://www.fpga4fun.com/board_pluto-P.html[http://www.fpga4fun.com/board_pluto-P.html]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
-== pluto-servo: Hardware PWM and quadrature counting[[sec:pluto-servo]](((pluto-servo)))
+== Pluto Servo[[sec:pluto-servo]](((pluto-servo)))
 
 The pluto_servo system is suitable for control of a 4-axis CNC mill
 with servo motors, a 3-axis mill with PWM spindle control, a lathe with
@@ -123,44 +124,36 @@ This driver features:
 
 === Pinout
 
-UPx::
-     The 'up' (up/down mode) or 'pwm' (pwm+direction mode) signal from PWM
+* 'UPx' - The 'up' (up/down mode) or 'pwm' (pwm+direction mode) signal from PWM
     generator X. May be used as a digital output if the corresponding PWM
     channel is unused, or the output on the channel is always negative. The
     corresponding digital output invert may be set to TRUE to make UPx
     active low rather than active high.
 
-DNx::
-     The 'down' (up/down mode) or 'direction' (pwm+direction mode) signal
+* 'DNx' - The 'down' (up/down mode) or 'direction' (pwm+direction mode) signal
     from PWM generator X. May be used as a digital output if the
     corresponding PWM channel is unused, or the output on the channel is
     never negative. The corresponding digital ouput invert may be set to
     TRUE to make DNx active low rather than active high. 
 
-QAx, QBx::
-     The A and B signals for Quadrature counter X. May be used as a digital
+* 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a digital
     input if the corresponding quadrature channel is unused.
 
-QZx::
-     The Z (index) signal for quadrature counter X. May be used as a
+* 'QZx' - The Z (index) signal for quadrature counter X. May be used as a
     digital input if the index feature of the corresponding quadrature
     channel is unused. 
 
-INx::
-    Dedicated digital input #x 
+* 'INx' - Dedicated digital input #x 
 
-OUTx::
-    Dedicated digital output #x 
+* 'OUTx' - Dedicated digital output #x 
 
-GND::
-    Ground 
+* 'GND' - Ground 
 
-VCC::
-    +3.3V regulated DC
+* 'VCC' - +3.3V regulated DC
 
 .Pluto-Servo Pinout(((pluto-servo pinout)))[[fig:Pluto-Servo-Pinout]]
 
-image::images/pluto-pinout.eps[]
+image::images/pluto-pinout.png[align="center"]
 
 .Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
 
@@ -225,7 +218,7 @@ voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
 (http://www.cnczone.com/forums/showthread.php?t=25929[http://www.cnczone.com/forums/showthread.php?t=25929])
 
-== Pluto-step: 300kHz Hardware Step Generator[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
+== Pluto Step[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
 
 Pluto-step is suitable for control of a 3- or 4-axis CNC mill with
 stepper motors. The large number of inputs allows for a full set of
@@ -241,23 +234,17 @@ The board features:
 
 === Pinout
 
-STEPx::
-    The 'step' (clock) output of stepgen channel 'x'
+* 'STEPx' - The 'step' (clock) output of stepgen channel 'x'
 
-DIRx::
-    The 'direction' output of stepgen channel 'x'
+* 'DIRx' - The 'direction' output of stepgen channel 'x'
 
-INx::
-    Dedicated digital input #x 
+* 'INx' - Dedicated digital input #x 
 
-OUTx::
-    Dedicated digital output #x 
+* 'OUTx' - Dedicated digital output #x 
 
-GND::
-    Ground 
+* 'GND' - Ground 
 
-VCC::
-    +3.3V regulated DC
+* 'VCC' - +3.3V regulated DC
 
 While the 'extended main connector' has a superset of signals usually
 found on a Step & Direction DB25 connector--4 step generators, 9
@@ -267,7 +254,7 @@ connector.
 
 .Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
 
-image::images/pluto-step-pinout.eps[]
+image::images/pluto-step-pinout.png[align="center"]
 
 === Input latching and output updating
 
@@ -288,7 +275,7 @@ step timings are always applied to all channels.
 
 .Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
 
-image::images/pluto_step_waveform.eps[]
+image::images/pluto_step_waveform.png[align="center"]
 
 === HAL Functions, Pins and Parameters
 

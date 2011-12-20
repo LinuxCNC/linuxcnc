@@ -1,4 +1,4 @@
-:lang: pl
+//:lang: pl
 :toc:
 
 = Stepper Configuration[[stepper-config]]

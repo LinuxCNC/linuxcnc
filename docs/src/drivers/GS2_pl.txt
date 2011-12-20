@@ -1,3 +1,4 @@
+//:lang:pl
 :toc:
 
 = GS2 VFD[[gs2-vfd]]

@@ -1,4 +1,7 @@
-= Kinematics in EMC2
+:lang: de
+:toc:
+
+= Kinematics
 
 == Introduction
 
@@ -45,12 +48,14 @@ along one of the Cartesian axes. On these machines the mapping from
 Cartesian space (the G-code program) to the joint space (the actual
 actuators of the machine) is trivial. It is a simple 1:1 mapping:
 
-    pos->tran.x = joints[0]; 
-    pos->tran.y = joints[1]; 
-    pos->tran.z = joints[2]; 
-    pos->a = joints[3]; 
-    pos->b = joints[4]; 
-    pos->c = joints[5];
+----
+pos->tran.x = joints[0]; 
+pos->tran.y = joints[1]; 
+pos->tran.z = joints[2]; 
+pos->a = joints[3]; 
+pos->b = joints[4]; 
+pos->c = joints[5];
+----
 
 In the above code snippet one can see how the mapping is done: the X
 position is identical with the joint 0, the Y posittion with with 
@@ -59,12 +64,14 @@ direction of the transformation).
 The next code snippet refers to the inverse kinematics (or the 
 inverse direction of the transformation):
 
-    joints[0] = pos->tran.x; 
-    joints[1] = pos->tran.y; 
-    joints[2] = pos->tran.z; 
-    joints[3] = pos->a; 
-    joints[4] = pos->b; 
-    joints[5] = pos->c;
+----
+joints[0] = pos->tran.x; 
+joints[1] = pos->tran.y; 
+joints[2] = pos->tran.z; 
+joints[3] = pos->a; 
+joints[4] = pos->b; 
+joints[5] = pos->c;
+----
 
 As one can see, it's pretty straightforward to do the transformation
 for a trivial "kins" (kinematics) or Cartesian machine. It gets a bit more
@@ -98,7 +105,7 @@ image::images/bipod.png[]
 The Bipod we are talking about is a device that consists of 2 motors
 placed on a wall, from which a device is hung using some wire. The
 joints in this case are the distances from the motors to the device
-(named AD and BD in figure <<cap:Bipod-setup>>).
+(named AD and BD in the figure).
 
 The position of the motors is fixed by convention. Motor A is in
 (0,0), which means that its X coordinate is 0, and its Y coordinate is
@@ -118,6 +125,22 @@ To transform from joint space into Cartesian space we will use some
 trigonometry rules (the right triangles determined by the points (0,0),
 (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
 
+We can easily see that image:images/kinematics-math-01.png[],
+likewise image:images/kinematics-math-02.png[]
+
+If we subtract one from the other we will get:
+
+image::images/kinematics-math-03.png[align="center"]
+
+and therefore:
+
+image::images/kinematics-math-04.png[align="center"]
+
+From there we calculate:
+
+image::images/kinematics-math-05.png[align="center"]
+
+////////////////////////////////////////////////////////////////////
 we can easily see that latexmath:[$AD^{2}=x^{2}+y^{2}$], likewise
 latexmath:[$BD^{2}=(Bx-x)^{2}+y^{2}$].
 
@@ -132,6 +155,7 @@ latexmath::[\[x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]]
 From there we calculate:
 
 latexmath::[\[y=\sqrt{AD^{2}-x^{2}}\]]
+////////////////////////////////////////////////////////////////////
 
 Note that the calculation for y involves the square root of a
 difference, which may not result in a real number. If there is no
@@ -141,15 +165,16 @@ return -1.
 
 Translated to actual code:
 
-    double AD2 = joints[0] * joints[0]; 
-    double BD2 = joints[1] * joints[1]; 
-    double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx); 
-    double y2 = AD2 - x * x; 
-    if(y2 < 0) return -1; 
-    pos->tran.x = x; 
-    pos->tran.y = sqrt(y2); 
-    return 0;
-    
+----
+double AD2 = joints[0] * joints[0]; 
+double BD2 = joints[1] * joints[1]; 
+double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx); 
+double y2 = AD2 - x * x; 
+if(y2 < 0) return -1; 
+pos->tran.x = x; 
+pos->tran.y = sqrt(y2); 
+return 0;
+----    
 
 [[sub:Inverse-transformation]]
 === Inverse transformation
@@ -157,17 +182,25 @@ Translated to actual code:
 The inverse kinematics is lots easier in our example, as we can write
 it directly:
 
+image::images/kinematics-math-06.png[align="center"]
+
+image::images/kinematics-math-07.png[align="center"]
+
+/////////////////////////////////////////////////
 latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
 
 latexmath::[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
+////////////////////////////////////////////////
 
 or translated to actual code:
 
-    double x2 = pos->tran.x * pos->tran.x; 
-    double y2 = pos->tran.y * pos->tran.y; 
-    joints[0] = sqrt(x2 + y2); 
-    joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
-    return 0;
+----
+double x2 = pos->tran.x * pos->tran.x; 
+double y2 = pos->tran.y * pos->tran.y; 
+joints[0] = sqrt(x2 + y2); 
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
+return 0;
+----
 
 == Implementation details
 
@@ -175,25 +208,33 @@ A kinematics module is implemented as a HAL component, and is
 permitted to export pins and parameters. It consists of several “C”
 functions (as opposed to HAL functions):
 
-     int kinematicsForward(const double *joint, EmcPose *world, 
-    const KINEMATICS_FORWARD_FLAGS *fflags, 
-    KINEMATICS_INVERSE_FLAGS *iflags) 
+----
+ int kinematicsForward(const double *joint, EmcPose *world, 
+const KINEMATICS_FORWARD_FLAGS *fflags, 
+KINEMATICS_INVERSE_FLAGS *iflags) 
+----
 
 Implements the forward kinematics function as described in HAL manual.
 
-     int kinematicsInverse(const EmcPose * world, double *joints, 
-    const KINEMATICS_INVERSE_FLAGS *iflags, 
-    KINEMATICS_FORWARD_FLAGS *fflags) 
+----
+ int kinematicsInverse(const EmcPose * world, double *joints, 
+const KINEMATICS_INVERSE_FLAGS *iflags, 
+KINEMATICS_FORWARD_FLAGS *fflags) 
+----
 
 Implements the inverse kinematics function as described in the HAL manual.
 
-     KINEMATICS_TYPE kinematicsType(void) 
+----
+KINEMATICS_TYPE kinematicsType(void) 
+----
 
-Returns the kinematics type identifier, typically `KINEMATICS_BOTH`.
+Returns the kinematics type identifier, typically 'KINEMATICS_BOTH'.
 
-     int kinematicsHome(EmcPose *world, double *joint, 
-    KINEMATICS_FORWARD_FLAGS *fflags, 
-    KINEMATICS_INVERSE_FLAGS *iflags) 
+----
+int kinematicsHome(EmcPose *world, double *joint, 
+KINEMATICS_FORWARD_FLAGS *fflags, 
+KINEMATICS_INVERSE_FLAGS *iflags) 
+----
 
 The home kinematics function sets all its arguments to their proper
 values at the known home position. When called, these should be set,
@@ -201,13 +242,15 @@ when known, to initial values, e.g., from an INI file. If the home
 kinematics can accept arbitrary starting points, these initial values
 should be used.
 
-     int rtapi_app_main(void) 
-    void rtapi_app_exit(void) 
+----
+int rtapi_app_main(void) 
+void rtapi_app_exit(void) 
+----
 
 These are the standard setup and tear-down functions of RTAPI modules.
 
 When they are contained in a single source file, kinematics modules
-may be compiled and installed by `comp`. See the `comp(1)` manpage or
+may be compiled and installed by 'comp'. See the 'comp(1)' manpage or
 the HAL manual for more information.
 
 
