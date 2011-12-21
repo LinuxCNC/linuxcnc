@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = About EMC2
 
 == The Software
@@ -51,9 +54,9 @@ views of EMC2:
    software development; we encourage people to use open source software,
    improve it and pass it on.
 
-= Getting Help
+== Getting Help
 
-== IRC
+=== IRC
 
 IRC stands for Internet Relay Chat. 
 It is a live connection to other EMC users. 
@@ -64,7 +67,7 @@ the embedded java client on this page:
 
 http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
 
-Some IRC etiquette:
+Some IRC etiquette::
 
  - Ask specific questions... Avoid "Can someone help me?", 
    "It won't run" type of questions. 
@@ -80,8 +83,7 @@ Some IRC etiquette:
    before many will remember the past discussions which 
    saves time on both ends.
 
-=== Sharing Files
-
+Sharing Files::
 The most common way to share files on the IRC is to upload the file 
 to one of the following or a similar service and paste the link:
 
@@ -91,7 +93,7 @@ to one of the following or a similar service and paste the link:
 
 * 'For files' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
-== Mailing List
+=== Mailing List
 
 An Internet Mailing List is a way to put questions out for everyone on
 that list to see and answer at their convenience. You get better
@@ -104,7 +106,7 @@ Information about the EMC Users Mailing List at:
 
 link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users mailing list]
 
-== EMC2 Wiki
+=== EMC2 Wiki
 
 A Wiki site is a user maintained web site 
 that anyone can add to or edit.
@@ -114,9 +116,9 @@ wealth of information and tips at:
 
 link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
 
-= Getting EMC2
+== Getting EMC2
 
-== Normal Download
+=== Normal Download
 
 Download the Live CD from:
 
@@ -124,25 +126,24 @@ http://www.linuxcnc.org/[the EMC2 homepage at www.linuxcnc.org]
 
 and follow the Download link.
 
-== Multi-session Download (((Multi-session Download)))
+=== Multi-session Download (((Multi-session Download)))
 
 If the file is too large to download in one session 
 because of a bad or slow Internet connection, 
 use 'wget' to allow resuming after an interrupted download. 
 
-=== Wget Linux (((Wget Linux)))
-
+Wget Linux:: (((Wget Linux)))
 Open a terminal window. In Ubuntu it is Applications/Accessories/Terminal. 
 Use 'cd' to change to the directory where you would like to store the ISO. 
 Use 'mkdir' to create a new directory if needed. 
-
++
 Note that actual file names may change so you might have to go to 
 http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
 and follow the Download link to get the actual file name. 
 In most browsers you can right click on the link and select 
 Copy Link Location or similar, then paste the link into the 
 terminal window with a right mouse click and select Paste. 
-
++
 .Ubuntu 10.04 Lucid Lynx and EMC2 (current release)
 *********************************************************************
 To get the Ubuntu 10.04 Lucid Lynx version, 
@@ -156,14 +157,14 @@ wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.is
 
 The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f' 
 *********************************************************************
-
++
 To continue a partial download that was interrupted 
 add the -c option to wget:
-
++
 wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
-
++
 To stop a download use Ctrl-C or close the terminal window.
-
++
 .Ubuntu 8.04 Hardy Heron and EMC2 (older)
 *********************************************************************
 If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
@@ -179,88 +180,87 @@ wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-
 
 The md5sum of the above file is: '1bab052ec879f941628927c988863f14'
 *********************************************************************
-
++
 After the download is complete you will find the ISO file in the 
 directory that you selected. Next we will burn the CD.
 
-=== Wget Windows (((Wget Windows)))
-
+Wget Windows:: (((Wget Windows)))
 The wget program is also available for Windows from: 
-
++
 http://gnuwin32.sourceforge.net/packages/wget.htm
-
++
 Follow the instructions on the web page for downloading and installing
 the windows version of the wget program.
-
++
 To run wget open a command prompt window.
-
++
 In most Windows it is Programs/Accessories/Command Prompt
-
++
 First you have to change to the directory where wget is installed in.
-
++
 Typically it is in C:\Program Files\GnuWin32\bin so 
 in the Command Prompt window type:
-
++
 ----
 cd C:\Program Files\GnuWin32\bin
 ----
-
++
 and the prompt should change to: 'C:\Program Files\GnuWin32\bin>'
-
++
 Type the wget command into the window and press enter as above.
 
-== Burning the CD
+=== Burning the CD
 
 EMC2 is distributed as CD image files, called ISOs. 
 To install EMC2, you first need to burn the ISO file onto a CD. 
 You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
 If the CD writing fails, try writing at a slower burn speed. 
 
-=== Burn with Linux
+Verify md5sum in Linux::
 
 Before burning a CD, it is highly recommended that you verify the 
 md5sum (hash) of the .iso file.
-
++
 Open a terminal window. 
 In Ubuntu it is Applications/Accessories/Terminal.
-
++
 Change to the directory where the ISO was downloaded to.
-
++
 ----
 cd download_directory
 ----
-
++
 Then run the md5sum command with the file name you saved.
-
++
 ----
 md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
 ----
-
++
 The md5sum should print out a single line after 
 calculating the hash. 
 On slower computers this might take a minute or two.
-
++
 ----
 5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso
 ----
-
++
 Now compare it to the md5sum value that it should be.
-
++
 If you downloaded the md5sum as well as the iso, 
 you can ask the md5sum program to do the checking for you. 
 In the same directory: 
-
++
 ----
 md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5
 ----
-
++
 If all is well, after a short delay the terminal will print: 
-
++
 ----
 ubuntu-10.04-linuxcnc1-i386.iso: OK
 ----
 
-==== Burning the ISO to a CD
+Burning the ISO in Linux::
 
  . Insert a blank CD into your burner. A 'CD/DVD Creator' or 
    'Choose Disc Type' window will pop up. 
@@ -272,17 +272,17 @@ ubuntu-10.04-linuxcnc1-i386.iso: OK
  . Start the burning process.
  . If a 'choose a file name for the disc image' window pops up, just pick OK.
 
-=== Burn with Windows
+Verify md5sum with Windows::
 
 Before burning a CD, it is highly recommended that you verify the md5
 sum (hash) of the .iso file, to ensure that you got a good download.
-
++
 Windows does not come with a md5sum program. You will have to download
 and install one to check the md5sum. More information can be found at:
-
++
 https://help.ubuntu.com/community/HowToMD5SUM
 
-==== Burning the ISO to a CD
+Burning the ISO in Windows::
 
  . Download and install Infra Recorder, a free and open source image
    burning program: http://infrarecorder.org/
@@ -291,7 +291,7 @@ https://help.ubuntu.com/community/HowToMD5SUM
  . Open Infra Recorder, and select the 
    'Actions' menu, then 'Burn image'.
 
-== Testing EMC2
+=== Testing EMC2
 
 With the Live CD in the CD/DVD drive shut down the computer then turn
 the computer back on. This will boot the computer from the Live CD.
@@ -305,7 +305,7 @@ a sim configuration to try out.
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<latency-test,here>>.
 
-== Installing EMC2
+=== Installing EMC2
 
 If you like what you see, just click the Install icon on the desktop,
 answer a few questions (your name, timezone, password) and the install
@@ -314,7 +314,7 @@ and the password. Once the install process is complete and you go on
 line the update manager will pop up and allow you to upgrade to the
 latest stable version of EMC2.
 
-== Updates to EMC2 (((Updates to EMC2)))
+=== Updates to EMC2 (((Updates to EMC2)))
 
 With the normal install the Update Manager will notify you of updates
 to EMC2 when you go on line and allow you to easily upgrade with no
@@ -326,7 +326,7 @@ It is OK to upgrade everything except the operating system when asked to.
 Warning: Do not upgrade Ubuntu to a new but non-LTS version 
 (like 8.04 to 8.10) as it will prevent EMC from running.
 
-== Install Problems
+=== Install Problems
 
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
