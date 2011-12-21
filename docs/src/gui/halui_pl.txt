@@ -1,11 +1,10 @@
 //:lang: pl
 :toc:
 
-[[cha:Hal User Interface]]
-= HAL User Interface
+= HAL User Interface[[cha:Hal User Interface]]
 
-[[sec:HaluiIntroduction]]
-== Introduction
+
+== Introduction[[sec:HaluiIntroduction]]
 
 Halui is a HAL based user interface for EMC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
