@@ -65,11 +65,11 @@ include::gcode/other-code.txt[]
 
 include::gcode/mill_canned.txt[]
 
+include::examples/gcode.txt[]
+
 include::lathe/lathe-user.txt[]
 
 include::gcode/rs274ngc.txt[]
-
-include::examples/gcode.txt[]
 
 include::gui/image-to-gcode.txt[]
 
