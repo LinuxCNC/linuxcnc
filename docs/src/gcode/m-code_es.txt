@@ -3,6 +3,30 @@
 
 = M Codes[[cha:m-codes]](((M Codes)))
 
+== M Code Quick Reference Table [[m-code-quick-reference]]
+[width="75%", options="header", cols="2^,5<"]
+|========================================
+|Code                                    | Description
+|<<sec:M0-M1-M2,M0, M1, M2>>             | Program Control
+|<<sec:M3-M4-M5,M3, M4, M5>>             | Spindle Control
+|<<sec:M6-Tool-Change,M6>>               | Tool Change
+|<<sec:M7-M8-M9,M7, M8, M9>>             | Coolant Control
+|<<sec:M0-M1-M2,M30, M60>>               | Pallet Shuttle
+|<<sec:M48-Both-Override,M30, M60,M48>>  | Override Controls
+|<<sec:M49-Neither-Override,M49>>        | Override Controls
+|<<sec:M50-Feed-Override,M50>>           | Override Controls
+|<<sec:M51-Spindle-Override,M51>>        | Override Controls
+|<<sec:M52-Adaptive-Feed-Control,M52>>   | Override Controls
+|<<sec:M53-Feed-Stop-Control,M53>>       | Override Controls
+|<<sec:M61-Set-Current-Tool-Number,M61>> | Set Current Tool Number
+|<<sec:M62-to-M65,M62-65>>               | Output Control
+|<<sec:M66-Input-Control,M66>>           | Input Control
+|<<sec:M67-Analog-Output,M67>>           | Analog Output Control
+|<<sec:M68-Analog-Output,M68>>           | Analog Output Control
+|<<sec:M100-to-M199,M100-M199>>          | User Defined M-Codes 
+|========================================
+
+
 == M0, M1, M2, M30, M60 Program Stopping and Ending[[sec:M0-M1-M2]]
 
 (((M0 Program Stop)))

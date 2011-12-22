@@ -201,7 +201,6 @@ DOC_SRCS := \
 	examples/spindle_fr.txt \
 	examples/spindle_pl.txt \
 	gcode/coordinates.txt \
-	gcode/coordinates.txt \
 	gcode/coordinates_de.txt \
 	gcode/coordinates_es.txt \
 	gcode/coordinates_fr.txt \
