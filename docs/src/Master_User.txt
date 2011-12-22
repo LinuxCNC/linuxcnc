@@ -49,13 +49,19 @@ include::gui/keystick.txt[]
 
 include::gcode/machining_center.txt[]
 
-include::gcode/overview.txt[]
-
 include::gcode/coordinates.txt[]
 
 include::gcode/tool_compensation.txt[]
 
+include::gcode/overview.txt[]
+
 include::gcode/gcode.txt[]
+
+include::gcode/m-code.txt[]
+
+include::gcode/o-code.txt[]
+
+include::gcode/other-code.txt[]
 
 include::gcode/mill_canned.txt[]
 

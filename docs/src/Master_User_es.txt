@@ -42,13 +42,19 @@ include::gui/keystick_es.txt[]
 
 include::gcode/machining_center_es.txt[]
 
-include::gcode/overview_es.txt[]
-
 include::gcode/coordinates_es.txt[]
 
 include::gcode/tool_compensation_es.txt[]
 
+include::gcode/overview_es.txt[]
+
 include::gcode/gcode_es.txt[]
+
+include::gcode/m-code_es.txt[]
+
+include::gcode/o-code_es.txt[]
+
+include::gcode/other-code_es.txt[]
 
 include::gcode/mill_canned_es.txt[]
 

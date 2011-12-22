@@ -1343,8 +1343,6 @@ It is an error if:
 * S is not specified with G96
 * A feed move is specified in G96 mode while the spindle is not turning
 
-= Canned Cycles[[cha:Canned Cycles]]
-
 == G73 Drilling Cycle with Chip Breaking[[sec:G73-Drilling-Cycle]]
 
 (((G73 Drilling Cycle Chip Break)))

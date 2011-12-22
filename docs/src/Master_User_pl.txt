@@ -40,13 +40,19 @@ include::gui/keystick_pl.txt[]
 
 include::gcode/machining_center_pl.txt[]
 
-include::gcode/overview_pl.txt[]
-
 include::gcode/coordinates_pl.txt[]
 
 include::gcode/tool_compensation_pl.txt[]
 
+include::gcode/overview_pl.txt[]
+
 include::gcode/gcode_pl.txt[]
+
+include::gcode/m-code_pl.txt[]
+
+include::gcode/o-code_pl.txt[]
+
+include::gcode/other-code_pl.txt[]
 
 include::gcode/mill_canned_pl.txt[]
 

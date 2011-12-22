@@ -42,11 +42,11 @@ include::gui/keystick_de.txt[]
 
 include::gcode/machining_center_de.txt[]
 
-include::gcode/overview_de.txt[]
-
 include::gcode/coordinates_de.txt[]
 
 include::gcode/tool_compensation_de.txt[]
+
+include::gcode/overview_de.txt[]
 
 include::gcode/gcode_de.txt[]
 
@@ -55,6 +55,12 @@ include::gcode/mill_canned_de.txt[]
 include::lathe/lathe-user_de.txt[]
 
 include::gcode/rs274ngc_de.txt[]
+
+include::gcode/m-code_de.txt[]
+
+include::gcode/o-code_de.txt[]
+
+include::gcode/other-code_de.txt[]
 
 include::examples/gcode_de.txt[]
 

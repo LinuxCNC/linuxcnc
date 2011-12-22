@@ -212,10 +212,22 @@ DOC_SRCS := \
 	gcode/machining_center_es.txt \
 	gcode/machining_center_fr.txt \
 	gcode/machining_center_pl.txt \
+	gcode/m-code.txt \
+	gcode/m-code_de.txt \
+	gcode/m-code_es.txt \
+	gcode/m-code_pl.txt \
 	gcode/mill_canned.txt \
 	gcode/mill_canned_de.txt \
 	gcode/mill_canned_es.txt \
 	gcode/mill_canned_pl.txt \
+	gcode/o-code.txt \
+	gcode/o-code_de.txt \
+	gcode/o-code_es.txt \
+	gcode/o-code_pl.txt \
+	gcode/other-code.txt \
+	gcode/other-code_de.txt \
+	gcode/other-code_es.txt \
+	gcode/other-code_pl.txt \
 	gcode/overview.txt \
 	gcode/overview_de.txt \
 	gcode/overview_es.txt \
@@ -500,23 +512,24 @@ pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
 # English only for now, checklinks.py needs adapting -mah
-checkref: checkref_en 
+# checklinks.py needs adapting to handle multiple files -jet
+# checkref: checkref_en 
 #checkref: checkref_en checkref_fr checkref_de checkref_es checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html
-	python $(DOC_SRCDIR)/checklinks.py $^
+#checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html
+#	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
+# 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
+# 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
+# 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
+# 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
