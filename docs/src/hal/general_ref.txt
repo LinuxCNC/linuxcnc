@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = General Reference Information
 
 == Notation[[sec:GR-Notation]]
@@ -71,7 +74,7 @@ follow these rules:
    of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.]
  - Use only lowercase letters and numbers in names. 
 
-== Hardware Driver Naming Conventions == [[sec:GR-Driver-Naming]]
+== Hardware Driver Naming Conventions [[sec:GR-Driver-Naming]]
 footnote:[Most drivers do not follow these conventions as of version 2.0.
 This chapter is really a guide for future development.]
 
@@ -203,130 +206,3 @@ generic8255.0.din.09-15.read::
 ppmc.0.write::
       -- writes all outputs (step generators, pwm, DACs, and digital) on
     the first Pico Systems ppmc board.
-
-= Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
-
-.Note
-*********************************************************************
-By version 2.1, the HAL drivers should have all been updated to 
-match these specs. Send an email if you spot any problems. 
-********************************************************************* 
-
-The following sections show the pins, parameters, and functions that 
-are supplied by “canonical devices”. All HAL device drivers should 
-supply the same pins and parameters, and implement the same behavior.
-
-Note that the only the `<io-type>` and `<specific-name>` fields are 
-defined for a canonical device. The `<device-name>`, `<device-num>`, 
-and `<chan-num>` fields are set based on the characteristics of the 
-real device.
-
-== Digital Input[[sec:CanonDigIn]]
-
-The canonical digital input (I/O type field: `digin`) is quite simple.
-
-=== Pins
-
- - (bit) *in* -- State of the hardware input.
- - (bit) *in-not* -- Inverted state of the input.
-
-=== Parameters
-
- - None
-
-=== Functions
-
- - (funct) *read* -- Read hardware and set `in` and `in-not` HAL pins.
-
-== Digital Output[[sec:CanonDigOut]]
-
-The canonical digital output (I/O type field: `digout`) is also very
-simple.
-
-=== Pins
-
- -  (bit) *out* -- Value to be written (possibly inverted) to the hardware
-   output.
-
-=== Parameters
-
- -  (bit) *invert* -- If TRUE, *out* is inverted before writing to the
-   hardware.
-
-=== Functions
-
- -  (funct) *write* -- Read *out* and *invert*, and set hardware output
-   accordingly.
-
-== Analog Input
-
-The canonical analog input (I/O type: `adcin` ). This is expected to
-be used for analog to digital converters, which
-convert e.g. voltage to a continuous range of values.
-
-=== Pins
-
- - (float) *value* -- The hardware reading, scaled according to the
-   *scale* and *offset* parameters. *Value* = ((input reading, in
-   hardware-dependent units) * *scale*) - *offset*
-
-=== Parameters
-
- - (float) *scale* -- The input voltage (or current) will be multiplied
-   by *scale* before being output to *value*.
- - (float) *offset* -- This will be subtracted from the hardware input
-   voltage (or current) after the scale multiplier has been applied.
- - (float) *bit_weight* -- The value of one least significant bit (LSB).
-   This is effectively the granularity of the input reading.
- - (float) *hw_offset* -- The value present on the input when 0 volts is
-   applied to the input pin(s).
-
-=== Functions
-
- - (funct) *read* -- Read the values of this analog input channel. This
-   may be used for
-   individual channel reads, or it may cause all channels to be read
-
-== Analog Output
-
-The canonical analog output (I/O Type: *adcout*). This is intended
-for any kind of hardware that can output a 
-more-or-less continuous range of values. Examples are digital to analog
-converters or PWM generators.
-
-=== Pins
-
- - (float) *value* -- The value to be written. The actual value output
-   to the hardware will depend on the scale and offset parameters.
- - (bit) *enable* -- If false, then output 0 to the hardware, regardless
-   of the *value* pin.
-
-=== Parameters
-
- - (float) *offset* -- This will be added to the *value* before the
-   hardware is updated
- - (float) *scale* -- This should be set so that an input of 1 on the
-   *value* pin will cause 1V 
- - (float) *high_limit* (optional) -- When calculating the value to
-   output to the hardware, if *value* + *offset* is greater than
-   *high_limit*, then *high_limit* will be used instead.
- - (float) *low_limit* (optional) -- When calculating the value to output
-   to the hardware, if *value* + *offset* is less than *low_limit*, then
-   *low_limit* will be used instead.
- - (float) *bit_weight* (optional) -- The value of one least significant
-   bit (LSB), in volts (or mA, for current outputs)
- - (float) *hw_offset*  (optional) -- The actual voltage (or current)
-   that will be output if 0 is written to the hardware.
-
-=== Functions
-
-(funct) *write*  -- This causes the calculated value to be output to
-the hardware. If enable is false, then the output will be 0, 
-regardless of *value*, *scale*, and *offset*. 
-The meaning of “0” is dependent on the hardware. For example, a
-bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0
-volts from the hardware pin. If enable is true, read scale, offset and 
-value and output to the adc (*scale* * *value*) + *offset*. If enable
-is false, then output 0.
-
-
