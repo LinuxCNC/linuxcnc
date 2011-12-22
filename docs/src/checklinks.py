@@ -18,15 +18,11 @@ def get(attr, attrs, default=""):
 
 class MetaHandler:
     def do_meta(self,  attrs):
-        print "meta", attrs
         equiv = get("http-equiv", attrs)
         content = get("content", attrs)
-        print "meta", equiv, content
         if equiv != "content-type": return
         attrs = cookielib.split_header_words([content])[0]
-        print "meta", attrs
         encoding = get("charset", attrs)
-        print "encoding", repr(encoding)
         if encoding == "ASCII": encoding = "ISO-8859-1"
         if encoding: self.encoding = encoding
 
