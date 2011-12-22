@@ -5,11 +5,6 @@ if len(sys.argv) > 1:
 else:
     ref = "../html/gcode.html"
 
-if len(sys.argv) > 2:
-    main = sys.argv[2]
-else:
-    main = ref.replace("gcode", "gcode_gcode")
-
 def get(attr, attrs, default=""):
     attr = attr.lower()
     for k, v in attrs:
@@ -39,10 +34,7 @@ class get_refs(sgmllib.SGMLParser, MetaHandler):
         if self.encoding:
             href = href.decode(self.encoding)
         href = urllib.unquote(href)
-        if "#" in href:
-            a, b = href.split("#")
-            if b:
-                self.refs.add(b)
+	self.refs.add(href)
 
 class get_anchors(sgmllib.SGMLParser, MetaHandler):
     entitydefs = htmlentitydefs.entitydefs
@@ -67,19 +59,56 @@ class get_anchors(sgmllib.SGMLParser, MetaHandler):
         if name:
             self.anchors.add(name)
 
+_anchors = {}
+def get_anchors_cached(filename):
+    if filename not in _anchors:
+	a = get_anchors()
+	a.feed(open(filename).read())
+	_anchors[filename] = a.anchors
+    return _anchors[filename]
 
-r = get_refs()
-r.feed(open(ref).read())
-r = r.refs
+def resolve_file(src, target):
+    if "#" in target:
+	a, b = target.split("#", 1)
+    else:
+	a, b = target, None
 
-a = get_anchors()
-a.feed(open(main).read())
-a = a.anchors
+    a = a or src
 
-missing = r - a
-if missing:
-    print "Anchors used in %s but not defined in %s:" % (
-        os.path.basename(ref), os.path.basename(main))
-    for i in missing:
+    return os.path.join(os.path.dirname(ref), a), b
+
+def resolve(target, anchor):
+    if not anchor: return True
+
+    anchors = get_anchors_cached(target)
+    return anchor in anchors
+
+refs = get_refs()
+refs.feed(open(ref).read())
+refs = refs.refs
+
+missing_anchor = set()
+missing_file = set()
+good = set()
+for r in refs:
+    target, anchor = resolve_file(ref, r)
+    if not os.path.exists(target):
+	missing_file.add(r)
+    elif not resolve(target, anchor):
+	missing_anchor.add(r)
+    else:
+	good.add(r)
+
+if missing_file:
+    print "Files linked to in %s but could not be found:" % (
+        os.path.basename(ref),)
+    for i in missing_file:
         print "\t%r" % i
+if missing_anchor:
+    print "Anchors used in %s but not defined in linked file:" % (
+        os.path.basename(ref),)
+    for i in missing_anchor:
+        print "\t%r" % i
+print "Good links: %d/%d" % (len(good), len(refs))
+if missing_anchor or missing_file:
     raise SystemExit, 1
