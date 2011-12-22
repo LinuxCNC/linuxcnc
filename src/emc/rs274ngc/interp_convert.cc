@@ -2807,7 +2807,12 @@ int Interp::restore_settings(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings failed: '%s'"), cmd);
+	int status = execute(cmd);
+	if (status != INTERP_OK) {
+	    char currentError[LINELEN+1];
+	    strcpy(currentError,getSavedError());
+	    CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), cmd, currentError);
+	}
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
