@@ -2671,6 +2671,8 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 		// this is treated before all others - see convert_m()
 		break;
 	    case 1: // - motion_mode
+		// restoring the motion mode is a real bad idea to start with
+		break;
 	    case 3: // - plane
 	    case 4: // - cutter compensation
 	    case 6: // - distance mode

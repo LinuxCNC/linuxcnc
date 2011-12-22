@@ -16,7 +16,6 @@ subroutines.
 The state saved consists of:
 
 * current G20/G21 settings (imperial/metric)
-* motion mode (G1 G2 G3 G5.2 G73 G80 G82 G83 G86 G87 G88 G89)
 * selected plane (G17/G18/G19 G17.1,G18.1,G19.1)
 * status of cutter compensation (G40,G41,G42,G41.1,G42,1)
 * distance mode - relative/absolute (G90/G91)
@@ -34,6 +33,8 @@ The state saved consists of:
 * speed override (M51) and feed override (M50) settings
 * adaptive feed setting (M52)
 * feed hold setting (M53)
+
+Note that in particular, the motion mode (G1 etc) is NOT restored.
 
 'current call level' means either:
 
