@@ -243,7 +243,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.num_tp_pwmgens = simple_strtol(token, NULL, 0);
             
         } else if (strncmp(token, "sserial_port_", 13) == 0) {
-            int i = *token - '0';
+            int i;
             int c = 0;
             token += 13;
             i = *token - '0';
