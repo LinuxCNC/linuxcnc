@@ -20,6 +20,12 @@ More information here
 http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
+Titles
+------
+= Document Title (level 0) =  Note: level 0 can only be once per file!
+== Section title (level 1) ==  Note: trailing delimiter is optional.
+=== Section title (level 2) ===
+
 Links
 -----
 [[anchor]]

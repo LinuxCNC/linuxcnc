@@ -140,11 +140,11 @@ net spindle-ramped => spindle-at-speed.in2
 net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 ----
 
-= Spindle Feedback[[spindle-feedback]]
+== Spindle Feedback[[spindle-feedback]]
 
 (((Spindle Feedback)))
 
-== Spindle Synchronized Motion[[sec:Spindle-Synchronized-Motion]]
+=== Spindle Synchronized Motion[[sec:Spindle-Synchronized-Motion]]
 
 (((Spindle Synchronized Motion)))
 
@@ -193,7 +193,7 @@ B quadrature input.]
 net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 ----
 
-== Spindle At Speed[[sec:Spindle-At-Speed]]
+=== Spindle At Speed[[sec:Spindle-At-Speed]]
 
 (((Spindle At Speed)))
 

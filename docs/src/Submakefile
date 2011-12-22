@@ -55,6 +55,10 @@ DOC_SRCS := \
 	common/overleaf_de.txt \
 	common/overleaf_fr.txt \
 	common/overleaf_pl.txt \
+	common/starting-emc.txt \
+	common/starting-emc_de.txt \
+	common/starting-emc_es.txt \
+	common/starting-emc_pl.txt \
 	common/Stepper_Diagnostics.txt \
 	common/Stepper_Diagnostics_de.txt \
 	common/Stepper_Diagnostics_es.txt \
