@@ -6,7 +6,7 @@
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
-== Trajectory Control(((Trajectory Control)))
+== Trajectory Control[[sec:trajectory-control]](((Trajectory Control)))
 
 === Trajectory Planning
 
