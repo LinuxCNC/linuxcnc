@@ -180,11 +180,7 @@ DOC_SRCS := \
 	examples/gs2_example_es.txt \
 	examples/gs2_example_fr.txt \
 	examples/gs2_example_pl.txt \
-	examples/misc.txt \
-	examples/misc_de.txt \
-	examples/misc_es.txt \
 	examples/misc_fr.txt \
-	examples/misc_pl.txt \
 	examples/mpg.txt \
 	examples/mpg_de.txt \
 	examples/mpg_es.txt \
