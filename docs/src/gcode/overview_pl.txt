@@ -492,6 +492,70 @@ axis words or canceling motion.
 'Non-modal' codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
+== Polar Coordinates
+(((Polar Coordinates)))
+
+Polar Coordinates can be used to specify the XY coordinate of a move.
+The @n is the distance and ^n is the angle. The advantage of this is
+for things like bolt hole circles which can be done very simply by
+moving to a point in the center of the circle, setting the offset and
+then moving out to the first hole then run the drill cycle. 
+Polar Coordinates always are from the current XY zero position. 
+To shift the Polar Coordinates from machine zero use an offset 
+or select a coordinate system.
+
+In Absolute Mode the distance and angle is from the XY zero position
+and the angle starts with 0 on the X Positive axis and increases in a CCW
+direction about the Z axis. The code G1 @1^90 is the same as G1 Y1.
+
+In Relative Mode the distance and angle is also from the XY zero
+position but it is cumulative. 
+This can be confusing at first how this works in incremental mode.
+
+For example if you have the following program you might expect it to
+be a square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 @.5 ^90 
+@.5 ^90
+@.5 ^90
+@.5 ^90
+G90 G0 X0 Y0 M2
+----
+
+You can see from the following figure that the output is not what you
+might expect. Because we added 0.5 to the distance each time the 
+distance from the XY zero position increased with each line.
+
+.Polar Spiral[[fig:Polar-Spiral]]
+
+image::images/polar01.png[align="center"]
+
+The following code will produce our square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 ^90
+^90
+^90
+^90
+G90 G0 X0 Y0 M2
+----
+
+As you can see by only adding to the angle by 90 degrees each time the
+end point distance is the same for each line.
+
+.Polar Square[[fig:Polar-Square]]
+
+image::images/polar02.png[align="center"]
+
+It is an error if:
+
+* An incremental move is started at the origin
+* A mix of Polar and and X or Y words are used
+
+
 [[sec:Modal-Groups]]
 == Modal Groups
 (((Modal Groups)))
