@@ -5,6 +5,11 @@ if len(sys.argv) > 1:
 else:
     ref = "../html/gcode.html"
 
+if len(sys.argv) > 2:
+    targets = sys.argv[2:]
+else:
+    targets = None
+
 def get(attr, attrs, default=""):
     attr = attr.lower()
     for k, v in attrs:
@@ -89,10 +94,13 @@ refs = refs.refs
 
 missing_anchor = set()
 missing_file = set()
+unlisted_targets = set()
 good = set()
 for r in refs:
     target, anchor = resolve_file(ref, r)
-    if not os.path.exists(target):
+    if targets and not target in targets:
+	unlisted_targets.add(target)
+    elif not os.path.exists(target):
 	missing_file.add(r)
     elif not resolve(target, anchor):
 	missing_anchor.add(r)
@@ -102,13 +110,18 @@ for r in refs:
 if missing_file:
     print "Files linked to in %s but could not be found:" % (
         os.path.basename(ref),)
-    for i in missing_file:
+    for i in sorted(missing_file):
         print "\t%r" % i
 if missing_anchor:
     print "Anchors used in %s but not defined in linked file:" % (
         os.path.basename(ref),)
-    for i in missing_anchor:
+    for i in sorted(missing_anchor):
         print "\t%r" % i
+if unlisted_targets:
+    print "Links to files not listed as targets:"
+    for i in sorted(unlisted_targets):
+	print "\t%r" % i
+    print "If all link targets are not listed in the Submakefile, then the results of this program is unreliable."
 print "Good links: %d/%d" % (len(good), len(refs))
-if missing_anchor or missing_file:
+if missing_anchor or missing_file or unlisted_targets:
     raise SystemExit, 1

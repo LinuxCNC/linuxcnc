@@ -518,14 +518,14 @@ htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 checkref: checkref_en checkref_fr
 
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
-	python $(DOC_SRCDIR)/checklinks.py $<
+	python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html
-	python $(DOC_SRCDIR)/checklinks.py $<
+	python $(DOC_SRCDIR)/checklinks.py $^
 
 # These targets don't work yet since we don't have the associated translations
 checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
-	-python $(DOC_SRCDIR)/checklinks.py $<
+	-python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
