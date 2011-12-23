@@ -1,60 +1,6 @@
 :lang: es
 :toc:
 
-== Halmeter[[sec:Halmeter]](((halmeter)))
-
-Halmeter is a 'voltmeter' for the HAL. It lets you look at a pin,
-signal, or parameter, and displays the current value of that item. It
-is pretty simple to use. Start it by typing *halmeter* in an X 
-windows shell. Halmeter is a GUI application. It will pop up
-a small window, with two buttons labeled 'Select' and 'Exit'. Exit is
-easy - it shuts down the program. Select pops up a larger window, with
-three tabs. One tab lists all the pins currently defined in the HAL.
-The next lists all the signals, and the last tab lists all the
-parameters. Click on a tab, then click on a pin/signal/parameter. Then
-click on 'OK'. The lists will disappear, and the small window will
-display the name and value of the selected item. The display is updated
-approximately 10 times per second. If you click 'Accept' instead of
-'OK', the small window will display the name and value of the selected
-item, but the large window will remain on the screen. This is
-convenient if you want to look at a number of different items quickly.
-
-You can have many halmeters running at the same time, if you want to
-monitor several items. If you want to launch a halmeter without tying
-up a shell window, type 'halmeter &' to run it in the background.
-You can also make halmeter start 
-displaying a specific item immediately, by adding 'pin|sig|par[am]
-<name>' to the command line. It will display the pin, signal, or
-parameter 
-<name> as soon as it starts. (If there is no such item, it will simply
-start normally.) And finally, if you specify an item to display, you
-can add '-s' before the pin|sig|param to tell halmeter to use a small
-window. The item name will be displayed in the title bar instead of
-under the value, and there will be no buttons. Useful when you want a
-lot of meters in a small amount of screen space.
-
-Refer to section <<sec:Tutorial-Halmeter>> for more information. 
-
-Halmeter can be loaded from a terminal or from Axis. Halmeter is
-faster than Halshow at displaying values. Halmeter has two windows, one
-to pick the pin, signal, or parameter to monitor and one that displays
-the value. Multiple Halmeters can be open at the same time. If you use
-a script to open multiple Halmeters you can set the position of each
-one with -g X Y relative to the upper left corner of your screen. 
-For example: 
-
-----
-loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
-----
-
-See the man page for more options. See section <<sec:Halmeter>>. 
-  
-.Halmeter
-
-image::images/hal-meter01.png[]
-
-image::images/hal-meter02.png[]
-
 == Stepgen[[sec:Stepgen]](((stepgen)))
 
 This component provides software based generation of step pulses in
