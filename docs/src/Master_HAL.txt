@@ -25,6 +25,8 @@ include::hal/tutorial.txt[]
 
 include::hal/general_ref.txt[]
 
+include::hal/canonical-devices.txt[]
+
 include::hal/tools.txt[]
 
 include::hal/basic_hal.txt[]
