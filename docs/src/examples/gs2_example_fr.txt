@@ -8,12 +8,14 @@
 == Exemple
  
 Cet exemple montre les connexions demandées pour utiliser un variateur de 
-fréquence fourni par la société Automation Direct pour piloter une broche. 
+fréquence fourni par la société Automation Direct pour piloter une broche.
+footnote:[En Europe on trouve une gamme de produits identiques sous la marque
+Omron.]
 La direction de la broche et sa vitesse seront contrôlées par EMC2.
 
 L'utilisation du composant GS2 est très simple à régler. Une configuration 
 complète peut être réalisée par l'assistant Stepconf. Bien vérifier que les 
-pins "Spindle CW" et "Spindle PWM" sont inutilisées sur la page de réglage du 
+pins *Spindle CW* et *Spindle PWM* sont inutilisées sur la page de réglage du 
 port parallèle.
 
 Placer les lignes suivantes dans le fichier custom.hal pour connecter EMC2 au
@@ -43,14 +45,14 @@ dans le manuel du variateur qu'il est impératif de consulter.
  
 - Les switches de communication doivent être positionnés sur RS-232C.
 - Les paramètres moteur doivent être ajustés en fonction du moteur.
-- P3.00 (Source des commandes de marche) doit être ajusté sur "Opérations
-   déterminées par l'interface RS-485", *03* ou *04*
-- P4.00 (Source des commandes de fréquence) doit être ajusté sur "Fréquence
-   déterminée par l'interface RS232C/RS485", *05*
-- P9.02 (Protocole de communication) doit être ajusté sur "Modbus RTU mode, 
-   8 bits de donnée, pas de parity, 2 bits de stop", *03*
+- P3.00 (Source des commandes de marche) doit être ajusté sur *Opérations
+   déterminées par l'interface RS-485*, *03* ou *04*
+- P4.00 (Source des commandes de fréquence) doit être ajusté sur *Fréquence
+   déterminée par l'interface RS232C/RS485*, *05*
+- P9.02 (Protocole de communication) doit être ajusté sur *Modbus RTU mode, 
+   8 bits de donnée, pas de parity, 2 bits de stop*, *03*
 
 Un panneau de commande virtuel PyVCP, basé sur cet exemple, est donné
-dans la section: <<sec:Exemple-Compte-Tours-GS2>>
+dans l'<<sec:Exemple-Compte-Tours-GS2,exemple avec un variateur>>.
 
 

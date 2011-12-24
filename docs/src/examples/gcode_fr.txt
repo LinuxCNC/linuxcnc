@@ -31,7 +31,7 @@ paramètres.
 
 Ce programme palpe de manière répétitive, en suivant une grille
 régulière en XY et écrit les points mesurés dans le fichier
-'probe-results.txt' situé dans le même répertoire que le fichier .ini.
+*probe-results.txt* situé dans le même répertoire que le fichier .ini.
 
 === Amélioration du palpage d'une grille rectangulaire de points
 
@@ -41,7 +41,7 @@ régulière en XY et écrit les points mesurés dans le fichier
 
 Ce programme est une amélioration du précédent. Il palpe de manière
 répétitive, en suivant une grille régulière en XY et écrit les points
-mesurés dans le fichier 'probe-results.txt' situé dans le même
+mesurés dans le fichier *probe-results.txt* situé dans le même
 répertoire que le fichier .ini.
 
 === Mesure de longueur d'outil

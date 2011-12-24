@@ -109,7 +109,7 @@ introduction à ces deux composants de HAL utilisés dans l'exemple suivant.
 Voir le manuel de HAL ou les man pages, taper juste *man limit2* ou *man near*. 
 ****
 ----
-# charge un composant temps réel *limit2* et un *near* avec des noms aisés à suivre
+# charge un composant temps réel limit2 et un near avec des noms aisés à suivre
 loadrt limit2 names=spindle-ramp
 loadrt near names=spindle-at-speed
 
@@ -117,7 +117,7 @@ loadrt near names=spindle-at-speed
 addf spindle-ramp servo-thread
 addf spindle-at-speed servo-thread
 
-# fixe le paramètre *max* pour l'amortissement
+# fixe le paramètre max pour l'amortissement
 # (accélération/décélération de la broche en unités par seconde)
 setp spindle-ramp.maxv 60
 
@@ -128,13 +128,13 @@ net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
 net spindle-ramped <= spindle-ramp.out => scale.0.in
 
 # pour connaitre quand commencer le mouvement on envoie la vitesse de broche 
-# commandée à une entrée du composant *spindle-at-speed* (qui est un composant *near*).
+# commandée à une entrée du composant spindle-at-speed (qui est un composant near).
 # on envoie également le signal de fin de rampe (vitesse actuelle) 
-# sur l'autre entrée de *spindle-at-speed*
+# sur l'autre entrée de spindle-at-speed
 net spindle-cmd => spindle-at-speed.in1
 net spindle-ramped => spindle-at-speed.in2
 
-# la sortie de *spindle-at-speed* est envoyée à *motion.spindle-at-speed*
+# la sortie de spindle-at-speed est envoyée à motion.spindle-at-speed
 # et quand elle devient TRUE, les mouvements peuvent commencer
 net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 ----
@@ -195,7 +195,7 @@ Si near est déjà présent dans le fichier HAL, augmenter le numéro de composa
 adapter le code suivant en conséquence. S'assurer que le nom du signal est bien
 le même dans le fichier HAL.
 ----
-# charger un composant *near* et l'attacher à un thread
+# charger un composant near et l'attacher à un thread
 loadrt near
 addf near.0 servo-thread
 
