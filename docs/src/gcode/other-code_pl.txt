@@ -1,27 +1,23 @@
-:lang: en
+//:lang: pl
 :toc:
 
 = Other Codes
 
 == F: Set Feed Rate[[sec:F-Set-Feed]]
-
 (((F: Set Feed Rate)))
 
-To set the feed rate, program 'F<n>' where 'n' is a number. 
-The application of the feed rate is as described in the 
+* 'F-' - sets the feed rate. The application of the feed rate is as described in the 
 <<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect, 
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
 == S: Set Spindle Speed[[sec:S-Set-Spindle]]
-
 (((S: Set Spindle Speed)))
 
-To set the speed in revolutions per minute (RPM) of the spindle, program 'S-'. 
-The spindle will turn at that speed when it has been programmed to start turning. 
+* 'S-' - set the speed in revolutions per minute (RPM) of the spindle. 
+The spindle will turn at that speed when a 'M3' or 'M4' is in effect. 
 It is OK to program an S word whether the spindle is turning or not. 
-If the speed override switch is 
-enabled and not set at 100%, 
+If the speed override switch is enabled and not set at 100%, 
 the speed will be different from what is programmed. 
 It is OK to program S0, the spindle will not turn if that is done.
 
@@ -37,11 +33,9 @@ case, the speed may differ from what is programmed, even if the speed
 override switch is set at 100%.
 
 == T: Select Tool[[sec:T-Select-Tool]]
-
 (((T: Select Tool)))
 
-To select a tool, program 'T<n>', where the <n> number is the
-carousel slot for the tool. The tool is 
+* 'T-' - call tool prepare for the slot number. The tool is 
 not changed until an 'M6' is programmed (see Section 
 <<sec:M6-Tool-Change,M6>>). The T word may 
 appear on the same line as the 'M6' or on a previous line. It is OK,
@@ -63,11 +57,11 @@ programming practice for such machines is to put the T word for the
 next tool to be used on the line after a tool change. This maximizes
 the time available for the carousel to move.
 
-Rapid moves after a T<n> will not show on the AXIS preview until after
+Rapid moves after a 'T<n>' will not show on the AXIS preview until after
 a feed move. This is for machines that travel long distances to change
 the tool like a lathe. This can be very confusing at first. To turn
-this feature off for the current tool change program a G1 without any
-move after the T<n>.
+this feature off for the current tool program a G1 without any
+move after the 'T<n>'.
 
 == Comments[[sec:Comments]]
 
@@ -88,60 +82,53 @@ G80 M5 (stop motion)
 Comments are only informative, they do not cause a machine to do anything. 
 
 == Messages[[sec:Messages]]
-
 (((Messages)))
 
-A comment contains a message if 'MSG' appears after the left
-parenthesis and before any other printing  characters. Variants of 
-'MSG' which include white space and lower case characters are allowed. 
-The rest of the characters before the right parenthesis are considered to
-be a message. Messages should be displayed on the message display
-device. Comments not containing messages need not be displayed there.
+* '(MSG,)' - displays message if 'MSG' appears after the left
+             parenthesis and before any other printing  characters.
+             Variants of 'MSG' which include white space and lower case
+             characters are allowed. The rest of the characters before 
+             the right parenthesis are considered to be a message.
+             Messages should be displayed on the message display device
+             of the user interface if provided.
 
 == Probe Logging[[sec:Probe-Logging]]
-
 (((Probe Logging)))
 
-A comment can also be used to specify a file for the results of G38.x
-probing. See the <<G38-probe,G38>> Section. 
+* '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
+                               coordinate consisting of XYZABCUVW of each 
+                               successful straight probe in it.
+* '(PROBECLOSE)' - will close the open probelog file.
 
-Often, general logging is more useful than probe logging. Using
-general logging, the format of the output data can be controlled.
+For more information on probing see the <<G38-probe,G38>> Section. 
 
-=== General Logging[[sec:General-logging]]
-
+== General Logging[[sec:General-logging]]
 (((General Logging)))
 
-==== (LOGOPEN,filename)
+* '(LOGOPEN,filename.txt)' - opens the named log file. If the file
+                             already exists, it is truncated.
 
-Opens the named log file. If the file already exists, it is truncated.
+* '(LOGAPPEND,filename)' - opens the named log file. If the file already
+                           exists, the data is appended.
 
-==== (LOGAPPEND,filename)
+* '(LOGCLOSE)' - closes an open log file.
 
-Opens the named log file. If the file already exists, the data is
-appended.
+* '(LOG,)' - everything past the ',' is written to the log file if it is open.
+             Supports expansion of parameters as described below.
 
-==== (LOGCLOSE)
+== Debugging Messages[[sec:Debugging-messages]]
+(((Debugging Messages)))
 
-If the log file is open, it is closed.
+* '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
+              special handling for parameters as described below.
 
-==== (LOG,…)
+== Print Messages[[sec:print-messages]]
+(((Print Messages)))
 
-The message “…” is expanded as described below and then written to the
-log file if it is open.
+* '(PRINT,)' - messages are output to stderr with special handling
+               for parameters as described below.
 
-=== Debugging Messages[[sec:Debugging-messages]]
-
-(((G Code Debugging Messages)))
-
-Comments that look like: '(debug, rest of comment)' are the same as
-comments like '(msg, rest of comment)' with the addition of special
-handling for parameters.
-
-Comments that look like: '(print, rest of comment)' are output to
-stderr with special handling for parameters.
-
-=== Parameters in special comments
+== Comment Parameters
 
 In the DEBUG, PRINT and LOG comments, the values of parameters in the
 message are expanded.
