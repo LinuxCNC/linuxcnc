@@ -618,7 +618,7 @@ The coordinate system is described in the <<cha:Coordinate-System,Coordinate Sys
 ----
 G10 L10 P- axes <R- I- J- Q->
 ----
-* 'P' - coordinate system (0-9)
+* 'P' - tool number
 * 'R' - rotation about the Z axis
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
