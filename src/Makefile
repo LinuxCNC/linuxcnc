@@ -624,7 +624,7 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
 ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse
+EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
 endif
 
 ifeq "$(USE_STUBS)" "1"
