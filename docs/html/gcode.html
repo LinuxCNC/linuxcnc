@@ -85,10 +85,10 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G43-G43.1-Tool">G43.1</A> <TD> I K <TD> Use specified tool length offset for transient tool</TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G49-Tool">G49</A> <TD> <TD> Cancel tool length offset </TR>
 <TR> <TH COLSPAN=3>Stopping </TR>
-<TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1-M2">M0</A> <TD> <TD> Pause Program </TR>
-<TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1-M2">M1</A> <TD> <TD> Optional Stop </TR>
-<TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1-M2">M2</A> <TD> <TD> End Program </TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/m-code.html#sec:M0-M1-M2">M30, M60</A> <TD> Other stop codes </TR>
+<TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1">M0</A> <TD> <TD> Program Pause </TR>
+<TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1">M1</A> <TD> <TD> Optional Pause </TR>
+<TR> <TD> <A HREF="gcode/m-code.html#sec:M2-M30">M2, M30</A> <TD> <TD> End Program </TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/m-code.html#sec:M60">M60</A> <TD> Pallet Change Pause </TR>
 <TR> <TH COLSPAN=3>Units </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G20-G21-Units">G20</A> <TD> <TD> Inches </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G20-G21-Units">G21</A> <TD> <TD> Millimeters </TR>
@@ -111,12 +111,12 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/other-code.html#sec:F-Set-Feed">F</A> <TD> <TD> Set Feed Rate </TR>
 <TR> <TD> <A HREF="gcode/other-code.html#sec:S-Set-Spindle">S</A> <TD> <TD> Set Spindle Speed </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M6-Tool-Change">T</A> <TD> <TD> Select Tool </TR>
-<TR> <TD> <A HREF="gcode/m-code.html#sec:M50-Feed-Override">M50&hellip;M53</A> <TD> P0 (off) or P1 (on) <TD> Feed Override, Spindle Override, Adaptive Feed, Feed Hold</TR>
-<TR> <TD COLSPAN=2><A HREF="gcode/gcode.html#sec:G54-G59.3">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Select coordinate system </TR>
+<TR> <TD> <A HREF="gcode/m-code.html#sec:M48-M49-Override">M48&hellip;M53</A> <TD> P0 (off) or P1 (on) <TD> Feed Override, Spindle Override, Adaptive Feed, Feed Hold</TR>
+<TR> <TD COLSPAN=2><A HREF="gcode/gcode.html#sec:G54-G59.3">G54&hellip;G59.3</A><TD> Select coordinate system </TR>
 <TR> <TH COLSPAN=3>Flow-control Codes </TR>
 <TR> <TD> <A HREF="gcode/o-code.html#cha:O-Codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
 <TR> <TH COLSPAN=3>Input/Output Codes </TR>
-<TR> <TD> <A HREF="gcode/m-code.html#sec:M62-to-M65">M62-65</A> <TD> P <TD> Digital Output Control </TR>
+<TR> <TD> <A HREF="gcode/m-code.html#sec:M62-M65">M62-65</A> <TD> P <TD> Digital Output Control </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M66-Input-Control">M66</A> <TD> P E L Q <TD> Digital and Analog Input Control </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M67-Analog-Output">M67</A> <TD> T <TD> Analog Output Synchronized with Motion </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M68-Analog-Output">M68</A> <TD> T <TD> Analog Output Immediate </TR>
