@@ -166,5 +166,7 @@ o<myfile> endsub
 M2
 ----
 
+[NOTE]
+The file names are case sensitive so 'o<myfile> call' and 'o<MyFile> call' are not calling the same file. 
 
 // vim: set syntax=asciidoc:
