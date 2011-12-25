@@ -776,7 +776,6 @@ It is an error if:
     due to the spindle speed
 
 == G33.1 Rigid Tapping[[sec:G33.1-Rigid-Tapping]]
-
 (((G33.1 Rigid Tapping)))
 
 ----
@@ -789,19 +788,24 @@ code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved
 for each revolution of the spindle. 
 A rigid tapping move consists of the following sequence:
 
-* A move to the specified coordinate, synchronized with the spindle at
+[WARNING]
+If X Y coordinates specificed are not the current coordinates when
+calling G33.1 for tapping or the move will not be along the Z axis
+but will traverse from the current location to the X Y specificed.
+
+. A move to the specified coordinate, synchronized with the spindle at
    the given ratio and starting with a spindle index pulse.
-* When reaching the endpoint, a command to reverse the spindle (e.g.,
+. When reaching the endpoint, a command to reverse the spindle (e.g.,
    from clockwise to counterclockwise).
-* Continued synchronized motion beyond the specified end coordinate
+. Continued synchronized motion beyond the specified end coordinate
    until the spindle actually stops and reverses.
-* Continued synchronized motion back to the original coordinate.
-* When reaching the original coordinate, 
+. Continued synchronized motion back to the original coordinate.
+. When reaching the original coordinate, 
    a command to reverse the spindle a second time 
    (e.g., from counterclockwise to clockwise).
-* Continued synchronized motion beyond the original coordinate 
+. Continued synchronized motion beyond the original coordinate 
    until the spindle actually stops and reverses.
-* An *unsynchronized* move back to the original coordinate.
+. An *unsynchronized* move back to the original coordinate.
 
 Spindle-synchronized motions wait for spindle index, 
 so multiple passes line up. 
@@ -809,21 +813,20 @@ so multiple passes line up.
 
 All the axis words are optional, except that at least one must be used.
 
-It is an error if:
-
-* All axis words are omitted.
-* The spindle is not turning when this command is executed
-* The requested linear motion exceeds machine velocity limits 
-   due to the spindle speed
-
-Example:
-
+.Rigid Tapping Example
 ----
 ;move to starting position
 G0 X1.000 Y1.000 Z0.100
 ;rigid tapping a 20 TPI thread
 G33.1 Z-0.750 K0.05
 ----
+
+It is an error if:
+
+* All axis words are omitted.
+* The spindle is not turning when this command is executed
+* The requested linear motion exceeds machine velocity limits 
+   due to the spindle speed
 
 == G38.x Straight Probe[[G38-probe]]
 (((G38.x Probe)))
@@ -1388,21 +1391,9 @@ moves.
 
 image::images/g76-01.png[align="center"]
 
-== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
-(((G80 Cancel Modal Motion)))
-
-* 'G80' - cancel modal motion
-
-It is an error if:
-
-*  Axis words are programmed when G80 is active, unless a modal 
-   group 0 Gcode is programmed which uses axis words.
-
-== Canned Cycles
-[[sec:G81-G89]](((G81-G89 Canned Cycles)))
+== Canned Cycles[[sec:G80-G89]](((G80-G89 Canned Cycles)))
 
 The canned cycles 'G81' through 'G89' are described in this section.
-Two examples are given with the description of 'G81' below.
 
 All canned cycles are performed with respect to the currently-selected
 plane. Any of the six planes may be selected. Throughout this section,
@@ -1488,20 +1479,31 @@ XY conditions above.
 
 === Preliminary and In-Between Motion
 
-At the very beginning of the execution of any of the canned cycles, if
-the current Z position is below the R position, the Z-axis is traversed
-to the R position. This happens only once, regardless of the value of
-L.
+Preliminary motion is a set of motions that is common to all of the
+milling canned cycles. If the current Z position is below the R position,
+the Z axis is traversed to the R position. This happens only once,
+regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
 following one or two moves are made
 
- . a straight traverse parallel to the XY-plane to the given XY-position, 
- . a straight traverse of the Z-axis only to the R position, if it is not
-   already at the R position. 
+. a straight traverse parallel to the XY-plane to the given XY-position, 
+. a straight traverse of the Z-axis only to the R position, if it is not
+ already at the R position. 
 
 If another plane is active, the preliminary and in-between motions are
 analogous.
+
+== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
+(((G80 Cancel Modal Motion)))
+
+* 'G80' - cancel modal motion. 'G80' is part of modal group 0, so programming
+          any other G code from modal group 0 will also cancel the canned cycle.
+
+It is an error if:
+
+*  Axis words are programmed when G80 is active, unless a modal 
+   group 0 Gcode is programmed which uses axis words.
 
 == G81 Drilling Cycle[[sec:G81-Drilling-Cycle]]
 
@@ -1626,8 +1628,7 @@ It is an error if:
 (((G84 Right-Hand Tapping)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
-behavior is undefined. See sections 
-<<sec:G33-Spindle-Sync,G33>> and <<sec:G33.1-Rigid-Tapping,G33.1>>
+behavior is undefined. See section <<sec:G33.1-Rigid-Tapping,G33.1>>
 
 == G85 Boring, No Dwell, Feed Out[[sec:G85-Boring-Feed-Out]]
 
@@ -1662,8 +1663,9 @@ for the number of seconds to dwell.
  . Retract the Z-axis at traverse rate to clear Z.
  . Restart the spindle in the direction it was going. 
 
-The spindle must be turning before this cycle is used. It is an error
-if:
+The spindle must be turning before this cycle is used. 
+
+It is an error if:
 
 * the spindle is not turning before this cycle is executed.
 
@@ -1726,5 +1728,3 @@ to G83) does NOT reset the 'initial' plane. It is possible to switch
 between G98 and G99 during a series of cycles.
 
 // vim: set syntax=asciidoc:
-
-
