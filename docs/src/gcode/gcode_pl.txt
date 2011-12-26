@@ -91,7 +91,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G85-Boring-Feed-Out,G85>>    |Boring Cycle, No Dwell, Feed Out
 |<<sec:G86-Boring-Rapid-Out,G86>>   |Boring Cycle, Stop, Rapid Out
 |<<sec:G87-Back-Boring,G87>>        |Back-Boring Cycle *(unimplemented)*
-|<<sec:G88-Boring-Manual-Out,G88>>  |Boring Cycle, Stop, Manl Out *(unimplemented)*
+|<<sec:G88-Boring-Manual-Out,G88>>  |Boring Cycle, Stop, Manual Out *(unimplemented)*
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
 |<<sec:G90-G91-Set,G90, G91>>       |Distance Mode
 |<<sec:G90.1-G91.1,G90.1, G91.1>>   |Arc Distance Mode
@@ -225,11 +225,12 @@ It is an error if:
    point to the center by more than (.05 inch/.5 mm) 
    OR ((.0005 inch/.005mm) AND .1% of radius).
 
-When the XY-plane is selected program:
-
+.XY-plane (G17)
 ----
 G2 or G3 axes I- J-
 ----
+* 'I' - X offset
+* 'J' - Y offset
 
 The axis words are all optional except that at least one of X and Y
 must be used to program an arc of less than 360 degrees. I and J are
@@ -243,11 +244,12 @@ It is an error if:
 
 * I and J are both omitted.
 
-When the XZ-plane is selected program:
-
+.XZ-plane (G18)
 ----
 G2 or G3 axes I- K-
 ----
+* 'I' - X offset
+* 'K' - Z offset
 
 The axis words are all optional except that at least one of X and Z
 must be used to program an arc of less than 360 degrees. 
@@ -261,11 +263,12 @@ It is an error if:
 
 * I and K are both omitted.
 
-When the YZ-plane is selected program:
-
+.YZ-plane (G19)
 ----
 G2 or G3 axes J- K- 
 ----
+* 'J' - Y offset
+* 'K' - Z offset
 
 The axis words are all optional except that at least one of Y and Z
 must be used to program an arc of less than 360 degrees. J and K are
@@ -293,8 +296,7 @@ end position is X1 Y1. The arc center position is at X1 Y0. This gives
 us an offset from the start position of 1 in the X axis and 0 in the Y
 axis. In this case only an I offset is needed.
 
-The code for the example:
-
+.G2 Example Code
 ----
 G2 X1 Y1 I1 F10
 ----
@@ -309,8 +311,7 @@ X0 Y0, for the G3 move it is X0 Y1. The arc center is at X1 Y0.5 for
 both moves. The G2 move the J offset is 0.5 and the G3 move the J
 offset is -0.5.
 
-The g code for the following example:
-
+.G2-G3 Example Code
 ----
 G2 X0 Y1 I1 J0.5 F25
 G3 X0 Y0 I1 J-0.5 F25
@@ -320,8 +321,7 @@ G3 X0 Y0 I1 J-0.5 F25
 
 image::images/g2-3.png[align="center"]
 
-Here is an example of a center format command to mill a helix:
-
+.G2 Example Helix Code
 ----
 G17 G2 X10 Y16 I3 J4 Z9
 ----
@@ -351,9 +351,12 @@ Deciphering the Error message 'Radius to end of arc differs from radius to start
 ----
 G2 or G3 I- J- K-
 ----
+* 'I' - X offset
+* 'J' - Y offset
+* 'K' - Z offset
 
-To do a full 360 circle from the current location only program the I,
-J or K offset from the current location for the G2/G3. To program a 360
+To do a full 360 circle from the current location only program the 
+offset from the current location for the G2/G3. To program a 360
 degree helix in the XY plane just include the Z word.
 
 It is an error if:
@@ -367,6 +370,8 @@ It is an error if:
 ----
 G2 or G3 axes R-
 ----
+* 'R' - radius from current position
+
 
 It is not good practice to program radius format arcs that are nearly
 full circles or nearly semicircles because a small change in the
@@ -395,8 +400,7 @@ It is an error if:
 * both of the axis words for the axes of the selected plane are omitted
 * the end point of the arc is the same as the current point.
 
-Here is an example of a radius format command to mill an arc: 
-
+.Example Radius Format with Arc
 ----
 G17 G2 X10 Y15 R20 Z5
 ----
@@ -413,6 +417,7 @@ otherwise it is a helical arc.
 ----
 G4 P-
 ----
+* 'P' - seconds to dwell
 
 The P number is the time in seconds that all axes will remain unmoving.
 This does not affect spindle, coolant and other I/O.
@@ -427,6 +432,8 @@ It is an error if:
 ----
 G5.1 X- Y- I- J-
 ----
+* 'I' - X axis offset
+* 'J' - Y axis offset
 
 G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
 The offsets are I for X axis and J for Y axis.
@@ -523,7 +530,7 @@ G10 L1 P- axes <R- I- J- Q->
 * 'J' - back angle (lathe)
 * 'Q' - orientation (lathe)
 
-G10 L1 sets the tool table for the P tool number to the values of the words. 
+G10 L1 sets the tool table for the 'P' tool number to the values of the words. 
 
 A valid G10 L1 rewrites and reloads the tool table.
 
@@ -576,8 +583,7 @@ It is an error if:
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
 
-Examples:
-
+.Example G10 L2
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
@@ -587,6 +593,7 @@ to be X=3.5 and Y=17.2.
 Because only X and Y are specified, the origin point is only moved in X and Y; 
 the other coordinates are not changed.
 
+.Example Clearing Offsets
 ----
 G10 L2 P1 X0 Y0 Z0
 ----
@@ -789,7 +796,7 @@ for each revolution of the spindle.
 A rigid tapping move consists of the following sequence:
 
 [WARNING]
-If X Y coordinates specificed are not the current coordinates when
+If the X Y coordinates specificed are not the current coordinates when
 calling G33.1 for tapping or the move will not be along the Z axis
 but will traverse from the current location to the X Y specificed.
 
@@ -850,7 +857,7 @@ TRUE for probe contact closed (touching), FALSE for probe contact open.
 Program 'G38.x axes' to perform a straight probe operation. 
 The axis words are optional, except that at least one of them must be used. 
 The axis words together define the destination point that the probe will move towards, 
-starting from the current location. If the probe is not tripped before teh destination
+starting from the current location. If the probe is not tripped before the destination
 is reached G38.2 and G38.4 will signal an error.
 
 The tool in the spindle must be a probe or contact a probe switch. 
@@ -885,7 +892,8 @@ And by halting program execution.
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of 
 XYZABCUVW of each successful straight probe in it. 
-The file must be closed with '(PROBECLOSE)'. 
+The file must be closed with '(PROBECLOSE)'. For more information
+see the <<sec:comments, Comments>> Section.
 
 == G40 Compensation Off[[sec:G40]]
 (((G40 Radius Compensation Off)))
@@ -1019,6 +1027,11 @@ For example 'G53 G0 X0 Y0 Z0'  will move the axes to the home
 position even if the currently
 selected coordinate system has offsets in effect.
 
+.Example G53 Move to Machine Origin
+----
+G53 G0 X0 Y0 Z0
+----
+
 It is an error if:
 
 * G53 is used without G0 or G1 being active, 
@@ -1037,8 +1050,8 @@ It is an error if:
 * 'G59.2' - select coordinate system 8
 * 'G59.3' - select coordinate system 9
 
-The coordinate systems store the values 
-for each system in the parameters shown in the following table.
+The coordinate systems store the axis values 
+in the parameters shown in the following table.
 
 .Coordinate System Parameters[[cap:Coordinate-Systems]]
 
@@ -1375,19 +1388,18 @@ The sample program 'g76.ngc'  shows the use of the G76 canned cycle,
 and can be previewed and
 executed on any machine using the 'sim/lathe.ini' configuration.
 
-The following example shows the result of running this G-Code:
-
+.Example G76 Threading
 ----
 G0 Z-.5 X .2
 G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
 ----
 
-The tool is in the final position after the G76 cycle is completed.
-You can see the entry path on the right from the Q29.5 and the exit
-path on the left from the L2 E0.045. The white lines are the cutting
-moves.
+In the figure the tool is in the final position after the G76 cycle
+is completed. You can see the entry path on the right from the Q29.5
+and the exit path on the left from the L2 E0.045. The white lines
+are the cutting moves.
 
-.G76 Threading Example[[fig:G76-Threading-Example]]
+.Example G76 Threading[[fig:G76-Threading-Example]]
 
 image::images/g76-01.png[align="center"]
 

@@ -63,7 +63,7 @@ the tool like a lathe. This can be very confusing at first. To turn
 this feature off for the current tool program a G1 without any
 move after the 'T<n>'.
 
-== Comments[[sec:Comments]]
+== Comments[[sec:comments]]
 
 (((Comments)))
 
