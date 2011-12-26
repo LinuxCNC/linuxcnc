@@ -115,7 +115,7 @@ in the Integrator Manual).
 ==== Backplot
 
 When the machine moves, it leaves a trail called the backplot. You can
-start the backplot window by selecting View->Backplot.
+start the backplot window by selecting View\->Backplot.
 
 === Automatic control
 

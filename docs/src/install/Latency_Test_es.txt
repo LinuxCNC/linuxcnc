@@ -42,7 +42,7 @@ also have some disadvantages:
 The best way to find out how well your PC will lrun EMC2 
 is to run the HAL latency test. 
 To run the test, open a terminal window 
-(In Ubuntu, from Applications -> Accessories -> Terminal) 
+(In Ubuntu, from Applications \-> Accessories \-> Terminal) 
 and run the following command: 
 
 ----
