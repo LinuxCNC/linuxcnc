@@ -215,10 +215,6 @@ DOC_SRCS := \
 	gcode/m-code_de.txt \
 	gcode/m-code_es.txt \
 	gcode/m-code_pl.txt \
-	gcode/mill_canned.txt \
-	gcode/mill_canned_de.txt \
-	gcode/mill_canned_es.txt \
-	gcode/mill_canned_pl.txt \
 	gcode/o-code.txt \
 	gcode/o-code_de.txt \
 	gcode/o-code_es.txt \

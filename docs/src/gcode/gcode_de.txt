@@ -18,7 +18,7 @@ as the 'L number', and so on for any other letter.
 In the G Code prototypes the word 'axes' stands for any axis as defined
 in your configuration.
 
-An optional value will be written like this '<L->'.
+An optional value will be written like this '<L\->'.
 
 A real value may be: 
 
@@ -517,7 +517,7 @@ G8 is default at power up.
 ----
 G10 L1 P- axes <R- I- J- Q->
 ----
-* 'P' - tool number
+* 'P' - coordinate system (0-9)
 * 'R' - rotation about the Z axis
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
@@ -618,7 +618,7 @@ The coordinate system is described in the <<cha:Coordinate-System,Coordinate Sys
 ----
 G10 L10 P- axes <R- I- J- Q->
 ----
-* 'P' - coordinate system (0-9)
+* 'P' - tool number
 * 'R' - rotation about the Z axis
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
@@ -1391,21 +1391,9 @@ moves.
 
 image::images/g76-01.png[align="center"]
 
-== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
-(((G80 Cancel Modal Motion)))
-
-* 'G80' - cancel modal motion
-
-It is an error if:
-
-*  Axis words are programmed when G80 is active, unless a modal 
-   group 0 Gcode is programmed which uses axis words.
-
-== Canned Cycles
-[[sec:G81-G89]](((G81-G89 Canned Cycles)))
+== Canned Cycles[[sec:G80-G89]](((G80-G89 Canned Cycles)))
 
 The canned cycles 'G81' through 'G89' are described in this section.
-Two examples are given with the description of 'G81' below.
 
 All canned cycles are performed with respect to the currently-selected
 plane. Any of the six planes may be selected. Throughout this section,
@@ -1471,8 +1459,8 @@ the R position. See the <<sec:G98-G99-Set,G98 G99>> Section.
 
 It is an error if:
 
-* X, Y, and Z words are all missing during a canned cycle, 
-* Axis words from different groups (XYZ) (UVW) are used together,
+* axis words are all missing during a canned cycle, 
+* axis words from different groups (XYZ) (UVW) are used together,
 * a P number is required and a negative P number is used, 
 * an L number is used that does not evaluate to a positive integer, 
 * rotary axis motion is used during a canned cycle, 
@@ -1491,20 +1479,149 @@ XY conditions above.
 
 === Preliminary and In-Between Motion
 
-At the very beginning of the execution of any of the canned cycles, if
-the current Z position is below the R position, the Z-axis is traversed
-to the R position. This happens only once, regardless of the value of
-L.
+Preliminary motion is a set of motions that is common to all of the
+milling canned cycles. If the current Z position is below the R position,
+the Z axis is traversed to the R position. This happens only once,
+regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
 following one or two moves are made
 
- . a straight traverse parallel to the XY-plane to the given XY-position, 
- . a straight traverse of the Z-axis only to the R position, if it is not
-   already at the R position. 
+. a straight traverse parallel to the XY-plane to the given XY-position, 
+. a straight traverse of the Z-axis only to the R position, if it is not
+ already at the R position. 
 
 If another plane is active, the preliminary and in-between motions are
 analogous.
+
+=== Why use a canned cycle?
+
+There are at least two reasons for using canned cycles. The first is
+the economy of code. A single bore would take several lines of code to
+execute.
+
+The G81 <<G81-example-1,Example 1>> demonstrates how a canned cycle could be used to
+produce 8 holes with ten lines of nc code within the canned cycle mode.
+The program below will produce the same set of 8 holes using five lines
+for the canned cycle. It does not follow exactly the same path nor does
+it drill in the same order as the earlier example. But the program
+writing economy of a good canned cycle should be obvious.
+
+.Eight Holes
+----
+G90 G0 X0 Y0 Z0 (move coordinate home)
+G1 F10 X0 G4 P0.1
+G91 G81 X1 Y0 Z-1 R1 L4(canned drill cycle)
+G90 G0 X0 Y1
+Z0
+G91 G81 X1 Y0 Z-0.5 R1 L4(canned drill cycle)
+G80 (turn off canned cycle)
+M2 (program end)
+----
+The G98 to the second line above means that the return move will be to
+the value of Z in the first line since it is higher that the R value
+specified.
+
+image::images/eight.png[align="center"]
+
+
+.Twelve Holes in a Square
+
+This example demonstrates the use of the L word to repeat a set of
+incremental drill cycles for successive blocks of code within the same
+G81 motion mode. Here we produce 12 holes using five lines of code in
+the canned motion mode.
+
+----
+G90 G0 X0 Y0 Z0 (move coordinate home)
+G1 F50 X0 G4 P0.1
+G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
+X0 Y1 R0 L3 (repeat)
+X-1 Y0 L3 (repeat)
+X0 Y-1 L2 (repeat)
+G80 (turn off canned cycle)
+G90 G0 X0 (rapid home)
+Y0
+Z0
+M2 (program end)
+----
+
+image::images/twelve.png[align="center"]
+
+The second reason to use a canned cycle is that they all produce
+preliminary moves and returns that you can anticipate and control
+regardless of the start point of the canned cycle.
+
+
+== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
+(((G80 Cancel Modal Motion)))
+
+* 'G80' - cancel modal motion. 'G80' is part of modal group 0, so programming
+          any other G code from modal group 0 will also cancel the canned cycle.
+
+It is an error if:
+
+*  Axis words are programmed when G80 is active.
+
+.G80 Example
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
+G80 (turn off canned cycle motion)
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
+
+The folloing code produces the same final position and machine state as
+the previous code.
+
+.G0 Example
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+----
+
+The advantage of the first set is that, the G80 line clearly turns off the
+G81 canned cycle. With the first set of blocks, the programmer must turn
+motion back on with G0, as is done in the next line, or any other motion
+mode G word.
+
+If a canned cycle is not turned off with G80 or another motion word, the
+canned cycle will attempt to repeat itself using the next block of code
+that contains an X, Y, or Z word. The following file drills (G81) a set
+of eight holes as shown in the following caption. 
+
+.G80 Example 1
+----
+N100 G90 G0 X0 Y0 Z0 (coordinate home)
+N110 G1 X0 G4 P0.1
+N120 G81 X1 Y0 Z0 R1 (canned drill cycle)
+N130 X2
+N140 X3
+N150 X4
+N160 Y1 Z0.5
+N170 X3
+N180 X2
+N190 X1
+N200 G80 (turn off canned cycle)
+N210 G0 X0 (rapid home moves)
+N220 Y0
+N230 Z0
+N240 M2 (program end)
+----
+
+[NOTE]
+Notice the z position change after the first four holes.
+Also, this is one of the few places where line numbers have some value,
+being able to point a reader to a specific line of code.
+
+.G80 Cycle[[cap:G80-Cycle]]
+    
+image::images/G81mult.png[align="center"]
+
+The use of G80 in line N200 is optional because the G0 on the next
+line will turn off the G81 cycle. But using the G80 as shown in 
+Example 1, will provide for easier to read canned cycle. Without it, it
+is not so obvious that all of the blocks between N120 and N200 belong
+to the canned cycle.
 
 == G81 Drilling Cycle[[sec:G81-Drilling-Cycle]]
 
@@ -1514,70 +1631,138 @@ analogous.
 G81 (X- Y- Z-) or (U- V- W-) R- L-
 ----
 
-The 'G81' cycle is intended for drilling.
+The 'G81' cycle is intended for drilling. 
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate to the Z position.
- . Retract the Z-axis at traverse rate to clear Z. 
+The cycle functions as follows:
 
-Example 1 Suppose the current position is (1, 2, 3) and the
-XY-plane has been
-selected, and the following line of NC code is interpreted.
+. Preliminary motion to start position.
 
-----
-G90 G81 G98 X4 Y5 Z1.5 R2.8
-----
+. Move the Z-axis only at the current feed rate to the Z position.
 
-This calls for absolute distance mode ('G90') and OLD_Z retract mode
-('G98') and calls for the 'G81'  drilling cycle to be performed once.
-The X number and X position are
-4. The Y number and Y position are 5. The Z number and Z position are
-1.5. The R number and clear Z are 2.8. Old Z is 3. The following moves
-take place.
+. Retract the Z-axis at traverse rate to clear Z. This cycle was used
+  in the description of G80 above but is explained in detail here.
 
- . a traverse parallel to the XY-plane to (4,5,3) 
- . a traverse parallel to the Z-axis to (4,5,2.8) 
- . a feed parallel to the Z-axis to (4,5,1.5) 
- . a traverse parallel to the Z-axis to (4,5,3) 
+.Example 1 - Absolute Position G81[[G81-example-1]]
 
-Example 2  Suppose the current position is (1, 2, 3) and the
-XY-plane has been
-selected, and the following line of NC code is interpreted.
+Suppose the current position is (X1, Y2, Z3) and the following line of NC
+code is interpreted.
 
 ----
-G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+G90 G98 G81 X4 Y5 Z1.5 R2.8
 ----
 
-This calls for incremental distance mode ('G91') and OLD_Z retract
-mode ('G98') and calls for the 'G81'  drilling cycle to be repeated
-three times. The X number is 4, the Y
-number is 5, the Z number is -0.6 and the R number is 1.8. The initial
-X position is 5 (=1+4), the initial Y position is 7 (=2+5), the clear Z
-position is 4.8 (=1.8+3), and the Z position is 4.2 (=4.8-0.6). Old Z
-is 3.
+This calls for absolute distance mode (G90) and OLD_Z retract mode
+(G98) and calls for the G81 drilling cycle to be performed once.
 
-The first move is a traverse along the Z-axis to (1,2,4.8), since old
-Z < clear Z.
+The X value and X position are 4.
+
+The Y value and Y position are 5.
+
+The Z value and Z position are 1.5.
+
+The R value and clear Z are 2.8. OLD_Z is 3.
+
+The following moves take place:
+
+. a traverse parallel to the XY plane to (X4, Y5, Z3)
+
+. a traverse parallel to the Z-axis to (X4, Y5, Z2.8).
+
+. a feed parallel to the Z-axis to (X4, Y5, Z1.5)
+
+. a traverse parallel to the Z-axis to (X4, Y5, Z3)
+
+image::images/G81ex1.png[align="center"]
+
+.Example 2 - Relative Position G81
+
+Suppose the current position is (X1, Y2, Z3) and the following line of NC
+code is interpreted.
+
+----
+G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
+----
+
+This calls for incremental distance mode (G91) and OLD_Z retract mode
+(G98). It also calls for the G81 drilling cycle to be repeated three
+times. The X value is 4, the Y value is 5, the Z value is -0.6 and the
+R value is 1.8. The initial X position is 5 (=1+4), the initial Y
+position is 7 (=2+5), the clear Z position is 4.8 (=1.8+3), and the Z
+position is 4.2 (=4.8-0.6). OLD_Z is 3.
+
+The first preliminary move is a traverse along the Z axis to
+(X1,Y2,Z4.8), since OLD_Z < clear Z.
 
 The first repeat consists of 3 moves.
 
- . a traverse parallel to the XY-plane to (5,7,4.8)
- . a feed parallel to the Z-axis to (5,7, 4.2)
- . a traverse parallel to the Z-axis to (5,7,4.8) 
+. a traverse parallel to the XY-plane to (X5, Y7, Z4.8)
 
-The second repeat consists of 3 moves. The X position is reset to 9
-(=5+4) and the Y position to 12 (=7+5).
+. a feed parallel to the Z-axis to (X5, Y7, Z4.2)
 
- . a traverse parallel to the XY-plane to (9,12,4.8)
- . a feed parallel to the Z-axis to (9,12, 4.2)
- . a traverse parallel to the Z-axis to (9,12,4.8) 
+. a traverse parallel to the Z-axis to (X5, Y7, Z4.8) 
 
-The third repeat consists of 3 moves. The X position is reset to 13
-(=9+4) and the Y position to 17 (=12+5).
+The second repeat consists of 3 moves. The X position is reset to
+ 9 (=5+4) and the Y position to 12 (=7+5).
 
- . a traverse parallel to the XY-plane to (13,17,4.8) 
- . a feed parallel to the Z-axis to (13,17, 4.2) 
- . a traverse parallel to the Z-axis to (13,17,4.8) 
+. a traverse parallel to the XY-plane to (X9, Y12, Z4.8)
+
+. a feed parallel to the Z-axis to (X9, Y12, Z4.2)
+
+. a traverse parallel to the Z-axis to (X9, Y12, Z4.8) 
+
+The third repeat consists of 3 moves. The X position is reset to
+ 13 (=9+4) and the Y position to 17 (=12+5).
+
+. a traverse parallel to the XY-plane to (X13, Y17, Z4.8)
+
+. a feed parallel to the Z-axis to (X13, Y17, Z4.2)
+
+. a traverse parallel to the Z-axis to (X13, Y17, Z4.8)
+
+image::images/G81ex2.png[align="center"]
+
+.Example 3 - Relative Position G81
+
+Now suppose that you execute the first G81 block of code but from (X0,
+Y0, Z0) rather than from (X1, Y2, Z3).
+
+----
+G90 G98 G81 X4 Y5 Z1.5 R2.8
+----
+
+Since OLD_Z is below the R value, it adds
+nothing for the motion but since the initial value of Z is less than
+the value specified in R, there will be an initial Z move during the
+preliminary moves.
+
+image::images/G81.png[align="center"]
+
+.Example 4 - Absolute G81 R > Z
+
+This is a plot of the path of motion for the second g81 block of code.
+
+----
+G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
+----
+
+Since this plot starts with (X0, Y0, Z0), the interpreter adds the
+initial Z0 and R1.8 and rapids to that location. After that initial Z
+move, the repeat feature works the same as it did in example 3 with the
+final Z depth being 0.6 below the R value.
+
+image::images/G81a.png[align="center"]
+
+.Example 5 - Relative position R > Z
+
+----
+G90 G98 G81 X4 Y5 Z-0.6 R1.8
+----
+
+Since this plot starts with (X0, Y0, Z0), the interpreter adds the
+initial Z0 and R1.8 and rapids to that location as in 'Example 4'. 
+After that initial Z move, the rapid traverse move to X4 Y5 is done.
+Then the final Z depth being 0.6 below the R value. The repeat
+function would make the Z move in the same location again.
 
 == G82 Drilling Cycle with Dwell[[sec:G82-Drilling-Dwell]]
 
@@ -1595,6 +1780,10 @@ the hole.
  . Dwell for the P number of seconds.
  . Retract the Z-axis at traverse rate to clear Z.
 
+The motion of a G82 canned cycle looks just like G81 with the
+addition of a dwell at the bottom of the Z move. The length of
+the dwell is specified by a 'P-' word in the G82 block.
+
 == G83 Peck Drilling[[sec:G83-Drilling-Peck]]
 
 (((G83 Peck Drilling)))
@@ -1610,7 +1799,9 @@ of chips and cut off any long stringers (which are common when drilling
 in aluminum). This cycle takes a Q number which represents a 'delta'
 increment along the Z-axis. The retract before final depth will always 
 be to the 'retract' plane even if G98 is in effect. The final retract will
-honor the G98/99 in effect.
+honor the G98/99 in effect. G83 functions the same as G81 with the addition
+of retracts during the drilling operation.
+
 
  . Preliminary motion, as described above. 
  . Move the Z-axis only at the current feed rate downward by delta or to
@@ -1629,8 +1820,7 @@ It is an error if:
 (((G84 Right-Hand Tapping)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
-behavior is undefined. See sections 
-<<sec:G33-Spindle-Sync,G33>> and <<sec:G33.1-Rigid-Tapping,G33.1>>
+behavior is undefined. See section <<sec:G33.1-Rigid-Tapping,G33.1>>
 
 == G85 Boring, No Dwell, Feed Out[[sec:G85-Boring-Feed-Out]]
 
@@ -1665,8 +1855,7 @@ for the number of seconds to dwell.
  . Retract the Z-axis at traverse rate to clear Z.
  . Restart the spindle in the direction it was going. 
 
-The spindle must be turning before this cycle is used. It is an error
-if:
+It is an error if:
 
 * the spindle is not turning before this cycle is executed.
 
@@ -1700,27 +1889,29 @@ where P specifies the number of seconds to dwell.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-== G98, G99 Set Canned Cycle Return Level[[sec:G98-G99-Set]]
-
+== G98, G99 Canned Cycle Return Level[[sec:G98-G99-Set]]
 (((G98, G99 Canned Cycle Return)))
 
-G98 Retract to the position that axis was in just before this series
+* 'G98' - retract to the position that axis was in just before this series
 of one or more contiguous canned cycles was started.
 
-G99 Retract to the position specified by the R word of the canned cycle. 
+* 'G99' - retract to the position specified by the R word of the canned cycle. 
 
-When the spindle retracts during canned cycles, there
-are two options to indicate how it retracts: (1) Withdrawal perpendicular 
-to the current position to the position indicated by the R word, or (2) 
-Withdrawal perpendicular to the current position 
-to the position which was that of this axis just before the start of
-the canned cycle (unless the position is less than
-that indicated by the R word, in which case the latter will
-would be used).
+Program a 'G98' and the canned cycle will use the Z position prior to
+the canned cycle as the Z return position if it is higher than the R
+value specified in the cycle. If it is lower then the R value will be
+used. The R word has different meanings in absolute distance mode and
+incremental distance mode.
 
-To use (1), program 'G99'. To use (2), program 'G98'. 
-Remember that the R word has different meanings mode
-absolute displacement and incremental mode of travel.
+.G98 Retract to Origin
+----
+G0 X1 Y2 Z3
+G90 G98 G81 X4 Y5 Z-0.6 R1.8 F10
+----
+
+The G98 to the second line above means that the return move will be to
+the value of Z in the first line since it is higher that the R value
+specified.
 
 The 'initial' (G98) plane is reset any time cycle motion mode is
 abandoned, whether explicitly (G80) or implicitly (any motion code
@@ -1729,5 +1920,3 @@ to G83) does NOT reset the 'initial' plane. It is possible to switch
 between G98 and G99 during a series of cycles.
 
 // vim: set syntax=asciidoc:
-
-
