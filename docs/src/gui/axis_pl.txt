@@ -1,3 +1,6 @@
+//:lang: pl
+:toc:
+
 = AXIS
 
 == Introduction
@@ -35,36 +38,36 @@ The sample configuration
 
 The AXIS window contains the following elements:
 
- * A display area that shows one of the following:
-   ** a preview of the loaded file (in this case,
-     'axis.ngc'), as well as the current location of the CNC(((CNC)))
-     machine's 'controlled point'. Later, this area will display the path
-     the CNC machine has moved through, called the 'backplot'
-   ** a large readout showing the current position and all offsets.
- * A menu bar and toolbar that allow you to perform various actions
- * 'Manual Control Tab' (((Manual))), which allows you to make the
-   machine move, turn the spindle on or off, and turn the coolant on or
-   off if included in the ini file.
- * 'MDI Tab' (((MDI))), where G-code programs can be entered manually,
-   one line at a time. This also shows the 'Active G Codes' which shows
-   which modal G Codes are in effect.
- * 'Feed Override' (((feed override))), which allows you to scale
-   the speed of programmed motions. The default maximum is 120% 
-   and can be set to a different
-   value in the ini file. See the Integrator Manual for more information
-   on this setting.
- * 'Spindle Override' (((Spindle Override))), which allows you to
-   scale the spindle speed up or down.
- * 'Jog Speed' (((Jog Speed))), which allows you to set the jog speed
-   within the limits set in the ini file. See the Integrator Manual for
-   more information on the ini file.
- * 'Max Velocity', which allows you to restrict the maximum velocity of all
-   programmed motions (except spindle synchronized motion).
- * A text display area that shows the loaded G-Code.
- * A status bar which shows the state of the machine. In this screen
-   shot, the machine is turned on, does not have a tool inserted, and the
-   displayed position is 'Relative' (showing all offsets), and 'Actual'
-   (showing feedback position).
+* A display area that shows one of the following:
+ ** a preview of the loaded file (in this case,
+   'axis.ngc'), as well as the current location of the CNC(((CNC)))
+   machine's 'controlled point'. Later, this area will display the path
+   the CNC machine has moved through, called the 'backplot'
+ ** a large readout showing the current position and all offsets.
+* A menu bar and toolbar that allow you to perform various actions
+* 'Manual Control Tab' (((Manual))), which allows you to make the
+ machine move, turn the spindle on or off, and turn the coolant on or
+ off if included in the ini file.
+* 'MDI Tab' (((MDI))), where G-code programs can be entered manually,
+ one line at a time. This also shows the 'Active G Codes' which shows
+ which modal G Codes are in effect.
+* 'Feed Override' (((feed override))), which allows you to scale
+ the speed of programmed motions. The default maximum is 120% 
+ and can be set to a different
+ value in the ini file. See the Integrator Manual for more information
+ on this setting.
+* 'Spindle Override' (((Spindle Override))), which allows you to
+ scale the spindle speed up or down.
+* 'Jog Speed' (((Jog Speed))), which allows you to set the jog speed
+ within the limits set in the ini file. See the Integrator Manual for
+ more information on the ini file.
+* 'Max Velocity', which allows you to restrict the maximum velocity of all
+ programmed motions (except spindle synchronized motion).
+* A text display area that shows the loaded G-Code.
+* A status bar which shows the state of the machine. In this screen
+ shot, the machine is turned on, does not have a tool inserted, and the
+ displayed position is 'Relative' (showing all offsets), and 'Actual'
+ (showing feedback position).
 
 === Menu Items
 
@@ -74,133 +77,108 @@ Integrator Manual.
 
 ==== File Menu
 
-Open...::
-     Opens a standard dialog box to open a g code file to load in AXIS. If
+* 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
     you have configured EMC to use a filter program you can also open it
     up. See the Integrator manual for more information on filter programs.
 
-Recent Files::
-    Displays a list of recently opened files.
+* 'Recent Files' - Displays a list of recently opened files.
 
-Edit...::
-     Open the current g code file for editing if you have an editor
+* 'Edit...' - Open the current g code file for editing if you have an editor
     configured in your ini file. See the Integrator Manual for more
     information on specifying an editor to use.
 
-Reload::
-     reload the current g code file. If you edited it you must reload it
+* 'Reload' - Reload the current g code file. If you edited it you must reload it
     for the changes to take affect. If you stop a file and want to start
     from the beginning then reload the file. The toolbar reload is the same
     as the menu.
 
-Save gcode as...::
-    Save the current file with a new name.
+* 'Save gcode as...' - Save the current file with a new name.
 
-Properties::
-    The sum of the rapid and feed moves. Does not factor in 
+* 'Properties' - The sum of the rapid and feed moves. Does not factor in 
     acceleration, blending or path mode so time reported will never
     be less than the actual run time.
 
-Edit tool table...::
-     Same as Edit if you have defined an editor you can open the tool table
-    and edit it.
+* 'Edit tool table...' - Same as Edit if you have defined an editor
+   you can open the tool table and edit it.
 
-Reload tool table::
-    After editing the tool table you must reload it.
+* 'Reload tool table' - After editing the tool table you must reload it.
 
-Ladder editor::
-     If you have loaded Classic Ladder you can edit it from here. See the
-    Integrator Manual on setting up Classic Ladder
+* 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
+   here. See the Integrator Manual on setting up Classic Ladder
 
-Quit::
+* 'Quit' - 
     Terminates the current EMC session.
 
 ==== Machine Menu
 
-Toggle Emergency Stop F1::
-    
+* 'Toggle Emergency Stop F1' - Change the state of the Emergency Stop.
 
-Toggle Machine Power F2::
-    
+* 'Toggle Machine Power F2' - Change the state of the Machine Power if
+   the Emergency Stop is not on.
 
-Run Program::
-    
+* 'Run Program' - Run the currently loaded program.
 
-Run From Selected Line::
-     Select the line you want to start from first. Use with caution as this
-    will move the tool to the expected position before the line first then
-    it will execute the rest of the code.
+* 'Run From Selected Line' - Select the line you want to start from first.
+   Use with caution as this will move the tool to the expected position before
+   the line first then it will execute the rest of the code.
 
-Step::
-    Single step through a program.
+[WARNING]
+Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
-Pause::
-    Pause a program.
+* 'Step' - Single step through a program.
 
-Resume::
-    Resume running from a pause.
+* 'Pause' - Pause a program.
 
-Stop::
-    Stop a running program.
+* 'Resume' - Resume running from a pause.
 
-Stop at M1::
-     If an M1 is reached, and this is checked, program execution
+* 'Stop' - Stop a running program.
+
+* 'Stop at M1' - If an M1 is reached, and this is checked, program execution
     will stop on the M1 line. Press Resume to continue.
 
-Skip lines with "/"::
-    If a line begins with / and this is checked, the line will be skipped.
+* 'Skip lines with "/"' - If a line begins with '/' and this is checked, 
+   the line will be skipped.
 
-Clear MDI history::
-    Clears the MDI history window.
+* 'Clear MDI history' - Clears the MDI history window.
 
-Copy from MDI history::
-    Copies the MDI history to the clipboard
+* 'Copy from MDI history' - Copies the MDI history to the clipboard
 
-Paste to MDI history::
-    Paste from the clipboard to the MDI history window
+* 'Paste to MDI history' - Paste from the clipboard to the MDI history window
 
-Calibration::
-    Starts a PID tuning assistant, which is only useful on servo systems.
+* 'Calibration' - Starts a PID tuning assistant, which is mainly for servo systems.
+   Some things can be changed on a stepper system.
 
-Show HAL Configuration::
-     Opens the HAL Configuration window where you can monitor HAL
-    Components, Pins, Parameters, Signals, Functions, and Threads.
+* 'Show HAL Configuration' - Opens the HAL Configuration window where you can
+   monitor HAL Components, Pins, Parameters, Signals, Functions, and Threads.
 
-HAL Meter::
-     Opens a window where you can monitor a single HAL Pin, Signal, or
+* 'HAL Meter' - Opens a window where you can monitor a single HAL Pin, Signal, or
     Parameter.
 
-HAL Scope::
-     Opens a virtual oscilloscope that allows plotting HAL values vs. time.
+* 'HAL Scope' - Opens a virtual oscilloscope that allows plotting HAL values vs. time.
 
-Show EMC Status::
-    Opens a window showing EMC's status.
+* 'Show EMC Status' - Opens a window showing EMC's status.
 
-Set Debug Level::
-    Opens a window where debug levels can be viewed and some can be set.
+* 'Set Debug Level' - Opens a window where debug levels can be viewed and some can be set.
 
-Homing::
-    Home one or all axes.
+* 'Homing' - Home one or all axes.
 
-Unhoming::
-    Unhome one or all axes.
+* 'Unhoming' - Unhome one or all axes.
 
-Zero Coordinate System::
-    Clear (set to zero) a chosen offset.
+* 'Zero Coordinate System' - Clear (set to zero) a chosen offset.
 
-Tool touch off to workpiece::
-    When performing Touch Off, the value entered is relative to the current
-    workpiece ('G5x') coordinate system, as modified by the axis offset
-    ('G92').  When the Touch Off is complete, the Relative coordinate for
-    the chosen axis will become the value entered.  (See also 'G10 L10')
+* 'Tool touch off to workpiece' - When performing Touch Off, the value 
+   entered is relative to the current workpiece ('G5x') coordinate system,
+   as modified by the axis offset ('G92').  When the Touch Off is complete,
+   the Relative coordinate for the chosen axis will become the value entered.
+   (See also 'G10 L10')
 
-Tool touch off to fixture::
-    When performing Touch Off, the value entered is relative to the ninth
+* 'Tool touch off to fixture' - When performing Touch Off, the value entered
+   is relative to the ninth
     ('G59.3') coordinate system, with the axis offset ('G92') ignored.  This is
     useful when there is a tool touch-off fixture at a fixed location on the
     machine, with the ninth ('G59.3') coordinate system set such that the
     tip of a zero-length tool is at the fixture's origin when the Relative
-    coordinates are 0.  (See also 'G10 L11')
+    coordinates are 0.  See also <<G10-L11,G10 L11>>.
 
 ==== View Menu
 
@@ -222,26 +200,21 @@ Just remember that positive Z axis is (almost) always away from the part.
 So be familiar with your machine's design and interpret the display as needed.  
 *******************************************************************************
 
-Top View::
-    The Top View (or Z view) displays the gcode looking along the Z axis from 
+* 'Top View' - The Top View (or Z view) displays the gcode looking along the Z axis from 
     positive to negative. This view is best for looking at X & Y. 
 
-Rotated Top View::
-    The Rotated Top View (or rotated Z view) also displays the gcode looking 
+* 'Rotated Top View' - The Rotated Top View (or rotated Z view) also displays the gcode looking 
     along the Z axis from positive to negative. But sometimes it's convenient 
     to display the X & Y axes rotated 90 degrees to fit the display better. 
     This view is also best for looking at X & Y. 
 
-Side View::
-    The Side View (or X view) displays the gcode looking along the X axis from 
+* 'Side View' - The Side View (or X view) displays the gcode looking along the X axis from 
     positive to negative. This view is best for looking at Y & Z. 
 
-Front View::
-    The Front View (or Y view) displays the gcode looking along the Y axis from 
+* 'Front View' - The Front View (or Y view) displays the gcode looking along the Y axis from 
     negative to positive. This view is best for looking at X & Z. 
 
-Perspective View::
-    The Perpective View (or P view) displays the gcode looking at the part from 
+* 'Perspective View' - The Perpective View (or P view) displays the gcode looking at the part from 
     an adjustable point of view, defaulting to X+, Y-, Z+. The position is 
     adjustable using the mouse and the drag/rotate selector. This view is a 
     compromise view, and while it does do a good job of trying to show three 
@@ -249,131 +222,113 @@ Perspective View::
     feature that is hard to see, requiring a change in viewpoint. This view 
     is best when you would like to see all three (to nine) axes at once. 
 
-Display Inches::
-    Set the AXIS display scaling for inches. 
+* 'Display Inches' - Set the AXIS display scaling for inches. 
 
-Display MM::
-    Set the AXIS display scaling for millimeters. 
+* 'Display MM' - Set the AXIS display scaling for millimeters. 
 
-Show Program::
-    The preview display of the loaded gcode program can be entirely 
+* 'Show Program' - The preview display of the loaded gcode program can be entirely 
     disabled if desired. 
 
-Show Program Rapids::
-    The preview display of the loaded gcode program will always show the 
+* 'Show Program Rapids' - The preview display of the loaded gcode program will always show the 
     feedrate moves (G1,G2,G3) in white. But the display of rapid moves (G0) 
     in cyan can be disabled if desired. 
 
-Alpha-blend Program::
-    This option makes the preview of complex programs easier to see, but 
+* 'Alpha-blend Program' - This option makes the preview of complex programs easier to see, but 
     may cause the preview to display more slowly.
 
-Show Live Plot::
-    The highlighting of the feedrate paths (G1,G2,G3) as the tool moves 
+* 'Show Live Plot' - The highlighting of the feedrate paths (G1,G2,G3) as the tool moves 
     can be disabled if desired. 
 
-Show Tool::
-    The display of the tool cone/cylinder can be disabled if desired. 
+* 'Show Tool' - The display of the tool cone/cylinder can be disabled if desired. 
 
-Show Extents::
-    The display of the extents (maximum travel in each axis direction) 
+* 'Show Extents' - The display of the extents (maximum travel in each axis direction) 
     of the loaded gcode program can be disabled if desired. 
 
-Show Offsets::
-    The selected fixture offset (G54-G59.3) origin location can be shown 
+* 'Show Offsets' - The selected fixture offset (G54-G59.3) origin location can be shown 
     as a set of three orthogonal lines, one each of red, blue, and green. 
     This offset origin (or fixture zero) display can be disabled if desired. 
 
-Show Machine Limits::
-    The machine's maximum travel limits for each axis, as set in the ini 
+* 'Show Machine Limits' - The machine's maximum travel limits for each axis, as set in the ini 
     file, are shown as a rectangular box drawn in red dashed lines. This 
     is useful when loading a new gcode program, or when checking for how 
     much fixture offset would be needed to bring the gcode program within 
     the travel limits of your machine. It can be shut off if not needed. 
 
-Show Velocity::
-    A display of velocity is sometimes useful to see how close your 
+* 'Show Velocity' - A display of velocity is sometimes useful to see how close your 
     machine is running to its design velocities. It can be disabled 
     if desired.  
 
-Show Distance to Go::
-    Distance to go is a very handy item to know when running an unknown 
+* 'Show Distance to Go' - Distance to go is a very handy item to know when running an unknown 
     gcode program for the first time. In combination with the rapid 
     override and feedrate override controls, unwanted tool 
     and machine damage can be avoided. Once the gcode program has 
     been debugged and is running smoothly, the Distance to Go display 
     can be disabled if desired. 
 
-Clear Live Plot::
-    As the tool travels in the Axis display, the gcode path is highlighted. 
+* 'Clear Live Plot' - As the tool travels in the Axis display, the gcode path is highlighted. 
     To repeat the program, or to better see an area of interest, the 
     previously highlighted paths can be cleared.     
 
-Show Commanded Position::
-    This is the position that EMC will try to go to. Once motion 
+Show Commanded Position' - This is the position that EMC will try to go to. Once motion 
     has stopped, this is the position EMC will try to hold. 
 
-Show Actual Position::
-    Actual Position is the measured position as read back from the 
+* 'Show Actual Position' - Actual Position is the measured position as read back from the 
     system's encoders or simulated by step generators. This may differ 
     slightly from the Commanded Position for many reasons including PID 
     tuning, physical constraints, or position quantization.
 
-Show Machine Position::
-    This is the position in unoffset coordinates, as established by Homing.
+* 'Show Machine Position' - This is the position in unoffset coordinates, as established by Homing.
     
-Show Relative Position::
-    This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
+* 'Show Relative Position' - This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
     
 ==== Help Menu
 
-About Axis::
+* 'About Axis' - We all know what this is.
     
 
-Quick Reference::
-    Shows the keyboard shortcut keys.
+* 'Quick Reference' - Shows the keyboard shortcut keys.
 
 === Toolbar buttons
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
- . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
+* image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
 
- . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
+* image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
 
- . image:images/tool_open.gif[] Open G Code file [O]
+* image:images/tool_open.gif[] Open G Code file [O]
 
- . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
+* image:images/tool_reload.gif[] Reload current file [Ctrl-R]
 
- . image:images/tool_run.gif[] Begin executing the current file [R]
+* image:images/tool_run.gif[] Begin executing the current file [R]
 
- . image:images/tool_step.gif[] Execute next line [T]
+* image:images/tool_step.gif[] Execute next line [T]
 
- . image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
+* image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
 
- . image:images/tool_stop.gif[] Stop Program Execution [ESC]
+* image:images/tool_stop.gif[] Stop Program Execution [ESC]
 
- . image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
+* image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
 
- . image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
+* image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
 
- . image:images/tool_zoomin.gif[] Zoom In
+* image:images/tool_zoomin.gif[] Zoom In
 
- . image:images/tool_zoomout.gif[] Zoom Out
+* image:images/tool_zoomout.gif[] Zoom Out
 
- . image:images/tool_axis_z.gif[] Top view
+* image:images/tool_axis_z.gif[] Top view
 
- . image:images/tool_axis_z2.gif[] Rotated Top view
+* image:images/tool_axis_z2.gif[] Rotated Top view
 
- . image:images/tool_axis_x.gif[] Side view
+* image:images/tool_axis_x.gif[] Side view
 
- . image:images/tool_axis_y.gif[] Front view
+* image:images/tool_axis_y.gif[] Front view
 
- . image:images/tool_axis_p.gif[] Perspective view
+* image:images/tool_axis_p.gif[] Perspective view
 
- . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
+* image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
 
- . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+* image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
 
 
 === Graphical Display Area
@@ -439,7 +394,7 @@ In the middle, the difference between the coordinates is shown.
 
 When some coordinates exceed the 'soft limits' in the .ini file, 
 the relevant dimension is shown in a different color and enclosed by a box.
-In Figure (<<cap:Soft-Limit>>) the maximum soft limit is exceeded on
+In figure below the maximum soft limit is exceeded on
 the X axis as indicated by the box surrounding the coordinate value.
 The minimum X travel of the program is -1.95, 
 the maximum X travel is 1.88, 
@@ -624,15 +579,12 @@ running, the MDI controls are unavailable.
 
 image::images/axis-mdi.png[scaledwidth="40%"]
 
-History:::
-    This shows MDI commands that have been typed earlier in this session.
+* 'History' - This shows MDI commands that have been typed earlier in this session.
 
-MDI Command:::
-    This allows you to enter a g-code command to be executed. Execute the
+* 'MDI Command' - This allows you to enter a g-code command to be executed. Execute the
     command by pressing Enter or by clicking 'Go'.
 
-Active G-Codes:::
-    This shows the 'modal codes' that are active in the interpreter. For
+* 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
     instance, 'G54' indicates that the 'G54 offset' is applied to all
     coordinates that are entered. When in Auto the Active G-Codes represent
     the codes after any read ahead by the interpreter.
@@ -689,12 +641,11 @@ axis 2. The remainder of the number keys will still set the Feed
 Override. When running a program '1234567890 will set the Feed Override
 to 0% - 100%.
 
-The most frequently used keyboard shortcuts are shown in Table 
-<<cap:Most-Common-Keyboard>>.
+The most frequently used keyboard shortcuts are shown in the following Table 
 
 .Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
 
-[width="100%", options="header"]
+[width="80%", options="header", cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode
 |F1               | Toggle Emergency Stop                     | All
@@ -777,7 +728,7 @@ file ('--reload'), and making AXIS exit ('--quit').
 (((Manual Tool Change)))
 
 EMC2 includes a userspace HAL component called 'hal_manualtoolchange',
-which shows a window (Figure <<cap:The-Manual-Toolchange>>) when a
+which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
 

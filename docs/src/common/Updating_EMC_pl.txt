@@ -24,21 +24,21 @@ lines for linuxcnc.org.
 
 For each of them:
 
- - Select the line and click Edit
- - On the Components line, change emc2.3 to emc2.4
- - Click OK 
- - Close the "Software Preferences" window
- - Click "Reload" as instructed
- - Click "Mark All Upgrades"
+* Select the line and click Edit
+* On the Components line, change emc2.3 to emc2.4
+* Click OK 
+* Close the 'Software Preferences' window
+* Click 'Reload' as instructed
+* Click 'Mark All Upgrades'
    
 .Mesa card and hostmot2 users:
 **********
 If you use a mesa card, find the proper hostmot2-firmware package 
 for your card and mark it for installation. Hint: do a search for 
-"hostmot2-firmware in the synaptic package manager.
+'hostmot2-firmware' in the synaptic package manager.
 **********
 
- - Click "Apply" 
+* Click 'Apply' 
 
 == Changes between 2.3.x and 2.4.x
 

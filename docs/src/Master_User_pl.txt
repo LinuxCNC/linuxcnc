@@ -38,23 +38,29 @@ include::gui/keystick_pl.txt[]
 = Using EMC
 :leveloffset: 1
 
-include::common/machining_center_pl.txt[]
-
-include::gcode/overview_pl.txt[]
+include::gcode/machining_center_pl.txt[]
 
 include::gcode/coordinates_pl.txt[]
 
 include::gcode/tool_compensation_pl.txt[]
 
+include::gcode/overview_pl.txt[]
+
 include::gcode/gcode_pl.txt[]
 
+include::gcode/m-code_pl.txt[]
+
+include::gcode/o-code_pl.txt[]
+
+include::gcode/other-code_pl.txt[]
+
 include::gcode/mill_canned_pl.txt[]
+
+include::examples/gcode_pl.txt[]
 
 include::lathe/lathe-user_pl.txt[]
 
 include::gcode/rs274ngc_pl.txt[]
-
-include::examples/gcode_pl.txt[]
 
 include::gui/image-to-gcode_pl.txt[]
 

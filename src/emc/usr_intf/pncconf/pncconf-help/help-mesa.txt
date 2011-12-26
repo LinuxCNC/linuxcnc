@@ -40,16 +40,19 @@ Connector Tabs:
     firmware / component number selected on the setup page.
     The tabs will display the signal names and the component
     types.
-    There are six pintypes depending on the components 
+    There are different pintypes depending on the components 
     available in the selected firmware:
 
      GPIO - general purpose input / output
-
-        You can select the type in the pintype combobox
+        This is for general digital control.
+        If selecting mainboard GPIO, you can select the type 
+        in the pintype combobox
         This includes GPIOI - input, GPIOO - output, and 
         GPIOD - open drain output
         The available signals will change if you switch between 
         GPIOI and GPIOO/GPIOD.
+        Sserial daugher boards GPIO type is not selectable.
+        In general, mainboard GPIO is updated faster then sserial GPIO.
 
      ENCODER - a hardware base quadrature counter
 
@@ -72,7 +75,8 @@ Connector Tabs:
         Mux encoders allows two encoders per set of pins by using
         a select pin to choose a second set of encoders. This
         component is used with firmware that requires a special
-        daughter board from Mesa.
+        daughter board from Mesa. Remember when connecting encoders
+        you must use the pinout for the daugher board.
 
      RESOLVER - a resolver encoder counter
         used with MESA 7i49 daughter board with special firmware
@@ -103,6 +107,21 @@ Connector Tabs:
         only step and direction stepgens are supported
         You select the STEP signal and the direction and enable
         signals are automatically setup
+    
+     POTENTIOMETER - A digital potentiometer used primaraly to control
+        a spindle found with sserial card combo 5i25/7i76
+
+     SSERIAL - smartserial daughter boards comunication stream.
+        allows connection to many daughter boards.
+        Currently PNCconf recognizes:
+        7i64 I/O board
+        7i69 I/O board
+        7i70 I/O board
+        7i71 I/O board
+        7i76 I/O board works only with the 5i25 main board
+        8i20 amplifier ( untested )
+        EMC supports 4 ports of 8 channels each of sserial
+        PNCconf only configures 4 channels of port 0 (so max 4 sserial boards)  
 
     You could change these options in a custom HAL file
     If you wish to connect a component to something in a 
@@ -143,7 +162,7 @@ Signal selection:
     signal as well (except for a spindle)
     A dialog will pop up letting you know of these detected errors.
     PNCconf will not catch the error of setting two components 
-    the same (If fact for GPIO outputs this is fine anyways)
+    the same (If fact for GPIOO outputs this is fine anyways)
  
 
 

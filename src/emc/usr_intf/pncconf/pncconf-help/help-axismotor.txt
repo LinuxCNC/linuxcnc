@@ -1,6 +1,8 @@
 Axis Motor Configuration Page:
     Depending on previous page selections, not all of
     these options will show.
+    If required info such as stepper/encoder scale, the 'next' button
+    will not allow continuation. Eg. scale must be larger then 1
 
 Servo Info:
     This is for setting up the servo control loop.
@@ -45,7 +47,10 @@ Brushless Control:
     Select this to use and configure the BLDC component.
     The BLDC component can be used to control brushless motors
     directly and for HALL sensor conversions. See the MAN pages.
-    PNCconf does not finish the HAL connections for BLDC control.
+    For HALL conversion one must select the HALL/GRAY signals
+    in the GPIO components
+    PNCconf openloop testing currently does not support BLDC.
+    PNCconf does not finish the HAL connections for full BLDC control.
     I have nothing to test with - so you'll have to tinker with it.
     Please send suggestions to EMC mail list or forum.
 

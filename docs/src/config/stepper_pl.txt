@@ -1,4 +1,7 @@
-= Basic Configuration
+//:lang: pl
+:toc:
+
+= Stepper Configuration[[stepper-config]]
 
 == Introduction[[sec:Introduction]]
 
@@ -20,7 +23,7 @@ configured properly so the motors don't stall or lose steps.
 
 Most of this chapter is based on the sample config released along with
 EMC2. The config is called stepper(((stepper))), and usually it is
-found in `/etc/emc2/sample-configs/stepper`.
+found in '/etc/emc2/sample-configs/stepper'.
 
 == Maximum step rate[[sec:Maximum-step-rate]](((step rate)))
 
@@ -56,11 +59,14 @@ HAL.
 As it is described in the HAL Introduction and tutorial, we have
 signals, pins and parameters inside the HAL.
 
-The ones relevant for our pinout are: footnote:[Note: we are only
-presenting one axis to keep it short, all others are similar.]
+NOTE: We are presenting one axis to keep it short, all others are similar.
 
-    signals: Xstep, Xdir & Xen
-    pins: parport.0.pin-XX-out & parport.0.pin-XX-in
+The ones relevant for our pinout are:
+
+----
+signals: Xstep, Xdir & Xen
+pins: parport.0.pin-XX-out & parport.0.pin-XX-in
+----
 
 Depending on what you have chosen in your .ini file you are using
 either standard_pinout.hal or xylotex_pinout.hal. These are two files
@@ -71,7 +77,7 @@ on we'll investigate the standard_pinout.hal.
 
 This file contains several HAL commands, and usually looks like this:
 
-----------------------------------------
+----
 # standard pinout config file for 3-axis steppers
 # using a parport for I/O
 #
@@ -150,25 +156,25 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 
 # net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
 
-----------------------------------------
+----
 
 The lines starting with '#' are comments, and their only purpose is to
 guide the reader through the file.
 
-=== Overview of the standard_pinout.hal[[sub:Overview-standard_pinout.hal]]
+=== Overview[[sub:Overview-standard_pinout.hal]]
 
 There are a couple of operations that get executed when the
-standard_pinout.hal gets executed / interpreted:
+standard_pinout.hal gets executed/interpreted:
 
- . The Parport driver gets loaded (see the Parport section of 
+* The Parport driver gets loaded (see the Parport section of 
    the HAL Manual for details)
- . The read & write functions of the parport driver get assigned to the
+* The read & write functions of the parport driver get assigned to the
    base thread footnote:[the fastest thread in the EMC2 setup, usually the
    code gets executed every few tens of microseconds]
- . The step & direction signals for axes X,Y,Z get linked to pins on the
+* The step & direction signals for axes X,Y,Z get linked to pins on the
    parport
- . Further I/O signals get connected (estop loopback, toolchanger loopback)
- . A spindle-on signal gets defined and linked to a parport pin
+* Further I/O signals get connected (estop loopback, toolchanger loopback)
+* A spindle-on signal gets defined and linked to a parport pin
 
 === Changing the standard_pinout.hal[[sub:Changing-standard_pinout.hal]]
 
@@ -179,44 +185,52 @@ If you want for example to change the pin for the X-axis Step &
 Directions signals, all you need to do is to change the number in the
 'parport.0.pin-XX-out' name:
 
-    net Xstep parport.0.pin-03-out 
-    net Xdir  parport.0.pin-02-out
+----
+net Xstep parport.0.pin-03-out 
+net Xdir  parport.0.pin-02-out
+----
 
 can be changed to:
 
-    net Xstep parport.0.pin-02-out 
-    net Xdir  parport.0.pin-03-out
+----
+net Xstep parport.0.pin-02-out 
+net Xdir  parport.0.pin-03-out
+----
 
-or basically any other numbers you like.
+or basically any other 'out' pin you like.
 
 Hint: make sure you don't have more than one signal connected to the
 same pin.
 
-=== Changing the polarity of a signal[[sub:Changing-the-polarity]](((signal polarity)))
+=== Changing polarity of a signal[[sub:Changing-the-polarity]](((signal polarity)))
 
 If external hardware expects an “active low” signal, set the
-corresponding `-invert` parameter. For instance, to invert the spindle
+corresponding '-invert' parameter. For instance, to invert the spindle
 control signal:
 
-    setp parport.0.pin-09-invert TRUE
+----
+setp parport.0.pin-09-invert TRUE
+----
 
 === Adding PWM Spindle Speed Control[[sub:PWM-Spindle-Speed]](((spindle speed control)))
 
-If your spindle can be controlled by a PWM signal, use the `pwmgen`
+If your spindle can be controlled by a PWM signal, use the 'pwmgen'
 component to create the signal:
 
-    loadrt pwmgen output_type=0
-    addf pwmgen.update servo-thread
-    addf pwmgen.make-pulses base-thread
-    net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-    net spindle-on motion.spindle-on => pwmgen.0.enable
-    net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-    setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
+----
+loadrt pwmgen output_type=0
+addf pwmgen.update servo-thread
+addf pwmgen.make-pulses base-thread
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
+setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
+----
 
 This assumes that the spindle controller's response to PWM is simple:
 0% PWM gives 0 RPM, 10% PWM gives 180 RPM, etc. If there is a minimum
 PWM required to get the spindle to turn, follow the example in the
-'nist-lathe' sample configuration to use a `scale` component.
+'nist-lathe' sample configuration to use a 'scale' component.
 
 === Adding an enable signal[[sub:Adding-enable-signal]](((enable signal)))
 
@@ -226,7 +240,9 @@ defined signals called 'Xen', 'Yen', 'Zen'.
 
 To connect them use the following example:
 
-    net Xen parport.0.pin-08-out
+----
+net Xen parport.0.pin-08-out
+----
 
 You can either have one single pin that enables all drives; or
 several, depending on the setup you have. Note, however, that usually
@@ -234,20 +250,24 @@ when one axis faults, all the other drives will be disabled as well, so
 having only one enable signal / pin for all drives is a common
 practice.
 
-=== Adding an external ESTOP button(((ESTOP)))
+=== External ESTOP button(((ESTOP)))
 
-As you can see in <<sub:standard_pinout.hal>> by default the stepper
-configuration assumes no external ESTOP button. footnote:[An extensive
-explanation of hooking up ESTOP circuitry is explained in
-the wiki.linuxcnc.org and elsewhere in the Integrator Manual]
+As you can see in the <<sub:standard_pinout.hal,standard_pinout.hal>> file 
+by default the stepper configuration assumes no external ESTOP button.
+footnote:[An extensive explanation of hooking up ESTOP circuitry is explained
+in the wiki.linuxcnc.org and elsewhere in the Integrator Manual]
 
 To add a simple external button you need to replace the line:
 
-    net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+----
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+----
 
 with
 
-    net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
+----
+net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
+----
 
 This assumes an ESTOP switch connected to pin 01 on the parport. As
 long as the switch will stay pushedfootnote:[make sure you use a

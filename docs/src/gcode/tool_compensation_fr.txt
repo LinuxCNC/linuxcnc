@@ -38,14 +38,17 @@ table d'outils:
   (Ce sera juste une brève présentation, se reporter au guide de références du G-code
 pour des explications plus détaillées)
 
-G10 L1  P(N° d'outil.) - Fixe les offsets de l'outil. La position courante n'est 
-pas significative. voir <<sec:G10-L1>> pour plus de détails(((G10 L1)))
+G10 L1  Pn  - (n est le N° d'outil) Fixe les offsets de l'outil. La position 
+courante n'est pas significative. Voir ce lien <<sec:G10-L1, pour plus de 
+détails>> (((G10 L1)))
 
-G10 L10 P(N° d'outil.) - Fixe l'offset à la position courante, met les valeurs dans 
-un système de 1 à 8. voir <<sec:G10-L10>> pour plus de détails(((G10 L10)))
+G10 L10 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met 
+les valeurs dans un système de 1 à 8. Voir ce lien <<sec:G10-L10, pour plus de 
+détails>>(((G10 L10)))
 
-G10 L11 P(N° d'outil.) - Fixe l'offset à la position courante, met les valeurs dans
-le système 9. voir <<sec:G10-L11>> pour plus de détails(((G10 L11)))
+G10 L11 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met 
+les valeurs dans le système 9. Voir ce lien <<sec:G10-L11, pour plus de 
+détails>>(((G10 L11)))
 
 [[sec:Table-Outils]]
 == Table d'outils 
@@ -122,12 +125,12 @@ La signification des valeurs et le type de données qu'elles contiennent sont le
 suivantes:
 
 .Numéro d'outil (requis)
-La colonne “T” contient un nombre entier non signé, qui représente
+La colonne *T* contient un nombre entier non signé, qui représente
 le code de l'outil. L'opérateur peut utiliser n'importe quel code pour
 n'importe quel outil, tant que les codes sont des entiers non signés. 
 
 .Numéro de poche (requis)
-La colonne “P” contient un nombre entier non signé, qui représente
+La colonne *P* contient un nombre entier non signé, qui représente
 le numéro de poche (numéro de slot) du changeur d'outils, poche dans laquelle
 l'outil se trouve. Les entrées de cette colonne doivent être toutes différentes. 
 Le numéro de poche commence typiquement à 1 et va au maximum de poches disponibles 
@@ -234,8 +237,7 @@ la machine jusqu'à ce qu'un mouvement en Z soit programmé.
 
 Programme de test de longueur d'outil.
 
-Tool #1 is 1 inch long.
-
+L'outil #1 fait un pouce de long.
 ----
 N01 G1 F15 X0 Y0 Z0 
 N02 G43 H1 Z0 X1 
@@ -254,6 +256,90 @@ mot G43.
 
 [[sec:Compensation-rayon-d-outil]]
 == Compensation de rayon d'outil
+
+La compensation de rayon d'outil permet de un parcours d'outil sans se
+préoccuper du diamètre de l'outil. La seule restriction, c'est que les
+*mouvements d'entrée* doivent être *au moins aussi long* que le *rayon de
+l'outil* utilisé.
+
+Il y a deux parcours que l'outil peut prendre pour usiner un profil 
+quand la compensation de rayon est activée, un parcours à gauche du profil 
+et un à droite du profil. Pour les visualiser, il faut s'imaginer être 
+debout sur la pièce, marchant en suivant l'outil pendant que celui-ci 
+progresse dans la matière. G41 fait passer l'outil à gauche du profil et
+G42 le fait passer à droite du profil.
+
+Le point final de chaque mouvement, dépends du mouvement suivant.
+Si le mouvement suivant crée un angle extérieur, le mouvement se terminera
+à l'extrémité de la ligne de coupe compensée. Si le mouvement suivant crée
+un angle intérieur, l'outil s'arrêtera avant d'interférer avec la matière de
+la pièce. La figure suivante montre comment le mouvement se termine à 
+différents endroits, dépendants du mouvement suivant.
+
+.Point final de la compensation[[cap:Compensation-End-Point]]
+
+image::images/comp-path.png[]
+
+=== Vue générale
+
+==== Table d'outils
+
+La compensation de rayon d'outil utilise les données de la table d'outils
+pour déterminer le décalage nécessaire. Les données peuvent être introduites
+à la volée, avec G10 L1.
+
+==== Programmation des mouvements d'entrée
+
+Tout mouvement suffisamment long pour arriver en position compensée, sera un 
+mouvement d'entrée valide. La longueur minimale équivaut au rayon de l'outil.
+Ça peut être un mouvement en vitesse rapide au dessus de la pièce. Si
+plusieurs mouvements en vitesse rapide sont prévus après un G41/G42, seul le
+dernier placera l'outil en position compensée.
+
+Dans la figure suivante, on voit que le mouvement d'entrée est compensé
+à droite du profil. Ce qui aura pour effet, lors du mouvement d'entrée, de 
+déplacer le centre de l'outil, d'un rayon d'outil à droite de X0. Dans ce cas, 
+le mouvement d'entrée laissera un petit plot de matière en raison du décalage de compensation et de l'arrondi de l'outil.
+
+.Mouvement d'entrée[[cap:Entry-Move]]
+
+image::images/comp02.png[]
+
+==== Mouvement en Z
+
+Un mouvement en Z est possible pendant que le contour est suivi dans le plan 
+XY. Des portions du contour peuvent être sautées en rétractant l'axe Z au dessus
+du bloc et en amenant Z au dessus du prochain point de départ.
+
+==== Mouvement en vitesse rapide
+
+Des mouvements en vitesse rapide peuvent être programmé avec les compensations
+d'outil actives.
+
+==== Bonne pratique
+
+ - Débuter tout programme avec un G40 pour être sûr que la compensation est 
+désactivée.
+
+=== Exemples de profils
+
+==== Profil extérieur
+
+.Profil extérieur[[cap:Outside-Profile]]
+
+image::images/outside-comp.png[]
+
+==== Profil intérieur
+
+.Profil intérieur[[cap:Inside-Profile]]
+
+image::images/inside-comp.png[]
+
+
+== Deux exposés sur les compensations d'outil
+
+Ces deux exposés ont été écrits par des experts de la CNC, nous pensons 
+que leur lecture sera très utile. 
 
 By Jon Elson
 
@@ -381,7 +467,6 @@ Voici un programme NC qui usine le matériau en suivant le profil d'un
 des triangles de la figure précédente. Dans cet exemple, la
 compensation de rayon est celle du rayon actuel de l'outil, soit 0.5”.
 La valeur pour le diamètre dans la table d'outil est de 1.0” .
-
 ----
 N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)
 N0020 Y-1 (suit la face droite du triangle)
@@ -430,7 +515,6 @@ de 0.97 et le diamètre utilisé en générant le parcours d'outil a été de
 1.0 . Alors la valeur de diamètre dans la table d'outils pour cet outil
 est de -0.03. Voici un programme G-code qui va usiner l'extérieur d'un
 triangle de la figure 7.
-
 ----
 N0010 G1 X1 Y4.5 (mouvement d'alignement)
 N0020 G41 G1 Y3.5 (active la compensation et premier mouvement d'entrée)
@@ -587,7 +671,6 @@ La méthode générale de programmation comprend un mouvement
 d'alignement et deux mouvements d'entrée. Les mouvements d'entrée
 expliqués ci-dessus, seront repris comme exemple. Voici le code
 correspondant:
-
 ----
 N0010 G1 X1 Y4.5 (mouvement d'alignement vers le point C) 
 N0020 G41 G1 Y3.5 (active la compensation et fait le premier mouvement d'entrée vers le point B) 
@@ -644,7 +727,6 @@ position courante du centre de l'outil. Comme il est du même côté de la
 ligne FD prolongée que le triangle gris du matériau, aucun mouvement
 supplémentaire n'est nécessaire. Maintenant écrire la ligne de code NC
 qui active la compensation et faire le mouvement vers le point D
-
 ----
 N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)
 ----
@@ -734,7 +816,6 @@ arcs convexes et concaves et plusieurs lignes droites. La plupart de
 ces commandes ont été tracées depuis Bobcad/CAM, mais les lignes N15 et
 N110 ont été ajoutées par moi et certaines coordonnées dans ce contour
 ont été bricolées un peu par moi.
-
 ----
 N10 G01 G40 X-1.3531 Y3.4
 N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée)

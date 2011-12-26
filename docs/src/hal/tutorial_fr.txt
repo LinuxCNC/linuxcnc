@@ -1,8 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Tutoriel-HAL]]
-= Le tutoriel de HAL
+= Le tutoriel de HAL[[cha:Tutoriel-HAL]]
 
 (((Tutoriel de HAL)))
 

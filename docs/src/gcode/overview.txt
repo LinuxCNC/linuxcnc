@@ -6,8 +6,7 @@
 //[source,{hal}]
 //[source,{ngc}]
 
-[[cha:Language-Overview]]
-= G Code Overview
+= G Code Overview[[cha:Language-Overview]]
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -50,10 +49,10 @@ A permissible line of input code consists of the following, in order,
 with the restriction that there is a maximum (currently 256) to the
 number of characters allowed on a line.
 
- . an optional block delete character, which is a slash '/' . 
- . an optional line number.
- . any number of words, parameter settings, and comments.
- . an end of line marker (carriage return or line feed or both). 
+* an optional block delete character, which is a slash '/'. 
+* an optional line number.
+* any number of words, parameter settings, and comments.
+* an end of line marker (carriage return or line feed or both). 
 
 Any input not explicitly allowed is illegal and will cause the
 Interpreter to signal an error.
@@ -93,7 +92,7 @@ valid on a machine which does not have the corresponding axis.
 
 .Words and their meanings[[cap:Words-and-their]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^1,<5"]
 |========================================
 |Letter | Meaning
 |A | A axis of machine
@@ -105,13 +104,13 @@ valid on a machine which does not have the corresponding axis.
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
-|K | Z offset for arcs and G87 canned cycles.
-|  | Spindle-Motion Ratio for G33 synchronized movements.
+.2+|K | Z offset for arcs and G87 canned cycles.
+<| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
 |M | Miscellaneous function (See table  <<cap:Modal-Groups,Modal Groups>>)
 |N | Line number
-|P | Dwell time in canned cycles and with G4.
-|  | Key used with G10.
+.2+|P | Dwell time in canned cycles and with G4.
+<| Key used with G10.
 |Q | Feed increment in G73, G83 canned cycles
 |R | Arc radius or canned cycle plane
 |S | Spindle speed
@@ -130,16 +129,16 @@ valid on a machine which does not have the corresponding axis.
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
- - A number consists of (1) an optional plus or minus sign, followed by
+* A number consists of (1) an optional plus or minus sign, followed by
    (2) zero to many digits, followed, possibly, by (3) one decimal point,
    followed by (4) zero to many digits - provided that there is at least
    one digit somewhere in the number.
- - There are two kinds of numbers: integers and decimals. An integer does
+* There are two kinds of numbers: integers and decimals. An integer does
    not have a decimal point in it; a decimal does.
- - Numbers may have any number of digits, subject to the limitation on
+* Numbers may have any number of digits, subject to the limitation on
    line length. Only about seventeen significant figures will be retained,
    however (enough for all known applications).
- - A non-zero number with no sign as the first character is assumed to be
+* A non-zero number with no sign as the first character is assumed to be
    positive.
 
 Notice that initial (before the decimal point and the first non-zero
@@ -156,7 +155,7 @@ example), M codes, and G codes multiplied by ten. A decimal number
 which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
-== [[sec:Parameters]]Parameters: Variables in G-code programs
+== Parameters (Variables)[[parameters]](((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
@@ -212,11 +211,11 @@ global and local parameters except predefined parameters. These are
 available for general-purpose storage of floating-point values, like
 intermediate results, flags etc, throughout program execution.  They
 are read/write (can be assigned a value).
- . <<sub:Subroutine-Parameters,subroutine parameters>>:: these are used to hold the actual parameters 
+ . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters 
 passed to a subroutine. 
- . persistent numbered parameters:: most of these are used to access offsets of
+ . persistent numbered parameters - most of these are used to access offsets of
 coordinate systems - see below.
- . <<sec:Predefined-Named-Parameters,predefined named parameters>>:: used to determine interpreter and
+ . <<sec:Predefined-Named-Parameters,predefined named parameters>> - used to determine interpreter and
 machine state, for instance `#<_relative>` returns 1 if G91 is on, and
 0 if G90 is set. They are read-only.
 
@@ -241,7 +240,6 @@ be 6.
 
 The `#`  character takes precedence over other operations, so that, for
  example, "`#1+2`" means the number found by adding 2 to the value of
-parameter 1, not 
  the value found in parameter 3. Of course, '#[1+2]' does mean the
 value found in parameter 3. The '#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
@@ -345,7 +343,7 @@ example '##2'  means the value of the parameter whose index is the
 
 
 [[sub:Named-Parameters]]
-== Named Parameters
+=== Named Parameters
 
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
@@ -367,17 +365,23 @@ numeric parameters. They are not stored in files.
 
 Examples:
 
- - Declaration of named global variable
+* Declaration of named global variable
 
-    #<_endmill_dia> = 0.049 
+----
+#<_endmill_dia> = 0.049 
+----
 
- - Reference to previously declared global variable
+* Reference to previously declared global variable
 
-    #<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
+#<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
 
- - Mixed literal and named parameters
+* Mixed literal and named parameters
 
-    ` o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]`
+----
+o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+----
 
 Named parameters spring into existence when they are assigned a value
 for the first time. Local named parameters vanish when their scope is
@@ -402,16 +406,14 @@ access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
 program with if-then-else statements.
 
-#<_vmajor>::
-    Major package version. If current version was 2.6.2 it would return 2.6.
+* `#<_vmajor>` - Major package version. If current version was 2.5.2 would return 2.5.
 
-#<_vminor>::
-    Minor package version. If current version was 2.6.2 it would return 0.2.
+* `#<_vminor>` - Minor package version. If current version was 2.6.2 it would return 0.2.
 
-#<_line>::
+* `#<_line>` -
     Sequence number. If running a G-Code file, this returns the current line number.
 
-#<_motion_mode>::
+* `#<_motion_mode>` -
     Return the interpreter's current motion mode:
 [width="20%",options="header"]
 |========================================
@@ -438,7 +440,7 @@ program with if-then-else statements.
 |G88| 880
 |G89| 890
 |========================================
-#<_plane>::
+* `#<_plane>` -
     returns the value designating the current plane:
 [width="20%",options="header"]
 |========================================
@@ -452,7 +454,7 @@ program with if-then-else statements.
 |========================================
 
 
-#<_ccomp>::
+* `#<_ccomp>` -
     Status of cutter compensation. Return values:
 [width="20%",options="header"]
 |========================================
@@ -465,28 +467,28 @@ program with if-then-else statements.
 |G42.1 | 421
 |========================================
 
-#<_metric>::
+* `#<_metric>` -
     Return 1 if G21 is on, else 0.
 
-#<_imperial>::
+* `#<_imperial>` -
     Return 1 if G20 is on, else 0.
 
-#<_absolute>::
+* `#<_absolute>` -
     Return 1 if G90 is on, else 0.
 
-#<_incremental>::
+* `#<_incremental>` -
     Return 1 if G91 is on, else 0.
 
-#<_inverse_time>::
+* `#<_inverse_time>` -
     Return 1 if inverse feed mode (G93) is on, else 0.
 
-#<_units_per_minute>::
+* `#<_units_per_minute>` -
     Return 1 if Units/minute feed mode (G94) is on, else 0.
 
-#<_units_per_rev>::
+* `#<_units_per_rev>` -
     Return 1 if Units/revolution mode (G95) is on, else 0.
 
-#<_coord_system>::
+* `#<_coord_system>` -
     Return index of the current coordinate system (G54..G59.3)
 [width="20%",options="header"]
 |========================================
@@ -502,121 +504,121 @@ program with if-then-else statements.
 |G59.3|8
 |========================================
 
-#<_tool_offset>::
+* `#<_tool_offset>` -
     Return 1 if tool offset (G43) is on, else 0.
 
-#<_retract_r_plane>::
+* `#<_retract_r_plane>` -
     Return 1 if G98 is set, else 0.
 
-#<_retract_old_z>::
+* `#<_retract_old_z>` -
     Return 1 if G99 is on, else 0.
 
-#<_spindle_rpm_mode>::
+* `#<_spindle_rpm_mode>` -
     Return 1 if spindle rpm mode (G97) is on, else 0.
 
-#<_spindle_css_mode>::
+* `#<_spindle_css_mode>` -
     Return 1 if constant surface speed mode (G96) is on, else 0.
 
-#<_ijk_absolute_mode>::
+* `#<_ijk_absolute_mode>` -
     Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
 
-#<_lathe_diameter_mode>::
+* `#<_lathe_diameter_mode>` -
     Return 1 if this is a lathe configuration and diameter (G7) mode is on, else 0.
 
-#<_lathe_radius_mode>::
+* `#<_lathe_radius_mode>` -
     Return 1 if this is a lathe configuration and radius (G8) mode is on, else 0.
 
-#<_spindle_on>::
+* `#<_spindle_on>` -
     Return 1 if spindle currently running (M3 or M4) else 0.
 
-#<_spindle_cw>::
+* `#<_spindle_cw>` -
     Return 1 if spindle direction is clockwise (M3) else 0.
 
-#<_mist>::
+* `#<_mist>` -
     Return 1 if mist (M7) is on.
 
-#<_flood>::
+* `#<_flood>` -
     Return 1 if flood (M8) is on.
 
-#<_speed_override>::
+* `#<_speed_override>` -
     Return 1 if feed override (M48 or M50 P1) is on, else 0.
 
-#<_feed_override>::
+* `#<_feed_override>` -
     Return 1 if feed override (M48 or M51 P1) is on, else 0.
 
-#<_adaptive_feed>::
+* `#<_adaptive_feed>` -
     Return 1 if adaptive feed (M52 or M52 P1) is on, else 0.
 
-#<_feed_hold>::
+* `#<_feed_hold>` -
     Return 1 if feed hold switch is enabled (M53 P1), else 0.
 
-#<_feed>::
+* `#<_feed>` -
     Return the current feed value (F).
 
-#<_rpm>::
+* `#<_rpm>` -
     Return the current spindle speed (S).
 
-#<_x>::
+* `#<_x>` -
     Return absolute machine X coordinate. Same as #5420.
 
-#<_y>::
+* `#<_y>` -
     Return absolute machine Y coordinate. Same as #5421.
 
-#<_z>::
+* `#<_z>` -
     Return absolute machine Z coordinate. Same as #5422.
 
-#<_a>::
+* `#<_a>` -
     Return absolute machine A coordinate. Same as #5423.
 
-#<_b>::
+* `#<_b>` -
     Return absolute machine B coordinate. Same as #5424.
 
-#<_c>::
+* `#<_c>` -
     Return absolute machine C coordinate. Same as #5425.
 
-#<_u>::
+* `#<_u>` -
     Return absolute machine U coordinate. Same as #5426.
 
-#<_v>::
+* `#<_v>` -
     Return absolute machine V coordinate. Same as #5427.
 
-#<_w>::
+* `#<_w>` -
     Return absolute machine W coordinate. Same as #5428.
 
-#<_current_tool>::
+* `#<_current_tool>` -
     Return number of the current tool in spindle. Same as #5400.
 
-#<_current_pocket>::
+* `#<_current_pocket>` -
     Return pocket number of the current tool.
 
-#<_selected_tool>::
+* `#<_selected_tool>` -
     Return number of the selected tool post a T code. Default -1.
 
-#<_selected_pocket>::
+* `#<_selected_pocket>` -
     Return number of the selected pocket post a T code. Default -1
     (no pocket selected).
 
-#<_value>::  [[param:_value]]
+* `#<_value>` -  [[param:_value]]
     Return value from the last O-word `return` or `endsub`.  Default
     value 0 if no expression after `return` or `endsub`.  Initialized
     to 0 on program start.  See also
     <<sec:Subroutine-return-values,Subroutine return values>>.
 
-#<_value_returned>::
+* `#<_value_returned>` -
     1.0 if the last O-word `return` or `endsub` returned a value, 0
     otherwise. Cleared by the next O-word call.
 
-#<_task>::
+* `#<_task>` -
     1.0 if the executing interpreter instance is part of milltask, 0.0
     otherwise. Sometimes it is necessary to treat this case specially
     to retain proper preview, for instance when testing the success of 
     a probe (G38.x) by inspecting #5070, which will always fail in the
     preview interpreter (e.g. Axis).
 
-#<_call_level>::
+* `#<_call_level>` -
     current nesting level of O-word procedures. For debugging.
 
-#<_remap_level>::
+* `#<_remap_level>` -
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
@@ -661,7 +663,7 @@ false, and any non-zero number is equivalent to logical true.
 
 .Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))
 
-[width="90%", options="header"]
+[width="60%", options="header", cols="2*^"]
 |========================================
 |Operators | Precedence
 |** | 'highest'
@@ -694,7 +696,7 @@ returned by unary operations which return angle measures (`ACOS`,
 
 .Functions[[cap:Functions]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^,<"]
 |========================================
 |Function Name | Function result
 |ATAN[Y]/[X] | Four quadrant inverse tangent
@@ -745,8 +747,8 @@ m2
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group (see Section  <<sec:Modal-Groups,Modal Groups>>) may not appear on the
-same line.
+modal group may not appear on the
+same line See the <<sec:Modal-Groups,Modal Groups>> Section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -808,6 +810,70 @@ axis words or canceling motion.
 'Non-modal' codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
+== Polar Coordinates
+(((Polar Coordinates)))
+
+Polar Coordinates can be used to specify the XY coordinate of a move.
+The @n is the distance and ^n is the angle. The advantage of this is
+for things like bolt hole circles which can be done very simply by
+moving to a point in the center of the circle, setting the offset and
+then moving out to the first hole then run the drill cycle. 
+Polar Coordinates always are from the current XY zero position. 
+To shift the Polar Coordinates from machine zero use an offset 
+or select a coordinate system.
+
+In Absolute Mode the distance and angle is from the XY zero position
+and the angle starts with 0 on the X Positive axis and increases in a CCW
+direction about the Z axis. The code G1 @1^90 is the same as G1 Y1.
+
+In Relative Mode the distance and angle is also from the XY zero
+position but it is cumulative. 
+This can be confusing at first how this works in incremental mode.
+
+For example if you have the following program you might expect it to
+be a square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 @.5 ^90 
+@.5 ^90
+@.5 ^90
+@.5 ^90
+G90 G0 X0 Y0 M2
+----
+
+You can see from the following figure that the output is not what you
+might expect. Because we added 0.5 to the distance each time the 
+distance from the XY zero position increased with each line.
+
+.Polar Spiral[[fig:Polar-Spiral]]
+
+image::images/polar01.png[align="center"]
+
+The following code will produce our square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 ^90
+^90
+^90
+^90
+G90 G0 X0 Y0 M2
+----
+
+As you can see by only adding to the angle by 90 degrees each time the
+end point distance is the same for each line.
+
+.Polar Square[[fig:Polar-Square]]
+
+image::images/polar02.png[align="center"]
+
+It is an error if:
+
+* An incremental move is started at the origin
+* A mix of Polar and and X or Y words are used
+
+
 [[sec:Modal-Groups]]
 == Modal Groups
 (((Modal Groups)))
@@ -818,35 +884,42 @@ general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
 measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in Table 
-<<cap:Modal-Groups,Modal Groups>>.
+being in effect. The modal groups are shown in the following Table.
 
-.Modal Groups[[cap:Modal-Groups]]
+.G-Code Modal Groups[[cap:Modal-Groups]]
 
-[width="90%", cols="1,2", options="header"]
+[width="100%", cols="4,6", options="header"]
 |========================================
-|Modal Group Meaning          | Member Words
-|Motion ("Group 1")           | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
-|                             | G82, G83, G84, G85, G86, G87, G88, G89
-|Plane selection              | G17, G18, G19, G17.1, G18.1, G19.1
-|Distance Mode                | G90, G91
-|Arc IJK Distance Mode        | G90.1, G91.1
-|Feed Rate Mode               | G93, G94, G95
-|Units                        | G20, G21
-|Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
-|Tool Length Offset           | G43, G43.1, G49
-|Return Mode in Canned Cycles | G98, G99
-|Coordinate System Selection  | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Control Mode                 | G61, G61.1, G64
-|Spindle Speed Mode           | G96, G97
-|Lathe Diameter Mode          | G7, G8
-|Stopping                     | M0, M1, M2, M30, M60
-|Tool Change                  | M6 Tn
-|Spindle                      | M3, M4, M5, M19
-|Coolant                      | (M7 M8 can both be on), M9
-|Override Switches            | M48, M49
-|Flow Control                 | O-
-|Non-modal codes ("Group 0")  | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M100-M199
+|Modal Group Meaning                   | Member Words
+|Non-modal codes (Group 0)             | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, 
+.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+                                       | G82, G83, G84, G85, G86, G87, G88, G89
+|Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
+|Distance Mode (Group 3)               | G90, G91
+|Arc IJK Distance Mode (Group 4)       | G90.1, G91.1
+|Feed Rate Mode (Group 5)              | G93, G94, G95
+|Units (Group 6)                       | G20, G21
+|Cutter Diameter Compensation (Group 7)| G40, G41, G42, G41.1, G42.1
+|Tool Length Offset (Group 8)          | G43, G43.1, G49
+|Canned Cycles Return Mode (Group 10)  | G98, G99
+|Coordinate System (Group 12)          | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Control Mode (Group 13)               | G61, G61.1, G64
+|Spindle Speed Mode (Group 14)         | G96, G97
+|Lathe Diameter Mode (Group 15)        | G7, G8
+|========================================
+
+.M-Code Modal Groups[[tbl:m-modal-groups]]
+
+[width="80%", cols="4,6", options="header"]
+|========================================
+|Modal Group Meaning           | Member Words
+|Stopping (Group 4)            | M0, M1, M2, M30, M60
+|I/O on/off (Group 5)          | M6 Tn
+|Tool Change (Group 6)         | M6 Tn
+|Spindle (Group 7)             | M3, M4, M5
+|Coolant (Group 8)             | (M7 M8 can both be on), M9
+|Override Switches (Group 9)   | M48, M49
+|User Defined (Group 10)       |M100-M199
 |========================================
 
 For several modal groups, when a machining center is ready to accept
@@ -903,32 +976,32 @@ special comments.
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
- . O-word commands (optionally followed by a comment but no other words allowed on the same line)
- . Comment (including message)
- . Set feed rate mode (G93, G94). 
- . Set feed rate (F). 
- . Set spindle speed (S). 
- . Select tool (T). 
- . HAL pin I/O (M62-M68).
- . Change tool (M6) and Set Tool Number (M61).
- . Spindle on or off (M3, M4, M5).
- . Save State (M70, M73), Restore State (M72), Invalidate State (M71).
- . Coolant on or off (M7, M8, M9).
- . Enable or disable overrides (M48, M49,M50,M51,M52,M53).
- . User-defined Commands (M100-M199).
- . Dwell (G4). 
- . Set active plane (G17, G18, G19). 
- . Set length units (G20, G21).
- . Cutter radius compensation on or off (G40, G41, G42) 
- . Cutter length compensation on or off (G43, G49) 
- . Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
- . Set path control mode (G61, G61.1, G64)
- . Set distance mode (G90, G91). 
- . Set retract mode (G98, G99).
- . Go to reference location (G28, G30) or change coordinate system 
+* O-word commands (optionally followed by a comment but no other words allowed on the same line)
+* Comment (including message)
+* Set feed rate mode (G93, G94). 
+* Set feed rate (F). 
+* Set spindle speed (S). 
+* Select tool (T). 
+* HAL pin I/O (M62-M68).
+* Change tool (M6) and Set Tool Number (M61).
+* Spindle on or off (M3, M4, M5).
+* Save State (M70, M73), Restore State (M72), Invalidate State (M71).
+* Coolant on or off (M7, M8, M9).
+* Enable or disable overrides (M48, M49,M50,M51,M52,M53).
+* User-defined Commands (M100-M199).
+* Dwell (G4). 
+* Set active plane (G17, G18, G19). 
+* Set length units (G20, G21).
+* Cutter radius compensation on or off (G40, G41, G42) 
+* Cutter length compensation on or off (G43, G49) 
+* Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
+* Set path control mode (G61, G61.1, G64)
+* Set distance mode (G90, G91). 
+* Set retract mode (G98, G99).
+* Go to reference location (G28, G30) or change coordinate system 
    data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
- . Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified (possibly) by G53. 
- . Stop (M0, M1, M2, M30, M60).
+* Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified (possibly) by G53. 
+* Stop (M0, M1, M2, M30, M60).
 
 == G Code Best Practices
 (((G Code Best Practices)))
@@ -944,7 +1017,7 @@ G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-=== Use "Center-format" arcs
+=== Use Center-format arcs
 
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
@@ -990,7 +1063,7 @@ Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.
 
-=== When moving more than one coordinate system, consider inverse time feed mode
+== Linear and Rotary Axis
 
 Because the meaning of an F-word in feed-per-minute mode varies
 depending on which axes are commanded to move, and because the amount

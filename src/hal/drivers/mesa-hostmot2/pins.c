@@ -458,8 +458,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
-    // sserial.num_instances counts active insts, so use config.num_sserial
-    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->config.num_sserials);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->sserial.num_instances);
     // muxed encoder gets the sel pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
     // and about half as many I/Os as you'd expect

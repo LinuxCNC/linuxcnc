@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = Pico PPMC
 
 Pico Systems has a family of boards for doing analog servo, stepper,
@@ -10,17 +13,18 @@ distinguish between boards, it simply numbers I/O channels (encoders,
 etc) starting from 0 on the first board.
 
 Installing:
+----
+loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
+----
 
-    loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
-
-The `port_addr` parameter tells the driver what parallel port(s) to 
-check. By default, `<addr1>` is 0x0378, and `<addr2>` and following 
+The 'port_addr' parameter tells the driver what parallel port(s) to 
+check. By default, '<addr1>' is 0x0378, and '<addr2>' and following 
 are not used. The driver searches the entire address 
-space of the enhanced parallel port(s) at `port_addr`, looking for 
+space of the enhanced parallel port(s) at 'port_addr', looking for 
 any board(s) in the PPMC family. It then exports HAL 
 pins for whatever it finds. During loading (or attempted loading) the 
 driver prints some useful debugging messages to the kernel log, which 
-can be viewed with `dmesg`. 
+can be viewed with 'dmesg'. 
 
 Up to 3 parport busses may be used, and each bus may have up to 8
 devices on it.
@@ -32,11 +36,11 @@ ID. According to the naming conventions the first board should always
 have an ID of zero. However, this driver sets the ID based on switches
 on the board, so it may be non-zero even if there is only one board.
 
- - `(All s32 output) ppmc.<port>.encoder.<channel>.count` -- Encoder
+* '(All s32 output) ppmc.<port>.encoder.<channel>.count' - Encoder
    position, in counts.
- - `(All s32 output) ppmc.<port>.encoder.<channel>.delta` -- Change in
+* '(All s32 output) ppmc.<port>.encoder.<channel>.delta' - Change in
    counts since last read, in raw encoder count units.
- - (All float output) `ppmc.<port>.encoder.<channel>.velocity`  --
+* '(All float output) 'ppmc.<port>.encoder.<channel>.velocity'  -
    Velocity scaled in user units per second. On PPMC and USC this is
    derived from raw encoder counts per servo period, and hence is affected
    by encoder granularity. On UPC boards with the 8/21/09 and later
@@ -45,36 +49,39 @@ on the board, so it may be non-zero even if there is only one board.
    to the PID HAL component to produce a more stable servo response. This
    function has to be enabled in the HAL command line that starts the PPMC
    driver, with the timestamp=0x00 option.
- - `(All float output) ppmc.<port>.encoder.<channel>.position` --
+* '(All float output) ppmc.<port>.encoder.<channel>.position' -
    Encoder position, in user units.
- - `(All bit bidir) ppmc.<port>.encoder.<channel>.index-enable`  --
+* '(All bit bidir) ppmc.<port>.encoder.<channel>.index-enable'  -
    Connect to axis.#.index-enable for home-to-index. This is a
    bidirectional HAL signal. Setting it to true causes the encoder
    hardware to reset the count to zero on the next encoder index pulse.
    The driver will detect this and set the signal back to false.
- - `(UPC bit input) ppmc.<port>.pwm.<channel>.enable` -- Enables a
+* '(PPMC float output) ppmc.<port>.DAC.<channel>.value' - sends a
+    signed value to the 16-bit Digital to Analog Converter on the PPMC DAC16
+    board commanding the analog output voltage of that DAC channel.
+* '(UPC bit input) ppmc.<port>.pwm.<channel>.enable' - Enables a
    PWM generator.
- - `(UPC float input) ppmc.<port>.pwm.<channel>.value`  -- Value
+* '(UPC float input) ppmc.<port>.pwm.<channel>.value'  - Value
    which determines the duty cycle of the PWM waveforms. The
-   value is divided by `pwm.<channel>.scale`, and if the result is 0.6
+   value is divided by 'pwm.<channel>.scale', and if the result is 0.6
    the duty cycle will be 60%, and so on. 
    Negative values result in the duty cycle being based on the absolute
    value, and the direction pin is set to indicate negative.
- - `(USC bit input) ppmc.<port>.stepgen.<channel>.enable` --
+* '(USC bit input) ppmc.<port>.stepgen.<channel>.enable' -
    Enables a step pulse generator.
- - `(USC float input) ppmc.<port>.stepgen.<channel>.velocity`  --
+* '(USC float input) ppmc.<port>.stepgen.<channel>.velocity'  -
    Value which determines the step frequency. The value is multiplied
-   by `stepgen.<channel>.scale` , and the result is the frequency in
+   by 'stepgen.<channel>.scale' , and the result is the frequency in
    steps per second. Negative values
    result in the frequency being based on the absolute value, and the
    direction pin is set to indicate negative.
- - `(All bit output) ppmc.<port>.in-<channel>` -- State of digital
+* '(All bit output) ppmc.<port>.din.<channel>.in' - State of digital
    input pin, see canonical digital input.
- - `(All bit output) ppmc.<port>.in.<channel>-not` -- Inverted
+* '(All bit output) ppmc.<port>.din.<channel>.in-not' - Inverted
    state of digital input pin, see canonical digital input.
- - `(All bit input) ppmc.<port>.out-<channel>`  -- Value to be
-   written to digital output, seen canonical digital output. 
- - `(Option float input) ppmc.<port>.DAC8-<channel>.value`  -- Value to
+* '(All bit input) ppmc.<port>.dout.<channel>.out'  - Value to be
+   written to digital output, see canonical digital output. 
+* '(Option float input) ppmc.<port>.DAC8-<channel>.value'  - Value to
    be written to analog output, range from 0 to 255. This
    sends 8 output bits to J8, which should have a Spindle DAC board
    connected to it. 0 corresponds to zero Volts, 255 corresponds to 10
@@ -83,73 +90,77 @@ on the board, so it may be non-zero even if there is only one board.
    (minus when on). You must specify extradac = 0x00 on the HAL command
    line that loads the PPMC driver to enable this function on the first
    USC ur UPC board.
- - `(Option bit input) ppmc.<port>.dout-<channel>.out`  -- Value to be
+* '(Option bit input) ppmc.<port>.dout.<channel>.out'  - Value to be
    written to one of the 8 extra digital output pins on
    J8. You must specify extradout = 0x00 on the HAL command line that
    loads the ppmc driver to enable this function on the first USC or UPC
    board. extradac and extradout are mutually exclusive features as they
-   use the same signal lines for different purposes.
+   use the same signal lines for different purposes.  These output pins
+   will be enumerated after the standard digital outputs of the board.
 
 == Parameters
 
- - `(All float) ppmc.<port>.enc.<channel>.scale` -- The number of
+* '(All float) ppmc.<port>.enc.<channel>.scale' - The number of
    counts / user unit (to convert from counts to units).
- - `(UPC float) ppmc.<port>.pwm.<channel-range>.freq` -- The PWM
+* '(UPC float) ppmc.<port>.pwm.<channel-range>.freq' - The PWM
    carrier frequency, in Hz. Applies to a group of four
-   consecutive PWM generators, as indicated by `<channel-range>`. Minimum
+   consecutive PWM generators, as indicated by '<channel-range>'. Minimum
    is 610Hz, maximum is 500KHz.
- - `(UPC float) ppmc.<port>.pwm.<channel>.scale` -- Scaling for PWM
-   generator. If `scale` is X, then the duty cycle will be 100% when the
-   `value` pin is X (or -X).
- - `(UPC float) ppmc.<port>.pwm.<channel>.max-dc` -- Maximum duty
+* '(PPMC float) ppmc.<port>.DAC.<channel>.scale'  - Sets scale
+   of DAC16 output channel such that an output value equal to the 1/scale
+   value will produce an output of + or - value Volts.  So, if the scale
+   parameter is 0.1 and you send a value of 0.5, the output will be 5.0 Volts.
+* '(UPC float) ppmc.<port>.pwm.<channel>.scale' - Scaling for PWM
+   generator. If 'scale' is X, then the duty cycle will be 100% when the
+   'value' pin is X (or -X).
+* '(UPC float) ppmc.<port>.pwm.<channel>.max-dc' - Maximum duty
    cycle, from 0.0 to 1.0.
- - `(UPC float) ppmc.<port>.pwm.<channel>.min-dc` -- Minimum duty
+* '(UPC float) ppmc.<port>.pwm.<channel>.min-dc' - Minimum duty
    cycle, from 0.0 to 1.0.
- - `(UPC float) ppmc.<port>.pwm.<channel>.duty-cycle` -- Actual duty
+* '(UPC float) ppmc.<port>.pwm.<channel>.duty-cycle' - Actual duty
    cycle (used mostly for troubleshooting.)
- - `(UPC bit) ppmc.<port>.pwm.<channel>.bootstrap` -- If true, the
+* '(UPC bit) ppmc.<port>.pwm.<channel>.bootstrap' - If true, the
    PWM generator will generate a short sequence of
    pulses of both polarities when E-stop goes false, to charge the
    bootstrap capacitors used on some MOSFET gate drivers.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time` -- 
-   Sets minimum time between direction change and step pulse, in
-   units of 100ns. Applies to a group of four consecutive PWM generators,
-   as indicated by `<channel-range>`.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width` -- 
-   Sets width of step pulses, in units of 100ns. Applies to a group
-   of four consecutive PWM generators, as indicated by `<channel-range>`.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min` 
-   -- Sets minimum time between pulses, in units of 100ns. 
-   The maximum step rate is 
-   latexmath:[$ \frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } $]. 
-   Applies to a group of four consecutive PWM generators, 
-   as indicated by `<channel-range>`. 
- - `(USC float) ppmc.<port>.stepgen.<channel>.scale` -- Scaling for
+* '(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time' - Sets 
+   minimum time between direction change and step pulse, in
+   units of 100ns. Applies to a group of four consecutive step generators,
+   as indicated by '<channel-range>'.
+* '(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width' - Sets 
+   width of step pulses, in units of 100ns. Applies to a group
+   of four consecutive step generators, as indicated by '<channel-range>'.
+* '(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min' - Sets 
+   minimum time between pulses, in units of 100ns. 
+   Applies to a group of four consecutive step generators, as indicated by
+   '<channel-range>'. The maximum step rate is:
+   image:images/pico-ppmc-math.png[]    
+* '(USC float) ppmc.<port>.stepgen.<channel>.scale' - Scaling for
    step pulse generator. The step frequency in Hz is the
-   absolute value of `velocity` * `scale`.
- - `(USC float) ppmc.<port>.stepgen.<channel>.max-vel` -- The maximum
-   value for `velocity`. Commands greater than `max-vel`  will be clamped.
+   absolute value of 'velocity' * 'scale'.
+* '(USC float) ppmc.<port>.stepgen.<channel>.max-vel' - The maximum
+   value for 'velocity'. Commands greater than 'max-vel'  will be clamped.
    Also applies to negative values. (The absolute value is clamped.)
- - `(USC float) ppmc.<port>.stepgen.<channel>.frequency` -- Actual
+* '(USC float) ppmc.<port>.stepgen.<channel>.frequency' - Actual
    step pulse frequency in Hz (used mostly for troubleshooting.)
- - `(Option float) ppmc.<port>.DAC8.<channel>.scale` -- Sets scale
+* '(Option float) ppmc.<port>.DAC8.<channel>.scale' - Sets scale
    of extra DAC output such that an output value equal to
    scale gives a magnitude of 10.0 V output. (The sign of the output is
    set by jumpers and/or other digital outputs.)
- - `(Option bit) ppmc.<port>.out.<channel>-invert` -- Inverts a
+* '(Option bit) ppmc.<port>.dout.<channel>.invert' - Inverts a
    digital output, see canonical digital output.
- - `(Option bit) ppmc.<port>.dout.<channel>-invert` -- Inverts a
+* '(Option bit) ppmc.<port>.dout.<channel>.invert' - Inverts a
    digital output pin of J8, see canonical digital output.
 
 == Functions
 
- - `(All funct) ppmc.<port>.read` -- Reads all inputs (digital inputs
+* '(All funct) ppmc.<port>.read' - Reads all inputs (digital inputs
    and encoder counters) on one port. These reads are organized into 
    blocks of contiguous registers to be read in a block to 
    minimize CPU overhead. 
- - `(All funct) ppmc.<port>.write` -- Writes all outputs (digital
+* '(All funct) ppmc.<port>.write' - Writes all outputs (digital
    outputs, stepgens, PWMs) on one port. 
-   These reads are organized into blocks of contiguous registers to be
-   read in a block to minimize CPU overhead. 
+   These writes are organized into blocks of contiguous registers to be
+   written in a block to minimize CPU overhead. 
 
 

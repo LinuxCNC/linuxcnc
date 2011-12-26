@@ -1,5 +1,7 @@
-[[cha:Language-Overview]]
-= G Code Overview
+//:lang: pl
+:toc:
+
+= G Code Overview[[cha:Language-Overview]]
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -42,10 +44,10 @@ A permissible line of input code consists of the following, in order,
 with the restriction that there is a maximum (currently 256) to the
 number of characters allowed on a line.
 
- . an optional block delete character, which is a slash '/' . 
- . an optional line number.
- . any number of words, parameter settings, and comments.
- . an end of line marker (carriage return or line feed or both). 
+* an optional block delete character, which is a slash '/'. 
+* an optional line number.
+* any number of words, parameter settings, and comments.
+* an end of line marker (carriage return or line feed or both). 
 
 Any input not explicitly allowed is illegal and will cause the
 Interpreter to signal an error.
@@ -76,8 +78,8 @@ required to be used, but must be in the proper place if used.
 
 A word is a letter other than N followed by a real value.
 
-Words may begin with any of the letters shown in Table 
-<<cap:Words-and-their>>. The table includes N for completeness, even
+Words may begin with any of the letters shown in the following Table.
+The table includes N for completeness, even
 though, as defined above, line numbers are not words. Several letters
 (I, J, K, L, P, R) may have different meanings in different contexts.
 Letters which refer to axis names are not valid on a machine which does
@@ -85,34 +87,34 @@ not have the corresponding axis.
 
 .Words and their meanings[[cap:Words-and-their]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^1,<5"]
 |========================================
 |Letter | Meaning
-|A | A axis of machine
-|B | B axis of machine
-|C | C axis of machine
-|D | Tool radius compensation number
-|F | Feed rate
-|G | General function (See table <<cap:Modal-Groups>>)
-|H | Tool length offset index
-|I | X offset for arcs and G87 canned cycles
-|J | Y offset for arcs and G87 canned cycles
-|K | Z offset for arcs and G87 canned cycles.
-|  | Spindle-Motion Ratio for G33 synchronized movements.
-|M | Miscellaneous function (See table <<cap:Modal-Groups>>)
-|N | Line number
-|P | Dwell time in canned cycles and with G4.
-|  | Key used with G10.
-|Q | Feed increment in G73, G83 canned cycles
-|R | Arc radius or canned cycle plane
-|S | Spindle speed
-|T | Tool selection
-|U | U axis of machine
-|V | V axis of machine
-|W | W axis of machine
-|X | X axis of machine
-|Y | Y axis of machine
-|Z | Z axis of machine
+|A |A axis of machine
+|B |B axis of machine
+|C |C axis of machine
+|D |Tool radius compensation number
+|F |Feed rate
+|G |General function (See table <<cap:Modal-Groups,Modal Groups>>)
+|H |Tool length offset index
+|I |X offset for arcs and G87 canned cycles
+|J |Y offset for arcs and G87 canned cycles
+.2+|K |Z offset for arcs and G87 canned cycles.
+<|Spindle-Motion Ratio for G33 synchronized movements.
+|M |Miscellaneous function (See table <<cap:Modal-Groups,Modal Groups>>)
+|N |Line number
+.2+|P |Dwell time in canned cycles and with G4.
+<|Key used with G10.
+|Q |Feed increment in G73, G83 canned cycles
+|R |Arc radius or canned cycle plane
+|S |Spindle speed
+|T |Tool selection
+|U |U axis of machine
+|V |V axis of machine
+|W |W axis of machine
+|X |X axis of machine
+|Y |Y axis of machine
+|Z |Z axis of machine
 |========================================
 
 [[sub:Number]]
@@ -121,16 +123,16 @@ not have the corresponding axis.
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
- - A number consists of (1) an optional plus or minus sign, followed by
+* A number consists of (1) an optional plus or minus sign, followed by
    (2) zero to many digits, followed, possibly, by (3) one decimal point,
    followed by (4) zero to many digits - provided that there is at least
    one digit somewhere in the number.
- - There are two kinds of numbers: integers and decimals. An integer does
+* There are two kinds of numbers: integers and decimals. An integer does
    not have a decimal point in it; a decimal does.
- - Numbers may have any number of digits, subject to the limitation on
+* Numbers may have any number of digits, subject to the limitation on
    line length. Only about seventeen significant figures will be retained,
    however (enough for all known applications).
- - A non-zero number with no sign as the first character is assumed to be
+* A non-zero number with no sign as the first character is assumed to be
    positive.
 
 Notice that initial (before the decimal point and the first non-zero
@@ -147,8 +149,73 @@ example), M codes, and G codes multiplied by ten. A decimal number
 which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
+
+== Parameters (Variables)[[parameters]](((Parameters)))
+
+The RS274/NGC language supports 'parameters' - what in other
+programming languages would be called 'variables'. There are several
+types of parameter of different purpose and appearance, each described
+in the following sections. The only value type supported by parameters
+is floating-point; there are no string, boolean or integer types in
+G-code like in other programming languages. However, logic expressions
+can be formulated with <<sub:Binary-Operators,boolean operators>>
+( 'AND', 'OR', 'XOR', and the comparison operators
+'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
+'FIX' <<cap:Functions,operators>> support integer arithmetic.
+
+Parameters differ in syntax, scope, behaviour when not yet
+initialized, mode, persistence and intended use.
+
+Syntax:: There are three kinds of syntactic appearance:
+* 'numbered' -  #4711
+* 'named local' -  #<localvalue>
+* 'named global' - #<_globalvalue>
+
+Scope:: The scope of a parameter is either global, or local within a
+subroutine. Subroutine parameters and local named variables have local
+scope. Global named parameters and numbered parameters starting from
+number 31 are global in scope. RS274NGC uses 'lexical scoping' - 
+in a subroutine only the local variables defined therein, and any
+global variables are visible. The local variables of a
+calling procedure are not visible in a called procedure.
+
+Behaviour of uninitialized parameters::
+ . unitialized global parameters, and unused subroutine parameters 
+   return the value zero when used in an expression.
+ . unitialized named parameters signal an error when used in an expression.
+
+Mode:: Most parameters are read/write and may be assigned to
+within an assignment statement.  However, for many predefined
+parameters this does not make sense, so they are are read-only - they
+may appear in expressions, but not on the left-hand side of an
+assignment statement.
+
+Persistence:: When EMC is shut down, volatile parameters lose their
+values. All parameters except numbered parameters in the current
+persistent range footnoteref:[persistent range,The range of persistent
+parameters may change as development progresses. This range is
+currently 5161- 5390. It is defined in the '_required_parameters array'
+in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
+Persistent parameters are saved in the <<var_file_format,.var file>>
+restored to their previous values when EMC is started again. Volatile
+numbered parameters are reset to zero.
+
+Intended Use::
+ . user parameters:: numbered parameters in the range 31..5000, and named
+global and local parameters except predefined parameters. These are
+available for general-purpose storage of floating-point values, like
+intermediate results, flags etc, throughout program execution.  They
+are read/write (can be assigned a value).
+ . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters 
+passed to a subroutine. 
+ . <<Numbered-Parameters,numbered parameters>> - most of these are used to access offsets of
+coordinate systems.
+ . <<sec:Predefined-Named-Parameters,predefined named parameters>> - used to determine interpreter and
+machine state, for instance '#<_relative>' returns 1 if G91 is on, and
+0 if G90 is set. They are read-only.
+
 [[sub:Numbered-Parameters]]
-== Numbered Parameters
+=== Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and 5399. The parameter is referred
@@ -178,23 +245,35 @@ example '##2'  means the value of the parameter whose index is the
 The interpreter maintains a number of read-only parameters for a loaded
 tool:
 
- - #5400 Tool number 
- - #5401 Tool X offset 
- - #5402 Tool Y offset 
- - #5403 Tool Z offset 
- - #5404 Tool A offset 
- - #5405 Tool B offset 
- - #5406 Tool C offset 
- - #5407 Tool U offset 
- - #5408 Tool V offset 
- - #5409 Tool W offset 
- - #5410 Tool Diameter 
- - #5411 Tool Frontangle 
- - #5412 Tool Backangle 
- - #5413 Tool Orientation
+* '1-30' - Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. See the <<cha:O-Codes,O Codes>> Section.
+* '1-5000' - G-Code user parameters. These parameters are global in the G Code file.
+* '5061-5070' - Result of 'G38.2' Probe (X Y Z A B C U V W)
+* '5161-5169' - 'G28' Home for (X Y Z A B C U V W)
+* '5181-5189' - 'G30' Home for (X Y Z A B C U V W)
+* '5211-5219' - 'G92' offset (X Y Z A B C U V W)
+* '5220' - Current Coordinate System number 1 - 9 for G54 - G59.3
+* '5221-5229' - Coordinate System 1, G54 (X Y Z A B C U V W)
+* '5241-5249' - Coordinate System 2, G55 (X Y Z A B C U V W)
+* '5261-5269' - Coordinate System 3, G56 (X Y Z A B C U V W)
+* '5281-5289' - Coordinate System 4, G57 (X Y Z A B C U V W)
+* '5301-5309' - Coordinate System 5, G58 (X Y Z A B C U V W)
+* '5321-5329' - Coordinate System 6, G59 (X Y Z A B C U V W)
+* '5341-5349' - Coordinate System 7, G59.1 (X Y Z A B C U V W)
+* '5361-5369' - Coordinate System 8, G59.2 (X Y Z A B C U V W)
+* '5381-5389' - Coordinate System 9, G59.3 (X Y Z A B C U V W)
+* '5399' - Result of M66 - Check or wait for input
+* '5400' - Current Tool Number
+* '5401-5409' - Tool Offset (X Y Z A B C U V W)
+* '5410' - Current Tool Diameter
+* '5411' - Current Tool Front Angle
+* '5412' - Current Tool Back Angle
+* '5413' - Current Tool Orientation
+* '5420-5428' - Current Position including offsets in current program
+    units (X Y Z A B C U V W)
 
 [[sub:Named-Parameters]]
-== Named Parameters
+=== Named Parameters
 
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
@@ -215,17 +294,23 @@ numeric parameters. They are not stored in files.
 
 Examples:
 
- - Declaration of named global variable
+* Declaration of named global variable
 
-    #<_endmill_dia> = 0.049 
+----
+#<_endmill_dia> = 0.049 
+----
 
- - Reference to previously declared global variable
+* Reference to previously declared global variable
 
-    #<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
+#<_endmill_rad> = [#<_endmill_dia>/2.0] 
+----
 
- - Mixed literal and named parameters
+* Mixed literal and named parameters
 
-    o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+----
+o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+----
 
 Notes:
 
@@ -239,11 +324,9 @@ Bword, Cword, etc.
 Two global read only named parameters are available to check which
 version is running from G Code.
 
-#<_vmajor>::
-    Major package version. If current version was 2.6.2 would return 2.6.
+* '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
 
-#<_vminor>::
-    Minor package version. If current version was 2.6.2 would return 0.2.
+* '#<_vminor>' - Minor package version. If current version was 2.5.2 would return 0.2.
 
 [[sec:Expressions]]
 == Expressions
@@ -287,7 +370,7 @@ false, and any non-zero number is equivalent to logical true.
 
 .Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))
 
-[width="90%", options="header"]
+[width="60%", options="header", cols="2*^"]
 |========================================
 |Operators | Precedence
 |** | 'highest'
@@ -312,7 +395,7 @@ angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
 
 .Functions[[cap:Functions]]
 
-[width="90%", options="header"]
+[width="75%", options="header", cols="^,<"]
 |========================================
 |Function Name | Function result
 |ATAN[Y]/[X] | Four quadrant inverse tangent
@@ -346,8 +429,8 @@ parameter or an expression.
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group (see Section  <<sec:Modal-Groups>>) may not appear on the
-same line.
+modal group may not appear on the
+same line See the <<sec:Modal-Groups,Modal Groups>> Section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -409,6 +492,70 @@ axis words or canceling motion.
 'Non-modal' codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
+== Polar Coordinates
+(((Polar Coordinates)))
+
+Polar Coordinates can be used to specify the XY coordinate of a move.
+The @n is the distance and ^n is the angle. The advantage of this is
+for things like bolt hole circles which can be done very simply by
+moving to a point in the center of the circle, setting the offset and
+then moving out to the first hole then run the drill cycle. 
+Polar Coordinates always are from the current XY zero position. 
+To shift the Polar Coordinates from machine zero use an offset 
+or select a coordinate system.
+
+In Absolute Mode the distance and angle is from the XY zero position
+and the angle starts with 0 on the X Positive axis and increases in a CCW
+direction about the Z axis. The code G1 @1^90 is the same as G1 Y1.
+
+In Relative Mode the distance and angle is also from the XY zero
+position but it is cumulative. 
+This can be confusing at first how this works in incremental mode.
+
+For example if you have the following program you might expect it to
+be a square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 @.5 ^90 
+@.5 ^90
+@.5 ^90
+@.5 ^90
+G90 G0 X0 Y0 M2
+----
+
+You can see from the following figure that the output is not what you
+might expect. Because we added 0.5 to the distance each time the 
+distance from the XY zero position increased with each line.
+
+.Polar Spiral[[fig:Polar-Spiral]]
+
+image::images/polar01.png[align="center"]
+
+The following code will produce our square pattern.
+
+----
+F100 G1 @.5 ^90 
+G91 ^90
+^90
+^90
+^90
+G90 G0 X0 Y0 M2
+----
+
+As you can see by only adding to the angle by 90 degrees each time the
+end point distance is the same for each line.
+
+.Polar Square[[fig:Polar-Square]]
+
+image::images/polar02.png[align="center"]
+
+It is an error if:
+
+* An incremental move is started at the origin
+* A mix of Polar and and X or Y words are used
+
+
 [[sec:Modal-Groups]]
 == Modal Groups
 (((Modal Groups)))
@@ -419,35 +566,42 @@ general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
 measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in Table 
-<<cap:Modal-Groups>>.
+being in effect. The modal groups are shown in the following Table.
 
-.Modal Groups[[cap:Modal-Groups]]
+.G-Code Modal Groups[[cap:Modal-Groups]]
 
-[width="90%", cols="1,2", options="header"]
+[width="100%", cols="4,6", options="header"]
 |========================================
-|Modal Group Meaning          | Member Words
-|Motion ("Group 1")           | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
-|                             | G82, G83, G84, G85, G86, G87, G88, G89
-|Plane selection              | G17, G18, G19, G17.1, G18.1, G19.1
-|Distance Mode                | G90, G91
-|Arc IJK Distance Mode        | G90.1, G91.1
-|Feed Rate Mode               | G93, G94, G95
-|Units                        | G20, G21
-|Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
-|Tool Length Offset           | G43, G43.1, G49
-|Return Mode in Canned Cycles | G98, G99
-|Coordinate System Selection  | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Control Mode                 | G61, G61.1, G64
-|Spindle Speed Mode           | G96, G97
-|Lathe Diameter Mode          | G7, G8
-|Stopping                     | M0, M1, M2, M30, M60
-|Tool Change                  | M6 Tn
-|Spindle                      | M3, M4, M5
-|Coolant                      | (M7 M8 can both be on), M9
-|Override Switches            | M48, M49
-|Flow Control                 | O-
-|Non-modal codes ("Group 0")  | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M100-M199
+|Modal Group Meaning                   | Member Words
+|Non-modal codes (Group 0)             | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, 
+.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+                                       | G82, G83, G84, G85, G86, G87, G88, G89
+|Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
+|Distance Mode (Group 3)               | G90, G91
+|Arc IJK Distance Mode (Group 4)       | G90.1, G91.1
+|Feed Rate Mode (Group 5)              | G93, G94, G95
+|Units (Group 6)                       | G20, G21
+|Cutter Diameter Compensation (Group 7)| G40, G41, G42, G41.1, G42.1
+|Tool Length Offset (Group 8)          | G43, G43.1, G49
+|Canned Cycles Return Mode (Group 10)  | G98, G99
+|Coordinate System (Group 12)          | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Control Mode (Group 13)               | G61, G61.1, G64
+|Spindle Speed Mode (Group 14)         | G96, G97
+|Lathe Diameter Mode (Group 15)        | G7, G8
+|========================================
+
+.M-Code Modal Groups[[tbl:m-modal-groups]]
+
+[width="80%", cols="4,6", options="header"]
+|========================================
+|Modal Group Meaning           | Member Words
+|Stopping (Group 4)            | M0, M1, M2, M30, M60
+|I/O on/off (Group 5)          | M6 Tn
+|Tool Change (Group 6)         | M6 Tn
+|Spindle (Group 7)             | M3, M4, M5
+|Coolant (Group 8)             | (M7 M8 can both be on), M9
+|Override Switches (Group 9)   | M48, M49
+|User Defined (Group 10)       |M100-M199
 |========================================
 
 For several modal groups, when a machining center is ready to accept
@@ -497,59 +651,59 @@ part programs. In Axis sections of the preview can be turned off using
 special comments.
 
 [[sec:Order-of-Execution]]
-= G Code Order of Execution
+== G Code Order of Execution
 (((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
- . Comment (including message)
- . Set feed rate mode (G93, G94). 
- . Set feed rate (F). 
- . Set spindle speed (S). 
- . Select tool (T). 
- . HAL pin I/O (M62-M68).
- . Change tool (M6) and Set Tool Number (M61).
- . Spindle on or off (M3, M4, M5).
- . Save State (M70, M73), Restore State (M72), Invalidate State (M71).
- . Coolant on or off (M7, M8, M9).
- . Enable or disable overrides (M48, M49,M50,M51,M52,M53).
- . User-defined Commands (M100-M199).
- . Dwell (G4). 
- . Set active plane (G17, G18, G19). 
- . Set length units (G20, G21).
- . Cutter radius compensation on or off (G40, G41, G42) 
- . Cutter length compensation on or off (G43, G49) 
- . Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
- . Set path control mode (G61, G61.1, G64)
- . Set distance mode (G90, G91). 
- . Set retract mode (G98, G99).
- . Go to reference location (G28, G30) or change coordinate system 
+* Comment (including message)
+* Set feed rate mode (G93, G94). 
+* Set feed rate (F). 
+* Set spindle speed (S). 
+* Select tool (T). 
+* HAL pin I/O (M62-M68).
+* Change tool (M6) and Set Tool Number (M61).
+* Spindle on or off (M3, M4, M5).
+* Save State (M70, M73), Restore State (M72), Invalidate State (M71).
+* Coolant on or off (M7, M8, M9).
+* Enable or disable overrides (M48, M49,M50,M51,M52,M53).
+* User-defined Commands (M100-M199).
+* Dwell (G4). 
+* Set active plane (G17, G18, G19). 
+* Set length units (G20, G21).
+* Cutter radius compensation on or off (G40, G41, G42) 
+* Cutter length compensation on or off (G43, G49) 
+* Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
+* Set path control mode (G61, G61.1, G64)
+* Set distance mode (G90, G91). 
+* Set retract mode (G98, G99).
+* Go to reference location (G28, G30) or change coordinate system 
    data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
- . Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
- . Stop (M0, M1, M2, M30, M60).
+* Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
+* Stop (M0, M1, M2, M30, M60).
 
-= G Code Best Practices
+== G Code Best Practices
 (((G Code Best Practices)))
 
-== Use an appropriate decimal precision
+=== Use an appropriate decimal precision
 
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
-== Use consistent white space
+=== Use consistent white space
 
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-== Use Center-format arcs
+=== Use Center-format arcs
 
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
-== Put important modal settings at the top of the file
+=== Put important modal settings at the top of the file
 
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
@@ -571,24 +725,24 @@ do not include G20 or G21, then different machines will mill the
 program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
-== Don't put too many things on one line
+=== Don't put too many things on one line
 
 Ignore everything in Section <<sec:Order-of-Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
-== Don't set & use a parameter on the same line
+=== Don't set & use a parameter on the same line
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 '#1=[#1+#2'] is ok.
 
-== Don't use line numbers
+=== Don't use line numbers
 
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.
 
-== When moving more than one coordinate system, consider inverse time feed mode
+== Linear and Rotary Axis
 
 Because the meaning of an F-word in feed-per-minute mode varies
 depending on which axes are commanded to move, and because the amount

@@ -1127,7 +1127,7 @@ static int init_threads(void)
 
 void emcmotSetCycleTime(unsigned long nsec ) {
     int servo_mult;
-    servo_mult = ceil(traj_period_nsec / nsec);
+    servo_mult = traj_period_nsec / nsec;
     if(servo_mult < 0) servo_mult = 1;
     setTrajCycleTime(nsec * 1e-9);
     setServoCycleTime(nsec * servo_mult * 1e-9);

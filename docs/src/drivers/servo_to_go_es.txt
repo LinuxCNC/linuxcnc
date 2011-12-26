@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = Servo-To-Go
 
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
@@ -8,7 +11,9 @@ bits digital I/O, an interval timer with interrupt and a watchdog.
 
 == Installing
 
-`loadrt hal_stg [base=<address>] [num_chan=<nr>] [dio="<dio-string>"] [model=<model>]`
+----
+loadrt hal_stg [base=<address>] [num_chan=<nr>] [dio="<dio-string>"] [model=<model>]
+----
 
 The base address field is optional; if it's not provided the driver
 attempts to autodetect the board. The num_chan field is used to specify
@@ -27,7 +32,9 @@ hint: after starting up the driver, 'dmesg' can be consulted for
 messages relevant to the driver (e.g. autodetected version number and
 base address). For example:
 
-    loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
+----
+loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
+----
 
 This example installs the STG driver for a card found at the base
 address of 0x300, 4 channels of encoder feedback, DACs and ADCs, 
@@ -36,7 +43,9 @@ configured as Input, the next 8 (Port B) configured as Output, the next
 8 (Port C) configured as Input, and the last 8 (Port D) configured as
 Output
 
-    loadrt hal_stg
+----
+loadrt hal_stg
+----
 
 This example installs the driver and attempts to autodetect the board
 address and board model, it installs 8 axes by default along with a
@@ -45,15 +54,15 @@ configured as Output.
 
 == Pins
 
- - stg.<channel>.counts (s32) Tracks the counted encoder ticks.
- - stg.<channel>.position (float) Outputs a converted position.
- - stg.<channel>.dac-value (float) Drives the voltage for the
+* 'stg.<channel>.counts' - (s32) Tracks the counted encoder ticks.
+* 'stg.<channel>.position' - (float) Outputs a converted position.
+* 'stg.<channel>.dac-value' - (float) Drives the voltage for the
    corresponding DAC.
- - stg.<channel>.adc-value (float) Tracks the measured voltage from the
+* 'stg.<channel>.adc-value' - (float) Tracks the measured voltage from the
    corresponding ADC.
- - stg.in-<pinnum> (bit) Tracks a physical input pin.
- - stg.in-<pinnum>-not (bit) Tracks a physical input pin, but inverted.
- - stg.out-<pinnum> (bit) Drives a physical output pin
+* 'stg.in-<pinnum>' - (bit) Tracks a physical input pin.
+* 'stg.in-<pinnum>-not' - (bit) Tracks a physical input pin, but inverted.
+* 'stg.out-<pinnum>' - (bit) Drives a physical output pin
 
 For each pin, <channel> is the axis number, and <pinnum> is the logic
 pin number of the STG if `IIOO` is defined, there are 16 input pins (in-00
@@ -67,15 +76,15 @@ other, the user can determine the state of the input.
 
 == Parameters
 
- - stg.<channel>.position-scale (float) The number of counts / user unit
+* 'stg.<channel>.position-scale' - (float) The number of counts / user unit
    (to convert from counts to units).
- - stg.<channel>.dac-offset (float) Sets the offset for the corresponding
+* 'stg.<channel>.dac-offset' - (float) Sets the offset for the corresponding
    DAC.
- - stg.<channel>.dac-gain (float) Sets the gain of the corresponding DAC.
- - stg.<channel>.adc-offset (float) Sets the offset of the corresponding
+* 'stg.<channel>.dac-gain' - (float) Sets the gain of the corresponding DAC.
+* 'stg.<channel>.adc-offset' - (float) Sets the offset of the corresponding
    ADC.
- - stg.<channel>.adc-gain (float) Sets the gain of the corresponding ADC.
- - stg.out-<pinnum>-invert (bit) Inverts an output pin.
+* 'stg.<channel>.adc-gain' - (float) Sets the gain of the corresponding ADC.
+* 'stg.out-<pinnum>-invert' - (bit) Inverts an output pin.
 
 The -invert parameter determines whether an output pin is active high
 or active low. If -invert is FALSE, setting the HAL out- pin TRUE
@@ -85,12 +94,12 @@ low.
 
 === Functions
 
- - stg.capture-position (funct) Reads the encoder counters from the axis
+* 'stg.capture-position' - Reads the encoder counters from the axis
    <channel>.
- - stg.write-dacs (funct) Writes the voltages to the DACs.
- - stg.read-adcs (funct) Reads the voltages from the ADCs.
- - stg.di-read (funct) Reads physical in- pins of all ports and updates
+* 'stg.write-dacs' - Writes the voltages to the DACs.
+* 'stg.read-adcs' - Reads the voltages from the ADCs.
+* 'stg.di-read' - Reads physical in- pins of all ports and updates
    all HAL in-<pinnum> and in-<pinnum>-not pins.
- - stg.do-write (funct) Reads all HAL out-<pinnum> pins and updates all 
+* 'stg.do-write' - Reads all HAL out-<pinnum> pins and updates all 
    physical output pins.
 

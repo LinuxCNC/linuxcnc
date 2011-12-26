@@ -1,3 +1,6 @@
+//:lang: pl
+:toc:
+
 = MINI
 
 (((Mini GUI)))
@@ -26,20 +29,20 @@ Operators Manual.]
 
 image::images/mini02.png[]
 
-The Mini screen is laid out in several sections. See Figure 
-(<<fig:startmini>>). These include a menu across the top, a set of main
+The Mini screen is laid out in several sections. These include a menu
+across the top, a set of main
 control buttons just below the menu, and two rather large columns of
 information that show the state of your machine and allow you to enter
 commands or programs.
 
-When you compare figure <<fig:startmini>> with figure <<fig:runmini>>
+When you compare starting screen with run screen
 you will see many differences. In the second figure
 
- - each axis has been homed -- the display numbers are dark green
- - the EMC mode is auto -- the auto button has a light green background
- - the backplotter has been turned on -- backplot is
-   visible in the pop-in window
- - the tool path from the program is showing in the display. 
+* each axis has been homed -- the display numbers are dark green
+* the EMC mode is auto -- the auto button has a light green background
+* the backplotter has been turned on -- backplot is
+  visible in the pop-in window
+* the tool path from the program is showing in the display. 
 
 Once you start working with Mini you will quickly discover how easily
 it shows the conditions of the EMC and allows you to make changes to it.
@@ -54,104 +57,82 @@ in order to familiarize yourself with the features that are there.
 
 The menu includes each of the following sections and subsections.
 
-Program::
-     This menu includes both reset and exit functions. Reset will return
+* 'Program' - This menu includes both reset and exit functions. Reset will return
     the EMC to the condition that it was in when it started. Some startup
     configuration items like the normal program units can be specified in
     the ini file. 
 
-View::
-     This menu includes several screen elements that can be added so that
+* 'View' - This menu includes several screen elements that can be added so that
     you can see additional information during a run. These include
 
-    Position_Type;;
-         This menu item adds a line above the main position displays that
+** 'Position_Type' - This menu item adds a line above the main position displays that
         shows whether the displays are in inches or metric and whether 
         they are Machine or Relative location and if they are 
         Actual positions or Commanded positions. These can be changed 
         using the Settings menu described below.
     
-    Tool_Info;;
-         This adds a line immediately below the main position displays that
+** 'Tool_Info' - This adds a line immediately below the main position displays that
         shows which tool has been selected and the length of offset applied.
     
-    Offset_Info;;
-         adds a line immediately below the tool info that shows what offsets
+** 'Offset_Info' - adds a line immediately below the tool info that shows what offsets
         have been applied. This is a total distance for each axis from
         machine zero.
     
-    Show_Restart;;
-         adds a block of buttons to the right of the program display in auto
+** 'Show_Restart' - adds a block of buttons to the right of the program display in auto
         mode. These allow the operator to restart a program after an abort
         or estop. These will pop in whenever estop or abort is pressed but
         can be shows by the operator anytime auto mode is active by 
         selecting this menu item. 
     
-    Hide_Restart;;
-         removes the block of buttons that control the restart of a program
+** 'Hide_Restart' - removes the block of buttons that control the restart of a program
         that has been aborted or estopped.
     
-    Show_Split_Right;;
-          changes the nature of the right hand column so that it shows both
+** 'Show_Split_Right' - changes the nature of the right hand column so that it shows both
     mode and pop-in information.
     
-    Show_Mode_Full;;
-         changes the right hand column so that the mode buttons or displays
+** '    Show_Mode_Full' - changes the right hand column so that the mode buttons or displays
         fill the entire right side of the screen. In manual mode, running
         with mode full you will see spindle and lube control buttons as well as
         the motion buttons.
     
-    Show_Popin_Full;;
-         changes the right hand column so that the popin fills the entire
+** '    Show_Popin_Full' - changes the right hand column so that the popin fills the entire
         right side of the screen.
 
-Settings::
-     These menu items allow the operator to control certain parameters
+* 'Settings' - These menu items allow the operator to control certain parameters
     during a run.
 
-    Actual_Position;;
-         sets the main position displays to actual(machine based) values.
+** 'Actual_Position' - sets the main position displays to actual(machine based) values.
     
-    Commanded_Position;;
-         sets the main position displays to the values that they were
+** 'Commanded_Position' - sets the main position displays to the values that they were
         commanded to. 
     
-    Machine_Position;;
-         sets the main position displays to the absolute distance from where
+** 'Machine_Position' - sets the main position displays to the absolute distance from where
         the machine was homed.
     
-    Relative_Position;;
-          sets the main position displays to show the current position
+** 'Relative_Position' - sets the main position displays to show the current position
         including any offsets like part zeros that are active. For more 
         information on offsets see the chapter on coordinate systems.
 
-Info::
-     lets you see a number of active things by writing their values into
+* 'Info' - lets you see a number of active things by writing their values into
     the MESSAGE pad.
 
-    Program_File;;
-         will write the currently active program file name.
+** 'Program_File' - will write the currently active program file name.
     
-    Editor_File;;
-         will write the currently active file if the editor pop in is active
+** 'Editor_File' - will write the currently active file if the editor pop in is active
         and a file has been selected for editing.
     
-    Parameter_File;;
-          will write the name of the file being used for program
+** 'Parameter_File' - will write the name of the file being used for program
         parameters. You can find more on this in the chapters on offsets 
         and using variables for programming. 
     
-    Tool_File;;
-         will write the name of the tool file that is being used during
+** 'Tool_File' - will write the name of the tool file that is being used during
     this run.
     
-    Active_G-Codes;;
-         will write a list of all of the modal program codes that are active
+** 'Active_G-Codes' - will write a list of all of the modal program codes that are active
         whenever this item is selected. For more information about modal
         codes see the introductory part programming chapter.
 
-Help::
-    opens a text window pop in that displays the contents of the help file.
+* 'Help' - opens a text window pop in that displays the contents of the help file.
 
 You will notice between the info menu and the help menu there are a
 set of four buttons. These are called check buttons because they have a
@@ -184,7 +165,7 @@ through the available sizes.
 
 .Manual Mode Buttons[[cap:Manual-Mode-Buttons]]
 
-image::images/miniman.png[]
+image::images/miniman.png[align="center"]
 
 .From the Sherline CNC Operators Manual: 
 ***********************************************************************
@@ -194,7 +175,7 @@ be simpler to operate if it didn't use a machine home position.
 This button will zero out any offsets and will home all axes right 
 where they are.
 
-Axis focus is important here. Notice in figure (<<fig:startmini>>) 
+Axis focus is important here. Notice in <<fig:startmini,startup figure>>
 that in manual mode you see a line or 'groove' around the X axis to 
 highlight its position display. This groove says that X is the active 
 axis. It will be the target for jog moves made with the 'plus' and 
@@ -247,7 +228,7 @@ the same as they do with the tkemc graphical interface.
 
 .Auto Mode[[cap:Auto-Mode]]
 
-image::images/miniauto.png[]
+image::images/miniauto.png[align="center"]
 
 Auto mode does not normally display the active or modal codes. If the
 operator wishes to check these, use menu Info -> Active_G-Codes. This
@@ -429,8 +410,8 @@ like falling behind, the message pad will show what happened. If you
 want to remind an operator to change a tool, for example, you can add a
 line of code to your program that will display in the message box. An
 example might be (msg, change to tool #3 and press resume). This line
-of code, included in a program, will display “change to tool #3 and
-press resume” in the message box. The word msg, (with comma included)
+of code, included in a program, will display 'change to tool #3 and
+press resume' in the message box. The word msg, (with comma included)
 is the command to make this happen; without 'msg,'  the message
 wouldn't be displayed. It will still show in the auto
 modes' display of the program file.
@@ -451,7 +432,7 @@ described in detail below.
 
 .Mini Text Editor[[cap:Mini-Text-Editor]]
 
-image::images/miniedit.png[]
+image::images/miniedit.png[align="center"]
 
 The editor is rather limited compared to many modern text editors. It
 does not have 'undo' nor 'paste' between windows with the clipboard. 
@@ -472,7 +453,7 @@ when you click on the editor button on the top menu.
 
 .Minis Backplotter[[cap:Minis-Backplotter]]
 
-image::images/minibkplot.png[]
+image::images/minibkplot.png[align="center"]
 
 Backplot [Backplot] will show the tool path that can be viewed from a
 chosen direction. '3-D' is the default. Other choices and controls are
@@ -509,7 +490,7 @@ is running or when the program is paused.
 
 .Mini Tool Display[[cap:Mini-Tool-Display]]
 
-image::images/minitool.png[]
+image::images/minitool.png[align="center"]
 
 The [Add Tools] and [Remove Tools] buttons work on the bottom of the
 tool list so you will want to fill in tool information in descending
@@ -528,7 +509,7 @@ an axis to a teach position.
 
 .Mini Offset Display[[cap:Mini-Offset-Display]]
 
-image::images/minioffsets.png[]
+image::images/minioffsets.png[align="center"]
 
 You can also teach using an edgefinder by adding the radius and length
 to the offset_by widgets. When you do this you may need to add or
@@ -552,127 +533,56 @@ is operating in.
 
 === Common Keys
 
-Pause::
-    Toggle feedhold
-
-Escape::
-    abort motion 
-
-F1::
-    toggle estop/estop reset state 
-
-F2::
-    toggle machine off/machine on state 
-
-F3::
-    manual mode 
-
-F4::
-    auto mode 
-
-F5::
-    MDI mode 
-
-F6::
-    reset interpreter
+* 'Pause' - Toggle feedhold
+* 'Escape' - abort motion 
+* 'F1' - toggle estop/estop reset state 
+* 'F2' - toggle machine off/machine on state 
+* 'F3' - manual mode 
+* 'F4' - auto mode 
+* 'F5' - MDI mode 
+* 'F6' - reset interpreter
 
 The following only work for machines using auxiliary I/O
 
-F7::
-    toggle mist on/mist off
-
-F8::
-    toggle flood on/flood off
-
-F9::
-    toggle spindle forward/off
-
-F10::
-    toggle spindle reverse/off
-
-F11::
-    decrease spindle speed
-
-F12::
-    increase spindle speed
+* 'F7' - toggle mist on/mist off
+* 'F8' - toggle flood on/flood off
+* 'F9' - toggle spindle forward/off
+* 'F10' - toggle spindle reverse/off
+* 'F11' - decrease spindle speed
+* 'F12' - increase spindle speed
 
 === Manual Mode (((Manual)))
 
-1-9 0::
-    set feed override to 10%-90%, 0 is 100%
-
-~::
-    set feed override to 0 or feedhold
-
-x::
-    select X axis
-
-y::
-    select Y axis
-
-z::
-    select Z axis
-
-a::
-    select A axis
-
-b::
-    select B axis
-
-c::
-    select C axis
-
-Left Right Arrow::
-    jog X axis
-
-Up Down Arrow::
-    jog Y axis
-
-Page Up Down::
-    jog Z axis 
-
-- _::
-    jog the active axis in the minus direction 
-
-+ =::
-    jog the active axis in the plus direction.
-
-Home::
-    home selected axis
-
-i I::
-    toggle through jog increments 
+* '1-9 0' - set feed override to 10%-90%, 0 is 100%
+* '~' - set feed override to 0 or feedhold
+* 'x' - select X axis
+* 'y' - select Y axis
+* 'z' - select Z axis
+* 'a' - select A axis
+* 'b' - select B axis
+* 'c' - select C axis
+* 'Left Right Arrow' - jog X axis
+* 'Up Down Arrow' - jog Y axis
+* 'Page Up Down' - jog Z axis 
+* '- _' - jog the active axis in the minus direction 
+* '+ =' - jog the active axis in the plus direction.
+* 'Home' - home selected axis
+* 'i I' - toggle through jog increments 
 
 The following only work with a machine using auxiliary I/O
 
-b::
-    take spindle brake off
-
-Alt-b::
-    put spindle brake on
+* 'b' - take spindle brake off
+* 'Alt-b' - put spindle brake on
 
 === Auto Mode  (((Auto)))
 
-1-9,0::
-    set feed override to 10%-90%, 0 is 100%
-
-~::
-    set feed override to 0 or feedhold
-
-o/O::
-    open a program
-
-r/R::
-    run an opened program
-
-p/P::
-    pause an executing program
-
-s/S::
-    resume a paused program
-
-a/A::
-    step one line in a paused program
+* '1-9,0' - set feed override to 10%-90%, 0 is 100%
+* '~' - set feed override to 0 or feedhold
+* 'o/O' - open a program
+* 'r/R' - run an opened program
+* 'p/P' - pause an executing program
+* 's/S' - resume a paused program
+* 'a/A' - step one line in a paused program
 
 == Misc
 

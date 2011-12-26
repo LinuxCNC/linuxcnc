@@ -84,7 +84,7 @@ happen. EMC requires and uses a 'real time' operating system, which just means
 it has a low latency ( lateness ) response time when EMC requires it's 
 calculations and when doing EMC's calculations it cannot be interrupted by lower
 priority requests (such as user input to screen buttons or drawing etc).
-
++
 Testing the latency is very important and a key thing to check early. Luckily by
 using the Mesa card to do the work that requires the fastest response time 
 (encoder counting and PWM generation) we can endure a lot more latency then if 
@@ -277,7 +277,7 @@ VCP options::
 Virtual Control Panels allow one to add custom controls and displays to the 
 screen. AXIS and Touchy can integrate these controls inside the screen in 
 designated positions. There are two kinds of VCPs -
-pyVCP which uses *Tkinter* to draw the screen and GLADE VCP that uses *GTK* to 
+pyVCP which uses 'Tkinter' to draw the screen and GLADE VCP that uses 'GTK' to 
 draw the screen.
 
 PyVCP::
@@ -286,18 +286,18 @@ as they both use TKinter.
 +
 HAL pins are created for the user to connect to inside their custom HAL file.
 There is a sample spindle display panel for the user to use as-is or build on.
-You may select a blank file that you can later add your controls ("widgets") to 
+You may select a blank file that you can later add your controls 'widgets' to 
 or select a spindle display sample that will display spindle speed and indicate 
 if the spindle is at requested speed.
 +
 PNCconf will connect the proper spindle display HAL pins for you.
 If you are using AXIS then the panel will be integrated on the right side.
-If not using AXIS then the panel will be separate ("stand-alone") from the 
+If not using AXIS then the panel will be separate 'stand-alone' from the 
 frontend screen.
 +
 You can use the geometry options to size and move the panel, for instance to 
-move it to a second screen if the system is capable. If you press the "Display 
-sample panel" button the size and placement options will be honoured.
+move it to a second screen if the system is capable. If you press the 'Display 
+sample panel' button the size and placement options will be honoured.
 
 GLADE VCP::
 GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw 
@@ -327,7 +327,7 @@ conductive tool. For an idea on how it works see:
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadderExamples#Single_button_probe_touchoff 
 +
 Under 'Display Options', size, position, and force max can be used on a 
-"stand-alone" panel for such things as placing the screen on a second monitor if
+'stand-alone' panel for such things as placing the screen on a second monitor if
 the system is capable.
 +
 You can select a GTK theme which sets the  basic look and feel of the panel.

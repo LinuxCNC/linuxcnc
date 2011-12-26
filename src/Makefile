@@ -591,21 +591,21 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
 	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
 
-configs:
-	$(ECHO) copying shared configs
-	@make copy_configs
-        
-copy_configs: $(COPY_CONFIGS)
+configs: $(COPY_CONFIGS)
 
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
+.PHONY: print_copy_configs
+print_copy_configs:
+	$(ECHO) copying shared configs
+
+$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal print_copy_configs
 	$(Q)-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
+$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal print_copy_configs
 	$(Q)-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
+$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal print_copy_configs
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
+$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal print_copy_configs
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
+$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
 	$(Q)-cp $< $@
  
 endif # userspace
@@ -627,7 +627,7 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
 ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse
+EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
 endif
 
 ifeq "$(USE_STUBS)" "1"

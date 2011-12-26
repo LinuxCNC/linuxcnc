@@ -35,7 +35,7 @@ En outre il y a une couche appelée HAL (couche d'abstraction du matériel)
 qui permet la configuration d'EMC2 sans avoir besoin de recompiler.
 
 
-image::whatstep1.png[Machine simple contrôlée par EMC2]
+image::images/whatstep1.png[Machine simple contrôlée par EMC2]
 
 La figure ci-dessus montre un diagramme bloc
 représentant une machine 3 axes typique comme EMC2 les aime. Cette

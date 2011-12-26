@@ -1,4 +1,7 @@
-= GS2 Spindle[[cha:GS2-Spindle]]
+//:lang: pl
+:toc:
+
+= GS2 Spindle[[gs2-spindle]]
 
 This example shows the connections needed to use an Automation Direct
 GS2 VFD to drive a spindle. The spindle speed and direction is
@@ -35,10 +38,10 @@ information on the drive parameters.
 
  - The communications switches must be set to RS-232C
  - The motor parameters must be set
- - P3.00 (Source of Operation Command) must be set to "Operation
-   determined by RS-485 interface", 03 or 04
- - P4.00 (Source of Frequency Command) must be set to "Frequency
-   determined by RS232C/RS485 communication interface", 05
+ - P3.00 (Source of Operation Command) must be set to Operation
+   determined by RS-485 interface, 03 or 04
+ - P4.00 (Source of Frequency Command) must be set to Frequency
+   determined by RS232C/RS485 communication interface, 05
  - P9.02 (Communication Protocol) must be set to "Modbus RTU mode, 
    8 data bits, no parity, 2 stop bits", 03
 

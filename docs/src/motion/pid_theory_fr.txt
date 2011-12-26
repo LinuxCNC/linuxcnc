@@ -1,23 +1,24 @@
 :lang: fr
 :toc:
 
-= Réglages d'une boucle PID
+[[cha:Regulation-PID]]
+= Réglages d'une boucle PID(((Régulation à PID)))
 
 == Régulation à PID
 
 Un régulateur Proportionnel Intégral Dérivé (PID) est un organe de
 contrôle qui permet d'effectuer une régulation en boucle fermée d'un
-procédé industriel.
+procédé.
 
 Le régulateur compare une valeur mesurée sur le procédé avec une
 valeur de consigne. La différence entre ces deux valeurs (le signal
-d'«erreur») est alors utilisée pour calculer une nouvelle valeur
-d'entrée du process tandant à réduire au maximum l'écart entre la
+d'*erreur*) est alors utilisée pour calculer une nouvelle valeur
+d'entrée du procédé tendant à réduire au maximum l'écart entre la
 mesure et la consigne (signal d'erreur le plus faible possible).
 
 Contrairement aux algorithmes de régulation simples, le contrôle par
 PID peut ajuster les sorties du procédé, en fonction de l'amplitude du
-signal d'erreur, et en focntion du temps. Il donne des résultats plus
+signal d'erreur, et en fonction du temps. Il donne des résultats plus
 précis et un contrôle plus stable. (Il est montré mathématiquement
 qu'une boucle PID donne un contrôle plus stable qu'un contrôle
 proportionnel seul et qu'il est plus précis que ce dernier qui laissera
@@ -29,8 +30,8 @@ Intuitivement, une boucle PID essaye d'automatiser ce que fait un
 opérateur muni d'un multimètre et d'un potentiomètre de contrôle.
 L'opérateur lit la mesure de sortie du procédé, affichée sur le
 multimètre et utilise le bouton du potentiomètre pour ajuster l'entrée
-du procédé (l'«action») jusqu'à stabiliser la mesure de la sortie
-souhaîtée, affichée sur le multimètre.
+du procédé (l'*action*) jusqu'à stabiliser la mesure de la sortie
+souhaitée, affichée sur le multimètre.
 
 Un boucle de régulation est composée de trois parties:
 
@@ -44,7 +45,7 @@ exemple un codeur.
 Quand le régulateur lit le capteur, il soustrait la valeur lue à la
 valeur de la consigne et ainsi, obtient l'«erreur de mesure». Il peut
 alors utiliser cette erreur pour calculer une correction à appliquer
-sur la variable d'entrée du procédé (l'«action») de sorte que cette
+sur la variable d'entrée du procédé (l'*action*) de sorte que cette
 correction tende à supprimer l'erreur mesurée en sortie de procédé.
 
 Dans une boucle PID, la correction à partir de l'erreur est calculée
@@ -56,32 +57,32 @@ de temps (effet dérivé).
 Une régulation à PID peut être utilisée dans n'importe quel procédé
 pour contrôler une variable mesurable, en manipulant d'autres variables
 de ce procédé. Par exemple, elle peut être utilisée pour contrôler:
-température, pression, débit, compostion chimique, vitesse et autres
+température, pression, débit, composition chimique, vitesse et autres
 variables.
 
 Dans certains systèmes de régulation, les régulateurs sont placés en
-série ou en parallèle. Dans ces cas, le régulateur «maître» produit les
-signaux utilisés par les régulateurs «esclaves». Une situation courante
+série ou en parallèle. Dans ces cas, le régulateur *maître* produit les
+signaux utilisés par les régulateurs *esclaves*. Une situation courante
 dans le contrôle des moteurs, la régulation de vitesse, qui peut
 demander que la vitesse du moteur soit contrôlée par un régulateur
-«esclave» (souvent intégré dans le variateur de fréquence du moteur)
+*esclave* (souvent intégré dans le variateur de fréquence du moteur)
 recevant en entrée une valeur proportionnelle à la vitesse. Cette
-entrée de l'«esclave» est alors fournie par la sortie du régulateur
-«maître», lequel reçoit la variable de consigne.
+entrée de l'*esclave* est alors fournie par la sortie du régulateur
+*maître*, lequel reçoit la variable de consigne.
 
 === Théorie
 
-Le «PID» représente les abréviations des trois actions qu'il utilise
+Le *PID* représente les abréviations des trois actions qu'il utilise
 pour effectuer ses corrections, ce sont des ajouts d'un signal à un
 autre. Tous agissent sur la quantité régulée. Les actions aboutissent
-finalement à des «soustractions» de l'erreur de mesure, parce que le
+finalement à des *soustractions* de l'erreur de mesure, parce que le
 signal proportionnel est habituellement négatif.
 
-==== Action Proportionelle
+==== Action Proportionnelle
 
 Pour cette action, l'erreur est multipliée par la constante P (pour
 Proportionnel) qui est négative, puis ajoutée (soustraction de l'erreur
-de mesure) à la quantitée régulée. P est valide uniquement sur la bande
+de mesure) à la quantité régulée. P est valide uniquement sur la bande
 dans laquelle le signal de sortie du régulateur est proportionnel à
 l'erreur du système. Noter que si l'erreur de mesure est égale à zéro,
 la partie proportionnelle de la sortie du régulateur est également à
@@ -97,7 +98,7 @@ de mesure) à la quantité régulée. La moyenne de l'erreur de mesure
 permet de trouver l'erreur moyenne entre la sortie du régulateur et la
 valeur de la consigne. Un système seulement proportionnel oscille en
 plus et en moins autour de la consigne du fait qu'en arrivant vers la
-consigne, l'erreur est à zéro, il n'enléve alors plus rien est dépasse
+consigne, l'erreur est à zéro, il n'enlève alors plus rien est dépasse
 la consigne, ou oscille et/ou se stabilise à une valeur trop basse ou
 trop élevée. L'addition sur l'entrée d'une proportion négative
 (soustraction) de l'erreur de mesure moyennée, permet toujours de
@@ -175,10 +176,10 @@ Effets de l'augmentation des paramètres
 
 ==== Méthode de Ziegler-Nichols
 
-Une autre méthode de réglage est la méthode dite de «Ziegler-Nichols»,
+Une autre méthode de réglage est la méthode dite de "Ziegler-Nichols",
 introduite par John G. Ziegler et Nathaniel B. Nichols. Elle commence
 comme la méthode précédente: réglage des gains I et D à zéro et
-acroîssement du gain P jusqu'à ce que la sortie du procédé commence à
+accroissement du gain P jusqu'à ce que la sortie du procédé commence à
 osciller. Noter alors le gain critique (K~c~) et la période d'oscillation 
 de la sortie (P~c~). Ajuster alors
 les termes P, I et D de la boucle comme sur la table ci-dessous:

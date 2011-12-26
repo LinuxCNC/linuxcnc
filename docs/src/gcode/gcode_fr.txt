@@ -1835,38 +1835,35 @@ C'est une erreur si:
  - *P-*, *J-*, *K-* ou *H-* est négatif.
  - *E-* est supérieur à la moitié de la longueur de la ligne pilote.
 
-Ligne pilote::
-    (drive line) La ligne pilote est une ligne imaginaire, parallèle à
+image::images/g76-threads.png[]
+
+[horizontal]
+Ligne pilote:: (Drive Line) La ligne pilote est une ligne imaginaire, parallèle à
     l'axe de la broche (Z), située en sécurité à l'extérieur du matériau à
     fileter. La ligne pilote va du point initial en Z jusqu'à la fin du
     filetage donnée par la valeur de *Z-* dans la commande.
 
-P-::
-    Le pas du filet, ou la longueur du déplacement par tour.
+P-:: Le pas du filet, ou la longueur du déplacement par tour.
 
-Z-::
-    La position finale du filetage. A la fin du cycle, l'outil sera
+Z-:: La position finale du filetage. A la fin du cycle, l'outil sera
     à cette position Z.
 
-I-::
-    La crête du filet est une distance entre la ligne pilote et la 
+I-:: La crête du filet est une distance entre la ligne pilote et la 
     surface de la pièce. Une valeur négative de *I-*, 
     indique un filetage externe et une valeur positive, indique un
     filetage interne. C'est généralement à ce diamètre nominal que le
-matériau est cylindré avant de commencer le cycle *G76*.
+    matériau est cylindré avant de commencer le cycle *G76*.
 
-J-::
-    Une valeur positive spécifie la profondeur de la passe initiale.
-    La première passe sera à *J-* au delà de la crête du filet *I*.
+J-:: Une valeur positive, spécifie la profondeur de la passe initiale.
+     La première passe sera à *J-* au delà de la crête du filet *I*.
 
-K-::
-    Une valeur positive spécifie la profondeur du filet. 
+K-:: Une valeur positive, spécifie la profondeur du filet. 
     La dernière passe du filetage sera à *K-* au delà de la crête du filet.
 
 Paramètres optionnels:
 
-R-::
-    La dégressivité de la profondeur de passe. *R1.0* spécifie une profondeur 
+[horizontal]
+R-:: La dégressivité de la profondeur de passe. *R1.0* spécifie une profondeur 
     de passe constante pour les passes successives du filetage. 
     *R2.0* sélectionne une surface constante.
     Les valeurs comprises entre 1.0 et 2.0 sélectionnent 
@@ -1877,31 +1874,28 @@ R-::
     demanderont un nombre inutilement important de passes.
     (dégressivité = une plongée par paliers ou par étapes)
 
-Q-::
-    L'angle de pénétration oblique. C'est l'angle (en degrés) 
+Q-:: L'angle de pénétration oblique. C'est l'angle (en degrés) 
     décrivant de combien, les passes successives doivent être décalées 
     le long de l'axe Z. C'est utilisé pour faire enlever plus de matériau 
     d'un côté de l'outil que de l'autre. 
     Une valeur positive de *Q* fait couper d'avantage la pointe de l'outil. 
     Typiquement, les valeurs sont 29, 29.5 ou 30 degrés.
 
-H-::
-    Le nombre de passes de finition. Les passes de finition sont 
+H-:: Le nombre de passes de finition. Les passes de finition sont 
     des passes additionnelles en fond de filet. 
     Pour ne pas faire de passe de finition, programmer *H0*.
 
 Les entrées et sorties de filetage peuvent être programmées coniques
     avec les valeurs de *E-* et *L-*.
 
-E-::
-    Donne la longueur des parties coniques le long de l'axe Z. 
+[horizontal]
+E-:: Donne la longueur des parties coniques le long de l'axe Z. 
     L'angle du cône ira de la profondeur de la dernière passe à la
     crête du filet *I*. *E2.0* donnera un cône d'entrée et de sortie
     d'une longueur de 2.0 unités dans le sens du filetage. Pour
     un cône à 45 degrés, programmer *E* identique à *K*.
 
-L-::
-    Est utilisé pour spécifier quelles extrémités du filetage doivent 
+L-:: Est utilisé pour spécifier quelles extrémités du filetage doivent 
     être coniques. Programmer *L0* pour aucune (par défaut), *L1* pour une
     entrée conique, *L2* pour une sortie conique, ou *L3* pour l'entrée et
     la sortie coniques.
@@ -1926,10 +1920,10 @@ Un mouvement de sécurité peut être nécessaire avec un filetage interne,
 pour sortir l'outil de la pièce.
 
 Un programme de filetage, *g76.ngc* montre l'utilisation d'un cycle de
-filetage G76, il peut être visualisé et exécuté sur n'importe quelle machine utilisant la
-configuration *sim/lathe.ini*.
+filetage G76, il peut être visualisé et exécuté sur n'importe quelle machine 
+utilisant la configuration *sim/lathe.ini*.
 
-L'exemple suivant explique ce qui s'est passé pendant l'exécution de ce G-Code:
+L'exemple suivant montre ce qui s'est passé pendant l'exécution de ce G-Code:
 
 ----
     G0 Z-.5 X .2

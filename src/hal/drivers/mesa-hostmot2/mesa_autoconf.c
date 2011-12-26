@@ -124,8 +124,8 @@ void hm2_auto_prepare_tram_write(hostmot2_t *hm2){
                             case 0x01: // bits
                                 buff = 0;
                                 for (b = 0 ; b < conf->DataLength ; b++){
-                                    buff |= ((*pin->bit_pins[b] != 0) << b)
-                                          ^ ((pin->invert[b] != 0) << b);
+                                    buff |= ((u64)(*pin->bit_pins[b] != 0) << b)
+                                          ^ ((u64)(pin->invert[b] != 0) << b);
                                 }
                                 break;
                             case 0x02: // unsigned

@@ -26,3 +26,6 @@ share/menus/CNC.menu
 share/desktop-directories/cnc.directory
 src/modules.order
 docs/html/drivers
+/configs/*/emc.nml
+!/configs/common/emc.nml
+/docs/src/source-highlight/local

@@ -8,7 +8,7 @@
 Certaines de ces descriptions sont plus approfondies dans leurs pages
 man. Certaines y auront une description exhaustive, d'autres, juste une description limitée. Chaque composant a sa man page. La liste ci-dessous, montre les composants existants, 
 avec le nom et le N° de section de leur page man. 
-Par exemple dans une console, tapez `man axis` pour accéder aux informations de la man page d'Axis.
+Par exemple dans une console, tapez *man axis* pour accéder aux informations de la man page d'Axis.
 Ou peut être *man 1 axis*, si le système exige le N° de section des man pages.
 
 - *axis* = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur.
@@ -47,7 +47,7 @@ Porte AND (ET) à deux entrées.
 
 === at_pid (((at_pid)))
 
-Contrôleur Proportionnelle/Intégrale/dérivée avec réglage automatique
+Contrôleur Proportionnelle/Intégrale/dérivée avec réglage automatique.
 
 === axis (((axis)))
 
@@ -68,8 +68,8 @@ Provoque une interpolation linéaire entre deux valeurs
 
 === charge_pump (((charge_pump)))
 
-Crée un signal carré destiné à l'entrée `pompe de charge` de 
-certaines cartes de contrôle
+Crée un signal carré destiné à l'entrée *pompe de charge* de 
+certaines cartes de contrôle.
 
 === clarke2 (((clarke2))) 
 
@@ -139,7 +139,7 @@ Converti une valeur de u32 en s32.
 
 Comptage d'impulsions d'entrée (obsolète).
 
-Utilisez le composant *encoder* avec `... counter-mode = TRUE`. Voir <<sec:Codeur>>.
+Utilisez le composant *encoder* avec *... counter-mode = TRUE*. Voir <<sec:Codeur>>.
 
 === ddt (((ddt)))
 
@@ -171,7 +171,6 @@ Verrou d'Arrêt d'Urgence.
 
 === feedcomp (((feedcomp)))
 
-Multiply the input by the ratio of current velocity to the feed rate.
 Multiplie l'entrée par le ratio vitesse courante/vitesse d'avance travail. 
 
 === flipflop (((flipflop)))
@@ -201,8 +200,7 @@ Cinématique capable de modéliser une bras manipulateur avec un maximum de 6 ar
 
 === gladevcp (((gladevcp)))
 
-Displays Virtual Control Panels built with GTK/Glade. 
-Affiche un panneaux de contrôle virtuel construit avec GTK/Glade.
+Affiche un panneaux de contrôle virtuel construit avec GladeVCP.
 
 === hm2_7i43 (((hm2_7i43)))
 
@@ -215,7 +213,6 @@ avec micro logiciel HostMot2.
 
 === hostmot2 (((hostmot2)))
 
-HAL driver for the Mesa Electronics HostMot2 firmware.
 Pilote HAL pour micro logiciel _Mesa Electronics_ HostMot2.  
 
 === hypot (((hypot)))
@@ -288,7 +285,7 @@ Détecteur de coïncidence binaire sur 8 bits.
 
 === maxkins (((maxkins)))
  
-Cinématique d'une fraiseuse 5 axes nommée `max`, avec tête inclinable (axe B) ​
+Cinématique d'une fraiseuse 5 axes nommée *max*, avec tête inclinable (axe B) ​
 ​et un axe rotatif horizontal monté sur la table (axe C). 
 Fournit le mouvement UVW dans le système de coordonnées système tourné. 
 Le fichier source, maxkins.c, peut être un point de départ utile 
@@ -348,16 +345,16 @@ Porte OR (OU) à deux entrées.
 
 === pid (((pid)))
 
-Contrôleur Proportionnelle/Intégrale/dérivée, voir <<sec:PID>>
+Contrôleur Proportionnelle/Intégrale/dérivée, voir <<cha:Regulation-PID>>
 
 === pluto_servo (((pluto_servo)))
 
-Pilote matériel et micro programme pour la carte `Pluto-P parallel-port FPGA`, 
+Pilote matériel et micro programme pour la carte *Pluto-P parallel-port FPGA*, 
 utilisation avec servomoteurs.
 
 === pluto_step (((pluto_step)))
 
-Pilote matériel et micro programme pour la carte `Pluto-P parallel-port FPGA`, 
+Pilote matériel et micro programme pour la carte *Pluto-P parallel-port FPGA*, 
 utilisation avec moteurs pas à pas.
 
 === pumakins (((pumakins)))
@@ -442,7 +439,7 @@ Composant de HAL pour tester le comportement des threads.
 
 === time (((time)))
 
-Compteur de temps écoulé HH:MM:SS avec entrée `actif`. 
+Compteur de temps écoulé HH:MM:SS avec entrée *actif*. 
 
 === timedelay (((timedelay)))
 
@@ -509,7 +506,7 @@ Comme nous venons de donner une liste des pages man 1 et man 9,
 pour être exhaustif voici maintenant une liste des pages man 3.
 Peut-être que certains des fichiers sont à nettoyer et n'ont pas 
 vraiment leur place ici, ça devrait probablement être fixé ultérieurement. 
-Considérer cette liste comme un *"Fix Me"*, ou une liste des *"à faire"*.
+Considérer cette liste comme un *Fix Me*, ou une liste des *à faire*.
 Quoi qu'il en soit, voici cette liste:
 
 EXPORT_FUNCTION.3rtapi +

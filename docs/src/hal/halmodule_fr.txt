@@ -9,8 +9,8 @@ Un composant de l'espace utilisateur commence par créer ses pins et
 ses paramètres, puis il entre dans une boucle dans laquelle il va
 positionner périodiquement toutes ses sorties en fonction de ses
 entrées. Le composant suivant, un passe-tout, copie la valeur vue sur
-ses pins d'entrée (`passe_tout.in`) vers ses pins de sortie
-(`passe_tout.out`) approximativement une fois par seconde.
+ses pins d'entrée (*passe_tout.in*) vers ses pins de sortie
+(*passe_tout.out*) approximativement une fois par seconde.
 ----
 #!/usr/bin/python
 import hal, time
@@ -26,8 +26,8 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-Copier le listing précédent dans un fichier nommé `passe_tout`, le
-rendre exécutable par un `chmod +x` et le placer dans son `$PATH`. 
+Copier le listing précédent dans un fichier nommé *passe_tout*, le
+rendre exécutable par un *chmod +x* et le placer dans son *$PATH*. 
 On peut alors l'essayer en faisant:
 
 
@@ -54,9 +54,9 @@ On peut alors l'essayer en faisant:
 
 == Composants de l'espace utilisateur et délais
 
-Si vous tapez rapidement `show pin`, vous pourrez voir que
-`passe_tout.out` conserve un moment son ancienne valeur de 0. Ceci
-est dû à l'appel de la fonction `time.sleep(1)`, qui fait que les pins 
+Si vous tapez rapidement *show pin*, vous pourrez voir que
+*passe_tout.out* conserve un moment son ancienne valeur de 0. Ceci
+est dû à l'appel de la fonction *time.sleep(1)*, qui fait que les pins 
 de sortie changent d'état, au plus, une fois par seconde. 
 Parce-que ce composant appartient à l'espace utilisateur, 
 ce délai peut apparaître plus long, par exemple si la mémoire utilisée 
@@ -76,7 +76,7 @@ cas.
 +h = hal.component("passe_tout")+ 
 
 Le composant lui-même est créé par l'appel du constructeur
-`hal.component`. Les arguments sont le nom du composant HAL et
+*hal.component*. Les arguments sont le nom du composant HAL et
 optionnellement, le préfixe utilisé pour les noms de pin et de paramètre. 
 Si le préfixe n'est pas spécifié, le nom du composant est utilisé.
 
@@ -97,19 +97,19 @@ nom suffixe, type de paramètre et direction du paramètre.
 |========================================
 
 Le nom complet d'une pin ou d'un paramètre est formé en joignant le
-préfixe avec le suffixe par un «.», comme dans l'exemple où la pin
-créée est appelée `passe_tout.in`.
+préfixe avec le suffixe par un *.*, comme dans l'exemple où la pin
+créée est appelée *passe_tout.in*.
 
 +h.ready()+ 
 
-Une fois toutes les pins et les paramètres créés, la méthode `.ready()`
+Une fois toutes les pins et les paramètres créés, la méthode *.ready()*
 est appelée.
 
 === Changer le préfixe
 
-Le préfixe peut être changé en appelant la méthode `.setprefix()`. Le
+Le préfixe peut être changé en appelant la méthode *.setprefix()*. Le
 préfixe courant peut être retrouvé en appelant la méthode
-`.getprefix()`.
+*.getprefix()*.
 
 == Lire et écrire les pins et les paramètres
 
@@ -128,7 +128,7 @@ de sous-script suivante:
 === Pilotage des pins de sortie (HAL_OUT)
 
 Périodiquement, habituellement dans le temps de réponse de l'horloge,
-toutes les pins HAL_OUT doivent être «pilotées» en leur assignant une
+toutes les pins HAL_OUT doivent être *pilotées* en leur assignant une
 nouvelle valeur. Ceci doit être fait que la valeur soit différente ou
 non de la valeur précédemment assignée. Quand la pin est connectée au
 signal, l'ancienne valeur de sortie n'est pas copiée vers le signal, la
@@ -149,10 +149,10 @@ comme si une nouvelle impulsion d'index avait été vue.
 
 == Quitter
 
-Une requête `«halcmd unload»` pour le composant est délivrée comme une
-exception `KeyboardInterrupt` . Quand une requête de déchargement
+Une requête *halcmd unload* pour le composant est délivrée comme une
+exception *KeyboardInterrupt* . Quand une requête de déchargement
 arrive, le processus doit quitter
- dans un court laps de temps ou appeler la méthode `.exit()` sur le
+ dans un court laps de temps ou appeler la méthode *.exit()* sur le
 composant si un travail substantiel, comme la lecture ou
 l'écriture de fichiers, doit être fourni pour terminer le processus
 d'arrêt.
@@ -164,10 +164,10 @@ d'arrêt.
    raccorder le microcontrôleur à un PC en utilisant une liaison série.
    Python est vraiment capable d'interfacer une liaison série grâce à son
    module http://pyserial.sourceforge.net/[pyserial] (Paquet 
-   «python-serial», dans les dépôts universe d'Ubuntu)
+   *python-serial*, dans les dépôts universe d'Ubuntu)
  - Relier un module d'affichage à LCD
    http://lcdproc.omnipotent.net/[LCDProc] et l'utiliser pour afficher les
-   informations de votre choix (Paquet «lcdproc», dans les dépôts universe
+   informations de votre choix (Paquet *lcdproc*, dans les dépôts universe
    d'Ubuntu)
  - Créer un panneau de contrôle virtuel utilisant n'importe quelle
    librairie d'interface graphique supportée par Python (gtk, qt,

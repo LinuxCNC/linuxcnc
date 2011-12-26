@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = Lathe Specifics[[cha:Lathe-Specifics]]
 
 (((Lathe-Specifics)))
@@ -50,9 +53,9 @@ but since the 2.4.x release, one tool table format is used for all machines.
 Just ignore the parts of the tool table that don't pertain to your machine, 
 or which you don't need to use. 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format>> section. 
+see the <<sec:Tool-Table-Format,Tool Table Format>> Section.
 
-== Lathe Tool Orientation
+== Lathe Tool Orientation[[lathe-tool-orientation]]
 
 The following figure shows the lathe tool orientations 
 with the center line angle of each orientation and 
@@ -170,9 +173,8 @@ Threading with a lathe requires feedback from the spindle to EMC.
 Typically an encoder is used to provide the feedback. 
 See the Integrator Manual for more information on spindle feedback.
 
-The G76 threading cycle is used for both internal and external
-threads. For more information see G76 <<sec:G76-Threading-Canned>> in
-the G Code section.
+The G76 threading cycle is used for both internal and external threads.
+For more information see the <<sec:G76-Threading-Canned,G76>> Section.
 
 == Constant Surface Speed
 

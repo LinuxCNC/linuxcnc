@@ -1,15 +1,20 @@
-= RS274NGC
+//:lang: pl
+:toc:
 
-== Differences that change the meaning of RS274NGC programs
+= RS274NGC Programs
 
-=== Location after a tool change
+== Changes from RS274NGC
+
+.Differences that change the meaning of RS274NGC programs
+
+Location after a tool change::
 
 In EMC2, the machine does not return to its original position 
 after a tool change. This change was made because the new tool 
 might be longer than the old tool, and the move to the original 
 machine position could therefore leave the tool tip too low.
 
-=== Offset parameters are inifile units
+Offset parameters are inifile units::
 
 In EMC2, the values stored in parameters for the G28 and G30 home 
 locations, the P1...P9 coordinate systems, and the G92 offset are 
@@ -17,7 +22,7 @@ in "inifile units". This change was made because otherwise the
 meaning of a location changed depending on whether G20 or G21 was 
 active when G28, G30, G10 L2, or G92.3 is programmed.
 
-=== Tool table lengths/diameters are in inifile units
+Tool table lengths/diameters are in inifile units::
 
 In EMC2, the tool lengths (offsets) and diameters in the tool 
 table are specified in inifile units only. This change was made 
@@ -28,73 +33,75 @@ machine's non-native units, even when the gcode was simple and
 well-formed (starting with G20 or G21, and didn't change units 
 throughout the program), without changing the tool table.
 
-=== G84, G87 not implemented
+G84, G87 not implemented::
 
 G84 and G87 are not currently implemented, but may be added to a 
 future release of EMC2.
 
-=== G28, G30 with axis words
+G28, G30 with axis words::
 
 When G28 or G30 is programmed with only some axis words present, 
 EMC2 only moves the named axes. This is common on other machine 
 controls. To move some axes to an intermediate point and then 
 move all axes to the predefined point, write two lines of gcode:
-
++
 G0 X- Y- (axes to move to intermediate point) G28 (move all axes 
 to predefined point)
 
-== Differences that do not change the meaning of RS274NGC programs
+== Additions to RS274NGC
 
-=== G33, G76 threading codes
+.Differences that do not change the meaning of RS274NGC programs
+
+G33, G76 threading codes::
 
 These codes are not defined in RS274NGC.
 
-=== G38.2
+G38.2::
 
 The probe tip is not retracted after a G38.2 movement. This 
 retraction move may be added in a future release of EMC2.
 
-=== G38.3...G38.5
+G38.3...G38.5::
 
 These codes are not defined in RS274NGC
 
-=== O-codes
+O-codes::
 
 These codes are not defined in RS274NGC
 
-=== M50...M53 overrides
+M50...M53 overrides::
 
 These codes are not defined in RS274NGC
 
-=== M61..M66
+M61..M66::
 
 These codes are not defined in RS274NGC
 
-=== G43, G43.1
+G43, G43.1::
 
-==== Negative Tool Lengths
-
+'Negative Tool Lengths'
++
 The RS274NGC spec says "it is expected that" all tool lengths 
 will be positive. However, G43 works for negative tool lengths.
-
-==== Lathe tools
-
++
+'Lathe tools'
++
 G43 tool length compensation can offset the tool in both the X 
 and Z dimensions. This feature is primarily useful on lathes.
-
-==== Dynamic tool lengths
-
++
+'Dynamic tool lengths'
++
 EMC2 allows specification of a computed tool length through G43.1 
 I K.
 
-=== G41.1, G42.1
+G41.1, G42.1::
 
 EMC2 allows specification of a tool diameter and, if in lathe 
 mode, orientation in the gcode. The format is G41.1/G42.1 D L, 
 where D is diameter and L (if specified) is the lathe tool 
 orientation.
 
-=== G43 without H word
+G43 without H word::
 
 In ngc, this is not allowed. In EMC2, it sets length offsets for 
 the currently loaded tool. If no tool is currently loaded, it is 
@@ -103,7 +110,7 @@ specify the tool number in two places for each tool change, and
 because it's consistent with the way G41/G42 work when the D word 
 is not specified.
 
-=== U, V, and W axes
+U, V, and W axes::
 
 EMC2 allows machines with up to 9 axes by defining an additional 
 set of 3 linear axes known as U, V and W

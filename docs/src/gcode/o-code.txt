@@ -1,0 +1,172 @@
+:lang: en
+:toc:
+
+= O Codes[[cha:O-Codes]]
+
+(((O Codes)))
+
+O-codes provide for flow control in NC programs. Each block has an
+associated number, which is the number used after O. Care must be taken
+to properly match the O-numbers. O codes use the letter 'O' not the
+number zero as the first character in the number like O100.
+
+The behavior is undefined if:
+
+* Other words are used on a line with an O- word
+* Comments are used on a line with an O-word
+
+== Subroutines: sub, endsub, return, call
+(((Subroutines: sub, endsub, return, call)))
+(((sub)))(((endsub)))(((return)))(((call)))
+
+Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines
+inside the subroutine (the 'body') are not executed in
+order; instead, they are executed each time the subroutine is called
+with 'O- call'. 
+
+----
+O100 sub (subroutine to move to machine home)
+G0 X0 Y0 Z0
+O100 endsub
+(many intervening lines)
+O100 call
+----
+
+Inside a subroutine, 'O- return'  can be executed. This immediately
+returns to the calling code, just
+as though 'O- endsub' was encountered.
+
+'O- call' takes up to 30 optional arguments, which are passed to the
+subroutine
+ as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
+value as in the
+calling context. On return from the subroutine, the values of
+parameters #1 through #30 (regardless of the number of arguments) will
+be restored to the values they had before the call. Parameters #1 - #30
+are local to the subroutine.
+
+Because '1 2 3' is parsed as the number 123, the parameters must be
+enclosed in
+square brackets. The following calls a subroutine with 3 arguments:
+
+----
+O200 call [1] [2] [3]
+----
+
+Subroutine bodies may not be nested. They may only be called after
+they are defined. They may be called from other functions, and may call
+themselves recursively if it makes sense to do so. The maximum
+subroutine nesting level is 10.
+
+Subroutines do not have 'return values', but they may change the value
+of parameters above #30 and those changes will be visible to the
+calling code. Subroutines may also change the value of global named
+parameters.
+
+== Looping: do, while, endwhile, break, continue
+(((Looping: do, while, endwhile, break, continue)))
+(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+
+The 'while loop' has two structures: while/endwhile, and do/while. In
+each case, the loop is exited when the 'while' condition evaluates to
+false.
+
+----
+(draw a sawtooth shape)
+F100
+#1 = 0
+O101 while [#1 lt 10]
+G1 X0
+G1 Y[#1/10] X1
+#1 = [#1+1]
+O101 endwhile
+----
+
+Inside a while loop, 'O- break' immediately exits the loop, and 'O-
+continue' immediately skips to the next evaluation of the 'while' 
+condition. If it is still true, the loop begins again at the top. If
+it is false, it exits the loop.
+
+== Conditional: if, else, endif
+(((Conditional: if, else, endif)))
+(((if)))(((else)))(((endif)))
+
+The 'if' conditional executes one group of statements if a condition
+is true and another if it is false.
+
+----
+(Set feed rate depending on a variable)
+O102 if [#2 GT 5]
+F100
+O102 else
+F200
+O102 endif
+----
+
+== Repeat
+(((Repeat)))
+
+The 'repeat' will execute the statements inside of the
+repeat/endrepeat the specified number of times. The example shows how
+you might mill a diagonal series of shapes starting at the present
+position.
+
+----
+(Mill 5 diagonal shapes)
+G91 (Incremental mode)
+O103 repeat [5]
+... (insert milling code here)
+G0 X1 Y1 (diagonal move to next position)
+O103 endrepeat
+G90 (Absolute mode)
+----
+
+== Indirection
+(((Indirection)))
+
+The O-number may be given by a parameter or calculation.
+
+----
+O[#101+2] call
+----
+
+== Computing values in O-words
+
+In O-words, Parameters (section  <<sec:Parameters,Parameters>>),
+Expressions (section  <<sec:Expressions,Expressions>>), 
+Binary Operators (section <<sec:Binary-Operators,Binary Operators>>), 
+and Functions (table <<cap:Functions,Functions>>) are particularly useful.
+
+== Calling Files
+(((Calling Files)))
+
+To call a separate file with a subroutine name the file the same as
+your call and include a sub and endsub in the file. The file must be in
+the directory pointed to by PROGRAM_PREFIX. The file name can include
+lowercase letters, numbers, dash, and underscore only.
+
+----
+o<myfile> call (a named file)
+----
+
+or
+
+----
+o123 call (a number file)
+----
+
+In the called file you must include the oxxx sub and endsub and the
+file must be a valid file.
+
+----
+myfile.ngc
+o<myfile> sub
+...
+o<myfile> endsub
+M2
+----
+
+[NOTE]
+The file names are case sensitive so 'o<myfile> call' and 'o<MyFile> call' are not calling the same file. 
+
+// vim: set syntax=asciidoc:

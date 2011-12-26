@@ -1,9 +1,12 @@
+:lang: de
+:toc:
+
 = KEYSTICK (((KEYSTICK)))
 
 == Introduction
 
 .The Mini Graphical Interface[[fig:keystick]]
-image::images/keystick.png[]
+image::images/keystick.png[align="center"]
 
 Keystick is a minimal text based interface.
 

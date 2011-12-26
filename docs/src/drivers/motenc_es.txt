@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = Motenc
 
 Vital Systems Motenc-100 and Motenc-LITE
@@ -11,8 +14,9 @@ and 8 analog outputs. The driver automatically identifies the installed
 board and exports the appropriate HAL objects.
 
 Installing:
-
-    loadrt hal_motenc
+----
+loadrt hal_motenc
+----
 
 During loading (or attempted loading) the driver prints some useful 
 debugging messages to the kernel log, which can be viewed with dmesg.
@@ -27,50 +31,50 @@ have an ID of zero. However this driver sets the ID based on a pair of
 jumpers on the board, so it may be non-zero even if there is only one
 board.
 
- - (s32) motenc.<board>.enc-<channel>-count -- Encoder position, in counts.
- - (float) motenc.<board>.enc-<channel>-position -- Encoder position, in
+* '(s32) motenc.<board>.enc-<channel>-count' - Encoder position, in counts.
+* '(float) motenc.<board>.enc-<channel>-position' - Encoder position, in
    user units.
- - (bit) motenc.<board>.enc-<channel>-index -- Current status of index
+* '(bit) motenc.<board>.enc-<channel>-index' - Current status of index
    pulse input.
- - (bit) motenc.<board>.enc-<channel>-idx-latch -- Driver sets this pin
+* '(bit) motenc.<board>.enc-<channel>-idx-latch' - Driver sets this pin
    true when it latches an index pulse (enabled by latch-index). Cleared
    by clearing latch-index.
- - (bit) motenc.<board>.enc-<channel>-latch-index -- If this pin is true,
+* '(bit) motenc.<board>.enc-<channel>-latch-index' - If this pin is true,
    the driver will reset the counter on the next index pulse.
- - (bit) motenc.<board>.enc-<channel>-reset-count -- If this pin is true,
+* '(bit) motenc.<board>.enc-<channel>-reset-count' - If this pin is true,
    the counter will immediately be reset to zero, and the pin will be
    cleared.
- - (float) motenc.<board>.dac-<channel>-value -- Analog output value for
+* '(float) motenc.<board>.dac-<channel>-value' - Analog output value for
    DAC (in user units, see -gain and -offset)
- - (float) motenc.<board>.adc-<channel>-value -- Analog input value read
+* '(float) motenc.<board>.adc-<channel>-value' - Analog input value read
    by ADC (in user units, see -gain and -offset)
- - (bit) motenc.<board>.in-<channel> -- State of digital input pin, see
+* '(bit) motenc.<board>.in-<channel>' - State of digital input pin, see
    canonical digital input.
- - (bit) motenc.<board>.in-<channel>-not -- Inverted state of digital
+* '(bit) motenc.<board>.in-<channel>-not' - Inverted state of digital
    input pin, see canonical digital input.
- - (bit) motenc.<board>.out-<channel> -- Value to be written to digital
+* '(bit) motenc.<board>.out-<channel>' - Value to be written to digital
    output, seen canonical digital output.
- - (bit) motenc.<board>.estop-in -- Dedicated estop input, more details
+* '(bit) motenc.<board>.estop-in' - Dedicated estop input, more details
    needed.
- - (bit) motenc.<board>.estop-in-not -- Inverted state of dedicated estop
+* '(bit) motenc.<board>.estop-in-not' - Inverted state of dedicated estop
    input.
- - (bit) motenc.<board>.watchdog-reset -- Bidirectional, - Set TRUE to
+* '(bit) motenc.<board>.watchdog-reset' - Bidirectional, - Set TRUE to
    reset watchdog once, is automatically cleared.
 
 == Parameters
 
- - (float) motenc.<board>.enc-<channel>-scale -- The number of counts /
+* '(float) motenc.<board>.enc-<channel>-scale' - The number of counts /
    user unit (to convert from counts to units).
- - (float) motenc.<board>.dac-<channel>-offset -- Sets the DAC offset.
- - (float) motenc.<board>.dac-<channel>-gain -- Sets the DAC gain (scaling).
- - (float) motenc.<board>.adc-<channel>-offset -- Sets the ADC offset.
- - (float) motenc.<board>.adc-<channel>-gain -- Sets the ADC gain (scaling).
- - (bit) motenc.<board>.out-<channel>-invert -- Inverts a digital output,
+* '(float) motenc.<board>.dac-<channel>-offset' - Sets the DAC offset.
+* '(float) motenc.<board>.dac-<channel>-gain' - Sets the DAC gain (scaling).
+* '(float) motenc.<board>.adc-<channel>-offset' - Sets the ADC offset.
+* '(float) motenc.<board>.adc-<channel>-gain' - Sets the ADC gain (scaling).
+* '(bit) motenc.<board>.out-<channel>-invert' - Inverts a digital output,
    see canonical digital output.
- - (u32) motenc.<board>.watchdog-control -- Configures the watchdog. The
+* '(u32) motenc.<board>.watchdog-control' - Configures the watchdog. The
    value may be a bitwise OR of the following values:  
    
-[width="90%", options="header"]
+[width="90%", options="header", cols="2*^1,^6"]
 |========================================
 |Bit # | Value | Meaning
 |0     | 1     | Timeout is 16ms if set, 8ms if unset
@@ -83,15 +87,15 @@ board.
 Typically, the useful values are 0 (watchdog disabled) or 20 (8ms
 watchdog enabled, cleared by dac-write).
 
- - (u32) motenc.<board>.led-view -- Maps some of the I/O to onboard LEDs?
+* '(u32) motenc.<board>.led-view' - Maps some of the I/O to onboard LEDs?
 
 == Functions
 
- - (funct) motenc.<board>.encoder-read -- Reads all encoder counters.
- - (funct) motenc.<board>.adc-read -- Reads the analog-to-digital converters.
- - (funct) motenc.<board>.digital-in-read -- Reads digital inputs.
- - (funct) motenc.<board>.dac-write -- Writes the voltages to the DACs.
- - (funct) motenc.<board>.digital-out-write -- Writes digital outputs.
- - (funct) motenc.<board>.misc-update -- Updates misc stuff.
+* '(funct) motenc.<board>.encoder-read' - Reads all encoder counters.
+* '(funct) motenc.<board>.adc-read' - Reads the analog-to-digital converters.
+* '(funct) motenc.<board>.digital-in-read' - Reads digital inputs.
+* '(funct) motenc.<board>.dac-write' - Writes the voltages to the DACs.
+* '(funct) motenc.<board>.digital-out-write' - Writes digital outputs.
+* '(funct) motenc.<board>.misc-update' - Updates misc stuff.
 
 

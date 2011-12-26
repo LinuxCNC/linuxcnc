@@ -1,3 +1,6 @@
+:lang: en
+:toc:
+
 = HAL Examples
 
 All of these examples assume you are starting with a stepconf based
@@ -9,39 +12,39 @@ the GUI has been loaded.
 
 == Manual Toolchange
 
-In this example it is assumed that you're "rolling your own"
+In this example it is assumed that you're 'rolling your own'
 configuration and wish to add the HAL Manual Toolchange window. The HAL
 Manual Toolchange is primarily useful if you have presettable tools and
 you store the offsets in the tool table. If you need to touch off for
 each tool change then it is best just to split up your g code. To use
 the HAL Manual Toolchange window you basically have to load the 
-hal_manualtoolchange component then send the iocontrol "tool change" to 
-the hal_manualtoolchange "change" and send the hal_manualtoolchange 
-"changed" back to the iocontrol "tool changed".
+hal_manualtoolchange component then send the iocontrol 'tool change' to 
+the hal_manualtoolchange 'change' and send the hal_manualtoolchange 
+'changed' back to the iocontrol 'tool changed'.
 
-This is an example of manual toolchange *with* 
+This is an example of manual toolchange 'with' 
 the HAL Manual Toolchange component: 
 
------
+----
 loadusr -W hal_manualtoolchange 
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
 net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed 
 net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number 
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
------
+----
 
-This is an example of manual toolchange *without* 
+This is an example of manual toolchange 'without' 
 the HAL Manual Toolchange component: 
 
------
+----
 net tool-number <= iocontrol.0.tool-prep-number 
 net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed 
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
------
+----
 
 == Compute Velocity
 
-This example uses "ddt", "mult2" and "abs" to compute the velocity of
+This example uses 'ddt', 'mult2' and 'abs' to compute the velocity of
 a single axis. For more information on the real time components see the
 man pages or the Realtime Components section (<<sec:Realtime-Components>>).
 
@@ -54,29 +57,29 @@ correct value. Add the following to your custom.hal file.
 
 Load the realtime components.
 
------
+----
 loadrt ddt count=1 
 loadrt mult2 count=1 
 loadrt abs count=1 
------
+----
 
 Add the functions to a thread so it will get updated.
 
------
+----
 addf ddt.0 servo-thread 
 addf mult2.0 servo-thread 
 addf abs.0 servo-thread 
------
+----
 
 Make the connections.
 
------
+----
 setp mult2.in1 60 
 net xpos-cmd ddt.0.in 
 net X-IPS mult2.0.in0 <= ddt.0.out 
 net X-ABS abs.0.in <= mult2.0.out 
 net X-IPM abs.0.out 
------
+----
 
 In this last section we are setting the mult2.0.in1 to 60 to convert
 the inch per second to inch per minute that we get from the ddt.0.out.
@@ -98,8 +101,8 @@ image::images/velocity-01.png[]
 
 == Soft Start
 
-This example shows how the HAL components "lowpass", "limit2" or
-"limit3" can be used to limit how fast a signal changes.
+This example shows how the HAL components 'lowpass', 'limit2' or
+'limit3' can be used to limit how fast a signal changes.
 
 In this example we have a servo motor driving a lathe spindle. If we
 just used the commanded spindle speeds on the servo it will try to go
@@ -110,21 +113,18 @@ that the PID command value changes to new settings more slowly.
 
 Three built-in components that limit a signal are:
 
-limit2::
-    limits the range and first derivative of a signal. 
+* 'limit2' limits the range and first derivative of a signal. 
 
-limit3::
-    limits the range, first and second derivatives of a signal. 
+* 'limit3' limits the range, first and second derivatives of a signal. 
 
-lowpass::
-    uses an exponentially-weighted moving average to track an input signal. 
+* 'lowpass' uses an exponentially-weighted moving average to track an input signal. 
 
 To find more information on these HAL components check the man pages.
 
 Place the following in a text file called softstart.hal. If you're not
 familiar with Linux place the file in your home directory.
 
--------------------------------------------------
+----
 loadrt threads period1=1000000 name1=thread  
 loadrt siggen  
 loadrt lowpass  
@@ -145,17 +145,19 @@ addf limit2.0 thread
 addf limit3.0 thread  
 start  
 loadusr halscope 
--------------------------------------------------
+----
 
 Open a terminal window and run the file with the following command.
 
-$ *halrun -I softstart.hal*
+----
+halrun -I softstart.hal
+----
 
-When the HAL Oscilloscope first starts up click "OK" to accept the
+When the HAL Oscilloscope first starts up click 'OK' to accept the
 default thread.
 
 Next you have to add the signals to the channels. Click on channel 1
-then select "square" from the Signals tab. Repeat for channels 2-4 and
+then select 'square' from the Signals tab. Repeat for channels 2-4 and
 add lowpass, limit2, and limit3.
 
 Next to set up a trigger signal click on the Source None button and
@@ -176,11 +178,13 @@ components you can change them in the terminal window. To see what
 different gain settings do for lowpass just type the following in the
 terminal window and try different settings.
 
-+setp lowpass.0.gain *.01*+
+----
+setp lowpass.0.gain *.01
+----
 
 After changing a setting run the oscilloscope again to see the change.
 
-When you're finished type "exit" in the terminal window to shut down
+When you're finished type 'exit' in the terminal window to shut down
 halrun and close the halscope. Don't close the terminal window with
 halrun running as it might leave some things in memory that could
 prevent EMC from loading.

@@ -1,8 +1,7 @@
-:lang: en
+:lang: de
 :toc:
 
-[[cha:Stepconf-Wizard]]
-= Stepconf Wizard(((Stepconf Wizard)))
+= Stepconf Wizard[[stepconf-wizard]](((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 
@@ -59,7 +58,7 @@ image::images/stepconf-basic.png[]
 Machine Name::
     (((Machine Name)))
     Choose a name for your machine. 
-    Use only uppercase letters, lowercase letters, digits, "-" and "_".
+    Use only uppercase letters, lowercase letters, digits, '-' and '_'.
 
 Axis Configuration::
     (((Axis Configuration)))
@@ -91,7 +90,7 @@ add some time to the drive requirements to allow for this.
 The EMC Configuration Selector has configs for Sherline already configured.
 
 Step Time::
-    How long the step pulse is "on" in nano seconds.
+    How long the step pulse is 'on' in nano seconds.
 
 Step Space::
     Minimum time between step pulses in nano seconds.
@@ -113,7 +112,7 @@ Second Parport::
 Base Period Maximum Jitter::
     (((Base Period Maximum Jitter)))
     Enter the result of the Latency Test here. 
-    To run a latency test press the "Test Base Period Jitter" button.
+    To run a latency test press the 'Test Base Period Jitter' button.
     See the latency test section for more details.
 
 Max Step Rate::
@@ -133,18 +132,20 @@ Onscreen Prompt For Tool Change::
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom HAL file
 
-== Latency Test[[sec:Latency-Test]](((Latency Test)))
+== Latency Test[[latency-test]](((Latency Test)))
 
-While the test is running, you should "abuse" the computer. Move
+While the test is running, you should 'abuse' the computer. Move
 windows around on the screen. Surf the web. Copy some large files
 around on the disk. Play some music. Run an OpenGL program such as
 glxgears. The idea is to put the PC through its paces while the latency
-test checks to see what the worst case numbers are. 'Do not run EMC2
-while the latency test is running.'  Run the test at least a few
+test checks to see what the worst case numbers are.  Run the test at least a few
 minutes. The longer you run the test the
 better it will be at catching events that might occour at less frequent
 intervals. This is a test for your computer only, so no hardware needs
 to be connected to run the test.
+
+[WARNING]
+Do not attempt run EMC2 while the latency test is running.
 
 .Latency Test[[cap:Latency-Test]]
 
@@ -152,7 +153,7 @@ image::images/latency.png[]
 
 Latency is how long it takes the PC to stop what it is doing and
 respond to an external request. In our case, the request is the
-periodic "heartbeat" that serves as a timing reference for the step
+periodic 'heartbeat' that serves as a timing reference for the step
 pulses. The lower the latency, the faster you can run the heartbeat,
 and the faster and smoother the step pulses will be.
 
@@ -167,7 +168,7 @@ Fixing Realtime problems caused by SMI on Ubuntu
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
 ************************************************************
 
-The important numbers are the "max jitter". In the example above 9075
+The important numbers are the 'max jitter'. In the example above 9075
 nanoseconds, or 9.075 microseconds, is the highest jitter. 
 Record this number, and enter it in
 the Base Period Maximum Jitter box.
@@ -191,7 +192,7 @@ image::images/stepconf-pinout.png[]
 
 For each pin, choose the signal which matches 
 your parallel port pinout. 
-Turn on the "invert" check box if the signal is inverted 
+Turn on the 'invert' check box if the signal is inverted 
 (0V for true/active, 5V for false/inactive).
 
 Output pinout presets::
@@ -200,7 +201,7 @@ Output pinout presets::
     (Direction on pins 3, 5, 7, 9). 
 
 Inputs and Outputs::
-    If the input or output is not used set the option to "Unused".
+    If the input or output is not used set the option to 'Unused'.
 
 External E Stop::
     This can be selected from an input pin drop down box. 
@@ -234,21 +235,21 @@ Motor Steps Per Revolution::
 Driver Microstepping::
     (((Driver Microstepping)))
     The amount of microstepping performed by the driver. 
-    Enter "2" for half-stepping. 
+    Enter '2' for half-stepping. 
 
 Pulley Ratio::
     (((Pulley Ratio)))
     If your machine has pulleys between the motor and leadscrew, 
-    enter the ratio here. If not, enter "1:1".
+    enter the ratio here. If not, enter '1:1'.
 
 Leadscrew Pitch::
     (((Leadscrew Pitch)))
     Enter the pitch of the leadscrew here. 
-    If you chose "Inch" units, enter the number 
+    If you chose 'Inch' units, enter the number 
     of threads per inch here (e.g., enter 8 for 8 TPI). 
     If you have a multi-lead screw then you need to know 
-    how many turns per inch it takes to move the "nut". 
-    If you chose "mm" units, enter the number of millimeters the "nut" would move per
+    how many turns per inch it takes to move the 'nut'. 
+    If you chose 'mm' units, enter the number of millimeters the 'nut' would move per
     revolution here (e.g., enter 2 for 2mm/rev). 
     If the machine travels in the wrong direction, 
     enter a negative number here instead of a positive number, 
@@ -262,8 +263,8 @@ Maximum Acceleration::
     (((Maximum Acceleration)))
     The correct values for these items can only 
     be determined through experimentation. See 
-    <<sub:Finding-Maximum-Velocity>> to set the speed and
-    <<sub:Finding-Maximum-Acceleration>> to set the acceleration.
+    <<finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and
+    <<finding-maximum-acceleration,Finding Maximum Acceleration>> to set the acceleration.
 
 Home Location::
     (((Home Location)))
@@ -307,10 +308,10 @@ Home Search Velocity::
 
 Home Latch Direction::
     (((Home Latch Direction)))
-    Choose "Same" to have homing back off the switch, 
+    Choose 'Same' to have homing back off the switch, 
     then approach it again at a very low speed. 
     The second time the switch closes, the home position is set. 
-    Choose "Opposite" to have homing slowly back off the switch. 
+    Choose 'Opposite' to have homing slowly back off the switch. 
     When the switch opens, the home position is set.
 
 Time to accelerate to max speed::
@@ -345,7 +346,7 @@ image::images/stepconf-test.png[]
 
 With Stepconf it is easy to try different values for acceleration and velocity.
 
-==== Finding Maximum Velocity[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
+==== Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))
 
 Begin with a low Acceleration 
 // comment out latexmath until a fix is found for the html docs
@@ -362,7 +363,7 @@ after a stall the motor may next start to move in an unexpected direction.
 Then click Run. 
 The machine will begin to move back and forth along this axis. 
 In this test, it is important that the combination of Acceleration and 
-Test Area allow the machine to reach the selected Velocity and "cruise" for 
+Test Area allow the machine to reach the selected Velocity and 'cruise' for 
 at least a short distance -- the more distance, the better this test is. 
 The formula *+d = 0.5 * v * v/a+*
 // latexmath:[ d = 0.5 * v * v/a ] 
@@ -372,7 +373,7 @@ If it is convenient and safe to do so,
 push the table against the direction of motion to simulate cutting forces. 
 If the machine stalls, reduce the speed and start the test again. 
 
-If the machine did not obviously stall, click the "Run" button off.
+If the machine did not obviously stall, click the 'Run' button off.
 The axis now returns to the position where it started. 
 If the position is incorrect, then the axis stalled or lost steps during the test.
 Reduce Velocity and start the test again.
@@ -381,7 +382,7 @@ If the machine doesn't move, stalls, or loses steps, no matter how low
 you turn Velocity, verify the following:
 
  - Correct step waveform timings
- - Correct pinout, including "Invert" on step pins
+ - Correct pinout, including 'Invert' on step pins
  - Correct, well-shielded cabling
  - Physical problems with the motor, motor coupling, leadscrew, etc.
 
@@ -389,7 +390,7 @@ Once you have found a speed at which the axis
 does not stall or lose steps during this testing procedure, 
 reduce it by 10% and use that as the axis Maximum Velocity.
 
-==== Finding Maximum Acceleration[[sub:Finding-Maximum-Acceleration]](((Finding Maximum Acceleration)))
+==== Finding Maximum Acceleration[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))
 
 With the Maximum Velocity you found in the previous step, 
 enter the acceleration value to test. 
@@ -407,18 +408,18 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 
 image::images/stepconf-spindle.png[]
 
-This page only appears when "Spindle PWM" is chosen in the 
+This page only appears when 'Spindle PWM' is chosen in the 
 'Parallel Port Pinout' page for one of the outputs.
 
-=== Spindle Speed Control[[sub:Spindle-Speed-Control]](((spindle speed control)))
+=== Spindle Speed Control[[spindle-speed-control]](((spindle speed control)))
 
-If "Spindle PWM" appears on the pinout, 
+If 'Spindle PWM' appears on the pinout, 
 the following information should be entered:
 
 PWM Rate::
     (((PWM Rate)))
-    The "carrier frequency" of the PWM signal to the spindle. 
-    Enter "0" for PDM mode, 
+    The 'carrier frequency' of the PWM signal to the spindle. 
+    Enter '0' for PDM mode, 
     which is useful for generating an analog control voltage. 
     Refer to the documentation for your spindle controller for the appropriate value.
 
@@ -427,7 +428,7 @@ Speed 1 and 2, PWM 1 and 2::
     The generated configuration file uses a simple linear relationship 
     to determine the PWM value for a given RPM value. 
     If the values are not known, they can be determined.
-    For more information see section (<<sub:Determining-Spindle-Calibration>>)
+    For more information see <<determining-spindle-calibration,Determining Spindle Calibration>>.
 
 === Spindle-synchronized motion (lathe threading, rigid tapping)[[sub:Spindle-synchronized-motion-lathe]]
 (((Spindle-synchronized motion)))(((Lathe Threading)))
@@ -452,20 +453,20 @@ Spindle Phase B (optional)::
     The advantages to using both A and B are 
     direction sensing, increased noise immunity, and increased resolution.
 
-If "Spindle Phase A" and "Spindle Index" appear 
+If 'Spindle Phase A' and 'Spindle Index' appear 
 on the pinout, the following information should be entered:
 
 Cycles per revolution::
     (((Cycles per revolution)))
     The number of cycles of the 'Spindle A' signal during one revolution of the spindle. 
-    This option is only enabled when an input has been set to "Spindle Phase A"
+    This option is only enabled when an input has been set to 'Spindle Phase A'
 
 Maximum speed in thread::
     The maximum spindle speed used in threading. 
     For a high spindle RPM or a spindle encoder with high resolution, 
     a low value of 'BASE_PERIOD' is required. 
 
-=== Determining Spindle Calibration[[sub:Determining-Spindle-Calibration]]
+=== Determining Spindle Calibration[[determining-spindle-calibration]]
 (((Determining Spindle Calibration)))
 
 Enter the following values in the Spindle Configuration page:
@@ -479,14 +480,14 @@ Enter the following values in the Spindle Configuration page:
 Finish the remaining steps of the configuration process, 
 then launch EMC with your configuration. 
 Turn the machine on and select the MDI tab. 
-Start the spindle turning by entering: `M3 S100`. 
-Change the spindle speed by entering a different S-number: `S800`. 
+Start the spindle turning by entering: 'M3 S100'. 
+Change the spindle speed by entering a different S-number: 'S800'. 
 Valid numbers (at this point) range from 1 to 1000.
 
 For two different S-numbers, measure the actual spindle speed in RPM.
 Record the S-numbers and actual spindle speeds. Run Stepconf again. 
-For "Speed" enter the measured speed, and 
-for "PWM" enter the S-number divided by 1000.
+For 'Speed' enter the measured speed, and 
+for 'PWM' enter the S-number divided by 1000.
 
 Because most spindle drivers are somewhat nonlinear in their response
 curves, it is best to:
@@ -519,7 +520,7 @@ Include ClassicLadder PLC::
 
 == Machine Configuration Complete[[sub:Machine-Configuration-Complete]]
 
-Click “Apply” to write the configuration files. 
+Click 'Apply' to write the configuration files. 
 Later, you can re-run this program and tweak the settings you entered before.
 
 == Axis Travel, Home Location, and Home Switch Location[[sec:Axis-Travel-Home]]
@@ -572,7 +573,7 @@ it is best to use a limit switch as the home switch
 (e.g., choose 'Minimum Limit + Home X'  in the pinout). 
 If the machine has no switches at all, or the limit
 switches cannot be used as home switches for another reason, then the
-machine must be homed "by eye" or by using match marks. Homing by eye
+machine must be homed 'by eye' or by using match marks. Homing by eye
 is not as repeatable as homing to switches, but it still allows the
 soft limits to be useful.
 
@@ -590,7 +591,7 @@ to a single input pin.
 In each case, when one switch is actuated, 
 the value seen on INPUT goes from logic HIGH to LOW. 
 However, EMC expects a TRUE value when a switch is closed, 
-so the corresponding "Invert" box
+so the corresponding 'Invert' box
 must be checked on the pinout configuration page. 
 The pull up resistor show in the diagrams pulls the input high 
 until the connection to ground is made and then the input goes low. 
@@ -611,11 +612,11 @@ image::images/switch-no-parallel.eps[]
 
 The following combinations of switches are permitted in Stepconf:
 
- - Combine home switches for all axes
- - Combine limit switches for all axes
- - Combine both limit switches for one axis
- - Combine both limit switches and the home switch for one axis
- - Combine one limit switch and the home switch for one axis
+* Combine home switches for all axes
+* Combine limit switches for all axes
+* Combine both limit switches for one axis
+* Combine both limit switches and the home switch for one axis
+* Combine one limit switch and the home switch for one axis
 
 // vim: set syntax=asciidoc:
 

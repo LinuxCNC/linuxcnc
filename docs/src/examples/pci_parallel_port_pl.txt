@@ -1,3 +1,6 @@
+// :lang: pl
+:toc:
+
 = Second Parallel Port
 
 When you add a second parallel port to your PCI bus you have to find
@@ -6,12 +9,14 @@ out the address before you can use it with EMC.
 To find the address of your parallel port card open a terminal window
 and type
 
-    lspci -v
+----
+lspci -v
+----
 
 You will see something similar to this as well as info on everything
 else on the PCI bus:
 
----------------------------------------------------------------------
+----
 0000:00:10.0 Communication controller: \
         NetMos Technology PCI 1 port parallel adapter (rev 01)  
         Subsystem: LSI Logic / Symbios Logic: Unknown device 0010  
@@ -22,22 +27,28 @@ else on the PCI bus:
         I/O ports at b400 [size=8]  
         I/O ports at b800 [size=8]  
         I/O ports at bc00 [size=16]
----------------------------------------------------------------------
+----
 
 In my case the address was the first one so I changed my .hal file from
 
-    loadrt hal_parport cfg=0x378
+----
+loadrt hal_parport cfg=0x378
+----
 
 to
 
-    loadrt hal_parport cfg="0x378 0xa800 in"
+----
+loadrt hal_parport cfg="0x378 0xa800 in"
+----
 
 (Note the double quotes surrounding the addresses.)
 
 and then added the following lines so the parport will be read and written: 
 
-    addf parport.1.read base-thread  
-    addf parport.1.write base-thread
+----
+addf parport.1.read base-thread  
+addf parport.1.write base-thread
+----
 
 After doing the above then run your config and verify that the
 parallel port got loaded in Machine/Show HAL Configuration window.

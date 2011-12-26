@@ -1,6 +1,7 @@
-= Coordinate System[[cha:Coordinate-System]]
+//:lang: pl
+:toc:
 
-(((Coordinate System)))
+= Coordinate System[[coordinate-system]](((Coordinate System)))
 
 == Introduction
 
@@ -14,9 +15,9 @@ which the casting or block will be held during the machining.
 This chapter introduces you to offsets as they are used by the EMC.
 These include;
 
- - machine coordinates (G53) 
- - nine fixture offsets (G54-G59.3) 
- - global offsets (G92)
+* machine coordinates (G53) 
+* nine fixture offsets (G54-G59.3) 
+* global offsets (G92)
 
 == The Machine Position Command (G53)
 
@@ -54,14 +55,16 @@ the INI file during the startup of an EMC. In our example below we'll
 use (((G55)))G55. The values for each axis for G55 are stored as
 variable numbers.
 
-|==============
-|5241 | 0.000000
-|5242 | 0.000000
-|5243 | 0.000000
-|5244 | 0.000000
-|5245 | 0.000000
-|5246 | 0.000000
-|==============
+[width="40%",cols="^,^",options="header"]
+|===============
+|Variable |Value
+|5241 |0.000000
+|5242 |0.000000
+|5243 |0.000000
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
+|===============
 
 In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all six axes. There are numbered
@@ -74,14 +77,16 @@ this is not the recommended way. G10, G92, G28.1, etc are better ways
 to affect variables. For our example let's directly edit the file so
 that G55 takes on the following values.
 
-|==============
-|5241 | 2.000000
-|5242 | 1.000000
+[width="40%",cols="^,^",options="header"]
+|===============
+|Variable |Value
+|5241 |2.000000
+|5242 |1.000000
 |5243 |-2.000000
-|5244 | 0.000000
-|5245 | 0.000000
-|5246 | 0.000000
-|==============
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
+|===============
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero
@@ -91,8 +96,8 @@ Once there are values assigned, a call to G55 in a program block would
 shift the zero reference by the values stored. The following line would
 then move each axis to the new zero position. Unlike G53, G54 through
 G59.3 are modal commands. They will act on all blocks of code after one
-of them has been set. The program that might be run using figure 
-<<cap:Fixture-Offsets>> would require only a single coordinate
+of them has been set. The program that might be run using 
+fixture offsets would require only a single coordinate
 reference for each of the locations and all of the work to be done
 there. The following code is offered as an example of making a square
 using the G55 offsets that we set above.
@@ -120,15 +125,15 @@ returned to using the G55 offsets because that coordinate system would
 still be in effect. 
 
 ----
-G54   use preset work coordinate system 1(((G54)))
-G55   use preset work coordinate system 2(((G55)))
-G56   use preset work coordinate system 3(((G56)))
-G57   use preset work coordinate system 4(((G57)))
-G58   use preset work coordinate system 5(((G58)))
-G59   use preset work coordinate system 6(((G59)))
-G59.1 use preset work coordinate system 7(((G59.1)))
-G59.2 use preset work coordinate system 8(((G59.3)))
-G59.3 use preset work coordinate system 9(((G59.3)))
+G54   use preset work coordinate system 1
+G55   use preset work coordinate system 2
+G56   use preset work coordinate system 3
+G57   use preset work coordinate system 4
+G58   use preset work coordinate system 5
+G59   use preset work coordinate system 6
+G59.1 use preset work coordinate system 7
+G59.2 use preset work coordinate system 8
+G59.3 use preset work coordinate system 9
 ----
 
 === Default coordinate system
@@ -147,11 +152,11 @@ revert to the default value of 1.00000 on start up.
 The G10 L2x command can be used to set coordinate (fixture) offsets: 
   (these are just quick summaries, see the gcode section for full details)
 
-G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant. 
-                         (see <<sec:G10-L2_>> for details)(((G10 L2)))
+* 'G10 L2  P(fixture 1-9)' - Set offset(s) to a value. Current position irrelevant. 
+                         (see <<sec:G10-L2_,G10 L2>> for details)
 
-G10 L20 P(fixture 1-9) - Set offset(s) so current position becomes a value. 
-                         (see <<sec:G10-L20>> for details)(((G10 L20)))
+* 'G10 L20 P(fixture 1-9)' - Set offset(s) so current position becomes a value. 
+                         (see <<sec:G10-L20,G10 L20>> for details)
 
 == G92 Offsets[[sec:G92-Offsets]]
 
@@ -165,19 +170,15 @@ that is applied to all other offsets.
 
 This set of commands include;
 
-G92::
-     This command, when used with axis names, sets values to offset
+* 'G92' - This command, when used with axis names, sets values to offset
     variables.
 
-G92.1::
-    (((G92.1))) This command sets zero values to the G92 variables.
+* 'G92.1' - This command sets zero values to the G92 variables.
 
-G92.2::
-     (((G92.2))) This command suspends but does not zero out the G92
+* 'G92.2' - This command suspends but does not zero out the G92
     variables.
 
-G92.3::
-    (((G92.3))) This command applies offset values that have been suspended.
+* 'G92.3' - This command applies offset values that have been suspended.
 
 When the commands are used as described above, they will work pretty
 much as you would expect.
@@ -211,9 +212,9 @@ when the EMC begins to run.
 
 There are at least two ways to set G92 values.
 
- - right mouse click on position displays of tkemc will popup a window
+* right mouse click on position displays of tkemc will popup a window
    into which you can type a value. 
- - the G92 command
+* the G92 command
 
 Both of these work from the current location of the axis to which the
 offset is to be applied.
@@ -238,16 +239,20 @@ current displayed position becomes 5.0000.
 Sometimes the values of a G92 offset will remain in the VAR file. This
 can happen when a file is aborted during processing that has G92
 offsets in effect. When this happens reset or a startup will cause them
-to become active again. The variables are named: 
+to become active again. 
 
-|==============
+The variables are named: 
+
+[width="40%",cols="^,^",options="header"]
+|===============
+|Variable |Value
 |5211 | 0.000000
 |5212 | 0.000000
 |5213 | 0.000000
 |5214 | 0.000000
 |5215 | 0.000000
 |5216 | 0.000000
-|==============
+|===============
 
 where 5211 is the X axis offset and so on. If you are seeing
 unexpected positions as the result of a commanded move, as a result of

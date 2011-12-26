@@ -1,0 +1,399 @@
+//:lang: pl
+:toc:
+
+= M Codes[[cha:m-codes]](((M Codes)))
+
+== M Code Quick Reference Table [[m-code-quick-reference]]
+[width="60%", options="header", cols="2^,5<"]
+|========================================
+|Code                                    | Description
+|<<sec:M0-M1,M0 M1>>                     | Program Pause
+|<<sec:M2-M30,M2 M30>>                   | Program End
+|<<sec:M30-M60,M30 M60>>                 | Program Pause
+|<<sec:M60, M60>>                        | Program End
+|<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
+|<<sec:M6-Tool-Change,M6>>               | Tool Change
+|<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
+|<<sec:M48-Both-Override,M48>>           | Feed & Spindle Overrides Enabled
+|<<sec:M49-Neither-Override,M49>>        | Feed & Spindle Overrides Disabled
+|<<sec:M50-Feed-Override,M50>>           | Feed Override Control
+|<<sec:M51-Spindle-Override,M51>>        | Spindle Override Control
+|<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
+|<<sec:M53-Feed-Stop-Control,M53>>       | Feed Stop Control
+|<<sec:M61-Set-Current-Tool-Number,M61>> | Set Current Tool Number
+|<<sec:M62-to-M65,M62-65>>               | Output Control
+|<<sec:M66-Input-Control,M66>>           | Input Control
+|<<sec:M67-Analog-Output,M67>>           | Analog Output Control
+|<<sec:M68-Analog-Output,M68>>           | Analog Output Control
+|<<sec:M100-to-M199,M100-M199>>          | User Defined M-Codes 
+|========================================
+
+
+== M0, M1 Program Pause[[sec:M0-M1]]
+(((M0 Program Pause)))(((M1 Program Optional Pause)))
+
+* 'M0' - pause a running program temporarily. EMC2 remains
+         in the Auto Mode so MDI and other manual actions
+         are not enabled. Pressing the cycle start button
+         will restart the program at the following line.
+
+* 'M1' - pause a running program temporarily if the optional
+         stop switch is on. EMC2 remains in the Auto Mode
+         so MDI and other manual actions are not enabled.
+         Pressing the cycle start button
+         will restart the program at the following line.
+
+[NOTE]
+It is OK to program 'M0' and 'M1' in MDI mode, 
+but the effect will probably not be noticeable, 
+because normal behavior in MDI mode is 
+to stop after each line of input anyway.
+
+== M2, M30 Program End[[sec:M2-M30]]
+(((M2 Program End)))(((M30 Program End)))
+
+* 'M2' - end the program. Pressing cycle start will
+         start the program at the beginning of the file.
+         
+* 'M30' - exchange pallet shuttles and end the program.
+          Pressing cycle start will start the program
+          at the beginning of the file.
+
+Both of these commands have the following effects: 
+
+. Change from Auto mode to MDI mode.
+. Origin offsets are set to the default (like 'G54').
+. Selected plane is set to XY plane (like 'G17'). 
+. Distance mode is set to absolute mode (like 'G90'). 
+. Feed rate mode is set to units per minute (like 'G94').
+. Feed and speed overrides are set to ON (like 'M48'). 
+. Cutter compensation is turned off (like 'G40'). 
+. The spindle is stopped (like 'M5'). 
+. The current motion mode is set to feed (like 'G1'). 
+. Coolant is turned off (like 'M9'). 
+
+No more lines of code in an RS274/NGC file will be executed 
+after the M2 or M30 command is executed. 
+Pressing cycle start will start the program 
+at the beginning of the file.
+
+== M60 Program Pause[[sec:M60]]
+(((M60 Program Pause)))
+
+* 'M60' - exchange pallet shuttles and then pause a running program
+          temporarily (regardless of the setting of the optional stop
+          switch). Pressing the cycle start button
+          will restart the program at the following line.
+
+== M3, M4, M5 Spindle Control[[sec:M3-M4-M5]]
+(((M3 Spindle CW)))(((M4 Spindle CCW)))(((M5 Spindle Stop)))
+
+* 'M3' - start the spindle clockwise at the 'S' speed.
+* 'M4' - start the spindle counterclockwise at the 'S' speed.
+* 'M5' - stop the spindle.
+
+It is OK to use 'M3' or 'M4' if the spindle speed is set to zero. 
+If this is done 
+(or if the speed override switch is enabled and set to zero), 
+the spindle will not start turning. 
+If, later, the spindle speed is set above zero 
+(or the override switch is turned up), 
+the spindle will start turning. 
+It is OK to use 'M3' or 'M4' when the spindle is already 
+turning or to use 'M5' when the spindle is already stopped.
+
+== M6 Tool Change[[sec:M6-Tool-Change]]
+
+(((M6-Tool-Change)))
+
+=== Manual Tool Change
+
+If the HAL component hal_manualtoolchange is loaded, 
+M6 will stop the spindle and prompt the user to change the tool
+based on the last 'T-' number programmed.
+For more information on hal_manualtoolchange see 
+the (<<sec:Manual-Tool-Change,Manual Tool Change>>) Section.
+
+=== Tool Changer
+
+To change a tool in the spindle from the tool currently in the spindle
+to the tool most recently selected (using a T word - see Section 
+<<sec:T-Select-Tool,Select Tool>>), program 'M6'. 
+When the tool change is complete:
+
+* The spindle will be stopped. 
+* The tool that was selected (by a T word on the same line or on any
+   line after the previous tool change) will be in the spindle. 
+   The T number is an integer giving the 
+   changer slot of the tool (not its id).
+* If the selected tool was not in the spindle before the tool change,
+   the tool that was in the spindle 
+   (if there was one) 
+   will be in its changer slot. 
+* If configured in the .ini file some axis positions may move when a M6
+   is issued. See the EMCIO section of the Integrator's Manual for more
+   information on tool change options.
+* No other changes will be made. For example, coolant will continue to
+   flow during the tool change unless it has been turned off by an 'M9'. 
+
+[WARNING]
+The tool length offset is not changed by 'M6', use 'G43' after the
+'M6' to change the tool length offset.
+
+The tool change may include axis motion. 
+It is OK (but not useful) to program a change to the tool already in the spindle. 
+It is OK if there is no tool in the selected slot; 
+in that case, the spindle will be empty after the tool change. 
+If slot zero was last selected, 
+there will definitely be no tool in the spindle after a tool change. The tool
+changer will have to be setup to perform the tool change in hal and possibly 
+classicladder.
+
+== M7, M8, M9 Coolant Control[[sec:M7-M8-M9]]
+(((M7 Mist Coolant)))(((M8 Flood Coolant)))(((M9 Coolant Off)))
+
+* 'M7' - turn mist coolant on.
+* 'M8' - turn flood coolant on.
+* 'M9' - turn all coolant off.
+
+It is OK to use any of these commands, regardless of what coolant is on or off.
+
+== M48, M49 Override Control[[sec:M48-M49-Override]]
+(((M48, M49 Override Control)))
+
+* 'M48' - enable the spindle speed and feed rate override controls.
+* 'M49' - disable both controls.
+
+It is OK to enable or disable the controls when 
+they are already enabled or disabled. 
+See the <<sec:Feed-Interaction,Feed Interaction>> Section for more details. 
+
+== M50 Feed Override Control[[sec:M50-Feed-Override]]
+(((M50 Feed Override Control)))
+
+* 'M50 <P1>' - enable the feed rate override control. The P1
+               is optional. 
+* 'M50 P0' - disable the feed rate control.
+ 
+While disabled the feed override will have no influence, 
+and the motion will be executed at programmed feed rate. 
+(unless there is an adaptive feed rate override active).
+
+== M51 Spindle Speed Override Control[[sec:M51-Spindle-Override]]
+(((M51 Spindle Speed Override)))
+
+* 'M51 <P1>' - enable the spindle speed override control. The P1
+               is optional. 
+* 'M51 P0' - disable the spindle speed override control program.
+             While disabled the spindle speed override will have
+             no influence, and the spindle speed will have the
+             exact program specified value of the S-word
+             (described in <<sec:S-Set-Spindle,Spindle Speed>> Section).
+
+== M52 Adaptive Feed Control[[sec:M52-Adaptive-Feed-Control]]
+(((M52 Adaptive Feed Control)))
+
+* 'M52 <P1>' - use an adaptive feed. The P1 is optional.
+* 'M52 P0' - stop using adaptive feed.
+ 
+When adaptive feed is enabled, some external input value is used together
+with the user interface feed override value and the commanded feed rate
+to set the actual feed rate. In EMC2, the HAL pin 'motion.adaptive-feed'
+is used for this purpose. Values on 'motion.adaptive-feed' should range 
+from 0 (feed hold) to 1 (full speed).
+
+== M53 Feed Stop Control[[sec:M53-Feed-Stop-Control]]
+(((M53 Feed Stop Control)))
+
+* 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
+               Enabling the feed stop switch will allow motion to be
+               interrupted by means of the feed stop control. In EMC2,
+               the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'
+               value will cause the motion to stop when 'M53' is active.
+
+* 'M53 P0' - disable the feed stop switch. The state of 'motion.feed-hold'
+             will have no effect on feed when M53 is not active.
+
+
+== M61 Set Current Tool Number[[sec:M61-Set-Current-Tool-Number]]
+(((M61 Set Current Tool Number)))
+
+* 'M61 Q-' - change the current tool number while in MDI or Manual mode.
+             One use is when you power up EMC with a tool currently in
+             the spindle you can set that tool number without doing a tool change.
+
+It is an error if:
+
+* Q- is not 0 or greater
+
+== M62 to M65 Output Control[[sec:M62-M65]]
+(((M62 to M65 Output Control)))
+
+* 'M62 P-' - turn on digital output synchronized with motion.
+             The P- word specifies the digital output number.
+
+* 'M63 P-' - turn off digital output synchronized with motion.
+             The P- word specifies the digital output number.
+
+* 'M64 P-' - turn on digital output immediately.
+             The P- word specifies the digital output number.
+
+* 'M65 P-' - turn off digital output immediately.
+             The P- word specifies the digital output number.
+
+The P-word ranges from 0 to a default value of 3. If needed the the 
+number of I/O can be increased by using the num_dio parameter when loading
+the motion controller. See the Integrator's Manual Configuration Section EMC and
+HAL section for more information.
+
+The M62 & M63 commands will be queued. Subsequent commands referring
+to the same output number will overwrite the older settings. More than
+one output change can be specified by issuing more than one M62/M63
+command.
+
+The actual change of the specified outputs will happen at the
+beginning of the next motion command. If there is no subsequent motion
+command, the queued output changes won't happen. It's best to always
+program a motion g-code (G0, G1, etc) right after the M62/63.
+
+M64 & M65 happen immediately as they are received by the motion
+controller. They are not synchronized with movement, and they will
+break blending.
+
+== M66 Wait on Input[[sec:M66-Input-Control]]
+(((M66 Input Control)))
+
+----
+M66 P- | E- <L->
+----
+* 'P-' - specifies the digital input number from 0 to 3. 
+* 'E-' - specifies the analog input number from 0 to 3. 
+* 'L-' - specifies the wait mode type.
+**   'Mode 0: IMMEDIATE' - no waiting, returns immediately. 
+       The current value of the input is stored in parameter #5399
+**   'Mode 1: RISE' - waits for the selected input to perform a rise event.
+**   'Mode 2: FALL' - waits for the selected input to perform a fall event.
+**   'Mode 3: HIGH' - waits for the selected input to go to the HIGH state.
+**   'Mode 4: LOW' - waits for the selected input to go to the LOW state.
+* 'Q-' - specifies the timeout in seconds for waiting. If the timeout is
+         exceeded, the wait is interrupt, and the variable #5399 will be holding
+         the value -1. The Q value is ignored if the L-word is zero (IMMEDIATE).
+         A Q value of zero is an error if the L-word is non-zero.
+
+* Mode 0 is the only one permitted for an analog input.
+
+M66 wait on an input stops further execution of the program, until the
+selected event (or the programmed timeout) occurs.
+
+It is an error to program M66 with both a P-word and an E-word (thus
+selecting both an analog and a digital input).In EMC2 these inputs are
+not monitored in real time and thus should not be used for
+timing-critical applications.
+
+The number of I/O can be increased 
+by using the num_dio or num_aio parameter when 
+loading the motion controller. See the Integrator's
+Manual, Configuration Section, EMC and HAL subsection, for more
+information. 
+
+== M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
+(((M67 Analog Motion Output Control)))
+
+----
+M67 E- Q-
+----
+* 'M67' - set an analog output synchronized with motion.
+* 'E-' - output number ranging from 0 to 3.
+* 'Q-' - is the value to set (set to 0 to turn off).
+
+The actual change of the specified outputs will happen at the
+beginning of the next motion command. If there is no subsequent motion
+command, the queued output changes won't happen. It's best to always
+program a motion g-code (G0, G1, etc) right after the M67. M67 functions
+the same as M62-63.
+
+The number of I/O can be increased by 
+using the num_aio parameter when loading the motion controller. See the 
+'EMC2 and HAL' chapter in the Configuration Section of the Integrator 
+Manual for more information on the Motion Controller.
+
+== M68 Analog Output[[sec:M68-Analog-Output]]
+(((M68 Analog Aux Output Control)))
+
+----
+M68 E- Q-
+----
+* 'M68' - set an analog output immediately.
+* 'E-' - output number ranging from 0 to 3.
+* 'Q-' - is the value to set (set to 0 to turn off).
+
+M68 output happen immediately as they are received by the motion
+controller. They are not synchronized with movement, and they will
+break blending. M68 functions the same as M64-65.
+
+The number of I/O can be increased by using the
+num_aio parameter when loading the motion controller. See the 'EMC2 and
+HAL' chapter in the Configuration Section of the Integrator's Manual for
+more information on the Motion Controller. 
+
+== M100 to M199 User Defined Commands[[sec:M100-to-M199]]
+(((M100 to M199 User Defined Commands)))(((User Defined Commands M100-M199)))
+
+----
+M1-- <P- Q->
+----
+
+* 'M1--' - an integer in the range of 100 - 199.
+* 'P-' - a number passed to the file as the first parameter.
+* 'Q-' - a number passed to the file as the second parameter.
+
+The external program 'M1nn'
+must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
+file and is executed with the P and Q values as its two arguments.
+Execution of the RS274NGC file pauses until the invoked program exits.
+Any valid executable file can be used.
+
+The error 'Unknown M code used' denotes one of the following
+
+* The specified User Defined Command does not exist
+* The file is not an executable file
+
+For example to open and close a collet closer that is controlled by a
+parport pin using a bash script file using M101 and M102. Create two
+files called M101 and M102. Set them as executable files (typically
+right click/properties/permissions) before running EMC2. Make sure the
+parport pin is not connected to anything in a HAL file.
+
+M101 (file name)
+
+----
+#!/bin/sh
+# file to turn on parport pin 14 to open the collet closer
+halcmd setp parport.0.pin-14-out True
+exit 0
+----
+
+M102 (file name)
+----
+#!/bin/sh
+# file to turn off parport pin 14 to open the collet closer
+halcmd setp parport.0.pin-14-out False
+exit 0
+----
+
+To pass a variable to a M1nn file you use the P and Q option like this:
+
+    M100 P123.456 Q321.654
+
+In your M100 file it might look like this:
+
+----
+#!/bin/sh
+voltage=$1
+feedrate=$2
+halcmd setp thc.voltage $voltage
+halcmd setp thc.feedrate $feedrate
+exit 0
+----
+
+// vim: set syntax=asciidoc:

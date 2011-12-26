@@ -22,7 +22,7 @@
 	<LI><A HREF="common/Getting_EMC.html">Getting EMC2</A>
 	<LI><A HREF="common/Updating_EMC.html">Updating EMC2</A>
 	<LI><A HREF="quickstart/stepper_quickstart.html">Stepper Quickstart</A>
-	<LI><A HREF="config/stepconf.html">Configuration Wizard for Stepper-Based Machines</A>
+	<LI><A HREF="config/stepconf.html">Stepper Configuration Wizard</A>
 	<LI><A HREF="config/pncconf.html">Point and Click Configuration Wizard (Mesa)</A>
 	<LI><A HREF="config/copy_and_run.html">Copy and Run</A>
 	<LI><A HREF="common/Linux_FAQ.html">Linux FAQ</A>
@@ -38,46 +38,36 @@
 	<LI><A HREF="gui/tkemc.html">GUI: TkEMC</A>
 	<LI><A HREF="gui/mini.html">GUI: Mini</A>
 	<LI><A HREF="gui/keystick.html">GUI: Keystick</A>
-	<LI><A HREF="common/machining_center.html">Machining Center Info</A>
+	<LI><A HREF="gcode/machining_center.html">Machining Center Info</A>
+	<LI><A HREF="gcode/coordinates.html">Coordinates</A>
+	<LI><A HREF="gcode/tool_compensation.html">Tool Compensation</A>
 	<LI><A HREF="gcode/overview.html">Gcode Overview</A>
-	<LI><A HREF="gcode/coordinates.html">Gcode Coordinates</A>
-	<LI><A HREF="gcode/tool_compensation.html">Gcode Tool Compensation</A>
-	<LI><A HREF="gcode/gcode.html">The EMC2 Gcode Language</A>
-	<LI><A HREF="gcode/mill_canned.html">Gcode Mill Canned Cycle Examples</A>
-	<LI><A HREF="lathe/lathe-user.html">Lathe User Information</A>
-	<LI><A HREF="gcode/rs274ngc.html">RS-274NGC Gcode</A>
+	<LI><A HREF="gcode/gcode.html">G-Codes</A>
+	<LI><A HREF="gcode/m-code.html">M-Codes</A>
+	<LI><A HREF="gcode/o-code.html">O-Codes</A>
+	<LI><A HREF="gcode/other-code.html">Other Codes</A>
 	<LI><A HREF="examples/gcode.html">Gcode Examples</A>
+	<LI><A HREF="gcode/mill_canned.html">Canned Cycle Examples</A>
+	<LI><A HREF="lathe/lathe-user.html">Lathe User Information</A>
 	<LI><A HREF="gui/image-to-gcode.html">Image to Gcode</A>
-	</UL>
-<LI><a name="HAL Manual"></a> HAL Manual
-	<UL>
-	<LI><A HREF="hal/intro.html">Introduction</A>
-	<LI><A HREF="hal/tutorial.html">HAL Advanced Tutorial</A>
-	<LI><A HREF="hal/general_ref.html">General Reference</A>
-	<LI><A HREF="hal/tools.html">HAL Tools</A>
-	<LI><A HREF="hal/basic_hal.html">Basic HAL Info</A>
-	<LI><A HREF="hal/halshow.html">Halshow</A>
-	<LI><A HREF="hal/components.html">HAL Components</A>
-	<LI><A HREF="hal/rtcomps.html">Realtime Components</A>
-	<LI><A HREF="hal/parallel_port.html">Parallel Port Drivers</A>
-	<LI><A HREF="gui/halui.html">HAL User Interface</A>
-	<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
-	<LI><A HREF="hal/comp.html">Comp: a tool for creating HAL components</A>
-	<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components with the 'hal' module</A>
+	<LI><A HREF="gcode/rs274ngc.html">RS-274NGC Gcode</A>
 	</UL>
 <LI><a name="Integrator Manual"></a> Integrator Manual
 	<UL>
 	<LI><A HREF="common/Integrator_Concepts.html">Important Integrator Concepts</A>
 	<LI><A HREF="install/Latency_Test.html">Latency Test</A>
-	<LI><A HREF="config/ini_config.html">Basic Configuration</A>
+	<LI><A HREF="common/starting-emc.html">Startup Options</A>
+	<LI><A HREF="config/ini_config.html">INI Configuration</A>
 	<LI><A HREF="config/ini_homing.html">Homing Configuration</A>
 	<LI><A HREF="config/lathe_config.html">Lathe Configuration</A>
-	<LI><A HREF="config/emc2hal.html">EMC2 interface to HAL</A>
+	<LI><A HREF="config/emc2hal.html">Core Components</A>
 	<LI><A HREF="config/stepper.html">Stepper Configuration</A>
 	<LI><A HREF="remap/structure.html">Remapping: Extending EMC</A>
 	<LI><A HREF="hal/pyvcp.html">Python Virtual Control Panels (pyVCP)</A>
 	<LI><A HREF="hal/pyvcp_examples.html">pyVCP Examples</A>
 	<LI><A HREF="gui/gladevcp.html">Glade Virtual Control Panel</A>
+	<LI><A HREF="gui/halui.html">HALUI Pin Reference</A>
+	<LI><A HREF="hal/parallel_port.html">Parallel Port Drivers</A>
 	<LI><A HREF="drivers/AX5214H.html">AX5214H Driver</A>
 	<LI><A HREF="drivers/GS2.html">GS2 Driver</A>
 	<LI><A HREF="drivers/hostmot2.html">HostMot2 Driver</A>
@@ -96,6 +86,21 @@
 	<LI><A HREF="examples/spindle.html">Spindle Example</A>
 	<LI><A HREF="examples/mpg.html">MPG Example</A>
 	<LI><A HREF="examples/gs2_example.html">GS2 Example</A>
+	</UL>
+<LI><a name="HAL Manual"></a> HAL Manual
+	<UL>
+	<LI><A HREF="hal/intro.html">Introduction</A>
+	<LI><A HREF="hal/tutorial.html">HAL Advanced Tutorial</A>
+	<LI><A HREF="hal/canonical-devices.html">Canonical Devices</A>
+	<LI><A HREF="hal/general_ref.html">General Reference</A>
+	<LI><A HREF="hal/tools.html">HAL Tools</A>
+	<LI><A HREF="hal/basic_hal.html">Basic HAL Info</A>
+	<LI><A HREF="hal/halshow.html">Halshow</A>
+	<LI><A HREF="hal/components.html">HAL Components</A>
+	<LI><A HREF="hal/rtcomps.html">Realtime Components</A>
+	<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
+	<LI><A HREF="hal/comp.html">Creating HAL components with Comp</A>
+	<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
 	</UL>
 <LI><a name="Developer Manual"></a> Developer Manual
 	<UL>

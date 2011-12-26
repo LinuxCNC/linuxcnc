@@ -57,15 +57,15 @@ DOC_SRCS := \
 	common/Linux_FAQ_es.txt \
 	common/Linux_FAQ_fr.txt \
 	common/Linux_FAQ_pl.txt \
-	common/machining_center.txt \
-	common/machining_center_de.txt \
-	common/machining_center_es.txt \
-	common/machining_center_pl.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
 	common/overleaf_de.txt \
 	common/overleaf_fr.txt \
 	common/overleaf_pl.txt \
+	common/starting-emc.txt \
+	common/starting-emc_de.txt \
+	common/starting-emc_es.txt \
+	common/starting-emc_pl.txt \
 	common/Stepper_Diagnostics.txt \
 	common/Stepper_Diagnostics_de.txt \
 	common/Stepper_Diagnostics_es.txt \
@@ -187,11 +187,7 @@ DOC_SRCS := \
 	examples/gs2_example_es.txt \
 	examples/gs2_example_fr.txt \
 	examples/gs2_example_pl.txt \
-	examples/misc.txt \
-	examples/misc_de.txt \
-	examples/misc_es.txt \
 	examples/misc_fr.txt \
-	examples/misc_pl.txt \
 	examples/mpg.txt \
 	examples/mpg_de.txt \
 	examples/mpg_es.txt \
@@ -217,11 +213,27 @@ DOC_SRCS := \
 	gcode/gcode_es.txt \
 	gcode/gcode_fr.txt \
 	gcode/gcode_pl.txt \
+	gcode/machining_center.txt \
+	gcode/machining_center_de.txt \
+	gcode/machining_center_es.txt \
 	gcode/machining_center_fr.txt \
+	gcode/machining_center_pl.txt \
+	gcode/m-code.txt \
+	gcode/m-code_de.txt \
+	gcode/m-code_es.txt \
+	gcode/m-code_pl.txt \
 	gcode/mill_canned.txt \
 	gcode/mill_canned_de.txt \
 	gcode/mill_canned_es.txt \
 	gcode/mill_canned_pl.txt \
+	gcode/o-code.txt \
+	gcode/o-code_de.txt \
+	gcode/o-code_es.txt \
+	gcode/o-code_pl.txt \
+	gcode/other-code.txt \
+	gcode/other-code_de.txt \
+	gcode/other-code_es.txt \
+	gcode/other-code_pl.txt \
 	gcode/overview.txt \
 	gcode/overview_de.txt \
 	gcode/overview_es.txt \
@@ -285,6 +297,10 @@ DOC_SRCS := \
 	hal/basic_hal_es.txt \
 	hal/basic_hal_fr.txt \
 	hal/basic_hal_pl.txt \
+	hal/canonical-devices.txt \
+	hal/canonical-devices_de.txt \
+	hal/canonical-devices_es.txt \
+	hal/canonical-devices_pl.txt \
 	hal/comp.txt \
 	hal/comp_de.txt \
 	hal/comp_es.txt \
@@ -400,11 +416,11 @@ DOC_SRCS := \
 	quickstart/stepper_quickstart_fr.txt \
 	quickstart/stepper_quickstart_pl.txt \
 	remap/structure.txt \
-	Getting_Started.txt \
-	Getting_Started_de.txt \
-	Getting_Started_es.txt \
-	Getting_Started_fr.txt \
-	Getting_Started_pl.txt \
+	Master_Getting_Started.txt \
+	Master_Getting_Started_de.txt \
+	Master_Getting_Started_es.txt \
+	Master_Getting_Started_fr.txt \
+	Master_Getting_Started_pl.txt \
 	Master_User.txt \
 	Master_User_de.txt \
 	Master_User_es.txt \
@@ -477,9 +493,6 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_fr.html \
 	$(DOC_DIR)/html/index_pl.html \
 
-L2HFLAGS := -init_file src/.latex2html-init -local_icons \
-	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table
-
 A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
@@ -506,20 +519,19 @@ endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
-# English only for now, checklinks.py needs adapting -mah
-checkref: checkref_en 
-#checkref: checkref_en checkref_fr checkref_de checkref_es checkref_fr
+checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html
+	python $(DOC_SRCDIR)/checklinks.py $^
 
+# These targets don't work yet since we don't have the associated translations
 checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
+checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/gcode_de.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
@@ -538,15 +550,15 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
 
-$(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
+$(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Getting_Started_de.pdf
+$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Master_Getting_Started_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Getting_Started_es.pdf
+$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
+$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Getting_Started_pl.pdf
+$(DOC_DIR)/EMC2_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Master_Getting_Started_pl.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@

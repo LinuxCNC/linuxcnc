@@ -1,4 +1,4 @@
-:lang: en
+//:lang: pl
 :toc:
 
 = User Concepts(((User Concepts)))
@@ -6,7 +6,7 @@
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
-== Trajectory Control(((Trajectory Control)))
+== Trajectory Control[[sec:trajectory-control]](((Trajectory Control)))
 
 === Trajectory Planning
 
@@ -26,7 +26,7 @@ must accelerate from a stop, move toward X=1, and then decelerate to
 stop again. Sometimes part of the move is done at F10, but for many
 moves, especially short ones, the specified feed rate is never reached
 at all. Having short moves in your G Code can cause your machine to
-slow down and speed up for the longer moves if the "naive cam detector"
+slow down and speed up for the longer moves if the 'naive cam detector'
 is not employed with G64 Pn.
 
 The basic acceleration and deceleration described above is not complex
@@ -56,17 +56,14 @@ no path tolerance specified, you can get a fairly round corner.
 
 The trajectory control commands are as follows:
 
-G61::
-     (Exact Path Mode) visits the programmed point exactly, even though
+* 'G61' - (Exact Path Mode) visits the programmed point exactly, even though
     that means it might temporarily come to a complete stop in order to
     change direction to the next programmed point. 
 
-G61.1::
-     (Exact Stop Mode) tells the planner to come to an exact stop at every
+* 'G61.1' - (Exact Stop Mode) tells the planner to come to an exact stop at every
     segment's end. 
 
-G64::
-     (Blend Without Tolerance Mode) G64 is the default setting when you
+* 'G64' - (Blend Without Tolerance Mode) G64 is the default setting when you
     start EMC. G64 is just blending and the naive cam detector is not
     enabled. G64 and G64 P0 tell the planner to sacrifice path following
     accuracy in order to keep the feed rate up. This is necessary for some
@@ -77,8 +74,7 @@ G64::
     allow enough distance to clear obstacles based on the acceleration
     capabilities of your machine.
 
-G64 P- Q-::
-     (Blend With Tolerance Mode) This enables the "naive cam detector" and
+* 'G64 P- Q-' - (Blend With Tolerance Mode) This enables the 'naive cam detector' and
     enables blending with a tolerance. If you program G64 P0.05, you tell
     the planner that you want continuous feed, but at programmed corners
     you want it to slow down enough so that the tool path can stay within
@@ -92,16 +88,14 @@ G64 P- Q-::
     compatibility for old G Code programs. See the G Code Chapter for more
     information on G64 P- Q-.
 
-Blending without tolerance::
-     The controlled point will touch each specified movement at at least
+* 'Blending without tolerance' - The controlled point will touch each specified movement at at least
     one point. The machine will never move at such a speed that it cannot
     come to an exact stop at the end of the current movement (or next
     movement, if you pause when blending has already started). The distance
     from the end point of the move is as large as it needs to be to keep up
     the best contouring feed.
 
-Naive Cam Detector::
-     Successive G1 moves that involve only the XYZ axes that deviate less
+* 'Naive Cam Detector' - Successive G1 moves that involve only the XYZ axes that deviate less
     than Q- from a straight line are merged into a single straight line.
     This merged movement replaces the individual G1 movements for the
     purposes of blending with tolerance. Between successive movements, the
@@ -115,7 +109,7 @@ Naive Cam Detector::
     two lines (from start of arc to midpoint, and from midpoint to end).
     those lines are then subject to the naive cam algorithm for lines.
     Thus, line-arc, arc-arc, and arc-line cases as well as line-line
-    benefit from the "naive cam detector". This improves contouring
+    benefit from the 'naive cam detector'. This improves contouring
     performance by simplifying the path. 
 
 In the following figure the blue line represents the actual machine
@@ -134,10 +128,10 @@ image::images/naive-cam.png[]
 
 === Planning Moves
 
-Make sure moves are "long enough" to suit your machine/material.
-Principally because of the rule that "the machine will never move at
+Make sure moves are 'long enough' to suit your machine/material.
+Principally because of the rule that the machine will never move at
 such a speed that it cannot come to a complete stop at the end of the
-current movement", there is a minimum movement length that will allow
+current movement, there is a minimum movement length that will allow
 the machine to keep up a requested feed rate with a given acceleration
 setting.
 
@@ -189,21 +183,21 @@ latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 
 When EMC first starts up many G and M codes are loaded by default. The
 current active G and M codes can be viewed on the MDI tab in the
-"Active G-Codes:" window in the AXIS interface. These G and M codes
+'Active G-Codes:' window in the AXIS interface. These G and M codes
 define the behavior of EMC and it is important that you understand what
 each one does before running EMC. The defaults can be changed when
 running a G-Code file and left in a different state than when you
 started your EMC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
-that the defaults have not changed. Printing out the G-Code Quick
-Reference (<<sec:Quick-Reference-Table>>) page can help you remember
+that the defaults have not changed. Printing out the G-Code
+<<quick-reference-table,Quick Reference>> page can help you remember
 what each one is.
 
 === Feed Rate
 
 How the feed rate is applied depends on if an axis involved with the
-move is a rotary axis. Read and understand the Feed Rate section 
-(<<sec:Feed-Rate>>) if you have a rotary axis or a lathe.
+move is a rotary axis. Read and understand the <<feed-rate,Feed Rate>>
+section if you have a rotary axis or a lathe.
 
 === Tool Radius Offset
 
@@ -212,8 +206,8 @@ somewhere along each programmed move without gouging the two adjacent
 moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
-is narrower than the cutter without any errors. See the Tool
-Compensation Section (<<sec:Cutter-Radius-Compensation>>) for more
+is narrower than the cutter without any errors. See the 
+<<cutter-radius-compensation,Tool Compensation Section>> for more
 information.
 
 == Homing
@@ -243,7 +237,7 @@ User Manual.
 The Coordinate Systems can be confusing at first. Before running a CNC
 machine you must understand the basics of the coordinate systems used
 by EMC. In depth information on the EMC Coordinate Systems is in the
-coordinate section (<<cha:Coordinate-System>>) of this manual.
+<<coordinate-system,Coordinate Section>> of this manual.
 
 === G53 Machine Coordinate
 
@@ -260,15 +254,15 @@ G54 coordinate system.
 
 Normally you use the G54 Coordinate System. When an offset is applied
 to a current user coordinate system a small blue ball with lines will
-be at the machine origin when your DRO is displaying "Position:
-Relative Actual" in Axis. If your offsets are temporary use the Zero
+be at the machine origin when your DRO is displaying 'Position:
+Relative Actual' in Axis. If your offsets are temporary use the Zero
 Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
-at the end of your G Code file. Change the "P" number to suit the
+at the end of your G Code file. Change the 'P' number to suit the
 coordinate system you wish to clear the offset in.
 
  -  Offsets stored in a user coordinate system are retained when EMC is
    shut down.
- -  Using the "Touch Off" button in Axis sets an offset for the chosen
+ -  Using the 'Touch Off' button in Axis sets an offset for the chosen
    User Coordinate System.
 
 === When You're Lost

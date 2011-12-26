@@ -1,8 +1,10 @@
-[[cha:Hal-User-Interface]]
-= HAL User Interface
+//:lang: pl
+:toc:
 
-[[sec:HaluiIntroduction]]
-== Introduction
+= HAL User Interface[[cha:Hal User Interface]]
+
+
+== Introduction[[sec:HaluiIntroduction]]
 
 Halui is a HAL based user interface for EMC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
@@ -12,237 +14,252 @@ pins in Halui.
 The easiest way to add halui is to add the following to the [HAL]
 section of the ini file.
 
-    HALUI = halui
+----
+HALUI = halui
+----
 
-An alternate way to invoke it (especially when using a stepconf
-generated config file) is to include the following in your custom.hal
+An alternate way to invoke it is to include the following in your .hal
 file. Make sure you use the actual path to your ini file.
 
-    loadusr halui -ini /path/to/inifile.ini
-
-in your custom.hal file.
+----
+loadusr halui -ini /path/to/inifile.ini
+----
 
 [[sec:Halui-pin-reference]]
 == Halui pin reference
 
-=== Abort
+.Abort
 
- - halui.abort (bit, in) - pin to send an abort message (clears out most errors)
+* 'halui.abort' (bit, in) - pin to send an abort message (clears out most errors)
 
-=== Axis
+.Axis
 
- - halui.axis.n.pos-commanded (float, out) - Commanded axis position in machine coordinates
- - halui.axis.n.pos-feedback (float, out) - Feedback axis position in machine coordinates
- - halui.axis.n.pos-relative (float, out) - Commanded axis position in relative coordinates
+* 'halui.axis.n.pos-commanded' (float, out) - Commanded axis position in machine coordinates
+* 'halui.axis.n.pos-feedback' (float, out) - Feedback axis position in machine coordinates
+* 'halui.axis.n.pos-relative' (float, out) - Commanded axis position in relative coordinates
 
-=== E-Stop
+.E-Stop
 
- - halui.estop.activate (bit, in) - pin for requesting E-Stop
- - halui.estop.is-activated (bit, out)- indicates E-stop reset
- - halui.estop.reset (bit, in) - pin for requesting E-Stop reset
+* 'halui.estop.activate' (bit, in) - pin for requesting E-Stop
+* 'halui.estop.is-activated' (bit, out) - indicates E-stop reset
+* 'halui.estop.reset' (bit, in) - pin for requesting E-Stop reset
 
-=== Feed Override (FO)
+.Feed Override
 
- - halui.feed-override.count-enable (bit, in) - must be true for counts to work.
- - halui.feed-override.counts (s32, in) - counts * scale = FO percentage
- - halui.feed-override.decrease (bit, in) - pin for decreasing the FO (-=scale)
- - halui.feed-override.increase (bit, in) - pin for increasing the FO (+=scale)
- - halui.feed-override.direct-value (bit, in) - false when using encoder 
+* 'halui.feed-override.count-enable' (bit, in) - must be true for counts to work.
+* 'halui.feed-override.counts' (s32, in) - counts * scale = FO percentage
+* 'halui.feed-override.decrease' (bit, in) - pin for decreasing the FO (-=scale)
+* 'halui.feed-override.increase' (bit, in) - pin for increasing the FO (+=scale)
+* 'halui.feed-override.direct-value' (bit, in) - false when using encoder 
    to change counts, true when setting counts directly. +
-   The `count-enable` pin must be true. footnote:[This function had been released, 
+   The 'count-enable' pin must be true. footnote:[This function had been released, 
    but is currently withdrawn for further development. It may or may not be 
-   present in your version of EMC2. Consider this a *FIXME*/TODO.] 
- - halui.feed-override.scale (float, in) - pin for setting the scale for 
+   present in your version of EMC2.] 
+* 'halui.feed-override.scale' (float, in) - pin for setting the scale for 
    increase and decrease
- - halui.feed-override.value (float, out) - current FO value
+* 'halui.feed-override.value' (float, out) - current FO value
 
-=== Mist 
+.Mist 
 
- - halui.mist.is-on (bit, out) - indicates mist is on
- - halui.mist.off (bit, in) - pin for requesting mist off
- - halui.mist.on (bit, in) - pin for requesting mist on
+* 'halui.mist.is-on' (bit, out) - indicates mist is on
+* 'halui.mist.off' (bit, in) - pin for requesting mist off
+* 'halui.mist.on' (bit, in) - pin for requesting mist on
 
-=== Flood
+.Flood
 
- - halui.flood.is-on (bit, out) - indicates flood is on
- - halui.flood.off (bit, in) - pin for requesting flood off
- - halui.flood.on (bit, in) - pin for requesting flood on
+* 'halui.flood.is-on' (bit, out) - indicates flood is on
+* 'halui.flood.off' (bit, in) - pin for requesting flood off
+* 'halui.flood.on' (bit, in) - pin for requesting flood on
 
-=== Homing
+.Homing
 
- - halui.home-all (bit, in) - pin for requesting all axis to home. This
+* 'halui.home-all' (bit, in) - pin for requesting all axis to home. This
    pin will only be there if HOME_SEQUENCE is set in the ini file.
 
-=== Jog
+.Jog
 
 <n> is a number between 0 and 8 and 'selected'.
 
- - halui.jog-deadband (float, in) - deadband for analog jogging (smaller 
+* 'halui.jog-deadband' (float, in) - deadband for analog jogging (smaller 
    jogging speed requests are not performed)
- - halui.jog-speed (float, in) - pin for setting jog speed for minus/plus jogging
- - halui.jog.<n>.analog (float, in) - analog velocity input for jogging 
+* 'halui.jog-speed' (float, in) - pin for setting jog speed for minus/plus jogging
+* 'halui.jog.<n>.analog' (float, in) - analog velocity input for jogging 
    (useful with joysticks or other analog devices)
- - halui.jog.<n>.minus (bit, in)- pin for jogging axis <n> in negative 
+* 'halui.jog.<n>.increment' (float,in) - pin for setting the jog increment for
+   axis <n> when using increment-minus or increment-plus to jog.
+* 'halui.jog.<n>.increment-minus' (bit, in) - pin for moving the <n> axis one
+   increment in the minus direction for each off to on transition.
+* 'halui.jog.<n>.increment-plus' (bit, in) - pin for moving the <n> axis one
+   increment in the plus direction for each off to on transition.
+* 'halui.jog.<n>.minus' (bit, in) - pin for jogging axis <n> in negative 
    direction at the halui.jog.speed velocity
- - halui.jog.<n>.plus (bit, in) - pin for jogging axis <n> in positive 
+* 'halui.jog.<n>.plus' (bit, in) - pin for jogging axis <n> in positive 
    direction at the halui.jog.speed velocity
- - halui.jog.selected.minus (bit, in) - pin for jogging the selected axis 
+* 'halui.jog.selected.increment' (float,in) - pin for setting the jog increment
+   for the selected axis when using increment-minus or incremet-plus to jog.
+* 'halui.jog.selected.increment-minus' (bit, in) - pin for moving the selected axis
+   one increment in the minus direction for each off to on transition.
+* 'halui.jog.selected.increment-plus' (bit, in) - pin for moving the selected axis
+   one increment in the plus direction for each off to on transition.
+* 'halui.jog.selected.minus' (bit, in) - pin for jogging the selected axis 
    in negative direction at the halui.jog.speed velocity
- - halui.jog.selected.plus (bit, in) - pin for jogging the selected axis 
+* 'halui.jog.selected.plus' (bit, in) - pin for jogging the selected axis 
    in positive direction at the halui.jog.speed velocity
 
-=== Joint
+.Joint
 
 <n> is a number between 0 and 8 and 'selected'.
 
- - halui.joint.<n>.has-fault (bit, out) - status pin telling the joint 
+* 'halui.joint.<n>.has-fault' (bit, out) - status pin telling the joint 
    has a fault
- - halui.joint.<n>.home (bit, in) - pin for homing the specific joint 
- - halui.joint.<n>.is-homed (bit, out) - status pin telling that the joint is homed
- - halui.joint.<n>.is-selected bit (bit, out) - status pin a joint is selected - internal halui
- - halui.joint.<n>.on-hard-max-limit (bit, out) - status pin telling 
+* 'halui.joint.<n>.home' (bit, in) - pin for homing the specific joint 
+* 'halui.joint.<n>.is-homed' (bit, out) - status pin telling that the joint is homed
+* 'halui.joint.<n>.is-selected bit' (bit, out) - status pin a joint is selected* internal halui
+* 'halui.joint.<n>.on-hard-max-limit' (bit, out) - status pin telling 
    joint <n> is on the positive hardware limit switch
- - halui.joint.<n>.on-hard-min-limit (bit, out) - status pin telling 
+* 'halui.joint.<n>.on-hard-min-limit' (bit, out) - status pin telling 
    joint <n> is on the negative hardware limit switch
- - halui.joint.<n>.on-soft-max-limit (bit, out) - status pin telling 
+* 'halui.joint.<n>.on-soft-max-limit' (bit, out) - status pin telling 
    joint <n> is at the positive software limit
- - halui.joint.<n>.on-soft-min-limit (bit, out) - status pin telling 
+* 'halui.joint.<n>.on-soft-min-limit' (bit, out) - status pin telling 
    joint <n> is at the negative software limit
- - halui.joint.<n>.select (bit, in) - select joint (0..8) - internal halui
- - halui.joint.<n>.unhome (bit, in) - unhomes this joint
- - halui.joint.selected (u32, out) - selected joint (0..8) - internal halui
- - halui.joint.selected.has-fault (bit, out) - status pin telling that 
+* 'halui.joint.<n>.select' (bit, in) - select joint (0..8) - internal halui
+* 'halui.joint.<n>.unhome' (bit, in) - unhomes this joint
+* 'halui.joint.selected' (u32, out) - selected joint (0..8) - internal halui
+* 'halui.joint.selected.has-fault' (bit, out) - status pin telling that 
    the joint <n> has a fault
- - halui.joint.selected.home (bit, in) - pin for homing the selected joint 
- - halui.joint.selected.is-homed (bit, out) - status pin telling that the 
+* 'halui.joint.selected.home' (bit, in) - pin for homing the selected joint 
+* 'halui.joint.selected.is-homed' (bit, out) - status pin telling that the 
    selected joint is homed
- - halui.joint.selected.on-hard-max-limit (bit, out) - status pin telling 
+* 'halui.joint.selected.on-hard-max-limit' (bit, out) - status pin telling 
    that the selected joint is on the positive hardware limit
- - halui.joint.selected.on-hard-min-limit (bit, out) - status pin telling 
+* 'halui.joint.selected.on-hard-min-limit' (bit, out) - status pin telling 
    that the selected joint is on the negative hardware limit
- - halui.joint.selected.on-soft-max-limit (bit, out) - status pin telling 
+* 'halui.joint.selected.on-soft-max-limit' (bit, out) - status pin telling 
    that the selected joint is on the positive software limit
- - halui.joint.selected.on-soft-min-limit (bit, out) - status pin telling 
+* 'halui.joint.selected.on-soft-min-limit' (bit, out) - status pin telling 
    that the selected joint is on the negative software limit
- - halui.joint.selected.unhome (bit, in) - pin for unhoming the selected joint. 
+* 'halui.joint.selected.unhome' (bit, in) - pin for unhoming the selected joint. 
 
-=== Lube
+.Lube
 
- - halui.lube.is-on (bit, out) - indicates lube is on
- - halui.lube.off (bit, in) - pin for requesting lube off
- - halui.lube.on (bit, in) - pin for requesting lube on
+* 'halui.lube.is-on' (bit, out) - indicates lube is on
+* 'halui.lube.off' (bit, in) - pin for requesting lube off
+* 'halui.lube.on' (bit, in) - pin for requesting lube on
 
-=== Machine (On / Off)
+.Machine
 
- - halui.machine.is-on (bit, out) - indicates machine on
- - halui.machine.off (bit, in) - pin for requesting machine off
- - halui.machine.on (bit, in) - pin for requesting machine on
+* 'halui.machine.is-on' (bit, out) - indicates machine on
+* 'halui.machine.off' (bit, in) - pin for requesting machine off
+* 'halui.machine.on' (bit, in) - pin for requesting machine on
 
-=== Max Velocity
+.Max Velocity
 
 The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY
 that is set in the [TRAJ] section of the ini file.
 
- - halui.max-velocity.count-enable (bit, in) - when TRUE, modify max 
+* 'halui.max-velocity.count-enable' (bit, in) - when TRUE, modify max 
    velocity when counts changes
- - halui.max-velocity.counts (s32, in) - lets you hook up an encoder to 
+* 'halui.max-velocity.counts' (s32, in) - lets you hook up an encoder to 
    change the max velocity
- - halui.max-velocity.decrease (bit, in) - pin for decreasing max velocity
- - halui.max-velocity.increase (bit, in) - pin for increasing max velocity
- - halui.max-velocity.scale (float, in) - the amount applied to the 
+* 'halui.max-velocity.decrease' (bit, in) - pin for decreasing max velocity
+* 'halui.max-velocity.increase' (bit, in) - pin for increasing max velocity
+* 'halui.max-velocity.scale' (float, in) - the amount applied to the 
    current maximum velocity with each transition from off to on of the 
    increase or decrease pin in machine units per second.
- - halui.max-velocity.value (float, out) - is the maximum linear velocity 
+* 'halui.max-velocity.value' (float, out) - is the maximum linear velocity 
    in machine units per second. 
 
 [[sub:MDI]]
-=== MDI
+.MDI
 (((MDI)))
 
 Sometimes the user wants to add more complicated tasks to be performed 
 by the activation of a HAL pin. This is possible using the following 
 MDI commands scheme: 
 
- - The MDI_COMMAND is added to the ini file in the [HALUI] section. 
+* The MDI_COMMAND is added to the ini file in the [HALUI] section. 
 
-    [HALUI] 
-    MDI_COMMAND = G0 X0
+----
+[HALUI] 
+MDI_COMMAND = G0 X0
+----
 
- - When halui starts it will read the MDI_COMMAND fields in the ini, and
+* When halui starts it will read the MDI_COMMAND fields in the ini, and
    export pins from 00 to the number of MDI_COMMAND's found in the ini up
    to a maximum of 64 commands.
- - halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI
+* 'halui.mdi-command-<nn>' (bit, in) - halui will try to send the MDI
    command defined in the ini. This will not always succeed, depending on
    the operating mode EMC2 is in (e.g. while in AUTO halui can't
    successfully send MDI commands). If the command succeeds then it will
    place EMC in the MDI mode and then back to Manual mode. 
 
-=== Joint Selection
+.Joint Selection
 
- - halui.joint.select (u32, in) - select joint (0..7) - internal halui
- - halui.joint.selected (u32, out) - joint (0..7) selected - internal halui
- - halui.joint.x.select bit (bit, in) - pins for selecting a joint - internal halui
- - halui.joint.x.is-selected bit (bit, out) - indicates joint selected - internal halui
+* 'halui.joint.select' (u32, in) - select joint (0..8) - internal halui
+* 'halui.joint.selected' (u32, out) - joint (0..8) selected* internal halui
+* 'halui.joint.x.select bit' (bit, in) - pins for selecting a joint* internal halui
+* 'halui.joint.x.is-selected bit' (bit, out) - indicates joint selected* internal halui
 
-=== Mode
+.Mode
 
- - halui.mode.auto (bit, in) - pin for requesting auto mode
- - halui.mode.is-auto (bit, out) - indicates auto mode is on
- - halui.mode.is-joint (bit, out) - indicates joint by joint jog mode is on
- - halui.mode.is-manual (bit, out) - indicates manual mode is on
- - halui.mode.is-mdi (bit, out) - indicates mdi mode is on
- - halui.mode.is-teleop (bit, out) - indicates coordinated jog mode is on
- - halui.mode.joint (bit, in) - pin for requesting joint by joint jog mode
- - halui.mode.manual (bit, in) - pin for requesting manual mode
- - halui.mode.mdi (bit, in) - pin for requesting mdi mode
- - halui.mode.teleop (bit, in) - pin for requesting coordinated jog mode
+* 'halui.mode.auto' (bit, in) - pin for requesting auto mode
+* 'halui.mode.is-auto' (bit, out) - indicates auto mode is on
+* 'halui.mode.is-joint' (bit, out) - indicates joint by joint jog mode is on
+* 'halui.mode.is-manual' (bit, out) - indicates manual mode is on
+* 'halui.mode.is-mdi' (bit, out) - indicates mdi mode is on
+* 'halui.mode.is-teleop' (bit, out) - indicates coordinated jog mode is on
+* 'halui.mode.joint' (bit, in) - pin for requesting joint by joint jog mode
+* 'halui.mode.manual' (bit, in) - pin for requesting manual mode
+* 'halui.mode.mdi' (bit, in) - pin for requesting mdi mode
+* 'halui.mode.teleop' (bit, in) - pin for requesting coordinated jog mode
 
-=== Program
+.Program
 
- - halui.program.block-delete.is-on (bit, out) - status pin telling that block delete is on
- - halui.program.block-delete.off (bit, in) - pin for requesting that block delete is off
- - halui.program.block-delete.on (bit, in) - pin for requesting that block delete is on
- - halui.program.is-idle (bit, out) - status pin telling that no program is running
- - halui.program.is-paused (bit, out) - status pin telling that a program is paused
- - halui.program.is-running (bit, out) - status pin telling that a program is running
- - halui.program.optional-stop.is-on (bit, out) - status pin telling that the optional stop is on
- - halui.program.optional-stop.off (bit, in) - pin requesting that the optional stop is off
- - halui.program.optional-stop.on (bit, in) - pin requesting that the optional stop is on
- - halui.program.pause (bit, in) - pin for pausing a program
- - halui.program.resume (bit, in) - pin for resuming a paused program
- - halui.program.run (bit, in) - pin for running a program
- - halui.program.step (bit, in) - pin for stepping in a program
- - halui.program.stop (bit, in) - pin for stopping a program
+* 'halui.program.block-delete.is-on' (bit, out) - status pin telling that block delete is on
+* 'halui.program.block-delete.off' (bit, in) - pin for requesting that block delete is off
+* 'halui.program.block-delete.on' (bit, in) - pin for requesting that block delete is on
+* 'halui.program.is-idle' (bit, out) - status pin telling that no program is running
+* 'halui.program.is-paused' (bit, out) - status pin telling that a program is paused
+* 'halui.program.is-running' (bit, out) - status pin telling that a program is running
+* 'halui.program.optional-stop.is-on' (bit, out) - status pin telling that the optional stop is on
+* 'halui.program.optional-stop.off' (bit, in) - pin requesting that the optional stop is off
+* 'halui.program.optional-stop.on' (bit, in) - pin requesting that the optional stop is on
+* 'halui.program.pause' (bit, in) - pin for pausing a program
+* 'halui.program.resume' (bit, in) - pin for resuming a paused program
+* 'halui.program.run' (bit, in) - pin for running a program
+* 'halui.program.step' (bit, in) - pin for stepping in a program
+* 'halui.program.stop' (bit, in) - pin for stopping a program
 
-=== Spindle Override (SO)
+.Spindle Override
 
- - halui.spindle-override.count-enable (bit, in) - when TRUE, modify
+* 'halui.spindle-override.count-enable' (bit, in) - when TRUE, modify
    spindle override when counts changes.
- - halui.spindle-override.counts (s32, in) - counts * scale = SO percentage
- - halui.spindle-override.decrease (bit, in)- pin for decreasing the SO (-=scale)
- - halui.spindle-override.direct-value (bit, in) - false when using encoder to change counts, 
-   true when setting counts directly. The `count-enable` pin must be true.
- - halui.spindle-override.increase (bit, in) - pin for increasing the SO (+=scale)
- - halui.spindle-override.scale (float, in) - pin for setting the scale on changing the SO
- - halui.spindle-override.value (float, out) - current SO value 
+* 'halui.spindle-override.counts' (s32, in) - counts * scale = SO percentage
+* 'halui.spindle-override.decrease' (bit, in) - pin for decreasing the SO (-=scale)
+* 'halui.spindle-override.direct-value' (bit, in) - false when using encoder to change counts, 
+   true when setting counts directly. The 'count-enable' pin must be true.
+* 'halui.spindle-override.increase' (bit, in) - pin for increasing the SO (+=scale)
+* 'halui.spindle-override.scale' (float, in) - pin for setting the scale on changing the SO
+* 'halui.spindle-override.value' (float, out) - current SO value 
 
-=== Spindle
+.Spindle
 
- - halui.spindle.brake-is-on (bit, out) - indicates brake is on
- - halui.spindle.brake-off (bit, in) - pin for deactivating spindle/brake
- - halui.spindle.brake-on (bit, in) - pin for activating spindle-brake
- - halui.spindle.decrease (bit, in) - decreases spindle speed
- - halui.spindle.forward (bit, in) - starts the spindle with CW motion
- - halui.spindle.increase (bit, in)- increases spindle speed
- - halui.spindle.is-on (bit, out) - indicates spindle is on (either direction)
- - halui.spindle.reverse (bit, in)- starts the spindle with a CCW motion
- - halui.spindle.runs-backward (bit, out) - indicates spindle is on, and in reverse
- - halui.spindle.runs-forward (bit, out) - indicates spindle is on, and in forward
- - halui.spindle.start (bit, in) - starts the spindle
- - halui.spindle.stop (bit, in) - stops the spindle
+* 'halui.spindle.brake-is-on' (bit, out) - indicates brake is on
+* 'halui.spindle.brake-off' (bit, in) - pin for deactivating spindle/brake
+* 'halui.spindle.brake-on' (bit, in) - pin for activating spindle-brake
+* 'halui.spindle.decrease' (bit, in) - decreases spindle speed
+* 'halui.spindle.forward' (bit, in) - starts the spindle with CW motion
+* 'halui.spindle.increase' (bit, in)- increases spindle speed
+* 'halui.spindle.is-on' (bit, out) - indicates spindle is on (either direction)
+* 'halui.spindle.reverse' (bit, in)- starts the spindle with a CCW motion
+* 'halui.spindle.runs-backward' (bit, out) - indicates spindle is on, and in reverse
+* 'halui.spindle.runs-forward' (bit, out) - indicates spindle is on, and in forward
+* 'halui.spindle.start' (bit, in) - starts the spindle
+* 'halui.spindle.stop' (bit, in) - stops the spindle
 
-=== Tool
+.Tool
 
- - halui.tool.length-offset (float, out) - indicates current applied tool-length-offset
- - halui.tool.number (u32, out) - indicates current selected tool
+* 'halui.tool.length-offset' (float, out) - indicates current applied tool-length-offset
+* 'halui.tool.number' (u32, out) - indicates current selected tool
 

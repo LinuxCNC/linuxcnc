@@ -9,21 +9,24 @@ Toutes les entités de HAL sont accessibles et manipulées par leurs
 noms, donc, documenter les noms des pins, signaux, paramètres, etc, est
 très important. Les noms dans HAL ont un maximum de 41 caractères de
 long (comme défini par HAL_NAME_LEN dans hal.h). De nombreux noms
-seront présentés dans la forme générale, avec un texte entre crochets
-`<comme-cela>` représentant les champs de valeurs diverses.
+seront présentés dans la forme générale, avec un texte mis en forme
+*<comme-cela>* représentant les champs de valeurs diverses.
 
 Quand les pins, signaux, ou paramètres sont décrits pour la première
-fois, leur nom sera précédé par leur type en (`PETITES CAPITALES` ) et
-suivi par une brève description. Les définitions typiques de pins
+fois, leur nom sera précédé par leur type entre parenthèses (*float*) et
+suivi d'une brève description. Les définitions typiques de pins
 ressemblent à ces exemples:
 
- - `(bit) parport.<portnum>.pin-<pinnum>-in` -- La HAL pin associée
-   avec la broche physique d'entrée `<pinnum>` du connecteur db25.
- - `(float) pid.<loopnum>.output` -- La sortie de la boucle PID.
+(bit) parport.<portnum>.pin-<pinnum>-in::
+    La HAL pin associée avec la broche physique d'entrée *<pinnum>* du 
+    connecteur db25.
+
+(float) pid.<loopnum>.output::
+    La sortie de la boucle PID.
 
 De temps en temps, une version abrégée du nom peut être utilisée, par
 exemple la deuxième pin ci-dessus pourrait être appelée simplement
-`avec .output` quand cela peut être fait sans prêter à confusion.
+avec *.output* quand cela peut être fait sans prêter à confusion.
 
 == Conventions générales de nommage[[sec:GR-Conventions-nommage]]
 
@@ -51,14 +54,14 @@ peuvent être conçus pour reconnaitre de telles structures si les noms
 fournissent les informations nécessaires. Pour cela, tous les modules
 de HAL devraient suivrent les règles suivantes:
 
- - Les points (“.”) séparent les niveaux hiérarchiques. C'est analogue à
-   la barre de fraction (“/”) dans les noms de fichiers.
- - Le tiret (“-”) sépare les mots ou les champs dans la même hiérarchie.
+ - Les points (*.*) séparent les niveaux hiérarchiques. C'est analogue à
+   la barre de fraction (*/*) dans les noms de fichiers.
+ - Le tiret (*-*) sépare les mots ou les champs dans la même hiérarchie.
  - Les modules HAL ne doivent pas utiliser le caractère souligné ou les
    casses mélangées. footnote:[Les caractères souslignés ont été enlevés,
    mais il reste quelques cas
-   de mélange de casses, par exemple «pid.0.Pgain» au lieux de 
-   «pid.0.p-gain».]
+   de mélange de casses, par exemple *pid.0.Pgain* au lieux de 
+   *pid.0.p-gain*.]
  - Utiliser seulement des caractères minuscules, lettres et chiffres.
 
 == Conventions de nommage des pilotes de matériels[[sec:GR-Nommage-pilotes-materiel]]
@@ -86,8 +89,8 @@ Les champs individuels sont:
     périphériques commencent à 0 et s'incrémentent.footnote:[Certains
     matériels utilisent des cavaliers ou d'autres dispositifs
     pour définir une identification spécifique à chacun. Idéalement, le
-    pilote fournit une manière à l'utilisateur de dire, le «device-num 0
-    est spécifique au périphérique qui a l'ID XXX», ses sous-ensembles
+    pilote fournit une manière à l'utilisateur de dire, le *device-num 0
+    est spécifique au périphérique qui a l'ID XXX*, ses sous-ensembles
     porterons tous un numéro commençant par 0. Mais à l'heure actuelle,
     certains pilotes utilisent l'ID directement comme numéro de
     périphérique. Ce qui signifie qu'il est possible d'avoir un
@@ -101,7 +104,7 @@ Les champs individuels sont:
     avoir des entrées et des sorties numériques, des compteurs de codeurs,
     des générateurs d'impulsions de pas ou de PWM, des convertisseurs
     numérique/analogique, analogique/numérique et d'autres possibilités
-    plus spécifiques. Le «I/O type» est utilisé pour identifier le type
+    plus spécifiques. Le *I/O type* est utilisé pour identifier le type
     d'I/O avec lequel la pin ou le paramètre est associé. Idéalement, les
     pilotes qui implémentent les mêmes type d'I/O, même sur des dispositifs
     très différents, devraient fournir un jeu de pins et de paramètres
@@ -111,11 +114,11 @@ Les champs individuels sont:
 
 <chan-num>::
       Quasiment tous les périphériques d'I/O ont plusieurs canaux, le
-    numéro de canal «chan-num» identifie un de ceux ci. Comme les numéros
-    de périphériques «device-num», les numéros de canaux, «chan-num», 
+    numéro de canal *chan-num* identifie un de ceux ci. Comme les numéros
+    de périphériques *device-num*, les numéros de canaux, *chan-num*, 
     commencent à zéro et s'incrémentent.footnote:[Une exception à la règle
-    du «numéro de canal commençant à zéro» est le
-    port parallèle. Ses «HAL pins» sont numérotées avec le numéro de la
+    du *numéro de canal commençant à zéro* est le
+    port parallèle. Ses *HAL pins* sont numérotées avec le numéro de la
     broche correspondante du connecteur DB-25. C'est plus pratique pour le
     câblage, mais non cohérent avec les autres pilotes. Il y a débat pour
     savoir si c'est un bogue ou une fonctionnalité.] 
@@ -126,10 +129,10 @@ Les champs individuels sont:
     nombres inférieur à 10 pour préserver l'ordre des tris. Certains
     modules ont des pins et/ou des paramètres qui affectent plusieurs
     canaux. Par exemple un générateur de PWM peut avoir quatre canaux avec
-    quatre entrées «duty-cycle» indépendantes, mais un seul paramètre
-    «frequency» qui contrôle les quatres canaux (à cause de limitations
-    matérielles). Le paramètre «frequency» doit utiliser les numéros de
-    canaux de «00-03». 
+    quatre entrées *duty-cycle* indépendantes, mais un seul paramètre
+    *frequency* qui contrôle les quatres canaux (à cause de limitations
+    matérielles). Le paramètre *frequency* doit utiliser les numéros de
+    canaux de *00-03*. 
 
 <specific-name>::
       Un canal individuel d'I/O peut avoir une seule HAL pin associée avec
@@ -138,7 +141,7 @@ Les champs individuels sont:
     même chose mais inversée. Cela permet au configurateur de choisir entre
     les deux états de l'entrée, active haute ou active basse. Pour la
     plupart des types d' entrée/sortie, il existe un jeu standard de
-    broches et de paramètres, (appelé l'«interface canonique») que le
+    broches et de paramètres, (appelé l'*interface canonique*) que le
     pilote doit implémenter. Les interfaces canoniques sont décrites au
     chapitre <<cha:Pripheriques-canoniques>>.
 
@@ -209,18 +212,18 @@ ppmc.0.write::
 = Périphériques d'interfaces canoniques[[cha:Pripheriques-canoniques]]
 
 Les sections qui suivent expliquent les pins, paramètres et fonctions
-qui sont fournies par les «périphériques canoniques». Tous les pilotes
+qui sont fournies par les *périphériques canoniques*. Tous les pilotes
 de périphériques HAL devraient fournir les mêmes pins et paramètres et
 implémenter les mêmes comportements.
 
-Noter que seuls les champs `<io-type>` et `<specific-name>` sont
-définis pour un périphérique canonique. Les champs `<device-name>`,
-`<device-num>` et `<chan-num>` sont définis en fonction des
+Noter que seuls les champs *<io-type>* et *<specific-name>* sont
+définis pour un périphérique canonique. Les champs *<device-name>*,
+*<device-num>* et *<chan-num>* sont définis en fonction des
 caractéristiques du périphérique réel.
 
 == Entrée numérique (Digital Input)[[sec:CanonDigIn]]
 
-L'entrée numérique canonique (I/O type: `digin`) est assez simple.
+L'entrée numérique canonique (I/O type: *digin*) est assez simple.
 
 === Pins
 
@@ -236,11 +239,11 @@ Aucun
 === Fonctions
 
 (funct) *read*::
-     Lire le matériel et ajuster les HAL pins `in` et `in-not`.
+     Lire le matériel et ajuster les HAL pins *in* et *in-not*.
 
 == Sortie numérique (Digital Output)[[sec:CanonDigOut]]
 
-La sortie numérique canonique est également très simple (I/O type: `digout`).
+La sortie numérique canonique est également très simple (I/O type: *digout*).
 
 === Pins
 
@@ -333,7 +336,7 @@ convertisseurs numérique/analogique ou les générateurs de PWM.
 (funct) *write*::
      Ecrit la valeur calculée sur la sortie matérielle. Si enable est FALSE, 
     la sortie passera à 0, indépendamment des valeurs de *value*, *scale* et 
-    *offset* . La signification de «0» dépend du matériel. Par exemple, un 
+    *offset* . La signification de *0* dépend du matériel. Par exemple, un 
     convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
     alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
     Si enable est TRUE, l'échelle, l'offset et la valeur sont traités et

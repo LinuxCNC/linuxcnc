@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 = AX5214H
 
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
@@ -8,7 +11,9 @@ of the work is already done.
 
 == Installing
 
-    loadrt hal_ax5214h cfg="<config-string>"
+----
+loadrt hal_ax5214h cfg="<config-string>"
+----
 
 The config string consists of a hex port address, followed by an 8
 character string of "I" and "O" which sets groups of pins as inputs and
@@ -17,7 +22,7 @@ bit blocks of pins (0-7 and 8-15). The next two set blocks of 4 pins
 (16-19 and 20-23). The pattern then repeats, two more blocks of 8 bits
 (24-31 and 32-39) and two blocks of 4 bits (40-43 and 44-47). If more
 than one board is installed, the data for the second board follows the
-first. As an example, the string `"0x220 IIIOIIOO 0x300 OIOOIOIO"`
+first. As an example, the string '"0x220 IIIOIIOO 0x300 OIOOIOIO"'
 installs drivers for two boards. The first board is at address 0x220,
 and has 36 inputs (0-19 and 24-39) and 12 outputs (20-23 and 40-47).
 The second board is at address 0x300, and has 20 inputs (8-15, 24-31,
@@ -26,9 +31,9 @@ boards may be used in one system.
 
 == Pins
 
- - `(bit) ax5214.<boardnum>.out-<pinnum>` -- Drives a physical output pin.
- - `(bit) ax5214.<boardnum>.in-<pinnum>` -- Tracks a physical input pin.
- - `(bit) ax5214.<boardnum>.in-<pinnum>-not` -- Tracks a physical input pin, inverted.
+* '(bit) ax5214.<boardnum>.out-<pinnum>' -- Drives a physical output pin.
+* '(bit) ax5214.<boardnum>.in-<pinnum>' -- Tracks a physical input pin.
+* '(bit) ax5214.<boardnum>.in-<pinnum>-not' -- Tracks a physical input pin, inverted.
 
 For each pin, <boardnum> is the board number (starts at zero), and
 <pinnum> is the I/O channel number (0 to 47).
@@ -45,7 +50,7 @@ other, the user can determine the state of the input.
 
 == Parameters
 
- - `(bit) ax5214.<boardnum>.out-<pinnum>-invert` -- Inverts an output pin.
+* '(bit) ax5214.<boardnum>.out-<pinnum>-invert' -- Inverts an output pin.
 
 The -invert parameter determines whether an output pin is active high
 or active low. If -invert is FALSE, setting the HAL out- pin TRUE
@@ -56,7 +61,7 @@ high and turn the module OFF.
 
 == Functions
 
- - `(funct) ax5214.<boardnum>.read` -- Reads all digital inputs on one board.
- - `(funct) ax5214.<boardnum>.write` -- Writes all digital outputs on one board.
+* '(funct) ax5214.<boardnum>.read' -- Reads all digital inputs on one board.
+* '(funct) ax5214.<boardnum>.write' -- Writes all digital outputs on one board.
 
 
