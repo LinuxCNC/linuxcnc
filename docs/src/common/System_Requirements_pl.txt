@@ -1,3 +1,6 @@
+//:lang: pl
+:toc:
+
 = Computer
 
 == Minimum Requirements (((Minimum Requirements)))

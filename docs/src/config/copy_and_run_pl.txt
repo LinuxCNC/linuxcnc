@@ -1,4 +1,4 @@
-//:lang: en
+//:lang: pl
 :toc:
 
 = Running EMC2(((Running EMC2)))

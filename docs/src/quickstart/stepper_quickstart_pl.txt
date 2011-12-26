@@ -1,3 +1,6 @@
+//:lang: pl
+:toc:
+
 = Stepper Configuration
 
 This section assumes you have done a standard install from the Live

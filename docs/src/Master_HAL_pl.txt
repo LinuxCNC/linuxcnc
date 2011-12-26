@@ -2,7 +2,7 @@ HAL and Device Drivers V0.1, {localdate}
 ========================================
 The EMC Team
 
-:lang: pl
+//:lang: pl
 
 :masterdir: {indir}
 

@@ -1,5 +1,7 @@
-Upgrading EMC2
-==============
+//:lang: pl
+:toc:
+
+= Upgrading EMC2
 
 == Upgrading from 2.4.x to 2.5.x
 
