@@ -2522,6 +2522,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         if self.pyvcp or self.gladevcp or self.userneededabs >0:
             self.absnames=""
+            needed = False
             if self.gladevcp and self.spindlespeedbar: needed = True
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
             if needed:
@@ -2536,6 +2537,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         if self.pyvcp or self.gladevcp or self.userneededlowpass >0:
             self.lowpassnames=""
+            needed = False
             for i in range(0,self.userneededlowpass):
                 self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
