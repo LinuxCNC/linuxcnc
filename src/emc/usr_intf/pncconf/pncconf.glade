@@ -59519,7 +59519,19 @@ program</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">3</property>
                         <child>
-                          <placeholder/>
+                          <widget class="GtkSpinButton" id="userneededlowpass">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="adjustment">0 0 100 1 10 0</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">13</property>
+                            <property name="bottom_attach">14</property>
+                            <property name="x_options"></property>
+                            <property name="y_options">GTK_EXPAND</property>
+                          </packing>
                         </child>
                         <child>
                           <placeholder/>
@@ -59629,8 +59641,17 @@ program</property>
                         <child>
                           <placeholder/>
                         </child>
-                        <child>
-                          <placeholder/>
+                       <child>
+                          <widget class="GtkLabel" id="label157">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">lowpass</property>
+                            <property name="justify">GTK_JUSTIFY_CENTER</property>
+                          </widget>
+                          <packing>
+                            <property name="top_attach">13</property>
+                            <property name="bottom_attach">14</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkSpinButton" id="userneededmux16">

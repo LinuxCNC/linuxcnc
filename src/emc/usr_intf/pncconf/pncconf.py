@@ -2520,7 +2520,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             self._bldcconfigstring = temp
             print >>file, "loadrt bldc cfg=%s"% temp
 
-        if self.pyvcp or self.gladevcp or self.userneededabs >0:
+        if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededabs >0:
             self.absnames=""
             needed = False
             if self.gladevcp and self.spindlespeedbar: needed = True
@@ -2535,7 +2535,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
 
-        if self.pyvcp or self.gladevcp or self.userneededlowpass >0:
+        if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededlowpass >0:
             self.lowpassnames=""
             needed = False
             for i in range(0,self.userneededlowpass):
@@ -7863,6 +7863,7 @@ different program to copy to your configuration file.\nThe edited program will b
         self.widgets.userneededabs.set_value(self.data.userneededabs)
         self.widgets.userneededscale.set_value(self.data.userneededscale)
         self.widgets.userneededmux16.set_value(self.data.userneededmux16)
+        self.widgets.userneededlowpass.set_value(self.data.userneededlowpass)
 
         if not self.data._components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
@@ -7888,6 +7889,7 @@ different program to copy to your configuration file.\nThe edited program will b
         self.data.userneededabs = int(self.widgets.userneededabs.get_value())
         self.data.userneededscale = int(self.widgets.userneededscale.get_value())
         self.data.userneededmux16 = int(self.widgets.userneededmux16.get_value())
+        self.data.userneededlowpass = int(self.widgets.userneededlowpass.get_value())
 
         textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
