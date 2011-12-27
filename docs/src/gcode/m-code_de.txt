@@ -1,31 +1,36 @@
-:lang: de
-:toc:
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 = M Codes[[cha:m-codes]](((M Codes)))
 
 == M Code Quick Reference Table [[m-code-quick-reference]]
 [width="60%", options="header", cols="2^,5<"]
 |========================================
-|Code                                    | Description
-|<<sec:M0-M1,M0 M1>>                     | Program Pause
-|<<sec:M2-M30,M2 M30>>                   | Program End
-|<<sec:M30-M60,M30 M60>>                 | Program Pause
-|<<sec:M60, M60>>                        | Program End
-|<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
-|<<sec:M6-Tool-Change,M6>>               | Tool Change
-|<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
-|<<sec:M48-Both-Override,M48>>           | Feed & Spindle Overrides Enabled
-|<<sec:M49-Neither-Override,M49>>        | Feed & Spindle Overrides Disabled
-|<<sec:M50-Feed-Override,M50>>           | Feed Override Control
-|<<sec:M51-Spindle-Override,M51>>        | Spindle Override Control
-|<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
-|<<sec:M53-Feed-Stop-Control,M53>>       | Feed Stop Control
-|<<sec:M61-Set-Current-Tool-Number,M61>> | Set Current Tool Number
-|<<sec:M62-to-M65,M62-65>>               | Output Control
-|<<sec:M66-Input-Control,M66>>           | Input Control
-|<<sec:M67-Analog-Output,M67>>           | Analog Output Control
-|<<sec:M68-Analog-Output,M68>>           | Analog Output Control
-|<<sec:M100-to-M199,M100-M199>>          | User Defined M-Codes 
+|Code                                          | Description
+|<<sec:M0-M1,M0 M1>>                           | Program Pause
+|<<sec:M2-M30,M2 M30>>                         | Program End
+|<<sec:M30-M60,M30 M60>>                       | Program Pause
+|<<sec:M60, M60>>                              | Program End
+|<<sec:M3-M4-M5,M3 M4 M5>>                     | Spindle Control
+|<<sec:M6-Tool-Change,M6>>                     | Tool Change
+|<<sec:M7-M8-M9,M7 M8 M9>>                     | Coolant Control
+|<<sec:M48-Both-Override,M48>>                 | Feed & Spindle Overrides Enabled
+|<<sec:M49-Neither-Override,M49>>              | Feed & Spindle Overrides Disabled
+|<<sec:M50-Feed-Override,M50>>                 | Feed Override Control
+|<<sec:M51-Spindle-Override,M51>>              | Spindle Override Control
+|<<sec:M52-Adaptive-Feed-Control,M52>>         | Adaptive Feed Control
+|<<sec:M53-Feed-Stop-Control,M53>>             | Feed Stop Control
+|<<sec:M61-Set-Current-Tool-Number,M61>>       | Set Current Tool Number
+|<<sec:M62-to-M65,M62-65>>                     | Output Control
+|<<sec:M66-Input-Control,M66>>                 | Input Control
+|<<sec:M67-Analog-Output,M67>>                 | Analog Output Control
+|<<sec:M68-Analog-Output,M68>>                 | Analog Output Control
+|<<sec:M70-Save-Modal-State,M70>>              | Save Modal State
+|<<sec:M71-Invalidate-Stored-Modal-State,M71>> | Invalidate Stored Modal State
+|<<sec:M72-Restore-Modal-State,M72>>           | Restore Modal State
+|<<sec:M73-Save-Autorestore-Modal-State,M73>>  | Save Autorestore Modal State
+|<<sec:M100-to-M199,M100-M199>>                | User Defined M-Codes 
 |========================================
 
 
@@ -335,6 +340,206 @@ The number of I/O can be increased by using the
 num_aio parameter when loading the motion controller. See the 'EMC2 and
 HAL' chapter in the Configuration Section of the Integrator's Manual for
 more information on the Motion Controller. 
+
+== M70 Save Modal State[[sec:M70-Save-Modal-State]]
+(((M70 Save Modal State)))
+
+To explicitly save the modal state at the current call level, program
+'M70'. Once modal state has been saved with 'M70', it can be restored
+to exactly that state by executing an 'M72'.
+
+A pair of 'M70' and 'M72' instructions will typically be used to
+protect a program against inadvertant modal changes within
+subroutines.
+
+[[saved_state_by_M70]]
+The state saved consists of:
+
+* current G20/G21 settings (imperial/metric)
+* selected plane (G17/G18/G19 G17.1,G18.1,G19.1)
+* status of cutter compensation (G40,G41,G42,G41.1,G42,1)
+* distance mode - relative/absolute (G90/G91)
+* feed mode (G93/G94,G95)
+* current coordinate system (G54-G59.3)
+* tool length compensation status (G43,G43.1,G49)
+* retract mode (G98,G99)
+* spindle mode (G96-css or G97-RPM)
+* arc distance mode (G90.1, G91.1)
+* lathe radius/diameter mode (G7,G8)
+* path control mode (G61, G61.1, G64)
+* current feed and speed ('F' and 'S' values)
+* spindle status (M3,M4,M5) - on/off and direction
+* mist (M7) and flood (M8) status
+* speed override (M51) and feed override (M50) settings
+* adaptive feed setting (M52)
+* feed hold setting (M53)
+
+Note that in particular, the motion mode (G1 etc) is NOT restored.
+
+'current call level' means either:
+
+ * executing in the main program. There is a single storage location
+ for state at the main program level; if several 'M70' instructions
+ are executed in turn, only the most recently saved state is restored
+ when an 'M72' is executed.
+
+ * executing within a G-code subroutine. The state saved with 'M70'
+ within a subroutine behaves exactly like a local named parameter - it
+ can be referred to only within this subroutine invocation with an
+ 'M72' and when the subroutine exits, the paramter goes away.
+
+A recursive invocation of a subroutine introduces a new call level.
+
+== M71 Invalidate Stored Modal State[[sec:M71-Invalidate-Stored-Modal-State]]
+(((M71 Invalidate Stored Modal State)))
+
+<<saved_state_by_M70,Modal state saved with an 'M70'>> or by an
+<<sec:M73-Save-Autorestore-Modal-State, 'M73'>> at the current call
+level is invalidated (cannot be restored from anymore).
+
+A subsequent 'M72' at the same call level will fail.
+
+If executed in a subroutine which protects modal state by an 'M73', a
+subsequent return or endsub will *not* restore modal state.
+
+The usefulness of this feature is dubious. It should not be relied upon as it might
+go away.
+
+== M72 Restore Modal State[[sec:M72-Restore-Modal-State]]
+(((M72 Restore Modal State)))
+
+<<saved_state_by_M70,Modal state saved with an 'M70'>> code can be
+restored by executing an 'M72'.
+
+The handling of G20/G21 is specially treated as feeds are interpreted
+differently depending on G20/G21: if length units (mm/in) are about to
+be changed by the restore operation, 'M72 'will restore the distance
+mode first, and then all other state including feed to make sure the
+feed value is interpreted in the correct unit setting.
+
+It is an error to execute an 'M72' with no previous 'M70' save
+operation at that level.
+
+The following example demonstrates saving and explicitely restoring
+modal state around a subroutine call using 'M70' and 'M72'. Note that
+the 'imperialsub' subroutine is not "aware" of the M7x features and can be
+used unmodified:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+O<imperialsub> sub
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+(debug, in subroutine, state now:)
+o<showstate> call
+O<imperialsub> endsub
+
+; main program
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+
+(debug, in main, state now:)
+o<showstate> call
+
+M70 (save caller state in at global level)
+O<imperialsub> call
+M72 (explicitely restore state)
+
+(debug, back in main, state now:)
+o<showstate> call
+m2
+---------------------------------------------------------------------
+
+== M73 Save and Autorestore Modal State[[sec:M73-Save-Autorestore-Modal-State]]
+(((M73 Save and Autorestore Modal State)))
+
+To save modal state within a subroutine, and restore state on
+subroutine 'endsub' or any 'return' path, program 'M73'.
+
+Aborting a running program in a subroutine which has an 'M73'
+operation will *not* restore state .
+
+Also, the normal end ('M2') of a main program which contains an 'M73'
+will *not* restore state.
+
+The suggested use is at the beginning of a O-word subroutine as in the
+following example. Using 'M73' this way enables designing subroutines
+which need to modify modal state but will protect the calling program
+against inadvertant modal changes. Note the use of
+<<sec:Predefined-Named-Parameters, predefined named parameters>> in
+the 'showstate' subroutine.
+
+[source,{ngc}]
+---------------------------------------------------------------------
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+O<imperialsub> sub
+M73 (save caller state in current call context, restore on return or endsub)
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+(debug, in subroutine, state now:)
+o<showstate> call
+
+; note - no M72 is needed here - the following endsub or an
+; explicit 'return' will restore caller state
+O<imperialsub> endsub
+
+; main program
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+(debug, in main, state now:)
+o<showstate> call
+o<imperialsub> call
+(debug, back in main, state now:)
+o<showstate> call
+m2
+---------------------------------------------------------------------
+
+=== Selectively restoring modal state by testing predefined parameters [[sec:Selectively-restoring-modal-state]]
+
+Executing an 'M72' or returning from a subroutine which contains an
+'M73' will restore <<saved_state_by_M70,*all* modal state saved>>.
+
+If only some aspects of modal state should be preserved, an
+alternative is the usage of <<sec:Predefined-Named-Parameters,
+predefined named parameters>>, local parameters and conditional
+statements. The idea is to remember the modes to be restored at the
+beginning of the subroutine, and restore these before exiting. Here is
+an example, based on snippet of 'nc_files/tool-length-probe.ngc':
+
+[source,{ngc}]
+---------------------------------------------------------------------
+O<measure> sub   (measure reference tool)
+;
+#<absolute> = #<_absolute>  (remember in local variable if G90 was set)
+;
+g30 (above switch)
+g38.2 z0 f15 (measure)
+g91 g0z.2 (off the switch)
+#1000=#5063 (save reference tool length)
+(print,reference length is #1000)
+;
+O<restore_abs> if [#<absolute>]
+    g90 (restore G90 only if it was set on entry:)
+O<restore_abs> endif
+;
+O<measure> endsub
+
+---------------------------------------------------------------------
 
 == M100 to M199 User Defined Commands[[sec:M100-to-M199]]
 (((M100 to M199 User Defined Commands)))(((User Defined Commands M100-M199)))
