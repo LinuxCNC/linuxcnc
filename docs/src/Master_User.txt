@@ -63,8 +63,6 @@ include::gcode/o-code.txt[]
 
 include::gcode/other-code.txt[]
 
-include::gcode/mill_canned.txt[]
-
 include::examples/gcode.txt[]
 
 include::lathe/lathe-user.txt[]

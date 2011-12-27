@@ -54,8 +54,6 @@ include::gcode/o-code_pl.txt[]
 
 include::gcode/other-code_pl.txt[]
 
-include::gcode/mill_canned_pl.txt[]
-
 include::examples/gcode_pl.txt[]
 
 include::lathe/lathe-user_pl.txt[]

@@ -50,8 +50,6 @@ include::gcode/overview_de.txt[]
 
 include::gcode/gcode_de.txt[]
 
-include::gcode/mill_canned_de.txt[]
-
 include::examples/gcode_de.txt[]
 
 include::lathe/lathe-user_de.txt[]
