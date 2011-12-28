@@ -95,7 +95,8 @@ proc ::ttt::embedinit {} {
 
   lappend ::ttt(embed,options)  noiframe ;# no image and user needs controls
   lappend ::ttt(embed,options)  nonew    ;#
-
+  lappend ::ttt(embed,options)  nopathcheck ;# SUBROUTINE_PATH not checked
+ 
   set ::ttt(exe) [inifindall DISPLAY TTT]
   if {[llength $::ttt(exe)] >1} {
     return -code error "[_ "problem with"] \[DISPLAY\]TTT <$::ttt(exe)>"
@@ -113,7 +114,7 @@ proc ::ttt::embedinit {} {
   if {([llength $preamble] >1)} {
     return -code error "[_ "problem with"] \[DISPLAY\]TTT_PREAMBLE <$preamble>"
   }
-  set ::ttt(preamble) [::ngcgui::pathto $preamble]
+  set ::ttt(preamble) $preamble
 
   if $::ttt(use_program_prefix) {
     set ::ttt(dir) [inifindall DISPLAY PROGRAM_PREFIX]

@@ -1299,6 +1299,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,preamble) $filename
       ::ngcgui::gui $hdl readpreamble
       return
@@ -1379,6 +1380,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,postamble) $filename
       ::ngcgui::gui $hdl readpostamble
       return
@@ -1428,6 +1430,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,subfile) $filename
       ::ngcgui::gui $hdl readsubfile
       return
@@ -3540,6 +3543,9 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   if {[lsearch $options expandsub ] >=0} {set ::ngc($hdl,expandsubroutine)   1}
 
+  # special options 
+  if {[lsearch $options nopathcheck ] >=0} {set ::ngc($hdl,nopathcheck)   1}
+
   if $::ngc(opt,noauto) {
     set ::ngc($hdl,auto) 0
   } else {
@@ -3573,8 +3579,17 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
             -text "[_ "Custom"]" \
             -background $::ngc(any,color,custom)
     } else {
-      set ::ngc($hdl,fname,subfile) [::ngcgui::pathto $subfile]
-      set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+      if [info exists ::ngc($hdl,nopathcheck)] {
+        # subfile must be a valid absolute path for this option
+        # example: ttt uses /tmp directory specified with full path
+        #          to avoid creating persistent files
+        #          relying on purging of /tmp
+        set ::ngc($hdl,fname,subfile) $subfile
+        set ::ngc($hdl,dir) [file dirname $subfile]
+      } else {
+        set ::ngc($hdl,fname,subfile) [::ngcgui::pathto $subfile]
+        set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+      }
     }
   }
   if {"$preamble"  != ""} {
@@ -3602,7 +3617,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   return $hdl
 } ;# embed_in_axis_tab
 
-proc ::ngcgui::pathto fname {
+proc ::ngcgui::pathto {fname  {mode info}} {
   # for embedded usage, find configuration file using a search path
   set fname [string trim $fname]
   if {"$fname" == ""} {return ""}
@@ -3615,40 +3630,74 @@ proc ::ngcgui::pathto fname {
     foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
   }
 
-  if {[string first "/" $fname] == 0} {
-    set absolute 1 ;# absolute path specified
-    if [file exists $fname] {set found "$fname"}
-  } else {
-    set absolute 0 ;# relative path specified
-    foreach path $::ngc(any,paths) {
-      set f [file join $path $fname]
-      if {[info exists found] && [file exists $f]} {
-        puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
-        puts stderr "[_ "using path"]: $::ngc(any,paths)"
-      }
-      if {![info exists found] && [file exists $f]} {set found $f}
+  if {   [string first "/" $fname] == 0
+      || [string first "~" $fname] == 0
+     } {
+    if [file exists $fname] {
+      set foundabsolute "$fname"
+      set fname [file tail $fname] ;# to test if it is in search path
     }
   }
-
-  if [info exists found] {
-    return "$found"
-  } else {
-    set msg "[_ "Ngcgui configuration search failed for"]\n<$fname>\n"
-    if !$absolute {
-      set msg "$msg [_ "Search path"]: $::ngc(any,paths)"
+  foreach path $::ngc(any,paths) {
+    set f [file join $path $fname]
+    if {[info exists foundinpath] && [file exists $f]} {
+      puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
+      puts stderr "[_ "using path"]: $::ngc(any,paths)"
     }
-    set answer [tk_dialog .notfound \
-      "[_ "File Not Found"]" \
-      "$msg" \
-      "" 0 \
-      "[_ "Try to Continue"]" "[_ "Exit"]"
-    ]
+    if {![info exists foundinpath] && [file exists $f]} {set foundinpath $f}
+  }
+
+  if [info exists foundinpath] {
+    return "$foundinpath"
+  } else {
+    set title "[_ "File not in Search Path"]"
+
+    set msg "<$fname> [_ "Must be in search path"]\n"
+    if {[info exists foundabsolute]} {
+      set msg "$msg\n[_ "(File found -- not in search path)"]"
+    }
+    set msg "$msg\n[_ "Current directory"]:\n[pwd]"
+    set msg "$msg\n\n[_ "Search path"]:\n"
+    set i 1
+    foreach p $::ngc(any,paths) {
+      set msg "$msg\n$i  $p"
+      incr i
+    }
+    set msg "$msg\n\n[_ "Check setting for"]: \[RS274NGC\]SUBROUTINE_PATH"
+    set msg "$msg\n[_ "in ini file"]:\n$::emcini"
+    set msg "$msg\n\n[_ "(Restart required after fixing ini file)"]"
+    switch $mode {
+      info {
+        set answer [tk_dialog .notfound \
+          "$title"\
+          "$msg"\
+          warning -1 \
+          "OK"]
+        set answer 0 ;# continue with warning
+      }
+      default {
+        set answer [tk_dialog .notfound \
+          "$title"\
+          "$msg" \
+          error 0 \
+          "[_ "Try to Continue"]" "[_ "Exit"]"
+        ]
+      }
+    }
     if $answer {return \
       -code error "[_ "Ngcgui Configuration File Not Found"] <$fname>"
     }
-    return "" ;# try to continue
+    if ![info exists foundabsolute] {set foundabsolute ""}
+    return "$foundabsolute" ;# try to continue
   }
 } ;# pathto
+
+proc ::ngcgui::check_path filename {
+  if [info exists ::ngc(embed,axis)] {
+    pathto [file tail $filename] info
+  }
+  return
+} ;# check_path
 
 proc ::ngcgui::raiselastpage {} {
   $::ngc(any,axis,parent) raise $::ngc($::ngc(embed,hdl),axis,page)
