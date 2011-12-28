@@ -1,6 +1,3 @@
-:lang: pl
-:toc:
-
 = INI File
 
 == The INI File Layout

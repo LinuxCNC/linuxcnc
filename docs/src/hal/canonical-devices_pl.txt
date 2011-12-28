@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
 
 .Note

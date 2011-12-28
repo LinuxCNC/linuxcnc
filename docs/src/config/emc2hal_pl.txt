@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = Core Components
 
 See also the man pages 'motion(9)'.

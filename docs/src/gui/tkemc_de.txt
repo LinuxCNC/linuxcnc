@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = TkEMC
 
 == Introduction

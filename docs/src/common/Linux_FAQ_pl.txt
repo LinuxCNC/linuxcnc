@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = Linux FAQ (((Linux FAQ)))
 
 These are some basic Linux commands and techniques for new to Linux

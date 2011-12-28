@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Canned Cycle Examples[[cha:canned-cycle-examples]](((Canned Cycle Examples)))
 
 == G80 Motion Stop

@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = MPG Pendant
 
 This example is to explain how to hook up the common MPG pendants

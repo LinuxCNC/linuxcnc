@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Spindle Control[[cha:Spindle-Control]]
 
 (((Spindle Control)))

@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Stepper Tuning[[cha:Stepper-Tuning]]
 
 (((Stepper Tuning)))

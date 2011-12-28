@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = PyVCP[[cha:Virtual-Control-Panel]]
 
 (((Virtual Control Panel)))

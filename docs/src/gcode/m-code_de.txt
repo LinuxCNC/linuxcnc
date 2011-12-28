@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = M Codes[[cha:m-codes]](((M Codes)))
 
 == M Code Quick Reference Table [[m-code-quick-reference]]

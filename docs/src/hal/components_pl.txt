@@ -1,6 +1,3 @@
-:lang: pl
-:toc:
-
 = HAL Components[[cha:HAL-Components]]
 
 == Commands and Userspace Components[[sec:Commands-and-Userspace-Components]]

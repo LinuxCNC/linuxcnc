@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Mesa HostMot2 (((Mesa HostMot2)))
 
 == Introduction 

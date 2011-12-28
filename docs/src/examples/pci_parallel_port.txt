@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = Second Parallel Port
 
 When you add a second parallel port to your PCI bus you have to find

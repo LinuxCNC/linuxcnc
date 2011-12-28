@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = About EMC2
 
 == The Software

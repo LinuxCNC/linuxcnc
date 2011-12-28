@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Other Codes
 
 == F: Set Feed Rate[[sec:F-Set-Feed]]

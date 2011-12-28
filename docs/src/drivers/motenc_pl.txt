@@ -1,6 +1,3 @@
-//:lang:pl
-:toc:
-
 = Motenc
 
 Vital Systems Motenc-100 and Motenc-LITE

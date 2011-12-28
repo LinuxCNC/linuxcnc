@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Ladder Programming (((Classic Ladder)))
 
 == Introduction

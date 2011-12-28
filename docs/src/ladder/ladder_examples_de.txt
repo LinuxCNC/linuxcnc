@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 == Ladder Examples [[ladder-examples]] (((Classic Ladder)))
 
 === Wrapping Counter

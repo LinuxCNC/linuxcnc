@@ -1,6 +1,3 @@
-:lang: pl
-:toc:
-
 = comp creating HAL modules
 
 == Introduction

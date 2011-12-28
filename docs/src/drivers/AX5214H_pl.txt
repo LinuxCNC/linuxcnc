@@ -1,6 +1,3 @@
-//:lang:pl
-:toc:
-
 = AX5214H
 
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O

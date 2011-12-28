@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Starting EMC2
 
 == Files

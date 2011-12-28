@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 == Halshow
 
 The script halshow can help you find your way around a running HAL.

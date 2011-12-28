@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Stepper Configuration[[stepper-config]]
 
 == Introduction[[sec:Introduction]]

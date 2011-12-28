@@ -1,7 +1,4 @@
-//:lang: pl
-:toc:
-
-= Tools and Utilities[[cha:hal-tools-utilities]]
+= HAL Tools and Utilities[[cha:hal-tools-utilities]]
 
 
 == Halcmd[[sec:Halcmd]]

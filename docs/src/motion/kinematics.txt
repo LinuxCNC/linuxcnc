@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = Kinematics
 
 == Introduction

@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = O Codes[[cha:O-Codes]]
 
 (((O Codes)))

@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = User Concepts(((User Concepts)))
 
 This chapter covers important user concepts that should be understood

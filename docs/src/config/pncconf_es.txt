@@ -1,8 +1,4 @@
-:lang: en
-:toc:
-
-[[cha:PNCconf-Wizard]]
-= Mesa Wizard(((PNCconf Wizard)))
+= Mesa Wizard[[cha:PNCconf-Wizard]](((PNCconf Wizard)))
 
 (((Point n Click Configuration Wizard)))
 (((Mesa Configuration Wizard)))

@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = Stepconf Wizard[[stepconf-wizard]](((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 

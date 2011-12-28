@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = Touchy
 
 Touchy is a user interface for EMC2 meant for use on machine control panels,

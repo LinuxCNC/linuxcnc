@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 == Lathe
 
 === Default Plane

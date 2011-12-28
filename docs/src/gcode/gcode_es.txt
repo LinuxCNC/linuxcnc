@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = G Codes
 
 (((G Codes)))

@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Coordinate System[[coordinate-system]](((Coordinate System)))
 
 == Introduction

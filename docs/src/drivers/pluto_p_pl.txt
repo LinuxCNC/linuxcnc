@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = Pluto-P
 
 == General Info

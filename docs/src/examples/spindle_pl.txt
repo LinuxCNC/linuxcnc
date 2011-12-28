@@ -1,6 +1,3 @@
-// :lang: pl does not work at this time for Polish Docs
-:toc:
-
 = Spindle Control[[cha:Spindle-Control]]
 
 (((Spindle Control)))

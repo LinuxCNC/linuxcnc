@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = Classic Ladder[[cha:Classic Ladder]](((Classic Ladder)))
 
 == Introduction

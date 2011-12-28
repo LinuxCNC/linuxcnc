@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = HAL User Interface[[cha:Hal User Interface]]
 
 
