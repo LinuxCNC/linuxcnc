@@ -392,11 +392,16 @@ proc prompt_copy configname {
     set ncfiles [file normalize [file join ~ emc2 nc_files]]
     file mkdir [file join ~ emc2 configs]
     if {![file exists $ncfiles]} {
-	file mkdir $ncfiles
-	file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
-	file link -symbolic [file join $ncfiles/ngcgui_lib] \
-	                    [file join $emc::NCFILES_DIR ngcgui_lib]
+        file mkdir $ncfiles
+        file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
 
+        # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
+        # example: ngcgui uses lib named ngcgui_lib
+        set liblist {ngcgui gladevcp}
+        foreach lib $liblist {
+           file link -symbolic [file join $ncfiles/${lib}_lib] \
+                               [file join $emc::NCFILES_DIR ${lib}_lib]
+        }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
         set   fd [open [file join $ncfiles readme.ngc] w]
@@ -406,7 +411,9 @@ proc prompt_copy configname {
         puts $fd "(debug, EMC2 vmajor=#<_vmajor> vminor=#<_vminor>)"
         puts $fd "(debug, User writable directory: $dir)"
         puts $fd "(debug, Example files: $dir/examples)"
-        puts $fd "(debug, ngcgui subroutines: $dir/ngcgui_lib)"
+        foreach lib $liblist {
+           puts $fd "(debug, $lib subroutines: $dir/${lib}_lib)"
+        }
         puts $fd "m2"
         close $fd
     }
