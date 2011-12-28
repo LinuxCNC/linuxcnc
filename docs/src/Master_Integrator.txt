@@ -37,6 +37,8 @@ include::config/emc2hal.txt[]
 
 include::config/stepper.txt[]
 
+include::hal/basic_hal.txt[]
+
 :leveloffset: 0
 
 = GUI
@@ -48,6 +50,30 @@ include::hal/pyvcp.txt[]
 include::hal/pyvcp_examples.txt[]
 
 include::gui/gladevcp.txt[]
+
+:leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+include::hal/parallel_port.txt[]
+
+include::drivers/AX5214H.txt[]
+
+include::drivers/GS2.txt[]
+
+include::drivers/hostmot2.txt[]
+
+include::drivers/motenc.txt[]
+
+include::drivers/opto22.txt[]
+
+include::drivers/pico_ppmc.txt[]
+
+include::drivers/pluto_p.txt[]
+
+include::drivers/servo_to_go.txt[]
 
 :leveloffset: 0
 

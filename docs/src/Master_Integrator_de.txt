@@ -17,7 +17,9 @@ include::common/translator-needed_de.txt[]
 include::common/Integrator_Concepts_de.txt[]
 
 :leveloffset: 0
+
 = Configuration
+
 :leveloffset: 1
 
 include::install/Latency_Test_de.txt[]
@@ -33,7 +35,9 @@ include::config/emc2hal_de.txt[]
 include::config/stepper_de.txt[]
 
 :leveloffset: 0
+
 = GUI
+
 :leveloffset: 1
 
 include::hal/pyvcp_de.txt[]
@@ -43,7 +47,33 @@ include::hal/pyvcp_examples_de.txt[]
 include::gui/gladevcp_de.txt[]
 
 :leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+include::hal/parallel_port_de.txt[]
+
+include::drivers/AX5214H_de.txt[]
+
+include::drivers/GS2_de.txt[]
+
+include::drivers/hostmot2_de.txt[]
+
+include::drivers/motenc_de.txt[]
+
+include::drivers/opto22_de.txt[]
+
+include::drivers/pico_ppmc_de.txt[]
+
+include::drivers/pluto_p_de.txt[]
+
+include::drivers/servo_to_go_de.txt[]
+
+:leveloffset: 0
+
 = Advanced Topics
+
 :leveloffset: 1
 
 include::motion/kinematics_de.txt[]
@@ -53,7 +83,9 @@ include::motion/tweaking_steppers_de.txt[]
 include::motion/pid_theory_de.txt[]
 
 :leveloffset: 0
+
 = Ladder Logic
+
 :leveloffset: 1
 
 include::ladder/ladder_intro_de.txt[]
@@ -63,7 +95,9 @@ include::ladder/classic_ladder_de.txt[]
 include::ladder/ladder_examples_de.txt[]
 
 :leveloffset: 0
+
 = Hardware Examples
+
 :leveloffset: 1
 
 include::examples/pci_parallel_port_de.txt[]
@@ -75,7 +109,9 @@ include::examples/mpg_de.txt[]
 include::examples/gs2_example_de.txt[]
 
 :leveloffset: 0
+
 = Diagnostics & FAQ
+
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics_de.txt[]
