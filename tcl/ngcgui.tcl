@@ -908,6 +908,7 @@ proc ::ngcgui::qid {} {
 
 proc ::ngcgui::initgui {hdl} {
   if ![info exists ::ngc(embed,hdl)] {set ::ngc(embed,hdl) 0}
+  if [info exists ::ngcgui($hdl,afterid)] { return ;# already done }
   # fixed initializations
   set ::ngc(any,pentries)       10 ;# number of entries in positional frame
                                    ;# 30 max positional parameters
@@ -3259,22 +3260,25 @@ proc ::ngcgui::newpage {creatinghdl} {
 
   if $::ngc(opt,noinput) {
     # there is no wI input frame, just use current file
-    set subfile $::ngc($creatinghdl,fname,subfile)
+    # file tail needed to use search path
+    set subfile [file tail $::ngc($creatinghdl,fname,subfile)]
     if {"$subfile" == ""} {
       set ::ngc(opt,noinput) 0 ;# need input if no subfile to open page
     }
   }
   if $::ngc($creatinghdl,chooser) {
-    set subfile "\"\""  ;# chooser
+    set subfile "\"\""  ;# chooser starts with no specifed subfile
   }
 
   set prefile ""
   set postfile ""
   if {"$::ngc($creatinghdl,dname,preamble)" != ""} {
-    set prefile $::ngc($creatinghdl,fname,preamble)
+    # file tail needed to use search path
+    set prefile [file tail $::ngc($creatinghdl,fname,preamble)]
   }
   if {"$::ngc($creatinghdl,dname,postamble)" != ""} {
-    set postfile $::ngc($creatinghdl,fname,postamble)
+    # file tail needed to use search path
+    set postfile [file tail $::ngc($creatinghdl,fname,postamble)]
   }
 
   set pageid ngcgui[qid]
@@ -3521,6 +3525,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
     incr ::ngc(embed,hdl)
   }
   set hdl $::ngc(embed,hdl) ;# local
+  initgui $hdl
 
   ::ngcgui::preset $hdl ::ngc   ;# setup defaults
 
