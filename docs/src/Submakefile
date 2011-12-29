@@ -214,18 +214,22 @@ DOC_SRCS := \
 	gcode/m-code.txt \
 	gcode/m-code_de.txt \
 	gcode/m-code_es.txt \
+	gcode/m-code_fr.txt \
 	gcode/m-code_pl.txt \
 	gcode/o-code.txt \
 	gcode/o-code_de.txt \
 	gcode/o-code_es.txt \
+	gcode/o-code_fr.txt \
 	gcode/o-code_pl.txt \
 	gcode/other-code.txt \
 	gcode/other-code_de.txt \
 	gcode/other-code_es.txt \
+	gcode/other-code_fr.txt \
 	gcode/other-code_pl.txt \
 	gcode/overview.txt \
 	gcode/overview_de.txt \
 	gcode/overview_es.txt \
+	gcode/overview_fr.txt \
 	gcode/overview_pl.txt \
 	gcode/rs274ngc.txt \
 	gcode/rs274ngc_de.txt \
@@ -512,7 +516,7 @@ checkref: checkref_en checkref_fr
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
 # These targets don't work yet since we don't have the associated translations

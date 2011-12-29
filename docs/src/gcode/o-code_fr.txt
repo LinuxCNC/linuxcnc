@@ -1,0 +1,177 @@
+:lang: fr
+:toc:
+
+= Les O-codes[[sec:Les-O-codes]]
+
+(((Les O-codes)))
+
+== Utilisation des O-codes
+
+Les O-codes permettent le contrôle de flux dans les programmes NGC.
+Chaque bloc est associé à une adresse, qui est la valeur utilisée
+après le *O*. Il faut prendre soin de bien faire correspondre les
+adresses des O-codes.
+
+Le comportement est indéfini si:
+
+* D'autres mots sont utilisés sur une ligne contenant un O-code.
+* Un commentaire est utilisé sur une ligne contenant un O-code.
+
+== Sous-programmes: *sub*, *endsub*, *return*, *call*
+(((Sous-programmes: sub, endsub, return, call)))
+(((sub)))(((endsub)))(((return)))(((call)))
+
+Les sous-programmes s'étendent d'un *O- sub* à un *O- endsub*. 
+Les lignes, à l'intérieur du sous-programme (le corps du
+sous-programme), ne sont pas exécutées dans l'ordre, mais 
+elles sont exécutées à chaque fois que le sous-programme 
+est appelé avec un *O-call*. 
+
+----
+O100 sub (Sous-programme pour allez à l'origine machine)
+G0 X0 Y0 Z0
+O100 endsub
+(autres lignes)
+O100 call
+----
+
+À l'intérieur d'un sous-programme, *O- return* peut être exécuté,
+pour retourner immédiatement au code appelant,
+comme si *O- endsub* avait été rencontré.
+
+*O- call* peut prendre jusqu'à 30 arguments optionnels, qui sont
+passés au sous-programme comme *#1*, *#2* , ..., *#N*. Les paramètres de *#N+1* à
+*#30* ont la même valeur dans le contexte de l'appel. 
+Au retour du sous-programme, les valeurs des
+paramètres #1 jusqu'à #30 (quel que soit le nombre d'arguments) sont
+restaurés aux valeurs qu'ils avaient avant l'appel.
+
+Parce que *1 2 3* est analysé comme le nombre 123, les paramètres
+doivent être placés entre crochets. L'appel de sous-programme suivant,
+s'effectue avec 3 arguments:
+
+----
+O200 call [1] [2] [3]
+----
+
+Les corps de sous-programme ne peuvent pas être imbriqués. Ils ne
+peuvent être appelés qu'après avoir été définis. Ils peuvent être
+appelés depuis d'autres fonctions et peuvent s'appeler eux même
+récursivement, s'il est judicieux de le faire. Le niveau maximum
+d'imbrication des sous-programmes est de 10.
+
+Les sous-programmes n'ont pas de *valeur de retour*, mais ils peuvent
+changer la valeur des paramètres au dessus de #30 et ces changements
+sont visibles depuis le code appelant. Les sous-programmes peuvent
+aussi changer la valeur des paramètres nommés globaux.
+
+== Boucles: *do*, *while*, *endwhile*, *break*, *continue*
+(((Boucles: do, while, endwhile, break, continue)))
+(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+
+La boucle *while* a deux structures possibles: while/endwhile et do/while. 
+Dans chaque cas, la boucle est quittée quand la condition 
+du *while* devient fausse.
+
+----
+(dessine la forme d'une dent de scie)
+F100
+#1 = 0
+O101 while [#1 lt 10]
+G1 X0
+G1 Y[#1/10] X1
+#1 = [#1+1]
+O101 endwhile
+----
+
+À l'intérieur d'une boucle while, *O- break*, quitte immédiatement
+la boucle et *O- continue*, saute immédiatement à la prochaine
+évaluation de la condition du *while*. Si elle est vraie, la boucle
+recommence au début. Si elle est fausse, la boucle est quittée.
+
+== Conditionnel: *if*, *else*, *endif*
+(((Conditional: if, else, endif)))
+(((if)))(((else)))(((endif)))
+
+Le *if* conditionnel exécute un groupe d'instructions si sa condition
+est vraie et un autre groupe si elle est fausse.
+
+----
+(Ajuste la vitesse travail en fonction d'une variable)
+O102 if [#2 GT 5]
+F100
+O102 else
+F200
+O102 endif
+----
+
+== Répétition: *Repeat*
+(((Repeat)))
+
+La répétition *repeat*, exécutera les blocs contenus entre *repeat* et
+*endrepeat* le nombre de fois spécifié entre crochets. L'exemple
+suivant montre comment usiner une séries de 5 formes diagonales
+commençant à la position courante.
+
+----
+(Usine 5 formes diagonales)
+G91 (Mode incrémental)
+O103 repeat [5]
+... (insérer le code d'usinage ici)
+G0 X1 Y1 (Mouvement en diagonale vers la position suivante)
+O103 endrepeat
+G90 (Mode absolu)
+----
+
+== Indirection
+(((Indirection)))
+
+L'adresse de O- peut être donnée par un paramètre ou un calcul.
+
+----
+O[#101+2] call
+----
+
+== Calcul des valeurs dans les O-codes
+
+Voici un condensé des sections utiles aux calculs des O-codes, 
+les <<sec:Parametres-Numerotes, paramètres numérotés>>, 
+les <<sec:Expressions, expressions>>, 
+les <<sec:Operateurs-Binaires, opérateurs binaires>>, 
+et le <<sec:Fonctions, tableau des fonctions>>.
+
+== Appel de fichiers
+(((Appel de fichiers)))
+
+Pour appeler un fichier par son nom, celui-ci doit contenir un *sub*
+et un *endsub*. Le fichier appelé doit se trouver dans le répertoire
+pointé par la variable PROGRAM_PREFIX du fichier ini.
+
+----
+o<monfichier> call (un fichier nommé)
+----
+
+ou
+
+----
+o123 call (un numéro de fichier)
+----
+
+Dans le fichier appelé doit se touver le *sub* et le *endsub*
+correspondant à l'appel. Le fichier doit être un fichier valide.
+
+Exemple:
+
+----
+myfile.ngc
+o<myfile> sub
+...
+o<myfile> endsub
+M2
+----
+
+[NOTE]
+Les noms de fichiers sont sensibles à la casse, ainsi les appels *o<myfile>* et
+*o<MyFile>* n'appellent pas le même fichier. 
+
+// vim: set syntax=asciidoc:
