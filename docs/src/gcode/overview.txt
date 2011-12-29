@@ -211,7 +211,7 @@ coordinate systems.
 machine state, for instance '#<_relative>' returns 1 if G91 is on, and
 0 if G90 is set. They are read-only.
 
-[[sub:Numbered-Parameters]]
+[[sub:numbered-parameters]]
 === Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an

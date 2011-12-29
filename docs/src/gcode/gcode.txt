@@ -99,7 +99,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G98-G99-Set,G98, G99>>       |Canned Cycle Z Retract Mode 
 |====================================================================
 
-== G0 Rapid Motion[[sec:G0-Rapid]]
+== G0 Rapid Motion[[sec:G0]]
 (((G0 Rapid)))(((Rapid Motion)))
 
 ----
@@ -119,7 +119,7 @@ G90 (set absolute distance mode)
 G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more infomation.
+* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
@@ -705,6 +705,11 @@ This allows the user to set the G59.3 coordinate system according to a
 fixed point on the machine, and then use that fixture to measure tools
 without regard to other currently-active offsets.
 
+// .G10 L11 Example FIX ME!
+// ----
+// G10 L11 P1
+// ----
+
 It is an error if:
 
 * Cutter Compensation is on
@@ -721,6 +726,11 @@ G10 L20 P- axes <R->
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
 makes the current coordinates become the given value.
+
+.G10 L20 Example Line
+----
+G10 L20 P1 X1.5 (set the X axis current location in coordinate system 1 to 1.5)
+----
 
 It is an error if:
 
@@ -757,15 +767,21 @@ of each g code file.
 (((G28)))
 
 * 'G28' - makes a rapid traverse move from the current position to the
-          absolute position of the values in parameters 5161-5166. 
-          The parameter values are in terms of the absolute coordinate system
-          and the machine's native coordinate system.
+          absolute position of the values in <<sub:numbered-parameters,parameters>>
+          5161-5166. The parameter values are in terms of the 'absolute' coordinate
+          system and the machine's native coordinate system.
 
 * 'G28 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the absolute
-              position of the values in parameters 5161-5166.
+              'axes', then will make a rapid traverse move to the 'absolute'
+              position of the values in <<sub:numbered-parameters,parameters>>
+              5161-5166.
 
 * 'G28.1' - stores the current absolute position into parameters 5161-5166.
+
+.G30 Example Line
+----
+G28 Z2.5 (rapid to Z2.5 then to location specified in the G28 stored parameters)
+----
 
 It is an error if :
 
@@ -775,19 +791,25 @@ It is an error if :
 (((G30)))
 
 * 'G30' - makes a rapid traverse move from the current position to the
-          absolute position of the values in parameters 5181-5186. 
-          The parameter values are in terms of the absolute coordinate
+          absolute position of the values in <<sub:numbered-parameters,parameters>>
+          5181-5186. The parameter values are in terms of the 'absolute' coordinate
           system and the machine's native coordinate system.
 
 * 'G30 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the absolute
-              position of the values in parameters 5181-5186.
+              'axes', then will make a rapid traverse move to the 'absolute'
+              position of the values in <<sub:numbered-parameters,parameters>>
+              5181-5186.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
 if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
+
+.G30 Example Line
+----
+G30 Z2.5 (rapid to Z2.5 then to the location specified in the G30 stored parameters)
+----
 
 It is an error if :
 
@@ -813,9 +835,22 @@ a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
 K follows the drive line described by 'X- Y- Z-' and is not parallel to the Z axis.
 
 Spindle-synchronized motions wait for spindle index, so multiple passes line up. 
-'G33' moves end at the programmed endpoint.
+'G33' moves end at the programmed endpoint. G33 could be used to cut tapered threads
+or a fusee.
 
 All the axis words are optional, except that at least one must be used.
+
+.G33 Example
+----
+G90 (absolute distance mode)
+G0 X1 Z0.1 (rapid to position)
+S100 M3 (start spindle turning)
+G33 Z-2 K0.125 (move Z axis to -2 at a rate to equal 0.125 per revolution)
+G0 X1.25 (rapid move tool away from work)
+Z0.1 (rapid move to starting Z position)
+M2 (end program)
+----
+* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 It is an error if:
 
@@ -862,13 +897,14 @@ so multiple passes line up.
 
 All the axis words are optional, except that at least one must be used.
 
-.Rigid Tapping Example
+.G33.1 Example
 ----
-;move to starting position
-G0 X1.000 Y1.000 Z0.100
-;rigid tapping a 20 TPI thread
-G33.1 Z-0.750 K0.05
+G90 (set absolute mode)
+G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)
+G33.1 Z-0.750 K0.05 (rigid tap a 20 TPI thread 0.750 deep)
+M2 (end program)
 ----
+* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 It is an error if:
 
@@ -904,14 +940,6 @@ is reached G38.2 and G38.4 will signal an error.
 
 The tool in the spindle must be a probe or contact a probe switch. 
 
-It is an error if:
-
-* the current point is the same as the programmed point.
-* no axis word is used
-* cutter radius compensation is enabled
-* the feed rate is zero
-* the probe is already in the target state
-
 In response to this command, the machine moves the controlled point
 (which should be at the center of the probe ball) in a straight line at the
 current feed rate toward the programmed point. 
@@ -937,16 +965,38 @@ XYZABCUVW of each successful straight probe in it.
 The file must be closed with '(PROBECLOSE)'. For more information
 see the <<sec:comments, Comments>> Section.
 
+An example file 'smartprobe.ngc' is included (in the examples directory)
+to demonstrate using probe moves to log to a file the coordinates of a part.
+The program 'smartprobe.ngc' could be used with 'ngcgui' with minimal changes.
+
+It is an error if:
+
+* the current point is the same as the programmed point.
+* no axis word is used
+* cutter radius compensation is enabled
+* the feed rate is zero
+* the probe is already in the target state
+
 == G40 Compensation Off[[sec:G40]]
 (((G40 Radius Compensation Off)))
 
-* 'G40' - turn cutter radius compensation off. 
-          The next move must be a straight move. 
+* 'G40' - turn cutter radius compensation off. If tool compensation was on the
+          next move must be a linear move and longer than the tool diameter.
           It is OK to turn compensation off when it is already off.
+
+.G40 Example
+----
+; current location is X1 after finishing cutter compensated move
+G40 (turn compensation off)
+G0 X1.6 (linear move longer than current cutter diameter)
+M2 (end program)
+----
+See <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 It is an error if:
 
 * A G2/G3 arc move is programmed next after a G40.
+* The linear move after turning compensation off is less than the tool diameter.
 
 == G41, G42 Tool Radius Compensation[[sec:G41-G42]]
 (((G41 G42 Radius Compensation)))
@@ -979,7 +1029,8 @@ Cutter radius compensation may be performed if the XY-plane or XZ-plane is activ
 User M100-M199 commands are allowed when Cutter Compensation is on.
 
 The behavior of the machining center when cutter radius compensation
-is on is described in the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
+is on is described in the <<sec:cutter-radius-compensation,Radius Compensation>>
+Section along with code examples.
 
 It is an error if:
 
@@ -998,7 +1049,8 @@ G42.1 D- <L-> (right of programmed path)
 * 'D' - cutter diameter
 * 'L' - tool orientation (see <<lathe-tool-orientation,lathe tool orientation>>)
 
-The L word defaults to 0 if unspecified. 
+G41.1 & G42.1 function the same as G41 & G42 with the added scope of being able
+to program the tool diameter. The L word defaults to 0 if unspecified. 
 
 It is an error if:
 
@@ -1024,6 +1076,11 @@ G43 <H->
 * 'G43 H-' - use an offset from tool table.
              It is OK for the H number to be zero; an offset value of zero will be used.
 
+.G43 H- Example Line
+----
+G43 H1 (set tool offsets using the values from tool 1 in the tool table)
+----
+
 It is an error if:
 
 * the H number is not an integer, is negative, or is larger than the
@@ -1037,9 +1094,18 @@ G43.1 axes
 ----
 
 * 'G43.1 axes' - change subsequent motions by offsetting the Z and/or X
-                 coordinates by the length of the tool. G43.1 does not cause any
+                 offsets stored in the tool table. G43.1 does not cause any
                  motion. The next time a compensated axis is moved, that axis's
                  endpoint is the compensated location.
+
+.G43.1 Example
+----
+G90 (set absolute mode)
+T1 M6 G43 (load tool 1 and tool lenght offsets, Z is at machine 0 and DRO shows Z1.500)
+G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250 )
+M2 (end program)
+----
+* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 It is an error if:
 
@@ -1061,7 +1127,7 @@ used.
 G53 axes
 ----
 
-To move in absolute coordinates from the machine origin, program 'G53'
+To move in 'absolute coordinates' from the machine origin, program 'G53'
 on the same line as a linear move. 'G53' is not modal and must be
 programmed on each line. 'G0' or 'G1' does not have to be programmed
 on the same line if one is currently active. 
@@ -1069,10 +1135,12 @@ For example 'G53 G0 X0 Y0 Z0'  will move the axes to the home
 position even if the currently
 selected coordinate system has offsets in effect.
 
-.Example G53 Move to Machine Origin
+.G53 Example Line
 ----
-G53 G0 X0 Y0 Z0
+G53 G0 X0 Y0 Z0 (rapid linear move to the machine origin)
+G53 X2 (rapid linear move to absolute coordinate X2)
 ----
+* See <<sec:G0,G0>> section for more infomation.
 
 It is an error if:
 
@@ -1113,7 +1181,7 @@ in the parameters shown in the following table.
 
 It is an error if:
 
-* one of these G-codes is used while cutter radius compensation is on.
+* selecting a coordinate system is used while cutter radius compensation is on.
 
 See the <<cha:Coordinate-System,Coordinate System>> Section for an overview of coordinate
 systems.
@@ -1161,6 +1229,14 @@ the <<sec:Path-Control-Mode,Path Control Mode>> Section and
 information on these modes. 
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
+
+.G64 P- Example Line
+----
+G64 P0.015 (set path following to be within 0.015 of the actual path)
+----
+
+It is a good idea to include a path control specification in the preamble
+of each g code file.
 
 == G90, G91 Distance Mode[[sec:G90-G91]]
 (((G90, G91 Distance Mode)))

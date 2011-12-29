@@ -202,7 +202,7 @@ are. T can be any number but P must be a number that makes sense for
 the machine.
 
 
-== Cutter Radius Compensation[[cutter-radius-compensation]]
+== Cutter Radius Compensation[[sec:cutter-radius-compensation]]
 
 Cutter Radius Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
