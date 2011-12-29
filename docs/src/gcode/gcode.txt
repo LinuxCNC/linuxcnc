@@ -117,8 +117,11 @@ will not take place when a 'G0' command is executing.
 
 .G0 Example
 ----
-G0 X1.234 Y-2.345 (Rapid linear move from current location to X1.234 Y-2.345)
+G90 (set absolute distance mode)
+G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
+M2 (end program)
 ----
+* <<sec:G90-G91,G90>>, <<sec:M2-M30,M2>>
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
@@ -144,6 +147,16 @@ The 'G1' is optional if the current motion mode is 'G1' . This will
 produce coordinated linear motion to the destination point
 at the current feed rate (or slower if the machine will not go that
 fast).
+
+.G1 Example
+----
+G90 (set absolute distance mode)
+G1 X1.2 Y-3 F10 (linear move at a feed rate of 10 from current position to X1.2 Y-3)
+Z-2.3 (linear move at same feed rate from current position to Z-2.3)
+Z1 F25 (linear move at a feed rate of 25 from current position to Z1)
+M2 (end program)
+----
+* <<sec:G90-G91,G90>>, <<sec:M2-M30,M2>>
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
@@ -1122,7 +1135,7 @@ information on these modes.
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
 
-== G90, G91 Distance Mode[[sec:G90-G91-Set]]
+== G90, G91 Distance Mode[[sec:G90-G91]]
 (((G90, G91 Distance Mode)))
 
 * 'G90' - absolute distance mode In absolute 
