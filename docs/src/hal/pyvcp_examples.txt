@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = PyVCP Examples
 
 == AXIS
@@ -32,7 +29,7 @@ you need to do the following basic things.
 The following is an example of a loadusr command to load two PyVCP
 panels and name each one so the connection names in HAL will be known.
 
-[source-c]
+[source,c]
 ----
 loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
 loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
