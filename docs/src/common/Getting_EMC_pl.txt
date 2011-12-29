@@ -62,7 +62,7 @@ The EMC IRC channel is #emc on freenode.
 The simplest way to get on the IRC is to use 
 the embedded java client on this page: 
 
-http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
+link:http://www.linuxcnc.org/index.php/english/component/mospjirc/[]
 
 Some IRC etiquette::
 
@@ -101,7 +101,7 @@ you set up your account.
 
 Information about the EMC Users Mailing List at: 
 
-link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users mailing list]
+link:https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
 
 === EMC2 Wiki
 
@@ -111,7 +111,7 @@ that anyone can add to or edit.
 The user maintained EMC Wiki site contains a 
 wealth of information and tips at:
 
-link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
+link:http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[wiki.linuxcnc.org]
 
 == Getting EMC2
 
