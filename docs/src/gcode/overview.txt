@@ -147,7 +147,7 @@ which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
 
-== Parameters (Variables)[[parameters]](((Parameters)))
+== Parameters (Variables)[[sec:parameters]](((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several

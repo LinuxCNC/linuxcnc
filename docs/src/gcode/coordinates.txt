@@ -1,4 +1,4 @@
-= Coordinate System[[coordinate-system]](((Coordinate System)))
+= Coordinate System[[cha:coordinate-system]](((Coordinate System)))
 
 == Introduction
 

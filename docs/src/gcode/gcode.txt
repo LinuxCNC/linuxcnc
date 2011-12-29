@@ -1312,10 +1312,12 @@ EMC2 stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
-See the <<cha:Coordinate-System,Coordinate System>> Section for an 
+See the <<cha:coordinate-system,Coordinate System>> Section for an 
 overview of coordinate systems.
 
-See Section <<sec:G92-Offsets,Offsets>> Section for more information on Offsets.
+See the <<sec:G92-Offsets,Offsets>> Section for more information.
+
+See the <<sec:parameters,Parameters>> Section for more information.
 
 == G92.1, G92.2 Reset Coordinate System Offsets[[sec:G92.1-G92.2]]
 
