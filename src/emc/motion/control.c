@@ -1765,9 +1765,11 @@ static void output_to_hal(void)
 
 static void update_status(void)
 {
-    int joint_num, dio, aio;
+    int joint_num, axis_num, dio, aio;
     emcmot_joint_t *joint;
     emcmot_joint_status_t *joint_status;
+    emcmot_axis_t *axis;
+    emcmot_axis_status_t *axis_status;
 #ifdef WATCH_FLAGS
     static int old_joint_flags[8];
     static int old_motion_flag;
@@ -1801,6 +1803,16 @@ static void update_status(void)
 	joint_status->max_ferror = joint->max_ferror;
 	joint_status->home_offset = joint->home_offset;
     }
+
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+	/* point to axis data */
+	axis = &axes[axis_num];
+	/* point to axis status */
+	axis_status = &(emcmotStatus->axis_status[axis_num]);
+
+	axis_status->vel_cmd = axis->vel_cmd;
+    }
+
 
     for (dio = 0; dio < emcmotConfig->numDIO; dio++) {
 	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);

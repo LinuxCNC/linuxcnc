@@ -552,6 +552,25 @@ static PyObject *Stat_joint(pyStatChannel *s) {
     return res;
 }
 
+#define F(x) F2(#x, x)
+#define F2(y,x) dict_add(res, y, s->status.motion.axis[axisno].x)
+static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
+    PyObject *res = PyDict_New();
+    F(velocity);
+    return res;
+}
+
+#undef F
+#undef F2
+
+static PyObject *Stat_axis(pyStatChannel *s) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_AXIS);
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
+        PyTuple_SetItem(res, i, Stat_axis_one(s, i));
+    }
+    return res;
+}
+
 static PyStructSequence_Field tool_fields[] = {
     {(char*)"id", },
     {(char*)"xoffset", },
@@ -614,6 +633,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"ain", (getter)Stat_ain},
     {(char*)"aout", (getter)Stat_aout},
     {(char*)"joint", (getter)Stat_joint},
+    {(char*)"axis", (getter)Stat_axis},
     {(char*)"din", (getter)Stat_din},
     {(char*)"dout", (getter)Stat_dout},
     {(char*)"gcodes", (getter)Stat_activegcodes},

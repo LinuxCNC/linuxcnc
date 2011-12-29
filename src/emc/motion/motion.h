@@ -560,6 +560,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	simple_tp_t teleop_tp;	/* planner for teleop mode motion */
     } emcmot_axis_t;
 
+    typedef struct {
+        double vel_cmd;		/* comanded axis velocity */
+    } emcmot_axis_status_t;
+
 /*********************************
         STATUS STRUCTURE
 *********************************/
@@ -604,6 +608,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int homing_active;	/* non-zero if any joint is homing */
 	home_sequence_state_t homingSequenceState;
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
+        emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
 
 	int on_soft_limit;	/* non-zero if any joint is on soft limit */
 

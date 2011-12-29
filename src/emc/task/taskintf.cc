@@ -473,6 +473,7 @@ double emcAxisGetMaxAcceleration(int axis)
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 {
     int axis_num;
+    emcmot_axis_status_t *axis;
     
     // check for valid range
     if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
@@ -480,6 +481,9 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
     }
 
     for (axis_num = 0; axis_num < numAxes; axis_num++) {
+        axis = &(emcmotStatus.axis_status[axis_num]);
+
+        stat[axis_num].velocity = axis->vel_cmd;
     }
     return 0;
 }
