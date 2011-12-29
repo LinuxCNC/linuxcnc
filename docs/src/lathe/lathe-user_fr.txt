@@ -21,7 +21,7 @@ d'éditer le fichier ini et de modifier la section [DISPLAY] comme ceci:
 LATHE = TRUE
 ---------------------------------------
 
-Le mode `tour` dans Axis ne fixe pas le plan par défaut comme étant G18 (XZ). Il
+Le mode *tour* dans Axis ne fixe pas le plan par défaut comme étant G18 (XZ). Il
 est nécessaire de l'ajouter dans le préambule de tout programmer G-code ou, 
 encore mieux, de l'ajouter directement dans le fichier ini comme cela:
 
@@ -36,7 +36,7 @@ RS274NGC_STARTUP_CODE = G18 G20 G90
 
 La table d'outils est un fichier texte qui contient les informations de chaque outil. 
 Ce fichier se trouve dans le même répertoire que le fichier ini, il est appelé 
-`tool.tbl` par défaut. 
+*tool.tbl* par défaut. 
 Les outils peuvent être dans un changeur d'outils ou simplement changés manuellement.
 Le fichier peut être édité avec un éditeur de texte ou être mis à jour en 
 utilisant G10 L1, L10, L11.
@@ -52,13 +52,14 @@ de la table d'outils qui ne se rapportent pas à la machine.
 Pour plus d'informations sur les spécificités du format de la table d'outils, 
 consultez la section <<sec:Tool-Table-Format>>.
 
+[[cap:Orientations-des-outils-de-tour]]
 == Orientations des outils de tournage
 
 La figure suivante montre les angles d'orientations des outils de tour ainsi que 
-les informations sur FRONTANGLE (angle avant) et BACKANGLE (angle de dos).
+les informations sur FRONTANGLE (angle frontal) et BACKANGLE (angle arrière).
 FRONTANGLE et BACKANGLE sont dans le sens horaire par rapport une ligne parallèle à Z.
 
-.Orientations des outils de tournage[[cap:Orientations-des-outils-de-tour]]
+.Orientations des outils de tournage
 
 image::images/tool_positions.png[]
 
@@ -83,7 +84,7 @@ image::images/tool_pos_8.png[]
 
 Quand AXIS est utilisé sur un tour, il est possible de corriger l'outil sur les 
 axes X et Z. Les corrections sont alors introduites directement dans la table 
-d'outils en utilisant le bouton `Toucher` et sa fenêtre de dialogue.
+d'outils en utilisant le bouton *Toucher* et sa fenêtre de dialogue.
 
 === Offset d'outil en X
 
@@ -91,23 +92,23 @@ L'offset X pour chaque outil correspond à un décalage de l'axe de la broche.
 
 Une méthode consiste à prendre un outil de tournage standard et usiner un diamètre. 
 Mesurer exactement ce diamètre puis, sans toucher à l'axe X, dans la fenêtre qui 
-s'ouvre, après un appui sur le bouton `Toucher`, saisir le diamètre mesuré, ou 
+s'ouvre, après un appui sur le bouton *Toucher*, saisir le diamètre mesuré, ou 
 le rayon si c'est le mode en cours. Ensuite, à l'aide d'encre à tracer ou 
 d'un marqueur, recouvrir une zone sur la pièce, faire tangenter l'outil à cet 
 endroit pour qu'il touche juste la surface encrée, ajuster alors l'offset X au
-diamètre mesuré de la pièce en utilisant le bouton `Toucher`. S'assurer que le
+diamètre mesuré de la pièce en utilisant le bouton *Toucher*. S'assurer que le
 rayon de bec est bien défini dans la table d'outils, pour que le point 
-contrôlé soit correct. Le `Toucher` ajoute automatiquement un G43 de sorte que 
+contrôlé soit correct. Le *Toucher* ajoute automatiquement un G43 de sorte que 
 l'offset s'applique à l'outil courant.
 
 Voici une séquence typique:
 
  . Prise d'origine machine de chacun des axes, si ce n'est pas déjà fait.
- . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
- . Sélectionner l'axe X dans la fenêtre de l'onglet `Contrôle manuel (F3)`.
+ . Déclarer l'outil avec *Tn M6* dans lequel *n* est le numéro de l'outil courant.
+ . Sélectionner l'axe X dans la fenêtre de l'onglet *Contrôle manuel (F3)*.
  . Déplacer l'axe X sur une position connue ou prendre une passe de test puis 
    mesurer le diamètre obtenu.
- . Cliquer le bouton `Toucher` et choisir l'option `Table d'outils`, ce qui 
+ . Cliquer le bouton *Toucher* et choisir l'option *Table d'outils*, ce qui 
    entrera la correction directement dans la table d'outil.
  . Recommencer la même séquence pour corriger l'axe Z.
 
@@ -130,21 +131,21 @@ Voici un séquence typique:
  . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
  . S'assurer qu'aucune compensation n'est activée pour le système de coordonnées
 courant.
- . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
- . Sélectionner l'axe Z dans la fenêtre de l'onglet `contrôle manuel (F3)`.
+ . Déclarer l'outil avec *Tn M6* dans lequel *n* est le numéro de l'outil courant.
+ . Sélectionner l'axe Z dans la fenêtre de l'onglet *contrôle manuel (F3)*.
  . Placer un cylindre dans le mandrin. 
  . Faire tangenter l'outil contre la face du cylindre.
- . Cliquer le bouton `Toucher` puis choisir `Table d'outils` et saisir la position à 0,0.
+ . Cliquer le bouton *Toucher* puis choisir *Table d'outils* et saisir la position à 0,0.
  . Répéter l'opération pour chaque outil, en utilisant le même cylindre.
 
 Maintenant, tous les outils sont compensés à la même distance d'une position standard. 
 Si un outil doit être changé, par exemple par un foret il suffira de répéter la
 séquence précédente pour qu'il soit en phase avec l'offset Z du reste des outils. 
 Certains outils pourraient nécessiter un peu de réflexion pour déterminer le point 
-de contrôle par rapport au point de `Toucher`. 
+de contrôle par rapport au point de *Toucher*. 
 Par exemple, un outil de tronçonnage de 3.17mm de large et qui est touché sur le 
 côté gauche, alors que l'opérateur veut Z0 sur le côté droit, il devra alors entrer
-3.17 dans la fenêtre du `Toucher`.
+3.17 dans la fenêtre du *Toucher*.
 
 === La Z machine offset
 
@@ -154,7 +155,7 @@ il est possible d'utiliser n'importe quel outil pour ajuster le décalage du sys
 Voici une séquence typique:
 
  . Prise d'origine machine de tous les axes, si pas déjà fait.
- . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
+ . Déclarer l'outil avec *Tn M6* dans lequel *n* est le numéro de l'outil courant.
  . Envoyer un G43 pour que l'offset de l'outil soit activé. (voir ci-dessous)
  . Tangenter l'outil contre la pièce et fixer l'offset machine Z.
 

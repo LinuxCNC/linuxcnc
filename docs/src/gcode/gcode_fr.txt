@@ -139,10 +139,13 @@ Si un mouvement *G0* déplace seulement des axes rotatifs et que la
 position de la cible 
 pour ces axes est dans une échelle de -360 à 360 degrés, le mouvement 
 sera organisé pour que chaque axe rotatif fasse moins d'un tour 
-complet. Exemple: 
+complet. 
+
+.Exemple avec G0: 
 ----
-N1 G0 X1 A[20*360]
-N2 G0 A0
+G90 (Fixe les déplacements en mode absolu)
+G0 X1 Y-2.3 (mouvement linéaire en vitesse rapide du point courant à X1 Y-2.3)
+M2 (fin de programme)
 ----
 
 Après la ligne *N1*, la position de l'axe A sera 7200 degrés. 7200
@@ -164,6 +167,15 @@ Le *G1* est optionnel si le mode de mouvement courant est déjà *G1*.
 Cela produira un mouvement linéaire vers le point de destination à
 la vitesse de travail courante (ou moins vite si la machine n'atteint
 pas cette vitesse).
+
+.Exemple avec G1:
+----
+G90 (Fixe les déplacements en mode absolu)
+G1 X1.2 Y-3 F10 (mouvement linéaire à 10 unités/mn du point courant à X1.2 Y-3)
+Z-2.3 (mouvement linéaire à 10 unités/mn du point courant à Z-2.3)
+Z1 F25 (mouvement linéaire de l'axe Z à 25 unités/mn vers Z1)
+M2 (Fin de programme)
+----
 
 C'est une erreur si:
 
@@ -527,7 +539,7 @@ défaut à la mise sous tension.
 G10 L1 P- axes <R- I- J- Q->
 ----
 * 'P' - numéro d'outil
-* 'R' - rotation par rapport à l'axe Z
+* 'R' - rayon de nez
 * 'I' - angle frontal (tour)
 * 'J' - angle arrière (tour)
 * 'Q' - orientation (tour)
@@ -535,6 +547,15 @@ G10 L1 P- axes <R- I- J- Q->
 Programmer *G10 L1* pour ajuster les valeurs de l'outil P, dans la table d'outils
 depuis un programme ou depuis la fenêtre d'entrées manuelles (MDI).
 Un G10 L1 valide, réécrit et recharge la table d'outils. 
+
+.Exemples avec G10 L1:
+----
+G10 L1 P1 Z1.5 (fixe le décalage en Z de l'outil 1 à 1.5 de l'origine machine)
+----
+
+----
+G10 L1 P2 R0.15 Q3 (fixe le rayon de nez à 0.15 pour l'outil de tour 2 avec une orientation 3)
+----
 
 C'est une erreur si:
 
@@ -545,8 +566,8 @@ D'autres informations sur l'orientation <<cap:Orientations-des-outils-de-tour,
 des outils de tour sont disponibles ici>>.
 
 [[sec:G10-L2]]
-== G10 L2 Établissement de l'origine du système de coordonnées pièce
-(((G10 L2 Établissement origine du système de coordonnées pièce)))
+== G10 L2 Établissement de l'origine d'un système de coordonnées
+(((G10 L2 Établissement de l'origine d'un système de coordonnées)))
 
 ----
 G10 L2 P- <axes R->
@@ -557,15 +578,14 @@ G10 L2 P- <axes R->
 G10 L2 fixe l'origine d'un système de coordonnées.
 
 Pour définir l'origine d'un système de coordonnées, programmer *G10 L2 P- R- axes*, 
-où le nombre *P* est compris entre *0 et 9* qui correspond aux G54 à G59.3. 
+où le nombre *P* est compris entre *0 et 9* qui correspond aux systèmes G54 à G59.3. 
 Pour le système de coordonnées actuellement actif, programmer *P0*. 
 Optionnellement, programmer *R* pour indiquer la rotation des axes *XY* autour 
-l'axe *Z*. 
-Tous les mots d'axe sont facultatifs. 
+l'axe *Z*. Tous les mots d'axe sont facultatifs. 
 L'origine du système de coordonnées spécifié par le nombre *P* est 
-fixée aux valeurs spécifiées (en termes de coordonnées machine). 
+fixée aux valeurs spécifiées (en termes de décalages des coordonnées machine). 
 Seules les coordonnées pour lesquelles un mot d'axe est spécifié sur la ligne 
-seront fixées. Être en mode incrémental (*G91*) est sans effet sur *L2 G10*. 
+seront fixées. Être en mode incrémental (*G91*) est sans effet sur *G10 L2*. 
 Le sens de rotation est anti-horaire, vu du dessus. 
 
 Concepts importants:
@@ -587,7 +607,7 @@ C'est une erreur si:
 * Le nombre P n'est pas évalué comme étant un nombre entier compris entre 0 et 9.
 * Un axe est programmé mais n'est pas défini dans la configuration.
 
-Exemple: 
+.Exemple avec G10 L2: 
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
@@ -596,6 +616,8 @@ Place l'origine du premier système de coordonnées (celui sélectionné par G54
 au points X3.5 et Y17.2 (en coordonnées absolues). 
 La coordonnée Z de l'origine, ainsi que les coordonnées de tous les autres axes, 
 restent inchangées puisque seuls X et Y étaient spécifiés. 
+
+.Autre exemple avec G10 L2: 
 ----
 G10 L2 P1 X0 Y0 Z0
 ----
@@ -603,9 +625,9 @@ G10 L2 P1 X0 Y0 Z0
 Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
 
 [[cap:Etablissement-Systeme-Coordonnees]]
-.Établissement du système de coordonnées pièce
+.Établissement de l'origine d'un système de coordonnées
 
-[width="80%", options="header"]
+[width="80%", options="header", cols="^,^,^"]
 |=========================================
 |Valeur P| Système de coordonnées | G-code
 |       0|          Actif courant | n/a
@@ -646,10 +668,20 @@ C'est une erreur si:
 
 * La compensation d'outil est activée.
 
-[[sec:G10-L11]]
-== G10 L11 modifie les valeurs de l'outil dans la table d'outils
+.Exemple avec G10 L10:
+----
+M6 T1 G43 (appel l'outil 1 et active la correction de longueur d'outil)
+G10 L10 P1 Z1.5 (fixe la position courante en Z à 1.5 dans la table d'outils)
+G43 (recharge l'offset de longueur d'outil depuis la table d'outils)
+M2 (fin de programme)
+----
+* Voir les commandes <<sec:M6-Appel-Outil, M6>>, <<sec:T-Choix-Outil, Tn>> 
+et <<sec:G43-G43-1-Longueur-Outil, G43>>.
 
-(((G10 L11 modifie les valeurs de l'outil dans la table d'outils)))
+[[sec:G10-L11]]
+== G10 L11 modifie les offsets d'outil dans la table d'outils
+
+(((G10 L11 modifie les offsets d'outil dans la table d'outils)))
 
 ----
 G10 L11 P- axes <R- I- J- Q->
@@ -661,23 +693,23 @@ G10 L11 P- axes <R- I- J- Q->
 * 'Q' - orientation (tour)
 
 G10 L11 est identique à G10 L10 excepté qu'au lieux de fixer les valeurs
-selon les coordonnées pièce, il les fixe de sorte que les coordonnées
-courantes deviennent celles spécifiées si la nouvelle compensation d'outil
-est rechargée et que la machine est placée dans le système de coordonnées G59.3
-sans aucun décalage G92 actif.
+par rapport aux décalages de coordonnées courants, il les fixe de sorte que les 
+coordonnées courantes deviennent celles spécifiées par les paramètres si la 
+nouvelle compensation d'outil est rechargée et que la machine est placée dans 
+le système de coordonnées G59.3, système sans aucun décalage G92 actif.
 
 Ceci permet à l'utilisateur de fixer le système de coordonnées G59.3 à
 un point fixe de la machine et d'utiliser ce porte-pièce pour mesurer
-l'outil sans avoir à connaitre les autres décalages courants actifs.
+l'outil sans s'occuper des autres décalages courants actifs.
 
 C'est une erreur si:
 
 * La compensation d'outil est activée
 
 [[sec:G10-L20]]
-== G10 L20 Établissement des coordonnées machine calculées
+== G10 L20 Établissement de l'origine d'un système de coordonnées 
 
-(((G10 L20 Établissement des coordonnées machine calculées)))
+(((G10 L20 Établissement de l'origine d'un système de coordonnées)))
 
 ----
 G10 L20 P- axes <R->
@@ -685,8 +717,14 @@ G10 L20 P- axes <R->
 * 'P' - système de coordonnées (0-9)
 * 'R' - rotation par rapport à l'axe Z
 
-G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des valeurs
-données, il place les coordonnées courantes à des valeurs calculées.
+G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des 
+valeurs données, il les place à des valeurs calculées de sorte que les 
+coordonnées courantes deviennent les valeurs données en paramètres.
+
+.Exemple avec G10 L20:
+----
+G10 L20 P1 X1.5 (fixe l'emplacement courant en X du système de coordonnées G54 à 1.5)
+----
 
 C'est une erreur si:
 
@@ -759,7 +797,7 @@ C'est une erreur si:
 (((G30)))
 (((G30.1)))
 
-La commande G30 utilise les valeurs stockées dans les paramètres 5181 à 5186 
+La commande *G30* utilise les valeurs stockées dans les paramètres 5181 à 5186 
 comme valeurs absolues pour effectuer un mouvement en vitesse rapide 
 de la position courante à la position définie dans les paramètres. 
 Les valeurs stockées dans les paramètres font référence au
@@ -769,10 +807,10 @@ La commande *G30 axes* effectue un déplacement en vitesse rapide
 depuis la position courante jusqu'à la position spécifiée par *axes*, 
 suivi d'un mouvement rapide à la position prédéfinie dans les paramètres 5181-5186.
 
-G30.1 enregistre la position absolue courante dans les paramètres 5181-5186.
+*G30.1* enregistre la position absolue courante dans les paramètres 5181-5186.
 
-Les paramètres de G30 peuvent être utilisés pour déplacer l'outil quand un M6 est programmé 
-et que la variable [TOOL_CHANGE_AT_G30]=1 dans la section [EMCIO] du fichier ini.
+Les paramètres de *G30* peuvent être utilisés pour déplacer l'outil quand un M6 est programmé 
+et que la variable *[TOOL_CHANGE_AT_G30]=1* dans la section [EMCIO] du fichier ini.
 
 C'est une erreur si:
 
@@ -794,12 +832,28 @@ Cette commande pourrait être la base d'un programme pour faire un filetage de 1
 Un autre exemple en métrique, *G33 Z-15 K1.5* produira 
 un mouvement de 15mm de long pendant que la broche fera 10 tours soit un pas de 1.5mm.
 
-Remarque: K suit la ligne d'entraînement décrit par *X- Y- Z-* et n'est pas parallèle à l'axe Z.
+[NOTE]
+K suit la ligne d'avance décrite par *X- Y- Z-*, elle n'est pas forcément
+parallèle à l'axe Z.
 
-Broche synchronisée mouvements d'attendre pour l'indice de la broche, donc plusieurs ligne passe haut.
-Un mouvement avec *G33* se termine au point final programmé,
+Les mouvements avec broche synchronisée ont besoin d'un index de broche pour
+le filetage multi-passes.
+Un mouvement avec *G33* se termine au point final programmé.
 
 Les mots d'axes sont facultatifs, sauf au moins un qui doit être utilisé.
+
+
+.Exemple avec G33:
+----
+G90 (mode distance absolue)
+G0 X1 Z0.1 (positionnement en vitesse rapide)
+S100 M3 (broche en rotation à 100tr/mn)
+G33 Z-2 K0.125 (mouvement vers Z -2 avec une avance de 0.125 par tour)
+G0 X1.25 (mouvement de dégagement en vitesse rapide)
+Z0.1 (mouvement en vitesse rapide à Z0.1)
+M2 (fin de programme)
+----
+
 
 C'est une erreur si:
 
@@ -841,6 +895,15 @@ Un mouvement avec *G33.1* se termine aux coordonnées initiales.
 
 Les mots d'axes sont facultatifs, sauf au moins un qui doit être utilisé.
 
+.Exemple avec G33.1:
+----
+G90 (mode distance absolue)
+G0 X1.000 Y1.000 Z0.100 (mouvement rapide au point de départ)
+;taraudage rigide en 20 filets par pouce
+G33.1 Z-0.750 K0.05 (et une profondeur de filet de 0.750)
+M2 (fin de programme)
+----
+
 C'est une erreur si:
 
 * Tous les axes sont omis.
@@ -848,24 +911,30 @@ C'est une erreur si:
 * Le mouvement linéaire requis excède les limites de vitesse machine 
    en raison d'une vitesse de broche trop élevée.
 
-Exemple:
-----
-;mouvement vers la position de départ
-G0 X1.000 Y1.000 Z0.100
-;taraudage rigide en 20 filets par pouce
-G33.1 Z-0.750 K0.05
-----
-
 [[sec:G38-x-Palpeur]]
 == G38.x Mesure au palpeur
 (((G38.2 Palpeur)))(((G38.3 Palpeur)))(((G38.4 Palpeur)))(((G38.5 Palpeur)))
 
-IMPORTANT: Vous ne pourrez pas utiliser cette commande si votre
+----
+G38.x axes
+----
+
+* 'G38.2' - palpe vers la pièce, stoppe au toucher, signale une erreur en cas de 
+défaut.
+* 'G38.3' - palpe vers la pièce, stoppe au toucher.
+* 'G38.4' - palpe en quittant la pièce, stoppe en perdant le contact, signal une 
+erreur en cas de défaut.
+* 'G38.5' - palpe en quittant la pièce, stoppe en perdant le contact.
+
+
+[IMPORTANT]
+Vous ne pourrez pas utiliser cette commande si votre
 machine n'a pas été configurée pour exploiter un signal de sonde de HAL à EMC2.
 Le signal de la sonde doit être envoyé sur un bit d'entrée HAL 
 puis transmis à *motion.probe-entrée (bit, In)*.
-G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a touché ou perdu le contact.
-TRUE si le contact de la sonde est fermé (Toucher), FALSE si il est ouvert.
+G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a 
+touché ou perdu le contact. TRUE si le contact de la sonde est fermé (Toucher), 
+FALSE si il est ouvert.
 
 
 Programmer *G38.2 axes*, *G38.3 axes*, *G38.4 axes* ou 
@@ -873,7 +942,7 @@ Programmer *G38.2 axes*, *G38.3 axes*, *G38.4 axes* ou
 Au moins un mot d'axe est obligatoire, les autres sont optionnels. 
 Les mots d'axes définissent ensemble, le point de destination vers lequel la sonde se déplace, 
 à partir de l'emplacement actuel.
-L'outil dans la broche doit être un palpeur. 
+L'outil dans la broche doit être un palpeur ou un actionneur de contact. 
 
 En réponse à cette commande, la machine déplace le point contrôlé 
 (qui est la pointe du stylet du palpeur) en ligne droite, 
@@ -898,11 +967,11 @@ Le tableau de signification des différents codes de mesure.
 
 [width="90%", options="header"]
 |==========================================================
-|Code  | État ciblé     | Sens de destination | Signal d'erreur
-|G38.2 | Contact        | Vers la pièce       | Oui
-|G38.3 | Contact        | Vers la pièce       | Non
-|G38.4 | Pas de contact | Depuis la pièce     | Oui
-|G38.5 | Pas de contact | Depuis la pièce     | Non
+|Code  | État ciblé    | Sens de destination | Signal d'erreur
+|G38.2 | Touché        | Vers la pièce       | Oui
+|G38.3 | Touché        | Vers la pièce       | Non
+|G38.4 | Quitté        | Depuis la pièce     | Oui
+|G38.5 | Quitté        | Depuis la pièce     | Non
 |==========================================================
 
 Après une mesure réussie, les paramètres 5061 à 5069 contiendront les
@@ -915,8 +984,8 @@ en affichant un message à l'écran si l'interface graphique choisie le permet.
 (Et en cas d'arrêt de l'exécution du programme ? * FIXME * TODO).
 
 Un commentaire de la forme *(PROBEOPEN filename.txt)* ouvrira le
-ficher *filename.txt* et y enregistrera les 9 coordonnées de 
-XYZABCUVW de chaque mesure réussie. 
+fichier *filename.txt* et y enregistrera les 9 coordonnées de 
+XYZABCUVW pour chaque mesure réussie. 
 Le fichier doit être fermé avec le commentaire *(PROBECLOSE)*. 
 
 [[sec:G40]]
@@ -941,6 +1010,8 @@ C'est une erreur si:
 ----
 G41 ou G42 D[outil]
 ----
+
+* D- Numéro d'outil
 
 Pour activer la compensation de rayon d'outil à gauche du profil, programmer *G41*.
 G41 applique la correction de rayon d'outil à gauche de la ligne programmée
@@ -993,12 +1064,13 @@ C'est une erreur si:
 G41.1 ou G42.1 D[diamètre] <L[orientation]>
 ----
 
+* Le mot D spécifie le diamètre de l'outil. 
+* Le mot L spécifie l'orientation des arêtes de l'outil, et par défaut 0 si non 
+spécifié.
+
 Pour activer la compensation dynamique de rayon d'outil à gauche du profil, programmer *G41.1 D- L-*. 
 
 Pour activer la compensation dynamique de rayon d'outil à droite du profil, programmer *G42.1 D- L-*. 
-
-Le mot D spécifie le diamètre de l'outil. 
-Le mot L spécifie l'orientation des arêtes de l'outil, et par défaut 0 si non spécifié.
 
 C'est une erreur si:
 
@@ -1013,9 +1085,8 @@ outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et
 
 [[sec:G43-G43-1-Longueur-Outil]]
 == G43, G43.1, G49 Compensation de longueur d'outil
-
-(((G43 Compensation de longueur d'outil)))
 (((G43.1 Compensation dynamique de longueur d'outil)))
+(((G43 Compensation de longueur d'outil)))
 (((G49 Révocation de compensation de longueur d'outil)))
 
 === G43 , G43.1 Activation de la compensation de longueur d'outil
@@ -1076,8 +1147,11 @@ utilisée si la machine est assez rapide.
 Si *G0* est actif, la vitesse rapide courante sera 
 utilisée si la machine est assez rapide. 
 
-Par exemple: *G53 G0 X0 Y0 Z0* déplacera les axes à la position d'origine machine
-même si le système de coordonnées courant est sous l'effet de décalages.
+.exemple avec G53:
+----
+G53 G0 X0 Y0 Z0 (déplacera les axes à la position d'origine machine)
+;même si le système de coordonnées courant est sous l'effet de décalages.
+----
 
 C'est une erreur si:
 
@@ -1837,7 +1911,7 @@ La deuxième raison d'utiliser les cycles de perçages, c'est qu'il
 produisent un mouvement préliminaire et retournent à une position
 prévisible et contrôlable, quel que soit le point de départ du cycle.
 
-[[sec:G90-G91-Set]]
+[[sec:G90-G91]]
 == G90, G91: Modes de déplacement
 (((G90 Mode de déplacements absolus)))
 (((G91 Mode de déplacements incrémentaux)))
