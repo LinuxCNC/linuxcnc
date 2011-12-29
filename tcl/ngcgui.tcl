@@ -290,7 +290,7 @@
 #      subroutines in these files and rely on a library of "subroutine-only"
 #      files in the [DISPLAY]PROGRAM_PREFIX directory.
 
-#   7. ngcgui inserts a special global variable named #<_feature> that begins
+#   7. ngcgui inserts a special global variable named #<_feature:> that begins
 #      with a value of 0 and is incremented for each added feature.  This
 #      _global can be tested in subroutines; no entry box is created for it.
 
@@ -807,8 +807,8 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set gname [string range $gline 1 [expr -1+$i2]]
         # ignore name that includes a colon (:)
         if {[string first : $gname] > 0} break
-        # ignore _global named _feature
-        if {"$gname" == "_feature"} break
+        # ignore _global named _featur:e
+        if {"$gname" == "_feature:"} break
         if {![info exists ay($hdl,global,value,$gname)]} {
           set ay($hdl,global,value,$gname) ""
         }
@@ -929,6 +929,7 @@ proc ::ngcgui::initgui {hdl} {
   set ::ngc(any,color,prompt)   blue3
   set ::ngc(any,color,warn)     darkorange
   set ::ngc(any,color,notice)   lightgoldenrodyellow
+  set ::ngc(any,color,override) blue3
 
   set ::ngc(any,color,error)    red
   set ::ngc(any,color,filegone) maroon
@@ -1777,7 +1778,7 @@ if {0} {
       }
       # note: this line will be replaced on file output with a count
       # that can include multiple tab pages
-      lappend ::ngc($hdl,data,section) "#<_feature> = $::ngc($hdl,savect)"
+      lappend ::ngc($hdl,data,section) "#<_feature:> = $::ngc($hdl,savect)"
 
       if {"$::ngc($hdl,fname,preamble)" == "IMMEDIATE"} {
         # indicates preamble is interpreted as
@@ -1995,10 +1996,10 @@ if {0} {
 
         for {set i 0} {$i < [llength $::ngc($thdl,data,section)]} {incr i} {
           set line [lindex $::ngc($thdl,data,section) $i]
-          if {[string first "#<_feature>" $line] >= 0} {
+          if {[string first "#<_feature:>" $line] >= 0} {
             # instead of current $line, output feature count (zero referenced)
             puts $fout \
-              "($::ngc(any,app): [_ "feature line added"]) #<_feature> = $featurect"
+              "($::ngc(any,app): [_ "feature line added"]) #<_feature:> = $featurect"
             incr featurect 1
           } else {
             puts $fout $line
@@ -2702,6 +2703,7 @@ proc ::ngcgui::entrykeybinding {ax w v} {
     }
     set value [format %.4f $value]
     after 0 [list set $v $value]
+    after 0 [list $w configure -fg $::ngc(any,color,override)]
   } msg] {
     # silently ignore, emc_rel_act_pos will fail in standalone
     # puts stderr "entrykeybinding:<$msg>"
