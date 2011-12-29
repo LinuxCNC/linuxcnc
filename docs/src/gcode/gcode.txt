@@ -115,6 +115,11 @@ the destination point at the current traverse rate (or slower if
 the machine will not go that fast). It is expected that cutting 
 will not take place when a 'G0' command is executing.
 
+.G0 Example
+----
+G0 X1.234 Y-2.345 (Rapid linear move from current location to X1.234 Y-2.345)
+----
+
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
 
