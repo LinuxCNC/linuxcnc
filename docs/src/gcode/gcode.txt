@@ -1,6 +1,4 @@
-= G Codes
-
-(((G Codes)))
+= G Codes[[cha:g-codes]](((G Codes)))
 
 == Conventions
 
@@ -121,7 +119,7 @@ G90 (set absolute distance mode)
 G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
 M2 (end program)
 ----
-* <<sec:G90-G91,G90>>, <<sec:M2-M30,M2>>
+* See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
@@ -156,7 +154,7 @@ Z-2.3 (linear move at same feed rate from current position to Z-2.3)
 Z1 F25 (linear move at a feed rate of 25 from current position to Z1)
 M2 (end program)
 ----
-* <<sec:G90-G91,G90>>, <<sec:M2-M30,M2>>
+* See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more information.
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
@@ -214,6 +212,8 @@ Lines of this sort are hardly ever programmed.
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
 
+The arc offset is relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>.
+
 Two formats are allowed for specifying an arc: 
 Center Format and Radius Format.
 
@@ -244,8 +244,8 @@ It is an error if:
 ----
 G2 or G3 axes I- J-
 ----
-* 'I' - X offset
-* 'J' - Y offset
+* 'I' - X offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'J' - Y offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
 
 The axis words are all optional except that at least one of X and Y
 must be used to program an arc of less than 360 degrees. I and J are
@@ -263,8 +263,8 @@ It is an error if:
 ----
 G2 or G3 axes I- K-
 ----
-* 'I' - X offset
-* 'K' - Z offset
+* 'I' - X offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'K' - Z offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
 
 The axis words are all optional except that at least one of X and Z
 must be used to program an arc of less than 360 degrees. 
@@ -282,8 +282,8 @@ It is an error if:
 ----
 G2 or G3 axes J- K- 
 ----
-* 'J' - Y offset
-* 'K' - Z offset
+* 'J' - Y offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'K' - Z offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
 
 The axis words are all optional except that at least one of Y and Z
 must be used to program an arc of less than 360 degrees. J and K are
@@ -311,9 +311,9 @@ end position is X1 Y1. The arc center position is at X1 Y0. This gives
 us an offset from the start position of 1 in the X axis and 0 in the Y
 axis. In this case only an I offset is needed.
 
-.G2 Example Code
+.G2 Example Line
 ----
-G2 X1 Y1 I1 F10
+G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 ----
 
 .G2 Example[[fig:G2-Example]]
@@ -326,19 +326,19 @@ X0 Y0, for the G3 move it is X0 Y1. The arc center is at X1 Y0.5 for
 both moves. The G2 move the J offset is 0.5 and the G3 move the J
 offset is -0.5.
 
-.G2-G3 Example Code
+.G2-G3 Example Line
 ----
-G2 X0 Y1 I1 J0.5 F25
-G3 X0 Y0 I1 J-0.5 F25
+G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
+G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 ----
 
 .G2-G3 Example[[fig:G2/3-Example]]
 
 image::images/g2-3.png[align="center"]
 
-.G2 Example Helix Code
+.G2 Example Line
 ----
-G17 G2 X10 Y16 I3 J4 Z9
+G17 G2 X10 Y16 I3 J4 Z9 (helix arc with Z added)
 ----
 
 That means to make a clockwise (as viewed from the positive z-axis)
@@ -364,15 +364,21 @@ Deciphering the Error message 'Radius to end of arc differs from radius to start
 === Full Circles
 
 ----
-G2 or G3 I- J- K-
+G2 or G3 I- J- K- <P->
 ----
-* 'I' - X offset
-* 'J' - Y offset
-* 'K' - Z offset
+* 'I' - X offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'J' - Y offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'K' - Z offset (relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>)
+* 'P' - number of turns, default is 1
 
 To do a full 360 circle from the current location only program the 
 offset from the current location for the G2/G3. To program a 360
 degree helix in the XY plane just include the Z word.
+
+.G2 Example Line
+----
+G2 I1.5 J2 (full circle on the XY plane)
+----
 
 It is an error if:
 
@@ -386,7 +392,6 @@ It is an error if:
 G2 or G3 axes R-
 ----
 * 'R' - radius from current position
-
 
 It is not good practice to program radius format arcs that are nearly
 full circles or nearly semicircles because a small change in the
@@ -415,9 +420,9 @@ It is an error if:
 * both of the axis words for the axes of the selected plane are omitted
 * the end point of the arc is the same as the current point.
 
-.Example Radius Format with Arc
+.G2 Example Line
 ----
-G17 G2 X10 Y15 R20 Z5
+G17 G2 X10 Y15 R20 Z5 (radius format with arc)
 ----
 
 That means to make a clockwise (as viewed from the positive Z-axis)
@@ -437,6 +442,11 @@ G4 P-
 The P number is the time in seconds that all axes will remain unmoving.
 This does not affect spindle, coolant and other I/O.
 
+.G4 Example Line
+----
+G4 P1.5 (wait for 1.5 seconds before proceeding)
+----
+
 It is an error if:
 
 * the P number is negative.
@@ -452,6 +462,8 @@ G5.1 X- Y- I- J-
 
 G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
 The offsets are I for X axis and J for Y axis.
+
+// FIX ME add example code
 
 It is an error if:
 
@@ -483,17 +495,16 @@ same way as it happens in a great number of graphic applications, where
 the curve shape can be modified only acting on either control points or
 weights.
 
-Sample NURBs Code
-
+.G5.2 Example
 ----
-G0 X0 Y0
-F10 
+G0 X0 Y0 (rapid move)
+F10 (set feed rate)
 G5.2 X0 Y1 P1 L3
      X2 Y2 P1
      X2 Y0 P1
      X0 Y0 P2
 G5.3
-/ The rapid moves show the same path without the NURBs Block
+; The rapid moves show the same path without the NURBs Block
 G0 X0 Y1
    X2 Y2
    X2 Y0
@@ -539,8 +550,8 @@ G8 is default at power up.
 ----
 G10 L1 P- axes <R- I- J- Q->
 ----
-* 'P' - coordinate system (0-9)
-* 'R' - rotation about the Z axis
+* 'P' - tool number
+* 'R' - radius of tool
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
 * 'Q' - orientation (lathe)
@@ -549,12 +560,18 @@ G10 L1 sets the tool table for the 'P' tool number to the values of the words.
 
 A valid G10 L1 rewrites and reloads the tool table.
 
+.G10 L1 Example Line
+----
+G10 L1 P1 Z1.5 (set tool 1 Z offset from the machine origin to 1.5)
+G10 L1 P3 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
+----
+
 It is an error if:
 
 * Cutter Compensation is on
 * The P number is unspecified
 
-For more information on cutter orientation, 
+For more information on cutter orientation used by the 'Q' word, 
 see the <<lathe-tool-orientation,Lathe Tool Orientation>> diagram. 
 
 == G10 L2 Set Coordinate System[[sec:G10-L2_]]
@@ -578,7 +595,7 @@ The origin of the coordinate system specified by the P number is
 set to the given values (in terms of the not offset machine coordinate system).
 Only those coordinates for which an axis word is included on the line will be set.
 
-Being in incremental distance mode ('G91') has no effect on 'G10 L2'.
+Being in incremental distance mode (<<sec:G90-G91,'G91'>>) has no effect on 'G10 L2'.
 The direction of rotation is CCW as viewed from the Top View.
 
 Important Concepts:
@@ -598,22 +615,22 @@ It is an error if:
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
 
-.Example G10 L2
+.G10 L2 Example Line
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
 
-Sets the origin of the first coordinate system (the one selected by 'G54') 
-to be X=3.5 and Y=17.2. 
+In the above example the origin of the first coordinate system
+(the one selected by 'G54') is set to be X=3.5 and Y=17.2. 
 Because only X and Y are specified, the origin point is only moved in X and Y; 
 the other coordinates are not changed.
 
-.Example Clearing Offsets
+.G2 L2 Example Line
 ----
-G10 L2 P1 X0 Y0 Z0
+G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
-Sets the XYZ coordinates of the G54 origin to the unoffset origin.
+The above example sets the XYZ coordinates of the coordinate system 1 to the unoffset origin.
 
 .Coordinate System[[cap:Set-Coordinate-System]]
 
@@ -651,6 +668,16 @@ tool offset is reloaded, with the machine in its current position
 and with the current G5x and G92 offsets active, the current coordinates
 for the given axes will become the given values.  The axes that are
 not specified in the G10 L10 command will not be changed.
+
+.G10 L10 Example
+----
+T1 M6 G43 (load tool 1 and tool lenght offsets)
+G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
+G43 (reload the tool lenght offsets from the changed tool table)
+M2 (end program)
+----
+* See <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> & <<sec:G43-G43.1,G43>>
+  sections for more information.
 
 It is an error if:
 
@@ -980,7 +1007,7 @@ It is an error if:
 * The L number is used when the XZ plane is not active.
 * Cutter compensation is commanded to turn on when it is already on.
 
-== G43 Tool Length Offset[[sec:G43-G43.1-Tool]]
+== G43 Tool Length Offset[[sec:G43-G43.1]]
 (((G43 Tool Length Offset)))
 
 ----
