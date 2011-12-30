@@ -1,6 +1,6 @@
 = Other Codes
 
-== F: Set Feed Rate[[sec:F-Set-Feed]]
+== F: Set Feed Rate[[sec:F-feed-rate]]
 (((F: Set Feed Rate)))
 
 * 'F-' - sets the feed rate. The application of the feed rate is as described in the 
