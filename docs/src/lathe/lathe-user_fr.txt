@@ -49,8 +49,8 @@ Les versions antérieures d'EMC2 avaient deuc différents formats de tableau
 d'outils pour les fraiseuses et les tours, mais depuis la version 2.4.x, 
 un format de table d'outil unique est utilisé. Il faut juste ignorer les parties 
 de la table d'outils qui ne se rapportent pas à la machine.
-Pour plus d'informations sur les spécificités du format de la table d'outils, 
-consultez la section <<sec:Tool-Table-Format>>.
+Plus <<sec:Tool-Table-Format, d'informations ici>>, sur les spécificités du 
+format de la table d'outils.
 
 [[cap:Orientations-des-outils-de-tour]]
 == Orientations des outils de tournage
@@ -66,14 +66,16 @@ image::images/tool_positions.png[]
 Dans AXIS, les valeurs suivantes montrent à quoi les orientations de l'outil 
 ressemblent, en se référant à la figure des orientations d'outils. 
 
-.Outil dans les positions 1, 2, 3 et 4[[fig:Outil-Positions-1-2-3-4]]
+[[fig:Outil-Positions-1-2-3-4]]
+.Outil dans les positions 1, 2, 3 et 4
 
 image::images/tool_pos_1.png[] 
 image::images/tool_pos_2.png[] 
 image::images/tool_pos_3.png[] 
 image::images/tool_pos_4.png[]
 
-.Outil dans les positions 5, 6, 7 et 8[[fig:Outil-Positions-5-6-7-8]]
+[[fig:Outil-Positions-5-6-7-8]]
+.Outil dans les positions 5, 6, 7 et 8
 
 image::images/tool_pos_5.png[] 
 image::images/tool_pos_6.png[] 
@@ -150,7 +152,8 @@ côté gauche, alors que l'opérateur veut Z0 sur le côté droit, il devra alor
 === La Z machine offset
 
 Une fois que tous les outils ont leurs offsets entrés dans la table d'outils, 
-il est possible d'utiliser n'importe quel outil pour ajuster le décalage du système de coordonnées machine.
+il est possible d'utiliser n'importe quel outil pour ajuster le décalage du 
+système de coordonnées machine.
 
 Voici une séquence typique:
 
@@ -171,7 +174,7 @@ Généralement, c'est un codeur de position qui fourni ce retour.
 Le manuel de l'intégrateur donne d'avantage d'informations sur le codeur de broche.
 
 Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur 
-qu'en filetage extérieur, voir G76 <<sec:G76-Filetage>> dans la section G-code.
+qu'en filetage extérieur, <<sec:G76-Filetage, voir G76 dans la section G-code>>.
 
 == Vitesse de coupe à surface constante
 
@@ -233,7 +236,8 @@ que la compensation d'outil ne soit activée. Dans la figure suivante, on voit b
 que le point contrôlé ne suit pas l'arête de coupe de l'outil comme on pourrait
 le supposer.
 
-.Point contrôlé[[fig:Control-Point]]
+[[fig:Control-Point]]
+.Point contrôlé
 
 image::images/control_point.png[]
 

@@ -963,7 +963,8 @@ C'est une erreur si:
 
 Le tableau de signification des différents codes de mesure.
 
-.Codes de mesure[[cap:Codes-de-mesure]]
+[[cap:Codes-de-mesure]]
+.Codes de mesure
 
 [width="90%", options="header"]
 |==========================================================
@@ -1292,15 +1293,6 @@ C'est une erreur si:
 G76 P- Z- I- J- R- K- Q- H- E- L-
 ----
 
-C'est une erreur si:
-
-* Le plan de travail actif n'est pas ZX.
-* D'autres mots d'axes que X ou Y, sont spécifiés.
-* La dégressivité *R-* est inférieure à 1.0.
-* Tous les mots requis ne sont pas spécifiés.
-* *P-*, *J-*, *K-* ou *H-* est négatif.
-* *E-* est supérieur à la moitié de la longueur de la ligne pilote.
-
 image::images/g76-threads.png[]
 
 [horizontal]
@@ -1384,6 +1376,15 @@ broche pendant le filetage.
 La position finale de l'outil sera à la fin de la *ligne pilote*.
 Un mouvement de sécurité peut être nécessaire avec un filetage interne,
 pour sortir l'outil de la pièce.
+
+C'est une erreur si:
+
+* Le plan de travail actif n'est pas ZX.
+* D'autres mots d'axes que X ou Y, sont spécifiés.
+* La dégressivité *R-* est inférieure à 1.0.
+* Tous les mots requis ne sont pas spécifiés.
+* *P-*, *J-*, *K-* ou *H-* est négatif.
+* *E-* est supérieur à la moitié de la longueur de la ligne pilote.
 
 Un programme de filetage, *g76.ngc* montre l'utilisation d'un cycle de
 filetage G76, il peut être visualisé et exécuté sur n'importe quelle machine 
