@@ -8,7 +8,7 @@
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
-== S: Set Spindle Speed[[sec:S-Set-Spindle]]
+== S: Set Spindle Speed[[sec:S-spindle-speed]]
 (((S: Set Spindle Speed)))
 
 * 'S-' - set the speed in revolutions per minute (RPM) of the spindle. 
