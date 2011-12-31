@@ -539,7 +539,7 @@ défaut à la mise sous tension.
 G10 L1 P- axes <R- I- J- Q->
 ----
 * 'P' - numéro d'outil
-* 'R' - rayon de nez
+* 'R' - rayon de bec
 * 'I' - angle frontal (tour)
 * 'J' - angle arrière (tour)
 * 'Q' - orientation (tour)
@@ -554,7 +554,7 @@ G10 L1 P1 Z1.5 (fixe le décalage en Z de l'outil 1 à 1.5 de l'origine machine)
 ----
 
 ----
-G10 L1 P2 R0.15 Q3 (fixe le rayon de nez à 0.15 pour l'outil de tour 2 avec une orientation 3)
+G10 L1 P2 R0.15 Q3 (fixe le rayon de bec à 0.15 pour l'outil de tour 2 avec une orientation 3)
 ----
 
 C'est une erreur si:

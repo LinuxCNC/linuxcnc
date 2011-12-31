@@ -63,19 +63,20 @@ FRONTANGLE et BACKANGLE sont dans le sens horaire par rapport une ligne parallè
 
 image::images/tool_positions.png[]
 
-Dans AXIS, les valeurs suivantes montrent à quoi les orientations de l'outil 
-ressemblent, en se référant à la figure des orientations d'outils. 
 
-[[fig:Outil-Positions-1-2-3-4]]
-.Outil dans les positions 1, 2, 3 et 4
+Les images ci-dessous montrent la représentation qu'Axis donne des orientations 
+de l'outil, en se référant à la figure ci-dessus. 
+
+.Outil dans les positions 1, 2, 3 et 4[[fig:Outil-Positions-1-2-3-4]]
+(((Outils en positions 1, 2, 3 et 4)))
 
 image::images/tool_pos_1.png[] 
 image::images/tool_pos_2.png[] 
 image::images/tool_pos_3.png[] 
 image::images/tool_pos_4.png[]
 
-[[fig:Outil-Positions-5-6-7-8]]
-.Outil dans les positions 5, 6, 7 et 8
+.Outil dans les positions 5, 6, 7 et 8[[fig:Outil-Positions-5-6-7-8]]
+(((Outils en positions 5, 6, 7 et 8)))
 
 image::images/tool_pos_5.png[] 
 image::images/tool_pos_6.png[] 
@@ -228,13 +229,13 @@ le rayon, même en mode diamètre G7.
 
 Le point contrôlé pour l'outil, suit la trajectoire programmée. Le point contrôlé 
 est l'intersection entre deux lignes parallèles aux axes X et Z, tangentes au 
-diamètre de bec de l'outil, définies en faisant tangenter l'outil en X puis en Z. 
-En tournage ou en dressage de face sur une pièce, la trajectoire de coupe et l'arrête 
-de coupe de l'outil suivent le même parcours. Lors du tournage d'un rayon ou d'un
-angle, l'arête de coupe de l'outil ne suit pas la trajectoire programmée, à moins 
-que la compensation d'outil ne soit activée. Dans la figure suivante, on voit bien
-que le point contrôlé ne suit pas l'arête de coupe de l'outil comme on pourrait
-le supposer.
+rayon de bec de l'outil, définies en faisant tangenter l'outil en X puis en Z. 
+En cylindrage ou en dressage de face sur une pièce, la trajectoire de coupe et 
+l'arête de coupe de l'outil suivent le même parcours. Lors du tournage d'un 
+rayon ou d'un angle, l'arête de coupe de l'outil ne suit pas la trajectoire 
+programmée, sauf si la compensation d'outil est activée. Dans la figure suivante, 
+on voit bien que le point contrôlé n'est pas sur l'arête de coupe de l'outil comme 
+on pourrait le supposer.
 
 [[fig:Control-Point]]
 .Point contrôlé
@@ -254,52 +255,51 @@ image::images/ramp_entry.png[]
 
 Le point contrôlé progresse en suivant la trajectoire programmée mais l'arête de 
 coupe ne suit pas cette trajectoire comme c'est visible sur la figure suivante. 
-Pour résoudre ce problème, il est nécessaire d'activer la compensation d'outil et
-d'ajuster la trajectoire programmée pour compenser le rayon de bec de l'outil.
+Pour résoudre ce problème, il est nécessaire d'activer la compensation d'outil 
+et d'ajuster la trajectoire programmée pour compenser le rayon de bec de l'outil.
 
 .Trajectoire en rampe
 
 image::images/ramp_cut.png[]
 
-Dans l'exemple ci-dessus, il est simple d'ajuster la rampe programmée et d'obtenir 
-la bonne trajectoire en décalant la trajectoire programmée pour 
-la rampe vers la gauche, de la valeur d'un rayon d'outil.
+Dans l'exemple ci-dessus, pour suivre la rampe programmée et obtenir la bonne 
+trajectoire, il suffi de décaler la trajectoire de la rampe vers la 
+gauche, de la valeur d'un rayon de bec.
 
-=== Tourner un  rayon extérieur
+=== Tournage avec rayon extérieur
 
 Dans cet exemple nous allons examiner ce qui se passe durant le tournage d'un 
-rayon extérieur sans compensation de rayon. Sur la figure suivante on peut voir
+rayon extérieur sans compensation de rayon de bec. Sur la figure suivante on voit
 l'outil tourner un diamètre extérieur sur la pièce. Le point contrôlé de l'outil
-suit la trajectoire programmée et l'outil touche le diamètre extérieur de la
+suit bien la trajectoire programmée, l'outil touche le diamètre extérieur de la
 pièce.
 
-.Tournage d'un diamètre
+.Tournage du diamètre
 
 image::images/radius_1.png[]
 
-Sur la figure suivante on peut voir que quand l'outil approche la fin la pièce
+Sur la figure suivante, on voit que quand l'outil approche la fin la pièce,
 le point contrôlé continue de suivre la trajectoire alors que l'arête de coupe
 a déjà quitté la matière et coupe en l'air. On voit aussi que malgré qu'un rayon 
 a été programmé, la pièce conserve son angle d'extrémité.
 
-.Tournage d'un rayon
+.Tournage du rayon
 
 image::images/radius_2.png[]
 
-Maintenant comme on le voit le point contrôlé suit bien la trajectoire programmée
-mais l'arête de coupe est en dehors de la matière.
+Maintenant, comme on le voit, le point contrôlé suit bien la trajectoire 
+programmée mais l'arête de coupe est en dehors de la matière.
 
-.Tournage d'un rayon
+.Tournage du rayon
 
 image::images/radius_3.png[]
 
-Sur la figure finale on voit que l'arête de coupe a terminé le dressage de la face
-mais laisse un coin carré à la place du beau rayon attendu. Noter aussi que, pour
-la même raison, pour ne pas laisser de téton au centre de la pièce lors du dressage 
-de sa face, il convient de dépasser le centre de rotation de la valeur du rayon 
-de bec de l'outil.
+Sur la figure finale, on voit que l'arête de coupe a terminé le dressage de la 
+face mais en laissant un coin carré à la place du beau rayon attendu. Noter aussi 
+que, pour la même raison, pour ne pas laisser de téton au centre de la pièce lors du dressage de sa face, il convient de dépasser le centre de rotation de la valeur 
+d'un rayon de bec de l'outil.
 
-.Dressage d'une face
+.Dressage de la face
 
 image::images/radius_4.png[]
 
@@ -307,13 +307,13 @@ image::images/radius_4.png[]
 
 - Quand la compensation d'outil est utilisée sur un tour, penser à l'arête de coupe 
     de l'outil comme étant celle d'un outil rond. 
-- Quand la compensation d'outil est utilisée la trajectoire doit être suffisamment 
+- Quand la compensation d'outil est utilisée, la trajectoire doit être suffisamment 
     large pour qu'un outil rond n'interfère pas avec la pièce à la ligne suivante. 
 - Pour tourner des lignes droites sur un tour, il est préférable de ne pas utiliser 
     la compensation d'outil. Par exemple pour aléser un trou avec une barre d'alésage 
-    un peu grosse, la place pourrait manquer pour dégager l'outil et faire le mouvement 
-    de sortie. 
-- Le mouvement d'entrée, dans un arc avec la compensation d'outil, est important 
+    un peu grosse, la place pourrait manquer pour dégager l'outil et faire le 
+    mouvement de sortie. 
+- Le mouvement d'entrée dans un arc avec la compensation d'outil, est important 
     pour obtenir des résultats corrects.
 
 
