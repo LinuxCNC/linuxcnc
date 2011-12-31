@@ -500,6 +500,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
 

@@ -1,0 +1,49 @@
+#!/usr/bin/wish
+
+# simulate a probe
+# You must disconnect hal connections to motion.probe-input
+
+set this [file tail $::argv0]
+
+if [catch {exec halcmd setp motion.probe-input 0} msg] {
+  if {[string last connected $msg] >= 0} {
+    puts "\nThe pin motion.probe-input is currently connected to a signal"
+    puts "Remove the connection to use $this\n"
+    exit
+  } else {
+    puts "\nIs EMC running? <$msg>"
+    puts "Start EMC before starting $this\n"
+  }
+  exit
+}
+
+pack [label .l -width 20 -height 10 -bg lightgray -fg black \
+     -text "Push to simulate\nProbe touch"] \
+     -fill both -expand 1
+bind .l <ButtonPress-1>   probetouch
+bind .l <ButtonRelease-1> proberelease
+
+set ::pulse 0
+pack [checkbutton .c -text Pulse -variable ::pulse] \
+     -fill x -expand 0
+
+proc probetouch {} {
+  .l configure -bg red -fg white -text ProbeON
+  if [catch {exec halcmd setp motion.probe-input 1} msg] {
+    puts stderr "Is EMC running? <$msg>"
+    return
+  }
+  if $::pulse {
+    after 100 proberelease
+    if [catch {exec halcmd setp motion.probe-input 0} msg] {
+      puts stderr "Is EMC running? <$msg>"
+      return
+    }
+  }
+}
+proc proberelease {} {
+  .l configure -bg lightgray -fg black -text ProbeOFF
+  if [catch {exec halcmd setp motion.probe-input 0} msg] {
+    puts stderr "Is EMC running? <$msg>"
+  }
+}
