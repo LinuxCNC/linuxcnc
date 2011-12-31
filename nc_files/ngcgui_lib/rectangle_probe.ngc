@@ -49,7 +49,7 @@ O3   while [#<xct> lt #<xsteps>]
        #<xtarget> = 0
 O4     if [[#<yct>/2] - fix[#<yct>/2] eq 0]
          #<xtarget> = [#<xmin> + #<xinterval> * #<xct>]
-O4     else      
+O4     else
          #<xtarget> = [#<xmin> + #<xinterval> * [#<xsteps> - #<xct> - 1]]
 O4     endif
        #<probesuccess> = 1
