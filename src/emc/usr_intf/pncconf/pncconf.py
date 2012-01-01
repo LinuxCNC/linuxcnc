@@ -1872,9 +1872,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s-output       => pid.%s.output"% (name, let)
                 if let == 's':
                     print >>file, "net %s-vel-cmd     => pid.%s.command" % (name, let)
+                    print >>file, "net %s-vel-fb      => pid.%s.command-deriv"% (name, let)
                     print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
                 else:
                     print >>file, "net %s-pos-cmd      => pid.%s.command" % (name, let)
+                    print >>file, "net %s-vel-fb       => pid.%s.command-deriv"% (name, let)
                     print >>file, "net %s-pos-fb       => pid.%s.feedback"% (name,let)
                 print >>file
 
@@ -2009,6 +2011,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
+                print >>file, "net %s-vel-fb            <=  " + encoderpinname + ".velocity"
                 print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
                 print >>file, "net %s-pos-rawcounts        <=  "% (let) + encoderpinname + ".rawcounts"
@@ -2027,6 +2030,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
+                print >>file, "net %s-vel-fb            <=  " + resolverpinname + ".velocity"
                 print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + resolverpinname + ".index-enable"
             print >>file
