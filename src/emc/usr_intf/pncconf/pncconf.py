@@ -1877,7 +1877,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s-output       => pid.%s.output"% (name, let)
                 if let == 's':
                     print >>file, "net %s-vel-cmd     => pid.%s.command" % (name, let)
-                    print >>file, "net %s-vel-fb      => pid.%s.command-deriv"% (name, let)
                     print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
                 else:
                     print >>file, "net %s-pos-cmd      => pid.%s.command" % (name, let)
