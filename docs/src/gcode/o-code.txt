@@ -10,11 +10,11 @@ number zero as the first character in the number like O100.
 .Numbering Example
 ----
 o100 sub
-... (notice the if-endif block uses a different number
+(notice that the if-endif block uses a different number)
   o110 if [#2 GT 5]
-  ...
+    (some code here)
   o110 endif
-...
+  (some more code here)
 o100 endsub
 ----
 
@@ -33,9 +33,8 @@ see than O100 that it is not a 0.
 (((sub)))(((endsub)))(((return)))(((call)))
 
 Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines
-inside the subroutine (the 'body') are not executed in
-order; instead, they are executed each time the subroutine is called
-with 'O- call'. 
+between 'O- sub' and 'O- endsub' are not executed until
+the subroutine is called with 'O- call'. 
 
 .Subroutine Example
 ----
@@ -56,8 +55,9 @@ returns to the calling code, just as though 'O- endsub' was encountered.
 ----
 o100 sub
   o110 if [#2 GT 5] (test if parameter #2 is greater than 5)
-    o100 return (execute this code if test is true)
+    o100 return (return to top of subroutine if test is true)
   o110 endif
+  (some code here that only gets executed if parameter #2 is less than 5)
 o100 endsub
 ----
 See the <<sec:Binary-Operators,Binary Operators>> & <<sec:parameters,Parameters>> sections for more information.
