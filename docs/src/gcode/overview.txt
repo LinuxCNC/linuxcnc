@@ -378,7 +378,7 @@ false, and any non-zero number is equivalent to logical true.
 |========================================
 
 [[sub:Unary-Operation-Value]]
-== Functions
+== Functions[[sub:functions]]
 
 A function is either 'ATAN' followed by one expression divided by
 another expression (for
