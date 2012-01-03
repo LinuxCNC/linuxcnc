@@ -19,14 +19,19 @@ following minimum hardware specification. These numbers are not the
 absolute minimum but will give reasonable performance for most stepper
 systems.
 
- - 700 MHz x86 processor (1.2 GHz x86 processor recommended)
- - 384 MB of RAM (512 MB up to 1 GB recommended)
- - 8 GB hard disk
- - Graphics card capable of at least 1024x768 resolution, which is not
+* 700 MHz x86 processor (1.2 GHz x86 processor recommended)
+* 384 MB of RAM (512 MB up to 1 GB recommended)
+* 8 GB hard disk
+* Graphics card capable of at least 1024x768 resolution, which is not
    using the NVidia or ATI fglrx proprietary drivers, and which is not an
    onboard video chipset that shares main memory with the CPU
- - A network or Internet connection (not strictly needed, but very useful
+* A network or Internet connection (not strictly needed, but very useful
    for updates and for communicating with the EMC community)
+
+Minimum hardware requirements change as Ubuntu evolves so check the 
+https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD your using.
+Older hardware may benefit from selecting an older version of the LiveCD when
+available.
 
 == Problematic Hardware
 
