@@ -55,7 +55,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G33-Spindle-Sync">G33</A> <TD> K <TD> Spindle-synchronized motion </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G33.1-Rigid-Tapping">G33.1</A> <TD> K <TD> Rigid tapping </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G80-Cancel-Modal">G80</A> <TD> <TD> Cancel motion mode  </TR>
-<TR> <TH>Canned cycles <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z or U V W apply to canned cycles, depending on active plane) </TR>
+<TR> <TH>Canned cycles <TD COLSPAN=2>(X Y Z or U V W apply to canned cycles, depending on active plane) </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G81-Drilling-Cycle">G81</A>, <A HREF="gcode/gcode.html#sec:G82-Drilling-Dwell">G82</A> <TD> R L (P) <TD> Drilling cycle without (with) dwell </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G83-Drilling-Peck">G83</A>, <A HREF="gcode/gcode.html#sec:G73-Drilling-Cycle">G73</A> <TD> R L Q <TD> Peck and Chip-break drilling cycles </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G85-Boring-Feed-Out">G85</A>, <A HREF="gcode/gcode.html#sec:G89-Boring-Dwell">G89</A> <TD> R L (P) <TD> Boring cycle without (with) dwell </TR>
@@ -74,7 +74,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TH COLSPAN=3>Spindle Control </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M3-M4-M5">M3, M4</A> <TD> S <TD> Turn spindle clockwise or counterclockwise </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M3-M4-M5">M5</A> <TD> <TD> Stop spindle </TR>
-<TR> <TD> <A HREF="gcode/gcode.html#sec:G96-G97-Spindle">G96</A> <TD> S D <TD> Constant surface speed mode (foot/minute or meter/minute) with top speed </TR>
+<TR> <TD> <A HREF="gcode/gcode.html#sec:G96-G97-Spindle">G96</A> <TD> S D <TD> CSS mode (Constant Surface Speed)</TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G96-G97-Spindle">G97</A> <TD> <TD> RPM mode </TR>
 <TR> <TH COLSPAN=3>Coolant </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M7-M8-M9">M7</A> <TD> <TD> Turn mist on </TR>
@@ -88,11 +88,11 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1">M0</A> <TD> <TD> Program Pause </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M0-M1">M1</A> <TD> <TD> Optional Pause </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M2-M30">M2, M30</A> <TD> <TD> End Program </TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/m-code.html#sec:M60">M60</A> <TD> Pallet Change Pause </TR>
+<TR> <TD <A HREF="gcode/m-code.html#sec:M60">M60</A> <TD> <TD> Pallet Change Pause </TR>
 <TR> <TH COLSPAN=3>Units </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G20-G21-Units">G20</A> <TD> <TD> Inches </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G20-G21-Units">G21</A> <TD> <TD> Millimeters </TR>
-<TR> <TH COLSPAN=3>Plane Selection (affects G2, G3, G81&hellip;G89, G40&hellip;G42)</TR>
+<TR> <TH>Plane Selection <TD COLSPAN=2>(affects G2, G3, G81&hellip;G89, G40&hellip;G42) </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G17-G18-G19">G17</A> <TD> <TD> Select XY plane </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G17-G18-G19">G18</A> <TD> <TD> Select XZ plane </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G17-G18-G19">G19</A> <TD> <TD> Select YZ plane </TR>
@@ -112,9 +112,11 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/other-code.html#sec:S-spindle-speed">S</A> <TD> <TD> Set Spindle Speed </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M6-Tool-Change">T</A> <TD> <TD> Select Tool </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M48-M49-Override">M48&hellip;M53</A> <TD> P0 (off) or P1 (on) <TD> Feed Override, Spindle Override, Adaptive Feed, Feed Hold</TR>
-<TR> <TD COLSPAN=2><A HREF="gcode/gcode.html#sec:G54-G59.3">G54&hellip;G59.3</A><TD> Select coordinate system </TR>
+<TR> <TD><A HREF="gcode/gcode.html#sec:G54-G59.3">G54&hellip;G59.3</A> <TD> <TD> Select coordinate system </TR>
 <TR> <TH COLSPAN=3>Flow-control Codes </TR>
-<TR> <TD> <A HREF="gcode/o-code.html#cha:O-Codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
+<TR> <TD> <A HREF="gcode/o-code.html#sec:subroutines">O- sub</A> <TD> <TD>Subroutines, sub/endsub call</TR>
+<TR> <TD> <A HREF="gcode/o-code.html#sec:looping">O- while</A> <TD> <TD>Looping, while/endwhile do/while</TR>
+<TR> <TD> <A HREF="gcode/o-code.html#sec:conditional">O- if</A> <TD> <TD>Conditional, if/else/endif</TR>
 <TR> <TH COLSPAN=3>Input/Output Codes </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M62-M65">M62-65</A> <TD> P <TD> Digital Output Control </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M66-Input-Control">M66</A> <TD> P E L Q <TD> Digital and Analog Input Control </TR>
@@ -136,10 +138,11 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G92-G92.1-G92.2-G92.3">G92.2</A> <TD> <TD> Cancel offset coordinate systems but do not reset parameters </TR>
 <TR> <TD> <A HREF="gcode/gcode.html#sec:G92-G92.1-G92.2-G92.3">G92.3</A> <TD> <TD> Apply parameters to offset coordinate systems  </TR>
 <TR> <TD> <A HREF="gcode/m-code.html#sec:M100-to-M199">M101&hellip;M199</A> <TD> P Q <TD> User-defined M-codes </TR>
-<TR> <TD> <A HREF="gcode/other-code.html#sec:comments">(&hellip;)</A> <TD> <TD> A comment "<STRONG>&hellip;</STRONG>" to the user</TR>
-<TR> <TD> <A HREF="gcode/other-code.html#sec:Messages">(MSG,&hellip;)</A> <TD> <TD> Display the message "<STRONG>&hellip;</STRONG>" to the user (e.g., in a popup)</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/other-code.html#sec:Debugging-messages">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) like MSG</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/other-code.html#sec:Debugging-messages">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) to stderr</TR>
+<TR> <TH COLSPAN=3>Comments &amp; Messages</TR>
+<TR> <TD> <A HREF="gcode/other-code.html#sec:comments">(&hellip;)</A> <TD> <TD> An inline comment </TR>
+<TR> <TD> <A HREF="gcode/other-code.html#sec:Messages">(MSG,&hellip;)</A> <TD> <TD> Display a message "<STRONG>&hellip;</STRONG>" to the user (e.g., in a popup)</TR>
+<TR> <TD> <A HREF="gcode/other-code.html#sec:Debugging-messages">(DEBUG,&hellip;)</A> <TD> <TD> Display a message (with variables substituted) like MSG</TR>
+<TR> <TD> <A HREF="gcode/other-code.html#sec:Debugging-messages">(PRINT,&hellip;)</A> <TD> <TD> Display a message (with variables substituted) to stderr</TR>
 </TABLE>
 <SCRIPT><!--
 var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
