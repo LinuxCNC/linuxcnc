@@ -91,7 +91,7 @@ of parameters above #30 and those changes will be visible to the
 calling code. Subroutines may also change the value of global named
 parameters.
 
-== Looping[[sub:looping]](((Looping)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+== Looping[[sec:looping]](((Looping)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
@@ -132,7 +132,7 @@ continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional(((Conditional: if, else, endif)))(((if)))(((else)))(((endif)))
+== Conditional[[sec:conditional]](((Conditional: if, else, endif)))(((if)))(((else)))(((endif)))
 
 The 'if' conditional executes one group of statements if a condition
 is true and the 'else'executes another if it is false.
@@ -181,8 +181,7 @@ For more information on computing values see the following sections
 * <<sec:Binary-Operators,Binary Operators>>
 * <<sub:functions,Functions>>
 
-== Calling Files
-(((Calling Files)))
+== Calling Files(((Calling Files)))
 
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in
