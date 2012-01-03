@@ -1475,6 +1475,7 @@ Visit +emc2/configs/gladevcp+ for running examples and starters for your own pro
 == FAQ
 
 [qanda]
+
 I get an unexpected unmap event in my handler function right after startup. What's this?::
    This is a consequence of your Glade UI file
    having the window1 Visible property set to True, together with
@@ -1485,6 +1486,7 @@ I get an unexpected unmap event in my handler function right after startup. What
    is unmapped (made invisible), which is the cause of the unmap signal
    you get. Suggested fix: set window1.visible to False, and ignore an
    initial unmap event.
+
 My GladeVCP program starts, but no window appears where I expect it to be?::
    The window Axis allocates for GladeVCP will obtain the 'natural
    size' of all its child widgets combined. It's the child widget's job to
@@ -1499,19 +1501,40 @@ My GladeVCP program starts, but no window appears where I expect it to be?::
    with 'gladevcp <uifile>' and its window has reasonable geometry, it
    should come up in Axis properly as well.
 
-I want a blinking LED, so I ticked the checkbutton to let it blink with 100msec interval. 
-It wont blink, and I get a startup warning: Warning: value "0" of type `gint' is 
-invalid or out of range for property `led-blink-rate' of type `gint'?::
-   This seems to be a glade bug. Just type over the blink rate field, and save again - this works for me.
+I cant get a blinking LED to work::
+  I ticked the checkbutton to let it blinkwith 100msec interval, 
+  It wont blink, and I get a startup warning: Warning: value "0" of
+  type `gint' is invalid or out of range for property `led-blink-rate'
+  of type `gint'?  This seems to be a glade bug. Just type over the
+  blink rate field, and save again - this works for me.
 
-My gladevcp panel in Axis doesnt save state when I close Axis, although I defined 
-an on_destroy handler linked to the window destroy signal:: 
+My gladevcp panel in Axis doesnt save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal:: 
    Very likely this handler is linked to window1,
    which due to reparenting isnt usable for this purpose. Please link
    the on_destroy handler to the destroy signal of an interior
    window. For instance, I have a notebook inside window1, and linked
    on_destroy to the notebooks destroy signal, and that works fine. It
    doesnt work for window1.
+
+I defined a `hal_spinbutton` widget in glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
+
+
+  this is due to a bug in the old Gtk version distributed with Ubuntu
+  8.04 and 10.04, and is likely to be the case for all widgets using
+  adjustments. See for instance
+  http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html for a
+  workaround. Currently this means hand-editing the ui file and moving
+  the line with the "value" property to be the last in the adjustment
+  block like so:
+
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+    <property name="value">7</property>
+  </object>
+
 
 // FIXME this is out of date
 == Troubleshooting
