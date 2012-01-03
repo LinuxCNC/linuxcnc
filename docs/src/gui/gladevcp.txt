@@ -1521,20 +1521,18 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
   this is due to a bug in the old Gtk version distributed with Ubuntu
   8.04 and 10.04, and is likely to be the case for all widgets using
-  adjustments. See for instance
-  http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html for a
-  workaround. Currently this means hand-editing the ui file and moving
-  the line with the "value" property to be the last in the adjustment
-  block like so:
+  adjustment. The workaround mentione for instance in
+  http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
+  not reliably set the HAL pin value, it is better to set it
+  explicitly in an `on_realize` signal handler during widget creation
+  like so:
 
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
-    <property name="value">7</property>
-  </object>
 
+[source,python]
+----------------------------------
+ def on_realize(self,widget):
+    widget.set_value(3.14)
+----------------------------------
 
 // FIXME this is out of date
 == Troubleshooting
