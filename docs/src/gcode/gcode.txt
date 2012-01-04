@@ -1691,11 +1691,12 @@ preliminary moves and returns that you can anticipate and control
 regardless of the start point of the canned cycle.
 
 
-== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
+== G80 Cancel Canned Cycle[[sec:G80-Cancel-Modal]]
 (((G80 Cancel Modal Motion)))
 
-* 'G80' - cancel modal motion. 'G80' is part of modal group 0, so programming
-          any other G code from modal group 0 will also cancel the canned cycle.
+* 'G80' - cancel canned cycle modal motion. 'G80' is part of modal group 0,
+          so programming any other G code from modal group 0 will also
+          cancel the canned cycle.
 
 It is an error if:
 
@@ -1902,7 +1903,7 @@ After that initial Z move, the rapid traverse move to X4 Y5 is done.
 Then the final Z depth being 0.6 below the R value. The repeat
 function would make the Z move in the same location again.
 
-== G82 Drilling Cycle with Dwell[[sec:G82-Drilling-Dwell]]
+== G82 Drilling Cycle, Dwell[[sec:G82-Drilling-Dwell]]
 
 (((G82 Drilling Cycle Dwell)))
 
@@ -1922,7 +1923,7 @@ The motion of a G82 canned cycle looks just like G81 with the
 addition of a dwell at the bottom of the Z move. The length of
 the dwell is specified by a 'P-' word in the G82 block.
 
-== G83 Peck Drilling[[sec:G83-Drilling-Peck]]
+== G83 Peck Drilling Cycle[[sec:G83-Drilling-Peck]]
 
 (((G83 Peck Drilling)))
 
@@ -1953,16 +1954,16 @@ It is an error if:
 
 * the Q number is negative or zero.
 
-== G84 Right-Hand Tapping[[sec:G84-Right-Hand-Tapping]]
+== G84 Right-Hand Tapping Cycle[[sec:G84-Right-Hand-Tapping]]
 
 (((G84 Right-Hand Tapping)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined. See section <<sec:G33.1-Rigid-Tapping,G33.1>>
 
-== G85 Boring, No Dwell, Feed Out[[sec:G85-Boring-Feed-Out]]
+== G85 Boring Cycle, Feed Out[[sec:G85-Boring-Feed-Out]]
 
-(((G85 Boring, No Dwell, Feed Out)))
+(((G85 Boring, Feed Out)))
 
 ----
 G85 (X- Y- Z-) or (U- V- W-) R- L-
@@ -1975,7 +1976,7 @@ for drilling or milling.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-== G86 Boring, Spindle Stop, Rapid Out[[sec:G86-Boring-Rapid-Out]]
+== G86 Boring Cycle, Spindle Stop, Rapid Out[[sec:G86-Boring-Rapid-Out]]
 
 (((G86 Boring, Spindle Stop, Rapid Out)))
 
@@ -1997,21 +1998,21 @@ It is an error if:
 
 * the spindle is not turning before this cycle is executed.
 
-== G87 Back Boring[[sec:G87-Back-Boring]]
+== G87 Back Boring Cycle[[sec:G87-Back-Boring]]
 
 (((G87 Back Boring)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-== G88 Boring, Spindle Stop, Manual Out[[sec:G88-Boring-Manual-Out]]
+== G88 Boring Cycle, Spindle Stop, Manual Out[[sec:G88-Boring-Manual-Out]]
 
-(((G88 Boring, Spindle Stop, Manual Out)))
+(((G88 Boring Cycle, Spindle Stop, Manual Out)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-== G89 Boring, Dwell, Feed Out[[sec:G89-Boring-Dwell,]]
+== G89 Boring Cycle, Dwell, Feed Out[[sec:G89-Boring-Dwell,]]
 
 (((G89 Boring, Dwell, Feed Out)))
 
