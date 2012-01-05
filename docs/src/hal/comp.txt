@@ -1,4 +1,4 @@
-= comp creating HAL modules
+= Creating HAL components with Comp
 
 == Introduction
 
@@ -9,9 +9,9 @@ calls to 'rtapi_' and 'hal_' functions and associated error checking.
 Compiling a HAL component is also much easier when using 'comp',
 whether the component is part of the EMC2 source tree, or outside it.
 
-For instance, the "ddt" portion of 'blocks'  is around 80 lines of
-code. The equivalent component is very short
-when written using the 'comp' preprocessor:
+For instance, when coded in C, a simple component such as "ddt" is around 80
+lines of code. The equivalent component is very short when written using the
+'comp' preprocessor:
 
 ----
 component ddt "Compute the derivative of the input function";
@@ -19,7 +19,7 @@ pin in float in;
 pin out float out;
 variable float old;
 function _;
-license "GPL";
+license "GPLv2 or later";
 ;;
 float tmp = in;
 out = (tmp - old) / fperiod;
@@ -28,7 +28,8 @@ old = tmp;
 
 and it can be compiled and installed very easily: by simply placing
 'ddt.comp' in 'src/hal/components' and running 'make', or by placing
-it anywhere on the system and running 'comp --install ddt.comp'
+it anywhere on the system and running 'comp --install ddt.comp' (possibly
+prefixed by 'sudo')
 
 == Definitions
 
@@ -53,14 +54,17 @@ it anywhere on the system and running 'comp --install ddt.comp'
 For a singleton, the one instance is created when the component is
 loaded.
 
-For a non-singleton, the 'count' module parameter determines how
-many numbered instances are created.
+For a non-singleton, the 'count' module parameter determines how many numbered
+instances are created.  If not specified, the 'name' module parameter
+determines how many named instances are created.  Otherwise, a single numbered
+instance is created.
 
-== Parameters
+== Implicit Parameters
 
-Components are passed the 'period' parameter which is the time in
-nanoseconds of the last period to
-execute the comp. This can be useful in comps that need the timing
+Functions are implicitly passed the 'period' parameter which is the time in
+nanoseconds of the last period to execute the comp.  Functions which use
+floating-point can also refer to 'fperiod' which is the floating-point time in
+seconds, or (period*1e-9).  This can be useful in comps that need the timing
 information.
 
 == Syntax
@@ -87,9 +91,9 @@ alternatives. Words in 'CAPITALS' indicate variable text, as follows:
 
 * 'NAME' - A standard C identifier
 
-* 'STARREDNAME' - A C identifier with zero or more \* before it.  This syntax can be used
+* 'STARREDNAME' - A C identifier with zero or more * before it.  This syntax can be used
     to declare instance variables that are pointers.  Note that because of the
-    grammar, there may not be whitespace between the \* and the variable name.
+    grammar, there may not be whitespace between the * and the variable name.
     
 * 'HALNAME' - An extended identifier.
     When used to create a HAL identifier, any underscores are replaced
@@ -97,22 +101,23 @@ alternatives. Words in 'CAPITALS' indicate variable text, as follows:
     "this_name_" will be turned into "this-name", and if the name is "_",
     then a trailing period is removed as well, so that "function _" gives
     a HAL function name like "component.<num>" instead of "component.<num>."
-    
++   
 If present, the prefix 'hal_'  is removed from the beginning of the
 component name when creating pins, parameters and functions.
-    
++   
 In the HAL identifier for a pin or parameter, # denotes an array item,
 and must be used in conjunction with a '[SIZE]'  declaration. The hash
 marks are replaced with a 0-padded number with
 the same length as the number of # characters.
-    
++   
 When used to create a C identifier, the following changes are applied
 to the HALNAME:
-    
++   
+--
  . Any "#" characters, and any ".", "_" or "-" characters immediately
    before them, are removed.
  . Any remaining "." and "-" characters are replaced with "_". 
- . Repeated "_" characters are changed to a single "_" character.
+ . Repeated "\_" characters are changed to a single "\_" character.
 
 A trailing "_" is retained, so that HAL identifiers which would otherwise 
 collide with reserved names or keywords (e.g., 'min') can be used. 
@@ -126,7 +131,7 @@ collide with reserved names or keywords (e.g., 'min') can be used.
 |x.##.y  | x_y(MM)      | x.MM.z
 |x.##    | x(MM)        | x.MM 
 |========================================
-
+--
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero
     when the pin or parameter should be created
 
@@ -140,29 +145,27 @@ collide with reserved names or keywords (e.g., 'min') can be used.
 
 * 'DOC' - A string that documents the item. String can be a C-style "double
     quoted" string, like: 
-
++
 ----
-'"Selects the desired edge: TRUE means falling, FALSE means rising"' 
+"Selects the desired edge: TRUE means falling, FALSE means rising"
 ----
-
++
 or a Python-style "triple quoted" string, which 
 may include embedded newlines and quote characters, such as: 
-
++
 ----
-'param rw bit zot=TRUE' 
+"""The effect of this parameter, also known as "the orb of zot",
+will require at least two paragraphs to explain.
 
-'"""The effect of this parameter, also known as "the orb of zot",' 
-'will require at least two paragraphs to explain.' 
-
-'Hopefully these paragraphs have allowed you to understand "zot"' 
-'better.""";'
+Hopefully these paragraphs have allowed you to understand "zot"
+better."""
 ----
-
++
 The documentation string is in "groff -man" format. For more
 information on this markup format, see 'groff_man(7)'. Remember that
 comp interprets backslash escapes in strings, so for instance 
 to set the italic font for the word 'example', write: 
-
++
 ----
 "\\fIexample\\fB"
 ----
@@ -182,23 +185,29 @@ to set the italic font for the word 'example', write:
     specified, then the default is '0' or 'FALSE', depending on the type of
     the item.
 
+=== Pertaining to HAL functions
+
 * 'fp' - Indicates that the function performs floating-point calculations.
 
 * 'nofp' - Indicates that it only performs integer calculations. If neither is
     specified, 'fp' is assumed. Neither comp nor gcc can detect the use of
-    floating-point calculations in functions that are tagged 'nofp'.
+    floating-point calculations in functions that are tagged 'nofp', but use of
+    such operations results in undefined behavior.
+
+=== Options
 
 * 'OPT, VALUE' - Depending on the option name OPT, the valid VALUEs vary. The currently
     defined options are:
-
++
+--
 ** 'option singleton yes' - (default: no)
         Do not create a 'count' module parameter, and always create a single
         instance. With 'singleton', items are named 'component-name.item-name' 
         and without 'singleton', items for numbered instances are named 
         'component-name.<num>.item-name'.
     
-** 'option default_count' - 'number' (default: 1)
-        Normally, the module parameter 'count' defaults to 0. If specified,
+** 'option default_count number' - (default: 1)
+        Normally, the module parameter 'count' defaults to 1. If specified,
         the 'count' will default to this value instead.
     
 ** 'option count_function yes' - (default: no)
@@ -212,12 +221,12 @@ to set the italic font for the word 'example', write:
         automatically defined. With 'option rtapi_app no', they are not, and
         must be provided in the C code. 
         When implementing your own 'rtapi_app_main', call the function 'int 
-        export(char \*prefix, long extra_arg)' to register the pins, 
+        export(char *prefix, long extra_arg)' to register the pins, 
         parameters, and functions for 'prefix'.
     
-** 'option data' - 'type' (default: none) deprecated 
+** 'option data TYPE' - (default: none) *deprecated*
         If specified, each instance of the component will have an associated
-        data block of 'type' (which can be a simple type like 'float' or the
+        data block of type 'TYPE' (which can be a simple type like 'float' or the
         name of a type created with 'typedef'). 
         In new components, 'variable' should be used instead. 
 
@@ -254,21 +263,22 @@ If an option's VALUE is not specified, then it is equivalent to
 specifying 'option … yes'. 
 The result of assigning an inappropriate value to an option is undefined. 
 The result of using any other option is undefined.
-
+--
+=== Pertaining to authorship and license
 * 'LICENSE' - Specify the license of the module for the documentation and for the
     MODULE_LICENSE() module declaration. For example, to specify that the
     module's license is GPL, 
 
         license "GPLv2 or greater";
-    
++   
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see '<linux/module.h>'.
-    
++   
 Starting in EMC 2.3, this declaration is required.
 
 * 'AUTHOR' - Specify the author of the module for the documentation.
 
-== Per-instance data storage
+=== Per-instance data storage
 
 * 'variable CTYPE STARREDNAME;'
 
@@ -277,27 +287,29 @@ Starting in EMC 2.3, this declaration is required.
 * 'variable CTYPE STARREDNAME = DEFAULT;'
 
 * 'variable CTYPE STARREDNAME[SIZE] = DEFAULT;'
-
++
 Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
 an array of 'SIZE' items, and optionally with a default value
 'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
 'CTYPE' is a simple one-word C type, such as 'float', 'u32', 's32',
 int, etc. Access to array variables uses square brackets. 
-
++
 If a variable is to be of a pointer type, there may not be any space
 between the "*" and the variable name. 
 Therefore, the following is acceptable: 
-
++
 ----
 variable int *example;
 ----
-
++
 but the following are not: 
-
++
 ----
 variable int* badexample;
 variable int * badexample;
 ----
+
+=== Comments
 
 C++-style one-line comments (//... ) and 
 
@@ -452,8 +464,7 @@ This only works for '.comp' files, not for '.c' files.
 
 === constant
 
-This component functions like the one in "blocks", including the
-default value of 1.0. The declaration "function _" creates functions
+Note that the declaration "function _" creates functions
 named "constant.0", etc.
 
 [source,c]
@@ -462,7 +473,7 @@ component constant;
 pin out float out;
 param r float value = 1.0;
 function _;
-license "GPL";
+license "GPLv2 or later";
 ;;
 FUNCTION(_) { out = value; }
 ----
@@ -485,7 +496,7 @@ pin out float sin_;
 pin out float cos_;
 pin in float theta;
 function _;
-license "GPL";
+license "GPLv2 or later";
 ;;
 #include <rtapi_math.h>
 FUNCTION(_) { sin_ = sin(theta); cos_ = cos(theta); }
@@ -515,7 +526,7 @@ option extra_setup;
 option extra_cleanup;
 option constructable no;
 
-license "GPL";
+license "GPLv2 or later";
 ;;
 #include <asm/io.h>
 
@@ -576,7 +587,7 @@ component arraydemo "4-bit Shift register";
 pin in bit in;
 pin out bit out-# [4];
 function _ nofp;
-license "GPL";
+license "GPLv2 or later";
 ;;
 int i;
 for(i=3; i>0; i--) out(i) = out(i-1);
@@ -594,7 +605,7 @@ component rand;
 option userspace;
 
 pin out float out;
-license "GPL";
+license "GPLv2 or later";
 ;;
 #include <unistd.h>
 
@@ -631,7 +642,7 @@ The number of input pins, usually from 2 to 16
 512 (0x200)  if the 'or' output is desired
 .IP \\(bu
 1024 (0x400)  if the 'xor' (exclusive or) output is desired""";
-license "GPL";
+license "GPLv2 or later";
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;
