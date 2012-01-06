@@ -4,6 +4,11 @@ component bldc "BLDC and AC-servo control component ";
 pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
 pin in bit hall2 if personality & 0x01 "Hall sensor signal 2";
 pin in bit hall3 if personality & 0x01 "Hall sensor signal 3";
+pin out bit hall_error if personality & 0x01 """Indicates that the selected hall
+pattern gives inconsistent rotor position data. This can be due to the pattern
+being wrong for the motor, or one or more sensors being unconnected or broken.
+A consistent pattern is not neceesarily valid, but an inconsistent one can never
+be valid.""";
 
 pin in bit C1 if (personality & 0x10) "Fanuc Gray-code bit 0 input";
 pin in bit C2 if (personality & 0x10) "Fanuc Gray-code bit 1 input";
@@ -111,10 +116,11 @@ param rw signed scale = 512 if personality & 0x06
 param rw signed poles = 4 if personality & 0x06
 """The number of motor poles. The encoder scale will be divided by this value
 to determine the number of encoder counts per electrical revolution""";
-param rw signed encoder-offset if personality & 0x0A
+param rw signed encoder-offset = 0 if personality & 0x0A
 """The offset, in encoder counts, between the motor electrical zero and the
 encoder zero modulo the number of counts per electrical revolution""";
-
+param r signed offset_measured = 0 if personality & 0x04
+"""The encoder offset measured by the homing sequence (in certain modes)""";
 param rw float drive-offset = 0 """The angle, in degrees,
 applied to the commanded angle by the drive in degrees. This value is only used
 during the homing sequence of drives with incremental encoder feedback. It is
@@ -377,8 +383,8 @@ option count_function yes;
 
 variable int old_init = 0;
 variable char old_ph = 000;
+variable int old_pattern = -1;
 variable double counter = 0;
-variable signed offset = 0;
 variable __s64 long_rawcounts = 0;
 variable __s32 old_rawcounts = 0;
 variable int force_trap = 0;
@@ -496,7 +502,6 @@ FUNCTION(_) {
         case -1: // Initialisation
             in_type = personality & 0xFF;
             if (in_type & 0x08) index_enable = 1;
-            offset = encoder_offset;
             counter = absc[0];
             out_type = personality & 0x7F00;
             force_trap = (personality & 0x8000);
@@ -539,6 +544,9 @@ FUNCTION(_) {
             if (out_dir) phase_angle = rotor_angle + 0.25;
             else phase_angle = rotor_angle - 0.25;
             phase_angle -= floor(phase_angle);
+            
+            if (! (ph & old_ph)){ hall_error = 1;}
+            if (pattern != old_pattern){hall_error = 0;}
 
             if (force_trap) break;
 
@@ -553,17 +561,18 @@ FUNCTION(_) {
                 if (out_dir) phase_angle = rotor_angle - 0.25;
                 else phase_angle = rotor_angle + 0.25;
                 phase_angle -= floor(phase_angle);
-                offset = long_rawcounts - rotor_angle * ( 2 * scale/poles);
+                offset_measured = long_rawcounts - rotor_angle * ( 2 * scale/poles);
                 // And now we are homed, switch to sinusoidal drive
                 in_type = 0x02;
             }
             else if (in_type == 0x0D) { // homing to encoder index
                 if (!index_enable){ // index has reset
-                    offset = encoder_offset + long_rawcounts;
+                    offset_measured = long_rawcounts;
                     in_type = 0x02;
                 }
             }
             old_ph = ph;
+            old_pattern = pattern;
             break;
 
         case 0x10: // Fanuc-style Gray-code input
@@ -593,13 +602,13 @@ FUNCTION(_) {
                 if (out_dir) phase_angle = rotor_angle - 0.25;
                 else phase_angle = rotor_angle + 0.25;
                 phase_angle -= floor(phase_angle);
-                offset = long_rawcounts - rotor_angle * ( 2 * scale/poles);
+                offset_measured = long_rawcounts - rotor_angle * ( 2 * scale/poles);
                 // And now we are homed, switch to sinusoidal drive
                 in_type = 0x02;
             }
             else if (in_type == 0x1C) { // homing to encoder index
                 if (!index_enable){ // index has reset
-                    offset = encoder_offset + long_rawcounts;
+                    offset_measured = long_rawcounts;
                     in_type = 0x02;
                 }
             }
@@ -615,7 +624,7 @@ FUNCTION(_) {
             }
             if (! init_done) {
                 if (counter <= 0) {
-                    offset = long_rawcounts - phase_angle * ( 2 * scale/poles);
+                    offset_measured = long_rawcounts - phase_angle * ( 2 * scale/poles);
                     counter = absc[0];
                     old_init = 1;
                     init_done = 1;
@@ -642,7 +651,7 @@ FUNCTION(_) {
         case 0x0C: // Incremental encoder homing to index.
             if (! init) return;
             if (!index_enable){ // index has reset
-                offset = encoder_offset + long_rawcounts;
+                offset_measured = long_rawcounts;
                 counter = absc[0];
                 old_init = 1;
                 init_done = 1;
@@ -664,7 +673,8 @@ FUNCTION(_) {
             } else {
                 lead = lead_angle / 360.0;
             }
-            rotor_angle = (double)((long_rawcounts-encoder_offset) * poles/2)/scale;
+            rotor_angle = (double)((long_rawcounts - offset_measured 
+                                    - encoder_offset)* poles/2)/scale;
             rotor_angle -= floor(rotor_angle);
             phase_angle = rotor_angle + lead;
             phase_angle -= floor(phase_angle);
