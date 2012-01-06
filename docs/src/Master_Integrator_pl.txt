@@ -44,6 +44,8 @@ include::hal/pyvcp_examples_pl.txt[]
 
 include::gui/gladevcp_pl.txt[]
 
+include::gui/halui.txt[]
+
 :leveloffset: 0
 
 = Hardware Drivers
