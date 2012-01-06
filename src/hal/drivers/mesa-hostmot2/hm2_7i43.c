@@ -1,6 +1,6 @@
 
 //
-//    Copyright (C) 2007-2008 Sebastian Kuzminsky
+//    Copyright (C) 2007-2011 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -63,6 +63,11 @@ static char *config[HM2_7I43_MAX_BOARDS];
 static int num_config_strings = HM2_7I43_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
 MODULE_PARM_DESC(config, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
+
+static int board_is_sivar[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
+static int num_board_is_sivars = HM2_7I43_MAX_BOARDS;
+module_param_array(board_is_sivar, int, &num_board_is_sivars, S_IRUGO);
+MODULE_PARM_DESC(epp_wide, "set to 1 to mark a board as a Sivar 7m43, leave at default (0) to mark a board as a Mesa 7i43 (see (hm2_7i43(9) manpage)");
 
 
 
@@ -434,11 +439,21 @@ static int hm2_7i43_setup(void) {
         board[i].llio.reset = hm2_7i43_reset;
 
         board[i].llio.num_ioport_connectors = 2;
-        board[i].llio.pins_per_connector = 24;
         board[i].llio.ioport_connector_name[0] = "P4";
         board[i].llio.ioport_connector_name[1] = "P3";
-        board[i].llio.num_leds = 8;
         board[i].llio.private = &board[i];
+
+        // isssy's Sivar 7m43 board is identical to the Mesa 7i43, except
+        // 30 pins per IO connector and no LEDs
+        if (!board_is_sivar[i]) {
+            // Mesa 7i43
+            board[i].llio.pins_per_connector = 24;
+            board[i].llio.num_leds = 8;
+        } else {
+            // Sivar 7m43
+            board[i].llio.pins_per_connector = 30;
+            board[i].llio.num_leds = 0;
+        }
 
         this = &board[i].llio;
 
@@ -459,9 +474,20 @@ static int hm2_7i43_setup(void) {
             board[i].llio.fpga_part_number = "3s400tq144";
         } else {
             board[i].llio.fpga_part_number = "3s200tq144";
+            if (board_is_sivar[i]) {
+                // isssy's Sivar 7m43 only comes with the 400k fpga
+                THIS_ERR(
+                    "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) is marked as a Sivar 7m43, but reports the 200k gate FPGA!\n",
+                    board[i].port.base,
+                    board[i].port.base_hi,
+                    (board[i].epp_wide ? "ON" : "OFF")
+                );
+                hal_parport_release(&board[i].port);
+                return r;
+            }
         }
-        THIS_DBG("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
 
+        THIS_DBG("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
 
         r = hm2_register(&board[i].llio, config[i]);
         if (r != 0) {
@@ -477,10 +503,11 @@ static int hm2_7i43_setup(void) {
         }
 
         THIS_PRINT(
-            "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
+            "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s%s) found\n",
             board[i].port.base,
             board[i].port.base_hi,
-            (board[i].epp_wide ? "ON" : "OFF")
+            (board[i].epp_wide ? "ON" : "OFF"),
+            (board_is_sivar[i] ? ", Sivar 7m43" : "")
         );
 
         num_boards ++;
