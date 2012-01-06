@@ -422,7 +422,10 @@ of the low level motion planner.
 * 'POSTGUI_HALFILE = example2.hal' - (Only with the TOUCHY and AXIS GUI)
    Execute 'example2.hal' after the GUI has created its HAL pins. See
    section <<sec:pyvcp-with-axis>> for more information.
-    
+
+* 'HALUI = halui' - adds the HAL user interface pins. For more information see
+   the <<cha:hal-user-interface,HAL User Interface>> chapter.
+       
 === [HALUI] section[[sub:[HALUI]-section]]
 
 (((HALUI (inifile section))))

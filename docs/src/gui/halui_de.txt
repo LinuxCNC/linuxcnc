@@ -1,4 +1,4 @@
-= HAL User Interface[[cha:Hal User Interface]]
+= HAL User Interface[[cha:hal-user-interface]]
 
 
 == Introduction[[sec:HaluiIntroduction]]
