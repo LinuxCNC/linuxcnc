@@ -296,8 +296,9 @@ image::images/radius_3.png[]
 
 Sur la figure finale, on voit que l'arête de coupe a terminé le dressage de la 
 face mais en laissant un coin carré à la place du beau rayon attendu. Noter aussi 
-que, pour la même raison, pour ne pas laisser de téton au centre de la pièce lors du dressage de sa face, il convient de dépasser le centre de rotation de la valeur 
-d'un rayon de bec de l'outil.
+que, pour la même raison, pour ne pas laisser de téton au centre de la pièce 
+lors du dressage de sa face, il convient de dépasser le centre de rotation de la 
+valeur d'un rayon de bec de l'outil.
 
 .Dressage de la face
 
