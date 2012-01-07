@@ -1,110 +1,110 @@
-= RS274NGC
+= Comparaison avec RS274NGC
 
-== Differences that change the meaning of RS274NGC programs
+== Différences entre programmation RS274NGC et EMC2 
 
-=== Location after a tool change
+=== Position après un changement d'outil
 
-In EMC2, the machine does not return to its original position 
-after a tool change. This change was made because the new tool 
-might be longer than the old tool, and the move to the original 
-machine position could therefore leave the tool tip too low.
+Avec EMC2, le mobile ne retourne pas sur la position de départ après un 
+changement d'outil. Ce mode de fonctionnement est nécessaire, car un outil peut 
+être plus long que l'outil précédent et dans ce cas un mouvement sur la position
+précédente placerait l'outil trop bas.
 
-=== Offset parameters are inifile units
+=== Les paramètres de décalage sont dans l'unité du fichier ini
 
-In EMC2, the values stored in parameters for the G28 and G30 home 
-locations, the P1...P9 coordinate systems, and the G92 offset are 
-in "inifile units". This change was made because otherwise the 
-meaning of a location changed depending on whether G20 or G21 was 
-active when G28, G30, G10 L2, or G92.3 is programmed.
+Dans EMC2, les valeurs mémorisées dans les paramètres pour les positions 
+d'origine des commandes G28 et G30, les systèmes de coordonnées P1 à P9 et le 
+décalage G92 sont dans l'unité du fichier ini.
+Ce changement a été fait car la position d'un point change selon que G20 ou G21 
+était actif lors de la programmation d'un G28, G30, G10 L2 ou G92.3.
 
-=== Tool table lengths/diameters are in inifile units
+=== Table d'outils, longueur et diamètre sont dans l'unité du fichier ini
 
-In EMC2, the tool lengths (offsets) and diameters in the tool 
-table are specified in inifile units only. This change was made 
-because otherwise the length of a tool and its diameter would 
-change based on whether G20 or G21 was active when initiating 
-G43, G41, G42 modes. This made it impossible to run gcode in the 
-machine's non-native units, even when the gcode was simple and 
-well-formed (starting with G20 or G21, and didn't change units 
-throughout the program), without changing the tool table.
+Dans EMC2, les longueurs d'outil (compensation) et les diamètres sont spécifiés 
+seulement dans l'unité du fichier ini. Cela est nécessaire, car la longueur et 
+le diamètre de l'outil changent selon que G20 ou G21 étaient actifs à 
+l'initialisation des modes G43, G41, G42. Il était donc impossible de lancer 
+un G-code avec des unités machines non natives, ceci même lorsque le G-code est 
+simple et bien formé (débutant par G20 ou G21 et sans changement d'unité tout au 
+long  du programme) sans changer la table d'outils.
 
-=== G84, G87 not implemented
+=== G84, G87 ne sont pas implémentés
 
-G84 and G87 are not currently implemented, but may be added to a 
-future release of EMC2.
+G84 et G87 ne sont pour le moment pas implémentés. Ils le seront dans une 
+version futur d'EMC2.
 
-=== G28, G30 with axis words
+=== G28, G30 avec des mots d'axe
 
-When G28 or G30 is programmed with only some axis words present, 
-EMC2 only moves the named axes. This is common on other machine 
-controls. To move some axes to an intermediate point and then 
-move all axes to the predefined point, write two lines of gcode:
+Lorsqu'un G28 ou un G30 est programmé avec seulement quelques mots d'axe présents, 
+EMC2 déplace seulement les axes nommés. Ce comportement est commun aux 
+contrôleurs de machine. Pour déplacer certains axes à un point intermédiaire, 
+puis déplacer tous les axes à un point prédéfini, écrire deux lignes de G-code: +
+----
+G0 X- Y-   (déplace les axes au point intermédiaire)  
+G28        (déplace tous les axes au point prédéfini) 
+----
 
-G0 X- Y- (axes to move to intermediate point) G28 (move all axes 
-to predefined point)
+== Ajouts à RS274NGC
 
-== Differences that do not change the meaning of RS274NGC programs
+Différences qui ne changent pas le déroulement des programmes en RS274NGC.
 
-=== G33, G76 threading codes
+=== Codes de filetage G33 et G76
 
-These codes are not defined in RS274NGC.
+Ces codes ne sont pas définis dans RS274NGC.
 
 === G38.2
 
-The probe tip is not retracted after a G38.2 movement. This 
-retraction move may be added in a future release of EMC2.
+La pointe de touche n'est pas rétractée après un mouvement G38.2. 
+Ce mouvement de retrait sera ajouté dans une version futur d'EMC2.
 
-=== G38.3...G38.5
+=== G38.3 à G38.5
 
-These codes are not defined in RS274NGC
+Ces codes ne sont pas définis dans RS274NGC.
 
-=== O-codes
+=== Les O-codes
 
-These codes are not defined in RS274NGC
+Ces codes ne sont pas définis dans RS274NGC 
 
-=== M50...M53 overrides
+=== M50 à M53 Correcteurs de vitesse 
 
-These codes are not defined in RS274NGC
+Ces codes ne sont pas définis dans RS274NGC.
 
-=== M61..M66
+=== M61 à M66
 
-These codes are not defined in RS274NGC
+Ces codes ne sont pas définis dans RS274NGC.
 
 === G43, G43.1
 
-==== Negative Tool Lengths
+Longueurs d'outil négatives::
 
-The RS274NGC spec says "it is expected that" all tool lengths 
-will be positive. However, G43 works for negative tool lengths.
+Les spécifications RS274NGC précisent "il est prévu que" toutes les longueurs 
+d'outils soient positives. Cependant, G43 fonctionne avec des longueurs d'outil 
+négatives. 
 
-==== Lathe tools
+Outils de tournage::
 
-G43 tool length compensation can offset the tool in both the X 
-and Z dimensions. This feature is primarily useful on lathes.
+La compensation de longueur d'outil G43 peut compenser l'outil à la fois en X et
+en Z. Cette fonctionnalité est surtout utile sur les tours. 
 
-==== Dynamic tool lengths
+Longueurs d'Outil dynamiques::
 
-EMC2 allows specification of a computed tool length through G43.1 
-I K.
+EMC2 permet la spécification d'une longueur d'outil calculée par G43.1 I K. 
 
-=== G41.1, G42.1
+=== G41.1, G42.1 Compensation dynamique
 
-EMC2 allows specification of a tool diameter and, if in lathe 
-mode, orientation in the gcode. The format is G41.1/G42.1 D L, 
-where D is diameter and L (if specified) is the lathe tool 
-orientation.
+EMC2 permet dans le G-code, la spécification d'un diamètre d'outil et en mode 
+tour, l'orientation est également spécifiée. Le format est G41.1/G42.1 D L, où 
+D est le diamètre et L (si spécifié) est l'orientation de l'outil de tournage.
 
-=== G43 without H word
+=== G43 sans le mot H
 
-In ngc, this is not allowed. In EMC2, it sets length offsets for 
-the currently loaded tool. If no tool is currently loaded, it is 
-an error. This change was made so the user doesn't have to 
-specify the tool number in two places for each tool change, and 
-because it's consistent with the way G41/G42 work when the D word 
-is not specified.
+Ce code n'est pas permis en NGC. Dans EMC2, il fixe la compensation de longueur 
+pour l'outil actuellement chargé. Si aucun outil n'est actuellement  chargé, 
+c'est une erreur. Ceci a été fait afin que l'utilisateur n'ait pas à  spécifier, 
+pour chaque changement d'outil, le numéro d'outil à deux endroits et c'est 
+cohérent avec la manière de fonctionner de G41/G42 quand le mot D n'est pas 
+spécifié.
 
-=== U, V, and W axes
+=== U, V et W axes
 
-EMC2 allows machines with up to 9 axes by defining an additional 
-set of 3 linear axes known as U, V and W
-
+EMC2 peut admettre des machines ayant jusqu'à 9 axes en définissant un 
+ensemble supplémentaire de 3 axes linéaires, connus comme U, V et W.
