@@ -1,4 +1,6 @@
-= Stepper Configuration[[stepper-config]]
+= Stepper Configuration
+
+[[stepper-config]] (((Stepper Configuration)))
 
 == Introduction[[sec:Introduction]]
 

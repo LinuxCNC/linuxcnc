@@ -1,4 +1,6 @@
-= HAL Components[[cha:HAL-Components]]
+= HAL Components
+
+[[cha:HAL-components]] (((HAL Components)))
 
 == Commands and Userspace Components[[sec:Commands-and-Userspace-Components]]
 

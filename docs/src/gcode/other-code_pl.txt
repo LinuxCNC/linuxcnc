@@ -1,5 +1,7 @@
 = Other Codes
 
+[[cha:other-codes]] (((Other Codes)))
+
 == F: Set Feed Rate[[sec:F-feed-rate]]
 (((F: Set Feed Rate)))
 

@@ -1,4 +1,6 @@
-= G Codes[[cha:g-codes]](((G Codes)))
+= G Codes
+
+[[cha:g-codes]] (((G Codes)))
 
 == Conventions
 

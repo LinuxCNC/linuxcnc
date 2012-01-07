@@ -1,4 +1,6 @@
-= GS2 VFD[[gs2-vfd]]
+= GS2 VFD
+
+[[cha:gs2-vfd]] (((GS2 VFD Driver)))
 
 This is a userspace HAL program for the GS2 series of VFD's at
 Automation Direct.

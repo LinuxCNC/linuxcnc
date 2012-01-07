@@ -1,5 +1,6 @@
-= HAL Tools and Utilities[[cha:hal-tools-utilities]]
+= HAL Tools and Utilities
 
+[[cha:hal-tools-utilities]] (((HAL Tools and Utilities)))
 
 == Halcmd[[sec:Halcmd]]
 
@@ -11,7 +12,7 @@ is accessible. From the main EMC2 directory, do:
 
 +$ *man -M docs/man halcmd*+ 
 
-Chapter <<cha:HAL-Tutorial>> has a number of examples of halcmd
+Chapter <<cha:HAL-tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
 == Halmeter[[sec:Halmeter]](((halmeter)))

@@ -1,4 +1,6 @@
-= G Code Overview[[cha:Language-Overview]]
+= G Code Overview
+
+[[cha:g-code-overview]] (((G Code Overview)))
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a

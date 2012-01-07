@@ -1,4 +1,6 @@
-= M Codes[[cha:m-codes]](((M Codes)))
+= M Codes
+
+[[cha:m-codes]] (((M Codes)))
 
 == M Code Quick Reference Table [[m-code-quick-reference]]
 [width="60%", options="header", cols="2^,5<"]

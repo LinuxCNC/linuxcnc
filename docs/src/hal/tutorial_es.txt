@@ -1,4 +1,6 @@
-= HAL Tutorial[[cha:HAL-Tutorial]](((HAL Tutorial)))
+= HAL Tutorial
+
+[[cha:HAL-tutorial]] (((HAL Tutorial)))
 
 == Introduction[[sec:Tutorial-Intro]]
 
@@ -94,7 +96,7 @@ So I used this, which is altered a little, but it works:
 
 +*cd emc2*+
 
-+emc2 *halrun*+
++emc2$ *halrun*+
 
 +halcmd:+
 
@@ -295,7 +297,7 @@ can use the `"setp"` command to set the value of a parameter. Let's
 change the amplitude
 of the signal generator from 1.0 to 5.0:
 
-+halcmd: *setp siggen.0.amplitude 5* + 
++halcmd: *setp siggen.0.amplitude 5*+ 
 
 Check the parameters and pins again:
 

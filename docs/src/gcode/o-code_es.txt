@@ -1,6 +1,6 @@
-= O Codes[[cha:O-Codes]]
+= O Codes
 
-(((O Codes)))
+[[cha:O-Codes]] (((O Codes)))
 
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken

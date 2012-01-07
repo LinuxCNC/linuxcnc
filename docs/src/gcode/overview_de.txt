@@ -1,4 +1,6 @@
-= G Code Overview[[cha:Language-Overview]]
+= G Code Overview
+
+[[cha:g-code-overview]] (((G Code Overview)))
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -211,7 +213,7 @@ coordinate systems.
 machine state, for instance '#<_relative>' returns 1 if G91 is on, and
 0 if G90 is set. They are read-only.
 
-[[sub:Numbered-Parameters]]
+[[sub:numbered-parameters]]
 === Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an
@@ -378,7 +380,7 @@ false, and any non-zero number is equivalent to logical true.
 |========================================
 
 [[sub:Unary-Operation-Value]]
-== Functions
+== Functions[[sub:functions]]
 
 A function is either 'ATAN' followed by one expression divided by
 another expression (for

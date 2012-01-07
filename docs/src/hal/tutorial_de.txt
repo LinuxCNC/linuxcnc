@@ -1,4 +1,6 @@
-= HAL Tutorial[[cha:HAL-Tutorial]](((HAL Tutorial)))
+= HAL Tutorial
+
+[[cha:HAL-tutorial]] (((HAL Tutorial)))
 
 == Introduction[[sec:Tutorial-Intro]]
 
@@ -149,7 +151,7 @@ that we installed in the previous step. The "RT" under
 
 Next, let's see what pins `siggen` makes available:
 
-+halcmd: *show pin+ 
++halcmd: *show pin*+ 
 
     Component Pins: 
     Owner   Type  Dir         Value  Name 
@@ -221,6 +223,7 @@ Let's see if that worked:
     Realtime Threads: 
          Period  FP     Name               (     Time, Max-Time ) 
          999855  YES           test-thread (        0,        0 ) 
+
 It did. The period is not exactly 1,000,000 ns because of hardware
 limitations, but we have a thread that runs at approximately the
 correct rate, and which can handle floating point functions. The next

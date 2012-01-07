@@ -1,4 +1,6 @@
-= HAL Tutorial[[cha:HAL-Tutorial]](((HAL Tutorial)))
+= HAL Tutorial
+
+[[cha:HAL-tutorial]] (((HAL Tutorial)))
 
 == Introduction[[sec:Tutorial-Intro]]
 
