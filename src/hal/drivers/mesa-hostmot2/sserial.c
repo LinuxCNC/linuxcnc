@@ -168,12 +168,14 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             r = -EINVAL;
             goto fail0;
         }
+        do {
         buff=0x2003; //Read firmware version
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,49) < 0){
             r = -EINVAL;
             goto fail0;
         }
+        } while (buff == 0xAA);
         hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
 
