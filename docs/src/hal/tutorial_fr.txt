@@ -92,7 +92,7 @@ comme des commandes HAL et non plus comme des commandes shell.
 
 Pour le premier exemple, nous allons utiliser un composant HAL appelé
 *siggen*, qui est un simple générateur de signal. Une description
-complète du composant *siggen* reste disponible à la section 
+complète du composant *siggen* est disponible à la section 
 <<sec:Siggen>> de ce document. 
 Il s'agit d'un composant temps réel, mis en oeuvre comme un module du 
 noyau Linux. Pour charger *siggen* utiliser la commande *de HAL, loadrt*:
@@ -104,11 +104,11 @@ halcmd: loadrt siggen
 === Examiner HAL
 
 Maintenant que le module est chargé, il faut introduire *halcmd* ,
-l'outil en ligne de commande utilisé pour configurer le HAL. Pour
+l'outil en ligne de commande utilisé pour configurer HAL. Pour
  une description plus complète essayez: *man halcmd*, ou consultez la
 section *halcmd* à la section <<sec:Tutoriel-Halcmd>> de ce document. La 
 première commande de halcmd et show, qui affichera les informations 
-concernant l'état actuel du HAL. Pour afficher tout ce qui est 
+concernant l'état actuel de HAL. Pour afficher tout ce qui est 
 installé tapez:
 ----
 halcmd: show comp
@@ -146,7 +146,7 @@ halcmd: show pin
 
 ----
 
-Cette commande affiche toutes les pins présentes dans le HAL. Un
+Cette commande affiche toutes les pins présentes dans HAL. Un
 système complexe peut avoir plusieurs dizaines ou centaines de pins.
 Mais pour le moment il y a seulement huit pins. Toutes ces huit pins
 sont des flottants, elles transportent toutes des données en provenance
@@ -246,9 +246,9 @@ halcmd: addf siggen.0.update test-thread
 ----
 
 Pour le moment nous avions utilisé *halcmd* seulement pour regarder
-le HAL. Mais cette fois-ci, nous avons
+HAL. Mais cette fois-ci, nous avons
  utilisé la commande *addf* (add function) pour changer quelque chose
-dans le HAL. Nous avons dit
+dans HAL. Nous avons dit
  à *halcmd* d'ajouter la fonction *siggen.0.update* au thread
 *test-thread* et la commande suivante indique qu'il a réussi:
 ----
@@ -262,7 +262,7 @@ halcmd: show thread
 ----
 
 Il y a une étape de plus avant que le composant *siggen* ne commence
-à générer des signaux. Quand le HAL est démarré pour la
+à générer des signaux. Quand HAL est démarré pour la
 première fois, les threads ne sont pas en marche. C'est pour vous
 permettre de compléter la configuration du système avant que le code
 temps réel ne démarre. Une fois que vous êtes satisfait de la
@@ -405,17 +405,17 @@ halcmd: exit
 
 === Restaurer la configuration de HAL 
 
-Pour restaurer la configuration de HAL stockée dans *saved.hal* , nous
-avons besoin d'exécuter toutes ces commandes HAL. Pour ce
+Pour restaurer la configuration de HAL enregistrée dans *saved.hal*, nous
+avons besoin d'exécuter toutes les commandes enregistrées. Pour ce
 faire, nous utiliserons la commande *-f <filename>* qui lit les
-commandes à partir d'un fichier, le *-I* qui affichera le prompt halcmd
+commandes à partir d'un fichier, le *-I* affichera le prompt halcmd
 après l'exécution des commandes:
 ----
 ~/emc2$ halrun -I -f saved.hal 
 
 ----
 
-Notez qu'il n'y a pas de commande *start* dans le fichier saved.hal.
+Noter qu'il n'y a pas de commande *start* dans le fichier saved.hal.
 Il est nécessaire de la retaper (ou d'éditer saved.hal pour l'ajouter):
 ----
 halcmd: start 
@@ -428,9 +428,9 @@ halcmd: exit
 
 === Suppression de la mémoire de HAL
 
-Si un arrêt inattendu d'une session de HAL survient, vous pourriez avoir à
-HAL avant de décharger une autre session peut commencer. Pour cela, tapez la
-commande suivante dans une fenêtre de terminal:
+Si un arrêt inattendu d'une session de HAL survient, il sera peut être 
+nécessaire de décharger HAL de la mémoire avant de pouvoir lancer une autre 
+session. Pour cela, taper la commande suivante dans une fenêtre de terminal:
 ----
 ~/emc2$ halrun -U
 
@@ -440,8 +440,8 @@ commande suivante dans une fenêtre de terminal:
 
 Il est possible de construire des systèmes HAL vraiment complexes sans
 utiliser d'interface graphique. Mais il y a quelque chose de rassurant
-à visualiser le résultat du travail. Le premier, et le plus simple des
-outils graphiques pour le HAL, est *halmeter*. C'est un programme très
+à visualiser le résultat du travail. Le premier et le plus simple des
+outils graphiques pour HAL, est *halmeter*. C'est un programme très
 simple qui s'utilise comme un multimètre. Il permet de regarder les pins,
 signaux, ou paramètres en affichant la valeur courante de ces items. Il
 est très simple à utiliser. Dans une console taper *halmeter*. 
@@ -454,9 +454,9 @@ puis cliquer sur un des pin/signal/paramètre pour le sélectionner. La
 petite fenêtre affichera le nom et la valeur de l'item sélectionné.
 L'affichage est mis à jour environ 10 fois par seconde. Pour libérer de
 la place sur l'écran, la fenêtre de sélection peut être fermée avec le
-bouton *Close*. Sur la petite fenêtre, cachée sous la grande à
-l'ouverture, le bouton *Select*, réouvre la fenêtre de sélection et le
-bouton Exit arrête le programme et ferme les fenêtres.
+bouton _Close_. Sur la petite fenêtre, cachée sous la grande à
+l'ouverture, le bouton _Select_, réouvre la fenêtre de sélection et le
+bouton _Exit_ arrête le programme et ferme les fenêtres.
 
 Il est possible d'ouvrir et de faire fonctionner simultanément
 plusieurs halmeters, ce qui permet de visualiser plusieurs items en
@@ -950,7 +950,7 @@ image::images/halscope-03.png[]
 
 Nous aimerions bien regarder les signaux que nous avons défini
 précédemment, pour cela, cliquons sur l'onglet _Signals_ et le dialogue
-affichera tous les signaux existants dans le HAL (seulement deux dans
+affichera tous les signaux existants dans HAL (seulement deux dans
 notre exemple, comme ci-dessous).
 
 Pour choisir un signal, il suffit de cliquer dessus. Dans notre cas,
