@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = Pico PPMC
 
 Pico Systems has a family of boards for doing analog servo, stepper,

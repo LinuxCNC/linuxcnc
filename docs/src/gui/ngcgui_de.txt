@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = NGCGUI
 
 image::images/ngcgui.png[]

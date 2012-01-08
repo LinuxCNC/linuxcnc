@@ -715,6 +715,8 @@ class Data:
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
 
+        self._substitution_list=[]
+
         # basic machine data
         self.help = "help-welcome.txt"
         self.machinename = _("my_EMC_machine")
@@ -1457,44 +1459,22 @@ If you have a REALLY large config that you wish to convert to this newer version
         #print >>file, "BASE_PERIOD = %d" % self.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
-        # TODO fix this hack : hardcoded to one serial port
-        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-        if self.mesa0_numof_sserialports:
-            for i in range(1,9):
-                if i <= self.mesa0_numof_sserialchannels:
-                    temp = temp + "0"
-                else:
-                    temp = temp + "x"
-            ssconfig0 = "sserial_port_0=%s"% temp
-        if self.mesa1_numof_sserialports:
-            for i in range(1,9):
-                if i <= self.mesa1_numof_sserialchannels:
-                    temp = temp + "0"
-                else:
-                    temp = temp + "x"
-            ssconfig1 = "sserial_port_0=%s"% temp
-            if self.mesa0_numof_resolvers:
-                resolver0 = "num_resolvers=%d"% self.mesa0_numof_resolvers
-            if self.mesa1_numof_resolvers:
-                resolver1 = "num_resolvers=%d"% self.mesa1_numof_resolvers
-        firmstring0 = firmstring1 = ""
-        if not "5i25" in self.mesa0_currentfirmwaredata[_BOARDNAME]:
-            firmstring0 = "firmware=hm2/%s/%s.BIT" % (self.mesa0_boardtitle, self.mesa0_firmware)
-        if not "5i25" in self.mesa1_currentfirmwaredata[_BOARDNAME]:
-            firmstring1 = "firmware=hm2/%s/%s.BIT" % (self.mesa1_boardtitle, self.mesa1_firmware)
-        print >>file, "# [HOSTMOT2]"
+        print >>file, "[HOSTMOT2]"
         print >>file, "# **** This is for info only ****"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
-        print >>file, """# CONFIG0="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    firmstring0, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, resolver0 )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
-            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                     firmstring1, self.mesa1_numof_encodergens, 
-                     self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1, resolver1 )
+        if self._substitution_list:
+            print >>file, "# These are to ease setting custom component's parameters in a custom HAL file"
+            print >>file
+            for i,temp in enumerate(self._substitution_list):
+                a,b = self._substitution_list[i]
+                if a =="":
+                    print >>file
+                else:
+                    print >>file,"%s=%s"%(a,b)
         print >>file
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
@@ -1566,7 +1546,6 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.axes == 1:
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
         self.write_one_axis(file, 9, "s", "null", all_homes)
-
         file.close()
         self.add_md5sum(filename)
 
@@ -1901,6 +1880,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
                 else:
                     print >>file, "net %s-pos-cmd      => pid.%s.command" % (name, let)
+                    print >>file, "net %s-vel-fb       => pid.%s.command-deriv"% (name, let)
                     print >>file, "net %s-pos-fb       => pid.%s.feedback"% (name,let)
                 print >>file
 
@@ -2035,6 +2015,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
+                print >>file, "net %s-vel-fb               <=  "% (let) + encoderpinname + ".velocity"
                 print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
                 print >>file, "net %s-pos-rawcounts        <=  "% (let) + encoderpinname + ".rawcounts"
@@ -2053,6 +2034,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
+                print >>file, "net %s-vel-fb               <=  "% (let) + resolverpinname + ".velocity"
                 print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + resolverpinname + ".index-enable"
             print >>file
@@ -2151,6 +2133,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            for ending in ("counter-mode","filter","index-invert","indek-mask","index-mask-invert","scale","vel-timeout"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
                             break
             elif t in (RES0,RES1,RES2,RES3,RES4,RES5):
                 if not p == "unused-resolver":
@@ -2165,21 +2152,13 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            for ending in ("scale","velocity-scale"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
                             break
-            elif t in (RES0,RES1,RES2,RES3,RES4,RES5):
-                if not p == "unused-resolver":
-                    for sig in (self.halresolversignames):
-                       if p == sig:
-                            pinname = self.make_pinname(self.findsignal( p ))
-                            print >>file, "\n# ---",sig.upper(),"---"
-                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
-                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
-                            print >>file, "net %s            <=  "% (sig+"-angle")+pinname +".angle"
-                            print >>file, "net %s            <=  "% (sig+"-error")+pinname +".error"
-                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
-                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
-                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
-                            break
+
         # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
@@ -2269,6 +2248,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                                 print >>file, "setp    "+pinname +".output-type 3"
                             print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value"
+                            for ending in ("scale","output-type"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
                             break
             # fot TP pwm pins
             elif t == (TPPWMA):
@@ -2282,6 +2266,12 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
                             print >>file, "net %s           <=  "% (sig+"-c-value")+pinname +".C-value"
                             print >>file, "net %s           <=  "% (sig+"-fault")+pinname +".fault"
+                            for ending in ("scale","deadtime","fault-invert","sample-time"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
+                            break
             # for stepper pins
             elif t == (STEPA):
                 if not p == "unused-stepgen":
@@ -2299,6 +2289,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                                 if self[i[0]+"inv"]:
                                     gpioname = self.make_pinname(i[0],True)
                                     print >>file, "setp    "+gpioname+".invert_output true"
+                            for ending in ("position-scale","maxvel","maxaccel","steplen","stepspace","dirsetup","dirhold","step_type"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
                             break
             # potentiometer outpot
             elif t == (POTO):
@@ -2319,6 +2314,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                                         print >>file, "setp    "+pinname+".spindir-invert true"
                                     if self[i[0]+"type"] == POTE:
                                         print >>file, "setp    "+pinname+".spinena-invert true"
+                            for ending in ("spindir-invert","spinena-invert","spinout-maxlim","spinout-minlim","spinout-scalemax"):
+                                title = sig + "-%s"% ending
+                                name = pinname + ".%s"% ending
+                                self._substitution_list.append((title.upper(),name))
+                            self._substitution_list.append(("",""))
                             break
         # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
@@ -2360,7 +2360,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print base
             print path,name,ext
             shutil.copy(origname ,os.path.join(base,"backups",name + str(time.time()).replace('.', '') + ext) )
-
+        self._substitution_list = []
         axis_convert = ("x","y","z","a")
         halui_cmd_count = 0
         filename = os.path.join(base, self.machinename + ".hal")
@@ -2538,8 +2538,9 @@ If you have a REALLY large config that you wish to convert to this newer version
             self._bldcconfigstring = temp
             print >>file, "loadrt bldc cfg=%s"% temp
 
-        if self.pyvcp or self.gladevcp or self.userneededabs >0:
+        if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededabs >0:
             self.absnames=""
+            needed = False
             if self.gladevcp and self.spindlespeedbar: needed = True
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
             if needed:
@@ -2552,8 +2553,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
 
-        if self.pyvcp or self.gladevcp or self.userneededlowpass >0:
+        if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededlowpass >0:
             self.lowpassnames=""
+            needed = False
             for i in range(0,self.userneededlowpass):
                 self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
@@ -3299,8 +3301,8 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         self.md5sums = []
         self.write_readme(base)
-        self.write_inifile(base)
         self.write_halfile(base)
+        self.write_inifile(base)
 
         filename = os.path.join(base, "tool.tbl")
         file = open(filename, "w")
@@ -7879,6 +7881,7 @@ different program to copy to your configuration file.\nThe edited program will b
         self.widgets.userneededabs.set_value(self.data.userneededabs)
         self.widgets.userneededscale.set_value(self.data.userneededscale)
         self.widgets.userneededmux16.set_value(self.data.userneededmux16)
+        self.widgets.userneededlowpass.set_value(self.data.userneededlowpass)
 
         if not self.data._components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
@@ -7904,6 +7907,7 @@ different program to copy to your configuration file.\nThe edited program will b
         self.data.userneededabs = int(self.widgets.userneededabs.get_value())
         self.data.userneededscale = int(self.widgets.userneededscale.get_value())
         self.data.userneededmux16 = int(self.widgets.userneededmux16.get_value())
+        self.data.userneededlowpass = int(self.widgets.userneededlowpass.get_value())
 
         textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()

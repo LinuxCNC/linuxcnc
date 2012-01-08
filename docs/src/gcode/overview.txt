@@ -5,8 +5,9 @@
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]
+= G Code Overview
 
-= G Code Overview[[cha:Language-Overview]]
+[[cha:g-code-overview]] (((G Code Overview)))
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -83,12 +84,12 @@ required to be used, but must be in the proper place if used.
 
 A word is a letter other than N followed by a real value.
 
-Words may begin with any of the letters shown in Table
-<<cap:Words-and-their,Words and their meanings>>. The table includes N
-for completeness, even though, as defined above, line numbers are not
-words. Several letters (I, J, K, L, P, R) may have different meanings
-in different contexts.  Letters which refer to axis names are not
-valid on a machine which does not have the corresponding axis.
+Words may begin with any of the letters shown in the following Table.
+The table includes N for completeness, even
+though, as defined above, line numbers are not words. Several letters
+(I, J, K, L, P, R) may have different meanings in different contexts.
+Letters which refer to axis names are not valid on a machine which does
+not have the corresponding axis.
 
 .Words and their meanings[[cap:Words-and-their]]
 
@@ -155,7 +156,8 @@ example), M codes, and G codes multiplied by ten. A decimal number
 which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
-== Parameters (Variables)[[parameters]](((Parameters)))
+
+== Parameters (Variables)[[sec:parameters]](((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
@@ -164,17 +166,17 @@ in the following sections. The only value type supported by parameters
 is floating-point; there are no string, boolean or integer types in
 G-code like in other programming languages. However, logic expressions
 can be formulated with <<sub:Binary-Operators,boolean operators>>
-( `AND`, `OR`, `XOR`, and the comparison operators
-`EQ`,`NE`,`GT`,`GE`,`LT`,`LE`), and the `MOD`, `ROUND`, `FUP` and
-`FIX` <<cap:Functions,operators>> support integer arithmetic.
+( 'AND', 'OR', 'XOR', and the comparison operators
+'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
+'FIX' <<cap:Functions,operators>> support integer arithmetic.
 
 Parameters differ in syntax, scope, behaviour when not yet
 initialized, mode, persistence and intended use.
 
 Syntax:: There are three kinds of syntactic appearance:
- . 'numbered':  `#4711`
- . 'named local':  `#<localvalue>`
- . 'named global': `#<_globalvalue>`
+* 'numbered' -  #4711
+* 'named local' -  #<localvalue>
+* 'named global' - #<_globalvalue>
 
 Scope:: The scope of a parameter is either global, or local within a
 subroutine. Subroutine parameters and local named variables have local
@@ -199,7 +201,7 @@ Persistence:: When EMC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
 persistent range footnoteref:[persistent range,The range of persistent
 parameters may change as development progresses. This range is
-currently 5161- 5390. It is defined in the `_required_parameters array`
+currently 5161- 5390. It is defined in the '_required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the <<var_file_format,.var file>>
 restored to their previous values when EMC is started again. Volatile
@@ -213,33 +215,40 @@ intermediate results, flags etc, throughout program execution.  They
 are read/write (can be assigned a value).
  . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters 
 passed to a subroutine. 
- . persistent numbered parameters - most of these are used to access offsets of
-coordinate systems - see below.
+ . <<Numbered-Parameters,numbered parameters>> - most of these are used to access offsets of
+coordinate systems.
  . <<sec:Predefined-Named-Parameters,predefined named parameters>> - used to determine interpreter and
-machine state, for instance `#<_relative>` returns 1 if G91 is on, and
+machine state, for instance '#<_relative>' returns 1 if G91 is on, and
 0 if G90 is set. They are read-only.
 
-=== Numbered Parameters [[sub:Numbered-Parameters]]
+[[sub:Numbered-Parameters]]
+=== Numbered Parameters
 
-A numbered parameter is the pound character `#` followed by an integer
-between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
+A numbered parameter is the pound character '#' followed by an
+integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
 maintains an array of numbered parameters. Its size is defined by the
 symbol `RS274NGC_MAX_PARAMETERS` in the file
 src/emc/rs274ngc/interp_internal.h). This number of numerical
 parameters may also increase as development adds support for new
-parameters.  ].  The parameter is referred to by this integer, and its
-value is whatever number is stored in the parameter.
+parameters.  ].  The parameter is referred
+to by this integer, and its value is whatever number is stored in the
+parameter.
 
-A value is stored in a parameter with the = operator; for example 
-"`#3 = 15` " means "set parameter 3 to 15." A parameter setting does not
-take effect until after all parameter values on the same line have
-been found. For example, if parameter 3 has been previously set to 15
-and the line "`#3=6 G1 x#3` " is interpreted, a straight move to a
-point where x equals 15 will occur and the value of parameter 3 will
-be 6.
+A value is stored in a parameter with the = operator; for example:
+----
+#3 = 15 (set parameter 3 to 15)
+----
 
-The `#`  character takes precedence over other operations, so that, for
- example, "`#1+2`" means the number found by adding 2 to the value of
+A parameter setting does not take
+effect until after all parameter values on the same line have been
+found. For example, if parameter 3 has been previously set to 15 and
+ the line '#3=6 G1 X#3' is interpreted, a straight move to a point
+where X equals 15 will
+occur and the value of parameter 3 will be 6.
+
+The '#'  character takes precedence over other operations, so that, for
+ example, '#1+2' means the number found by adding 2 to the value of
+parameter 1, not 
  the value found in parameter 3. Of course, '#[1+2]' does mean the
 value found in parameter 3. The '#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
@@ -648,14 +657,15 @@ on the left of the operation to the power on
 strictly less than ('LT'), and less than or equal to ('LE').
 
 The binary operations are divided into several groups according to
-their precedence. (see table <<cap:Operator-Precedence>>) If operations in different precedence groups are strung
-together (for example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]`
-), operations in a higher group are to be performed before operations
+their precedence. (see table  <<cap:Operator-Precedence>>) If
+operations in different precedence groups are strung together (for
+example in the expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]'), operations
+in a higher group are to be performed before operations
 in a lower group. If an expression contains more than one operation
-from the same group (such as the first `/` and `*` in the example),
-the operation on the left is performed first. Thus, the example is
-equivalent to: `[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]` , which is
-equivalent to to `[1.0 - 0.5]` , which is `0.5`.
+ from the same group (such as the first '/' and '*'  in the example),
+the operation on the left is performed first. Thus,
+ the example is equivalent to: '[ [ [2.0 / 3] * 1.5] - [5.5 / 11.0] ]' ,
+which is equivalent to to '[1.0 - 0.5]' , which is '0.5'.
 
 The logical operations and modulus are to be performed on any real
 numbers, not just on integers. The number zero is equivalent to logical
@@ -683,16 +693,17 @@ difference is less than 0.0001 (this value is defined as
 `TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.h).
 
 [[sub:Unary-Operation-Value]]
-== Functions
+== Functions[[sub:functions]]
 
-A function is either "`ATAN` " followed by one expression divided by
-another expression (for example "`ATAN[2]/[1+3]`") or any other
-function name followed by an expression (for example "`SIN[90]`
-"). The available functions are shown in table
-<<cap:Functions>>.  Arguments to unary operations which take
-angle measures (`COS`, `SIN`, and `TAN` ) are in degrees. Values
-returned by unary operations which return angle measures (`ACOS`,
-`ASIN`, and `ATAN`) are also in degrees.
+A function is either 'ATAN' followed by one expression divided by
+another expression (for
+ example 'ATAN[2]/[1+3]') or any other function name followed by an
+expression (for example 'SIN[90]'). The available functions are
+shown in table  <<cap:Functions>>.
+ Arguments to unary operations which take angle measures ('COS', 'SIN',
+and 'TAN' ) are in degrees. Values returned by unary operations which
+return
+angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
 
 .Functions[[cap:Functions]]
 

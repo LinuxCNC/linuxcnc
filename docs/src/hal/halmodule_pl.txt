@@ -1,5 +1,3 @@
-:lang: pl
-:toc:
 = Userspace Python Components
 
 == Basic usage

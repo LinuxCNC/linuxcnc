@@ -1,7 +1,6 @@
-//:lang: pl
-:toc:
+= Coordinate System
 
-= Coordinate System[[coordinate-system]](((Coordinate System)))
+[[cha:coordinate-system]](((Coordinate System)))
 
 == Introduction
 

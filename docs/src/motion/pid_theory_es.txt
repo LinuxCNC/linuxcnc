@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = PID Tuning
 
 == PID Controller

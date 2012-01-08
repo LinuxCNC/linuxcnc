@@ -1,9 +1,6 @@
-:lang: es
-:toc:
+= Spindle Control
 
-= Spindle Control[[cha:Spindle-Control]]
-
-(((Spindle Control)))
+[[cha:Spindle-Control]] (((Spindle Control)))
 
 == 0-10v Spindle Speed (((0-10v Spindle Speed)))
 

@@ -1,3 +1,5 @@
+//:lang: pl
+
 = Legal Section
 
 == Copyright Terms

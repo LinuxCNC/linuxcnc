@@ -1,9 +1,8 @@
-:lang: en
-:toc:
+= Lathe
 
-== Lathe
+[[cha:lathe-config]] (((Lathe Configuration)))
 
-=== Default Plane
+== Default Plane
 
 When EMC's interpreter was first written, it was designed for mills.
 That is why the default plane is XY (G17). A normal lathe only uses the
@@ -17,7 +16,7 @@ RS274NGC_STARTUP_CODE = G18
 The above can be overwritten in a g code program so always set important things
 in the preamble of the g code file.
 
-=== INI Settings
+== INI Settings
 
 The following .ini settings are needed for lathe mode in Axis in addition to
 or replacing normal settings in the .ini file.

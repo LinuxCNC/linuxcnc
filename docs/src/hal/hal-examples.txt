@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = HAL Examples
 
 All of these examples assume you are starting with a stepconf based

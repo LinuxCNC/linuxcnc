@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = AXIS
 
 == Introduction

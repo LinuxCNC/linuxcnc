@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = General Reference Information
 
 == Notation[[sec:GR-Notation]]

@@ -345,7 +345,7 @@ Porte OR (OU) à deux entrées.
 
 === pid (((pid)))
 
-Contrôleur Proportionnelle/Intégrale/dérivée, voir <<cha:Regulation-PID>>
+Contrôleur Proportionnelle/Intégrale/dérivée.
 
 === pluto_servo (((pluto_servo)))
 

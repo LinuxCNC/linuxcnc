@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = Opto22 PCI
 
 PCI AC5 ADAPTER CARD / HAL DRIVER

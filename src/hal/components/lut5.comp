@@ -22,7 +22,7 @@ value for \\fBfunction\\fR is \\fB0x80000000\\fR.
 .PP
 A 5-input \\fIor\\fR
 function is TRUE whenever any of the inputs are true, so the correct value for
-\\fBfunction\\fR is \\fB0xffffffffe\\fR.
+\\fBfunction\\fR is \\fB0xfffffffe\\fR.
 .PP
 A 2-input \\fIxor\\fR function is
 TRUE whenever exactly one of the inputs is true, so the correct value for
@@ -73,7 +73,8 @@ will be \\fBFALSE\\fR.
 <TR><TD>1<TD>1<TD>1<TD>0<TD>0<TD CLASS="w">0x10000000 \\
 <TR><TD>1<TD>1<TD>1<TD>0<TD>1<TD CLASS="w">0x20000000 \\
 <TR><TD>1<TD>1<TD>1<TD>1<TD>0<TD CLASS="w">0x40000000 \\
-<TR><TD>1<TD>1<TD>1<TD>1<TD>1<TD CLASS="w">0x80000000
+<TR><TD>1<TD>1<TD>1<TD>1<TD>1<TD CLASS="w">0x80000000 \\
+</TABLE>
 \\}
 .el \\{\\
 .TS

@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = KEYSTICK (((KEYSTICK)))
 
 == Introduction

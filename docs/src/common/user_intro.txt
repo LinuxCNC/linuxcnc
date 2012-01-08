@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = EMC2 User Introduction
 
 == This Manual

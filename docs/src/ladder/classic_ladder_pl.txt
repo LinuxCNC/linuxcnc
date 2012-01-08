@@ -1,7 +1,6 @@
-//:lang: pl
-:toc:
+= Classic Ladder
 
-= Classic Ladder[[cha:Classic Ladder]](((Classic Ladder)))
+[[cha:Classic Ladder]] (((Classic Ladder)))
 
 == Introduction
 
@@ -622,7 +621,7 @@ programming language.
 
 If you look at the top left of the sections display window you will
 see a small label box and a longer comment box beside it. Now go to
-Editor->Modify then go back to the little box, type in a name.
+Editor\->Modify then go back to the little box, type in a name.
 
 Go ahead and add a comment in the comment section. This label name is
 the name of this rung only and is used by the JUMP COIL to identify

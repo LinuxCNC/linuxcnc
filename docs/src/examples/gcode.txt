@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = G-Code Examples
 
 After you install EMC2 several sample files are placed in the

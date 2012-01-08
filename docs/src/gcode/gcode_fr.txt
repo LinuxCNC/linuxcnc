@@ -1,22 +1,16 @@
 :lang: fr
 :toc:
 
-[[cha:G-code]]
-= Guide de référence du langage G-code (((G-code)))
+[[cha:Le-G-code]]
+= Tout le G-code d'EMC2
 
-Le G-code est le langage de programmation des machines numériques. 
-Ce chapitre le décrit de manière exhaustive, c'est donc un gros morceau
-mais il contient beaucoup de concepts qui seront assimilés par le lecteur dès 
-la première lecture. C'est notamment le cas des premières sections. Par la 
-suite, l'utilisateur reviendra ici, d'abord pour chaque détail de création de 
-son G-code, puis plus tard, seulement pour les codes les moins courants. Il aura 
-alors perçu la puissance de ce langage et d'EMC2 qui le met à profit. 
+(((Tout le G-code)))
 
-== Conventions d'écriture utilisées dans ce chapitre
+== Conventions d'écriture du G-code
 
 Dans une commande type, le tiret (*-*) signifie une valeur réelle.
 
-Comme décrite précédemment, une valeur réelle peut être: 
+Une valeur réelle peut être: 
 
  - un nombre explicite, *4* par exemple. 
  - une expression, *[2+2]* par exemple. 
@@ -37,7 +31,7 @@ sera requis. Une erreur sera signalée si un item requis est omis.
 Dans les commandes, les valeurs suivant les lettres sont souvent
 données comme des nombres explicites. Sauf indication contraire, les
 nombres explicites peuvent être des valeurs réelles. Par exemple, *G10
-L2* pourrait aussi bien être écrite *G [2*5] L[1+1]*. Si la valeur du
+L2* pourrait aussi bien être écrite *G[2*5] L[1+1]*. Si la valeur du
 paramètre *100* étaient *2*, *G10 L#100* signifierait également la même
 chose. L'utilisation de valeurs réelles qui ne sont pas des nombres
 explicites, comme indiqué dans les exemples sont rarement utiles.
@@ -46,702 +40,81 @@ Si *L-* est écrit dans une commande le *-* fera référence à *Lnombre*. De la
 même manière, le *-* dans *H-* peut être appelé le *Hnombre* et ainsi de suite 
 pour les autres lettres.
 
-== Formats et paramètres du G-code
-
-Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
-(également appelée un *bloc*) peut inclure des commandes pour faire
-produire diverses actions à la machine. Plusieurs lignes de code
-peuvent être regroupées dans un fichier pour créer un programme G-code.
-
-Une ligne de code typique commence par un numéro de ligne optionnel
-suivi par un ou plusieurs *mots*. Un mot commence par une lettre suivie
-d'un nombre (ou quelque chose qui permet d'évaluer un nombre). Un mot
-peut, soit donner une commande, soit fournir un argument à une
-commande. Par exemple, *G1 X3* est une ligne de code valide avec deux
-mots. *G1* est une commande qui signifie *déplaces toi en ligne
-droite à la vitesse programmée* et *X3* fournit la valeur d'argument 
-(la valeur de X doit être 3 à la fin du mouvement). La plupart des 
-commandes RS274/NGC commencent avec une lettre G ou M
-(G pour Général et M pour Miscellaneous (auxiliaire)). 
-Les termes pour ces commandes sont *G-codes* et *M-codes.* 
-
-=== Les mots
-
-(((mots)))
-
-Un mot est une lettre, autre que N, suivie d'un nombre réel.
-
-Les mots peuvent commencer avec l'une ou l'autre des lettres indiquées
-dans le tableau ci-dessous. Ce tableau inclus N pour être complet, même si, 
-comme défini précédemment, les numéros de lignes ne sont pas des mots. 
-Plusieurs lettres (I, J, K, L, P, R) peuvent avoir différentes significations 
-dans des contextes différents. Les lettres qui se réfèrent aux noms d'axes ne 
-sont pas valides sur une machine n'ayant pas les axes correspondants.
-
-
-.Les mots et leur signification[[cap:Les-mots-et-leur-significations]]
-
-[width="90%", options="header"]
-|========================================
-|Lettre | Signification
-|A      | Axe A de la machine
-|B      | Axe B de la machine
-|C      | Axe C de la machine
-|D      | Valeur de la compensation de rayon d'outil
-|F      | Vitesse d'avance travail
-|G      | Fonction Générale (voir la table 5)
-|H      | Index d'offset de longueur d'outil
-|I      | Décalage en X pour les arcs et dans les cycles préprogrammés G87
-|J      | Décalage en Y pour les arcs et dans les cycles préprogrammés G87
-|K      | Décalage en Z pour les arcs et dans les cycles préprogrammés G87
-|       | Distance de déplacement par tour de broche avec G33
-|M      | Fonction auxiliaire (voir la table 7)
-|N      | Numéro de ligne
-|P      | Temporisation utilisée dans les cycles préprogrammés et avec G4.
-|       | Mot clé utilisé avec G10.
-|Q      | Incrément Delta en Z dans un cycle préprogrammé G73, G83
-|R      | Rayon d'arc ou plan de retrait dans un cycle préprogrammé
-|S      | Vitesse de rotation de la broche
-|T      | Numéro d'outil
-|U      | Axe U de la machine
-|V      | Axe V de la machine
-|W      | Axe W de la machine
-|X      | Axe X de la machine
-|Y      | Axe Y de la machine
-|Z      | Axe Z de la machine
-|========================================
-
-
-Le langage RS274/NGC(((RS274NGC))) n'a pas d'indicateur de début et de
-fin de programme. L'interpréteur cependant traite les fichiers. Un
-programme simple peut être en un seul fichier, mais il peut aussi être
-partagé sur plusieurs fichiers. Un fichier peut être délimité par le
-signe pour-cent de la manière suivante. La première ligne non vide d'un
-fichier peut contenir un signe *%* seul, éventuellement encadré
-d'espaces blancs, ensuite, à la fin du fichier on doit trouver une
-ligne similaire. Délimiter un fichier avec des % est facultatif si le
-fichier comporte un *M2* ou un *M30* , mais est requis sinon. Une
-erreur sera signalée si un fichier a une
-ligne pour-cent au début, mais pas à la fin. Le contenu utile d'un
-fichier délimité par pour-cent s'arrête après la seconde ligne pour-cent.
-Tout le reste est ignoré.
-
-Le langage RS274/NGC prévoit les deux commandes (*M2* ou *M30* ) pour
-finir un programme. Le programme peut se terminer avant la fin
-du fichier. Les lignes placées après la fin d'un programme ne seront
-pas exécutées. L'interpréteur ne les lit pas.
-
-=== Format d'une ligne
-
-Une ligne de code permise par la norme RS274/NGC est construite de la
-façon suivante, dans l'ordre avec la restriction à un maximum de 256
-caractères sur la même ligne.
-
- . Un bloc optionnel contenant le caractère d'effacement de ligne, barre
-   de fraction */*. 
- . Un numéro de ligne optionnel.
- . N'importe quel nombre de mots, valeurs de paramètres et commentaires.
- . Un caractère de fin de ligne (retour chariot ou saut de ligne ou les
-   deux).
-
-Toute entrée non explicitement permise est illégale, elle provoquera
-un message d'erreur de l'interpréteur.
-
-Les espaces sont permis ainsi que les tabulations dans une ligne de
-code dont ils ne changent pas la signification, excepté dans les
-commentaires. Ceci peut donner d'étranges lignes, mais elles sont
-autorisées. La ligne *g0x +0. 12 34y 7* est équivalente à*g0
-x+0.1234 y7*, par exemple.
-
-Les lignes vides sont permises, elles seront ignorées.
-
-La casse des caractères est ignorée, excepté dans les commentaires.
-Toutes les lettres en dehors des commentaires peuvent être,
-indifféremment des majuscules ou des minuscules sans changer la
-signification de la ligne.
-
-=== Numéro de ligne
-
-(((Numéro de ligne)))
-
-Un numéro de ligne commence par la lettre N suivie d'un nombre entier
-non signé compris entre 0 et 99999 écrit avec moins de six caractères
-(par exemple: 000009 est interdit). Les numéros de ligne peuvent se
-suivre ou être dans le désordre, bien qu'une pratique normale évite ce
-genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
-pratique normale. L'utilisation d'un numéro de ligne n'est pas
-obligatoire, ni même recommandé, mais si il est utilisé, il doit être à sa place.
-
-
-=== Nombres[[sec:Nombres]]
-
-Les règles suivantes sont employées pour des nombres (explicites).
-Dans ces règles un chiffre est un caractère simple entre 0 et 9.
-
-* Un nombre commence par:
- 
-** un signe plus ou un signe moins optionnel,
-    suivi de 
-** zéro à plusieurs chiffres, peut être suivis par, 
-** un point décimal, suivi de 
-** zéro à plusieurs chiffres, il doit au moins y avoir un chiffre.
-
-* Il existe deux types de nombres:
-** Les entiers, qui n'ont pas de point décimal.
-** Les décimaux, qui ont un point décimal.
-* Les nombres peuvent avoir n'importe quel nombre de chiffres, sous
-   réserve de la limitation de longueur d'une ligne. Seulement environ
-   dix-sept chiffres significatifs seront retenus, c'est toutefois
-   suffisant pour toutes les applications connues.
-* Un nombre non nul sans autre signe que le premier caractère est
-   considéré positif.
-
-Les zéros non significatifs, ne sont pas nécessaires.
-
-Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
-entière à moins de quatre décimales, il est considéré comme entier, par
-exemple 0.9999.
-
-=== Paramètres numérotés[[sec:Parametres-Numerotes]]
-
-Un paramètre numéroté commence par le caractère *#* suivi par un
-entier compris entre 1 et 5399. Le paramètre est
-référencé par cet entier, sa valeur est la valeur stockée dans le
-paramètre.
-
-Une valeur est stockée dans un paramètre avec l'opérateur = par
-exemple *#3 = 15* signifie que la valeur 15 est stockée dans le
-paramètre numéro 3.
-
-Le caractère *#* a une précédence supérieure à celle des autres
-opérations, ainsi par
- exemple, *#1+2* signifie la valeur trouvée en ajoutant 2 à la
-valeur contenue dans
- le paramètre 1 et non la valeur trouvée dans le paramètre 3. Bien sûr,
-*#[1+2]* signifie la valeur trouvée dans le paramètre 3. Le caractère
-*#* peut être répété, par exemple *##2* signifie le paramètre dont le
-numéro est égal à la valeur entière trouvée dans le paramètre 2.
-
-L'interpréteur maintient cette liste de paramètres, concernant l'outil courant:
-
- - #5400 Tool number 
- - #5401 Tool X offset 
- - #5402 Tool Y offset 
- - #5403 Tool Z offset 
- - #5404 Tool A offset 
- - #5405 Tool B offset 
- - #5406 Tool C offset 
- - #5407 Tool U offset 
- - #5408 Tool V offset 
- - #5409 Tool W offset 
- - #5410 Tool Diameter 
- - #5411 Tool Frontangle 
- - #5412 Tool Backangle 
- - #5413 Tool Orientation
-
-
-=== Paramètres nommés[[sec:Parametres-Nommes]]
-
-Les paramètres nommés fonctionnent comme les paramètres numérotés mais
-sont plus faciles à lire. Les paramètres nommés sont convertis en
-minuscules, les espaces et tabulations sont supprimés. Les paramètres
-nommés doivent être encadrés des signes *<* et *>*.
-
-*#<Un paramètre nommé>* est un paramètre nommé local. Par défaut, un
-paramètre nommé est
-local à l'étendue dans laquelle il est assigné. L'accès à un paramètre
-local, en dehors de son sous-programme est impossible, de sorte que
-deux sous-programmes puissent utiliser le même nom de paramètre sans
-craindre qu'un des deux n'écrase la valeur de l'autre.
-
-*#<_un paramètre global>* est un paramètre nommé global. Ils sont
-accessibles depuis des
-sous-programmes appelés et peuvent placer des valeurs dans tous les
-sous-programmes accessibles à l'appelant. En ce qui concerne la portée,
-ils agissent comme des paramètres numérotés. Ils ne sont pas
-enregistrés dans des fichiers.
-
-Exemples:
-
- - Déclaration d'une variable nommée globale
-----
-#<_troisdents_dia> = 10.00
-----
-
- - Référence à la variable globale précédemment déclarée
-----
-#<_troisdents_rayon> = [#<_troisdents_dia>/2.0]
-----
-
- - Mélange de paramètres nommés et de valeurs littérales
-----
-o100 call [0.0] [0.0] [#<_interieur_decoupe>-#<_troisdents_dia>][#<_Zprofondeur>] [#<_vitesse>]
-----
-
-Notes:
-
-Les paramètres globaux _a, _b, _c, ... _z sont réservés pour une
-utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
-derniers Aword, Bword, Cword, ... Zword etc.
-
-=== Paramètres système[[sec:Parametres-Systeme]]
-
-Deux paramètres nommés globaux, permettant de lire, à partir du G-code, 
-quelle est la version courante d'EMC2.
-----
-#<_vmajor>
-----
-
-Major package version. Retourne *2.6.* si la version est *2.6.2*.
-----
-#<_vminor>
-----
-
-Minor package version. Retourne *0.2* si la version est *2.6.2*.
-
-
-=== Expressions[[sec:Expressions]]
-
-Une expression est un groupe de caractères commençant avec le crochet
-gauche *[* et se terminant avec le crocher droit *]* . Entre les
-crochets, on trouve des nombres, des valeurs de paramètre,
-des opérations mathématiques et d'autres expressions. Une expression
-est évaluée pour produire un nombre. Les expressions sur une ligne sont
-évaluées quand la ligne est lue et avant que quoi que ce soit ne soit
-éxécuté sur cette ligne. 
-Un exemple d'expression: *[1 + acos[0] - [#3 *** *[4.0/2]]]*.
-
-
-=== Opérateurs binaires[[sec:Operateurs-Binaires]]
-
-Les opérateurs binaires ne se rencontrent que dans les expressions. Il
-y a quatre opérateurs mathématiques de base: addition *+*,
-soustraction *-*, multiplication * et division */*. Il y a
-trois opérateurs logiques: le *ou (OR)*, le *ou exclusif (XOR)* et 
-le *et logique (AND)*. Le huitième opérateur est le *modulo (MOD)*. Le neuvième
-opérateur est l'élévation à la puissance (\*\*) qui élève le nombre
-situé à sa gauche à la puissance du nombre situé  à sa droite. 
-Les opérateurs de relation sont: égalité *(EQ)*, non égalité *(NE)*, strictement 
-supérieur *(GT)*, supérieur ou égal *(GE)*,
-strictement inférieur *(LT)* et inférieur ou égal *(LE)*.
-
-Les opérations binaires sont divisées en plusieurs groupes selon leur
-précédence. Si dans une opération se trouvent différents groupes de précédence, 
-par exemple dans l'expression *[2.0 / 3 * 1.5 - 5.5 / 11.0]*, les opérations du
-groupe supérieur seront effectuées avant celles
-des groupes inférieurs. Si une expression contient plusieurs opérations
- du même groupe (comme les premiers */* et *** dans l'exemple),
-l'opération de gauche est effectuée en premier.
- Notre exemple est équivalent à: 
-*[\[[2.0/3]*1.5]-[5.5/11.0]]*, qui est équivalent à *[1.0-0.5]* , 
-le résultat est: *0.5* .
-
-Les opérations logiques et le modulo sont exécutés sur des nombres
-réels et non pas seulement sur des entiers. Le zéro est équivalent à un
-état logique faux *(FALSE)*, tout nombre différent de zéro est équivalent
-à un état logique vrai *(TRUE)*.
-
-.Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Précédence des opérateurs)))
-
-[width="90%", options="header"]
-|========================================
-|Opérateurs        | Précédence
-|**                | 'haute'
-|* / MOD           | 
-|+ -               | 
-|EQ NE GT GE LT LE | 
-|AND OR XOR        | 'basse'
-|========================================
-
-
-[[sec:Fonctions]]
-
-=== Fonctions[[sec:Operations-unaires]]
-
-Une fonction commence par son nom, ex: *ATAN* * suivi par une
-expression divisée par une autre expression (par
- exemple *ATAN[2]/[1+3]*) ou tout autre nom de fonction suivi par une
-expression (par exemple *SIN[90]*). Les fonctions disponibles sont
-visibles le tableau ci-dessous. Les arguments pour les opérations 
-unaires sur des angles ( *COS*, *SIN* et *TAN* ) sont en degrés. Les valeurs 
-retournées par les opérations sur les angles ( *ACOS*, *ASIN* et *ATAN* ) sont 
-également en degrés.
-
-L'opérateur *FIX* arrondi vers la gauche (moins positif ou plus
-négatif), par exemple: *FIX[2.8] = 2* et *FIX[-2.8] = -3* . L'opérateur
-*FUP* arrondi vers la droite (plus positif ou moins négatif), par
-exemple: *FUP[2.8] = 3* et *FUP[-2.8] = -2* .
-
-
-.Fonctions
-
-[width="90%", options="header"]
-|========================================
-|Nom de fonction | Fonction
-|ATAN[Y]/[X] | Tangente quatre quadrants
-|ABS[arg] | Valeur absolue
-|ACOS[arg] | Arc cosinus
-|ASIN[arg] | Arc sinus
-|COS[arg] | Cosinus
-|EXP[arg] | Exposant
-|FIX[arg] | Arrondi à l'entier immédiatement inférieur
-|FUP[arg] | Arrondi à l'entier immédiatement supérieur
-|ROUND[arg] | Arrondi à l'entier le plus proche
-|LN[arg] | Logarithme Néperien
-|SIN[arg] | Sinus
-|SQRT[arg] | Racine carrée
-|TAN[arg] | Tangente
-|========================================
-
-
-=== Répétitions d'items
-
-Une ligne peut contenir autant de mots G que voulu, mais seulement
-deux mots G du même <<sec:Groupes-modaux, groupe modal>> peuvent apparaître sur 
-la même ligne.
-
-Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du
-même groupe modal.
-
-Pour toutes les autres lettres légales, un seul mot commençant par
-cette lettre peut se trouver sur la même ligne.
-
-Si plusieurs valeurs de paramètre se répètent sur la même ligne, par
-exemple: *#3=15 #3=6* *, seule la dernière valeur prendra effet. Il
-est absurde, mais pas
-illégal, de fixer le même paramètre deux fois sur la même ligne.
-
-Si plus d'un commentaire apparaît sur la même ligne, seul le dernier
-sera utilisé, chacun des autres sera lu et son format vérifié, mais il
-sera ignoré. Placer plusieurs commentaires sur la même ligne est très
-rare.
-
-=== Ordre des items
-
-Les trois types d'item dont la commande peut varier sur une ligne
-(comme indiqué au début de cette section) sont les mots, les paramètres
-et les commentaires. Imaginez que ces trois types d'éléments sont
-divisés en trois groupes selon leur type.
-
-Dans le premier groupe les mots, peuvent être arrangés dans n'importe
-quel ordre sans changer la signification de la ligne.
-
-Dans le second groupe les valeurs de paramètre, quelque soit leur
-arrangement, il n'y aura pas de changement dans la signification de la
-ligne sauf si le même paramètre est présent plusieurs fois. Dans ce
-cas, seule la valeur du dernier paramètre prendra effet. Par exemple,
-quand la ligne *#3=15 #3=6* * aura été interprétée, la valeur du
-paramètre 3 vaudra 6. Si l'ordre
- est inversé, *#3=6 #3=15* après interprétation, la valeur du
-paramètre 3 vaudra 15.
-
-Enfin dans le troisième groupe les commentaires, si plusieurs
-commentaires sont présents sur une ligne, seul le dernier commentaire
-sera utilisé.
-
-Si chaque groupe est laissé, ou réordonné, dans l'ordre recommandé, la
-signification de la ligne ne changera pas, alors les trois groupes
-peuvent être entrecroisés n'importe comment sans changer la
-signification de la ligne. Par exemple, la ligne *g40 g1 #3=15 (foo)
-#4=-7.0* * à cinq items est signifiera exactement la même chose dans
-les 120
- ordres d'arrangement possibles des cinq items comme *#4=-7.0 g1 #3=15
-g40 (foo)*.
-
-=== Commandes et modes machine
-
-En RS274/NGC, de nombreuses commandes produisent, d'un mode à un
-autre, quelque chose de différent au niveau de la machine, le mode
-reste actif jusqu'à ce qu'une autre commande ne le révoque,
-implicitement ou explicitement. Ces commandes sont appelées *modales*.
-Par exemple, si l'arrosage est mis en marche, il y reste jusqu'à ce
-qu'il soit explicitement arrêté. Les G-codes pour les mouvements sont
-également modaux. Si, par exemple, une commande G1 (déplacement
-linéaire) se trouve sur une ligne, elle peut être utilisée sur la ligne
-suivante avec seulement un mot d'axe, tant qu'une commande explicite
-est donnée sur la ligne suivante en utilisant des axes ou un arrêt de
-mouvement.
-
-Les codes *non modaux* n'ont d'effet que sur la ligne ou ils se
-présentent. Par exemple, G4 (tempo) est non modale.
-
-=== Groupes modaux[[sec:Groupes-modaux]]
-
-(((Groupes modaux)))
-
-Les commandes modales sont arrangées par lots appelés *groupes
-modaux*, à tout moment, un seul membre d'un groupe modal peut être
-actif. En général, un groupe modal contient des commandes pour
-lesquelles il est logiquement impossible que deux membres soient actifs
-simultanément, comme les unités en pouces et les unités en millimètres.
-Un centre d'usinage peut être dans plusieurs modes simultanément, si
-seulement un mode pour chaque groupe est actif. Les groupes modaux sont
-visibles dans le tableau <<cap:Groupes-modaux, ci-dessous>>.
-
-
-.Groupes modaux[[cap:Groupes-modaux]]
-
-[width="90%", options="header"]
-|================================================
-|Signification du groupe modal        | Mots des membres
-|Mouvements (*Groupe 1*)              | G0 G1 G2 G3 G33 G38.x G73 G80 G81
-|                                     | G82 G83 G84 G85 G86 G87 G88 G89
-|Choix du plan de travail             | G17 G18 G19
-|Mode diamètre/rayon sur les tours    | G7, G8
-|Mode de déplacement                  | G90, G91
-|Mode de vitesses                     | G93, G94
-|Unités machine                       | G20, G21
-|Correcteurs de rayon d'outil         | G40, G41, G42, G41.1, G42.1
-|Correcteurs de longueur d'outil      | G43, G43.1, G49
-|Options plan de retrait              | G98, G99
-|Systèmes de coordonnées              | G54, G55, G56, G57, G58,
-|                                     | G59, G59.1, G59.2, G59.3
-|Types d'arrêt de programme           | M0, M1, M2, M30, M60
-|Appel d'outil                        | M6
-|Commande de rotation de la broche    | M3, M4, M5
-|Arrosages                            | M7, M8, M9. Cas spéciaux: M7, M8
-|                                     | peuvent être actifs simultanément
-|Boutons de correction de vitesse     | M48, M49, M50, M51
-|Contrôle de flux                     | O-
-|Codes non modaux (*Groupe 0*)        | G4, G10, G28, G28.1, G30, G30.1, G53
-|                                     | G92, G92.1, G92.2, G92.3
-|                                     | M100 à M199
-|================================================
-
-Pour plusieurs groupes modaux, quand la machine est prête à accepter
-des commandes, un membre du groupe doit être en vigueur. Il y a des
-paramètres par défaut pour ces groupes modaux. Lorsque la machine est
-mise en marche ou ré-initialisées, les valeurs par défaut sont
-automatiquement actives.
-
-Groupe 1, le premier groupe du tableau, est un groupe de G-codes pour
-les mouvements. À tout moment, un seul d'entre eux est actif. Il est
-appelé le mode de mouvement courant.
-
-C'est une erreur que de mettre un G-code du groupe 1 et un G-code du
-groupe 0 sur la même ligne si les deux utilisent les mêmes axes. Si un
-mot d'axe utilisant un G-code du groupe 1 est implicitement actif sur
-la ligne (en ayant été activé sur une ancienne ligne) et qu'un G-code
-du groupe 0 utilisant des mots d'axes apparaît sur la même ligne,
-l'activité du G-code du groupe 1 est révoquée pour le reste de la
-ligne. Les mots d'axes utilisant des G-codes du groupe 0 sont G10, G28,
-G30 et G92.
-
-C'est une erreur d'inclure des mots sans rapport sur une ligne avec le
-contrôle de flux *O*.
-
-=== Taille des fichiers
-
-L'interpréteur et le gestionnaire de tâches ont été écrits, de sorte que la 
-taille des fichiers n'est limité que par la capacité du disque dur. Les 
-interfaces graphiques TkEMC et Axis affichent tous les deux le programme G-code
-à l'écran pour l'utilisateur, cependant, la RAM devient un facteur limitant. 
-Dans Axis, parce-que l'aperçu du parcours d'outil est affiché par défaut, le
-rafraîchissement de l'écran devient une limite pratique à la taille des fichiers.
-Le tracé du parcours d'outil peut être désactivé dans Axis pour accélérer le 
-chargement des fichiers conséquents. L'aperçu peut être désactivé en 
-passant un commentaire spécial.
-
-=== Ordre d'exécution[[sec:Ordre-d-execution]]
-
-(((Ordre d'exécution)))
-
-L'ordre d'exécution des éléments d'une ligne est essentiel à la
-sécurité et l'efficacité d'une machine. Les éléments sont exécutés dans
-l'ordre indiqué ci-dessous, si ils se trouvent sur la même ligne.
-
- . Commentaire (message inclus)
- . Positionnement du mode de vitesses (G93, G94). 
- . Réglage de la vitesse travail (F). 
- . Réglage de la vitesse de rotation de la broche (S). 
- . Sélection de l'outil (T). 
- . Appel d'outil (M6).
- . Marche/Arrêt broche (M3, M4, M5).
- . Marche/Arrêt arrosages (M7, M8, M9).
- . Activation/Inhibition correcteurs de vitesse (M48, M49). 
- . Temporisation (G4). 
- . Choix du plan de travail (G17, G18, G19). 
- . Choix de l'unité de longueur (G20, G21).
- . Activation/Désactivation de la compensation de rayon d'outil (G40, G41, G42) 
- . Activation/Désactivation de la compensation de longueur d'outil (G43, G49) 
- . Sélection du système de coordonnées (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
- . Réglage du mode de trajectoire (G61, G61.1, G64)
- . Réglage du mode de déplacement (G90, G91). 
- . Réglage du type de retrait (G98, G99).
- . Prise d'origine (G28, G30) ou établissement du système de
-   coordonnées (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94). 
- . Effectuer les mouvements (G0 à G3, G33, G80 à G89), tels que modifiés
-   (éventuellement) par G53. 
- . Arrêt (M0, M1, M2, M30, M60).
-
-= Les G-codes
-
-[[cha:Les-G-codes]]
-== Les G-codes
-
-[[sec:Coordonnees-polaires]]
-== Coordonnées polaires (((coordonnées polaires)))
-
-Des coordonnées polaires peuvent être utilisées pour spécifier 
-les coordonnées *XY* d'un mouvement.
-Le *@n* est la distance et le *^n* est l'angle. L'avantage est important, par
-exemple: Pour faire très simplement un cercle de trous tangents:
-
- - Passer un point situé au centre du cercle
- - Régler la compensation de longueur d'outil
- - Déplacer l'outil vers le premier trou
- - Enfin, lancer le cycle de perçage. 
-
-Les coordonnées polaires sont toujours données à partir de la position *X0, Y0*. 
-Pour décaler les coordonnées polaires machine utilisez le décalage pièce  
-ou sélectionnez un système de coordonnées.
-
-En mode absolu, la distance et l'angle sont donnés à partir de la position *X0, Y0*
-et l'angle commence à *0* sur l'axe X positif et augmente dans la direction 
-trigonométrique (anti-horaire) autour de l'axe Z. Le code *+G1 @1 ^90+* est la 
-même que *+G1 Y1+*.
-
-En mode relatif, la distance et l'angle sont également donnés à partir de la
-position *XY zéro*, mais ils sont cumulatifs. 
-Ce fonctionnement en mode incrémental peut être déroutant au début.
-
-Par exemple: si vous avez le programme suivant, vous vous attendez à obtenir
-une trajectoire carré.
-
-----
-    F100 G1 @.5 ^90 
-    G91 @.5 ^90 
-    @.5 ^90
-    @.5 ^90
-    @.5 ^90
-    G90 G0 X0 Y0 M2
-----
-
-Vous pouvez voir sur la figure suivante que la sortie n'est pas 
-celle à laquelle vous vous attendiez, parce-que avons ajouté 
-0.5 à la distance de la position XY zéro à chaque début de ligne. 
-
-.Spirale polaire[[fig:Spirale-polaire]]
-
-image::images/polar01.png[]
-
-Le code suivant va produire notre modèle carré. 
-
-----
-    F100 G1 @.5 ^90 
-    G91 ^90
-    ^90
-    ^90
-    ^90
-    G90 G0 X0 Y0 M2
-----
-
-Comme vous pouvez le voir, en ajoutant seulement l'angle de 90 degrés à
-chaque ligne. La distance du point final est la même pour chaque ligne.
-
-.Carré polaire[[fig:Carre-polaire]]
-
-image::images/polar02.png[]
-
-C'est une erreur si:
-
-  - Un mouvement incrémental est lancé à l'origine.
-  - Un mélange de mots polaires et de X ou Y est utilisé.
-
-== Table d'index du G-code[[sec:Table-des-index-du-G-code]]
+[[sec:Table-des-index-du-G-code]]
+== Table d'index du G-code
 
 (((Table des index du G Code)))
 
 [width="100%", options="header"]
 |==============================================================================
-|Codes         | Descriptions                                         | Sections
-|G0            | Interpolation linéaire en vitesse rapide             | <<sec:G0-Interpolation-rapide>>
-|G1            | Interpolation linéaire en vitesse travail            | <<sec:G1-Interpolation-travail>>
-|G2, G3        | Interpolation circ. sens horaire/anti-horaire        | <<sec:G2-G3-Arc>>
-|G4            | Tempo                                                | <<sec:G4-Tempo>>
-|G5.1          | B-Spline quadratique                                 | <<sec:G5-1-B-spline>>
-|G5.2, G5.3    | NURBs Block                                          | <<sec:G5-2-G5-3-NURBs>>
-|G7            | Mode diamètre (sur les tours)                        | <<sec:G7-Mode-diametre>>
-|G8            | Mode rayon (sur les tours)                           | <<sec:G8-Mode-rayon>>
-|G10 L1        | Entrée directe en table d'outils                     | <<sec:G10-L1>>
-|G10 L10       | Modifie valeurs de l'outil dans la table d'outils    | <<sec:G10-L10>>
-|G10 L11       | Modifie valeurs de l'outil dans la table d'outils    | <<sec:G10-L11>>
-|G10 L2        | Établissement du système de coord. pièce (1 à 9)     | <<sec:G10-L2>>
-|G10 L20       | Établissement du système de coord. machine calculé   | <<sec:G10-L20>>
-|G17 - G19.1   | Choix du plan de travail                             | <<sec:G17-G18-G19>>
-|G20, G21      | Unités machine                                       | <<sec:G20-G21-Unites-Machine>>
-|G28 - G28.1   | Aller à une position prédéfinie                      | <<sec:G28-G28-1-Aller-a-une-position>>
-|G30 - G30.1   | Aller à une position prédéfinie                      | <<sec:G30-G30-1-Aller-a-une-position-predefinie>>
-|G33           | Mouvement synchronisé avec la broche                 | <<sec:G33-Broche-synchronisee>>
-|G33.1         | Taraudage rigide                                     | <<sec:G33-1-Taraudage-rigide>>
-|G38.2 - G38.5 | Mesures au palpeur                                   | <<sec:G38-x-Palpeur>>
-|G40           | Annulation de la compensation de longueur d'outil    | <<sec:G40>>
-|G41, G42      | Compensation de rayon d'outil                        | <<sec:G41-G42>>
-|G41.1, G42.1  | Comp. dynamique de rayon d'outil à gauche, à droite  | <<sec:G41-1-G42-1>>
-|G43, G43.1    | Comp. de longueur d'outil, compensation dynamique    | <<sec:G43-G43-1-Longueur-Outil>>
-|G49           | Révocation de la compensation de longueur d'outil    | <<sec:G49-Revocation-Longueur-Outil>>
-|G53           | Déplacements en coordonnées machine (Absolues)       | <<sec:G53-Mouvement-Coordonnees-Absolues>>
-|G54 - G59     | Choix du système de coordonnées (1 a 6)              | <<sec:G54-a-G59-3>>
-|G59.1 - G59.3 | Choix du système de coordonnées (7 a 9)              | <<sec:G54-a-G59-3>>
-|G61, G61.1    | Mode trajectoire exacte, mode arrêt exact            | <<sec:G61-G61-1-G64>>
-|G64           | Mode trajectoire continue avec tolérance optionnelle | <<sec:G61-G61-1-G64>>
-|G73           | Cycle de perçage avec brise copeau                   | <<sec:G73-Percage-avec-brise-copeaux>>
-|G76           | Cycle de filetage multipasses de perçage (tour)      | <<sec:G76-Filetage>>
-|G80           | Révocation des codes modaux                          | <<sec:G80-Revocation-modaux>>
-|G81           | Cycle de perçage                                     | <<sec:G81-Cycle-de-percage>>
-|G82           | Autres cycles préprogrammés                          | <<sec:G82-Cycle-de-percage>>
-|G83           | Perçage avec débourrage                              | <<sec:G83-Percage-avec-debourrage>>
-|G84           | Taraudage à droite *(pas implémenté)*                | <<sec:G84-Taraudage-a-droite>>
-|G85           | Alésage, retrait en vitesse travail                  | <<sec:G85-Alesage-retrait-travail>>
-|G86           | Alésage, retrait en vitesse rapide                   | <<sec:G86-Alesage-retrait-rapide>>
-|G87           | Back-Boring Cycle *(pas implémenté)*                 | <<sec:G87-Back-Boring>>
-|G88           | Cycle d'alésage, Stop, Manl Out *(pas implémenté)*   | <<sec:G88-Alesage-Retrait-Manuel-Out>>
-|G89           | Cycle d'alésage avec tempo, recul vitesse travail    | <<sec:G89-Alesage-Tempo>>
-|G90, G91      | Types de déplacements                                | <<sec:G90-G91-Set>>
-|G90.1, G91.1  | Arc Distance Mode                                    | <<sec:G90-1-G91-1>>
-|G92           | Décalages d'origines avec mise à jour des paramètres | <<sec:G92-G92-1-G92-2-G92-3>>
-|G92.1         | Annulation des décalages d'origine                   | <<sec:G92-G92-1-G92-2-G92-3>>
-|G92.2         | Annulation des décalages d'origine                   | <<sec:G92-G92-1-G92-2-G92-3>>
-|G92.3         | Appliquer contenu des paramètres aux déc. d'origine  | <<sec:G92-G92-1-G92-2-G92-3>>
-|G93, G94, G95 | Modes de vitesses                                    | <<sec:G93-G94-G95-Set>> 
-|G96           | Vitesse de coupe constante (IPM ou m/mn)             | <<sec:G96-G97-Broche>>
-|G97           | Vitesse en tours par minute                          | <<sec:G96-G97-Broche>>
-|G98, G99      | Options de retrait des cycles de perçage             | <<sec:G98-G99-Set>>
-|==============================================================================
-
-[width="100%", options="header"]
-|==============================================================================
-|Code       | Description                              | Paramètres | Section
-|M0, M1, M2 | Contrôle du programme                    | n/a        | <<sec:M0-M1-M2>>
-|M3, M4, M5 | Contrôle de la broche                    | S          | <<sec:M3-M4-M5>>
-|M6         | Appel d'outil Tn n=numéro d'outil        | T          | <<sec:M6-Appel-Outil>>
-|M7, M8, M9 | Contrôle arrosage                        | n/a        | <<sec:M7-M8-M9>>
-|M30, M60   | Fin de prog. avec déchargement pièce     | n/a        | <<sec:M0-M1-M2-M30>>
-|M48        | Activation des correcteurs de vitesse    |            | <<sec:M48-Activation-Correcteurs-Vitesse>>
-|M49        | Inhibition des correcteurs de vitesse    |            | <<sec:M49-Inhibition-Correcteurs-Vitesse>>
-|M50        | Contrôle correcteur de vitesse travail   | P          | <<sec:M50-Controle-Correcteur-Vitesse-Travail>>
-|M51        | Contrôle correcteur de vitesse de broche | P          | <<sec:M51-Controle-Correcteur-Vitesse-Broche>>
-|M52        | Correcteur dynamique de vitesse d'avance | P          | <<sec:M52-Controle-Vitesse-Adaptative>>
-|M53        | Contrôle de la coupure de vitesse        | P          | <<sec:M53-Controle-Coupure-Vitesse>>
-|M61        | Correction du numéro de l'outil courant  | Q          | <<sec:M61-Correction-Numero-Outil-Courant>>
-|M62 à M65  | Contrôle de bits de sortie numérique     | P          | <<sec:M62-a-M65-Controle-Sortie-Numerique>>
-|M66        | Contrôle d'un bit d'entrée               | P, E, L, Q | <<sec:M66-Controle-Bit-Entree>>
-|M67        | Contrôle sortie analogique synchronisée  |            | <<sec:M67-Controle-Sortie-Analogique-Synchro>>
-|M68        | Contrôle sortie analogique directe       |            | <<sec:M68-Controle-Sortie-Analogique-Directe>>
-|M100 à M199| M-codes définis par l'utilisateur        | P Q        | <<sec:M100-a-M199>>
-|O          | O-codes                                  | n/a        | <<sec:O-Codes>>
-|F          | F=Réglage vitesse d'avance travail       | n/a        | <<sec:F-Vitesse>>
-|S          | S=réglage vitesse de rotation broche     | n/a        | <<sec:S-Broche>>
-|T          | Choix de l'outil                         |            | <<sec:T-Choix-Outil>>
+|Sections                        | Descriptions                                        
+|<<sec:G0-Interpolation-rapide,G0>>  | Interpolation linéaire en vitesse rapide 
+|<<sec:G1-Interpolation-travail,G1>> | Interpolation linéaire en vitesse travail        
+|<<sec:G2-G3-Arc,G2 G3>>  | Interpolation circ. sens horaire/anti-horaire 
+|<<sec:G4-Tempo,G4>>           | Tempo
+|<<sec:G5-1-B-spline,G5.1>>    | B-Spline quadratique      
+|<<sec:G5-2-G5-3-NURBs,G5.2 G5.3>>    | NURBs Block  
+|<<sec:G7-Mode-diametre,G7>>   | Mode diamètre (sur les tours)  
+|<<sec:G8-Mode-rayon,G8>>| Mode rayon (sur les tours)  
+|<<sec:G10-L1,G10 L1>>   | Ajuste les valeurs de l'outil en table d'outils   
+|<<sec:G10-L10,G10 L10>> | Modifie les valeurs de l'outil dans la table d'outils 
+|<<sec:G10-L11,G10 L11>> | Fixe les valeurs de l'outil dans la table d'outils  
+|<<sec:G10-L2,G10 L2>>   | Fixe l'origine d'un système de coordonnées  
+|<<sec:G10-L20,G10 L20>> | Fixe l'origine du système de coord. aux valeurs calculées 
+|<<sec:G17-G18-G19,G18 G19>>  | Choix du plan de travail 
+|<<sec:G20-G21-Unites-Machine,G20 G21>>         | Unités machine 
+|<<sec:G28-G28-1-Aller-a-une-position,G28 G28.1>> | Aller à une position prédéfinie 
+|<<sec:G30-G30-1-Aller-a-une-position-predefinie,G30 G30.1>> | Aller à une position 
+prédéfinie 
+|<<sec:G33-Broche-synchronisee,G33>>   | Mouvement synchronisé avec la broche  
+|<<sec:G33-1-Taraudage-rigide,G33.1>>    | Taraudage rigide    
+|<<sec:G38-x-Palpeur,G38>> | Mesures au palpeur  
+|<<sec:G40,G40>>           | Annulation de la compensation de longueur d'outil 
+|<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil   
+|<<sec:G41-1-G42-1,G41.1 G42.1>> | Comp. dynamique de rayon d'outil à gauche, à droite
+|<<sec:G43-G43-1-Longueur-Outil,G43 G43.1>> | Comp. de longueur d'outil, compensation 
+dynamique 
+|<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de 
+longueur d'outil 
+|<<sec:G53-Mouvement-Coordonnees-Absolues,G53>> | Déplacements en coordonnées 
+machine (Absolues) 
+|<<sec:G54-a-G59-3,G54 à G59>>     | Choix du système de coordonnées (1 a 6) 
+|<<sec:G54-a-G59-3,G59.1 à G59.3>> | Choix du système de coordonnées (7 a 9) 
+|<<sec:G61-G61-1-G64,G61 G61.1>>   | Mode trajectoire exacte, mode arrêt exact 
+|<<sec:G61-G61-1-G64,G64>>| Mode trajectoire continue avec tolérance optionnelle
+|<<sec:G73-Percage-avec-brise-copeaux,G73>> | Cycle de perçage avec brise copeau 
+|<<sec:G76-Filetage,G76>>      | Cycle de filetage multipasses de perçage (tour) 
+|<<sec:G80-Revocation-modaux,G80>>       | Révocation des codes modaux  
+|<<sec:G81-Cycle-de-percage,G81>>        | Cycle de perçage  
+|<<sec:G82-Cycle-de-percage,G82>>        | Autres cycles de perçage 
+|<<sec:G83-Percage-avec-debourrage,G83>> | Perçage avec débourrage 
+|<<sec:G84-Taraudage-a-droite,G84>>      | Taraudage à droite *(pas implémenté)* 
+|<<sec:G85-Alesage-retrait-travail,G85>> | Alésage, retrait en vitesse travail 
+|<<sec:G86-Alesage-retrait-rapide,G86>>  | Alésage, retrait en vitesse rapide 
+|<<sec:G87-Back-Boring,G87>>        | Cycle d'alésage arrière *(pas implémenté)*
+|<<sec:G88-Alesage-Retrait-Manuel-Out,G88>> | Cycle alésage, Stop, Retrait manuel 
+*(pas implémenté)* 
+|<<sec:G89-Alesage-Tempo,G89>> | Cycle d'alésage avec tempo, recul vitesse travail 
+|<<sec:G90-G91-Set,G90>>       | Types de déplacements
+|<<sec:G90-1-G91-1,G90.1>>     | Arc Distance Mode 
+|<<sec:G92-G92-1-G92-2-G92-3,G92>> | Décalages d'origines avec mise à jour des 
+paramètres
+|<<sec:G92-G92-1-G92-2-G92-3,G92.1 G92.2>> | Annulation des décalages d'origine 
+|<<sec:G92-G92-1-G92-2-G92-3,G92.3>> | Applique contenu des paramètres aux déc.
+ d'origine 
+|<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesses 
+|<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn) 
+|<<sec:G96-G97-Broche,G97>>    | Vitesse en tours par minute 
+|<<sec:G98-G99-Set,G98>>       | Options de retrait des cycles de perçage 
 |==============================================================================
 
 [[sec:G0-Interpolation-rapide]]
 == G0 Interpolation linéaire en vitesse rapide
+(((G0 Interpolation linéaire en vitesse rapide)))(((rapide)))
 
-(((G0 Interpolation linéaire en vitesse rapide)))
-(((rapide)))
-
-    G0 axes
+----
+G0 axes
+----
 
 Pour un mouvement linéaire en vitesse rapide, programmer *G0 axes*, 
 au moins un mot d'axe doit être présent, les autres sont optionnels. 
@@ -753,7 +126,7 @@ commande G0 est exécutée.
 
 C'est une erreur si:
 
- - tous les axes sont omis.
+* tous les axes sont omis.
 
 Si la compensation de rayon d'outil est active, le mouvement sera 
 différent de celui décrit ci-dessus, voir la section 
@@ -766,11 +139,13 @@ Si un mouvement *G0* déplace seulement des axes rotatifs et que la
 position de la cible 
 pour ces axes est dans une échelle de -360 à 360 degrés, le mouvement 
 sera organisé pour que chaque axe rotatif fasse moins d'un tour 
-complet. Exemple: 
+complet. 
 
+.Exemple avec G0: 
 ----
-    N1 G0 X1 A[20*360]
-    N2 G0 A0
+G90 (Fixe les déplacements en mode absolu)
+G0 X1 Y-2.3 (mouvement linéaire en vitesse rapide du point courant à X1 Y-2.3)
+M2 (fin de programme)
 ----
 
 Après la ligne *N1*, la position de l'axe A sera 7200 degrés. 7200
@@ -782,8 +157,9 @@ spécifié en ligne *N2* ne produira aucun mouvement.
 == G1 Interpolation linéaire en vitesse travail
 
 (((G1 Interpolation linéaire en vitesse travail)))
-
-    G1 axes
+----
+G1 axes
+----
 
 Pour un mouvement linéaire en vitesse travail, programmer *G1 axes*
 , au moins un mot d'axe doit être présent, les autres sont optionnels.
@@ -792,9 +168,20 @@ Cela produira un mouvement linéaire vers le point de destination à
 la vitesse de travail courante (ou moins vite si la machine n'atteint
 pas cette vitesse).
 
+.Exemple avec G1:
+----
+G90 (Fixe les déplacements en mode absolu)
+G1 X1.2 Y-3 F10 (mouvement linéaire à 10 unités/mn du point courant à X1.2 Y-3)
+Z-2.3 (mouvement linéaire à 10 unités/mn du point courant à Z-2.3)
+Z1 F25 (mouvement linéaire de l'axe Z à 25 unités/mn vers Z1)
+M2 (Fin de programme)
+----
+
 C'est une erreur si:
 
  - tous les axes sont omis.
+ - un mot d'axe est indiqué sans valeur réelle.
+ - un mot d'axe est indiqué qui n'est pas configuré.
 
 Si la compensation de rayon d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir la section 
@@ -848,10 +235,14 @@ différent de celui décrit ci-dessus, voir les sections
 
 Deux formats sont autorisés pour spécifier un arc: 
 le format centre et le format rayon.
+----
+G2 ou G3 axes offsets (format centre)
+G2 ou G3 axes R- (format rayon)
+----
 
 C'est une erreur si:
 
- - Aucune vitesse d'avance travail n'est spécifiée.
+* Aucune vitesse d'avance travail n'est spécifiée.
 
 === Arc au format centre (format recommandé)
 
@@ -865,14 +256,15 @@ et moins de 3 décimales (0.000) pour les millimètres.
 
 C'est une erreur si:
 
- - Lorsque l'arc est projeté sur le plan choisi, la distance entre le
+* Lorsque l'arc est projeté sur le plan choisi, la distance entre le
    point courant et le centre diffèrent de la distance entre le point
    d'arrivée et le centre de plus de 0,0002 pouce (si les pouces sont
    utilisés), soit 0,002 millimètre (si les millimètres sont utilisés).
 
 Lorsque le plan XY est sélectionné, programmer: 
-
-    G2 ou G3 axes I- J- 
+----
+G2 ou G3 axes I- J- 
+----
 
 Les mots d'axe sont tous optionnels excepté au moins un entre X et Y
 qui doit être utilisé pour programmer un arc de moins de 360 degrés. 
@@ -883,11 +275,12 @@ la valeur de l'autre passe à 0. Si le mot Z est inclus, ce sera une hélice.
 
 C'est une erreur si:
 
- - I et J sont tous les deux omis.
+* I et J sont tous les deux omis.
 
 Lorsque le plan XZ est sélectionné, programmer:
-
-    G2 ou G3 axes I- K- 
+----
+G2 ou G3 axes I- K- 
+----
 
 Les mots d'axe sont tous optionnels excepté au moins un entre X et Y
 qui doit être utilisé pour programmer un arc de moins de 360 degrés.
@@ -899,11 +292,12 @@ En mode diamètre G7, I et K reste des dimensions de rayons.
 
 C'est une erreur si:
 
- - I et K sont tous les deux omis.
+* I et K sont tous les deux omis.
 
 Lorsque le plan YZ est sélectionné, programmer: 
-
-    G2 ou G3 axes J- K- 
+----
+G2 ou G3 axes J- K- 
+----
 
 Les mots d'axe sont tous optionnels excepté au moins un entre X et Y
 qui doit être utilisé pour programmer un arc de moins de 360 degrés. 
@@ -914,7 +308,7 @@ Si seulement un est spécifié, la valeur de l'autre passe à 0.
 
 C'est une erreur si:
 
- - J et K sont tous les deux omis.
+* J et K sont tous les deux omis.
 
 === Exemples d'arcs
 
@@ -934,12 +328,12 @@ Ceci donne un offset de 1 depuis la position de départ sur l'axe X et
 0 sur l'axe Y. Dans ce cas seul l'offset I est nécessaire.
 
 Le G-code de cet exemple serait:
-
 ----
-    G2 X1 Y1 I1 F10
+G2 X1 Y1 I1 F10
 ----
 
-.G2 Exemple[[fig:G2-Exemple]]
+[[fig:G2-Exemple]]
+.G2 Exemple
 
 image::images/g2.png[]
 
@@ -951,20 +345,19 @@ X1 Y0.5 pour les deux. L'offset J du mouvement G2 est 0.5 alors que
 celui du mouvement G3 est -0.5.
 
 Le G-code de cet exemple serait:
-
 ----
-    G2 X0 Y1 I1 J0.5 F25
-    G3 X0 Y0 I1 J-0.5 F25
+G2 X0 Y1 I1 J0.5 F25
+G3 X0 Y0 I1 J-0.5 F25
 ----
 
-.G2-G3 Exemple[[fig:G2/G3-Exemple]]
+[[fig:G2/G3-Exemple]]
+.G2-G3 Exemple
 
 image::images/g2-3.png[]
 
 Voici un exemple au format centre pour usiner une hélice:
-
 ----
-    G17 G2 X10 Y16 I3 J4 Z9
+G17 G2 X10 Y16 I3 J4 Z9
 ----
 
 Ce qui signifie, faire un mouvement circulaire ou hélicoïdal en
@@ -982,7 +375,9 @@ point courant et le centre du cercle, ou le point final de l'arc et le centre.
 
 === Cercles complets
 
-    G2 ou G3 I- J- K-
+----
+G2 ou G3 I- J- K-
+----
 
 Pour faire un cercle complet de 360 degrés depuis la position
 courante, programmer un seul offset I, J ou K depuis la position
@@ -991,9 +386,9 @@ dans le plan XY spécifier seulement le mot Z.
 
 C'est une erreur si:
 
- - L'offset K est utilisé dans le plan XY
- - L'offset J est utilisé dans le plan XZ
- - L'offset I est utilisé dans le plan YZ
+* L'offset K est utilisé dans le plan XY
+* L'offset J est utilisé dans le plan XZ
+* L'offset I est utilisé dans le plan YZ
 
 === Arcs au format rayon (format non recommandé)
 
@@ -1009,8 +404,8 @@ perpendiculaire au plan choisi sera également spécifiée.
 
 C'est une erreur si:
 
- - Les deux mots d'axes pour le plan choisi sont omis.
- - Le point d'arrivée de l'arc est identique au point courant.
+* Les deux mots d'axes pour le plan choisi sont omis.
+* Le point d'arrivée de l'arc est identique au point courant.
 
 Ce n'est pas une bonne pratique de programmer au format rayon, des
 arcs qui sont presque des cercles entiers ou des demi-cercles, car un
@@ -1025,9 +420,8 @@ Autrement l'usinage d'arcs dans une gamme de petits à 165 degrés ou de
 195 à 345 degrés sera bon.
 
 Voici un exemple de commande pour usiner un arc au format rayon: 
-
 ----
-    G17 G2 X10 Y15 R20 Z5
+G17 G2 X10 Y15 R20 Z5
 ----
 
 Cela signifie faire un mouvement en arc ou hélicoïdal en sens horaire
@@ -1037,32 +431,34 @@ de cercle parallèle au plan XY sinon, ce sera un arc hélicoïdal.
 
 [[sec:G4-Tempo]]
 == G4 Tempo
-
 (((G4 Temporisation)))
 
-    G4 P[secondes]
+----
+G4 P[secondes]
+----
 
 Pour une tempo, programmer *G4 P-* . Les axes s'immobiliseront pour une
 durée de P secondes. 
 
 C'est une erreur si:
 
- - Le nombre P est négatif.
+* Le nombre P est négatif.
 
 [[sec:G5-1-B-spline]]
 == G5.1 B-spline quadratique
-
 (((G5.1 B-spline quadratique)))
 
-    G5.1 Xn Yn I[X offset] J[Y offset]
+----
+G5.1 Xn Yn I[X offset] J[Y offset]
+----
 
 G5.1 crée une B-spline quadratique dans le plan XY avec seulement les axes X et Y.
 
 C'est une erreur si:
 
- - Les offsets I et J ne sont pas spécifiés
- - Un axe autre que X ou Y est spécifié
- - Le plan actif n'est pas G17
+* Les offsets I et J ne sont pas spécifiés
+* Un axe autre que X ou Y est spécifié
+* Le plan actif n'est pas G17
 
 [[sec:G5-2-G5-3-NURBs]]
 == G5.2 G5.3 NURBs Block
@@ -1084,7 +480,6 @@ the curve shape can be modified only acting on either control points or
 weights.
 
 Sample NURBs Code
-
 ----
     G0 X0 Y0
     F10 
@@ -1110,8 +505,11 @@ disponible ici, sur le wiki].
 
 [[sec:G7-Mode-diametre]]
 == G7 Mode diamètre
-
 (((G7 Mode diamètre)))
+
+----
+G7
+----
 
 Sur un tour, programmer *G7* pour passer l'axe X en mode diamètre. En
 mode diamètre, les mouvements de l'axe X font la moitié de la cote
@@ -1120,8 +518,11 @@ qui produira bien une pièce d'un diamètre de 10 unités.
 
 [[sec:G8-Mode-rayon]]
 == G8 Mode rayon
-
 (((G8 Mode rayon)))
+
+----
+G8
+----
 
 Sur un tour, programmer *G8* pour passer l'axe X en mode rayon. En mode
 rayon, les mouvements de l'axe X sont égaux à la cote programmée. Ce
@@ -1130,94 +531,103 @@ résultat une pièce d'un diamètre de 20 unités. G8 est le mode par
 défaut à la mise sous tension.
 
 [[sec:G10-L1]]
-== G10 L1 Entrée directe dans la table d'outils
+== G10 L1 Ajustements dans la table d'outils
 
-(((G10 L1 Entrée directe dans la table d'outils)))
+(((G10 L1 Ajustements dans la table d'outils)))
 
 ----
-    G10 L1 P[numéro d'outil] R[rayon]
-        X[correcteur] Y[correcteur] Z[correcteur] 
-        A[correcteur] B[correcteur] C[correcteur] 
-        U[correcteur] V[correcteur] W[correcteur] 
-        I[angle avant] J[angle de dos] Q[orientation] 
+G10 L1 P- axes <R- I- J- Q->
 ----
+* 'P' - numéro d'outil
+* 'R' - rayon de bec
+* 'I' - angle frontal (tour)
+* 'J' - angle arrière (tour)
+* 'Q' - orientation (tour)
 
-Programmer *G10 L1* pour ajuster une entrée dans la table d'outils
+Programmer *G10 L1* pour ajuster les valeurs de l'outil P, dans la table d'outils
 depuis un programme ou depuis la fenêtre d'entrées manuelles (MDI).
-Un G10 L1 valide, réécrit la table d'outils. 
+Un G10 L1 valide, réécrit et recharge la table d'outils. 
+
+.Exemples avec G10 L1:
+----
+G10 L1 P1 Z1.5 (fixe le décalage en Z de l'outil 1 à 1.5 de l'origine machine)
+----
+
+----
+G10 L1 P2 R0.15 Q3 (fixe le rayon de bec à 0.15 pour l'outil de tour 2 avec une orientation 3)
+----
 
 C'est une erreur si:
 
-  - La compensation d'outil est activée
-  - Le mot P n'est pas spécifié
+* La compensation d'outil est activée
+* Le mot P n'est pas spécifié
 
-D'autres informations <<cap:Orientations-des-outils-de-tour, sur l'orientation des outils>>
-sont disponibles.
+D'autres informations sur l'orientation <<cap:Orientations-des-outils-de-tour, 
+des outils de tour sont disponibles ici>>.
 
 [[sec:G10-L2]]
-== G10 L2 Établissement du système de coordonnées pièce
-
-(((G10 L2 Établissement coordonnées pièce)))
+== G10 L2 Établissement de l'origine d'un système de coordonnées
+(((G10 L2 Établissement de l'origine d'un système de coordonnées)))
 
 ----
-    G10 L2 P[système de coordonnées] R[XY rotation autour de Z]
-        X[correcteur] Y[correcteur] Z[correcteur] 
-        A[correcteur] B[correcteur] C[correcteur] 
-        U[correcteur] V[correcteur] W[correcteur] 
+G10 L2 P- <axes R->
 ----
+* 'P' - système de coordonnées (0 à 9)
+* 'R' - rotation par rapport à l'axe Z
 
-Les systèmes de coordonnées utilisés par <<sec:Systemes-de-coordonnees, le 
-langage RS274/NGC sont décrits ici>>.
+G10 L2 fixe l'origine d'un système de coordonnées.
 
 Pour définir l'origine d'un système de coordonnées, programmer *G10 L2 P- R- axes*, 
-où nombre *P* est compris entre *0 et 9*. 
-Pour le système de coordonnées actif, programmer *P0*. 
-Pour spécifier un système de coordonnées pièce, programmer *P1 à P9*, ce qui
-correspondent aux g-codes *G54 à G59.3*. 
+où le nombre *P* est compris entre *0 et 9* qui correspond aux systèmes G54 à G59.3. 
+Pour le système de coordonnées actuellement actif, programmer *P0*. 
 Optionnellement, programmer *R* pour indiquer la rotation des axes *XY* autour 
-l'axe *Z*. 
-Tous les mots d'axe sont facultatifs. 
+l'axe *Z*. Tous les mots d'axe sont facultatifs. 
 L'origine du système de coordonnées spécifié par le nombre *P* est 
-fixée aux valeurs spécifiées (en termes de coordonnées machine). 
+fixée aux valeurs spécifiées (en termes de décalages des coordonnées machine). 
 Seules les coordonnées pour lesquelles un mot d'axe est spécifié sur la ligne 
-seront fixées. Être en mode incrémental (*G91*) est sans effet sur *L2 G10*. 
+seront fixées. Être en mode incrémental (*G91*) est sans effet sur *G10 L2*. 
 Le sens de rotation est anti-horaire, vu du dessus. 
 
 Concepts importants:
 
- - G10 L2 Pn ne change pas l'actuel système de coordonnées par celui spécifié par P, 
-   Il est nécessaire d'utiliser un G54 à 59.3 pour sélectionner un système de coordonnées.
- - Quand un mouvement de rotation est en cours, jogger un axe, déplacera celui-ci 
-seulement dans le sens négatif ou positif et non pas le long de l'axe de rotation.
+* G10 L2 Pn ne change pas l'actuel système de coordonnées par celui spécifié par P, 
+  il est nécessaire d'utiliser un G54 à 59.3 pour sélectionner un système de 
+  coordonnées.
+* Quand un mouvement de rotation est en cours, jogger un axe, déplacera celui-ci 
+  seulement dans le sens négatif ou positif et non pas le long de l'axe de rotation.
+* Si un décalage d'origine créé avec *G92* est actif avant la commande *G10 L2*, 
+  il reste actif après.
+* Le système de coordonnées dont l'origine est définie par la commande *G10* 
+  peut être actif ou non au moment de l'exécution de *G10*. 
+  Si il est actif à ce moment là, les nouvelles coordonnées prennent effet 
+  immédiatement.
 
 C'est une erreur si:
 
- - Le nombre P n'est pas évalué comme étant un nombre entier compris entre 0 et 9.
- - Un axe qui n'est pas défini dans la configuration est programmé.
+* Le nombre P n'est pas évalué comme étant un nombre entier compris entre 0 et 9.
+* Un axe est programmé mais n'est pas défini dans la configuration.
 
-Si un décalage d'origine créé avec *G92* est actif avant la commande *G10 L2*, 
-il reste actif après.
+.Exemple avec G10 L2: 
+----
+G10 L2 P1 X3.5 Y17.2
+----
 
-Le système de coordonnées dont l'origine est définie par la commande *G10* 
-peut être actif ou non au moment de l'exécution de *G10*. 
-Si il est actif à ce moment là, les nouvelles coordonnées prennent effet immédiatement.
+Place l'origine du premier système de coordonnées (celui sélectionné par G54) 
+au points X3.5 et Y17.2 (en coordonnées absolues). 
+La coordonnée Z de l'origine, ainsi que les coordonnées de tous les autres axes, 
+restent inchangées puisque seuls X et Y étaient spécifiés. 
 
-Exemple: 
+.Autre exemple avec G10 L2: 
+----
+G10 L2 P1 X0 Y0 Z0
+----
 
-    G10 L2 P1 X3.5 Y17.2:: 
+Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
 
-     Place l'origine du premier système de coordonnées (celui sélectionné par G54) 
-    au points X3.5 et Y17.2 (en coordonnées absolues). 
-    La coordonnée Z de l'origine, ainsi que les coordonnées de tous les autres axes, 
-    restent inchangées puisque seuls X et Y étaient spécifiés. 
+[[cap:Etablissement-Systeme-Coordonnees]]
+.Établissement de l'origine d'un système de coordonnées
 
-G10 L2 P1 X0 Y0 Z0::
-
-     Fixe les coordonnées XYZ de l'origine pièce G54, à l'origine machine.
-
-.Établissement du système de coordonnées pièce[[cap:Etablissement-Systeme-Coordonnees]]
-
-[width="80%", options="header"]
+[width="80%", options="header", cols="^,^,^"]
 |=========================================
 |Valeur P| Système de coordonnées | G-code
 |       0|          Actif courant | n/a
@@ -1232,22 +642,21 @@ G10 L2 P1 X0 Y0 Z0::
 |       9|                      9 | G59.3
 |==========================================
 
+Les systèmes de coordonnées utilisés par <<sec:Systemes-de-coordonnees, le 
+langage G-code sont décrits ici>>.
+
 [[sec:G10-L10]]
 == G10 L10 modifie les offsets d'outil dans la table d'outils
-
 (((G10 L10 modifie les offsets d'outil dans la table d'outils)))
 
 ----
-    G10 L10 P[numéro d'outil] R[rayon]
-        X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
-        A[set_curr_sys_to] B[set_curr_sys_to] C[set_curr_sys_to] 
-        U[set_curr_sys_to] V[set_curr_sys_to] W[set_curr_sys_to] 
-        I[angle avant] J[angle de dos] Q[orientation] 
+G10 L10 P- axes <R- I- J- Q->
 ----
-
-
-NDT: Les arguments [set_curr_sys_to], signifient: [fixer le système courant à 
-cette valeur].
+* 'P' - numéro d'outil
+* 'R' - rotation par rapport à l'axe Z
+* 'I' - angle frontal (tour)
+* 'J' - angle arrière (tour)
+* 'Q' - orientation (tour)
 
 G10 L10 modifie les valeurs de l'outil *P* dans la table d'outils, de sorte
 que si la compensation d'outil est rechargée, avec la machine à la position courante 
@@ -1257,60 +666,70 @@ commande G10 L10 ne seront pas modifiés.
 
 C'est une erreur si:
 
- - La compensation d'outil est activée.
+* La compensation d'outil est activée.
+
+.Exemple avec G10 L10:
+----
+M6 T1 G43 (appel l'outil 1 et active la correction de longueur d'outil)
+G10 L10 P1 Z1.5 (fixe la position courante en Z à 1.5 dans la table d'outils)
+G43 (recharge l'offset de longueur d'outil depuis la table d'outils)
+M2 (fin de programme)
+----
+* Voir les commandes <<sec:M6-Appel-Outil, M6>>, <<sec:T-Choix-Outil, Tn>> 
+et <<sec:G43-G43-1-Longueur-Outil, G43>>.
 
 [[sec:G10-L11]]
-== G10 L11 modifie les valeurs de l'outil dans la table d'outils
+== G10 L11 modifie les offsets d'outil dans la table d'outils
 
-(((G10 L11 modifie les valeurs de l'outil dans la table d'outils)))
+(((G10 L11 modifie les offsets d'outil dans la table d'outils)))
 
 ----
-    G10 L11 P[numéro d'outil] R[rayon]
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
-        I[angle avant] J[angle de dos] Q[orientation] 
+G10 L11 P- axes <R- I- J- Q->
 ----
-
-
-NDT: Les arguments [set_curr_loc_to], signifient: [fixer la position courante à]
+* 'P' - numéro d'outil
+* 'R' - rotation par rapport à l'axe Z
+* 'I' - angle frontal (tour)
+* 'J' - angle arrière (tour)
+* 'Q' - orientation (tour)
 
 G10 L11 est identique à G10 L10 excepté qu'au lieux de fixer les valeurs
-selon les coordonnées pièce, il les fixe de sorte que les coordonnées
-courantes deviennent celles spécifiées si la nouvelle compensation d'outil
-est rechargée et que la machine est placée dans le système de coordonnées G59.3
-sans aucun décalage G92 actif.
+par rapport aux décalages de coordonnées courants, il les fixe de sorte que les 
+coordonnées courantes deviennent celles spécifiées par les paramètres si la 
+nouvelle compensation d'outil est rechargée et que la machine est placée dans 
+le système de coordonnées G59.3, système sans aucun décalage G92 actif.
 
 Ceci permet à l'utilisateur de fixer le système de coordonnées G59.3 à
 un point fixe de la machine et d'utiliser ce porte-pièce pour mesurer
-l'outil sans avoir à connaitre les autres décalages courants actifs.
+l'outil sans s'occuper des autres décalages courants actifs.
 
 C'est une erreur si:
 
- - La compensation d'outil est activée
+* La compensation d'outil est activée
 
 [[sec:G10-L20]]
-== G10 L20 Établissement des coordonnées machine calculées
+== G10 L20 Établissement de l'origine d'un système de coordonnées 
 
-(((G10 L20 Établissement des coordonnées machine calculées)))
+(((G10 L20 Établissement de l'origine d'un système de coordonnées)))
 
 ----
-    G10 L20 P[système de coordonnées] R[rotation autour de Z] 
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
+G10 L20 P- axes <R->
 ----
+* 'P' - système de coordonnées (0-9)
+* 'R' - rotation par rapport à l'axe Z
 
+G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des 
+valeurs données, il les place à des valeurs calculées de sorte que les 
+coordonnées courantes deviennent les valeurs données en paramètres.
 
-NDT: Les arguments [set_curr_loc_to], signifient: [fixer la position courante à]
-
-G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des valeurs
-données, il place les coordonnées courantes à des valeurs calculées.
+.Exemple avec G10 L20:
+----
+G10 L20 P1 X1.5 (fixe l'emplacement courant en X du système de coordonnées G54 à 1.5)
+----
 
 C'est une erreur si:
 
- - Le nombre P n'est pas évalué comme une entier compris entre 0 et 9.
- - Un axe non défini dans la configuration est programmé.
+* Le nombre P n'est pas évalué comme une entier compris entre 0 et 9.
+* Un axe non défini dans la configuration est programmé.
 
 [[sec:G17-G18-G19]]
 == G17, G18, G19, G17.1, G18.1, G19.1 Choix du plan de travail
@@ -1370,7 +789,7 @@ G28.1 enregistre la position absolue courante dans les paramètres 5161 à 5166.
 
 C'est une erreur si:
 
- - La compensation de rayon d'outil est active.
+* La compensation de rayon d'outil est active.
 
 [[sec:G30-G30-1-Aller-a-une-position-predefinie]]
 == G30, G30.1 Aller à une position prédéfinie
@@ -1378,7 +797,7 @@ C'est une erreur si:
 (((G30)))
 (((G30.1)))
 
-La commande G30 utilise les valeurs stockées dans les paramètres 5181 à 5186 
+La commande *G30* utilise les valeurs stockées dans les paramètres 5181 à 5186 
 comme valeurs absolues pour effectuer un mouvement en vitesse rapide 
 de la position courante à la position définie dans les paramètres. 
 Les valeurs stockées dans les paramètres font référence au
@@ -1388,21 +807,22 @@ La commande *G30 axes* effectue un déplacement en vitesse rapide
 depuis la position courante jusqu'à la position spécifiée par *axes*, 
 suivi d'un mouvement rapide à la position prédéfinie dans les paramètres 5181-5186.
 
-G30.1 enregistre la position absolue courante dans les paramètres 5181-5186.
+*G30.1* enregistre la position absolue courante dans les paramètres 5181-5186.
 
-Les paramètres de G30 peuvent être utilisés pour déplacer l'outil quand un M6 est programmé 
-et que la variable [TOOL_CHANGE_AT_G30]=1 dans la section [EMCIO] du fichier ini.
+Les paramètres de *G30* peuvent être utilisés pour déplacer l'outil quand un M6 est programmé 
+et que la variable *[TOOL_CHANGE_AT_G30]=1* dans la section [EMCIO] du fichier ini.
 
 C'est une erreur si:
 
- - La compensation de rayon d'outil est active.
+* La compensation de rayon d'outil est active.
 
 [[sec:G33-Broche-synchronisee]]
 == G33 Mouvement avec broche synchronisée
-
 (((G33 Mouvement avec broche synchronisée)))
 
-    G33 X- Y- Z- K-
+----
+G33 X- Y- Z- K-
+----
 
 Pour un mouvement avec broche synchronisée dans une direction, programmer *G33 X- Y- Z- K-* 
 où K donne la longueur du mouvement en XYZ pour chaque tour de broche. 
@@ -1412,45 +832,62 @@ Cette commande pourrait être la base d'un programme pour faire un filetage de 1
 Un autre exemple en métrique, *G33 Z-15 K1.5* produira 
 un mouvement de 15mm de long pendant que la broche fera 10 tours soit un pas de 1.5mm.
 
-Remarque: K suit la ligne d'entraînement décrit par *X- Y- Z-* et n'est pas parallèle à l'axe Z.
+[NOTE]
+K suit la ligne d'avance décrite par *X- Y- Z-*, elle n'est pas forcément
+parallèle à l'axe Z.
 
-Broche synchronisée mouvements d'attendre pour l'indice de la broche, donc plusieurs ligne passe haut.
-Un mouvement avec *G33* se termine au point final programmé,
+Les mouvements avec broche synchronisée ont besoin d'un index de broche pour
+le filetage multi-passes.
+Un mouvement avec *G33* se termine au point final programmé.
 
 Les mots d'axes sont facultatifs, sauf au moins un qui doit être utilisé.
 
+
+.Exemple avec G33:
+----
+G90 (mode distance absolue)
+G0 X1 Z0.1 (positionnement en vitesse rapide)
+S100 M3 (broche en rotation à 100tr/mn)
+G33 Z-2 K0.125 (mouvement vers Z -2 avec une avance de 0.125 par tour)
+G0 X1.25 (mouvement de dégagement en vitesse rapide)
+Z0.1 (mouvement en vitesse rapide à Z0.1)
+M2 (fin de programme)
+----
+
+
 C'est une erreur si:
 
- - Tous les axes sont omis.
- - La broche ne tourne pas quand cette commande est exécutée.
- - Le mouvement linéaire requis excède les limites de vitesse machine 
+* Tous les axes sont omis.
+* La broche ne tourne pas quand cette commande est exécutée.
+* Le mouvement linéaire requis excède les limites de vitesse machine 
     en raison de la vitesse de broche.
 
 [[sec:G33-1-Taraudage-rigide]]
 == G33.1 Taraudage Rigide
-
 (((G33.1 Taraudage rigide)))
 
-    G33.1 X- Y- Z- K-
+----
+G33.1 X- Y- Z- K-
+----
 
 Pour un taraudage rigide avec broche synchronisée et mouvement de retour, 
 programmer *G33.1 X- Y- Z- K-* où *K-* donne la longueur du mouvement 
 pour chaque tour de broche. 
 Un mouvement de taraudage rigide suit cette séquence: 
 
-- Un mouvement aux coordonnées spécifiées, synchronisé avec la rotation de la broche, 
+* Un mouvement aux coordonnées spécifiées, synchronisé avec la rotation de la broche, 
    avec un ratio donné et débutant à l'impulsion d'index du codeur de broche.
-- Quand le point final est atteint, la commande inverse le sens de rotation de la broche 
+* Quand le point final est atteint, la commande inverse le sens de rotation de la broche 
    (ex: de 300 tours/mn en sens horaire à 300 tours/mn en sens anti-horaire)
-- Le mouvement reste synchronisé en continu avec la broche même *au delà* de la coordonnée 
+* Le mouvement reste synchronisé en continu avec la broche même *au delà* de la coordonnée 
    du point final spécifié pendant l'arrêt de la broche et son inversion.
-- Le mouvement synchronisé se poursuit pour revenir aux coordonnées initiales.
-- Quand les coordonnées initiale sont atteintes, 
+* Le mouvement synchronisé se poursuit pour revenir aux coordonnées initiales.
+* Quand les coordonnées initiale sont atteintes, 
    la commande inverse la broche une seconde fois 
    (ex: de 300tr/mn sens anti-horaire à 300tr/mn sens horaire)
-- Le mouvement reste synchronisé même *au delà* des coordonnées initiales 
+* Le mouvement reste synchronisé même *au delà* des coordonnées initiales 
    pendant que la broche s'arrête, puis s'inverse.
-- Un mouvement *non synchronisé* ramène le mobile en arrière, aux coordonnées initiales.
+* Un mouvement *non synchronisé* ramène le mobile en arrière, aux coordonnées initiales.
 
 Tous les mouvements avec broche synchronisée ont besoin d'un index de broche, 
 pour conserver la trajectoire prévue. 
@@ -1458,33 +895,46 @@ Un mouvement avec *G33.1* se termine aux coordonnées initiales.
 
 Les mots d'axes sont facultatifs, sauf au moins un qui doit être utilisé.
 
+.Exemple avec G33.1:
+----
+G90 (mode distance absolue)
+G0 X1.000 Y1.000 Z0.100 (mouvement rapide au point de départ)
+;taraudage rigide en 20 filets par pouce
+G33.1 Z-0.750 K0.05 (et une profondeur de filet de 0.750)
+M2 (fin de programme)
+----
+
 C'est une erreur si:
 
- - Tous les axes sont omis.
- - La broche ne tourne pas quand cette commande est exécutée.
- - Le mouvement linéaire requis excède les limites de vitesse machine 
+* Tous les axes sont omis.
+* La broche ne tourne pas quand cette commande est exécutée.
+* Le mouvement linéaire requis excède les limites de vitesse machine 
    en raison d'une vitesse de broche trop élevée.
-
-Exemple:
-
-----
-    ;mouvement vers la position de départ
-    G0 X1.000 Y1.000 Z0.100
-    ;taraudage rigide en 20 filets par pouce
-    G33.1 Z-0.750 K0.05
-----
 
 [[sec:G38-x-Palpeur]]
 == G38.x Mesure au palpeur
-
 (((G38.2 Palpeur)))(((G38.3 Palpeur)))(((G38.4 Palpeur)))(((G38.5 Palpeur)))
 
-IMPORTANT: Vous ne pourrez pas utiliser cette commande si votre
+----
+G38.x axes
+----
+
+* 'G38.2' - palpe vers la pièce, stoppe au toucher, signale une erreur en cas de 
+défaut.
+* 'G38.3' - palpe vers la pièce, stoppe au toucher.
+* 'G38.4' - palpe en quittant la pièce, stoppe en perdant le contact, signal une 
+erreur en cas de défaut.
+* 'G38.5' - palpe en quittant la pièce, stoppe en perdant le contact.
+
+
+[IMPORTANT]
+Vous ne pourrez pas utiliser cette commande si votre
 machine n'a pas été configurée pour exploiter un signal de sonde de HAL à EMC2.
 Le signal de la sonde doit être envoyé sur un bit d'entrée HAL 
 puis transmis à *motion.probe-entrée (bit, In)*.
-G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a touché ou perdu le contact.
-TRUE si le contact de la sonde est fermé (Toucher), FALSE si il est ouvert.
+G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a 
+touché ou perdu le contact. TRUE si le contact de la sonde est fermé (Toucher), 
+FALSE si il est ouvert.
 
 
 Programmer *G38.2 axes*, *G38.3 axes*, *G38.4 axes* ou 
@@ -1492,7 +942,7 @@ Programmer *G38.2 axes*, *G38.3 axes*, *G38.4 axes* ou
 Au moins un mot d'axe est obligatoire, les autres sont optionnels. 
 Les mots d'axes définissent ensemble, le point de destination vers lequel la sonde se déplace, 
 à partir de l'emplacement actuel.
-L'outil dans la broche doit être un palpeur. 
+L'outil dans la broche doit être un palpeur ou un actionneur de contact. 
 
 En réponse à cette commande, la machine déplace le point contrôlé 
 (qui est la pointe du stylet du palpeur) en ligne droite, 
@@ -1505,23 +955,24 @@ bascule dans l'état attendu selon la première éventualité.
 
 C'est une erreur si:
 
- - Le point programmé est le même que le point courant.
- - Aucun mot d'axe n'est utilisé.
- - La compensation de rayon d'outil est activée.
- - La vitesse travail est à zéro.
- - Le palpeur est déjà au contact de la cible.
+* Le point programmé est le même que le point courant.
+* Aucun mot d'axe n'est utilisé.
+* La compensation de rayon d'outil est activée.
+* La vitesse travail est à zéro.
+* Le palpeur est déjà au contact de la cible.
 
 Le tableau de signification des différents codes de mesure.
 
-.Codes de mesure[[cap:Codes-de-mesure]]
+[[cap:Codes-de-mesure]]
+.Codes de mesure
 
 [width="90%", options="header"]
 |==========================================================
-|Code  | État ciblé     | Sens de destination | Signal d'erreur
-|G38.2 | Contact        | Vers la pièce       | Oui
-|G38.3 | Contact        | Vers la pièce       | Non
-|G38.4 | Pas de contact | Depuis la pièce     | Oui
-|G38.5 | Pas de contact | Depuis la pièce     | Non
+|Code  | État ciblé    | Sens de destination | Signal d'erreur
+|G38.2 | Touché        | Vers la pièce       | Oui
+|G38.3 | Touché        | Vers la pièce       | Non
+|G38.4 | Quitté        | Depuis la pièce     | Oui
+|G38.5 | Quitté        | Depuis la pièce     | Non
 |==========================================================
 
 Après une mesure réussie, les paramètres 5061 à 5069 contiendront les
@@ -1534,8 +985,8 @@ en affichant un message à l'écran si l'interface graphique choisie le permet.
 (Et en cas d'arrêt de l'exécution du programme ? * FIXME * TODO).
 
 Un commentaire de la forme *(PROBEOPEN filename.txt)* ouvrira le
-ficher *filename.txt* et y enregistrera les 9 coordonnées de 
-XYZABCUVW de chaque mesure réussie. 
+fichier *filename.txt* et y enregistrera les 9 coordonnées de 
+XYZABCUVW pour chaque mesure réussie. 
 Le fichier doit être fermé avec le commentaire *(PROBECLOSE)*. 
 
 [[sec:G40]]
@@ -1549,7 +1000,7 @@ Ce n'est pas une erreur de désactiver la compensation quand elle est déjà ina
 
 C'est une erreur si:
 
- - Un mouvement en arc avec G2 ou G3 suit un G40.
+* Un mouvement en arc avec G2 ou G3 suit un G40.
 
 [[sec:G41-G42]]
 == G41, G42 Compensation de rayon d'outil
@@ -1557,7 +1008,11 @@ C'est une erreur si:
 (((G41 Compensation de rayon d'outil)))
 (((G42 Compensation de rayon d'outil)))
 
-    G41 ou G42 D[outil]
+----
+G41 ou G42 D[outil]
+----
+
+* D- Numéro d'outil
 
 Pour activer la compensation de rayon d'outil à gauche du profil, programmer *G41*.
 G41 applique la correction de rayon d'outil à gauche de la ligne programmée
@@ -1595,10 +1050,10 @@ Ce n'est pas une erreur d'avoir D à zéro, le rayon utilisé sera de zéro.
 
 C'est une erreur si:
 
- - La valeur de D n'est pas un entier, il est négatif, ou supérieur au
+* La valeur de D n'est pas un entier, il est négatif, ou supérieur au
    nombre d'emplacements dans le carrousel. 
- - Le plan YZ est le plan de travail actif.
- - La compensation de rayon d'outil est activée alors qu'elle est déjà active.
+* Le plan YZ est le plan de travail actif.
+* La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 
 [[sec:G41-1-G42-1]]
 == G41.1, G42.1 Compensation dynamique de rayon d'outil
@@ -1606,21 +1061,24 @@ C'est une erreur si:
 (((G41.1 Compensation dynamique de rayon)))
 (((G42.1 Compensation dynamique de rayon)))
 
-    G41.1 ou G42.1 D[diamètre] <L[orientation]>
+----
+G41.1 ou G42.1 D[diamètre] <L[orientation]>
+----
+
+* Le mot D spécifie le diamètre de l'outil. 
+* Le mot L spécifie l'orientation des arêtes de l'outil, et par défaut 0 si non 
+spécifié.
 
 Pour activer la compensation dynamique de rayon d'outil à gauche du profil, programmer *G41.1 D- L-*. 
 
 Pour activer la compensation dynamique de rayon d'outil à droite du profil, programmer *G42.1 D- L-*. 
 
-Le mot D spécifie le diamètre de l'outil. 
-Le mot L spécifie l'orientation des arêtes de l'outil, et par défaut 0 si non spécifié.
-
 C'est une erreur si:
 
- - Le plan YZ est le plan de travail actif.
- - La valeur de L n'est pas comprise entre 0 et 9 inclus.
- - Le nombre L est utilisée alors que le plan XZ n'est pas actif.
- - La compensation de rayon d'outil est activée alors qu'elle est déjà active.
+* Le plan YZ est le plan de travail actif.
+* La valeur de L n'est pas comprise entre 0 et 9 inclus.
+* Le nombre L est utilisée alors que le plan XZ n'est pas actif.
+* La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 
 Plus d'informations sur <<cap:Orientations-des-outils-de-tour, l'orientation des 
 outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et 
@@ -1628,9 +1086,8 @@ outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et
 
 [[sec:G43-G43-1-Longueur-Outil]]
 == G43, G43.1, G49 Compensation de longueur d'outil
-
-(((G43 Compensation de longueur d'outil)))
 (((G43.1 Compensation dynamique de longueur d'outil)))
+(((G43 Compensation de longueur d'outil)))
 (((G49 Révocation de compensation de longueur d'outil)))
 
 === G43 , G43.1 Activation de la compensation de longueur d'outil
@@ -1651,7 +1108,7 @@ une compensation égale à zéro sera utilisée.
 
 C'est une erreur si:
 
- - La valeur de H n'est pas un entier, il est négatif, ou il est
+* La valeur de H n'est pas un entier, il est négatif, ou il est
    supérieur au nombre d'outils dans le carrousel.
 
 ==== G43.1 Compensation dynamique de longueur d'outil
@@ -1663,7 +1120,7 @@ de longueur en Z (pour les tours et les fraiseuses).
 
 C'est une erreur si:
 
- - Une commande de mouvement est sur la même ligne que *G43.1*
+* Une commande de mouvement est sur la même ligne que *G43.1*
 
 [[sec:G49-Revocation-Longueur-Outil]]
 === G49 Révocation de la compensation de longueur d'outil
@@ -1691,13 +1148,16 @@ utilisée si la machine est assez rapide.
 Si *G0* est actif, la vitesse rapide courante sera 
 utilisée si la machine est assez rapide. 
 
-Par exemple: *G53 G0 X0 Y0 Z0* déplacera les axes à la position d'origine machine
-même si le système de coordonnées courant est sous l'effet de décalages.
+.exemple avec G53:
+----
+G53 G0 X0 Y0 Z0 (déplacera les axes à la position d'origine machine)
+;même si le système de coordonnées courant est sous l'effet de décalages.
+----
 
 C'est une erreur si:
 
- - G53 est utilisé sans que G0 ou G1 ne soit actif. 
- - G53 est utilisé alors que la compensation de rayon d'outil est active.
+* *G53* est utilisé sans que G0 ou G1 ne soit actif. 
+* *G53* est utilisé alors que la compensation de rayon d'outil est active.
 
 Étudier cette vue <<sec:Systemes-de-coordonnees, complète des systèmes de 
 coordonnées>> et de leurs décalages, pour bien maîtriser ces concepts.
@@ -1745,18 +1205,16 @@ dans le tableau suivant.
 
 C'est une erreur si:
 
- - Un de ces G-codes est utilisé alors que la compensation de rayon 
+* Un de ces G-codes est utilisé alors que la compensation de rayon 
    d'outil est active.
 
 Voir la section <<sec:Systemes-de-coordonnees, sur les systèmes de coordonnée>> 
 pour une vue complète.
 
 [[sec:G61-G61-1-G64]]
-== G61, G61.1, G64 Types de contrôle de trajectoire
-
+== G61, G61.1 Contrôle de trajectoire exacte
 (((G61 Trajectoire exacte)))
 (((G61.1 Arrêt exact)))
-(((G64 Trajectoire continue avec tolérance))) 
 (((Trajectoire contrôlée)))
 
 Programmer *G61* pour passer la machine en mode de trajectoire exacte,
@@ -1765,18 +1223,25 @@ trajectoire continue avec tolérance. Ce n'est pas
 une erreur de programmer un mode déjà actif. Voir cette section 
 <<sec:Modes-de-controle-trajectoires, pour une discussion de ces modes>>.
 
-    G61 Mode parcours exact
-    G61.1 Mode arrêt précis
-    G64 Meilleure vitesse possible
-    G64 P- (mélange de tolérance et de vitesse) Q- (tolérance naïve CAM)
+* *G61* Mode parcours exact
+* *G61.1* Mode arrêt précis
 
-G61 suit exactement le point programmé, même s'il cela mène à un arrêt
+G61 suit exactement le point programmé, même si cela mène à un arrêt
 complet du mouvement.
+
+== G64 Meilleure vitesse possible
+(((G64 Trajectoire continue avec tolérance))) 
+
+* *G64* Meilleure vitesse possible
+* *G64 P-* (mélange de tolérance et de vitesse) Q- (tolérance naïve CAM)
 
 G64 sans P tentera de conserver la meilleure vitesse possible, au détriment de la
 précision de la trajectoire.
+----
+G64 P- Q- 
+----
 
-*G64 P- Q-* est un moyen d'affiner votre système pour obtenir le meilleur compromis
+est un moyen d'affiner votre système pour obtenir le meilleur compromis
 entre vitesse et précision. La tolérance P- signifie que le parcours réel
 ne sera jamais à plus *P-* de l'extrémité de la trajectoire programmée. La vitesse
 sera réduite si nécessaire pour maintenir la trajectoire. De plus, lorsque vous
@@ -1797,10 +1262,11 @@ P- sera utilisé.
 
 [[sec:G73-Percage-avec-brise-copeaux]]
 == G73 Cycle de perçage avec brise copeaux
-
 (((G73 Cycle de perçage avec brise copeaux)))
 
-    G73 X- Y- Z- A- B- C- R- L- Q-
+----
+G73 X- Y- Z- A- B- C- R- L- Q-
+----
 
 Le cycle *G73* est destiné au perçage profond ou au fraisage avec brise-copeaux. 
 Les retraits, au cours de ce cycle, fragmentent les copeaux longs (qui sont fréquents 
@@ -1808,32 +1274,24 @@ lors de l'usinage de l'aluminium). Ce cycle utilise la valeur Q qui
 représente un incrément "delta" le long de l'axe Z. Le cycle se décompose de la
 manière suivante:
 
- - Un mouvement préliminaire. Comme décrit dans <<sec:Mouvement-Preliminaire, cet 
+* Un mouvement préliminaire. Comme décrit dans <<sec:Mouvement-Preliminaire, cet 
  exposé sur le mouvement préliminaire>> 
- - Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins 
+* Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins 
 profonde entre, l'incrément *delta*, ou la position de Z programmée. 
- - Une petite remontée en vitesse rapide. 
- - Répétition des étapes 2 et 3 jusqu'à ce que la position programmée de Z soit atteinte à l'étape 2.
- - Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait. 
+* Une petite remontée en vitesse rapide. 
+* Répétition des étapes 2 et 3 jusqu'à ce que la position programmée de Z soit atteinte à l'étape 2.
+* Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait. 
 
 C'est une erreur si:
- - La valeur de Q est négative ou égale à zéro.
+* La valeur de Q est négative ou égale à zéro.
 
 [[sec:G76-Filetage]]
 == G76 Cycle de filetage préprogrammé
-
 (((G76 Cycle de filetage multi-passe)))
 
-    G76 P- Z- I- J- R- K- Q- H- E- L-
-
-C'est une erreur si:
-
- - Le plan de travail actif n'est pas ZX.
- - D'autres mots d'axes que X ou Y, sont spécifiés.
- - La dégressivité *R-* est inférieure à 1.0.
- - Tous les mots requis ne sont pas spécifiés.
- - *P-*, *J-*, *K-* ou *H-* est négatif.
- - *E-* est supérieur à la moitié de la longueur de la ligne pilote.
+----
+G76 P- Z- I- J- R- K- Q- H- E- L-
+----
 
 image::images/g76-threads.png[]
 
@@ -1843,27 +1301,27 @@ Ligne pilote:: (Drive Line) La ligne pilote est une ligne imaginaire, parallèle
     fileter. La ligne pilote va du point initial en Z jusqu'à la fin du
     filetage donnée par la valeur de *Z-* dans la commande.
 
-P-:: Le pas du filet, ou la longueur du déplacement par tour.
+*P-*:: Le pas du filet, ou la longueur du déplacement par tour.
 
-Z-:: La position finale du filetage. A la fin du cycle, l'outil sera
+*Z-*:: La position finale du filetage. A la fin du cycle, l'outil sera
     à cette position Z.
 
-I-:: La crête du filet est une distance entre la ligne pilote et la 
+*I-*:: La crête du filet est une distance entre la ligne pilote et la 
     surface de la pièce. Une valeur négative de *I-*, 
     indique un filetage externe et une valeur positive, indique un
     filetage interne. C'est généralement à ce diamètre nominal que le
     matériau est cylindré avant de commencer le cycle *G76*.
 
-J-:: Une valeur positive, spécifie la profondeur de la passe initiale.
+*J-*:: Une valeur positive, spécifie la profondeur de la passe initiale.
      La première passe sera à *J-* au delà de la crête du filet *I*.
 
-K-:: Une valeur positive, spécifie la profondeur du filet. 
+*K-*:: Une valeur positive, spécifie la profondeur du filet. 
     La dernière passe du filetage sera à *K-* au delà de la crête du filet.
 
 Paramètres optionnels:
 
 [horizontal]
-R-:: La dégressivité de la profondeur de passe. *R1.0* spécifie une profondeur 
+*R-*:: La dégressivité de la profondeur de passe. *R1.0* spécifie une profondeur 
     de passe constante pour les passes successives du filetage. 
     *R2.0* sélectionne une surface constante.
     Les valeurs comprises entre 1.0 et 2.0 sélectionnent 
@@ -1874,14 +1332,14 @@ R-:: La dégressivité de la profondeur de passe. *R1.0* spécifie une profondeu
     demanderont un nombre inutilement important de passes.
     (dégressivité = une plongée par paliers ou par étapes)
 
-Q-:: L'angle de pénétration oblique. C'est l'angle (en degrés) 
+*Q-*:: L'angle de pénétration oblique. C'est l'angle (en degrés) 
     décrivant de combien, les passes successives doivent être décalées 
     le long de l'axe Z. C'est utilisé pour faire enlever plus de matériau 
     d'un côté de l'outil que de l'autre. 
     Une valeur positive de *Q* fait couper d'avantage la pointe de l'outil. 
     Typiquement, les valeurs sont 29, 29.5 ou 30 degrés.
 
-H-:: Le nombre de passes de finition. Les passes de finition sont 
+*H-*:: Le nombre de passes de finition. Les passes de finition sont 
     des passes additionnelles en fond de filet. 
     Pour ne pas faire de passe de finition, programmer *H0*.
 
@@ -1889,13 +1347,13 @@ Les entrées et sorties de filetage peuvent être programmées coniques
     avec les valeurs de *E-* et *L-*.
 
 [horizontal]
-E-:: Donne la longueur des parties coniques le long de l'axe Z. 
+*E-*:: Donne la longueur des parties coniques le long de l'axe Z. 
     L'angle du cône ira de la profondeur de la dernière passe à la
     crête du filet *I*. *E2.0* donnera un cône d'entrée et de sortie
     d'une longueur de 2.0 unités dans le sens du filetage. Pour
     un cône à 45 degrés, programmer *E* identique à *K*.
 
-L-:: Est utilisé pour spécifier quelles extrémités du filetage doivent 
+*L-*:: Est utilisé pour spécifier quelles extrémités du filetage doivent 
     être coniques. Programmer *L0* pour aucune (par défaut), *L1* pour une
     entrée conique, *L2* pour une sortie conique, ou *L3* pour l'entrée et
     la sortie coniques.
@@ -1919,17 +1377,24 @@ La position finale de l'outil sera à la fin de la *ligne pilote*.
 Un mouvement de sécurité peut être nécessaire avec un filetage interne,
 pour sortir l'outil de la pièce.
 
+C'est une erreur si:
+
+* Le plan de travail actif n'est pas ZX.
+* D'autres mots d'axes que X ou Y, sont spécifiés.
+* La dégressivité *R-* est inférieure à 1.0.
+* Tous les mots requis ne sont pas spécifiés.
+* *P-*, *J-*, *K-* ou *H-* est négatif.
+* *E-* est supérieur à la moitié de la longueur de la ligne pilote.
+
 Un programme de filetage, *g76.ngc* montre l'utilisation d'un cycle de
 filetage G76, il peut être visualisé et exécuté sur n'importe quelle machine 
 utilisant la configuration *sim/lathe.ini*.
 
 L'exemple suivant montre ce qui s'est passé pendant l'exécution de ce G-Code:
-
 ----
-    G0 Z-.5 X .2
-    G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+G0 Z-.5 X .2
+G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
 ----
-
 
 L'outil est à la position finale après que le cycle G76 soit terminé.
 Vous pouvez voir le parcours d'entrée de l'outil sur la droite, spécifié 
@@ -1940,88 +1405,8 @@ Les lignes blanches sont les mouvements de coupe.
 
 image::images/g76-01.png[]
 
-[[sec:G80-Revocation-modaux]]
-== G80 Révocation des codes modaux
-
-(((G80 Révocation des codes modaux)))
-
-Programmer *G80* pour s'assurer qu'aucun mouvement d'axe ne
-surviendra sans G-code modal. 
-
-C'est une erreur si:
-
- - Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code
-   modal du groupe 0 ne soit programmé avec les mots d'axes.
-
-Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
-autre G-code. Les résultats des lignes suivantes sont identiques:
-----
-G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
-absolus) 
-G80 (révoque G81) 
-G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
-mobile en X0, Y0 et Z0)
-----
-
-produit le même déplacement et le même état final de la machine que:
-----
-G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
-absolus)  
-G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
-mobile en X0, Y0 et Z0)
-----
-
-L'avantage du premier programme, la ligne du G80 révoque clairement le cycle
-G81. Avec ce premier programme, le programmeur doit revenir en mode
-mouvement avec G0, comme c'est fait sur la ligne suivante, ou tout
-autre mot G de mouvement.
-
-Autre exemple, Utilisation d'un cycle de perçage avec un code de
-mouvement modal.
-
-Si un cycle de perçage n'est pas révoqué avec G80 ou un autre mot G
-de mouvement, le cycle de perçage attend de se répéter en utilisant
-le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
-ou Z. Le fichier suivant perce (G81) un ensemble de huit trous. Noter
-que la position de Z change après les quatre premiers trous.
-----
-G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
-G1 X0 G4 P0.1  
-G81 X1 Y0 Z0 R1 (cycle de perçage)  
-X2 
-
-X3  
-X4  
-Y1 Z0.5  
-X3  
-X2  
-X1  
-G80 (révocation du cycle G81)  
-G0 X0 (mouvement en vitesse rapide)  
-Y0  
-Z0  
-M2 (fin du programme)
-----
-
-image::images/G81mult.png[]
-
-L'utilisation de G80 est optionnelle puisqu'il y a un G0
-sur la ligne suivante qui révoque le cycle G81. Mais utiliser G80,
-comme l'exemple le montre, donne une meilleure lisibilité au code du
-cycle de perçage.
-
-Si G80 est utilisé sans placer un code de mouvement modal juste derrière,
-un de ces messages pourra s'afficher:
-****
-    Cannot use axis commands with G80
-    Coordinate setting given with G80
-****
-
-Ils rappellent qu'un nouveau mot de mouvement doit être écrit.
-
 [[sec:G81-a-G89]]
 == Les cycles de perçage G81 à G89
-
 (((Cycles de perçage G81-G89)))
 (((G81-G89, Cycles de perçage)))
 
@@ -2104,20 +1489,20 @@ est *G9* 8, OLD_Z, sinon, à la position de R-. Voir la section
 
 Il y a une erreur si:
 
- - Tous les mots X, Y et Z sont manquants durant un cycle de perçage.
- - Des mots d'axes de différents groupes (XYZ) (UVW) sont utilisés.
- - Un nombre P est requis mais un nombre P négatif est utilisé. 
- - Un nombre L est utilisé mais n'est pas un entier positif. 
- - Un mouvement d'axe rotatif est utilisé durant un cycle de perçage. 
- - Une vitesse inverse du temps est activée durant un cycle de perçage. 
- - La correction de rayon d'outil est activée durant un cycle de perçage.
+* Tous les mots X, Y et Z sont manquants durant un cycle de perçage.
+* Des mots d'axes de différents groupes (XYZ) (UVW) sont utilisés.
+* Un nombre P est requis mais un nombre P négatif est utilisé. 
+* Un nombre L est utilisé mais n'est pas un entier positif. 
+* Un mouvement d'axe rotatif est utilisé durant un cycle de perçage. 
+* Une vitesse inverse du temps est activée durant un cycle de perçage. 
+* La correction de rayon d'outil est activée durant un cycle de perçage.
 
 Quand le plan XY est actif, la valeur de Z est *sticky*, et c'est une
 erreur si:
 
- - La valeur de Z est manquante alors qu'un même cycle de perçage n'a
+* La valeur de Z est manquante alors qu'un même cycle de perçage n'a
    pas encore été activé. 
- - La valeur de R est inférieure à celle de Z.
+* La valeur de R est inférieure à celle de Z.
 
 Si un autre plan est actif, les conditions d'erreur sont analogues à
 celles du plan XY décrites ci-dessus.
@@ -2141,12 +1526,92 @@ des mouvements suivants sont faits:
 Si un autre plan est actif, le mouvement préliminaire et intermédiaire
 est analogue.
 
-[[sec:G81-Cycle-de-percage]]
-=== G81 Cycle de perçage
+[[sec:G80-Revocation-modaux]]
+== G80 Révocation des codes modaux
 
+(((G80 Révocation des codes modaux)))
+
+Programmer *G80* pour s'assurer qu'aucun mouvement d'axe ne
+surviendra sans G-code modal. 
+
+C'est une erreur si:
+
+* Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code
+   modal du groupe 0 ne soit programmé avec les mots d'axes.
+
+Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
+autre G-code. Les résultats des lignes suivantes sont identiques:
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
+absolus) 
+G80 (révoque G81) 
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
+mobile en X0, Y0 et Z0)
+----
+
+produit le même déplacement et le même état final de la machine que:
+----
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
+absolus)  
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
+mobile en X0, Y0 et Z0)
+----
+
+L'avantage du premier programme, la ligne du G80 révoque clairement le cycle
+G81. Avec ce premier programme, le programmeur doit revenir en mode
+mouvement avec G0, comme c'est fait sur la ligne suivante, ou tout
+autre mot G de mouvement.
+
+Autre exemple, Utilisation d'un cycle de perçage avec un code de
+mouvement modal.
+
+Si un cycle de perçage n'est pas révoqué avec G80 ou un autre mot G
+de mouvement, le cycle de perçage attend de se répéter en utilisant
+le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
+ou Z. Le fichier suivant perce (G81) un ensemble de huit trous. Noter
+que la position de Z change après les quatre premiers trous.
+----
+G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
+G1 X0 G4 P0.1  
+G81 X1 Y0 Z0 R1 (cycle de perçage)  
+X2 
+
+X3  
+X4  
+Y1 Z0.5  
+X3  
+X2  
+X1  
+G80 (révocation du cycle G81)  
+G0 X0 (mouvement en vitesse rapide)  
+Y0  
+Z0  
+M2 (fin du programme)
+----
+
+image::images/G81mult.png[]
+
+L'utilisation de G80 est optionnelle puisqu'il y a un G0
+sur la ligne suivante qui révoque le cycle G81. Mais utiliser G80,
+comme l'exemple le montre, donne une meilleure lisibilité au code du
+cycle de perçage.
+
+Si G80 est utilisé sans placer un code de mouvement modal juste derrière,
+un de ces messages pourra s'afficher:
+****
+    Cannot use axis commands with G80
+    Coordinate setting given with G80
+****
+
+Ils rappellent qu'un nouveau mot de mouvement doit être écrit.
+
+[[sec:G81-Cycle-de-percage]]
+== G81 Cycle de perçage
 (((G81 Cycle de perçage)))
 
-    G81 (X- Y- Z- ) ou (U- V- W- ) R- L-
+----
+G81 (X- Y- Z- ) ou (U- V- W- ) R- L-
+----
 
 Le cycle *G81* est destiné au perçage. 
 
@@ -2161,7 +1626,7 @@ sur cette page>>.
 Supposons que la position courante soit, X1, Y2, Z3 dans
 le plan XY, la ligne de codes suivante est interprétée:
 ----
-    G90 G81 G98 X4 Y5 Z1.5 R2.8
+G90 G81 G98 X4 Y5 Z1.5 R2.8
 ----
 
 Le mode de déplacements absolus est appelé *(G90)*, le plan de retrait
@@ -2174,15 +1639,15 @@ produire.
 
 image:images/G81ex1.png[]
 
- . Un mouvement en vitesse rapide, parallèle au plan XY vers X4, Y5, Z3 
- . Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z2.8 
- . Un mouvement en vitesse travail, parallèle à l'axe Z vers X4, Y5, Z1.5 
- . Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z3 
+* Un mouvement en vitesse rapide, parallèle au plan XY vers X4, Y5, Z3 
+* Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z2.8 
+* Un mouvement en vitesse travail, parallèle à l'axe Z vers X4, Y5, Z1.5 
+* Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z3 
 
 *Exemple 2:* Supposons que la position courante soit, X1, Y2, Z3 dans
 le plan XY, la ligne de codes suivante est interprétée:
 ----
-    G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
 ----
 
 Le mode de déplacements incrémentaux est appelé *(G91)*, le plan de
@@ -2247,9 +1712,20 @@ le mouvement final de Z à 0.6 en dessous de la valeur de R.
 
 image:images/G81a.png[]
 
-[[sec:G82-Cycle-de-percage]]
-=== G82 Cycle de perçage avec temporisation
+*Exemple 5:* G81 en relatif avec R > Z
+----
+G90 G98 G81 X4 Y5 Z-0.6 R1.8
+----
 
+Puisque ce tracé commence en (X0, Y0, Z0), l'interpréteur ajoute R1.8 au Z0
+initial et déplace le mobile en vitesse rapide à cet emplacement, comme dans
+*l'exemple 4*. Après ce mouvement initial à une hauteur Z0.6, le
+mouvement en vitesse rapide se terminera en X4 Y5.
+Alors la hauteur Z sera à 0.6 en dessous de la valeur de R. La fonction de 
+répétition fera encore déplacer Z au même emplacement.
+
+[[sec:G82-Cycle-de-percage]]
+== G82 Cycle de perçage avec temporisation
 (((G82 Cycle de perçage avec tempo)))
 
     G82 (X- Y- Z- ) ou (U- V- W- ) R- L- P-
@@ -2265,7 +1741,6 @@ sur cette page>>.
  . Un déplacement de l'axe Z seul en vitesse programmée, vers la position Z programmée. 
  . Une temporisation de *P* secondes.
  . Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait *R*.
-
 ----
 G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
 ----
@@ -2275,11 +1750,12 @@ Sera équivalent à l'exemple 3 ci-dessus mais avec une temporisation de
 
 
 [[sec:G83-Percage-avec-debourrage]]
-=== G83 Cycle de perçage avec débourrage
-
+== G83 Cycle de perçage avec débourrage
 (((G83 Cycle de perçage avec débourrage)))
 
-    G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+----
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+----
 
 Le cycle *G83* est destiné au perçage profond ou au fraisage avec
 brise-copeaux. Les 
@@ -2302,22 +1778,22 @@ cette page>>.
 
 C'est une erreur si:
 
- - La valeur de Q est négative ou égale à zéro.
+* La valeur de Q est négative ou égale à zéro.
 
 [[sec:G84-Taraudage-a-droite]]
-=== G84 Cycle de taraudage à droite
-
+== G84 Cycle de taraudage à droite
 (((G84 Cycle de taraudage)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini. Voir *G33.1*
 
 [[sec:G85-Alesage-retrait-travail]]
-=== G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail
-
+== G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail
 (((G85 Cycle d'alésage)))
 
-    G85 (X- Y- Z-) or (U- V- W-) R- L-
+----
+G85 (X- Y- Z-) or (U- V- W-) R- L-
+----
 
 Le cycle *G85* est destiné à l'alésage, mais peut être utilisé pour
 le perçage ou le fraisage. 
@@ -2328,11 +1804,12 @@ cette page>>.
  . Retrait de l'axe Z en vitesse travail vers le plan de retrait. 
 
 [[sec:G86-Alesage-retrait-rapide]]
-=== G86 Cycle d'alésage, arrêt de broche, retrait en vitesse rapide
-
+== G86 Cycle d'alésage, arrêt de broche, retrait en vitesse rapide
 (((G86 Cycle d'alésage)))
 
-    G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
 
 Le cycle *G86* est destiné à l'alésage. Ce cycle utilise la valeur P pour 
 une temporisation en secondes. 
@@ -2351,27 +1828,26 @@ erreur si:
 
  - La broche ne tourne pas avant que ce cycle ne soit exécuté.
 
-=== G87 Alésage inverse[[sec:G87-Back-Boring]]
-
+== G87 Alésage inverse[[sec:G87-Back-Boring]]
 (((G87 Alésage inverse)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini.
 
 [[sec:G88-Alesage-Retrait-Manuel-Out]]
-=== G88 Alésage, arrêt de broche, retrait en manuel
-
+== G88 Alésage, arrêt de broche, retrait en manuel
 (((G88 Cycle d'alésage)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini.
 
 [[sec:G89-Alesage-Tempo]]
-=== G89 Cycle d'alésage, temporisation, retrait en vitesse travail
-
+== G89 Cycle d'alésage, temporisation, retrait en vitesse travail
 (((G89 Cycle d'alésage avec tempo)))
 
-    G89 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+G89 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
 
 Le cycle *G89* est destiné à l'alésage. Il utilise la valeur de P
 pour une temporisation en secondes. 
@@ -2436,9 +1912,8 @@ La deuxième raison d'utiliser les cycles de perçages, c'est qu'il
 produisent un mouvement préliminaire et retournent à une position
 prévisible et contrôlable, quel que soit le point de départ du cycle.
 
-[[sec:G90-G91-Set]]
+[[sec:G90-G91]]
 == G90, G91: Modes de déplacement
-
 (((G90 Mode de déplacements absolus)))
 (((G91 Mode de déplacements incrémentaux)))
 
@@ -2465,18 +1940,19 @@ peut être pas totalement implémentée.
 
 G90.1 Mode distance absolue pour les offsets I, J et K.
 
- - I et J doivent tous les deux être spécifiés ou une erreur se produira.
+* I et J doivent tous les deux être spécifiés ou une erreur se produira.
 
 G91.1 Mode distance incrémentale pour les offsets I, J et K.
 
- - Renvoie I, J et K à leur fonctionnement normal.
+* Renvoie I, J et K à leur fonctionnement normal.
 
 [[sec:G92-G92-1-G92-2-G92-3]]
 == G92, G92.1, G92.2, G92.3: Décalage d'origine des systèmes de coordonnées
-
 (((G92, G92.1, G92.2, G92.3 Décalages d'origine des systèmes de coordonnées)))
 
-    G92 X- Y- Z- A- B- C- U- V- W-
+----
+G92 X- Y- Z- A- B- C- U- V- W-
+----
 
 Voir cette section <<sec:Systemes-de-coordonnees, pour une vision générale>> 
 des systèmes de coordonnées.
@@ -2488,7 +1964,7 @@ moins un mot d'axe est obligatoire, les autres sont optionnels. Si il
 n'y a pas de mot d'axe pour un axe donné, les coordonnées de cet axe
 resteront inchangées. C'est une erreur si:
 
- - Tous les mots d'axes sont omis.
+* Tous les mots d'axes sont omis.
 
 Quand *G92* est exécuté, les origines de tout les systèmes de
 coordonnées sont
@@ -2533,7 +2009,6 @@ appliqués.
 
 [[sec:G93-G94-G95-Set]]
 == G93, G94, G95: Choix des modes de vitesse
-
 (((G93, G94, G95: Choix des modes de vitesse)))
 
     G93 est le mode inverse du temps.
@@ -2570,13 +2045,12 @@ mode vitesse inverse du temps est sans effet sur les mouvements G0
 
 C'est une erreur si:
 
- - Le mode vitesse inverse du temps est actif et qu'une ligne avec G1,
+* Le mode vitesse inverse du temps est actif et qu'une ligne avec G1,
    G2, ou G3 (explicitement ou implicitement) n'a pas de mot F.
- - Une nouvelle vitesse n'a pas été spécifiée après un passage en G94 ou G95.
+* Une nouvelle vitesse n'a pas été spécifiée après un passage en G94 ou G95.
 
 [[sec:G96-G97-Broche]]
 == G96, G97: Modes de contrôle de la broche
-
 (((G96, G97: Vitesse de coupe constante, Vitesse de coupe en tr/mn)))
 
     G96 D[vitesse de broche max] S[unités par minute] c'est le mode vitesse de 
@@ -2599,12 +2073,11 @@ Programmer *G97* pour activer le mode vitesse en tours par minute.
 
 C'est une erreur si:
 
- - S n'est pas spécifié avec G96.
- - Une vitesse est spécifiée en mode G96 et la broche ne tourne pas.
+* S n'est pas spécifié avec G96.
+* Une vitesse est spécifiée en mode G96 et la broche ne tourne pas.
 
 [[sec:G98-G99-Set]]
 == G98, G99: Options du plan de retrait
-
 (((G98, G99 Retrait à la position initiale, Retrait sur R)))
 
 Quand la broche se rétracte pendant les cycles de perçage, il
@@ -2632,841 +2105,6 @@ mouvement est abandonné, que ce soit explicitement avec G80 ou implicitement
 Basculer d'un mode de cycle à un autre, par exemple entre G81 et G83 
 n'annule pas le plan de retrait initial. Il est permis de basculer entre 
 G98 et G99 durant une série de cycles de perçage.
-
-
-= Les M-codes
-
-[[cha:Les-M-codes]]
-== Les M-codes
-
-[[sec:M0-M1-M2-M30]]
-== M0, M1, M2, M30, M60 Arrêts de programme[[sec:M0-M1-M2]]
-
-(((M0 Arrêt de programme)))
-(((M1 Arrêt optionnel de programme)))
-(((M2 Fin de programme)))
-(((M30 Fin de programme avec déchargement pièce)))
-(((M60 Fin de programme avec déchargement pièce)))
-
-Pour stopper temporairement un programme en cours 
-(quelle que soit la position du bouton d'arrêt facultatif), 
-programmer *M0*.
-EMC2 reste en mode automatique afin que le MDI et 
-d'autres actions manuelles ne soient pas activées.
-
-Pour stopper temporairement un programme en cours 
-(mais seulement si le bouton d'arrêt optionnel est activé), 
-programmer *M1*.
-EMC2 reste en mode automatique afin que le MDI et 
-d'autres actions manuelles ne soient pas activés.
-
-Il est permis de programmer *M0* et `M1` en mode données manuelles (MDI), 
-mais l'effet ne sera probablement pas perceptible, 
-puisque le comportement normal en mode MDI est 
-de s'arrêter, de toute façon, à la fin de chaque ligne.
-
-Pour procéder à l'échange de porte-pièce avec le chargeur de pièces et
-stopper temporairement un programme en cours (quel que soit le réglage
-du bouton d'arrêt facultatif), programmer *M60*.
-
-Si un programme est stoppé par M0, M1, ou M60, en appuyant sur le
-bouton de départ cycle, le programme reprend à la ligne suivante.
-
-Pour finir un programme, programmer *M2*. 
-Pour changer le porte-pièce du chargeur et finir un programme, programmer `M30`. 
-Ces deux commandes produisent les effets suivants:
-
- . Changement du mode automatique au mode MDI.
- . Les décalages d'axes sont mis à zéro (comme avec *G92.2* ) et les
-   décalages d'origine sont mis aux valeurs par défaut (comme
-   avec *G54*).
- . Le plan de travail actif devient XY (comme avec *G17*). 
- . Le mode de déplacement devient absolu (comme avec *G90*). 
- . La vitesse travail passe en unités par minute (comme avec *G94*).
- . Les correcteurs de vitesse sont activés (comme avec *M48*). 
- . Les compensations d'outil sont désactivées (comme avec *G40*). 
- . La broche est arrêtée (comme avec *M5*). 
- . Le mode mouvement courant devient G1 (comme avec *G1*). 
- . L'arrosage est arrêté (comme avec *M9*). 
-
-Plus aucune ligne de code RS274/NGC ne sera exécutée 
-après exécution de la commande M2 ou M30. 
-Presser le départ cycle relance le programme 
-au début du fichier.
-
-[[sec:M3-M4-M5]]
-== M3, M4, M5 Contrôle de broche
-
-(((M3 Broche en sens horaire)))
-(((M4 Broche en sens anti-horaire)))
-(((M5 Arrêt de broche)))
-
-Pour démarrer la broche en sens horaire à la vitesse *S*, programmer *M3 Snnnnn*.
-Pour démarrer la broche en sens anti-horaire à la vitesse *S*, programmer *M4 Snnnnn*.
-Pour arrêter la rotation de la broche, programmer *M5*. 
-
-Il est permis d'utiliser *M3* ou *M4* si la vitesse de broche est à zéro. 
-Si cela est fait 
-(ou si le bouton du correcteur de vitesse est activé mais mis à zéro), 
-la broche ne tournera pas. 
-Si, plus tard la vitesse de broche est augmentée 
-(ou que le correcteur de vitesse est augmenté), 
-la broche va se mettre en rotation. 
-Il est permis d'utiliser *M3* ou *M4* quand la broche est déjà 
-en rotation ou d'utiliser *M5* quand la broche est déjà arrêtée.
-
-[[sec:M6-Appel-Outil]]
-== M6 Appel d'outil
-
-(((M6 Appel d'outil)))
-
-=== Changement d'outil manuel
-
-Si le composant de HAL, hal_manualtoolchange est chargé, 
-M6 va arrêter la broche et inviter l'utilisateur à changer l'outil. 
-Pour plus d'informations sur hal_manualtoolchange voir 
-la section <<sec:Changement-D-Outil-Manuel, sur le changement manuel d'outil>>.
-
-=== Changement d'outil
-
-Pour changer l'outil, actuellement dans la broche, par un autre,
-nouvellement sélectionné en utilisant le mot T, voir la section 
-<<sec:T-Choix-Outil, sur le choix de l'outil>>, programmer *M6*. 
-Un changement d'outil complet donnera:
-
- - La rotation de la broche est arrêtée. 
- - L'outil qui a été sélectionné (par le mot T sur la même ligne ou sur
-   n'importe quelle ligne après le changement d'outil précédent), 
-   sera placé dans la broche. 
-   Le mot *T* est un nombre entier indiquant le 
-   numéro de poche d'outil dans le carrousel (non son index).
- - Si l'outil sélectionné n'est pas déjà dans la broche avant le
-   changement d'outil, l'outil qui était dans la broche 
-   (s'il y en avait un) 
-   va être replacé dans son emplacement dans le chargeur. 
- - Les coordonnées des axes seront arrêtées dans les mêmes positions
-   absolues qu'elles avaient avant le changement d'outil (mais la broche
-   devra peut-être être réorientée).
- - Aucune autre modification ne sera apportée. Par exemple, l'arrosage
-   continue à couler durant le changement d'outil à moins qu'il ne soit
-   arrêté par *M9*.
- - La longueur d'outil n'est pas modifié, 
-   utilisez G43 pour changer la longueur d'outil. 
-
-Le changement d'outil peut inclure des mouvements d'axes pendant son exécution. 
-Il est permis (mais pas utile) de programmer un changement d'outil avec 
-le même outil que celui qui est déjà dans la broche. 
-Il est permis également, si il n'y a pas d'outil dans le slot sélectionné, 
-dans ce cas, la broche sera vide après le changement d'outil. 
-Si le slot zéro a été le dernier sélectionné, 
-il n'y aura pas d'outil dans la broche après le changement.
-
-[[sec:M7-M8-M9]]
-== M7, M8, M9 Contrôle de l'arrosage
-
-(((M7 Arrosage gouttelettes)))
-(((M8 Arrosage fluide)))
-(((M9 Arrêt des arrosages)))
-
-Pour activer l'arrosage par gouttelettes, programmer *M7*.
-Pour activer l'arrosage fluide, programmer *M8*.
-Pour arrêter tous les arrosages, programmer *M9*.
-
-Il est toujours permis d'utiliser une de ces commandes, 
-que les arrosages soient arrêtés ou non.
-
-[[sec:M48-Activation-Correcteurs-Vitesse]]
-== M48 Activation des correcteurs de vitesse
-
-[[sec:M49-Inhibition-Correcteurs-Vitesse]]
-=== M49 Inhibition des correcteurs de vitesse
-
-(((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
-
-Pour autoriser les potentiomètres de corrections de 
-vitesses de broche et celui de vitesse travail, programmer *M48*. 
-Pour les inhiber tous les deux, programmer *M49*. 
-Il est permis d'autoriser ou d'inhiber ces potentiomètres quand 
-ils sont déjà autorisés ou inhibés. Ils peuvent aussi être activés individuellement 
-en utilisant les commandes M50 et M51 comme décrit dans les 
-sections <<sec:M50-Controle-Correcteur-Vitesse-Travail, sur M50>> et 
-<<sec:M51-Controle-Correcteur-Vitesse-Broche, celle sur M51>>.
-
-[[sec:M50-Controle-Correcteur-Vitesse-Travail]]
-=== M50 Contrôle du correcteur de vitesse travail
-
-(((M50 Contrôle du correcteur de vitesse travail)))
-
-Pour autoriser le potentiomètre de correction de vitesse travail,
-programmer *M50* ou *M50 P1*. 
-Pour inhiber ce potentiomètre, programmer *M50 P0*. 
-Quand il est inhibé, le potentiomètre de correction de
-vitesse n'a plus aucune influence 
-et les mouvements seront exécutés à la vitesse de travail programmée. 
-(à moins que ne soit actif un correcteur de vitesse adaptative).
-
-[[sec:M51-Controle-Correcteur-Vitesse-Broche]]
-=== M51 Contrôle du correcteur de vitesse broche
-
-(((M51 Contrôle du correcteur de vitesse broche)))
-
-Pour autoriser le potentiomètre de correction de vitesse de la broche, 
-programmer *M51* ou *M51 P1*. 
-Pour inhiber ce potentiomètre programmer *M51 P0*. 
-Quand il est inhibé, le potentiomètre de correction de vitesse de broche 
-n'a plus aucune influence, et la broche tournera à la vitesse programmée, 
-en utilisant le mot S comme décrit dans la section <<sec:S-Broche, sur le
-réglage de la vitesse de broche>>.
-
-[[sec:M52-Controle-Vitesse-Adaptative]]
-=== M52 Contrôle de vitesse adaptative
-
-(((M52 Contrôle vitesse adaptative)))
-
-Pour utiliser une vitesse adaptative, programmer *M52* ou *M52 P1*.
-Pour stopper l'utilisation d'une vitesse adaptative, programmer *M52 P0*. 
-Quand la vitesse adaptative est utilisée, 
-certaines valeurs externes sont utilisées avec les 
-correcteurs de vitesse de l'interface utilisateur et 
-les vitesses programmées pour obtenir la vitesse travail. 
-Dans EMC2, la HAL pin *motion.adaptive-feed* est utilisée dans ce but. 
-Les valeurs de *motion.adaptive-feed* doivent être dans une échelle comprise 
-entre 0 (pas de vitesse) et 1 (pleine vitesse).
-
-[[sec:M53-Controle-Coupure-Vitesse]]
-=== M53 Contrôle de coupure de vitesse
-
-(((M53 Contrôle coupure vitesse)))
-
-Pour autoriser le bouton de coupure de vitesse, programmer *M53* ou
-*M53 P1*. Pour inhiber ce bouton programmer *M53 P0* . Autoriser la
-coupure de vitesse permet d'interrompre les mouvements
-par le biais d'une coupure de vitesse. Dans EMC2, la HAL pin
-*motion.feed-hold* est utilisée pour cette fonctionnalité. Une valeur
-de 1 provoque un arrêt des mouvements (si *M53* est actif).
-
-[[sec:M61-Correction-Numero-Outil-Courant]]
-== M61 Correction du numéro de l'outil courant
-
-(((M61 Correction du numéro de l'outil courant)))
-
-Pour corriger le numéro de l'outil courant, en mode MDI ou après un
-changement manuel d'outil programmer *M61 Qxx* dans la fenêtre de données
-manuelles. Au démarrage d'EMC2 avec un outil dans la broche, il est
-possible ainsi d'ajuster le numéro de l'outil courant sans faire de
-changement d'outil.
-
-    C'est une erreur si:
-
- - Qxx n'est pas égal où supérieur à 0
-
-[[sec:M62-a-M65-Controle-Sortie-Numerique]]
-== M62 à M65 Contrôle de bits de sortie numérique
-
-(((M62 Contrôle un bit de sortie numérique)))
-
-Pour contrôler un bit de sortie numérique, programmer *M- P-* , 
-où le mot M doit être compris entre 62 et 65 et le mot P compris
-entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre 
-des entrées/sorties peut être augmenté en utilisant le paramètre *num_dio* 
-lors du chargement du contrôleur de mouvement. Voir le manuel de 
-l'intégrateur, sections EMC et section de HAL, pour plus d'informations.
-
-  - Le mot *P-* spécifie le numéro du bit de sortie numérique.
-
-M62:: (((M62)))
-    Activer un bit de sortie numérique en synchronisme avec un mouvement.
-
-M63:: (((M63)))
-    Désactiver un bit de sortie numérique en synchronisme avec un mouvement.
-
-M64:: (((M64)))
-    Activation directe d'un bit de sortie numérique.
-
-M65:: (((M65)))
-    Désactivation directe d'un bit de sortie numérique.
-
-Les commandes M62 et M63 seront mises en file d'attente. 
-Toute nouvelle commande, destinée à un bit sortie écrasera les anciens
-paramètres de ce bit. Plusieurs bits peuvent changer d'état 
-simultanément par l'envoi de plusieurs commandes M62/M63.
-
-Les nouveaux changements d'état des bits de sortie spécifiés, seront 
-effectifs au début du prochain mouvement commandé. S'il n'y a pas de 
-commande de mouvement ultérieur, les changements en attente 
-n'auront pas lieu. Il est préférable de toujours programmer un 
-g-code de mouvement (G0, G1, etc) juste après les M62/63.
-
-M64 et M65 produisent leur effet immédiatement, car ils sont directement 
-reçus par le contrôleur de mouvement. Ils ne sont pas synchronisés 
-avec un mouvement.
-
-[[sec:M66-Controle-Bit-Entree]]
-== M66 Contrôle d'un bit d'entrée
-
-(((M66 Contrôle d'un bit d'entrée)))
-
-Pour contrôler un bit d'entrée, programmer *M66 P- E- L- Q-*,
-où le mot P- et le mots E- vont de 0 à 3. 
-Si nécessaire, le nombre des entrées/sorties peut être augmenté en 
-utilisant les paramètres *num_dio* ou *num_aio* lors du chargement du
-contrôleur de mouvement. Voir le manuel de l'intégrateur pour
-plus d'informations, section des configurations, paragraphes EMC et HAL.
-Un seul des mots *P* ou *E* doit être présent. 
-C'est une erreur si ils sont présents tous les deux.
-
-M66:: (((M66)))
-    Attente d'une entrée
-
-- Le mot *P* spécifie le numéro d'un bit d'entrée numérique.  
-- Le mot *E* spécifie le numéro d'un bit d'entrée analogique. 
-- Le mot *L* spécifie le type d'attente.
-
--- 0:: *WAIT_MODE_IMMEDIATE* - pas d'attente, retour immédiat, 
-       la valeur courante de l'entrée est stockée dans le paramètre #5399
--- 1:: *WAIT_MODE_RISE* - attente d'un front montant sur l'entrée.
--- 2:: *WAIT_MODE_FALL* - attente d'un front descendant sur l'entrée.
--- 3:: *WAIT_MODE_HIGH* - attente d'un état logique HIGH sur l'entrée.
--- 4:: *WAIT_MODE_LOW*  - attente d'un état logique LOW sur l'entrée.
-
-- Le mot *Q* spécifie le timeout pour l'attente, en secondes. Si le timeout est
-   dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.
-- Le type *0* est le seul autorisé pour une entrée analogique.
-
-M66 attends un nouvel événement sur l'entrée ou la fin de l'exécution
-du programme, jusqu'à ce que l'événement sélectionné (ou le timeout
-programmé) ne survienne. C'est une erreur de programmer une valeur de
-timeout à 0 dans tous les types, sauf le type 0.
-
-C'est également une erreur de programmer *M66* avec les deux mots, un
-mot P et un mot E (ce qui reviendrait à sélectionner à la fois une
-entrée analogique et une numérique).
-
-[[sec:M67-Controle-Sortie-Analogique-Synchro]]
-== M67 Contrôle de sortie analogique
-
-(((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
-
-Pour contrôler une sortie analogique synchronisée avec un mouvement, 
-programmer *M67 E- Q-*, où le mot E doit être compris entre 0 et 3, 
-3 étant le maximum par défaut, et où le mot Q est la valeur à appliquer. 
-Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre
-*num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
-"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
-pour plus d'informations sur le contrôleur de mouvement. M67 fonctionne
-comme M62-63. Voir la section M62-65 pour des informations au sujet des
-commandes en file d'attente synchronisées avec un mouvement.
-
-[[sec:M68-Controle-Sortie-Analogique-Directe]]
-== M68 Contrôle de sortie analogique directe
-
-(((M68 Contrôle de Sortie analogique directe)))
-
-Pour contrôler une sortie analogique directement, programmer *M68 E- Q-*, 
-où le mot E doit être compris entre 0 et 3 et le mot Q est la valeur
-à appliquer. Le nombre d'entrées/sorties peut être augmenté en utilisant
-le paramètre *num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
-"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
-pour plus d'informations sur le contrôleur de mouvement. M68 fonctionne
-comme M64-65. Voir la section M62-65 pour des informations au sujet des
-commandes directes.
-
-[[sec:M100-a-M199]]
-== M100 à M199 Commandes définies par l'utilisateur
-
-(((M100 à M199 M-codes définis par l'utilisateur)))
-(((M-codes définis par l'utilisateur M100-M199)))
-
-Pour invoquer une commande définie par l'utilisateur, programmer M1xx
-P- Q-* où P et Q sont facultatifs. Le programme externe, nommé *M1nn*, qui
-doit se trouver dans le répertoire pointé par la variable [DISPLAY]
-PROGRAM_PREFIX du fichier ini, est exécuté avec les valeurs P et Q
-comme étant ses deux arguments. L'exécution du fichier G-code courant
-passe en pause jusqu'à ce que le programme invoqué soit terminé.
-
-Le message d'erreur *M-code inconnu* signifie que:
-
- - La commande spécifiée n'existe pas.
- - Le fichier n'est pas exécutable.
-
-Exemple valide: dans un programme g-code, on doit ouvrir et fermer un mandrin
-automatique via une broche du port parallèle, on appellera
-respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
-deux scripts bash correspondants, appelés M101 et M102 seront créés
-avant le lancement d'EMC2 puis rendus exécutables, par exemple par un
-clic droit puis *propriétés -> permissions -> Exécution*.
-
-Fichier M101 
-----
-    #!/bin/bash
-    # ce fichier met la broche 14 du port à 1 pour ouvrir le mandrin automatique
-    halcmd setp parport.0.pin-14-out True
-    exit 0
-----
-
-
-Fichier M102
-----
-    #!/bin/bash
-    # ce fichier met la broche 14 du port à 0 pour fermer le mandrin automatique
-    halcmd setp parport.0.pin-14-out False
-    exit 0
-----
-
-
-Pour passer une variable à un fichier M1nn utiliser les mots optionnels P et Q 
-de cette façon:
-
-----
-    M100 P123.456 Q321.654
-----
-
-
-Le contenu de votre script M100 devrait ressembler à ça:
-
-----
-    #!/bin/sh
-    tension=$1
-    vitesse=$2
-    halcmd setp thc.voltage $tension
-    halcmd setp thc.feedrate $vitesse
-    exit 0
-----
-
-= Les O-codes
-
-[[sec:O-Codes]]
-== Les O-codes
-
-(((O-codes)))
-
-Les O-codes permettent le contrôle de flux dans les programmes NGC.
-Chaque bloc est associé à une adresse, qui est la valeur utilisée
-après le O. Il faut prendre soin de bien faire correspondre les
-adresses des O-codes.
-
-Le comportement est indéfini si:
-
- - D'autres mots sont utilisés sur une ligne contenant un O-code.
- - Un commentaire est utilisé sur une ligne contenant un O-code.
-
-== Sous-programmes: *sub*, *endsub*, *return*, *call*
-
-(((Sous-programmes: sub, endsub, return, call)))
-(((sub)))(((endsub)))(((return)))(((call)))
-
-Les sous-programmes s'étendent d'un *O- sub* à un *O- endsub*. 
-Les lignes, à l'intérieur du sous-programme (le corps du
-sous-programme), ne sont pas exécutées dans l'ordre, mais 
-elles sont exécutées à chaque fois que le sous-programme 
-est appelé avec un *O-call*. 
-
-----
-    O100 sub (Sous-programme pour allez à l'origine machine)
-    G0 X0 Y0 Z0
-    O100 endsub
-    (autres lignes)
-    O100 call
-----
-
-
-À l'intérieur d'un sous-programme, *O- return* peut être exécuté,
-pour retourner immédiatement au code appelant,
-comme si *O- endsub* avait été rencontré.
-
-*O- call* peut prendre jusqu'à 30 arguments optionnels, qui sont
-passés au sous-programme comme *#1*, *#2* , ..., *#N*. Les paramètres de *#N+1* à
-*#30* ont la même valeur dans le contexte de l'appel. 
-Au retour du sous-programme, les valeurs des
-paramètres #1 jusqu'à #30 (quel que soit le nombre d'arguments) sont
-restaurés aux valeurs qu'ils avaient avant l'appel.
-
-Parce que *1 2 3* est analysé comme le nombre 123, les paramètres
-doivent être placés entre crochets. L'appel de sous-programme suivant,
-s'effectue avec 3 arguments:
-----
-    O200 call [1] [2] [3]
-----
-
-Les corps de sous-programme ne peuvent pas être imbriqués. Ils ne
-peuvent être appelés qu'après avoir été définis. Ils peuvent être
-appelés depuis d'autres fonctions et peuvent s'appeler eux même
-récursivement, s'il est judicieux de le faire. Le niveau maximum
-d'imbrication des sous-programmes est de 10.
-
-Les sous-programmes n'ont pas de *valeur de retour*, mais ils peuvent
-changer la valeur des paramètres au dessus de #30 et ces changements
-sont visibles depuis le code appelant. Les sous-programmes peuvent
-aussi changer la valeur des paramètres nommés globaux.
-
-== Boucles: *do*, *while*, *endwhile*, *break*, *continue*
-
-(((Boucles: do, while, endwhile, break, continue)))
-(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
-
-La boucle *while* a deux structures possibles: while/endwhile et do/while. 
-Dans chaque cas, la boucle est quittée quand la condition 
-du *while* devient fausse.
-
-----
-    (dessine la forme d'une dent de scie)
-    F100
-    #1 = 0
-    O101 while [#1 lt 10]
-    G1 X0
-    G1 Y[#1/10] X1
-    #1 = [#1+1]
-    O101 endwhile
-----
-
-
-À l'intérieur d'une boucle while, *O- break*, quitte immédiatement
-la boucle et *O- continue*, saute immédiatement à la prochaine
-évaluation de la condition du *while*. Si elle est vraie, la boucle
-recommence au début. Si elle est fausse, la boucle est quittée.
-
-== Conditionnel: *if*, *else*, *endif*
-
-(((Conditional: if, else, endif)))
-(((if)))(((else)))(((endif)))
-
-Le *if* conditionnel exécute un groupe d'instructions si sa condition
-est vraie et un autre groupe si elle est fausse.
-
-----
-    (Ajuste la vitesse travail en fonction d'une variable)
-    O102 if [#2 GT 5]
-    F100
-    O102 else
-    F200
-    O102 endif
-----
-
-
-== Répétition: *Repeat*
-
-(((Repeat)))
-
-La répétition *repeat*, exécutera les blocs contenus entre *repeat* et
-*endrepeat* le nombre de fois spécifié entre crochets. L'exemple
-suivant montre comment usiner une séries de 5 formes diagonales
-commençant à la position courante.
-
-----
-    (Usine 5 formes diagonales)
-    G91 (Mode incrémental)
-    O103 repeat [5]
-    ... (insérer le code d'usinage ici)
-    G0 X1 Y1 (Mouvement en diagonale vers la position suivante)
-    O103 endrepeat
-    G90 (Mode absolu)
-----
-
-
-== Indirection
-
-(((Indirection)))
-
-L'adresse de O- peut être donnée par un paramètre ou un calcul.
-
-----
-    O[#101+2] call
-----
-
-
-== Calcul des valeurs dans les O-codes
-
-Voici un condensé des sections utiles aux calculs des O-codes, 
-les <<sec:Parametres-Numerotes, paramètres numérotés>>, 
-les <<sec:Expressions, expressions>>, 
-les <<sec:Operateurs-Binaires, opérateurs binaires>>, 
-et le <<sec:Fonctions, tableau des fonctions>>.
-
-== Appel de fichiers
-
-(((Appel de fichiers)))
-
-Pour appeler un fichier par son nom, celui-ci doit contenir un *sub*
-et un *endsub*. Le fichier appelé doit se trouver dans le répertoire
-pointé par la variable PROGRAM_PREFIX du fichier ini.
-
-----
-    o<monfichier> call (un fichier nommé)
-----
-
-
-ou
-
-----
-    o123 call (un numéro de fichier)
-----
-
-
-Dans le fichier appelé doit se touver le *sub* et le *endsub*
-correspondant à l'appel. Le fichier doit être un fichier valide.
-
-Exemple:
-
-----
-    myfile.ngc
-    o<myfile> sub
-    ...
-    o<myfile> endsub
-    M2
-----
-
-= Les autres codes
-
-[[cha:Les-autres-codes]]
-== Les autres codes
-
-[[sec:F-Vitesse]]
-== F: Réglage de la vitesse d'avance travail
-
-(((F: Réglage de la vitesse d'avance travail)))
-
-Pour régler la vitesse d'avance, programmer *F-*. 
-L'application de la vitesse est telle que décrite dans la section 
-<<sec:Vitesse-d-avance,dans machining_center_fr>>, à moins que le mode vitesse 
-inverse du temps ne soit activé, dans ce cas, la vitesse est telle que décrite dans la
-section <<sec:G93-G94-G95-Set, sur les modes de vitesse>>.
-
-[[sec:S-Broche]]
-== S: Réglage de la vitesse de rotation de la broche
-
-(((S: Réglage de la vitesse de rotation de la broche)))
-
-Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer *S-*. 
-La broche va tourner à cette vitesse quand elle sera programmée pour tourner. 
-Il est permis de programmer un mot *S* que la broche tourne ou non. 
-Si le potentiomètre de correction de vitesse broche est
-autorisé et n'est pas positionné sur 100%, 
-la vitesse de broche sera différente de celle programmée. 
-Il est permis de programmer *S0*, la broche ne tournera pas. 
-
-C'est une erreur si:
-
- - La valeur de S est négative.
-
-Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
-taraudage à droite>>, si un *cycle de perçage G84* (taraudage) est actif et que 
-les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le 
-réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons 
-synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même 
-si le potentiomètre de correction de vitesse travail est sur 100%.
-
-[[sec:T-Choix-Outil]]
-== T: Choix de l'outil
-
-(((T: Choix de l'outil)))
-
-Pour sélectionner un outil, programmer *T-*, où la valeur de *T* 
-correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera 
-appelé et changé que quand un *M6* sera programmé voir la section 
-<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot *T* peut apparaitre sur la 
-même ligne que le *M6* ou sur une ligne précédente. Il est permis, mais 
-normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant, 
-sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot 
-T ne prendra effet qu'au prochain changement d'outil. Il est permis de 
-programmer *T0*, aucun outil ne sera sélectionné. C'est utile pour 
-avoir la broche vide. 
-
-C'est une erreur si:
-
- - Un valeur négative de T est utilisée. 
- - Une valeur de T supérieure au nombre de poches d'outils dans le
-   carrousel est utilisée.
-
-Sur certaines machines, le carrousel se déplace lorsque le mot T est
-programmé, avec l'usinage en cours. Sur ces machines, programmer *Tn*,
-plusieurs lignes de texte avant le changement d'outil permet de gagner
-du temps. Une pratique de programmation courante pour ces types de
-machines, consiste à placer le mot T pour le prochain outil sur la
-ligne suivant le changement d'outil. Cela laisse au carrousel tout le
-temps pour se positionner.
-
-Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de 
-parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail.
-Cela se remarque surtout sur les machines ayant de longues distances de 
-déplacement lors du changement d'outil, comme les tours. 
-Cela peut prêter à confusion au début. 
-Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans 
-mouvement juste après le T<n>.
-
-== Commentaires[[sec:Commentaires]]
-
-(((commentaires)))
-
-Si un point-virgule est rencontré en début de ligne, le reste de la ligne 
-est un commentaire. Un ensemble de caractères et espaces blancs entre 
-parenthèses est un commentaire. Une parenthèse ouvrante débute toujours un 
-commentaire. Le commentaire se termine à la première parenthèse fermante trouvée. 
-Si une parenthèse ouvrante est trouvée sur une ligne, une parenthèse
-fermante doit être également rencontrée avant la fin de la ligne. Les
-commentaires ne peuvent pas être imbriqués, une erreur sera signalée si
-une parenthèse ouvrante est rencontrée après le début d'un commentaire
-et avant la fin d'un commentaire. Un point-virgule rencontré entre des 
-parenthèses, n'est pas considéré comme le début d'un commentaire.
-
-Voici un exemple de programme commenté: 
-----
-    G0 (Rapide à démarrer.) X1 Y1 
-    G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.) 
-    M2 ; Fin du programme.
-----
-
-Les commentaires sont seulement informatifs, ils n'ont aucune 
-influence sur la machine.
-
-[[sec:Messages]]
-=== Messages
-
-(((Messages)))
-
-Un commentaire contient un message si *MSG* apparaît après la
-parenthèse ouvrante, et avant tout autre caractère. Les variantes de
-*MSG* qui incluent un espace blanc et des minuscules sont autorisées. 
-Le reste du texte avant la parenthèse fermante est considéré comme le
-message. Les messages sont affichés sur la visu de l'interface
-utilisateur. Les commentaires ne contenant pas de message ne sont pas
-affichés.
-
-[[sec:Log-des-mesures]]
-=== Enregistrement des mesures
-
-(((Enregistrement des mesures)))
-
-Un commentaire peut aussi être utilisé pour spécifier le fichier de
-log des résultats des mesures faites au palpeur avec G38.x . Voir la
-section <<sec:G38-x-Palpeur, sur la mesure au palpeur>>.
-
-[[sec:Log-general]]
-=== Log général
-
-(((Log général)))
-
-==== (LOGOPEN,filename)
-
-Ouvre le fichier de log *filename*. Si le fichier existe déjà, il sera
-tronqué.
-
-==== (LOGAPPEND,filename)
-
-Ouvre le fichier de log *filename*. Si le fichier existe déjà, il sera 
-ajoutées.
-
-==== (LOGCLOSE)
-
-Si le fichier est ouvert, il sera fermé.
-
-==== (LOG,…)
-
-Le message *…* est étendu comme décrit plus loin, il est écrit dans le
-fichier de log si il est ouvert.
-
-[[sec:Messages-debogage]]
-=== Messages de débogage
-
-(((Messages de débogage)))
-
-Les commentaires comme: *(debug, reste du commentaire)* sont traités
-de la même façon que ceux avec *(msg, reste du commentaire)* avec
-l'ajout de possibilités spéciales pour les paramètres.
-
-Les commentaires comme: *(print, reste du commentaire)* vont
-directement sur la sortie *stderr* avec des possibilités spéciales
-pour les paramètres.
-
-=== Paramètres dans les commentaires
-
-Dans les commentaires avec DEBUG, PRINT et LOG, les valeurs des
-paramètres dans le message sont étendues.
-
-Par exemple: pour afficher une variable nommée globale sur la sortie
-stderr (la fenêtre de la console par défaut) ajouter une ligne au
-G-code comme:
-
-    (print,diamètre fraise 3 dents = #<_troisdents_dia>)
-
-À l'intérieur de ces types de commentaires, les séquences comme *#123*
-sont remplacées par la valeur du paramètre 123. Les séquences comme
-*#<paramètre nommé>* sont remplacées par la valeur du paramètre nommé.
-Rappelez vous que
- les espaces dans les noms des paramètres nommés sont supprimés,
-*#<parametre nomme>* est équivalent à *#<parametrenomme>*.
-
-== G-Code: Bonnes pratiques
-
-(((G-Code bonnes pratiques)))
-
-=== Utiliser un nombre de décimales approprié
-
-Utiliser au plus 3 chiffres après la virgule pour l'usinage en
-millimètres et au plus 4 chiffres après la virgule pour l'usinage en
-pouces. En particulier, les contrôles de tolérance des arcs sont faits
-pour .001 et .0001 selon les unités actives.
-
-=== Utiliser les espaces de façon cohérente
-
-Le G-code est plus lisible quand au moins un espace apparaît avant les
-mots. S'il est permis d'insérer des espaces blancs au milieu des
-chiffres, il faut éviter de le faire.
-
-=== Préférer le *format centre* pour les arcs
-
-Les arcs en format centre (qui utilisent *I- J- K-* au lieu de *R-* )
-se comportent de façon plus précise que ceux en format rayon,
-particulièrement pour des angles proche de 180 et 360 degrés.
-
-=== Placer les codes modaux importants au début des programmes
-
-Lorsque l'exécution correcte de votre programme dépend de paramètres
-modaux, n'oubliez pas de les mettre au début du programme. Des modes
-incorrects peuvent provenir d'un programme précédent ou depuis des
-entrées manuelles.
-
-Une bonne mesure préventive consiste à placer la ligne suivante au
-début de tous les programmes:
-----
-    G17 G21 G40 G49 G54 G80 G90 G94 
-----
-
-(plan XY, mode mm, annulation de la compensation de rayon, et de
-longueur, système de coordonnées numéro 1, arrêt des mouvements,
-déplacements absolus, mode vitesse/minute)
-
-Peut-être que le code modal le plus important est le réglage des
-unités machine. Si les codes G20 ou G21, ne sont pas inclus, selon les
-machines l'échelle d'usinage sera différente. D'autres valeurs comme le
-plan de retrait des cycles de perçage peuvent être importantes.
-
-=== Ne pas mettre trop de choses sur une ligne
-
-Ignorer le contenu de la section <<sec:Ordre-d-execution, ordre d'exécution>> et 
-ne pas écrire de ligne de code qui laisse la moindre ambiguïté. 
-
-=== Ne pas régler et utiliser un paramètre sur la même ligne
-
-Ne pas _utiliser_ et _définir_ un paramètre sur la même ligne, même si 
-la sémantique est bien définie. Mettre à jour une variable, à une 
-nouvelle valeur, telle que *#1 = [#1 + #2]* est autorisé.
-
-=== Ne pas utiliser les numéros de ligne
-
-Les numéros de ligne n'apportent rien. Quand des numéros de ligne sont
-rapportés dans les messages d'erreur, ces numéros font référence aux
-numéros de lignes à l'intérieur du programme, pas aux valeurs des mots N.
-
-=== Lorsque plusieurs systèmes de coordonnées sont déplacés 
-
-envisager le mode vitesse inverse du temps.
-
-Parce que la signification d'un mot *F* en mètres par minute varie selon
-les axes à déplacer et parce que la quantité de matière enlevée ne
-dépend pas que de la vitesse travail, il peut être plus simple
-d'utiliser G93, vitesse inverse du temps, pour atteindre l'enlèvement de
-matière souhaité.
-
 
 // vim: set syntax=asciidoc:
 

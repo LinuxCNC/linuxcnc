@@ -1,6 +1,3 @@
-//:lang: en
-:toc:
-
 = Running EMC2(((Running EMC2)))
 
 == Invoking EMC2

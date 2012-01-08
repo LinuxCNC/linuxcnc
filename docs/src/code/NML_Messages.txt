@@ -793,7 +793,7 @@ for tool length
 Written From: USE_TOOL_LENGTH_OFFSET (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `remembers the origin offset into emcStatus->task.origin
+`                `remembers the origin offset into emcStatus\->task.origin
 
 Parameter, Type: [offset, EmcPose]
 

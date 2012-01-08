@@ -2,7 +2,7 @@ User Manuelle V0.1, {localdate}
 =============================
 The EMC Team
 
-:lang: pl
+//:lang: pl
 
 :masterdir: {indir}
 
@@ -53,8 +53,6 @@ include::gcode/m-code_pl.txt[]
 include::gcode/o-code_pl.txt[]
 
 include::gcode/other-code_pl.txt[]
-
-include::gcode/mill_canned_pl.txt[]
 
 include::examples/gcode_pl.txt[]
 

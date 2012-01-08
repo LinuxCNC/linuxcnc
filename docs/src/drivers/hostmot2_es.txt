@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = Mesa HostMot2 (((Mesa HostMot2)))
 
 == Introduction 
@@ -530,7 +527,7 @@ Each stepgen instance has the following pins and parameters:
      (u32, RW) Output format, like the step_type modparam to the software
     stegen(9) component. 0 = Step/Dir, 1 = Up/Down, 2 = Quadrature. In
     Quadrature mode (step_type=2), the stepgen outputs one complete Gray
-    cycle (00 -> 01 -> 11 -> 10 -> 00) for each 'step' it takes.
+    cycle (00 \-> 01 \-> 11 \-> 10 \-> 00) for each 'step' it takes.
 
 * 'steplen' - 
     (u32, RW) Duration of the step signal, in nanoseconds.

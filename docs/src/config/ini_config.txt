@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = INI File
 
 == The INI File Layout
@@ -14,7 +11,7 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines. Each end of line
 or newline character creates a new element.
 
-=== Comments (((comments)))
+=== Comments (((Comments, INI File)))
 
 A comment line is started with a ; or a # mark. When the ini reader
 sees either of these marks at the start a line, the rest of the line is
@@ -51,26 +48,26 @@ CORRECT = value
 
 === Sections
 
-Related parts of an ini file are separated into sections. 
-A section starts with the name of the section in brackets like [THIS_SECTION]. 
-The name of the section is enclosed in brackets. 
-The order of sections is unimportant. 
-Custom sections can be added and referenced in HAL. 
+Related parts of an ini file are separated into sections.
+A section starts with the name of the section in brackets like [THIS_SECTION].
+The name of the section is enclosed in brackets.
+The order of sections is unimportant.
+Custom sections can be added and referenced in HAL.
 Sections begin at the section name and end at the next section name.
 
 The following sections are used by EMC:
 
-* '[EMC]' general information (<<sub:[EMC]-section>>)
-* '[DISPLAY]' settings related to the graphical user interface (<<sub:[DISPLAY]-section>>)
-* '[FILTER]' settings input filter programs ([sub:[FILTER]-Section])
-* '[RS274NGC]' settings used by the g-code interpreter (<<sub:[RS274NGC]-section>>)
-* '[EMCMOT]' settings used by the real time motion controller (<<sub:[EMCMOT]-section>>)
-* '[TASK]' settings used by the task controller (<<sub:[TASK]-section>>)
-* '[HAL]' specifies .hal files (<<sub:[HAL]-section>>)
-* '[HALUI]' MDI commands used by HALUI. (<<sub:[HALUI]-section>>)
-* '[TRAJ]' additional settings used by the real time motion controller (<<sub:[TRAJ]-section>>)
-* '[AXIS_0] ... [AXIS_8]' individual axis variables (<<sub:[AXIS]-section>>)
-* '[EMCIO]' settings used by the I/O Controller (<<sub:[EMCIO]-Section>>)
+* '[<<sub:[EMC]-section,EMC>>]' general information
+* '[<<sub:[DISPLAY]-section,DISPLAY>>]' settings related to the graphical user interface
+* '[<<sub:[FILTER]-Section,FILTER>>]' settings input filter programs
+* '[<<sub:[RS274NGC]-section,RS274NGC>>]' settings used by the g-code interpreter
+* '[<<sub:[EMCMOT]-section,EMCMOT>>]' settings used by the real time motion controller
+* '[<<sub:[TASK]-section,TASK>>]' settings used by the task controller
+* '[<<sub:[HAL]-section,HAL>>]' specifies .hal files
+* '[<<sub:[HALUI]-section,HALUI>>]' MDI commands used by HALUI
+* '[<<sub:[TRAJ]-section,TRAJ>>]' additional settings used by the real time motion controller
+* '[<<sub:[AXIS]-section,AXIS_n>>]' individual axis variables
+* '[<<sub:[EMCIO]-Section,EMCIO>>]' settings used by the I/O Controller
 
 === Variables
 
@@ -106,10 +103,10 @@ Custom variables can be used in your HAL files with the following syntax.
 
 (((EMC (inifile section))))
 
-* 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd 
-    because it is automatically updated when using the Revision Control 
-    System. It's a good idea to change this number each time you revise 
-    your file. If you want to edit this manually just change the number and 
+* 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd
+    because it is automatically updated when using the Revision Control
+    System. It's a good idea to change this number each time you revise
+    your file. If you want to edit this manually just change the number and
     leave the other tags alone. 
 
 * 'MACHINE = My Controller' - This is the name of the controller, which is printed out at the top
@@ -118,7 +115,7 @@ Custom variables can be used in your HAL files with the following syntax.
 
 * 'DEBUG = 0' - Debug level 0 means no messages will be printed when EMC is run from a
     terminal. Debug flags are usually only useful to developers. See
-    src/emc/nml_intf/emcglb.h for other settings. 
+    src/emc/nml_intf/emcglb.h for other settings.
 
 === [DISPLAY] Section[[sub:[DISPLAY]-section]]
 
@@ -132,7 +129,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-    may include: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick))) 
+    may include: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick)))
     mini,(((mini))) tkemc,(((tkemc))) xemc,(((xemc)))
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE) to show when the user
@@ -166,25 +163,25 @@ User Manual.
 The following [DISPLAY] items are used only if you select AXIS as your
 user interface program.
 
-* 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in machine units per second. 
+* 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in machine units per second.
 
-* 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider. 
+* 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
 
-* 'MAX_LINEAR_VELOCITY = 1.0' - The maximum velocity for linear jogs, in machine units per second. 
+* 'MAX_LINEAR_VELOCITY = 1.0' - The maximum velocity for linear jogs, in machine units per second.
 
 * 'MIN_LINEAR_VELOCITY = .01' - The approximate lowest value the jog slider.
 
-* 'DEFAULT_ANGULAR_VELOCITY = .25' - The default velocity for angular jogs, in machine units per second. 
+* 'DEFAULT_ANGULAR_VELOCITY = .25' - The default velocity for angular jogs, in machine units per second.
 
 * 'MIN_ANGULAR_VELOCITY = .01' - The approximate lowest value the jog slider.
 
-* 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second. 
+* 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second.
 
-* 'INCREMENTS = 1 mm, .5 in, ...' - Defines the increments available for incremental jogs. 
+* 'INCREMENTS = 1 mm, .5 in, ...' - Defines the increments available for incremental jogs.
     The INCREMENTS can be used to override the default. 
-    The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16), 
-    optionally followed by a unit (cm, mm, um, inch, in or mil). 
-    If a unit is not specified the machine unit is assumed. 
+    The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16),
+    optionally followed by a unit (cm, mm, um, inch, in or mil).
+    If a unit is not specified the machine unit is assumed.
     Metric and imperial distances may be mixed:
     INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
 
@@ -193,10 +190,10 @@ user interface program.
 
 * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the gcode 
     from the AXIS menu. This must be configured for this menu item to
-    work. Another valid entry is gnome-terminal -e vim. 
+    work. Another valid entry is gnome-terminal -e vim.
 
 * 'TOOL_EDITOR = tooledit' - The editor to use when editing the tool table (for example by
-    selecting "File > Edit tool table..." in Axis).  Other valid
+    selecting "File > Edit tool table..." in Axis). Other valid
     entries are "gedit", "gnome-terminal -e vim", and "gvim".
 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the PyVCP section for more
@@ -207,10 +204,10 @@ user interface program.
 
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
     of a sequence of axis letters, optionally preceded by a "-" sign. Only
-    axes defined in '[TRAJ]AXES'  should be used. This sequence specifies
+    axes defined in '[TRAJ]AXES' should be used. This sequence specifies
     the order in which the effect
     of each axis is applied, with a "-" inverting the sense of the
-    rotation. 
+    rotation.
      The proper GEOMETRY string depends on the machine configuration and
     the kinematics used to control it. The example string GEOMETRY=XYZBCUVW
     is for a 5-axis machine where kinematics causes UVW to move in the
@@ -222,7 +219,7 @@ user interface program.
 
 * 'ARCDIVISION = 64' - Set the quality of preview of arcs. Arcs are previewed by dividing
     them into a number of straight lines; a semicircle is divided into
-    *ARCDIVISION*  parts. Larger values give a more accurate preview, but
+    *ARCDIVISION* parts. Larger values give a more accurate preview, but
     take longer to
     load and result in a more sluggish display. Smaller values give a less
     accurate preview, but take less time to load and may result in a faster
@@ -231,14 +228,14 @@ user interface program.
     the default value was 128.]
 
 * 'MDI_HISTORY_FILE =' - The name of a local MDI history file. If this is not specified Axis
-    will save the MDI history in *.axis_mdi_history* in the user's home 
+    will save the MDI history in *.axis_mdi_history* in the user's home
     directory. This is useful if you have multiple configurations on one
     computer.
 
 The following [DISPLAY] items are not used if you select AXIS as your
 user interface program.
 
-* 'HELP_FILE = tkemc.txt' - 
+* 'HELP_FILE = tkemc.txt' -
     Path to help file (not used in AXIS).
 
 === [FILTER] Section[[sub:[FILTER]-Section]]
@@ -281,7 +278,7 @@ In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
 nc_files/holecircle.py. This script creates g-code for drilling a
 series of holes along the circumference of a circle. Many more g-code
-generators are on the EMC Wiki site 
+generators are on the EMC Wiki site
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl].
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
@@ -296,7 +293,7 @@ should be used by any filter that runs for a long time.
 
 (((RS274NGC (inifile section))))
 
-* 'PARAMETER_FILE = myfile.var' - 
+* 'PARAMETER_FILE = myfile.var' -
     (((PARAMETER FILE))) The file located in the same directory as the ini
     file which contains the parameters used by the interpreter (saved
     between runs). 
@@ -306,14 +303,14 @@ should be used by any filter that runs for a long time.
     of an <<sec:M19,M19 Orient Spindle> operation. Used to define an arbitrary
     zero position regardless of encoder mount orientation.
 
-* 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G54 G64 P0.001 G80 G90 G94 G97 G98' -
+* 'RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98' - 
     (((RS274NGC STARTUP CODE))) A string of NC codes that the interpreter
     is initialized with. This is not a substitute for specifying modal
     g-codes at the top of each ngc file, because the modal codes of
     machines differ, and may be changed by g-code interpreted earlier in
     the session.
 
-* 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' - 
+* 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
     (((SUBROUTINE PATH))) Specifies a colon (:) separated list of up to 10
     directories to be searched when single-file subroutines are specified
     in gcode. These directories are searched after searching
@@ -323,13 +320,13 @@ should be used by any filter that runs for a long time.
     current directory for the inifile or as absolute paths. The list must
     contain no intervening whitespace.
 
-* 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH))) 
+* 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories
    (no intervening whitespace) for user defined functions. The maximum
    number of directories is defined at compile time by:
    'USER_DEFINED_FUNCTION_MAX_DIRS=5'. Directories are specified relative to
    the current directory for the inifile or as absolute paths. The list
-   must contain no intervening whitespace. 
+   must contain no intervening whitespace.
 
 A search is made for each possible user defined function, typically
 (M100-M199). The search order is:
@@ -348,29 +345,29 @@ You may find other entries in this section and they should not be
 changed.
 
 * 'BASE_PERIOD = 50000' - (((BASE PERIOD))) This is the "Base" task period
-(in HAL), in nanoseconds. This is the fastest thread in the machine. 
+(in HAL), in nanoseconds. This is the fastest thread in the machine.
 
 [NOTE]
-On servo-based systems, there is generally no reason for 
-'BASE_PERIOD' to be smaller than 'SERVO_PERIOD'.  
-On machines with software step generation, the 'BASE_PERIOD' 
+On servo-based systems, there is generally no reason for
+'BASE_PERIOD' to be smaller than 'SERVO_PERIOD'.
+On machines with software step generation, the 'BASE_PERIOD'
 determines the maximum number of steps per second. In the absence of
 long step length and step space requirements, the absolute maximum step
-rate is one step per 'BASE_PERIOD'. Thus, the 'BASE_PERIOD'  shown
+rate is one step per 'BASE_PERIOD'. Thus, the 'BASE_PERIOD' shown
 above gives an absolute maximum step rate of 20,000 steps per
-second. 50,000 ns (50 us) is a fairly conservative value. The 
-smallest usable value is related to the Latency Test result, the 
-necessary step length, and the processor speed. 
+second. 50,000 ns (50 us) is a fairly conservative value. The
+smallest usable value is related to the Latency Test result, the
+necessary step length, and the processor speed.
 Choosing a 'BASE_PERIOD' that is too low can lead to the "Unexpected
 real time delay" message, lockups, or spontaneous reboots.
 
 * 'SERVO_PERIOD = 1000000' - (((SERVO PERIOD))) 
-This is the "Servo" task period (in HAL), in nanoseconds. 
-This value will be rounded to an integer multiple of *BASE_PERIOD*. 
-This value is used even on systems based on stepper motors. 
+This is the "Servo" task period (in HAL), in nanoseconds.
+This value will be rounded to an integer multiple of *BASE_PERIOD*.
+This value is used even on systems based on stepper motors.
 +
 This is the rate at which new motor positions are computed, following
-error is checked, PID output values are updated, and so on. 
+error is checked, PID output values are updated, and so on.
 Most systems will not need to change this value. It is the update rate
 of the low level motion planner.
 
@@ -386,14 +383,14 @@ of the low level motion planner.
 * 'TASK = milltask' - 
      Specifies the name of the "task" executable. The "task" executable does various
     things, such as communicate with the UIs over NML, communicate with the
-    realtime motion planner over non-HAL shared memory, and interpret gcode. 
+    realtime motion planner over non-HAL shared memory, and interpret gcode.
     Currently there is only one task executable that makes sense for
     99.9% of users, milltask. footnote:[In the dim mists of time (before HAL), it was
     frequently the case that an integrator would have to build a modified
     version of things like task, I/O, and motion for a specific machine.]
 
-* 'CYCLE_TIME = 0.010' - 
-     The period, in seconds, at which EMCTASK will run. This parameter 
+* 'CYCLE_TIME = 0.010' -
+     The period, in seconds, at which EMCTASK will run. This parameter
     affects the polling interval when waiting for motion to complete, when
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
@@ -402,7 +399,7 @@ of the low level motion planner.
 
 (((HAL (inifile section))))
 
-* 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing, 
+* 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing,
     all [HAL]HALFILES are first read and multiple appearances of loadrt
     directives for each moduleb are accumulated.
     No hal commands are executed in this initial pass.
@@ -415,7 +412,7 @@ of the low level motion planner.
     specifies the generic stepper configuration ('core_stepper.hal') and
     one which specifies the machine pin out ('xxx_pinout.hal')
 
-* 'HALCMD = command' - Execute 'command' as a single HAL command. 
+* 'HALCMD = command' - Execute 'command' as a single HAL command.
    If 'HALCMD' is specified multiple times, the commands are executed in the order
     they appear in the ini file. 'HALCMD' lines are executed after all
     'HALFILE' lines.
@@ -430,13 +427,16 @@ of the low level motion planner.
 * 'POSTGUI_HALFILE = example2.hal' - (Only with the TOUCHY and AXIS GUI)
    Execute 'example2.hal' after the GUI has created its HAL pins. See
    section <<sec:pyvcp-with-axis>> for more information.
-    
+
+* 'HALUI = halui' - adds the HAL user interface pins. For more information see
+   the <<cha:hal-user-interface,HAL User Interface>> chapter.
+       
 === [HALUI] section[[sub:[HALUI]-section]]
 
 (((HALUI (inifile section))))
 
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - 
-     An MDI command can be executed by using halui.mdi-command-00. Increment 
+     An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
 === [TRAJ] Section[[sub:[TRAJ]-section]]
@@ -446,8 +446,8 @@ of the low level motion planner.
 The [TRAJ] section contains general parameters for the trajectory
 planning module in EMCMOT.
 
-* 'COORDINATES = X Y Z' - The names of the axes being controlled. 
-   Only X, Y, Z, A, B, C, U, V, W are   valid. Only axes named in 'COORDINATES'
+* 'COORDINATES = X Y Z' - The names of the axes being controlled.
+   Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code. This has no effect on the mapping from G-code
     axis names (X- Y- Z-) to joint numbers--for 'trivial kinematics', X is
     always joint 0, A is always joint 4, and U is always joint 7, and so
@@ -462,19 +462,19 @@ planning module in EMCMOT.
     number of controlled joints.
 
 * 'HOME = 0 0 0' - Coordinates of the homed position of each axis. Again
-    for a fourth 
+    for a fourth
     axis you will need 0 0 0 0. This value is only used for machines with
     nontrivial kinematics. On machines with trivial kinematics this value
     is ignored.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the machine units for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).  
+    Possible choices are (in, inch, imperial, metric, mm).
      This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
 * 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the machine units for rotational axes.
     Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
-    (2pi per circle), 'grad', or 'gon' (400 per circle). 
+    (2pi per circle), 'grad', or 'gon' (400 per circle).
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
@@ -482,7 +482,7 @@ planning module in EMCMOT.
     per second. The value shown equals one unit per minute.
 
 * 'DEFAULT_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
-    for "teleop" (Cartesian space) jogs, in machine units per second per second. 
+    for "teleop" (Cartesian space) jogs, in machine units per second per second.
 
 * 'MAX_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
     move, in machine units per second. The value shown equals 300 units per
@@ -502,11 +502,11 @@ planning module in EMCMOT.
     before any MDI command or a program is run. Normally jogging only is
     allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
     make MDI moves and run programs without homing the machine first.
-    Interfaces without homing ability will need to have this option set to 1. 
+    Interfaces without homing ability will need to have this option set to 1.
 
 [WARNING]
 Using this will allow the machine to go beyond the soft limits
-while in operation. It is not generally desirable to allow this. 
+while in operation. It is not generally desirable to allow this.
 
 === [AXIS_<num>] Section[[sub:[AXIS]-section]]
 
@@ -529,7 +529,7 @@ Typically (but not always):
 * AXIS_7 = V
 * AXIS_8 = W
 
-* 'TYPE = LINEAR' - 
+* 'TYPE = LINEAR' -
     The type of axes, either LINEAR or ANGULAR.
 
 * 'WRAPPED_ROTARY = 1' - 
@@ -537,26 +537,26 @@ Typically (but not always):
     degrees. Positive Numbers will move the axis in a positive direction and
     negative numbers will move the axis in the negative direction.
 
-* 'UNITS = INCH' - 
-    (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.  
-    (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, 
+* 'UNITS = INCH' -
+    (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.
+    (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
 
-* 'MAX_VELOCITY = 1.2' - 
+* 'MAX_VELOCITY = 1.2' -
     Maximum velocity for this axis in machine units per second.
 
-* 'MAX_ACCELERATION = 20.0' - 
+* 'MAX_ACCELERATION = 20.0' -
      Maximum acceleration for this axis in machine units per
     second squared.
 
-* 'BACKLASH = 0.0000' - 
-    (((Backlash))) Backlash in machine units. Backlash compensation value 
+* 'BACKLASH = 0.0000' -
+    (((Backlash))) Backlash in machine units. Backlash compensation value
     can be used to make up for small deficiencies in the hardware used to
     drive an axis. If backlash is added to an axis and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
     MAX_ACCELERATION for the axis.
 
-* 'COMP_FILE = file.extension' - 
+* 'COMP_FILE = file.extension' -
     (((Compensation))) A file holding compensation structure for the axis.
     The file could be named xscrew.comp, for example, for the X axis. File
     names are case sensitive and can contain letters and/or numbers. The
@@ -564,39 +564,39 @@ Typically (but not always):
     nominal (where it should be). The second and third values depend on the
     setting of COMP_FILE_TYPE. Currently the limit inside EMC2 is for 256
     triplets per axis. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units. 
+    Compensation file values are in machine units.
 
-* 'COMP_FILE_TYPE = 0 or 1' - 
-** 'If 0:' The second and third values specify 
-    the forward position (where the axis is while traveling forward) and 
-    the reverse position (where the axis is while traveling reverse), 
+* 'COMP_FILE_TYPE = 0 or 1' -
+** 'If 0:' The second and third values specify
+    the forward position (where the axis is while traveling forward) and
+    the reverse position (where the axis is while traveling reverse),
     positions which correspond to the nominal position.'
-** 'If 1:' The second and third values specify 
-    the forward trim (how far from nominal while traveling forward) and 
-    the reverse trim (how far from nominal while traveling in reverse), 
-    positions which correspond to the nominal position. 
+** 'If 1:' The second and third values specify
+    the forward trim (how far from nominal while traveling forward) and
+    the reverse trim (how far from nominal while traveling in reverse),
+    positions which correspond to the nominal position.
 
     Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
     Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
-* 'MIN_LIMIT = -1000' - 
+* 'MIN_LIMIT = -1000' -
     (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
-    When this limit is exceeded, the controller aborts axis motion. 
+    When this limit is exceeded, the controller aborts axis motion.
 
-* 'MAX_LIMIT = 1000' - 
+* 'MAX_LIMIT = 1000' -
     (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
-    When this limit is exceeded, the controller aborts axis motion. 
+    When this limit is exceeded, the controller aborts axis motion.
 
-* 'MIN_FERROR = 0.010' - 
+* 'MIN_FERROR = 0.010' -
     (((MIN FERROR))) This is the value in machine units by which the axis is permitted to
     deviate from commanded position at very low speeds. If MIN_FERROR is
     smaller than FERROR, the two produce a ramp of error trip points. You
     could think of this as a graph where one dimension is speed and the
     other is permitted following error. As speed increases the amount of
-    following error also increases toward the FERROR value. 
+    following error also increases toward the FERROR value.
 
-* 'FERROR = 1.0' - 
-    (((FERROR))) FERROR is the maximum allowable following error, in machine units. 
+* 'FERROR = 1.0' -
+    (((FERROR))) FERROR is the maximum allowable following error, in machine units.
     If the difference between commanded and sensed position exceeds this
     amount, the controller disables servo calculations, sets all the
     outputs to 0.0, and disables the amplifiers. If MIN_FERROR is present
@@ -614,39 +614,39 @@ Typically (but not always):
     program (in the AXIS interface menu Machine/Calibration and in TkEMC it
     is under Setting/Calibration) can be used to set these and more
     interactively and verify their results so that the proper values can be
-    put in the INI file with a minimum of trouble. 
+    put in the INI file with a minimum of trouble.
 
 ==== Homing[[sub:Homing-related-items]]
 
 These parameters are Homing related, for a better explanation read the
 <<sec:Homing,Homing>> Section.
 
-* 'HOME = 0.0' - 
+* 'HOME = 0.0' -
      The position that the joint will go to upon completion of the homing
     sequence.
 
-* 'HOME_OFFSET = 0.0' - 
+* 'HOME_OFFSET = 0.0' -
      The axis position of the home switch or index pulse, in
-    machine units. In other words, when the home point is found during 
-    the homing process, this is the value or position that should be 
-    assigned to the home point, or initialized at the home point. 
+    machine units. In other words, when the home point is found during
+    the homing process, this is the value or position that should be
+    assigned to the home point, or initialized at the home point.
 
-* 'HOME_SEARCH_VEL = 0.0' - 
-    (((HOME SEARCH VEL))) Initial homing velocity in machine units per second. 
+* 'HOME_SEARCH_VEL = 0.0' -
+    (((HOME SEARCH VEL))) Initial homing velocity in machine units per second.
     Sign denotes direction of travel. A value of zero means assume that the current
     location is the home position for the machine. If your machine has no
     home switches you will want to leave this value at zero.
 
-* 'HOME_LATCH_VEL = 0.0' - 
+* 'HOME_LATCH_VEL = 0.0' -
      Homing velocity in machine units per second to the home
     switch latch position. Sign denotes direction of travel.
 
-* 'HOME_FINAL_VEL = 0.0' - 
+* 'HOME_FINAL_VEL = 0.0' -
      Velocity in machine units per second from home latch position to home
     position. If left at 0 or not included in the axis rapid velocity is
     used. Must be a positive number.
 
-* 'HOME_USE_INDEX = NO' - 
+* 'HOME_USE_INDEX = NO' -
      If the encoder used for this axis has an index pulse, and
     the motion
     card has provision for this signal you may set it to yes. When it is
@@ -654,28 +654,28 @@ These parameters are Homing related, for a better explanation read the
     home to index with steppers unless you're using stepgen in velocity mode
     and PID.
 
-* 'HOME_IGNORE_LIMITS = NO' - 
+* 'HOME_IGNORE_LIMITS = NO' -
      Some machines use a single switch per axis as a home switch 
     and limit switch. This variable should be set to YES if the machine 
     configured this way. When set to YES the limit switch for this axis
     only is ignored when homing.
 
-* 'HOME_IS_SHARED = <n>' - 
+* 'HOME_IS_SHARED = <n>' -
      If the home input is shared by more than one axis set <n> to 1 to
     prevent homing from starting if the one of the shared switches is
     already closed. Set <n> to 0 to permit homing if a switch is closed.
 
-* 'HOME_SEQUENCE = <n>' - 
+* 'HOME_SEQUENCE = <n>' -
      Used to define the "Home All" sequence. <n> starts at 0 and no numbers
     may be skipped. If left out or set to -1 the joint will not be homed by
     the "Home All" function. More than one axis can be homed at the same
     time.
 
-* 'VOLATILE_HOME = 0' - 
+* 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine
     Power is off or if E-Stop is on. This is useful if your machine has
     home switches and does not have position feedback such as a step and
-    direction driven machine. 
+    direction driven machine.
 
 ==== Servo[[sub:Servo-related-items]]
 
@@ -683,44 +683,44 @@ The following items are for servo-based systems and servo-like
 systems. This description assumes that the units of output from the PID
 component are volts.
 
-DEADBAND = 0.000015' - 
-    (in HAL) How close is close enough to consider the motor in position, 
-in machine units. This is often set to a distance equivalent to 1, 1.5, 2, 
-or 3 encoder counts, but there are no strict rules. 
-Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy. 
-Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'. 
-Is it really more accurate if it's also more uncertain? 
-As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you can. 
+DEADBAND = 0.000015' -
+    (in HAL) How close is close enough to consider the motor in position,
+in machine units. This is often set to a distance equivalent to 1, 1.5, 2,
+or 3 encoder counts, but there are no strict rules.
+Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
+Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
+Is it really more accurate if it's also more uncertain?
+As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you can.
 
-Be careful about going below 1 encoder count, since you may create a condition where 
-there is no place that your servo is happy. This can go beyond 'hunting' (slow) to 
-"nervous" (rapid), and even to "squealing" which is easy to confuse with 
-oscillation caused by improper tuning. Better to be a count or two loose 
-here at first, until you've been through "gross tuning" at least. 
+Be careful about going below 1 encoder count, since you may create a condition where
+there is no place that your servo is happy. This can go beyond 'hunting' (slow) to
+"nervous" (rapid), and even to "squealing" which is easy to confuse with
+oscillation caused by improper tuning. Better to be a count or two loose
+here at first, until you've been through "gross tuning" at least.
 
-Example of calculating machine units per encoder pulse to use in deciding DEADBAND value: 
+Example of calculating machine units per encoder pulse to use in deciding DEADBAND value:
 
 ///////////////////////////////////////////////////////////
-latexmath:[ \frac{X\, inches}{1\, encoder\, count} = 
-\frac{1\, revolution}{1000\, encoder\, lines} \times 
-\frac{1\, encoder\, line}{4\, quadrature\, counts} \times 
-\frac{0.200\, inches}{1\, revolution} = 
-\frac{0.200\, inches}{4000\, encoder\, counts} = 
+latexmath:[ \frac{X\, inches}{1\, encoder\, count} =
+\frac{1\, revolution}{1000\, encoder\, lines} \times
+\frac{1\, encoder\, line}{4\, quadrature\, counts} \times
+\frac{0.200\, inches}{1\, revolution} =
+\frac{0.200\, inches}{4000\, encoder\, counts} =
 \frac{0.000050\, inches}{1\, encoder\, count} ]
 ///////////////////////////////////////////////////////////
 
 image::images/encoder-counts-math.png[align="center"]
 
-* 'BIAS = 0.000' - 
-     (in HAL) (Sometimes called 'offset') This is used by hm2-servo and some others. 
-    Bias is a constant amount 
+* 'BIAS = 0.000' -
+     (in HAL) (Sometimes called 'offset') This is used by hm2-servo and some others.
+    Bias is a constant amount
     that is added to the output. In most cases it should be left at zero.
     However, it can sometimes be useful to compensate for offsets in servo
     amplifiers, or to balance the weight of an object that moves
     vertically. bias is turned off when the PID loop is disabled, just like
     all other components of the output.
 
-* 'P = 50' - 
+* 'P = 50' -
      (in HAL) The proportional gain for the axis servo. This value
     multiplies the
     error between commanded and actual position in machine units, resulting
@@ -730,7 +730,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 //latexmath:[$\frac{volt}{mu}$]. 
 
-* 'I = 0' - 
+* 'I = 0' -
      (in HAL) The integral gain for the axis servo. The value
     multiplies the
     cumulative error between commanded and actual position in machine
@@ -740,7 +740,7 @@ image::images/encoder-counts-math.png[align="center"]
     
 //latexmath:[$\frac{volt}{mu\, s}$].
 
-* 'D = 0' - 
+* 'D = 0' -
      (in HAL) The derivative gain for the axis servo. The value
     multiplies the
     difference between the current and previous errors, resulting in a
@@ -750,7 +750,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu/s}$].
 
-* 'FF0 = 0' - 
+* 'FF0 = 0' -
      (in HAL) The 0th order feed forward gain. This number is
     multiplied by the
     commanded position, resulting in a contribution to the computed voltage
@@ -759,7 +759,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu}$].
 
-* 'FF1 = 0' - 
+* 'FF1 = 0' -
      (in HAL) The 1st order feed forward gain. This number is
     multiplied by the
     change in commanded position per second, resulting in a contribution to
@@ -768,36 +768,36 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu\, s}$].
 
-* 'FF2 = 0' - 
+* 'FF2 = 0' -
      (in HAL) The 2nd order feed forward gain. This number is
     multiplied by the
     change in commanded position per second per second, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
-    on the FF2 gain are volts per machine unit per second per second, 
+    on the FF2 gain are volts per machine unit per second per second,
     e.g., image:images/ff2.png[height=25]
     
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-* 'OUTPUT_SCALE = 1.000' - 
+* 'OUTPUT_SCALE = 1.000' -
 
-* 'OUTPUT_OFFSET = 0.000' - 
+* 'OUTPUT_OFFSET = 0.000' -
      (in HAL) These two values are the scale and offset factors for
-    the axis output to the motor amplifiers. 
+    the axis output to the motor amplifiers.
     The second value (offset) is subtracted from
     the computed output (in volts), and divided by the first value (scale
     factor), before being written to the D/A converters. The units on the
     scale value are in true volts per DAC output volts. The units on the
-    offset value are in volts. These can be used to linearize a DAC.  
+    offset value are in volts. These can be used to linearize a DAC.
      Specifically, when writing outputs, the EMC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
-    amplifier DAC. This scaling 
-    looks like: image:images/output-scale.png[height=25]
+    amplifier DAC. This scaling
+    looks like: image:images/output-offset.png[]
     
-// latexmath:[raw=\frac{output-offset}{scale}] 
+// latexmath:[raw=\frac{output-offset}{scale}]
 
-The value for scale can be obtained analytically by doing a unit 
-analysis, i.e., units are [output SI units]/[actuator units]. For 
-example, on a machine with a velocity mode amplifier such that 
+The value for scale can be obtained analytically by doing a unit
+analysis, i.e., units are [output SI units]/[actuator units]. For
+example, on a machine with a velocity mode amplifier such that
 1 volt results in 250 mm/sec velocity.
 
 image::images/scale-math.png[align="center"]
@@ -809,7 +809,7 @@ Note that the units of the offset are in machine units, e.g.,
 mm/sec, and they are pre-subtracted from the sensor readings. The value
 for this offset is obtained by finding the value of your output which
 yields 0.0 for the actuator output. If the DAC is linearized, this
-offset is normally 0.0.  
+offset is normally 0.0.
 
 The scale and offset can be used to linearize the DAC as well,
 resulting in values that reflect the combined effects of amplifier
@@ -831,7 +831,7 @@ To do this, follow this procedure.
 
 See the following table for an example of voltage measurements.
    
-// latexmath:[ meas=a*raw+b ]  
+// latexmath:[ meas=a*raw+b ]
 // latexmath:[ cmd=a*raw+b ]
 // latexmath:[ raw=(cmd-b)/a ]
 
@@ -848,75 +848,75 @@ See the following table for an example of voltage measurements.
 |10 | 10.87
 |===============
 
-* 'MAX_OUTPUT = 10' - 
+* 'MAX_OUTPUT = 10' -
     (in HAL) The maximum value for the output of the PID compensation
-    that is written to the motor amplifier, in volts. The computed 
-    output value is clamped to this limit. The limit is applied before 
-    scaling to raw output units. The value is applied symmetrically to 
+    that is written to the motor amplifier, in volts. The computed
+    output value is clamped to this limit. The limit is applied before
+    scaling to raw output units. The value is applied symmetrically to
     both the plus and the minus side.
 
-* 'INPUT_SCALE = 20000' - 
-(or ENCODER_SCALE = 20000 Used in PNCconf built configs)' - 
+* 'INPUT_SCALE = 20000' -
+(or ENCODER_SCALE = 20000 Used in PNCconf built configs)' -
 (((INPUT SCALE))) (in HAL) Specifies the number of pulses that
-corresponds to a move of one machine unit as set in the [TRAJ] section. 
-For a linear axis one machine unit will be equal to 
-the setting of LINEAR_UNITS. 
-For an angular axis one unit is equal to the setting in ANGULAR_UNITS. 
-A second number, if specified, is ignored. 
+corresponds to a move of one machine unit as set in the [TRAJ] section.
+For a linear axis one machine unit will be equal to
+the setting of LINEAR_UNITS.
+For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder(((encoder))), and 10
 revs/inch gearing, and desired units of inch, we
-have: 
+have:
 
 image::images/encoder-scale.png[align="center"]
 
-//latexmath:[ INPUT\_SCALE = 
-//\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
+//latexmath:[ INPUT\_SCALE =
+//\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
 
 ==== Stepper[[sub:Stepper-related-items]]
 
 The following items are Stepper related items.
 
-* 'SCALE = 4000' - 
+* 'SCALE = 4000' -
 (or STEP_SCALE = 4000 Used in PNCconf built configs)
-(((INPUT SCALE))) (in HAL) Specifies the number of pulses that corresponds to a 
-move of one machine unit as set in the [TRAJ] section. 
+(((INPUT SCALE))) (in HAL) Specifies the number of pulses that corresponds to a
+move of one machine unit as set in the [TRAJ] section.
 For stepper systems, this is
 the number of step pulses issued per machine unit. For a linear axis
 one machine unit will be equal to the setting of LINEAR_UNITS. For an
 angular axis one unit is equal to the setting in ANGULAR_UNITS. For
 servo systems, this is the number of feedback pulses per machine unit.
-A second number, if specified, is ignored. 
+A second number, if specified, is ignored.
 
 For example, on a 1.8 degree stepper motor with half-stepping, and 10
 revs/inch gearing, and desired machine units of inch, we
-have: 
+have:
 
 image::images/stepper-scale.png[align="center"]
 
 //latexmath:[ scale = 
-//\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
+//\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} =
 //\frac{4000\, steps}{inch} ]
 
-* 'ENCODER_SCALE = 20000 (Optionally used in PNCconf built configs)' - 
+* 'ENCODER_SCALE = 20000 (Optionally used in PNCconf built configs)' -
 (in HAL) Specifies the number of pulses that
-corresponds to a move of one machine unit as set in the [TRAJ] section. 
-For a linear axis one machine unit will be equal to 
-the setting of LINEAR_UNITS. 
-For an angular axis one unit is equal to the setting in ANGULAR_UNITS. 
-A second number, if specified, is ignored. 
+corresponds to a move of one machine unit as set in the [TRAJ] section.
+For a linear axis one machine unit will be equal to
+the setting of LINEAR_UNITS.
+For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder(((encoder))), and 10
 revs/inch gearing, and desired units of inch, we
 have: 
 
 image::images/encoder-scale.png[align="center"]
 
-//latexmath:[ ENCODER\_SCALE = 
-//\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
+//latexmath:[ ENCODER\_SCALE =
+//\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
 
 
-* 'STEPGEN_MAXACCEL = 21.0' - 
+* 'STEPGEN_MAXACCEL = 21.0' -
     (in HAL) Acceleration limit for the step generator. This should
     be 1% to 10%
     larger than the axis MAX_ACCELERATION. This value improves the tuning
@@ -924,50 +924,50 @@ image::images/encoder-scale.png[align="center"]
     to an axis then this should be 1.5 to 2 times greater than
     MAX_ACCELERATION.
 
-* 'STEPGEN_MAXVEL = 1.4' - 
+* 'STEPGEN_MAXVEL = 1.4' -
     (in HAL) Older configuration files have a velocity limit for
     the step
     generator as well. If specified, it should also be 1% to 10% larger
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
-    STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop. 
+    STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 === [EMCIO] Section[[sub:[EMCIO]-Section]]
 
 (((EMCIO (inifile section))))
 
-* 'CYCLE_TIME = 0.100' - 
+* 'CYCLE_TIME = 0.100' -
     The period, in seconds, at which EMCIO will run. Making
     it 0.0 or a
     negative number will tell EMCIO not to sleep at all. There is usually
     no need to change this number.
 
-* 'TOOL_TABLE = tool.tbl' - 
+* 'TOOL_TABLE = tool.tbl' -
     The file which contains tool information, described in
     the User Manual.
 
-* 'TOOL_CHANGE_POSITION = 0 0 2' - 
+* 'TOOL_CHANGE_POSITION = 0 0 2' -
     Specifies the XYZ location to move to when performing a
-    tool change if three digits are used. 
-    Specifies the XYZABC location when 6 digits are used. 
-    Specifies the XYZABCUVW location when 9 digits are used. 
+    tool change if three digits are used.
+    Specifies the XYZABC location when 6 digits are used.
+    Specifies the XYZABCUVW location when 9 digits are used.
     Tool Changes can be combined. For example if you combine the
-    quill up with change position you can move the Z first then the X and Y. 
+    quill up with change position you can move the Z first then the X and Y.
 
-* 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' - 
-    The spindle will be left on during the tool change when the value is 1. 
-    Useful for lathes or machines where the material is in the spindle, 
-    not the tool. 
+* 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' -
+    The spindle will be left on during the tool change when the value is 1.
+    Useful for lathes or machines where the material is in the spindle,
+    not the tool.
 
-* 'TOOL_CHANGE_QUILL_UP = 1' - 
+* 'TOOL_CHANGE_QUILL_UP = 1' -
     The Z axis will be moved to machine zero prior to the tool change when
     the value is 1. This is the same as issuing a G0 G53 Z0.
 
-* 'TOOL_CHANGE_AT_G30 = 1' - 
+* 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
     5181-5186 for G30 if the value is 1. For more information on G30 and
     Parameters see the G Code Manual.
 
-* 'RANDOM_TOOLCHANGER = 1' - 
+* 'RANDOM_TOOLCHANGER = 1' -
     This is for machines that cannot place the tool back into the pocket
     it came from. For example, machines that exchange the tool in the
     active pocket with the tool in the spindle.

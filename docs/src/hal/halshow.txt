@@ -1,7 +1,6 @@
-:lang: en
-:toc:
+= Halshow
 
-== Halshow
+[[cha:halshow]] (((Halshow)))
 
 The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
@@ -13,13 +12,13 @@ configuration it will be different.
 As we will soon see, this ability of HAL to document itself is one key
 to making an effective CNC system.
 
-=== Starting Halshow
+== Starting Halshow
 
 Halshow is in the AXIS menu under Machine/Show HAL Configuration.
 
 Halshow is in the TkEMC menu under Scripts/HAL Show.
 
-=== HAL Tree Area
+== HAL Tree Area
 
 At the left of its display as shown in figure  <<cap:Halshow-Layout>>
 is a tree view, somewhat like you might see with some file browsers. At
@@ -27,7 +26,7 @@ the right is a tabbed notebook with tabs for show and watch.
 
 .Halshow Layout[[cap:Halshow-Layout]]
 
-image::images/halshow-1.png[]
+image::images/halshow-1.png[align="center"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
 small plus (+) or minus (-) sign in a box. Clicking the plus will
@@ -42,9 +41,9 @@ previously set watches, you cannot erase just one watch.)
 
 .Show Menu[[cap:Show-Menu]]
 
-image::images/halshow-3.png[]
+image::images/halshow-3.png[align="center"]
 
-=== HAL Show Area
+== HAL Show Area
 
 Clicking on the node name, the word "Components" for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
@@ -164,7 +163,7 @@ halshow after this command has been issued.
 
 .Addf Command[[cap:Addf-Command]]
 
-image::images/halshow-2.png[]
+image::images/halshow-2.png[align="center"]
 
 Next we need to connect this block to something. But how do we know
 what pins are available? The answer is to look under pins. There we
@@ -218,7 +217,7 @@ editor panel to modify that HAL. There are times when you want a
 different set of things displayed without all of the information
 available in this area. That is where the HAL Watch Area is of value.
 
-=== HAL Watch Area
+== HAL Watch Area
 
 Clicking the watch tab produces a blank canvas. You can add signals
 and pins to this canvas and watch their values.footnote:[The refresh
@@ -236,7 +235,7 @@ true until the machine has been turned on.
 
 .[[cap:Watch-Display]]Watch Display
 
-image::images/halshow-4.png[]
+image::images/halshow-4.png[align="center"]
 
 Watch displays bit type (binary) values using colored circles
 representing LEDs. They show as dark brown when a bit signal or pin is

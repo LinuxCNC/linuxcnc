@@ -290,7 +290,7 @@
 #      subroutines in these files and rely on a library of "subroutine-only"
 #      files in the [DISPLAY]PROGRAM_PREFIX directory.
 
-#   7. ngcgui inserts a special global variable named #<_feature> that begins
+#   7. ngcgui inserts a special global variable named #<_feature:> that begins
 #      with a value of 0 and is incremented for each added feature.  This
 #      _global can be tested in subroutines; no entry box is created for it.
 
@@ -807,8 +807,8 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set gname [string range $gline 1 [expr -1+$i2]]
         # ignore name that includes a colon (:)
         if {[string first : $gname] > 0} break
-        # ignore _global named _feature
-        if {"$gname" == "_feature"} break
+        # ignore _global named _featur:e
+        if {"$gname" == "_feature:"} break
         if {![info exists ay($hdl,global,value,$gname)]} {
           set ay($hdl,global,value,$gname) ""
         }
@@ -908,6 +908,7 @@ proc ::ngcgui::qid {} {
 
 proc ::ngcgui::initgui {hdl} {
   if ![info exists ::ngc(embed,hdl)] {set ::ngc(embed,hdl) 0}
+  if [info exists ::ngcgui($hdl,afterid)] { return ;# already done }
   # fixed initializations
   set ::ngc(any,pentries)       10 ;# number of entries in positional frame
                                    ;# 30 max positional parameters
@@ -928,6 +929,7 @@ proc ::ngcgui::initgui {hdl} {
   set ::ngc(any,color,prompt)   blue3
   set ::ngc(any,color,warn)     darkorange
   set ::ngc(any,color,notice)   lightgoldenrodyellow
+  set ::ngc(any,color,override) blue3
 
   set ::ngc(any,color,error)    red
   set ::ngc(any,color,filegone) maroon
@@ -1299,6 +1301,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,preamble) $filename
       ::ngcgui::gui $hdl readpreamble
       return
@@ -1379,6 +1382,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,postamble) $filename
       ::ngcgui::gui $hdl readpostamble
       return
@@ -1428,6 +1432,7 @@ if {0} {
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
+      check_path $filename
       set ::ngc($hdl,fname,subfile) $filename
       ::ngcgui::gui $hdl readsubfile
       return
@@ -1773,7 +1778,7 @@ if {0} {
       }
       # note: this line will be replaced on file output with a count
       # that can include multiple tab pages
-      lappend ::ngc($hdl,data,section) "#<_feature> = $::ngc($hdl,savect)"
+      lappend ::ngc($hdl,data,section) "#<_feature:> = $::ngc($hdl,savect)"
 
       if {"$::ngc($hdl,fname,preamble)" == "IMMEDIATE"} {
         # indicates preamble is interpreted as
@@ -1991,10 +1996,10 @@ if {0} {
 
         for {set i 0} {$i < [llength $::ngc($thdl,data,section)]} {incr i} {
           set line [lindex $::ngc($thdl,data,section) $i]
-          if {[string first "#<_feature>" $line] >= 0} {
+          if {[string first "#<_feature:>" $line] >= 0} {
             # instead of current $line, output feature count (zero referenced)
             puts $fout \
-              "($::ngc(any,app): [_ "feature line added"]) #<_feature> = $featurect"
+              "($::ngc(any,app): [_ "feature line added"]) #<_feature:> = $featurect"
             incr featurect 1
           } else {
             puts $fout $line
@@ -2698,6 +2703,7 @@ proc ::ngcgui::entrykeybinding {ax w v} {
     }
     set value [format %.4f $value]
     after 0 [list set $v $value]
+    after 0 [list $w configure -fg $::ngc(any,color,override)]
   } msg] {
     # silently ignore, emc_rel_act_pos will fail in standalone
     # puts stderr "entrykeybinding:<$msg>"
@@ -3256,22 +3262,25 @@ proc ::ngcgui::newpage {creatinghdl} {
 
   if $::ngc(opt,noinput) {
     # there is no wI input frame, just use current file
-    set subfile $::ngc($creatinghdl,fname,subfile)
+    # file tail needed to use search path
+    set subfile [file tail $::ngc($creatinghdl,fname,subfile)]
     if {"$subfile" == ""} {
       set ::ngc(opt,noinput) 0 ;# need input if no subfile to open page
     }
   }
   if $::ngc($creatinghdl,chooser) {
-    set subfile "\"\""  ;# chooser
+    set subfile "\"\""  ;# chooser starts with no specifed subfile
   }
 
   set prefile ""
   set postfile ""
   if {"$::ngc($creatinghdl,dname,preamble)" != ""} {
-    set prefile $::ngc($creatinghdl,fname,preamble)
+    # file tail needed to use search path
+    set prefile [file tail $::ngc($creatinghdl,fname,preamble)]
   }
   if {"$::ngc($creatinghdl,dname,postamble)" != ""} {
-    set postfile $::ngc($creatinghdl,fname,postamble)
+    # file tail needed to use search path
+    set postfile [file tail $::ngc($creatinghdl,fname,postamble)]
   }
 
   set pageid ngcgui[qid]
@@ -3518,6 +3527,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
     incr ::ngc(embed,hdl)
   }
   set hdl $::ngc(embed,hdl) ;# local
+  initgui $hdl
 
   ::ngcgui::preset $hdl ::ngc   ;# setup defaults
 
@@ -3539,6 +3549,9 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   if {[lsearch $options noiframe  ] >=0} {set ::ngc(opt,noiframe)   1}
 
   if {[lsearch $options expandsub ] >=0} {set ::ngc($hdl,expandsubroutine)   1}
+
+  # special options 
+  if {[lsearch $options nopathcheck ] >=0} {set ::ngc($hdl,nopathcheck)   1}
 
   if $::ngc(opt,noauto) {
     set ::ngc($hdl,auto) 0
@@ -3573,8 +3586,17 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
             -text "[_ "Custom"]" \
             -background $::ngc(any,color,custom)
     } else {
-      set ::ngc($hdl,fname,subfile) [::ngcgui::pathto $subfile]
-      set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+      if [info exists ::ngc($hdl,nopathcheck)] {
+        # subfile must be a valid absolute path for this option
+        # example: ttt uses /tmp directory specified with full path
+        #          to avoid creating persistent files
+        #          relying on purging of /tmp
+        set ::ngc($hdl,fname,subfile) $subfile
+        set ::ngc($hdl,dir) [file dirname $subfile]
+      } else {
+        set ::ngc($hdl,fname,subfile) [::ngcgui::pathto $subfile]
+        set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+      }
     }
   }
   if {"$preamble"  != ""} {
@@ -3602,7 +3624,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   return $hdl
 } ;# embed_in_axis_tab
 
-proc ::ngcgui::pathto fname {
+proc ::ngcgui::pathto {fname  {mode info}} {
   # for embedded usage, find configuration file using a search path
   set fname [string trim $fname]
   if {"$fname" == ""} {return ""}
@@ -3615,40 +3637,74 @@ proc ::ngcgui::pathto fname {
     foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
   }
 
-  if {[string first "/" $fname] == 0} {
-    set absolute 1 ;# absolute path specified
-    if [file exists $fname] {set found "$fname"}
-  } else {
-    set absolute 0 ;# relative path specified
-    foreach path $::ngc(any,paths) {
-      set f [file join $path $fname]
-      if {[info exists found] && [file exists $f]} {
-        puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
-        puts stderr "[_ "using path"]: $::ngc(any,paths)"
-      }
-      if {![info exists found] && [file exists $f]} {set found $f}
+  if {   [string first "/" $fname] == 0
+      || [string first "~" $fname] == 0
+     } {
+    if [file exists $fname] {
+      set foundabsolute "$fname"
+      set fname [file tail $fname] ;# to test if it is in search path
     }
   }
-
-  if [info exists found] {
-    return "$found"
-  } else {
-    set msg "[_ "Ngcgui configuration search failed for"]\n<$fname>\n"
-    if !$absolute {
-      set msg "$msg [_ "Search path"]: $::ngc(any,paths)"
+  foreach path $::ngc(any,paths) {
+    set f [file join $path $fname]
+    if {[info exists foundinpath] && [file exists $f]} {
+      puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
+      puts stderr "[_ "using path"]: $::ngc(any,paths)"
     }
-    set answer [tk_dialog .notfound \
-      "[_ "File Not Found"]" \
-      "$msg" \
-      "" 0 \
-      "[_ "Try to Continue"]" "[_ "Exit"]"
-    ]
+    if {![info exists foundinpath] && [file exists $f]} {set foundinpath $f}
+  }
+
+  if [info exists foundinpath] {
+    return "$foundinpath"
+  } else {
+    set title "[_ "File not in Search Path"]"
+
+    set msg "<$fname> [_ "Must be in search path"]\n"
+    if {[info exists foundabsolute]} {
+      set msg "$msg\n[_ "(File found -- not in search path)"]"
+    }
+    set msg "$msg\n[_ "Current directory"]:\n[pwd]"
+    set msg "$msg\n\n[_ "Search path"]:\n"
+    set i 1
+    foreach p $::ngc(any,paths) {
+      set msg "$msg\n$i  $p"
+      incr i
+    }
+    set msg "$msg\n\n[_ "Check setting for"]: \[RS274NGC\]SUBROUTINE_PATH"
+    set msg "$msg\n[_ "in ini file"]:\n$::emcini"
+    set msg "$msg\n\n[_ "(Restart required after fixing ini file)"]"
+    switch $mode {
+      info {
+        set answer [tk_dialog .notfound \
+          "$title"\
+          "$msg"\
+          warning -1 \
+          "OK"]
+        set answer 0 ;# continue with warning
+      }
+      default {
+        set answer [tk_dialog .notfound \
+          "$title"\
+          "$msg" \
+          error 0 \
+          "[_ "Try to Continue"]" "[_ "Exit"]"
+        ]
+      }
+    }
     if $answer {return \
       -code error "[_ "Ngcgui Configuration File Not Found"] <$fname>"
     }
-    return "" ;# try to continue
+    if ![info exists foundabsolute] {set foundabsolute ""}
+    return "$foundabsolute" ;# try to continue
   }
 } ;# pathto
+
+proc ::ngcgui::check_path filename {
+  if [info exists ::ngc(embed,axis)] {
+    pathto [file tail $filename] info
+  }
+  return
+} ;# check_path
 
 proc ::ngcgui::raiselastpage {} {
   $::ngc(any,axis,parent) raise $::ngc($::ngc(embed,hdl),axis,page)

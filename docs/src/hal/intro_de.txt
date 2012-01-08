@@ -1,7 +1,6 @@
-:lang: de
-:toc:
+= HAL Introduction
 
-= Introduction[[cha:Introduction]]
+[[cha:hal-introduction]] (((HAL Introduction)))
 
 HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
 level, it is simply a way to allow a number of 'building blocks' to be

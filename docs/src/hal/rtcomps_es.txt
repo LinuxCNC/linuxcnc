@@ -1,5 +1,4 @@
-:lang: es
-:toc:
+= Realtime Comps
 
 == Stepgen[[sec:Stepgen]](((stepgen)))
 

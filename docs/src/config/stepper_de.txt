@@ -1,7 +1,6 @@
-:lang: de
-:toc:
+= Stepper Configuration
 
-= Stepper Configuration[[stepper-config]]
+[[stepper-config]] (((Stepper Configuration)))
 
 == Introduction[[sec:Introduction]]
 

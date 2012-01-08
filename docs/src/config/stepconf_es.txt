@@ -1,7 +1,6 @@
-:lang: es
-:toc:
+= Stepconf Wizard
 
-= Stepconf Wizard[[stepconf-wizard]](((Stepconf Wizard)))
+[[cha:stepconf-wizard]] (((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 

@@ -130,7 +130,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                                           &hm2->resolver.position_reg);
         r += hm2_register_tram_read_region(hm2, hm2->resolver.velocity_addr,
                                           (hm2->resolver.num_resolvers * sizeof(u32)),
-                                          &hm2->resolver.velocity_reg);
+                                          (u32**)&hm2->resolver.velocity_reg);
         if (r < 0) {
             HM2_ERR("error registering tram read region for Resolver "
                     "register (%d)\n", i);

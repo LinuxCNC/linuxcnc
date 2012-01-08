@@ -1,11 +1,4 @@
-:lang: en
-:toc:
-
-
-Hardware
-========
-
-== Latency Test
+= Latency Test
 
 This test is the first test that should be performed on a PC 
 to see if it is able to drive a CNC machine.
@@ -42,7 +35,7 @@ also have some disadvantages:
 The best way to find out how well your PC will lrun EMC2 
 is to run the HAL latency test. 
 To run the test, open a terminal window 
-(In Ubuntu, from Applications -> Accessories -> Terminal) 
+(In Ubuntu, from Applications \-> Accessories \-> Terminal) 
 and run the following command: 
 
 ----

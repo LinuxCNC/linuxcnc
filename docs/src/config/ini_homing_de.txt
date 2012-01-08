@@ -1,16 +1,15 @@
-:lang: de
-:toc:
+= Homing Configuration
 
-== Homing[[sec:Homing]]
+[[cha:Homing]] (((INI Homing)))
 
-=== Overview
+== Overview
 
 Homing seems simple enough - just move each joint to a known location,
 and set EMC's internal variables accordingly. However, different
 machines have different requirements, and homing is actually quite
 complicated.
 
-=== Homing Sequence
+== Homing Sequence
 
 There are four possible homing sequences, along with the associated
 configuration parameters as shown in the following table. For a more
@@ -21,7 +20,7 @@ following section.
 
 image::images/emc2-motion-homing-diag.png[align="center"]
 
-=== Configuration
+== Configuration
 
 There are six pieces of information that determine exactly how the
 home sequence behaves. They are defined in an [AXIS] section of the
@@ -39,7 +38,7 @@ inifile.
 [NOTE]
 Any other combinations may result in an error.
 
-==== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
+=== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
 
 The default value is zero. A value of zero causes EMC to assume that
 there is no home switch; the search stage of homing is skipped.
@@ -57,7 +56,7 @@ overshoot enough to hit a limit switch or crash into the end of travel.
 On the other hand, if HOME_SEARCH_VEL is too low, homing can take a
 long time.
 
-==== HOME_LATCH_VEL (((HOME LATCH VEL)))
+=== HOME_LATCH_VEL (((HOME LATCH VEL)))
 
 Specifies the speed and direction that EMC uses when it makes its
 final accurate determination of the home switch (if present) and index
@@ -75,14 +74,14 @@ search. If HOME_SEARCH_VEL is non-zero and this parameter is zero, it
 is an error and the homing operation will fail. The default value is
 zero.
 
-==== HOME_FINAL_VEL
+=== HOME_FINAL_VEL
 
 It specifies the speed that EMC uses when it makes its move from
 HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
 the ini file, then the maximum joint speed is used to make this move.
 The value must be a positive number.
 
-==== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
+=== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
 
 Can hold the values YES / NO. This flag determines whether EMC will
 ignore the limit switch input for this axis while homing. Some machine 
@@ -93,7 +92,7 @@ value for this parameter is NO. To use only one input for all homing and
 limits you will have to block the limits of the axis not homing with axis 
 that is homing in HAL.
 
-==== HOME_USE_INDEX (((HOME USE INDEX)))
+=== HOME_USE_INDEX (((HOME USE INDEX)))
 
 Specifies whether or not there is an index pulse. If the flag is true
 (HOME_USE_INDEX = YES), EMC will latch on the rising edge of the index
@@ -101,7 +100,7 @@ pulse. If false, EMC will latch on either the rising or falling edge of
 the home switch (depending on the signs of HOME_SEARCH_VEL and
 HOME_LATCH_VEL). The default value is NO.
 
-==== HOME_OFFSET (((HOME OFFSET)))
+=== HOME_OFFSET (((HOME OFFSET)))
 
 Contains the location of the home switch or index pulse, in joint
 coordinates. It can also be treated as the distance between the point
@@ -109,7 +108,7 @@ where the switch or index pulse is latched and the zero point of the
 joint. After detecting the index pulse, EMC sets the joint coordinate
 of the current point to HOME_OFFSET. The default value is zero.
 
-==== HOME (((HOME)))
+=== HOME (((HOME)))
 
 The position that the joint will go to upon completion of the homing
 sequence. After detecting the index pulse, and setting the coordinate
@@ -127,7 +126,7 @@ scale location on the machine by applying the 'home_offset' value to
 the location where home was found, and then 'home' says where 
 the joint should move to on that scale.]
 
-==== HOME_IS_SHARED (((HOME IS SHARED)))
+=== HOME_IS_SHARED (((HOME IS SHARED)))
 
 If there is not a separate home switch input for this axis, but a
 number of momentary switches wired to the same pin, set this value to 1
@@ -135,7 +134,7 @@ to prevent homing from starting if one of the shared switches is
 already closed. Set this value to 0 to permit homing even if the switch
 is already closed.
 
-==== HOME_SEQUENCE (((HOME SEQUENCE)))
+=== HOME_SEQUENCE (((HOME SEQUENCE)))
 
 Used to define a multi-axis homing sequence HOME ALL and enforce
 homing order (e.g., Z may not be homed if X is not yet homed). An axis
@@ -146,7 +145,7 @@ HOME_SEQUENCE, they may be homed at the same time. If HOME_SEQUENCE is
 sequence. HOME_SEQUENCE numbers start with 0 and there may be no unused
 numbers.
 
-==== VOLATILE_HOME (((VOLATILE HOME)))
+=== VOLATILE_HOME (((VOLATILE HOME)))
 
 If this setting is true, this axis becomes unhomed whenever the
 machine transitions into the OFF state. This is appropriate for
@@ -154,7 +153,7 @@ any axis that does not maintain position when the axis drive is
 off.  Some stepper drives, especially microstep drives, may need
 this.
 
-==== LOCKING_INDEXER (((LOCKING INDEXER)))
+=== LOCKING_INDEXER (((LOCKING INDEXER)))
 
 If this axis is a locking rotary indexer, it will unlock before
 homing, and lock afterward.

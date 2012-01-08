@@ -1,9 +1,8 @@
-:lang: de
-:toc:
+= Ladder Examples
 
-== Ladder Examples [[ladder-examples]] (((Classic Ladder)))
+[[cha:ladder-examples]] (((Classic Ladder Examples)))
 
-=== Wrapping Counter
+== Wrapping Counter
 
 To have a counter that 'wraps around' you have to use the preset pin
 and the reset pin. When you create the counter set the preset at the
@@ -19,7 +18,7 @@ counting backwards.
 
 image::images/wrapping-counter.png[align="center"]
 
-=== Reject Extra Pulses
+== Reject Extra Pulses
 
 This example shows you how to reject extra pulses from an input.
 Suppose the input pulse %I0 has an annoying habit of giving an extra
@@ -34,7 +33,7 @@ output until it times out.
 
 image::images/extra-pulse-reject.png[align="center"]
 
-=== External E-Stop
+== External E-Stop
 
 The External E-Stop example is in the /config/classicladder/cl-estop
 folder. It uses a pyVCP panel to simulate the external components.
@@ -149,7 +148,7 @@ external Reset will put you in OFF mode. If the E-Stop in the AXIS
 screen was pressed, you must press it again to clear it. You cannot
 reset from the external after you do an E-Stop in AXIS.
 
-=== Timer/Operate Example
+== Timer/Operate Example
 
 In this example we are using the Operate block to assign a value to
 the timer preset based on if an input is on or off.
@@ -161,7 +160,7 @@ image::images/Tmr_Section_Display.png[align="center"]
 In this case %I0 is true so the timer preset value is 10. If %I0 was
 false the timer preset would be 5.
 
-=== Tool Turret
+== Tool Turret
 
  - This Example is not complete yet.
 
@@ -181,7 +180,7 @@ from EMC.You would have to load Classic Ladder's real time module
 specifying that you want s32 in and out pins. See 'loading options'
 above. [display turret sample]
 
-=== Sequential Example
+== Sequential Example
 
  - This Example is not complete yet.
 ///////////////////////////////////////////////////////////////////////////////

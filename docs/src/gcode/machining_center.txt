@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = CNC Machine Overview
 
 This section gives a brief description of how a CNC machine is viewed

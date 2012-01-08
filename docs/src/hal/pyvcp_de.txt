@@ -1,13 +1,10 @@
-:lang: de
-:toc:
+= PyVCP
 
-= PyVCP[[cha:Virtual-Control-Panel]]
-
-(((Virtual Control Panel)))
-
-Python Virtual Control Panel
+[[cha:pyvcp]] (((Python Virtual Control Panel)))
 
 == Introduction
+
+.Python Virtual Control Panel
 
 The PyVCP (Python Virtual Control Panel) is designed to give the
 integrator the ability to customize the AXIS interface with buttons and

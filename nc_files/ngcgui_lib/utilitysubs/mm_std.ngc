@@ -7,6 +7,5 @@ g90 (absolute distance mode)
 g94 (units/min feedrate)
 g54 (Coordinate system 1 default)
 
-#<_tol>  = 0.001
-
-g64 p#<_tol> (path control stop)
+#<tol>  = 0.001
+g64 p#<tol> (path control stop)

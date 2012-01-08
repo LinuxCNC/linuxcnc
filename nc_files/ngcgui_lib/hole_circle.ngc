@@ -9,7 +9,7 @@ o<hole_circle> sub
 #<cutdepth>   =  #6
 #<zincr>      =  #7
 #<zsafe>      =  #8 (=0.5)
-#<r>          =  #9 (radius)
+#<r>          =  #9 (Circle radius)
 #<theta>      = #10 (=0 start theta)
 #<hdiam>      = #11 (diameter)
 #<n>          = #12 (=4  N holes)
@@ -28,10 +28,10 @@ o<l20> while [#<i> LT #<n>]
    #<y> = [#<r> * SIN[#<theta>]]
 
    o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<zstart>][#<faceangle>][#<d_angle>][#<zstart>]
-   #<i>        = [#<i> + 1]
-   #<theta>    = [#<theta> + #<deltheta>]
-   #<_feature> = #<i> (using _feature here disables stop)
-                      (that would occur in helix at spin sub call)
+   #<i>         = [#<i> + 1]
+   #<theta>     = [#<theta> + #<deltheta>]
+   #<_feature:> = #<i> (using _feature: here disables stop)
+                       (that would occur in helix at spin sub call)
 o<l20> endwhile
 
 

@@ -1,9 +1,6 @@
-// :lang: pl does not work at this time for Polish Docs
-:toc:
+= Spindle Control
 
-= Spindle Control[[cha:Spindle-Control]]
-
-(((Spindle Control)))
+[[cha:Spindle-Control]] (((Spindle Control)))
 
 == 0-10v Spindle Speed (((0-10v Spindle Speed)))
 

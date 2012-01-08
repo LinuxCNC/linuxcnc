@@ -1,6 +1,3 @@
-:lang: de
-:toc:
-
 = Kinematics
 
 == Introduction
@@ -49,12 +46,12 @@ Cartesian space (the G-code program) to the joint space (the actual
 actuators of the machine) is trivial. It is a simple 1:1 mapping:
 
 ----
-pos->tran.x = joints[0]; 
-pos->tran.y = joints[1]; 
-pos->tran.z = joints[2]; 
-pos->a = joints[3]; 
-pos->b = joints[4]; 
-pos->c = joints[5];
+pos\->tran.x = joints[0]; 
+pos\->tran.y = joints[1]; 
+pos\->tran.z = joints[2]; 
+pos\->a = joints[3]; 
+pos\->b = joints[4]; 
+pos\->c = joints[5];
 ----
 
 In the above code snippet one can see how the mapping is done: the X
@@ -65,12 +62,12 @@ The next code snippet refers to the inverse kinematics (or the
 inverse direction of the transformation):
 
 ----
-joints[0] = pos->tran.x; 
-joints[1] = pos->tran.y; 
-joints[2] = pos->tran.z; 
-joints[3] = pos->a; 
-joints[4] = pos->b; 
-joints[5] = pos->c;
+joints[0] = pos\->tran.x; 
+joints[1] = pos\->tran.y; 
+joints[2] = pos\->tran.z; 
+joints[3] = pos\->a; 
+joints[4] = pos\->b; 
+joints[5] = pos\->c;
 ----
 
 As one can see, it's pretty straightforward to do the transformation
@@ -171,8 +168,8 @@ double BD2 = joints[1] * joints[1];
 double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx); 
 double y2 = AD2 - x * x; 
 if(y2 < 0) return -1; 
-pos->tran.x = x; 
-pos->tran.y = sqrt(y2); 
+pos\->tran.x = x; 
+pos\->tran.y = sqrt(y2); 
 return 0;
 ----    
 
@@ -195,10 +192,10 @@ latexmath::[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
 or translated to actual code:
 
 ----
-double x2 = pos->tran.x * pos->tran.x; 
-double y2 = pos->tran.y * pos->tran.y; 
+double x2 = pos\->tran.x * pos\->tran.x; 
+double y2 = pos\->tran.y * pos\->tran.y; 
 joints[0] = sqrt(x2 + y2); 
-joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
+joints[1] = sqrt((Bx - pos\->tran.x)*(Bx - pos\->tran.x) + y2); 
 return 0;
 ----
 

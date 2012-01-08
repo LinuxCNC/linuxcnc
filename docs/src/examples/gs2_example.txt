@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = GS2 Spindle[[gs2-spindle]]
 
 This example shows the connections needed to use an Automation Direct
@@ -15,9 +12,10 @@ screen.
 In the custom.hal file we place the following to connect EMC to the
 GS2 and have EMC control the drive.
 
+.GS2 Example
 ----
 # load the user space component for the Automation Direct GS2 VFD's 
-loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
+loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd
 
 # connect the spindle direction pin to the GS2 
 net gs2-fwd spindle-vfd.spindle-fwd <= motion.spindle-forward
@@ -32,6 +30,12 @@ net gs2-at-speed motion.spindle-at-speed <= spindle-vfd.at-speed
 net gs2-RPM spindle-vfd.speed-command <= motion.spindle-speed-out
 ----
 
+[NOTE]
+The transmission speed might be able to be faster depending on the exact
+envirnment. Both the drive and the command line options must match. To check
+for transmission errors add the '-v' command line option and run from a
+terminal.
+
 On the GS2 drive itself you need to set a couple of things before the
 modbus communications will work. Other parameters might need to be set
 based on your physical requirements but these are beyond the scope of this
@@ -39,11 +43,12 @@ manual. Refer to the GS2 manual that came with the drive for more
 information on the drive parameters.
 
 * The communications switches must be set to RS-232C
-* The motor parameters must be set
+* The motor parameters must be set to match the motor
 * P3.00 (Source of Operation Command) must be set to Operation
    determined by RS-485 interface, 03 or 04
 * P4.00 (Source of Frequency Command) must be set to Frequency
    determined by RS232C/RS485 communication interface, 05
+* P9.01 (Transmission Speed) must be set to 9600 baud, 02   
 * P9.02 (Communication Protocol) must be set to "Modbus RTU mode, 
    8 data bits, no parity, 2 stop bits", 03
 

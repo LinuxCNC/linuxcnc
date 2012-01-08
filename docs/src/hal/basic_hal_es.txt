@@ -1,4 +1,4 @@
-= Getting Started
+= Basic HAL
 
 [[sec:Hal-Commands]]
 == HAL Commands

@@ -1,6 +1,3 @@
-//:lang: pl
-:toc:
-
 = GladeVCP
 
 // TODO:
@@ -202,7 +199,7 @@ This will look like so:
 image::images/glade-manual-small.png[]
 
 Glade tends to write a lot of messages to the shell window, which
-mostly can be ignored.  Select 'File->Save as', give it a name like
+mostly can be ignored.  Select 'File\->Save as', give it a name like
 'myui.ui' and make sure it's saved as 'GtkBuilder' file (radio button
 left bottom corner in Save dialog). GladeVCP will also process the
 older 'libglade' format correctly but there is no point in using it. The
@@ -419,7 +416,7 @@ documentation as well.
 === Widget and HAL pin naming
 
 Most HAL widgets have a single associated HAL pin with the same name
-as the widget (glade: General->Name).
+as the widget (glade: General\->Name).
 
 Exceptions to this rule currently are.
 
@@ -502,7 +499,7 @@ Defining radio button groups in Glade:
 
 - decide on default active button
 
-- in the other button's 'General->Group' select the default active
+- in the other button's 'General\->Group' select the default active
 button's name in the 'Choose a Radio Button in this project' dialog.
 
 See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
@@ -518,7 +515,7 @@ respectively. They have one output FLOAT pin with name equal to widget
 name. Scales have no additional properties.
 
 To make a scale useful in Glade, add an 'Adjustment'
-(General->Adjustment->New or existing adjustment) and edit the
+(General\->Adjustment\->New or existing adjustment) and edit the
 adjustment object. It defines the default/min/max/increment 
 values. Also, set adjustment 'Page size' and 'Page increment' to zero
 to avoid warnings.
@@ -552,7 +549,7 @@ pin value in a user-defined format.
 
 label_pin_type::
 	The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
-	on 'General->HAL pin type '(note this is different from PyVCP which has
+	on 'General\->HAL pin type '(note this is different from PyVCP which has
 	three label widgets, one for each type).
 
 text_template::
@@ -824,7 +821,7 @@ widget in a nutshell:
  - it is an object available in Glade
  - it has no visual appearance by itself
  -  it's purpose: associate a visible, sensitive UI component like menu,
-   toolbutton, button with a command. See these widget's 'General->Related
+   toolbutton, button with a command. See these widget's 'General\->Related
    Action' property.
  -  the "canned action" will be executed when the associated UI component
    is triggered (button press, menu click..)

@@ -1,12 +1,10 @@
-:lang: es
-:toc:
-
 = About EMC2
 
 == The Software
 
 * EMC2 (the Enhanced Machine Control) is a software system for computer
-  control of machine tools such as milling machines and lathes.
+  control of machine tools such as milling machines and lathes, robots
+  such as puma and scara and other computer controlled machines up to 9 axes.
 * EMC2 is free software with open source code. Current versions of EMC
   are entirely licensed under the GNU General Public License and Lesser
   GNU General Public License (GPL and LGPL)
@@ -63,14 +61,12 @@ It is a live connection to other EMC users.
 The EMC IRC channel is #emc on freenode.
 
 The simplest way to get on the IRC is to use 
-the embedded java client on this page: 
-
-http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
+the embedded java client on this 
+http://www.linuxcnc.org/index.php/english/community[page].
 
 Some IRC etiquette::
 
- - Ask specific questions... Avoid "Can someone help me?", 
-   "It won't run" type of questions. 
+ - Ask specific questions... Avoid questions like "Can someone help me?". 
  - If you're really new to all this, think a bit about your question 
    before typing it. Make sure you give enough information so 
    someone can solve your question. 
@@ -102,9 +98,7 @@ answers take longer. In a nutshell you e-mail a message to the list and
 either get daily digests or individual replies back depending on how
 you set up your account.
 
-Information about the EMC Users Mailing List at: 
-
-link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users mailing list]
+The https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
 
 === EMC2 Wiki
 
@@ -114,7 +108,7 @@ that anyone can add to or edit.
 The user maintained EMC Wiki site contains a 
 wealth of information and tips at:
 
-link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
+link:http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[wiki.linuxcnc.org]
 
 == Getting EMC2
 

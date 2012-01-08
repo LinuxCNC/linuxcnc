@@ -1,6 +1,3 @@
-:lang: en
-:toc:
-
 = Tool Compensation
 
 == Tool Length Offsets

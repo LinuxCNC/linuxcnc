@@ -1,22 +1,21 @@
-//:lang: pl
-:toc:
-
 = Other Codes
 
-== F: Set Feed Rate[[sec:F-Set-Feed]]
+[[cha:other-codes]] (((Other Codes)))
+
+== F: Set Feed Rate[[sec:F-feed-rate]]
 (((F: Set Feed Rate)))
 
-* 'F-' - sets the feed rate. The application of the feed rate is as described in the 
-<<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect, 
+* 'F-' - sets the feed rate. The application of the feed rate is as described in the
+<<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
-== S: Set Spindle Speed[[sec:S-Set-Spindle]]
+== S: Set Spindle Speed[[sec:S-spindle-speed]]
 (((S: Set Spindle Speed)))
 
-* 'S-' - set the speed in revolutions per minute (RPM) of the spindle. 
-The spindle will turn at that speed when a 'M3' or 'M4' is in effect. 
-It is OK to program an S word whether the spindle is turning or not. 
+* 'S-' - set the speed in revolutions per minute (RPM) of the spindle.
+The spindle will turn at that speed when a 'M3' or 'M4' is in effect.
+It is OK to program an S word whether the spindle is turning or not.
 If the speed override switch is enabled and not set at 100%, 
 the speed will be different from what is programmed. 
 It is OK to program S0, the spindle will not turn if that is done.
@@ -25,7 +24,7 @@ It is an error if:
 
 * the S number is negative.
 
-As described in the <<sec:G84-Right-Hand-Tapping,G84>> Section, if a 'G84' 
+As described in the <<sec:G84-Right-Hand-Tapping,G84>> Section, if a 'G84'
 (tapping) canned cycle is active and the feed and speed override
 switches are enabled, the one set at the lower setting will take
 effect. The speed and feed rates will still be synchronized. In this
@@ -35,14 +34,13 @@ override switch is set at 100%.
 == T: Select Tool[[sec:T-Select-Tool]]
 (((T: Select Tool)))
 
-* 'T-' - call tool prepare for the slot number. The tool is 
+* 'T-' - call tool prepare. The tool is 
 not changed until an 'M6' is programmed (see Section 
 <<sec:M6-Tool-Change,M6>>). The T word may 
-appear on the same line as the 'M6' or on a previous line. It is OK,
-but not normally useful, if T words 
-appear on two or more lines with no tool change. The carousel may move
-a lot, but only the most recent T word will take effect at the next
- tool change. It is OK to program 'T0'; no tool will be selected. This
+appear on the same line as the 'M6' or on a previous line. It is OK
+if T words appear on two or more lines with no tool change. Only the
+the most recent T word will take effect at the next
+tool change. It is OK to program 'T0'; no tool will be selected. This
 is useful if you want the spindle to be empty after a tool change.
 
 It is an error if:
@@ -63,7 +61,7 @@ the tool like a lathe. This can be very confusing at first. To turn
 this feature off for the current tool program a G1 without any
 move after the 'T<n>'.
 
-== Comments[[sec:Comments]]
+== Comments[[sec:comments]]
 
 (((Comments)))
 
@@ -73,34 +71,43 @@ first right parenthesis found thereafter. Once a left parenthesis is
 placed on a line, a matching right parenthesis must appear before the
 end of the line. Comments may not be nested; it is an error if a left
 parenthesis is found after the start of a comment and before the end of
-the comment. Here is an example of a line containing a comment: 
+the comment. A semi-colon is treated as the start of a comment and the
+remainder of the line is part of the comment. A semi-colon enclosed in
+parentheses is not treated as the start of a comment.
 
+.Line Comment Example
 ----
 G80 M5 (stop motion)
+; the semi-colon starts a comment line
 ----
 
-Comments are only informative, they do not cause a machine to do anything. 
+Comments are only informative, they do not cause a machine to do anything.
 
 == Messages[[sec:Messages]]
 (((Messages)))
 
 * '(MSG,)' - displays message if 'MSG' appears after the left
-             parenthesis and before any other printing  characters.
+             parenthesis and before any other printing characters.
              Variants of 'MSG' which include white space and lower case
-             characters are allowed. The rest of the characters before 
+             characters are allowed. The rest of the characters before
              the right parenthesis are considered to be a message.
              Messages should be displayed on the message display device
              of the user interface if provided.
+
+.Message Example
+----
+(MSG, This is a message)
+----
 
 == Probe Logging[[sec:Probe-Logging]]
 (((Probe Logging)))
 
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
-                               coordinate consisting of XYZABCUVW of each 
+                               coordinate consisting of XYZABCUVW of each
                                successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
-For more information on probing see the <<G38-probe,G38>> Section. 
+For more information on probing see the <<G38-probe,G38>> Section.
 
 == General Logging[[sec:General-logging]]
 (((General Logging)))
@@ -125,7 +132,7 @@ For more information on probing see the <<G38-probe,G38>> Section.
 == Print Messages[[sec:print-messages]]
 (((Print Messages)))
 
-* '(PRINT,)' - messages are output to stderr with special handling
+* '(PRINT,)' - messages are output to 'stderr' with special handling
                for parameters as described below.
 
 == Comment Parameters
@@ -136,14 +143,15 @@ message are expanded.
 For example: to print a named global variable to stderr (the default
 console window) add a line to your gcode like...
 
+.Parameters Example
 ----
 (print,endmill dia = #<_endmill_dia>)
 ----
 
 Inside the above types of comments, sequences like '#123' are replaced
-by the value of the parameter 123. Sequences like '#<named parameter>' 
+by the value of the parameter 123. Sequences like '#<named parameter>'
 are replaced by the value of the named parameter. Remember that named
- parameters will have white space removed from them. 
-So, '#<named parameter>' is the same as '#<namedparameter>'. 
+ parameters will have white space removed from them.
+So, '#<named parameter>' is the same as '#<namedparameter>'.
 
 // vim: set syntax=asciidoc:

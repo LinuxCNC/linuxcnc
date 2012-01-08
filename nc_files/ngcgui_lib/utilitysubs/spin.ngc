@@ -6,7 +6,7 @@
 o<spin> sub
 (not_a_subfile)
         #<rpm> = #1
-o<l0>   if [#<_feature> LT 1]
+o<l0>   if [#<_feature:> LT 1]
           (debug, S to continue: Spindle rpm=#<rpm>)
           m0   (mandatory stop)
           M110 (axisui.notifications-clear)

@@ -1,6 +1,3 @@
-:lang: es
-:toc:
-
 = RS274NGC Programs
 
 == Changes from RS274NGC

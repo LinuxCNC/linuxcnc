@@ -221,22 +221,22 @@ DOC_SRCS := \
 	gcode/m-code.txt \
 	gcode/m-code_de.txt \
 	gcode/m-code_es.txt \
+	gcode/m-code_fr.txt \
 	gcode/m-code_pl.txt \
-	gcode/mill_canned.txt \
-	gcode/mill_canned_de.txt \
-	gcode/mill_canned_es.txt \
-	gcode/mill_canned_pl.txt \
 	gcode/o-code.txt \
 	gcode/o-code_de.txt \
 	gcode/o-code_es.txt \
+	gcode/o-code_fr.txt \
 	gcode/o-code_pl.txt \
 	gcode/other-code.txt \
 	gcode/other-code_de.txt \
 	gcode/other-code_es.txt \
+	gcode/other-code_fr.txt \
 	gcode/other-code_pl.txt \
 	gcode/overview.txt \
 	gcode/overview_de.txt \
 	gcode/overview_es.txt \
+	gcode/overview_fr.txt \
 	gcode/overview_pl.txt \
 	gcode/rs274ngc.txt \
 	gcode/rs274ngc_de.txt \
@@ -524,7 +524,7 @@ checkref: checkref_en checkref_fr
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
 # These targets don't work yet since we don't have the associated translations
@@ -701,6 +701,7 @@ $(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
@@ -711,6 +712,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.htm
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
@@ -718,8 +720,10 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_fr.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_pl.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_pl.links" \
@@ -728,6 +732,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.htm
 	
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_es.links" \
@@ -736,6 +741,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_de.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_de.links" \

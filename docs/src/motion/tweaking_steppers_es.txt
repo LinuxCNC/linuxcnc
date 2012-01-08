@@ -1,9 +1,6 @@
-:lang: es
-:toc:
+= Stepper Tuning
 
-= Stepper Tuning[[cha:Stepper-Tuning]]
-
-(((Stepper Tuning)))
+[[cha:Stepper-Tuning]] (((Stepper Tuning)))
 
 == Getting the most out of Software Stepping
 

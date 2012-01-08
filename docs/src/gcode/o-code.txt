@@ -1,42 +1,69 @@
-:lang: en
-:toc:
+= O Codes
 
-= O Codes[[cha:O-Codes]]
-
-(((O Codes)))
+[[cha:O-Codes]] (((O Codes)))
 
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken
 to properly match the O-numbers. O codes use the letter 'O' not the
 number zero as the first character in the number like O100.
 
+.Numbering Example
+----
+o100 sub
+(notice that the if-endif block uses a different number)
+  o110 if [#2 GT 5]
+    (some code here)
+  o110 endif
+  (some more code here)
+o100 endsub
+----
+
 The behavior is undefined if:
 
+* The same number is used for more than one block
 * Other words are used on a line with an O- word
 * Comments are used on a line with an O-word
 
-== Subroutines: sub, endsub, return, call
-(((Subroutines: sub, endsub, return, call)))
+[NOTE]
+Using the lower case o makes it easier to distinguish from a 0
+that might have been mistyped. For example o100 is easier to
+see than O100 that it is not a 0.
+
+== Subroutines[[sec:subroutines]](((Subroutines)))
 (((sub)))(((endsub)))(((return)))(((call)))
 
 Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines
-inside the subroutine (the 'body') are not executed in
-order; instead, they are executed each time the subroutine is called
-with 'O- call'. 
+between 'O- sub' and 'O- endsub' are not executed until
+the subroutine is called with 'O- call'. 
 
+.Subroutine Example
 ----
-O100 sub (subroutine to move to machine home)
-G0 X0 Y0 Z0
-O100 endsub
-(many intervening lines)
-O100 call
+o100 sub
+  G53 G0 X0 Y0 Z0 (rapid move to machine home)
+o100 endsub
+...
+o100 call (call the subroutine here)
+M2
 ----
+See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
 
-Inside a subroutine, 'O- return'  can be executed. This immediately
-returns to the calling code, just
-as though 'O- endsub' was encountered.
+.O- Return
+Inside a subroutine, 'O- return' can be executed. This immediately
+returns to the calling code, just as though 'O- endsub' was encountered.
 
-'O- call' takes up to 30 optional arguments, which are passed to the
+.O- Return Example
+----
+o100 sub
+  o110 if [#2 GT 5] (test if parameter #2 is greater than 5)
+    o100 return (return to top of subroutine if test is true)
+  o110 endif
+  (some code here that only gets executed if parameter #2 is less than 5)
+o100 endsub
+----
+See the <<sec:Binary-Operators,Binary Operators>> & <<sec:parameters,Parameters>> sections for more information.
+
+.O- Call
+'O- Call' takes up to 30 optional arguments, which are passed to the
 subroutine
  as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
 value as in the
@@ -49,8 +76,9 @@ Because '1 2 3' is parsed as the number 123, the parameters must be
 enclosed in
 square brackets. The following calls a subroutine with 3 arguments:
 
+.O- Call Example
 ----
-O200 call [1] [2] [3]
+o200 call [1] [2] [3]
 ----
 
 Subroutine bodies may not be nested. They may only be called after
@@ -63,54 +91,69 @@ of parameters above #30 and those changes will be visible to the
 calling code. Subroutines may also change the value of global named
 parameters.
 
-== Looping: do, while, endwhile, break, continue
-(((Looping: do, while, endwhile, break, continue)))
-(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+== Looping[[sec:looping]](((Looping)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
-The 'while loop' has two structures: while/endwhile, and do/while. In
+The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
-false.
+false. The difference is when the test condition is done. The 'do/while'
+loop runs the code in the loop then checks the test condition. The
+'while/endwhile' loop does the test first.
 
+.While Endwhile Example
 ----
 (draw a sawtooth shape)
-F100
-#1 = 0
-O101 while [#1 lt 10]
-G1 X0
-G1 Y[#1/10] X1
-#1 = [#1+1]
-O101 endwhile
+G0 X1 Y0 (move to start position)
+#1 = 1 (assign parameter #1 the value of 0)
+F25 (set a feed rate)
+o101 while [#1 LT 10]
+  G1 X0
+  G1 Y[#1/10] X1
+  #1 = [#1+1] (increment the test counter)
+o101 endwhile
+M2 (end program)
 ----
 
+.Do While Example
+----
+#1 = 0 (assign parameter #1 the value of 0)
+o100 do
+  o110 if [#1 EQ 2]
+    #1 = 3 (assign the value of 3 to parameter #1)
+    o100 continue (skip to start of loop)
+  o110 endif
+  (some code here)
+  #1 = [#1 + 1] (increment the test counter)
+o100 while [#1 GT 3]
+----
+
+
 Inside a while loop, 'O- break' immediately exits the loop, and 'O-
-continue' immediately skips to the next evaluation of the 'while' 
+continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional: if, else, endif
-(((Conditional: if, else, endif)))
-(((if)))(((else)))(((endif)))
+== Conditional[[sec:conditional]](((Conditional: if, else, endif)))(((if)))(((else)))(((endif)))
 
 The 'if' conditional executes one group of statements if a condition
-is true and another if it is false.
+is true and the 'else'executes another if it is false.
 
+.If Else Endif Example
 ----
-(Set feed rate depending on a variable)
-O102 if [#2 GT 5]
-F100
-O102 else
-F200
+O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+  F100
+O102 else (else if parameter #2 is not greater than 5 set F200)
+  F200
 O102 endif
 ----
 
-== Repeat
-(((Repeat)))
+== Repeat(((Repeat)))
 
 The 'repeat' will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how
 you might mill a diagonal series of shapes starting at the present
 position.
 
+.Repeat Example
 ----
 (Mill 5 diagonal shapes)
 G91 (Incremental mode)
@@ -121,52 +164,55 @@ O103 endrepeat
 G90 (Absolute mode)
 ----
 
-== Indirection
-(((Indirection)))
+== Indirection(((Indirection)))
 
-The O-number may be given by a parameter or calculation.
+The O-number may be given by a parameter and/or calculation.
 
+.Indirection Example
 ----
 O[#101+2] call
 ----
 
-== Computing values in O-words
+.Computing values in O-words
+For more information on computing values see the following sections
 
-In O-words, Parameters (section  <<sec:Parameters,Parameters>>),
-Expressions (section  <<sec:Expressions,Expressions>>), 
-Binary Operators (section <<sec:Binary-Operators,Binary Operators>>), 
-and Functions (table <<cap:Functions,Functions>>) are particularly useful.
+* <<sec:Parameters,Parameters>>
+* <<sec:Expressions,Expressions>>
+* <<sec:Binary-Operators,Binary Operators>>
+* <<sub:functions,Functions>>
 
-== Calling Files
-(((Calling Files)))
+== Calling Files(((Calling Files)))
 
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in
-the directory pointed to by PROGRAM_PREFIX. The file name can include
-lowercase letters, numbers, dash, and underscore only.
+the directory pointed to by 'PROGRAM_PREFIX' in the ini file.
+The file name can include *lowercase* letters, numbers, dash,
+and underscore only.
 
+.Named File Example
 ----
-o<myfile> call (a named file)
+o<myfile> call
 ----
 
-or
-
+.Numbered File Example
 ----
-o123 call (a number file)
+o123 call
 ----
 
 In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
+.Called File Example
 ----
-myfile.ngc
+(filename myfile.ngc)
 o<myfile> sub
-...
+  (code here)
 o<myfile> endsub
 M2
 ----
 
 [NOTE]
-The file names are case sensitive so 'o<myfile> call' and 'o<MyFile> call' are not calling the same file. 
+The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
+by the interperter.
 
 // vim: set syntax=asciidoc:

@@ -1,8 +1,6 @@
-:lang: de
-:toc:
+= HAL User Interface
 
-= HAL User Interface[[cha:Hal User Interface]]
-
+[[cha:hal-user-interface]] (((HAL User Interface)))
 
 == Introduction[[sec:HaluiIntroduction]]
 
