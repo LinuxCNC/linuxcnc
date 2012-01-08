@@ -169,14 +169,14 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             goto fail0;
         }
         do {
-        buff=0x2003; //Read firmware version
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,49) < 0){
-            r = -EINVAL;
-            goto fail0;
-        }
+            buff=0x2003; //Read firmware version
+            hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+            if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,49) < 0){
+                r = -EINVAL;
+                goto fail0;
+            }
+            hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
         } while (buff == 0xAA);
-        hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
 
         //start up in setup mode
@@ -359,7 +359,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             err_flag = 0;
             if (hm2_sserial_stopstart(hm2, md, inst, 0x900) < 0 ) {goto fail0;}
             if (hm2_sserial_auto_check(hm2, inst) < 0) {err_flag = -EINVAL;}
-            if (hm2_sserial_8i20_check(hm2, inst) < 0) {err_flag = -EINVAL;}
+            if (hm2_sserial_8i20_check(hm2, inst) < 0) {/* do nothing */}
             if (hm2_sserial_7i64_check(hm2, inst) < 0) {err_flag = -EINVAL;}
             if (err_flag) goto fail0;
         }
