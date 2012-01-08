@@ -199,7 +199,7 @@ read|write::
 ==== Exemples
 
 motenc.0.encoder.read::
-     -- lit tous les codeurs sur la première carte motenc.
+     Lit tous les codeurs sur la première carte motenc.
 
 generic8255.0.din.09-15.read::
      Lit le deuxième port 8 bits sur la première carte
@@ -209,7 +209,7 @@ ppmc.0.write::
      Écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
     la première carte Pico Systems ppmc.
 
-= Périphériques d'interfaces canoniques[[cha:Pripheriques-canoniques]]
+== Périphériques d'interfaces canoniques[[cha:Pripheriques-canoniques]]
 
 Les sections qui suivent expliquent les pins, paramètres et fonctions
 qui sont fournies par les *périphériques canoniques*. Tous les pilotes
@@ -253,7 +253,7 @@ La sortie numérique canonique est également très simple (I/O type: *digout*).
 === Paramètres
 
 (bit) *invert*::
-    Si TRUE, *out* est inversée avant écriture sur la matériel.
+    Si TRUE, *out* est inversée avant écriture sur la sortie matérielle.
 
 === Fonctions
 
@@ -286,7 +286,8 @@ une échelle continue de valeurs.
      Valeur du bit le moins significatif (LSB). C'est effectivement, la 
     granularité de lecture en entrée.
 (float) *hw_offset*::
-     Valeur présente sur l'entrée quand 0 volts sont appliqués sur la pin d'entrée.
+     Valeur présente sur l'entrée quand aucune tension n'est appliquée sur la 
+    pin.
 
 === Fonctions
 

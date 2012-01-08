@@ -66,7 +66,7 @@ ce que vous avez besoin de savoir à propos de RTAPI est qu'il doit être
 pouvoir faire n'importe quoi avec HAL.
 
 [[sec:Tutoriel-Exemple-Simple]]
-== Un exemple simple
+== Tutoriel simple
 
 === Charger un composant temps réel
 
@@ -535,7 +535,7 @@ il est possible d'ouvrir plusieurs halmeters. La fenêtre de halmeter
 est intentionnellement petite justement pour permettre d'en ouvrir un
 grand nombre sur le même écran.
 
-== Exemple plus complexe avec stepgen[[sec:Tutorial-Plus-Complexe]]
+== Tutoriel plus complexe avec stepgen[[sec:Tutorial-Plus-Complexe]]
 
 Jusqu'à maintenant, nous avons chargé un composant HAL. Mais l'idée
 générale de HAL est de vous permettre de charger et de relier un grand
@@ -643,7 +643,7 @@ halcmd: show param
          3  s32   RW              0  stepgen.update-freq.tmax 
 ----
 
-=== Connecter des pins avec des signaux
+=== Connection des pins avec les signaux
 
 Nous avons donc deux générateurs d'impulsions de pas et un générateur
 de signaux. Maintenant, nous allons créer des signaux HAL pour
@@ -653,10 +653,10 @@ d'impulsions de pas. Nous voulons déplacer la table en ronds. Pour ce
 faire, nous allons envoyer un signal cosinusoïdal à l'axe des X et un
 signal sinusoïdal à l'axe des Y. Le module siggen créera le sinus et le
 cosinus, mais nous aurons besoin de *fils* pour connecter les modules
-ensemble. Dans le HAL, les *fils* sont appelés signaux. Nous devons en
+ensemble. Dans HAL, les *fils* sont appelés signaux. Nous devons en
 créer deux. Nous pouvons les appeler comme on veut, pour cet exemple il
 y aura *X-vel* et *Y-vel*. Le signal *X-vel* partira de la sortie
-cosinus du générateur de signal et arrivera sur
+cosinus du générateur de signaux et arrivera sur
 l'entrée *velocity* du premier générateur d'impulsions de pas. La
 première étape consiste à connecter le signal à la sortie du générateur
 de signaux. Pour connecter un signal à une pin, nous utilisons la
@@ -921,8 +921,7 @@ multiplicateur à 1. Nous allons aussi passer la longueur
 d'enregistrement à 4000 samples (échantillons), de sorte que nous
 puissions utiliser jusqu'à 4 voies simultanément. Quand vous
 sélectionnez un thread puis que vous cliquez sur le bouton *OK*, le
-dialogue disparaît et la fenêtre du scope affiche quelque chose comme
-sur la figure <<fig:Fenetre-initiale-Halscope>>.
+dialogue disparaît et la fenêtre initiale du scope s'ouvre, comme ci-dessous.
 
 .Fenêtre initiale du scope[[fig:Fenetre-initiale-Halscope]]
 
@@ -942,18 +941,17 @@ pour l'enregistrement est fixée à environ 16000 échantillons.
 Les boutons des voies se situent en dessous de l'écran du scope.
 Cliquez le boutton *1* et vous verrez apparaître le dialogue de
 sélection *Select Channel Source*, pour sélectionner le signal à
-afficher sur la voie 1, comme sur la figure 
-<<fig:Selection-sources-Halscope>>. Ce dialogue est très similaire à
-celui utilisé par Halmeter.
+afficher sur la voie 1, comme sur la figure ci-dessous. 
+Ce dialogue est très similaire à celui utilisé par Halmeter.
 
 .Dialogue de sélection des sources[[fig:Selection-sources-Halscope]]
 
 image::images/halscope-03.png[]
 
 Nous aimerions bien regarder les signaux que nous avons défini
-précédemment, pour cela, cliquons sur l'onglet *Signals* et le dialogue
+précédemment, pour cela, cliquons sur l'onglet _Signals_ et le dialogue
 affichera tous les signaux existants dans le HAL (seulement deux dans
-notre exemple). <<cap:Select-Signal>>
+notre exemple, comme ci-dessous).
 
 Pour choisir un signal, il suffit de cliquer dessus. Dans notre cas,
 nous voulons utiliser la voie 1 pour afficher le signal *X-vel*.
@@ -976,18 +974,18 @@ image::images/halscope-05.png[]
 Les différents contrôles comme la position verticale et l'amplitude
 sont toujours relatifs à la voie 1. Pour ajouter un signal sur la voie
 2, cliquer sur le bouton *2*. Dans la fenêtre de dialogue, cliquer sur
-l'onglet *Signals*, puis cliquer sur *Y-vel*.
+l'onglet _Signals_, puis cliquer sur *Y-vel*.
 
 Nous voulons aussi voir les signaux carrés et triangles produits. Il
 n'existe pas de signaux connectés à ces pins, nous utilisons donc
-l'onglet *Pins*. Pour le canal 3, sélectionnez *siggen.0.triangle* 
+l'onglet _Pins_. Pour le canal 3, sélectionnez *siggen.0.triangle* 
 et pour le canal 4, choisissez *siggen.0.square*.
 
 === Capturer notre première forme d'onde
 
 Maintenant que nous avons plusieurs sondes branchées sur HAL, il est
 temps de capturer quelques formes d'ondes. Pour démarrer le scope,
-cochez la case *Normal* du groupe *run mode* (en haut à droite).
+cochez la case _Normal_ du groupe _Run Mode_ (en haut à droite).
 Puisque nous avons une longueur d'enregistrement de 4000 échantillons
 et une acquisition de 1000 échantillons par seconde, il faudra à
 halscope environ 2 secondes pour remplir la moitié de son tampon.
@@ -995,16 +993,16 @@ Pendant ce temps, une barre de progression juste au-dessus de l'écran
 principal affichera le remplissage du tampon. Une fois que le tampon
 est à moitié plein, scope attend un déclencheur. Puisque nous n'en
 avons pas encore configuré, il attendra toujours. Pour déclencher
-manuellement, cliquez sur le bouton *Force* du groupe *Trigger* en
+manuellement, cliquez sur le bouton _Force_ du groupe _Trigger_ en
 haut à droite. Vous devriez voir le reste de la zone tampon se remplir,
 puis l'écran afficher les ondes capturées. Le résultat ressemble à la
-figure <<fig:Capture-onde-Halscope>>.
+figure ci-dessous.
 
 .Capture d'ondes[[fig:Capture-onde-Halscope]]
 
 image::images/halscope-06.png[]
 
-Le grand bouton *Selected Channel* en bas, indique que la voie 4 est
+Le grand bouton _Selected Channel_ en bas, indique que la voie 4 est
 actuellement sélectionnée, donc, qu'elle correspond à la pin
 *siggen.0.square*. Essayez de cliquer sur les autres voies pour mettre
 leurs traces en évidence.
@@ -1013,13 +1011,13 @@ leurs traces en évidence.
 
 Les traces sont assez difficiles à distinguer car toutes les quatre
 sont les unes sur les autres. Pour résoudre ce problème, nous utilisons
-le curseur *Vertical* situé à droite de l'écran. Ces contrôles agissent
+le curseur _Vertical_ situé à droite de l'écran. Ces contrôles agissent
 sur la voie actuellement sélectionnée. En ajustant le gain, notez qu'il
 couvre une large échelle (contrairement aux scopes réels), celle-ci
 permet d'afficher des signaux très petits (pico unités) à très grands
-(Tera - unités). Le curseur *position* déplace la trace affichée de
+(Tera - unités). Le curseur _position_ déplace la trace affichée de
 haut en bas sur toute la hauteur de l'écran. Pour de plus grands
-ajustements le bouton Offset doit être utilisé.
+ajustements le bouton _Offset_ doit être utilisé.
 
 .Ajustement vertical[[cap:Ajustement-vertical-halscope]]
 
@@ -1027,11 +1025,11 @@ image::images/halscope-07.png[]
 
 === Triggering
 
-L'utilisation du bouton *Force* n'est parfois pas satisfaisante pour
+L'utilisation du bouton _Force_ n'est parfois pas satisfaisante pour
 déclencher le scope. Pour régler un déclenchement (triggering) réel,
-cliquer sur le bouton *Source* situé en bas à droite. Il ouvre alors le
-dialogue *Trigger Source*, qui est simplement la liste de toutes les
-sondes actuellement branchées (Figure <<fig:Halscope-demo-5>> ).
+cliquer sur le bouton _Source_ situé en bas à droite. Il ouvre alors le
+dialogue _Trigger Source_, qui est simplement la liste de toutes les
+sondes actuellement branchées, figure ci-dessous.
 Sélectionner la sonde à utiliser pour déclencher en cliquant dessus.
 Pour notre exemple nous utilisons 3 canaux, essayons l'onde triangle.
 
@@ -1041,7 +1039,7 @@ image::images/halscope-08.png[]
 
 Après avoir défini les sources de déclenchement, il est possible
 d'ajuster le niveau de déclenchement avec les curseurs dans la boîte 
-*Trigger* le long du bord droit. Le niveau peut être modifié à partir
+_Trigger_ le long du bord droit. Le niveau peut être modifié à partir
 du haut vers le bas de l'écran, et est affiché sous les curseurs. La
 position est l'emplacement du point de déclenchement dans
 l'enregistrement complet. Avec le curseur tout en bas, le point de
@@ -1055,11 +1053,10 @@ l'écran. La polarité du signal de déclenchement peut être inversée en
 cliquant sur le bouton situé juste sous l'affichage du niveau de
 déclenchement. Notez que la modification de la position de
 déclenchement arrête le scope une fois la position ajustée, vous
-relancez le scope en cliquant sur le bouton *Normal* du groupe *Run Mode*. 
+relancez le scope en cliquant sur le bouton _Normal_ du groupe _Run Mode_. 
 
 Maintenant que nous avons réglé la position verticale et le
-déclenchement, l'écran doit ressembler à la figure 
-<<fig:Halscope-demo-6>>.
+déclenchement, l'écran doit ressembler à la figure ci-dessous.
 
 .Formes d'ondes avec déclenchement[[fig:Halscope-demo-6]]
 
@@ -1068,7 +1065,7 @@ image::images/halscope-09.png[]
 === Ajustement horizontal
 
 Pour examiner de près une partie d'une forme d'onde, vous pouvez
-utiliser le zoom au dessus de l'écran pour étendre la trace
+utiliser le _zoom_ au dessus de l'écran pour étendre la trace
 horizontalement et le curseur de position pour déterminer quelle partie
 de l'onde zoomée est visible. Parfois simplement élargir l'onde n'est
 pas suffisant et il faut augmenter la fréquence d'échantillonnage. Par
@@ -1077,9 +1074,9 @@ dans notre exemple. Mais les impulsions de pas font seulement 50 us de
 long, l'échantillonnage à 1kHz n'est pas assez rapide. Pour changer le
 taux d'échantillonnage, cliquer sur le bouton qui affiche la longueur
 de l'enregistrement et l'échantillonnage pour avoir le dialogue 
-*Select Sample Rate*, figure  <<fig:Halscope-demo-7>>. 
+*Select Sample Rate*, figure ci-dessous. 
 Pour notre exemple, nous
-cliquerons sur le thread *fast*, qui fournira un échantillonnage à
+cliquerons sur le thread _fast_, qui fournira un échantillonnage à
 environ 20KHz. Maintenant au lieu d'afficher environ 4 secondes de
 données, un enregistrement est de 4000 échantillons à 20KHz, soit
 environ 0.20 seconde.
@@ -1093,21 +1090,21 @@ image::images/halscope-10.png[]
 Maintenant regardons les impulsions de pas. Halscope dispose de 16
 voies, mais pour cet exemple, nous en utilisons seulement 4 à la fois.
 Avant de sélectionner toute autre voie, nous avons besoin d'en éteindre
-certaines. Cliquer sur la voie 2, puis sur le bouton *Off* sous le
-groupe *vertical*. Ensuite, cliquez sur la voie 3, la mettre off et
+certaines. Cliquer sur la voie 2, puis sur le bouton _Off_ sous le
+groupe _vertical_. Ensuite, cliquez sur la voie 3, la mettre off et
 faire de même pour la voie 4. Même si les circuits sont éteints, ils
 ont encore en mémoire ce à quoi ils sont connectés et en fait, nous
 continuerons d'utiliser la voie 3 comme source de déclenchement. Pour
 ajouter de nouvelles voies, sélectionner la voie 5, choisir la pin 
 *stepgen.1.dir*, puis la voie 6 et sélectionner *stepgen.1.step*. 
-Ensuite, cliquer sur *mode Normal* pour lancer le scope, ajustez le
+Ensuite, cliquer sur _mode Normal_ pour lancer le scope, ajustez le
 zoom horizontal à 5 ms par division. Vous devriez voir les impulsions de
 pas ralentir à la vitesse commandée (voie 1) approcher de zéro, puis la
 pin de direction changer d'état et les impulsions de pas reprendre de
 nouveau de la vitesse. Vous aurez peut être besoin d'augmenter le gain
-sur la voie 1 à environ 20 milli par division afin de mieux voir 
+sur la voie 1 à environ 20 ms par division afin de mieux voir 
 l'évolution de la vitesse de commande. Le résultat devrait être proche 
-de celui de la figure <<fig:Halscope-demo-8>>. 
+de celui de la figure ci-dessous. 
 
 .Observer les impulsions de pas[[fig:Halscope-demo-8]]
 
