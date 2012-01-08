@@ -160,7 +160,7 @@ D'après les informations ci-dessus:
 au chapitre <<cha:Assistant-graphique-pas-a-pas, sur cet assistant.>>
  - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
 l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-Mesa, relatif 
-à cet asistant>>
+à cet assistant>>
 
 // vim: set syntax=asciidoc:
 
