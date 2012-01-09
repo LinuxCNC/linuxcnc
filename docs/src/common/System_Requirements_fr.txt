@@ -12,10 +12,11 @@ les systèmes à servomoteurs. Il est possible de tester le logiciel à
 partir du CD-Live avant de l'installer sur un ordinateur. Guarder à
 l'esprit que les valeurs retournées par le test de latence (Latency
 Test), sont plus importantes que la vitesse du µP pour la génération
-logicielle des pas. Plus d'informations à propos du test de latence
-dans la section relative au <<sec:Test-de-latence-GS,test de latence>>.
+logicielle des pas. Plus d'informations à ce propos dans la section 
+relative au <<sec:Test-de-latence-GS,test de latence>>.
 
-Des informations additionnelles sont disponibles sur le http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiky de linuxcnc.org.]
+Des informations additionnelles sont disponibles sur le 
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiki de linuxcnc.org.]
 
 EMC2 et Ubuntu doivent fonctionner raisonnablement bien sur la
 configuration matérielle minimale suivante. Ces valeurs ne sont pas des

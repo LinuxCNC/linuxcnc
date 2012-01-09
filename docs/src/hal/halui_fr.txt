@@ -1,7 +1,9 @@
 :lang: fr
 :toc:
 
-= L'interface Halui[[cha:Halui]]
+= L'interface Halui
+
+[[cha:Halui]] (((HAL User Interface)))
 
 == Introduction[[sec:HaluiIntroduction]]
 
@@ -27,24 +29,20 @@ dans votre fichier custom.hal.
 
 == Nomenclature des pins d'Halui[[sec:Halui-pin-reference]]
 
-=== Abandon (abort)
-
+Abandon:: (abort)
  - halui.abort (bit, in) - pin de requête d'abandon (efface les erreurs)
 
-== Axes (axis)
-
+Axes:: (axis)
  - halui.axis.n.pos-commanded (float, out) - Position de l'axe commandée, en coordonnées machine
  - halui.axis.n.pos-feedback (float, out) - Position de l'axe lue, en coordonnées machine
  - halui.axis.n.pos-relative (float, out) - Position de l'axe, en coordonnées relatives
 
-=== Arrêt d'urgence (E-Stop)
-
+Arrêt d'urgence:: (E-Stop)
  - halui.estop.activate (bit, in) - pin de requête d'arrêt d'urgence (E-Stop)
  - halui.estop.is-activated (bit, in) - indique si l'arrêt d'urgence est actif
  - halui.estop.reset (bit, out) - pin de requête de relâchement de l'arrêt d'urgence (E-Stop reset)
 
-=== Correcteur de vitesse d'avance (Feed override)
-
+Correcteur de vitesse d'avance:: (Feed override)
  - halui.feed-override.count-enable (bit, in) - doit être vraie pour activer le comptage.
  - halui.feed-override.counts (s32, in) - comptage depuis un codeur, par
  - halui.feed-override.decrease (bit, in) - pin pour diminuer la correction (-=scale)
@@ -54,27 +52,22 @@ dans votre fichier custom.hal.
    exemple pour modifier la correction de vitesse d'avance
  - halui.feed-override.value (float, out) - Valeur de la correction courante de vitesse d'avance
 
-=== Arrosage par gouttelettes (Mist) 
-
+Arrosage par gouttelettes:: (Mist) 
  - halui.mist.is-on (bit, out) - indique si l'arrosage par gouttelettes est actif
  - halui.mist.off (bit, in) - pin de requête d'arrêt de l'arrosage par gouttelettes
  - halui.mist.on (bit, in) - pin de requête de l'attosage par gouttelettes
 
-=== Arrosage fluide (Flood)
-
+Arrosage fluide:: (Flood)
  - halui.flood.is-on (bit, out) - indique si l'arrosage fluide est actif
  - halui.flood.off (bit, in) - pin de requête d'arrêt d'arrosage fluide
  - halui.flood.on (bit, in) - pin de requête d'arrosage fluide
 
-=== Prise d'origine machine de tous les axes (Homing)
-
+Prise d'origine machine de tous les axes:: (Homing)
  - halui.home-all (bit, in) - pin de requête de prise d'origine machine de tous les axes. 
    Cette pin sera présente seulement si HOME_SEQUENCE est fixée dans le fichier ini.
 
-=== Jog
-
+Jog:: (Manivelle)
 <n> est un nombre compris entre 0 et 8, ou <selected>.
-
  - halui.jog-deadband (float, in)- bande morte pour le jogging analogique 
    (les petites vitesses de jog sont sans effet)
  - halui.jog.speed (float, in) - positionne la vitesse de jog
@@ -87,10 +80,8 @@ dans votre fichier custom.hal.
  - halui.jog.<selected>.plus (bit, in) - jog l'axe <selected> en 
    direction positive et à la vitesse de halui.jog.speed velocity
 
-=== Articulations (Joints) 
-
+Articulations:: (Joints) 
 <n> est un nombre compris entre 0 et 8, ou <selected>.
-
  - halui.joint.<n>.has-fault (bit, out) - pin de status indiquant que l'articulation est en défaut
  - halui.joint.<n>.home (bit, in) - pin pour la prise d'origine d'une articulation spécifique 
  - halui.joint.<n>.is-homed (bit, out) - pin de status indiquant que l'articulation est référencée
@@ -121,23 +112,19 @@ dans votre fichier custom.hal.
    indiquant que le joint <selected> est sur sa limite logicielle négative
  - halui.joint.selected.unhome (bit, in) - pin for unhoming  l'articulation selected. 
 
-=== Graissage centralisé (Lube)
-
+Graissage centralisé:: (Lube)
  - halui.lube.is-on (bit, out) - indique si le graissage est actif
  - halui.lube.off (bit, in) - pin de requête d'arrêt du graissage
  - halui.lube.on (bit, in) - pin de requête de graissage
 
-=== Machine (Marche / Arrêt)
-
+Machine:: (Marche / Arrêt)
  - halui.machine.is-on (bit, out) - indique que la machine est en marche
  - halui.machine.off (bit, in) - pin de requête d'arrêt machine
  - halui.machine.on (bit, in) - pin de requête de marche machine
 
-=== Vitesse maximum
-
+Vitesse maximum::
 La vitesse linéaire maximum peut être ajustée entre 0 et la valeur de
 la variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
-
  - halui.max-velocity.count-enable (bit, in) - Si TRUE, la vitesse 
    max est modifiée quand le comptage change
  - halui.max-velocity.counts (s32, in) - vous permet, en agissant sur un 
@@ -150,19 +137,17 @@ la variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
  - halui.max-velocity.value (float, out) - Valeur de la vitesse 
    linéaire maximum en unités machine par seconde.
 
-=== Données manuelles[[sub:MDI]]
-(((MDI)))
-
+Données manuelles:: [[sub:MDI]] (((MDI)))
 Il arrive que l'utilisateur veuille ajouter des tâches plus complexes 
 devant être effectuées par l'activation d'une pin de HAL. C'est 
 possible en utilisant le schéma de commande en données manuelles (MDI) 
 suivant: 
-
- - Une MDI_COMMAND est ajoutée dans la section [HALUI] du fichier ini, par exemple
-
+ - Une MDI_COMMAND est ajoutée dans la section [HALUI] du fichier ini, 
+par exemple:
+----
     [HALUI] 
     MDI_COMMAND = G0 X0
-
+----
  - Quand halui démarre il va lire/détecter le champ MDI_COMMAND dans le
    fichier ini et exporter les pins de type (bit)
    halui.mdi-command-<nr>, <nr> est un nombre compris entre 00 et le
@@ -174,15 +159,13 @@ suivant:
    EMC2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
    commande MDI. 
 
-=== Sélection d'une articulation
-
+Sélection d'une articulation:: (Joint Selection)
  - halui.joint.select (u32, in) - sélectionne l'articulation (0..7) - internal halui
  - halui.joint.selected (u32, out) - articulation (0..7) sélectionnée - internal halui
  - halui.joint.x.select bit (bit, in) - pins pour sélectinner une articulation - internal halui
  - halui.joint.x.is-selected bit (bit, out) - pin de status indiquant une articulation sélectionné - internal halui
 
-=== Mode de fonctionnement
-
+Mode de fonctionnement:: (Mode)
  - halui.mode.auto (bit, in) - pin de requête du mode auto
  - halui.mode.is_auto (bit, out)- indique si le mode auto est actif
  - halui.mode.is-joint (bit, out) - indique si le mode articulation par articulation est actif
@@ -194,8 +177,7 @@ suivant:
  - halui.mode.mdi (bit, in) - pin de requête du mode données manuelles
  - halui.mode.teleop (bit, in) - pin de requête du mode jog coordonné
 
-=== Programme
-
+Programme:: (Program)
  - halui.program.block-delete.is-on (bit, out) - status pin telling that block delete is on
  - halui.program.block-delete.off (bit, in) - pin for requesting that block delete is off
  - halui.program.block-delete.on (bit, in) - pin for requesting that block delete is on
@@ -211,8 +193,7 @@ suivant:
  - halui.program.step (bit, in) - pin pour avancer d'une ligne de programme
  - halui.program.stop (bit, in) - pin pour stopper un programme
 
-=== Correcteur de vitesse de broche (Spindle Override)
-
+Correcteur de vitesse de broche:: (Spindle Override)
  - halui.spindle-override.count-enable (bit, in) - Si TRUE, la
    correction de vitesse broche varie quand le comptage change.
  - halui.spindle-override.counts (s32, in) - comptage depuis un codeur,
@@ -228,8 +209,7 @@ suivant:
  - halui.spindle-override.value (float, out) - Valeur courante de la
    correction de vitesse de broche
 
-=== Broche (Spindle)
-
+Broche:: (Spindle)
  - halui.spindle.brake-is-on (bit, out) - indique si le frein est actif
  - halui.spindle.brake-off (bit, in) - pin de désactivation du frein de broche
  - halui.spindle.brake-on (bit, in) - pin d'activation du frein de broche
@@ -243,8 +223,7 @@ suivant:
  - halui.spindle.start (bit, in) - Marche de la broche
  - halui.spindle.stop (bit, in) - Arrêt de la broche
 
-=== Outil (Tool)
-
+Outil:: (Tool)
  - halui.tool.length-offset (float, out) - indique la correction de longueur d'outil appliquée
  - halui.tool.number (u32, out) - indique l'outil courant sélectionné
 

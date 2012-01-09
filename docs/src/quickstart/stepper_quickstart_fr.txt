@@ -13,7 +13,7 @@ Manuel de l'intégrateur.
 
 Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
-processus, causant des pertes de pas lorsqu'ils pilotent une machine
+processus, causant des pertes de pas lorsque le PC pilote une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
 Pour le lancer, suivre les instructions de la section <<sec:Test-de-latence-IM,
 sur le test de latence>>.
@@ -105,50 +105,46 @@ fasse un tour. Valeur typique: 200.
 moteur tourne d'un angle équivalent à un pas.
 
 Si les micropas ne sont pas utilisés, cette valeur devra être mise à 1. 
-Si les micropas sont utilisés, les valeurs les plus courantes sont 2, 4, 8 ou 10.
+Si les micropas sont utilisés, les valeurs les plus courantes sont, 2 pour le
+demi-pas, 4 pour le quart de pas, 8 ou 10. 
 
 [NOTE]
 Le meilleur choix sera un compromis entre les petites valeurs, qui peuvent rendre 
 le système bruyant à cause des vibrations et les valeurs élevées, qui exigent 
-beaucoup de pas, ce qui baisse la vitesse maximale.
+beaucoup de pas, ce qui diminue la vitesse maximale.
 
 *Dents moteur* et *Dents vis* à indiquer si vous avez une réduction poulies/courroie 
 entre le moteur et la vis. Sinon mettez 1 pour les deux.
 
-*Pas de vis* indique combien de tour la vis d'entraînement de l'axe doit faire 
-pour déplacer la table d'une unité utilisateur. Si vous êtes en pouces, c'est 
-le nombre de tours par pouce, si vous êtes en millimètres, c'est le nombre de 
-tour (ou fraction de tour) par millimètre. Par exemple, pour une vis avec un pas 
-de 5.08mm, il faut 0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
+*Pas de la vis* indique la longueur de déplacement du mobile pour un tour de la
+vis d'entrainement de l'axe. 
 
-exemple en pouces:
+Un exemple en pouces:
 
      Moteur            = 200 pas par tour
      Pilote            = 10 micropas par pas
      Dents côté moteur = 20
      Dents côté vis    = 40
-     Pas de vis        = 0,2000 pouces par tour
+     Pas de vis        = 0.2000 pouces par tour
 
 D'après les informations ci-dessus:
 
-- la table se déplacera de 0,200 pouces par tour. 
+- le mobile se déplacera de 0.200 pouces par tour de vis. 
 - Le moteur fera 2000 micropas par tour de vis. 
 - Le pilote demandera 10 micropas pour faire un pas. 
 - Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour. 
 
 Encore un autre exemple, en millimètres cette fois:
 
-exemple en mm:
-
      Pas par tour      = 200 pas par tour
      Micropas          =   8 micropas
      Dents côté moteur =  30
      Dents côté vis    =  90
-     Pas de la vis     =   5,00 mm par tour
+     Pas de la vis     =   5.00 mm par tour
 
 D'après les informations ci-dessus:
 
-- la vis déplacera le mobile de 5,00 mm par tour. 
+- la vis déplacera le mobile de 5.00 mm par tour. 
 - Le moteur fera 3 tours pour 1 tour de vis. (90/30)
 - Le pilote utilisera 8 micropas pour faire un pas.
 - Le pilote aura besoin de 1600 impulsions pour un tour moteur
@@ -157,10 +153,10 @@ D'après les informations ci-dessus:
 == Assistants de configuration graphique
 
  - Pour les moteurs pas à pas, voir la documentation de l'assistant graphique Stepconf 
-au chapitre <<cha:Assistant-graphique-pas-a-pas, sur cet assistant.>>
+au chapitre <<cha:Assistant-graphique-pas-a-pas, concernant cet assistant.>>
  - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
 l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-Mesa, relatif 
-à cet asistant>>
+à cet assistant>>
 
 // vim: set syntax=asciidoc:
 
