@@ -203,7 +203,6 @@ int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion * q)
 	pmPrintError("error: bad axis in pmAxisAngleQuatConvert\n");
 #endif
 	return -1;
-	break;
     }
 
     if (q->s < 0.0) {
@@ -1009,7 +1008,6 @@ int pmQuatAxisAngleMult(PmQuaternion q, PmAxis axis, double angle,
 	pmPrintError("error: bad axis in pmQuatAxisAngleMult\n");
 #endif
 	return -1;
-	break;
     }
 
     if (pq->s < 0.0) {

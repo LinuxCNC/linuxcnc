@@ -88,7 +88,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC cmd
   if (emcCommandBuffer == 0)
     {
-      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", EMC_NMLFILE);
+      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", emc_nmlfile);
       if (! emcCommandBuffer->valid())
         {
           delete emcCommandBuffer;
@@ -100,7 +100,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC status
   if (emcStatusBuffer == 0)
     {
-      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", EMC_NMLFILE);
+      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", emc_nmlfile);
       if (! emcStatusBuffer->valid() ||
           EMC_STAT_TYPE != emcStatusBuffer->peek())
         {
@@ -124,7 +124,7 @@ static int emcErrorNmlGet()
 
   if (emcErrorBuffer == 0)
     {
-      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "xemc", EMC_NMLFILE);
+      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
       if (! emcErrorBuffer->valid())
         {
           delete emcErrorBuffer;
@@ -1715,7 +1715,7 @@ static int createToolTableShell()
     XtVaCreateManagedWidget("toolTableLabel",
                             labelWidgetClass,
                             toolTableForm,
-                            XtNlabel, TOOL_TABLE_FILE,
+                            XtNlabel, tool_table_file,
                             NULL);
 
   toolTableText =
@@ -1725,7 +1725,7 @@ static int createToolTableShell()
                             XtNfromVert, toolTableLabel,
                             XtNeditType, XawtextEdit,
                             XtNtype, XawAsciiFile,
-                            XtNstring, TOOL_TABLE_FILE,
+                            XtNstring, tool_table_file,
                             XtNscrollVertical, XawtextScrollWhenNeeded,
                             NULL);
 
@@ -4485,28 +4485,28 @@ static int iniLoad(const char *filename)
 
   if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
     // copy to global
-    if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
-      EMC_DEBUG = 0;
+    if (1 != sscanf(inistring, "%i", &emc_debug)) {
+      emc_debug = 0;
     }
   }
   else {
     // not found, use default
-    EMC_DEBUG = 0;
+    emc_debug = 0;
   }
 
   if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
     // copy to global
-    strcpy(EMC_NMLFILE, inistring);
+    strcpy(emc_nmlfile, inistring);
   }
   else {
     // not found, use default
   }
 
   if (NULL != (inistring = inifile.Find("TOOL_TABLE", "EMCIO"))) {
-    strcpy(TOOL_TABLE_FILE, inistring);
+    strcpy(tool_table_file, inistring);
   }
   else {
-    strcpy(TOOL_TABLE_FILE, "tool.tbl"); // FIXME-- hardcoded
+    strcpy(tool_table_file, "tool.tbl"); // FIXME-- hardcoded
   }
 
   if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
@@ -4678,14 +4678,14 @@ int main(int argc, char **argv)
   }
 
   // read INI file
-  iniLoad(EMC_INIFILE);
+  iniLoad(emc_inifile);
 
   // init NML
 
 #define RETRY_TIME 10.0         // seconds to wait for subsystems to come up
 #define RETRY_INTERVAL 1.0      // seconds between wait tries for a subsystem
 
-    if (! (EMC_DEBUG & EMC_DEBUG_NML)) {
+    if (! (emc_debug & EMC_DEBUG_NML)) {
       set_rcs_print_destination(RCS_PRINT_TO_NULL);     // inhibit diag messages
     }
   start = etime();
@@ -4697,7 +4697,7 @@ int main(int argc, char **argv)
     }
     esleep(RETRY_INTERVAL);
   } while (etime() - start < RETRY_TIME);
-  if (! (EMC_DEBUG & EMC_DEBUG_NML)) {
+  if (! (emc_debug & EMC_DEBUG_NML)) {
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT); // restore diag messages
   }
   if (! good) {
@@ -4705,7 +4705,7 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-    if (! (EMC_DEBUG & EMC_DEBUG_NML)) {
+    if (! (emc_debug & EMC_DEBUG_NML)) {
       set_rcs_print_destination(RCS_PRINT_TO_NULL);     // inhibit diag messages
     }
   start = etime();
@@ -4717,7 +4717,7 @@ int main(int argc, char **argv)
     }
     esleep(RETRY_INTERVAL);
   } while (etime() - start < RETRY_TIME);
-    if (! (EMC_DEBUG & EMC_DEBUG_NML)) {
+    if (! (emc_debug & EMC_DEBUG_NML)) {
       set_rcs_print_destination(RCS_PRINT_TO_STDOUT); // restore diag messages
     }
     if (! good) {

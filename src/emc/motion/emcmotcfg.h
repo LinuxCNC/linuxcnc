@@ -24,10 +24,12 @@
 /* number of axes defined by the interp */ //FIXME: shouldn't be here..
 #define EMCMOT_MAX_AXIS 9
 
-/* number of motion synched DIO's supported (increase this value to 
-   suit your needs), make sure to increase EMC_MAX_DIO aswell (emcglb.h) */
 #define EMCMOT_MAX_DIO 64
-#define EMCMOT_MAX_AIO 16
+#define EMCMOT_MAX_AIO 64
+
+#if (EMCMOT_MAX_DIO > 64) || (EMCMOT_MAX_AIO > 64)
+#error A 64 bit bitmask is used in the planner.  Don't increase these until that's fixed.
+#endif
 
 #define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */
 #define EMCMOT_ERROR_LEN 1024	/* how long error string can be */

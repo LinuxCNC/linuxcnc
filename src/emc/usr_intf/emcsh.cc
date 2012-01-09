@@ -398,7 +398,7 @@ static int emc_ini(ClientData clientdata,
 	return TCL_ERROR;
     }
     // open it
-    if (inifile.Open(EMC_INIFILE) == false) {
+    if (inifile.Open(emc_inifile) == false) {
 	return TCL_OK;
     }
 
@@ -424,7 +424,7 @@ static int emc_ini(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_debug(ClientData clientdata,
+static int emc_Debug(ClientData clientdata,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *debug_obj;
@@ -448,7 +448,7 @@ static int emc_debug(ClientData clientdata,
 	    return TCL_ERROR;
 	}
 	sendDebug(debug);
-	EMC_DEBUG = debug;
+	emc_debug = debug;
 	return TCL_OK;
     }
     // wrong number of args
@@ -3442,7 +3442,7 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
         return TCL_ERROR;
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
 
     for(int i=1; i<argc; i++)
     {
@@ -3450,7 +3450,7 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     }
 
     // update tcl's idea of the inifile name
-    Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+    Tcl_SetVar(interp, "EMC_INIFILE", emc_inifile, TCL_GLOBAL_ONLY);
 
     // init NML
     if (0 != tryNml(quick ? 0.0 : 10.0, quick ? 0.0 : 1.0)) {
@@ -3497,7 +3497,7 @@ int Emc_Init(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_ini", emc_ini, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_debug", emc_debug, (ClientData) NULL,
+    Tcl_CreateObjCommand(interp, "emc_debug", emc_Debug, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_set_wait", emc_set_wait,
@@ -3788,7 +3788,7 @@ int Emc_Init(Tcl_Interp * interp)
     Tcl_SetVar(interp, "tcl_rcFileName", "~/.emcshrc", TCL_GLOBAL_ONLY);
 
     // set app-specific global variables
-    Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+    Tcl_SetVar(interp, "EMC_INIFILE", emc_inifile, TCL_GLOBAL_ONLY);
     Tcl_PkgProvide(interp, "Emc", "1.0");
 
     Tcl_ResetResult(interp);

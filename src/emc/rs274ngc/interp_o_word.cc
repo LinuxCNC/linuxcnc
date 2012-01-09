@@ -8,9 +8,11 @@
 *    
 * Copyright 2005 All rights reserved.
 *
-* Last change:
+* Last change: Michael Haberler 7/2011
+*
 ********************************************************************/
 
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +27,8 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+
+namespace bp = boost::python;
 
 //========================================================================
 // Functions for control stuff (O-words)
@@ -46,33 +50,25 @@ int Interp::findFile( // ARGUMENTS
     char targetPath[PATH_MAX+1];
 
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
-
     file = fopen(targetPath, "r");
-
-    if(file)
-    {
+    if (file) {
         strncpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
-
     aDir = opendir(direct);
-
-    if(!aDir)
-    {
+    if (!aDir) {
 	ERS(NCE_FILE_NOT_OPEN);
     }
 
-    while((aFile = readdir(aDir)))
-    {
-        if(aFile->d_type == DT_DIR &&
-           (0 != strcmp(aFile->d_name, "..")) &&
-           (0 != strcmp(aFile->d_name, ".")))
-        {
+    while ((aFile = readdir(aDir))) {
+        if (aFile->d_type == DT_DIR &&
+	    (0 != strcmp(aFile->d_name, "..")) &&
+	    (0 != strcmp(aFile->d_name, "."))) {
+
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
-            if(INTERP_OK == findFile(path, target, foundFileDirect))
-            {
+            if (INTERP_OK == findFile(path, target, foundFileDirect)) {
 	        closedir(aDir);
                 return INTERP_OK;
             }
@@ -83,73 +79,372 @@ int Interp::findFile( // ARGUMENTS
 }
 
 
-/************************************************************************/
 /*
-   In the long run, this function will use a hash table or other
-   fast data structure
-*/
-int Interp::control_save_offset( /* ARGUMENTS                   */
- int line,                   /* (o-word) line number        */
- block_pointer block,        /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings)     /* pointer to machine settings */
+ *  this now uses STL maps for offset access
+ */
+int Interp::control_save_offset(block_pointer block,        /* pointer to a block of RS274/NGC instructions */
+				setup_pointer settings)     /* pointer to machine settings */
 {
-  static char name[] = "control_save_offset";
-  int index;
+    static char name[] = "control_save_offset";
+    offset_pointer op = NULL;
 
-  logDebug("Entered:%s for o_name:|%s|", name, block->o_name);
+    logOword("Entered:%s for o_name:|%s|", name, block->o_name);
 
-  if(control_find_oword(block, settings, &index) == INTERP_OK)
-  {
-      // already exists
-      ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
-               settings->filename, settings->sequence_number,
-	       block->o_name,
-               settings->oword_offset[index].filename);
-      //return INTERP_OK;
-  }
+    if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	// already exists
+	ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
+	    settings->filename, settings->sequence_number,
+	    block->o_name,
+	    op->filename);
+    }
+    offset new_offset;
 
-  CHKS((settings->oword_labels >= INTERP_OWORD_LABELS),
-      NCE_TOO_MANY_OWORD_LABELS);
-
-
-  index = settings->oword_labels++;
-  //logDebug("index: %d offset: %ld", index, block->offset);
-
-  //  settings->oword_offset[index].o_word = line;
-  settings->oword_offset[index].o_word_name = strdup(block->o_name);
-  settings->oword_offset[index].type = block->o_type;
-  settings->oword_offset[index].offset = block->offset;
-  settings->oword_offset[index].filename = strdup(settings->filename);
-  settings->oword_offset[index].repeat_count = -1;
-
-  // the sequence number has already been bumped, so save
-  // the proper value
-  settings->oword_offset[index].sequence_number =
-    settings->sequence_number - 1;
-
-  return INTERP_OK;
+    new_offset.type = block->o_type;
+    new_offset.offset = block->offset;
+    new_offset.filename = strstore(settings->filename);
+    new_offset.repeat_count = -1;
+    // the sequence number has already been bumped, so save
+    // the proper value
+    new_offset.sequence_number = settings->sequence_number - 1;
+    settings->offset_map[block->o_name] = new_offset;
+    return INTERP_OK;
 }
 
-int Interp::control_find_oword( /* ARGUMENTS                       */
-  block_pointer block,      /* pointer to block */
-  setup_pointer settings,   /* pointer to machine settings      */
-  int *o_index)             /* the index of o-word (returned) */
-{
-  static char name[] = "control_find_oword";
-  int i;
 
-  logDebug("Entered:%s", name);
-  for(i=0; i<settings->oword_labels; i++)
-    {
-      if(0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name))
-	{
-	  *o_index = i;
-	  logDebug("Found oword[%d]: |%s|", i, block->o_name);
-	  return INTERP_OK;
+int Interp::control_find_oword(block_pointer block,      // pointer to block
+			       setup_pointer settings,   // pointer to machine settings
+			       offset_pointer *op)       // pointer to offset descriptor
+{
+    static char name[] = "control_find_oword";
+    offset_map_iterator it;
+
+    it = settings->offset_map.find(block->o_name);
+    if (it != settings->offset_map.end()) {
+	*op =  &it->second;
+	return INTERP_OK;
+    } else {
+	logOword("%s: Unknown oword name: |%s|", name, block->o_name);
+	ERS(NCE_UNKNOWN_OWORD_NUMBER);
+    }
+}
+
+const char *o_ops[] = {
+    "O_none",
+    "O_sub",
+    "O_endsub",
+    "O_call",
+    "O_do",
+    "O_while",
+    "O_if",
+    "O_elseif",
+    "O_else",
+    "O_endif",
+    "O_break",
+    "O_continue",
+    "O_endwhile",
+    "O_return",
+    "O_repeat",
+    "O_endrepeat",
+    "O_continue_call",
+    "O_pyreturn",
+};
+
+const char *call_statenames[] = {
+    "CS_NORMAL",
+    "CS_REEXEC_PROLOG",
+    "CS_REEXEC_PYBODY",
+    "CS_REEXEC_EPILOG",
+    "CS_REEXEC_PYOSUB",
+};
+
+const char *call_typenames[] = {
+    "CT_NGC_OWORD_SUB",   
+    "CT_PYTHON_OWORD_SUB",
+    "CT_REMAP",  
+};
+
+int Interp::execute_call(setup_pointer settings, 
+			 context_pointer current_frame,
+			 int call_type)
+{
+    int status = INTERP_OK;
+    int i;
+    bp::list plist;
+
+    context_pointer previous_frame = &settings->sub_context[settings->call_level-1];
+
+    block_pointer eblock = &EXECUTING_BLOCK(*settings);
+
+    logOword("execute_call %s type=%s state=%s cl=%d rl=%d", 
+	     current_frame->subName, 
+	     call_typenames[call_type],
+	     call_statenames[settings->call_state],
+	     settings->call_level,settings->remap_level);
+
+    switch (call_type) {
+
+    case CT_NGC_OWORD_SUB:
+	// copy parameters from context
+	// save old values of parameters
+	// save current file position in context
+	// if we were skipping, no longer
+	if (settings->skipping_o) {
+	    logOword("case O_call -- no longer skipping to:|%s|",
+		     settings->skipping_o);
+	    settings->skipping_o = NULL;
+	}
+	for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
+	    previous_frame->saved_params[i] =
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		eblock->params[i];
+	}
+
+	// if the previous file was NULL, mark positon as -1 so as not to
+	// reopen it on return.
+	if (settings->file_pointer == NULL) {
+	    previous_frame->position = -1;
+	} else {
+	    previous_frame->position = ftell(settings->file_pointer);
+	}
+
+	// save return location
+	previous_frame->filename = strstore(settings->filename);
+	previous_frame->sequence_number = settings->sequence_number;
+	logOword("saving return location[cl=%d]: %s:%d offset=%ld", 
+		 settings->call_level-1,
+		 previous_frame->filename,
+		 previous_frame->sequence_number,
+		 previous_frame->position);
+
+	if (FEATURE(OWORD_N_ARGS)) {
+	    // let any  Oword sub know the number of parameters
+	    CHP(add_named_param("n_args", PA_READONLY));
+	    CHP(store_named_param(settings, "n_args",
+				  (double )eblock->param_cnt,
+				  OVERRIDE_READONLY));
+	}
+
+	// transfer control
+	if (control_back_to(eblock, settings) == INTERP_ERROR) {
+	    settings->call_level--;
+	    ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
+	    return INTERP_ERROR;
+	}
+	break;
+
+    case CT_PYTHON_OWORD_SUB:
+	switch (settings->call_state) {
+	case CS_NORMAL:
+	    settings->return_value = 0.0;
+	    settings->value_returned = 0;
+	    previous_frame->sequence_number = settings->sequence_number;
+	    previous_frame->filename = strstore(settings->filename);
+	    plist.append(settings->pythis); // self
+	    for(int i = 0; i < eblock->param_cnt; i++)
+		plist.append(eblock->params[i]); // positonal args
+	    current_frame->tupleargs = bp::tuple(plist);
+	    current_frame->kwargs = bp::dict();
+
+	case CS_REEXEC_PYOSUB:
+	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
+		CHP(read_inputs(settings));
+	    status = pycall(settings, current_frame, OWORD_MODULE,
+			    current_frame->subName, 
+			    settings->call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
+	    switch (status = handler_returned(settings, current_frame, current_frame->subName, true)) {
+	    case INTERP_EXECUTE_FINISH:
+		settings->call_state = CS_REEXEC_PYOSUB;
+		break;
+	    default:
+		settings->call_state = CS_NORMAL;
+		settings->sequence_number = previous_frame->sequence_number;
+		CHP(status);
+		// M73 auto-restore is of dubious value in a Python subroutine
+		CHP(leave_context(settings,false)); 
+	    }
+	    break;
+	}
+	break;
+
+    case CT_REMAP:
+	block_pointer cblock = &CONTROLLING_BLOCK(*settings);
+	remap_pointer remap = cblock->executing_remap;
+
+	switch (settings->call_state) {
+	case CS_NORMAL:
+	    if (remap->remap_py || remap->prolog_func || remap->epilog_func) {
+		CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
+		     remap->name);
+		plist.append(settings->pythis);   //self
+		current_frame->tupleargs = bp::tuple(plist);
+		current_frame->kwargs = bp::dict();
+	    }
+	    if (remap->argspec && (strchr(remap->argspec, '@') == NULL)) {
+		// add_parameters will decorate kwargs as per argspec
+		// if named local parameters specified
+		CHP(add_parameters(settings, cblock, NULL));
+	    }
+	    // fall through
+
+	case CS_REEXEC_PROLOG:
+	    if (remap->prolog_func) { 
+		status = pycall(settings, current_frame, REMAP_MODULE,remap->prolog_func,
+				settings->call_state == CS_NORMAL ? PY_PROLOG : PY_FINISH_PROLOG);
+		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
+		case INTERP_EXECUTE_FINISH:
+		    settings->call_state = CS_REEXEC_PROLOG;
+		    return status;
+		default:
+		    settings->call_state  = CS_NORMAL;
+		    //settings->sequence_number = previous_frame->sequence_number;
+		    CHP(status);
+		}
+	    }
+	    // fall through
+
+	case CS_REEXEC_PYBODY:
+	    if (remap->remap_py) { 
+		status = pycall(settings, current_frame, REMAP_MODULE, remap->remap_py,
+				settings->call_state == CS_NORMAL ? PY_BODY : PY_FINISH_BODY);
+		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
+		case INTERP_EXECUTE_FINISH:
+		    settings->call_state = CS_REEXEC_PYBODY;
+		    return status;
+		default:
+		    settings->call_state = CS_NORMAL;
+		    settings->sequence_number = previous_frame->sequence_number;
+		    CHP(status);
+		    // epilog is not supported on python body -  makes no sense
+		    CHP(leave_context(settings,false)); 
+		    ERP(remap_finished(-cblock->phase));
+		}
+	    }
+
+	    // call the NGC remap procedure
+	    assert(settings->call_state == CS_NORMAL);
+	    if (remap->remap_ngc) {
+		CHP(execute_call(settings, current_frame,
+				 CT_NGC_OWORD_SUB));
+	    }
 	}
     }
-  logDebug("Unknown oword name: |%s|", block->o_name);
-  ERS(NCE_UNKNOWN_OWORD_NUMBER);
+    return status;
+}
+
+// this is executed only for NGC subs, either normal ones or part of a remap
+// subs whose name is a Py callable are handled inline in execute_call()
+// since there is no corresponding O_return/O_endsub to execute.
+int Interp::execute_return(setup_pointer settings, context_pointer current_frame,int call_type)
+{
+    int status = INTERP_OK;
+
+    logOword("execute_return %s type=%s state=%s", 
+	     current_frame->subName, 
+	     call_typenames[call_type],
+	     call_statenames[settings->call_state]);
+
+    block_pointer cblock = &CONTROLLING_BLOCK(*settings);
+    block_pointer eblock = &EXECUTING_BLOCK(*settings);
+    context_pointer previous_frame = &settings->sub_context[settings->call_level - 1];
+
+    // if level is not zero, in a call
+    // otherwise in a defn
+    // if we were skipping, no longer
+    if (settings->skipping_o) {
+	logOword("case O_%s -- no longer skipping to:|%s|",
+		 (eblock->o_type == O_endsub) ? "endsub" : "return",
+		 settings->skipping_o);
+	settings->skipping_o = NULL;
+    }
+    
+    switch (call_type) {
+
+    case CT_REMAP:
+	switch (settings->call_state) {
+	case CS_NORMAL:
+   	case CS_REEXEC_EPILOG:
+	    if (cblock->executing_remap && cblock->executing_remap->epilog_func) {
+		if (settings->call_state ==  CS_REEXEC_EPILOG)
+		    CHP(read_inputs(settings));
+		status = pycall(settings, current_frame, REMAP_MODULE,
+	    			cblock->executing_remap->epilog_func,
+				settings->call_state == CS_NORMAL ? PY_EPILOG : PY_FINISH_EPILOG);
+		CHP(status);
+		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
+		case INTERP_EXECUTE_FINISH:
+		    settings->call_state = CS_REEXEC_EPILOG;
+		    break;
+		default:
+		    settings->call_state = CS_NORMAL;
+		    settings->sequence_number = previous_frame->sequence_number;
+		    CHP(status);
+		    // leave_context() is done by falling through into CT_NGC_OWORD_SUB code
+		}
+	    }
+	}
+	// fall through to normal NGC return handling 
+    case CT_NGC_OWORD_SUB:
+	if (settings->call_level != 0) {
+
+	    // restore subroutine parameters.
+	    for(int i = 0; i < INTERP_SUB_PARAMS; i++) {
+		settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		    previous_frame->saved_params[i];
+	    }
+
+	    // file at this level was marked as closed, so dont reopen.
+	    if (previous_frame->position == -1) {
+		settings->file_pointer = NULL;
+		strcpy(settings->filename, "");
+	    } else {
+		if(settings->file_pointer == NULL) {
+		    ERS(NCE_FILE_NOT_OPEN);
+		}
+		//!!!KL must open the new file, if changed
+		if (0 != strcmp(settings->filename, previous_frame->filename))  {
+		    fclose(settings->file_pointer);
+		    settings->file_pointer = fopen(previous_frame->filename, "r");
+		    strcpy(settings->filename, previous_frame->filename);
+		}
+		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
+		settings->sequence_number = previous_frame->sequence_number;
+		logOword("endsub/return: %s:%d pos=%ld", 
+			 settings->filename,previous_frame->sequence_number,
+			 previous_frame->position);
+
+	    }
+	    // cleanups on return:
+	    CHP(leave_context(settings, true));
+
+	    // if this was a remap frame we're done
+	    if (current_frame->context_status & REMAP_FRAME) {
+		CHP(remap_finished(-cblock->phase));
+	    }
+
+
+	    settings->sub_name = 0;
+	    if (previous_frame->subName)  {
+		settings->sub_name = previous_frame->subName;
+	    } else {
+		settings->sub_name = NULL;
+	    }
+	} else { // call_level == 0
+	    // a definition
+	    if (eblock->o_type == O_endsub) {
+		CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
+		// no longer skipping or defining
+		if (settings->skipping_o)  {
+		    logOword("case O_endsub in defn -- no longer skipping to:|%s|",
+			     settings->skipping_o);
+		    settings->skipping_o = NULL;
+		}
+		settings->defining_sub = 0;
+		settings->sub_name = NULL;
+	    }
+	}
+    } 
+    return status;
 }
 
 //
@@ -163,135 +458,166 @@ int Interp::control_find_oword( /* ARGUMENTS                       */
 //             open it and start skipping (as in 3, below)
 // 3 -- skip to the o_word (will be an error if not found)
 //
-int Interp::control_back_to( /* ARGUMENTS                       */
- block_pointer block, // pointer to block
- setup_pointer settings)   /* pointer to machine settings      */
+int Interp::control_back_to( block_pointer block, // pointer to block
+			     setup_pointer settings)   // pointer to machine settings
 {
-  static char name[] = "control_back_to";
-  int i,dct;
-  char newFileName[PATH_MAX+1];
-  char foundPlace[PATH_MAX+1];
-  char tmpFileName[PATH_MAX+1];
-  FILE *newFP;
+    static char name[] = "control_back_to";
+    char newFileName[PATH_MAX+1];
+    char foundPlace[PATH_MAX+1];
+    char tmpFileName[PATH_MAX+1];
+    FILE *newFP;
+    offset_map_iterator it;
+    offset_pointer op;
 
-  foundPlace[0] = 0;
-  logDebug("Entered:%s", name);
-  for(i=0; i<settings->oword_labels; i++)
-    {
-      // if(settings->oword_offset[i].o_word == line)
-      if(0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name))
-	{
-          if(settings->file_pointer == NULL)
-          {
-            ERS(NCE_FILE_NOT_OPEN);
-          }
-          if(0 != strcmp(settings->filename,
-                         settings->oword_offset[i].filename))
-          {
-              // open the new file...
+    foundPlace[0] = 0;
+    logOword("Entered:%s %s", name,block->o_name);
 
-              newFP = fopen(settings->oword_offset[i].filename, "r");
-
-              // set the line number
-              settings->sequence_number = 0;
-
-              strcpy(settings->filename, settings->oword_offset[i].filename);
-
-              if(newFP)
-              {
-                  // close the old file...
-                  fclose(settings->file_pointer);
-                  settings->file_pointer = newFP;
-              }
-              else
-              {
-                  logDebug("Unable to open file: %s", settings->filename);
-                  ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
-              }
-          }
-	  fseek(settings->file_pointer,
-		settings->oword_offset[i].offset, SEEK_SET);
-
-	  settings->sequence_number =
-	    settings->oword_offset[i].sequence_number;
-
-	  return INTERP_OK;
+    it = settings->offset_map.find(block->o_name);
+    if (it != settings->offset_map.end()) {
+	op = &it->second;
+	if ((settings->filename[0] != 0) &
+	    (settings->file_pointer == NULL))  {
+	    ERS(NCE_FILE_NOT_OPEN);
 	}
+	if (0 != strcmp(settings->filename,
+			op->filename)) {
+	    // open the new file...
+	    newFP = fopen(op->filename, "r");
+	    // set the line number
+	    settings->sequence_number = 0;
+	    strcpy(settings->filename, op->filename);
+
+	    if (newFP) {
+		// close the old file...
+		if (settings->file_pointer) // only close if it was open
+		    fclose(settings->file_pointer);
+		settings->file_pointer = newFP;
+	    } else {
+		logOword("Unable to open file: %s", settings->filename);
+		ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
+	    }
+	}
+	if (settings->file_pointer) { // only seek if it was open
+	    fseek(settings->file_pointer,
+		  op->offset, SEEK_SET);
+	}
+	settings->sequence_number = op->sequence_number;
+	return INTERP_OK;
+    }
+    newFP = find_ngc_file(settings, block->o_name, newFileName);
+
+    if (newFP) {
+	logOword("fopen: |%s| OK", newFileName);
+
+	// close the old file...
+	if (settings->file_pointer)
+	    fclose(settings->file_pointer);
+	settings->file_pointer = newFP;
+	strcpy(settings->filename, newFileName);
+    } else {
+	char *dirname = get_current_dir_name();
+	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
+		 dirname);
+	free(dirname);
+	ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
     }
 
-  // NO o_word found
-
-  // look for a new file
-  logDebug("settings->program_prefix:%s:", settings->program_prefix);
-  sprintf(tmpFileName, "%s.ngc", block->o_name);
-
-  // find subroutine by search: program_prefix, subroutines, wizard_root
-  // use first file found
-
-  // first look in the program_prefix place
-  sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
-
-  newFP = fopen(newFileName, "r");
-  logDebug("fopen: |%s|", newFileName);
-
-  // then look in the subroutines place
-  if(!newFP)
-  {
-      for (dct=0; dct < MAX_SUB_DIRS; dct++) {
-          if (!settings->subroutines[dct][0]) continue;
-          sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
-          newFP = fopen(newFileName, "r");
-          if (newFP) {
-              logDebug("fopen: |%s|", newFileName);
-              break; // use first occurrence in dir search
-          }
-      }
-  }
+    settings->skipping_o = block->o_name; // start skipping
+    settings->skipping_to_sub = block->o_name; // start skipping
+    settings->skipping_start = settings->sequence_number;
+    return INTERP_OK;
+}
 
 
-  // if not found, search the wizard tree
-  if(!newFP)
-  {
-      int ret;
-      ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+int Interp::handler_returned( setup_pointer settings,  context_pointer active_frame, 
+			      const char *name, bool osub)
+{
+    int status = INTERP_OK;
+    
+    switch (active_frame->py_return_type) {
+    case RET_YIELD:
+	// yield <integer> was executed
+	CHP(active_frame->py_returned_int);
+	break;
 
-      if(INTERP_OK == ret)
-      {
-	  // create the long name
-          sprintf(newFileName, "%s/%s",
-		  foundPlace, tmpFileName);
-          newFP = fopen(newFileName, "r");
-      }
-  }
+    case RET_STOPITERATION:  // a bare 'return' in a generator - treat as INTERP_OK
+    case RET_NONE:
+	break;
+	
+    case RET_DOUBLE: 
+	if (osub) { // float values are ok for osubs
+	    settings->return_value = active_frame->py_returned_double;
+	    settings->value_returned = 1;
+	} else {
+	    ERS("handler_returned: %s returned double: %f - invalid", 
+			name, active_frame->py_returned_double);
+	}
+	break;
 
-  if(newFP)
-  {
-      logDebug("fopen: |%s| OK", newFileName);
+    case RET_INT: 
+	if (osub) { // let's be liberal with types - widen to double return value
+	    settings->return_value = (double) active_frame->py_returned_int;
+	    settings->value_returned = 1;
+	} else 
+	    return active_frame->py_returned_int;
 
-      // close the old file...
-      fclose(settings->file_pointer);
-      settings->file_pointer = newFP;
+    case RET_ERRORMSG:
+	status = INTERP_ERROR;
+	break;
 
-      strcpy(settings->filename, newFileName);
-  }
-  else
-  {
-     char *dirname = get_current_dir_name();
-     logDebug("fopen: |%s| failed CWD:|%s|", newFileName,
-              dirname);
-     free(dirname);
-     ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
-  }
+    }
+    return status;
+}
+ 
 
-  if(settings->skipping_o)free(settings->skipping_o);
-  settings->skipping_o = strdup(block->o_name); // start skipping
+// prepare a new call frame.
+int Interp::enter_context(setup_pointer settings, block_pointer block) 
+{
+    logOword("enter_context cl=%d->%d type=%s", 
+	     settings->call_level, settings->call_level+1, 
+	     call_typenames[block->call_type]);
 
-  if(settings->skipping_to_sub)free(settings->skipping_to_sub);
-  settings->skipping_to_sub = strdup(block->o_name); // start skipping
+    settings->call_level++;
+    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+    }
+    context_pointer frame = &settings->sub_context[settings->call_level];
+    // mark frame for finishing remap
+    frame->context_status = (block->call_type  == CT_REMAP) ? REMAP_FRAME : 0;
+    frame->subName = block->o_name;
+    frame->py_returned_int = 0;
+    frame->py_returned_double = 0.0;
+    frame->py_return_type = -1;
+    frame->call_type = block->call_type; // distinguish call frames: oword,python,remap
+    return INTERP_OK;
+}
 
-  settings->skipping_start = settings->sequence_number;
-  //ERS(NCE_UNKNOWN_OWORD_NUMBER);
-  return INTERP_OK;
+int Interp::leave_context(setup_pointer settings, bool restore) 
+{
+    context_pointer leaving_frame = &settings->sub_context[settings->call_level];
+
+   if (settings->call_level < 1) {
+	ERS(NCE_CALL_STACK_UNDERRUN);
+    }
+    logOword("leave_context cl=%d->%d  type=%s state=%s" , 
+	     settings->call_level, settings->call_level-1, 
+	     call_typenames[leaving_frame->call_type],
+	     call_statenames[settings->call_state]);
+
+    free_named_parameters(leaving_frame);
+    leaving_frame->subName = NULL;
+    settings->call_level--;  // drop back
+
+    if (restore && ((leaving_frame->context_status &
+		     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+		    (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID))) {
+	// a valid previous context was marked by an M73 as auto-restore
+
+    	// NB: this means an M71 invalidate context will prevent an
+    	// auto-restore on return/endsub
+    	CHP(restore_settings(settings, settings->call_level + 1));
+    }
+    return INTERP_OK;
 }
 
 /************************************************************************/
@@ -301,610 +627,435 @@ Returned Value: int (INTERP_OK)
 Side effects:
    Changes the flow of control.
 
-Called by: execute_block
+Called by: execute
 
 Calls: control_skip_to
        control_back_to
        control_save_offset
 */
 
-int Interp::convert_control_functions( /* ARGUMENTS           */
- block_pointer block,      /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings)   /* pointer to machine settings                  */
+int Interp::convert_control_functions(block_pointer block, // pointer to a block of RS274/NGC instructions
+				      setup_pointer settings)  // pointer to machine settings
 {
-  int status;
-  int index;
-  int i;
+    int status = INTERP_OK;
+    context_pointer current_frame;
+    offset_pointer op = NULL;
 
-  logDebug("convert_control_functions");
+    logOword("convert_control_functions %s", o_ops[block->o_type]);
 
-  // if there is an oword, must get the block->o_number
-  // !!!KL
-  if(block->o_name)
-    {
-      control_find_oword(block, settings, &(block->o_number));
+    // must skip if skipping
+    if (settings->skipping_o && (0 != strcmp(settings->skipping_o, block->o_name)))  {
+	logOword("skipping to line: |%s|", settings->skipping_o);
+	return INTERP_OK;
     }
-  else
-    {
-      block->o_number = 0;
+    if (settings->skipping_to_sub && (block->o_type != O_sub)) {
+	logOword("skipping to sub: |%s|", settings->skipping_to_sub);
+	return INTERP_OK;
     }
 
-  // must skip if skipping
-  if(settings->skipping_o && (0!=strcmp(settings->skipping_o, block->o_name)))
-  {
-      logDebug("skipping to line: |%s|", settings->skipping_o);
-      return INTERP_OK;
-  }
+    // if skipping_o was set, we are now on a line which contains that O-word.
+    // if skipping_to_sub was set, we are now on the 'O-name sub' definition line.
 
-  if(settings->skipping_to_sub && (block->o_type != O_sub))
-  {
-      logDebug("skipping to sub: |%s|", settings->skipping_to_sub);
-      return INTERP_OK;
-  }
+    switch (block->o_type) {
 
-  logDebug("o_type:%d", block->o_type);
-  switch(block->o_type)
-    {
     case O_none:
-      // not an error because we use this to signal that we
-      // are not evaluating functions
-      break;
+	// not an error because we use this to signal that we
+	// are not evaluating functions
+	break;
 
     case O_sub:
-      // if the level is not zero, this is a call
-      // not the definition
-      // if we were skipping, no longer
-      if(settings->skipping_o)
-      {
-          logDebug("sub(o_|%s|) was skipping to here", settings->skipping_o);
+	// if the level is not zero, this is a call
+	// not the definition
+	// if we were skipping, no longer
+	if (settings->skipping_o) {
+	    logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
+	    // skipping to a sub means that we must define this now
+	    CHP(control_save_offset( block, settings));
+	    logOword("no longer skipping to:|%s|", settings->skipping_o);
+	    settings->skipping_o = NULL; // this IS our block number
+	}
+	settings->skipping_to_sub = NULL; // this IS our block number
 
-          // skipping to a sub means that we must define this now
-	  CHP(control_save_offset(block->o_number, block, settings));
-      }
+	if (settings->call_level != 0) {
+	    logOword("call:%f:%f:%f",
+		     settings->parameters[1],
+		     settings->parameters[2],
+		     settings->parameters[3]);
+	} else {
+	    // a definition. We're on the O<name> sub line.
+	    logOword("started a subroutine defn: %s",block->o_name);   
+	    CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
+	    CHP(control_save_offset( block, settings));
 
-      if(settings->skipping_o)
-	{
-	  logDebug("no longer skipping to:|%s|", settings->skipping_o);
-	  free(settings->skipping_o);
-          settings->skipping_o = 0; // this IS our block number
+	    // start skipping to the corresponding ensub.
+	    settings->skipping_o = block->o_name; 
+	    settings->skipping_start = settings->sequence_number;
+	    settings->defining_sub = 1;
+	    settings->sub_name = block->o_name;
+	    logOword("will now skip to: |%s|", settings->sub_name);
 	}
-      if(settings->skipping_to_sub)
-	{
-	  free(settings->skipping_to_sub);
-          settings->skipping_to_sub = 0; // this IS our block number
-	}
-      if(settings->call_level != 0)
-	{
-	  logDebug("call:%f:%f:%f",
-		   settings->parameters[1],
-		   settings->parameters[2],
-		   settings->parameters[3]);
-	}
-      else
-	{
-	  logDebug("started a subroutine defn");
-	  // a definition
-	  CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
-	  CHP(control_save_offset(block->o_number, block, settings));
-          if(settings->skipping_o)free(settings->skipping_o);
-          settings->skipping_o = strdup(block->o_name); // start skipping
+	break;
 
-          settings->skipping_start = settings->sequence_number;
-	  settings->defining_sub = 1;
-	  if(settings->sub_name)free(settings->sub_name);
-	  settings->sub_name = strdup(block->o_name);
-	  logDebug("will now skip to: |%s| %d", settings->sub_name,
-		   block->o_number);
-	}
-      break;
     case O_endsub:
-      // if level is not zero, in a call
-      // otherwise in a defn
-      // if we were skipping, no longer
-      if(settings->skipping_o)
-	{
-	  logDebug("case O_endsub -- no longer skipping to:|%s|",
-	       settings->skipping_o);
-	  free(settings->skipping_o);
-          settings->skipping_o = 0;
-	}
-      if(settings->call_level != 0)
-	{
-	  // in a call -- must do a return
-          // restore old values of parameters
-          // restore file position from context
+    case O_return:
+	if ((settings->sub_name == NULL) && (settings->call_level == 0))
+	    OERR(_("%d: not in a subroutine definition: '%s'"),
+		 settings->sequence_number, settings->linetext);
 
-          free_named_parameters(settings->call_level, settings);
-	  if(settings->sub_context[settings->call_level].subName)
-	    {
-	      free(settings->sub_context[settings->call_level].subName);
-	      settings->sub_context[settings->call_level].subName = 0;
-	    }
-          settings->call_level--;
+	// proper label semantics (only refer to defined sub, within sub defn etc)
+	// is handled in read_o() for return & endsub
+	current_frame = &settings->sub_context[settings->call_level];
+	CHP(execute_return(settings, current_frame,
+			   current_frame->call_type)); 
+	break;
 
-          for(i=0; i<INTERP_SUB_PARAMS; i++)
-	    {
-              settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-	        settings->sub_context[settings->call_level].saved_params[i];
-	    }
-
-	  logDebug("seeking to: %ld",
-		   settings->sub_context[settings->call_level].position);
-
-          if(settings->file_pointer == NULL)
-          {
-            ERS(NCE_FILE_NOT_OPEN);
-          }
-
-          //!!!KL must open the new file, if changed
-
-          if(0 != strcmp(settings->filename,
-                         settings->sub_context[settings->call_level].filename))
-          {
-              fclose(settings->file_pointer);
-              settings->file_pointer = 
-              fopen(settings->sub_context[settings->call_level].filename, "r");
-
-              strcpy(settings->filename,
-                     settings->sub_context[settings->call_level].filename);
-          }
-          
-	  fseek(settings->file_pointer,
-		settings->sub_context[settings->call_level].position,
-		SEEK_SET);
-
-	  settings->sequence_number =
-	    settings->sub_context[settings->call_level].sequence_number;
-
-	  if(settings->sub_name)
-	    {
-	      free(settings->sub_name);
-	      settings->sub_name = 0;
-	    }
-
-	  if(settings->sub_context[settings->call_level].subName)
-	    {
-	      settings->sub_name =
-		strdup(settings->sub_context[settings->call_level].subName);
-	    }
-	  else
-	    {
-	      settings->sub_name = 0;
-	    }
-	}
-      else
-	{
-	  // a definition
-	  CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
-	  // no longer skipping or defining
-          if(settings->skipping_o)
-	    {
-	      logDebug("case O_endsub in defn -- no longer skipping to:|%s|",
-		   settings->skipping_o);
-	      free(settings->skipping_o);
-              settings->skipping_o = 0;
-	    }
-	  settings->defining_sub = 0;
-	  if(settings->sub_name)free(settings->sub_name);
-	  settings->sub_name = 0;
-	}
-      break;
     case O_call:
-      // copy parameters from context
-      // save old values of parameters
-      // save current file position in context
-      // if we were skipping, no longer
-      if(settings->skipping_o)
-	{
-	  logDebug("case O_call -- no longer skipping to:|%s|",
-	       settings->skipping_o);
-	  free(settings->skipping_o);
-          settings->skipping_o = 0;
+	// only enter new frame if not reexecuting a Python handler 
+	// which returned INTERP_EXECUTE_FINISH
+	if (settings->call_state == CS_NORMAL) {
+	    CHP(enter_context(settings, block));
 	}
-      if(settings->call_level >= INTERP_SUB_ROUTINE_LEVELS)
-	{
-	  ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-	}
+	current_frame = &settings->sub_context[settings->call_level];
+	CHP(execute_call(settings, current_frame,
+			 current_frame->call_type)); 
+	break;
 
-      for(i=0; i<INTERP_SUB_PARAMS; i++)
-	{
-	  settings->sub_context[settings->call_level].saved_params[i] =
-	    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
-
-	  settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-	    block->params[i];
-
-	}
-
-        if(settings->file_pointer == NULL)
-          {
-            ERS(NCE_FILE_NOT_OPEN);
-          }
-        settings->sub_context[settings->call_level].position =
-	    ftell(settings->file_pointer);
-        if(settings->sub_context[settings->call_level].filename)
-          {
-              // if there is a string here, free it
-              free(settings->sub_context[settings->call_level].filename);
-          }
-        // save the previous filename
-	logDebug("Duping |%s|", settings->filename);
-        settings->sub_context[settings->call_level].filename =
-              strdup(settings->filename);
-
-	settings->sub_context[settings->call_level].sequence_number
-	    = settings->sequence_number;
-
-      logDebug("(in call)set params[%d] return file:%s offset:%ld",
-	       settings->call_level,
-	       settings->sub_context[settings->call_level].filename,
-	       settings->sub_context[settings->call_level].position);
-
-      settings->call_level++;
-
-      // set the new subName
-      // !!!KL do we need to free old subName?
-      settings->sub_context[settings->call_level].subName =
-	strdup(block->o_name);
-
-      if (control_back_to(block,settings) == INTERP_ERROR) {
-          ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
-          return INTERP_ERROR;
-      }
-      break;
-    case O_do:
-      // if we were skipping, no longer
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = 0;
-      // save the loop point
-      // we hit this again on loop back -- so test first
-      if(INTERP_OK != control_find_oword(block, settings, &index))
-      {
-          CHP(control_save_offset(block->o_number, block, settings));
-      }
-      break;
+      case O_do:
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	// save the loop point
+	// we hit this again on loop back -- so test first
+	if(INTERP_OK != control_find_oword(block, settings, &op)) // &index))
+	    {
+		// save offset if not found in offset table
+		CHP(control_save_offset( block, settings));
+	    }
+	break;
 
     case O_repeat:
-      // if we were skipping, no longer
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = 0;
-      status = control_find_oword(block, settings, &index);
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if (settings->sequence_number != (op->sequence_number + 1)) 
+	        OERR(_("%d: duplicate O-word label: '%s' - defined in line %d"),
+		    settings->sequence_number, 
+		    settings->linetext, op->sequence_number + 1);
+	} else 
+	    CHP(control_save_offset(block, settings));
 
-      // test if not already seen OR
-      // if seen and this is a repeat
-      if((status != INTERP_OK) ||
-	 (settings->oword_offset[index].type == block->o_type))	{
-	  // this is the beginning of a 'repeat' loop
-	  // add it to the table if not already there
-	  if(status != INTERP_OK)
-              CHP(control_save_offset(block->o_number, block, settings));
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	status = control_find_oword(block, settings, &op); // &index);
 
-          // note the repeat count.  it should only be calculated at the
-          // start of the repeat loop.
-          control_find_oword(block, settings, &index);
-          if(settings->oword_offset[index].repeat_count == -1)
-              settings->oword_offset[index].repeat_count = 
-                  round_to_int(settings->test_value);
+	// test if not already seen OR
+	// if seen and this is a repeat
+	if ((status != INTERP_OK) ||
+	    (op->type == block->o_type))	{
+	    // this is the beginning of a 'repeat' loop
+	    // add it to the table if not already there
+	    if(status != INTERP_OK)
+		CHP(control_save_offset( block, settings));
 
-	  // are we still repeating?
-	  if(settings->oword_offset[index].repeat_count > 0) {
-	      // execute forward
-	      logDebug("executing forward: [%s] in 'repeat' test value-- %g",
-		       block->o_name, settings->test_value);
-              // one less repeat remains
-              settings->oword_offset[index].repeat_count--;
-          } else {
-	      // skip forward
-	      logDebug("skipping forward: [%s] in 'repeat'",
-		       block->o_name);
-              if(settings->skipping_o)free(settings->skipping_o);
-	      settings->skipping_o = strdup(block->o_name);
-              settings->skipping_start = settings->sequence_number;
-              // cause the repeat count to be recalculated
-	      // if we do this loop again
-              settings->oword_offset[index].repeat_count = -1;
-          }
-      }
-      break;
+	    // note the repeat count.  it should only be calculated at the
+	    // start of the repeat loop.
+	    control_find_oword(block, settings, &op); // &index);
+	    if(op->repeat_count == -1)
+		op->repeat_count =
+		    round_to_int(settings->test_value);
+
+	    // are we still repeating?
+	    if(op->repeat_count > 0) {
+		// execute forward
+		logOword("executing forward: [%s] in 'repeat' test value-- %g",
+			 block->o_name, settings->test_value);
+		// one less repeat remains
+		op->repeat_count--;
+	    } else {
+		// skip forward
+		logOword("skipping forward: [%s] in 'repeat'",
+			 block->o_name);
+		settings->skipping_o = block->o_name;
+		settings->skipping_start = settings->sequence_number;
+		// cause the repeat count to be recalculated
+		// if we do this loop again
+		op->repeat_count = -1;
+	    }
+	}
+	break;
 
     case O_while:
-      // if we were skipping, no longer
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = 0;
-      status = control_find_oword(block, settings, &index);
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if ((op->type != O_do) &&
+		(settings->sequence_number != (op->sequence_number + 1)))
+	        OERR(_("%d: duplicate O-word label: '%s' - defined in line %d"),
+		    settings->sequence_number, 
+		    settings->linetext, op->sequence_number + 1);
+	} else 
+	    // record only if this is a while/endwhile loop
+	    CHP(control_save_offset(block, settings));
 
-      // test if not already seen OR
-      // if seen and this is a while (alternative is that it is a do)
-      if((status != INTERP_OK) ||
-	 (settings->oword_offset[index].type == block->o_type))
-	{
-	  // this is the beginning of a 'while' loop
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	status = control_find_oword(block, settings, &op); //  &index);
 
-	  // add it to the table if not already there
-	  if(status != INTERP_OK)
-	    {
-               CHP(control_save_offset(block->o_number, block, settings));
-	    }
+	// test if not already seen OR
+	// if seen and this is a while (alternative is that it is a do)
+	if ((status != INTERP_OK) ||
+	    (op->type == block->o_type))  {
 
-	  // test the condition
+	    // this is the beginning of a 'while' loop
+	    // add it to the table if not already there
+	    if (status != INTERP_OK)
+		CHP(control_save_offset( block, settings));
 
-	  if(settings->test_value != 0.0)
-	    {
-	      // true
-	      // execute forward
-	      logDebug("executing forward: [%s] in 'while'",
-		       block->o_name);
+	    // test the condition
+	    if (settings->test_value != 0.0) // true - execute forward
+		logOword("executing forward: [%s] in 'while'",
+			 block->o_name);
+	    else  {
+		// false -  skip forward
+		logOword("skipping forward: [%s] in 'while'",
+			 block->o_name);
+		settings->skipping_o = block->o_name;
+		settings->skipping_start = settings->sequence_number;
 	    }
-	  else
-	    {
-	      // false
-	      // skip forward
-	      logDebug("skipping forward: [%s] in 'while'",
-		       block->o_name);
-              if(settings->skipping_o)free(settings->skipping_o);
-	      settings->skipping_o = strdup(block->o_name);
-              settings->skipping_start = settings->sequence_number;
-	    }
-	}
-      else
-	{
-	  // this is the end of a 'do'
-	  // test the condition
-	  if(settings->test_value != 0.0)
-	    {
-	      // true
-	      // loop on back
-	      logDebug("looping back to: [%s] in 'do while'",
-		       block->o_name);
-              CHP(control_back_to(block, settings));
-	    }
-	  else
-	    {
-	      // false
-	      logDebug("not looping back to: [%s] in 'do while'",
-		       block->o_name);
+	} else {
+	    // this is the end of a 'do'
+	    // test the condition
+	    if ((settings->test_value != 0.0) && !settings->doing_break) {
+		// true - loop on back
+		logOword("looping back to: [%s] in 'do while'",
+			 block->o_name);
+		CHP(control_back_to(block, settings));
+	    } else {
+		// false
+		logOword("not looping back to: [%s] in 'do while'",
+			 block->o_name);
+		settings->doing_break = 0;
 	    }
 	}
-      
-      break;
+	break;
 
+	    
     case O_if:
-      if(settings->test_value != 0.0)
-	{
-	  //true
-	  logDebug("executing forward: [%s] in 'if'",
-	      block->o_name);
-          if(settings->skipping_o)free(settings->skipping_o);
-          settings->skipping_o = 0;
-	  settings->executed_if = 1;
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if (settings->sequence_number != (op->sequence_number + 1)) 
+	        OERR(_("%d: duplicate O-word label - already defined in line %d: '%s'"),
+		    settings->sequence_number, op->sequence_number + 1,
+		    settings->linetext);
+	} else 
+	    CHP(control_save_offset(block, settings));
+
+	if (settings->test_value != 0.0) {
+	    //true
+	    logOword("executing forward: [%s] in 'if'",
+		     block->o_name);
+	    settings->skipping_o = NULL;
+	    settings->executed_if = 1;
+	} else {
+	    //false
+	    logOword("skipping forward: [%s] in 'if'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    settings->executed_if = 0;
 	}
-      else
-	{
-	  //false
-          logDebug("skipping forward: [%s] in 'if'",
-	      block->o_name);
-          if(settings->skipping_o)free(settings->skipping_o);
-          settings->skipping_o = strdup(block->o_name);
-          settings->skipping_start = settings->sequence_number;
-	  settings->executed_if = 0;
-	}
-      break;
+	break;
 
     case O_elseif:
-      if((settings->skipping_o) &&
-	 (0 != strcmp(settings->skipping_o, block->o_name)))
-	{
-	  //!!!KL -- the if conditions here say that we were skipping
-	  //!!!KL but that the target o_name is not ours.
-	  //!!!KL so we should continue skipping -- that's not what
-	  //!!!KL the code below says.
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching 'if' label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
+	if ((settings->skipping_o) &&
+	    (0 != strcmp(settings->skipping_o, block->o_name)))  {
+
+	    //!!!KL -- the if conditions here say that we were skipping
+	    //!!!KL but that the target o_name is not ours.
+	    //!!!KL so we should continue skipping -- that's not what
+	    //!!!KL the code below says.
+
+	    // mah: so?
 #if 0
-	  // we were not skipping -- start skipping
-          logDebug("start skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-          if(settings->skipping_o)free(settings->skipping_o);
-	  settings->skipping_o = strdup(block->o_name);
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	    // we were not skipping -- start skipping
+	    logOword("start skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 #else
-	  // we were skipping -- continue skipping
-          logDebug("continue skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-          return INTERP_OK;
+	    // we were skipping -- continue skipping
+	    logOword("continue skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    return INTERP_OK;
 #endif
 	}
 
-      // we were skipping
-      // but were we ever not skipping
-      if(settings->executed_if)
-	{
-	  // we have already executed, keep on skipping
-          logDebug("already executed, continue  "
-		   "skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-	  //settings->skipping_0 = block->o_number;
-          if(settings->skipping_o)free(settings->skipping_o);
-          settings->skipping_o = strdup(block->o_name);
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	// we were skipping
+	// but were we ever not skipping
+	if (settings->executed_if) {
+	    // we have already executed, keep on skipping
+	    logOword("already executed, continue  "
+		     "skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 	}
-      
-      if(settings->test_value != 0.0)
-	{
-	  //true -- start executing
-          logDebug("start executing forward: [%s] in 'elseif'",
-	      block->o_name);
-         if(settings->skipping_o)free(settings->skipping_o);
-	  settings->skipping_o = 0;
-	  settings->executed_if = 1;
+
+	if (settings->test_value != 0.0) {
+	    //true -- start executing
+	    logOword("start executing forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = NULL;
+	    settings->executed_if = 1;
+	} else {
+	    //false
+	    logOword("continue skipping forward: [%s] in 'elseif'",
+		     block->o_name);
 	}
-      else
-	{
-	  //false
-          logDebug("continue skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-	}
-      break;
+	break;
 
     case O_else:
-      // were we ever not skipping
-      if(settings->executed_if)
-	{
-	  // we have already executed, skip
-          logDebug("already executed, "
-		   "skipping forward: [%s] in 'else'",
-	      block->o_name);
-          if(settings->skipping_o)free(settings->skipping_o);
-	  settings->skipping_o = strdup(block->o_name);
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching 'if' label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
+	// were we ever not skipping
+	if (settings->executed_if) {
+	    // we have already executed, skip
+	    logOword("already executed, "
+		     "skipping forward: [%s] in 'else'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 	}
 
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  // we were skipping so stop skipping
-          logDebug("stop skipping forward: [%s] in 'else'",
-	      block->o_name);
-          settings->executed_if = 1;
-         if(settings->skipping_o)free(settings->skipping_o);
-	  settings->skipping_o = 0;
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    // we were skipping so stop skipping
+	    logOword("stop skipping forward: [%s] in 'else'",
+		     block->o_name);
+	    settings->executed_if = 1;
+	    settings->skipping_o = NULL;
+	} else	{
+	    // we were not skipping -- so skip
+	    logOword("start skipping forward: [%s] in 'else'",
+		     block->o_name);
 	}
-      else
-	{
-          // we were not skipping -- so skip
-          logDebug("start skipping forward: [%s] in 'else'",
-	      block->o_name);
-	}
-      break;
+	break;
 
     case O_endif:
-      // stop skipping if we were
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = 0;
-      logDebug("stop skipping forward: [%s] in 'endif'",
-	      block->o_name);
-      // the KEY -- outside if clearly must have executed
-      // or this would not have executed
-      settings->executed_if = 1;
-      break;
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching label: '%s' (found '%s' in line %d): '%s'"),
+		settings->sequence_number, block->o_name, 
+		o_ops[op->type] + 2, op->sequence_number + 1, settings->linetext);
+
+	// stop skipping if we were
+	settings->skipping_o = NULL;
+	logOword("stop skipping forward: [%s] in 'endif'",
+		 block->o_name);
+	// the KEY -- outside if clearly must have executed
+	// or this would not have executed
+	settings->executed_if = 1;
+	break;
 
     case O_break:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if ((op->type != O_while) && (op->type != O_do))
+	    OERR(_("%d: no matching while/do label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
       // start skipping
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = strdup(block->o_name);
+      settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
-      //settings->doing_break = 1;
-      logDebug("start skipping forward: [%s] in 'break'",
+      settings->doing_break = 1;
+      logOword("start skipping forward: [%s] in 'break'",
 	      block->o_name);
       break;
 
     case O_continue:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if ((op->type != O_while) && (op->type != O_do))
+	    OERR(_("%d: no matching while/do label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
 
-      // if already skipping, do nothing
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  logDebug("already skipping: [%s] in 'continue'",
-		   block->o_name);
-	  return INTERP_OK;
+	// if already skipping, do nothing
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    logOword("already skipping: [%s] in 'continue'",
+		     block->o_name);
+	    return INTERP_OK;
 	}
-      // start skipping
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = strdup(block->o_name);
-      settings->skipping_start = settings->sequence_number;
-      settings->doing_continue = 1;
-      logDebug("start skipping forward: [%s] in 'continue'",
-	      block->o_name);
-      break;
+	// start skipping
+	settings->skipping_o = block->o_name;
+	settings->skipping_start = settings->sequence_number;
+	settings->doing_continue = 1;
+	logOword("start skipping forward: [%s] in 'continue'",
+		 block->o_name);
+	break;
 
     case O_endrepeat:
     case O_endwhile:
-      // end of a while loop
-      logDebug("endwhile: skipping_o:%s", settings->skipping_o);
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  // we were skipping, so this is the end
-          if(settings->skipping_o)free(settings->skipping_o);
-	  settings->skipping_o = 0;
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (((block->o_type == O_endrepeat) && (op->type != O_repeat)) ||
+	    ((block->o_type == O_endwhile) && (op->type != O_while)))
+	    OERR(_("%d: no matching label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
 
-	  if(settings->doing_continue)
-	    {
-	      settings->doing_continue = 0;
+	// end of a while loop
+	logOword("endwhile: skipping_o:%s", settings->skipping_o);
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    // we were skipping, so this is the end
+	    settings->skipping_o = NULL;
 
-  	      // loop on back
-	      logDebug("looping back (continue) to: [%s] in while/repeat",
-		   block->o_name);
-	      CHP(control_back_to(block, settings));
+	    if (settings->doing_continue) {
+		settings->doing_continue = 0;
+
+		// loop on back
+		logOword("looping back (continue) to: [%s] in while/repeat",
+			 block->o_name);
+		CHP(control_back_to(block, settings));
+	    } else {
+		// not doing continue, we are done
+		logOword("falling thru the complete while/repeat: [%s]",
+			 block->o_name);
+		return INTERP_OK;
 	    }
-	  else
-	    {
-	      // not doing continue, we are done
-	      logDebug("falling thru the complete while/repeat: [%s]",
-		   block->o_name);
-	      return INTERP_OK;
-	    }
+	} else {
+	    // loop on back
+	    logOword("looping back to: [%s] in 'endwhile/endrepeat'",
+		     block->o_name);
+	    CHP(control_back_to(block, settings));
 	}
-      else
-	{
-	  // loop on back
-	  logDebug("looping back to: [%s] in 'endwhile/endrepeat'",
-		   block->o_name);
-	  CHP(control_back_to(block, settings));
-	}
-      break;
-
-    case O_return:
-      if(settings->call_level == 0)
-      {
-          // this is in the definition
-          break;
-      }
-
-      // if we were skipping, no longer
-      if(settings->skipping_o)free(settings->skipping_o);
-      settings->skipping_o = 0;
-
-      // in a call -- must do a return
-      // restore old values of parameters
-      // restore file position from context
-
-      free_named_parameters(settings->call_level, settings);
-      if(settings->sub_context[settings->call_level].subName)
-	{
-	  free(settings->sub_context[settings->call_level].subName);
-	}
-
-      settings->call_level--;
-
-      for(i=0; i<INTERP_SUB_PARAMS; i++)
-	{
-	  settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-	    settings->sub_context[settings->call_level].saved_params[i];
-	}
-
-      logDebug("seeking to: %ld",
-	       settings->sub_context[settings->call_level].position);
-
-      if(settings->file_pointer == NULL)
-      {
-        ERS(NCE_FILE_NOT_OPEN);
-      }
-
-      //!!!KL must open the new file, if changed
-      fseek(settings->file_pointer,
-	    settings->sub_context[settings->call_level].position, SEEK_SET);
-
-      settings->sequence_number =
-	settings->sub_context[settings->call_level].sequence_number;
-
-      break;
+	break;
 
     default:
-      // FIXME !!!KL should probably be an error
-      break;
+	// FIXME !!!KL should probably be an error
+	return INTERP_ERROR;
+	break;
     }
+    // return status;
     return INTERP_OK;
 }
 //========================================================================

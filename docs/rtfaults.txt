@@ -16,19 +16,21 @@ Finding line number information for faults in realtime components
 4. Note the ip (instruction pointer) address in dmesg.  e.g.:
       RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.
                                                               ^^^^^^^^
-5. Make an educated guess about what component it is in, and find the start
-   of "text" (program code) for that kernel module:
-      $ cat /sys/module/fault/sections/.text
-      0xc93dc000
+5. Find the module which contains the offending IP. 
+   $cat /proc/modules
+   motmod 142230 0 - Live 0xc93df000
+   fault 1626 1 motmod, Live 0xc93dc000
+   hal_lib 30517 2 motmod,fault, Live 0xc93d5000
+
    Now you can exit hal/emc2.
 
-6. Subtract the start of text from the faulting ip (in this case, 0x1a)
+6. Subtract the start of the module from the faulting ip (in this case, 0x1a)
    Among other ways to do this, you can use the shell:
       $ printf "0x%x\n" $((0xc93dc01a-0xc93dc000))
       0x1a
 
 7. Use addr2line to find out the source code line:
-      $ addr2line -e fault.ko 0x1a
+      $ addr2line -e emc2-dev/src/fault.ko 0x1a
       /usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9
    Ignore how the directory name is wrong and see whether this has helped you
    localize the problem:

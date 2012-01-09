@@ -1,0 +1,167 @@
+:lang: fr
+:toc:
+
+= Informations de configuration pour moteurs pas à pas
+
+Cette section suppose qu'une installation à partir du CD Live a été
+faite. Après cette installation et avant de continuer, il est
+recommandé de connecter le PC sur Internet pour y faire les dernières
+mises à jour. Pour les installations plus complexes se référer au
+Manuel de l'intégrateur.
+
+== Test de latence (Latency Test)
+
+Le test de latence détermine la capacité du processeur à répondre aux
+requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
+processus, causant des pertes de pas lorsqu'ils pilotent une machine
+CNC. Ce test est la toute première chose à faire pour valider un PC.
+Pour le lancer, suivre les instructions de la section <<sec:Test-de-latence-IM,
+sur le test de latence>>.
+
+[[sec:Sherline]]
+== Sherline
+(((Sherline)))
+
+Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
+Au premier démarrage d'EMC2, le sélecteur de configuration s'ouvre, sélectionnez 
+alors le modèle correspondant à votre machine *Sherline*, puis acceptez d'enregistrez une copie. 
+
+[[sec:Xylotex]]
+== Xylotex
+(((Xylotex)))
+
+Si vous avez une machine *Xylotex* vous pouvez utiliser l'assistant graphique de 
+configuration fourni avec EMC2 et créer rapidement votre configuration 
+personnalisée <<cha:Assistant-graphique-pas-a-pas,avec l'assistant Stepconf>>.
+
+== Informations relatives à la machine
+
+But, regrouper les informations à propos des axes de la machine.
+
+Les timings des pilotes sont exprimés en nanosecondes. Si vous n'êtes
+pas sûr de vous à propos des timings de votre interface, les
+caractéristiques les plus populaires sont incluses dans l'assistant
+graphique de configuration. Notez que les pilotes Gecko ont des timings
+différents les uns des autres. Une liste des caractéristiques courantes
+est également maintenue sur le Wiki http://wiki.linuxcnc.org[de linuxcnc.org].
+
+[width="90%", options="header"]
+|==============================================================================
+|Axes | Type de pilote | Step Time ns | Step Space ns | Direction Hold ns | Direction Setup ns
+|X    |                |              |               |                   | 
+|Y    |                |              |               |                   | 
+|Z    |                |              |               |                   | 
+|     |                |              |               |                   | 
+|==============================================================================
+
+footnote:[ndt: les termes sont laissés dans la langue d'origine pour
+correspondre aux documentations des constructeurs.]
+
+== Informations relatives au brochage
+
+But, regrouper les informations à propos des différentes broches du port
+parallèle utilisées.
+
+[width="90%", options="header"]
+|========================================================================================
+|Pin de sortie | Fonction            | Si différent | Pin d'entrée | Fonction       | Si différent
+|1             | Sortie A/U          |              | 10           | Limite et OM X | 
+|2             | X Step              |              | 11           | Limite et OM Y | 
+|3             | X Direction         |              | 12           | Limite et OM Z | 
+|4             | Y Step              |              | 13           | Limite et OM A | 
+|5             | Y Direction         |              | 15           | Entrée palpeur | 
+|6             | Z Step              |              |              |                | 
+|7             | Z Direction         |              |              |                | 
+|8             | A Step              |              |              |                | 
+|9             | A Direction         |              |              |                | 
+|14            | Broche sens horaire |              |              |                | 
+|16            | PWM broche          |              |              |                | 
+|17            | Valide puissance    |              |              |                | 
+|========================================================================================
+
+Noter que toutes les broches inutilisées doivent être explicitement
+indiquées *Inutilisé* dans le choix déroulant de l'assistant. Elles
+pourront être modifiées par la suite en relançant Stepconf.
+
+== Informations relatives à la mécanique
+
+But, regrouper les informations à propos des réducteurs.
+Utilisées pour définir la taille d'un pas dans l'unité utilisateur. La
+taille du pas est utilisée par SCALE dans le fichier .ini.
+
+[width="90%", options="header"]
+|====================================================================
+|Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la vis
+|X    |              |          |              |           | 
+|Y    |              |          |              |           | 
+|Z    |              |          |              |           | 
+|     |              |          |              |           | 
+|====================================================================
+
+*Pas par tour* indique combien de pas moteur sont nécessaires pour que celui-ci 
+fasse un tour. Valeur typique: 200.
+
+*Micropas* indique combien d'impulsions le pilote doit recevoir pour que le 
+moteur tourne d'un angle équivalent à un pas.
+
+Si les micropas ne sont pas utilisés, cette valeur devra être mise à 1. 
+Si les micropas sont utilisés, les valeurs les plus courantes sont 2, 4, 8 ou 10.
+
+[NOTE]
+Le meilleur choix sera un compromis entre les petites valeurs, qui peuvent rendre 
+le système bruyant à cause des vibrations et les valeurs élevées, qui exigent 
+beaucoup de pas, ce qui baisse la vitesse maximale.
+
+*Dents moteur* et *Dents vis* à indiquer si vous avez une réduction poulies/courroie 
+entre le moteur et la vis. Sinon mettez 1 pour les deux.
+
+*Pas de vis* indique combien de tour la vis d'entraînement de l'axe doit faire 
+pour déplacer la table d'une unité utilisateur. Si vous êtes en pouces, c'est 
+le nombre de tours par pouce, si vous êtes en millimètres, c'est le nombre de 
+tour (ou fraction de tour) par millimètre. Par exemple, pour une vis avec un pas 
+de 5.08mm, il faut 0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
+
+exemple en pouces:
+
+     Moteur            = 200 pas par tour
+     Pilote            = 10 micropas par pas
+     Dents côté moteur = 20
+     Dents côté vis    = 40
+     Pas de vis        = 0,2000 pouces par tour
+
+D'après les informations ci-dessus:
+
+- la table se déplacera de 0,200 pouces par tour. 
+- Le moteur fera 2000 micropas par tour de vis. 
+- Le pilote demandera 10 micropas pour faire un pas. 
+- Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour. 
+
+Encore un autre exemple, en millimètres cette fois:
+
+exemple en mm:
+
+     Pas par tour      = 200 pas par tour
+     Micropas          =   8 micropas
+     Dents côté moteur =  30
+     Dents côté vis    =  90
+     Pas de la vis     =   5,00 mm par tour
+
+D'après les informations ci-dessus:
+
+- la vis déplacera le mobile de 5,00 mm par tour. 
+- Le moteur fera 3 tours pour 1 tour de vis. (90/30)
+- Le pilote utilisera 8 micropas pour faire un pas.
+- Le pilote aura besoin de 1600 impulsions pour un tour moteur
+   et donc de 4800 pour 1 tour de vis.
+
+== Assistants de configuration graphique
+
+ - Pour les moteurs pas à pas, voir la documentation de l'assistant graphique Stepconf 
+au chapitre <<cha:Assistant-graphique-pas-a-pas, sur cet assistant.>>
+ - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
+l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-Mesa, relatif 
+à cet asistant>>
+
+// vim: set syntax=asciidoc:
+
+

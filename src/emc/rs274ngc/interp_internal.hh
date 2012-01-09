@@ -13,12 +13,19 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include <boost/python.hpp>
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
+#include <set>
+#include <map>
+#include <bitset>
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
+#include "python_plugin.hh"
+
+
 #define _(s) gettext(s)
 
 /**********************/
@@ -41,6 +48,11 @@
 /* how far above hole bottom for rapid return, in inches */
 #define G83_RAPID_DELTA 0.010
 
+/* nested remap: a remapped code is found in the body of a subroutine
+ * which is executing on behalf of another remapped code
+ * example: a user G code command executes a tool change
+ */
+#define MAX_NESTED_REMAPS 10
 
 /* numerical constants */
 #define TOLERANCE_INCH 0.0005
@@ -218,13 +230,19 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"
 
 // number of parameters in parameter table
-#define RS274NGC_MAX_PARAMETERS 5429
+
+// leave some room above 5428 for further introspection
+// 5599 = control DEBUG, output, 0=no output; default=1.0
+// 5600-5601 = toolchanger codes
+#define RS274NGC_MAX_PARAMETERS 5602
 
 // Subroutine parameters
 #define INTERP_SUB_PARAMS 30
-#define INTERP_OWORD_LABELS 1000
 #define INTERP_SUB_ROUTINE_LEVELS 10
 #define INTERP_FIRST_SUBROUTINE_PARAM 1
+
+// max number of local variables saved (?)
+#define MAX_NAMED_PARAMETERS 50
 
 /**********************/
 /*      TYPEDEFS      */
@@ -239,6 +257,84 @@ DISTANCE_MODE;
 typedef enum
 { R_PLANE, OLD_Z }
 RETRACT_MODE;
+
+// string table - to get rid of strdup/free
+const char *strstore(const char *s);
+
+
+// Block execution phases in execution order
+// very carefully check code for sequencing when
+// adding phases!
+
+// used to record execution trail in breadcrumbs
+enum phases  {
+    NO_REMAPPED_STEPS,
+    STEP_COMMENT,
+    STEP_SPINDLE_MODE,
+    STEP_FEED_MODE,
+    STEP_SET_FEED_RATE,
+    STEP_SET_SPINDLE_SPEED,
+    STEP_PREPARE,
+    STEP_M_5,
+    STEP_M_6,
+    STEP_RETAIN_G43,
+    STEP_M_7,
+    STEP_M_8,
+    STEP_M_9,
+    STEP_M_10,
+    STEP_DWELL,
+    STEP_SET_PLANE,
+    STEP_LENGTH_UNITS,
+    STEP_LATHE_DIAMETER_MODE,
+    STEP_CUTTER_COMP,
+    STEP_TOOL_LENGTH_OFFSET,
+    STEP_COORD_SYSTEM,
+    STEP_CONTROL_MODE,
+    STEP_DISTANCE_MODE,
+    STEP_IJK_DISTANCE_MODE,
+    STEP_RETRACT_MODE,
+    STEP_MODAL_0,
+    STEP_MOTION,
+    STEP_MGROUP4,
+    MAX_STEPS
+};
+
+
+typedef struct remap_struct remap;
+typedef remap *remap_pointer;
+
+// the remap configuration descriptor
+typedef struct remap_struct {
+    const char *name;
+    const char *argspec;
+    // if no modalgroup= was given in the REMAP= line, use these defaults
+#define MCODE_DEFAULT_MODAL_GROUP 10
+#define GCODE_DEFAULT_MODAL_GROUP 1
+    int modal_group;
+    const char *prolog_func; // Py function or null
+    const char *remap_py;    // Py function maybe  null, OR
+    const char *remap_ngc;   // NGC file, maybe  null
+    const char *epilog_func; // Py function or null
+} remap;
+
+
+// case insensitive compare for std::map etc
+struct nocase_cmp
+{
+    bool operator()(const char* s1, const char* s2) const
+    {
+        return strcasecmp(s1, s2) < 0;
+    }
+};
+
+typedef std::map<const char *,remap,nocase_cmp> remap_map;
+typedef remap_map::iterator remap_iterator;
+
+typedef std::map<int, remap_pointer> int_remap_map;
+typedef int_remap_map::iterator int_remap_iterator;
+
+#define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
+		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
 
 typedef struct block_struct
 {
@@ -255,6 +351,26 @@ typedef struct block_struct
   double e_number;
   bool f_flag;
   double f_number;
+
+// Modal groups
+// also indices into g_modes
+// unused: 9,11
+#define GM_MODAL_0        0
+#define GM_MOTION         1
+#define GM_SET_PLANE      2
+#define GM_DISTANCE_MODE  3
+#define GM_IJK_DISTANCE_MODE  4
+#define GM_FEED_MODE      5
+#define GM_LENGTH_UNITS   6
+#define GM_CUTTER_COMP    7
+#define GM_TOOL_LENGTH_OFFSET 8
+#define GM_RETRACT_MODE   10
+#define GM_COORD_SYSTEM   12
+#define GM_CONTROL_MODE   13
+#define GM_SPINDLE_MODE  14
+#define GM_LATHE_DIAMETER_MODE  15
+
+
   int g_modes[16];
   bool h_flag;
   int h_number;
@@ -267,6 +383,7 @@ typedef struct block_struct
   int l_number;
   bool l_flag;
   int line_number;
+  int saved_line_number;  // value of sequence_number when a remap was encountered
   int n_number;
   int motion_to_be;
   int m_count;
@@ -303,42 +420,132 @@ typedef struct block_struct
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
-  int      o_number;
-  char    *o_name;   // !!!KL be sure to free this
+  int      call_type; // oword-sub, python oword-sub, remap
+  const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
+  int param_cnt;
+
+  // bitmap of phases already executed
+  // we have some 31 or so different steps in a block. We must remember
+  // which one is done when we reexecute a block after a remap.
+  std::bitset<MAX_STEPS>  breadcrumbs;
+
+#define TICKOFF(step) block->breadcrumbs[step] = 1
+#define TODO(step) (block->breadcrumbs[step] == 0)
+#define ONCE(step) (TODO(step) ? TICKOFF(step),1 : 0)
+#define ONCE_M(step) (TODO(STEP_M_ ## step) ? TICKOFF(STEP_M_ ## step),1 : 0)
+
+
+    // there might be several remapped items in a block, but at any point
+    // in time there's only one excuting
+    // conceptually blocks[1..n] are also the 'remap frames'
+    remap_pointer executing_remap; // refers to config descriptor
+    std::set<int> remappings; // all remappings in this block (enum phases)
+    int phase; // current remap execution phase
+
+    // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
+    // if recursion is detected in find_remappings() (called by parse_line()), that *step* 
+    // (roughly the modal group) is NOT added to the set of remapped steps in a block (block->remappings)
+    // in the convert_* procedures we test if the step is remapped with the macro below, and wether
+    // it is the current code which is remapped (IS_USER_MCODE, IS_USER_GCODE etc). If both
+    // are true, we execute the remap procedure; if not, use the builtin code.
+#define STEP_REMAPPED_IN_BLOCK(bp, step) (bp->remappings.find(step) != bp->remappings.end())
+
+    // true if in a remap procedure the code being remapped was
+    // referenced, which caused execution of the builtin semantics
+    // reason for recording the fact: this permits an epilog to do the
+    // right thing depending on wether the builtin was used or not.
+    bool builtin_used; 
 }
 block;
 
+// indicates which type of Python handler yielded, and needs reexecution
+// post sync/read_inputs
+enum call_states {
+    CS_NORMAL,
+    CS_REEXEC_PROLOG,
+    CS_REEXEC_PYBODY,
+    CS_REEXEC_EPILOG,
+    CS_REEXEC_PYOSUB,
+};
+
+// detail for O_call; tags the frame
+enum call_types {
+    CT_NGC_OWORD_SUB,    // no restartable Python code involved
+    CT_PYTHON_OWORD_SUB, // restartable Python code may be involved
+    CT_REMAP,            // restartable Python code may be involved
+};
+
+
+enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION, RET_ERRORMSG };
+
 typedef block *block_pointer;
 
-#define NAMED_PARAMETERS_ALLOC_UNIT 20
-struct named_parameters_struct {
-  int named_parameter_alloc_size;
-  int named_parameter_used_size;
-  char **named_parameters;
-  double *named_param_values;
-  };
+// parameters will go to a std::map<const char *,paramter_value_pointer>
+typedef struct parameter_value_struct {
+    double value;
+    unsigned attr;
+} parameter_value;
+
+typedef parameter_value *parameter_pointer;
+typedef std::map<const char *, parameter_value, nocase_cmp> parameter_map;
+typedef parameter_map::iterator parameter_map_iterator;
+
+#define PA_READONLY	1
+#define PA_GLOBAL	2
+#define PA_UNSET	4
+#define PA_USE_LOOKUP	8  // use lookup_named_param() to retrieve value
+#define PA_FROM_INI	16  // a variable of the form '_[section]value' was retrieved from the ini file
+
+// optional 3rd arg to store_named_param()
+// flag initialization of r/o parameter
+#define OVERRIDE_READONLY 1
+
+#define MAX_REMAPOPTS 20
+// current implementation limits - legal modal groups
+// for M and G codes
+#define M_MODE_OK(m) ((m > 4) && (m < 11))
+#define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
-  long position;       // location (ftell) in file
-  int sequence_number; // location (line number) in file
-  char *filename;      // name of file for this context
-  char *subName;       // name of the subroutine (oword)
-  double saved_params[INTERP_SUB_PARAMS];
-  struct named_parameters_struct named_parameters;
-}context;
+    long position;       // location (ftell) in file
+    int sequence_number; // location (line number) in file
+    const char *filename;      // name of file for this context
+    const char *subName;       // name of the subroutine (oword)
+    double saved_params[INTERP_SUB_PARAMS];
+    parameter_map named_params;
+    unsigned char context_status;		// see CONTEXT_ defines below
+    int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
+    int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+    double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+    int call_type; // enum call_types
+    // Python-related stuff
+    boost::python::object tupleargs; // the args tuple for Py functions
+    boost::python::object kwargs; // the args dict for Py functions
+    int py_return_type;   // type of Python return value - enum retopts 
+    double py_returned_double;
+    int py_returned_int;
+    // generator object next method as returned if Python function contained a yield statement
+    boost::python::object generator_next; 
+} context;
 
+typedef context *context_pointer;
 
-// !!!KL ???use the index to this as a surrogate for the o-word text
+// context.context_status
+#define CONTEXT_VALID   1 // this was stored by M7*
+#define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
+#define REMAP_FRAME   4 // a remap call frame
+
 typedef struct offset_struct {
-  int o_word;
-  char *o_word_name; // or zero
   int type;
-  char *filename;  // the name of the file
+  const char *filename;  // the name of the file
   long offset;     // the offset in the file
   int sequence_number;
   int repeat_count;
-}offset;
+} offset;
+
+typedef std::map<const char *, offset, nocase_cmp> offset_map_type;
+typedef std::map<const char *, offset, nocase_cmp>::iterator offset_map_iterator;
 
 /*
 
@@ -381,7 +588,15 @@ typedef struct setup_struct
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
-  block block1;                 // parsed next block
+  // block block1;                 // parsed next block
+  // stack of controlling blocks for remap execution
+  block blocks[MAX_NESTED_REMAPS];
+  // index into blocks, points to currently controlling block
+  int remap_level;
+
+#define CONTROLLING_BLOCK(s) ((s).blocks[(s).remap_level])
+#define EXECUTING_BLOCK(s)   ((s).blocks[0])
+
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
   int current_pocket;             // carousel slot number of current tool
@@ -409,7 +624,6 @@ typedef struct setup_struct
   char filename[PATH_MAX];      // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on
-  int tool_offset_index;        // for use with tool length offsets
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
@@ -422,11 +636,11 @@ typedef struct setup_struct
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
   double parameters[RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
-  int parameter_numbers[50];    // parameter number buffer
-  double parameter_values[50];  // parameter value buffer
+  int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer
+  double parameter_values[MAX_NAMED_PARAMETERS];  // parameter value buffer
   int named_parameter_occurrence;
-  char *named_parameters[50];
-  double named_parameter_values[50];
+  const char *named_parameters[MAX_NAMED_PARAMETERS];
+  double named_parameter_values[MAX_NAMED_PARAMETERS];
   bool percent_flag;          // true means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   bool probe_flag;            // flag indicating probing done
@@ -441,6 +655,7 @@ typedef struct setup_struct
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int random_toolchanger;       // tool changer swaps pockets, and pocket 0 is the spindle instead of "no tool"
   int selected_pocket;          // tool slot selected but not active
+    int selected_tool;          // start switchover to pocket-agnostic interp
   int sequence_number;          // sequence number of line last read
   double speed;                 // current spindle speed in rpm or SxM
   SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
@@ -453,27 +668,32 @@ typedef struct setup_struct
   int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
+  double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET
 
   /* stuff for subroutines and control structures */
   int defining_sub;                  // true if in a subroutine defn
-  char *sub_name;                    // name of sub we are defining (free this)
+  const char *sub_name;                    // name of sub we are defining (free this)
   int doing_continue;                // true if doing a continue
-  //int doing_break;                 // true if doing a break
+  int doing_break;                   // true if doing a break
   int executed_if;                   // true if executed in current if
-  char *skipping_o;                  // o_name we are skipping for (or zero)
-  char *skipping_to_sub;             // o_name of sub skipping to (or zero)
+  const char *skipping_o;                  // o_name we are skipping for (or zero)
+  const char *skipping_to_sub;             // o_name of sub skipping to (or zero)
   int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
+  double return_value;               // optional return value for "return", "endsub"
+  int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
-  int oword_labels;
-  offset oword_offset[INTERP_OWORD_LABELS];
+  int call_state;                  //  enum call_states - inidicate Py handler reexecution
+  offset_map_type offset_map;      // store label x name, file, line
+
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
+  int debugmask;                     // from ini  EMC/DEBUG
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
-  char subroutines[MAX_SUB_DIRS][PATH_MAX]; // subroutines directories
+  const char *subroutines[MAX_SUB_DIRS];  // subroutines directories
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
@@ -491,10 +711,31 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
-}
-setup;
+  int feature_set; 
+
+#define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
+#define FEATURE_RETAIN_G43           0x00000001
+#define FEATURE_OWORD_N_ARGS         0x00000002
+#define FEATURE_INI_VARS             0x00000004
+#define FEATURE_HAL_PIN_VARS         0x00000008
+    // do not lowercase named params inside comments - for #<_hal[PinName]>
+#define FEATURE_NO_DOWNCASE_OWORD    0x00000010
+#define FEATURE_OWORD_WARNONLY       0x00000020
+
+
+    interp_ptr pythis;  // shared_ptr representation of 'this'
+
+    const char *on_abort_command;
+    int_remap_map  g_remapped,m_remapped;
+    remap_map remaps;
+
+} setup;
 
 typedef setup *setup_pointer;
+// the externally visible singleton instance
+
+extern    PythonPlugin *python_plugin;
+#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 inline bool is_a_cycle(int motion) {
     return ((motion > G_80) && (motion < G_90)) || (motion == G_73);
@@ -515,6 +756,18 @@ macros totally crash-proof. If the function call stack is deeper than
 49, the top of the stack will be missing.
 
 */
+
+
+// Just set an error string using printf-style formats, do NOT return
+#define ERM(fmt, ...)                                      \
+    do {                                                   \
+        setError (fmt, ## __VA_ARGS__);                    \
+        _setup.stack_index = 0;                            \
+        strncpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN); \
+        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
+        _setup.stack_index++; \
+        _setup.stack[_setup.stack_index][0] = 0;           \
+    } while(0)
 
 // Set an error string using printf-style formats and return
 #define ERS(fmt, ...)                                      \
@@ -578,6 +831,16 @@ macros totally crash-proof. If the function call stack is deeper than
         if (CHP__status != INTERP_OK) {                            \
 	    ERP(CHP__status);                                      \
         }                                                          \
+    } while(0)
+
+
+// oword warnings 
+#define OERR(fmt, ...)                                      \
+    do {						    \
+	if (FEATURE(OWORD_WARNONLY))			    \
+	    fprintf(stderr,fmt, ## __VA_ARGS__);	    \
+	else						    \
+	    ERS(fmt, ## __VA_ARGS__);			    \
     } while(0)
 
 

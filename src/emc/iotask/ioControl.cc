@@ -128,7 +128,7 @@ static int emcIoNmlGet()
     /* Try to connect to EMC IO command buffer */
     if (emcioCommandBuffer == 0) {
 	emcioCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "tool", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "tool", emc_nmlfile);
 	if (!emcioCommandBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "emcToolCmd buffer not available\n");
@@ -145,7 +145,7 @@ static int emcIoNmlGet()
     if (emcioStatusBuffer == 0) {
 	emcioStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "tool",
-				 EMC_NMLFILE);
+				 emc_nmlfile);
 	if (!emcioStatusBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "toolSts buffer not available\n");
@@ -165,7 +165,7 @@ static int emcIoNmlGet()
     /* try to connect to EMC error buffer */
     if (emcErrorBuffer == 0) {
 	emcErrorBuffer =
-	    new NML(nmlErrorFormat, "emcError", "tool", EMC_NMLFILE);
+	    new NML(nmlErrorFormat, "emcError", "tool", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "emcError buffer not available\n");
@@ -191,15 +191,15 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	/* copy to global */
-	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
-	    EMC_DEBUG = 0;
+	if (1 != sscanf(inistring, "%i", &emc_debug)) {
+	    emc_debug = 0;
 	}
     } else {
 	/* not found, use default */
-	EMC_DEBUG = 0;
+	emc_debug = 0;
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
+    if (emc_debug & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
 		strncpy(version, "unknown", LINELEN-1);
@@ -217,28 +217,28 @@ static int iniLoad(const char *filename)
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	strcpy(EMC_NMLFILE, inistring);
+	strcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
 
     double temp;
-    temp = EMC_IO_CYCLE_TIME;
+    temp = emc_io_cycle_time;
     if (NULL != (inistring = inifile.Find("CYCLE_TIME", "EMCIO"))) {
-	if (1 == sscanf(inistring, "%lf", &EMC_IO_CYCLE_TIME)) {
+	if (1 == sscanf(inistring, "%lf", &emc_io_cycle_time)) {
 	    // found it
 	} else {
 	    // found, but invalid
-	    EMC_IO_CYCLE_TIME = temp;
+	    emc_io_cycle_time = temp;
 	    rtapi_print
 		("invalid [EMCIO] CYCLE_TIME in %s (%s); using default %f\n",
-		 filename, inistring, EMC_IO_CYCLE_TIME);
+		 filename, inistring, emc_io_cycle_time);
 	}
     } else {
 	// not found, using default
 	rtapi_print
 	    ("[EMCIO] CYCLE_TIME not found in %s; using default %f\n",
-	     filename, EMC_IO_CYCLE_TIME);
+	     filename, emc_io_cycle_time);
     }
 
     inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
@@ -273,7 +273,7 @@ static int saveToolTable(const char *filename,
 
     // check filename
     if (filename[0] == 0) {
-	name = TOOL_TABLE_FILE;
+	name = tool_table_file;
     } else {
 	// point to name provided
 	name = filename;
@@ -366,7 +366,7 @@ int iocontrol_hal_init(void)
     /* STEP 3a: export the out-pin(s) */
 
     // user-enable-out
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id,
 			      "iocontrol.%d.user-enable-out", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -376,7 +376,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // user-request-enable
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id,
 			     "iocontrol.%d.user-request-enable", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -396,7 +396,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // coolant-mist
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id,
 			      "iocontrol.%d.coolant-mist", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -406,7 +406,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // lube
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id,
 			      "iocontrol.%d.lube", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -488,7 +488,7 @@ int iocontrol_hal_init(void)
     /* STEP 3b: export the in-pin(s) */
 
     // emc-enable-in
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id, 
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id,
 			     "iocontrol.%d.emc-enable-in", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -498,7 +498,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // lube_level
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id, 
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id,
 			     "iocontrol.%d.lube_level", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -538,7 +538,7 @@ void hal_init_pins(void)
 /********************************************************************
 *
 * Description: read_hal_inputs(void)
-*			Reads the pin values from HAL 
+*			Reads the pin values from HAL
 *			this function gets called once per cycle
 *			It sets the values for the emcioStatus.aux.*
 *
@@ -559,12 +559,12 @@ int read_hal_inputs(void)
 	emcioStatus.aux.estop = 1;
     else
 	emcioStatus.aux.estop = 0;
-    
+
     if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
     }
-    
-    
+
+
     oldval = emcioStatus.lube.level;
     emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
     if (oldval != emcioStatus.lube.level) {
@@ -587,7 +587,7 @@ void load_tool(int pocket) {
         ttcomments[0] = ttcomments[pocket];
         ttcomments[pocket] = comment_temp;
 
-        if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+        if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
             emcioStatus.status = RCS_ERROR;
     } else if(pocket == 0) {
         // magic T0 = pocket 0 = no tool
@@ -691,7 +691,7 @@ int main(int argc, char *argv[])
                     rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		strcpy(EMC_INIFILE, argv[t + 1]);
+		strcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -711,20 +711,20 @@ int main(int argc, char *argv[])
 
     atexit(do_hal_exit);
 
-    if (0 != iniLoad(EMC_INIFILE)) {
+    if (0 != iniLoad(emc_inifile)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "can't open ini file %s\n",
-			EMC_INIFILE);
+			emc_inifile);
 	return -1;
     }
 
     if (0 != emcIoNmlGet()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"can't connect to NML buffers in %s\n",
-			EMC_NMLFILE);
+			emc_nmlfile);
 	return -1;
     }
     // used only for getting TOOL_TABLE_FILE out of the ini file
-    if (0 != iniTool(EMC_INIFILE)) {
+    if (0 != iniTool(emc_inifile)) {
 	rcs_print_error("iniTool failed.\n");
 	return -1;
     }
@@ -746,7 +746,7 @@ int main(int argc, char *argv[])
         ttcomments[0][0] = '\0';
     }
 
-    if (0 != loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+    if (0 != loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
 		fms, ttcomments, random_toolchanger)) {
 	rcs_print_error("can't load tool table.\n");
     }
@@ -787,7 +787,7 @@ int main(int argc, char *argv[])
 	/* read NML, run commands */
 	if (-1 == emcioCommandBuffer->read()) {
 	    /* bad command, wait until next cycle */
-	    esleep(EMC_IO_CYCLE_TIME);
+	    esleep(emc_io_cycle_time);
 	    /* and repeat */
 	    continue;
 	}
@@ -796,7 +796,7 @@ int main(int argc, char *argv[])
 	    0 == emcioCommand->type ||	// bad command type
 	    emcioCommand->serial_number == emcioStatus.echo_serial_number) {	// command already finished
 	    /* wait until next cycle */
-	    esleep(EMC_IO_CYCLE_TIME);
+	    esleep(emc_io_cycle_time);
 	    /* and repeat */
 	    continue;
 	}
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
-	    loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+	    loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
 		    fms, ttcomments, random_toolchanger);
 	    reload_tool_number(emcioStatus.tool.toolInSpindle);
 	    break;
@@ -828,19 +828,19 @@ int main(int argc, char *argv[])
 	    // this gets sent on any Task Abort, so it might be safer to stop
 	    // the spindle  and coolant
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
-
 	    emcioStatus.coolant.mist = 0;
 	    emcioStatus.coolant.flood = 0;
 	    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
-    	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
+	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
 	    *(iocontrol_data->tool_change)=0;		/* abort tool change if in progress */
 	    *(iocontrol_data->tool_prepare)=0;		/* abort tool prepare if in progress */
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
             {
-                signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
-                rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE\n");
+                signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+		int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+                rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
                 // it doesn't make sense to prep the spindle pocket
                 if(random_toolchanger && p == 0) break;
@@ -851,6 +851,8 @@ int main(int argc, char *argv[])
                     *(iocontrol_data->tool_prep_number) = 0;
                 } else {
                     *(iocontrol_data->tool_prep_number) = emcioStatus.tool.toolTable[p].toolno;
+		    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE: mismatch: tooltable[%d]=%d, got %d\n", 
+				    p, emcioStatus.tool.toolTable[p].toolno, t);
                 }
                 /* then set the prepare pin to tell external logic to get started */
                 *(iocontrol_data->tool_prepare) = 1;
@@ -897,7 +899,7 @@ int main(int argc, char *argv[])
 	    {
 		const char *filename =
 		    ((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file;
-		if(!strlen(filename)) filename = TOOL_TABLE_FILE;
+		if(!strlen(filename)) filename = tool_table_file;
 		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
 		if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
 				  fms, ttcomments, random_toolchanger))
@@ -937,7 +939,7 @@ int main(int argc, char *argv[])
                     emcioStatus.tool.toolTable[0] = emcioStatus.tool.toolTable[p];
                 }                    
             }
-	    if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+	    if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
 		emcioStatus.status = RCS_ERROR;
 	    break;
 
@@ -991,13 +993,13 @@ int main(int argc, char *argv[])
 	    /* generate a rising edge to reset optional HAL latch */
 	    *(iocontrol_data->user_request_enable) = 1;
 	    break;
-	    
+
 	case EMC_AUX_ESTOP_RESET_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
 	    // doesn't do anything right now, this will need to come from GUI
 	    // but that means task needs to be rewritten/rethinked
 	    break;
-	    
+
 	case EMC_LUBE_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
 	    emcioStatus.lube.on = 1;
@@ -1012,7 +1014,11 @@ int main(int argc, char *argv[])
 
 	case EMC_SET_DEBUG_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
-	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
+	    emc_debug = ((EMC_SET_DEBUG *) emcioCommand)->debug;
+	    break;
+
+	case EMC_TOOL_START_CHANGE_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_START_CHANGE\n");
 	    break;
 
 	default:
@@ -1028,10 +1034,10 @@ int main(int argc, char *argv[])
 	emcioStatus.heartbeat++;
 	emcioStatusBuffer->write(&emcioStatus);
 
-	esleep(EMC_IO_CYCLE_TIME);
+	esleep(emc_io_cycle_time);
 	/* clear reset line to allow for a later rising edge */
 	*(iocontrol_data->user_request_enable) = 0;
-	
+
     }	// end of "while (! done)" loop
 
     if (emcErrorBuffer != 0) {

@@ -25,7 +25,18 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
+int _task = 0; // control preview behaviour when remapping
+
 char _parameter_file_name[LINELEN];
+extern "C" void initinterpreter();
+extern "C" void initemccanon();
+extern "C" struct _inittab builtin_modules[];
+struct _inittab builtin_modules[] = {
+    { (char *) "interpreter", initinterpreter },
+    { (char *) "emccanon", initemccanon },
+    // any others...
+    { NULL, NULL }
+};
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
@@ -394,12 +405,17 @@ void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
 void ORIENT_SPINDLE(double d, int i) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
-void SELECT_POCKET(int tool) {}
+void SELECT_POCKET(int pocket, int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
+void START_CHANGE() {}
+int  GET_EXTERNAL_TC_FAULT() {return 0;}
+int  GET_EXTERNAL_TC_REASON() {return 0;}
+
 
 extern bool GET_BLOCK_DELETE(void) { 
     int bd = 0;
@@ -414,6 +430,16 @@ extern bool GET_BLOCK_DELETE(void) {
     Py_XDECREF(result);
     return bd;
 }
+
+void CANON_ERROR(const char *fmt, ...) {};
+void CLAMP_AXIS(CANON_AXIS axis) {}
+bool GET_OPTIONAL_PROGRAM_STOP() { return false;}
+void SET_OPTIONAL_PROGRAM_STOP(bool state) {}
+void SPINDLE_RETRACT_TRAVERSE() {}
+void SPINDLE_RETRACT() {}
+void STOP_CUTTER_RADIUS_COMPENSATION() {}
+void USE_NO_SPINDLE_FORCE() {}
+void SET_BLOCK_DELETE(bool enabled) {}
 
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
@@ -435,6 +461,9 @@ void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
+void INTERP_ABORT(int reason,const char *message) {}
+void PLUGIN_CALL(int len, const char *call) {}
+void IO_PLUGIN_CALL(int len, const char *call) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
@@ -748,7 +777,7 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
                     &unused,
                     &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
                     &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
-                    &unused, &xt, &yt, &zt);
+                    &xt, &yt, &zt);
             else
                 r = PyArg_ParseTuple(sj,
                     "O(dddOOOOOO)(dddOOOOOO)O(ddd):calc_extents item",
@@ -903,10 +932,14 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
 
     if(rot < 0) {
-        while(theta2 - theta1 > -1e-12) theta2 -= 2*M_PI;
+        while(theta2 - theta1 > -CIRCLE_FUZZ) theta2 -= 2*M_PI;
     } else {
-        while(theta2 - theta1 < 1e-12) theta2 += 2*M_PI;
+        while(theta2 - theta1 < CIRCLE_FUZZ) theta2 += 2*M_PI;
     }
+
+    // if multi-turn, add the right number of full circles
+    if(rot < -1) theta2 += 2*M_PI*(rot+1);
+    if(rot > 1) theta2 += 2*M_PI*(rot-1);
 
     int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
     double rsteps = 1. / steps;

@@ -18,8 +18,10 @@
     ones.  It is a realtime component.
 
     It supports up to eight counters, with optional index pulses.
-    The number of counters is set by the module parameter 'num_chan'
-    when the component is insmod'ed.
+    The number of counters is set by the module parameter 'num_chan='
+    when the component is insmod'ed.  Alternatively, use the
+    names= specifier and a list of unique names separated by commas.
+    The names= and num_chan= specifiers are mutually exclusive.
 
     The driver exports variables for each counters inputs and output.
     It also exports two functions.  "encoder.update-counters" must be
@@ -59,14 +61,22 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_string.h"
 #include "hal.h"		/* HAL public API decls */
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Encoder Counter for EMC HAL");
 MODULE_LICENSE("GPL");
-static int num_chan = 3;	/* number of channels - default = 3 */
-RTAPI_MP_INT(num_chan, "number of channels");
+
+static int num_chan;
+static int default_num_chan=3;
+static int howmany;
+RTAPI_MP_INT(num_chan, "number of encoder channels");
+
+#define MAX_CHAN 8
+char *names[MAX_CHAN] = {0,};
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of encoder");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -171,7 +181,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr);
+static int export_encoder(counter_t * addr,char * prefix);
 static void update(void *arg, long period);
 static void capture(void *arg, long period);
 
@@ -179,17 +189,28 @@ static void capture(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 8
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval, i;
     counter_t *cntr;
 
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
+
     /* test for number of channels */
-    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER: ERROR: invalid num_chan: %d\n", num_chan);
+	    "ENCODER: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -199,7 +220,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for counter data */
-    counter_array = hal_malloc(num_chan * sizeof(counter_t));
+    counter_array = hal_malloc(howmany * sizeof(counter_t));
     if (counter_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER: ERROR: hal_malloc() failed\n");
@@ -209,11 +230,18 @@ int rtapi_app_main(void)
     /* init master timestamp counter */
     timebase = 0;
     /* export all the variables for each counter */
-    for (n = 0; n < num_chan; n++) {
+    i = 0; // for names= items
+    for (n = 0; n < howmany; n++) {
 	/* point to struct */
 	cntr = &(counter_array[n]);
 	/* export all vars */
-	retval = export_counter(n, cntr);
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            rtapi_snprintf(buf, sizeof(buf), "encoder.%d", n);
+	    retval = export_encoder(cntr,buf);
+        } else {
+	    retval = export_encoder(cntr,names[i++]);
+        }
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"ENCODER: ERROR: counter %d var export failed\n", n);
@@ -266,7 +294,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"ENCODER: installed %d encoder counters\n", num_chan);
+	"ENCODER: installed %d encoder counters\n", howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -289,7 +317,7 @@ static void update(void *arg, long period)
     int latch, old_latch, rising, falling;
 
     cntr = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	buf = (atomic *) cntr->bp;
 	/* get state machine current state */
 	state = cntr->state;
@@ -367,7 +395,7 @@ static void capture(void *arg, long period)
     double vel, interp;
 
     cntr = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	/* point to active buffer */
 	buf = (atomic *) cntr->bp;
 	/* tell update() to use the other buffer */
@@ -484,7 +512,7 @@ static void capture(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr)
+static int export_encoder(counter_t * addr,char * prefix)
 {
     int retval, msg;
 
@@ -497,113 +525,113 @@ static int export_counter(int num, counter_t * addr)
 
     /* export pins for the quadrature inputs */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseA), comp_id,
-            "encoder.%d.phase-A", num);
+            "%s.phase-A", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseB), comp_id,
-            "encoder.%d.phase-B", num);
+            "%s.phase-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index input */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseZ), comp_id,
-            "encoder.%d.phase-Z", num);
+            "%s.phase-Z", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index enable input */
     retval = hal_pin_bit_newf(HAL_IO, &(addr->index_ena), comp_id,
-            "encoder.%d.index-enable", num);
+            "%s.index-enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the reset input */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id,
-            "encoder.%d.reset", num);
+            "%s.reset", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for position latching */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_in), comp_id,
-            "encoder.%d.latch-input", num);
+            "%s.latch-input", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_rising), comp_id,
-            "encoder.%d.latch-rising", num);
+            "%s.latch-rising", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_falling), comp_id,
-            "encoder.%d.latch-falling", num);
+            "%s.latch-falling", prefix);
     if (retval != 0) {
 	return retval;
     }
 
     /* export parameter for raw counts */
     retval = hal_pin_s32_newf(HAL_OUT, &(addr->raw_counts), comp_id,
-            "encoder.%d.rawcounts", num);
+            "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts captured by capture() */
     retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
-            "encoder.%d.counts", num);
+            "%s.counts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts latched by capture() */
     retval = hal_pin_s32_newf(HAL_OUT, &(addr->count_latch), comp_id,
-            "encoder.%d.counts-latched", num);
+            "%s.counts-latched", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for minimum speed estimated by capture() */
     retval = hal_pin_float_newf(HAL_IN, &(addr->min_speed), comp_id,
-            "encoder.%d.min-speed-estimate", num);
+            "%s.min-speed-estimate", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by capture() */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
-            "encoder.%d.position", num);
+            "%s.position", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled and interpolated position captured by capture() */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_interp), comp_id,
-            "encoder.%d.position-interpolated", num);
+            "%s.position-interpolated", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for latched position captured by capture() */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_latch), comp_id,
-            "encoder.%d.position-latched", num);
+            "%s.position-latched", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled velocity captured by capture() */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->vel), comp_id,
-            "encoder.%d.velocity", num);
+            "%s.velocity", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaling */
     retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id,
-            "encoder.%d.position-scale", num);
+            "%s.position-scale", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for x4 mode */
     retval = hal_pin_bit_newf(HAL_IO, &(addr->x4_mode), comp_id,
-            "encoder.%d.x4-mode", num);
+            "%s.x4-mode", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counter mode */
     retval = hal_pin_bit_newf(HAL_IO, &(addr->counter_mode), comp_id,
-            "encoder.%d.counter-mode", num);
+            "%s.counter-mode", prefix);
     if (retval != 0) {
 	return retval;
     }

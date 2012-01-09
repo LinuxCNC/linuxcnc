@@ -1,0 +1,62 @@
+
+; return a value via endsub
+o<function1> sub
+o<function1> endsub [4711]
+
+; return a value via return
+o<function2> sub
+o100 return [4712]
+o<function2> endsub
+
+; a procedure without return value
+o<proc> sub
+o<proc> endsub
+
+;py,from interpreter import *
+
+;;;py,print this.return_value
+;;;py,print this.value_returned
+
+;py,assert equal(this.return_value,0.0)
+;py,assert this.value_returned == 0
+
+o<function1> call
+; make sure they are properly set
+;py,assert equal(this.return_value,4711.0)
+;py,assert this.value_returned == 1
+
+o<proc> call
+; make sure they are cleared
+;py,assert equal(this.return_value,0.0)
+;py,assert this.value_returned == 0
+
+o<function2> call
+; make sure they are properly set again
+;py,assert equal(this.return_value,4712.0)
+;py,assert this.value_returned == 1
+
+o<proc> call
+; make sure they are cleared again
+;py,assert equal(this.return_value,0.0)
+;py,assert this.value_returned == 0
+
+; now the same for Python oword subs
+o<returns4711> call
+;py,assert equal(this.return_value,4711.0)
+;py,assert this.value_returned == 1
+
+o<nonereturned> call
+; make sure they are cleared again
+;;py,assert equal(this.return_value,0.0)
+;;py,assert this.value_returned == 0
+
+o<returns4711> call
+;py,assert equal(this.return_value,4711.0)
+;py,assert this.value_returned == 1
+
+o<endswithpass> call
+; make sure they are cleared again
+;py,assert equal(this.return_value,0.0)
+;py,assert this.value_returned == 0
+
+m2

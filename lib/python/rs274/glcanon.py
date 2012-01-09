@@ -205,11 +205,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             emc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
+        glEnd()
         for line in self.dwells:
             if line[0] != lineno: continue
             self.draw_dwells([(line[0], c) + line[2:]], 2, 0)
             coords.append(line[2:5])
-        glEnd()
         glLineWidth(1)
         if coords:
             x = reduce(lambda x,y:x+y, [c[0] for c in coords]) / len(coords)
@@ -1050,6 +1050,7 @@ class GlCanonDraw:
                 axisdtg = self.from_internal_units(axisdtg, 1)
                 g5x_offset = self.from_internal_units(g5x_offset, 1)
                 g92_offset = self.from_internal_units(g92_offset, 1)
+                tlo_offset = self.from_internal_units(tlo_offset, 1)
                 format = "% 6s:% 9.3f"
                 droformat = " " + format + "  DTG %1s:% 9.3f"
                 offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"

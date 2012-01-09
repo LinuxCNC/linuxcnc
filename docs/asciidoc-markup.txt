@@ -1,0 +1,99 @@
+This document is a guide for using asciidoc markup
+
+
+Master Document file Headers, first line replace en with two letter language code
+---------------------------------------------------------------------------------
+
+Getting Started V2.5, {localdate}
+=================================
+:lang: en
+:masterdir: {indir}
+:leveloffset: 1
+The EMC Team
+
+The parameters are interpreted well before the load files lang-xx.conf and the other files .conf
+It is particularly important for the parameters as :lang:
+
+The typical authorized attributes : doctype, lang, encoding, icons, data-uri, toc, numbered
+
+More information here
+http://www.methods.co.nz/asciidoc/userguide.html#_introduction
+8.2 Header
+
+Titles
+------
+= Document Title (level 0) =  Note: level 0 can only be once per file!
+== Section title (level 1) ==  Note: trailing delimiter is optional.
+=== Section title (level 2) ===
+
+Links
+-----
+[[anchor]]
+<<anchor,caption>>
+
+Example
+[[sub:torpodeos]]
+
+<<sub:torpodeos,bombs>>
+
+only bombs will show in the text with an underline so always provide a caption for a link
+
+AsciiDoc Formatting
+--------------------
+Listing Block for G Code and terminal output
+---- < 4 dashes start of block
+lines of code
+...
+more code
+---- < 4 dashes end of block
+     < 1 blank line after
+
+Literal blocks
+.... < 4 periods start the block
+literal block
+will show up
+just as you type it.
+.... < 4 periods end the block
+     < 1 blank line after
+
+Lists
+* bullet
+** bullet
+
+. numbered
+.. numbered
+
+List Item Continuation
+* List item paragaph one
+  continued with a single plus hard left.
++
+List item one continued 
+   with a second paragraph
+   and first line of second paragraph must be hard left.
+     
+Images
+
+put all images in the images subdirectory
+
+image::<target>[<attributes>]
+
+example
+image::images/axis.png[]
+image::images/tiger.png["Tiger image",align="center"]
+
+If the image is small and displays too big in the pdf you can
+use the scaledwidth="60%" attribute
+
+Escaping a character.
+Normally characters like ' and * would not print unless you use \' or \* then
+they will print as normal characters.
+
+Making a horizontal labeled list.
+[horizontal]
+Label:: The text about the label
+
+Latexmath is broken at the moment and trashes the HTML. A work around is to use open office math
+to create the math image and gimp to screen capture and save to a png.
+
+check asciidoc cheatsheet http://powerman.name/doc/asciidoc or user manual
+http://www.methods.co.nz/asciidoc/userguide.html for details about format.

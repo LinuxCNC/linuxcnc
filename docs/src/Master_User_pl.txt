@@ -1,0 +1,73 @@
+User Manuelle V0.1, {localdate}
+=============================
+The EMC Team
+
+//:lang: pl
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/userforeword_pl.txt[]
+
+include::common/user_intro_pl.txt[]
+
+include::common/User_Concepts_pl.txt[]
+
+:leveloffset: 0
+= User Interfaces
+:leveloffset: 1
+
+include::gui/axis_pl.txt[]
+
+include::gui/ngcgui_pl.txt[]
+
+include::gui/touchy_pl.txt[]
+
+include::gui/tkemc_pl.txt[]
+
+include::gui/mini_pl.txt[]
+
+include::gui/keystick_pl.txt[]
+
+:leveloffset: 0
+= Using EMC
+:leveloffset: 1
+
+include::gcode/machining_center_pl.txt[]
+
+include::gcode/coordinates_pl.txt[]
+
+include::gcode/tool_compensation_pl.txt[]
+
+include::gcode/overview_pl.txt[]
+
+include::gcode/gcode_pl.txt[]
+
+include::gcode/m-code_pl.txt[]
+
+include::gcode/o-code_pl.txt[]
+
+include::gcode/other-code_pl.txt[]
+
+include::examples/gcode_pl.txt[]
+
+include::lathe/lathe-user_pl.txt[]
+
+include::gcode/rs274ngc_pl.txt[]
+
+include::gui/image-to-gcode_pl.txt[]
+
+include::common/Glossary_pl.txt[]
+
+include::common/GPLD_Copyright_pl.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

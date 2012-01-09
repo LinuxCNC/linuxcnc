@@ -1,0 +1,253 @@
+= Halshow
+
+[[cha:halshow]] (((Halshow)))
+
+The script halshow can help you find your way around a running HAL.
+This is a very specialized system and it must connect to a working HAL.
+It cannot run standalone because it relies on the ability of HAL to
+report what it knows of itself through the halcmd interface library. It
+is discovery based. Each time halshow runs with a different EMC
+configuration it will be different.
+
+As we will soon see, this ability of HAL to document itself is one key
+to making an effective CNC system.
+
+== Starting Halshow
+
+Halshow is in the AXIS menu under Machine/Show HAL Configuration.
+
+Halshow is in the TkEMC menu under Scripts/HAL Show.
+
+== HAL Tree Area
+
+At the left of its display as shown in figure  <<cap:Halshow-Layout>>
+is a tree view, somewhat like you might see with some file browsers. At
+the right is a tabbed notebook with tabs for show and watch.
+
+.Halshow Layout[[cap:Halshow-Layout]]
+
+image::images/halshow-1.png[align="center"]
+
+The tree shows all of the major parts of a HAL. In front of each is a
+small plus (+) or minus (-) sign in a box. Clicking the plus will
+expand that tree node to display what is under it. If that box shows a
+minus sign, clicking it will collapse that section of the tree.
+
+You can also expand or collapse the tree display using the Tree View
+menu at the upper left edge of the display. Under Tree View you will
+find: Expand Tree, Collapse Tree; Expand Pins, Expand Parameters,
+Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
+previously set watches, you cannot erase just one watch.)
+
+.Show Menu[[cap:Show-Menu]]
+
+image::images/halshow-3.png[align="center"]
+
+== HAL Show Area
+
+Clicking on the node name, the word "Components" for example, will
+show you (under the "Show" tab) all that HAL knows about the contents
+of that node. Figure  <<cap:Halshow-Layout>> shows a list exactly like
+you will see if you click the "Components" name while you are running a
+standard m5i20 servo card. The information display is exactly like
+those shown in traditional text based HAL analysis tools. The advantage
+here is that we have mouse click access, access that can be as broad or
+as focused as you need.
+
+If we take a closer look at the tree display we can see that the six
+major parts of a HAL can all be expanded at least one level. As these
+levels are expanded you can get more focused with the reply when you
+click on the rightmost tree node. You will find that there are some HAL
+pins and parameters that show more than one reply. This is due to the
+nature of the search routines in halcmd itself. If you search one pin
+you may get two, like this:
+
+----
+Component Pins: 
+Owner  Type  Dir  Value  Name 
+06     bit    -W   TRUE  parport.0.pin-10-in 
+06     bit    -W  FALSE  parport.0.pin-10-in-not 
+----
+
+The second pin's name contains the complete name of the first.
+
+Below the show area on the right is a set of widgets that will allow
+you to play with the running HAL. The commands you enter here and the
+effect that they have on the running HAL are not saved. They will
+persist as long as EMC remains up but are gone as soon as EMC is.
+
+The entry box labeled "Test HAL Command:" will accept any of the
+commands listed for halcmd. These include:
+
+ - loadrt, unloadrt (load/unload real-time module)
+ - loadusr, unloadusr (load/unload user-space component)
+ - addf, delf (add/delete a function to/from a real-time thread)
+ - net (create a connection between two or more items)
+ - setp (set parameter (or pin) to a value)
+
+This little editor will enter a command any time you press <enter> or
+push the execute button. An error message from halcmd will show below
+this entry widget when these commands are not properly formed. If you
+are not certain how to set up a proper command you'll need to read
+again the documentation on halcmd and the specific modules that you are
+working with.
+
+Let's use this editor to add a differential module to a HAL and
+connect it to axis position so that we could see the rate of change in
+position, i.e., acceleration. We first need to load a HAL module named
+blocks, add it to the servo thread, then connect it to the position pin
+of an axis. Once that is done we can find the output of the
+differentiator in halscope. So let's go. (Yes, I looked this one up.)
+
+----
+loadrt blocks ddt=1
+----
+
+Now look at the components node and you should see blocks in there
+someplace.
+
+----
+Loaded HAL Components: 
+ID Type        Name 
+10 User halcmd29800 
+09 User halcmd29374 
+08   RT      blocks 
+06   RT hal_parport 
+05   RT    scope_rt 
+04   RT     stepgen 
+03   RT      motmod 
+02 User   iocontrol 
+----
+
+Sure enough there it is. Notice that its ID is 08. Next we need to
+find out what functions are available with it so we look at functions:
+
+----
+Exported Functions: 
+Owner  CodeAddr      Arg  FP Users Name 
+  08   E0B97630 E0DC7674 YES     0 ddt.0 
+  03   E0DEF83C 00000000 YES     1 motion-command-handler 
+  03   E0DF0BF3 00000000 YES     1 motion-controller 
+  06   E0B541FE E0DC75B8  NO     1 parport.0.read 
+  06   E0B54270 E0DC75B8  NO     1 parport.0.write 
+  06   E0B54309 E0DC75B8  NO     0 parport.read-all 
+  06   E0B5433A E0DC75B8  NO     0 parport.write-all 
+  05   E0AD712D 00000000  NO     0 scope.sample 
+  04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
+  04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
+  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
+----
+
+Here we look for owner #08 and see that blocks has exported a function
+named ddt.0. We should be able to add ddt.0 to the servo thread and it
+will do its math each time the servo thread is updated. Once again we
+look up the addf command and find that it uses three arguments like
+this:
+
+----
+addf <functname> <threadname> [<position>]
+----
+
+We already know the functname=ddt.0 so let's get the thread name right
+by expanding the thread node in the tree. Here we see two threads,
+servo-thread and base-thread. The position of ddt.0 in the thread is
+not critical. So we add the function ddt.0 to the servo-thread:
+
+----
+addf ddt.0 servo-thread
+----
+
+This is just for viewing, so we leave position blank and get the last
+position in the thread. Figure  <<cap:Addf-Command>> shows the state of
+halshow after this command has been issued.
+
+.Addf Command[[cap:Addf-Command]]
+
+image::images/halshow-2.png[align="center"]
+
+Next we need to connect this block to something. But how do we know
+what pins are available? The answer is to look under pins. There we
+find ddt and see this:
+
+----
+Component Pins: 
+Owner Type  Dir Value       Name 
+08    float R-  0.00000e+00 ddt.0.in 
+08    float -W  0.00000e+00 ddt.0.out 
+----
+
+That looks easy enough to understand, but what signal or pin do we
+want to connect to it? It could be an axis pin, a stepgen pin, or a
+signal. We see this when we look at axis.0:
+
+----
+Component Pins: 
+Owner Type  Dir Value       Name 
+03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd 
+----
+
+So it looks like Xpos-cmd should be a good signal to use. Back to the
+editor where we enter the following command:
+
+----
+linksp Xpos-cmd ddt.0.in
+----
+
+Now if we look at the Xpos-cmd signal using the tree node we'll see
+what we've done:
+
+----
+Signals: 
+Type Value Name 
+float 0.00000e+00 Xpos-cmd 
+<== axis.0.motor-pos-cmd 
+==> ddt.0.in 
+==> stepgen.0.position-cmd 
+----
+
+We see that this signal comes from axis.o.motor-pos-cmd and goes to
+both ddt.0.in and stepgen.0.position-cmd. By connecting our block to
+the signal we have avoided any complications with the normal flow of
+this motion command.
+
+The HAL Show Area uses halcmd to discover what is happening in a
+running HAL. It gives you complete information about what it has
+discovered. It also updates as you issue commands from the little
+editor panel to modify that HAL. There are times when you want a
+different set of things displayed without all of the information
+available in this area. That is where the HAL Watch Area is of value.
+
+== HAL Watch Area
+
+Clicking the watch tab produces a blank canvas. You can add signals
+and pins to this canvas and watch their values.footnote:[The refresh
+rate of the watch display is much lower than Halmeter or
+Halscope. If you need good resolution of the timing of signals those
+tools are much more effective.] 
+You can add signals or pins when the watch tab is displayed by
+clicking on the name of it. Figure  <<cap:Watch-Display>> shows this
+canvas with several "bit" type signals. These signals include
+enable-out for the first three axes and two of the three iocontrol
+"estop" signals. Notice that the axes are not enabled even though the
+estop signals say that EMC is not in estop. A quick look at TkEMC shows
+that the condition of EMC is ESTOP RESET. The amp enables do not turn
+true until the machine has been turned on.
+
+.[[cap:Watch-Display]]Watch Display
+
+image::images/halshow-4.png[align="center"]
+
+Watch displays bit type (binary) values using colored circles
+representing LEDs. They show as dark brown when a bit signal or pin is
+false, and as light yellow whenever that signal is true. If you select
+a pin or signal that is not a bit type (binary) signal, watch will show
+it as a numerical value.
+
+Watch will quickly allow you to test switches or see the effect of
+changes that you make to EMC while using the graphical interface.
+Watch's refresh rate is a bit slow to see stepper pulses, but you can
+use it for these if you move an axis very slowly or in very small
+increments of distance. If you've used IO_Show in EMC, the watch page
+in halshow can be set up to watch a parport much as IO_Show did.
+
+

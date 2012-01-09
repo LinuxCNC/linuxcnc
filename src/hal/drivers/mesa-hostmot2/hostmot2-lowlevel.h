@@ -94,9 +94,13 @@ struct hm2_lowlevel_io_struct {
     // by the hm2 watchdog (if present) when it detects a watchdog bite
     int needs_reset;
 
-    // the names of the io port connectors on this board
+    // the pin-count and names of the io port connectors on this board
     int num_ioport_connectors;
+    int pins_per_connector;
     const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];
+    
+    // llio enumeration is the easiest place to count the leds
+    int num_leds;
 
     // the part number of the FPGA on this board
     // optional, enhances firmware sanity checking if present

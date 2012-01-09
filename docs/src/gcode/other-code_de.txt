@@ -1,0 +1,157 @@
+= Other Codes
+
+[[cha:other-codes]] (((Other Codes)))
+
+== F: Set Feed Rate[[sec:F-feed-rate]]
+(((F: Set Feed Rate)))
+
+* 'F-' - sets the feed rate. The application of the feed rate is as described in the
+<<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
+in which case the feed rate is as described in 
+the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
+
+== S: Set Spindle Speed[[sec:S-spindle-speed]]
+(((S: Set Spindle Speed)))
+
+* 'S-' - set the speed in revolutions per minute (RPM) of the spindle.
+The spindle will turn at that speed when a 'M3' or 'M4' is in effect.
+It is OK to program an S word whether the spindle is turning or not.
+If the speed override switch is enabled and not set at 100%, 
+the speed will be different from what is programmed. 
+It is OK to program S0, the spindle will not turn if that is done.
+
+It is an error if:
+
+* the S number is negative.
+
+As described in the <<sec:G84-Right-Hand-Tapping,G84>> Section, if a 'G84'
+(tapping) canned cycle is active and the feed and speed override
+switches are enabled, the one set at the lower setting will take
+effect. The speed and feed rates will still be synchronized. In this
+case, the speed may differ from what is programmed, even if the speed
+override switch is set at 100%.
+
+== T: Select Tool[[sec:T-Select-Tool]]
+(((T: Select Tool)))
+
+* 'T-' - call tool prepare. The tool is 
+not changed until an 'M6' is programmed (see Section 
+<<sec:M6-Tool-Change,M6>>). The T word may 
+appear on the same line as the 'M6' or on a previous line. It is OK
+if T words appear on two or more lines with no tool change. Only the
+the most recent T word will take effect at the next
+tool change. It is OK to program 'T0'; no tool will be selected. This
+is useful if you want the spindle to be empty after a tool change.
+
+It is an error if:
+
+* a negative T number is used, 
+* or a T number larger than the number of slots in the carousel is used.
+
+On some machines, the carousel will move when a T word is programmed,
+at the same time machining is occurring. On such machines, programming
+the T word several lines before a tool change will save time. A common
+programming practice for such machines is to put the T word for the
+next tool to be used on the line after a tool change. This maximizes
+the time available for the carousel to move.
+
+Rapid moves after a 'T<n>' will not show on the AXIS preview until after
+a feed move. This is for machines that travel long distances to change
+the tool like a lathe. This can be very confusing at first. To turn
+this feature off for the current tool program a G1 without any
+move after the 'T<n>'.
+
+== Comments[[sec:comments]]
+
+(((Comments)))
+
+Printable characters and white space inside parentheses is a comment.
+A left parenthesis always starts a comment. The comment ends at the
+first right parenthesis found thereafter. Once a left parenthesis is
+placed on a line, a matching right parenthesis must appear before the
+end of the line. Comments may not be nested; it is an error if a left
+parenthesis is found after the start of a comment and before the end of
+the comment. A semi-colon is treated as the start of a comment and the
+remainder of the line is part of the comment. A semi-colon enclosed in
+parentheses is not treated as the start of a comment.
+
+.Line Comment Example
+----
+G80 M5 (stop motion)
+; the semi-colon starts a comment line
+----
+
+Comments are only informative, they do not cause a machine to do anything.
+
+== Messages[[sec:Messages]]
+(((Messages)))
+
+* '(MSG,)' - displays message if 'MSG' appears after the left
+             parenthesis and before any other printing characters.
+             Variants of 'MSG' which include white space and lower case
+             characters are allowed. The rest of the characters before
+             the right parenthesis are considered to be a message.
+             Messages should be displayed on the message display device
+             of the user interface if provided.
+
+.Message Example
+----
+(MSG, This is a message)
+----
+
+== Probe Logging[[sec:Probe-Logging]]
+(((Probe Logging)))
+
+* '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
+                               coordinate consisting of XYZABCUVW of each
+                               successful straight probe in it.
+* '(PROBECLOSE)' - will close the open probelog file.
+
+For more information on probing see the <<G38-probe,G38>> Section.
+
+== General Logging[[sec:General-logging]]
+(((General Logging)))
+
+* '(LOGOPEN,filename.txt)' - opens the named log file. If the file
+                             already exists, it is truncated.
+
+* '(LOGAPPEND,filename)' - opens the named log file. If the file already
+                           exists, the data is appended.
+
+* '(LOGCLOSE)' - closes an open log file.
+
+* '(LOG,)' - everything past the ',' is written to the log file if it is open.
+             Supports expansion of parameters as described below.
+
+== Debugging Messages[[sec:Debugging-messages]]
+(((Debugging Messages)))
+
+* '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
+              special handling for parameters as described below.
+
+== Print Messages[[sec:print-messages]]
+(((Print Messages)))
+
+* '(PRINT,)' - messages are output to 'stderr' with special handling
+               for parameters as described below.
+
+== Comment Parameters
+
+In the DEBUG, PRINT and LOG comments, the values of parameters in the
+message are expanded.
+
+For example: to print a named global variable to stderr (the default
+console window) add a line to your gcode like...
+
+.Parameters Example
+----
+(print,endmill dia = #<_endmill_dia>)
+----
+
+Inside the above types of comments, sequences like '#123' are replaced
+by the value of the parameter 123. Sequences like '#<named parameter>'
+are replaced by the value of the named parameter. Remember that named
+ parameters will have white space removed from them.
+So, '#<named parameter>' is the same as '#<namedparameter>'.
+
+// vim: set syntax=asciidoc:

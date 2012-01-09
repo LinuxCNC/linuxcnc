@@ -1,6 +1,5 @@
-# HAL config file for Pico Systems UPC board
+# HAL config file for Pico Systems UPC board using Velocity Estimation
 #
-# NOTE: this is a copy of the stepper board file, it will be edited soon for PWM - do not use yet
 
 # set the PWM frequency to suit Pico's PWM amps (50KHz)
 # users with other amps may need to change this
@@ -23,6 +22,7 @@ setp ppmc.0.encoder.01.min-speed-estimate 0.001
 setp ppmc.0.encoder.02.min-speed-estimate 0.001
 setp ppmc.0.encoder.03.min-speed-estimate 0.001
 
+# Here's the part that connects the encoder velocity to the PID
 net Xfbderiv ppmc.0.encoder.00.velocity pid.0.feedback-deriv
 net Yfbderiv ppmc.0.encoder.01.velocity pid.1.feedback-deriv
 net Zfbderiv ppmc.0.encoder.02.velocity pid.2.feedback-deriv

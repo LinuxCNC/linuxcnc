@@ -20,6 +20,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
 datadir = os.path.join(BASE, "share", "emc")
 sys.path.insert(0, libdir)
+themedir = "/usr/share/themes"
 try:
         import pygtk
   	pygtk.require("2.0")
@@ -113,8 +114,35 @@ class touchy:
                 self.dro_font_name = self.prefs.getpref('dro_font', 'Courier 10 Pitch Bold 16', str)
                 self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
+                self.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
+                self.abs_textcolor = self.prefs.getpref('abs_textcolor', 'default', str)
+                self.rel_textcolor = self.prefs.getpref('rel_textcolor', 'default', str)
+                self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
+                self.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
+                self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
+                self.window_max = self.prefs.getpref('window_force_max', 'False', bool)
 
                 # initial screen setup
+                if os.path.exists(themedir):
+                    model = self.wTree.get_widget("theme_choice").get_model()
+                    model.clear()
+                    model.append(("Follow System Theme",))
+                    temp = 0
+                    names = os.listdir(themedir)
+                    names.sort()
+                    for search,dirs in enumerate(names):
+                        model.append((dirs,))
+                        if dirs  == self.theme_name:
+                            temp = search+1
+                    self.wTree.get_widget("theme_choice").set_active(temp)
+
+                if self.window_geometry == "default":
+		            self.wTree.get_widget("MainWindow").window.maximize()
+                else:
+                    self.wTree.get_widget("MainWindow").parse_geometry(self.window_geometry)
+                    if self.window_max:
+                        self.wTree.get_widget("MainWindow").window.maximize()
+
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
                         self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
@@ -131,6 +159,11 @@ class touchy:
 
                 self.wTree.get_widget("listingfontbutton").set_font_name(self.listing_font_name)
                 self.listing_font = pango.FontDescription(self.listing_font_name)
+
+                settings = gtk.settings_get_default()
+                self.system_theme = settings.get_property("gtk-theme-name")
+                if not self.theme_name == "Follow System Theme":
+                    settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
                 # interactive mdi command builder and issuer
                 mdi_labels = []
@@ -331,6 +364,7 @@ class touchy:
                         "on_spindle_faster_clicked" : self.emc.spindle_faster,
                         "on_toolset_fixture_clicked" : self.toolset_fixture,
                         "on_toolset_workpiece_clicked" : self.toolset_workpiece,
+                        "on_changetheme_clicked" : self.change_theme,
                         }
                 self.wTree.signal_autoconnect(dic)
 
@@ -519,6 +553,14 @@ class touchy:
                 self.listing_font = pango.FontDescription(self.listing_font_name)
                 self.setfont()
 
+        def change_theme(self,b):
+            theme = self.wTree.get_widget("theme_choice").get_active_text()
+            self.prefs.putpref('gtk_theme', theme, str)
+            if theme == "Follow System Theme":
+                theme = self.system_theme
+            settings = gtk.settings_get_default()
+            settings.set_string_property("gtk-theme-name", theme, "")
+
         def setfont(self):
                 # buttons
                 for i in ["1", "2", "3", "4", "5", "6", "7",
@@ -537,7 +579,7 @@ class touchy:
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                           "reload_tooltable", "opstop_on", "opstop_off",
                           "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show",
-                          "toolset_workpiece", "toolset_fixture"]:
+                          "toolset_workpiece", "toolset_fixture","change_theme"]:
                         w = self.wTree.get_widget(i)
                         if w:
                                 w = w.child
@@ -568,14 +610,21 @@ class touchy:
                           'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_widget(i)
-                        if w: w.modify_font(self.dro_font)
+                        if w:
+                            w.modify_font(self.dro_font)
+                            if "r" in i and not self.rel_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.rel_textcolor))
+                            elif "a" in i and not self.abs_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.abs_textcolor))
+                            elif "d" in i and not self.dtg_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.dtg_textcolor))
 
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
-
-		self.wTree.get_widget("MainWindow").window.maximize()
+                        if not self.err_textcolor == "default":
+                            w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.err_textcolor))
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
@@ -733,6 +782,11 @@ class touchy:
         def save_maxvel_pref(self):
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
+	def postgui(self):
+		inifile=self.emc.emc.ini(sys.argv[2])
+		postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+		return postgui_halfile,sys.argv[2]
+
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
             print "ini", sys.argv[2]
@@ -741,4 +795,10 @@ if __name__ == "__main__":
             hwg = touchy()
 	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
 	if res: raise SystemExit, res
+	# load a postgui file if one is present in the INI file
+	postgui_halfile,inifile = touchy.postgui(hwg)
+	print "TOUCHY postgui filename:",postgui_halfile
+	if postgui_halfile:
+		res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+		if res: raise SystemExit, res
 	gtk.main()

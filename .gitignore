@@ -12,6 +12,12 @@ lib
 *.mod.c
 *.cmd
 .tmp*
+# Ignore generated html files, 
+*.html
+# Except Gcode quick-ref cards (en,de,sp,fr) which are maintained by hand
+!docs/html/gcode*.html
+# Ignore all LyX files, we're done with them now. 
+*.lyx
 debian/*.debhelper.log
 debian/emc2-dev.files
 rtlib/Module.symvers
@@ -19,3 +25,7 @@ share/*/*.desktop
 share/menus/CNC.menu
 share/desktop-directories/cnc.directory
 src/modules.order
+docs/html/drivers
+/configs/*/emc.nml
+!/configs/common/emc.nml
+/docs/src/source-highlight/local

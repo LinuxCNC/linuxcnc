@@ -1,0 +1,873 @@
+:lang: fr
+:toc:
+
+= Les compensations d'outil
+
+== Compensation de longueur d'outil
+
+=== Toucher
+(((Toucher)))
+
+A partir de la boîte de dialogue du bouton *Toucher* dans l'interface AXIS, il est
+possible de mettre à jour automatiquement la table d'outils.
+
+Séquence typique de mise à jour de la table d'outils:
+
+ . Après la prise d'origine, charger un outil *M6 Tn* dans lequel *n* est le
+   numéro de l'outil. 
+ . Déplacer l'outil pour établir le zéro pièce, en utilisant une cale d'épaisseur 
+   ou en faisant un test de coupe et une mesure.
+ . Sélectionner *Table d'outils* dans la liste déroulante des systèmes de coordonnées.
+ . Entrer l'épaisseur de la cale ou la cote mesurée.
+ . Presser OK.
+
+La table d'outil sera alors modifiée avec la longueur correcte en Z de l'outil.
+La visu affichera la position en Z correcte et une commande G43 sera passée pour
+que la nouvelle longueur Z de l'outil soit effective. Le choix *Table d'outils*
+n'apparaitra dans la liste déroulante du *Toucher*, que si l'outil à été chargé 
+avec *M6 tn*.
+
+.Toucher et table d'outils[[cap:Touch-Off-Tool]]
+
+image::images/ToolTable-TouchOff.png[]
+
+=== Utilisation de G10 L1
+
+La commande G10 L1x peut être utilisée pour ajuster les compensations dans la 
+table d'outils:
+  (Ce sera juste une brève présentation, se reporter au guide de références du G-code
+pour des explications plus détaillées)
+
+G10 L1  Pn  - (n est le N° d'outil) Fixe les offsets de l'outil. La position 
+courante n'est pas significative. Voir ce lien <<sec:G10-L1, pour plus de 
+détails>> (((G10 L1)))
+
+G10 L10 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met 
+les valeurs dans un système de 1 à 8. Voir ce lien <<sec:G10-L10, pour plus de 
+détails>>(((G10 L10)))
+
+G10 L11 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met 
+les valeurs dans le système 9. Voir ce lien <<sec:G10-L11, pour plus de 
+détails>>(((G10 L11)))
+
+[[sec:Table-Outils]]
+== Table d'outils 
+
+La *table d'outils* est un fichier texte qui contient les informations de chaque
+outil. Ce fichier est placé dans le même répertoire que le fichier de configuration. 
+Il est nommé *tool.tbl*. Les outils peuvent être dans un changeur d'outils ou changés 
+manuellement. Le fichier peut être édité avec un éditeur de texte ou être mis à 
+jour avec la commande G10 L1. Voir la section spécifique au tour pour ce qui 
+concerne les outils de tour, avec un exemple de table. Le nombre d'outils est 
+limité à 56 dans une table d'outils même si la numérotation des outils et des 
+poches peut aller jusqu'à 99999.
+
+[[sec:Tool-Table-Format]]
+=== Format de la table d'outils
+
+(((Format de la table d'outils)))
+
+.Format de la table d'outils
+
+[width="100%", options="header"]
+|========================================
+|T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|; 15+^|(aucune donnée après le point-virgule)
+|T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|========================================
+
+En général, le format d'une ligne de table d'outils est le suivant:
+
+ - ;  point-virgule comme premier caractère, aucune données
+ - T  Numéro d'outil, 0-99999 (il est possible d'avoir un grand nombre d'outils dans l'inventaire)
+ - P  Numéro de poche, 1-99999 (mais la table d'outils ne peut contenir que 56 outils) 
+ - X..W  Offset d'outil sur les axes spécifiés - nombre à virgule flottante
+ - D  diamètre d'outil - nombre à virgule flottante, valeur absolue
+ - I  angle frontal (tour seulement) - nombre à virgule flottante 
+ - J  angle de dos (tour seulement) - nombre à virgule flottante 
+ - Q  orientation de l'outil (tour seulement) - entier de 0 à 9 
+ - ;  début de commentaire ou remarque - texte
+
+Le fichier commence par un point-virgule en première ligne, suivi par les 
+caractéristiques de 56 outils au maximum. 
+footnote:[Bien que les numéros d'outils puissent aller jusqu'à 99999, le nombre
+d'outils dans la table, en ce moment, est limité à un maximum de 56 outils pour
+des raisons techniques. Les développeurs d'EMC2 envisagent la possibilité de faire 
+sauter cette limitation. Si vous avez un très gros changeur d'outils, merci d'être
+patient.]
+
+Les versions antérieures d'EMC2 avaient deux différents formats de table d'outils
+un pour les fraiseuses et un pour les tours, mais depuis la version 2.4.x, 
+un format unique est utilisé pour toutes les machines. Il suffi d'ignorer les
+parties de la table d'outils qui ne se rapportent pas la machine actuelle, ou 
+que vous n'avez pas besoin d'utiliser.
+
+Chaque ligne du fichier de la table d'outils après le point-virgule ouvrant, contient
+les données pour un seul outil. Une ligne peut contenir jusqu'à 16 entrées,
+mais peut aussi en contenir beaucoup moins.
+
+Les unités utilisées pour les longueurs, diamètres, etc. sont en unités machine.
+
+Vous voudrez probablement maintenir les entrées d'outils dans l'ordre croissant,
+surtout si vous utilisez un changeur d'outils aléatoire. Bien que la table d'outils 
+permettent des numéros d'outils dans n'importe quel ordre.
+
+Chaque ligne peut avoir jusqu'à 16 valeurs. Les deux premières valeurs sont requises.
+La dernière valeur (un point-virgule suivi d'un commentaire) est optionnelle. 
+La lecture sera rendue plus facile si les valeurs sont disposées en colonnes, 
+comme indiqué dans le tableau, mais la seule exigence sur le format est qu'il y 
+ait au moins un espace ou une tabulation après chacune des valeurs sur une
+ligne et un saut de ligne à la fin de chaque ligne.
+
+La signification des valeurs et le type de données qu'elles contiennent sont les
+suivantes:
+
+.Numéro d'outil (requis)
+La colonne *T* contient un nombre entier non signé, qui représente
+le code de l'outil. L'opérateur peut utiliser n'importe quel code pour
+n'importe quel outil, tant que les codes sont des entiers non signés. 
+
+.Numéro de poche (requis)
+La colonne *P* contient un nombre entier non signé, qui représente
+le numéro de poche (numéro de slot) du changeur d'outils, poche dans laquelle
+l'outil se trouve. Les entrées de cette colonne doivent être toutes différentes. 
+Le numéro de poche commence typiquement à 1 et va au maximum de poches disponibles 
+sur le changeur d'outils. Mais tous les changeurs d'outils ne suivent pas ce modèle. 
+Votre numéro de poche sera déterminé, par le numéro que votre changeur d'outils 
+utilisera pour se référer à ses poches. Tout cela pour dire que les numéros de poche
+que vous utiliserez seront déterminés par le schéma de numérotation de votre changeur
+d'outils. Les numéros de poche doivent suivre la même logique que la machine.  
+
+.Données d'offset des outils (optionnelles)
+Les colonnes de données d'offset (XYZABCUVW) contiennent des nombres réels qui 
+représentent les offsets d'outil pour chacun des axes. Ce nombre sera utilisé
+si, en usinage, les offsets de longueur d'outil sont utilisés et que l'outil
+concerné est sélectionné. Ces nombres peuvent être positif, égaux à zéro ou négatif,
+ils sont en fait, complètement optionnels. Bien qu'il vaudrait mieux qu'il y ait
+au moins une valeur ici, sinon il n'y aurait aucun intérêt à se servir d'une entrée
+complétement vide dans la table d'outils. 
+
+Sur une fraiseuse classique, on trouvera probablement une entrée en Z (offset de 
+longueur d'outil). Sur un tour classique, on trouvera certainement un entrée
+en X (offset d'outil en X) et une en Z (offset d'outil en Z). Sur une fraiseuse 
+classique utilisant la compensation de rayon d'outil, on trouvera une valeur en D
+pour l'offset de diamètre. Sur un tour classique utilisant la compensation de
+diamètre de bec d'outil, une valeur sera entrée en D (diamètre de bec). 
+
+Un tour demande encore d'autres information additionnelles pour décrire la forme
+et l'orientation de l'outil. Ainsi, sans tenir compte des angles ni des faces de
+l'outil, qui sont de la compétence du tourneur, on trouvera une valeur en I 
+(angle avant) et en J (angle de dos) ainsi qu'une valeur en Q (orientation). 
+
+Une description complète des outils de tour <<cha:Tour-Specifiques, ce trouve ici>>. 
+
+La colonne *Diamètre* contient un nombre réel. Ce nombre est utilisé seulement
+si la compensation est activée lors de l'usage de cet outil. Si la trajectoire
+programmée avec la compensation active, est un des bords de la matière à usiner, 
+cette valeur doit être un nombre réel positif, représentant le diamètre mesuré 
+de l'outil. Si la trajectoire programmée, toujours avec la compensation active,
+est prévue pour un diamètre nominal d'outil, ce nombre doit être très petit 
+(négatif ou positif, mais proche de zéro), il représente seulement la différence 
+entre le diamètre nominal et le diamètre mesuré de l'outil. Si la compensation n'est
+pas utilisée avec un outil, cette valeur est sans importance.
+
+La colonne des commentaires peut optionnellement être utilisée pour décrire
+l'outil. Elle commence par un point-virgule, elle peut contenir n'importe quel
+texte pour le seul bénéfice de l'opérateur.  
+
+[[sec:Outils-et-Compensations]]
+= Fichier d'outils et compensations
+
+== Fichier d'outils
+
+Les longueurs et diamètres d'outils peuvent être lus dans une table
+d'outils, voir la section <<sec:Table-Outils, adéquate>> ou provenir d'un
+mot spécifié pour activer la compensation d'outil.
+
+== Compensation d'outil
+
+La compensation d'outil peut causer beaucoup de problèmes aux
+meilleurs programmeurs. Mais elle peut aussi être une aide puissante quand 
+elle est utilisée pour aider l'opérateur à obtenir une
+pièce à la cote. En réglant la longueur et le diamètre des outils dans
+une table d'outils, les décalages peuvent être utilisés pendant un
+cycle d'usinage qui tient compte des variations de taille de l'outil,
+ou pour des déviations mineures des trajectoires programmées. Et ces
+changements peuvent être faits sans que l'opérateur n'ait à changer
+quoi que ce soit dans le programme.
+
+Tout au long de ce module, vous trouverez occasionnellement des
+références à des fonctions canoniques, là où il est nécessaire pour le
+lecteur de comprendre comment fonctionne une compensation d'outil dans
+une situation spécifique. Ces références ont pour but de donner au
+lecteur une idée de la séquences plutôt que d'exiger qu'il comprenne la
+façon dont les fonctions canoniques elles-mêmes fonctionnent dans EMC.
+
+[[sec:Compensation-longueur-d-outil]]
+== Compensation de longueur d'outil
+
+Les compensations de longueur d'outil sont données comme des nombres
+positifs dans la table d'outils. Une compensation d'outil est
+programmée en utilisant G43 Hn, où n est le numéro d'index de l'outil
+souhaité dans la table d'outil. Il est prévu que toutes les entrées
+dans la table d'outils soit positives. La valeur de H est vérifiée,
+elle doit être un entier non négatif quand elle est lue. L'interpréteur
+se comporte comme suit:
+
+1. Si G43 Hn est programmé, un appel à la fonction
+USE_TOOL_LENGTH_OFFSET(longueur) est fait (où longueur est l'écart de
+longueur, lu dans la table d'outils, de l'outil indexé n),
+tool_length_offset est repositionné dans le modèle de réglages de la
+machine et la valeur de current_z dans le modèle est ajustée. Noter que
+n n'a pas besoin d'être le même que le numéro de slot de l'outil
+actuellement dans la broche.
+
+2. Si G49 est programmé, USE_TOOL_LENGTH_OFFSET(0.0) est appelée,
+tool_length_offset est remis à 0.0 dans le modèle de réglages de la
+machine et la valeur courante de current_z dans le modèle est ajustée.
+L'effet de la compensation de longueur d'outil est illustrée dans la
+capture ci-dessous. Noter que la longueur de l'outil est soustraite de
+Z pour que le point contrôlé programmé corresponde à la pointe de
+l'outil. Il faut également noter que l'effet de la compensation de
+longueur est immédiat quand on voit la position de Z comme une
+coordonnée relative mais il est sans effet sur la position actuelle de
+la machine jusqu'à ce qu'un mouvement en Z soit programmé.
+
+Programme de test de longueur d'outil.
+
+L'outil #1 fait un pouce de long.
+----
+N01 G1 F15 X0 Y0 Z0 
+N02 G43 H1 Z0 X1 
+N03 G49 X0 Z0 
+N04 G0 X2 
+N05 G1 G43 H1 G4 P10 Z0 X3 
+N06 G49 X2 Z0 
+N07 G0 X0
+----
+
+image:images/length1.png[]
+
+Avec ce programme, dans la plupart des cas, la machine va appliquer le
+décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
+mot G43.
+
+[[sec:Compensation-rayon-d-outil]]
+== Compensation de rayon d'outil
+
+La compensation de rayon d'outil permet de un parcours d'outil sans se
+préoccuper du diamètre de l'outil. La seule restriction, c'est que les
+*mouvements d'entrée* doivent être *au moins aussi long* que le *rayon de
+l'outil* utilisé.
+
+Il y a deux parcours que l'outil peut prendre pour usiner un profil 
+quand la compensation de rayon est activée, un parcours à gauche du profil 
+et un à droite du profil. Pour les visualiser, il faut s'imaginer être 
+debout sur la pièce, marchant en suivant l'outil pendant que celui-ci 
+progresse dans la matière. G41 fait passer l'outil à gauche du profil et
+G42 le fait passer à droite du profil.
+
+Le point final de chaque mouvement, dépends du mouvement suivant.
+Si le mouvement suivant crée un angle extérieur, le mouvement se terminera
+à l'extrémité de la ligne de coupe compensée. Si le mouvement suivant crée
+un angle intérieur, l'outil s'arrêtera avant d'interférer avec la matière de
+la pièce. La figure suivante montre comment le mouvement se termine à 
+différents endroits, dépendants du mouvement suivant.
+
+.Point final de la compensation[[cap:Compensation-End-Point]]
+
+image::images/comp-path.png[]
+
+=== Vue générale
+
+==== Table d'outils
+
+La compensation de rayon d'outil utilise les données de la table d'outils
+pour déterminer le décalage nécessaire. Les données peuvent être introduites
+à la volée, avec G10 L1.
+
+==== Programmation des mouvements d'entrée
+
+Tout mouvement suffisamment long pour arriver en position compensée, sera un 
+mouvement d'entrée valide. La longueur minimale équivaut au rayon de l'outil.
+Ça peut être un mouvement en vitesse rapide au dessus de la pièce. Si
+plusieurs mouvements en vitesse rapide sont prévus après un G41/G42, seul le
+dernier placera l'outil en position compensée.
+
+Dans la figure suivante, on voit que le mouvement d'entrée est compensé
+à droite du profil. Ce qui aura pour effet, lors du mouvement d'entrée, de 
+déplacer le centre de l'outil, d'un rayon d'outil à droite de X0. Dans ce cas, 
+le mouvement d'entrée laissera un petit plot de matière en raison du décalage de compensation et de l'arrondi de l'outil.
+
+.Mouvement d'entrée[[cap:Entry-Move]]
+
+image::images/comp02.png[]
+
+==== Mouvement en Z
+
+Un mouvement en Z est possible pendant que le contour est suivi dans le plan 
+XY. Des portions du contour peuvent être sautées en rétractant l'axe Z au dessus
+du bloc et en amenant Z au dessus du prochain point de départ.
+
+==== Mouvement en vitesse rapide
+
+Des mouvements en vitesse rapide peuvent être programmé avec les compensations
+d'outil actives.
+
+==== Bonne pratique
+
+ - Débuter tout programme avec un G40 pour être sûr que la compensation est 
+désactivée.
+
+=== Exemples de profils
+
+==== Profil extérieur
+
+.Profil extérieur[[cap:Outside-Profile]]
+
+image::images/outside-comp.png[]
+
+==== Profil intérieur
+
+.Profil intérieur[[cap:Inside-Profile]]
+
+image::images/inside-comp.png[]
+
+
+== Deux exposés sur les compensations d'outil
+
+Ces deux exposés ont été écrits par des experts de la CNC, nous pensons 
+que leur lecture sera très utile. 
+
+By Jon Elson
+
+La compensation de rayon d'outil (également appelée compensation de
+diamètre d'outil) à été ajoutée aux spécifications RS-274D à la demande
+d'utilisateurs, car elle est extrêmement utile, mais son implémentation
+a été assez mal pensée. L'objectif de cette fonctionnalité est de
+permettre aux programmeurs de *virtualiser* la trajectoire de l'outil,
+de sorte que la machine puisse pendant toute l'exécution, déterminer le
+bon décalage a apporter à la position de l'outil pour respecter les
+cotes, en s'appuyant sur les diamètres d'outils existants. Si un outil
+est réaffuté, son diamètre sera légèrement plus petit que celui
+d'origine, il faudra également en tenir compte.
+
+Le problème est pour donner à la machine la trajectoire exacte où
+l'outil doit usiner, sur le côté intérieur d'un parcours imaginaire, ou
+sur le côté extérieur. Comme ces trajectoires ne sont pas
+nécessairement fermées (même si elles peuvent l'être), il est quasiment
+impossible à la machine de connaître de quel côté du profil elle doit
+compenser l'outil. Il a été décidé qu'il n'y aurait que deux choix
+possibles, outil à *gauche* du profil à usiner et outil à *droite* du
+profil à usiner. Ce qui doit être interprété à gauche ou à droite du
+profil à usiner en suivant l'outil le long du profil.
+
+=== Compensation de rayon d'outil, détails
+
+By Tom Kramer and Fred Proctor
+
+Les possibilités de compensation de rayon d'outil de l'interpréteur,
+autorise le programmeur à spécifier si l'outil doit passer à gauche ou
+à droite du profil à usiner. Ce profil peut être un contour ouvert ou
+fermé, dans le plan XY composé de segments en arcs de cercles et en
+lignes droites. Le contour peut être le pourtour d'une pièce brute ou,
+il peut être une trajectoire exacte suivie par un outil mesuré avec
+précision. La figure ci-dessous, montre deux exemples de trajectoires
+d'usinage d'une pièce triangulaire, utilisant la compensation de rayon
+d'outil.
+
+Dans les deux exemples, le triangle gris représente le matériau
+restant après usinage et la ligne extérieure représente le parcours
+suivi par le centre de l'outil. Dans les deux cas le triangle gris est
+conservé. Le parcours de gauche (avec les coins arrondis) est le
+parcours généralement interprété. Dans la méthode de droite (celle
+marquée Not this way), l'outil ne reste pas en contact avec les angles
+vifs du triangle gris.
+
+.[[figure:7]]
+image::images/radius_comp.png[]
+
+Des mouvements sur l'axe Z peuvent avoir lieu pendant que le contour
+est suivi dans le plan XY. Des portions du contour peuvent être
+franchies avec l'axe Z en retrait au dessus de la pièce pendant la
+poursuite du parcours et jusqu'au point où l'usinage doit reprendre,
+l'axe Z plongera de nouveau en position. Ces dégagements de zones non
+usinées peuvent être faits en vitesse travail (G1), en rapide (G0), en
+vitesse inverse du temps (G93) ou en avance en unités par minute (G94)
+toutes peuvent être utilisées avec la compensation de rayon d'outil.
+Sous G94, la vitesse sera appliquée à la pointe de l'outil coupant, non
+au contour programmé.
+
+==== Instructions de programmation
+
+ - Pour activer la compensation de rayon d'outil, programmer soit, G41
+   (pour maintenir l'outil à gauche du profil à usiner) soit, G42 (pour
+   maintenir l'outil à droite du profil). Dans la figure figure:7 précédente,
+   par exemple, si G41 était programmé, l'outil devrait tourner en sens
+   horaire autour du triangle et dans le sens contraire si G42 était
+   programmé.
+ - Pour désactiver la compensation de rayon d'outil, programmer G40.
+ - Si un G40, G41, ou G42 est programmé dans la même ligne qu'un
+   mouvement d'axe, la compensation de rayon sera activée ou désactivée
+   avant que le mouvement ne soit fait. Pour que le mouvement s'effectue
+   en premier, il doit être programmé séparément et avant.
+
+==== La valeur de D
+
+L'interpréteur actuel requiert une valeur D sur chaque ligne contenant
+un mot G41 ou G42. Le nombre D doit être un entier positif. Il
+représente le numéro de slot de l'outil, dont le rayon (la moitié du
+diamètre d'outil indiqué dans la table d'outils) sera compensé. Il peut
+aussi être égal à zéro, dans ce cas, la valeur du rayon sera aussi
+égale à zéro. Toutes les poches de la table d'outils peuvent être
+sélectionnés de cette façon. Le nombre D n'est pas nécessairement le
+même que le numéro de poche de l'outil monté dans la broche.
+
+==== Table d'outils
+
+La compensation de rayon d'outil utilise les données fournies par la
+table d'outils de la machine. Pour chaque poche d'outil dans le
+carrousel, la table d'outils contient le diamètre de l'outil rangé à
+cet emplacement (ou la différence entre le diamètre nominal de l'outil
+placé dans cette poche et son diamètre actuel). La table d'outils est
+indexée par les numéros de poche. Reportez vous à la page des *Fichiers
+d'outils* pour savoir comment remplir ces fichiers.
+
+==== Deux types de contour
+
+L'interpréteur contrôle la compensation pour deux types de contour:
+
+ - 1) Le contour donné dans le code NC correspond au bord extérieur du
+   matériau après usinage. Nous l'appellerons 
+   *contour sur le profil du matériau*. 
+ - 2) Le contour donné dans le code NC correspond à la trajectoire suivie
+   par le centre d'un outil de rayon nominal. Nous l'appellerons 
+   *contour sur le parcours d'outil*.
+
+L'interpréteur ne dispose d'aucun paramètre pour déterminer quel type
+de contour est utilisé, mais la description des contours est différente
+(pour la même géométrie de pièce) entre les deux types, les valeurs des
+diamètres dans la table d'outils seront également différentes pour les
+deux types.
+
+==== Contour sur le profil du matériau 
+
+Lorsque le contour est sur le profil du matériau, c'est ce tracé qui
+est décrit dans le programme NC. Pour un contour sur le profil du
+matériau, la valeur du diamètre dans la table d'outils correspond au
+diamètre réel de l'outil courant. Cette valeur dans la table doit être
+positive. Le code NC pour ce type de contour reste toujours le même à
+l'exception du diamètre de l'outil (actuel ou nominal).
+
+Exemple 1 :
+
+Voici un programme NC qui usine le matériau en suivant le profil d'un
+des triangles de la figure précédente. Dans cet exemple, la
+compensation de rayon est celle du rayon actuel de l'outil, soit 0.5”.
+La valeur pour le diamètre dans la table d'outil est de 1.0” .
+----
+N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)
+N0020 Y-1 (suit la face droite du triangle)
+N0030 X-2 (suit la base du triangle)
+N0040 X2 Y2 (suit l'hypoténuse du triangle)
+N0050 G40 (désactive la compensation)
+----
+
+Avec ce programme, l'outil suit cette trajectoire: un mouvement
+d'entrée, puis la trajectoire montrée dans la partie gauche de la
+figure, avec un déplacement de l'outil en sens horaire autour du
+triangle. Noter que les coordonnées du triangle de matériau
+apparaissent dans le code NC. Noter aussi que la trajectoire inclus
+trois arcs qui ne sont pas explicitement programmés, ils sont générés
+automatiquement.
+
+==== Contour sur le parcours d'outil
+
+Lorsque le contour est sur le parcours d'outil, la trajectoire décrite
+dans le programme correspond au parcours que devra suivre le centre de
+l'outil. Le bord de l'outil, à un rayon de là, (excepté durant les
+mouvements d'entrée) suivra la géométrie de la pièce. La trajectoire
+peut être créée manuellement ou par un post-processeur, selon la pièce
+qui doit être réalisée. Pour l'interpréteur, le parcours d'outil doit
+être tel que le bord de l'outil reste en contact avec la géométrie de
+la pièce, comme montré à gauche de la figure 7. Si une trajectoire du
+genre de celle montrée sur la droite de la figure 7 est utilisée, dans
+laquelle l'outil ne reste pas en permanence au contact avec la
+géométrie de la pièce, l'interpréteur ne pourra pas compenser
+correctement si un outil en dessous de son diamètre nominal est
+utilisé.
+
+Pour un contour sur le parcours d'outil, la valeur pour le diamètre de
+l'outil dans la table d'outils devra être un petit nombre positif si
+l'outil sélectionné est légèrement sur-dimensionné. La valeur du
+diamètre sera un petit nombre négatif si l'outil est légèrement
+sous-dimensionné. Si un diamètre d'outil est négatif, l'interpréteur
+compense de l'autre côté du contour programmé et utilise la valeur
+absolue donnée au diamètre. Si l'outil courant est à son diamètre
+nominal, la valeur dans la table d'outil doit être à zéro.
+
+Exemple de contour sur le parcours d'outil
+
+Supposons que le diamètre de l'outil courant monté dans la broche est
+de 0.97 et le diamètre utilisé en générant le parcours d'outil a été de
+1.0 . Alors la valeur de diamètre dans la table d'outils pour cet outil
+est de -0.03. Voici un programme G-code qui va usiner l'extérieur d'un
+triangle de la figure 7.
+----
+N0010 G1 X1 Y4.5 (mouvement d'alignement)
+N0020 G41 G1 Y3.5 (active la compensation et premier mouvement d'entrée)
+N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée)
+N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du parcours d'outil)
+N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil)
+N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite)
+N0070 G1 X-2 (usinage de la base du parcours d'outil)
+N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche)
+N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse)
+N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite)
+N0110 G40 (désactive la compensation) 
+----
+
+Avec ce programme, l'outil suit cette trajectoire: un mouvement
+d'alignement, deux mouvements d'entrée, puis il suit une trajectoire
+légèrement intérieure au parcours d'outil montré sur la figure 7 en
+tournant en sens horaire autour de la pièce. Cette compensation est à
+droite de la trajectoire programmée, même si c'est G41 qui est
+programmé, en raison de la valeur négative du diamètre.
+
+==== Erreurs de programmation et limitations 
+
+Les messages en rapport avec la compensation de rayon d'outil,
+délivrés par l'interpréteur sont les suivants:
+
+- Impossible de changer les décalages d'axes avec la compensation de rayon d'outil
+- Impossible de changer d'unité avec la compensation de rayon d'outil
+- Impossible d'activer la compensation de rayon d'outil en dehors du plan XY
+- Action impossible, la compensation de rayon d'outil est déjà active
+- Impossible d'utiliser G28 ou G30 avec la compensation de rayon d'outil
+- Impossible d'utiliser G53 avec la compensation de rayon d'outil
+- Impossible d'utiliser le plan XZ avec la compensation de rayon d'outil
+- Impossible d'utiliser le plan YZ avec la compensation de rayon d'outil
+- Coin concave avec la compensation de rayon d'outil
+- Interférence de l'outil avec une partie finie de la pièce avec la
+   compensation de rayon d'outil footnote:[Le terme anglais *gouging*
+   indique une interférence entre l'outil et une partie finie de la pièce ou 
+   la paroi d'une cavité. Par extension, le terme est parfois repris pour une 
+   interférence entre le porte-outil ou la broche et la pièce.]
+- Mot D sur une ligne sans mot de commande G41 ni G42
+- Index de rayon d'outil trop grand
+- Le rayon de l'outil n'est pas inférieur au rayon de l'arc avec la 
+   compensation de rayon
+- Deux G-codes du même groupe modal sont utilisés.
+
+Pour certains de ces messages, des explications sont données plus loin.
+
+Changer d'outil alors que la compensation de rayon d'outil est active
+n'est pas considéré comme une erreur, mais il est peu probable que cela
+soit fait intentionnellement. Le rayon d'outil utilisé lors de
+l'établissement de la compensation continuera à être utilisé jusqu'à la
+désactivation de la compensation, même si un nouvel outil est
+effectivement utilisé.
+
+Quand la compensation de rayon d'outil est active, il est physiquement
+possible de faire un cercle, dont le rayon est la moitié du diamètre de
+l'outil donné dans la table d'outils, il sera tangent avec l'outil en
+tout point de son contour.
+
+image:images/radius_comp_error.png[]
+
+En particulier, l'interpréteur traite les coins concaves et les arcs
+concaves plus petits que l'outil, comme des erreurs, le cercle ne peut
+pas être maintenu tangent avec le contour dans ces situations. Cette
+détection de défaut, ne limite pas les formes qui peuvent être usinées,
+mais elle requiert que le programmeur précise la forme exacte à usiner
+(ou le parcours d'outil qui doit être suivi) et non une approximation.
+A cet égard, l'interpréteur utilisé par EMC diffère des interpréteurs
+utilisés dans beaucoup d'autres contrôleurs, qui passent ces erreurs
+sous silence et laissent l'outil interférer avec la partie finie de la
+pièce (gouging) ou arrondissent des angles qui devraient être vifs. Il
+n'est pas nécessaire, de déplacer l'outil entre la désactivation de la
+compensation et sa réactivation, mais le premier mouvement suivant la
+réactivation sera considéré comme premier mouvement, comme déjà décrit
+plus tôt.
+
+Il n'est pas possible de passer d'un index de rayon d'outil à un autre
+alors que la compensation est active. Il est également impossible de
+basculer la compensation d'un côté à l'autre avec la compensation
+active. Si le prochain point de destination XY est déjà dans le
+périmètre d'action de l'outil quand la compensation est activée, le
+message indiquant une interférence outil/surface finie, s'affichera
+quand la ligne du programme qui donne cette destination sera atteinte.
+Dans ce cas, l'outil a déjà usiné dans le matériau, là où il n'aurait
+pas dû...
+
+Si le numéro de slot programmé par le mot D est supérieur au nombre
+d'emplacements disponibles dans le carrousel, un message d'erreur sera
+affiché. Dans l'implémentation actuelle, le nombre d'emplacements
+maximum est de 68.
+
+Le message d'erreur *Deux G-codes du même groupe modal sont utilisés*
+est un message générique utilisé pour plusieurs jeux de G-codes. Il
+s'applique à la compensation de rayon d'outil, il signifie que plus
+d'un code G40, G41 ou G42 apparaît sur la même ligne de programme NC, 
+ce qui n'est pas permis.
+
+=== Premier mouvement
+
+L'algorithme utilisé lors du premier déplacement, quand c'est une
+ligne droite, consiste à tracer une droite, depuis le point d'arrivée,
+tangente à un cercle dont le centre est le point actuel, et le rayon,
+celui de l'outil. Le point de destination de la pointe de l'outil se
+trouve alors au centre d'un cercle de même rayon, tangent à la ligne
+droite tracée précédemment. C'est montré sur la figure 9. Si le point
+programmé est situé à l'intérieur de la première section d'outil (le
+cercle de gauche), une erreur sera signalée.
+
+image:images/radius_comp_straight.png[]
+
+image:images/radius_comp_arc.png[]
+
+Si le premier mouvement après que la compensation de rayon d'outil a
+été activée est un arc, l'arc qui sera généré est dérivé d'un arc
+auxiliaire, qui a son centre identique à celui du point central
+programmé, passe par le point final de l'arc programmé et, est tangent
+à l'outil à son emplacement courant. Si l'arc auxiliaire ne peut pas
+être construit, une erreur sera signalée. L'arc généré déplacera
+l'outil pour qu'il reste tangent à l'arc auxiliaire pendant tout le
+mouvement. C'est ce que montre sur la figure 10.
+
+Indépendamment du fait que le premier déplacement est une droite ou un
+arc, l'axe Z peut aussi se déplacer en même temps. Il se déplacera
+linéairement, comme c'est le cas quand la compensation de rayon n'est
+pas utilisée. Les mouvements des axes rotatifs (A, B et C) sont
+autorisés avec la compensation de rayon d'outil, mais leur utilisation
+serait vraiment très inhabituelle.
+
+Après les mouvements d'entrée en compensation de rayon d'outil,
+l'interpréteur maintiendra l'outil tangent au contour programmé et du
+côté approprié. Si un angle aigu se trouve dans le parcours, un arc est
+inséré pour tourner autour de l'angle. Le rayon de cet arc sera de la
+moitié du diamètre de l'outil donné dans la table d'outils.
+
+Quand la compensation de rayon est désactivée, aucun mouvement de
+sortie particulier n'est fait. Le mouvement suivant sera ce qu'il
+aurait été si la compensation n'avait jamais été activée et que le
+mouvement précédent ait placé l'outil à sa position actuelle.
+
+==== Programmation des mouvements d'entrée
+
+En général, un mouvement d'alignement et deux mouvements d'entrée sont
+demandés pour commencer la compensation correctement. Cependant, si le
+contour programmé comporte des pointes et des angles aigus, un seul
+mouvement d'entrée (plus, éventuellement, un mouvement de pré-entrée)
+est demandé. La méthode générale, qui fonctionne dans toutes les
+situations, est décrite en premier. Elle suppose que le programmeur
+connait déjà le contour et son but est d'ajouter le mouvement d'entrée.
+
+==== Méthode générale
+
+La méthode générale de programmation comprend un mouvement
+d'alignement et deux mouvements d'entrée. Les mouvements d'entrée
+expliqués ci-dessus, seront repris comme exemple. Voici le code
+correspondant:
+----
+N0010 G1 X1 Y4.5 (mouvement d'alignement vers le point C) 
+N0020 G41 G1 Y3.5 (active la compensation et fait le premier mouvement d'entrée vers le point B) 
+N0030 G3 X2 Y2.5 I1 (fait le second mouvement d'entrée vers le point A)
+----
+
+Voir la figure 11. La figure montre les deux mouvements d'entrée mais
+pas le mouvement d'alignement.
+
+En premier, choisir un point A sur le contour où il convient
+d'attacher un arc d'entrée. Spécifier un arc à l'extérieur du contour
+qui commence au point B et s'achève au point A, tangent au contour (et
+aller dans la même direction que celle prévue pour tourner autour du
+contour). Le rayon doit être supérieur à la moitié du diamètre donné
+dans la table d'outils. Ensuite, tirer une ligne tangente à l'arc, du
+point B au point C, placé de telle sorte que la ligne BC fasse plus
+d'un rayon de long.
+
+Après que la construction soit terminée, le code est écrit dans
+l'ordre inverse de celui de la construction. La compensation de rayon
+d'outil est activée après le mouvement d'alignement et avant le premier
+mouvement d'entrée. Dans le code précédent, la ligne N0010 fait le
+mouvement d'alignement, la ligne N0020 active la compensation et fait
+le premier mouvement d'entrée et la ligne N0030 fait le second
+mouvement d'entrée.
+
+image:images/radius_comp_entry.png[]
+
+Dans cet exemple, l'arc AB et la ligne BC sont très larges, ce n'est
+pas nécessaire. Pour un contour sur parcours d'outil, le rayon de l'arc
+AB demande juste à être légèrement plus grand que la variation maximale
+du rayon de l'outil par rapport à son rayon nominal. Également, pour un
+contour sur parcours d'outil, le côté choisi pour la compensation doit
+être celui utilisé si l'outil est sur-dimensionné. Comme mentionné
+précédemment, si l'outil est sous-dimensionné, l'interpréteur basculera
+de l'autre côté.
+
+==== Méthode simple
+
+Si le contour est sur le profil du matériau et qu'il comprends des
+angles aigus quelque part sur le contour, une méthode simple pour faire
+l'entrée est possible. Voir la figure 12.
+
+Premièrement, choisir un angle aigu, par exemple D. Ensuite, décider
+comment on va tourner autour du matériau depuis le point D. Dans notre
+exemple nous maintiendrons l'outil à gauche du profil et nous
+avancerons vers F. Prolonger la ligne FD (si le segment suivant du
+contour est un arc, prolonger la tangente à l'arc FD depuis D) pour
+diviser la surface extérieure au contour proche de D en deux parties.
+S'assurer que le centre de l'outil est actuellement dans la partie du
+même côté de la ligne prolongée que le matériau. Sinon, déplacer
+l'outil dans cette partie. Par exemple, le point E représente la
+position courante du centre de l'outil. Comme il est du même côté de la
+ligne FD prolongée que le triangle gris du matériau, aucun mouvement
+supplémentaire n'est nécessaire. Maintenant écrire la ligne de code NC
+qui active la compensation et faire le mouvement vers le point D
+----
+N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)
+----
+
+Cette méthode fonctionnera également avec un angle aigu sur un contour
+sur parcours d'outil, si l'outil est sur-dimensionné, mais elle échouera
+si il est sous-dimensionné.
+
+image:images/radius_comp_entry_simple.png[]
+
+==== Autres points où est exécutée la compensation de rayon d'outil
+
+Le jeu complet de fonctions canoniques comprend des fonctions qui
+activent et désactivent la compensation de rayon d'outil, de sorte
+qu'elle puisse être activée quand le contrôleur exécute une de ces
+fonctions. Dans l'interpréteur cependant, ces commandes ne sont pas
+utilisées. La compensation est assurée par l'interpréteur et reflétée
+dans les sorties des commandes, c'est l'interpréteur qui continuera à
+diriger les mouvements du centre de l'outil. Cela simplifie le travail
+du contrôleur de mouvement tout en rendant le travail de l'interpréteur
+un peu plus difficile.
+
+==== Algorithmes pour compensation de rayon d'outil
+
+L'interpréteur permet que les mouvements d'entrée et de sortie soient
+des arcs. Le comportement pour les mouvements intermédiaires est le
+même, excepté que certaines situations sont traitées comme des erreurs
+par l'interpréteur alors qu'elles ne le sont pas sur d'autres
+contrôleurs de machine.
+
+Données relatives à la compensation de rayon d'outil:
+
+L'interpréteur conserve trois données pour la compensation de rayon
+d'outil: Le réglage lui même (gauche, droite ou arrêt), program_x et
+program_y. Les deux dernières représentent les positions en X et en Y
+données dans le code NC quand la compensation est active. Quand elle
+est désactivée, les deux entrées sont fixées à de très petites valeurs
+(10 e-20 ) dont la valeur symbolique (dans un #define) est *unknown*. 
+L'interpréteur utilise, les items current_x et current_y qui 
+représentent, le centre de la pointe de l'outil (dans le système de 
+coordonnées courant), à tout moment. 
+
+=== Exemples de Jon Elson
+
+Toutes les informations spécifiques au système se réfèrent au
+programme EMC du NIST, mais doit aussi s'appliquer aux plus modernes
+contrôleurs CNC. Ma méthode de vérification de ces programmes est
+d'abord de sélectionner l'outil zéro, de sorte que les commandes de
+compensation soient ignorées. Ensuite, je colle une feuille de papier
+sur une plaque tenue de niveau dans l'étau, une sorte de platine.
+J'installe une recharge de stylo à ressort dans la broche. C'est une
+recharge standard de stylo à bille en métal avec un ressort, dans un
+corps de 12mm de diamètre. Elle à un ressort pour la faire rentrer dans
+le corps du stylo, et un 'collet' à l'arrière qui permet à la pointe de
+se rétracter malgré le ressort, mais qui la laisse centrée à quelques
+dixièmes près. Je charge le programme avec l'outil zéro sélectionné, et
+il trace une ligne à l'extérieur de la pièce. (voir la figure suivante)
+Alors, je sélectionne un outil avec le diamètre de l'outil que
+j'envisage d'utiliser et je lance le programme une nouvelle fois.
+(Noter que la coordonnée Z dans le programme ne doit pas être changée
+pour éviter de plonger le stylo au travers du plateau ;-) Maintenant,
+je dois voir si la compensation G41 ou G42 que je spécifie passe sur le
+côté voulu de la pièce. Sinon, je modifie avec la compensation du côté
+opposé, et j'édite la compensation opposée dans le programme, puis
+j'essaye à nouveau. Maintenant, avec l'outil sur le côté correct de la
+pièce, je peut vérifier si quelque part sur le parcours l'outil est
+'trop gros' pour usiner les surfaces concaves. Ma vieille Allen-Bradley
+7320 était très indulgente sur ce point, mais EMC ne tolère rien. Si
+vous avez la moindre concavité où deux lignes se rencontrent à moins de
+180 degrés avec un outil de taille définies, EMC va s'arrêter là, avec
+un message d'erreur. Même si le gougeage est de .001mm de profondeur.
+Alors, je fais toujours l'approche sur le mouvement d'entrée et le
+mouvement de sortie juste sur un coin de la pièce, en fournissant un
+angle de plus de 180 degrés, afin qu'EMC ne râle pas. Cela exige une
+grande attention lors de l'ajustement des points de départ et de
+sortie, qui ne sont pas compensés par le rayon d'outil, mais ils
+doivent être choisis avec un rayon approximatif bien réfléchi.
+
+Les commandes sont:
+
+- G40 Annuler la compensation de rayon d'outil 
+- G41 Activer la compensation, outil à gauche du profil 
+- G42 Activer la compensation, outil à droite du profil 
+
+Voici un petit fichier qui usine le côté d'une pièce avec de multiples
+arcs convexes et concaves et plusieurs lignes droites. La plupart de
+ces commandes ont été tracées depuis Bobcad/CAM, mais les lignes N15 et
+N110 ont été ajoutées par moi et certaines coordonnées dans ce contour
+ont été bricolées un peu par moi.
+----
+N10 G01 G40 X-1.3531 Y3.4
+N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée)
+N20 X0. Y3.1875
+N40 X0.5667 F10
+N50 G03 X0.8225 Y3.3307 R0.3
+N60 G02 X2.9728 Y4.3563 R2.1875
+N70 G01 X7.212 Y3.7986
+N80 G02 X8.1985 Y3.2849 R1.625
+N90 G03 X8.4197 Y3.1875 R0.3
+N100 G01 X9.
+N110 G40 X10.1972 Y3.432 (ligne de sortie)
+N220 M02 
+----
+
+La ligne 15 contient G41 D4, qui signifie que le diamètre de l'outil
+est celui de l'outil #4 dans la table d'outils, il sera utilisé pour
+décaler la broche de 1/2 diamètre, qui est, bien sûr, le rayon d'outil.
+Noter que la ligne avec la commande G41 contient le point final du
+mouvement dans lequel la compensation de rayon est interpolée. Cela
+signifie qu'au début de ce mouvement, il n'y a aucun effet de
+compensation et à la fin, l'outil est décalé de 100% du rayon de
+l'outil sélectionné. Immédiatement après le G41 il y a D4, signifiant
+que le décalage sera le rayon de l'outil N°4 dans la table d'outils.
+Noter que les DIAMÈTRES d'outil sont entrés dans la table d'outils. (le
+diamètre de l'outil de Jon est de 0.4890)
+
+Mais, noter qu'à la ligne 110, où il y a la commande G40,
+l'interpolation de la compensation d'outil est en dehors de ce
+mouvement. La manière d'obtenir ce réglage, les mouvements des lignes
+15 et 110 sont presque exactement parallèles à l'axe X et la différence
+dans les coordonnées Y est à la ligne où l'outil est appelé, en dehors
+de la compensation d'outil.
+
+image:images/partdraw1.png[]
+
+Certaines autres choses sont à noter, le programme commence avec G40,
+pour désactiver les compensations éventuellement actives. Cela évite un
+tas d'ennuis quand le programme s'arrête à cause d'une erreur de
+concavité, mais laisse la compensation désactivée. Noter aussi, en
+ligne 15, G17 est utilisé pour spécifier le plan de travail XY pour les
+interpolations circulaires. J'ai utilisé le format rayon pour les
+spécifications des arcs plutôt que la forme I, J. EMC est très
+pointilleux au sujet des rayons qu'il calcule à partir du format des
+coordonnées I, J et il doit trouver le début et la fin du mouvement
+avec 10^-11 unités internes, de sorte qu'il y a beaucoup de problèmes
+avec des arcs arbitraires. Normalement, si vous avez un arc de 90
+degrés, centré sur (1.0,1.0) avec un rayon de 1", tout ira bien, mais
+si le rayon ne peut pas être exprimé exactement et avec juste le nombre
+de chiffres significatifs, ou si l'arc à un nombre étrange de degrés,
+alors les problèmes commencent avec EMC. Le mot R supprime tous ce
+désordre et il est beaucoup plus facile de travailler avec lui, de
+toute façon. Si l'arc est de plus de 180 degrés, R doit être négatif.
+
+

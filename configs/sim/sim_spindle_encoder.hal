@@ -1,0 +1,39 @@
+# simulated spindle encoder (for spindle-synced moves)
+loadrt sim_spindle count=1
+setp sim-spindle.0.scale 0.01666667
+
+loadrt limit2 count=1
+loadrt lowpass count=1
+loadrt near
+
+# this limit doesnt make any sense to me:
+setp limit2.0.maxv 500.0 # rpm/second
+
+# encoder reset control
+# hook up motion controller's sync output
+net spindle-index-enable motion.spindle-index-enable <=> sim-spindle.0.index-enable
+
+# report our revolution count to the motion controller
+net spindle-pos sim-spindle.0.position-fb => motion.spindle-revs
+
+# simulate spindle mass
+setp lowpass.0.gain .07
+
+# spindle speed control
+net spindle-speed-cmd  motion.spindle-speed-out => limit2.0.in
+net spindle-speed-limited limit2.0.out => sim-spindle.0.velocity-cmd lowpass.0.in
+
+# for spindle velocity estimate
+net spindle-rpm-filtered lowpass.0.out motion.spindle-speed-in near.0.in2
+
+# at-speed detection
+setp near.0.scale 1.1
+setp near.0.difference 10
+
+net spindle-speed-cmd => near.0.in1
+net spindle-at-speed near.0.out motion.spindle-at-speed
+
+addf limit2.0      servo-thread
+addf lowpass.0 	   servo-thread
+addf near.0 	   servo-thread
+addf sim-spindle.0 servo-thread

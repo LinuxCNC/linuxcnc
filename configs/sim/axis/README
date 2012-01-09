@@ -1,0 +1,22 @@
+Axis is a modern, GL-based interface coded in python
+
+Axis gui sim ini files:
+
+axis.ini          basic demo (in)
+
+axis_mm.ini       basic demo (mm)
+
+axis_9axis.ini    9 axes
+
+lathe.ini         lathe demo
+
+gantry.ini        gantry demo
+
+random_tc.ini     random tool changer
+
+profile_axis.ini  profiling
+
+Select one of these if you have no functional machine
+but want to edit some basic configuration stuff
+or play with one of the EMC2 displays.
+

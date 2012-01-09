@@ -1,0 +1,110 @@
+= Comparaison avec RS274NGC
+
+== Différences entre programmation RS274NGC et EMC2 
+
+=== Position après un changement d'outil
+
+Avec EMC2, le mobile ne retourne pas sur la position de départ après un 
+changement d'outil. Ce mode de fonctionnement est nécessaire, car un outil peut 
+être plus long que l'outil précédent et dans ce cas un mouvement sur la position
+précédente placerait l'outil trop bas.
+
+=== Les paramètres de décalage sont dans l'unité du fichier ini
+
+Dans EMC2, les valeurs mémorisées dans les paramètres pour les positions 
+d'origine des commandes G28 et G30, les systèmes de coordonnées P1 à P9 et le 
+décalage G92 sont dans l'unité du fichier ini.
+Ce changement a été fait car la position d'un point change selon que G20 ou G21 
+était actif lors de la programmation d'un G28, G30, G10 L2 ou G92.3.
+
+=== Table d'outils, longueur et diamètre sont dans l'unité du fichier ini
+
+Dans EMC2, les longueurs d'outil (compensation) et les diamètres sont spécifiés 
+seulement dans l'unité du fichier ini. Cela est nécessaire, car la longueur et 
+le diamètre de l'outil changent selon que G20 ou G21 étaient actifs à 
+l'initialisation des modes G43, G41, G42. Il était donc impossible de lancer 
+un G-code avec des unités machines non natives, ceci même lorsque le G-code est 
+simple et bien formé (débutant par G20 ou G21 et sans changement d'unité tout au 
+long  du programme) sans changer la table d'outils.
+
+=== G84, G87 ne sont pas implémentés
+
+G84 et G87 ne sont pour le moment pas implémentés. Ils le seront dans une 
+version futur d'EMC2.
+
+=== G28, G30 avec des mots d'axe
+
+Lorsqu'un G28 ou un G30 est programmé avec seulement quelques mots d'axe présents, 
+EMC2 déplace seulement les axes nommés. Ce comportement est commun aux 
+contrôleurs de machine. Pour déplacer certains axes à un point intermédiaire, 
+puis déplacer tous les axes à un point prédéfini, écrire deux lignes de G-code: +
+----
+G0 X- Y-   (déplace les axes au point intermédiaire)  
+G28        (déplace tous les axes au point prédéfini) 
+----
+
+== Ajouts à RS274NGC
+
+Différences qui ne changent pas le déroulement des programmes en RS274NGC.
+
+=== Codes de filetage G33 et G76
+
+Ces codes ne sont pas définis dans RS274NGC.
+
+=== G38.2
+
+La pointe de touche n'est pas rétractée après un mouvement G38.2. 
+Ce mouvement de retrait sera ajouté dans une version futur d'EMC2.
+
+=== G38.3 à G38.5
+
+Ces codes ne sont pas définis dans RS274NGC.
+
+=== Les O-codes
+
+Ces codes ne sont pas définis dans RS274NGC 
+
+=== M50 à M53 Correcteurs de vitesse 
+
+Ces codes ne sont pas définis dans RS274NGC.
+
+=== M61 à M66
+
+Ces codes ne sont pas définis dans RS274NGC.
+
+=== G43, G43.1
+
+Longueurs d'outil négatives::
+
+Les spécifications RS274NGC précisent "il est prévu que" toutes les longueurs 
+d'outils soient positives. Cependant, G43 fonctionne avec des longueurs d'outil 
+négatives. 
+
+Outils de tournage::
+
+La compensation de longueur d'outil G43 peut compenser l'outil à la fois en X et
+en Z. Cette fonctionnalité est surtout utile sur les tours. 
+
+Longueurs d'Outil dynamiques::
+
+EMC2 permet la spécification d'une longueur d'outil calculée par G43.1 I K. 
+
+=== G41.1, G42.1 Compensation dynamique
+
+EMC2 permet dans le G-code, la spécification d'un diamètre d'outil et en mode 
+tour, l'orientation est également spécifiée. Le format est G41.1/G42.1 D L, où 
+D est le diamètre et L (si spécifié) est l'orientation de l'outil de tournage.
+
+=== G43 sans le mot H
+
+Ce code n'est pas permis en NGC. Dans EMC2, il fixe la compensation de longueur 
+pour l'outil actuellement chargé. Si aucun outil n'est actuellement  chargé, 
+c'est une erreur. Ceci a été fait afin que l'utilisateur n'ait pas à  spécifier, 
+pour chaque changement d'outil, le numéro d'outil à deux endroits et c'est 
+cohérent avec la manière de fonctionner de G41/G42 quand le mot D n'est pas 
+spécifié.
+
+=== U, V et W axes
+
+EMC2 peut admettre des machines ayant jusqu'à 9 axes en définissant un 
+ensemble supplémentaire de 3 axes linéaires, connus comme U, V et W.

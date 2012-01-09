@@ -5,87 +5,111 @@
 <TITLE> Documentation d'EMC2 - version HTML </TITLE>
 </HEAD>
 <BODY>
-Ces documents décrivent la version <strong>@VERSION@</strong> d'EMC2.
 
-     <UL>
-     <LI><a name="Introduction à EMC2"></a><A HREF="common_user_intro_fr.html">Introduction à EMC2</A>
-     <LI><a name="Se procurer EMC2"></a><A HREF="common_Getting_EMC_fr.html">Où trouver EMC2</A>
-     <LI><a name="Installation"></a><A HREF="install_installing_emc2_fr.html">Comment installer EMC2</A>
-     <LI><a name="Diagnostic des pas à pas"></a><A HREF="common_Stepper_Diagnostics_fr.html">Diagnostic des pas à pas</A>
-     <LI><a name="Petite FAQ Linux"></a><A HREF="common_Linux_FAQ_fr.html">Petite FAQ Linux</A>
-     <LI><a name="Configuration"></a> Configuration 
-     <UL>
-     <LI><A HREF="config_stepconf_fr.html">L'assistant de configuration StepConf</A>
-     <LI><A HREF="config_ini_config_fr.html">La configuration en détail</A> 
-     <LI><A HREF="config_ini_homing_fr.html">Configuration des prises d'origine</A>
-     <LI><A HREF="config_emc2hal_fr.html">Interface entre EMC2 et HAL</A> 
-     <LI><A HREF="lathe_lathe-user_fr.html">Informations spécifiques aux tours</A>
-     </UL>
- <LI><a name="GCODE"></a> GCODE
-     <UL>
-     <LI><A HREF="gcode_main_fr.html">Le language G-code RS274NGC</A>
-     <LI><A HREF="gcode_coordinates_fr.html">Les systèmes de coordonnées</A>
-     <LI><A HREF="gcode_mill_canned_fr.html">Les cycles préprogrammés</A>
-     <LI><A HREF="gcode_tool_compensation_fr.html">Les compensations d'outil</A>
-     <LI><A HREF="gcode_fr.html">G-code, aide rapide</A>
-     <LI><A HREF="examples_gcode_fr.html">Exemples en G-code</A>
-     </UL>
-<LI><a name="GUI"></a> Interfaces utilisateur 
-     <UL>
-     <LI><A HREF="gui_mini_fr.html">MINI</A>
-     <LI><A HREF="gui_axis_fr.html">AXIS</A>
-     <LI><A HREF="gui_halui_fr.html">halui</A>
-     <LI><A HREF="gui_tkemc_fr.html">TkEmc</A>
-     <LI><A HREF="gui_keystick_fr.html">KeyStick</A>
-     <LI><A HREF="gui_image-to-gcode_fr.html">Les fonctionnalités d'Image-to-gcode</A>
-     </UL>
-<LI><a name="HAL"></a> HAL   
-     <UL> 
-     <LI><A HREF="hal_intro_fr.html">Introduction à HAL</A>
-     <LI><A HREF="hal_basic_hal_fr.html">Les bases de HAL</A>
-     <LI><A HREF="hal_general_ref_fr.html">Documentation générale de HAL</A>
-     <LI><A HREF="hal_hal-examples_fr.html">Exemples pour HAL</A>
-     <LI><A HREF="hal_tools_fr.html">Outils et utilitaires pour HAL</A> 
-     <LI><A HREF="hal_halshow_fr.html">Les fonctionnalités de Halshow</A> 
-     <LI><A HREF="hal_pyvcp_fr.html">Panneaux de contrôle virtuel (pyvcp)</A>
-     <LI><A HREF="hal_drivers_fr.html">Les pilotes matériels</A>
-     <LI><A HREF="hal_rtcomps_fr.html">Les composants temps réel</A>
-     <LI><A HREF="hal_comp_fr.html">Comp: un outil de création de composants HAL</A>
-     <LI><A HREF="hal_halmodule_fr.html">Créer un espace utilisateur en Python avec le module 'hal'</A>
-     </UL>
-<LI><a name="Langage Ladder"></a> Le langage Ladder  
-     <UL>
-     <LI><A HREF="ladder_ladder_intro_fr.html">Introduction au langage Ladder</A>
-<!--     <LI><A HREF="ladder_classic_ladder_fr.html">ClassicLadder</A> -->
-     </UL> 
-<!-- <LI><a name="Code"></a> Code -->
-<!--     <UL> -->
-<!--     <LI><A HREF="code_Code_Notes_fr.html">Code Notes</A> -->
-<!--     <LI><A HREF="code_Style_Guide_fr.html">Guide de style pour le code</A> -->
-<!--     </UL> -->
-<LI><a name="Théorie et pratique avancée"></a> Théorie et pratique avancée
-     <UL>
-     <LI><A HREF="hal_tutorial_fr.html">Le tutoriel de HAL</A>
-     <LI><A HREF="install_compiling_emc2_fr.html">Comment compiler EMC2</A>
-     <LI><A HREF="motion_kinematics_fr.html">Notions de cinématique</A>
-     <LI><A HREF="motion_pid_theory_fr.html">Théorie du PID</A>
-     </UL>
-<LI><a name="Pilotes matériels"></a> Pilotes matériels
-     <UL>
-     <LI><A HREF="motion_tweaking_steppers_fr.html">Réglage des moteurs pas à pas</A>
-     </UL>
-<LI><a name="Exemples matériels"></a>Exemples matériels  
-	<UL> 
-	<LI><A HREF="examples_pci_parallel_port_fr.html">Ajouter un port parallèle PCI</A>
-	<LI><A HREF="examples_mpg_fr.html">Utiliser une manivelle électronique</A>
-	<LI><A HREF="examples_spindle_fr.html">Contrôler la vitesse de la broche</A> 
-	<LI><A HREF="examples_misc_fr.html">Utiliser un palpeur</A> 
+<!-- Even though this template file will open in a browser do not open it in a browser it to test changes
+     open the /html/index_fr.html file in your browser after building the documents -->
+
+Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
+<UL>
+<LI>Autres langues disponibles: <A HREF="index.html">English</A> <A HREF="index_de.html">Deutsch</A> <A HREF="index_es.html">Espa&ntilde;ol</A> <A HREF="index_pl.html">Polish</A>
+<LI>
+<LI><a name="R&eacute;f&eacute;rence G Code, aide rapide"></a> R&eacute;f&eacute;rence G Code aide rapide
+	<UL>
+	<LI><A HREF="../html/gcode_fr.html">R&eacute;f&eacute;rences du G Code, aide rapide</A>
 	</UL>
-<!-- <LI><A HREF="common_Glossary_fr.html">Glossaire</A> -->
-     </UL>
-<LI><a name="Annexes"></a> Annexes 
-     <UL>
-     <LI><A HREF="common_GPLD_Copyright.html">License de la documentation (en anglais)</A>
-     <LI><A HREF="xref_fr.html">Index</A>
-     </UL>
-    
+<LI><a name="Guide de d&eacute;marrage"></a> Guide de d&eacute;marrage
+	<UL>
+	<LI><A HREF="common/System_Requirements_fr.html">Configuration requise</A>
+	<LI><A HREF="common/Getting_EMC_fr.html">Se procurer et installer EMC2</A>
+	<LI><A HREF="quickstart/stepper_quickstart_fr.html">Informations pr&eacute;alables &agrave; la configuration des moteurs pas &agrave; pas</A>
+	<LI><A HREF="config/stepconf_fr.html">L'assistant graphique de configuration StepConf</A>
+	<LI><A HREF="config/pncconf_fr.html">L'assistant graphique de configuration PncConf (cartes Mesa)</A>
+	<LI><A HREF="common/Linux_FAQ_fr.html">Petite FAQ Linux</A>
+	</UL>
+<LI><a name="Manuel de l'utilisateur"></a> Manuel de l'utilisateur
+	<UL>
+	<LI><A HREF="common/userforeword_fr.html">Avant-propos</A>
+	<LI><A HREF="common/user_intro_fr.html">Introduction</A>
+	<LI><A HREF="common/User_Concepts_fr.html">Concepts importants pour l'utilisateur</A>
+	<LI><A HREF="gui/axis_fr.html">L'interface graphique Axis</A>
+	<LI><A HREF="gui/touchy_fr.html">L'interface graphique Touchy</A>
+	<LI><A HREF="gui/ngcgui_fr.html">L'interface graphique NGCGUI</A>
+	<LI><A HREF="gui/tkemc_fr.html">L'interface graphique TkEMC</A>
+	<LI><A HREF="gui/mini_fr.html">L'interface graphique Mini</A>
+	<LI><A HREF="gui/keystick_fr.html">L'interface textuelle KeyStick</A>
+	<LI><A HREF="gcode/machining_center_fr.html">Aper&ccedil;u global d'une machine CNC</A>
+	<LI><A HREF="gcode/coordinates_fr.html">Les syst&egrave;mes de coordonn&eacute;es</A>
+	<LI><A HREF="gcode/tool_compensation_fr.html">Les compensations d'outil</A>
+    <LI><A HREF="gcode/overview_fr.html">Vue g&eacute;n&eacute;rale du G-code</A>
+	<LI><A HREF="gcode/gcode_fr.html">Tout le G-code</A>
+	<LI><A HREF="gcode/m-code_fr.html">Les M-Codes</A>
+	<LI><A HREF="gcode/o-code_fr.html">Les O-Codes</A>
+	<LI><A HREF="gcode/other-code_fr.html">Les autres codes</A>
+	<LI><A HREF="examples/gcode_fr.html">Exemples de programmes en G-code</A>
+	<LI><A HREF="lathe/lathe-user_fr.html">Informations sp&eacute;cifiques aux tours</A>
+	<LI><A HREF="gui/image-to-gcode_fr.html">Les fonctionnalit&eacute;s d'Image-to-gcode</A>
+	<LI><A HREF="gcode/rs274ngc_fr.html">Comparaison avec RS-274NGC</A>
+	</UL>
+<LI><a name="Manuel de HAL"></a> Manuel de HAL
+	<UL>
+	<LI><A HREF="hal/intro_fr.html">Introduction &agrave; HAL</A>
+	<LI><A HREF="hal/general_ref_fr.html">Conventions g&eacute;n&eacute;rales</A>
+	<LI><A HREF="hal/basic_hal_fr.html">Commandes et composants de base</A>
+	<LI><A HREF="hal/tutorial_fr.html">Le tutoriel de HAL</A>
+	<LI><A HREF="hal/halshow_fr.html">Les fonctionnalit&eacute;s de Halshow</A>
+	<LI><A HREF="hal/components_fr.html">Liste des composants de HAL</A>
+	<LI><A HREF="hal/rtcomps_fr.html">Les composants temps r&eacute;el</A>
+	<LI><A HREF="hal/halui_fr.html">L'interface halui</A>
+	<LI><A HREF="hal/hal-examples_fr.html">Exemples pour HAL</A>
+	<LI><A HREF="hal/comp_fr.html">Comp: un outil de cr&eacute;ation de composants HAL</A>
+	<LI><A HREF="hal/halmodule_fr.html">Cr&eacute;er des composants de HAL pour l'espace utilisateur</A>
+	</UL> 
+<LI><a name="Manuel de l'int&eacute;grateur"></a> Manuel de l'int&eacute;grateur
+	<UL>
+	<LI><A HREF="common/Integrator_Concepts_fr.html">Concepts importants pour l'int&eacute;grateur</A>
+	<LI><A HREF="install/Latency_Test_fr.html">Test de latence</A>
+	<LI><A HREF="config/ini_config_fr.html">La configuration en d&eacute;tail</A>
+	<LI><A HREF="config/ini_homing_fr.html">Configuration des prises d'origine</A>
+	<LI><A HREF="config/lathe_config_fr.html">Configuration des tours</A>
+	<LI><A HREF="config/emc2hal_fr.html">Interface entre EMC2 et HAL</A>
+	<LI><A HREF="config/stepper_fr.html">Configuration des moteurs pas &agrave; pas</A>
+	<LI><A HREF="hal/pyvcp_fr.html">Panneaux de commande virtuels avec PyVCP</A>
+	<LI><A HREF="hal/pyvcp_examples_fr.html">Exemples avec pyVCP</A>
+	<LI><A HREF="gui/gladevcp_fr.html">Outil de cr&eacute;ation d'interfaces graphiques GladeVCP</A>
+	<LI><A HREF="hal/parallel_port_fr.html">Pilote de port parall&egrave;le</A>
+	<LI><A HREF="drivers/AX5214H_fr.html">Pilote AX5214H</A>
+	<LI><A HREF="drivers/GS2_fr.html">Pilote GS2</A>
+	<LI><A HREF="drivers/hostmot2_fr.html">Pilote HostMot2</A>
+	<LI><A HREF="drivers/motenc_fr.html">Pilote Motenc Driver</A>
+	<LI><A HREF="drivers/opto22_fr.html">Pilote Opto22 Driver</A>
+	<LI><A HREF="drivers/pico_ppmc_fr.html">Pilote Pico PPMC Driver</A>
+	<LI><A HREF="drivers/pluto_p_fr.html">Pilote Pluto-P Driver</A>
+	<LI><A HREF="drivers/servo_to_go_fr.html">Pilote Servo-To-Go Driver</A>
+	<LI><A HREF="motion/kinematics_fr.html">Notions de cin&eacute;matique</A>
+	<LI><A HREF="motion/tweaking_steppers_fr.html">R&eacute;glage des moteurs pas &agrave; pas</A>
+	<LI><A HREF="motion/pid_theory_fr.html">Th&eacute;orie du PID</A>
+	<LI><A HREF="ladder/ladder_intro_fr.html">Introduction au langage Ladder</A>
+	<LI><A HREF="ladder/classic_ladder_fr.html">ClassicLadder</A>
+	<LI><A HREF="ladder/ladder_examples_fr.html">Exemples avec ClassicLadder</A>
+	<LI><A HREF="examples/pci_parallel_port_fr.html">Exemple: Ajouter un port parall&egrave;le PCI</A>
+	<LI><A HREF="examples/spindle_fr.html">Exemple: Contr&ocirc;ler la vitesse de la broche</A>
+	<LI><A HREF="examples/mpg_fr.html">Exemple: Utiliser une manivelle &eacute;lectronique</A>
+	<LI><A HREF="examples/gs2_example_fr.html">Exemple: Utiliser un GS2</A>
+	<LI><A HREF="common/Stepper_Diagnostics_fr.html">Diagnostic des moteurs pas &agrave; pas</A>
+	<LI><A HREF="common/Updating_EMC_fr.html">Mises &agrave; jour d'EMC2</A>
+	</UL>
+<LI><a name="Manuel du d&eacute;veloppeur (en anglais)"></a> Manuel du d&eacute;veloppeur (en anglais)
+	<UL>
+	<LI><A HREF="common/images/emc2-intro.png">Image de couverture</A>
+	<LI><A HREF="common/overleaf_fr.html">Texte de la couverture</A>
+	<LI><A HREF="code/Code_Notes.html">Notes sur le code (en anglais)</A>
+	<LI><A HREF="code/NML_Messages.html">Messages LNM (en anglais)</A>
+	<LI><A HREF="code/Style_Guide.html">Guide de style (en anglais)</A>
+	</UL>
+<LI><a name="Index, glossaire et Copyright"></a> Glossaire et Copyright
+	<UL>	
+<!--	<LI><A HREF="./xref_fr.html">Index</A> -->
+	<LI><A HREF="common/Glossary.html">Glossaire (En Anglais)</A>
+	<LI><A HREF="common/GPLD_Copyright_fr.html">Copyright et license de la documentation</A>
+	</UL>
+</UL>

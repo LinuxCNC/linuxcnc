@@ -1,0 +1,13 @@
+o<prepare_min> sub
+(debug, prepare_min: loaded tool=#<current_tool>, selected pocket=#<selected_pocket>)
+(debug, prepare tool #<new_tool> from pocket=#<new_pocket>)
+
+; show aborting a prepare on tool 2 by returning a negative value
+;	o100 if [#<tool> EQ 2]
+;           o100 return [-1]
+;	o100 endif
+
+; succeed by returning a positive value
+; which will inspected by the epilog handler
+o<prepare_min> endsub [1]
+m2

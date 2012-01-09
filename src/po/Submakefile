@@ -1,12 +1,14 @@
 ../share/locale/%/LC_MESSAGES/emc2.mo: po/%.po
+	$(ECHO) Compiling localized message catalog $@
 	@mkdir -p $(dir $@)
-	msgfmt -o $@ $<
+	$(Q)msgfmt -o $@ $<
 
 # the touch is because for po/zh_CN.po, msgfmt --tcl creates
 # objects/zh_cn.po and on the next invocation make would try again to
 # create zh_CN.po
 objects/%.msg: po/%.po
-	msgfmt --tcl -d objects -l $* $< && touch $@
+	$(ECHO) Compiling localized message catalog $@
+	$(Q)msgfmt --tcl -d objects -l $* $< && touch $@
 
 MO_FILES := $(patsubst po/%.po, %/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
 
@@ -33,10 +35,13 @@ TCLSRCS := \
 	../tcl/tkemc.tcl \
 	../tcl/scripts/Set_Coordinates.tcl \
 	../tcl/scripts/balloon.tcl \
-	../tcl/scripts/emchelp.tcl
+	../tcl/scripts/emchelp.tcl \
+	../tcl/ngcgui.tcl \
+	../tcl/ngcgui_ttt.tcl
 
 po/emc2.pot:
-	$(XGETTEXT) -k_ -o $@ $^ && touch $@
+	$(ECHO) Localizing emc2.pot
+	$(Q)$(XGETTEXT) -k_ -o $@ $^ && touch $@
 TARGETS += po/emc2.pot
 
 po/emc2.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh

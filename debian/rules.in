@@ -19,6 +19,12 @@
 python_version = @PYTHON_VERSION@
 kernel_version = @KERNEL_VERSION@
 
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+
 debian/control:
 	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
 	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
@@ -35,7 +41,7 @@ ifeq "$(kernel_version)" "sim"
 else
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf
 endif
-	(cd src; $(MAKE) && $(MAKE) docs)
+	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp
 
 clean: debian/control

@@ -14,6 +14,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -305,10 +306,13 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
                            block_pointer block,    //!< pointer to a block being filled from the line
                            double *parameters)     //!< array of system parameters                   
 {
-
-  CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-  (*counter) = strlen(line);
-  return INTERP_OK;
+    char *s;
+    CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter) = strlen(line);
+    // pass unmutilated line to convert_comment - FIXME access to _setup
+    if (( s = strchr(_setup.linetext,';')) != NULL)
+	CHP(convert_comment(s+1, false));
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -528,6 +532,19 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((value > 999), NCE_G_CODE_OUT_OF_RANGE);
   CHKS((value < 0), NCE_NEGATIVE_G_CODE_USED);
+  // mode = usercode_mgroup(&(_setup),value);
+  // if (mode != -1) {
+
+ remap_pointer r = _setup.g_remapped[value];
+  if (r) {
+      mode =  r->modal_group;
+      CHKS ((mode < 0),"BUG: G remapping: modal group < 0"); // real bad
+
+      CHKS((block->g_modes[mode] != -1),
+	   NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP);
+      block->g_modes[mode] = value;
+      return INTERP_OK;
+  }
   mode = _gees[value];
   CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
@@ -1023,6 +1040,20 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   *counter = (*counter + 1);
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < 0), NCE_NEGATIVE_M_CODE_USED);
+
+  remap_pointer r = _setup.m_remapped[value];
+  if (r) {
+      mode =  r->modal_group;
+      CHKS ((mode < 0),"BUG: M remapping: modal group < 0");
+      CHKS ((mode > 10),"BUG: M remapping: modal group > 10");
+
+      CHKS((block->m_modes[mode] != -1),
+	   NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
+      block->m_modes[mode] = value;
+      block->m_count++;
+      return INTERP_OK;
+  }
+
   CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199);
   mode = _ems[value];
   CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED);
@@ -1441,14 +1472,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   const char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
+  extern const char *o_ops[];
 
   CHKS((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // changed spec so we now read an expression
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
-
-  block->o_number = 0;
 
   logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
@@ -1461,12 +1491,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
      CHP(read_integer_value(line, counter, &oNumber,
                             parameters));
      sprintf(oNameBuf, "%d", oNumber);
-     block->o_number = oNumber; //!!!KL keeps this for now
   }
 
   // We stash the text the offset part of setup
-  // And then store the index into block->o_number
-  // Just to be clean, we do not use index zero.
 
 #define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
   // characterize the type of o-word
@@ -1514,9 +1541,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     case O_endsub:
     case O_call:
     case O_return:
-      block->o_name = strdup(oNameBuf);
-      logDebug("global case:|%s|", block->o_name);
-      break;
+	block->o_name = strstore(oNameBuf);
+	logDebug("global case:|%s|", block->o_name);
+	break;
 
       // the remainder are local cases
     default:
@@ -1536,20 +1563,42 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  logDebug("not defining_sub:|%s|", subName);
 	}
       sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
-      block->o_name = strdup(fullNameBuf);
+      block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
-
-  logDebug("o_type:%d o_name:|%s| line:%d |%s|", block->o_type, block->o_name,
+  logDebug("o_type:%s o_name: %s  line:%d %s", o_ops[block->o_type], block->o_name,
 	   block->line_number, line);
 
-  if(block->o_type == O_sub)
+  if (block->o_type == O_sub)
     {
       block->o_type = O_sub;
     }
-  else if(block->o_type == O_endsub)
+  // in terms of execution endsub and return do the same thing
+  else if ((block->o_type == O_endsub) || (block->o_type == O_return))
     {
-      block->o_type = O_endsub;
+	if ((_setup.skipping_o != 0) &&
+	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
+	    return INTERP_OK;
+	}
+
+        if (block->o_type == O_endsub) {
+	    *counter += strlen("endsub");
+        } else {
+	    *counter += strlen("return");
+        }
+	// optional return value expression
+	if (line[*counter] == '[') {
+	    CHP(read_real_expression(line, counter, &value, parameters));
+	    logOword("%s %s value %lf",
+		     (block->o_type == O_endsub) ? "endsub" : "return",
+		     block->o_name,
+		     value);
+	    _setup.return_value = value;
+	    _setup.value_returned = 1;
+	} else {
+	    _setup.return_value = 0;
+	    _setup.value_returned = 0;
+	}
     }
   else if(_setup.defining_sub == 1)
     {
@@ -1567,7 +1616,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
 
       *counter += strlen("call");
-      block->o_type = O_call;
+      // convey starting state for call_fsm() to handle this call
+      // convert_remapped_code() might change this to CS_REMAP 
+      block->call_type = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ?
+	  CT_PYTHON_OWORD_SUB : CT_NGC_OWORD_SUB;
 
       for(param_cnt=0;(line[*counter] == '[') || (line[*counter] == '(');)
 	{
@@ -1585,6 +1637,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  param_cnt++;
 	}
       logDebug("set arg params:%d", param_cnt);
+      block->param_cnt = param_cnt;
 
       // zero the remaining params
       for(;param_cnt < INTERP_SUB_PARAMS; param_cnt++)
@@ -1684,10 +1737,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       {
           block->o_type = O_endrepeat;
       }
-  else if(block->o_type == O_return)
-    {
-      block->o_type = O_return;
-    }
   else
     {
       // not legal
@@ -1783,306 +1832,7 @@ int Interp::read_name(
   return INTERP_OK;
 }
 
-int Interp::find_named_param(
-    char *nameBuf, //!< pointer to name to be read
-    int *status,    //!< pointer to return status 1 => found
-    double *value   //!< pointer to value of found parameter
-    )   
-{
-    //static char name[] = "find_named_param";
-  struct named_parameters_struct *nameList;
 
-  int level;
-  int i;
-
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
-
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-          *value = nameList->named_param_values[i];
-          *status = 1;
-          return INTERP_OK;
-      }
-  }
-
-  *value = 0.0;
-  *status = 0;
-
-  return INTERP_OK;
-}
-
-int Interp::store_named_param(
-    char *nameBuf, //!< pointer to name to be written
-    double value   //!< value to be written
-    )   
-{
-  struct named_parameters_struct *nameList;
-
-  int level;
-  int i;
-
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-      //disallow for predefined, readonly named_parameters
-      if (   (0 == strcmp(nameBuf,"_vmajor") )
-          || (0 == strcmp(nameBuf,"_vminor") )  ) {
-         ERS(_("Cannot change #<%s>"), nameBuf);
-      }
-  }
-
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
-           nameList, nameBuf);
-  logDebug("store_named_parameter: named_parameter_used_size=%d",
-           nameList->named_parameter_used_size);
-
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-#if 0
-      logDebug("store_named_parameter: named_parameter[%d]=|%s|",
-               i, nameList->named_parameters[i]);
-#endif
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-          nameList->named_param_values[i] = value;
-          logDebug("store_named_parameter: level[%d] %s value=%lf",
-                   level, nameBuf, value);
-
-          return INTERP_OK;
-      }
-  }
-
-  logDebug("%s: param:|%s| returning not defined", "store_named_param",
-           nameBuf);
-
-  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
-}
-
-// use to initialize global,readonly named_parameters
-//     like "_vmajor", "_vminor"
-int Interp::init_named_param (
-    char *nameBuf, //!< pointer to name to be written
-    double value   //!< value to be written
-    )
-{
-  struct named_parameters_struct *nameList;
-
-  int level = 0;
-  int i;
-
-  if(nameBuf[0] != '_') // local scope
-  {
-      ERS(_("init_named_parameter must be global #<%s>"), nameBuf);
-  }
-
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  logDebug("init_named_parameter: nameList[%d]=%p storing:|%s|", level,
-           nameList, nameBuf);
-  logDebug("init_named_parameter: named_parameter_used_size=%d",
-           nameList->named_parameter_used_size);
-
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-          nameList->named_param_values[i] = value;
-          logDebug("init_named_parameter: level[%d] %s value=%lf",
-                   level, nameBuf, value);
-
-          return INTERP_OK;
-      }
-  }
-
-  logDebug("%s: param:|%s| returning not defined", "init_named_param",
-           nameBuf);
-
-  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
-}
-
-int Interp::add_named_param(
-    char *nameBuf //!< pointer to name to be added
-    )   
-{
-  static char name[] = "add_named_param";
-  struct named_parameters_struct *nameList;
-  int findStatus;
-  double value;
-  int level;
-  char *dup;
-
-  // look it up to see if already exists
-  CHP(find_named_param(nameBuf, &findStatus, &value));
-
-  if(findStatus)
-  {
-      logDebug("%s: parameter:|%s| already exists", name, nameBuf);
-      return INTERP_OK;
-  }
-
-  // must do an add
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  if(nameList->named_parameter_used_size >=
-     nameList->named_parameter_alloc_size)
-  {
-      // must realloc space
-      nameList->named_parameter_alloc_size += NAMED_PARAMETERS_ALLOC_UNIT;
-
-      logDebug("realloc space level[%d] size:%d",
-               level, nameList->named_parameter_alloc_size);
-
-      nameList->named_parameters =
-          (char **)realloc((void *)nameList->named_parameters,
-                      sizeof(char *)*nameList->named_parameter_alloc_size);
-
-      nameList->named_param_values =
-          (double *)realloc((void *)nameList->named_param_values,
-                      sizeof(double)*nameList->named_parameter_alloc_size);
-
-      if((nameList->named_parameters == 0) ||
-         (nameList->named_param_values == 0))
-      {
-          ERS(NCE_OUT_OF_MEMORY);
-      }
-  }
-
-  dup = strdup(nameBuf);
-  if(dup == 0)
-  {
-      ERS(NCE_OUT_OF_MEMORY);
-  }
-  logDebug("%s strdup[%p]:|%s|", name, dup, dup);
-  nameList->named_parameters[nameList->named_parameter_used_size++] = dup;
-
-  return INTERP_OK;
-}
-
-/****************************************************************************/
-
-/*! read_named_parameter
-
-Returned Value: int
-   If read_integer_value returns an error code, this returns that code.
-   If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns INTERP_OK.
-   1. The first character read is not a <:
-      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
-   2. The named parameter string is not terminated by >:
-      NCE_NAMED_PARAMETER_NOT_TERSINATED
-   3. The named parameter has not been defined before use:
-      NCE_NAMED_PARAMETER_NOT_DEFINED
-
-Side effects:
-   The value of the given parameter is put into what double_ptr points at.
-   The counter is reset to point to the first character after the
-   characters which make up the value.
-
-Called by:  read_parameter
-
-This attempts to read the value of a parameter out of the line,
-starting at the index given by the counter.
-
-According to the RS274/NGC manual [NCMS, p. 62], the characters following
-# may be any "parameter expression". Thus, the following are legal
-and mean the same thing (the value of the parameter whose number is
-stored in parameter 2):
-  ##2
-  #[#2]
-
-
-ADDED by K. Lerman
-Named parameters are now supported.
-#<_abcd> is a parameter with name "abcd" of global scope
-#<abce> is a named parameter of local scope.
-
-*/
-
-int Interp::read_named_parameter(
-    char *line,   //!< string: line of RS274/NGC code being processed
-    int *counter, //!< pointer to a counter for position on the line 
-    double *double_ptr,   //!< pointer to double to be read
-    double *parameters,   //!< array of system parameters
-    bool check_exists)    //!< test for existence, not value
-{
-  static char name[] = "read_named_parameter";
-
-  char paramNameBuf[LINELEN+1];
-  int level;
-  int i;
-
-  struct named_parameters_struct *nameList;
-  
-  CHKS((line[*counter] != '<'),
-      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-
-  CHP(read_name(line, counter, paramNameBuf));
-
-  // now look it up
-  if(paramNameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
-
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
-      {
-          if(check_exists)
-              *double_ptr = 1.0;
-          else
-              *double_ptr = nameList->named_param_values[i];
-          return INTERP_OK;
-      }
-  }
-
-  *double_ptr = 0.0;
-  
-  if(check_exists) return INTERP_OK;
-
-  logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
-           paramNameBuf);
-  ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
-}
 
 
 /****************************************************************************/
@@ -2184,24 +1934,6 @@ int Interp::read_bracketed_parameter(
   return INTERP_OK;
 }
 
-int Interp::free_named_parameters( // ARGUMENTS
-    int level,      // level to free
-    setup_pointer settings)   // pointer to machine settings
-{
-    struct named_parameters_struct *nameList;
-    int i;
- 
-    nameList = &settings->sub_context[level].named_parameters;
-
-    for(i=0; i<nameList->named_parameter_used_size; i++)
-    {
-        free(nameList->named_parameters[i]);
-    }
-    nameList->named_parameter_used_size = 0;
-
-    return INTERP_OK;
-}
-
 
 /****************************************************************************/
 
@@ -2280,7 +2012,7 @@ int Interp::read_parameter_setting(
   int index;
   double value;
   char *param;
-  char *dup;
+  const char *dup;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
@@ -2298,12 +2030,12 @@ int Interp::read_parameter_setting(
       logDebug("setting up named param[%d]:|%s| value:%lf",
                _setup.named_parameter_occurrence, param, value);
 
-      dup = strdup(param);
+      dup = strstore(param); // no more need to free this
       if(dup == 0)
       {
           ERS(NCE_OUT_OF_MEMORY);
       }
-      logDebug("%s strdup[%p]:|%s|", name, dup, dup);
+      logDebug("%s |%s|", name,  dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
 
       _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;
@@ -3250,7 +2982,6 @@ int Interp::read_text(
     int *length)       //!< a pointer to an integer to be set
 {
   int index;
-  int n;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -3295,17 +3026,6 @@ int Interp::read_text(
   }
 
   _setup.parameter_occurrence = 0;      /* initialize parameter buffer */
-
-  // just in case free the strings
-  if(_setup.named_parameter_occurrence != 0)
-  {
-      for (n = 0; n < _setup.named_parameter_occurrence; n++)
-      {
-          // free the string
-          free(_setup.named_parameters[n]);
-      }
-  }
-  _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */
 
   if ((line[0] == 0) || ((line[0] == '/') && (GET_BLOCK_DELETE())))
     *length = 0;

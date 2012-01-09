@@ -1,0 +1,7 @@
+G88.1 X1 Y2 Z3
+; NB: with positional argument caling it is impossible to tell which
+; one of several optional parameters was passed!
+G88.1 X1 Y2 Z3 P4
+G88.1 X1 Y2 Z3 Q5
+G88.1 X1 Y2 Z3 P4 Q5
+M2

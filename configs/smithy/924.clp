@@ -1,5 +1,6 @@
 _FILES_CLASSICLADDER
-_FILE-timers.csv
+_FILE-monostables.csv
+1,1
 1,0
 1,0
 1,0
@@ -9,8 +10,22 @@ _FILE-timers.csv
 1,0
 1,0
 1,0
-1,0
-_/FILE-timers.csv
+_/FILE-monostables.csv
+_FILE-general.txt
+PERIODIC_REFRESH=1
+SIZE_NBR_RUNGS=100
+SIZE_NBR_BITS=20
+SIZE_NBR_WORDS=20
+SIZE_NBR_TIMERS=10
+SIZE_NBR_MONOSTABLES=10
+SIZE_NBR_COUNTERS=10
+SIZE_NBR_TIMERS_IEC=10
+SIZE_NBR_PHYS_INPUTS=15
+SIZE_NBR_PHYS_OUTPUTS=15
+SIZE_NBR_ARITHM_EXPR=100
+SIZE_NBR_SECTIONS=10
+SIZE_NBR_SYMBOLS=160
+_/FILE-general.txt
 _FILE-rung_1.csv
 #VER=2.0
 #LABEL=
@@ -24,6 +39,97 @@ _FILE-rung_1.csv
 9-0-0/0 , 4-0-60/2 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 52-0-60/0
 9-0-0/0 , 3-0-50/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 53-0-60/0
 _/FILE-rung_1.csv
+_FILE-sections.csv
+#VER=1.0
+#NAME000=Prog1
+000,0,-1,2,1,0
+_/FILE-sections.csv
+_FILE-modbusioconf.csv
+#VER=1.0
+_/FILE-modbusioconf.csv
+_FILE-arithmetic_expressions.csv
+#VER=2.0
+0000,(@270/0@-1)&3=@200/1@
+0001,@270/0@=0
+0004,@200/1@=1
+0005,@200/1@=0
+0006,@200/1@=2
+0007,@200/1@=3
+_/FILE-arithmetic_expressions.csv
+_FILE-com_params.txt
+MODBUS_MASTER_SERIAL_PORT=
+MODBUS_MASTER_SERIAL_SPEED=9600
+MODBUS_MASTER_SERIAL_DATABITS=8
+MODBUS_MASTER_SERIAL_STOPBITS=1
+MODBUS_MASTER_SERIAL_PARITY=0
+MODBUS_ELEMENT_OFFSET=0
+MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=0
+MODBUS_MASTER_TIME_INTER_FRAME=100
+MODBUS_MASTER_TIME_OUT_RECEIPT=500
+MODBUS_MASTER_TIME_AFTER_TRANSMIT=0
+MODBUS_DEBUG_LEVEL=0
+MODBUS_MAP_COIL_READ=0
+MODBUS_MAP_COIL_WRITE=0
+MODBUS_MAP_INPUT=0
+MODBUS_MAP_HOLDING=0
+MODBUS_MAP_REGISTER_READ=0
+MODBUS_MAP_REGISTER_WRITE=0
+_/FILE-com_params.txt
+_FILE-counters.csv
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+_/FILE-counters.csv
+_FILE-timers.csv
+1,0
+1,0
+1,0
+1,0
+1,0
+1,0
+1,0
+1,0
+1,0
+1,0
+_/FILE-timers.csv
+_FILE-sequential.csv
+#VER=1.0
+_/FILE-sequential.csv
+_FILE-ioconf.csv
+#VER=1.0
+_/FILE-ioconf.csv
+_FILE-rung_3.csv
+#VER=2.0
+#LABEL=
+#COMMENT=
+#PREVRUNG=2
+#NEXTRUNG=1
+9-0-0/0 , 1-0-50/1 , 1-0-50/2 , 1-0-50/3 , 1-0-50/4 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/2
+9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 20-0-0/1 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/3
+0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
+0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
+0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
+1-0-50/5 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-60/3
+_/FILE-rung_3.csv
+_FILE-timers_iec.csv
+1,15,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+1,0,0
+_/FILE-timers_iec.csv
 _FILE-symbols.csv
 #VER=1.0
 %Q1,TPFWD,
@@ -187,123 +293,17 @@ _FILE-symbols.csv
 %E8,%E8,Error Flag Bit
 %E9,%E9,Error Flag Bit
 _/FILE-symbols.csv
-_FILE-counters.csv
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-_/FILE-counters.csv
 _FILE-rung_2.csv
 #VER=2.0
 #LABEL=
 #COMMENT=
 #PREVRUNG=-1
 #NEXTRUNG=3
-9-0-0/0 , 2-0-50/1 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/5
-9-0-0/0 , 2-0-50/2 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/4
-9-0-0/0 , 2-0-50/3 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/6
-9-0-0/0 , 2-0-50/4 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/7
+9-0-0/0 , 2-0-50/1 , 1-0-50/2 , 1-0-50/3 , 1-0-50/4 , 2-0-0/3 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/5
+9-0-0/0 , 2-0-50/2 , 1-0-50/1 , 1-0-50/3 , 1-0-50/4 , 2-0-0/3 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/4
+9-0-0/0 , 2-0-50/3 , 1-0-50/1 , 1-0-50/2 , 1-0-50/4 , 2-0-0/3 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/6
+9-0-0/0 , 2-0-50/4 , 1-0-50/1 , 1-0-50/2 , 1-0-50/3 , 2-0-0/3 , 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 60-0-0/7
 9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 20-0-0/0 , 9-0-0/0 , 2-0-0/2 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/0
 9-0-0/0 , 9-0-50/0 , 1-0-0/3 , 9-0-0/0 , 0-1-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-60/1
 _/FILE-rung_2.csv
-_FILE-com_params.txt
-MODBUS_MASTER_SERIAL_PORT=
-MODBUS_MASTER_SERIAL_SPEED=9600
-MODBUS_MASTER_SERIAL_DATABITS=8
-MODBUS_MASTER_SERIAL_STOPBITS=1
-MODBUS_MASTER_SERIAL_PARITY=0
-MODBUS_ELEMENT_OFFSET=0
-MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=0
-MODBUS_MASTER_TIME_INTER_FRAME=100
-MODBUS_MASTER_TIME_OUT_RECEIPT=500
-MODBUS_MASTER_TIME_AFTER_TRANSMIT=0
-MODBUS_DEBUG_LEVEL=0
-MODBUS_MAP_COIL_READ=0
-MODBUS_MAP_COIL_WRITE=0
-MODBUS_MAP_INPUT=0
-MODBUS_MAP_HOLDING=0
-MODBUS_MAP_REGISTER_READ=0
-MODBUS_MAP_REGISTER_WRITE=0
-_/FILE-com_params.txt
-_FILE-sections.csv
-#VER=1.0
-#NAME000=Prog1
-000,0,-1,2,1,0
-_/FILE-sections.csv
-_FILE-monostables.csv
-1,1
-1,0
-1,0
-1,0
-1,0
-1,0
-1,0
-1,0
-1,0
-1,0
-_/FILE-monostables.csv
-_FILE-modbusioconf.csv
-#VER=1.0
-_/FILE-modbusioconf.csv
-_FILE-ioconf.csv
-#VER=1.0
-_/FILE-ioconf.csv
-_FILE-arithmetic_expressions.csv
-#VER=2.0
-0000,(@270/0@-1)&3=@200/1@
-0001,@270/0@=0
-0004,@200/1@=1
-0005,@200/1@=0
-0006,@200/1@=2
-0007,@200/1@=3
-_/FILE-arithmetic_expressions.csv
-_FILE-sequential.csv
-#VER=1.0
-_/FILE-sequential.csv
-_FILE-rung_3.csv
-#VER=2.0
-#LABEL=
-#COMMENT=
-#PREVRUNG=2
-#NEXTRUNG=1
-9-0-0/0 , 1-0-50/1 , 1-0-50/2 , 1-0-50/3 , 1-0-50/4 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/2
-9-0-0/0 , 99-0-0/0 , 99-0-0/0 , 20-0-0/1 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/3
-0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
-0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
-0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
-1-0-50/5 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-60/3
-_/FILE-rung_3.csv
-_FILE-timers_iec.csv
-1,15,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-_/FILE-timers_iec.csv
-_FILE-general.txt
-PERIODIC_REFRESH=1
-SIZE_NBR_RUNGS=100
-SIZE_NBR_BITS=20
-SIZE_NBR_WORDS=20
-SIZE_NBR_TIMERS=10
-SIZE_NBR_MONOSTABLES=10
-SIZE_NBR_COUNTERS=10
-SIZE_NBR_TIMERS_IEC=10
-SIZE_NBR_PHYS_INPUTS=15
-SIZE_NBR_PHYS_OUTPUTS=15
-SIZE_NBR_ARITHM_EXPR=100
-SIZE_NBR_SECTIONS=10
-SIZE_NBR_SYMBOLS=160
-_/FILE-general.txt
 _/FILES_CLASSICLADDER

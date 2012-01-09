@@ -107,7 +107,7 @@ SUBDIRS := \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc \
+    emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     \
     module_helper \
     \
@@ -186,12 +186,12 @@ endif
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
+	$(Q)$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
 
 $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
@@ -234,12 +234,15 @@ INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop ../scripts/latencyplot \
+	../scripts/emcmkdesktop \
 	 ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
 	../share/applications/emc.desktop \
-	../share/applications/emc-latency.desktop \
-	../share/applications/emc-latencyplot.desktop
+	../share/applications/emc-latency.desktop
+
+ifeq ($(HAVE_WORKING_BLT),yes)
+INFILES += ../scripts/latencyplot ../share/applications/emc-latencyplot.desktop
+endif
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -279,9 +282,11 @@ HEADERS := \
     emc/nml_intf/interp_return.hh \
     emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
+    emc/nml_intf/debugflags.h \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/rs274ngc.hh \
     hal/hal.h \
+    hal/hal_parport.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -330,8 +335,10 @@ HEADERS := \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_bitops.h \
+    rtapi/rtapi_byteorder.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
+    rtapi/rtapi_math64.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
@@ -343,6 +350,12 @@ TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
+
+# ngcgui as standalone app:
+TARGETS += ../bin/ngcgui
+../bin/ngcgui: ../tcl/ngcgui.tcl
+	cp $< $@
+	chmod +x $@
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
@@ -408,9 +421,9 @@ endif
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
 ../include/%.h: %.h
-	-cp $^ $@
+	$(Q)-cp $^ $@
 ../include/%.hh: %.hh
-	-cp $^ $@
+	$(Q)-cp $^ $@
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
@@ -428,11 +441,17 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
-install-menus install-menu: ../share/menus/CNC.menu \
-		../share/desktop-directories/cnc.directory \
-		../share/applications/emc.desktop \
-		../share/applications/emc-latency.desktop \
-		../share/applications/emc-latencyplot.desktop
+
+MENUS = ../share/menus/CNC.menu \
+    ../share/desktop-directories/cnc.directory \
+    ../share/applications/emc.desktop \
+    ../share/applications/emc-latency.desktop
+
+ifeq ($(HAVE_WORKING_BLT),yes)
+MENUS += ../share/applications/emc-latencyplot.desktop
+endif
+
+install-menus install-menu: $(MENUS)
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
@@ -484,6 +503,8 @@ install-kernel-indep: install-dirs
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
 
@@ -491,10 +512,12 @@ install-kernel-indep: install-dirs
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
+ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
+endif
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
@@ -503,7 +526,7 @@ install-kernel-indep: install-dirs
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
-	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
+	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
@@ -573,16 +596,20 @@ COPY_CONFIGS := \
 
 configs: $(COPY_CONFIGS)
 
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
-	-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
-	-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
-	-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
-	-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
-	-cp $< $@
+.PHONY: print_copy_configs
+print_copy_configs:
+	$(ECHO) copying shared configs
+
+$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal print_copy_configs
+	$(Q)-cp $< $@
+$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal print_copy_configs
+	$(Q)-cp $< $@
+$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal print_copy_configs
+	$(Q)-cp $< $@
+$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal print_copy_configs
+	$(Q)-cp $< $@
+$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
+	$(Q)-cp $< $@
  
 endif # userspace
 
@@ -603,7 +630,7 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
 ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse
+EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
 endif
 
 ifeq "$(USE_STUBS)" "1"
@@ -701,12 +728,15 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
     hal/drivers/mesa-hostmot2/encoder.o   \
+	hal/drivers/mesa-hostmot2/resolver.o  \
     hal/drivers/mesa-hostmot2/pwmgen.o    \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
 	hal/drivers/mesa-hostmot2/sserial.o   \
+	hal/drivers/mesa-hostmot2/mesa_autoconf.o   \
 	hal/drivers/mesa-hostmot2/mesa_8i20.o \
 	hal/drivers/mesa-hostmot2/mesa_7i64.o \
     hal/drivers/mesa-hostmot2/stepgen.o   \
+	hal/drivers/mesa-hostmot2/bspi.o	  \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o      \
     hal/drivers/mesa-hostmot2/led.o       \
@@ -820,21 +850,21 @@ IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	@ld -r -o objects/$*.tmp $^
+	$(Q)ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	@$(CC) -shared -Bsymbolic -o $@ objects/$*.tmp -lm
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	@$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
 endif
 
 ifeq ($(BUILD_SYS),normal)
@@ -845,18 +875,18 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	@ld -r -static -S -Os -o $@ $^ $(EXTRALINK) $(MATHLIB)
+	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal sim,$(BUILD_SYS))" ""
@@ -933,6 +963,18 @@ tags:
 	find . -type f -name '*.[ch]' |xargs etags -l c --append
 	find . -type f -name '*.cc' |xargs etags -l c++ --append
 	find . -type f -name '*.hh' |xargs etags -l c++ --append
+
+etags:
+	etags 	--extra=+fq \
+		--exclude=depends --exclude=objects --exclude=.mod.c \
+		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
+		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
+		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
+                -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
+		-R . ../tcl ../scripts ../share/axis/tcl 
+        find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
+        find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
+        find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
 
 .PHONY: swish
 swish:

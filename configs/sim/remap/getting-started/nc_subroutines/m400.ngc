@@ -1,0 +1,14 @@
+; configured by:
+; [RS274NGC]
+; REMAP=M400  modalgroup=10 argspec=Pq ngc=m400
+;
+o<m400> sub
+#5599 = 1  (turn on debug, output)
+(P is required since it's uppercase in the argspec)
+(debug, P word=#<P>)
+(the q argspec is optional since its lowercase in the argspec. Use as follows:)
+o100 if [EXISTS[#<q>]]
+    (debug, Q word set: #<q>)
+o100 endif
+o<m400> endsub
+M2

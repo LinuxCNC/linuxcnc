@@ -113,7 +113,7 @@
 #include <asm/io.h>
 #endif
 
-#include "parport_common.h"
+#include "hal_parport.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");

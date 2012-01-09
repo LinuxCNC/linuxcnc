@@ -104,7 +104,7 @@ int emcTaskAbort()
     {
 	int was_open = taskplanopen;
 	emcTaskPlanClose();
-	if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 		      __LINE__);
 	}

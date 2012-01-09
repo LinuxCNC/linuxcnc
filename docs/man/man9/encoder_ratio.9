@@ -9,7 +9,8 @@
 .SH NAME
 encoder_ratio \- an electronic gear to synchronize two axes
 .SH SYNOPSIS
-.B loadrt encoder_ratio [num_chan=\fIN\fB]
+\fBloadrt encoder_ratio [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
 .SH DESCRIPTION
 \fBencoder_ratio\fR can be used to synchronize two axes (like an "electronic
 gear").  It counts encoder pulses from both axes in software, and produces an
@@ -17,7 +18,12 @@ error value that can be used with a PID loop to make the slave encoder track
 the master encoder with a specific ratio.
 
 This module supports up to eight axis pairs.  The number of pairs is set by the
-module parameter \fBnum_chan\fR.
+module parameter \fBnum_chan\fR.  Alternatively, specify \fBnames=\fR and unique names
+separated by commas.
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default value is one.
+
 
 .SH FUNCTIONS
 .TP
@@ -27,7 +33,15 @@ Read all input pins.  Must be called at twice the maximum desired count rate.
 .B encoder-ratio.update (uses floating-point)
 Updates all output pins.  May be called from a slower thread.
 
+.SH NAMING
+The names for pins and parameters are prefixed as:
+  \fBencoder-ratio.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBencoder-ratio.N.\fR format is shown in the following descriptions.
+
 .SH PINS
+
 .TP
 .B encoder-ratio.\fIN\fB.master-A\fR bit in
 .TQ

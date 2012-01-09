@@ -17,9 +17,9 @@ TARGETS += ../lib/libemcini.so ../lib/libemcini.so.0
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 ../bin/inivar: $(call TOOBJS, $(INIFILESRCS)) ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^ 
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/inivar

@@ -1,0 +1,116 @@
+// for now, PDF's cant have highlighted ini,hal or ngc files
+// for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+// and make it a local copy in the current directory
+// HTML works fine
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+// begin a listing of ini/hal/ngc files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+
+Source Hightlight Filter Test
+=============================
+
+Details of the filter can be found in
+`./doc/source-highlight-filter.txt`.
+
+[source,{ngc}]
+---------------------------------------------------------------------
+; G-code highlighting stresstest - useless otherwise
+;
+#<tool_change_at_g30> = 0
+G0 (Rapid to start) X1 Y1
+G0 X1 Y1 (Rapid to start; but don't forget the coolant)
+M2 ; End of program.
+M66 P1 L3 Q[#<timeout>]
+M66 P1 L3 Q[#<timeout> + [#4711]]
+M66 P1 L3 Q#<timeout>
+M66 P1 L3 Q#3
+M66 P1 L3 Q#5999
+G5  X23.5 a 19.2
+(debug, foo!)
+(Debug, some text and a substitution: #23 and some more thereafter)
+(DEBUG, #<_a_param>)
+(DEBUG, #<xxx>)
+
+G0 G53 Z0 X[#19]
+G 3 0
+G00
+G01
+G 0 1
+G3 0
+G30
+G53
+G5 3
+G 5 3
+G0
+G1
+;
+; to activate, incantate as follows in the ini file:
+;
+; [RS274NGC]
+; # remap M6 to a named oword subroutine.
+; # the tool number currently loaded (in spindle) is passed as parameter #1
+; M6_COMMAND=o<m6demo>call
+;
+;
+N4711 O<m6demo> sub
+;
+;
+N 0815 #<tool_change_with_spindle_on> = 0
+#<tool_change_quill_up> = 0
+#<tool_change_at_g30> = 0
+
+#4711 = 8.15
+
+; number of seconds to wait for 'tool-changed' equivalent
+#<timeout> = 9999
+;
+(DEBUG, executing M6 O-word sub, tool=#1)
+;
+O<m6demo_spindle_off> if [#<tool_change_with_spindle_on>] EQ 0
+    M5
+O<m6demo_spindle_off> endif
+
+O<m6demo_quill_up> if [#<tool_change_quill_up>] NE 0
+    G0 G53 Z0
+O<m6demo_quill_up> endif
+
+O<m6demo_tc_at_g30> if [#<tool_change_at_g30>] NE 0
+    G30
+O<m6demo_tc_at_g30> endif
+
+; set analog output pin #2 to signal the pocket number
+; iocontrol.tool-number becomes motion.analog-out-02
+M68 E2 Q[#1]
+(DEBUG, set current tool number on motion.analog-out-02: #1)
+;
+; assert the equivalent of the iocontrol.tool-change pin
+; which is now motion.digital-out-01
+M64 P1
+(DEBUG, motion.digital-out-01 set high, waiting for motion.digital-in-01)
+;
+; wait for the equivalent of the iocontrol.tool-changed pin to go high
+; we use motion.digital-in-01
+;
+M66 P1 L3 Q#<timeout>
+;
+O<m6demo_timeout> if [#5399] EQ -1
+    (DEBUG, timeout waiting for motion.digital-in-01 to become true: #5399 )
+O<m6demo_timeout> else
+    (DEBUG, motion.digital-in-01 became true: #5399)
+O<m6demo_timeout> endif
+
+; retract iocontrol.tool-change equivalent
+(DEBUG, deasserting motion.digital-out-01)
+;
+M65 P1
+;
+(DEBUG, done with M6 sub)
+;
+O<m6demo> endsub
+m2
+---------------------------------------------------------------------

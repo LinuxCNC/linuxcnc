@@ -13,8 +13,12 @@
 /** This file, 'pid.c', is a HAL component that provides Proportional/
     Integeral/Derivative control loops.  It is a realtime component.
 
-    It supports a maximum of 16 PID loops, as set by the insmod parameter
-    'num_chan'.
+    It supports a maximum of 16 PID loops.
+
+    The number of pid components is set by the module parameter 'num_chan='
+    when the component is insmod'ed.  Alternatively, use the
+    names= specifier and a list of unique names separated by commas.
+    The names= and num_chan= specifiers are mutually exclusive.
 
     In this documentation, it is assumed that we are discussing position
     loops.  However this component can be used to implement other loops
@@ -125,14 +129,22 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_string.h"
 #include "hal.h"		/* HAL public API decls */
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("PID Loop Component for EMC HAL");
 MODULE_LICENSE("GPL");
-static int num_chan = 3;	/* number of channels - default = 3 */
+static int num_chan;		/* number of channels */
+static int default_num_chan = 3;
 RTAPI_MP_INT(num_chan, "number of channels");
+
+static int howmany;
+#define MAX_CHAN 16
+char *names[MAX_CHAN] ={0,};
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"pid names");
+
 static int debug = 0;		/* flag to export optional params */
 RTAPI_MP_INT(debug, "enables optional params");
 
@@ -199,23 +211,34 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, hal_pid_t * addr);
+static int export_pid(hal_pid_t * addr,char * prefix);
 static void calc_pid(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 16
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval,i;
+
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
 
     /* test for number of channels */
-    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PID: ERROR: invalid num_chan: %d\n", num_chan);
+	    "PID: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -225,16 +248,24 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for pid loop data */
-    pid_array = hal_malloc(num_chan * sizeof(hal_pid_t));
+    pid_array = hal_malloc(howmany * sizeof(hal_pid_t));
     if (pid_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     /* export variables and function for each PID loop */
-    for (n = 0; n < num_chan; n++) {
+    i = 0; // for names= items
+    for (n = 0; n < howmany; n++) {
 	/* export everything for this loop */
-	retval = export_pid(n, &(pid_array[n]));
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            rtapi_snprintf(buf, sizeof(buf), "pid.%d", n);
+	    retval = export_pid(&(pid_array[n]), buf);
+        } else {
+	    retval = export_pid(&(pid_array[n]), names[i++]);
+        }
+
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PID: ERROR: loop %d var export failed\n", n);
@@ -243,7 +274,7 @@ int rtapi_app_main(void)
 	}
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "PID: installed %d PID loops\n",
-	num_chan);
+	howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -412,7 +443,7 @@ static void calc_pid(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, hal_pid_t * addr)
+static int export_pid(hal_pid_t * addr, char * prefix)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 1];
@@ -426,154 +457,154 @@ static int export_pid(int num, hal_pid_t * addr)
 
     /* export pins */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
-			      "pid.%d.enable", num);
+			      "%s.enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->command), comp_id,
-				"pid.%d.command", num);
+				"%s.command", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->commandv), comp_id,
-				"pid.%d.command-deriv", num);
+				"%s.command-deriv", prefix);
     if (retval != 0) {
 	return retval;
     }
     addr->commandvds = addr->commandv;
 
     retval = hal_pin_float_newf(HAL_IN, &(addr->feedback), comp_id,
-				"pid.%d.feedback", num);
+				"%s.feedback", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->feedbackv), comp_id,
-				"pid.%d.feedback-deriv", num);
+				"%s.feedback-deriv", prefix);
     if (retval != 0) {
 	return retval;
     }
     addr->feedbackvds = addr->feedbackv;
 
     retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
-				"pid.%d.error", num);
+				"%s.error", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->output), comp_id,
-				"pid.%d.output", num);
+				"%s.output", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->saturated), comp_id,
-			      "pid.%d.saturated", num);
+			      "%s.saturated", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->saturated_s), comp_id,
-				"pid.%d.saturated-s", num);
+				"%s.saturated-s", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_s32_newf(HAL_OUT, &(addr->saturated_count), comp_id,
-			      "pid.%d.saturated-count", num);
+			      "%s.saturated-count", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->pgain), comp_id,
-				"pid.%d.Pgain", num);
+				"%s.Pgain", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->igain), comp_id,
-				"pid.%d.Igain", num);
+				"%s.Igain", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->dgain), comp_id,
-				"pid.%d.Dgain", num);
+				"%s.Dgain", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->ff0gain), comp_id,
-				"pid.%d.FF0", num);
+				"%s.FF0", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->ff1gain), comp_id,
-				"pid.%d.FF1", num);
+				"%s.FF1", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->ff2gain), comp_id,
-				"pid.%d.FF2", num);
+				"%s.FF2", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins (previously parameters) */
     retval = hal_pin_float_newf(HAL_IO, &(addr->deadband), comp_id,
-				"pid.%d.deadband", num);
+				"%s.deadband", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror), comp_id,
-				"pid.%d.maxerror", num);
+				"%s.maxerror", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror_i), comp_id,
-				"pid.%d.maxerrorI", num);
+				"%s.maxerrorI", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror_d), comp_id,
-				"pid.%d.maxerrorD", num);
+				"%s.maxerrorD", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxcmd_d), comp_id,
-				"pid.%d.maxcmdD", num);
+				"%s.maxcmdD", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxcmd_dd), comp_id,
-				"pid.%d.maxcmdDD", num);
+				"%s.maxcmdDD", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->bias), comp_id,
-				"pid.%d.bias", num);
+				"%s.bias", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->maxoutput), comp_id,
-				"pid.%d.maxoutput", num);
+				"%s.maxoutput", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->index_enable), comp_id,
-			      "pid.%d.index-enable", num);
+			      "%s.index-enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export optional parameters */
     if (debug > 0) {
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
-				    "pid.%d.errorI", num);
+				    "%s.errorI", prefix);
 	if (retval != 0) {
 	    return retval;
 	}
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_d), comp_id,
-				    "pid.%d.errorD", num);
+				    "%s.errorD", prefix);
 	if (retval != 0) {
 	    return retval;
 	}
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_d), comp_id,
-				    "pid.%d.commandD", num);
+				    "%s.commandD", prefix);
 	if (retval != 0) {
 	    return retval;
 	}
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_dd), comp_id,
-				    "pid.%d.commandDD", num);
+				    "%s.commandDD", prefix);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -612,9 +643,9 @@ static int export_pid(int num, hal_pid_t * addr)
     *(addr->ff2gain) = 0.0;
     *(addr->maxoutput) = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "pid.%d.do-pid-calcs", num);
+    rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
     retval =
-	hal_export_funct(buf, calc_pid, &(pid_array[num]), 1, 0, comp_id);
+	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PID: ERROR: do_pid_calcs funct export failed\n");

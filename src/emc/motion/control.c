@@ -497,6 +497,27 @@ static void process_inputs(void)
 	}
 	/* end of read and process joint inputs loop */
     }
+
+    // a fault was signalled during a spindle-orient in progress
+    // signal error, and cancel the orient
+    if (*(emcmot_hal_data->spindle_orient)) {
+	if (*(emcmot_hal_data->spindle_orient_fault)) {
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_FAULTED;
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
+	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
+	    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+	    tpAbort(&emcmotDebug->coord_tp);
+	    SET_MOTION_ERROR_FLAG(1);
+	} else if (*(emcmot_hal_data->spindle_is_oriented)) {
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    *(emcmot_hal_data->spindle_locked) = 1;
+	    emcmotStatus->spindle.locked = 1;
+	    emcmotStatus->spindle.brake = 1;
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_COMPLETE;
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
+	}
+    }
 }
 
 static void do_forward_kins(void)
@@ -770,7 +791,6 @@ static void set_operating_mode(void)
 	tpClear(&emcmotDebug->coord_tp);
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp.enable = 0;
@@ -804,7 +824,6 @@ static void set_operating_mode(void)
 	tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
 	    joint->free_tp.curr_pos = joint->pos_cmd;
@@ -1033,7 +1052,7 @@ static void handle_jogwheels(void)
 
 static void get_pos_cmds(long period)
 {
-    int joint_num, axis_num, all_homed, all_at_home, result;
+    int joint_num, axis_num, result;
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     double positions[EMCMOT_MAX_JOINTS];
@@ -1050,13 +1069,6 @@ static void get_pos_cmds(long period)
 	joint = &joints[joint_num];
 	/* copy coarse command */
 	positions[joint_num] = joint->coarse_pos;
-	/* check for homed */
-	if (!GET_JOINT_HOMED_FLAG(joint)) {
-	    all_homed = 0;
-	    all_at_home = 0;
-	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-	    all_at_home = 0;
-	}
     }
     /* if less than a full complement of joints, zero out the rest */
     while ( joint_num < EMCMOT_MAX_JOINTS ) {
@@ -1129,8 +1141,6 @@ static void get_pos_cmds(long period)
 	    emcmotDebug->overriding = 0;
 	}
 	/*! \todo FIXME - this should run at the traj rate */
-	all_homed = 1;
-	all_at_home = 1;
 	switch (emcmotConfig->kinType) {
 
 	case KINEMATICS_IDENTITY:
@@ -1618,16 +1628,18 @@ static void output_to_hal(void)
     if(emcmotStatus->spindle.css_factor) {
 	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
 	double speed;
+        double maxpositive;
         if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
 	else speed = emcmotStatus->spindle.speed;
 
 	speed = speed * emcmotStatus->net_spindle_scale;
 
+        maxpositive = fabs(emcmotStatus->spindle.speed);
         // cap speed to G96 D...
-        if(speed < -emcmotStatus->spindle.speed)
-            speed = -emcmotStatus->spindle.speed;
-        if(speed > emcmotStatus->spindle.speed)
-            speed = emcmotStatus->spindle.speed;
+        if(speed < -maxpositive)
+            speed = -maxpositive;
+        if(speed > maxpositive)
+            speed = maxpositive;
 
 	*(emcmot_hal_data->spindle_speed_out) = speed;
 	*(emcmot_hal_data->spindle_speed_out_rps) = speed/60.;

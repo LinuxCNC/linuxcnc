@@ -2,8 +2,10 @@ abs.9
 abs_s32.9
 and2.9
 biquad.9
+bldc.9
 bldc_hall3.9
 bldc_sine.9
+bldc.9
 blend.9
 charge_pump.9
 clarke2.9
@@ -64,8 +66,11 @@ m7i43_hm2.9
 maj3.9
 match8.9
 mesa7i43_gpio.9
+mesa_7i65.9
+message.9
 minmax.9
 mult2.9
+multiswitch.9
 mux2.9
 mux4.9
 mux8.9
@@ -75,6 +80,8 @@ not.9
 offset.9
 oneshot.9
 or2.9
+orient.9
+pcl720.9
 pluto_step.9
 pluto_servo.9
 sample_hold.9

@@ -61,6 +61,10 @@ The inifile is searched for in the directory from which halcmd was run, unless a
 (s32, Out) The number of the next tool, from the RS274NGC T-word
 
 .TP
+\fBiocontrol.0.tool-prep-pocket
+(s32, Out) The pocket number (location in tool storage mechanism) of the next tool, as described in the tool table
+
+.TP
 \fBiocontrol.0.tool-prepare 
 (Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
 

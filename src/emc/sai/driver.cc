@@ -29,9 +29,14 @@
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
 #include <getopt.h>
+#include <stdarg.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
 
 Interp interp_new;
-//Inifile inifile;
+const char *prompt = "==> ";
+const char *history = "dothistory"; // FIXME -> homedir?
 
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes
@@ -49,6 +54,8 @@ Interp interp_new;
 #define interp_open      interp_new.open
 #define interp_read	 interp_new.read
 #define interp_load_tool_table interp_new.load_tool_table
+#define interp_set_loglevel interp_new.set_loglevel
+#define interp_task_init interp_new.task_init
 
 /*
 
@@ -491,6 +498,7 @@ instructions are printed to stdout (with printf), the instructions get
 redirected and the user does not see them.
 
 */
+int _task = 0; // control preview behaviour when remapping
 
 int main (int argc, char ** argv)
 {
@@ -506,6 +514,9 @@ int main (int argc, char ** argv)
   char default_name[] = "/etc/emc2/sample-configs/sim/sim.var";
   int print_stack;
   int go_flag;
+  char *inifile = NULL;
+  int log_level = -1;
+
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
   print_stack = OFF;
@@ -515,7 +526,7 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "t:v:bsn:g");
+      int c = getopt(argc, argv, "t:v:bsn:gi:l:T");
       if(c == -1) break;
 
       switch(c) {
@@ -524,7 +535,10 @@ int main (int argc, char ** argv)
           case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
           case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
           case 'n': do_next = atoi(optarg); break;
+          case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
+          case 'i': inifile = optarg; break;
+          case 'T': _task = 1; break;
           case '?': default: goto usage;
       }
   }
@@ -542,9 +556,12 @@ usage:
             "           0: continue\n"
             "           1: enter MDI mode\n"
             "           2: stop (default)\n"
-            "    -b: Toggle the 'block delete' flag (default: ON)\n"
-            "    -s: Toggle the 'print stack' flag (default: ON)\n"
+            "    -b: Toggle the 'block delete' flag (default: OFF)\n"
+            "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
+            "    -i: specify the .ini file (default: no ini file)\n"
+            "    -T: call task_init()\n"
+            "    -l: specify the log_level (default: -1)\n"
             , argv[0]);
       exit(1);
     }
@@ -601,11 +618,20 @@ usage:
           exit(1);
         }
     }
+  if (inifile!= 0) {
+      setenv("INI_FILE_NAME",inifile,1);
+  } else
+      unsetenv("INI_FILE_NAME");
+
   if ((status = interp_init()) != INTERP_OK)
     {
       report_error(status, print_stack);
       exit(1);
     }
+
+  if (log_level != -1)
+      interp_set_loglevel(log_level);
+
 
   if (argc == 1)
     status = interpret_from_keyboard(block_delete, print_stack);
@@ -632,3 +658,16 @@ usage:
 }
 
 /***********************************************************************/
+
+int  emcOperatorError(int id, const char *fmt, ...)
+{
+    va_list ap;
+
+    if (id)
+	fprintf(stderr,"[%d] ", id);
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    return 0;
+}

@@ -1170,6 +1170,8 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int brake;			// 0 released, 1 engaged
     int increasing;		// 1 increasing, -1 decreasing, 0 neither
     int enabled;		// non-zero means enabled
+    int orient_state;
+    int orient_fault;
 };
 
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
@@ -1501,6 +1503,7 @@ class EMC_TOOL_ABORT:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
+    int reason;		//  convey reason for abort to iocontrol
 };
 
 class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
@@ -1511,7 +1514,7 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
+    int pocket;
     int tool;
 };
 
@@ -1575,6 +1578,16 @@ class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {
     void update(CMS * cms);
 
     int tool; //number to use for currently loaded tool
+};
+
+class EMC_TOOL_START_CHANGE:public EMC_TOOL_CMD_MSG {
+  public:
+    EMC_TOOL_START_CHANGE():EMC_TOOL_CMD_MSG(EMC_TOOL_START_CHANGE_TYPE,
+					     sizeof(EMC_TOOL_START_CHANGE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
 };
 
 // EMC_TOOL status base class
@@ -1702,6 +1715,30 @@ class EMC_SPINDLE_SPEED:public EMC_SPINDLE_CMD_MSG {
     double factor;  // Zero for constant RPM.  numerator of speed for CSS
     double xoffset; // X axis offset compared to center of rotation, for CSS
 };
+
+class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
+  public:
+    EMC_SPINDLE_ORIENT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ORIENT_TYPE,
+					    sizeof(EMC_SPINDLE_ORIENT)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    double orientation;   // desired spindle position
+    int    mode;   
+};
+
+class EMC_SPINDLE_WAIT_ORIENT_COMPLETE:public EMC_SPINDLE_CMD_MSG {
+  public:
+    EMC_SPINDLE_WAIT_ORIENT_COMPLETE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE,
+					    sizeof(EMC_SPINDLE_WAIT_ORIENT_COMPLETE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    double timeout;   // how long to wait until spindle orient completes; > 0
+};
+
 
 class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
   public:
@@ -1992,12 +2029,14 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     // top-level stuff
     double cycleTime;
     int debug;			// copy of EMC_DEBUG global
-
+    int reason;			// to communicate abort/fault cause
+    int fault;                  //  0 on succes, 1 on fault during M6
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
     EMC_COOLANT_STAT coolant;
     EMC_AUX_STAT aux;
     EMC_LUBE_STAT lube;
+
 };
 
 // EMC is aggregate of EMC_TASK, EMC_TRAJ, EMC_IO, etc.
@@ -2038,6 +2077,37 @@ class EMC_ABORT:public EMC_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
+
+/** queue a call to a task-time Python plugin method
+ * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
+ */
+class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
+  public:
+    EMC_EXEC_PLUGIN_CALL():EMC_CMD_MSG(EMC_EXEC_PLUGIN_CALL_TYPE,
+				    sizeof(EMC_EXEC_PLUGIN_CALL)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int len;
+    char call[900]; // MAX_NML_COMMAND_SIZE-100;
+};
+
+/** queue a call to a task-time Io Task Python plugin method
+ * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
+ */
+class EMC_IO_PLUGIN_CALL:public EMC_CMD_MSG {
+  public:
+    EMC_IO_PLUGIN_CALL():EMC_CMD_MSG(EMC_IO_PLUGIN_CALL_TYPE,
+				    sizeof(EMC_IO_PLUGIN_CALL)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int len;
+    char call[900]; // MAX_NML_COMMAND_SIZE-100;
+};
+
 
 // EMC status base class
 

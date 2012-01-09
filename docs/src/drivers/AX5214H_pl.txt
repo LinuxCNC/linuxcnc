@@ -1,0 +1,64 @@
+= AX5214H
+
+The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
+board. It plugs into an ISA bus, and resembles a pair of 8255 chips. In
+fact it may be a pair of 8255 chips, but I'm not sure. If/when someone
+starts a driver for an 8255 they should look at the ax5214 code, much
+of the work is already done.
+
+== Installing
+
+----
+loadrt hal_ax5214h cfg="<config-string>"
+----
+
+The config string consists of a hex port address, followed by an 8
+character string of "I" and "O" which sets groups of pins as inputs and
+outputs. The first two character set the direction of the first two 8
+bit blocks of pins (0-7 and 8-15). The next two set blocks of 4 pins
+(16-19 and 20-23). The pattern then repeats, two more blocks of 8 bits
+(24-31 and 32-39) and two blocks of 4 bits (40-43 and 44-47). If more
+than one board is installed, the data for the second board follows the
+first. As an example, the string '"0x220 IIIOIIOO 0x300 OIOOIOIO"'
+installs drivers for two boards. The first board is at address 0x220,
+and has 36 inputs (0-19 and 24-39) and 12 outputs (20-23 and 40-47).
+The second board is at address 0x300, and has 20 inputs (8-15, 24-31,
+and 40-43) and 28 outputs (0-7. 16-23, 32-39, and 44-47). Up to 8
+boards may be used in one system.
+
+== Pins
+
+* '(bit) ax5214.<boardnum>.out-<pinnum>' -- Drives a physical output pin.
+* '(bit) ax5214.<boardnum>.in-<pinnum>' -- Tracks a physical input pin.
+* '(bit) ax5214.<boardnum>.in-<pinnum>-not' -- Tracks a physical input pin, inverted.
+
+For each pin, <boardnum> is the board number (starts at zero), and
+<pinnum> is the I/O channel number (0 to 47).
+
+Note that the driver assumes active LOW signals. This is so that
+modules such as OPTO-22 will work correctly (TRUE means output ON, or
+input energized). If the signals are being used directly without
+buffering or isolation the inversion needs to be accounted for. The in-
+HAL pin is TRUE if the physical pin is low (OPTO-22 module energized),
+and FALSE if the physical pin is high (OPTO-22 module off). The
+in-<pinnum>-not HAL pin is inverted -- it is FALSE if the physical pin
+is low (OPTO-22 module energized). By connecting a signal to one or the
+other, the user can determine the state of the input.
+
+== Parameters
+
+* '(bit) ax5214.<boardnum>.out-<pinnum>-invert' -- Inverts an output pin.
+
+The -invert parameter determines whether an output pin is active high
+or active low. If -invert is FALSE, setting the HAL out- pin TRUE
+drives the physical pin low, turning ON an attached OPTO-22 module, and
+FALSE drives it high, turning OFF the OPTO-22 module. If -invert is
+TRUE, then setting the HAL out- pin TRUE will drive the physical pin
+high and turn the module OFF.
+
+== Functions
+
+* '(funct) ax5214.<boardnum>.read' -- Reads all digital inputs on one board.
+* '(funct) ax5214.<boardnum>.write' -- Writes all digital outputs on one board.
+
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+! grep -q '\*fail\*' $1

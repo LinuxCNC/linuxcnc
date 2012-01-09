@@ -1,0 +1,5 @@
+# in case they were linked already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+net tool-change  iocontrol.0.tool-change  iocontrol.0.tool-changed

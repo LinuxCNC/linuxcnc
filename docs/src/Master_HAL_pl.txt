@@ -1,0 +1,75 @@
+HAL and Device Drivers V0.1, {localdate}
+========================================
+The EMC Team
+
+//:lang: pl
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+:leveloffset: 0
+= HAL
+:leveloffset: 1
+
+include::hal/intro_pl.txt[]
+
+include::hal/tutorial_pl.txt[]
+
+include::hal/general_ref_pl.txt[]
+
+include::hal/canonical-devices_pl.txt[]
+
+include::hal/tools_pl.txt[]
+
+include::hal/basic_hal_pl.txt[]
+
+include::hal/halshow_pl.txt[]
+
+include::hal/components_pl.txt[]
+
+include::hal/rtcomps_pl.txt[]
+
+include::hal/parallel_port_pl.txt[]
+
+include::hal/hal-examples_pl.txt[]
+
+include::gui/halui_pl.txt[]
+
+include::hal/halui_examples_pl.txt[]
+
+include::hal/comp_pl.txt[]
+
+include::hal/halmodule_pl.txt[]
+
+:leveloffset: 0
+= Hardware Drivers
+:leveloffset: 1
+
+include::drivers/AX5214H_pl.txt[]
+
+include::drivers/GS2_pl.txt[]
+
+include::drivers/hostmot2_pl.txt[]
+
+include::drivers/motenc_pl.txt[]
+
+include::drivers/opto22_pl.txt[]
+
+include::drivers/pico_ppmc_pl.txt[]
+
+include::drivers/pluto_p_pl.txt[]
+
+include::drivers/servo_to_go_pl.txt[]
+
+include::common/GPLD_Copyright_pl.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

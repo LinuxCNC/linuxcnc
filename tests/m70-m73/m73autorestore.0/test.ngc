@@ -1,0 +1,47 @@
+%
+(Program to test M73 save context/auto-restore context on return)
+(M. Haberler)
+
+o1000 sub
+
+o1001 if [#1 GT 0]
+      M73 (save context and auto-restore on return and endsub)
+o1001 endif
+
+G90 (absolute)
+G0 X5 Y20
+
+o1002 if [#2 EQ 1]
+o1002	return (trigger auto-restore on return)
+o1002 endif
+
+o1005 if [#2 EQ 2]
+	M72 (explicitly restore context of this frame)
+	M71 (invalidate current frame)
+o1005  	return (no triggering of auto-restore-on-return since frame now invalid)
+o1005 endif
+
+o1000 endsub (trigger auto-restore on endsub if m73 issued and not invalidated)
+
+G90
+G53 G0 X0 Y0 Z0
+G91 (relative)
+g0 x10 y10
+g0 x10 y10
+o1000 call [1.0] [0.0]
+(back in relative mode due to M73 restore-on-endsub)
+(debug, incremental=#<_incremental>)
+o1000 call [1.0] [1.0]
+(back in relative mode due to M73 restore-on-return)
+(debug, incremental=#<_incremental>)
+
+g0 X-5 Y-20
+o1000 call [0.0] [0.0]
+G91 (relative)
+g0 x10 y10
+g0 x10 y10
+o1000 call [0.0] [0]
+
+
+(debug, incremental=#<_incremental>)
+%

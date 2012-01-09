@@ -1,4 +1,7 @@
 # loads all HAL modules for Universal PWM controller with threading
+# this version activates velocity estimation in the PPMC driver
+#     with the timestamp=xx parameter in the loadrt line
+#     this will only work with rev 4 UPC firmware and EMC2.4.6 or later
 
 # kinematics
 loadrt trivkins

@@ -1,0 +1,10 @@
+o<rm407> sub
+o100 if [[#<_seq>] GT 7]
+     (debug,M407 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 7
+o<rm407> endsub
+m2
+%

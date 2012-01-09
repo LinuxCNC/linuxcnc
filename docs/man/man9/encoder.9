@@ -8,7 +8,7 @@
 .SH NAME
 encoder \- software counting of quadrature encoder signals
 .SH SYNOPSIS
-\fBloadrt encoder num_chan=\fInum\fR
+.B loadrt encoder [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
 
 .SH DESCRIPTION
 \fBencoder\fR is used to measure position by counting the pulses
@@ -21,7 +21,11 @@ Some hardware-based systems can count at MHz rates.
 .P
 \fBencoder\fR supports a maximum of eight channels.  The number of
 channels actually loaded is set by the \fBnum_chan\fR argument when
-the module is loaded.  If \fBnumchan\fR is not specified, the default
+the module is loaded.  Alternatively, specify names= and unique names
+separated by commas.
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
 value is three.
 .P
 \fBencoder\fR has a one-phase, unidirectional mode called \fIcounter\fR.
@@ -44,7 +48,16 @@ and other necessary conversion, handles counter rollover, etc.  Can
 (and should) be called less frequently than \fBupdate-counters\fR.
 Operates on all channels at once.
 
+.SH NAMING
+The names for pins and parameters are prefixed as:
+  \fBencoder.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBencoder.N.\fR format is shown in the following descriptions.
+
+
 .SH PINS
+
 .TP
 \fBencoder.\fIN\fB.counter-mode\fR bit i/o
 Enables counter mode.  When true, the counter counts each rising edge of the
@@ -123,6 +136,11 @@ default), it counts in quadrature mode.
 Maximum number of CPU cycles it took to execute this function.
 
 .SH PARAMETERS
+Parameter names for num_chan= specifier are:
+    \fBencoder.\fIN\fB.the_parameter_name\fR
+.TP
+Parameter names for names= specifier are:
+    \fBnameN\fB.the_parameter_name\fR
 .TP
 \fBencoder.\fIN\fB.min-velocity-estimate\fR float rw (default: 1.0)
 Determine the minimum true velocity magnitude at which \fBvelocity\fR will be

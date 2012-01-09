@@ -1,0 +1,247 @@
+= NGCGUI
+
+image::images/ngcgui.png[]
+
+== Overview
+    
+* 'NGCGUI' is a utility for using EMC2 subroutines.
+* 'NGCGUI' can run as a standalone application or be embedded in
+   multiple tab pages in the axis gui
+* Multiple copies of the same subroutine can be created
+* Subroutines can be concatenated together to form a complete multiple
+  step program
+* New subroutines can be added on the fly
+
+NGCGUI is a powerful tool for building g-code programs from subroutines
+on the fly.
+Subroutines can be concatenated to build a complete program. Multiple
+instances of a subroutine can be used to perform the same task in different
+locations on the part. Any valid g-code can be used in the subroutine.
+
+== Embedding NGCGUI in Axis
+
+Several NGCGUI examples are included with EMC2 and are located in the sim/ngcgui
+directory.
+
+=== INI File
+
+The following INI file items for NGCGUI go in the [DISPLAY] section.
+
+* 'TKPKG = Ngcgui 1.0' - the main NGCGUI package (must precede Ngcguittt)
+* 'TKPKG = Ngcguittt 1.0' - the True Type Tracer package for generating text
+   for engraving.
+* 'NGCGUI_FONT = Helvetica -12 normal' - specifices the font
+* 'NGCGUI_PREAMBLE = in_std.ngc' - the preamble file to be added in front of the
+  subroutines. When concatenating several subroutines this is only added once.
+* 'NGCGUI_SUBFILE = simp.ngc' - creates a tab from the named subroutine
+* 'NGCGUI_SUBFILE = ""' - creates a custom tab
+* 'NGCGUI_OPTIONS = opt1 opt2 ...' - NGCGUI options
+** 'nonew' - disallow making a new custom tab
+** 'noremove' - disallow removing any tab page
+** 'noauto' - no auto send (makeFile, then manually send)
+** 'noiframe' - no internal image, image on separate top level
+* 'TTT = truetype-tracer' - the truetype tracer program
+* 'TTT_PREAMBLE = in_std.ngc' - 
+
+This is an example of embedding NGCGUI into Axis. The subroutines need to be
+in the subdirectories as shown if you just copy this. Some example subroutines
+use other subroutines so check to be sure you have the dependences if any in
+your subroutine directory.
+
+.Sample INI
+----
+[DISPLAY]
+TKPKG             = Ngcgui    1.0
+TKPKG             = Ngcguittt 1.0
+# Ngcgui must precede Ngcguittt
+
+NGCGUI_FONT       = Helvetica -12 normal
+# specify relative or full path for startup subroutine tab pages:
+NGCGUI_PREAMBLE   = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/simp.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/xyz.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/iquad.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/db25.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/ihex.ngc
+NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/gosper.ngc
+# specify "" for a custom tab page
+NGCGUI_SUBFILE    = ""
+#NGCGUI_SUBFILE   = "" use when image frame is specified if
+#                      opening other files is required
+#                      images will be put in a top level window
+NGCGUI_OPTIONS    =
+#NGCGUI_OPTIONS   = opt1 opt2 ...
+# opt items:
+#   nonew      -- disallow making a new custom tab
+#   noremove   -- disallow removing any tab page
+#   noauto     -- no auto send (makeFile, then manually send)
+#   noiframe   -- no internal image, image on separate top level
+
+TTT               = truetype-tracer
+TTT_PREAMBLE      = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+
+PROGRAM_PREFIX          = ../../nc_files
+----
+
+== Subroutine Requirements
+
+An NGCGUI-compatible subfile contains a single subroutine definition. The name
+of the subroutine must be the same as the filename (not including the .ngc
+suffix). EMC2 supports named or numbered subroutines, but only named
+subroutines are compatible with NGCGUI. For more information see the
+<<cha:O-Codes,O-Codes>> Chapter.
+
+The first non-comment line should be a sub statement.
+The last non-comment line should be a endsub statement.
+
+.examp.ngc:
+----
+o<examp> sub
+  BODY_OF_SUBROUTINE
+o<examp> endsub
+----
+
+The body of the subroutine should begin with a set of statements that define
+local named parameters for each positional parameter expected for the
+subroutine call. These definitions must be consecutive beginning with #1 and
+ending with the last used parameter number. Definitions must be provided for
+each of these parameters (no omissions).
+
+.Parameter Numbering
+----
+#<xparm> = #1
+#<yparm> = #2
+#<zparm> = #3
+----
+
+EMC2 considers all numbered parameters in the range #1 thru #30 to be calling
+parameters so ngcgui provides entry boxes for any occurence of parameters in
+this range. It is good practice to avoid use of numbered parameters #1 through
+#30 anywhere else in the subroutine. Using local, named parameters is
+recommended for all internal variables.
+
+Each defining statement may optionally include a special comment and a default
+value for the parameter.
+
+.Statement Prototype
+----
+#<vname> = #n (=default_value)
+or
+#<vname> = #n (comment_text)
+or
+#<vname> = #n (=default_value comment_text)
+----
+
+.Parameter Examples
+----
+#<xparm> = #1 (=0.0)
+#<yparm> = #2 (Ystart)
+#<zparm> = #3 (=0.0 Z start setting)
+----
+
+If a default_value is provided, it will be entered in the entry box
+for the parameter on startup.
+
+If comment_text is included, it will be used to identify the input
+instead of the parameter name.
+
+.Global Named Parameters
+Notes on global named parameters (#<_globalname>) and ngcgui:
+
+As in many programming languages, use of globals is powerful but can often lead
+to unexpected consequences. In EMC2, existing global named parameters will be
+valid at subroutine execution and subroutines can modify or create global named
+parameters.
+
+The use of global named parameters as inputs to subroutines is discouraged
+because such usage requires the establishment and maintenance of a well-defined
+global context that is problematic to maintain. Using numbered parameters #1
+thru #30 as subroutine inputs should be sufficient to satisfy a wide range of
+design requirements.
+
+Ngcgui includes some support for global named input parameters but usage
+is deprecated and not documented here.
+
+While input global named parameters are discouraged, emc subroutines must use
+global named parameters for returning results. Since ngcgui-compatible
+subfiles are aimed at gui usage, return values are not a common requirement.
+However, ngcgui is useful as a testing tool for subroutines which do return
+global named parameters and it is common for ngcgui-compatible subfiles to call
+utility subroutine files that return results with global named parameters.
+
+To support these usages, ngcgui ignores global named parameters that include a
+colon (:) character in their name. Use of the colon (:) in the name prevents
+ngcgui from making entryboxes for these parameters.
+
+.Global Named Parameters
+----
+o<examp> sub
+...
+#<_examp:result> = #5410       (return the current tool diameter)
+...
+o<helper> call [#<x1>] [#<x2>] (call a subroutine)
+#<xresult> = #<_helper:answer> (localize immediately the helper result)
+#<_helper:answer> = 0.0        (nullify global named parameter used by subroutine)
+...
+o<examp> endsub
+----
+
+In the above example, the utility subroutine will be found in a separate file
+named helper.ngc. The helper routine returns a result in a global
+named parameter named #<_helper:answer.
+
+For good practice, the calling subfile immediately localizes the result for use
+elsewhere in the subfile and the global named parameter used for returning the
+result is nullified in an attempt to mitigate its inadvertent use elsewhere in
+the global context. (A nullification value of 0.0 may not always be a good
+choice).
+
+Ngcgui supports the creation and concatenation of multiple features for a
+subfile and for multiple subfiles. It is sometimes useful for subfiles to
+determine their order at runtime so ngcgui inserts a special global parameter
+that can be tested within subroutines. The parameter is named #<_feature:>.
+Its value begins with a value of 0 and is incremented for each added feature.
+
+.Additional Features
+A special 'info' comment can be included anywhere in an ngcgui-compatible
+subfile. The format is:
+
+----
+(info: info_text)
+----
+
+The info_text is displayed near the top of the ngcgui tab page in axis.
+
+An optional image file (.png,.gif,.jpg,.pgm) can accompany a subfile. The
+image file can help clarify the parameters used by the subfile. The image file
+should be in the same directory as the subfile and have the same name with an
+appropriate image suffix, e.g. the subfile examp.ngc could be accompanied by an
+image file examp.png. Ngcgui attempts to resize large images by subsampling
+to a size with maximum width of 320 and maximum height of 240 pixels. 
+
+None of the conventions required for making an ngcgui-compatible subfile
+preclude its use as general purpose subroutine file for EMC2.
+
+The EMC2 distribution includes a library (ngcgui_lib directory) that
+includes both example ngcgui-compatible subfiles and utility files
+to illustrate the features of EMC2 subroutines and ngcgui usage.
+
+Additional user sumitted subroutines can be found on the Forum in the
+Subroutines Section.
+
+== DB25 Example
+
+The following shows the DB25 subroutine. In the first photo you see where you
+fill in the blanks for each variable.
+
+image::images/ngcgui-db25-1.png[]
+
+This photo shows the backplot of the DB25 subroutine.
+
+image::images/ngcgui-db25-2.png[]
+
+This photo shows the use of the new button and the custom tab to create
+three DB25 cutouts in one program.
+
+image::images/ngcgui-db25-3.png[]
+

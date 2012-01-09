@@ -1,3 +1,4 @@
+
 EMCSVRSRCS := \
 	emc/task/emcsvr.cc
 USERSRCS += $(EMCSVRSRCS)
@@ -7,6 +8,7 @@ USERSRCS += $(EMCSVRSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/emcsvr
 
+# disabled:	emc/task/iotaskintf.cc
 MILLTASKSRCS := \
 	emc/motion/emcmotglb.c \
 	emc/task/emctask.cc \
@@ -15,13 +17,21 @@ MILLTASKSRCS := \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotutil.c \
 	emc/task/taskintf.cc \
-	emc/task/iotaskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
+	emc/rs274ngc/tool_parse.cc \
+	emc/task/taskmodule.cc \
+	emc/task/taskclass.cc \
+	emc/task/backtrace.cc \
 	$(ULAPISRCS)
+
 USERSRCS += $(MILLTASKSRCS)
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0
+#LDFLAGS +=
+
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0 ../lib/libemchal.so.0 ../lib/libpyplugin.so.0
+
+
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^ 
+	$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 TARGETS += ../bin/milltask

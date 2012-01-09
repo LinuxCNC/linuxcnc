@@ -1,0 +1,28 @@
+#BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
+BOOST_DEBUG_FLAGS=
+
+INCLUDES += emc/pythonplugin
+
+LIBPPSRCS := $(addprefix emc/pythonplugin/, \
+	python_plugin.cc)
+
+USERSRCS += $(LIBPPSRCS)
+
+USERSRCS += $(TESTSRCS)
+
+$(call TOOBJSDEPS, $(LIBPPSRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS) 
+
+
+TARGETS += ../lib/libpyplugin.so.0 
+
+../lib/libpyplugin.so.0: $(patsubst %.cc,objects/%.o,$(LIBPPSRCS)) ../lib/libemcini.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+
+
+../include/%.h: ./emc/pythonplugin/%.h
+	cp $^ $@
+../include/%.hh: ./emc/pythonplugin/%.hh
+	cp $^ $@

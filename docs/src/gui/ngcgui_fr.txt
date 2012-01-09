@@ -1,0 +1,102 @@
+:lang: fr
+:toc:
+
+= L'interface graphique NGCGUI
+
+image::images/ngcgui.png[]
+
+== Vue d'ensemble
+    
+ - ngcgui est un utilitaire pour écrire et utiliser les sous-programmes avec EMC2.
+ - ngcgui peut être utilisé séparément ou embarqué.
+ - Il crée des onglets multiples sur la page de l'interface graphique Axis.
+
+Ngcgui est un outil puissant pour construire les programmes de G-code en sous-programmes::
+ - Les sous-programmes peuvent être concaténés pour fournir un programme de G-code complet. 
+ - De multiples instances d'un sous-programme peuvent être utilisées pour fournir
+   la même tâche à différents emplacements sur la même pièce. 
+ - N'importe quel G-code valide peut être utilisé dans un sous-programme.
+
+== Embarquer ngcgui dans Axis
+
+Voici un exemple d'embarquement de Ngcgui dans Axis:: 
+- Les sous-programmes doivent être placés dans un sous-répertoire comme indiqué 
+    si une simple copie de ce texte est faite. 
+- D'autres exemples de sous-programmes utilisent d'autres sous-répertoires,
+    toujours bien le vérifier pour être sûr d'avoir les bonnes dépendances avec le 
+    répertoire indiqué dans les sous-programmes.
+
+  [DISPLAY]
+  TKPKG             = Ngcgui    1.0
+  TKPKG             = Ngcguittt 1.0
+  # Ngcgui must precede Ngcguittt
+
+  NGCGUI_FONT       = Helvetica -12 normal
+  # specifie le path en relatif ou full path pour ajuster au démarrage,
+  # les pages aux onglets:
+  NGCGUI_PREAMBLE   = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/simp.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/xyz.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/iquad.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/db25.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/ihex.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/gosper.ngc
+  # specifie "" pour l'onglet d'une page personnalisée
+  NGCGUI_SUBFILE    = ""
+  #NGCGUI_SUBFILE   = "" utilisé quand des trames d'image sont spécifiées
+  #                      et requiert d'ouvrir d'autres fichiers
+  #                      d'images seront mis dans une fenêtre de 
+  #                      niveau supérieur
+  NGCGUI_OPTIONS    =
+  #NGCGUI_OPTIONS   = opt1 opt2 ...
+  # opt items:
+  #   nonew      -- interdit la création d'un nouvel onglet personnalisé
+  #   noremove   -- interdit l'effacement d'une page d'onglet
+  #   noauto     -- no auto send (makeFile, then manually send)
+  #   noiframe   -- no internal image, image on separate top level
+
+  TTT               = truetype-tracer
+  TTT_PREAMBLE      = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+
+  PROGRAM_PREFIX          = ../../nc_files
+
+== Exemple, découpe pour DB25
+
+L'image suivante montre le sous-programme DB25. Dans la première image on voit
+les champs remplis pour chaque variable.
+
+image::images/ngcgui-db25-1.png[]
+
+Cette image montre le parcours d'outil du sous-programme DB25.
+
+image::images/ngcgui-db25-2.png[]
+
+Cette image montre l'action du bouton `Nouveau` et de l'onglet personnalisé pour 
+créer la découpe de trois DB25 en un seul programme.
+
+image::images/ngcgui-db25-3.png[]
+
+
+== Création d'un sous-programme
+
+- Pour la création d'un sous-programme à utiliser avec Ngcgui, le nom de fichier 
+    et le nom du sous-programme doivent être les mêmes. 
+- Le fichier doit être placé dans le sous-répertoire pointé dans le fichier ini. 
+- À la première ligne peut se trouver un commentaires de type info: qui doit 
+    être placé au début du sous-programme. 
+- Le sous-programme doit être entouré par les balises `sub` et `endsub`. 
+- Les variables utilisées doivent être des variables numérotées et ne doivent pas 
+    sauter de numéro. 
+- Des commentaires et presets peuvent être inclus.
+
+  (info: simp -- simple exemple de sous-programme -- Ctrl-U pour éditer)
+  o<simp> sub
+    #<ra>       = #1 (=.6 Radius A) ;Example de paramètre avec un commentaire
+    #<radius_b> = #2 (=0.4)         ;Example de paramètre sans commentaire
+    #<feedrate> = #3 (Feedrate)     ;Example de paramètre sans preset
+    g0x0y0z1
+    g3 i#<ra> f#<feedrate>
+    g3 i[0-#<radius_b>]
+  o<simp> endsub
+
+

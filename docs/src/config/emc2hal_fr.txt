@@ -1,0 +1,410 @@
+:lang: fr
+:toc:
+
+= EMC2 et HAL
+
+Voir également les man pages *motion(9)* et *iocontrol(1)*
+
+== motion (realtime)
+
+=== Options
+
+motion est chargé en même temps que le module temps réel *motmod*.
+La cinématique doit être chargée avant motion.
+
+    loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] \ +
+    [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
+
+Si le nombre d'entrées/sorties numériques demandées est supérieur à la valeur par défaut de 4, il est possible d'en ajouter jusqu'à 64 en utilisant l'option num_dio au chargement de motmod.
+
+Si le nombre d'entrées/sorties analogiques demandées est supérieur à la valeur par défaut de 4, il est possible d'en ajouter jusqu'à 16 en utilisant l'option num_aio au chargement de motmod.
+
+=== Pins (((motion (hal pins))))
+
+motion.adaptive-feed::
+     (float, in) Quand la vitesse est placée en mode adaptatif avec
+    *M52 P1* la vitesse commandée est multipliée par cette valeur. Cet
+    effet est
+     multiplicatif avec *motion.feed-hold* et la valeur du correcteur de
+    vitesse du niveau NML.
+
+motion.analog-in-00::
+     (float, in) Ces pins (00, 01, 02, 03 ou plus si configurées) sont contrôlées par *M66*. 
+
+motion.analog-out-00::
+     (float, out) Ces pins (00, 01, 02, 03 ou plus si configurées) sont contrôlées par *M67* ou *M68*. 
+
+motion.coord-error::
+     (bit, out) TRUE quand le mouvement est en erreur, ex: dépasser une
+    limite logicielle.
+
+motion.coord-mode::
+     (bit, out) TRUE quand le mouvement est en *mode coordonnées* par
+    opposistion au *mode téléopération*.
+
+motion.current-vel::
+    (float, out) La vitesse courante de l'outil.
+
+motion.digital-in-00::
+     (bit, in) Ces pins (00, 01, 02, 03 ou plus si configurées) sont contrôlées par *M62* à *M65*. 
+
+motion.digital-out-00::
+    (bit, out) Ces pins (00, 01, 02, 03 ou plus si configurées) sont controlées par *M62* à *M65*.
+
+motion.distance-to-go::
+    (float, out) Distance restante pour terminer le mouvement courant.
+
+motion.enable::
+     (bit, in) Si ce bit devient FALSE, les mouvements s'arrêtent, la
+    machine est placée dans l'état “machine arrêtée” et un message est
+    affiché pour l'opérateur. En fonctionnement normal, ce bit devra être
+    mis TRUE.
+
+motion.feed-hold::
+     (bit, in) Quand la vitesse est placée en mode arrêt contrôlé avec
+    *M53 P1* et que ce bit est TRUE, la vitesse est fixée à 0.
+
+motion.motion-inposition::
+    (bit, out) TRUE si la machine est en position.
+
+motion.motion-enabled::
+    (bit, out) TRUE quand l'état de la machine est *machine on*.
+
+motion.on-soft-limit::
+    (bit, out) TRUE quand la machine est sur une limite logicielle.
+
+motion.probe-input::
+     (bit, in) *G38.x* utilise la valeur de cette pin pour déterminer
+    quand la sonde de mesure a touché. TRUE le contact de la sonde est fermé
+    (touche), FALSE le contact de la sonde est ouvert.
+
+motion.program-line::
+     (s32, out) La ligne en cours d'exécution pendant le déroulement du programme. 
+    Zéro si pas en marche ou entre deux lignes, pendant le changement de pas de programme.
+
+motion.requested-vel::
+     (float, out) La vitesse courante requise en unités utilisateur par seconde selon le réglage F=n du fichier G-code. Les correcteurs de vitesse et autres ajustements ne s'appliquent pas à cette pin.
+
+motion.spindle-at-speed::
+     (bit, in) Les mouvements passent en pause tant que cette pin est TRUE,
+    sous les conditions suivantes: avant le premier mouvement d'avance
+    suivant chaque démarrage de broche ou changement de vitesse; après le
+    démarrage de tout enchainement de mouvements avec broche synchronisée;
+    et si en mode CSS, à chaque transition avance rapide -> avance travail.
+    Cette entrée peut être utilisée pour s'assurer que la broche a atteint
+    sa vitesse, avant de lancer un mouvement d'usinage. Elle peut également
+    être utilisée sur un tour travaillant en mode CSS, au passage d'un
+    grand diamètre à un petit, pour s'assurer que la vitesse a été
+    suffisamment réduite avant la prise de passe sur le petit diamètre et
+    inversement, lors du passage d'un petit diamètre vers un grand, pour
+    s'assurer que la vitesse a été suffisamment augmentée. Beaucoup de
+    variateurs de fréquence disposent d'une sortie *vitesse atteinte*.
+    Sinon, il est facile de générer ce signal avec le composant *near*, par
+    comparaison entre la vitesse de broche demandée et la vitesse actuelle.
+
+motion.spindle-brake::
+    (bit, out) TRUE quand le frein de broche doit être activé.
+
+motion.spindle-forward::
+    (bit, in) TRUE quand la broche doit tourner en sens horaire.
+
+motion.spindle-index-enable::
+     (bit, I/O) Pour les mouvements avec broche synchronisée, ce signal
+    doit être raccordé à la pin *index-enable* du codeur de broche.
+
+motion.spindle-on::
+    (bit, out) TRUE quand la broche doit tourner.
+
+motion.spindle-reverse::
+    (bit, out) TRUE quand la broche doit tourner en sens anti-horaire.
+
+motion.spindle-revs::
+     (float, in) Pour le bon fonctionnement des mouvements avec broche
+    synchronisée, ce signal doit être raccordé à la broche *position* du
+    codeur de broche. La position donnée par le codeur de broche doit être
+    étalonnée pour que *spindle-revs* augmente de 1.0 pour chaque tour de
+    broche dans le sens horaire (M3).
+
+motion.spindle-speed-in::
+     (float, in) Donne la vitesse actuelle de rotation de la broche
+    exprimée en tours par seconde. Elle est utilisée pour les mouvements en
+    unités par tour (G95). Si le pilote du codeur de broche ne dispose pas
+    d'une sortie *vitesse*, il est possible d'en générer une en passant la
+    position de la broche au travers d'un composant ddt. Si la machine n'a pas de
+    codeur de broche, il est possible d'utiliser *motion.spindle-speed-out-rps*.
+
+motion.spindle-speed-out::
+     (float, out) Consigne de vitesse de rotation de la broche, exprimée en
+    tours par minute. Positive pour le sens horaire (M3), négative pour le
+    sens anti-horaire (*M4*).
+
+motion.spindle-speed-out-rps::
+     (float, out) Vitesse de rotation broche commandée tours par seconde. Valeur positive
+    pour le sens horaire (*M3*), valeur négative pour le sens anti-horaire (*M4*).
+
+motion.teleop-mode::
+     (bit, out) TRUE quand motion est en *mode téléopération*, par opposition au
+    "mode coordonné".
+
+motion.tooloffset.x:: à motion.tooloffset.w::
+     (float, out; un par axe) montre l'offset d'outil courant. Il peut provenir de la
+    table d'outils (G43 actif), ou du G-code (G43.1 actif)
+
+=== Paramètres
+
+Beaucoup de ces paramètres servent d'aide au déboguage et sont sujets
+aux changements ou au retrait à tout moment.
+
+motion-command-handler.time::
+    (s32, RO)
+
+motion-command-handler.tmax:: 
+    (s32, RW)
+
+motion-controller.time:: 
+    (s32, RO)
+
+motion-controller.tmax:: 
+    (s32, RW)
+
+motion.debug-bit-0::
+    (bit, RO) Utilisé pour le déboguage. 
+
+motion.debug-bit-1::
+    (bit, RO) Utilisé pour le déboguage.
+
+motion.debug-float-0::
+    (float, RO) Utilisé pour le déboguage.
+
+motion.debug-float-1::
+    (float, RO) Utilisé pour le déboguage.
+
+motion.debug-float-2::
+    (float, RO) Utilisé pour le déboguage.
+
+motion.debug-float-3::
+    (float, RO) Utilisé pour le déboguage.
+
+motion.debug-s32-0::
+    (s32, RO) Utilisé pour le déboguage.
+
+motion.debug-s32-1::
+    (s32, RO) Utilisé pour le déboguage.
+
+motion.servo.last-period::
+     Le nombre de cycle du processeur entre les invoquations du thread
+    servo. Typiquement, ce nombre divisé par la vitesse du processeur donne
+    un temps en secondes. Il peut être utilisé pour determiner si le
+    contrôleur de mouvement en temps réel respecte ses contraintes de
+    timing.
+
+motion.servo.last-period-ns::
+    (float, RO)
+
+motion.servo.overruns::
+    (u32, RW)
+     En voyant de grandes différences entre les valeurs successives de
+    *motion.servo.last-period* , le contrôleur de mouvement peut
+    déterminer qu'il a échoué dans le respect de ses contraintes de timing.
+    Chaque fois qu'une erreur est détectée, cette valeur est incrémentée.
+
+=== Fonctions
+
+Généralement, ces fonctions sont toutes les deux ajoutées à
+servo-thread dans l'ordre suivant:
+
+motion-command-handler::
+     Processus des commandes de mouvement provenant de l'interface
+    utilisateur.
+
+motion-controller::
+    Lance le contrôleur de mouvement d'emc.
+
+== axis.N (temps réel)
+
+Ces pins et paramètres sont créés par le module temps réel *motmod*. 
+Ce sont en fait des valeurs d'articulations, mais les pins et les
+paramètres sont toujours appelés *axis.N*.footnote:[Dans une machine à
+*cinématique triviale*, il y a correspondance une
+pour une, entre les articulations et les axes.
+Note Du Traducteur: nous utilisons dans cette traduction le terme *axe*, 
+dans le cas d'une cinématique non triviale il devra être remplacé par 
+le terme *articulation* (joint).] 
+Ils sont lus et mis à jour par la fonction *motion-controller*.
+
+=== Pins (((axis (hal pins))))
+
+axis.N.active::
+    TRUE quand cet axe est actif.
+
+axis.N.amp-enable-out::
+    (bit, out) TRUE si l'ampli de cet axe doit être activé.
+
+axis.N.amp-fault-in::
+     (bit, in) Doit être mis TRUE si une erreur externe est détectée sur
+    l'ampli de cet axe.
+
+axis.N.backlash-corr::
+    (float, out)
+
+axis.N.backlash-filt::
+    (float, out)
+
+axis.N.backlash-vel::
+    (float, out)
+
+axis.N.coarse-pos-cmd::
+    (float, out)
+
+axis.N.error::
+    (bit, out)
+
+axis.N.f-error::
+    (float, out)
+
+axis.N.f-error-lim::
+    (float, out)
+
+axis.N.f-errored::
+    (bit, out)
+
+axis.N.faulted::
+    (bit, out)
+
+axis.N.free-pos-cmd::
+    (float, out)
+
+axis.N.free-tp-enable::
+    (bit, out)
+
+axis.N.free-vel-lim::
+    (float, out)
+
+axis.N.home-sw-in::
+     (bit, in) Doit être mis TRUE si le contact d'origine de cet axe est
+    activé.
+
+axis.N.homed::
+    (bit, out) 
+
+axis.N.homing::
+    (bit, out) TRUE si la prise d'origine de cette axe est en cours.
+
+axis.N.in-position::
+    TRUE si cet axe, utilisant le *free planner*, a atteint un arrêt.
+
+axis.N.index-enable::
+     (bit, I/O) Doit être reliée à la broche *index-enable* du codeur de
+    cet axe pour activer la prise d'origine sur l'impulsion d'index.
+
+axis.N.jog-counts::
+     (s32, in) Connection à la broche *counts* d'un codeur externe utilisé
+    comme manivelle.
+
+axis.N.jog-enable::
+     (bit, in) Quand elle est TRUE (et en mode manuel), tout changement
+    dans *jog-counts* se traduira par un mouvement. Quand elle est FALSE,
+    “jog-counts” sera ignoré.
+
+axis.N.jog-scale::
+     (float, in) Fixe la distance, en unités machine, du déplacement pour
+    chaque évolution de “jog-counts”.
+
+axis.N.jog-vel-mode::
+     (bit, in) Quand elle est FALSE (par défaut), la manivelle fonctionne
+    en mode position. L'axe se déplace exactement selon l'incrément de jog
+    sélectionné pour chaque impulsion, sans s'occuper du temps que prendra
+    le mouvement. Quand elle est TRUE, la manivelle fonctionne en mode
+    vitesse. Le mouvement s'arrête quand la manivelle s'arrête, même si le
+    mouvement commandé n'est pas achevé.
+
+axis.N.joint-pos-cmd::
+     (float, out) La position commandée de l'articulation (par opposition à celle du moteur).
+    Ca peut être un écart entre les positions articulation et moteur. Par exemple;
+    la procédure de prise d'origine fixe cet écart.
+
+axis.N.joint-pos-fb::
+    (float, out) Le retour de position de l'articulation (par opposition à celui du moteur).
+
+axis.N.joint-vel-cmd::
+    (float, out)
+
+axis.N.kb-jog-active::
+    (bit, out)
+
+axis.N.motor-pos-cmd::
+    (float, out) Position commandée pour cette articulation.
+
+axis.N.motor-pos-fb::
+    (float, in) Position actuelle de cette articulation.
+
+axis.N.neg-hard-limit::
+    (bit, out)
+
+axis.N.pos-lim-sw-in::
+     (bit, in) Doit être mis TRUE si le fin de course de limite positive de
+    cette articulation est activé.
+
+axis.N.pos-hard-limit::
+    (bit, out)
+
+axis.N.neg-lim-sw-in::
+     (bit, in) Doit être mis TRUE si le fin de course de limite négative de
+    cette articulation est activé.
+
+axis.N.wheel-jog-active::
+    (bit, out) 
+
+=== Paramètres
+
+axis.N.home-state::
+    Reflète l'étape de la prise d'origine en cours actuellement.
+
+== iocontrol (espace utilisateur)
+
+Ces pins sont créées par le contrôleur d'entrées/sorties de l'espace
+utilisateur, habituellement appelé *io*.
+
+=== Pins (((iocontrol (HAL pins))))
+
+iocontrol.0.coolant-flood::
+    (bit, out) TRUE quand l'arrosage est demandé.
+
+iocontrol.0.coolant-mist::
+    (bit, out) TRUE quand le brouillard est demandé.
+
+iocontrol.0.emc-enable-in::
+     (bit, in) Doit être mise FALSE quand un arrêt d'urgence externe est
+    activé.
+
+iocontrol.0.lube::
+    (bit, out) TRUE quand le graissage centralisé est commandé.
+
+iocontrol.0.lube_level::
+    (bit, in) Doit être mise TRUE quand le niveau d'huile est correct.
+
+iocontrol.0.tool-change::
+    (bit, out) TRUE quand un changement d'outil est demandé.
+
+iocontrol.0.tool-changed::
+    (bit, in) Doit être mise TRUE quand le changement d'outil est terminé.
+
+iocontrol.0.tool-number::
+    (s32, out) Numéro de l'outil courant.
+
+iocontrol.0.tool-prep-number::
+    (s32, out) Numéro du prochain outil, donné par le mot T selon RS274NGC.
+
+iocontrol.0.tool-prepare::
+    (bit, out) TRUE quand une préparation d'outil est demandée.
+
+iocontrol.0.tool-prepared::
+     (bit, in) Doit être mise TRUE quand une préparation d'outil est
+    terminée. 
+
+iocontrol.0.user-enable-out::
+    (bit, out) FALSE quand un arrêt d'urgence interne est activé.
+
+iocontrol.0.user-request-enable::
+    (bit, out) TRUE quand l'arrêt d'urgence est relâché.
+

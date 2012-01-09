@@ -1,0 +1,4 @@
+; test plugin call
+o<qdemo> call [100000] [2]
+m2
+

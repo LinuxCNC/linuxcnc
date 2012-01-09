@@ -23,6 +23,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -103,7 +104,12 @@ int main(int argc, char *argv[])
     struct board_info board;
 
     /* if we are setuid, drop privs until needed */
-    seteuid(getuid());
+    retval = seteuid(getuid());
+    if (retval != 0) {
+        fprintf(stderr, "failed to set euid to uid %d: %s\n", getuid(), strerror(errno));
+        return EC_SYS;
+    }
+
     if ( parse_cmdline(argc, argv) != EC_OK ) {
 		return EC_BADCL;
     }

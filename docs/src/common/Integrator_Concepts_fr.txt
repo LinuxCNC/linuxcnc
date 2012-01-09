@@ -1,0 +1,252 @@
+﻿= Concepts importants pour l'intégrateur
+
+== Système de pas
+
+=== Période de base
+// Il manque une mise en situation, la note de bas de page
+// est insuffisante et devrait être un paragraphe on parle de hal
+// et de ses paramètres
+
+Période de base (BASE_PERIOD) est le *métronome* de 
+l'ordinateur d'EMC2. footnote:[Cette section fait référence à 
+l'utilisation de *stepgen* le générateur de pas intégré à EMC2. 
+Certains dispositifs matériels ont leur propre générateur de pas 
+et n'utilisent pas celui incorporé à EMC. Dans ce cas se référer 
+au manuel du matériel concerné.] A chaque période le logiciel de 
+génération de pas calcule si c'est le moment pour une autre impulsion 
+de pas. Une période de base plus courte permet de produire plus 
+d'impulsions de pas par seconde, mais si elle est trop courte l'ordinateur 
+passera tout son temps à générer les impulsions et les autres services 
+seront ralentis voir bloqués.
+La latence et les besoins des pilotes des moteurs pas à pas déterminent 
+la durée minimum de la période que nous pouvons utiliser.
+
+La latence la plus défavorable peut ne se présenter que quelquefois par
+minute ou même moins. La probabilité que cela se produise au même 
+moment qu'un changement de direction du moteur et faible. Donc 
+on peut obtenir des erreurs très rares et intermittentes qui 
+ruinent une production de temps en temps et il est impossible 
+d'intervenir pour régler le problème.
+
+La façon la plus simple d'éviter ce problème est de choisir un 
+BASE_PERIOD qui est la somme des plus longues exigences de temps 
+de votre périphérique et le pire cas de latence de votre ordinateur. 
+Ceci n'est pas toujours le meilleur choix. 
+
+Par exemple si le pilote moteur a besoin d'un maintien du signal 
+de direction d'une durée de 20 µs est que la latence maximum est 
+de 11 µs, la période de base sera de 11+20=31 µs ce qui donne une fréquence 
+de génération de pas de 32258 pas par seconde dans un mode 
+et de 16129 pas par seconde dans un autre mode.
+
+Le problème est qu'avec les exigences de 20us pour le maintien 
+du signal et les 11 µs de latence cela nous force à utiliser une 
+période défavorable de 31 µs. Mais le générateur de pas du 
+logiciel EMC2 a quelques paramètres qui nous laissent régler 
+les divers temps d'une période de différentes manières.
+
+Par exemple, si *steplen* footnote:[Steplen se réfère à un paramètre 
+qui ajuste la performance du générateur de pas incorporé à EMC2, 
+*stepgen*, qui est un composant de HAL. Ce paramètre ajuste 
+la longueur de l'impulsion de pas. Continuez à lire, on expliquera 
+tous finalement.] est changé de 1 à 2, alors il y aura deux 
+périodes entre le commencement et la fin de l'impulsion de pas. 
+De même, si *dirhold* footnote:[dirhold se réfère à un paramètre 
+qui adapte la longueur du maintien du signal de commande 
+de direction.] est changé de 1 à 3, il y aura au moins trois périodes 
+entre l'impulsion de pas et un changement d'état de la commande 
+de direction.
+
+Si nous pouvons utilisez *dirhold* pour répondre aux exigences des 20us 
+de maintiens du signal de direction, le prochain délai à respecter est 
+la durée de 4.5 µs du signal de pas haut, additionnons les 11 µs de 
+latence au 4.5 µs de signal haut et nous obtenons une période minimum 
+de 15.5 µs.
+Lorsque nous essayons la valeur de 15.5, nous trouvons que l'ordinateur 
+est lent, donc nous réglons sur 16 µs.
+Si nous laissons *dirhold* à 1 (par défaut) alors temps minimum entre 
+un pas et le changement de direction est de 16 µs moins les 11 µs 
+de latence ce qui nous donne 5us. Ce qui n'est pas suffisant il nous 
+manque 15 µs. Puisque la période est 16 µs, nous avons besoin d'encore 
+une période. Dans ce cas nous changeons *dirhold* de 1 à 2. Maintenant 
+le temps minimal entre la fin de l'impulsion de pas et le changement 
+du signal de direction et de 5+16=21 µs. Nous n'avons plus à 
+nous inquiéter d'une erreur de direction à cause de la latence.
+
+Pour plus d'informations sur stepgen voir la section stepgen du manuel 
+de HAL.
+
+=== Timing des pas
+
+Sur certain pilote moteur le rapport entre la durée des espaces et 
+la durée des impulsions n'est pas égal, dans ce cas 
+le point (le moment) du pas est important. Si le pas se déclenche 
+sur le front descendant alors, la broche de sortie doit être inversée.
+
+== Systèmes à servomoteurs
+
+=== Opération de base
+
+Les systèmes à servomoteurs sont capables de vitesses plus élevées pour 
+une précision équivalente au moteur pas-à-pas, mais ils sont plus coûteux 
+et complexes. Contrairement aux systèmes pas à pas, les servo-systèmes 
+nécessitent un dispositif de rétroaction pour se positionner. 
+Ils ne fonctionnent pas immédiatement sorti de la boite et 
+ils doivent être calibrés pour fonctionner contrairement aux moteurs 
+pas à pas.
+
+Cette différence s'explique par le mode de régulation différent 
+des deux systèmes. Les servosystèmes sont régulés en *boucle fermée* 
+et le moteur pas à pas en *boucle ouverte*.
+
+Que signifie *boucle fermée* ? Regardons un schéma simplifié et 
+la façon dont un système de servomoteur fonctionne.
+
+.Boucle fermée
+image::images/servo-feedback_fr.png[]
+
+Ce diagramme montre que le signal de consigne (de commande) et le signal 
+de retour pilotent l'amplificateur sommateur, ensuite celui-ci pilote 
+l'amplificateur de puissance, qui pilote le moteur, qui actionne 
+la charge et le dispositif de retour d'information qui fournis 
+le signal de retour. Cela se perçoit comme une boucle fermée où 
+A contrôle B, B contrôle C, C contrôle D et D contrôle A.
+
+Si vous n'avez pas travaillé avec des systèmes à servomoteurs auparavant, 
+cela sera sans aucun doute étrange au premier abord, surtout 
+par rapport aux plus normal des circuits électroniques, où le bon 
+déroulement des entrées vers les sorties est de ne jamais revenir 
+en arrière.footnote:[Si cela peut aider, l'équivalent le plus proche 
+dans le monde numérique ce sont les machines d'état, 
+machines séquentielles où l'état des sorties *à ce moment* dépend 
+de l'état que les entrées et sorties avaient *avant*. Si cela n'aide 
+pas, alors passons.]
+
+Si *tout* contrôle *tout le reste* comment cela peut-il fonctionner, qui 
+en a la charge ? La réponse est que EMC2 *peut* contrôler ce système, 
+mais il doit le faire en choisissant une des différentes méthodes 
+de contrôle.
+
+La méthode de contrôle qu'utilise EMC2, est l'une des plus simples 
+et la meilleure appelée PID.
+PID est l'acronyme de *P*roportionnelle, *I*ntégrale et *D*érivée. 
+La valeur proportionnelle détermine la réaction à l'erreur actuelle, 
+la valeur intégrale détermine la réaction basée sur la somme d'erreurs 
+récentes et la valeur dérivée détermine la réaction basée sur 
+la vitesse de variation de l'erreur. Ce sont trois techniques communes 
+de mathématique qui sont appliquées pour fournir un processus de suivi 
+d'une consigne. Dans le cas d'EMC2 le processus que nous 
+voulons contrôler est l'actuelle position de l'axe et le point de 
+consigne qui est la position commandée l'axe.
+
+.Boucle PID
+image::images/pid-feedback_fr.png[]
+
+En *ajustant* trois composantes (proportionnelle, intégrale et dérivée) 
+dans l'algorithme du contrôleur PID, nous pouvons concevoir 
+une régulation qui s'adapte aux exigences de processus spécifiques. 
+La réponse du contrôleur peut être décrite en trois termes 
+de réactivité : une erreur, de tolérance, au dépassement du point 
+de consigne et au taux d'oscillation du système.
+
+=== Terme proportionnel
+
+Le terme proportionnel appelé plus souvent gain proportionnel 
+applique un changement à la sortie qui est proportionnelle a la valeur 
+d'erreur courante. Un gain élevé provoque un grand changement à 
+la sortie pour un petit changement de l'erreur. Si le gain est 
+trop haut, le système peut devenir instable. Au contraire, 
+un gain trop faible aboutit à une faible réponse de la sortie 
+en réaction à une grande erreur d'entrée. Si le gain proportionnel 
+est trop bas, il peut être trop faible pour répondre aux perturbations 
+du système.
+
+En l'absence de perturbation, un contrôle proportionnel pur ne 
+se positionnera pas à sa valeur cible, mais conservera un état 
+d'erreur statique qui est une fonction du gain proportionnel et 
+du gain du processus. Malgré la compensation de l'état stationnaire, 
+tant la théorie des systèmes asservis que la pratique industrielle 
+indiquent que c'est le terme proportionnel qui devrait contribuer 
+à la plus grande partie du changement de la sortie.
+
+=== Terme intégral
+
+La contribution du terme intégral est proportionnelle à l'amplitude 
+de l'erreur et à sa durée. La somme des erreurs instantanées au fil 
+du temps (intégration) donne la compensation accumulée qui devrait 
+avoir été corrigée précédemment. L'intégration de l'erreur est alors 
+multipliée par le gain d'intégral et ajoutée à la sortie du contrôleur.
+
+Le terme intégral lorsqu'il est ajouté augmente le mouvement 
+du processus vers la consigne, il élimine l'erreur de statisme qui 
+se produit avec un régulateur proportionnel seul. Cependant, puisque 
+le terme intégral doit répondre aux erreurs accumulées par le passé, 
+il peut causer un dépassement de la valeur de consigne actuelle 
+(dépasser le point de consigne et puis créer un écart dans l'autre sens).
+
+=== Terme dérivé
+
+Le taux de variation de l'erreur du processus est calculé en 
+déterminant la pente de l'erreur au cours du temps (c'est-à-dire 
+sa dérivée première en relation avec le temps) et en multipliant ce 
+taux de changement par le gain de dérivé.
+Le terme dérivé ralentit le taux de variation de la sortie 
+du régulateur, cet effet est plus visible à proximité du point 
+de consigne du contrôleur.
+Par conséquent, le contrôle dérivé est utilisé pour réduire l'ampleur du 
+dépassement que produit la composante intégrale et pour améliorer la stabilité 
+de la combinaison contrôleur processus.
+
+=== Réglage de la boucle
+
+Si les paramètres du contrôleur PID (les gains des termes 
+proportionnel, intégral et dérivé) sont mal choisis, 
+l'entrée du processus contrôlé peut être instable, c'est-à-dire 
+sa sortie diverge, avec ou sans oscillation et, est limitée seulement 
+par la saturation ou la rupture mécanique. Le réglage fin d'une boucle 
+de contrôle consiste en l'ajustement de ses paramètres de contrôle 
+(gain proportionnel, gain intégral, gain dérivé) aux valeurs optimums 
+pour la réponse désirée.
+
+=== Réglage manuel
+
+Une méthode de réglage simple consiste à régler les valeurs *I* et *D* 
+à zéro. Augmentons la valeur de *P* jusqu'à ce que la sortie oscille, 
+*P* devrait être paramétré approximativement à la moitié de cette valeur 
+pour diminuer d'un quart l'amplitude de ce type de réponse. Augmentons 
+sa valeur pour que n'importe quelle compensation soit correcte dans un 
+temps raisonnable pour le processus. Cependant, une valeur trop élevée 
+apporte de l'instabilité. Ensuite, augmentons la valeur de *D* pour que 
+la réponse soit suffisamment rapide pour atteindre sa référence après 
+une perturbation de charge. Cependant, une valeur trop grande de *D* 
+provoquera une réponse excessive et un dépassement.
+Un réglage de boucle PID rapide a un dépassement léger pour atteindre 
+le point de consigne plus rapidement, cependant, certains systèmes ne 
+peuvent accepter de dépassement, dans ce cas, une boucle fermée 
+*sur-amortie* est nécessaire, cela requière une valeur *P* 
+significativement plus basse que celle provoquant l'oscillation.
+
+== RTAI
+
+Le *Real Time Application Interface* (RTAI) Interface d'application
+temps réel est utilisé pour fournir la meilleure performance temps réel.
+Le noyau patché RTAI permet d'écrire des applications avec des 
+contraintes temporelles strictes. RTAI donne la possibilité 
+d'avoir des logiciels comme ceux de génération de pas qui ont besoin 
+d'un timing précis.
+
+=== ACPI
+
+L'Advanced Configuration and Power Interface (ACPI) a de nombreuses 
+et différentes fonctions, dont la plupart interfèrent avec les 
+performances du système temps réel. (Pour par exemple: la gestion de 
+l'énergie, la réduction de puissance du processeur, la variation de 
+fréquence du CPU, etc.)
+Le noyau EMC2 (et probablement tous les noyaux RTAI-patché) ont les 
+fonctions ACPI désactivées. ACPI prend également soin de mettre hors 
+tension le système après qu'un arrêt système a été commandé, et 
+c'est pourquoi vous pourriez avoir besoin de presser sur le bouton 
+d'alimentation pour éteindre complètement votre ordinateur. 
+Le groupe RTAI a amélioré cela dans les versions récentes, de sorte 
+que votre système EMC2 peut éteindre le système par lui-même.
+

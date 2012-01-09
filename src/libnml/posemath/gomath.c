@@ -2857,8 +2857,9 @@ int go_matrix_matrix_copy(const go_matrix * src,
 
   /* check for an initialized matrix */
   if (0 == src->el[0] || 0 == dst->el[0]) return GO_RESULT_ERROR;
+
   /* check for matching rows and cols */
-  if (src->rows != src->rows || src->cols != src->cols) return GO_RESULT_ERROR;
+  if (src->rows != dst->rows || src->cols != dst->cols) return GO_RESULT_ERROR;
 
   for (row = 0; row < src->rows; row++) {
     for (col = 0; col < src->cols; col++) {

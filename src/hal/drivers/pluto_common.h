@@ -21,7 +21,7 @@
 #include <asm/io.h>
 #endif
 
-#include "parport_common.h"
+#include "hal_parport.h"
 
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
@@ -154,6 +154,9 @@ static int pluto_setup(unsigned char *firmware) {
 
     if(retval < 0)
         return retval;
+
+    ioaddr = portdata.base;
+    ioaddr_hi = portdata.base_hi;
 
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)

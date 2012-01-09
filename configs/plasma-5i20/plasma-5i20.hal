@@ -1,0 +1,204 @@
+# Firmware files are in /lib/firmware/hm2/7i43/
+# Must symlink the hostmot2 firmware directory of sanbox to
+# /lib/firmware before running EMC2...
+# sudo ln -s $HOME/emc2-sandbox/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2
+#
+# See also:
+# <http://www.linuxcnc.org/docs/devel/html/man/man9/hostmot2.9.html#config%20modparam>
+# and http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?HostMot2
+#
+# #####################################################################
+
+
+# ******************
+# Core EMC/HAL Loads
+
+# kinematics
+loadrt trivkins
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+
+# only the 7i43 needs this, but it doesnt hurt the others
+# loadrt probe_parport
+
+loadrt hal_parport cfg=0x378
+
+# hostmot2 driver
+loadrt hostmot2
+
+# load low-level driver
+loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
+setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns 10000000
+
+
+# Torch Height Control
+loadrt thc
+addf thc servo-thread
+
+# THREADS
+addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
+addf motion-command-handler               servo-thread
+addf motion-controller                    servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
+addf parport.0.read servo-thread
+addf parport.0.write servo-thread
+
+# #############################################
+# Axis-of-motion Specific Configs (not the GUI)
+
+# **********
+# X [0] Axis
+
+# axis enable chain
+newsig emcmot.00.enable bit
+sets emcmot.00.enable FALSE
+
+net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable
+
+
+# position command and feedback
+net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
+net emcmot.00.pos-cmd => hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-cmd
+
+net motor.00.pos-fb <= hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-fb
+net motor.00.pos-fb => axis.0.motor-pos-fb
+
+
+# timing parameters
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirhold         [AXIS_0]DIRHOLD
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.steplen         [AXIS_0]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [AXIS_0]SCALE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
+
+net both-home-x <= parport.0.pin-10-in-not
+net both-home-x => axis.0.home-sw-in
+net both-home-x => axis.0.neg-lim-sw-in
+net both-home-x => axis.0.pos-lim-sw-in
+
+# ################
+# Y [1] Axis
+# ################
+
+# axis enable chain
+newsig emcmot.01.enable bit
+sets emcmot.01.enable FALSE
+
+net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.01.enable
+
+
+# position command and feedback
+net emcmot.01.pos-cmd <= axis.1.motor-pos-cmd
+net emcmot.01.pos-cmd => hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-cmd
+
+net motor.01.pos-fb <= hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-fb
+net motor.01.pos-fb => axis.1.motor-pos-fb
+
+
+# timing parameters
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirhold         [AXIS_1]DIRHOLD
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.steplen         [AXIS_1]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [AXIS_1]SCALE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
+
+net both-home-y <= parport.0.pin-11-in-not
+net both-home-y => axis.1.home-sw-in
+net both-home-y => axis.1.neg-lim-sw-in
+net both-home-y => axis.1.pos-lim-sw-in
+
+# ################
+# Z [2] Axis
+# ################
+
+# axis enable chain
+newsig emcmot.02.enable bit
+sets emcmot.02.enable FALSE
+
+net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.02.enable
+
+
+# position command and feedback
+# hijack position command and feed through thc
+net emcmot.02.pos-cmd thc.z-pos-in <= axis.2.motor-pos-cmd
+net thc-pos-cmd thc.z-pos-out => hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-cmd
+net motor.02.pos-fb axis.2.motor-pos-fb <= thc.z-fb-out
+
+net both-home-z => axis.2.home-sw-in
+net both-home-z => axis.2.neg-lim-sw-in
+net both-home-z => axis.2.pos-lim-sw-in
+
+# timing parameters
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirhold         [AXIS_2]DIRHOLD
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.steplen         [AXIS_2]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [AXIS_2]SCALE
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
+
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
+
+net both-home-z <= parport.0.pin-12-in-not
+net both-home-z => axis.2.home-sw-in
+net both-home-z => axis.2.neg-lim-sw-in
+net both-home-z => axis.2.pos-lim-sw-in
+
+#######################
+# Standard I/O Block - EStop, Etc
+# ############################### 
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
+
+# Touch Off
+net torch-probe motion.probe-input <= parport.0.pin-13-in-not
+
+# Set up the Encoder for the THC
+setp hm2_5i20.0.encoder.00.counter-mode 1
+net thc-vel-in hm2_5i20.0.encoder.00.velocity => thc.encoder-vel
+setp thc.scale-offset 119000
+setp thc.vel-scale 0.00037866834
+
+# this might need to be increased
+setp thc.correction-vel 0.0001
+
+# spindle on starts the arc
+net spindle-on motion.spindle-on => parport.0.pin-16-out
+
+net spindle-on thc.torch-on
+
+# starts the motion when the plasma arc has transfered to the work
+net start-motion-input thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in
+
+# ******
+#  For Joypad, the rest are in postgui.hal
+loadusr hal_input -W -KRAL Dual
+
+

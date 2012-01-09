@@ -1,0 +1,17 @@
+; you might want to single step this file
+
+; M400 will fail - try in MDI window
+m400 p10
+m400 p10 q43
+m400p10
+; M410 will fail - try in MDI window
+m410 p10
+m400 p10 q43
+;
+F60 S2000 M3
+;
+g88.1 x0
+;
+g88.1 x1 y2 z3 p4
+;
+m2

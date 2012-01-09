@@ -318,6 +318,7 @@ int TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 						}
 						cError = 0;
 					}
+					break;
 				}
 				case MODBUS_FC_READ_INPUT_REGS://function 4
 				case MODBUS_FC_READ_HOLD_REGS: //function 3

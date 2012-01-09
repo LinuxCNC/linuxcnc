@@ -1,0 +1,85 @@
+/*******************************************************************************
+
+EMC2 HAL component to implement Multistate toggle switch
+Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
+License GPL
+Copyright 2011 
+
+example Hal linkages required:-
+################################
+loadrt multiswitch cfg=4,6,8
+addf multiswitch.0 servo-thread
+...
+net toggle-switch multiswitch.0.toggle <= parport.N.pin-nn-out
+net state1 multiswitch.0.state1 => parport.N.pin-nn-in
+net state1 multiswitch.0.state2 => parport.N.pin-nn-in
+net state1 multiswitch.0.state3 => parport.N.pin-nn-in
+
+If you require an "all off" state, then make the component one bit oversize and
+don't connect the extra pin. 
+
+*******************************************************************************/
+
+component multiswitch           """This component toggles between a specified number of output bits""";
+
+pin in bit up = false           "Receives signal to toggle up";
+pin in bit down = false         "Receives signal to toggle down";
+
+param rw unsigned top-position  "Number of positions";
+param rw signed position      "Current state (may be set in the HAL)";
+
+pin out bit bit-##[32:personality] = false       "Output bits";
+
+modparam dummy cfg              """cfg should be a comma-separated list of sizes
+for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
+ Ignore the "personality" parameter, that is auto-generated""";
+
+function _ ;
+option extra_setup yes;
+option count_function yes;
+
+variable int old_up = 0;
+variable int old_down = 0;
+
+author "ArcEye schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org";
+license "GPL";
+;;
+
+#define MAX_COUNT 32
+int cfg[MAX_COUNT];
+RTAPI_MP_ARRAY_INT(cfg, MAX_COUNT, "array of function sizes");
+
+FUNCTION(_) {
+    int i;
+    
+    // debounce
+    if (up && !old_up) { position++; }
+    if (down && !old_down) { position--;}
+    old_up = up;
+    old_down = down;
+    
+    if (position < 0) position = top_position;
+    if (position > top_position) position = 0;
+    
+    for (i = 0 ; i < personality; i++){
+        bit(i) = (i == position);
+    }
+
+}
+
+EXTRA_SETUP(){
+    personality = cfg[extra_arg];
+    top_position = personality - 1;
+    return 0;
+}
+
+int get_count(void){
+    int i;
+    for (i=0; cfg[i] != 0 && i < MAX_COUNT; i++){}
+    if (i == 0){
+        cfg[0] = 4;
+        i = 1;
+    }
+    return i;
+}
+

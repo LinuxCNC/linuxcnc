@@ -1,0 +1,408 @@
+:lang: fr
+:toc:
+
+[[cha:Les-M-codes]]
+= Les M-codes
+
+(((Les M-codes)))
+
+== Table des M-codes
+
+[width="100%", options="header"]
+|==================================================================
+| Description                                                 | Paramètres
+|<<sec:M0-M1-M2-M30, M0 M1 M2 M30 Contrôle du programme>>     | n/a 
+|<<sec:M3-M4-M5, M3 M4 M5 Contrôle de la broche>>             | S 
+|<<sec:M6-Appel-Outil, M6 Tn Appel d'outil n=numéro d'outil>> | T 
+|<<sec:M7-M8-M9, M7 M8 M9 Contrôle arrosage>>                 | n/a 
+|<<sec:M0-M1-M2-M30, M30 M60 Fin de prog. avec déchargement pièce>>  | n/a 
+|<<sec:M48-Activation-Correcteurs-Vitesse, M48 Activation des correcteurs de vitesse>> |  
+|<<sec:M49-Inhibition-Correcteurs-Vitesse, M49 Inhibition des correcteurs de vitesse>> |  
+|<<sec:M50-Controle-Correcteur-Vitesse-Travail, M50 Contrôle correcteur de vitesse travail>> | P 
+|<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51 Contrôle correcteur de vitesse de broche>> | P 
+|<<sec:M52-Controle-Vitesse-Adaptative, M52 Correcteur dynamique de vitesse d'avance>> | P 
+|<<sec:M53-Controle-Coupure-Vitesse, M53 Contrôle de la coupure de vitesse>>           | P 
+|<<sec:M61-Correction-Numero-Outil-Courant, M61 Correction du numéro de l'outil courant>> | Q 
+|<<sec:M62-a-M65-Controle-Sortie-Numerique, M62 à M65 Contrôle de bits de sortie numérique>>| P
+|<<sec:M66-Controle-Bit-Entree, M66 Contrôle d'un bit d'entrée>>  | P, E, L, Q 
+|<<sec:M67-Controle-Sortie-Analogique-Synchro, M67 Contrôle sortie analogique synchronisée>>  | 
+|<<sec:M68-Controle-Sortie-Analogique-Directe, M68 Contrôle sortie analogique directe>>       | 
+|<<sec:M100-a-M199, M100 à M199 M-codes définis par l'utilisateur>>  | P Q  
+|==================================================================
+
+[[sec:M0-M1-M2-M30]]
+== M0, M1, M2, M30, M60 Arrêts de programme
+(((M0 Arrêt de programme)))
+(((M1 Arrêt optionnel de programme)))
+(((M2 Fin de programme)))
+(((M30 Fin de programme avec déchargement pièce)))
+(((M60 Fin de programme avec déchargement pièce)))
+
+Pour stopper temporairement un programme en cours 
+(quelle que soit la position du bouton d'arrêt facultatif), 
+programmer *M0*.
+EMC2 reste en mode automatique afin que le MDI et 
+d'autres actions manuelles ne soient pas activées.
+
+Pour stopper temporairement un programme en cours 
+(mais seulement si le bouton d'arrêt optionnel est activé), 
+programmer *M1*.
+EMC2 reste en mode automatique afin que le MDI et 
+d'autres actions manuelles ne soient pas activés.
+
+Il est permis de programmer *M0* et `M1` en mode données manuelles (MDI), 
+mais l'effet ne sera probablement pas perceptible, 
+puisque le comportement normal en mode MDI est 
+de s'arrêter, de toute façon, à la fin de chaque ligne.
+
+Pour procéder à l'échange de porte-pièce avec le chargeur de pièces et
+stopper temporairement un programme en cours (quel que soit le réglage
+du bouton d'arrêt facultatif), programmer *M60*.
+
+Si un programme est stoppé par M0, M1, ou M60, en appuyant sur le
+bouton de départ cycle, le programme reprend à la ligne suivante.
+
+Pour finir un programme, programmer *M2*. 
+Pour changer le porte-pièce du chargeur et finir un programme, programmer `M30`. 
+Ces deux commandes produisent les effets suivants:
+
+ . Changement du mode automatique au mode MDI.
+ . Les décalages d'axes sont mis à zéro (comme avec *G92.2* ) et les
+   décalages d'origine sont mis aux valeurs par défaut (comme
+   avec *G54*).
+ . Le plan de travail actif devient XY (comme avec *G17*). 
+ . Le mode de déplacement devient absolu (comme avec *G90*). 
+ . La vitesse travail passe en unités par minute (comme avec *G94*).
+ . Les correcteurs de vitesse sont activés (comme avec *M48*). 
+ . Les compensations d'outil sont désactivées (comme avec *G40*). 
+ . La broche est arrêtée (comme avec *M5*). 
+ . Le mode mouvement courant devient G1 (comme avec *G1*). 
+ . L'arrosage est arrêté (comme avec *M9*). 
+
+Plus aucune ligne de code RS274/NGC ne sera exécutée 
+après exécution de la commande M2 ou M30. 
+Presser le départ cycle relance le programme 
+au début du fichier.
+
+[[sec:M3-M4-M5]]
+== M3, M4, M5 Contrôle de broche
+(((M3 Broche en sens horaire)))
+(((M4 Broche en sens anti-horaire)))
+(((M5 Arrêt de broche)))
+
+Pour démarrer la broche en sens horaire à la vitesse *S*, programmer *M3 Snnnnn*.
+Pour démarrer la broche en sens anti-horaire à la vitesse *S*, programmer *M4 Snnnnn*.
+Pour arrêter la rotation de la broche, programmer *M5*. 
+
+Il est permis d'utiliser *M3* ou *M4* si la vitesse de broche est à zéro. 
+Si cela est fait 
+(ou si le bouton du correcteur de vitesse est activé mais mis à zéro), 
+la broche ne tournera pas. 
+Si, plus tard la vitesse de broche est augmentée 
+(ou que le correcteur de vitesse est augmenté), 
+la broche va se mettre en rotation. 
+Il est permis d'utiliser *M3* ou *M4* quand la broche est déjà 
+en rotation ou d'utiliser *M5* quand la broche est déjà arrêtée.
+
+[[sec:M6-Appel-Outil]]
+== M6 Appel d'outil
+(((M6 Appel d'outil)))
+
+=== Changement d'outil manuel
+
+Si le composant de HAL, hal_manualtoolchange est chargé, 
+M6 va arrêter la broche et inviter l'utilisateur à changer l'outil. 
+Pour plus d'informations sur hal_manualtoolchange voir 
+la section <<sec:Changement-D-Outil-Manuel, sur le changement manuel d'outil>>.
+
+=== Changement d'outil
+
+Pour changer l'outil, actuellement dans la broche, par un autre,
+nouvellement sélectionné en utilisant le mot T, voir la section 
+<<sec:T-Choix-Outil, sur le choix de l'outil>>, programmer *M6*. 
+Un changement d'outil complet donnera:
+
+* La rotation de la broche est arrêtée. 
+* L'outil qui a été sélectionné (par le mot T sur la même ligne ou sur
+   n'importe quelle ligne après le changement d'outil précédent), 
+   sera placé dans la broche. 
+   Le mot *T* est un nombre entier indiquant le 
+   numéro de poche d'outil dans le carrousel (non son index).
+* Si l'outil sélectionné n'est pas déjà dans la broche avant le
+   changement d'outil, l'outil qui était dans la broche 
+   (s'il y en avait un) 
+   va être replacé dans son emplacement dans le chargeur. 
+* Les coordonnées des axes seront arrêtées dans les mêmes positions
+   absolues qu'elles avaient avant le changement d'outil (mais la broche
+   devra peut-être être réorientée).
+* Aucune autre modification ne sera apportée. Par exemple, l'arrosage
+   continue à couler durant le changement d'outil à moins qu'il ne soit
+   arrêté par *M9*.
+* La longueur d'outil n'est pas modifié, 
+   utilisez G43 pour changer la longueur d'outil. 
+
+Le changement d'outil peut inclure des mouvements d'axes pendant son exécution. 
+Il est permis (mais pas utile) de programmer un changement d'outil avec 
+le même outil que celui qui est déjà dans la broche. 
+Il est permis également, si il n'y a pas d'outil dans le slot sélectionné, 
+dans ce cas, la broche sera vide après le changement d'outil. 
+Si le slot zéro a été le dernier sélectionné, 
+il n'y aura pas d'outil dans la broche après le changement.
+
+[[sec:M7-M8-M9]]
+== M7, M8, M9 Contrôle de l'arrosage
+(((M7 Arrosage gouttelettes)))
+(((M8 Arrosage fluide)))
+(((M9 Arrêt des arrosages)))
+
+Pour activer l'arrosage par gouttelettes, programmer *M7*.
+Pour activer l'arrosage fluide, programmer *M8*.
+Pour arrêter tous les arrosages, programmer *M9*.
+
+Il est toujours permis d'utiliser une de ces commandes, 
+que les arrosages soient arrêtés ou non.
+
+[[sec:M48-Activation-Correcteurs-Vitesse]]
+== M48 Activation des correcteurs de vitesse
+
+[[sec:M49-Inhibition-Correcteurs-Vitesse]]
+== M49 Inhibition des correcteurs de vitesse
+
+(((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
+
+Pour autoriser les potentiomètres de corrections de 
+vitesses de broche et celui de vitesse travail, programmer *M48*. 
+Pour les inhiber tous les deux, programmer *M49*. 
+Il est permis d'autoriser ou d'inhiber ces potentiomètres quand 
+ils sont déjà autorisés ou inhibés. Ils peuvent aussi être activés individuellement 
+en utilisant les commandes M50 et M51 comme décrit dans les 
+sections <<sec:M50-Controle-Correcteur-Vitesse-Travail, sur M50>> et 
+<<sec:M51-Controle-Correcteur-Vitesse-Broche, celle sur M51>>.
+
+[[sec:M50-Controle-Correcteur-Vitesse-Travail]]
+== M50 Contrôle du correcteur de vitesse travail
+(((M50 Contrôle du correcteur de vitesse travail)))
+
+Pour autoriser le potentiomètre de correction de vitesse travail,
+programmer *M50* ou *M50 P1*. 
+Pour inhiber ce potentiomètre, programmer *M50 P0*. 
+Quand il est inhibé, le potentiomètre de correction de
+vitesse n'a plus aucune influence 
+et les mouvements seront exécutés à la vitesse de travail programmée. 
+(à moins que ne soit actif un correcteur de vitesse adaptative).
+
+[[sec:M51-Controle-Correcteur-Vitesse-Broche]]
+== M51 Contrôle du correcteur de vitesse broche
+(((M51 Contrôle du correcteur de vitesse broche)))
+
+Pour autoriser le potentiomètre de correction de vitesse de la broche, 
+programmer *M51* ou *M51 P1*. 
+Pour inhiber ce potentiomètre programmer *M51 P0*. 
+Quand il est inhibé, le potentiomètre de correction de vitesse de broche 
+n'a plus aucune influence, et la broche tournera à la vitesse programmée, 
+en utilisant le mot S comme décrit dans la section <<sec:S-Broche, sur le
+réglage de la vitesse de broche>>.
+
+[[sec:M52-Controle-Vitesse-Adaptative]]
+== M52 Contrôle de vitesse adaptative
+(((M52 Contrôle vitesse adaptative)))
+
+Pour utiliser une vitesse adaptative, programmer *M52* ou *M52 P1*.
+Pour stopper l'utilisation d'une vitesse adaptative, programmer *M52 P0*. 
+Quand la vitesse adaptative est utilisée, 
+certaines valeurs externes sont utilisées avec les 
+correcteurs de vitesse de l'interface utilisateur et 
+les vitesses programmées pour obtenir la vitesse travail. 
+Dans EMC2, la HAL pin *motion.adaptive-feed* est utilisée dans ce but. 
+Les valeurs de *motion.adaptive-feed* doivent être dans une échelle comprise 
+entre 0 (pas de vitesse) et 1 (pleine vitesse).
+
+[[sec:M53-Controle-Coupure-Vitesse]]
+== M53 Contrôle de coupure de vitesse
+(((M53 Contrôle coupure vitesse)))
+
+Pour autoriser le bouton de coupure de vitesse, programmer *M53* ou
+*M53 P1*. Pour inhiber ce bouton programmer *M53 P0* . Autoriser la
+coupure de vitesse permet d'interrompre les mouvements
+par le biais d'une coupure de vitesse. Dans EMC2, la HAL pin
+*motion.feed-hold* est utilisée pour cette fonctionnalité. Une valeur
+de 1 provoque un arrêt des mouvements (si *M53* est actif).
+
+[[sec:M61-Correction-Numero-Outil-Courant]]
+== M61 Correction du numéro de l'outil courant
+(((M61 Correction du numéro de l'outil courant)))
+
+Pour corriger le numéro de l'outil courant, en mode MDI ou après un
+changement manuel d'outil programmer *M61 Qxx* dans la fenêtre de données
+manuelles. Au démarrage d'EMC2 avec un outil dans la broche, il est
+possible ainsi d'ajuster le numéro de l'outil courant sans faire de
+changement d'outil.
+
+    C'est une erreur si:
+
+* Qxx n'est pas égal où supérieur à 0
+
+[[sec:M62-a-M65-Controle-Sortie-Numerique]]
+== M62 à M65 Contrôle de bits de sortie numérique
+(((M62 Contrôle un bit de sortie numérique)))
+
+Pour contrôler un bit de sortie numérique, programmer *M- P-* , 
+où le mot M doit être compris entre 62 et 65 et le mot P compris
+entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre 
+des entrées/sorties peut être augmenté en utilisant le paramètre *num_dio* 
+lors du chargement du contrôleur de mouvement. Voir le manuel de 
+l'intégrateur, sections EMC et section de HAL, pour plus d'informations.
+
+* Le mot *P-* spécifie le numéro du bit de sortie numérique.
+
+M62:: (((M62)))
+    Activer un bit de sortie numérique en synchronisme avec un mouvement.
+
+M63:: (((M63)))
+    Désactiver un bit de sortie numérique en synchronisme avec un mouvement.
+
+M64:: (((M64)))
+    Activation directe d'un bit de sortie numérique.
+
+M65:: (((M65)))
+    Désactivation directe d'un bit de sortie numérique.
+
+Les commandes M62 et M63 seront mises en file d'attente. 
+Toute nouvelle commande, destinée à un bit sortie écrasera les anciens
+paramètres de ce bit. Plusieurs bits peuvent changer d'état 
+simultanément par l'envoi de plusieurs commandes M62/M63.
+
+Les nouveaux changements d'état des bits de sortie spécifiés, seront 
+effectifs au début du prochain mouvement commandé. S'il n'y a pas de 
+commande de mouvement ultérieur, les changements en attente 
+n'auront pas lieu. Il est préférable de toujours programmer un 
+g-code de mouvement (G0, G1, etc) juste après les M62/63.
+
+M64 et M65 produisent leur effet immédiatement, car ils sont directement 
+reçus par le contrôleur de mouvement. Ils ne sont pas synchronisés 
+avec un mouvement.
+
+[[sec:M66-Controle-Bit-Entree]]
+== M66 Contrôle d'un bit d'entrée
+(((M66 Contrôle d'un bit d'entrée)))
+
+Pour contrôler un bit d'entrée, programmer *M66 P- E- L- Q-*,
+où le mot P- et le mots E- vont de 0 à 3. 
+Si nécessaire, le nombre des entrées/sorties peut être augmenté en 
+utilisant les paramètres *num_dio* ou *num_aio* lors du chargement du
+contrôleur de mouvement. Voir le manuel de l'intégrateur pour
+plus d'informations, section des configurations, paragraphes EMC et HAL.
+Un seul des mots *P* ou *E* doit être présent. 
+C'est une erreur si ils sont présents tous les deux.
+
+M66:: (((M66)))
+    Attente d'une entrée
+
+- Le mot *P* spécifie le numéro d'un bit d'entrée numérique.  
+- Le mot *E* spécifie le numéro d'un bit d'entrée analogique. 
+- Le mot *L* spécifie le type d'attente.
+
+-- 0:: *WAIT_MODE_IMMEDIATE* - pas d'attente, retour immédiat, 
+       la valeur courante de l'entrée est stockée dans le paramètre #5399
+-- 1:: *WAIT_MODE_RISE* - attente d'un front montant sur l'entrée.
+-- 2:: *WAIT_MODE_FALL* - attente d'un front descendant sur l'entrée.
+-- 3:: *WAIT_MODE_HIGH* - attente d'un état logique HIGH sur l'entrée.
+-- 4:: *WAIT_MODE_LOW*  - attente d'un état logique LOW sur l'entrée.
+
+- Le mot *Q* spécifie le timeout pour l'attente, en secondes. Si le timeout est
+   dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.
+- Le type *0* est le seul autorisé pour une entrée analogique.
+
+M66 attends un nouvel événement sur l'entrée ou la fin de l'exécution
+du programme, jusqu'à ce que l'événement sélectionné (ou le timeout
+programmé) ne survienne. C'est une erreur de programmer une valeur de
+timeout à 0 dans tous les types, sauf le type 0.
+
+C'est également une erreur de programmer *M66* avec les deux mots, un
+mot P et un mot E (ce qui reviendrait à sélectionner à la fois une
+entrée analogique et une numérique).
+
+[[sec:M67-Controle-Sortie-Analogique-Synchro]]
+== M67 Contrôle de sortie analogique
+(((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
+
+Pour contrôler une sortie analogique synchronisée avec un mouvement, 
+programmer *M67 E- Q-*, où le mot E doit être compris entre 0 et 3, 
+3 étant le maximum par défaut, et où le mot Q est la valeur à appliquer. 
+Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre
+*num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
+"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
+pour plus d'informations sur le contrôleur de mouvement. M67 fonctionne
+comme M62-63. Voir la section M62-65 pour des informations au sujet des
+commandes en file d'attente synchronisées avec un mouvement.
+
+[[sec:M68-Controle-Sortie-Analogique-Directe]]
+== M68 Contrôle de sortie analogique directe
+(((M68 Contrôle de Sortie analogique directe)))
+
+Pour contrôler une sortie analogique directement, programmer *M68 E- Q-*, 
+où le mot E doit être compris entre 0 et 3 et le mot Q est la valeur
+à appliquer. Le nombre d'entrées/sorties peut être augmenté en utilisant
+le paramètre *num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
+"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
+pour plus d'informations sur le contrôleur de mouvement. M68 fonctionne
+comme M64-65. Voir la section M62-65 pour des informations au sujet des
+commandes directes.
+
+[[sec:M100-a-M199]]
+== M100 à M199 Commandes définies par l'utilisateur
+(((M100 à M199 M-codes définis par l'utilisateur)))
+(((M-codes définis par l'utilisateur M100-M199)))
+
+Pour invoquer une commande définie par l'utilisateur, programmer M1xx
+P- Q-* où P et Q sont facultatifs. Le programme externe, nommé *M1nn*, qui
+doit se trouver dans le répertoire pointé par la variable [DISPLAY]
+PROGRAM_PREFIX du fichier ini, est exécuté avec les valeurs P et Q
+comme étant ses deux arguments. L'exécution du fichier G-code courant
+passe en pause jusqu'à ce que le programme invoqué soit terminé.
+
+Le message d'erreur *M-code inconnu* signifie que:
+
+* La commande spécifiée n'existe pas.
+* Le fichier n'est pas exécutable.
+
+Exemple valide: dans un programme g-code, on doit ouvrir et fermer un mandrin
+automatique via une broche du port parallèle, on appellera
+respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
+deux scripts bash correspondants, appelés M101 et M102 seront créés
+avant le lancement d'EMC2 puis rendus exécutables, par exemple par un
+clic droit puis *propriétés -> permissions -> Exécution*.
+
+Fichier M101 
+----
+#!/bin/bash
+# ce fichier met la broche 14 du port à 1 pour ouvrir le mandrin automatique
+halcmd setp parport.0.pin-14-out True
+exit 0
+----
+
+Fichier M102
+----
+#!/bin/bash
+# ce fichier met la broche 14 du port à 0 pour fermer le mandrin automatique
+halcmd setp parport.0.pin-14-out False
+exit 0
+----
+
+Pour passer une variable à un fichier M1nn utiliser les mots optionnels P et Q 
+de cette façon:
+----
+M100 P123.456 Q321.654
+----
+
+Le contenu de votre script M100 devrait ressembler à ça:
+----
+#!/bin/sh
+tension=$1
+vitesse=$2
+halcmd setp thc.voltage $tension
+halcmd setp thc.feedrate $vitesse
+exit 0
+----
+
+// vim: set syntax=asciidoc:

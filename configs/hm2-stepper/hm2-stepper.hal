@@ -89,8 +89,8 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [AXIS_0]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
 
@@ -124,8 +124,8 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [AXIS_1]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
 
@@ -159,8 +159,8 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [AXIS_2]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 

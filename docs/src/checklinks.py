@@ -6,9 +6,9 @@ else:
     ref = "../html/gcode.html"
 
 if len(sys.argv) > 2:
-    main = sys.argv[2]
+    targets = sys.argv[2:]
 else:
-    main = ref.replace("gcode", "gcode_main")
+    targets = None
 
 def get(attr, attrs, default=""):
     attr = attr.lower()
@@ -18,15 +18,11 @@ def get(attr, attrs, default=""):
 
 class MetaHandler:
     def do_meta(self,  attrs):
-        print "meta", attrs
         equiv = get("http-equiv", attrs)
         content = get("content", attrs)
-        print "meta", equiv, content
         if equiv != "content-type": return
         attrs = cookielib.split_header_words([content])[0]
-        print "meta", attrs
         encoding = get("charset", attrs)
-        print "encoding", repr(encoding)
         if encoding == "ASCII": encoding = "ISO-8859-1"
         if encoding: self.encoding = encoding
 
@@ -43,10 +39,7 @@ class get_refs(sgmllib.SGMLParser, MetaHandler):
         if self.encoding:
             href = href.decode(self.encoding)
         href = urllib.unquote(href)
-        if "#" in href:
-            a, b = href.split("#")
-            if b:
-                self.refs.add(b)
+	self.refs.add(href)
 
 class get_anchors(sgmllib.SGMLParser, MetaHandler):
     entitydefs = htmlentitydefs.entitydefs
@@ -64,26 +57,71 @@ class get_anchors(sgmllib.SGMLParser, MetaHandler):
     def unknown_endtag(self, tag): pass
 
     def do_a(self, attrs):
-        name = get('name', attrs)
+        name = get('name', attrs, get('id', attrs))
         if self.encoding:
             name = name.decode(self.encoding)
         name = urllib.unquote(name)
         if name:
             self.anchors.add(name)
 
+_anchors = {}
+def get_anchors_cached(filename):
+    if filename not in _anchors:
+	a = get_anchors()
+	a.feed(open(filename).read())
+	_anchors[filename] = a.anchors
+    return _anchors[filename]
 
-r = get_refs()
-r.feed(open(ref).read())
-r = r.refs
+def resolve_file(src, target):
+    if "#" in target:
+	a, b = target.split("#", 1)
+    else:
+	a, b = target, None
 
-a = get_anchors()
-a.feed(open(main).read())
-a = a.anchors
+    a = a or src
 
-missing = r - a
-if missing:
-    print "Anchors used in %s but not defined in %s:" % (
-        os.path.basename(ref), os.path.basename(main))
-    for i in missing:
+    return os.path.join(os.path.dirname(ref), a), b
+
+def resolve(target, anchor):
+    if not anchor: return True
+
+    anchors = get_anchors_cached(target)
+    return anchor in anchors
+
+refs = get_refs()
+refs.feed(open(ref).read())
+refs = refs.refs
+
+missing_anchor = set()
+missing_file = set()
+unlisted_targets = set()
+good = set()
+for r in refs:
+    target, anchor = resolve_file(ref, r)
+    if targets and not target in targets:
+	unlisted_targets.add(target)
+    elif not os.path.exists(target):
+	missing_file.add(r)
+    elif not resolve(target, anchor):
+	missing_anchor.add(r)
+    else:
+	good.add(r)
+
+if missing_file:
+    print "Files linked to in %s but could not be found:" % (
+        os.path.basename(ref),)
+    for i in sorted(missing_file):
         print "\t%r" % i
+if missing_anchor:
+    print "Anchors used in %s but not defined in linked file:" % (
+        os.path.basename(ref),)
+    for i in sorted(missing_anchor):
+        print "\t%r" % i
+if unlisted_targets:
+    print "Links to files not listed as targets:"
+    for i in sorted(unlisted_targets):
+	print "\t%r" % i
+    print "If all link targets are not listed in the Submakefile, then the results of this program is unreliable."
+print "Good links: %d/%d" % (len(good), len(refs))
+if missing_anchor or missing_file or unlisted_targets:
     raise SystemExit, 1

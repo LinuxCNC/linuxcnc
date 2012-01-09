@@ -1,0 +1,40 @@
+executing
+    1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
+    2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    4 N..... SET_XY_ROTATION(0.0000)
+    5 N..... SET_FEED_REFERENCE(CANON_XYZ)
+    6 N..... MESSAGE(" before introspect: call_level= 0.000000")
+    7 N..... SELECT_POCKET(3)
+    8 N..... START_CHANGE()
+    9 N..... STOP_SPINDLE_TURNING()
+   10 N..... CHANGE_TOOL(3)
+   11 N..... SET_FEED_RATE(200.0000)
+   12 N..... SET_SPINDLE_SPEED(3000.0000)
+   13 N..... START_SPINDLE_CLOCKWISE()
+debug:  1073741824 logging: 0
+argc= 4 args= (1.0, 2.0, 3.0, 3.1415899999999999) call_level= 1
+param # 0 = 1.0
+param # 1 = 2.0
+param # 2 = 3.0
+param # 3 = 3.14159
+M123 Remap(M123 argspec=Pq modal_group=5 prolog=None ngc=foo python=None epilog=None) 
+current oword subname= introspect
+m_modes[0]= -1
+g_modes[0]= -1
+current tool= 3.0 3.0
+feed= 200.0
+speed= 3000.0
+global parameter set in test.ngc: 47.11
+parameter set via test.ini: 3.14159
+locals:  ['a_new_local']
+globals:  ['_a', '_a_global_set_in_test_dot_ngc', '_a_new_global', '_absolute', '_adaptive_feed', '_b', '_c', '_call_level', '_ccomp', '_coord_system', '_current_pocket', '_current_tool', '_feed', '_feed_hold', '_feed_override', '_flood', '_ijk_absolute_mode', '_imperial', '_incremental', '_ini[example]variable', '_inverse_time', '_lathe_diameter_mode', '_lathe_radius_mode', '_line', '_metric', '_mist', '_motion_mode', '_plane', '_remap_level', '_retract_old_z', '_retract_r_plane', '_rpm', '_selected_pocket', '_selected_tool', '_speed_override', '_spindle_css_mode', '_spindle_cw', '_spindle_on', '_spindle_rpm_mode', '_task', '_tool_offset', '_u', '_units_per_minute', '_units_per_rev', '_v', '_value', '_value_returned', '_vmajor', '_vminor', '_w', '_x', '_y', '_z', 'foo']
+params():  ['a_new_local', '_a', '_a_global_set_in_test_dot_ngc', '_a_new_global', '_absolute', '_adaptive_feed', '_b', '_c', '_call_level', '_ccomp', '_coord_system', '_current_pocket', '_current_tool', '_feed', '_feed_hold', '_feed_override', '_flood', '_ijk_absolute_mode', '_imperial', '_incremental', '_ini[example]variable', '_inverse_time', '_lathe_diameter_mode', '_lathe_radius_mode', '_line', '_metric', '_mist', '_motion_mode', '_plane', '_remap_level', '_retract_old_z', '_retract_r_plane', '_rpm', '_selected_pocket', '_selected_tool', '_speed_override', '_spindle_css_mode', '_spindle_cw', '_spindle_on', '_spindle_rpm_mode', '_task', '_tool_offset', '_u', '_units_per_minute', '_units_per_rev', '_v', '_value', '_value_returned', '_vmajor', '_vminor', '_w', '_x', '_y', '_z', 'foo']
+   14 N..... MESSAGE(" after introspect: return value=2.718280 call_level= 0.000000")
+   15 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+   16 N..... SET_XY_ROTATION(0.0000)
+   17 N..... SET_FEED_MODE(0)
+   18 N..... SET_FEED_RATE(0.0000)
+   19 N..... STOP_SPINDLE_TURNING()
+   20 N..... SET_SPINDLE_MODE(0.0000)
+   21 N..... PROGRAM_END()

@@ -1,34 +1,115 @@
 README for Document Writers
 
-Creating new master lyx documents.
+Adding files:
+-------------
+The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
 
-In Layout/Document...
-  Layout tab, Document_class: book
-  
-In the Master Document...  
-  Preamble tab:
-	\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-	\pagenumbering{Roman}
-	\let\myTOC\tableofcontents
-	\renewcommand\tableofcontents{%
-	\myTOC
-	\clearpage
-	\pagenumbering{arabic}
-	}
+docs.xml is used to create the "previous" and "next" buttons at the top of each individual html document. 
+it should generally match the order of the index.tmpl
 
-	\usepackage{fancyhdr}
-	\setlength{\headheight}{15pt}
-	\pagestyle{fancy}
-	\renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
+Notes on EMC2 documentation:
+----------------------------
+The main EMC2 makefile can optionally build the documentation and
+other files in this directory tree.  Use --enable-build-documentation when
+invoking emc2/src/configure, and run make from emc2/src
 
-	\lhead{\fancyplain{}{EMC V2.3 Manual Name Here}}
-	 
-	\fancyfoot{}
-	\fancyfoot[CE,CO]{\thepage}
+Notes about drawings:
+---------------------
+Many of the documents include drawings.  Most of them were originally
+created using EasyCad, a non-free Windows app, then exported to .eps files
+and included in the the docs.  The original 'source' files (EasyCad .FC7
+format) were not usable on a free system.  To fix this problem, all of
+the source files have been converted to .dxf files, and added to git.
+The .dxf files can be edited with multiple CAD packages, and serve as the
+'source' files for future changes to the drawings.  They can be converted
+from .dxf to postscript (not .eps) using Qcad, which is available as an 
+ubuntu package (and I believe also available for debian).
 
-In sub documents the Preamble should be empty.
+Unfortunately, EasyCad (and AutoCad) support a number of entities 
+that Qcad does not import properly.  Including some that were used 
+in the EMC2 drawings: filled circles, filled arrowheads, non-zero 
+width lines, and dashed lines.  Qcad renders filled circles as 
+hollow, it renders all lines the same width, and it renders dashed 
+lines as solid, unless you tell it to do otherwise.  All of these 
+things make the drawings less attractive, but are somewhat 
+acceptable.  However, Qcad doesn't import filled arrowheads at all, 
+which seriously hurts the drawings.  So EasyCad was used to convert 
+the arrowheads to hollow before exporting them.  Hollow arrowheads 
+don't look as nice as solid ones, but at least they are visible.
 
-Creating new sub documents use the template.lyx file as the base.
+Once exported, the arrowheads lose their relationship with the line they 
+are on, and and need to be moved and/or rotated manually if the line is 
+moved.  I believe that even if they were imported back into EasyCad, the
+line/arrow connection would remain broken. New lines with 
+arrowheads can be created in Qcad with the 'leader' dimension tool.
+
+Because the original EPS files with filled lines and circles, wide lines,
+and dashed lines look so much nicer, they will remain in git and should
+probably be used for the documents, however if they become inaccurate
+because of changes in the software, we will have to edit the DXF files,
+generate postscript, and use the less pretty but factually corrrect 
+images.
+
+Since Qcad itself is a GUI application, the dxf to postscript conversion
+involves going clicky clicky, and can't be automated and made part of the
+makefile.  Also, not everyone will have Qcad installed on their system.
+Therefore, we will store both the DXF files and the resulting postscript
+files in git, and the normal documentation build process will use the
+postscript files only.  If/when the dxf files are edited, they will need
+to be converted to postscript manually. The conversion procedure is as
+follows:
+
+start qcad
+File->Open-> choose dxf file
+drawing appears in window
+Edit->CurrentDrawingPreferences->Paper
+set paper size to "letter", set orientation to "landscape" or "portrait"
+  depending on the aspect ratio of the drawing
+File->PrintPreview
+click the "fit to page" button on the toolbar (last button on the right at
+  least on version 2.0.4.0 of qcad)
+File->Print
+  select "print to file"
+  set the path to point to the same directory as the source .dxf file
+  set the name to be the same as the source file, but .ps instead of .dxf
+  click OK
+
+The makers of Qcad also have a GPL'ed format converter called vec2web,
+which can do dxf to postscript conversion from the command line.  It
+is not available as a precompiled package, but is available in source
+form from http://www.ribbonsoft.com/vec2web.html
+
+vec2web depends on qt3 development packages for compilation, so it should 
+not be a dependency for building the EMC docs.  But if configure can detect
+it, it would be nice to automate conversion from dxf to ps for those systems
+where vec2web is installed.
+
+To build vec2web, I had to apt-get install qt3-dev-tools
+The vec2web tarball contains a build script, but before you run it you
+must set $QTDIR to point at your QT3 installation - in my case it was
+  export QTDIR=/usr/share/qt3
+Then run the build script:
+  ./build_vec2web.sh
+There is no install step, the executable gets dumped in the build directory.
+There is also no man page, but running it with no args prints the following
+usage instructions:
+
+Usage: vec2web <input file> <output file> [options]
+Where options are:
+        -x #      maximum x size for the output bitmap in pixel
+        -y #      maximum y size for the output bitmap in pixel
+        -b        black/white instead of using colors
+        -o [l|p]  orientation for PS output (landscape or portrait)
+        -s ..     page size for PS output (A4, A5)
+
+e.g. vec2web drawing.dxf drawing.png
+        converts drawing.dxf to a portable network graphic
+
+My initial attempts to use vec2web resulted in the graphical parts of the
+drawing being converted, but all text was lost.  I don't know if vec2web is
+worth spending much more time on, however, it _is_ GPL, and it includes a
+library for reading DXF files which might be a worthwhile thing to the 
+Linux CNC community.
 
 Drawings from QCad
 -------------------
@@ -36,76 +117,27 @@ Save as .dxf to same directory as the image
 Set line thickness to 0.50mm
 Export image as 480 x 480 Resolution Auto .png
 
-Images
--------------------
 
-Images must be in the same directory or a subdirectory below the .lyx file
-or it adds a local path and that really fouls it up...
+How to add a new translation language
+-------------------------------------
 
-Notes on using Lyx
--------------------
+Add the asciidoc source files that will contain your new translation.
+Usually that means copying the language files for one of the existing
+languages, probably English since that's usually the most up to date.
 
-Smart Quotes mess up copy and paste so use Ctrl/Shift " for a normal quote.
+Add the new files to the proper place in docs/src/Submakefile, to ensure
+they'll get built.
 
-By adding a package to the preamble it is possible to include the 
-TOC starting page in the TOC itself.  That way it will appear in
-the side bar of the PDF readers and allow the user to click back
-to where they last were when they clicked on a TOC entry.
+Edit debian/control.in to add the new emc2-doc-$NEWLANG package.  Add the new
+doc package to the or-list of the Recommends line of the emc2/emc2-sim
+package.
 
-That line is \usepackage{tocbibind} and it seems to work fine right
-below the line that colors and creates the TOC links.
+Add the new language to the DOCS_PACKAGES variable in debian/configure.
+If there is a texlive-lang-$NEWLANGUAGE package for your new language,
+add it to all the appropriate EXTRA_BUILD lines in debian/configure.
 
-It is also possible to add other references to the TOC for things 
-like sections or chapters that are not numbered (chapter*) by including
-an ERT (Evil Red Text) while running the Lyx GUI itself.  An example of
-this is shown below.  What it does is add the user handbook Foreword
-to the TOC when the first line of userforward.lyx has been changed
-to an unnumbered chapter.
+Add the 'emc2-doc-$NEWLANG.files.in' file for the new package, probably
+by copying and editing "debian/emc2-doc-en.files.in".
 
-The line is listed below.  You'd need to change "Foreword" to your
-own entry's name.  This ERT should be added before the
-lines that insert a file or create a new heading you wish to add.
-The ERT is Insert/TeX on the lyx menu.
-
-\addcontentsline{toc}{chapter}{\protect\numberline{}Foreword}
-
-This line is optional and adds a page title... 
-It also looks like we need to modify the header variable that is 
-used for the top of each page to reflect the new info.  This can
-be done by placing the following ERT immediately before the item
-to be added.
-
-\markboth{Foreword}{Foreword}
-
-Change "Foreword" to the name you wish to show at the top of the page .
-
-
-Note on common title page common/Document_Header.lyx
----------------------------------------------------
-
-It is possible to use the same include file for all books that use 
-this frontmatter file.
-
-What we do is first define a box and include the book's title in
-it.  This must be done before Document_Header.lyx is included in 
-the new master doc.  This is done with a single ERT that looks like 
-this.
-
-   \newsavebox{\titleadd}
-
-   \sbox{\titleadd} {\Huge \bf Getting Started}
-
-Fontsize is chosen with the \Huge but could be smaller using in 
-decending order;
-   huge
-   LARGE
-   Large
-   large
-   
-The \bf sets the usage of boldfont.
-
-Replace "Getting Started" with the name chosen for the new book.
-
-There is an ERT added into Document_Header.lyx in the title 
-definition that calls up the box created in the master doc.
+Test build the packages and verify!
 

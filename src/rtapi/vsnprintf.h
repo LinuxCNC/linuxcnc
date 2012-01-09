@@ -34,7 +34,11 @@ values (or floating point).
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
 */
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <rtapi_ctype.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)
@@ -71,7 +75,7 @@ static char *ch(char *buf, char *end, char ch)
     return buf+1;
 }
 
-static char *st(char *buf, char *end, char *add)
+static char *st(char *buf, char *end, const char *add)
 {
     while(*add)
 	buf = ch(buf, end, *add++);
@@ -155,8 +159,71 @@ static char *number(char *buf, char *end, long long numll, int base,
     return buf;
 }
 
+#if defined(__i386__) || defined(__amd64__)
+#define IS_IEEE754 /// XXX this should ultimately be replaced by a configure test
+#endif
+
+#if defined(IS_IEEE754)
+static int next_digit(unsigned long long *mantissa)
+{
+    int result = ((*mantissa) >> 52) & 0xf;
+    *mantissa = ((*mantissa) << 4) & ((1ull<<56)-1);
+    return result;
+}
+#endif
+
 static char *fnumber(char *buf, char *end, double num)
 {
+#if defined(IS_IEEE754)
+    union ieee754_double du;
+    int exponent, i;
+    unsigned long long mantissa;
+
+    du.d = num;
+
+    if(du.ieee.negative) buf = ch(buf, end, '-');
+
+    if(du.ieee.exponent == 0x7ff) {
+	// inf or nan	
+        if(du.ieee.mantissa0 == 0 && du.ieee.mantissa1 == 0) {
+	    buf = st(buf, end, "Inf"); return buf;
+	} else {
+	    buf = st(buf, end, "NaN"); return buf;
+	}
+    } else if(du.ieee.exponent == 0) {
+	// denormalized or zero
+	exponent = du.ieee.exponent - IEEE754_DOUBLE_BIAS;
+	mantissa = ((unsigned long long)du.ieee.mantissa0 << 32) + du.ieee.mantissa1;
+	if(mantissa == 0) {
+	    exponent = 0;
+	} else {
+	    while(!(mantissa & (1ull<<52))) {
+		exponent--;
+		mantissa <<= 1;
+	    }
+	}
+    } else {
+	// normal
+	exponent = du.ieee.exponent - IEEE754_DOUBLE_BIAS;
+	mantissa = ((unsigned long long)du.ieee.mantissa0 << 32) + du.ieee.mantissa1 + (1ull<<52);
+    }
+
+    buf = st(buf, end, "0x");
+
+    /* first digit */
+    i = next_digit(&mantissa);
+    buf = ch(buf, end, large_digits[i]);
+
+    if(mantissa) { buf = ch(buf, end, '.'); }
+    while(mantissa) {
+        /* remaning digits, if any */
+        i = next_digit(&mantissa);
+        buf = ch(buf, end, large_digits[i]);
+    }
+
+    buf = ch(buf, end, 'P');
+    buf = number(buf, end, exponent, 10, 0, 0, PLUS|SIGN);
+#else
     int exp;
     double mantissa = frexp(fabs(num), &exp);
     int i;
@@ -187,6 +254,7 @@ static char *fnumber(char *buf, char *end, double num)
 
     buf = ch(buf, end, 'P');
     buf = number(buf, end, exp, 10, 0, 0, PLUS|SIGN);
+#endif
     return buf;
 }
 
@@ -197,7 +265,7 @@ static char *fnumber(char *buf, char *end, double num)
 * @fmt: The format string to use
 * @args: Arguments for the format string
 */
-static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args)
+int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args)
 {
     int len;
     unsigned long long num;
@@ -217,9 +285,11 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
     }
     str = buf;
     end = buf + size - 1;
-    if (end < buf - 1) {
-	end = ((void *) -1);
-	size = end - buf + 1;
+    if (end <= buf) {
+	/* impossible or hack attempt: end of buffer wraps around in memory from
+	 * high addresses to low
+	 */
+	return -1;
     }
     for (; *fmt; ++fmt) {
 	if (*fmt != '%') {
@@ -418,8 +488,8 @@ char *strsep(char **s, const char *ct)
 {
     char *sbegin = *s, *end;
 
-    if (sbegin == NULL)
-	return NULL;
+    if (!sbegin)
+	return (char*)0;
 
     end = strpbrk(sbegin, ct);
     if (end)

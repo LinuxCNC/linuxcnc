@@ -1,0 +1,84 @@
+# unlink because core_sim.hal looped them already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prepare
+unlinkp iocontrol.0.tool-prepared
+
+# loop back iocontrol(v2) pins to keep her happy
+net io-tool-prepare iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net io-tool-change iocontrol.0.tool-change iocontrol.0.tool-changed
+
+
+############################## Tx pins ##############################
+net tool-prep-number-f  motion.analog-out-00 => gladevcp.txt_tool_prepare_no
+net tool-prep-pocket-f  motion.analog-out-01 => gladevcp.txt_prepare_pocket
+net tool-prepare        motion.digital-out-00 => gladevcp.led_tool_prepare
+net tool-prepared       motion.digital-out-02 => gladevcp.led_tool_prepared
+
+
+############################## M6 pins ##############################
+net tool-number-f       motion.analog-out-02 => gladevcp.txt_tool_number
+net tool-change         motion.digital-out-01 => gladevcp.led_tool_change
+net tool-changed        motion.digital-out-03 => gladevcp.led_tool_changed
+
+
+############################## Spindle Pin ##############################
+#net spindle_has_stoped  motion.digital-in-02 <= hm2_5i20.0.gpio.032.in
+# Fürs Debugging
+net spindle_has_stoped  motion.digital-in-02 <= gladevcp.chk_spindle_stoped
+net spindle_has_stoped => gladevcp.led_spindle_stoped
+net spindle_has_not_stoped gladevcp.led_spindle_not_stoped <= gladevcp.chk_spindle_stoped-not
+
+
+############################## Doors ##############################
+#net left_door_is_closed      motion.digital-in-00 <= hm2_5i20.0.gpio.035.in
+# Fürs Debugging
+net left_door_closed      motion.digital-in-00 <= gladevcp.chk_left_door_closed
+net left_door_closed => gladevcp.led_left_door_is_closed
+net left_door_open gladevcp.led_left_door_is_open <= gladevcp.chk_left_door_closed-not
+
+#net right_door_is_closed      motion.digital-in-01 <= hm2_5i20.0.gpio.036.in
+# Fürs Debugging
+net right_door_closed      motion.digital-in-01 <= gladevcp.chk_right_door_closed
+net right_door_closed => gladevcp.led_right_door_is_closed
+net right_door_open  gladevcp.led_right_door_is_open  <= gladevcp.chk_right_door_closed-not
+
+
+############################## Covers ##############################
+# Öffnet die linke Klappe Verknüpfung unter ToolChangeTest.hal
+# net valvle_cover_left motion.digital-out-04 => hm2_5i20.0.gpio.043.out
+# Fürs Debugging
+net valvle_cover_left => gladevcp.led_valvle_left_on
+
+# hm2_5i20.0.gpio.026.in = Klappe links offen
+net cover_left_open      motion.digital-in-06  <= gladevcp.chk_cover_left
+net cover_left_open   gladevcp.led_cover_left_open
+# hm2_5i20.0.gpio.028.in = Klappe links zu
+net cover_left_closed    motion.digital-in-03  <= gladevcp.chk_cover_left-not
+net cover_left_closed   gladevcp.led_cover_left_closed
+
+# Öffnet die rechte Klappe Verknüpfung unter ToolChangeTest.hal
+# net valvle_cover_right motion.digital-out-05 => hm2_5i20.0.gpio.041.out
+# Fürs Debugging
+net valvle_cover_right => gladevcp.led_valvle_right_on
+
+# hm2_5i20.0.gpio.025.in = Klappe rechts offen
+net cover_right_open      motion.digital-in-07  <= gladevcp.chk_cover_right
+net cover_right_open   gladevcp.led_cover_right_open
+# hm2_5i20.0.gpio.027.in = Klappe rechts zu
+net cover_right_closed    motion.digital-in-04  <= gladevcp.chk_cover_right-not
+net cover_right_closed   gladevcp.led_cover_right_closed
+
+
+############################## Changing fork ##############################
+net fork_down           motion.digital-in-09 <= gladevcp.chk_fork_up-not
+net fork_down           gladevcp.led_fork_down
+net fork_up             motion.digital-in-08 <= gladevcp.chk_fork_up
+net fork_up             gladevcp.led_fork_up
+
+
+############################## Coolant ##############################
+net coolant-flood => gladevcp.led_coolant_on
+
+#net tool-changed gladevcp.led_tool_changed motion.digital-in-01
+#net halui-abort gladevcp.halui-abort halui.abort

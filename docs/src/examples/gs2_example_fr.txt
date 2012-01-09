@@ -1,0 +1,58 @@
+:lang: fr
+:toc:
+
+= Broche avec variateur GS2
+
+(((Broche avec variateur GS2)))
+
+== Exemple
+ 
+Cet exemple montre les connexions demandées pour utiliser un variateur de 
+fréquence fourni par la société Automation Direct pour piloter une broche.
+footnote:[En Europe on trouve une gamme de produits identiques sous la marque
+Omron.]
+La direction de la broche et sa vitesse seront contrôlées par EMC2.
+
+L'utilisation du composant GS2 est très simple à régler. Une configuration 
+complète peut être réalisée par l'assistant Stepconf. Bien vérifier que les 
+pins *Spindle CW* et *Spindle PWM* sont inutilisées sur la page de réglage du 
+port parallèle.
+
+Placer les lignes suivantes dans le fichier custom.hal pour connecter EMC2 au
+GS2 et avoir le contrôle de celui-ci depuis l'interface utilisateur.
+----
+# Charger le composant utilisateur pour le variateur variateur 
+loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
+
+# connecter la pin de direction au variateur 
+net gs2-fwd spindle-vfd.spindle-fwd <= motion.spindle-forward
+
+# connecter la pin de Marche/Arrêt au variateur 
+net gs2-run spindle-vfd.spindle-on <= motion.spindle-on
+
+# connecter la pin indiquant que la consigne vitesse est atteinte 
+net gs2-at-speed motion.spindle-at-speed <= spindle-vfd.at-speed
+
+# connecter la commande de vitesse au variateur 
+net gs2-RPM spindle-vfd.speed-command <= motion.spindle-speed-out
+----
+
+Sur le variateur de fréquence lui même, il est nécessaire de fixer quelques
+paramètres avant de pouvoir communiquer avec lui par Modbus. D'autres seront 
+ajustés selon les caractéristiques demandées par le système. Ces réglages 
+sortent, pour la plupart, du cadre de cet exemple, ils sont tous expliqués 
+dans le manuel du variateur qu'il est impératif de consulter.
+ 
+- Les switches de communication doivent être positionnés sur RS-232C.
+- Les paramètres moteur doivent être ajustés en fonction du moteur.
+- P3.00 (Source des commandes de marche) doit être ajusté sur *Opérations
+   déterminées par l'interface RS-485*, *03* ou *04*
+- P4.00 (Source des commandes de fréquence) doit être ajusté sur *Fréquence
+   déterminée par l'interface RS232C/RS485*, *05*
+- P9.02 (Protocole de communication) doit être ajusté sur *Modbus RTU mode, 
+   8 bits de donnée, pas de parity, 2 bits de stop*, *03*
+
+Un panneau de commande virtuel PyVCP, basé sur cet exemple, est donné
+dans l'<<sec:Exemple-Compte-Tours-GS2,exemple avec un variateur>>.
+
+

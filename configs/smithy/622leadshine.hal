@@ -117,12 +117,12 @@ net Ymin hm2_5i20.0.gpio.030.in => axis.1.neg-lim-sw-in
 # The earliest production units had normally open switches
 # on the Z axis which were deemed too difficult to change
 # to normally closed operation due to their remote location.
-net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
-# Later production untis came correctly wired with normally
+#net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
+#net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
+# Later production units came correctly wired with normally
 # closed switched on all three axes.
-#net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
-#net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
 net Xmax => axis.0.home-sw-in
@@ -138,10 +138,11 @@ net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
 # Main Contactors - True when both contactors are energized
 net ACOK hm2_5i20.0.gpio.035.in_not
 # VFD Fault Relay - True when VFD is not faulted
-#this bit is repurposed on a Sieg KX3 that has no VFD fault signal
-#it is used for the A axis home sensor
 #net VFDOK hm2_5i20.0.gpio.031.in_not
-#net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+# A Axis Home - On Sieg machines there is no VFD fault signal,
+# it is used for the A axis home sensor on 4 axis machines
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+#net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 

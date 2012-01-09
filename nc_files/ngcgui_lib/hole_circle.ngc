@@ -1,0 +1,38 @@
+(info: hole_circle: equally spaced, uses helix.ngc)
+o<hole_circle> sub
+
+#<toolno>     =  #1
+#<rpm>        =  #2 (=2000)
+#<feedrate>   =  #3 (=10)
+#<dir>        =  #4 (=3 2:cw, 3:ccw)
+#<inside>     =  #5 (=1 1:in, 0:out)
+#<cutdepth>   =  #6
+#<zincr>      =  #7
+#<zsafe>      =  #8 (=0.5)
+#<r>          =  #9 (Circle radius)
+#<theta>      = #10 (=0 start theta)
+#<hdiam>      = #11 (diameter)
+#<n>          = #12 (=4  N holes)
+#<zstart>     = #13 (=0)
+
+o<loadtool> call  [#<toolno>]
+#<tooldiam> = [#5410 + .001]
+
+#<i>          = 0
+#<deltheta>   = [360/#<n>]
+#<faceangle>  = 0 (notused helix item)
+#<d_angle>    = 0 (notused helix item)
+
+o<l20> while [#<i> LT #<n>]
+   #<x> = [#<r> * COS[#<theta>]]
+   #<y> = [#<r> * SIN[#<theta>]]
+
+   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<zstart>][#<faceangle>][#<d_angle>][#<zstart>]
+   #<i>         = [#<i> + 1]
+   #<theta>     = [#<theta> + #<deltheta>]
+   #<_feature:> = #<i> (using _feature: here disables stop)
+                       (that would occur in helix at spin sub call)
+o<l20> endwhile
+
+
+o<hole_circle> endsub

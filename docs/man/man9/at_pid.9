@@ -8,7 +8,9 @@
 .SH NAME
 at_pid \- proportional/integral/derivative controller with auto tuning
 .SH SYNOPSIS
-\fBloadrt at_pid num_chan=\fInum\fR [\fBdebug=\fIdbg\fR]
+\fBloadrt at_pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
+
 
 .SH DESCRIPTION
 \fBat_pid\fR is a classic Proportional/Integral/Derivative controller,
@@ -17,8 +19,14 @@ other closed-loop applications.
 .P
 \fBat_pid\fR supports a maximum of sixteen controllers.  The number that
 are actually loaded is set by the \fBnum_chan\fR argument when
-the module is loaded.  If \fBnumchan\fR is not specified, the default
-value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
+the module is loaded.  Alternatively, specify \fBnames=\fR and unique names
+separated by commas.
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
+value is three.
+.P
+If \fBdebug\fR is set to 1 (the default is 0), some
 additional HAL parameters will be exported, which might be useful
 for tuning, but are otherwise unnecessary.
 .P
@@ -44,12 +52,21 @@ occurs, or the oscillation is too small, slowly increase \fBtune-effort\fR.
 Auto tuning can be aborted at any time by setting \fBenable\fR or
 \fBtune-mode\fR to false.
 
+.SH NAMING
+The names for pins, parameters, and functions are prefixed as:
+  \fBpid.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBpid.N.\fR format is shown in the following descriptions.
+
+
 .SH FUNCTIONS
 .TP 
 \fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
 Does the PID calculations for control loop \fIN\fR.
 
 .SH PINS
+
 .TP
 \fBpid.\fIN\fB.command\fR float in
 The desired (commanded) value for the control loop.

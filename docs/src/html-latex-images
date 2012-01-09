@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+# vim: sts=4 sw=4 et
+
+import os, shutil, sys, subprocess
+import tempfile, hashlib
+import lxml.etree as ET
+
+tmpdir = None
+
+cachedir = os.environ.get('HTML_LATEX_CACHE', './cache')
+
+nsmap = {'xhtml':"http://www.w3.org/1999/xhtml"}
+
+latex_header = r"""
+\documentclass{article}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
+%\usepackage[T2A]{fontenc}
+%\usepackage[english,russian]{babel}
+\usepackage{euscript}
+\usepackage{type1cm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{ulem}
+\usepackage{mathrsfs}
+\begin{document}
+\thispagestyle{empty}
+"""
+
+latex_footer = r"""
+\end{document}
+"""
+
+latex_cmd = "latex -interaction nonstopmode ./file.tex".split()
+dvipng_cmd = "dvipng -q -D 148 -T tight -pp 1 --noghostscript file.dvi -o file.png".split() 
+
+def build_img(fn, e, block=False):
+    txt = e.text.strip()
+    txt = txt.replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&') # XML escapes
+    txt = txt.replace('\\[', '[').replace('\\]', ']') # Asciidoc escapes
+    md5 = hashlib.md5(txt.encode('utf-8')).hexdigest()
+    img = md5 + ".png"
+    fullimg = os.path.join(cachedir, img)
+    if not os.path.exists(fullimg):
+        latex(txt, block)
+        os.rename(os.path.join(tmpdir, 'file.png'), fullimg)
+    shutil.copy2(fullimg, os.path.join(os.path.dirname(fn), img))
+    node = ET.Element('img', attrib={'class':'latexmath'}, id=md5, src=img, title=txt)
+    e.getparent().replace(e, node)
+    return 1
+    
+def latex(txt, block=False):
+    if block:
+        if not txt.startswith('$$'): txt = '$$' + txt
+        if not txt.endswith('$$'): txt = txt + '$$'
+    else:
+        if txt[0] != '$': txt = '$' + txt
+        if txt[-1] != '$': txt = txt + '$'
+
+    fp = open(os.path.join(tmpdir, 'file.tex'), 'w')
+    fp.write(latex_header)
+    fp.write(txt.encode('utf-8') + '\n')
+    fp.write(latex_footer)
+    fp.close()
+    r = subprocess.call(latex_cmd, cwd=tmpdir)
+    if r: raise RuntimeError("Compilation failed")
+    r = subprocess.call(dvipng_cmd, cwd=tmpdir)
+    if r: raise RuntimeError("Compilation failed")
+
+def substitute(f):
+    xml = ET.parse(open(f), ET.HTMLParser())
+    images = 0
+    for e in xml.xpath('//span[@class="latexmath"]', namespaces=nsmap):
+        images += build_img(f, e, block=False)
+    for e in xml.xpath('//div[@class="latexmath"]', namespaces=nsmap):
+        images += build_img(f, e, block=True)
+    if not images: return
+    print "Added %d images" % images
+    fp = open(f + ".math", 'w')
+    fp.write(ET.tostring(xml, pretty_print=True, xml_declaration=False, encoding="utf-8"))
+    fp.close()
+    os.unlink(f)
+    #os.rename(f, f + ".pre-math")
+    os.rename(f + ".math", f)
+
+tmpdir = tempfile.mkdtemp(dir=cachedir)
+try:
+    for f in sys.argv[1:]:
+        substitute(f)
+finally:
+    shutil.rmtree(tmpdir)

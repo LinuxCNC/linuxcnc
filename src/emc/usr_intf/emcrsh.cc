@@ -1206,6 +1206,14 @@ int commandSet(connectionRecType *context)
     sprintf(context->outBuf, setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
+  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE_ON)) {
+//  Extra check in the event of an undetected change in Machine state resulting in
+//  sending a set command when the machine state is off. This condition is detected
+//  and appropriate error messages are generated, however erratic behavior has been
+//  seen when doing certain set commands when the Machine state is other than 'On'.
+    sprintf(context->outBuf, setCmdNakStr, pch);
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    }
   switch (cmd) {
     case scEcho: ret = setEcho(strtok(NULL, delims), context); break;
     case scVerbose: ret = setVerbose(strtok(NULL, delims), context); break;
@@ -1812,7 +1820,7 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 	  else
 	    if (emcStatus->motion.joint[i].maxHardLimit)
 	      strcpy(buf, " MAXHARD");
-	    else strcpy(buf, "OK");
+	    else strcpy(buf, " OK");
       strcat(context->outBuf, buf);
       }
     }
@@ -1838,7 +1846,7 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 
 static cmdResponseType getJointFault(char *s, connectionRecType *context)
 {
-  const char *pJointFault = "JOINT_LIMIT";
+  const char *pJointFault = "JOINT_FAULT";
   char buf[16];
   int joint, i;
   
@@ -1862,7 +1870,7 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
 
 static cmdResponseType getOverrideLimits(char *s, connectionRecType *context)
 {
-  const char *pOverrideLimits = "OVERRIDE_LIMITS %s";
+  const char *pOverrideLimits = "OVERRIDE_LIMITS %d";
   
   sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.joint[0].overrideLimits);
   return rtNoError;
@@ -2218,7 +2226,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 {
   const char *pIniFile = "INIFILE %s";
   
-  sprintf(context->outBuf, pIniFile, EMC_INIFILE);
+  sprintf(context->outBuf, pIniFile, emc_inifile);
   return rtNoError;
 }
 
@@ -2636,8 +2644,8 @@ void *readClient(void *arg)
   int len;
   connectionRecType *context;
   
+  signal(SIGPIPE, SIG_IGN);
   
-//  res = 1;
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2656,7 +2664,7 @@ void *readClient(void *arg)
     if (len <= 0) goto finished;
     str[len] = 0;
     strcat(buf, str);
-    if (!memchr(str, 0x0d, strlen(str))) continue;
+    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
         fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
@@ -2743,7 +2751,7 @@ static void usage(char* pname) {
            "         --path       <path>         (default=%s)\n"
            "emcOptions:\n"
            "          -ini        <inifile>      (default=%s)\n"
-          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,EMC_INIFILE
+          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,emc_inifile
           );
 }
 
@@ -2771,7 +2779,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
     initSockets();
     // init NML
     if (tryNml() != 0) {

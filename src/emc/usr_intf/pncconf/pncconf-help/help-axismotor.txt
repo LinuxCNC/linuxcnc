@@ -1,6 +1,10 @@
-    ---Axis Motor Configuration Page---
+Axis Motor Configuration Page:
+    Depending on previous page selections, not all of
+    these options will show.
+    If required info such as stepper/encoder scale, the 'next' button
+    will not allow continuation. Eg. scale must be larger then 1
 
-* Servo Info:
+Servo Info:
     This is for setting up the servo control loop.
         P - proportional term
         I - integral term
@@ -8,29 +12,73 @@
         FF0 - zero order feed forward
         FF1 - first order feed forward
         FF2 - second order feed forward
-        Bias - 
+        Bias - used to add / subtract a constant value to dac.
         Deadband - if the actual position is in this band
-            of the commanded proportional control will not be 
-            added.
+            of the commanded proportional control will not be added.
         Dac scale      - scales the output nominal is +-1 volt
         Dac Max output - clamps the output to +- this value
-        Dac offset     - used to offset dac range. 
-        Encoder Lines  - Will be multiplied by four to get
-            quadrature pulses per revolution.
-        
-* Open loop servo test:
+        3PWM scale     - sets the mid point scale factor: see man pages
+        3PWM deadtime  - deadtime between high side and low side enable
+            Too little deadtime creates a short circuit - not good.
+
+Dac Scale:
+    Dac scale sets the user DAC units to PWM duty cycle. The maximum duty cycle 
+    is (+ or -) 1.
+    If using the 7i33 daughter board then at maximum duty cycle of (+ or -) 1
+    the 7i33 outputs (+ or -) 10 volts (and produce maximum motor speed)
+    If using the 7i29 daughter board at maximum duty cycle of (+ or -) 1
+    then the output would be (+ or -) supply voltage (and produce maximum motor 
+    speed). So with a scale of one, DAC units are duty cycle. If you were using 
+    the 7i33 daughter board then maybe you would like the Dac units to be voltage.
+    then you would set the dac scale to 10. 10 volts / 10 (scale) = 1 (duty cycle)
+    You could scale this to represent motor speed, voltage, duty cycle or anything
+    else. Common settings would be duty cycle (scale of 1), voltage (scale of
+    maximum voltage) or axis speed (scale of maximum axis speed in machine 
+    units per second). I reccomend axis speed.
+    Note that scale is tied closely to dac max output.
+
+Dac Max Output:
+    This is the maximum output that the dac can output to the amps. It is in the 
+    units set by the dac scale. It using a simple H-bridge you may have to set 
+    this less then the actual max output as H-bridges must turn on and off at a 
+    minimum rate. 
+
+Brushless Control:
+    Select this to use and configure the BLDC component.
+    The BLDC component can be used to control brushless motors
+    directly and for HALL sensor conversions. See the MAN pages.
+    For HALL conversion one must select the HALL/GRAY signals
+    in the GPIO components
+    PNCconf openloop testing currently does not support BLDC.
+    PNCconf does not finish the HAL connections for full BLDC control.
+    I have nothing to test with - so you'll have to tinker with it.
+    Please send suggestions to EMC mail list or forum.
+
+Open loop servo test Button:
     Use this test to confirm proper Dac output.
+    This is unavailable if using simulated realtime.
     It is important to confirm the motor turns in the positive
     direction when the positive jog button is pressed.
     It is important to confirm the encoder counts in the positive 
     direction when the motor turns in the positive direction.
     If this is not true expect a SERVO MOTOR RUN AWAY when using
     PID control!
+    You can confirm the maximum axis speed the servo can produce.
     You can also confirm the encoder scaling is correct, by moving
-    the axis a known distance and noting the encoder count.
+    the axis a known distance and noting the encoder count. The encoder
+    should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
 
-* Stepper Info:
+Spindle-at-speed settings:
+    Set the scaling so EMC knows when the spindle is close enough
+    to the requested speed. A spindle encoder or spindle-at-speed 
+    digital input signal is required for this.
+
+Spindle display filter gain:
+    If a spindle speed display was chosen, this sets the filter
+    gain which helps stop the display from bouncing around.
+
+Stepper Info:
     This is for setting up the Stepper control loop:
         step on time    - minimum time in nanoseconds for the step pulse.
         Step Space      - minimum time between steps.
@@ -41,19 +89,47 @@
         microstepping   - microstepping multiplication factor.
         motor steps times microstepping = number of steps per revolution.
 
-* Axis info:
-    Pulley Ratio     - use this if using a pulley or gear drive.
-                       or 1:1 for direct drive.
-    Leadscrew        - pitch (metric) or TPI of leadscrew.
+Axis info:
+    Encoder Scale    - number of pulses per unit of axis movement.
+    Stepper Scale    - number of steps per unit of axis movement.
     Max velocity     - in units per MINUTE.
     Max Acceleration - in units per SECOND squared.  
     Rapid speed following error - amount actual can deviate from commanded.
     Feed speed following error  - amount actual can deviate from commanded.
     Invert motor direction      - check to reverse motor direction
     Invert encoder direction    - check to reverse encoder direction
+    When using metric units check the defaults carefully they are not converted
+    so need to be adjusted to sane values.
+    Following error setting are usually temporarily set larger to help with
+    servo tuning.
 
-* Test / Tune Axis:
+Calculate Scale Button:
+    You can enter scaling directly or use this dialog to calculate them.
+    check the boxes to add the setting to the calculation.
+
+    Pulley Teeth    - use this if using a pulley or gear drive.
+                      or uncheck for direct drive. Enter the
+                      number of teeth of the cogs/gears not the
+                      gear ratio.
+    Worm turn ratio - use this for worm drives. Enter the gear
+                      ratio. EG if two turns of input = one of output
+                      enter 2:1 The encoder is assumed connected to 
+                      the input.
+    Leadscrew       - pitch (metric) or TPI of leadscrew.
+    Encoder lines   - the number of basic lines (not pulses) of the encoder.
+    Microsteps      - the multiplication factor to apply to motor steps. 
+    Motor steps     - the number of steps of motor (usually 200).
+                      one could uncheck the microstep checkbox and just
+                      enter the total number of steps per revolution of
+                      the step drive.
+
+    The scale settings change as you enter data / check boxes.
+    The motion data is just for information.
+    If you wish to use the settings press apply otherwise cancel.
+
+Test / Tune Axis Button:
     Use this to test and tune the current axis.
+    This is unavailable for servos or if using simulated realtime.
     set the velocity, acceleration and control loop settings.
     jog to a safe zone close to the middle of axis.
     set the test distance and choose a movement type:

@@ -1,0 +1,10 @@
+o<brokenwhile> sub
+#<foo> = 0
+O<x Zustellung> while [[#<foo>] LT  1]
+    #<foo> = [[#<foo>] +1]
+O<x Zustellung> endwhile
+o<brokenwhile> endsub
+
+o <brokenwhile> call
+
+M2

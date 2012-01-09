@@ -1,5 +1,7 @@
-component bldc_hall3
-"3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors";
+component bldc_hall3 
+"""3-wire BLDC motor driver using Hall sensors and trapezoidal commutation.
+The functionality of this component is now included in the generic "bldc" 
+component. This component is likely to be removed in a future release""";
 
 pin in bit hall1 "Hall sensor signal 1";
 pin in bit hall2 "Hall sensor signal 2";
@@ -93,7 +95,7 @@ If your motor lacks documentation it might be worth trying every pattern.
 <TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
 </TABLE> \\
 \\}
-.el \\{\\
+\\{\\
 
 .TS
 box tab(;);
@@ -154,7 +156,6 @@ _
 47;111;011;001;000;100;110
 .TE
 \\}
-.ei
 """;
 
 description """

@@ -1627,9 +1627,9 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
     if(canon.css_maximum) {
 	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = -12 / (2 * M_PI) * canon.spindleSpeed;
+	    canon.css_numerator = -12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    canon.css_numerator = -1000 / (2 * M_PI) * canon.spindleSpeed;
+	    canon.css_numerator = -1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_on_msg.speed = canon.css_maximum;
 	emc_spindle_on_msg.factor = canon.css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
@@ -1653,9 +1653,9 @@ void SET_SPINDLE_SPEED(double r)
 
     if(canon.css_maximum) {
 	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed;
+	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed;
+	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_speed_msg.speed = canon.css_maximum;
 	emc_spindle_speed_msg.factor = canon.css_numerator;
 	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
@@ -1681,9 +1681,23 @@ void SPINDLE_RETRACT()
     /*! \todo FIXME-- unimplemented */
 }
 
-void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
+void ORIENT_SPINDLE(double orientation, int mode)
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_SPINDLE_ORIENT o;
+
+    flush_segments();
+    o.orientation = orientation;
+    o.mode = mode;
+    interp_list.append(o);
+}
+
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout)
+{
+    EMC_SPINDLE_WAIT_ORIENT_COMPLETE o;
+
+    flush_segments();
+    o.timeout = timeout;
+    interp_list.append(o);
 }
 
 void USE_SPINDLE_FORCE(void)
@@ -1761,6 +1775,16 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     interp_list.append(set_offset_msg);
 }
 
+/* issued at very start of an M6 command. Notification. */
+void START_CHANGE()
+{
+    EMC_TOOL_START_CHANGE emc_start_change_msg;
+
+    flush_segments();
+
+    interp_list.append(emc_start_change_msg);
+}
+
 /* CHANGE_TOOL results from M6, for example */
 void CHANGE_TOOL(int slot)
 {
@@ -1778,18 +1802,18 @@ void CHANGE_TOOL(int slot)
      * move to a particular coordinate before the tool change
      * is called.  */
     
-    if (HAVE_TOOL_CHANGE_POSITION) {
+    if (have_tool_change_position) {
         double vel, acc, x, y, z, a, b, c, u, v, w;
 
-        x = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.x);
-        y = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.y);
-        z = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.z);
-        a = FROM_EXT_ANG(TOOL_CHANGE_POSITION.a);
-        b = FROM_EXT_ANG(TOOL_CHANGE_POSITION.b);
-        c = FROM_EXT_ANG(TOOL_CHANGE_POSITION.c);
-        u = FROM_EXT_LEN(TOOL_CHANGE_POSITION.u);
-        v = FROM_EXT_LEN(TOOL_CHANGE_POSITION.v);
-        w = FROM_EXT_LEN(TOOL_CHANGE_POSITION.w);
+        x = FROM_EXT_LEN(tool_change_position.tran.x);
+        y = FROM_EXT_LEN(tool_change_position.tran.y);
+        z = FROM_EXT_LEN(tool_change_position.tran.z);
+        a = FROM_EXT_ANG(tool_change_position.a);
+        b = FROM_EXT_ANG(tool_change_position.b);
+        c = FROM_EXT_ANG(tool_change_position.c);
+        u = FROM_EXT_LEN(tool_change_position.u);
+        v = FROM_EXT_LEN(tool_change_position.v);
+        w = FROM_EXT_LEN(tool_change_position.w);
 
 
         vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
@@ -1822,11 +1846,12 @@ void CHANGE_TOOL(int slot)
 }
 
 /* SELECT_POCKET results from T1, for example */
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot , int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
-    prep_for_tool_msg.tool = slot;
+    prep_for_tool_msg.pocket = slot;
+    prep_for_tool_msg.tool = tool;
 
     interp_list.append(prep_for_tool_msg);
 }
@@ -2042,11 +2067,9 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     flush_segments();
-
     operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
-
     interp_list.append(operator_display_msg);
 }
 
@@ -2293,7 +2316,7 @@ void CANON_ERROR(const char *fmt, ...)
     operator_error_msg.id = 0;
     if (fmt != NULL) {
 	va_start(ap, fmt);
-	vsprintf(operator_error_msg.error, fmt, ap);
+	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
 	va_end(ap);
     } else {
 	operator_error_msg.error[0] = 0;
@@ -2671,6 +2694,16 @@ int GET_EXTERNAL_SELECTED_TOOL_SLOT()
     return emcStatus->io.tool.pocketPrepped;
 }
 
+int GET_EXTERNAL_TC_FAULT()
+{
+    return emcStatus->io.fault;
+}
+
+int GET_EXTERNAL_TC_REASON()
+{
+    return emcStatus->io.reason;
+}
+
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()
 {
     return emcStatus->motion.traj.feed_override_enabled;
@@ -2901,7 +2934,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
-	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
+	 int wait_type,  /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
 	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
@@ -2954,4 +2987,40 @@ int UNLOCK_ROTARY(int line_number, int axis) {
 int LOCK_ROTARY(int line_number, int axis) {
     canon.rotary_unlock_for_traverse = -1;
     return 0;
+}
+
+/* PLUGIN_CALL queues a Python tuple for execution by task
+ * the tuple is expected to be already pickled
+ * The tuple format is: (callable,tupleargs,keywordargs)
+ */
+void PLUGIN_CALL(int len, const char *call)
+{
+    EMC_EXEC_PLUGIN_CALL call_msg;
+    if (len > (int) sizeof(call_msg.call)) {
+	// really should call it quits here, this is going to fail
+	printf("PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
+    }
+    memset(call_msg.call, 0, sizeof(call_msg.call));
+    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
+    call_msg.len = len;
+
+    printf("canon: PLUGIN_CALL(arglen=%zd)\n",strlen(call));
+
+    interp_list.append(call_msg);
+}
+
+void IO_PLUGIN_CALL(int len, const char *call)
+{
+    EMC_IO_PLUGIN_CALL call_msg;
+    if (len > (int) sizeof(call_msg.call)) {
+	// really should call it quits here, this is going to fail
+	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
+    }
+    memset(call_msg.call, 0, sizeof(call_msg.call));
+    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
+    call_msg.len = len;
+
+    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",len);
+
+    interp_list.append(call_msg);
 }

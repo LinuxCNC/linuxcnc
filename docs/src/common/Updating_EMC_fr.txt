@@ -1,0 +1,86 @@
+:lang: fr
+:toc:
+
+Mises à jour d'EMC2
+===================
+
+  
+== Mise à jour 2.4.x à 2.5.x
+
+Auncun changement de configuration n'est nécessaire pour passer de 2.4.x à 2.5.x
+
+== Mise à jour 2.3.x à 2.4.x
+
+Les instructions suivantes s’appliquent à Ubuntu 8.04 "Hardy Heron". 
+EMC 2.4 n'est pas disponible pour des versions plus anciennes de Ubuntu.
+
+En raison de plusieurs incompatibilités mineures entre les versions 2.3.5 et 2.4.x,
+votre installation existante ne sera pas automatiquement mise à jour vers la version 
+2.4.x. Si vous voulez exécuter la version 2.4.x, veuillez modifier 
+le dépôt EMC-2.4 en suivant ces instructions :
+
+Lancez Système/Administration/Gestionnaire de paquets Synaptic
+Sélectionnez Configuration/Dépôt
+Dans l'onglet "Autres logiciels" vous trouverez deux lignes 
+concernant linuxcnc.org.
+
+Pour chacune:
+
+- Sélectionnez la ligne et cliquez sur le bouton "Editer"
+- Dans le champ composants remplacez emc2.3 par emc2.4
+- Cliquez sur "Valider" 
+- Fermer la fenêtre "Source de logiciels" avec le bouton fermer
+- Cliquez sur "Recharger" dans la barre d'outils
+- Cliquez sur "Tout mettre à jour" dans la barre d'outils
+   
+.Utilisateurs de carte Mesa et hostmot2 :
+
+**********
+Si vous utilisez une carte _mesa_, trouvez le paquet 
+hostmot2-firmware approprié à votre carte et marquez-le pour 
+l'installation. Astuce: faites une recherche "hostmot2-firmware"
+dans gestionnaire de paquet Synaptic.
+**********
+
+ - Cliquez "Appliquer"
+
+== Changements entre 2.3.x et 2.4.x
+
+Une fois que vous avez fait la mise à jour, mettez à jour les 
+configurations personnalisées en suivant ces instructions
+
+=== Changement emc.nml (2.3.x to 2.4.x)
+
+Pour les configurations qui ont personnalisé emc.nml, enlevez la ligne 
+`NML_FILE = emc.nml` dans le fichier inifile. Cela forcera l'utilisation 
+de la version la plus à jour de emc.nml.
+
+Pour les configurations qui n'ont pas personnalisé emc.nml, 
+un changement similaire est requis.
+
+Un échec de cette opération provoque une erreur comme: 
+---------------------------------- 
+libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: 
+Can't write 10748 bytes at offset 60 from buffer of size 10208.
+----------------------------------
+
+=== Changements de la table d'outils (2.3.x to 2.4.x) 
+
+Le nouveau format de la table d'outil est incompatible. 
+La documentation explique le nouveau format. 
+La table d'outil sera automatiquement convertie dans le nouveau format.
+
+=== Images du micro logiciel hostmot2 (2.3.x to 2.4.x)
+
+Les images du micro logiciel hostmot2 sont dorénavent dans un paquet séparé. 
+Vous pouvez :
+
+- Continuer à utiliser un paquet déjà installé `emc2-firmware-mesa-*`
+- Installer les nouveaux paquets du gestionnaire de paquets Synaptic. 
+   Les nouveaux paquets sont nommés `hostmot2-firmware-*`
+- Télécharger les fichiers .tar des images du microprogramme depuis 
+   http://emergent.unpy.net/01267622561 et les installer manuellement. 
+
+// vim: set syntax=asciidoc:
+
+

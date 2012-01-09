@@ -83,28 +83,36 @@ else
 fi
 
 case $DISTRIB_NAME in
+Ubuntu-12.04) # Precise Pangolin LTS
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-11.04) # natty
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
 Ubuntu-10.04)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-9.10)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-8.04)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
 	TCLTK_VERSION=8.4
 	;;
 Debian-testing|Debian-6.0)
-	EXTRA_BUILD=lyx
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.5
 	;;
 Debian-5.0*)
-	EXTRA_BUILD=lyx
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
 *)
-	EXTRA_BUILD=lyx-qt
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
 esac
@@ -174,17 +182,14 @@ else
     subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
 fi
 
-if [ -f $EXTRAS/emc2-doc-en.files ]; then
-    cat emc2-doc-en.files.in $EXTRAS/emc2-doc-en.files > emc2-doc-en.files
-else
-    cat emc2-doc-en.files.in > emc2-doc-en.files
-fi
-
-if [ -f $EXTRAS/emc2-doc-fr.files ]; then
-    cat emc2-doc-fr.files.in $EXTRAS/emc2-doc-fr.files > emc2-doc-fr.files
-else
-    cat emc2-doc-fr.files.in > emc2-doc-fr.files
-fi
+DOCS_PACKAGES=$(echo emc2-doc-{en,fr,de,es,pl})
+for P in $DOCS_PACKAGES; do
+    if [ -f $EXTRAS/$P.files ]; then
+        cat $P.files.in $EXTRAS/$P.files > $P.files
+    else
+        cat $P.files.in > $P.files
+    fi
+done
 
 rm -f ../build-stamp
 echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."

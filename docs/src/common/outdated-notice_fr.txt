@@ -1,0 +1,34 @@
+[NOTE]
+.AVIS
+=================================================
+La version Française de la documentation EMC2 
+est toujours en retard sur l'originale faute de
+disponibilité des traducteurs.
+
+Il est recommandé d'utiliser la documentation 
+en Anglais chaque fois que possible.
+
+Si vous souhaitez être un traducteur bénévole
+pour la documentation française d'EMC2, 
+merci de nous contactez. 
+=================================================
+
+[NOTE]
+.NOTICE
+=================================================
+The French version of the EMC2 documentation 
+is always behind the original fault
+availability of translators.
+
+It's recommended to use the 
+English documentation whenever possible.
+
+If you would like to be 
+a volunteer editor for the 
+French translation of EMC2, 
+please contact us.
+=================================================
+
+// vim: set syntax=asciidoc:
+
+

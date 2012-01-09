@@ -1,0 +1,124 @@
+/********************************************************************
+* Description:  message.comp
+*               Message HAL component.
+*
+* Author: Les Newell <les at sheetcam dot com>
+* License: GPL Version 2 or later
+*    
+* Copyright (c) 2011 All rights reserved.
+*
+********************************************************************
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2 or later of the GNU General
+ * Public License as published by the Free Software Foundation.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ *
+ * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+ * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+ * TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+ * harming persons must have provisions for completely removing power
+ * from all motors, etc, before persons enter any danger area.  All
+ * machinery must be designed to comply with local and national safety
+ * codes, and the authors of this software can not, and do not, take
+ * any responsibility for such compliance.
+ *
+ * This code was written as part of the EMC HAL project.  For more
+ * information, go to www.linuxcnc.org.
+ *
+*************************************************************************/
+ 
+component message "Display a message";
+ 
+description """Allows HAL pins to trigger a message. Example hal commands:
+ loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
+pressure,Spindle inverter fault"
+ addf oillow servo-thread
+ addf oilpressure servo-thread
+ addf inverterfail servo-thread
+ 
+ setp oillow.edge 0 #this pin should be active low
+ net no-oil classicladder.0.out-21 oillow.trigger
+ net no-pressure classicladder.0.out-22 oilpressure.trigger
+ net no-inverter classicladder.0.out-23 inverterfail.trigger
+ 
+When any pin goes active, the corresponding message will be displayed.""";
+ 
+pin in bit trigger =FALSE "signal that triggers the message";
+pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
+displayed again if the trigger is active""";
+ 
+param rw bit edge =TRUE """Selects the desired edge: TRUE means falling, FALSE
+means rising""";
+
+modparam dummy messages """The messages to display. These should be listed,
+comma-delimited, inside a single set of quotes. See the "Description" section
+for an example.
+If there are more messages than "count" or "names" then the excess will be
+ignored. If there are fewer messages than "count" or "names" then an error will
+be raised and the component will not load.""";
+ 
+variable int myidx;
+variable hal_bit_t prev_trigger = FALSE;
+variable hal_bit_t prev_force = TRUE;
+variable hal_bit_t prev_edge = TRUE;
+ 
+option extra_setup yes;
+ 
+function _ nofp "Display a message";
+license "GPL v2";
+;;
+ 
+char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+RTAPI_MP_ARRAY_STRING(messages, 16, "Displayed strings");
+ 
+FUNCTION(_){
+    hal_bit_t show = false;    
+    if(!!prev_edge != !!edge) /* edge type has changed */
+    {
+        prev_edge = edge;
+        prev_trigger = !edge;
+    }
+    if(!!force != !!prev_force) /* force type has changed */
+    {
+        prev_force = force;
+        if(force && (!!trigger == !!edge))
+        {
+            show = true;
+        }
+    }
+    if(!!trigger != !!prev_trigger) /* trigger has changed */
+    {
+        prev_trigger = trigger;
+        if(!!trigger == !!edge)
+        {
+            show = true;
+        }
+    }
+    if(show && (messages[myidx] != 0))
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s\n", messages[myidx]);
+    }
+}
+ 
+EXTRA_SETUP(){
+    myidx = extra_arg;
+    if(myidx<0 || myidx >15)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Count of names= is outside the allowable range 0..15\n");
+        return -EINVAL;
+    }
+    if(messages[myidx] == 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Message string for index %d missing\n", myidx);
+        return -EINVAL;
+    }
+    return(0);
+}

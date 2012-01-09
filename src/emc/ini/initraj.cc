@@ -134,7 +134,10 @@ static int loadTraj(EmcIniFile *trajInifile)
 	    axes = 3;
 	}
         if (0 != emcTrajSetAxes(axes, axismask)) {
-             return -1;
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetAxes\n");
+            }
+            return -1;
         }
 
         linearUnits = 0;
@@ -142,32 +145,49 @@ static int loadTraj(EmcIniFile *trajInifile)
         angularUnits = 0;
         trajInifile->FindAngularUnits(&angularUnits, "ANGULAR_UNITS", "TRAJ");
         if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-             return -1;
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetUnits\n");
+            }
+            return -1;
         }
 
         vel = 1.0;
         trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
+
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
-             return -1;
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetVelocity\n");
+            }
+            return -1;
         }
 
         vel = 1e99; // by default, use AXIS limit
         trajInifile->Find(&vel, "MAX_LINEAR_VELOCITY", "TRAJ");
+
         // and set dynamic value
         if (0 != emcTrajSetMaxVelocity(vel)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetMaxVelocity\n");
+            }
             return -1;
         }
 
         acc = 1e99; // let the axis values apply
         trajInifile->Find(&acc, "DEFAULT_LINEAR_ACCEL", "TRAJ");
         if (0 != emcTrajSetAcceleration(acc)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetAcceleration\n");
+            }
             return -1;
         }
 
         acc = 1e99; // let the axis values apply
         trajInifile->Find(&acc, "MAX_LINEAR_ACCEL", "TRAJ");
         if (0 != emcTrajSetMaxAcceleration(acc)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
+            }
             return -1;
         }
     }

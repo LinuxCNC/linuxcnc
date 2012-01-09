@@ -20,7 +20,6 @@
 #include <linux/slab.h>
 
 #include "rtapi.h"
-#include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
@@ -108,7 +107,7 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 
         hm2->tp_pwmgen.setup_reg[i] = (
              ((int)(hm2->tp_pwmgen.instance[i].hal.param.sampletime*1023) << 16)
-             +(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity << 15)
+             +((hm2->tp_pwmgen.instance[i].hal.param.faultpolarity != 0) << 15)
              +(deadtime));
 	}
 }

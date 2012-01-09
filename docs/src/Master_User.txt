@@ -1,0 +1,82 @@
+User Manual V2.5, {localdate}
+=============================
+
+:lang: en
+
+:masterdir: {indir}
+
+The EMC Team
+
+:leveloffset: 0
+
+= EMC2 Introduction
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/userforeword.txt[]
+
+include::common/user_intro.txt[]
+
+include::common/User_Concepts.txt[]
+
+:leveloffset: 0
+
+= User Interfaces
+
+:leveloffset: 1
+
+include::gui/axis.txt[]
+
+include::gui/ngcgui.txt[]
+
+include::gui/touchy.txt[]
+
+include::gui/tkemc.txt[]
+
+include::gui/mini.txt[]
+
+include::gui/keystick.txt[]
+
+:leveloffset: 0
+
+= Using EMC
+
+:leveloffset: 1
+
+include::gcode/machining_center.txt[]
+
+include::gcode/coordinates.txt[]
+
+include::gcode/tool_compensation.txt[]
+
+include::gcode/overview.txt[]
+
+include::gcode/gcode.txt[]
+
+include::gcode/m-code.txt[]
+
+include::gcode/o-code.txt[]
+
+include::gcode/other-code.txt[]
+
+include::examples/gcode.txt[]
+
+include::lathe/lathe-user.txt[]
+
+include::gcode/rs274ngc.txt[]
+
+include::gui/image-to-gcode.txt[]
+
+include::common/Glossary.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

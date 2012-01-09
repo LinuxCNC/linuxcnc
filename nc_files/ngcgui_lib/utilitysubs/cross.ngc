@@ -1,0 +1,40 @@
+(cross product for two vectors 1-2 and 3-2 having a common vertex 2)
+(ccw ==> + result but note:)
+(if traversing 1->2->3, a cw cross product ==> a ccw traverse)
+
+(return:)
+( _cross:z   magnitude)
+( _cross:dir 1 for ccw per convention)
+
+o<cross> sub
+(not_a_subfile)
+#<x1> = #1
+#<y1> = #2
+#<x2> = #3
+#<y2> = #4
+#<x3> = #5
+#<y3> = #6
+
+#<_cross:z> = [[#<x1>-#<x2>]*[#<y3>-#<y2>]-[#<x3>-#<y2>]*[#<y1>-#<y2>]]
+
+         #<_cross:dir>  = 0  (default: 0)
+o<l10>   if [#<_cross:z> GT 0]
+           #<_cross:dir>  =  1 (ccw)
+o<l10>   endif
+o<l20>   if [#<_cross:z> LT 0]
+           #<_cross:dir>  = -1 (cw)
+o<l20>   endif
+
+o<line>  call [#<x2>][#<y2>][#<x1>][#<y1>]
+         #<len21> = #<_line:len>
+o<line>  call [#<x2>][#<y2>][#<x3>][#<y3>]
+         #<len23> = #<_line:len>
+
+(print  cross: #<x1> #<y1> #<x2> #<y2> #<x3> #<y3> #<x4> #<y4>)
+(print  cross: #<x1> #<x2> #<x3>)
+(print  cross: #<y1> #<y2> #<y3>)
+(print  cross: z=#<_cross:z>  dir=#<_cross:dir>)
+(print  )
+(debug  cross: z=#<_cross:z>  dir=#<_cross:dir>)
+
+o<cross> endsub

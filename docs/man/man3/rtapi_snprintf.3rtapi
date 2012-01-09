@@ -17,6 +17,10 @@ As for \fIsnprintf(3)\fR or \fIvsnprintf(3)\fR.
 These functions work like the standard C printf functions, except that a
 reduced set of formatting operations are supported.
 
+In particular: formatting of long long values is not supported.  Formatting of
+floating-point values is done as though with %A even when other formats like %f
+are specified.
+
 .SH REALTIME CONSIDERATIONS
 May be called from user, init/cleanup, and realtime code.
 

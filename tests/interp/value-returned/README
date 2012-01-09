@@ -1,0 +1,4 @@
+exercise the _value_returned predicate
+
+1 if the last o-word function returned a value
+0 if the last o-word function did not return a value

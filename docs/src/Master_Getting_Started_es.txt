@@ -1,0 +1,39 @@
+Primeros pasos V0.1, {localdate}
+=================================
+The EMC Team
+
+:lang: es
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/translator-needed_es.txt[]
+
+include::common/System_Requirements_es.txt[]
+
+include::common/Getting_EMC_es.txt[]
+
+include::common/Updating_EMC_es.txt[]
+
+include::quickstart/stepper_quickstart_es.txt[]
+
+include::config/stepconf_es.txt[]
+
+include::config/pncconf_es.txt[]
+
+include::config/copy_and_run_es.txt[]
+
+include::common/Linux_FAQ_es.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

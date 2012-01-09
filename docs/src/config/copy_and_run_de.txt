@@ -1,0 +1,47 @@
+= Running EMC2(((Running EMC2)))
+
+== Invoking EMC2
+
+After installation, EMC2 starts just like any other Linux program: 
+run it from the terminal by issuing the command 'emc', 
+or select it in the Applications - CNC menu.
+
+== Configuration Selector
+
+By default, the Configuration Selector dialog 
+is shown when you first run EMC2. 
+Your own personalized configurations are shown at the top of the list, 
+followed by sample configurations. 
+Because each sample configuration is for a different type of hardware interface, 
+almost all will not run without the hardware installed. 
+The configurations listed under the category 'sim' run entirely 
+without attached hardware.
+
+.EMC2 Configuration Selector[[cap:EMC2-Configuration-Selector]]
+
+image::images/configuration-selector.png[]
+
+Click any of the listed configurations 
+to display specific information about it. 
+Double-click a configuration or click OK 
+to start the configuration. 
+Select 'Create Desktop Shortcut' and then click OK 
+to add an icon on the Ubuntu desktop 
+to directly launch this configuration 
+without showing the Configuration Selector screen. 
+
+When you select a configuration from the Sample Configurations section, 
+it will automaticly place a copy of that config in the
+emc/configs directory. 
+
+== Next steps in configuration
+
+After finding the sample configuration that uses 
+the same interface hardware as your machine, 
+and saving a copy to your home directory, 
+you can customize it according to the details of your machine. 
+Refer to the Integrator Manual for topics on configuration.
+
+// vim: set syntax=asciidoc:
+
+

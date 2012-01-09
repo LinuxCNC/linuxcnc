@@ -79,6 +79,9 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         home = 0;
         axisIniFile->Find(&home, "HOME", axisString);
         if (0 != emcAxisSetHome(axis, home)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetHome\n");
+            }
             return -1;
         };
 
@@ -86,6 +89,9 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         limit = -1e99;	                // default
         axisIniFile->Find(&limit, "MIN_LIMIT", axisString);
         if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMinPositionLimit\n");
+            }
             return -1;
         }
 
@@ -93,6 +99,9 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         limit = 1e99;	                // default
         axisIniFile->Find(&limit, "MAX_LIMIT", axisString);
         if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxPositionLimit\n");
+            }
             return -1;
         }
 
@@ -100,12 +109,18 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
         axisIniFile->Find(&maxVelocity, "MAX_VELOCITY", axisString);
         if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
+            }
             return -1;
         }
 
         maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
         axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
         if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
+            }
             return -1;
         }
     }

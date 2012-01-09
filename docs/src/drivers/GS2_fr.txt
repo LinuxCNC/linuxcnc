@@ -1,0 +1,97 @@
+:lang: fr
+:toc:
+
+= Variateur de fréquence GS2
+
+(((Variateur de fréquence GS2)))
+
+Composant de HAL pour la série de variateurs de fréquence GS2 fournie par
+la société Automation Direct.
+footnote:[ En Europe on trouve l'équivalent sous la marque Omron.]
+
+
+== Chargement du composant
+
+- Ce composant est chargé en utilisant la commande suivante:
+----
+loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
+----
+
+La commande de HAL `loadusr` est détaillée au chapitre: <<sec:loadusr>>
+
+== Options spécifiques au chargement
+
+Les options spécifiques au chargement du composant gs2_vfd:
+
+ - *-b* ou *--bits <n>* (défaut 8) Fixe le nombre de bits de donnée à *<n>*, dans
+    lequel *<n>* doit être compris entre 5 et 8 inclus. 
+ - *-d* ou *--device <path>* (défaut /dev/ttyS0) Fixe le nom de la liaison série
+    à utiliser. 
+ - *-g* ou *--debug* Active les messages de débogage. 
+    Le drapeau du mode verbeux pourra être activé. Le débogage affichera tous 
+    les messages modbus en hexadécimal sur terminal. 
+ - *-n* ou *--name <string>* (défaut gs2_vfd) Fixe le nom du composant de HAL à 
+    *<string>*, les noms de toutes ses pins et paramètres commenceront également 
+    par *<string>*. 
+ - *-p* ou *--parity {even, odd, none}* (défaut odd) Fixe la parité de la liaison 
+    série à parité paire, parité impaire ou sans parité. 
+ - *-r* ou *--rate <n>* (défaut 38400) Fixe le débit de la liaisons à *<n>*. 
+    C'est une erreur si le débit n'est pas une des valeurs suivantes: 110, 300,
+    600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200. 
+ - *-s* ou *--stopbits {1,2}* (défaut 1) Fixe le nombre de bits de stop de la 
+    liaison série à 1 ou 2.
+ - *-t* ou *--target <n>* (défaut 1) Fixe le nombre de cibles MODBUS (esclaves). 
+    Doit correspondre au nombre de périphériques réglé dans le GS2. 
+ - *-v* ou *--verbose* Active les messages de débogage. Noter qu'en cas d'erreurs
+    série, cela ne fera pas beaucoup de différence ce qui peut être gênant.
+
+== Consignes de dialogue avec le variateur
+
+Les valeurs *<name>* sont les noms donnés par l'option *-n* durant la phase 
+    de chargement du composant.
+
+ - *<name>.DC-bus-volts* (float, out) La tension du bus DC sur le variateur.
+ - *<name>.at-speed* (bit, out) Quand la consigne vitesse est atteinte.
+ - *<name>.err-reset* (bit, in) Envoi d'un "reset errors" au variateur.
+ - *<name>.firmware-revision* (s32, out) envoyé par le variateur.
+ - *<name>.frequency-command* (float, out) envoyé par le variateur.
+ - *<name>.frequency-out* (float, out) envoyé par le variateur.
+ - *<name>.is-stopped* (bit, out) when the VFD reports 0 Hz output.
+ - *<name>.load-percentage* (float, out) envoyé par le variateur.
+ - *<name>.motor-RPM* (float, out) envoyé par le variateur.
+ - *<name>.output-current* (float, out) envoyé par le variateur.
+ - *<name>.output-voltage* (float, out) envoyé par le variateur.
+ - *<name>.power-factor* (float, out) envoyé par le variateur.
+ - *<name>.scale-frequency* (float, out) envoyé par le variateur.
+ - *<name>.speed-command* (float, in) Consigne vitesse envoyée.
+   au variateur en tr.mn^-1^. C'est une erreur d'envoyer une consigne de 
+   vitesse supérieure à la valeur maximum réglée dans le variateur.
+ - *<name>.spindle-fwd* (bit, in) Sens de rotation envoyé au variateur, 1 pour 
+   le sens horaire et 0 pour le sens anti-horaire.
+ - *<name>.spindle-rev* (bit, in) 1 pour marche en sens anti-horaire et 0 pour
+   ARRÊT.
+ - *<name>.spindle-on* (bit, in) 1 pour MARCHE et 0 pour ARRÊT du variateur.
+ - *<name>.status-1* (s32, out) Drive Status du VFD (voir le manuel du GS2).
+ - *<name>.status-2* (s32, out) Drive Status du VFD (voir le manuel du GS2). 
+   Note: la valeur est la somme de tous les bits à 1. Ainsi, 163 signifie
+   que le pilote est dans le mode de marche qui est la somme de:
+ -     3 (marche) 
+ - +  32 (fréquence fixée par liaison série) 
+ - + 128 (opération fixée par liaison série).
+
+== Paramètres de réglage du variateur
+
+Les valeurs *<name>* sont les noms donnés par l'option *-n* durant la 
+   phase de chargement du composant.
+
+ - *<name>.error-count* (s32, RW) 
+ - *<name>.loop-time* (float, RW) Nombre d'interrogation d modbus (défaut 0.1).
+ - *<name>.nameplate-HZ* (float, RW) Vitesse plaquée du moteur en Hz (défaut 50).
+ - *<name>.nameplate-RPM* (float, RW) Vitesse plaquée du moteur en tr.mn^1^ (défaut 1500).
+ - *<name>.retval* (s32, RW) la valeur de retour d'une erreur dans HAL.
+ - *<name>.tolerance* (s32, RW) Tolérance en vitesse (défaut 0.01).
+
+Un exemple d'utilisation d'un variateur de fréquence pour piloter une broche
+est donné dans le manuel de l'intégrateur au chapitre Exemples: utiliser un GS2. 
+
+

@@ -54,7 +54,7 @@ static int emcioNmlGet()
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoCommandBuffer =
 		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc",
-				    EMC_NMLFILE);
+				    emc_nmlfile);
 	    if (!emcIoCommandBuffer->valid()) {
 		delete emcIoCommandBuffer;
 		emcIoCommandBuffer = 0;
@@ -68,7 +68,7 @@ static int emcioNmlGet()
 
     if (emcIoCommandBuffer == 0) {
 	emcIoCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", emc_nmlfile);
 	if (!emcIoCommandBuffer->valid()) {
 	    delete emcIoCommandBuffer;
 	    emcIoCommandBuffer = 0;
@@ -83,7 +83,7 @@ static int emcioNmlGet()
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoStatusBuffer =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc",
-				     EMC_NMLFILE);
+				     emc_nmlfile);
 	    if (!emcIoStatusBuffer->valid()) {
 		delete emcIoStatusBuffer;
 		emcIoStatusBuffer = 0;
@@ -101,7 +101,7 @@ static int emcioNmlGet()
 
     if (emcIoStatusBuffer == 0) {
 	emcIoStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc", emc_nmlfile);
 	if (!emcIoStatusBuffer->valid()
 	    || EMC_IO_STAT_TYPE != emcIoStatusBuffer->peek()) {
 	    delete emcIoStatusBuffer;
@@ -124,7 +124,7 @@ static long largest_io_command_size = 0;
 /*
   sendCommand() waits until any currently executing command has finished,
   then writes the given command.*/
-/*! \todo 
+/*! \todo
   FIXME: Not very RCS-like to wait for status done here. (wps)
 */
 static int sendCommand(RCS_CMD_MSG * msg)
@@ -247,7 +247,7 @@ int emcIoInit()
 	return -1;
     }
 
-    if (0 != iniTool(EMC_INIFILE)) {
+    if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
     // send init command to emcio
@@ -288,12 +288,16 @@ int emcIoHalt()
     return 0;
 }
 
-int emcIoAbort()
+int emcIoAbort(int reason)
 {
     EMC_TOOL_ABORT ioAbortMsg;
 
+    ioAbortMsg.reason = reason;
     // send abort command to emcio
     sendCommand(&ioAbortMsg);
+
+    // call abort o-word sub handler if defined
+    emcAbortCleanup(reason);
 
     return 0;
 }
@@ -375,15 +379,27 @@ int emcLubeOff()
     return 0;
 }
 
-int emcToolPrepare(int tool)
+int emcToolPrepare(int p, int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
+    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 
     return 0;
 }
+
+
+int emcToolStartChange()
+{
+    EMC_TOOL_START_CHANGE toolStartChangeMsg;
+
+    sendCommand(&toolStartChangeMsg);
+
+    return 0;
+}
+
 
 int emcToolLoad()
 {
@@ -422,9 +438,9 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
     toolSetOffsetMsg.pocket = pocket;
     toolSetOffsetMsg.toolno = toolno;
     toolSetOffsetMsg.offset = offset;
-    toolSetOffsetMsg.diameter = diameter;      
-    toolSetOffsetMsg.frontangle = frontangle;  
-    toolSetOffsetMsg.backangle = backangle;    
+    toolSetOffsetMsg.diameter = diameter;
+    toolSetOffsetMsg.frontangle = frontangle;
+    toolSetOffsetMsg.backangle = backangle;
     toolSetOffsetMsg.orientation = orientation;
 
     sendCommand(&toolSetOffsetMsg);
@@ -447,7 +463,7 @@ int emcToolSetNumber(int number)
 
 int emcIoUpdate(EMC_IO_STAT * stat)
 {
-    
+
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
 	return -1;
     }
@@ -472,7 +488,7 @@ int emcIoUpdate(EMC_IO_STAT * stat)
     // copy status
     *stat = *emcIoStatus;
 
-    /* 
+    /*
        We need to check that the RCS_DONE isn't left over from the previous
        command, by comparing the command number we sent with the command
        number that emcio echoes. If they're different, then the command

@@ -30,6 +30,69 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
+## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
+##
+m4_define([_PYTHON_SYSCONFIG],
+[dnl
+py_val=`$PYTHON -c "dnl
+[import sys; from distutils import sysconfig; sys.stdout.write]dnl
+([sysconfig.]$1 or '')" 2>&AS_MESSAGE_LOG_FD`
+AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
+])
+
+# adapted from AX_BOOST_PYTHON_MURRAYC
+# http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
+m4_define([AX_BOOST_PYTHON_EMC],
+[
+AC_LANG_PUSH([C++])
+saved_CPPFLAGS=$CPPFLAGS
+saved_LIBS=$LIBS
+# Note that this requires PYTHON_CPPFLAGS 
+# Note that this expects boost/ to be at some top-level such as /usr/include/
+# We couldn't check for anything else anyway because there's no pkg-config file to tell us where it is
+CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
+AC_CACHE_CHECK([whether the Boost::Python headers are available],
+               [ac_cv_boost_python],
+               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <boost/python/module.hpp>
+using namespace boost::python;
+BOOST_PYTHON_MODULE(test) { (void)0; }
+]], [])],
+    [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
+
+AS_IF([test "x$ac_cv_boost_python" = xyes],
+[
+  BOOST_PYTHON_LIBS=
+  ax_python_lib=boost_python
+  AC_ARG_WITH([boost-python],
+              [AS_HELP_STRING([--with-boost-python],
+                              [specify the boost python shared library to use. For instance, --with-boost-python=boost_python-py25. Defaults to boost-python. If you use this then you should probably set PYTHON too, to avoid using multiple python versions.])],
+  [if test "x$with_boost_python" != xno; then
+    ax_python_lib=$with_boost_python
+    ax_boost_python_lib=boost_python-$with_boost_python
+  fi])
+  AC_MSG_CHECKING([for boost::python shared library])
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  do
+    # Note that this requires LIBPYTHON from configure.in
+    LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
+    AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM([[#include <boost/python.hpp>]], [[boost::python::object test_object;]])],
+      [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
+  done
+  AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])
+  AC_MSG_RESULT([$ax_result])
+])
+CPPFLAGS=$saved_CPPFLAGS
+LIBS=$saved_LIBS
+AC_LANG_POP([C++])
+AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
+      [AC_DEFINE([HAVE_BOOST_PYTHON], [1],
+                 [define if the Boost::Python headers and library are available])],
+      [AC_MSG_ERROR([[boost::python is required to build $PACKAGE_NAME]])])
+AC_SUBST([BOOST_PYTHON_LIBS])
+])
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -767,27 +830,46 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
         AC_MSG_ERROR([no python, documentation cannot be built])
     fi
 
-    AC_PATH_PROG(LYX,lyx,"none")
-    if ( test "none" = "$LYX" ) ; then
-	AC_PATH_PROG(LYXQT,lyx-qt,"none")
-	if ( test "none" != "$LYXQT" ) ; then
-	    LYX=$LYXQT
-	fi
-    fi
-    if ( test "none" = "$LYX" ) ; then
-	AC_MSG_ERROR([no LyX, documentation cannot be built])
+    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
+    if ( test "none" = "$ASCIIDOC" ) ; then
+	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
     fi
 
-    AC_MSG_CHECKING([for LyX version])
-    set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
-    AC_MSG_RESULT([$LYX_VER])
-    set -- `echo $LYX_VER | sed 's/\./ /g'`
-    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 5 \) -o \( $1 -eq 1 -a $2 -eq 5 -a $3 -lt 3 \); then
-	AC_MSG_ERROR([LyX version less than 1.5.3, documentation cannot be built])
+    AC_MSG_CHECKING([asciidoc version])
+    set -- `asciidoc --version`; ASCIIDOC_VER=$2
+    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
+
+    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
+        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
+Documentation cannot be built.
+On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
+On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
+On other systems, do what you need to install asciidoc version 8.5 or newer.])
     fi
-    if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 5 \); then
-	    AC_MSG_WARN([LyX documentation should only be edited with LyX version 1.5.x])
+    AC_MSG_RESULT([$ASCIIDOC_VER])
+
+    AC_PATH_PROG(DBLATEX,dblatex,"none")
+    if ( test "none" = "$DBLATEX" ) ; then
+	AC_MSG_ERROR([no dblatex, documentation cannot be built])
     fi
+
+    AC_MSG_CHECKING([dblatex version])
+    set -- `dblatex --version`; DBLATEX_VER=$3
+    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+
+    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a $3 -lt 12 \) \); then
+        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+Documentation cannot be built.])
+    fi
+    AC_MSG_RESULT([$DBLATEX_VER])
+
+
+    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+    fi
+
+
     AC_PATH_PROG(CONVERT,convert,"none")
     if ( test "none" = "$CONVERT" ) ; then
 	AC_MSG_ERROR([no convert, documentation cannot be built])
@@ -801,6 +883,11 @@ fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+    AC_PATH_PROG(DBLATEX,dblatex,"none")
+    if ( test "none" = "$DBLATEX" ) ; then
+	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
+    fi
+
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
@@ -1118,6 +1205,15 @@ else
     AC_MSG_ERROR([not found])
 fi
 
+HAVE_WORKING_BLT=no
+AC_MSG_CHECKING([for BLT using tclsh8.5])
+if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
+    AC_MSG_RESULT([found])
+    HAVE_WORKING_BLT=yes
+else
+    AC_MSG_RESULT([not found])
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
@@ -1126,6 +1222,7 @@ AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
 AC_SUBST([TCLSH])
+AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #
@@ -1180,7 +1277,7 @@ fi
 if test "x$HAVE_XAW" = "xno"; then
     AC_MSG_WARN([Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev'])
 else    
-    XAW_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXaw"
+    XAW_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXaw -lXt"
 fi
 AC_SUBST([HAVE_XAW])
 AC_SUBST([XAW_LIBS])
@@ -1349,6 +1446,10 @@ if test "$BUILD_PYTHON" = "yes"; then
     fi
     AC_MSG_RESULT(OK)
 
+    AC_MSG_CHECKING([version of python libraries])
+    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+    AC_MSG_RESULT($LIBPYTHON)
+
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 	
     PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
@@ -1368,6 +1469,29 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
     AC_MSG_CHECKING(location of Python header files)
     INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
     AC_MSG_RESULT($INCLUDEPY)
+
+    AC_MSG_CHECKING([for Python headers])
+    AS_IF([test "x$PYTHON_CPPFLAGS" = x],
+    [
+	_PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
+  	_PYTHON_SYSCONFIG([[get_python_inc(True)]],
+  	[test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
+    ])
+    AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+    AC_SUBST(PYTHON_CPPFLAGS)
+
+    AC_MSG_CHECKING([for Python libraries])
+    AS_IF([test "x$PYTHON_LIBS" = x],
+    [
+	_PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
+    ])
+    AC_MSG_RESULT([$PYTHON_LIBS])
+    AC_SUBST(PYTHON_LIBS)
+
+    # Get the CFLAGS and LIBS for boost::python.
+    # This does an AC_SUBST() of BOOST_PYTHON_LIBS
+    # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
+    AX_BOOST_PYTHON_EMC
 
     AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
 	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
@@ -1396,6 +1520,7 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 fi
 
 AC_SUBST([BUILD_PYTHON])
+AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 

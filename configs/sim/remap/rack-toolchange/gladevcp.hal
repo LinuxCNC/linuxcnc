@@ -1,0 +1,4 @@
+
+net tool-lock   motion.digital-out-00 gladevcp.tool-lock-led
+net tool-flush  motion.digital-out-01 gladevcp.tool-flush-led
+setp gladevcp.table 1

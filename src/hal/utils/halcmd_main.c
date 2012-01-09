@@ -71,7 +71,7 @@ static int propose_completion(char *all, char *fragment, int start);
 
 int main(int argc, char **argv)
 {
-    int n, c, fd;
+    int c, fd;
     int keep_going, retval, errorcount;
     int filemode = 0;
     char *filename = NULL;
@@ -90,7 +90,6 @@ int main(int argc, char **argv)
     /* set default for other options */
     keep_going = 0;
     /* start parsing the command line, options first */
-    n = 1;
     while(1) {
         c = getopt(argc, argv, "+RCfi:kqQsvVh");
         if(c == -1) break;
@@ -148,14 +147,17 @@ int main(int argc, char **argv)
                 cl += strlen(argv[0])+1;
                 if (c>0 && cl[c]=='\0') c--;    // if at end of line, back up one char
                 cf=&cl[c];
-                for (n=c; n>0; n--, cf--) {
-                    if (isspace(*cf) || *cf == '=' || *cf == '<' || *cf == '>') {
-                        cf++;
-                        break;
+                {
+                    int n;
+                    for (n=c; n>0; n--, cf--) {
+                        if (isspace(*cf) || *cf == '=' || *cf == '<' || *cf == '>') {
+                            cf++;
+                            break;
+                        }
                     }
+                    halcmd_startup(1);
+                    propose_completion(cl, cf, n);
                 }
-                halcmd_startup(1);
-                propose_completion(cl, cf, n);
                 if (comp_id >= 0) halcmd_shutdown();
                 exit(0);
                 break;

@@ -1,0 +1,131 @@
+Manual Integrador V0.1, {localdate}
+===================================
+The EMC Team
+
+:lang: es
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/translator-needed_es.txt[]
+
+include::common/Integrator_Concepts_es.txt[]
+
+:leveloffset: 0
+
+= Configuration
+
+:leveloffset: 1
+
+include::install/Latency_Test_es.txt[]
+
+include::config/ini_config_es.txt[]
+
+include::config/ini_homing_es.txt[]
+
+include::config/lathe_config_es.txt[]
+
+include::config/emc2hal_es.txt[]
+
+include::config/stepper_es.txt[]
+
+:leveloffset: 0
+
+= GUI
+
+:leveloffset: 1
+
+include::hal/pyvcp_es.txt[]
+
+include::hal/pyvcp_examples_es.txt[]
+
+include::gui/gladevcp_es.txt[]
+
+include::gui/halui.txt[]
+
+:leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+include::hal/parallel_port_es.txt[]
+
+include::drivers/AX5214H_es.txt[]
+
+include::drivers/GS2_es.txt[]
+
+include::drivers/hostmot2_es.txt[]
+
+include::drivers/motenc_es.txt[]
+
+include::drivers/opto22_es.txt[]
+
+include::drivers/pico_ppmc_es.txt[]
+
+include::drivers/pluto_p_es.txt[]
+
+include::drivers/servo_to_go_es.txt[]
+
+:leveloffset: 0
+
+= Advanced Topics
+
+:leveloffset: 1
+
+include::motion/kinematics_es.txt[]
+
+include::motion/tweaking_steppers_es.txt[]
+
+include::motion/pid_theory_es.txt[]
+
+:leveloffset: 0
+
+= Ladder Logic
+
+:leveloffset: 1
+
+include::ladder/ladder_intro_es.txt[]
+
+include::ladder/classic_ladder_es.txt[]
+
+include::ladder/ladder_examples_es.txt[]
+
+:leveloffset: 0
+
+= Hardware Examples
+
+:leveloffset: 1
+
+include::examples/pci_parallel_port_es.txt[]
+
+include::examples/spindle_es.txt[]
+
+include::examples/mpg_es.txt[]
+
+include::examples/gs2_example_es.txt[]
+
+:leveloffset: 0
+
+= Diagnostics & FAQ
+
+:leveloffset: 1
+
+include::common/Stepper_Diagnostics_es.txt[]
+
+include::common/Linux_FAQ_es.txt[]
+
+include::common/Glossary_es.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

@@ -1,0 +1,80 @@
+HAL Manual V2.5, {localdate}
+============================
+
+:lang: en
+
+:masterdir: {indir}
+
+The EMC Team
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+:leveloffset: 0
+
+= Hardware Abstract Layer
+
+:leveloffset: 1
+
+include::hal/intro.txt[]
+
+include::hal/tutorial.txt[]
+
+include::hal/general_ref.txt[]
+
+include::hal/canonical-devices.txt[]
+
+include::hal/tools.txt[]
+
+include::hal/basic_hal.txt[]
+
+include::hal/halshow.txt[]
+
+include::hal/components.txt[]
+
+include::hal/rtcomps.txt[]
+
+include::hal/parallel_port.txt[]
+
+include::hal/hal-examples.txt[]
+
+include::gui/halui.txt[]
+
+include::hal/halui_examples.txt[]
+
+include::hal/comp.txt[]
+
+include::hal/halmodule.txt[]
+
+:leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+include::drivers/AX5214H.txt[]
+
+include::drivers/GS2.txt[]
+
+include::drivers/hostmot2.txt[]
+
+include::drivers/motenc.txt[]
+
+include::drivers/opto22.txt[]
+
+include::drivers/pico_ppmc.txt[]
+
+include::drivers/pluto_p.txt[]
+
+include::drivers/servo_to_go.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

@@ -1,0 +1,44 @@
+Developer Manual V2.5, {localdate}
+==================================
+
+:lang: en
+
+:masterdir: {indir}
+
+The EMC Team
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+:leveloffset: 0
+== EMC2 Code Notes
+:leveloffset: 1
+
+include::code/Code_Notes.txt[]
+
+:leveloffset: 0
+= NML Messages
+:leveloffset: 1
+
+include::code/NML_Messages.txt[]
+
+:leveloffset: 0
+
+= Coding Style Guide
+
+:leveloffset: 1
+
+include::code/Style_Guide.txt[]
+
+include::common/Glossary.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+
