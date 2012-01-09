@@ -40,6 +40,7 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
+wm minsize . $masterwidth $masterheight
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -339,31 +340,36 @@ set oldvar "zzz"
 # build show mode right side
 proc makeShow {} {
     global showhal disp showtext
-    set what full
-    if {$what == "full"} {
-        set stf [frame $showhal.t]
-        set disp [text $stf.tx  -wrap word -takefocus 0 -state disabled \
-            -relief flat -borderwidth 0 -height 26 -yscrollcommand "sSlide $stf"]
-        set stt $stf.sc
-        scrollbar $stt -orient vert -command "$disp yview"
-        pack $disp -side left -fill both -expand yes
-        pack $stt -side left -fill y
-        set seps [frame $showhal.sep -bg black -borderwidth 2]
-        set cfent [frame $showhal.b]
-        set lab [label $cfent.label -text [msgcat::mc "Test HAL command :"] ]
-        set com [entry $cfent.entry -textvariable halcommand]
-        bind $com <KeyPress-Return> {showEx $halcommand}
-        set ex [button $cfent.execute -text [msgcat::mc "Execute"] \
+
+    set f1 [frame $showhal.f1 -relief ridge -borderwidth 5]
+    pack $f1 -fill both -expand 1
+    pack [frame $f1.top] -side top -fill both -expand 1
+    set disp [text $f1.top.tx  -wrap word -takefocus 0 -state disabled \
+             -width 0 -height 10\
+             -relief ridge -borderwidth 0 -yscrollcommand "sSlide $f1.top"]
+    pack $disp -side left -fill both -expand yes
+    pack [scrollbar $f1.top.sc -orient vert -command "$disp yview"]\
+         -side left -fill y
+
+    set f2 [frame $showhal.f2 -relief ridge -borderwidth 5]
+    pack $f2 -fill both -expand 0
+    pack [frame $f2.b] \
+         -side top -fill x -anchor w
+    pack [label $f2.b.label -text [msgcat::mc "Test HAL command :"] ]\
+         -side left -padx 5 -pady 3
+    set com [entry $f2.b.entry -textvariable halcommand]
+    pack $com -side left -fill x -expand 1 -pady 3
+    bind $com <KeyPress-Return> {showEx $halcommand}
+    set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
-        set showtext [text $showhal.txt -height 2  -borderwidth 2 -relief groove ]
-        pack $lab -side left -padx 5 -pady 3 
-        pack $com -side left -fill x -expand 1 -pady 3
-        pack $ex -side left -padx 5 -pady 3
-        pack $stf -side top -fill both -expand 1
-        pack $cfent -side top -fill x -anchor w
-        pack $seps -side top -fill x -anchor w
-        pack $showtext -side top -fill both -anchor w
-    }
+    pack $ex -side left -padx 5 -pady 3
+
+    pack [frame $f2.show -height 5] \
+         -side top -fill both -expand 1
+    set showtext [text $f2.show.txt \
+                 -width 0 -height 1  \
+                 -borderwidth 2 -relief groove ]
+    pack $showtext -side left -fill both -anchor w -expand 1
 }
 
 proc makeWatch {} {
@@ -422,10 +428,12 @@ proc showHAL {which} {
 
 proc showEx {what} {
     global showtext
+    global disp
     set str [eval hal $what]
-    $showtext delete 1.0 end
-    $showtext insert end $str
-    refreshHAL
+    $disp configure -state normal
+    $disp delete 1.0 end
+    $disp insert end $str
+    $disp configure -state disabled
 }
 
 set watchlist ""
