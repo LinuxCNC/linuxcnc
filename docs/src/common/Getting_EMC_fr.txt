@@ -69,13 +69,12 @@ Le canal EMC sur IRC est: #emc sur freenode.net.
 
 La manière la plus simple d'aller sur IRC est d'utiliser 
 le client embarqué sur cette page:
-
 http://webchat.freenode.net/?channels=emc
 
 Un peu d'éthique sur le canal IRC:
 
  - Posez des questions précises... Évitez le "quelqu'un peut m'aider?", 
-   ce type de questions, *ça ne fonctionnera pas*. 
+   ce type de questions, *ne fonctionnera pas*. 
  - Si vous êtes vraiment nouveau dans tout cela, réfléchissez à votre question 
     avant de la poser. Assurez-vous de donner suffisamment d'informations pour 
     que quelqu'un puisse résoudre votre problème. 
@@ -104,7 +103,7 @@ vers le fichier, sur l'IRC:
 * *Pour les fichiers*:
      http://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
-=== Les liste de diffusion
+=== Les listes de diffusion
 
 Une liste de diffusion sur Internet est un moyen de poser des questions, 
 tout les abonnés à cette liste pourrons lire et répondre à leur convenance. 
@@ -114,7 +113,7 @@ En quelques mots, vous envoyez un e-mail à la liste et selon comment
 vous avez configuré votre compte, vous aurez les réponses soit, 
 regroupées quotidiennement, soit individuellement.
 
-Inscription sur la liste de diffusion des utilisateurs d'EMC2 à: 
+Inscription sur la liste de diffusion des utilisateurs d'EMC2 sur: 
 https://lists.sourceforge.net/lists/listinfo/emc-users
 
 === Le Wiki d'EMC2
@@ -123,15 +122,14 @@ Un site Wiki est un site web maintenu et enrichi par les utilisateurs,
 n'importe qui peut ajouter ou modifier les pages. 
 
 Le Wiki d'EMC2 est également maintenu par les utilisateurs, 
-il contient un très grand nombre d'informations et d'astuces à: 
+il contient un très grand nombre d'informations et d'astuces sur: 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl
 
 == Se procurer EMC2(((Obtenir EMC2)))
 
 === Par téléchargement classique
 
-Téléchargez le CD Live sur le site d'EMC2: 
-http://www.linuxcnc.org/index.php?lang=french
+Téléchargez le CD Live sur le http://www.linuxcnc.org/index.php?lang=french[site d'EMC2]
 
 === Par téléchargement fragmenté (((Téléchargement fragmenté)))
 
@@ -140,7 +138,7 @@ fois parce que votre connexion Internet est lente ou mauvaise,
 utilisez *wget* qui permet la reprise après un téléchargement interrompu.
 
 La commande Wget sous Linux:: (((Wget sous Linux)))
-Ouvrez un terminal. Dans Ubuntu, il est dans _Applications_ -> _Accessoires_ -> 
+Ouvrez un terminal. Dans Gnome, il est dans _Applications_ -> _Accessoires_ -> 
     _Terminal_.
 Utilisez *cd* pour changer le répertoire dans lequel vous voulez stocker l'image 
 ISO. Utilisez *mkdir* pour créer un nouveau répertoire si nécessaire.
@@ -217,7 +215,7 @@ cd C:\Program Files\GnuWin32\bin
 
 et le prompt devrait changer pour: *C:\Program Files\GnuWin32*
 
-Tapez les commandes wget dans la fenêtre et pressez Entrée comme précédemment. 
+Tapez les commandes *wget* dans la fenêtre et pressez Entrée comme précédemment. 
 
 == Graver l'image ISO du CD
 
@@ -296,8 +294,7 @@ Avant de graver un CD, il est fortement recommandé de vérifier la
 somme de contrôle md5 (hash) du fichier de l'image iso, malheureusement
 Windows ne dispose pas de programme de contrôle du md5. Vous devrez en
 installer un pour vérifier la somme de contrôle de l'ISO. Plus
-d'informations sont disponibles ici:
-https://help.ubuntu.com/community/HowToMD5SUM/
+d'informations sont disponibles ici: http://doc.ubuntu-fr.org/md5sum
 
 ==== Gravez le CD sous Windows
 
@@ -312,7 +309,7 @@ https://help.ubuntu.com/community/HowToMD5SUM/
 
 == Tester EMC2
 
-Avec le CD Live d'EMC2 dans le lecteur de CD/DVD redémarrez votre PC
+Avec le CD Live d'EMC2 dans le lecteur de CD/DVD, redémarrez votre PC
 de sorte qu'il démarre sur le CD Live. Quand l'ordinateur a redémarré
 vous pouvez essayer EMC2 sans l'installer. Vous ne pouvez pas créer de
 configuration personnalisée ni modifier les réglages du système comme
@@ -324,12 +321,12 @@ essayez le.
 
 Pour savoir si votre ordinateur est utilisable par le générateur de
 trains d'impulsions du logiciel, lancez un test de latence comme
-indiqué à la section <<sec:Test-de-latence-IM,sur le test de latence.>>
+indiqué dans <<sec:Test-de-latence-IM, cette section>>.
 
 == Installer la distribution Ubuntu d'EMC2 sur votre PC
 
 Si vous avez envie d'aller plus loin, cliquez juste sur l'icône
-*Install* se trouvant sur le bureau, répondez à quelques questions (votre
+*_Install_* se trouvant sur le bureau, répondez à quelques questions (votre
 nom, votre fuseau horaire, le mot de passe) et faites une installation
 complète en quelques minutes. Notez bien le mot de passe indiqué et le
 nom d'utilisateur. Une fois l'installation complète et que vous êtes
@@ -351,7 +348,7 @@ image::images/axis_2.3_fr.png[]
 === Lancer EMC2
 
 Après installation, emc2 se lance comme un autre programme Linux:
-depuis un terminal en passant la commande *emc*, 
+depuis un terminal en passant la commande *_emc_*, 
 ou depuis le menu _Applications_ -> _CNC_.
 
 === Sélecteur de configuration
@@ -370,19 +367,19 @@ matériel raccordé, ce sont des simulations de machines.
 image::images/configuration-selector1_fr.png[]
 
 Cliquez dans la liste, sur les différentes configurations pour afficher les 
-informations les concernant. Double-cliquez sur une configuration ou cliquez OK 
-pour démarrer EMC2 avec cette configuration. Cochez la case *Créer un raccourci 
-sur le bureau* puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. 
+informations les concernant. Double-cliquez sur une configuration ou cliquez *_OK_* 
+pour démarrer EMC2 avec cette configuration. Cochez la case *_Créer un raccourci 
+sur le bureau_* puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. 
 Cette icône vous permettra par la suite de lancer directement EMC2 avec cette 
 configuration, sans passer par le sélecteur de configuration.
 
 Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue 
 vous demandera si vous voulez en faire une copie dans votre répertoire home. 
-Si vous répondez oui, un dossier *emc2* autorisé en écriture sera créé, il 
+Si vous répondez *_oui_*, un dossier *emc2* autorisé en écriture sera créé, il 
 contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos 
-besoins. Si vous répondez *non*, emc démarrera mais pourra se comporter de façon 
+besoins. Si vous répondez *_non_*, emc démarrera mais pourra se comporter de façon 
 étrange, par exemple, les décalages d'origine pièce entrés avec la commande 
-*Toucher* ne seront pas pris en compte, ce comportement est lié à ce moment, à 
+*_Toucher_* ne seront pas pris en compte, ce comportement est lié à ce moment, à 
 l'absence de répertoire autorisé en écriture sans lequel les paramètres ne 
 peuvent être enregistrés.
 
@@ -393,10 +390,10 @@ image::images/copy-configuration_fr.png[]
 === Les étapes suivantes de la configuration
 
 Après avoir trouvé l'exemple de configuration qui utilise
-la même interface matérielle que votre machine,
-et en avoir enregistré une copie dans votre répertoire personnel,
-vous pouvez la personnaliser en fonction des besoins spécifiques à votre machine.
-Consultez le *Manuel de l'intégrateur* pour tous les détails de configuration.
+le même matériel que votre machine, et en avoir enregistré une copie dans votre 
+répertoire personnel, vous pouvez la personnaliser en fonction des besoins 
+spécifiques à votre machine. Consultez le *Manuel de l'intégrateur* pour tous 
+les détails de configuration.
 
 Si vous souhaitez créer une configuration personnalisée, vous pouvez utiliser 
 pour cela, un des assistants graphiques de configuration, *StepConf* ou *PncConf* 
