@@ -1,10 +1,11 @@
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 = M Codes
 
 [[cha:m-codes]] (((M Codes)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 == M Code Quick Reference Table [[m-code-quick-reference]]
 [width="60%", options="header", cols="2^,5<"]

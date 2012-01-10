@@ -9,6 +9,8 @@ Details of the filter can be found in
 // for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
 // and make it a local copy in the current directory
 // HTML works fine
+
+// these attributes must come after the document title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
