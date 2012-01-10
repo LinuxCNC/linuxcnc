@@ -32,7 +32,8 @@ newsig Enable bit
 sets Enable TRUE
 
 #configure the spindle encoder
-setp hm2_5i20.0.encoder.00.scale 4800
+#encoder scale was 4800 on Pete's machine
+setp hm2_5i20.0.encoder.00.scale 4096
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Sidx hm2_5i20.0.encoder.00.index-enable => motion.spindle-index-enable
 

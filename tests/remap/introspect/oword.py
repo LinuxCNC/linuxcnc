@@ -17,7 +17,15 @@ EMC_DEBUG_GDBONSIGNAL       = 0x00020000
 
 def introspect(self,*args):
     print "debug: ", self.debugmask,"logging:",self.loggingLevel
-    print "argc=", len(args),"args=",args, "call_level=",self.call_level
+    print "call_level=",self.call_level
+    print "argc=", len(args)
+    print "args=(",
+    for arg in args:
+        if type(arg) == float:
+            print "%0.5f" % arg,
+        else:
+            print arg,
+    print ")"
 
     # the low-level access within the block
     for n in range(len(args)):

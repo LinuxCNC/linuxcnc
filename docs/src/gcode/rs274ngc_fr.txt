@@ -1,6 +1,6 @@
-= Comparaison avec RS274NGC
+= Différences avec RS274NGC
 
-== Différences entre programmation RS274NGC et EMC2 
+== Changements entre RS274NGC et EMC2 
 
 === Position après un changement d'outil
 

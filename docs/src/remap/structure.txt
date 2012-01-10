@@ -1,12 +1,9 @@
 
+= Extending EMC
+
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
-
-
-
-= Extending EMC
-
 
 == Introduction: Extending the RS274NGC Interpreter by Remapping Codes
 
