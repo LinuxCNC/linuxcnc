@@ -56505,7 +56505,7 @@ Charge Pump</property>
                                       <widget class="GtkSpinButton" id="xoutputscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 0.01 10 0</property>
+                                        <property name="adjustment">0 0 6000 0.01 10 0</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
@@ -56521,7 +56521,7 @@ Charge Pump</property>
                                       <widget class="GtkSpinButton" id="xmaxoutput">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 0.01 10 0</property>
+                                        <property name="adjustment">0 0 6000 0.01 10 0</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
