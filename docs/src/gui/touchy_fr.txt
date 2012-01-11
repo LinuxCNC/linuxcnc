@@ -94,7 +94,7 @@ MACRO=increment xinc yinc
 ----
 
 Dans lequel, *increment* est le nom de la macro, laquelle accepte deux paramètres, 
-nommé ici *xinc* et *yinc*.
+nommés ici *xinc* et *yinc*.
 
 Maintenant, placer la macro proprement dite dans un fichier nommé 
 *increment.ngc*. La variable *PROGRAM_PREFIX* du fichier ini pourra être 
