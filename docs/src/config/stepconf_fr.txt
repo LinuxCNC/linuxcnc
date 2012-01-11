@@ -655,13 +655,13 @@ de commande souple.
 
 .Contacts normalement fermés[[cap:Contacts-Normalement-Fermes]]
 
-image::images/switch-nc-series.png[]
+image::images/switch-nc-series_fr.png[]
 
 Câblage de contacts N/C en série(schéma simplifié)
 
 .Contacts normalement ouverts[[cap:Contacts-Normalement-Ouverts]]
 
-image::images/switch-no-parallel.png[]
+image::images/switch-no-parallel_fr.png[]
 
 Câblage de contacts N/O en parallèle (schéma simplifié)
 
