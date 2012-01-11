@@ -187,7 +187,7 @@ Correction des problèmes causés par Realtime SMI sur Ubuntu, voir
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[ sur cette page.]
 ****
 
-La valeur importante est *max jitter* dans cet exemple 7085 nanosecondes,
+La valeur importante est *max jitter* dans cet exemple 9075 nanosecondes,
 soit 7.085 microsecondes. Enregistrez ce chiffre et entrez le dans le
 champs « Résultat du test de latence » de Stepconf quand il le demande.
 
@@ -234,7 +234,7 @@ Sortie arrêt d'urgence (E Stop)::
 Entrées Origines machine & limites::
     Ce choix est fait par la liste déroulante des entrées.
 
-Pompe de charge:
+Pompe de charge::
     Si votre carte de contrôle nécessite un signale pompe de charge, dans la liste
 	déroulante des sorties, sélectionner *Pompe de charge* sur la sortie
 	qui doit correspondre à l'entrée Pompe de charge de la carte du pilote.
@@ -357,9 +357,9 @@ Fréquence des impulsions à la vitesse maxi::
     ralentissements importants de l'ordinateur, voir même son blocage
     (La plus grande fréquence utilisable variera d'un ordinateur à un autre)
 
-Échelle de l'axe:
+Échelle de l'axe::
     Le nombre qui sera utilisé dans le fichier ini [SCALE].
-    C'est le nombre d'impulsion de commande moteur par unité utilisateur.
+    C'est le nombre d'impulsions de commande moteur par unité utilisateur.
 
 Test de cet axe::
     (((Test de cet axe)))

@@ -139,7 +139,7 @@ utilisez *wget* qui permet la reprise après un téléchargement interrompu.
 
 La commande Wget sous Linux:: (((Wget sous Linux)))
 Ouvrez un terminal. Dans Gnome, il est dans _Applications_ -> _Accessoires_ -> 
-    _Terminal_.
+_Terminal_.
 Utilisez *cd* pour changer le répertoire dans lequel vous voulez stocker l'image 
 ISO. Utilisez *mkdir* pour créer un nouveau répertoire si nécessaire.
 +
@@ -186,35 +186,34 @@ wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-
 
 La somme MD5 du fichier ci-dessus est: `1bab052ec879f941628927c988863f14`
 ****
-
++
 Quand le téléchargement est terminé, vous trouverez le fichier ISO dans le 
 répertoire que vous avez sélectionné précédemment. Ensuite, il ne vous restera 
 plus qu'à graver le CD.
 
 La commande Wget sous Windows:: (((Wget sous Windows)))
-
 Le programme wget est également disponible pour Windows depuis: 
++
 http://gnuwin32.sourceforge.net/packages/wget.htm
-
++
 Suivez les instructions de la page web pour télécharger et installer
 le programme wget sous Windows.
-
++
 Pour lancer wget ouvrez l'invite de commande.
-
++
 Dans la plupart des Windows elle est dans _Programmes_ -> _Accessoires_ -> 
 _Commande_
-
++
 Naviguez jusqu'au répertoire dans lequel s'est installé wget.
-
 Habituellement il est dans *C:\Program Files\GnuWin32\bin* si 
 c'est le cas, tapez la commande:
-
++
 ----
 cd C:\Program Files\GnuWin32\bin
 ----
-
++
 et le prompt devrait changer pour: *C:\Program Files\GnuWin32*
-
++
 Tapez les commandes *wget* dans la fenêtre et pressez Entrée comme précédemment. 
 
 == Graver l'image ISO du CD

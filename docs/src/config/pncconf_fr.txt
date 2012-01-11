@@ -112,9 +112,9 @@ leur permet de supporter une latence supérieure à celle d'un système utilisan
 les ports parallèles de la carte mère.
 
 Le test standard dans EMC2, consiste à vérifier la latence de base. Un appui sur 
-le bouton *test base period jitter* lancera le test de latence, il est également 
-possible de le lancer depuis le menu *application->cnc->latency test*. Ce test 
-doit fonctionner plusieurs minutes, en fait, le plus longtemps possible. 
+le bouton *_test base period jitter_* lancera le test de latence, il est également 
+possible de le lancer depuis le menu *_application -> cnc -> latency test_*. 
+Ce test doit fonctionner plusieurs minutes, en fait, le plus longtemps possible. 
 15 minutes est un minimum. Pendant le test, essayer d'utilisez le plus possible 
 l'ordinateur, le réseau, le port USB, les disques durs, l'affichage. 
 Observer et noter si une action particulière dégrade le temps de latence. 
