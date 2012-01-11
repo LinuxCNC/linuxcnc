@@ -11,7 +11,7 @@ avec une manivelle électronique (MPG) et des boutons et interrupteurs.
 
 .L'interface tactile Touchy
 
-image::images/touchy.png[]
+image::images/touchy_fr.png[]
 
 == Panneau de Configuration
 
@@ -23,7 +23,7 @@ Touchy exécute les commandes de HAL dans ce fichier après qu'il a créé ses p
 pins, lesquelles sont disponibles pour connexion.
 
 Touchy dispose de plusieurs pins de sortie destinées à être connectées au 
-contrôleur de mouvement pour gérer les manivelles de jogging:
+contrôleur de mouvement pour gérer les manivelles de jog:
 
  - *touchy.jog.wheel.increment*,
 	qui doit être connecté à la pin *axis.N.jog-scale* de chacun des N axes.
@@ -34,16 +34,17 @@ contrôleur de mouvement pour gérer les manivelles de jogging:
  - En plus d'être connecté à *touchy.wheel-counts*, le compteur d'impulsions 
     de la manivelle doit aussi être connecté à *axis.N.jog-counts* pour chacun 
     des N axes. Si le composant de HAL *ilowpass* est utilisé pour adoucir les
-    mouvements de jogging à la manivelle, il faut l'appliquer uniquement sur 
+    mouvements de jog à la manivelle, il faut l'appliquer uniquement sur 
     *axis.N.jog-counts* et non sur *touchy.wheel-counts*.
 
 ==== Contrôles requis
 
- - Un bouton *Abandon* (contact momentané) connecté sur la HAL pin *touchy.abort*
- - Un bouton de *Départ cycle* (contact momentané) connecté à *touchy.cycle-start*
+ - Un bouton *_Abandon_* (contact momentané) connecté sur la HAL pin *touchy.abort*
+ - Un bouton de *_Départ cycle_* (contact momentané) connecté à *touchy.cycle-start*
  - Volant/Manivelle/MPG, connecté à *touchy.wheel-counts* et à la pin de mouvement
    comme décrit précédemment.
- - Un bouton à bascule simple (contact à deux positions) connecté à *touchy.single-block*
+ - Un bouton à bascule simple (contact à deux positions) connecté à 
+*touchy.single-block*
 
 ==== Contrôles optionnels
 
@@ -51,8 +52,9 @@ contrôleur de mouvement pour gérer les manivelles de jogging:
    (ou deux boutons momentanés) pour chacun des axes concernés, attaché à 
     *touchy.jog.continuous.x.negative* et à *touchy.jog.continuous.x.positive*, 
     etc. pour les autres axes.
- -  Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa course
-    en grande vitesse), un bouton à contact momentané sera connecté à *touchy.quill-up*.
+ -  Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa 
+    course en grande vitesse), un bouton à contact momentané sera connecté à 
+*touchy.quill-up*.
 
 ==== Voyants de panneau optionnels
 
@@ -61,22 +63,71 @@ contrôleur de mouvement pour gérer les manivelles de jogging:
     G-code et clignote quand la machine est en marche mais en pause, ou en
     vitesse à zéro.
 
-=== Recommandé  dans tous les cas
+=== Recommandé pour toutes les configurations
 
  - Un bouton d'Arrêt d'Urgence (A/U) câblé physiquement, dans la chaîne d'arrêt 
    d'urgence.
 
-== Réglage
+== Réglages
 
 Pour utiliser Touchy, dans la section *[DISPLAY]* du fichier ini de la machine,
 modifier la ligne de cette manière: *DISPLAY = touchy*
 
-Quand Touchy démarre pour la première fois, vérifier l'onglet *Préférences*.
+Quand Touchy démarre pour la première fois, vérifier l'onglet *_Préférences_*.
 Dans le cas d'un écran tactile, choisir de cacher le pointeur dans les options,
 pour obtenir les meilleurs résultats.
 
 La fenêtre d'état est fixée en haut, ajustée par la taille d'une police fixe. 
-La résolution de Gnome peut affecter cela. Si le bas de l'écran est coupé, aller dans
-le gestionnaire de résolution de Gnome pour revenir au réglage d'origine, à 96 DPI. 
+La résolution de Gnome peut affecter cela. Si le bas de l'écran est coupé, aller 
+dans le gestionnaire de résolution de Gnome pour revenir au réglage d'origine, 
+à 96 DPI. 
 
+=== Macros
+
+Touchy peut invoquer les macros avec mots O au travers de l'interface MDI. Pour 
+configurer cette possibilité, dans la section *[TOUCHY]* du fichier ini, ajouter
+une ou plusieurs lignes avec *MACRO*. Chacune de ces lignes doit respecter le
+format suivant:
+
+----
+MACRO=increment xinc yinc
+----
+
+Dans lequel, *increment* est le nom de la macro, laquelle accepte deux paramètres, 
+nommé ici *xinc* et *yinc*.
+
+Maintenant, placer la macro proprement dite dans un fichier nommé 
+*increment.ngc*. La variable *PROGRAM_PREFIX* du fichier ini pourra être 
+utilisée pour identifier le répertoire contenant ce fichier. Il est également 
+possible de le déclarer dans la variable *SUBROUTINE_PATH*.
+
+Elle pourrait ressembler à cela:
+
+----
+O<increment> sub
+G91 G0 X#1 Y#2
+G90
+O<increment> endsub
+----
+
+Noter que le nom du sous-programme, le nom de la macro ainsi que le nom du 
+fichier .ngc doivent correspondre exactement, y compris les minuscules/
+majuscules des noms.
+
+Quand la macro est invoquée en pressant le bouton *_Macro_* dans l'onglet MDI
+de Touchy, il est possible de saisir des valeurs pour xinc et yinc, lesquelles
+seront passées à la macro comme étant respectivement *#1* et *#2*. Les 
+paramètres laissées vides sont passés comme des valeur *0*.
+
+Si il y a plusieurs macros différentes, presser le bouton *_Macro_* 
+répétitivement pour les faire défiler.
+
+Dans notre petit exemple, si -1 est entré pour xinc puis que le *_Départ cycle_*
+est pressé, un *G0*, sera invoqué, provoquant un déplacement en vitesse rapide,
+vers la gauche, de une unité machine.
+
+Cette capacité d'utilisation des macros est très utile pour le palpage de 
+contours ou d'orifices ainsi que pour d'autres opérations simples 
+pré-configurées, de fraisage ou de perçage, qui pourront être réalisées depuis 
+le panneau de Touchy sans avoir, pour cela, à écrire de programme G-code.
 

@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-08 11:34+0100\n"
-"PO-Revision-Date: 2012-01-09 14:53+0100\n"
+"PO-Revision-Date: 2012-01-11 14:01+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -5029,7 +5029,7 @@ msgstr "DTG"
 #: emc/usr_intf/touchy/touchy.glade:143
 #: emc/usr_intf/pncconf/pncconf.glade:59755
 msgid "Absolute"
-msgstr "Absolut"
+msgstr "Absolu"
 
 #: emc/usr_intf/touchy/touchy.glade:165
 msgid "xr"
@@ -8005,7 +8005,7 @@ msgstr ""
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"#  le signe de la vitesse de broche sera enlevé par un composant absolut"
+"#  le signe de la vitesse de broche sera enlevé par un composant absolu"
 
 #: emc/usr_intf/pncconf/pncconf.py:2073
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
@@ -8025,7 +8025,7 @@ msgstr ""
 msgid ""
 "#  COMMANDED velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"#  La vitesse COMANDEE est signée, un composant absolut (abs.0) sera utilisé "
+"#  La vitesse COMANDEE est signée, un composant absolu (abs.0) sera utilisé "
 "pour enlever le signe"
 
 #: emc/usr_intf/pncconf/pncconf.py:2727
