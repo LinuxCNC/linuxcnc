@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-08 11:34+0100\n"
+"POT-Creation-Date: 2012-01-11 20:19+0100\n"
 "PO-Revision-Date: 2012-01-11 21:33+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
@@ -2497,7 +2497,7 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tkemc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8508
+#: ../tcl/tkemc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8509
 msgid "inches"
 msgstr "pouces"
 
@@ -2507,7 +2507,7 @@ msgstr "pouces"
 #: emc/usr_intf/stepconf/stepconf.py:1685
 #: emc/usr_intf/stepconf/stepconf.py:2221
 #: emc/usr_intf/stepconf/stepconf.glade:4357
-#: emc/usr_intf/pncconf/pncconf.py:8504
+#: emc/usr_intf/pncconf/pncconf.py:8505
 #: emc/usr_intf/pncconf/pncconf.glade:2229
 #: emc/usr_intf/pncconf/pncconf.glade:2394
 #: emc/usr_intf/pncconf/pncconf.glade:57616
@@ -3151,7 +3151,7 @@ msgid "move"
 msgstr "mouvement"
 
 #: ../tcl/ngcgui.tcl:3586 emc/usr_intf/pncconf/pncconf.py:7020
-#: emc/usr_intf/pncconf/pncconf.py:7137 emc/usr_intf/pncconf/pncconf.py:7302
+#: emc/usr_intf/pncconf/pncconf.py:7137 emc/usr_intf/pncconf/pncconf.py:7303
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -6125,7 +6125,7 @@ msgstr ""
 "Le fichier custom.clp existant sera renommé custom_backup.clp \n"
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:1457 emc/usr_intf/pncconf/pncconf.py:7811
+#: emc/usr_intf/stepconf/stepconf.py:1457 emc/usr_intf/pncconf/pncconf.py:7812
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -6222,7 +6222,7 @@ msgstr "pouces / s²"
 msgid "Steps / in"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:2202 emc/usr_intf/pncconf/pncconf.py:8889
+#: emc/usr_intf/stepconf/stepconf.py:2202 emc/usr_intf/pncconf/pncconf.py:8890
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test axe %s"
@@ -8579,23 +8579,23 @@ msgstr " / impulsion codeur"
 msgid "Encoder pulses / "
 msgstr "Impulsions codeur / "
 
-#: emc/usr_intf/pncconf/pncconf.py:7478
+#: emc/usr_intf/pncconf/pncconf.py:7479
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:7781
+#: emc/usr_intf/pncconf/pncconf.py:7782
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour "
 "l'arrêt d'urgence."
 
-#: emc/usr_intf/pncconf/pncconf.py:7793
+#: emc/usr_intf/pncconf/pncconf.py:7794
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour le "
 "palpeur."
 
-#: emc/usr_intf/pncconf/pncconf.py:7804
+#: emc/usr_intf/pncconf/pncconf.py:7805
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -8607,15 +8607,15 @@ msgstr ""
 "Tout autre fichier custom_backup.clp précédent sera écrasé. Presser "
 "'programme ladder existant' pour éviter cet avertissement"
 
-#: emc/usr_intf/pncconf/pncconf.py:8015
+#: emc/usr_intf/pncconf/pncconf.py:8016
 msgid "Do you wish to continue to edit this configuration."
 msgstr "Voulez-vous continuer pour éditer cette configuration."
 
-#: emc/usr_intf/pncconf/pncconf.py:8054
+#: emc/usr_intf/pncconf/pncconf.py:8055
 msgid "PCI search page is unavailable\n"
 msgstr "Page de recherche PCI indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:8172
+#: emc/usr_intf/pncconf/pncconf.py:8173
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
@@ -8623,59 +8623,59 @@ msgstr ""
 "Vous avez spécifié un fichier glade comme existant alors que le dossier "
 "portant le nom de la machine n'en contient pas..."
 
-#: emc/usr_intf/pncconf/pncconf.py:8491
+#: emc/usr_intf/pncconf/pncconf.py:8492
 msgid "Servo tuning is not avaiable in PNCconf yet\n"
 msgstr "Les réglages de servo ne sont pas  opérationnels dans PNCconf \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:8496
+#: emc/usr_intf/pncconf/pncconf.py:8497
 msgid "degrees"
 msgstr "degrés"
 
-#: emc/usr_intf/pncconf/pncconf.py:8497
+#: emc/usr_intf/pncconf/pncconf.py:8498
 msgid "degrees / minute"
 msgstr "degrés / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8498
+#: emc/usr_intf/pncconf/pncconf.py:8499
 msgid "degrees / second²"
 msgstr "degrés / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8500
+#: emc/usr_intf/pncconf/pncconf.py:8501
 msgid "revolutions"
 msgstr "tour"
 
-#: emc/usr_intf/pncconf/pncconf.py:8501
+#: emc/usr_intf/pncconf/pncconf.py:8502
 msgid "rpm"
 msgstr "tr/mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:8502
+#: emc/usr_intf/pncconf/pncconf.py:8503
 msgid "revs / second²"
 msgstr "tours / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8505
+#: emc/usr_intf/pncconf/pncconf.py:8506
 #: emc/usr_intf/pncconf/pncconf.glade:58295
 #: emc/usr_intf/pncconf/pncconf.glade:58479
 #: emc/usr_intf/pncconf/pncconf.glade:58576
 msgid "mm / minute"
 msgstr "mm / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8506
+#: emc/usr_intf/pncconf/pncconf.py:8507
 msgid "mm / second²"
 msgstr "mm / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8509
+#: emc/usr_intf/pncconf/pncconf.py:8510
 msgid "inches / minute"
 msgstr "pouces / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8510
+#: emc/usr_intf/pncconf/pncconf.py:8511
 msgid "inches / second²"
 msgstr "pouces / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8642
+#: emc/usr_intf/pncconf/pncconf.py:8643
 #, python-format
 msgid "%s Axis Tune"
 msgstr "Calibration de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:8806
+#: emc/usr_intf/pncconf/pncconf.py:8807
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
@@ -8683,7 +8683,7 @@ msgstr ""
 " Un signal CODEUR / RESOLVEUR et un signal ANALOGIQUE de broche doivent être "
 "déclarés pour tester cet axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:8810
+#: emc/usr_intf/pncconf/pncconf.py:8811
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
