@@ -917,7 +917,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     PyObject *segs = PyList_New(steps);
 
     double dtheta = theta2 - theta1;
-    double d[9] = {0, 0, 0, n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
+    double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
     d[Z] = n[Z] - o[Z];
 
     double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
