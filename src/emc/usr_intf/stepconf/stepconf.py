@@ -1217,7 +1217,7 @@ class App:
         self.make_axispage(glade, 'a')
         doc = glade.toxml().encode("utf-8")
 
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
