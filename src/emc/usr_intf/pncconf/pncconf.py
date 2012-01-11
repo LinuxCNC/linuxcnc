@@ -3846,7 +3846,7 @@ class App:
         self.pbar.set_fraction(.75)
         while gtk.events_pending():
             gtk.main_iteration()
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
         self.window.hide()
 
         self.widgets = Widgets(self.xml)
