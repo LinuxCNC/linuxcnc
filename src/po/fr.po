@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-11 20:19+0100\n"
-"PO-Revision-Date: 2012-01-11 21:33+0100\n"
+"PO-Revision-Date: 2012-01-12 19:00+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -5676,7 +5676,7 @@ msgstr "Pas en X"
 
 #: emc/usr_intf/stepconf/stepconf.py:153
 msgid "X Direction"
-msgstr "X direction"
+msgstr "Direction X"
 
 #: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Y Step"
@@ -5684,7 +5684,7 @@ msgstr "Pas en Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Y Direction"
-msgstr "Y direction"
+msgstr "Direction Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Z Step"
@@ -5692,7 +5692,7 @@ msgstr "Pas en Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Z Direction"
-msgstr "Z direction"
+msgstr "Direction Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:154
 msgid "A Step"
@@ -5700,7 +5700,7 @@ msgstr "Pas en A"
 
 #: emc/usr_intf/stepconf/stepconf.py:154
 msgid "A Direction"
-msgstr "A direction"
+msgstr "Direction A"
 
 #: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:440
 msgid "Spindle ON"
@@ -5724,7 +5724,7 @@ msgstr "Arrosage"
 
 #: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:442
 msgid "ESTOP Out"
-msgstr "Sortie A/U"
+msgstr "Sortie arrêt d'urgence"
 
 #: emc/usr_intf/stepconf/stepconf.py:156
 msgid "Amplifier Enable"
@@ -6408,7 +6408,7 @@ msgstr ""
 "Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en "
 "µs ou microsecondes)\n"
 "Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
-"peuvent imposer des contraintes de temps en plus de celles du pilote."
+"peuvent imposer des contraintes de temps à ajouter à celles du pilote."
 
 #: emc/usr_intf/stepconf/stepconf.glade:875
 msgid "Base Period Maximum _Jitter:"
@@ -6427,8 +6427,8 @@ msgid ""
 "_Onscreen prompt for\n"
 "tool change"
 msgstr ""
-"Pr_ompt à l'écran\n"
-"pour chgt d'outil"
+"Dialogue à l'écran pour\n"
+"le changement d'outil"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1015
 msgid "Advanced Configuration Options"
@@ -6681,7 +6681,7 @@ msgstr "No_mbre de pas moteur par tour:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3103
 msgid "_Driver Microstepping:"
-msgstr "Micropas du _driver:"
+msgstr "Micropas du _pilote:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3118
 msgid "_Pulley teeth (Motor:Leadscrew):"
