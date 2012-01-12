@@ -40,6 +40,7 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
+wm minsize . ${masterwidth} ${masterheight}
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -343,7 +344,7 @@ proc makeShow {} {
     if {$what == "full"} {
         set stf [frame $showhal.t]
         set disp [text $stf.tx  -wrap word -takefocus 0 -state disabled \
-            -relief flat -borderwidth 0 -height 26 -yscrollcommand "sSlide $stf"]
+            -relief flat -borderwidth 0 -height 10 -yscrollcommand "sSlide $stf"]
         set stt $stf.sc
         scrollbar $stt -orient vert -command "$disp yview"
         pack $disp -side left -fill both -expand yes
