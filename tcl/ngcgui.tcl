@@ -463,7 +463,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   set ay($hdl,parse,msg) ""
 
   # default info, supersede expected:
-  set ay($hdl,info) "Current subfile: $filename"
+  set ay($hdl,info) "[_ "Current subfile: $filename"]"
 
   if {"$filename" == ""} {
     lappend ay($hdl,parse,msg) "[_ "Need non-null file name"]"
@@ -589,7 +589,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         # sometimes there is an m2 after endsub, ignore it
         if {[string first m2 [string trim [string tolower $theline]]] == 0} {
           set ::ngc_sub($hdl,$lct) \
-              "($::ngc(any,app): ignoring M2 after endsub: <$theline>)"
+              "($::ngc(any,app): [_ "ignoring M2 after endsub"]: <$theline>)"
           puts stderr "[_ "ignoring M2 after endsub"] <$theline>"
           incr lct
           continue
@@ -1374,7 +1374,7 @@ if {0} {
         set idir [file dirname $::ngc($hdl,fname,postamble)]
       }
       set filename [tk_getOpenFile \
-           -title "$::ngc(any,app) Postamble file" \
+           -title "$::ngc(any,app) [_ "Postamble file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,postamble)] \
            -initialdir  $idir \
@@ -1424,7 +1424,7 @@ if {0} {
         set idir [file dirname $::ngc($hdl,fname,subfile)]
       }
       set filename [tk_getOpenFile \
-           -title "$::ngc(any,app) Subroutine file" \
+           -title "$::ngc(any,app) [_ "Subroutine file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,subfile)] \
            -initialdir  $idir \
@@ -1690,9 +1690,9 @@ if {0} {
     parmcheck {
       if ![info exists ::ngc($hdl,argct)] {
         if {"$::ngc($hdl,fname,subfile)" == ""} {
-          lappend err "No Subfile specified"
+          lappend err "[_ "No Subfile specified"]"
         }
-        lappend err "No parameters yet"
+        lappend err "[_ "No parameters yet"]"
       } else {
         for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
           set num02 [format %02d $i]
@@ -1701,7 +1701,7 @@ if {0} {
           set ::ngc($hdl,arg,value,$num02) \
               [string trim $::ngc($hdl,arg,value,$num02)]
           if {"$::ngc($hdl,arg,value,$num02)" == ""} {
-            lappend err "Missing value for parm #$i ($token)"
+            lappend err "[_ "Missing value for parm"] #$i ($token)"
           }
         }
       }
@@ -1735,7 +1735,7 @@ if {0} {
         set ::ngc($hdl,fname,outfile) tmp
       }
       set filename [tk_getSaveFile \
-           -title "$::ngc(any,app) Output file" \
+           -title "$::ngc(any,app) [_ "Output file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,outfile)] \
            -initialdir  $idir \
@@ -1833,7 +1833,7 @@ if {0} {
         set id [format %0${uwidth}d $::ngc($hdl,id)]
         incr ::ngc($hdl,id)
         lappend ::ngc($hdl,data,section) \
-                 "(Positional parameters for $::ngc($hdl,fname,subfile):)"
+                 "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
         for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
           set num02 [format %02d $i]
           set name  $::ngc($hdl,arg,value,$num02)
@@ -1841,7 +1841,7 @@ if {0} {
         }
         # expand the subroutine in place
         lappend ::ngc($hdl,data,section) \
-                "(expanded file: $::ngc($hdl,fname,subfile))"
+                "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
         for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
           if [info exists ::ngc_sub($hdl,$i,label)] {
             lappend ::ngc($hdl,data,section) \
@@ -1855,7 +1855,7 @@ if {0} {
         # insert the subroutine call
         if $::ngc($hdl,verbose) {
           lappend ::ngc($hdl,data,section) \
-               "($::ngc(any,app): call subroutine file: $::ngc($hdl,fname,subfile))"
+               "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
           lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
         }
         set cline "o<$::ngc($hdl,subroutine,name)> call "
@@ -1925,10 +1925,10 @@ if {0} {
 
         if {[llength $hdllist] > 1} {
            set ans [tk_dialog .foo \
-                       "Multiple Tabs with Features" \
-                       "Finalize all Tabs?\n Order:<$tnames>" \
+                       "[_ "Multiple Tabs with Features"]" \
+                       "[_ "Finalize all Tabs?"]\n [_ "Order"]:<$tnames>" \
                        questhead 0 \
-                       "No, just this page <$thisone>" Yes Cancel\
+                       "[_ "No, just this page"] <$thisone>" Yes Cancel\
                    ]
            switch $ans {
               0 { set hdllist $hdl; set doall 0; #NO}
@@ -2308,7 +2308,7 @@ proc ::ngcgui::message {hdl event} {
         }
       }
 
-      set t "$::ngc(any,app) $::ngc($hdl,savect) feature"
+      set t "$::ngc(any,app) $::ngc($hdl,savect) [_ "feature"]"
       if {$::ngc($hdl,savect) > 1} { set t ${t}s}
       title $::ngc($hdl,top) "$t" ;# plural
       $::ngc($hdl,finalize,widget) conf -state normal
@@ -2335,6 +2335,10 @@ proc ::ngcgui::title {t txt} {
 } ;# title
 
 proc ::ngcgui::showmessage {hdl type} {
+  # if $hdl==opt          then just show $type in *,msg,widget
+  # if no $hdl,msg,widget then do nothing
+  # if known type         then update widgets per $type
+  # else                  then just show type in *,msg,widget
   if {"$hdl" == "opt"} {
     # no message widget since opt is for all instances
     foreach w [array names ::ngc *,msg,widget] {
@@ -2429,14 +2433,14 @@ proc ::ngcgui::showmessage {hdl type} {
                -fg $::ngc(any,color,ok)
     }
     retainvalues {
-      $mw conf -text "Retain values $::ngc($hdl,retainvalues)" \
+      $mw conf -text "[_ "Retain values"] $::ngc($hdl,retainvalues)" \
                -fg $::ngc(any,color,ok)
     }
     verbose {
-      $mw conf -text "Verbose $::ngc($hdl,verbose)" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Verbose"] $::ngc($hdl,verbose)" -fg $::ngc(any,color,ok)
     }
     auto {
-      $mw conf -text "Autosend $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Autosend"] $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
     }
     cancel {
       $mw conf -text "[_ "Finalize Canceled"]" \
@@ -2861,8 +2865,8 @@ proc ::ngcgui::bindings {hdl mode} {
   set mode [string tolower $mode] ;# -nocase doesnt work tcl8.4
   switch $mode {
     show {
-      set atxt "OFF"
-      if {$::ngc($hdl,auto)} {set atxt "ON"}
+      set atxt "[_ "OFF"]"
+      if {$::ngc($hdl,auto)} {set atxt "[_ "ON"]"}
       set msg "\
 Ctrl-a [_ "Toggle autosend"]\n\
 Ctrl-c [_ "Clear entries"]\n\
@@ -2887,7 +2891,7 @@ Ctrl-U [_ "Open editor specified by"] \$VISUAL\n\
        [_ "on current preamble"]\
 "
       if [info exists ::ngc(embed,axis)] {
-        set msg " Escape Return to Preview page\n$msg"
+        set msg "[_ " Escape Return to Preview page"]\n$msg"
       }
       # puts $msg
       ::ngcgui::simple_text .ngcguikeys $msg "$::ngc(any,app)-$hdl-keys"
@@ -2964,8 +2968,8 @@ proc ::ngcgui::test {} {
 
 proc ::ngcgui::editfile {hdl {mode last} } {
   if ![info exists ::env(VISUAL)] {
-    simple_text .problem "\nEditing requires setting for environmental variable VISUAL \n
-Trying gedit\n"\
+    simple_text .problem "\n[_ "Editing requires setting for environmental variable VISUAL"] \n
+[_ "Trying gedit"]\n"\
       "$::ngc(any,app)-$hdl-problem"
     set ::env(VISUAL) gedit
     update
@@ -2977,7 +2981,7 @@ Trying gedit\n"\
           && "$::ngc($hdl,last,outfile)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
       } else {
-        simple_text .problem "No file available for editing yet\n"\
+        simple_text .problem "[_ "No file available for editing yet"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -2986,7 +2990,7 @@ Trying gedit\n"\
       if {"$::ngc($hdl,fname,subfile)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
       } else {
-        simple_text .problem "No file available for editing\n"\
+        simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -2995,7 +2999,7 @@ Trying gedit\n"\
       if {"$::ngc($hdl,fname,preamble)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
       } else {
-        simple_text .problem "No file available for editing\n"\
+        simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -3012,7 +3016,7 @@ proc ::ngcgui::status {hdl args} {
   set optitems {noauto nonew noremove noiframe noinput }
   set anyitems {app pollms aspect width,comment width,varname qid}
 
-  set text "Status items:"
+  set text "[_ "Status items"]:"
   if {"$args" == "full"} {
     #parray ::ngc;return
     set bitems [lsort [array names ::ngc $hdl,*]]
@@ -3025,13 +3029,13 @@ proc ::ngcgui::status {hdl args} {
     if [catch { set line [format "$fmt" $i $::ngc($hdl,$i)]}] continue
     set text "$text\n$line"
   }
-  set text "$text\n\nAll-page opt items:"
+  set text "$text\n\n[_ "All-page opt items"]:"
   foreach i $optitems {
     # catch in case item gets unset
     if [catch { set line [format "$fmt" $i $::ngc(opt,$i)]}] continue
     set text "$text\n$line"
   }
-  set text "$text\n\nany-items:"
+  set text "$text\n\n[_ "any-items"]:"
   foreach i $anyitems {
     # catch in case item gets unset
     if [catch { set line [format "$fmt" $i $::ngc(any,$i)]}] continue
@@ -3068,7 +3072,7 @@ proc ::ngcgui::setentries {hdl opt} {
         set gname [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,global,value,$gname) $::ngc($n)
       }
-      ::ngcgui::showmessage $hdl "Set defaults"
+      ::ngcgui::showmessage $hdl "[_ "Set defaults"]"
     }
     clear {
       foreach n [array names ::ngc $hdl,arg,value,*] {
@@ -3079,7 +3083,7 @@ proc ::ngcgui::setentries {hdl opt} {
         set gname [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,global,value,$gname) ""
       }
-      ::ngcgui::showmessage $hdl "Clear entries"
+      ::ngcgui::showmessage $hdl "[_ "Clear entries"]"
     }
   }
   ::ngcgui::dcheck $hdl
@@ -3310,7 +3314,7 @@ proc ::ngcgui::newpage {creatinghdl} {
   if {$::ngc(opt,noinput) && ("$::ngc($newhdl,dname,subfile)" != "")} {
     set ::ngc($newhdl,info) "$::ngc($newhdl,dname,subfile)"
   } else {
-    set ::ngc($newhdl,info) "Open a new Subfile"
+    set ::ngc($newhdl,info) "[_ "Open a new Subfile"]"
   }
   updatepage
 } ;# newpage
@@ -3772,8 +3776,8 @@ proc ::ngcgui::image_widget {hdl f} {
   # png, pgm,ppm etc support
   if [catch {package require Img} msg] {
     tk_dialog .img \
-      "Missing Tcl Package Img " \
-      "Please install Img:\n $ sudo apt-get install libtk-img" \
+      "[_ "Missing Tcl Package Img"] " \
+      "[_ "Please install Img"]:\n $ sudo apt-get install libtk-img" \
       "" 0 \
       "ok"
     exit
