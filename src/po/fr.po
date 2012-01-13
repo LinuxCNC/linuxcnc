@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-11 20:19+0100\n"
-"PO-Revision-Date: 2012-01-12 19:00+0100\n"
+"PO-Revision-Date: 2012-01-13 17:38+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -192,15 +192,15 @@ msgstr ""
 "HALSCOPE utilise un composant temps réel appelé scope_rt'\n"
 "pour échantillonner les signaux à afficher.  Il n'est actuellement pas "
 "chargé\n"
-"et l'attente de son chargement automatique à échoué.  D'autres informations\n"
+"et l'attente de son chargement automatique a échoué.  D'autres informations\n"
 "peuvent être disponibles dans le terminal d'où halscope a été lancé.\n"
 "\n"
-"Veuillez procéder comme suit:\n"
+"Procéder comme suit:\n"
 "\n"
-"Chargez le composant (en tapant 'halcmd loadrt scope_rt'), puis cliquez "
+"Charger le composant (en tapant 'halcmd loadrt scope_rt'), puis cliquer "
 "'OK'\n"
 "ou\n"
-"Cliquez 'Quitter' pour sortir de HALSCOPE"
+"Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: hal/utils/scope_horiz.c:495
 msgid "Realtime function not linked"
@@ -222,11 +222,11 @@ msgstr ""
 "doit être appelée depuis un thread de HAL pour qu'il\n"
 "détermine le taux d'échantillonnage.\n"
 "\n"
-"Veuillez procéder comme suit:\n"
+"Procéder comme suit:\n"
 "\n"
-"Sélectionnez le nom d'un thread et un multiplicateur puis cliquez 'OK'\n"
+"Sélectionner le nom d'un thread et un multiplicateur puis cliquez 'OK'\n"
 "ou\n"
-"Cliquez 'Quitter' pour sortir de HALSCOPE"
+"Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: hal/utils/scope_horiz.c:503
 msgid "Select Sample Rate"
@@ -342,13 +342,13 @@ msgstr ""
 "HALSCOPE utilise le code dans un thread HAL temps réel pour échantillonner\n"
 "les signaux à afficher.  Le thread HAL n'est pas lancé.\n"
 "Les threads sont habituellement démarrés par l'application qui est lancée,\n"
-"ou vous pouvez utiliser la commande 'halcmd start' .\n"
+"ou il est possible d'utiliser la commande 'halcmd start' .\n"
 "\n"
-"Veuillez procéder comme suit:\n"
+"Procéder comme suit:\n"
 "\n"
-"Démarrez les threads, puis cliquez 'OK'\n"
+"Démarrer les threads, puis cliquer 'OK'\n"
 "ou\n"
-"Cliquez 'Quitter' pour sortir de HALSCOPE"
+"Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: hal/utils/scope_horiz.c:779
 msgid "Pick log file to write to:"
@@ -603,9 +603,9 @@ msgid ""
 "EMC, this message will be suppressed.\n"
 "\n"
 msgstr ""
-"Cette fois, il apparait que %ld est anormalement\n"
+"Là, il apparait que %ld est anormalement\n"
 "grand ce qui signifie qu'il y a probablement\n"
-"un problème avec votre configuration temps réel.\n"
+"un problème avec la configuration temps réel.\n"
 "  Pour la suite de cette session EMC,\n"
 "  ce message n'apparaitra plus.\n"
 "\n"
@@ -663,29 +663,31 @@ msgstr "La jointure %d à dépassé la limite logicielle négative"
 #: emc/motion/command.c:159
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr "numéro de jointure %d invalide, jog impossible."
+msgstr "numéro d'articulation %d invalide, jog impossible."
 
 #: emc/motion/command.c:163
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "La jointure %d à dépassé la limite physique maximale, jog impossible."
+msgstr ""
+"L'articulation %d à dépassé la limite physique maximale, jog impossible."
 
 #: emc/motion/command.c:168
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "La jointure %d à dépassé la limite physique minimale, jog impossible."
+msgstr ""
+"L'articulation %d à dépassé la limite physique minimale, jog impossible."
 
 #: emc/motion/command.c:174
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr ""
-"La jointure %d à dépassé la limite logicielle maximale, jog impossible."
+"L'articulation %d à dépassé la limite logicielle maximale, jog impossible."
 
 #: emc/motion/command.c:179
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr ""
-"La jointure %d à dépassé la limite logicielle minimale, jog impossible."
+"L'articulation %d à dépassé la limite logicielle minimale, jog impossible."
 
 #: emc/motion/command.c:237
 #, c-format
@@ -727,19 +729,19 @@ msgstr ""
 
 #: emc/motion/command.c:675 emc/motion/command.c:741 emc/motion/command.c:814
 msgid "Can't jog joint in coordinated mode."
-msgstr "Jog de jointure impossible en mode coordonné."
+msgstr "Jog d'articulation impossible en mode coordonné."
 
 #: emc/motion/command.c:680 emc/motion/command.c:746 emc/motion/command.c:819
 msgid "Can't jog joint when not enabled."
-msgstr "Jog de jointure impossible quand il n'est pas activé."
+msgstr "Jog d'articulation impossible quand elle n'est pas activée."
 
 #: emc/motion/command.c:685 emc/motion/command.c:824
 msgid "Can't jog any joints while homing."
-msgstr "Jog de jointures impossible avant la prise d'origine."
+msgstr "Jog d'articulations impossible avant la prise d'origine."
 
 #: emc/motion/command.c:751
 msgid "Can't jog any joint while homing."
-msgstr "Jog de jointure impossible avant la prise d'origine."
+msgstr "Jog d'articulation impossible avant la prise d'origine."
 
 #: emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
@@ -1034,10 +1036,10 @@ msgid ""
 "\n"
 "  You need to copy a configuration to your home directory and work there."
 msgstr ""
-"Pas permis de sauvegarder ici.\n"
+"Répertoire protégé.\n"
 "\n"
-"  Vous devez copier une configuration dans votre répertoire home et "
-"travailler sur cette copie."
+"  Copier une configuration dans un répertoire utilisateur et travailler sur "
+"cette copie."
 
 #: ../tcl/bin/emccalib.tcl:457 ../tcl/bin/genedit.tcl:211
 #: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:528
@@ -1073,7 +1075,7 @@ msgstr "Problème de commande"
 
 #: ../tcl/bin/emcdebug.tcl:190
 msgid "IO points"
-msgstr "I/O points"
+msgstr "E/S points"
 
 #: ../tcl/bin/emcdebug.tcl:191
 msgid "NML"
@@ -1287,7 +1289,7 @@ msgstr "Configuration HAL"
 
 #: ../tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Voulez vous enregistrer votre configuration avant de quitter ?"
+msgstr "Enregistrer la configuration avant de quitter ?"
 
 #: ../tcl/bin/halconfig.tcl:103
 msgid "Save All"
@@ -1869,11 +1871,11 @@ msgstr "RAPIDE"
 
 #: ../tcl/mini.tcl:1447 ../tcl/tkemc.tcl:1391
 msgid "Set Jog Speed"
-msgstr "Ajuster vitesse de jog"
+msgstr "Ajuster la vitesse de jog"
 
 #: ../tcl/mini.tcl:1453 ../tcl/tkemc.tcl:1404
 msgid "Set jog speed:"
-msgstr "Ajuster vitesse de jog:"
+msgstr "Ajuster la vitesse de jog:"
 
 #: ../tcl/mini.tcl:1511
 msgid "JOG X +"
@@ -1914,15 +1916,15 @@ msgstr ""
 
 #: ../tcl/mini.tcl:1588 emc/usr_intf/touchy/touchy.glade:1422
 msgid "Spindle Forward"
-msgstr "Sens horaire"
+msgstr "Broche sens horaire"
 
 #: ../tcl/mini.tcl:1589 emc/usr_intf/touchy/touchy.glade:1433
 msgid "Spindle Reverse"
-msgstr "Sens anti-horaire"
+msgstr "Broche sens anti-horaire"
 
 #: ../tcl/mini.tcl:1590 ../tcl/tkemc.tcl:871
 msgid "Spindle off"
-msgstr "Arrêt broche"
+msgstr "Arrêt de broche"
 
 #: ../tcl/mini.tcl:1592 emc/usr_intf/touchy/touchy.glade:1479
 msgid "Spindle Slower"
@@ -2088,8 +2090,8 @@ msgid ""
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
 "RÉGLAGE DES OUTILS \n"
-" Cliquer ou « tab » pour éditer.   Presser « Entrée » pour retourner au "
-"contrôle de la machine depuis le clavier."
+" Clique ou Tab pour éditer.   Presser Entrée pour retourner au contrôle de "
+"la machine depuis le clavier."
 
 #: ../tcl/mini.tcl:2130
 msgid "  TOOL NUMBER  "
@@ -2124,7 +2126,7 @@ msgstr ""
 
 #: ../tcl/mini.tcl:2229
 msgid "This is not a good number."
-msgstr "Ce n'est pas un numéro correct."
+msgstr "Ce n'est pas un nombre correct."
 
 #: ../tcl/mini.tcl:2293
 msgid ""
@@ -2134,9 +2136,9 @@ msgid ""
 "control of machine. \n"
 " "
 msgstr ""
-"RÉGLAGE DES SYSTÈMES DE COORDONNÉES\n"
+"RÉGLAGE DU SYSTÈME DE COORDONNÉES\n"
 "\n"
-"  Cliquer la valeur à éditer au clavier. Presser «Entrée» pour revenir au "
+"  Cliquer la valeur à éditer au clavier. Presser Entrée pour revenir au "
 "contrôle de la machine depuis le clavier. \n"
 " "
 
@@ -2154,7 +2156,7 @@ msgstr "Apprentissage"
 
 #: ../tcl/mini.tcl:2334
 msgid "Write And Load File "
-msgstr "Écrire et recharger"
+msgstr "Enregistrer et recharger le fichier"
 
 #: ../tcl/mini.tcl:2336
 msgid "Offset By Radius"
@@ -2421,7 +2423,7 @@ msgstr "Status:"
 
 #: ../tcl/tkemc.tcl:286
 msgid "Io"
-msgstr "I/o"
+msgstr "E/s"
 
 #: ../tcl/tkemc.tcl:309
 msgid "Motion"
@@ -2646,15 +2648,15 @@ msgstr "Ajuster valeurs d'axes"
 
 #: ../tcl/tkemc.tcl:1429
 msgid "Set Feed Override"
-msgstr "Ajuster correcteur de vitesse"
+msgstr "Ajuster le correcteur de vitesse"
 
 #: ../tcl/tkemc.tcl:1435
 msgid "Set feed override:"
-msgstr "Ajuster correcteur de vitesse:"
+msgstr "Ajuster le correcteur de vitesse:"
 
 #: ../tcl/tkemc.tcl:1460
 msgid "Set Spindle Override"
-msgstr "Ajuster correcteur de vitesse de broche"
+msgstr "Ajuster le correcteur de vitesse de broche"
 
 #: ../tcl/tkemc.tcl:1466
 msgid "Set spindle speed override:"
@@ -3373,7 +3375,7 @@ msgstr "I, Maj+I"
 
 #: emc/usr_intf/axis/scripts/axis.py:155 ../share/axis/tcl/axis.tcl:2356
 msgid "Select jog increment"
-msgstr "Sélection de l'incrément de jog"
+msgstr "Sélection d'incrément de jog"
 
 #: emc/usr_intf/axis/scripts/axis.py:156
 msgid "Continuous jog"
@@ -3441,7 +3443,7 @@ msgstr "Jog du troisième axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Shift+above jogs"
-msgstr "Shift+above jogs"
+msgstr "Shift+jog dessus"
 
 #: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Jog at traverse speed"
@@ -5606,8 +5608,8 @@ msgid ""
 "troubleshooting:\n"
 "\n"
 msgstr ""
-"Stepconf a rencontré une erreur.  L'information suivante devrait vous aider "
-"à identifier le dysfonctionnement:\n"
+"Stepconf a rencontré une erreur.  L'information suivante devrait aider à "
+"identifier le dysfonctionnement:\n"
 "\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/pncconf/pncconf.py:133
@@ -6242,11 +6244,11 @@ msgid ""
 "Parallel Port Settings' expanders."
 msgstr ""
 "Ce programme crée les fichiers de configuration .ini et .hal pour fraiseuses "
-"ou tours \"step/dir.\" connectés au port parallèle du PC. \n"
+"ou tours de type \"step/dir.\" connectés au port parallèle du PC. \n"
 "\n"
 "Stepconf requiert une résolution d'écran minimale de 800X600.\n"
-"Vous devrez peut être réduire les 'réglages de timing du \n"
-"pilote' et étendre ceux du port parallèle."
+"Il faudra peut être réduire les 'réglages de timing du \n"
+"pilote' et augmenter ceux du port parallèle."
 
 #: emc/usr_intf/stepconf/stepconf.glade:51
 msgid "Create a _new configuration"
@@ -6471,9 +6473,9 @@ msgid ""
 "sample\n"
 "panel"
 msgstr ""
-"_Display \n"
-"sample\n"
-"panel"
+"Ouvrir un \n"
+"panneau\n"
+"simple"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1188
 #: emc/usr_intf/pncconf/pncconf.glade:7048
@@ -6840,19 +6842,19 @@ msgid ""
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 msgstr ""
 "Toutes les informations nécessaires ont été recueillies. \n"
-" Cliquez sur \"Appliquer\" pour enregistrer vos fichiers de configuration "
+" Cliquer sur \"Appliquer\" pour enregistrer les fichiers de configuration "
 "sur le disque.\n"
-"Si vous constatez un bloquage de l'ordinateur quand EMC fonctionne avec "
-"cette configuration, vous devrez diminuer la vitesse maximum ce qui aura "
-"pour effet d'augmenter la valeur de BASE_PERIOD.\n"
+"Si un bloquage de l'ordinateur est constaté quand EMC fonctionne avec cette "
+"configuration, diminuer la vitesse maximum ce qui aura pour effet "
+"d'augmenter la valeur de BASE_PERIOD.\n"
 "\n"
-"Si vous constatez des pertes de pas quand EMC fonctionne avec cette "
-"configuration, vérifiez en premier que vous avez bien renseigné les "
-"constantes de temps du pilote des moteurs. Si le problème persiste, relancez "
-"un minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
+"Si des pertes de pas sont constatées quand EMC fonctionne avec cette "
+"configuration, vérifier en premier que les constantes de temps du pilote des "
+"moteurs sont bien renseignées. Si le problème persiste, relancer un "
+"minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
-"Faites de même si vous avez le message \"Unexpected Realtime Delay\". "
+"Faire de même si le message \"Unexpected Realtime Delay\" apparait. "
 
 #: emc/usr_intf/stepconf/stepconf.glade:4160
 #: emc/usr_intf/pncconf/pncconf.glade:60462
@@ -7593,35 +7595,35 @@ msgstr "Incrément correcteur de vitesse D"
 
 #: emc/usr_intf/pncconf/pncconf.py:466
 msgid "Spindle Override incr A"
-msgstr "Incrément correcteur vitesse broche A"
+msgstr "Incrément correcteur de vitesse broche A"
 
 #: emc/usr_intf/pncconf/pncconf.py:466
 msgid "Spindle Override incr B"
-msgstr "Incrément correcteur vitesse broche B"
+msgstr "Incrément correcteur de vitesse broche B"
 
 #: emc/usr_intf/pncconf/pncconf.py:467
 msgid "Spindle Override incr C"
-msgstr "Incrément correcteur vitesse broche C"
+msgstr "Incrément correcteur de vitesse broche C"
 
 #: emc/usr_intf/pncconf/pncconf.py:467
 msgid "Spindle Override incr D"
-msgstr "Incrément correcteur vitesse broche D"
+msgstr "Incrément correcteur de vitesse broche D"
 
 #: emc/usr_intf/pncconf/pncconf.py:467
 msgid "Max Vel Override incr A"
-msgstr "Incrément correcteur vitesse maximale A"
+msgstr "Incrément correcteur de vitesse maximale A"
 
 #: emc/usr_intf/pncconf/pncconf.py:467
 msgid "Max Vel Override incr B"
-msgstr "Incrément correcteur vitesse maximale B"
+msgstr "Incrément correcteur de vitesse maximale B"
 
 #: emc/usr_intf/pncconf/pncconf.py:468
 msgid "Max Vel Override incr C"
-msgstr "Incrément correcteur vitesse maximale C"
+msgstr "Incrément correcteur de vitesse maximale C"
 
 #: emc/usr_intf/pncconf/pncconf.py:468
 msgid "Max Vel Override incr D"
-msgstr "Incrément correcteur vitesse maximale D"
+msgstr "Incrément correcteur de vitesse maximale D"
 
 #: emc/usr_intf/pncconf/pncconf.py:469
 msgid "Manual Spindle CW"
@@ -7793,11 +7795,11 @@ msgstr "Correcteur de vitesse"
 
 #: emc/usr_intf/pncconf/pncconf.py:583
 msgid "spindle Override"
-msgstr "Correcteur vitesse broche"
+msgstr "Correcteur de vitesse broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:583
 msgid "Max Vel Override"
-msgstr "Correcteur vitesse maximale"
+msgstr "Correcteur de vitesse maximale"
 
 #: emc/usr_intf/pncconf/pncconf.py:584
 msgid "Unused Encoder"
@@ -7809,11 +7811,11 @@ msgstr "Codeur d'axe"
 
 #: emc/usr_intf/pncconf/pncconf.py:584
 msgid "MPG Jog Controls"
-msgstr "Contrôles MPG Jog"
+msgstr "Contrôles sur manivelle de jog"
 
 #: emc/usr_intf/pncconf/pncconf.py:584
 msgid "Override MPG control"
-msgstr "Correcteur MPG contrôle"
+msgstr "Contrôle correcteur par manivelle"
 
 #: emc/usr_intf/pncconf/pncconf.py:587
 msgid "Unused Resolver"
@@ -7873,27 +7875,27 @@ msgstr "Sortie broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:613
 msgid "Unused StepGen"
-msgstr "Générateur de pas inutilisé"
+msgstr "Géné. de pas inutilisé"
 
 #: emc/usr_intf/pncconf/pncconf.py:613
 msgid "X Axis StepGen"
-msgstr "Générateur de pas axe X"
+msgstr "Géné. de pas axe X"
 
 #: emc/usr_intf/pncconf/pncconf.py:613
 msgid "Y Axis StepGen"
-msgstr "Générateur de pas axe Y"
+msgstr "Géné. de pas axe Y"
 
 #: emc/usr_intf/pncconf/pncconf.py:613
 msgid "Z Axis StepGen"
-msgstr "Générateur de pas axe Z"
+msgstr "Géné. de pas axe Z"
 
 #: emc/usr_intf/pncconf/pncconf.py:614
 msgid "A Axis StepGen"
-msgstr "Générateur de pas axe A"
+msgstr "Géné. de pas axe A"
 
 #: emc/usr_intf/pncconf/pncconf.py:614
 msgid "Spindle StepGen"
-msgstr "Générateur de pas de la broche"
+msgstr "Géné. de pas de la broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:628
 msgid "Unused TPPWM Gen"
@@ -7929,23 +7931,23 @@ msgstr "8i20 Carte amplificateur"
 
 #: emc/usr_intf/pncconf/pncconf.py:636
 msgid "7i64 I/O Card"
-msgstr "Carte I/O 7i64"
+msgstr "Carte E/S 7i64"
 
 #: emc/usr_intf/pncconf/pncconf.py:636
 msgid "7i69 I/O Card"
-msgstr "Carte I/O 7i69"
+msgstr "Carte E/S 7i69"
 
 #: emc/usr_intf/pncconf/pncconf.py:637
 msgid "7i70 I/O Card"
-msgstr "Carte I/O 7i70"
+msgstr "Carte E/S 7i70"
 
 #: emc/usr_intf/pncconf/pncconf.py:637
 msgid "7i71 I/O Card"
-msgstr "Carte I/O 7i71 "
+msgstr "Carte E/S 7i71 "
 
 #: emc/usr_intf/pncconf/pncconf.py:637
 msgid "7i76 Mode 0 I/O Card"
-msgstr "Carte I/O 7i76 Mode 0"
+msgstr "Carte E/S 7i76 Mode 0"
 
 #: emc/usr_intf/pncconf/pncconf.py:722
 msgid "my_EMC_machine"
@@ -8050,15 +8052,15 @@ msgstr "#  ---signal de sonde---"
 
 #: emc/usr_intf/pncconf/pncconf.py:2763
 msgid "# ---jog button signals---"
-msgstr "#  ---signaux bouton jog---"
+msgstr "#  ---signaux de boutons de jog---"
 
 #: emc/usr_intf/pncconf/pncconf.py:2768
 msgid "# ---USB device jog button signals---"
-msgstr "# ---signaux bouton de jog dispositif USB---"
+msgstr "# ---signaux de boutons de jog sur dispositif USB---"
 
 #: emc/usr_intf/pncconf/pncconf.py:2803 emc/usr_intf/pncconf/pncconf.py:2825
 msgid "#  ---mpg signals---"
-msgstr "#  ---signaux MPG---"
+msgstr "#  ---signaux manivelle---"
 
 #: emc/usr_intf/pncconf/pncconf.py:2971
 msgid "#  ---motion control signals---"
@@ -8204,7 +8206,7 @@ msgstr "Réglage du port parallèle %s"
 #: emc/usr_intf/pncconf/pncconf.py:3780
 #, python-format
 msgid "%s I/0 Setup"
-msgstr "Réglage I/O %s "
+msgstr "Réglage E/S %s "
 
 #: emc/usr_intf/pncconf/pncconf.py:4001
 msgid "Quit PNCconfig and discard changes?"
@@ -8251,9 +8253,9 @@ msgid ""
 "PNCconf will use sample firmware data\n"
 "live testing will not be possible"
 msgstr ""
-"Aucun firmware hostmod2 n'est chargé dans le répertoire:\n"
+"Aucun micro-logiciel hostmod2 n'est chargé dans le répertoire:\n"
 "%s\n"
-"PNCconf utilisera un firmware échantillon,\n"
+"PNCconf utilisera un micro-logiciel échantillon,\n"
 "les tests en direct ne seront pas possible."
 
 #: emc/usr_intf/pncconf/pncconf.py:4093
@@ -8349,7 +8351,7 @@ msgid ""
 "component changes' button'"
 msgstr ""
 "La page mesa0 doit être configurée.\n"
-"Choisir le type de carte, de micro-programme, de composants et presser le "
+"Choisir le type de carte, de micro-logiciel, de composants et presser le "
 "bouton 'Accepter les changements de composants'"
 
 #: emc/usr_intf/pncconf/pncconf.py:5252
@@ -8358,7 +8360,7 @@ msgid ""
 "please press 'Accept component changes' button'"
 msgstr ""
 "La carte Mesa0 choisie est différente de celle affichée.\n"
-"Presser le bouton 'Accepter les changements de composant'"
+"Presser le bouton 'Accepter les changements de composants'"
 
 #: emc/usr_intf/pncconf/pncconf.py:5295
 msgid ""
@@ -8367,8 +8369,8 @@ msgid ""
 "component changes' button'"
 msgstr ""
 "La page mesa1 doit être configurée.\n"
-"Choisir le type de carte, de micro-programme, de composants et presser le "
-"bouton 'Accepter les changements de composant'"
+"Choisir le type de carte, de micro-logiciel, de composants et presser le "
+"bouton 'Accepter les changements de composants'"
 
 #: emc/usr_intf/pncconf/pncconf.py:5299
 msgid ""
@@ -8376,7 +8378,7 @@ msgid ""
 "please press 'Accept component changes' button'"
 msgstr ""
 "La carte Mesa1 choisie est différente de celle affichée.\n"
-"Presser le bouton 'Accepter les changements de composant'"
+"Presser le bouton 'Accepter les changements de composants'"
 
 #: emc/usr_intf/pncconf/pncconf.py:5313
 msgid ""
@@ -8426,20 +8428,20 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:6868
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
-msgstr "Vous avez omis de désigner un signal PWM ou pas à pas pour l'axe %s\n"
+msgstr "Vous avez omis de déclarer un signal PWM ou pas à pas pour l'axe %s\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6871
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
-"Vous avez omis de désigner un signal d'encodeur/résolveur pour le servo de "
+"Vous avez omis de déclarer un signal de codeur/résolveur pour le servo de "
 "l'axe %s\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6874
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
-"Vous avez omis de désigner un signal PWM ou un signal pas à pas pour l'axe %"
+"Vous avez omis de déclarer un signal PWM ou un signal pas à pas pour l'axe %"
 "s\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6877
@@ -8466,30 +8468,31 @@ msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
-"Touchy requiert le signal du codeur d'un MPG multi-axes sur la page mesa\n"
+"Touchy requiert le signal du codeur de manivelle multi-axes sur la page "
+"mesa\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6897
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
-"Touchy requiert que 'Jog MPG externe' soit sélectionné sur la page des "
-"contrôles externes\n"
+"Touchy requiert qu'une 'Manivelle de jog externe' soit sélectionnée sur la "
+"page des contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6900
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
-"Touchy requiert que le MPG externe soit en mode 'MPG partagé' sur la page "
-"des contrôles externes\n"
+"Touchy requiert que la manivelle externe soit en mode 'Manivelle partagée' "
+"sur la page des contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6903
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
-"Touchy requiert que la case 'Incréments de MPG sélectionnables' soit "
+"Touchy requiert que la case 'Incréments de manivelle sélectionnables' soit "
 "décochée sur la page des contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6907
@@ -8577,7 +8580,7 @@ msgstr " / impulsion codeur"
 
 #: emc/usr_intf/pncconf/pncconf.py:7169
 msgid "Encoder pulses / "
-msgstr "Impulsions codeur / "
+msgstr "Impulsions de codeur / "
 
 #: emc/usr_intf/pncconf/pncconf.py:7479
 msgid "Axis Scale Calculation"
@@ -8733,15 +8736,15 @@ msgstr "Nom de la machine:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:281
 msgid "Axis configuration:"
-msgstr "Configuration axes:"
+msgstr "Configuration des axes:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:316
 msgid "Machine units:"
-msgstr "Unités machine"
+msgstr "Unité machine"
 
 #: emc/usr_intf/pncconf/pncconf.glade:355
 msgid "<b>Machine Basics</b>"
-msgstr "<b>Machines simples</b>"
+msgstr "<b>Éléments de base</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:405
 msgid "Recommend servo period:    1000000"
@@ -8801,13 +8804,13 @@ msgid ""
 "  Address \n"
 "  Search"
 msgstr ""
-"    Outil d'aide à la\n"
-" recherche d'adresse\n"
-"    du port parallèle"
+" Outil d'aide à la\n"
+" recherche d'adresses\n"
+" de ports parallèles PCI"
 
 #: emc/usr_intf/pncconf/pncconf.glade:821
 msgid "<b>I/O Control Ports/ Boards</b>"
-msgstr "<b>I/O Control Ports/ Boards</b>"
+msgstr "<b>Ports et cartes d'entrées/sorties</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:870
 msgid "Axis"
@@ -8828,7 +8831,7 @@ msgstr "Touchy"
 
 #: emc/usr_intf/pncconf/pncconf.glade:930
 msgid "<b>GUI frontend list</b>"
-msgstr "<b>Liste interfaces graphiques</b>"
+msgstr "<b>Liste des interfaces graphiques</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:965
 msgid "External Controls"
@@ -8853,7 +8856,7 @@ msgstr "Nom du dispositif:"
 #: emc/usr_intf/pncconf/pncconf.glade:1117
 #: emc/usr_intf/pncconf/pncconf.glade:1255
 msgid "Jog Speed select A"
-msgstr "Sélecteur A de vitesse de Jog"
+msgstr "Sélecteur A de vitesse de jog"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1195
 msgid "Z -"
@@ -8963,7 +8966,7 @@ msgstr "Détails"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1667
 msgid "<b>USB Joystick Jogging </b>"
-msgstr "<b>Jog Joystick USB </b>"
+msgstr "<b>Joystick USB pour le jog</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1711
 msgid "shared buttons for all axis"
@@ -8975,19 +8978,19 @@ msgstr "Boutons pour chacun des axes"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1798
 msgid "<b>External Button Jogging</b>"
-msgstr "<b>Bouton de Jog externe</b>"
+msgstr "<b>Boutons de jog externes</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1839
 msgid "Shared MPG / selectable axis"
-msgstr "MPG partagé / axes sélectionnables"
+msgstr "Manivelle partagée / axes sélectionnables"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1852
 msgid "Mpg per axis"
-msgstr "MPG par axe"
+msgstr "Une manivelle par axe"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1867
 msgid "selectable MPG increments"
-msgstr "Incréments de MPG sélectionnables"
+msgstr "Incréments de manivelle sélectionnables"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1932
 #: emc/usr_intf/pncconf/pncconf.glade:2907
@@ -9142,13 +9145,13 @@ msgstr "incréments"
 
 #: emc/usr_intf/pncconf/pncconf.glade:2708
 msgid "<b>External MPG Jogging</b>"
-msgstr "<b>Jog MPG externe</b>"
+msgstr "<b>Manivelle de jog externe</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:2739
 #: emc/usr_intf/pncconf/pncconf.glade:3620
 #: emc/usr_intf/pncconf/pncconf.glade:4501
 msgid "Use MPG "
-msgstr "Utiliser MPG"
+msgstr "Utiliser une manivelle"
 
 #: emc/usr_intf/pncconf/pncconf.glade:2752
 #: emc/usr_intf/pncconf/pncconf.glade:3633
@@ -9190,7 +9193,7 @@ msgstr "<b>Correcteur de vitesse maximale</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5351
 msgid "<b>External Spindle Override</b>"
-msgstr "<b>Correcteur vitesse broche externe</b>"
+msgstr "<b>Correcteur de vitesse broche externe</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5379
 msgid "GUI configuration"
@@ -9222,11 +9225,11 @@ msgstr "Correcteur de vitesse maximale"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5667
 msgid "Min Spindle Override"
-msgstr "Correcteur vitesse de broche minimale"
+msgstr "Correcteur de vitesse broche minimale"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5691
 msgid "Max Spindle Override "
-msgstr "Correcteur vitesse de broche maximale"
+msgstr "Correcteur de vitesse broche maximale"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5702
 msgid "Position_feedback"
@@ -9238,7 +9241,7 @@ msgstr "Offset_position"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5721
 msgid "<b>General GUI Defaults</b>"
-msgstr "<b>Défauts GUI généraux</b>"
+msgstr "<b>Valeurs communes par défauts</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:5808
 msgid "Force Axis to Maximize"
@@ -9337,7 +9340,7 @@ msgstr "Vitesse linéaire par défaut"
 
 #: emc/usr_intf/pncconf/pncconf.glade:6241
 msgid "AXIS defaults"
-msgstr "Défauts AXIS"
+msgstr "Options par défaut d'AXIS"
 
 #: emc/usr_intf/pncconf/pncconf.glade:6352
 msgid "Error Textcolor"
@@ -9479,7 +9482,7 @@ msgstr "Laisser tourner la broche pendant le changement d'outil"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7709
 msgid "Popup Toolchange Prompt"
-msgstr "Fenêtre surgissante du changement d'outil"
+msgstr "Dialogue pour le changement d'outil"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7723
 msgid "Require homing before MDI / Running"
@@ -9499,7 +9502,7 @@ msgstr "<b>Défauts et options</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7789
 msgid "Mesa0 I/O setup\n"
-msgstr "Mesa I/O setup\n"
+msgstr "Config. E/S Mesa\n"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7809
 msgid ""
@@ -9508,7 +9511,7 @@ msgid ""
 "Press the button to make the tabbed pages\n"
 "accept the changes.\n"
 msgstr ""
-"Cliquer sur chaque onglet pour configurer les noms de signaux de chaque "
+"Cliquer sur chaque onglet pour configurer les noms des signaux de chaque "
 "connecteur de port.\n"
 "\n"
 "Presser sur le bouton pour accepter les changements sur les pages.\n"
@@ -9543,7 +9546,7 @@ msgstr "<b>Contrôle d'intégrité</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8137
 msgid "Num of Smart Serial Ports:"
-msgstr "Num of Smart Serial Ports:"
+msgstr "Nombre de ports Smart Serial:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8148
 msgid "Board name"
@@ -9578,7 +9581,7 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
-"Accepter le changement\n"
+"Accepter les changements\n"
 "       de composants"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8356
@@ -9595,7 +9598,7 @@ msgstr "SVST8_4"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8437
 msgid "Firmware:"
-msgstr "Firmware:"
+msgstr "Micro-logiciel:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8447
 msgid "Mesa parport address:"
@@ -9653,7 +9656,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:52354
 #: emc/usr_intf/pncconf/pncconf.glade:52368
 msgid "Num"
-msgstr "Num"
+msgstr "Numéro"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8723
 #: emc/usr_intf/pncconf/pncconf.glade:8743
@@ -10057,7 +10060,7 @@ msgstr "Lancer le panneau de test"
 #: emc/usr_intf/pncconf/pncconf.glade:52599
 #: emc/usr_intf/pncconf/pncconf.glade:52611
 msgid "function"
-msgstr "fonction"
+msgstr "Fonction"
 
 #: emc/usr_intf/pncconf/pncconf.glade:9305
 #: emc/usr_intf/pncconf/pncconf.glade:9357
@@ -10695,7 +10698,7 @@ msgid ""
 "      I/O\n"
 "Connector 2"
 msgstr ""
-"Entrée/Sortie\n"
+"Entrées/Sorties\n"
 "Connecteur 2"
 
 #: emc/usr_intf/pncconf/pncconf.glade:13811
@@ -10703,7 +10706,7 @@ msgid ""
 "       I/O\n"
 " Connector 3"
 msgstr ""
-"Entrés / Sortie \n"
+"Entrées/Sorties \n"
 " Connecteur 3"
 
 #: emc/usr_intf/pncconf/pncconf.glade:14012
@@ -10753,7 +10756,7 @@ msgid ""
 "       I/O\n"
 " Connector 4"
 msgstr ""
-"Entrée / Sortie\n"
+"Entrées/Sorties\n"
 " Connecteur 4"
 
 #: emc/usr_intf/pncconf/pncconf.glade:19017
@@ -10761,7 +10764,7 @@ msgid ""
 "       I/O\n"
 " Connector 5"
 msgstr ""
-"Entrée / Sortie\n"
+"Entrées/Sorties\n"
 " Connecteur 5"
 
 #: emc/usr_intf/pncconf/pncconf.glade:20813
@@ -10769,7 +10772,7 @@ msgid ""
 "      I/O\n"
 "Connector 6"
 msgstr ""
-"Entrée / Sortie\n"
+"Entrées/Sorties\n"
 " Connecteur 6"
 
 #: emc/usr_intf/pncconf/pncconf.glade:22609
@@ -10777,7 +10780,7 @@ msgid ""
 "      I/O\n"
 "Connector 7"
 msgstr ""
-"Entrée / Sortie\n"
+"Entrées/Sorties\n"
 " Connecteur 7"
 
 #: emc/usr_intf/pncconf/pncconf.glade:24405
@@ -10785,7 +10788,7 @@ msgid ""
 "      I/O\n"
 "Connector 8"
 msgstr ""
-"Entrée / Sortie\n"
+"Entrées/Sorties\n"
 " Connecteur 8"
 
 #: emc/usr_intf/pncconf/pncconf.glade:26201
@@ -10793,7 +10796,7 @@ msgid ""
 "      I/O\n"
 " Connector 9"
 msgstr ""
-"Entrée/Sortie\n"
+"Entrées/Sorties\n"
 "Connecteur 9"
 
 #: emc/usr_intf/pncconf/pncconf.glade:28775
@@ -10926,8 +10929,8 @@ msgid ""
 "Open Loop\n"
 "      Test"
 msgstr ""
-"Boucle ouverte\n"
-"      Test"
+"Test boucle\n"
+"   ouverte"
 
 #: emc/usr_intf/pncconf/pncconf.glade:56557
 msgid "Quad Pulses / Rev:"
@@ -11343,7 +11346,7 @@ msgstr "Commande de thread"
 
 #: emc/usr_intf/pncconf/pncconf.glade:59854
 msgid "Thread Speed"
-msgstr "Vitesse Thread"
+msgstr "Thread vitesse"
 
 #: emc/usr_intf/pncconf/pncconf.glade:59906
 msgid "Load Command "
@@ -11351,7 +11354,7 @@ msgstr "Charger commande"
 
 #: emc/usr_intf/pncconf/pncconf.glade:59952
 msgid "Servo Thread"
-msgstr "Servo Thread"
+msgstr "Thread servo"
 
 #: emc/usr_intf/pncconf/pncconf.glade:59965
 msgid "Base Thread"
@@ -11701,7 +11704,7 @@ msgstr "Dents des poulies (codeur:vis):"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66537
 msgid "Encoder lines per revolution:"
-msgstr "Impulsions codeur par tour:"
+msgstr "Impulsions de codeur par tour:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66547
 msgid "X 4 = Pulses/Rev"
@@ -11721,7 +11724,7 @@ msgstr "Nombre de pas moteur par unité:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66721
 msgid "encoder pulses per unit:"
-msgstr "impulsions codeur par unité:"
+msgstr "impulsions de codeur par unité:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66756
 msgid "                    "
@@ -12185,14 +12188,15 @@ msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 #: emc/rs274ngc/interp_convert.cc:2864
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
-"Activation de correcteur impossible avec la compensation de rayon d'outil"
+"Activation des correcteurs impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2812 emc/rs274ngc/interp_convert.cc:2827
 #: emc/rs274ngc/interp_convert.cc:2841 emc/rs274ngc/interp_convert.cc:2855
 #: emc/rs274ngc/interp_convert.cc:2869
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
-"Désactivation de correcteur impossible avec la compensation de rayon d'outil"
+"Désactivation des correcteurs impossible avec la compensation de rayon "
+"d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2969 emc/rs274ngc/interp_convert.cc:2970
 #: emc/rs274ngc/interp_convert.cc:2971
@@ -12642,7 +12646,7 @@ msgstr "Bug-mode distance sans g90 ou g91"
 
 #: emc/rs274ngc/rs274ngc_return.hh:28
 msgid "Bug function should not have been called"
-msgstr "Bug-la fonction n'a pas du être bien appelée"
+msgstr "Bug; la fonction n'a pas du être bien appelée"
 
 #: emc/rs274ngc/rs274ngc_return.hh:29
 msgid "Bug in tool radius comp"
