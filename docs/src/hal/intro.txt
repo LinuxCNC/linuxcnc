@@ -232,8 +232,11 @@ available later in this document.
 === External Programs with HAL hooks[[sub:ExternalPrograms]]
 
 motion::
-     (((motion))) A realtime module that accepts NML motion commands and
-    interacts with HAL 
+     (((motion))) A realtime module that accepts NML
+     footnote:[Neutral Message Language provides a mechanism for handling
+     multiple types of messages in the same buffer as well as simplifying
+     the interface for encoding and decoding buffers in neutral format and
+     the configuration mechanism.] motion commands and interacts with HAL 
 
 iocontrol::
      (((iocontrol))) A user space module that accepts NML I/O commands and
