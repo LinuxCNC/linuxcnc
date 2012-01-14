@@ -235,6 +235,12 @@ NIST::
      (((NIST)))[[glo:NIST]] National Institute of Standards and Technology. 
     An agency of the Department of Commerce in the United States.
 
+NML::
+     (((NML)))[[glo:NML]] Neutral Message Language provides a mechanism for
+     handling multiple types of messages in the same buffer as well as
+     simplifying the interface for encoding and decoding buffers in neutral
+     format and the configuration mechanism.
+     
 Offsets::
      (((offsets)))[[glo:Offsets]]
     An arbitrary amount, added to the value of something to make it
