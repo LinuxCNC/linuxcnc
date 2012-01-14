@@ -13,17 +13,17 @@ Acme Screw::
 Axis::
      (((axis)))[[glo:Axis]] One of the computer controlled movable parts of the
     machine. For a typical vertical mill, the table is the X axis, the
-    saddle is the Y axis, and the quill or knee is the Z axis. Angular 
-    axes like rotary tables are referred to as A, B, and C. Additional 
+    saddle is the Y axis, and the quill or knee is the Z axis. Angular
+    axes like rotary tables are referred to as A, B, and C. Additional
     linear axes relative to the tool are called U, V, and W
-    respectively. 
+    respectively.
 
 Axis(GUI)::
      (((GUI))) One of the Graphical User Interfaces available to users of
     EMC2. It features the modern use of menus and mouse buttons while
     automating and hiding some of the more traditional EMC2 controls. It is
     the only open-source interface that displays the entire tool path as
-    soon as a file is opened. 
+    soon as a file is opened.
 
 Backlash::
      (((backlash)))[[glo:Backlash]] The amount of "play" or lost motion that
@@ -35,7 +35,7 @@ Backlash::
     caused by external forces (think cutting tool pulling on the work
     piece) the result can be broken cutting tools. This can happen because
     of the sudden increase in chip load on the cutter as the work piece is
-    pulled across the backlash distance by the cutting tool. 
+    pulled across the backlash distance by the cutting tool.
 
 Backlash Compensation::
      (((backlash compensation))) Any technique that attempts to reduce
@@ -84,23 +84,23 @@ Coordinate Measuring Machine::
     used to make many accurate measurements on parts. These machines can be
     used to create CAD data for parts where no drawings can be found, when
     a hand-made prototype needs to be digitized for moldmaking, or to check
-    the accuracy of machined or molded parts. 
+    the accuracy of machined or molded parts.
 
 Display units::
      (((display units))) The linear and angular units used for onscreen
     display.
 
 DRO::
-     (((DRO))) A Digital Read Out is a system of position-measuring devices 
-    attached to the slides of a machine tool, which are connected to a 
+     (((DRO))) A Digital Read Out is a system of position-measuring devices
+    attached to the slides of a machine tool, which are connected to a
     numeric display showing the current location of the tool with respect to
-    some reference position. 
-    DROs are very popular on hand-operated machine tools because they 
-    measure the true tool position without backlash, even if the machine 
-    has very loose Acme screws. 
-    Some DROs use linear quadrature encoders to pick up position 
-    information from the machine, and some use methods similar to a 
-    resolver which keeps rolling over. 
+    some reference position.
+    DROs are very popular on hand-operated machine tools because they
+    measure the true tool position without backlash, even if the machine
+    has very loose Acme screws.
+    Some DROs use linear quadrature encoders to pick up position
+    information from the machine, and some use methods similar to a
+    resolver which keeps rolling over.
 
 EDM::
      (((EDM))) EDM is a method of removing metal in hard or difficult to
@@ -110,8 +110,8 @@ EDM::
     desired. Milling operations can not give sharp internal corners with
     finite diameter tools. A 'wire' EDM machine can make internal corners
     with a radius only slightly larger than the wire's radius. A 'sinker'
-    EDM can make internal corners with a radius only slightly larger 
-    than the radius on the corner of the sinking electrode. 
+    EDM can make internal corners with a radius only slightly larger
+    than the radius on the corner of the sinking electrode.
 
 EMC::
      (((EMC)))[[glo:EMC]] The Enhanced Machine Controller. Initially a NIST
@@ -134,12 +134,12 @@ Encoder::
 
 Feed::
      (((feed)))[[glo:Feed]] Relatively slow, controlled motion of the tool used
-    when making a cut. 
+    when making a cut.
 
 Feed rate::
-     (((feed rate))) The speed at which a cutting motion occurs. 
-    In auto or mdi mode, feed rate is commanded using an F word. 
-    F10 would mean ten machine units per minute. 
+     (((feed rate))) The speed at which a cutting motion occurs.
+    In auto or mdi mode, feed rate is commanded using an F word.
+    F10 would mean ten machine units per minute.
 
 Feedback::
      (((feedback)))[[glo:Feedback]] A method (e.g., quadrature encoder signals)
@@ -160,7 +160,7 @@ G-Code::
     EMC uses RS274/NGC.
 
 GUI::
-    [[glo:GUI]](((GUI))) Graphical User Interface. 
+    [[glo:GUI]](((GUI))) Graphical User Interface.
     General;;
          A type of interface that allows communications between a computer
         and a human (in most cases) via the manipulation of icons and other
@@ -173,7 +173,7 @@ GUI::
 
 HAL::
      (((HAL)))[[glo:HAL]] Hardware Abstraction Layer. At the highest
-    level, it is simply a way to allow a number of 
+    level, it is simply a way to allow a number of
     building blocks to be loaded and interconnected to assemble a complex
     system. Many of the building blocks are drivers for hardware devices.
     However, HAL can do more than just configure hardware drivers.
@@ -201,7 +201,7 @@ Jog::
      (((jog))) Manually moving an axis of a machine. Jogging either moves
     the axis a fixed amount for each key-press, or moves the axis at a
     constant speed as long as you hold down the key. In manual mode,
-    jog speed can be set from the graphical interface. 
+    jog speed can be set from the graphical interface.
 
 kernel-space::
     [[glo:kernel-space]] See real-time.
@@ -232,7 +232,7 @@ MDI::
     operator.
 
 NIST::
-     (((NIST)))[[glo:NIST]] National Institute of Standards and Technology. 
+     (((NIST)))[[glo:NIST]] National Institute of Standards and Technology.
     An agency of the Department of Commerce in the United States.
 
 NML::
@@ -243,24 +243,24 @@ NML::
 Offsets::
      (((offsets)))[[glo:Offsets]]
     An arbitrary amount, added to the value of something to make it
-    equal to some desired value. For example, gcode programs are 
-    often written around some convenient point, such as X0, Y0. 
-    Fixture offsets can be used to shift the actual execution point 
-    of that gcode program to properly fit the true location 
-    of the vise and jaws. 
-    Tool offsets can be used to shift the "uncorrected" length 
-    of a tool to equal that tool's actual length. 
+    equal to some desired value. For example, gcode programs are
+    often written around some convenient point, such as X0, Y0.
+    Fixture offsets can be used to shift the actual execution point
+    of that gcode program to properly fit the true location
+    of the vise and jaws.
+    Tool offsets can be used to shift the "uncorrected" length
+    of a tool to equal that tool's actual length.
 
 Part Program::
      (((part Program)))[[glo:PartProgram]] A description of a part, in a
     language that the controller can understand. For EMC, that language is
-    RS-274/NGC, commonly known as G-code. 
+    RS-274/NGC, commonly known as G-code.
 
 Program Units::
-    (((program units))) The linear and angular units used in a part program. 
-    The linear program units do not have to be the same as the linear machine units. 
-    See G20 and G21 for more information. The angular program units are always 
-    measured in degrees. 
+    (((program units))) The linear and angular units used in a part program.
+    The linear program units do not have to be the same as the linear machine units.
+    See G20 and G21 for more information. The angular program units are always
+    measured in degrees.
 
 Python::
      General-purpose, very high-level programming language. Used in EMC2
@@ -269,14 +269,14 @@ Python::
 
 Rapid::
      (((rapid)))[[glo:Rapid]] Fast, possibly less precise motion of the tool,
-    commonly used to move between cuts. If the tool meets the workpiece 
+    commonly used to move between cuts. If the tool meets the workpiece
     or the fixturing during a rapid, it is probably a bad thing!
 
 Rapid rate::
-     (((rapid rate)))[[glo:RapidRate]]The speed at which a rapid motion occurs. 
-    In auto or mdi mode, rapid rate is usually the maximum speed of the machine. 
-    It is often desirable to limit the rapid rate when 
-    testing a g-code program for the first time. 
+     (((rapid rate)))[[glo:RapidRate]]The speed at which a rapid motion occurs.
+    In auto or mdi mode, rapid rate is usually the maximum speed of the machine.
+    It is often desirable to limit the rapid rate when
+    testing a g-code program for the first time.
 
 Real-time::
      (((real-time)))[[glo:real-time]] Software that is intended to meet very
@@ -301,13 +301,13 @@ RTAPI::
 
 RS-274/NGC::
      (((RS274NGC)))[[glo:RS274NGC]] The formal name for the language used by
-    EMC part programs. 
+    EMC part programs.
 
 Servo Motor::
-     (((servo motor)))[[glo:ServoMotor]] Generally, any motor that is used 
+     (((servo motor)))[[glo:ServoMotor]] Generally, any motor that is used
     with error-sensing feedback to correct the position of an actuator.
-    Also, a motor which is specially-designed to provide improved 
-    performance in such applications. 
+    Also, a motor which is specially-designed to provide improved
+    performance in such applications.
 
 Servo Loop::
      (((loop)))[[glo:ServoLoop]] A control loop used to control position or
@@ -319,21 +319,21 @@ Signed Integer::
     integer has a usable range of -2,147,483,647 to +2,147,483,647.)
 
 Spindle::
-     (((spindle)))[[glo:Spindle]] The part of a machine tool that spins 
-    to do the cutting. On a mill or drill, the spindle holds the 
-    cutting tool. On a lathe, the spindle holds the workpiece. 
+     (((spindle)))[[glo:Spindle]] The part of a machine tool that spins
+    to do the cutting. On a mill or drill, the spindle holds the
+    cutting tool. On a lathe, the spindle holds the workpiece.
 
 Spindle Speed Override::
      A manual, operator controlled change in the rate at which the tool
     rotates while cutting. Often used to allow the operator to adjust for
-    chatter caused by the cutter's teeth. Spindle Speed Override assumes 
+    chatter caused by the cutter's teeth. Spindle Speed Override assumes
     that the EMC2 software has been configured to control spindle speed.
 
 Stepconf::
      An EMC2 configuration wizard. It is able to handle many
     step-and-direction motion command based machines. It writes a full
     configuration after the user answers a few questions about the computer
-    and machine that EMC2 is to run on. 
+    and machine that EMC2 is to run on.
 
 Stepper Motor::
      (((stepper motor)))[[glo:StepperMotor]] A type of motor that turns in
@@ -359,7 +359,7 @@ Units::
 
 Unsigned Integer::
      (((Unsigned Integer))) A whole number that has no sign. In HAL 
-    it is known as u32. (An unsigned 32-bit integer has a usable range of 
+    it is known as u32. (An unsigned 32-bit integer has a usable range of
     zero to 4,294,967,296.)
 
 World Coordinates::
