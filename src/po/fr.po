@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-11 20:19+0100\n"
-"PO-Revision-Date: 2012-01-13 17:38+0100\n"
+"PO-Revision-Date: 2012-01-14 08:34+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -10938,11 +10938,11 @@ msgstr "Impulsions en quadrature / tour:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:56572
 msgid "Dac Max Output:"
-msgstr "Dac Max Output:"
+msgstr "Sortie max. du DAC:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:56586
 msgid "Dac Output Scale:"
-msgstr "Dac Output Scale:"
+msgstr "Échelle de sortie DAC:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:56599
 msgid "3pwm Deadtime:"
@@ -11070,11 +11070,11 @@ msgstr "Inverse"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57303
 msgid "lead angle"
-msgstr "angle de pente"
+msgstr "Angle de pente"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57313
 msgid "alignment current"
-msgstr "alignement courant"
+msgstr "Alignement courant"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57354
 msgid "<b>Configuration</b>"
@@ -11130,7 +11130,7 @@ msgid ""
 "Scale"
 msgstr ""
 "Calculer\n"
-"Échelle"
+"l'échelle"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57744
 msgid "Stepper Scale:"
