@@ -100,7 +100,7 @@ converters or PWM generators.
  - (float) *offset* -- This will be added to the *value* before the
    hardware is updated
  - (float) *scale* -- This should be set so that an input of 1 on the
-   *value* pin will cause 1V 
+   *value* pin will cause the analog output pin to read 1 volt. 
  - (float) *high_limit* (optional) -- When calculating the value to
    output to the hardware, if *value* + *offset* is greater than
    *high_limit*, then *high_limit* will be used instead.
