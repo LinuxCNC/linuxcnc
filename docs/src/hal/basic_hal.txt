@@ -12,9 +12,9 @@ window.
 
 .HAL Configuration Window[[cap:HAL-Configuration-Window]]
 
-image::images/HAL_Configuration.png[]
+image::images/HAL_Configuration.png[align="center"]
 
-=== loadrt
+=== loadrt [[sub:loadrt]] (((loadrt)))
 
 The command 'loadrt' loads a real time HAL component. Real time
 component functions need to be added to a thread to be updated at the
@@ -30,7 +30,7 @@ loadrt mux4 count=1
 ----
 
 
-=== addf
+=== addf [[sub:addf]] (((addf)))
 
 The command 'addf' adds a real time component function to a thread.
 You have to add a function from a HAL real time component to a thread
@@ -54,7 +54,7 @@ addf <component> <thread>
 addf mux4 servo-thread
 ----
 
-=== loadusr
+=== loadusr [[sub:loadusr]] (((loadusr)))
 
 The command 'loadusr' loads a user space HAL component. User space
 programs are their own separate processes, which optionally talk to
@@ -88,7 +88,7 @@ loadusr -Wn spindle gs2_vfd -n spindle
 
 In English it means 'loadusr wait for name spindle component gs2_vfd name spindle'.
 
-=== net
+=== net [[sub:net]] (((net)))
 
 The command 'net' creates a 'connection' between a signal and and one
 or more pins. If the signal does not exist net creates the new signal.
@@ -112,7 +112,7 @@ the source, through the signal, and then out to the reader(s).
 
 .Signal Direction[[cap:Signal-Direction]]
 
-image::images/signal-direction.png[]
+image::images/signal-direction.png[align="center"]
 
 This example shows the signal xStep with the source being
 stepgen.0.out and with two readers, parport.0.pin-02-out and
@@ -137,9 +137,8 @@ net xStep => parport.0.pin-02-out
 .I/O pins
 An I/O pin like encoder.N.index-enable can be read or set as allowed by the component.
 
-[[sub:setp]]
-=== setp
-(((setp)))
+
+=== setp [[sub:setp]] (((setp)))
 
 The command 'setp' sets the value of a pin or parameter. The valid
 values will depend on the type of the pin or parameter. It is an error
@@ -174,8 +173,8 @@ unlinkp parport.0.pin-02-out
 === Obsolete Commands
 
 The following commands are depreciated and may be removed from future
-versions. Any new configuration should use the 'net' command. These
-commands are included so older configurations will still work.
+versions. Any new configuration should use the <<sub:net,'net'>>> command.
+These commands are included so older configurations will still work.
 
 ==== linksp
 
@@ -223,8 +222,8 @@ newsig Xstep bit
 More information can be found in the HAL manual or the man pages for
 halrun.
 
-[[sec:Hal-Data]]
-== HAL Data
+
+== HAL Data [[sec:Hal-Data]]
 
 === Bit (((Bit)))
 
