@@ -3,8 +3,8 @@
 [[sec:Hal-Commands]]
 == HAL Commands
 
-More detailed information can be found in the man page for halcmd "man
-halcmd" in a terminal window. To see the HAL configuration and check
+More detailed information can be found in the man page for halcmd 'man
+halcmd' in a terminal window. To see the HAL configuration and check
 the status of pins and parameters use the HAL Configuration window on
 the Machine menu in AXIS. To watch a pin status open the Watch tab and
 click on each pin you wish to watch and it will be added to the watch
@@ -16,7 +16,7 @@ image::images/HAL_Configuration.png[]
 
 === loadrt
 
-The command "loadrt" loads a real time HAL component. Real time
+The command 'loadrt' loads a real time HAL component. Real time
 component functions need to be added to a thread to be updated at the
 rate of the thread. You cannot load a user space component into the
 real time space.
@@ -32,7 +32,7 @@ loadrt mux4 count=1
 
 === addf
 
-The command "addf" adds a real time component function to a thread.
+The command 'addf' adds a real time component function to a thread.
 You have to add a function from a HAL real time component to a thread
 to get the function to update at the rate of the thread.
 
@@ -56,7 +56,7 @@ addf mux4 servo-thread
 
 === loadusr
 
-The command "loadusr" loads a user space HAL component. User space
+The command 'loadusr' loads a user space HAL component. User space
 programs are their own separate processes, which optionally talk to
 other HAL components via pins and parameters. You cannot load real time
 components into user space.
@@ -68,10 +68,13 @@ Flags may be one or more of the following:
     have the same name as the first argument of the command.
 
 -Wn <name>:: to wait for the component, which will have the given <name>.
+    This only applies if the component has a name option.
 
 -w:: to wait for the program to exit
 
--i:: to ignore the program return value (with -w) 
+-i:: to ignore the program return value (with -w)
+
+-n:: name a component when it is a valid option for that component.
 
 The syntax and examples:
 
@@ -87,9 +90,9 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 
 === net
 
-The command "net" creates a "connection" between a signal and and one
+The command 'net' creates a 'connection' between a signal and and one
 or more pins. If the signal does not exist net creates the new signal.
-This replaces the need to use the command newsig. The direction
+This replaces the need to use the command newsig. The optional direction
 indicators '<=' and '=>' are only to make it easier for humans to follow
 the logic and are not used by the net command.
 
@@ -101,10 +104,10 @@ net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 net both-home-y <= parport.0.pin-11-in
 ----
 
-Each signal can only have one source (a HAL "Dir out” pin) and as many
-readers (a HAL "Dir in" pin) as you like. In the Dir column of the HAL
-Configuration window you can see which pins are "in" and which are
-"out". The following figure shows the "direction" of the signal from
+Each signal can only have one source (a HAL 'Dir out' pin) and as many
+readers (a HAL 'Dir in' pin) as you like. In the Dir column of the HAL
+Configuration window you can see which pins are 'in' and which are
+'out'. The following figure shows the 'direction' of the signal from
 the source, through the signal, and then out to the reader(s).
 
 .Signal Direction[[cap:Signal-Direction]]
@@ -113,13 +116,13 @@ image::images/signal-direction.png[]
 
 This example shows the signal xStep with the source being
 stepgen.0.out and with two readers, parport.0.pin-02-out and
-parport.0.pin-08-out. Basically the value of stepgen.0.out is send to
+parport.0.pin-08-out. Basically the value of stepgen.0.out is sent to
 the signal xStep and that value is then sent to parport.0.pin-02-out
 and parport.0.pin-08-out.
 
 ----
     signal    source            destination          destination 
-net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out 
+net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 ----
 
 Since the signal xStep contains the value of stepgen.0.out (the
@@ -128,16 +131,17 @@ reader. To do this just use the signal with the readers on another
 line.
 
 ----
-net xStep <= stepgen.0.out => parport.0.pin-02-out
+net xStep => parport.0.pin-02-out
 ----
 
-The so called I/O pins like index-enable do not follow this rule.
+.I/O pins
+An I/O pin like encoder.N.index-enable can be read or set as allowed by the component.
 
 [[sub:setp]]
 === setp
 (((setp)))
 
-The command "setp" sets the value of a pin or parameter. The valid
+The command 'setp' sets the value of a pin or parameter. The valid
 values will depend on the type of the pin or parameter. It is an error
 if the data types do not match.
 
@@ -155,7 +159,7 @@ setp parport.0.pin-08-out TRUE
 
 === unlinkp
 
-The command "unlinkp" unlinks a pin from the connected signal. If no
+The command 'unlinkp' unlinks a pin from the connected signal. If no
 signal was connected to the pin prior running the command, nothing
 happens. The 'unlinkp' command is useful for trouble shooting.
 
@@ -169,9 +173,13 @@ unlinkp parport.0.pin-02-out
 
 === Obsolete Commands
 
+The following commands are depreciated and may be removed from future
+versions. Any new configuration should use the 'net' command. These
+commands are included so older configurations will still work.
+
 ==== linksp
 
-The command "linksp" creates a "connection" between a signal and one
+The command 'linksp' creates a 'connection' between a signal and one
 pin.
 
 The syntax and an example:
@@ -181,11 +189,11 @@ linksp <signal-name> <pin-name>
 linksp X-step parport.0.pin-02-out
 ----
 
-The "linksp" command has been superseded by the "net" command.
+The 'linksp' command has been superseded by the 'net' command.
 
 ==== linkps
 
-The command "linkps" creates a "connection" between one pin and one
+The command 'linkps' creates a 'connection' between one pin and one
 signal. It is the same as linksp but the arguments are reversed.
 
 The syntax and an example:
@@ -196,13 +204,13 @@ linkps <pin-name> <signal-name>
 linkps parport.0.pin-02-out X-Step
 ----
 
-The "linkps" command has been superseded by the "net" command.
+The 'linkps' command has been superseded by the 'net' command.
 
 ==== newsig
 
-the command "newsig" creates a new HAL signal by the name <signame>
-and the data type of <type>. Type must be "bit", "s32", "u32" or
-"float". Error if <signame> all ready exists.
+the command 'newsig' creates a new HAL signal by the name <signame>
+and the data type of <type>. Type must be 'bit', 's32', 'u32' or
+'float'. Error if <signame> all ready exists.
 
 The syntax and an example:
 
@@ -226,7 +234,7 @@ A bit value is an on or off.
 
 === Float (((Float)))
 
-A "float" is a floating point number. In other words the decimal point
+A 'float' is a floating point number. In other words the decimal point
 can move as needed.
 
  - float values = a 32 bit floating point value, with approximately 24
@@ -238,14 +246,14 @@ http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floatin
 
 === s32 (((s32)))
 
-An "s32" number is a whole number that can have a negative or positive
+An 's32' number is a whole number that can have a negative or positive
 value.
 
  - s32 values = integer numbers -2147483648 to 2147483647
 
 === u32 (((u32)))
 
-A "u32" number is a whole number that is positive only.
+A 'u32' number is a whole number that is positive only.
 
  - u32 values = integer numbers 0 to 4294967295
 
@@ -254,7 +262,7 @@ A "u32" number is a whole number that is positive only.
 If you used the Stepper Config Wizard to generate your config you will
 have up to three HAL files in your config directory.
 
- -  my-mill.hal (if your config is named "my-mill") This file is loaded
+ -  my-mill.hal (if your config is named 'my-mill') This file is loaded
    first and should not be changed if you used the Stepper Config Wizard.
  -  custom.hal This file is loaded next and before the GUI loads. This is
    where you put your custom HAL commands that you want loaded before the
@@ -262,7 +270,7 @@ have up to three HAL files in your config directory.
  -  custom_postgui.hal This file is loaded after the GUI loads. This is
    where you put your custom HAL commands that you want loaded after the
    GUI is loaded. Any HAL commands that use pyVCP widgets need to be
-   placed here. 
+   placed here.
 
 == HAL Components
 
@@ -270,9 +278,9 @@ Two parameters are automatically added to each HAL component when it
 is created. These parameters allow you to scope the execution time of a
 component.
 
-+.time+(((time))) 
++.time+(((time)))
 
-+.tmax+(((tmax))) 
++.tmax+(((tmax)))
 
 
 Time is the number of CPU cycles it took to execute the function.
@@ -285,19 +293,19 @@ time.
 == Logic Components
 
 HAL contains several real time logic components. Logic components
-follow a "Truth Table" that states what the output is for any given
+follow a 'Truth Table' that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
 
 === and2
 
-The "and2" component is a two input "and" gate. The truth table below
+The 'and2' component is a two input 'and' gate. The truth table below
 shows the output based on each combination of input.
 
 Syntax
 
 ----
-and2 [count=N] or [names=name1[,name2...]]
+and2 [count=N] | [names=name1[,name2...]]
 ----
 
 Functions
@@ -306,9 +314,9 @@ and2.n
 
 Pins
 
-    and2.N.in0 (bit, in) 
-    and2.N.in1 (bit, in) 
-    and2.N.out (bit, out) 
+    and2.N.in0 (bit, in)
+    and2.N.in1 (bit, in)
+    and2.N.out (bit, out)
 
 Truth Table
 
@@ -323,23 +331,23 @@ Truth Table
 
 === not
 
-The "not" component is a bit inverter.
+The 'not' component is a bit inverter.
 
 Syntax
 
 ----
-not [count=n] or [names=name1[,name2...]]
+not [count=n] | [names=name1[,name2...]]
 ----
 
 Functions
 
-    not.all 
-    not.n 
+    not.all
+    not.n
 
 Pins
 
-    not.n.in (bit, in) 
-    not.n.out (bit, out) 
+    not.n.in (bit, in)
+    not.n.out (bit, out)
 
 Truth Table
 
@@ -352,23 +360,23 @@ Truth Table
 
 === or2
 
-The "or2" component is a two input OR gate.
+The 'or2' component is a two input OR gate.
 
 Syntax
 
 ----
-or2[count=n] or [names=name1[,name2...]]
+or2[count=n] | [names=name1[,name2...]]
 ----
 
 Functions
 
-+or2.n+ 
++or2.n+
 
 Pins
 
-    or2.n.in0 (bit, in) 
-    or2.n.in1 (bit, in) 
-    or2.n.out (bit, out) 
+    or2.n.in0 (bit, in)
+    or2.n.in1 (bit, in)
+    or2.n.out (bit, out)
 
 Truth Table
 
@@ -383,12 +391,12 @@ Truth Table
 
 === xor2
 
-The "xor2" component is a two input XOR (exclusive OR)gate.
+The 'xor2' component is a two input XOR (exclusive OR)gate.
 
 Syntax
 
 ----
-xor2[count=n] or [names=name1[,name2...]]
+xor2[count=n] | [names=name1[,name2...]]
 ----
 
 Functions
@@ -397,9 +405,9 @@ Functions
 
 Pins
 
-    xor2.n.in0 (bit, in) 
-    xor2.n.in1 (bit, in) 
-    xor2.n.out (bit, out) 
+    xor2.n.in0 (bit, in)
+    xor2.n.in1 (bit, in)
+    xor2.n.out (bit, out)
 
 Truth Table
 
@@ -414,7 +422,7 @@ Truth Table
 
 === Logic Examples
 
-An "and2" example connecting two inputs to one output.
+An 'and2' example connecting two inputs to one output.
 
 ----
 loadrt and2 count=1
@@ -423,9 +431,9 @@ addf and2.0 servo-thread
 
 net my-sigin1 and2.0.in0 <= parport.0.pin-11-in
 
-net my-sigin2 and2.0.in1 <= parport.0.pin-12-in 
+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
 
-net both-on parport.0.pin-14-out <= and2.0.out 
+net both-on parport.0.pin-14-out <= and2.0.out
 ----
 
 In the above example one copy of and2 is loaded into real time space
@@ -440,10 +448,10 @@ and pin 12 are on then the output pin 14 will be on.
 === weighted_sum
 
 The weighted_sum converts a group of bits to an integer. The
-conversion is the sum of the "weights" of the bits that are on plus any
-offset. This is similar to a binary coded decimal but with more
-options. The "hold" bit stops processing the input changes so the "sum"
-will not change.
+conversion is the sum of the 'weights' of the bits that are on plus any
+offset. The weight of the m-th bit is 2^m. This is similar to a binary
+coded decimal but with more options. The 'hold' bit stops processing the
+input changes so the 'sum' will not change.
 
 The following syntax is used to load the weighted_sum component.
 
@@ -463,24 +471,24 @@ addf process_wsums servo-thread
 This updates the weighted_sum component.
 
 In the following example clipped from the HAL Configuration window in
-Axis the bits "0" and "2" are true and there is no offset. The "weight"
-of 0 is 1 and the "weight" of 2 is 4 so the sum is 5.
+Axis the bits '0' and '2' are true and there is no offset. The 'weight'
+of 0 is 1 and the 'weight' of 2 is 4 so the sum is 5.
 
 .weighted_sum
 -----------------------------------------------------------
 Component Pins: 
-Owner   Type  Dir         Value  Name 
-    10  bit   In           TRUE  wsum.0.bit.0.in 
-    10  s32   I/O             1  wsum.0.bit.0.weight 
-    10  bit   In          FALSE  wsum.0.bit.1.in 
-    10  s32   I/O             2  wsum.0.bit.1.weight 
-    10  bit   In           TRUE  wsum.0.bit.2.in 
-    10  s32   I/O             4  wsum.0.bit.2.weight 
-    10  bit   In          FALSE  wsum.0.bit.3.in 
-    10  s32   I/O             8  wsum.0.bit.3.weight 
-    10  bit   In          FALSE  wsum.0.hold 
-    10  s32   I/O             0  wsum.0.offset 
-    10  s32   Out             5  wsum.0.sum 
+Owner   Type  Dir         Value  Name
+    10  bit   In           TRUE  wsum.0.bit.0.in
+    10  s32   I/O             1  wsum.0.bit.0.weight
+    10  bit   In          FALSE  wsum.0.bit.1.in
+    10  s32   I/O             2  wsum.0.bit.1.weight
+    10  bit   In           TRUE  wsum.0.bit.2.in
+    10  s32   I/O             4  wsum.0.bit.2.weight
+    10  bit   In          FALSE  wsum.0.bit.3.in
+    10  s32   I/O             8  wsum.0.bit.3.weight
+    10  bit   In          FALSE  wsum.0.hold
+    10  s32   I/O             0  wsum.0.offset
+    10  s32   Out             5  wsum.0.sum
 -----------------------------------------------------------
 
 
