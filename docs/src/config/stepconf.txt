@@ -1,4 +1,4 @@
-= Stepconf Wizard
+= Stepper Configuration Wizard
 
 [[cha:stepconf-wizard]] (((Stepconf Wizard)))
 

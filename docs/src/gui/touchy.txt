@@ -1,4 +1,6 @@
-= Touchy
+= Touchy GUI
+
+[cha:touchy-gui]] (((Touchy GUI)))
 
 Touchy is a user interface for EMC2 meant for use on machine control panels,
 and therefore does not require keyboard or mouse.

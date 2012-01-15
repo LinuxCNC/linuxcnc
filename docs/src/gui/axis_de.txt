@@ -1,4 +1,7 @@
-= AXIS
+= AXIS GUI
+
+[[cha:axis-gui]] (((Axis GUI)))
+
 
 == Introduction
 

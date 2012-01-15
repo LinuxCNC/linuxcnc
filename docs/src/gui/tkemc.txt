@@ -1,4 +1,6 @@
-= TkEMC
+= TkEMC GUI
+
+[[cha:tkemc-gui]] (((TkEMC GUI)))
 
 == Introduction
 

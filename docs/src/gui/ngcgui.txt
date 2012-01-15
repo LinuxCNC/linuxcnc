@@ -1,5 +1,7 @@
 = NGCGUI
 
+[[cha:ngcgui]] (((NGCGUI)))
+
 image::images/ngcgui.png[]
 
 == Overview

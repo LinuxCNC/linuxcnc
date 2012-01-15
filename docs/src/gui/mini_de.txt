@@ -1,6 +1,6 @@
-= MINI
+= MINI GUI
 
-(((Mini GUI)))
+[[cha:mini-gui]] (((Mini GUI)))
 
 == Introduction
 
