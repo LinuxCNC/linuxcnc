@@ -32,7 +32,7 @@ alors le modèle correspondant à votre machine *Sherline*, puis acceptez d'enre
 
 Si vous avez une machine *Xylotex* vous pouvez utiliser l'assistant graphique de 
 configuration fourni avec EMC2 et créer rapidement votre configuration 
-personnalisée <<cha:Assistant-graphique-pas-a-pas,avec l'assistant Stepconf>>.
+personnalisée <<cha:Assistant-graphique-StepConf, avec l'assistant Stepconf>>.
 
 == Informations relatives à la machine
 
@@ -153,9 +153,9 @@ D'après les informations ci-dessus:
 == Assistants de configuration graphique
 
  - Pour les moteurs pas à pas, voir la documentation de l'assistant graphique Stepconf 
-au chapitre <<cha:Assistant-graphique-pas-a-pas, concernant cet assistant.>>
+au chapitre <<cha:Assistant-graphique-StepConf, concernant cet assistant.>>
  - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
-l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-Mesa, relatif 
+l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-PNCConf, relatif 
 à cet assistant>>
 
 // vim: set syntax=asciidoc:

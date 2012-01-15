@@ -1,8 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Assistant-graphique-Mesa]]
-= Assistant graphique de configuration Mesa PNCconf
+= Assistant graphique de configuration Mesa[[cha:Assistant-graphique-PNCConf]]
 
 (((Assistant graphique de configuration Mesa pncconf)))
 

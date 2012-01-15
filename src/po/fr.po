@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-11 20:19+0100\n"
-"PO-Revision-Date: 2012-01-14 08:34+0100\n"
+"PO-Revision-Date: 2012-01-15 12:19+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -41,7 +41,7 @@ msgstr ""
 
 #: hal/utils/meter.c:238 ../tcl/tkemc.tcl:764
 msgid "Hal Meter"
-msgstr "Hal Mètre"
+msgstr "HalMeter"
 
 #: hal/utils/meter.c:287
 msgid "_Select"
@@ -57,7 +57,7 @@ msgstr "Choisir l'item à mesurer"
 
 #: hal/utils/meter.c:640
 msgid " _Pins "
-msgstr " _Pin "
+msgstr " _Pins "
 
 #: hal/utils/meter.c:641
 msgid " _Signals "
@@ -224,7 +224,7 @@ msgstr ""
 "\n"
 "Procéder comme suit:\n"
 "\n"
-"Sélectionner le nom d'un thread et un multiplicateur puis cliquez 'OK'\n"
+"Sélectionner le nom d'un thread et un multiplicateur puis cliquer 'OK'\n"
 "ou\n"
 "Cliquer 'Quitter' pour sortir de HALSCOPE"
 
@@ -238,9 +238,9 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
-"Sélectionnez le nom d'un thread et un multiplicateur puis cliquez 'OK'\n"
+"Sélectionner un thread et un multiplicateur puis cliquer 'OK'\n"
 "ou\n"
-"Cliquez 'Quitter' pour sortir de HALSCOPE"
+"Cliquer 'Quitter' pour sortir de HALSCOPE"
 
 #: hal/utils/scope_horiz.c:526
 msgid "Thread:"
@@ -383,7 +383,7 @@ msgid ""
 "%s samples\n"
 "at %s"
 msgstr ""
-"%s échantillons\n"
+"%s échantil.\n"
 "à %s"
 
 #: hal/utils/scope_horiz.c:1170
@@ -1397,7 +1397,7 @@ msgstr "Cliquer une ligne en surbrillance ou %s doit aller."
 
 #: ../tcl/bin/halconfig.tcl:1092
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr "Rien n'est paramétrable ici. Essayez la page de réglage"
+msgstr "Rien n'est paramétrable ici. Essayer la page de réglage"
 
 #: ../tcl/bin/halconfig.tcl:1124
 #, tcl-format
@@ -1465,7 +1465,7 @@ msgid ""
 "it with sudo apt-get install bwidget."
 msgstr ""
 "Ne peut trouver le paquet bwidget 1.7.  Il s'agit du paquet debian bwidget; "
-"installez le \n"
+"l'installer \n"
 "avec sudo apt-get install bwidget."
 
 #: ../tcl/bin/pickconfig.tcl:177
@@ -1534,7 +1534,7 @@ msgid ""
 "location when starting EMC2."
 msgstr ""
 "Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
-"choisissez cet emplacement quand vous démarrerez EMC2."
+"choisissez cet emplacement au démarrage d'EMC2."
 
 #: ../tcl/bin/pickconfig.tcl:490
 msgid "Shortcut Created"
@@ -2532,7 +2532,7 @@ msgstr "Utilitaires"
 
 #: ../tcl/tkemc.tcl:763
 msgid "Hal Scope"
-msgstr "Hal Scope"
+msgstr "HalScope"
 
 #: ../tcl/tkemc.tcl:785
 msgid "HAL Show"
@@ -3050,7 +3050,7 @@ msgstr "Declining support for tk send bug in ngcgui"
 
 #: ../tcl/ngcgui.tcl:2626
 msgid "You should upgrade emc to >=emc2.5"
-msgstr "Vous devriez mettre EMC à jour avec EMC2.5"
+msgstr "Vous devriez mettre EMC2 à jour avec EMC2.5"
 
 #: ../tcl/ngcgui.tcl:2670
 msgid "pre2.4_send_file_to_axis:error"
@@ -5962,7 +5962,7 @@ msgstr "# écrasé quand vous relancerez Stepconf"
 
 #: emc/usr_intf/stepconf/stepconf.py:516
 msgid "# add halui MDI commands here (max 64) "
-msgstr "# ajouter ici les commandes MDI halui (maximum 64) "
+msgstr "# ajoutez ici les commandes MDI halui (maximum 64) "
 
 #: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:2991
 msgid "# **** Setup for external estop ladder program -START ****"
@@ -11022,7 +11022,7 @@ msgstr "6 sorties au lieu de 3"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57021
 msgid "Force Trapezoid Mode"
-msgstr "Forcer le mode trapèzoïdal"
+msgstr "Forcer le mode trapézoïdal"
 
 #: emc/usr_intf/pncconf/pncconf.glade:57033
 msgid "Emulate feedback "
