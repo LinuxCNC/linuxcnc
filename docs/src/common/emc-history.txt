@@ -1,0 +1,5 @@
+= EMC History
+
+[[cha:emc-history]] (((EMC History)))
+
+place holder text
