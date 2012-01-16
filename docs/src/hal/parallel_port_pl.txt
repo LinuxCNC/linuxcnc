@@ -1,8 +1,8 @@
-= Parallel Port
+= Parallel Port Driver
 
-[[sec:Parport]]
+[[cha:Parport]] (((Parallel Port Driver)))
+
 == Parport
-(((parallel port)))
 
 Parport is a driver for the traditional PC parallel port. The port has
 a total of 17 physical pins. The original parallel port divided those

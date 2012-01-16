@@ -1,4 +1,6 @@
-= General Reference Information
+= General Reference
+
+[[cha:general-reference]]
 
 == General Naming Conventions[[sec:GR-Naming-Conventions]]
 

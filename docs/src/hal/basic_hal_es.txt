@@ -1,7 +1,8 @@
-= Basic HAL
+= Basic HAL Tutorial
 
-[[sec:Hal-Commands]]
-== HAL Commands
+[[cha:basic-hal-tutorial]] (((Basic HAL Tutorial)))
+
+== HAL Commands [[sec:Hal-Commands]]
 
 More detailed information can be found in the man page for halcmd 'man
 halcmd' in a terminal window. To see the HAL configuration and check

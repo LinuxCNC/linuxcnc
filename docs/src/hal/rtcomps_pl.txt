@@ -1,4 +1,6 @@
-= Realtime Comps
+= Realtime Components
+
+[[cha:realtime-components]] (((Realtime Components)))
 
 == Stepgen[[sec:Stepgen]](((stepgen)))
 

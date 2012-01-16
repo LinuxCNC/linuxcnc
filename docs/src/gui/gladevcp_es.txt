@@ -1,4 +1,6 @@
-= GladeVCP
+= Glade Virtual Control Panel
+
+[[cha:glade-vcp]] (((Glade Virtual Control Panel)))
 
 // TODO:
 // - manual-example.ui layout - really bad

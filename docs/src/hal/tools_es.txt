@@ -1,6 +1,6 @@
-= HAL Tools and Utilities
+= HAL Tools
 
-[[cha:hal-tools-utilities]] (((HAL Tools and Utilities)))
+[[cha:hal-tools]] (((HAL Tools)))
 
 == Halcmd[[sec:Halcmd]]
 

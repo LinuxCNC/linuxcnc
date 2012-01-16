@@ -1,4 +1,4 @@
-= PyVCP
+= Python Virtual Control Panel
 
 [[cha:pyvcp]] (((Python Virtual Control Panel)))
 

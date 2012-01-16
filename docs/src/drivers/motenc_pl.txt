@@ -1,4 +1,6 @@
-= Motenc
+= Motenc Driver
+
+[[cha:montec-driver]] (((Motenc Driver)))
 
 Vital Systems Motenc-100 and Motenc-LITE
 
