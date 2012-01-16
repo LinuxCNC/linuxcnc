@@ -337,7 +337,8 @@ hal_motenc:: (((hal-motenc)))
      Un pilote pour la carte Vital Systems MOTENC-100
 
 hal_parport:: (((hal-parport)))
-     Pilote pour le(ou les) port(s) parallèle(s). 
+     Pilote pour le(ou les) port(s) parallèle(s). Voir le chapitre 
+    <<cha:Parport>>
 
 hal_ppmc:: (((hal-ppmc)))
      Un pilote pour la famille de contrôleurs Pico Systems 
@@ -359,7 +360,7 @@ halgui:: (((halgui)))
     implémenté).
 
 halmeter:: (((halmeter)))
-      Un multimètre pour les signaux HAL. Voir <<cap:halmeter>>
+      Un multimètre pour les signaux HAL. Voir <<cha:halmeter>>
 
 halscope:: (((halscope)))
      Un oscilloscope digital à mémoire, complétement

@@ -496,7 +496,7 @@ troisième affiche tous les paramètres. Si nous voulons analyser la pin
 le bouton _Fermer_. Le dialogue de sélection se ferme et la mesure s'affiche
 dans une fenêtre semblable à la figure ci-dessous.
 
-[[cap:halmeter]]
+[[sec:halmeter-valeur]]
 .Affichage de la valeur
 (((Affichage de la valeur)))
 

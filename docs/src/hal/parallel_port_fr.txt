@@ -3,7 +3,8 @@
 
 = Port parallèle
 
-== Parport[[sec:Parport]]
+[[cha:Parport]]
+== Parport
 (((Pilote parport)))
 
 Parport est un pilote pour le port parallèle traditionnel des PC. Le port dispose 
