@@ -961,7 +961,7 @@ proc ::ngcgui::preset {hdl ay_name} {
   set ay($hdl,expandsubroutine)   0
   set ay($hdl,verbose)            1
   set ay($hdl,chooser)            0
-  set ay($hdl,info)               "Choose Files"
+  set ay($hdl,info)               "[_ "Choose Files"]"
   set ay($hdl,standalone)         0
 
   # common to any instance items:
@@ -1195,7 +1195,7 @@ if {0} {
       set ::ngc($hdl,save,widget) $b
 
       set text "[_ "MakeFile"]"
-      if $::ngc($hdl,auto) {set text Finalize}
+      if $::ngc($hdl,auto) {set text "[_ "Finalize"]"}
       set b [button $w.[qid] -state disabled -font $::ngc(any,font) \
             -fg $::ngc(any,color,prompt) \
             -width 8 -padx 1\
