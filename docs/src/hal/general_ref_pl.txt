@@ -23,13 +23,13 @@ resembles a directory tree. Even though halcmd doesn't recognize the
 tree structure, proper choice of naming conventions will let it group
 related items together (since it sorts the names). In addition, higher
 level tools can be designed to recognize such structure, if the names
-provide the necessary information. To do that, all HAL modules should
+provide the necessary information. To do that, all HAL components should
 follow these rules:
 
  - Dots (“.”) separate levels of the hirearchy. 
    This is analogous to the slash (“/”) in a filename. 
  - Hyphens (“-”) separate words or fields in the same level of the hirearchy.
- - HAL modules should not use underscores or “MixedCase”.
+ - HAL components should not use underscores or “MixedCase”.
  - Use only lowercase letters and numbers in names. 
 
 == Hardware Driver Naming Conventions [[sec:GR-Driver-Naming]]

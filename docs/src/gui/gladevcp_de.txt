@@ -99,7 +99,7 @@ image::images/touchy-tab-33.png[]
 
 Functionally these setups are identical - they only differ in screen
 real estate requirements and visibility. Since it is possible to run
-several GladeVCP components in parallel (with different HAL module
+several GladeVCP components in parallel (with different HAL component
 names), mixed setups are possible as well - for instance a panel on
 the right hand side, and one or more tabs for less-frequently used
 parts of the interface.
