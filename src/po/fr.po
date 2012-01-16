@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-11 20:19+0100\n"
-"PO-Revision-Date: 2012-01-15 12:19+0100\n"
+"PO-Revision-Date: 2012-01-16 01:30+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -125,7 +125,7 @@ msgstr "Horizontal"
 
 #: hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr "Choisir la voie"
+msgstr "Canal sélectionné"
 
 #: hal/utils/scope.c:683
 msgid "Run Mode"
@@ -154,7 +154,7 @@ msgstr "Simple"
 
 #: hal/utils/scope.c:709
 msgid "Roll"
-msgstr "Roll"
+msgstr "Boucle"
 
 #: hal/utils/scope_horiz.c:130
 msgid "Zoom"
@@ -441,7 +441,7 @@ msgstr "Pos"
 #: hal/utils/scope_vert.c:644 ../tcl/ngcgui_ttt.tcl:214
 #: emc/usr_intf/pncconf/pncconf.glade:57147
 msgid "Scale"
-msgstr "Echelle"
+msgstr "Échelle"
 
 #: hal/utils/scope_vert.c:657
 msgid "Chan Off"

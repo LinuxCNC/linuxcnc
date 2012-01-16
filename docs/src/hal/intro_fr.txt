@@ -359,7 +359,7 @@ halgui:: (((halgui)))
     implémenté).
 
 halmeter:: (((halmeter)))
-      Un multimètre pour les signaux HAL. Voir <<cap:Halmeter>>
+      Un multimètre pour les signaux HAL. Voir <<cap:halmeter>>
 
 halscope:: (((halscope)))
      Un oscilloscope digital à mémoire, complétement
@@ -368,7 +368,8 @@ halscope:: (((halscope)))
 Chacun de ces modules est décrit en détail dans les chapitres suivants.
 
 [[sec:Legos]]
-== Les réflexions qui ont abouti à la création de HAL(((Les origines de HAL)))
+== Les réflexions qui ont abouti à la création de HAL
+(((Les origines de HAL)))
 
 Cette première introduction au concept de HAL peut être un peu
 déconcertante pour l'esprit. Construire quelque chose avec des blocs

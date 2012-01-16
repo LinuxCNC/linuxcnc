@@ -18,7 +18,9 @@ for step type '0', (step and direction). The second is for step type
 mode control, and the third one shows velocity mode. Control mode and
 step type are set independently, and any combination can be selected.
 
-.Step Pulse Generator Block Diagram (position mode)[[fig:Stepgen-Block-Diag]]
+[[fig:Stepgen-Block-Diag]]
+.Step Pulse Generator Block Diagram (position mode)
+(((Stepgen Block Diagram)))
 
 image::images/stepgen-block-diag.eps[]
 
