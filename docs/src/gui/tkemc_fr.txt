@@ -20,27 +20,28 @@ image::images/tkemc_fr.png[]
 == Utiliser TkEMC
 
 Pour sélectionner l'interface graphique TkEMC avec EMC2, éditer le
-fichier .ini et dans la section *[DISPLAY]* modifier l'affichage comme
+fichier .ini et dans la section [DISPLAY] modifier l'affichage comme
 ci-dessous:
-
-    DISPLAY = tkemc
+----
+DISPLAY = tkemc
+----
 
 Puis, lancer EMC2 et choisir ce fichier ini. La configuration *qui se
 trouve dans sim/tkemc.ini est* déjà configurée pour utiliser TkEMC
 comme interface utilisateur.
 
-Quand EMC2 est lancé avec TkEMC, une fenêtre comme   
+Quand EMC2 est lancé avec TkEMC, une fenêtre comme
 <<cap:affichage-TkEMC,celle-ci s'affiche>>.
 
 === Une session typique avec TkEMC
 
  . Lancer EMC2 et sélectionner un fichier de configuration.
- . Libérer l'*Arrêt d'Urgence*(((A/U))) et mettre la machine en marche
+ . Libérer l'_Arrêt d'Urgence_(((A/U))) et mettre la machine en marche
    (en pressant F1 puis F2).
- . Faire l'*Origine(((Origine Machine))) Machine* de chacun des axes.
+ . Faire l'_Origine(((Origine Machine))) Machine_ de chacun des axes.
  . Charger un fichier d'usinage.
  . Brider le brut à usiner sur la table.
- . Faire l'*Origine (((Origine Piece)))Pièce* de chacun des axes, à
+ . Faire l'_Origine (((Origine Piece)))Pièce_ de chacun des axes, à
    l'aide du jog ou en introduisant une valeur de décalage d'origine après
    un clic droit sur le nom d'un axe.
  . Lancer le programme.
@@ -58,9 +59,9 @@ La fenêtre TkEMC contient les éléments suivants:
  - Une barre de statut pour l'affichage des différents offsets;
  - Une zone d'affichage des coordonnées;
  - Un jeu de curseurs pour contrôler la 
-   *vitesse de jog(((vitesse de jog)))*, le 
-   *Correcteur de vitesse d'avance(((correcteur de vitesse)))* et 
-   le *Correcteur de vitesse broche(((correcteur vitesse broche)))* qui
+   _vitesse de jog(((vitesse de jog)))_, le 
+   _Correcteur de vitesse d'avance(((correcteur de vitesse)))_ et 
+   le _Correcteur de vitesse broche(((correcteur vitesse broche)))_ qui
    permettent d'augmenter ou de diminuer ces vitesses ;
  - Une boîte d'entrée de données manuelles(((MDI))); 
  - Une barre de statut affichant le bloc de programme actif, G-codes,
@@ -72,18 +73,18 @@ La fenêtre TkEMC contient les éléments suivants:
 
 Dans la première ligne de la gauche vers la droite et cycliquement:
 
- .  Marche Machine: *Arrêt d'Urgence(((A/U)))* 
-   *Arrêt d'Urgence relâché* / *Marche* 
- . Bascule brouillard(((Brouillard)))
+ .  Marche Machine: _Arrêt d'Urgence(((A/U)))_ 
+   _Arrêt d'Urgence relâché_ / _Marche_ 
+ . Bascule gouttelettes(((Gouttelettes)))
  . Broche moins vite
- . Direction de rotation de la broche(((broche))) *Arrêt broche* /
-   *Broche sens horaire* / *Broche sens anti-horaire*
+ . Direction de rotation de la broche(((broche))) _Arrêt broche_ /
+   _Broche sens horaire_ / _Broche sens anti-horaire_
  . Broche plus vite
  . Annuler
 
 puis dans la deuxième ligne:
 
- . Mode de marche: *MANUEL(((Manuel)))* / *MDI(((MDI))))* / *AUTO(((Auto)))*
+ . Mode de marche: _MANUEL(((Manuel)))_ / _MDI(((MDI))))_ / _AUTO(((Auto)))_
  . Bascule d'arrosage
  . Bascule du contrôle frein de broche
 
@@ -102,21 +103,21 @@ vert. Si il est en erreur, TkEMC l'affiche en rouge pour montrer un
 défaut. (par exemple si un contact de fin de course est activé).
 
 Pour interpréter correctement les différentes valeurs, se référer aux
-boutons de droite. Si la position est *Machine*, alors la valeur
-affichée est en coordonnées machine. Si elle est *Relative*, la valeur
+boutons de droite. Si la position est _Machine_, alors la valeur
+affichée est en coordonnées machine. Si elle est _Relative_, la valeur
 affichée est en coordonnées pièce. Deux autres en dessous indiquent
-*actuel* ou *commandé*. Actuel fait référence aux valeurs retournées
+_actuelle_ ou _commandée_. Actuelle fait référence aux valeurs retournées
 par les codeurs (si la machine est équipée de servomoteurs) et
-*commandé* fait référence à la position à atteindre envoyée aux
+_commandée_ fait référence à la position à atteindre envoyée aux
 moteurs. Ces valeurs peuvent différer pour certaines raisons: Erreur de
 suivi, bande morte, résolution d'encodeur ou taille de pas. Par
 exemple, si un mouvement est commandé vers X0.08 sur une fraiseuse,
-mais qu'un pas moteur fait 0.03, alors la position *Commandée* sera
-0.03 mais la position *Actuelle* sera soit 0.06 (2 pas) soit 0.09 (3
+mais qu'un pas moteur fait 0.03, alors la position _Commandée_ sera
+0.03 mais la position _Actuelle_ sera soit 0.06 (2 pas) soit 0.09 (3
 pas).
 
-Deux autres boutons permettent de choisir entre la vue *Jointure* et
-la vue *Global*. Cela a peu de sens avec les machines de type normal
+Deux autres boutons permettent de choisir entre la vue _Articulation_ et
+la vue _Globale_. Cela a peu de sens avec les machines de type normal
 (cinématiques triviales), mais se révèle très utile sur les machines
 avec des cinématiques non triviales telles que les robots ou plateforme
 de Stewart. (Des informations plus complètes se trouvent dans le manuel
@@ -126,7 +127,7 @@ de l'intégrateur).
 
 Quand la machine se déplace, elle laisse un tracé appelé parcours
 d'outil. La fenêtre d'affichage du parcours d'outil s'active via le
-menu *Vues->Parcours d'outil*.
+menu _Vues -> Parcours d'outil_.
 
 === Contrôle en automatique
 
@@ -141,13 +142,13 @@ Les boutons de contrôle de la partie inférieure de TkEMC, visibles sur
 l'image ci-dessus, sont utilisés pour l'exécution du
 programme:
 
-- *Ouvrir* (((ouvrir))) pour charger un fichier,
-- *Lancer* (((lancer))) pour commencer l'usinage,
-- *Pause* (((pause))) pour stopper temporairement l'usinage,
-- *Reprise* (((reprise))) pour reprendre un programme mis en pause, 
-- *Pas à pas* (((pas a pas))) pour avancer d'une seule ligne de programme,
-- *Vérifier* (((verifier))) pour vérifier si il contient des erreurs, 
-- *Arrêt optionnel* (((arret optionnel))) pour basculer l'arrêt optionnel, si 
+- _Ouvrir_ (((ouvrir))) pour charger un fichier,
+- _Lancer_ (((lancer))) pour commencer l'usinage,
+- _Pause_ (((pause))) pour stopper temporairement l'usinage,
+- _Reprise_ (((reprise))) pour reprendre un programme mis en pause, 
+- _Pas à pas_ (((pas a pas))) pour avancer d'une seule ligne de programme,
+- _Vérifier_ (((vérifier))) pour vérifier si il contient des erreurs, 
+- _Arrêt optionnel_ (((arrêt optionnel))) pour basculer l'arrêt optionnel, si 
    ce bouton est vert l'exécution du programme est stoppée quand un code M1 
    est rencontré.
 
@@ -162,30 +163,30 @@ montrer la ligne courante.
 ==== Touches implicites
 
 TkEMC permet les déplacements manuels de la machine. Cette action
-s'appelle le *jogging*. Premièrement, sélectionner l'axe à déplacer en
+s'appelle le _jog_. Premièrement, sélectionner l'axe à déplacer en
 cliquant dessus. Puis, cliquer et maintenir les boutons *+* ou *-*
 selon la direction du mouvement souhaité. Les quatre premiers axes
 peuvent aussi être déplacés à l'aide des touches fléchées pour les axes
 X et Y, Pg.préc et Pg.suiv pour l'axe Z et les touches [ et ] pour
 l'axe A.
 
-Si *Continu* est activé, le mouvement sera continu tant que la touche
+Si _Continu_ est activé, le mouvement sera continu tant que la touche
 sera pressée, si une valeur d'incrément est sélectionnée, le mobile se
 déplacera exactement de cette valeur à chaque appui sur la touche ou à
 chaque clic. Les valeurs disponibles sont:
 
     1.0000 0.1000 0.0100 0.0010 0.0001
 
-En cliquant le bouton *Origine* ou en pressant la touche Origine,
+En cliquant le bouton _Origine_ ou en pressant la touche Origine,
 l'axe actif est référencé sur son origine machine. Selon la
 configuration, la valeur de l'axe peut être simplement mise à la
 position absolue 0.0, ou la machine peut se déplacer vers un point
-spécifique matérialisé par le *contact d'origine*. Voir le manuel de
+spécifique matérialisé par le _contact d'origine_. Voir le manuel de
 l'intégrateur pour plus de détails sur les prises d'origine.
 
-En cliquant le bouton *Dépassement de limite*, la machine permet un
+En cliquant le bouton _Dépassement de limite_, la machine permet un
 jog temporaire pour même si l'axe à franchi une limite d'axe fixée dans
-le fichier .ini. Noter que si *Dépassement de limite* est activé il
+le fichier .ini. Noter que si _Dépassement de limite_ est activé il
 s'affiche en rouge.
 
 [[cap:Override-Limits]]
@@ -193,7 +194,7 @@ s'affiche en rouge.
 
 image::images/tkemc-override-limits.png[]
 
-==== Le groupe de boutons *Broche*(((broche)))
+==== Le groupe de boutons _Broche_(((broche)))
 
 Le bouton central du dessus sélectionne le sens de rotation de la
 broche: Anti-horaire, Arrêt, Horaire. Les boutons fléchés augmentent ou
@@ -201,10 +202,10 @@ diminuent la vitesse de rotation. Le bouton central du dessous permet
 d'engager ou de relâcher le frein de broche. Selon la configuration de
 la machine, les items de ce groupe ne sont peut être pas tous visibles.
 
-==== Le groupe de boutons *Arrosage*(((arrosage)))
+==== Le groupe de boutons _Arrosage_(((arrosage)))
 
 Ces deux boutons permettent d'activer ou non les lubrifiants
-*brouillard* et *Arrosage*. Selon la configuration de la machine, les
+_Gouttelettes_ et _Arrosage_. Selon la configuration de la machine, les
 items de ce groupe ne sont peut être pas tous visibles.
 
 === Entrée manuelle de G-code (MDI)
@@ -220,11 +221,11 @@ image::images/tkemc-mdi.png[]
 ==== MDI:
 
 Le mode MDI permet d'exécuter une commande en G-code en pressant la
-touche *Entrée*.
+touche _Entrée_.
 
 ==== G-Codes actifs
 
-Ce champs montre les *codes modaux* actuellement actifs dans
+Ce champs montre les _codes modaux_ actuellement actifs dans
 l'interpréteur. Par exemple, *G54* indique que le système de
 coordonnées courant est celui de G54 et qu'il s'applique à toutes les
 coordonnées entrées.

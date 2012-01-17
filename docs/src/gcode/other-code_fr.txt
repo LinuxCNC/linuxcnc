@@ -10,53 +10,54 @@
 == F: Réglage de la vitesse d'avance travail
 (((F: Réglage de la vitesse d'avance travail)))
 
-Pour régler la vitesse d'avance, programmer *F-*. 
-L'application de la vitesse est telle que décrite dans la section 
-<<sec:Vitesse-d-avance,dans machining_center_fr>>, à moins que le mode vitesse 
-inverse du temps ne soit activé, dans ce cas, la vitesse est telle que décrite dans la
-section <<sec:G93-G94-G95-Set, sur les modes de vitesse>>.
+Pour régler la vitesse d'avance, programmer *F-*.
+L'application de la vitesse est telle que décrite dans l'apperçu global d'une
+machine numérique, section <<sec:Vitesse-d-avance,vitesse>>, à moins que le
+mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
+telle que décrite dans la section des modes de
+<<sec:G93-G94-G95-Set, vitesse>>.
 
 [[sec:S-Broche]]
 == S: Réglage de la vitesse de rotation de la broche
 (((S: Réglage de la vitesse de rotation de la broche)))
 
-Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer *S-*. 
-La broche va tourner à cette vitesse quand elle sera programmée pour tourner. 
-Il est permis de programmer un mot *S* que la broche tourne ou non. 
+Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer *S-*.
+La broche va tourner à cette vitesse quand elle sera programmée pour tourner.
+Il est permis de programmer un mot *S* que la broche tourne ou non.
 Si le potentiomètre de correction de vitesse broche est
-autorisé et n'est pas positionné sur 100%, 
-la vitesse de broche sera différente de celle programmée. 
-Il est permis de programmer *S0*, la broche ne tournera pas. 
+autorisé et n'est pas positionné sur 100%,
+la vitesse de broche sera différente de celle programmée.
+Il est permis de programmer *S0*, la broche ne tournera pas.
 
 C'est une erreur si:
 
 * La valeur de S est négative.
 
 Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
-taraudage à droite>>, si un *cycle de perçage G84* (taraudage) est actif et que 
-les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le 
-réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons 
-synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même 
+taraudage à droite>>, si un cycle de perçage *G84* (taraudage) est actif et que
+les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
+réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
+synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même
 si le potentiomètre de correction de vitesse travail est sur 100%.
 
 [[sec:T-Choix-Outil]]
 == T: Choix de l'outil
 (((T: Choix de l'outil)))
 
-Pour sélectionner un outil, programmer *T-*, où la valeur de *T* 
-correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera 
-appelé et changé que quand un *M6* sera programmé voir la section 
-<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot *T* peut apparaitre sur la 
-même ligne que le *M6* ou sur une ligne précédente. Il est permis, mais 
-normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant, 
-sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot 
-T ne prendra effet qu'au prochain changement d'outil. Il est permis de 
-programmer *T0*, aucun outil ne sera sélectionné. C'est utile pour 
-avoir la broche vide. 
+Pour sélectionner un outil, programmer *T-*, où la valeur de *T*
+correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera
+appelé et changé que quand un *M6* sera programmé voir la section
+<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot *T* peut apparaitre sur la
+même ligne que le *M6* ou sur une ligne précédente. Il est permis, mais
+normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant,
+sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot
+T ne prendra effet qu'au prochain changement d'outil. Il est permis de
+programmer *T0*, aucun outil ne sera sélectionné. C'est utile pour
+avoir la broche vide.
 
 C'est une erreur si:
 
-* Un valeur négative de T est utilisée. 
+* Un valeur négative de T est utilisée.
 * Une valeur de T supérieure au nombre de poches d'outils dans le
    carrousel est utilisée.
 
@@ -68,12 +69,12 @@ machines, consiste à placer le mot T pour le prochain outil sur la
 ligne suivant le changement d'outil. Cela laisse au carrousel tout le
 temps pour se positionner.
 
-Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de 
-parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail.
-Cela se remarque surtout sur les machines ayant de longues distances de 
-déplacement lors du changement d'outil, comme les tours. 
-Cela peut prêter à confusion au début. 
-Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans 
+Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de
+parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail
+Cela se remarque surtout sur les machines ayant de longues distances de
+déplacement lors du changement d'outil, comme les tours.
+Cela peut prêter à confusion au début.
+Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans
 mouvement juste après le T<n>.
 
 
@@ -83,7 +84,7 @@ mouvement juste après le T<n>.
 
 Un commentaire contient un message si *MSG* apparaît après la
 parenthèse ouvrante, et avant tout autre caractère. Les variantes de
-*MSG* qui incluent un espace blanc et des minuscules sont autorisées. 
+*MSG* qui incluent un espace blanc et des minuscules sont autorisées.
 Le reste du texte avant la parenthèse fermante est considéré comme le
 message. Les messages sont affichés sur la visu de l'interface
 utilisateur. Les commentaires ne contenant pas de message ne sont pas
@@ -103,12 +104,12 @@ section <<sec:G38-x-Palpeur, sur la mesure au palpeur>>.
 
 === (LOGOPEN,filename)
 
-Ouvre le fichier de log *filename*. Si le fichier existe déjà, il sera
+Ouvre le fichier de log _filename_. Si le fichier existe déjà, il sera
 tronqué.
 
 === (LOGAPPEND,filename)
 
-Ouvre le fichier de log *filename*. Si le fichier existe déjà, il sera 
+Ouvre le fichier de log _filename_. Si le fichier existe déjà, il sera 
 ajoutées.
 
 === (LOGCLOSE)
@@ -124,12 +125,12 @@ fichier de log si il est ouvert.
 == Messages de débogage
 (((Messages de débogage)))
 
-Les commentaires comme: *(debug, reste du commentaire)* sont traités
-de la même façon que ceux avec *(msg, reste du commentaire)* avec
+Les commentaires comme: _(debug, reste du commentaire)_ sont traités
+de la même façon que ceux avec _(msg, reste du commentaire)_ avec
 l'ajout de possibilités spéciales pour les paramètres.
 
-Les commentaires comme: *(print, reste du commentaire)* vont
-directement sur la sortie *stderr* avec des possibilités spéciales
+Les commentaires comme: _(print, reste du commentaire)_ vont
+directement sur la sortie _stderr_ avec des possibilités spéciales
 pour les paramètres.
 
 == Paramètres dans les commentaires
@@ -146,9 +147,9 @@ G-code comme:
 
 À l'intérieur de ces types de commentaires, les séquences comme *#123*
 sont remplacées par la valeur du paramètre 123. Les séquences comme
-*#<paramètre nommé>* sont remplacées par la valeur du paramètre nommé.
+_#<paramètre nommé>_ sont remplacées par la valeur du paramètre nommé.
 Rappelez vous que
  les espaces dans les noms des paramètres nommés sont supprimés,
-*#<parametre nomme>* est équivalent à *#<parametrenomme>*.
+_#<parametre nomme>_ est équivalent à _#<parametrenomme>_.
 
 // vim: set syntax=asciidoc:

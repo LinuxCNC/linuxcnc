@@ -43,7 +43,7 @@ trajectoire peut suivre différents parcours, tous sont bons dans
 certains cas; il peut décélérer et s'arrêter exactement sur les
 coordonnées du sommet de l'angle, puis accélérer dans la direction
 perpendiculaire. Il peut également faire ce qui est appelé le mode
-*trajectoire continue*, qui consiste à maintenir la vitesse d'avance en
+_trajectoire continue_, qui consiste à maintenir la vitesse d'avance en
 passant vers le sommet de l'angle, ce qui nécessite d'arrondir l'angle
 de façon à respecter les contraintes machine. Vous pouvez remarquer
 qu'il y a dans ce cas un compromis: vous pouvez ralentir pour avoir un
@@ -58,26 +58,26 @@ Les commandes de contrôle de trajectoire sont les suivantes:
 
 G61::
      (mode trajectoire exacte) G61 indique au planificateur de suivre
-    exactement la trajectoire prévue. 
+    exactement la trajectoire prévue.
 
 G61.1::
      (mode Arrêt exact) G61.1 demande au planificateur de s'arrêter exactement
     à la fin de chaque segment. Le parcours sera suivi avec exactitude mais
     les arrêts complets de l'avance peuvent se révéler destructeurs pour la
-    pièce ou l'outillage, selon les particularités de l'usinage. 
+    pièce ou l'outillage, selon les particularités de l'usinage.
 
 G64::
      (mode trajectoire continue sans tolérance) Le mode G64 est le mode
-    par défaut au démarrage d'EMC2. G64 est juste une trajectoire continue, 
-    le 'naive cam detector' n'est pas activé. G64 et G64 P0 indiquent au 
-    planificateur de sacrifier la précision de suivi du parcours pour 
-    conserver une vitesse d'avance élevée. Ce mode est nécessaire pour 
-    certains types de matériaux ou d'outillages pour lesquels l'arrêt exact 
-    est dangereux. Il peut très bien fonctionner tant que le programmeur 
-    garde à l'esprit que le parcours d'outil pourra être plus arrondi que 
+    par défaut au démarrage d'EMC2. G64 est juste une trajectoire continue,
+    le 'naive cam detector' n'est pas activé. G64 et G64 P0 indiquent au
+    planificateur de sacrifier la précision de suivi du parcours pour
+    conserver une vitesse d'avance élevée. Ce mode est nécessaire pour
+    certains types de matériaux ou d'outillages pour lesquels l'arrêt exact
+    est dangereux. Il peut très bien fonctionner tant que le programmeur
+    garde à l'esprit que le parcours d'outil pourra être plus arrondi que
     celui indiqué par le programme.
-    Dans le cas d'un mouvement en G0 (rapide) avec G64, faire preuve de 
-    prudence sur les mouvements de dégagement et  prévoir suffisamment de 
+    Dans le cas d'un mouvement en G0 (rapide) avec G64, faire preuve de
+    prudence sur les mouvements de dégagement et  prévoir suffisamment de
     distance pour éviter les obstacles selon les capacités d'accélérations
     de la machine.
 
@@ -119,22 +119,22 @@ Naive Cam Detector::
     mouvements. La machine ne pourra jamais se déplacer à une vitesse ne
     lui permettant pas de venir s'arrêter exactement à la fin du mouvement
     actuel (ou du prochain mouvement, si vous mettez en pause lorsque la
-    trajectoire est déjà commencée). En mouvement G2/3 dans le plan G17 
+    trajectoire est déjà commencée). En mouvement G2/3 dans le plan G17
     (XY) quand la déviation maximale entre un arc et une ligne droite est
     plus petite que la tolérance G64 Q- l'arc est brisé en deux lignes
     (du début de l'arc à son milieu et du milieu à la fin de l'arc).
     Ces deux tronçons sont ensuite soumis à l'algorithme Naïve cam des lignes.
     Ainsi, les cas ligne-arc, arc-arc et arc-ligne, comme les cas ligne-ligne
     bénéficient du traitement "naive cam detector". Les performances de
-    contourage sont accrues grâce à la simplification de la trajectoire. 
+    contourage sont accrues grâce à la simplification de la trajectoire.
 
-Dans la figure suivante la ligne bleue représente la vitesse machine actuelle. 
+Dans la figure suivante la ligne bleue représente la vitesse machine actuelle.
 La ligne rouge représente la capacité d'accélération de la machine.
-La ligne horizontale sous chaque tracé est le mouvement planifié. 
+La ligne horizontale sous chaque tracé est le mouvement planifié.
 Le tracé supérieur montre comment le planificateur de trajectoire ralenti
 la machine quand des petits mouvements sont rencontrés. Ceci pour rester
 dans les limites fixées par les paramètres d'accélération de la machine et
-être capable de s'arrêter exactement à la fin du prochain mouvement. 
+être capable de s'arrêter exactement à la fin du prochain mouvement.
 Le tracé du bas montre l'effet du détecteur Naive Cam pour combiner les
 mouvements et fournir une amélioration conséquente dans le suivi de la vitesse
 programmée.
@@ -162,18 +162,18 @@ machine est un peu inférieure à celle du fichier ini.
 
 Pour maintenir la vitesse d'avance, le mouvement doit être plus long
 que la distance qui lui est nécessaire pour accélérer de zéro à la
-vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant A
-comme étant *+1/2+* de la variable *MAX_ACCELERATION* du fichier ini et 
-*F* comme étant la vitesse d'avance *en unités par seconde*,
-le temps d'accélération sera *+t~a~ = F/A+* et la distance d'accélération sera 
-*+d~a~ = F*t~a~/2+*. Les temps et distance de décélération sont les mêmes, ce qui 
-fait que la distance critique *+d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A+*.
+vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant *+A+*
+comme étant *+1/2+* de la variable MAX_ACCELERATION du fichier ini et
+*+F+* comme étant la vitesse d'avance _en unités par seconde_,
+le temps d'accélération sera *+t~a~ = F/A+* et la distance d'accélération sera
+*+d~a~ = F*t~a~/2+*. Les temps et distance de décélération sont les mêmes, ce
+qui fait que la distance critique *+d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A+*.
 
-Par exemple, pour une vitesse d'avance de *25mm par seconde* et une
-accélération de *250 mm/sec^2^*, la distance critique sera de 
-*10^2^/100 = 100/100 = 1mm*.
-Pour une vitesse d'avance de *5mm par seconde*, la distance critique ne serait que de
-*5^2^/100 = 25/100 = 0.25mm*.
+Par exemple, pour une vitesse d'avance de _25mm par seconde_ et une
+accélération de _250 mm/sec^2^_, la distance critique sera de 
+_10^2^/100 = 100/100 = 1mm_.
+Pour une vitesse d'avance de _5mm par seconde_, la distance critique ne serait
+que de _5^2^/100 = 25/100 = 0.25mm_.
 
 == G-code
 
@@ -181,22 +181,22 @@ Pour une vitesse d'avance de *5mm par seconde*, la distance critique ne serait q
 
 Quand EMC2 démarre pour la première fois beaucoup de G et M codes sont
 chargés par défaut. Les codes actifs courants sont visibles dans l'interface
-Axis, dans l'onglet *Données manuelles* dans le champ *G-codes actifs*
+Axis, dans l'onglet _Données manuelles_ dans le champ _G-codes actifs_
 Ces codes G et M définissent le comportement d'EMC2 et il est important
 de bien comprendre la signification de chacun avant de démarrer EMC2.
 Ces codes par défaut peuvent être modifiés lors du lancement d'un fichier
 de G-codes puis laissés dans différents états qui seront identiques lors
-d'une nouvelle session d'EMC2. La bonne pratique consiste à mettre dans 
+d'une nouvelle session d'EMC2. La bonne pratique consiste à mettre dans
 le préambule de chaque fichier de G-codes les codes nécessaires pour le
 travail demandé et ne pas supposer que ceux par défaut conviendront.
-Imprimer la page des références rapides du G-code peut aider à se rappeler la signification
-de chacun d'eux.
+Imprimer la page des références rapides du G-code peut aider à se rappeler
+la signification de chacun d'eux.
 
 === Vitesse d'avance
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section *vitesse d'avance* du *manuel de l'utilisateur*.
+comprendre la section _vitesse d'avance_ du manuel de l'utilisateur.
 
 === Compensation de rayon d'outil
 
@@ -207,7 +207,7 @@ diamètre de l'outil courant, une erreur est signalée. Un diamètre
 d'outil inférieur est peut être utilisable sans erreur pour le même
 parcours. Ce qui signifie que quand ce type de problème se présente, il
 est possible de programmer un outil plus petit pour usiner le même
-parcours sans erreur. Voir la section compensation de rayon d'outil pour plus 
+parcours sans erreur. Voir la section compensation de rayon d'outil pour plus
 d'informations.
 
 == Prise d'origine machine
@@ -216,8 +216,8 @@ Après le démarrage d'EMC2 chaque axe doit être référencé sur sont
 point d'origine machine avant tout mouvement ou commande MDI.
 
 Pour déroger à ce comportement par défaut, ou pour utiliser
-l'interface Mini, il est possible d'ajuster l'option *NO_FORCE_HOMING = 1* dans 
-la section *[TRAJ]* du fichier ini.
+l'interface Mini, il est possible d'ajuster l'option NO_FORCE_HOMING = 1 dans
+la section [TRAJ] du fichier ini.
 
 == Changement d'outil
 
@@ -240,7 +240,7 @@ Quand vous réalisez une prise d'origine de plusieurs axes d'EMC2,
 vous passez G53, les coordonnées système, à 0 pour chacun des axes concernés.
 
  - La prises d'origine ne modifient en rien les autres systèmes de coordonnées,
-ni les compensations d'outil. 
+ni les compensations d'outil.
 
 La seule façon de se déplacer en mode G53, en coordonnées machine, c'est de programmer
 un G53 sur la même ligne que celle d'un mouvement. En fonctionnement normal,
@@ -248,34 +248,34 @@ vous êtes dans le système de coordonnées G54.
 
 === G54 à 59.3 Coordonnées utilisateur
 
-Normalement vous utilisez le système de coordonnées G54. Quand un décalage 
+Normalement vous utilisez le système de coordonnées G54. Quand un décalage
 est appliqué au système de coordonnées utilisateur courant, dans Axis,
 une petite sphère bleue avec des rayons est affichée à l'emplacement
-de l'origine machine quand la visu affiche *Position: Relative Actuelle*.
-Si votre décalage utilise temporairement les coordonnées machine, depuis 
+de l'origine machine quand la visu affiche _Position: Relative Actuelle_.
+Si votre décalage utilise temporairement les coordonnées machine, depuis
 le menu Machine ou en programmant *+G10 L2 P1 X0 Y0 Z0+* à la fin du programme G-Code.
 Modifiez la valeur du mot *P* en fonction du système de coordonnées dont vous voulez
 effacer le décalage.
 
  -  Les décalages stockés dans un système de coordonnées utilisateur sont conservés
-   à l'arrêt d'EMC.
- -  Dans Axis, utiliser le bouton *Toucher* décalera le système de coordonnées utilisateur
+   à l'arrêt d'EMC2.
+ -  Dans Axis, utiliser le bouton _Toucher_ décalera le système de coordonnées utilisateur
    choisi.
 
 === Quand vous êtes perdu
 
 Si vous avez des difficultés pour obtenir 0,0,0 sur la visu alors que
 vous pensez que vous devriez l'avoir, c'est peut être provoqué par plusieurs
-décalages programmés et qu'il conviendrait de supprimer. 
+décalages programmés et qu'il conviendrait de supprimer.
 Pour cela:
 
  - Placez vous sur l'origine machine avec *+G53 G0 X0 Y0 Z0+*
  - Supprimez tous les décalages *+G92+* avec *+G92.1+*
  - Utilisez les coordonnées utilisateur avec *+G54+*
- - Rendez les coordonnées utilisateur *+G54+*, identiques aux 
+ - Rendez les coordonnées utilisateur *+G54+*, identiques aux
    coordonnées machine avec *+G10 L2 P1 X0 Y0 Z0+*
  - Annulez les offsets d'outil avec *+G49+*
  - Activez l'affichage des coordonnées relatives depuis le menu.
 
-Maintenant vous devriez être, à l'origine machine X0 Y0 Z0 et le système 
+Maintenant vous devriez être, à l'origine machine X0 Y0 Z0 et le système
 de coordonnées relatives devrait être le même que le système de coordonnées machine.

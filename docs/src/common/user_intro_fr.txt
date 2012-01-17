@@ -108,8 +108,8 @@ si vous pouvez aider à la traduction.
 
 Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une
 fraiseuse. Devenir un opérateur expérimenté prends beaucoup de temps et
-demande beaucoup de travail. Un auteur a dit un jour, *Nous apprenons
-par l'expérience, si on la possède toute*. Les outils cassés, les étaux
+demande beaucoup de travail. Un auteur a dit un jour, _Nous apprenons
+par l'expérience, si on la possède toute_. Les outils cassés, les étaux
 attaqués et les cicatrices sont les preuves des leçons apprises. Une
 belle finition, des tolérances serrées et la prudence pendant le
 travail sont les preuves des leçons retenues. Aucune machine, aucun
@@ -127,8 +127,8 @@ prendront tout leur sens.
 == Modes opératoires[[sub:Modes-operatoires]]
 
 Quand EMC2 fonctionne, il existe trois différents modes majeurs pour
-entrer des commandes. Les modes *Manuel*(((Manuel))), *Auto*(((Auto))) et
-*MDI*(((MDI))). Passer d'un mode à un autre marque une grande différence
+entrer des commandes. Les modes _Manuel_(((Manuel))), _Auto_(((Auto))) et
+_MDI_(((MDI))). Passer d'un mode à un autre marque une grande différence
 dans le comportement d'EMC2. Des choses spécifiques à un mode ne
 peuvent pas être faites dans un autre. L'opérateur peut faire une prise
 d'origine sur un axe en mode manuel mais pas en mode auto ou MDI.
@@ -136,8 +136,8 @@ L'opérateur peut lancer l'exécution complète d'un programme de G-codes
 en mode auto mais pas en mode manuel ni en MDI.
 
 En mode manuel, chaque commande est entrée séparément. En termes
-humains, une commande manuelle pourrait être *active l'arrosage* ou *jog
-l'axe X à 250 millimètres par minute.* C'est en gros, équivalent à
+humains, une commande manuelle pourrait être _active l'arrosage_ ou _jog
+l'axe X à 250 millimètres par minute_. C'est en gros, équivalent à
 basculer un interrupteur ou à tourner la manivelle d'un axe. Ces
 commandes sont normalement contrôlées en pressant un bouton de
 l'interface graphique avec la souris ou en maintenant appuyée une
@@ -146,18 +146,18 @@ touche peut être utilisé pour charger ou lancer l'exécution
 complète d'un programme de G-codes stocké dans un fichier. En mode
 d'entrée de données manuelles (MDI) l'opérateur peut saisir un bloc de
 codes est dire à la machine de l'exécuter en pressant la touche
-*Return* ou *Entrée* du clavier.
+_Return_ ou _Entrée_ du clavier.
 
 Certaines commandes de mouvement sont disponibles et produisent les
 mêmes effets dans tous les modes. Il s'agit des commandes
-*Abandon*(((ABANDON))), *Arrêt d'Urgence*(((ESTOP))) et *Correcteur de vitesse 
-travail* (((correcteur de vitesse))). Ces commandes se dispensent d'explications.
+_Abandon_(((ABANDON))), _Arrêt d'Urgence_(((ESTOP))) et _Correcteur de vitesse 
+travail_ (((correcteur de vitesse))). Ces commandes se dispensent d'explications.
 
 L'interface utilisateur graphique AXIS supprime certaines distinctions
 entre Auto et les autres modes en rendant automatique la disponibilité
 des commandes, la plupart du temps. Il rend également floue la
 distinction entre Manuel et MDI parce que certaines commandes manuelles
-comme *Toucher*, sont également implémentées en envoyant une commande
+comme _Toucher_, sont également implémentées en envoyant une commande
 MDI. Il fait cela en changeant automatiquement le mode qui est 
 nécessaire pour l'action que l'utilisateur a demandé. 
 
