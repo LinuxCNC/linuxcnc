@@ -141,13 +141,6 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 TRUE if the machine is in position.
 
 .TP
-\fBmotion.motion-enabled\fR IN BIT 
-TRUE when motion is enabled
-
-.TP
-\fBmotion.on-soft-limit\fR OUT BIT 
-
-.TP
 \fBmotion.probe-input\fR IN BIT 
 G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
 
@@ -199,9 +192,6 @@ Desired spindle speed in rotations per minute
 .TP
 \fBmotion.spindle-speed-out-rps\fR OUT float
 Desired spindle speed in rotations per second
-
-.TP
-\fBmotion.teleop-mode\fR OUT BIT
 
 .TP
 \fBmotion.tooloffset.w\fR OUT FLOAT
