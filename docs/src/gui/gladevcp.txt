@@ -54,7 +54,7 @@ linked to a HAL pin, which in turn interfaces to the rest of EMC2.
  - any HAL pin change may be directed to call back into a user-defined Python event handler
  - any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
  - direct EMC2 interaction: arbitrary command execution, like initiating MDI
-commands to call a G-code subroutine, plus support for status change operations through Action Widgets LINKHERE
+commands to call a G-code subroutine, plus support for status change operations through Action Widgets 
  - several independent GladeVCP panels may be run in different tabs
  - separation of user interface appearance and functionality: change appearance without touching any code
 
