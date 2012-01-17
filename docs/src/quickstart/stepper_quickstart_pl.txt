@@ -37,8 +37,8 @@ Gather the information about each axis of your machine.
 Drive timing is in nano seconds. If you're unsure about the timing
 many popular drives are included in the stepper configuration wizard.
 Note some newer Gecko drives have different timing than the original
-one. A list is also on the user maintained EMC2 wiki site of more drives
-at link:[http://wiki.linuxcnc.org]. 
+one. A http://wiki.linuxcnc.org/[list] is also on the user maintained EMC2
+wiki site of more drives.
 
 [width="100%", options="header"]
 |====================================================================
