@@ -3846,7 +3846,7 @@ class App:
         self.pbar.set_fraction(.75)
         while gtk.events_pending():
             gtk.main_iteration()
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
         self.window.hide()
 
         self.widgets = Widgets(self.xml)
@@ -7176,7 +7176,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
         if axis == 's':
             #w["motor_screwunits"].set_text((""))
-            #w["encoder_screwunits"].set_text((""))        
+            #w["encoder_screwunits"].set_text((""))
+            w.smaxoutput.set_sensitive(False)
             w.sencodercounts.set_sensitive(encoder)
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
@@ -7711,7 +7712,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
     def on_saxismotor_prepare(self, *args):
-        self.data.help = "help-spindle.txt"
+        self.data.help = "help-axismotor.txt"
         self.axis_prepare('s')      
     def on_saxismotor_next(self, *args):
         self.axis_done('s')

@@ -48,17 +48,17 @@ setp hm2_5i20.0.gpio.000.invert_output TRUE
 setp hm2_5i20.0.gpio.002.invert_output TRUE
 
 # configure the stepgen parameters
-setp hm2_5i20.0.stepgen.00.dirsetup        10000
-setp hm2_5i20.0.stepgen.00.dirhold         2500
-setp hm2_5i20.0.stepgen.00.steplen         2500
-setp hm2_5i20.0.stepgen.00.stepspace       2500
+setp hm2_5i20.0.stepgen.00.dirsetup        5000
+setp hm2_5i20.0.stepgen.00.dirhold         2000
+setp hm2_5i20.0.stepgen.00.steplen         2000
+setp hm2_5i20.0.stepgen.00.stepspace       2000
 setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
 setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
-setp hm2_5i20.0.stepgen.01.dirsetup        10000
-setp hm2_5i20.0.stepgen.01.dirhold         2500
-setp hm2_5i20.0.stepgen.01.steplen         2500
-setp hm2_5i20.0.stepgen.01.stepspace       2500
+setp hm2_5i20.0.stepgen.01.dirsetup        5000
+setp hm2_5i20.0.stepgen.01.dirhold         2000
+setp hm2_5i20.0.stepgen.01.steplen         2000
+setp hm2_5i20.0.stepgen.01.stepspace       2000
 setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_2]SCALE
 setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_2]STEPGEN_MAXVEL
@@ -95,19 +95,19 @@ net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 
 # create a signal for the estop loopback
 #net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
-net estop-enable hm2_5i20.0.gpio.037.in_not => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 net machine-on hm2_5i20.0.gpio.039.in => halui.machine.off
 net machine-off hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
 #connect limit/home switches
 #Brown Wire - Was Zhome, now Xpos
-net Xpos_lim hm2_5i20.0.gpio.024.in_not axis.0.pos-lim-sw-in axis.0.home-sw-in
+net Xpos_lim hm2_5i20.0.gpio.024.in axis.0.pos-lim-sw-in axis.0.home-sw-in
 #Brown/White Wire - Was Xhome, now Xneg
-net Xneg_lim hm2_5i20.0.gpio.026.in_not axis.0.neg-lim-sw-in
+net Xneg_lim hm2_5i20.0.gpio.026.in axis.0.neg-lim-sw-in
 #Green Wire - Was XZpos, now Zpos
-net Zpos_lim hm2_5i20.0.gpio.028.in_not axis.2.pos-lim-sw-in axis.2.home-sw-in
+net Zpos_lim hm2_5i20.0.gpio.028.in axis.2.pos-lim-sw-in axis.2.home-sw-in
 #Green/White Wire - Was XZneg, now Zneg
-net Zneg_lim hm2_5i20.0.gpio.030.in_not axis.2.neg-lim-sw-in
+net Zneg_lim hm2_5i20.0.gpio.030.in axis.2.neg-lim-sw-in
 
 #Tool Post Control Inputs
 net PrepNo iocontrol.0.tool-prep-number => classicladder.0.s32in-00

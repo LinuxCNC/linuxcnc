@@ -1,4 +1,6 @@
-= Second Parallel Port
+= PCI Parallel Port
+
+[[cha:pci-parallel-port]] (((PCI Parallel Port)))
 
 When you add a second parallel port to your PCI bus you have to find
 out the address before you can use it with EMC.

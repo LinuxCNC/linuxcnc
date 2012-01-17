@@ -1,4 +1,4 @@
-= Mesa Wizard
+= Mesa Configuration Wizard
 
 [[cha:PNCconf-wizard]]
 (((Point n Click Configuration Wizard)))

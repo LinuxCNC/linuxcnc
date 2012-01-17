@@ -98,7 +98,7 @@ net Enable axis.2.jog-vel-mode
 net Enable => hm2_5i20.0.pwmgen.00.enable
 
 # enable the charge pump
-net Enable => charge-pump.enable
+net Enable charge-pump.enable
 
 # connect the charge pump signal to an output
 setp hm2_5i20.0.gpio.022.is_output TRUE

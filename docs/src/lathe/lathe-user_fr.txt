@@ -61,7 +61,7 @@ FRONTANGLE et BACKANGLE sont dans le sens horaire par rapport une ligne parallè
 
 .Orientations des outils de tournage
 
-image::images/tool_positions.png[]
+image::images/tool_positions_fr.png[]
 
 
 Les images ci-dessous montrent la représentation qu'Axis donne des orientations 

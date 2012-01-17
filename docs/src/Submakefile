@@ -34,6 +34,7 @@ DOC_SRCS := \
 	common/Document_Header_es.txt \
 	common/Document_Header_fr.txt \
 	common/Document_Header_pl.txt \
+	common/emc-history.txt \
 	common/Getting_EMC.txt \
 	common/Getting_EMC_de.txt \
 	common/Getting_EMC_es.txt \

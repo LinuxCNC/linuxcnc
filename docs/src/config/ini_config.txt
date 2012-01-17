@@ -1,4 +1,6 @@
-= INI File
+= INI Configuration
+
+[[cha:ini-configuration]] (((INI Configuration)))
 
 == The INI File Layout
 

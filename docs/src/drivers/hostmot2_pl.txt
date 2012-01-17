@@ -1,4 +1,6 @@
-= Mesa HostMot2 (((Mesa HostMot2)))
+= Mesa HostMot2 Driver 
+
+[[cha:mesa-hostmot2-driver]] (((Mesa HostMot2 Driver)))
 
 == Introduction 
 

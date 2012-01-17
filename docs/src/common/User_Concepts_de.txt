@@ -1,4 +1,7 @@
-= User Concepts(((User Concepts)))
+= Important User Concepts
+
+[[cha:important-user-concepts]] (((User Concepts)))
+
 
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.

@@ -1,4 +1,6 @@
-= Image-to-gcode
+= Image to G Code
+
+[[cha:image-to-g-code]] (((Image to G Code)))
 
 image::images/image-to-gcode.png[align="center"]
 

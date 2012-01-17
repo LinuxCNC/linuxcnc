@@ -1,10 +1,12 @@
-= AXIS
+= AXIS GUI
+
+[[cha:axis-gui]] (((Axis GUI)))
 
 == Introduction
 
-AXIS(((AXIS))) is a graphical front-end for EMC2 which features a live
-preview and backplot. It is written in Python(((Python))) and uses
-Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
+AXIS is a graphical front-end for EMC2 which features a live
+preview and backplot. It is written in Python and uses
+Tk and OpenGL to display its user interface.
 
 .AXIS Window[[cap:AXIS-Window]]
 

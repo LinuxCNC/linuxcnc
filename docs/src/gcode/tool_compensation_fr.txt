@@ -278,7 +278,7 @@ différents endroits, dépendants du mouvement suivant.
 
 .Point final de la compensation[[cap:Compensation-End-Point]]
 
-image::images/comp-path.png[]
+image::images/comp-path_fr.png[]
 
 === Vue générale
 
@@ -327,13 +327,13 @@ désactivée.
 
 .Profil extérieur[[cap:Outside-Profile]]
 
-image::images/outside-comp.png[]
+image::images/outside-comp_fr.png[]
 
 ==== Profil intérieur
 
 .Profil intérieur[[cap:Inside-Profile]]
 
-image::images/inside-comp.png[]
+image::images/inside-comp_fr.png[]
 
 
 == Deux exposés sur les compensations d'outil

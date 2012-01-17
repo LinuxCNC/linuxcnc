@@ -1,4 +1,6 @@
-= Servo-To-Go
+= Servo To Go Driver
+
+[[cha:servo-to-go-driver]] (((Servo To Go Driver)))
 
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
 by EMC. It is an ISA card and it exists in different flavors (all

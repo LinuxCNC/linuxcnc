@@ -1,4 +1,6 @@
-= comp creating HAL modules
+= Comp HAL Component Generator
+
+[[cha:comp-hal-component-generator]] (((Comp HAL Component Generator)))
 
 == Introduction
 

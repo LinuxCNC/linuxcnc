@@ -1,43 +1,6 @@
-= General Reference Information
+= General Reference
 
-== Notation[[sec:GR-Notation]]
-
-=== Typographical Conventions
-
-Command line examples are presented in *`bold typewriter`* font.
-Responses from the computer will be in `typewriter` font. As of early
-2006, there are no longer commands that require 
-root privileges, so all examples will be preceded by the normal user
-prompt, `$`. Text inside square brackets `[like-this]` is optional.
-Text inside angle brackets `<like-this>`  represents a field that can
-take on different values, and the 
-adjacent paragraph will explain the appropriate values. Text items
-separated by a vertical bar means that one or the other, but not both, 
-should be present. All command line examples assume that you are in
-the `emc2/`  directory, and you configured/compiled EMC2 for the
-run-in-place scenario. Paths will be shown accordingly when needed.
-
-=== Names
-
-All HAL entities are accessed and manipulated by their names, so
-documenting the names of pins, signals, parameters, etc, is very
-important. HAL names are a maximum of 41 characters long (as defined by
-HAL_NAME_LEN in hal.h). Many names will be presented in a general form,
-with text inside angle brackets `<like-this>` representing fields that
-can take on different values.
-
-When pins, signals, or parameters are described for the first time,
-their names will be preceeded by their type in (small caps) and
-followed by a brief description. A typical pin definition will look
-something like these examples:
-
- - *`(bit) parport.<portnum>.pin-<pinnum>-in`* The HAL pin associated
-   with the physical input pin `<pinnum>` on the 25 pin D-shell connector.
- - *`(float) pid.<loopnum>.output`* The output of the PID loop.
-
-At times, a shortened version of a name may be used. For example, the
-second pin above might be referred to simply as `.output` when it can
-be done without causing confusion.
+[[cha:general-reference]]
 
 == General Naming Conventions[[sec:GR-Naming-Conventions]]
 
@@ -60,20 +23,16 @@ resembles a directory tree. Even though halcmd doesn't recognize the
 tree structure, proper choice of naming conventions will let it group
 related items together (since it sorts the names). In addition, higher
 level tools can be designed to recognize such structure, if the names
-provide the necessary information. To do that, all HAL modules should
+provide the necessary information. To do that, all HAL components should
 follow these rules:
 
  - Dots (“.”) separate levels of the hirearchy. 
    This is analogous to the slash (“/”) in a filename. 
  - Hyphens (“-”) separate words or fields in the same level of the hirearchy.
- - HAL modules should not use underscores or “MixedCase”.footnote:[Underscores 
-   have all been removed, but there are still a few instances
-   of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.]
+ - HAL components should not use underscores or “MixedCase”.
  - Use only lowercase letters and numbers in names. 
 
 == Hardware Driver Naming Conventions [[sec:GR-Driver-Naming]]
-footnote:[Most drivers do not follow these conventions as of version 2.0.
-This chapter is really a guide for future development.]
 
 === Pin/Parameter names
 
@@ -92,14 +51,7 @@ The individual fields are:
 <device-num>::
       It is possible to install more than one servo board, parallel port,
     or other hardware device in a computer. The device number identifies a
-    specific device. Device numbers start at 0 and increment.footnote:[Some
-    devices use jumpers or other hardware to attach a specific ID to
-    each board. Ideally, the driver provides a way for the user to
-    specifically say “device-num 0 is the board with ID XXX”, and the
-    device numbers always start at 0. However at present some drivers use
-    the board ID directly as the device number. That means it is possible
-    to have a device number 2, without a device 0. This is a bug and will
-    be fixed in version 2.1.]
+    specific device. Device numbers start at 0 and increment.
 
 <io-type>::
       Most devices provide more than one type of I/O. Even the simple
@@ -117,7 +69,7 @@ The individual fields are:
 <chan-num>::
       Virtually every I/O device has multiple channels, and the channel
     number identifies one of them. Like device numbers, channel numbers
-    start at zero and increment.footnote:[One glaring exception to the
+    start at zero and increment.footnote:[One exception to the
     “channel numbers start at zero” rule is 
     the parallel port. Its HAL pins are numbered with the corresponding pin
     number on the DB-25 connector. This is convenient for wiring, but
@@ -142,9 +94,10 @@ The individual fields are:
     high and active low inputs. For most io-types, there is a standard set
     of pins and parameters, (referred to as the “canonical interface”) that
     the driver should implement. The canonical interfaces are described in
-    chapter <<cha:Canonical-Device-Interfaces>>.
+    the <<cha:Canonical-Device-Interfaces,Canonical Device Interfaces>>
+    chapter.
 
-==== Examples
+.Examples
 
 motenc.0.encoder.2.position::
       -- the position output of the third encoder channel on the first
@@ -191,7 +144,7 @@ hardware using data from HAL pins. They should be named as follows:
 read|write::
      Indicates whether the function reads the hardware or writes to it.
 
-==== Examples
+.Examples
 
 motenc.0.encoder.read::
      -- reads all encoders on the first motenc board.

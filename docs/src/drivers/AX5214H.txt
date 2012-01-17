@@ -1,4 +1,6 @@
-= AX5214H
+= AX5214H Driver
+
+[[cha:ax5214-driver]] (((AX5214H Driver)))
 
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
 board. It plugs into an ISA bus, and resembles a pair of 8255 chips. In

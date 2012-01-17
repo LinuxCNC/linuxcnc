@@ -2,7 +2,7 @@
 
 Ce document n'est pas traduit en raison de la complexité de la 
 validation des documents juridiques. Vous trouverez sur ce site 
-plus d'information [http://www.gnu.org/licenses/licenses.fr.html||http://www.gnu.org/licenses/licenses.fr.html]
+plus d'information: http://www.gnu.org/licenses/licenses.fr.html
 
 == Copyright Terms
 

@@ -1,4 +1,6 @@
-= Ladder Programming (((Classic Ladder)))
+= Classicladder Introduction
+
+[[cha:classicladder-introduction]] (((Classicladder Introduction)))
 
 == Introduction
 

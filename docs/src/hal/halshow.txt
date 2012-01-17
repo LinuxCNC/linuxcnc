@@ -94,7 +94,7 @@ working with.
 
 Let's use this editor to add a differential module to a HAL and
 connect it to axis position so that we could see the rate of change in
-position, i.e., acceleration. We first need to load a HAL module named
+position, i.e., acceleration. We first need to load a HAL component named
 blocks, add it to the servo thread, then connect it to the position pin
 of an axis. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
