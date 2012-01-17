@@ -25,19 +25,19 @@ Pin names starting with "\fBaxis\fR" are actually joint values, but the pins and
 .SH PINS
 
 .TP
-\fBaxis.\fIN\fB.amp-enable-out\fR OUT bit 
+\fBaxis.\fIN\fB.amp-enable-out\fR OUT BIT 
 TRUE if the amplifier for this joint should be enabled
 
 .TP
-\fBaxis.\fIN\fB.amp-fault-in\fR IN bit 
+\fBaxis.\fIN\fB.amp-fault-in\fR IN BIT 
 Should be driven TRUE if an external fault is detected with the amplifier for this joint
 
 .TP
-\fBaxis.\fIN\fB.home-sw-in\fR IN bit 
+\fBaxis.\fIN\fB.home-sw-in\fR IN BIT 
 Should be driven TRUE if the home switch for this joint is closed
 
 .TP
-\fBaxis.\fIN\fB.homing\fR OUT bit 
+\fBaxis.\fIN\fB.homing\fR OUT BIT 
 TRUE if the joint is currently homing
 
 .TP
@@ -45,158 +45,166 @@ TRUE if the joint is currently homing
 Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse
 
 .TP
-\fBaxis.\fIN\fB.jog-counts\fR IN s32 
+\fBaxis.\fIN\fB.is-unlocked\fR IN BIT
+If the axis is a locked rotary the unlocked sensor should be connected to this pin
+
+.TP
+\fBaxis.\fIN\fB.jog-counts\fR IN S32 
 Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 
 .TP
-\fBaxis.\fIN\fB.jog-enable\fR IN bit 
+\fBaxis.\fIN\fB.jog-enable\fR IN BIT 
 When TRUE (and in manual mode), any change to "jog-counts" will result in motion. When false, "jog-counts" is ignored.
 
 .TP
-\fBaxis.\fIN\fB.jog-scale\fR IN float 
+\fBaxis.\fIN\fB.jog-scale\fR IN FLOAT 
 Sets the distance moved for each count on "jog-counts", in machine units.
 
 .TP
-\fBaxis.\fIN\fB.jog-vel-mode\fR IN bit 
+\fBaxis.\fIN\fB.jog-vel-mode\fR IN BIT 
 When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
 .TP
-\fBaxis.\fIN\fB.joint-pos-cmd\fR OUT float 
+\fBaxis.\fIN\fB.joint-pos-cmd\fR OUT FLOAT 
 The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
 
 .TP
-\fBaxis.\fIN\fB.joint-pos-fb\fR OUT float 
+\fBaxis.\fIN\fB.joint-pos-fb\fR OUT FLOAT 
 The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-probed\fR IN float 
+\fBaxis.\fIN\fB.motor-pos-probed\fR IN FLOAT 
 The joint position for this joint when the probe input last changed.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-cmd\fR OUT float 
+\fBaxis.\fIN\fB.motor-pos-cmd\fR OUT FLOAT 
 The commanded position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-fb\fR IN float 
+\fBaxis.\fIN\fB.motor-pos-fb\fR IN FLOAT 
 The actual position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-probed\fR IN float 
+\fBaxis.\fIN\fB.motor-pos-probed\fR IN FLOAT 
 The actual position for this joint when the probe input last changed.
 For drivers that support high-resolution probing, connect its latched
 position output to this pin.  For other drivers, connect the same thing
 that is connected to \fBjoint-pos-fb\fR.
 
 .TP
-\fBaxis.\fIN\fB.neg-lim-sw-in\fR IN bit 
+\fBaxis.\fIN\fB.neg-lim-sw-in\fR IN BIT 
 Should be driven TRUE if the negative limit switch for this joint is tripped.
 
 .TP
-\fBaxis.\fIN\fB.pos-lim-sw-in\fR IN bit 
+\fBaxis.\fIN\fB.pos-lim-sw-in\fR IN BIT 
 Should be driven TRUE if the positive limit switch for this joint is tripped.
 
 .TP
-\fBmotion.adaptive-feed\fR IN float 
+\fBaxis.\fIN\fB.unlock\fR OUT BIT 
+TRUE if the axis is a locked rotary and a move is commaned.
+
+.TP
+\fBmotion.adaptive-feed\fR IN FLOAT 
 When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied by this value. This effect is multiplicative with the NML-level feed override value and motion.feed-hold.
 
 .TP
-\fBmotion.analog-in-\fINN\fR IN float 
+\fBmotion.analog-in-\fINN\fR IN FLOAT 
 These pins are used by M66 Enn wait-for-input mode.
 
 .TP
-\fBmotion.analog-out-\fINN\fR OUT float 
+\fBmotion.analog-out-\fINN\fR OUT FLOAT 
 These pins are used by M67-68.
 
 .TP
-\fBmotion.coord-error\fR OUT bit 
+\fBmotion.coord-error\fR OUT BIT 
 TRUE when motion has encountered an error, such as exceeding a soft limit
 
 .TP
-\fBmotion.coord-mode\fR OUT bit 
+\fBmotion.coord-mode\fR OUT BIT 
 TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
 
 .TP
-\fBmotion.current-vel\fR
+\fBmotion.current-vel\fR OUT FLOAT
 Current cartesian velocity
 
 .TP
-\fBmotion.digital-in-\fINN\fR IN bit 
+\fBmotion.digital-in-\fINN\fR IN BIT 
 These pins are used by M66 Pnn wait-for-input mode.
 
 .TP
-\fBmotion.digital-out-\fINN\fR OUT bit 
+\fBmotion.digital-out-\fINN\fR OUT BIT 
 These pins are controlled by the M62 through M65 words.
 
 .TP
-\fBmotion.distance-to-go\fR OUT float
+\fBmotion.distance-to-go\fR OUT FLOAT
 Distance remaining in the current move
 
 .TP
-\fBmotion.enable\fR IN bit 
+\fBmotion.enable\fR IN BIT 
 If this bit is driven FALSE, motion stops, the machine is placed in the "machine off" state, and a message is displayed for the operator. For normal motion, drive this bit TRUE.
 
 .TP
-\fBmotion.feed-hold\fR IN bit 
+\fBmotion.feed-hold\fR IN BIT 
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
 .TP
-\fBmotion.motion-inpos\fR OUT bit 
+\fBmotion.motion-inpos\fR OUT BIT 
 TRUE if the machine is in position.
 
 .TP
-\fBmotion.motion-enabled\fR IN bit 
+\fBmotion.motion-enabled\fR IN BIT 
 TRUE when motion is enabled
 
 .TP
-\fBmotion.on-soft-limit\fR OUT bit 
+\fBmotion.on-soft-limit\fR OUT BIT 
 
 .TP
-\fBmotion.probe-input\fR IN bit 
+\fBmotion.probe-input\fR IN BIT 
 G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
 
 .TP
 \fBmotion.program-line\fR OUT S32 
 
 .TP
-\fBmotion.requested-vel\fR OUT float 
+\fBmotion.requested-vel\fR OUT FLOAT 
 The requested velocity with no adjustments for feed override
 
 .TP
-\fBmotion.spindle-at-speed\fR IN bit 
+\fBmotion.spindle-at-speed\fR IN BIT 
 Motion will pause until this pin is TRUE, under the following conditions: before the
 first feed move after each spindle start or speed change; before the start of every
 chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
 
 .TP
-\fBmotion.spindle-brake\fR OUT bit 
+\fBmotion.spindle-brake\fR OUT BIT 
 TRUE when the spindle brake should be applied
 
 .TP
-\fBmotion.spindle-forward\fR OUT bit 
+\fBmotion.spindle-forward\fR OUT BIT 
 TRUE when the spindle should rotate forward
 
 .TP
-\fBmotion.spindle-index-enable\fR I/O bit 
+\fBmotion.spindle-index-enable\fR I/O BIT 
 For correct operation of spindle synchronized moves, this signal must be hooked to the index-enable pin of the spindle encoder.
 
 .TP
-\fBmotion.spindle-on\fR OUT bit 
+\fBmotion.spindle-on\fR OUT BIT 
 TRUE when spindle should rotate
 
 .TP
-\fBmotion.spindle-reverse\fR OUT bit 
+\fBmotion.spindle-reverse\fR OUT BIT 
 TRUE when the spindle should rotate backward
 
 .TP
-\fBmotion.spindle-revs\fR IN float 
+\fBmotion.spindle-revs\fR IN FLOAT 
 For correct operation of spindle synchronized moves, this signal must be hooked to the position pin of the spindle encoder.
 
 .TP
-\fBmotion.spindle-speed-in\fR IN float 
+\fBmotion.spindle-speed-in\fR IN FLOAT 
 Actual spindle speed feedback in revolutions per second; used for G96 feed-per-revolution and constant surface speed modes.
 
 .TP
-\fBmotion.spindle-speed-out\fR OUT float 
+\fBmotion.spindle-speed-out\fR OUT FLOAT 
 Desired spindle speed in rotations per minute
 
 .TP
@@ -204,16 +212,16 @@ Desired spindle speed in rotations per minute
 Desired spindle speed in rotations per second
 
 .TP
-\fBmotion.teleop-mode\fR OUT bit
+\fBmotion.teleop-mode\fR OUT BIT
 
 .TP
-\fBmotion.tooloffset.w\fR OUT float
+\fBmotion.tooloffset.w\fR OUT FLOAT
 
 .TP
-\fBmotion.tooloffset.x\fR OUT float
+\fBmotion.tooloffset.x\fR OUT FLOAT
 
 .TP
-\fBmotion.tooloffset.z\fR OUT float
+\fBmotion.tooloffset.z\fR OUT FLOAT
 
 
 .SH DEBUGGING PINS
@@ -221,102 +229,98 @@ Desired spindle speed in rotations per second
 Many of the pins below serve as debugging aids, and are subject to change or removal at any time.
 
 .TP
-\fBaxis.\fIN\fB.active\fR 
+\fBaxis.\fIN\fB.active\fR OUT BIT
 TRUE when this joint is active
 
 .TP
-\fBaxis.\fIN\fB.backlash-corr\fR 
+\fBaxis.\fIN\fB.backlash-corr\fR OUT FLOAT
 Backlash or screw compensation raw value
 
 .TP
-\fBaxis.\fIN\fB.backlash-filt\fR 
+\fBaxis.\fIN\fB.backlash-filt\fR OUT FLOAT
 Backlash or screw compensation filtered value (respecting motion limits)
 
 .TP
-\fBaxis.\fIN\fB.backlash-vel\fR 
+\fBaxis.\fIN\fB.backlash-vel\fR OUT FLOAT
 Backlash or screw compensation velocity 
 
 .TP
-\fBaxis.\fIN\fB.coarse-pos-cmd\fR
+\fBaxis.\fIN\fB.coarse-pos-cmd\fR OUT FLOAT
 
 .TP
-\fBaxis.\fIN\fB.error\fR 
+\fBaxis.\fIN\fB.error\fR OUT BIT
 TRUE when this joint has encountered an error, such as a limit switch closing
 
 .TP
-\fBaxis.\fIN\fB.f-error\fR 
+\fBaxis.\fIN\fB.f-error\fR OUT FLOAT
 The actual following error
 
 .TP
-\fBaxis.\fIN\fB.f-error-lim\fR 
+\fBaxis.\fIN\fB.f-error-lim\fR OUT FLOAT
 The following error limit
 
 .TP
-\fBaxis.\fIN\fB.f-errored\fR 
+\fBaxis.\fIN\fB.f-errored\fR OUT BIT
 TRUE when this joint has exceeded the following error limit
 
 .TP
-\fBaxis.\fIN\fB.faulted\fR
+\fBaxis.\fIN\fB.faulted\fR OUT BIT
 
 .TP
-\fBaxis.\fIN\fB.free-pos-cmd\fR 
+\fBaxis.\fIN\fB.free-pos-cmd\fR OUT FLOAT
 The "free planner" commanded position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.free-tp-enable\fR 
+\fBaxis.\fIN\fB.free-tp-enable\fR OUT BIT
 TRUE when the "free planner" is enabled for this joint
 
 .TP
-\fBaxis.\fIN\fB.free-vel-lim\fR 
+\fBaxis.\fIN\fB.free-vel-lim\fR OUT FLOAT
 The velocity limit for the free planner
 
 .TP
-\fBaxis.\fIN\fB.home-state\fR 
-Reflects the step of homing currently taking place
-
-.TP
-\fBaxis.\fIN\fB.homed\fR 
+\fBaxis.\fIN\fB.homed\fR OUT BIT
 TRUE if the joint has been homed
 
 .TP
-\fBaxis.\fIN\fB.in-position\fR 
+\fBaxis.\fIN\fB.in-position\fR OUT BIT
 TRUE if the joint is using the "free planner" and has come to a stop
 
 .TP
-\fBaxis.\fIN\fB.joint-vel-cmd\fR 
+\fBaxis.\fIN\fB.joint-vel-cmd\fR OUT FLOAT
 The joint's commanded velocity
 
 .TP
-\fBaxis.\fIN\fB.kb-jog-active\fR
+\fBaxis.\fIN\fB.kb-jog-active\fR OUT BIT
 
 
 .TP
-\fBaxis.\fIN\fB.neg-hard-limit\fR 
+\fBaxis.\fIN\fB.neg-hard-limit\fR OUT BIT
 The negative hard limit for the joint
 
 .TP
-\fBaxis.\fIN\fB.pos-hard-limit\fR 
+\fBaxis.\fIN\fB.pos-hard-limit\fR OUT BIT
 The positive hard limit for the joint
 
 .TP
-\fBaxis.\fIN\fB.wheel-jog-active\fR
+\fBaxis.\fIN\fB.wheel-jog-active\fR OUT BIT
 
 .TP
-\fBmotion.in-position\fR 
+\fBmotion.in-position\fR OUT BIT
 Same as the pin motion.motion-inpos
 
 .TP
-\fBmotion.motion-enabled\fR 
+\fBmotion.motion-enabled\fR IN BIT
 
 .TP
-\fBmotion.on-soft-limit\fR
+\fBmotion.on-soft-limit\fR OUT BIT
 
 .TP
-\fBmotion.program-line\fR
+\fBmotion.program-line\fR OUT S32
 
 
 .TP
-\fBmotion.teleop-mode\fR
+\fBmotion.teleop-mode\fR OUT BIT
 TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
 
 

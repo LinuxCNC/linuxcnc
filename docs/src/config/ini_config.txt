@@ -534,6 +534,13 @@ Typically (but not always):
     degrees. Positive Numbers will move the axis in a positive direction and
     negative numbers will move the axis in the negative direction.
 
+* 'LOCKING_INDEXER = 1' - When this is set to 1 a G0 move for this axis will
+    initiate an unlock with axis.N.unlock pin then wait for the
+    axis.N.is-unlocked pin then move the axis at the rapid rate for that axis.
+    After the move the axis.N.unlock will be false and motion will wait for
+    axis.N.is-unlocked to go false. Currently, homing does not know how to
+    unlock and relock a joint. Moving with other axes is not allowed.
+
 * 'UNITS = INCH' -
     (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.
     (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
