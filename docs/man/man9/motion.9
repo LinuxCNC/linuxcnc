@@ -73,23 +73,12 @@ The joint (as opposed to motor) commanded position. There may be several offsets
 The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-probed\fR IN FLOAT 
-The joint position for this joint when the probe input last changed.
-
-.TP
 \fBaxis.\fIN\fB.motor-pos-cmd\fR OUT FLOAT 
 The commanded position for this joint.
 
 .TP
 \fBaxis.\fIN\fB.motor-pos-fb\fR IN FLOAT 
 The actual position for this joint.
-
-.TP
-\fBaxis.\fIN\fB.motor-pos-probed\fR IN FLOAT 
-The actual position for this joint when the probe input last changed.
-For drivers that support high-resolution probing, connect its latched
-position output to this pin.  For other drivers, connect the same thing
-that is connected to \fBjoint-pos-fb\fR.
 
 .TP
 \fBaxis.\fIN\fB.neg-lim-sw-in\fR IN BIT 
