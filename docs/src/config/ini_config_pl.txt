@@ -538,8 +538,8 @@ Typically (but not always):
     initiate an unlock with axis.N.unlock pin then wait for the
     axis.N.is-unlocked pin then move the axis at the rapid rate for that axis.
     After the move the axis.N.unlock will be false and motion will wait for
-    axis.N.is-unlocked to go false. Currently, homing does not know how to
-    unlock and relock a joint. Moving with other axes is not allowed.
+    axis.N.is-unlocked to go false. Moving with other axes is not allowed when
+    moving a locked rotary axis.
 
 * 'UNITS = INCH' -
     (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.
