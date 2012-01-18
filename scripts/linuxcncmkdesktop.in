@@ -14,5 +14,5 @@ Name=$2
 Exec=$EMC '$1'
 Type=Application
 Comment=$3
-Icon=emc2icon
+Icon=linuxcncicon
 EOF
