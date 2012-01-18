@@ -104,7 +104,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 ifneq "$(kernel_version)" "sim"
-	dh_fixperms -X/emc_module_helper
+	dh_fixperms -X/linuxcnc_module_helper
 endif
 	dh_pysupport
 	dh_makeshlibs

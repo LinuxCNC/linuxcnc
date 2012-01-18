@@ -777,7 +777,7 @@ To use these modules in your own scripts, you must ensure that the
 directory where they reside is on Python's module path. When running an
 installed version of EMC2, this should happen automatically. When
 running 'in-place', this can be done by using
-'scripts/emc-environment'.
+'scripts/rip-environment'.
 
 == Using AXIS in Lathe Mode
 (((AXIS in lathe mode)))

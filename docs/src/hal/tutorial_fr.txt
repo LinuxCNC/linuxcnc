@@ -74,7 +74,7 @@ pouvoir faire n'importe quoi avec HAL.
 
 Pour ce tutoriel, nous allons supposer que vous avez installé avec
 succès le CD-Live ou que vous avez compilé correctement l'arborescence
-emc2/src. Si nécessaire, invoquez le script *emc-environment* pour
+emc2/src. Si nécessaire, invoquez le script *rip-environment* pour
 préparer votre shell. Dans ce cas, tout ce que vous avez à faire
 est de charger le RTOS requis et les modules RTAPI dans la mémoire.
 Tapez juste les commandes suivantes dans une console:

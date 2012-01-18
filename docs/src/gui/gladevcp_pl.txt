@@ -188,7 +188,7 @@ Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
 
 - If EMC2 was not installed from a package, the EMC2 shell environment needs to be set up with
-+. <emcdir>/scripts/emc-environment+, otherwise glade won't find the EMC2-specific widgets.
++. <emcdir>/scripts/rip-environment+, otherwise glade won't find the EMC2-specific widgets.
 - When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
 - From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
 by default will be named 'window1'. Do not change this name - GladeVCP relies on it.

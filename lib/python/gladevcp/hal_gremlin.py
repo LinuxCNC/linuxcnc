@@ -17,7 +17,7 @@
 import os
 import gtk, gobject
 
-import emc
+import linuxcnc
 import gremlin
 import rs274.glcanon
 
@@ -35,7 +35,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-        inifile = emc.ini(inifile)
+        inifile = linuxcnc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
 
         self.gstat = GStat()

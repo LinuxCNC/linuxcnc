@@ -4,12 +4,12 @@
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-../share/emc/stepconf.glade: emc/usr_intf/stepconf/stepconf.glade
-	mkdir -p ../share/emc/
+../share/linuxcnc/stepconf.glade: emc/usr_intf/stepconf/stepconf.glade
+	mkdir -p ../share/linuxcnc/
 	cp -f $< $@
 
-../share/emc/emc2-wizard.gif: ../emc2-wizard.gif
+../share/linuxcnc/linuxcnc-wizard.gif: ../linuxcnc-wizard.gif
 	cp $< $@
 
-PYTARGETS += ../bin/stepconf ../share/emc/stepconf.glade ../share/emc/emc2-wizard.gif
+PYTARGETS += ../bin/stepconf ../share/linuxcnc/stepconf.glade ../share/linuxcnc/linuxcnc-wizard.gif
 PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py emc/usr_intf/stepconf/stepconf.glade

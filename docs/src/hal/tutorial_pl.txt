@@ -68,12 +68,12 @@ memory of your computer before you do anything with HAL.
 For this tutorial, we are going to assume that you have successfully
 installed the Live CD and, if using a RIP footnote:[Run In Place, when the
 source files have been downloaded to a user directory.], invoked the 
-'emc-environment' script to prepare your shell.
+'rip-environment' script to prepare your shell.
 In that case, all you need to do is
 load the required RTOS and RTAPI modules into memory. Just run the
 following command from a terminal window:
 
-// NOTE! add link to emc-environment explanation
+// NOTE! add link to rip-environment explanation
 
 .Loading HAL
 ----

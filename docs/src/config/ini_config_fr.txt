@@ -442,7 +442,7 @@ MDI_HISTORY_FILE =::
     enregistrera cet historique dans *.axis_mdi_history* dans le répertoire home de l'utilisateur.
     C'est très pratique dans le cas de multiples configurations sur la même machine.
 
-HELP_FILE = tkemc.txt::
+HELP_FILE = tklinucnc.txt::
     Chemin du fichier d'aide (non utilisé avec AXIS).
 
 [[sec:Section-FILTER]]

@@ -5,7 +5,7 @@ SETICONMODULESRCS := emc/usr_intf/axis/extensions/seticon.c
 TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
 PYSRCS += $(EMCMODULESRCS) $(MINIGLMODULESRCS) $(SETICONMODULESRCS) $(TOGLMODULESRCS)
 
-EMCMODULE := ../lib/python/emc.so
+EMCMODULE := ../lib/python/linuxcnc.so
 MINIGLMODULE := ../lib/python/minigl.so
 SETICONMODULE := ../lib/python/_tk_seticon.so
 TOGLMODULE := ../lib/python/_togl.so
@@ -14,7 +14,7 @@ $(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFL
 
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
-$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
 

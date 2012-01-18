@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-namespace eval emc {
+namespace eval linuxcnc {
     variable HOME @EMC2_HOME@
     variable BIN_DIR @EMC2_BIN_DIR@
     variable TCL_DIR @EMC2_TCL_DIR@
@@ -39,12 +39,12 @@ namespace eval emc {
     variable _langinit 1
 }
 
-if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
-    set env(PATH) $::emc::BIN_DIR:$env(PATH)
+if {[string first $::linuxcnc::BIN_DIR: $env(PATH)] != 0} {
+    set env(PATH) $::linuxcnc::BIN_DIR:$env(PATH)
 }
 
-proc emc::image_search i {
-    set paths "$emc::IMAGEDIR $emc::HOME $emc::HOME/etc/emc2 /etc/emc2 ."
+proc linuxcnc::image_search i {
+    set paths "$linuxcnc::IMAGEDIR $linuxcnc::HOME $linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
     foreach f $paths {
         if [file exists $f/$i] {
             return [image create photo -file $f/$i]
@@ -56,11 +56,11 @@ proc emc::image_search i {
     error "image $i is not available"
 }
 
-load [file join [file dirname [info script]] emc[info sharedlibextension]]
+load [file join [file dirname [info script]] linuxcnc[info sharedlibextension]]
 
 # Arrange to load hal.so when the 'hal' command is requested
 proc hal {args} {
-    load $::emc::TCL_LIB_DIR/hal.so
+    load $::linuxcnc::TCL_LIB_DIR/hal.so
     eval hal $args
 }
 
@@ -73,14 +73,14 @@ proc hal {args} {
 # If LANG is defined, then the folder src/po is searched for files
 # called *.msg, (e.g. en_US.msg).
 package require msgcat
-if {$emc::_langinit && [info exists env(LANG)]} {
+if {$linuxcnc::_langinit && [info exists env(LANG)]} {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $emc::LANG_DIR
-    set emc::_langinit 0
+    msgcat::mcload $linuxcnc::LANG_DIR
+    set linuxcnc::_langinit 0
 }
 
-proc emc::standard_font_size {} {
-    if {[info exists ::emc::standard_font_size]} { return $::emc::standard_font_size }
+proc linuxcnc::standard_font_size {} {
+    if {[info exists ::linuxcnc::standard_font_size]} { return $::linuxcnc::standard_font_size }
     set res1 [catch {exec gconftool -g /desktop/gnome/font_rendering/dpi} gnome_dpi]
     set res2 [catch {exec xlsfonts -fn -adobe-helvetica-medium-r-normal--*-*-*-*-p-*-iso10646-1} fonts]
     if {$res1 == 0 && $res2 == 0} {
@@ -96,32 +96,32 @@ proc emc::standard_font_size {} {
             }
         }
         return -$best_size
-        set ::emc::standard_font_size -$best_size
+        set ::linuxcnc::standard_font_size -$best_size
     } else {
-        set ::emc::standard_font_size 12
+        set ::linuxcnc::standard_font_size 12
     }
 }
 
-proc emc::standard_font_family {} {
+proc linuxcnc::standard_font_family {} {
     if {[lsearch [font names] TkDefaultFont] != -1} {
 	return [font configure TkDefaultFont -family]
     }
     return Helvetica
 }
 
-proc emc::standard_font {} {
+proc linuxcnc::standard_font {} {
     if {[lsearch [font names] TkDefaultFont] != -1} { return TkDefaultFont }
     list [standard_font_family] [standard_font_size]
 }
 
-proc emc::standard_fixed_font_family {} {
+proc linuxcnc::standard_fixed_font_family {} {
     if {[lsearch [font names] TkFixedFont] != -1} {
 	return [font configure TkFixedFont -family]
     }
     return Courier
 }
 
-proc emc::standard_fixed_font {} {
+proc linuxcnc::standard_fixed_font {} {
     if {[lsearch [font names] TkFixedFont] != -1} { return TkFixedFont }
     set sz [standard_font_size]
     if {$sz < 0 && $sz >= -12 && [lsearch [font families] fixed] != -1} {

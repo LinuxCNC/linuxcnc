@@ -44,38 +44,38 @@ $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 	chmod +x $@
 TARGETS += ../bin/tooledit
 
-../tcl/emc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
+../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
-TARGETS += ../tcl/emc.so
+TARGETS += ../tcl/linuxcnc.so
 
-../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/linuxcncrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
-TARGETS += ../bin/emcrsh
+TARGETS += ../bin/linuxcncrsh
 
-../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
 TARGETS += ../bin/schedrmt
 
-../bin/emclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/linuxcnclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
-TARGETS += ../bin/emclcd
+TARGETS += ../bin/linuxcnclcd
 
-../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
+../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/usrmot
 
-../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0 ../lib/libemchal.so.0
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
 TARGETS += ../bin/halui
 
 ifeq "$(HAVE_NCURSES)" "yes"
-../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
 TARGETS += ../bin/keystick
@@ -83,8 +83,8 @@ endif
 
 ifeq "$(HAVE_XAW)" "yes"
 $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
-../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/xlinuxcnc: $(call TOOBJS, $(XEMCSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
-TARGETS += ../bin/xemc
+TARGETS += ../bin/xlinuxcnc
 endif

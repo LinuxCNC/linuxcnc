@@ -685,7 +685,7 @@ AC_ARG_WITH(rmmod,
 	esac
     ],
     [
-            RMMOD="$EMC2_BIN_DIR/emc_module_helper remove"
+            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
     ])
 
 AC_ARG_WITH(insmod,
@@ -703,7 +703,7 @@ AC_ARG_WITH(insmod,
 	esac
     ],
     [
-            INSMOD="$EMC2_BIN_DIR/emc_module_helper insert"
+            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
 
 ##############################################################################
@@ -1440,20 +1440,20 @@ AC_SUBST([SITEPY])
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../docs/man/man1/emc.1])
-AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
+AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
-AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
+AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-AC_CONFIG_FILES(../tcl/emc.tcl)
+AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
-AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
-AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
-AC_CONFIG_FILES(../share/applications/emc-latencyplot.desktop)
-AC_CONFIG_FILES(../share/applications/emc.desktop)
+AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
+AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
@@ -1505,7 +1505,7 @@ echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
 echo "#   Before running the software, set the emc environment:            #"
-echo "#         . (top dir)/scripts/emc-environment                        #"
+echo "#         . (top dir)/scripts/rip-environment                        #"
 else
 bold
 echo "#   warning: If you already have an installed emc2, this will        #"

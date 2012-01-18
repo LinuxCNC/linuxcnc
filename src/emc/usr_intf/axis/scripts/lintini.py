@@ -19,9 +19,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, os
-import emc
+import linuxcnc
 
-ini = emc.ini(sys.argv[1])
+ini = linuxcnc.ini(sys.argv[1])
 
 nproblems = 0
 def report_problem(msg, *args):

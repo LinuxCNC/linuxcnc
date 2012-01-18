@@ -62,7 +62,7 @@ import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
-import emc
+import linuxcnc
 from glnav import *
 
 if os.environ.has_key("AXIS_NO_HAL"):
@@ -108,7 +108,7 @@ class AxisPreferences(cp):
 if sys.argv[1] != "-ini":
     raise SystemExit, "-ini must be first argument"
 
-inifile = emc.ini(sys.argv[2])
+inifile = linuxcnc.ini(sys.argv[2])
 
 ap = AxisPreferences()
 
@@ -118,7 +118,7 @@ root_window.iconify()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
-root_window.tk.call("set", "version", emc.version)
+root_window.tk.call("set", "version", linuxcnc.version)
 
 try:
     nf.source_lib_tcl(root_window,"axis.tcl")
@@ -214,7 +214,7 @@ help2 = [
 
 def install_help(app):
     keys = nf.makewidget(app, Frame, '.keys.text')
-    fixed = app.tk.call("emc::standard_fixed_font")
+    fixed = app.tk.call("linuxcnc::standard_fixed_font")
     for i in range(len(help1)):
         a, b = help1[i]
         Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=0, sticky="w")
@@ -243,7 +243,7 @@ color_names = [
 ]   
 
 def joints_mode():
-    return s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY
+    return s.motion_mode == linuxcnc.TRAJ_MODE_FREE and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
 
 def parse_color(c):
     if c == "": return (1,0,0)
@@ -674,18 +674,18 @@ class LivePlotter:
 
     def start(self):
         if self.running.get(): return
-        if not os.path.exists(emc.nmlfile):
+        if not os.path.exists(linuxcnc.nmlfile):
             return False
         try:
-            self.stat = emc.stat()
-        except emc.error:
+            self.stat = linuxcnc.stat()
+        except linuxcnc.error:
             return False
         def C(s):
             a = o.colors[s + "_alpha"]
             s = o.colors[s]
             return [int(x * 255) for x in s + (a,)]
 
-        self.logger = emc.positionlogger(emc.stat(),
+        self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
             C('backplotfeed'),
@@ -717,7 +717,7 @@ class LivePlotter:
         error = e.poll()
         if error: 
             kind, text = error
-            if kind in (emc.NML_ERROR, emc.OPERATOR_ERROR):
+            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
             else:
                 icon = "info"
@@ -729,7 +729,7 @@ class LivePlotter:
             return
         try:
             self.stat.poll()
-        except emc.error, detail:
+        except linuxcnc.error, detail:
             print "error", detail
             del self.stat
             return
@@ -863,7 +863,7 @@ class LivePlotter:
 
 def running(do_poll=True):
     if do_poll: s.poll()
-    return s.task_mode == emc.MODE_AUTO and s.interp_state != emc.INTERP_IDLE
+    return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
 
 def manual_tab_visible():
     page = root_window.tk.call(widgets.tabs, "raise")
@@ -877,8 +877,8 @@ initiated action (whether an MDI command or a jog) is acceptable.
 
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
-    if s.task_state != emc.STATE_ON: return False
-    return s.interp_state == emc.INTERP_IDLE
+    if s.task_state != linuxcnc.STATE_ON: return False
+    return s.interp_state == linuxcnc.INTERP_IDLE
 
 # If emc is not already in one of the modes given, switch it to the first
 # mode
@@ -1080,9 +1080,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
         # writes out the var file.  there was a reset here, and that
         # causes a var file write, but nukes important settings like
         # TLO.
-        ensure_mode(emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_MDI)
         c.wait_complete()
-        ensure_mode(emc.MODE_AUTO)
+        ensure_mode(linuxcnc.MODE_AUTO)
         c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
@@ -1683,7 +1683,7 @@ class TclCommands(nf.TclCommands):
         c.set_block_delete(vars.block_delete.get())
         ap.putpref("block_delete", vars.block_delete.get())
         c.wait_complete()
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -1848,17 +1848,17 @@ class TclCommands(nf.TclCommands):
 
     def estop_clicked(event=None):
         s.poll()
-        if s.task_state == emc.STATE_ESTOP:
-            c.state(emc.STATE_ESTOP_RESET)
+        if s.task_state == linuxcnc.STATE_ESTOP:
+            c.state(linuxcnc.STATE_ESTOP_RESET)
         else:
-            c.state(emc.STATE_ESTOP)
+            c.state(linuxcnc.STATE_ESTOP)
 
     def onoff_clicked(event=None):
         s.poll()
-        if s.task_state == emc.STATE_ESTOP_RESET:
-            c.state(emc.STATE_ON)
+        if s.task_state == linuxcnc.STATE_ESTOP_RESET:
+            c.state(linuxcnc.STATE_ON)
         else:
-            c.state(emc.STATE_OFF)
+            c.state(linuxcnc.STATE_OFF)
 
     def open_file(*event):
         if running(): return
@@ -1949,46 +1949,46 @@ class TclCommands(nf.TclCommands):
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
-        ensure_mode(emc.MODE_AUTO)
-        c.auto(emc.AUTO_RUN, program_start_line)
+        ensure_mode(linuxcnc.MODE_AUTO)
+        c.auto(linuxcnc.AUTO_RUN, program_start_line)
         program_start_line = 0
         t.tag_remove("ignored", "0.0", "end")
         o.set_highlight_line(None)
 
     def task_step(*event):
-        if s.task_mode != emc.MODE_AUTO or s.interp_state != emc.INTERP_IDLE:
+        if s.task_mode != linuxcnc.MODE_AUTO or s.interp_state != linuxcnc.INTERP_IDLE:
             o.set_highlight_line(None)
             if run_warn(): return
-        ensure_mode(emc.MODE_AUTO)
-        c.auto(emc.AUTO_STEP)
+        ensure_mode(linuxcnc.MODE_AUTO)
+        c.auto(linuxcnc.AUTO_STEP)
 
     def task_pause(*event):
-        if s.task_mode != emc.MODE_AUTO or s.interp_state not in (emc.INTERP_READING, emc.INTERP_WAITING):
+        if s.task_mode != linuxcnc.MODE_AUTO or s.interp_state not in (linuxcnc.INTERP_READING, linuxcnc.INTERP_WAITING):
             return
-        ensure_mode(emc.MODE_AUTO)
-        c.auto(emc.AUTO_PAUSE)
+        ensure_mode(linuxcnc.MODE_AUTO)
+        c.auto(linuxcnc.AUTO_PAUSE)
 
     def task_resume(*event):
         s.poll()
         if not s.paused:
             return
-        if s.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
+        if s.task_mode not in (linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI):
             return
-        ensure_mode(emc.MODE_AUTO, emc.MODE_MDI)
-        c.auto(emc.AUTO_RESUME)
+        ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
+        c.auto(linuxcnc.AUTO_RESUME)
 
     def task_pauseresume(*event):
-        if s.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
+        if s.task_mode not in (linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI):
             return
-        ensure_mode(emc.MODE_AUTO, emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
         s.poll()
         if s.paused:
-            c.auto(emc.AUTO_RESUME)
-        elif s.interp_state != emc.INTERP_IDLE:
-            c.auto(emc.AUTO_PAUSE)
+            c.auto(linuxcnc.AUTO_RESUME)
+        elif s.interp_state != linuxcnc.INTERP_IDLE:
+            c.auto(linuxcnc.AUTO_PAUSE)
 
     def task_stop(*event):
-        if s.task_mode == emc.MODE_AUTO and vars.running_line.get() != 0:
+        if s.task_mode == linuxcnc.MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
         c.abort()
         c.wait_complete()
@@ -2039,7 +2039,7 @@ class TclCommands(nf.TclCommands):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
-            ensure_mode(emc.MODE_MDI)
+            ensure_mode(linuxcnc.MODE_MDI)
             widgets.mdi_history.selection_clear(0, "end")
             ## check if input is already in list. If so, then delete old element
             #idx = 0
@@ -2155,12 +2155,12 @@ class TclCommands(nf.TclCommands):
 
     def ensure_manual(*event):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         commands.set_joint_mode()
 
     def ensure_mdi(*event):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_MDI)
 
     def redraw(*ignored):
         o.tkRedraw()
@@ -2232,7 +2232,7 @@ class TclCommands(nf.TclCommands):
 
     def home_all_axes(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         isHomed=True
         for i,h in enumerate(s.homed):
             if s.axis_mask & (1<<i):
@@ -2245,7 +2245,7 @@ class TclCommands(nf.TclCommands):
 
     def unhome_all_axes(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.unhome(-1)
 
     def home_axis(event=None):
@@ -2254,24 +2254,24 @@ class TclCommands(nf.TclCommands):
         if s.homed["xyzabcuvw".index(vars.current_axis.get())]:
             doHoming=prompt_areyousure(_("Warning"),_("This axis is already homed, are you sure you want to re-home?"))
         if doHoming:
-            ensure_mode(emc.MODE_MANUAL)
+            ensure_mode(linuxcnc.MODE_MANUAL)
             c.home("xyzabcuvw".index(vars.current_axis.get()))
 
     def unhome_axis(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.unhome("xyzabcuvw".index(vars.current_axis.get()))
 
     def home_axis_number(num):
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.home(num)
 
     def unhome_axis_number(num):
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.unhome(num)
 
     def clear_offset(num):
-        ensure_mode(emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
         if num == "G92":
             clear_command = "G92.1"
@@ -2281,7 +2281,7 @@ class TclCommands(nf.TclCommands):
                 if s.axis_mask & (1<<i): clear_command += " %c0" % a
         c.mdi(clear_command)
         c.wait_complete()
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -2299,7 +2299,7 @@ class TclCommands(nf.TclCommands):
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
         vars.touch_off_system.set(system)
-        ensure_mode(emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
         linear_axis = vars.current_axis.get() in "xyzuvw"
@@ -2321,7 +2321,7 @@ class TclCommands(nf.TclCommands):
             c.mdi(offset_command)
             c.wait_complete()
 
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -2331,32 +2331,32 @@ class TclCommands(nf.TclCommands):
 
     def brake(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.brake(vars.brake.get())
     def flood(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.flood(vars.flood.get())
     def mist(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.mist(vars.mist.get())
     def spindle(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(vars.spindledir.get())
     def spindle_increase(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
-        c.spindle(emc.SPINDLE_INCREASE)
+        ensure_mode(linuxcnc.MODE_MANUAL)
+        c.spindle(linuxcnc.SPINDLE_INCREASE)
     def spindle_decrease(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
-        c.spindle(emc.SPINDLE_DECREASE)
+        ensure_mode(linuxcnc.MODE_MANUAL)
+        c.spindle(linuxcnc.SPINDLE_DECREASE)
     def spindle_constant(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
-        c.spindle(emc.SPINDLE_CONSTANT)
+        ensure_mode(linuxcnc.MODE_MANUAL)
+        c.spindle(linuxcnc.SPINDLE_CONSTANT)
     def set_first_line(lineno):
         if not manual_ok(): return
         set_first_line(lineno)
@@ -2408,11 +2408,11 @@ class TclCommands(nf.TclCommands):
 
     def toggle_override_limits(*args):
         s.poll()
-        if s.interp_state != emc.INTERP_IDLE: return
+        if s.interp_state != linuxcnc.INTERP_IDLE: return
         if s.axis[0]['override_limits']:
-            ensure_mode(emc.MODE_AUTO)
+            ensure_mode(linuxcnc.MODE_AUTO)
         else:
-            ensure_mode(emc.MODE_MANUAL)
+            ensure_mode(linuxcnc.MODE_MANUAL)
             c.override_limits()
 
     def cycle_view(*args):
@@ -2683,7 +2683,7 @@ except IOError:
 def jog(*args):
     if not manual_ok(): return
     if not manual_tab_visible(): return
-    ensure_mode(emc.MODE_MANUAL)
+    ensure_mode(linuxcnc.MODE_MANUAL)
     c.jog(*args)
 
 # XXX correct for machines with more than six axes
@@ -2703,7 +2703,7 @@ def jog_on(a, b):
         jog_after[a] = None
         return
     jogincr = widgets.jogincr.get()
-    if s.motion_mode == emc.TRAJ_MODE_TELEOP:
+    if s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
         jogging[a] = b
         jog_cont[a] = False
         cartesian_only=jogging[:6]
@@ -2713,10 +2713,10 @@ def jog_on(a, b):
             s.poll()
             if s.state != 1: return
             distance = parse_increment(jogincr)
-            jog(emc.JOG_INCREMENT, a, b, distance)
+            jog(linuxcnc.JOG_INCREMENT, a, b, distance)
             jog_cont[a] = False
         else:
-            jog(emc.JOG_CONTINUOUS, a, b)
+            jog(linuxcnc.JOG_CONTINUOUS, a, b)
             jog_cont[a] = True
             jogging[a] = b
 
@@ -2731,12 +2731,12 @@ def jog_off_actual(a):
     activate_axis(a)
     jog_after[a] = None
     jogging[a] = 0
-    if s.motion_mode == emc.TRAJ_MODE_TELEOP:
+    if s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
         cartesian_only=jogging[:6]
         c.teleop_vector(*cartesian_only)
     else:
         if jog_cont[a]:
-            jog(emc.JOG_STOP, a)
+            jog(linuxcnc.JOG_STOP, a)
 
 def jog_off_all():
     for i in range(6):
@@ -2813,7 +2813,7 @@ widgets.feedoverride.configure(to=max_feed_override)
 widgets.spinoverride.configure(to=max_spindle_override)
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
-    emc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), nmlfile)
+    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), nmlfile)
 vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
@@ -2854,7 +2854,7 @@ update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
 
-s = emc.stat();
+s = linuxcnc.stat();
 s.poll()
 statfail=0
 statwait=.01
@@ -2970,8 +2970,8 @@ for i in range(num_joints, 9):
     
 if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
-c = emc.command()
-e = emc.error_channel()
+c = linuxcnc.command()
+e = linuxcnc.error_channel()
 
 c.set_block_delete(vars.block_delete.get())
 c.wait_complete()
@@ -3230,7 +3230,7 @@ def balance_ja():
     h = max(widgets.axes.winfo_reqheight(), widgets.joints.winfo_reqheight())
     widgets.axes.configure(width=w, height=h)
     widgets.joints.configure(width=w, height=h)
-if s.kinematics_type != emc.KINEMATICS_IDENTITY:
+if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
     c.teleop_enable(0)
     c.wait_complete()
     vars.joint_mode.set(0)

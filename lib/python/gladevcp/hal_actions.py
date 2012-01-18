@@ -21,7 +21,7 @@ import time
 import re, string
 
 from hal_widgets import _HalWidgetBase
-import emc
+import linuxcnc
 from hal_glib import GStat
 
 _ = lambda x: x
@@ -29,16 +29,16 @@ _ = lambda x: x
 class _EMCStaticHolder:
     def __init__(self):
         # Delay init...
-        self.emc = None
+        self.linuxcnc = None
         self.stat = None
         self.gstat = None
 
     def get(self):
-        if not self.emc:
-            self.emc = emc.command()
+        if not self.linuxcnc:
+            self.linuxcnc = linuxcnc.command()
         if not self.gstat:
             self.gstat = GStat()
-        return self.emc, self.gstat.stat, self.gstat
+        return self.linuxcnc, self.gstat.stat, self.gstat
 
 class _EMCStatic:
     holder = _EMCStaticHolder()
@@ -53,12 +53,12 @@ class _EMC_ActionBase(_HalWidgetBase):
     emc_static = _EMCStatic()
 
     def _hal_init(self):
-        self.emc, self.stat, self.gstat = self.emc_static.get()
+        self.linuxcnc, self.stat, self.gstat = self.linuxcnc_static.get()
         self._stop_emission = False
 
     def machine_on(self):
         self.stat.poll()
-        return self.stat.task_state > emc.STATE_OFF
+        return self.stat.task_state > linuxcnc.STATE_OFF
 
     def safe_handler(self, f):
         def _f(self, *a, **kw):
@@ -142,7 +142,7 @@ class _EMC_RadioAction(gtk.RadioAction, _EMC_ToggleAction):
 class EMC_Stat(GStat, _EMC_ActionBase):
     __gtype_name__ = 'EMC_Stat'
     def __init__(self):
-        stat = self.emc_static.get()[2]
+        stat = self.linuxcnc_static.get()[2]
         GStat.__init__(self, stat)
 
     def _hal_init(self):
@@ -156,10 +156,10 @@ def _action(klass, f, *a, **kw):
             f(self, *a, **kw)
     return _C
 
-EMC_Action_ESTOP = _action('EMC_Action_ESTOP', lambda s: s.emc.state(emc.STATE_ESTOP))
-EMC_Action_ESTOP_RESET = _action('EMC_Action_ESTOP_RESET', lambda s: s.emc.state(emc.STATE_ESTOP_RESET))
-EMC_Action_ON    = _action('EMC_Action_ON', lambda s: s.emc.state(emc.STATE_ON))
-EMC_Action_OFF   = _action('EMC_Action_OFF', lambda s: s.emc.state(emc.STATE_OFF))
+EMC_Action_ESTOP = _action('EMC_Action_ESTOP', lambda s: s.linuxcnc.state(linuxcnc.STATE_ESTOP))
+EMC_Action_ESTOP_RESET = _action('EMC_Action_ESTOP_RESET', lambda s: s.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET))
+EMC_Action_ON    = _action('EMC_Action_ON', lambda s: s.linuxcnc.state(linuxcnc.STATE_ON))
+EMC_Action_OFF   = _action('EMC_Action_OFF', lambda s: s.linuxcnc.state(linuxcnc.STATE_OFF))
 
 class EMC_ToggleAction_ESTOP(_EMC_ToggleAction):
     __gtype_name__ = 'EMC_ToggleAction_ESTOP'
@@ -174,10 +174,10 @@ class EMC_ToggleAction_ESTOP(_EMC_ToggleAction):
     def on_toggled(self, w):
         if self.get_active():
             print 'Issuing ESTOP'
-            self.emc.state(emc.STATE_ESTOP)
+            self.linuxcnc.state(linuxcnc.STATE_ESTOP)
         else:
             print 'Issuing ESTOP RESET'
-            self.emc.state(emc.STATE_ESTOP_RESET)
+            self.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET)
 
 class EMC_ToggleAction_Power(_EMC_ToggleAction):
     __gtype_name__ = 'EMC_ToggleAction_Power'
@@ -195,10 +195,10 @@ class EMC_ToggleAction_Power(_EMC_ToggleAction):
     def on_toggled(self, w):
         if self.get_active():
             print 'Issuing ON'
-            self.emc.state(emc.STATE_ON)
+            self.linuxcnc.state(linuxcnc.STATE_ON)
         else:
             print 'Issuing OFF'
-            self.emc.state(emc.STATE_OFF)
+            self.linuxcnc.state(linuxcnc.STATE_OFF)
 
 class EMC_RadioAction_ESTOP(_EMC_RadioAction):
     __gtype_name__ = 'EMC_RadioAction_ESTOP'
@@ -210,7 +210,7 @@ class EMC_RadioAction_ESTOP(_EMC_RadioAction):
         self.gstat.connect('state-estop', lambda w: self.set_active_safe(True))
 
     def on_activate(self, w):
-        self.emc.state(emc.STATE_ESTOP)
+        self.linuxcnc.state(linuxcnc.STATE_ESTOP)
 
 class EMC_RadioAction_ESTOP_RESET(_EMC_RadioAction):
     __gtype_name__ = 'EMC_RadioAction_ESTOP_RESET'
@@ -222,7 +222,7 @@ class EMC_RadioAction_ESTOP_RESET(_EMC_RadioAction):
         self.gstat.connect('state-estop-reset', lambda w: self.set_active_safe(True))
 
     def on_activate(self, w):
-        self.emc.state(emc.STATE_ESTOP_RESET)
+        self.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET)
 
 class EMC_RadioAction_ON(_EMC_RadioAction):
     __gtype_name__ = 'EMC_RadioAction_ON'
@@ -236,7 +236,7 @@ class EMC_RadioAction_ON(_EMC_RadioAction):
         self.gstat.connect('state-estop-reset', lambda w: self.set_sensitive(True))
 
     def on_activate(self, w):
-        self.emc.state(emc.STATE_ON)
+        self.linuxcnc.state(linuxcnc.STATE_ON)
 
 class EMC_RadioAction_OFF(_EMC_RadioAction):
     __gtype_name__ = 'EMC_RadioAction_OFF'
@@ -250,11 +250,11 @@ class EMC_RadioAction_OFF(_EMC_RadioAction):
         self.gstat.connect('state-estop-reset', lambda w: self.set_sensitive(True))
 
     def on_activate(self, w):
-        self.emc.state(emc.STATE_OFF)
+        self.linuxcnc.state(linuxcnc.STATE_OFF)
 
 def running(s, do_poll=True):
     if do_poll: s.poll()
-    return s.task_mode == emc.MODE_AUTO and s.interp_state != emc.INTERP_IDLE
+    return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
 
 def ensure_mode(s, c, *modes):
     s.poll()
@@ -269,8 +269,8 @@ class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
     def on_activate(self, w):
         program_start_line = 0
-        ensure_mode(self.stat, self.emc, emc.MODE_AUTO)
-        self.emc.auto(emc.AUTO_RUN, program_start_line)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
+        self.linuxcnc.auto(linuxcnc.AUTO_RUN, program_start_line)
 
 class EMC_Action_Step(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Step'
@@ -282,18 +282,18 @@ class EMC_Action_Step(_EMC_Action):
         self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
 
     def on_activate(self, w):
-        ensure_mode(self.stat, self.emc, emc.MODE_AUTO)
-        self.emc.auto(emc.AUTO_STEP)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
+        self.linuxcnc.auto(linuxcnc.AUTO_STEP)
 
 class EMC_Action_Pause(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Pause'
     def on_activate(self, w):
         self.stat.poll()
-        if self.stat.task_mode != emc.MODE_AUTO or\
-                self.stat.interp_state not in (emc.INTERP_READING, emc.INTERP_WAITING):
+        if self.stat.task_mode != linuxcnc.MODE_AUTO or\
+                self.stat.interp_state not in (linuxcnc.INTERP_READING, linuxcnc.INTERP_WAITING):
             return
-        ensure_mode(self.stat, self.emc, emc.MODE_AUTO)
-        self.emc.auto(emc.AUTO_PAUSE)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
+        self.linuxcnc.auto(linuxcnc.AUTO_PAUSE)
 
 class EMC_Action_Resume(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Resume'
@@ -302,16 +302,16 @@ class EMC_Action_Resume(_EMC_Action):
         self.stat.poll()
         if not self.stat.paused:
             return
-        if self.stat.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
+        if self.stat.task_mode not in (linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI):
             return
-        ensure_mode(self.stat, self.emc, emc.MODE_AUTO, emc.MODE_MDI)
-        self.emc.auto(emc.AUTO_RESUME)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
+        self.linuxcnc.auto(linuxcnc.AUTO_RESUME)
 
 class EMC_Action_Stop(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Stop'
     def on_activate(self, w):
-        self.emc.abort()
-        self.emc.wait_complete()
+        self.linuxcnc.abort()
+        self.linuxcnc.wait_complete()
 
 class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
     __gtype_name__ = 'EMC_ToggleAction_Run'
@@ -402,10 +402,10 @@ class EMC_Action_MDI(_EMC_Action):
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
 
     def on_activate(self, w):
-        ensure_mode(self.stat, self.emc, emc.MODE_MDI)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
         template = HalTemplate(self.command)
         cmd = template.substitute(FloatComp(self.hal))
-        self.emc.mdi(cmd)
+        self.linuxcnc.mdi(cmd)
 
 class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
     __gtype_name__ = 'EMC_ToggleAction_MDI'
@@ -428,7 +428,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         gobject.timeout_add(100, self.wait_complete)
 
     def wait_complete(self):
-        if self.emc.wait_complete(0) in [-1, emc.RCS_EXEC]:
+        if self.linuxcnc.wait_complete(0) in [-1, linuxcnc.RCS_EXEC]:
             return True
         self.emit('mdi-command-stop')
         self.set_active_safe(False)
@@ -440,8 +440,8 @@ class EMC_Action_Home(_EMC_Action):
     axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
     def on_activate(self, w):
-        ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
-        self.emc.unhome(self.axis)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
+        self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
     dialog = gtk.MessageDialog(None, 0, type, gtk.BUTTONS_YES_NO, message)
@@ -466,9 +466,9 @@ class EMC_Action_Home(_EMC_Action):
 
     def on_activate(self, w):
         #if not manual_ok(): return
-        ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
         if self.confirm_homed and self.homed():
             if not prompt_areyousure(gtk.MESSAGE_WARNING,
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
-        self.emc.home(self.axis)
+        self.linuxcnc.home(self.axis)

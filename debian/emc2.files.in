@@ -18,9 +18,9 @@ usr/share/doc/emc2/UPDATING
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/AUTHORS
 usr/share/doc/emc2/axis_light_background
-usr/share/doc/emc2/xemc.txt
+usr/share/doc/emc2/xlinuxcnc.txt
 usr/share/doc/emc2/README
-usr/share/doc/emc2/tkemc.txt
+usr/share/doc/emc2/tklinuxcnc.txt
 usr/share/doc/emc2/README.axis
 usr/share/doc/emc2/examples/sample-configs/*/*
 usr/share/emc/*

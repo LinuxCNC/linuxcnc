@@ -2,7 +2,7 @@
 # Copyright 2007 Ben Lipkowitz
 # You may distribute this software under the GNU GPL v2 or later
 #
-# see emc2/configs/tracking-test.hal
+# see configs/tracking-test.hal
 
 from vismach import *
 import hal

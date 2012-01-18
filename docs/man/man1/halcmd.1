@@ -118,15 +118,15 @@ module called \fImodname\fR.  \fBhalcmd\fR looks for the module
 in a directory specified at compile time.
 
 In systems with realtime, \fBhalcmd\fR calls the
-\fBemc_module_helper\fR to load realtime modules.
-\fBemc_module_helper\fR is a setuid program and is compiled with
+\fBlinuxcnc_module_helper\fR to load realtime modules.
+\fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
 a whitelist of modules it is allowed to load.  This is currently
 just a list of \fBEMC\fR-related modules.  The
-\fBemc_module_helper\fR execs insmod, so return codes and error
+\fBlinuxcnc_module_helper\fR execs insmod, so return codes and error
 messages are those from insmod.  Administrators who wish to
 restrict which users can load these \fBEMC\fR-related kernel
 modules can do this by setting the permissions and group on
-\fBemc_module_helper\fR appropriately.
+\fBlinuxcnc_module_helper\fR appropriately.
 
 In systems without realtime \fBhalcmd\fR calls the
 \fBrtapi_app\fR which creates the simulated realtime environment
@@ -137,7 +137,7 @@ with a call to \fBdlopen(3)\fR.
 (\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
 module called \fImodname\fR.  If \fImodname\fR is "all", it will
 unload all currently loaded realtime HAL modules.  \fBunloadrt\fR
-also works by execing \fBemc_module_helper\fR or \fBrtapi_app\fR, just like
+also works by execing \fBlinuxcnc_module_helper\fR or \fBrtapi_app\fR, just like
 \fBloadrt\fR.
 .TP
 \fBloadusr\fR \fI[flags]\fR \fIunix-command\fR

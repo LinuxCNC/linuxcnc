@@ -1,7 +1,7 @@
 IOSRCS := emc/iotask/ioControl.cc emc/rs274ngc/tool_parse.cc
 USERSRCS += $(IOSRCS)
 
-../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
+../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/io

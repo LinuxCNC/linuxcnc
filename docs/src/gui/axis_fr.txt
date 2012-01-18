@@ -874,7 +874,7 @@ Pour utiliser ces modules dans vos propres scripts, assurez-vous que
 le répertoire où ils se trouvent est dans le chemin d'accès des modules
 Python. Avec une version installée d'EMC2, ça se fera automatiquement.
 Avec une version installée en _in-place_, ça peut être fait avec l'aide
-de: _/scripts/emc-environment_.
+de: _/scripts/rip-environment_.
 
 == Utiliser AXIS en mode tour
 (((AXIS avec un tour)))

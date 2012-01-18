@@ -16,8 +16,8 @@ exec $EMC2_EMCSH "$0" "$@"
 # FIXME -- please hal param naming conventions aren't
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
 package require BWidget
 

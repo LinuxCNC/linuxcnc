@@ -2,7 +2,7 @@
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-source [file join [file dirname [info script]] .. emc.tcl]
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
 ###############################################################
 # Description:  emctesting.tcl

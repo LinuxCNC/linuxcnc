@@ -25,13 +25,13 @@ exec wish "$0" "$@"
 #
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
-set logo [emc::image_search emc2-wizard]
+set logo [linuxcnc::image_search linuxcnc-wizard]
 image create photo machinelogo
 
-option add *font [emc::standard_fixed_font]
+option add *font [linuxcnc::standard_fixed_font]
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
@@ -182,7 +182,7 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-set configs_dir_list $emc::CONFIG_DIR
+set configs_dir_list $linuxcnc::CONFIG_DIR
 
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
@@ -266,10 +266,10 @@ pack $f1 -fill both -expand y
 set ::config_count 0
 
 proc describe {dir} {
-    if {[string compare $dir $emc::USER_CONFIG_DIR] == 0} {
+    if {[string compare $dir $linuxcnc::USER_CONFIG_DIR] == 0} {
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir [lindex $emc::CONFIG_DIR end]] == 0} {
+    if {[string compare $dir [lindex $linuxcnc::CONFIG_DIR end]] == 0} {
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
@@ -367,10 +367,10 @@ proc prompt_copy configname {
 
     if {$res == -1 || $res == 1} { return "" }
     set configdir [format %s [file dirname $configname]]
-    foreach d $emc::CONFIG_DIR {
+    foreach d $linuxcnc::CONFIG_DIR {
       if {"$d" == "$configdir"} {
-        # found configdir at level 0 of a directory in the emc::CONFIG_DIR list
-        set copydir [format %s [file join $emc::USER_CONFIG_DIR [file tail $configdir]]]
+        # found configdir at level 0 of a directory in the linuxcnc::CONFIG_DIR list
+        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR [file tail $configdir]]]
         break
       }
       # if configdir not found at level 0, try subdirs
@@ -382,7 +382,7 @@ proc prompt_copy configname {
         # will work in both run-in-place and packaged builds
         set     idx [expr 1 + [string length $d]]
         set copydir [string range $configdir $idx end]
-        set copydir [format %s [file join $emc::USER_CONFIG_DIR $copydir]]
+        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR $copydir]]
         break
       }
     }
@@ -393,14 +393,14 @@ proc prompt_copy configname {
     file mkdir [file join ~ emc2 configs]
     if {![file exists $ncfiles]} {
         file mkdir $ncfiles
-        file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
+        file link -symbolic [file join $ncfiles/examples] $linuxcnc::NCFILES_DIR
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
         set liblist {ngcgui gladevcp}
         foreach lib $liblist {
            file link -symbolic [file join $ncfiles/${lib}_lib] \
-                               [file join $emc::NCFILES_DIR ${lib}_lib]
+                               [file join $linuxcnc::NCFILES_DIR ${lib}_lib]
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]

@@ -237,7 +237,7 @@ user interface program.
 The following [DISPLAY] items are not used if you select AXIS as your
 user interface program.
 
-* 'HELP_FILE = tkemc.txt' -
+* 'HELP_FILE = tklinucnc.txt' -
     Path to help file (not used in AXIS).
 
 === [FILTER] Section[[sub:[FILTER]-Section]]

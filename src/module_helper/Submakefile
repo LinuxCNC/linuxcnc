@@ -9,9 +9,9 @@ else
     $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
 endif
 
-../bin/emc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
+../bin/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
 	$(ECHO) Linking $(notdir $@)
 	@$(CC) -o $@ $^
 
-TARGETS += ../bin/emc_module_helper
+TARGETS += ../bin/linuxcnc_module_helper
 endif

@@ -3,7 +3,7 @@
     python teach.py nmlfile outputfile
 If outputfile is not specified, writes to standard output.
 
-You must ". scripts/emc-environment" before running this script, if you use
+You must ". scripts/rip-environment" before running this script, if you use
 run-in-place.
 """
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
@@ -22,20 +22,20 @@ run-in-place.
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import emc
+import linuxcnc
 import Tkinter
 import sys
 
 linenumber = 1;
 
 if len(sys.argv) > 1:
-    emc.nmlfile = sys.argv[1]
+    linuxcnc.nmlfile = sys.argv[1]
 
 if len(sys.argv) > 2:
     outfile = sys.argv[2]
     sys.stdout = open(outfile, 'w')
 
-s = emc.stat()
+s = linuxcnc.stat()
 
 def get_cart():
     s.poll()

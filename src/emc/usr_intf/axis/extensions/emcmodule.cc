@@ -151,17 +151,17 @@ static void Ini_dealloc(pyIniFile *self) {
 static PyMethodDef Ini_methods[] = {
     {"find", (PyCFunction)Ini_find, METH_VARARGS,
         "Find value in inifile as string.  This uses the ConfigParser-style "
-        "(section,option) order, not the emc order."},
+        "(section,option) order, not the linuxcnc order."},
     {"findall", (PyCFunction)Ini_findall, METH_VARARGS,
         "Find value in inifile as a list.  This uses the ConfigParser-style "
-        "(section,option) order, not the emc order."},
+        "(section,option) order, not the linuxcnc order."},
     {NULL}
 };
 
 static PyTypeObject Ini_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
-    "emc.ini",              /*tp_name*/
+    "linuxcnc.ini",              /*tp_name*/
     sizeof(pyIniFile),      /*tp_basicsize*/
     0,                      /*tp_itemsize*/
     /* methods */
@@ -640,7 +640,7 @@ static PyGetSetDef Stat_getsetlist[] = {
 static PyTypeObject Stat_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
-    "emc.stat",             /*tp_name*/
+    "linuxcnc.stat",             /*tp_name*/
     sizeof(pyStatChannel),  /*tp_basicsize*/
     0,                      /*tp_itemsize*/
     /* methods */
@@ -1361,7 +1361,7 @@ static PyMethodDef Command_methods[] = {
 static PyTypeObject Command_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
-    "emc.command",          /*tp_name*/
+    "linuxcnc.command",          /*tp_name*/
     sizeof(pyCommandChannel),/*tp_basicsize*/
     0,                      /*tp_itemsize*/
     /* methods */
@@ -1470,7 +1470,7 @@ static PyMethodDef Error_methods[] = {
 static PyTypeObject Error_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
-    "emc.error_channel",    /*tp_name*/
+    "linuxcnc.error_channel",    /*tp_name*/
     sizeof(pyErrorChannel), /*tp_basicsize*/
     0,                      /*tp_itemsize*/
     /* methods */
@@ -2040,7 +2040,7 @@ static PyMethodDef Logger_methods[] = {
 static PyTypeObject PositionLoggerType = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
-    "emc.positionlogger",   /*tp_name*/
+    "linuxcnc.positionlogger",   /*tp_name*/
     sizeof(pyPositionLogger), /*tp_basicsize*/
     0,                      /*tp_itemsize*/
     /* methods */
@@ -2101,18 +2101,18 @@ METH(vertex9, "Get the 3d location for a 9d point"),
 #define ENUMX(x,e) PyModule_AddIntConstant(m, x + const_cast<char*>(#e), e)
 
 PyMODINIT_FUNC
-initemc(void) {
+initlinuxcnc(void) {
     emcInitGlobals();
     verbose_nml_error_messages = 0;
     clear_rcs_print_flag(~0);
 
-    m = Py_InitModule3("emc", emc_methods, "Interface to EMC");
+    m = Py_InitModule3("linuxcnc", emc_methods, "Interface to EMC");
 
     PyType_Ready(&Stat_Type);
     PyType_Ready(&Command_Type);
     PyType_Ready(&Error_Type);
     PyType_Ready(&Ini_Type);
-    error = PyErr_NewException((char*)"emc.error", PyExc_RuntimeError, NULL);
+    error = PyErr_NewException((char*)"linuxcnc.error", PyExc_RuntimeError, NULL);
 
     PyModule_AddObject(m, "stat", (PyObject*)&Stat_Type);
     PyModule_AddObject(m, "command", (PyObject*)&Command_Type);

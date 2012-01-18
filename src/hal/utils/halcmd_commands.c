@@ -1091,7 +1091,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         return -1;
     }
     
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "insert";
     argv[2] = mod_path;
     /* loop thru remaining arguments */
@@ -1307,7 +1307,7 @@ static int unloadrt_comp(char *mod_name)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
     argv[1] = "unload";
 #else
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "remove";
 #endif
     argv[2] = mod_name;

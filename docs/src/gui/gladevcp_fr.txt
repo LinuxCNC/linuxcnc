@@ -206,7 +206,7 @@ démarrer une nouvelle en lançant juste la commande +glade+ depuis un terminal.
 
 - Si EMC2 n'a pas été installé depuis un paquetage, l'environnement EMC2 du 
 shell doit être configuré avec 
-+. <emcdir>/scripts/emc-environment+, autrement Glade ne trouvera pas les widgets
++. <emcdir>/scripts/rip-environment+, autrement Glade ne trouvera pas les widgets
 spécifiques à EMC2.
 - Quand l'éditeur demande pour enregistrer les préférences, accepter ce qui est
 proposé par défaut et presser *Close*.

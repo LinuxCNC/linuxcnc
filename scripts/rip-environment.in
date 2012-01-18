@@ -1,5 +1,5 @@
 # Execute this file in the context of your shell, such as with
-#  . @EMC2_HOME@/scripts/emc-environment
+#  . @EMC2_HOME@/scripts/rip-environment
 # and your shell environment will be properly configured to run commands like
 # comp, halcmd, halrun, iosh, and python with the emc modules available.
 
@@ -20,7 +20,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 case "$0" in
-    emc-environment|*/emc-environment)
+    rip-environment|*/rip-environment)
 	cat <<EOF
 This script should be loaded in the context of your shell, by executing
 	. $0

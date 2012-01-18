@@ -442,7 +442,7 @@ namespace eval ::ngcgui {
 # Internationalization
 
 # use the tcl-package named Emc to set up I18n support
-if [catch {package require Emc} msg] {
+if [catch {package require Linuxcnc} msg] {
   # if user is trying to use as standalone in an unconfigured (non-Emc)
   # environment, just continue without internationalization
   puts stderr "Internationalization not available: <$msg>"
@@ -3613,7 +3613,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
-  # package require Emc ;# needs emcv2.5.x, segfaults emcv2.4.x
+  # package require Linuxcnc ;# needs emcv2.5.x, segfaults emcv2.4.x
   # just invoking emc_init works with v2.4 and v2.5
   if  [catch {emc_init} msg] {
     puts "embed_in_axis_tab: [_ "entrykeybindings not available"] <$msg>"

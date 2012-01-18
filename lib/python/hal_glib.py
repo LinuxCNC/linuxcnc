@@ -2,7 +2,7 @@
 # vim: sts=4 sw=4 et
 
 import _hal, hal, gobject
-import emc
+import linuxcnc
 
 class GPin(gobject.GObject, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -87,26 +87,26 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         }
 
-    STATES = { emc.STATE_ESTOP:       'state-estop'
-             , emc.STATE_ESTOP_RESET: 'state-estop-reset'
-             , emc.STATE_ON:          'state-on'
-             , emc.STATE_OFF:         'state-off'
+    STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
+             , linuxcnc.STATE_ESTOP_RESET: 'state-estop-reset'
+             , linuxcnc.STATE_ON:          'state-on'
+             , linuxcnc.STATE_OFF:         'state-off'
              }
 
-    MODES  = { emc.MODE_MANUAL: 'mode-manual'
-             , emc.MODE_AUTO:   'mode-auto'
-             , emc.MODE_MDI:    'mode-mdi'
+    MODES  = { linuxcnc.MODE_MANUAL: 'mode-manual'
+             , linuxcnc.MODE_AUTO:   'mode-auto'
+             , linuxcnc.MODE_MDI:    'mode-mdi'
              }
 
-    INTERP = { emc.INTERP_WAITING: 'interp-waiting'
-             , emc.INTERP_READING: 'interp-reading'
-             , emc.INTERP_PAUSED: 'interp-paused'
-             , emc.INTERP_IDLE: 'interp-idle'
+    INTERP = { linuxcnc.INTERP_WAITING: 'interp-waiting'
+             , linuxcnc.INTERP_READING: 'interp-reading'
+             , linuxcnc.INTERP_PAUSED: 'interp-paused'
+             , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
-        self.stat = stat or emc.stat()
+        self.stat = stat or linuxcnc.stat()
         self.old = {}
         gobject.timeout_add(100, self.update)
 
@@ -128,7 +128,7 @@ class _GStat(gobject.GObject):
         state_old = old.get('state', 0)
         state_new = self.old['state']
         if not state_old:
-            if state_new > emc.STATE_ESTOP:
+            if state_new > linuxcnc.STATE_ESTOP:
                 self.emit('state-estop-reset')
             else:
                 self.emit('state-estop')
@@ -136,10 +136,10 @@ class _GStat(gobject.GObject):
             self.emit('interp-idle')
 
         if state_new != state_old:
-            if state_old == emc.STATE_ON and state_new < emc.STATE_ON:
+            if state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
             self.emit(self.STATES[state_new])
-            if state_new == emc.STATE_ON:
+            if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
 
@@ -151,7 +151,7 @@ class _GStat(gobject.GObject):
         interp_old = old.get('interp', 0)
         interp_new = self.old['interp']
         if interp_new != interp_old:
-            if not interp_old or interp_old == emc.INTERP_IDLE:
+            if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
                 print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
