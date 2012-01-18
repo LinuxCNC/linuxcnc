@@ -2,15 +2,15 @@
 
 [[cha:stepconf-wizard]] (((Stepconf Wizard)))
 
-EMC2 is capable of controlling a wide range of machinery 
+LinuxCNC is capable of controlling a wide range of machinery 
 using many different hardware interfaces. 
 
-Stepconf is a program that generates configuration files for EMC2 
+Stepconf is a program that generates configuration files for LinuxCNC 
 for a specific class of CNC machine: 
 those that are controlled via a 'standard parallel port', and 
 controlled by signals of type 'step & direction'.
 
-Stepconf is installed when you install EMC2 and is in the CNC menu.
+Stepconf is installed when you install LinuxCNC and is in the CNC menu.
 
 Stepconf places a file in the emc2/config directory 
 to store the choices for each configuration you create. 
@@ -86,7 +86,7 @@ optocouplers and RC filters on break out boards
 can impose timing constraints of their own, in addition to those of the driver. 
 You may find it necessary to 
 add some time to the drive requirements to allow for this. 
-The EMC Configuration Selector has configs for Sherline already configured.
+The LinuxCNC Configuration Selector has configs for Sherline already configured.
 
 Step Time::
     How long the step pulse is 'on' in nano seconds.
@@ -126,7 +126,7 @@ Min Base Period::
 
 Onscreen Prompt For Tool Change::
     (((Onscreen Prompt For Tool Change)))
-    If this box is checked, EMC will pause and prompt you 
+    If this box is checked, LinuxCNC will pause and prompt you 
     to change the tool when 'M6' is encountered.
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom HAL file
@@ -144,7 +144,7 @@ intervals. This is a test for your computer only, so no hardware needs
 to be connected to run the test.
 
 [WARNING]
-Do not attempt run EMC2 while the latency test is running.
+Do not attempt run LinuxCNC while the latency test is running.
 
 .Latency Test[[cap:Latency-Test]]
 
@@ -180,7 +180,7 @@ rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
 100 us  or more (100,000 nanoseconds), then the PC is not a good
 candidate for software stepping. Numbers over 1 millisecond (1,000,000
-nanoseconds) mean the PC is not a good candidate for EMC, regardless of
+nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
 
 == Parallel Port Setup[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))
@@ -433,7 +433,7 @@ Speed 1 and 2, PWM 1 and 2::
 (((Spindle-synchronized motion)))(((Lathe Threading)))
 
 When the appropriate signals from a spindle encoder are connected to 
-EMC2 via HAL, EMC supports lathe threading. 
+LinuxCNC via HAL, LinuxCNC supports lathe threading. 
 These signals are:
 
 Spindle Index::
@@ -477,7 +477,7 @@ Enter the following values in the Spindle Configuration page:
 |========================================
 
 Finish the remaining steps of the configuration process, 
-then launch EMC with your configuration. 
+then launch LinuxCNC with your configuration. 
 Turn the machine on and select the MDI tab. 
 Start the spindle turning by entering: 'M3 S100'. 
 Change the spindle speed by entering a different S-number: 'S800'. 
@@ -530,7 +530,7 @@ The physical end of travel is called the 'hard stop'.
 
 Before the 'hard stop' there is a 'limit switch'. 
 If the limit switch is encountered during normal operation, 
-EMC shuts down the motor amplifier. 
+LinuxCNC shuts down the motor amplifier. 
 The distance between the 'hard stop' and 'limit switch' 
 must be long enough to allow an unpowered motor to coast to a stop.
 
@@ -589,7 +589,7 @@ The figures below show the general idea of wiring multiple switches
 to a single input pin. 
 In each case, when one switch is actuated, 
 the value seen on INPUT goes from logic HIGH to LOW. 
-However, EMC expects a TRUE value when a switch is closed, 
+However, LinuxCNC expects a TRUE value when a switch is closed, 
 so the corresponding 'Invert' box
 must be checked on the pinout configuration page. 
 The pull up resistor show in the diagrams pulls the input high 

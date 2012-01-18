@@ -1,4 +1,6 @@
-= Linux FAQ (((Linux FAQ)))
+= Linux FAQ 
+
+[[cha:linux-faq]] (((Linux FAQ)))
 
 These are some basic Linux commands and techniques for new to Linux
 users. More complete information can be found on the web or by using
@@ -6,9 +8,9 @@ the man pages.
 
 == Automatic Login (((Automatic Login)))
 
-When you install EMC2 with the Ubuntu LiveCD the default is to have to
+When you install LinuxCNC with the Ubuntu LiveCD the default is to have to
 log in each time you turn the computer on. To enable automatic login go
-to System/Administration/Login Window. If it is a fresh install the
+to 'System > Administration > Login Window'. If it is a fresh install the
 Login Window might take a second or three to pop up. You will have to
 have your password that you used for the install to gain access to the
 Login Window Preferences window. In the Security tab check off Enable
@@ -16,11 +18,11 @@ Automatic Login and pick a user name from the list (that would be you).
 
 == Automatic Startup (((Automatic Startup)))
 
-To have EMC start automatically with your config after turning on the
-computer go to System/Preferences/Sessions Startup Programs, add new.
-Navigate to your config and select the .ini file. When the file picker
-dialog closes, add emc and a space in front of the path to your .ini
-file.
+To have LinuxCNC start automatically with your config after turning on the
+computer go to 'System > Preferences > Sessions > Startup Applications',
+click Add. Browse to your config and select the .ini file. When the file
+picker dialog closes, add emc and a space in front of the path to your
+.ini file.
 
 Example:
 
@@ -35,8 +37,8 @@ emc /home/mill/emc2/config/mill/mill.ini
 Man pages are automatically generated manual pages in most cases. Man
 pages are usually available for most programs and commands in Linux.
 
-To view a man page open up a terminal window by going to Applications,
-Accessories, Terminal. For example if you wanted to find out something
+To view a man page open up a terminal window by going to 'Applications > 
+Accessories > Terminal'. For example if you wanted to find out something
 about the find command in the terminal window type:
 
 ----
@@ -73,14 +75,14 @@ it will be named mymod.txt or what ever you named it.
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
 can have bad results. Be careful when editing root files. Generally, you 
-can open and view most root files, but they will open in “read only”
+can open and view most root files, but they will open in 'read only'
 mode.
 
 === The Command Line Way
 
 (((sudo gedit)))
 
-Open up Applications, Accessories, Terminal.
+Open up 'Applications > Accessories > Terminal'.
 
 In the terminal window type
 
@@ -88,7 +90,7 @@ In the terminal window type
 sudo gedit
 ----
 
-Open the file with File, Open then edit
+Open the file with File > Open > Edit
 
 === The GUI Way
 
@@ -234,8 +236,8 @@ To clear the message buffer type this:
 sudo dmesg -c
 ----
 
-This can be helpful to do just before launching EMC, so that there will 
-only be a record of information related to the current launch of EMC. 
+This can be helpful to do just before launching LinuxCNC, so that there will 
+only be a record of information related to the current launch of LinuxCNC. 
 
 To find the built in parallel port address use grep to filter the information
 out of dmesg. 

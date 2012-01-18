@@ -1,9 +1,11 @@
-= Stepper Configuration
+= Stepper Quickstart
+
+[[cha:stepper-quickstart]] (((Stepper Quickstart)))
 
 This section assumes you have done a standard install from the Live
 CD. After installation it is recommended that you connect the computer
 to the Internet and wait for the update manager to pop up and get the
-latest updates for EMC and Ubuntu before continuing. For more complex
+latest updates for LinuxCNC and Ubuntu before continuing. For more complex
 installations see the Integrator Manual.
 
 == Latency Test
@@ -28,7 +30,7 @@ that matches yours and save a copy.
 
 If you have a Xylotex you can skip the following sections and go
 straight to the Stepper Config <<stepconf-wizard,Wizard>>.
-EMC has provided quick setup for the Xylotex machines.
+LinuxCNC has provided quick setup for the Xylotex machines.
 
 == Machine Information
 
@@ -37,7 +39,7 @@ Gather the information about each axis of your machine.
 Drive timing is in nano seconds. If you're unsure about the timing
 many popular drives are included in the stepper configuration wizard.
 Note some newer Gecko drives have different timing than the original
-one. A http://wiki.linuxcnc.org/[list] is also on the user maintained EMC2
+one. A http://wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC
 wiki site of more drives.
 
 [width="100%", options="header"]

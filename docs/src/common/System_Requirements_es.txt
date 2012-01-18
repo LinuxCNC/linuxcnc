@@ -1,8 +1,10 @@
-= Computer
+= System Requirements
+
+[[cha:system-requirements]] (((System Requirements)))
 
 == Minimum Requirements (((Minimum Requirements)))
 
-The minimum system to run EMC2 and Ubuntu may vary depending on the
+The minimum system to run LinuxCNC and Ubuntu may vary depending on the
 exact usage. Stepper systems in general require faster threads to
 generate step pulses than servo systems. Using the Live-CD you can test
 the software before committing a computer. Keep in mind that the
@@ -10,11 +12,11 @@ Latency Test numbers are more important than the processor speed for
 software step generation. More information on the Latency Test is 
 <<latency-test,here>>.
 
-Additional information is on the EMC Wiki site:
+Additional information is on the LinuxCNC Wiki site:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
 
-EMC2 and Ubuntu should run reasonably well on a computer with the
+LinuxCNC and Ubuntu should run reasonably well on a computer with the
 following minimum hardware specification. These numbers are not the
 absolute minimum but will give reasonable performance for most stepper
 systems.
@@ -26,7 +28,7 @@ systems.
    using the NVidia or ATI fglrx proprietary drivers, and which is not an
    onboard video chipset that shares main memory with the CPU
 * A network or Internet connection (not strictly needed, but very useful
-   for updates and for communicating with the EMC community)
+   for updates and for communicating with the LinuxCNC community)
 
 Minimum hardware requirements change as Ubuntu evolves so check the 
 https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD your using.

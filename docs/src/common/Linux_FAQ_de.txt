@@ -1,4 +1,6 @@
-= Linux FAQ (((Linux FAQ)))
+= Linux FAQ 
+
+[[cha:linux-faq]] (((Linux FAQ)))
 
 These are some basic Linux commands and techniques for new to Linux
 users. More complete information can be found on the web or by using
@@ -6,7 +8,7 @@ the man pages.
 
 == Automatic Login (((Automatic Login)))
 
-When you install EMC2 with the Ubuntu LiveCD the default is to have to
+When you install LinuxCNC with the Ubuntu LiveCD the default is to have to
 log in each time you turn the computer on. To enable automatic login go
 to 'System > Administration > Login Window'. If it is a fresh install the
 Login Window might take a second or three to pop up. You will have to
@@ -16,7 +18,7 @@ Automatic Login and pick a user name from the list (that would be you).
 
 == Automatic Startup (((Automatic Startup)))
 
-To have EMC start automatically with your config after turning on the
+To have LinuxCNC start automatically with your config after turning on the
 computer go to 'System > Preferences > Sessions > Startup Applications',
 click Add. Browse to your config and select the .ini file. When the file
 picker dialog closes, add emc and a space in front of the path to your
@@ -234,8 +236,8 @@ To clear the message buffer type this:
 sudo dmesg -c
 ----
 
-This can be helpful to do just before launching EMC, so that there will 
-only be a record of information related to the current launch of EMC. 
+This can be helpful to do just before launching LinuxCNC, so that there will 
+only be a record of information related to the current launch of LinuxCNC. 
 
 To find the built in parallel port address use grep to filter the information
 out of dmesg. 

@@ -13,7 +13,7 @@ parallel port driven systems).
 
 PNCconf is still in a development stage (Beta) so there are some bugs and
  lacking features.
-Please report bugs and suggestions to the EMC forum page or mail-list.
+Please report bugs and suggestions to the LinuxCNC forum page or mail-list.
 
 There are two trains of thought when using PNCconf:
 
@@ -25,7 +25,7 @@ work well if your machine is fairly standard and you can use custom files to add
 The other is to use PNCconf to build a config that is close to what you want and
  then hand edit everything to tailor it to your needs. This would be the choice 
 if you need extensive modifications beyond PNCconf's scope or just want to 
-tinker with / learn about EMC
+tinker with / learn about LinuxCNC
 
 You navigate the wizard pages with the forward, back, and cancel buttons there 
 is also a help button that gives some help information about the pages, diagrams
@@ -50,7 +50,7 @@ will show. Pncconf preselects your last saved file. Choose the the config you
 wish to edit. It also allows you to select desktop shortcut / launcher options.
 A desktop shortcut will place a folder icon on the desktop that points to your 
 new configuration files. Otherwise you would have to look in your home folder 
-under EMC2/configs.
+under emc2/configs.
 
 A Desktop launcher will add an icon to the desktop for starting your config 
 directly. You can also launch it under Applications/cnc/emc2 and selecting your
@@ -75,17 +75,17 @@ values!
 Computer Response Time::
 
 The servo period sets the heart beat of the system. Latency refers to the amount
-of time the computer can be longer then that period. Just like a railroad, EMC
+of time the computer can be longer then that period. Just like a railroad, LinuxCNC
 requires everything on a very tight and consistent time line or bad things 
-happen. EMC requires and uses a 'real time' operating system, which just means 
-it has a low latency ( lateness ) response time when EMC requires its 
-calculations and when doing EMC's calculations it cannot be interrupted by lower
+happen. LinuxCNC requires and uses a 'real time' operating system, which just means 
+it has a low latency ( lateness ) response time when LinuxCNC requires its 
+calculations and when doing LinuxCNCs calculations it cannot be interrupted by lower
 priority requests (such as user input to screen buttons or drawing etc).
 +
 Testing the latency is very important and a key thing to check early. Luckily by
 using the Mesa card to do the work that requires the fastest response time 
 (encoder counting and PWM generation) we can endure a lot more latency then if 
-we used the parallel port for these things. The standard test in EMC is checking
+we used the parallel port for these things. The standard test in LinuxCNC is checking
 the BASE period latency (even though we are not using a base period). If you 
 press the 'test base period jitter' button, this launches the latency test 
 window ( you can also load this directly from the applications/cnc panel ). The 
@@ -104,7 +104,7 @@ If the latency is disappointing or you get a bad hiccup periodically you may
 still be able to improve it. 
 
 TIP: There is a user compiled list of equipment and the 
-latency obtained on the EMC wiki :
+latency obtained on the LinuxCNC wiki :
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test
 Please consider adding your info to the list. Also on that page are links to 
 info about fixing some latency problems. 
@@ -116,7 +116,7 @@ if you are building a closed loop servo system that controls torque (current)
 rather then velocity (voltage) a faster rate would be better - something like 
 200000 (5 kHz calculation rate). The problem with lowering the servo rate is 
 that it leaves less time available for the computer to do other things besides 
-EMC's calculations. Typically the display (GUI) becomes less responsive. You
+LinuxCNC's calculations. Typically the display (GUI) becomes less responsive. You
  must decide on a balance. Keep in mind that if you tune your closed loop servo
 system then change the servo period you probably will need to tune them again.
  
@@ -154,7 +154,7 @@ PCI parallel ports work properly. Either type can be selected as 'in' (maximum
 amount of input pins) or 'out' (maximum amount of output pins)
 
 GUI Frontend list::
-This specifies the graphical display screens EMC will use.
+This specifies the graphical display screens LinuxCNC will use.
 Each one has different option. 
 
 AXIS
@@ -199,7 +199,7 @@ overrides.
 
 image::images/pncconf-external.png[]
 
-If you select a Joystick for jogging, You will need it always connected for EMC 
+If you select a Joystick for jogging, You will need it always connected for LinuxCNC 
 to load. To use the analog sticks for useful jogging you probably need to add 
 some custom HAL code. MPG jogging requires a pulse generator connected to a MESA
  encoder counter. Override controls can either use a pulse generator (MPG) or 
@@ -208,7 +208,7 @@ based OEM joystick.
 
 Joystick jogging:: 
 Requires a custom 'device rule' to be installed in the system. This is a file 
-that EMC uses to connect to LINUX's device list. PNCconf will help to make this 
+that LinuxCNC uses to connect to LINUX's device list. PNCconf will help to make this 
 file.
 +
 'Search for device rule' will search the system for rules, you can use this to 
@@ -244,7 +244,7 @@ generator (MPG) or switches (eg. rotary).
 == GUI Configuration
 
 Here you can set defaults for the display screens, add virtual control panels 
-(VCP), and set some EMC options..
+(VCP), and set some LinuxCNC options..
 
 .GUI Configuration
 
@@ -409,7 +409,7 @@ the second 7i33. Components are deselected numerically by the highest number
 first then down with out skipping a number. If by doing this the components are 
 not where you want them then you must use a different firmware. The firmware 
 dictates where, what and the max amounts of the components. Custom firmware is 
-possible, ask nicely when contacting the EMC developers and Mesa. Using custom 
+possible, ask nicely when contacting the LinuxCNC developers and Mesa. Using custom 
 firmware in PNCconf requires special procedures and is not always possible - 
 Though I try to make PNCconf as flexible as possible.
 
@@ -494,7 +494,7 @@ written to the D/A converters. The units on the scale value are in true volts
 per DAC output volts. The units on the offset value are in volts. These can be 
 used to linearize a DAC.
 +
-Specifically, when writing outputs, the EMC first converts the desired 
+Specifically, when writing outputs, the LinuxCNC first converts the desired 
 output in quasi-SI units to raw actuator values, e.g., volts for an amplifier
  DAC. This scaling looks like: The value for scale can be obtained analytically 
 by doing a unit analysis, i.e., units are [output SI units]/[actuator units]. 
@@ -603,12 +603,12 @@ refer to the TOOL not the table as per the Machinists handbook.
 * AXIS graphical display can not be made to reflect this. 
 
 When using homing and / or limit switches
-EMC2 expects the HAL signals to be true when 
+LinuxCNC expects the HAL signals to be true when 
 the switch is being pressed / tripped.
 If the signal is wrong for a limit switch then
-EMC2 will think the machine is on end of limit
+LinuxCNC will think the machine is on end of limit
 all the time. If the home switch search logic is wrong
-EMC2 will seem to home in the wrong direction.
+LinuxCNC will seem to home in the wrong direction.
 What it actually is doing is trying to BACK off 
 the home switch.
 
@@ -623,9 +623,9 @@ will coast past the contact point if moving fast. Limit switches
 should be 'active low' on the machine. eg. power runs through
 the switches all the time - a loss of power (open switch) trips.
 While one could wire them the other way, this is fail safe.
-This may need to be inverted so that the HAL signal in EMC
+This may need to be inverted so that the HAL signal in LinuxCNC
 in 'active high' - a TRUE means the switch was tripped. When
-starting EMC if you get an on-limit warning, and axis is NOT
+starting LinuxCNC if you get an on-limit warning, and axis is NOT
 tripping the switch, inverting the signal is probably the
 solution. (use HALMETER to check the corresponding HAL signal  
 eg. axis.0.pos-lim-sw-in  X axis positive limit switch)
@@ -645,7 +645,7 @@ course home and the index will be the actual home location.
 
 Decide on the MACHINE ORIGIN position.
 
-MACHINE ORIGIN is what EMC uses to reference all user coordinate
+MACHINE ORIGIN is what LinuxCNC uses to reference all user coordinate
 systems from.
 I can think of little reason it would need to be in any particular
 spot. There are only a few G codes that can access the 
@@ -657,7 +657,7 @@ to have the ORIGIN at the home switch.
 Decide on the (final) HOME POSITION.
 
 this just places the carriage at a consistent and convenient position 
-after EMC figures out where the ORIGIN is.
+after LinuxCNC figures out where the ORIGIN is.
 
 Measure / calculate the positive / negative axis travel distances.
 
@@ -671,9 +671,9 @@ is at one of the limits then that travel distance will be zero.
 (machine) ORIGIN::
     The Origin is the MACHINE zero point. (not
     the zero point you set your cutter / material at).
-    EMC2 uses this point to reference everything else
+    LinuxCNC uses this point to reference everything else
     from. It should be inside the software limits.
-    EMC uses the home switch location to calculate 
+    LinuxCNC uses the home switch location to calculate 
     the origin position (when using home switches
     or must be manually set if not using home switches.
 
@@ -744,7 +744,7 @@ Home latch Direction::
     or opposite of the search direction.
 
 Use Encoder Index For Home::
-    EMC2 will search for an encoder index pulse while in
+    LinuxCNC will search for an encoder index pulse while in
     the latch stage of homing.
 
 Use Compensation File::
@@ -792,7 +792,7 @@ velocity limiting.
 * There is no support for gear changes or ranges.
 * If you picked a VCP spindle display option then spindle-at-speed scale and 
 filter settings may be shown.
-* Spindle-at-speed allows EMC to wait till the spindle is at the requested speed 
+* Spindle-at-speed allows LinuxCNC to wait till the spindle is at the requested speed 
 before moving the axis. This is particularly handy on lathes with constant 
 surface feed and large speed diameter changes. It requires either encoder 
 feedback or a digital spindle-at-speed signal typically connected to a VFD 
@@ -871,7 +871,7 @@ With some thought most customizations should work regardless if you later select
 different options in PNCconf.
 
 Eventually if the customizations are beyond the scope of PNCconf's frame work 
-you can use PNCconf to build a base config or use one of EMC's sample 
+you can use PNCconf to build a base config or use one of LinuxCNC's sample 
 configurations and just hand edit it to what ever you want.
 
 Custom Signal Names::
@@ -915,7 +915,7 @@ Loading Custom Firmware::
 
 PNCconf searches for firmware on the system and then looks for the XML file that
 it can convert to what it understands. These XML files are only supplied for 
-officially released firmware from the EMC team. To utilize custom firmware one 
+officially released firmware from the LinuxCNC team. To utilize custom firmware one 
 must convert it to an array that PNCconf understands and add its filepath
 to PNCconf's preference file. By default this path searches the desktop for
 a folder named custom_firmware and a file named firmware.py.
@@ -925,7 +925,7 @@ named .pncconf-preferences and require one to select 'show hidden files' to see
 and edit it. The contents of this file can be seen when you first load PNCconf - 
 press the help button and look at the output page.
 
-Ask on the EMC mail-list or forum for info about converting custom firmware. 
+Ask on the LinuxCNC mail-list or forum for info about converting custom firmware. 
 Not all firmware can be utilized with PNCconf.
 
 Custom HAL Files::
@@ -937,7 +937,7 @@ loads. It is run after the configuration-named HAL file.
 * custom_postgui.hal is for commands that must be run after AXIS loads or a 
 standalone PYVCP display loads.
 * custom_gvcp.hal is for commands that must be run after glade VCP is loaded.
-* shutdown.hal is for commands to run when EMC shuts down in a controlled manner.
+* shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.
 
 // vim: set syntax=asciidoc:
 
