@@ -6,7 +6,7 @@ The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
 It cannot run standalone because it relies on the ability of HAL to
 report what it knows of itself through the halcmd interface library. It
-is discovery based. Each time halshow runs with a different EMC
+is discovery based. Each time halshow runs with a different LinuxCNC
 configuration it will be different.
 
 As we will soon see, this ability of HAL to document itself is one key
@@ -16,7 +16,7 @@ to making an effective CNC system.
 
 Halshow is in the AXIS menu under Machine/Show HAL Configuration.
 
-Halshow is in the TkEMC menu under Scripts/HAL Show.
+Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
 == HAL Tree Area
 
@@ -74,7 +74,7 @@ The second pin's name contains the complete name of the first.
 Below the show area on the right is a set of widgets that will allow
 you to play with the running HAL. The commands you enter here and the
 effect that they have on the running HAL are not saved. They will
-persist as long as EMC remains up but are gone as soon as EMC is.
+persist as long as LinuxCNC remains up but are gone as soon as LinuxCNC is.
 
 The entry box labeled "Test HAL Command:" will accept any of the
 commands listed for halcmd. These include:
@@ -229,8 +229,8 @@ clicking on the name of it. Figure  <<cap:Watch-Display>> shows this
 canvas with several "bit" type signals. These signals include
 enable-out for the first three axes and two of the three iocontrol
 "estop" signals. Notice that the axes are not enabled even though the
-estop signals say that EMC is not in estop. A quick look at TkEMC shows
-that the condition of EMC is ESTOP RESET. The amp enables do not turn
+estop signals say that LinuxCNC is not in estop. A quick look at TkLinuxCNC shows
+that the condition of LinuxCNC is ESTOP RESET. The amp enables do not turn
 true until the machine has been turned on.
 
 .[[cap:Watch-Display]]Watch Display
@@ -244,10 +244,10 @@ a pin or signal that is not a bit type (binary) signal, watch will show
 it as a numerical value.
 
 Watch will quickly allow you to test switches or see the effect of
-changes that you make to EMC while using the graphical interface.
+changes that you make to LinuxCNC while using the graphical interface.
 Watch's refresh rate is a bit slow to see stepper pulses, but you can
 use it for these if you move an axis very slowly or in very small
-increments of distance. If you've used IO_Show in EMC, the watch page
+increments of distance. If you've used IO_Show in LinuxCNC, the watch page
 in halshow can be set up to watch a parport much as IO_Show did.
 
 

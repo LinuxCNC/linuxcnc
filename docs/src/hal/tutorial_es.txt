@@ -18,7 +18,7 @@ from the main Ubuntu menu bar.
 
 .Terminal Command Example
 ----
-me@emc-computer:~emc2$ halrun
+me@computer:~linuxcnc$ halrun
 (will be shown like the following line)
 halrun
 
@@ -53,9 +53,9 @@ needs. Fortunately there are realtime operating systems (RTOS's) that
 provide the necessary extensions to Linux. Unfortunately, each RTOS
 does things a little differently.
 
-To address these differences, the EMC team came up with RTAPI, which
+To address these differences, the LinuxCNC team came up with RTAPI, which
 provides a consistent way for programs to talk to the RTOS. If you are
-a programmer who wants to work on the internals of EMC, you may want to
+a programmer who wants to work on the internals of LinuxCNC, you may want to
 study 'emc2/src/rtapi/rtapi.h' to understand the API. But if you are a
 normal person all you need to 
 know about RTAPI is that it (and the RTOS) needs to be loaded into the

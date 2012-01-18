@@ -9,7 +9,7 @@ calls to 'rtapi_' and 'hal_' functions and associated error checking.
 'comp' will write all this code for you, automatically.
 
 Compiling a HAL component is also much easier when using 'comp',
-whether the component is part of the EMC2 source tree, or outside it.
+whether the component is part of the LinuxCNC source tree, or outside it.
 
 For instance, when coded in C, a simple component such as "ddt" is around 80
 lines of code. The equivalent component is very short when written using the
@@ -399,7 +399,7 @@ Place the '.comp' file in the source directory
 'Comp' files are automatically detected by the build system.
 
 If a '.comp' file is a driver for hardware, it may be placed in
-'emc2/src/hal/components' and will be built unless EMC2 is 
+'emc2/src/hal/components' and will be built unless LinuxCNC is 
 configured as a userspace simulator.
 
 [[sec:Compiling-realtime-components]]
@@ -407,7 +407,7 @@ configured as a userspace simulator.
 (((Compiling realtime components outside the source tree)))
 
 'comp' can process, compile, and install a realtime component 
-in a single step, placing 'rtexample.ko' in the EMC2 realtime 
+in a single step, placing 'rtexample.ko' in the LinuxCNC realtime 
 module directory:
 
 ----
@@ -626,7 +626,7 @@ variable-size arrays and optional pins.
 
 [source,c]
 ----
-component logic "EMC2 HAL component providing experimental logic functions";
+component logic "LinuxCNC HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
