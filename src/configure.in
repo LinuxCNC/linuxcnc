@@ -1439,7 +1439,7 @@ AC_SUBST([SITEPY])
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
-AC_CONFIG_FILES([../docs/man/man1/emc.1])
+AC_CONFIG_FILES([../docs/man/man1/linuxcnc.1])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
