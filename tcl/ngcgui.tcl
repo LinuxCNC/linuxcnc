@@ -914,7 +914,6 @@ proc ::ngcgui::initgui {hdl} {
                                    ;# 30 max positional parameters
                                    ;# 3 frames max so must have pentries >=10
   set ::ngc(any,pollms)         2000
-  set ::ngc(any,wait_restart)   0  ;# for alternate behavior
 
   set ::ngc(any,color,black)    black
   set ::ngc(any,color,stdbg)    #dcdad5 ;# default gray color set
@@ -1756,12 +1755,6 @@ if {0} {
       ::ngcgui::readfile $hdl preamble
       ::ngcgui::readfile $hdl postamble
       # save,widget has multiple presentations to steer user
-      # according to state and wait_restart
-      switch [$::ngc($hdl,save,widget) cget -text] {
-        "New Feature" {message $hdl newfeature; return}
-        "New Outfile" {message $hdl begin;      return}
-        default       {#fall thru to create the feature}
-      }
 
       if ![::ngcgui::gui $hdl parmcheck] {
         return
@@ -2166,10 +2159,6 @@ proc ::ngcgui::debug {hdl} {
 
 proc ::ngcgui::statemap {hdl} {
   # form: (next,state:mode,event) --> nextstate
-  set ::ngc(any,next,reset:auto,newfeature)    start
-  set ::ngc(any,next,reset:noauto,newfeature)  start
-  set ::ngc(any,next,reset:auto,begin)         start
-  set ::ngc(any,next,reset:noauto,begin)       start
   set ::ngc(any,next,reset:auto,savesection)   start
   set ::ngc(any,next,reset:noauto,savesection) start
   set ::ngc(any,next,reset:auto,restart)       reset
@@ -2179,8 +2168,6 @@ proc ::ngcgui::statemap {hdl} {
   set ::ngc(any,next,start:noauto,immediate)   avail
 
   # have one or more features available:
-  set ::ngc(any,next,avail:auto,newfeature)    avail
-  set ::ngc(any,next,avail:noauto,newfeature)  avail
   set ::ngc(any,next,avail:auto,savesection)   avail
   set ::ngc(any,next,avail:noauto,savesection) avail
   set ::ngc(any,next,avail:auto,restart)       reset
@@ -2195,20 +2182,6 @@ proc ::ngcgui::statemap {hdl} {
   set ::ngc($hdl,state) reset
   set ::ngc($hdl,lastevent) notsetyet
 
-  # alternate behavior (user must push button for New Outfile)
-  if $::ngc(any,wait_restart) {
-    set ::ngc(any,next,uwait:auto,begin)        reset
-    set ::ngc(any,next,uwait:noauto,begin)      reset
-
-    set ::ngc(any,next,avail:auto,restart)      uwait
-    set ::ngc(any,next,avail:noauto,restart)    uwait
-
-    set ::ngc(any,next,avail:auto,finalize)     uwait
-    set ::ngc(any,next,avail:noauto,finalize)   uwait2
-
-    set ::ngc(any,next,uwait2:noauto,immediate) uwait
-    set ::ngc(any,next,uwait2:auto,immediate)   uwait
-  }
 } ;# statemap
 
 proc ::ngcgui::message {hdl event} {
