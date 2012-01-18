@@ -8,13 +8,13 @@ Guide de démarrage V2.5  {localdate}
 
 image::common/images/emc2-intro.*[]
 
-The EMC2 Team
+The LinuxCNC Team
 
 include::common/overleaf_fr.txt[]
 
 include::common/outdated-notice_fr.txt[]
 include::common/System_Requirements_fr.txt[]
-include::common/Getting_EMC_fr.txt[]
+include::common/Getting_linuxcnc_fr.txt[]
 include::quickstart/stepper_quickstart_fr.txt[]
 include::config/stepconf_fr.txt[]
 include::config/pncconf_fr.txt[]
