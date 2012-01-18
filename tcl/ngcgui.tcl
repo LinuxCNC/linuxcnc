@@ -37,7 +37,7 @@
 # named "O" words available since: EMC 2.3.0, April 19, 2009
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2011
+# Copyright: 2010-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -64,8 +64,6 @@
 # (#<_global_named_parameter>)
 
 # Note: use of global named parameters as inputs to ngcgui is deprecated
-
-# see http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Named_Parameters
 
 # If the subroutine includes lines to equate positional parameters
 # (#n) to named parameters (#<parmname>) on special association lines like:
@@ -111,7 +109,7 @@
 # (when they are set using mdi -- using an "immediate" preamble entry
 # (like :#_someglobal=1234) can be helpful)
 
-# The emc gcode language does not provide a mechanism for returning
+# The linuxcnc gcode language does not provide a mechanism for returning
 # results so subroutines must set global parameters for results.
 # Within ngcgui, _globals with names that contain a colon (:) character
 # are ignored in the creation of  entry boxes.
@@ -122,9 +120,9 @@
 
 # Workflow (for standalone usage):
 
-#  1) The directory location for ngc gcode files used in emc2 is specified
+#  1) The directory location for ngc gcode files used in linuxcnc is specified
 #     in the ini file by: [DISPLAY]PROGRAM_PREFIX.
-#     In emc2.5, multiple directories can be specified using
+#     In linuxcnc2.5, multiple directories can be specified using
 #     [RS274NGC]SUBROUTINE_PATH if
 
 #  2) Candidate subroutine files for use with this utility should contain
@@ -225,8 +223,8 @@
 #     for the filename to reload the file.
 
 # Notes:
-#   0. configuring ngcgui is simplified with emc2.5; support for
-#      emc2.4 will cease when emc2.5 is released
+#   0. configuring ngcgui is simplified with linuxcnc2.5; support for
+#      linuxcnc2.4 will cease when linuxcnc2.5 is released
 
 #   1. ngcgui supports subroutine files that contain a _single_
 #      subroutine in a file where the name of the subroutine
@@ -345,7 +343,7 @@
 #      for globals:
 #         (#<_globalname> = value comment_text)
 
-#  14. Features requiring emc-2.4pre (that I can remember):
+#  14. Features requiring linuxcnc-2.4pre (that I can remember):
 #      a) error detection when sending file to axis
 
 #  15. Helper subroutine files that are included in the
@@ -375,7 +373,7 @@
 # 18. If --vwidth 0 is used and a parameter has no comment, the variable
 #     name is placed in the comment field
 #
-# 19. For emc 2.4, the tcl proc embed_in_axis_tab will embed directly
+# 19. For linuxcnc 2.4, the tcl proc embed_in_axis_tab will embed directly
 #     in an axis tab using [DISPLAY]USER_COMMAND_FILE (or ~/.axisrc)
 #     example:
 #     w = widgets.right.insert("end", 'ngcgui', text='Ngcgui')
@@ -2600,7 +2598,7 @@ proc ::ngcgui::sendaxis {hdl cmd} {
       # tk8.5 send misfeature
       if {[string first "X server insecure" $msg] >= 0} {
          puts stderr "[_ "Declining support for tk send bug in ngcgui"]"
-         puts stderr "[_ "You should upgrade emc to >=emc2.5"]"
+         puts stderr "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
          eval exec xhost - SI:localuser:gdm
          eval exec xhost - SI:localuser:root
          # test if that worked:
@@ -2626,7 +2624,7 @@ proc ::ngcgui::sendaxis {hdl cmd} {
         }
       } else {
          # axis-ui-remote command not available pre2.4
-         # try method that may work for axis in emc2.3.x
+         # try method that may work for axis in linuxcnc2.3.x
          return [pre2.4_send_file_to_axis $hdl $f]
       }
     }
@@ -3590,7 +3588,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
-  # package require Linuxcnc ;# needs emcv2.5.x, segfaults emcv2.4.x
+  # package require Linuxcnc ;# needs linuxcnc v2.5.x, segfaults linuxcnc v2.4.x
   # just invoking emc_init works with v2.4 and v2.5
   if  [catch {emc_init} msg] {
     puts "embed_in_axis_tab: [_ "entrykeybindings not available"] <$msg>"

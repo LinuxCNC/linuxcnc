@@ -1,7 +1,7 @@
-# ngcgui_ttt.tcl: an emc [DISPLAY]TKAPP for using truetype-tracer and ngcgui
+# ngcgui_ttt.tcl: an linuxcnc [DISPLAY]TKAPP for using truetype-tracer and ngcgui
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2011
+# Copyright: 2010-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
