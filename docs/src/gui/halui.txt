@@ -4,7 +4,7 @@
 
 == Introduction[[sec:HaluiIntroduction]]
 
-Halui is a HAL based user interface for EMC, it connects HAL pins to
+Halui is a HAL based user interface for LinuxCNC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
 is provided by a traditional GUI (mini, Axis, etc.), is provided by HAL
 pins in Halui.
@@ -52,7 +52,7 @@ loadusr halui -ini /path/to/inifile.ini
    to change counts, true when setting counts directly. +
    The 'count-enable' pin must be true. footnote:[This function had been released, 
    but is currently withdrawn for further development. It may or may not be 
-   present in your version of EMC2.] 
+   present in your version of LinuxCNC.] 
 * 'halui.feed-override.scale' (float, in) - pin for setting the scale for 
    increase and decrease
 * 'halui.feed-override.value' (float, out) - current FO value
@@ -188,9 +188,9 @@ MDI_COMMAND = G0 X0
    to a maximum of 64 commands.
 * 'halui.mdi-command-<nn>' (bit, in) - halui will try to send the MDI
    command defined in the ini. This will not always succeed, depending on
-   the operating mode EMC2 is in (e.g. while in AUTO halui can't
+   the operating mode LinuxCNC is in (e.g. while in AUTO halui can't
    successfully send MDI commands). If the command succeeds then it will
-   place EMC in the MDI mode and then back to Manual mode. 
+   place LinuxCNC in the MDI mode and then back to Manual mode. 
 
 .Joint Selection
 

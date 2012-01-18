@@ -1,10 +1,12 @@
 = Latency Test
 
+[[cha:latency-test]] (((Latency Test)))
+
 This test is the first test that should be performed on a PC 
 to see if it is able to drive a CNC machine.
 
 Latency is how long it takes the PC to stop what it is doing and 
-respond to an external request. For EMC2 the request is 
+respond to an external request. For LinuxCNC the request is 
 BASE_THREAD that makes the periodic 'heartbeat' that serves as a 
 timing reference for the step pulses. The lower the latency, the 
 faster you can run the heartbeat, and the faster and smoother the 
@@ -32,7 +34,7 @@ also have some disadvantages:
  - jitter in the generated pulses
  - loads the CPU
 
-The best way to find out how well your PC will lrun EMC2 
+The best way to find out how well your PC will lrun LinuxCNC 
 is to run the HAL latency test. 
 To run the test, open a terminal window 
 (In Ubuntu, from Applications \-> Accessories \-> Terminal) 
@@ -56,7 +58,7 @@ The idea is to put the PC through its paces while
 the latency test checks to see what the worst case numbers are. 
 
 [NOTE]
-Do not run EMC2 or Stepconf while the latency test is running.
+Do not run LinuxCNC or Stepconf while the latency test is running.
 
 The important numbers are the 'max jitter'. 
 In the example above, that is 9075 nanoseconds, or 9.075 microseconds. 
@@ -79,7 +81,7 @@ disappointing, especially if you use microstepping or have very
 fine pitch leadscrews. If the numbers are 100 us or more (100,000 
 nanoseconds), then the PC is not a good candidate for software 
 stepping. Numbers over 1 millisecond (1,000,000 nanoseconds) mean 
-the PC is not a good candidate for EMC, regardless of whether you 
+the PC is not a good candidate for LinuxCNC, regardless of whether you 
 use software stepping or not.
 
 Note that if you get high numbers, there may be ways to improve 
@@ -88,7 +90,7 @@ using the onboard video. But a $5 used video card solved the
 problem.
 
 [NOTE]
-EMC does not require bleeding edge hardware.
+LinuxCNC does not require bleeding edge hardware.
 
 For more information on stepper tuning see the 
 <<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
@@ -99,7 +101,7 @@ For those who build their own hardware, one safeguard against
 shorting out an on-board parallel port - or even the whole 
 motherboard - is to use an add-on parallel port card. Even if you 
 don't need the extra layer of safety, a parport card is a good 
-way to add extra I/O lines with EMC.
+way to add extra I/O lines with LinuxCNC.
 
 One good PCI parport card is made with the Netmos 9815 chipset. 
 It has good +5V signals, and can come in a single or dual ports. 
@@ -138,7 +140,7 @@ appropriate place in your .hal file.
 loadrt hal_parport cfg="0x378 0xc000"
 ----
 
-You must also direct EMC to run the 'read' and 'write' functions 
+You must also direct LinuxCNC to run the 'read' and 'write' functions 
 for the second card. For example,
 
 ----
@@ -150,7 +152,7 @@ Please note that your values will differ. The Netmos cards are
 Plug-N-Play, and might change their settings depending on which 
 slot you put them into, so if you like to \'get under the hood' 
 and re-arrange things, be sure to check these values before you 
-start EMC. 
+start LinuxCNC. 
 
 
 // vim: set syntax=asciidoc:

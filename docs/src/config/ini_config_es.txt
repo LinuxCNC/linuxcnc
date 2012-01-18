@@ -57,7 +57,7 @@ The order of sections is unimportant.
 Custom sections can be added and referenced in HAL.
 Sections begin at the section name and end at the next section name.
 
-The following sections are used by EMC:
+The following sections are used by LinuxCNC:
 
 * '[<<sub:[EMC]-section,EMC>>]' general information
 * '[<<sub:[DISPLAY]-section,DISPLAY>>]' settings related to the graphical user interface
@@ -82,7 +82,7 @@ often called a keyword.
 The following sections detail each section of the configuration file,
 using sample values for the configuration lines.
 
-Some of the variables are used by EMC, and must always use the section
+Some of the variables are used by LinuxCNC, and must always use the section
 names and variable names shown. Other variables are used only by HAL,
 and the section names and variable names shown are those used in the
 sample configuration files.
@@ -115,7 +115,7 @@ Custom variables can be used in your HAL files with the following syntax.
     of most graphical interfaces. You can put whatever you want here as
     long as you make it a single line long.
 
-* 'DEBUG = 0' - Debug level 0 means no messages will be printed when EMC is run from a
+* 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is run from a
     terminal. Debug flags are usually only useful to developers. See
     src/emc/nml_intf/emcglb.h for other settings.
 
@@ -125,14 +125,14 @@ Custom variables can be used in your HAL files with the following syntax.
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
-for EMC are AXIS and Touchy. Axis is an interface for use with normal
+for LinuxCNC are AXIS and Touchy. Axis is an interface for use with normal
 computer and monitor, Touchy is for use with touch screens.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
     may include: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick)))
-    mini,(((mini))) tkemc,(((tkemc))) xemc,(((xemc)))
+    mini,(((mini))) tklinuxcnc,(((tkLinuxCNC))) xemc,(((xemc)))
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE) to show when the user
     interface starts. The RELATIVE coordinate system reflects the G92 and
@@ -140,7 +140,7 @@ User Manual.
 
 * 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL) to show when the user
     interface starts. The COMMANDED position is the ideal position
-    requested by EMC. The ACTUAL position is the feedback position of the
+    requested by LinuxCNC. The ACTUAL position is the feedback position of the
     motors.
 
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select. 1.2 means 120% of the
@@ -226,7 +226,7 @@ user interface program.
     load and result in a more sluggish display. Smaller values give a less
     accurate preview, but take less time to load and may result in a faster
     display. The default value of 64 means a circle of up to 3 inches will
-    be displayed to within 1 mil (.03%).footnote:[In EMC 2.4 and earlier,
+    be displayed to within 1 mil (.03%).footnote:[In LinuxCNC 2.4 and earlier,
     the default value was 128.]
 
 * 'MDI_HISTORY_FILE =' - The name of a local MDI history file. If this is not specified Axis
@@ -254,7 +254,7 @@ Then, specify the program to execute for each type of file. This
 program is given the name of the input file as its first argument, and
 must write RS274NGC code to standard output. This output is what will
 be displayed in the text area, previewed in the display area, and
-executed by EMC when Run.
+executed by LinuxCNC when Run.
 
 * 'PROGRAM_EXTENSION = .extension Description'
 
@@ -264,7 +264,7 @@ the following line:
 * 'PROGRAM_EXTENSION = .NGC XYZ Post Processor'
 
 The following lines add support for the image-to-gcode converter
-included with EMC2:
+included with LinuxCNC:
 
 * 'PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image'
 ** 'png = image-to-gcode'
@@ -280,7 +280,7 @@ In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
 nc_files/holecircle.py. This script creates g-code for drilling a
 series of holes along the circumference of a circle. Many more g-code
-generators are on the EMC Wiki site
+generators are on the LinuxCNC Wiki site
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl].
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
@@ -414,9 +414,9 @@ of the low level motion planner.
     they appear in the ini file. 'HALCMD' lines are executed after all
     'HALFILE' lines.
 
-* 'SHUTDOWN = shutdown.hal' - Execute the file 'shutdown.hal' when EMC is exiting.
+* 'SHUTDOWN = shutdown.hal' - Execute the file 'shutdown.hal' when LinuxCNC is exiting.
    Depending on the hardware drivers used, this may make it possible to set outputs to
-    defined values when EMC is exited normally. However, because there is
+    defined values when LinuxCNC is exited normally. However, because there is
     no guarantee this file will be executed (for instance, in the case of a
     computer crash) it is not a replacement for a proper physical e-stop
     chain or other protections against software failure.
@@ -492,10 +492,10 @@ planning module in EMCMOT.
     runs in this file. This allows the machine to start with the same
     coordinates it had on shutdown. This assumes there was no movement of
     the machine while powered off. If unset, joint positions are not stored
-    and will begin at 0 each time EMC is started. This can help on smaller
+    and will begin at 0 each time LinuxCNC is started. This can help on smaller
     machines without home switches.
 
-* 'NO_FORCE_HOMING = 1' - The default behavior is for EMC to force the user to home the machine
+* 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the user to home the machine
     before any MDI command or a program is run. Normally jogging only is
     allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
     make MDI moves and run programs without homing the machine first.
@@ -566,7 +566,7 @@ Typically (but not always):
     names are case sensitive and can contain letters and/or numbers. The
     values are triplets per line separated by a space. The first value is
     nominal (where it should be). The second and third values depend on the
-    setting of COMP_FILE_TYPE. Currently the limit inside EMC2 is for 256
+    setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
     triplets per axis. If COMP_FILE is specified, BACKLASH is ignored.
     Compensation file values are in machine units.
 
@@ -614,8 +614,8 @@ Typically (but not always):
     errors will always be present due to vibration, etc. The following
     polarity values determine how inputs are interpreted and how outputs
     are applied. They can usually be set via trial-and-error since there
-    are only two possibilities. The EMC2 Servo Axis Calibration utility
-    program (in the AXIS interface menu Machine/Calibration and in TkEMC it
+    are only two possibilities. The LinuxCNC Servo Axis Calibration utility
+    program (in the AXIS interface menu Machine/Calibration and in TkLinuxCNC it
     is under Setting/Calibration) can be used to set these and more
     interactively and verify their results so that the proper values can be
     put in the INI file with a minimum of trouble.
@@ -792,7 +792,7 @@ image::images/encoder-counts-math.png[align="center"]
     factor), before being written to the D/A converters. The units on the
     scale value are in true volts per DAC output volts. The units on the
     offset value are in volts. These can be used to linearize a DAC.
-     Specifically, when writing outputs, the EMC first converts the desired
+     Specifically, when writing outputs, the LinuxCNC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling
     looks like: image:images/output-offset.png[]
