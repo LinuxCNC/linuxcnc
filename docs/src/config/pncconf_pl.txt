@@ -78,7 +78,7 @@ The servo period sets the heart beat of the system. Latency refers to the amount
 of time the computer can be longer then that period. Just like a railroad, EMC
 requires everything on a very tight and consistent time line or bad things 
 happen. EMC requires and uses a 'real time' operating system, which just means 
-it has a low latency ( lateness ) response time when EMC requires it's 
+it has a low latency ( lateness ) response time when EMC requires its 
 calculations and when doing EMC's calculations it cannot be interrupted by lower
 priority requests (such as user input to screen buttons or drawing etc).
 +
@@ -100,7 +100,7 @@ with the machine
 50000 - 100000 is really not that great but could still be used with hardware 
 cards doing the fast response stuff.
 So anything under 100000 is useable to us.
-If the latency is disappointing or you get a bad hicup periodically you may 
+If the latency is disappointing or you get a bad hiccup periodically you may 
 still be able to improve it. 
 
 TIP: There is a user compiled list of equipment and the 
@@ -217,7 +217,7 @@ find the name of devices you have already built with PNCconf.
 'Add a device rule' will allow you to configure a new device by following the 
 prompts. You will need your device available.
 +
-'test device' allows you to load a device, see its pin names and check it's 
+'test device' allows you to load a device, see its pin names and check its 
 functions with halmeter.
 +
 joystick jogging uses HALUI and hal_input components.
@@ -262,7 +262,7 @@ second monitor if the system is capable.
 +
 Touchy defaults are options specific to Touchy. Most of Touchy's options can be 
 changed while Touchy is running using the preference page. Touchy uses GTK to 
-draw it's screen, and GTK supports themes. Themes controls the basic look and 
+draw its screen, and GTK supports themes. Themes controls the basic look and 
 feel of a program. You can download themes from the net or edit them yourself. 
 There are a list of the current themes on the computer that you can pick from.
 To help some of the text to stand out PNCconf allows you to override the 
@@ -301,7 +301,7 @@ GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
 them, but by changing GLADE VCP's theme it can be made to blend pretty well in 
 AXIS. (try Redmond)
 +
-It uses a graphical editor to build it's XML files.
+It uses a graphical editor to build its XML files.
 HAL pins are created for the user to connect to, inside of their custom HAL 
 file.
 +
@@ -395,7 +395,7 @@ The 7i48 requires UDM and a PWM base frequency of 24 Khz
 Watchdog time out is used to set how long the MESA board will wait before 
 killing outputs if communication is interrupted from the computer. Please 
 remember Mesa uses 'active low' outputs meaning that when the output pin is on, 
-it is low (approx 0 volts) and if its off the output in high (approx 5 volts) 
+it is low (approx 0 volts) and if it's off the output in high (approx 5 volts) 
 make sure your equipment is safe when in the off (watchdog bitten) state.
 
 You may choose the number of available components by deselecting unused ones. 
@@ -468,7 +468,9 @@ Open Loop Test::
 An open loop test is important as it confirms the direction of the motor and 
 encoder. The motor should move the axis in the positive direction when the 
 positive button is pushed and also the encoder should count in the postie 
-direction. The axis movement should follow the Machinery Handbook standards or 
+direction. The axis movement should follow the Machinery's Handbook 
+footnote:["axis nomenclature" in the chapter "Numerical Control" in the 
+"Machinery's Handbook" published by Industrial Press.] standards or 
 AXIS graphical display will not make much sense. Hopefully the help page and 
 diagrams can help figure this out. Note that axis directions are based on TOOL 
 movement not table movement. There is no acceleration ramping with the open loop
@@ -484,7 +486,7 @@ really for when you re-edit a config - enter your tested PID settings.
 +
 DAC scaling, max output and offset are used to tailor the DAC output.
 
-From the manual::
+Compute DAC::
 These two values are the scale and offset factors for the axis output to the 
 motor amplifiers. The second value (offset) is subtracted from the computed 
 output (in volts), and divided by the first value (scale factor), before being 
@@ -510,26 +512,26 @@ DAC units, etc. To do this, follow this procedure:
 * Build a calibration table for the output, driving the DAC with a 
             desired voltage and measuring the result:
 
-Output Voltage Measurements
+.Output Voltage Measurements
 
-[width="50%"]
-|========================================
+[cols="^,^",width="50%"]
+|==================
 |*Raw* | *Measured*
-|-10 | *-9.93*    
+|-10 | *-9.93*
 | -9 | *-8.83*
 |  0 | *-0.96*
 |  1 | *-0.03*
 |  9 | *9.87*
 | 10 | *10.07*
-|========================================
+|==================
 
 
-1. Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b
-2. Note that we want raw output such that our measured result is 
+* Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b
+* Note that we want raw output such that our measured result is 
             identical to the commanded output. This means
-a. cmd=a*raw+b
-b. raw=(cmd-b)/a
-3. As a result, the a and b coefficients from the linear fit can be used 
+** cmd=a*raw+b
+** raw=(cmd-b)/a
+* As a result, the a and b coefficients from the linear fit can be used 
             as the scale and offset for the controller directly. 
 
 MAX OUTPUT:
@@ -859,7 +861,7 @@ of outputs, in the order you write them in the 'thread command'.
 
 == Advanced Usage Of PNCconf
 
-PNCconf does it's best to allow flexible customization by the user.
+PNCconf does its best to allow flexible customization by the user.
 PNCconf has support for custom signal names, custom loading of components, 
 custom HAL files and custom firmware.
 
@@ -914,7 +916,7 @@ Loading Custom Firmware::
 PNCconf searches for firmware on the system and then looks for the XML file that
 it can convert to what it understands. These XML files are only supplied for 
 officially released firmware from the EMC team. To utilize custom firmware one 
-must convert it to an array that PNCconf understands and add it's filepath
+must convert it to an array that PNCconf understands and add its filepath
 to PNCconf's preference file. By default this path searches the desktop for
 a folder named custom_firmware and a file named firmware.py.
 
