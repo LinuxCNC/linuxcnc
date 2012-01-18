@@ -1,8 +1,8 @@
-usr/include/emc2/*.hh
-usr/include/emc2/*.h
+usr/include/linuxcnc/*.hh
+usr/include/linuxcnc/*.h
 usr/lib/*.a
 usr/lib/*.so
 usr/share/man/man1/comp.1
 usr/share/man/man3/*
 usr/bin/comp
-usr/share/doc/emc2-dev/*
+usr/share/doc/linuxcnc-dev/*

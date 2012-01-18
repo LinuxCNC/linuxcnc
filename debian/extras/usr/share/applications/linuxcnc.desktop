@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/emc
-Icon=emc2icon
+Exec=/usr/bin/linuxcnc
+Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
-Name=EMC2
-Comment=The Enhanced Machine Controller
+Name=LinuxCNC
+Comment=The LinuxCNC Enhanced Machine Controller
 StartupNotify=false
 Categories=X-CNC;

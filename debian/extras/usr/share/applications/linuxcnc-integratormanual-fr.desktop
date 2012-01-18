@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=
 Encoding=UTF-8
-Name=EMC2 Integrator Manual (French)
+Name=LinuxCNC Integrator Manual (French)
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/emc2/EMC2_Integrator_Manual_fr.pdf
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual_fr.pdf
 Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false

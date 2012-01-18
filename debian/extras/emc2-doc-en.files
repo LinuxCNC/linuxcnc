@@ -1,4 +1,4 @@
-usr/share/applications/emc2-gettingstarted.desktop
-usr/share/applications/emc2-halmanual.desktop
-usr/share/applications/emc2-integratormanual.desktop
-usr/share/applications/emc2-usermanual.desktop
+usr/share/applications/linuxcnc-gettingstarted.desktop
+usr/share/applications/linuxcnc-halmanual.desktop
+usr/share/applications/linuxcnc-integratormanual.desktop
+usr/share/applications/linuxcnc-usermanual.desktop
