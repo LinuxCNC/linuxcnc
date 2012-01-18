@@ -32,7 +32,7 @@ TCLSRCS := \
 	../tcl/bin/tkbackplot.tcl \
 	../tcl/mini.tcl \
 	../tcl/show_errors.tcl \
-	../tcl/tkemc.tcl \
+	../tcl/tklinuxcnc.tcl \
 	../tcl/scripts/Set_Coordinates.tcl \
 	../tcl/scripts/balloon.tcl \
 	../tcl/scripts/emchelp.tcl \
