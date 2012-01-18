@@ -183,8 +183,8 @@ MINI
 * standard on OEM Sherline machines
 * does not use Estop
 * no VCP integration
-            
-TkEMC
+
+TkLinuxCNC
 
 * hi contrast bright blue screen   
 * separate graphics window
