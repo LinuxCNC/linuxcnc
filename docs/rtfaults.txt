@@ -1,7 +1,7 @@
 Finding line number information for faults in realtime components
 
-1. Get a version of emc which prints the faulting instruction address
-   (that includes this version of emc)
+1. Get a version of LinuxCNC which prints the faulting instruction address
+   (that includes this version of LinuxCNC)
 
 2. Include debugging info in your modules.  For built-in modules,
    below the definition of EXTRA_CFLAGS in Makefile, add
