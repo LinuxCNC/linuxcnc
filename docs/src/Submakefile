@@ -279,7 +279,7 @@ DOC_SRCS := \
 	gui/tkemc.txt \
 	gui/tkemc_de.txt \
 	gui/tkemc_es.txt \
-	gui/tkemc_fr.txt \
+	gui/tklinuxcnc_fr.txt \
 	gui/tkemc_pl.txt \
 	gui/touchy.txt \
 	gui/touchy_de.txt \
@@ -762,28 +762,28 @@ docs:
 endif
 
 docclean:
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Manual_Pages.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html

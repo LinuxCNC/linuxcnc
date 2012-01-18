@@ -35,7 +35,7 @@ PCNConf est bien adapté pour cette utilisation.
 proche possible de ce qui est souhaité, puis à la modifier à la main pour
 l'adapter aux besoins. C'est le bon choix si les besoins de modifications vont
 au-delà des possibilités de PNCconf ou pour expérimenter et en apprendre plus
-sur EMC2.
+sur LinuxCNC.
 
 Il est possible de naviguer dans l'assistant, revenir sur des pages, annuler des
 choix, obtenir de l'aide et des diagrammes puis enfin, de valider la
@@ -70,10 +70,10 @@ existante à modifier. Par défaut, Pncconf présélectionne le dernier fichier
 enregistré. Il est possible de cocher les options _Créer un lien sur le
 bureau_ qui créera un lien sur le bureau pointant sur ce nouveau fichier de
 configuration, _Créer un lanceur_ qui créera un lanceur sur le bureau pour
-EMC2 dans cette configuration.
+LinuxCNC dans cette configuration.
 Si ces options ne sont pas utilisées, le nouveau fichier de configuration se
 trouvera dans le dossier *+~/emc2/configs+*. Il est toujours  possible de
-lancer EMC2 normalement et de sélectionner la configuration souhaitée dans la
+lancer LinuxCNC normalement et de sélectionner la configuration souhaitée dans la
 liste.
 
 == Informations machine
@@ -106,14 +106,14 @@ _Temps de réponse de l'ordinateur_
 
 Période servo actuelle::
     La période d'asservissement. C'est l'horloge du système. La latence donne
-    la variation de cette horloge. EMC2 demande une chronologie serrée et
+    la variation de cette horloge. LinuxCNC demande une chronologie serrée et
     cohérente, sinon des problèmes surviendront.
 
 Quelques explications:
-EMC2 requiert et utilise un système d'exploitation temps réel, ce qui signifie
-qu'il a une latence très faible et un temps de réponse très court. Les
-évènements arrivent avec précision dans le temps quand EMC2 nécessite pour ses
-calculs, de ne pas être interrompu par des demandes de priorité inférieure
+LinuxCNC requiert et utilise un système d'exploitation temps réel, ce qui
+signifie qu'il a une latence très faible et un temps de réponse très court. Les
+évènements arrivent avec précision dans le temps quand LinuxCNC nécessite pour
+ses calculs, de ne pas être interrompu par des demandes de priorité inférieure
 (interruptions) comme des saisies au clavier ou des demandes d'affichage.
 
 Le test de latence est très important, il est un élément clef qui doit être
@@ -122,7 +122,7 @@ critiques en temps de réponse, comme le comptage d'impulsions, la génération 
 PWM et cela leur permet de supporter une latence supérieure à celle d'un système
 utilisant les ports parallèles de la carte mère.
 
-Le test standard dans EMC2, consiste à vérifier la latence de base du PC. Un
+Le test standard dans LinuxCNC, consiste à vérifier la latence de base du PC. Un
 appui sur le bouton _Test de latence_ lancera le test de latence, il est
 également possible de le lancer depuis le menu _application -> cnc -> latency
 test_. Une fenêtre s'ouvre dans laquelle s'affichent les temps mesurés.
@@ -142,7 +142,7 @@ Si la latence est médiocre ou si des problèmes intermittents surviennent
 régulièrement il sera toujours possible de l'améliorer.
 
 TIP: Il y a une liste d'équipements et de leurs temps de latence sur
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test[le wiki d'EMC2] +
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test[le wiki de LinuxCNC] +
 SVP, pensez à ajouter vos infos à la liste. Sur cette page il y a des liens vers
 des informations pour résoudre certains problèmes de latence.
 
@@ -207,7 +207,7 @@ Ports parallèles::
 
 _Liste des interfaces graphiques_
 
-Spécifie les interfaces utilisateur graphiques que EMC2 peut utiliser.
+Spécifie les interfaces utilisateur graphiques que LinuxCNC peut utiliser.
 Chacune dispose d'options particulières.
 
 *AXIS*
@@ -238,7 +238,7 @@ panneaux de contrôle).
 * N'utilise pas d'arrêt d'urgence (ESTOP).
 * Pas de possibilité d'intégrer un panneau de contrôle.
             
-*TkEMC*
+*TkLinuxCNC*
 
 * Contraste élevé grâce à un fond bleu.
 * Fenêtre graphique séparée.
@@ -254,7 +254,7 @@ manuelle de déplacement des axes (jog) ou des curseurs des correcteurs de vites
 image::images/pncconf-external_fr.png[]
 
 Si une manette de jeu externe est sélectionnée pour le jog, il faudra
-toujours la connecter à EMC2 avant de démarrer celui-ci. Si la manette est
+toujours la connecter à LinuxCNC avant de démarrer celui-ci. Si la manette est
 analogique il faudra probablement ajouter du code personnalisé à HAL.
 Les manivelles de jog à vernier et micro impulsion nécessitent d'être
 connectées à une carte Mesa sur un compteur de codeur. Pour les correcteurs de
@@ -264,7 +264,7 @@ Les boutons externes peuvent être ceux d'une manette de jeu.
 
 Joystick USB pour le jog::
      Demande des règlages spécifiques personnalisés pour être installé dans le
-    système. Il s'agi d'un fichier qui est utilisé par EMC2 pour se connecter à
+    système. Il s'agi d'un fichier qui est utilisé par LinuxCNC pour se connecter à
     la liste des périphériques Linux. PNCconf aidera à la construction de ce
     fichier.
 
@@ -306,7 +306,7 @@ Correcteurs de vitesses::
 
 Ici il est possible de  configurer l'interface graphique utilisateur (GUI), lui
 ajouter des panneaux de commande virtuels (VCP) et définir certaines options
-d'EMC2.
+d'LinuxCNC.
 
 .Configuration des GUI
 
@@ -486,7 +486,7 @@ Nombre de générateur de PAS::
     cela, les composants ne sont pas là où il devraient, alors il faut utiliser
     un micro logiciel différent. Le micro logiciel dicte où, quoi et les nombre
     maximum de composants. Un micro logiciel personnalisé est possible en le
-    demandant gentiment aux développeurs EMC et Mesa.
+    demandant gentiment aux développeurs LinuxCNC et Mesa.
     Les micros logiciels dans PNCconf nécessitent des procédures spéciales et ce
     n'est pas toujours possible. Bien que nous essayons de rendre PNCconf aussi
     souple que possible.
@@ -579,7 +579,7 @@ d'échelle),
     avant d'être écrite dans le DAC. La valeur d'échelle (Scale) s'exprime en
     Volts/Volts de sortie du DAC. Le décalage (offset) s'exprime en Volts.
     Elles peuvent être utilisées pour linéariser le DAC. Plus précisément, lors
-    de l'écriture des sorties, EMC2 convertit d'abord la valeur effective de la
+    de l'écriture des sorties, LinuxCNC convertit d'abord la valeur effective de la
     sortie concernée, qui est en quasi-unités SI, en valeurs brute d'actionneur.
     Par exemple, des Volts pour un amplificateur DAC. La valeur de l'échelle peut
     être obtenue en analysant l'unité c'est-à-dire en déterminant le rapport
@@ -697,10 +697,10 @@ Sur un tour classique::
    configuration.
 
 Lorsque des contacts d'origine machine et des contacts de fin de course sont utilisés,
-EMC2 attend des signaux de HAL au niveaux haut lorsque le contact est actionné.
-Si le signal d'un fin de course est inversé, EMC2 détectera en permanence que
+LinuxCNC attend des signaux de HAL au niveaux haut lorsque le contact est actionné.
+Si le signal d'un fin de course est inversé, LinuxCNC détectera en permanence que
 la machine est en bout de course. Si la logique de recherche du contact d'origine
-machine est mauvaise (fichier ini), EMC2 lancera la séquence de recherche d'origine
+machine est mauvaise (fichier ini), LinuxCNC lancera la séquence de recherche d'origine
 machine de l'axe dans la mauvaise direction.
 
 Décider de l'emplacement des fins de courses::
@@ -714,9 +714,9 @@ Décider de l'emplacement des fins de courses::
     ils doivent aussi couper la puissance sur l'axe concerné. Le contact doit
     s'ouvrir à l'activation du fin de course. Utiliser un autre câblage est
     possible mais il est moins sécurisé.
-    Il peut être nécessaire d'inverser le signal de HAL dans EMC2 pour avoir un
+    Il peut être nécessaire d'inverser le signal de HAL dans LinuxCNC pour avoir un
     état actif haut, TRUE signifie que le contact a été activé. Lorsqu'au
-    démarrage d'EMC2 un avertissement de limite et affiché même si l'axe n'est
+    démarrage de LinuxCNC un avertissement de limite et affiché même si l'axe n'est
     pas sur un des fin de course, le signal est probablement inversé. Utiliser
     HALMETER pour vérifier l'état du signal de HAL correspondant, par exemple,
     axis.0.pos-lim-sw-in, fin de course positif de l'axe X.
@@ -735,7 +735,7 @@ Décider de l'emplacement des contacts d'origine machine::
     et l'index suivant sera le point d'origine machine effectif.
   
 Décider de la position de l'origine machine::
-     L'origine machine dans EMC2 sert de référence à tous les systèmes de coordonnées
+     L'origine machine dans LinuxCNC sert de référence à tous les systèmes de coordonnées
     utilisateur. Il n'y a pas d'emplacement particulier pour ce point. Seuls
     quelques G-codes accèdent au système de coordonnées machine (G53, G30 et G28).
     Si l'option de changement d'outil sur G30 est utilisée, placer l'origine machine
@@ -744,7 +744,7 @@ Décider de la position de l'origine machine::
 
 Décider de la position finale de l'origine::
      Ça consiste simplement à placer le chariot ou la broche à la position 
-    la plus commode après qu'EMC2 soit initialisé et que les points d'origines
+    la plus commode après que LinuxCNC soit initialisé et que les points d'origines
     machine de chacun des axes lui soit connus.
 
 Définition des côtés positifs/négatifs et des longueurs de courses maximales::
@@ -759,9 +759,9 @@ Définition des côtés positifs/négatifs et des longueurs de courses maximales
 
 Point d'origine machine::
     Ce point est le point de référence de la machine. (Ne pas confondre avec le
-    point zéro de l'outil ou de la pièce). EMC2 référence tout à partir de ce point.
+    point zéro de l'outil ou de la pièce). LinuxCNC référence tout à partir de ce point.
     Il doit être à l'intérieur des limites logicielles sinon la machine ne pourrait
-    jamais l'atteindre. EMC2 utilise la position du contact d'origine machine
+    jamais l'atteindre. LinuxCNC utilise la position du contact d'origine machine
     pour calculer la position d'origine. Si la machine ne dispose pas de contact
     il faudra la positionner manuellement sur les points d'origine, cocher les axes
     l'un après l'autre et pour chacun, presser le bouton _POM des axes_.
@@ -824,7 +824,7 @@ Direction d'acquisition du contact d'origine machine::
     que la recherche, ou à l'opposé.
 
 Origine machine sur l'index du codeur::
-     EMC2 attendra l'impulsion d'index du codeur après l’acquisition du contact
+     LinuxCNC attendra l'impulsion d'index du codeur après l’acquisition du contact
     d'origine machine.
 
 Utiliser un fichier de compensation de jeu::
@@ -870,7 +870,7 @@ conduite de la broche il n'y a pas d'accélération ni de limitation de vitesse.
 Il n'y a pas de support pour les changements de vitesse ni pour les gammes de vitesses.
 Si une option VCP d'affichage de vitesse broche est choisie, alors la
 _Vitesse broche atteinte_, _l'échelle_, _la vitesse_ et _les réglages des
-filtres_ seront visibles. L’information sur la vitesse de broche permet à EMC2
+filtres_ seront visibles. L’information sur la vitesse de broche permet à LinuxCNC
 d'attendre que celle-ci ait atteint la vitesse de consigne, avant de déplacer les axes.
 C'est particulièrement pratique sur les tours, lors de l'utilisation d'une vitesse
 de coupe constante avec de grands changements de diamètre. Il exige un retour
@@ -959,7 +959,7 @@ Avec une conception réfléchie, la plupart des personnalisations devraient fonc
 même si des options doivent être modifiées par la suite dans PNCCONF.
 Finalement, si les personnalisations vont au-delà du périmètre de travail de PNCCONF,
 il sera possible d'utiliser PNCCONF pour construire une configuration de base,
-ou d'utiliser une des configurations fournies en standards par EMC2 et de l'éditer
+ou d'utiliser une des configurations fournies en standards par LinuxCNC et de l'éditer
 pour obtenir ce que est souhaité.
 
 Nom de signaux personnalisés::
@@ -995,7 +995,7 @@ Charger un microprogramme personnalisé::
 
 PNCconf cherche le microprogramme sur le système et cherche ensuite le fichier XML
 qu'il peut convertir et qu'il comprend. Ces fichiers XML sont seulement fournis
-pour les microprogrammes officiellement délivrés par l'équipe EMC2. Pour utiliser
+pour les microprogrammes officiellement délivrés par l'équipe LinuxCNC. Pour utiliser
 un microprogramme personnalisé, il faut le convertir en tableau que PNCconf comprend
 et ajouter son chemin dans le fichier de préférences de PNCCONF. Par défaut
 le chemin recherché est sur le bureau, dans un dossier nommé _custom_firmware_
@@ -1005,7 +1005,7 @@ Le fichier caché des préférence est dans le dossier home de l'utilisateur et 
 nomme .pncconf-preferences, pour l'éditer il faut sélectionner _Afficher les
 fichiers cachés_. On peut voir le contenu de ce fichier au premier démarrage de
 PNCCONF. Presser le bouton d'aide et regarder la page de sortie.
-Demander sur la liste de diffusion EMC2 ou sur le forum pour des renseignements
+Demander sur la liste de diffusion LinuxCNC ou sur le forum pour des renseignements
 pour convertir un microprogramme personnalisé.
 Tous les microprogrammes ne peuvent pas être utilisés avec PNCCONF.
 
@@ -1019,7 +1019,7 @@ Fichiers HAL Personnalisés::
 // PYVCP a trouver
 - custom_gvcp.hal est prévu pour les commandes qui doivent être exécutées après
     le chargement de GLADE VCP.
-- shutdown.hal est prévu pour des commandes exécutées quand EMC2 se ferme de façon
+- shutdown.hal est prévu pour des commandes exécutées quand LinuxCNC se ferme de façon
     contrôlée.
 
 // vim: set syntax=asciidoc:

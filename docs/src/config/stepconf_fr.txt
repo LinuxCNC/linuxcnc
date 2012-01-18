@@ -9,16 +9,16 @@
 == Introduction
 (((Introduction)))
 
-EMC2 est capable de contrôler un large éventail de machines
+LinuxCNC est capable de contrôler un large éventail de machines
 utilisant de nombreuses interfaces matérielles différentes.
 
-Stepconf est un programme qui génère des fichiers de configuration EMC2
+Stepconf est un programme qui génère des fichiers de configuration LinuxCNC
 pour une classe spécifique de machine CNC: celles qui sont pilotées
 via un, ou plusieurs ports parallèles standards et contrôlées par des signaux
 de type pas/direction (step/dir).
 
-Stepconf est installé en même temps qu'EMC2 et un lanceur se trouve
-dans le menu _Application -> CNC -> EMC2 StepConf_.
+Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve
+dans le menu _Application -> CNC -> LinuxCNC StepConf_.
 
 Stepconf place les fichiers qu'il crée dans le répertoire *~/emc2/config*
 pour y stocker les paramètres de chaque configuration.
@@ -92,7 +92,7 @@ http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Timming des pil
 D'éventuels traitements des signaux, une opto-isolation ou des filtres RC,
 peuvent imposer des contraintes de temps supplémentaires aux signaux,
 il convient de les ajouter à celles du pilote.
-La Configuration EMC2 pour Sherline est déjà réglée.
+La Configuration LinuxCNC pour Sherline est déjà réglée.
 
 Step Time:: 
     Durée de la largeur de l'impulsion de pas à l'état _on_, en nanosecondes.
@@ -158,7 +158,7 @@ latence>> pour plus de détails.
 
 Dialogue à l'écran pour le changement d'outil::
     (((Dialogue d'appel d'outil)))
-    Si cette case est cochée, EMC2 va faire une pause et ouvrir un dialogue
+    Si cette case est cochée, LinuxCNC va faire une pause et ouvrir un dialogue
     pour charger l'outil <n> lorsque qu'un G-Code M6 T<n> sera rencontré.
     Laisser cette case cochée sauf si le support d'un changeur d'outils
     automatique est prévu dans un fichier personnalisé HAL.
@@ -202,7 +202,7 @@ Jouer de la musique. Lancer une démo OpenGL telle que glxgears.
 L'idée est de charger le PC au maximum pour que le temps de latence
 soit mesuré dans le pire des cas.
 
-[red]#Ne pas exécuter EMC2 ou Stepconf
+[red]#Ne pas exécuter LinuxCNC ou Stepconf
 pendant qu'un latency-test est en cours d'exécution#.
 
 Il faudra exécuter le test pendant plusieurs minutes ou heures, ceci pour
@@ -221,7 +221,7 @@ réduite, spécialement si des micropas sont utilisés ou si le pas
 de la vis est fin. Si les résultats sont supérieurs à 100000 nanosecondes,
 alors le PC n'est pas un bon candidat à la génération des pas.
 Les résultats supérieurs à 1,000,000 nanosecondes
-éliminent, dans tous les cas, ce PC pour faire tourner EMC,
+éliminent, dans tous les cas, ce PC pour faire tourner LinuxCNC,
 que ce soit en utilisant des micropas ou non.
 
 .Dépannage des problèmes SMI (LinuxCNC.org Wiki)
@@ -525,7 +525,7 @@ Vitesse 1 et 2, PWM 1 et 2::
 (((Mouvement avec broche synchronisée)))
 
 Lorsque les signaux appropriés, provenant d'un codeur de broche, sont
-connectés au port parallèle, EMC2 peut être utilisé pour les usinages
+connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages
 avec broche synchronisée comme le filetage ou le taraudage rigide.
 Ces signaux son:
 
@@ -572,7 +572,7 @@ Entrer les valeurs suivantes dans la page de configuration de la broche:
 | Vitesse 2: | 1000 | PWM 2: | 1
 |========================================
 
-Finir les étapes suivantes de la configuration, puis lancer EMC2 avec
+Finir les étapes suivantes de la configuration, puis lancer LinuxCNC avec
 cette configuration. Mettre la machine en marche et aller dans l'onglet Données
 manuelles, démarrer le moteur de broche en entrant: M3 S100.
 Modifier la vitesse de broche avec différentes valeurs comme: S800.
@@ -616,7 +616,7 @@ WARNING: [red]#Si une butée mécanique venait à être dépassée,
 la vis ou le bâti machine seraient détériorés!#
 
 Avant la butée mécanique se trouve un contact de fin de course *[green]#(b)#*.
-Si ce contact est rencontré pendant les opérations normales, EMC coupe
+Si ce contact est rencontré pendant les opérations normales, LinuxCNC coupe
 la puissance du moteur. La distance entre le fin de course et la butée
 mécanique doit être suffisante pour permettre au moteur, dont la puissance
 a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fin de course
@@ -690,7 +690,7 @@ afin de nécessiter un plus petit nombre d'entrées.
 Les figures ci-dessous montrent l'idée générale du câblage de plusieurs
 contacts à une seule broche d'entrée. Dans chaque cas, lorsqu'un contact
 est actionné, la valeur vue sur l'entrée va passer d'une logique haute à
-une logique basse. Cependant, EMC2 s'attend à une valeur VRAIE quand un
+une logique basse. Cependant, LinuxCNC s'attend à une valeur VRAIE quand un
 contact est fermé, de sorte que les cases Inverser correspondantes devront
 être cochées sur la page de réglage du port parallèle.
 Une résistance de rappel est nécessaire dans le circuit pour tirer l'entrée au

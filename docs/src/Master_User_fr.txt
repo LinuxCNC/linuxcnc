@@ -21,12 +21,12 @@ include::common/user_intro_fr.txt[]
 include::gui/axis_fr.txt[]
 include::gui/ngcgui_fr.txt[]
 include::gui/touchy_fr.txt[]
-include::gui/tkemc_fr.txt[]
+include::gui/tklinuxcnc_fr.txt[]
 include::gui/mini_fr.txt[]
 include::gui/keystick_fr.txt[]
 :leveloffset: 0
 
-= L'utilisation d'EMC2
+= L'utilisation de LinuxCNC
 :leveloffset: 1
 include::common/User_Concepts_fr.txt[]
 include::gcode/machining_center_fr.txt[]

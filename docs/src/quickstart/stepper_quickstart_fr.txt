@@ -23,7 +23,7 @@ sur le test de latence>>.
 (((Sherline)))
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
-Au premier démarrage d'EMC2, le sélecteur de configuration s'ouvre, sélectionnez 
+Au premier démarrage de LinuxCNC, le sélecteur de configuration s'ouvre, sélectionnez 
 alors le modèle correspondant à votre machine *Sherline*, puis acceptez d'enregistrez une copie. 
 
 [[sec:Xylotex]]
@@ -31,7 +31,7 @@ alors le modèle correspondant à votre machine *Sherline*, puis acceptez d'enre
 (((Xylotex)))
 
 Si vous avez une machine *Xylotex* vous pouvez utiliser l'assistant graphique de 
-configuration fourni avec EMC2 et créer rapidement votre configuration 
+configuration fourni avec LinuxCNC et créer rapidement votre configuration 
 personnalisée <<cha:Assistant-graphique-StepConf, avec l'assistant Stepconf>>.
 
 == Informations relatives à la machine

@@ -64,12 +64,12 @@ vues Open Source de LinuxCNC:
 === Les salons IRC
 
 IRC signifie Internet Relay Chat.
-Il s'agit d'une connexion en direct avec d'autres utilisateurs EMC.
-Le canal EMC sur IRC est: #emc sur freenode.net.
+Il s'agit d'une connexion en direct avec d'autres utilisateurs LinuxCNC.
+Le canal LinuxCNC sur IRC est: #linuxcnc sur freenode.net.
 
 La manière la plus simple d'aller sur IRC est d'utiliser 
 le client embarqué sur cette page:
-http://webchat.freenode.net/?channels=emc
+http://webchat.freenode.net/?channels=linuxcnc
 
 Un peu d'éthique sur le canal IRC:
 
@@ -114,7 +114,7 @@ vous avez configuré votre compte, vous aurez les réponses soit,
 regroupées quotidiennement, soit individuellement.
 
 Inscription sur la liste de diffusion des utilisateurs de LinuxCNC sur: 
-https://lists.sourceforge.net/lists/listinfo/emc-users
+https://lists.sourceforge.net/lists/listinfo/linuxcnc-users
 
 === Le Wiki de LinuxCNC
 
@@ -123,7 +123,7 @@ n'importe qui peut ajouter ou modifier les pages.
 
 Le Wiki de LinuxCNC est également maintenu par les utilisateurs, 
 il contient un très grand nombre d'informations et d'astuces sur: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl
+http://wiki.linuxcnc.org/
 
 == Se procurer LinuxCNC(((Obtenir LinuxCNC)))
 
@@ -376,7 +376,7 @@ Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogu
 vous demandera si vous voulez en faire une copie dans votre répertoire home. 
 Si vous répondez *_oui_*, un dossier *emc2* autorisé en écriture sera créé, il 
 contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos 
-besoins. Si vous répondez *_non_*, emc démarrera mais pourra se comporter de façon 
+besoins. Si vous répondez *_non_*, LinuxCNC démarrera mais pourra se comporter de façon 
 étrange, par exemple, les décalages d'origine pièce entrés avec la commande 
 *_Toucher_* ne seront pas pris en compte, ce comportement est lié à ce moment, à 
 l'absence de répertoire autorisé en écriture sans lequel les paramètres ne 
