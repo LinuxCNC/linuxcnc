@@ -5,7 +5,7 @@ Developer Manual V2.5, {localdate}
 
 :masterdir: {indir}
 
-The EMC Team
+The LinuxCNC Team
 
 :leveloffset: 1
 
@@ -14,7 +14,7 @@ image::common/images/emc2-intro.*[]
 include::common/overleaf.txt[]
 
 :leveloffset: 0
-== EMC2 Code Notes
+== LinuxCNC Code Notes
 :leveloffset: 1
 
 include::code/Code_Notes.txt[]

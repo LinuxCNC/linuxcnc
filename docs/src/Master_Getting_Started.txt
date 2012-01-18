@@ -5,7 +5,7 @@ Getting Started V2.5, {localdate}
 
 :masterdir: {indir}
 
-The EMC Team
+The LinuxCNC Team
 
 :leveloffset: 1
 
