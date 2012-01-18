@@ -1,5 +1,7 @@
 = CNC Machine Overview
 
+[[cha:cnc-machine-overview]] (((CNC Machine Overview)))
+
 This section gives a brief description of how a CNC machine is viewed
 from the input and output ends of the Interpreter.
 
@@ -17,7 +19,7 @@ if they affect control.
 Any CNC machine has one or more Axes. Different types of CNC machines
 have different combinations. For instance, a '4-axis milling machine'
 may have XYZA or XYZB axes. A lathe typically has XZ axes. A
-foam-cutting machine may have XYUV axes. In EMC, the case of a XYYZ
+foam-cutting machine may have XYUV axes. In LinuxCNC, the case of a XYYZ
 'gantry' machine with two motors for one axis is better handled by
 kinematics rather than by a second linear axis. footnote:[If the 
 motion of mechanical components is not independent, as with 
@@ -262,7 +264,7 @@ moves, such as the
 traverse out of the end of a thread during a threading cycle, the
 switches are disabled automatically.
 
-EMC2 reacts to the speed and feed override settings when these
+LinuxCNC reacts to the speed and feed override settings when these
 switches are enabled.
 
 === Block Delete Switch[[sub:Block-Delete-Switch-Interaction]]
@@ -321,7 +323,7 @@ of numerical parameters defined by a system definition
 in defining coordinate systems. The number of numerical parameters can
 increase as development adds support for new parameters. The parameter
 array persists over time, even if the machining center is powered down.
-EMC2 uses a parameter file to ensure persistence and gives the
+LinuxCNC uses a parameter file to ensure persistence and gives the
 Interpreter the responsibility for maintaining the file. The
 Interpreter reads the file when it starts up, and writes the file when
 it exits.

@@ -9,7 +9,7 @@ before attempting to run a CNC machine with g code.
 
 === Trajectory Planning
 
-Trajectory planning, in general, is the means by which EMC follows the
+Trajectory planning, in general, is the means by which LinuxCNC follows the
 path specified by your G Code program, while still operating within the
 limits of your machinery.
 
@@ -63,7 +63,7 @@ The trajectory control commands are as follows:
     segment's end. 
 
 * 'G64' - (Blend Without Tolerance Mode) G64 is the default setting when you
-    start EMC. G64 is just blending and the naive cam detector is not
+    start LinuxCNC. G64 is just blending and the naive cam detector is not
     enabled. G64 and G64 P0 tell the planner to sacrifice path following
     accuracy in order to keep the feed rate up. This is necessary for some
     types of material or tooling where exact stops are harmful, and can
@@ -180,13 +180,13 @@ latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 
 === Defaults
 
-When EMC first starts up many G and M codes are loaded by default. The
+When LinuxCNC first starts up many G and M codes are loaded by default. The
 current active G and M codes can be viewed on the MDI tab in the
 'Active G-Codes:' window in the AXIS interface. These G and M codes
-define the behavior of EMC and it is important that you understand what
-each one does before running EMC. The defaults can be changed when
+define the behavior of LinuxCNC and it is important that you understand what
+each one does before running LinuxCNC. The defaults can be changed when
 running a G-Code file and left in a different state than when you
-started your EMC session. The best practice is to set the defaults
+started your LinuxCNC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
 that the defaults have not changed. Printing out the G-Code
 <<quick-reference-table,Quick Reference>> page can help you remember
@@ -211,7 +211,7 @@ information.
 
 == Homing
 
-After starting EMC2 each axis must be homed prior to running a program
+After starting LinuxCNC each axis must be homed prior to running a program
 or running a MDI command. 
 
 If your machine does not have home switches a match mark on each axis
@@ -235,12 +235,12 @@ User Manual.
 
 The Coordinate Systems can be confusing at first. Before running a CNC
 machine you must understand the basics of the coordinate systems used
-by EMC. In depth information on the EMC Coordinate Systems is in the
+by LinuxCNC. In depth information on the LinuxCNC Coordinate Systems is in the
 <<coordinate-system,Coordinate Section>> of this manual.
 
 === G53 Machine Coordinate
 
-When you home EMC you set the G53 Machine Coordinate System to 0 for
+When you home LinuxCNC you set the G53 Machine Coordinate System to 0 for
 each axis homed.
 
  - No other coordinate systems or tool offsets are changed by homing. 
@@ -259,7 +259,7 @@ Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
 at the end of your G Code file. Change the 'P' number to suit the
 coordinate system you wish to clear the offset in.
 
- -  Offsets stored in a user coordinate system are retained when EMC is
+ -  Offsets stored in a user coordinate system are retained when LinuxCNC is
    shut down.
  -  Using the 'Touch Off' button in Axis sets an offset for the chosen
    User Coordinate System.

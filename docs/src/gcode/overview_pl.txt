@@ -2,7 +2,7 @@
 
 [[cha:g-code-overview]] (((G Code Overview)))
 
-The EMC2 G Code language is based on the RS274/NGC language. The G
+The LinuxCNC G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
 'block') may include commands to do several different things. Lines of
 code may be collected in a file to make a program.
@@ -15,11 +15,11 @@ example, 'G1 X3' is a valid line of code with two words. 'G1' is a
 command meaning 'move in a straight line at the programmed feed 
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move). 
-Most EMC2 G Code commands start with either G or M (for
+Most LinuxCNC G Code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called 'G
 codes' and 'M codes.'
 
-The EMC2 language has no indicator for the start of a program. The
+The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
 single file, or a program may be spread across several files. A file
 may demarcated with percents in the following way. The first non-blank
@@ -32,7 +32,7 @@ has a percent line at the beginning but not at the end. The useful
 contents of a file demarcated by percents stop after the second percent
 line. Anything after that is ignored.
 
-The EMC2 G Code language has two commands ('M2' or 'M30'), either of
+The LinuxCNC G Code language has two commands ('M2' or 'M30'), either of
 which ends a program. A program may end before the end of
 a file. Lines of a file that occur after the end of a program are not
 to be executed. The interpreter does not even read them.
@@ -189,14 +189,14 @@ parameters this does not make sense, so they are are read-only - they
 may appear in expressions, but not on the left-hand side of an
 assignment statement.
 
-Persistence:: When EMC is shut down, volatile parameters lose their
+Persistence:: When LinuxCNC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
 persistent range footnoteref:[persistent range,The range of persistent
 parameters may change as development progresses. This range is
 currently 5161- 5390. It is defined in the '_required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the <<var_file_format,.var file>>
-restored to their previous values when EMC is started again. Volatile
+restored to their previous values when LinuxCNC is started again. Volatile
 numbered parameters are reset to zero.
 
 Intended Use::
@@ -641,7 +641,7 @@ M2 ; End of program.
 == File Size
 
 The interpreter and task are carefully written so that the only limit
-on part program size is disk capacity. The TkEMC and Axis interface
+on part program size is disk capacity. The TkLinuxCNC and Axis interface
 both load the program text to display it to the user, though, so RAM
 becomes a limiting factor. In Axis, because the preview plot is drawn
 by default, the redraw time also becomes a practical limit on program

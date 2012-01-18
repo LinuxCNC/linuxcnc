@@ -1,6 +1,6 @@
 = Coordinate System
 
-[[cha:coordinate-system]](((Coordinate System)))
+[[cha:coordinate-system]] (((Coordinate System)))
 
 == Introduction
 
@@ -11,7 +11,7 @@ prominent part of a casting or block of material and work a program
 from that point rather than having to take account of the location at
 which the casting or block will be held during the machining.
 
-This chapter introduces you to offsets as they are used by the EMC.
+This chapter introduces you to offsets as they are used by the LinuxCNC.
 These include;
 
 * machine coordinates (G53) 
@@ -50,7 +50,7 @@ operation that uses fixture offsets would be to mill multiple copies of
 parts on multiple part holders or vises.
 
 The values for offsets are stored in the VAR file that is requested by
-the INI file during the startup of an EMC. In our example below we'll
+the INI file during the startup of an LinuxCNC. In our example below we'll
 use (((G55)))G55. The values for each axis for G55 are stored as
 variable numbers.
 
@@ -71,7 +71,7 @@ sets like this for each of the fixture offsets.
 
 Each of the graphical interfaces has a way to set values for these
 offsets. You can also set these values by editing the VAR file itself
-and then restarting EMC so that the EMC reads the new values however
+and then restarting LinuxCNC so that the LinuxCNC reads the new values however
 this is not the recommended way. G10, G92, G28.1, etc are better ways
 to affect variables. For our example let's directly edit the file so
 that G55 takes on the following values.
@@ -139,11 +139,11 @@ G59.3 use preset work coordinate system 9
 
 One other variable in the VAR file becomes important when we think
 about offset systems. This variable is named 5220. In the default files
-its value is set to 1.00000. This means that when the EMC starts up it
+its value is set to 1.00000. This means that when the LinuxCNC starts up it
 should use the first coordinate system as its default. If you set this
 to 9.00000 it would use the ninth offset system as its default for
 start up and reset. Any value other than an integer (decimal really)
-between 1 and 9, or a missing 5220 variable will cause the EMC to
+between 1 and 9, or a missing 5220 variable will cause the LinuxCNC to
 revert to the default value of 1.00000 on start up.
 
 === Setting coordinate (fixture) offsets from G-code
@@ -199,19 +199,19 @@ coordinate systems.
 
 It is likely that the absence of home switches and proper home
 procedures will result in very large errors in the application of G92
-values if they exist in the var file. Many EMC users do not have home
+values if they exist in the var file. Many LinuxCNC users do not have home
 switches in place on their machines. For them home should be found by
 moving each axis to a location and issuing the home command. When each
 axis is in a known location, the home command will recalculate how the
 G92 values are applied and will produce consistent results. Without a
 home sequence, the values are applied to the position of the machine
-when the EMC begins to run.
+when the LinuxCNC begins to run.
 
 === Setting G92 values
 
 There are at least two ways to set G92 values.
 
-* right mouse click on position displays of tkemc will popup a window
+* right mouse click on position displays of tkLinuxCNC will popup a window
    into which you can type a value. 
 * the G92 command
 
@@ -258,7 +258,7 @@ unexpected positions as the result of a commanded move, as a result of
 storing an offset in a previous progam and not clearing them at the end
 then issue a G92.1 in the MDI window to clear the stored offsets.
 
-If G92 values exist in the VAR file when EMC2 starts up, the G92 
+If G92 values exist in the VAR file when LinuxCNC starts up, the G92 
 values in the var file will be applied to the values of the current 
 location of each axis. If this is home position and home position is 
 set as machine zero everything will be correct. Once home has been 
@@ -268,7 +268,7 @@ applied. If you have a G92 X1 in effect when you home the X axis the
 DRO will read 'X: 1.000' instead of the expected 'X: 0.000' because the
 G92 was applied to the machine origin. If you issue a G92.1 and the DRO
 now reads all zeros then you had a G92 offset in effect when you last
-ran EMC.
+ran LinuxCNC.
 
 Unless your intention is to use the same G92 offsets in the next 
 program, the best practice is to issue a G92.1 at the end of any G Code 
@@ -346,7 +346,7 @@ whole pattern around in the XY plane by adding some X and Y offsets
 with G92. If you do this you should add a G92.1 command just before the
 m2 that ends the program. If you do not, other programs that you might
 run after this one will also use that G92 offset. Furthermore it would
-save the G92 values when you shut down the EMC and they will be
+save the G92 values when you shut down the LinuxCNC and they will be
 recalled when you start up again.
 
 

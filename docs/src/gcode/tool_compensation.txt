@@ -1,5 +1,7 @@
 = Tool Compensation
 
+[[cha:tool-compensation]] (((Tool Compensation)))
+
 == Tool Length Offsets
 
 === Touch Off(((Touch Off)))
@@ -79,11 +81,11 @@ The file consists of one opening semicolon on the first line,
 followed by up to a maximum of 56 tool entries. 
 footnote:[Although tool numbers up to 99999 are allowed, the number 
 of entries in the tool table, at the moment, is still limited to a 
-maximum of 56 tools for technical reasons. The EMC2 developers plan 
+maximum of 56 tools for technical reasons. The LinuxCNC developers plan 
 to remove that limitation eventually. If you have a very large 
 toolchanger, please be patient.]
 
-Earlier versions of EMC2 had two different tool table formats for 
+Earlier versions of LinuxCNC had two different tool table formats for 
 mills and lathes, but since the 2.4.x release, one tool table format 
 is used for all machines. Just ignore the parts of the tool table 
 that don't pertain to your machine, or which you don't need to use. 
@@ -169,8 +171,8 @@ readers only. The comment must be preceded by a semicolon.
 
 === Tool Changers
 
-EMC supports three types of tool changers: 'manual', 'random location'
-and 'fixed location'. Information about configuring an EMC tool changer
+LinuxCNC supports three types of tool changers: 'manual', 'random location'
+and 'fixed location'. Information about configuring an LinuxCNC tool changer
 is in the Integrator Manual.
 
 ==== Manual Tool Changer
@@ -187,9 +189,9 @@ tool and the manual tool changer should not be used.
 
 Fixed location tool changers always return the tools to a 
 fixed position in the tool changer. This would also include 
-designs like lathe turrets. When EMC is configured for a fixed
+designs like lathe turrets. When LinuxCNC is configured for a fixed
 location tool changer the 'P' number is ignored (but read, preserved
-and rewritten) by EMC, so you can use P for any bookkeeping number you
+and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
 want.
 
 ==== Random Location Tool Changers
@@ -197,7 +199,7 @@ want.
 Random location tool changers swap the tool in the spindle with the
 one in the changer. With this type of tool changer the tool will 
 always be in a different pocket after a tool change. When a tool is
-changed EMC rewrites the pocket number to keep track of where the tools 
+changed LinuxCNC rewrites the pocket number to keep track of where the tools 
 are. T can be any number but P must be a number that makes sense for
 the machine.
 

@@ -22,7 +22,7 @@ Operators Manual.]
 
 == Screen layout
 
-.Mini Display for a Running EMC[[fig:runmini]]
+.Mini Display for a Running LinuxCNC[[fig:runmini]]
 
 image::images/mini02.png[]
 
@@ -36,13 +36,13 @@ When you compare starting screen with run screen
 you will see many differences. In the second figure
 
 * each axis has been homed -- the display numbers are dark green
-* the EMC mode is auto -- the auto button has a light green background
+* the LinuxCNC mode is auto -- the auto button has a light green background
 * the backplotter has been turned on -- backplot is
   visible in the pop-in window
 * the tool path from the program is showing in the display. 
 
 Once you start working with Mini you will quickly discover how easily
-it shows the conditions of the EMC and allows you to make changes to it.
+it shows the conditions of the LinuxCNC and allows you to make changes to it.
 
 == Menu Bar
 
@@ -55,7 +55,7 @@ in order to familiarize yourself with the features that are there.
 The menu includes each of the following sections and subsections.
 
 * 'Program' - This menu includes both reset and exit functions. Reset will return
-    the EMC to the condition that it was in when it started. Some startup
+    the LinuxCNC to the condition that it was in when it started. Some startup
     configuration items like the normal program units can be specified in
     the ini file. 
 
@@ -151,7 +151,7 @@ control a programmed move.
 
 === MANUAL (((Manual)))
 
-This button or pressing <F3> sets the EMC to Manual mode and displays
+This button or pressing <F3> sets the LinuxCNC to Manual mode and displays
 an abbreviated set of buttons the operator can use to issue manual
 motion commands. The labels of the jog buttons change to match the
 active axis. Whenever Show_Mode_Full is active in in manual mode, you
@@ -184,7 +184,7 @@ the focus to the A axis. To help you remember which axis will jog
 when you press the jog buttons, the active axis name is displayed on 
 them. 
 
-EMC can jog (move a particular axis) as long as you hold the button 
+LinuxCNC can jog (move a particular axis) as long as you hold the button 
 down when it is set for 'continuous', or it can jog for a preset 
 distance when it is set for 'incremental'. You can also jog the 
 active axis by pressing the plus [+] or minus [-] keys on the 
@@ -212,7 +212,7 @@ that inch at the rate at which it started.
 
 === AUTO (((Auto)))
 
-When the Auto button is pressed, or <F4> on the keyboard, and EMC is 
+When the Auto button is pressed, or <F4> on the keyboard, and LinuxCNC is 
 set to that mode, a set of the traditional auto operation buttons 
 is displayed, and a small text window opens to show a part program. 
 During run the active line will be displayed as white lettering on a 
@@ -221,7 +221,7 @@ red background.
 In the auto mode, many of the keyboard keys are bound to controls. 
 For example, the numbers above the qwerty keys are bound to feed rate 
 override. The 0 sets 100%, 9 sets 90% and such. Other keys work much 
-the same as they do with the tkemc graphical interface. 
+the same as they do with the tkLinuxCNC graphical interface. 
 
 .Auto Mode[[cap:Auto-Mode]]
 
@@ -242,7 +242,7 @@ the pause button is advised during any program restart.
 ***********************************************************************
 The real heart of CNC machine tool work is the auto mode. Sherline's 
 auto mode displays the typical functions that people have come to 
-expect from EMC. Along the top are a set of buttons which control 
+expect from LinuxCNC. Along the top are a set of buttons which control 
 what is happening in auto mode. Below them is the window that shows 
 the part of the program currently being executed. As the program runs, 
 the active line shows in white letters on a red background. The first 
@@ -301,7 +301,7 @@ bindings that were available in auto mode are not available here.
 
 === [FEEDHOLD] -- [CONTINUE]
 
-Feedhold is a toggle. When the EMC is ready to handle or is handling a
+Feedhold is a toggle. When the LinuxCNC is ready to handle or is handling a
 motion command this button shows the feedhold label on a red
 background. If feedhold has been pressed then it will show the
 continue label. Using it to pause motion has the advantage of being
@@ -313,7 +313,7 @@ is also bound to the pause button on most keyboards.
 === [ABORT]
 
 The abort button stops any motion when it is pressed. It also removes
-the motion command from the EMC. No further motions are cued up after
+the motion command from the LinuxCNC. No further motions are cued up after
 this button is pressed. If you are in auto mode, this button removes
 the rest of the program from the motion cue. It also records the number
 of the line that was executing when it was pressed. You can use this
@@ -340,7 +340,7 @@ settings.
    has not been pressed.
 
 Joe Martin says, "When all else fails press a software [ESTOP]." This
-does everything that abort does but adds in a reset so that the EMC
+does everything that abort does but adds in a reset so that the LinuxCNC
 returns to the standard settings that it wakes up on. If you have an
 external estop circuit that watches the relevant parallel port or DIO
 pin, a software estop can turn off power to the motors.
@@ -351,11 +351,11 @@ Most of the time, when we abort or E-Stop it's because something went
 wrong. Perhaps we broke a tool and want to change it. We switch to
 manual mode and raise the spindle, change tools, and assuming that we
 got the length the same, get ready to go on. If we return the tool to
-the same place where the abort was issued, EMC will work perfectly.
+the same place where the abort was issued, LinuxCNC will work perfectly.
 It is possible to move the restart line back or ahead of where the
 abort happened. If you press the [Back] or [Ahead] buttons you will see
 a blue highlight that shows the relationship between the abort line and
-the one on which EMC will start up again. By thinking through what
+the one on which LinuxCNC will start up again. By thinking through what
 is happening at the time of the restart you can place the tool tip
 where it will resume work in an acceptable manner. You will need to
 think through things like tool offsets, barriers to motion along a
@@ -370,7 +370,7 @@ few buttons to press here.
 
 === Axis Position Displays
 
-The axis position displays work exactly like they do with tkemc. The
+The axis position displays work exactly like they do with tkLinuxCNC. The
 color of the letters is important.
 
  - Red indicates that the machine is sitting on a limit switch or the
@@ -399,10 +399,10 @@ rate.
 === Messages 
 
 The message display located under the axis positions is a sort of
-scratch pad for EMC. If there are problems it will report them
+scratch pad for LinuxCNC. If there are problems it will report them
 there. If you try to home or move an axis when the [ESTOP] button is
 pressed, you'll get a message that says something about commanding
-motion when EMC is not ready. If an axis faults out for something
+motion when LinuxCNC is not ready. If an axis faults out for something
 like falling behind, the message pad will show what happened. If you
 want to remind an operator to change a tool, for example, you can add a
 line of code to your program that will display in the message box. An
@@ -440,9 +440,9 @@ it has the rather nice feature of being able to number and renumber
 lines in the way that the interpreter expects of a file. 
 It will also allow you to cut and paste from one part of a file to 
 another. In addition, it will allow you to save your changes and 
-submit them to the EMC interpreter with the same menu click. 
+submit them to the LinuxCNC interpreter with the same menu click. 
 You can work on a file in here for a while and then save and 
-load if the EMC is in Auto mode. If you have been running a file and
+load if the LinuxCNC is in Auto mode. If you have been running a file and
 find that you need to edit it, that file will be placed in the editor
 when you click on the editor button on the top menu.
 
@@ -492,7 +492,7 @@ image::images/minitool.png[align="center"]
 The [Add Tools] and [Remove Tools] buttons work on the bottom of the
 tool list so you will want to fill in tool information in descending
 order. Once a new tool has been added, you can use it in a program with
-the usual G-code commands. There is a 32 tool limit in the current EMC
+the usual G-code commands. There is a 32 tool limit in the current LinuxCNC
 configuration files but you will run out of display space in Mini long
 before you get there. (Hint You can use menu\->view\->show popin full
 to see more tools if you need.)
@@ -522,10 +522,10 @@ of the axis values that you want for a coordinate system.
 
 == Keyboard Bindings
 
-A number of the bindings used with tkemc have been preserved with
+A number of the bindings used with tkLinuxCNC have been preserved with
 mini. A few of the bindings have been changed to extend that set or to
 ease the operation of a machine using this interface. Some keys operate
-the same regradless of the mode. Others change with the mode that EMC
+the same regradless of the mode. Others change with the mode that LinuxCNC
 is operating in.
 
 === Common Keys

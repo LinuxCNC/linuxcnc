@@ -2,10 +2,9 @@
 
 [[cha:axis-gui]] (((Axis GUI)))
 
-
 == Introduction
 
-AXIS(((AXIS))) is a graphical front-end for EMC2 which features a live
+AXIS(((AXIS))) is a graphical front-end for LinuxCNC which features a live
 preview and backplot. It is written in Python(((Python))) and uses
 Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
 
@@ -25,7 +24,7 @@ The sample configuration
 
 === A Typical Session
 
- . Start EMC.
+ . Start LinuxCNC.
  . Reset E-STOP (F1) and turn the Machine Power (F2) on.
  . Home all axes.
  . Load the g-code file.
@@ -87,7 +86,7 @@ Integrator Manual.
 .File Menu
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
-    you have configured EMC to use a filter program you can also open it
+    you have configured LinuxCNC to use a filter program you can also open it
     up. See the Integrator manual for more information on filter programs.
 
 * 'Recent Files' - Displays a list of recently opened files.
@@ -116,7 +115,7 @@ Integrator Manual.
    here. See the Integrator Manual on setting up Classic Ladder
 
 * 'Quit' - 
-    Terminates the current EMC session.
+    Terminates the current LinuxCNC session.
 
 .Machine Menu [[sub:axis-machine-menu]]
 
@@ -166,7 +165,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
 
 * 'HAL Scope' - Opens a virtual oscilloscope that allows plotting HAL values vs. time.
 
-* 'Show EMC Status' - Opens a window showing EMC's status.
+* 'Show LinuxCNC Status' - Opens a window showing LinuxCNC's status.
 
 * 'Set Debug Level' - Opens a window where debug levels can be viewed and some can be set.
 
@@ -279,8 +278,8 @@ So be familiar with your machine's design and interpret the display as needed.
     To repeat the program, or to better see an area of interest, the 
     previously highlighted paths can be cleared.     
 
-* 'Show Commanded Position' - This is the position that EMC will try to go to. Once motion 
-    has stopped, this is the position EMC will try to hold. 
+* 'Show Commanded Position' - This is the position that LinuxCNC will try to go to. Once motion 
+    has stopped, this is the position LinuxCNC will try to hold. 
 
 * 'Show Actual Position' - Actual Position is the measured position as read back from the 
     system's encoders or simulated by step generators. This may differ 
@@ -554,7 +553,7 @@ By pressing Override Limits, the machine will temporarily be allowed
 to jog off of a physical limit switch. This check box is only available
 when a limit switch is tripped.  The override is reset after one jog.  If
 the axis is configured with separate positive and negative limit switches,
-EMC will allow the jog only in the correct direction.  _Override Limits will
+LinuxCNC will allow the jog only in the correct direction.  _Override Limits will
 not allow a jog past a soft limit.  The only way to disable a soft limit 
 on an axis is to Unhome it._
 
@@ -686,13 +685,13 @@ The most frequently used keyboard shortcuts are shown in the following Table
 |Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
 |====================================================================
 
-== Show EMC Status (emctop)
+== Show LinuxCNC Status (emctop)
 
 AXIS includes a program called 'emctop' which shows some of the
-details of EMC's state. You can run this program by invoking Machine >
-Show EMC Status
+details of LinuxCNC's state. You can run this program by invoking Machine >
+Show LinuxCNC Status
 
-.EMC Status Window[[cap:EMC-Status-Window]]
+.LinuxCNC Status Window[[cap:LinuxCNC-Status-Window]]
 
 image::images/axis-emc-status.png[align="center"]
 
@@ -703,14 +702,14 @@ shown on a red background.
 == MDI interface
 
 AXIS includes a program called 'MDI' which allows text-mode entry of
-MDI commands to a running EMC session. You can run this program by
+MDI commands to a running LinuxCNC session. You can run this program by
 opening a terminal and typing
 
     mdi /path/to/emc.nml
 
 Once it is running, it displays the prompt 'MDI>'. When a blank line
 is entered, the machine's current position is shown. 
-When a command is entered, it is sent to EMC to be executed.
+When a command is entered, it is sent to LinuxCNC to be executed.
 
 This is a sample session of mdi.
 
@@ -737,7 +736,7 @@ file ('--reload'), and making AXIS exit ('--quit').
 == Manual Tool Change
 (((Manual Tool Change)))
 
-EMC2 includes a userspace HAL component called 'hal_manualtoolchange',
+LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
@@ -766,7 +765,7 @@ AXIS(((AXIS))) includes several Python(((Python))) modules which may
 be useful to others. For more information on one of these modules, use
 'pydoc <module name>' or read the source code. These modules include:
 
- - 'emc' provides access to the EMC command, status, and error channels
+ - 'emc' provides access to the LinuxCNC command, status, and error channels
  - 'gcode' provides access to the rs274ngc interpreter
  - 'rs274' provides additional tools for working with rs274ngc files
  - 'hal' allows the creation of userspace HAL components written in Python
@@ -775,7 +774,7 @@ be useful to others. For more information on one of these modules, use
 
 To use these modules in your own scripts, you must ensure that the
 directory where they reside is on Python's module path. When running an
-installed version of EMC2, this should happen automatically. When
+installed version of LinuxCNC, this should happen automatically. When
 running 'in-place', this can be done by using
 'scripts/rip-environment'.
 
@@ -817,8 +816,8 @@ Then, specify the program to execute for each type of file.
 This program is given the name of the input file as its first argument,
 and must write rs274ngc code to standard output. This output is what
 will be displayed in the text area, previewed in the display area, and
-executed by EMC when 'Run'. The following lines add support for the
-'image-to-gcode' converter included with EMC2:
+executed by LinuxCNC when 'Run'. The following lines add support for the
+'image-to-gcode' converter included with LinuxCNC:
 
 ----
 [FILTER]
