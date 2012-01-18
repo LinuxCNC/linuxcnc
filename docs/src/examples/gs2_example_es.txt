@@ -1,16 +1,18 @@
-= GS2 Spindle[[gs2-spindle]]
+= GS2 Spindle
+
+[[cha:gs2-spindle]] (((GS2 Spindle)))
 
 This example shows the connections needed to use an Automation Direct
 GS2 VFD to drive a spindle. The spindle speed and direction is
-controlled by EMC.
+controlled by LinuxCNC.
 
 Using the GS2 component involves very little to set up. We start with
 a Stepconf Wizard generated config. Make sure the pins with "Spindle
 CW" and "Spindle PWM" are set to unused in the parallel port setup
 screen.
 
-In the custom.hal file we place the following to connect EMC to the
-GS2 and have EMC control the drive.
+In the custom.hal file we place the following to connect LinuxCNC to the
+GS2 and have LinuxCNC control the drive.
 
 .GS2 Example
 ----

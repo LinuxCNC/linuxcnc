@@ -82,7 +82,7 @@ not have that feature it can be done in HAL. Basically you need to
 hijack the output of motion.spindle-speed-out and run it through a
 limit2 component with the scale set so it will ramp the rpm from
 motion.spindle-speed-out to your device that receives the rpm. The
-second part is to let EMC know when the spindle is at speed so motion
+second part is to let LinuxCNC know when the spindle is at speed so motion
 can begin.
 
 In the 0-10 volt example the line
@@ -145,7 +145,7 @@ net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 
 (((Spindle Synchronized Motion)))
 
-Spindle feedback is needed by EMC to perform any spindle coordinated
+Spindle feedback is needed by LinuxCNC to perform any spindle coordinated
 motions like threading and constant surface speed. The StepConf Wizard
 can perform the connections for you if you select Encoder Phase A and
 Encoder Index as inputs.
@@ -174,7 +174,7 @@ setp encoder.3.position-scale 100
 # set the HAL encoder to non-quadrature simple counting using A only.
 setp encoder.3.counter-mode true
 
-# connect the HAL encoder outputs to EMC2.footnote:[The HAL encoder 
+# connect the HAL encoder outputs to LinuxCNC.footnote:[The HAL encoder 
 index-enable is an exception to the rule in that it behaves 
 as both an input and an output, see manual for details]
 net spindle-position encoder.3.position => motion.spindle-revs
@@ -194,7 +194,7 @@ net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 
 (((Spindle At Speed)))
 
-To enable EMC to wait for the spindle to be at speed before executing
+To enable LinuxCNC to wait for the spindle to be at speed before executing
 a series of moves you need to set motion.spindle-at-speed to true when
 the spindle is at the commanded speed. To do this you need spindle
 feedback from an encoder. Since the feedback and the commanded speed
