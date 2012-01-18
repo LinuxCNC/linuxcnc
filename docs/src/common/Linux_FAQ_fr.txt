@@ -1,278 +1,236 @@
-= Linux FAQ (((Linux FAQ)))
+:lang: fr
+:toc:
 
-These are some basic Linux commands and techniques for new to Linux
-users. More complete information can be found on the web or by using
-the man pages.
+= Petite FAQ Linux(((Linux FAQ)))
 
-== Automatic Login (((Automatic Login)))
+Voici quelques commandes et techniques de base pour l'utilisateur
+débutant sous Linux. Beaucoup d'autres informations peuvent être
+trouvées sur http://www.linuxcnc.org/[le site web d'EMC2] ou dans les man
+pages.
 
-When you install EMC2 with the Ubuntu LiveCD the default is to have to
-log in each time you turn the computer on. To enable automatic login go
-to 'System > Administration > Login Window'. If it is a fresh install the
-Login Window might take a second or three to pop up. You will have to
-have your password that you used for the install to gain access to the
-Login Window Preferences window. In the Security tab check off Enable
-Automatic Login and pick a user name from the list (that would be you).
+== Login automatique
 
-== Automatic Startup (((Automatic Startup)))
+Quand vous installez EMC2 avec le CD-Live Ubuntu, par défaut vous
+devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
+activer le login automatique ouvrez le menu 
+*_Système -> Administration -> Fenêtre de connexion_*. 
+Si l'installation est 
+récente la fenêtre de connexion peut prendre quelques secondes pour
+s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
+pour accéder à la fenêtre des préférences. Ouvrez alors l'onglet
+*_Sécurité_*, cochez la case *_Activer les connexions automatiques_* et
+saisissez votre nom d'utilisateur ou choisissez en un dans la liste
+déroulante. Vous êtes maintenant dispensé de la fenêtre de connexion.
 
-To have EMC start automatically with your config after turning on the
-computer go to 'System > Preferences > Sessions > Startup Applications',
-click Add. Browse to your config and select the .ini file. When the file
-picker dialog closes, add emc and a space in front of the path to your
-.ini file.
-
-Example:
-
-----
-emc /home/mill/emc2/config/mill/mill.ini
-----
-
-== Man Pages[[sec:Man-Pages]]
+== Les Man Pages[[sec:Man-Pages]]
 
 (((Man Pages)))
 
-Man pages are automatically generated manual pages in most cases. Man
-pages are usually available for most programs and commands in Linux.
+Les Man pages sont des pages de manuel générées automatiquement le
+plus souvent. Les Man pages existent pour quasiment tous les programmes
+et les commandes de Linux.
 
-To view a man page open up a terminal window by going to 'Applications > 
-Accessories > Terminal'. For example if you wanted to find out something
-about the find command in the terminal window type:
-
+Pour visualiser une man page ouvrez un terminal depuis *_Applications ->
+ Accessoires -> Terminal_*. Par exemple si vous voulez trouver quelques
+choses concernant la commande *find*, tapez alors dans le terminal:
 ----
 man find
 ----
 
-Use the Page Up and Page Down keys to view the man page and the Q key
-to quit viewing.
+Utilisez les touches *Vers le haut* et *Vers le bas* pour faire
+défiler le texte et la touche *Q* pour quitter.
 
-== List Modules
+== Lister les modules du noyau
 
-Sometimes when troubleshooting you need to get a list of modules that
-are loaded. In a terminal window type:
-
+En cas de problème il est parfois utile de connaître la liste des
+modules du noyau qui sont chargés. Ouvrez une console et tapez:
 ----
 lsmod
 ----
 
-If you want to send the output from lsmod to a text file in a terminal
-window type:
-
+Si vous voulez, pour le consulter tranquillement, envoyer le résultat
+de la commande dans un fichier, tapez la sous cette forme:
 ----
-lsmod > mymod.txt
+lsmod > mes_modules.txt
 ----
 
-The resulting text file will be located in the home directory if you
-did not change directories when you opened up the terminal window and
-it will be named mymod.txt or what ever you named it.
+Le fichier mes_modules.txt résultant, se trouvera alors dans votre
+répertoire home si c'est de là que vous avez ouvert la console.
 
-== Editing a Root File[[sec:Editing-a-Root-File]]
 
-(((Editing a Root File)))
+== Éditer un fichier en root[[sec:Editer-un-fichier-en-root]]
 
-When you open the file browser and you see the Owner of the file is
-root you must do extra steps to edit that file. Editing some root files
-can have bad results. Be careful when editing root files. Generally, you 
-can open and view most root files, but they will open in 'read only'
-mode.
+(((Éditer un fichier en root)))
 
-=== The Command Line Way
+Éditer certains fichiers du système en root peut donner des résultats
+inattendus! Soyez très vigilant quand vous éditez en root, une erreur peut
+compromettre tout le système et l'empêcher de redémarrer. Vous pouvez
+ouvrir et lire de nombreux fichiers systèmes appartenant au root qui
+sont en mode lecture seule.
+
+=== A la ligne de commande
 
 (((sudo gedit)))
 
-Open up 'Applications > Accessories > Terminal'.
+Ouvrir un terminal depuis *Applications > Accessoires > Terminal*.
 
-In the terminal window type
-
+Dans ce terminal, tapez:
 ----
 sudo gedit
 ----
 
-Open the file with File > Open > Edit
+Ouvrez un fichier depuis *_Fichiers -> Ouvrir_* puis éditez le.
 
-=== The GUI Way
+=== En mode graphique
 
 (((gksudo)))
 
- . Right click on the desktop and select Create Launcher
- . Type a name in like sudo edit
- . Type 'gksudo "gnome-open %u"' as the command and save the launcher to
-   your desktop
- . Drag a file onto your launcher to open and edit
+ . Faites un clic droit sur le bureau et choisissez *_Créer un lanceur_*.
+ . Tapez un nom tel que *+éditeur+*, dans la zone *_Nom_*.
+ . Entrez *+gksudo gnome-open %u+* dans la zone *_Commande_* et validez.
+ . Glissez un fichier et déposez le sur votre lanceur, il s'ouvrira alors
+   directement dans l'éditeur.
 
-=== Root Access
-
-In Ubuntu you can become root by typing in "sudo -i" in a terminal
-window then typing in your password. Be careful, because you can really 
-foul things up as root if you don't know what you're doing. 
-
-== Terminal Commands[[sec:Terminal-Commands]]
+== Commandes du terminal[[sec:Commandes-Terminal]]
 
 (((Terminal Commands)))
 
-=== Working Directory (((Working Directory)))(((pwd)))
+=== Répertoire de travail
 
-To find out the path to the present working directory in the terminal
-window type:
+(((repertoire de travail))) (((pwd)))
 
+Pour afficher le chemin du répertoire courant dans le terminal tapez:
 ----
 pwd
 ----
 
-=== Changing Directories
+=== Changer de répertoire
 
-(((Changing Directories)))(((cd)))
+(((Changer de repertoire))) (((cd)))
 
-To move up one level in the terminal window type:
-
+Pour remonter dans le répertoire précédent, tapez dans le terminal:
 ----
 cd ..
 ----
 
-To move up two levels in the terminal window type:
-
+Pour remonter de deux niveaux de répertoire, tapez dans le terminal:
 ----
 cd ../..
 ----
 
-To move down to the emc2/configs subdirectory in the terminal window
-type:
-
+Pour aller directement dans le sous-répertoire emc2/configs tapez:
 ----
 cd emc2/configs
 ----
 
-=== Listing files in a directory
+=== Lister les fichiers du répertoire courant
 
-(((Listing files in a directory)))(((dir)))(((ls)))
+(((Lister le répertoire courant))) (((ls)))
 
-To view a list of all the files and subdirectories in the terminal window type: 
-
-----
-dir
-----
-
-or
-
+Pour voir le contenu du répertoire courant tapez:
 ----
 ls
 ----
 
-=== Finding a File
+=== Trouver un fichier
 
-(((Finding a File)))(((find)))
+(((Trouver un fichier))) (((find)))
 
-The find command can be a bit confusing to a new Linux user. The basic
-syntax is:
-
+La commande *find* peut être un peu déroutante pour le nouvel
+utilisateur de Linux. La syntaxe de base est:
 ----
-find starting-directory parameters actions
+find répertoire_de_départ <paramètres> <actions>
 ----
 
-For example to find all the .ini files in your emc2 directory you
-first need to use the pwd command to find out the directory. +
-Open a new terminal window and type:
-
+Par exemple, pour trouver tous les fichiers .ini dans votre répertoire
+emc2 utilisez d'abord la commande *pwd* pour trouver le répertoire
+courant. Ouvrez un nouveau terminal et tapez:
 ----
 pwd
 ----
 
-And pwd might return the following result: 
-
+il vous est retourné par exemple le résultat suivant:
 ----
-/home/joe
-----
-
-With this information put the command together like this:
-
-----
-find /home/joe/emc2 -name *.ini -print
+/home/robert
 ----
 
-The -name is the name of the file your looking for and the -print
-tells it to print out the result to the terminal window. +
-The *.ini tells find to return all files that have the .ini extension.
-
-To find all the files in the named directory and all the
-subdirectories under that, add the -L option to the find command, like
-this:
-
+Avec cette information vous pouvez taper, par exemple, la commande:
 ----
-find -L /home/joe/emc2 -name *.ini -print
+find /home/robert/emc2 -name *.ini -print
 ----
 
-=== Searching for Text
+Le *-name* est le nom du fichier que vous recherchez et le *-print*
+indique à find d'afficher le résultat dans le terminal. Le **.ini*
+indique à find de retourner tous les fichiers portant l'extension
+*.ini*
 
-(((Searching for Text)))(((grep)))
+=== Rechercher un texte
 
+(((Rechercher un texte)))(((grep)))
+
+Tapez dans un terminal:
 ----
-grep -i -r 'text to search for' * 
-----
-
-This will find all the files that contain the 'text to search for' in the
-current directory and all the subdirectories below it, while
-ignoring the case. The -i is for ignore case and the -r is for
-recursive (include all subdirectories in the search). The * is a wild
-card for search all files.
-
-=== Bootup Messages
-
-To view the bootup messages use "dmesg" from the command window. To
-save the bootup messages to a file use the redirection operator, like
-this:
-
-----
-dmesg > bootmsg.txt
+grep -lir "texte à rechercher" *
 ----
 
-The contents of this file can be copied and pasted on line to share
-with people trying to help you diagnose your problem.
+Pour trouver tous les fichiers contenant le texte *"texte à rechercher"*  dans le 
+répertoire courant, tous ses sous-répertoires et en ignorant la casse. 
+Le paramètre *-l* demande de ne pas afficher les résultats normalement mais à la 
+place, d'indiquer le nom des fichiers pour lesquels des résultats auraient été 
+affichés. Le paramètre *-i* demande d'ignorer la casse. Le paramètre *-r* demande 
+une recherche récursive (qui inclus tous les sous-répertoires dans la recherche). 
+Le caractère *** est un jocker indiquant *tous les fichiers*.
 
-To clear the message buffer type this:
+=== Messages du boot
 
+Pour visualiser les messages du boot utilisez la commande *dmesg*
+depuis un terminal. Pour enregistrer ces messages dans un fichier,
+redirigez les avec:
+----
+dmesg > dmesg.txt
+----
+
+Le contenu de ce fichier pourra alors être copié et collé à
+destination des personnes en ligne qui vous aideront à diagnostiquer
+votre problème.
+
+Pour nettoyer le tampon des messages tapez cette commande:
 ----
 sudo dmesg -c
 ----
 
-This can be helpful to do just before launching EMC, so that there will 
-only be a record of information related to the current launch of EMC. 
+C'est utile avant de lancer EMC2, pour que ne soit enregistrés que les messages 
+relatifs au fonctionnement courant d'EMC2. 
 
-To find the built in parallel port address use grep to filter the information
-out of dmesg. 
-
-After boot up open a terminal and type:
-
+Pour trouver les adresses des ports parallèles de la machine, tapez cette
+commande grep pour filtrer les informations contenues dans dmesg.
 ----
 dmesg|grep parport
 ----
 
-== Convenience Items
+== Problèmes matériels
 
-=== Terminal Launcher
+=== Informations sur le matériel
 
-If you want to add a terminal launcher to the panel bar on top of the
-screen you typically can right click on the panel at the top of the
-screen and select "Add to Panel". Select Custom Application Launcher
-and Add. Give it a name and put gnome-terminal in the command box.
-
-== Hardware Problems
-
-=== Hardware Info
-
-To find out what hardware is connected to your motherboard in a
-terminal window type:
-
+Pour voir la liste du matériel installé sur les ports PCI de votre carte mère, 
+tapez la commande suivante dans un terminal:
 ----
 lspci -v
 ----
 
-=== Monitor Resolution
+Pour voir la liste du matériel installé sur les ports USB de votre carte mère, 
+tapez la commande suivante dans un terminal:
+----
+lsusb -v
+----
 
-During installation Ubuntu attempts to detect the monitor settings. If
-this fails you are left with a generic monitor with a maximum
-resolution of 800x600.
+=== Résolution du moniteur
 
-Instructions for fixing this are located here:
+Lors de l'installation d'Ubuntu les réglages du moniteur sont automatiquement
+détectés. Il peut arriver que la détection fonctionne mal et que la résolution ne
+soit que celle d'un moniteur générique en 800x600.
+
+Pour résoudre ce cas, suivez les instructions données ici:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
 
