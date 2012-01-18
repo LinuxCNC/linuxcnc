@@ -5,12 +5,12 @@
 
 Voici quelques commandes et techniques de base pour l'utilisateur
 débutant sous Linux. Beaucoup d'autres informations peuvent être
-trouvées sur http://www.linuxcnc.org/[le site web d'EMC2] ou dans les man
+trouvées sur http://www.linuxcnc.org/[le site web de LinuxCNC] ou dans les man
 pages.
 
 == Login automatique
 
-Quand vous installez EMC2 avec le CD-Live Ubuntu, par défaut vous
+Quand vous installez LinuxCNC avec le CD-Live Ubuntu, par défaut vous
 devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
 activer le login automatique ouvrez le menu 
 *_Système -> Administration -> Fenêtre de connexion_*. 
@@ -118,9 +118,9 @@ Pour remonter de deux niveaux de répertoire, tapez dans le terminal:
 cd ../..
 ----
 
-Pour aller directement dans le sous-répertoire emc2/configs tapez:
+Pour aller directement dans le sous-répertoire linuxcnc/configs tapez:
 ----
-cd emc2/configs
+cd linuxcnc/configs
 ----
 
 === Lister les fichiers du répertoire courant
@@ -143,7 +143,7 @@ find répertoire_de_départ <paramètres> <actions>
 ----
 
 Par exemple, pour trouver tous les fichiers .ini dans votre répertoire
-emc2 utilisez d'abord la commande *pwd* pour trouver le répertoire
+linuxcnc utilisez d'abord la commande *pwd* pour trouver le répertoire
 courant. Ouvrez un nouveau terminal et tapez:
 ----
 pwd
@@ -156,7 +156,7 @@ il vous est retourné par exemple le résultat suivant:
 
 Avec cette information vous pouvez taper, par exemple, la commande:
 ----
-find /home/robert/emc2 -name *.ini -print
+find /home/robert/linuxcnc -name *.ini -print
 ----
 
 Le *-name* est le nom du fichier que vous recherchez et le *-print*
@@ -199,8 +199,8 @@ Pour nettoyer le tampon des messages tapez cette commande:
 sudo dmesg -c
 ----
 
-C'est utile avant de lancer EMC2, pour que ne soit enregistrés que les messages 
-relatifs au fonctionnement courant d'EMC2. 
+C'est utile avant de lancer LinuxCNC, pour que ne soit enregistrés que les messages 
+relatifs au fonctionnement courant de LinuxCNC. 
 
 Pour trouver les adresses des ports parallèles de la machine, tapez cette
 commande grep pour filtrer les informations contenues dans dmesg.
