@@ -6,7 +6,7 @@ image::images/ngcgui.png[]
 
 == Overview
     
-* 'NGCGUI' is a utility for using EMC2 subroutines.
+* 'NGCGUI' is a utility for using LinuxCNC subroutines.
 * 'NGCGUI' can run as a standalone application or be embedded in
    multiple tab pages in the axis gui
 * Multiple copies of the same subroutine can be created
@@ -22,7 +22,7 @@ locations on the part. Any valid g-code can be used in the subroutine.
 
 == Embedding NGCGUI in Axis
 
-Several NGCGUI examples are included with EMC2 and are located in the sim/ngcgui
+Several NGCGUI examples are included with LinuxCNC and are located in the sim/ngcgui
 directory.
 
 === INI File
@@ -265,7 +265,7 @@ Note:    Multiple options are separated by blanks.
 
 An NGCGUI-compatible subfile contains a single subroutine definition. The name
 of the subroutine must be the same as the filename (not including the .ngc
-suffix). EMC2 supports named or numbered subroutines, but only named
+suffix). LinuxCNC supports named or numbered subroutines, but only named
 subroutines are compatible with NGCGUI. For more information see the
 <<cha:O-Codes,O-Codes>> Chapter.
 
@@ -292,7 +292,7 @@ each of these parameters (no omissions).
 #<zparm> = #3
 ----
 
-EMC2 considers all numbered parameters in the range #1 thru #30 to be calling
+LinuxCNC considers all numbered parameters in the range #1 thru #30 to be calling
 parameters so ngcgui provides entry boxes for any occurence of parameters in
 this range. It is good practice to avoid use of numbered parameters #1 through
 #30 anywhere else in the subroutine. Using local, named parameters is
@@ -327,7 +327,7 @@ instead of the parameter name.
 Notes on global named parameters (#<_globalname>) and ngcgui:
 
 As in many programming languages, use of globals is powerful but can often lead
-to unexpected consequences. In EMC2, existing global named parameters will be
+to unexpected consequences. In LinuxCNC, existing global named parameters will be
 valid at subroutine execution and subroutines can modify or create global named
 parameters.
 
@@ -405,11 +405,11 @@ image file examp.png. Ngcgui attempts to resize large images by subsampling
 to a size with maximum width of 320 and maximum height of 240 pixels. 
 
 None of the conventions required for making an ngcgui-compatible subfile
-preclude its use as general purpose subroutine file for EMC2.
+preclude its use as general purpose subroutine file for LinuxCNC.
 
-The EMC2 distribution includes a library (ngcgui_lib directory) that
+The LinuxCNC distribution includes a library (ngcgui_lib directory) that
 includes both example ngcgui-compatible subfiles and utility files
-to illustrate the features of EMC2 subroutines and ngcgui usage.
+to illustrate the features of LinuxCNC subroutines and ngcgui usage.
 
 Additional user sumitted subroutines can be found on the Forum in the
 Subroutines Section.

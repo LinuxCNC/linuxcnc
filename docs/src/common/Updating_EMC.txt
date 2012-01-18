@@ -1,17 +1,17 @@
-= Upgrading EMC2
+= Updating LinuxCNC
 
-== Upgrading from 2.4.x to 2.5.x
+== Updating from 2.4.x to 2.5.x
 
 No configuration changes need to be made to upgrade from 2.4.x to 2.5.x
 
 == Upgrading from 2.3.x to 2.4.x
 
-The following instructions only apply to Ubuntu 8.04 'Hardy Heron'. 
-EMC 2.4 is not available for older releases of Ubuntu.
+The following instructions only apply to Ubuntu 8.04 "Hardy Heron". 
+LinuxCNC 2.4 is not available for older releases of Ubuntu.
 
 Because there are several minor incompatibilities between 2.3.5 
 and 2.4.x, your existing install will not automatically be 
-updated to 2.4.x. If you want to run 2.4.x, change to the EMC-2.4 
+updated to 2.4.x. If you want to run 2.4.x, change to the LinuxCNC-2.4 
 repository by following these instructions:
 
 run System/Administration/Synaptic Package Manager

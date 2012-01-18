@@ -2,15 +2,15 @@
 
 == Intended audience
 
-This document is a collection of notes about the internals of EMC2. It
+This document is a collection of notes about the internals of LinuxCNC. It
 is primarily of interest to developers, however much of the information
 here may also be of interest to system integrators and others who are
-simply curious about how EMC2 works. Much of this information is now
+simply curious about how LinuxCNC works. Much of this information is now
 outdated and has never been reviewed for accuracy.
 
 == Organization
 
-There will be a chapter for each of the major components of EMC2, as
+There will be a chapter for each of the major components of LinuxCNC, as
 well as chapter(s) covering how they work together. This document is
 very much a work in progress, and its layout may change in the future.
 
@@ -35,7 +35,7 @@ very much a work in progress, and its layout may change in the future.
 
 * 'JOINT' - A joint is one of the movable parts of the machine. Joints are
     distinct from axes, although the two terms are sometimes (mis)used to
-    mean the same thing. In EMC2, a joint is a physical thing that can be
+    mean the same thing. In LinuxCNC, a joint is a physical thing that can be
     moved, not a coordinate in space. For example, the quill, knee, saddle,
     and table of a Bridgeport mill are all joints. The shoulder, elbow, and
     wrist of a robot arm are joints, as are the linear actuators of a
@@ -52,12 +52,12 @@ very much a work in progress, and its layout may change in the future.
     be described as joint data, such as input and output scaling, etc.
 
 * 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In the
-    EMC2 motion controller, when we refer to a pose we mean an EmcPose
+    LinuxCNC motion controller, when we refer to a pose we mean an EmcPose
     structure, containing three linear coordinates and three angular ones.
 
 == Architecture overview
 
-There are four components contained in the EMC2 Architecture: a motion
+There are four components contained in the LinuxCNC Architecture: a motion
 controller (EMCMOT), a discrete IO controller (EMCIO), a task executor
 which coordinates them (EMCTASK) and several text-mode and graphical
 User Interfaces. Each of them will be described in the current
@@ -670,10 +670,10 @@ nearly identical for every parameter.
 
 libnml is derived from the NIST rcslib without all the multi-platform
 support. Many of the wrappers around platform specific code has been
-removed along with much of the code that is not required by EMC2. It is
+removed along with much of the code that is not required by LinuxCNC. It is
 hoped that sufficient compatibility remains with rcslib so that
 applications can be implemented on non-Linux platforms and still be
-able to communicate with EMC2.
+able to communicate with LinuxCNC.
 
 This chapter is not intended to be a definitive guide to using libnml
 (or rcslib), instead, it will eventually provide an overview of each
@@ -848,7 +848,7 @@ whilst PHANTOM is only really useful in the testing stage of an
 application, likewise for FILEMEM. LOCMEM is of little use for a
 multi-process application, and only offers limited performance
 advantages over SHMEM. This leaves SHMEM as the only buffer type to use
-with EMC2.
+with LinuxCNC.
 
 The neut option is only of use in a multi-processor system where
 different (and incompatible) architectures are sharing a block of
@@ -882,9 +882,9 @@ does not implement NML.
 UDP protocols have fewer checks on data and allows a percentage of
 packets to be dropped. TCP is more reliable, but is marginally slower.
 
-If EMC2 is to be connected to a network, one would hope that it is
+If LinuxCNC is to be connected to a network, one would hope that it is
 local and behind a firewall. About the only reason to allow access to
-EMC2 via the Internet would be for remote diagnostics - This can be
+LinuxCNC via the Internet would be for remote diagnostics - This can be
 achieved far more securely using other means, perhaps by a web
 interface.
 
@@ -978,7 +978,7 @@ therefor which buffer is to be used.
 
 == Adding custom NML commands
 
-EMC2 is pretty awesome, but some parts need some tweaking. As you know
+LinuxCNC is pretty awesome, but some parts need some tweaking. As you know
 communication is done through NML channels, the data sent through such
 a channel is one of the classes defined in emc.hh (implemented in
 emc.cc). If somebody needs a message type that doesn't exist, he should

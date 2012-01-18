@@ -70,16 +70,16 @@ install: build
 	mkdir -p debian/tmp
 	-(cd debian/@EXTRAS@ && find . | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
-	mkdir -p debian/tmp/usr/share/doc/emc2-dev
-	mv debian/tmp/usr/share/doc/emc2/EMC2_Developer_Manual.pdf \
-		debian/tmp/usr/share/doc/emc2-dev/
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/emc2/
-	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
-	rm -rf debian/tmp/usr/share/doc/emc2/html
-	-rm debian/tmp/emc2*.files
-	-rm -f debian/tmp/usr/share/doc/emc2/examples/sample-configs/*/*position*.txt
+	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
+	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
+		debian/tmp/usr/share/doc/linuxcnc-dev/
+	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
+	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf 
+	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
+	-rm debian/tmp/linuxcnc*.files debian/tmp/emc2*.files
+	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \
@@ -104,13 +104,13 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 ifneq "$(kernel_version)" "sim"
-	dh_fixperms -X/emc_module_helper
+	dh_fixperms -X/linuxcnc_module_helper
 endif
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
-	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
-	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
+	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	dh_shlibdeps -l debian/@MAIN_PACKAGE_NAME@/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

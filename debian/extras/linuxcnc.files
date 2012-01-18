@@ -1,0 +1,10 @@
+usr/share/applications/linuxcnc.desktop
+usr/share/applications/linuxcnc-gcoderef.desktop
+usr/share/applications/linuxcnc-gcoderef-fr.desktop
+usr/share/applications/linuxcnc-latency.desktop
+usr/share/applications/linuxcnc-stepconf.desktop
+usr/share/applications/linuxcnc-pncconf.desktop
+usr/share/desktop-directories/cnc.directory
+usr/share/pixmaps/linuxcncicon.png
+etc/modprobe.d/linuxcnc.conf
+etc/xdg/menus/applications-merged/cnc.menu

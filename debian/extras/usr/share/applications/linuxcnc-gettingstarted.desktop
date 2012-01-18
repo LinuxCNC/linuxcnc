@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=
+Encoding=UTF-8
+Name=LinuxCNC Getting Started Guide
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Comment=The LinuxCNC Getting Started Guide. All you need to know to get started.
+StartupNotify=false
+Categories=X-CNC;
+GenericName[en_US]=

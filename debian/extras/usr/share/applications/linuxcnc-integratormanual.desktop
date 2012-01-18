@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=
+Encoding=UTF-8
+Name=LinuxCNC Integrator Manual
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Comment=Advanced configuration hints
+StartupNotify=false
+Categories=X-CNC;
+GenericName[en_US]=
+Comment[en_US]=Installation and Configuration Manual

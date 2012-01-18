@@ -1,14 +1,14 @@
-= About EMC2
+= About LinuxCNC
 
 == The Software
 
-* EMC2 (the Enhanced Machine Control) is a software system for computer
+* LinuxCNC (the Enhanced Machine Control) is a software system for computer
   control of machine tools such as milling machines and lathes, robots
   such as puma and scara and other computer controlled machines up to 9 axes.
-* EMC2 is free software with open source code. Current versions of EMC
+* LinuxCNC is free software with open source code. Current versions of LinuxCNC
   are entirely licensed under the GNU General Public License and Lesser
   GNU General Public License (GPL and LGPL)
-* EMC2 provides:
+* LinuxCNC provides:
 ** a graphical user interface (actually several interfaces to choose from)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming language)
 ** a realtime motion planning system with look-ahead
@@ -23,7 +23,7 @@
 * It can simultaneously move up to 9 axes and supports a variety of
   interfaces.
 * The control can operate true servos (analog or PWM) with the feedback
-  loop closed by the EMC software at the computer, or open loop with
+  loop closed by the LinuxCNC software at the computer, or open loop with
   step-servos or stepper motors.
 * Motion control features include: cutter radius and length
   compensation, path deviation limited to a specified tolerance, lathe
@@ -33,17 +33,17 @@
   kinematics modules. Available architectures include hexapods (Stewart
   platforms and similar concepts) and systems with rotary joints to
   provide motion such as PUMA or SCARA robots.
-* EMC2 runs on Linux using real time extensions. 
+* LinuxCNC runs on Linux using real time extensions. 
 
 == The Operating System
 
 Ubuntu has been chosen because it fits perfectly into the Open Source
-views of EMC2:
+views of LinuxCNC:
 
  - Ubuntu will always be free of charge, and there is no extra fee for
    the 'enterprise edition', we make our very best work available to
    everyone on the same Free terms.
- - EMC2 is paired with the LTS versions of Ubuntu which provide support
+ - LinuxCNC is paired with the LTS versions of Ubuntu which provide support
    and security fixes from the Ubuntu team for 3 - 5 years.
  - Ubuntu uses the very best in translations and accessibility
    infrastructure that the Free Software community has to offer, to make
@@ -57,8 +57,8 @@ views of EMC2:
 === IRC
 
 IRC stands for Internet Relay Chat. 
-It is a live connection to other EMC users. 
-The EMC IRC channel is #emc on freenode.
+It is a live connection to other LinuxCNC users. 
+The LinuxCNC IRC channel is #linuxcnc on freenode.
 
 The simplest way to get on the IRC is to use 
 the embedded java client on this 
@@ -100,23 +100,23 @@ you set up your account.
 
 The https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
 
-=== EMC2 Wiki
+=== LinuxCNC Wiki
 
 A Wiki site is a user maintained web site 
 that anyone can add to or edit.
 
-The user maintained EMC Wiki site contains a 
+The user maintained LinuxCNC Wiki site contains a 
 wealth of information and tips at:
 
 link:http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[wiki.linuxcnc.org]
 
-== Getting EMC2
+== Getting LinuxCNC
 
 === Normal Download
 
 Download the Live CD from:
 
-http://www.linuxcnc.org/[the EMC2 homepage at www.linuxcnc.org]
+http://www.linuxcnc.org/[the LinuxCNC homepage at www.linuxcnc.org]
 
 and follow the Download link.
 
@@ -138,7 +138,7 @@ In most browsers you can right click on the link and select
 Copy Link Location or similar, then paste the link into the 
 terminal window with a right mouse click and select Paste. 
 +
-.Ubuntu 10.04 Lucid Lynx and EMC2 (current release)
+.Ubuntu 10.04 Lucid Lynx and LinuxCNC (current release)
 *********************************************************************
 To get the Ubuntu 10.04 Lucid Lynx version, 
 copy one of these in the terminal window and press enter:
@@ -159,10 +159,10 @@ wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 +
 To stop a download use Ctrl-C or close the terminal window.
 +
-.Ubuntu 8.04 Hardy Heron and EMC2 (older)
+.Ubuntu 8.04 Hardy Heron and LinuxCNC (older)
 *********************************************************************
 If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
-The CD image below has the old emc 2.3.x on it, but can be upgraded to 
+The CD image below has the old LinuxCNC 2.3.x on it, but can be upgraded to 
 2.4.x by following instructions on the LinuxCNC.org wiki here: 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
 
@@ -205,8 +205,8 @@ Type the wget command into the window and press enter as above.
 
 === Burning the CD
 
-EMC2 is distributed as CD image files, called ISOs. 
-To install EMC2, you first need to burn the ISO file onto a CD. 
+LinuxCNC is distributed as CD image files, called ISOs. 
+To install LinuxCNC, you first need to burn the ISO file onto a CD. 
 You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
 If the CD writing fails, try writing at a slower burn speed. 
 
@@ -285,40 +285,40 @@ Burning the ISO in Windows::
  . Open Infra Recorder, and select the 
    'Actions' menu, then 'Burn image'.
 
-=== Testing EMC2
+=== Testing LinuxCNC
 
 With the Live CD in the CD/DVD drive shut down the computer then turn
 the computer back on. This will boot the computer from the Live CD.
-Once the computer has booted up you can try out EMC2 without installing
+Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
-settings like screen resolution unless you install EMC2.
+settings like screen resolution unless you install LinuxCNC.
 
-To try out EMC2 from the Applications/CNC menu pick EMC2. Then select
+To try out LinuxCNC from the Applications/CNC menu pick LinuxCNC. Then select
 a sim configuration to try out.
 
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<latency-test,here>>.
 
-=== Installing EMC2
+=== Installing LinuxCNC
 
 If you like what you see, just click the Install icon on the desktop,
 answer a few questions (your name, timezone, password) and the install
 completes in a few minutes. Make sure you write down the name you used
 and the password. Once the install process is complete and you go on
 line the update manager will pop up and allow you to upgrade to the
-latest stable version of EMC2.
+latest stable version of LinuxCNC.
 
-=== Updates to EMC2 (((Updates to EMC2)))
+=== Updates to LinuxCNC (((Updates to LinuxCNC)))
 
 With the normal install the Update Manager will notify you of updates
-to EMC2 when you go on line and allow you to easily upgrade with no
+to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed. 
 If you want to upgrade to 10.04 from 8.04 a
 clean install from the Live-CD is recommended. 
 It is OK to upgrade everything except the operating system when asked to.
 
 Warning: Do not upgrade Ubuntu to a new but non-LTS version 
-(like 8.04 to 8.10) as it will prevent EMC from running.
+(like 8.04 to 8.10) as it will prevent LinuxCNC from running.
 
 === Install Problems
 

@@ -38,7 +38,7 @@ latency. The best way to find out what you are dealing with is to run
 the RTAI latency test.
 
 [WARNING]
-DO NOT TRY TO RUN EMC2 WHILE THE TEST IS RUNNING
+DO NOT TRY TO RUN LinuxCNC WHILE THE TEST IS RUNNING
 
 On Ubuntu Dapper, you can run the test by opening a shell and doing:
 
@@ -234,7 +234,7 @@ good as we can make it. But the Gecko can be improved.
 
 The problem with the G202 is the 20 us hold time requirement. That plus
 the 11 us latency is what forces us to use a slow 31 us period. But the
-EMC2 software step generator has some parameters that let you increase
+LinuxCNC software step generator has some parameters that let you increase
 the various time from one period to several. For example, if steplen is
 changed from 1 to 2, then it there will be two periods between the
 beginning and end of the step pulse. Likewise, if dirhold is changed

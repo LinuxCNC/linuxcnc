@@ -166,7 +166,7 @@ AC_ARG_ENABLE(simulator,
                 RTS=simulator
                 BUILD_SYS=sim
                 MODEXT=.so
-                MODULE_DIR=${prefix}/lib/emc2/modules
+                MODULE_DIR=${prefix}/lib/linuxcnc/modules
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -535,13 +535,13 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
+    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
+    DEFAULT_NMLFILE=${prefix}/share/emc/linuxcnc.nml
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -581,7 +581,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
-    EMC2_ICON=$EMC2_HOME/emc2icon.png
+    EMC2_ICON=$EMC2_HOME/linuxcncicon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
@@ -600,15 +600,15 @@ else
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
-    EMC2_ICON=emc2icon
+    EMC2_ICON=linuxcncicon
     EMC2_TCL_DIR=${prefix}/lib/tcltk/emc2
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/emc2
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     case $MODULE_DIR in
-        */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
-	*) EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+        */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
+	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
@@ -748,7 +748,7 @@ AC_ARG_WITH(rmmod,
 	esac
     ],
     [
-            RMMOD="$EMC2_BIN_DIR/emc_module_helper remove"
+            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
     ])
 
 AC_ARG_WITH(insmod,
@@ -766,7 +766,7 @@ AC_ARG_WITH(insmod,
 	esac
     ],
     [
-            INSMOD="$EMC2_BIN_DIR/emc_module_helper insert"
+            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
 
 ##############################################################################
@@ -1530,21 +1530,21 @@ AC_SUBST([SITEPY])
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
-AC_CONFIG_FILES([../docs/man/man1/emc.1])
-AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
+AC_CONFIG_FILES([../docs/man/man1/linuxcnc.1])
+AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
-AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
+AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-AC_CONFIG_FILES(../tcl/emc.tcl)
+AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
-AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
-AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
-AC_CONFIG_FILES(../share/applications/emc-latencyplot.desktop)
-AC_CONFIG_FILES(../share/applications/emc.desktop)
+AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
+AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
@@ -1596,7 +1596,7 @@ echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
 echo "#   Before running the software, set the emc environment:            #"
-echo "#         . (top dir)/scripts/emc-environment                        #"
+echo "#         . (top dir)/scripts/rip-environment                        #"
 else
 bold
 echo "#   warning: If you already have an installed emc2, this will        #"

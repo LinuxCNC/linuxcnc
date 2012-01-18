@@ -17,8 +17,8 @@ exec $EMC2_EMCSH "$0" "$@"
 # Several local variables may be set below to match machines.
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
 # These offset plot zero from canvas zero.
 set xoffset 0

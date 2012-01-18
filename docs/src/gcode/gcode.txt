@@ -1310,7 +1310,7 @@ It is an error if:
 
 * all axis words are omitted.
 
-EMC2 stores the G92 offsets and reuses them on the next run of a
+LinuxCNC stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
@@ -1388,7 +1388,7 @@ G97 (RPM Mode)
 +                
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
-the center of rotation or EMC will not give the desired spindle speed.
+the center of rotation or LinuxCNC will not give the desired spindle speed.
 G96 is not affected by radius or diameter mode.
 
 * 'G97' selects RPM mode.
@@ -1978,7 +1978,7 @@ It is an error if:
 
 (((G84 Right-Hand Tapping)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
+This code is currently unimplemented in LinuxCNC. It is accepted, but the
 behavior is undefined. See section <<sec:G33.1-Rigid-Tapping,G33.1>>
 
 == G85 Boring Cycle, Feed Out[[sec:G85-Boring-Feed-Out]]
@@ -2022,14 +2022,14 @@ It is an error if:
 
 (((G87 Back Boring)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
+This code is currently unimplemented in LinuxCNC. It is accepted, but the
 behavior is undefined.
 
 == G88 Boring Cycle, Spindle Stop, Manual Out[[sec:G88-Boring-Manual-Out]]
 
 (((G88 Boring Cycle, Spindle Stop, Manual Out)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
+This code is currently unimplemented in LinuxCNC. It is accepted, but the
 behavior is undefined.
 
 == G89 Boring Cycle, Dwell, Feed Out[[sec:G89-Boring-Dwell,]]

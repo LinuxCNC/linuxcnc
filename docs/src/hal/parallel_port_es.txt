@@ -191,7 +191,7 @@ insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
 ----
 
 then ensure that the standard kernel module 'parport_pc'  is not
-loadedfootnote:[In the EMC packages for Ubuntu, the file
+loadedfootnote:[In the LinuxCNC packages for Ubuntu, the file
 /etc/modprobe.d/emc2
 generally prevents 'parport_pc' from being automatically loaded.] 
 and that no other device in the system has claimed the I/O ports.

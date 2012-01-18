@@ -8,14 +8,31 @@
 == Utilisation des O-codes
 
 Les O-codes permettent le contrôle de flux dans les programmes NGC.
-Chaque bloc est associé à une adresse, qui est la valeur utilisée
-après le *O*. Il faut prendre soin de bien faire correspondre les
+Ils commencent par une lettre *O*, qu'il ne faut pas confondre avec le
+chiffre *0*. Chaque bloc est associé à une adresse, qui est la valeur utilisée
+après la lettre *O*. Il faut prendre soin de bien faire correspondre les
 adresses des O-codes.
+
+.Exemple de numérotation
+----
+o100 sub
+(noter que les blocs if-endif utilisent des numéros différents)
+  o110 if [#2 GT 5]
+    (du code ici)
+  o110 endif
+  (encore du code ici)
+o100 endsub
+----
 
 Le comportement est indéfini si:
 
 * D'autres mots sont utilisés sur une ligne contenant un O-code.
 * Un commentaire est utilisé sur une ligne contenant un O-code.
+
+[TIP]
+L'utilisation de la lettre *o* minuscule facilite la distinction avec le
+chiffre *0* qui peut être tapé par erreur. Par exemple: +
+*+o100+* est plus facile à distinguer de *+0100+* que *+O100+*.
 
 == Sous-programmes: *sub*, *endsub*, *return*, *call*
 (((Sous-programmes: sub, endsub, return, call)))
@@ -117,7 +134,7 @@ commençant à la position courante.
 (Usine 5 formes diagonales)
 G91 (Mode incrémental)
 O103 repeat [5]
-... (insérer le code d'usinage ici)
+    (insérer le code d'usinage ici)
 G0 X1 Y1 (Mouvement en diagonale vers la position suivante)
 O103 endrepeat
 G90 (Mode absolu)
@@ -165,13 +182,13 @@ Exemple:
 ----
 myfile.ngc
 o<myfile> sub
-...
+    (du code ici)
 o<myfile> endsub
 M2
 ----
 
 [NOTE]
-Les noms de fichiers sont sensibles à la casse, ainsi les appels *o<myfile>* et
-*o<MyFile>* n'appellent pas le même fichier. 
+Les noms de fichiers doivent être en lettres minuscules, ainsi *o<MyFile>*
+sera transformé en *o<myfile>* par l'interpréteur.
 
 // vim: set syntax=asciidoc:

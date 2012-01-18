@@ -5,7 +5,7 @@
 
 == Configuration minimale (((Configuration minimale)))
 
-La configuration minimale pour faire tourner EMC2 sous Ubuntu varie
+La configuration minimale pour faire tourner LinuxCNC sous Ubuntu varie
 selon l'usage envisagé. Les moteurs pas à pas en général exigent, pour
 générer leurs trains d'impulsions de pas, des machines plus rapides que
 les systèmes à servomoteurs. Il est possible de tester le logiciel à
@@ -18,7 +18,7 @@ relative au <<sec:Test-de-latence-GS,test de latence>>.
 Des informations additionnelles sont disponibles sur le 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiki de linuxcnc.org.]
 
-EMC2 et Ubuntu doivent fonctionner raisonnablement bien sur la
+LinuxCNC et Ubuntu doivent fonctionner raisonnablement bien sur la
 configuration matérielle minimale suivante. Ces valeurs ne sont pas des
 valeurs minimales absolues mais donneront des performances acceptables
 de la plupart des systèmes à moteurs pas à pas.

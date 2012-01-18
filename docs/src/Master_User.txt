@@ -5,11 +5,11 @@ User Manual V2.5, {localdate}
 
 :masterdir: {indir}
 
-The EMC Team
+The LinuxCNC Team
 
 :leveloffset: 0
 
-= EMC2 Introduction
+= LinuxCNC Introduction
 
 :leveloffset: 1
 

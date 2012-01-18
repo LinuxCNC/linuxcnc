@@ -8,20 +8,20 @@ Manuel de l'intégrateur V2.5  {localdate}
 
 image::common/images/emc2-intro.png[]
 
-The EMC2 Team
+The LinuxCNC Team
 
 include::common/overleaf_fr.txt[]
 
 include::common/outdated-notice_fr.txt[]
 include::common/Integrator_Concepts_fr.txt[]
 :leveloffset: 0
-= Configuration d'EMC2
+= Configuration de LinuxCNC
 :leveloffset: 1
 include::install/Latency_Test_fr.txt[]
 include::config/ini_config_fr.txt[]
 include::config/ini_homing_fr.txt[]
 include::config/lathe_config_fr.txt[]
-include::config/emc2hal_fr.txt[]
+include::config/linuxcnchal_fr.txt[]
 include::config/stepper_fr.txt[]
 :leveloffset: 0
 = Interfaces graphiques utilisateur

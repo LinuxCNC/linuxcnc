@@ -20,15 +20,15 @@ import nf, os
 
 # lib/tcltk/emc2 for installed emc
 # tcl            for run-in-place emc
-for candidate in 'lib/tcltk/emc2', 'tcl':
-    EMC_TCL = os.path.join(nf.PREFIX, candidate, 'emc.tcl')
-    if os.path.exists(EMC_TCL): break
+for candidate in 'lib/tcltk/linuxcnc', 'tcl':
+    LINUXCNC_TCL = os.path.join(nf.PREFIX, candidate, 'linuxcnc.tcl')
+    if os.path.exists(LINUXCNC_TCL): break
 
 options = '''
 . configure -bg #d9d9d9
 
-set BASE_FONT [emc::standard_font]
-set FIXED_FONT [emc::standard_fixed_font]
+set BASE_FONT [linuxcnc::standard_font]
+set FIXED_FONT [linuxcnc::standard_fixed_font]
 
 option add *highlightBackground #d9d9d9 $OPTIONLEVEL
 option add *background #d9d9d9 $OPTIONLEVEL
@@ -161,7 +161,7 @@ def install(root = None):
     if root is None: root = Tkinter._default_root
     o = root.option_get("optionLevel", "Level") or "interactive"
     if hasattr(root, 'tk'): root = root.tk
-    root.call('source', EMC_TCL)
+    root.call('source', LINUXCNC_TCL)
     root.call('set', 'OPTIONLEVEL', o)
     root.call('eval', options)
 # vim:sw=4:sts=4:et:ts=8:

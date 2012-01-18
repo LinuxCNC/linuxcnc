@@ -264,7 +264,7 @@
 <doc name="config/ini_config_es.html" title="La configuration en détail"/>
 <doc name="config/ini_homing_es.html" title="Configuration des prises d'origine"/>
 <doc name="config/lathe_config_es.html" title="Tour de configuration"/>
-<doc name="config/emc2hal_es.html" title="Interface entre EMC2 et HAL"/>
+<doc name="config/emc2hal_es.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_es.html" title="Configuration pas à pas"/>
 <doc name="hal/pyvcp_es.html" title="Panneaux de commande virtuel Python (pyVCP)"/>
 <doc name="hal/pyvcp_examples_es.html" title="exemples pyVCP"/>
@@ -299,7 +299,7 @@
 
 <doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>
-<doc name="common/Getting_EMC_fr.html" title="Se procurer et installer EMC2"/>
+<doc name="common/Getting_linuxcnc_fr.html" title="Se procurer et installer LinuxCNC"/>
 <doc name="quickstart/stepper_quickstart_fr.html" title="Informations pr&eacte;alables &agrave; configuration"/>
 <doc name="config/stepconf_fr.html" title="L'assistant graphique de configuration StepConf"/>
 <doc name="config/pncconf_fr.html" title="L'assistant graphique de configuration PncConf (Mesa)"/>
@@ -311,7 +311,7 @@
 <doc name="gui/axis_fr.html" title="L'interface graphique Axis"/>
 <doc name="gui/touchy_fr.html" title="L'interface graphique Touchy"/>
 <doc name="gui/ngcgui_fr.html" title="L'interface graphique NGCGUI"/>
-<doc name="gui/tkemc_fr.html" title="L'interface graphique TkEMC"/>
+<doc name="gui/tklinuxcnc_fr.html" title="L'interface graphique TkLinuxCNC"/>
 <doc name="gui/mini_fr.html" title="L'interface graphique Mini"/>
 <doc name="gui/keystick_fr.html" title="L'interface textuelle KeyStick"/>
 <doc name="gcode/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
@@ -340,7 +340,7 @@
 <doc name="config/ini_config_fr.html" title="La configuration en d&eacute;tail"/>
 <doc name="config/ini_homing_fr.html" title="Configuration des prises d'origine"/>
 <doc name="config/lathe_config_fr.html" title="Configuration des tours"/>
-<doc name="config/emc2hal_fr.html" title="Interface entre EMC2 et HAL"/>
+<doc name="config/linuxcnchal_fr.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_fr.html" title="Configuration des moteurs pas &agrave; pas"/>
 <doc name="hal/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>
 <doc name="hal/pyvcp_examples_fr.html" title="Exemples avec PyVCP"/>
@@ -364,7 +364,7 @@
 <doc name="examples/mpg_fr.html" title="Exemple: Utiliser une manivelle &eacute;lectronique"/>
 <doc name="examples/gs2_example_fr.html" title="Exemple: Utiliser un GS2"/>
 <doc name="common/Stepper_Diagnostics_fr.html" title="Diagnostic des moteurs pas &agrave; pas"/>
-<doc name="common/Updating_EMC_fr.html" title="Mises &agrave; jour d'EMC2"/>
+<doc name="common/Updating_linuxcnc_fr.html" title="Mises &agrave; jour de LinuxCNC"/>
 
 <doc name="code/Code_Notes.html" title="Notes sur le code (en anglais)"/>
 <doc name="code/NML_Messages.html" title="Messages LNM (en anglais)"/>

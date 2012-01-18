@@ -37,7 +37,7 @@
 # named "O" words available since: EMC 2.3.0, April 19, 2009
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2011
+# Copyright: 2010-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -64,8 +64,6 @@
 # (#<_global_named_parameter>)
 
 # Note: use of global named parameters as inputs to ngcgui is deprecated
-
-# see http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Named_Parameters
 
 # If the subroutine includes lines to equate positional parameters
 # (#n) to named parameters (#<parmname>) on special association lines like:
@@ -111,7 +109,7 @@
 # (when they are set using mdi -- using an "immediate" preamble entry
 # (like :#_someglobal=1234) can be helpful)
 
-# The emc gcode language does not provide a mechanism for returning
+# The linuxcnc gcode language does not provide a mechanism for returning
 # results so subroutines must set global parameters for results.
 # Within ngcgui, _globals with names that contain a colon (:) character
 # are ignored in the creation of  entry boxes.
@@ -122,9 +120,9 @@
 
 # Workflow (for standalone usage):
 
-#  1) The directory location for ngc gcode files used in emc2 is specified
+#  1) The directory location for ngc gcode files used in linuxcnc is specified
 #     in the ini file by: [DISPLAY]PROGRAM_PREFIX.
-#     In emc2.5, multiple directories can be specified using
+#     In linuxcnc2.5, multiple directories can be specified using
 #     [RS274NGC]SUBROUTINE_PATH if
 
 #  2) Candidate subroutine files for use with this utility should contain
@@ -225,8 +223,8 @@
 #     for the filename to reload the file.
 
 # Notes:
-#   0. configuring ngcgui is simplified with emc2.5; support for
-#      emc2.4 will cease when emc2.5 is released
+#   0. configuring ngcgui is simplified with linuxcnc2.5; support for
+#      linuxcnc2.4 will cease when linuxcnc2.5 is released
 
 #   1. ngcgui supports subroutine files that contain a _single_
 #      subroutine in a file where the name of the subroutine
@@ -345,7 +343,7 @@
 #      for globals:
 #         (#<_globalname> = value comment_text)
 
-#  14. Features requiring emc-2.4pre (that I can remember):
+#  14. Features requiring linuxcnc-2.4pre (that I can remember):
 #      a) error detection when sending file to axis
 
 #  15. Helper subroutine files that are included in the
@@ -375,7 +373,7 @@
 # 18. If --vwidth 0 is used and a parameter has no comment, the variable
 #     name is placed in the comment field
 #
-# 19. For emc 2.4, the tcl proc embed_in_axis_tab will embed directly
+# 19. For linuxcnc 2.4, the tcl proc embed_in_axis_tab will embed directly
 #     in an axis tab using [DISPLAY]USER_COMMAND_FILE (or ~/.axisrc)
 #     example:
 #     w = widgets.right.insert("end", 'ngcgui', text='Ngcgui')
@@ -442,7 +440,7 @@ namespace eval ::ngcgui {
 # Internationalization
 
 # use the tcl-package named Emc to set up I18n support
-if [catch {package require Emc} msg] {
+if [catch {package require Linuxcnc} msg] {
   # if user is trying to use as standalone in an unconfigured (non-Emc)
   # environment, just continue without internationalization
   puts stderr "Internationalization not available: <$msg>"
@@ -463,7 +461,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   set ay($hdl,parse,msg) ""
 
   # default info, supersede expected:
-  set ay($hdl,info) "Current subfile: $filename"
+  set ay($hdl,info) "[_ "Current subfile: $filename"]"
 
   if {"$filename" == ""} {
     lappend ay($hdl,parse,msg) "[_ "Need non-null file name"]"
@@ -589,7 +587,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         # sometimes there is an m2 after endsub, ignore it
         if {[string first m2 [string trim [string tolower $theline]]] == 0} {
           set ::ngc_sub($hdl,$lct) \
-              "($::ngc(any,app): ignoring M2 after endsub: <$theline>)"
+              "($::ngc(any,app): [_ "ignoring M2 after endsub"]: <$theline>)"
           puts stderr "[_ "ignoring M2 after endsub"] <$theline>"
           incr lct
           continue
@@ -914,7 +912,6 @@ proc ::ngcgui::initgui {hdl} {
                                    ;# 30 max positional parameters
                                    ;# 3 frames max so must have pentries >=10
   set ::ngc(any,pollms)         2000
-  set ::ngc(any,wait_restart)   0  ;# for alternate behavior
 
   set ::ngc(any,color,black)    black
   set ::ngc(any,color,stdbg)    #dcdad5 ;# default gray color set
@@ -1374,7 +1371,7 @@ if {0} {
         set idir [file dirname $::ngc($hdl,fname,postamble)]
       }
       set filename [tk_getOpenFile \
-           -title "$::ngc(any,app) Postamble file" \
+           -title "$::ngc(any,app) [_ "Postamble file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,postamble)] \
            -initialdir  $idir \
@@ -1424,7 +1421,7 @@ if {0} {
         set idir [file dirname $::ngc($hdl,fname,subfile)]
       }
       set filename [tk_getOpenFile \
-           -title "$::ngc(any,app) Subroutine file" \
+           -title "$::ngc(any,app) [_ "Subroutine file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,subfile)] \
            -initialdir  $idir \
@@ -1690,9 +1687,9 @@ if {0} {
     parmcheck {
       if ![info exists ::ngc($hdl,argct)] {
         if {"$::ngc($hdl,fname,subfile)" == ""} {
-          lappend err "No Subfile specified"
+          lappend err "[_ "No Subfile specified"]"
         }
-        lappend err "No parameters yet"
+        lappend err "[_ "No parameters yet"]"
       } else {
         for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
           set num02 [format %02d $i]
@@ -1701,7 +1698,7 @@ if {0} {
           set ::ngc($hdl,arg,value,$num02) \
               [string trim $::ngc($hdl,arg,value,$num02)]
           if {"$::ngc($hdl,arg,value,$num02)" == ""} {
-            lappend err "Missing value for parm #$i ($token)"
+            lappend err "[_ "Missing value for parm"] #$i ($token)"
           }
         }
       }
@@ -1735,7 +1732,7 @@ if {0} {
         set ::ngc($hdl,fname,outfile) tmp
       }
       set filename [tk_getSaveFile \
-           -title "$::ngc(any,app) Output file" \
+           -title "$::ngc(any,app) [_ "Output file"]" \
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,outfile)] \
            -initialdir  $idir \
@@ -1756,12 +1753,6 @@ if {0} {
       ::ngcgui::readfile $hdl preamble
       ::ngcgui::readfile $hdl postamble
       # save,widget has multiple presentations to steer user
-      # according to state and wait_restart
-      switch [$::ngc($hdl,save,widget) cget -text] {
-        "New Feature" {message $hdl newfeature; return}
-        "New Outfile" {message $hdl begin;      return}
-        default       {#fall thru to create the feature}
-      }
 
       if ![::ngcgui::gui $hdl parmcheck] {
         return
@@ -1833,7 +1824,7 @@ if {0} {
         set id [format %0${uwidth}d $::ngc($hdl,id)]
         incr ::ngc($hdl,id)
         lappend ::ngc($hdl,data,section) \
-                 "(Positional parameters for $::ngc($hdl,fname,subfile):)"
+                 "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
         for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
           set num02 [format %02d $i]
           set name  $::ngc($hdl,arg,value,$num02)
@@ -1841,7 +1832,7 @@ if {0} {
         }
         # expand the subroutine in place
         lappend ::ngc($hdl,data,section) \
-                "(expanded file: $::ngc($hdl,fname,subfile))"
+                "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
         for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
           if [info exists ::ngc_sub($hdl,$i,label)] {
             lappend ::ngc($hdl,data,section) \
@@ -1855,7 +1846,7 @@ if {0} {
         # insert the subroutine call
         if $::ngc($hdl,verbose) {
           lappend ::ngc($hdl,data,section) \
-               "($::ngc(any,app): call subroutine file: $::ngc($hdl,fname,subfile))"
+               "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
           lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
         }
         set cline "o<$::ngc($hdl,subroutine,name)> call "
@@ -1925,10 +1916,10 @@ if {0} {
 
         if {[llength $hdllist] > 1} {
            set ans [tk_dialog .foo \
-                       "Multiple Tabs with Features" \
-                       "Finalize all Tabs?\n Order:<$tnames>" \
+                       "[_ "Multiple Tabs with Features"]" \
+                       "[_ "Finalize all Tabs?"]\n [_ "Order"]:<$tnames>" \
                        questhead 0 \
-                       "No, just this page <$thisone>" Yes Cancel\
+                       "[_ "No, just this page"] <$thisone>" Yes Cancel\
                    ]
            switch $ans {
               0 { set hdllist $hdl; set doall 0; #NO}
@@ -2166,10 +2157,6 @@ proc ::ngcgui::debug {hdl} {
 
 proc ::ngcgui::statemap {hdl} {
   # form: (next,state:mode,event) --> nextstate
-  set ::ngc(any,next,reset:auto,newfeature)    start
-  set ::ngc(any,next,reset:noauto,newfeature)  start
-  set ::ngc(any,next,reset:auto,begin)         start
-  set ::ngc(any,next,reset:noauto,begin)       start
   set ::ngc(any,next,reset:auto,savesection)   start
   set ::ngc(any,next,reset:noauto,savesection) start
   set ::ngc(any,next,reset:auto,restart)       reset
@@ -2179,8 +2166,6 @@ proc ::ngcgui::statemap {hdl} {
   set ::ngc(any,next,start:noauto,immediate)   avail
 
   # have one or more features available:
-  set ::ngc(any,next,avail:auto,newfeature)    avail
-  set ::ngc(any,next,avail:noauto,newfeature)  avail
   set ::ngc(any,next,avail:auto,savesection)   avail
   set ::ngc(any,next,avail:noauto,savesection) avail
   set ::ngc(any,next,avail:auto,restart)       reset
@@ -2195,20 +2180,6 @@ proc ::ngcgui::statemap {hdl} {
   set ::ngc($hdl,state) reset
   set ::ngc($hdl,lastevent) notsetyet
 
-  # alternate behavior (user must push button for New Outfile)
-  if $::ngc(any,wait_restart) {
-    set ::ngc(any,next,uwait:auto,begin)        reset
-    set ::ngc(any,next,uwait:noauto,begin)      reset
-
-    set ::ngc(any,next,avail:auto,restart)      uwait
-    set ::ngc(any,next,avail:noauto,restart)    uwait
-
-    set ::ngc(any,next,avail:auto,finalize)     uwait
-    set ::ngc(any,next,avail:noauto,finalize)   uwait2
-
-    set ::ngc(any,next,uwait2:noauto,immediate) uwait
-    set ::ngc(any,next,uwait2:auto,immediate)   uwait
-  }
 } ;# statemap
 
 proc ::ngcgui::message {hdl event} {
@@ -2308,7 +2279,7 @@ proc ::ngcgui::message {hdl event} {
         }
       }
 
-      set t "$::ngc(any,app) $::ngc($hdl,savect) feature"
+      set t "$::ngc(any,app) $::ngc($hdl,savect) [_ "feature"]"
       if {$::ngc($hdl,savect) > 1} { set t ${t}s}
       title $::ngc($hdl,top) "$t" ;# plural
       $::ngc($hdl,finalize,widget) conf -state normal
@@ -2335,6 +2306,10 @@ proc ::ngcgui::title {t txt} {
 } ;# title
 
 proc ::ngcgui::showmessage {hdl type} {
+  # if $hdl==opt          then just show $type in *,msg,widget
+  # if no $hdl,msg,widget then do nothing
+  # if known type         then update widgets per $type
+  # else                  then just show type in *,msg,widget
   if {"$hdl" == "opt"} {
     # no message widget since opt is for all instances
     foreach w [array names ::ngc *,msg,widget] {
@@ -2429,14 +2404,14 @@ proc ::ngcgui::showmessage {hdl type} {
                -fg $::ngc(any,color,ok)
     }
     retainvalues {
-      $mw conf -text "Retain values $::ngc($hdl,retainvalues)" \
+      $mw conf -text "[_ "Retain values"] $::ngc($hdl,retainvalues)" \
                -fg $::ngc(any,color,ok)
     }
     verbose {
-      $mw conf -text "Verbose $::ngc($hdl,verbose)" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Verbose"] $::ngc($hdl,verbose)" -fg $::ngc(any,color,ok)
     }
     auto {
-      $mw conf -text "Autosend $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Autosend"] $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
     }
     cancel {
       $mw conf -text "[_ "Finalize Canceled"]" \
@@ -2623,7 +2598,7 @@ proc ::ngcgui::sendaxis {hdl cmd} {
       # tk8.5 send misfeature
       if {[string first "X server insecure" $msg] >= 0} {
          puts stderr "[_ "Declining support for tk send bug in ngcgui"]"
-         puts stderr "[_ "You should upgrade emc to >=emc2.5"]"
+         puts stderr "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
          eval exec xhost - SI:localuser:gdm
          eval exec xhost - SI:localuser:root
          # test if that worked:
@@ -2649,7 +2624,7 @@ proc ::ngcgui::sendaxis {hdl cmd} {
         }
       } else {
          # axis-ui-remote command not available pre2.4
-         # try method that may work for axis in emc2.3.x
+         # try method that may work for axis in linuxcnc2.3.x
          return [pre2.4_send_file_to_axis $hdl $f]
       }
     }
@@ -2861,8 +2836,8 @@ proc ::ngcgui::bindings {hdl mode} {
   set mode [string tolower $mode] ;# -nocase doesnt work tcl8.4
   switch $mode {
     show {
-      set atxt "OFF"
-      if {$::ngc($hdl,auto)} {set atxt "ON"}
+      set atxt "[_ "OFF"]"
+      if {$::ngc($hdl,auto)} {set atxt "[_ "ON"]"}
       set msg "\
 Ctrl-a [_ "Toggle autosend"]\n\
 Ctrl-c [_ "Clear entries"]\n\
@@ -2887,7 +2862,7 @@ Ctrl-U [_ "Open editor specified by"] \$VISUAL\n\
        [_ "on current preamble"]\
 "
       if [info exists ::ngc(embed,axis)] {
-        set msg " Escape Return to Preview page\n$msg"
+        set msg "[_ " Escape Return to Preview page"]\n$msg"
       }
       # puts $msg
       ::ngcgui::simple_text .ngcguikeys $msg "$::ngc(any,app)-$hdl-keys"
@@ -2964,8 +2939,8 @@ proc ::ngcgui::test {} {
 
 proc ::ngcgui::editfile {hdl {mode last} } {
   if ![info exists ::env(VISUAL)] {
-    simple_text .problem "\nEditing requires setting for environmental variable VISUAL \n
-Trying gedit\n"\
+    simple_text .problem "\n[_ "Editing requires setting for environmental variable VISUAL"] \n
+[_ "Trying gedit"]\n"\
       "$::ngc(any,app)-$hdl-problem"
     set ::env(VISUAL) gedit
     update
@@ -2977,7 +2952,7 @@ Trying gedit\n"\
           && "$::ngc($hdl,last,outfile)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
       } else {
-        simple_text .problem "No file available for editing yet\n"\
+        simple_text .problem "[_ "No file available for editing yet"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -2986,7 +2961,7 @@ Trying gedit\n"\
       if {"$::ngc($hdl,fname,subfile)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
       } else {
-        simple_text .problem "No file available for editing\n"\
+        simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -2995,7 +2970,7 @@ Trying gedit\n"\
       if {"$::ngc($hdl,fname,preamble)" != ""} {
         eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
       } else {
-        simple_text .problem "No file available for editing\n"\
+        simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
         return
       }
@@ -3012,7 +2987,7 @@ proc ::ngcgui::status {hdl args} {
   set optitems {noauto nonew noremove noiframe noinput }
   set anyitems {app pollms aspect width,comment width,varname qid}
 
-  set text "Status items:"
+  set text "[_ "Status items"]:"
   if {"$args" == "full"} {
     #parray ::ngc;return
     set bitems [lsort [array names ::ngc $hdl,*]]
@@ -3025,13 +3000,13 @@ proc ::ngcgui::status {hdl args} {
     if [catch { set line [format "$fmt" $i $::ngc($hdl,$i)]}] continue
     set text "$text\n$line"
   }
-  set text "$text\n\nAll-page opt items:"
+  set text "$text\n\n[_ "All-page opt items"]:"
   foreach i $optitems {
     # catch in case item gets unset
     if [catch { set line [format "$fmt" $i $::ngc(opt,$i)]}] continue
     set text "$text\n$line"
   }
-  set text "$text\n\nany-items:"
+  set text "$text\n\n[_ "any-items"]:"
   foreach i $anyitems {
     # catch in case item gets unset
     if [catch { set line [format "$fmt" $i $::ngc(any,$i)]}] continue
@@ -3068,7 +3043,7 @@ proc ::ngcgui::setentries {hdl opt} {
         set gname [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,global,value,$gname) $::ngc($n)
       }
-      ::ngcgui::showmessage $hdl "Set defaults"
+      ::ngcgui::showmessage $hdl "[_ "Set defaults"]"
     }
     clear {
       foreach n [array names ::ngc $hdl,arg,value,*] {
@@ -3079,7 +3054,7 @@ proc ::ngcgui::setentries {hdl opt} {
         set gname [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,global,value,$gname) ""
       }
-      ::ngcgui::showmessage $hdl "Clear entries"
+      ::ngcgui::showmessage $hdl "[_ "Clear entries"]"
     }
   }
   ::ngcgui::dcheck $hdl
@@ -3310,7 +3285,7 @@ proc ::ngcgui::newpage {creatinghdl} {
   if {$::ngc(opt,noinput) && ("$::ngc($newhdl,dname,subfile)" != "")} {
     set ::ngc($newhdl,info) "$::ngc($newhdl,dname,subfile)"
   } else {
-    set ::ngc($newhdl,info) "Open a new Subfile"
+    set ::ngc($newhdl,info) "[_ "Open a new Subfile"]"
   }
   updatepage
 } ;# newpage
@@ -3613,7 +3588,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
-  # package require Emc ;# needs emcv2.5.x, segfaults emcv2.4.x
+  # package require Linuxcnc ;# needs linuxcnc v2.5.x, segfaults linuxcnc v2.4.x
   # just invoking emc_init works with v2.4 and v2.5
   if  [catch {emc_init} msg] {
     puts "embed_in_axis_tab: [_ "entrykeybindings not available"] <$msg>"
@@ -3772,8 +3747,8 @@ proc ::ngcgui::image_widget {hdl f} {
   # png, pgm,ppm etc support
   if [catch {package require Img} msg] {
     tk_dialog .img \
-      "Missing Tcl Package Img " \
-      "Please install Img:\n $ sudo apt-get install libtk-img" \
+      "[_ "Missing Tcl Package Img"] " \
+      "[_ "Please install Img"]:\n $ sudo apt-get install libtk-img" \
       "" 0 \
       "ok"
     exit

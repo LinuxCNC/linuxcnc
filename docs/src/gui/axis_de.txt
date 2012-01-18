@@ -2,16 +2,15 @@
 
 [[cha:axis-gui]] (((Axis GUI)))
 
-
 == Introduction
 
-AXIS(((AXIS))) is a graphical front-end for EMC2 which features a live
+AXIS(((AXIS))) is a graphical front-end for LinuxCNC which features a live
 preview and backplot. It is written in Python(((Python))) and uses
 Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
 
 .AXIS Window[[cap:AXIS-Window]]
 
-image::images/axis-2.5.png[]
+image::images/axis-2.5.png[align="center"]
 
 == Getting Started
 
@@ -25,14 +24,23 @@ The sample configuration
 
 === A Typical Session
 
- . Start EMC.
+ . Start LinuxCNC.
  . Reset E-STOP (F1) and turn the Machine Power (F2) on.
  . Home all axes.
  . Load the g-code file.
  . Use the preview plot to verify that the program is correct.
+ . Load the material.
  . Set the proper offset for each axis by jogging and using the Touch
-   Off button.
+   Off button as needed.
  . Run the program.
+
+[NOTE]
+To run the same program again depends on your setup and requirements.
+You might need to load more material and set offsets or move over and
+set an offset then run the program again. If your material is fixtured
+then you might need to only run the program again. See the
+<<sub:axis-machine-menu,Machine Menu>> for more information on the run
+command.
 
 == AXIS Display
 
@@ -75,10 +83,10 @@ Some menu items might be grayed out depending on how you have your
 .ini file configured. For more information on configuration see the
 Integrator Manual.
 
-==== File Menu
+.File Menu
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
-    you have configured EMC to use a filter program you can also open it
+    you have configured LinuxCNC to use a filter program you can also open it
     up. See the Integrator manual for more information on filter programs.
 
 * 'Recent Files' - Displays a list of recently opened files.
@@ -107,16 +115,16 @@ Integrator Manual.
    here. See the Integrator Manual on setting up Classic Ladder
 
 * 'Quit' - 
-    Terminates the current EMC session.
+    Terminates the current LinuxCNC session.
 
-==== Machine Menu
+.Machine Menu [[sub:axis-machine-menu]]
 
 * 'Toggle Emergency Stop F1' - Change the state of the Emergency Stop.
 
 * 'Toggle Machine Power F2' - Change the state of the Machine Power if
    the Emergency Stop is not on.
 
-* 'Run Program' - Run the currently loaded program.
+* 'Run Program' - Run the currently loaded program from the beginning.
 
 * 'Run From Selected Line' - Select the line you want to start from first.
    Use with caution as this will move the tool to the expected position before
@@ -131,7 +139,8 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
 
 * 'Resume' - Resume running from a pause.
 
-* 'Stop' - Stop a running program.
+* 'Stop' - Stop a running program. When run is selected after a stop the program
+           will start from the beginning.
 
 * 'Stop at M1' - If an M1 is reached, and this is checked, program execution
     will stop on the M1 line. Press Resume to continue.
@@ -156,7 +165,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
 
 * 'HAL Scope' - Opens a virtual oscilloscope that allows plotting HAL values vs. time.
 
-* 'Show EMC Status' - Opens a window showing EMC's status.
+* 'Show LinuxCNC Status' - Opens a window showing LinuxCNC's status.
 
 * 'Set Debug Level' - Opens a window where debug levels can be viewed and some can be set.
 
@@ -180,7 +189,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
     tip of a zero-length tool is at the fixture's origin when the Relative
     coordinates are 0.  See also <<G10-L11,G10 L11>>.
 
-==== View Menu
+.View Menu
 
 .It's all in your point of view
 *******************************************************************************
@@ -269,8 +278,8 @@ So be familiar with your machine's design and interpret the display as needed.
     To repeat the program, or to better see an area of interest, the 
     previously highlighted paths can be cleared.     
 
-Show Commanded Position' - This is the position that EMC will try to go to. Once motion 
-    has stopped, this is the position EMC will try to hold. 
+* 'Show Commanded Position' - This is the position that LinuxCNC will try to go to. Once motion 
+    has stopped, this is the position LinuxCNC will try to hold. 
 
 * 'Show Actual Position' - Actual Position is the measured position as read back from the 
     system's encoders or simulated by step generators. This may differ 
@@ -281,7 +290,7 @@ Show Commanded Position' - This is the position that EMC will try to go to. On
     
 * 'Show Relative Position' - This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
     
-==== Help Menu
+.Help Menu
 
 * 'About Axis' - We all know what this is.
     
@@ -333,7 +342,7 @@ From left to right in the Axis display, the toolbar buttons (keyboard shortcuts 
 
 === Graphical Display Area
 
-==== Coordinate Display
+.Coordinate Display
 
 In the upper-left corner of the program display is the coordinate display. 
 It shows the position of the machine. 
@@ -366,7 +375,7 @@ but one step of your stepper motor or one encoder count is 0.00125,
 then the 'Commanded' position might be 0.0033, 
 but the 'Actual' position will be 0.0025 (2 steps) or 0.00375 (3 steps).
 
-==== Preview Plot
+.Preview Plot
 (((preview plot)))
 
 When a file is loaded, 
@@ -385,7 +394,7 @@ preview until after the first feed move.
 To turn either of these features off
 program a G1 without any moves prior to the G0 moves.
 
-==== Program Extents
+.Program Extents
 (((program extents)))
 
 The 'extents' of the program in each axis are shown. 
@@ -404,9 +413,9 @@ jog to the left and Touch Off X again.
 
 .Soft Limit[[cap:Soft-Limit]]
 
-image::images/axis-outofrange.png[]
+image::images/axis-outofrange.png[align="center"]
 
-==== Tool Cone
+.Tool Cone
 When no tool is loaded, the location of the tip of the tool is
 indicated by the 'tool cone'.
 The 'tool cone' does not provide guidance on the form,
@@ -416,7 +425,7 @@ When a tool is loaded (for instance, with the MDI command 'T1 M6' ),
 the cone changes to a cylinder which shows the diameter of the tool
 given in the tool table file.
 
-==== Backplot
+.Backplot
 
 When the machine moves, it leaves a trail called the backplot. 
 The color of the line indicates the type of motion: 
@@ -424,7 +433,7 @@ Yellow for jogs, faint green for rapid movements,
 red for straight moves at a feed rate, 
 and magenta for circular moves at a feed rate.
 
-==== Interacting
+.Interacting
 
 By left-clicking on a portion of the preview plot, 
 the line will be highlighted 
@@ -461,7 +470,7 @@ the text display will automatically scroll to show the current line.
 
 .Current and Selected Lines[[cap:Current-and-Selected]]
 
-image::images/axis-currentandselected.png[]
+image::images/axis-currentandselected.png[align="center"]
 
 === Manual Control
 (((Manual)))
@@ -481,7 +490,7 @@ then the 'Brake' button will not appear on the screen.
 If the environment variable 'AXIS_NO_AUTOCONFIGURE' is set, 
 this behavior is disabled and all the items will appear. 
 
-==== The Axis group
+.The Axis group
 
 'Axis' allows you to manually move the machine. 
 This action is known as 'jogging'. 
@@ -503,7 +512,7 @@ By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 See the Configure section of the Integrator Manual for 
 more information on setting the increments.
 
-==== Homing
+.Homing
 
 If your machine has home switches and a homing sequence defined for
 all axes the button will read 'Home All'. The 'Home All' button or the
@@ -523,7 +532,7 @@ set the 'is-homed' bit for that axis.
 
 See the Integrator Manual for more information on homing.
 
-==== Touch Off
+.Touch Off
 
 By pressing 'Touch Off' or the END key, the 'G54 offset' for the
 current axis is changed so that the current axis value will be the
@@ -533,22 +542,22 @@ resulting value is shown as a number.
 
 .Touch Off[[cap:Touch-Off]]
 
-image::images/touchoff.png[]
+image::images/touchoff.png[align="center"]
 
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture' 
 options in the Machine menu.
 
-==== Override Limits
+.Override Limits
 
 By pressing Override Limits, the machine will temporarily be allowed
 to jog off of a physical limit switch. This check box is only available
 when a limit switch is tripped.  The override is reset after one jog.  If
 the axis is configured with separate positive and negative limit switches,
-EMC will allow the jog only in the correct direction.  _Override Limits will
+LinuxCNC will allow the jog only in the correct direction.  _Override Limits will
 not allow a jog past a soft limit.  The only way to disable a soft limit 
 on an axis is to Unhome it._
 
-==== The Spindle group
+.The Spindle group
 (((AxisUI, spindle)))
 
 The buttons on the first row select the direction for the spindle to
@@ -561,7 +570,7 @@ engaged or released. Depending on your machine configuration, not all
 the items in this group may appear. Pressing the spindle start button
 sets the 'S' speed to 1.
 
-==== The Coolant group
+.The Coolant group
 (((AxisUI, coolant)))
 
 The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
@@ -577,7 +586,7 @@ running, the MDI controls are unavailable.
 
 .The MDI tab[[cap:The-MDI-tab]]
 
-image::images/axis-mdi.png[scaledwidth="40%"]
+image::images/axis-mdi.png[align="center"]
 
 * 'History' - This shows MDI commands that have been typed earlier in this session.
 
@@ -676,15 +685,15 @@ The most frequently used keyboard shortcuts are shown in the following Table
 |Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
 |====================================================================
 
-== Show EMC Status (emctop)
+== Show LinuxCNC Status (emctop)
 
 AXIS includes a program called 'emctop' which shows some of the
-details of EMC's state. You can run this program by invoking Machine >
-Show EMC Status
+details of LinuxCNC's state. You can run this program by invoking Machine >
+Show LinuxCNC Status
 
-.EMC Status Window[[cap:EMC-Status-Window]]
+.LinuxCNC Status Window[[cap:LinuxCNC-Status-Window]]
 
-image::images/axis-emc-status.png[]
+image::images/axis-emc-status.png[align="center"]
 
 The name of each item is shown in the left column. The current value
 is shown in the right column. If the value has recently changed, it is
@@ -693,14 +702,14 @@ shown on a red background.
 == MDI interface
 
 AXIS includes a program called 'MDI' which allows text-mode entry of
-MDI commands to a running EMC session. You can run this program by
+MDI commands to a running LinuxCNC session. You can run this program by
 opening a terminal and typing
 
     mdi /path/to/emc.nml
 
 Once it is running, it displays the prompt 'MDI>'. When a blank line
 is entered, the machine's current position is shown. 
-When a command is entered, it is sent to EMC to be executed.
+When a command is entered, it is sent to LinuxCNC to be executed.
 
 This is a sample session of mdi.
 
@@ -727,7 +736,7 @@ file ('--reload'), and making AXIS exit ('--quit').
 == Manual Tool Change
 (((Manual Tool Change)))
 
-EMC2 includes a userspace HAL component called 'hal_manualtoolchange',
+LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
@@ -748,7 +757,7 @@ program a G1 with no move after the T<n>.
 
 .The Manual Toolchange Window[[cap:The-Manual-Toolchange]]
 
-image::images/manual-tool-change.png[]
+image::images/manual-tool-change.png[align="center"]
 
 == Python modules 
 
@@ -756,7 +765,7 @@ AXIS(((AXIS))) includes several Python(((Python))) modules which may
 be useful to others. For more information on one of these modules, use
 'pydoc <module name>' or read the source code. These modules include:
 
- - 'emc' provides access to the EMC command, status, and error channels
+ - 'emc' provides access to the LinuxCNC command, status, and error channels
  - 'gcode' provides access to the rs274ngc interpreter
  - 'rs274' provides additional tools for working with rs274ngc files
  - 'hal' allows the creation of userspace HAL components written in Python
@@ -765,9 +774,9 @@ be useful to others. For more information on one of these modules, use
 
 To use these modules in your own scripts, you must ensure that the
 directory where they reside is on Python's module path. When running an
-installed version of EMC2, this should happen automatically. When
+installed version of LinuxCNC, this should happen automatically. When
 running 'in-place', this can be done by using
-'scripts/emc-environment'.
+'scripts/rip-environment'.
 
 == Using AXIS in Lathe Mode
 (((AXIS in lathe mode)))
@@ -786,7 +795,7 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 .Lathe Tool Shape[[cap:Lathe-Tool-Shape]]
 
-image:images/axis-lathe-tool.png[]
+image:images/axis-lathe-tool.png[align="center"]
 
 == Advanced Configuration
 
@@ -807,8 +816,8 @@ Then, specify the program to execute for each type of file.
 This program is given the name of the input file as its first argument,
 and must write rs274ngc code to standard output. This output is what
 will be displayed in the text area, previewed in the display area, and
-executed by EMC when 'Run'. The following lines add support for the
-'image-to-gcode' converter included with EMC2:
+executed by LinuxCNC when 'Run'. The following lines add support for the
+'image-to-gcode' converter included with LinuxCNC:
 
 ----
 [FILTER]
@@ -831,7 +840,7 @@ series of holes along the circumference of a circle.
 
 .Circular Holes[[cap:Circular-Holes]]
 
-image::images/holes.png[]
+image::images/holes.png[align="center"]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form

@@ -77,7 +77,7 @@ ifeq ($(KERNELRELEASE),)
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),sim)
-	@if [ -f ../bin/emc_module_helper ]; then if ! [ `stat -c %u ../bin/emc_module_helper` -eq 0 -a -u ../bin/emc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
@@ -222,7 +222,7 @@ config.h.in: configure.in
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else \
-	    echo 1>&2 "*** emc2 is not configured.  Run './configure' with appropriate flags."; \
+	    echo 1>&2 "*** linuxcnc is not configured.  Run './configure' with appropriate flags."; \
 	    exit 1; \
 	fi
 endif
@@ -231,17 +231,17 @@ config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
 INFILES = \
-	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
+	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
-	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop \
+	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
+	../scripts/linuxcncmkdesktop \
 	 ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
-	../share/applications/emc.desktop \
-	../share/applications/emc-latency.desktop
+	../share/applications/linuxcnc.desktop \
+	../share/applications/linuxcnc-latency.desktop \
 
 ifeq ($(HAVE_WORKING_BLT),yes)
-INFILES += ../scripts/latencyplot ../share/applications/emc-latencyplot.desktop
+INFILES += ../scripts/latencyplot ../share/applications/linuxcnc-latencyplot.desktop
 endif
 
 $(INFILES): %: %.in config.status
@@ -251,8 +251,8 @@ default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
-# files in the source tree are the ones used when building emc2.  The copy
-# in ../include is used when building external components of emc2.
+# files in the source tree are the ones used when building linuxcnc.  The copy
+# in ../include is used when building external components of linuxcnc.
 HEADERS := \
     config.h \
     emc/ini/emcIniFile.hh \
@@ -347,7 +347,7 @@ HEADERS := \
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
 # Add converting of %.po files
-TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
+TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # ngcgui as standalone app:
@@ -408,8 +408,8 @@ setuid:
 	@echo "'make setuid' is not needed for the simulator"
 else
 setuid:
-	chown root ../bin/emc_module_helper
-	chmod 4750 ../bin/emc_module_helper
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
@@ -443,11 +443,11 @@ install:
 
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory \
-    ../share/applications/emc.desktop \
-    ../share/applications/emc-latency.desktop
+    ../share/applications/linuxcnc.desktop \
+    ../share/applications/linuxcnc-latency.desktop
 
 ifeq ($(HAVE_WORKING_BLT),yes)
-MENUS += ../share/applications/emc-latencyplot.desktop
+MENUS += ../share/applications/linuxcnc-latencyplot.desktop
 endif
 
 install-menus install-menu: $(MENUS)
@@ -464,9 +464,9 @@ TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
 install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
-		if dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
+		if dpkg-query -S $(DESTDIR)/usr/bin/linuxcnc > /dev/null 2>&1 || dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
 			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
-			echo "Use './configure --enable-run-in-place' or uninstall the emc2 package"; \
+			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc2 package"; \
 			echo "before installing."; \
 			exit 1; \
 		fi \
@@ -477,8 +477,8 @@ install: install-test install-kernel-dep install-kernel-indep
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
-		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
+		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
+		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -492,7 +492,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
-		$(DESTDIR)$(datadir)/emc/pncconf/pncconf-help
+		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -505,44 +505,44 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
+	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
         # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
 endif
-	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
+	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/emc
+	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
-	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)
+	$(FILE) ../tcl/linuxcnc.so $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/pkgIndex.tcl $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
-	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
-	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
+	$(FILE) ../share/linuxcnc/stepconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/touchy.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 
 	$(FILE) ../lib/python/gladevcp/hal_python.xml $(DESTDIR)$(datadir)/glade3/catalogs/
 	$(FILE) ../lib/python/gladevcp/widget*.png  $(DESTDIR)$(datadir)/glade3/pixmaps/
@@ -559,9 +559,9 @@ install-python: install-dirs
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
-	$(FILE) ../share/emc/emc2-wizard.gif $(DESTDIR)$(prefix)/share/emc
+	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
@@ -569,17 +569,17 @@ install-python: install-dirs
 endif
 
 install-kernel-dep:
-	$(DIR)  $(DESTDIR)$(moduledir)/emc2 \
+	$(DIR)  $(DESTDIR)$(moduledir)/linuxcnc \
 		$(DESTDIR)$(bindir) \
-		$(DESTDIR)$(sysconfdir)/emc2
+		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq "$(BUILD_SYS)" "sim"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
+	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
-	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
+	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
 endif # RUN_IN_PLACE
 
 CONF=../configs

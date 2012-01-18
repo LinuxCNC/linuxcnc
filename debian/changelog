@@ -1,4 +1,4 @@
-emc2 (1:2.5.0-pre2) lucid; urgency=low
+linuxcnc (1:2.5.0-pre2) lucid; urgency=low
 
   * AXIS: dynamic tabs can embed other applications, including virtual
     control panels

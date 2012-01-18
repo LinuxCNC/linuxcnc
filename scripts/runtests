@@ -7,7 +7,7 @@ esac
 MYDIR=$(cd $MYDIR; pwd);
 TOPDIR=$(cd $MYDIR/..; pwd)
 
-. $TOPDIR/scripts/emc-environment >/dev/null
+. $TOPDIR/scripts/rip-environment >/dev/null
 
 NUM=0
 FAIL=0; FAIL_NAMES=""

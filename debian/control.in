@@ -1,4 +1,4 @@
-Source: emc2
+Source: linuxcnc
 Section: misc
 Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
@@ -14,99 +14,100 @@ Build-Depends: debhelper (>= 6),
     texlive-lang-cyrillic
 Standards-Version: 2.1.0
 
-Package: @EMC2_PACKAGE_NAME@-dev
+Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
-Provides: emc2-dev
+Provides: linuxcnc-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
-    @EMC2_PACKAGE_NAME@ (= ${binary:Version}),
+    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
     yapps2-runtime
 Section: libs
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package includes files needed to build new realtime components and
- alternate front-ends for emc2
+ alternate front-ends for linuxcnc
 
-Package: @EMC2_PACKAGE_NAME@
-Replaces: emc2, emc2-axis
-Conflicts: emc2, emc2-axis
-Provides: emc2, emc2-axis
+Package: @MAIN_PACKAGE_NAME@
+Replaces: linuxcnc, linuxcnc-axis
+Conflicts: linuxcnc, linuxcnc-axis
+Provides: linuxcnc, linuxcnc-axis
 Architecture: any
-Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr | emc2-doc-de | emc2-doc-es | emc2-doc-pl
+Recommends: hostmot2-firmware, linuxcnc-doc-en | linuxcnc-doc-fr | linuxcnc-doc-de | linuxcnc-doc-es | linuxcnc-doc-pl
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
-    python@PYTHON_VERSION@-gnome2, python@PYTHON_VERSION@-glade2,
+    python@PYTHON_VERSION@-gnome2 | python-gnome2,
+    python@PYTHON_VERSION@-glade2 | python-glade2,
     python@PYTHON_VERSION@-numpy | python-numpy,
     python@PYTHON_VERSION@-imaging,
     python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
     python-xlib, python-gtkglext1, python-configobj,
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
 
-Package: emc2-doc-en
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Package: linuxcnc-doc-en
+Conflicts: linuxcnc (<< 1:2.5.0~pre), linuxcnc-sim (<< 1:2.5.0~pre)
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in English.
 
-Package: emc2-doc-fr
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Package: linuxcnc-doc-fr
+Conflicts: linuxcnc (<< 1:2.5.0~pre), linuxcnc-sim (<< 1:2.5.0~pre)
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in French.
 
-Package: emc2-doc-de
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Package: linuxcnc-doc-de
+Conflicts: linuxcnc (<< 1:2.5.0~pre), linuxcnc-sim (<< 1:2.5.0~pre)
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in German.
 
-Package: emc2-doc-es
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Package: linuxcnc-doc-es
+Conflicts: linuxcnc (<< 1:2.5.0~pre), linuxcnc-sim (<< 1:2.5.0~pre)
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in Spanish.
 
-Package: emc2-doc-pl
+Package: linuxcnc-doc-pl
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- EMC2 is the next-generation Enhanced Machine Controller which
+ LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .

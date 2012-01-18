@@ -83,5 +83,5 @@ Where <n> is gs2_vfd or the name given during loading with the -n option.
 * <n>.tolerance (s32, RW) speed tolerance (default 0.01)
 
 For an example of using this component to drive a spindle see the
-<<gs2-spindle,GS2 Spindle>> example.
+<<cha:gs2-spindle,GS2 Spindle>> example.
 

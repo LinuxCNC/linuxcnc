@@ -4,7 +4,7 @@ From the top level directory, switch to the source directory:
 
 cd src
 
-In the source directory, build EMC2:
+In the source directory, build LinuxCNC:
 
 ./autogen.sh  (this builds the configure script)
 ./configure --enable-run-in-place
@@ -27,7 +27,7 @@ The runtime script is called emc, thus allowing you on an installed to just type
 'emc' and get it running.
 On a run-in-place system (e.g. the one you just got out of git), 
 the runscript is emc2/scripts/emc.
-When you just checked out a fresh copy of emc2, you'll see there is no 
+When you just checked out a fresh copy of LinuxCNC, you'll see there is no 
 'scripts/emc', just a 'scripts/emc.in'.
 By running configure that one will get changed to 'scripts/emc'. configure will
 also replace some default values for your system (folders, paths, etc).
@@ -69,10 +69,10 @@ Optional Features
 =================
    EMC is a software that can operate hardware only if a real time system has 
 been installed. Either RTLinux or RTAI. If you don't have any installed, you 
-cannot run EMC2 to control any machines. Please install one of the RT patches
+cannot run LinuxCNC to control any machines. Please install one of the RT patches
 (refer to the documentation of the project on how to achieve that).
 
-    However, it is possible to test EMC2 without a realtime system. This is 
+    However, it is possible to test LinuxCNC without a realtime system. This is 
 possible using a simulator mode, which doesn't allow hardware control. To
 enable this mode there is a special option '--enable-simulator' you can use.
 
@@ -81,7 +81,7 @@ the correct one can be declared as a command line argument:
 
 ./configure --with-rtai=/usr/src/rtai-24.1.12
 
-If you want only to try emc2 in a local directory (without installing it),
+If you want only to try LinuxCNC in a local directory (without installing it),
 there is an option to configure to run-in-place
   --enable-run-in-place                  Enables running in the local dir 
                                          (without installing)

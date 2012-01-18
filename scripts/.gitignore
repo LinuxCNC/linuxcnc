@@ -1,8 +1,8 @@
-emc
-emc-environment
+linuxcnc
+rip-environment
 halrun
 haltcl
 realtime
 rtapi.conf
-emcmkdesktop
+linuxcncmkdesktop
 latencyplot

@@ -19,7 +19,7 @@ import os, time, string
 import gobject, gtk
 
 from hal_widgets import _HalWidgetBase
-import emc
+import linuxcnc
 from hal_glib import GStat
 from hal_actions import _EMC_ActionBase, ensure_mode
 
@@ -28,7 +28,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     def __init__(self, *a, **kw):
         gtk.VBox.__init__(self, *a, **kw)
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.ini = emc.ini(inifile)
+        self.ini = linuxcnc.ini(inifile)
 
         path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.filename = os.path.expanduser(path)
@@ -89,7 +89,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         cmd = self.entry.get_text()
         if not cmd:
             return
-        ensure_mode(self.stat, self.emc, emc.MODE_MDI)
+        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
 
         try:
             fp = open(self.filename, 'a')
@@ -98,7 +98,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         except:
             pass
 
-        self.emc.mdi(cmd)
+        self.linuxcnc.mdi(cmd)
         last = self.model.append((cmd,))
         path = self.model.get_path(last)
         self.tv.scroll_to_cell(path)

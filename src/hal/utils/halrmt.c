@@ -1183,7 +1183,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
         sockWriteError(nakStr, context);
     }
 
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "insert";
     argv[2] = mod_path;
     /* loop thru remaining arguments */
@@ -1385,7 +1385,7 @@ static int unloadrt_comp(char *mod_name)
     }
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() rmmod */
-	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+	argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
 	argv[1] = "remove";
 	argv[2] = mod_name;
 	/* add a NULL to terminate the argv array */

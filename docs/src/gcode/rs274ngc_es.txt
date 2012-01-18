@@ -1,19 +1,21 @@
 = RS274NGC Programs
 
+[[cha:rs274ngc-programs]] (((RS274NGC Programs)))
+
 == Changes from RS274NGC
 
 .Differences that change the meaning of RS274NGC programs
 
 Location after a tool change::
 
-In EMC2, the machine does not return to its original position 
+In LinuxCNC, the machine does not return to its original position 
 after a tool change. This change was made because the new tool 
 might be longer than the old tool, and the move to the original 
 machine position could therefore leave the tool tip too low.
 
 Offset parameters are inifile units::
 
-In EMC2, the values stored in parameters for the G28 and G30 home 
+In LinuxCNC, the values stored in parameters for the G28 and G30 home 
 locations, the P1...P9 coordinate systems, and the G92 offset are 
 in "inifile units". This change was made because otherwise the 
 meaning of a location changed depending on whether G20 or G21 was 
@@ -21,7 +23,7 @@ active when G28, G30, G10 L2, or G92.3 is programmed.
 
 Tool table lengths/diameters are in inifile units::
 
-In EMC2, the tool lengths (offsets) and diameters in the tool 
+In LinuxCNC, the tool lengths (offsets) and diameters in the tool 
 table are specified in inifile units only. This change was made 
 because otherwise the length of a tool and its diameter would 
 change based on whether G20 or G21 was active when initiating 
@@ -33,12 +35,12 @@ throughout the program), without changing the tool table.
 G84, G87 not implemented::
 
 G84 and G87 are not currently implemented, but may be added to a 
-future release of EMC2.
+future release of LinuxCNC.
 
 G28, G30 with axis words::
 
 When G28 or G30 is programmed with only some axis words present, 
-EMC2 only moves the named axes. This is common on other machine 
+LinuxCNC only moves the named axes. This is common on other machine 
 controls. To move some axes to an intermediate point and then 
 move all axes to the predefined point, write two lines of gcode:
 +
@@ -56,7 +58,7 @@ These codes are not defined in RS274NGC.
 G38.2::
 
 The probe tip is not retracted after a G38.2 movement. This 
-retraction move may be added in a future release of EMC2.
+retraction move may be added in a future release of LinuxCNC.
 
 G38.3...G38.5::
 
@@ -88,19 +90,19 @@ and Z dimensions. This feature is primarily useful on lathes.
 +
 'Dynamic tool lengths'
 +
-EMC2 allows specification of a computed tool length through G43.1 
+LinuxCNC allows specification of a computed tool length through G43.1 
 I K.
 
 G41.1, G42.1::
 
-EMC2 allows specification of a tool diameter and, if in lathe 
+LinuxCNC allows specification of a tool diameter and, if in lathe 
 mode, orientation in the gcode. The format is G41.1/G42.1 D L, 
 where D is diameter and L (if specified) is the lathe tool 
 orientation.
 
 G43 without H word::
 
-In ngc, this is not allowed. In EMC2, it sets length offsets for 
+In ngc, this is not allowed. In LinuxCNC, it sets length offsets for 
 the currently loaded tool. If no tool is currently loaded, it is 
 an error. This change was made so the user doesn't have to 
 specify the tool number in two places for each tool change, and 
@@ -109,6 +111,6 @@ is not specified.
 
 U, V, and W axes::
 
-EMC2 allows machines with up to 9 axes by defining an additional 
+LinuxCNC allows machines with up to 9 axes by defining an additional 
 set of 3 linear axes known as U, V and W
 

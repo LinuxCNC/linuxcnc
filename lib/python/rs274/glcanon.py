@@ -20,7 +20,7 @@ from minigl import *
 import math
 import glnav
 import hershey
-import emc
+import linuxcnc
 import array
 import gcode
 
@@ -96,10 +96,10 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lineno = self.state.sequence_number
 
     def draw_lines(self, lines, for_selection, j=0):
-        return emc.draw_lines(self.geometry, lines, for_selection)
+        return linuxcnc.draw_lines(self.geometry, lines, for_selection)
 
     def draw_dwells(self, dwells, alpha, for_selection, j0=0):
-        return emc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
+        return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
@@ -192,17 +192,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         coords = []
         for line in self.traverse:
             if line[0] != lineno: continue
-            emc.line9(geometry, line[1], line[2])
+            linuxcnc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.arcfeed:
             if line[0] != lineno: continue
-            emc.line9(geometry, line[1], line[2])
+            linuxcnc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.feed:
             if line[0] != lineno: continue
-            emc.line9(geometry, line[1], line[2])
+            linuxcnc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         glEnd()

@@ -20,7 +20,7 @@ import tempfile, atexit, shutil
 import gtk, gobject
 
 from hal_widgets import _HalWidgetBase
-import emc
+import linuxcnc
 from hal_glib import GStat
 
 _ = lambda x: x
@@ -113,15 +113,15 @@ class _EMC_FileChooser(_EMC_ActionBase):
         flt = FilterProgram(flt, filename, tmp, lambda r: r or self._load_file(tmp))
 
     def _load_file(self, filename):
-        self.emc.mode(emc.MODE_AUTO)
+        self.linuxcnc.mode(linuxcnc.MODE_AUTO)
         old = self.gstat.stat.file
-        self.emc.program_open(filename)
+        self.linuxcnc.program_open(filename)
         if old == filename:
             self.gstat.emit('file-loaded', filename)
 
     def load_filters(self, inifile=None):
         inifile = inifile or os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.ini = emc.ini(inifile)
+        self.ini = linuxcnc.ini(inifile)
 
         self._load_filters(self.ini)
 

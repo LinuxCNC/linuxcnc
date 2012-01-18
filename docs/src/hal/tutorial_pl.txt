@@ -18,7 +18,7 @@ from the main Ubuntu menu bar.
 
 .Terminal Command Example
 ----
-me@emc-computer:~emc2$ halrun
+me@computer:~linuxcnc$ halrun
 (will be shown like the following line)
 halrun
 
@@ -53,9 +53,9 @@ needs. Fortunately there are realtime operating systems (RTOS's) that
 provide the necessary extensions to Linux. Unfortunately, each RTOS
 does things a little differently.
 
-To address these differences, the EMC team came up with RTAPI, which
+To address these differences, the LinuxCNC team came up with RTAPI, which
 provides a consistent way for programs to talk to the RTOS. If you are
-a programmer who wants to work on the internals of EMC, you may want to
+a programmer who wants to work on the internals of LinuxCNC, you may want to
 study 'emc2/src/rtapi/rtapi.h' to understand the API. But if you are a
 normal person all you need to 
 know about RTAPI is that it (and the RTOS) needs to be loaded into the
@@ -68,12 +68,12 @@ memory of your computer before you do anything with HAL.
 For this tutorial, we are going to assume that you have successfully
 installed the Live CD and, if using a RIP footnote:[Run In Place, when the
 source files have been downloaded to a user directory.], invoked the 
-'emc-environment' script to prepare your shell.
+'rip-environment' script to prepare your shell.
 In that case, all you need to do is
 load the required RTOS and RTAPI modules into memory. Just run the
 following command from a terminal window:
 
-// NOTE! add link to emc-environment explanation
+// NOTE! add link to rip-environment explanation
 
 .Loading HAL
 ----

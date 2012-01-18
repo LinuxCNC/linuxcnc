@@ -3,10 +3,10 @@ EMCSVRSRCS := \
 	emc/task/emcsvr.cc
 USERSRCS += $(EMCSVRSRCS)
 
-../bin/emcsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
-TARGETS += ../bin/emcsvr
+TARGETS += ../bin/linuxcncsvr
 
 # disabled:	emc/task/iotaskintf.cc
 MILLTASKSRCS := \
@@ -29,7 +29,7 @@ USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0 ../lib/libemchal.so.0 ../lib/libpyplugin.so.0
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0
 
 
 	$(ECHO) Linking $(notdir $@)

@@ -20,21 +20,21 @@ puissance de ce langage et d'EMC2 qui le met à profit.
 == Format des paramètres du G-code
 
 Le langage G-code est basé sur des lignes de code. Chaque ligne
-(également appelée un *bloc*) peut inclure des commandes pour faire
+(également appelée un _bloc_) peut inclure des commandes pour faire
 produire diverses actions à la machine. Plusieurs lignes de code
 peuvent être regroupées dans un fichier pour créer un programme G-code.
 
 Une ligne de code typique commence par un numéro de ligne optionnel
-suivi par un ou plusieurs *mots*. Un mot commence par une lettre suivie
+suivi par un ou plusieurs _mots_. Un mot commence par une lettre suivie
 d'un nombre (ou quelque chose qui permet d'évaluer un nombre). Un mot
 peut, soit donner une commande, soit fournir un argument à une
 commande. Par exemple, *G1 X3* est une ligne de code valide avec deux
-mots. *G1* est une commande qui signifie *déplaces toi en ligne
-droite à la vitesse programmée* et *X3* fournit la valeur d'argument 
+mots. *G1* est une commande qui signifie _déplaces toi en ligne
+droite à la vitesse programmée_ et *X3* fournit la valeur d'argument 
 (la valeur de X doit être 3 à la fin du mouvement). La plupart des 
 commandes G-code commencent avec une lettre G ou M
 (G pour Général et M pour Miscellaneous (auxiliaire)). 
-Les termes pour ces commandes sont *G-codes* et *M-codes.* 
+Les termes pour ces commandes sont _G-codes_ et _M-codes._ 
 
 Le langage G-code(((G-code))) n'a pas d'indicateur de début et de
 fin de programme. L'interpréteur cependant traite les fichiers. Un
@@ -171,20 +171,23 @@ Si un nombre utilisé dans le langage G-code est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-== Paramètres (Variables)[[parametres]](((Paramètres)))
+[[parametres]]
+== Paramètres (Variables)
+(((Paramètres)))
 
-Le langage RS274/NGC supporte les *paramètres*, qui sont appelés *variables*
+Le langage RS274/NGC supporte les _paramètres_, qui sont appelés _variables_
 dans d'autres langages de programmation. Il existe plusieurs types de paramètres
-ayant différents usages et différentes formes. Le seul type de nombre supporté 
-par les paramètres est le flottant, il n'y a pas de string, pas de boolean ni 
-d'entier dans le G-code comme dans d'autres langages de programmation. Toutefois, 
-les expressions logiques peuvent être formulées avec <<sec:Operateurs-Binaires, 
-les opérateurs booléens>> (*AND*, *OR*, *XOR* et les opérateurs de comparaison
-*EQ*, *NE*, *GT*, *GE*, *LT*, *LE*) ainsi que *MOD*, *ROUND*, *FUP* et *FIX* 
+ayant différents usages et différentes formes. Le seul type de nombre supporté
+par les paramètres est le flottant, il n'y a pas de string, pas de boolean ni
+d'entier dans le G-code comme dans d'autres langages de programmation. Toutefois,
+les expressions logiques peuvent être formulées avec 
+<<sec:Operateurs-Binaires,les opérateurs booléens>> (*AND*, *OR*, *XOR* et les
+opérateurs de comparaison
+*EQ*, *NE*, *GT*, *GE*, *LT*, *LE*) ainsi que *MOD*, *ROUND*, *FUP* et *FIX*
 <<cap:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
 
 Les paramètres différent par leur syntaxe, leur portée, leur comportement quand ils
-ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel 
+ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel
 ils sont prévus.
 
 Syntaxes:: Il y a trois sortes d'apparences syntaxiques:
@@ -196,7 +199,7 @@ La portée:: La portée d'un paramètre est soit globale, ou locale à l'intéri
 sous-programme. Les paramètres de sous-programme et les paramètres nommés ont une
 portée locale. Les paramètres nommés globaux et les paramètres numérotés 
 commencent par un nombre, exemple: 31 a une portée globale. RS274NGC utilise une
-*portée lexicale*, dans un sous-programme, seules sont locales les variables qui
+_portée lexicale_, dans un sous-programme, seules sont locales les variables qui
 y sont définies et toutes les variables globales y sont visibles. Les variables 
 locales à un appel de procédure, ne sont pas visibles dans la procédure appelée.
 
@@ -214,11 +217,11 @@ instruction d'affectation.
 
 La persistance:: Quand EMC2 s'arrête, les paramètres volatiles perdent leurs
 valeurs. Tous les paramètres sont volatiles, excepté les paramètres numérotés
-dans l'étendue courante de persistance footnoteref:[L'étendue de persistance
+dans l'étendue courante de persistance footnote:[L'étendue de persistance
 courante des paramètres évolue en même temps qu'évolue le développement. Cette
-étendue est actuellement de 5161 à 5390. Elle est définie par _required_parameters array 
+étendue est actuellement de 5161 à 5390. Elle est définie par __required_parameters array_
 dans le fichier src/emc/rs274ngc/interp_array.cc .].
-Les paramètres persistants sont enregistrés dans un fichier *.var* et restaurés à
+Les paramètres persistants sont enregistrés dans un fichier _.var_ et restaurés à
 leurs valeurs précédentes quand EMC2 est relancé. Les paramètres numérotés 
 volatiles sont remis à zéro.
 
@@ -238,7 +241,8 @@ paramètres sont utilisés pour accéder aux offsets des systèmes de coordonné
 déterminer l'état de l'interpréteur et de la machine, par exemple *#<_relative>*
 retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
 
-=== Paramètres numérotés[[sec:Parametres-Numerotes]]
+[[sec:Parametres-Numerotes]]
+== Paramètres numérotés
 (((Paramètres numérotés)))
 
 Un paramètre numéroté commence par le caractère *#* suivi par un
@@ -261,36 +265,36 @@ numéro est égal à la valeur entière trouvée dans le paramètre 2.
 
 L'interpréteur maintient cette liste de paramètres, concernant l'outil courant:
 
-* *1-30* - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
+* _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
 section des <<sec:O-Codes,O Codes>>.
-* *1-5000* - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
+* _1-5000_ - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
 le fichier G-code.
-* *5061-5070* - Résultat du palpage *G38.2* pour (X Y Z A B C U V W)
-* *5161-5169* - Origine *G28* pour (X Y Z A B C U V W)
-* *5181-5189* - Origone *G30* pour (X Y Z A B C U V W)
-* *5211-5219* - Offset *G92* pour (X Y Z A B C U V W)
-* *5220* - Numéro du système de coordonnées système courant 1 à 9 pour G54 à G59.3
-* *5221-5229* - Système de coordonnées 1, G54 (X Y Z A B C U V W)
-* *5241-5249* - Système de coordonnées 2, G55 (X Y Z A B C U V W)
-* *5261-5269* - Système de coordonnées 3, G56 (X Y Z A B C U V W)
-* *5281-5289* - Système de coordonnées 4, G57 (X Y Z A B C U V W)
-* *5301-5309* - Système de coordonnées 5, G58 (X Y Z A B C U V W)
-* *5321-5329* - Système de coordonnées 6, G59 (X Y Z A B C U V W)
-* *5341-5349* - Système de coordonnées 7, G59.1 (X Y Z A B C U V W)
-* *5361-5369* - Système de coordonnées 8, G59.2 (X Y Z A B C U V W)
-* *5381-5389* - Système de coordonnées 9, G59.3 (X Y Z A B C U V W)
-* *5399* - Résultat de M66 - Surveille ou attends une entrée
-* *5400* - Numéro de l'outil courant
-* *5401-5409* - Offset d'outil (X Y Z A B C U V W)
-* *5410* - Diamètre de l'outil courant
-* *5411* - Angle frontal de l'outil courant
-* *5412* - Angle arrière de l'outil courant
-* *5413* - Tool Orientation
-* *5420-5428* - Current Position including offsets in current program
+* _5061-5070_ - Résultat du palpage *G38.2* pour (X Y Z A B C U V W)
+* _5161-5169_ - Origine *G28* pour (X Y Z A B C U V W)
+* _5181-5189_ - Origone *G30* pour (X Y Z A B C U V W)
+* _5211-5219_ - Offset *G92* pour (X Y Z A B C U V W)
+* _5220_ - Numéro du système de coordonnées système courant 1 à 9 pour G54 à G59.3
+* _5221-5229_ - Système de coordonnées 1, G54 (X Y Z A B C U V W)
+* _5241-5249_ - Système de coordonnées 2, G55 (X Y Z A B C U V W)
+* _5261-5269_ - Système de coordonnées 3, G56 (X Y Z A B C U V W)
+* _5281-5289_ - Système de coordonnées 4, G57 (X Y Z A B C U V W)
+* _5301-5309_ - Système de coordonnées 5, G58 (X Y Z A B C U V W)
+* _5321-5329_ - Système de coordonnées 6, G59 (X Y Z A B C U V W)
+* _5341-5349_ - Système de coordonnées 7, G59.1 (X Y Z A B C U V W)
+* _5361-5369_ - Système de coordonnées 8, G59.2 (X Y Z A B C U V W)
+* _5381-5389_ - Système de coordonnées 9, G59.3 (X Y Z A B C U V W)
+* _5399_ - Résultat de M66 - Surveille ou attends une entrée
+* _5400_ - Numéro de l'outil courant
+* _5401-5409_ - Offset d'outil (X Y Z A B C U V W)
+* _5410_ - Diamètre de l'outil courant
+* _5411_ - Angle frontal de l'outil courant
+* _5412_ - Angle arrière de l'outil courant
+* _5413_ - Tool Orientation
+* _5420-5428_ - Current Position including offsets in current program
     units (X Y Z A B C U V W)
 
-
-=== Paramètres nommés[[sec:Parametres-Nommes]]
+[[sec:Parametres-Nommes]]
+== Paramètres nommés
 (((Paramètres nommés)))
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
@@ -336,7 +340,8 @@ utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
 derniers Aword, Bword, Cword, ... Zword etc.
 
 [[sec:Parametres-Systeme]]
-=== Paramètres système
+== Paramètres système
+(((Paramètres système)))
 
 Deux paramètres nommés globaux, permettant de lire, à partir du G-code, 
 quelle est la version courante d'EMC2.
@@ -392,8 +397,8 @@ le résultat est: *0.5* .
 
 Les opérations logiques et le modulo sont exécutés sur des nombres
 réels et non pas seulement sur des entiers. Le zéro est équivalent à un
-état logique faux *(FALSE)*, tout nombre différent de zéro est équivalent
-à un état logique vrai *(TRUE)*.
+état logique faux (FALSE), tout nombre différent de zéro est équivalent
+à un état logique vrai (TRUE).
 
 [[cap:Precedence-des-operateurs]]
 .Précédence des opérateurs
@@ -511,7 +516,7 @@ g40 (foo)*.
 En G-code, de nombreuses commandes produisent, d'un mode à un
 autre, quelque chose de différent au niveau de la machine, le mode
 reste actif jusqu'à ce qu'une autre commande ne le révoque,
-implicitement ou explicitement. Ces commandes sont appelées *modales*.
+implicitement ou explicitement. Ces commandes sont appelées _modales_.
 Par exemple, si l'arrosage est mis en marche, il y reste jusqu'à ce
 qu'il soit explicitement arrêté. Les G-codes pour les mouvements sont
 également modaux. Si, par exemple, une commande G1 (déplacement
@@ -520,7 +525,7 @@ suivante avec seulement un mot d'axe, tant qu'une commande explicite
 est donnée sur la ligne suivante en utilisant des axes ou un arrêt de
 mouvement.
 
-Les codes *non modaux* n'ont d'effet que sur la ligne ou ils se
+Les codes _non modaux_ n'ont d'effet que sur la ligne ou ils se
 présentent. Par exemple, G4 (tempo) est non modale.
 
 [[sec:Coordonnees-polaires]]
@@ -596,8 +601,8 @@ C'est une erreur si:
 == Groupes modaux
 (((Groupes modaux)))
 
-Les commandes modales sont arrangées par lots appelés *groupes
-modaux*, à tout moment, un seul membre d'un groupe modal peut être
+Les commandes modales sont arrangées par lots appelés _groupes
+modaux_, à tout moment, un seul membre d'un groupe modal peut être
 actif. En général, un groupe modal contient des commandes pour
 lesquelles il est logiquement impossible que deux membres soient actifs
 simultanément, comme les unités en pouces et les unités en millimètres.
@@ -613,21 +618,21 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 [width="100%", cols="4,6", options="header"]
 |==========================================================
 |Signification du groupe modal        | Mots G
-|Codes non modaux (*Groupe 0*)| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3
-.2+|Mouvements (*Groupe 1*)      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
+|Codes non modaux (_Groupe 0_)| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3
+.2+|Mouvements (_Groupe 1_)      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
                              | G82, G83, G84, G85, G86, G87, G88, G89
-|Choix du plan de travail (*Groupe 2*)| G17, G18, G19, G17.1, G18.1, G19.1
-|Mode déplacement (*Groupe 3*)     | G90, G91
-|Mode déplacement en arc IJK (*Groupe 4*) |G90.1, G91.1
-|Mode de vitesses (*Groupe 5*)        | G93, G94, G95
-|Unités machine (*Groupe 6*)          | G20, G21
-|Compensation de rayon d'outil (*Groupe 7*)| G40, G41, G42, G41.1, G42.1
-|Compensation de longueur d'outil (*Groupe 8*)| G43, G43.1, G49
-|Plan de retrait cycle de perçage (*Groupe 10*)| G98, G99
-|Systèmes de coordonnées (*Groupe 12*)| G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Mode contrôle de trajectoire (*Groupe 13*) |G61, G61.1, G64
-|Mode contrôle vitesse broche (*Groupe 14*) | G96, G97
-|Mode diamètre/rayon sur les tours (*Groupe 15*) | G7, G8
+|Choix du plan de travail (_Groupe 2_)| G17, G18, G19, G17.1, G18.1, G19.1
+|Mode déplacement (_Groupe 3_)     | G90, G91
+|Mode déplacement en arc IJK (_Groupe 4_) |G90.1, G91.1
+|Mode de vitesses (_Groupe 5_)        | G93, G94, G95
+|Unités machine (_Groupe 6_)          | G20, G21
+|Compensation de rayon d'outil (_Groupe 7_)| G40, G41, G42, G41.1, G42.1
+|Compensation de longueur d'outil (_Groupe 8_)| G43, G43.1, G49
+|Plan de retrait cycle de perçage (_Groupe 10_)| G98, G99
+|Systèmes de coordonnées (_Groupe 12_)| G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Mode contrôle de trajectoire (_Groupe 13_) |G61, G61.1, G64
+|Mode contrôle vitesse broche (_Groupe 14_) | G96, G97
+|Mode diamètre/rayon sur les tours (_Groupe 15_) | G7, G8
 |==========================================================
 
 [[tbl:M-codes-modaux]]
@@ -637,13 +642,13 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 [width="100%", cols="4,6", options="header"]
 |==========================================================
 |Signification du groupe modal        | Mots M
-|Types de fin de programme  (*Groupe 4*) | M0, M1, M2, M30, M60
-|On/Off I/O (*Groupe 5*)              | M6 Tn
-|Appel d'outil (*Groupe 6*)           | M6 Tn
-|Commande de broche (*Groupe 7*)      | M3, M4, M5
-|Arrosages  (*Groupe 8*)     | (M7, M8, peuvent être actifs simultanément), M9 
-|Boutons de correction de vitesse (*Groupe 9*)| M48, M49, M50, M51
-|Définis par l'utilisateur (*Groupe 10*) | M100 à M199
+|Types de fin de programme  (_Groupe 4_) | M0, M1, M2, M30, M60
+|On/Off I/O (_Groupe 5_)              | M6 Tn
+|Appel d'outil (_Groupe 6_)           | M6 Tn
+|Commande de broche (_Groupe 7_)      | M3, M4, M5
+|Arrosages  (_Groupe 8_)     | (M7, M8, peuvent être actifs simultanément), M9 
+|Boutons de correction de vitesse (_Groupe 9_)| M48, M49, M50, M51
+|Définis par l'utilisateur (_Groupe 10_) | M100 à M199
 |==========================================================
 
 Pour plusieurs groupes modaux, quand la machine est prête à accepter
@@ -753,7 +758,7 @@ Le G-code est plus lisible quand au moins un espace apparaît avant les
 mots. S'il est permis d'insérer des espaces blancs au milieu des
 chiffres, il faut éviter de le faire.
 
-=== Préférer le *format centre* pour les arcs
+=== Préférer le _format centre_ pour les arcs
 
 Les arcs en format centre (qui utilisent *I- J- K-* au lieu de *R-* )
 se comportent de façon plus précise que ceux en format rayon,

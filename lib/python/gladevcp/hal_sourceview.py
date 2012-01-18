@@ -19,7 +19,7 @@ import os, time
 import gobject, gtk
 
 from hal_widgets import _HalWidgetBase
-import emc
+import linuxcnc
 from hal_glib import GStat
 from hal_actions import _EMC_ActionBase, _EMC_Action
 from hal_filechooser import _EMC_FileChooser

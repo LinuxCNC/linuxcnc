@@ -31,7 +31,7 @@ image::images/freqgen-block-diag.eps[]
 === Installing
 
 ----
-emc2$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
+halcmd: loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
 ----
 
 '<type-array>' is a series of comma separated decimal integers. Each
@@ -45,7 +45,7 @@ mode.
 
 For example:
 ----
-emc2$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
+halcmd: loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
 ----
 
 will install three step generators. The first two use step type '0'
@@ -61,7 +61,7 @@ is the number of a specific generator. The first generator is number 0.
 === Removing
 
 ----
-emc2$ halcmd unloadrt stepgen
+halcmd: unloadrt stepgen
 ----
 
 === Pins
@@ -219,7 +219,7 @@ perhaps 10KHz with limited resolution.
 === Installing
 
 ----
-emc2$ halcmd loadrt pwmgen output_type=<config-array>
+halcmd: loadrt pwmgen output_type=<config-array>
 ----
 
 '<config-array>' is a series of comma separated decimal integers.
@@ -228,7 +228,7 @@ single PWM generator to be loaded, the value of the number determines
 the output type. For example:
 
 ----
-emc2$ halcmd loadrt pwmgen output_type=0,1,2
+halcmd: loadrt pwmgen output_type=0,1,2
 ----
 
 will install three PWM generators. The first one will use output type
@@ -245,7 +245,7 @@ number 0.
 === Removing
 
 ----
-emc2$ *halcmd unloadrt pwmgen
+halcmd: unloadrt pwmgen
 ----
 
 === Pins
@@ -338,7 +338,7 @@ image::images/encoder-block-diag.png[]
 === Installing
 
 ----
-emc2$ halcmd loadrt encoder [num_chan=<counters>]
+halcmd: loadrt encoder [num_chan=<counters>]
 ----
 
 '<counters>' is the number of encoder counters that you want to
@@ -352,7 +352,7 @@ of a specific counter. The first counter is number 0.
 === Removing
 
 ----
-emc2$ halcmd unloadrt encoder
+halcmd: unloadrt encoder
 ----
 
 === Pins
@@ -458,7 +458,7 @@ image::images/pid-block-diag.png[]
 === Installing
 
 ----
-emc2$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
+halcmd: loadrt pid [num_chan=<loops>] [debug=1]
 ----
 
 '<loops>' is the number of PID loops that you want to install. If
@@ -477,7 +477,7 @@ cluttering the parameter list.
 === Removing
 
 ----
-emc2$ halcmd unloadrt pid
+halcmd: unloadrt pid
 ----
 
 === Pins
@@ -577,7 +577,7 @@ for testing.
 === Installing
 
 ----
-emc2$ halcmd loadrt sim-encoder num_chan=<number>
+halcmd: loadrt sim-encoder num_chan=<number>
 ----
 
 '<number>' is the number of encoders that you want to simulate. If not
@@ -587,7 +587,7 @@ defined by MAX_CHAN in sim_encoder.c).
 === Removing
 
 ----
-emc2$ halcmd unloadrt sim-encoder
+halcmd: unloadrt sim-encoder
 ----
 
 === Pins
@@ -631,7 +631,7 @@ applications where short pulses are to be rejected.
 === Installing
 
 ----
-emc2$ halcmd loadrt debounce cfg=<config-string>
+halcmd: loadrt debounce cfg=<config-string>
 ----
 
 '<config-string>'  is a series of comma separated decimal integers.
@@ -642,7 +642,7 @@ filters are in the group.
 For example:
 
 ----
-emc2$ halcmd loadrt debounce cfg=1,4,2
+halcmd: loadrt debounce cfg=1,4,2
 ----
 
 will install three groups of filters. Group 0 contains one filter,
@@ -661,7 +661,7 @@ filter 0.
 === Removing
 
 ----
-emc2$ halcmd unloadrt debounce
+halcmd: unloadrt debounce
 ----
 
 === Pins
@@ -703,7 +703,7 @@ sine waves. It is primarily used for testing.
 === Installing
 
 ----
-emc2$ halcmd loadrt siggen [num_chan=<chans>]
+halcmd: loadrt siggen [num_chan=<chans>]
 ----
 
 '<chans>' is the number of signal generators that you want to install.
@@ -717,7 +717,7 @@ start at 0).
 === Removing
 
 ----
-emc2$ halcmd unloadrt siggen
+halcmd: unloadrt siggen
 ----
 
 === Pins

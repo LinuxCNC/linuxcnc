@@ -26,8 +26,8 @@ exec $EMC2_EMCSH "$0" "$@"
 #  Copyright (c) 2006-2009 All rights reserved.
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 package require BWidget

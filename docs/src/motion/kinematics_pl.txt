@@ -1,5 +1,7 @@
 = Kinematics
 
+[[cha:kinematics]] (((Kinematics)))
+
 == Introduction
 
 When we talk about CNC machines, we usually think about machines that
@@ -17,7 +19,7 @@ CNC machines, and referring to the moving directions of the machine.]
 When we talk about a G-code program (RS274NGC) we talk about a number
 of commands (G0, G1, etc.) which have positions as parameters (X- Y-
 Z-). These positions refer exactly to Cartesian positions. Part of the
-EMC2 motion controller is responsible for translating those positions
+LinuxCNC motion controller is responsible for translating those positions
 into positions which correspond to the machine
 (((kinematics)))kinematics. footnote:[Kinematics: a two way function to
 transform from Cartesian space to joint space]
@@ -74,10 +76,10 @@ As one can see, it's pretty straightforward to do the transformation
 for a trivial "kins" (kinematics) or Cartesian machine. It gets a bit more
 complicated if the machine is missing one of the axes.footnote:[If a
 machine (e.g. a lathe) is set up with only the axes X,Z & A, and
-the EMC2 inifile holds only these 3 joints defined, then the above
+the LinuxCNC inifile holds only these 3 joints defined, then the above
 matching will be faulty. That is because we actually have (joint0=x,
 joint1=Z, joint2=A) whereas the above assumes joint1=Y. To make it
-easily work in EMC2 one needs to define all axes (XYZA), then use a
+easily work in LinuxCNC one needs to define all axes (XYZA), then use a
 simple loopback in HAL for the unused Y axis.] footnote:[One other 
 way of making it work, is by changing the matching code and 
 recompiling the software.]

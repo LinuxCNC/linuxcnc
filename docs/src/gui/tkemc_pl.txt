@@ -1,34 +1,34 @@
-= TkEMC GUI
+= TkLinuxCNC GUI
 
-[[cha:tkemc-gui]] (((TkEMC GUI)))
+[[cha:tklinuxcnc-gui]] (((TkLinuxCNC GUI)))
 
 == Introduction
 
-TkEMC(((tkemc))) is one of the most traditional graphical front-ends
-for EMC. It is written in Tcl(((Tcl))) and uses the Tk(((Tk))) toolkit
+TkLinuxCNC(((tkLinuxCNC))) is one of the most traditional graphical front-ends
+for LinuxCNC. It is written in Tcl(((Tcl))) and uses the Tk(((Tk))) toolkit
 for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
 shown.
 
-.TkEMC Window[[cap:TkEMC-Window]]
+.TkLinuxCNC Window[[cap:TkLinuxCNC-Window]]
 
 image::images/tkemc.png[align="center"]
 
 == Getting Started
 
-To select TkEMC as the front-end for EMC2, edit the .ini file. In the
+To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file. In the
 section '[DISPLAY]' change the 'DISPLAY' line to read
 
 ----
-DISPLAY = tkemc
+DISPLAY = tklinuxcnc
 ----
 
-Then, start EMC2 and select that ini file. The sample configuration
-'sim/tkemc.ini' is already configured to use TkEMC as its front-end.
+Then, start LinuxCNC and select that ini file. The sample configuration
+'sim/tkemc.ini' is already configured to use TkLinuxCNC as its front-end.
 
-=== A typical session with TkEMC
+=== A typical session with TkLinuxCNC
 
-. Start EMC2 and select a configuration file.
+. Start LinuxCNC and select a configuration file.
 . Clear the 'E-STOP' condition and turn the machine on (by
  pressing F1 then F2).
 . 'Home' each axis.
@@ -37,14 +37,14 @@ Then, start EMC2 and select that ini file. The sample configuration
 . Set the proper offsets for each axis by jogging and either homing
  again or right-clicking an axis name and entering an offset value.
  footnote:[For some of these actions it might be necessary to change the
- mode EMC2 is currently running in.]
+ mode LinuxCNC is currently running in.]
 . Run the program.
 . To mill the same file again, return to step 6. To mill a different
- file, return to step 4. When you're done, exit EMC2.
+ file, return to step 4. When you're done, exit LinuxCNC.
 
-== Elements of the TkEMC window
+== Elements of the TkLinuxCNC window
 
-The TkEMC window contains the following elements:
+The TkLinuxCNC window contains the following elements:
 
 * A menubar that allows you to perform various actions
 * A set of buttons that allow you to change the current working mode,
@@ -89,7 +89,7 @@ The main part of the display shows the current position of the tool.
 The color of the position readout depends on the state of the axis. If
 the axis is unhomed the axis will be displayed in yellow letters. Once
 homed it will be displayed in green letters. If there is an error with
-the current axis TkEMC will use red letter to show that. (for example
+the current axis TkLinuxCNC will use red letter to show that. (for example
 if an hardware limit switch is tripped).
 
 To properly interpret these numbers, refer to the radio boxes on the
@@ -120,7 +120,7 @@ start the backplot window by selecting View\->Backplot.
 
 ==== Buttons for control
 
-The buttons in the lower part of TkEMC are used to control the execution of a
+The buttons in the lower part of TkLinuxCNC are used to control the execution of a
 program: 'Open' to load a program, 'Verify' to
 check it for errors, 'Run' to start the actual cutting,
 'Pause' to stop it while running, 'Resume' to
@@ -129,7 +129,7 @@ in the program and 'Optional Stop' to toggle the
 optional stop switch (if the button is green the program execution will
 be stopped on any M1 encountered).
 
-.TkEMC Interpreter / program control[[cap:TkEMC-Interpreter]]
+.TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
 image::images/tkemc-interp.png[align="center"]
 
 ==== Text Program Display Area
@@ -142,7 +142,7 @@ show the current line.
 
 ==== Implicit keys
 
-TkEMC allows you to manually move the machine. This action is known as
+TkLinuxCNC allows you to manually move the machine. This action is known as
 'jogging'. First, select the axis to be moved by clicking it. Then,
 click and hold the '+' or '-' button depending on the desired direction
 of motion. The first four axes can also be moved by the keyboard arrow keys 
@@ -165,7 +165,7 @@ permitted to jog outside the limits defined in the .ini file. (Note: if
 'Override Limits' is active the button will be displayed using a red
 color).
 
-.TkEMC Override Limits & Jogging increments example[[cap:Override-Limits]]
+.TkLinuxCNC Override Limits & Jogging increments example[[cap:Override-Limits]]
 
 image::images/tkemc-override-limits.png[align="center"]
 
@@ -233,13 +233,13 @@ entered.
 
 == Keyboard Controls
 
-Almost all actions in TkEMC can be accomplished with the keyboard.
+Almost all actions in TkLinuxCNC can be accomplished with the keyboard.
 Many of the shortcuts are unavailable when in MDI mode.
 
 The most frequently used keyboard shortcuts are shown in the
 following table.
 
-.Most Common Keyboard Shortcuts[[cap:Tkemc-Common-Keyboard]]
+.Most Common Keyboard Shortcuts[[cap:TkLinuxCNC-Common-Keyboard]]
 
 [width="75%", options="header", cols="1^,3<"]
 |========================================

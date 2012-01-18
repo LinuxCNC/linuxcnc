@@ -15,11 +15,11 @@ To view the information in the man page, in a terminal window type:
 man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
 [horizontal]
-axis:: AXIS EMC (The Enhanced Machine Controller) Graphical User Interface.
+axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface.
 axis-remote:: AXIS Remote Interface.
-comp:: Build, compile and install EMC HAL components.
-emc:: EMC (The Enhanced Machine Controller).
-gladevcp:: Virtual Control Panel for EMC2 based on Glade, Gtk and HAL widgets.
+comp:: Build, compile and install LinuxCNC HAL components.
+emc:: LinuxCNC (The Enhanced Machine Controller).
+gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets.
 gs2:: HAL userspace component for Automation Direct GS2 VFD's.
 halcmd:: Manipulate the Enhanced Machine Controller HAL from the command line.
 hal_input:: Control HAL pins with any Linux input device, including USB HID devices.
@@ -27,10 +27,10 @@ halmeter:: Observe HAL pins, signals, and parameters.
 halrun:: Manipulate the Enhanced Machine Controller HAL from the command line.
 halsampler:: Sample data from HAL in realtime.
 halstreamer:: Stream file data into HAL in real time.
-halui:: Observe HAL pins and command EMC through NML.
+halui:: Observe HAL pins and command LinuxCNC through NML.
 io:: Accepts NML I/O commands, interacts with HAL in userspace.
 iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
-pyvcp:: Virtual Control Panel for EMC2.
+pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
 == Realtime Components[[sec:Realtime-Components]]
@@ -143,7 +143,7 @@ invert:: (((invert)))Compute the inverse of the input signal.
 
 joyhandle:: (((joyhandle)))Sets nonlinear joypad movements, deadbands and scales. 
 
-kins:: (((kins)))kinematics definitions for EMC2. 
+kins:: (((kins)))kinematics definitions for LinuxCNC. 
 
 knob2float:: (((knob2float)))Convert counts (probably from an encoder) to a float value. 
 

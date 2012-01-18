@@ -21,21 +21,21 @@ FAIL () {
 }
 
 # These should succeed
-SUCCEED ./emc_module_helper insert /lib/modules/rtapi.ko
-SUCCEED ./emc_module_helper insert /lib/modules/cheese/rtapi.o
+SUCCEED ./linuxcnc_module_helper insert /lib/modules/rtapi.ko
+SUCCEED ./linuxcnc_module_helper insert /lib/modules/cheese/rtapi.o
 
-SUCCEED ./emc_module_helper remove rtapi
+SUCCEED ./linuxcnc_module_helper remove rtapi
 
 # These should fail
-FAIL ./emc_module_helper insert /lib/modules/../../rtapi.ko
-FAIL ./emc_module_helper insert /lib/modules/rtapi.ok
-FAIL ./emc_module_helper insert /lib/modules/rtapi.oo
-FAIL ./emc_module_helper insert /lib/modules/rtapicheese.ko
-FAIL ./emc_module_helper insert /lib/modules/r.ko
-FAIL ./emc_module_helper insert /lib/modules/rtapi.cheese.ko
-FAIL ./emc_module_helper insert /lib/modules/.cheese.ko
-FAIL ./emc_module_helper insert /lib/modules/.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/../../rtapi.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.ok
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.oo
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapicheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/r.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.cheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/.cheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/.ko
 
-FAIL ./emc_module_helper remove rtapicheese
-FAIL ./emc_module_helper remove r
-FAIL ./emc_module_helper remove rtapi.cheese
+FAIL ./linuxcnc_module_helper remove rtapicheese
+FAIL ./linuxcnc_module_helper remove r
+FAIL ./linuxcnc_module_helper remove rtapi.cheese

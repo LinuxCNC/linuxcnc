@@ -1,0 +1,107 @@
+# Execute this file in the context of your shell, such as with
+#  . @EMC2_HOME@/scripts/rip-environment
+# and your shell environment will be properly configured to run commands like
+# comp, halcmd, halrun, iosh, and python with the emc modules available.
+
+#    Copyright 2006, 2007, 2008, 2009 Jeff Epler <jepler@unpythonic.net>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+case "$0" in
+    rip-environment|*/rip-environment)
+	cat <<EOF
+This script should be loaded in the context of your shell, by executing
+	. $0
+not executed as a separate command.
+EOF
+	exit 1 ;;
+esac
+
+if ! test "xyes" = "x@RUN_IN_PLACE@"; then
+    echo "This script is only useful on run-in-place systems."
+    return
+fi
+
+case "$PATH" in
+    @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
+	echo "This script only needs to be run once per shell session."
+	return ;;
+esac
+
+EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
+EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
+EMC2_EMCSH=@WISH@; export EMC2_EMCSH
+PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
+
+if [ -z "$TCLLIBPATH" ]; then
+    TCLLIBPATH=$EMC2_HOME/tcl
+else
+    TCLLIBPATH=$EMC2_HOME/tcl:$TCLLIBPATH
+fi
+
+if [ -z "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=$EMC2_HOME/lib
+else
+    LD_LIBRARY_PATH=$EMC2_HOME/lib:"$LD_LIBRARY_PATH"
+fi
+
+if [ -z "$PYTHONPATH" ]; then
+    PYTHONPATH=$EMC2_HOME/lib/python
+else
+    PYTHONPATH=$EMC2_HOME/lib/python:"$PYTHONPATH"
+fi
+
+if [ -z "$MANPATH" ]; then
+    if type -path manpath > /dev/null 2>&1; then
+	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
+    else
+	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+    fi
+else
+    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
+fi
+
+if [ -z "$GLADE_CATALOG_PATH" ]; then
+    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp
+else
+    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_PATH"
+fi
+
+# TODO: if these completion directives give trouble for any versions
+# of bash actively in use, protect them with checks of BASH_VERSINFO
+if [ $BASH_VERSINFO -eq 2 ]; then
+    complete -o dirnames -f -X '!*.ini' emc axis mdi
+    complete -o dirnames -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+    complete -C "halcmd -C" halcmd
+else
+    _iningc () {
+        case "$3" in 
+        *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
+        *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+        esac
+    }
+    complete -o plusdirs -F _iningc emc axis
+    complete -o plusdirs -f -X '!*.ini' mdi
+    complete -o plusdirs -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+    complete -C "halcmd -C" halcmd
+fi
+
+if [ -f $EMC2_HOME/src/Makefile ]; then
+    build () { make -C $EMC2_HOME/src "$@"; }
+fi
+
+export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH GLADE_CATALOG_PATH

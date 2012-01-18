@@ -20,7 +20,7 @@ exec $EMC2_EMCSH "$0" "$@"
 #
 ###############################################################
 
-source [file join [file dirname [info script]] .. emc.tcl]
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 # check if any emc commands exist, and quit if not

@@ -6,9 +6,9 @@
 
 Halcmd is a command line tool for manipulating the HAL. There is a
 rather complete man page for halcmd, which will be installed if you
-have installed EMC2 from either source or a package. If you have
-compiled EMC2 for “run-in-place”, the man page is not installed, but it
-is accessible. From the main EMC2 directory, do:
+have installed LinuxCNC from either source or a package. If you have
+compiled LinuxCNC for “run-in-place”, the man page is not installed, but it
+is accessible. From the main LinuxCNC directory, do:
 
 ----
 man -M docs/man halcmd

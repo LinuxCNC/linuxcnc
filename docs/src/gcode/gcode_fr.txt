@@ -810,7 +810,7 @@ suivi d'un mouvement rapide à la position prédéfinie dans les paramètres 518
 *G30.1* enregistre la position absolue courante dans les paramètres 5181-5186.
 
 Les paramètres de *G30* peuvent être utilisés pour déplacer l'outil quand un M6 est programmé 
-et que la variable *[TOOL_CHANGE_AT_G30]=1* dans la section [EMCIO] du fichier ini.
+et que la variable [TOOL_CHANGE_AT_G30]=1 dans la section [EMCIO] du fichier ini.
 
 C'est une erreur si:
 
@@ -887,7 +887,7 @@ Un mouvement de taraudage rigide suit cette séquence:
    (ex: de 300tr/mn sens anti-horaire à 300tr/mn sens horaire)
 * Le mouvement reste synchronisé même *au delà* des coordonnées initiales 
    pendant que la broche s'arrête, puis s'inverse.
-* Un mouvement *non synchronisé* ramène le mobile en arrière, aux coordonnées initiales.
+* Un mouvement _non synchronisé_ ramène le mobile en arrière, aux coordonnées initiales.
 
 Tous les mouvements avec broche synchronisée ont besoin d'un index de broche, 
 pour conserver la trajectoire prévue. 

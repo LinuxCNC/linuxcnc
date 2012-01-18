@@ -39,13 +39,13 @@
 == M0, M1 Program Pause[[sec:M0-M1]]
 (((M0 Program Pause)))(((M1 Program Optional Pause)))
 
-* 'M0' - pause a running program temporarily. EMC2 remains
+* 'M0' - pause a running program temporarily. LinuxCNC remains
          in the Auto Mode so MDI and other manual actions
          are not enabled. Pressing the cycle start button
          will restart the program at the following line.
 
 * 'M1' - pause a running program temporarily if the optional
-         stop switch is on. EMC2 remains in the Auto Mode
+         stop switch is on. LinuxCNC remains in the Auto Mode
          so MDI and other manual actions are not enabled.
          Pressing the cycle start button
          will restart the program at the following line.
@@ -206,7 +206,7 @@ and the motion will be executed at programmed feed rate.
  
 When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
-to set the actual feed rate. In EMC2, the HAL pin 'motion.adaptive-feed'
+to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
 from 0 (feed hold) to 1 (full speed).
 
@@ -215,7 +215,7 @@ from 0 (feed hold) to 1 (full speed).
 
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
                Enabling the feed stop switch will allow motion to be
-               interrupted by means of the feed stop control. In EMC2,
+               interrupted by means of the feed stop control. In LinuxCNC,
                the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'
                value will cause the motion to stop when 'M53' is active.
 
@@ -227,7 +227,7 @@ from 0 (feed hold) to 1 (full speed).
 (((M61 Set Current Tool Number)))
 
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode.
-             One use is when you power up EMC with a tool currently in
+             One use is when you power up LinuxCNC with a tool currently in
              the spindle you can set that tool number without doing a tool change.
 
 It is an error if:
@@ -251,7 +251,7 @@ It is an error if:
 
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
-the motion controller. See the Integrator's Manual Configuration Section EMC and
+the motion controller. See the Integrator's Manual Configuration Section LinuxCNC and
 HAL section for more information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
@@ -300,14 +300,14 @@ M66 wait on an input stops further execution of the program, until the
 selected event (or the programmed timeout) occurs.
 
 It is an error to program M66 with both a P-word and an E-word (thus
-selecting both an analog and a digital input).In EMC2 these inputs are
+selecting both an analog and a digital input).In LinuxCNC these inputs are
 not monitored in real time and thus should not be used for
 timing-critical applications.
 
 The number of I/O can be increased
 by using the num_dio or num_aio parameter when
 loading the motion controller. See the Integrator's
-Manual, Configuration Section, EMC and HAL subsection, for more
+Manual, Configuration Section, LinuxCNC and HAL subsection, for more
 information. 
 
 == M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
@@ -328,7 +328,7 @@ the same as M62-63.
 
 The number of I/O can be increased by
 using the num_aio parameter when loading the motion controller. See the
-'EMC2 and HAL' chapter in the Configuration Section of the Integrator
+'LinuxCNC and HAL' chapter in the Configuration Section of the Integrator
 Manual for more information on the Motion Controller.
 
 == M68 Analog Output[[sec:M68-Analog-Output]]
@@ -346,7 +346,7 @@ controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the
-num_aio parameter when loading the motion controller. See the 'EMC2 and
+num_aio parameter when loading the motion controller. See the 'LinuxCNC and
 HAL' chapter in the Configuration Section of the Integrator's Manual for
 more information on the Motion Controller. 
 
@@ -575,7 +575,7 @@ The error 'Unknown M code used' denotes one of the following
 For example to open and close a collet closer that is controlled by a
 parport pin using a bash script file using M101 and M102. Create two
 files named M101 and M102. Set them as executable files (typically
-right click/properties/permissions) before running EMC2. Make sure the
+right click/properties/permissions) before running LinuxCNC. Make sure the
 parport pin is not connected to anything in a HAL file.
 
 .M101 Example File
@@ -607,6 +607,17 @@ voltage=$1
 feedrate=$2
 halcmd setp thc.voltage $voltage
 halcmd setp thc.feedrate $feedrate
+exit 0
+----
+
+To display a graphic message and stop until the message window is closed
+use a graphic display program like Eye of Gnome to display the graphic
+file. When you close it the program will resume.
+
+.M110 Example file
+----
+#!/bin/bash
+eog /home/john/linuxcnc/nc_files/message.png
 exit 0
 ----
 
