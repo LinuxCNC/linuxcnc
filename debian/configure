@@ -1,5 +1,5 @@
 #!/bin/bash
-# dpkg configuration script for emc2
+# dpkg configuration script for linuxcnc
 # Copyright (C) 2006 Jeff Epler
 #
 # This program is free software; you can redistribute it and/or modify
@@ -57,7 +57,7 @@ fi
 
 TARGET=$1
 
-MODULE_PATH=usr/realtime-$1/modules/emc2
+MODULE_PATH=usr/realtime-$1/modules/linuxcnc
 MODULE_EXT=.ko
 KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
 KERNEL_HEADERS=linux-headers-$1
@@ -76,8 +76,8 @@ elif [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-if [ -d extras-$DISTRIB_NAME/emc2.files ]; then
-	EXTRAS=extras-$DISTRIB_NAME/emc2-files
+if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
+	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
 else
 	EXTRAS=extras
 fi
@@ -118,17 +118,17 @@ Debian-5.0*)
 esac
 
 DOC_BUILD=
-EMC2_PACKAGE_NAME=emc2
+MAIN_PACKAGE_NAME=linuxcnc
 case $TARGET in
     sim)
-        MODULE_PATH=usr/lib/emc2/modules
+        MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
 	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
-	EMC2_PACKAGE_NAME=emc2-sim
+	MAIN_PACKAGE_NAME=linuxcnc-sim
     ;;
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
@@ -154,7 +154,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
-    -e "s|@EMC2_PACKAGE_NAME@|$EMC2_PACKAGE_NAME|g" \
+    -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
@@ -168,21 +168,21 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 subst control.in > control
 
 if [ "$TARGET" == "sim" ]; then
-    cp emc2-dev.files.in emc2-sim-dev.files
+    cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
 else
-    cp emc2-dev.files.in emc2-dev.files
-    echo "$MODULE_PATH/Module.symvers" >> emc2-dev.files
+    cp linuxcnc-dev.files.in linuxcnc-dev.files
+    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
 fi
 
 subst rules.in > rules; chmod +x rules
 
-if [ -f $EXTRAS/emc2.files ]; then
-    subst emc2.files.in $DRIVERS $EXTRAS/emc2.files > $EMC2_PACKAGE_NAME.files
+if [ -f $EXTRAS/linuxcnc.files ]; then
+    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
 else
-    subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
+    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
 fi
 
-DOCS_PACKAGES=$(echo emc2-doc-{en,fr,de,es,pl})
+DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,de,es,pl})
 for P in $DOCS_PACKAGES; do
     if [ -f $EXTRAS/$P.files ]; then
         cat $P.files.in $EXTRAS/$P.files > $P.files
