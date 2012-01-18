@@ -402,4 +402,15 @@ halcmd setp thc.feedrate $feedrate
 exit 0
 ----
 
+To display a graphic message and stop until the message window is closed
+use a graphic display program like Eye of Gnome to display the graphic
+file. When you close it the program will resume.
+
+.M110 Example file
+----
+#!/bin/bash
+eog /home/john/emc2/nc_files/message.png
+exit 0
+----
+
 // vim: set syntax=asciidoc:
