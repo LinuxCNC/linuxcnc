@@ -1,7 +1,7 @@
 TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing preferences
 
 PYTARGETS += ../bin/touchy ../lib/python/touchy/__init__.py $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
-	../share/emc/touchy.glade
+	../share/linuxcnc/touchy.glade
 PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.py,$(TOUCHY_MODULES)) \
 	emc/usr_intf/touchy/touchy.glade
 
@@ -16,7 +16,7 @@ PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.p
 	$(Q)mkdir -p ../lib/python/touchy
 	$(Q)cp $< $@
 
-../share/emc/touchy.glade: emc/usr_intf/touchy/touchy.glade
+../share/linuxcnc/touchy.glade: emc/usr_intf/touchy/touchy.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@

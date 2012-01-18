@@ -472,13 +472,13 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
+    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
+    DEFAULT_NMLFILE=${prefix}/share/emc/linuxcnc.nml
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 

@@ -61,10 +61,10 @@ LANGUAGES = @LANGUAGES@
 #still needs discussion
 # do we really need these?
 initd_dir = /etc/init.d
-docsdir = ${prefix}/share/doc/emc2
-sampleconfsdir = ${prefix}/share/doc/emc2/examples/sample-configs
-ncfilesdir = ${prefix}/share/emc/ncfiles
-tcldir = ${prefix}/lib/tcltk/emc2
+docsdir = ${prefix}/share/doc/linuxcnc
+sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
+ncfilesdir = ${prefix}/share/linuxcnc/ncfiles
+tcldir = ${prefix}/lib/tcltk/linuxcnc
 
 
 # /Standard configure directories
