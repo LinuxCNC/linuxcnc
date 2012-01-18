@@ -70,7 +70,7 @@ details which are at the very edges of the images will not be cut off.
 
 When a series of points are within 'tolerance' of being a straight
 line, they are output as a straight line.
-Increasing tolerance can lead to better contouring performance in EMC2,
+Increasing tolerance can lead to better contouring performance in LinuxCNC,
 but can also remove or blur small details in the image.
 
 === Pixel Size (units)
