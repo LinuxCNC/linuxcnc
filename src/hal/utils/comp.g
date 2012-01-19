@@ -266,7 +266,7 @@ static int comp_id;
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
-        print >>f, "MODULE_INFO(emc2, %s);" % q(v)
+        print >>f, "MODULE_INFO(linuxcnc, %s);" % q(v)
         license = finddoc('license')
     if license and license[1]:
         print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
@@ -634,7 +634,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal %s" % (
+    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
@@ -722,7 +722,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
+    print >>f, ".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), time.strftime("%F"))
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
@@ -919,7 +919,7 @@ def process(filename, mode, outfilename):
         shutil.rmtree(tempdir) 
 
 def usage(exitval=0):
-    print """%(name)s: Build, compile, and install EMC HAL components
+    print """%(name)s: Build, compile, and install LinuxCNC HAL components
 
 Usage:
            %(name)s [--compile|--preprocess|--document|--view-doc] compfile...
