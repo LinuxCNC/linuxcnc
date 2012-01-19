@@ -15,7 +15,7 @@ l'affichage de l'interface graphique.
 [[cap:Fenetre-AXIS]]
 .Fenêtre d'AXIS
 
-image::images/axis_2.3_fr.png[]
+image::images/axis_2.5_fr.png[]
 
 == Commencer avec AXIS
 
@@ -1007,9 +1007,8 @@ source Python juste avant l'ouverture de
 l'interface graphique d'AXIS. Les détails de ce qui peut être écrit
 dans .axisrc sont sujets à changement durant le cycle de développement.
 
-Les lignes visibles sur la figure <<cap:Exemple-de-fichier-axisrc>>
-ajoutent un Ctrl+Q comme raccourci clavier pour Quitter et activer
-l'option _Distance restante_ par défaut.
+Les lignes visibles ci-dessous ajoutent un Ctrl+Q comme raccourci clavier
+pour Quitter et activer l'option _Distance restante_ par défaut.
 
 .Exemple de fichier .axisrc[[cap:Exemple-de-fichier-axisrc]]
 ----

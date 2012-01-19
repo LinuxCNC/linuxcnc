@@ -11,7 +11,7 @@ avant d'essayer de démarrer un fichier de G-code.
 === La planification de trajectoire
 
 La planification de trajectoire est en général, le moyen qui permet à
-EMC2 de suivre le chemin spécifié par le programme G-code, tout en
+LinuxCNC de suivre le chemin spécifié par le programme G-code, tout en
 restant dans les limites permises par la machine.
 
 Un programme en G-code ne peut jamais être exactement suivi. Par
@@ -68,7 +68,7 @@ G61.1::
 
 G64::
      (mode trajectoire continue sans tolérance) Le mode G64 est le mode
-    par défaut au démarrage d'EMC2. G64 est juste une trajectoire continue,
+    par défaut au démarrage de LinuxCNC. G64 est juste une trajectoire continue,
     le 'naive cam detector' n'est pas activé. G64 et G64 P0 indiquent au
     planificateur de sacrifier la précision de suivi du parcours pour
     conserver une vitesse d'avance élevée. Ce mode est nécessaire pour
@@ -179,14 +179,14 @@ que de _5^2^/100 = 25/100 = 0.25mm_.
 
 === Par défaut
 
-Quand EMC2 démarre pour la première fois beaucoup de G et M codes sont
+Quand LinuxCNC démarre pour la première fois beaucoup de G et M codes sont
 chargés par défaut. Les codes actifs courants sont visibles dans l'interface
 Axis, dans l'onglet _Données manuelles_ dans le champ _G-codes actifs_
-Ces codes G et M définissent le comportement d'EMC2 et il est important
-de bien comprendre la signification de chacun avant de démarrer EMC2.
+Ces codes G et M définissent le comportement de LinuxCNC et il est important
+de bien comprendre la signification de chacun avant de démarrer LinuxCNC.
 Ces codes par défaut peuvent être modifiés lors du lancement d'un fichier
 de G-codes puis laissés dans différents états qui seront identiques lors
-d'une nouvelle session d'EMC2. La bonne pratique consiste à mettre dans
+d'une nouvelle session de LinuxCNC. La bonne pratique consiste à mettre dans
 le préambule de chaque fichier de G-codes les codes nécessaires pour le
 travail demandé et ne pas supposer que ceux par défaut conviendront.
 Imprimer la page des références rapides du G-code peut aider à se rappeler
@@ -212,7 +212,7 @@ d'informations.
 
 == Prise d'origine machine
 
-Après le démarrage d'EMC2 chaque axe doit être référencé sur sont
+Après le démarrage de LinuxCNC chaque axe doit être référencé sur sont
 point d'origine machine avant tout mouvement ou commande MDI.
 
 Pour déroger à ce comportement par défaut, ou pour utiliser
@@ -230,13 +230,13 @@ sections G28 et G30 du manuel de l'utilisateur.
 
 Les systèmes de coordonnées peuvent être déroutant au premier abord.
 Avant de démarrer une machine CNC, il est important de bien comprendre
-les bases des systèmes utilisés par EMC. Pour explorer plus en profondeur
-les systèmes de coordonnées utilisés par EMC, voir la section xxxxx
+les bases des systèmes utilisés par LinuxCNC. Pour explorer plus en profondeur
+les systèmes de coordonnées utilisés par LinuxCNC, voir la section xxxxx
 de ce manuel.
 
 === G53 Coordonnées machine
 
-Quand vous réalisez une prise d'origine de plusieurs axes d'EMC2,
+Quand vous réalisez une prise d'origine de plusieurs axes de LinuxCNC,
 vous passez G53, les coordonnées système, à 0 pour chacun des axes concernés.
 
  - La prises d'origine ne modifient en rien les autres systèmes de coordonnées,
@@ -258,7 +258,7 @@ Modifiez la valeur du mot *P* en fonction du système de coordonnées dont vous 
 effacer le décalage.
 
  -  Les décalages stockés dans un système de coordonnées utilisateur sont conservés
-   à l'arrêt d'EMC2.
+   à l'arrêt de LinuxCNC.
  -  Dans Axis, utiliser le bouton _Toucher_ décalera le système de coordonnées utilisateur
    choisi.
 

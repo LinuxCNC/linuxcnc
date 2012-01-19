@@ -1,10 +1,9 @@
 :lang: fr
 :toc:
 
-Mises à jour d'EMC2
-===================
+= Mises à jour de LinuxCNC
 
-  
+
 == Mise à jour 2.4.x à 2.5.x
 
 Auncun changement de configuration n'est nécessaire pour passer de 2.4.x à 2.5.x
@@ -12,12 +11,12 @@ Auncun changement de configuration n'est nécessaire pour passer de 2.4.x à 2.5
 == Mise à jour 2.3.x à 2.4.x
 
 Les instructions suivantes s’appliquent à Ubuntu 8.04 "Hardy Heron". 
-EMC 2.4 n'est pas disponible pour des versions plus anciennes de Ubuntu.
+LinuxCNC 2.4 n'est pas disponible pour des versions plus anciennes de Ubuntu.
 
 En raison de plusieurs incompatibilités mineures entre les versions 2.3.5 et 2.4.x,
 votre installation existante ne sera pas automatiquement mise à jour vers la version 
 2.4.x. Si vous voulez exécuter la version 2.4.x, veuillez modifier 
-le dépôt EMC-2.4 en suivant ces instructions :
+le dépôt LinuxCNC-2.4 en suivant ces instructions :
 
 Lancez Système/Administration/Gestionnaire de paquets Synaptic
 Sélectionnez Configuration/Dépôt
@@ -59,10 +58,10 @@ Pour les configurations qui n'ont pas personnalisé emc.nml,
 un changement similaire est requis.
 
 Un échec de cette opération provoque une erreur comme: 
----------------------------------- 
+----
 libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: 
 Can't write 10748 bytes at offset 60 from buffer of size 10208.
-----------------------------------
+----
 
 === Changements de la table d'outils (2.3.x to 2.4.x) 
 

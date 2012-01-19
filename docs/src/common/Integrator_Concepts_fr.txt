@@ -8,10 +8,10 @@
 // et de ses paramètres
 
 Période de base (BASE_PERIOD) est le *métronome* de 
-l'ordinateur d'EMC2. footnote:[Cette section fait référence à 
-l'utilisation de *stepgen* le générateur de pas intégré à EMC2. 
+l'ordinateur de LinuxCNC. footnote:[Cette section fait référence à 
+l'utilisation de *stepgen* le générateur de pas intégré à LinuxCNC. 
 Certains dispositifs matériels ont leur propre générateur de pas 
-et n'utilisent pas celui incorporé à EMC. Dans ce cas se référer 
+et n'utilisent pas celui incorporé à LinuxCNC. Dans ce cas se référer 
 au manuel du matériel concerné.] A chaque période le logiciel de 
 génération de pas calcule si c'est le moment pour une autre impulsion 
 de pas. Une période de base plus courte permet de produire plus 
@@ -42,11 +42,11 @@ et de 16129 pas par seconde dans un autre mode.
 Le problème est qu'avec les exigences de 20us pour le maintien 
 du signal et les 11 µs de latence cela nous force à utiliser une 
 période défavorable de 31 µs. Mais le générateur de pas du 
-logiciel EMC2 a quelques paramètres qui nous laissent régler 
+logiciel LinuxCNC a quelques paramètres qui nous laissent régler 
 les divers temps d'une période de différentes manières.
 
 Par exemple, si *steplen* footnote:[Steplen se réfère à un paramètre 
-qui ajuste la performance du générateur de pas incorporé à EMC2, 
+qui ajuste la performance du générateur de pas incorporé à LinuxCNC, 
 *stepgen*, qui est un composant de HAL. Ce paramètre ajuste 
 la longueur de l'impulsion de pas. Continuez à lire, on expliquera 
 tous finalement.] est changé de 1 à 2, alors il y aura deux 
@@ -123,11 +123,11 @@ de l'état que les entrées et sorties avaient *avant*. Si cela n'aide
 pas, alors passons.]
 
 Si *tout* contrôle *tout le reste* comment cela peut-il fonctionner, qui 
-en a la charge ? La réponse est que EMC2 *peut* contrôler ce système, 
+en a la charge ? La réponse est que LinuxCNC *peut* contrôler ce système, 
 mais il doit le faire en choisissant une des différentes méthodes 
 de contrôle.
 
-La méthode de contrôle qu'utilise EMC2, est l'une des plus simples 
+La méthode de contrôle qu'utilise LinuxCNC, est l'une des plus simples 
 et la meilleure appelée PID.
 PID est l'acronyme de *P*roportionnelle, *I*ntégrale et *D*érivée. 
 La valeur proportionnelle détermine la réaction à l'erreur actuelle, 
@@ -135,7 +135,7 @@ la valeur intégrale détermine la réaction basée sur la somme d'erreurs
 récentes et la valeur dérivée détermine la réaction basée sur 
 la vitesse de variation de l'erreur. Ce sont trois techniques communes 
 de mathématique qui sont appliquées pour fournir un processus de suivi 
-d'une consigne. Dans le cas d'EMC2 le processus que nous 
+d'une consigne. Dans le cas de LinuxCNC le processus que nous 
 voulons contrôler est l'actuelle position de l'axe et le point de 
 consigne qui est la position commandée l'axe.
 
@@ -242,11 +242,11 @@ et différentes fonctions, dont la plupart interfèrent avec les
 performances du système temps réel. (Pour par exemple: la gestion de 
 l'énergie, la réduction de puissance du processeur, la variation de 
 fréquence du CPU, etc.)
-Le noyau EMC2 (et probablement tous les noyaux RTAI-patché) ont les 
+Le noyau LinuxCNC (et probablement tous les noyaux RTAI-patché) ont les 
 fonctions ACPI désactivées. ACPI prend également soin de mettre hors 
 tension le système après qu'un arrêt système a été commandé, et 
 c'est pourquoi vous pourriez avoir besoin de presser sur le bouton 
 d'alimentation pour éteindre complètement votre ordinateur. 
 Le groupe RTAI a amélioré cela dans les versions récentes, de sorte 
-que votre système EMC2 peut éteindre le système par lui-même.
+que votre système LinuxCNC peut éteindre le système par lui-même.
 

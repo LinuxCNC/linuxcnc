@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-18 22:51+0100\n"
-"PO-Revision-Date: 2012-01-19 00:28+0100\n"
+"PO-Revision-Date: 2012-01-19 19:14+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -2836,9 +2836,8 @@ msgid "no endsub found in file"
 msgstr "pas de endsub dans le fichier"
 
 #: ../tcl/ngcgui.tcl:961
-#, fuzzy
 msgid "Choose Files"
-msgstr "Fichier d'outils"
+msgstr "Choisir fichiers"
 
 #: ../tcl/ngcgui.tcl:1100
 msgid "Controls"
@@ -2898,14 +2897,12 @@ msgid "Unrecoverable problem"
 msgstr "Problème sans solution"
 
 #: ../tcl/ngcgui.tcl:1374
-#, fuzzy
 msgid "Postamble file"
-msgstr "Postambule"
+msgstr "Fichier postambule"
 
 #: ../tcl/ngcgui.tcl:1424
-#, fuzzy
 msgid "Subroutine file"
-msgstr "Sous-fichier"
+msgstr "Fichier sous-programme"
 
 #: ../tcl/ngcgui.tcl:1482
 msgid "Positional Parameters"
@@ -2917,55 +2914,47 @@ msgstr "_Globaux"
 
 #: ../tcl/ngcgui.tcl:1690
 msgid "No Subfile specified"
-msgstr ""
+msgstr "Aucun sous-fichier spécifié"
 
 #: ../tcl/ngcgui.tcl:1692
-#, fuzzy
 msgid "No parameters yet"
-msgstr " Para_mètres "
+msgstr "Pas encore de paramètre"
 
 #: ../tcl/ngcgui.tcl:1701
-#, fuzzy
 msgid "Missing value for parm"
-msgstr "Paramètres manquants"
+msgstr "Valeur de paramètre manquante"
 
 #: ../tcl/ngcgui.tcl:1735
-#, fuzzy
 msgid "Output file"
-msgstr "Info sortie"
+msgstr "Fichier de sortie"
 
 #: ../tcl/ngcgui.tcl:1827
-#, fuzzy
 msgid "Positional parameters for"
-msgstr "Paramètres de position"
+msgstr "Paramètres de position pour"
 
 #: ../tcl/ngcgui.tcl:1835
-#, fuzzy
 msgid "expanded file"
-msgstr "Fichier chargé:"
+msgstr "Fichier étendu"
 
 #: ../tcl/ngcgui.tcl:1849
-#, fuzzy
 msgid "call subroutine file"
-msgstr "Trop de niveaux de sous-programmes"
+msgstr "Appel de fichier sous-programme"
 
 #: ../tcl/ngcgui.tcl:1919
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Multiples onglets avec fonctionnalités"
 
 #: ../tcl/ngcgui.tcl:1920
-#, fuzzy
 msgid "Finalize all Tabs?"
-msgstr "Finalise l'abandon"
+msgstr "Finalise tous les onglets"
 
 #: ../tcl/ngcgui.tcl:1920
-#, fuzzy
 msgid "Order"
-msgstr "Autre"
+msgstr "Commande"
 
 #: ../tcl/ngcgui.tcl:1922
 msgid "No, just this page"
-msgstr ""
+msgstr "Non, juste cette page"
 
 #: ../tcl/ngcgui.tcl:1936
 msgid "Axis is not responding"
@@ -3032,9 +3021,8 @@ msgid "Enter parms for feature "
 msgstr "Entrer les paramètres pour la fonction"
 
 #: ../tcl/ngcgui.tcl:2282
-#, fuzzy
 msgid "feature"
-msgstr "porte-pièce"
+msgstr "fonctionnalité"
 
 #: ../tcl/ngcgui.tcl:2287
 msgid "Create Next"
@@ -3117,14 +3105,12 @@ msgid "Expand sub"
 msgstr "Déployer sous-programme"
 
 #: ../tcl/ngcgui.tcl:2407
-#, fuzzy
 msgid "Retain values"
-msgstr "alterner les valeurs retenues"
+msgstr "Valeurs retenues"
 
 #: ../tcl/ngcgui.tcl:2411
-#, fuzzy
 msgid "Verbose"
-msgstr "Fichier G-code clair"
+msgstr "Verbeux"
 
 #: ../tcl/ngcgui.tcl:2417
 msgid "Finalize Canceled"
@@ -3143,9 +3129,8 @@ msgid "Declining support for tk send bug in ngcgui"
 msgstr "Declining support for tk send bug in ngcgui"
 
 #: ../tcl/ngcgui.tcl:2601
-#, fuzzy
 msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
-msgstr "Vous devriez mettre EMC2 à jour avec EMC2.5"
+msgstr "Vous devez mettre LinuxCNC à jour avec LinuxCNC => v2.5"
 
 #: ../tcl/ngcgui.tcl:2645
 msgid "pre2.4_send_file_to_axis:error"
@@ -3233,44 +3218,39 @@ msgstr "le préambule courant"
 
 #: ../tcl/ngcgui.tcl:2865
 msgid " Escape Return to Preview page"
-msgstr ""
+msgstr "Échappe pour revenir à la page précédente"
 
 #: ../tcl/ngcgui.tcl:2942
 msgid "Editing requires setting for environmental variable VISUAL"
-msgstr ""
+msgstr "Pour l'édition, la variable d'environnement VISUAL doit être ajustée"
 
 #: ../tcl/ngcgui.tcl:2943
-#, fuzzy
 msgid "Trying gedit"
-msgstr "Trigger"
+msgstr "Essayer gedit"
 
 #: ../tcl/ngcgui.tcl:2955
-#, fuzzy
 msgid "No file available for editing yet"
-msgstr "Valeur non entière pour un entier"
+msgstr "Aucun fichier a éditer n'est encore disponible"
 
 #: ../tcl/ngcgui.tcl:2964 ../tcl/ngcgui.tcl:2973
-#, fuzzy
 msgid "No file available for editing"
-msgstr "Valeur non entière pour un entier"
+msgstr "Aucun fichier a éditer n'est disponible"
 
 #: ../tcl/ngcgui.tcl:2990
-#, fuzzy
 msgid "Status items"
-msgstr "Status:"
+msgstr "Items de status:"
 
 #: ../tcl/ngcgui.tcl:3003
 msgid "All-page opt items"
-msgstr ""
+msgstr "Items optionnels pour toutes les pages"
 
 #: ../tcl/ngcgui.tcl:3009
 msgid "any-items"
-msgstr ""
+msgstr "Tous les items"
 
 #: ../tcl/ngcgui.tcl:3046
-#, fuzzy
 msgid "Set defaults"
-msgstr "Options par défaut d'AXIS"
+msgstr "Fixe par défaut"
 
 #: ../tcl/ngcgui.tcl:3125
 msgid "not writable"
@@ -3281,9 +3261,8 @@ msgid "new"
 msgstr "nouveau"
 
 #: ../tcl/ngcgui.tcl:3288
-#, fuzzy
 msgid "Open a new Subfile"
-msgstr "Lecture sous-fichier"
+msgstr "Ouvrir un nouveau sous-fichier"
 
 #: ../tcl/ngcgui.tcl:3434
 msgid "remove"
@@ -3356,11 +3335,11 @@ msgstr "Fichier de configuration Ngcgui introuvable"
 
 #: ../tcl/ngcgui.tcl:3750
 msgid "Missing Tcl Package Img"
-msgstr ""
+msgstr "Paquet Tcl lmg manquant"
 
 #: ../tcl/ngcgui.tcl:3751
 msgid "Please install Img"
-msgstr ""
+msgstr "Installer Img"
 
 #: ../tcl/ngcgui.tcl:3950
 msgid "ini file"
@@ -3371,17 +3350,16 @@ msgid "not found"
 msgstr "introuvable"
 
 #: ../tcl/ngcgui_ttt.tcl:67
-#, fuzzy
 msgid "found truetype-tracer v4 -OK"
-msgstr "Utilise la font par défaut avec truetype-tracer"
+msgstr "truetype-tracer v4 trouvé -OK"
 
 #: ../tcl/ngcgui_ttt.tcl:70
 msgid "Note truetype-tracer v4 is required"
-msgstr ""
+msgstr "Note truetype-tracer v4 est requis"
 
 #: ../tcl/ngcgui_ttt.tcl:71
 msgid "Note: truetype-tracer v4 is required"
-msgstr ""
+msgstr "Note: truetype-tracer v4 est requis"
 
 #: ../tcl/ngcgui_ttt.tcl:81
 msgid "ngcgui_app.tcl must be loaded before"

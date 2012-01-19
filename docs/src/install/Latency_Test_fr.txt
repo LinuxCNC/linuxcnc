@@ -59,7 +59,7 @@ PC au maximum pour que le temps de latence soit mesuré dans le cas le plus
 défavorable et donc, connaitre la latence maximale. 
 
 [NOTE]
-Ne pas exécuter EMC2 ou Stepconf pendant que latency-test est 
+Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est 
 en cours d'exécution. 
 
 La colonne *_max jitter_* et la ligne *_Base Thread_* de l'exemple ci-dessus 
@@ -101,7 +101,7 @@ Pour ceux qui construisent leur matériel, il est facile et
 ajoutant une carte PCI fournissant un ou deux ports parallèles
 supplémentaires. Faire suivre ces ports d'une couche
 d'opto-isolation est utile pour éviter les courts circuits pouvant
-détruire la carte, voir même toute la carte mère. EMC2 supporte un
+détruire la carte, voir même toute la carte mère. LinuxCNC supporte un
 maximum de 8 ports parallèles.
 
 Certaines parmi les bonnes cartes parallèles sont à base de
@@ -160,7 +160,7 @@ exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc
 changer leur adressage selon le connecteur PCI dans lequel elles
 sont placées. Si l'installation des cartes PCI de
 la machine est modifiée, ne pas oublier de vérifier leurs adresses avant de
-lancer EMC2.
+lancer LinuxCNC.
 
 
 // vim: set syntax=asciidoc:
