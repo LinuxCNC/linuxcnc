@@ -300,6 +300,22 @@ function GetFromIni {
     fi
     echo "$name=$retval" >>$PRINT_FILE
 }
+
+# Usage:
+#  GetFromIniEx VAR1 SEC1 [VAR2 SEC2...VARn SECn] [default]
+function GetFromIniEx {
+    original_var="[$2]$1"
+    while [ $# -ge 2 ]; do
+	if retval=`$INIVAR -ini "$INIFILE" -var "$1" -sec "$2" 2>>$DEBUG_FILE`; then return; fi
+	shift 2
+    done
+    if [ $# -eq 0 ]; then
+	echo "Can't find $original_var in $INIFILE."
+	exit -1
+    fi
+    retval="$1"
+}
+
 # 2.2. get param file
 GetFromIni PARAMETER_FILE RS274NGC 
 RS274NGC_PARAMFILE=$retval
