@@ -1,4 +1,4 @@
-.TH rtapi_print "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_print "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_print, rtapi_print_msg \- print diagnostic messages

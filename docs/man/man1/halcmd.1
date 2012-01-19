@@ -27,7 +27,7 @@
 \\$2 \(laURL: \\$1 \(ra\\$3
 ..
 .if \n[.g] .mso www.tmac
-.TH HALCMD "1"  "2003-12-18" "EMC Documentation" "HAL User's Manual"
+.TH HALCMD "1"  "2003-12-18" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
 halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
 .SH SYNOPSIS
@@ -121,10 +121,10 @@ In systems with realtime, \fBhalcmd\fR calls the
 \fBlinuxcnc_module_helper\fR to load realtime modules.
 \fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
 a whitelist of modules it is allowed to load.  This is currently
-just a list of \fBEMC\fR-related modules.  The
+just a list of \fBLinuxCNC\fR-related modules.  The
 \fBlinuxcnc_module_helper\fR execs insmod, so return codes and error
 messages are those from insmod.  Administrators who wish to
-restrict which users can load these \fBEMC\fR-related kernel
+restrict which users can load these \fBLinuxCNC\fR-related kernel
 modules can do this by setting the permissions and group on
 \fBlinuxcnc_module_helper\fR appropriately.
 
@@ -342,8 +342,8 @@ halcmd \fB-i\fR flag.  They have the following formats:
 .SH BUGS
 None known at this time.
 .SH AUTHOR
-Original version by John Kasunich, as part of the Enhanced Machine
-Controller (EMC) project.  Now includes major contributions by several
+Original version by John Kasunich, as part of the LinuxCNC Enhanced Machine
+Controller project.  Now includes major contributions by several
 members of the project.
 .SH REPORTING BUGS
 Report bugs to the

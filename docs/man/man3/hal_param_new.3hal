@@ -1,4 +1,4 @@
-.TH hal_param_new "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.TH hal_param_new "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 hal_param_new \- Create a HAL parameter

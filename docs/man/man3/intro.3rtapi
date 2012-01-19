@@ -1,4 +1,4 @@
-.TH intro "3rtapi" "2006-10-02" "EMC Documentation" "RTAPI"
+.TH intro "3rtapi" "2006-10-02" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi \- Introduction to the RTAPI API

@@ -1,7 +1,7 @@
 .\" a large part of this file (the pin names and descriptions) came from
 .\" docs/src/config/emc2hal.lyx 
 .\"
-.TH MOTION "9" "2007-08-25" "EMC Documentation" "HAL Component" 
+.TH MOTION "9" "2007-08-25" "LinuxCNC Documentation" "HAL Component" 
 .de TQ
 .br
 .ns
@@ -14,7 +14,7 @@ motion \- accepts NML motion commands, interacts with HAL in realtime
 \fBloadrt motmod [base_period_nsec=\fIperiod\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
 
 .SH DESCRIPTION
-These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for EMC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
+These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for LinuxCNC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
 
 .P
 Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.

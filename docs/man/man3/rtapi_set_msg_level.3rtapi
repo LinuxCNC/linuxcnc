@@ -1,4 +1,4 @@
-.TH rtapi_set_msg_level "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_set_msg_level "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_get_msg_level, rtapi_set_msg_level \- Get or set the logging level

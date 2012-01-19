@@ -23,15 +23,15 @@
 .\"
 .\"
 .\"
-.TH EMC "1"  "2006-02-20" "EMC Documentation" "The Enhanced Machine Controller"
+.TH LinuxCNC "1"  "2006-02-20" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-emc \- EMC (The Enhanced Machine Controller)
+emc \- LinuxCNC (The Enhanced Machine Controller)
 .SH SYNOPSIS
 .B emc
 [\fI-v\fR] [\fI-d\fR] [\fIINIFILE\fR]
 .SH DESCRIPTION
-\fBemc\fR is used to start EMC (The Enhanced Machine Controller). It
-starts the realtime system and then initializes a number of EMC
+\fBemc\fR is used to start LinuxCNC (The Enhanced Machine Controller). It
+starts the realtime system and then initializes a number of LinuxCNC
 components (IO, Motion, GUI, HAL, etc).  The most important parameter
 is \fIINIFILE\fR, which specifies the configuration name you would like
 to run. If \fIINIFILE\fR is not specified, the \fBemc\fR script presents
@@ -48,7 +48,7 @@ are echoed to the screen. This mode is useful when something is
 not working as it should.
 .TP
 \fBINIFILE\fR
-The ini file is the main piece of an EMC configuration. It is not the
+The ini file is the main piece of an LinuxCNC configuration. It is not the
 entire configuration; there are various other files that go with it
 (NML files, HAL files, TBL files, VAR files). It is, however, the most
 important one, because it is the file that holds the configuration
@@ -73,7 +73,7 @@ using a packaged version of emc), it may search several directories.
 The config chooser is currently set to search the path:
 
 .nf
-\fB@EMC2_CONFIG_PATH@\fR
+\fB@LINUXCNC_CONFIG_PATH@\fR
 
 .SH EXAMPLES
     
@@ -86,7 +86,7 @@ The config chooser is currently set to search the path:
 .SH "SEE ALSO"
 \fBhalcmd(1)\fR
 
-Much more information about EMC2 and HAL is available in the EMC2
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
 and HAL User Manuals, found at /usr/share/doc/emc2/.
 
 .SH HISTORY
@@ -95,8 +95,8 @@ and HAL User Manuals, found at /usr/share/doc/emc2/.
 None known at this time. 
 .PP
 .SH AUTHOR
-This man page written by Alex Joni, as part of the Enhanced Machine
-Controller (EMC) project.
+This man page written by Alex Joni, as part of the LinuxCNC Enhanced Machine
+Controller project.
 .SH REPORTING BUGS
 Report bugs to alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT

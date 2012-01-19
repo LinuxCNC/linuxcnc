@@ -1,4 +1,4 @@
-.TH rtapi_task_pause "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_task_pause "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_task_pause, rtapi_task_resume \- pause and resume real-time tasks

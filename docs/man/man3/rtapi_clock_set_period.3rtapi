@@ -1,4 +1,4 @@
-.TH rtapi_clock_set_period "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_clock_set_period "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_clock_set_period \- set the basic time interval for realtime tasks
