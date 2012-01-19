@@ -152,11 +152,11 @@ and distance are the same, making the critical distance
 *d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*. 
 
 For example, for a feed rate of 1 inch per second and an acceleration of
-*10 inch/sec^2^*, the critical distance is 
-*1^2^/10 = 1/10 = 0.1 inch*.
+*10 inches/sec^2^*, the critical distance is 
+*1^2^/10 = 1/10 = 0.1 inches*.
 
 For a feed rate of 0.5 inch per second, the critical distance is 
-*5^2^/100 = 25/10 = 0.025inch* inch.
+*5^2^/100 = 25/10 = 0.025* inches.
 
 ////
 This section has been commented out until latexmath is working again.
@@ -176,6 +176,7 @@ latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch.
 For a feed rate of 0.5 inch per second, the critical distance is 
 latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 ////
+
 == G Code
 
 === Defaults
@@ -206,8 +207,8 @@ moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
 is narrower than the cutter without any errors. See the 
-<<cutter-radius-compensation,Tool Compensation Section>> for more
-information.
+<<sec:cutter-radius-compensation,Cutter Radius Compensation>> Section
+for more information.
 
 == Homing
 
@@ -235,8 +236,9 @@ User Manual.
 
 The Coordinate Systems can be confusing at first. Before running a CNC
 machine you must understand the basics of the coordinate systems used
-by LinuxCNC. In depth information on the LinuxCNC Coordinate Systems is in the
-<<coordinate-system,Coordinate Section>> of this manual.
+by LinuxCNC. In depth information on the LinuxCNC Coordinate Systems
+is in the <<cha:coordinate-system,Coordinate System>> Section of this
+manual.
 
 === G53 Machine Coordinate
 

@@ -29,18 +29,18 @@ know how to control the actual mechanisms to produce the same relative
 motion of tool and workpiece as would be produced by independent axes.
 This is called 'kinematics'.]
 
-==== Primary Linear Axes (((axes, primary linear)))
+.Primary Linear Axes (((axes, primary linear)))
 
 The X, Y, and Z axes produce linear motion in three mutually
 orthogonal directions.
 
-==== Secondary Linear Axes (((axes, secondary linear)))
+.Secondary Linear Axes (((axes, secondary linear)))
 
 The U, V, and W axes produce linear motion in three mutually
 orthogonal directions. Typically, X and U are parallel, Y and V are
 parallel, and Z and W are parallel.
 
-==== Rotational Axes (((axes, rotational)))
+.Rotational Axes (((axes, rotational)))
 
 The A, B and C axes produce angular motion (rotation). Typically, A
 rotates around a line parallel to X, B rotates around a line parallel
@@ -57,15 +57,14 @@ not be controlled by the CNC software.
 If a CNC machine has components to provide mist coolant and/or flood
 coolant they can be controlled by G-Codes.
 
-=== Feed and Speed Override[[sub:Feed-and-Speed]]
+=== Feed and Speed Override [[sub:Feed-and-Speed]]
 
 (((feed override)))
 (((spindle speed override)))
 
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
-speed used in machining at some percentage of the programmed rate. See
-the <<feed-interaction,Feed Interaction>> Section.
+speed used in machining at some percentage of the programmed rate.
 
 === Block Delete Switch[[sub:Block-Delete-Switch]]
 
@@ -227,15 +226,6 @@ A machining center may be commanded to change tools.
 
 The two pallets may be exchanged by command.
 
-=== Feed and Speed Override Switches
-
-The feed and speed override switches may be enabled (so they work as
-expected) or disabled (so they have no effect on the feed rate or
-spindle speed). The RS274/NGC language has one command that enables
-both switches and one command that disables both see Sections 
-<<sec:M48-Both-Override,M48>> and <<sec:M49-Neither-Override,M49>>. 
-See Section  <<feed-interaction,Feed Interaction>> for further details.
-
 === Path Control Mode[[sec:Path-Control-Mode]]
 
 (((path control mode)))
@@ -266,6 +256,9 @@ switches are disabled automatically.
 
 LinuxCNC reacts to the speed and feed override settings when these
 switches are enabled.
+
+See the <<sec:M48-M49-Override,M48 M49 Override>> section for more
+information.
 
 === Block Delete Switch[[sub:Block-Delete-Switch-Interaction]]
 
@@ -311,7 +304,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----
 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format,Tool Table>> Section. 
+see the <<sec:Tool-Table-Format,Tool Table Format>> Section. 
 
 == Parameters[[sec:Parameters]]
 
@@ -368,5 +361,5 @@ is written. Comments are not preserved when the file is written.
 |5162 | 0.0 | G28 Home Y
 |========================================
 
-See the <<parameters,Parameters>> section for more information.
+See the <<sec:parameters,Parameters>> section for more information.
 

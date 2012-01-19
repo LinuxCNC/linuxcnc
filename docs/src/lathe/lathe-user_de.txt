@@ -35,7 +35,7 @@ must program that in the preamble of each gcode file or
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
 
-== Tool Table
+== Lathe Tool Table [[sec:lathe-tool-table]]
 
 The "Tool Table" is a text file that contains information about each tool. 
 The file is located in the same directory as your configuration and is called "tool.tbl" by default. 

@@ -285,7 +285,7 @@ hal_motenc::
     (((hal-motenc))) Vital Systems MOTENC-100 board
 
 hal_parport::
-    (((hal-parport))) PC parallel port. See section <<sec:Parport>>
+    (((hal-parport))) PC parallel port.
 
 hal_ppmc::
     (((hal-ppmc))) Pico Systems family of controllers (PPMC, USC and UPC)
