@@ -321,11 +321,11 @@ GetFromIni PARAMETER_FILE RS274NGC
 RS274NGC_PARAMFILE=$retval
 
 # 2.3. get emcmot information
-GetFromIni EMCMOT EMCMOT 
+GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
 EMCMOT=$retval$MODULE_EXT # add module extension
 
 # 2.4. get emcio information
-GetFromIni EMCIO EMCIO 
+GetFromIniEx IO IO EMCIO EMCIO io
 EMCIO=$retval
 
 # 2.5. get emctask information
@@ -349,9 +349,8 @@ EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
 # 2.10. get NML config information
-GetFromIniQuiet NML_FILE EMC
+GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
-if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
 export NMLFILE
 
 ################################################################################
