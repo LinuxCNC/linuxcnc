@@ -1,4 +1,4 @@
-.TH SHUTTLEXPRESS "1" "2011-01-13" "EMC Documentation" "HAL User's Manual"
+.TH SHUTTLEXPRESS "1" "2011-01-13" "LinuxCNC Documentation" "HAL User's Manual"
 .de TQ
 .br
 .ns
@@ -9,10 +9,11 @@ shuttlexpress \- control HAL pins with the ShuttleXpress device made by Contour 
 .SH SYNOPSIS
 \fIloadusr\fR \fBshuttlexpress\fR \fI[DEVICE ...]\fR
 .SH DESCRIPTION
-shuttlexpress is a userspace HAL component that interfaces Contour Design's
-ShuttleXpress device with EMC2's HAL.  The ShuttleXpress has five momentary
-buttons, a 10 counts/revolution jog wheel with detents, and a 15-position
-spring-loaded outer wheel that returns to center when released.
+shuttlexpress is a userspace HAL component that interfaces Contour
+Design's ShuttleXpress device with LinuxCNC's HAL.  The ShuttleXpress has
+five momentary buttons, a 10 counts/revolution jog wheel with detents,
+and a 15-position spring-loaded outer wheel that returns to center
+when released.
 .PP
 If it is started without command-line arguments, it will probe all
 /dev/hidraw* device files for ShuttleXpress devices, and use all devices
