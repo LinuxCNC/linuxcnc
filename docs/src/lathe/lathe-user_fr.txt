@@ -46,7 +46,7 @@ l'opérateur peut ainsi intervenir directement sur les valeurs des outils.
 Le nombre maximum d'outils dans la table d'outils est de 56.
 Les numéros d'outil et de poches peuvent aller jusqu'à 99999.
 
-Les versions antérieures d'EMC2 avaient deux différents formats de table
+Les versions antérieures de LinuxCNC avaient deux différents formats de table
 d'outils pour les fraiseuses et les tours, mais depuis la version 2.4.x,
 un format de table d'outil unique est utilisé. Il faut juste ignorer les parties
 de la table d'outils qui ne concernent pas la machine.
@@ -177,7 +177,7 @@ courant lorsque l'outil sera utilisé dans le programme.
 
 == Filetage
 
-Sur un tour, le filetage nécessite un signal de retour entre la broche et EMC2.
+Sur un tour, le filetage nécessite un signal de retour entre la broche et LinuxCNC.
 Généralement, c'est un codeur de position qui fourni ce retour. 
 Le manuel de l'intégrateur donne d'avantage d'informations sur le codeur de
 broche.

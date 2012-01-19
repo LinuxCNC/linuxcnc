@@ -7,7 +7,7 @@
 
 == Introduction[[sec:HaluiIntroduction]]
 
-Halui est une interface utilisateur pour EMC s'appuyant sur HAL, elle
+Halui est une interface utilisateur pour LinuxCNC s'appuyant sur HAL, elle
 connecte les pins de HAL à des commandes NML. La plupart des
 fonctionnalités (boutons, indicateurs etc.) utilisées par les
 interfaces graphiques traditionnelles (mini, Axis, etc.), sont fournies
@@ -156,7 +156,7 @@ par exemple:
  - Quand la pin halui.mdi-command-<nr> est activée, halui va essayer
    d'envoyer au MDI la commande définie dans le fichier ini. Ca ne
    fonctionnera pas dans tous les modes de fonctionnement où se trouve
-   EMC2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
+   LinuxCNC, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
    commande MDI. 
 
 Sélection d'une articulation:: (Joint Selection)
@@ -236,7 +236,7 @@ suivante dans la section [HAL] du fichier ini.
 
 === Démarrage à distance
 
-Pour connecter un bouton de démarrage à distance à EMC il faut utiliser
+Pour connecter un bouton de démarrage à distance à LinuxCNC il faut utiliser
 la pin *halui.program.run* et la pin *halui.mode.auto*. 
 
 Il faut s'assurer qu'il est possible de démarrer en utilisant la 
@@ -271,7 +271,7 @@ net program-start-btn and2.0.in0
 
 === Pause et Reprise
 
-Cet exemple a été developpé pour permettre à EMC2 de déplacer un
+Cet exemple a été developpé pour permettre à LinuxCNC de déplacer un
 axe rotatif selon un signal provenant d'une machine extérieure. La
 coordination entre les deux systèmes est assurée par deux composants de Halui: 
 
@@ -281,7 +281,7 @@ coordination entre les deux systèmes est assurée par deux composants de Halui:
 Dans le fichier *custom.hal*, ajoutez les deux lignes suivantes
 qui seront connectées à vos entrées/sorties pour mettre le
 programme en pause ou pour le reprendre quand l'autre système veut
-qu'EMC2 soit relancé.
+qu'LinuxCNC soit relancé.
 ----
 net ispaused halui.program.is paused => "la pin de sortie" 
 net resume halui.program.resume <= "la pin d'entrée" 
@@ -294,10 +294,10 @@ port parallèle ou toutes autres broches auquelles nous avons accès.
 Le fonctionnement est le suivant, quand un M0 est rencontré dans le
 programme G-code, *halui.program.is-paused* devient TRUE. Ce
 qui rend la broche de sortie également TRUE de sorte que
-l'autre contrôleur sait qu'EMC2 est arrêté.
+l'autre contrôleur sait que LinuxCNC est arrêté.
 
 Pour reprendre l'exécution du G-code, l'autre contrôleur devra rendre
-l'entrée TRUE. Ce qui relancera EMC2 jusqu'au prochain M0.
+l'entrée TRUE. Ce qui relancera LinuxCNC jusqu'au prochain M0.
 
 Difficultés de timing
 

@@ -123,7 +123,7 @@ Si, au chargement du module un message du genre suivant apparait:
 
 s'assurer que le module du kernel standard, parport_pc, n'est pas chargé et qu'aucun 
 périphérique dans le système ne revendique les ports concernés. footnote:[Dans le
-paquetage EMC pour Ubuntu, le fichier /etc/modprobe.d/emc2 empêche normalement que
+paquetage LinuxCNC pour Ubuntu, le fichier /etc/modprobe.d/emc2 empêche normalement que
 *parport_pc* soit chargé automatiquement.]
 
 Si le module est chargé mais ne semble pas fonctionner, l'adresse du port est 

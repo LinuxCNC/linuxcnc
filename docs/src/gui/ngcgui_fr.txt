@@ -7,7 +7,7 @@ image::images/ngcgui.png[]
 
 == Vue d'ensemble
     
- - ngcgui est un utilitaire pour écrire et utiliser les sous-programmes avec EMC2.
+ - ngcgui est un utilitaire pour écrire et utiliser les sous-programmes avec LinuxCNC.
  - ngcgui peut être utilisé séparément ou embarqué.
  - Il crée des onglets multiples sur la page de l'interface graphique Axis.
 

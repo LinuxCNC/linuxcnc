@@ -1,11 +1,11 @@
 :lang: fr
 :toc:
 
-Test des capacités temps réel
-=============================
+= Test des capacités temps réel
 
 [[sec:Test-de-latence-IM]]
 == Test de latence
+(((Test de latence IM)))
 
 Ce test est le premier test qui doit être effectué sur un PC 
 pour savoir si celui-ci est capable de piloter une machine CNC.
@@ -73,7 +73,7 @@ cas, rien ne provoque de latence ou seulement des actions particulières.
 Par exemple, une carte mère Intel marchait très bien
 la plupart du temps, mais toutes les 64 secondes elle avait une
 très mauvaise latence de 300µs. Heureusement, il existe un
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[correctif].
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[correctif].
 
 Alors, comment interpréter les résultats? Si le résultat de Max Jitter est en 
 dessous d'environ 15-20 microsecondes (15000-20000
@@ -85,13 +85,13 @@ utilisés ou si le pas de la vis est fin. Si les résultats sont de 100µS
 ou plus (100,000 nanosecondes), alors le PC
 n'est pas un bon candidat à la génération des pas. Les résultats
 supérieurs à 1 milliseconde (1,000,000 nanosecondes) éliminent,
-dans tous les cas, ce PC pour faire tourner EMC, en utilisant des
+dans tous les cas, ce PC pour faire tourner LinuxCNC, en utilisant des
 micropas ou pas.
 
 Noter que si une latence élevée est obtenue, il peut être possible
 de l'améliorer. Un PC avait une très mauvaise latence (plusieurs
 millisecondes) en utilisant la carte graphique interne. Un carte
-graphique Matrox d'occasion à $5US a résolu le problème. EMC
+graphique Matrox d'occasion à $5US a résolu le problème. LinuxCNC
 n'exige pas de matériel de pointe.
 
 == Adresses des ports

@@ -28,7 +28,7 @@ standards seront quand même utilisables, tant que le contrôle de bas
 niveau sait comment contrôler les mécanismes actuels pour produire le
 mouvement relatif de l'outil et de la pièce qui auraient été produits
 par des axes indépendants. C'est appelé, la cinématique.]
-footnote:[Avec EMC2, le cas de la machine à portique XYYZ avec deux
+footnote:[Avec LinuxCNC, le cas de la machine à portique XYYZ avec deux
 moteurs pour un axe est mieux traité par la cinématique que par un
 axe linéaire supplémentaire.]
 
@@ -272,7 +272,7 @@ l'action des boutons d'ajustement des vitesses. Pour certains
 mouvements, tels que la sortie de filet à la fin d'un cycle de
 filetage, les boutons sont neutralisés automatiquement.
 
-EMC2 réagit aux réglages de ces boutons seulement quand ils sont
+LinuxCNC réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
 === Bouton d'effacement de bloc[[sec:Interaction-effacement-de-bloc]]
@@ -326,7 +326,7 @@ D'autres informations sont disponibles sur les spécificités du
 Dans le langage RS274/NGC, la machine maintient un tableau
 de 5400 paramètres numériques. La plupart d'entre eux ont un usage
 spécifique. Le tableau de paramètres est persistant, même quand la
-machine est mise hors tension. EMC2 utilise un fichier de paramètres et
+machine est mise hors tension. LinuxCNC utilise un fichier de paramètres et
 assure sa persistance, il donne à l'interpréteur la responsabilité
 d'actualiser le fichier. L'interpréteur lit le fichier quand il démarre
 et l'écrit juste avant de s'arrêter.

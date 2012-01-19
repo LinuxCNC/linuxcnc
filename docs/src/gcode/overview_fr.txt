@@ -1,20 +1,20 @@
 :lang: fr
 :toc:
 
-= Vue générale du langage G-codes d'EMC2[[cha:Vue-generale-G-code]]
+= Vue générale du langage G-codes de LinuxCNC[[cha:Vue-generale-G-code]]
 
-(((Vue générale du G-code d'EMC2)))
+(((Vue générale du G-code de LinuxCNC)))
 
 == Brève description 
 
 Le G-code est le langage de programmation des machines numériques. Le G-code
-utilisé par EMC2 est basé sur le langage RS274/NGC. Cette documentation le 
+utilisé par LinuxCNC est basé sur le langage RS274/NGC. Cette documentation le 
 décrit de manière exhaustive, c'est donc un gros morceau mais il contient 
 beaucoup de concepts qui seront assimilés par le lecteur dès la première lecture. 
 C'est notamment le cas de ce chapitre. Par la suite, l'utilisateur reviendra ici, 
 d'abord pour chaque détail de création de son G-code, puis plus tard, seulement 
 pour vérifier la syntaxe des codes les moins courants. Il aura alors perçu la 
-puissance de ce langage et d'EMC2 qui le met à profit. 
+puissance de ce langage et de LinuxCNC qui le met à profit. 
 
 
 == Format des paramètres du G-code
@@ -215,14 +215,14 @@ paramètres prédéfinis, cela n'a pas de sens, ils sont alors en lecture seule.
 peuvent apparaître dans les expressions, mais pas sur le côté gauche d'une
 instruction d'affectation.
 
-La persistance:: Quand EMC2 s'arrête, les paramètres volatiles perdent leurs
+La persistance:: Quand LinuxCNC s'arrête, les paramètres volatiles perdent leurs
 valeurs. Tous les paramètres sont volatiles, excepté les paramètres numérotés
 dans l'étendue courante de persistance footnote:[L'étendue de persistance
 courante des paramètres évolue en même temps qu'évolue le développement. Cette
 étendue est actuellement de 5161 à 5390. Elle est définie par __required_parameters array_
 dans le fichier src/emc/rs274ngc/interp_array.cc .].
 Les paramètres persistants sont enregistrés dans un fichier _.var_ et restaurés à
-leurs valeurs précédentes quand EMC2 est relancé. Les paramètres numérotés 
+leurs valeurs précédentes quand LinuxCNC est relancé. Les paramètres numérotés 
 volatiles sont remis à zéro.
 
 Utilisation prévue::
@@ -344,7 +344,7 @@ derniers Aword, Bword, Cword, ... Zword etc.
 (((Paramètres système)))
 
 Deux paramètres nommés globaux, permettant de lire, à partir du G-code, 
-quelle est la version courante d'EMC2.
+quelle est la version courante de LinuxCNC.
 ----
 #<_vmajor>
 ----
@@ -702,7 +702,7 @@ influence sur la machine.
 
 L'interpréteur et le gestionnaire de tâches ont été écrits, de sorte que la 
 taille des fichiers n'est limité que par la capacité du disque dur. Les 
-interfaces graphiques TkEMC et Axis affichent tous les deux le programme G-code
+interfaces graphiques TkLinuxCNC et Axis affichent tous les deux le programme G-code
 à l'écran pour l'utilisateur, cependant, la RAM devient un facteur limitant. 
 Dans Axis, parce-que l'aperçu du parcours d'outil est affiché par défaut, le
 rafraîchissement de l'écran devient une limite pratique à la taille des fichiers.

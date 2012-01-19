@@ -68,7 +68,7 @@ image::images/freqgen-block-diag.png[]
 
 === L'installer
 ----
-emc2$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>] 
+linuxcnc$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>] 
 ----
 
 *<type-array>* est une série d'entiers décimaux séparés par des
@@ -80,7 +80,7 @@ des virgules, qui spécifient le mode pas ou le mode vitesse.
 *ctrl_type* est optionnel, si il est omis, tous les générateurs de pas 
 seront en mode position. Par exemple, la commande:
 ----
-emc2$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v 
+linuxcnc$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v 
 ----
 
 va installer trois générateurs de pas. Les deux premiers utilisent le
@@ -97,7 +97,7 @@ générateurs commence à 0.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt stepgen
+linuxcnc$ halcmd unloadrt stepgen
 ----
 
 === Pins
@@ -280,7 +280,7 @@ résolution, à peut-être 10kHz avec une résolution limitée.
 
 === L'installer
 ----
-emc2$ halcmd loadrt pwmgen output_type=<config-array>
+linuxcnc$ halcmd loadrt pwmgen output_type=<config-array>
 ----
 
 *<config-array>* est une série d'entiers décimaux séparés par des
@@ -288,7 +288,7 @@ virgules. Chaque
 chiffre provoquera le chargement d'un simple générateur de PWM, la
 valeur de ce chiffre determinera le type de sortie. Par exemple:
 ----
-emc2$ halcmd loadrt pwmgen output_type=0,1,2
+linuxcnc$ halcmd loadrt pwmgen output_type=0,1,2
 ----
 
 va installer trois générateurs de PWM. Le premier utilisera une sortie
@@ -305,7 +305,7 @@ générateurs de PWM commence à 0.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt pwmgen
+linuxcnc$ halcmd unloadrt pwmgen
 ----
 
 === Pins
@@ -411,7 +411,7 @@ image::images/encoder-block-diag.png[]
 
 === L'installer
 ----
-emc2$ halcmd loadrt encoder [num_chan=<counters>]
+linuxcnc$ halcmd loadrt encoder [num_chan=<counters>]
 ----
 
 *<counters>* est le nombre de compteurs de codeur à installer. Si
@@ -424,7 +424,7 @@ numérotation des compteurs commence à 0.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt encoder
+linuxcnc$ halcmd unloadrt encoder
 ----
 
 === Pins
@@ -531,7 +531,7 @@ image::images/pid-block-diag.png[]
 
 === L'installer
 ----
-emc2$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
+linuxcnc$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
 ----
 
 *<loops>* est le nombre de boucles PID à installer. Si *numchan* 
@@ -549,7 +549,7 @@ liste des paramètres.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt pid
+linuxcnc$ halcmd unloadrt pid
 ----
 
 === Pins
@@ -643,7 +643,7 @@ rythmes.
 Si vous voulez comprendre exactement l'algorithme utilisé pour
 calculer la sortie d'une boucle PID, référez vous à la figure 
 <<fig:Diagramme-bloc-PID,PID>>, les commentaires au début du source
-*emc2/src/hal/components/pid.c* et bien sûr, au code lui même. Les
+*linuxcnc/src/hal/components/pid.c* et bien sûr, au code lui même. Les
 calculs de boucle sont dans la fonction C *calc_pid()*.
 
 [[sec:Codeur-simul]]
@@ -656,7 +656,7 @@ contrôlée par une pin de HAL. Surtout utile pour les essais.
 
 === L'installer
 ----
-emc2$ halcmd loadrt sim-encoder num_chan=<number>
+linuxcnc$ halcmd loadrt sim-encoder num_chan=<number>
 ----
 
 *<number>* est le nombre de codeurs à simuler. Si aucun n'est
@@ -666,7 +666,7 @@ défini par MAX_CHAN dans sim_encoder.c).
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt sim-encoder
+linuxcnc$ halcmd unloadrt sim-encoder
 ----
 
 === Pins
@@ -716,7 +716,7 @@ supprimées.
 
 === L'installer
 ----
-emc2$ halcmd loadrt debounce cfg=<config-string>
+linuxcnc$ halcmd loadrt debounce cfg=<config-string>
 ----
 
 *<config-string>* est une série d'entiers décimaux séparés par des
@@ -724,7 +724,7 @@ espaces. Chaque
 chiffre installe un groupe de filtres anti-rebond identiques, le
 chiffre détermine le nombre de filtres dans le groupe. Par exemple:
 ----
-emc2$ halcmd loadrt debounce cfg=1,4,2
+linuxcnc$ halcmd loadrt debounce cfg=1,4,2
 ----
 
 va installer trois groupes de filtres. Le groupe 0 contient un filtre,
@@ -743,7 +743,7 @@ filtre 0 dans le groupe 0.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt debounce
+linuxcnc$ halcmd unloadrt debounce
 ----
 
 === Pins
@@ -790,7 +790,7 @@ essais.
 
 === L'installer
 ----
-emc2$ halcmd loadrt siggen [num_chan=<chans>]
+linuxcnc$ halcmd loadrt siggen [num_chan=<chans>]
 ----
 
 *<chans>* est le nombre de générateurs de signaux à installer. Si
@@ -804,7 +804,7 @@ commencent à 0.
 
 === Le désinstaller
 ----
-emc2$ halcmd unloadrt siggen
+linuxcnc$ halcmd unloadrt siggen
 ----
 
 === Pins

@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-= La cinématique dans EMC2
+= La cinématique dans LinuxCNC
 
 == Introduction
 
@@ -22,7 +22,7 @@ mouvements de la machine.]
 Quand nous parlons d'un programme G-code (RS274NGC) nous parlons d'un
 certain nombre de commandes (G0, G1, etc.) qui ont comme paramètres (X-
 Y- Z-). Ces positions se référent exactement à des positions
-Cartésiennes. Une partie du contrôleur de mouvements d'EMC2 est
+Cartésiennes. Une partie du contrôleur de mouvements de LinuxCNC est
 responsable de la translation entre ces positions et les positions
 correspondantes de la cinématique (((cinematique))) de la
 machinefootnote:[Cinématique: une fonction à deux voies pour
@@ -82,11 +82,11 @@ Comme on peut le voir, c'est assez simple de faire la transformation
 d'une machine à cinématique banale (ou Cartésienne). Cela devient un
 peu plus compliqué si il manque un axe à la machine.footnote:[Si la
 machine (par exemple un tour) est montée avec seulement les axes
-X, Z et A et que le fichier d'init d'EMC2 contient uniquement la
+X, Z et A et que le fichier d'init de LinuxCNC contient uniquement la
 définition de ces 3 articulations, alors l'assertion précédente est fausse.
 Parce-que nous avons actuellement (joint0=x, joint1=Z, joint2=A) ce qui
-suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans EMC2
-il suffit de définir tous les axes (XYZA), EMC2 utilisera alors une
+suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans LinuxCNC
+il suffit de définir tous les axes (XYZA), LinuxCNC utilisera alors une
 simple boucle dans HAL pour l'axe Y inutilisé.]footnote:[Une autre 
 façon de le faire fonctionner, est de changer le code
 correspondant et recompiler le logiciel.]

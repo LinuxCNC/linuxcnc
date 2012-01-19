@@ -7,20 +7,20 @@
 == Introduction
 
 Ce chapitre décrit quelques uns des réglages les plus fréquents, sur
-lesquels l'utilisateur aura à agir lors de la mise au point d'EMC2. En
-raison de l'adaptabilité d'EMC2, il serait très difficile de les
+lesquels l'utilisateur aura à agir lors de la mise au point de LinuxCNC. En
+raison de l'adaptabilité de LinuxCNC, il serait très difficile de les
 documenter tous en gardant ce document relativement concis.
 
-Le système rencontré le plus fréquemment chez les utilisateurs d'EMC2
+Le système rencontré le plus fréquemment chez les utilisateurs de LinuxCNC
 est un système à moteurs pas à pas. Les interfaces de pilotage de ces
-moteurs recoivent d'EMC2 des signaux de pas et de direction.
+moteurs recoivent de LinuxCNC des signaux de pas et de direction.
 
 C'est le système le plus simple à mettre en oeuvre parce que les
 moteurs fonctionnent en boucle ouverte (pas d'information de retour des
 moteurs), le système nécessite donc d'être configuré correctement pour
 que les moteurs ne perdent pas de pas et ne calent pas.
 
-Ce chapitre s'appuie sur la configuration fournie d'origine avec EMC2
+Ce chapitre s'appuie sur la configuration fournie d'origine avec LinuxCNC
 appelée *stepper*(((stepper))) et qui se trouve habituellement dans
 *+/etc/emc2/sample-configs/stepper+*.
 
@@ -50,12 +50,12 @@ STEPGEN_MAXVEL.
 Si aucune combinaison entre BASE_PERIOD, INPUT_SCALE et MAX_VELOCITY
 n'est fonctionnelle, il faut alors envisager un générateur de pas
 externe (parmis les contrôleurs de moteurs pas à pas universels
-supportés par EMC2)
+supportés par LinuxCNC)
 
 [[sec:Brochage]]
 == Brochage(((brochage)))
 
-EMC2 est très flexible et grâce à la couche d'abstraction de HAL
+LinuxCNC est très flexible et grâce à la couche d'abstraction de HAL
 (Hardware Abstraction Layer) il est facile de spécifier que tel signal
 ira sur telle broche. 
 
@@ -179,7 +179,7 @@ standard_pinout.hal est lu par l'interpréteur:
    le Manuel de HAL pour plus de détails)
  . Les fonctions de lecture/écriture du pilote sont assignée au thread
    «Base thread» footnote:[Le thread le plus rapide parmis les réglages
-   d'EMC2, habituellement il
+   de LinuxCNC, habituellement il
    n'y a que quelques microsecondes entre les exécutions de ce code.]
  . Les signaux du générateur de pas et de direction des axes X,Y,Z...
    sont raccordés aux broches du port parallèle
@@ -288,9 +288,9 @@ Ce qui implique qu'un bouton d'Arrêt d'Urgence soit connecté sur la
 broche 01 du port parallèle. Tant que le bouton est enfoncé (le contact
 ouvert)footnote:[Utiliser exclusivement des contacts normalement fermés
 pour les A/U.], 
-EMC2 restera dans l'état *Arrêt d'Urgence* (ESTOP). Quand le bouton
-externe sera relâché, EMC2 passera immédiatement dans l'état 
+LinuxCNC restera dans l'état *Arrêt d'Urgence* (ESTOP). Quand le bouton
+externe sera relâché, LinuxCNC passera immédiatement dans l'état 
 *Arrêt d'Urgence Relâché* (ESTOP-RESET) vous pourrez ensuite mettre 
 la machine en marche en pressant 
 le bouton *Marche machine* (((marche machine))) et
-vous êtes alors prêt à continuer votre travail avec EMC2.
+vous êtes alors prêt à continuer votre travail avec LinuxCNC.

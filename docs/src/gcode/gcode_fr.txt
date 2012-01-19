@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:Le-G-code]]
-= Tout le G-code d'EMC2
+= Tout le G-code de LinuxCNC
 
 (((Tout le G-code)))
 
@@ -500,7 +500,7 @@ Sample NURBs Code
 
 image:images/nurbs01.png[]
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[D'autres informations sont 
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[D'autres informations sont 
 disponible ici, sur le wiki].
 
 [[sec:G7-Mode-diametre]]
@@ -929,7 +929,7 @@ erreur en cas de défaut.
 
 [IMPORTANT]
 Vous ne pourrez pas utiliser cette commande si votre
-machine n'a pas été configurée pour exploiter un signal de sonde de HAL à EMC2.
+machine n'a pas été configurée pour exploiter un signal de sonde de HAL à LinuxCNC.
 Le signal de la sonde doit être envoyé sur un bit d'entrée HAL 
 puis transmis à *motion.probe-entrée (bit, In)*.
 G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a 
@@ -1539,7 +1539,7 @@ C'est une erreur si:
 * Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code
    modal du groupe 0 ne soit programmé avec les mots d'axes.
 
-Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
+Dans l'interpréteur de LinuxCNC, G80 est un code modal révoqué par tout
 autre G-code. Les résultats des lignes suivantes sont identiques:
 ----
 G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
@@ -1784,7 +1784,7 @@ C'est une erreur si:
 == G84 Cycle de taraudage à droite
 (((G84 Cycle de taraudage)))
 
-Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
+Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
 comportement n'est pas défini. Voir *G33.1*
 
 [[sec:G85-Alesage-retrait-travail]]
@@ -1831,14 +1831,14 @@ erreur si:
 == G87 Alésage inverse[[sec:G87-Back-Boring]]
 (((G87 Alésage inverse)))
 
-Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
+Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
 comportement n'est pas défini.
 
 [[sec:G88-Alesage-Retrait-Manuel-Out]]
 == G88 Alésage, arrêt de broche, retrait en manuel
 (((G88 Cycle d'alésage)))
 
-Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
+Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
 comportement n'est pas défini.
 
 [[sec:G89-Alesage-Tempo]]
@@ -2001,7 +2001,7 @@ valeurs des paramètres seront enregistrées lors de la sortie du premier
 *G92.3* vers le début du deuxième programme, ce qui restaurera les
 décalages d'axes enregistrés par le premier.
 
-EMC2 enregistre les décalages G92 et les réutilise au lancement du
+LinuxCNC enregistre les décalages G92 et les réutilise au lancement du
 programme suivant. Il y a deux moyens de contourner cela, il est
 possible de programmer *G92.1* pour effacer les décalages, ou de
 programmer *G92.2* pour que les décalages enregistrés ne soient pas
@@ -2066,7 +2066,7 @@ indiquée par la valeur de *D-* en tours par minute.
 
 Lorsque vous utilisez *G96*, vous assurer que *X0* dans le système de coordonnées 
 en cours (y compris les compensations et les longueurs d'outils) est
-le centre de rotation, sinon EMC2 ne donnera pas la vitesse de broche désirée.
+le centre de rotation, sinon LinuxCNC ne donnera pas la vitesse de broche désirée.
 *G96* n'est pas affectée par les mode rayon ou diamètre.
 
 Programmer *G97* pour activer le mode vitesse en tours par minute.

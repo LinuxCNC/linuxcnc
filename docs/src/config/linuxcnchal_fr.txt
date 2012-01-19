@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-= EMC2 et HAL
+= LinuxCNC et HAL
 
 Voir également les man pages *motion(9)* et *iocontrol(1)*
 
@@ -218,7 +218,7 @@ motion-command-handler::
     utilisateur.
 
 motion-controller::
-    Lance le contrôleur de mouvement d'emc.
+    Lance le contrôleur de mouvement de LinuxCNC.
 
 == axis.N (temps réel)
 

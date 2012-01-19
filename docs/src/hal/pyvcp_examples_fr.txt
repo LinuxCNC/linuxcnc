@@ -14,7 +14,7 @@ droite de l'interface AXIS.
    du fichier ini.
  - Ajouter une entrée POSTGUI_HALFILE, avec le nom du fichier postgui HAL.
  - Ajouter les liens vers les pins de HAL pour le panneau dans le fichier
-   postgui.hal pour "connecter" le panneau PyVCP avec EMC2.
+   postgui.hal pour "connecter" le panneau PyVCP avec LinuxCNC.
 
 == Panneaux flottants
 
@@ -25,7 +25,7 @@ n'importe quelle interface, suivre les points suivants:
    le répertoire de configuration.
  - Ajouter les lignes `loadusr` dans le fichier.hal pour charger chaque panneau.
  - Ajouter les liens vers les pins de HAl du panneau dans le fichier postgui.hal,
-   pour "connecter" les panneaux PyVCP à EMC2.
+   pour "connecter" les panneaux PyVCP à LinuxCNC.
 
 L'exemple suivant montre le chargement de deux panneaux PyVCP.
 ----
@@ -455,7 +455,7 @@ image::images/gs2_panel.png[]
 === Les connections
 
 Pour qu'il fonctionne, il est nécessaire d'ajouter le code suivant au fichier
-custom_postgui.hal, il réalise les connections entre PyVCP et EMC2.
+custom_postgui.hal, il réalise les connections entre PyVCP et LinuxCNC.
 
 ----
     # affiche le compte tours, calcul basé sur freq * rpm par hz 

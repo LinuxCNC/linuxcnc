@@ -5,7 +5,7 @@
 
 Lors de l'ajout d'un deuxième port parallèle placé dans un slot PCI il
 est indispensable de connaître son adresse avant de pouvoir l'utiliser
-avec EMC2. Pour trouver l'adresse de ce port, ouvrez un terminal et
+avec LinuxCNC. Pour trouver l'adresse de ce port, ouvrez un terminal et
 tapez:
 
 *+lspci -v+*

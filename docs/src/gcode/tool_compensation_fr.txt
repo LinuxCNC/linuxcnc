@@ -97,11 +97,11 @@ Le fichier commence par un point-virgule en première ligne, suivi par les
 caractéristiques de 56 outils au maximum.
 footnote:[Bien que les numéros d'outils puissent aller jusqu'à 99999, le nombre
 d'outils dans la table, en ce moment, est limité à un maximum de 56 outils pour
-des raisons techniques. Les développeurs d'EMC2 envisagent la possibilité de
+des raisons techniques. Les développeurs de LinuxCNC envisagent la possibilité de
 faire sauter cette limitation. Si vous avez un très gros changeur d'outils,
 merci d'être patient.]
 
-Les versions antérieures d'EMC2 avaient deux différents formats de table
+Les versions antérieures de LinuxCNC avaient deux différents formats de table
 d'outils un pour les fraiseuses et un pour les tours, mais depuis la
 version 2.4.x, un format unique est utilisé pour toutes les machines. Il suffi
 d'ignorer les parties de la table d'outils qui ne se rapportent pas la machine
@@ -209,7 +209,7 @@ références à des fonctions canoniques, là où il est nécessaire pour le
 lecteur de comprendre comment fonctionne une compensation d'outil dans
 une situation spécifique. Ces références ont pour but de donner au
 lecteur une idée de la séquences plutôt que d'exiger qu'il comprenne la
-façon dont les fonctions canoniques elles-mêmes fonctionnent dans EMC.
+façon dont les fonctions canoniques elles-mêmes fonctionnent dans LinuxCNC.
 
 [[sec:Compensation-longueur-d-outil]]
 == Compensation de longueur d'outil
@@ -590,7 +590,7 @@ pas être maintenu tangent avec le contour dans ces situations. Cette
 détection de défaut, ne limite pas les formes qui peuvent être usinées,
 mais elle requiert que le programmeur précise la forme exacte à usiner
 (ou le parcours d'outil qui doit être suivi) et non une approximation.
-A cet égard, l'interpréteur utilisé par EMC diffère des interpréteurs
+A cet égard, l'interpréteur utilisé par LinuxCNC diffère des interpréteurs
 utilisés dans beaucoup d'autres contrôleurs, qui passent ces erreurs
 sous silence et laissent l'outil interférer avec la partie finie de la
 pièce (gouging) ou arrondissent des angles qui devraient être vifs. Il
@@ -780,7 +780,7 @@ coordonnées courant), à tout moment.
 === Exemples de Jon Elson
 
 Toutes les informations spécifiques au système se réfèrent au
-programme EMC du NIST, mais doit aussi s'appliquer aux plus modernes
+programme LinuxCNC du NIST, mais doit aussi s'appliquer aux plus modernes
 contrôleurs CNC. Ma méthode de vérification de ces programmes est
 d'abord de sélectionner l'outil zéro, de sorte que les commandes de
 compensation soient ignorées. Ensuite, je colle une feuille de papier
@@ -802,13 +802,13 @@ opposé, et j'édite la compensation opposée dans le programme, puis
 j'essaye à nouveau. Maintenant, avec l'outil sur le côté correct de la
 pièce, je peut vérifier si quelque part sur le parcours l'outil est
 'trop gros' pour usiner les surfaces concaves. Ma vieille Allen-Bradley
-7320 était très indulgente sur ce point, mais EMC ne tolère rien. Si
+7320 était très indulgente sur ce point, mais LinuxCNC ne tolère rien. Si
 vous avez la moindre concavité où deux lignes se rencontrent à moins de
-180 degrés avec un outil de taille définies, EMC va s'arrêter là, avec
+180 degrés avec un outil de taille définies, LinuxCNC va s'arrêter là, avec
 un message d'erreur. Même si le gougeage est de .001mm de profondeur.
 Alors, je fais toujours l'approche sur le mouvement d'entrée et le
 mouvement de sortie juste sur un coin de la pièce, en fournissant un
-angle de plus de 180 degrés, afin qu'EMC ne râle pas. Cela exige une
+angle de plus de 180 degrés, afin que LinuxCNC ne râle pas. Cela exige une
 grande attention lors de l'ajustement des points de départ et de
 sortie, qui ne sont pas compensés par le rayon d'outil, mais ils
 doivent être choisis avec un rayon approximatif bien réfléchi.
@@ -866,7 +866,7 @@ tas d'ennuis quand le programme s'arrête à cause d'une erreur de
 concavité, mais laisse la compensation désactivée. Noter aussi, en
 ligne 15, G17 est utilisé pour spécifier le plan de travail XY pour les
 interpolations circulaires. J'ai utilisé le format rayon pour les
-spécifications des arcs plutôt que la forme I, J. EMC est très
+spécifications des arcs plutôt que la forme I, J. LinuxCNC est très
 pointilleux au sujet des rayons qu'il calcule à partir du format des
 coordonnées I, J et il doit trouver le début et la fin du mouvement
 avec 10^-11 unités internes, de sorte qu'il y a beaucoup de problèmes
@@ -874,7 +874,7 @@ avec des arcs arbitraires. Normalement, si vous avez un arc de 90
 degrés, centré sur (1.0,1.0) avec un rayon de 1", tout ira bien, mais
 si le rayon ne peut pas être exprimé exactement et avec juste le nombre
 de chiffres significatifs, ou si l'arc à un nombre étrange de degrés,
-alors les problèmes commencent avec EMC. Le mot R supprime tous ce
+alors les problèmes commencent avec LinuxCNC. Le mot R supprime tous ce
 désordre et il est beaucoup plus facile de travailler avec lui, de
 toute façon. Si l'arc est de plus de 180 degrés, R doit être négatif.
 

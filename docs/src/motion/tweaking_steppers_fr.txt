@@ -38,7 +38,7 @@ mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
 la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
 d'un PC consiste à exécuter le test de latence RTAI.
 
-    NE PAS ESSAYER DE LANCER EMC2 PENDANT QUE LE TEST EST EN COURS
+    NE PAS ESSAYER DE LANCER LinuxCNC PENDANT QUE LE TEST EST EN COURS
 
 Sous Ubuntu Dapper, vous pouvez lancer le test en ouvrant une console
 et en faisant:
@@ -91,7 +91,7 @@ mauvais temps n'apparaît pas vraiment, ou il apparaît quand vous faites
 une action particulière. J'ai une carte mère Intel qui marche très bien
 la plupart du temps, mais chaque 64 secondes arrive une valeur très
 mauvaise de 300uS. Par chance, ce cas a trouvé une solution, voyez ici: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[Le Wiky de
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Le Wiky de
 Linuxcnc - Correction des problèmes SMI].
 
 Que signifient les résultats du tableau, à quels résultats s'attendre?
@@ -104,13 +104,13 @@ avec une vis avec un pas fin. Si la latence est de 100uS ou plus
 (100,000 nanosecondes), alors le PC n'est pas utilisable pour générer
 des trains d'impulsions par logiciel. Des chiffres suppérieurs à 1
 milliseconde (1,000,000 nanosecondes) signifie que ce PC ne convient
-pas du tout pour EMC2, que vous pensiez générer les pas par logiciel ou
+pas du tout pour LinuxCNC, que vous pensiez générer les pas par logiciel ou
 non.
 
 Notez que si vous obtenez de mauvais résultats, c'est peut être
 améliorable. Par exemple, un PC qui avait une latence très mauvaise
 (plusieurs millisecondes) en utilisant la carte graphique intégrée a vu
-le problème résolu par une carte graphique Matrox à 5$. EMC ne
+le problème résolu par une carte graphique Matrox à 5$. LinuxCNC ne
 nécessite pas du matériel de pointe.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
@@ -177,7 +177,7 @@ prochaine étape.
 
 === Choisir la valeur de BASE_PERIOD
 
-BASE_PERIOD est l'horloge de votre EMC2. A chaque période, le
+BASE_PERIOD est l'horloge de votre LinuxCNC. A chaque période, le
 générateur d'impulsions de pas décide si il est temps pour une autre
 impulsion. Une période plus courte vous permettra de générer plus
 d'impulsions par seconde, dans les limites. Mais si vous la réglez trop
@@ -242,7 +242,7 @@ Mais ne commencez pas à célébrer celà. Notez que 13uS est une période
 très courte. Si vous essayez d'exécuter le générateur de pas toutes les
 13uS, il ne restera peut-être pas assez de temps pour faire autre chose
 et votre ordinateur se bloquera. Si vous visez des périodes de moins de
-25uS, vous devez commencer à 25uS ou plus, lancer EMC et voir comment
+25uS, vous devez commencer à 25uS ou plus, lancer LinuxCNC et voir comment
 les choses réagissent. Si tout va bien, vous pouvez réduire
 progressivement la période. Si le pointeur de la souris commence à être
 sacadé et que le reste du PC ralentit, votre période est un peu trop
@@ -274,7 +274,7 @@ que nous puissions faire. Mais la Gecko peut être ameliorées.
 
 Le problème avec le G202 est le temps de maintien demandé de 20uS. Ca
 plus la latence de 11uS nous oblige à utiliser une période longue de
-31uS. Mais le générateur de pas logiciel d'EMC2 a un certain nombre de
+31uS. Mais le générateur de pas logiciel de LinuxCNC a un certain nombre de
 paramètres qui permettent d'augmenter les différentes durées d'une
 période à plusieurs autres. Par exemple, si «steplen» passe de 1 à 2,
 alors il y aura deux périodes entre le début et la fin de l'impulsion.
