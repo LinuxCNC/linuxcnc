@@ -806,7 +806,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 //   micges, but never reproduced.
                 if (dT_clocks < 1) {
                     HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken when slow\n", __FILE__, __LINE__);
-                    HM2_PRINT("    please email a bug report to the emc-devel list!\n");
+                    HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
                     HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
                     HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
                 } else {
@@ -867,7 +867,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     //   micges, but never reproduced.
                     if (dT_clocks < 1) {
                         HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken with an edge\n", __FILE__, __LINE__);
-                        HM2_PRINT("    please email a bug report to the emc-devel list!\n");
+                        HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
                         HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
                         HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
                     } else {

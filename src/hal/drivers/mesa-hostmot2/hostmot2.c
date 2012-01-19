@@ -33,11 +33,11 @@
 
 
 
-MODULE_INFO(emc2, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
-MODULE_INFO(emc2, "funct:read:1:Read all registers.");
-MODULE_INFO(emc2, "funct:write:1:Write all registers.");
-MODULE_INFO(emc2, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
-MODULE_INFO(emc2, "license:GPL");
+MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
+MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
+MODULE_INFO(linuxcnc, "funct:write:1:Write all registers.");
+MODULE_INFO(linuxcnc, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
+MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
@@ -67,7 +67,7 @@ static int comp_id;
 
 
 //
-// functions exported to EMC
+// functions exported to LinuxCNC
 //
 
 static void hm2_read(void *void_hm2, long period) {
