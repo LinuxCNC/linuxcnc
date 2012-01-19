@@ -348,6 +348,11 @@ GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
+case $EMCDISPLAY in
+    tkemc) EMCDISPLAY=tklinuxcnc ;;
+    xemc) EMCDISPLAY=xlinuxcnc ;;
+esac
+
 # 2.10. get NML config information
 GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
