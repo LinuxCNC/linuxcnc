@@ -24,7 +24,7 @@
 ##############################################################################
 
 AC_PREREQ(2.53)
-AC_INIT(EMC2, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
+AC_INIT(LinuxCNC, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(emc/motion/motion.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
@@ -50,8 +50,8 @@ else
 fi
 AC_SUBST(AUTODIRS)
 
-# EMC2 internationalisation package name:
-PACKAGE="emc2"
+# internationalisation package name:
+PACKAGE="linuxcnc"
 AC_SUBST([PACKAGE])
 
 if test -f ../VERSION; then
@@ -1492,12 +1492,12 @@ offbold () {
 echo ""
 echo ""
 echo "######################################################################"
-echo "#                  EMC2 - Enhanced Machine Controller                #"
+echo "#                LinuxCNC - Enhanced Machine Controller              #"
 echo "######################################################################"
 echo "#                                                                    #"
-echo "#   EMC2 is a software system for computer control of machine tools, #"
-echo "#   such as milling machines. EMC2 is released under the GPL.        #"
-echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
+echo "#   LinuxCNC is a software system for computer control of machine    #"
+echo "#   tools such as milling machines. LinuxCNC is released under the   #"
+echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
 echo "#   It seems that ./configure completed successfully.                #"
@@ -1518,17 +1518,16 @@ if test $SIMULATOR != yes; then
 echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
-echo "#   Before running the software, set the emc environment:            #"
+echo "#   Before running the software, set the environment:                #"
 echo "#         . (top dir)/scripts/rip-environment                        #"
 else
 bold
-echo "#   warning: If you already have an installed emc2, this will        #"
+echo "#   warning: If you already have an installed linuxcnc, this will    #"
 echo "#         replace an existing installation.  If you have installed   #"
-echo "#         an emc2 package, this will damage the package.             #"
+echo "#         a linuxcnc package, this will damage the package.          #"
 offbold
 echo "#   hint: To test a self-built version of emc without damaging       #"
-echo "#         the package version, use                                   #"
-echo "#             ./configure --enable-run-in-place                      #"
+echo "#         the package version, don't specify a --prefix              #"
 echo "#                                                                    #"
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
@@ -1537,7 +1536,7 @@ echo "#         sudo make install                                          #"
 fi
 echo "#                                                                    #"
 echo "#   To run the software type                                         #"
-echo "#         emc                                                        #"
+echo "#         linuxcnc                                                   #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""
