@@ -106,7 +106,7 @@ int main(int argc, gchar * argv[])
     char *ifilename = "autosave.halscope";
     char *ofilename = "autosave.halscope";
 
-    bindtextdomain("emc2", EMC2_PO_DIR);
+    bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
     textdomain("emc2");

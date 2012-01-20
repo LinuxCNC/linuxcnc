@@ -147,7 +147,7 @@ int main(int argc, gchar * argv[])
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
-    bindtextdomain("emc2", EMC2_PO_DIR);
+    bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
     textdomain("emc2");

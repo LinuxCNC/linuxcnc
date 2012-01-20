@@ -43,9 +43,9 @@ empty_program.flush()
 
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("emc2", LOCALEDIR)
-gtk.glade.textdomain("emc2")
+gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
+gtk.glade.textdomain("linuxcnc")
 
 def set_active(w, s):
 	if not w: return

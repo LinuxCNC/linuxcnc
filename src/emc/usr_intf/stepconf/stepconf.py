@@ -61,9 +61,9 @@ sys.excepthook = excepthook
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext
-gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("emc2", LOCALEDIR)
-gtk.glade.textdomain("emc2")
+gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
+gtk.glade.textdomain("linuxcnc")
 
 # internalname / displayed name / steptime/ step space / direction hold / direction setup
 drivertypes = [
@@ -1217,7 +1217,7 @@ class App:
         self.make_axispage(glade, 'a')
         doc = glade.toxml().encode("utf-8")
 
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="linuxcnc")
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)

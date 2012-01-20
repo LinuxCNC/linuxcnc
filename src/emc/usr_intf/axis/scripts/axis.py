@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 sys.excepthook = sys.__excepthook__
 
 import gettext;
-gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
 
