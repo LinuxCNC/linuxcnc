@@ -111,17 +111,10 @@ programmed, and had better have a valid configuration already.
 .RS
 The requested firmware F is fetched by udev.  udev searches for the
 firmware in the system's firmware search path, usually /lib/firmware.
-F typically has the form "hm2/<BoardType>/file.bit"; a typical value
-for F might be "hm2/5i20/SVST8_4.BIT".  If EMC2 is installed by the
-Debian package (.deb), then the firmware files are already installed
-in /lib/firmware.  If EMC2 is compiled from source and configured for
-run-in-place, then the user must symlink the hostmot2 firmware into
-/lib/firmware manually, using a command like this:
-.P
-.RS
-\fBsudo ln -s $EMC2/src/hal/drivers/mesa-hostmot2/firmware
-/lib/firmware/hm2\fR
-.RE
+F typically has the form "hm2/<BoardType>/file.bit"; a typical value for
+F might be "hm2/5i20/SVST8_4.BIT".  The firmware files are distributed
+separately from EMC2/LinuxCNC, in the hostmot2-firmware packages available
+from linuxcnc.org.
 .RE
 .TP
 \fBnum_encoders\fR [optional, default: -1]
