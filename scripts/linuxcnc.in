@@ -430,7 +430,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up LinuxCNC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc2
-    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh emcrsh linuxcnctop mdi debuglevel; do
+    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh linuxcncrsh linuxcnctop mdi debuglevel; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
