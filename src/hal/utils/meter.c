@@ -150,7 +150,7 @@ int main(int argc, gchar * argv[])
     bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("emc2");
+    textdomain("linuxcnc");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);

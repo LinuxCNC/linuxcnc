@@ -2999,7 +2999,7 @@ int main(int argc, char *argv[])
     bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("emc2");
+    textdomain("linuxcnc");
 
     // copy command line args
     Argc = argc;
