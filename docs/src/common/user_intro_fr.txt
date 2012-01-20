@@ -70,7 +70,7 @@ image::images/axis_2.5_fr.png[]
 
 .L'interface graphique Mini[[fig:Interface-graphique-Mini]]
 
-image::images/mini_fr.jpg[]
+image::images/mini_fr.png[]
 
 
 - *tklinuxcnc*(((tklinuxcnc))), une interface basée sur Tcl/Tk.

@@ -27,7 +27,7 @@ instructions écrites par Joe Martin et Ray Henry.
 
 [[fig:runminif]]
 .Affichage de Mini lors du fonctionnement de LinuxCNC
-image:images/mini_fr.jpg[]
+image:images/mini_fr.png[]
 
 L'écran de Mini est visible dans plusieurs sections, voir la figure
 ci-dessus. Il inclu une barre de menu, un jeu de boutons de

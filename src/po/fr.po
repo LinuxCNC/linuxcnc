@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-18 22:51+0100\n"
-"PO-Revision-Date: 2012-01-19 19:14+0100\n"
+"POT-Creation-Date: 2012-01-18 16:29+0100\n"
+"PO-Revision-Date: 2012-01-20 13:06+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -39,7 +39,7 @@ msgstr ""
 "ERREUR: l'option -s requiert un type de sonde et un nom de pin/signal/"
 "paramètre\n"
 
-#: hal/utils/meter.c:238 ../tcl/tklinuxcnc.tcl:764
+#: hal/utils/meter.c:238 ../tcl/tkemc.tcl:764
 msgid "Hal Meter"
 msgstr "HalMeter"
 
@@ -302,12 +302,11 @@ msgstr "%5d échantillons (16 canaux)"
 #: ../tcl/bin/halconfig.tcl:682 ../tcl/bin/halconfig.tcl:733
 #: ../tcl/bin/pickconfig.tcl:256 ../tcl/bin/pickconfig.tcl:463
 #: ../tcl/bin/pickconfig.tcl:490 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
-#: ../tcl/tklinuxcnc.tcl:160 ../tcl/tklinuxcnc.tcl:245
-#: ../tcl/tklinuxcnc.tcl:419 ../tcl/tklinuxcnc.tcl:1338
-#: ../tcl/tklinuxcnc.tcl:1407 ../tcl/tklinuxcnc.tcl:1438
-#: ../tcl/tklinuxcnc.tcl:1469 ../tcl/tklinuxcnc.tcl:2017
-#: ../tcl/tklinuxcnc.tcl:2036 ../tcl/tklinuxcnc.tcl:2055
-#: ../tcl/tklinuxcnc.tcl:2102 emc/usr_intf/axis/scripts/axis.py:1069
+#: ../tcl/tkemc.tcl:160 ../tcl/tkemc.tcl:245 ../tcl/tkemc.tcl:419
+#: ../tcl/tkemc.tcl:1338 ../tcl/tkemc.tcl:1407 ../tcl/tkemc.tcl:1438
+#: ../tcl/tkemc.tcl:1469 ../tcl/tkemc.tcl:2017 ../tcl/tkemc.tcl:2036
+#: ../tcl/tkemc.tcl:2055 ../tcl/tkemc.tcl:2102
+#: emc/usr_intf/axis/scripts/axis.py:1069
 #: emc/usr_intf/axis/scripts/axis.py:1129
 #: emc/usr_intf/axis/scripts/axis.py:1445
 #: emc/usr_intf/axis/scripts/axis.py:2464
@@ -471,10 +470,9 @@ msgstr "AC Couplé"
 #: ../tcl/bin/halconfig.tcl:684 ../tcl/bin/halconfig.tcl:735
 #: ../tcl/bin/pickconfig.tcl:259 ../tcl/bin/pickconfig.tcl:366
 #: ../tcl/mini.tcl:1457 ../tcl/mini.tcl:2938 ../tcl/mini.tcl:3110
-#: ../tcl/tklinuxcnc.tcl:162 ../tcl/tklinuxcnc.tcl:213
-#: ../tcl/tklinuxcnc.tcl:420 ../tcl/tklinuxcnc.tcl:1339
-#: ../tcl/tklinuxcnc.tcl:1408 ../tcl/tklinuxcnc.tcl:1439
-#: ../tcl/tklinuxcnc.tcl:1470 ../tcl/tklinuxcnc.tcl:2103
+#: ../tcl/tkemc.tcl:162 ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:420
+#: ../tcl/tkemc.tcl:1339 ../tcl/tkemc.tcl:1408 ../tcl/tkemc.tcl:1439
+#: ../tcl/tkemc.tcl:1470 ../tcl/tkemc.tcl:2103
 #: emc/usr_intf/axis/scripts/axis.py:1391
 #: emc/usr_intf/axis/scripts/axis.py:1446
 #: emc/usr_intf/axis/scripts/axis.py:1633
@@ -550,7 +548,7 @@ msgstr ""
 "Source\n"
 "Canal %2d"
 
-#: hal/utils/scope_trig.c:199 ../tcl/tklinuxcnc.tcl:827
+#: hal/utils/scope_trig.c:199 ../tcl/tkemc.tcl:827
 #: emc/usr_intf/touchy/touchy.glade:2469
 msgid "Auto"
 msgstr "Auto"
@@ -982,7 +980,7 @@ msgstr "Enregistrer dans un fichier"
 
 #: ../tcl/bin/emccalib.tcl:106 ../tcl/bin/genedit.tcl:77
 #: ../tcl/bin/halconfig.tcl:151 ../tcl/bin/halshow.tcl:86 ../tcl/mini.tcl:2516
-#: ../tcl/tklinuxcnc.tcl:719 ../tcl/ngcgui.tcl:549
+#: ../tcl/tkemc.tcl:719 ../tcl/ngcgui.tcl:551
 msgid "File"
 msgstr "Fichier"
 
@@ -1108,7 +1106,7 @@ msgid "New"
 msgstr "Nouveau"
 
 #: ../tcl/bin/genedit.tcl:80 ../tcl/mini.tcl:1667 ../tcl/mini.tcl:2534
-#: ../tcl/tklinuxcnc.tcl:720 ../tcl/tklinuxcnc.tcl:1657
+#: ../tcl/tkemc.tcl:720 ../tcl/tkemc.tcl:1657
 msgid "Open..."
 msgstr "Ouvrir..."
 
@@ -1117,8 +1115,8 @@ msgid "Save As..."
 msgstr "Enregistrer sous..."
 
 #: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:165
-#: ../tcl/bin/halshow.tcl:93 ../tcl/mini.tcl:954 ../tcl/tklinuxcnc.tcl:734
-#: ../tcl/ngcgui.tcl:1243 ../tcl/ngcgui.tcl:3665
+#: ../tcl/bin/halshow.tcl:93 ../tcl/mini.tcl:954 ../tcl/tkemc.tcl:734
+#: ../tcl/ngcgui.tcl:1246 ../tcl/ngcgui.tcl:3690
 msgid "Exit"
 msgstr "Quitter"
 
@@ -1143,12 +1141,12 @@ msgid "Select All"
 msgstr "Tout sélectionner"
 
 #: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:192 ../tcl/mini.tcl:919
-#: ../tcl/mini.tcl:2519 ../tcl/tklinuxcnc.tcl:790
+#: ../tcl/mini.tcl:2519 ../tcl/tkemc.tcl:790
 msgid "Help"
 msgstr "Aide"
 
 #: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:1011 ../tcl/mini.tcl:2559
-#: ../tcl/tklinuxcnc.tcl:796
+#: ../tcl/tkemc.tcl:796
 msgid "About..."
 msgstr "À propos..."
 
@@ -1165,7 +1163,7 @@ msgid "Renumber File..."
 msgstr "Re-numéroter le fichier..."
 
 #: ../tcl/bin/genedit.tcl:140 ../tcl/mini.tcl:917 ../tcl/mini.tcl:2518
-#: ../tcl/tklinuxcnc.tcl:746
+#: ../tcl/tkemc.tcl:746
 msgid "Settings"
 msgstr "Réglages"
 
@@ -1177,7 +1175,7 @@ msgstr "Sans numérotation"
 msgid "Line Numbering..."
 msgstr "Numérotation de ligne..."
 
-#: ../tcl/bin/genedit.tcl:150 ../tcl/tklinuxcnc.tcl:768
+#: ../tcl/bin/genedit.tcl:150 ../tcl/tkemc.tcl:768
 msgid "Scripts"
 msgstr "Scripts"
 
@@ -1200,7 +1198,7 @@ msgstr ""
 "GPL Version 2"
 
 #: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1775
-#: ../tcl/tklinuxcnc.tcl:451 emc/task/emctaskmain.cc:2001
+#: ../tcl/tkemc.tcl:451 emc/task/emctaskmain.cc:2001
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
@@ -1337,7 +1335,7 @@ msgstr "Enregistrer les liaisons HAL"
 msgid "Save and Exit"
 msgstr "Enregistrer et quitter"
 
-#: ../tcl/bin/halconfig.tcl:168 ../tcl/mini.tcl:916 ../tcl/tklinuxcnc.tcl:739
+#: ../tcl/bin/halconfig.tcl:168 ../tcl/mini.tcl:916 ../tcl/tkemc.tcl:739
 msgid "View"
 msgstr "Vues"
 
@@ -1667,7 +1665,7 @@ msgstr "Offsets"
 msgid "Tools"
 msgstr "Outils"
 
-#: ../tcl/mini.tcl:951 ../tcl/mini.tcl:3565 ../tcl/tklinuxcnc.tcl:732
+#: ../tcl/mini.tcl:951 ../tcl/mini.tcl:3565 ../tcl/tkemc.tcl:732
 msgid "Reset"
 msgstr "Reset"
 
@@ -1719,7 +1717,7 @@ msgstr "Position machine"
 msgid "Relative Position"
 msgstr "Position relative"
 
-#: ../tcl/mini.tcl:988 ../tcl/tklinuxcnc.tcl:747
+#: ../tcl/mini.tcl:988 ../tcl/tkemc.tcl:747
 msgid "Calibration..."
 msgstr "Calibration..."
 
@@ -1780,11 +1778,11 @@ msgstr ""
 "Les codes actifs incluent ; \n"
 "%s"
 
-#: ../tcl/mini.tcl:1010 ../tcl/mini.tcl:2558 ../tcl/tklinuxcnc.tcl:791
+#: ../tcl/mini.tcl:1010 ../tcl/mini.tcl:2558 ../tcl/tkemc.tcl:791
 msgid "Help..."
 msgstr "Aide..."
 
-#: ../tcl/mini.tcl:1027 ../tcl/tklinuxcnc.tcl:890
+#: ../tcl/mini.tcl:1027 ../tcl/tkemc.tcl:890
 msgid "ABORT"
 msgstr "ABANDON"
 
@@ -1792,17 +1790,17 @@ msgstr "ABANDON"
 msgid "CONTINUE"
 msgstr "CONTINUER"
 
-#: ../tcl/mini.tcl:1044 ../tcl/tklinuxcnc.tcl:828 ../tcl/tklinuxcnc.tcl:2248
+#: ../tcl/mini.tcl:1044 ../tcl/tkemc.tcl:828 ../tcl/tkemc.tcl:2248
 #: emc/usr_intf/touchy/touchy.glade:1264
 msgid "MDI"
 msgstr "MDI"
 
-#: ../tcl/mini.tcl:1048 ../tcl/tklinuxcnc.tcl:2239
+#: ../tcl/mini.tcl:1048 ../tcl/tkemc.tcl:2239
 msgid "AUTO"
 msgstr "AUTO"
 
-#: ../tcl/mini.tcl:1052 ../tcl/mini.tcl:1812 ../tcl/tklinuxcnc.tcl:2141
-#: ../tcl/tklinuxcnc.tcl:2261
+#: ../tcl/mini.tcl:1052 ../tcl/mini.tcl:1812 ../tcl/tkemc.tcl:2141
+#: ../tcl/tkemc.tcl:2261
 msgid "MANUAL"
 msgstr "MANUEL"
 
@@ -1826,8 +1824,7 @@ msgstr "Ouvrir la fenêtre des offsets ici"
 msgid "start override popup here"
 msgstr "Ouvrir la fenêtre des correcteurs ici"
 
-#: ../tcl/mini.tcl:1168 ../tcl/tklinuxcnc.tcl:1576
-#: ../share/axis/tcl/axis.tcl:1669
+#: ../tcl/mini.tcl:1168 ../tcl/tkemc.tcl:1576 ../share/axis/tcl/axis.tcl:1669
 msgid "Feed Override:"
 msgstr "Correcteur de vitesse:"
 
@@ -1852,11 +1849,11 @@ msgstr ""
 "Impossible de mettre le fichier de variables à jour tant que la machine est "
 "en auto et %s"
 
-#: ../tcl/mini.tcl:1400 ../tcl/tklinuxcnc.tcl:1227
+#: ../tcl/mini.tcl:1400 ../tcl/tkemc.tcl:1227
 msgid "override limits"
 msgstr "Dépassement de limite"
 
-#: ../tcl/mini.tcl:1405 ../tcl/tklinuxcnc.tcl:1263
+#: ../tcl/mini.tcl:1405 ../tcl/tkemc.tcl:1263
 msgid "home"
 msgstr "origine"
 
@@ -1872,11 +1869,11 @@ msgstr "Vitesse:"
 msgid "RAPID"
 msgstr "RAPIDE"
 
-#: ../tcl/mini.tcl:1447 ../tcl/tklinuxcnc.tcl:1391
+#: ../tcl/mini.tcl:1447 ../tcl/tkemc.tcl:1391
 msgid "Set Jog Speed"
 msgstr "Ajuster la vitesse de jog"
 
-#: ../tcl/mini.tcl:1453 ../tcl/tklinuxcnc.tcl:1404
+#: ../tcl/mini.tcl:1453 ../tcl/tkemc.tcl:1404
 msgid "Set jog speed:"
 msgstr "Ajuster la vitesse de jog:"
 
@@ -1892,8 +1889,8 @@ msgstr "JOG X -"
 msgid "increment"
 msgstr "incréments"
 
-#: ../tcl/mini.tcl:1518 ../tcl/tklinuxcnc.tcl:602 ../tcl/tklinuxcnc.tcl:1249
-#: ../tcl/tklinuxcnc.tcl:1253
+#: ../tcl/mini.tcl:1518 ../tcl/tkemc.tcl:602 ../tcl/tkemc.tcl:1249
+#: ../tcl/tkemc.tcl:1253
 msgid "continuous"
 msgstr "continu"
 
@@ -1925,7 +1922,7 @@ msgstr "Broche sens horaire"
 msgid "Spindle Reverse"
 msgstr "Broche sens anti-horaire"
 
-#: ../tcl/mini.tcl:1590 ../tcl/tklinuxcnc.tcl:871
+#: ../tcl/mini.tcl:1590 ../tcl/tkemc.tcl:871
 msgid "Spindle off"
 msgstr "Arrêt de broche"
 
@@ -1937,11 +1934,11 @@ msgstr "Broche moins vite"
 msgid "Spindle Faster"
 msgstr "Broche plus vite"
 
-#: ../tcl/mini.tcl:1632 ../tcl/tklinuxcnc.tcl:1620
+#: ../tcl/mini.tcl:1632 ../tcl/tkemc.tcl:1620
 msgid "MDI:"
 msgstr "MDI:"
 
-#: ../tcl/mini.tcl:1669 ../tcl/tklinuxcnc.tcl:1658
+#: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1658
 #: emc/usr_intf/stepconf/stepconf.glade:4403
 #: emc/usr_intf/pncconf/pncconf.glade:60509
 #: emc/usr_intf/pncconf/pncconf.glade:61603
@@ -1951,7 +1948,7 @@ msgstr "MDI:"
 msgid "Run"
 msgstr "Lancer"
 
-#: ../tcl/mini.tcl:1671 ../tcl/tklinuxcnc.tcl:1659
+#: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1659
 #: emc/usr_intf/pncconf/pncconf.glade:60574
 #: emc/usr_intf/pncconf/pncconf.glade:61668
 #: emc/usr_intf/pncconf/pncconf.glade:62761
@@ -1959,15 +1956,15 @@ msgstr "Lancer"
 msgid "Pause"
 msgstr "Pause"
 
-#: ../tcl/mini.tcl:1673 ../tcl/tklinuxcnc.tcl:1660
+#: ../tcl/mini.tcl:1673 ../tcl/tkemc.tcl:1660
 msgid "Resume"
 msgstr "Reprise"
 
-#: ../tcl/mini.tcl:1675 ../tcl/tklinuxcnc.tcl:1661
+#: ../tcl/mini.tcl:1675 ../tcl/tkemc.tcl:1661
 msgid "Step"
 msgstr "Pas à pas"
 
-#: ../tcl/mini.tcl:1677 ../tcl/tklinuxcnc.tcl:1662
+#: ../tcl/mini.tcl:1677 ../tcl/tkemc.tcl:1662
 msgid "Verify"
 msgstr "Vérifier"
 
@@ -1983,23 +1980,23 @@ msgstr "Arrière"
 msgid "Ahead"
 msgstr "Avant"
 
-#: ../tcl/mini.tcl:1701 ../tcl/ngcgui.tcl:1221
+#: ../tcl/mini.tcl:1701 ../tcl/ngcgui.tcl:1224
 msgid "Restart"
 msgstr "Reprise"
 
 #: ../tcl/mini.tcl:1711 ../tcl/mini.tcl:2823 ../tcl/mini.tcl:2882
-#: ../tcl/tklinuxcnc.tcl:465 emc/usr_intf/axis/scripts/axis.py:1872
+#: ../tcl/tkemc.tcl:465 emc/usr_intf/axis/scripts/axis.py:1872
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:754
 msgid "All files"
 msgstr "Tous les fichiers"
 
 #: ../tcl/mini.tcl:1712 ../tcl/mini.tcl:2824 ../tcl/mini.tcl:2883
-#: ../tcl/tklinuxcnc.tcl:466
+#: ../tcl/tkemc.tcl:466
 msgid "Text files"
 msgstr "Fichiers texte"
 
 #: ../tcl/mini.tcl:1713 ../tcl/mini.tcl:2825 ../tcl/mini.tcl:2884
-#: ../tcl/tklinuxcnc.tcl:467
+#: ../tcl/tkemc.tcl:467
 msgid "NC files"
 msgstr "Fichiers NC"
 
@@ -2019,67 +2016,67 @@ msgstr "A/U ENGAGÉ"
 msgid "ESTOP PUSH"
 msgstr "A/U"
 
-#: ../tcl/mini.tcl:1892 ../tcl/tklinuxcnc.tcl:2233
+#: ../tcl/mini.tcl:1892 ../tcl/tkemc.tcl:2233
 msgid "ESTOP RESET"
 msgstr "A/U LIBÉRÉ"
 
-#: ../tcl/mini.tcl:1897 ../tcl/tklinuxcnc.tcl:2298
+#: ../tcl/mini.tcl:1897 ../tcl/tkemc.tcl:2298
 msgid "SPINDLE FORWARD"
 msgstr "BROCHE SENS HORAIRE"
 
-#: ../tcl/mini.tcl:1899 ../tcl/tklinuxcnc.tcl:2300
+#: ../tcl/mini.tcl:1899 ../tcl/tkemc.tcl:2300
 msgid "SPINDLE REVERSE"
 msgstr "BROCHE SENS ANTI-HORAIRE"
 
-#: ../tcl/mini.tcl:1901 ../tcl/tklinuxcnc.tcl:2302
+#: ../tcl/mini.tcl:1901 ../tcl/tkemc.tcl:2302
 msgid "SPINDLE OFF"
 msgstr "ARRÊT BROCHE"
 
-#: ../tcl/mini.tcl:1903 ../tcl/tklinuxcnc.tcl:2304
+#: ../tcl/mini.tcl:1903 ../tcl/tkemc.tcl:2304
 msgid "SPINDLE INCREASE"
 msgstr "BROCHE ACCÉLÈRE"
 
-#: ../tcl/mini.tcl:1905 ../tcl/tklinuxcnc.tcl:2306
+#: ../tcl/mini.tcl:1905 ../tcl/tkemc.tcl:2306
 msgid "SPINDLE DECREASE"
 msgstr "BROCHE DÉCÉLÈRE"
 
-#: ../tcl/mini.tcl:1907 ../tcl/tklinuxcnc.tcl:2308
+#: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2308
 msgid "SPINDLE ?"
 msgstr "BROCHE ?"
 
-#: ../tcl/mini.tcl:1911 ../tcl/tklinuxcnc.tcl:2312
+#: ../tcl/mini.tcl:1911 ../tcl/tkemc.tcl:2312
 msgid "BRAKE ON"
 msgstr "FREIN ENGAGÉ"
 
-#: ../tcl/mini.tcl:1913 ../tcl/tklinuxcnc.tcl:2314
+#: ../tcl/mini.tcl:1913 ../tcl/tkemc.tcl:2314
 msgid "BRAKE OFF"
 msgstr "FREIN LIBÉRÉ"
 
-#: ../tcl/mini.tcl:1915 ../tcl/tklinuxcnc.tcl:2316
+#: ../tcl/mini.tcl:1915 ../tcl/tkemc.tcl:2316
 msgid "BRAKE ?"
 msgstr "FREIN ?"
 
-#: ../tcl/mini.tcl:1919 ../tcl/tklinuxcnc.tcl:2274
+#: ../tcl/mini.tcl:1919 ../tcl/tkemc.tcl:2274
 msgid "MIST ON"
 msgstr "AVEC GOUTTELETTES"
 
-#: ../tcl/mini.tcl:1921 ../tcl/tklinuxcnc.tcl:2276
+#: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2276
 msgid "MIST OFF"
 msgstr "SANS GOUTELETTES"
 
-#: ../tcl/mini.tcl:1923 ../tcl/tklinuxcnc.tcl:2278
+#: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2278
 msgid "MIST ?"
 msgstr "GOUTTELETTES ?"
 
-#: ../tcl/mini.tcl:1927 ../tcl/tklinuxcnc.tcl:2282
+#: ../tcl/mini.tcl:1927 ../tcl/tkemc.tcl:2282
 msgid "FLOOD ON"
 msgstr "AVEC ARROSAGE"
 
-#: ../tcl/mini.tcl:1929 ../tcl/tklinuxcnc.tcl:2284
+#: ../tcl/mini.tcl:1929 ../tcl/tkemc.tcl:2284
 msgid "FLOOD OFF"
 msgstr "SANS ARROSAGE"
 
-#: ../tcl/mini.tcl:1931 ../tcl/tklinuxcnc.tcl:2286
+#: ../tcl/mini.tcl:1931 ../tcl/tkemc.tcl:2286
 msgid "FLOOD ?"
 msgstr "ARROSAGE ?"
 
@@ -2383,64 +2380,60 @@ msgstr ""
 msgid "Close"
 msgstr "Fermer"
 
-#: ../tcl/tklinuxcnc.tcl:154 ../tcl/tklinuxcnc.tcl:181
+#: ../tcl/tkemc.tcl:154 ../tcl/tkemc.tcl:181
 msgid "Set Run Mark"
 msgstr "Ajuster point de départ"
 
-#: ../tcl/tklinuxcnc.tcl:156
+#: ../tcl/tkemc.tcl:156
 #, tcl-format
 msgid "Set run mark at line %s?"
 msgstr "Ajuster point de départ sur la ligne %s?"
 
-#: ../tcl/tklinuxcnc.tcl:176 ../tcl/tklinuxcnc.tcl:204
+#: ../tcl/tkemc.tcl:176 ../tcl/tkemc.tcl:204
 msgid "untitled"
 msgstr "Sans titre"
 
-#: ../tcl/tklinuxcnc.tcl:212
+#: ../tcl/tkemc.tcl:212
 msgid "Load Parameter File"
 msgstr "Chargement du fichier de paramètres"
 
-#: ../tcl/tklinuxcnc.tcl:261
+#: ../tcl/tkemc.tcl:261
 msgid "EMC Diagnostics"
 msgstr "Diagnostic LinuxCNC"
 
-#: ../tcl/tklinuxcnc.tcl:263
+#: ../tcl/tkemc.tcl:263
 msgid "Task"
 msgstr "Tâche"
 
-#: ../tcl/tklinuxcnc.tcl:265 ../tcl/tklinuxcnc.tcl:288
-#: ../tcl/tklinuxcnc.tcl:311
+#: ../tcl/tkemc.tcl:265 ../tcl/tkemc.tcl:288 ../tcl/tkemc.tcl:311
 msgid "Heartbeat:"
 msgstr "Fréquence:"
 
-#: ../tcl/tklinuxcnc.tcl:268 ../tcl/tklinuxcnc.tcl:291
-#: ../tcl/tklinuxcnc.tcl:314
+#: ../tcl/tkemc.tcl:268 ../tcl/tkemc.tcl:291 ../tcl/tkemc.tcl:314
 msgid "Command:"
 msgstr "Commande:"
 
-#: ../tcl/tklinuxcnc.tcl:271 ../tcl/tklinuxcnc.tcl:294
-#: ../tcl/tklinuxcnc.tcl:317
+#: ../tcl/tkemc.tcl:271 ../tcl/tkemc.tcl:294 ../tcl/tkemc.tcl:317
 msgid "Command #:"
 msgstr "Commande #:"
 
-#: ../tcl/tklinuxcnc.tcl:274 ../tcl/tklinuxcnc.tcl:297
-#: ../tcl/tklinuxcnc.tcl:320
+#: ../tcl/tkemc.tcl:274 ../tcl/tkemc.tcl:297 ../tcl/tkemc.tcl:320
 msgid "Status:"
 msgstr "Status:"
 
-#: ../tcl/tklinuxcnc.tcl:286
+#: ../tcl/tkemc.tcl:286
 msgid "Io"
 msgstr "E/s"
 
-#: ../tcl/tklinuxcnc.tcl:309
+#: ../tcl/tkemc.tcl:309
 msgid "Motion"
 msgstr "Mouvement"
 
-#: ../tcl/tklinuxcnc.tcl:350
+#: ../tcl/tkemc.tcl:350
 msgid "About TkEmc"
 msgstr "À propos de TkLinuxCNC"
 
-#: ../tcl/tklinuxcnc.tcl:351
+#: ../tcl/tkemc.tcl:351
 msgid ""
 "TkEmc\n"
 "\n"
@@ -2454,63 +2447,63 @@ msgstr ""
 "\n"
 "Domaine Publique (1999)/n Traduction française de Francis Tisserant."
 
-#: ../tcl/tklinuxcnc.tcl:399
+#: ../tcl/tkemc.tcl:399
 msgid "Set Tool Offset"
 msgstr "Ajuster l'offset d'outil"
 
-#: ../tcl/tklinuxcnc.tcl:404 ../tcl/tklinuxcnc.tcl:905
+#: ../tcl/tkemc.tcl:404 ../tcl/tkemc.tcl:905
 msgid "Tool:"
 msgstr "Outil:"
 
-#: ../tcl/tklinuxcnc.tcl:722
+#: ../tcl/tkemc.tcl:722
 msgid "Edit..."
 msgstr "Éditer.."
 
-#: ../tcl/tklinuxcnc.tcl:727
+#: ../tcl/tkemc.tcl:727
 msgid "Tool Table Editor..."
 msgstr "Editeur de fichier d'outils..."
 
-#: ../tcl/tklinuxcnc.tcl:730 emc/usr_intf/touchy/touchy.glade:1383
+#: ../tcl/tkemc.tcl:730 emc/usr_intf/touchy/touchy.glade:1383
 msgid "Reload Tool Table"
 msgstr "Recharger table d'outils"
 
-#: ../tcl/tklinuxcnc.tcl:740
+#: ../tcl/tkemc.tcl:740
 msgid "Offsets and Variables..."
 msgstr "Offsets et variables.."
 
-#: ../tcl/tklinuxcnc.tcl:741
+#: ../tcl/tkemc.tcl:741
 msgid "Diagnostics..."
 msgstr "Diagnostiques..."
 
-#: ../tcl/tklinuxcnc.tcl:742
+#: ../tcl/tkemc.tcl:742
 msgid "Backplot..."
 msgstr "Parcours d'outil..."
 
-#: ../tcl/tklinuxcnc.tcl:748
+#: ../tcl/tkemc.tcl:748
 msgid "Testing..."
 msgstr "Testing..."
 
-#: ../tcl/tklinuxcnc.tcl:749
+#: ../tcl/tkemc.tcl:749
 msgid "Debug..."
 msgstr "Débogue..."
 
-#: ../tcl/tklinuxcnc.tcl:750
+#: ../tcl/tkemc.tcl:750
 msgid "Font..."
 msgstr "Police..."
 
-#: ../tcl/tklinuxcnc.tcl:754 emc/usr_intf/axis/scripts/image-to-gcode.py:665
+#: ../tcl/tkemc.tcl:754 emc/usr_intf/axis/scripts/image-to-gcode.py:665
 msgid "Units"
 msgstr "Unités"
 
-#: ../tcl/tklinuxcnc.tcl:755
+#: ../tcl/tkemc.tcl:755
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tklinuxcnc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8509
+#: ../tcl/tkemc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8509
 msgid "inches"
 msgstr "pouces"
 
-#: ../tcl/tklinuxcnc.tcl:757 emc/usr_intf/axis/scripts/axis.py:1543
+#: ../tcl/tkemc.tcl:757 emc/usr_intf/axis/scripts/axis.py:1543
 #: emc/usr_intf/axis/scripts/axis.py:1713
 #: emc/usr_intf/touchy/touchy.glade:3301
 #: emc/usr_intf/stepconf/stepconf.py:1685
@@ -2529,208 +2522,207 @@ msgstr "pouces"
 msgid "mm"
 msgstr "mm"
 
-#: ../tcl/tklinuxcnc.tcl:758
+#: ../tcl/tkemc.tcl:758
 msgid "cm"
 msgstr "cm"
 
-#: ../tcl/tklinuxcnc.tcl:762
+#: ../tcl/tkemc.tcl:762
 msgid "Utilities"
 msgstr "Utilitaires"
 
-#: ../tcl/tklinuxcnc.tcl:763
+#: ../tcl/tkemc.tcl:763
 msgid "Hal Scope"
 msgstr "HalScope"
 
-#: ../tcl/tklinuxcnc.tcl:785
+#: ../tcl/tkemc.tcl:785
 msgid "HAL Show"
 msgstr "Afficher HAL"
 
-#: ../tcl/tklinuxcnc.tcl:786
+#: ../tcl/tkemc.tcl:786
 msgid "HAL Config"
 msgstr "Configuration HAL"
 
-#: ../tcl/tklinuxcnc.tcl:792
+#: ../tcl/tkemc.tcl:792
 msgid "Balloon help"
 msgstr "Bulle d'aide"
 
-#: ../tcl/tklinuxcnc.tcl:815
+#: ../tcl/tkemc.tcl:815
 msgid "Estop on"
 msgstr "A/U engagé"
 
-#: ../tcl/tklinuxcnc.tcl:816
+#: ../tcl/tkemc.tcl:816
 msgid "Estop off"
 msgstr "A/U libéré"
 
-#: ../tcl/tklinuxcnc.tcl:818
+#: ../tcl/tkemc.tcl:818
 msgid "Machine on"
 msgstr "Machine en marche"
 
-#: ../tcl/tklinuxcnc.tcl:819
+#: ../tcl/tkemc.tcl:819
 msgid "Machine off"
 msgstr "Machine arrêtée"
 
-#: ../tcl/tklinuxcnc.tcl:826 emc/usr_intf/touchy/touchy.glade:1561
+#: ../tcl/tkemc.tcl:826 emc/usr_intf/touchy/touchy.glade:1561
 msgid "Manual"
 msgstr "Manuel"
 
-#: ../tcl/tklinuxcnc.tcl:835
+#: ../tcl/tkemc.tcl:835
 msgid "Mist on"
 msgstr "Avec gouttelettes"
 
-#: ../tcl/tklinuxcnc.tcl:836
+#: ../tcl/tkemc.tcl:836
 msgid "Mist off"
 msgstr "Sans gouttelettes"
 
-#: ../tcl/tklinuxcnc.tcl:843
+#: ../tcl/tkemc.tcl:843
 msgid "Flood on"
 msgstr "Avec arrosage"
 
-#: ../tcl/tklinuxcnc.tcl:844
+#: ../tcl/tkemc.tcl:844
 msgid "Flood off"
 msgstr "Sans arrosage"
 
-#: ../tcl/tklinuxcnc.tcl:851
+#: ../tcl/tkemc.tcl:851
 msgid "Lube on"
 msgstr "Avec lubrifiant"
 
-#: ../tcl/tklinuxcnc.tcl:852
+#: ../tcl/tkemc.tcl:852
 msgid "Lube off"
 msgstr "Sans lubrifiant"
 
-#: ../tcl/tklinuxcnc.tcl:869
+#: ../tcl/tkemc.tcl:869
 msgid "Spindle forward"
 msgstr "Broche sens horaire"
 
-#: ../tcl/tklinuxcnc.tcl:870
+#: ../tcl/tkemc.tcl:870
 msgid "Spindle reverse"
 msgstr "Broche sens anti-horaire"
 
-#: ../tcl/tklinuxcnc.tcl:885
+#: ../tcl/tkemc.tcl:885
 msgid "Brake on"
 msgstr "Frein engagé"
 
-#: ../tcl/tklinuxcnc.tcl:886
+#: ../tcl/tkemc.tcl:886
 msgid "Brake off"
 msgstr "Frein libéré"
 
-#: ../tcl/tklinuxcnc.tcl:907
+#: ../tcl/tkemc.tcl:907
 msgid "Offset:"
 msgstr "Offset:"
 
-#: ../tcl/tklinuxcnc.tcl:913
+#: ../tcl/tkemc.tcl:913
 msgid "Work Offsets:"
 msgstr "Offsets de travail:"
 
-#: ../tcl/tklinuxcnc.tcl:1233
+#: ../tcl/tkemc.tcl:1233
 msgid "relative"
 msgstr "relatif"
 
-#: ../tcl/tklinuxcnc.tcl:1234
+#: ../tcl/tkemc.tcl:1234
 msgid "machine"
 msgstr "machine"
 
-#: ../tcl/tklinuxcnc.tcl:1236
+#: ../tcl/tkemc.tcl:1236
 msgid "actual"
 msgstr "actuelle"
 
-#: ../tcl/tklinuxcnc.tcl:1237
+#: ../tcl/tkemc.tcl:1237
 msgid "commanded"
 msgstr "commandée"
 
-#: ../tcl/tklinuxcnc.tcl:1239
+#: ../tcl/tkemc.tcl:1239
 msgid "joint"
 msgstr "jointure"
 
-#: ../tcl/tklinuxcnc.tcl:1240
+#: ../tcl/tkemc.tcl:1240
 msgid "world"
 msgstr "global"
 
-#: ../tcl/tklinuxcnc.tcl:1333
+#: ../tcl/tkemc.tcl:1333
 msgid "Axis Offset"
 msgstr "Offset d'axe"
 
-#: ../tcl/tklinuxcnc.tcl:1335
+#: ../tcl/tkemc.tcl:1335
 msgid "Set axis value:"
 msgstr "Ajuster valeurs d'axes"
 
-#: ../tcl/tklinuxcnc.tcl:1429
+#: ../tcl/tkemc.tcl:1429
 msgid "Set Feed Override"
 msgstr "Ajuster le correcteur de vitesse"
 
-#: ../tcl/tklinuxcnc.tcl:1435
+#: ../tcl/tkemc.tcl:1435
 msgid "Set feed override:"
 msgstr "Ajuster le correcteur de vitesse:"
 
-#: ../tcl/tklinuxcnc.tcl:1460
+#: ../tcl/tkemc.tcl:1460
 msgid "Set Spindle Override"
 msgstr "Ajuster le correcteur de vitesse de broche"
 
-#: ../tcl/tklinuxcnc.tcl:1466
+#: ../tcl/tkemc.tcl:1466
 msgid "Set spindle speed override:"
 msgstr "Ajustement de la vitesse de broche:"
 
-#: ../tcl/tklinuxcnc.tcl:1521
+#: ../tcl/tkemc.tcl:1521
 msgid "Linear Jog Speed"
 msgstr "Vitesse de jog linéaire"
 
-#: ../tcl/tklinuxcnc.tcl:1552
+#: ../tcl/tkemc.tcl:1552
 msgid "Angular Jog Speed (deg)/min:"
 msgstr "Vitesse de jog angulaire (degrés)/min:"
 
-#: ../tcl/tklinuxcnc.tcl:1596
+#: ../tcl/tkemc.tcl:1596
 msgid "Spindle speed Override:"
 msgstr "Ajustement de la vitesse de broche:"
 
-#: ../tcl/tklinuxcnc.tcl:1642
+#: ../tcl/tkemc.tcl:1642
 msgid "Program: "
 msgstr "Programme: "
 
-#: ../tcl/tklinuxcnc.tcl:1647
+#: ../tcl/tkemc.tcl:1647
 msgid "  -  Status: "
 msgstr "  -  Status: "
 
-#: ../tcl/tklinuxcnc.tcl:1663
+#: ../tcl/tkemc.tcl:1663
 msgid "Optional Stop"
 msgstr "Arrêt optionnel"
 
-#: ../tcl/tklinuxcnc.tcl:2010
+#: ../tcl/tkemc.tcl:2010
 msgid "Error"
 msgstr "Erreur"
 
-#: ../tcl/tklinuxcnc.tcl:2070 ../tcl/ngcgui_ttt.tcl:46
+#: ../tcl/tkemc.tcl:2070
 msgid "Set Font"
 msgstr "Choisir police"
 
-#: ../tcl/tklinuxcnc.tcl:2079 ../tcl/ngcgui_ttt.tcl:283
+#: ../tcl/tkemc.tcl:2079 ../tcl/ngcgui_ttt.tcl:283
 msgid "Font"
 msgstr "Police"
 
-#: ../tcl/tklinuxcnc.tcl:2086
+#: ../tcl/tkemc.tcl:2086
 msgid "Size"
 msgstr "Taille"
 
-#: ../tcl/tklinuxcnc.tcl:2093
+#: ../tcl/tkemc.tcl:2093
 msgid "Style"
 msgstr "Style"
 
-#: ../tcl/tklinuxcnc.tcl:2229 ../share/axis/tcl/axis.tcl:1916
+#: ../tcl/tkemc.tcl:2229 ../share/axis/tcl/axis.tcl:1916
 msgid "ESTOP"
 msgstr "A/U"
 
-#: ../tcl/tklinuxcnc.tcl:2231 ../tcl/ngcgui.tcl:2840
-#: ../share/axis/tcl/axis.tcl:1918
+#: ../tcl/tkemc.tcl:2231 ../share/axis/tcl/axis.tcl:1918
 msgid "ON"
 msgstr "EN MARCHE"
 
-#: ../tcl/tklinuxcnc.tcl:2290
+#: ../tcl/tkemc.tcl:2290
 msgid "LUBE ON"
 msgstr "LUBRIFIANT ON"
 
-#: ../tcl/tklinuxcnc.tcl:2292
+#: ../tcl/tkemc.tcl:2292
 msgid "LUBE OFF"
 msgstr "LUBRIFIANT OFF"
 
-#: ../tcl/tklinuxcnc.tcl:2294
+#: ../tcl/tkemc.tcl:2294
 msgid "LUBE ?"
 msgstr "LUBRIFIANT ?"
 
@@ -2766,15 +2758,15 @@ msgstr "Régler le zéro"
 msgid "Write"
 msgstr "Écrire"
 
-#: ../tcl/ngcgui.tcl:467
+#: ../tcl/ngcgui.tcl:469
 msgid "Need non-null file name"
 msgstr "Nécessite un nom de fichier"
 
-#: ../tcl/ngcgui.tcl:543
+#: ../tcl/ngcgui.tcl:545
 msgid "Disallowed use of ngcgui generated file as Subfile"
 msgstr "Refus d'utiliser le fichier ngcgui généré comme un sous-fichier"
 
-#: ../tcl/ngcgui.tcl:549
+#: ../tcl/ngcgui.tcl:551
 msgid ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
@@ -2782,584 +2774,456 @@ msgstr ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
 
-#: ../tcl/ngcgui.tcl:564
+#: ../tcl/ngcgui.tcl:566
 msgid "Multiple subroutines in file not allowed"
 msgstr "Multiples sous-programmes dans un fichier non permis"
 
-#: ../tcl/ngcgui.tcl:573 ../tcl/ngcgui.tcl:595 ../tcl/ngcgui.tcl:608
-#: ../tcl/ngcgui.tcl:650 ../tcl/ngcgui.tcl:755
+#: ../tcl/ngcgui.tcl:575 ../tcl/ngcgui.tcl:597 ../tcl/ngcgui.tcl:610
+#: ../tcl/ngcgui.tcl:652 ../tcl/ngcgui.tcl:757
 msgid "bogus"
 msgstr "bogue"
 
-#: ../tcl/ngcgui.tcl:575
+#: ../tcl/ngcgui.tcl:577
 msgid "sub label"
 msgstr "sous-label"
 
-#: ../tcl/ngcgui.tcl:575 ../tcl/ngcgui.tcl:652
+#: ../tcl/ngcgui.tcl:577 ../tcl/ngcgui.tcl:654
 msgid "does not match subroutine file name"
 msgstr "le sous-programme ne correspond pas au nom de fichier"
 
-#: ../tcl/ngcgui.tcl:590 ../tcl/ngcgui.tcl:591
+#: ../tcl/ngcgui.tcl:593
 msgid "ignoring M2 after endsub"
 msgstr "M2 ignoré après endsub"
 
-#: ../tcl/ngcgui.tcl:596
+#: ../tcl/ngcgui.tcl:598
 msgid "file contains lines after subend"
 msgstr "le fichier contient des lignes après subend"
 
-#: ../tcl/ngcgui.tcl:609
+#: ../tcl/ngcgui.tcl:611
 msgid "file contains lines before sub"
 msgstr "le fichier contient des lignes avant sub"
 
-#: ../tcl/ngcgui.tcl:652
+#: ../tcl/ngcgui.tcl:654
 msgid "endsub label"
 msgstr "label endsub"
 
-#: ../tcl/ngcgui.tcl:757
+#: ../tcl/ngcgui.tcl:759
 msgid "out of sequence positional parameter"
 msgstr "paramètres positionnels hors séquence"
 
-#: ../tcl/ngcgui.tcl:757
+#: ../tcl/ngcgui.tcl:759
 msgid "expected"
 msgstr "attendu"
 
-#: ../tcl/ngcgui.tcl:817
+#: ../tcl/ngcgui.tcl:819
 msgid "toomany"
 msgstr "trop"
 
-#: ../tcl/ngcgui.tcl:868
+#: ../tcl/ngcgui.tcl:870
 msgid "no sub found in file"
 msgstr "pas de sub dans le fichier"
 
-#: ../tcl/ngcgui.tcl:871
+#: ../tcl/ngcgui.tcl:873
 msgid "no endsub found in file"
 msgstr "pas de endsub dans le fichier"
 
-#: ../tcl/ngcgui.tcl:961
+#: ../tcl/ngcgui.tcl:964
 msgid "Choose Files"
 msgstr "Choisir fichiers"
 
-#: ../tcl/ngcgui.tcl:1100
+#: ../tcl/ngcgui.tcl:1103
 msgid "Controls"
 msgstr "Contrôles"
 
-#: ../tcl/ngcgui.tcl:1109
+#: ../tcl/ngcgui.tcl:1112
 msgid "Preamble"
 msgstr "Préambule"
 
-#: ../tcl/ngcgui.tcl:1122
+#: ../tcl/ngcgui.tcl:1125
 msgid "Subfile"
 msgstr "Sous-fichier"
 
-#: ../tcl/ngcgui.tcl:1134
+#: ../tcl/ngcgui.tcl:1137
 msgid "Postamble"
 msgstr "Postambule"
 
-#: ../tcl/ngcgui.tcl:1151
+#: ../tcl/ngcgui.tcl:1154
 msgid "Retain values on Subfile read"
 msgstr "conserver les valeurs à la lecture du sous-fichier"
 
-#: ../tcl/ngcgui.tcl:1159
+#: ../tcl/ngcgui.tcl:1162
 msgid "Expand subroutine"
 msgstr "Déployer le sous-programme"
 
-#: ../tcl/ngcgui.tcl:1168 ../tcl/ngcgui.tcl:2414
+#: ../tcl/ngcgui.tcl:1171
 msgid "Autosend"
 msgstr "Envoi automatique"
 
-#: ../tcl/ngcgui.tcl:1178
+#: ../tcl/ngcgui.tcl:1181
 msgid "Verbose ngcfile"
 msgstr "Fichier G-code clair"
 
-#: ../tcl/ngcgui.tcl:1188 ../tcl/ngcgui.tcl:2235 ../tcl/ngcgui.tcl:2259
-#: ../tcl/ngcgui.tcl:2289
+#: ../tcl/ngcgui.tcl:1191 ../tcl/ngcgui.tcl:2264 ../tcl/ngcgui.tcl:2288
+#: ../tcl/ngcgui.tcl:2318
 msgid "Create Feature"
 msgstr "Crée le dispositif"
 
-#: ../tcl/ngcgui.tcl:1194 ../tcl/ngcgui.tcl:2919
+#: ../tcl/ngcgui.tcl:1197 ../tcl/ngcgui.tcl:2944
 msgid "MakeFile"
 msgstr "Fichier makefile"
 
-#: ../tcl/ngcgui.tcl:1195 ../tcl/ngcgui.tcl:2916
+#: ../tcl/ngcgui.tcl:1198 ../tcl/ngcgui.tcl:2941
 msgid "Finalize"
 msgstr "Finalise"
 
-#: ../tcl/ngcgui.tcl:1212
+#: ../tcl/ngcgui.tcl:1215
 msgid "Reread"
 msgstr "Relis"
 
-#: ../tcl/ngcgui.tcl:1231
+#: ../tcl/ngcgui.tcl:1234
 msgid "SendFileToAxis"
 msgstr "SendFileToAxis"
 
-#: ../tcl/ngcgui.tcl:1274
+#: ../tcl/ngcgui.tcl:1277
 msgid "Unrecoverable problem"
 msgstr "Problème sans solution"
 
-#: ../tcl/ngcgui.tcl:1374
-msgid "Postamble file"
-msgstr "Fichier postambule"
-
-#: ../tcl/ngcgui.tcl:1424
-msgid "Subroutine file"
-msgstr "Fichier sous-programme"
-
-#: ../tcl/ngcgui.tcl:1482
+#: ../tcl/ngcgui.tcl:1485
 msgid "Positional Parameters"
 msgstr "Paramètres de position"
 
-#: ../tcl/ngcgui.tcl:1587
+#: ../tcl/ngcgui.tcl:1590
 msgid "_Globals"
 msgstr "_Globaux"
 
-#: ../tcl/ngcgui.tcl:1690
-msgid "No Subfile specified"
-msgstr "Aucun sous-fichier spécifié"
-
-#: ../tcl/ngcgui.tcl:1692
-msgid "No parameters yet"
-msgstr "Pas encore de paramètre"
-
-#: ../tcl/ngcgui.tcl:1701
-msgid "Missing value for parm"
-msgstr "Valeur de paramètre manquante"
-
-#: ../tcl/ngcgui.tcl:1735
-msgid "Output file"
-msgstr "Fichier de sortie"
-
-#: ../tcl/ngcgui.tcl:1827
-msgid "Positional parameters for"
-msgstr "Paramètres de position pour"
-
-#: ../tcl/ngcgui.tcl:1835
-msgid "expanded file"
-msgstr "Fichier étendu"
-
-#: ../tcl/ngcgui.tcl:1849
-msgid "call subroutine file"
-msgstr "Appel de fichier sous-programme"
-
-#: ../tcl/ngcgui.tcl:1919
-msgid "Multiple Tabs with Features"
-msgstr "Multiples onglets avec fonctionnalités"
-
-#: ../tcl/ngcgui.tcl:1920
-msgid "Finalize all Tabs?"
-msgstr "Finalise tous les onglets"
-
-#: ../tcl/ngcgui.tcl:1920
-msgid "Order"
-msgstr "Commande"
-
-#: ../tcl/ngcgui.tcl:1922
-msgid "No, just this page"
-msgstr "Non, juste cette page"
-
-#: ../tcl/ngcgui.tcl:1936
+#: ../tcl/ngcgui.tcl:1945
 msgid "Axis is not responding"
 msgstr "Axis ne répond pas"
 
-#: ../tcl/ngcgui.tcl:1937
+#: ../tcl/ngcgui.tcl:1946
 msgid "Error: "
 msgstr "Erreur:"
 
-#: ../tcl/ngcgui.tcl:1939
+#: ../tcl/ngcgui.tcl:1948
 msgid "Autosend disabled, Ctrl-A toggles autosend"
 msgstr "Autosend désactivé, Ctrl-A bascule autosend"
 
-#: ../tcl/ngcgui.tcl:1941
+#: ../tcl/ngcgui.tcl:1950
 msgid "File saving enabled -- Finalize to save"
 msgstr "Sauvegarde activée -- Finalise la sauvegarde"
 
-#: ../tcl/ngcgui.tcl:1957
+#: ../tcl/ngcgui.tcl:1966
 msgid "Require .ngc suffix for filename"
 msgstr "Requiert l'extension .ngc pour le nom de fichier"
 
-#: ../tcl/ngcgui.tcl:1967
+#: ../tcl/ngcgui.tcl:1976
 msgid "Disallowed overwrite of"
 msgstr "Écrasement refusé"
 
-#: ../tcl/ngcgui.tcl:1986
+#: ../tcl/ngcgui.tcl:1995
 msgid "FEATURE"
 msgstr "FONCTION"
 
-#: ../tcl/ngcgui.tcl:1993
+#: ../tcl/ngcgui.tcl:2002
 msgid "feature line added"
 msgstr "ligne de fonction ajoutée"
 
-#: ../tcl/ngcgui.tcl:2002
+#: ../tcl/ngcgui.tcl:2011
 msgid "line added"
 msgstr "ligne ajoutée"
 
-#: ../tcl/ngcgui.tcl:2002
+#: ../tcl/ngcgui.tcl:2011
 msgid "activated"
 msgstr "activé"
 
-#: ../tcl/ngcgui.tcl:2004
+#: ../tcl/ngcgui.tcl:2013
 msgid "restores"
 msgstr "restaure"
 
-#: ../tcl/ngcgui.tcl:2041
+#: ../tcl/ngcgui.tcl:2050
 msgid "NOTREACHED mode"
 msgstr "Mode PASATTEINT"
 
-#: ../tcl/ngcgui.tcl:2236
+#: ../tcl/ngcgui.tcl:2265
 msgid "Enter parms for 1st feature"
 msgstr "Entrer les paramètres de la 1ère fonction"
 
-#: ../tcl/ngcgui.tcl:2243
+#: ../tcl/ngcgui.tcl:2272
 msgid "New Outfile"
 msgstr "Nouveau fichier de sortie"
 
-#: ../tcl/ngcgui.tcl:2245
+#: ../tcl/ngcgui.tcl:2274
 msgid "Ready to make New Outfile"
 msgstr "Prêt à créer un nouveau fichier de sortie"
 
-#: ../tcl/ngcgui.tcl:2262 ../tcl/ngcgui.tcl:2295
+#: ../tcl/ngcgui.tcl:2291 ../tcl/ngcgui.tcl:2324
 msgid "Enter parms for feature "
 msgstr "Entrer les paramètres pour la fonction"
 
-#: ../tcl/ngcgui.tcl:2282
-msgid "feature"
-msgstr "fonctionnalité"
-
-#: ../tcl/ngcgui.tcl:2287
+#: ../tcl/ngcgui.tcl:2316
 msgid "Create Next"
 msgstr "Créer le suivant"
 
-#: ../tcl/ngcgui.tcl:2292
+#: ../tcl/ngcgui.tcl:2321
 msgid "Created feature "
 msgstr "Fonction créée"
 
-#: ../tcl/ngcgui.tcl:2316
+#: ../tcl/ngcgui.tcl:2341
 msgid "option"
 msgstr "option"
 
-#: ../tcl/ngcgui.tcl:2327
+#: ../tcl/ngcgui.tcl:2352
 msgid "Missing parameters"
 msgstr "Paramètres manquants"
 
-#: ../tcl/ngcgui.tcl:2331
+#: ../tcl/ngcgui.tcl:2356
 msgid "Parse Error"
 msgstr "Erreur d'analyse"
 
-#: ../tcl/ngcgui.tcl:2338
+#: ../tcl/ngcgui.tcl:2363
 msgid "Null Preamble"
 msgstr "Aucun préambule"
 
-#: ../tcl/ngcgui.tcl:2343
+#: ../tcl/ngcgui.tcl:2368
 msgid "Read Preamble"
 msgstr "Lecture préambule"
 
-#: ../tcl/ngcgui.tcl:2347
+#: ../tcl/ngcgui.tcl:2372
 msgid "Preamble Error"
 msgstr "Erreur de préambule"
 
-#: ../tcl/ngcgui.tcl:2352
+#: ../tcl/ngcgui.tcl:2377
 msgid "Null Postamble"
 msgstr "Aucun postambule"
 
-#: ../tcl/ngcgui.tcl:2357
+#: ../tcl/ngcgui.tcl:2382
 msgid "Read Postamble"
 msgstr "Lis le synchroniseur final"
 
-#: ../tcl/ngcgui.tcl:2361
+#: ../tcl/ngcgui.tcl:2386
 msgid "Postamble Error"
 msgstr "Erreur de postambule"
 
-#: ../tcl/ngcgui.tcl:2366
+#: ../tcl/ngcgui.tcl:2391
 msgid "Read Subfile"
 msgstr "Lecture sous-fichier"
 
-#: ../tcl/ngcgui.tcl:2371
+#: ../tcl/ngcgui.tcl:2396
 msgid "Write Error"
 msgstr "Erreur d'écriture"
 
-#: ../tcl/ngcgui.tcl:2375
+#: ../tcl/ngcgui.tcl:2400
 msgid "Outfile set"
 msgstr "Outfile set"
 
-#: ../tcl/ngcgui.tcl:2380
+#: ../tcl/ngcgui.tcl:2405
 msgid "Finished"
 msgstr "Fini"
 
-#: ../tcl/ngcgui.tcl:2385
+#: ../tcl/ngcgui.tcl:2410
 msgid "Canceled"
 msgstr "Annuler"
 
-#: ../tcl/ngcgui.tcl:2391
+#: ../tcl/ngcgui.tcl:2416
 msgid "Sent"
 msgstr "Envoyé"
 
-#: ../tcl/ngcgui.tcl:2395
+#: ../tcl/ngcgui.tcl:2420
 msgid "SendFileToAxis failed"
 msgstr "Défaut avec SendFileToAxis"
 
-#: ../tcl/ngcgui.tcl:2399
+#: ../tcl/ngcgui.tcl:2424
 msgid "Ctrl-k for Key bindings"
 msgstr "Ctrl-k pour les raccourcis clavier"
 
-#: ../tcl/ngcgui.tcl:2403
+#: ../tcl/ngcgui.tcl:2428
 msgid "Expand sub"
 msgstr "Déployer sous-programme"
 
-#: ../tcl/ngcgui.tcl:2407
-msgid "Retain values"
-msgstr "Valeurs retenues"
-
-#: ../tcl/ngcgui.tcl:2411
-msgid "Verbose"
-msgstr "Verbeux"
-
-#: ../tcl/ngcgui.tcl:2417
+#: ../tcl/ngcgui.tcl:2442
 msgid "Finalize Canceled"
 msgstr "Finalise l'abandon"
 
-#: ../tcl/ngcgui.tcl:2572 ../tcl/ngcgui.tcl:2728
+#: ../tcl/ngcgui.tcl:2597 ../tcl/ngcgui.tcl:2753
 msgid "Dismiss"
 msgstr "Rejeter"
 
-#: ../tcl/ngcgui.tcl:2577
+#: ../tcl/ngcgui.tcl:2602
 msgid "ngcgui Error"
 msgstr "Erreur ngcgui"
 
-#: ../tcl/ngcgui.tcl:2600
+#: ../tcl/ngcgui.tcl:2625
 msgid "Declining support for tk send bug in ngcgui"
 msgstr "Declining support for tk send bug in ngcgui"
 
-#: ../tcl/ngcgui.tcl:2601
-msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
-msgstr "Vous devez mettre LinuxCNC à jour avec LinuxCNC => v2.5"
+#: ../tcl/ngcgui.tcl:2626
+msgid "You should upgrade emc to >=emc2.5"
+msgstr "Vous devez mettre LinuxCNC à jour avec LinuxCNC >= v2.5"
 
-#: ../tcl/ngcgui.tcl:2645
+#: ../tcl/ngcgui.tcl:2670
 msgid "pre2.4_send_file_to_axis:error"
 msgstr "erreur: pre2.4_send_file_to_axis"
 
-#: ../tcl/ngcgui.tcl:2839 ../share/axis/tcl/axis.tcl:1917
-msgid "OFF"
-msgstr "ARRÊT"
-
-#: ../tcl/ngcgui.tcl:2842
+#: ../tcl/ngcgui.tcl:2867
 msgid "Toggle autosend"
 msgstr "Bascule envoi auto"
 
-#: ../tcl/ngcgui.tcl:2843 ../tcl/ngcgui.tcl:3057
+#: ../tcl/ngcgui.tcl:2868
 msgid "Clear entries"
 msgstr "Effacer les entrées"
 
-#: ../tcl/ngcgui.tcl:2844
+#: ../tcl/ngcgui.tcl:2869
 msgid "Set entries to default values"
 msgstr "Réglez les entrées aux valeurs par défaut"
 
-#: ../tcl/ngcgui.tcl:2845 ../tcl/ngcgui.tcl:2859 ../tcl/ngcgui.tcl:2861
+#: ../tcl/ngcgui.tcl:2870 ../tcl/ngcgui.tcl:2884 ../tcl/ngcgui.tcl:2886
 msgid "Open editor specified by"
 msgstr "Ouvrir l'éditeur spécifié par"
 
-#: ../tcl/ngcgui.tcl:2846
+#: ../tcl/ngcgui.tcl:2871
 msgid "on last outfile"
 msgstr "sur le dernier fichier de sortie"
 
-#: ../tcl/ngcgui.tcl:2847
+#: ../tcl/ngcgui.tcl:2872
 msgid "toggle expand subroutines"
 msgstr "bascule déploiement sous-programmes"
 
-#: ../tcl/ngcgui.tcl:2848
+#: ../tcl/ngcgui.tcl:2873
 msgid "Create feature"
 msgstr "Crée la fonction"
 
-#: ../tcl/ngcgui.tcl:2849
+#: ../tcl/ngcgui.tcl:2874
 msgid "Finalize (AUTO send is"
 msgstr "Finalise (AUTO send is"
 
-#: ../tcl/ngcgui.tcl:2850
+#: ../tcl/ngcgui.tcl:2875
 msgid "Show key bindings"
 msgstr "Montrer raccourcis clavier"
 
-#: ../tcl/ngcgui.tcl:2851
+#: ../tcl/ngcgui.tcl:2876
 msgid "Restart (cancel pending)"
 msgstr "Redémarre (annule les en cours)"
 
-#: ../tcl/ngcgui.tcl:2852
+#: ../tcl/ngcgui.tcl:2877
 msgid "(re)Read Preamble"
 msgstr "(re)lecture préambule"
 
-#: ../tcl/ngcgui.tcl:2853
+#: ../tcl/ngcgui.tcl:2878
 msgid "(re)Read Postamble"
 msgstr "Relis le synchronisateur final"
 
-#: ../tcl/ngcgui.tcl:2854
+#: ../tcl/ngcgui.tcl:2879
 msgid "(re)Read Subfile"
 msgstr "(re)lecture sous-fichier"
 
-#: ../tcl/ngcgui.tcl:2855
+#: ../tcl/ngcgui.tcl:2880
 msgid "toggle retain values"
 msgstr "alterner les valeurs retenues"
 
-#: ../tcl/ngcgui.tcl:2856
+#: ../tcl/ngcgui.tcl:2881
 msgid "toggle output file verbosity"
 msgstr "alterner la verbosité du fichier de sortie"
 
-#: ../tcl/ngcgui.tcl:2857
+#: ../tcl/ngcgui.tcl:2882
 msgid "Show status"
 msgstr "Afficher le status"
 
-#: ../tcl/ngcgui.tcl:2858
+#: ../tcl/ngcgui.tcl:2883
 msgid "Show full status (debug info)"
 msgstr "Afficher le status complet (infos de deboguage)"
 
-#: ../tcl/ngcgui.tcl:2860
+#: ../tcl/ngcgui.tcl:2885
 msgid "on current subfile"
 msgstr "on current subfile"
 
-#: ../tcl/ngcgui.tcl:2862
+#: ../tcl/ngcgui.tcl:2887
 msgid "on current preamble"
 msgstr "le préambule courant"
 
-#: ../tcl/ngcgui.tcl:2865
-msgid " Escape Return to Preview page"
-msgstr "Échappe pour revenir à la page précédente"
-
-#: ../tcl/ngcgui.tcl:2942
-msgid "Editing requires setting for environmental variable VISUAL"
-msgstr "Pour l'édition, la variable d'environnement VISUAL doit être ajustée"
-
-#: ../tcl/ngcgui.tcl:2943
-msgid "Trying gedit"
-msgstr "Essayer gedit"
-
-#: ../tcl/ngcgui.tcl:2955
-msgid "No file available for editing yet"
-msgstr "Aucun fichier a éditer n'est encore disponible"
-
-#: ../tcl/ngcgui.tcl:2964 ../tcl/ngcgui.tcl:2973
-msgid "No file available for editing"
-msgstr "Aucun fichier a éditer n'est disponible"
-
-#: ../tcl/ngcgui.tcl:2990
-msgid "Status items"
-msgstr "Items de status:"
-
-#: ../tcl/ngcgui.tcl:3003
-msgid "All-page opt items"
-msgstr "Items optionnels pour toutes les pages"
-
-#: ../tcl/ngcgui.tcl:3009
-msgid "any-items"
-msgstr "Tous les items"
-
-#: ../tcl/ngcgui.tcl:3046
-msgid "Set defaults"
-msgstr "Fixe par défaut"
-
-#: ../tcl/ngcgui.tcl:3125
+#: ../tcl/ngcgui.tcl:3150
 msgid "not writable"
 msgstr "non inscriptible"
 
-#: ../tcl/ngcgui.tcl:3263 ../tcl/ngcgui.tcl:3443
+#: ../tcl/ngcgui.tcl:3288 ../tcl/ngcgui.tcl:3468
 msgid "new"
 msgstr "nouveau"
 
-#: ../tcl/ngcgui.tcl:3288
-msgid "Open a new Subfile"
-msgstr "Ouvrir un nouveau sous-fichier"
-
-#: ../tcl/ngcgui.tcl:3434
+#: ../tcl/ngcgui.tcl:3459
 msgid "remove"
 msgstr "enlever"
 
-#: ../tcl/ngcgui.tcl:3456 ../tcl/ngcgui.tcl:3462
+#: ../tcl/ngcgui.tcl:3481 ../tcl/ngcgui.tcl:3487
 msgid "move"
 msgstr "mouvement"
 
-#: ../tcl/ngcgui.tcl:3561 emc/usr_intf/pncconf/pncconf.py:7020
+#: ../tcl/ngcgui.tcl:3586 emc/usr_intf/pncconf/pncconf.py:7020
 #: emc/usr_intf/pncconf/pncconf.py:7137 emc/usr_intf/pncconf/pncconf.py:7303
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: ../tcl/ngcgui.tcl:3587
+#: ../tcl/ngcgui.tcl:3612
 msgid "Problem creating page"
 msgstr "Problème à la création de la page"
 
-#: ../tcl/ngcgui.tcl:3594
+#: ../tcl/ngcgui.tcl:3619
 msgid "entrykeybindings not available"
 msgstr "raccourci clavier non disponible"
 
-#: ../tcl/ngcgui.tcl:3626
+#: ../tcl/ngcgui.tcl:3651
 msgid "Found multiple matches for"
 msgstr "Trouve plusieurs occurrences pour"
 
-#: ../tcl/ngcgui.tcl:3627
+#: ../tcl/ngcgui.tcl:3652
 msgid "using path"
 msgstr "utiliser le chemin"
 
-#: ../tcl/ngcgui.tcl:3635
+#: ../tcl/ngcgui.tcl:3660
 msgid "File not in Search Path"
 msgstr "Fichier non trouvé dans le chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3637
+#: ../tcl/ngcgui.tcl:3662
 msgid "Must be in search path"
 msgstr "Doit être dans le chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3639
+#: ../tcl/ngcgui.tcl:3664
 msgid "(File found -- not in search path)"
 msgstr "(Fichier trouvé, hors du chemin de recherche)"
 
-#: ../tcl/ngcgui.tcl:3641
+#: ../tcl/ngcgui.tcl:3666
 msgid "Current directory"
 msgstr "Répertoire courant"
 
-#: ../tcl/ngcgui.tcl:3642
+#: ../tcl/ngcgui.tcl:3667
 msgid "Search path"
 msgstr "Chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3648
+#: ../tcl/ngcgui.tcl:3673
 msgid "Check setting for"
 msgstr "Vérifie le réglage des"
 
-#: ../tcl/ngcgui.tcl:3649
+#: ../tcl/ngcgui.tcl:3674
 msgid "in ini file"
 msgstr "dans le fichier ini"
 
-#: ../tcl/ngcgui.tcl:3650
+#: ../tcl/ngcgui.tcl:3675
 msgid "(Restart required after fixing ini file)"
 msgstr "(Redémarrage requis après modif. du fichier ini)"
 
-#: ../tcl/ngcgui.tcl:3665
+#: ../tcl/ngcgui.tcl:3690
 msgid "Try to Continue"
 msgstr "Essayer de continuer"
 
-#: ../tcl/ngcgui.tcl:3670
+#: ../tcl/ngcgui.tcl:3695
 msgid "Ngcgui Configuration File Not Found"
 msgstr "Fichier de configuration Ngcgui introuvable"
 
-#: ../tcl/ngcgui.tcl:3750
-msgid "Missing Tcl Package Img"
-msgstr "Paquet Tcl lmg manquant"
-
-#: ../tcl/ngcgui.tcl:3751
-msgid "Please install Img"
-msgstr "Installer Img"
-
-#: ../tcl/ngcgui.tcl:3950
+#: ../tcl/ngcgui.tcl:3975
 msgid "ini file"
 msgstr "fichier ini"
 
-#: ../tcl/ngcgui.tcl:3958
+#: ../tcl/ngcgui.tcl:3983
 msgid "not found"
 msgstr "introuvable"
-
-#: ../tcl/ngcgui_ttt.tcl:67
-msgid "found truetype-tracer v4 -OK"
-msgstr "truetype-tracer v4 trouvé -OK"
-
-#: ../tcl/ngcgui_ttt.tcl:70
-msgid "Note truetype-tracer v4 is required"
-msgstr "Note truetype-tracer v4 est requis"
-
-#: ../tcl/ngcgui_ttt.tcl:71
-msgid "Note: truetype-tracer v4 is required"
-msgstr "Note: truetype-tracer v4 est requis"
 
 #: ../tcl/ngcgui_ttt.tcl:81
 msgid "ngcgui_app.tcl must be loaded before"
@@ -4063,11 +3927,11 @@ msgstr "Démarrer depuis ici"
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
-#: emc/usr_intf/axis/scripts/linuxcnctop.py:102
+#: emc/usr_intf/axis/scripts/emctop.py:102
 msgid "EMC Status"
 msgstr "Status de LinuxCNC"
 
-#: emc/usr_intf/axis/scripts/linuxcnctop.py:118
+#: emc/usr_intf/axis/scripts/emctop.py:118
 msgid "Copy All"
 msgstr "Copier tout"
 
@@ -4896,6 +4760,10 @@ msgstr "AXIS $::version sur $::machine"
 #: ../share/axis/tcl/axis.tcl:1905
 msgid "(no file)"
 msgstr "(pas de fichier)"
+
+#: ../share/axis/tcl/axis.tcl:1917
+msgid "OFF"
+msgstr "ARRÊT"
 
 #: ../share/axis/tcl/axis.tcl:1976 ../share/axis/tcl/axis.tcl:1981
 msgid "Position:"
@@ -13471,6 +13339,100 @@ msgstr "R inférieur à U dans un cycle dans le plan VW"
 #: emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr "R inférieur à V dans un cycle dans le plan UW"
+
+#~ msgid "Postamble file"
+#~ msgstr "Fichier postambule"
+
+#~ msgid "Subroutine file"
+#~ msgstr "Fichier sous-programme"
+
+#~ msgid "No Subfile specified"
+#~ msgstr "Aucun sous-fichier spécifié"
+
+#~ msgid "No parameters yet"
+#~ msgstr "Pas encore de paramètre"
+
+#~ msgid "Missing value for parm"
+#~ msgstr "Valeur de paramètre manquante"
+
+#~ msgid "Output file"
+#~ msgstr "Fichier de sortie"
+
+#~ msgid "Positional parameters for"
+#~ msgstr "Paramètres de position pour"
+
+#~ msgid "expanded file"
+#~ msgstr "Fichier étendu"
+
+#~ msgid "call subroutine file"
+#~ msgstr "Appel de fichier sous-programme"
+
+#~ msgid "Multiple Tabs with Features"
+#~ msgstr "Multiples onglets avec fonctionnalités"
+
+#~ msgid "Finalize all Tabs?"
+#~ msgstr "Finalise tous les onglets"
+
+#~ msgid "Order"
+#~ msgstr "Commande"
+
+#~ msgid "No, just this page"
+#~ msgstr "Non, juste cette page"
+
+#~ msgid "feature"
+#~ msgstr "fonctionnalité"
+
+#~ msgid "Retain values"
+#~ msgstr "Valeurs retenues"
+
+#~ msgid "Verbose"
+#~ msgstr "Verbeux"
+
+#~ msgid " Escape Return to Preview page"
+#~ msgstr "Échappe pour revenir à la page précédente"
+
+#~ msgid "Editing requires setting for environmental variable VISUAL"
+#~ msgstr ""
+#~ "Pour l'édition, la variable d'environnement VISUAL doit être ajustée"
+
+#~ msgid "Trying gedit"
+#~ msgstr "Essayer gedit"
+
+#~ msgid "No file available for editing yet"
+#~ msgstr "Aucun fichier a éditer n'est encore disponible"
+
+#~ msgid "No file available for editing"
+#~ msgstr "Aucun fichier a éditer n'est disponible"
+
+#~ msgid "Status items"
+#~ msgstr "Items de status:"
+
+#~ msgid "All-page opt items"
+#~ msgstr "Items optionnels pour toutes les pages"
+
+#~ msgid "any-items"
+#~ msgstr "Tous les items"
+
+#~ msgid "Set defaults"
+#~ msgstr "Fixe par défaut"
+
+#~ msgid "Open a new Subfile"
+#~ msgstr "Ouvrir un nouveau sous-fichier"
+
+#~ msgid "Missing Tcl Package Img"
+#~ msgstr "Paquet Tcl lmg manquant"
+
+#~ msgid "Please install Img"
+#~ msgstr "Installer Img"
+
+#~ msgid "found truetype-tracer v4 -OK"
+#~ msgstr "truetype-tracer v4 trouvé -OK"
+
+#~ msgid "Note truetype-tracer v4 is required"
+#~ msgstr "Note truetype-tracer v4 est requis"
+
+#~ msgid "Note: truetype-tracer v4 is required"
+#~ msgstr "Note: truetype-tracer v4 est requis"
 
 #~ msgid "Ngcgui configuration search failed for"
 #~ msgstr "recherche de configuration Ngcgui à échoué pour"
