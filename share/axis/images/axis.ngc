@@ -5,10 +5,8 @@
 ( Also press the Toggle Skip Lines with "/" to see that part )
 ( If the program is too big or small for your machine, change the scale #3 )
 ( LinuxCNC 19/1/2012 2:13:51 PM )
-( T3 : D=3.0mm )
 G21 G90 G64 G40
 G0 Z3.0
-T3 M6
 ( engraving )
 G17
 M3 S10000
