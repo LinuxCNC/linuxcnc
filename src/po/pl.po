@@ -3816,11 +3816,11 @@ msgstr "Uruchom od tego miejsca"
 msgid "Error in ~/.axisrc"
 msgstr "Błąd w ~/.axisrc"
 
-#: emc/usr_intf/axis/scripts/emctop.py:102
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:102
 msgid "EMC Status"
 msgstr "Status EMC"
 
-#: emc/usr_intf/axis/scripts/emctop.py:118
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:118
 msgid "Copy All"
 msgstr "Kopiuj wszystko"
 

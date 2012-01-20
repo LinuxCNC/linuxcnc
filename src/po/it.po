@@ -3328,11 +3328,11 @@ msgstr "Avvia da qui"
 msgid "Error in ~/.axisrc"
 msgstr "Errore in ~/.axisrc"
 
-#: emc/usr_intf/axis/scripts/emctop.py:102
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:102
 msgid "EMC Status"
 msgstr "Stato EMC"
 
-#: emc/usr_intf/axis/scripts/emctop.py:118
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:118
 msgid "Copy All"
 msgstr "Copia Tutto"
 

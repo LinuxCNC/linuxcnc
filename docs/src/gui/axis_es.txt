@@ -685,9 +685,9 @@ The most frequently used keyboard shortcuts are shown in the following Table
 |Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
 |====================================================================
 
-== Show LinuxCNC Status (emctop)
+== Show LinuxCNC Status (linuxcnctop)
 
-AXIS includes a program called 'emctop' which shows some of the
+AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
 Show LinuxCNC Status
 

@@ -2482,7 +2482,7 @@ class TclCommands(nf.TclCommands):
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window, 
-    ("emctop_command", StringVar),
+    ("linuxcnctop_command", StringVar),
     ("emcini", StringVar),
     ("mdi_command", StringVar),
     ("taskfile", StringVar),
@@ -2538,7 +2538,7 @@ vars = nf.Variables(root_window,
     ("machine", StringVar),
     ("on_any_limit", BooleanVar),
 )
-vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
+vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
 vars.tto_g11.set(ap.getpref("tto_g11", False))
