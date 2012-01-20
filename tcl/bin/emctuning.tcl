@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 
 # Load the linuxcnc.tcl file, which defines variables for various useful paths
