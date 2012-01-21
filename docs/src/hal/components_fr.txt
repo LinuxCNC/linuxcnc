@@ -13,12 +13,11 @@ Par exemple dans une console, tapez *man axis* pour accéder aux informations de
 la man page d'Axis. Ou peut être *man 1 axis*, si le système exige le N° de 
 section des man pages.
 
-axis:: AXIS EMC (The Enhanced Machine Controller) Interface Graphique 
-Utilisateur.
+axis::  LinuxCNC AXIS (The Enhanced Machine Controller) Interface Graphique.
 axis-remote:: Interface de télécommande d'AXIS.
 comp:: Crée, compile et installe des composants de HAL.
-emc:: EMC (The Enhanced Machine Controller).
-gladevcp:: Panneau de contrôle virtuel pour EMC2, repose sur Glade, Gtk et 
+linuxcnc:: LINUXCNC (The Enhanced Machine Controller).
+gladevcp:: Panneau de contrôle virtuel pour LinuxCNC, repose sur Glade, Gtk et 
 les widgets HAL.
 gs2:: composant de l'espace utilisateur de HAL, pour le variateur de 
 fréquence GS2 de la société _Automation Direct_.
@@ -29,12 +28,12 @@ halmeter:: Observer les pins de HAL, ses signaux et ses paramètres.
 halrun:: Manipulation de  HAL, depuis la ligne de commandes.
 halsampler:: Échantillonner des données temps réel depuis HAL.
 halstreamer:: Créer un flux de données temps réel dans HAL depuis un fichier.
-halui:: Observer des pins de HAL et commander EMC au travers d'NML.
+halui:: Observer des pins de HAL et commander LinuxCNC au travers d'NML.
 io:: Accepte les commandes NML I/O, interagi avec HAL dans l'espace 
 utilisateur.
 iocontrol:: Accepte les commandes NML I/O, interagi avec HAL dans l'espace 
 utilisateur.
-pyvcp:: Panneau de Contrôle Virtuel pour EMC2 (Python Virtual Control Panel).
+pyvcp:: Panneau de Contrôle Virtuel pour LinuxCNC (Python Virtual Control Panel).
 shuttlexpress:: Contrôle des pins de HAL avec la manette ShuttleXpress, de 
 la société _Contour Design_.
 
@@ -168,7 +167,7 @@ invert:: (((invert)))Calcule l'inverse du signal d'entrée.
 joyhandle:: (((joyhandle)))Définit les mouvements d'un joypad non linéaire, 
 zones mortes et échelles.
 
-kins:: (((kins)))Définition des cinématiques pour EMC2.
+kins:: (((kins)))Définition des cinématiques pour linuxcnc.
 
 knob2float:: (((knob2float)))Convertisseur de comptage (probablement d'un 
 codeur) vers une valeur en virgule flottante.

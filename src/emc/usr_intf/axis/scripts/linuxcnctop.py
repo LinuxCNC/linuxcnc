@@ -97,9 +97,9 @@ if s.kinematics_type == 1:
 def gui():
     import Tkinter
     from _tkinter import TclError
-    root = Tkinter.Tk(className="EmcTop")
+    root = Tkinter.Tk(className="LinuxCNCTop")
     rs274.options.install(root)
-    root.title(_("EMC Status"))
+    root.title(_("LinuxCNC Status"))
 
     t = Tkinter.Text()
     sb = Tkinter.Scrollbar(command=t.yview)

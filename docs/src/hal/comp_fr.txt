@@ -12,7 +12,7 @@ la plupart de cette tâche consiste à appeler des fonctions *rtapi_* et
 
 Compiler un composant de HAL est également beaucoup plus simple en
 utilisant *comp* , que le composant fasse partie de l'arborescence
-d'emc2, ou qu'il en soit extérieur.
+de LinuxCNC, ou qu'il en soit extérieur.
 
 Par exemple, cette portion des blocs *ddt* fait environ 80 lignes de
 code. Le composant équivalent est vraiment très court quand il est
@@ -388,13 +388,13 @@ de broches d'entrée à chaque porte logique et permettre la sélection de
 
 == Compiler un fichier *.comp* dans l'arborescence
 
-Placer le fichier *.comp* dans le répertoire *emc2/src/hal/components*
+Placer le fichier *.comp* dans le répertoire *linuxcnc/src/hal/components*
 et lancer/relancer *make*. *Les fichiers Comp* sont automatiquement
 détectés par le système de compilation.
 
 Si un fichier *.comp* est un pilote de périphérique, il peut être
-placé dans *emc2/src/hal/components*  et il y sera construit excepté si
-emc2 est configuré en mode
+placé dans *linuxcnc/src/hal/components*  et il y sera construit excepté si
+LinuxCNC est configuré en mode
 simulation.
 
 == Compiler un composant temps réel hors de l'arborescence[[sec:Compiler-composants-rt]]
@@ -403,7 +403,7 @@ simulation.
 *comp* peut traiter, compiler et installer un composant temps réel en
 une
  seule étape, en plaçant *rtexample.ko* dans le répertoire du module
-temps réel d'emc2:
+temps réel de LinuxCNC:
 
     comp --install rtexample.comp
 
@@ -579,7 +579,7 @@ créer un tableau de taille variable et des pins optionnelles.
 
 [source,c]
 ----
-component logic "EMC2 HAL component providing experimental logic functions";
+component logic "LinuxCNC HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;

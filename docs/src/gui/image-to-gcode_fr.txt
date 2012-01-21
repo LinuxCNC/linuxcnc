@@ -70,7 +70,7 @@ Quand une série de points est proche d'une ligne droite au point
 d'être dans la *tolerance* , elle sera traitée comme une ligne droite
 en sortie. Augmenter la
 tolérance peut donner de meilleures performances de contourage avec
-emc, mais peut aussi estomper ou gommer les détails les plus fins de
+LinuxCNC, mais peut aussi estomper ou gommer les détails les plus fins de
 l'image.
 
 === Pixel Size (unités)

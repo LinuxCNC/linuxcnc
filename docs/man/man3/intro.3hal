@@ -1,4 +1,4 @@
-.TH intro "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.TH intro "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 hal \- Introduction to the HAL API

@@ -1,4 +1,4 @@
-.TH hal_signal_new "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.TH hal_signal_new "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 hal_signal_new, hal_signal_delete, hal_link, hal_unlink \- Manipulate HAL signals

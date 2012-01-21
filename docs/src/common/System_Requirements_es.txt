@@ -1,53 +1,32 @@
-= System Requirements
+= Computadora
 
-[[cha:system-requirements]] (((System Requirements)))
+== Requerimientos Mínimos (((Requerimientos Minimos)))
 
-== Minimum Requirements (((Minimum Requirements)))
+Los requerimientos mínimos de hardware para ejecutar EMC2 y Ubuntu pueden variar dependiendo del uso que se le dará al sistema. Sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retro alimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Mantenga en Mente que los resultados del estudio de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Mas información sobre el estudio de latencia se encuentra en la sección (<<sec:Prueba de Latencia>>).
 
-The minimum system to run LinuxCNC and Ubuntu may vary depending on the
-exact usage. Stepper systems in general require faster threads to
-generate step pulses than servo systems. Using the Live-CD you can test
-the software before committing a computer. Keep in mind that the
-Latency Test numbers are more important than the processor speed for
-software step generation. More information on the Latency Test is 
-<<latency-test,here>>.
-
-Additional information is on the LinuxCNC Wiki site:
+Información adicional se puede encontrar en el sitio de EMC wiki:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
 
-LinuxCNC and Ubuntu should run reasonably well on a computer with the
-following minimum hardware specification. These numbers are not the
-absolute minimum but will give reasonable performance for most stepper
-systems.
+EMC2 y Ubuntu deberían de ejecutarse razonablemente bien en una computadora con las siguientes especificaciones mínimas de hardware. Estas especificaciones no son las mínimas absolutas pero proporcionan un desempeño razonable para la mayoría de los sistemas basados en motores a pasos.
 
-* 700 MHz x86 processor (1.2 GHz x86 processor recommended)
-* 384 MB of RAM (512 MB up to 1 GB recommended)
-* 8 GB hard disk
-* Graphics card capable of at least 1024x768 resolution, which is not
-   using the NVidia or ATI fglrx proprietary drivers, and which is not an
-   onboard video chipset that shares main memory with the CPU
-* A network or Internet connection (not strictly needed, but very useful
-   for updates and for communicating with the LinuxCNC community)
+*700 Mhz x86 procesador (se recomienda un procesador de 1.2GHz x86)
+*384 MB de RAM (se recomienda entre 512MB  hasta 1GB)
+*8 GB de espacio en disco duro
+*Tarjeta gráfica capaz de por lo menos 1024x768 de resolución, que no este ejecutando los controladores propietarios Nvidia o ATI fglrx, y de preferencia que no se trate de una tarjeta de vídeo integrada que comparta memoria con el CPU.
+*Una conexión de red o Internet (No es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones y contactar a la comunidad de usuarios del EMC)
 
-Minimum hardware requirements change as Ubuntu evolves so check the 
-https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD your using.
-Older hardware may benefit from selecting an older version of the LiveCD when
-available.
+Los requerimientos mínimos del sistema cambian conforme Ubuntu evoluciona, por lo tanto revise el sitio web help.ubuntu.com[Ubuntu] para mas detalles sobre el LiveCD que esta usando. Hardware antiguo podría beneficiarse si se selecciona una version mas antigua del LiveCD cuando se encuentre disponible.
 
-== Problematic Hardware
+== Hardware Problemático
 
-=== Laptops
+=== Computadores Portátiles
 
-Laptops are not generally suited to real time software step
-generation. Again a Latency Test run for an extended time will give you
-the info you need to determine suitability.
+Los computadores portátiles en general no son buenos para la generación por software de pasos en tiempo real. De nuevo el Estudio de Latencia ejecutado por un periodo de tiempo prolongado proveerá la información necesaria para determinar si resulta apropiado su uso.
 
-=== Video Cards
+=== Tarjetas de Vídeo
 
-If your installation pops up with 800 x 600 screen resolution then
-most likely Ubuntu does not recognize your video card or monitor.
-Onboard video many times causes bad real time performance.
+Si su instalación comienza con una resolución de 800 x 600 en la mayoría de los casos eso significa que Ubuntu no reconoció apropiadamente su monitor o tarjeta de vídeo. Las tarjetas de vídeo integradas, la mayoría de los casos, producen malos resultados en el desempeño en tiempo real.
 
 // vim: set syntax=asciidoc:
 

@@ -11,14 +11,14 @@ Cet exemple montre les connexions demandées pour utiliser un variateur de
 fréquence fourni par la société Automation Direct pour piloter une broche.
 footnote:[En Europe on trouve une gamme de produits identiques sous la marque
 Omron.]
-La direction de la broche et sa vitesse seront contrôlées par EMC2.
+La direction de la broche et sa vitesse seront contrôlées par LinuxCNC.
 
 L'utilisation du composant GS2 est très simple à régler. Une configuration 
 complète peut être réalisée par l'assistant Stepconf. Bien vérifier que les 
 pins *Spindle CW* et *Spindle PWM* sont inutilisées sur la page de réglage du 
 port parallèle.
 
-Placer les lignes suivantes dans le fichier custom.hal pour connecter EMC2 au
+Placer les lignes suivantes dans le fichier custom.hal pour connecter LinuxCNC au
 GS2 et avoir le contrôle de celui-ci depuis l'interface utilisateur.
 ----
 # Charger le composant utilisateur pour le variateur variateur 

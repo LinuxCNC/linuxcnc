@@ -278,6 +278,19 @@ Instructions for fixing this are located here:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
 
+== Paths
+
+.Relative Paths
+Relative paths are based on the startup directory which is the directory
+containing the ini file.  Using relative paths can facilitate relocation of
+configurations but requires a good understanding of linux path specifiers.
+
+....
+   ./f0        is the same as f0, e.g., a file named f0 in the startup directory
+   ../f1       refers to a file f1 in the parent directory
+   ../../f2    refers to a file f2 in the parent of the parent directory
+   ../../../f3 etc.
+....
+
+
 // vim: set syntax=asciidoc:
-
-

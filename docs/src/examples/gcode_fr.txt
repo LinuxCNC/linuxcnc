@@ -3,7 +3,7 @@
 
 = Exemples de fichiers G-Code
 
-Après l'installation d'EMC2, plusieurs exemples de fichiers G-code se trouveront
+Après l'installation de LinuxCNC, plusieurs exemples de fichiers G-code se trouveront
 dans le répertoire /nc_files du dossier d'installation. Seuls les fichiers
 adaptés au type de la machine sont utilisable.
 

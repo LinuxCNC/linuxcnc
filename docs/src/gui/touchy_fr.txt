@@ -3,7 +3,7 @@
 
 = L'interface graphique Touchy
 
-Touchy est une interface utilisateur pour EMC2, destinée à être utilisée avec les
+Touchy est une interface utilisateur pour LinuxCNC, destinée à être utilisée avec les
 panneaux de commande de machines. Il ne nécessite ni clavier, ni souris.
 
 Il a été conçu pour fonctionner également sur les écrans tactiles, en combinaison

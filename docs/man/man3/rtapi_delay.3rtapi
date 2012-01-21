@@ -1,4 +1,4 @@
-.TH rtapi_delay "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_delay "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_delay \- Busy-loop for short delays

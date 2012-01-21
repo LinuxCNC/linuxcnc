@@ -1,29 +1,29 @@
-.TH emcrsh 1 "May 31, 2011" "" "The Enhanced Machine Controller"
+.TH linuxcncrsh 1 "May 31, 2011" "" "The Enhanced Machine Controller"
 .SH NAME
-emcrsh \- text-mode interface for commanding emc2 over the network
+linuxcncrsh \- text-mode interface for commanding emc2 over the network
 .SH SYNOPSIS
 .B
-emcrsh [OPTIONS] [-- EMC_OPTIONS]
+linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 .br
 .SH DESCRIPTION
-\fBemcrsh\fP is a user interface for emc2.  Instead of popping up a GUI
+\fBlinuxcncrsh\fP is a user interface for LinuxCNC.  Instead of popping up a GUI
 window like axis(1) and touchy(1) do, it processes text-mode commands
 that it receives via the network.  A human (or a program) can interface
-with \fBemcrsh\fP using telnet(1) or nc(1) or similar programs.
+with \fBlinuxcncrsh\fP using telnet(1) or nc(1) or similar programs.
 .P
-All features of emc2 are available via the \fBemcrsh\fP interface.
+All features of LinuxCNC are available via the \fBlinuxcncrsh\fP interface.
 .SH OPTIONS
 .P
 .B
 -p,--port PORT_NUMBER
 .RS
-Specify the port for emcrsh to listen on.  Defaults to 5007 if omitted.
+Specify the port for linuxcncrsh to listen on.  Defaults to 5007 if omitted.
 .RE
 .P
 .B
 -n,--name SERVER_NAME
 .RS
-Sets the server name that emcrsh will use to identify itself during
+Sets the server name that linuxcncrsh will use to identify itself during
 handshaking with a new client.  Defaults to EMCNETSVR if omitted.
 .RE
 .P
@@ -39,7 +39,7 @@ the client.  Defaults to EMC if omitted.
 .B
 -e,--enablepw PASSWORD
 .RS
-Specify the password required to enable emc2 via emcrsh.  Note that the
+Specify the password required to enable LinuxCNC via linuxcncrsh.  Note that the
 password is sent in the clear, so it can be read by anyone who can read
 packets on the network between the server and the client.  Defaults to
 EMCTOO if omitted.
@@ -52,71 +52,71 @@ Specify the maximum number of simultaneous connections.  Defaults to -1
 (no limit) if not specified.
 .RE
 .P
-In addition to the options listed above, emcrsh accepts an optional
-special EMC_OPTION at the end:
+In addition to the options listed above, linuxcncrsh accepts an optional
+special LINUXCNC_OPTION at the end:
 .P
 .B
--ini EMC_INI_FILE
+-ini LINUXCNC_INI_FILE
 .RS
-EMC .ini file to use.  The -ini option \fBmust\fP be preceeded by two
+LinuxCNC .ini file to use.  The -ini option \fBmust\fP be preceeded by two
 dashes: "--".  Defaults to emc.ini if omitted.
 .RE
-.SH Starting emcrsh
+.SH Starting linuxcncrsh
 .P
-To use emcrsh instead of a normal emc2 GUI like axis or touch, specify
+To use linuxcncrsh instead of a normal LinuxCNC GUI like axis or touch, specify
 it in your .ini file like this:
 .RS
 .P
 .B [DISPLAY]
 .P
-.B DISPLAY=emcrsh
+.B DISPLAY=linuxcncrsh
 .RE
 .P
-To use emcrsh in addition to a normal emc2 GUI, you can either start it
+To use linuxcncrsh in addition to a normal GUI, you can either start it
 at the end of your .hal file, or run it by hand in a terminal window.
 .P
 To start it from hal, add a line like this to the end of your .hal file:
 .RS
 .P
-.B loadusr emcrsh [OPTIONS] [-- EMC_OPTIONS]
+.B loadusr linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 .RE
 .P
-To start it from the terminal, run emcrsh manually like this:
+To start it from the terminal, run linuxcncrsh manually like this:
 .RS
 .P
-.B emcrsh [OPTIONS] [-- EMC_OPTIONS]
+.B linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 .RE
 .SH Connecting
 .P
-Once emc is up and emcrsh is running, you can connect to it using
+Once LinuxCNC is up and linuxcncrsh is running, you can connect to it using
 \fBtelnet\fP or \fBnc\fP or similar:
 .RS
 .P
 .B telnet HOST PORT
 .RS
-HOST is the hostname or IP address of the computer running emcrsh, and
-PORT is the port it's listening on (5007 if you did not give emcrsh the
+HOST is the hostname or IP address of the computer running linuxcncrsh, and
+PORT is the port it's listening on (5007 if you did not give linuxcncrsh the
 --port option).
 .RE
 .SH Network protocol
 .P
-emcrsh accepts TCP connections on the port specified by the --port option,
+linuxcncrsh accepts TCP connections on the port specified by the --port option,
 or 5007 if not specified.
 .P
-The client sends requests, and the emcrsh server returns replies.
+The client sends requests, and the linuxcncrsh server returns replies.
 Requests consist of a command word followed by optional command-specific
 parameters.  Requests and most request parameters are case
 insensitive. The exceptions are passwords, file paths and text strings.
 .P
-Requests to emcrsh are terminated with line endings, any combination of
-one or more '\\r' and '\\n' characters.  Replies from emcrsh are terminated
+Requests to linuxcncrsh are terminated with line endings, any combination of
+one or more '\\r' and '\\n' characters.  Replies from linuxcncrsh are terminated
 with the sequence \'\\r\\n\'.
 .P
 The supported commands are as follows:
 .P
 \fBhello <password> <client> <version>\fR
 .RS
-<password> must match emcrsh's connect password, or "EMC" if no
+<password> must match linuxcncrsh's connect password, or "EMC" if no
 --connectpw was supplied.  The three arguments may not contain whitespace.
 If a valid password was entered the server will respond with:
 .RS
@@ -132,15 +132,15 @@ responds with:
 .P
 \fBget <subcommand> [<parameters>]\fR
 .RS
-The get command takes one of the emc sub-commands (described in the
-section \fBEMC Subcommands\fR, below) and zero or more additional
+The get command takes one of the LinuxCNC sub-commands (described in the
+section \fBLinuxCNC Subcommands\fR, below) and zero or more additional
 subcommand-specific parameters.
 .RE
 .P
 \fBset <subcommand> <parameters>\fR
 .RS
-The set command takes one of the emc sub-commands (described in the
-section \fBEMC Subcommands\fR, below) and one or more additional
+The set command takes one of the LinuxCNC sub-commands (described in the
+section \fBLinuxCNC Subcommands\fR, below) and one or more additional
 parameters.
 .RE
 .P
@@ -151,10 +151,10 @@ The quit command disconnects the associated socket connection.
 .P
 \fBshutdown\fR
 .RS
-The shutdown command tells EMC to shutdown and disconnect the
+The shutdown command tells LinuxCNC to shutdown and disconnect the
 session. This command may only be issued if the Hello has been
 successfully negotiated and the connection has control of the CNC (see
-\fBenable\fR subcommand in the \fBEMC Subcommands\fR section, below).
+\fBenable\fR subcommand in the \fBLinuxCNC Subcommands\fR section, below).
 .RE
 .P
 \fBhelp\fR
@@ -165,7 +165,7 @@ commands.  If a command is specified, it will provide usage information
 for the specified command. Help will respond regardless of whether a
 "Hello" has been successsfully negotiated.
 .RE
-.SH "EMC Subcommands"
+.SH "LinuxCNC Subcommands"
 .P
 Subcommands for \fBget\fR and \fBset\fR are:
 .P
@@ -192,7 +192,7 @@ and starts out OFF on new connections.
 The session's enable state indicates whether the current connection is
 enabled to perform control functions.  With get, any parameter is ignored,
 and the current enable state is returned.  With set and a valid password
-matching emcrsh's --enablepw (EMCTOO if not specified), the current
+matching linuxcncrsh's --enablepw (EMCTOO if not specified), the current
 connection is enabled for control functions.  "OFF" may not be used as
 a password and disables control functions for this connection.
 .RE
@@ -278,17 +278,17 @@ connections.  Set this to "none" if you like to be confused.
 .P
 \fBerror\fR
 .RS
-With get, returns the current EMC error string, or "ok" if no error.
+With get, returns the current error string, or "ok" if no error.
 .RE
 .P
 \fBoperator_display\fR
 .RS
-With get, returns the current EMC operator display string, or "ok" if none.
+With get, returns the current operator display string, or "ok" if none.
 .RE
 .P
 \fBoperator_text\fR
 .RS
-With get, returns the current EMC operator text string, or "ok" if none.
+With get, returns the current operator text string, or "ok" if none.
 .RE
 .P
 \fBtime\fR
@@ -569,7 +569,7 @@ angular units that are active in the program interpreter.
 \fBuser_linear_units\fR
 .RS
 With get, returns "inch", "mm", "cm", or "custom", for the corresponding
-native user linear units of the EMC trajectory level. This is obtained
+native user linear units of the LinuxCNC trajectory level. This is obtained
 heuristically, based on the EMC_TRAJ_STAT::linearUnits numerical value
 of user units per mm.  Something close to 0.03937 is deemed "inch",
 1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
@@ -578,7 +578,7 @@ of user units per mm.  Something close to 0.03937 is deemed "inch",
 \fBuser_angular_units\fR
 .RS
 Returns "deg", "rad", "grad", or "custom" for the corresponding native
-user angular units of the EMC trajectory level. Like with linear units,
+user angular units of the LinuxCNC trajectory level. Like with linear units,
 this is obtained heuristically.
 .RE
 .P
@@ -661,7 +661,7 @@ setting is returned.  With set, the setting is set as specified.
 This section shows an example session.  Bold items are typed by you,
 non-bold is machine output.
 .P
-The user connects to emcrsh, handshakes with the server (hello), enables
+The user connects to linuxcncrsh, handshakes with the server (hello), enables
 machine commanding from this session (set enable), brings the machine
 out of estop (set estop off) and turns it on (set machine on), homes all
 the axes, switches the machine to mdi mode, sends an MDI g-code command,

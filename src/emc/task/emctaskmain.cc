@@ -3130,10 +3130,10 @@ int main(int argc, char *argv[])
     double startTime, endTime, deltaTime;
     double minTime, maxTime;
 
-    bindtextdomain("emc2", EMC2_PO_DIR);
+    bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("emc2");
+    textdomain("linuxcnc");
 
     // copy command line args
     Argc = argc;

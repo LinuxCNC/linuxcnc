@@ -6,7 +6,7 @@
 
 .The Mini Graphical Interface (upon starting)[[fig:startmini]]
 
-image::images/mini01.png[]
+image::images/mini01.png[align="center"]
 
 Mini was designed to be a full screen graphical interface.
 It was first written for the Sherline(((Sherline))) CNC but is
@@ -24,7 +24,7 @@ Operators Manual.]
 
 .Mini Display for a Running LinuxCNC[[fig:runmini]]
 
-image::images/mini02.png[]
+image::images/mini02.png[align="center"]
 
 The Mini screen is laid out in several sections. These include a menu
 across the top, a set of main
@@ -87,12 +87,12 @@ The menu includes each of the following sections and subsections.
 ** 'Show_Split_Right' - changes the nature of the right hand column so that it shows both
     mode and pop-in information.
     
-** '    Show_Mode_Full' - changes the right hand column so that the mode buttons or displays
+** 'Show_Mode_Full' - changes the right hand column so that the mode buttons or displays
         fill the entire right side of the screen. In manual mode, running
         with mode full you will see spindle and lube control buttons as well as
         the motion buttons.
     
-** '    Show_Popin_Full' - changes the right hand column so that the popin fills the entire
+** 'Show_Popin_Full' - changes the right hand column so that the popin fills the entire
         right side of the screen.
 
 * 'Settings' - These menu items allow the operator to control certain parameters
@@ -494,8 +494,10 @@ tool list so you will want to fill in tool information in descending
 order. Once a new tool has been added, you can use it in a program with
 the usual G-code commands. There is a 32 tool limit in the current LinuxCNC
 configuration files but you will run out of display space in Mini long
-before you get there. (Hint You can use menu\->view\->show popin full
-to see more tools if you need.)
+before you get there. 
+
+[TIP]
+You can use Menu > View > Show Popin Full to see more tools if you need.
 
 === Offset Page
 

@@ -4,8 +4,8 @@
 
 == Introduction
 
-TkLinuxCNC(((tkLinuxCNC))) is one of the most traditional graphical front-ends
-for LinuxCNC. It is written in Tcl(((Tcl))) and uses the Tk(((Tk))) toolkit
+TkLinuxCNC(((tkLinuxCNC))) is one of the first graphical front-ends
+for LinuxCNC. It is written in Tcl and uses the Tk toolkit
 for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
 shown.
@@ -63,17 +63,17 @@ The TkLinuxCNC window contains the following elements:
 
 From left to right, the buttons are:
 
-* Machine enable: 'ESTOP' / 'ESTOP RESET' / 'ON' 
+* Machine enable: 'ESTOP' > 'ESTOP RESET' > 'ON' 
 * Toggle mist coolant
 * Decrease spindle speed
-*  Set spindle direction 'SPINDLE OFF' / 'SPINDLE FORWARD' /
+*  Set spindle direction 'SPINDLE OFF' > 'SPINDLE FORWARD' .
  'SPINDLE REVERSE'
 * Increase spindle speed
 * Abort
 
 then on the second line:
 
-* Operation mode: 'MANUAL' / 'MDI' / 'AUTO'
+* Operation mode: 'MANUAL' > 'MDI' > 'AUTO'
 * Toggle flood coolant
 * Toggle spindle brake control
 

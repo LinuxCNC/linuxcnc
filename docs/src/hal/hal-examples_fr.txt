@@ -192,7 +192,7 @@ Après un changement de réglage, relancer Halscope pour visualiser l'effet.
 
 Pour terminer, taper *exit* dans le terminal pour fermer halrun et halscope. 
 Ne pas refermer le terminal avec halrun en marche, la mémoire ne serait pas
-vidée proprement, ce qui pourrait empêcher EMC2 de se charger.
+vidée proprement, ce qui pourrait empêcher LinuxCNC de se charger.
 
 Pour tout savoir sur Halscope et Halrun <<cha:Tutoriel-HAL, voir le tutoriel de HAL>>
 

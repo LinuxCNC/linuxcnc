@@ -23,7 +23,7 @@
              --enablepw <password> --sessions <max sessions> -ini<inifile>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
-            uses default port 5006. (note: emcrsh uses 5007 as default)
+            uses default port 5006. (note: linuxcncrsh uses 5007 as default)
   With -- --name <server name> Sets the server name to specified name for Hello.
   With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO

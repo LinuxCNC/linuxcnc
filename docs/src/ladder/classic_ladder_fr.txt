@@ -25,8 +25,8 @@ Voila, here is this work... and more: I've continued to add features
 since then.
 _____________________________________________________________________
 
-Classic Ladder has been adapted to work with EMC2's HAL, and is
-currently being distributed along with EMC2. If there are
+Classic Ladder has been adapted to work with LinuxCNC's HAL, and is
+currently being distributed along with LinuxCNC. If there are
 issues/problems/bugs please report them to the Enhanced Machine
 Controller project.
 
@@ -48,7 +48,7 @@ is the "Last One Wins" rule. If you have the same output in different
 locations of your ladder the state of the last one will be what the
 output is set to.
 
-Classic Ladder version 7.124 has been adapted for EMC 2.3. This
+Classic Ladder version 7.124 has been adapted for LinuxCNC 2.3. This
 document describes that version.
 
 == Languages
@@ -169,7 +169,7 @@ Classic Ladder Loading Options
    program at the same time or the TCP is default port.
  - `--modslave` (initializes MODBUS slave) only TCP
 
-To use Classic Ladder with HAL without EMC: 
+To use Classic Ladder with HAL without LinuxCNC: 
 
     loadusr -w classicladder
 
@@ -1023,12 +1023,12 @@ Again if you used the Stepconf Wizard to add Classic Ladder you can
 skip this step.
 
 To manually add a ladder you need to add add a line to your custom.hal
-file that will load your ladder file. Close your EMC2 session and add
+file that will load your ladder file. Close your LinuxCNC session and add
 this line to your custom.hal file.
 
     loadusr -w classicladder `--nogui` MyLadder.clp
 
-Now if you start up your EMC2 config your ladder program will be
+Now if you start up your LinuxCNC config your ladder program will be
 running as well. If you select "File/Ladder Editor", the program you
 created will show up in the Section Display window.
 

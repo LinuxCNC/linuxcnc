@@ -1,6 +1,6 @@
 #!/usr/bin/python2.4
 # -*- encoding: utf-8 -*-
-#    This is stepconf, a graphical configuration editor for emc2
+#    This is stepconf, a graphical configuration editor for LinuxCNC
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -61,9 +61,9 @@ sys.excepthook = excepthook
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext
-gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("emc2", LOCALEDIR)
-gtk.glade.textdomain("emc2")
+gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
+gtk.glade.textdomain("linuxcnc")
 
 # internalname / displayed name / steptime/ step space / direction hold / direction setup
 drivertypes = [
@@ -89,32 +89,32 @@ def iceil(x):
     if isinstance(x, basestring): x = float(x)
     return int(math.ceil(x))
 
-datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "emc")
-wizard = os.path.join(datadir, "emc2-wizard.gif")
+datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
+wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
+    wizard = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    linuxcncicon = os.path.join("/usr/share/emc/emc2-wizard.gif")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-    wizard = os.path.join(wizdir, "emc2-wizard.gif")
+    wizard = os.path.join(wizdir, "linuxcnc-wizard.gif")
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 linuxcncicon = os.path.join(icondir, "linuxcncicon.png")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/emc2/emc2-wizard.gif")
+    linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/emc/linuxcncicon.png")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "emc2", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "emc2", "examples", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "linuxcnc", "examples", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
+    distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
 ZSTEP, ZDIR, ASTEP, ADIR,
@@ -459,10 +459,10 @@ class Data:
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
         print >>file, "MAX_FEED_OVERRIDE = 1.2"
-        print >>file, "INTRO_GRAPHIC = emc2.gif"
+        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % \
-                                    os.path.expanduser("~/emc2/nc_files")
+                                    os.path.expanduser("~/linuxcnc/nc_files")
         if self.units:
             print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         else:
@@ -489,7 +489,7 @@ class Data:
 
         print >>file
         print >>file, "[RS274NGC]"
-        print >>file, "PARAMETER_FILE = emc.var"
+        print >>file, "PARAMETER_FILE = linuxcnc.var"
 
         base_period = self.ideal_period()
 
@@ -639,7 +639,7 @@ class Data:
             print >>file, "FERROR = 0.05"
             print >>file, "MIN_FERROR = 0.01"
 
-        # emc2 doesn't like having home right on an end of travel,
+        # linuxcnc doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
         maxlim = get("maxlim")
@@ -1102,11 +1102,11 @@ class Data:
             shutil.copy(os.path.join(distdir, filename), dest)
 
     def save(self):
-        base = os.path.expanduser("~/emc2/configs/%s" % self.machinename)
-        ncfiles = os.path.expanduser("~/emc2/nc_files")
+        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.machinename)
+        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
         if not os.path.exists(ncfiles):
             makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "emc", "ncfiles")
+            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
             if not os.path.exists(examples):
                 examples = os.path.join(BASE, "nc_files")
             if os.path.exists(examples):
@@ -1153,10 +1153,10 @@ class Data:
                 os.symlink(base,shortcut)
 
         if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(BASE + "/scripts/emc"):
-                scriptspath = (BASE + "/scripts/emc")
+            if os.path.exists(BASE + "/scripts/linuxcnc"):
+                scriptspath = (BASE + "/scripts/linuxcnc")
             else:
-                scriptspath ="emc"
+                scriptspath ="linuxcnc"
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
@@ -1217,7 +1217,7 @@ class App:
         self.make_axispage(glade, 'a')
         doc = glade.toxml().encode("utf-8")
 
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="linuxcnc")
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
@@ -1302,8 +1302,8 @@ class App:
                  gtk.STOCK_OPEN, gtk.RESPONSE_OK))
             dialog.set_default_response(gtk.RESPONSE_OK)
             dialog.add_filter(filter) 
-            dialog.add_shortcut_folder(os.path.expanduser("~/emc2/configs"))
-            dialog.set_current_folder(os.path.expanduser("~/emc2/configs"))
+            dialog.add_shortcut_folder(os.path.expanduser("~/linuxcnc/configs"))
+            dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
             result = dialog.run()
             if result == gtk.RESPONSE_OK:
@@ -1394,7 +1394,7 @@ class App:
         self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)):
                 self.widgets.radiobutton8.set_active(True)
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
@@ -1409,7 +1409,7 @@ class App:
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
         self.on_classicladder_toggled()
         if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)):
                 self.widgets.radiobutton4.set_active(True)
 
     def on_advanced_next(self, *args):
@@ -1448,7 +1448,7 @@ class App:
            if self.widgets.radiobutton4.get_active() == True:
               self.data.laddername='custom.clp'
            else:
-               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)):
                   if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
                      self.widgets.druid1.set_page(self.widgets.advanced)
                      return True 
@@ -1467,13 +1467,13 @@ class App:
            if self.widgets.radiobutton8.get_active() == True:
               self.data.pyvcpname = "custompanel.xml"
            else:
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+              if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)):
                  if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
                    return True
 
     def on_machinename_changed(self, *args):
         temp = self.widgets.machinename.get_text()
-        self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
+        self.widgets.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
 
     def on_drivertype_changed(self, *args):
         v = self.widgets.drivertype.get_active()
@@ -1940,11 +1940,11 @@ class App:
         if self.data.classicladder: 
            if not self.data.laddername == "custom.clp":
                 filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
-                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+                original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)
                 if os.path.exists(filename):     
                   if os.path.exists(original):
                      print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
+                     shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.data.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( filename,original)
                   print "copied ladder program to usr directory"
@@ -1954,11 +1954,11 @@ class App:
 
         if self.data.pyvcp and not self.widgets.radiobutton8.get_active() == True:                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)
+           originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
                      print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/custompanel_backup.xml" % self.data.machinename) ) 
+                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.data.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( panelname,originalname)
                   print "copied PYVCP program to usr directory"
@@ -2045,7 +2045,7 @@ class App:
            panel = "spindle.xml"
         if self.widgets.radiobutton8.get_active() == True:
            panel = "custompanel.xml"
-           panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
+           panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.data.machinename)
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
         if self.widgets.radiobutton6.get_active() == True:
@@ -2085,7 +2085,7 @@ class App:
             self.widgets.modbus.set_active(self.data.modbus)
         if self.widgets.radiobutton4.get_active() == True:
             self.data.laddername='custom.clp'
-            originalfile = filename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)
         else:
             filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
         if self.data.modbus == True: 
@@ -2282,7 +2282,7 @@ def makedirs(d):
         os.makedirs(d)
     except os.error, detail:
         if detail.errno != errno.EEXIST: raise
-makedirs(os.path.expanduser("~/emc2/configs"))
+makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
 opts, args = getopt.getopt(sys.argv[1:], "fr")
 mode = 0

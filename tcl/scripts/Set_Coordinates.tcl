@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 ####################################################################
 # Description:  Set_Coordinates.tcl

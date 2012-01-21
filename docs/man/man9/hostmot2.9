@@ -1,4 +1,4 @@
-.TH HOSTMOT2 "9" "2008-05-13" "EMC Documentation" "HAL Component"
+.TH HOSTMOT2 "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
@@ -6,7 +6,7 @@
 ..
 .SH NAME
 
-hostmot2 \- EMC2 HAL driver for the Mesa Electronics HostMot2 firmware.
+hostmot2 \- LinuxCNC HAL driver for the Mesa Electronics HostMot2 firmware.
 .SH SYNOPSIS
 See the config modparam section below for Mesa card configuration. Typically
 hostmot2 is loaded with no parameters unless debugging is required.
@@ -33,11 +33,11 @@ Modules used.
 .SH DESCRIPTION
 
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
-to the EMC2 HAL.  This driver by itself does nothing, the boards that
-actually run the firmware require their own drivers before anything
-can happen.  Currently drivers are available for the 5i20, 5i22, 5i23, 5i25,
-3x20, 4i65, and 4i68 (all using the hm2_pci module) and the 7i43 (using
-the hm2_7i43 module).
+to the LinuxCNC HAL.  This driver by itself does nothing, the boards
+that actually run the firmware require their own drivers before anything
+can happen.  Currently drivers are available for the 5i20, 5i22, 5i23,
+5i25, 3x20, 4i65, and 4i68 (all using the hm2_pci module) and the 7i43
+(using the hm2_7i43 module).
 
 The HostMot2 firmware provides modules such as encoders, PWM generators,
 step/dir generators, and general purpose I/O pins (GPIOs).  These things are
@@ -437,8 +437,9 @@ that a fault is triggered with the pin high, and 0 means that a fault it trigger
 when the pin is pulled low. Default 0, fault = low so that the PWM works with the
 fault pin unconnected.
 
-(u32 rw) sample-time: Sets the time during the cycle when an ADC pulse is generated.
-0 = start of PWM cycle and 1 = end. Not currently useful to EMC2. Default 0.5.
+(u32 rw) sample-time: Sets the time during the cycle when an ADC pulse
+is generated.  0 = start of PWM cycle and 1 = end. Not currently useful
+to LinuxCNC. Default 0.5.
 
 In addition the per-instance parameters above there is the following parameter
 that affects all instances
@@ -506,7 +507,7 @@ change if the step timings or position-scale changes.  Defaults to 0.
 per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
 acceleration at all - this requires that the position-cmd or velocity-cmd
 pin is driven in a way that does not exceed the machine's capabilities.
-This is probably what you want if you're going to be using the EMC2
+This is probably what you want if you're going to be using the LinuxCNC
 trajectory planner to jog or run G-code.
 
 (u32 r/w) steplen: Duration of the step signal, in nanoseconds.
@@ -774,7 +775,7 @@ The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it.  The HAL representation of the watchdog is
 named "hm2_<BoardType>.<BoardNum>.watchdog".
 
-The watchdog must be petted by EMC2 periodically or it will bite.
+The watchdog must be petted by LinuxCNC periodically or it will bite.
 
 When the watchdog bites, all the board's I/O pins are disconnected from
 their Module instances and become high-impedance inputs (pulled high),

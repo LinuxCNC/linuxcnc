@@ -20,7 +20,7 @@ de type pas/direction (step/dir).
 Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve
 dans le menu _Application -> CNC -> LinuxCNC StepConf_.
 
-Stepconf place les fichiers qu'il crée dans le répertoire *~/emc2/config*
+Stepconf place les fichiers qu'il crée dans le répertoire *~/linuxcnc/config*
 pour y stocker les paramètres de chaque configuration.
 Lorsque quelque chose doit être modifié, il faut choisir le fichier
 correspondant au nom de la configuration et portant l'extension .stepconf.
@@ -87,7 +87,7 @@ Caractéristiques du pilote::
 
 Une liste de certains des pilotes pas à pas les plus populaires, avec leurs
 valeurs caractéristiques de timing, se trouve sur le wiki de LinuxCNC.org à la page
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Timming des pilotes].
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Timming des pilotes].
 
 D'éventuels traitements des signaux, une opto-isolation ou des filtres RC,
 peuvent imposer des contraintes de temps supplémentaires aux signaux,
@@ -228,7 +228,7 @@ que ce soit en utilisant des micropas ou non.
 
 ****
 Correction des problèmes causés par Realtime SMI sur Ubuntu, voir la solution
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[ sur cette page.]
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[ sur cette page.]
 ****
 
 

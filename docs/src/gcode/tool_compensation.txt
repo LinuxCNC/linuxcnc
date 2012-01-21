@@ -104,8 +104,9 @@ The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
 and is called 'tool.tbl'. The tools might be in a tool changer or just
 changed manually. The file can be edited with a text editor or be
-updated using G10 L1. See the Lathe Specifics Section for lathe tool
-table example. The maximum number of entries in the tool table is 56.
+updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
+Section for an example of the lathe tool table format.
+The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999. 
 
 [[sec:Tool-Table-Format]]
@@ -233,7 +234,7 @@ LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'fixed location'. Information about configuring an LinuxCNC tool changer
 is in the Integrator Manual.
 
-==== Manual Tool Changer
+.Manual Tool Changer
 
 Manual tool changer (you change the tool by hand) is treated like a
 fixed location tool changer and the P number is ignored. Using the
@@ -243,7 +244,7 @@ preserving the location of the tool to the spindle. Machines with R-8
 or router collet type tool holders do not preserve the location of the
 tool and the manual tool changer should not be used.
 
-==== Fixed Location Tool Changers
+.Fixed Location Tool Changers
 
 Fixed location tool changers always return the tools to a 
 fixed position in the tool changer. This would also include 
@@ -252,7 +253,7 @@ location tool changer the 'P' number is ignored (but read, preserved
 and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
 want.
 
-==== Random Location Tool Changers
+.Random Location Tool Changers
 
 Random location tool changers swap the tool in the spindle with the
 one in the changer. With this type of tool changer the tool will 
@@ -289,13 +290,13 @@ image::images/comp-path.png[align="center"]
 
 === Overview
 
-==== Tool Table
+.Tool Table
 
 Cutter radius compensation uses the data from the tool table to
 determine the offset needed. The data can be set at run time with G10
 L1.
 
-==== Programming Entry Moves
+.Programming Entry Moves
 
 Any move that is long enough to perform the compensation will work as
 the entry move. The minimum length is the cutter radius. This can be a
@@ -313,30 +314,30 @@ entry move.
 
 image::images/comp02.png[]
 
-==== Z Motion
+.Z Motion
 
 Z axis motion may take place while the contour is being followed in
 the XY plane. Portions of the contour may be skipped by retracting the
 Z axis above the part and by extending the Z-axis at the next start
 point.
 
-==== Rapid Moves
+.Rapid Moves
 
 Rapid moves may be programed while compensation is turned on.
 
-==== Good Practices
+.Good Practices
 
  - Start a program with G40 to make sure compensation is off.
 
 === Examples
 
-==== Outside Profile
+.Outside Profile
 
 .Outside Profile[[cap:Outside-Profile]]
 
 image::images/outside-comp.png[]
 
-==== Inside Profile
+.Inside Profile
 
 .Inside Profile[[cap:Inside-Profile]]
 

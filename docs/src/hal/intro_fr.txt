@@ -12,7 +12,7 @@ Au plus haut niveau, il s'agit simplement d'une méthode pour
 permettre à un grand nombre de *modules* d'être chargés et
 interconnectés pour assembler un système complexe. La partie *matériel*
 devient abstraite parce que HAL a été conçu à l'origine pour faciliter
-la configuration d'EMC pour une large gamme de matériels. Bon nombre de
+la configuration de LinuxCNC pour une large gamme de matériels. Bon nombre de
 ces modules sont des pilotes de périphériques. Cependant, HAL peut
 faire beaucoup plus que configurer les pilotes du matériel.
 
@@ -112,7 +112,7 @@ indispensables.
 
 Ce document est destiné aux personnes déjà capables de concevoir ce
 type de réalisation matérielle, mais qui ne savent pas comment
-connecter le matériel à EMC.
+connecter le matériel à LinuxCNC.
 
 La conception de matériel, telle que décrite précédemment, s'arrête à
 l'interface de contrôle. Au delà, il y a un tas de boîtes noires,
@@ -543,13 +543,13 @@ Ce qui distingue un thread d'un autre n'est pas ce qu'il fait mais
 quelles fonctions lui sont attachées. La vraie distinction est 
 simplement combien de fois un thread tourne. 
 
-Dans EMC on peut avoir un thread à 50μs et un thread à 
+Dans LinuxCNC on peut avoir un thread à 50μs et un thread à 
 1ms. En se basant sur les valeurs de BASE_PERIOD et de SERVO_PERIOD. 
 Valeurs fixées dans le fichier ini. 
 
 La prochaine étape consiste à décider de ce que chaque thread doit 
 faire. Certaines de ces décisions sont les mêmes dans (presque) tous 
-les systèmes emc. Par exemple, le gestionnaire de mouvement est 
+les systèmes LinuxCNC. Par exemple, le gestionnaire de mouvement est 
 toujours ajouté au servo-thread. 
 
 D'autres connections seront faites par l'intégrateur. Il pourrait 

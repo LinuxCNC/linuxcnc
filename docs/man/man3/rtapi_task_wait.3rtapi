@@ -1,4 +1,4 @@
-.TH rtapi_task_wait "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_task_wait "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_task_wait \- suspend execution of this periodic task

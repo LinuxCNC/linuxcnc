@@ -1,4 +1,4 @@
-.TH hal_start_threads "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.TH hal_start_threads "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 hal_start_threads \- Allow HAL threads to begin executing

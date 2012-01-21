@@ -10,7 +10,7 @@ en fonctionnement. Il s'agit d'un système très spécialisé qui doit se
 connecter à un HAL en marche. Il ne peut pas fonctionner seul car il
 repose sur la capacité de HAL de rapporter ce qu'il connaît de lui même
 par la librairie d'interface de halcmd. Chaque fois que halshow
-fonctionne avec une configuration d'EMC différente, il sera différent.
+fonctionne avec une configuration de LinuxCNC différente, il sera différent.
 
 Comme nous le verrons bientôt, cette capacité de HAL de se documenter
 lui même est un des facteurs clés pour arriver à un système CNC
@@ -73,7 +73,7 @@ Le deuxième nom de pin contient le nom complémenté du premier.
 
 Dans le bas de l'onglet Montrer, un champ de saisie permet de jouer
 sur le fonctionnement de HAL. Les commandes que vous entrez ici et leur
-effet sur HAL, ne sont pas enregistrés. Elles persisteront tant qu'EMC
+effet sur HAL, ne sont pas enregistrés. Elles persisteront tant que LinuxCNC
 tournera, mais disparaîtront dès son arrêt.
 
 Le champ de saisie marqué *Tester une commande HAL:* acceptera
@@ -224,8 +224,8 @@ ouvert, en cliquant sur leurs noms. La figure <<cap:onglet-Montrer>>
 Montre cette zone avec plusieurs signaux de type *bit*. Parmis ces
 signaux, les enable-out pour les trois premiers axes et deux de la
 branche iocontrol, les signaux *estop*. Notez que les axes ne sont pas
-activés même si les signaux estop disent qu'EMC n'est pas en estop. Un
-bref regard sur TkEMC en arrière plan, montre que l'état d'EMC est
+activés même si les signaux estop disent que LinuxCNC n'est pas en estop. Un
+bref regard sur TkLinuxCNC en arrière plan, montre que l'état de LinuxCNC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la
 machine ne sera pas mise en marche.
 
@@ -239,12 +239,12 @@ Quand une pin ou un signal est sélectionné mais n'est pas de type bit,
 sa valeur numérique s'affiche.
 
 Watch permet de visualiser rapidement le résultat de tests sur des
-contacts ou de voir l'effet d'un changement que vous faites dans EMC en
+contacts ou de voir l'effet d'un changement que vous faites dans LinuxCNC en
 utilisant l'interface graphique. Le taux de rafraîchissement de Watch
 est un peu trop lent pour visualiser les impulsions de pas d'un moteur
 mais vous pouvez l'utiliser si vous déplacez un axe très lentement ou
 par très petits incréments de distance. Si vous avez déjà utilisé
-IO_Show dans EMC, la page de Watch de halshow peut être réglée pour
+IO_Show dans LinuxCNC, la page de Watch de halshow peut être réglée pour
 afficher ce que fait le port parallèle.
 
 

@@ -159,12 +159,6 @@ The G10 L2x command can be used to set coordinate (fixture) offsets:
 
 == G92 Offsets[[sec:G92-Offsets]]
 
-(((G92)))
-
-The way that it works has changed just a bit from the early days to
-the current releases. It should be thought of as a temporary offset
-that is applied to all other offsets.
-
 === The G92 commands
 
 This set of commands include;
@@ -182,12 +176,10 @@ This set of commands include;
 When the commands are used as described above, they will work pretty
 much as you would expect.
 
-A user must understand the correct ways that the G92 values work. They
-are set based upon the location of each axis when the G92 command is
-invoked. The NIST document is clear that, To make the  current point
+To make the  current point, what ever it is, 
 have the coordinates X0, Y0, and Z0 you would use G92 X0 Y0 Z0. 
-G92 'does not work from absolute machine coordinates'. 
-It works from 'current location'. 
+G92 *does not* work from absolute machine coordinates. 
+It works from *current location*. 
 
 G92 also works from current location as modified by any other offsets
 that are in effect when the G92 command is invoked. While testing for
@@ -197,15 +189,9 @@ offsets were in effect. However, the G92 was still in effect for all
 coordinates and did produce expected work offsets for the other
 coordinate systems. 
 
-It is likely that the absence of home switches and proper home
-procedures will result in very large errors in the application of G92
-values if they exist in the var file. Many LinuxCNC users do not have home
-switches in place on their machines. For them home should be found by
-moving each axis to a location and issuing the home command. When each
-axis is in a known location, the home command will recalculate how the
-G92 values are applied and will produce consistent results. Without a
-home sequence, the values are applied to the position of the machine
-when the LinuxCNC begins to run.
+It is a good practice to clear the G92 offsets at the end of their
+use with G92.1 or G92.2. When starting up LinuxCNC if any offsets are
+in the G92 variables they will be applied when an axis is homed.
 
 === Setting G92 values
 

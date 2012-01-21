@@ -1,4 +1,4 @@
-README file for AXIS, a front-end for EMC 
+README file for AXIS, a front-end for LinuxCNC
 Copyright (C) 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
     Chris Radek <chris@timeguy.com>
 
@@ -7,7 +7,7 @@ Copyright (C) 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
 ABOUT AXIS
 ==========
 
-AXIS is a front-end for EMC2 with file preview and live plot.
+AXIS is a front-end for LinuxCNC with file preview and live plot.
 
 The AXIS user interface is intended to be self-documenting by use of
 familiar controls and plain language on tooltips and menus.  A few less
@@ -20,8 +20,8 @@ OpenGL is nice, but not required.
 INSTALLATION
 ============
 
-AXIS is now automatically built with emc2 when the required packages are
-installed.
+AXIS is now automatically built with LinuxCNC when the required packages
+are installed.
 
 
 LICENSE

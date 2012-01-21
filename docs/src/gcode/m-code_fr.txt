@@ -41,13 +41,13 @@
 Pour stopper temporairement un programme en cours 
 (quelle que soit la position du bouton d'arrêt facultatif), 
 programmer *M0*.
-EMC2 reste en mode automatique afin que le MDI et 
+LinuxCNC reste en mode automatique afin que le MDI et 
 d'autres actions manuelles ne soient pas activées.
 
 Pour stopper temporairement un programme en cours 
 (mais seulement si le bouton d'arrêt optionnel est activé), 
 programmer *M1*.
-EMC2 reste en mode automatique afin que le MDI et 
+LinuxCNC reste en mode automatique afin que le MDI et 
 d'autres actions manuelles ne soient pas activés.
 
 Il est permis de programmer *M0* et `M1` en mode données manuelles (MDI), 
@@ -213,7 +213,7 @@ Quand la vitesse adaptative est utilisée,
 certaines valeurs externes sont utilisées avec les 
 correcteurs de vitesse de l'interface utilisateur et 
 les vitesses programmées pour obtenir la vitesse travail. 
-Dans EMC2, la HAL pin *motion.adaptive-feed* est utilisée dans ce but. 
+Dans LinuxCNC, la HAL pin *motion.adaptive-feed* est utilisée dans ce but. 
 Les valeurs de *motion.adaptive-feed* doivent être dans une échelle comprise 
 entre 0 (pas de vitesse) et 1 (pleine vitesse).
 
@@ -224,7 +224,7 @@ entre 0 (pas de vitesse) et 1 (pleine vitesse).
 Pour autoriser le bouton de coupure de vitesse, programmer *M53* ou
 *M53 P1*. Pour inhiber ce bouton programmer *M53 P0* . Autoriser la
 coupure de vitesse permet d'interrompre les mouvements
-par le biais d'une coupure de vitesse. Dans EMC2, la HAL pin
+par le biais d'une coupure de vitesse. Dans LinuxCNC, la HAL pin
 *motion.feed-hold* est utilisée pour cette fonctionnalité. Une valeur
 de 1 provoque un arrêt des mouvements (si *M53* est actif).
 
@@ -234,7 +234,7 @@ de 1 provoque un arrêt des mouvements (si *M53* est actif).
 
 Pour corriger le numéro de l'outil courant, en mode MDI ou après un
 changement manuel d'outil programmer *M61 Qxx* dans la fenêtre de données
-manuelles. Au démarrage d'EMC2 avec un outil dans la broche, il est
+manuelles. Au démarrage de LinuxCNC avec un outil dans la broche, il est
 possible ainsi d'ajuster le numéro de l'outil courant sans faire de
 changement d'outil.
 
@@ -251,7 +251,7 @@ où le mot M doit être compris entre 62 et 65 et le mot P compris
 entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre 
 des entrées/sorties peut être augmenté en utilisant le paramètre *num_dio* 
 lors du chargement du contrôleur de mouvement. Voir le manuel de 
-l'intégrateur, sections EMC et section de HAL, pour plus d'informations.
+l'intégrateur, sections LinuxCNC et section de HAL, pour plus d'informations.
 
 * Le mot *P-* spécifie le numéro du bit de sortie numérique.
 
@@ -291,7 +291,7 @@ où le mot P- et le mots E- vont de 0 à 3.
 Si nécessaire, le nombre des entrées/sorties peut être augmenté en 
 utilisant les paramètres *num_dio* ou *num_aio* lors du chargement du
 contrôleur de mouvement. Voir le manuel de l'intégrateur pour
-plus d'informations, section des configurations, paragraphes EMC et HAL.
+plus d'informations, section des configurations, paragraphes LinuxCNC et HAL.
 Un seul des mots *P* ou *E* doit être présent. 
 C'est une erreur si ils sont présents tous les deux.
 
@@ -331,7 +331,7 @@ programmer *M67 E- Q-*, où le mot E doit être compris entre 0 et 3,
 3 étant le maximum par défaut, et où le mot Q est la valeur à appliquer. 
 Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre
 *num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
-"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
+"LinuxCNC et HAL" dans la section configuration du Manuel de l'intégrateur 
 pour plus d'informations sur le contrôleur de mouvement. M67 fonctionne
 comme M62-63. Voir la section M62-65 pour des informations au sujet des
 commandes en file d'attente synchronisées avec un mouvement.
@@ -344,7 +344,7 @@ Pour contrôler une sortie analogique directement, programmer *M68 E- Q-*,
 où le mot E doit être compris entre 0 et 3 et le mot Q est la valeur
 à appliquer. Le nombre d'entrées/sorties peut être augmenté en utilisant
 le paramètre *num_aio* au chargement du contrôleur de mouvement. Voir les chapitres 
-"EMC2 et HAL" dans la section configuration du Manuel de l'intégrateur 
+"LinuxCNC et HAL" dans la section configuration du Manuel de l'intégrateur 
 pour plus d'informations sur le contrôleur de mouvement. M68 fonctionne
 comme M64-65. Voir la section M62-65 pour des informations au sujet des
 commandes directes.
@@ -370,7 +370,7 @@ Exemple valide: dans un programme g-code, on doit ouvrir et fermer un mandrin
 automatique via une broche du port parallèle, on appellera
 respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
 deux scripts bash correspondants, appelés M101 et M102 seront créés
-avant le lancement d'EMC2 puis rendus exécutables, par exemple par un
+avant le lancement de LinuxCNC puis rendus exécutables, par exemple par un
 clic droit puis *propriétés -> permissions -> Exécution*.
 
 Fichier M101 

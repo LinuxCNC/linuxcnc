@@ -2,7 +2,7 @@
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import linuxcnc
 import Tkinter
@@ -18,8 +18,8 @@ s = linuxcnc.stat()
 s.poll()
 c = linuxcnc.command()
 
-t = Tkinter.Tk(className="EmcDebugLevel")
-t.wm_title(_("EMC2 Debug Level"))
+t = Tkinter.Tk(className="LinuxCNCDebugLevel")
+t.wm_title(_("LinuxCNC Debug Level"))
 t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
 
@@ -54,7 +54,7 @@ def update_buttons_from_emc():
         return
     try:
         s.poll()
-    except linuxcnc.error: # emc exited?
+    except linuxcnc.error: # linuxcnc exited?
         raise SystemExit
     debug = s.debug
     for k, v in vars.items():

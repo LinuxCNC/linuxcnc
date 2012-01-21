@@ -85,7 +85,7 @@ image::images/keystick.png[]
  - a HAL based user interface called *halui*, which allows to control LinuxCNC
    using knobs and switches
 
- - a telnet based user interface called *emcrsh*, which allows commands to
+ - a telnet based user interface called *linuxcncrsh*, which allows commands to
    be sent to LinuxCNC from remote computers
 
 == Languages

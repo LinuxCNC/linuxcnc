@@ -26,8 +26,8 @@ instructions écrites par Joe Martin et Ray Henry.
 == L'écran
 
 [[fig:runminif]]
-.Affichage de Mini lors du fonctionnement d'EMC
-image:images/mini_fr.jpg[]
+.Affichage de Mini lors du fonctionnement de LinuxCNC
+image:images/mini_fr.png[]
 
 L'écran de Mini est visible dans plusieurs sections, voir la figure
 ci-dessus. Il inclu une barre de menu, un jeu de boutons de
@@ -41,14 +41,14 @@ seconde image:
 
  - Chaque axe a été référencé sur son origine -- L'affichage de la visu est vert
    sombre
- - EMC est en mode auto(((Auto))) -- le bouton est vert clair
+ - LinuxCNC est en mode auto(((Auto))) -- le bouton est vert clair
  - Le parcours d'outil a été activé -- le parcours (((parcours outil)))
    est visible dans la fenêtre
  - Le bloc de G-code en cours est en surbrillance blanche sur fond rouge
   parmi les lignes défilantes du programme.
 
 Dès le début de l'utilisation de Mini on découvre combien il est
-facile de visualiser le fonctionnement d'EMC et d'agir sur lui.
+facile de visualiser le fonctionnement de LinuxCNC et d'agir sur lui.
 
 == Barre de menu
 
@@ -63,7 +63,7 @@ Le menu inclus chacune des sections et sous-sections suivantes:
 
 Programme::
      ce menu inclus les deux fonctions _reset_ et _quitter_. Reset renvoie
-    EMC dans l'état dans lequel il était quand il à démarré. Certains items
+    LinuxCNC dans l'état dans lequel il était quand il à démarré. Certains items
     de conditions de démarrage comme les unités du programme peuvent être
     spécifiés dans le fichier ini.
 
@@ -186,7 +186,7 @@ _ABANDON_ et _A/U_ pour contrôler les mouvements du programme.
 
 === MANUEL (((Manuel)))
 
-Ce bouton, ou la touche *F3* placent EMC en mode Manuel et affiche un
+Ce bouton, ou la touche *F3* placent LinuxCNC en mode Manuel et affiche un
 jeu condensé de boutons que l'opérateur peut utiliser pour effectuer
 des commandes de mouvements manuels. Les labels des boutons de jog
 varient pour refléter l'axe actif. Quand en plus de ce mode manuel, la
@@ -218,7 +218,7 @@ touche de son nom sur le clavier. La casse n'a pas d'importance *Y* ou
 Pour aider à se rappeller quel est l'axe actif avant de faire un jog,
 son nom est indiqué sur les boutons de jog.
 
-EMC peut faire un jog (mouvement d'un axe particulier) aussi longtemps
+LinuxCNC peut faire un jog (mouvement d'un axe particulier) aussi longtemps
 que le bouton est maintenu pressé, si le jog est réglé sur _continu_ ,
 ou il peut se déplacer d'une valeur prédéfinie, quand il est réglé
 sur _incrément_ s. Il est aussi possible de faire un jog de l'axe
@@ -248,7 +248,7 @@ la vitesse à laquelle il a commencé.
 
 === AUTO (((Auto)))
 
-Quand le bouton Auto est pressé, ou *F4* sur le clavier, EMC passe
+Quand le bouton Auto est pressé, ou *F4* sur le clavier, LinuxCNC passe
 dans ce mode, un jeu de boutons traditionnels des opérations en auto
 est affiché et une petite fenêtre textuelle s'ouvre, montrant une
 partie du programme. Durant un usinage, la ligne active est affichée en
@@ -258,7 +258,7 @@ Dans le mode auto, beaucoup de touches sont liées aux contrôles. Par
 exemple, les touches numérotées au dessus du clavier sont liées aux
 réglages du correcteur de vitesse d'avance travail. Le *0* l'ajuste à
 100%, le *9* l'ajuste à 90% etc. D'autres touches fonctionnent de la
-même manière qu'avec l'interface TkEMC.
+même manière qu'avec l'interface TkLinuxCNC.
 
 .Mode Auto
 
@@ -279,7 +279,7 @@ prudent pendant toute reprise de programme!
 
 Ce qui est le mieux avec une machine CNC, c'est le mode auto. Le mode
 auto affiche les fonctions typiques que tout le monde espère utiliser
-avec EMC. Au dessus de la fenêtre un jeu de boutons qui contrôlent ce
+avec LinuxCNC. Au dessus de la fenêtre un jeu de boutons qui contrôlent ce
 qui se passe en mode auto. En dessous, la fenêtre montrant la partie du
 programme en cours d'exécution. Quand le programme est lancé, la ligne
 active s'affiche en surbrillance blanche sur fond rouge. Les trois
@@ -343,7 +343,7 @@ ici.
 
 === VITESSE-0 et CONTINUER
 
-Vitesse-0 est une bascule. Quand EMC est prêt pour exécuter, ou qu'il
+Vitesse-0 est une bascule. Quand LinuxCNC est prêt pour exécuter, ou qu'il
 exécute une commande de mouvement, ce bouton affiche son label
 _VITESSE-0_ sur fond rouge. Si Vitesse-0 a été pressé il affiche le
 label _CONTINUER_. Utiliser ce bouton pour faire une pause dans un
@@ -356,7 +356,7 @@ actif au moment de l'arrêt. Ce bouton et la fonction qu'il active sont
 === ABANDON
 
 Le bouton Abandon stoppe tous les mouvements quand il est pressé. Il
-désactive aussi la commande de marche d'EMC. Plus aucun mouvement ne
+désactive aussi la commande de marche de LinuxCNC. Plus aucun mouvement ne
 survient après l'appui sur ce bouton. Si vous êtes en mode auto, ce
 bouton enlève le reste du programme du planificateur de mouvements. Il
 enregistre aussi le numéro de la ligne qui s'exécutait quand il a été
@@ -395,12 +395,12 @@ c'est parce que quelque chose se passe mal. Peut être un outil cassé et
 qui doit être changé. On passe alors en mode manual et on arrête la
 broche, on change l'outil et en supposant que sa longueur reste la
 même, on est prêt pour relancer le programme. Si on renvoie l'outil à
-la même place ou il était avant, EMC va fonctionner parfaitement. Il
+la même place ou il était avant, LinuxCNC va fonctionner parfaitement. Il
 est aussi possible de se déplacer sur la ligne suivante ou précédente
 de celle ou c'est produit l'abandon. Si vous pressez le bouton
 _Arrière_ ou _Avant_ vous voyez une ligne en surbrillance bleue
 montrant l'écart entre la ligne sur laquelle l'abandon s'est produit
-(restée en surbrillance rouge) et la ligne à laquelle EMC va
+(restée en surbrillance rouge) et la ligne à laquelle LinuxCNC va
 redémarrer. En réfléchissant à ce qui va se produire au moment de la
 reprise vous serez en mesure de placer l'arête de l'outil là où la
 reprise pourra se faire de manière acceptable. Vous aurez peut être à
@@ -416,7 +416,7 @@ boutons dans cette zône.
 
 === Afficheurs de position des axes
 
-Ces afficheurs se comportent exactement comme ceux de TkeEMC. La
+Ces afficheurs se comportent exactement comme ceux de TkeLinuxCNC. La
 couleur des afficheurs est importante.
 
  - Rouge, elle indique que la machine est en appui sur un contact de fin
@@ -450,10 +450,10 @@ correction appliquée sur la vitesse d'avance programmée.
 === Messages 
 
 L'affichage des messages situé sous le curseur du correcteur de
-vitesse est une sorte de bloc-notes pour EMC. Si un problème survient,
+vitesse est une sorte de bloc-notes pour LinuxCNC. Si un problème survient,
 il est reporté sur ce bloc-notes. Si vous essayez de déplacer un axe
 alors que l'Arrêt d'Urgence est engagé, vous recevez un message qui dit
-quelques choses à propos des conditions de marche empêchant EMC de
+quelques choses à propos des conditions de marche empêchant LinuxCNC de
 répondre à la commande de mouvement. Si un axe est en défaut, par
 exemple un dépassement de limite, le message affiché sur le bloc-notes
 indiquera ce qui se passe. Pour demander à l'opérateur de changer
@@ -493,9 +493,9 @@ l'excellente possibilité de numéroter et renuméroter un programme de la
 même manière que l'interpréteur le fait avec un fichier. Il permet
 également le couper/coller d'une partie vers une autre du fichier. En
 plus, il permet d'enregistrer les changements faits dans le programme
-et de soumettre celui-ci à l'interpréteur d'EMC depuis le même menu. Il
+et de soumettre celui-ci à l'interpréteur de LinuxCNC depuis le même menu. Il
 est possible de travailler sur un fichier ouvert dans cet éditeur puis
-de l'enregistrer et de le recharger si EMC est en mode Auto. Si vous
+de l'enregistrer et de le recharger si LinuxCNC est en mode Auto. Si vous
 avez lancé un fichier et que vous avez besoin de l'éditer, ce fichier
 sera placé dans l'éditeur quand vous cliquez sur le bouton _Editeur_ du
 menu.
@@ -551,7 +551,7 @@ sur la fin de la liste des outils de sorte que l'ajout d'outils
 s'effectuent vers le bas. Quand un nouvel outil est ajouté, il est
 utilisable dans le programme avec la commande G-code habituelle. Le
 nombre maximum d'outils est de 32 dans le fichier de configuration
-d'EMC mais vous serez arrivé au bout des possibilités d'affichage de
+de LinuxCNC mais vous serez arrivé au bout des possibilités d'affichage de
 Mini bien avant celà. A la place vous pouvez utiliser le _menu ->
 Vues -> Afficher dans toute la fenêtre_ pour voir plus d'outils si
 nécessaire.
@@ -584,11 +584,11 @@ coordonnées.
 
 == Raccourcis clavier
 
-Un certain nombre de raccourcis clavier utilisés avec TkEMC ont été
+Un certain nombre de raccourcis clavier utilisés avec TkLinuxCNC ont été
 conservés avec Mini. Quelques uns ont changé pour étendre leurs
 fonctions ou pour faciliter les opérations sur une machine utilisant
 cette interface. Certaines touches opérent de la même manière quelque
-soit le mode. D'autres change en fonction du mode de travail d'EMC.
+soit le mode. D'autres change en fonction du mode de travail de LinuxCNC.
 
 === Touches courantes
 

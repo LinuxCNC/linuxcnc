@@ -2,40 +2,6 @@
 
 [[cha:classicladder-programming]] (((Classicladder Programming)))
 
-== ClassicLadder Introduction
-
-[[cha:classicladder-introduction]] (((ClassicLadder Introduction)))
-
-== History
-
-Classic Ladder is a free implementation of a ladder interpreter,
-released under the LGPL. It was written by Marc Le Douarain.
-
-He describes the beginning of the project on his website:
-
-[quote,Marc Le Douarain, from "Genesis" at the Classic Ladder website]
-_____________________________________________________________________
-I decided to program a ladder language only for test purposes at the
-start, in February 2001. It was planned, that I would have to
-participate to a new product after leaving the enterprise in which I
-was working at that time. And I was thinking that to have a ladder
-language in those products could be a nice option to considerate. And
-so I started to code the first lines for calculating a rung with
-minimal elements and displaying dynamically it under Gtk, to see if my
-first idea to realize all this works.
-
-And as quickly I've found that it advanced quite well, I've continued
-with more complex elements: timer, multiples rungs, etc...
-
-Voila, here is this work... and more: I've continued to add features
-since then.
-_____________________________________________________________________
-
-Classic Ladder has been adapted to work with LinuxCNC's HAL, and is
-currently being distributed along with LinuxCNC. If there are
-issues/problems/bugs please report them to the Enhanced Machine
-Controller project.
-
 == Ladder Concepts
 
 Classic Ladder is a type of programming language originally

@@ -28,7 +28,7 @@ fi
 
 set -e
 (
-echo "emc2 ($NEW_DEB_VERSION) $(lsb_release -cs); urgency=low"
+echo "linuxcnc ($NEW_DEB_VERSION) $(lsb_release -cs); urgency=low"
 echo
 git log --pretty=format:"  * %w(72,0,6)%s" $GIT_TAG..
 echo

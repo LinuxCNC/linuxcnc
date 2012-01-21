@@ -88,9 +88,9 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 #def _(x): return x
-gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("emc2", LOCALEDIR)
-gtk.glade.textdomain("emc2")
+gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
+gtk.glade.textdomain("linuxcnc")
 
 def iceil(x):
     if isinstance(x, (int, long)): return x
@@ -3846,7 +3846,7 @@ class App:
         self.pbar.set_fraction(.75)
         while gtk.events_pending():
             gtk.main_iteration()
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="emc2")
+        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="linuxcnc")
         self.window.hide()
 
         self.widgets = Widgets(self.xml)

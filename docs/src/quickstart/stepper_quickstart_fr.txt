@@ -43,7 +43,8 @@ pas sûr de vous à propos des timings de votre interface, les
 caractéristiques les plus populaires sont incluses dans l'assistant
 graphique de configuration. Notez que les pilotes Gecko ont des timings
 différents les uns des autres. Une liste des caractéristiques courantes
-est également maintenue sur le Wiki http://wiki.linuxcnc.org[de linuxcnc.org].
+est également maintenue sur le Wiki 
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[de linuxcnc.org].
 
 [width="90%", options="header"]
 |==============================================================================

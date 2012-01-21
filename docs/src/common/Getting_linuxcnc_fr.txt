@@ -159,7 +159,7 @@ Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 
 Pour le miroir européen: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
+wget http://dsplabs.upt.ro/~juve/linuxcnc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
 
 La somme MD5 du fichier ci-dessus est: `5283b33b7e23e79da1ee561ad476b05f`
 ****
@@ -175,14 +175,14 @@ Pour arrêter un téléchargement, utilisez Ctrl-C ou fermer la fenêtre du term
 ****
 Si vous avez besoin d'une ancienne version d'Ubuntu, vous pouvez télécharger 
 Ubuntu 8.04. L'image du CD ci-dessous est l'ancienne version EMC 2.3.x, mais 
-elle peut être modifiée vers la version 2.4.x en suivant les instructions sur 
-le wiki LinuxCNC.org: http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
+elle peut être modifiée vers la version 2.4.x en suivant les instructions sur:
+ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.4[le wiki LinuxCNC.org]
 
 Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
 Pour le miroir européen:
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
+wget http://dsplabs.upt.ro/~juve/linuxcnc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
 La somme MD5 du fichier ci-dessus est: `1bab052ec879f941628927c988863f14`
 ****
@@ -342,12 +342,12 @@ C'est aussi la plus populaire.
 
 .Interface Axis[[cap:Interface-Axis]]
 
-image::images/axis_2.3_fr.png[]
+image::images/axis_2.5_fr.png[]
 
 === Lancer LinuxCNC
 
 Après installation, LinuxCNC se lance comme un autre programme Linux:
-depuis un terminal en passant la commande *_emc_*, 
+depuis un terminal en passant la commande *_linuxcnc_*, 
 ou depuis le menu _Applications_ -> _CNC_.
 
 === Sélecteur de configuration
@@ -374,7 +374,7 @@ configuration, sans passer par le sélecteur de configuration.
 
 Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue 
 vous demandera si vous voulez en faire une copie dans votre répertoire home. 
-Si vous répondez *_oui_*, un dossier *emc2* autorisé en écriture sera créé, il 
+Si vous répondez *_oui_*, un dossier *linuxcnc* autorisé en écriture sera créé, il 
 contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos 
 besoins. Si vous répondez *_non_*, LinuxCNC démarrera mais pourra se comporter de façon 
 étrange, par exemple, les décalages d'origine pièce entrés avec la commande 

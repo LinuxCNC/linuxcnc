@@ -1,7 +1,7 @@
 .\" a large part of this file (the pin names and descriptions) came from
 .\" docs/src/config/emc2hal.lyx 
 .\"
-.TH IOCONTROL "1" "2007-08-25" "EMC Documentation" "HAL Component" 
+.TH IOCONTROL "1" "2007-08-25" "LinuxCNC Documentation" "HAL Component" 
 .de TQ
 .br
 .ns
@@ -16,7 +16,7 @@ iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
 
 
 .SH DESCRIPTION
-These pins are created by the userspace IO controller, usually found in $EMC2_HOME/bin/io
+These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
 .P
 The signals are turned on and off in userspace - if you have strict timing requirements or simply need more i/o, consider using the realtime synchronized i/o provided by \fBmotion\fR(9) instead.
 .P

@@ -1,11 +1,11 @@
 :lang: fr
 :toc:
 
-Test des capacités temps réel
-=============================
+= Test des capacités temps réel
 
 [[sec:Test-de-latence-IM]]
 == Test de latence
+(((Test de latence IM)))
 
 Ce test est le premier test qui doit être effectué sur un PC 
 pour savoir si celui-ci est capable de piloter une machine CNC.
@@ -59,7 +59,7 @@ PC au maximum pour que le temps de latence soit mesuré dans le cas le plus
 défavorable et donc, connaitre la latence maximale. 
 
 [NOTE]
-Ne pas exécuter EMC2 ou Stepconf pendant que latency-test est 
+Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est 
 en cours d'exécution. 
 
 La colonne *_max jitter_* et la ligne *_Base Thread_* de l'exemple ci-dessus 
@@ -73,7 +73,7 @@ cas, rien ne provoque de latence ou seulement des actions particulières.
 Par exemple, une carte mère Intel marchait très bien
 la plupart du temps, mais toutes les 64 secondes elle avait une
 très mauvaise latence de 300µs. Heureusement, il existe un
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[correctif].
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[correctif].
 
 Alors, comment interpréter les résultats? Si le résultat de Max Jitter est en 
 dessous d'environ 15-20 microsecondes (15000-20000
@@ -85,13 +85,13 @@ utilisés ou si le pas de la vis est fin. Si les résultats sont de 100µS
 ou plus (100,000 nanosecondes), alors le PC
 n'est pas un bon candidat à la génération des pas. Les résultats
 supérieurs à 1 milliseconde (1,000,000 nanosecondes) éliminent,
-dans tous les cas, ce PC pour faire tourner EMC, en utilisant des
+dans tous les cas, ce PC pour faire tourner LinuxCNC, en utilisant des
 micropas ou pas.
 
 Noter que si une latence élevée est obtenue, il peut être possible
 de l'améliorer. Un PC avait une très mauvaise latence (plusieurs
 millisecondes) en utilisant la carte graphique interne. Un carte
-graphique Matrox d'occasion à $5US a résolu le problème. EMC
+graphique Matrox d'occasion à $5US a résolu le problème. LinuxCNC
 n'exige pas de matériel de pointe.
 
 == Adresses des ports
@@ -101,7 +101,7 @@ Pour ceux qui construisent leur matériel, il est facile et
 ajoutant une carte PCI fournissant un ou deux ports parallèles
 supplémentaires. Faire suivre ces ports d'une couche
 d'opto-isolation est utile pour éviter les courts circuits pouvant
-détruire la carte, voir même toute la carte mère. EMC2 supporte un
+détruire la carte, voir même toute la carte mère. LinuxCNC supporte un
 maximum de 8 ports parallèles.
 
 Certaines parmi les bonnes cartes parallèles sont à base de
@@ -160,7 +160,7 @@ exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc
 changer leur adressage selon le connecteur PCI dans lequel elles
 sont placées. Si l'installation des cartes PCI de
 la machine est modifiée, ne pas oublier de vérifier leurs adresses avant de
-lancer EMC2.
+lancer LinuxCNC.
 
 
 // vim: set syntax=asciidoc:

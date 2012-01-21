@@ -20,9 +20,9 @@ installation et son fonctionnement.
 
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
 une man page plus complète pour halcmd, elle sera installée en même
-temps qu' EMC2 depuis ses sources ou depuis un paquet. Si EMC2 a été
+temps qu' LinuxCNC depuis ses sources ou depuis un paquet. Si LinuxCNC a été
 compilé en *run-in-place*, la man page n'est pas installée, mais elle
-est accessible, dans le répertoire principal d'EMC2, taper:
+est accessible, dans le répertoire principal de LinuxCNC, taper:
 ----
 $ man -M docs/man halcmd 
 ----
@@ -57,10 +57,10 @@ systèmes d'exploitation temps réel RTOS qui fournissent les extensions
 nécessaires à Linux. Malheureusement, chaque RTOS fait les choses
 différemment des autres.
 
-Pour remédier à ces différences, l'équipe d'EMC a proposé RTAPI, qui
+Pour remédier à ces différences, l'équipe de LinuxCNC a proposé RTAPI, qui
 fournit une manière cohérente aux programmes de parler au RTOS. Si vous
-êtes un programmeur qui veut travailler à l'intérieur d'EMC, vous
-pouvez étudier *emc2/src/rtapi/rtapi.h* pour comprendre l'API. Mais si
+êtes un programmeur qui veut travailler à l'intérieur de LinuxCNC, vous
+pouvez étudier *linuxcnc/src/rtapi/rtapi.h* pour comprendre l'API. Mais si
 vous êtes une personne normale, tout
 ce que vous avez besoin de savoir à propos de RTAPI est qu'il doit être
 (avec le RTOS) chargé dans la mémoire de votre ordinateur avant de
@@ -74,14 +74,14 @@ pouvoir faire n'importe quoi avec HAL.
 
 Pour ce tutoriel, nous allons supposer que vous avez installé avec
 succès le CD-Live ou que vous avez compilé correctement l'arborescence
-emc2/src. Si nécessaire, invoquez le script *rip-environment* pour
+linuxcnc/src. Si nécessaire, invoquez le script *rip-environment* pour
 préparer votre shell. Dans ce cas, tout ce que vous avez à faire
 est de charger le RTOS requis et les modules RTAPI dans la mémoire.
 Tapez juste les commandes suivantes dans une console:
 ----
-$cd emc2
+$cd linuxcnc
  
-$emc2 halrun 
+$linuxcnc halrun 
 
 $halcmd: 
 ----
@@ -381,7 +381,7 @@ arrêté la session de HAL, pour l'arrêter correctement tapez:
 ----
 halcmd: exit 
 
-~/emc2$
+~/linuxcnc$
 ----
 
 === Restaurer la configuration de HAL 
@@ -392,7 +392,7 @@ faire, nous utiliserons la commande *-f <filename>* qui lit les
 commandes à partir d'un fichier, le *-I* affichera le prompt halcmd
 après l'exécution des commandes:
 ----
-~/emc2$ halrun -I -f saved.hal 
+~/linuxcnc$ halrun -I -f saved.hal 
 ----
 
 Noter qu'il n'y a pas de commande *start* dans le fichier saved.hal.
@@ -402,7 +402,7 @@ halcmd: start
 
 halcmd: exit 
 
-~/emc2$ 
+~/linuxcnc$ 
 ----
 
 === Suppression de la mémoire de HAL
@@ -411,7 +411,7 @@ Si un arrêt inattendu d'une session de HAL survient, il sera peut être
 nécessaire de décharger HAL de la mémoire avant de pouvoir lancer une autre 
 session. Pour cela, taper la commande suivante dans une fenêtre de terminal:
 ----
-~/emc2$ halrun -U
+~/linuxcnc$ halrun -U
 ---- 
 
 [[sec:Tutoriel-halmeter]]
@@ -458,7 +458,7 @@ vérifier halmeter. Si vous avez fini l'exemple précédent, alors siggen
 est déjà chargé. Sinon, on peut charger tout comme nous l'avons fait
 précédemment:
 ----
-~/emc2$ halrun 
+~/linuxcnc$ halrun 
 
 halcmd: loadrt siggen 
 
@@ -530,7 +530,7 @@ librairies de HAL en faisant:
 ----
 halcmd: exit 
 
-~/emc2$ halrun 
+~/linuxcnc$ halrun 
 ----
 
 === Installation des composants

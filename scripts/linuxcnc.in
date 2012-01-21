@@ -1,12 +1,12 @@
 #!/bin/bash
 ################################################################################
-# usage: emc [options] [<ini-file>]
+# usage: linuxcnc [options] [<ini-file>]
 #
 # options:
 #     -v = verbose - prints info as it works
 #     -d = echos script commands to screen for debugging
 #
-# this version calls emc2/tcl/bin/pickconfig.tcl to pick an ini file if one
+# this version calls pickconfig.tcl to pick an ini file if one
 # is not specified on the command line
 #
 ################################################################################
@@ -36,7 +36,7 @@ LINUXCNC_BIN_DIR=@EMC2_BIN_DIR@
 LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@
 LINUXCNC_HELP_DIR=@EMC2_HELP_DIR@
 LINUXCNC_RTLIB_DIR=@EMC2_RTLIB_DIR@
-LINUXCNC_CONFIG_PATH="@EMC2_CONFIG_PATH@"
+LINUXCNC_CONFIG_PATH="@LINUXCNC_CONFIG_PATH@"
 LINUXCNC_NCFILES_DIR=@EMC2_NCFILES_DIR@
 LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
@@ -69,8 +69,8 @@ export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
-DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
-PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
+DEBUG_FILE=$(mktemp /tmp/linuxcnc.debug.XXXXXX)
+PRINT_FILE=$(mktemp /tmp/linuxcnc.print.XXXXXX)
 
 program_available () {
     type -path "$1" > /dev/null 2>&1
@@ -164,24 +164,24 @@ function ErrorCheck () {
     if [ $result -ne 0 ]; then
         if tty -s || [ -z "$DISPLAY" ] ; then
             if [ -f $DEBUG_FILE ]; then
-                cp $DEBUG_FILE $HOME/emc_debug.txt
+                cp $DEBUG_FILE $HOME/linuxcnc_debug.txt
             else
                 echo "(debug information was sent to stderr)" \
-                    > $HOME/emc_debug.txt
+                    > $HOME/linuxcnc_debug.txt
             fi
 
             if [ -f $PRINT_FILE ]; then
-                cp $PRINT_FILE $HOME/emc_print.txt
+                cp $PRINT_FILE $HOME/linuxcnc_print.txt
             else
                 echo "(print information was sent to stdout)" \
-                    > $HOME/emc_print.txt
+                    > $HOME/linuxcnc_print.txt
             fi
 
             echo "\
 EMC terminated with an error.  You can find more information in the log:
-    $HOME/emc_debug.txt
+    $HOME/linuxcnc_debug.txt
 and
-    $HOME/emc_print.txt
+    $HOME/linuxcnc_print.txt
 as well as in the output of the shell command 'dmesg' and in the terminal"
         else
             @WISH@ $LINUXCNC_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
@@ -242,7 +242,7 @@ echo "LINUXCNC - $LINUXCNCVERSION"
 
 # was an inifile specified on the command line?
 if [ ! -z "$USE_LAST_INIFILE" ]; then
-    INIFILE=$($INIVAR -ini ~/.emcrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
+    INIFILE=$($INIVAR -ini ~/.linuxcncrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
     echo "Using previous inifile: $INIFILE" >> $PRINT_FILE
 fi
 
@@ -300,20 +300,36 @@ function GetFromIni {
     fi
     echo "$name=$retval" >>$PRINT_FILE
 }
+
+# Usage:
+#  GetFromIniEx VAR1 SEC1 [VAR2 SEC2...VARn SECn] [default]
+function GetFromIniEx {
+    original_var="[$2]$1"
+    while [ $# -ge 2 ]; do
+	if retval=`$INIVAR -ini "$INIFILE" -var "$1" -sec "$2" 2>>$DEBUG_FILE`; then return; fi
+	shift 2
+    done
+    if [ $# -eq 0 ]; then
+	echo "Can't find $original_var in $INIFILE."
+	exit -1
+    fi
+    retval="$1"
+}
+
 # 2.2. get param file
 GetFromIni PARAMETER_FILE RS274NGC 
 RS274NGC_PARAMFILE=$retval
 
-# 2.3. get emcmot information
-GetFromIni EMCMOT EMCMOT 
+# 2.3. get mot information
+GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
 EMCMOT=$retval$MODULE_EXT # add module extension
 
-# 2.4. get emcio information
-GetFromIni EMCIO EMCIO 
+# 2.4. get io information
+GetFromIniEx IO IO EMCIO EMCIO io
 EMCIO=$retval
 
-# 2.5. get emctask information
-GetFromIni TASK TASK 
+# 2.5. get task information
+GetFromIni TASK TASK
 EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
@@ -322,8 +338,8 @@ GetFromIni TASK_LD_PRELOAD TASK
 TASK_LD_PRELOAD=$retval
 
 
-# 2.6. we know the emc server name, change if needed
-# emcsvr now holds/creates all the NML channels,
+# 2.6. we hardcode the server name, change if needed
+# linuxcncsvr now holds/creates all the NML channels,
 # so it needs to start by default, as the first process
 EMCSERVER=linuxcncsvr
 
@@ -339,10 +355,14 @@ EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 GetFromIni DISPLAY_LD_PRELOAD DISPLAY
 DISPLAY_LD_PRELOAD=$retval
 
+case $EMCDISPLAY in
+    tkemc) EMCDISPLAY=tklinuxcnc ;;
+    xemc) EMCDISPLAY=xlinuxcnc ;;
+esac
+
 # 2.10. get NML config information
-GetFromIniQuiet NML_FILE EMC
+GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
-if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
 export NMLFILE
 
 ################################################################################
@@ -409,15 +429,15 @@ function KillTaskWithTimeout() {
 # 3.2. define the cleanup function
 #
 # this cleanup function doesn't know or care what was actually
-# loaded - it simply kills _any_ processes in it's list of emc
+# loaded - it simply kills _any_ processes in its list of
 # components
 ################################################################################
 function Cleanup() {
 
     echo "Shutting down and cleaning up LinuxCNC..."
     # Kill displays first - that should cause an orderly
-    #   shutdown of the rest of emc2
-    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh emcrsh emctop mdi debuglevel; do
+    #   shutdown of the rest of linuxcnc
+    for KILL_TASK in xlinuxcnc ylinuxcnc linuxcncpanel keystick iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -449,7 +469,7 @@ function Cleanup() {
 	$HALCMD -f $SHUTDOWN
     fi
 
-    # now kill all the other user space components of emc
+    # now kill all the other user space components
     for KILL_TASK in linuxcncsvr milltask; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
@@ -494,7 +514,7 @@ function Cleanup() {
 
 # Name of lock file to check for that signifies that EMC is up,
 # to prevent multiple copies of controller
-LOCKFILE=/tmp/emc.lock
+LOCKFILE=/tmp/linuxcnc.lock
 
 # Check for lock file
 if [ -f $LOCKFILE ]; then
@@ -527,7 +547,7 @@ trap 'Cleanup ; exit 0' SIGINT SIGTERM
 
 # go to the dir where the ini file is
 # either configs/<specific-config> when run-in-place, or
-# /usr/local/share/emc/configs/<specific-config> (wherever it was installed)
+# /usr/local/share/linuxcnc/configs/<specific-config> (wherever it was installed)
 cd "$INI_DIR"
 
 # Create the lock file
@@ -562,7 +582,7 @@ fi
 # 4.2. Now we can finally start loading EMC
 ################################################################################
 
-# 4.3.1. Run emcserver in background, always (it owns/creates the NML buffers)
+# 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
 echo "Starting LinuxCNC server program: $EMCSERVER" >>$PRINT_FILE
 if ! program_available $EMCSERVER; then
     echo "Can't execute server program $EMCSERVER"
@@ -585,7 +605,7 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
 
-# 4.3.4. Run emcio in background if so defined in INI
+# 4.3.4. Run io in background if so defined in INI
 if [ "$EMCIO" != "" ] ; then
         echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
         if ! program_available $EMCIO ; then
@@ -597,7 +617,7 @@ if [ "$EMCIO" != "" ] ; then
         $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
         echo halcmd loadusr $EMCIO started
 else
-        echo "Skipping EMC2 IO program >>$PRINT_FILE"
+        echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
 
 # 4.3.5. Run halui in background, if necessary
@@ -665,7 +685,7 @@ done
 # 4.3.8. start the realtime stuff ticking
 $HALCMD start
 
-# 4.3.9. Run emctask in background
+# 4.3.9. Run task in background
 echo "Starting EMC2 TASK program: $EMCTASK" >>$PRINT_FILE
 if ! program_available $EMCTASK ; then
     echo "Can't execute TASK program $EMCTASK"

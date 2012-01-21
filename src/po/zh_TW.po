@@ -3194,11 +3194,11 @@ msgstr "從 這裡 運行"
 msgid "Error in ~/.axisrc"
 msgstr "錯誤 joi ~/.axisrc"
 
-#: emc/usr_intf/axis/scripts/emctop.py:102
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:102
 msgid "EMC Status"
 msgstr "EMC 狀態"
 
-#: emc/usr_intf/axis/scripts/emctop.py:118
+#: emc/usr_intf/axis/scripts/linuxcnctop.py:118
 msgid "Copy All"
 msgstr "全部 複製"
 

@@ -21,11 +21,11 @@
 
 == Qu'est-ce que GladeVCP?
 
-GladeVCP est un composant d'EMC2 qui donne la possibilité d'ajouter 
-de nouvelles interfaces graphiques utilisateur à EMC2 telles qu'Axis ou Touchy. 
+GladeVCP est un composant de LinuxCNC qui donne la possibilité d'ajouter 
+de nouvelles interfaces graphiques utilisateur à LinuxCNC telles qu'Axis ou Touchy. 
 À la différence de PyVCP, GladeVCP n'est pas limité à l'affichage et aux
 réglages des pins de HAL, toutes les actions peuvent être exécutées en code
-Python. En fait, une interface utilisateur EMC2 complète peut être construite 
+Python. En fait, une interface utilisateur LinuxCNC complète peut être construite 
 avec GladeVCP et Python.
 
 GladeVCP utilise l'environnement graphique et WYSIWYG http://glade.gnome.org/[Glade] 
@@ -33,21 +33,21 @@ qui simplifie l'édition et la création visuelle de panneaux esthétiquement tr
 réussis. Il s'appuie sur les liaisons entre http://www.pygtk.org/[PyGTK] et le
 riche jeu de widgets http://www.gtk.org/[GTK+], finalement, tous peuvent être 
 utilisés dans une application GladeVCP et pas seulement les widgets spécialisés
-pour interagir avec HAL et EMC2 présentés ici.
+pour interagir avec HAL et LinuxCNC présentés ici.
 
 === PyVCP par rapport à GladeVCP
 
 Tous les deux supportent la création de panneaux avec des *widgets de HAL*, des 
 éléments utilisateur visuels tels que boutons, Leds, curseurs etc. dont les 
 valeurs sont liées à des pins de HAL qui à leur tour, sont des interfaces pour
-le reste d'EMC2.
+le reste de LinuxCNC.
 
 *PyVCP:*
 
  - Jeu de widgets: utilise les widgets TkInter.
  - Cycle de création d'interfaces utilisateur: "éditer les fichiers XML/ lancer / évaluer le look".
  - Pas de support pour intégrer une gestion des événements définie par l'utilisateur.
- - Pas d'interaction avec EMC2 au-delà des interactions avec les pins d'E/S de HAL supportées.
+ - Pas d'interaction avec LinuxCNC au-delà des interactions avec les pins d'E/S de HAL supportées.
 
 *GladeVCP:*
 
@@ -58,7 +58,7 @@ le reste d'EMC2.
    définie en Python par l'utilisateur.
  - Tous les signaux GTK (touches/appui sur un bouton, fenêtre, E/S, timer, événements réseau) 
    peuvent être associés avec la gestion d'événements définie en Python par l'utilisateur.
- - Interaction directe avec EMC2: exécution de commandes, telle qu'initialiser une
+ - Interaction directe avec LinuxCNC: exécution de commandes, telle qu'initialiser une
    commande MDI pour appeler un sous-programme G-code.
  - Plusieurs panneaux GladeVCP indépendants peuvent tourner dans des onglets différents.
  - Séparation entre l'apparence de l'interface et les fonctionnalités: change d'apparence 
@@ -197,23 +197,23 @@ Vérifier ensuite la version installée, qui doit être égale ou supérieure à
 *+glade3 3.6.7+*
 
 === Lancer Glade pour créer une nouvelle interface utilisateur
-Cette section souligne juste les étapes initiales spécifiques à EMC2. Pour plus
+Cette section souligne juste les étapes initiales spécifiques à LinuxCNC. Pour plus
 d'informations et un tutoriel sur Glade, voir http://glade.gnome.org. Certains
 trucs & astuces sur Glade, peuvent aussi être trouvés sur http://www.youtube.com[youtube].
 
 Soit modifier une interface existante en lançant +glade <fichier>.ui+ ou,
 démarrer une nouvelle en lançant juste la commande +glade+ depuis un terminal.
 
-- Si EMC2 n'a pas été installé depuis un paquetage, l'environnement EMC2 du 
+- Si LinuxCNC n'a pas été installé depuis un paquetage, l'environnement LinuxCNC du 
 shell doit être configuré avec 
-+. <emcdir>/scripts/rip-environment+, autrement Glade ne trouvera pas les widgets
-spécifiques à EMC2.
++. <linuxcncdir>/scripts/rip-environment+, autrement Glade ne trouvera pas les widgets
+spécifiques à LinuxCNC.
 - Quand l'éditeur demande pour enregistrer les préférences, accepter ce qui est
 proposé par défaut et presser *Close*.
 - Depuis les *Niveaux supérieurs* (cadre de gauche), choisir *Fenêtre* (première icône) 
 en haut des Niveaux supérieurs, par défaut cette fenêtre sera nommée *window1*. 
 Ne pas changer ce nom, GladeVCP lui est relié.
-- Dans le bas des onglets de gauche, dérouler *HAL Python* et *EMC Actions*.
+- Dans le bas des onglets de gauche, dérouler *HAL Python* et *LinuxCNC Actions*.
 - Ajouter au nouveau cadre, un conteneur comme une boîte HAL_Box ou une 
 HAL_Table depuis *HAL Python*.
 - Pointer et placer dans un conteneur d'autres éléments, comme une LED, un bouton, etc.
@@ -231,7 +231,7 @@ a aucune raison de l'utiliser. Par convention, l'extension des fichier GtkBuilde
 est *.ui*.
 
 === Tester un panneau
-Vous êtes maintenant prêt à faire un essai (avec EMC2, par exemple Axis en marche)
+Vous êtes maintenant prêt à faire un essai (avec LinuxCNC, par exemple Axis en marche)
 faites:
 
 *+gladevcp myui.ui+*
@@ -401,7 +401,7 @@ Options:
     fixe le thème gtk. Par défaut, le thème système. Différents panneaux peuvent
     avoir différents thèmes.
     Un exemple de thème peut être trouvé sur le 
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[Wiki d'EMC2].
+    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[Wiki de LinuxCNC].
 
 -x XID::
     Redonne un parent GladeVCP dans une fenêtre existante XID au lieu d'en 
@@ -417,7 +417,7 @@ Options:
 
 GladeVcp inclus une collection de widgets Gtk qui ont des pins de HAL attachées,
 appelés widgets HAL, il sont destinés à contrôler, à afficher et à avoir d'autres
-interactions avec la couche HAL d'EMC. Il sont destinés à être utilisés avec les 
+interactions avec la couche HAL de LinuxCNC. Il sont destinés à être utilisés avec les 
 interfaces créées par l'éditeur de Glade. Avec une installation correcte, les 
 widgets HAL devraient être visibles, dans l'éditeur Glade, dans le groupe des 
 Widgets *HAL Python*. Beaucoup de champs spécifiques à HAL dans l'onglet *Général*
@@ -815,12 +815,12 @@ image::images/hal_meter.png[]
 ===  Gremlin, visualiseur de parcours d'outil pour fichiers .ngc
 
 Gremlin est un traceur de parcours d'outil similaire à celui d'Axis.
-Il demande un environnement EMC en fonctionnement, comme Axis ou Touchy. 
+Il demande un environnement LinuxCNC en fonctionnement, comme Axis ou Touchy. 
 Pour se connecter à lui, inspecter la variable d'environnement INI_FILE_NAME. 
 Gremlin affiche le fichiers .ngc courant. Si le fichier ngc est modifié,
 il doit être rechargé pour actualiser le tracé. Si il est lancé dans une application
-GladeVCP quand EMC n'est pas en marche, un message va être affiché parce-que 
-le widget Gremlin ne trouve pas le statut d'EMC, comme le nom du fichier courant.
+GladeVCP quand LinuxCNC n'est pas en marche, un message va être affiché parce-que 
+le widget Gremlin ne trouve pas le statut de LinuxCNC, comme le nom du fichier courant.
 
 Gremlin n'exporte aucune pin de HAL. Il a les propriétés suivantes:
 
@@ -847,14 +847,14 @@ Le code pour l'exemple ci-dessus peut être trouvé dans +configs/gladevcp/anima
 
 image::images/small-screenshot.png[]
 
-== Références des Widgets EMC Action
+== Références des Widgets LinuxCNC Action
 
-GladeVcp inclus une collection d'actions préprogrammées appelées widgets *EMC Action*
+GladeVcp inclus une collection d'actions préprogrammées appelées widgets *LinuxCNC Action*
 qui sont des Widgets pour l'éditeur Glade. À la différence des widgets HAL,
-qui interagissent avec les pins de HAL, les widgets EMC Actions, interagissent 
-avec EMC et son interpréteur de G-code.
+qui interagissent avec les pins de HAL, les widgets LinuxCNC Actions, interagissent 
+avec LinuxCNC et son interpréteur de G-code.
 
-Les widgets EMC Action sont dérivés du widget Gtk.Action. Le widget EMC Action
+Les widgets LinuxCNC Action sont dérivés du widget Gtk.Action. Le widget LinuxCNC Action
 en quelques mots:
 
  - C'est un objet disponible dans l'éditeur Glade.
@@ -868,19 +868,19 @@ en quelques mots:
  - Ils fournissent une voie facile pour exécuter des commandes sans avoir à faire
    appel à la programmation en Python.
 
-L'apparence des EMC Actions dans Glade est approximativement la suivante:
+L'apparence des LinuxCNC Actions dans Glade est approximativement la suivante:
 
 image::images/emc-actions.png[]
 
 Le survol de la souris donne une infobulle.
 
-=== Les widgets EMC Action
+=== Les widgets LinuxCNC Action
 
-Les widgets EMC Action sont des widgets de type simple état. Ils implémentent
+Les widgets LinuxCNC Action sont des widgets de type simple état. Ils implémentent
 une seule action par l'usage, d'un seul bouton, d'une option de menu, d'un 
 bouton radio ou d'une case à cocher.
 
-=== Les widgets EMC bascule action (ToggleAction)
+=== Les widgets LinuxCNC bascule action (ToggleAction)
 
 Ce sont des widgets double état. Ils implémentent deux actions ou utilisent un
 second état (habituellement, *pressé*) pour indiquer qu'une action est actuellement
@@ -892,7 +892,7 @@ d'Arrêt d'Urgence (EStop).
 Actuellement, les widgets suivants sont disponibles:
 
  - La bascule *d'Arrêt d'Urgence* (ESTOP) envoie la commande ESTOP ou ESTOP_RESET 
-   à EMC, selon l'état courant.
+   à LinuxCNC, selon l'état courant.
  - La bascule *ON/OFF* envoie la commande STATE_ON ou STATE_OFF.
  - La bascule *Pause/Reprise* envoie la commande AUTO_PAUSE ou AUTO_RESUME.
 
@@ -920,7 +920,7 @@ transmet cette action basique:
 
 L'ouvrir dans Glade et étudier comment il est fait. Lancer Axis puis dans un 
 terminal faire: *+gladevcp whoareyou.ui+*. Voir l'action +hal_action_mdi1+ et les
-propriétés de +MDI command+ qui exécute juste +(MSG, "Hi, I'm an EMC_Action_MDI")+ 
+propriétés de +MDI command+ qui exécute juste +(MSG, "Hi, I'm an LinuxCNC_Action_MDI")+ 
 ce qui ouvre un popup de message dans Axis, comme ci-dessous:
 
 image::images/whoareyou.png[]
@@ -963,7 +963,7 @@ image::images/oword.png[]
 
 === Préparation d'une Action_MDI
 
-L'interpréteur de G-code d'EMC dispose d'un simple jeu de variables globales, 
+L'interpréteur de G-code de LinuxCNC dispose d'un simple jeu de variables globales, 
 comme la vitesse travail, la vitesse broche, le mode relatif/absolu et autres. 
 Si on utilise des commandes G-code ou des sous-programmes O-word, certaines de 
 ces variables doivent être modifiées par la commande ou le sous-programme. 
@@ -980,9 +980,9 @@ précédentes. Les noms de signaux sont +mdi-command-start+ et +mdi-command-stop
 les noms de gestionnaire peuvent être fixés dans Glade comme tout autre gestionnaire.
 
 Voici un exemple, montrant comment la valeur de la vitesse d'avance est sauvée
-puis restaurée par de tels gestionnaires, noter que la commande EMC et le statut 
+puis restaurée par de tels gestionnaires, noter que la commande LinuxCNC et le statut 
 des voies sont disponibles comme +self.emc+ et +self.stat+ à travers la classe
-EMC_ActionBase:
+LinuxCNC_ActionBase:
 
 [source,python]
 ----
@@ -999,25 +999,25 @@ EMC_ActionBase:
 Seule le widget de la bascule Action_MDI, supporte ces signaux.
 
 [NOTE]
-Dans une prochaine version d'EMC2, les nouveaux M-codes M70 à M72 seront disponibles,
+Dans une prochaine version de LinuxCNC, les nouveaux M-codes M70 à M72 seront disponibles,
 ils enregistreront l'état avant l'appel du sous-programme, la restauration de l'état
 au retour sera plus aisée.
 
-=== Utiliser l'objet EMC Stat pour traiter les changements de statut
+=== Utiliser l'objet LinuxCNC Stat pour traiter les changements de statut
 
-Beaucoup d'actions dépendent du statut d'EMC, est-il en mode manuel, en mode MDI
+Beaucoup d'actions dépendent du statut de LinuxCNC, est-il en mode manuel, en mode MDI
 ou en mode auto ? Un programme est-il en cours d'exécution, est-il en pause 
 ou au repos ? Il est impossible de lancer une commande MDI tant qu'un programme 
 G-code est en cours d'exécution, cela doit donc être pris en compte.
-Beaucoup d'actions EMC prennent cela en compte d'elle même, les boutons et les
+Beaucoup d'actions LinuxCNC prennent cela en compte d'elle même, les boutons et les
 options de menu sont désactivés quand leurs actions sont rendues impossibles.
 
 Avec l'utilisation des gestionnaires d'événements Python, qui sont à un niveau 
 inférieur aux Actions, on doit prendre soin de traiter les dépendances de statut
-soit-même. À cette fin, existe le widget *EMC Stat*, il associe les changements de
-statut d'EMC avec les gestionnaires d'événements.
+soit-même. À cette fin, existe le widget *LinuxCNC Stat*, il associe les changements de
+statut de LinuxCNC avec les gestionnaires d'événements.
 
-EMC Stat n'a pas de composant visible, il suffi de l'ajouter dans l'éditeur Glade.
+LinuxCNC Stat n'a pas de composant visible, il suffi de l'ajouter dans l'éditeur Glade.
 Une fois ajouté, vous pouvez associer des gestionnaires avec les signaux suivants:
 
 * relatif au statut:    émis quand l'arrêt d'urgence est activé, ou désactivé, 
@@ -1025,7 +1025,7 @@ Une fois ajouté, vous pouvez associer des gestionnaires avec les signaux suivan
   - +state-estop-reset+ la machine passe à l'arrêt. 
   - +state-on+,         la machine est mise en marche 
   - +state-off+         la machine passe à l'arrêt.
-* relatif au mode:    émis quand EMC entre dans un de ces modes particuliers
+* relatif au mode:    émis quand LinuxCNC entre dans un de ces modes particuliers
   - +mode-manual+ 
   - +mode-mdi+
   - +mode-auto+
@@ -1300,7 +1300,7 @@ Debug devrait être mis à 2, et confirmer ce que le module fait actuellement.
 Un aspect gênant de GladeVCP dans sa forme initiale avec pyvcp est le fait qu'on
 peut changer les valeurs des pins de HAL au travers du texte saisi,
 curseurs, bouton tournant, bouton à bascule etc, mais leurs paramètres ne sont
-pas enregistrés ni restaurés à la prochaine exécution d'EMC2. Ils commencent aux
+pas enregistrés ni restaurés à la prochaine exécution de LinuxCNC. Ils commencent aux
 valeurs par défaut fixées dans le panneau ou la définition du widget.
 
 GladeVCP dispose d'un mécanisme facile à utiliser pour enregistrer et restaurer
@@ -1467,7 +1467,7 @@ glib.timeout_add_seconds(1, self._on_timer_tick)
 
 === Exemples, et lancez votre propre application GladeVCP
 
-Visiter +emc2/configs/gladevcp+ pour des exemples prêt à l'emploi et points de 
+Visiter +linuxcnc/configs/gladevcp+ pour des exemples prêt à l'emploi et points de 
 départ de vos propres projets.
 
 
@@ -1518,7 +1518,7 @@ départ de vos propres projets.
 // FIXME this is out of date
 == Troubleshooting
 
- -  make sure your have the development version of EMC2 installed. You
+ -  make sure your have the development version of LinuxCNC installed. You
    don't need the axisrc file any more, this was mentioned in the old
    GladeVcp wiki page.
  -  run GladeVCP or Axis from a terminal window. If you get Python errors,
