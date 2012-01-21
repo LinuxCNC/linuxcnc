@@ -55,7 +55,7 @@ if ([info exists env(LANG)]) {
 }
 
 # read the application defaults
-set TKEMCCONF $linuxcnc::TCL_DIR/TkEmc
+set TKEMCCONF $linuxcnc::TCL_DIR/TkLinuxCNC
 if {[file exists $TKEMCCONF]} {
     option readfile $TKEMCCONF startupFile
 }
@@ -63,7 +63,7 @@ if {[package vsatisfies [package require Tk] 8.5.0]} {
     option add *Checkbutton.selectColor blue startupFile
     option add *Radiobutton.selectColor blue startupFile
 }
-foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc /etc/X11/app-defaults/TkEmc} {
+foreach f {TkLinuxCNC /usr/X11R6/lib/X11/app-defaults/TkLinuxCNC /etc/X11/app-defaults/TkLinuxCNC} {
     if {[file exists $f]} {
 	option readfile $f
 	break
@@ -348,7 +348,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkLinuxCNC"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(LinuxCNC %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for LinuxCNC\n\nGPL Version 2 (2012)"] $env(EMC2VERSION) ]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(LinuxCNC %s)" [msgcat::mc "TkLinuxcnc\n\nTcl/Tk GUI for LinuxCNC\n\nGPL Version 2 (2012)"] $env(EMC2VERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
