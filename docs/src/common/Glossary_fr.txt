@@ -70,8 +70,8 @@ Comp::
 
 Configuration(n)::
      A directory containing a set of configuration files. Custom
-    configurations are normally saved in the users home/emc2/configs
-    directory. These files include EMC's traditional INI file and HAL
+    configurations are normally saved in the users home/LinuxCNC/configs
+    directory. These files include LinuxCNC's traditional INI file and HAL
     files. A configuration may also contain several general files that
     describe tools, parameters, and NML connections.
 
@@ -113,16 +113,16 @@ EDM::
     EDM can make internal corners with a radius only slightly larger 
     than the radius on the corner of the sinking electrode. 
 
-EMC::
-     (((EMC)))[[glo:EMC]] The Enhanced Machine Controller. Initially a NIST
-    project. EMC is able to run a wide range of motion devices.
+LinuxCNC::
+     (((LinuxCNC)))[[glo:LinuxCNC]] The Enhanced Machine Controller. Initially a NIST
+    project. LinuxCNC is able to run a wide range of motion devices.
 
-EMCIO::
-     (((EMCIO)))[[glo:EMCIO]] The module within EMC that handles general
+LinuxCNCIO::
+     (((LinuxCNCIO)))[[glo:LinuxCNCIO]] The module within LinuxCNC that handles general
     purpose I/O, unrelated to the actual motion of the axes.
 
-EMCMOT::
-     (((EMCMOT)))[[glo:EMCMOT]] The module within EMC that handles the actual
+LinuxCNCMOT::
+     (((LinuxCNCMOT)))[[glo:LinuxCNCMOT]] The module within LinuxCNC that handles the actual
     motion of the cutting tool. It runs as a real-time program and directly
     controls the motors.
 
@@ -157,7 +157,7 @@ Floating Point Number::
 G-Code::
      (((G-Code)))[[glo:G-Code]] The generic term used to refer to the most
     common part programming language. There are several dialects of G-code,
-    EMC uses RS274/NGC.
+    LinuxCNC uses RS274/NGC.
 
 GUI::
     [[glo:GUI]](((GUI))) Graphical User Interface. 
@@ -166,7 +166,7 @@ GUI::
         and a human (in most cases) via the manipulation of icons and other
         elements (widgets) on a computer screen.
     
-    EMC;;
+    LinuxCNC;;
          An application that presents a graphical screen to the machine
         operator allowing manipulation of the machine and the corresponding
         controlling program.
@@ -185,7 +185,7 @@ Home::
 
 ini file::
      (((INI)))[[glo:inifile]] A text file that contains most of the information
-    that configures EMC for a particular machine
+    that configures LinuxCNC for a particular machine
 
 Instance::
      (((Instance)))[[glo:Instance]] One can have an instance of a class or a
@@ -248,7 +248,7 @@ Offsets::
 
 Part Program::
      (((part Program)))[[glo:PartProgram]] A description of a part, in a
-    language that the controller can understand. For EMC, that language is
+    language that the controller can understand. For LinuxCNC, that language is
     RS-274/NGC, commonly known as G-code. 
 
 Program Units::
@@ -283,12 +283,12 @@ Real-time::
 RTAI::
      (((RTAI)))[[glo:RTAI]] Real Time Application Interface, see
     https://www.rtai.org/[https://www.rtai.org/], one of two real-time
-    extensions for Linux that EMC can use to achieve real-time performance.
+    extensions for Linux that LinuxCNC can use to achieve real-time performance.
 
 RTLINUX::
      (((RTLINUX)))[[glo:RTLINUX]] See
     http://www.rtlinux.org[http://www.rtlinux.org], one of two real-time
-    extensions for Linux that EMC can use to achieve real-time performance.
+    extensions for Linux that LinuxCNC can use to achieve real-time performance.
 
 RTAPI::
      (((RTAPI)))A portable interface to real-time operating systems
@@ -296,7 +296,7 @@ RTAPI::
 
 RS-274/NGC::
      (((RS274NGC)))[[glo:RS274NGC]] The formal name for the language used by
-    EMC part programs. 
+    LinuxCNC part programs. 
 
 Servo Motor::
      (((servo motor)))[[glo:ServoMotor]] Generally, any motor that is used 
@@ -337,7 +337,7 @@ Stepper Motor::
     motor, it will skip one or more steps, causing position errors.
 
 TASK::
-     (((TASK)))[[glo:TASK]] The module within EMC that coordinates the overall
+     (((TASK)))[[glo:TASK]] The module within LinuxCNC that coordinates the overall
     execution and interprets the part program.
 
 Tcl/Tk::

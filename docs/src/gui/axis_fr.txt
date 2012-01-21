@@ -779,7 +779,7 @@ Les raccourcis clavier les plus fréquents sont visibles dans la table ci-dessou
 
 == Affichage de l'état de LinuxCNC (LinuxCNCtop)
 
-AXIS inclut un programme appelé _emctop_ qui affiche en détail l'état
+AXIS inclut un programme appelé _linuxcnctop_ qui affiche en détail l'état
 de LinuxCNC. Ce programme est accessible dans le menu Machine > Fenêtre
 d'état de LinuxCNC.
 
@@ -797,7 +797,7 @@ AXIS inclut un programme appelé 'mdi', il permet d'envoyer des
 commandes à la session de LinuxCNC en cours, sous forme de lignes de texte.
 Vous pouvez lancer ce programme en ouvrant une console et en tapant:
 ----
-mdi /chemin/vers/emc.nml
+mdi /chemin/vers/linuxcnc.nml
 ----
 
 En cours d'exécution il affiche le prompt: _MDI>_. Quand une ligne
@@ -807,7 +807,7 @@ Quand une commande est entrée, elle est passée à LinuxCNC qui l'exécute.
 C'est un exemple de session de MDI.
 
 ----
-$ MDI ~/emc2/configs/sim/emc.nml
+$ MDI ~/linuxcnc/configs/sim/emc.nml
 MDI>
 (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 MDI> G1 F5 X1
@@ -966,9 +966,9 @@ il sert aussi de référence des éléments configurables dans l'écran graphiqu
 L'exemple de fichier _axis_big_dro_ évolution de la position de lecture
 à une police plus grande taille. Pour utiliser ces fichiers:
 ----
-xrdb -merge /usr/share/doc/emc2/axis_light_background
+xrdb -merge /usr/share/doc/linuxcnc/axis_light_background
 
-xrdb -merge /usr/share/doc/emc2/axis_big_dro
+xrdb -merge /usr/share/doc/linuxcnc/axis_big_dro
 ----
 
 Pour plus d'informations au sujet des éléments configurables dans les

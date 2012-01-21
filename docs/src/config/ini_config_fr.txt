@@ -71,8 +71,8 @@ NML::
     avec un seul ordinateur, peut être modifié pour communiquer entre
     plusieurs ordinateurs.
 
- .emcrc::
-     (((.emcrc))) Ce fichier enregistre des informations spécifiques à
+ .linuxcncrc::
+     (((.linuxcncrc))) Ce fichier enregistre des informations spécifiques à
     l'utilisateur, il a été créé pour enregistrer le nom du répertoire
     lorsque l'utilisateur choisit sa première configuration
     de LinuxCNC.footnote:[Habituellement, ce fichier est dans le répertoire home
@@ -232,7 +232,7 @@ Les sections suivantes sont utilisées par LinuxCNC:
 - [FILTER] sélection d'un <<sec:Section-FILTER, programme de filtrage>>.
 - [RS274NGC] ajustements utilisés par <<sec:Section-RS274NGC, l'interpréteur 
 de g-code>>. 
-- [EMCMOT] réglages utilisés par le <<sec:Section-EMCMOT, contrôleur de 
+- [LINUXCNCMOT] réglages utilisés par le <<sec:Section-LINUXCNCMOT, contrôleur de 
 mouvements temps réel>>. 
 - [TASK] réglages utilisés par <<sec:Section-TASK,le contrôleur de tâche>>. 
 - [HAL] spécifications des <<sec:Section-HAL, fichiers .hal>>. 
@@ -241,7 +241,7 @@ mouvements temps réel>>.
 de mouvements temps réel>>. 
 - [AXIS_0] ... [AXIS_n] groupes de variables <<sec:Section-AXIS, relatives 
 aux axes>> 
-- [EMCIO] réglages utilisés par <<sec:Section-EMCIO,le contrôleur 
+- [LINUXCNCIO] réglages utilisés par <<sec:Section-LINUXCNCIO,le contrôleur 
 d'entrées/sorties>> 
 
 === Variables (((Variables)))
@@ -255,7 +255,7 @@ Les paragraphes suivants détaillent chaque section du fichier de
 configuration, en utilisant des exemples de variables dans les lignes
 de configuration.
 
-Certaines de ces variables sont utilisées par EMC. Elles doivent
+Certaines de ces variables sont utilisées par LinuxCNC. Elles doivent
 toujours utiliser le nom de section et le nom de variable dans leur
 appellation. D'autres variables ne sont utilisées que par HAL. Les noms
 des sections et les noms des variables indiquées, sont ceux qui sont
@@ -277,8 +277,8 @@ que spécifiée par LINEAR_UNITS ou ANGULAR_UNITS.
 == Détails des sections du fichier ini
 
 
-[[Section-EMC]]
-=== Section EMC(((Section [EMC] du fichier ini)))
+[[Section-LinuxCNC]]
+=== Section LinuxCNC(((Section [LinuxCNC] du fichier ini)))
 
 
 VERSION = $Revision: 1.5 $::
@@ -298,7 +298,7 @@ DEBUG = 0::
      Niveau de débogage 0 signifie qu'aucun message ne sera affiché dans le
     terminal pendant le fonctionnement de LinuxCNC. Les drapeaux de débogage ne sont 
     généralement utiles pour les développeurs. Voir 
-    ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
+    ../src/linuxcnc/nml_intf/linuxcncglb.h pour les autres paramètres.
 
 [[sec:Section-DISPLAY]]
 === Section DISPLAY
@@ -307,7 +307,7 @@ DEBUG = 0::
 
 Les différentes interfaces graphiques utilisent différentes options 
 qui ne sont pas supportées par toutes les interfaces utilisateur. 
-Les deux principales interfaces pour EMC sont *AXIS* et *Touchy*. *Axis* est une 
+Les deux principales interfaces pour LinuxCNC sont *AXIS* et *Touchy*. *Axis* est une 
 interface pour une utilisation avec un ordinateur classique et son moniteur, 
 *Touchy* est à utiliser avec les ordinateurs à écran tactile.
 Pour plus d'informations, voire la section Interfaces du Manuel de l'utilisateur.
@@ -315,7 +315,7 @@ Pour plus d'informations, voire la section Interfaces du Manuel de l'utilisateur
 DISPLAY = axis:: 
       Le nom de l'interface graphique à utiliser. Les options disponibles
     sont les suivantes: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick))) 
-    mini,(((mini))) tkemc,(((tkemc))) xemc,(((xemc)))
+    mini,(((mini))) tklinuxcnc,(((tklinuxcnc))) xlinuxcnc,(((xlinuxcnc)))
 
 POSITION_OFFSET = RELATIVE::
      Le système de coordonnées (RELATIVE ou MACHINE) à utiliser au
@@ -326,7 +326,7 @@ POSITION_OFFSET = RELATIVE::
 POSITION_FEEDBACK = ACTUAL::
      Valeur de la position (COMMANDED ou ACTUAL) à afficher au démarrage de
     l'interface utilisateur. La position COMMANDED est la position exacte
-    requise par emc. La position ACTUAL est la position retournée par
+    requise par LinuxCNC. La position ACTUAL est la position retournée par
     l'électronique des moteurs.
 
 MAX_FEED_OVERRIDE = 1.2::
@@ -343,11 +343,11 @@ MAX_SPINDLE_OVERRIDE = 1.0::
      Correction de vitesse maximum de broche que l'opérateur pourra
     utiliser. 1.0 signifie 100% de la vitesse de broche programmée.
 
-PROGRAM_PREFIX = ~/emc2/nc_files::
+PROGRAM_PREFIX = ~/linuxcnc/nc_files::
      Répertoire par défaut des fichiers de g-codes et emplacement des
     M-codes définis par l'utilisateur.
 
-INTRO_GRAPHIC = emc2.gif::
+INTRO_GRAPHIC = linuxcnc.gif::
     L'image affichée sur l'écran d'accueil.
 
 INTRO_TIME = 5::
@@ -490,7 +490,8 @@ De cette façon, n'importe quel script Python pourra être ouvert et ses sorties
 comme du g-code. Un exemple de script de ce genre est disponible: nc_files/holecircle.py.
 Ce script crée le g-code pour percer une série de trous séquents à la périphérie d'un cercle.
 De nombreux générateur de G-code sont par ailleurs disponibles sur le wiki: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[à la rubrique des générateurs de G-code].
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Simple_LinuxCNC_G-Code_Generators[à la 
+page des générateurs de G-code].
 
 Si la variable d'environnement AXIS_PROGRESS_BAR est activée, alors les lignes
 écrites sur stderr de la forme
@@ -545,10 +546,10 @@ Une recherche est faite pour chaque fonction utilisateur définie possible, typi
 
 Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 
-[[sec:Section-EMCMOT]]
-=== Section EMCMOT
+[[sec:Section-LINUXCNCMOT]]
+=== Section LINUXCNCMOT
 
-(((Section [EMCMOT] du fichier ini)))
+(((Section [LINUXCNCMOT] du fichier ini)))
 
 Vous pouvez trouver d'autres entrées dans cette section, elles ne doivent pas être changées.
 
@@ -601,7 +602,7 @@ TASK = milltask::
     99,9% des utilisateurs, milltask.
 
 CYCLE_TIME = 0.010::
-     Période exprimée en secondes, à laquelle EMCTASK va tourner. Ce
+     Période exprimée en secondes, à laquelle LINUXCNCTASK va tourner. Ce
     paramètre affecte l'intervalle de polling lors de l'attente de la fin
     d'un mouvement, lors de l'exécution d'une pause d'instruction et quand
     une commande provenant d'une interface utilisateur est acceptée. Il
@@ -661,7 +662,7 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0::
 (((Section [TRAJ] du fichier ini )))
 
 La section [TRAJ] contient les paramètres généraux du module
-planificateur de trajectoires d' EMCMOT. Vous n'aurez pas à modifier
+planificateur de trajectoires de LINUXCNCMOT. Vous n'aurez pas à modifier
 ces valeurs si vous utilisez LinuxCNC avec une machine à trois axes en
 provenance des USA. Si vous êtes dans une zone métrique, utilisant des
 éléments matériels métriques, vous pourrez utiliser le fichier
@@ -1117,14 +1118,14 @@ STEPGEN_MAXVEL = 1.4::
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 
-[[sec:Section-EMCIO]]
-=== Section EMCIO
+[[sec:Section-LINUXCNCIO]]
+=== Section LINUXCNCIO
 
-(((Section [EMCIO] du fichier ini)))
+(((Section [LINUXCNCIO] du fichier ini)))
 
 CYCLE_TIME = 0.100::
-     La période en secondes, à laquelle EMCIO va tourner. La mettre à 0.0
-    ou à une valeur négative fera qu'EMCIO tournera en permanence. Il est
+     La période en secondes, à laquelle LINUXCNCIO va tourner. La mettre à 0.0
+    ou à une valeur négative fera que LINUXCNCIO tournera en permanence. Il est
     préférable de ne pas modifier cette valeur.
 
 TOOL_TABLE = tool.tbl::

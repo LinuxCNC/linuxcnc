@@ -388,12 +388,12 @@ de broches d'entrée à chaque porte logique et permettre la sélection de
 
 == Compiler un fichier *.comp* dans l'arborescence
 
-Placer le fichier *.comp* dans le répertoire *emc2/src/hal/components*
+Placer le fichier *.comp* dans le répertoire *linuxcnc/src/hal/components*
 et lancer/relancer *make*. *Les fichiers Comp* sont automatiquement
 détectés par le système de compilation.
 
 Si un fichier *.comp* est un pilote de périphérique, il peut être
-placé dans *emc2/src/hal/components*  et il y sera construit excepté si
+placé dans *linuxcnc/src/hal/components*  et il y sera construit excepté si
 LinuxCNC est configuré en mode
 simulation.
 

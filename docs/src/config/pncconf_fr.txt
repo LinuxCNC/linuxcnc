@@ -72,7 +72,7 @@ bureau_ qui créera un lien sur le bureau pointant sur ce nouveau fichier de
 configuration, _Créer un lanceur_ qui créera un lanceur sur le bureau pour
 LinuxCNC dans cette configuration.
 Si ces options ne sont pas utilisées, le nouveau fichier de configuration se
-trouvera dans le dossier *+~/emc2/configs+*. Il est toujours  possible de
+trouvera dans le dossier *+~/linuxcnc/configs+*. Il est toujours  possible de
 lancer LinuxCNC normalement et de sélectionner la configuration souhaitée dans la
 liste.
 
@@ -142,7 +142,7 @@ Si la latence est médiocre ou si des problèmes intermittents surviennent
 régulièrement il sera toujours possible de l'améliorer.
 
 TIP: Il y a une liste d'équipements et de leurs temps de latence sur
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test[le wiki de LinuxCNC] +
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test[le wiki de LinuxCNC] +
 SVP, pensez à ajouter vos infos à la liste. Sur cette page il y a des liens vers
 des informations pour résoudre certains problèmes de latence.
 
@@ -382,7 +382,7 @@ nécessite le programme _Touch-off_ de classicladder et que l'entrée de sonde
 soit sélectionnée. Il faut aussi un palpeur qui peut être réalisé avec une
 plaque conductrice reliée à la masse. Pour avoir une idée sur la façon dont
 cela fonctionne voir:
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadderExamples#Single_button_probe_touchof[ Simple bouton "Toucher"]
+//http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff[ Simple bouton "Toucher"]
 
 Sous _Options d'affichage_, les options de géométrie et de dimensions
 permettent de déplacer le panneau, par exemple vers un second écran, si le
@@ -643,7 +643,7 @@ Timing des moteur pas à pas::
      La séquence de signaux des sorties pas a pas, doit être adaptée aux exigences
 du pilote des moteurs. Pncconf propose par défaut, certaines de ces séquences et il
 est possible de les personnaliser.
-Voir http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing pour y
+Voir http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing pour y
 trouver des séquences pour le matériel le plus commun (n'hésitez pas à ajouter
 celles que vous avez expérimenté). En cas de doute utiliser une valeur élevée
 comme 5000, cela ne fera que limiter la vitesse maximale.

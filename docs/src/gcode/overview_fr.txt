@@ -198,7 +198,7 @@ Syntaxes:: Il y a trois sortes d'apparences syntaxiques:
 La portée:: La portée d'un paramètre est soit globale, ou locale à l'intérieur d'un
 sous-programme. Les paramètres de sous-programme et les paramètres nommés ont une
 portée locale. Les paramètres nommés globaux et les paramètres numérotés 
-commencent par un nombre, exemple: 31 a une portée globale. RS274NGC utilise une
+commencent par un nombre, exemple: 31 a une portée globale. RS274/NGC utilise une
 _portée lexicale_, dans un sous-programme, seules sont locales les variables qui
 y sont définies et toutes les variables globales y sont visibles. Les variables 
 locales à un appel de procédure, ne sont pas visibles dans la procédure appelée.
@@ -220,7 +220,7 @@ valeurs. Tous les paramètres sont volatiles, excepté les paramètres numérot�
 dans l'étendue courante de persistance footnote:[L'étendue de persistance
 courante des paramètres évolue en même temps qu'évolue le développement. Cette
 étendue est actuellement de 5161 à 5390. Elle est définie par __required_parameters array_
-dans le fichier src/emc/rs274ngc/interp_array.cc .].
+dans le fichier src/linuxcnc/rs274ngc/interp_array.cc .].
 Les paramètres persistants sont enregistrés dans un fichier _.var_ et restaurés à
 leurs valeurs précédentes quand LinuxCNC est relancé. Les paramètres numérotés 
 volatiles sont remis à zéro.
