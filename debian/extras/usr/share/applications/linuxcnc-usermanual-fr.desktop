@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
+Exec=/usr/bin/see /usr/share/doc/emc2/LinuxCNC_User_Manual_fr.pdf
 Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false
-Name=EMC2 User Manual (French)
-Comment=The EMC2 User Manual. All you need to know to get started. (French)
+Name=LinuxCNC User Manual (French)
+Comment=The LinuxCNC User Manual. All you need to know to get started. (French)
 StartupNotify=false
 Categories=X-CNC;

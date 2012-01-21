@@ -9,4 +9,4 @@ Terminal=false
 Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
 Categories=X-CNC;
-Name=EMC2 Pncconf Wizard
+Name=LinuxCNC Pncconf Wizard
