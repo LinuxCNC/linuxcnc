@@ -14,7 +14,7 @@ DISCLAIMER
 Mission Statement
 -----------------
 
-EMC2 is an offshoot of the original NIST Enhanced Machine
+LinuxCNC is an offshoot of the original NIST Enhanced Machine
 Controller.  The new version is (primarily) a GPL'd project.
 The major goals are:
 
@@ -47,7 +47,7 @@ running the software.
 Directory Layout
 ----------------
 
-The directory tree for EMC2 is documented in 'directory.map' in the
+The directory tree for LinuxCNC is documented in 'directory.map' in the
 top level directory.
 
 
@@ -69,7 +69,7 @@ From the top level directory, switch to the source directory:
 
   cd src
 
-In the source directory, build EMC2:
+In the source directory, build LinuxCNC:
 
   ./configure --enable-run-in-place
   [or, if you do not have a realtime kernel:]
@@ -82,4 +82,4 @@ In the source directory, build EMC2:
 to run the software go back to the top level directory, and issue:
 
   . scripts/rip-environment
-  emc
+  linuxcnc
