@@ -1,4 +1,4 @@
-//    This is a component of AXIS, a front-end for emc
+//    This is a component of AXIS, a front-end for LinuxCNC
 //    Copyright 2005, 2006 Jeff Epler <jepler@unpythonic.net> and 
 //    Chris Radek <chris@timeguy.com>
 //

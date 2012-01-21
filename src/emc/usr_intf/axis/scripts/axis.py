@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-#    This is a component of AXIS, a front-end for emc
+#    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
 #
@@ -880,8 +880,8 @@ This means this function returns True when the mdi tab is visible."""
     if s.task_state != linuxcnc.STATE_ON: return False
     return s.interp_state == linuxcnc.INTERP_IDLE
 
-# If emc is not already in one of the modes given, switch it to the first
-# mode
+# If LinuxCNC is not already in one of the modes given, switch it to the
+# first mode
 def ensure_mode(m, *p):
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
@@ -2538,7 +2538,7 @@ vars = nf.Variables(root_window,
     ("machine", StringVar),
     ("on_any_limit", BooleanVar),
 )
-vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
+vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
 vars.tto_g11.set(ap.getpref("tto_g11", False))
@@ -2865,7 +2865,7 @@ while s.axes == 0:
     statwait *= 2
     if statfail > 8:
         raise SystemExit, (
-            "A configuration error is preventing emc2 from starting.\n"
+            "A configuration error is preventing LinuxCNC from starting.\n"
             "More information may be available when running from a terminal.")
     s.poll()
 

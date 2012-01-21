@@ -478,7 +478,7 @@ if test "$RUN_IN_PLACE" = "yes"; then
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/emc/linuxcnc.nml
+    DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -540,7 +540,7 @@ else
     EMC2_ICON=linuxcncicon
     EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
+    EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
@@ -548,9 +548,9 @@ else
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
-    EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
+    EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=$(fe "$datadir")/emc
+    EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
 fi
 
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
