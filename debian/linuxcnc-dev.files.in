@@ -6,3 +6,4 @@ usr/share/man/man1/comp.1
 usr/share/man/man3/*
 usr/bin/comp
 usr/share/doc/linuxcnc-dev/*
+usr/share/linuxcnc/Makefile.modinc
