@@ -77,7 +77,7 @@ foreach wizard_image $wizard_image_search {
     }
 }
 
-wm title . [msgcat::mc "EMC2 Servo Axis Calibration"]
+wm title . [msgcat::mc "LinuxCNC Servo Axis Calibration"]
 set logo [label .logo -image $logo]
 set main [frame .main ]
 set top [NoteBook .main.top]

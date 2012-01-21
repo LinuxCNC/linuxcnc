@@ -38,10 +38,10 @@ proc insert_file {w title f {p {}}} {
 }
 
 
-wm ti . [msgcat::mc "EMC2 Errors"]
+wm ti . [msgcat::mc "LinuxCNC Errors"]
 frame .f
 label .f.b -bitmap error
-label .f.l -justify l -wraplength 400 -text [msgcat::mc "EMC2 terminated with an error.  When reporting problems, please include all the information below in your message."]
+label .f.l -justify l -wraplength 400 -text [msgcat::mc "LinuxCNC terminated with an error.  When reporting problems, please include all the information below in your message."]
 pack .f.b -side left -padx 8 -pady 8
 pack .f.l -side left
 pack .f -side top -fill x -anchor w
