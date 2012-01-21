@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/emc2/LinuxCNC_User_Manual.pdf
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_User_Manual.pdf
 Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false
