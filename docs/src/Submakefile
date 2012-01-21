@@ -679,7 +679,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
 	for f in $(shell xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $<); do\
 		mkdir -p $(DOC_DIR)/html/$$d/`dirname $$f`; \
-		cp $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
+		cp -f $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
 	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
