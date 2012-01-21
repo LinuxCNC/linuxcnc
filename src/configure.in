@@ -526,7 +526,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
+    LINUXCNC_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -547,7 +547,7 @@ else
         */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
-    EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    LINUXCNC_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=/etc/init.d/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -569,7 +569,7 @@ AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
-AC_SUBST([EMC2_CONFIG_PATH])
+AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
