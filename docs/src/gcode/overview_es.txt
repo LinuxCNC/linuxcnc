@@ -173,7 +173,7 @@ Syntax:: There are three kinds of syntactic appearance:
 Scope:: The scope of a parameter is either global, or local within a
 subroutine. Subroutine parameters and local named variables have local
 scope. Global named parameters and numbered parameters starting from
-number 31 are global in scope. RS274NGC uses 'lexical scoping' - 
+number 31 are global in scope. RS274/NGC uses 'lexical scoping' - 
 in a subroutine only the local variables defined therein, and any
 global variables are visible. The local variables of a
 calling procedure are not visible in a called procedure.
@@ -195,7 +195,7 @@ persistent range footnoteref:[persistent range,The range of persistent
 parameters may change as development progresses. This range is
 currently 5161- 5390. It is defined in the '_required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
-Persistent parameters are saved in the <<var_file_format,.var file>>
+Persistent parameters are saved in the .var file and
 restored to their previous values when LinuxCNC is started again. Volatile
 numbered parameters are reset to zero.
 
@@ -205,16 +205,15 @@ global and local parameters except predefined parameters. These are
 available for general-purpose storage of floating-point values, like
 intermediate results, flags etc, throughout program execution.  They
 are read/write (can be assigned a value).
- . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters 
+ . <<sub:subroutine-parameters,subroutine parameters>> - these are used to hold the actual parameters 
 passed to a subroutine. 
- . <<Numbered-Parameters,numbered parameters>> - most of these are used to access offsets of
+ . <<sub:numbered-parameters,numbered parameters>> - most of these are used to access offsets of
 coordinate systems.
- . <<sec:Predefined-Named-Parameters,predefined named parameters>> - used to determine interpreter and
-machine state, for instance '#<_relative>' returns 1 if G91 is on, and
-0 if G90 is set. They are read-only.
+ . <<sub:system-parameters,system parameters>> - used to determine the current
+   running version. They are read-only.
 
-[[sub:numbered-parameters]]
-=== Numbered Parameters
+
+=== Numbered Parameters [[sub:numbered-parameters]]
 
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and 5399. The parameter is referred
@@ -271,6 +270,13 @@ tool:
 * '5420-5428' - Current Position including offsets in current program
     units (X Y Z A B C U V W)
 
+=== Subroutine Parameters [[sub:subroutine-parameters]]
+
+1-30::
+     Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.
+
+
 [[sub:Named-Parameters]]
 === Named Parameters
 
@@ -317,7 +323,7 @@ The global parameters _a, _b, _c, ... _z have been reserved for
 special use. In the future, they may provide access to the last Aword,
 Bword, Cword, etc.
 
-[[sec:System-Parameters]]
+[[sub:system-parameters]]
 === System Parameters
 
 Two global read only named parameters are available to check which
