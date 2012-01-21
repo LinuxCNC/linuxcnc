@@ -17,3 +17,7 @@ Documentation License. If you do not find the license you may order
 a copy from Free Software Foundation, Inc. 59 Temple Place, 
 Suite 330 Boston, MA 02111-1307
 
+LINUX® is the registered trademark of Linus Torvalds in the U.S. and other
+countries.  The registered trademark Linux® is used pursuant to a sublicense
+from LMI, the exclusive licensee of Linus Torvalds, owner of the mark on a
+world-wide basis.
