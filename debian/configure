@@ -119,6 +119,7 @@ esac
 
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
+OLD_PACKAGE_NAME=emc2
 case $TARGET in
     sim)
         MODULE_PATH=usr/lib/linuxcnc/modules
@@ -129,6 +130,7 @@ case $TARGET in
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
+	OLD_PACKAGE_NAME=emc2-sim
     ;;
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
@@ -155,6 +157,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
+    -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
