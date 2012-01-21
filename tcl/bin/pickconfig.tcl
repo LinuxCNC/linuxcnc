@@ -31,7 +31,8 @@ source [file join [file dirname [info script]] .. linuxcnc.tcl]
 set logo [linuxcnc::image_search linuxcnc-wizard]
 image create photo machinelogo
 
-option add *font [linuxcnc::standard_fixed_font]
+option add *font [linuxcnc::standard_font]
+option add *Text.font [linuxcnc::standard_fixed_font]
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
