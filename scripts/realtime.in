@@ -35,7 +35,7 @@ CheckConfig(){
     sysconfdir=@sysconfdir@
     if [ $RUN_IN_PLACE = yes ]; then
         RTAPICONF=
-        # check in the emc2 scripts directory
+        # check in the LinuxCNC scripts directory
         # $0 is the command to run this script
         # strip the script name to leave the path
         SCRIPT_DIR=${0%/*}
@@ -47,8 +47,8 @@ CheckConfig(){
             RTAPICONF=$SCRIPT_DIR/rtapi.conf
         fi
     else
-        if [ -f $sysconfdir/emc2/rtapi.conf ]; then
-                RTAPICONF=$sysconfdir/emc2/rtapi.conf
+        if [ -f $sysconfdir/linuxcnc/rtapi.conf ]; then
+                RTAPICONF=$sysconfdir/linuxcnc/rtapi.conf
         fi
     fi
     if [ -z "$RTAPICONF" ] ; then
