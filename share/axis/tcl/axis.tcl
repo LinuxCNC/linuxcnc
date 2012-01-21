@@ -162,11 +162,11 @@ setup_menu_accel .menu.machine end [_ "Paste to MDI histor_y"]
 .menu.machine add separator
 
 .menu.machine add command \
-        -command {exec $env(EMC2_TCL_DIR)/bin/emccalib.tcl -- -ini $emcini &}
+        -command {exec $env(LINUXCNC_TCL_DIR)/bin/emccalib.tcl -- -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "_Calibration"]
 
 .menu.machine add command \
-        -command {exec $env(EMC2_TCL_DIR)/bin/halshow.tcl -- -ini $emcini &}
+        -command {exec $env(LINUXCNC_TCL_DIR)/bin/halshow.tcl -- -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Show _Hal Configuration"]
 
 .menu.machine add command \
