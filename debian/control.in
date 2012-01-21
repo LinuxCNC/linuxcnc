@@ -54,6 +54,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: linuxcnc-doc-en
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Replaces: emc2-doc-en
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -66,6 +67,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: linuxcnc-doc-fr
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Replaces: emc2-doc-fr
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -78,6 +80,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: linuxcnc-doc-de
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Replaces: emc2-doc-de
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -90,6 +93,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: linuxcnc-doc-es
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Replaces: emc2-doc-es
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -102,6 +106,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: linuxcnc-doc-pl
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Replaces: emc2-doc-pl
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
