@@ -175,8 +175,8 @@ Pour arrêter un téléchargement, utilisez Ctrl-C ou fermer la fenêtre du term
 ****
 Si vous avez besoin d'une ancienne version d'Ubuntu, vous pouvez télécharger 
 Ubuntu 8.04. L'image du CD ci-dessous est l'ancienne version EMC 2.3.x, mais 
-elle peut être modifiée vers la version 2.4.x en suivant les instructions sur 
-le wiki LinuxCNC.org: http://wiki.linuxcnc.org/cgi-bin/wikiinfo.pl?UpdatingTo2.4
+elle peut être modifiée vers la version 2.4.x en suivant les instructions sur:
+ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.4[le wiki LinuxCNC.org]
 
 Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
