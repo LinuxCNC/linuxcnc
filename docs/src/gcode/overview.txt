@@ -228,7 +228,7 @@ A numbered parameter is the pound character '#' followed by an
 integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
 maintains an array of numbered parameters. Its size is defined by the
 symbol `RS274NGC_MAX_PARAMETERS` in the file
-src/emc/rs274ngc/interp_internal.h). This number of numerical
+src/emc/rs274ngc/interp_internal.hh). This number of numerical
 parameters may also increase as development adds support for new
 parameters.  ].  The parameter is referred
 to by this integer, and its value is whatever number is stored in the
@@ -700,7 +700,7 @@ precision.  Therefore, testing for equality or inequality of two
 floating-point values is inherently problematic. The interpreter
 solves this problem by considering values equal if their absolute
 difference is less than 0.0001 (this value is defined as
-`TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.h).
+`TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.hh).
 
 [[sub:Unary-Operation-Value]]
 == Functions[[sub:functions]]
