@@ -50,7 +50,7 @@ class _EMC_ActionBase(_HalWidgetBase):
                              gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT)
                    }
 
-    emc_static = _EMCStatic()
+    linuxcnc_static = _EMCStatic()
 
     def _hal_init(self):
         self.linuxcnc, self.stat, self.gstat = self.linuxcnc_static.get()
