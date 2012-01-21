@@ -744,7 +744,7 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 # add the Settings menu
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
-$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $linuxcnc::TCL_BIN_DIR/emccalib.tcl -- -ini $LinuxCNC_INIFILE &"
+$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $linuxcnc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
 $settingsmenu add command -label [msgcat::mc "Font..."] -command {popupFont} -underline 0
@@ -760,7 +760,7 @@ $unitsmenu add command -label [msgcat::mc "cm"] -command {emc_linear_unit_conver
 # add the Utilities menu
 set utilsmenu [menu $menubar.utils -tearoff 1]
 $menubar add cascade -label [msgcat::mc "Utilities"] -menu $utilsmenu -underline 1
-$utilsmenu add command -label [msgcat::mc "Hal Scope"] -command {exec halscope -- -ini $LinuxCNC_INIFILE &}
+$utilsmenu add command -label [msgcat::mc "Hal Scope"] -command {exec halscope -- -ini $EMC_INIFILE &}
 $utilsmenu add command -label [msgcat::mc "Hal Meter"] -command {exec halmeter &}
 
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
@@ -782,8 +782,8 @@ if { $windows == 0 } {
 
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
 $scriptsmenu add separator
-$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl -- -ini $LinuxCNC_INIFILE &"
-$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $linuxcnc::TCL_BIN_DIR/halconfig.tcl -- -ini $LinuxCNC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $linuxcnc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
@@ -791,7 +791,7 @@ $menubar add cascade -label [msgcat::mc "Help"] -menu $helpmenu -underline 0
 $helpmenu add command -label [msgcat::mc "Help..."] -command {popupHelp} -underline 0
 $helpmenu add check -label [msgcat::mc "Balloon help"] -variable do_balloons
 #$helpmenu add separator
-#$helpmenu add command -label [msgcat::mc "Info..."] -command {catch {exec tcl/sysinfo.tcl -- -ini $LinuxCNC_INIFILE}} -underline 0
+#$helpmenu add command -label [msgcat::mc "Info..."] -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
 $helpmenu add separator
 $helpmenu add command -label [msgcat::mc "About..."] -command {popupAbout} -underline 0
 
