@@ -13,7 +13,7 @@ best results from LinuxCNC.
 
 If you are using the AXIS display, 
 have Axis display your lathe tools properly. 
-See the INI File section of the Integrator Manual for 
+See the INI Configuration section of the Integrator Manual for 
 more details but you will probably want to make an entry like this 
 to set up AXIS for Lathe Mode. 
 
@@ -50,7 +50,7 @@ but since the 2.4.x release, one tool table format is used for all machines.
 Just ignore the parts of the tool table that don't pertain to your machine, 
 or which you don't need to use. 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format,Tool Table Format>> Section.
+see the <<sec:tool-table,Tool Table>> Section.
 
 == Lathe Tool Orientation[[lathe-tool-orientation]]
 
