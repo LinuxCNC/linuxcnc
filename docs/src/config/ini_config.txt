@@ -623,7 +623,7 @@ Typically (but not always):
 ==== Homing[[sub:Homing-related-items]]
 
 These parameters are Homing related, for a better explanation read the
-<<sec:Homing,Homing>> Section.
+<<cha:homing-configuration,Homing Configuration>> Chapter.
 
 * 'HOME = 0.0' -
      The position that the joint will go to upon completion of the homing
