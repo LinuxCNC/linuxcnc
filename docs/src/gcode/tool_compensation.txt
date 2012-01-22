@@ -40,7 +40,7 @@ The G10 L1x command can be used to set tool table offsets:
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
                       (see <<sec:G10-L11,G10 L10>> for details)
 
-== Tool Table [[sec:Mill-Tool-Table]]
+== Tool Table [[sec:tool-table]]
 
 // carried over from machining_center.txt for salvage -mah
 
@@ -109,8 +109,7 @@ Section for an example of the lathe tool table format.
 The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999. 
 
-[[sec:Tool-Table-Format]]
-=== Tool Table Format
+=== Tool Table Format 
 (((Tool-Table-Format)))
 
 .Tool Table Format

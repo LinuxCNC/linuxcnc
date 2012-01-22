@@ -3878,7 +3878,7 @@ msgid "CW"
 msgstr ""
 
 #: emc/usr_intf/touchy/touchy.glade:8
-msgid "EMC2/Touchy"
+msgid "LinuxCNC/Touchy"
 msgstr ""
 
 #: emc/usr_intf/touchy/touchy.glade:24

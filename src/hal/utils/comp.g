@@ -621,7 +621,7 @@ def find_modinc():
     global modinc
     if modinc: return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/emc']:
+    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/linuxcnc']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
             modinc = e

@@ -174,7 +174,7 @@ state.
 
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
-See the <<sec:Feed-Interaction,Feed Interaction>> Section for more details.
+See the <<sub:feed-rate,Feed Rate>> Section for more details.
 
 == M50 Feed Override Control[[sec:M50-Feed-Override]]
 (((M50 Feed Override Control)))
@@ -196,7 +196,7 @@ and the motion will be executed at programmed feed rate.
              While disabled the spindle speed override will have
              no influence, and the spindle speed will have the
              exact program specified value of the S-word
-             (described in <<sec:S-Set-Spindle,Spindle Speed>> Section).
+             (described in <<sec:S-spindle-speed,Spindle Speed>> Section).
 
 == M52 Adaptive Feed Control[[sec:M52-Adaptive-Feed-Control]]
 (((M52 Adaptive Feed Control)))
@@ -304,11 +304,9 @@ selecting both an analog and a digital input).In LinuxCNC these inputs are
 not monitored in real time and thus should not be used for
 timing-critical applications.
 
-The number of I/O can be increased
-by using the num_dio or num_aio parameter when
-loading the motion controller. See the Integrator's
-Manual, Configuration Section, LinuxCNC and HAL subsection, for more
-information. 
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
 (((M67 Analog Motion Output Control)))
@@ -326,10 +324,9 @@ command, the queued output changes won't happen. It's best to always
 program a motion g-code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
-The number of I/O can be increased by
-using the num_aio parameter when loading the motion controller. See the
-'LinuxCNC and HAL' chapter in the Configuration Section of the Integrator
-Manual for more information on the Motion Controller.
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M68 Analog Output[[sec:M68-Analog-Output]]
 (((M68 Analog Aux Output Control)))
@@ -345,10 +342,9 @@ M68 output happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
-The number of I/O can be increased by using the
-num_aio parameter when loading the motion controller. See the 'LinuxCNC and
-HAL' chapter in the Configuration Section of the Integrator's Manual for
-more information on the Motion Controller. 
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M70 Save Modal State[[sec:M70-Save-Modal-State]]
 (((M70 Save Modal State)))

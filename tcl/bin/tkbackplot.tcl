@@ -107,7 +107,7 @@ proc popupPlot {} {
         return
     }
     toplevel $d
-    wm title $d [msgcat::mc "TkEmc BackPlot"]
+    wm title $d [msgcat::mc "TkLinuxCNC BackPlot"]
 
 # use "pw" as name of top level from now on
 set pw .plot

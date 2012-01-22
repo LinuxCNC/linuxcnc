@@ -3,7 +3,7 @@
 import os
 import gtk
 
-import emc
+import linuxcnc
 from gremlin import Gremlin
 
 def W(p, k, *args, **kw):
@@ -17,7 +17,7 @@ class GremlinApp(gtk.Window):
         if not inifile:
             inifile = os.environ.get('INI_FILE_NAME', None)
 
-        inifile = emc.ini(inifile)
+        inifile = linuxcnc.ini(inifile)
         gtk.Window.__init__(self)
 
         self.vbox = W(self, gtk.VBox)

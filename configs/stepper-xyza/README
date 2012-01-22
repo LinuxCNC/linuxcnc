@@ -1,5 +1,5 @@
 This configuration step is intended for basic stepper machines with a rotary table.
-You can have standard pinout (EMC style), look at stepper/ for a 'xylotex standard' example.
+You can have standard pinout (LinuxCNC style), look at stepper/ for a 'xylotex standard' example.
 Certainly you could make a new one which would suit your own custom cabling.
 
 Detailed description:
@@ -10,7 +10,7 @@ Detailed description:
 
 * nml files
 
--- it uses a default nml file (found in configs/common/emc.nml)
+-- it uses a default nml file (found in configs/common/linuxcnc.nml)
 
 * hal files
 

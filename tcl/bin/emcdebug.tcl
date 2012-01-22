@@ -163,7 +163,7 @@ proc popupDebug {{w .debugwindow}} {
     if {$w == "."} {
 	# we're running standalone
         set lw ""
-        wm title $w [msgcat::mc "EMC Debug"]
+        wm title $w [msgcat::mc "LinuxCNC Debug"]
     } else {
 	# we were sourced into tkemc, and run as a popup
         set lw $w
@@ -174,7 +174,7 @@ proc popupDebug {{w .debugwindow}} {
             return
         }
         toplevel $w
-        wm title $w [msgcat::mc "EMC Debug"]
+        wm title $w [msgcat::mc "LinuxCNC Debug"]
     }
 
     # use "lw" as name of top level from now on

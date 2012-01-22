@@ -4,7 +4,7 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <widget class="GtkWindow" id="MainWindow">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">EMC2/Touchy</property>
+    <property name="title" translatable="yes">LinuxCNC/Touchy</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <accessibility>

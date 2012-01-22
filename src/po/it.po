@@ -4343,8 +4343,8 @@ msgid "CW"
 msgstr "Orario"
 
 #: emc/usr_intf/touchy/touchy.glade:7
-msgid "EMC2/Touchy"
-msgstr "EMC2/Touchy"
+msgid "LinuxCNC/Touchy"
+msgstr "LinuxCNC/Touchy"
 
 #: emc/usr_intf/touchy/touchy.glade:11
 msgid "window1"

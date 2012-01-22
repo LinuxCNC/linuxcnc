@@ -68,7 +68,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G30-G30.1,G30 - G30.1>>      |Go to Predefined Position
 |<<sec:G33-Spindle-Sync,G33>>       |Spindle Synchronized Motion
 |<<sec:G33.1-Rigid-Tapping,G33.1>>  |Rigid Tapping
-|<<G38-probe,G38.2 - G38.5>>        |Probing
+|<<sec:G38-probe,G38.2 - G38.5>>        |Probing
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41, G42>>           |Cutter Compensation
 |<<sec:G41.1-G42.1,G41.1, G42.1>>   |Cutter Compensation Transient
@@ -125,7 +125,7 @@ M2 (end program)
 * See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more infomation.
 
 If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -160,7 +160,7 @@ M2 (end program)
 * See <<sec:G90-G91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections for more information.
 
 If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -214,7 +214,7 @@ motion starts and finishes when the XYZ motion starts and finishes.
 Lines of this sort are hardly ever programmed.
 
 If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:Cutter-Radius-Compensation,Radius Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
 
 The arc offset is relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>.
 
@@ -634,7 +634,7 @@ The above example sets the XYZ coordinates of the coordinate system 1 to the uno
 |9 |9 |G59.3
 |========================================
 
-The coordinate system is described in the <<cha:Coordinate-System,Coordinate System>> Section.
+The coordinate system is described in the <<cha:coordinate-system,Coordinate System>> Section.
 
 == G10 L10 Set Tool Table[[sec:G10-L10]]
 (((G10 L10 Set Tool Table)))
@@ -741,7 +741,7 @@ It is a good idea to include a plane selection in the preamble
 of each g code file.
 
 The effects of having a plane selected are discussed in Section
-<<sec:G2-G3-Arc,G2 G3>> and Section <<sec:G81-G89,G81 G89>>
+<<sec:G2-G3-Arc,G2 G3>> and Section <<sec:G80-G89,G81 G89>>
 
 == G20, G21 Units[[sec:G20-G21-Units]](((G20 Inches)))(((G21 Millimeters)))
 
@@ -1170,7 +1170,7 @@ It is an error if:
 
 * selecting a coordinate system is used while cutter radius compensation is on.
 
-See the <<cha:Coordinate-System,Coordinate System>> Section for an overview of coordinate
+See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
 
 == G61, G61.1 Exact Path Mode[[sec:G61-G61.1-G64]]

@@ -11,7 +11,7 @@ import pango
 
 import rs274.glcanon
 import rs274.interpret
-import emc
+import linuxcnc
 
 import time
 
@@ -53,7 +53,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             return [int(x * 255) for x in s + (a,)]
 
 
-        self.logger = emc.positionlogger(emc.stat(),
+        self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
             C('backplotfeed'),
@@ -64,7 +64,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         )
         thread.start_new_thread(self.logger.start, (.01,))
 
-        rs274.glcanon.GlCanonDraw.__init__(self, emc.stat(), self.logger)
+        rs274.glcanon.GlCanonDraw.__init__(self, linuxcnc.stat(), self.logger)
         self.inifile = inifile
 
         self.current_view = 'z'
@@ -186,7 +186,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             canon = StatCanon(self.colors, self.get_geometry(), s, random)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(td, os.path.basename(parameter or "emc.var"))
+            temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter

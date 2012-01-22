@@ -1,0 +1,3 @@
+#!/bin/sh
+echo 1>&2 "The emc script is deprecated; use the linuxcnc script instead"
+exec "`dirname "$0"`"/linuxcnc "$@"

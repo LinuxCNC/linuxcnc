@@ -39,29 +39,29 @@ class EmcInterface(object):
 
     def __init__(self):
         try:
-            emcIniFile = emc.ini(os.environ['INI_FILE_NAME'])
-            emc.nmlfile = os.path.join(os.path.dirname(os.environ['INI_FILE_NAME']), emcIniFile.find("EMC", "NML_FILE"))
-            self.s = emc.stat();
-            self.c = emc.command()
+            emcIniFile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+            linuxcnc.nmlfile = os.path.join(os.path.dirname(os.environ['INI_FILE_NAME']), emcIniFile.find("EMC", "NML_FILE"))
+            self.s = linuxcnc.stat();
+            self.c = linuxcnc.command()
         except Exception, msg:
             print "cant initialize EmcInterface: %s - EMC not running?" %(msg)
 
     def running(self,do_poll=True):
         if do_poll: self.s.poll()
-        return self.s.task_mode == emc.MODE_AUTO and self.s.interp_state != emc.INTERP_IDLE
+        return self.s.task_mode == linuxcnc.MODE_AUTO and self.s.interp_state != linuxcnc.INTERP_IDLE
 
     def manual_ok(self,do_poll=True):
         if do_poll: self.s.poll()
-        if self.s.task_state != emc.STATE_ON: return False
-        return self.s.interp_state == emc.INTERP_IDLE
+        if self.s.task_state != linuxcnc.STATE_ON: return False
+        return self.s.interp_state == linuxcnc.INTERP_IDLE
 
 
     def ensure_mode(self,m, *p):
         '''
         If emc is not already in one of the modes given, switch it to the first mode
         example:
-        ensure_mode(emc.MODE_MDI)
-        ensure_mode(emc.MODE_AUTO, emc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_MDI)
+        ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
         '''
         self.s.poll()
         if self.s.task_mode == m or self.s.task_mode in p: return True
@@ -111,13 +111,13 @@ class EmcInterface(object):
 class HandlerClass:
 
     def on_manual_mode(self,widget,data=None):
-        if self.e.ensure_mode(emc.MODE_MANUAL):
+        if self.e.ensure_mode(linuxcnc.MODE_MANUAL):
             print "switched to manual mode"
         else:
             print "cant switch to manual in this state"
 
     def on_mdi_mode(self,widget,data=None):
-        if self.e.ensure_mode(emc.MODE_MDI):
+        if self.e.ensure_mode(linuxcnc.MODE_MDI):
             print "switched to MDI mode"
         else:
             print "cant switch to MDI in this state"
@@ -144,7 +144,7 @@ class HandlerClass:
         self.start_relative = (910 in self.e.active_codes())
 
         self.previous_mode = self.e.s.task_mode
-        if self.e.s.task_state != emc.STATE_ON:
+        if self.e.s.task_state != linuxcnc.STATE_ON:
             print "machine not turned on"
             return
         if not self.e.s.homed[axis]:
@@ -154,7 +154,7 @@ class HandlerClass:
             print "cant do that now - intepreter running"
             return
 
-        self.e.ensure_mode(emc.MODE_MDI)
+        self.e.ensure_mode(linuxcnc.MODE_MDI)
         self.e.mdi_command("#<_Probe_System> = %d " % (self.current_system ),wait=False)
         self.e.mdi_command("#<_Probe_Axis> = %d " % (axis),wait=False)
         self.e.mdi_command("#<_Probe_Speed> = %s " % (self.builder.get_object('probe_feed').get_value()),wait=False)

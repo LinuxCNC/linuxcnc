@@ -11,7 +11,6 @@
 from vismach import *
 import hal
 import sys
-import emc
 
 for setting in sys.argv[1:]: exec setting
 
