@@ -1,4 +1,4 @@
-The puma configuration is a set of files that makes up a very basic EMC2 scara simulation using
+The puma configuration is a set of files that makes up a very basic LinuxCNC scara simulation using
 ini, tbl, var. It is very similar to the sim config template, yet with 4 joints defined.
 
 scara.ini

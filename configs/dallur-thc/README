@@ -1,5 +1,5 @@
 This config is for a plasma cutting machine with "stepper" control, along with ClassicLadder
-connections to some of the EMC IO.  
+connections to some of the LinuxCNC IO.  
 It is based on the classicladder stepper sample config, but also includes a charge pump and 
 a Torch Height Control system for Bob Cambells THC300 and CandCNC THC systems.
 The stepper pinouts are for a standard breakout board/combo board as provided by Bob Campbell.

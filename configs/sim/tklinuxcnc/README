@@ -1,6 +1,6 @@
-Sim files using tkemc gui:
+Sim files using tklinuxcnc gui:
 
-tkemc.ini     (tcl/tk interface)
+tklinuxcnc.ini     (tcl/tk interface)
 
 servo_sim.ini (simulation for a servo machine)
 

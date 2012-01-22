@@ -1,8 +1,8 @@
 Sim configurations make it possible to
-run EMC2 without special hardware on
+run LinuxCNC without special hardware on
 a simulated basis.
 
-EMC2 supports multiple guis and there are
+LinuxCNC supports multiple guis and there are
 multiple examples for the most popular guis.
 
   axis    python based gui
@@ -11,7 +11,7 @@ multiple examples for the most popular guis.
 
   simtcl  axis gui with tcl halfiles
 
-  tkemc   tcl/tk based gui
+  tklinuxcnc   tcl/tk based gui
 
 Other gui examples:
 
@@ -21,4 +21,4 @@ Other gui examples:
 
   mini.ini      tcl/tk interface
 
-  xemc.ini      native X interface
+  xlinuxcnc.ini      native X interface
