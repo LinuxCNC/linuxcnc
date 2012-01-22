@@ -513,7 +513,6 @@ install-kernel-indep: install-dirs
 
 	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
