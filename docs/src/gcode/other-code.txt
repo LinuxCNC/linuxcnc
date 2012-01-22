@@ -6,7 +6,7 @@
 (((F: Set Feed Rate)))
 
 * 'F-' - sets the feed rate. The application of the feed rate is as described in the
-<<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
+<<sub:feed-rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
@@ -107,7 +107,7 @@ Comments are only informative, they do not cause a machine to do anything.
                                successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
-For more information on probing see the <<G38-probe,G38>> Section.
+For more information on probing see the <<sec:G38-probe,G38>> Section.
 
 == General Logging[[sec:General-logging]]
 (((General Logging)))

@@ -68,7 +68,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G30-G30.1,G30 - G30.1>>      |Go to Predefined Position
 |<<sec:G33-Spindle-Sync,G33>>       |Spindle Synchronized Motion
 |<<sec:G33.1-Rigid-Tapping,G33.1>>  |Rigid Tapping
-|<<G38-probe,G38.2 - G38.5>>        |Probing
+|<<sec:G38-probe,G38.2 - G38.5>>        |Probing
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41, G42>>           |Cutter Compensation
 |<<sec:G41.1-G42.1,G41.1, G42.1>>   |Cutter Compensation Transient
