@@ -1,4 +1,4 @@
-//    This is a component of AXIS, a front-end for emc
+//    This is a component of AXIS, a front-end for LinuxCNC
 //    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and 
 //    Chris Radek <chris@timeguy.com>
 //
@@ -2106,7 +2106,7 @@ initlinuxcnc(void) {
     verbose_nml_error_messages = 0;
     clear_rcs_print_flag(~0);
 
-    m = Py_InitModule3("linuxcnc", emc_methods, "Interface to EMC");
+    m = Py_InitModule3("linuxcnc", emc_methods, "Interface to LinuxCNC");
 
     PyType_Ready(&Stat_Type);
     PyType_Ready(&Command_Type);
