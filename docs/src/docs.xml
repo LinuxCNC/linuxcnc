@@ -32,7 +32,7 @@
 <doc name="gcode_main" title="The EMC2 Gcode Language"/>
 <doc name="gcode_mill_canned" title="Gcode Mill Canned Cycle Examples"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
-<doc name="gcode_rs274ngc" title="RS-274NGC Gcode"/>
+<doc name="gcode_rs274ngc" title="RS-274/NGC Gcode"/>
 <doc name="examples_gcode" title="Gcode Examples"/>
 <doc name="gui_image-to-gcode" title="Image to Gcode"/>
 <doc name="common_Glossary" title="Glossary"/>
@@ -129,7 +129,7 @@
 <doc name="gcode/main_de.html" title="Le langage Gcode EMC2"/>
 <doc name="gcode/mill_canned_de.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_de.html" title="Informations spécifiques aux tours"/>
-<doc name="gcode/rs274ngc_de.html" title="Le language G-code RS274NGC"/>
+<doc name="gcode/rs274ngc_de.html" title="Le language G-code RS274/NGC"/>
 <doc name="examples/gcode_de.html" title="Exemples en G-code"/>
 <doc name="gui/image-to-gcode_de.html" title="Les fonctionnalités d'Image-to-gcode"/>
 <doc name="common/Glossary_de.html" title="Glossaire"/>
@@ -227,7 +227,7 @@
 <doc name="gcode/main_es.html" title="Le langage Gcode EMC2"/>
 <doc name="gcode/mill_canned_es.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_es.html" title="Informations spécifiques aux tours"/>
-<doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274NGC"/>
+<doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274/NGC"/>
 <doc name="examples/gcode_es.html" title="Exemples en G-code"/>
 <doc name="gui/image-to-gcode_es.html" title="Les fonctionnalités d'Image-to-gcode"/>
 <doc name="common/Glossary_es.html" title="Glossaire"/>

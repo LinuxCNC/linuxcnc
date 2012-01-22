@@ -1,6 +1,6 @@
-= Différences avec RS274NGC
+= Différences avec RS274/NGC
 
-== Changements entre RS274NGC et LinuxCNC 
+== Changements entre RS274/NGC et LinuxCNC 
 
 === Position après un changement d'outil
 
@@ -43,13 +43,13 @@ G0 X- Y-   (déplace les axes au point intermédiaire)
 G28        (déplace tous les axes au point prédéfini) 
 ----
 
-== Ajouts à RS274NGC
+== Ajouts à RS274/NGC
 
-Différences qui ne changent pas le déroulement des programmes en RS274NGC.
+Différences qui ne changent pas le déroulement des programmes en RS274/NGC.
 
 === Codes de filetage G33 et G76
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === G38.2
 
@@ -58,25 +58,25 @@ Ce mouvement de retrait sera ajouté dans une version futur de LinuxCNC.
 
 === G38.3 à G38.5
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === Les O-codes
 
-Ces codes ne sont pas définis dans RS274NGC 
+Ces codes ne sont pas définis dans RS274/NGC 
 
 === M50 à M53 Correcteurs de vitesse 
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === M61 à M66
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === G43, G43.1
 
 Longueurs d'outil négatives::
 
-Les spécifications RS274NGC précisent "il est prévu que" toutes les longueurs 
+Les spécifications RS274/NGC précisent "il est prévu que" toutes les longueurs 
 d'outils soient positives. Cependant, G43 fonctionne avec des longueurs d'outil 
 négatives. 
 
