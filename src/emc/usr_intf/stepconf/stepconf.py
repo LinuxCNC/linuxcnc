@@ -1069,7 +1069,7 @@ class Data:
                           print >>f1, ("sets spindle-at-speed true")
                       print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
                   else:
-                      print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
+                      print >>f1, _("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
@@ -1167,7 +1167,7 @@ class Data:
             print >>file,"Exec=%s %s/%s.ini" \
                          % ( scriptspath, base, self.machinename )
             print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for EMC config made by Stepconf")
+            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
             print >>file,"Icon=%s"% linuxcncicon
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
@@ -1277,10 +1277,10 @@ class App:
     def check_for_rt(self):
         actual_kernel = os.uname()[2]
         if hal.is_sim :
-            self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of hardware is unavailable."),True)
+            self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable."),True)
             return False
         elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(_("You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of hardware is\
+            self.warning_dialog(_("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
                  "You are using the  %(actual)s  kernel.\nYou need to use the  %(needed)s  kernel.")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
             return False
@@ -1295,7 +1295,7 @@ class App:
         if not self.widgets.createconfig.get_active():
             filter = gtk.FileFilter()
             filter.add_pattern("*.stepconf")
-            filter.set_name(_("EMC2 'stepconf' configuration files"))
+            filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
             dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
                 self.widgets.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
