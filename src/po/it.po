@@ -5549,8 +5549,8 @@ msgstr "Test Asse %s"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
-msgstr "Configurazione Fresatrice Stepper in EMC2 "
+msgid "LinuxCNC Stepper Mill Configuration"
+msgstr "Configurazione Fresatrice Stepper in LinuxCNC"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
@@ -5563,8 +5563,8 @@ msgstr ""
 "Stepconf richiede almeno una risoluzione video 800 x 600"
 
 #: emc/usr_intf/stepconf/stepconf.glade:62
-msgid "Create a desktop _launcher to start EMC with this configuration."
-msgstr "Crea un _link sulla scrivania per avviare EMC con questa configurazione."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
+msgstr "Crea un _link sulla scrivania per avviare LinuxCNC con questa configurazione."
 
 #: emc/usr_intf/stepconf/stepconf.glade:79
 msgid "Create a desktop _shortcut (symlink) to configuration files."
@@ -7265,8 +7265,8 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr "Crea un collegamento (symlink) ai file di configurazione sulla scrivania."
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
-msgstr "Crea un link sulla scrivania per avviare EMC con questa configurazione."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
+msgstr "Crea un link sulla scrivania per avviare LinuxCNC con questa configurazione."
 
 #: emc/usr_intf/pncconf/pncconf.glade:213
 msgid "Machine Name:"

@@ -6239,8 +6239,8 @@ msgstr "Test osi %s"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
-msgstr "Kalibracja Frezarki krokowej EMC2"
+msgid "LinuxCNC Stepper Mill Configuration"
+msgstr "Kalibracja Frezarki krokowej LinuxCNC"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
@@ -6285,8 +6285,8 @@ msgid "Create a desktop _shortcut (symlink) to configuration files."
 msgstr "Utwórz na pulpicie dowiązanie (symlink) do plików konfiguracyjnych."
 
 #: emc/usr_intf/stepconf/stepconf.glade:133
-msgid "Create a desktop _launcher to start EMC with this configuration."
-msgstr "Utwórz na pulpicie skrót do uruchomienia EMC z tą konfiguracją."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
+msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją."
 
 #: emc/usr_intf/stepconf/stepconf.glade:169
 #: emc/usr_intf/pncconf/pncconf.glade:175
@@ -8631,8 +8631,8 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr "Utwórz na pulpicie dowiązanie (symlink) do plików konfiguracyjnych."
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
-msgstr "Utwórz na pulpicie skrót do uruchomienia EMC z tą konfiguracją."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
+msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją."
 
 #: emc/usr_intf/pncconf/pncconf.glade:214
 msgid "Machine Name:"

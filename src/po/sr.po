@@ -3993,8 +3993,8 @@ msgstr "Test %s-ose"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
-msgstr "EMC2 konfiguracija masine"
+msgid "LinuxCNC Stepper Mill Configuration"
+msgstr "LinuxCNC konfiguracija masine"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
@@ -4006,7 +4006,7 @@ msgstr ""
 "Druckeranschluss mit dem PC verbunden sind."
 
 #: emc/usr_intf/stepconf/stepconf.glade:64
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:81
@@ -5388,7 +5388,7 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:64
-msgid "Create a desktop launcher to start EMC with this configuration."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:81

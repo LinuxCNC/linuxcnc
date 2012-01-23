@@ -5035,8 +5035,8 @@ msgstr "%s Axis Test"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
-msgstr "Конфигурация EMC2 для фрезера на шаговых моторах"
+msgid "LinuxCNC Stepper Mill Configuration"
+msgstr "Конфигурация LinuxCNC для фрезера на шаговых моторах"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
@@ -5049,9 +5049,9 @@ msgstr ""
 "направление."
 
 #: emc/usr_intf/stepconf/stepconf.glade:62
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
-"Создать на рабочем столе ссылку для быстрого запуска EMC с этой конфигурацией"
+"Создать на рабочем столе ссылку для быстрого запуска LinuxCNC с этой конфигурацией"
 
 #: emc/usr_intf/stepconf/stepconf.glade:79
 msgid "Create a desktop _shortcut (symlink) to configuration files."
@@ -6811,7 +6811,7 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:213

@@ -5458,7 +5458,7 @@ msgid "Create a desktop _shortcut (symlink) to configuration files."
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:130
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:166
@@ -7427,8 +7427,8 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr "創建一個桌面 快捷方式（鏈接）的 配置文件."
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
-msgstr "創建一個桌面 啟動器 啟動 EMC 與 此配置."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
+msgstr "創建一個桌面 啟動器 啟動 LinuxCNC 與 此配置."
 
 #: emc/usr_intf/pncconf/pncconf.glade:213
 msgid "Machine Name:"

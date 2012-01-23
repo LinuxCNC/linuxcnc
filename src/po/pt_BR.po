@@ -5553,7 +5553,7 @@ msgstr ""
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
 #, fuzzy
-msgid "EMC2 Stepper Mill Configuration"
+msgid "LinuxCNC Stepper Mill Configuration"
 msgstr "Mostrar _Configuração Hal"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
@@ -5564,7 +5564,7 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:62
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:79
@@ -7352,7 +7352,7 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:213
