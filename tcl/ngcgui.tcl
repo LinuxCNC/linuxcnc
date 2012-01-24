@@ -3614,8 +3614,15 @@ proc ::ngcgui::pathto {fname  {mode info}} {
 
   if {   [string first "/" $fname] == 0
       || [string first "~" $fname] == 0
+      || [string first "." $fname] == 0
      } {
     if [file exists $fname] {
+      # expected usage: spcecify search path [RS274NGC]SUBROUTINE_PATH
+      #            and: specify [DISPLAY]NGCGUI_SUBFILE as a file name only
+      #
+      # future:  maybe it should be an error to use an absolute path
+      #          since the interpreter may not find the file
+      # for now: only use a file if it is in search path
       set foundabsolute "$fname"
       set fname [file tail $fname] ;# to test if it is in search path
     }
@@ -3630,6 +3637,14 @@ proc ::ngcgui::pathto {fname  {mode info}} {
   }
 
   if [info exists foundinpath] {
+    if {   [info exists foundabsolute] \
+        && [file normalize $foundinpath] != [file normalize $foundabsolute] } {
+      puts "\nngcgui [_ "Warning"]:"
+      puts "[_ "File absolute path specifier conflicts with searchpath result"]"
+      puts "     [_ "Absolute Specifier"]:  $foundabsolute"
+      puts "     [_ "Using Search Result"]: $foundinpath"
+      puts ""
+    }
     return "$foundinpath"
   } else {
     set title "[_ "File not in Search Path"]"
