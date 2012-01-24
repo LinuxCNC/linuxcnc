@@ -69,9 +69,25 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
     // reset the watchdog timer
     // FIXME: write just 1 byte
     hm2->llio->write(hm2->llio, hm2->watchdog.reset_addr, hm2->watchdog.reset_reg, (hm2->watchdog.num_instances * sizeof(u32)));
+}
 
 
-    // see if we've been bit
+void hm2_watchdog_read(hostmot2_t *hm2) {
+    // if there is no watchdog, then there's nothing to do
+    if (hm2->watchdog.num_instances == 0) return;
+
+    // if there are comm problems, wait for the user to fix it
+    if ((*hm2->llio->io_error) != 0) return;
+
+    // if we've already noticed the board needs to be reset, don't re-read
+    // the watchdog has-bit bit
+    // Note: we check needs_reset instead of the has-bit pin here, because
+    // has-bit might be cleared by the user at any time, so using it here
+    // would cause a race condition between this function and pet_watchdog
+    if (hm2->llio->needs_reset != 0) return;
+
+    // last time we were here, everything was fine
+    // see if the watchdog has bit since then
     hm2->llio->read(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, (hm2->watchdog.num_instances * sizeof(u32)));
     if ((*hm2->llio->io_error) != 0) return;
     if (hm2->watchdog.status_reg[0] & 0x1) {

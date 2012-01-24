@@ -1191,6 +1191,7 @@ void hm2_stepgen_allocate_pins(hostmot2_t *hm2);
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
+void hm2_watchdog_read(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2);
 void hm2_watchdog_force_write(hostmot2_t *hm2);
 

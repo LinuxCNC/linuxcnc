@@ -76,6 +76,8 @@ static void hm2_read(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
+    hm2_watchdog_read(hm2);  // look for bite
+
     // if the watchdog has bit, wait for the user to reset it
     if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
 
