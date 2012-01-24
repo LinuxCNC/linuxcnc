@@ -756,7 +756,11 @@ The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it.  The HAL representation of the watchdog is
 named "hm2_<BoardType>.<BoardNum>.watchdog".
 
-The watchdog must be petted by LinuxCNC periodically or it will bite.
+The watchdog starts out asleep and inactive.  Once you access the board
+the first time by running any the hm2 HAL functions read(), write(),
+or pet_watchdog() (see below), the watchdog wakes up.  From them on
+it must be petted periodically or it will bite.  Pet the watchdog by
+running the pet_watchdog() HAL function.
 
 When the watchdog bites, all the board's I/O pins are disconnected from
 their Module instances and become high-impedance inputs (pulled high),
@@ -766,8 +770,9 @@ IO Pins).  Encoder instances keep counting quadrature pulses, and pwm-
 and step-generators keep generating signals (which are *not* relayed to
 the motors, because the IO Pins have become inputs).
 
-Resetting the watchdog resumes communication and resets the I/O pins to
-the configuration chosen at load-time.
+Resetting the watchdog (by clearing the has_bit pin, see below) resumes
+communication and resets the I/O pins to the configuration chosen at
+load-time.
 
 If the firmware includes a watchdog, the following HAL objects will
 be exported:
@@ -780,15 +785,15 @@ can reset it to False to resume operation.
 
 Parameters:
 
-(u32 read/write) timeout_ns: Watchdog timeout, in nanoseconds.  This is initialized
-to 1,000,000,000 (1 second) at module load time.  If more than this
-amount of time passes between calls to the pet_watchdog() function,
-the watchdog will bite.
+(u32 read/write) timeout_ns: Watchdog timeout, in nanoseconds.  This is
+initialized to 5,000,000 (5 milliseconds) at module load time.  If more
+than this amount of time passes between calls to the pet_watchdog()
+function, the watchdog will bite.
 
 Functions:
 
-pet_watchdog(): Calling this function resets the watchdog timer and
-postpones the watchdog biting until timeout_ns nanoseconds later.
+pet_watchdog(): Calling this function resets the watchdog timer
+(postponing the watchdog biting until timeout_ns nanoseconds later).
 .SH Raw Mode
 
 If the "enable_raw" config keyword is specified, some extra debugging

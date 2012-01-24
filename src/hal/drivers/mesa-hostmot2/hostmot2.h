@@ -855,6 +855,9 @@ typedef struct {
     } hal;
 
     u32 written_timeout_ns;
+
+    int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
+    int written_enable;
 } hm2_watchdog_instance_t;
 
 
