@@ -1365,13 +1365,16 @@ EXPORT_SYMBOL_GPL(hm2_unregister);
 void hm2_unregister(hm2_lowlevel_io_t *llio) {
     struct list_head *ptr;
 
-    // kill the watchdog?  nah, let it bite us and make the board safe
-
-    // FIXME: make sure to stop the stepgens & pwmgens
-
     list_for_each(ptr, &hm2_list) {
         hostmot2_t *hm2 = list_entry(ptr, hostmot2_t, list);
         if (hm2->llio != llio) continue;
+
+        // if there's a watchdog, set it to safe the board right away
+        if (hm2->watchdog.num_instances > 0) {
+            hm2->watchdog.instance[0].enable = 1;
+            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
+            hm2_watchdog_force_write(hm2);
+        }
 
         HM2_PRINT("unregistered\n");
 
