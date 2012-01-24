@@ -323,6 +323,8 @@ proc minimal_tree {node} {
 } ;# minimal_tree
 
 foreach dir $::configs_dir_list {
+  if {[info exists visited($dir)]} continue
+  set visited($dir) {}
   walktree $dir
 }
 
