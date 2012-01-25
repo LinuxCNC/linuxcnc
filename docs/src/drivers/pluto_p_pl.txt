@@ -4,7 +4,7 @@
 
 == General Info
 
-The Pluto-P is an inexpensive ($60) FPGA board featuring the
+The Pluto-P is a FPGA board featuring the
 ACEX1K(((ACEX1K))) chip from Altera.
 
 === Requirements
@@ -93,7 +93,7 @@ although there is apparently a paid version that runs on Linux.
 === For more information
 
 Some additional information about it is available from
-http://www.fpga4fun.com/board_pluto-P.html[http://www.fpga4fun.com/board_pluto-P.html]
+http://www.knjn.com/FPGA-Parallel.html[KNJC LLC]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
 == Pluto Servo[[sec:pluto-servo]](((pluto-servo)))
@@ -205,17 +205,14 @@ parameter names is in the manual page, 'pluto_servo.9'.
 
 === Compatible driver hardware
 
-A schematic for a 2A, 2-axis PWM servo amplifier board is available
-(http://emergent.unpy.net/projects/01148303608[http://emergent.unpy.net/projects/01148303608]).
-The L298 H-Bridge
-(http://www.st.com/stonline/books/pdf/docs/1773.pdf[L298 H-bridge]) is
-inexpensive and can easily be used for motors up to 4A (one motor per
+A schematic for a 2A, 2-axis PWM servo amplifier board is available from the
+(http://emergent.unpy.net/projects/01148303608[the software developer]).
+The L298 H-Bridge can be used for motors up to 4A (one motor per
 L298) or up to 2A (two motors per L298) with the supply voltage up to
 46V. However, the L298 does not have built-in current limiting, a
 problem for motors with high stall currents. For higher currents and
 voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
-(http://www.cnczone.com/forums/showthread.php?t=25929[http://www.cnczone.com/forums/showthread.php?t=25929])
 
 == Pluto Step[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
 

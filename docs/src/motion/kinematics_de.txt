@@ -16,7 +16,7 @@ perpendicular to the other two. footnote:[The word “axes” is also
 commonly (and wrongly) used when talking about
 CNC machines, and referring to the moving directions of the machine.]
 
-When we talk about a G-code program (RS274NGC) we talk about a number
+When we talk about a G-code program (RS274/NGC) we talk about a number
 of commands (G0, G1, etc.) which have positions as parameters (X- Y-
 Z-). These positions refer exactly to Cartesian positions. Part of the
 LinuxCNC motion controller is responsible for translating those positions
@@ -208,20 +208,20 @@ permitted to export pins and parameters. It consists of several “C”
 functions (as opposed to HAL functions):
 
 ----
- int kinematicsForward(const double *joint, EmcPose *world, 
+int kinematicsForward(const double *joint, EmcPose *world, 
 const KINEMATICS_FORWARD_FLAGS *fflags, 
 KINEMATICS_INVERSE_FLAGS *iflags) 
 ----
 
-Implements the forward kinematics function as described in HAL manual.
+Implements the forward kinematics function.
 
 ----
- int kinematicsInverse(const EmcPose * world, double *joints, 
+int kinematicsInverse(const EmcPose * world, double *joints, 
 const KINEMATICS_INVERSE_FLAGS *iflags, 
 KINEMATICS_FORWARD_FLAGS *fflags) 
 ----
 
-Implements the inverse kinematics function as described in the HAL manual.
+Implements the inverse kinematics function.
 
 ----
 KINEMATICS_TYPE kinematicsType(void) 
