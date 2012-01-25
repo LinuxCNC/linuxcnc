@@ -229,7 +229,7 @@ and PWMGen will also show up as GPIOs in the HAL Configuration screen.
 == PIN Files
 
 The default pinout is described in a .PIN file (human-readable text). 
-When you install a firmware package .deb, the .PIN files are installed in 
+When you install a firmware package the .PIN files are installed in 
 
 ----
 /usr/share/doc/hostmot2-firmware-<board>/ 
