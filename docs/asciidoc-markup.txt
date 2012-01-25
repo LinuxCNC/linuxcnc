@@ -21,13 +21,13 @@ http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
 Titles
-------
+======
 = Document Title (level 0) =  Note: level 0 can only be once per file!
 == Section title (level 1) ==  Note: trailing delimiter is optional.
 === Section title (level 2) ===
 
 Links
------
+=====
 [[anchor]]
 <<anchor,caption>>
 
@@ -38,9 +38,9 @@ Example
 
 only bombs will show in the text with an underline so always provide a caption for a link
 
-AsciiDoc Formatting
---------------------
+
 Listing Block for G Code and terminal output
+============================================
 ---- < 4 dashes start of block
 lines of code
 ...
@@ -49,6 +49,7 @@ more code
      < 1 blank line after
 
 Literal blocks
+==============
 .... < 4 periods start the block
 literal block
 will show up
@@ -57,6 +58,7 @@ just as you type it.
      < 1 blank line after
 
 Lists
+=====
 * bullet
 ** bullet
 
@@ -70,9 +72,14 @@ List Item Continuation
 List item one continued 
    with a second paragraph
    and first line of second paragraph must be hard left.
-     
-Images
 
+HAL pins and parameters use the following format for consistency
+* 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
+bulleted list with the pin name emphasized by surrounding it with 
+single quotes.
+
+Images
+======
 put all images in the images subdirectory
 
 image::<target>[<attributes>]
@@ -84,7 +91,29 @@ image::images/tiger.png["Tiger image",align="center"]
 If the image is small and displays too big in the pdf you can
 use the scaledwidth="60%" attribute
 
-Escaping a character.
+Inline Images
+=============
+Same as images except only one : is used and no attributes are used between 
+the []
+
+My text has an image in it image:images/axisbutton.png[]
+
+Figures
+=======
+Use the following format for figures so any links to the anchor will move to
+correct place. Only create a link to a figure if it is somewhere else and not 
+the next thing you see when scrolling down. Just say something like "in the 
+following figure..."
+
+[[fig:Parport-block-diag]]
+
+.Parport Block Diagram
+
+image::images/parport-block-diag.png[align="center"]
+
+
+Escaping a character
+====================
 Normally characters like ' and * would not print unless you use \' or \* then
 they will print as normal characters.
 
