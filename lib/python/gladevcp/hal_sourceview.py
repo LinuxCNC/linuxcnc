@@ -133,6 +133,7 @@ class EMC_Action_SaveAs(EMC_Action_Save):
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
         self.textview = None
+        self.currentfolder = os.path.expanduser("~/linuxcnc/nc_files")
 
     def on_activate(self, w):
         if not self.textview:
@@ -140,11 +141,13 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         dialog = gtk.FileChooserDialog(title="Save As",action=gtk.FILE_CHOOSER_ACTION_SAVE,
                     buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
         dialog.set_do_overwrite_confirmation(True)
+        dialog.set_current_folder(self.currentfolder)
         if self.textview.filename:
-            dialog.set_current_name(self.textview.filename)
+            dialog.set_current_name(os.path.basename(self.textview.filename))
         dialog.show()
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.destroy()
         if r == gtk.RESPONSE_OK:
             self.save(fn)
+            self.currentfolder = os.path.dirname(fn)

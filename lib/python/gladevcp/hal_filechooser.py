@@ -177,18 +177,22 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
 
     def _hal_init(self):
         _EMC_Action._hal_init(self)
+        self.currentfolder = os.path.expanduser("~/linuxcnc/nc_files")
 
     def on_activate(self, w):
         if self.fixed_file:
             self._button.load_file(self.fixed_file)
             return
-        dialog = EMC_FileChooserDialog(buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
+                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+        dialog.set_current_folder(self.currentfolder)
         dialog.show()
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.hide()
         if r == gtk.RESPONSE_OK:
             dialog.load_file(fn)
+            self.currentfolder = os.path.dirname(fn)
         dialog.destroy()
 
 class EMC_Action_Reload(_EMC_Action, _EMC_FileChooser):
