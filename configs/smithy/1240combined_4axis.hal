@@ -1,0 +1,255 @@
+# 5i20 config file for 4 Axis Smithy 1240 Mill
+
+# load the hostmot2 driver, this doesnt do anything by itself,
+# it just waits for low-level drivers to register boards
+loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+
+# load the low-level driver for the board
+# this will load the board's firmware and register it with the hostmot2
+# driver loaded above, and it'll show up in HAL
+loadrt hm2_pci config="firmware=hm2/5i20/sssvst2_2_4_v31.bit num_encoders=1 num_pwmgens=0 num_stepgens=4 sserial_port_0=0xxxxxxx"
+# set up the watchdog
+#setp hm2_5i20.0.watchdog.timeout_ns 10000000
+
+# load kinematics
+loadrt trivkins
+
+# load motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+
+# load charge pump
+loadrt charge_pump
+setp charge-pump.enable TRUE
+
+# load and configure the spindle speed PID
+loadrt pid num_chan=1
+setp pid.0.Pgain 0.1
+setp pid.0.Igain 100.0
+setp pid.0.Dgain 0.0
+setp pid.0.maxoutput 1.0
+setp pid.0.deadband 0.01
+
+# load and configure the spindle speed limiting, filtering, and comparison blocks
+# Need this line so AXIS shows +/- buttons
+net srpm motion.spindle-speed-out
+# Limit bounds and slew rate/second
+loadrt limit2
+setp limit2.0.min -100
+setp limit2.0.max 100
+setp limit2.0.maxv 50
+# Stalled spindle detector
+loadrt abs
+loadrt comp count=2
+setp comp.0.in0 1.0
+setp comp.1.in0 0.0
+loadrt and2
+# Filter srps 
+loadrt lowpass
+setp lowpass.0.gain 0.07
+# Spindle at-speed detection
+loadrt near
+setp near.0.scale 1.1
+setp near.0.difference 0.1
+net srps motion.spindle-speed-out-rps limit2.0.in near.0.in1
+net scmd limit2.0.out pid.0.command
+net fb hm2_5i20.0.encoder.00.velocity lowpass.0.in comp.1.in1
+net sflt lowpass.0.out near.0.in2
+net at-speed near.0.out motion.spindle-at-speed
+net scur-abs abs.0.out comp.0.in1
+net scmd-ok comp.0.equal and2.0.in0 
+net sfb-ok comp.1.equal and2.0.in1
+net stall and2.0.out
+
+# These loopbacks are usually disconnected by a postgui halfile
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+
+### q = encoder, h=hall sensors, i=index
+loadrt bldc cfg=qh
+setp bldc.0.rev 1
+net machine-on hm2_5i20.0.8i20.0.0.amp_enable hm2_5i20.0.sserial.port-0.run
+setp hm2_5i20.0.encoder.00.scale 2880
+net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
+net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
+net fb hm2_5i20.0.encoder.00.velocity pid.0.feedback
+net pid-out pid.0.output bldc.0.value
+net rawcount hm2_5i20.0.encoder.00.rawcounts
+net rotor_angle hm2_5i20.0.8i20.0.0.angle bldc.0.rotor-angle
+setp hm2_5i20.0.8i20.0.0.max_current 30.0
+net current bldc.0.out hm2_5i20.0.8i20.0.0.current abs.0.in
+
+### IF cfg==*q* uncomment these lines
+setp bldc.0.initvalue 0.8
+setp bldc.0.lead-angle 0
+### 2.2kW Motor
+setp bldc.0.poles 4
+### 1kW Motor
+#setp bldc.0.poles 8
+setp bldc.0.scale -2880
+net rawcount bldc.0.rawcounts
+
+### IF cfg==*h* uncomment these lines
+net spindle-on motion.spindle-on pid.0.enable
+net sa bldc.0.hall1 hm2_5i20.0.gpio.005.in
+net sb bldc.0.hall2 hm2_5i20.0.gpio.007.in
+net sc bldc.0.hall3 hm2_5i20.0.gpio.009.in
+### 2.2kW Motor
+setp bldc.0.pattern 17 # 17 or 44
+### 1kW Motor
+#setp bldc.0.pattern 34 # 15 or 34
+### ELSE uncomment these lines
+#net amp-enable bldc.0.init
+#net init-done bldc.0.init-done
+
+### IF cfg==*i* uncomment this line
+#net Sidx bldc.0.index-enable
+
+# invert the step pulse polarity
+setp hm2_5i20.0.gpio.000.invert_output TRUE
+setp hm2_5i20.0.gpio.002.invert_output TRUE
+setp hm2_5i20.0.gpio.016.invert_output TRUE
+setp hm2_5i20.0.gpio.018.invert_output TRUE
+
+# configure the stepgen parameters
+setp hm2_5i20.0.stepgen.00.dirsetup        5000
+setp hm2_5i20.0.stepgen.00.dirhold         2000
+setp hm2_5i20.0.stepgen.00.steplen         2000
+setp hm2_5i20.0.stepgen.00.stepspace       2000
+setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
+setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.01.dirsetup        5000
+setp hm2_5i20.0.stepgen.01.dirhold         2000
+setp hm2_5i20.0.stepgen.01.steplen         2000
+setp hm2_5i20.0.stepgen.01.stepspace       2000
+setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_1]SCALE
+setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.02.dirsetup        5000
+setp hm2_5i20.0.stepgen.02.dirhold         2000
+setp hm2_5i20.0.stepgen.02.steplen         2000
+setp hm2_5i20.0.stepgen.02.stepspace       2000
+setp hm2_5i20.0.stepgen.02.position-scale  [AXIS_2]SCALE
+setp hm2_5i20.0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.03.dirsetup        5000
+setp hm2_5i20.0.stepgen.03.dirhold         2000
+setp hm2_5i20.0.stepgen.03.steplen         2000
+setp hm2_5i20.0.stepgen.03.stepspace       2000
+setp hm2_5i20.0.stepgen.03.position-scale  [AXIS_3]SCALE
+setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
+
+# connect position commands from motion module to step generator
+net Xpos-cmd axis.0.motor-pos-cmd => hm2_5i20.0.stepgen.00.position-cmd
+net Ypos-cmd axis.1.motor-pos-cmd => hm2_5i20.0.stepgen.01.position-cmd
+net Zpos-cmd axis.2.motor-pos-cmd => hm2_5i20.0.stepgen.02.position-cmd
+net Apos-cmd axis.3.motor-pos-cmd => hm2_5i20.0.stepgen.03.position-cmd
+
+# connect position feedback from step generators to motion module
+net Xpos-fb hm2_5i20.0.stepgen.00.position-fb => axis.0.motor-pos-fb
+net Ypos-fb hm2_5i20.0.stepgen.01.position-fb => axis.1.motor-pos-fb
+net Zpos-fb hm2_5i20.0.stepgen.02.position-fb => axis.2.motor-pos-fb
+net Apos-fb hm2_5i20.0.stepgen.03.position-fb => axis.3.motor-pos-fb
+
+# connect enable signals for step generators
+net Xen axis.0.amp-enable-out => hm2_5i20.0.stepgen.00.enable
+net Yen axis.1.amp-enable-out => hm2_5i20.0.stepgen.01.enable
+net Zen axis.2.amp-enable-out => hm2_5i20.0.stepgen.02.enable
+net Aen axis.3.amp-enable-out => hm2_5i20.0.stepgen.03.enable
+
+# enable velocity mode jogging
+setp axis.0.jog-vel-mode TRUE
+setp axis.1.jog-vel-mode TRUE
+setp axis.2.jog-vel-mode TRUE
+setp axis.3.jog-vel-mode TRUE
+
+# connect the charge pump signal to an output
+setp hm2_5i20.0.gpio.022.is_output TRUE
+net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
+
+# Safety Relay Monitoring Contacts
+net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+# Run Switch
+net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
+
+#connect limit switches to limit inputs
+net Xmax hm2_5i20.0.gpio.024.in_not => axis.0.pos-lim-sw-in
+net Xmin hm2_5i20.0.gpio.026.in_not => axis.0.neg-lim-sw-in
+net Ymax hm2_5i20.0.gpio.028.in_not => axis.1.pos-lim-sw-in
+net Ymin hm2_5i20.0.gpio.030.in_not => axis.1.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.032.in_not => axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.034.in_not => axis.2.neg-lim-sw-in
+
+#connect positive limit signals to home inputs
+net Xmax => axis.0.home-sw-in
+net Ymax => axis.1.home-sw-in
+net Zmax => axis.2.home-sw-in
+
+# Spindle Contactor Enable
+setp hm2_5i20.0.gpio.041.is_output TRUE
+setp hm2_5i20.0.gpio.041.invert_output TRUE
+# Door Closed - Energizes spindle contactor
+net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
+
+# Main Contactors - True when both contactors are energized
+net ACOK hm2_5i20.0.gpio.035.in_not
+# VFD Fault Relay - True when VFD is not faulted
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+# A Axis Home - On Sieg machines there is no VFD fault signal,
+# it is used for the A axis home sensor on 4 axis machines
+net VFDOK hm2_5i20.0.gpio.031.in_not
+#net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+# Spindle Contactor - False when spindle contactor is energized
+net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
+
+# Axis Drive Status Signals
+# True when YAKO stepper drive is on a full step position
+# True when a Leadshine stepper drive is in the READY state
+net DRV0 hm2_5i20.0.gpio.025.in_not
+net DRV1 hm2_5i20.0.gpio.027.in_not
+net DRV2 hm2_5i20.0.gpio.036.in_not
+net DRV3 hm2_5i20.0.gpio.038.in_not
+
+# Output Bits
+# Link Spindle Direction Signals to make AXIS Display Buttons
+net FWD motion.spindle-reverse
+net REV motion.spindle-forward
+# Flood Coolant
+setp hm2_5i20.0.gpio.043.is_output TRUE
+setp hm2_5i20.0.gpio.043.invert_output TRUE
+net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+# Mist Coolant
+setp hm2_5i20.0.gpio.045.is_output TRUE
+setp hm2_5i20.0.gpio.045.invert_output TRUE
+net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
+
+# hook the functions to threads
+# read inputs
+addf hm2_5i20.0.read servo-thread
+# handle motion commands
+addf motion-command-handler servo-thread
+# run the motion controller
+addf motion-controller servo-thread
+# limit the spindle speed command
+addf limit2.0 servo-thread
+# do spindle pid calcs
+addf pid.0.do-pid-calcs servo-thread
+# filter encoder velocity
+addf lowpass.0 servo-thread
+# compare filtered encoder velocity to commanded
+addf near.0 servo-thread
+# detect a stalled spindle
+addf abs.0 servo-thread
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf and2.0 servo-thread
+# write outputs
+addf hm2_5i20.0.write servo-thread
+# run bldc function
+addf bldc.0 servo-thread
+# pet the watchdog so he won't bite us!
+addf hm2_5i20.0.pet_watchdog servo-thread
+# toggle the charge pump
+addf charge-pump servo-thread
+
