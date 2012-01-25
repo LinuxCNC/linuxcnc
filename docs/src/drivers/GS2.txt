@@ -15,25 +15,25 @@ component gs2_vfd, named spindle-vfd
 
 == Command Line Options
 
-* -b or --bits <n> (default 8) Set number of data bits to <n>, where n
+* '-b or --bits <n>' (default 8) Set number of data bits to <n>, where n
    must be from 5 to 8 inclusive 
-* -d or --device <path> (default /dev/ttyS0) Set the name of the serial
+* '-d or --device <path>' (default /dev/ttyS0) Set the name of the serial
    device node to use 
-* -g or --debug Turn on debugging messages. This will also set the
+* '-g or --debug' Turn on debugging messages. This will also set the
    verbose flag. Debug mode will cause all modbus messages to be printed
    in hex on the terminal. 
-* -n or --name <string> (default gs2_vfd) Set the name of the HAL
+* '-n or --name <string>' (default gs2_vfd) Set the name of the HAL
    module. The HAL comp name will be set to <string>, and all pin and
    parameter names will begin with <string>. 
-* -p or --parity {even,odd,none} (default odd) Set serial parity to
+* '-p or --parity {even,odd,none}' (default odd) Set serial parity to
    even, odd, or none. 
-* -r or --rate <n> (default 38400) Set baud rate to <n>. It is an error
+* '-r or --rate <n>' (default 38400) Set baud rate to <n>. It is an error
    if the rate is not one of the following: 110, 300, 600, 1200, 2400,
    4800, 9600, 19200, 38400, 57600, 115200 
-* -s or --stopbits {1,2} (default 1) Set serial stop bits to 1 or 2
-* -t or --target <n> (default 1) Set MODBUS target (slave) number. This
+* '-s or --stopbits {1,2}' (default 1) Set serial stop bits to 1 or 2
+* '-t or --target <n>' (default 1) Set MODBUS target (slave) number. This
    must match the device number you set on the GS2. 
-* -v or --verbose Turn on debug messages.
+* '-v or --verbose' Turn on debug messages.
 
 [NOTE]
 That if there are serial configuration errors, turning on verbose
@@ -43,27 +43,27 @@ may result in a flood of timeout errors.
 
 Where <n> is gs2_vfd or the name given during loading with the -n option.
 
-* <n>.DC-bus-volts (float, out) The DC bus voltage of the VFD
-* <n>.at-speed (bit, out) when drive is at commanded speed
-* <n>.err-reset (bit, in) reset errors sent to VFD
-* <n>.firmware-revision (s32, out) from the VFD
-* <n>.frequency-command (float, out) from the VFD
-* <n>.frequency-out (float, out) from the VFD
-* <n>.is-stopped (bit, out) when the VFD reports 0 Hz output
-* <n>.load-percentage (float, out) from the VFD
-* <n>.motor-RPM (float, out) from the VFD
-* <n>.output-current (float, out) from the VFD
-* <n>.output-voltage (float, out) from the VFD
-* <n>.power-factor (float, out) from the VFD
-* <n>.scale-frequency (float, out) from the VFD
-* <n>.speed-command (float, in) speed sent to VFD in RPM 
+* '<n>.DC-bus-volts' (float, out) The DC bus voltage of the VFD
+* '<n>.at-speed' (bit, out) when drive is at commanded speed
+* '<n>.err-reset' (bit, in) reset errors sent to VFD
+* '<n>.firmware-revision' (s32, out) from the VFD
+* '<n>.frequency-command' (float, out) from the VFD
+* '<n>.frequency-out' (float, out) from the VFD
+* '<n>.is-stopped' (bit, out) when the VFD reports 0 Hz output
+* '<n>.load-percentage' (float, out) from the VFD
+* '<n>.motor-RPM' (float, out) from the VFD
+* '<n>.output-current' (float, out) from the VFD
+* '<n>.output-voltage' (float, out) from the VFD
+* '<n>.power-factor' (float, out) from the VFD
+* '<n>.scale-frequency' (float, out) from the VFD
+* '<n>.speed-command' (float, in) speed sent to VFD in RPM 
     It is an error to send a speed faster than the Motor Max RPM as set in
    the VFD
-* <n>.spindle-fwd (bit, in) 1 for FWD and 0 for REV sent to VFD
-* <n>.spindle-rev (bit, in) 1 for REV and 0 if off
-* <n>.spindle-on (bit, in) 1 for ON and 0 for OFF sent to VFD
-* <n>.status-1 (s32, out) Drive Status of the VFD (see the GS2 manual)
-* <n>.status-2 (s32, out) Drive Status of the VFD (see the GS2
+* '<n>.spindle-fwd' (bit, in) 1 for FWD and 0 for REV sent to VFD
+* '<n>.spindle-rev' (bit, in) 1 for REV and 0 if off
+* '<n>.spindle-on' (bit, in) 1 for ON and 0 for OFF sent to VFD
+* '<n>.status-1' (s32, out) Drive Status of the VFD (see the GS2 manual)
+* '<n>.status-2' (s32, out) Drive Status of the VFD (see the GS2
    manual) 
 
 [NOTE]
@@ -75,12 +75,12 @@ which means the drive is in the run mode is the sum of 3 (run) + 32
 
 Where <n> is gs2_vfd or the name given during loading with the -n option.
 
-* <n>.error-count (s32, RW) 
-* <n>.loop-time (float, RW) how often the modbus is polled (default 0.1)
-* <n>.nameplate-HZ (float, RW) Nameplate Hz of motor (default 60)
-* <n>.nameplate-RPM (float, RW) Nameplate RPM of motor (default 1730)
-* <n>.retval (s32, RW) the return value of an error in HAL
-* <n>.tolerance (s32, RW) speed tolerance (default 0.01)
+* '<n>.error-count' (s32, RW) 
+* '<n>.loop-time' (float, RW) how often the modbus is polled (default 0.1)
+* '<n>.nameplate-HZ' (float, RW) Nameplate Hz of motor (default 60)
+* '<n>.nameplate-RPM' (float, RW) Nameplate RPM of motor (default 1730)
+* '<n>.retval' (s32, RW) the return value of an error in HAL
+* '<n>.tolerance' (s32, RW) speed tolerance (default 0.01)
 
 For an example of using this component to drive a spindle see the
 <<cha:gs2-spindle,GS2 Spindle>> example.
