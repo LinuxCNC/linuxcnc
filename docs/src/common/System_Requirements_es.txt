@@ -1,8 +1,10 @@
-= Computadora
+= Requerimientos del sistema
+
+[[cha:system-requirements]] (((Requerimientos del sistema)))
 
 == Requerimientos Mínimos (((Requerimientos Minimos)))
 
-Los requerimientos mínimos de hardware para ejecutar EMC2 y Ubuntu pueden variar dependiendo del uso que se le dará al sistema. Sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retro alimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Mantenga en Mente que los resultados del estudio de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Mas información sobre el estudio de latencia se encuentra en la sección (<<sec:Prueba de Latencia>>).
+Los requerimientos mínimos de hardware para ejecutar EMC2 y Ubuntu pueden variar dependiendo del uso que se le dará al sistema. Sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retro alimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Mantenga en Mente que los resultados del estudio de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Mas información sobre el estudio de latencia se encuentra en la sección (<<sec:latency-test>>).
 
 Información adicional se puede encontrar en el sitio de EMC wiki:
 
