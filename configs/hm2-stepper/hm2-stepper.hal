@@ -40,8 +40,6 @@ loadrt hostmot2
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
 
-setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns 10000000
-
 
 # ################################################
 # THREADS
