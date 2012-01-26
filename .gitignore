@@ -19,7 +19,6 @@ lib
 # Ignore all LyX files, we're done with them now. 
 *.lyx
 debian/*.debhelper.log
-debian/emc2-dev.files
 rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
