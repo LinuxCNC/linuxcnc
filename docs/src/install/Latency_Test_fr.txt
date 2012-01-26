@@ -66,7 +66,7 @@ très mauvaise latence de 300µs. Heureusement, il existe un
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[correctif].
 
 Alors, comment interpréter les résultats? Si le résultat de Max Jitter est en
-dessous d'environ 15-20 microsecondes (15000-20000
+dessous d'environ 15-20 µs (15000-20000
 nanosecondes), l'ordinateur pourra donner d'excellents résultats
 pour la génération logicielle des pas. Si le temps de latence est à
 plus de 30-50 microsecondes, de bons résultats seront obtenus, mais la
