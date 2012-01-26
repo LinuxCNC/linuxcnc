@@ -8,20 +8,27 @@ Classic Ladder is a type of programming language originally
 implemented on industrial PLCs (it's called Ladder Programming). It is
 based on the concept of relay contacts and coils, and can be used to
 construct logic checks and functions in a manner that is familiar to
-many systems integrators. It is important to know how ladder programs
-are evaluated when running:
+many systems integrators. Ladder consists of rungs that may have 
+branches and resembles an electrical circuit. It is important to know
+how ladder programs are evaluated when running.
 
 It seems natural that each line would be evaluated left to right, then
-the next line down, etc., but it doesn't work this way. ALL the inputs are
-read, ALL the logic is figured out, then ALL the outputs are set. This
-can presents a problem in certain circumstance if the output of one
-line feeds the input of another. Another gotcha with ladder programming
+the next line down, etc., but it doesn't work this way in ladder logic.
+Ladder logic 'scans' the ladder rungs 3 times to change the state of the
+outputs.
+
+* the inputs are read and updated
+* the logic is figured out
+* the outputs are set
+
+This can be confusing at first if the output of one line is read by the
+input of a another rung. There will be one scan before the second input
+becomes true after the output is set.
+
+Another gotcha with ladder programming
 is the "Last One Wins" rule. If you have the same output in different
 locations of your ladder the state of the last one will be what the
 output is set to.
-
-Classic Ladder version 7.124 has been adapted for EMC 2.3. This
-document describes that version.
 
 == Languages
 
@@ -371,7 +378,7 @@ contact would be on (and HAL pin classicladder.0.out-01 would be true.)
 
 === IEC TIMERS
 
-Represent new count down timers! IEC Timers replace Timers and
+Represent new count down timers. IEC Timers replace Timers and
 Monostables.
 
 IEC Timers have 2 contacts.
@@ -550,8 +557,10 @@ will be set to True.
 .Assign/Compare Example[[cap:Assign/Compare-Example]]
 
 image::images/AssignCompare-Ladder.png[align="center"]
-[
-image:images/Assignment_Expression.png[] image:images/Comparison_Expression.png[]
+
+image::images/Assignment_Expression.png[align="center"]
+
+image::images/Comparison_Expression.png[align="center"]
 
 === COILS
 
@@ -721,8 +730,8 @@ see how long the step has been active. The %X and %X.v variables are
 use in LADDER logic. The variables assigned to the transitions (eg. %B)
 control whether the logic will pass to the next step. After a step has
 become active the transition variable that caused it to become active
-has no control of it anymore. The last step has to JUMP LINK back (only
-to the beginning step?)
+has no control of it anymore. The last step has to JUMP LINK back only
+to the beginning step.
 
 == Modbus
 
@@ -736,21 +745,30 @@ Things to consider:
 * Modbus is not fully finished so it does not do all modbus functions.
 
 To get MODBUS to initialize you must specify that when loading the
-Classic Ladder userspace program, e.g., loadusr -w classicladder 
-'--modmaster' myprogram.clp (assuming myprogram.clp is present -w makes
-HAL wait till you close Classic Ladder before closing realtime session)
-my idea behind this is to get a working modbus solution out there, then
-we can decide how it should be done in the best way. As it stands now
-Classic Ladder also loads a TCP modbus slave (if you add 
-'--modserver' on command line) - I have not tested this nor have I tested
-the TCP modbus master. I have done some testing with the serial port
-and had to add some functions to get it to talk to my VFD, but it does
-work. Modbus function 1,2,3,4,5,6,8,15,16 (read coils, read inputs, read
-holding registers, read input registers, write single coils, write
-single register, echo test, write multiple coils, write multiple 
-registers) are currently available. If you do not specify a 
-'-- modmaster' when loading the Classic Ladder user program 
-this (next) page will not be displayed.
+Classic Ladder userspace program.
+
+.Loading Modbus
+----
+loadusr -w classicladder --modmaster myprogram.clp 
+----
+
+The -w makes HAL wait until you close Classic Ladder before closing realtime
+session. Classic Ladder also loads a TCP modbus slave if you add '--modserver'
+on command line.
+
+.Modbus Functions
+* '1' - read coils
+* '2' - read inputs
+* '3' - read holding registers
+* '4' - read input registers
+* '5' - write single coils
+* '6' - write single register
+* '8' - echo test
+* '15' - write multiple coils
+* '16' - write multiple registers
+
+If you do not specify a '-- modmaster' when loading the Classic Ladder user
+program this page will not be displayed.
 
 .Config I/O[[cap:Config-I/O]]
 
@@ -890,13 +908,9 @@ Serial:
 * Modbus bits and words correspondence table is actually not parametric
    and correspond directly to the %B and %W variables.
 
-Info on modbus protocol are available here:
+More information on modbus protocol is available on the internet.
 
 http://www.modbus.org/[http://www.modbus.org/]
-
-http://www.sourceforge.net/projects/jamod[http://www.sourceforge.net/projects/jamod]
-
-http://www.modicon.com/techpubs/toc7.html[http://www.modicon.com/techpubs/toc7.html]
 
 === Communication Errors
 
