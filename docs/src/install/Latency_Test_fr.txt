@@ -3,96 +3,86 @@
 
 = Test des capacités temps réel
 
-[[sec:Test-de-latence-IM]]
-== Test de latence
-(((Test de latence IM)))
+[[cha:test-de-latence]] (((Test de latence)))
 
-Ce test est le premier test qui doit être effectué sur un PC 
+== Test de latence
+
+Ce test est le premier test qui doit être effectué sur un PC
 pour savoir si celui-ci est capable de piloter une machine CNC.
 
-Le temps de latence est le temps nécessaire au PC, pour arrêter ce
-qu'il est en train de faire pour répondre à une requête externe.
-Dans notre cas, la requête est l'horloge qui sert de référence pour
-les impulsions de pas. Plus la latence est faible, plus l'horloge
-pourra être rapide et donc, plus rapides seront les impulsions et plus doux
-seront les pas des moteurs.
+La latence correspond au temps pris par le PC pour stopper ce qui est
+en cours et répondre à une requête externe. Dans notre cas, la requête
+est l'horloge qui sert au cadencement des impulsions de pas. Plus basse
+est la latence, plus rapide pourra être l'horloge, plus rapides et plus
+douces seront les impulsions de pas.
 
-Le temps de latence est beaucoup plus important que la vitesse du processeur. 
-Un vieux Pentium III qui répond aux interruptions avec 10 microsecondes 
+La latence est de loin plus importante que la vitesse du CPU.
+Un vieux Pentium III qui répond aux interruptions avec 10 microsecondes
 entre chacune, peut donner de meilleurs résultats que le dernier modèle
 de µP ultra rapide.
 
 Le CPU n'est pas le seul facteur déterminant le temps de latence.
-Les cartes mères, les cartes vidéo, les ports USB et 
-de nombreuses autres choses peuvent détériorer le temps de latence. 
-La meilleure façon de savoir si le matériel envisagé est apte, c'est 
+Les cartes mères, les cartes vidéo, les ports USB et
+de nombreuses autres choses peuvent détériorer le temps de latence.
+La meilleure façon de savoir si le matériel envisagé est apte, c'est
 d'exécuter *un test de latence*.
 
-Faire générer les impulsions de pas au logiciel présente un grand
-avantage, c'est gratuit. 
-Quasiment chaque PC dispose d'un port parallèle capable de sortir 
-sur ses broches les signaux de pas générés par le logiciel. 
-Cependant, les générateurs d'impulsions logiciels 
-ont aussi quelques inconvénients:
-
-- Leur fréquence maximum est limitée
-- Les trains d'impulsions générés sont irréguliers
-- Ils chargent le processeur
-
-La seule façon de découvrir ce qu'il en est sur un PC est d'exécuter le test 
+La seule façon de découvrir ce qu'il en est sur un PC est d'exécuter le test
 de latence de HAL.
-Pour exécuter ce test, ouvrir une fenêtre de terminal à partir de *_Applications 
--> Accessoires -> Terminal_* et exécuter la commande suivante:
+Pour exécuter ce test, ouvrir une fenêtre de terminal à partir de _Applications
+-> Accessoires -> Terminal_ et exécuter la commande suivante:
 
 ----
-latency-test 
+latency-test
 ----
 
 Une fenêtre comme ci-dessous devrait s'ouvrir:
 
+.Test de latence de HAL
+
 image::../config/images/latency.png[]
 
 Alors que le test est en cours d'exécution, il faut charger l'ordinateur au
-maximum. Déplacer les fenêtres sur l'écran. Surfer sur le Web. Écouter de la 
-musique. Exécuter un programme OpenGL comme glxgears. L'idée est de charger le 
-PC au maximum pour que le temps de latence soit mesuré dans le cas le plus 
-défavorable et donc, connaitre la latence maximale. 
+maximum. Déplacer les fenêtres sur l'écran. Surfer sur le Web. Écouter de la
+musique. Exécuter un programme OpenGL comme glxgears. L'idée est de charger le
+PC au maximum pour que le temps de latence soit mesuré dans le cas le plus
+défavorable et donc, connaitre la latence maximale.
 
 [NOTE]
-Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est 
-en cours d'exécution. 
+Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est
+en cours d'exécution.
 
-La colonne *_max jitter_* et la ligne *_Base Thread_* de l'exemple ci-dessus 
+La colonne _max jitter_ et la ligne _Base Thread_ de l'exemple ci-dessus
 donne *9075*. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes.
 Noter ce nombre et l'entrer dans Stepconf quand il sera demandé.
 
 Dans cet exemple de test de latence il n'a fallu que quelques
 secondes pour afficher cette valeur. Il est toutefois préférable de le laisser
 tourner pendant plusieurs minutes. Parfois même, dans le pire des
-cas, rien ne provoque de latence ou seulement des actions particulières. 
+cas, rien ne provoque de latence ou seulement des actions particulières.
 Par exemple, une carte mère Intel marchait très bien
 la plupart du temps, mais toutes les 64 secondes elle avait une
 très mauvaise latence de 300µs. Heureusement, il existe un
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[correctif].
 
-Alors, comment interpréter les résultats? Si le résultat de Max Jitter est en 
+Alors, comment interpréter les résultats? Si le résultat de Max Jitter est en
 dessous d'environ 15-20 microsecondes (15000-20000
 nanosecondes), l'ordinateur pourra donner d'excellents résultats
 pour la génération logicielle des pas. Si le temps de latence est à
 plus de 30-50 microsecondes, de bons résultats seront obtenus, mais la
 vitesse maximum sera un peu faible, spécialement si des micropas sont
-utilisés ou si le pas de la vis est fin. Si les résultats sont de 100µS 
+utilisés ou si le pas de la vis est fin. Si les résultats sont de 100µS
 ou plus (100,000 nanosecondes), alors le PC
 n'est pas un bon candidat à la génération des pas. Les résultats
 supérieurs à 1 milliseconde (1,000,000 nanosecondes) éliminent,
 dans tous les cas, ce PC pour faire tourner LinuxCNC, en utilisant des
 micropas ou pas.
 
-Noter que si une latence élevée est obtenue, il peut être possible
-de l'améliorer. Un PC avait une très mauvaise latence (plusieurs
-millisecondes) en utilisant la carte graphique interne. Un carte
-graphique Matrox d'occasion à $5US a résolu le problème. LinuxCNC
-n'exige pas de matériel de pointe.
+[NOTE]
+Si une latence élevée est obtenue, il peut être possible de l'améliorer.
+Un PC avait une très mauvaise latence (plusieurs millisecondes) en utilisant
+la carte graphique interne. Un carte graphique d'occasion à $5US a résolu le
+problème. LinuxCNC n'exige pas de matériel de pointe.
 
 == Adresses des ports
 

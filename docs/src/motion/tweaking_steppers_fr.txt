@@ -1,117 +1,34 @@
 :lang: fr
 :toc:
 
-= Réglages des pas à pas[[cha:Reglages-de-pas-a-pas]]
+= Réglages des pas à pas
 
-(((Réglages des pas à pas)))
+[[cha:Reglages-de-pas-a-pas]] (((Réglages des pas à pas)))
 
 == Obtenir le meilleur pilotage logiciel possible
 
 Faire générer les impulsions de pas au logiciel présente un gros
-avantage, c'est gratuit. Comme chaque PC est équipé d'un port
-parallèle, il est capable de sortir sur celui-ci, les impulsions
-générées par le logiciel. Toutefois, cette génération d'impulsions
-logicielle présente aussi certains désaventages:
+avantage, c'est gratuit. Quasiment chaque PC dispose d'un port parallèle
+capable de sortir sur ses broches les signaux de pas générés par le logiciel.
+Cependant, les générateurs d'impulsions logiciels ont aussi quelques
+inconvénients:
 
- - La fréquence maximum des impulsions est limitée.
- - Les impulsions générées ne sont pas de très bonne qualité à cause du
-   bruit.
- - Elles sont sujettes à la charge du CPU 
+* La fréquence maximum des impulsions est limitée.
+* Les impulsions générées sont irrégulières à cause du bruit.
+* Elles sont sujettes à la charge du CPU 
 
 Ce chapitre présente certaines mesures qui vous aideront à obtenir les
 meilleurs résultats du logiciel.
 
 === Effectuer un test de latence
 
-La latence correspond au temps pris par le PC pour stopper ce qui est
-en cours et répondre à une requête externe. Dans notre cas, la requête
-est l'horloge qui sert au cadencement des impulsions de pas. Plus basse
-est la latence, plus rapide pourra être l'horloge, plus rapides et plus
-douces seront les impulsions de pas.
-
-La latence est de loin plus importante que la vitesse du CPU. Un
-Pentium II répondant à chaque interruption et toutes les 10
-microsecondes pourra donner de meilleurs résultats qu'un rapide P4 HT.
-
 Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
 mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
 la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
 d'un PC consiste à exécuter le test de latence RTAI.
 
-    NE PAS ESSAYER DE LANCER LinuxCNC PENDANT QUE LE TEST EST EN COURS
-
-Sous Ubuntu Dapper, vous pouvez lancer le test en ouvrant une console
-et en faisant:
-
-    sudo mkdir /dev/rtf; 
-    sudo mknod /dev/rtf/3 c 150 3; 
-    sudo mknod /dev/rtf3 c 150 3; 
-    cd /usr/realtime*/testsuite/kern/latency; ./run
-
-et vous devriez voir quelques choses comme:
-
-    ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run 
-    * 
-    * 
-    * Type ^C to stop this application. (Tapez CTRL-C pour arrêter cette application)
-    * 
-    *
-    
-    ## RTAI latency calibration tool ## 
-    # period = 100000 (ns) 
-    # avrgtime = 1 (s) 
-    # do not use the FPU 
-    # start the timer 
-    # timer_mode is oneshot
-    
-    RTAI Testsuite - KERNEL latency (all data in nanoseconds) 
-    RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns 
-    RTD|   -1571|   -1571|    1622|    8446|    8446|      0 
-    RTD|   -1558|   -1571|    1607|    7704|    8446|      0 
-    RTD|   -1568|   -1571|    1640|    7359|    8446|      0 
-    RTD|   -1568|   -1571|    1653|    7594|    8446|      0 
-    RTD|   -1568|   -1571|    1640|   10636|   10636|      0 
-    RTD|   -1568|   -1571|    1640|   10636|   10636|      0
-
-Pendant la durée du test, vous devez «abuser» de l'ordinateur.
-Déplacez les fenêtres tout autour de l'écran. Surfez sur le web.
-Déplacez quelques longs fichiers sur le disque. Jouez de la musique.
-Lancez un programme OpenGL comme glxgears. L'idée étant de pousser le
-PC au bout de ses limites pendant que le test de latence observe pour
-trouver les cas les moins bons.
-
-L'avant dernière colonne marquée «ovl max» est la plus importante.
-Notez sa valeur, vous en aurez besoin par la suite. Elle contient les
-mesures de latence les plus mauvaises durant tout le test. Dans
-l'exemple ci-dessus, la valeur est de 10636 nanosecondes, soit 10.6
-microsecondes, ce qui est excellent. Toutefois, le test de l'exemple
-n'a duré que quelques secondes (une ligne s'affiche à chaque seconde).
-Vous devez lancer le test pendant plusieurs minutes, parfois le plus
-mauvais temps n'apparaît pas vraiment, ou il apparaît quand vous faites
-une action particulière. J'ai une carte mère Intel qui marche très bien
-la plupart du temps, mais chaque 64 secondes arrive une valeur très
-mauvaise de 300uS. Par chance, ce cas a trouvé une solution, voyez ici: 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Le Wiky de
-Linuxcnc - Correction des problèmes SMI].
-
-Que signifient les résultats du tableau, à quels résultats s'attendre?
-Si la valeur de votre «ovl max» est inférieure à 15-20 microsecondes
-(15,000-20,000 nanosecondes), l'ordinateur donnera d'excellents
-résultats. Si la latence maximale est près de 30-50 microsecondes, vous
-aurez de bons résultats, mais la fréquence maximale des pas risque
-d'être décevante, spécialement si vous utilisez des micropas ou si vous
-avec une vis avec un pas fin. Si la latence est de 100uS ou plus
-(100,000 nanosecondes), alors le PC n'est pas utilisable pour générer
-des trains d'impulsions par logiciel. Des chiffres suppérieurs à 1
-milliseconde (1,000,000 nanosecondes) signifie que ce PC ne convient
-pas du tout pour LinuxCNC, que vous pensiez générer les pas par logiciel ou
-non.
-
-Notez que si vous obtenez de mauvais résultats, c'est peut être
-améliorable. Par exemple, un PC qui avait une latence très mauvaise
-(plusieurs millisecondes) en utilisant la carte graphique intégrée a vu
-le problème résolu par une carte graphique Matrox à 5$. LinuxCNC ne
-nécessite pas du matériel de pointe.
+Lancer un test comme décrit <<cha:test-de-latence, au chapitre sur le test>>
+de latence.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
 
@@ -121,56 +38,33 @@ de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
-
-[quote]
-________________________________________
+....
 Step Frequency: 0 to 200 kHz 
-
 Step Pulse “0” Time: 0.5 uS min (Step on falling edge) 
-
 Step Pulse “1” Time: 4.5 uS min 
-
 Direction Setup: 1 uS min (20 uS min hold time after Step edge)
-________________________________________
-
+....
 
 Les spécifications du Gecko G203V indiquent:
-
-[quote]
-________________________________________
-
+....
 Step Frequency: 0 to 333 kHz 
-
 Step Pulse “0” Time: 2.0 uS min (Step on rising edge) 
-
 Step Pulse “1” Time: 1.0 uS min 
 
-200 nS (0.2uS) before step pulse rising edge 
-
-200 nS (0.2uS) hold after step pulse rising edge
-________________________________________
-
+Direction setup:
+    200 nS (0.2uS) before step pulse rising edge 
+    200 nS (0.2uS) hold after step pulse rising edge
+....
 
 Un carte Xylotex donne dans ses données techniques un superbe graphe
 du timing nécessaire, il indique:
-
-[quote]
-________________________________________
+....
 Minimum DIR setup time before rising edge of STEP Pulse 200nS Minimum 
-
-
 DIR hold time after rising edge of STEP pulse 200nS 
-
-
 Minimum STEP pulse high time 2.0uS 
-
-
 Minimum STEP pulse low time 1.0uS 
-
-
 Step happens on rising edge
-________________________________________
-
+....
 
 Notez les valeurs que vous trouvez, vous en aurez besoin pour la
 prochaine étape.
@@ -276,31 +170,31 @@ Le problème avec le G202 est le temps de maintien demandé de 20uS. Ca
 plus la latence de 11uS nous oblige à utiliser une période longue de
 31uS. Mais le générateur de pas logiciel de LinuxCNC a un certain nombre de
 paramètres qui permettent d'augmenter les différentes durées d'une
-période à plusieurs autres. Par exemple, si «steplen» passe de 1 à 2,
+période à plusieurs autres. Par exemple, si _steplen_ passe de 1 à 2,
 alors il y aura deux périodes entre le début et la fin de l'impulsion.
-De même, si «dirhold» passe de 1 à 3, il y aura au moins trois périodes
+De même, si _dirhold_ passe de 1 à 3, il y aura au moins trois périodes
 entre l'impulsion de pas et un changement d'état de la broche de
 direction.
 
-Si nous pouvons utiliser «dirhold» pour le temps de maintien de 20uS
+Si nous pouvons utiliser _dirhold_ pour le temps de maintien de 20uS
 demandé, alors le temps le plus long suivant sera de 4.5uS. Ajoutez les
 11uS de latence à ces 4.5uS, et vous obtenez une période minimale de
 15.5uS. Lorsque vous essayez 15.5uS, vous trouvez que l'ordinateur est
-très lent, donc vous régler sur 16uS. Si nous laissons «dirhold» à 1
+très lent, donc vous régler sur 16uS. Si nous laissons _dirhold_ à 1
 (par défaut), alors le temps minimum entre le pas et la direction est
 de 16uS moins la période de latence de 11uS = 5uS, ce qui n'est pas
 suffisant. Nous avons besoin de 15 autres uS, puisque la période est de
 16uS, nous avons besoin d'une période de plus. Nous allons donc passer
-«dirhold» de 1 à 2. Maintenant, le temps minimum entre la fin de
+_dirhold_ de 1 à 2. Maintenant, le temps minimum entre la fin de
 l'impulsion et l'impulsion de changement de direction est de 5+16 =
 21uS et nous n'avons pas à craindre que la Gecko parte dans la mauvaise
 direction en raison de la latence.
 
 Si l'ordinateur a une latence de 11uS, alors la combinaison d'une
-période de base de 16uS et d'une valeur de «dirhold» de 2 garanti que
+période de base de 16uS et d'une valeur de _dirhold_ de 2 garanti que
 nous serons toujours dans le respect des délais exigés par la Gecko.
 Pour les pas normaux (sans changement de direction), l'augmentation de
-la valeur de «dirhold» n'aura aucun effet. Il faudra deux périodes d'un
+la valeur de _dirhold_ n'aura aucun effet. Il faudra deux périodes d'un
 total de 32uS pour faire un seul pas et nous avons la même fréquence de
 31250 pas par seconde que nous avions eu avec la Xylotex.
 
@@ -309,7 +203,7 @@ vous travaillez par le biais de ces exemples avec des latences plus
 grandes, comme 20 ou 25uS, la fréquence de pas la plus grande à la fois
 pour la Xylotex et la Gecko sera plus faible. Mais les mêmes formules
 sont applicables pour calculer un BASE_PERIOD optimal et pour régler
-«dirhold» ou d'autres paramètres du générateur de pas.
+_dirhold_ ou d'autres paramètres du générateur de pas.
 
 === Pas de secret!
 
