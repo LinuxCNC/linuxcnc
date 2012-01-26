@@ -13,6 +13,7 @@ linuxcnc-python
 linuxcnc-doc-*/
 *.substvars
 /linuxcnc.files
+/linuxcnc-dev.files
 /linuxcnc-sim.files
 /linuxcnc-sim-dev.files
 /linuxcnc-doc-*.files
