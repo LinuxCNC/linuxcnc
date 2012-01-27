@@ -1405,6 +1405,7 @@ int do_loadusr_cmd(char *args[])
     /* get program and component name */
     args += optind;
     prog_name = *args++;
+    if (prog_name == 0) { return -EINVAL; }
     if(!new_comp_name) {
 	new_comp_name = guess_comp_name(prog_name);
     }
