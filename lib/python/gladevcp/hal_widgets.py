@@ -123,14 +123,15 @@ class HAL_CheckButton(gtk.CheckButton, _HalToggleBase):
 class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
     __gtype_name__ = "HAL_SpinButton"
 
+    def hal_update(self, *a):
+        data = self.get_value()
+        self.hal_pin_f.set(float(data))
+        self.hal_pin_s.set(int(data))
+        
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
         self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
-        def _f(w):
-            data = self.get_value()
-            self.hal_pin_f.set(data)
-            self.hal_pin_s.set(int(data))
-        self.connect("value-changed", _f)
+        self.connect("value-changed", self.hal_update)
         self.emit("value-changed")
 
 class HAL_RadioButton(gtk.RadioButton, _HalToggleBase):
