@@ -5,7 +5,7 @@ hal \- Introduction to the HAL API
 
 .SH DESCRIPTION
 
-HAL stands for Hardware Abstraction Layer, and is used by EMC to transfer
+HAL stands for Hardware Abstraction Layer, and is used by LinuxCNC to transfer
 realtime data to and from I/O devices and other low-level modules.
 
 \fBhal.h\fR defines the API and data structures used by the HAL.  This file is
