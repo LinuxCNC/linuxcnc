@@ -1,4 +1,4 @@
-# ngcgui_ttt.tcl: an linuxcnc [DISPLAY]TKAPP for using truetype-tracer and ngcgui
+# ngcgui_ttt.tcl: a LinuxCNC [DISPLAY]TKAPP for using truetype-tracer and ngcgui
 
 #-----------------------------------------------------------------------
 # Copyright: 2010-2012

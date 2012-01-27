@@ -160,6 +160,7 @@ image::images/Tmr_Section_Display.png[align="center"]
 In this case %I0 is true so the timer preset value is 10. If %I0 was
 false the timer preset would be 5.
 
+///////////////////////////////////////////////////////////////////////////////
 == Tool Turret
 
  - This Example is not complete yet.
@@ -183,7 +184,7 @@ above. [display turret sample]
 == Sequential Example
 
  - This Example is not complete yet.
-///////////////////////////////////////////////////////////////////////////////
+
 This is a sequential program.
 When the program is first started step one is active.
 Then when %B0 is true, steps 2 and 3 are then active

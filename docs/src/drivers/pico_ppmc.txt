@@ -1,6 +1,6 @@
-= Pico PPMC Driver
+= Pico Drivers
 
-[[cha:pico-ppmc-driver]] (((Pico PPMC Driver)))
+[[cha:pico-drivers]] (((Pico PPMC Driver)))
 
 Pico Systems has a family of boards for doing analog servo, stepper,
 and PWM (digital) servo control. The boards connect to the PC through a

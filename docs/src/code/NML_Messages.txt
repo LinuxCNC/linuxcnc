@@ -103,9 +103,9 @@ Written From: none
 Read To: emctaskmain.cc
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] +
-`                `[p, double] [i,double] [d, double] +
-`                `[ff0, double] [ff1, double] [ff2, double] +
-`                `[backlash, double] [bias, double] [maxError, double]
+[p, double] [i,double] [d, double] +
+[ff0, double] [ff1, double] [ff2, double] +
+[backlash, double] [bias, double] [maxError, double]
 
 === EMC_AXIS_SET_CYCLE_TIME_TYPE
 
@@ -126,8 +126,8 @@ Obs: currently if 0'ed, used only directly from iniaxis
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetInputScale (minimill|bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_INPUT_SCALE
+calls emcAxisSetInputScale (minimill|bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_INPUT_SCALE
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset, double]
 
@@ -153,8 +153,8 @@ Obs: also handled by iniaxis which directly calls emcAxisSetMinPositionLimit
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetMinPositionLimit (taskintf.cc) +
-`                `which sends EMCMOT_SET_POSITION_LIMITS
+calls emcAxisSetMinPositionLimit (taskintf.cc) +
+which sends EMCMOT_SET_POSITION_LIMITS
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
 
@@ -167,8 +167,8 @@ Obs: also handled by iniaxis which directly calls emcAxisSetMaxPositionLimit
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetMaxPositionLimit (taskintf.cc) +
-`                `which sends EMCMOT_SET_POSITION_LIMITS
+calls emcAxisSetMaxPositionLimit (taskintf.cc) +
+which sends EMCMOT_SET_POSITION_LIMITS
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
 
@@ -205,8 +205,8 @@ Obs: also handled by iniaxis which directly calls emcAxisSetFerror
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetFerror (taskintf.cc) +
-`                `which sends EMCMOT_SET_MAX_FERROR
+calls emcAxisSetFerror (taskintf.cc) +
+which sends EMCMOT_SET_MAX_FERROR
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [ferror, double]
 
@@ -252,8 +252,8 @@ Obs: also handled by iniaxis which directly calls emcAxisSetMinFerror
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetMinFerror (taskintf.cc) +
-`                `which sends EMCMOT_SET_MIN_FERROR
+calls emcAxisSetMinFerror (taskintf.cc) +
+which sends EMCMOT_SET_MIN_FERROR
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [offset, double]
 
@@ -290,7 +290,7 @@ Obs: not used, only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisHalt (taskintf.cc)
+calls emcAxisHalt (taskintf.cc)
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -303,8 +303,8 @@ Obs: used from the GUI when stopping a manual jog
 Written From: sendJogStop (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisAbort (taskintf.cc) +
-`                `which sends EMCMOT_AXIS_ABORT
+calls emcAxisAbort (taskintf.cc) +
+which sends EMCMOT_AXIS_ABORT
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -317,8 +317,8 @@ Obs: not used from tkemc & mini
 Written From: sendAxisEnable (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisEnable (taskintf.cc) +
-`                `which sends EMCMOT_ENABLE_AMPLIFIER
+calls emcAxisEnable (taskintf.cc) +
+which sends EMCMOT_ENABLE_AMPLIFIER
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -331,8 +331,8 @@ Obs: not used from tkemc & mini
 Written From: sendAxisDisable (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisDisable (taskintf.cc) +
-`                `which sends EMCMOT_DISABLE_AMPLIFIER
+calls emcAxisDisable (taskintf.cc) +
+which sends EMCMOT_DISABLE_AMPLIFIER
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -345,8 +345,8 @@ Obs: used from tkemc & mini through emc_home
 Written From: sendHome (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisHome (taskintf.cc) +
-`                `which sends EMCMOT_HOME
+calls emcAxisHome (taskintf.cc) +
+which sends EMCMOT_HOME
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -359,8 +359,8 @@ Obs: used on jogging
 Written From: sendJogCont (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisJog (taskintf.cc) +
-`                `which sends EMCMOT_JOG_CONT
+calls emcAxisJog (taskintf.cc) +
+which sends EMCMOT_JOG_CONT
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [vel, double]
 
@@ -373,11 +373,11 @@ Obs: used on jogging
 Written From: sendJogIncr (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisIncrJog (taskintf.cc) +
-`                `which sends EMCMOT_JOG_INCR
+calls emcAxisIncrJog (taskintf.cc) +
+which sends EMCMOT_JOG_INCR
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] +
-`                `[incr, double] [vel, double]
+incr, double] [vel, double]
 
 === EMC_AXIS_ABS_JOG_TYPE
 
@@ -388,11 +388,11 @@ Obs: not used, only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisAbsJog (taskintf.cc) +
-`                `which sends EMCMOT_JOG_ABS
+calls emcAxisAbsJog (taskintf.cc) +
+which sends EMCMOT_JOG_ABS
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] +
-`                `[pos, double] [vel, double]
+[pos, double] [vel, double]
 
 === EMC_AXIS_ACTIVATE_TYPE
 
@@ -427,8 +427,8 @@ Obs: used from tkemc & mini through emc_override_limit
 Written From: sendOverrideLimits (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisOverrideLimits (taskintf.cc) +
-`                `which sends EMCMOT_OVERRIDE_LIMITS
+calls emcAxisOverrideLimits (taskintf.cc) +
+which sends EMCMOT_OVERRIDE_LIMITS
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
@@ -441,8 +441,8 @@ Obs: currently not used in EMC2, needs to go to HAL
 Written From: sendAxisSetOutput (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetOutput (taskintf.cc) +
-`                `which sends EMCMOT_DAC_OUT
+calls emcAxisSetOutput (taskintf.cc) +
+which sends EMCMOT_DAC_OUT
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [output, double]
 
@@ -455,8 +455,8 @@ Obs: currently usrmotLoadComp if 0'ed in EMC2
 Written From: sendAxisLoadComp (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisLoadComp (minimill|bridgeporttaskintf.cc) +
-`                `which calls usrmotLoadComp
+calls emcAxisLoadComp (minimill|bridgeporttaskintf.cc) +
+which calls usrmotLoadComp
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [file, char[LINELEN]]
 
@@ -468,8 +468,8 @@ position, 132
 Written From: sendAxisAlter (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisAlter (taskintf.cc) +
-`                `which calls usrmotAlter
+calls emcAxisAlter (taskintf.cc) +
+which calls usrmotAlter
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [alter, double]
 
@@ -483,8 +483,8 @@ Obs: currently not used in EMC2, needs to go to HAL +
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcAxisSetStepParams (taskintf.cc) +
-`                `which sends EMCMOT_SET_STEP_PARAMS
+calls emcAxisSetStepParams (taskintf.cc) +
+which sends EMCMOT_SET_STEP_PARAMS
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [setup_time,
 double] [hold_time, double]
@@ -557,8 +557,8 @@ internal units/sec, 205
 Written From: sendVelMsg (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetVelocity (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_VEL
+calls emcTrajSetVelocity (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_VEL
 
 Parameter, Type: [velocity, double]
 
@@ -607,8 +607,8 @@ Obs: used for feed override messages
 Written From: sendFeedOverride (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetScale (taskintf.cc) +
-`                `which sends EMCMOT_SCALE
+calls emcTrajSetScale (taskintf.cc) +
+which sends EMCMOT_SCALE
 
 Parameter, Type: [scale, double]
 
@@ -681,8 +681,8 @@ Obs: not used, only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajAbort (taskintf.cc) +
-`                `which sends EMCMOT_ABORT
+calls emcTrajAbort (taskintf.cc) +
+which sends EMCMOT_ABORT
 
 Parameter, Type:
 
@@ -695,8 +695,8 @@ Obs: not used, only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajPause (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_PAUSE
+calls emcTrajPause (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_PAUSE
 
 Parameter, Type:
 
@@ -721,8 +721,8 @@ Obs: not used, only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajResume (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_RESUME
+calls emcTrajResume (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_RESUME
 
 Parameter, Type:
 
@@ -747,8 +747,8 @@ Obs: used
 Written From: STRAIGHT_TRAVERSE, ARC_FEED (emccanon.cc)
 
 Read To: checkInterpList, emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajLinearMove (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_LINE
+calls emcTrajLinearMove (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_LINE
 
 Parameter, Type: [end, EmcPose]
 
@@ -762,11 +762,11 @@ Obs: used
 Written From: ARC_FEED (emccanon.cc)
 
 Read To: checkInterpList, emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajCircularMove (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_CIRCLE
+calls emcTrajCircularMove (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_CIRCLE
 
 Parameter, Type: [end, EmcPose] [center, PM_CARTESIAN] 
-`                `[normal, PM_CARTESIAN] [turn, int]
+[normal, PM_CARTESIAN] [turn, int]
 
 === EMC_TRAJ_SET_TERM_COND_TYPE
 
@@ -778,8 +778,8 @@ however knows only BLEND or STOP
 Written From: SET_MOTION_CONTROL_MODE (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetTermCond (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_TERM_COND_STOP or EMCMOT_TERM_COND_BLEND
+calls emcTrajSetTermCond (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_TERM_COND_STOP or EMCMOT_TERM_COND_BLEND
 
 Parameter, Type: [cond, int]
 
@@ -806,7 +806,7 @@ Obs: used
 Written From: SET_ORIGIN_OFFSETS (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `remembers the tool length offset
+remembers the tool length offset
 
 Parameter, Type: [origin, EmcPose]
 
@@ -831,8 +831,8 @@ Obs: should get obsolete, probin pin should get routed by HAL
 Written From: sendSetProbeIndex (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetProbeIndex (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_PROBE_INDEX
+calls emcTrajSetProbeIndex (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_PROBE_INDEX
 
 Parameter, Type: [index, int]
 
@@ -846,8 +846,8 @@ Obs: should get obsolete, probin pin polarity should get routed by HAL
 Written From: sendSetProbePolarity (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetProbePolarity (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_PROBE_POLARITY
+calls emcTrajSetProbePolarity (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_PROBE_POLARITY
 
 Parameter, Type: [polarity, int]
 
@@ -858,11 +858,11 @@ Description, NML Type: clears the probe tripped, 228
 Obs: used
 
 Written From: TURN_PROBE_ON (emccanon.cc) +
-`                `sendClearProbeTrippedFlag (emcsh.cc) +
+sendClearProbeTrippedFlag (emcsh.cc) +
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajClearProbeTrippedFlag (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_CLEAR_PROBE_FLAGS
+calls emcTrajClearProbeTrippedFlag (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_CLEAR_PROBE_FLAGS
 
 Parameter, Type:
 
@@ -875,8 +875,8 @@ Obs: used
 Written From: STRAIGHT_PROBE (emccanon.cc) sendProbe (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajProbe (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_PROBE
+calls emcTrajProbe (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_PROBE
 
 Parameter, Type: [pos, EmcPose]
 
@@ -889,8 +889,8 @@ Obs: used
 Written From: sendSetTeleopEnable (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetMode (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_TELEOP
+calls emcTrajSetMode (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_TELEOP
 
 Parameter, Type: [enable, int]
 
@@ -903,8 +903,8 @@ Obs: used for jogging in teleop mode
 Written From: sendJogCont (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTrajSetTeleopVector (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_TELEOP_VECTOR
+calls emcTrajSetTeleopVector (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_TELEOP_VECTOR
 
 Parameter, Type: [vector, EmcPose]
 
@@ -965,11 +965,11 @@ Obs: emccanon.cc currently lacks this in EMC2, not used in EMC2, needs to go to 
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcMotionSetAout (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_AOUT
+calls emcMotionSetAout (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_AOUT
 
 Parameter, Type: [index, unsigned char] [start, double] 
-`                `[end, double] [now, unsigned char]
+[end, double] [now, unsigned char]
 
 === EMC_MOTION_SET_DOUT_TYPE
 
@@ -980,8 +980,8 @@ Obs: emccanon.cc currently lacks this in EMC2, not used in EMC2, needs to go to 
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcMotionSetDout (minimill | bridgeporttaskintf.cc) +
-`                `which sends EMCMOT_SET_DOUT
+calls emcMotionSetDout (minimill | bridgeporttaskintf.cc) +
+which sends EMCMOT_SET_DOUT
 
 Parameter, Type: [index, unsigned char] [start, double] [end, double]
 
@@ -994,7 +994,7 @@ Written From: none
 Read To: none
 
 Parameter, Type: [heartbeat, unsigned long int] [traj, EMC_TRAJ_STAT] +
-`                `[axis[EMC_AXIS_MAX], EMC_AXIS_STAT]
+[axis[EMC_AXIS_MAX], EMC_AXIS_STAT]
 
 == EMC TASK
 
@@ -1041,7 +1041,7 @@ Obs: used for switching the current mode
 Written From: sendManual sendMdi sendAuto (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcTaskSetMode (emcTask.cc)
+calls emcTaskSetMode (emcTask.cc)
 
 Parameter, Type: [mode, enum EMC_TASK_MODE_ENUM]
 
@@ -1186,7 +1186,7 @@ Obs: used for initializing the IO stuff, should load the tool table too
 Written From: emcIoInit (iotaskintf.cc)
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type:
 
@@ -1200,7 +1200,7 @@ EMC1 it was send to subordinates too (spindle, aux, coolant, lube)
 Written From: emcIoHalt (iotaskintf.cc)
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type:
 
@@ -1214,7 +1214,7 @@ EMC1 it was send to subordinates too (spindle, aux, coolant, lube)
 Written From: emcIoAbort (iotaskintf.cc)
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type:
 
@@ -1228,8 +1228,8 @@ PLC and make it move the desired tool in the toolchanging position
 Written From: SELECT_TOOL (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcToolPrepare (iotaskintf.cc) +
-`                `which sends it to the IO controller
+calls emcToolPrepare (iotaskintf.cc) +
+which sends it to the IO controller
 
 Parameter, Type: [tool, int]
 
@@ -1243,9 +1243,9 @@ Obs: loads the actual tool, makes toolprepped=0
 Written From: CHANGE_TOOL (emccanon.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcToolLoad (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc)
+calls emcToolLoad (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc)
 
 Parameter, Type:
 
@@ -1258,9 +1258,9 @@ Obs: unloads the current tool, not written in EMC2 only read
 Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcToolUnLoad (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc)
+calls emcToolUnLoad (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc)
 
 Parameter, Type:
 
@@ -1375,11 +1375,11 @@ Written From: none
 Read To: none
 
 Parameter, Type: [estop, int] +
-`                `[estopIn, int] +
-`                `[dout, unsigned char[EMC_AUX_MAX_DOUT]] +
-`                `[din, unsigned char[EMC_AUX_MAX_DIN]] +
-`                `[aout, double[EMC_AUX_MAX_AOUT]] +
-`                `[ain, double[EMC_AUX_MAX_AIN]]
+[estopIn, int] +
+[dout, unsigned char[EMC_AUX_MAX_DOUT]] +
+[din, unsigned char[EMC_AUX_MAX_DIN]] +
+[aout, double[EMC_AUX_MAX_AOUT]] +
+[ain, double[EMC_AUX_MAX_AIN]]
 
 == EMC SPINDLE
 
@@ -1542,10 +1542,10 @@ Written From: none
 Read To: none
 
 Parameter, Type: [speed, double] +
-`                `[direction, int] +
-`                `[brake, int] +
-`                `[increasing, int] +
-`                `[enabled, int]
+[direction, int] +
+[brake, int] +
+[increasing, int] +
+[enabled, int]
 
 == EMC COOLANT
 
@@ -1560,7 +1560,7 @@ TOOL_INIT was sent
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1573,7 +1573,7 @@ Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_HALT was sent
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1586,7 +1586,7 @@ Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_ABORT was sen
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1599,9 +1599,9 @@ Obs: used, written by emccanon.cc
 Written From: MIST_ON (emccanon.cc) sendMistOn (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcCoolantMistOn (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc) iosh.cc
+calls emcCoolantMistOn (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc) iosh.cc
 
 Parameter, Type: none
 
@@ -1614,9 +1614,9 @@ Obs: used, written by emccanon.cc
 Written From: MIST_OFF (emccanon.cc) sendMistOff (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcCoolantMistOff (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc) iosh.cc
+calls emcCoolantMistOff (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc) iosh.cc
 
 Parameter, Type: none
 
@@ -1629,9 +1629,9 @@ Obs: used, written by emccanon.cc
 Written From: FLOOD_ON (emccanon.cc) sendFloodOn (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcCoolantFloodOn (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc) iosh.cc
+calls emcCoolantFloodOn (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc) iosh.cc
 
 Parameter, Type: none
 
@@ -1644,9 +1644,9 @@ Obs: used, written by emccanon.cc
 Written From: FLOOD_OFF (emccanon.cc) sendFloodOff (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcCoolantFloodOff (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (simIoControl.cc ioControl.cc) iosh.cc
+calls emcCoolantFloodOff (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (simIoControl.cc ioControl.cc) iosh.cc
 
 Parameter, Type: none
 
@@ -1671,7 +1671,7 @@ Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_INIT was sent
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1684,7 +1684,7 @@ Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_HALT was sent
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1697,7 +1697,7 @@ Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_ABORT was sen
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1710,10 +1710,10 @@ Obs: written only by the GUIs (emcsh.cc)
 Written From: sendLubeOn (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcLubeOn (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+calls emcLubeOn (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (ioControl.cc simIoControl.cc) +
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1728,10 +1728,10 @@ Written
 From: sendLubeOff (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcLubeOff (iotaskintf.cc) +
-`                `which sends it to the IO controller, +
-`                `main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+calls emcLubeOff (iotaskintf.cc) +
+which sends it to the IO controller, +
+main (ioControl.cc simIoControl.cc) +
+emc_io_get_command (iosh.cc)
 
 Parameter, Type: none
 
@@ -1794,7 +1794,7 @@ Obs: not written in EMC2, only read
 Written From: none
 
 Read To: main (ioControl.cc simIoControl.cc) +
-`                `emc_io_get_command (iosh.cc)
+emc_io_get_command (iosh.cc)
 
 Parameter, Type:
 
@@ -1843,11 +1843,11 @@ Written From: none
 Read To: none
 
 Parameter, Type: [heartbeat, unsigned long int] +
-`                `[tool, EMC_TOOL_STAT] +
-`                `[spindle, EMC_SPINDLE_STAT] +
-`                `[coolant, EMC_COOLANT_STAT] +
-`                `[aux, EMC_AUX_STAT] +
-`                `[lube, EMC_LUBE_STAT] 
+[tool, EMC_TOOL_STAT] +
+[spindle, EMC_SPINDLE_STAT] +
+[coolant, EMC_COOLANT_STAT] +
+[aux, EMC_AUX_STAT] +
+[lube, EMC_LUBE_STAT] 
 
 == EMC INIT, HALT, & ABORT
 
@@ -1898,17 +1898,17 @@ Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 Written From: sendLogOpen (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcLogOpen (taskintf.cc) +
-`                `which sends EMCMOT_OPEN_LOG
+calls emcLogOpen (taskintf.cc) +
+which sends EMCMOT_OPEN_LOG
 
 Parameter, Type: [file, char[LINELEN]] +
-`                `[type, int] +
-`                `[size, int] +
-`                `[skip, int] +
-`                `[which, int] +
-`                `[triggerType, int] +
-`                `[triggerVar, int] +
-`                `[triggerThreshold, double]
+[type, int] +
+[size, int] +
+[skip, int] +
+[which, int] +
+[triggerType, int] +
+[triggerVar, int] +
+[triggerThreshold, double]
 
 === EMC_LOG_START_TYPE
 
@@ -1919,8 +1919,8 @@ Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 Written From: sendLogStart (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) calls +
-`                `emcLogStart (taskintf.cc) +
-`                `which sends EMCMOT_START_LOG
+emcLogStart (taskintf.cc) +
+which sends EMCMOT_START_LOG
 
 Parameter, Type: none
 
@@ -1933,8 +1933,8 @@ Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 Written From: sendLogStop (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) calls +
-`                `emcLogStop (taskintf.cc) +
-`                `which sends EMCMOT_STOP_LOG
+emcLogStop (taskintf.cc) +
+which sends EMCMOT_STOP_LOG
 
 Parameter, Type: none
 
@@ -1947,8 +1947,8 @@ Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 Written From: sendLogClose (emcsh.cc)
 
 Read To: emcTaskIssueCommand (emctaskmain.cc) +
-`                `calls emcLogClose (taskintf.cc) +
-`                `which sends EMCMOT_CLOSE_LOG
+calls emcLogClose (taskintf.cc) +
+which sends EMCMOT_CLOSE_LOG
 
 Parameter, Type: none
 
@@ -1964,12 +1964,12 @@ Written From: none
 Read To: none
 
 Parameter, Type: [task, EMC_TASK_STAT] +
-`                `[motion, EMC_MOTION_STAT] +
-`                `[io, EMC_IO_STAT] +
-`                `[logFile, char[LINELEN]] +
-`                `[logType, int] +
-`                `[logSize, int] +
-`                `+++[+++logSkip, int] +
-`                `[logOpen, int] [logStarted, int] [logPoints, int]
+[motion, EMC_MOTION_STAT] +
+[io, EMC_IO_STAT] +
+[logFile, char[LINELEN]] +
+[logType, int] +
+[logSize, int] +
++++[+++logSkip, int] +
+logOpen, int] [logStarted, int] [logPoints, int]
 
 

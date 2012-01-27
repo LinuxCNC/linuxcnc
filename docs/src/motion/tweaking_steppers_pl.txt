@@ -18,63 +18,8 @@ from software generated steps.
 
 === Run a Latency Test
 
-The new easy way to run a latency test is described in the Getting
-Started Guide.
-
-Latency is how long it takes the PC to stop what it is doing and
-respond to an external request. In our case, the request is the
-periodic 'heartbeat' that serves as a timing reference for the step
-pulses. The lower the latency, the faster you can run the heartbeat,
-and the faster and smoother the step pulses will be.
-
-Latency is far more important than CPU speed. A lowly Pentium II that
-responds to interrupts within 10 microseconds each and every time can
-give better results than the latest and fastest P4 Hyperthreading
-beast.
-
-The CPU isn't the only factor in determining latency. Motherboards,
-video cards, USB ports, and a number of other things can hurt the
-latency. The best way to find out what you are dealing with is to run
-the RTAI latency test.
-
-[WARNING]
-DO NOT TRY TO RUN LinuxCNC WHILE THE TEST IS RUNNING
-
-On Ubuntu Dapper, you can run the test by opening a shell and doing:
-
-----
-sudo mkdir /dev/rtf;  
-sudo mknod /dev/rtf/3 c 150 3;  
-sudo mknod /dev/rtf3 c 150 3;  
-cd /usr/realtime*/testsuite/kern/latency; ./run
-----
-
-and then you should see something like this:
-
-----
-ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run  
-*  
-*  
-* Type ^C to stop this application.  
-*  
-*
-
-## RTAI latency calibration tool ##  
-# period = 100000 (ns)  
-# avrgtime = 1 (s)  
-# do not use the FPU  
-# start the timer  
-# timer_mode is oneshot
-
-RTAI Testsuite - KERNEL latency (all data in nanoseconds)  
-RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns  
-RTD|   -1571|   -1571|    1622|    8446|    8446|      0  
-RTD|   -1558|   -1571|    1607|    7704|    8446|      0  
-RTD|   -1568|   -1571|    1640|    7359|    8446|      0  
-RTD|   -1568|   -1571|    1653|    7594|    8446|      0  
-RTD|   -1568|   -1571|    1640|   10636|   10636|      0  
-RTD|   -1568|   -1571|    1640|   10636|   10636|      0
-----
+Run the latency test as described in the <<cha:latency-test,Latency Test>>
+chapter.
 
 While the test is running, you should 'abuse' the computer. Move
 windows around on the screen. Surf the web. Copy some large files

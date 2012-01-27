@@ -33,7 +33,7 @@ damage the hardware.
 
 To determine whether your port has 'open collector' pins, load
 hal_parport in 'x' mode.  With no device attached, HAL should read the
-pin as TRUE. Next, insert a 470 ohm resistor from one of the 
+pin as TRUE. Next, insert a 470 ohm resistor from one of the
 control pins to GND. If the resulting voltage on the control pin is
 close to 0V, and HAL now reads the pin as FALSE, then you have an OC
 port. If the resulting voltage is far from 0V, or HAL does not read the
@@ -43,14 +43,14 @@ The external hardware that drives the control pins should also use
 open collector gates (e.g., 74LS05).
 
 On some machines, BIOS settings may affect whether 'x' mode can be
-used. 'SPP' mode is most likely to work. 
+used. 'SPP' mode is most likely to work.
 ===========================================================
 
 No other combinations are supported, and a port cannot be changed from
-input to output once the driver is installed. Figure 
-<<fig:Parport-block-diag>> shows two block diagrams, one showing the
-driver when the data group is configured for output, and one showing it
-configured for input.  For 'x' mode, refer to the pin listing of
+input to output once the driver is installed. The
+<<fig:Parport-block-diag,Parport Block Diagram>> shows two block diagrams,
+one showing the driver when the data group is configured for output, and one
+showing it configured for input.  For 'x' mode, refer to the pin listing of
 'halcmd show pin' for pin direction assignment.
 
 The parport driver can control up to 8 ports (defined by MAX_PORTS in
@@ -62,19 +62,18 @@ hal_parport.c). The ports are numbered starting at zero.
 loadrt hal_parport cfg="<config-string>"
 ----
 
-==== Using the Port Index
+.Using the Port Index
 
 I/O addresses below 16 are treated as port indexes. This is the
 simplest way to install the parport driver and cooperates with the
-Linux parport_pc driver if it is loaded.
+Linux parport_pc driver if it is loaded. This will use the address
+Linux has detected for parport 0.
 
 ----
 loadrt hal_parport cfg="0"
 ----
 
-Will use the address Linux has detected for parport 0.
-
-==== Using the Port Address
+.Using the Port Address
 
 The configure string consists of a hex port address, followed by an
 optional direction, repeated for each port. The direction is 'in',
@@ -100,23 +99,25 @@ log after executing 'sudo modprobe -a parport_pc'. There is no
 default address; if '<config-string>' does not contain at least one
 address, it is an error.
 
-.Parport Block Diagram[[fig:Parport-block-diag]]
+[[fig:Parport-block-diag]]
 
-image::images/parport-block-diag.png[]
+.Parport Block Diagram
+
+image::images/parport-block-diag.png[align="center"]
 
 === Pins
 
-*parport.<p>.pin-<n>-out* (bit) Drives a physical output pin.
+* 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
 
-*parport.<p>.pin-<n>-in* (bit) Tracks a physical input pin.
+* 'parport.<p>.pin-<n>-in' (bit) Tracks a physical input pin.
 
-*parport.<p>.pin-<n>-in-not* (bit) Tracks a physical input pin, but inverted.
+* 'parport.<p>.pin-<n>-in-not' (bit) Tracks a physical input pin, but inverted.
 
 For each pin, '<p>' is the port number, and '<n>' is the
 physical pin number in the 25 pin D-shell connector.
 
-For each physical output pin, the driver creates a single HAL pin, for example: 
-'parport.0.pin-14-out' .
+For each physical output pin, the driver creates a single HAL pin, for example:
+'parport.0.pin-14-out'.
 
 Pins 2 through 9 are part of the data group and are output pins if
 the port is defined as an output port. (Output is the default.) Pins 1,
@@ -124,7 +125,7 @@ the port is defined as an output port. (Output is the default.) Pins 1,
 state of the corresponding physical pins.
 
 For each physical input pin, the driver creates two HAL pins, for example:
-'parport.0.pin-12-in' and 'parport.0.pin-12-in-not' .
+'parport.0.pin-12-in' and 'parport.0.pin-12-in-not'.
 
 Pins 10, 11, 12, 13, and 15 are always input pins. Pins 2 through 9 
 are input pins only if the port is defined as an input port. The '-in'
@@ -137,36 +138,36 @@ pins.
 
 === Parameters
 
-*parport.<p>.pin-<n>-out-invert* (bit) Inverts an output pin.
+* 'parport.<p>.pin-<n>-out-invert' (bit) Inverts an output pin.
 
-*parport.<p>.pin-<n>-out-reset* (bit) (only for 'out' pins) TRUE if this
+* 'parport.<p>.pin-<n>-out-reset' (bit) (only for 'out' pins) TRUE if this
 pin should be reset when the '-reset' function is executed.
 
-*parport.<p>.reset-time* (U32) The time (in nanoseconds)
+* parport.<p>.reset-time' (U32) The time (in nanoseconds)
 between a pin is set by 'write' and reset by the 'reset' function if it
 is enabled.
 
 The '-invert'  parameter determines whether an output pin is active
 high or active
- low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
+low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
 physical pin high, and FALSE drives it low. If '-invert' is TRUE, then
 setting the HAL '-out' pin TRUE will drive the physical pin low.
 
 === Functions
 
-*parport.<p>.read* (funct) Reads physical input pins of port
+* 'parport.<p>.read' (funct) Reads physical input pins of port
    '<portnum>' and updates HAL '-in' and '-in-not' pins.
    
-*parport.read-all* (funct) Reads physical input pins of all ports
+* 'parport.read-all' (funct) Reads physical input pins of all ports
    and updates HAL '-in' and '-in-not' pins.
    
-*parport.<p>.write* (funct) Reads HAL '-out' pins of port
+* 'parport.<p>.write' (funct) Reads HAL '-out' pins of port
    '<p>' and updates that port's physical output pins.
    
-*parport.write-all* (funct) Reads HAL '-out' pins of all ports
+* 'parport.write-all' (funct) Reads HAL '-out' pins of all ports
    and updates all physical output pins.
    
-*parport.<p>.reset* (funct) Waits until 'reset-time' has
+* 'parport.<p>.reset' (funct) Waits until 'reset-time' has
    elapsed since the associated 'write', then resets pins to values
    indicated by '-out-invert' and '-out-invert' settings. 'reset' must be
    later in the same thread as 'write. 'If '-reset' is TRUE, then the
@@ -186,14 +187,14 @@ same time.
 If loading the module reports
 
 ----
-insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
 -1 Device or resource busy
 ----
 
 then ensure that the standard kernel module 'parport_pc'  is not
 loadedfootnote:[In the LinuxCNC packages for Ubuntu, the file
 /etc/modprobe.d/emc2
-generally prevents 'parport_pc' from being automatically loaded.] 
+generally prevents 'parport_pc' from being automatically loaded.]
 and that no other device in the system has claimed the I/O ports.
 
 If the module loads but does not appear to function, then the port
@@ -210,18 +211,21 @@ specificed by parport.n.reset-time.
 For example:
 
 ----
-loadrt hal_parport cfg="0x378 out" 
-setp parport.0.reset-time 5000 
-loadrt stepgen step_type=0,0,0 
-addf parport.0.read base-thread 
-addf stepgen.make-pulses base-thread 
-addf parport.0.write base-thread 
-addf parport.0.reset base-thread 
-addf stepgen.capture-position servo-thread 
+loadrt hal_parport cfg="0x378 out"
+setp parport.0.reset-time 5000
+loadrt stepgen step_type=0,0,0
+addf parport.0.read base-thread
+addf stepgen.make-pulses base-thread
+addf parport.0.write base-thread
+addf parport.0.reset base-thread
+addf stepgen.capture-position servo-thread
 ... 
-setp stepgen.0.steplen 1 
-setp stepgen.0.stepspace 0 
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
 ----
+
+More information on DoubleStep can be found on the 
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
 
 [[sec:probe_parport]]
 == probe_parport
@@ -237,7 +241,7 @@ loaded but has no effect.
 ----
 loadrt probe_parport
 
-loadrt hal_parport ... 
+loadrt hal_parport ...
 ----
 
 If the Linux kernel prints a message similar to

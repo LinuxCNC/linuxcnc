@@ -2,10 +2,10 @@ Note for translators of the pot files:
 ======================================
 
 Make a copy of the pot file renaming it to reflect the language it is
-being translated in to. For example, for a German translation of emc2.pot,
+being translated in to. For example, for a German translation of linuxcnc.pot,
 your working file would be de.po - If the file does not exist within
-the source repository, then create one from the emc2.pot template:
-    cp emc2.pot de.pot
+the source repository, then create one from the linuxcnc.pot template:
+    cp linuxcnc.pot de.pot
 
 To update a language's .po file from its .pot file, use the "msgmerge" command.
 Because doing this needlessly creates lots of uneeded revisions of the
@@ -13,7 +13,7 @@ Because doing this needlessly creates lots of uneeded revisions of the
 about msgmerge flags (particularly --width, --no-wrap, and
 --no-fuzzy-matching), this is not done automatically by the "make" process.
 The simplest "msgmerge" commandline is:
-    msgmerge -U xx.po emc2.pot
+    msgmerge -U xx.po linuxcnc.pot
 
 When you are done, "git commit" the new .po file.  If you have push access,
 "git push".  Otherwise, format your changes as a patch with "git format-patch"

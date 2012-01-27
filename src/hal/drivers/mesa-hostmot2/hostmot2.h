@@ -883,6 +883,9 @@ typedef struct {
     } hal;
 
     u32 written_timeout_ns;
+
+    int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
+    int written_enable;
 } hm2_watchdog_instance_t;
 
 
@@ -1239,6 +1242,7 @@ int hm2_bspi_set_write_function(char *name, void *func, void *subdata);
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
+void hm2_watchdog_read(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2);
 void hm2_watchdog_force_write(hostmot2_t *hm2);
 

@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-21 11:10+0100\n"
-"PO-Revision-Date: 2012-01-21 16:06+0100\n"
+"POT-Creation-Date: 2012-01-26 08:45+0100\n"
+"PO-Revision-Date: 2012-01-26 10:23+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -300,8 +300,8 @@ msgstr "%5d échantillons (16 canaux)"
 #: hal/utils/scope_vert.c:853 ../tcl/bin/emccalib.tcl:227
 #: ../tcl/bin/genedit.tcl:180 ../tcl/bin/genedit.tcl:450
 #: ../tcl/bin/halconfig.tcl:682 ../tcl/bin/halconfig.tcl:733
-#: ../tcl/bin/pickconfig.tcl:256 ../tcl/bin/pickconfig.tcl:463
-#: ../tcl/bin/pickconfig.tcl:490 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
+#: ../tcl/bin/pickconfig.tcl:257 ../tcl/bin/pickconfig.tcl:466
+#: ../tcl/bin/pickconfig.tcl:493 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
 #: ../tcl/tklinuxcnc.tcl:160 ../tcl/tklinuxcnc.tcl:245
 #: ../tcl/tklinuxcnc.tcl:419 ../tcl/tklinuxcnc.tcl:1338
 #: ../tcl/tklinuxcnc.tcl:1407 ../tcl/tklinuxcnc.tcl:1438
@@ -469,7 +469,7 @@ msgstr "AC Couplé"
 #: hal/utils/scope_trig.c:367 ../tcl/bin/emccalib.tcl:229
 #: ../tcl/bin/genedit.tcl:294 ../tcl/bin/halconfig.tcl:103
 #: ../tcl/bin/halconfig.tcl:684 ../tcl/bin/halconfig.tcl:735
-#: ../tcl/bin/pickconfig.tcl:259 ../tcl/bin/pickconfig.tcl:366
+#: ../tcl/bin/pickconfig.tcl:260 ../tcl/bin/pickconfig.tcl:369
 #: ../tcl/mini.tcl:1457 ../tcl/mini.tcl:2938 ../tcl/mini.tcl:3110
 #: ../tcl/tklinuxcnc.tcl:162 ../tcl/tklinuxcnc.tcl:213
 #: ../tcl/tklinuxcnc.tcl:420 ../tcl/tklinuxcnc.tcl:1339
@@ -973,8 +973,8 @@ msgid "unknown state '%d' during homing"
 msgstr "état '%d' inconnu pendant la prise d'origine"
 
 #: ../tcl/bin/emccalib.tcl:80
-msgid "EMC2 Servo Axis Calibration"
-msgstr "LinuxCNC Calibration des axes"
+msgid "LinuxCNC Servo Axis Calibration"
+msgstr "LinuxCNC Calibration asservissement des axes"
 
 #: ../tcl/bin/emccalib.tcl:90
 msgid "Save To File"
@@ -1044,16 +1044,16 @@ msgstr ""
 "cette copie."
 
 #: ../tcl/bin/emccalib.tcl:457 ../tcl/bin/genedit.tcl:211
-#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:528
-#: ../tcl/bin/pickconfig.tcl:539 ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:531
+#: ../tcl/bin/pickconfig.tcl:542 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
 msgstr "Impossible d'enregistrer %s "
 
 #: ../tcl/bin/emcdebug.tcl:166 ../tcl/bin/emcdebug.tcl:177
-msgid "EMC Debug"
-msgstr "Débogueur LinuxCNC"
+msgid "LinuxCNC Debug"
+msgstr "Débogage LinuxCNC"
 
 #: ../tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
@@ -1118,7 +1118,7 @@ msgstr "Enregistrer sous..."
 
 #: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:165
 #: ../tcl/bin/halshow.tcl:93 ../tcl/mini.tcl:954 ../tcl/tklinuxcnc.tcl:734
-#: ../tcl/ngcgui.tcl:1243 ../tcl/ngcgui.tcl:3665
+#: ../tcl/ngcgui.tcl:1243 ../tcl/ngcgui.tcl:3680
 msgid "Exit"
 msgstr "Quitter"
 
@@ -1411,22 +1411,23 @@ msgid ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
 "\n"
-"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 "
-"directory and will require that you have started an instance of emc2 or work "
-"up a new configuration starting with a demo rt script.\n"
+"Halconfig is an LinuxCNC configuration tool.  It requires that you have "
+"started an instance of linuxcnc.\n"
 "\n"
-"This script is not for the faint hearted and carries no warranty or "
-"liability for its use to the extent allowed by law."
+"This script carries no warranty or liability for its use to the extent "
+"allowed by law."
 msgstr ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
 "\n"
-"Halconfig is an LinuxCNC configuration tool.  It should be started from the "
-"LinuxCNC directory and will require that you have started an instance of "
-"LinuxCNC or work up a new configuration starting with a demo rt script.\n"
+"Halconfig est un outil de configuration de LinuxCNC.  Il doit être lancé "
+"depuis le répertoire de LinuxCNC et nécessite qu'une instance de celui-ci "
+"ait été lancée, sinon une nouvelle configuration refaite avec le script demo "
+"rt.\n"
 "\n"
-"This script is not for the faint hearted and carries no warranty or "
-"liability for its use to the extent allowed by law."
+"Ce script n'est pas fait pour les cœurs sensibles et ne comporte aucune "
+"garantie ou ou responsabilité pour son usage dans la mesure autorisée par la "
+"loi."
 
 #: ../tcl/bin/halshow.tcl:70
 msgid " SHOW "
@@ -1460,7 +1461,7 @@ msgstr "Enregistrer liste de watch courante"
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Ces commandes peuvent être testées ici mais ne seront PAS enregistrées"
 
-#: ../tcl/bin/pickconfig.tcl:49
+#: ../tcl/bin/pickconfig.tcl:50
 msgid ""
 "Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
 "install \n"
@@ -1470,17 +1471,17 @@ msgstr ""
 "l'installer \n"
 "avec sudo apt-get install bwidget."
 
-#: ../tcl/bin/pickconfig.tcl:177
+#: ../tcl/bin/pickconfig.tcl:178
 msgid "No details available."
 msgstr "Aucun détail disponible."
 
-#: ../tcl/bin/pickconfig.tcl:193
-msgid "EMC2 Configuration Selector"
+#: ../tcl/bin/pickconfig.tcl:194
+msgid "LinuxCNC Configuration Selector"
 msgstr "Sélecteur de configuration de LinuxCNC "
 
-#: ../tcl/bin/pickconfig.tcl:214
+#: ../tcl/bin/pickconfig.tcl:215
 msgid ""
-"Welcome to EMC2.\n"
+"Welcome to LinuxCNC.\n"
 "\n"
 "Select a machine configuration from the list on the left.\n"
 "Details about the selected configuration will appear in the display on the "
@@ -1490,28 +1491,27 @@ msgstr ""
 "Bienvenue dans LinuxCNC.\n"
 "\n"
 "Sélectionner une configuration de machine dans la liste de gauche.\n"
-"Les détails à propos de cette configuration apparaîtront dans l'écran de "
-"droite.\n"
-"Cliquer 'OK' pour lancer la configuration sélectionnée"
+"Les détails à propos de cette configuration apparaîtront à droite.\n"
+"Cliquer 'OK' pour lancer la configuration sélectionnée."
 
-#: ../tcl/bin/pickconfig.tcl:270
+#: ../tcl/bin/pickconfig.tcl:271
 msgid "My Configurations"
 msgstr "Mes configurations"
 
-#: ../tcl/bin/pickconfig.tcl:273
+#: ../tcl/bin/pickconfig.tcl:274
 msgid "Sample Configurations"
 msgstr "Exemples de configuration"
 
-#: ../tcl/bin/pickconfig.tcl:329
+#: ../tcl/bin/pickconfig.tcl:332
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
 msgstr "ERREUR: Aucune configuration trouvée dans le chemin '%s'"
 
-#: ../tcl/bin/pickconfig.tcl:366
+#: ../tcl/bin/pickconfig.tcl:369
 msgid "Copy Configuration?"
 msgstr "Copier la configuration ?"
 
-#: ../tcl/bin/pickconfig.tcl:366
+#: ../tcl/bin/pickconfig.tcl:369
 #, tcl-format
 msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
@@ -1520,29 +1520,29 @@ msgstr ""
 "Voulez-vous copier le dossier %s dans votre répertoire home pour pouvoir "
 "l'adapter à vos besoins ?"
 
-#: ../tcl/bin/pickconfig.tcl:366
+#: ../tcl/bin/pickconfig.tcl:369
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:563
 msgid "Yes"
 msgstr "Oui"
 
-#: ../tcl/bin/pickconfig.tcl:463
+#: ../tcl/bin/pickconfig.tcl:466
 msgid "Configuration Copied"
 msgstr "Configuration copiée"
 
-#: ../tcl/bin/pickconfig.tcl:463
+#: ../tcl/bin/pickconfig.tcl:466
 #, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
-"location when starting EMC2."
+"location when starting LinuxCNC."
 msgstr ""
 "Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
 "choisissez cet emplacement au démarrage de LinuxCNC."
 
-#: ../tcl/bin/pickconfig.tcl:490
+#: ../tcl/bin/pickconfig.tcl:493
 msgid "Shortcut Created"
 msgstr "Raccourci créé"
 
-#: ../tcl/bin/pickconfig.tcl:490
+#: ../tcl/bin/pickconfig.tcl:493
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
@@ -1550,12 +1550,12 @@ msgstr ""
 "Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  "
 "Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
 
-#: ../tcl/bin/pickconfig.tcl:495
+#: ../tcl/bin/pickconfig.tcl:498
 msgid "Create Desktop Shortcut"
 msgstr "Créer un raccourci sur le bureau"
 
 #: ../tcl/bin/tkbackplot.tcl:110
-msgid "TkEmc BackPlot"
+msgid "TkLinuxCNC BackPlot"
 msgstr "Parcours d'outil TkLinuxCNC"
 
 #: ../tcl/bin/tkbackplot.tcl:125
@@ -2368,13 +2368,13 @@ msgid "Show Setup"
 msgstr "Afficher les réglages"
 
 #: ../tcl/show_errors.tcl:41
-msgid "EMC2 Errors"
-msgstr "Erreur de LinuxCNC"
+msgid "LinuxCNC Errors"
+msgstr "Erreurs de LinuxCNC"
 
 #: ../tcl/show_errors.tcl:44
 msgid ""
-"EMC2 terminated with an error.  When reporting problems, please include all "
-"the information below in your message."
+"LinuxCNC terminated with an error.  When reporting problems, please include "
+"all the information below in your message."
 msgstr ""
 "LinuxCNC s'est terminé avec une erreur.  Si vous rapportez le problème, "
 "merci d'inclure toutes les informations suivantes dans votre message."
@@ -2401,8 +2401,8 @@ msgid "Load Parameter File"
 msgstr "Chargement du fichier de paramètres"
 
 #: ../tcl/tklinuxcnc.tcl:261
-msgid "EMC Diagnostics"
-msgstr "Diagnostic LinuxCNC"
+msgid "LinuxCNC Diagnostics"
+msgstr "Diagnostics LinuxCNC"
 
 #: ../tcl/tklinuxcnc.tcl:263
 msgid "Task"
@@ -2437,16 +2437,16 @@ msgid "Motion"
 msgstr "Mouvement"
 
 #: ../tcl/tklinuxcnc.tcl:350
-msgid "About TkEmc"
-msgstr "À propos de TkLinuxCNC"
+msgid "About TkLinuxCNC"
+msgstr "A propos de TkLinuxCNC"
 
 #: ../tcl/tklinuxcnc.tcl:351
 msgid ""
-"TkEmc\n"
+"TkLinuxcnc\n"
 "\n"
-"Tcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n"
+"Tcl/Tk GUI for LinuxCNC\n"
 "\n"
-"GPL Version 2 (2006)"
+"GPL Version 2 (2012)"
 msgstr ""
 "TkLinuxCNC\n"
 "\n"
@@ -2735,7 +2735,7 @@ msgid "LUBE ?"
 msgstr "LUBRIFIANT ?"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:23
-msgid "EMC Set Coordinate"
+msgid "LinuxCNC Set Coordinate"
 msgstr "Réglage coordonnées de LinuxCNC"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:26
@@ -3285,67 +3285,85 @@ msgstr "Problème à la création de la page"
 msgid "entrykeybindings not available"
 msgstr "raccourci clavier non disponible"
 
-#: ../tcl/ngcgui.tcl:3626
+#: ../tcl/ngcgui.tcl:3633
 msgid "Found multiple matches for"
 msgstr "Trouve plusieurs occurrences pour"
 
-#: ../tcl/ngcgui.tcl:3627
+#: ../tcl/ngcgui.tcl:3634
 msgid "using path"
 msgstr "utiliser le chemin"
 
-#: ../tcl/ngcgui.tcl:3635
+#: ../tcl/ngcgui.tcl:3642 emc/usr_intf/axis/scripts/axis.py:2242
+#: emc/usr_intf/axis/scripts/axis.py:2255
+msgid "Warning"
+msgstr "Attention"
+
+#: ../tcl/ngcgui.tcl:3643
+msgid "File absolute path specifier conflicts with searchpath result"
+msgstr ""
+"Chemin de fichier spécifié absolu, conflit avec le résultat de la recherche"
+
+#: ../tcl/ngcgui.tcl:3644
+msgid "Absolute Specifier"
+msgstr "Spécificateur absolu"
+
+#: ../tcl/ngcgui.tcl:3645
+msgid "Using Search Result"
+msgstr "Utiliser le résultat de la recherche"
+
+#: ../tcl/ngcgui.tcl:3650
 msgid "File not in Search Path"
 msgstr "Fichier non trouvé dans le chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3637
+#: ../tcl/ngcgui.tcl:3652
 msgid "Must be in search path"
 msgstr "Doit être dans le chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3639
+#: ../tcl/ngcgui.tcl:3654
 msgid "(File found -- not in search path)"
 msgstr "(Fichier trouvé, hors du chemin de recherche)"
 
-#: ../tcl/ngcgui.tcl:3641
+#: ../tcl/ngcgui.tcl:3656
 msgid "Current directory"
 msgstr "Répertoire courant"
 
-#: ../tcl/ngcgui.tcl:3642
+#: ../tcl/ngcgui.tcl:3657
 msgid "Search path"
 msgstr "Chemin de recherche"
 
-#: ../tcl/ngcgui.tcl:3648
+#: ../tcl/ngcgui.tcl:3663
 msgid "Check setting for"
 msgstr "Vérifie le réglage des"
 
-#: ../tcl/ngcgui.tcl:3649
+#: ../tcl/ngcgui.tcl:3664
 msgid "in ini file"
 msgstr "dans le fichier ini"
 
-#: ../tcl/ngcgui.tcl:3650
+#: ../tcl/ngcgui.tcl:3665
 msgid "(Restart required after fixing ini file)"
 msgstr "(Redémarrage requis après modif. du fichier ini)"
 
-#: ../tcl/ngcgui.tcl:3665
+#: ../tcl/ngcgui.tcl:3680
 msgid "Try to Continue"
 msgstr "Essayer de continuer"
 
-#: ../tcl/ngcgui.tcl:3670
+#: ../tcl/ngcgui.tcl:3685
 msgid "Ngcgui Configuration File Not Found"
 msgstr "Fichier de configuration Ngcgui introuvable"
 
-#: ../tcl/ngcgui.tcl:3750
+#: ../tcl/ngcgui.tcl:3765
 msgid "Missing Tcl Package Img"
 msgstr "Paquet Tcl lmg manquant"
 
-#: ../tcl/ngcgui.tcl:3751
+#: ../tcl/ngcgui.tcl:3766
 msgid "Please install Img"
 msgstr "Installer Img"
 
-#: ../tcl/ngcgui.tcl:3950
+#: ../tcl/ngcgui.tcl:3965
 msgid "ini file"
 msgstr "fichier ini"
 
-#: ../tcl/ngcgui.tcl:3958
+#: ../tcl/ngcgui.tcl:3973
 msgid "not found"
 msgstr "introuvable"
 
@@ -3998,11 +4016,6 @@ msgstr "Fichiers rs274ngc"
 msgid "axis cannot accept remote command while running"
 msgstr ""
 "les axes n'acceptent pas de commande à distance pendant leur fonctionnement"
-
-#: emc/usr_intf/axis/scripts/axis.py:2242
-#: emc/usr_intf/axis/scripts/axis.py:2255
-msgid "Warning"
-msgstr "Attention"
 
 #: emc/usr_intf/axis/scripts/axis.py:2242
 msgid "Axis is already homed, are you sure you want to re-home?"
@@ -6170,10 +6183,10 @@ msgstr "# **** ajuster vitesse max broche selon l'indicateur de vitesse ****"
 
 #: emc/usr_intf/stepconf/stepconf.py:1072
 msgid ""
-"# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
-"was specified"
+"# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle "
+"encoder was specified"
 msgstr ""
-"# **** Utilise la vitesse de broche COMMANDÉE par LinuxCNC puisqu'aucun "
+"# **** Utilise la vitesse de broche COMMANDÉE depuis LinuxCNC puisqu'aucun "
 "codeur de broche n'a été spécifié"
 
 #: emc/usr_intf/stepconf/stepconf.py:1073
@@ -6199,8 +6212,9 @@ msgid "launch %s"
 msgstr "lancer %s"
 
 #: emc/usr_intf/stepconf/stepconf.py:1170
-msgid "Desktop Launcher for EMC config made by Stepconf"
-msgstr "Lanceur de bureau pour la configuration faite avec Stepconf"
+msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
+msgstr ""
+"Lanceur de bureau pour LinuxCNC avec la configuration faite par Stepconf"
 
 #: emc/usr_intf/stepconf/stepconf.py:1196 emc/usr_intf/pncconf/pncconf.py:3700
 #, python-format
@@ -6218,28 +6232,28 @@ msgstr "Quitter Stepconf et perdre les modifications ?"
 
 #: emc/usr_intf/stepconf/stepconf.py:1280
 msgid ""
-"You are using a simulated-realtime version of EMC, so testing / tuning of "
-"hardware is unavailable."
+"You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
+"of hardware is unavailable."
 msgstr ""
-"Vous utilisez une version test de LinuxCNC temps réel simulé, / les réglages "
-"du hardware n'y sont pas disponible."
+"Vous utilisez une version de LinuxCNC temps réel simulé, / les réglages du "
+"matériel n'y sont pas disponibles."
 
 #: emc/usr_intf/stepconf/stepconf.py:1283
 msgid ""
-"You are using a realtime version of EMC but didn't load a realtime kernel so "
-"testing / tuning of hardware is                 unavailable.\n"
+"You are using a realtime version of LinuxCNC but didn't load a realtime "
+"kernel so testing / tuning of hardware is                 unavailable.\n"
 "This is possibly because you updated the OS and it doesn't automatically "
 "load the RTAI kernel anymore.\n"
 msgstr ""
-"Vous utilisez une version temps réel de LinuxCNC mais il ne peut pas charger "
-"de kernel temps réel pour ce test / les réglages du hardware sont  "
+"Vous utilisez une version temps réel de LinuxCNC mais il n'a pas pu charger "
+"de kernel temps réel pour ce test / les réglages du matériel seront  "
 "indisponibles.\n"
-"C'est probablement provoqué par une mise à jour de l'OS qui empêche "
-"désormais le chargement automatique du kernel RTAI.\n"
+"C'est peut-être provoqué par une mise à jour de l'OS qui empêche désormais "
+"le chargement automatique du kernel RTAI.\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:1298
-msgid "EMC2 'stepconf' configuration files"
-msgstr "Fichier de configuration 'stepconf' de LinuxCNC "
+msgid "LinuxCNC 'stepconf' configuration files"
+msgstr "Fichiers de configuration 'stepconf' de LinuxCNC "
 
 #: emc/usr_intf/stepconf/stepconf.py:1299 emc/usr_intf/pncconf/pncconf.py:4094
 msgid "Modify Existing Configuration"
@@ -6367,7 +6381,7 @@ msgstr "Test axe %s"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
+msgid "LinuxCNC Stepper Mill Configuration"
 msgstr "Configuration de LinuxCNC pour moteurs pas à pas"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
@@ -6415,7 +6429,7 @@ msgid "Create a desktop _shortcut (symlink) to configuration files."
 msgstr "Créer un lien sur le bureau vers les fichiers de configurations."
 
 #: emc/usr_intf/stepconf/stepconf.glade:133
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr "Créer un lanceur pour démarrer LinuxCNC avec cette configuration."
 
 #: emc/usr_intf/stepconf/stepconf.glade:169
@@ -6964,23 +6978,23 @@ msgstr "Configuration machine complète"
 msgid ""
 "All the necessary information has now been gathered.  Click \"Apply\" to "
 "write your configuration files to disk.\n"
-"If you experience lockups while running emc, you will need to decrease the "
-"maximum velocity which will have the effect of increasing BASE_PERIOD.\n"
+"If you experience lockups while running LinuxCNC, you will need to decrease "
+"the maximum velocity which will have the effect of increasing BASE_PERIOD.\n"
 "\n"
-"If you experience lost steps while running emc, first verify that you "
+"If you experience lost steps while running LinuxCNC, first verify that you "
 "entered the proper timings for your stepper drivers.  If that does not fix "
 "the problem, then run a more thorough latency test as described on the "
 "linuxcnc.org wiki:\n"
-" http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+" http;//wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
 "\n"
 "If you experience the \"Unexpected Realtime Delay\" message, run a more "
 "thorough latency test as described on the linuxcnc.org wiki: \n"
-" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+" http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
 "Toutes les informations nécessaires ont été recueillies. \n"
 " Cliquer sur \"Appliquer\" pour enregistrer les fichiers de configuration "
 "sur le disque.\n"
-"Si un bloquage de l'ordinateur est constaté quand LinuxCNC fonctionne avec "
+"Si un blocage de l'ordinateur est constaté quand LinuxCNC fonctionne avec "
 "cette configuration, diminuer la vitesse maximum ce qui aura pour effet "
 "d'augmenter la valeur de BASE_PERIOD.\n"
 "\n"
@@ -8086,7 +8100,7 @@ msgid "7i76 Mode 0 I/O Card"
 msgstr "Carte E/S 7i76 Mode 0"
 
 #: emc/usr_intf/pncconf/pncconf.py:722
-msgid "my_EMC_machine"
+msgid "my_LinuxCNC_machine"
 msgstr "ma_machine_LinuxCNC"
 
 #: emc/usr_intf/pncconf/pncconf.py:1328
@@ -8096,14 +8110,14 @@ msgid ""
 "If it doesn't plainly cause an error, you still may want to save it with "
 "another name and check it. Safer to start from scratch.\n"
 "If you have a REALLY large config that you wish to convert to this newer "
-"version of PNConf - ask on the EMC forum - it may be possible.."
+"version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
-"Cette configuration à été enregistrée avec un ancienne version de pncconf "
+"Cette configuration à été enregistrée avec une ancienne version de pncconf "
 "qui pourrait être incompatible.\n"
-"Si il ne donne pas seulement une erreur, vous devriez l'enregistrer sous un "
-"autre nom et le vérifier.\n"
-"Il serait plus prudent de repartir de zéro.\n"
-"Si vous tenez absolument à convertir votre config. dans cette nouvelle "
+"Si elle provoque une erreur, enregistrez la sous un autre nom et vérifier "
+"la.\n"
+"Il serait cependant plus prudent de repartir de zéro.\n"
+"Si vous tenez absolument à convertir votre configuration dans cette nouvelle "
 "version, posez la question sur le forum linuxcnc.org,\n"
 "c'est peut être possible..."
 
@@ -8153,11 +8167,11 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2082
 msgid ""
-"#  Use COMMANDED spindle velocity from EMC because no spindle encoder was "
-"specified"
+"#  Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder "
+"was specified"
 msgstr ""
-"#  Pas de codeur de broche spécifié, la vitesse de broche COMMANDEE sera "
-"utilisée"
+"#  Pas de codeur de broche spécifié, la vitesse de broche COMMANDEE depuis "
+"LinuxCNC sera utilisée"
 
 #: emc/usr_intf/pncconf/pncconf.py:2083
 msgid ""
@@ -8283,8 +8297,8 @@ msgid "Generated by PNCconf at %s"
 msgstr "Généré par PNCconf le %s"
 
 #: emc/usr_intf/pncconf/pncconf.py:3230
-msgid "configures EMC2 as:\n"
-msgstr "configurer LinuxCNC:\n"
+msgid "configures LinuxCNC as:\n"
+msgstr "configurer LinuxCNC comme:\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:3231
 msgid "type CNC\n"
@@ -8322,8 +8336,9 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d est connectée au signal de sortie:'%(data)s' %(mesag)s"
 
 #: emc/usr_intf/pncconf/pncconf.py:3455
-msgid "Desktop Launcher for EMC config made by PNCconf"
-msgstr "Lanceur de bureau pour la configuration faite par PNCconf"
+msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
+msgstr ""
+"Lanceur de bureau pour LinuxCNC avec la configuration faite par PNCconf"
 
 #: emc/usr_intf/pncconf/pncconf.py:3725
 msgid "Spindle Motor/Encoder Configuration"
@@ -8359,27 +8374,27 @@ msgstr "Page d'aide indisponible\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:4054
 msgid ""
-"You are using a simulated-realtime version of EMC, so testing / tuning of "
-"external hardware is unavailable."
+"You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
+"of external hardware is unavailable."
 msgstr ""
-"Vous utilisez une version de test de LinuxCNC en temps réel simulé, / les "
-"réglages du hardware externe sont impossibles."
+"Vous utilisez une version de LinuxCNC en temps réel simulé, les tests et "
+"réglages du matériel externe sont impossibles."
 
 #: emc/usr_intf/pncconf/pncconf.py:4059
 #, python-format
 msgid ""
-"You are using a realtime version of EMC but didn't load a realtime kernel so "
-"testing / tuning of external  hardware is unavailable.\n"
+"You are using a realtime version of LinuxCNC but didn't load a realtime "
+"kernel so testing / tuning of external  hardware is unavailable.\n"
 " This is probably because you updated the OS and it doesn't load the RTAI "
 "kernel anymore\n"
 " You are using the %(actual)s kernel instead of %(needed)s"
 msgstr ""
 "Vous essayez d'utiliser une version temps réel de LinuxCNC mais il ne trouve "
-"pas de kernel temps réel pour ce test, / les réglages du hardware externe ne "
-"seront pas disponibles.\n"
-" C'est probablement dû à une mise à jour de l'OS qui le rend désormais "
-"incapable de charger le kernel RTAI\n"
-" Vous utilisez actuellement le kernel %(actual)s au lieu du kernel %(needed)s"
+"pas de noyau temps réel, les tests et réglages du matériel externe ne seront "
+"pas disponibles.\n"
+" C'est peut-être dû à une mise à jour de l'OS qui le rend désormais "
+"incapable de charger le noyau RTAI\n"
+" Vous utilisez actuellement le noyau %(actual)s au lieu du noyau %(needed)s"
 
 #: emc/usr_intf/pncconf/pncconf.py:4079
 #, python-format
@@ -8395,8 +8410,8 @@ msgstr ""
 "les tests en direct ne seront pas possible."
 
 #: emc/usr_intf/pncconf/pncconf.py:4093
-msgid "EMC2 'PNCconf' configuration files"
-msgstr "Fichiers 'PNCconf' de configuration de LinuxCNC "
+msgid "LinuxCNC 'PNCconf' configuration files"
+msgstr "Fichiers de configuration 'PNCconf' de LinuxCNC "
 
 #: emc/usr_intf/pncconf/pncconf.py:4123
 msgid ""
@@ -8831,12 +8846,12 @@ msgstr ""
 "tester cet axe"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8
-msgid "EMC2 Point And Click Configuration"
+msgid "LinuxCNC Point And Click Configuration"
 msgstr "Configuration graphique de LinuxCNC"
 
 #: emc/usr_intf/pncconf/pncconf.glade:23
-msgid "EMC2  Configuration Wizard   Beta 1 Version"
-msgstr "Version Beta 1 de l'assistant de configuration pour LinuxCNC"
+msgid "LinuxCNC  Configuration Wizard   Beta 1 Version"
+msgstr "Assistant de configuration pour LinuxCNC Version Beta 1"
 
 #: emc/usr_intf/pncconf/pncconf.glade:24
 msgid ""
@@ -8862,7 +8877,7 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr "Créer un lien sur le bureau vers les fichiers de configurations."
 
 #: emc/usr_intf/pncconf/pncconf.glade:135
-msgid "Create a desktop launcher to start EMC with this configuration."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
 "Créer un lanceur sur le bureau pour démarrer LinuxCNC avec cette "
 "configuration."
@@ -8954,7 +8969,7 @@ msgid "Axis"
 msgstr "Axis"
 
 #: emc/usr_intf/pncconf/pncconf.glade:885
-msgid "TKemc"
+msgid "TKLinuxCNC"
 msgstr "TKLinuxCNC"
 
 #: emc/usr_intf/pncconf/pncconf.glade:899
@@ -13471,6 +13486,18 @@ msgstr "R inférieur à U dans un cycle dans le plan VW"
 #: emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr "R inférieur à V dans un cycle dans le plan UW"
+
+#~ msgid "EMC Debug"
+#~ msgstr "Débogueur LinuxCNC"
+
+#~ msgid "EMC2 Errors"
+#~ msgstr "Erreur de LinuxCNC"
+
+#~ msgid "About TkEmc"
+#~ msgstr "À propos de TkLinuxCNC"
+
+#~ msgid "TKemc"
+#~ msgstr "TKLinuxCNC"
 
 #~ msgid "Ngcgui configuration search failed for"
 #~ msgstr "recherche de configuration Ngcgui à échoué pour"

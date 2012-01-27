@@ -15,7 +15,7 @@
 # Usage:
 #   ngcgui --help | -?
 #   ngcgui [Options] -D nc_files_directory_name
-#   ngcgui [Options] -i emc_inifile_name
+#   ngcgui [Options] -i LinuxCNC_inifile_name
 #   ngcgui [Options]
 #
 #   Options:
@@ -34,7 +34,7 @@
 #
 #-----------------------------------------------------------------------
 # ngcgui was first developed on git-master version 2.4.0-pre
-# named "O" words available since: EMC 2.3.0, April 19, 2009
+# named "O" words available since: LinuxCNC 2.3.0, April 19, 2009
 
 #-----------------------------------------------------------------------
 # Copyright: 2010-2012
@@ -57,7 +57,7 @@
 
 # ngcgui allows a user to write subroutine files that contain
 # a single subroutine as described in
-#      3.7 Calling Files of the EMC ________ manual
+#      3.7 Calling Files of the LinuxCNC ________ manual
 # and then use or test them with a gui frontend that simplifies
 # user entry of both calling arguments (positional parameters #1,#2,...)
 # and _global named parameters identified with a leading underscore like
@@ -127,7 +127,7 @@
 
 #  2) Candidate subroutine files for use with this utility should contain
 #     a single subroutine as described in:
-#          3.7 Calling Files of the EMC ________ manual
+#          3.7 Calling Files of the LinuxCNC ________ manual
 
 #  3) Optionally, user supplies a Preamble file of gcode
 #     No substitutions are performed on this file
@@ -255,14 +255,14 @@
 #      so it would be better to use the "Named" format for _globals.
 #      For example: #<_feedrate>
 
-#   3. EMC gcode supports labels for conditional blocks and subroutines
+#   3. LinuxCNC gcode supports labels for conditional blocks and subroutines
 #      in both "Numbered" (ex: o100) and "Named" (ex: o<l101>) forms.
 #      Support for the "Numbered" label format is included, but
 #      it would be clearer to limit ngcgui support to:
 #          Positional Parametrs --> #1, ..., #n   1<=n<=30
 #          Named Globals        --> #<_global_name>
 #          Named Labels         --> o<label_name>
-#      This seems consistent with the trajectory of EMC gcode and
+#      This seems consistent with the trajectory of LinuxCNC gcode and
 #      accomodation of earlier styles (numbered labels and _globals like
 #      #n+1 to #30) is a small matter of editing:).
 
@@ -3159,7 +3159,7 @@ proc ::ngcgui::usage {hdl ay_name} {
   puts stderr "Usage:
   $prog --help | -?
   $prog \[Options\] -D nc_files_directory_name
-  $prog \[Options\] -i emc_inifile_name
+  $prog \[Options\] -i LinuxCNC_inifile_name
   $prog \[Options\]
 
   Options:
@@ -3614,8 +3614,15 @@ proc ::ngcgui::pathto {fname  {mode info}} {
 
   if {   [string first "/" $fname] == 0
       || [string first "~" $fname] == 0
+      || [string first "." $fname] == 0
      } {
     if [file exists $fname] {
+      # expected usage: spcecify search path [RS274NGC]SUBROUTINE_PATH
+      #            and: specify [DISPLAY]NGCGUI_SUBFILE as a file name only
+      #
+      # future:  maybe it should be an error to use an absolute path
+      #          since the interpreter may not find the file
+      # for now: only use a file if it is in search path
       set foundabsolute "$fname"
       set fname [file tail $fname] ;# to test if it is in search path
     }
@@ -3630,6 +3637,14 @@ proc ::ngcgui::pathto {fname  {mode info}} {
   }
 
   if [info exists foundinpath] {
+    if {   [info exists foundabsolute] \
+        && [file normalize $foundinpath] != [file normalize $foundabsolute] } {
+      puts "\nngcgui [_ "Warning"]:"
+      puts "[_ "File absolute path specifier conflicts with searchpath result"]"
+      puts "     [_ "Absolute Specifier"]:  $foundabsolute"
+      puts "     [_ "Using Search Result"]: $foundinpath"
+      puts ""
+    }
     return "$foundinpath"
   } else {
     set title "[_ "File not in Search Path"]"

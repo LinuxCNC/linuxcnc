@@ -58,8 +58,9 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_FileChooserDialog" generic-name="hal_filechooserdialog" title="EMC FileChooserDialog"/>
     <glade-widget-class name="EMC_FileChooserButton" generic-name="hal_filechooserbutton" title="EMC FileChooserButton"/>
     <glade-widget-class name="EMC_Action_Open" generic-name="hal_action_open" title="EMC Action Open" icon-name='gtk-open'/>
-    <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-reload'/>
-
+    <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-refresh'/>
+    <glade-widget-class name="EMC_Action_Save" generic-name="hal_action_save" title="EMC Action Save" icon-name='gtk-save'/>
+    <glade-widget-class name="EMC_Action_SaveAs" generic-name="hal_action_saveas" title="EMC Action Save As" icon-name='gtk-save-as'/>
     <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
     <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory"/>
  </glade-widget-classes>
@@ -120,6 +121,8 @@ domain="glade-3" depends="gtk+">
 
    <glade-widget-class-ref name="EMC_Action_Open"/>
    <glade-widget-class-ref name="EMC_Action_Reload"/>
+   <glade-widget-class-ref name="EMC_Action_Save"/>
+   <glade-widget-class-ref name="EMC_Action_SaveAs"/>
  </glade-widget-group>
 </glade-catalog>
 

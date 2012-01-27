@@ -1,6 +1,6 @@
-= Pico PPMC Driver
+= Pico Drivers
 
-[[cha:pico-ppmc-driver]] (((Pico PPMC Driver)))
+[[cha:pico-drivers]] (((Pico PPMC Driver)))
 
 Pico Systems has a family of boards for doing analog servo, stepper,
 and PWM (digital) servo control. The boards connect to the PC through a
@@ -9,7 +9,10 @@ board to a parallel port, in theory any mix of up to 8 or 16 boards can
 be used on a single parport. One driver serves all types of boards. The
 final mix of I/O depends on the connected board(s). The driver doesn't
 distinguish between boards, it simply numbers I/O channels (encoders,
-etc) starting from 0 on the first board.
+etc) starting from 0 on the first board.  The driver is named hal_ppmc.ko
+The analog servo interface is also called the PPMC for Parallel Port Motion
+Control.  There is also the Universal Stepper Controller, abbreviated the
+USC.  And the Universal PWM Controller, or UPC.
 
 Installing:
 ----
@@ -25,15 +28,28 @@ pins for whatever it finds. During loading (or attempted loading) the
 driver prints some useful debugging messages to the kernel log, which 
 can be viewed with 'dmesg'. 
 
-Up to 3 parport busses may be used, and each bus may have up to 8
-devices on it.
+Up to 3 parport busses may be used, and each bus may have up to 8 (or
+possibly 16 PPMC) devices on it.
 
 == Pins
 
-In the following pins, parameters, and functions, <board> is the board
-ID. According to the naming conventions the first board should always
-have an ID of zero. However, this driver sets the ID based on switches
-on the board, so it may be non-zero even if there is only one board.
+In the following pins, parameters, and functions, <port> is the parallel
+port ID. According to the naming conventions the first port should always
+have an ID of zero.  All the boards have some method of setting the
+address on the EPP bus.  USC and UPC have simple provisions for only
+two addresses, but jumper foil cuts allow up to 4 boards to be addressed.
+The PPMC boards have 16 possible addresses.  In all cases, the driver
+enumerates the boards by type and exports the appropriate HAL pins.
+For instance, the encoders will be enumerated from zero up, in the
+same order as the address switches on the board specify.  So, the first
+board will have encoders 0 -- 3, the second board would have encoders
+4 -- 7.
+The first column after the bullet tells which boards will have this
+HAL pin or parameter associated with it.  All means that this pin is
+available on all three board types.  Option means that this pin
+will only be exported when that option is enabled by an optional
+parameter in the loadrt HAL command.  These options require the
+board to have a sufficient revision level to support the feature.
 
 * '(All s32 output) ppmc.<port>.encoder.<channel>.count' - Encoder
    position, in counts.

@@ -4367,8 +4367,8 @@ msgstr "Test %s-Achse"
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
-msgid "EMC2 Stepper Mill Configuration"
-msgstr "EMC2 Maschinenkonfiguration"
+msgid "LinuxCNC Stepper Mill Configuration"
+msgstr "LinuxCNC Maschinenkonfiguration"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
@@ -4380,9 +4380,9 @@ msgstr ""
 "Druckeranschluss mit dem PC verbunden sind."
 
 #: emc/usr_intf/stepconf/stepconf.glade:64
-msgid "Create a desktop _launcher to start EMC with this configuration."
+msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
-"Verknüpfung zum _Starten vom EMC mit dieser Konfiguration auf dem Destop "
+"Verknüpfung zum _Starten vom LinuxCNC mit dieser Konfiguration auf dem Destop "
 "erstellen"
 
 #: emc/usr_intf/stepconf/stepconf.glade:81
@@ -6050,9 +6050,9 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:65
 #, fuzzy
-msgid "Create a desktop launcher to start EMC with this configuration."
+msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
-"Verknüpfung zum _Starten vom EMC mit dieser Konfiguration auf dem Destop "
+"Verknüpfung zum _Starten vom LinuxCNC mit dieser Konfiguration auf dem Destop "
 "erstellen"
 
 #: emc/usr_intf/pncconf/pncconf.glade:82

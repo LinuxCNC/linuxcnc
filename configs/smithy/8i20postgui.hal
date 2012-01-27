@@ -12,14 +12,17 @@ net current pyvcp.current
 net sa pyvcp.a
 net sb pyvcp.b
 net sc pyvcp.c
-net home-index pyvcp.ie_led
+net Sidx pyvcp.ie_led
 # 8i20 Pins:
 net comms hm2_5i20.0.8i20.0.0.comms pyvcp.comms
 net fault hm2_5i20.0.8i20.0.0.fault pyvcp.fault
 net status hm2_5i20.0.8i20.0.0.status pyvcp.status
 net temp hm2_5i20.0.8i20.0.0.temp pyvcp.temp
 net voltage hm2_5i20.0.8i20.0.0.voltage pyvcp.voltage
-#SSerial Pins:
+# SSerial Pins:
 net fault-count hm2_5i20.0.sserial.port-0.fault-count pyvcp.faults
 net port_state hm2_5i20.0.sserial.port-0.port_state pyvcp.port_state
 net herr bldc.0.hall-error pyvcp.hall-error
+net at-speed pyvcp.at-speed
+net stall pyvcp.stall
+

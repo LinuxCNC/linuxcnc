@@ -9,8 +9,6 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # driver loaded above, and it'll show up in HAL
 # for the production 924 lathe use SVST2_4_7I47.BIT
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=2 num_pwmgens=1 num_stepgens=2"
-# set up the watchdog
-#setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
 loadrt trivkins

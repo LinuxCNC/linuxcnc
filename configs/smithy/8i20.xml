@@ -175,5 +175,21 @@
         <halpin>"hall-error"</halpin>
     </led>
   </hbox>
+  <hbox>
+    <label>
+        <text>"Spindle At Speed"</text>
+    </label>
+    <led>
+        <halpin>"at-speed"</halpin>
+    </led>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Spindle Stalled"</text>
+    </label>
+    <led>
+        <halpin>"stall"</halpin>
+    </led>
+  </hbox>
 </pyvcp>
 

@@ -23,7 +23,7 @@
 proc ngcgui_app_init {} {
   if {[info command inifindall] == ""} {
     return -code error "ngcgui_app_init: [_ "requires command inifindall
-from axis.py (linuxcnc 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (linuxcnc 2.4)"
+from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
   }
 
   # DISPLAY:NGCGUI specifies the file normally named ngcgui.tcl
@@ -62,8 +62,8 @@ from axis.py (linuxcnc 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (linuxcnc 2.4)"
   } else {
     # this can occur due to obsolete USER_COMMAND_FILE
     puts "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
-    puts "\n[_ Emc version"] = $::version"
-    puts "[_ "for linuxcnc 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
+    puts "\n[_ LinuxCNC version"] = $::version"
+    puts "[_ "for linuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
     return -code error "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
   }
 
@@ -80,10 +80,10 @@ from axis.py (linuxcnc 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (linuxcnc 2.4)"
   foreach fname $ngcgui_subfile {
     set wtab [dynamic_tab ngcgui$::ngcguict [file tail $fname] ] ;# axis func
     if {"$wtab" == "None"} {
-      # functions of tkapp.py were incorporated in linuxcnc  2.5 27dec10 af6ae9907e1c0
+      # functions of tkapp.py were incorporated in LinuxCNC  2.5 27dec10 af6ae9907e1c0
       #puts "\nerrorInfo: $::errorInfo"
-      puts "\n[_ "Emc version"] = $::version"
-      puts "[_ "for linuxcnc 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
+      puts "\n[_ "LinuxCNC version"] = $::version"
+      puts "[_ "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
       continue
     }
     set w [frame $wtab.tframe -container 0 -borderwidth 0 -highlightthickness 0]

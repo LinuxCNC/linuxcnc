@@ -1,8 +1,8 @@
 #!/usr/bin/python2.4
 # -*- encoding: utf-8 -*-
-#    This is pncconf, a graphical configuration editor for EMC2
+#    This is pncconf, a graphical configuration editor for LinuxCNC
 #    Chris Morley copyright 2009
-#    This is based from stepconf, a graphical configuration editor for emc2
+#    This is based from stepconf, a graphical configuration editor for linuxcnc
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -97,31 +97,31 @@ def iceil(x):
     if isinstance(x, basestring): x = float(x)
     return int(math.ceil(x))
 
-datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "emc")
-wizard = os.path.join(datadir, "emc2-wizard.gif")
+datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
+wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
+    wizard = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    linuxcncicon = os.path.join("/usr/share/emc/emc2-wizard.gif")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-    wizard = os.path.join(wizdir, "emc2-wizard.gif")
+    wizard = os.path.join(wizdir, "linuxcnc-wizard.gif")
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 linuxcncicon = os.path.join(icondir, "linuxcncicon.png")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/emc2/emc2-wizard.gif")
+    linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/emc/linuxcncicon.png")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "emc2", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
-helpdir = os.path.join(BASE, "share", "emc", "pncconf", "pncconf-help")
+    distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
+helpdir = os.path.join(BASE, "share", "linuxcnc", "pncconf", "pncconf-help")
 if not os.path.exists(helpdir):
     helpdir = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "pncconf-help")
 firmdir = "/lib/firmware/hm2/"
@@ -173,7 +173,7 @@ _("7i76 sserial #1"),_("7i76 sserial #2") ]
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
 _PWMPINS = 10;_MAXTPPWM = 11;_TTPWMPINMS = 12;_MAXSTEP = 13;_STEPPINS = 14;_MAXSSERIALPORTS = 15;_MAXSSERIALCHANNELS = 16;_HASWATCHDOG = 25;
 _MAXGPIO = 26;_LOWFREQ = 27;_HIFREQ = 28;_NUMOFCNCTRS = 29;_STARTOFDATA = 30
-_AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
+_AXIS = 1;_TKLINUXCNC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
 
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
@@ -719,7 +719,7 @@ class Data:
 
         # basic machine data
         self.help = "help-welcome.txt"
-        self.machinename = _("my_EMC_machine")
+        self.machinename = _("my_LinuxCNC_machine")
         self.frontend = _AXIS 
         self.axes = 0 # XYZ
         self.available_axes = []
@@ -890,7 +890,7 @@ class Data:
         self.touchydtgcolor = "default"
         self.touchyerrcolor = "default"
 
-        # EMC assorted defaults and options
+        # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True
         self.multimpg = False
         self.require_homing = True
@@ -1327,7 +1327,7 @@ class Data:
         if self.pncconf_loaded_version < self._pncconf_version:
             warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\n\
 If it doesn't plainly cause an error, you still may want to save it with another name and check it. Safer to start from scratch.\n\
-If you have a REALLY large config that you wish to convert to this newer version of PNConf - ask on the EMC forum - it may be possible..") )
+If you have a REALLY large config that you wish to convert to this newer version of PNConf - ask on the LinuxCNC forum - it may be possible..") )
         for f, m in self.md5sums:
             m1 = md5sum(f)
             if m1 and m != m1:
@@ -1375,8 +1375,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "[DISPLAY]"
         if self.frontend == _AXIS:
             print >>file, "DISPLAY = axis"
-        elif self.frontend == _TKEMC:
-            print >>file, "DISPLAY = tkemc"
+        elif self.frontend == _TKLINUXCNC:
+            print >>file, "DISPLAY = tklinuxcnc"
         elif self.frontend == _MINI:
             print >>file, "DISPLAY = mini"
         elif self.frontend == _TOUCHY:
@@ -1399,10 +1399,10 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "MAX_FEED_OVERRIDE = %f"% self.max_feed_override
         print >>file, "MAX_SPINDLE_OVERRIDE = %f"% self.max_spindle_override
         print >>file, "MIN_SPINDLE_OVERRIDE = %f"% self.min_spindle_override
-        print >>file, "INTRO_GRAPHIC = emc2.gif"
+        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % \
-                                    os.path.expanduser("~/emc2/nc_files")
+                                    os.path.expanduser("~/linuxcnc/nc_files")
         if self.pyvcp:
             print >>file, "PYVCP = pyvcp-panel.xml"
         # these are for AXIS GUI only
@@ -1447,7 +1447,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         print >>file
         print >>file, "[RS274NGC]"
-        print >>file, "PARAMETER_FILE = emc.var"
+        print >>file, "PARAMETER_FILE = linuxcnc.var"
 
         #base_period = self.ideal_period()
 
@@ -1618,7 +1618,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
         if self[letter + "usebacklash"]:
             print >>file, "BACKLASH = %s" % get("backlash")
-        # emc2 doesn't like having home right on an end of travel,
+        # linuxcnc doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
@@ -2079,7 +2079,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
                     print >>file, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out")
                 else:
-                    print >>file, _("#  Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
+                    print >>file, _("#  Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
                     print >>file, _("#  COMMANDED velocity is signed so we use absolute component to remove sign")
                     print >>file
                     print >>file, ("net spindle-vel-cmd         =>    abs.spindle.in")
@@ -3183,12 +3183,12 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.classicladder: 
            if not self.laddername == "custom.clp":
                 filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
-                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.machinename)
+                original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
                 if os.path.exists(filename): # check for the master file to copy from 
                   if os.path.exists(original):
                      #print "custom file already exists"
                      writebackup(original)
-                     #shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.machinename) ) 
+                     #shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/backups/custom_backup.clp" % self.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( filename,original)
                   #print "copied ladder program to usr directory"
@@ -3197,12 +3197,12 @@ If you have a REALLY large config that you wish to convert to this newer version
                      print "Master or temp ladder files missing from configurable_options dir"
         if self.pyvcp and not self.pyvcpexist:                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.machinename)
+           originalname = os.path.expanduser("~/linuxcnc/configs/%s/pyvcp-panel.xml" % self.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
                      #print "custom PYVCP file already exists"
                      writebackup(originalname)
-                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/pyvcp-panel_backup.xml" % self.machinename) ) 
+                     #shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/backups/pyvcp-panel_backup.xml" % self.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( panelname,originalname)
                   #print "copied PYVCP program to usr directory"
@@ -3220,14 +3220,14 @@ If you have a REALLY large config that you wish to convert to this newer version
         if  self.units == _IMPERIAL: unit = "an imperial"
         else: unit = "a metric"
         if self.frontend == _AXIS: display = "AXIS"
-        elif self.frontend == _TKEMC: display = "Tkemc"
+        elif self.frontend == _TKLINUXCNC: display = "Tklinuxcnc"
         elif self.frontend == _MINI: display = "Mini"
         elif self.frontend == _TOUCHY: display = "TOUCHY"
         else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
-        print >>file, self.machinename,_("configures EMC2 as:\n")
+        print >>file, self.machinename,_("configures LinuxCNC as:\n")
         print >>file, unit,machinetype,_("type CNC\n")
         print >>file, display,_("will be used as the frontend display")
         print >>file
@@ -3286,11 +3286,11 @@ If you have a REALLY large config that you wish to convert to this newer version
             shutil.copy(os.path.join(distdir, filename), dest)
 
     def save(self):
-        base = os.path.expanduser("~/emc2/configs/%s" % self.machinename)
-        ncfiles = os.path.expanduser("~/emc2/nc_files")
+        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.machinename)
+        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
         if not os.path.exists(ncfiles):
             makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "emc", "ncfiles")
+            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
             if not os.path.exists(examples):
                 examples = os.path.join(BASE, "nc_files")
             if os.path.exists(examples):
@@ -3438,10 +3438,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 os.symlink(base,shortcut)
 
         if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(BASE + "/scripts/emc"):
-                scriptspath = (BASE + "/scripts/emc")
+            if os.path.exists(BASE + "/scripts/linuxcnc"):
+                scriptspath = (BASE + "/scripts/linuxcnc")
             else:
-                scriptspath ="emc"
+                scriptspath ="linuxcnc"
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
@@ -3452,7 +3452,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             print >>file,"Exec=%s %s/%s.ini" \
                          % ( scriptspath, base, self.machinename )
             print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for EMC config made by PNCconf")
+            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by PNCconf")
             print >>file,"Icon=%s"% linuxcncicon
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
@@ -4051,12 +4051,12 @@ class App:
         actual_kernel = os.uname()[2]
         if hal.is_sim == 1 :
             if fussy:
-                self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of external hardware is unavailable."),True)
+                self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of external hardware is unavailable."),True)
                 return False
             else:
                 return True
         elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(_("""You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
+            self.warning_dialog(_("""You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
             return False
         else:
             return True
@@ -4090,7 +4090,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         if not self.widgets.createconfig.get_active():
             filter = gtk.FileFilter()
             filter.add_pattern("*.pncconf")
-            filter.set_name(_("EMC2 'PNCconf' configuration files"))
+            filter.set_name(_("LinuxCNC 'PNCconf' configuration files"))
             dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
                 self.widgets.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -4098,9 +4098,9 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
             dialog.set_default_response(gtk.RESPONSE_OK)
             dialog.add_filter(filter) 
             if not self.data._lastconfigname == "" and self.data._chooselastconfig:
-                dialog.set_filename(os.path.expanduser("~/emc2/configs/%s.pncconf"% self.data._lastconfigname))
-            dialog.add_shortcut_folder(os.path.expanduser("~/emc2/configs"))
-            dialog.set_current_folder(os.path.expanduser("~/emc2/configs"))
+                dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.pncconf"% self.data._lastconfigname))
+            dialog.add_shortcut_folder(os.path.expanduser("~/linuxcnc/configs"))
+            dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
             result = dialog.run()
             if result == gtk.RESPONSE_OK:
@@ -4169,7 +4169,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         if self.data.number_pports>2:
              self.widgets.pp3_checkbutton.set_active(1)
         if self.data.frontend == _AXIS : self.widgets.GUIAXIS.set_active(True)
-        elif self.data.frontend == _TKEMC: self.widgets.GUITKEMC.set_active(True)
+        elif self.data.frontend == _TKLINUXCNC: self.widgets.GUITKLINUXCNC.set_active(True)
         elif self.data.frontend == _MINI: self.widgets.GUIMINI.set_active(True)
         elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         
@@ -4255,8 +4255,8 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.pp3_direction = self.widgets.pp3_direction.get_active()
         if self.widgets.GUIAXIS.get_active():
            self.data.frontend = _AXIS
-        elif self.widgets.GUITKEMC.get_active():
-           self.data.frontend = _TKEMC
+        elif self.widgets.GUITKLINUXCNC.get_active():
+           self.data.frontend = _TKLINUXCNC
         elif self.widgets.GUIMINI.get_active():
            self.data.frontend = _MINI
         elif self.widgets.GUITOUCHY.get_active():
@@ -4478,7 +4478,7 @@ Ok to reset data and start a new configuration?"),False):
 
     def on_machinename_changed(self, *args):
         temp = self.widgets.machinename.get_text()
-        self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
+        self.widgets.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
 
     def on_external_cntrl_prepare(self, *args):
         self.data.help = "help-extcontrols.txt"
@@ -4567,34 +4567,34 @@ Ok to reset data and start a new configuration?"),False):
     def on_addrule_clicked(self, *args):
         text = []
         sourcefile = "/tmp/"
-        if os.path.exists("/etc/udev/rules.d/50-EMC2-general.rules"):
+        if os.path.exists("/etc/udev/rules.d/50-LINUXCNC-general.rules"):
             text.append( "General rule already exists\n")
         else:
             text.append("adding a general rule first\nso your device will be found\n")
-            filename = os.path.join(sourcefile, "EMCtempGeneral.rules")
+            filename = os.path.join(sourcefile, "LINUXCNCtempGeneral.rules")
             file = open(filename, "w")
-            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("# This is a rule for LinuxCNC's hal_input\n")
             print >>file, ("""SUBSYSTEM="input", mode="0660", group="plugdev" """) 
             file.close()
-            p=os.popen("gksudo cp  %sEMCtempGeneral.rules /etc/udev/rules.d/50-EMC2-general.rules"% sourcefile )
+            p=os.popen("gksudo cp  %sLINUXCNCtempGeneral.rules /etc/udev/rules.d/50-LINUXCNC-general.rules"% sourcefile )
             time.sleep(.1)
             p.flush()
             p.close()
-            os.remove('%sEMCtempGeneral.rules'% sourcefile)
+            os.remove('%sLINUXCNCempGeneral.rules'% sourcefile)
         text.append(("disconect USB device please\n"))
         if not self.warning_dialog("\n".join(text),False):return
 
-        os.popen('less /proc/bus/input/devices >> %sEMCnojoytemp.txt'% sourcefile)
+        os.popen('less /proc/bus/input/devices >> %sLINUXCNCnojoytemp.txt'% sourcefile)
         text = ["Plug in USB device please"]
         if not self.warning_dialog("\n".join(text),False):return
         time.sleep(1)
 
-        os.popen('less /proc/bus/input/devices >> %sEMCjoytemp.txt'% sourcefile).read()
-        diff = os.popen (" less /proc/bus/input/devices  | diff   %sEMCnojoytemp.txt %sEMCjoytemp.txt "%(sourcefile, sourcefile) ).read()
+        os.popen('less /proc/bus/input/devices >> %sLINUXCNCjoytemp.txt'% sourcefile).read()
+        diff = os.popen (" less /proc/bus/input/devices  | diff   %sLINUXCNCnojoytemp.txt %sLINUXCNCjoytemp.txt "%(sourcefile, sourcefile) ).read()
         self.widgets.helpwindow.set_title(_("USB device Info Search"))
 
-        os.remove('%sEMCnojoytemp.txt'% sourcefile)
-        os.remove('%sEMCjoytemp.txt'% sourcefile)
+        os.remove('%sLINUXCNCnojoytemp.txt'% sourcefile)
+        os.remove('%sLINUXCNCjoytemp.txt'% sourcefile)
         if diff =="":
             text = ["No new USB device found"]
             if not self.warning_dialog("\n".join(text),True):return
@@ -4625,9 +4625,9 @@ Ok to reset data and start a new configuration?"),False):
         
             text =[ "Vendor = %s\n product = %s\n name = %s\nadding specific rule"%(vendor,product,name)]
             if not self.warning_dialog("\n".join(text),False):return
-            tempname = sourcefile+"EMCtempspecific.rules"
+            tempname = sourcefile+"LINUXCNCtempspecific.rules"
             file = open(tempname, "w")
-            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("# This is a rule for LINUXCNC's hal_input\n")
             print >>file, ("# For devicename=%s\n"% name)
             print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
             file.close()
@@ -4635,10 +4635,10 @@ Ok to reset data and start a new configuration?"),False):
             for i in ("(",")"):
                 temp = name.replace(i,"")
                 name = temp
-            newname = "50-EMC2-%s.rules"% name.replace(" ","_")
+            newname = "50-LINUXCNC-%s.rules"% name.replace(" ","_")
             os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
             time.sleep(1)
-            os.remove('%sEMCtempspecific.rules'% sourcefile)
+            os.remove('%sLINUXCNCtempspecific.rules'% sourcefile)
             text = ["Please unplug and plug in your device again"]
             if not self.warning_dialog("\n".join(text),True):return
 
@@ -4678,7 +4678,7 @@ Ok to reset data and start a new configuration?"),False):
         textbuffer = self.widgets.textoutput.get_buffer()
         textbuffer.set_text("Searching for device rules in folder:    /etc/udev/rules.d\n\n")
         for entry in os.listdir("/etc/udev/rules.d"):
-            if fnmatch.fnmatch( entry,"50-EMC2-*"):
+            if fnmatch.fnmatch( entry,"50-LINUXCNC-*"):
                 temp = open("/etc/udev/rules.d/" + entry, "r").read()
                 templist = temp.split("\n")
                 for i in templist:
@@ -4818,12 +4818,12 @@ Ok to reset data and start a new configuration?"),False):
         # Sanity checks
         if not self.widgets.createconfig.get_active():
             if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
-                if os.path.exists(os.path.expanduser("~/emc2/configs/%s/gvcp-panel.ui" % self.data.machinename)):
+                if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/gvcp-panel.ui" % self.data.machinename)):
                     if not self.warning_dialog(_("OK to replace existing glade panel ?\
 \nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
+              if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
                  if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
 \nExisting pyvcp-panel.xml will be renamed and added to 'backups' folder\n\
 Clicking 'existing custom program' will aviod this warning. "),False):
@@ -7801,7 +7801,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             if self.widgets.ladderexist.get_active() == True:
                 self.data.laddername='custom.clp'
             else:
-                if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)):
                     if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting\
  Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost.\
 Selecting 'existing ladder program' will avoid this warning"),False):
@@ -8115,7 +8115,7 @@ different program to copy to your configuration file.\nThe edited program will b
            panel = "xyzjog.xml"
         if self.widgets.pyvcpexist.get_active() == True:
            panel = "pyvcp-panel.xml"
-           panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
+           panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.data.machinename)
         if self.widgets.pyvcpposition.get_active() == True:
             xpos = self.widgets.pyvcpxpos.get_value()
             ypos = self.widgets.pyvcpypos.get_value()
@@ -8168,7 +8168,7 @@ different program to copy to your configuration file.\nThe edited program will b
         options = ""
         folder = "/tmp"
         if not self.widgets.createconfig.get_active() and self.widgets.gladeexists.get_active():
-            folder = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
+            folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.data.machinename)
             if not os.path.exists(folder + "/gvcp-panel.ui"):
                 self.warning_dialog (_("""You specified there is an existing gladefile, \
 But there is not one in the machine-named folder.."""),True)
@@ -8445,7 +8445,7 @@ But there is not one in the machine-named folder.."""),True)
             self.widgets.halui.set_active(True)
         if self.widgets.ladderexist.get_active() == True:
             self.data.laddername='custom.clp'
-            originalfile = filename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)
         else:
             filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
         if self.data.modbus == True: 
@@ -9560,7 +9560,7 @@ def makedirs(d):
         os.makedirs(d)
     except os.error, detail:
         if detail.errno != errno.EEXIST: raise
-makedirs(os.path.expanduser("~/emc2/configs"))
+makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
 opts, args = getopt.getopt(sys.argv[1:], "fr")
 mode = 0
