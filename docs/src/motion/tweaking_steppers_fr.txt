@@ -52,15 +52,15 @@ Step Pulse “0” Time: 2.0 µs min (Step on rising edge)
 Step Pulse “1” Time: 1.0 µs min 
 
 Direction setup:
-    200 nS (0.2µs) before step pulse rising edge 
-    200 nS (0.2µs) hold after step pulse rising edge
+    200 ns (0.2µs) before step pulse rising edge 
+    200 ns (0.2µs) hold after step pulse rising edge
 ....
 
 Un carte Xylotex donne dans ses données techniques un superbe graphe
 du timing nécessaire, il indique:
 ....
-Minimum DIR setup time before rising edge of STEP Pulse 200nS Minimum 
-DIR hold time after rising edge of STEP pulse 200nS 
+Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum 
+DIR hold time after rising edge of STEP pulse 200ns 
 Minimum STEP pulse high time 2.0µs 
 Minimum STEP pulse low time 1.0µs 
 Step happens on rising edge
@@ -126,7 +126,7 @@ n'abandonnez pas, nous avons encore quelques réglages à faire dans la
 section suivante.)
 
 Pour la Xylotex, la configuration demande des temps de maintien très
-courts de 200nS chacun (0.2µs). Le temps le plus long est de 2µs. Si
+courts de 200ns chacun (0.2µs). Le temps le plus long est de 2µs. Si
 vous avez 11µs de latence, alors vous pouvez définir BASE_PERIOD aussi
 bas que 11+2 = 13µs. Se débarrasser du long temps de maintien de 20µs
 aide vraiment. Avec une période de 13µs, un pas complet ne dure que

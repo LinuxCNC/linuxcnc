@@ -13,12 +13,12 @@ pages.
 Quand vous installez LinuxCNC avec le CD-Live Ubuntu, par défaut vous
 devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
 activer le login automatique ouvrez le menu 
-*_Système -> Administration -> Fenêtre de connexion_*. 
+_Système -> Administration -> Fenêtre de connexion_. 
 Si l'installation est 
 récente la fenêtre de connexion peut prendre quelques secondes pour
 s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
 pour accéder à la fenêtre des préférences. Ouvrez alors l'onglet
-*_Sécurité_*, cochez la case *_Activer les connexions automatiques_* et
+_Sécurité_, cochez la case _Activer les connexions automatiques_ et
 saisissez votre nom d'utilisateur ou choisissez en un dans la liste
 déroulante. Vous êtes maintenant dispensé de la fenêtre de connexion.
 
@@ -30,14 +30,14 @@ Les Man pages sont des pages de manuel générées automatiquement le
 plus souvent. Les Man pages existent pour quasiment tous les programmes
 et les commandes de Linux.
 
-Pour visualiser une man page ouvrez un terminal depuis *_Applications ->
- Accessoires -> Terminal_*. Par exemple si vous voulez trouver quelques
-choses concernant la commande *find*, tapez alors dans le terminal:
+Pour visualiser une man page ouvrez un terminal depuis _Applications ->
+ Accessoires -> Terminal_. Par exemple si vous voulez trouver quelques
+choses concernant la commande _find_, tapez alors dans le terminal:
 ----
 man find
 ----
 
-Utilisez les touches *Vers le haut* et *Vers le bas* pour faire
+Utilisez les touches _Vers le haut_ et _Vers le bas_ pour faire
 défiler le texte et la touche *Q* pour quitter.
 
 == Lister les modules du noyau
@@ -72,22 +72,22 @@ sont en mode lecture seule.
 
 (((sudo gedit)))
 
-Ouvrir un terminal depuis *Applications > Accessoires > Terminal*.
+Ouvrir un terminal depuis _Applications -> Accessoires -> Terminal_.
 
 Dans ce terminal, tapez:
 ----
 sudo gedit
 ----
 
-Ouvrez un fichier depuis *_Fichiers -> Ouvrir_* puis éditez le.
+Ouvrez un fichier depuis _Fichiers -> Ouvrir_ puis éditez le.
 
 === En mode graphique
 
 (((gksudo)))
 
- . Faites un clic droit sur le bureau et choisissez *_Créer un lanceur_*.
- . Tapez un nom tel que *+éditeur+*, dans la zone *_Nom_*.
- . Entrez *+gksudo gnome-open %u+* dans la zone *_Commande_* et validez.
+ . Faites un clic droit sur le bureau et choisissez _Créer un lanceur.._.
+ . Tapez un nom tel que _éditeur_, dans la zone _Nom_.
+ . Entrez _gksudo "gnome-open %u"_ dans la zone _Commande_ et validez.
  . Glissez un fichier et déposez le sur votre lanceur, il s'ouvrira alors
    directement dans l'éditeur.
 
@@ -136,14 +136,14 @@ ls
 
 (((Trouver un fichier))) (((find)))
 
-La commande *find* peut être un peu déroutante pour le nouvel
+La commande _find_ peut être un peu déroutante pour le nouvel
 utilisateur de Linux. La syntaxe de base est:
 ----
 find répertoire_de_départ <paramètres> <actions>
 ----
 
 Par exemple, pour trouver tous les fichiers .ini dans votre répertoire
-linuxcnc utilisez d'abord la commande *pwd* pour trouver le répertoire
+linuxcnc utilisez d'abord la commande _pwd_ pour trouver le répertoire
 courant. Ouvrez un nouveau terminal et tapez:
 ----
 pwd
@@ -159,10 +159,10 @@ Avec cette information vous pouvez taper, par exemple, la commande:
 find /home/robert/linuxcnc -name *.ini -print
 ----
 
-Le *-name* est le nom du fichier que vous recherchez et le *-print*
-indique à find d'afficher le résultat dans le terminal. Le **.ini*
+Le _-name_ est le nom du fichier que vous recherchez et le _-print_
+indique à find d'afficher le résultat dans le terminal. Le _*.ini_
 indique à find de retourner tous les fichiers portant l'extension
-*.ini*
+_.ini_
 
 === Rechercher un texte
 
@@ -173,17 +173,17 @@ Tapez dans un terminal:
 grep -lir "texte à rechercher" *
 ----
 
-Pour trouver tous les fichiers contenant le texte *"texte à rechercher"*  dans le 
+Pour trouver tous les fichiers contenant le texte _"texte à rechercher"_  dans le 
 répertoire courant, tous ses sous-répertoires et en ignorant la casse. 
 Le paramètre *-l* demande de ne pas afficher les résultats normalement mais à la 
 place, d'indiquer le nom des fichiers pour lesquels des résultats auraient été 
 affichés. Le paramètre *-i* demande d'ignorer la casse. Le paramètre *-r* demande 
 une recherche récursive (qui inclus tous les sous-répertoires dans la recherche). 
-Le caractère *** est un jocker indiquant *tous les fichiers*.
+Le caractère *** est un jocker indiquant _tous les fichiers_.
 
 === Messages du boot
 
-Pour visualiser les messages du boot utilisez la commande *dmesg*
+Pour visualiser les messages du boot utilisez la commande _dmesg_
 depuis un terminal. Pour enregistrer ces messages dans un fichier,
 redirigez les avec:
 ----
@@ -199,8 +199,8 @@ Pour nettoyer le tampon des messages tapez cette commande:
 sudo dmesg -c
 ----
 
-C'est utile avant de lancer LinuxCNC, pour que ne soit enregistrés que les messages 
-relatifs au fonctionnement courant de LinuxCNC. 
+C'est utile avant de lancer LinuxCNC, pour que ne soit enregistrés que les
+messages relatifs au fonctionnement courant de LinuxCNC.
 
 Pour trouver les adresses des ports parallèles de la machine, tapez cette
 commande grep pour filtrer les informations contenues dans dmesg.
@@ -212,13 +212,13 @@ dmesg|grep parport
 
 === Informations sur le matériel
 
-Pour voir la liste du matériel installé sur les ports PCI de votre carte mère, 
+Pour voir la liste du matériel installé sur les ports PCI de votre carte mère,
 tapez la commande suivante dans un terminal:
 ----
 lspci -v
 ----
 
-Pour voir la liste du matériel installé sur les ports USB de votre carte mère, 
+Pour voir la liste du matériel installé sur les ports USB de votre carte mère,
 tapez la commande suivante dans un terminal:
 ----
 lsusb -v
@@ -227,8 +227,8 @@ lsusb -v
 === Résolution du moniteur
 
 Lors de l'installation d'Ubuntu les réglages du moniteur sont automatiquement
-détectés. Il peut arriver que la détection fonctionne mal et que la résolution ne
-soit que celle d'un moniteur générique en 800x600.
+détectés. Il peut arriver que la détection fonctionne mal et que la résolution
+ne soit que celle d'un moniteur générique en 800x600.
 
 Pour résoudre ce cas, suivez les instructions données ici:
 

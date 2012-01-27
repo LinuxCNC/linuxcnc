@@ -47,7 +47,7 @@ La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les
 vues Open Source de LinuxCNC:
 
  - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la 
-    version  *"Enterprise Edition"*, 
+    version  _"Enterprise Edition"_, 
     nous rendons nos travaux disponibles pour  tout le monde dans les mêmes 
     conditions de gratuité.
  - LinuxCNC est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et 
@@ -74,7 +74,7 @@ http://webchat.freenode.net/?channels=linuxcnc
 Un peu d'éthique sur le canal IRC:
 
  - Posez des questions précises... Évitez le "quelqu'un peut m'aider?", 
-   ce type de questions, *ne fonctionnera pas*. 
+   ce type de questions, _ne fonctionnera pas_. 
  - Si vous êtes vraiment nouveau dans tout cela, réfléchissez à votre question 
     avant de la poser. Assurez-vous de donner suffisamment d'informations pour 
     que quelqu'un puisse résoudre votre problème. 
@@ -94,13 +94,13 @@ La façon la plus courante de partager des fichiers sur IRC est de charger le
 fichier sur un des services suivants ou service similaire, puis collez le lien 
 vers le fichier, sur l'IRC:
 
-* *Pour le texte*:
+Pour le texte::
      http://pastebin.com/, http://pastie.org/, https://gist.github.com/
 
-* *Pour les photos*:
+Pour les photos::
      http://imagebin.org/, http://imgur.com/, http://bayimg.com/
 
-* *Pour les fichiers*:
+Pour les fichiers::
      http://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
 === Les listes de diffusion
@@ -135,25 +135,25 @@ Téléchargez le CD Live sur le http://www.linuxcnc.org/index.php?lang=french[si
 
 Si le fichier est trop important pour être téléchargé en une seule
 fois parce que votre connexion Internet est lente ou mauvaise,
-utilisez *wget* qui permet la reprise après un téléchargement interrompu.
+utilisez _wget_ qui permet la reprise après un téléchargement interrompu.
 
 La commande Wget sous Linux:: (((Wget sous Linux)))
 Ouvrez un terminal. Dans Gnome, il est dans _Applications_ -> _Accessoires_ -> 
 _Terminal_.
-Utilisez *cd* pour changer le répertoire dans lequel vous voulez stocker l'image 
-ISO. Utilisez *mkdir* pour créer un nouveau répertoire si nécessaire.
+Utilisez _cd_ pour changer le répertoire dans lequel vous voulez stocker l'image 
+ISO. Utilisez _mkdir_ pour créer un nouveau répertoire si nécessaire.
 +
 Notez que les noms de fichiers réels peuvent changer, vous pourriez avoir à 
 aller sur http://www.linuxcnc.org/index.php/french[le site de LinuxCNC] et y suivre 
-le lien *Téléchargement* pour obtenir le nom réel du fichier. Dans la plupart 
+le lien _Téléchargement_ pour obtenir le nom réel du fichier. Dans la plupart 
 des navigateurs, vous pouvez faire un clic droit sur le lien et sélectionner 
-*Copier le lien vers*, ou similaire, coller ensuite ce lien dans la fenêtre du 
-terminal avec un clic droit puis en choisissant *Coller*.
+_Copier le lien vers_, ou similaire, coller ensuite ce lien dans la fenêtre du 
+terminal avec un clic droit puis en choisissant _Coller_.
 +
 .Ubuntu 10.04 Lucid Lynx et LinuxCNC (version actuelle)
 ****
 Pour obtenir la version de Ubuntu 10.04 Lucid Lynx, copier l'un des liens 
-ci-dessous dans la fenêtre du terminal et appuyez sur *Entrée*:
+ci-dessous dans la fenêtre du terminal et appuyez sur _Entrée_:
 
 Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
@@ -205,16 +205,16 @@ Dans la plupart des Windows elle est dans _Programmes_ -> _Accessoires_ ->
 _Commande_
 +
 Naviguez jusqu'au répertoire dans lequel s'est installé wget.
-Habituellement il est dans *C:\Program Files\GnuWin32\bin* si 
+Habituellement il est dans _C:\Program Files\GnuWin32\bin_ si 
 c'est le cas, tapez la commande:
 +
 ----
 cd C:\Program Files\GnuWin32\bin
 ----
 +
-et le prompt devrait changer pour: *C:\Program Files\GnuWin32*
+et le prompt devrait changer pour: _C:\Program Files\GnuWin32_
 +
-Tapez les commandes *wget* dans la fenêtre et pressez Entrée comme précédemment. 
+Tapez les commandes _wget_ dans la fenêtre et pressez Entrée comme précédemment. 
 
 == Graver l'image ISO du CD
 
@@ -240,7 +240,7 @@ Allez dans le répertoire contenant l'image ISO précédemment téléchargée av
 cd répertoire_de_l'image
 ----
 
-Puis lancez la commande *md5sum* suivie du nom du fichier, exemple:
+Puis lancez la commande _md5sum_ suivie du nom du fichier, exemple:
 
 ----
 md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
@@ -273,7 +273,7 @@ ubuntu-10.04-linuxcnc1-i386.iso: OK
 ==== Graver le CD sous Linux
 
 - Insérez un CD vierge dans votre graveur. Une fenêtre surgissante
-   *CD/DVD Creator* ou *Choisissez le type de disque* va s'ouvrir. 
+   _CD/DVD Creator_ ou _Choisissez le type de disque_ va s'ouvrir. 
    Fermez la, elle ne sera pas utilisée.
 - Naviguez jusqu'au répertoire contenant l'image ISO.
 - Faites un clic droit sur le fichier de l'image ISO et choisissez
@@ -283,7 +283,7 @@ ubuntu-10.04-linuxcnc1-i386.iso: OK
    éviter toute erreur de gravure.
 - Lancez la gravure.
 - Si le choix d'un nom de fichier est demandé pour l'image disque,
-   cliquez juste *OK*.
+   cliquez juste _OK_.
 
 === Sous Windows
 
@@ -320,12 +320,12 @@ essayez le.
 
 Pour savoir si votre ordinateur est utilisable par le générateur de
 trains d'impulsions du logiciel, lancez un test de latence comme
-indiqué dans <<sec:Test-de-latence-IM, cette section>>.
+indiqué <<cha:test-de-latence, dans ce chapitre>>.
 
 == Installer la distribution Ubuntu de LinuxCNC sur votre PC
 
 Si vous avez envie d'aller plus loin, cliquez juste sur l'icône
-*_Install_* se trouvant sur le bureau, répondez à quelques questions (votre
+_Install_ se trouvant sur le bureau, répondez à quelques questions (votre
 nom, votre fuseau horaire, le mot de passe) et faites une installation
 complète en quelques minutes. Notez bien le mot de passe indiqué et le
 nom d'utilisateur. Une fois l'installation complète et que vous êtes
@@ -347,18 +347,18 @@ image::images/axis_2.5_fr.png[]
 === Lancer LinuxCNC
 
 Après installation, LinuxCNC se lance comme un autre programme Linux:
-depuis un terminal en passant la commande *_linuxcnc_*, 
+depuis un terminal en passant la commande _linuxcnc_, 
 ou depuis le menu _Applications_ -> _CNC_.
 
 === Sélecteur de configuration
 
-Par défaut, la boîte de dialogue *Sélecteur de configuration* s'affichera la 
+Par défaut, la boîte de dialogue _Sélecteur de configuration_ s'affichera la 
 première fois que vous lancerez LinuxCNC. Vos propres configurations personnalisées 
 s'affichent dans le haut de la liste, suivies par les différentes configurations 
 fournies en standard.
 Étant donné que chaque exemple de configuration utilise un type différent d'
 interface matérielle, la plupart ne fonctionneront pas sur votre système. Les 
-configurations listées dans la catégorie *Sim* fonctionneront toutes, même sans 
+configurations listées dans la catégorie _Sim_ fonctionneront toutes, même sans 
 matériel raccordé, ce sont des simulations de machines.
 
 .Sélecteur de configuration pour LinuxCNC[[cap:Selecteur-de-configuration]]
@@ -366,19 +366,19 @@ matériel raccordé, ce sont des simulations de machines.
 image::images/configuration-selector1_fr.png[]
 
 Cliquez dans la liste, sur les différentes configurations pour afficher les 
-informations les concernant. Double-cliquez sur une configuration ou cliquez *_OK_* 
-pour démarrer LinuxCNC avec cette configuration. Cochez la case *_Créer un raccourci 
-sur le bureau_* puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. 
+informations les concernant. Double-cliquez sur une configuration ou cliquez _OK_ 
+pour démarrer LinuxCNC avec cette configuration. Cochez la case _Créer un raccourci 
+sur le bureau_ puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. 
 Cette icône vous permettra par la suite de lancer directement LinuxCNC avec cette 
 configuration, sans passer par le sélecteur de configuration.
 
 Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue 
 vous demandera si vous voulez en faire une copie dans votre répertoire home. 
-Si vous répondez *_oui_*, un dossier *linuxcnc* autorisé en écriture sera créé, il 
+Si vous répondez _oui_, un dossier _linuxcnc_ autorisé en écriture sera créé, il 
 contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos 
-besoins. Si vous répondez *_non_*, LinuxCNC démarrera mais pourra se comporter de façon 
+besoins. Si vous répondez _non_, LinuxCNC démarrera mais pourra se comporter de façon 
 étrange, par exemple, les décalages d'origine pièce entrés avec la commande 
-*_Toucher_* ne seront pas pris en compte, ce comportement est lié à ce moment, à 
+_Toucher_ ne seront pas pris en compte, ce comportement est lié à ce moment, à 
 l'absence de répertoire autorisé en écriture sans lequel les paramètres ne 
 peuvent être enregistrés.
 
@@ -391,11 +391,11 @@ image::images/copy-configuration_fr.png[]
 Après avoir trouvé l'exemple de configuration qui utilise
 le même matériel que votre machine, et en avoir enregistré une copie dans votre 
 répertoire personnel, vous pouvez la personnaliser en fonction des besoins 
-spécifiques à votre machine. Consultez le *Manuel de l'intégrateur* pour tous 
+spécifiques à votre machine. Consultez le _Manuel de l'intégrateur_ pour tous 
 les détails de configuration.
 
 Si vous souhaitez créer une configuration personnalisée, vous pouvez utiliser 
-pour cela, un des assistants graphiques de configuration, *StepConf* ou *PncConf* 
+pour cela, un des assistants graphiques de configuration, _StepConf_ ou _PncConf_ 
 selon votre type de machine.
 
 == Les mises à jour de LinuxCNC (((Mises à jour de LinuxCNC)))

@@ -63,7 +63,7 @@ valeurs de vitesse maximum et d'accélération maximum sont trop élevées.
 Si un backlash a été ajouté, il est nécessaire d'augmenter
 STEPGEN_MAXACCEL aux environs du double de MAX_ACCELERATION dans la
 section [AXIS] du fichier INI et ce, pour chacun des axes sur lesquels
-un backlash a été ajouté. LinuxCNC utilise une *extra accélération* au
+un backlash a été ajouté. LinuxCNC utilise une _extra accélération_ au
 moment de l'inversion de sens pour reprendre le jeu. Sans correction du
 backlash, l'accélération pour le générateur de pas peut être juste un
 peu plus basse que celle du planificateur de mouvements.
@@ -76,7 +76,7 @@ Quand vous rencontrez cette erreur:
 
 C'est généralement que la variable BASE_PERIOD dans la section
 [EMCMOT] du fichier ini a une valeur trop petite. Vous devez lancer un
-*Latency Test* pendant une durée plus longue pour voir si vous n'avez
+_Latency Test_ pendant une durée plus longue pour voir si vous n'avez
 pas un délai excessif quelque part, responsable de ce problème. Si
 c'est le cas réajuster alors BASE_PERIOD avec la nouvelle valeur
 obtenue.
@@ -91,7 +91,7 @@ effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
 centaines de milliers de messages d'erreur par seconde si plus d'un
 était affiché.
 
-Plus d'informations <<sec:Test-de-latence-IM, sur le test de latence.>>
+Plus d'informations <<cha:test-de-latence, sur le test de latence.>>
 
 == Tester
 
