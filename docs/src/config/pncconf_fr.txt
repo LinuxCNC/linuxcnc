@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-= Assistant graphique de configuration Mesa[[cha:Assistant-graphique-PNCConf]]
+= Assistant graphique de configuration Mesa
 
+[[cha:Assistant-graphique-PNCConf]]
 (((Assistant graphique de configuration Mesa pncconf)))
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
@@ -72,7 +73,7 @@ bureau_ qui créera un lien sur le bureau pointant sur ce nouveau fichier de
 configuration, _Créer un lanceur_ qui créera un lanceur sur le bureau pour
 LinuxCNC dans cette configuration.
 Si ces options ne sont pas utilisées, le nouveau fichier de configuration se
-trouvera dans le dossier *+~/linuxcnc/configs+*. Il est toujours  possible de
+trouvera dans le dossier _~/linuxcnc/configs_. Il est toujours  possible de
 lancer LinuxCNC normalement et de sélectionner la configuration souhaitée dans la
 liste.
 
@@ -130,7 +131,7 @@ Ce test doit fonctionner plusieurs minutes, en fait, le plus longtemps possible.
 15 minutes est un minimum. Pendant le test, essayer d'utiliser le plus possible
 l'ordinateur, le réseau, le port USB, les disques durs, l'affichage.
 Observer et noter si une action particulière dégrade le temps de latence.
-A la fin, il sera possible de connaitre la *base period jitter*, la latence de
+A la fin, il sera possible de connaitre la _base period jitter_, la latence de
 base. Une valeur en dessous de 20000 est excellente et permet une génération
 rapide des impulsions de pas avec cette machine.+
 20000 à 50000 est assez bon pour la génération de pas. +
@@ -210,7 +211,7 @@ _Liste des interfaces graphiques_
 Spécifie les interfaces utilisateur graphiques que LinuxCNC peut utiliser.
 Chacune dispose d'options particulières.
 
-*AXIS*
+_AXIS_
 
 * Supporte les tours.
 * C'est l'interface la plus utilisée et la plus développée.
@@ -219,7 +220,7 @@ Chacune dispose d'options particulières.
 * Elle dispose d'un affichage graphique en 3D.
 * Elle est intégrable sur les barres de tâches ou sur le bureau.
 
-*TOUCHY*
+_TOUCHY_
 
 * Touchy est une interface conçue pour les écrans tactiles.
 * Elle ne nécessite que quelques interrupteurs physiques et une manivelle de
@@ -232,13 +233,13 @@ panneaux de contrôle).
 * Elle n'a pas de fenêtre de suivi du parcours d'outil.
 * L'aspect peut être modifié avec des thèmes personnalisés.
 
-*MINI*
+*MINI_
 
 * Est fourni en standard sur les machines Sherline.
 * N'utilise pas d'arrêt d'urgence (ESTOP).
 * Pas de possibilité d'intégrer un panneau de contrôle.
             
-*TkLinuxCNC*
+_TkLinuxCNC_
 
 * Contraste élevé grâce à un fond bleu.
 * Fenêtre graphique séparée.
@@ -341,8 +342,8 @@ _Panneaux de contrôle virtuels_
 Les panneaux de contrôle virtuels permettent d'ajouter des contrôles
 et des afficheurs personnalisés. AXIS et Touchy peuvent intégrer ces
 contrôles dans une zone déterminée de leur écran. Il y a deux sortes de
-panneaux de contrôle (VCP), pyVCP qui utilise *Tkinter* pour dessiner
-l'écran ou GLADE VCP qui utilise *GTK*.
+panneaux de contrôle (VCP), pyVCP qui utilise _Tkinter_ pour dessiner
+l'écran ou GLADE VCP qui utilise _GTK_.
 
 Panneau PyVCP::
      PyVCP est un écran construit par un fichier XML. Il ne peut pas être

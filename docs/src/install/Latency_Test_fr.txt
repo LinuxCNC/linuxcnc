@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Test des capacités temps réel
-
-[[cha:test-de-latence]] (((Test de latence)))
+[[cha:test-de-latence]]
+= Test des capacités temps réel (((Test de latence)))
 
 == Test de latence
 

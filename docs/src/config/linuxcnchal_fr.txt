@@ -1,10 +1,8 @@
 :lang: fr
 :toc:
 
-= LinuxCNC et HAL
-
 [[cha:LinuxCNC-et-HAL]]
-(((LinuxCNC et HAL)))
+= LinuxCNC et HAL (((LinuxCNC et HAL)))
 
 == motion (temps réel)
 

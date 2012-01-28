@@ -1,15 +1,15 @@
 :lang: fr
 :toc:
 
-= Exemples pour HAL
+= Exemples pour HAL 
 
-(((Exemples pour HAL)))
+[[Exemples-pour-HAL]] (((Exemples pour HAL)))
 
 Tous ces exemples s'appuient sur une configuration créée par Stepconf, 
-elle a deux threads, *base-thread* et *servo-thread*. 
+elle a deux threads, _base-thread_ et _servo-thread_. 
 
-L'assistant de configuration Stepconf aura créé le fichier vide *custom.hal* 
-et le fichier *custom_postgui.hal*.
+L'assistant de configuration Stepconf aura créé le fichier vide _custom.hal_ 
+et le fichier _custom_postgui.hal_.
 
 Le fichier custom.hal sera chargé après le fichier de configuration de HAL, 
 le fichier custom_postgui.hal sera chargé après que l'interface graphique ne le
@@ -21,15 +21,15 @@ Dans cet exemple, il est supposé que la configuration a été réalisée et
 qu'il faut lui ajouter la fenêtre de changement d'outil de HAL. Le composant
 de changement d'outil manuel de HAL est surtout intéressant si les outils
 sont mesurables avec précision en longueur et que les offsets sont stockés 
-dans la table d'outils. Si il est nécessaire de faire un *_Toucher_* pour chaque
+dans la table d'outils. Si il est nécessaire de faire un _Toucher_ pour chaque
 outil, il sera préférable de scinder le programme G-code en plusieurs tronçons. 
 Pour utiliser la fenêtre de changement manuel d'outil de HAL, il faut d'abord 
-charger le composant *hal_manualtoolchange* puis envoyer l'ordre 
-*iocontrol tool change* vers le *change* de hal_manualtoolchange ainsi 
-qu'envoyer le *changed* de hal_manualtoolchange en retour sur le 
+charger le composant _hal_manualtoolchange_ puis envoyer l'ordre 
+_iocontrol tool change_ vers le _change_ de hal_manualtoolchange ainsi 
+qu'envoyer le _changed_ de hal_manualtoolchange en retour sur le 
 iocontrol tool changed.
 
-Voici un exemple *avec* utilisation du composant de HAL, pour clarifier tout cela: 
+Voici un exemple _avec_ utilisation du composant de HAL, pour clarifier tout cela: 
 ----
 loadusr -W hal_manualtoolchange 
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
@@ -38,7 +38,7 @@ net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
 ----
 
-Et voici un exemple *sans* le composant de changement manuel: 
+Et voici un exemple _sans_ le composant de changement manuel: 
 ----
 net tool-number <= iocontrol.0.tool-prep-number 
 net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed 
@@ -47,15 +47,15 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 == Calcul de vitesse
 
-Cet exemple utilise *ddt*, *mult2* et *abs* pour calculer la vitesse de 
+Cet exemple utilise _ddt_, _mult2_ et _abs_ pour calculer la vitesse de 
 déplacement sur un axe. Pour plus de détails, voir la section 
-<<sec:Composants-de-HAL, sur les composants de HAL>>.
+<<cha:Composants-de-HAL, sur les composants de HAL>>.
 
 En premier il convient de vérifier si la configuration contient déjà des 
 composants temps réel. Il est possible de le vérifier en ouvrant la fenêtre de 
 Halshow et en cherchant les composants dans la section des pins. Si il y en a
 déjà en activité, il faudra augmenter leur nombre et ajuster l'instance de ces 
-composants à la valeur correcte. Ajouter le code suivant dans le fichier *custom.hal*.
+composants à la valeur correcte. Ajouter le code suivant dans le fichier _custom.hal_.
 
 Charger les composants temps réel.
 ----
@@ -80,37 +80,39 @@ net X-ABS abs.0.in <= mult2.0.out
 net X-IPM abs.0.out 
 ----
 
-Dans la dernière section, nous avons fixé le *mult2.0.in1* à 60 pour convertir
+Dans la dernière section, nous avons fixé le _mult2.0.in1_ à 60 pour convertir
 les unités par seconde en unités par minute (dans cet exemple, des pouces/mn), 
-nous l'obtenons sur la sortie *ddt.0.out*.
+nous l'obtenons sur la sortie _ddt.0.out_.
 
-La commande *xpos-cmd* envoie la position commandée à l'entrée *ddt.0.in*. 
-Le *ddt* calcule la dérivée de la variation du signal sur son entrée.
+La commande _xpos-cmd_ envoie la position commandée à l'entrée _ddt.0.in_. 
+Le _ddt_ calcule la dérivée de la variation du signal sur son entrée.
 
 La sortie ddt2.0.out est multipliée par 60 pour obtenir des unités par minute.
 
-La sortie mult2.0.out est envoyée au composant *abs* pour obtenir la valeur 
+La sortie mult2.0.out est envoyée au composant _abs_ pour obtenir la valeur 
 absolue.
 
 La figure suivante montre le résultat quand l'axe X se déplace à 15 unités/mn 
 dans la direction négative. Noter que la valeur absolue peut être prise sur
-la pin *abs.0.out* ou le signal X-IPM.
+la pin _abs.0.out_ ou le signal X-IPM.
 
-.Exemple avec la vitesse[[cap:Velocity-Example]]
+[[cap:Velocity-Example]]
+.Exemple avec la vitesse
+(((Velocity exemple)))
 
 image::images/velocity-01.png[]
 
 == Amortissement d'un signal
 
-Cette exemple montre comment les composants de HAL *lowpass*, *limit2* ou
-*limit3* peuvent être utilisés pour amortir de brusques changements d'un signal.
+Cette exemple montre comment les composants de HAL _lowpass_, _limit2_ ou
+_limit3_ peuvent être utilisés pour amortir de brusques changements d'un signal.
 
 Nous sommes sur un tour dont la broche est pilotée par un servomoteur. Si nous 
 envoyions directement la consigne de vitesse de broche sur le servo, celui-ci
 chercherait, à partir de la vitesse courante, à atteindre la vitesse commandée
 le plus vite possible. Cette situation est problématique et peut détériorer
 le matériel. Pour amortir ce changement de vitesse, nous pouvons faire passer 
-la sortie *motion.spindle-speed-out* à travers un limiteur avant d'aller au PID, 
+la sortie _motion.spindle-speed-out_ à travers un limiteur avant d'aller au PID, 
 de sorte que la valeur de commande du PID soit amortie.
 
 Les trois composants intégrés pour amortir le signal seront:
@@ -127,10 +129,10 @@ limit3::
 lowpass::
 - Filtre passe-bas. 
 
-Pour plus de détails voir <<sec:Composants-de-HAL, les composants de HAL>> 
+Pour plus de détails voir <<cha:Composants-de-HAL, les composants de HAL>> 
 ou les man pages des composants concernés.
 
-Placer le code suivant dans un fichier appelé *softstart.hal*. 
+Placer le code suivant dans un fichier appelé _softstart.hal_. 
 ----
 loadrt threads period1=1000000 name1=thread  
 loadrt siggen  
@@ -163,14 +165,14 @@ Pour démarrer l'oscilloscope de HAL pour la première fois, cliquer _OK_ pour
 accepter le thread par défaut.
 
 Ensuite, il faut ajouter les signaux à suivre aux canaux du scope. Cliquer sur 
-le canal _1_ puis sélectionner *square* depuis l'onglet _Signaux_. Répéter 
-pour les canaux suivants en ajoutant *lowpass*, *limit2* et *limit3*.
+le canal _1_ puis sélectionner _square_ depuis l'onglet _Signaux_. Répéter 
+pour les canaux suivants en ajoutant _lowpass_, _limit2_ et _limit3_.
 
 Ensuite, pour régler le signal du déclencheur cliquer sur le bouton 
-_Source_ est sélectionner *square*. Le bouton devrait changer pour 
+_Source_ est sélectionner _square_. Le bouton devrait changer pour 
 _Source Canal 1_.
 
-Puis, cliquer sur _Simple_ dans le groupe _Mode "Run"_. L'oscillo 
+Puis, cliquer sur _Simple_ dans le groupe _Mode Run_. L'oscillo 
 devrait faire un balayage puis, afficher les traces.
 
 Pour séparer les signaux et mieux les visualiser, cliquer sur un canal et 
@@ -190,10 +192,11 @@ setp lowpass.0.gain .01
 
 Après un changement de réglage, relancer Halscope pour visualiser l'effet.
 
-Pour terminer, taper *exit* dans le terminal pour fermer halrun et halscope. 
+Pour terminer, taper _exit_ dans le terminal pour fermer halrun et halscope. 
 Ne pas refermer le terminal avec halrun en marche, la mémoire ne serait pas
 vidée proprement, ce qui pourrait empêcher LinuxCNC de se charger.
 
-Pour tout savoir sur Halscope et Halrun <<cha:Tutoriel-HAL, voir le tutoriel de HAL>>
+Pour tout savoir sur Halscope et Halrun <<sec:Intro-tutoriel, voir le
+tutoriel de HAL>>.
 
 

@@ -1,10 +1,8 @@
 :lang: fr
 :toc:
 
-= Les O-codes
-
 [[sec:Les-O-codes]]
-(((Les O-codes)))
+= Les O-codes (((Les O-codes)))
 
 == Utilisation des O-codes
 

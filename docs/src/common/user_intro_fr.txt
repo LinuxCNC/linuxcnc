@@ -57,7 +57,7 @@ l'opérateur de la machine-outil. LinuxCNC est fourni avec plusieurs
 interfaces utilisateurs graphiques:
 
 
-- *AXIS*, une GUI basée sur OpenGL, avec prévisualisation du G-Code.
+- _AXIS_, une GUI basée sur OpenGL, avec prévisualisation du G-Code.
    Elle offre un aperçu permanent du parcours d'outil.
    C'est l'interface qui a le développement le plus actif.
 
@@ -66,14 +66,14 @@ interfaces utilisateurs graphiques:
 image::images/axis_2.5_fr.png[]
 
 
-- *Mini*(((mini))), une Tcl/Tk GUI 
+- _Mini_(((mini))), une Tcl/Tk GUI 
 
 .L'interface graphique Mini[[fig:Interface-graphique-Mini]]
 
 image::images/mini_fr.png[]
 
 
-- *tklinuxcnc*(((tklinuxcnc))), une interface basée sur Tcl/Tk.
+- _tklinuxcnc_(((tklinuxcnc))), une interface basée sur Tcl/Tk.
     C'est l'interface la plus populaire après Axis
 
 .L'interface graphique tklinuxcnc[[fig:L-interface-graphique-tklinuxcnc]]
@@ -81,19 +81,19 @@ image::images/mini_fr.png[]
 image::images/tklinuxcnc_fr.png[]
 
 
-- *Keystick*(((keystick))), c'est une interface minimaliste textuelle, 
+- _Keystick_(((keystick))), c'est une interface minimaliste textuelle, 
 appropriée pour les installations légères (sans serveur X par exemple).
 
 .L'interface textuelle Keystick[[fig:L-interface-Keystick]]
 
 image::images/keystick.png[]
 
-- *XLinuxCNC*, un programme X-Windows(((xlinuxcnc)))
+- _XLinuxCNC_, un programme X-Windows(((xlinuxcnc)))
 
-- *halui*, une interface utilisateur basée sur HAL, qui permet de contrôler LinuxCNC
+- _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler LinuxCNC
     en utilisant des boutons et des interrupteurs
 
-- *linuxcncrsh*, une interface utilisateur basée sur telnet, qui permet aux commandes
+- _linuxcncrsh_, une interface utilisateur basée sur telnet, qui permet aux commandes
     d'être envoyées à partir d'ordinateurs distants de celui de LinuxCNC
 
 == Langues

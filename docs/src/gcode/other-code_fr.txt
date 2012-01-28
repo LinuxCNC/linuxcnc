@@ -1,10 +1,8 @@
 :lang: fr
 :toc:
 
-= Les autres codes
-
 [[cha:Les-autres-codes]]
-(((Les autres codes)))
+= Les autres codes (((Les autres codes)))
 
 [[sec:F-Vitesse]]
 == F: Réglage de la vitesse d'avance travail

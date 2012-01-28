@@ -1,16 +1,16 @@
 :lang: fr
 :toc:
 
-= Commandes et composants de base
-
 [[sec:Commandes-de-HAL]]
+= Commandes et composants de base (((Commandes de HAL)))
+
 == Commandes de Hal
 
 Des informations plus détaillées peuvent être trouvées dans la man
-page en tapant *man halcmd* dans une console. Pour voir la
+page en tapant _man halcmd_ dans une console. Pour voir la
 configuration de HAL ainsi que le statut de ses pins et paramètres
-utiliser la fenêtre HAL Configuration dans le menu *Machine* d'AXIS.
-Pour visualiser le statut des pins, ouvrir l'onglet *Watch* puis
+utiliser la fenêtre HAL Configuration dans le menu _Machine_ d'AXIS.
+Pour visualiser le statut des pins, ouvrir l'onglet _Watch_ puis
 cliquer dans l'arborescence sur les pins qui doivent être visualisées
 dans la fenêtre watch.
 
@@ -20,7 +20,7 @@ image::images/HAL_Configuration.png[]
 
 === loadrt
 
-La commande *loadrt* charge un composant temps réel de HAL. Les
+La commande _loadrt_ charge un composant temps réel de HAL. Les
 composants temps réel doivent être ajoutés au thread temps réel pour
 être fonctionnels. Il n'est pas possible de charger un composant de
 l'espace utilisateur dans l'espace temps réel.
@@ -35,7 +35,7 @@ loadrt mux4 count=1
 
 === addf
 
-La commande *addf* ajoute une fonction à un thread temps réel. Si
+La commande _addf_ ajoute une fonction à un thread temps réel. Si
 l'assistant StepConf a été utilisé pour créer la configuration, deux
 threads ont été créés.
 
@@ -56,7 +56,7 @@ addf mux4 servo-thread
 
 === loadusr[[sec:loadusr]]
 
-La commande *loadusr* charge un composant de HAL de l'espace
+La commande _loadusr_ charge un composant de HAL de l'espace
 utilisateur. Les programmes de l'espace utilisateur ont leur propre
 process séparé qui optionellement communique avec les autres composants
 de HAL via leurs pins et paramètres. Il n'est pas possible de charger
@@ -86,13 +86,13 @@ loadusr halui
 loadusr -Wn spindle gs2_vfd -n spindle 
 ----
 
-En anglais ça donne *loadusr wait for name spindle component gs2_vfd name spindle*. 
+En anglais ça donne _loadusr wait for name spindle component gs2_vfd name spindle_. 
 Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
 
 === net
 
-La commande *net* crée une *connexion* entre un signal et une ou
-plusieurs pins. Les indicateurs de direction *<=* et *=>* sont seulement
+La commande _net_ crée une _connexion_ entre un signal et une ou
+plusieurs pins. Les indicateurs de direction _<=_ et _=>_ sont seulement
 des aides à la lecture, ils n'ont pas d'autre utilité.
 
 Syntaxe et exemple:
@@ -104,9 +104,9 @@ net both-home-y <= parport.0.pin-11-in
 ----
 
 Chaque signal ne peut avoir qu'une seule source (une seule pin de HAL
-*out*) et autant de *lecteurs* (des pins de HAL *in*) que souhaité.
+_out_) et autant de _lecteurs_ (des pins de HAL _in_) que souhaité.
 Dans la colonne Dir de la fenêtre de configuration de HAL il est
-possible de voir quelles pins sont *in* et quelles pins sont *out*.
+possible de voir quelles pins sont _in_ et quelles pins sont _out_.
 
 Pour faire cela en une ligne:
 
@@ -122,12 +122,12 @@ avec les lecteurs des lignes suivantes:
 net xStep <= stepgen.0.out => parport.0.pin-02-out 
 ----
 
-Les pins appelées I/O pins comme *index-enable*, ne suivent pas cette règle. 
+Les pins appelées I/O pins comme _index-enable_, ne suivent pas cette règle. 
 
 === setp[[sub:setp]]
 (((setp)))
 
-La commande *setp* ajuste la valeur d'une pin ou d'un paramètre. Les
+La commande _setp_ ajuste la valeur d'une pin ou d'un paramètre. Les
 valeurs valides dépendront du type de la pin ou du paramètre.
 
  - bit = true ou 1 et false ou 0 (True, TRUE, true sont toutes valides)
@@ -143,7 +143,7 @@ http://fr.wikipedia.org/wiki/Nombre_flottant[http://fr.wikipedia.org/wiki/Nombre
 Les paramètres peuvent être positionnés avant utilisation ou pendant
 l'utilisation, toutefois certains composants ont des paramètres qui
 doivent être positionnés avant utilisation. Il n'est pas possible
-d'utiliser *setp* sur une pin connectée à un signal.
+d'utiliser _setp_ sur une pin connectée à un signal.
 
 Syntaxe et exemple:
 
@@ -155,7 +155,7 @@ setp parport.0.pin-08-out TRUE
 
 ==== unlinkp
 
-La commande *unlinkp* déconnecte la pin du signal auquel elle est connectée. 
+La commande _unlinkp_ déconnecte la pin du signal auquel elle est connectée. 
 Si aucun signal n'a été connecté à la pin avant de lancer cette commande, 
 rien ne se passe.
 
@@ -171,9 +171,9 @@ unlinkp parport.0.pin-02-out
 
 ==== linksp
 
-La commande *linksp* a été incluse dans la commande *net*.
+La commande _linksp_ a été incluse dans la commande _net_.
 
-La commande *linksp* crée une *connexion* entre un signal et une pin.
+La commande _linksp_ crée une _connexion_ entre un signal et une pin.
 
 Syntaxe et exemple:
 
@@ -182,9 +182,9 @@ Syntaxe et exemple:
 
 ==== linkps
 
-La commande *linkps* a été incluse dans la commande *net*.
+La commande _linkps_ a été incluse dans la commande _net_.
 
-La commande *linksp* crée une *connexion* entre une pin et un signal. C'est la
+La commande _linksp_ crée une _connexion_ entre une pin et un signal. C'est la
 même chose que linksp mais les arguments sont inversés.
 
 Syntaxe et exemple:
@@ -197,9 +197,9 @@ linkps parport.0.pin-02-out X-Step
 
 ==== newsig
 
-the command *newsig* creates a new HAL signal by the name <signame>
-and the data type of <type>. Type must be *bit*, *s32*, *u32* or
-*float*. Error if <signame> already exists.
+the command _newsig_ creates a new HAL signal by the name <signame>
+and the data type of <type>. Type must be _bit_, _s32_, _u32_ or
+_float_. Error if <signame> already exists.
 
 Syntaxe et exemple:
 
@@ -208,7 +208,7 @@ Syntaxe et exemple:
 +newsig Xstep bit+ 
 
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
-la man page de *halrun*.
+la man page de _halrun_.
 
 == HAL Data[[sec:HAL-Data]] 
 footnote:[NDT la description des données de HAL reste en Anglais, elle sont 
@@ -222,7 +222,7 @@ A bit value is an on or off.
 
 === Float (((Float)))
 
-A *float* is a floating point number. In other words the decimal point
+A _float_ is a floating point number. In other words the decimal point
 can move as needed.
 
  - float values = a 32 bit floating point value, with approximately 24
@@ -234,14 +234,14 @@ http://fr.wikipedia.org/wiki/Nombre_flottant[http://fr.wikipedia.org/wiki/Nombre
 
 === s32 (((s32)))
 
-An *s32* number is a whole number that can have a negative or positive
+An _s32_ number is a whole number that can have a negative or positive
 value.
 
  - s32 values = integer numbers -2147483648 to 2147483647
 
 === u32 (((u32)))
 
-A *u32* number is a whole number that is positive only.
+A _u32_ number is a whole number that is positive only.
 
  - u32 values = integer numbers 0 to 4294967295
 
@@ -273,10 +273,10 @@ est créé. Ces paramètres permettent d'encadrer le temps d'exécution d'un com
 +.tmax+(((tmax))) 
 
 
-*.time* est le nombre de cycles du CPU qu'il a fallu pour exécuter la fonction.
+_.time_ est le nombre de cycles du CPU qu'il a fallu pour exécuter la fonction.
 
-*.tmax* est le nombre maximum de cycles du CPU qu'il a fallu pour exécuter la fonction. 
-*.tmax* est un paramètre en lecture/écriture, de sorte que l'utilisateur peut le 
+_.tmax_ est le nombre maximum de cycles du CPU qu'il a fallu pour exécuter la fonction. 
+_.tmax_ est un paramètre en lecture/écriture, de sorte que l'utilisateur peut le 
 mettre à 0 pour se débarrasser du premier temps d'initialisation de la fonction.
 
 == Composants de logiques combinatoire
@@ -289,7 +289,7 @@ table de vérité des portes.
 
 === and2
 
-Le composant *and2* est une porte *and* à deux entrées. Sa table de
+Le composant _and2_ est une porte _and_ à deux entrées. Sa table de
 vérité montre la sortie pour chaque combinaison des entrées.
 
 Syntaxe
@@ -319,7 +319,7 @@ Table de vérité
 
 === not
 
-Le composant *not* est un simple inverseur d'état.
+Le composant _not_ est un simple inverseur d'état.
 
 Syntaxe
 
@@ -346,7 +346,7 @@ Table de vérité
 
 === or2
 
-Le composant *or2* est une porte OR à deux entrées.
+Le composant _or2_ est une porte OR à deux entrées.
 
 Syntaxe
 
@@ -375,7 +375,7 @@ Table de vérité
 
 === xor2
 
-Le composant *xor2* est une porte XOR à deux entrées (OU exclusif).
+Le composant _xor2_ est une porte XOR à deux entrées (OU exclusif).
 
 Syntaxe
 
@@ -426,9 +426,9 @@ parallèle. Ainsi en suivant la table de vérité du and2, si les broches
 === Somme pondérée  (weighted_sum)
 
 La somme pondérée converti un groupe de bits en un entier. La conversion est la 
-somme des *poids* des bits présents plus n'importe quel offset. C'est similaire 
-au *binaire codé décimal* mais avec plus d'options. Le bit *hold* interrompt le
-traitement des entrées, de sorte que la valeur *sum* ne change plus.
+somme des _poids_ des bits présents plus n'importe quel offset. C'est similaire 
+au _binaire codé décimal_ mais avec plus d'options. Le bit _hold_ interrompt le
+traitement des entrées, de sorte que la valeur _sum_ ne change plus.
 
 La syntaxe suivante est utilisée pour charger le composant weighted_sum.
 
@@ -443,7 +443,7 @@ Pour mettre à jour la weighted_sum, le process_wsums doit être attaché à un 
 Ce qui met à jour le composant weighted_sum.
 
 Dans l'exemple suivant, une copie de la fenêtre de configuration de HAL d'Axis, 
-les bits *0* et *2* sont TRUE, ils n'ont pas d'offset. Le poids (*weight*) du bit 0
+les bits _0_ et _2_ sont TRUE, ils n'ont pas d'offset. Le poids (_weight_) du bit 0
 est 1, celui du bit 2 est 4, la somme est donc 5.
 
 .weighted_sum (somme pondérée)

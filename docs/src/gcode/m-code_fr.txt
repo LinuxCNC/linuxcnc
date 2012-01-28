@@ -1,11 +1,8 @@
 :lang: fr
 :toc:
 
-
-= Les M-codes
-
 [[cha:Les-M-codes]]
-(((Les M-codes)))
+= Les M-codes (((Les M-codes)))
 
 == Table des M-codes
 

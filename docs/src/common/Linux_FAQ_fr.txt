@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= Petite FAQ Linux(((Linux FAQ)))
+[[cha:FAQ-Linux]]
+= Petite FAQ Linux (((FAQ Linux)))
 
 Voici quelques commandes et techniques de base pour l'utilisateur
 débutant sous Linux. Beaucoup d'autres informations peuvent être

@@ -1,11 +1,8 @@
 :lang: fr
 :toc:
 
-
-= Tout le G-code de LinuxCNC
-
 [[cha:Le-G-code]]
-(((Tout le G-code)))
+= Tout le G-code de LinuxCNC (((Tout le G-code)))
 
 == Conventions d'écriture du G-code
 
