@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-= Les O-codes[[sec:Les-O-codes]]
+= Les O-codes
 
+[[sec:Les-O-codes]]
 (((Les O-codes)))
 
 == Utilisation des O-codes
@@ -14,6 +15,7 @@ après la lettre *O*. Il faut prendre soin de bien faire correspondre les
 adresses des O-codes.
 
 .Exemple de numérotation
+
 ----
 o100 sub
 (noter que les blocs if-endif utilisent des numéros différents)
@@ -38,11 +40,11 @@ chiffre *0* qui peut être tapé par erreur. Par exemple: +
 (((Sous-programmes: sub, endsub, return, call)))
 (((sub)))(((endsub)))(((return)))(((call)))
 
-Les sous-programmes s'étendent d'un *O- sub* à un *O- endsub*. 
+Les sous-programmes s'étendent d'un _O- sub_ à un _O- endsub_. 
 Les lignes, à l'intérieur du sous-programme (le corps du
 sous-programme), ne sont pas exécutées dans l'ordre, mais 
 elles sont exécutées à chaque fois que le sous-programme 
-est appelé avec un *O-call*. 
+est appelé avec un _O-call_.
 
 ----
 O100 sub (Sous-programme pour allez à l'origine machine)
@@ -52,18 +54,18 @@ O100 endsub
 O100 call
 ----
 
-À l'intérieur d'un sous-programme, *O- return* peut être exécuté,
+À l'intérieur d'un sous-programme, _O- return_ peut être exécuté,
 pour retourner immédiatement au code appelant,
-comme si *O- endsub* avait été rencontré.
+comme si _O- endsub_ avait été rencontré.
 
-*O- call* peut prendre jusqu'à 30 arguments optionnels, qui sont
-passés au sous-programme comme *#1*, *#2* , ..., *#N*. Les paramètres de *#N+1* à
-*#30* ont la même valeur dans le contexte de l'appel. 
+_O- call_ peut prendre jusqu'à 30 arguments optionnels, qui sont
+passés au sous-programme comme _#1_, _#2_ , ..., _#N_. Les paramètres de _#N+1_ à
+_#30_ ont la même valeur dans le contexte de l'appel. 
 Au retour du sous-programme, les valeurs des
 paramètres #1 jusqu'à #30 (quel que soit le nombre d'arguments) sont
 restaurés aux valeurs qu'ils avaient avant l'appel.
 
-Parce que *1 2 3* est analysé comme le nombre 123, les paramètres
+Parce que _1 2 3_ est analysé comme le nombre 123, les paramètres
 doivent être placés entre crochets. L'appel de sous-programme suivant,
 s'effectue avec 3 arguments:
 
@@ -77,7 +79,7 @@ appelés depuis d'autres fonctions et peuvent s'appeler eux même
 récursivement, s'il est judicieux de le faire. Le niveau maximum
 d'imbrication des sous-programmes est de 10.
 
-Les sous-programmes n'ont pas de *valeur de retour*, mais ils peuvent
+Les sous-programmes n'ont pas de _valeur de retour_, mais ils peuvent
 changer la valeur des paramètres au dessus de #30 et ces changements
 sont visibles depuis le code appelant. Les sous-programmes peuvent
 aussi changer la valeur des paramètres nommés globaux.
@@ -86,9 +88,9 @@ aussi changer la valeur des paramètres nommés globaux.
 (((Boucles: do, while, endwhile, break, continue)))
 (((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
-La boucle *while* a deux structures possibles: while/endwhile et do/while. 
+La boucle _while_ a deux structures possibles: while/endwhile et do/while. 
 Dans chaque cas, la boucle est quittée quand la condition 
-du *while* devient fausse.
+du _while_ devient fausse.
 
 ----
 (dessine la forme d'une dent de scie)
@@ -101,16 +103,16 @@ G1 Y[#1/10] X1
 O101 endwhile
 ----
 
-À l'intérieur d'une boucle while, *O- break*, quitte immédiatement
-la boucle et *O- continue*, saute immédiatement à la prochaine
-évaluation de la condition du *while*. Si elle est vraie, la boucle
+À l'intérieur d'une boucle while, _O- break_, quitte immédiatement
+la boucle et _O- continue_, saute immédiatement à la prochaine
+évaluation de la condition du _while_. Si elle est vraie, la boucle
 recommence au début. Si elle est fausse, la boucle est quittée.
 
 == Conditionnel: *if*, *else*, *endif*
 (((Conditional: if, else, endif)))
 (((if)))(((else)))(((endif)))
 
-Le *if* conditionnel exécute un groupe d'instructions si sa condition
+Le _if_ conditionnel exécute un groupe d'instructions si sa condition
 est vraie et un autre groupe si elle est fausse.
 
 ----
@@ -125,8 +127,8 @@ O102 endif
 == Répétition: *Repeat*
 (((Repeat)))
 
-La répétition *repeat*, exécutera les blocs contenus entre *repeat* et
-*endrepeat* le nombre de fois spécifié entre crochets. L'exemple
+La répétition _repeat_, exécutera les blocs contenus entre _repeat_ et
+_endrepeat_ le nombre de fois spécifié entre crochets. L'exemple
 suivant montre comment usiner une séries de 5 formes diagonales
 commençant à la position courante.
 
@@ -160,8 +162,8 @@ et le <<sec:Fonctions, tableau des fonctions>>.
 == Appel de fichiers
 (((Appel de fichiers)))
 
-Pour appeler un fichier par son nom, celui-ci doit contenir un *sub*
-et un *endsub*. Le fichier appelé doit se trouver dans le répertoire
+Pour appeler un fichier par son nom, celui-ci doit contenir un _sub_
+et un _endsub_. Le fichier appelé doit se trouver dans le répertoire
 pointé par la variable PROGRAM_PREFIX du fichier ini.
 
 ----
@@ -174,7 +176,7 @@ ou
 o123 call (un numéro de fichier)
 ----
 
-Dans le fichier appelé doit se touver le *sub* et le *endsub*
+Dans le fichier appelé doit se touver le _sub_ et le _endsub_
 correspondant à l'appel. Le fichier doit être un fichier valide.
 
 Exemple:
@@ -188,7 +190,7 @@ M2
 ----
 
 [NOTE]
-Les noms de fichiers doivent être en lettres minuscules, ainsi *o<MyFile>*
-sera transformé en *o<myfile>* par l'interpréteur.
+Les noms de fichiers doivent être en lettres minuscules, ainsi _o<MyFile>_
+sera transformé en _o<myfile>_ par l'interpréteur.
 
 // vim: set syntax=asciidoc:

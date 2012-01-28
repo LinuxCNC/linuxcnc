@@ -1,40 +1,40 @@
 :lang: fr
 :toc:
 
-[[cha:Les-autres-codes]]
 = Les autres codes
 
+[[cha:Les-autres-codes]]
 (((Les autres codes)))
 
 [[sec:F-Vitesse]]
 == F: Réglage de la vitesse d'avance travail
 (((F: Réglage de la vitesse d'avance travail)))
 
-Pour régler la vitesse d'avance, programmer *F-*.
-L'application de la vitesse est telle que décrite dans l'apperçu global d'une
-machine numérique, section <<sec:Vitesse-d-avance,vitesse>>, à moins que le
-mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
-telle que décrite dans la section des modes de
+Pour régler la vitesse d'avance, programmer _F-_.
+L'application de la vitesse est telle que décrite dans l'aperçu global d'une
+machine numérique, section <<sec:Vitesse-d-avance,vitesse d'avance>>, à moins
+que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
+telle que décrite dans la section sur le choix des modes de
 <<sec:G93-G94-G95-Set, vitesse>>.
 
 [[sec:S-Broche]]
 == S: Réglage de la vitesse de rotation de la broche
 (((S: Réglage de la vitesse de rotation de la broche)))
 
-Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer *S-*.
+Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer _S-_.
 La broche va tourner à cette vitesse quand elle sera programmée pour tourner.
-Il est permis de programmer un mot *S* que la broche tourne ou non.
+Il est permis de programmer un mot _S_ que la broche tourne ou non.
 Si le potentiomètre de correction de vitesse broche est
 autorisé et n'est pas positionné sur 100%,
 la vitesse de broche sera différente de celle programmée.
-Il est permis de programmer *S0*, la broche ne tournera pas.
+Il est permis de programmer _S0_, la broche ne tournera pas.
 
 C'est une erreur si:
 
 * La valeur de S est négative.
 
 Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
-taraudage à droite>>, si un cycle de perçage *G84* (taraudage) est actif et que
+taraudage à droite>>, si un cycle de perçage _G84_ (taraudage) est actif et que
 les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
 réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
 synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même
@@ -44,15 +44,15 @@ si le potentiomètre de correction de vitesse travail est sur 100%.
 == T: Choix de l'outil
 (((T: Choix de l'outil)))
 
-Pour sélectionner un outil, programmer *T-*, où la valeur de *T*
+Pour sélectionner un outil, programmer _T-_, où la valeur de _T_
 correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera
-appelé et changé que quand un *M6* sera programmé voir la section
-<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot *T* peut apparaitre sur la
-même ligne que le *M6* ou sur une ligne précédente. Il est permis, mais
+appelé et changé que quand un _M6_ sera programmé voir la section
+<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot _T_ peut apparaitre sur la
+même ligne que le _M6_ ou sur une ligne précédente. Il est permis, mais
 normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant,
 sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot
 T ne prendra effet qu'au prochain changement d'outil. Il est permis de
-programmer *T0*, aucun outil ne sera sélectionné. C'est utile pour
+programmer _T0_, aucun outil ne sera sélectionné. C'est utile pour
 avoir la broche vide.
 
 C'est une erreur si:
@@ -62,7 +62,7 @@ C'est une erreur si:
    carrousel est utilisée.
 
 Sur certaines machines, le carrousel se déplace lorsque le mot T est
-programmé, avec l'usinage en cours. Sur ces machines, programmer *Tn*,
+programmé, avec l'usinage en cours. Sur ces machines, programmer _Tn_,
 plusieurs lignes de texte avant le changement d'outil permet de gagner
 du temps. Une pratique de programmation courante pour ces types de
 machines, consiste à placer le mot T pour le prochain outil sur la
@@ -82,9 +82,9 @@ mouvement juste après le T<n>.
 == Messages
 (((Messages)))
 
-Un commentaire contient un message si *MSG* apparaît après la
+Un commentaire contient un message si _MSG_ apparaît après la
 parenthèse ouvrante, et avant tout autre caractère. Les variantes de
-*MSG* qui incluent un espace blanc et des minuscules sont autorisées.
+_MSG_ qui incluent un espace blanc et des minuscules sont autorisées.
 Le reste du texte avant la parenthèse fermante est considéré comme le
 message. Les messages sont affichés sur la visu de l'interface
 utilisateur. Les commentaires ne contenant pas de message ne sont pas
@@ -145,7 +145,7 @@ G-code comme:
 (print,diamètre fraise 3 dents = #<_troisdents_dia>)
 ----
 
-À l'intérieur de ces types de commentaires, les séquences comme *#123*
+À l'intérieur de ces types de commentaires, les séquences comme _#123_
 sont remplacées par la valeur du paramètre 123. Les séquences comme
 _#<paramètre nommé>_ sont remplacées par la valeur du paramètre nommé.
 Rappelez vous que
