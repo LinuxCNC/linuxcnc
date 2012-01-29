@@ -858,6 +858,14 @@ typedef struct {
 
     int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
     int written_enable;
+
+    // This is a flag to help warn the user if they specify a too-short
+    // timeout.  The flag gets set to 0 whenever the user changes the
+    // timeout.  The pet_watchdog() funtion checks the requested timeout
+    // against the reported period, if if it's dangeriously short it warns
+    // about it once, and sets this flag to remind it not to warn again
+    // (until the user changes the timeout again).
+    int warned_about_short_timeout;
 } hm2_watchdog_instance_t;
 
 
