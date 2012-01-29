@@ -293,6 +293,10 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
 
     if (hm2->watchdog.instance[0].enable == 0) {
         // watchdog is disabled, MSb=1 is secret handshake with FPGA
+        // but first we have to write a non-zero timeout so the dog doesnt bite
+        hm2->watchdog.timer_reg[0] = 0x7fffffff;
+        hm2->llio->write(hm2->llio, hm2->watchdog.timer_addr, hm2->watchdog.timer_reg, (hm2->watchdog.num_instances * sizeof(u32)));
+
         hm2->watchdog.timer_reg[0] = 0x80000000;
     } else {
         tmp = (hm2->watchdog.instance[0].hal.param.timeout_ns * ((double)hm2->watchdog.clock_frequency / (double)(1000 * 1000 * 1000))) - 1;
