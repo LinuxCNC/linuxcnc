@@ -35,6 +35,8 @@ include::config/ini_homing_es.txt[]
 
 include::config/lathe_config_es.txt[]
 
+include::hal/haltcl_es.txt[]
+
 include::config/emc2hal_es.txt[]
 
 include::config/stepper_es.txt[]

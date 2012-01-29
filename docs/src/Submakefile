@@ -325,6 +325,10 @@ DOC_SRCS := \
 	hal/halshow_es.txt \
 	hal/halshow_fr.txt \
 	hal/halshow_pl.txt \
+	hal/haltcl.txt \
+	hal/haltcl_de.txt \
+	hal/haltcl_es.txt \
+	hal/haltcl_pl.txt \
 	hal/halui_fr.txt \
 	hal/halui_examples.txt \
 	hal/halui_examples_de.txt \
