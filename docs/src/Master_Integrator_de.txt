@@ -79,6 +79,8 @@ include::drivers/pluto_p_de.txt[]
 
 include::drivers/servo_to_go_de.txt[]
 
+include::drivers/shuttlexpress_de.txt[]
+
 :leveloffset: 0
 
 = Advanced Topics
