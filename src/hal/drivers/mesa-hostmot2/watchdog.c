@@ -29,6 +29,21 @@
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
+static void watchdog_status(hostmot2_t *hm2, char *name, u32 run) {
+    HM2_PRINT(
+        "%s, run %u, enabled=%d, needs_reset=%d, io_error=%d, has_bit=%d, timeout=0x%08x, status=0x%08x\n",
+        name,
+        run,
+        hm2->watchdog.instance[0].enable,
+        hm2->llio->needs_reset,
+        *hm2->llio->io_error,
+        *hm2->watchdog.instance[0].hal.pin.has_bit,
+        hm2->watchdog.timer_reg[0],
+        hm2->watchdog.status_reg[0]
+    );
+}
+
+
 
 
 // this is the function exported to HAL
@@ -39,6 +54,14 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
 
     // if there is no watchdog, then there's nothing to do
     if (hm2->watchdog.num_instances == 0) return;
+
+    {
+        static u32 run = 0;
+        run ++;
+        if (run < 100) {
+            watchdog_status(hm2, "hm2_pet_watchog", run);
+        }
+    }
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
@@ -77,6 +100,14 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
 void hm2_watchdog_read(hostmot2_t *hm2) {
     // if there is no watchdog, then there's nothing to do
     if (hm2->watchdog.num_instances == 0) return;
+
+    {
+        static u32 run = 0;
+        run ++;
+        if (run < 100) {
+            watchdog_status(hm2, "hm2_watchog_read", run);
+        }
+    }
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
@@ -291,6 +322,14 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
 
     if (hm2->watchdog.num_instances != 1) return;
 
+    {
+        static u32 run = 0;
+        run ++;
+        if (run < 100) {
+            watchdog_status(hm2, "hm2_watchog_force_write", run);
+        }
+    }
+
     if (hm2->watchdog.instance[0].enable == 0) {
         // watchdog is disabled, MSb=1 is secret handshake with FPGA
         // but first we have to write a non-zero timeout so the dog doesnt bite
@@ -324,6 +363,15 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
 // if the user has changed the timeout, sync it out to the watchdog
 void hm2_watchdog_write(hostmot2_t *hm2) {
     if (hm2->watchdog.num_instances != 1) return;
+
+    {
+        static u32 run = 0;
+        run ++;
+        if (run < 100) {
+            watchdog_status(hm2, "hm2_watchog_write", run);
+        }
+    }
+
     if (
         (hm2->watchdog.instance[0].hal.param.timeout_ns == hm2->watchdog.instance[0].written_timeout_ns)
         &&
