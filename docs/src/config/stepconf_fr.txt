@@ -228,10 +228,14 @@ Pompe de charge::
     Le signal de pompe de charge sera d'environ la moitié de la fréquence
     maxi des pas affichée sur la page des informations machine.
 
-[[sec:Configuration-des-axes]](((Configuration des axes)))
+[[sec:Configuration-des-axes]]
+(((Configuration des axes)))
+
 == Configuration des axes
 
-.Page de configuration des axes[[cap:Configuration-des-axes]]
+
+[[cap:Configuration-des-axes]]
+.Page de configuration des axes
 
 image::images/stepconf-axis_fr.png[]
 
