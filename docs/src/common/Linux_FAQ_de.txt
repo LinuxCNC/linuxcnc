@@ -37,7 +37,7 @@ emc /home/mill/emc2/config/mill/mill.ini
 Man pages are automatically generated manual pages in most cases. Man
 pages are usually available for most programs and commands in Linux.
 
-To view a man page open up a terminal window by going to 'Applications > 
+To view a man page open up a terminal window by going to 'Applications >
 Accessories > Terminal'. For example if you wanted to find out something
 about the find command in the terminal window type:
 
@@ -74,7 +74,7 @@ it will be named mymod.txt or what ever you named it.
 
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
-can have bad results. Be careful when editing root files. Generally, you 
+can have bad results. Be careful when editing root files. Generally, you
 can open and view most root files, but they will open in 'read only'
 mode.
 
@@ -188,34 +188,31 @@ And pwd might return the following result:
 With this information put the command together like this:
 
 ----
-find /home/joe/emc2 -name *.ini -print
+find /home/joe/linuxcnc -name \*.ini -print
 ----
 
 The -name is the name of the file your looking for and the -print
-tells it to print out the result to the terminal window. +
-The *.ini tells find to return all files that have the .ini extension.
-
-To find all the files in the named directory and all the
-subdirectories under that, add the -L option to the find command, like
-this:
-
-----
-find -L /home/joe/emc2 -name *.ini -print
-----
+tells it to print out the result to the terminal window.
+The \*.ini tells find to return all files that have the .ini extension.
+The backslash is needed to escape the shell meta-characters. See the find
+man page for more information on find.
 
 === Searching for Text
 
 (((Searching for Text)))(((grep)))
 
 ----
-grep -i -r 'text to search for' * 
+grep -irl 'text to search for' *
 ----
 
 This will find all the files that contain the 'text to search for' in the
 current directory and all the subdirectories below it, while
 ignoring the case. The -i is for ignore case and the -r is for
-recursive (include all subdirectories in the search). The * is a wild
-card for search all files.
+recursive (include all subdirectories in the search). The -l option will
+return a list of the file names, if you leave the -l off you will also
+get the text where each occourance of the "text to search for" is found.
+The * is a wild card for search all files. See the grep man page for more
+information.
 
 === Bootup Messages
 
@@ -236,11 +233,11 @@ To clear the message buffer type this:
 sudo dmesg -c
 ----
 
-This can be helpful to do just before launching LinuxCNC, so that there will 
-only be a record of information related to the current launch of LinuxCNC. 
+This can be helpful to do just before launching LinuxCNC, so that there will
+only be a record of information related to the current launch of LinuxCNC.
 
 To find the built in parallel port address use grep to filter the information
-out of dmesg. 
+out of dmesg.
 
 After boot up open a terminal and type:
 

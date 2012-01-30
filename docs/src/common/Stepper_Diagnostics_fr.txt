@@ -63,7 +63,7 @@ valeurs de vitesse maximum et d'accélération maximum sont trop élevées.
 Si un backlash a été ajouté, il est nécessaire d'augmenter
 STEPGEN_MAXACCEL aux environs du double de MAX_ACCELERATION dans la
 section [AXIS] du fichier INI et ce, pour chacun des axes sur lesquels
-un backlash a été ajouté. LinuxCNC utilise une *extra accélération* au
+un backlash a été ajouté. LinuxCNC utilise une _extra accélération_ au
 moment de l'inversion de sens pour reprendre le jeu. Sans correction du
 backlash, l'accélération pour le générateur de pas peut être juste un
 peu plus basse que celle du planificateur de mouvements.
@@ -76,7 +76,7 @@ Quand vous rencontrez cette erreur:
 
 C'est généralement que la variable BASE_PERIOD dans la section
 [EMCMOT] du fichier ini a une valeur trop petite. Vous devez lancer un
-*Latency Test* pendant une durée plus longue pour voir si vous n'avez
+_Latency Test_ pendant une durée plus longue pour voir si vous n'avez
 pas un délai excessif quelque part, responsable de ce problème. Si
 c'est le cas réajuster alors BASE_PERIOD avec la nouvelle valeur
 obtenue.
@@ -91,7 +91,7 @@ effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
 centaines de milliers de messages d'erreur par seconde si plus d'un
 était affiché.
 
-Plus d'informations <<sec:Test-de-latence-IM, sur le test de latence.>>
+Plus d'informations <<cha:test-de-latence, sur le test de latence.>>
 
 == Tester
 
@@ -107,7 +107,7 @@ aient des valeurs trop élevées.
 
 Le programme suivant vérifie que la configuration de l'axe Z est
 correcte. Copiez le programme dans le répertoire de votre linuxcnc/nc_files
-nommez le *TestZ.ngc* ou similaire. Initialisez votre machine avec Z =
+nommez le _TestZ.ngc_ ou similaire. Initialisez votre machine avec Z =
 0.000 sur le dessus de la table. Chargez et lancez le programme. Il va
 effectuer 200 mouvements d'aller et retour entre 10.00 et 30.00mm. Si
 vous avez un problème de configuration, la position de l'axe Z affichée
@@ -115,31 +115,31 @@ vous avez un problème de configuration, la position de l'axe Z affichée
 mesurée. Pour tester un autre axe remplacez simplement le Z des G0 par
 le nouvel axe.
 ----
-    ( Faire Z=0 au dessus de la table avant de démarrer! )
-    ( Ce programme teste les pertes de position en Z )
-    ( msg, test 1 de la configuration de l'axe Z ) 
-    G21 #1000=100 ( boucle 100 fois )  
-    ( cette boucle comporte un délai après chaque mouvement )
-    ( test des réglages d'accélération et de vitesse )
-    o100 while [#1000] 
-       G0 Z30.000
-       G4 P0.250 
-       G0 Z10.000 
-       G4 P0.250 
-       #1000 = [#1000 - 1] 
-    o100 endwhile 
-    ( msg, test 2 de la configuration de l'axe Z, pressez S pour continuer) 
-    M1 (un arrêt ici)
-    #1000=100 ( boucle 100 fois ) 
-    ( Les boucles suivantes n'ont plus de délai en fin de mouvements )
-    ( test des réglages des temps de maintien des pilotes)
-    ( et les réglages d'accélération max )
-    o101 while [#1000] 
-       G0 Z30.000 .
-       G0 Z10.000 
-       #1000 = [#1000 - 1] 
-    o101 endwhile 
-    ( msg, Fin Z doit être à 10mm au dessus de la table ) 
-    M2
+( Faire Z=0 au dessus de la table avant de démarrer! )
+( Ce programme teste les pertes de position en Z )
+( msg, test 1 de la configuration de l'axe Z ) 
+G21 #1000=100 ( boucle 100 fois )  
+( cette boucle comporte un délai après chaque mouvement )
+( test des réglages d'accélération et de vitesse )
+o100 while [#1000] 
+   G0 Z30.000
+   G4 P0.250 
+   G0 Z10.000 
+   G4 P0.250 
+   #1000 = [#1000 - 1] 
+o100 endwhile 
+( msg, test 2 de la configuration de l'axe Z, pressez S pour continuer) 
+M1 (un arrêt ici)
+#1000=100 ( boucle 100 fois ) 
+( Les boucles suivantes n'ont plus de délai en fin de mouvements )
+( test des réglages des temps de maintien des pilotes)
+( et les réglages d'accélération max )
+o101 while [#1000] 
+   G0 Z30.000 .
+   G0 Z10.000 
+   #1000 = [#1000 - 1] 
+o101 endwhile 
+( msg, Fin Z doit être à 10mm au dessus de la table ) 
+M2
 ----
 

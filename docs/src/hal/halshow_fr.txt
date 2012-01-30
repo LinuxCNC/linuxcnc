@@ -17,7 +17,7 @@ lui même est un des facteurs clés pour arriver à un système CNC
 optimum.
 
 On peut accéder à Halshow depuis Axis, pour cela, aller dans le menu
-*Machine* puis choisir *Afficher la configuration de HAL*.
+_Machine_ puis choisir _Afficher la configuration de HAL_.
 
 === Zone de l'arborescence de Hal
 
@@ -26,7 +26,8 @@ une arborescence, un peu comme vous pouvez le voir avec certains
 navigateurs de fichiers. Sur la droite, une zone avec deux onglets:
 MONTRER et WATCH.
 
-Ecran de Halshow[[cap:Fenetre-Halshow]]
+[[cap:Fenetre-Halshow]]
+.La fenêtre de Halshow
 
 image::images/halshow-1_fr.png[]
 
@@ -37,19 +38,20 @@ l'arborescence et affichera son contenu. Si cette case affiche un signe
 moins, cliquer dessus repliera cette section de l'arborescence.
 
 Il est également possible de déployer et de replier l'arborescence
-complète depuis le menu *Arborescence*.
+complète depuis le menu _Arborescence_.
 
-L'onglet Montrer[[cap:onglet-Montrer]]
+[[cap:onglet-Montrer]]
+.L'onglet Montrer
 
 image::images/halshow-3.png[]
 
 === Zone de l'onglet MONTRER
 
 En cliquant sur un nom dans l'arborescence plutôt que sur son signe
-plus ou moins, par exemple le mot *Components*, HAL affichera tout ce
+plus ou moins, par exemple le mot _Components_, HAL affichera tout ce
 qu'il connait du contenu de celui-ci. La figure 
-<<cap:Fenetre-Halshow>> montre une liste comme celle que vous verrez si
-vous cliquez sur *Components* avec une carte servo standard m5i20 en
+<<cap:Fenetre-Halshow, halshow>> montre une liste comme celle que vous verrez si
+vous cliquez sur _Components_ avec une carte servo standard m5i20 en
 fonctionnement. L'affichage des informations est exactement le même que
 celui des traditionnels outils d'analyse de HAL en mode texte.
 L'avantage ici, c'est que nous y avons accès d'un clic de souris. Accès
@@ -76,7 +78,7 @@ sur le fonctionnement de HAL. Les commandes que vous entrez ici et leur
 effet sur HAL, ne sont pas enregistrés. Elles persisteront tant que LinuxCNC
 tournera, mais disparaîtront dès son arrêt.
 
-Le champ de saisie marqué *Tester une commande HAL:* acceptera
+Le champ de saisie marqué _Tester une commande HAL:_ acceptera
 n'importe quelle commande valide pour halcmd. Elles incluent:
 
 - Loadrt, unloadrt (chargement / déchargement en temps réel du module)
@@ -86,7 +88,7 @@ n'importe quelle commande valide pour halcmd. Elles incluent:
 - setp (jeu de paramètres (ou broches) à une valeur)
 
 Ce petit éditeur entrera une commande à chaque fois que vous presserez
-*Entrée* ou que vous cliquerez sur le bouton *Exécuter*. Si une
+_Entrée_ ou que vous cliquerez sur le bouton _Exécuter_. Si une
 commande y est mal formée, un dialogue d'erreur s'affichera. Si vous
 n'êtes pas sûr de savoir comment formuler une commande, vous trouverez
 la réponse dans la documentation de halcmd et des modules spécifiques
@@ -157,10 +159,11 @@ addf ddt.0 servo-thread
 
 Comme c'est juste pour visualiser, nous laissons la position en blanc
 pour obtenir la dernière position dans le thread. La figure 
-<<cap:Commande-addf>> montre l'état de halshow après que cette
-commande a été exécutée.
+<<cap:Commande-addf, sur la commande addf>> affiche l'état de halshow après
+que cette commande a été exécutée.
 
-Commande Addf[[cap:Commande-addf]]
+[[cap:Commande-addf]]
+.Commande Addf
 
 image::images/halshow-2_fr.png[]
 
@@ -205,13 +208,13 @@ fois, sur ddt.0.in et sur stepgen.0.position-cmd. En connectant notre
 bloc au signal nous avons évité les complications avec le flux normal
 de cette commande de mouvement.
 
-La zone de l'onglet *Montrer* utilise halcmd pour découvrir ce qui se
+La zone de l'onglet _Montrer_ utilise halcmd pour découvrir ce qui se
 passe à l'intérieur de HAL pendant son fonctionnement. Il vous donne
 une information complète de ce qu'il découvre. Il met aussi à jour dès
 qu'une commande est envoyée depuis le petit éditeur pour modifier ce
 HAL. Il arrive un temps ou vous voulez autre chose d'affiché, sans la
 totalité des informations disponibles dans cette zone. C'est la grande
-valeur de l'onglet *WATCH* d'offrir cela graphiquement.
+valeur de l'onglet _WATCH_ d'offrir cela graphiquement.
 
 === Zone de l'onglet WATCH
 
@@ -220,16 +223,18 @@ footnote:[Le taux de rafraîchissement de la zone Watch est plus
 lent que celui de Halmeter ou de Halscope. Si vous avez besoin d'une bonne résolution
 dans le timming des signaux, ces outils sont plus efficaces.] 
 Vous pouvez ajouter des pins ou des signaux quand l'onglet Watch est
-ouvert, en cliquant sur leurs noms. La figure <<cap:onglet-Montrer>>
-Montre cette zone avec plusieurs signaux de type *bit*. Parmis ces
+ouvert, en cliquant sur leurs noms. La figure <<cap:onglet-Montrer, 4>>
+montre cette zone avec plusieurs signaux de type _bit_. Parmis ces
 signaux, les enable-out pour les trois premiers axes et deux de la
-branche iocontrol, les signaux *estop*. Notez que les axes ne sont pas
+branche iocontrol, les signaux _estop_. Notez que les axes ne sont pas
 activés même si les signaux estop disent que LinuxCNC n'est pas en estop. Un
 bref regard sur TkLinuxCNC en arrière plan, montre que l'état de LinuxCNC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la
 machine ne sera pas mise en marche.
 
-L'onglet WATCH
+[[Onglet-watch]]
+.L'onglet WATCH
+(((L'onglet watch)))
 
 image::images/halshow-4.png[]
 

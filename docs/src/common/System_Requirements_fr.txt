@@ -13,7 +13,7 @@ partir du CD-Live avant de l'installer sur un ordinateur. Guarder à
 l'esprit que les valeurs retournées par le test de latence (Latency
 Test), sont plus importantes que la vitesse du µP pour la génération
 logicielle des pas. Plus d'informations à ce propos dans la section 
-relative au <<sec:Test-de-latence-GS,test de latence>>.
+relative au <<cha:test-de-latence, test de latence>>.
 
 Des informations additionnelles sont disponibles sur le 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiki de linuxcnc.org.]

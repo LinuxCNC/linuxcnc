@@ -32,7 +32,7 @@
 
 // this is the function exported to HAL
 // it keeps the watchdog from biting us for a while
-static void hm2_pet_watchdog(void *void_hm2, long period) {
+static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
     hostmot2_t *hm2 = void_hm2;
 
 
@@ -41,6 +41,18 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
+
+    // if the requested timeout is dangerously short compared to the petting-period, warn the user once
+    if (hm2->watchdog.instance[0].hal.param.timeout_ns < (1.5 * period_ns)) {
+        if (0 == hm2->watchdog.instance[0].warned_about_short_timeout) {
+            hm2->watchdog.instance[0].warned_about_short_timeout = 1;
+            HM2_PRINT(
+                "Watchdog timeout (%u ns) is dangerously short compared to pet_watchdog() period (%ld ns)\n",
+                hm2->watchdog.instance[0].hal.param.timeout_ns,
+                period_ns
+            );
+        }
+    }
 
     // if the watchdog has bit, wait for the user to reset it
     if (*hm2->watchdog.instance[0].hal.pin.has_bit) return;
@@ -234,6 +246,8 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.instance[0].hal.param.timeout_ns = 5 * 1000 * 1000;  // default timeout is 5 milliseconds
     hm2->watchdog.instance[0].enable = 0;  // the first pet_watchdog will turn it on
 
+    hm2->watchdog.instance[0].warned_about_short_timeout = 0;
+
     hm2->watchdog.reset_reg[0] = 0x5a000000;
     hm2->watchdog.status_reg[0] = 0;
 
@@ -310,6 +324,9 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->watchdog.timer_addr, hm2->watchdog.timer_reg, (hm2->watchdog.num_instances * sizeof(u32)));
     hm2->watchdog.instance[0].written_timeout_ns = hm2->watchdog.instance[0].hal.param.timeout_ns;
     hm2->watchdog.instance[0].written_enable = hm2->watchdog.instance[0].enable;
+
+    // re-warn the user if their requested timeout is too short
+    hm2->watchdog.instance[0].warned_about_short_timeout = 0;
 
     // clear the has-bit bit
     hm2->llio->write(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, sizeof(u32));

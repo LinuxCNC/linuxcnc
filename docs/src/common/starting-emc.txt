@@ -111,6 +111,7 @@ TWOPASS processing is enabled by including an ini file parameter:
 [HAL]TWOPASS=anything
 ----
 
+Where "anything" can be any non-null string.
 With this setting, you can have multiple specifications like:
 
 ----
@@ -122,7 +123,7 @@ loadrt and2 names=ad
 ----
 
 These commands can appear in different HALFILES.  The HALFILES
-are processed in their order of ther appearance in the ini file.
+are processed in the order of their appearance in the ini file.
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
@@ -140,7 +141,7 @@ executed in the order of appearance with other commands during
 this second pass.
 
 While you can use either the count= or names= options, they are
-mutually exclusive only one type can  be specified for a
+mutually exclusive -- only one type can  be specified for a
 given module.
 
 TWOPASS processing is most effective when using the names=
@@ -167,5 +168,9 @@ common logic components that are the glue of many hal configurations.
 
 User-created comps that use the comp utility automatically
 support the names= option as well.  In addition to comps generated
-with the comp utility, a few others comps like the encoder and
-pid also support the names=option.
+with the comp utility, numerous other comps support the names=option.
+Comps that support names= option include: at_pid, encoder,
+encoder_ratio, pid, siggen, and sim_encoder.
+
+Examples of TWOPASS usage for a simulator are included in the
+configs/simtcl directory.

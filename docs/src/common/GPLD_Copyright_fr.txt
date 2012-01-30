@@ -170,7 +170,6 @@ Modified Version under precisely this License, with the Modified
 Version filling the role of the Document, thus licensing distribution
 and modification of the Modified Version to whoever possesses a copy of
 it. In addition, you must do these things in the Modified Version:
-
 A. Use in the Title Page (and on the covers, if any) a title distinct
 from that of the Document, and from those of previous versions (which
 should, if there were any, be listed in the History section of the

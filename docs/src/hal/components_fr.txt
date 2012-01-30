@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= Les composants de HAL[[sec:Composants-de-HAL]]
+[[cha:Composants-de-HAL]]
+= Les composants de HAL (((Les composants de HAL)))
 
 == Composants de commandes et composants de l'espace utilisateur
 
@@ -9,8 +10,8 @@ Certaines de ces descriptions sont plus approfondies dans leurs pages man.
 Certaines y auront une description exhaustive, d'autres, juste une description 
 limitée. Chaque composant a sa man page. La liste ci-dessous, montre les 
 composants existants, avec le nom et le N° de section de leur page man. 
-Par exemple dans une console, tapez *man axis* pour accéder aux informations de 
-la man page d'Axis. Ou peut être *man 1 axis*, si le système exige le N° de 
+Par exemple dans une console, tapez _man axis_ pour accéder aux informations de 
+la man page d'Axis. Ou peut être _man 1 axis_, si le système exige le N° de 
 section des man pages.
 
 axis::  LinuxCNC AXIS (The Enhanced Machine Controller) Interface Graphique.
@@ -64,7 +65,7 @@ pour moteur sans balais (BLDC) avec capteurs de Hall.
 blend:: (((blend)))Provoque une interpolation linéaire entre deux valeurs
 
 charge_pump:: (((charge_pump)))Crée un signal carré destiné à l'entrée 
-*pompe de charge* de certaines cartes de contrôle.
+_pompe de charge_ de certaines cartes de contrôle.
 
 clarke2:: (((clarke2)))Transformation de Clarke, version à deux entrées.
 
@@ -103,8 +104,8 @@ conv_u32_s32:: (((conv_u32_s32)))Converti une valeur de u32 en s32.
 
 counter:: (((counter)))Comptage d'impulsions d'entrée (obsolète).
 
-Utiliser le composant *encoder* avec *... counter-mode = TRUE*. 
-Voir <<sec:Codeur>>.
+Utiliser le composant _encoder_ avec _... counter-mode = TRUE_. 
+Voir la section <<sec:Codeur, codeur>>.
 
 ddt:: (((ddt)))Calcule la dérivée de la fonction d'entrée.
 
@@ -116,7 +117,7 @@ antirebond).
 edge:: (((edge)))Détecteur de front.
 
 encoder:: (((encoder)))Comptage logiciel de signaux de codeur en quadrature, 
-voir <<sec:Codeur>>
+voir la section <<sec:Codeur, codeur>>
 
 encoder_ratio:: (((encoder_ratio)))Un engrenage électronique pour synchroniser 
 deux axes.
@@ -175,21 +176,21 @@ codeur) vers une valeur en virgule flottante.
 limit1:: (((limit1)))
 . Limite le signal de sortie pour qu'il soit entre min et 
 max. 
-footnote:[Lorsque l'entrée est une position, cela signifie que la *position* est 
+footnote:[Lorsque l'entrée est une position, cela signifie que la _position_ est 
 limitée.]
 
 limit2:: (((limit2)))
 . Limite le signal de sortie pour qu'il soit entre min et max.
 . Limite sa vitesse de montée à moins de MaxV par seconde. footnote:[Lorsque 
-l'entrée est une position, cela signifie que la *position* et la 
-*vitesse* sont limitées.]
+l'entrée est une position, cela signifie que la _position_ et la 
+_vitesse_ sont limitées.]
 
 limit3:: (((limit3)))
 . Limite le signal de sortie pour qu'il soit entre min et max.
 . Limite sa vitesse de montée à moins de MaxV par seconde. 
 . Limite sa dérivée seconde à moins de MaxA par seconde carré. footnote:[Lorsque 
-l'entrée est une position, cela signifie que la *position*, la *vitesse* et 
-l'*accélération* sont limitées.]
+l'entrée est une position, cela signifie que la _position_, la _vitesse_ et 
+l'_accélération_ sont limitées.]
 
 logic:: (((logic)))Composant expérimental de logique générale. 
 
@@ -203,7 +204,7 @@ maj3:: (((maj3)))Calcule l'entrée majoritaire parmi 3.
 match8:: (((match8)))Détecteur de coïncidence binaire sur 8 bits.
 
 maxkins:: (((maxkins)))
-Cinématique d'une fraiseuse 5 axes nommée *+max+*, avec tête inclinable (axe B) ​
+Cinématique d'une fraiseuse 5 axes nommée _max_, avec tête inclinable (axe B) ​
 ​et un axe rotatif horizontal monté sur la table (axe C). 
 Fournit le mouvement UVW dans le système de coordonnées système tourné. 
 Le fichier source, maxkins.c, peut être un point de départ utile 
@@ -241,14 +242,15 @@ or2:: (((or2)))Porte OR (OU) à deux entrées.
 pid:: (((pid)))Contrôleur Proportionnelle/Intégrale/dérivée.
 
 pluto_servo:: (((pluto_servo)))Pilote matériel et micro programme pour la 
-carte *Pluto-P parallel-port FPGA*, utilisation avec servomoteurs.
+carte _Pluto-P parallel-port FPGA_, utilisation avec servomoteurs.
 
 pluto_step:: (((pluto_step)))Pilote matériel et micro programme pour la 
-carte *Pluto-P parallel-port FPGA*, utilisation avec moteurs pas à pas.
+carte _Pluto-P parallel-port FPGA_, utilisation avec moteurs pas à pas.
 
 pumakins:: (((pumakins)))Cinématique pour robot style PUMA.
 
-pwmgen:: (((pwmgen)))Générateur logiciel de PWM/PDM, voir <<sec:PWMgen>>
+pwmgen:: (((pwmgen)))Générateur logiciel de PWM/PDM, voir la section
+<<sec:PWMgen, PWMgen>>
 
 rotatekins:: (((rotatekins)))Les axes X et Y sont pivotés de 45 degrés par 
 rapport aux articulations 0 et 1.
@@ -266,15 +268,15 @@ select8:: (((select8)))Détecteur de coïncidence binaire sur 8 bits.
 serport:: (((serport)))Pilote matériel pour les circuits d'entrées/sorties 
 digitales de port série 8250 et 16550.
 
-siggen:: (((siggen)))Générateur de signal, voir <<sec:Siggen>>
+siggen:: (((siggen)))Générateur de signal, voir la section <<sec:Siggen,siggen>>
 
 sim_encoder:: (((sim_encoder)))Codeur en quadrature simulé, 
-voir <<sec:Codeur-simul>>
+voir la section <<sec:Codeur-simul, codeur simulé>>
 
 sphereprobe:: (((sphereprobe)))Sonde hémisphérique. 
 
 stepgen:: (((stepgen)))Générateur d'impulsions de pas logiciel, 
-voir <<sec:Stepgen>>
+voir la section <<sec:Stepgen, stepgen>>
 
 steptest:: (((steptest)))Utilisé par Stepconf pour permettre de tester les 
 valeurs d'accélération et de vitesse d'un axe.
@@ -294,7 +296,7 @@ threads:: (((threads)))Crée des threads de HAL temps réel.
 threadtest:: (((threadtest)))Composant de HAL pour tester le comportement 
 des threads. 
 
-time:: (((time)))Compteur de temps écoulé HH:MM:SS avec entrée *actif*. 
+time:: (((time)))Compteur de temps écoulé HH:MM:SS avec entrée _actif_. 
 
 timedelay:: (((timedelay)))L'équivalent d'un relais temporisé.
 
@@ -339,7 +341,7 @@ Comme nous venons de donner une liste des pages man 1 et man 9,
 pour être exhaustif voici maintenant une liste des pages man 3.
 Peut-être que certains des fichiers sont à nettoyer et n'ont pas 
 vraiment leur place ici, ça devrait probablement être fixé ultérieurement... 
-Considérer cette liste comme un *Fix Me*, ou une liste des *à faire*.
+Considérer cette liste comme un _Fix Me_, ou une liste des _à faire_.
 Quoi qu'il en soit, voici cette liste:
 
 EXPORT_FUNCTION.3rtapi +

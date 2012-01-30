@@ -13,8 +13,8 @@ adaptés au type de la machine sont utilisable.
 
 - Nom du fichier: useful-subroutines.ngc
 
-- Description: Programme pour usiner une poche avec utilisation des
-paramètres.
+- Description: Programme pour usiner une poche ou un alésage avec utilisation
+des paramètres.
 
 === Rainurage
 
@@ -22,6 +22,10 @@ paramètres.
 
 - Decription: Programme pour fraiser une rainure avec utilisation des
 paramètres.
+
+.Les différents usinages de l'exemple
+
+image::images/useful-subroutines-ngc.png[]
 
 === Palpage d'une grille rectangulaire de points
 
@@ -31,7 +35,11 @@ paramètres.
 
 Ce programme palpe de manière répétitive, en suivant une grille
 régulière en XY et écrit les points mesurés dans le fichier
-*probe-results.txt* situé dans le même répertoire que le fichier .ini.
+_probe-results.txt_ situé dans le même répertoire que le fichier .ini.
+
+.La grille de palpage
+
+image::images/gridprobe-ngc.png[]
 
 === Amélioration du palpage d'une grille rectangulaire de points
 
@@ -41,8 +49,12 @@ régulière en XY et écrit les points mesurés dans le fichier
 
 Ce programme est une amélioration du précédent. Il palpe de manière
 répétitive, en suivant une grille régulière en XY et écrit les points
-mesurés dans le fichier *probe-results.txt* situé dans le même
+mesurés dans le fichier _probe-results.txt_ situé dans le même
 répertoire que le fichier .ini.
+
+.La grille de palpage plus fine
+
+image::images/smartprobe-ngc.png[]
 
 === Mesure de longueur d'outil
 

@@ -7211,6 +7211,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             set_value("minferror")
             set_text("compfilename")
             set_active("comptype")
+            set_active("usebacklash")
             set_value("backlash")
             set_active("usecomp")      
             set_text("homepos")

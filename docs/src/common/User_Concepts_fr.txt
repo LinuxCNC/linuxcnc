@@ -162,12 +162,12 @@ machine est un peu inférieure à celle du fichier ini.
 
 Pour maintenir la vitesse d'avance, le mouvement doit être plus long
 que la distance qui lui est nécessaire pour accélérer de zéro à la
-vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant *+A+*
-comme étant *+1/2+* de la variable MAX_ACCELERATION du fichier ini et
-*+F+* comme étant la vitesse d'avance _en unités par seconde_,
-le temps d'accélération sera *+t~a~ = F/A+* et la distance d'accélération sera
-*+d~a~ = F*t~a~/2+*. Les temps et distance de décélération sont les mêmes, ce
-qui fait que la distance critique *+d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A+*.
+vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant _A_
+comme étant _1/2_ de la variable MAX_ACCELERATION du fichier ini et
+_F_ comme étant la vitesse d'avance _en unités par seconde_,
+le temps d'accélération sera _t~a~ = F/A_ et la distance d'accélération sera
+_d~a~ = F*t~a~/2_. Les temps et distance de décélération sont les mêmes, ce
+qui fait que la distance critique _d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A_.
 
 Par exemple, pour une vitesse d'avance de _25mm par seconde_ et une
 accélération de _250 mm/sec^2^_, la distance critique sera de 
@@ -253,8 +253,8 @@ est appliqué au système de coordonnées utilisateur courant, dans Axis,
 une petite sphère bleue avec des rayons est affichée à l'emplacement
 de l'origine machine quand la visu affiche _Position: Relative Actuelle_.
 Si votre décalage utilise temporairement les coordonnées machine, depuis
-le menu Machine ou en programmant *+G10 L2 P1 X0 Y0 Z0+* à la fin du programme G-Code.
-Modifiez la valeur du mot *P* en fonction du système de coordonnées dont vous voulez
+le menu Machine ou en programmant _+G10 L2 P1 X0 Y0 Z0+_ à la fin du programme G-Code.
+Modifiez la valeur du mot _P_ en fonction du système de coordonnées dont vous voulez
 effacer le décalage.
 
  -  Les décalages stockés dans un système de coordonnées utilisateur sont conservés
@@ -269,12 +269,12 @@ vous pensez que vous devriez l'avoir, c'est peut être provoqué par plusieurs
 décalages programmés et qu'il conviendrait de supprimer.
 Pour cela:
 
- - Placez vous sur l'origine machine avec *+G53 G0 X0 Y0 Z0+*
- - Supprimez tous les décalages *+G92+* avec *+G92.1+*
- - Utilisez les coordonnées utilisateur avec *+G54+*
- - Rendez les coordonnées utilisateur *+G54+*, identiques aux
-   coordonnées machine avec *+G10 L2 P1 X0 Y0 Z0+*
- - Annulez les offsets d'outil avec *+G49+*
+ - Placez vous sur l'origine machine avec _G53 G0 X0 Y0 Z0_
+ - Supprimez tous les décalages _G92_ avec _G92.1_
+ - Utilisez les coordonnées utilisateur avec _G54_
+ - Rendez les coordonnées utilisateur _G54+_, identiques aux
+   coordonnées machine avec _G10 L2 P1 X0 Y0 Z0_
+ - Annulez les offsets d'outil avec _G49_
  - Activez l'affichage des coordonnées relatives depuis le menu.
 
 Maintenant vous devriez être, à l'origine machine X0 Y0 Z0 et le système

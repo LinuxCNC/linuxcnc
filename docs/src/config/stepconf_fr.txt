@@ -1,8 +1,9 @@
 ﻿:lang: fr
 :toc:
 
-= Assistant graphique de configuration StepConf[[cha:Assistant-graphique-StepConf]]
+= Assistant graphique de configuration StepConf
 
+[[cha:Assistant-graphique-StepConf]]
 (((Assistant stepconf)))
 
 [[sec:Introduction]]
@@ -20,7 +21,7 @@ de type pas/direction (step/dir).
 Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve
 dans le menu _Application -> CNC -> LinuxCNC StepConf_.
 
-Stepconf place les fichiers qu'il crée dans le répertoire *~/linuxcnc/config*
+Stepconf place les fichiers qu'il crée dans le répertoire _~/linuxcnc/config_
 pour y stocker les paramètres de chaque configuration.
 Lorsque quelque chose doit être modifié, il faut choisir le fichier
 correspondant au nom de la configuration et portant l'extension .stepconf.
@@ -153,8 +154,8 @@ Base Period Maximum Jitter::
     dans la colonne "Max Jitter" et à la ligne "Base thread". Cette valeur
     correspond à la latence maximale du PC testé.
     Pour exécuter directement un test de latence cliquer sur le bouton
-    _Test de latence_. Lire la <<sec:Test-de-latence-GS,section test de
-latence>> pour plus de détails.
+    _Test de latence_. Lire le <<cha:test-de-latence, chapitre sur le test de
+latence>> pour tous les détails concernant ce test.
 
 Dialogue à l'écran pour le changement d'outil::
     (((Dialogue d'appel d'outil)))
@@ -162,75 +163,6 @@ Dialogue à l'écran pour le changement d'outil::
     pour charger l'outil <n> lorsque qu'un G-Code M6 T<n> sera rencontré.
     Laisser cette case cochée sauf si le support d'un changeur d'outils
     automatique est prévu dans un fichier personnalisé HAL.
-
-[[sec:Test-de-latence-GS]]
-== Test de Latence
-(((Test de Latence)))
-
-Le temps de latence est le temps nécessaire au PC, pour arrêter les tâches en
-cours pour répondre à une requête externe. Dans notre cas,
-la requête est le métronome périodique qui sert de référence aux impulsions
-de pas. Plus la latence est basse, plus le métronome pourra
-battre vite et donc, plus rapides et plus précises seront les impulsions
-de pas.
-
-Le temps de latence est beaucoup plus important que la vitesse du µP.
-Un vieux Pentium II qui répond aux interruptions avec 10 microsecondes
-entre chacune peut donner de meilleurs résultats que le dernier µP ultra rapide.
-Le CPU n'est pas le seul facteur déterminant le temps de latence.
-Les cartes mères, les cartes vidéo, les ports USB et de nombreuses autres
-choses peuvent détériorer le temps de latence.
-La meilleure façon de savoir ce qu'il en est sur un PC est de
-lancer un latency test de HAL.
-
-Pour exécuter le test, il est possible soit de le lancer depuis le menu
-_Application -> CNC -> Latency-test_ ou soit depuis une console en tapant
-la commande:
-
-----
-latency-test
-----
-
-.Test de latence[[cap:Test-de-Latence]] (((Test de latence)))
-
-image::images/latency.png[]
-
-Pendant que le test est en cours d'exécution, il faut charger l'ordinateur.
-Déplacer les fenêtres sur l'écran. Se connecter à l'Internet. Copier quelques
-gros fichiers sur le disque dur.
-Jouer de la musique. Lancer une démo OpenGL telle que glxgears.
-L'idée est de charger le PC au maximum pour que le temps de latence
-soit mesuré dans le pire des cas.
-
-[red]#Ne pas exécuter LinuxCNC ou Stepconf
-pendant qu'un latency-test est en cours d'exécution#.
-
-Il faudra exécuter le test pendant plusieurs minutes ou heures, ceci pour
-détecter les problèmes intermittents rares. Ce test porte uniquement sur
-l'ordinateur, aucun équipement n'est nécessaire.
-La valeur importante est _max jitter_ dans cet exemple 9075 nanosecondes,
-soit 7.085 microsecondes. Enregistrer ce chiffre et l'entrer dans le
-champs _Résultat du test de latence_ de Stepconf quand il le demande.
-
-Si la valeur de Max Jitter est entre 15000 à 20000
-nanosecondes environ, l'ordinateur pourra donner d'excellents résultats
-avec la génération logicielle des pas.
-Si le temps de latence est entre 30000 à 50000 nanosecondes,
-de bons résultats seront obtenus, mais la vitesse maximum sera un peu
-réduite, spécialement si des micropas sont utilisés ou si le pas
-de la vis est fin. Si les résultats sont supérieurs à 100000 nanosecondes,
-alors le PC n'est pas un bon candidat à la génération des pas.
-Les résultats supérieurs à 1,000,000 nanosecondes
-éliminent, dans tous les cas, ce PC pour faire tourner LinuxCNC,
-que ce soit en utilisant des micropas ou non.
-
-.Dépannage des problèmes SMI (LinuxCNC.org Wiki)
-
-****
-Correction des problèmes causés par Realtime SMI sur Ubuntu, voir la solution
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[ sur cette page.]
-****
-
 
 [[sec:Options-de-configuration-avancee]]
 == Options de configuration avancée(((Options de configuration avancée)))
@@ -296,10 +228,14 @@ Pompe de charge::
     Le signal de pompe de charge sera d'environ la moitié de la fréquence
     maxi des pas affichée sur la page des informations machine.
 
-[[sec:Configuration-des-axes]](((Configuration des axes)))
+[[sec:Configuration-des-axes]]
+(((Configuration des axes)))
+
 == Configuration des axes
 
-.Page de configuration des axes[[cap:Configuration-des-axes]]
+
+[[cap:Configuration-des-axes]]
+.Page de configuration des axes
 
 image::images/stepconf-axis_fr.png[]
 

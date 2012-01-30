@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Particularités des tours[[cha:Tour-Specifiques]]
-
-(((Particularités des tours)))
+[[cha:Tour-Specifiques]]
+= Particularités des tours (((Particularités des tours)))
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
 est encore en cours de rédaction.
@@ -55,6 +54,7 @@ format de la table d'outils.
 
 [[cap:Orientations-des-outils-de-tour]]
 == Orientations des outils de tournage
+(((Orientations des outils de tour)))
 
 La figure suivante montre les angles d'orientations des outils de tour ainsi que
 les informations sur l'angle frontal de l'arête de coupe (FRONTANGLE) et
@@ -110,7 +110,7 @@ l'offset s'applique immédiatement à l'outil courant.
 === Séquence typique de correction d'outil en X:
 
  . Prise d'origine machine de chacun des axes, si ce n'est pas déjà fait.
- . Déclarer l'outil avec *M6 Tn* dans lequel *n* est le numéro de l'outil
+ . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
 courant, présent en table d'outils.
  . Sélectionner l'axe X dans la fenêtre de l'onglet _Contrôle manuel (F3)_.
  . Déplacer l'axe X sur une position connue ou prendre une passe de test puis
@@ -138,7 +138,7 @@ outils.
  . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
  . S'assurer qu'aucune compensation n'est activée pour le système de coordonnées
 courant.
- . Déclarer l'outil avec *M6 Tn* dans lequel *n* est le numéro de l'outil
+ . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
 courant, présent en table d'outils.
  . Sélectionner l'axe Z dans la fenêtre de l'onglet _contrôle manuel (F3)_.
  . Placer un cylindre dans le mandrin.
@@ -165,7 +165,7 @@ d'outils pour ajuster le décalage du système de coordonnées machine.
 === Séquence typique de décalage du système de coordonnées:
 
  . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
- . Déclarer l'outil avec *M6 Tn* dans lequel *n* est le numéro de l'outil
+ . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
 courant, présent en table d'outils.
  . Envoyer un G43 pour que l'offset de l'outil soit activé. (voir ci-dessous)
  . Tangenter l'outil contre la pièce et fixer l'offset machine Z.

@@ -15,7 +15,7 @@ Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsque le PC pilote une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la section <<sec:Test-de-latence-IM,
+Pour le lancer, suivre les instructions de la section <<cha:test-de-latence,
 sur le test de latence>>.
 
 [[sec:Sherline]]
@@ -24,13 +24,13 @@ sur le test de latence>>.
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
 Au premier démarrage de LinuxCNC, le sélecteur de configuration s'ouvre, sélectionnez 
-alors le modèle correspondant à votre machine *Sherline*, puis acceptez d'enregistrez une copie. 
+alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrez une copie. 
 
 [[sec:Xylotex]]
 == Xylotex
 (((Xylotex)))
 
-Si vous avez une machine *Xylotex* vous pouvez utiliser l'assistant graphique de 
+Si vous avez une machine _Xylotex_ vous pouvez utiliser l'assistant graphique de 
 configuration fourni avec LinuxCNC et créer rapidement votre configuration 
 personnalisée <<cha:Assistant-graphique-StepConf, avec l'assistant Stepconf>>.
 
@@ -81,7 +81,7 @@ parallèle utilisées.
 |========================================================================================
 
 Noter que toutes les broches inutilisées doivent être explicitement
-indiquées *Inutilisé* dans le choix déroulant de l'assistant. Elles
+indiquées _Inutilisé_ dans le choix déroulant de l'assistant. Elles
 pourront être modifiées par la suite en relançant Stepconf.
 
 == Informations relatives à la mécanique
@@ -99,10 +99,10 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 |     |              |          |              |           | 
 |====================================================================
 
-*Pas par tour* indique combien de pas moteur sont nécessaires pour que celui-ci 
+_Pas par tour_ indique combien de pas moteur sont nécessaires pour que celui-ci 
 fasse un tour. Valeur typique: 200.
 
-*Micropas* indique combien d'impulsions le pilote doit recevoir pour que le 
+_Micropas_ indique combien d'impulsions le pilote doit recevoir pour que le 
 moteur tourne d'un angle équivalent à un pas.
 
 Si les micropas ne sont pas utilisés, cette valeur devra être mise à 1. 
@@ -114,10 +114,10 @@ Le meilleur choix sera un compromis entre les petites valeurs, qui peuvent rendr
 le système bruyant à cause des vibrations et les valeurs élevées, qui exigent 
 beaucoup de pas, ce qui diminue la vitesse maximale.
 
-*Dents moteur* et *Dents vis* à indiquer si vous avez une réduction poulies/courroie 
+_Dents moteur_ et _Dents vis_ à indiquer si vous avez une réduction poulies/courroie 
 entre le moteur et la vis. Sinon mettez 1 pour les deux.
 
-*Pas de la vis* indique la longueur de déplacement du mobile pour un tour de la
+_Pas de la vis_ indique la longueur de déplacement du mobile pour un tour de la
 vis d'entrainement de l'axe. 
 
 Un exemple en pouces:

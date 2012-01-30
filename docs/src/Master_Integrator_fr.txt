@@ -21,6 +21,7 @@ include::install/Latency_Test_fr.txt[]
 include::config/ini_config_fr.txt[]
 include::config/ini_homing_fr.txt[]
 include::config/lathe_config_fr.txt[]
+include::hal/haltcl_fr.txt[]
 include::config/linuxcnchal_fr.txt[]
 include::config/stepper_fr.txt[]
 :leveloffset: 0

@@ -35,6 +35,8 @@ include::config/ini_homing_es.txt[]
 
 include::config/lathe_config_es.txt[]
 
+include::hal/haltcl_es.txt[]
+
 include::config/emc2hal_es.txt[]
 
 include::config/stepper_es.txt[]
@@ -76,6 +78,8 @@ include::drivers/pico_ppmc_es.txt[]
 include::drivers/pluto_p_es.txt[]
 
 include::drivers/servo_to_go_es.txt[]
+
+include::drivers/shuttlexpress_es.txt[]
 
 :leveloffset: 0
 
