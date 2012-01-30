@@ -36,7 +36,7 @@ limiticon = array.array('B',
            0,   0,    0, 0])
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
-    def __init__(self, colors, geometry):
+    def __init__(self, colors, geometry, is_foam=0):
         # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
         self.traverse = []; self.traverse_append = self.traverse.append
         # feed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
@@ -78,6 +78,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.g5x_offset_u = 0.0
         self.g5x_offset_v = 0.0
         self.g5x_offset_w = 0.0
+        self.is_foam = is_foam
+        self.foam_z = 0
+        self.foam_w = 1.5
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -95,8 +98,27 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.state = st
         self.lineno = self.state.sequence_number
 
-    def draw_lines(self, lines, for_selection, j=0):
-        return linuxcnc.draw_lines(self.geometry, lines, for_selection)
+    def draw_lines(self, lines, for_selection, j=0, geometry=None):
+        return linuxcnc.draw_lines(geometry or self.geometry, lines, for_selection)
+
+    def colored_lines(self, color, lines, for_selection, j=0):
+        if self.is_foam:
+            if not for_selection:
+                self.color_with_alpha(color + "_xy")
+            glPushMatrix()
+            glTranslatef(0, 0, self.foam_z)
+            self.draw_lines(lines, for_selection, 2*j, 'XY')
+            glPopMatrix()
+            if not for_selection:
+                self.color_with_alpha(color + "_uv")
+            glPushMatrix()
+            glTranslatef(0, 0, self.foam_w)
+            self.draw_lines(lines, for_selection, 2*j+len(lines), 'UV')
+            glPopMatrix()
+        else:
+            if not for_selection:
+                self.color_with_alpha(color)
+            self.draw_lines(lines, for_selection, j)
 
     def draw_dwells(self, dwells, alpha, for_selection, j0=0):
         return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
@@ -229,24 +251,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def draw(self, for_selection=0, no_traverse=True):
         if not no_traverse:
             glEnable(GL_LINE_STIPPLE)
-            if for_selection:
-                self.color('traverse')
-            else:
-                self.color_with_alpha('traverse')
-            self.draw_lines(self.traverse, for_selection)
+            self.colored_lines('traverse', self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
         else:
-            if for_selection:
-                self.color('straight_feed')
-            else:
-                self.color_with_alpha('straight_feed')
-            self.draw_lines(self.feed, for_selection, len(self.traverse))
+            self.colored_lines('straight_feed', self.feed, for_selection, len(self.traverse))
 
-            if for_selection:
-                self.color('arc_feed')
-            else:
-                self.color_with_alpha('arc_feed')
-            self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
+            self.colored_lines('arc_feed', self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
             glLineWidth(2)
             self.draw_dwells(self.dwells, self.colors.get('dwell_alpha', 1/3.), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
