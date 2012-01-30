@@ -171,10 +171,10 @@ DOC_SRCS := \
 	drivers/servo_to_go_es.txt \
 	drivers/servo_to_go_fr.txt \
 	drivers/servo_to_go_pl.txt \
-	drivers/suttle-express.txt \
-	drivers/suttle-express_es.txt \
-	drivers/suttle-express_de.txt \
-	drivers/suttle-express_pl.txt \
+	drivers/shuttlexpress.txt \
+	drivers/shuttlexpress_es.txt \
+	drivers/shuttlexpress_de.txt \
+	drivers/shuttlexpress_pl.txt \
 	examples/gcode.txt \
 	examples/gcode_de.txt \
 	examples/gcode_es.txt \
