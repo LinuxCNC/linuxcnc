@@ -340,6 +340,7 @@
 <doc name="config/ini_config_fr.html" title="La configuration en d&eacute;tail"/>
 <doc name="config/ini_homing_fr.html" title="Configuration des prises d'origine"/>
 <doc name="config/lathe_config_fr.html" title="Configuration des tours"/>
+<doc name="hal/haltcl_fr.html" title="Fichiers TCL pour HAL"/>
 <doc name="config/linuxcnchal_fr.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_fr.html" title="Configuration des moteurs pas &agrave; pas"/>
 <doc name="hal/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>

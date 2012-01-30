@@ -1,0 +1,217 @@
+:lang: fr
+:toc:
+
+= Fichiers TCL pour HAL
+
+[[cha:hal-tcl]] (((Fichiers TCL pour HAL)))
+
+Le langage de halcmd excelle pour spécifier des composants et des connexions
+mais il n'offre aucune possibilité de calcul.
+Par conséquent, les fichiers ini sont limités en clarté et n'ont pas la
+concision qu'ils pourraient  avoir avec un langage de haut niveau.
+
+Haltcl fourni un moyen facile d'utiliser les scripts tcl et leurs fonctions
+pour les calculs, les boucles, les branchements, les procédures, etc dans les
+fichiers ini. Pour utiliser cette fonctionnalité, il est nécessaire d'utiliser
+le langage TCL ainsi que l'extension .tcl pour les fichiers de HAL.
+
+L'extension .tcl est comprise par le script principal (linuxcnc) qui traite
+les fichiers ini. Les fichiers haltcl sont identifiés dans la section [HAL]
+des fichiers (de même que les fichiers .hal).
+
+.Exemple
+----
+[HAL]
+HALFILE = fichier_conventionnel.hal
+HALFILE = fichier_tcl.tcl
+-----
+
+Avec quelques précautions appropriées, les fichiers .hal et .tcl peuvent être
+mélangés.
+
+== Compatibilité
+
+Le langage utilisé dans les fichiers .tcl a une syntaxe simple qui est un
+sous-ensemble du puissant et polyvalent langage de script Tcl.
+
+== Commandes haltcl
+
+Les fichiers haltcl utilisent le langage de script Tcl, auquel s'ajoutent
+les commandes spécifiques de la couche d'abstraction matériel de LinuxCNC (HAL).
+Les commandes spécifiques sont les suivantes:
+....
+addf, alias,
+delf, delsig,
+getp, gets
+ptype,
+stype,
+help,
+linkpp, linkps, linksp, list, loadrt, loadusr, lock,
+net, newsig,
+save, setp, sets, show, source, start, status, stop,
+unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
+waitusr
+....
+
+Il existe deux cas particuliers, les commandes 'gets' et 'list' en raison
+de conflits avec les commandes internes de Tcl. Pour haltcl, ces commandes
+doivent être précédées du mot clé 'hal', comme ci-dessous:
+
+....
+halcmd   haltcl
+------   ------
+gets     hal gets
+list     hal list
+....
+
+
+== Variables du fichier ini et haltcl
+
+Les variables du fichier ini sont accessibles par halcmd comme par haltcl
+mais avec une syntaxe différente.
+
+Les fichiers ini de LinuxCNC utilisent des spécificateurs _SECTION_ et _ITEM_
+pour identifier les items de configuration:
+
+----
+[SECTION_A]
+ITEM1 = value_1
+ITEM2 = value_2
+...
+[SECTION_B]
+...
+----
+
+Les valeurs du fichier ini sont accessibles par substitution de texte dans
+les fichiers .hal en utilisant la forme:
+
+----
+[SECTION]ITEM
+----
+
+Les mêmes valeurs de fichiers ini sont accessibles dans les fichiers .tcl sous
+la forme de tableau de variables globales.
+
+----
+$::SECTION(ITEM)
+----
+
+Par exemple, un item de fichier ini comme:
+
+----
+[AXIS_0]
+MAX_VELOCITY = 4
+----
+
+est exprimé comme   [AXIS_0]MAX_VELOCITY dans les fichiers .hal pour halcmd
+et comme            $::AXIS_0(MAX_VELOCITY) dans les fichiers .tcl pour haltcl.
+
+== Conversion des fichiers .hal en fichiers .tcl
+
+Les fichiers .hal existants peuvent être convertis manuellement en 
+fichiers .tcl en les éditant pour adapter les différences mentionnées
+précédemment. Ce processus peut être automatisé à l'aide de scripts de
+conversion procédant à ces substitutions:
+
+----
+[SECTION]ITEM ---> $::SECTION(ITEM)
+gets          ---> hal gets
+list          ---> hal list
+----
+
+== Notes à propos de haltcl
+
+Dans haltcl, la valeur de l'argument pour les commandes 'sets' et 'setp'
+est implicitement traitée comme une expression dans le langage Tcl.
+
+.exemple
+----
+# set gain to convert deg/sec to units/min for AXIS_0 radius
+setp scale.0.gain 6.28/360.0*$::AXIS_0(radius)*60.0
+----
+
+Les espaces blancs ne sont pas autorisés dans les expressions, utiliser les
+guillemets doubles à la place:
+
+----
+setp scale.0.gain "6.28 / 360.0 * $::AXIS_0(radius) * 60.0"
+----
+
+Dans d'autres contextes, tels que 'loadrt', il est nécessaire d'utiliser
+explicitement la commande Tcl expr ([expr {}]) pour des expressions
+de calcul.
+
+.exemple
+----
+loadrt motion base_period=[expr {500000000/$::TRAJ(MAX_PULSE_RATE)}]
+----
+
+== Exemples pour haltcl
+
+Prenons la question de la marge haute de stepgen ('stepgen headroom').
+Le générateur de pas logiciel stepgen fonctionne mieux avec une contrainte
+d'accélération légèrement supérieure à celle du planificateur de mouvement.
+Ainsi, lorsqu'on utilise des fichiers halcmd, on force une valeur calculée
+manuellement dans le fichier ini.
+
+----
+[AXIS_0]
+MAXACCEL = 10.0
+STEPGEN_MAXACCEL = 10.5
+----
+
+Avec haltcl, il est possible d'utiliser des commandes Tcl pour effectuer le
+calcul et éliminer totalement l'item STEPGEN_MAXACCEL du fichier ini.
+
+----
+setp stepgen.0.maxaccel $::AXIS_0(MAXACCEL)*1.05
+----
+
+Autres caractéristiques de haltcl, les boucles et les tests.
+Par exemple, beaucoup de configurations utilisent les fichiers .hal
+"core_sim.hal" ou "core_sim9.hal". Ceux-ci diffèrent du fait de la nécessité
+de connecter plus ou moins d'axes. Le code haltcl suivant devrait fonctionner
+pour n'importe quelle combinaison d'axes dans une machine à cinématique
+triviale (trivkins).
+
+----
+# Crée les signaux position, vitesse et accélération pour chaque axe
+set ddt 0
+foreach axis {X Y Z A B C U V W} axno {0 1 2 3 4 5 6 7 8} {
+  # 'list pin' retourne une liste vide si la pin n'existe pas
+  if {[hal list pin axis.$axno.motor-pos-cmd] == {}} {
+    continue
+  }
+  net ${axis}pos axis.$axno.motor-pos-cmd => axis.$axno.motor-pos-fb \
+                                          => ddt.$ddt.in
+  net ${axis}vel <= ddt.$ddt.out
+  incr ddt
+  net ${axis}vel => ddt.$ddt.in
+  net ${axis}acc <= ddt.$ddt.out
+  incr ddt
+}
+puts [show sig *vel]
+puts [show sig *acc]
+----
+
+== Interactivité de haltcl
+
+La commande halrun reconnaît les fichiers halctl. Avec l'option -T,
+haltcl peut être exécuté interactivement comme un interpréteur Tcl.
+Cette fonctionnalité est utile pour les tests et pour les applications hal
+autonomes.
+
+.exemple
+----
+$ halrun -T fichierhaltcl.tcl
+----
+
+
+== Exemples pour haltcl fournis avec la distribution (sim)
+
+Le répertoire _configs/sim/simtcl_ contient un fichier ini qui utilise un
+fichier .tcl pour démontrer une configuration haltcl en conjonction avec
+l'utilisation du processus "twopass". L'exemple montre l'utilisation des
+procédures Tcl, les boucles, l'utilisation des commentaires avec sortie
+sur le terminal.
+
