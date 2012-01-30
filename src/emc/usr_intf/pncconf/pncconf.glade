@@ -8227,7 +8227,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_watchdog_timeout">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">1007000 1000000 500000000 1000 10 0</property>
+                                    <property name="adjustment">10000000 5000000 500000000 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
