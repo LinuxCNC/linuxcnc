@@ -966,7 +966,7 @@ class Progress:
 
 class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress, arcdivision):
-        GLCanon.__init__(self, widget.colors, geometry)
+        GLCanon.__init__(self, widget.colors, geometry, foam)
         StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
