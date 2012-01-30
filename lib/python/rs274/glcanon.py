@@ -767,8 +767,9 @@ class GlCanonDraw:
                 self.show_extents()
 
         if self.get_show_live_plot() or self.get_show_program():
-
+    
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
+            glPushMatrix()
             if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
                                              s.g92_offset[0] or s.g92_offset[1] or s.g92_offset[2] or
                                              s.rotation_xy):
@@ -778,7 +779,6 @@ class GlCanonDraw:
                 g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
 
-                glPushMatrix()
 
                 if self.get_show_offsets() and (g5x_offset[0] or g5x_offset[1] or g5x_offset[2]):
                     glBegin(GL_LINES)
@@ -828,11 +828,16 @@ class GlCanonDraw:
                     glPopMatrix()
 
                 glTranslatef(*g92_offset)
-                glCallList(alist)
 
-                glPopMatrix()
+            if self.is_foam():
+                glTranslatef(0, 0, self.get_foam_z())
+                glCallList(alist)
+                uwalist = self.dlist(('axes_uw', self.get_view()), gen=lambda n: self.draw_axes(n, 'UVW'))
+                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
+                glCallList(uwalist)
             else:
                 glCallList(alist)
+            glPopMatrix()
 
         if self.get_show_limits():
             glLineWidth(1)
@@ -1215,7 +1220,7 @@ class GlCanonDraw:
         glEnd()
         glEndList()
 
-    def draw_axes(self, n):
+    def draw_axes(self, n, letters="XYZ"):
         glNewList(n, GL_COMPILE)
         x,y,z,p = 0,1,2,3
         s = self.stat
@@ -1242,7 +1247,7 @@ class GlCanonDraw:
                     glTranslatef(0, 0, -0.1)
                     glRotatef(90, 1, 0, 0)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("X", 0.5)
+            self.hershey.plot_string(letters[0], 0.5)
             glPopMatrix()
 
         glColor3f(*self.colors['axis_y'])
@@ -1259,7 +1264,7 @@ class GlCanonDraw:
                 glRotatef(90, 0, 1, 0)
                 glRotatef(90, 0, 0, 1)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("Y", 0.5)
+            self.hershey.plot_string(letters[1], 0.5)
             glPopMatrix()
 
         glColor3f(*self.colors['axis_z'])
@@ -1281,7 +1286,7 @@ class GlCanonDraw:
             if self.is_lathe():
                 glTranslatef(0, -.1, 0)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("Z", 0.5)
+            self.hershey.plot_string(letters[2], 0.5)
             glPopMatrix()
 
         glEndList()
