@@ -443,7 +443,18 @@ class GlCanonDraw:
         highlight = self.dlist('highlight')
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.canon is not None:
-            x, y, z = self.canon.highlight(line, self.get_geometry())
+            if self.is_foam():
+                glPushMatrix()
+                glTranslatef(0, 0, self.get_foam_z()) 
+                x, y, z = self.canon.highlight(line, "XY")
+                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
+                u, v, w = self.canon.highlight(line, "UV")
+                glPopMatrix()
+                x = (x+u)/2
+                y = (y+v)/2
+                z = (self.get_foam_z() + self.get_foam_w())/2
+            else:
+                x, y, z = self.canon.highlight(line, self.get_geometry())
         elif self.canon is not None:
             x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
             y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
