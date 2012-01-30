@@ -909,46 +909,66 @@ class GlCanonDraw:
             if pos is None: pos = [0] * 6
             rx, ry, rz = pos[3:6]
             pos = self.to_internal_units(pos[:3])
-            glPushMatrix()
-            glTranslatef(*pos)
-            sign = 1
-            for ch in self.get_geometry():
-                if ch == '-':
-                    sign = -1
-                elif ch == 'A':
-                    glRotatef(rx*sign, 1, 0, 0)
-                    sign = 1
-                elif ch == 'B':
-                    glRotatef(ry*sign, 0, 1, 0)
-                    sign = 1
-                elif ch == 'C':
-                    glRotatef(rz*sign, 0, 0, 1)
-                    sign = 1
-            glEnable(GL_BLEND)
-            glEnable(GL_CULL_FACE)
-            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-
-            current_tool = self.get_current_tool()
-            if current_tool is None or current_tool.diameter == 0:
-                if self.canon:
-                    g = self.canon
-                    x,y,z = 0,1,2
-                    cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                                   g.max_extents[y] - g.min_extents[y],
-                                   g.max_extents[z] - g.min_extents[z],
-                                   2 ) * .5
-                else:
-                    cone_scale = 1
-                if self.is_lathe():
-                    glRotatef(90, 0, 1, 0)
+            if self.is_foam():
+                glEnable(GL_COLOR_MATERIAL)
+                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+                glPushMatrix()
+                glTranslatef(pos[0], pos[1], self.get_foam_z())
+                glRotatef(180, 1, 0, 0)
                 cone = self.dlist("cone", gen=self.make_cone)
-                glScalef(cone_scale, cone_scale, cone_scale)
+                glColor3f(*self.colors['cone_xy'])
                 glCallList(cone)
+                glPopMatrix()
+                u = self.to_internal_linear_unit(rx)
+                v = self.to_internal_linear_unit(ry)
+                glPushMatrix()
+                glTranslatef(u, v, self.get_foam_w())
+                glColor3f(*self.colors['cone_uv'])
+                glCallList(cone)
+                glPopMatrix()
             else:
-                if current_tool != self.cached_tool:
-                    self.cache_tool(current_tool)
-                glCallList(self.dlist('tool'))
-            glPopMatrix()
+                glPushMatrix()
+                glTranslatef(*pos)
+                sign = 1
+                for ch in self.get_geometry():
+                    if ch == '-':
+                        sign = -1
+                    elif ch == 'A':
+                        glRotatef(rx*sign, 1, 0, 0)
+                        sign = 1
+                    elif ch == 'B':
+                        glRotatef(ry*sign, 0, 1, 0)
+                        sign = 1
+                    elif ch == 'C':
+                        glRotatef(rz*sign, 0, 0, 1)
+                        sign = 1
+                glEnable(GL_BLEND)
+                glEnable(GL_CULL_FACE)
+                glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
+
+                current_tool = self.get_current_tool()
+                if current_tool is None or current_tool.diameter == 0:
+                    if self.canon:
+                        g = self.canon
+                        x,y,z = 0,1,2
+                        cone_scale = max(g.max_extents[x] - g.min_extents[x],
+                                       g.max_extents[y] - g.min_extents[y],
+                                       g.max_extents[z] - g.min_extents[z],
+                                       2 ) * .5
+                    else:
+                        cone_scale = 1
+                    if self.is_lathe():
+                        glRotatef(90, 0, 1, 0)
+                    cone = self.dlist("cone", gen=self.make_cone)
+                    glScalef(cone_scale, cone_scale, cone_scale)
+                    glColor3f(*self.colors['cone'])
+                    glCallList(cone)
+                else:
+                    if current_tool != self.cached_tool:
+                        self.cache_tool(current_tool)
+                    glColor3f(*self.colors['cone'])
+                    glCallList(self.dlist('tool'))
+                glPopMatrix()
 
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
@@ -1019,7 +1039,6 @@ class GlCanonDraw:
                 r = self.to_internal_linear_unit(dia) / 2.
                 q = gluNewQuadric()
                 glEnable(GL_LIGHTING)
-                glColor3f(*self.colors['cone'])
                 gluCylinder(q, r, r, 8*r, 32, 1)
                 glPushMatrix()
                 glRotatef(180, 1, 0, 0)
@@ -1271,7 +1290,6 @@ class GlCanonDraw:
         q = gluNewQuadric()
         glNewList(n, GL_COMPILE)
         glEnable(GL_LIGHTING)
-        glColor3f(*self.colors['cone'])
         gluCylinder(q, 0, .1, .25, 32, 1)
         glPushMatrix()
         glTranslatef(0,0,.25)
