@@ -141,7 +141,15 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
-
+        if self.is_foam:
+            min_z = min(self.foam_z, self.foam_w)
+            max_z = max(self.foam_z, self.foam_w)
+            self.min_extents = self.min_extents[0], self.min_extents[1], min_z
+            self.max_extents = self.max_extents[0], self.max_extents[1], max_z
+            self.min_extents_notool = \
+                self.min_extents_notool[0], self.min_extents_notool[1], min_z
+            self.max_extents_notool = \
+                self.max_extents_notool[0], self.max_extents_notool[1], max_z
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
