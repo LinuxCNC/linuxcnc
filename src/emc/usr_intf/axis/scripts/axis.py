@@ -227,7 +227,9 @@ def install_help(app):
 
 color_names = [
     ('back', 'Background'),
-    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'traverse',
+    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'cone', 'cone_xy', 'cone_uv',
+    'traverse', 'straight_feed_xy', 'arc_feed_xy', 'traverse_xy',
+    'straight_feed_uv', 'arc_feed_uv', 'traverse_uv',
     'backplotjog', 'backplotfeed', 'backplotarc', 'backplottraverse',
     'backplottoolchange', 'backplotprobing',
     'selected',
