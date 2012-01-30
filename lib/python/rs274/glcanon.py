@@ -731,6 +731,13 @@ class GlCanonDraw:
             self.to_internal_units([fudge(ax[i]['max_position_limit'])
                 for i in range(3)]))
 
+    def get_foam_z(self):
+        if self.canon: return self.canon.foam_z
+        return 0
+
+    def get_foam_w(self):
+        if self.canon: return self.canon.foam_w
+        return 1.5
 
     def redraw(self):
         s = self.stat
