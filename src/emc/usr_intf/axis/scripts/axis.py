@@ -431,6 +431,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_commanded(self): return vars.display_type.get()
     def get_show_rapids(self): return vars.show_rapids.get()
     def get_geometry(self): return geometry
+    def is_foam(self): return foam
     def get_num_joints(self): return num_joints
     def get_program_alpha(self): return vars.program_alpha.get()
 
@@ -692,7 +693,7 @@ class LivePlotter:
             C('backplotarc'),
             C('backplottoolchange'),
             C('backplotprobing'),
-            geometry
+            geometry, foam
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
@@ -2818,6 +2819,7 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
