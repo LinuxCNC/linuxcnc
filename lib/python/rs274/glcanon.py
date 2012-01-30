@@ -89,6 +89,22 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             if command == "stop": raise KeyboardInterrupt
             if command == "hide": self.suppress += 1
             if command == "show": self.suppress -= 1
+            if command == "XY_Z_POS": 
+                if len(parts) > 2 :
+                    try:
+                        self.foam_z = float(parts[2])
+                        if 210 in self.state.gcodes:
+                            self.foam_z = self.foam_z / 25.4
+                    except:
+                        self.foam_z = 5.0/25.4
+            if command == "UV_Z_POS": 
+                if len(parts) > 2 :
+                    try:
+                        self.foam_w = float(parts[2])
+                        if 210 in self.state.gcodes:
+                            self.foam_w = self.foam_w / 25.4
+                    except:
+                        self.foam_w = 30.0
 
     def message(self, message): pass
 
