@@ -40,6 +40,11 @@ foreach c [hal --commands] {
 
 if {[llength $argv] == 0} {
     package require tclreadline
+    namespace eval tclreadline {
+      proc prompt1 {} {
+        return "haltcl: "
+      }
+    }
     ::tclreadline::Loop
 }
 
