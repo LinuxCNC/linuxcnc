@@ -29,41 +29,22 @@
 .if \n[.g] .mso www.tmac
 .TH HALCMD "1"  "2003-12-18" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
-halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
+halcmd \- manipulate the LinuxCNC HAL from the command line
 .SH SYNOPSIS
 .B halcmd
 [\fIOPTIONS\fR] [\fICOMMAND\fR [\fIARG\fR]]
 .PP
-.B halrun 
-[\fI-I\fR] [\fIHALCMD OPTIONS\fR]
-.PP
-.B halrun 
-[\fI-U\fR]
 .SH DESCRIPTION
 \fBhalcmd\fR is used to manipulate the HAL (Hardware Abstraction
 Layer) from the command line.  \fBhalcmd\fR can optionally read
 commands from a file, allowing complex HAL configurations to be
 set up with a single command.
 
-\fBhalrun\fR is a convenience script which sets up the realtime environment,
-executes \fBhalcmd\fR with the given arguments, optionally runs an interactive
-\fBhalcmd -kf\fR if \fI-I\fR is given, then tears down the realtime
-environment.
-
 If the \fBreadline\fR library is available when LinuxCNC is compiled, then
 \fBhalcmd\fR offers commandline editing and completion when running
 interactively.  Use the up arrow to recall previous commands, and press tab to
 complete the names of items such as pins and signals.
 .SH OPTIONS
-.TP
-\fB-I\fR
-Before tearing down the realtime environment, run an interactive halcmd.
-\fBhalrun\fR only.  \fB-I\fR must precede all other commandline arguments.
-.TP
-\fB\-f\fR [\fIfile\fR]
-Ignore commands on command line, take input from \fIfile\fR
-instead.  If \fIfile\fR is not specified, take input from
-\fIstdin\fR.
 .TP
 \fB-i \fIinifile\fR
 Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
@@ -91,11 +72,6 @@ No prompt will be printed if both \fB-s\fR and \fB-f\fR are specified.
 \fB-R\fR
 Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
 while holding the HAL mutex.
-.TP
-\fB-U\fR
-Forcibly cause the realtime environment to exit.  It releases the HAL mutex,
-requests that all HAL components unload, and stops the realtime system.
-\fBhalrun\fR only.  \fB-U\fR must be the only commandline argument.
 .TP
 \fB\-v\fR
 display results of each command
@@ -334,11 +310,7 @@ halcmd \fB-i\fR flag.  They have the following formats:
 .IP
 \fB[SECTION](VAR)\fR
 .SH EXAMPLES
-
-.SH "SEE ALSO"
-
 .SH HISTORY
-
 .SH BUGS
 None known at this time.
 .SH AUTHOR
@@ -353,3 +325,7 @@ Copyright \(co 2003 John Kasunich.
 .br
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+\fBhalrun(1)\fR -- a convenience script to start a realtime environment,
+process a .hal or a .tcl file, and optionally start an interactive command
+session using \fBhalcmd\fR (described here) or \fBhaltcl\fR(1).
