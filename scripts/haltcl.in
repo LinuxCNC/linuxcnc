@@ -16,7 +16,8 @@ proc parse_ini {filename} {
     close $f
 }
 
-if {[llength $argv] > 0 && [lindex $argv 0] == "-ini"} {
+if {   [llength $argv] > 0 \
+    && (  ([lindex $argv 0] == "-i") || ([lindex $argv 0] == "-ini")  )} {
     parse_ini [lindex $argv 1]
     set argv [lrange $argv 2 end]
 }

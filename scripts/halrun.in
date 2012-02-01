@@ -93,9 +93,9 @@ case $filename in
          set -- "$theargs -f $filename";;
   *.tcl) HAVEFILE=true
          IS_HALTCL=true
-         # haltcl uses only -ini arg
+         # haltcl uses only -i arg
          if [ -n "$inifile" ] ; then
-           tclargs="-ini $inifile"
+           tclargs="-i $inifile"
          else
            tclargs=""
          fi
@@ -119,7 +119,7 @@ case "$INTERACTIVE" in
            ;;
   haltcl)  if $IS_HALTCL ; then
              if [  "$theargs" != "" ] ; then
-               echo "$THIS: no args accepted for haltcl <$theargs>"
+               echo "$THIS: args not accepted for haltcl <$theargs>"
                exit 1
              fi
            else
@@ -127,7 +127,7 @@ case "$INTERACTIVE" in
              :
            fi
            if [ -n "$inifile" ] ; then
-             INTERACTIVE="haltcl -ini $inifile"
+             INTERACTIVE="haltcl -i $inifile"
            fi
            ;;
 esac
