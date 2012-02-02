@@ -1423,6 +1423,50 @@ def _on_timer_tick(self,userdata=None):
 glib.timeout_add_seconds(1, self._on_timer_tick)
 ----------------------------------
 
+=== Setting HAL widget properties programmatically
+
+With glade, widget properties are typically set fixed while editing.
+You can, however, set widget properties at runtime, for instance from
+ini file values, which  would typically be done in the handler
+initialisation code. Setting properties from HAL pin values is
+possible, too.
+
+In the following example (assuming a HAL Meter widget called `meter`), the
+meter's min value is set from an INI file parameter at startup, and the max value
+is set via a HAL pin, which causese the widget's scale to readjust dynamically:
+
+[source,python]
+----------------------------------
+import emc
+import os
+import hal
+import hal_glib
+
+class HandlerClass:
+
+    def _on_max_value_change(self,hal_pin,data=None):
+        self.meter.max = float(hal_pin.get())
+        self.meter.queue_draw() # force a widget redraw
+
+    def __init__(self, halcomp,builder,useropts):
+	self.builder = builder
+
+        # hal pin with change callback.
+        # When the pin's value changes the callback is executed.
+        self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
+        self.max_value.connect('value-changed', self._on_max_value_change)
+
+	inifile = emc.ini(os.getenv("INI_FILE_NAME"))
+	mmin = float(inifile.find("METER", "MIN") or 0.0)
+        self.meter = self.builder.get_object('meter')
+        self.meter.min = mmin
+
+
+def get_handlers(halcomp,builder,useropts):
+    return [HandlerClass(halcomp,builder,useropts)]
+----------------------------------
+
+
 === Examples, and rolling your own GladeVCP application
 
 Visit +emc2/configs/gladevcp+ for running examples and starters for your own projects.
@@ -1469,7 +1513,37 @@ an on_destroy handler linked to the window destroy signal::
    on_destroy to the notebooks destroy signal, and that works fine. It
    doesnt work for window1.
 
-// FIXME this is out of date
+I defined a `hal_spinbutton` widget in glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
+
+
+  this is due to a bug in the old   Gtk version distributed with Ubuntu
+  8.04 and 10.04, and is likely to be the case for all widgets using
+  adjustment. The workaround mentione for instance in
+  http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
+  not reliably set the HAL pin value, it is better to set it
+  explicitly in an `on_realize` signal handler during widget creation
+  like so:
+
+
+[source,python]
+----------------------------------
+ def on_realize(self,widget):
+    widget.set_value(3.14)
+----------------------------------
+
+
+I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
+
+
+    See the example in configs/gladevcp/colored-label.  Setting the
+    background color of a GtkLabel widget (and HAL_Label is derived
+    from GtkLabel) is a bit tricky. The GtkLabel widget has no window
+    object of its own for performance reasons, and only window objects
+    can have a background color. The solution is to enclose the Labl
+    in an EventBox container, which has a window but is otherwise
+    invisible - see the coloredlabel.ui file.
+
+
 == Troubleshooting
 
  -  make sure your have the development version of LinuxCNC installed. You
