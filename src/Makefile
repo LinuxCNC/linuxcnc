@@ -959,16 +959,16 @@ tags:
 	find . -type f -name '*.hh' |xargs etags -l c++ --append
 
 etags:
-	etags 	--extra=+fq \
+	etags	--extra=+fq \
 		--exclude=depends --exclude=objects --exclude=.mod.c \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
-                -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl 
-        find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
-        find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
-        find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
+		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
+		-R . ../tcl ../scripts ../share/axis/tcl
+	find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
+	find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
+	find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
 
 .PHONY: swish
 swish:
