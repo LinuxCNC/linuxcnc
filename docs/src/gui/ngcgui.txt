@@ -20,6 +20,42 @@ Subroutines can be concatenated to build a complete program. Multiple
 instances of a subroutine can be used to perform the same task in different
 locations on the part. Any valid g-code can be used in the subroutine.
 
+== Demo Configs
+
+Three demo configurations are are located in the sim directory of the
+LinuxCNC configuration picker. The configuration picker is on the main menu
+Applications > CNC > LinuxCNC.
+
+* 'ngcgui' - a comprehensive example that contains these subroutines
+** 'simp' - a simple subroutine example that creates two circles
+** 'xyz' - creates a box based on two opposite corners
+** 'iquad' - creates an internal quadrilateral
+** 'db25' - creates a DB25 plug cutout
+** 'ihex' - creates an interal hexagon
+** 'gosper' - a recursion demo
+** 'Custom' - creates custom tabs
+** 'ttt' - True Type Tracer creates text for engraving
+
+* 'ngcgui-lathe' - an example with lathe subroutines
+** 'id' - bores the inside diameter
+** 'od' - turns the outside diameter
+** 'taper-od' - turns a taper on the outside diameter
+** 'Custom' - creates custom tabs
+
+* 'ngcgui-simple' - a simple example
+** 'simp' - a simple subroutine example that creates two circles
+** 'xyz' - creates a box based on two opposite corners
+
+To view the demonstration subroutines press the 'E-Stop' 
+image:images/tool_estop.gif[] then 'Machine Power' 
+image:images/tool_power.gif[] then 'Home All'. Pick a ngcgui tab and press
+'Create Feature' then 'Finalize'. Now press the 'Run'
+image:images/tool_run.gif[] button to watch it run.
+
+[NOTE]
+Many of the demonstration subroutines are just for demonstration and should not be run
+on a real machine.
+
 == Embedding NGCGUI in Axis
 
 Several NGCGUI examples are included with LinuxCNC and are located in the sim/ngcgui
