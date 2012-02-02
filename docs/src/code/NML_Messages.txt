@@ -102,10 +102,12 @@ Written From: none
 
 Read To: emctaskmain.cc
 
-Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] +
-[p, double] [i,double] [d, double] +
-[ff0, double] [ff1, double] [ff2, double] +
+++++
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
+[p, double] [i,double] [d, double]
+[ff0, double] [ff1, double] [ff2, double]
 [backlash, double] [bias, double] [maxError, double]
+++++
 
 === EMC_AXIS_SET_CYCLE_TIME_TYPE
 
@@ -125,9 +127,11 @@ Obs: currently if 0'ed, used only directly from iniaxis
 
 Written From: none
 
-Read To: emcTaskIssueCommand (emctaskmain.cc) +
-calls emcAxisSetInputScale (minimill|bridgeporttaskintf.cc) +
+++++
+Read To: emcTaskIssueCommand (emctaskmain.cc)
+calls emcAxisSetInputScale (minimill|bridgeporttaskintf.cc)
 which sends EMCMOT_SET_INPUT_SCALE
+++++
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset, double]
 
@@ -152,9 +156,11 @@ Obs: also handled by iniaxis which directly calls emcAxisSetMinPositionLimit
 
 Written From: none
 
-Read To: emcTaskIssueCommand (emctaskmain.cc) +
-calls emcAxisSetMinPositionLimit (taskintf.cc) +
+++++
+Read To: emcTaskIssueCommand (emctaskmain.cc)
+calls emcAxisSetMinPositionLimit (taskintf.cc)
 which sends EMCMOT_SET_POSITION_LIMITS
+++++
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
 
@@ -166,9 +172,11 @@ Obs: also handled by iniaxis which directly calls emcAxisSetMaxPositionLimit
 
 Written From: none
 
-Read To: emcTaskIssueCommand (emctaskmain.cc) +
-calls emcAxisSetMaxPositionLimit (taskintf.cc) +
+++++
+Read To: emcTaskIssueCommand (emctaskmain.cc)
+calls emcAxisSetMaxPositionLimit (taskintf.cc)
 which sends EMCMOT_SET_POSITION_LIMITS
+++++
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
 
@@ -204,9 +212,11 @@ Obs: also handled by iniaxis which directly calls emcAxisSetFerror
 
 Written From: none
 
-Read To: emcTaskIssueCommand (emctaskmain.cc) +
-calls emcAxisSetFerror (taskintf.cc) +
+++++
+Read To: emcTaskIssueCommand (emctaskmain.cc)
+calls emcAxisSetFerror (taskintf.cc)
 which sends EMCMOT_SET_MAX_FERROR
+++++
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [ferror, double]
 
@@ -391,8 +401,10 @@ Read To: emcTaskIssueCommand (emctaskmain.cc) +
 calls emcAxisAbsJog (taskintf.cc) +
 which sends EMCMOT_JOG_ABS
 
-Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] +
+++++
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 [pos, double] [vel, double]
+++++
 
 === EMC_AXIS_ACTIVATE_TYPE
 
@@ -765,8 +777,10 @@ Read To: checkInterpList, emcTaskIssueCommand (emctaskmain.cc) +
 calls emcTrajCircularMove (minimill | bridgeporttaskintf.cc) +
 which sends EMCMOT_SET_CIRCLE
 
+++++
 Parameter, Type: [end, EmcPose] [center, PM_CARTESIAN] 
 [normal, PM_CARTESIAN] [turn, int]
+++++
 
 === EMC_TRAJ_SET_TERM_COND_TYPE
 
@@ -968,8 +982,10 @@ Read To: emcTaskIssueCommand (emctaskmain.cc) +
 calls emcMotionSetAout (minimill | bridgeporttaskintf.cc) +
 which sends EMCMOT_SET_AOUT
 
+++++
 Parameter, Type: [index, unsigned char] [start, double] 
 [end, double] [now, unsigned char]
+++++
 
 === EMC_MOTION_SET_DOUT_TYPE
 
@@ -993,8 +1009,10 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [heartbeat, unsigned long int] [traj, EMC_TRAJ_STAT] +
+++++
+Parameter, Type: [heartbeat, unsigned long int] [traj, EMC_TRAJ_STAT]
 [axis[EMC_AXIS_MAX], EMC_AXIS_STAT]
+++++
 
 == EMC TASK
 
@@ -1374,12 +1392,14 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [estop, int] +
-[estopIn, int] +
-[dout, unsigned char[EMC_AUX_MAX_DOUT]] +
-[din, unsigned char[EMC_AUX_MAX_DIN]] +
-[aout, double[EMC_AUX_MAX_AOUT]] +
+++++
+Parameter, Type: [estop, int]
+[estopIn, int]
+[dout, unsigned char[EMC_AUX_MAX_DOUT]]
+[din, unsigned char[EMC_AUX_MAX_DIN]]
+[aout, double[EMC_AUX_MAX_AOUT]]
 [ain, double[EMC_AUX_MAX_AIN]]
+++++
 
 == EMC SPINDLE
 
@@ -1541,11 +1561,13 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [speed, double] +
-[direction, int] +
-[brake, int] +
-[increasing, int] +
+++++
+Parameter, Type: [speed, double]
+[direction, int]
+[brake, int]
+[increasing, int]
 [enabled, int]
+++++
 
 == EMC COOLANT
 
@@ -1842,12 +1864,14 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [heartbeat, unsigned long int] +
-[tool, EMC_TOOL_STAT] +
-[spindle, EMC_SPINDLE_STAT] +
-[coolant, EMC_COOLANT_STAT] +
-[aux, EMC_AUX_STAT] +
-[lube, EMC_LUBE_STAT] 
+++++
+Parameter, Type: [heartbeat, unsigned long int]
+[tool, EMC_TOOL_STAT]
+[spindle, EMC_SPINDLE_STAT]
+[coolant, EMC_COOLANT_STAT]
+[aux, EMC_AUX_STAT]
+[lube, EMC_LUBE_STAT]
+++++
 
 == EMC INIT, HALT, & ABORT
 
@@ -1901,14 +1925,16 @@ Read To: emcTaskIssueCommand (emctaskmain.cc) +
 calls emcLogOpen (taskintf.cc) +
 which sends EMCMOT_OPEN_LOG
 
-Parameter, Type: [file, char[LINELEN]] +
-[type, int] +
-[size, int] +
-[skip, int] +
-[which, int] +
-[triggerType, int] +
-[triggerVar, int] +
+++++
+Parameter, Type: [file, char[LINELEN]]
+[type, int]
+[size, int]
+[skip, int]
+[which, int]
+[triggerType, int]
+[triggerVar, int]
 [triggerThreshold, double]
+++++
 
 === EMC_LOG_START_TYPE
 

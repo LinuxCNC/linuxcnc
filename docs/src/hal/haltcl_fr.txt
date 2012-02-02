@@ -17,7 +17,7 @@ le langage TCL ainsi que l'extension .tcl pour les fichiers de HAL.
 
 L'extension .tcl est comprise par le script principal (linuxcnc) qui traite
 les fichiers ini. Les fichiers haltcl sont identifiés dans la section [HAL]
-des fichiers (de même que les fichiers .hal).
+des fichiers ini (comme les fichiers .hal).
 
 .Exemple
 ----
@@ -130,8 +130,8 @@ est implicitement traitée comme une expression dans le langage Tcl.
 setp scale.0.gain 6.28/360.0*$::AXIS_0(radius)*60.0
 ----
 
-Les espaces blancs ne sont pas autorisés dans les expressions, utiliser les
-guillemets doubles à la place:
+Les espaces blancs ne sont pas autorisés dans les expressions, utiliser des
+guillemets doubles pour s'en affranchir:
 
 ----
 setp scale.0.gain "6.28 / 360.0 * $::AXIS_0(radius) * 60.0"
@@ -169,7 +169,7 @@ setp stepgen.0.maxaccel $::AXIS_0(MAXACCEL)*1.05
 
 Autres caractéristiques de haltcl, les boucles et les tests.
 Par exemple, beaucoup de configurations utilisent les fichiers .hal
-"core_sim.hal" ou "core_sim9.hal". Ceux-ci diffèrent du fait de la nécessité
+_core_sim.hal_ ou _core_sim9.hal_. Ceux-ci diffèrent du fait de la nécessité
 de connecter plus ou moins d'axes. Le code haltcl suivant devrait fonctionner
 pour n'importe quelle combinaison d'axes dans une machine à cinématique
 triviale (trivkins).

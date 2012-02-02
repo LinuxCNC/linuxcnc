@@ -21,7 +21,6 @@ translate = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8'
 
 class Hershey:
     def __init__(self):
-        self.lists = glGenLists(10)
         self.hershey = (
     # 0
         [[(240.0, 20.0), (180.0, 40.0), (140.0, 100.0), (120.0, 200.0),
@@ -96,6 +95,7 @@ class Hershey:
           ]]
 
        ) 
+        self.lists = glGenLists(len(self.hershey))
 
         for i in range(len(self.hershey)):
             digit = self.hershey[i]

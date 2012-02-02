@@ -131,7 +131,7 @@ Onscreen Prompt For Tool Change::
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom HAL file
 
-== Latency Test[[latency-test]](((Latency Test)))
+== Latency Test[[sub:latency-test]](((Latency Test)))
 
 While the test is running, you should 'abuse' the computer. Move
 windows around on the screen. Surf the web. Copy some large files

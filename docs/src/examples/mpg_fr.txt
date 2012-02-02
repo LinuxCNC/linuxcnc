@@ -1,8 +1,10 @@
 :lang: fr
 :toc:
 
+= Utilisation d'une manivelle
+
 [[cha:Manivelle-Electronique]]
-= Utilisation d'une manivelle (MPG) 
+(((MPG)))
 
 Cet exemple explique comment relier une manivelle, facile à trouver
 aujourd'hui sur le marché. Cet exemple utilisera la manivelle MPG3 avec
@@ -17,7 +19,7 @@ augmenter le nombre de ces composants.
 
 # Manivelle de jog
 
-------------------------------------------------------
+----
 loadrt encoder num_chan=1
 loadrt mux4 count=1
 addf encoder.capture-position servo-thread
@@ -69,6 +71,6 @@ net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
 net pend-counts axis.0.jog-counts <= encoder.0.counts 
 net pend-counts axis.1.jog-counts 
 net pend-counts axis.2.jog-counts
------------------------------------------------------
+----
 
 

@@ -14,12 +14,12 @@ toutes) utilisent un système de coordonnées courant, le système
 Cartésien.
 
 Le système de coordonnées Cartésiennes est composé de 3 axes (X, Y, Z)
-chacun perpendiculaire aux 2 autres. footnote:[Le mot “axes” est aussi
+chacun perpendiculaire aux 2 autres. footnote:[Le mot _axes_ est aussi
 communément (et incorrectement) utilisé à
 propos des machines CNC, il fait référence aux directions des
 mouvements de la machine.]
 
-Quand nous parlons d'un programme G-code (RS274NGC) nous parlons d'un
+Quand nous parlons d'un programme G-code (RS274/NGC) nous parlons d'un
 certain nombre de commandes (G0, G1, etc.) qui ont comme paramètres (X-
 Y- Z-). Ces positions se référent exactement à des positions
 Cartésiennes. Une partie du contrôleur de mouvements de LinuxCNC est
@@ -111,8 +111,7 @@ image::images/bipod.png[]
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
 placés sur un mur, à cet appareil un mobile est suspendu par des fils.
 Les articulations dans ce cas sont les distances entre le mobile et les
-moteurs de l'appareil (nommées AD et BD sur la figure 
-<<cap:Bipod-setup>>).
+moteurs de l'appareil (nommées AD et BD sur la figure ci-dessus.
 
 La position des moteurs est fixée par convention. Le moteur A est en
 (0,0), qui signifie que sa coordonnée X est 0 et sa coordonnée Y
@@ -171,11 +170,11 @@ sorte que nous pouvons l'écrire directement:
 
 ou traduite en code:
 ----
-    double x2 = pos->tran.x * pos->tran.x; 
-    double y2 = pos->tran.y * pos->tran.y; 
-    joints[0] = sqrt(x2 + y2); 
-    joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
-    return 0;
+double x2 = pos->tran.x * pos->tran.x; 
+double y2 = pos->tran.y * pos->tran.y; 
+joints[0] = sqrt(x2 + y2); 
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
+return 0;
 ----
 
 == Détails d'implémentation
@@ -184,31 +183,26 @@ Un module cinématique est implémenté comme un composant de HAL, et il
 est permis d'exporter ses pins et ses paramètres. Il consiste en
 quelques fonctions “C” (par opposition au fonctions de HAL):
 
- - `int kinematicsForward(const double *joint, EmcPose *world, const
-   KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
-   Implémente la fonction cinématique avant, comme décrite dans la
-   section <<sec:Forward-transformation>>.
- - `int kinematicsInverse(const EmcPose * world, double *joints, const
-   KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)`
-   Implémente la fonction cinématique inverse, comme décrite dans la
-   section <<sec:Inverse-transformation>>.
- - `KINEMATICS_TYPE kinematicsType(void)`
-   Retourne l'identificateur de type de la cinématique, typiquement
-   `KINEMATICS_BOTH`.
- - `int kinematicsHome(EmcPose *world, double *joint,
-   KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
+int kinematicsForward(const double *joint, EmcPose *world, const KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)::
+        Implémente <<sec:Forward-transformation,la fonction cinématique avant>>.
+int kinematicsInverse(const EmcPose * world, double *joints, const KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)::
+        Implémente <<sec:Inverse-transformation,la fonction cinématique inverse>>.
+KINEMATICS_TYPE kinematicsType(void)_::
+        Retourne l'identificateur de type de la cinématique, typiquement
+   _KINEMATICS_BOTH_.
+int kinematicsHome(EmcPose *world, double *joint, KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)::
    La fonction prise d'origine de la cinématique ajuste tous ses
    arguments à leur propre valeur à une position d'origine connue. Quand
    elle est appelée, cette position doit être ajustée, quand elle est
    connue, comme valeurs initiales, par exemple depuis un fichier INI. Si
    la prise d'origine de la cinématique peut accepter des points de départ
    arbitraires, ces valeurs initiales doivent être utilisées.
- - `int rtapi_app_main(void)`
- - `void rtapi_app_exit(void)`
+int rtapi_app_main(void)::
+void rtapi_app_exit(void)::
    Il s'agit des fonctions standards d'installation et de la
    désinstallation des modules RTAPI.
 
 Quand ils sont contenus dans un seul fichier source, les modules de la
-cinématique peuvent être compilés et installés par `«comp`». Voir la
-manpage `«comp(1)»` pour d'autres informations.
+cinématique peuvent être compilés et installés par _comp_. Voir la
+manpage _comp(1)_ pour d'autres informations.
 

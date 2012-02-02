@@ -21,8 +21,8 @@ moteurs), le système nécessite donc d'être configuré correctement pour
 que les moteurs ne perdent pas de pas et ne calent pas.
 
 Ce chapitre s'appuie sur la configuration fournie d'origine avec LinuxCNC
-appelée *stepper*(((stepper))) et qui se trouve habituellement dans
-*+/etc/linuxcnc/sample-configs/stepper+*.
+appelée _stepper_(((stepper))) et qui se trouve habituellement dans
+_/etc/linuxcnc/sample-configs/stepper_.
 
 [[sec:Maximum-step-rate]]
 == Fréquence de pas maximale(((Frequence de pas maximale)))
@@ -68,8 +68,8 @@ Les premiers signaux et pins relatifs au brochage sont:footnote:[Note:
 pour rester concis, nous ne présenterons qu'un seul axe, tous
 les autres sont similaires.]
 ----
-    signaux: Xstep, Xdir et Xen
-    pins: parport.0.pin-XX-out & parport.0.pin-XX-in
+signaux: Xstep, Xdir et Xen
+pins: parport.0.pin-XX-out & parport.0.pin-XX-in
 ----
 
 Pour configurer le fichier ini, il est possible de choisir entre les
@@ -77,7 +77,7 @@ deux brochages les plus fréquents, devenus des standards de fait, le
 brochage standard_pinout.hal ou le brochage xylotex_pinout.hal. Ces
 deux fichiers indiquent à HAL comment raccorder les différents signaux
 aux différentes pins. Dans la suite, nous nous concentrerons sur le
-brochage *standard_pinout.hal*.
+brochage _standard_pinout.hal_.
 
 
 === Le fichier standard_pinout.hal[[sec:standard-pinout.hal]]
@@ -166,7 +166,7 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 
 ----
 
-Les lignes commençant par *#* sont des commentaires, aidant à la
+Les lignes commençant par *#* sont des commentaires, aident à la
 lecture du fichier.
 
 
@@ -196,7 +196,7 @@ dans un éditeur de texte puis d'y localiser les parties à modifier.
 
 Si vous voulez par exemple, modifier les broches de pas et de
 direction de l'axe X, il vous suffit de modifier le numéro de la
-variable nommée *parport.0.pin-XX-out*:
+variable nommée _parport.0.pin-XX-out_:
 ----
 net Xstep parport.0.pin-03-out 
 net Xdir  parport.0.pin-02-out
@@ -216,8 +216,8 @@ Attention: il faut être certain de n'avoir qu'un seul signal connecté
 [[sec:Modifier-la-polarite]]
 === Modifier la polarité d'un signal(((signal polarite)))
 
-Si une interface attends un signal *actif bas*, ajouter une ligne avec
-le paramètre d'inversion de la sortie, *-invert*. Par exemple, pour
+Si une interface attends un signal _actif bas_, ajouter une ligne avec
+le paramètre d'inversion de la sortie, _-invert_. Par exemple, pour
 inverser le signal de rotation de la broche:
 ----
 setp parport.0.pin-09-invert TRUE
@@ -227,7 +227,7 @@ setp parport.0.pin-09-invert TRUE
 === Ajouter le contrôle de vitesse broche en PWM(((Vitesse broche PWM)))
 
 Si votre vitesse de broche peut être contrôlée par un signal de PWM,
-utilisez le composant *pwmgen* pour créer ce signal:
+utilisez le composant _pwmgen_ pour créer ce signal:
 ----
 loadrt pwmgen output_type=0
 addf pwmgen.update servo-thread
@@ -241,15 +241,16 @@ setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
 Ce qui donnera le fonctionnement suivant, pour un signal PWM à: 0%
 donnera une vitesse de 0tr/mn, 10% une vitesse de 180tr/mn, etc. Si un
 signal PWM supérieur à 0% est requis pour que la broche commence à
-tourner, suivez l'exemple du fichier de configuration *nist-lathe* qui
-utilise un composant d'échelle (*scale*).
+tourner, suivez l'exemple du fichier de configuration _nist-lathe_ qui
+utilise un composant d'échelle (_scale_).
 
 
-=== Ajouter un signal de validation *enable*[[sec:Ajouter-signal-enable]] (((signal enable)))
+=== Ajouter un signal de validation *enable*[[sec:Ajouter-signal-enable]] 
+(((signal enable)))
 
-Certains pilotes de moteurs requiert un signal de validation *enable*
+Certains pilotes de moteurs requiert un signal de validation _enable_
 avant d'autoriser tout mouvement du moteur. Pour celà des signaux sont
-déjà définis et appelés *Xen*, *Yen*, *Zen*.
+déjà définis et appelés _Xen_, _Yen_, _Zen_.
 
 Pour les connecter vous pouvez utilisez l'exemple suivant:
 ----
@@ -264,7 +265,7 @@ validation pour l'ensemble est parfaitement sécurisé.
 
 === Ajouter un bouton d'Arrêt d'Urgence externe (((A/U)))
 
-Comme vous pouvez le voir à la section <<sec:standard-pinout.hal>>,
+Comme vous pouvez <<sec:standard-pinout.hal,le voir ici>>,
 par défaut la configuration standard n'utilise pas de bouton d'Arrêt
 d'Urgence externe. footnote:[Une explication complète sur la manière de
 gérer les circuiteries d'Arrêt d'Urgence se trouve sur le 
@@ -288,9 +289,9 @@ Ce qui implique qu'un bouton d'Arrêt d'Urgence soit connecté sur la
 broche 01 du port parallèle. Tant que le bouton est enfoncé (le contact
 ouvert)footnote:[Utiliser exclusivement des contacts normalement fermés
 pour les A/U.], 
-LinuxCNC restera dans l'état *Arrêt d'Urgence* (ESTOP). Quand le bouton
+LinuxCNC restera dans l'état _Arrêt d'Urgence_ (ESTOP). Quand le bouton
 externe sera relâché, LinuxCNC passera immédiatement dans l'état 
-*Arrêt d'Urgence Relâché* (ESTOP-RESET) vous pourrez ensuite mettre 
+_Arrêt d'Urgence Relâché_ (ESTOP-RESET) vous pourrez ensuite mettre 
 la machine en marche en pressant 
-le bouton *Marche machine* (((marche machine))) et
+le bouton _Marche machine_ (((marche machine))) et
 vous êtes alors prêt à continuer votre travail avec LinuxCNC.

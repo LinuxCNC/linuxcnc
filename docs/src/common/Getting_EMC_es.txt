@@ -247,7 +247,7 @@ Para probar LinuxCNC desde el menú de Applications/CNC seleccione LinuxCNC. Ent
 una configuración sim (simulador) para hacer pruebas.
 
 Para revisar si su computadora es candidata apta para la generación de pasos por software
-corra una prueba de latencia como se describe en la sección (<<sec:latency-test>>)
+corra una prueba de latencia como se describe en la sección (<<sub:latency-test,Latency Test>>)
 
 === Instalar LinuxCNC
 
