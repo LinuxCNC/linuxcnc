@@ -151,11 +151,11 @@ Unloads a userspace component or realtime module.  If \fIcompname\fR is "all",
 it will unload all userspace components and realtime modules.
 .TP
 \fBnewsig\fR \fIsigname\fR \fItype\fR
-(\fInew\fR \fIsig\fRnal)  Creates a new HAL signal called
-\fIsigname\fR that may later be used to connect two or more
-HAL component pins.  \fItype\fR is the data type of the new
-signal, and must be one of "\fBbit\fR", "\fBs32\fR", "\fBu32\fR", or
-"\fBfloat\fR".
+(OBSOLETE - use \fBnet\fR instead) (\fInew\fR \fIsig\fRnal)
+Creates a new HAL signal called \fIsigname\fR that may later
+be used to connect two or more HAL component pins.  \fItype\fR
+is the data type of the new signal, and must be one of "\fBbit\fR",
+"\fBs32\fR", "\fBu32\fR", or "\fBfloat\fR".
 Fails if a signal of the same name already exists.
 .TP
 \fBdelsig\fR \fIsigname\fR
@@ -178,9 +178,9 @@ Legal values depend on the signals's type.
 if \fIsigname\fR does not exist.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
-(\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishs a link
-between a HAL component pin \fIpinname\fR and a HAL signal
-\fIsigname\fR.  Any previous link to \fIpinname\fR will be
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIs\fRignal)
+Establishs a link between a HAL component pin \fIpinname\fR and
+a HAL signal \fIsigname\fR.  Any previous link to \fIpinname\fR will be
 broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
 or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
 in command files to document the direction of data flow.  Arrows
@@ -189,16 +189,16 @@ to interpret them.  Fails if either \fIpinname\fR or \fIsigname\fR
 does not exist, or if they are not the same type type.
 .TP
 \fBlinksp\fR \fIsigname\fR [\fIarrow\fR] \fIpinname\fR
-(\fIlink\fR \fIs\fRignal to \fIp\fRin)  Works like \fBlinkps\fR
-but reverses the order of the arguments.  \fBhalcmd\fR treats
-both link commands exactly the same.  Use whichever you prefer.
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIs\fRignal to \fIp\fRin)
+Works like \fBlinkps\fR but reverses the order of the arguments.
+\fBhalcmd\fR treats both link commands exactly the same.  Use whichever
+you prefer.
 .TP
 \fBlinkpp\fR \fIpinname1\fR [\fIarrow\fR] \fIpinname2\fR
-(OBSOLETE - use \fBnet\fR instead)
-(\fIlink\fR \fIp\fRin to \fIp\fRin)  Shortcut for \fBlinkps\fR
-that creates the signal (named like the first pin), then links 
-them both to that signal.  \fBhalcmd\fR treats this just as if
-it were:
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIp\fRin)
+Shortcut for \fBlinkps\fR that creates the signal (named like the
+first pin), then links them both to that signal.  \fBhalcmd\fR treats
+this just as if it were:
    \fBhalcmd\fR \fBnewsig\fR pinname1 
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
@@ -265,9 +265,9 @@ their functions.
 Prints HAL items to \fIstdout\fR in human readable format.
 \fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
 "\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
-(functions), or "\fBthread\fR".  The type "\fBall\fR" can be used to show
-matching items of all the preceeding types.  If \fIitem\fR is omitted,
-\fBshow\fR will print everything.
+(functions), "\fBthread\fR", or "\fBalias\fR.  The type "\fBall\fR"
+can be used to show matching items of all the preceeding types.
+If \fIitem\fR is omitted, \fBshow\fR will print everything.
 .TP
 \fBitem\fR
 This is equivalent to \fBshow all [item]\fR.
@@ -293,6 +293,51 @@ equivalent of \fBcomp\fR, \fBsigu\fR, \fBlink\fR, \fBparam\fR, and \fBthread\fR.
 .TP
 \fBsource\fR  \fIfilename.hal\fR
 Execute the commands from \fIfilename.hal\fR.
+.TP
+\fBalias\fR \fItype\fR \fIname\fR \fIalias\fR
+Assigns "\fBalias\fR" as a second name for the pin or parameter
+"name".  For most operations, an alias provides a second
+name that can be used to refer to a pin or parameter, both the
+original name and the alias will work.
+   "type" must be \fBpin\fR or \fBparam\fR.
+   "name" must be an existing name or \fBalias\fR of the specified type.
+.TP
+\fBunalias\fR \fItype\fR \fIalias\fR
+Removes any alias from the pin or parameter alias.
+  "type" must be \fBpin\fR or \fBparam\fR
+  "alias" must be an existing name or \fBalias\fR of the specified type.
+.TP
+\fBlist\fR \fItype\fR [\fIpattern\fR]
+  Prints the names of HAL items of the specified type.
+  'type' is '\fBcomp\fR', '\fBpin\fR', '\fBsig\fR', '\fBparam\fR', '\fBfunct\fR', or
+  '\fBthread\fR'.  If 'pattern' is specified it prints only
+  those names that match the pattern, which may be a
+  'shell glob'.
+  For '\fBsig\fR', '\fBpin\fR' and '\fBparam\fR', the first pattern may be
+  -t\fBdatatype\fR where datatype is the data type (e.g., 'float')
+  in this case, the listed pins, signals, or parameters
+  are restricted to the given data type
+  Names are printed on a single line, space separated.
+.TP
+\fBlock\fR [\fIall\fR|\fItune\fR|\fInone\fR]
+  Locks HAL to some degree.
+  none - no locking done.
+  tune - some tuning is possible (\fBsetp\fR & such).
+  all  - HAL completely locked.
+.TP
+\fBunlock\fR [\fIall\fR|\fItune\fR]
+  Unlocks HAL to some degree.
+  tune - some tuning is possible (\fBsetp\fR & such).
+  all  - HAL completely unlocked.
+.TP
+\fBstatus\fR [\fItype\fR]
+  Prints status info about HAL.
+  'type' is '\fBlock\fR', '\fBmem\fR', or '\fBall\fR'.
+  If 'type' is omitted, it assumes '\fBall\fR'.
+.TP
+\fBhelp\fR [\fIcommand\fR]
+  Give help information for command.
+  If 'command' is omitted, list command and brief description
 .SH SUBSTITUTION
 After a command is read but before it is executed, several types of variable
 substitution take place.
