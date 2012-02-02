@@ -178,7 +178,7 @@ function ErrorCheck () {
             fi
 
             echo "\
-EMC terminated with an error.  You can find more information in the log:
+LinuxCNC terminated with an error.  You can find more information in the log:
     $HOME/linuxcnc_debug.txt
 and
     $HOME/linuxcnc_print.txt
@@ -505,7 +505,7 @@ function Cleanup() {
 # 4. done with function definitions, execution resumes here
 ################################################################################
 
-# Name of lock file to check for that signifies that EMC is up,
+# Name of lock file to check for that signifies that LinuxCNC is up,
 # to prevent multiple copies of controller
 LOCKFILE=/tmp/linuxcnc.lock
 
@@ -572,7 +572,7 @@ if [ "$img" != "" ] ; then
 fi
  
 ################################################################################
-# 4.2. Now we can finally start loading EMC
+# 4.2. Now we can finally start loading LinuxCNC
 ################################################################################
 
 # 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
@@ -673,7 +673,7 @@ done
 $HALCMD start
 
 # 4.3.9. Run task in background
-echo "Starting EMC2 TASK program: $EMCTASK" >>$PRINT_FILE
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
 if ! program_available $EMCTASK ; then
     echo "Can't execute TASK program $EMCTASK"
     Cleanup
@@ -682,7 +682,7 @@ fi
 $EMCTASK -ini "$INIFILE" &
 
 # 4.3.10. Run display in foreground
-echo "Starting EMC2 DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
+echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 result=0
 case $EMCDISPLAY in
   tklinuxcnc|mini)
