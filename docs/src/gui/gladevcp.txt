@@ -1519,7 +1519,7 @@ My gladevcp panel in Axis doesnt save state when I close Axis, although I define
 I defined a `hal_spinbutton` widget in glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
 
 
-  this is due to a bug in the old Gtk version distributed with Ubuntu
+  this is due to a bug in the old   Gtk version distributed with Ubuntu
   8.04 and 10.04, and is likely to be the case for all widgets using
   adjustment. The workaround mentione for instance in
   http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
@@ -1534,7 +1534,17 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
     widget.set_value(3.14)
 ----------------------------------
 
-// FIXME this is out of date
+
+I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
+
+
+    See the example in configs/gladevcp/colored-label.  Setting the
+    background color of a GtkLabel widget (and HAL_Label is derived
+    from GtkLabel) is a bit tricky. The GtkLabel widget has no window
+    object of its own for performance reasons, and only window objects
+    can have a background color. The solution is to enclose the Labl
+    in an EventBox container, which has a window but is otherwise
+    invisible - see the coloredlabel.ui file.
 == Troubleshooting
 
  -  make sure your have the development version of LinuxCNC installed. You
