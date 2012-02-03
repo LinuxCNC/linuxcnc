@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:Le-G-code]]
-= Tout le G-code de LinuxCNC (((Tout le G-code)))
+= Tout le G-code de LinuxCNC 
+
+[[cha:Le-G-code]] (((Le G-code)))
 
 == Conventions d'écriture du G-code
 
@@ -640,7 +641,7 @@ Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
 |       9|                      9 | G59.3
 |==========================================
 
-Les systèmes de coordonnées utilisés par <<sec:Systemes-de-coordonnees, le 
+Les systèmes de coordonnées utilisés par <<cha:Systemes-de-coordonnees, le 
 langage G-code sont décrits ici>>.
 
 [[sec:G10-L10]]
@@ -1158,7 +1159,7 @@ C'est une erreur si:
 * _G53_ est utilisé sans que G0 ou G1 ne soit actif. 
 * _G53_ est utilisé alors que la compensation de rayon d'outil est active.
 
-Étudier cette vue <<sec:Systemes-de-coordonnees, complète des systèmes de 
+Étudier cette vue <<cha:Systemes-de-coordonnees, complète des systèmes de 
 coordonnées>> et de leurs décalages, pour bien maîtriser ces concepts.
 
 [[sec:G54-a-G59-3]]
@@ -1207,7 +1208,7 @@ C'est une erreur si:
 * Un de ces G-codes est utilisé alors que la compensation de rayon 
    d'outil est active.
 
-Voir la section <<sec:Systemes-de-coordonnees, sur les systèmes de coordonnée>> 
+Voir la section <<cha:Systemes-de-coordonnees, sur les systèmes de coordonnée>> 
 pour une vue complète.
 
 [[sec:G61-G61-1-G64]]
@@ -1953,7 +1954,7 @@ G91.1 Mode distance incrémentale pour les offsets I, J et K.
 G92 X- Y- Z- A- B- C- U- V- W-
 ----
 
-Voir cette section <<sec:Systemes-de-coordonnees, pour une vision générale>> 
+Voir ce chapitre <<cha:Systemes-de-coordonnees, pour une vision générale>> 
 des systèmes de coordonnées.
 
 Pour donner au point actuel de nouvelles valeurs de coordonnées (sans

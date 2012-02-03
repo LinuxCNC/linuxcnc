@@ -3,6 +3,8 @@
 
 = Informations de configuration pour moteurs pas à pas
 
+[[cha:stepper-quickstart]] (((Stepper Quickstart)))
+
 Cette section suppose qu'une installation à partir du CD Live a été
 faite. Après cette installation et avant de continuer, il est
 recommandé de connecter le PC sur Internet pour y faire les dernières

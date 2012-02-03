@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[sec:Commandes-de-HAL]]
-= Commandes et composants de base (((Commandes de HAL)))
+= Commandes et composants de base
+
+[[sec:Commandes-de-HAL]] (((Commandes de HAL)))
 
 == Commandes de Hal
 

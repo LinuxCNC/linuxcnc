@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Systèmes de coordonnées et décalages[[sec:Systemes-de-coordonnees]]
+= Systèmes de coordonnées et décalages
 
-(((Systèmes de coordonnées)))
+[[sec:Systemes-de-coordonnees]] (((Systèmes de coordonnées)))
 
 == Introduction
 

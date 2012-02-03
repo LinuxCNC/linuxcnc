@@ -1,4 +1,9 @@
+:lang: fr
+:toc:
+
 = Pico PPMC
+
+[[cha:pico-drivers]] (((Pico PPMC Driver)))
 
 Le _Pico Systems_ est une famille de cartes pour contrôler les servos analogiques,
 les moteurs pas à pas et les servos numériques pilotés en PWM. Les cartes

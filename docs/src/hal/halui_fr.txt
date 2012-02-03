@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:Halui]]
-= L'interface Halui (((HAL User Interface)))
+= L'interface Halui
+
+[[cha:Halui]] (((HAL User Interface)))
 
 == Introduction[[sec:HaluiIntroduction]]
 

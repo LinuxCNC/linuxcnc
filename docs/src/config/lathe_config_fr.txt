@@ -1,15 +1,18 @@
 :lang: fr
 :toc:
 
-== Tours
+= Tours
 
-=== Plan par défaut
+[[cha:Configuration-tour]] (((Configuration tour)))
+
+== Plan par défaut
 
 Quand l'interpréteur de LinuxCNC à été créé, il à été écrit pour les
 fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur
 un tour standard on utilise seulement les axes du plan XZ (G18). Pour
 changer le plan par défaut d'un tour, mettez la ligne suivante dans la
 section RS274NGC du fichier ini.
+
 ----
 RS274NGC_STARTUP_CODE = G18
 ----
@@ -17,7 +20,7 @@ RS274NGC_STARTUP_CODE = G18
 La ligne de commande ci-dessus peut être remplacées par des G codes placés 
 dans le préambule du programme G-code.
 
-=== Réglages INI
+== Réglages INI
 
 Les réglages du fichier .ini suivants sont nécessaires dans Axis en mode tour, 
 en remplacement ou ajout au fichier .ini normal.

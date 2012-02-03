@@ -3,8 +3,7 @@
 
 = PyVCP
 
-[[cha:Panneau-Virtuel-Control]]
-(((Panneau de Contrôle Virtuel)))
+[[cha:Panneau-Virtuel-Control]] (((Panneau de Contrôle Virtuel)))
 
 == Introduction
 

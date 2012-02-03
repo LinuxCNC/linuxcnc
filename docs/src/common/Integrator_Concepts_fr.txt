@@ -1,4 +1,9 @@
+:lang: fr
+:toc:
+
 ﻿= Concepts importants pour l'intégrateur
+
+[[cha:integrator-concepts]] (((Integrator Concepts)))
 
 == Système de pas
 

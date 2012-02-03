@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:TkLinuxCNC]]
 = L'interface graphique TkLinuxCNC
+
+[[cha:TkLinuxCNC]] (((TkLinuxCNC)))
 
 == Introduction
 

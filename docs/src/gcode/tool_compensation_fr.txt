@@ -3,6 +3,8 @@
 
 = Les compensations d'outil
 
+[[cha:compensation-outil]] (((Compensation d'outil)))
+
 == Compensation de longueur d'outil
 
 === Toucher

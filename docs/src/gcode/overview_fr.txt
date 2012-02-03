@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Vue générale du langage G-codes de LinuxCNC[[cha:Vue-generale-G-code]]
+= Vue générale du langage G-codes de LinuxCNC
 
-(((Vue générale du G-code de LinuxCNC)))
+[[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))
 
 == Brève description 
 
@@ -266,7 +266,7 @@ numéro est égal à la valeur entière trouvée dans le paramètre 2.
 L'interpréteur maintient cette liste de paramètres, concernant l'outil courant:
 
 * _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
-section des <<sec:O-Codes,O Codes>>.
+section des <<cha:O-codes, O-codes>>.
 * _1-5000_ - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
 le fichier G-code.
 * _5061-5070_ - Résultat du palpage *G38.2* pour (X Y Z A B C U V W)

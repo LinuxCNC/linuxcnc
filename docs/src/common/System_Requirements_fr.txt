@@ -3,7 +3,9 @@
 
 = Quelle configuration est requise ?
 
-== Configuration minimale (((Configuration minimale)))
+[[cha:Configuration-requise]] (((Configuration requise)))
+
+== Configuration minimale
 
 La configuration minimale pour faire tourner LinuxCNC sous Ubuntu varie
 selon l'usage envisagé. Les moteurs pas à pas en général exigent, pour

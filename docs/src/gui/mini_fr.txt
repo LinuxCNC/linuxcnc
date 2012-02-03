@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:Mini]]
 = L'interface graphique MINI
+
+[[cha:Mini]] (((Mini)))
 
 == Introduction
 

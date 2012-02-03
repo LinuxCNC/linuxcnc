@@ -3,6 +3,9 @@
 
 = Configuration d'un système pas/direction (dir/step)
 
+[[cha:config-steppers]] (((Configuration pas/direction)))
+
+
 [[sec:Introduction]]
 == Introduction
 

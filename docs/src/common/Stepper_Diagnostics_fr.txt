@@ -3,6 +3,8 @@
 
 = Moteurs pas à pas
 
+[[cha:stepper-diagnostics]] (((Stepper Diagnostics)))
+
 Si ce que vous obtenez ne correspond pas à ce que vous espériez, la
 plupart du temps c'est juste un petit manque d'expérience. Accroître
 son expérience permet souvent une meilleure compréhension globale.
