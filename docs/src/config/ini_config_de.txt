@@ -153,8 +153,10 @@ User Manual.
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may select. 1.0 means 100% of
     the programmed spindle speed.
 
-* 'PROGRAM_PREFIX = ~/emc2/nc_files' - The default location for g-code files and the location for
-    user-defined M-codes.
+* 'PROGRAM_PREFIX = ~/emc2/nc_files' - The default location for g-code files
+    and the location for user-defined M-codes. This location is searched for
+    the file name before the subroutine path and user M path if specified
+    in the [RS274NGC] section.
 
 * 'INTRO_GRAPHIC = emc2.gif' - The image shown on the splash screen.
 
@@ -312,18 +314,20 @@ should be used by any filter that runs for a long time.
     directories to be searched when single-file subroutines are specified
     in gcode. These directories are searched after searching
     [DISPLAY]PROGRAM_PREFIX (if it is specified) and before searching
-    [WIZARD]WIZARD_ROOT (if specified). The first matching subroutine file
+    [WIZARD]WIZARD_ROOT (if specified). The paths are searched in the order
+    that they are listed. The first matching subroutine file
     found in the search is used. Directories are specified relative to the
     current directory for the inifile or as absolute paths. The list must
     contain no intervening whitespace.
 
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
-   Specifies a list of colon (:) separated directories
-   (no intervening whitespace) for user defined functions. The maximum
-   number of directories is defined at compile time by:
-   'USER_DEFINED_FUNCTION_MAX_DIRS=5'. Directories are specified relative to
-   the current directory for the inifile or as absolute paths. The list
-   must contain no intervening whitespace.
+   Specifies a list of colon (:) separated directories for user defined
+   functions. Directories are specified relative to the current directory
+   for the inifile or as absolute paths. The list must contain no intervening
+   whitespace.
+
+* 'USER_DEFINED_FUNCTION_MAX_DIRS=5'. The maximum number of directories defined
+   at compile time. 
 
 A search is made for each possible user defined function, typically
 (M100-M199). The search order is:

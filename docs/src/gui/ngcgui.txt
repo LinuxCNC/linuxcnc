@@ -20,6 +20,103 @@ Subroutines can be concatenated to build a complete program. Multiple
 instances of a subroutine can be used to perform the same task in different
 locations on the part. Any valid g-code can be used in the subroutine.
 
+== Demo Configs
+
+Three demo configurations are are located in the sim directory of the
+LinuxCNC configuration picker. The configuration picker is on the main menu
+Applications > CNC > LinuxCNC.
+
+* 'ngcgui' - a comprehensive example that contains these subroutines
+** 'simp' - a simple subroutine example that creates two circles
+** 'xyz' - creates a box based on two opposite corners
+** 'iquad' - creates an internal quadrilateral
+** 'db25' - creates a DB25 plug cutout
+** 'ihex' - creates an interal hexagon
+** 'gosper' - a recursion demo
+** 'Custom' - load other ngcgui-compatible subfiles
+** 'ttt' - True Type Tracer creates text for engraving
+
+* 'ngcgui-lathe' - an example with lathe subroutines
+** 'id' - bores the inside diameter
+** 'od' - turns the outside diameter
+** 'taper-od' - turns a taper on the outside diameter
+** 'Custom' - creates custom tabs
+
+* 'ngcgui-simple' - a simple example
+** 'simp' - a simple subroutine example that creates two circles
+** 'xyz' - creates a box based on two opposite corners
+
+To view the demonstration subroutines press the 'E-Stop' 
+image:images/tool_estop.gif[] then 'Machine Power' 
+image:images/tool_power.gif[] then 'Home All'. Pick a ngcgui tab and press
+'Create Feature' then 'Finalize'. Now press the 'Run'
+image:images/tool_run.gif[] button to watch it run.
+
+[NOTE]
+The demonstration subroutines should run on the simualated
+machine configurations included in the distribution.  A user
+should always understand the behavior and purpose of a program
+before running on a real machine.
+
+== Libraries
+
+The simulation configs for ngcgui use links to non-user-writable
+LinuxCNC libraries for:
+
+* 'ngcgui-compatible subfiles' - ngcgui_lib
+* 'Helper subroutines' - ngcgui_lib/utilitysubs
+* 'User M files' - ngcgui_lib/mfiles
+
+These libraries are defined by the ini file items:
+
+----
+[RS274NGC]
+SUBROUTINE_PATH = ../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH     = ../../../nc_files/ngcgui_lib/mfiles
+----
+
+[Note]
+These are long lines (not continued on multiple lines)
+that specify the directories used in a search patch.  The
+directory names are separated by colons (:)
+
+A user can create new directories for their own subroutines and
+M-files and add them to the search path(s).
+
+For example, a user could create directories from the terminal.
+
+----
+mkdir /home/myusername/mysubs
+mkdir /home/myusername/mymfiles
+----
+
+And then create or copy files to these user-writable directories.
+For instance, a user might create a ngcgui-compatible subfile named:
+
+----
+/home/myusername/mysubs/example.ngc
+----
+
+The ini file must be edited to include new subfiles and to
+augment the path(s).  For this example:
+
+----
+[RS274NGC]
+SUBROUTINE_PATH = /home/myusername/mysubs:../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH     = /home/myusername/mymfiles:../../../nc_files/ngcgui_lib/mfiles
+
+[DISPLAY]
+NGCGUI_SUBFILE = example.ngc
+----
+
+LinuxCNC and ngcgui use the first file found when searching
+directories in a search path.  With this behavior, you can
+supersede an ngcgui_lib subfile by placing a subfile with an
+identical name in a directory that is found earlier in the path
+search. More information can be found in the INI chapter of the 
+Integrators Manual.
+
+
 == Embedding NGCGUI in Axis
 
 Several NGCGUI examples are included with LinuxCNC and are located in the sim/ngcgui

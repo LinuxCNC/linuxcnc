@@ -787,11 +787,25 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
     to read letters via pointer calls to related
     reader functions. 'o' control lines have their
     own commands and command handlers. */
-    {
+  {
       CHP(read_o(line, &counter, block, parameters));
+
+      // if skipping, the conditionals are not evaluated and are therefore unconsumed
+      // so we can't check the rest of the line.  but don't worry, we'll get it later
+      if(_setup.skipping_o) return INTERP_OK;
+
+      // after if [...], etc., nothing is allowed except comments
+      for (; counter < length;) {
+          if(line[counter] == ';') read_semicolon(line, &counter, block, parameters);
+          else if (line[counter] == '(') read_comment(line, &counter, block, parameters);
+          else ERS("Unexpected character after O-word");
+      }
       return INTERP_OK;
-    }
-  else if(_setup.skipping_o != 0)
+  }
+
+  // non O-lines
+
+  if(_setup.skipping_o)
   {
       // if we are skipping, do NOT evaluate non-olines
       return INTERP_OK;
@@ -1495,7 +1509,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 
   // We stash the text the offset part of setup
 
-#define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
+#define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0 && (*counter += strlen(txt)))
   // characterize the type of o-word
 
   if(CMP("sub"))
@@ -1581,11 +1595,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    return INTERP_OK;
 	}
 
-        if (block->o_type == O_endsub) {
-	    *counter += strlen("endsub");
-        } else {
-	    *counter += strlen("return");
-        }
 	// optional return value expression
 	if (line[*counter] == '[') {
 	    CHP(read_real_expression(line, counter, &value, parameters));
@@ -1615,7 +1624,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
           return INTERP_OK;
       }
 
-      *counter += strlen("call");
       // convey starting state for call_fsm() to handle this call
       // convert_remapped_code() might change this to CS_REMAP 
       block->call_type = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ?
@@ -1658,7 +1666,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    return INTERP_OK;
       }
 
-      *counter += strlen("while");
       block->o_type = O_while;
       CHKS((line[*counter] != '['),
 	    _("Left bracket missing after 'while'"));
@@ -1674,7 +1681,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    return INTERP_OK;
           }
 
-          *counter += strlen("repeat");
           block->o_type = O_repeat;
           CHKS((line[*counter] != '['),
                _("Left bracket missing after 'repeat'"));
@@ -1690,7 +1696,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    return INTERP_OK;
       }
 
-      *counter += strlen("if");
       block->o_type = O_if;
       CHKS((line[*counter] != '['),
 	    _("Left bracket missing after 'if'"));
@@ -1706,7 +1711,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    return INTERP_OK;
       }
 
-      *counter += strlen("elseif");
       block->o_type = O_elseif;
       CHKS((line[*counter] != '['),
 	    _("Left bracket missing after 'elseif'"));
