@@ -540,7 +540,7 @@ int Interp::remap_finished(int phase)
 	    }
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
-	    logRemap("no more remaps in controlling_block found (remap_level=%d call_level=%d), remappings size=%d, dropping",
+	    logRemap("no more remaps in controlling_block found (remap_level=%d call_level=%d), remappings size=%zd, dropping",
 		     _setup.remap_level,_setup.call_level,cblock->remappings.size());
 
 	    status = execute_block(cblock,  &_setup);
