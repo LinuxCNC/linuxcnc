@@ -1108,8 +1108,6 @@ CMS_STATUS CMS::peek_raw()
  /* then read the message */
 CMS_STATUS CMS::queue_peek_raw()
 {
-    long queuing_header_offset;
-
     /* Produce error message if process does not have permission to read. */
     if (!read_permission_flag) {
 	rcs_print_error("CMS: %s was not configured to read %s\n",
@@ -1122,9 +1120,6 @@ CMS_STATUS CMS::queue_peek_raw()
 	rcs_print_error("CMS: handle_to_global_data is NULL.\n");
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
     }
-
-    /* Store the original offset so that we can update the header later. */
-    queuing_header_offset = handle_to_global_data->offset;
 
     /* Read the queuing header for the buffer. */
     if (-1 == handle_to_global_data->read(&queuing_header,
@@ -1243,8 +1238,6 @@ CMS_STATUS CMS::peek_encoded()
  /* then read the message */
 CMS_STATUS CMS::queue_peek_encoded()
 {
-    long queuing_header_offset;
-
     /* Produce error message if process does not have permission to read. */
     if (!read_permission_flag) {
 	rcs_print_error("CMS: %s was not configured to read %s\n",
@@ -1257,9 +1250,6 @@ CMS_STATUS CMS::queue_peek_encoded()
 	rcs_print_error("CMS: handle_to_global_data is NULL.\n");
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
     }
-
-    /* Store the original offset so we can update the queuing header later. */
-    queuing_header_offset = handle_to_global_data->offset;
 
     /* Read the encoded header for the buffer. */
     if (-1 == handle_to_global_data->read(encoded_queuing_header,
