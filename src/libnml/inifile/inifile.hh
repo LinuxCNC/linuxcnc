@@ -103,7 +103,8 @@ private:
 
     bool                        CheckIfOpen(void);
     bool                        LockFile(void);
-    void                        TildeExpansion(const char *file, char *path);
+    ErrorCode                   TildeExpansion(const char *file, char *path,
+					       size_t n);
     void                        ThrowException(ErrorCode);
     char                        *AfterEqual(const char *string);
     char                        *SkipWhite(const char *string);

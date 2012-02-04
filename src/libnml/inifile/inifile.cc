@@ -465,28 +465,34 @@ IniFile::LockFile(void)
    @param pointer for returning the resulting expanded name
 
  */
-void
+IniFile::ErrorCode
 IniFile::TildeExpansion(const char *file, char *path, size_t size)
 {
     char                        *home;
 
-    snprintf(path, size, "%s", file);
+    int res = snprintf(path, size, "%s", file);
+    if(res < 0 || (size_t)res >= size)
+        return ERR_CONVERSION;
 
     if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
 	/* no tilde expansion required, or unsupported
            tilde expansion type requested */
-	return;
+	return ERR_NONE;
     }
 
     home = getenv("HOME");
-    if (!home || strlen(home) + strlen(file) > size) {
-	return;
+    if (!home) {
+        ThrowException(ERR_CONVERSION);
+	return ERR_CONVERSION;
     }
 
-    /* Buffer overflow has already been checked. */
+    res = snprintf(path, size, "%s%s", home, file + 1);
+    if(res < 0 || (size_t)res >= size) {
+        ThrowException(ERR_CONVERSION);
+        return ERR_CONVERSION;
+    }
 
-    snprintf(path, size, "%s%s", home, file + 1);
-    return;
+    return ERR_NONE;
 }
 
 
