@@ -3074,12 +3074,10 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
                       double *parameters)       //!< array of system parameters                    
 {
   int operation;
-  int start_expression = 0;
 
   CHP(read_operation_unary(line, counter, &operation));
   CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME);
-  start_expression= *counter +1;
 
   if (operation == EXISTS)
   {

@@ -3,8 +3,7 @@
 
 = PyVCP
 
-[[cha:Panneau-Virtuel-Control]]
-(((Panneau de Contrôle Virtuel)))
+[[cha:Panneau-Virtuel-Control]] (((Panneau de Contrôle Virtuel)))
 
 == Introduction
 
@@ -628,9 +627,9 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage
 
 image::images/pyvcp_meter.png[]
 
-=== Roue codeuse (spinbox)
+=== Boîte d'incrément (spinbox)
 
-La roue codeuse contrôle une pin FLOAT. La valeur de la pin est
+La boîte d'incrément contrôle une pin FLOAT. La valeur de la pin est
 augmentée ou diminuée de la valeur de _resolution_, à chaque pression
 sur une flèche, ou en positionnant la souris sur le nombre puis en
 tournant la molette de la souris.
@@ -716,9 +715,9 @@ avec les grands nombres).
 
 image::images/pyvcp_dial.png[]
 
-=== Bouton tournant (jogwheel)
+=== Manivelle (jogwheel)
 
-Le bouton tournant imite le fonctionnement d'une vraie manivelle,
+La manivelle imite le fonctionnement d'une vraie manivelle,
 en sortant sur une pin FLOAT la valeur sur laquelle est positionné le
 curseur, que ce soit en le faisant tourner avec un mouvement
 circulaire, ou en tournant la molette de la souris.

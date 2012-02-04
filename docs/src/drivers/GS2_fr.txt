@@ -3,7 +3,8 @@
 
 = Variateur de fréquence GS2
 
-(((Variateur de fréquence GS2)))
+[[cha:Variateur-GS2]] (((Variateur de fréquence GS2)))
+
 
 Composant de HAL pour la série de variateurs de fréquence GS2 fournie par
 la société Automation Direct.

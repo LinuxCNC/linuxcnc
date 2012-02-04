@@ -3,8 +3,7 @@
 
 = Assistant graphique de configuration Mesa
 
-[[cha:Assistant-graphique-PNCConf]]
-(((Assistant graphique de configuration Mesa pncconf)))
+[[cha:Assistant-graphique-PNCConf]] (((Assistant graphique de configuration Mesa pncconf)))
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
 sorties Mesa et jusqu'à trois ports parallèles. Il est destiné à la

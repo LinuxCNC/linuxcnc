@@ -3,6 +3,8 @@
 
 = Aperçu global d'une machine CNC
 
+[[cha:Apercu-machine-CNC]] (((Aperçu machine CNC)))
+
 Cette section donne une description des différents organes constituant une
 machine à commande numérique (CNC).
 
@@ -259,13 +261,17 @@ trajectoire:
     
 Voir également les G-codes <<sec:G61-G61-1-G64, de contrôle de trajectoire>>.
 
+[[sec:Interaction-vitesses]] (((Interraction vitesse)))
+[[sec:Interaction-effacement-de-bloc]] (((effacement de bloc)))
+[[sec:Interaction-arrets-optionnels]] (((Arrêts optionnels)))
+
 == Interaction de l'interpréteur avec les boutons
 
 L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas
 l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
-=== Boutons de correction de vitesses[[sec:Interaction-vitesses]]
+=== Boutons de correction de vitesses
 
 L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
 l'action des boutons d'ajustement des vitesses. Pour certains
@@ -275,9 +281,7 @@ filetage, les boutons sont neutralisés automatiquement.
 LinuxCNC réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
-=== Bouton d'effacement de bloc[[sec:Interaction-effacement-de-bloc]]
-
-(((effacement de bloc)))
+=== Bouton d'effacement de bloc
 
 Si le bouton _Effacement de bloc_ est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
@@ -285,14 +289,13 @@ d'effacement de bloc) ne sont pas interprétées. Si le bouton est
 désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
 d'effacement de bloc doit être positionné avant de lancer le programme G-code.
 
-=== Bouton d'arrêt optionnel du programme[[sec:Interaction-arrets-optionnels]]
-
-(((Arrêts optionnels)))
+=== Bouton d'arrêt optionnel du programme
 
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
 est mis en pause.
 
-== Fichier d'outils[[sec:Fichier-Outils]]
+[[sec:Fichier-Outils]] (((Fichier d'outils)))
+== Fichier d'outils
 
 Un fichier d'outils est requis par l'interpréteur. Le fichier indique
 dans quels emplacements du carrousel sont placés les outils, la
@@ -319,9 +322,8 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 D'autres informations sont disponibles sur les spécificités du
 <<sec:Tool-Table-Format, format de la table d'outils>>.
 
-== Paramètres[[sec:Parametres]]
-
-(((paramètres)))
+[[sec:Parametres]] (((paramètres)))
+== Paramètres
 
 Dans le langage RS274/NGC, la machine maintient un tableau
 de 5400 paramètres numériques. La plupart d'entre eux ont un usage

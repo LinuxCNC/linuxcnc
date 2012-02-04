@@ -3,6 +3,8 @@
 
 = *comp*: un outil pour créer les modules HAL
 
+[[cha:comp-hal-component-generator]] (((Comp HAL Component Generator)))
+
 == Introduction
 
 Écrire un composant de HAL peut se révéler être une tâche ennuyeuse,

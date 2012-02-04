@@ -572,7 +572,6 @@ int hostname_matches_bufferline(char *bufline)
 	return 0;
     }
     j = 0;
-    k = 0;
     if (buffer_hostent_ptr->h_length != my_hostent.h_length) {
 	rcs_print_error("Mismatched hostentry lengths.\n");
 	return 0;

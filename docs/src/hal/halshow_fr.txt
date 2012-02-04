@@ -3,6 +3,8 @@
 
 = Les fonctionnalités de Halshow
 
+[[cha:halshow]] (((Halshow)))
+
 == Le script Halshow
 
 Le script halshow peut vous aider à retrouver votre chemin dans un HAL

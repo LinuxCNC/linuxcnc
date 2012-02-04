@@ -3,6 +3,8 @@
 
 = Conventions générales
 
+[[cha:References-generales]] (((Références générales)))
+
 == Les noms
 
 Toutes les entités de HAL sont accessibles et manipulées par leurs

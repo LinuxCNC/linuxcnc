@@ -3,9 +3,7 @@
 
 = LinuxCNC
 
-[float]
-Le contrôleur de machine amélioré
-=================================
+[[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))
 
 == Introduction
 

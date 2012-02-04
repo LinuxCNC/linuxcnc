@@ -6,13 +6,13 @@
 
 Conventions used in this section
 
-In the G Code prototypes the hyphen ('-') stands for a real value
+In the G code prototypes the hyphen ('-') stands for a real value
 and ('<>') denotes an optional item.
 
 If 'L-' is written in a prototype the '-' will often be referred to
 as the 'L number', and so on for any other letter.
 
-In the G Code prototypes the word 'axes' stands for any axis as defined
+In the G code prototypes the word 'axes' stands for any axis as defined
 in your configuration.
 
 An optional value will be written like this '<L->'.
@@ -34,7 +34,7 @@ in the absolute coordinate system.
 
 Where axis words are optional, any omitted axes will retain their original value.
 
-Any items in the G Code prototypes not explicitly described as
+Any items in the G code prototypes not explicitly described as
 optional are required.
 
 The values following letters are often given as explicit numbers.
@@ -80,7 +80,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G61-G61.1-G64,G61, G61.1>>   |Path Control Mode
 |<<sec:G61-G61.1-G64,G64>>          |Path Control Mode with Optional Tolerance
 |<<sec:G73-Drilling-Cycle,G73>>     |Drilling Cycle with Chip Breaking
-|<<sec:G76-Threading-Canned,G76>>   |Multipass Threading Cycle (Lathe)
+|<<sec:G76-Threading-Canned,G76>>   |Multi-pass Threading Cycle (Lathe)
 |<<sec:G80-Cancel-Modal,G80>>       |Cancel Motion Modes
 |<<sec:G81-Drilling-Cycle,G81>>     |Drilling Cycle
 |<<sec:G82-Drilling-Dwell,G82>>     |Drilling Cycle with Dwell
@@ -122,7 +122,7 @@ G90 (set absolute distance mode)
 G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more infomation.
+* See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more information.
 
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
@@ -205,7 +205,7 @@ unspecified, the behavior is as if 'P1' was given: that is, only one
 full or partial turn will result, giving an arc less than or equal to
 one full circle. For example, if an arc is programmed with P2, the
 resulting motion will be more than one full circle and up to two full
-circles (depending on the programmed endpoint.) Multiturn helical arcs
+circles (depending on the programmed endpoint.) Multi turn helical arcs
 are supported and give motion useful for milling holes or threads.
 
 If a line of code makes an arc and includes rotary axis motion,
@@ -240,7 +240,7 @@ optionally the number of turns are used to program full circles.
 
 When programming arcs an error due to rounding can result from using a
 precision of less than 4 decimal places (0.0000) for inch and less than
-3 decimal places (0.000) for millimetres.
+3 decimal places (0.000) for millimeters.
 
 .Incremental Arc Distance Mode
 Arc center offsets are a relative distance from the start location of the arc.
@@ -615,13 +615,13 @@ the other coordinates are not changed.
 G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
-The above example sets the XYZ coordinates of the coordinate system 1 to the unoffset origin.
+The above example sets the XYZ coordinates of the coordinate system 1 to the machine origin.
 
 .Coordinate System[[cap:Set-Coordinate-System]]
 
 [width="50%", options="header", cols="^,^,^"]
 |========================================
-|P Value |Coordinate System |G Code
+|P Value |Coordinate System |G code
 |0 |Active |n/a
 |1 |1 |G54
 |2 |2 |G55
@@ -657,9 +657,9 @@ useful with a probe move as described in the <<sec:G38-probe,G38>> section.
 
 .G10 L10 Example
 ----
-T1 M6 G43 (load tool 1 and tool lenght offsets)
+T1 M6 G43 (load tool 1 and tool length offsets)
 G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
-G43 (reload the tool lenght offsets from the changed tool table)
+G43 (reload the tool length offsets from the changed tool table)
 M2 (end program)
 ----
 * See <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> & <<sec:G43-G43.1,G43>>
@@ -738,7 +738,7 @@ These codes set the current plane as follows:
 The UV, WU and VW planes do not support arcs.
 
 It is a good idea to include a plane selection in the preamble
-of each g code file.
+of each G code file.
 
 The effects of having a plane selected are discussed in Section
 <<sec:G2-G3-Arc,G2 G3>> and Section <<sec:G80-G89,G81 G89>>
@@ -749,7 +749,7 @@ The effects of having a plane selected are discussed in Section
 * 'G21' - to use millimeters for length units.
 
 It is a good idea to include units in the preamble
-of each g code file.
+of each G code file.
 
 == G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]]
 (((G28)))
@@ -838,7 +838,7 @@ G0 X1.25 (rapid move tool away from work)
 Z0.1 (rapid move to starting Z position)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
+* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
 
 It is an error if:
 
@@ -863,7 +863,7 @@ A rigid tapping move consists of the following sequence:
 [WARNING]
 If the X Y coordinates specified are not the current coordinates when
 calling G33.1 for tapping the move will not be along the Z axis
-but will traverse from the current location to the X Y specificed.
+but will traverse from the current location to the X Y specified.
 
 . A move to the specified coordinate, synchronized with the spindle at
    the given ratio and starting with a spindle index pulse.
@@ -892,7 +892,7 @@ G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)
 G33.1 Z-0.750 K0.05 (rigid tap a 20 TPI thread 0.750 deep)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
+* See <<sec:G90-G91,G90>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
 
 It is an error if:
 
@@ -943,7 +943,7 @@ at the time the probe changed state.
 After unsuccessful probing, they are set to the coordinates of the programmed point.
 Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
 If the probing operation failed, G38.2 and G38.4 will signal an error
-by posting an message onscreen if the selected GUI supports that.
+by posting an message on screen if the selected GUI supports that.
 And by halting program execution.
 
 A comment of the form '(PROBEOPEN filename.txt)' will open
@@ -978,7 +978,7 @@ G40 (turn compensation off)
 G0 X1.6 (linear move longer than current cutter diameter)
 M2 (end program)
 ----
-See <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
+See <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
 
 It is an error if:
 
@@ -1073,7 +1073,7 @@ It is an error if:
 * the H number is not an integer, is negative, or is larger than the
    number of carousel slots.
 
-== G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-lengh-offset]]
+== G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-length-offset]]
 (((G43.1 Dynamic Tool Length Offset)))
 
 ----
@@ -1088,11 +1088,11 @@ G43.1 axes
 .G43.1 Example
 ----
 G90 (set absolute mode)
-T1 M6 G43 (load tool 1 and tool lenght offsets, Z is at machine 0 and DRO shows Z1.500)
+T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M2-M30,M2>> sections for more infomation.
+* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M2-M30,M2>> sections for more information.
 
 It is an error if:
 
@@ -1127,7 +1127,7 @@ selected coordinate system has offsets in effect.
 G53 G0 X0 Y0 Z0 (rapid linear move to the machine origin)
 G53 X2 (rapid linear move to absolute coordinate X2)
 ----
-* See <<sec:G0,G0>> section for more infomation.
+* See <<sec:G0,G0>> section for more information.
 
 It is an error if:
 
@@ -1223,7 +1223,7 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 ----
 
 It is a good idea to include a path control specification in the preamble
-of each g code file.
+of each G code file.
 
 == G90, G91 Distance Mode[[sec:G90-G91]]
 (((G90, G91 Distance Mode)))
@@ -1250,7 +1250,7 @@ G91 (set incremental distance mode)
 G0 X2.5 (rapid linear move 2.5 from current position along the X axis)
 ----
 
-* See <<sec:G0,G0>> section for more infomation.
+* See <<sec:G0,G0>> section for more information.
 
 == G90.1, G91.1 Arc Distance Mode[[sec:G90.1-G91.1]]
 (((Arc Distance Mode)))
@@ -1414,7 +1414,7 @@ This cycle takes a Q number which represents a 'delta' increment along the Z axi
 It is an error if:
 
 * the Q number is negative or zero.
-* the R number is not specificed
+* the R number is not specified
 
 == G76 Threading Cycle[[sec:G76-Threading-Canned]]
 
@@ -1711,7 +1711,7 @@ G80 (turn off canned cycle motion)
 G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 ----
 
-The folloing code produces the same final position and machine state as
+The following code produces the same final position and machine state as
 the previous code.
 
 .G0 Example

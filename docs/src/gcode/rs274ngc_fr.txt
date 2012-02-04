@@ -1,4 +1,9 @@
+:lang: fr
+:toc:
+
 = Différences avec RS274/NGC
+
+[[cha:Programmation-rs274ngc]] (((Programmation RS274/NGC)))
 
 == Changements entre RS274/NGC et LinuxCNC 
 

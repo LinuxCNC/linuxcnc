@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:Tour-Specifiques]]
-= Particularités des tours (((Particularités des tours)))
+= Particularités des tours
+
+[[cha:Tour-Specifiques]] (((Particularités des tours)))
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
 est encore en cours de rédaction.

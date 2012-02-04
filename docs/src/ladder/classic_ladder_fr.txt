@@ -1,4 +1,6 @@
-= Classic Ladder[[cha:Classic Ladder]](((Classic Ladder)))
+= Classic Ladder
+
+[[cha:Classic Ladder]] (((Classic Ladder)))
 
 == Introduction
 

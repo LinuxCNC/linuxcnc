@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[cha:TkLinuxCNC]]
 = L'interface graphique TkLinuxCNC
+
+[[cha:TkLinuxCNC]] (((TkLinuxCNC)))
 
 == Introduction
 
@@ -26,12 +27,12 @@ ci-dessous:
 DISPLAY = tklinuxcnc
 ----
 
-Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration *qui se
-trouve dans sim/tkemc.ini est* déjà configurée pour utiliser TkLinuxCNC
+Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration qui se
+trouve dans _sim/tkemc.ini_ est déjà configurée pour utiliser TkLinuxCNC
 comme interface utilisateur.
 
-Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre comme
-<<cap:affichage-TkLinuxCNC,celle-ci s'affiche>>.
+Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre 
+<<cap:affichage-TkLinuxCNC,comme celle-ci s'affiche>>.
 
 === Une session typique avec TkLinuxCNC
 
@@ -142,13 +143,13 @@ Les boutons de contrôle de la partie inférieure de TkLinuxCNC, visibles sur
 l'image ci-dessus, sont utilisés pour l'exécution du
 programme:
 
-- _Ouvrir_ (((ouvrir))) pour charger un fichier,
-- _Lancer_ (((lancer))) pour commencer l'usinage,
-- _Pause_ (((pause))) pour stopper temporairement l'usinage,
-- _Reprise_ (((reprise))) pour reprendre un programme mis en pause, 
-- _Pas à pas_ (((pas a pas))) pour avancer d'une seule ligne de programme,
-- _Vérifier_ (((vérifier))) pour vérifier si il contient des erreurs, 
-- _Arrêt optionnel_ (((arrêt optionnel))) pour basculer l'arrêt optionnel, si 
+* _Ouvrir_ (((ouvrir))) pour charger un fichier,
+* _Lancer_ (((lancer))) pour commencer l'usinage,
+* _Pause_ (((pause))) pour stopper temporairement l'usinage,
+* _Reprise_ (((reprise))) pour reprendre un programme mis en pause, 
+* _Pas à pas_ (((pas a pas))) pour avancer d'une seule ligne de programme,
+* _Vérifier_ (((vérifier))) pour vérifier si il contient des erreurs, 
+* _Arrêt optionnel_ (((arrêt optionnel))) pour basculer l'arrêt optionnel, si 
    ce bouton est vert l'exécution du programme est stoppée quand un code M1 
    est rencontré.
 

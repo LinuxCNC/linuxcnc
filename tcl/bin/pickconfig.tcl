@@ -4,7 +4,7 @@ exec wish "$0" "$@"
 
 ###############################################################
 # Description:  pickconfig.tcl
-#               This file validates an emc2 configuration
+#               This file validates a LinuxCNC configuration
 #               passed to it, or prompts the user to choose
 #               one.
 #
@@ -392,8 +392,21 @@ proc prompt_copy configname {
     set copybase $copydir
 
     set i 0
-    set ncfiles [file normalize [file join ~ emc2 nc_files]]
-    file mkdir [file join ~ emc2 configs]
+    # distribution config ini files expect nc_files at same level as configs dir
+    set ncfiles [file normalize [file join $linuxcnc::USER_CONFIG_DIR ../nc_files]]
+    file mkdir [file join $linuxcnc::USER_CONFIG_DIR]
+
+    set obsoletedir [file normalize [file join ~ emc2]]
+    if [file isdir $obsoletedir] {
+      tk_messageBox -title "Copy Configuration Notice" \
+        -message "A directory named:\n \
+                  $obsoletedir\n \
+                  exists \n\n \
+                  You may want to copy items to the new directory:\n \
+                  [file normalize [file join $linuxcnc::USER_CONFIG_DIR ..]]" \
+        -type ok
+    }
+
     if {![file exists $ncfiles]} {
         file mkdir $ncfiles
         file link -symbolic [file join $ncfiles/examples] $linuxcnc::NCFILES_DIR

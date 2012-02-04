@@ -3,6 +3,8 @@
 
 = Démarrage de LinuxCNC
 
+[[cha:ini-configuration]] (((INI Configuration)))
+
 == Script de lancement
 
 LinuxCNC est lancé avec le fichier de script linuxcnc.
@@ -353,6 +355,9 @@ MAX_SPINDLE_OVERRIDE = 1.0::
 PROGRAM_PREFIX = ~/linuxcnc/nc_files::
      Répertoire par défaut des fichiers de g-codes et emplacement des
     M-codes définis par l'utilisateur.
+    Les recherches de fichiers s'effectueront d'abords dans cet emplacement, 
+    avant les chemins des sous-programmes et des fichiers M utilisateur, si
+    il est spécifié dans la section [RS274NGC].
 
 INTRO_GRAPHIC = linuxcnc.gif::
     L'image affichée sur l'écran d'accueil.
@@ -501,7 +506,7 @@ seront traitées comme du g-code. Un exemple de script de ce genre est disponibl
 nc_files/holecircle.py.
 Ce script crée le G-code pour percer une série de trous séquents à la
 périphérie d'un cercle.
-De nombreux générateur de G-code sont par ailleurs disponibles sur le wiki:
+De nombreux générateurs de G-code sont par ailleurs disponibles sur le wiki:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Simple_LinuxCNC_G-Code_Generators[à la
 page des générateurs de G-code].
 
@@ -537,19 +542,25 @@ SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs::
     répertoires dans lesquels seront cherchés les fichier de sous-programme
     spécifiés dans le g-code. Ces répertoires sont inspectés après que ne le
     soit [DISPLAY]PROGRAM_PREFIX (si il est spécifié) et avant que ne le soit
-    [WIZARD]WIZARD_ROOT (si il est spécifié). La première occurrence avec le
+    [WIZARD]WIZARD_ROOT (si il est spécifié). les recherches s'effectuent dans 
+    l'ordre dans lequel les chemins sont listés. La première occurrence avec le
     sous-programme recherché est utilisée. Les répertoires sont spécifiés
     relativement au répertoire courant du fichier ini ou par des chemins
     absolus. La liste ne doit contenir aucun espace blanc.
 
 USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes::
     (((USER M PATH))) Spécifie une liste de répertoires, séparés par (:) (sans
-    aucun espace blanc) pour les fonctions définies par l'utilisateur.
-    Le nombre maximum de répertoires est défini au moment de la compilation
-    par: *+USER_DEFINED_FUNCTION_MAX_DIRS=5+*.
-    Les répertoires sont spécifiés relativement au répertoire courant du
-    fichier ini ou par des chemins absolus. La liste ne doit contenir aucun
+    aucun espace blanc) pour les fonctions définies par l'utilisateur. Les
+    répertoires sont spécifiés par rapport au répertoire courant pour les 
+    fichiers ini ou en chemins absolus. La liste ne doit contenir aucun 
     espace blanc.
+
+USER_DEFINED_FUNCTION_MAX_DIRS=5::
+     Défini le nombre maximum de répertoire au moment de la compilation.
+[NOTE]
+[WIZARD]WIZARD_ROOT est un chemin de recherche valide mais l'assistant n'est
+pas encore complétement implémenté et les résultats, découlants de son
+utilisation, sont imprévisibles.
 
 Une recherche est faite pour chaque fonction utilisateur définie possible,
     typiquement _M100_ à _M199_.

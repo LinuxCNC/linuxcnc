@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
 
-[[sec:Les-O-codes]]
-= Les O-codes (((Les O-codes)))
+= Les O-codes
+
+[[cha:O-codes]] (((O-codes)))
 
 == Utilisation des O-codes
 

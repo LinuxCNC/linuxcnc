@@ -3,8 +3,7 @@
 
 = Assistant graphique de configuration StepConf
 
-[[cha:Assistant-graphique-StepConf]]
-(((Assistant stepconf)))
+[[cha:Assistant-graphique-StepConf]] (((Assistant stepconf)))
 
 [[sec:Introduction]]
 == Introduction

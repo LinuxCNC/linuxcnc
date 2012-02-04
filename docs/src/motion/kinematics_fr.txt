@@ -3,6 +3,8 @@
 
 = La cinématique dans LinuxCNC
 
+[[cha:Cinematique]] (((Cinématique)))
+
 == Introduction
 
 Habituellement quand nous parlons de machines (((Machines CNC)))CNC,

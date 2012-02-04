@@ -2371,8 +2371,8 @@ static void save_comps(FILE *dst)
 	}
 	next = comp->next_ptr;
     }
-    next = hal_data->comp_list_ptr;
 #if 0  /* newinst deferred to version 2.2 */
+    next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == 2 ) {

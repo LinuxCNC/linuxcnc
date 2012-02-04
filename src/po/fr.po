@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-26 08:45+0100\n"
-"PO-Revision-Date: 2012-01-26 10:23+0100\n"
+"POT-Creation-Date: 2012-01-30 01:35+0100\n"
+"PO-Revision-Date: 2012-02-03 14:29+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -627,7 +627,7 @@ msgstr ""
 
 #: emc/motion/control.c:429
 msgid "Probe tripped during homing motion."
-msgstr "La sonde à touche pendant un mouvement de prise d'origine."
+msgstr "La sonde à touché pendant un mouvement de prise d'origine."
 
 #: emc/motion/control.c:433
 msgid "Probe tripped during a jog."
@@ -1388,7 +1388,7 @@ msgstr "Sélectionner un « node » à afficher"
 
 #: ../tcl/bin/halconfig.tcl:968 ../tcl/bin/halshow.tcl:438
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "<-- Sélectionner un « leaf » par un clic sur son nom."
+msgstr "<-- Sélectionner une feuille par un clic sur son nom."
 
 #: ../tcl/bin/halconfig.tcl:1085 ../tcl/bin/halconfig.tcl:1095
 #: ../tcl/bin/halconfig.tcl:1102 ../tcl/bin/halconfig.tcl:1109
@@ -2506,7 +2506,7 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tklinuxcnc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8509
+#: ../tcl/tklinuxcnc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8510
 msgid "inches"
 msgstr "pouces"
 
@@ -2516,7 +2516,7 @@ msgstr "pouces"
 #: emc/usr_intf/stepconf/stepconf.py:1685
 #: emc/usr_intf/stepconf/stepconf.py:2221
 #: emc/usr_intf/stepconf/stepconf.glade:4357
-#: emc/usr_intf/pncconf/pncconf.py:8505
+#: emc/usr_intf/pncconf/pncconf.py:8506
 #: emc/usr_intf/pncconf/pncconf.glade:2229
 #: emc/usr_intf/pncconf/pncconf.glade:2394
 #: emc/usr_intf/pncconf/pncconf.glade:57616
@@ -2857,7 +2857,7 @@ msgstr "Postambule"
 
 #: ../tcl/ngcgui.tcl:1151
 msgid "Retain values on Subfile read"
-msgstr "conserver les valeurs à la lecture du sous-fichier"
+msgstr "Conserver les valeurs à la lecture du sous-fichier"
 
 #: ../tcl/ngcgui.tcl:1159
 msgid "Expand subroutine"
@@ -2865,7 +2865,7 @@ msgstr "Déployer le sous-programme"
 
 #: ../tcl/ngcgui.tcl:1168 ../tcl/ngcgui.tcl:2414
 msgid "Autosend"
-msgstr "Envoi automatique"
+msgstr "EnvoiAuto"
 
 #: ../tcl/ngcgui.tcl:1178
 msgid "Verbose ngcfile"
@@ -2874,7 +2874,7 @@ msgstr "Fichier G-code clair"
 #: ../tcl/ngcgui.tcl:1188 ../tcl/ngcgui.tcl:2235 ../tcl/ngcgui.tcl:2259
 #: ../tcl/ngcgui.tcl:2289
 msgid "Create Feature"
-msgstr "Crée le dispositif"
+msgstr "Créer la fonction"
 
 #: ../tcl/ngcgui.tcl:1194 ../tcl/ngcgui.tcl:2919
 msgid "MakeFile"
@@ -2882,7 +2882,7 @@ msgstr "Fichier makefile"
 
 #: ../tcl/ngcgui.tcl:1195 ../tcl/ngcgui.tcl:2916
 msgid "Finalize"
-msgstr "Finalise"
+msgstr "Finaliser"
 
 #: ../tcl/ngcgui.tcl:1212
 msgid "Reread"
@@ -2942,11 +2942,11 @@ msgstr "Appel de fichier sous-programme"
 
 #: ../tcl/ngcgui.tcl:1919
 msgid "Multiple Tabs with Features"
-msgstr "Multiples onglets avec fonctionnalités"
+msgstr "Onglets multiples avec fonctions"
 
 #: ../tcl/ngcgui.tcl:1920
 msgid "Finalize all Tabs?"
-msgstr "Finalise tous les onglets"
+msgstr "Finaliser tous les onglets?"
 
 #: ../tcl/ngcgui.tcl:1920
 msgid "Order"
@@ -2966,11 +2966,11 @@ msgstr "Erreur:"
 
 #: ../tcl/ngcgui.tcl:1939
 msgid "Autosend disabled, Ctrl-A toggles autosend"
-msgstr "Autosend désactivé, Ctrl-A bascule autosend"
+msgstr "EnvoiAuto désactivé, Ctrl-A bascule EnvoiAuto"
 
 #: ../tcl/ngcgui.tcl:1941
 msgid "File saving enabled -- Finalize to save"
-msgstr "Sauvegarde activée -- Finalise la sauvegarde"
+msgstr "Sauvegarde activée -- Finaliser la sauvegarde"
 
 #: ../tcl/ngcgui.tcl:1957
 msgid "Require .ngc suffix for filename"
@@ -2998,15 +2998,15 @@ msgstr "activé"
 
 #: ../tcl/ngcgui.tcl:2004
 msgid "restores"
-msgstr "restaure"
+msgstr "restaurer"
 
 #: ../tcl/ngcgui.tcl:2041
 msgid "NOTREACHED mode"
-msgstr "Mode PASATTEINT"
+msgstr "Mode NONATTEINT"
 
 #: ../tcl/ngcgui.tcl:2236
 msgid "Enter parms for 1st feature"
-msgstr "Entrer les paramètres de la 1ère fonction"
+msgstr "Entrer paramètres 1ère fonction"
 
 #: ../tcl/ngcgui.tcl:2243
 msgid "New Outfile"
@@ -3018,11 +3018,11 @@ msgstr "Prêt à créer un nouveau fichier de sortie"
 
 #: ../tcl/ngcgui.tcl:2262 ../tcl/ngcgui.tcl:2295
 msgid "Enter parms for feature "
-msgstr "Entrer les paramètres pour la fonction"
+msgstr "Entrer paramètres pour la fonction "
 
 #: ../tcl/ngcgui.tcl:2282
 msgid "feature"
-msgstr "fonctionnalité"
+msgstr "fonction"
 
 #: ../tcl/ngcgui.tcl:2287
 msgid "Create Next"
@@ -3098,7 +3098,7 @@ msgstr "Défaut avec SendFileToAxis"
 
 #: ../tcl/ngcgui.tcl:2399
 msgid "Ctrl-k for Key bindings"
-msgstr "Ctrl-k pour les raccourcis clavier"
+msgstr "Ctrl-k pour raccourcis clavier"
 
 #: ../tcl/ngcgui.tcl:2403
 msgid "Expand sub"
@@ -3114,7 +3114,7 @@ msgstr "Verbeux"
 
 #: ../tcl/ngcgui.tcl:2417
 msgid "Finalize Canceled"
-msgstr "Finalise l'abandon"
+msgstr "Finaliser l'abandon"
 
 #: ../tcl/ngcgui.tcl:2572 ../tcl/ngcgui.tcl:2728
 msgid "Dismiss"
@@ -3170,7 +3170,7 @@ msgstr "Crée la fonction"
 
 #: ../tcl/ngcgui.tcl:2849
 msgid "Finalize (AUTO send is"
-msgstr "Finalise (AUTO send is"
+msgstr "Finaliser (AUTO envoi"
 
 #: ../tcl/ngcgui.tcl:2850
 msgid "Show key bindings"
@@ -3270,10 +3270,10 @@ msgstr "enlever"
 
 #: ../tcl/ngcgui.tcl:3456 ../tcl/ngcgui.tcl:3462
 msgid "move"
-msgstr "mouvement"
+msgstr "déplacer"
 
 #: ../tcl/ngcgui.tcl:3561 emc/usr_intf/pncconf/pncconf.py:7020
-#: emc/usr_intf/pncconf/pncconf.py:7137 emc/usr_intf/pncconf/pncconf.py:7303
+#: emc/usr_intf/pncconf/pncconf.py:7137 emc/usr_intf/pncconf/pncconf.py:7304
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -3385,7 +3385,7 @@ msgstr "ngcgui_app.tcl doit être chargé avant"
 
 #: ../tcl/ngcgui_ttt.tcl:89
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
-msgstr "Crée un fichier de sous-programme depuis truetype-tracer (V4.requis)"
+msgstr "Crée un fichier sous-programme avec truetype-tracer (V4.requis)"
 
 #: ../tcl/ngcgui_ttt.tcl:102 ../tcl/ngcgui_ttt.tcl:115
 msgid "problem with"
@@ -3413,7 +3413,7 @@ msgstr "Texte"
 
 #: ../tcl/ngcgui_ttt.tcl:171
 msgid "Linescale"
-msgstr "Règle graduée"
+msgstr "Graduation"
 
 #: ../tcl/ngcgui_ttt.tcl:177
 msgid "none"
@@ -3421,7 +3421,7 @@ msgstr "Aucun"
 
 #: ../tcl/ngcgui_ttt.tcl:192
 msgid "Subdiv"
-msgstr "Subdiv"
+msgstr "Subdivision"
 
 #: ../tcl/ngcgui_ttt.tcl:199
 msgid "default"
@@ -3457,7 +3457,7 @@ msgstr "Rotation permise"
 
 #: ../tcl/ngcgui_ttt.tcl:295
 msgid "Make ngcgui-compatible subfile and new tab page"
-msgstr "Crée un sous-fichier compatible ngcgui et un nouvel onglet"
+msgstr "Crée un sous-fichier compatible ngcgui dans nouvel onglet"
 
 #: ../tcl/ngcgui_ttt.tcl:353
 msgid "Null text"
@@ -6277,7 +6277,7 @@ msgstr ""
 "Le fichier custom.clp existant sera renommé custom_backup.clp \n"
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:1457 emc/usr_intf/pncconf/pncconf.py:7812
+#: emc/usr_intf/stepconf/stepconf.py:1457 emc/usr_intf/pncconf/pncconf.py:7813
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -6374,7 +6374,7 @@ msgstr "pouces / s²"
 msgid "Steps / in"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:2202 emc/usr_intf/pncconf/pncconf.py:8890
+#: emc/usr_intf/stepconf/stepconf.py:2202 emc/usr_intf/pncconf/pncconf.py:8891
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test axe %s"
@@ -8733,23 +8733,23 @@ msgstr " / impulsion codeur"
 msgid "Encoder pulses / "
 msgstr "Impulsions de codeur / "
 
-#: emc/usr_intf/pncconf/pncconf.py:7479
+#: emc/usr_intf/pncconf/pncconf.py:7480
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:7782
+#: emc/usr_intf/pncconf/pncconf.py:7783
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour "
 "l'arrêt d'urgence."
 
-#: emc/usr_intf/pncconf/pncconf.py:7794
+#: emc/usr_intf/pncconf/pncconf.py:7795
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour le "
 "palpeur."
 
-#: emc/usr_intf/pncconf/pncconf.py:7805
+#: emc/usr_intf/pncconf/pncconf.py:7806
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -8761,15 +8761,15 @@ msgstr ""
 "Tout autre fichier custom_backup.clp précédent sera écrasé. Presser "
 "'programme ladder existant' pour éviter cet avertissement"
 
-#: emc/usr_intf/pncconf/pncconf.py:8016
+#: emc/usr_intf/pncconf/pncconf.py:8017
 msgid "Do you wish to continue to edit this configuration."
 msgstr "Voulez-vous continuer pour éditer cette configuration."
 
-#: emc/usr_intf/pncconf/pncconf.py:8055
+#: emc/usr_intf/pncconf/pncconf.py:8056
 msgid "PCI search page is unavailable\n"
 msgstr "Page de recherche PCI indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:8173
+#: emc/usr_intf/pncconf/pncconf.py:8174
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
@@ -8777,59 +8777,59 @@ msgstr ""
 "Vous avez spécifié un fichier glade comme existant alors que le dossier "
 "portant le nom de la machine n'en contient pas..."
 
-#: emc/usr_intf/pncconf/pncconf.py:8492
+#: emc/usr_intf/pncconf/pncconf.py:8493
 msgid "Servo tuning is not avaiable in PNCconf yet\n"
 msgstr "Les réglages de servo ne sont pas  opérationnels dans PNCconf \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:8497
+#: emc/usr_intf/pncconf/pncconf.py:8498
 msgid "degrees"
 msgstr "degrés"
 
-#: emc/usr_intf/pncconf/pncconf.py:8498
+#: emc/usr_intf/pncconf/pncconf.py:8499
 msgid "degrees / minute"
 msgstr "degrés / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8499
+#: emc/usr_intf/pncconf/pncconf.py:8500
 msgid "degrees / second²"
 msgstr "degrés / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8501
+#: emc/usr_intf/pncconf/pncconf.py:8502
 msgid "revolutions"
 msgstr "tour"
 
-#: emc/usr_intf/pncconf/pncconf.py:8502
+#: emc/usr_intf/pncconf/pncconf.py:8503
 msgid "rpm"
 msgstr "tr/mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:8503
+#: emc/usr_intf/pncconf/pncconf.py:8504
 msgid "revs / second²"
 msgstr "tours / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8506
+#: emc/usr_intf/pncconf/pncconf.py:8507
 #: emc/usr_intf/pncconf/pncconf.glade:58295
 #: emc/usr_intf/pncconf/pncconf.glade:58479
 #: emc/usr_intf/pncconf/pncconf.glade:58576
 msgid "mm / minute"
 msgstr "mm / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8507
+#: emc/usr_intf/pncconf/pncconf.py:8508
 msgid "mm / second²"
 msgstr "mm / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8510
+#: emc/usr_intf/pncconf/pncconf.py:8511
 msgid "inches / minute"
 msgstr "pouces / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:8511
+#: emc/usr_intf/pncconf/pncconf.py:8512
 msgid "inches / second²"
 msgstr "pouces / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:8643
+#: emc/usr_intf/pncconf/pncconf.py:8644
 #, python-format
 msgid "%s Axis Tune"
 msgstr "Calibration de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:8807
+#: emc/usr_intf/pncconf/pncconf.py:8808
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
@@ -8837,7 +8837,7 @@ msgstr ""
 " Un signal CODEUR / RESOLVEUR et un signal ANALOGIQUE de broche doivent être "
 "déclarés pour tester cet axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:8811
+#: emc/usr_intf/pncconf/pncconf.py:8812
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
@@ -12026,7 +12026,7 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Le rayon à la fin de l'arc différe de celui du début: début=(%c%.4f,%c%.4f) "
+"Le rayon à la fin de l'arc diffère de celui du début: début=(%c%.4f,%c%.4f) "
 "centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 

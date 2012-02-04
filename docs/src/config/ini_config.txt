@@ -334,6 +334,10 @@ should be used by any filter that runs for a long time.
 * 'USER_DEFINED_FUNCTION_MAX_DIRS=5'. The maximum number of directories defined
    at compile time. 
 
+[NOTE]
+[WIZARD]WIZARD_ROOT is a valid search path but the Wixard has not been fully
+implemented and the results of using it are unpredictable.
+
 A search is made for each possible user defined function, typically
 (M100-M199). The search order is:
 

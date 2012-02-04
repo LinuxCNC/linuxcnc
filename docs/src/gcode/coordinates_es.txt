@@ -146,10 +146,10 @@ start up and reset. Any value other than an integer (decimal really)
 between 1 and 9, or a missing 5220 variable will cause the LinuxCNC to
 revert to the default value of 1.00000 on start up.
 
-=== Setting coordinate (fixture) offsets from G-code
+=== Setting coordinate (fixture) offsets from G code
 
 The G10 L2x command can be used to set coordinate (fixture) offsets: 
-  (these are just quick summaries, see the gcode section for full details)
+  (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L2  P(fixture 1-9)' - Set offset(s) to a value. Current position irrelevant. 
                          (see <<sec:G10-L2_,G10 L2>> for details)
@@ -241,7 +241,7 @@ The variables are named:
 
 where 5211 is the X axis offset and so on. If you are seeing
 unexpected positions as the result of a commanded move, as a result of
-storing an offset in a previous progam and not clearing them at the end
+storing an offset in a previous program and not clearing them at the end
 then issue a G92.1 in the MDI window to clear the stored offsets.
 
 If G92 values exist in the VAR file when LinuxCNC starts up, the G92 
