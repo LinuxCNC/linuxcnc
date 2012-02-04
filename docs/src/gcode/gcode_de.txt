@@ -6,13 +6,13 @@
 
 Conventions used in this section
 
-In the G Code prototypes the hyphen ('-') stands for a real value
+In the G code prototypes the hyphen ('-') stands for a real value
 and ('<>') denotes an optional item.
 
 If 'L-' is written in a prototype the '-' will often be referred to
 as the 'L number', and so on for any other letter.
 
-In the G Code prototypes the word 'axes' stands for any axis as defined
+In the G code prototypes the word 'axes' stands for any axis as defined
 in your configuration.
 
 An optional value will be written like this '<L->'.
@@ -34,7 +34,7 @@ in the absolute coordinate system.
 
 Where axis words are optional, any omitted axes will retain their original value.
 
-Any items in the G Code prototypes not explicitly described as
+Any items in the G code prototypes not explicitly described as
 optional are required.
 
 The values following letters are often given as explicit numbers.
@@ -621,7 +621,7 @@ The above example sets the XYZ coordinates of the coordinate system 1 to the mac
 
 [width="50%", options="header", cols="^,^,^"]
 |========================================
-|P Value |Coordinate System |G Code
+|P Value |Coordinate System |G code
 |0 |Active |n/a
 |1 |1 |G54
 |2 |2 |G55
@@ -738,7 +738,7 @@ These codes set the current plane as follows:
 The UV, WU and VW planes do not support arcs.
 
 It is a good idea to include a plane selection in the preamble
-of each g code file.
+of each G code file.
 
 The effects of having a plane selected are discussed in Section
 <<sec:G2-G3-Arc,G2 G3>> and Section <<sec:G80-G89,G81 G89>>
@@ -749,7 +749,7 @@ The effects of having a plane selected are discussed in Section
 * 'G21' - to use millimeters for length units.
 
 It is a good idea to include units in the preamble
-of each g code file.
+of each G code file.
 
 == G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]]
 (((G28)))
@@ -1223,7 +1223,7 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 ----
 
 It is a good idea to include a path control specification in the preamble
-of each g code file.
+of each G code file.
 
 == G90, G91 Distance Mode[[sec:G90-G91]]
 (((G90, G91 Distance Mode)))
