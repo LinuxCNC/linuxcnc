@@ -470,7 +470,7 @@ IniFile::TildeExpansion(const char *file, char *path)
 {
     char                        *home;
 
-    strncpy(path, file, LINELEN);
+    snprintf(path, LINELEN, "%s", file);
     if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
 	/* no tilde expansion required, or unsupported
            tilde expansion type requested */
