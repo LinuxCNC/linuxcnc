@@ -815,8 +815,12 @@ int Interp::init()
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
-		char tmp_path[PATH_MAX];
-                if (realpath(nextdir, tmp_path) == NULL){
+                char tmp_path[PATH_MAX];
+                char expandnextdir[LINELEN];
+                if (inifile.TildeExpansion(nextdir,expandnextdir,sizeof(expandnextdir))) {
+                   logDebug("TildeExpansion failed for: %s",nextdir);
+                }
+                if (realpath(expandnextdir, tmp_path) == NULL){
                    //realpath didn't find the directory
                    logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
                     _setup.subroutines[dct] = NULL;

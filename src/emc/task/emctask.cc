@@ -117,15 +117,20 @@ int emcTaskInit()
        any to the user defined functions list */
     for (num = 0; num < USER_DEFINED_FUNCTION_NUM; num++) {
 	for (dct=0; dct < dmax; dct++) {
+            char expanddir[LINELEN];
 	    if (!mdir[dct][0]) continue;
-	    snprintf(path, sizeof(path), "%s/M1%02d",mdir[dct],num);
+            if (inifile.TildeExpansion(mdir[dct],expanddir,sizeof(expanddir))) {
+		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
+			 mdir[dct]);
+            }
+	    snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
 	    if (0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
 		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
-			     "%s/M1%%02d", mdir[dct]); // update global
+			     "%s/M1%%02d", expanddir); // update global
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: adding user-defined function %s\n",
