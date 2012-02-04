@@ -484,8 +484,7 @@ IniFile::TildeExpansion(const char *file, char *path)
 
     /* Buffer overflow has already been checked. */
 
-    strcpy(path, home);
-    strcat(path, file + 1);
+    snprintf(path, LINELEN, "%s%s", home, file + 1);
     return;
 }
 
