@@ -982,7 +982,6 @@ Après une mesure manquée, ils contiendront les coordonnées du point programm�
 Le paramètre 5070 est mis à 1 si la mesure est réussie et à 0 si elle est manquée. 
 Si la mesure n'a pas réussi, G38.2 et G38.4 signaleront une erreur 
 en affichant un message à l'écran si l'interface graphique choisie le permet. 
-(Et en cas d'arrêt de l'exécution du programme ? * FIXME * TODO).
 
 Un commentaire de la forme _(PROBEOPEN filename.txt)_ ouvrira le
 fichier _filename.txt_ et y enregistrera les 9 coordonnées de 
@@ -1433,7 +1432,7 @@ travail courant (axe Z pour le plan XY, axe X pour le plan YZ, axe Y
 pour le plan XZ, etc.). Quelques cycles de perçage utilisent des
 arguments supplémentaires.
 
-=== Mots *sticky*
+=== Mots _sticky_
 
 Dans les cycles de perçage, un nombre est appelé _sticky_ (persistante, collant)
 si, quand le même cycle est répété sur plusieurs lignes de code en

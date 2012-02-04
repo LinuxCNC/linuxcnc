@@ -25,7 +25,7 @@ Le CPU n'est pas le seul facteur déterminant le temps de latence.
 Les cartes mères, les cartes vidéo, les ports USB et
 de nombreuses autres choses peuvent détériorer le temps de latence.
 La meilleure façon de savoir si le matériel envisagé est apte, c'est
-d'exécuter *un test de latence*.
+d'exécuter _un test de latence_.
 
 La seule façon de découvrir ce qu'il en est sur un PC est d'exécuter le test
 de latence de HAL.
@@ -53,7 +53,7 @@ Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est
 en cours d'exécution.
 
 La colonne _max jitter_ et la ligne _Base Thread_ de l'exemple ci-dessus
-donne *9075*. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes.
+donne _9075_. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes.
 Noter ce nombre et l'entrer dans Stepconf quand il sera demandé.
 
 Dans cet exemple de test de latence il n'a fallu que quelques

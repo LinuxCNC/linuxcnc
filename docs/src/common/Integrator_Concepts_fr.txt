@@ -134,7 +134,7 @@ de contrôle.
 
 La méthode de contrôle qu'utilise LinuxCNC, est l'une des plus simples 
 et la meilleure appelée PID.
-PID est l'acronyme de *P*roportionnelle, *I*ntégrale et *D*érivée. 
+PID est l'acronyme de **P**roportionnelle, **I**ntégrale et **D**érivée. 
 La valeur proportionnelle détermine la réaction à l'erreur actuelle, 
 la valeur intégrale détermine la réaction basée sur la somme d'erreurs 
 récentes et la valeur dérivée détermine la réaction basée sur 

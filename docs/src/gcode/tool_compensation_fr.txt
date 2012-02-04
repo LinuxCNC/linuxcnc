@@ -15,7 +15,7 @@ est possible de mettre à jour automatiquement la table d'outils.
 
 Séquence typique de mise à jour de la table d'outils:
 
- . Après la prise d'origine, charger un outil *M6 Tn* dans lequel *n* est le
+ . Après la prise d'origine, charger un outil _M6 Tn_ dans lequel _n_ est le
    numéro de l'outil. 
  . Déplacer l'outil pour établir le zéro pièce, en utilisant une cale
 d'épaisseur
@@ -29,7 +29,7 @@ La table d'outil sera alors modifiée avec la longueur correcte en Z de l'outil.
 La visu affichera la position en Z correcte et une commande G43 sera passée pour
 que la nouvelle longueur Z de l'outil soit effective. Le choix _Table d'outils_
 n'apparaitra dans la liste déroulante du _Toucher_, que si l'outil à été chargé
-avec *M6 tn*.
+avec _M6 tn_.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
 
@@ -43,16 +43,13 @@ table d'outils:
 G-code pour des explications plus détaillées)
 
 G10 L1  Pn  - (n est le N° d'outil) Fixe les offsets de l'outil. La position
-courante n'est pas significative. Voir ce lien <<sec:G10-L1, pour plus de
-détails>> (((G10 L1)))
+courante n'est pas significative. <<sec:G10-L1, Tous les détails ici>>. (((G10 L1)))
 
 G10 L10 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans un système de 1 à 8. Voir ce lien <<sec:G10-L10, pour plus de
-détails>>(((G10 L10)))
+les valeurs dans un système de 1 à 8. <<sec:G10-L10, Tous les détails ici>>.(((G10 L10)))
 
 G10 L11 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans le système 9. Voir ce lien <<sec:G10-L11, pour plus de
-détails>>(((G10 L11)))
+les valeurs dans le système 9. <<sec:G10-L11, Tous les détails ici>>. (((G10 L11)))
 
 [[sec:Table-Outils]]
 == Table d'outils
@@ -131,12 +128,12 @@ La signification des valeurs et le type de données qu'elles contiennent sont le
 suivantes:
 
 .Numéro d'outil (requis)
-La colonne *T* contient un nombre entier non signé, qui représente
+La colonne _T_ contient un nombre entier non signé, qui représente
 le code de l'outil. L'opérateur peut utiliser n'importe quel code pour
 n'importe quel outil, tant que les codes sont des entiers non signés.
 
 .Numéro de poche (requis)
-La colonne *P* contient un nombre entier non signé, qui représente
+La colonne _P_ contient un nombre entier non signé, qui représente
 le numéro de poche (numéro de slot) du changeur d'outils, poche dans laquelle
 l'outil se trouve. Les entrées de cette colonne doivent être toutes différentes.
 Le numéro de poche commence typiquement à 1 et va au maximum de poches
@@ -190,8 +187,8 @@ texte pour le seul bénéfice de l'opérateur.
 
 == Fichier d'outils
 
-Les longueurs et diamètres d'outils peuvent être lus dans une table
-d'outils, voir la section <<sec:Table-Outils, adéquate>> ou provenir d'un
+Les longueurs et diamètres d'outils peuvent être lus 
+<<sec:Table-Outils,dans une table d'outils>> ou provenir d'un
 mot spécifié pour activer la compensation d'outil.
 
 == Compensation d'outil

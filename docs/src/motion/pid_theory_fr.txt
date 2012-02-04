@@ -13,7 +13,7 @@ procédé.
 
 Le régulateur compare une valeur mesurée sur le procédé avec une
 valeur de consigne. La différence entre ces deux valeurs (le signal
-d'*erreur*) est alors utilisée pour calculer une nouvelle valeur
+d'_erreur_) est alors utilisée pour calculer une nouvelle valeur
 d'entrée du procédé tendant à réduire au maximum l'écart entre la
 mesure et la consigne (signal d'erreur le plus faible possible).
 
@@ -31,7 +31,7 @@ Intuitivement, une boucle PID essaye d'automatiser ce que fait un
 opérateur muni d'un multimètre et d'un potentiomètre de contrôle.
 L'opérateur lit la mesure de sortie du procédé, affichée sur le
 multimètre et utilise le bouton du potentiomètre pour ajuster l'entrée
-du procédé (l'*action*) jusqu'à stabiliser la mesure de la sortie
+du procédé (l'_action_) jusqu'à stabiliser la mesure de la sortie
 souhaitée, affichée sur le multimètre.
 
 Un boucle de régulation est composée de trois parties:
@@ -46,7 +46,7 @@ exemple un codeur.
 Quand le régulateur lit le capteur, il soustrait la valeur lue à la
 valeur de la consigne et ainsi, obtient l'«erreur de mesure». Il peut
 alors utiliser cette erreur pour calculer une correction à appliquer
-sur la variable d'entrée du procédé (l'*action*) de sorte que cette
+sur la variable d'entrée du procédé (l'_action_) de sorte que cette
 correction tende à supprimer l'erreur mesurée en sortie de procédé.
 
 Dans une boucle PID, la correction à partir de l'erreur est calculée
@@ -62,21 +62,21 @@ température, pression, débit, composition chimique, vitesse et autres
 variables.
 
 Dans certains systèmes de régulation, les régulateurs sont placés en
-série ou en parallèle. Dans ces cas, le régulateur *maître* produit les
-signaux utilisés par les régulateurs *esclaves*. Une situation courante
+série ou en parallèle. Dans ces cas, le régulateur _maître_ produit les
+signaux utilisés par les régulateurs _esclaves_. Une situation courante
 dans le contrôle des moteurs, la régulation de vitesse, qui peut
 demander que la vitesse du moteur soit contrôlée par un régulateur
-*esclave* (souvent intégré dans le variateur de fréquence du moteur)
+_esclave_ (souvent intégré dans le variateur de fréquence du moteur)
 recevant en entrée une valeur proportionnelle à la vitesse. Cette
-entrée de l'*esclave* est alors fournie par la sortie du régulateur
-*maître*, lequel reçoit la variable de consigne.
+entrée de l'_esclave_ est alors fournie par la sortie du régulateur
+_maître_, lequel reçoit la variable de consigne.
 
 === Théorie
 
-Le *PID* représente les abréviations des trois actions qu'il utilise
+Le _PID_ représente les abréviations des trois actions qu'il utilise
 pour effectuer ses corrections, ce sont des ajouts d'un signal à un
 autre. Tous agissent sur la quantité régulée. Les actions aboutissent
-finalement à des *soustractions* de l'erreur de mesure, parce que le
+finalement à des _soustractions_ de l'erreur de mesure, parce que le
 signal proportionnel est habituellement négatif.
 
 ==== Action Proportionnelle

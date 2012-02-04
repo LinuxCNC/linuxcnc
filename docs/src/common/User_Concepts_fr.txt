@@ -71,7 +71,7 @@ G61.1::
 G64::
      (mode trajectoire continue sans tolérance) Le mode G64 est le mode
     par défaut au démarrage de LinuxCNC. G64 est juste une trajectoire continue,
-    le 'naive cam detector' n'est pas activé. G64 et G64 P0 indiquent au
+    le _Détecteur naive CAM_ n'est pas activé. G64 et G64 P0 indiquent au
     planificateur de sacrifier la précision de suivi du parcours pour
     conserver une vitesse d'avance élevée. Ce mode est nécessaire pour
     certains types de matériaux ou d'outillages pour lesquels l'arrêt exact
@@ -84,8 +84,8 @@ G64::
     de la machine.
 
 G64 Px.xxx::
-     (mode trajectoire continue avec tolérance) Ce mode active le "naive
-    cam detector" et active le mode trajectoire continue avec tolérance. Si
+     (mode trajectoire continue avec tolérance) Ce mode active le _Détecteur 
+    naive CAM_" et active le mode trajectoire continue avec tolérance. Si
     vous utilisez le millimètre comme unité et programmez G64 P1.27, vous
     dites au planificateur que vous souhaitez une vitesse d'avance
     continue, mais qu'aux coins programmés vous voulez un ralentissement
@@ -110,7 +110,7 @@ Trajectoire continue sans tolérance::
     final du mouvement est aussi grande que nécessaire pour maintenir la
     meilleure vitesse d'avance possible pendant le parcours.
 
-Naive Cam Detector::
+Détecteur Naive Cam::
       Les mouvements successifs en G1, concernant uniquement les axes
     XYZ, dont la déviation par rapport à une ligne droite est inférieur à
     P, sont fusionnés en une seule ligne droite. Ce mouvement fusionné
@@ -127,7 +127,7 @@ Naive Cam Detector::
     (du début de l'arc à son milieu et du milieu à la fin de l'arc).
     Ces deux tronçons sont ensuite soumis à l'algorithme Naïve cam des lignes.
     Ainsi, les cas ligne-arc, arc-arc et arc-ligne, comme les cas ligne-ligne
-    bénéficient du traitement "naive cam detector". Les performances de
+    bénéficient du traitement _Détecteur naive CAM_. Les performances de
     contourage sont accrues grâce à la simplification de la trajectoire.
 
 Dans la figure suivante la ligne bleue représente la vitesse machine actuelle.
@@ -255,7 +255,7 @@ est appliqué au système de coordonnées utilisateur courant, dans Axis,
 une petite sphère bleue avec des rayons est affichée à l'emplacement
 de l'origine machine quand la visu affiche _Position: Relative Actuelle_.
 Si votre décalage utilise temporairement les coordonnées machine, depuis
-le menu Machine ou en programmant _+G10 L2 P1 X0 Y0 Z0+_ à la fin du programme G-Code.
+le menu Machine ou en programmant _G10 L2 P1 X0 Y0 Z0_ à la fin du programme G-Code.
 Modifiez la valeur du mot _P_ en fonction du système de coordonnées dont vous voulez
 effacer le décalage.
 
@@ -274,10 +274,10 @@ Pour cela:
  - Placez vous sur l'origine machine avec _G53 G0 X0 Y0 Z0_
  - Supprimez tous les décalages _G92_ avec _G92.1_
  - Utilisez les coordonnées utilisateur avec _G54_
- - Rendez les coordonnées utilisateur _G54+_, identiques aux
+ - Rendez les coordonnées utilisateur _G54_, identiques aux
    coordonnées machine avec _G10 L2 P1 X0 Y0 Z0_
  - Annulez les offsets d'outil avec _G49_
  - Activez l'affichage des coordonnées relatives depuis le menu.
 
-Maintenant vous devriez être, à l'origine machine X0 Y0 Z0 et le système
+Maintenant vous devriez être, à l'origine machine _X0 Y0 Z0_ et le système
 de coordonnées relatives devrait être le même que le système de coordonnées machine.

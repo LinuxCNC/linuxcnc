@@ -13,7 +13,7 @@ lspci -v
 
 Vous devriez voir quelques choses comme ci-dessous parmi la liste du
 matériel installé en PCI:
-****
+....
 Communication controller: NetMos Technology PCI 1 port parallel adapter (rev 01) 
 LSI Logic / Symbios Logic: Unknown device 0010 
     medium devsel, IRQ 11 
@@ -23,7 +23,7 @@ LSI Logic / Symbios Logic: Unknown device 0010
     ports at b400 [size=8] 
     ports at b800 [size=8] 
     ports at bc00 [size=16]
-****
+....
 
 Dans notre cas, l'adresse était la première, nous avons donc modifié le
 fichier .hal pour passer de

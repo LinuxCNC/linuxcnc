@@ -506,7 +506,7 @@ seront traitées comme du g-code. Un exemple de script de ce genre est disponibl
 nc_files/holecircle.py.
 Ce script crée le G-code pour percer une série de trous séquents à la
 périphérie d'un cercle.
-De nombreux générateur de G-code sont par ailleurs disponibles sur le wiki:
+De nombreux générateurs de G-code sont par ailleurs disponibles sur le wiki:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Simple_LinuxCNC_G-Code_Generators[à la
 page des générateurs de G-code].
 
