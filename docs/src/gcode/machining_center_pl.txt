@@ -55,7 +55,7 @@ not be controlled by the CNC software.
 === Coolant (((coolant)))
 
 If a CNC machine has components to provide mist coolant and/or flood
-coolant they can be controlled by G-Codes.
+coolant they can be controlled by G codes.
 
 === Feed and Speed Override [[sub:Feed-and-Speed]]
 
@@ -264,7 +264,7 @@ information.
 
 (((block delete)))
 
-If the block delete switch is on, lines of RS274/NGC code which start
+If the block delete switch is on, lines of G code which start
 with a slash (the block delete character) are not interpreted. If the
 switch is off, such lines are interpreted. Normally the block delete
 switch should be set before starting the NGC program.
@@ -321,7 +321,7 @@ Interpreter the responsibility for maintaining the file. The
 Interpreter reads the file when it starts up, and writes the file when
 it exits.
 
-All parameters are available for use in G Code programs.
+All parameters are available for use in G code programs.
 
 The format of a parameter file is shown in the following table.
 The file consists of any number of
@@ -344,10 +344,10 @@ required in the file. All of the parameters shown in the following table
 are required parameters and must be
 included in any parameter file, except that any parameter representing
 a rotational axis value for an unused axis may be omitted. An error
-will be signalled if any required parameter is missing. A parameter
+will be signaled if any required parameter is missing. A parameter
 file may include any other parameter, as long as its number is in the
 range 1 to 5400. The parameter numbers must be arranged in ascending
-order. An error will be signalled if not. Any parameter included in the
+order. An error will be signaled if not. Any parameter included in the
 file read by the Interpreter will be included in the file it writes as
 it exits. The original file is saved as a backup file when the new file
 is written. Comments are not preserved when the file is written.
