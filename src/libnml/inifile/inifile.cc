@@ -424,6 +424,31 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     return(NULL);
 }
 
+const char *
+IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+{
+    const char *res = Find(_tag, _section, _num, lineno);
+    if(res == NULL)
+        return res;
+    int r = snprintf(dest, n, "%s", res);
+    if(r < 0 || (size_t)r >= n) {
+        ThrowException(ERR_CONVERSION);
+        return NULL;
+    }
+    return dest;
+}
+
+const char *
+IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+{
+    const char *res = Find(_tag, _section, _num, lineno);
+    if(!res)
+        return res;
+    if(TildeExpansion(res, dest, n)) {
+        return 0;
+    }
+    return dest;
+}
 
 bool
 IniFile::CheckIfOpen(void)

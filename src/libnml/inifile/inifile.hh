@@ -63,6 +63,12 @@ public:
 				     int *lineno = NULL);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1, int *lineno = NULL);
+    const char *                FindString(char *dest, size_t n,
+				     const char *tag, const char *section=NULL,
+				     int num = 1, int *lineno = NULL);
+    const char *                FindPath(char *dest, size_t n,
+				     const char *tag, const char *section=NULL,
+				     int num = 1, int *lineno = NULL);
     void                        EnableExceptions(int _errMask){
                                     errMask = _errMask;
                                 }
