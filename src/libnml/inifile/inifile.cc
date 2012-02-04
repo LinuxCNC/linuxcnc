@@ -65,7 +65,7 @@ IniFile::Open(const char *file)
 
     if(IsOpen()) Close();
 
-    TildeExpansion(file, path);
+    TildeExpansion(file, path, sizeof(path));
 
     if((fp = fopen(path, "r")) == NULL)
         return(false);
@@ -466,11 +466,12 @@ IniFile::LockFile(void)
 
  */
 void
-IniFile::TildeExpansion(const char *file, char *path)
+IniFile::TildeExpansion(const char *file, char *path, size_t size)
 {
     char                        *home;
 
-    snprintf(path, LINELEN, "%s", file);
+    snprintf(path, size, "%s", file);
+
     if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
 	/* no tilde expansion required, or unsupported
            tilde expansion type requested */
@@ -478,13 +479,13 @@ IniFile::TildeExpansion(const char *file, char *path)
     }
 
     home = getenv("HOME");
-    if (!home || strlen(home) + strlen(file) > LINELEN) {
+    if (!home || strlen(home) + strlen(file) > size) {
 	return;
     }
 
     /* Buffer overflow has already been checked. */
 
-    snprintf(path, LINELEN, "%s%s", home, file + 1);
+    snprintf(path, size, "%s%s", home, file + 1);
     return;
 }
 
