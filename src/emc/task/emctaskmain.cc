@@ -1978,7 +1978,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// now queue up command to resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
-		retval = 0;
 	    }
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
