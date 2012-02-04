@@ -557,6 +557,10 @@ USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes::
 
 USER_DEFINED_FUNCTION_MAX_DIRS=5::
      Défini le nombre maximum de répertoire au moment de la compilation.
+[NOTE]
+[WIZARD]WIZARD_ROOT est un chemin de recherche valide mais l'assistant n'est
+pas encore complétement implémenté et les résultats, découlants de son
+utilisation, sont imprévisibles.
 
 Une recherche est faite pour chaque fonction utilisateur définie possible,
     typiquement _M100_ à _M199_.
