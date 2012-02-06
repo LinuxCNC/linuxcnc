@@ -148,16 +148,16 @@ struct halcmd_command halcmd_commands[] = {
     {"linksp",  FUNCT(do_linksp_cmd),  A_TWO | A_REMOVE_ARROWS },
     {"list",    FUNCT(do_list_cmd),    A_ONE | A_PLUS },
     {"loadrt",  FUNCT(do_loadrt_cmd),  A_ONE | A_PLUS },
-    {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS },
+    {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS | A_TILDE },
     {"lock",    FUNCT(do_lock_cmd),    A_ONE | A_OPTIONAL },
     {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
     {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
-    {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL },
+    {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL | A_TILDE },
     {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd), A_ZERO },
     {"setp",    FUNCT(do_setp_cmd),    A_TWO },
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
-    {"source",  FUNCT(do_source_cmd),  A_ONE},
+    {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
@@ -349,6 +349,19 @@ static int parse_cmd1(char **argv) {
 	    return -EINVAL;
         }
 
+#ifndef NO_INI
+	if(command->type & A_TILDE)
+	{
+	    int i;
+	    for(i=0; i<argc; i++)
+	    {
+		char *buf = malloc(LINELEN);
+		TildeExpansion(argv[i], buf, LINELEN);
+		argv[i] = buf;
+	    }
+	}
+#endif
+
 	switch(nargs | is_plus) {
 	case A_ZERO: {
 	    result = command->func();
@@ -407,6 +420,17 @@ static int parse_cmd1(char **argv) {
 		command->name, command->type);
 	    result = -EINVAL;
 	}
+
+#ifndef NO_TILDE
+	if(command->type & A_TILDE)
+	{
+	    int i;
+	    for(i=0; i<argc; i++)
+	    {
+		free(argv[i]);
+	    }
+	}
+#endif
 
         return result;
     }
