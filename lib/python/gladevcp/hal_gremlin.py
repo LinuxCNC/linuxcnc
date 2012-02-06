@@ -28,7 +28,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gproperties__ = {
         'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: x, y, z, p',
-                    'z', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                    'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'enable_dro' : ( gobject.TYPE_BOOLEAN, 'Enable DRO', 'Show DRO on graphics',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'metric_units' : ( gobject.TYPE_BOOLEAN, 'Use Metric Units', 'Show DRO in metric or imperial units',
