@@ -520,6 +520,12 @@ IniFile::TildeExpansion(const char *file, char *path, size_t size)
     return ERR_NONE;
 }
 
+int
+TildeExpansion(const char *file, char *path, size_t size)
+{
+    static IniFile f;
+    return !f.TildeExpansion(file, path, size);
+}
 
 void
 IniFile::ThrowException(ErrorCode errCode)

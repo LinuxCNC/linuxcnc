@@ -27,6 +27,7 @@ extern "C"
 #endif
 
 extern const char *iniFind(FILE *fp, const char *tag, const char *section);
+extern int TildeExpansion(const char *file, char *path, size_t size);
 
 #ifdef __cplusplus
 }
