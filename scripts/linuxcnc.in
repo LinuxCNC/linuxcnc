@@ -643,7 +643,7 @@ else
     # 4.3.6. execute HALCMD config files (if any)
     # get first config file name from ini file
     NUM=1
-    CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     while [ -n "$CFGFILE" ] ; do
         case $CFGFILE in
         *.tcl)
@@ -660,7 +660,7 @@ else
         esac
         # get next config file name from ini file
         NUM=$(($NUM+1))
-        CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+        CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
 fi
 
