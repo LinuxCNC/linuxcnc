@@ -306,6 +306,7 @@ HEADERS := \
     libnml/cms/cmsdiag.hh \
     libnml/cms/tcp_opts.hh \
     libnml/cms/tcp_srv.hh \
+    libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
     libnml/linklist/linklist.hh \
     libnml/nml/cmd_msg.hh \

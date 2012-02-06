@@ -16,9 +16,11 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <stdio.h>
-#include <fcntl.h>
+#include <inifile.h>
 
+#ifndef __cplusplus
+#warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.
+#endif
 
 #ifdef __cplusplus
 class IniFile {
@@ -115,8 +117,6 @@ private:
     char                        *AfterEqual(const char *string);
     char                        *SkipWhite(const char *string);
 };
-#else
-extern const char *iniFind(FILE *fp, const char *tag, const char *section);
 #endif
 
 
