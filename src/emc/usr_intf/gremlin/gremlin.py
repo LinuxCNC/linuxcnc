@@ -286,7 +286,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         elif button2:
             self.recordMouse(event.x, event.y)
         elif button3:
-            self.startZoom(event.y)
+            if event.type == gtk.gdk._2BUTTON_PRESS:
+                self.clear_live_plotter()
+            else:
+                self.startZoom(event.y)
 
     def motion(self, widget, event):
         button1 = event.state & gtk.gdk.BUTTON1_MASK
