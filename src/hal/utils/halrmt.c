@@ -303,7 +303,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 #endif
 
 /***********************************************************************
