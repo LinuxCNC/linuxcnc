@@ -317,6 +317,7 @@ static int parse_cmd1(char **argv) {
             return -EINVAL;
         }
     } else {
+	int result = -EINVAL;
 	int is_optional = command->type & A_OPTIONAL,
 	    is_plus = command->type & A_PLUS,
 	    nargs = command->type & 0xff,
@@ -350,62 +351,64 @@ static int parse_cmd1(char **argv) {
 
 	switch(nargs | is_plus) {
 	case A_ZERO: {
-	    return command->func();
+	    result = command->func();
 	    break;
 	}
 
 	case A_PLUS: {
 	    int(*f)(char **args) = (int(*)(char**))command->func;
-	    return f(REST(1));
+	    result = f(REST(1));
 	    break;
 	}
 
 	case A_ONE: {
 	    int(*f)(char *arg) = (int(*)(char*))command->func;
-	    return f(ARG(1));
+	    result = f(ARG(1));
 	    break;
 	}
 
 	case A_ONE | A_PLUS: {
 	    int(*f)(char *arg, char **rest) =
                 (int(*)(char*,char**))command->func;
-	    return f(ARG(1), REST(2));
+	    result = f(ARG(1), REST(2));
 	    break;
 	}
 
 	case A_TWO: {
 	    int(*f)(char *arg, char *arg2) =
                 (int(*)(char*,char*))command->func;
-	    return f(ARG(1), ARG(2));
+	    result = f(ARG(1), ARG(2));
 	    break;
 	}
 
 	case A_TWO | A_PLUS: {
 	    int(*f)(char *arg, char *arg2, char **rest) =
                 (int(*)(char*,char*,char**))command->func;
-	    return f(ARG(1), ARG(2), REST(3));
+	    result = f(ARG(1), ARG(2), REST(3));
 	    break;
 	}
 
 	case A_THREE: {
 	    int(*f)(char *arg, char *arg2, char *arg3) =
                 (int(*)(char*,char*,char*))command->func;
-	    return f(ARG(1), ARG(2), ARG(3));
+	    result = f(ARG(1), ARG(2), ARG(3));
 	    break;
 	}
 
 	case A_THREE | A_PLUS: {
 	    int(*f)(char *arg, char *arg2, char *arg3, char **rest) =
                 (int(*)(char*,char*,char*,char**))command->func;
-	    return f(ARG(1), ARG(2), ARG(3), REST(4));
+	    result = f(ARG(1), ARG(2), ARG(3), REST(4));
 	    break;
 	}
 
 	default:
 	    halcmd_error("BUG: unchandled case: command=%s type=0x%x",
 		command->name, command->type);
-	    return -EINVAL;
+	    result = -EINVAL;
 	}
+
+        return result;
     }
 }
 
