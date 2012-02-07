@@ -352,7 +352,7 @@ M1-- <P- Q->
 The external program 'M1nn'
 must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
-Execution of the RS274NGC file pauses until the invoked program exits.
+Execution of the RS274/NGC file pauses until the invoked program exits.
 Any valid executable file can be used.
 
 The error 'Unknown M code used' denotes one of the following
@@ -406,6 +406,16 @@ file. When you close it the program will resume.
 ----
 #!/bin/bash
 eog /home/john/linuxcnc/nc_files/message.png
+exit 0
+----
+
+To display a graphic message and continue processing the G code file 
+suffix an ampersand to the command.
+
+.M110 Example display and keep going
+----
+#!/bin/bash
+eog /home/john/linuxcnc/nc_files/message.png &
 exit 0
 ----
 
