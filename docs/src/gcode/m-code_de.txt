@@ -24,7 +24,7 @@
 |<<sec:M66-Input-Control,M66>>           | Input Control
 |<<sec:M67-Analog-Output,M67>>           | Analog Output Control
 |<<sec:M68-Analog-Output,M68>>           | Analog Output Control
-|<<sec:M100-to-M199,M100-M199>>          | User Defined M-Codes
+|<<sec:M100-to-M199,M100-M199>>          | User Defined M codes
 |========================================
 
 
@@ -254,7 +254,7 @@ command.
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M62/63.
+program a motion G code (G0, G1, etc) right after the M62/63.
 
 M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
@@ -313,7 +313,7 @@ M67 E- Q-
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M67. M67 functions
+program a motion G code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
@@ -361,10 +361,10 @@ The error 'Unknown M code used' denotes one of the following
 * The file is not an executable file
 
 For example to open and close a collet closer that is controlled by a
-parport pin using a bash script file using M101 and M102. Create two
+parallel port pin using a bash script file using M101 and M102. Create two
 files named M101 and M102. Set them as executable files (typically
 right click/properties/permissions) before running LinuxCNC. Make sure the
-parport pin is not connected to anything in a HAL file.
+parallel port pin is not connected to anything in a HAL file.
 
 .M101 Example File
 ----
