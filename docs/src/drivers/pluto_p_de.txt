@@ -11,11 +11,16 @@ ACEX1K(((ACEX1K))) chip from Altera.
 
 . A Pluto-P board
 . An EPP-compatible parallel port, configured for EPP mode in the system BIOS
+  or a PCI EPP compatible parallel port card.
 
 [NOTE]
 The Pluto P board requires EPP mode. Netmos98xx chips do not work in EPP mode.
 The Pluto P board  will work on some computers and not on others.
 There is no known pattern to which computers work and which don't work.
+
+For more information on PCI EPP compatible parallel port cards see the 
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[LinuxCNC
+Supported Hardware] page on the wiki.
 
 === Connectors
 
