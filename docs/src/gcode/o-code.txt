@@ -132,16 +132,30 @@ continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional[[sec:conditional]](((Conditional: if, else, endif)))(((if)))(((else)))(((endif)))
+== Conditional[[sec:conditional]](((Conditional: if, elseif,else, endif)))(((if)))(((elseif)))(((else)))(((endif)))
 
 The 'if' conditional executes one group of statements if a condition
-is true and the 'else'executes another if it is false.
+is true and the 'else' executes another if it is false.
 
 .If Else Endif Example
 ----
 O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
   F100
 O102 else (else if parameter #2 is not greater than 5 set F200)
+  F200
+O102 endif
+----
+
+Several conditons may be tested for by 'elseif' statements until the
+'else' path is finally executed if all preceding conditons are false:
+
+.If Elseif Else Endif Example
+----
+O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+  F100
+O102 elseif [#2 LT 2] (else if parameter #2 less than 2 set F200)
+  F20
+O102 else (parameter #2 between 2 and 5)
   F200
 O102 endif
 ----
@@ -214,5 +228,22 @@ M2
 [NOTE]
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
 by the interperter.
+
+== Subroutine return values(((Return Values)))
+
+Subroutines may optionally return a value by an optional expression at
+an 'endsub' or 'return' statement.
+
+.Return value example
+----
+o123 return [#2 *5]
+...
+o123 endsub [3 * 4]
+----
+
+A subroutine return value is stored in the '#<_value>' predefined
+parameter, and the '#<_value_returned>' predefined
+parameter is set to 1, to indicate a value was returned. Both
+paramters are global, and are cleared just before the next subroutine call.
 
 // vim: set syntax=asciidoc:
