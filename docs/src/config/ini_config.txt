@@ -2,7 +2,7 @@
 
 [[cha:ini-configuration]] (((INI Configuration)))
 
-== The INI File Layout
+== The INI File Components
 
 A typical INI file follows a rather simple layout that includes;
 
@@ -17,16 +17,16 @@ or newline character creates a new element.
 
 A comment line is started with a ; or a # mark. When the ini reader
 sees either of these marks at the start a line, the rest of the line is
-ignored by the software. Comments can be used to describe what some INI
+ignored by the software. Comments can be used to describe what an INI
 element will do.
 
 ----
-; This is my little mill configuration file.
-# I set it up on January 12, 2006
+; This is my mill configuration file.
+# I set it up on January 12, 2012
 ----
 
-Comments can also be used to select between several values of a single
-variable.
+Comments can also be used to 'turn off' a variable. This makes it easier
+to pick between different variables.
 
 ----
 DISPLAY = axis
@@ -51,11 +51,9 @@ CORRECT = value
 === Sections
 
 Related parts of an ini file are separated into sections.
-A section starts with the name of the section in brackets like [THIS_SECTION].
-The name of the section is enclosed in brackets.
-The order of sections is unimportant.
-Custom sections can be added and referenced in HAL.
-Sections begin at the section name and end at the next section name.
+A section name is enclosed in brackets like this '[THIS_SECTION]'
+The order of sections is unimportant. Sections begin at the section
+name and end at the next section name.
 
 The following sections are used by LinuxCNC:
 
@@ -82,22 +80,52 @@ often called a keyword.
 The following sections detail each section of the configuration file,
 using sample values for the configuration lines.
 
-Some of the variables are used by LinuxCNC, and must always use the section
-names and variable names shown. Other variables are used only by HAL,
-and the section names and variable names shown are those used in the
-sample configuration files.
+Variables that are used by LinuxCNC must always use the section
+names and variable names as shown. In the following example the variable
+'MACHINE' is assigned the value 'My Machine'.
 
-Custom variables can be used in your HAL files with the following syntax.
-
+.Variable Example
 ----
-[SECTION]VARIABLE
+MACHINE = My Machine
 ----
 
-=== Definitions
+=== Custom Sections and Variables [[sub:custom-variables]]
 
-* 'Machine Unit' - The unit of measurement for an axis is determined by the settings in
-    the [TRAJ] section. A machine unit is equal to one unit as specified by
-    LINEAR_UNITS or ANGULAR_UNITS. 
+Most sample configurations use custom sections and variables to put all of the
+settings into one location for convenience.
+
+To use a custom section variable in your HAL file add the section and
+variable to the INI file.
+
+.Custom Section Example
+----
+[OFFSETS]
+OFFSET_1 = 0.1234
+----
+
+To add a custom variable to a LinuxCNC section simply include the variable
+in that section.
+
+.Custom Variable Example
+----
+[AXIS_0]
+TYPE = LINEAR
+...
+SCALE = 16000
+----
+
+To use the custom variables in your HAL file put the section and variable
+name in place of the value. 
+
+.HAL Example
+----
+setp offset.1.offset [OFFSETS]OFFSET_1
+setp stepgen.0.position-scale [AXIS_0]SCALE
+----
+
+[NOTE]
+The value stored in the variable must match the type specificied by the
+component pin.
 
 == INI File Sections[[sec:INI-Detail]]
 
@@ -162,12 +190,14 @@ User Manual.
 
 * 'INTRO_TIME = 5' - The maximum time to show the splash screen, in seconds.
 
-* 'CYCLE_TIME = 0.05' - Cycle time in seconds that display will sleep between polls.
+* 'CYCLE_TIME = 0.05' - Cycle time in seconds that display will sleep between
+   polls.
 
-The following [DISPLAY] items are used only if you select AXIS as your
-user interface program.
+[NOTE]
+The following [DISPLAY] items are for the AXIS interface only.
 
-* 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in machine units per second.
+* 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
+   <<sub:traj-section,machine units>> per second.
 
 * 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
 
@@ -236,11 +266,10 @@ user interface program.
     directory. This is useful if you have multiple configurations on one
     computer.
 
-The following [DISPLAY] items are not used if you select AXIS as your
-user interface program.
+[NOTE]
+The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
-* 'HELP_FILE = tklinucnc.txt' -
-    Path to help file (not used in AXIS).
+* 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
 === [FILTER] Section[[sub:[FILTER]-Section]]
 
@@ -325,77 +354,55 @@ should be used by any filter that runs for a long time.
    functions. Directories are specified relative to the current directory
    for the inifile or as absolute paths. The list must contain no intervening
    whitespace.
++
+   A search is made for each possible user defined function, typically
+   (M100-M199). The search order is:
++
+. [DISPLAY]PROGRAM_PREFIX (if specified)
+. If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files
+. Then search each directory in the list [RS274NGC]USER_M_PATH
++
+The first executable M1xx found in the search is used for each M1xx.
 
 * 'USER_DEFINED_FUNCTION_MAX_DIRS=5'. The maximum number of directories defined
    at compile time. 
 
 [NOTE]
-[WIZARD]WIZARD_ROOT is a valid search path but the Wixard has not been fully
+[WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
-A search is made for each possible user defined function, typically
-(M100-M199). The search order is:
-
- . [DISPLAY]PROGRAM_PREFIX (if specified)
- . If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files
- . Then search each directory in the list [RS274NGC]USER_M_PATH
-
-The first executable M1xx found in the search is used for each M1xx.
 
 === [EMCMOT] Section[[sub:[EMCMOT]-section]]
 
 (((EMCMOT (inifile section))))
 
-You may find other entries in this section and they should not be
-changed.
+This section is a custom section and is not used by LinuxCNC directly. Most
+configurations use values from this section to load the motion controller. For
+more information on the motion controller see the <<sec:motion,Motion>>
+Section.
 
-* 'BASE_PERIOD = 50000' - (((BASE PERIOD))) This is the "Base" task period
-(in HAL), in nanoseconds. This is the fastest thread in the machine.
+* 'EMCMOT = motmod' - the motion controller name is typically used here.
 
-[NOTE]
-On servo-based systems, there is generally no reason for
-'BASE_PERIOD' to be smaller than 'SERVO_PERIOD'.
-On machines with software step generation, the 'BASE_PERIOD'
-determines the maximum number of steps per second. In the absence of
-long step length and step space requirements, the absolute maximum step
-rate is one step per 'BASE_PERIOD'. Thus, the 'BASE_PERIOD' shown
-above gives an absolute maximum step rate of 20,000 steps per
-second. 50,000 ns (50 us) is a fairly conservative value. The
-smallest usable value is related to the Latency Test result, the
-necessary step length, and the processor speed.
-Choosing a 'BASE_PERIOD' that is too low can lead to the "Unexpected
-real time delay" message, lockups, or spontaneous reboots.
+* 'BASE_PERIOD = 50000' - the 'Base' task period in nanoseconds.
 
-* 'SERVO_PERIOD = 1000000' - (((SERVO PERIOD))) 
-This is the "Servo" task period (in HAL), in nanoseconds.
-This value will be rounded to an integer multiple of *BASE_PERIOD*.
-This value is used even on systems based on stepper motors.
-+
-This is the rate at which new motor positions are computed, following
-error is checked, PID output values are updated, and so on.
-Most systems will not need to change this value. It is the update rate
-of the low level motion planner.
+* 'SERVO_PERIOD = 1000000' - This is the "Servo" task period in nanoseconds.
 
-* 'TRAJ_PERIOD = 100000' - (((TRAJ PERIOD))) This is the "Trajectory Planner"
-  task period (in HAL), in nanoseconds. This value will be rounded to an integer
-  multiple of 'SERVO_PERIOD'. Except for machines with unusual kinematics
-  (e.g., hexapods) there is no reason to make this value larger than 'SERVO_PERIOD'.
-
+* 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
+  nanoseconds.
+  
 === [TASK] Section[[sub:[TASK]-section]]
 
 (((TASK (inifile section))))
 
 * 'TASK = milltask' - 
-     Specifies the name of the "task" executable. The "task" executable does various
+    Specifies the name of the 'task' executable. The 'task' executable does various
     things, such as communicate with the UIs over NML, communicate with the
     realtime motion planner over non-HAL shared memory, and interpret gcode.
     Currently there is only one task executable that makes sense for
-    99.9% of users, milltask. footnote:[In the dim mists of time (before HAL), it was
-    frequently the case that an integrator would have to build a modified
-    version of things like task, I/O, and motion for a specific machine.]
-
+    99.9% of users, milltask.
+    
 * 'CYCLE_TIME = 0.010' -
-     The period, in seconds, at which EMCTASK will run. This parameter
+    The period, in seconds, at which TASK will run. This parameter
     affects the polling interval when waiting for motion to complete, when
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
@@ -431,12 +438,13 @@ of the low level motion planner.
 
 * 'POSTGUI_HALFILE = example2.hal' - (Only with the TOUCHY and AXIS GUI)
    Execute 'example2.hal' after the GUI has created its HAL pins. See
-   section <<sec:pyvcp-with-axis>> for more information.
+   section <<sec:pyvcp-with-axis,pyVCP with Axis>> Section for more information.
 
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
-       
-=== [HALUI] section[[sub:[HALUI]-section]]
+
+[[sub:[HALUI]-section]]
+=== [HALUI] section
 
 (((HALUI (inifile section))))
 
@@ -444,12 +452,12 @@ of the low level motion planner.
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
-=== [TRAJ] Section[[sub:[TRAJ]-section]]
+=== [TRAJ] Section [[sub:traj-section]]
 
 (((TRAJ (inifile section))))
 
 The [TRAJ] section contains general parameters for the trajectory
-planning module in EMCMOT.
+planning module in 'motion'.
 
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
@@ -472,29 +480,30 @@ planning module in EMCMOT.
     nontrivial kinematics. On machines with trivial kinematics this value
     is ignored.
 
-* 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the machine units for linear axes.
+* 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
     Possible choices are (in, inch, imperial, metric, mm).
      This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
-* 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the machine units for rotational axes.
+* 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
     Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
     (2pi per circle), 'grad', or 'gon' (400 per circle).
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
-* 'DEFAULT_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in machine units
-    per second. The value shown equals one unit per minute.
+* 'DEFAULT_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in 
+  machine units per second. The value shown in 'Axis' equals
+  machine units per minute.
 
 * 'DEFAULT_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
-    for "teleop" (Cartesian space) jogs, in machine units per second per second.
+    for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
 
 * 'MAX_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
-    move, in machine units per second. The value shown equals 300 units per
+    move, in 'machine units' per second. The value shown equals 300 units per
     minute.
 
 * 'MAX_ACCELERATION = 20.0' - (((MAX ACCELERATION))) The maximum acceleration for any axis or
-    coordinated axis move, in machine units per second per second.
+    coordinated axis move, in 'machine units' per second per second.
 
 * 'POSITION_FILE = position.txt' - If set to a non-empty value, the joint positions are stored between
     runs in this file. This allows the machine to start with the same
@@ -555,7 +564,7 @@ Typically (but not always):
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
 
 * 'MAX_VELOCITY = 1.2' -
-    Maximum velocity for this axis in machine units per second.
+    Maximum velocity for this axis in <<sub:traj-section,machine units>> per second.
 
 * 'MAX_ACCELERATION = 20.0' -
      Maximum acceleration for this axis in machine units per
@@ -639,7 +648,7 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_OFFSET = 0.0' -
      The axis position of the home switch or index pulse, in
-    machine units. In other words, when the home point is found during
+    <<sub:traj-section,machine units>>. In other words, when the home point is found during
     the homing process, this is the value or position that should be
     assigned to the home point, or initialized at the home point.
 
@@ -689,15 +698,20 @@ These parameters are Homing related, for a better explanation read the
     home switches and does not have position feedback such as a step and
     direction driven machine.
 
-==== Servo[[sub:Servo-related-items]]
+// NOTICE this stuff belongs in the PID section
 
-The following items are for servo-based systems and servo-like
-systems. This description assumes that the units of output from the PID
-component are volts.
+[WARNING]
+The following are custom INI file entries that you may find in a sample INI file
+or a wizard generated file. These are not used by the LinuxCNC software. They
+are only there to put all the settings in one place. For more information on
+custom INI file entries see the
+<<sub:custom-variables,Custom Sections and Variables>> subsection.
 
-DEADBAND = 0.000015' -
-    (in HAL) How close is close enough to consider the motor in position,
-in machine units. This is often set to a distance equivalent to 1, 1.5, 2,
+The following items might be used by a PID component and the assumption is
+that the output is volts.
+
+* 'DEADBAND = 0.000015' - How close is close enough to consider the motor in position,
+in <<sub:traj-section,machine units>>. This is often set to a distance equivalent to 1, 1.5, 2,
 or 3 encoder counts, but there are no strict rules.
 Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
 Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
@@ -706,9 +720,9 @@ As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you
 
 Be careful about going below 1 encoder count, since you may create a condition where
 there is no place that your servo is happy. This can go beyond 'hunting' (slow) to
-"nervous" (rapid), and even to "squealing" which is easy to confuse with
+'nervous' (rapid), and even to 'squealing' which is easy to confuse with
 oscillation caused by improper tuning. Better to be a count or two loose
-here at first, until you've been through "gross tuning" at least.
+here at first, until you've been through 'gross tuning' at least.
 
 Example of calculating machine units per encoder pulse to use in deciding DEADBAND value:
 
@@ -723,8 +737,7 @@ latexmath:[ \frac{X\, inches}{1\, encoder\, count} =
 
 image::images/encoder-counts-math.png[align="center"]
 
-* 'BIAS = 0.000' -
-     (in HAL) (Sometimes called 'offset') This is used by hm2-servo and some others.
+* 'BIAS = 0.000' - This is used by hm2-servo and some others.
     Bias is a constant amount
     that is added to the output. In most cases it should be left at zero.
     However, it can sometimes be useful to compensate for offsets in servo
@@ -732,8 +745,7 @@ image::images/encoder-counts-math.png[align="center"]
     vertically. bias is turned off when the PID loop is disabled, just like
     all other components of the output.
 
-* 'P = 50' -
-     (in HAL) The proportional gain for the axis servo. This value
+* 'P = 50' - The proportional gain for the axis servo. This value
     multiplies the
     error between commanded and actual position in machine units, resulting
     in a contribution to the computed voltage for the motor amplifier. The
@@ -742,8 +754,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 //latexmath:[$\frac{volt}{mu}$]. 
 
-* 'I = 0' -
-     (in HAL) The integral gain for the axis servo. The value
+* 'I = 0' - The integral gain for the axis servo. The value
     multiplies the
     cumulative error between commanded and actual position in machine
     units, resulting in a contribution to the computed voltage for the
@@ -752,8 +763,7 @@ image::images/encoder-counts-math.png[align="center"]
     
 //latexmath:[$\frac{volt}{mu\, s}$].
 
-* 'D = 0' -
-     (in HAL) The derivative gain for the axis servo. The value
+* 'D = 0' - The derivative gain for the axis servo. The value
     multiplies the
     difference between the current and previous errors, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
@@ -762,8 +772,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu/s}$].
 
-* 'FF0 = 0' -
-     (in HAL) The 0th order feed forward gain. This number is
+* 'FF0 = 0' - The 0th order feed forward gain. This number is
     multiplied by the
     commanded position, resulting in a contribution to the computed voltage
     for the motor amplifier. The units on the FF0 gain are volts per
@@ -771,8 +780,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu}$].
 
-* 'FF1 = 0' -
-     (in HAL) The 1st order feed forward gain. This number is
+* 'FF1 = 0' - The 1st order feed forward gain. This number is
     multiplied by the
     change in commanded position per second, resulting in a contribution to
     the computed voltage for the motor amplifier. The units on the FF1 gain
@@ -780,8 +788,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 // latexmath:[$\frac{volt}{mu\, s}$].
 
-* 'FF2 = 0' -
-     (in HAL) The 2nd order feed forward gain. This number is
+* 'FF2 = 0' - The 2nd order feed forward gain. This number is
     multiplied by the
     change in commanded position per second per second, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
@@ -792,8 +799,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 * 'OUTPUT_SCALE = 1.000' -
 
-* 'OUTPUT_OFFSET = 0.000' -
-     (in HAL) These two values are the scale and offset factors for
+* 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for
     the axis output to the motor amplifiers.
     The second value (offset) is subtracted from
     the computed output (in volts), and divided by the first value (scale
@@ -860,16 +866,15 @@ See the following table for an example of voltage measurements.
 |10 | 10.87
 |===============
 
-* 'MAX_OUTPUT = 10' -
-    (in HAL) The maximum value for the output of the PID compensation
+* 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation
     that is written to the motor amplifier, in volts. The computed
     output value is clamped to this limit. The limit is applied before
     scaling to raw output units. The value is applied symmetrically to
     both the plus and the minus side.
 
-* 'INPUT_SCALE = 20000' -
-(or ENCODER_SCALE = 20000 Used in PNCconf built configs)' -
-(((INPUT SCALE))) (in HAL) Specifies the number of pulses that
+* 'INPUT_SCALE = 20000' - in Sample configs
+* 'ENCODER_SCALE = 20000' - in PNCconf built configs
+Specifies the number of pulses that
 corresponds to a move of one machine unit as set in the [TRAJ] section.
 For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
@@ -885,13 +890,18 @@ image::images/encoder-scale.png[align="center"]
 //\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
 
-==== Stepper[[sub:Stepper-related-items]]
+[WARNING]
+The following are custom INI file entries that you may find in a sample INI file
+or a wizard generated file. These are not used by the LinuxCNC software. They
+are only there to put all the settings in one place. For more information on
+custom INI file entries see the
+<<sub:custom-variables,Custom Sections and Variables>> subsection.
 
-The following items are Stepper related items.
+The following items might be used by a stepgen component.
 
-* 'SCALE = 4000' -
-(or STEP_SCALE = 4000 Used in PNCconf built configs)
-(((INPUT SCALE))) (in HAL) Specifies the number of pulses that corresponds to a
+* 'SCALE = 4000' - in Sample configs
+* 'STEP_SCALE = 4000' - in PNCconf built configs
+Specifies the number of pulses that corresponds to a
 move of one machine unit as set in the [TRAJ] section.
 For stepper systems, this is
 the number of step pulses issued per machine unit. For a linear axis
@@ -901,7 +911,7 @@ servo systems, this is the number of feedback pulses per machine unit.
 A second number, if specified, is ignored.
 
 For example, on a 1.8 degree stepper motor with half-stepping, and 10
-revs/inch gearing, and desired machine units of inch, we
+revs/inch gearing, and desired <<sub:traj-section,machine units>> of inch, we
 have:
 
 image::images/stepper-scale.png[align="center"]
@@ -910,8 +920,8 @@ image::images/stepper-scale.png[align="center"]
 //\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} =
 //\frac{4000\, steps}{inch} ]
 
-* 'ENCODER_SCALE = 20000 (Optionally used in PNCconf built configs)' -
-(in HAL) Specifies the number of pulses that
+* 'ENCODER_SCALE = 20000' (Optionally used in PNCconf built configs) -
+Specifies the number of pulses that
 corresponds to a move of one machine unit as set in the [TRAJ] section.
 For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
@@ -928,16 +938,14 @@ image::images/encoder-scale.png[align="center"]
 //\frac{20000\, counts}{inch} ]
 
 
-* 'STEPGEN_MAXACCEL = 21.0' -
-    (in HAL) Acceleration limit for the step generator. This should
-    be 1% to 10%
+* 'STEPGEN_MAXACCEL = 21.0' -  Acceleration limit for the step generator.
+    This should be 1% to 10%
     larger than the axis MAX_ACCELERATION. This value improves the tuning
     of stepgen's "position loop". If you have added backlash compensation
     to an axis then this should be 1.5 to 2 times greater than
     MAX_ACCELERATION.
 
-* 'STEPGEN_MAXVEL = 1.4' -
-    (in HAL) Older configuration files have a velocity limit for
+* 'STEPGEN_MAXVEL = 1.4' - Older configuration files have a velocity limit for
     the step
     generator as well. If specified, it should also be 1% to 10% larger
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
