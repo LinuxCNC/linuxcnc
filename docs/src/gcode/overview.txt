@@ -62,22 +62,14 @@ Input is case insensitive, except in comments, i.e., any letter
 outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
-The block delete character must be the very first character on a line if
-used.
-
 == Line Number
 (((Line Number)))
 
-A line number is the letter N followed by an integer (with no sign and
-no intervening space) between 0 and 99999 written with no more than
-five digits (000009 is not OK, for example). Line numbers may be
-repeated or used out of order, although normal practice is to avoid
-such usage. Line numbers may also be skipped, and that is normal
-practice. A line number is not required to be used, but must be in the
-proper place if used.
-
-If used, the letter N of line number must be the first character on a
-line. It may only be preceded by an optional block delete character.
+A line number is the letter N followed by an unsigned integer. Line
+numbers may be repeated or used out of order, although normal practice
+is to avoid such usage. Line numbers may also be skipped, and that is
+normal practice. A line number is not required to be used, but must be
+in the proper place if used.
 
 == Word
 (((Word)))
