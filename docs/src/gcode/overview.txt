@@ -645,6 +645,10 @@ parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
 parentheses.
 
+Comments may appear between words, but not between words and their
+corresponding parameter. So, 'S100(set speed)F200(feed)' is ok while
+'S(speed)100F(feed)' is not.
+
 ----
 G0 (Rapid to start) X1 Y1 
 G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
