@@ -99,7 +99,7 @@ DOC_SRCS := \
 	config/emc2hal.txt \
 	config/emc2hal_de.txt \
 	config/emc2hal_es.txt \
-	config/linuxcnchal_fr.txt \
+	config/linuxcnc2hal_fr.txt \
 	config/emc2hal_pl.txt \
 	config/ini_config.txt \
 	config/ini_config_de.txt \

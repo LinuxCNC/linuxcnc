@@ -561,7 +561,7 @@ C'est une erreur si:
 * La compensation d'outil est activée
 * Le mot P n'est pas spécifié
 
-D'autres informations sur l'orientation <<cap:Orientations-des-outils-de-tour, 
+D'autres informations sur l'orientation <<sec:Orientations-des-outils-de-tour, 
 des outils de tour sont disponibles ici>>.
 
 [[sec:G10-L2]]
@@ -623,7 +623,7 @@ G10 L2 P1 X0 Y0 Z0
 
 Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
 
-[[cap:Etablissement-Systeme-Coordonnees]]
+[[sec:Etablissement-Systeme-Coordonnees]]
 .Établissement de l'origine d'un système de coordonnées
 
 [width="80%", options="header", cols="^,^,^"]
@@ -963,7 +963,7 @@ C'est une erreur si:
 
 Le tableau de signification des différents codes de mesure.
 
-[[cap:Codes-de-mesure]]
+[[sec:Codes-de-mesure]]
 .Codes de mesure
 
 [width="90%", options="header"]
@@ -1079,7 +1079,7 @@ C'est une erreur si:
 * Le nombre L est utilisée alors que le plan XZ n'est pas actif.
 * La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 
-Plus d'informations sur <<cap:Orientations-des-outils-de-tour, l'orientation des 
+Plus d'informations sur <<sec:Orientations-des-outils-de-tour, l'orientation des 
 outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et 
 <<fig:Outil-Positions-5-6-7-8, les outils de tour en 5-6-7-8>>.
 
@@ -1185,7 +1185,7 @@ Les systèmes de coordonnées stockent les valeurs
 pour chaque système dans les variables indiquées
 dans le tableau suivant.
 
-.Coordonnées pièce[[cap:Coordonnees-Piece]]
+.Coordonnées pièce[[sec:Coordonnees-Piece]]
 
 [width="100%", options="header"]
 |=====================================================================

@@ -88,12 +88,14 @@ signification de la ligne.
 (((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
-non signé compris entre 0 et 99999 écrit avec moins de six caractères
-(par exemple: 000009 est interdit). Les numéros de ligne peuvent se
-suivre ou être dans le désordre, bien qu'une pratique normale évite ce
-genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
-pratique normale. L'utilisation d'un numéro de ligne n'est pas
-obligatoire, ni même recommandé, mais si il est utilisé, il doit être à sa place.
+non signé et sans espace, compris entre 0 et 99999 écrit avec moins de six
+caractères (par exemple: 000009 est incorrect). Les numéros de ligne peuvent se
+suivre être répétés ou être dans le désordre, bien qu'une pratique normale
+évite ce genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
+pratique normale. L'utilisation d'un numéro de ligne n'est pas obligatoire, ni 
+même recommandée, mais si il est utilisé, il doit être placé en début de ligne,
+la lettre N étant la première de la ligne. La lettre N peut bien sûr être
+précédée par le caractère d'effacement de bloc _/_.
 
 == Les mots
 (((mots)))
@@ -108,7 +110,7 @@ dans des contextes différents. Les lettres qui se réfèrent aux noms d'axes ne
 sont pas valides sur une machine n'ayant pas les axes correspondants.
 
 
-.Les mots et leur signification[[cap:Les-mots-et-leur-significations]]
+.Les mots et leur signification[[sec:Les-mots-et-leur-significations]]
 
 [width="100%", options="header"]
 |========================================
@@ -171,7 +173,8 @@ Si un nombre utilisé dans le langage G-code est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-[[parametres]]
+
+[[sec:parametres]]
 == Paramètres (Variables)
 (((Paramètres)))
 
@@ -184,7 +187,7 @@ les expressions logiques peuvent être formulées avec
 <<sec:Operateurs-Binaires,les opérateurs booléens>> (_AND_, _OR_, _XOR_ et les
 opérateurs de comparaison
 _EQ_, _NE_, _GT_, _GE_, _LT_, _LE_) ainsi que _MOD_, _ROUND_, _FUP_ et _FIX_
-<<cap:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
+<<sec:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
 
 Les paramètres différent par leur syntaxe, leur portée, leur comportement quand ils
 ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel
@@ -289,9 +292,9 @@ le fichier G-code.
 * _5410_ - Diamètre de l'outil courant
 * _5411_ - Angle frontal de l'outil courant
 * _5412_ - Angle arrière de l'outil courant
-* _5413_ - Tool Orientation
-* _5420-5428_ - Current Position including offsets in current program
-    units (X Y Z A B C U V W)
+* _5413_ - Orientation de l'outil
+* _5420-5428_ - Positions courantes incluant les offsets, dans l'unité courante
+du programme (X Y Z A B C U V W)
 
 [[sec:Parametres-Nommes]]
 == Paramètres nommés
@@ -400,7 +403,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 état logique faux (FALSE), tout nombre différent de zéro est équivalent
 à un état logique vrai (TRUE).
 
-[[cap:Precedence-des-operateurs]]
+[[sec:Precedence-des-operateurs]]
 .Précédence des opérateurs
 (((Précédence des opérateurs)))
 
@@ -414,10 +417,11 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-
 [[sec:Fonctions]]
 == Fonctions[[sec:Operations-unaires]]
-(((Fonctions unaires)))
+(((Fonctions)))
+(((Opérations unaires)))
+
 
 Une fonction commence par son nom, ex: _ATAN_ suivi par une
 expression divisée par une autre expression (par  exemple _ATAN[2]/[1+3]_) ou 
@@ -432,7 +436,7 @@ négatif) par exemple, _FIX[2.8]=2_ et _FIX[-2.8]=-3_.
 La fonction _FUP_ à l'inverse, arrondi un nombre vers la droite (plus positif
 ou moins négatif) par exemple, _FUP[2.8]=3_ et _FUP[-2.8]=-2_.
 
-La fonction _EXISTS_ vérifie l'existance d'un simple paramètre nommé. Il reçoit
+La fonction _EXISTS_ vérifie l'existence d'un simple paramètre nommé. Il reçoit
 le paramètre à vérifier en argument, il retourne 1 si celui-ci existe et 0 sinon. 
 C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 
@@ -455,7 +459,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 |SIN[arg] | Sinus
 |SQRT[arg] | Racine carrée
 |TAN[arg] | Tangente
-|EXISTS[arg] | Vérifie l'existance d'un paramètre nommé
+|EXISTS[arg] | Vérifie l'existence d'un paramètre nommé
 |========================================
 
 == Répétitions d'items
@@ -687,6 +691,17 @@ commentaires ne peuvent pas être imbriqués, une erreur sera signalée si
 une parenthèse ouvrante est rencontrée après le début d'un commentaire
 et avant la fin d'un commentaire. Un point-virgule rencontré entre des 
 parenthèses, n'est pas considéré comme le début d'un commentaire.
+
+Les commentaires peuvent se trouver entre des mots, mais pas entre des mots et
+leur paramètre correspondant. Ainsi, cette ligne est correcte:
+----
+S100(vitesse broche)F200(vitesse d'avance)
+----
+
+mais celle-ci est incorrecte:
+----
+S(speed)100F(feed)200
+----
 
 Voici un exemple de programme commenté: 
 ----

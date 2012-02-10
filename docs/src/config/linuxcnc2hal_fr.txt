@@ -1,21 +1,75 @@
 :lang: fr
 :toc:
 
+= LinuxCNC et HAL
+
 [[cha:LinuxCNC-et-HAL]]
-= LinuxCNC et HAL (((LinuxCNC et HAL)))
+(((LinuxCNC et HAL)))
 
+Voir également la man page _motion(9)_.
+
+[[sec:Motion]]
 == motion (temps réel)
+(((Motion)))
 
-Voir également les man pages _motion(9)_ et _iocontrol(1)_
+Ces pins et paramètres sont créés par le module temps réel _motmod_.
+Ce module fourni une interface vers HAL pour le planificateur de mouvements de
+ LinuxCNC. En gros, motmod prends dans une liste de points de cheminement
+et génère un flux de positions respectant les limites de contrainte des 
+articulations. Ce flux sera reçu simultanément par tous les pilotes de moteurs.
 
-=== Options
+Optionnellement le nombre d'E/S numériques est fixé avec _num_dio_.
+Le nombre d'E/S analogiques est fixé avec _num_aio_. Le nombre par défaut est 4
+de chaque.
 
-_motion_ est chargé en même temps que le module temps réel _motmod_.
+Les noms de pin commençant par _axis_ sont actuellement des valeurs 
+d'articulations, mais les pins et les paramètres sont également appelés _axis.N_.
+Ils sont lus et mis à jour par la fonction _motion-controller_.
+
+_motion_ est chargé par la commande _motmod_.
 La cinématique doit être chargée avant motion.
+
 ----
 loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] \
 [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])]
 ----
+
+* _base_period_nsec = 50000_ - période de _Base_ des tâches, en nanosecondes.
+  C'est le _thread_ le plus rapide de la machine.
+
+[NOTE]
+Sur les systèmes à base de servomoteurs, il n'y a généralement aucune raison 
+d'avoir une valeur _base_period_nsec_ inférieure à celle de _servo_period_nsec_.
+Sur les machines avec une génération de pas logicielle, la valeur de
+_base_period_nsec_ détermine le nombre maximum de pas par seconde. En l'absence
+de la nécessité d'une grande durée de pas ou d'un grand écart entre pas, le
+taux maximum de pas est de un pas par _base_period_nsec_. Ainsi, la
+_base_period_nsec_ ci-dessus donnera un taux maximum absolu de 20000 pas
+par seconde. 50000ns (50 µs) est une valeur assez prudente. La plus petite
+valeur utilisable est relative au résultat du test de latence, à la
+longueur de pas nécessaire et à la vitesse du processeur.
+Choisir une _base_period_nsec_ trop basse peut entrainer l'arrivée du message
+"Unexpected real time delay" ou "délai temps réel inattendu", le blocage de la
+machine ou son redémarrage spontané.
+
+* _servo_period_nsec = 1000000_ - C'est la période de la tâche _Servo_ en
+  nanosecondes. Cette valeur doit être arrondie à un entier multiple de 
+  _base_period_nsec_. Cette période est utilisée même sur les systèmes à
+  moteurs pas à pas.
++
+C'est la vitesse à laquelle sont calculées les nouvelles positions des moteurs,
+que l'erreur de suivi est calculée, que les valeurs de sortie des PID sont
+rafraichies et ainsi de suite. Les valeurs par défaut conviennent pour la
+plupart des systèmes. C'est le taux de rafraichissement du planificateur de 
+mouvement de bas niveau.
+
+* _traj_period_nsec = 100000_ - C'est la période, en nanosecondes, du
+  planificateur de mouvement. Cette valeur doit être arrondie à un entier
+  multiple de _servo_period_nsec_. Excepté pour les machines ayant une 
+  cinématique particulière (ex: hexapodes) cette valeur n'a pas de raison
+  d'être supérieure à celle de _servo_period_nsec_.
+
+=== Options
 
 Si le nombre d'entrées/sorties numériques demandées est supérieur à la valeur
 par défaut de 4, il est possible d'en ajouter jusqu'à 64 en utilisant
