@@ -65,12 +65,11 @@ meaning of a line.
 == Line Number
 (((Line Number)))
 
-A line number is the letter N followed by an integer (with no sign)
-between 0 and 99999 written with no more than five digits (000009 is
-not OK, for example). Line numbers may be repeated or used out of
-order, although normal practice is to avoid such usage. Line numbers
-may also be skipped, and that is normal practice. A line number is not
-required to be used, but must be in the proper place if used.
+A line number is the letter N followed by an unsigned integer. Line
+numbers may be repeated or used out of order, although normal practice
+is to avoid such usage. Line numbers may also be skipped, and that is
+normal practice. A line number is not required to be used, but must be
+in the proper place if used.
 
 == Word
 (((Word)))
@@ -630,7 +629,7 @@ G10, G28, G30, and G92.
 It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
-== Comments
+== Comments[[sec:comments]]
 
 Comments can be added to lines of G code to help clear up the
 intention of the programmer. Comments can be embedded in a line using
@@ -638,11 +637,97 @@ parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
 parentheses.
 
+Comments may appear between words, but not between words and their
+corresponding parameter. So, 'S100(set speed)F200(feed)' is ok while
+'S(speed)100F(feed)' is not.
+
 ----
 G0 (Rapid to start) X1 Y1 
 G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
 M2 ; End of program.
 ----
+
+There are several 'active' comments which look like comments but cause
+some action, like '(debug,..)' or '(print,..)'. If there are
+several comments on a line, only the last comment will be interpreted
+according to these rules. Hence, a normal comment following an active
+comment will in effect disable the active comment. For example, '(foo)
+(debug,#1)' will print the value of parameter '#1', however
+'(debug,#1)(foo)' will not.
+
+A comment introduced by a semicolon is by definition the last comment
+on that line, and will always be interpreted for active comment syntax.
+
+== Messages[[sec:messages]]
+(((Messages)))
+
+* '(MSG,)' - displays message if 'MSG' appears after the left
+             parenthesis and before any other printing characters.
+             Variants of 'MSG' which include white space and lower case
+             characters are allowed. The rest of the characters before
+             the right parenthesis are considered to be a message.
+             Messages should be displayed on the message display device
+             of the user interface if provided.
+
+.Message Example
+----
+(MSG, This is a message)
+----
+
+== Probe Logging[[sec:probe-logging]]
+(((Probe Logging)))
+
+* '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
+                               coordinate consisting of XYZABCUVW of each
+                               successful straight probe in it.
+* '(PROBECLOSE)' - will close the open probelog file.
+
+For more information on probing see the <<sec:G38-probe,G38>> Section.
+
+== Logging[[sec:log]]
+(((Logging)))
+
+* '(LOGOPEN,filename.txt)' - opens the named log file. If the file
+                             already exists, it is truncated.
+
+* '(LOGAPPEND,filename)' - opens the named log file. If the file already
+                           exists, the data is appended.
+
+* '(LOGCLOSE)' - closes an open log file.
+
+* '(LOG,)' - everything past the ',' is written to the log file if it is open.
+             Supports expansion of parameters as described below.
+
+== Debug Messages[[sec:debug-messages]]
+(((Debug Messages)))
+
+* '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
+              special handling for comment parameters as described below.
+
+== Print Messages[[sec:print-messages]]
+(((Print Messages)))
+
+* '(PRINT,)' - messages are output to 'stderr' with special handling
+               for comment parameters as described below.
+
+== Comment Parameters
+
+In the DEBUG, PRINT and LOG comments, the values of parameters in the
+message are expanded.
+
+For example: to print a named global variable to stderr (the default
+console window) add a line to your gcode like...
+
+.Parameters Example
+----
+(print,endmill dia = #<_endmill_dia>)
+----
+
+Inside the above types of comments, sequences like '#123' are replaced
+by the value of the parameter 123. Sequences like '#<named parameter>'
+are replaced by the value of the named parameter. Named parameters
+will have white space removed from them. So, '#<named parameter>'
+will be converted to '#<namedparameter>'.
 
 == File Size
 
