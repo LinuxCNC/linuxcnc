@@ -988,6 +988,8 @@ fichier _filename.txt_ et y enregistrera les 9 coordonnées de
 XYZABCUVW pour chaque mesure réussie. 
 Le fichier doit être fermé avec le commentaire _(PROBECLOSE)_. 
 
+Plus de <<sec:Commentaires,détails sur les commentaires, ici>>.
+
 [[sec:G40]]
 == G40 Compensation de rayon d'outil
 

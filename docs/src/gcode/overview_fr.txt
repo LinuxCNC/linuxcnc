@@ -88,14 +88,11 @@ signification de la ligne.
 (((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
-non signé et sans espace, compris entre 0 et 99999 écrit avec moins de six
-caractères (par exemple: 000009 est incorrect). Les numéros de ligne peuvent se
-suivre être répétés ou être dans le désordre, bien qu'une pratique normale
-évite ce genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
-pratique normale. L'utilisation d'un numéro de ligne n'est pas obligatoire, ni 
-même recommandée, mais si il est utilisé, il doit être placé en début de ligne,
-la lettre N étant la première de la ligne. La lettre N peut bien sûr être
-précédée par le caractère d'effacement de bloc _/_.
+non signé. Les numéros de ligne peuvent se suivre, être répétés ou être dans
+le désordre, bien qu'une pratique normale évite ce genre d'usage. Les numéros
+de ligne peuvent être sautés, c'est une pratique normale. L'utilisation d'un
+numéro de ligne n'est pas obligatoire, ni même recommandée, mais si ils sont
+utilisés, il doivent être placés en début de ligne.
 
 == Les mots
 (((mots)))
@@ -681,16 +678,19 @@ contrôle de flux _O_.
 == Commentaires
 (((Commentaires)))
 
-Si un point-virgule est rencontré en début de ligne, le reste de la ligne 
-est un commentaire. Un ensemble de caractères et espaces blancs entre 
-parenthèses est un commentaire. Une parenthèse ouvrante débute toujours un 
-commentaire. Le commentaire se termine à la première parenthèse fermante trouvée. 
-Si une parenthèse ouvrante est trouvée sur une ligne, une parenthèse
-fermante doit être également rencontrée avant la fin de la ligne. Les
-commentaires ne peuvent pas être imbriqués, une erreur sera signalée si
-une parenthèse ouvrante est rencontrée après le début d'un commentaire
-et avant la fin d'un commentaire. Un point-virgule rencontré entre des 
-parenthèses, n'est pas considéré comme le début d'un commentaire.
+Des commentaires peuvent être ajoutés aux lignes de G-code pour clarifier
+l'intention du programmeur. Les commentaires peuvent être placés sur une ligne
+en les encadrant par des parenthèses. Ils peuvent aussi occuper tout le
+reste de la ligne à partir d'un point virgule. Le point virgule
+n'est pas traité comme un début de commentaire si il se trouve entre deux
+parenthèses.
+
+Voici un exemple de programme commenté: 
+----
+G0 (Rapide à démarrer.) X1 Y1 
+G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.) 
+M2 ; Fin du programme.
+----
 
 Les commentaires peuvent se trouver entre des mots, mais pas entre des mots et
 leur paramètre correspondant. Ainsi, cette ligne est correcte:
@@ -703,15 +703,98 @@ mais celle-ci est incorrecte:
 S(speed)100F(feed)200
 ----
 
-Voici un exemple de programme commenté: 
-----
-G0 (Rapide à démarrer.) X1 Y1 
-G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.) 
-M2 ; Fin du programme.
-----
-
 Les commentaires sont seulement informatifs, ils n'ont aucune 
 influence sur la machine.
+
+Il y a plusieurs commentaires _actif_ qui ressemblent à un commentaire mais qui
+produit certaines actions, comme _(debug,...)_ ou _(print,...)_, expliqués plus
+loin. Si plusieurs commentaires se trouvent sur la même ligne, seul le dernier
+sera interprété selon les règles. Par conséquent, un commentaire normal suivant
+un commentaire actif aura pour effet de désactiver le commentaire actif. Par
+exemple, _(foo) (debug,#1)_ affichera la valeur du paramètre _#1_, mais
+_(debug,#1) (foo)_ ne l'affichera pas.
+
+Un commentaire commençant par un point virgule est par définition le dernier
+commentaire sur cette ligne et sera toujours interprété selon la syntaxe des
+commentaires actifs.
+
+[[sec:Messages]]
+== Messages
+(((Messages)))
+
+* _(MSG,)_ - Un commentaire contient un message si _MSG_ apparaît après la
+            parenthèse ouvrante et avant tout autre caractère. Les variantes de
+            _MSG_ qui incluent un espace blanc et des minuscules sont permises.
+            Le reste du texte avant la parenthèse fermante est considéré comme
+            un message. Les messages sont affichés sur la visu de l'interface
+            utilisateur.
+
+.Exemple de message
+----
+(MSG, Ceci est un message)
+----
+
+[[sec:Log-des-mesures]]
+== Enregistrement des mesures
+(((Enregistrement des mesures)))
+
+* _(PROBEOPEN filename.txt)_ - ouvrira le fichier _filename.txt_ et y
+                            enregistrera les 9 coordonnées de XYZABCUVW pour
+                            chacune des mesures réussie. 
+* _(PROBECLOSE)_. - fermera le fichier de log palpeur.
+
+Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour d'autres
+informations sur le palpage avec G38.
+
+[[sec:Log-general]]
+== Log général
+(((Log général)))
+
+* _(LOGOPEN,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera tronqué.
+
+* _(LOGAPPEND,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera ajoutées.
+
+* _(LOGCLOSE)_ - Si le fichier est ouvert, il sera fermé.
+
+* _(LOG,message)_ - Le _message_ placé derrière la virgule est écrit dans
+                    le fichier de log si il est ouvert. Supporte l'extension
+                    des paramètres comme décrit plus loin.
+
+[[sec:Messages-debogage]]
+== Messages de débogage
+(((Messages de débogage)))
+
+* _(DEBUG,commentaire)_ sont traités de la même façon que ceux avec
+                        _(msg,reste du commentaire)_ avec l'ajout de
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+* _(PRINT,commentaire)_ vont directement sur la sortie _stderr_ avec des
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+== Paramètres dans les commentaires
+
+Dans les commentaires avec DEBUG, PRINT et LOG, les valeurs des
+paramètres dans le message sont étendues.
+
+Par exemple: pour afficher le contenu d'une variable nommée globale sur la
+sortie stderr (la fenêtre de la console par défaut), ajouter une ligne au
+G-code comme:
+
+.Exemple de paramètre en commentaire
+----
+(print,diamètre fraise 3 dents = #<_troisdents_dia>)
+----
+
+À l'intérieur de ces types de commentaires, les séquences comme _#123_
+sont remplacées par la valeur du paramètre 123. Les séquences comme
+_#<paramètre nommé>_ sont remplacées par la valeur du paramètre nommé.
+Rappelez vous que
+ les espaces dans les noms des paramètres nommés sont supprimés,
+_#<parametre nomme>_ est équivalent à _#<parametrenomme>_.
 
 == Taille des fichiers
 
