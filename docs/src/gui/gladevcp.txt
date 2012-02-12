@@ -1353,16 +1353,43 @@ ini.restore_state(obj)::
    	saved/initialized to default as above
 
 To save the widget and/or variable state on exit, connect a signal
-handler to the +window1+ (toplevel) destroy event:
+handler to one of the widget's +destroy+ event; the following Python
+fragment will save state and shutdown GladeVCP properly:
 
 [source,python]
 ----------------------------------
+import gtk
+...
 def on_destroy(self,obj,data=None):
     self.ini.save_state(self)
+    gtk.main_quit()
 ----------------------------------
+
+CAUTION: Do not use  +window1+ (the toplevel window) to connect a
++destroy+ event. Due to the way a GladeVCP panel interacts with Axis
+if a panel is embedded within Axis, +window1+ will +not receive
+destroy events properly+. However, since on shutdown all widgets are
+destroyed, anyone will do. Recommended: use a second-level widget -
+for instance, if you have a table container in your panel, use that.
 
 Next time you start the GladeVCP application, the widgets should come
 up in the state when the application was closed.
+
+=== Saving state when Ctrl-C is pressed
+
+By default, the reaction of GladeVCP to a Ctrl-C event is to just exit
+- +without+ saving state. To make sure that this case is covered, add
+a handler call +on_unix_signal+ which will be automatically be called
+on Ctrl-C (actuall on the SIGINT and SIGTERM signals). Example
+
+
+[source,python]
+----------------------------------
+def on_unix_signal(self,signum,stack_frame):
+    print "on_unix_signal(): signal %d received, saving state" % (signum)
+    self.ini.save_state(self)
+    gtk.main_quit()
+----------------------------------
 
 === Hand-editing .ini files
 
@@ -1539,7 +1566,7 @@ I want to set the background color or text of a HAL_Label widget depending on it
     background color of a GtkLabel widget (and HAL_Label is derived
     from GtkLabel) is a bit tricky. The GtkLabel widget has no window
     object of its own for performance reasons, and only window objects
-    can have a background color. The solution is to enclose the Labl
+    can have a background color. The solution is to enclose the Label
     in an EventBox container, which has a window but is otherwise
     invisible - see the coloredlabel.ui file.
 
