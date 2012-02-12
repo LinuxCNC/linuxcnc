@@ -55,6 +55,10 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute hal statements from FILE with halcmd after the component is set up and ready")
           , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
+          , Option( '-r', dest='gtk_rc', default="",
+                    help="read custom GTK rc file to set widget style")
+          , Option( '-R', dest='gtk_workaround', action='store_false',default=True,
+                    help="disable workaround for GTK bug to properly read ~/.gtkrc-2.0 gtkrc files")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
@@ -240,11 +244,23 @@ def main():
             parser.print_usage()
             sys.exit(1)
 
+    if opts.gtk_workaround:
+        # work around https://bugs.launchpad.net/ubuntu/+source/pygtk/+bug/507739
+        # this makes widget and widget_class matches in gtkrc and theme files actually work
+        dbg( "activating GTK bug workaround for gtkrc files")
+        for o in builder.get_objects():
+            if isinstance(o, gtk.Widget):
+                o.set_name(gtk.Buildable.get_name(o))
+
+    if opts.gtk_rc:
+        dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
+        gtk.rc_add_default_file(opts.gtk_rc)
+        gtk.rc_parse(opts.gtk_rc)
+
     if opts.theme:
-        print "**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme)
+        dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
         settings = gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
-
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
     if opts.maximum:
         window.window.maximize()
