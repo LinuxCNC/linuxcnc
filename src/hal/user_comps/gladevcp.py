@@ -40,6 +40,7 @@ from optparse import Option, OptionParser
 import gtk
 import gtk.glade
 import gobject
+import signal
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
@@ -67,6 +68,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
           ]
+
+signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
 def dbg(str):
@@ -274,6 +277,11 @@ def main():
 
     # User components are set up so report that we are ready
     halcomp.ready()
+
+    if handlers.has_key(signal_func):
+        dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
+        signal.signal(signal.SIGTERM, handlers[signal_func])
+        signal.signal(signal.SIGINT,  handlers[signal_func])
 
     try:
         gtk.main()
