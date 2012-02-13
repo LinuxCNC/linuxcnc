@@ -145,7 +145,7 @@ following the 'if' up to the next conditional line are executed.
 If the 'if' conditional evaluates to false then the 'elseif' conditions are
 evaluated in order until one evaluates to true. If the 'elseif' condition is
 true then the statements following the 'elseif' up to the next conditional
-line are executed. If none of the 'if' or 'ifelse' conditions evaluate to true
+line are executed. If none of the 'if' or 'elseif' conditions evaluate to true
 then the statements following the 'else' are executed. When a condition is
 evaluated to true no more conditions are evaluated in the group.
 
