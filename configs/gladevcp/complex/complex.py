@@ -85,6 +85,13 @@ class HandlerClass:
         self.builder.get_object('message').hal_pin.set(self.lifetime_ticks)
         return True
 
+
+    def on_unix_signal(self,signum,stack_frame):
+        print "on_unix_signal(): signal %d received, saving state" % (signum)
+        self.ini.save_state(self)
+        gtk.main_quit()
+        self.halcomp.exit()
+
     def on_destroy(self,obj,data=None):
         '''
         gladevcp_demo.ui has a destroy callback set in the window1 Gobject
@@ -121,11 +128,6 @@ class HandlerClass:
         # When the pin's value changes the callback is executed.
         self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger',  hal.HAL_BIT, hal.HAL_IN))
         self.example_trigger.connect('value-changed', self._on_example_trigger_change)
-
-        # standard hal pins not connected to any widget
-        self.halcomp.newpin("changed", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("number", hal.HAL_S32, hal.HAL_IN)
-
 
     def __init__(self, halcomp,builder,useropts):
         '''
