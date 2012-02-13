@@ -45,7 +45,7 @@ o100 endsub
 o100 call (call the subroutine here)
 M2
 ----
-See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
+See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
 
 .O- Return
 Inside a subroutine, 'O- return' can be executed. This immediately
@@ -145,7 +145,7 @@ following the 'if' up to the next conditional line are executed.
 If the 'if' conditional evaluates to false then the 'elseif' conditions are
 evaluated in order until one evaluates to true. If the 'elseif' condition is
 true then the statements following the 'elseif' up to the next conditional
-line are executed. If none of the 'if' or 'ifelse' conditions evaulate to true
+line are executed. If none of the 'if' or 'ifelse' conditions evaluate to true
 then the statements following the 'else' are executed. When a condition is
 evaluated to true no more conditions are evaluated in the group.
 
@@ -234,6 +234,6 @@ M2
 
 [NOTE]
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
-by the interperter.
+by the interpreter.
 
 // vim: set syntax=asciidoc:

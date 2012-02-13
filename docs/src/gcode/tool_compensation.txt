@@ -29,7 +29,7 @@ image::images/ToolTable-TouchOff.png[align="center"]
 === Using G10 L1
 
 The G10 L1x command can be used to set tool table offsets:
-  (these are just quick summaries, see the gcode section for full details)
+  (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 
                       (see <<sec:G10-L1_,G10 L1>> for details)
@@ -83,7 +83,7 @@ footnote:[Although tool numbers up to 99999 are allowed, the number
 of entries in the tool table, at the moment, is still limited to a 
 maximum of 56 tools for technical reasons. The LinuxCNC developers plan 
 to remove that limitation eventually. If you have a very large 
-toolchanger, please be patient.]
+tool changer, please be patient.]
 
 Earlier versions of LinuxCNC had two different tool table formats for 
 mills and lathes, but since the 2.4.x release, one tool table format 
@@ -122,11 +122,11 @@ where the tool can be found. The entries in this column must all be
 different. 
 
 The pocket numbers will typically start at 1 and go up to the highest 
-available pocket on your toolchanger. But not all toolchangers follow 
+available pocket on your tool changer. But not all tool changers follow 
 this pattern. Your pocket numbers will be determined by the numbers 
-that your toolchanger uses to refer to the pockets. So all this is to 
+that your tool changer uses to refer to the pockets. So all this is to 
 say that the pocket numbers you use will be determined by the numbering 
-scheme used in your toolchanger, and the pocket numbers you use must 
+scheme used in your tool changer, and the pocket numbers you use must 
 make sense on your machine.  
 
 .Data Offset Numbers (optional)
