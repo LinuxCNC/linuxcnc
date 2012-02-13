@@ -28,9 +28,33 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gproperties__ = {
         'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: x, y, z, p',
-                    'z', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'enable_dro' : ( gobject.TYPE_BOOLEAN, 'Enable DRO', 'Draw DRO on plot or not',
+                    'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'enable_dro' : ( gobject.TYPE_BOOLEAN, 'Enable DRO', 'Show DRO on graphics',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'metric_units' : ( gobject.TYPE_BOOLEAN, 'Use Metric Units', 'Show DRO in metric or imperial units',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'use_relative' : ( gobject.TYPE_BOOLEAN, 'Show Relative', 'Show DRO relative to active system or machine origin',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'use_commanded' : ( gobject.TYPE_BOOLEAN, 'Show Commanded', 'Show commanded or actual position',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_extents_option' : ( gobject.TYPE_BOOLEAN, 'Show Extents', 'Show machine extents',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_limits' : ( gobject.TYPE_BOOLEAN, 'Show limits', 'Show machine limits',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_live_plot' : ( gobject.TYPE_BOOLEAN, 'Show live plot', 'Show machine plot',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_velocity' : ( gobject.TYPE_BOOLEAN, 'Show tool speed', 'Show tool velocity',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_program' : ( gobject.TYPE_BOOLEAN, 'Show program', 'Show program',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_rapids' : ( gobject.TYPE_BOOLEAN, 'Show rapids', 'Show rapid moves',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_tool' : ( gobject.TYPE_BOOLEAN, 'Show tool', 'Show tool',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_dtg' : ( gobject.TYPE_BOOLEAN, 'Show DTG', 'Show Distance To Go',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'use_joints_mode' : ( gobject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):
@@ -56,6 +80,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
         if name == 'view':
             view = value.lower()
+            if self.lathe_option and view not in ['p','y']:
+                return False
             if view not in ['x', 'y', 'z', 'p']:
                 return False
             self.current_view = view
@@ -64,6 +90,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
         elif name == 'enable_dro':
             self.enable_dro = value
+        elif name == 'metric_units':
+            self.metric_units = value
         elif name in self.__gproperties.keys():
             setattr(self, name, value)
         else:

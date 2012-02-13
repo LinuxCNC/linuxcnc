@@ -13,22 +13,22 @@ after a tool change. This change was made because the new tool
 might be longer than the old tool, and the move to the original 
 machine position could therefore leave the tool tip too low.
 
-Offset parameters are inifile units::
+Offset parameters are ini file units::
 
 In LinuxCNC, the values stored in parameters for the G28 and G30 home 
 locations, the P1...P9 coordinate systems, and the G92 offset are 
-in "inifile units". This change was made because otherwise the 
+in "ini file units". This change was made because otherwise the 
 meaning of a location changed depending on whether G20 or G21 was 
 active when G28, G30, G10 L2, or G92.3 is programmed.
 
-Tool table lengths/diameters are in inifile units::
+Tool table lengths/diameters are in ini file units::
 
 In LinuxCNC, the tool lengths (offsets) and diameters in the tool 
-table are specified in inifile units only. This change was made 
+table are specified in ini file units only. This change was made 
 because otherwise the length of a tool and its diameter would 
 change based on whether G20 or G21 was active when initiating 
-G43, G41, G42 modes. This made it impossible to run gcode in the 
-machine's non-native units, even when the gcode was simple and 
+G43, G41, G42 modes. This made it impossible to run G code in the 
+machine's non-native units, even when the G code was simple and 
 well-formed (starting with G20 or G21, and didn't change units 
 throughout the program), without changing the tool table.
 
@@ -42,7 +42,7 @@ G28, G30 with axis words::
 When G28 or G30 is programmed with only some axis words present, 
 LinuxCNC only moves the named axes. This is common on other machine 
 controls. To move some axes to an intermediate point and then 
-move all axes to the predefined point, write two lines of gcode:
+move all axes to the predefined point, write two lines of G code:
 +
 G0 X- Y- (axes to move to intermediate point) G28 (move all axes 
 to predefined point)
@@ -96,7 +96,7 @@ I K.
 G41.1, G42.1::
 
 LinuxCNC allows specification of a tool diameter and, if in lathe 
-mode, orientation in the gcode. The format is G41.1/G42.1 D L, 
+mode, orientation in the G code. The format is G41.1/G42.1 D L, 
 where D is diameter and L (if specified) is the lathe tool 
 orientation.
 

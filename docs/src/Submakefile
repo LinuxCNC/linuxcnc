@@ -106,7 +106,7 @@ DOC_SRCS := \
 	config/emc2hal.txt \
 	config/emc2hal_de.txt \
 	config/emc2hal_es.txt \
-	config/linuxcnchal_fr.txt \
+	config/linuxcnc2hal_fr.txt \
 	config/emc2hal_pl.txt \
 	config/ini_config.txt \
 	config/ini_config_de.txt \
@@ -531,7 +531,7 @@ htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html

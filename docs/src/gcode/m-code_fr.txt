@@ -367,14 +367,15 @@ Le message d'erreur _M-code inconnu_ signifie que:
 * La commande spécifiée n'existe pas.
 * Le fichier n'est pas exécutable.
 
-Exemple valide: dans un programme G-code, on doit ouvrir et fermer un mandrin
+Exemple, dans un programme G-code, on doit ouvrir et fermer un mandrin
 automatique via une broche du port parallèle, on appellera
 respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
-deux scripts bash correspondants, appelés M101 et M102 seront créés
-avant le lancement de LinuxCNC puis rendus exécutables, par exemple par un
-clic droit puis _propriétés -> permissions -> Exécution_.
+deux scripts bash correspondants, appelés M101 et M102 seront créés avant
+le lancement de LinuxCNC puis rendus exécutables, par exemple par un clic
+droit puis _propriétés -> permissions -> Exécution_. S'assurer que cette
+broche du port parallèle n'est pas déjà utilisée dans un fichier de HAL.
 
-Fichier M101 
+.Exemple de fichier pour M101 
 ----
 #!/bin/bash
 # ce fichier met la broche 14 du port à 1 pour ouvrir le mandrin automatique
@@ -382,7 +383,7 @@ halcmd setp parport.0.pin-14-out True
 exit 0
 ----
 
-Fichier M102
+.Exemple de fichier pour M102
 ----
 #!/bin/bash
 # ce fichier met la broche 14 du port à 0 pour fermer le mandrin automatique
@@ -392,17 +393,40 @@ exit 0
 
 Pour passer une variable à un fichier M1nn utiliser les mots optionnels P et Q 
 de cette façon:
+
 ----
 M100 P123.456 Q321.654
 ----
 
-Le contenu de votre script M100 devrait ressembler à ça:
+.Exemple pour M100
 ----
 #!/bin/sh
 tension=$1
 vitesse=$2
 halcmd setp thc.voltage $tension
 halcmd setp thc.feedrate $vitesse
+exit 0
+----
+
+Pour ouvrir un message graphique et passer en pause jusqu'à ce que la fenêtre
+du message soit fermée, utiliser un programme comme Eye of Gnome pour
+afficher le fichier graphique. Quand la fenêtre sera fermée, le programme
+reprendra.
+
+.Exemple pour M110, affichage d'un graphique avec passage en pause
+----
+#!/bin/bash
+eog /home/robert/linuxcnc/nc_files/message.png
+exit 0
+----
+
+Pour afficher un message graphique en continuant le traitement du fichier
+G-code, ajouter un caractère esperluette à la commande.
+
+.Exemple pour M110, affichage d'un graphique sans passer en pause
+----
+#!/bin/bash
+eog /home/robert/linuxcnc/nc_files/message.png &
 exit 0
 ----
 

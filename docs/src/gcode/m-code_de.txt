@@ -263,7 +263,7 @@ command.
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M62/63.
+program a motion G code (G0, G1, etc) right after the M62/63.
 
 M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
@@ -322,7 +322,7 @@ M67 E- Q-
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M67. M67 functions
+program a motion G code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
@@ -561,7 +561,7 @@ M1-- <P- Q->
 The external program 'M1nn'
 must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
-Execution of the RS274NGC file pauses until the invoked program exits.
+Execution of the RS274/NGC file pauses until the invoked program exits.
 Any valid executable file can be used.
 
 The error 'Unknown M code used' denotes one of the following
@@ -570,10 +570,10 @@ The error 'Unknown M code used' denotes one of the following
 * The file is not an executable file
 
 For example to open and close a collet closer that is controlled by a
-parport pin using a bash script file using M101 and M102. Create two
+parallel port pin using a bash script file using M101 and M102. Create two
 files named M101 and M102. Set them as executable files (typically
 right click/properties/permissions) before running LinuxCNC. Make sure the
-parport pin is not connected to anything in a HAL file.
+parallel port pin is not connected to anything in a HAL file.
 
 .M101 Example File
 ----
@@ -615,6 +615,16 @@ file. When you close it the program will resume.
 ----
 #!/bin/bash
 eog /home/john/linuxcnc/nc_files/message.png
+exit 0
+----
+
+To display a graphic message and continue processing the G code file 
+suffix an ampersand to the command.
+
+.M110 Example display and keep going
+----
+#!/bin/bash
+eog /home/john/linuxcnc/nc_files/message.png &
 exit 0
 ----
 

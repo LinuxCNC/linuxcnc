@@ -4,7 +4,7 @@
 
 See also the man pages 'motion(9)'.
 
-== Motion [[motion]]
+== Motion [[sec:motion]]
 
 These pins and parameters are created by the realtime 'motmod' module.
 This module provides a HAL interface for LinuxCNC’s motion planner.

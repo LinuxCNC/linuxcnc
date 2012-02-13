@@ -1657,7 +1657,7 @@ the economy of code. A single bore would take several lines of code to
 execute.
 
 The G81 <<G81-example-1,Example 1>> demonstrates how a canned cycle could be used to
-produce 8 holes with ten lines of nc code within the canned cycle mode.
+produce 8 holes with ten lines of G code within the canned cycle mode.
 The program below will produce the same set of 8 holes using five lines
 for the canned cycle. It does not follow exactly the same path nor does
 it drill in the same order as the earlier example. But the program

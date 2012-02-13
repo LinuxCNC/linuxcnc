@@ -45,7 +45,7 @@ o100 endsub
 o100 call (call the subroutine here)
 M2
 ----
-See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more infomation.
+See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
 
 .O- Return
 Inside a subroutine, 'O- return' can be executed. This immediately
@@ -132,18 +132,39 @@ continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional[[sec:conditional]](((Conditional: if, elseif,else, endif)))(((if)))(((elseif)))(((else)))(((endif)))
+== Conditional[[sec:conditional]]
+(((Conditional: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 
-The 'if' conditional executes one group of statements if a condition
-is true and the 'else' executes another if it is false.
+The 'if' conditional consists of a group of statements with the same 'o' number
+that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
+may be between the starting 'if' and the ending 'endif'.
 
-.If Else Endif Example
+If the 'if' conditional evaluates to true then the group of statements
+following the 'if' up to the next conditional line are executed. 
+
+If the 'if' conditional evaluates to false then the 'elseif' conditions are
+evaluated in order until one evaluates to true. If the 'elseif' condition is
+true then the statements following the 'elseif' up to the next conditional
+line are executed. If none of the 'if' or 'ifelse' conditions evaluate to true
+then the statements following the 'else' are executed. When a condition is
+evaluated to true no more conditions are evaluated in the group.
+
+.If Endif Example
 ----
-O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+o101 if [#31 EQ 3] (if parameter #31 is equal to 3 set S2000)
+  S2000
+o101 endif
+----
+
+.If ElseIf Else EndIf Example
+----
+o102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
   F100
-O102 else (else if parameter #2 is not greater than 5 set F200)
+o102 elseif [#2 LT 2] (else if parameter #2 is less than 2 set F200)
   F200
-O102 endif
+o102 else (else if parameter #2 is 2 through 5 set F150)
+  F150
+o102 endif
 ----
 
 Several conditons may be tested for by 'elseif' statements until the
@@ -171,10 +192,10 @@ position.
 ----
 (Mill 5 diagonal shapes)
 G91 (Incremental mode)
-O103 repeat [5]
+o103 repeat [5]
 ... (insert milling code here)
 G0 X1 Y1 (diagonal move to next position)
-O103 endrepeat
+o103 endrepeat
 G90 (Absolute mode)
 ----
 
@@ -184,7 +205,7 @@ The O-number may be given by a parameter and/or calculation.
 
 .Indirection Example
 ----
-O[#101+2] call
+o[#101+2] call
 ----
 
 .Computing values in O-words
@@ -227,7 +248,7 @@ M2
 
 [NOTE]
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
-by the interperter.
+by the interpreter.
 
 == Subroutine return values(((Return Values)))
 

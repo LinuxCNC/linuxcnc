@@ -88,12 +88,11 @@ signification de la ligne.
 (((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
-non signé compris entre 0 et 99999 écrit avec moins de six caractères
-(par exemple: 000009 est interdit). Les numéros de ligne peuvent se
-suivre ou être dans le désordre, bien qu'une pratique normale évite ce
-genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
-pratique normale. L'utilisation d'un numéro de ligne n'est pas
-obligatoire, ni même recommandé, mais si il est utilisé, il doit être à sa place.
+non signé. Les numéros de ligne peuvent se suivre, être répétés ou être dans
+le désordre, bien qu'une pratique normale évite ce genre d'usage. Les numéros
+de ligne peuvent être sautés, c'est une pratique normale. L'utilisation d'un
+numéro de ligne n'est pas obligatoire, ni même recommandée, mais si ils sont
+utilisés, il doivent être placés en début de ligne.
 
 == Les mots
 (((mots)))
@@ -108,7 +107,7 @@ dans des contextes différents. Les lettres qui se réfèrent aux noms d'axes ne
 sont pas valides sur une machine n'ayant pas les axes correspondants.
 
 
-.Les mots et leur signification[[cap:Les-mots-et-leur-significations]]
+.Les mots et leur signification[[sec:Les-mots-et-leur-significations]]
 
 [width="100%", options="header"]
 |========================================
@@ -171,7 +170,8 @@ Si un nombre utilisé dans le langage G-code est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-[[parametres]]
+
+[[sec:parametres]]
 == Paramètres (Variables)
 (((Paramètres)))
 
@@ -184,7 +184,7 @@ les expressions logiques peuvent être formulées avec
 <<sec:Operateurs-Binaires,les opérateurs booléens>> (_AND_, _OR_, _XOR_ et les
 opérateurs de comparaison
 _EQ_, _NE_, _GT_, _GE_, _LT_, _LE_) ainsi que _MOD_, _ROUND_, _FUP_ et _FIX_
-<<cap:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
+<<sec:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
 
 Les paramètres différent par leur syntaxe, leur portée, leur comportement quand ils
 ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel
@@ -289,9 +289,9 @@ le fichier G-code.
 * _5410_ - Diamètre de l'outil courant
 * _5411_ - Angle frontal de l'outil courant
 * _5412_ - Angle arrière de l'outil courant
-* _5413_ - Tool Orientation
-* _5420-5428_ - Current Position including offsets in current program
-    units (X Y Z A B C U V W)
+* _5413_ - Orientation de l'outil
+* _5420-5428_ - Positions courantes incluant les offsets, dans l'unité courante
+du programme (X Y Z A B C U V W)
 
 [[sec:Parametres-Nommes]]
 == Paramètres nommés
@@ -400,7 +400,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 état logique faux (FALSE), tout nombre différent de zéro est équivalent
 à un état logique vrai (TRUE).
 
-[[cap:Precedence-des-operateurs]]
+[[sec:Precedence-des-operateurs]]
 .Précédence des opérateurs
 (((Précédence des opérateurs)))
 
@@ -414,10 +414,11 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-
 [[sec:Fonctions]]
 == Fonctions[[sec:Operations-unaires]]
-(((Fonctions unaires)))
+(((Fonctions)))
+(((Opérations unaires)))
+
 
 Une fonction commence par son nom, ex: _ATAN_ suivi par une
 expression divisée par une autre expression (par  exemple _ATAN[2]/[1+3]_) ou 
@@ -432,7 +433,7 @@ négatif) par exemple, _FIX[2.8]=2_ et _FIX[-2.8]=-3_.
 La fonction _FUP_ à l'inverse, arrondi un nombre vers la droite (plus positif
 ou moins négatif) par exemple, _FUP[2.8]=3_ et _FUP[-2.8]=-2_.
 
-La fonction _EXISTS_ vérifie l'existance d'un simple paramètre nommé. Il reçoit
+La fonction _EXISTS_ vérifie l'existence d'un simple paramètre nommé. Il reçoit
 le paramètre à vérifier en argument, il retourne 1 si celui-ci existe et 0 sinon. 
 C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 
@@ -455,7 +456,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 |SIN[arg] | Sinus
 |SQRT[arg] | Racine carrée
 |TAN[arg] | Tangente
-|EXISTS[arg] | Vérifie l'existance d'un paramètre nommé
+|EXISTS[arg] | Vérifie l'existence d'un paramètre nommé
 |========================================
 
 == Répétitions d'items
@@ -677,16 +678,12 @@ contrôle de flux _O_.
 == Commentaires
 (((Commentaires)))
 
-Si un point-virgule est rencontré en début de ligne, le reste de la ligne 
-est un commentaire. Un ensemble de caractères et espaces blancs entre 
-parenthèses est un commentaire. Une parenthèse ouvrante débute toujours un 
-commentaire. Le commentaire se termine à la première parenthèse fermante trouvée. 
-Si une parenthèse ouvrante est trouvée sur une ligne, une parenthèse
-fermante doit être également rencontrée avant la fin de la ligne. Les
-commentaires ne peuvent pas être imbriqués, une erreur sera signalée si
-une parenthèse ouvrante est rencontrée après le début d'un commentaire
-et avant la fin d'un commentaire. Un point-virgule rencontré entre des 
-parenthèses, n'est pas considéré comme le début d'un commentaire.
+Des commentaires peuvent être ajoutés aux lignes de G-code pour clarifier
+l'intention du programmeur. Les commentaires peuvent être placés sur une ligne
+en les encadrant par des parenthèses. Ils peuvent aussi occuper tout le
+reste de la ligne à partir d'un point virgule. Le point virgule
+n'est pas traité comme un début de commentaire si il se trouve entre deux
+parenthèses.
 
 Voici un exemple de programme commenté: 
 ----
@@ -695,8 +692,109 @@ G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.)
 M2 ; Fin du programme.
 ----
 
+Les commentaires peuvent se trouver entre des mots, mais pas entre des mots et
+leur paramètre correspondant. Ainsi, cette ligne est correcte:
+----
+S100(vitesse broche)F200(vitesse d'avance)
+----
+
+mais celle-ci est incorrecte:
+----
+S(speed)100F(feed)200
+----
+
 Les commentaires sont seulement informatifs, ils n'ont aucune 
 influence sur la machine.
+
+Il y a plusieurs commentaires _actif_ qui ressemblent à un commentaire mais qui
+produit certaines actions, comme _(debug,...)_ ou _(print,...)_, expliqués plus
+loin. Si plusieurs commentaires se trouvent sur la même ligne, seul le dernier
+sera interprété selon les règles. Par conséquent, un commentaire normal suivant
+un commentaire actif aura pour effet de désactiver le commentaire actif. Par
+exemple, _(foo) (debug,#1)_ affichera la valeur du paramètre _#1_, mais
+_(debug,#1) (foo)_ ne l'affichera pas.
+
+Un commentaire commençant par un point virgule est par définition le dernier
+commentaire sur cette ligne et sera toujours interprété selon la syntaxe des
+commentaires actifs.
+
+[[sec:Messages]]
+== Messages
+(((Messages)))
+
+* _(MSG,)_ - Un commentaire contient un message si _MSG_ apparaît après la
+            parenthèse ouvrante et avant tout autre caractère. Les variantes de
+            _MSG_ qui incluent un espace blanc et des minuscules sont permises.
+            Le reste du texte avant la parenthèse fermante est considéré comme
+            un message. Les messages sont affichés sur la visu de l'interface
+            utilisateur.
+
+.Exemple de message
+----
+(MSG, Ceci est un message)
+----
+
+[[sec:Log-des-mesures]]
+== Enregistrement des mesures
+(((Enregistrement des mesures)))
+
+* _(PROBEOPEN filename.txt)_ - ouvrira le fichier _filename.txt_ et y
+                            enregistrera les 9 coordonnées de XYZABCUVW pour
+                            chacune des mesures réussie. 
+* _(PROBECLOSE)_. - fermera le fichier de log palpeur.
+
+Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour d'autres
+informations sur le palpage avec G38.
+
+[[sec:Log-general]]
+== Log général
+(((Log général)))
+
+* _(LOGOPEN,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera tronqué.
+
+* _(LOGAPPEND,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera ajoutées.
+
+* _(LOGCLOSE)_ - Si le fichier est ouvert, il sera fermé.
+
+* _(LOG,message)_ - Le _message_ placé derrière la virgule est écrit dans
+                    le fichier de log si il est ouvert. Supporte l'extension
+                    des paramètres comme décrit plus loin.
+
+[[sec:Messages-debogage]]
+== Messages de débogage
+(((Messages de débogage)))
+
+* _(DEBUG,commentaire)_ sont traités de la même façon que ceux avec
+                        _(msg,reste du commentaire)_ avec l'ajout de
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+* _(PRINT,commentaire)_ vont directement sur la sortie _stderr_ avec des
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+== Paramètres dans les commentaires
+
+Dans les commentaires avec DEBUG, PRINT et LOG, les valeurs des
+paramètres dans le message sont étendues.
+
+Par exemple: pour afficher le contenu d'une variable nommée globale sur la
+sortie stderr (la fenêtre de la console par défaut), ajouter une ligne au
+G-code comme:
+
+.Exemple de paramètre en commentaire
+----
+(print,diamètre fraise 3 dents = #<_troisdents_dia>)
+----
+
+À l'intérieur de ces types de commentaires, les séquences comme _#123_
+sont remplacées par la valeur du paramètre 123. Les séquences comme
+_#<paramètre nommé>_ sont remplacées par la valeur du paramètre nommé.
+Rappelez vous que
+ les espaces dans les noms des paramètres nommés sont supprimés,
+_#<parametre nomme>_ est équivalent à _#<parametrenomme>_.
 
 == Taille des fichiers
 

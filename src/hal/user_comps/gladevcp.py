@@ -40,6 +40,7 @@ from optparse import Option, OptionParser
 import gtk
 import gtk.glade
 import gobject
+import signal
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
@@ -57,8 +58,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
           , Option( '-r', dest='gtk_rc', default="",
                     help="read custom GTK rc file to set widget style")
-          , Option( '-R', dest='gtk_workaround', action='store_true',
-                    help="activate workaround for GTK bug to properly read ~/.gtkrc-2.0 gtkrc files")
+          , Option( '-R', dest='gtk_workaround', action='store_false',default=True,
+                    help="disable workaround for GTK bug to properly read ~/.gtkrc-2.0 gtkrc files")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
@@ -67,6 +68,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
           ]
+
+signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
 def dbg(str):
@@ -244,14 +247,10 @@ def main():
             parser.print_usage()
             sys.exit(1)
 
-    if opts.theme:
-        dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
-        settings = gtk.settings_get_default()
-        settings.set_string_property("gtk-theme-name", opts.theme, "")
-
     if opts.gtk_workaround:
         # work around https://bugs.launchpad.net/ubuntu/+source/pygtk/+bug/507739
         # this makes widget and widget_class matches in gtkrc and theme files actually work
+        dbg( "activating GTK bug workaround for gtkrc files")
         for o in builder.get_objects():
             if isinstance(o, gtk.Widget):
                 o.set_name(gtk.Buildable.get_name(o))
@@ -261,6 +260,10 @@ def main():
         gtk.rc_add_default_file(opts.gtk_rc)
         gtk.rc_parse(opts.gtk_rc)
 
+    if opts.theme:
+        dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
+        settings = gtk.settings_get_default()
+        settings.set_string_property("gtk-theme-name", opts.theme, "")
 
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
     if opts.maximum:
@@ -275,6 +278,11 @@ def main():
 
     # User components are set up so report that we are ready
     halcomp.ready()
+
+    if handlers.has_key(signal_func):
+        dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
+        signal.signal(signal.SIGTERM, handlers[signal_func])
+        signal.signal(signal.SIGINT,  handlers[signal_func])
 
     try:
         gtk.main()
