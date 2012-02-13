@@ -11,7 +11,7 @@ LinuxCNC 2.4 no se encuentra disponible en versiones mas antiguas de Ubuntu.
 
 Debido a la existencia de incompatibilidades entre 2.3.5 y 2.4.x,
 su instalación actual no se actualizara automáticamente por el agente de actualización
-a 2.4.x. Si usted desea correr la versión 2.4.x, Cambie al repositorio LinuxCNC-2.4 
+a 2.4.x. Si usted desea correr la versión 2.4.x, Cambie al repositorio LinuxCNC-2.4
 siguiendo estas instrucciones:
 
 Ejecute System/Administration/Synaptic Package Manager
@@ -25,7 +25,7 @@ Para cada una de ellas:
 
 * Seleccione la linea y haga clic en Editar
 * En la linea de componentes, cambie emc2.3 a emc2.4
-* Haga clic en OK 
+* Haga clic en OK
 * Cierre la ventana "Software Preferences"
 * Haga clic en "Reload"
 * Haga clic en "Mark All Upgrades"
@@ -37,12 +37,12 @@ para su tarjeta y márquelo para instalación. Consejo: haga una búsqueda
 por "hostmot2-firmware" en el manejador de paquetes Synaptic.
 **********
 
-* Haga clic en 'Apply' 
+* Haga clic en 'Apply'
 
 == Cambios entre 2.3.x y 2.4.x
 
 Una vez completada la actualización, actualice cualquier archivo de configuración
-de maquinas que tenga previamente configuradas siguiendo estas instrucciones: 
+de maquinas que tenga previamente configuradas siguiendo estas instrucciones:
 
 === emc.nml cambios (2.3.x a 2.4.x)
 
@@ -54,7 +54,7 @@ mas actual de emc.nml.
 Para configuraciones que tienen un archivo emc.nml
 personalizado, un cambio similar es requerido.
 
-El no realizar el cambio puede ocasionar la aparición de un error tal como: 
+El no realizar el cambio puede ocasionar la aparición de un error tal como:
 ---------------------------------- 
 libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: 
 Can't write 10748 bytes at offset 60 from buffer of size 10208.
@@ -71,10 +71,10 @@ La antigua tabla de herramientas sera automáticamente actualizada al nuevo form
 Las Imágenes del firmware hostmot2 son ahora paquetes separados. Usted puede:
  
  - Continuar usando la versión ya instalada 'emc2-firmware-mesa-*' paquete 2.3.x
- - Instalar los paquetes nuevos desde el manejador de paquetes Synaptic. 
+ - Instalar los paquetes nuevos desde el manejador de paquetes Synaptic.
    Los nuevos paquetes se llaman 'hostmot2-firmware-*'
- - Descargar las imágenes del firmware como archivos tar desde  
-   http://emergent.unpy.net/01267622561 e instalarlos manualmente. 
+ - Descargar las imágenes del firmware como archivos tar desde
+   http://emergent.unpy.net/01267622561 e instalarlos manualmente.
 
 // vim: set syntax=asciidoc:
 
