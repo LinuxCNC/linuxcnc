@@ -1367,8 +1367,8 @@ def on_destroy(self,obj,data=None):
 
 CAUTION: Do not use  +window1+ (the toplevel window) to connect a
 +destroy+ event. Due to the way a GladeVCP panel interacts with Axis
-if a panel is embedded within Axis, +window1+ will +not receive
-destroy events properly+. However, since on shutdown all widgets are
+if a panel is embedded within Axis, *window1 will not receive
+destroy events properly*. However, since on shutdown all widgets are
 destroyed, anyone will do. Recommended: use a second-level widget -
 for instance, if you have a table container in your panel, use that.
 
@@ -1503,6 +1503,7 @@ Visit +emc2/configs/gladevcp+ for running examples and starters for your own pro
 
 [qanda]
 I get an unexpected unmap event in my handler function right after startup. What's this?::
+
    This is a consequence of your Glade UI file
    having the window1 Visible property set to True, together with
    re-parenting the GladeVCP window into Axis or touchy. The GladeVCP
@@ -1512,7 +1513,9 @@ I get an unexpected unmap event in my handler function right after startup. What
    is unmapped (made invisible), which is the cause of the unmap signal
    you get. Suggested fix: set window1.visible to False, and ignore an
    initial unmap event.
+
 My GladeVCP program starts, but no window appears where I expect it to be?::
+
    The window Axis allocates for GladeVCP will obtain the 'natural
    size' of all its child widgets combined. It's the child widget's job to
    request a size (width and/or height). However, not all widgets do
@@ -1526,19 +1529,35 @@ My GladeVCP program starts, but no window appears where I expect it to be?::
    with 'gladevcp <uifile>' and its window has reasonable geometry, it
    should come up in Axis properly as well.
 
-I want a blinking LED, so I ticked the checkbutton to let it blink with 100msec interval. 
-It wont blink, and I get a startup warning: Warning: value "0" of type `gint' is 
-invalid or out of range for property `led-blink-rate' of type `gint'?::
-   This seems to be a glade bug. Just type over the blink rate field, and save again - this works for me.
+I want a blinking LED, but it wont blink::
 
-My gladevcp panel in Axis doesnt save state when I close Axis, although I defined 
-an on_destroy handler linked to the window destroy signal:: 
+  I ticked the checkbutton to let it blink with 100msec interval. It
+  wont blink, and I get a startup warning: Warning: value "0" of type
+  `gint' is invalid or out of range for property `led-blink-rate' of
+  type `gint'?  This seems to be a glade bug. Just type over the blink
+  rate field, and save again - this works for me.
+
+My gladevcp panel in Axis doesnt save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
+
    Very likely this handler is linked to window1,
    which due to reparenting isnt usable for this purpose. Please link
    the on_destroy handler to the destroy signal of an interior
    window. For instance, I have a notebook inside window1, and linked
    on_destroy to the notebooks destroy signal, and that works fine. It
    doesnt work for window1.
+
+
+I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
+
+
+    See the example in configs/gladevcp/colored-label.  Setting the
+    background color of a GtkLabel widget (and HAL_Label is derived
+    from GtkLabel) is a bit tricky. The GtkLabel widget has no window
+    object of its own for performance reasons, and only window objects
+    can have a background color. The solution is to enclose the Label
+    in an EventBox container, which has a window but is otherwise
+    invisible - see the coloredlabel.ui file.
+
 
 I defined a `hal_spinbutton` widget in glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
 
@@ -1558,17 +1577,6 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
     widget.set_value(3.14)
 ----------------------------------
 
-
-I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
-
-
-    See the example in configs/gladevcp/colored-label.  Setting the
-    background color of a GtkLabel widget (and HAL_Label is derived
-    from GtkLabel) is a bit tricky. The GtkLabel widget has no window
-    object of its own for performance reasons, and only window objects
-    can have a background color. The solution is to enclose the Label
-    in an EventBox container, which has a window but is otherwise
-    invisible - see the coloredlabel.ui file.
 
 
 == Troubleshooting
