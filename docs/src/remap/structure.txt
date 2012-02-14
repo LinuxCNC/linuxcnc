@@ -1545,6 +1545,42 @@ image::images/debug_embedded_python.png[Debugging with Eclipse]
 
 See the Python code in `configs/sim/remap/getting-started/python` for details.
 
+== Axis Preview and Remapped code execution
+
+For complete preview of a remapped code's toolpath some precautions
+need to be taken. To understand what is going on, let's review the
+preview and execution process (this covers the Axis case, but others
+are similar):
+
+First, note that there are *two* independent interpreter instances
+involved:
+
+- one instance in the milltask program, which executes a program when
+you hit the 'Start' button, and actually makes the machine move
+- a second instance in the user interface whose primary purpose is to
+generate the toolpath preview. This one 'executes' a program once it
+is loaded, but it doesnt actually cause machine movements.
+
+Now assume that your remap procedure contains a G38 probe operation,
+for example as part of a tool change with automatic tool length
+touchoff. If the probe fails, that would clearly be an error, so you'd
+display a message and abort the program. 
+
+Now, what about preview of this procedure?  At preview time, of course
+it's not known whether the probe succeeds or fails - but you would
+likely want to see what the maximum depth of the probe is, and assume
+it  succeeds and continues execution to
+preview further movements. Also, there is no point in displaying a
+'probe failed' message and aborting *during preview*.
+
+The way to address this issue is to test in your procedure whether it
+executes in preview or execution mode. This can be checked for by
+testing the `#<_task>` <<sec:Predefined-Named-Parameters, predefined
+named parameter>> - it will be 1 during actual execution and 0 during
+preview. See
+'configs/sim/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
+for a complete usage example.
+
 == Remappable Codes [[sec:remap:remappable-codes]]
 
 === Existing codes which can be remapped [[remap:remappable-codes]]
