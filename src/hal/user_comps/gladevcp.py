@@ -253,7 +253,10 @@ def main():
         dbg( "activating GTK bug workaround for gtkrc files")
         for o in builder.get_objects():
             if isinstance(o, gtk.Widget):
-                o.set_name(gtk.Buildable.get_name(o))
+                # retrieving the name works only for GtkBuilder files, not for
+                # libglade files, so be cautious about it
+                name = gtk.Buildable.get_name(o)
+                if name: o.set_name(name)
 
     if opts.gtk_rc:
         dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
