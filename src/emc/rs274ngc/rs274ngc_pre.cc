@@ -634,7 +634,22 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     int mode = block->g_modes[GM_MOTION];
     if ((mode != -1) && IS_USER_GCODE(mode))
 	block->remappings.insert(STEP_MOTION);
+    
+    // this makes it possible to call remapped codes like cycles:
+    // G84.2 x1 y2 
+    // x3
+    // will execute 'G84.2 x1 y2', then 'G84.2 x3 y2'
+    // provided the remap function explicitly sets motion_mode like so:
 
+    // def g842(self,**words):
+    //     ....
+    //     self.motion_mode = 842
+    //     return INTERP_OK
+
+    mode = block->motion_to_be;
+    if ((mode != -1) && IS_USER_GCODE(mode)) {
+	block->remappings.insert(STEP_MOTION);
+    }
     return block->remappings.size();
 }
 
