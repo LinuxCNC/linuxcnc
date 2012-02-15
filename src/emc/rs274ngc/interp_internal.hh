@@ -311,6 +311,7 @@ typedef struct remap_struct {
 #define MCODE_DEFAULT_MODAL_GROUP 10
 #define GCODE_DEFAULT_MODAL_GROUP 1
     int modal_group;
+    int motion_code; // only for g's - to identify cycles
     const char *prolog_func; // Py function or null
     const char *remap_py;    // Py function maybe  null, OR
     const char *remap_ngc;   // NGC file, maybe  null

@@ -357,6 +357,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
+    r.motion_code = INT_MIN;
     strcpy(iniline, inistring);
     // strip trailing comments
     if ((s = strchr(iniline, '#')) != NULL) {
@@ -543,6 +544,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
+	r.motion_code = gcode;
 	if (r.modal_group == -1) {
 	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
 		  code, GCODE_DEFAULT_MODAL_GROUP, lineno, inistring);

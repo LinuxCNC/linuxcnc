@@ -2259,7 +2259,6 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
-      // block->g_modes[GM_MOTION] = -1;  // FIXME mah checkthis
       CHP(status);
   }
   return INTERP_OK;

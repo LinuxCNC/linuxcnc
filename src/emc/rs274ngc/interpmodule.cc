@@ -481,6 +481,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("remap_py",&remap::remap_py)
 	.def_readwrite("remap_ngc",&remap::remap_ngc)
 	.def_readwrite("epilog_func",&remap::epilog_func)
+	.def_readwrite("motion_code",&remap::motion_code)
 	.def("__str__", &remap_str)
 
 	;
