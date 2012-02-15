@@ -2,7 +2,7 @@
 #    Copyright (C) 2009-2012
 #    Jeff Epler <jepler@unpythonic.net>,
 #    Pavel Shramov <psha@kamba.psha.org.ru>,
-#    Chris Morkey <chrisinnanaimo@hotmail.com>
+#    Chris Morley <chrisinnanaimo@hotmail.com>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
