@@ -93,10 +93,11 @@ inflexible and therefore unsatisfactory solution.
 To make a simple situation easy and a complex situation solvable, the
 glue issue is addressed as follows:
 
-- for standard situations, a built-in glue procedure (`argspec`) covers most
+- for simple situations, a built-in glue procedure (`argspec`) covers most
 common parameter passing requirements
-- for more complex situations, one may employ Embedded Python code to
-implement new behaviour.
+- for remapping T,M6,M61,S,F there is some standard Python glue which should
+cover most situations, see <<sec:Standard-glue,Standard Glue>>
+- for more complex situations, one can write your own Python glue to implement new behaviour.
 
 Embedded Python functions in the Interpreter started out as glue code,
 but turned out very useful well beyond that. Users familiar with
@@ -161,10 +162,12 @@ procedure:
 . referring to global variables (like `#2200 = 47.11` or
    `#<_global_param> = 315.2`
 
-The first method is preferred for  parameters of dynamic nature, , like
+The first method is preferred for parameters of dynamic nature, , like
 positions. You need to define which words on the current block have
 any meaning for your new code, and specify how that is passed to the
-NGC procedure (--- FIXME -- argspec, prolog)
+NGC procedure. Any easy way is to use the
+<<remap:argspec-parameter,argspec statement>>. A custom prolog might
+provide better error messages.
 
 Using to ini file variables is most useful for referring to setup
 information for your machine, for instance a fixed position like a
@@ -441,7 +444,7 @@ M2
 
 Assume the code is defined as
 
-`REMAP=REMAP=M410  modalgroup=10 argspec=@PQr ngc=m410`
+`REMAP=M410  modalgroup=10 argspec=@PQr ngc=m410`
 
 and `m410.ngc` looks as follows:
 
@@ -479,7 +482,7 @@ which might look like so:
 from interpreter import INTERP_OK
 from emccanon import MESSAGE
 
-def g886(self, userdata,**words):
+def g886(self, **words):
     for key in words:
         MESSAGE("word '%s' = %f" % (key, words[key]))
     if words.has_key('p'):
@@ -492,7 +495,7 @@ Try this with out with:
   g88.6 x1 y2 z3 p33 (a comment here)
 
 You'll notice the gradual introduction of the embedded Python
-environment - see <<remap:Python-body,here>> for details.  Note that
+environment - see <<sec:Programming-Embedded-Python,here>> for details.  Note that
 with Python remapping functions, it make no sense to have Python
 prolog or epilog functions since it's executing a Python function in
 the first place.
@@ -529,7 +532,7 @@ from util import lineno, call_pydevd
 throw_exceptions = 1
 
 
-def involute(self, userdata, **words):
+def involute(self, **words):
     """ remap function with raw access to Interpreter internals """
 
     if self.debugmask & 0x20000000: call_pydevd() # USER2 debug flag
@@ -611,9 +614,9 @@ execute <<remap::send-tool-load-msg,step 6b>> this will still cause
 Decisions, decisions:
 
 - Do we want to use an O-word procedure or do it all in Python code?
-- Is the iocontrol HAl sequence (tool-prepare/tool-prepared and
+- Is the iocontrol HAL sequence (tool-prepare/tool-prepared and
  tool-change/tool-changed pins) good enough or do we need a different kind
- of HAL interaction for our toolchanger (for example: more HAl pins
+ of HAL interaction for our toolchanger (for example: more HAL pins
  involved with a  different interaction sequence)? 
 
 Depending on the answer, we have four different scenarios:
@@ -652,11 +655,11 @@ use:
 
 - when the NML message queued by a SELECT_POCKET() canon command is
 executed, this triggers the "raise tool-prepare and wait for
-tool-prepared to become high" HAl sequence in iocontrol, besides
+tool-prepared to become high" HAL sequence in iocontrol, besides
 setting the XXXX pins
 - when the NML message queued by the CHANGE_TOOL() canon command is
 executed, this triggers the  "raise tool-change and wait for
-tool-changed to become high" HAl sequence in iocontrol, besides
+tool-changed to become high" HAL sequence in iocontrol, besides
 setting the XXXX pins
 
 What you need to decide is wether the existing iocontrol HAL sequences
@@ -719,12 +722,10 @@ Going through the <<remap::interpreter-action-on-M6,steps>>, we find:
 . if TOOL_CHANGE_AT_G30 was set:
 .. move the A, B and C indexers if applicable - *can be done in NGC*
 .. generate rapid move to the G30 position - *can be done in NGC*
-. send a CHANGE_TOOL command to task  - *execute in Python epilog*
-
-FIXTHIS!!!
-
+. send a CHANGE_TOOL Canon command to task  - *execute in Python epilog*
 . set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
-. signal to task to stop calling the interpreter for readahead - *execute in Python epilog*
+. signal to task to stop calling the interpreter for readahead until
+toolchange complete - *execute in Python epilog*
 
 So we need a prolog, and an epilog. Lets assume our ini file incantation of the M6 remap looks as follows:
 
@@ -778,6 +779,7 @@ O<change> sub
 ; G0  #<_ini[setup]tc_x>  #<_ini[setup]tc_y>  #<_ini[setup]tc_z>
 ;
 O<change> endsub [1]
+m2
 ---------------------------------------------------------------------
 
 Assuming success of `change.ngc`, we need to mop up steps 6-8:
@@ -1079,6 +1081,51 @@ Note that both `(abort, msg)` and returning INTERP_ERROR from an
 epilog will cause any ON_ABORT handler to be called as well if defined
 (see previous section).
 
+== Creating new G-code cycles [[remap:G-code-cycles]]
+
+A G-code cycle as used here is meant to behave as follows:
+
+* On first invocation, the associated words are collected and the
+G-code cycle is executed.
+* If subsequent lines just continue parameter words applicable to this
+code, but no new G-code, the previous G code is reeexecuted with the
+parameters changed accordingly.
+
+An example: Assume you have `G84.3` defined as remapped G code cycle
+with the following ini segment (see <<sec::cycle-stdglue,here>> for
+the prolog and epilog):
+
+[source,{ini}]
+---------------------------------------------------------------------
+[RS274NGC]
+# A cycle with an oword procedure: G84.3 <X- Y- Z- Q- P->
+REMAP=G84.3 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1 
+---------------------------------------------------------------------
+Then you'd execute the following lines:
+[source,{ngc}]
+---------------------------------------------------------------------
+g84.3 x1 y2 z3 q5  (line1)
+x3 y4 p2           (line2)
+x6 y7 z5 q3        (line3)
+G80                (line4)
+---------------------------------------------------------------------
+The folowing is executed:
+
+* line1: `g843.ngc` is called with words x=1, y=2, z=3, q=5
+* line2: `g843.ngc` is called with words x=3, y=4, z=3, q=5, p=2
+* line3: `g843.ngc` is called with words x=6, y=7, z=3, q=3, p=2
+* line4: The `G84.3` cycle is cancelled.
+
+Besides creating new cycles, this provides an easy method for
+repackaging existing G-codes which do not behave as cycles. For
+instance, the `G33.1` Rigid Tapping code does not behave as a
+cycle. With such a wrapper, a new code can be easily created which
+uses `G33.1` but behaves as a cycle.
+
+See 'configs/sim/remap/cycle' for a complete example of this
+feature. It contains two cycles, one with an NGC procedure like above,
+and a cycle example using just Python.
+
 == Configuring  Embedded Python  [[remap:embedded-Python]]
 
 The Python plugin serves both the interpreter, and task if so
@@ -1133,7 +1180,7 @@ The `emcStatus` structure is accessible, too:
   ;py,from emctask import *
   ;py,print emcstat.io.aux.estop
 
-== Programming Embedded Python in the RS274NGC Interpreter
+== Programming Embedded Python in the RS274NGC Interpreter [[sec:Programming-Embedded-Python]]
 
 === The Python plugin namespace
 The namespace is expected to be laid out as follows:
@@ -1377,6 +1424,7 @@ o<testparam> sub
 #1 = [#1 * 5]
 #2 = [#2 * 3]
 o<testparam> endsub
+m2
 ---------------------------------------------------------------------
 
 `self.params()` returns a list of all variable names currently defined.
@@ -1462,6 +1510,141 @@ The following modules are builtin:
 	exposes the `emcStatus` class instance. See  `src/emc/task/taskmodule.cc`.
 	Not present when using the `gcode` module used for user
 	interfaces - only present in the milltask instance of the interpreter.
+
+
+== Standard Glue routines [[sec:Standard-glue]]
+
+Since many remapping tasks are very similar, I've started collecting
+working prolog and epilog routines in a single Python module. These
+can currently be found in
+'configs/sim/remap/python-stdglue/stdglue.py' and provide the
+following routines:
+
+=== T: +prepare_prolog+ and +prepare_epilog+ 
+
+These wrap a NGC procedure for Tx Tool Prepare.
+
+==== Actions of +prepare_prolog+
+
+The following parameters are made visible to the NGC procedure:
+
+- `#<tool>` - the parameter of the `T` word
+- `#<pocket>` - the corresponding pocket
+
+If tool number zero is requested (meaning Tool unload), the
+corresponding pocket is passed as -1.
+
+It is an error if:
+
+- no tool number is given as T paramater
+- the tool cannot be found in the tool table.
+
+Note that unless you set the `[EMCIO] RANDOM_TOOLCHANGER=1` parameter,
+tool and pocket number are identical, and the pocket number from the
+tool table is ignored. This is currently a restriction.
+
+==== Actions of +prepare_epilog+
+
+- The NGC procedure is expected to return a positive value, otherwise
+  and error message containing the return value is given and the
+  interpreter abors.
+- In case the NGC procedure executed the T command (which then refers
+  to the builtin T behaviour), no further action is taken. This can be
+  used for instance to minimally adjust the builtin behaviour be
+  preceding or following it with some other statements.
+- Otherwise, the `#<tool>` and `#<pocket>` parameters are extracted
+  from the subroutine's parameter space. This means that the NGC
+  procedure could change these values, and the epilog takes the
+  changed values in account.
+- then, the Canon command `SELECT_POCKET(#<pocket>,#<tool>)` is executed.
+
+=== M6: +change_prolog+ and +change_epilog+ 
+
+These wrap a NGC procedure for M6 Tool Change. 
+
+==== Actions of +change_prolog+
+
+* The following three steps are applicable only if the `iocontrol-v2`
+component is used:
+** If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger
+fault, which is handled as follows:
+** if parameter 5601 (error code) is negative, this indicates a hard
+fault and the prolog aborts with an error message.
+** if parameter 5601 (error code) is greater equal zero, this indicates a soft
+fault. An informational message is displayed and the prolog continues.
+
+* If there was no preceding T command which caused a pocket to be
+selected, the prolog aborts with an error message.
+* If cutter radius compensation is on, the prolog aborts with an error
+message.
+
+Then, the following parameters are exported to the NGC procedure:
+
+- `#<tool_in_spindle>` : the tool number of the currently loaded tool
+- `#<selected_tool>` : the tool number selected 
+- `#<selected_pocket>` : the selected tool's pocket number
+
+
+==== Actions of +change_epilog+
+
+* The NGC procedure is expected to return a positive value, otherwise
+  and error message containing the return value is given and the
+  interpreter abors.
+* If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger
+fault, which is handled as follows (`iocontrol-v2`-only):
+** if parameter 5601 (error code) is negative, this indicates a hard
+fault and the epilog aborts with an error message.
+** if parameter 5601 (error code) is greater equal zero, this indicates a soft
+fault. An informational message is displayed and the epilog continues.
+* In case the NGC procedure executed the M6 command (which then refers
+  to the builtin M6 behaviour), no further action is taken. This can be
+  used for instance to minimally adjust the builtin behaviour be
+  preceding or following it with some other statements.
+* Otherwise, the `#<selected_pocket>` parameter is extracted
+  from the subroutine's parameter space, and used to set the
+  interpreter's `current_pocket` variable. Again, the 
+  procedure could change this value, and the epilog takes the
+  changed value in account.
+* then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is
+  executed.
+* The new tool parameters (offsets, diameter etc) are set.
+
+
+=== G code Cycles: +cycle_prolog+ and +cycle_epilog+ [[sec::cycle-stdglue]]
+
+These wrap a NGC procedure so it can act as a cycle, meaning the
+motion code is retained after finishing execution. If the next line
+just contains parameter words (e.g. new X,Y values), the code is
+executed again with the new parameter words merged into the set of the
+paramters given in the first invocation.
+
+These routines are designed to work in conjunction with an
+<<remap:argspec-parameter,`argspec=<words>` parameter>>. While this is
+easy to use, in a realistic scenario you would avoid argspec and do a
+more thorough investigation of the block manually in order to give better
+error messages.
+
+==== Actions of +cycle_prolog+
+* Determine whether this is the first invocation of a cycle G code, if
+so:
+** Add the words passed in (as per argspec) into a set of sticky
+parameters, which is retained across several invocations.
+* If not (a continuation line with new parameters):
+** merge the words passed in into the existing set of sticky
+paramaters.
+* export the set of sticky parameters to the NGC procedure.
+
+==== Actions of +cycle_epilog+
+* Determine if the current code was in fact a cycle, if so:
+** retain the current motion mode so a continuation line without a
+motion code will execute the same motion code.
+
+=== S (Set Speed) : +setspeed_prolog+ and +setspeed_epilog+ 
+TBD
+=== F (Set Feed) : +setfeed_prolog+ and +setfeed_epilog+ 
+TBD
+=== M61 Set tool number : +settool_prolog+ and +settool_epilog+ 
+TBD
 
 == Remapped code execution
 

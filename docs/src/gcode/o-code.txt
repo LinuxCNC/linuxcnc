@@ -262,9 +262,10 @@ o123 return [#2 *5]
 o123 endsub [3 * 4]
 ----
 
-A subroutine return value is stored in the '#<_value>' predefined
-parameter, and the '#<_value_returned>' predefined
-parameter is set to 1, to indicate a value was returned. Both
-paramters are global, and are cleared just before the next subroutine call.
+A subroutine return value is stored in the '#<_value>'
+<<sec:Predefined-Named-Parameters, predefined named parameter>> , and
+the '#<_value_returned>' predefined parameter is set to 1, to indicate
+a value was returned. Both paramters are global, and are cleared just
+before the next subroutine call.
 
 // vim: set syntax=asciidoc:
