@@ -1,6 +1,17 @@
-# stdglue - canned prolog and epilog functions for the remappable builtin codes (T,M6,M61,S.F)
+# stdglue - canned prolog and epilog functions for the remappable builtin codes (T,M6,M61,S,F)
+#
 # we dont use argspec to avoid the generic error message of the argspec prolog and give more
 # concise ones here
+
+
+# cycle_prolog,cycle_epilog: generic code-independent support glue for oword sub cycles
+#
+# these are provided as starting point - for more concise error message you would better
+# write a prolog specific for the code
+#
+# Usage:
+#REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
+
 
 import emccanon 
 from interpreter import *
@@ -270,4 +281,47 @@ def set_tool_number(self, **words):
             return INTERP_ERROR
     except Exception, e:
         self.set_errormsg("M61/set_tool_number: %s" % (e))
+        return INTERP_ERROR
+
+
+
+_sticky_params = dict()
+
+
+
+# extract and pass parameters from current block, merged with extra paramters on a continuation line
+# keep tjose parameters across invocations
+# export the parameters into the oword procedure
+def cycle_prolog(self,**words):
+
+    global _sticky_params
+    try:    
+        # determine whether this is the first or a subsequent call
+        c = self.blocks[self.remap_level]
+        r = c.executing_remap
+        if c.g_modes[1] == r.motion_code:
+            # first call - clear the dict to remember all sticky parameters.
+            _sticky_params[r.name] = dict()
+
+        # merge in new parameters
+        _sticky_params[r.name].update(words) 
+
+        # insert parameters into oword callframe
+        for (key,value) in _sticky_params[r.name].items():
+            self.params[key] = value
+        return INTERP_OK
+    
+    except Exception, e:
+        self.set_errormsg("cycle_prolog failed: %s" % (e))
+        return INTERP_ERROR
+
+# make sure the next line has the same motion code, unless it's overriden by a
+# new G code
+def cycle_epilog(self,**words):
+    try:
+        c = self.blocks[self.remap_level]
+        self.motion_mode = c.executing_remap.motion_code # retain the current motion mode
+        return INTERP_OK
+    except Exception, e:
+        self.set_errormsg("cycle_prolog failed: %s" % (e))
         return INTERP_ERROR

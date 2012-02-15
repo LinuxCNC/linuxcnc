@@ -17,7 +17,11 @@ except ImportError:
 
 def starttask():
     global pytask
-    import emc
+    try:
+        import emc
+    except ImportError:
+        import linuxcnc as emc  # ini only
+
     ini = emc.ini(emctask.ini_filename())
     t = ini.find("PYTHON", "PYTHON_TASK")
     if int(t) if t else 0:

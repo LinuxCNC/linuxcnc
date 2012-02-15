@@ -1,8 +1,12 @@
 from interpreter import *
 from emccanon import MESSAGE
 
-# This shows how to create a remapped G code  which can be used as a cycle
+from stdglue import cycle_prolog, cycle_epilog
 
+# This shows how to create a remapped G code  which can be used as a cycle
+# written in Python
+#
+# Example:
 # Assume G84.2 is remapped to Python g842 like so in the [RS274NGC] ini section:
 # REMAP=G84.2 argspec=xyzqp python=g842 modalgroup=1
 #    
@@ -24,60 +28,33 @@ from emccanon import MESSAGE
 # latter case the self.motion_mode should be set in the Python epilog.
 # 
 
-g842_sticky = dict() 
-g843_sticky = dict() 
+_sticky_params = dict()
 
 def g842(self,**words):
-    
-    global g842_sticky
+ 
+    global _sticky_params
 
     firstcall = False
     
     # determine whether this is the first or a subsequent call
     c = self.blocks[self.remap_level]
-    if c.g_modes[1] == 842:
+    r = c.executing_remap
+    if c.g_modes[1] == r.motion_code:
         # this was the first call.
         # clear the dict to remember all sticky parameters.
-        g842_sticky = dict()
-        firstcall = True
+        _sticky_params[r.name] = dict()
+        text = "*" + r.name
+    else:
+        text = r.name
+    # merge in new parameters
+    _sticky_params[r.name].update(words) 
 
-    g842_sticky.update(words) # merge in new parameters
-
-    text = "*G84.2 " if firstcall else "G84.2 "
-    for (key,value) in g842_sticky.items():
+    # insert your cycle actions here
+    for (key,value) in _sticky_params[r.name].items():
         text += "%s%.1f " % (key, value)
     MESSAGE(text)
 
-    self.motion_mode = 842 # retain the current motion mode
+    # retain the current motion mode
+    self.motion_mode = c.executing_remap.motion_code 
     return INTERP_OK
 
-
-# a cycle with an Oword sub 
-#REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=g843_prolog ngc=g843 epilog=g843_epilog
-
-# not much different than above, except that we explicitly export the names
-# to the ngc procedure:
-
-def g843_prolog(self,**words):
-    global g843_sticky
-    firstcall = False
-    
-    # determine whether this is the first or a subsequent call
-    c = self.blocks[self.remap_level]
-    if c.g_modes[1] == 843:
-        # this was the first call.
-        # clear the dict to remember all sticky parameters.
-        g843_sticky = dict()
-        firstcall = True
-
-    g843_sticky.update(words) # merge in new parameters
-
-    for (key,value) in g843_sticky.items():
-        self.params[key] = value
-
-    return INTERP_OK
-
-
-def g843_epilog(self,**words):
-    self.motion_mode = 843 # retain the current motion mode
-    return INTERP_OK

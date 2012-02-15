@@ -8,7 +8,10 @@ import emccanon
 import interpreter
 import hal
 
-import emc  # ini only
+try:
+    import emc
+except ImportError:
+    import linuxcnc as emc  # ini only
 
 try:
     import cPickle as pickle
