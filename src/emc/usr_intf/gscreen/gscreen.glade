@@ -15,6 +15,7 @@
           <object class="GtkNotebook" id="notebook_main">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="show_tabs">False</property>
             <child>
               <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
@@ -419,7 +420,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame3">
-                            <property name="visible">True</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">etched-out</property>
                             <child>
@@ -594,12 +594,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
+                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="bg_color">#bebebebebebe</property>
                                     <property name="z2_color">#ffff00000000</property>
                                     <property name="max">2000</property>
-                                    <property name="z0_color">#0000ffff0000</property>
                                     <property name="show_limits">False</property>
-                                    <property name="z1_color">#ffffffff0000</property>
+                                    <property name="z0_color">#0000ffff0000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -954,8 +954,8 @@
                                         <child>
                                           <object class="HAL_LED" id="led_mist">
                                             <property name="visible">True</property>
-                                            <property name="on_color">yellow</property>
                                             <property name="led_shape">1</property>
+                                            <property name="on_color">yellow</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -966,8 +966,8 @@
                                         <child>
                                           <object class="HAL_LED" id="led_flood">
                                             <property name="visible">True</property>
-                                            <property name="on_color">green</property>
                                             <property name="led_shape">1</property>
+                                            <property name="on_color">green</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -1331,15 +1331,6 @@ fullscreen</property>
                           </object>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
                           <object class="GtkButton" id="shut_down">
                             <property name="label">gtk-quit</property>
                             <property name="visible">True</property>
@@ -1351,6 +1342,15 @@ fullscreen</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
@@ -1470,8 +1470,8 @@ fullscreen</property>
                         <child>
                           <object class="HAL_LED" id="led_estop">
                             <property name="visible">True</property>
-                            <property name="on_color">green</property>
                             <property name="led_shape">1</property>
+                            <property name="on_color">green</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1705,6 +1705,7 @@ Level</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_markup">Double click for preferences </property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1858,8 +1859,9 @@ Readout</property>
               <object class="GtkHBox" id="mode1">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkToggleButton" id="button_h1_0">
-                    <property name="label" translatable="yes">Jog Mode</property>
+                  <object class="HAL_ToggleButton" id="button_h1_0">
+                    <property name="label" translatable="yes">Jogging
+  Mode</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2091,8 +2093,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save-As</property>
-                    <property name="related_action">hal_action_saveas</property>
                     <property name="use_action_appearance">True</property>
+                    <property name="related_action">hal_action_saveas</property>
                     <property name="image">image2</property>
                     <property name="yalign">0.56999999284744263</property>
                     <property name="image_position">bottom</property>
@@ -2107,8 +2109,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
-                    <property name="related_action">hal_action_save</property>
                     <property name="use_action_appearance">True</property>
+                    <property name="related_action">hal_action_save</property>
                     <property name="image">image3</property>
                     <property name="image_position">bottom</property>
                   </object>
