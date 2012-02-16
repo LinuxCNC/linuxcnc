@@ -33,10 +33,13 @@
 
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <glob.h>
+#include <wordexp.h>
 
 Interp interp_new;
-const char *prompt = "==> ";
-const char *history = "dothistory"; // FIXME -> homedir?
+const char *prompt = "READ => ";
+const char *history = "~/.rs274";
+#define RS274_HISTORY "RS274_HISTORY"
 
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes
@@ -119,6 +122,27 @@ void report_error( /* ARGUMENTS                            */
     }
 }
 
+
+void initialize_readline ()
+{
+    wordexp_t p;
+    const char *s;
+
+    /* Allow conditional parsing of the ~/.inputrc file. */
+    rl_readline_name = "rs274";
+ 
+    if ((s = getenv(RS274_HISTORY)))
+	history = s;
+    // tilde-expand 
+    if (wordexp(history, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
+	perror("wordexp");
+    } else {
+	history = strdup(p.we_wordv[0]);
+    }
+    if (history)
+	read_history(history);
+}
+
 /***********************************************************************/
 
 /* interpret_from_keyboard
@@ -145,34 +169,39 @@ To exit, the user must enter "quit" (followed by a carriage return).
 */
 
 int interpret_from_keyboard(  /* ARGUMENTS                 */
- int block_delete,            /* switch which is ON or OFF */
- int print_stack)             /* option which is ON or OFF */
+			    int block_delete,            /* switch which is ON or OFF */
+			    int print_stack)             /* option which is ON or OFF */
 {
-  char line[LINELEN];
-  int status;
+    char *line;
+    int status;
 
-  for(; ;)
-    {
-      char *result;
-      printf("READ => ");
-      result = fgets(line, LINELEN, stdin);
-      if (!result || strcmp (line, "quit\n") == 0)
-        return 0;
-      status = interp_read(line);
-      if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
-      else if (status == INTERP_ENDFILE);
-      else if ((status != INTERP_EXECUTE_FINISH) &&
-               (status != INTERP_OK))
-        report_error(status, print_stack);
-      else
-        {
-          status = interp_execute();
-          if ((status == INTERP_EXIT) ||
-              (status == INTERP_EXECUTE_FINISH));
-          else if (status != INTERP_OK)
-            report_error(status, print_stack);
-        }
-    }
+    initialize_readline ();
+      
+    for(; ;)
+	{
+	    line = readline ( prompt);
+	    if (!line || strcmp (line, "quit") == 0) {
+		if (history)
+		    write_history(history);
+		return 0;
+	    }
+	    if (*line)
+		add_history(line);
+	    status = interp_read(line);
+	    if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
+	    else if (status == INTERP_ENDFILE);
+	    else if ((status != INTERP_EXECUTE_FINISH) &&
+		     (status != INTERP_OK))
+		report_error(status, print_stack);
+	    else
+		{
+		    status = interp_execute();
+		    if ((status == INTERP_EXIT) ||
+			(status == INTERP_EXECUTE_FINISH));
+		    else if (status != INTERP_OK)
+			report_error(status, print_stack);
+		}
+	}
 }
 
 /*********************************************************************/
