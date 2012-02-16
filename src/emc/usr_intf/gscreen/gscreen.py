@@ -319,6 +319,7 @@ class Gscreen:
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
         self.data.dro_units = self.prefs.getpref('units', 'False', bool)
         self.widgets.dro_units.set_active(self.data.dro_units)
+        self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
 
         w = self.widgets.statusbar1
         #w.set_font_name(self.data.error_font_name)
@@ -436,7 +437,7 @@ class Gscreen:
         else:
             self.machine_units_mm=0
             conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.lathe_mode = bool(inifile.find("DISPLAY", "LATHE"))
+        self.data.lathe_mode = bool(inifile.find("DISPLAY", "LATHE"))
         self.status.set_machine_units(self.machine_units_mm,conversion)
 
         if self.prefs.getpref('toolsetting_fixture', 0):
@@ -489,6 +490,7 @@ class Gscreen:
         #self.widgets.hal_led1.set_shape(2)
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
+        # set to 'start mode' 
         self.mode_changed(self.data.mode_order[0])
 
 # *** GLADE callbacks ****
@@ -722,13 +724,17 @@ class Gscreen:
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
 
     def toggle_view(self):
-        print "toggle plot view"
-        a = self.data.plot_view[0]
-        b = self.data.plot_view[1]
-        c = self.data.plot_view[2]
-        d = self.data.plot_view[3]
-        e = self.data.plot_view[4]
-        self.data.plot_view = (b,c,d,e,a)
+        def shift():
+            a = self.data.plot_view[0]
+            b = self.data.plot_view[1]
+            c = self.data.plot_view[2]
+            d = self.data.plot_view[3]
+            e = self.data.plot_view[4]
+            self.data.plot_view = (b,c,d,e,a)
+        shift()
+        if self.data.lathe_mode:
+            while not self.data.plot_view[0] in("P","Y","p","y"):
+                shift()
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
 
     def full_graphics(self):
@@ -953,6 +959,7 @@ class Gscreen:
         b = self.data.display_order[1]
         c = self.data.display_order[2]
         self.data.display_order = (c,a,b)
+        self.prefs.putpref('display_order', self.data.display_order, tuple)
         if self.data.display_order[2] == _ABS:
             self.widgets.gremlin.set_property('use_relative',False)
         else:
@@ -965,6 +972,8 @@ class Gscreen:
                 self.widgets["mode%d"% i].show()
             else:
                 self.widgets["mode%d"% i].hide()
+        if not mode == _START or not mode == _MAN:
+            self.widgets.button_h1_0.set_active(False)
         if mode == _AUTO:
             self.widgets.vmode0.hide()
             self.widgets.vmode1.show()
@@ -1046,7 +1055,6 @@ class Gscreen:
                         attr.insert(size)
                         weight = pango.AttrWeight(600, 0, -1)
                         attr.insert(weight)
-
                     fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
                     attr.insert(fg_color)
                     self.widgets["%s_display_%d"%(i,j)].set_attributes(attr)
