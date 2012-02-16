@@ -37,7 +37,10 @@ class preferences(cp):
             print detail
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
-            o = default
+            if type in(bool,float,int):
+                o = type(default)
+            else:
+                o = default
         return o
 
     def putpref(self, option, value, type=bool):
