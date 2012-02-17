@@ -25,12 +25,6 @@
 
 extern const char *strstore(const char *s);
 
-// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
-// reason: avoid segfaults by del(interp_instance) on program exit
-// make delete(interp_instance) a noop wrt Interp
-static void interpDeallocFunc(Interp *interp) {}
-
-
 int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
     if (reload_on_change)
@@ -225,7 +219,7 @@ std::string handle_pyerror()
     return bp::extract<std::string>(formatted);
 }
 
-void PythonPlugin::initialize(bool reload,  Interp *interp )
+void PythonPlugin::initialize(bool reload)
 {
     std::string msg;
     if (Py_IsInitialized()) {
@@ -235,12 +229,6 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 
 	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
 		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
-	    }
-	    // FIXME this needs to be removed and a better way found to make the interpreter
-	    // instance available to ;py,<python>  type comments
-	    if (interp != NULL) {
-	      bp::object interp_module = bp::import("interpreter");
-	      bp::scope(interp_module).attr("this") = interp_ptr(interp, interpDeallocFunc);
 	    }
 	    bp::object result = bp::exec_file(abs_path,
 					      main_namespace,
@@ -268,8 +256,7 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 
 PythonPlugin::PythonPlugin(const char *iniFilename,
 			   const char *section,
-			   struct _inittab *inittab,
-			   Interp *interp) :
+			   struct _inittab *inittab) :
     log_level(0)
 {
     IniFile inifile;
@@ -359,7 +346,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	n++;
     }
     logPP(3,"PythonPlugin: Python  '%s'",  Py_GetVersion());
-    initialize(false, interp);
+    initialize(false);
 }
 
 // the externally visible singleton instance
@@ -368,10 +355,10 @@ PythonPlugin *python_plugin;
 // first caller wins
 PythonPlugin *PythonPlugin::configure(const char *iniFilename,
 				      const char *section,
-				      struct _inittab *inittab,Interp *interp)
+				      struct _inittab *inittab)
 {
     if (python_plugin == NULL) {
-	python_plugin =  new PythonPlugin(iniFilename, section, inittab, interp);
+	python_plugin =  new PythonPlugin(iniFilename, section, inittab);
     }
     return (python_plugin->usable()) ? python_plugin : NULL;
 }
