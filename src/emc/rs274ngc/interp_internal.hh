@@ -722,9 +722,7 @@ typedef struct setup_struct
     // do not lowercase named params inside comments - for #<_hal[PinName]>
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 
-
-    interp_ptr pythis;  // shared_ptr representation of 'this'
-
+    boost::python::object pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;

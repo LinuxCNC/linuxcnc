@@ -17,7 +17,6 @@ namespace bp = boost::python;
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 #include "units.h"
-#include "interpmodule.hh"
 #include "array1.hh"
 
 namespace pp = pyplusplus::containers::static_sized;
@@ -591,7 +590,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    class_< Interp,  interp_ptr, noncopyable >("Interp",no_init) //OK
+    class_< Interp, noncopyable >("Interp",no_init) 
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)

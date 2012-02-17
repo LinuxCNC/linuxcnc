@@ -88,15 +88,10 @@ include an option for suppressing superfluous commands.
 #include "interp_internal.hh"	// interpreter private definitions
 #include "interp_queue.hh"
 #include "rs274ngc_interp.hh"
-//#include "rs274ngc_errors.cc"
-
-#include "interpmodule.hh"
 
 #include "units.h"
 
-static void interpDeallocFunc(Interp *interp) {} // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 extern char * _rs274ngc_errors[];
-
 
 const char *Interp::interp_status(int status) {
     static char statustext[50];
@@ -114,7 +109,6 @@ int trace;
 Interp::Interp()
     : log_file(0)
 {
-    // _setup.py_module_stat = PYMOD_NONE;
     init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
     if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
@@ -868,9 +862,29 @@ int Interp::init()
 	  // initialize the Python plugin singleton
 	  extern struct _inittab builtin_modules[];
 	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
-	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
+	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
 		  logPy("Python plugin configured");
-		  _setup.pythis =  interp_ptr(this, interpDeallocFunc);
+		  try {
+		      // this import will register the C++->Python converter for Interp
+		      bp::object interp_module = bp::import("interpreter");
+
+		      // use a boost::cref to avoid per-call instantiation of the 
+		      // Interp Python wrapper (used for the 'self' parameter in handlers)
+		      _setup.pythis =  boost::python::object(boost::cref(this));
+
+		      // alias to 'interpreter.this' for the sake of ';py, .... '' comments
+		      bp::scope(interp_module).attr("this") =  _setup.pythis;
+		  }
+		  catch (bp::error_already_set) {
+		      std::string exception_msg;
+		      if (PyErr_Occurred()) {
+			  exception_msg = handle_pyerror();
+		      } else
+			  exception_msg = "unknown exception";
+		      bp::handle_exception();
+		      PyErr_Clear();
+		      Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+		  }
 	      } else {
 		  Error("no Python plugin available");
 	      }
