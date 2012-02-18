@@ -30,6 +30,7 @@ from gladevcp.gladebuilder import GladeBuilder
 import pango
 import traceback
 import atexit
+import vte
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
@@ -130,6 +131,7 @@ class Data:
         self.display_order = (_REL,_DTG,_ABS)
         self.mode_order = (_START,_MAN,_MDI,_AUTO)
         self.plot_view = ("P","X","Y","Z","Z2")
+        self.task_mode = 0
         self.active_gcodes = []
         self.active_mcodes = []
         self.maxvelocity = 1
@@ -276,15 +278,19 @@ class Gscreen:
         self.data = Data()
 
         try:
-            halcomp = hal.component("gscreen")
+            self.halcomp = hal.component("gscreen")
+            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
         except:
             print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
             sys.exit(0)
     
-        panel = gladevcp.makepins.GladePanel( halcomp, xmlname, self.xml, None)
-        halcomp.ready()
+        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
+        self.halcomp.ready()
         # at this point, any glade HL widgets and their pins are set up.
-        #handlers = load_handlers(None,halcomp,self.xml,None)
+        #handlers = load_handlers(None,self.halcomp,self.xml,None)
     
         #self.xml.connect_signals(handlers)
 
@@ -331,6 +337,15 @@ class Gscreen:
         self.widgets.statusbar1.push(1,"Status bar text                                                                       to here?")
         self.widgets.data_input.set_value(50.567)
         self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
+        # add terminal window
+        v = vte.Terminal ()
+        v.connect ("child-exited", lambda term: gtk.main_quit())
+        v.fork_command()
+        v.show()
+        window = self.widgets.terminal_window.add(v)
+        #window.add(v)
+        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+        self.widgets.terminal_window.show()
 
         # If there are themes then add them to combo box
         if os.path.exists(themedir):
@@ -359,6 +374,7 @@ class Gscreen:
                 self.widgets.window1.maximize()
         if self.prefs.getpref('fullscreen1', 'True', bool):
             self.widgets.window1.fullscreen()
+
         # setup signals that can be blocked 
         cb = "axis_x"
         i = "_sighandler_axis_x"
@@ -1006,7 +1022,7 @@ class Gscreen:
         self.emcstat = linuxcnc.stat()
         self.emcerror = linuxcnc.error_channel()
         self.emcstat.poll()
-        #self.radiobutton_mask = 1
+        self.data.task_mode = self.emcstat.task_mode 
         self.status.periodic()
         self.data.system = self.status.get_current_system()
         #print self.status.data.x_abs
@@ -1076,6 +1092,22 @@ class Gscreen:
         active_g = " ".join(self.data.active_gcodes)
         self.widgets.active_gcodes_label.set_label("%s   "% active_g)
         self.widgets.active_mcodes_label.set_label(" ".join(self.data.active_mcodes))
+        # control aux_coolant  - For Dave Armstrong
+        m7 = m8 = False
+        self.halcomp["aux-coolant-m8.out"] = False
+        self.halcomp["mist-coolant.out"] = False
+        self.halcomp["aux-coolant-m7.out"] = False
+        self.halcomp["flood-coolant.out"] = False
+        if self.data.mist:
+                if self.widgets.aux_coolant_m7.get_active():
+                    self.halcomp["aux-coolant-m7.out"] = True
+                else:
+                    self.halcomp["mist-coolant.out"] = True
+        if self.data.flood:
+                if self.widgets.aux_coolant_m8.get_active():
+                    self.halcomp["aux-coolant-m8.out"] = True
+                else:
+                    self.halcomp["flood-coolant.out"] = True
         self.widgets.active_feed_speed_label.set_label("F%s    S%s"% (self.data.active_feed_command,self.data.active_spindle_command))
         #tool = str(self.data.preppedtool)
         tool = str(self.data.tool_in_spindle)

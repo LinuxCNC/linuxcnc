@@ -15,7 +15,6 @@
           <object class="GtkNotebook" id="notebook_main">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="show_tabs">False</property>
             <child>
               <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
@@ -594,12 +593,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="z1_color">#ffffffff0000</property>
-                                    <property name="bg_color">#bebebebebebe</property>
-                                    <property name="z2_color">#ffff00000000</property>
                                     <property name="max">2000</property>
+                                    <property name="z2_color">#ffff00000000</property>
                                     <property name="show_limits">False</property>
                                     <property name="z0_color">#0000ffff0000</property>
+                                    <property name="z1_color">#ffffffff0000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -698,8 +697,8 @@
                               <object class="HAL_Gremlin" id="gremlin">
                                 <property name="visible">True</property>
                                 <property name="double_buffered">False</property>
-                                <property name="show_dtg">False</property>
                                 <property name="enable_dro">False</property>
+                                <property name="show_dtg">False</property>
                               </object>
                             </child>
                           </object>
@@ -954,8 +953,8 @@
                                         <child>
                                           <object class="HAL_LED" id="led_mist">
                                             <property name="visible">True</property>
-                                            <property name="led_shape">1</property>
                                             <property name="on_color">yellow</property>
+                                            <property name="led_shape">1</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -966,8 +965,8 @@
                                         <child>
                                           <object class="HAL_LED" id="led_flood">
                                             <property name="visible">True</property>
-                                            <property name="led_shape">1</property>
                                             <property name="on_color">green</property>
+                                            <property name="led_shape">1</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -1251,26 +1250,6 @@ Aux Screen</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label22">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">label</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label24">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">label</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkToggleButton" id="diameter_mode">
                             <property name="label" translatable="yes">Diameter
    Mode</property>
@@ -1344,6 +1323,32 @@ fullscreen</property>
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkToggleButton" id="aux_coolant_m7">
+                            <property name="label" translatable="yes"> On M7 Use
+Aux Coolant</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="aux_coolant_m8">
+                            <property name="label" translatable="yes">On M8 Use
+Aux Coolant</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
                           <placeholder/>
                         </child>
                         <child>
@@ -1387,10 +1392,14 @@ fullscreen</property>
               </packing>
             </child>
             <child>
-              <object class="GtkImage" id="image1">
+              <object class="GtkScrolledWindow" id="terminal_window">
                 <property name="visible">True</property>
-                <property name="stock">gtk-dialog-info</property>
-                <property name="icon-size">6</property>
+                <property name="can_focus">True</property>
+                <property name="hscrollbar_policy">never</property>
+                <property name="shadow_type">out</property>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="position">2</property>
@@ -1470,8 +1479,8 @@ fullscreen</property>
                         <child>
                           <object class="HAL_LED" id="led_estop">
                             <property name="visible">True</property>
-                            <property name="led_shape">1</property>
                             <property name="on_color">green</property>
+                            <property name="led_shape">1</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1914,6 +1923,12 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkButton" id="button_h1_4">
                     <property name="label" translatable="yes">Reload
   Tool</property>
@@ -1922,7 +1937,7 @@ Readout</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -1934,14 +1949,8 @@ Readout</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">7</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -2225,7 +2234,11 @@ Readout</property>
     <property name="stock">gtk-save</property>
     <property name="icon-size">3</property>
   </object>
-  <object class="EMC_Action_Save" id="hal_action_save"/>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas"/>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
 </interface>
