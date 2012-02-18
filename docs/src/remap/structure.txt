@@ -1080,6 +1080,23 @@ Note that both `(abort, msg)` and returning INTERP_ERROR from an
 epilog will cause any ON_ABORT handler to be called as well if defined
 (see previous section).
 
+== Remapping other existing codes: S, M0, M1, M60
+
+=== Automatic gear selection be remapping  S (set spindle speed)
+A potential use for a remapped S code would be 'automatic gear
+selection' depending on speed. In the remap procedure one would test
+for the desired speed attainable given the current gear setting, and
+change gears appropriately if not.
+
+=== Adjusting the behaviour of M0, M1, M60
+A use case for remapping M0/M1 would be to customize the behaviour of
+the existing code. For instance, it could be desirable to turn off the
+spindle, mist and flood during an M0 or M1 program pause, and turn
+these settings back on when the program is resumed.
+
+For a complete example doing just that, see
+'configs/sim/remap/extend-builtins/', which adapts M1 as laid out above.
+
 == Creating new G-code cycles [[remap:G-code-cycles]]
 
 A G-code cycle as used here is meant to behave as follows:
@@ -1828,6 +1845,9 @@ The current set of *existing* codes open to redefinition is:
 - Tx (Prepare)
 - M6 (Change tool)
 - M61 (Set tool number)
+- M0 (pause a running program temporarily)
+- M1 (pause a running program temporarily if the optional stop switch is on)
+- M60 (exchange pallet shuttles and then pause a running program temporarily)
 - S  (set spindle speed)
 - F  (set feed)
 
