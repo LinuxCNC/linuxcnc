@@ -520,12 +520,18 @@ int read_inputs(setup_pointer settings);
 
     // range for user-remapped M-codes
     // and M6,M61
+    // this is overdue for a bitset
 #define M_REMAPPABLE(m)					\
     (((m > 199) && (m < 1000)) ||			\
      ((m > 0) && (m < 100) &&				\
       !M_BUILTIN(m)) ||					\
      (m == 6) ||					\
-     (m == 61))
+     (m == 61) ||					\
+     (m == 0) ||					\
+     (m == 1) ||					\
+     (m == 60))
+
+
 
     // range for user-remapped G-codes
 #define G_REMAPPABLE(g)	 \

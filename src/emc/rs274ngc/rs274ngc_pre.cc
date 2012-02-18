@@ -643,6 +643,22 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     if ((mode != -1) && IS_USER_GCODE(mode)) {
 	block->remappings.insert(STEP_MOTION);
     }
+
+    // User defined M-Codes in group 4 (stopping)
+    if (IS_USER_MCODE(block,settings,4)) {
+
+	if (remap_in_progress("M0") ||
+	    remap_in_progress("M1") ||
+	    remap_in_progress("M60"))  { // detect recursion case
+
+	    // these require real work.
+	    // remap_in_progress("M2") ||
+	    // remap_in_progress("M60")
+	    CONTROLLING_BLOCK(*settings).builtin_used = true;
+	} else {
+	    block->remappings.insert(STEP_MGROUP4);
+	}
+    }
     return block->remappings.size();
 }
 

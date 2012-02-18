@@ -526,7 +526,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    r.modal_group = MCODE_DEFAULT_MODAL_GROUP;
 	}
 	if (!M_MODE_OK(r.modal_group)) {
-	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
+	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 4..10) : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}

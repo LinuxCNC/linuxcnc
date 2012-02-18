@@ -505,7 +505,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
 // for M and G codes
-#define M_MODE_OK(m) ((m > 4) && (m < 11))
+#define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
