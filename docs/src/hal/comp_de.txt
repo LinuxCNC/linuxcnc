@@ -15,6 +15,7 @@ For instance, when coded in C, a simple component such as "ddt" is around 80
 lines of code. The equivalent component is very short when written using the
 'comp' preprocessor:
 
+.Simple Comp Example
 ----
 component ddt "Compute the derivative of the input function";
 pin in float in;
@@ -28,10 +29,20 @@ out = (tmp - old) / fperiod;
 old = tmp;
 ----
 
-and it can be compiled and installed very easily: by simply placing
-'ddt.comp' in 'src/hal/components' and running 'make', or by placing
-it anywhere on the system and running 'comp --install ddt.comp' (possibly
-prefixed by 'sudo')
+== Installing
+
+If your working with a RIP footnote:[Run In Place from a git clone] 
+your comp can be compiled and installed very easily: by simply placing
+the comp file in 'src/hal/components' and running 'make'.
+
+If your working with an installed version of LinuxCNC you need to install
+the development packages by using the following line in a terminal or using the 
+Synaptic Package Manager from the main Ubuntu menu.
+
+.Installing Dev
+----
+sudo apt-get emc2-dev
+----
 
 == Definitions
 
