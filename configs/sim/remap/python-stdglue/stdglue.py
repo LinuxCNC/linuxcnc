@@ -286,15 +286,15 @@ def set_tool_number(self, **words):
 
 _uvw = ("u","v","w","a","b","c")
 _xyz = ("x","y","z","a","b","c")
-# given a plane, return  sticky words and incompatible words
+# given a plane, return  sticky words, incompatible axis words and plane name
 # sticky[0] is also the movement axis
 _compat = {
-    emccanon.CANON_PLANE_XY : (("z","r"),_uvw),
-    emccanon.CANON_PLANE_YZ : (("x","r"),_uvw),
-    emccanon.CANON_PLANE_XZ : (("y","r"),_uvw),
-    emccanon.CANON_PLANE_UV : (("w","r"),_xyz),
-    emccanon.CANON_PLANE_VW : (("u","r"),_xyz),
-    emccanon.CANON_PLANE_UW : (("v","r"),_xyz)}           
+    emccanon.CANON_PLANE_XY : (("z","r"),_uvw,"XY"),
+    emccanon.CANON_PLANE_YZ : (("x","r"),_uvw,"YZ"),
+    emccanon.CANON_PLANE_XZ : (("y","r"),_uvw,"XZ"),
+    emccanon.CANON_PLANE_UV : (("w","r"),_xyz,"UV"),
+    emccanon.CANON_PLANE_VW : (("u","r"),_xyz,"VW"),
+    emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}           
 
 # extract and pass parameters from current block, merged with extra paramters on a continuation line
 # keep tjose parameters across invocations
@@ -312,7 +312,9 @@ def cycle_prolog(self,**words):
             # first call - clear the sticky dict
             self.sticky_params[r.name] = dict()
 
-        (sw,incompat) =_compat[self.plane]
+        self.params["motion_code"] = c.g_modes[1]
+        
+        (sw,incompat,plane_name) =_compat[self.plane]
         for (word,value) in words.items():
             # inject current parameters
             self.params[word] = value
@@ -321,7 +323,7 @@ def cycle_prolog(self,**words):
                 if self.debugmask & 0x00080000: print "%s: record sticky %s = %.4f" % (r.name,word,value)
                 self.sticky_params[r.name][word] = value
             if word in incompat:
-                return "%s: Cannot put a %s in a canned cycle in the %s plane" % (r.name, word.upper(), plane_name(self.plane))
+                return "%s: Cannot put a %s in a canned cycle in the %s plane" % (r.name, word.upper(), plane_name)
 
         # inject sticky parameters which were not in words:
         for (key,value) in self.sticky_params[r.name].items():
@@ -334,13 +336,17 @@ def cycle_prolog(self,**words):
         else:
             if self.sticky_params[r.name] <= 0.0:
                 return "%s: R word must be > 0 if used (%.4f)" % (r.name, words["r"])
-        
+
         if "l" in words:
-            l = nearest_int(words["l"])
-            if l <= 0:
-                return "%s: L word must be > 0 if used (%d)" % (r.name, l)
-        else:
-            self.params["l"] = 1.0
+            # checked in interpreter during block parsing
+            # if l <= 0 or l not near an int
+            self.params["l"] = words["l"]
+            
+        if "p" in words:
+            p = words["p"]
+            if p < 0.0:
+                return "%s: P word must be >= 0 if used (%.4f)" % (r.name, p)
+            self.params["p"] = p
 
         if self.feed_rate == 0.0:
             return "%s: feed rate must be > 0" % (r.name)

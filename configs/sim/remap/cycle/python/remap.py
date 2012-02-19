@@ -26,7 +26,8 @@ from stdglue import cycle_prolog, cycle_epilog
 #   
 # This enables writing cycles in Python, or as Oword procedures; in the
 # latter case the self.motion_mode should be set in the Python epilog.
-# 
+#
+# for a more through example of a cycle prolog, see cycle_prolog in stdglue.py
 
 _sticky_params = dict()
 
