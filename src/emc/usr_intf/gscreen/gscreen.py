@@ -31,6 +31,7 @@ import pango
 import traceback
 import atexit
 import vte
+import time
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
@@ -44,6 +45,7 @@ LOCALEDIR = os.path.join(BASE, "share", "locale")
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
 gtk.glade.textdomain("linuxcnc")
+TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 
 def set_active(w, s):
 	if not w: return
@@ -64,6 +66,7 @@ import linuxcnc
 from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
+
 
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
@@ -260,6 +263,7 @@ class Gscreen:
         #parser.disable_interspersed_args()
         #(opts, args) = parser.parse_args()
         #print args
+        self.inipath = inipath
         try:
             # loading as a gtk.builder project
             self.xml = gtk.Builder()
@@ -430,6 +434,9 @@ class Gscreen:
         self.widgets.show_dtg.connect("clicked", self.on_show_dtg_pressed)
         self.widgets.fullscreen1.connect("clicked", self.on_fullscreen1_pressed)
         self.widgets.shut_down.connect("clicked", self.on_window1_destroy)
+        self.widgets.run_halshow.connect("clicked", self.on_halshow)
+        self.widgets.run_calibration.connect("clicked", self.on_calibration)
+        self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
 
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
@@ -441,7 +448,7 @@ class Gscreen:
         # set up EMC stuff
 
         # check the ini file if UNITS are set to mm"
-        inifile=self.emc.emc.ini(inipath)
+        inifile=self.emc.emc.ini(self.inipath)
         # first check the global settings
         units=inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
@@ -510,6 +517,18 @@ class Gscreen:
         self.mode_changed(self.data.mode_order[0])
 
 # *** GLADE callbacks ****
+
+    def on_halshow(self,*args):
+        print "halshow",TCLPATH
+        p = os.popen("tclsh %s/bin/halshow.tcl -- -ini %s &" % (TCLPATH,self.inipath))
+
+    def on_calibration(self,*args):
+        print "calibration --%s"% self.inipath
+        p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH,self.inipath),"w")
+
+    def on_halmeter(self,*args):
+        print "halmeter"
+        p = os.popen("halmeter &")
 
     def on_window1_destroy(self, widget, data=None):
         print "kill"
@@ -657,6 +676,7 @@ class Gscreen:
         print "estop",self.data.estopped
         if self.data.estopped:
             self.emc.estop_reset(1)
+            time.sleep(1)
             self.emc.machine_on(1)
         else:
             self.emc.estop(1)

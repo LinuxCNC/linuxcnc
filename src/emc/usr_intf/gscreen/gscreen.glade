@@ -593,12 +593,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="max">2000</property>
                                     <property name="z2_color">#ffff00000000</property>
                                     <property name="show_limits">False</property>
-                                    <property name="z0_color">#0000ffff0000</property>
-                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="bg_color">#bebebebebebe</property>
+                                    <property name="z0_color">#0000ffff0000</property>
+                                    <property name="max">2000</property>
+                                    <property name="z1_color">#ffffffff0000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -885,64 +885,32 @@
                                 <property name="yscale">0.5</property>
                                 <property name="top_padding">1</property>
                                 <child>
-                                  <object class="GtkTable" id="status_table1">
+                                  <object class="GtkFrame" id="frame6">
                                     <property name="visible">True</property>
-                                    <property name="n_rows">4</property>
-                                    <property name="n_columns">4</property>
+                                    <property name="label_xalign">0</property>
+                                    <property name="shadow_type">etched-out</property>
                                     <child>
-                                      <object class="GtkLabel" id="fo">
+                                      <object class="GtkTable" id="status_table1">
                                         <property name="visible">True</property>
-                                        <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">FO: 100%</property>
-                                      </object>
-                                      <packing>
-                                        <property name="y_options">GTK_FILL</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="so">
-                                        <property name="visible">True</property>
-                                        <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">SO: 100%</property>
-                                      </object>
-                                      <packing>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                        <property name="y_options">GTK_FILL</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="mv">
-                                        <property name="visible">True</property>
-                                        <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">MV:100%</property>
-                                      </object>
-                                      <packing>
-                                        <property name="top_attach">2</property>
-                                        <property name="bottom_attach">3</property>
-                                        <property name="y_options">GTK_FILL</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkTable" id="table10">
-                                        <property name="visible">True</property>
-                                        <property name="n_rows">2</property>
-                                        <property name="n_columns">2</property>
+                                        <property name="n_rows">3</property>
+                                        <property name="n_columns">4</property>
                                         <child>
-                                          <object class="GtkLabel" id="label17">
+                                          <object class="GtkLabel" id="fo">
                                             <property name="visible">True</property>
                                             <property name="xalign">0</property>
-                                            <property name="label" translatable="yes"> Mist</property>
+                                            <property name="xpad">10</property>
+                                            <property name="label" translatable="yes">FO: 100%</property>
                                           </object>
                                           <packing>
                                             <property name="y_options">GTK_FILL</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label18">
+                                          <object class="GtkLabel" id="so">
                                             <property name="visible">True</property>
                                             <property name="xalign">0</property>
-                                            <property name="label" translatable="yes"> Flood </property>
+                                            <property name="xpad">10</property>
+                                            <property name="label" translatable="yes">SO: 100%</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">1</property>
@@ -951,80 +919,118 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="HAL_LED" id="led_mist">
+                                          <object class="GtkLabel" id="mv">
                                             <property name="visible">True</property>
-                                            <property name="on_color">yellow</property>
-                                            <property name="led_shape">1</property>
+                                            <property name="xalign">0</property>
+                                            <property name="xpad">10</property>
+                                            <property name="label" translatable="yes">MV:100%</property>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="x_options"></property>
+                                            <property name="top_attach">2</property>
+                                            <property name="bottom_attach">3</property>
+                                            <property name="y_options">GTK_FILL</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="HAL_LED" id="led_flood">
+                                          <object class="GtkTable" id="table10">
                                             <property name="visible">True</property>
-                                            <property name="on_color">green</property>
-                                            <property name="led_shape">1</property>
+                                            <property name="n_rows">2</property>
+                                            <property name="n_columns">2</property>
+                                            <child>
+                                              <object class="GtkLabel" id="label18">
+                                                <property name="visible">True</property>
+                                                <property name="xalign">0</property>
+                                                <property name="label" translatable="yes"> Mist</property>
+                                              </object>
+                                              <packing>
+                                                <property name="y_options">GTK_FILL</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="label22">
+                                                <property name="visible">True</property>
+                                                <property name="xalign">0</property>
+                                                <property name="label" translatable="yes"> Flood </property>
+                                              </object>
+                                              <packing>
+                                                <property name="top_attach">1</property>
+                                                <property name="bottom_attach">2</property>
+                                                <property name="y_options">GTK_FILL</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="HAL_LED" id="led_mist">
+                                                <property name="visible">True</property>
+                                                <property name="on_color">yellow</property>
+                                                <property name="led_shape">1</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left_attach">1</property>
+                                                <property name="right_attach">2</property>
+                                                <property name="x_options"></property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="HAL_LED" id="led_flood">
+                                                <property name="visible">True</property>
+                                                <property name="on_color">green</property>
+                                                <property name="led_shape">1</property>
+                                              </object>
+                                              <packing>
+                                                <property name="left_attach">1</property>
+                                                <property name="right_attach">2</property>
+                                                <property name="top_attach">1</property>
+                                                <property name="bottom_attach">2</property>
+                                                <property name="x_options"></property>
+                                              </packing>
+                                            </child>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
+                                            <property name="left_attach">2</property>
+                                            <property name="right_attach">3</property>
                                             <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                            <property name="x_options"></property>
+                                            <property name="bottom_attach">3</property>
                                           </packing>
                                         </child>
+                                        <child>
+                                          <object class="GtkLabel" id="jog_rate">
+                                            <property name="visible">True</property>
+                                            <property name="xalign">0</property>
+                                            <property name="xpad">10</property>
+                                            <property name="label" translatable="yes">Jog: 10 Ipm</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">2</property>
+                                            <property name="right_attach">3</property>
+                                            <property name="y_options">GTK_FILL</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
                                       </object>
-                                      <packing>
-                                        <property name="left_attach">2</property>
-                                        <property name="right_attach">3</property>
-                                        <property name="top_attach">2</property>
-                                        <property name="bottom_attach">4</property>
-                                      </packing>
                                     </child>
-                                    <child>
-                                      <object class="GtkLabel" id="jog_rate">
+                                    <child type="label">
+                                      <object class="GtkLabel" id="Status">
                                         <property name="visible">True</property>
-                                        <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">Jog: 10 Ipm</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Status&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
                                       </object>
-                                      <packing>
-                                        <property name="top_attach">3</property>
-                                        <property name="bottom_attach">4</property>
-                                        <property name="y_options">GTK_FILL</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
                                     </child>
                                   </object>
                                 </child>
@@ -1392,13 +1398,105 @@ Aux Coolant</property>
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="terminal_window">
+              <object class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">never</property>
-                <property name="shadow_type">out</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkScrolledWindow" id="terminal_window">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox3">
+                    <property name="visible">True</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkButton" id="run_halshow">
+                        <property name="label" translatable="yes"> Launch
+Halshow</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="run_calibration">
+                        <property name="label" translatable="yes">Calibration</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="run_halmeter">
+                        <property name="label" translatable="yes">Halmeter</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button4">
+                        <property name="label" translatable="yes">button</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button5">
+                        <property name="label" translatable="yes">button</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">4</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button1">
+                        <property name="label" translatable="yes">button</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
@@ -2102,8 +2200,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save-As</property>
-                    <property name="use_action_appearance">True</property>
                     <property name="related_action">hal_action_saveas</property>
+                    <property name="use_action_appearance">True</property>
                     <property name="image">image2</property>
                     <property name="yalign">0.56999999284744263</property>
                     <property name="image_position">bottom</property>
@@ -2118,8 +2216,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
-                    <property name="use_action_appearance">True</property>
                     <property name="related_action">hal_action_save</property>
+                    <property name="use_action_appearance">True</property>
                     <property name="image">image3</property>
                     <property name="image_position">bottom</property>
                   </object>
