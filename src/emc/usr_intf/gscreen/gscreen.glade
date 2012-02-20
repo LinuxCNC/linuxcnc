@@ -593,12 +593,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="z2_color">#ffff00000000</property>
-                                    <property name="show_limits">False</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
-                                    <property name="max">2000</property>
+                                    <property name="show_limits">False</property>
                                     <property name="z1_color">#ffffffff0000</property>
+                                    <property name="max">2000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
+                                    <property name="z2_color">#ffff00000000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -697,8 +697,8 @@
                               <object class="HAL_Gremlin" id="gremlin">
                                 <property name="visible">True</property>
                                 <property name="double_buffered">False</property>
-                                <property name="enable_dro">False</property>
                                 <property name="show_dtg">False</property>
+                                <property name="enable_dro">False</property>
                               </object>
                             </child>
                           </object>
@@ -1566,7 +1566,7 @@ Halshow</property>
                         <property name="visible">True</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkLabel" id="label16">
+                          <object class="GtkLabel" id="estop_label">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">Estop</property>
                           </object>
@@ -1575,10 +1575,29 @@ Halshow</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="HAL_LED" id="led_estop">
+                          <object class="GtkHBox" id="hbox4">
                             <property name="visible">True</property>
-                            <property name="on_color">green</property>
-                            <property name="led_shape">1</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <object class="HAL_LED" id="led_estop">
+                                <property name="visible">True</property>
+                                <property name="on_color">green</property>
+                                <property name="led_shape">1</property>
+                              </object>
+                              <packing>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_LED" id="led_on">
+                                <property name="visible">True</property>
+                                <property name="on_color">green</property>
+                                <property name="led_shape">1</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>

@@ -674,13 +674,15 @@ class Gscreen:
 
     def on_estop_clicked(self,*args):
         print "estop",self.data.estopped
+        print "machine on:",self.data.machine_on
         if self.data.estopped:
             self.emc.estop_reset(1)
-            time.sleep(1)
+        elif not self.data.machine_on:
             self.emc.machine_on(1)
         else:
-            self.emc.estop(1)
             self.emc.machine_off(1)
+            self.emc.estop(1)
+
 
     def on_theme_choice_changed(self,*args):
         self.change_theme()
@@ -1138,6 +1140,7 @@ class Gscreen:
         self.widgets.led_flood.set_active(self.data.flood)
         # estop
         self.widgets.led_estop.set_active(not self.data.estopped)
+        self.widgets.led_on.set_active(self.data.machine_on)
         # overrides
         self.widgets.fo.set_text("FO: %d%%"%(self.data.feed_override*100))
         self.widgets.so.set_text("SO: %d%%"%(self.data.spindle_override*100))
