@@ -85,7 +85,7 @@ static void setErrorMsg(Interp &interp, const char *s)
 {
     setup *settings  = &interp._setup;
 
-    if ((s == NULL) && !strlen(s))
+    if ((s == NULL) || (strlen(s) == 0))
 	s = "###";
     interp.setError (s);
     settings->stack_index = 0;
