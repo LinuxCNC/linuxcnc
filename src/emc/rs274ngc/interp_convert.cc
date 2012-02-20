@@ -2867,9 +2867,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 {
   int type;
   double timeout;               // timeout for M66
-  double *pars;                 /* short name for settings->parameters            */
-
-  pars = settings->parameters;
 
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion

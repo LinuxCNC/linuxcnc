@@ -332,9 +332,9 @@ G2 X1 Y1 I1 F10
 ----
 
 [[fig:G2-Exemple]]
-.G2 Exemple
+.Exemple avec G2
 
-image::images/g2.png[]
+image::images/g2_fr.png[]
 
 Dans cet autre exemple, nous pouvons voir les différences d'offsets 
 pour Y si nous faisons un mouvement G2 ou un mouvement G3. 
@@ -350,9 +350,9 @@ G3 X0 Y0 I1 J-0.5 F25
 ----
 
 [[fig:G2/G3-Exemple]]
-.G2-G3 Exemple
+.Exemple avec G2-G3
 
-image::images/g2-3.png[]
+image::images/g2-3_fr.png[]
 
 Voici un exemple au format centre pour usiner une hélice:
 ----
@@ -1233,33 +1233,36 @@ complet du mouvement.
 == G64 Meilleure vitesse possible
 (((G64 Trajectoire continue avec tolérance))) 
 
-* _G64_ Meilleure vitesse possible
-* _G64 P-_ (mélange de tolérance et de vitesse) Q- (tolérance naïve CAM)
-
-G64 sans P tentera de conserver la meilleure vitesse possible, au détriment de la
-précision de la trajectoire.
 ----
-G64 P- Q- 
+G64 P- Q-
 ----
 
-est un moyen d'affiner votre système pour obtenir le meilleur compromis
-entre vitesse et précision. La tolérance P- signifie que le parcours réel
-ne sera jamais à plus _P-_ de l'extrémité de la trajectoire programmée. La vitesse
-sera réduite si nécessaire pour maintenir la trajectoire. De plus, lorsque vous
-activer _G64 P- Q-_ il passe par le _détecteur naïve CAM_; quand il y a une série 
-de mouvements linéaires XYZ en vitesse travail, avec une même vitesse de déplacement
-inférieure à Q-, loin d'être colinéaires, ils sont regroupés en un seul
-mouvement linéaire. Sur les mouvements G2/G3 dans le plan _G17_ (XY) lorsque le maximum
-d'écart entre un arc et une ligne droite est inférieur la tolérance P- du G64
-la tolérance de l'arc est divisée en deux lignes (depuis le début de l'arc jusqu'au
-milieu, et du milieu jusqu'à la fin). Ces deux lignes sont ensuite soumise à
-l'algorithme du _naïve CAM_ des lignes. Ainsi, les cas ligne-arc, arc-arc, et
-arc-ligne ainsi que le cas, ligne-ligne bénéficient de l'algorithme _détecteur 
-de naïve CAM_. Ce qui améliore les performances en simplifiant les trajectoires. 
-Il est permis de programmer ce mode si il est déjà actif. Voir aussi
-cette section <<sec:Modes-de-controle-trajectoires, pour une discussion de ces modes>> . 
-Si Q n'est pas spécifié alors il y aura le même comportement qu'avant et
-P- sera utilisé. 
+* _P-_ Déviation maximale tolérée par rapport à la trajectoire programmée.
+* _Q-_ Tolérance naïve cam. <<cha:Concepts-pour-utilisateur, Voir ici pour plus 
+de détails>> sur le contrôle de trajectoire.
+
+* _G64_ Recherche de la meilleure vitesse possible.
+* _G64 P-_ Mélange entre meilleure vitesse et tolérance de déviation.
+* _G64 P- Q-_ Est le moyen d'affiner encore pour obtenir le meilleur
+compromis entre vitesse et précision de la trajectoire. La vitesse sera
+réduite si nécessaire pour maintenir la trajectoire. Le _détecteur naïve cam_
+est activé. Quand il y a une série de mouvements linéaires XYZ en vitesse
+travail, avec une même vitesse de déplacement, inférieure à _Q-_, ils
+sont regroupés en un seul segment linéaire, ainsi la vitesse s'en trouve
+améliorée puisqu'il n'y a plus de décélération/arrêt/accélération aux points de
+jonction des segments. Sur les mouvements G2/G3 dans le plan _G17_ (XY)
+lorsque le maximum d'écart entre un arc et une ligne droite est inférieur à
+la déviation maximale _P-_, la tolérance de l'arc est divisée en deux lignes
+(depuis le début de l'arc jusqu'au milieu et du milieu jusqu'à la fin). Ces
+deux lignes sont ensuite soumises à l'algorithme _naïve cam_. Ainsi, les cas
+ligne-arc, arc-arc et arc-ligne et le cas ligne-ligne, bénéficient de
+l'algorithme _naïve cam_, ce qui améliore les performances en simplifiant
+les trajectoires. Il est permis de programmer ce mode même si il est déjà actif.
+
+.Exemple de ligne de programme avec G64
+----
+G64 P0.5 (fixe la déviation d'usinage à 0.5 maximum de la trajectoire programmée)
+----
 
 [[sec:G73-Percage-avec-brise-copeaux]]
 == G73 Cycle de perçage avec brise copeaux
@@ -1294,7 +1297,7 @@ C'est une erreur si:
 G76 P- Z- I- J- R- K- Q- H- E- L-
 ----
 
-image::images/g76-threads.png[]
+image::images/g76-threads_fr.png[]
 
 [horizontal]
 Ligne pilote:: (Drive Line) La ligne pilote est une ligne imaginaire, parallèle à

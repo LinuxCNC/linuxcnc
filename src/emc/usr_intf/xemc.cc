@@ -14,6 +14,7 @@
 * Last change:
 ********************************************************************/
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -4325,7 +4326,7 @@ static int setupMenu(Widget *menu, const char *label,
                      MenuSelectFunc *func)
 {
   Widget *popup = new Widget;   // this will be freed automatically at exit
-  int t;
+  intptr_t t;
 
   if (NULL != horiz)
     {

@@ -1203,7 +1203,7 @@ systems.
 G64 <P- <Q->>
 ----
 * 'P' - motion blending tolerance
-* 'Q' - naive came tolerance 
+* 'Q' - naive cam tolerance 
 
 * 'G64' - best possible speed.
 * 'G64 P- <Q- >' blending with tolerance.

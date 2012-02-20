@@ -16,9 +16,11 @@ Compiler un composant de HAL est également beaucoup plus simple en
 utilisant _comp_ , que le composant fasse partie de l'arborescence
 de LinuxCNC, ou qu'il en soit extérieur.
 
-Par exemple, cette portion des blocs _ddt_ fait environ 80 lignes de
-code. Le composant équivalent est vraiment très court quand il est
-écrit en utilisant le préprocesseur _comp_:
+Par exemple, cette portion des blocs _ddt_, codée en C, fait environ 80 lignes
+de code, alors que le composant équivalent est vraiment très court quand il est
+créé en utilisant le préprocesseur _comp_.
+
+.Exemple pour comp [[code:exemple-comp]]
 ----
 component ddt "Calcule la dérivée de la fonction d'entrée";
 pin in float in;
@@ -32,10 +34,17 @@ out = (tmp - old) / fperiod;
 old = tmp;
 ----
 
-et il peut être compilé et installé très facilement en plaçant
-simplement _ddt.comp_ dans _src/hal/components_ puis en lançant
-_make_, ou en le plaçant quelque part sur le système et en lançant
-_comp --install ddt.comp_
+== Installation
+
+Si une version pré-installée de LinuxCNC est utilisée, il sera nécessaire
+d'installer les paquets de développement en passant par Synaptic depuis le menu
+_Système -> Administration -> Gestionnaire de paquets Synaptic_ ou en utilisant
+la commande suivante dans un terminal:
+
+.Installation des paquets de développement
+----
+sudo apt-get emc2-dev
+----
 
 == Définitions
 
@@ -68,59 +77,73 @@ chargé.
 Pour un non-singleton, le paramètre _count_ du module détermine
 combien d'instances seront créées.
 
+== Paramètres implicites
+
+Le paramètres _period_ est implicitement passé aux fonctions, c'est la durée,
+en nanosecondes, de la dernière période d'exécution du comp. Les fonctions qui
+utilisent des flottants peuvent aussi se référer à _fperiod_, qui est la durée
+en secondes, soit (period*1e-9). Cela peut être utile pour les comps ayant
+besoin de l'information de timming.
+
 == Syntaxe
 
 Un fichier _.comp_ commence par un certain nombre de déclarations,
-puis par un _;_ seul sur sa propre ligne. Il se terminé par le code
-C implémentant
-les fonctions du module.
+puis par un délimiteur constitué de deux points virgule _;;_ seuls sur leur
+propre ligne et enfin du code C implémentant les fonctions du module.
 
 Déclarations d'include:
 
-* component HALNAME (DOC);
-* pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);
-* param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);
-* function HALNAME (fp | nofp) (DOC);
-* option OPT (VALUE);
-* variable CTYPE NAME ([SIZE]);
-* description DOC;
-* see_also DOC;
-* license LICENSE;
-* author AUTHOR;
+* _component HALNAME (DOC);_
+* _pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);_
+* _param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);_
+* _function HALNAME (fp | nofp) (DOC);_
+* _option OPT (VALUE);_
+* _variable CTYPE NAME ([SIZE]);_
+* _description DOC;_
+* _see_also DOC;_
+* _license LICENSE;_
+* _author AUTHOR;_
 
 Les parenthèses indiquent un item optionnel. Une barre verticale
 indique une alternative. Les mots en _MAJUSCULES_ indiquent une variable
 texte, comme ci-dessous:
 
+NAME::
+    Un identifiant C standard.
+
+STARREDNAME::
+    Un identifiant C, précédé ou non d'une _*_. Cette syntaxe est utilisée
+    pour déclarer les variables qui sont des pointeurs. Noter qu'à cause de la
+    grammaire, il ne doit pas y avoir d'espace entre _*_ et le nom de la
+    variable.
+
 HALNAME::
-    Un identifiant.
-    Lorsqu'ils sont utilisés pour créer un identifiant de HAL, tous les
-    caractères soulignés sont remplacés par des tirets, tous les points et
-    les virgules de fin, sont supprimés, ainsi *ce_nom_* est remplacé par
-    *ce-nom*, si le nom est `"_"`, alors le point final est enlevé aussi,
-    ainsi `"function_"` donne un nom de fonction HAL tel que
+    Un identifiant étendu. Lorsqu'ils sont utilisés pour créer un identifiant
+    de HAL, tous les caractères soulignés sont remplacés par des tirets,
+    tous les points et les virgules de fin, sont supprimés, ainsi *ce_nom_*
+    est remplacé par *ce-nom*, si le nom est `"_"`, alors le point final est
+    enlevé aussi, ainsi `"function_"` donne un nom de fonction HAL tel que
     `"component.<num>"` au lieu de `"component.<num>."`
 
 S'il est présent, le préfixe _hal__  est enlevé du début d'un nom de
-composant pour la création des pins
-des paramètres et des fonctions.
+composant lors de la création des pins, des paramètres et des fonctions.
 
-Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
+Dans l'identifiant de HAL pour une pin ou un paramètre, _#_ indique un
 membre de tableau, il doit être utilisé conjointement avec une
-déclaration _[SIZE]_ . Les _hash marks_ sont remplacées par des nombres
+déclaration _[SIZE]_. Les _hash marks_ sont remplacées par des nombres
 de 0-barrés équivalents aux nombres de caractères #.
 
 Quand ils sont utilisés pour créer des identifiants C, les changements
 de caractères suivants sont appliqués au HALNAME:
 
  . Tous les caractères "`#`" sont enlevés ainsi que tous les caractères
-   "`.`",  "`_`" ou "`-`" immédiatement devant eux
+   "`.`",  "`_`" ou "`-`" immédiatement devant eux.
  . Dans un nom, tous les caractères "`.`" et "`-`" sont remplacés par "`_`".
  . Les caractères "`__`" répétitifs sont remplacés par un seul caractère "`_`". 
 
 Un "`_`" final est maintenu, de sorte que les identifiants de HAL, qui
 autrement seraient en conflit avec les noms ou mots clé réservés (par
-exemple: _min_), puissent être utilisés
+exemple: _min_), puissent être utilisés.
 
 [width="90%", options="header"]
 |========================================
@@ -158,7 +181,7 @@ DOC::
     d'informations sur ce format de markup, voyez _groff_man(7)_ . Souvenez
     vous que comp interprète backslash comme Echap dans les
     chaines, ainsi par exemple pour passer le mot _example_ en font
-    italique, écrivez _\\fIexample\\ fB_.
+    italique, écrivez _\\fIexample\\fB_.
 
 TYPE::
      Un des types de HAL: _bit_, _signed_ (signé), _unsigned_ (non signé)
@@ -181,6 +204,8 @@ STARTVALUE::
     pas spécifié, alors la valeur par défaut est _0_ ou _FALSE_, selon le
     type de l'item.
 
+=== Fonctions HAL
+
 fp::
     Indique que la fonction effectuera ses calculs en virgule flottante.
 
@@ -189,11 +214,13 @@ nofp::
     n'est pas spécifié, _fp_  est utilisé. Ni comp ni gcc ne peuvent
     détecter l'utilisation de
     calculs en virgule flottante dans les fonctions marquées _nofp_.
-    
-OPT, VALUE::
-     Selon le nom de l'option OPT, les valeurs VALUE varient. Les options
-    actuellement définies sont les suivantes:
-    
+
+=== Options
+
+Selon le nom de l'option OPT, les valeurs VALUE varient. Les options
+actuellement définies sont les suivantes:
+
+OPT, VALUE:
     option singleton yes;;
         (défaut: no)
         Ne crée pas le paramètre numéro de module et crée toujours une seule
@@ -272,6 +299,8 @@ OPT, VALUE::
     une option est indéterminé. Le résultat consécutif à n'utiliser aucune
     autre option est indéfini.
 
+=== Licence et auteur
+
 LICENSE::
      Spécifie la license du module, pour la documentation et pour le module
     déclaré dans MODULE_LICENSE().
@@ -279,7 +308,7 @@ LICENSE::
 AUTHOR::
     Spécifie l'auteur du module, pour la documentation
 
-== Stockage des données *par-instance*
+=== Stockage des données *par instance*
 
 variable ::
     _CTYPE NAME_;
@@ -294,16 +323,18 @@ variable ::
     _CTYPE NAME_[_SIZE_] = _default_;
     Déclare la variable _par-instance_ _NAME_ de type _CTYPE_,
     optionnellement comme un tableau de _SIZE_ items et optionnellement
-    avec une valeur default. Les items sans _default_ sont initialisés
+    avec une valeur par default. Les items sans _default_ sont initialisés
     _all-bits-zero_. _CTYPE_ est un simple mot de type C, comme _float_,
     _u32_, _s32_, etc. 
     Les variables d'un tableau sont mises entre crochets.
+
+=== Commentaires
 
 Les commentaires de style C++ une ligne (_// …_) et de style C
 multi-lignes (_/_ … _/_) sont supportés tous les deux dans la section
 déclaration.
 
-== Autres restrictions sur les fichiers comp
+== Restrictions sur les fichiers comp
 
 Bien que HAL permette à une pin, un paramètre et une fonction d'avoir
 le même nom, comp ne le permet pas.
@@ -340,20 +371,16 @@ EXTRA_CLEANUP()::
     Les macros _pin_name_, _parameter_name_ et _data_ ne doivent pas être
     utilisées ici.
 
-pin_name::
-    
-
-parameter_name::
+pin_name ou parameter_name::
       Pour chaque pin, _pin_name_ ou pour chaque paramètre,
     _parameter_name_  il y a une macro qui permet d'utiliser le nom seul
-    pour faire
-    référence à la pin ou au paramètre.
+    pour faire référence à la pin ou au paramètre.
     Quand _pin_name_ ou _parameter_name_ sont des tableaux, la macro est
     de la forme _pin_name(idx)_ ou _param_name(idx)_ dans laquelle _idx_ 
     est l'index dans le tableau de pins. Quand le tableau est de taille
      variable, il est seulement légal de faire référence aux items par
     leurs _condsize_.
-    
++
     Quand un item est conditionnel, il est seulement légal de faire
     référence à cet item quand ses conditions sont évaluées à des
     valeurs différentes de zéro.
@@ -372,7 +399,7 @@ fperiod::
      Le nombre de secondes en virgule flottante entre les appels à cette
     fonction temps réel.
 
-FOR_ALL_INSTS() {*…*}:: 
+FOR_ALL_INSTS() {*…*}::
     Pour les composants de l'espace utilisateur. Cette macro utilise
     la variable *struct state _inst_ pour itérer au dessus de toutes 
     les instances définies. Dans le corps 
@@ -385,7 +412,7 @@ Si un composant a seulement une fonction et que la chaine _FUNCTION_
 n'apparaît nulle part après _;;_, alors la portion après _;;_ est
 considérée comme étant le corps d'un composant simple fonction.
 
-== *Personnalité* du composant
+== Personnalité du composant
 
 Si un composant a n'importe combien de pins ou de paramètres avec un
 if condition ou _[maxsize : condsize]_, il est appelé un
@@ -398,7 +425,7 @@ de broches d'entrée à chaque porte logique et permettre la sélection de
  n'importe quelle fonction de logique booléenne de base _and_, _or_ et
 _xor_.
 
-== Compiler un fichier *.comp* dans l'arborescence
+== Compiler un fichier _.comp_ dans l'arborescence
 
 Placer le fichier _.comp_ dans le répertoire _linuxcnc/src/hal/components_
 et lancer/relancer _make_. Les fichiers Comp sont automatiquement
