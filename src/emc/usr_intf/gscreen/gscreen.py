@@ -673,6 +673,10 @@ class Gscreen:
                     self.toggle_view()
                 elif number == 4:
                     self.edit_mode()
+                elif number == 5:
+                    self. zoom_in()
+                elif number == 6:
+                    self. zoom_out()
                 elif number == 7:
                     self.clear_plot()
                 else: raise nofunnction
@@ -750,6 +754,14 @@ class Gscreen:
         self.toggle_show_dtg()
 
 # ****** do stuff *****
+
+    def zoom_in(self,*args):
+        print "zoom in"
+        self.widgets.gremlin.zoom_in()
+
+    def zoom_out(self,*args):
+        print "zoom out"
+        self.widgets.gremlin.zoom_out()
 
     def toggle_fullscreen1(self):
         print "toggle fullscreen"
