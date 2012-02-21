@@ -67,6 +67,16 @@ from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
 
+pix_data = '''/* XPM */
+static char * invisible_xpm[] = {
+"1 1 1 1",
+"	c None",
+" "};'''
+
+
+color = gtk.gdk.Color()
+pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
@@ -303,7 +313,8 @@ class Gscreen:
         self.prefs = preferences.preferences()
 
         #setup default stuff
-        self.data.invisible_cursor = self.prefs.getpref('invisible_cursor', 'False', bool)
+        self.data.hide_cursor = self.prefs.getpref('hide_cursor', 'False', bool)
+        self.widgets.hide_cursor.set_active(self.data.hide_cursor)
         self.data.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
         self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
@@ -434,9 +445,11 @@ class Gscreen:
         self.widgets.show_dtg.connect("clicked", self.on_show_dtg_pressed)
         self.widgets.fullscreen1.connect("clicked", self.on_fullscreen1_pressed)
         self.widgets.shut_down.connect("clicked", self.on_window1_destroy)
+        self.widgets.shut_down.connect_after('released',self.hack_leave)
         self.widgets.run_halshow.connect("clicked", self.on_halshow)
         self.widgets.run_calibration.connect("clicked", self.on_calibration)
         self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
+        self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
 
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
@@ -507,7 +520,11 @@ class Gscreen:
             if not self.data.use_screen2:
                 self.widgets.window2.hide()
         self.widgets.window1.show()
-        #self.widgets.window1.move(300,0)
+        # hide cursor
+        if self.data.hide_cursor:
+            self.widgets.window1.window.set_cursor(invisible)
+        else:
+            self.widgets.window1.window.set_cursor(None)
         self.update_position()
         #self.widgets.gcode_view.set_sensitive(0)
         #self.widgets.hal_led1.set_shape(2)
@@ -517,6 +534,24 @@ class Gscreen:
         self.mode_changed(self.data.mode_order[0])
 
 # *** GLADE callbacks ****
+
+    def hack_leave(self,*args):
+        if not self.data.hide_cursor: return
+        w = self.widgets.window1.window
+        d = w.get_display()
+        s = w.get_screen()
+        x, y = w.get_origin()
+        d.warp_pointer(s, x, y)
+
+    def on_hide_cursor(self,*args):
+        if self.data.hide_cursor:
+            self.prefs.putpref('hide_cursor', False)
+            self.data.hide_cursor = False
+            self.widgets.window1.window.set_cursor(None)
+        else:
+            self.prefs.putpref('hide_cursor', True)
+            self.data.hide_cursor = True
+            self.widgets.window1.window.set_cursor(invisible)
 
     def on_halshow(self,*args):
         print "halshow",TCLPATH
@@ -673,15 +708,15 @@ class Gscreen:
             self.widgets.notebook_main.set_current_page(nextpage)
 
     def on_estop_clicked(self,*args):
-        print "estop",self.data.estopped
-        print "machine on:",self.data.machine_on
         if self.data.estopped:
             self.emc.estop_reset(1)
         elif not self.data.machine_on:
             self.emc.machine_on(1)
+            self.widgets.on_label.set_text("Machine On")
         else:
             self.emc.machine_off(1)
             self.emc.estop(1)
+            self.widgets.on_label.set_text("Machine Off")
 
 
     def on_theme_choice_changed(self,*args):
@@ -1139,7 +1174,7 @@ class Gscreen:
         self.widgets.led_mist.set_active(self.data.mist)
         self.widgets.led_flood.set_active(self.data.flood)
         # estop
-        self.widgets.led_estop.set_active(not self.data.estopped)
+        self.widgets.led_estop.set_active(self.data.estopped)
         self.widgets.led_on.set_active(self.data.machine_on)
         # overrides
         self.widgets.fo.set_text("FO: %d%%"%(self.data.feed_override*100))

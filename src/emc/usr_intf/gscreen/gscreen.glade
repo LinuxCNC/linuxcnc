@@ -1251,8 +1251,6 @@ Aux Screen</property>
                             <property name="right_attach">2</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
                           </packing>
                         </child>
                         <child>
@@ -1308,7 +1306,7 @@ DTG</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="fullscreen1">
-                            <property name="label" translatable="yes">Gscreen
+                            <property name="label" translatable="yes"> Gscreen
 fullscreen</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -1324,8 +1322,8 @@ fullscreen</property>
                             <property name="use_stock">True</property>
                           </object>
                           <packing>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
                           </packing>
                         </child>
                         <child>
@@ -1337,21 +1335,21 @@ Aux Coolant</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="aux_coolant_m8">
-                            <property name="label" translatable="yes">On M8 Use
+                            <property name="label" translatable="yes"> On M8 Use
 Aux Coolant</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                           </packing>
                         </child>
                         <child>
@@ -1361,7 +1359,16 @@ Aux Coolant</property>
                           <placeholder/>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkToggleButton" id="hide_cursor">
+                            <property name="label" translatable="yes">Hide Pointer</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -1557,55 +1564,85 @@ Halshow</property>
               <object class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkButton" id="button_estop">
+                  <object class="GtkVBox" id="vbox5">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                     <child>
-                      <object class="GtkVBox" id="vbox9">
+                      <object class="GtkButton" id="button_estop">
                         <property name="visible">True</property>
-                        <property name="homogeneous">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
                         <child>
-                          <object class="GtkLabel" id="estop_label">
+                          <object class="GtkHBox" id="hbox5">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Estop</property>
-                          </object>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkHBox" id="hbox4">
-                            <property name="visible">True</property>
-                            <property name="homogeneous">True</property>
                             <child>
-                              <object class="HAL_LED" id="led_estop">
+                              <object class="GtkVBox" id="vbox7">
                                 <property name="visible">True</property>
-                                <property name="on_color">green</property>
-                                <property name="led_shape">1</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="estop_label">
+                                    <property name="visible">True</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Estop</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="on_label">
+                                    <property name="visible">True</property>
+                                    <property name="xpad">5</property>
+                                    <property name="label" translatable="yes">Machine off</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="HAL_LED" id="led_on">
+                              <object class="GtkVBox" id="vbox8">
                                 <property name="visible">True</property>
-                                <property name="on_color">green</property>
-                                <property name="led_shape">1</property>
+                                <child>
+                                  <object class="HAL_LED" id="led_estop">
+                                    <property name="visible">True</property>
+                                    <property name="off_color">green</property>
+                                    <property name="led_shape">1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LED" id="led_on">
+                                    <property name="visible">True</property>
+                                    <property name="on_color">green</property>
+                                    <property name="off_color">red</property>
+                                    <property name="led_shape">1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
                         </child>
                       </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
