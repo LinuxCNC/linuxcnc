@@ -1,0 +1,18 @@
+executing
+A failed Python prolog returning INTERP_ERROR
+O <notcalled> call 
+    1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
+    2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    4 N..... SET_XY_ROTATION(0.0000)
+    5 N..... SET_FEED_REFERENCE(CANON_XYZ)
+    6 N..... MESSAGE(" before M400: call_level= 0.000000 remap_level=0.000000")
+    7 N..... CANON_ERROR(%s is a literal percent s)
+    8 N..... MESSAGE(" after failed M400: call_level= 0.000000 remap_level=0.000000")
+    9 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+   10 N..... SET_XY_ROTATION(0.0000)
+   11 N..... SET_FEED_MODE(0)
+   12 N..... SET_FEED_RATE(0.0000)
+   13 N..... STOP_SPINDLE_TURNING()
+   14 N..... SET_SPINDLE_MODE(0.0000)
+   15 N..... PROGRAM_END()
