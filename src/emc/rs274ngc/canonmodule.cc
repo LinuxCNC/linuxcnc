@@ -8,7 +8,7 @@ namespace bp = boost::python;
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_canon_error(const char *s)
 {
-    if ((s == NULL) && !strlen(s))
+    if ((s == NULL) || (strlen(s) == 0))
 	return;
     CANON_ERROR(s);
 }
