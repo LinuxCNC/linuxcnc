@@ -314,3 +314,9 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def scroll(self, widget, event):
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
+
+    def zoom_in(self):
+        self.zoomin()
+
+    def zoom_out(self):
+        self.zoomout()
