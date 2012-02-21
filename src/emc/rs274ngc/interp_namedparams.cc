@@ -259,7 +259,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
             if (pin && !pin->signal) {
 		logOword("%s: no signal connected", hal_name);
-		ptr = &(pin->dummysig);
 	    } 
 	    type = pin->type;
 	    hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);

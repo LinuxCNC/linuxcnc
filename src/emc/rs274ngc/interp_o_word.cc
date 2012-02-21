@@ -307,6 +307,7 @@ int Interp::execute_call(setup_pointer settings,
 	    if (remap->remap_py) { 
 		status = pycall(settings, current_frame, REMAP_MODULE, remap->remap_py,
 				settings->call_state == CS_NORMAL ? PY_BODY : PY_FINISH_BODY);
+		CHP(status);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_PYBODY;

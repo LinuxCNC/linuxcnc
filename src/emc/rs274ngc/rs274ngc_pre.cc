@@ -225,7 +225,6 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
-  block_pointer cblock = &CONTROLLING_BLOCK(_setup);
   extern const char *call_statenames[];
   extern const char *call_typenames[];
   extern const char *o_ops[];
@@ -356,7 +355,7 @@ int Interp::_execute(const char *command)
 
 
 	  CHP(enter_remap());
-	  cblock = &CONTROLLING_BLOCK(_setup);
+	  block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 	  cblock->phase = next_remap;
 	  // execute up to the first remap including read() of its handler
 	  // this also sets cblock->executing_remap

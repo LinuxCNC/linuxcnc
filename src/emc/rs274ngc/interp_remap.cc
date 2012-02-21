@@ -209,7 +209,6 @@ int Interp::add_parameters(setup_pointer settings,
 	s++;
     }
     o = optional;
-    r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
     logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s pydict=%d\n",
