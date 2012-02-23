@@ -240,6 +240,7 @@ def settool_epilog(self,**words):
             return INTERP_OK
         else:
             if self.return_value > 0.0:
+                self.current_tool = int(self.params["tool"])
                 self.current_pocket = int(self.params["pocket"])
                 emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
                 # cause a sync()
@@ -271,6 +272,7 @@ def set_tool_number(self, **words):
             return status
 	if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
             self.current_pocket = pocket
+            self.current_tool = toolno
             emccanon.CHANGE_TOOL_NUMBER(pocket)
             # cause a sync()
             self.tool_change_flag = True
