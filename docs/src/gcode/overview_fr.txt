@@ -5,7 +5,7 @@
 
 [[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))
 
-== Brève description 
+== Brève description du G-code de LinuxCNC
 
 Le G-code est le langage de programmation des machines numériques. Le G-code
 utilisé par LinuxCNC est basé sur le langage RS274/NGC. Cette documentation le 
@@ -57,14 +57,13 @@ pas exécutées. L'interpréteur ne les lit pas.
 
 == Format d'une ligne
 
-Une ligne de code permise par la norme G-code est construite de la
-façon suivante, dans l'ordre avec la restriction à un maximum de 256
-caractères sur la même ligne.
+Une ligne de G-code typique est construite de la façon suivante,
+dans l'ordre avec la restriction à un maximum de 256 caractères sur la même
+ligne.
 
- . Un bloc optionnel contenant le caractère d'effacement de ligne, barre
-   de fraction _/_. 
+ . Un caractère optionnel d'effacement de bloc, qui est la barre oblique _/_.
  . Un numéro de ligne optionnel.
- . N'importe quel nombre de mots, valeurs de paramètres et commentaires.
+ . Un nombre quelconque de mots, valeurs de paramètres et commentaires.
  . Un caractère de fin de ligne (retour chariot ou saut de ligne ou les
    deux).
 
@@ -83,6 +82,21 @@ La casse des caractères est ignorée, excepté dans les commentaires.
 Toutes les lettres en dehors des commentaires peuvent être,
 indifféremment des majuscules ou des minuscules sans changer la
 signification de la ligne.
+
+[[sub:effacement-de-bloc]]
+== Caractère d'effacement de bloc
+(((Block Delete)))
+
+Le caractère optionnel d'effacement de bloc, la barre oblique, _/_ quand il
+est placé en premier sur une ligne, peut être utilisé par certaines interfaces
+utilisateur pour sauter, si besoin, des lignes de code. Dans Axis, la
+combinaison de touches _Alt-m-/_ est une bascule qui active ou désactive
+l'effacement de bloc. Quand l'effacement de bloc est actif, toutes les lignes
+commençant par _/_ sont sautées.
+
+Dans Axis il est également possible de basculer l'activation d'effacement de
+bloc avec l'icône: 
+image:../gui/images/tool_blockdelete.gif[]
 
 == Numéro de ligne
 (((Numéro de ligne)))
