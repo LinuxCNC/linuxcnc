@@ -161,6 +161,7 @@ static void errmsg(const char *funct, const char *fmt, ...)
     fprintf(stderr, "ERROR in %s(): ", funct);
     vfprintf(stderr, fmt, vp);
     fprintf(stderr, "\n");
+    va_end(vp);
 }
 
 void usage(void) {
