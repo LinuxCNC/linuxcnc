@@ -542,7 +542,7 @@ checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
 
-PDF_MAN_ORDER := man1/emc.1 $(filter-out %/emc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
+PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
