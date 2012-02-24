@@ -174,11 +174,16 @@ static void hm2_write_gpio(void *void_hm2, long period) {
 // FIXME: the static automatic string makes this function non-reentrant
 const char *hm2_hz_to_mhz(u32 freq_hz) {
     static char mhz_str[20];
+    int r;
     int freq_mhz, freq_mhz_fractional;
 
     freq_mhz = freq_hz / (1000*1000);
     freq_mhz_fractional = (freq_hz / 1000) % 1000;
-    sprintf(mhz_str, "%d.%03d", freq_mhz, freq_mhz_fractional);
+    r = snprintf(mhz_str, sizeof(mhz_str), "%d.%03d", freq_mhz, freq_mhz_fractional);
+    if (r >= sizeof(mhz_str)) {
+        HM2_ERR_NO_LL("too many MHz!\n");
+        return "(unpresentable)";
+    }
 
     return mhz_str;
 }
@@ -201,7 +206,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_SMARTSERIAL:     return "Smart Serial Interface";
         default: {
             static char unknown[100];
-            rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
+            rtapi_snprintf(unknown, sizeof(unknown), "(unknown-gtag-%d)", gtag);
             return unknown;
         }
     }
