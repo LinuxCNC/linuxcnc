@@ -161,7 +161,7 @@ void reportError(const char *fmt, ...)
 #define va_copy(dest, src) ((dest)=(src))
 #endif
 
-rtapi_msg_handler_t old_handler = NULL;
+static rtapi_msg_handler_t old_handler = NULL;
 static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 {
     va_list apc;
