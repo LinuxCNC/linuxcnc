@@ -572,8 +572,8 @@ Parallel Port Settings' expanders.</property>
                               <widget class="GtkComboBox" id="pp2_direction">
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
-                                <property name="items" translatable="yes">In
-Out</property>
+                                <property name="items" translatable="yes">Out
+In</property>
                               </widget>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -588,8 +588,8 @@ Out</property>
                               <widget class="GtkComboBox" id="pp3_direction">
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
-                                <property name="items" translatable="yes">In
-Out</property>
+                                <property name="items" translatable="yes">Out
+In</property>
                               </widget>
                               <packing>
                                 <property name="left_attach">2</property>
