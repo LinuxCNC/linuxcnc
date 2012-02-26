@@ -168,6 +168,7 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     va_copy(apc, ap);
     if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
     if(old_handler) old_handler(level, fmt, ap);
+    va_end(apc);
 }
 
 int rtapi_app_main(void)
