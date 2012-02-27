@@ -1,0 +1,17 @@
+
+ifeq ($(LIBMODBUS3_USABLE),yes)
+
+VFS11_SRCS = hal/user_comps/vfs11_vfd/vfs11_vfd.c
+VFS11_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
+VFS11_LIBS = $(LIBMODBUS_LIBS)
+
+$(call TOOBJSDEPS, $(VFS11_SRCS)) : EXTRAFLAGS += $(VFS11_CFLAGS)
+
+USERSRCS += $(VFS11_SRCS)
+../bin/vfs11_vfd: $(call TOOBJS, $(VFS11_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) $(VFS11_LIBS) -o $@ $^
+
+TARGETS += ../bin/vfs11_vfd
+endif
+

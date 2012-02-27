@@ -419,6 +419,50 @@ long hidiocgrawinfo = HIDIOCGRAWINFO;
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
+
+# libmodbus3 has a pkg-config file:
+AC_MSG_CHECKING([for libmodbus3])
+if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
+  LIBMODBUS_VER=`pkg-config libmodbus --modversion`
+  AC_MSG_RESULT(yes - version [$LIBMODBUS_VER])
+  LIBMODBUS_CFLAGS=`pkg-config libmodbus --cflags`
+  LIBMODBUS_LIBS=`pkg-config libmodbus --libs`
+  AC_DEFINE([LIBMODBUS3_USABLE], [], [Define to 1 if usable libmodbus3 library present])
+  AC_SUBST([LIBMODBUS3_USABLE],yes)
+  # cant have both
+  AC_SUBST([LIBMODBUS2_USABLE],no)
+  AC_SUBST([LIBMODBUS_CFLAGS])
+  AC_SUBST([LIBMODBUS_LIBS])
+else
+  AC_SUBST([LIBMODBUS3_USABLE],no)
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING([for libmodbus2])
+  # check if libmodbus version2 is installed
+  # v2 doesnt have a pkg-config file, so assume
+  # includes are under /usr/include/modbus
+  LIBMODBUS_CFLAGS="-I/usr/include/modbus"
+  LIBMODBUS_LIBS="-lmodbus"
+
+  saved_LIBS=$LIBS
+  saved_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$LIBMODBUS_CFLAGS $saved_CPPFLAGS"
+  LIBS="$saved_LIBS $LIBMODBUS_LIBS"
+
+  AC_TRY_LINK([#include <modbus.h>],[
+      read_holding_registers(0,0,0,0,0);
+      preset_single_register(0,0,0,0);
+    ],
+    [LIBMODBUS2_USABLE=yes
+      AC_DEFINE([LIBMODBUS2_USABLE], [], [Define to 1 if usable libmodbus2 library present])
+      AC_SUBST([LIBMODBUS2_USABLE],yes)
+      AC_SUBST([LIBMODBUS_CFLAGS])
+      AC_SUBST([LIBMODBUS_LIBS])
+      AC_MSG_RESULT(yes - version2)
+    ],)
+  CPPFLAGS=$saved_CPPFLAGS
+fi 
+
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#

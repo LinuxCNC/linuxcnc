@@ -59,6 +59,8 @@ include::drivers/AX5214H.txt[]
 
 include::drivers/GS2.txt[]
 
+include::drivers/VFS11.txt[]
+
 include::drivers/hostmot2.txt[]
 
 include::drivers/motenc.txt[]
