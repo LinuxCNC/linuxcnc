@@ -143,6 +143,7 @@ DOC_SRCS := \
 	drivers/AX5214H_es.txt \
 	drivers/AX5214H_fr.txt \
 	drivers/AX5214H_pl.txt \
+	drivers/VFS11.txt \
 	drivers/GS2.txt \
 	drivers/GS2_de.txt \
 	drivers/GS2_es.txt \
