@@ -1,9 +1,10 @@
 
+= VFS11 VFD Driver
+
+
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
-
-= VFS11 VFD Driver
 
 [[cha:vfs11-vfd-driver]] (((VFS11 VFD Driver)))
 
@@ -182,7 +183,7 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
 This lists all options understood by vfs11_vfd. Typical setups for
 RS232, RS485 and TCP can be found in 'src/hal/user_comps/vfs11_vfd/*.ini'.
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [VFS11]
 # serial connection 
@@ -241,12 +242,11 @@ RECONNECT_DELAY=1
 DEBUG=10
 MODBUS_DEBUG=0
 POLLCYCLES=10
-
 ---------------------------------------------------------------------
 
 == HAL example
 
-[source,hal]
+[source,{hal}]
 ---------------------------------------------------------------------
 #
 # example usage of the VF-S11 VFD driver
