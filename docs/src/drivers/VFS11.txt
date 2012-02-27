@@ -241,6 +241,7 @@ RECONNECT_DELAY=1
 DEBUG=10
 MODBUS_DEBUG=0
 POLLCYCLES=10
+
 ---------------------------------------------------------------------
 
 == HAL example
