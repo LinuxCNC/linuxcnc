@@ -10,7 +10,7 @@ $(call TOOBJSDEPS, $(VFS11_SRCS)) : EXTRAFLAGS += $(VFS11_CFLAGS)
 USERSRCS += $(VFS11_SRCS)
 ../bin/vfs11_vfd: $(call TOOBJS, $(VFS11_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) $(VFS11_LIBS) -o $@ $^
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(VFS11_LIBS) 
 
 TARGETS += ../bin/vfs11_vfd
 endif
