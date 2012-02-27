@@ -1,0 +1,99 @@
+# readout of all relevant VF-S11 parameters via modbus
+#
+# I setup my VFD as follows:
+# - factory reset by choosing 'typ = 3' (full operations manual section 7.3)
+# - set to european defaults 'typ = 1' (mostly switching 60->50Hz)
+# 
+# the I set parameters below 
+# you can do this on the panel or with the PCS0012 windows utility from Toshiba.
+# 
+# The idea is that by default the panel is enabled
+# when modbus controls starts it takes over control with the control/frequency override
+# in register FA00
+# when modbus quits, these override bits should be reset in the FA00 register
+# or, even better, send a fault reset 
+#
+# ---- reading the parameter values:
+# run this file as:
+# modio <dump-params.mio >dump-myparams.log
+#
+# first, do a fault reset
+#
+debug 0
+#
+# if the VFD isnt faulted, this seems a no-op
+# if it is faulted, it goes through the startup sequence
+preset_single_register 0xfa00 0x2000
+#
+# let her settle in case she rebooted
+sleep 3
+# 
+# operated by panel, expect 0001
+read_holding_registers 0x0003
+#
+# frequency by panel possible, expect 0000
+read_holding_registers 0x0004
+#
+# meter selection, as you like - not important; I use power
+# in which case expect 0006
+read_holding_registers 0x0005
+#
+# fwd/reverse possible by panel, expect 0002
+read_holding_registers 0x0008
+#
+# base frequency - europeans expect 1388 (5000 centiHertz)
+read_holding_registers 0x0170
+#
+# I think this one's irrelevant, should also be 1388 (1770 for The Colonies)
+read_holding_registers 0x0204
+#
+# frequency mode selection = potentiometer for panel operation
+# with modbus we use the command/frequency override bits in FA00
+# expect 0000
+read_holding_registers 0x0207
+#
+# I think this one's irrelevant too, should also be 1388 (1770 for The Colonies)
+read_holding_registers 0x0213
+#
+# supply voltage correction - duh. expect 0002
+read_holding_registers 0x0307
+#
+# the motor nameplate RPM value - my motor reads 1410 rpm
+# so I expect 0582 - YMMV
+read_holding_registers 0x0417
+#
+# I think this one is important:
+# change of command/frequency override during operation must be permitted!!!
+# so expect 0000:
+read_holding_registers 0x0736
+#
+# port speed = 19200 - expect 0004
+read_holding_registers 0x0800
+#
+# I set the inverter number to 1
+# so expect 0001
+read_holding_registers 0x0802
+#
+# this one I set to 0 to disable Modbus timeouts by the VFD
+# there is no point in having the VFD timeout in our setup -
+# the host will notice (or the user that the PC is gone..)
+# expect 0000
+read_holding_registers 0x0803
+#
+# likely irrelevant (50/60Hz so expect 1388 or 1770)
+read_holding_registers 0x0814 
+#
+# mucho importante: select protocol to modbus
+# so expect to definitely, positively see 0001
+# (otherwise this program wouldnt work in the first place..)
+read_holding_registers 0x0829
+#
+# I also set shorter acceleration and deceleration times, 
+# 10 secs is a bitread_holding_registers 0x0814 
+# I set these to 3 secs so expect 001e in this case:
+read_holding_registers 0x0009
+read_holding_registers 0x0010
+#
+# done!
+
+
