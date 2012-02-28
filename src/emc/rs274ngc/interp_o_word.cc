@@ -440,7 +440,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			     settings->skipping_o);
 		    settings->skipping_o = NULL;
 		}
-		settings->defining_sub = NULL;
+		settings->defining_sub = 0;
 		settings->sub_name = NULL;
 	    }
 	}
@@ -464,13 +464,11 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 {
     static char name[] = "control_back_to";
     char newFileName[PATH_MAX+1];
-    char foundPlace[PATH_MAX+1];
     char tmpFileName[PATH_MAX+1];
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
 
-    foundPlace[0] = 0;
     logOword("Entered:%s %s", name,block->o_name);
 
     it = settings->offset_map.find(block->o_name);
