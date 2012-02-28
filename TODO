@@ -1,4 +1,3 @@
-THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.4)
 
 TODO     sort out axis/joints issues: 
 	    * limits need to be imposed on joints (tricky with kins)
