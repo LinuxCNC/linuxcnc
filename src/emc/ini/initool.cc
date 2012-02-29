@@ -170,7 +170,11 @@ int iniTool(const char *filename)
 
 int emcToolSetToolTableFile(const char *filename)
 {
-    strcpy(TOOL_TABLE_FILE, filename);
-
+    strncpy(TOOL_TABLE_FILE, filename, sizeof(TOOL_TABLE_FILE));
+    if (TOOL_TABLE_FILE[sizeof(TOOL_TABLE_FILE)-1] != '\0') {
+        rcs_print("Tool Table File name too long, max %lu characters.\n", sizeof(TOOL_TABLE_FILE)-1);
+        rcs_print("Requested Tool Table File name was: %s\n", filename);
+        return -1;
+    }
     return 0;
 }
