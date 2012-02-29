@@ -47,7 +47,8 @@ a sa man page. A partir de cette liste vous connaîtrez quels composants
 existent avec le nom et le N° de leur man page permettant d'avoir plus
 de détails.
 
-abs:: (((abs)))Calcule la valeur absolue et le signe d'un signal d'entrée.
+abs:: [[sub:abs]] (((abs)))Calcule la valeur absolue et le signe d'un signal
+d'entrée.
 
 and2:: (((and2)))
 Porte AND (ET) à deux entrées.
