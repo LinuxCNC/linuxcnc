@@ -7,6 +7,7 @@
 #include <map>
 
 namespace bp = boost::python;
+extern int _task;  // zero in gcodemodule, 1 in milltask
 
 #include <stdio.h>
 #include <string.h>
@@ -237,6 +238,7 @@ static bp::object pmcartesian_str( PmCartesian &c) {
 static const char *get_comment(block &b) { return b.comment; };
 static const char *get_o_name(block &b) { return b.o_name; };
 
+static int get_task(Interp &i) { return _task; };
 static const char *get_filename(Interp &i) { return i._setup.filename; };
 static const char *get_linetext(Interp &i) { return i._setup.linetext; };
 
@@ -609,6 +611,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("execute",  &wrap_interp_execute_2)
 	.def("read", &wrap_interp_read)
 
+	.add_property("task", &get_task) // R/O
 	.add_property("filename", &get_filename) // R/O
 	.add_property("linetext", &get_linetext) // R/O
 
