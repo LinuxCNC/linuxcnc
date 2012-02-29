@@ -726,7 +726,11 @@ typedef struct setup_struct
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
+#define INIT_FUNC  "__init__"
 
+    // task calls upon interp.init() repeatedly
+    // protect init() operations which are not idempotent
+    int init_once;  
 } setup;
 
 typedef setup *setup_pointer;

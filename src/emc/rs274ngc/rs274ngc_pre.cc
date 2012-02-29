@@ -109,14 +109,12 @@ int trace;
 Interp::Interp()
     : log_file(0)
 {
+    _setup.init_once = 1;  
     init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
-    if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
 
 
 Interp::~Interp() {
-    if (trace) fprintf(stderr,"---> del Interp() pid=%d\"",getpid());
-
     if(log_file) {
 	fclose(log_file);
 	log_file = 0;
@@ -862,16 +860,19 @@ int Interp::init()
 	  extern struct _inittab builtin_modules[];
 	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
 	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
-		  logPy("Python plugin configured");
 		  try {
 		      // this import will register the C++->Python converter for Interp
 		      bp::object interp_module = bp::import("interpreter");
 
 		      // use a boost::cref to avoid per-call instantiation of the 
 		      // Interp Python wrapper (used for the 'self' parameter in handlers)
-		      _setup.pythis =  boost::python::object(boost::cref(this));
+		      // since interp.init() may be called repeatedly this would create a new
+		      // wrapper instance on every init(), abandoning the old one and all user attributes
+		      // tacked onto it, so make sure this is done exactly once
+		      if (_setup.init_once)  
+			  _setup.pythis =  boost::python::object(boost::cref(this));
 
-		      // alias to 'interpreter.this' for the sake of ';py, .... '' comments
+		      // alias to 'interpreter.this' for the sake of ';py, .... ' comments
 		      bp::scope(interp_module).attr("this") =  _setup.pythis;
 		  }
 		  catch (bp::error_already_set) {
@@ -887,7 +888,24 @@ int Interp::init()
 	      } else {
 		  Error("no Python plugin available");
 	      }
-	  } else logPy("Python plugin not configured");
+	  }
+	  // call __init__(self) in toplevel module if defined
+	  if (PYUSABLE && _setup.init_once && 
+	      python_plugin->is_callable(NULL, INIT_FUNC)) {
+
+	      bp::object retval, tupleargs, kwargs;
+	      bp::list plist;
+	    
+	      plist.append(_setup.pythis); // self
+	      tupleargs = bp::tuple(plist);
+	      kwargs = bp::dict();
+
+	      python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
+	      CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+		   "pycall(%s):\n%s", INIT_FUNC,
+		   python_plugin->last_exception().c_str());
+	  }
+	  _setup.init_once = 0;
 
 	  int n = 1;
 	  int lineno = -1;
