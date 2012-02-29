@@ -13,5 +13,5 @@ def checkparam1_retained(self):
     if hasattr(interpreter,'this'):
 	print "this == self:", self == interpreter.this
     else:
-        print "module interprerter: no 'this' attribute"
+        print "module interpreter: no 'this' attribute"
         
