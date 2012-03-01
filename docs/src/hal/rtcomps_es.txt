@@ -219,34 +219,48 @@ perhaps 10KHz with limited resolution.
 === Installing
 
 ----
-halcmd: loadrt pwmgen output_type=<config-array>
+loadrt pwmgen output_type=<config-array>
 ----
 
-'<config-array>' is a series of comma separated decimal integers.
-Each number causes a
-single PWM generator to be loaded, the value of the number determines
-the output type. For example:
+The '<config-array>' is a series of comma separated decimal integers. Each
+number causes a single PWM generator to be loaded, the value of the number
+determines the output type. The following example will install three PWM
+generators. There is no default value, if '<config-array>'  is not specified,
+no PWM generators will be installed. The maximum number of frequency generators
+is 8 (as defined by MAX_CHAN in pwmgen.c). Each generator is independent,
+but all are updated by the same function(s) at the same time. In the following
+descriptions, '<chan>' is the number of a specific generator. The first
+generator is number 0.
 
+.Example
 ----
-halcmd: loadrt pwmgen output_type=0,1,2
+loadrt pwmgen output_type=0,1,2
 ----
-
-will install three PWM generators. The first one will use output type
-'0' (PWM only), the next uses output type 1 (PWM and direction) and the
-last one uses output type 2 (UP and DOWN). There is no default value,
-if '<config-array>'  is not specified, no PWM generators will be
-installed. The maximum
-number of frequency generators is 8 (as defined by MAX_CHAN in
-pwmgen.c). Each generator is independent, but all are updated by the
- same function(s) at the same time. In the following descriptions,
-'<chan>' is the number of a specific generator. The first generator is
-number 0.
 
 === Removing
 
 ----
-halcmd: unloadrt pwmgen
+unloadrt pwmgen
 ----
+
+=== Output Types
+
+The PWM generator supports three different 'output types'.
+
+* 'Output type 0' - PWM output pin only. Only positive commands are accepted,
+   negative values are treated as zero (and will be affected by the parameter
+   'min-dc' if it is non-zero).
+
+* 'Output type 1' - PWM/PDM and direction pins. Positive and negative inputs
+   will be output as positive and negative PWM. The direction pin is false
+   for positive commands, and true for negative commands. If your control
+   needs positive PWM for both CW and CCW use the <<sub:abs,abs>> component
+   to convert your PWM signal to positive value when a negative input is input.
+
+* 'Output type 2' - UP and DOWN pins. For positive commands, the PWM signal
+   appears on the up output, and the down output remains false. For negative
+   commands, the PWM signal appears on the down output, and the up output
+   remains false. Output type 2 is suitable for driving most H-bridges.
 
 === Pins
 
@@ -290,21 +304,6 @@ output type selected:
    and 1.0.
 * '(float) pwmgen.<chan>.curr-dc' - Current duty cycle - after all
    limiting and rounding (read only).
-
-=== Output Types
-
-The PWM generator supports three different 'output types'. Type 0 has
-a single output pin. Only positive commands are accepted, negative
-values are treated as zero (and will be affected by 'min-dc'  if it is
-non-zero). Type 1 has two output pins, one for the PWM/PDM
-signal and one to indicate direction. The duty cycle on the PWM pin is
-based on the absolute value of the command, so negative values are
-acceptable. The direction pin is false for positive commands, and true
-for negative commands. Finally, type 2 also has two outputs, called up
-and down. For positive commands, the PWM signal appears on the up
-output, and the down output remains false. For negative commands, the
-PWM signal appears on the down output, and the up output remains false.
-Output type 2 is suitable for driving most H-bridges.
 
 === Functions
 

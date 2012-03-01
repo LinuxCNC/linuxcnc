@@ -87,9 +87,9 @@ signification de la ligne.
 == Caractère d'effacement de bloc
 (((Block Delete)))
 
-Le caractère optionnel d'effacement de bloc, la barre oblique, _/_ quand il
-est placé en premier sur une ligne, peut être utilisé par certaines interfaces
-utilisateur pour sauter, si besoin, des lignes de code. Dans Axis, la
+Le caractère optionnel d'effacement de bloc qui est la barre oblique _/_,
+quand il est placé en premier sur une ligne, peut être utilisé par certaines
+interfaces utilisateur pour sauter, si besoin, des lignes de code. Dans Axis, la
 combinaison de touches _Alt-m-/_ est une bascule qui active ou désactive
 l'effacement de bloc. Quand l'effacement de bloc est actif, toutes les lignes
 commençant par _/_ sont sautées.

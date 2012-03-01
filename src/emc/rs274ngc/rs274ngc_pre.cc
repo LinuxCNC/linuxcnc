@@ -278,6 +278,8 @@ int Interp::_execute(const char *command)
           }
       }
       _setup.mdi_interrupt = false;
+     if (MDImode)
+	  FINISH();
       return INTERP_OK;
     }
 
