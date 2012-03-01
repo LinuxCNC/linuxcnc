@@ -11,7 +11,7 @@ def checkparam1_retained(self):
 
     # test object identity
     if hasattr(interpreter,'this'):
-	print "this == self:", self == interpreter.this
+	print "this is self:", self is interpreter.this
     else:
         print "module interpreter: no 'this' attribute"
         
