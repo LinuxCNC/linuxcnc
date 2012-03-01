@@ -302,15 +302,14 @@ _compat = {
 # keep tjose parameters across invocations
 # export the parameters into the oword procedure
 def cycle_prolog(self,**words):
-
+    # self.sticky_params is assumed to have been initialized by the
+    # init_stgdlue() method below
     global _compat
     try:    
         # determine whether this is the first or a subsequent call
         c = self.blocks[self.remap_level]
         r = c.executing_remap
         if c.g_modes[1] == r.motion_code:
-            if not hasattr(self,'stick_params'):
-                self.sticky_params = dict()
             # first call - clear the sticky dict
             self.sticky_params[r.name] = dict()
 
@@ -371,3 +370,8 @@ def cycle_epilog(self,**words):
         return INTERP_OK
     except Exception, e:
         return "cycle_epilog failed: %s" % (e)
+
+
+# this should be called from TOPLEVEL __init__()
+def init_stdglue(self):
+    self.sticky_params = dict()

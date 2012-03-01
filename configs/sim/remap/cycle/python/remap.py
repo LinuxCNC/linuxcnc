@@ -1,7 +1,7 @@
 from interpreter import *
 from emccanon import MESSAGE
 
-from stdglue import cycle_prolog, cycle_epilog
+from stdglue import cycle_prolog, cycle_epilog, init_stdglue
 
 # This shows how to create a remapped G code  which can be used as a cycle
 # written in Python
