@@ -889,24 +889,7 @@ int Interp::init()
 		  Error("no Python plugin available");
 	      }
 	  }
-	  // call __init__(self) in toplevel module if defined
-	  if (PYUSABLE && _setup.init_once && 
-	      python_plugin->is_callable(NULL, INIT_FUNC)) {
-
-	      bp::object retval, tupleargs, kwargs;
-	      bp::list plist;
-	    
-	      plist.append(_setup.pythis); // self
-	      tupleargs = bp::tuple(plist);
-	      kwargs = bp::dict();
-
-	      python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
-	      CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-		   "pycall(%s):\n%s", INIT_FUNC,
-		   python_plugin->last_exception().c_str());
-	  }
-	  _setup.init_once = 0;
-
+ 
 	  int n = 1;
 	  int lineno = -1;
 	  _setup.g_remapped.clear();
@@ -918,32 +901,7 @@ int Interp::init()
 	      CHP(parse_remap( inistring,  lineno));
 	      n++;
 	  }
-	  // for generating docs... fixthis.
-	  if (NULL != (inistring = inifile.Find("PRINT_CODES", "RS274NGC"))) {
-	      int i;
 
-	      for (i = 0; i < 1000; i++) {
-		  if (i % 10 == 0)
-		      printf("\n");
-
-		  if (_gees[i] == -1) {
-		      if (i % 10 == 0) {
-			  printf("G%d ",i/10);
-		      } else {
-			  printf("G%d.%d ",i/10,i % 10);
-		      }
-		  }
-	      }
-	      printf("\n");
-	      for (i = 0; i < 1000; i++) {
-		  if (_ems[i] == -1) {
-		      printf("M%d ",i);
-		      if (i % 10 == 0) {
-			  printf("\n");
-		      }
-		  }
-	      }
-	  }
           // close it
           inifile.Close();
       }
@@ -1101,13 +1059,33 @@ int Interp::init()
 
   synch(); //synch first, then update the interface
 
-
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
   write_settings(&_setup);
 
   init_tool_parameters();
   // Synch rest of settings to external world
+
+  // call __init__(self) once in toplevel module if defined
+  // once fully set up and sync()ed
+  if ((iniFileName != NULL) &&
+      _setup.init_once && PYUSABLE && 
+      python_plugin->is_callable(NULL, INIT_FUNC)) {
+
+      bp::object retval, tupleargs, kwargs;
+      bp::list plist;
+      
+      plist.append(_setup.pythis); // self
+      tupleargs = bp::tuple(plist);
+      kwargs = bp::dict();
+      
+      python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
+      CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	   "pycall(%s):\n%s", INIT_FUNC,
+	   python_plugin->last_exception().c_str());
+  }
+  _setup.init_once = 0;
+  
   return INTERP_OK;
 }
 
