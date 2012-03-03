@@ -927,8 +927,8 @@ AXIS can display a custom virtual control panel in the right-hand
 pane. You can program buttons, indicators, data displays and more. For
 more information, see the Integrator Manual.
 
-=== Special Comments
-(((Special Comments)))
+=== Axis Preview Control
+[[sub:axis-preview-control]](((Axis Preview Control)))
 
 Special comments can be inserted into the G Code file to control how
 the preview of AXIS behaves. In the case where you want to limit the
