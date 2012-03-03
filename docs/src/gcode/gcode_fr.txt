@@ -1789,7 +1789,8 @@ C'est une erreur si:
 (((G84 Cycle de taraudage)))
 
 Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
-comportement n'est pas défini. Voir _G33.1_
+comportement n'est pas défini. Voir le <<sec:G33-1-Taraudage-rigide, taraudage
+rigide>>.
 
 [[sec:G85-Alesage-retrait-travail]]
 == G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail

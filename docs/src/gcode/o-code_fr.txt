@@ -59,7 +59,7 @@ Pour plus de détails sur ces instructions voir:
 
 * <<sec:G53-Mouvement-Coordonnees-Absolues, mouvement G53>>,
 * <<sec:G0-Interpolation-rapide, mouvement rapide G0>>,
-* <<sec:M0-M1-M2-M30, fin de programme M2>>.
+* <<sec:M2-M30, fin de programme M2>>.
 
 .O- return
 À l'intérieur d'un sous-programme, _O- return_ peut être exécuté,
