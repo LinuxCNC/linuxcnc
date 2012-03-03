@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-02-03 14:29+0100\n"
+"PO-Revision-Date: 2012-03-03 19:53+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -12178,7 +12178,7 @@ msgstr ""
 
 #: emc/rs274ngc/interp_convert.cc:370
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
-msgstr ""
+msgstr "Un arc est impossible dans les plans G17.1, G18.1 ou G19.1"
 
 #: emc/rs274ngc/interp_convert.cc:382 emc/rs274ngc/interp_convert.cc:3912
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
@@ -12886,7 +12886,7 @@ msgstr "Impossible d'utiliser des valeurs d'axe avec G80"
 
 #: emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Cannot use axis values without a g code that uses them"
-msgstr "Impossible d'employer des valeurs d'axe sans Gcode pour les utiliser"
+msgstr "Impossible d'employer des valeurs d'axe sans G code pour les utiliser"
 
 #: emc/rs274ngc/rs274ngc_return.hh:49
 msgid "Cannot use g28 or g30 with cutter radius comp"
@@ -12958,7 +12958,7 @@ msgstr "Nom de fichier trop long"
 
 #: emc/rs274ngc/rs274ngc_return.hh:66
 msgid "G code out of range"
-msgstr "Gcode hors d'échelle"
+msgstr "G code hors d'étendue"
 
 #: emc/rs274ngc/rs274ngc_return.hh:67
 msgid "I word given for arc in yz plane"
@@ -13245,7 +13245,7 @@ msgstr "Expression non fermée"
 
 #: emc/rs274ngc/rs274ngc_return.hh:137
 msgid "Unknown g code used"
-msgstr "Utilisation d'un g-code inconnu"
+msgstr "Utilisation d'un G code inconnu"
 
 #: emc/rs274ngc/rs274ngc_return.hh:138
 msgid "Unknown m code used"
