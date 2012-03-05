@@ -461,11 +461,11 @@ class Gscreen:
         # set up EMC stuff
 
         # check the ini file if UNITS are set to mm"
-        inifile=self.emc.emc.ini(self.inipath)
+        self.inifile = self.emc.emc.ini(self.inipath)
         # first check the global settings
-        units=inifile.find("TRAJ","LINEAR_UNITS")
+        units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
-            units=inifile.find("AXIS_0","UNITS")
+            units=self.inifile.find("AXIS_0","UNITS")
 
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
@@ -473,7 +473,7 @@ class Gscreen:
         else:
             self.machine_units_mm=0
             conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.data.lathe_mode = bool(inifile.find("DISPLAY", "LATHE"))
+        self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
         self.status.set_machine_units(self.machine_units_mm,conversion)
 
         if self.prefs.getpref('toolsetting_fixture', 0):
@@ -500,9 +500,9 @@ class Gscreen:
            self.emc.opstop_on(0)
         else:
            self.emc.opstop_off(0)                   
-        temp = inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
-            temp = inifile.find("TRAJ","MAX_VELOCITY")
+            temp = self.inifile.find("TRAJ","MAX_VELOCITY")
             if temp == None:
                 temp = 1.0
         self.data._maxvelocity = float(temp)
@@ -510,6 +510,11 @@ class Gscreen:
         # timers for updates
         gobject.timeout_add(50, self.periodic_status)
         #gobject.timeout_add(100, self.periodic_radiobuttons)
+
+        # dynamic tabs
+        self._dynamic_childs = {}
+        atexit.register(self.kill_dynamic_childs)
+        self.set_dynamic_tabs()
 
         # and display everything
         self.widgets.window1.set_title("Gscreen for linuxcnc")
@@ -754,6 +759,35 @@ class Gscreen:
         self.toggle_show_dtg()
 
 # ****** do stuff *****
+    def _dynamic_tab(self, notebook, text):
+        s = gtk.Socket()
+        notebook.append_page(s, gtk.Label(" " + text + " "))
+        return s.get_id()
+
+    def set_dynamic_tabs(self):
+        from subprocess import Popen
+
+        if not self.inifile:
+            return
+
+        tab_names = self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")
+        tab_cmd   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
+
+        if len(tab_names) != len(tab_cmd):
+            print "Invalid tab configuration" # Complain somehow
+
+        nb = self.widgets.notebook_mode
+        for t,c in zip(tab_names, tab_cmd):
+            xid = self._dynamic_tab(nb, t)
+            if not xid: continue
+            cmd = c.replace('{XID}', str(xid))
+            child = Popen(cmd.split())
+            self._dynamic_childs[xid] = child
+        nb.show_all()
+
+    def kill_dynamic_childs(self):
+        for c in self._dynamic_childs.values():
+            c.terminate()
 
     def zoom_in(self,*args):
         print "zoom in"
