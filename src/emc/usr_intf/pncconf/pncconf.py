@@ -2514,7 +2514,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         temp = ""
         for i in self.available_axes:
             #print "looking at available axis : ",i
-            if not self.findsignal(i+"-encoder-a"):
+            if not self.findsignal(i+"-encoder-a") and not self.findsignal(i+"-resolver"):
                 continue
             temp = temp + "pid.%s,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
