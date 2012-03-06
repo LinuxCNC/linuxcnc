@@ -434,19 +434,23 @@ proc prompt_copy configname {
         close $fd
     }
     while {1} {
-        # note: file mkdir will make parents as required
-        if [catch { file mkdir $copydir } msg] {
-            incr i
-            set copydir "$copybase-$i" ;# user may have protected directory, so bump name
-            # limit attempts to avoid infinite loop for hard error
-            if {$i > 1000} {
-              puts stderr "$::argv0:$msg"
-              tk_messageBox -icon error -type ok \
-                -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
-              destroy .
-              exit
-            }
-            continue
+        if [file exists $copydir] {
+          incr i
+          set copydir "$copybase-$i" ;# user may have protected directory, so bump name
+          # limit attempts to avoid infinite loop for hard error
+          if {$i > 1000} {
+             puts stderr "$::argv0:$msg"
+             tk_messageBox -icon error -type ok \
+                  -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
+             destroy .
+             exit
+          }
+          continue ;# try again
+        } else {
+          # note: file mkdir will make parents as required
+          if [catch { file mkdir $copydir } msg] {
+            continue ;# try again
+          }
         }
         # A hierarchy of directories is allowed.
         # User selects an offered ini file.
