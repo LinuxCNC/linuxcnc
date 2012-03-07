@@ -162,12 +162,13 @@ _("Resolver 3 Encoder"),_("Resolver 4 Encoder"),_("Resolver 5 Encoder"), "resolv
 ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
     _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
 ( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,TXDATA4,RXDATA4,TXEN4,
-TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
+TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2,
+SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
 _("SMARTSERIAL-P0-RX"),_("SMARTSERIAL-P0-EN"), _("SMARTSERIAL-P1-TX"),_("SMARTSERIAL-P1-RX"),_("SMARTSERIAL-P1-EN"),
 _("SMARTSERIAL-P2-TX"),_("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"),
 _("SMARTSERIAL-P4-TX"),_("SMARTSERIAL-P4-RX"),_("SMARTSERIAL-P4-EN"),_("SMARTSERIAL-P5-TX"),_("SMARTSERIAL-P5-RX"),_("SMARTSERIAL-P5-EN"),
 _("SMARTSERIAL-P6-TX"),_("SMARTSERIAL-P6-RX"),_("SMARTSERIAL-P6-EN"),_("SMARTSERIAL-P7-TX"),_("SMARTSERIAL-P7-RX"),_("SMARTSERIAL-P7-EN"),
-_("7i76 sserial #1"),_("7i76 sserial #2") ]
+_("7i76 sserial #1"),_("7i76 sserial #2"),_("7i77 sserial #1"),_("7i77 sserial #2"),_("7i77 sserial #4"),_("7i77 sserial #5") ]
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
@@ -410,6 +411,14 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [POTO,0],[POTE,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i77", "7i77-m0", 0,[], 0,0,0,0,0,0,0,0,
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
+    [PWMD,5],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["error"]
  ]
 
@@ -629,12 +638,13 @@ human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[
     [_("Z Axis BL Driver"),[]],[_("A Axis BL Driver"),[]],[_("S Axis BL Driver"),[]],[_("Custom Signals"),[]] ]
 
 (UNUSED_SSERIAL,A8I20_T,A8I20_R,A8I20_E,I7I64_T,I7I64_R,I7I64_E,I7I69_T,I7I69_R,I7I69_E,
-I7I70_T,I7I70_R,I7I70_E,I7I71_T,I7I71_R,I7I71_E,I7I76_M0_T,I7I76_M0_R,I7I76_M0_E) = hal_sserial_names = ["unused-sserial",
+I7I70_T,I7I70_R,I7I70_E,I7I71_T,I7I71_R,I7I71_E,I7I76_M0_T,I7I76_M0_R,I7I76_M0_E,
+I7I77_M0_T,I7I77_M0_R,I7I77_M0_E) = hal_sserial_names = ["unused-sserial",
 "8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e","7i70-t","7i70-r","7i70-e",
-"7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e"]
+"7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i77-m0-t","7i77-m0-r","7i77-m0-e"]
  
 human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
-                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]] ]
+                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]],[ _("7i77 Mode 0 I/O Card"),[]] ]
 prefs = preferences.preferences()
 
 def md5sum(filename):
@@ -1118,7 +1128,7 @@ class Data:
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
                     self[pinname] = False
             port = 0 #TODO up to 4 ports
-            for channel in range(0,4): #TODO add more sserial widgets should be 8
+            for channel in range(0,5): #TODO add more sserial widgets should be 8
                 self["mesa%dsserial%d_%dsubboard"% (boardnum, port,channel)] = "none"
                 # This initializes pins
                 for i in range(0,60):
@@ -1594,7 +1604,10 @@ If you have a REALLY large config that you wish to convert to this newer version
             if get("invertencoder"):
                 temp = -1
             else: temp = 1
-            print >>file, "ENCODER_SCALE = %s" % (get("encoderscale") * temp)
+            if encoder:
+                print >>file, "ENCODER_SCALE = %s" % (get("encoderscale") * temp)
+            else:
+                print >>file, "RESOLVER_SCALE = %s" % (get("encoderscale") * temp)
         if pwmgen:
             if get("invertmotor"):
                 temp = -1
@@ -2025,7 +2038,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "# ---Resolver feedback signals/setup---"
             print >>file
             print >>file, "setp    "+resolverpinname+".velocity-scale 1 # mptor speed in RPS"
-            print >>file, "setp    "+resolverpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
+            print >>file, "setp    "+resolverpinname+".scale  [%s_%d]RESOLVER_SCALE"% (title, axnum)
             print >>file
             print >>file, "net %s-pos-rawcounts        <=  "% (let) + resolverpinname + ".rawcounts"
             if let == 's':
@@ -2173,7 +2186,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    if channel >4: break # TODO only have 5 channels worth of glade widgets
                     for pin in range (0,60):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -2334,7 +2347,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    if channel >4: break # TODO only have 5 channels worth of glade widgets
                     for pin in range (0,60):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -3487,7 +3500,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 sserial = {}
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                        if channel >3: break # TODO only have 4 channels worth of glade widgets
+                        if channel >4: break # TODO only have 5 channels worth of glade widgets
                         for pin in range (0,60):       
                             key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
                             sserial[key] = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
@@ -3914,7 +3927,7 @@ class App:
 
 
                 port = 0 #TODO we only support one serial port
-                for channel in range (0,4):# TODO only have 4 channels worth of glade widgets
+                for channel in range (0,5):# TODO only have 5 channels worth of glade widgets
                     for pin in range (0,60):
                         cb = "mesa%dsserial%i_%ipin%i"% (boardnum,port,channel,pin)
                         i = "_mesa%dsignalhandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
@@ -4431,10 +4444,18 @@ Ok to reset data and start a new configuration?"),False):
                     elif modulename == "SSerial":
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 requires this to work.
-                        if boardname == "5i25" and "7i76" in currentfirm:
-                            if temp == "TXData1": convertedname = SS7I76M0
-                            elif temp == "TXData3": convertedname = SS7I76M2
-                            else: convertedname = pinconvertsserial[temp]
+                        if boardname == "5i25":
+                            if  "7i76" in currentfirm:
+                                if temp == "TXData1": convertedname = SS7I76M0
+                                elif temp == "TXData3": convertedname = SS7I76M2
+                                else: convertedname = pinconvertsserial[temp]
+                            elif "7i77" in currentfirm:
+                                if temp == "TXData1": convertedname = SS7I77M0
+                                elif temp == "TXData2": convertedname = SS7I77M1
+                                elif temp == "TXData4": convertedname = SS7I77M3
+                                elif temp == "TXData5": convertedname = SS7I77M4
+                                else: convertedname = pinconvertsserial[temp]
+                                print "XML 7i77", temp,convertedname
                         else:
                             convertedname = pinconvertsserial[temp]
                     elif modulename == "None":
@@ -5032,6 +5053,15 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 self.data["mesa%d_numof_resolvers"% boardnum] = (d[_MAXRES]) # TODO fix this hack should be selectable
+                if d[_MAXRES]:
+                    self.widgets["mesa%d_numof_resolvers"% boardnum].show()
+                    self.widgets["mesa%d_numof_resolvers"% boardnum].set_value(d[_MAXRES]*6)
+                    self.widgets["mesa%d_numof_resolvers"% boardnum].set_sensitive(False)
+                    self.widgets["mesa%d_numof_resolvers_label"% boardnum].show()
+                    self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(24000)
+                else:
+                    self.widgets["mesa%d_numof_resolvers"% boardnum].hide()
+                    self.widgets["mesa%d_numof_resolvers_label"% boardnum].hide()
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
                     self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
@@ -5048,7 +5078,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(d[_MAXSSERIALCHANNELS])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
                 self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
-                self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
+                if d[_MAXRES]:
+                    self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(False)
+                else:
+                    self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
                 if "7i43" in title:
                     self.widgets["mesa%d_parportaddrs"% boardnum].show()
@@ -5079,7 +5112,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
         port = 0
         for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                if channel >3: break # TODO only have 4 channels worth of glade widgets
+                if channel >4: break # TODO only have 5 channels worth of glade widgets
                 subboardname = self.data["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
                 #print "data transfer-channel ",channel," subboard name",subboardname
                 if subboardname == "none": 
@@ -5179,7 +5212,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltocheck = hal_stepper_names
                 # type sserial
                 elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3,
-                                 RXDATA4,TXDATA4,TXEN4,RXDATA5,TXDATA5,TXEN5,RXDATA6,TXDATA6,TXEN6,RXDATA7,TXDATA7,TXEN7,SS7I76M0,SS7I76M2):
+                                 RXDATA4,TXDATA4,TXEN4,RXDATA5,TXDATA5,TXEN5,RXDATA6,TXDATA6,TXEN6,RXDATA7,TXDATA7,TXEN7,
+                                 SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     signaltree = self.data._sserialsignaltree
                     ptypetree = self.data._sserialliststore
                     signaltocheck = hal_sserial_names
@@ -5212,7 +5246,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
-                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU,SS7I76M0,SS7I76M2) or (index == 0):index2 = 0
+                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU,SS7I76M0,
+                                SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) or (index == 0):index2 = 0
                 elif pintype in ( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,TXDATA4,RXDATA4,TXEN4,
                                   TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7 ):index2 = 0
                 #print index,index2,signaltocheck[index+index2]
@@ -5595,7 +5630,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             self.widgets[p].child.handler_block(self.data[actblocksignal])
             concount = 0
             numofencoders = 10
-            numofpwmgens = 0
+            numofpwmgens = 12
             numoftppwmgens = 0
             numofstepgens = 0
             self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
@@ -5838,12 +5873,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # smart serial has port numbers (0-3) and channels (0-7).
                 # so the component number check is different from other components it checks the port number and channel number
                 elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,
-                                    TXDATA4,RXDATA4,TXEN4,TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2):
+                                    TXDATA4,RXDATA4,TXEN4,TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,
+                                    SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     channelnum = 1
-                    if firmptype in (TXDATA1,RXDATA1,TXEN1): channelnum = 2
+                    if firmptype in (TXDATA1,RXDATA1,TXEN1,SS7I77M1): channelnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2,SS7I76M2): channelnum = 3
-                    if firmptype in (TXDATA3,RXDATA3,TXEN3): channelnum = 4
-                    if firmptype in (TXDATA4,RXDATA4,TXEN4): channelnum = 5
+                    if firmptype in (TXDATA3,RXDATA3,TXEN3,SS7I77M3): channelnum = 4
+                    if firmptype in (TXDATA4,RXDATA4,TXEN4,SS7I77M4): channelnum = 5
                     if firmptype in (TXDATA5,RXDATA5,TXEN5): channelnum = 6
                     if firmptype in (TXDATA6,RXDATA6,TXEN6): channelnum = 7
                     if firmptype in (TXDATA7,RXDATA7,TXEN7): channelnum = 8
@@ -5862,16 +5898,20 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
                         self.widgets[p].child.set_editable(False) # sserial cannot have custom names
-                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2):
+                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                             self.widgets[complabel].set_text("%d:"% (channelnum -1))
                             if channelnum < 5:#TODO fix hack hardcoded at 4 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
-                            # if the sserial ptype is 7i76 then the data must be set to 7i76 signal
-                            # as that sserial instance can only be for the 7i76 I/O points
+                            # if the sserial ptype is 7i76 or 7i77 then the data must be set to 7i76/7i77 signal
+                            # as that sserial instance can only be for the 7i76/7i77 I/O points
                             if firmptype in (SS7I76M0,SS7I76M2):
                                 self.data[p] = I7I76_M0_T
+                                self.data[ptype] = firmptype
+                                self.widgets[p].set_sensitive(0)
+                            elif firmptype in (SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
+                                self.data[p] = I7I77_M0_T
                                 self.data[ptype] = firmptype
                                 self.widgets[p].set_sensitive(0)
                         else:
@@ -6285,7 +6325,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[p].set_active_iter(treeiter)
 
                 # type smartserial  
-                elif widgetptype in( TXDATA0,SS7I76M0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,SS7I76M2):
+                elif widgetptype in( TXDATA0,SS7I76M0,SS7I77M0,SS7I77M3,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,
+                                    SS7I76M2,SS7I77M1,SS7I77M4):
                     #print "SMART SERIAL", dataptype,widgetptype
                     self.widgets[pinv].set_active(datapinv)
                     try:
@@ -6545,15 +6586,16 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedsearch = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                     customindex = 6
-                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2):
+                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     portnum = 0 #TODO support more ports
                     for count,temp in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
                         if connector == temp:
                             firmptype,portnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
-                            if widgetptype in (TXDATA0,SS7I76M0): channelnum = 0
-                            elif widgetptype == TXDATA1: channelnum = 1
+                            if widgetptype in (TXDATA0,SS7I76M0,SS7I77M0): channelnum = 0
+                            elif widgetptype in (TXDATA1,SS7I77M1): channelnum = 1
                             elif widgetptype in (TXDATA2,SS7I76M2): channelnum = 2
-                            elif widgetptype == TXDATA3: channelnum = 3
+                            elif widgetptype in (TXDATA3,SS7I77M3): channelnum = 3
+                            elif widgetptype in (TXDATA4,SS7I77M4): channelnum = 4
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets["mesa%dsserial0_%d"% (boardnum,channelnum)].hide()
                                 self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "none"
@@ -6587,6 +6629,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 elif "7i71" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i71"
                                     self.widgets[table].hide()
+                                elif "7i77" in temp:
+                                    self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i77-m0"
+                                    if channelnum == 0:
+                                        self.widgets[table].hide()
+                                    elif channelnum == 1:
+                                        table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                        self.widgets[table].hide()
+                                        table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
+                                        self.widgets[table].hide()
                                 elif "8i20" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "8i20"
                                     self.widgets[table].hide()
@@ -7175,7 +7226,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w[axis + "homefinalvelunits"].set_text(_(unit+" / min"))
         w[axis + "minfollowunits"].set_text(unit)
         w[axis + "maxfollowunits"].set_text(unit)
-
+        if resolver:
+            w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
             #w["motor_screwunits"].set_text((""))
             #w["encoder_screwunits"].set_text((""))
@@ -7988,10 +8040,11 @@ different program to copy to your configuration file.\nThe edited program will b
                         firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2) and not self.data[p] == UNUSED_SSERIAL:
-                            if self.data[ptype] in (TXDATA0,SS7I76M0): channelnum = 0
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,
+                                                SS7I76M2,SS7I77M0,SS7I77M1) and not self.data[p] == UNUSED_SSERIAL:
+                            if self.data[ptype] in (TXDATA0,SS7I76M0,SS7I77M0): channelnum = 0
                             elif self.data[ptype] == TXDATA1: channelnum = 1
-                            elif self.data[ptype] in (TXDATA2,SS7I76M2): channelnum = 2
+                            elif self.data[ptype] in (TXDATA2,SS7I76M2,SS7I77M1): channelnum = 2
                             elif self.data[ptype] == TXDATA3: channelnum = 3
                             keeplist.append(channelnum)
             # ok clear the sserial pins unless they are in the keeplist
@@ -9045,7 +9098,7 @@ But there is not one in the machine-named folder.."""),True)
             if self.data["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
                 for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    if channel >4: break # TODO only have 5 channels worth of glade widgets
                     for pin in range (0,60):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.data['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
