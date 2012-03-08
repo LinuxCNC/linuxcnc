@@ -205,10 +205,10 @@ For more information on computing values see the following sections
 == Calling Files(((Calling Files)))
 
 To call a separate file with a subroutine name the file the same as
-your call and include a sub and endsub in the file. The file must be in
-the directory pointed to by 'PROGRAM_PREFIX' in the ini file.
-The file name can include *lowercase* letters, numbers, dash,
-and underscore only.
+your call and include a sub and endsub in the file. The file must be in the
+directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the ini file.
+The file name can include *lowercase* letters, numbers, dash, and underscore
+only. A named subroutine file can contain only a single subroutine definition.
 
 .Named File Example
 ----
