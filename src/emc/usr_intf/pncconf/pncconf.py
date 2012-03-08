@@ -5062,6 +5062,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 else:
                     self.widgets["mesa%d_numof_resolvers"% boardnum].hide()
                     self.widgets["mesa%d_numof_resolvers_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_resolvers"% boardnum].set_value(0)
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
                     self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
@@ -6207,6 +6208,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
                 # type PWM gen
                 elif widgetptype in (PDMP,PWMP,UDMU):
+                    if self.widgets["mesa%d_numof_resolvers"% boardnum].get_value(): dataptype = UDMU # hack resolver board needs UDMU
                     if dataptype == PDMP:
                         #print "pdm"
                         self.widgets[ptype].set_model(self.data._pdmcontrolliststore)
