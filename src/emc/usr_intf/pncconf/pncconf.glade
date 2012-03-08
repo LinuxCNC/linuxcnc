@@ -32429,7 +32429,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin55">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin53">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -32481,7 +32481,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin54">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin55">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -32533,7 +32533,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin53">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_0pin54">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -39035,7 +39035,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin53">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin54">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -39087,7 +39087,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin54">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin55">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -39139,7 +39139,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin55">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_1pin53">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -46286,7 +46286,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin55">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin53">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -46338,7 +46338,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin54">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin55">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -46390,7 +46390,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin53">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_2pin54">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -53209,7 +53209,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin55">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin53">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -53261,7 +53261,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin54">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin55">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -53313,7 +53313,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin53">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_3pin54">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -60132,7 +60132,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin55">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin53">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -60184,7 +60184,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin54">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin55">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -60236,7 +60236,7 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin53">
+                              <widget class="GtkComboBoxEntry" id="mesa0sserial0_4pin54">
                                 <property name="visible">True</property>
                                 <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
