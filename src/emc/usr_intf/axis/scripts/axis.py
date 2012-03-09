@@ -51,6 +51,11 @@ Tkinter.Tk = Tk
 
 from Tkinter import *
 from minigl import *
+RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
+old_flags = sys.getdlopenflags()
+sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
+import gcode
+sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
@@ -58,7 +63,6 @@ from hershey import Hershey
 from propertywindow import properties
 import rs274.options
 import nf
-import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
@@ -1112,15 +1116,19 @@ def open_file_guts(f, filtered=False, addrecent=True):
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-        shutil.copy(parameter, temp_parameter)
+        if os.path.exists(parameter):
+            shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-        unitcode = "G%d" % (20 + (s.linear_units == 1))
+        if not interpname:
+		unitcode = "G%d" % (20 + (s.linear_units == 1))
+        else:
+		unitcode = ''
         try:
-            result, seq = o.load_preview(f, canon, unitcode, initcode)
+            result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -2856,6 +2864,8 @@ if homing_order_defined:
             _("Home All Axes"))
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
+
+interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))

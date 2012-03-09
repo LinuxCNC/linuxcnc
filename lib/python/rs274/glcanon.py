@@ -1438,9 +1438,9 @@ class GlCanonDraw:
         if self.canon: self.canon.draw(0, False)
         glEndList()
 
-    def load_preview(self, f, canon, unitcode, initcode):
+    def load_preview(self, f, canon, unitcode, initcode, interpname=""):
         self.set_canon(canon)
-        result, seq = gcode.parse(f, canon, unitcode, initcode)
+        result, seq = gcode.parse(f, canon, unitcode, initcode, interpname)
 
         if result <= gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
