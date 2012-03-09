@@ -995,7 +995,7 @@ G42 <D-> (right of programmed path)
 * 'D' - tool number
 
 The D word is optional; if there is no D word, the radius of
-the tool currently loaded with G43 will be used.
+the currently-loaded tool will be used.
 If used, the D number should normally be the slot number of
 the tool in the spindle, although this is not required.
 It is OK for the D number to be zero; a radius value of zero will be used.
