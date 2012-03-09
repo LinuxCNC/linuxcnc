@@ -413,7 +413,7 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["7i77", "7i77-m0", 0,[], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
@@ -3527,13 +3527,14 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # if is the right component type and number, check the relatedsearch array for a match
     # if its a match add it to a list of pins (pinlist) that need to be updated
     def list_related_pins(self, relatedsearch, boardnum, connector, channel, pin, style):
+        #print relatedsearch, boardnum, connector, channel, pin, style
         pinlist =[]
         if not channel == None:
             subfirmname = self["mesa%dsserial%d_%dsubboard"% (boardnum, connector, channel)]
             for subnum,temp in enumerate(mesadaughterdata):
                 if mesadaughterdata[subnum][_SUBFIRMNAME] == subfirmname: break
             subboardname = mesadaughterdata[subnum][_SUBBOARDNAME]
-            currentptype,currentcompnum = mesadaughterdata[subnum][_STARTOFDATA+pin]
+            currentptype,currentcompnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+pin]
             for t_pin in range (0,60):
                 comptype,compnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+t_pin]
                 if compnum != currentcompnum: continue
@@ -3618,6 +3619,13 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         if ptype == GPIOI:
                             comptype = "digin"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
+                    elif "7i77" in (subboardname):
+                        if ptype in(GPIOO,GPIOD):
+                            comptype = "output"
+                            pinnum = pinnum-32
+                        elif ptype == GPIOI:
+                            comptype = "input"
+                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     elif "7i76" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
@@ -3640,9 +3648,13 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     else:
                         print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype
                         return None
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXE0,MXE1,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXE0,MXE1,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,PWME,PDME,UDME,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF,AMP8I20,POTO,POTE,POTD):
-                    return "hm2_%s.%d.%s.%d.%d"% (boardname,halboardnum,subboardname,portnum,channel)
+                    if ptype in(PWME,PDME,UDME):comptype = "analogena"
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel)
+                elif ptype in(PWMP,PDMP,UDMU):
+                    comptype = "analogout"
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 else:
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
                     return None
@@ -5133,7 +5145,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                #if not "serial" in p:
+                #if "serial" in p:
                 #    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
                 #    print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type NOTUSED
@@ -5255,7 +5267,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.data[p] = signaltocheck[index+index2]
                 self.data[ptype] = widgetptype
                 self.data[pinv] = self.widgets[pinv].get_active()
-                #if not "serial" in p:
+                #if "serial" in p:
                 #    print "*** INFO PNCCONF mesa pin:",p,"signalname:",self.data[p],"pin type:",widgetptype
   
     # If we just reloaded a config then update the page right now
@@ -5509,6 +5521,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets["mesa%dsserial0_1"% boardnum].hide()
         self.widgets["mesa%dsserial0_2"% boardnum].hide()
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
+        self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
         if currentboard == "5i20" or currentboard == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
@@ -6633,9 +6646,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     self.widgets[table].hide()
                                 elif "7i77" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i77-m0"
-                                    if channelnum == 0:
+                                    if channelnum in(0,3):
                                         self.widgets[table].hide()
-                                    elif channelnum == 1:
+                                    elif channelnum in(1,4):
                                         table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
                                         self.widgets[table].hide()
                                         table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
@@ -6699,6 +6712,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
+                #print pinlist
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
                 #   add the legalized custom name to ;
@@ -8042,16 +8056,18 @@ different program to copy to your configuration file.\nThe edited program will b
                         firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,
-                                                SS7I76M2,SS7I77M0,SS7I77M1) and not self.data[p] == UNUSED_SSERIAL:
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,SS7I76M0,
+                                                SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) and not self.data[p] == UNUSED_SSERIAL:
                             if self.data[ptype] in (TXDATA0,SS7I76M0,SS7I77M0): channelnum = 0
-                            elif self.data[ptype] == TXDATA1: channelnum = 1
-                            elif self.data[ptype] in (TXDATA2,SS7I76M2,SS7I77M1): channelnum = 2
-                            elif self.data[ptype] == TXDATA3: channelnum = 3
+                            elif self.data[ptype] in (TXDATA1,SS7I77M1): channelnum = 1
+                            elif self.data[ptype] == TXDATA2: channelnum = 2
+                            elif self.data[ptype] in (TXDATA3,SS7I77M3): channelnum = 3
+                            elif self.data[ptype] in (TXDATA4,SS7I77M4): channelnum = 4
                             keeplist.append(channelnum)
+            #print "board # %d sserial keeplist"%(boardnum),keeplist
             # ok clear the sserial pins unless they are in the keeplist
             port = 0# TODO hard code at only 1 sserial port 
-            for channel in range(0,4): #TODO hardcoded at 4 sserial channels instead of 8
+            for channel in range(0,5): #TODO hardcoded at 5 sserial channels instead of 8
                 if channel in keeplist: continue
                 # This initializes pins
                 for i in range(0,60):
