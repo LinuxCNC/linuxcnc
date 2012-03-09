@@ -36,7 +36,7 @@ limiticon = array.array('B',
            0,   0,    0, 0])
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
-    def __init__(self, colors, geometry):
+    def __init__(self, colors, geometry, is_foam=0):
         # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
         self.traverse = []; self.traverse_append = self.traverse.append
         # feed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
@@ -78,6 +78,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.g5x_offset_u = 0.0
         self.g5x_offset_v = 0.0
         self.g5x_offset_w = 0.0
+        self.is_foam = is_foam
+        self.foam_z = 0
+        self.foam_w = 1.5
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -86,6 +89,22 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             if command == "stop": raise KeyboardInterrupt
             if command == "hide": self.suppress += 1
             if command == "show": self.suppress -= 1
+            if command == "XY_Z_POS": 
+                if len(parts) > 2 :
+                    try:
+                        self.foam_z = float(parts[2])
+                        if 210 in self.state.gcodes:
+                            self.foam_z = self.foam_z / 25.4
+                    except:
+                        self.foam_z = 5.0/25.4
+            if command == "UV_Z_POS": 
+                if len(parts) > 2 :
+                    try:
+                        self.foam_w = float(parts[2])
+                        if 210 in self.state.gcodes:
+                            self.foam_w = self.foam_w / 25.4
+                    except:
+                        self.foam_w = 30.0
 
     def message(self, message): pass
 
@@ -95,15 +114,42 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.state = st
         self.lineno = self.state.sequence_number
 
-    def draw_lines(self, lines, for_selection, j=0):
-        return linuxcnc.draw_lines(self.geometry, lines, for_selection)
+    def draw_lines(self, lines, for_selection, j=0, geometry=None):
+        return linuxcnc.draw_lines(geometry or self.geometry, lines, for_selection)
+
+    def colored_lines(self, color, lines, for_selection, j=0):
+        if self.is_foam:
+            if not for_selection:
+                self.color_with_alpha(color + "_xy")
+            glPushMatrix()
+            glTranslatef(0, 0, self.foam_z)
+            self.draw_lines(lines, for_selection, 2*j, 'XY')
+            glPopMatrix()
+            if not for_selection:
+                self.color_with_alpha(color + "_uv")
+            glPushMatrix()
+            glTranslatef(0, 0, self.foam_w)
+            self.draw_lines(lines, for_selection, 2*j+len(lines), 'UV')
+            glPopMatrix()
+        else:
+            if not for_selection:
+                self.color_with_alpha(color)
+            self.draw_lines(lines, for_selection, j)
 
     def draw_dwells(self, dwells, alpha, for_selection, j0=0):
         return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
-
+        if self.is_foam:
+            min_z = min(self.foam_z, self.foam_w)
+            max_z = max(self.foam_z, self.foam_w)
+            self.min_extents = self.min_extents[0], self.min_extents[1], min_z
+            self.max_extents = self.max_extents[0], self.max_extents[1], max_z
+            self.min_extents_notool = \
+                self.min_extents_notool[0], self.min_extents_notool[1], min_z
+            self.max_extents_notool = \
+                self.max_extents_notool[0], self.max_extents_notool[1], max_z
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
@@ -229,24 +275,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def draw(self, for_selection=0, no_traverse=True):
         if not no_traverse:
             glEnable(GL_LINE_STIPPLE)
-            if for_selection:
-                self.color('traverse')
-            else:
-                self.color_with_alpha('traverse')
-            self.draw_lines(self.traverse, for_selection)
+            self.colored_lines('traverse', self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
         else:
-            if for_selection:
-                self.color('straight_feed')
-            else:
-                self.color_with_alpha('straight_feed')
-            self.draw_lines(self.feed, for_selection, len(self.traverse))
+            self.colored_lines('straight_feed', self.feed, for_selection, len(self.traverse))
 
-            if for_selection:
-                self.color('arc_feed')
-            else:
-                self.color_with_alpha('arc_feed')
-            self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
+            self.colored_lines('arc_feed', self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
             glLineWidth(2)
             self.draw_dwells(self.dwells, self.colors.get('dwell_alpha', 1/3.), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
@@ -276,6 +310,10 @@ class GlCanonDraw:
     colors = {
         'traverse': (0.30, 0.50, 0.50),
         'traverse_alpha': 1/3.,
+        'traverse_xy': (0.30, 0.50, 0.50),
+        'traverse_alpha_xy': 1/3.,
+        'traverse_uv': (0.30, 0.50, 0.50),
+        'traverse_alpha_uv': 1/3.,
         'backplotprobing_alpha': 0.75,
         'backplotprobing': (0.63, 0.13, 0.94),
         'backplottraverse': (0.30, 0.50, 0.50),
@@ -286,7 +324,9 @@ class GlCanonDraw:
         'back': (0.00, 0.00, 0.00),
         'lathetool_alpha': 0.10,
         'axis_x': (0.20, 1.00, 0.20),
-        'cone': (1.00, 0.00, 0.00),
+        'cone': (1.00, 1.00, 1.00),
+        'cone_xy': (0.00, 1.00, 0.00),
+        'cone_uv': (0.00, 0.00, 1.00),
         'axis_z': (0.20, 0.20, 1.00),
         'label_limit': (1.00, 0.21, 0.23),
         'backplotjog': (1.00, 1.00, 0.00),
@@ -297,6 +337,10 @@ class GlCanonDraw:
         'overlay_background': (0.00, 0.00, 0.00),
         'straight_feed': (1.00, 1.00, 1.00),
         'straight_feed_alpha': 1/3.,
+        'straight_feed_xy': (0.20, 1.00, 0.20),
+        'straight_feed_alpha_xy': 1/3.,
+        'straight_feed_uv': (0.20, 0.20, 1.00),
+        'straight_feed_alpha_uv': 1/3.,
         'small_origin': (0.00, 1.00, 1.00),
         'backplottoolchange_alpha': 0.25,
         'backplottraverse_alpha': 0.25,
@@ -310,6 +354,10 @@ class GlCanonDraw:
         'backplotarc_alpha': 0.75,
         'arc_feed': (1.00, 1.00, 1.00),
         'arc_feed_alpha': .5,
+        'arc_feed_xy': (0.20, 1.00, 0.20),
+        'arc_feed_alpha_xy': 1/3.,
+        'arc_feed_uv': (0.20, 0.20, 1.00),
+        'arc_feed_alpha_uv': 1/3.,
         'axis_y': (1.00, 0.20, 0.20),
     }
     def __init__(self, s, lp, g=None):
@@ -403,7 +451,18 @@ class GlCanonDraw:
         highlight = self.dlist('highlight')
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.canon is not None:
-            x, y, z = self.canon.highlight(line, self.get_geometry())
+            if self.is_foam():
+                glPushMatrix()
+                glTranslatef(0, 0, self.get_foam_z()) 
+                x, y, z = self.canon.highlight(line, "XY")
+                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
+                u, v, w = self.canon.highlight(line, "UV")
+                glPopMatrix()
+                x = (x+u)/2
+                y = (y+v)/2
+                z = (self.get_foam_z() + self.get_foam_w())/2
+            else:
+                x, y, z = self.canon.highlight(line, self.get_geometry())
         elif self.canon is not None:
             x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
             y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
@@ -707,6 +766,13 @@ class GlCanonDraw:
             self.to_internal_units([fudge(ax[i]['max_position_limit'])
                 for i in range(3)]))
 
+    def get_foam_z(self):
+        if self.canon: return self.canon.foam_z
+        return 0
+
+    def get_foam_w(self):
+        if self.canon: return self.canon.foam_w
+        return 1.5
 
     def redraw(self):
         s = self.stat
@@ -736,8 +802,9 @@ class GlCanonDraw:
                 self.show_extents()
 
         if self.get_show_live_plot() or self.get_show_program():
-
+    
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
+            glPushMatrix()
             if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
                                              s.g92_offset[0] or s.g92_offset[1] or s.g92_offset[2] or
                                              s.rotation_xy):
@@ -747,7 +814,6 @@ class GlCanonDraw:
                 g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
 
-                glPushMatrix()
 
                 if self.get_show_offsets() and (g5x_offset[0] or g5x_offset[1] or g5x_offset[2]):
                     glBegin(GL_LINES)
@@ -797,11 +863,16 @@ class GlCanonDraw:
                     glPopMatrix()
 
                 glTranslatef(*g92_offset)
-                glCallList(alist)
 
-                glPopMatrix()
+            if self.is_foam():
+                glTranslatef(0, 0, self.get_foam_z())
+                glCallList(alist)
+                uwalist = self.dlist(('axes_uw', self.get_view()), gen=lambda n: self.draw_axes(n, 'UVW'))
+                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
+                glCallList(uwalist)
             else:
                 glCallList(alist)
+            glPopMatrix()
 
         if self.get_show_limits():
             glLineWidth(1)
@@ -878,46 +949,66 @@ class GlCanonDraw:
             if pos is None: pos = [0] * 6
             rx, ry, rz = pos[3:6]
             pos = self.to_internal_units(pos[:3])
-            glPushMatrix()
-            glTranslatef(*pos)
-            sign = 1
-            for ch in self.get_geometry():
-                if ch == '-':
-                    sign = -1
-                elif ch == 'A':
-                    glRotatef(rx*sign, 1, 0, 0)
-                    sign = 1
-                elif ch == 'B':
-                    glRotatef(ry*sign, 0, 1, 0)
-                    sign = 1
-                elif ch == 'C':
-                    glRotatef(rz*sign, 0, 0, 1)
-                    sign = 1
-            glEnable(GL_BLEND)
-            glEnable(GL_CULL_FACE)
-            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-
-            current_tool = self.get_current_tool()
-            if current_tool is None or current_tool.diameter == 0:
-                if self.canon:
-                    g = self.canon
-                    x,y,z = 0,1,2
-                    cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                                   g.max_extents[y] - g.min_extents[y],
-                                   g.max_extents[z] - g.min_extents[z],
-                                   2 ) * .5
-                else:
-                    cone_scale = 1
-                if self.is_lathe():
-                    glRotatef(90, 0, 1, 0)
+            if self.is_foam():
+                glEnable(GL_COLOR_MATERIAL)
+                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+                glPushMatrix()
+                glTranslatef(pos[0], pos[1], self.get_foam_z())
+                glRotatef(180, 1, 0, 0)
                 cone = self.dlist("cone", gen=self.make_cone)
-                glScalef(cone_scale, cone_scale, cone_scale)
+                glColor3f(*self.colors['cone_xy'])
                 glCallList(cone)
+                glPopMatrix()
+                u = self.to_internal_linear_unit(rx)
+                v = self.to_internal_linear_unit(ry)
+                glPushMatrix()
+                glTranslatef(u, v, self.get_foam_w())
+                glColor3f(*self.colors['cone_uv'])
+                glCallList(cone)
+                glPopMatrix()
             else:
-                if current_tool != self.cached_tool:
-                    self.cache_tool(current_tool)
-                glCallList(self.dlist('tool'))
-            glPopMatrix()
+                glPushMatrix()
+                glTranslatef(*pos)
+                sign = 1
+                for ch in self.get_geometry():
+                    if ch == '-':
+                        sign = -1
+                    elif ch == 'A':
+                        glRotatef(rx*sign, 1, 0, 0)
+                        sign = 1
+                    elif ch == 'B':
+                        glRotatef(ry*sign, 0, 1, 0)
+                        sign = 1
+                    elif ch == 'C':
+                        glRotatef(rz*sign, 0, 0, 1)
+                        sign = 1
+                glEnable(GL_BLEND)
+                glEnable(GL_CULL_FACE)
+                glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
+
+                current_tool = self.get_current_tool()
+                if current_tool is None or current_tool.diameter == 0:
+                    if self.canon:
+                        g = self.canon
+                        x,y,z = 0,1,2
+                        cone_scale = max(g.max_extents[x] - g.min_extents[x],
+                                       g.max_extents[y] - g.min_extents[y],
+                                       g.max_extents[z] - g.min_extents[z],
+                                       2 ) * .5
+                    else:
+                        cone_scale = 1
+                    if self.is_lathe():
+                        glRotatef(90, 0, 1, 0)
+                    cone = self.dlist("cone", gen=self.make_cone)
+                    glScalef(cone_scale, cone_scale, cone_scale)
+                    glColor3f(*self.colors['cone'])
+                    glCallList(cone)
+                else:
+                    if current_tool != self.cached_tool:
+                        self.cache_tool(current_tool)
+                    glColor3f(*self.colors['cone'])
+                    glCallList(self.dlist('tool'))
+                glPopMatrix()
 
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
@@ -988,7 +1079,6 @@ class GlCanonDraw:
                 r = self.to_internal_linear_unit(dia) / 2.
                 q = gluNewQuadric()
                 glEnable(GL_LIGHTING)
-                glColor3f(*self.colors['cone'])
                 gluCylinder(q, r, r, 8*r, 32, 1)
                 glPushMatrix()
                 glRotatef(180, 1, 0, 0)
@@ -1165,7 +1255,7 @@ class GlCanonDraw:
         glEnd()
         glEndList()
 
-    def draw_axes(self, n):
+    def draw_axes(self, n, letters="XYZ"):
         glNewList(n, GL_COMPILE)
         x,y,z,p = 0,1,2,3
         s = self.stat
@@ -1192,7 +1282,7 @@ class GlCanonDraw:
                     glTranslatef(0, 0, -0.1)
                     glRotatef(90, 1, 0, 0)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("X", 0.5)
+            self.hershey.plot_string(letters[0], 0.5)
             glPopMatrix()
 
         glColor3f(*self.colors['axis_y'])
@@ -1209,7 +1299,7 @@ class GlCanonDraw:
                 glRotatef(90, 0, 1, 0)
                 glRotatef(90, 0, 0, 1)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("Y", 0.5)
+            self.hershey.plot_string(letters[1], 0.5)
             glPopMatrix()
 
         glColor3f(*self.colors['axis_z'])
@@ -1231,7 +1321,7 @@ class GlCanonDraw:
             if self.is_lathe():
                 glTranslatef(0, -.1, 0)
             glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string("Z", 0.5)
+            self.hershey.plot_string(letters[2], 0.5)
             glPopMatrix()
 
         glEndList()
@@ -1240,7 +1330,6 @@ class GlCanonDraw:
         q = gluNewQuadric()
         glNewList(n, GL_COMPILE)
         glEnable(GL_LIGHTING)
-        glColor3f(*self.colors['cone'])
         gluCylinder(q, 0, .1, .25, 32, 1)
         glPushMatrix()
         glTranslatef(0,0,.25)
