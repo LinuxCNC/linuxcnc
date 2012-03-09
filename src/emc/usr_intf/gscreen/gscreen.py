@@ -771,19 +771,27 @@ class Gscreen:
             return
 
         tab_names = self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")
+        tab_location = self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")
         tab_cmd   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
         if len(tab_names) != len(tab_cmd):
             print "Invalid tab configuration" # Complain somehow
+        if len(tab_location) != len(tab_names):
+            for num,i in enumerate(tab_names):
+                try:
+                    if tab_location[num]:
+                        continue
+                except:
+                    tab_location.append("notebook_mode")
 
-        nb = self.widgets.notebook_mode
-        for t,c in zip(tab_names, tab_cmd):
+        for t,c ,name in zip(tab_names, tab_cmd,tab_location):
+            nb = self.widgets[name]
             xid = self._dynamic_tab(nb, t)
             if not xid: continue
             cmd = c.replace('{XID}', str(xid))
             child = Popen(cmd.split())
             self._dynamic_childs[xid] = child
-        nb.show_all()
+            nb.show_all()
 
     def kill_dynamic_childs(self):
         for c in self._dynamic_childs.values():
