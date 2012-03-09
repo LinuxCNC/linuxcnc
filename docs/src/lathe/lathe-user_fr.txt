@@ -50,10 +50,10 @@ Les versions antérieures de LinuxCNC avaient deux différents formats de table
 d'outils pour les fraiseuses et les tours, mais depuis la version 2.4.x,
 un format de table d'outil unique est utilisé. Il faut juste ignorer les parties
 de la table d'outils qui ne concernent pas la machine.
-Plus <<sec:Tool-Table-Format, d'informations ici>>, sur les spécificités du
-format de la table d'outils.
+Plus d'informations <<sec:Tool-Table-Format, ici sur le format de la table
+d'outils>>.
 
-[[cap:Orientations-des-outils-de-tour]]
+[[sec:Orientations-des-outils-de-tour]]
 == Orientations des outils de tournage
 (((Orientations des outils de tour)))
 

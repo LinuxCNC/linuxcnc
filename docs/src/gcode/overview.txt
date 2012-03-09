@@ -1073,6 +1073,21 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '#<named parameter>'
 will be converted to '#<namedparameter>'.
 
+== File Requirements
+
+A G code file must contain one or more lines of G code and be terminated
+with a <<sec:M2-M30,Program End>>. Any G code past the program end
+is not evaluated. 
+
+If a program end code is not used a pair of percent signs '%' with the first
+percent sign on the first line of the file followed by one or more lines of
+G code and a second percent sign. Any code past the second percent sign is not
+evaluated.
+
+[NOTE]
+The file must be created with a text editor like Gedit and not a word
+processor like Open Office Word Processor.
+
 == File Size
 
 The interpreter and task are carefully written so that the only limit
@@ -1082,11 +1097,10 @@ becomes a limiting factor. In Axis, because the preview plot is drawn
 by default, the redraw time also becomes a practical limit on program
 size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
-special comments.
+<<sub:axis-preview-control,preview control>> comments.
 
-[[sec:Order-of-Execution]]
 == G Code Order of Execution
-(((G Code Order of Execution)))
+[[sec:Order-of-Execution]] (((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1185,6 +1199,22 @@ depending on which axes are commanded to move, and because the amount
 of material removed does not depend only on the feed rate, it may be
 easier to use G93 inverse time feed mode to achieve the desired
 material removal rate.
+
+
+== Common Error Messages
+
+* 'G code out of range' - A G code greater than G99 was used, the scope of G
+   codes in LinuxCNC is 0 - 99. Not every number between 0 and 99 is a valid
+   G code.
+* 'Unknown g code used' - A G code was used that is not part of the LinuxCNC
+   G code language.
+* 'i,j,k word with no Gx to use it' - i, j and k words must be used on the same
+   line as the G code.
+* 'Cannot use axis values without a g code that uses them' - Axis values can
+   not be used on a line without either a modal G code in effect or a G code
+   on the same line.
+* 'File ended with no percent sign or program end' - Every G code file must
+   end in a M2 or M30 or be wrapped with the percent sign %.
 
 [appendix]
 = Numbered Parameters persistence

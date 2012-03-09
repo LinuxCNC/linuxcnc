@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-30 01:35+0100\n"
-"PO-Revision-Date: 2012-02-03 14:29+0100\n"
+"POT-Creation-Date: 2012-02-12 00:17+0100\n"
+"PO-Revision-Date: 2012-03-03 19:53+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -300,8 +300,8 @@ msgstr "%5d échantillons (16 canaux)"
 #: hal/utils/scope_vert.c:853 ../tcl/bin/emccalib.tcl:227
 #: ../tcl/bin/genedit.tcl:180 ../tcl/bin/genedit.tcl:450
 #: ../tcl/bin/halconfig.tcl:682 ../tcl/bin/halconfig.tcl:733
-#: ../tcl/bin/pickconfig.tcl:257 ../tcl/bin/pickconfig.tcl:466
-#: ../tcl/bin/pickconfig.tcl:493 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
+#: ../tcl/bin/pickconfig.tcl:257 ../tcl/bin/pickconfig.tcl:479
+#: ../tcl/bin/pickconfig.tcl:506 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
 #: ../tcl/tklinuxcnc.tcl:160 ../tcl/tklinuxcnc.tcl:245
 #: ../tcl/tklinuxcnc.tcl:419 ../tcl/tklinuxcnc.tcl:1338
 #: ../tcl/tklinuxcnc.tcl:1407 ../tcl/tklinuxcnc.tcl:1438
@@ -1044,8 +1044,8 @@ msgstr ""
 "cette copie."
 
 #: ../tcl/bin/emccalib.tcl:457 ../tcl/bin/genedit.tcl:211
-#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:531
-#: ../tcl/bin/pickconfig.tcl:542 ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:544
+#: ../tcl/bin/pickconfig.tcl:555 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
@@ -1200,7 +1200,7 @@ msgstr ""
 "GPL Version 2"
 
 #: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1775
-#: ../tcl/tklinuxcnc.tcl:451 emc/task/emctaskmain.cc:2001
+#: ../tcl/tklinuxcnc.tcl:451 emc/task/emctaskmain.cc:2000
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
@@ -1525,11 +1525,11 @@ msgstr ""
 msgid "Yes"
 msgstr "Oui"
 
-#: ../tcl/bin/pickconfig.tcl:466
+#: ../tcl/bin/pickconfig.tcl:479
 msgid "Configuration Copied"
 msgstr "Configuration copiée"
 
-#: ../tcl/bin/pickconfig.tcl:466
+#: ../tcl/bin/pickconfig.tcl:479
 #, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
@@ -1538,11 +1538,11 @@ msgstr ""
 "Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
 "choisissez cet emplacement au démarrage de LinuxCNC."
 
-#: ../tcl/bin/pickconfig.tcl:493
+#: ../tcl/bin/pickconfig.tcl:506
 msgid "Shortcut Created"
 msgstr "Raccourci créé"
 
-#: ../tcl/bin/pickconfig.tcl:493
+#: ../tcl/bin/pickconfig.tcl:506
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
@@ -1550,7 +1550,7 @@ msgstr ""
 "Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  "
 "Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
 
-#: ../tcl/bin/pickconfig.tcl:498
+#: ../tcl/bin/pickconfig.tcl:511
 msgid "Create Desktop Shortcut"
 msgstr "Créer un raccourci sur le bureau"
 
@@ -12003,15 +12003,15 @@ msgstr "Commande (%s) impossible en mode MDI"
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
-#: emc/task/emctaskmain.cc:2013
+#: emc/task/emctaskmain.cc:2012
 msgid "Can't issue MDI command when not homed"
 msgstr "Pas de commande MDI avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:2018
+#: emc/task/emctaskmain.cc:2017
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Pas de commande MDI hors du mode MDI"
 
-#: emc/task/emctaskmain.cc:2079
+#: emc/task/emctaskmain.cc:2078
 msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
@@ -12176,27 +12176,31 @@ msgstr ""
 "Le premier mouvement après l'arrêt de la compensation de rayon d'outil doit "
 "être une droite, pas un arc"
 
-#: emc/rs274ngc/interp_convert.cc:378 emc/rs274ngc/interp_convert.cc:3908
+#: emc/rs274ngc/interp_convert.cc:370
+msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
+msgstr "Un arc est impossible dans les plans G17.1, G18.1 ou G19.1"
+
+#: emc/rs274ngc/interp_convert.cc:382 emc/rs274ngc/interp_convert.cc:3912
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 "Mouvement impossible en mode longueur par tour avec une vitesse de broche à "
 "zéro"
 
-#: emc/rs274ngc/interp_convert.cc:389 emc/rs274ngc/interp_convert.cc:395
-#: emc/rs274ngc/interp_convert.cc:404 emc/rs274ngc/interp_convert.cc:410
-#: emc/rs274ngc/interp_convert.cc:419 emc/rs274ngc/interp_convert.cc:425
+#: emc/rs274ngc/interp_convert.cc:393 emc/rs274ngc/interp_convert.cc:399
+#: emc/rs274ngc/interp_convert.cc:408 emc/rs274ngc/interp_convert.cc:414
+#: emc/rs274ngc/interp_convert.cc:423 emc/rs274ngc/interp_convert.cc:429
 #, c-format
 msgid "%c word missing in absolute center arc"
 msgstr "Mot %c manquant en centre d'arc absolu"
 
-#: emc/rs274ngc/interp_convert.cc:645
+#: emc/rs274ngc/interp_convert.cc:649
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
 "L'arc d'entrée de compensation de rayon d'outil est plus petit que le rayon "
 "de l'outil"
 
-#: emc/rs274ngc/interp_convert.cc:864 emc/rs274ngc/interp_convert.cc:874
+#: emc/rs274ngc/interp_convert.cc:868 emc/rs274ngc/interp_convert.cc:878
 #: emc/rs274ngc/interp_queue.cc:541
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
@@ -12204,11 +12208,11 @@ msgstr ""
 "Le mouvement en arc dans l'angle intérieur ne peut pas s'achever sans que "
 "l'outil n'interfère avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:900
+#: emc/rs274ngc/interp_convert.cc:904
 msgid "Arc to arc motion is invalid because the arcs have the same center"
 msgstr "Mouvement d'arc en arc impossible, les deux arcs ayant le même centre"
 
-#: emc/rs274ngc/interp_convert.cc:903
+#: emc/rs274ngc/interp_convert.cc:907
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
@@ -12216,235 +12220,235 @@ msgstr ""
 "Mouvement d'arc en arc, pour initier la compensation d'outil, ne pouvant pas "
 "être suivi sans interférer avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:1032 emc/rs274ngc/interp_convert.cc:1033
-#: emc/rs274ngc/interp_convert.cc:1034 emc/rs274ngc/interp_convert.cc:3375
-#: emc/rs274ngc/interp_convert.cc:3378 emc/rs274ngc/interp_convert.cc:3381
+#: emc/rs274ngc/interp_convert.cc:1036 emc/rs274ngc/interp_convert.cc:1037
+#: emc/rs274ngc/interp_convert.cc:1038 emc/rs274ngc/interp_convert.cc:3379
+#: emc/rs274ngc/interp_convert.cc:3382 emc/rs274ngc/interp_convert.cc:3385
 #: emc/rs274ngc/interp_find.cc:97
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Position absolue %5.2f invalide pour l'axe rotatif wrapped %c"
 
-#: emc/rs274ngc/interp_convert.cc:1462
+#: emc/rs274ngc/interp_convert.cc:1466
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr ""
 "Changement de mode de contrôle impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:1575
+#: emc/rs274ngc/interp_convert.cc:1579
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
 "Changement de système de coordonnées impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:1819
+#: emc/rs274ngc/interp_convert.cc:1823
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%d.1 sans mot D"
 
-#: emc/rs274ngc/interp_convert.cc:1822
+#: emc/rs274ngc/interp_convert.cc:1826
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr "G%d.1 avec mot L, mais le plan n'est pas G18"
 
-#: emc/rs274ngc/interp_convert.cc:1833
+#: emc/rs274ngc/interp_convert.cc:1837
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "G%d exige que le mot D soit un nombre entier"
 
-#: emc/rs274ngc/interp_convert.cc:1840
+#: emc/rs274ngc/interp_convert.cc:1844
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr "G%d avec outil de tour, mais le plan n'est pas G18"
 
-#: emc/rs274ngc/interp_convert.cc:2224
+#: emc/rs274ngc/interp_convert.cc:2228
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr ""
 "Réglage de point de référence impossible avec la compensation d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2627
+#: emc/rs274ngc/interp_convert.cc:2631
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie mouvement impossible avec la compensation de rayon d'outil "
 "activée"
 
-#: emc/rs274ngc/interp_convert.cc:2628
+#: emc/rs274ngc/interp_convert.cc:2632
 msgid "No valid P word with M62"
 msgstr "Pas de mot P valide avec M62"
 
-#: emc/rs274ngc/interp_convert.cc:2632
+#: emc/rs274ngc/interp_convert.cc:2636
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie numérique impossible avec la compensation de rayon d'outil "
 "activée"
 
-#: emc/rs274ngc/interp_convert.cc:2633
+#: emc/rs274ngc/interp_convert.cc:2637
 msgid "No valid P word with M63"
 msgstr "Pas de mot P valide avec M63"
 
-#: emc/rs274ngc/interp_convert.cc:2637 emc/rs274ngc/interp_convert.cc:2642
+#: emc/rs274ngc/interp_convert.cc:2641 emc/rs274ngc/interp_convert.cc:2646
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie numérique auxiliaire impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2638
+#: emc/rs274ngc/interp_convert.cc:2642
 msgid "No valid P word with M64"
 msgstr "Pas de mot P valide avec M64"
 
-#: emc/rs274ngc/interp_convert.cc:2643
+#: emc/rs274ngc/interp_convert.cc:2647
 msgid "No valid P word with M65"
 msgstr "Pas de mot P valide avec M65"
 
-#: emc/rs274ngc/interp_convert.cc:2672
+#: emc/rs274ngc/interp_convert.cc:2676
 msgid "invalid P-word with M66"
 msgstr "Mot P valide avec M66"
 
-#: emc/rs274ngc/interp_convert.cc:2687
+#: emc/rs274ngc/interp_convert.cc:2691
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
 "Attente d'une entrée numérique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2699
+#: emc/rs274ngc/interp_convert.cc:2703
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
 "Attente d'une entrée analogique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2713
+#: emc/rs274ngc/interp_convert.cc:2717
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie analogique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2714
+#: emc/rs274ngc/interp_convert.cc:2718
 msgid "Invalid analog index with M67"
 msgstr "Index analogique invalide avec M67"
 
-#: emc/rs274ngc/interp_convert.cc:2720
+#: emc/rs274ngc/interp_convert.cc:2724
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie analogique auxiliaire impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2721
+#: emc/rs274ngc/interp_convert.cc:2725
 msgid "Invalid analog index with M68"
 msgstr "Index analogique invalide avec M68"
 
-#: emc/rs274ngc/interp_convert.cc:2732
+#: emc/rs274ngc/interp_convert.cc:2736
 msgid "Need positive Q-word to specify tool number with M61"
 msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2805 emc/rs274ngc/interp_convert.cc:2822
-#: emc/rs274ngc/interp_convert.cc:2836 emc/rs274ngc/interp_convert.cc:2850
-#: emc/rs274ngc/interp_convert.cc:2864
+#: emc/rs274ngc/interp_convert.cc:2809 emc/rs274ngc/interp_convert.cc:2826
+#: emc/rs274ngc/interp_convert.cc:2840 emc/rs274ngc/interp_convert.cc:2854
+#: emc/rs274ngc/interp_convert.cc:2868
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 "Activation des correcteurs impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2812 emc/rs274ngc/interp_convert.cc:2827
-#: emc/rs274ngc/interp_convert.cc:2841 emc/rs274ngc/interp_convert.cc:2855
-#: emc/rs274ngc/interp_convert.cc:2869
+#: emc/rs274ngc/interp_convert.cc:2816 emc/rs274ngc/interp_convert.cc:2831
+#: emc/rs274ngc/interp_convert.cc:2845 emc/rs274ngc/interp_convert.cc:2859
+#: emc/rs274ngc/interp_convert.cc:2873
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 "Désactivation des correcteurs impossible avec la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2969 emc/rs274ngc/interp_convert.cc:2970
-#: emc/rs274ngc/interp_convert.cc:2971
+#: emc/rs274ngc/interp_convert.cc:2973 emc/rs274ngc/interp_convert.cc:2974
+#: emc/rs274ngc/interp_convert.cc:2975
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "Indexing axis %c can only be moved with G0"
 
-#: emc/rs274ngc/interp_convert.cc:2978 emc/rs274ngc/interp_convert.cc:2980
-#: emc/rs274ngc/interp_convert.cc:2982
+#: emc/rs274ngc/interp_convert.cc:2982 emc/rs274ngc/interp_convert.cc:2984
+#: emc/rs274ngc/interp_convert.cc:2986
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "Indexing axis %c can only be moved alone"
 
-#: emc/rs274ngc/interp_convert.cc:3075
+#: emc/rs274ngc/interp_convert.cc:3079
 msgid "Cannot probe with feed per rev mode"
 msgstr "Mesure impossible dans le mode vitesse en unités par tour"
 
-#: emc/rs274ngc/interp_convert.cc:3123
+#: emc/rs274ngc/interp_convert.cc:3127
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 "Changement de mode de retrait impossible avec la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3157
+#: emc/rs274ngc/interp_convert.cc:3161
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 sans offsets n'a aucun effet"
 
-#: emc/rs274ngc/interp_convert.cc:3263
+#: emc/rs274ngc/interp_convert.cc:3267
 msgid "Q number in G10 is not an integer"
 msgstr "Le nombre Q dans G10 n'est pas un entier"
 
-#: emc/rs274ngc/interp_convert.cc:3264
+#: emc/rs274ngc/interp_convert.cc:3268
 msgid "Invalid tool orientation"
 msgstr "Orientation d'outil invalide"
 
-#: emc/rs274ngc/interp_convert.cc:3363
+#: emc/rs274ngc/interp_convert.cc:3367
 msgid "I J words not allowed with G10 L2"
 msgstr "Mots I J non permis avec G10 L2"
 
-#: emc/rs274ngc/interp_convert.cc:3384
+#: emc/rs274ngc/interp_convert.cc:3388
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 "Changement de système de coordonnées impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:3392
+#: emc/rs274ngc/interp_convert.cc:3396
 msgid "R not allowed in G10 L20"
 msgstr "R n'est pas permis avec G10 L20"
 
-#: emc/rs274ngc/interp_convert.cc:3965
+#: emc/rs274ngc/interp_convert.cc:3969
 msgid "Spindle not turning in G33"
 msgstr "Broche pas en rotation en G33"
 
-#: emc/rs274ngc/interp_convert.cc:3975
+#: emc/rs274ngc/interp_convert.cc:3979
 msgid "Spindle not turning in G33.1"
 msgstr "Broche pas en rotation en G33.1"
 
-#: emc/rs274ngc/interp_convert.cc:4018
+#: emc/rs274ngc/interp_convert.cc:4022
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "BUG: An axis incorrectly moved along with an indexer"
 
-#: emc/rs274ngc/interp_convert.cc:4031
+#: emc/rs274ngc/interp_convert.cc:4035
 msgid "BUG: trying to index incorrect axis"
 msgstr "BUG: trying to index incorrect axis"
 
-#: emc/rs274ngc/interp_convert.cc:4123
+#: emc/rs274ngc/interp_convert.cc:4127
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4126
+#: emc/rs274ngc/interp_convert.cc:4130
 msgid "In G76, I must not be 0"
 msgstr "I ne peut pas être à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4128
+#: emc/rs274ngc/interp_convert.cc:4132
 msgid "In G76, J must be greater than 0"
 msgstr "J doit être supérieur à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4130
+#: emc/rs274ngc/interp_convert.cc:4134
 msgid "In G76, K must be greater than J"
 msgstr "K doit être plus grand que J dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4273
+#: emc/rs274ngc/interp_convert.cc:4277
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 "Le mouvement d'entrée en compensation de longueur d'outil doit être plus "
 "grand que le rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4492
+#: emc/rs274ngc/interp_convert.cc:4496
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "Un angle interne de zéro degré est invalide pour la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4530 emc/rs274ngc/interp_convert.cc:4538
+#: emc/rs274ngc/interp_convert.cc:4534 emc/rs274ngc/interp_convert.cc:4542
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -12452,12 +12456,12 @@ msgstr ""
 "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
 "pouvant pas être suivi sans interférer avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:4622
+#: emc/rs274ngc/interp_convert.cc:4626
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 "Changement d'outil impossible avec la compensation de rayon d'outil active"
 
-#: emc/rs274ngc/interp_convert.cc:4742
+#: emc/rs274ngc/interp_convert.cc:4746
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
@@ -12589,99 +12593,99 @@ msgid "Polar coordinates can only be used for motion"
 msgstr ""
 "Les coordonnées polaires peuvent être utilisées seulement pour un mouvement"
 
-#: emc/rs274ngc/interp_read.cc:1098 emc/rs274ngc/interp_read.cc:1102
+#: emc/rs274ngc/interp_read.cc:1112 emc/rs274ngc/interp_read.cc:1116
 #, c-format
 msgid "Bad character '\\%03o' used"
 msgstr "Caractère '\\%03o' incorrect"
 
-#: emc/rs274ngc/interp_read.cc:1102
+#: emc/rs274ngc/interp_read.cc:1116
 #, c-format
 msgid "Bad character '%c' used"
 msgstr "Caractère '%c' incorrect"
 
-#: emc/rs274ngc/interp_read.cc:1611
+#: emc/rs274ngc/interp_read.cc:1623
 msgid "Left bracket missing after 'while'"
 msgstr "Crochet gauche manquant après 'while'"
 
-#: emc/rs274ngc/interp_read.cc:1627
+#: emc/rs274ngc/interp_read.cc:1638
 msgid "Left bracket missing after 'repeat'"
 msgstr "Crochet gauche manquant 'repeat'"
 
-#: emc/rs274ngc/interp_read.cc:1643
+#: emc/rs274ngc/interp_read.cc:1653
 msgid "Left bracket missing after 'if'"
 msgstr "Crochet gauche manquant après 'if'"
 
-#: emc/rs274ngc/interp_read.cc:1659
+#: emc/rs274ngc/interp_read.cc:1668
 msgid "Left bracket missing after 'elseif'"
 msgstr "Crochet gauche manquant après 'elseif'"
 
-#: emc/rs274ngc/interp_read.cc:1849
+#: emc/rs274ngc/interp_read.cc:1858
 #, c-format
 msgid "Cannot change #<%s>"
 msgstr "Ne peux modifier #<%s>"
 
-#: emc/rs274ngc/interp_read.cc:1880 emc/rs274ngc/interp_read.cc:1923
+#: emc/rs274ngc/interp_read.cc:1889 emc/rs274ngc/interp_read.cc:1932
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
 msgstr "Erreur interne: Ne peut assigner #<%s>"
 
-#: emc/rs274ngc/interp_read.cc:1897
+#: emc/rs274ngc/interp_read.cc:1906
 #, c-format
 msgid "init_named_parameter must be global #<%s>"
 msgstr "init_named_parameter doit être global #<%s>"
 
-#: emc/rs274ngc/interp_read.cc:2084
+#: emc/rs274ngc/interp_read.cc:2093
 #, c-format
 msgid "Named parameter #<%s> not defined"
 msgstr "Paramètre nommé #<%s> non défini"
 
-#: emc/rs274ngc/interp_read.cc:2165
+#: emc/rs274ngc/interp_read.cc:2174
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 "Lecture de la position courante impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_read.cc:2180
+#: emc/rs274ngc/interp_read.cc:2189
 msgid "Expected # reading parameter"
 msgstr "Lecture paramètre # attendue"
 
-#: emc/rs274ngc/interp_read.cc:2182
+#: emc/rs274ngc/interp_read.cc:2191
 msgid "Expected ] reading bracketed parameter"
 msgstr "La lecture de paramètre entre crochets attendait un ]"
 
-#: emc/rs274ngc/interp_read.cc:2872
+#: emc/rs274ngc/interp_read.cc:2881
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
 msgstr ""
 "mauvais format de nombre (la conversion a échoué) lors de l'analyse de '%s'"
 
-#: emc/rs274ngc/interp_read.cc:2873
+#: emc/rs274ngc/interp_read.cc:2882
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
 msgstr "mauvais format de nombre (caractère de fin) lors de l'analyse de '%s'"
 
-#: emc/rs274ngc/interp_read.cc:2963
+#: emc/rs274ngc/interp_read.cc:2972
 msgid "Calculation resulted in 'not a number'"
 msgstr "Le résultat du calcul est 'pas un nombre'"
 
-#: emc/rs274ngc/interp_read.cc:2965
+#: emc/rs274ngc/interp_read.cc:2974
 msgid "Calculation resulted in 'infinity'"
 msgstr "Le résultat du calcul est 'infini'"
 
-#: emc/rs274ngc/interp_read.cc:3259
+#: emc/rs274ngc/interp_read.cc:3268
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr "EOF dans le fichier: %s cherche le mot-O: o<%s> à la ligne: %d"
 
-#: emc/rs274ngc/interp_read.cc:3384
+#: emc/rs274ngc/interp_read.cc:3391
 msgid "Multiple U words on one line"
 msgstr "Multiples mots U sur une ligne"
 
-#: emc/rs274ngc/interp_read.cc:3400
+#: emc/rs274ngc/interp_read.cc:3407
 msgid "Multiple V words on one line"
 msgstr "Multiples mots V sur une ligne"
 
-#: emc/rs274ngc/interp_read.cc:3416
+#: emc/rs274ngc/interp_read.cc:3423
 msgid "Multiple W words on one line"
 msgstr "Multiples mots W sur une ligne"
 
@@ -12882,7 +12886,7 @@ msgstr "Impossible d'utiliser des valeurs d'axe avec G80"
 
 #: emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Cannot use axis values without a g code that uses them"
-msgstr "Impossible d'employer des valeurs d'axe sans Gcode pour les utiliser"
+msgstr "Impossible d'employer des valeurs d'axe sans G code pour les utiliser"
 
 #: emc/rs274ngc/rs274ngc_return.hh:49
 msgid "Cannot use g28 or g30 with cutter radius comp"
@@ -12954,7 +12958,7 @@ msgstr "Nom de fichier trop long"
 
 #: emc/rs274ngc/rs274ngc_return.hh:66
 msgid "G code out of range"
-msgstr "Gcode hors d'échelle"
+msgstr "G code hors d'étendue"
 
 #: emc/rs274ngc/rs274ngc_return.hh:67
 msgid "I word given for arc in yz plane"
@@ -13241,7 +13245,7 @@ msgstr "Expression non fermée"
 
 #: emc/rs274ngc/rs274ngc_return.hh:137
 msgid "Unknown g code used"
-msgstr "Utilisation d'un g-code inconnu"
+msgstr "Utilisation d'un G code inconnu"
 
 #: emc/rs274ngc/rs274ngc_return.hh:138
 msgid "Unknown m code used"

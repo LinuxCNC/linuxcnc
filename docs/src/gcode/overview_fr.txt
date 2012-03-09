@@ -245,9 +245,9 @@ paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Son
 disponibles pour une utilisation générale de stockage de valeurs flottantes, 
 comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
 programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
-////
- . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters passed to a subroutine. 
-////
+
+ . <<sub:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont
+utilisés pour conserver les paramètres actuels passés à un sous-programme.
 
  . <<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces
 paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
@@ -279,8 +279,6 @@ numéro est égal à la valeur entière trouvée dans le paramètre 2.
 
 L'interpréteur maintient cette liste de paramètres, concernant l'outil courant:
 
-* _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
-section des <<cha:O-codes, O-codes>>.
 * _1-5000_ - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
 le fichier G-code.
 * _5061-5070_ - Résultat du palpage _G38.2_ pour (X Y Z A B C U V W)
@@ -307,9 +305,14 @@ le fichier G-code.
 * _5420-5428_ - Positions courantes incluant les offsets, dans l'unité courante
 du programme (X Y Z A B C U V W)
 
+[[sub:Parametres-sous-programme]]
+== Paramètres de sous-programme
+
+* _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
+section des <<cha:O-codes, O-codes>>.
+
 [[sec:Parametres-Nommes]]
 == Paramètres nommés
-(((Paramètres nommés)))
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
@@ -810,6 +813,24 @@ Rappelez vous que
  les espaces dans les noms des paramètres nommés sont supprimés,
 _#<parametre nomme>_ est équivalent à _#<parametrenomme>_.
 
+== Exigences des fichiers
+
+Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se
+terminer par une ligne de<<sec:M2-M30, fin de programme>>.
+Tout G-code, placé après cette ligne de fin de programme, sera ignoré.
+
+Si le programme n'utilise pas G-code de fin de programme, une paire de
+signes pourcent _%_ peut être utilisées. Le premier signe _%_ doit dans ce cas se
+trouver sur la première ligne du fichier, suivi par une ou plusieurs lignes de
+G-code, puis du second signe _%_. Tout G-code placé après le second signe _%_
+sera ignoré.
+
+[NOTE]
+Les fichiers de G-code doivent être créés avec un éditeur de texte comme Gedit
+et non avec un traitement de texte comme Open Office. Les traitements de
+texte ajoutent de nombreux caractères de contrôle dans les fichiers, ce qui
+les rends inutilisables comme programmes G-code.
+
 == Taille des fichiers
 
 L'interpréteur et le gestionnaire de tâches ont été écrits, de sorte que la 
@@ -820,7 +841,7 @@ Dans Axis, parce-que l'aperçu du parcours d'outil est affiché par défaut, le
 rafraîchissement de l'écran devient une limite pratique à la taille des fichiers.
 Le tracé du parcours d'outil peut être désactivé dans Axis pour accélérer le 
 chargement des fichiers conséquents. L'aperçu peut être désactivé en 
-passant un commentaire spécial.
+passant un <<sub:Commentaires-speciaux,commentaire spécial>>.
 
 [[sec:Ordre-d-execution]]
 == Ordre d'exécution
@@ -932,5 +953,20 @@ selon l'axe concerné par la commande de déplacement et parce-que la quantité
 de matière enlevée ne dépend pas seulement de la vitesse d'avance, il est 
 facile d'utiliser le mode inverse du temps _G93_ pour atteindre la quantité de 
 matériaux à enlever, souhaitée.
+
+== Messages d'erreur courants
+
+* _G code hors d'étendue_ - Un G-code supérieur à G99 a été utilisé. L'étendue
+des G-codes dans LinuxCNC est comprise entre 0 et 99. Toutefois, les valeurs
+entre 0 et 99 ne sont pas toutes celle d'un G-code valide.
+* _Utilisation d'un G code inconnu_ - Un G-code à été utilisé qui n'appartient
+pas aux langage G-code de LinuxCNC.
+* _Mot i, j, k sans Gx l'utilisant_ - Les mots i, j et k doivent être utilisés
+sur la même ligne que leur G-code.
+* _Impossible d'employer des valeurs d'axe sans G code pour les utiliser_ - Les 
+valeurs d'axe ne peuvent pas être utilisées sur une ligne sans qu'un G-code ne
+se trouve sur la même ligne ou qu'un G-code modal soit actif.
+* _Le fichier se termine sans signe pourcent ni fin de programme_ - Tout fichier
+G-code doit se terminer par un M2, un M30 ou être encadré par le signe _%_.
 
 // vim: set syntax=asciidoc:

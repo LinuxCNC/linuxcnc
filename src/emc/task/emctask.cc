@@ -87,14 +87,14 @@ int emcTaskInit()
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
         strncpy(mdir[0],inistring, sizeof(mdir[0]));
         if (mdir[0][sizeof(mdir[0])-1] != '\0') {
-            rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %lu)\n", sizeof(mdir[0]));
+            rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
     } else {
         // default dir if no PROGRAM_PREFIX
         strncpy(mdir[0],"nc_files", sizeof(mdir[0]));
         if (mdir[0][sizeof(mdir[0])-1] != '\0') {
-            rcs_print("default nc_files too long (max len %lu)\n", sizeof(mdir[0]));
+            rcs_print("default nc_files too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
     }
@@ -110,7 +110,7 @@ int emcTaskInit()
 
         strncpy(tmpdirs,inistring, sizeof(tmpdirs));
         if (tmpdirs[sizeof(tmpdirs)-1] != '\0') {
-            rcs_print("[RS274NGC]USER_M_PATH too long (max len %lu)\n", sizeof(tmpdirs));
+            rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
         }
 
@@ -120,7 +120,7 @@ int emcTaskInit()
             if (nextdir == NULL) break; // no more tokens
             strncpy(mdir[dct],nextdir, sizeof(mdir[dct]));
             if (mdir[dct][sizeof(mdir[dct])-1] != '\0') {
-                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %lu)\n", nextdir, sizeof(mdir[dct]));
+                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n", nextdir, sizeof(mdir[dct]));
                 return -1;
             }
             nextdir = strtok(NULL,":");
