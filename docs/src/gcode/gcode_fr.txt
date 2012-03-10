@@ -71,8 +71,8 @@ prédéfinie
 |<<sec:G40,G40>>           | Annulation de la compensation de longueur d'outil 
 |<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil   
 |<<sec:G41-1-G42-1,G41.1 G42.1>> | Comp. dynamique de rayon d'outil à gauche, à droite
-|<<sec:G43-G43-1-Longueur-Outil,G43 G43.1>> | Comp. de longueur d'outil, compensation 
-dynamique 
+|<<sec:G43,G43>> | Compensation de longueur d'outil 
+|<<sec:G43-1,G43.1>> | Compensation dynamique de longueur d'outil
 |<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de 
 longueur d'outil 
 |<<sec:G53-Mouvement-Coordonnees-Absolues,G53>> | Déplacements en coordonnées 
@@ -626,7 +626,7 @@ Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
 [[sec:Etablissement-Systeme-Coordonnees]]
 .Établissement de l'origine d'un système de coordonnées
 
-[width="80%", options="header", cols="^,^,^"]
+[width="50%", options="header", cols="^,^,^"]
 |=========================================
 |Valeur P| Système de coordonnées | G-code
 |       0|          Actif courant | n/a
@@ -675,7 +675,7 @@ G43 (recharge l'offset de longueur d'outil depuis la table d'outils)
 M2 (fin de programme)
 ----
 * Voir les commandes <<sec:M6-Appel-Outil, M6>>, <<sec:T-Choix-Outil, Tn>> 
-et <<sec:G43-G43-1-Longueur-Outil, G43>>.
+et <<sec:G43, G43>>.
 
 [[sec:G10-L11]]
 == G10 L11 modifie les offsets d'outil dans la table d'outils
@@ -928,25 +928,22 @@ erreur en cas de défaut.
 
 
 [IMPORTANT]
-Vous ne pourrez pas utiliser cette commande si votre
-machine n'a pas été configurée pour exploiter un signal de sonde de HAL à LinuxCNC.
-Le signal de la sonde doit être envoyé sur un bit d'entrée HAL 
-puis transmis à _motion.probe-entrée (bit, In)_.
-G38.x utilisent la valeur de cette broche pour déterminer quand la sonde a 
-touché ou perdu le contact. TRUE si le contact de la sonde est fermé (Toucher), 
-FALSE si il est ouvert.
-
+Cette commande n'est pas utilisable si la machine n'a pas été configurée pour
+exploiter un signal de sonde entre HAL et LinuxCNC.
+Le signal de la sonde doit être envoyé sur une broche d'entrée puis transmis à
+_motion.probe-entrée (bit, In)_. G38.x utilise la valeur de cette broche pour
+déterminer quand la sonde a touché ou perdu le contact. TRUE si le contact de
+la sonde est fermé (Touché), FALSE si il est ouvert.
 
 Programmer _G38.2 axes_, _G38.3 axes_, _G38.4 axes_ ou 
 _G38.5 axes_ pour effectuer une mesure au palpeur. 
 Au moins un mot d'axe est obligatoire, les autres sont optionnels. 
-Les mots d'axes définissent ensemble, le point de destination vers lequel la sonde se déplace, 
-à partir de l'emplacement actuel.
+Les mots d'axes définissent ensemble, le point de destination vers lequel la sonde se déplace, à partir de l'emplacement actuel.
 L'outil dans la broche doit être un palpeur ou un actionneur de contact. 
 
 En réponse à cette commande, la machine déplace le point contrôlé 
 (qui est la pointe du stylet du palpeur) en ligne droite, 
-à la vitesse actuelle, vers le point programmé.  
+à la vitesse actuelle, vers le point programmé. 
 En mode vitesse inverse du temps, la vitesse est telle que le mouvement 
 depuis le point courant jusqu'au point programmé, prendra le temps spécifié. 
 Le mouvement s'arrête (dans les limites d'accélération de la machine)
@@ -1013,7 +1010,13 @@ C'est une erreur si:
 G41 ou G42 D[outil]
 ----
 
-* D- Numéro d'outil
+* _D_ - Numéro d'outil
+
+Le mot D est optionnel. En l'absence de mot D, le rayon de l'outil
+courant est utilisé. Si le mot D est présent, il doit normalement être
+le numéro de poche de l'outil monté dans la broche, bien que cela ne soit pas
+indispensable. Le nombre D à zéro est autorisé, un rayon de valeur zéro sera
+alors utilisé.
 
 Pour activer la compensation de rayon d'outil à gauche du profil, programmer _G41_.
 G41 applique la correction de rayon d'outil à gauche de la ligne programmée
@@ -1028,26 +1031,12 @@ Le mouvement d'entrée peut être effectué en vitesse rapide.
 
 La compensation de rayon d'outil ne peut être effectuée que si le plan XY ou le plan XZ est actif.
 
-Les commandes définies par l'utilisateur M100 à M199, sont autorisés
+Les commandes définies par l'utilisateur M100 à M199, sont autorisées
 lorsque la compensation d'outil est activée.
 
 Le comportement de la machine, quand la compensation de rayon
 d'outil est activée, est décrit dans la section <<sec:Compensation-rayon-d-outil,
 sur la compensation de rayon d'outil>>.
-
-=== Compensation de rayon d'outil depuis une table d'outils
-
-Pour activer la compensation de rayon d'outil à gauche du profil,
-c'est à dire, l'outil reste à gauche de la trajectoire programmée
-quand le rayon d'outil est positif, programmer _G41 D-_. 
-Pour activer la compensation de rayon d'outil à droite du profil,
-c'est à dire, l'outil reste à droite de la trajectoire programmée
-quand le rayon d'outil est positif, programmer _G42 D-_. 
-Le mot D est optionnel, si il n'y a pas de mot D, le rayon de
-l'outil monté actuellement dans la broche est utilisé. 
-Si D est utilisé, sa valeur doit être le numéro de l'outil 
-monté dans la broche. Cependant, ce n'est pas obligatoire. 
-Ce n'est pas une erreur d'avoir D à zéro, le rayon utilisé sera de zéro.
 
 C'est une erreur si:
 
@@ -1058,21 +1047,23 @@ C'est une erreur si:
 
 [[sec:G41-1-G42-1]]
 == G41.1, G42.1 Compensation dynamique de rayon d'outil
-
 (((G41.1 Compensation dynamique de rayon)))
 (((G42.1 Compensation dynamique de rayon)))
 
 ----
-G41.1 ou G42.1 D[diamètre] <L[orientation]>
+G41.1 D- <L-> (à gauche du profil)
+G42.1 D- <L-> (à droite du profil)
 ----
 
 * Le mot D spécifie le diamètre de l'outil. 
-* Le mot L spécifie l'orientation des arêtes de l'outil, et par défaut 0 si non 
-spécifié.
+* Le mot L spécifie l'orientation des arêtes de l'outil, est à 0 par défaut si
+non spécifié.
 
-Pour activer la compensation dynamique de rayon d'outil à gauche du profil, programmer _G41.1 D- L-_. 
+Pour activer la compensation dynamique de rayon d'outil à gauche du profil,
+programmer _G41.1 D- L-_. 
 
-Pour activer la compensation dynamique de rayon d'outil à droite du profil, programmer _G42.1 D- L-_. 
+Pour activer la compensation dynamique de rayon d'outil à droite du profil,
+programmer _G42.1 D- L-_. 
 
 C'est une erreur si:
 
@@ -1085,46 +1076,71 @@ Plus d'informations sur <<sec:Orientations-des-outils-de-tour, l'orientation des
 outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et 
 <<fig:Outil-Positions-5-6-7-8, les outils de tour en 5-6-7-8>>.
 
-[[sec:G43-G43-1-Longueur-Outil]]
-== G43, G43.1, G49 Compensation de longueur d'outil
-(((G43.1 Compensation dynamique de longueur d'outil)))
-(((G43 Compensation de longueur d'outil)))
-(((G49 Révocation de compensation de longueur d'outil)))
+[[sec:G43]]
+== G43 Activation de la compensation de longueur d'outil
+(((G43 Activation de la compensation de longueur d'outil)))
 
-=== G43 , G43.1 Activation de la compensation de longueur d'outil
+* _H_ - Numéro d'outil
+* _G43_ - Utilise l'outil courant chargé par le dernier Tn M6. G43 modifie les
+mouvements ultérieurs en décalant les coordonnées de Z et/ou de X, de la
+longueur de l'outil. G43 ne provoque aucun mouvement. L'effet de la
+compensation ne se produira qu'au cours du prochain mouvement des axes compensés,
+de sorte que le point final de ces mouvements sera la position compensée.
+* _G43 H-_ - Utilise l'offset de l'outil correspondant fourni par la table d'outils.
+Ce n'est pas une erreur d'avoir la valeur de H à zéro, une compensation égale
+à zéro sera utilisée.
 
-G43 et G43.1 modifient les mouvements ultérieurs en décalant, de la
-longueur de l'outil, les coordonnées de Z et/ou de X. G43 et G43.1 ne
-provoquent aucun mouvement. L'effet de la compensation ne se produira
-qu'au prochain mouvement de l'axe compensé.
-
-==== G43 Compensation de longueur d'outil depuis une table d'outils
-
-Pour utiliser la compensation de longueur d'outil depuis la table
-d'outils, programmer _G43 Hn_, où la valeur de H est l'index souhaité
-dans la table d'outils. La valeur de H n'est pas obligatoirement 
-la même que celle du numéro d'outil monté dans la broche. 
-Ce n'est pas une erreur d'avoir la valeur de H à zéro, 
-une compensation égale à zéro sera utilisée.
+.Exemple de ligne avec G43 H-
+----
+G43 H1 (ajuste les offsets d'outil avec les valeurs de l'outil 1 fournies par
+la table d'outils)
+----
 
 C'est une erreur si:
 
 * La valeur de H n'est pas un entier, il est négatif, ou il est
-   supérieur au nombre d'outils dans le carrousel.
+supérieur au nombre de poches dans le carrousel.
 
-==== G43.1 Compensation dynamique de longueur d'outil
+[[sec:G43-1]]
+== G43.1 Compensation dynamique de longueur d'outil
+(((G43.1 Compensation dynamique de longueur d'outil)))
 
+----
+G43.1 axes
+----
+
+* _G43.1 axes_ - Modifie les mouvements ultérieurs en décalant les coordonnées
+de Z et/ou de X, selon les offsets stockés dans la table d'outils. G43.1 ne
+provoque aucun mouvement. L'effet de la compensation ne se produira qu'au cours
+du prochain mouvement des axes compensés de sorte que le point final de ces
+mouvements sera la position compensée.
+
+.Exemple avec G43.1
+----
+G90 (passe en mode absolu)
+T1 M6 G43 (charge l'outil N°1 et son offset de longueur, Z est à la position
+machine 0 et la visu affiche Z1.500)
+G43.1 Z0.250 (décale l'outil courant de 0.250, la visu affiche maintenant
+Z1.250)
+M2 (fin de programme)
+----
+* Voir les sections <<sec:G90-G91,G90>> & <<sec:T-Choix-Outil,T>> et
+<<sec:M2-M30,M2>> pour plus d'informations.
+
+////
 Pour utiliser la compensation dynamique de longueur d'outil depuis un
 programme, utiliser _G43.1 I- K-_, où _I-_ donne la compensation de
 longueur d'outil en X (pour les tours) et _K-_ donne la compensation
 de longueur en Z (pour les tours et les fraiseuses).
+////
 
 C'est une erreur si:
 
 * Une commande de mouvement est sur la même ligne que _G43.1_
 
 [[sec:G49-Revocation-Longueur-Outil]]
-=== G49 Révocation de la compensation de longueur d'outil
+== G49 Révocation de la compensation de longueur d'outil
+(((G49 Révocation de compensation de longueur d'outil)))
 
 Pour révoquer la compensation de longueur d'outil, programmer _G49_.
 
@@ -1134,25 +1150,21 @@ longueur d'outil alors qu'aucune n'est couramment utilisée.
 
 [[sec:G53-Mouvement-Coordonnees-Absolues]]
 == G53 Mouvement en coordonnées absolues
-
 (((G53 Mouvement en coordonnées absolues)))
 
-Pour un déplacement à un point exprimé en coordonnées absolues,
-(à partir des origines machine) programmer _G53_ sur la même ligne
-qu'un mouvement linéaire. _G0_ ou _G1_ est optionnel 
-si un des deux est déjà le mode de mouvement courant. 
-_G53_ n'est pas modal, il doit être programmé sur chaque 
-ligne où il doit être actif. 
-Il produit un mouvement linéaire coordonné au point programmé. 
-Si _G1_ est actif, la vitesse travail courante est 
-utilisée si la machine est assez rapide. 
-Si _G0_ est actif, la vitesse rapide courante sera 
-utilisée si la machine est assez rapide. 
-
-.exemple avec G53:
 ----
-G53 G0 X0 Y0 Z0 (déplacera les axes à la position d'origine machine)
-;même si le système de coordonnées courant est sous l'effet de décalages.
+G53 axes
+----
+
+Pour un déplacement à un point exprimé en coordonnées absolues,
+à partir de l'origine machine, programmer _G53_ sur la même ligne
+qu'un mouvement linéaire. _G53_ n'est pas modal, il doit donc être programmé
+sur chaque ligne où il doit être actif. _G0_ ou _G1_ ne doivent pas se trouver
+sur la même ligne si un d'eux est déjà actif. Par exemple:
+
+----
+G53 G0 X0 Y0 Z0 (déplacera les axes à leur positions d'origine)
+;même si le système de coordonnées courant a des compensations en cours.
 ----
 
 C'est une erreur si:
@@ -1160,36 +1172,31 @@ C'est une erreur si:
 * _G53_ est utilisé sans que G0 ou G1 ne soit actif. 
 * _G53_ est utilisé alors que la compensation de rayon d'outil est active.
 
-Étudier cette vue <<cha:Systemes-de-coordonnees, complète des systèmes de 
+Étudier le <<cha:Systemes-de-coordonnees, chapitre sur les systèmes de 
 coordonnées>> et de leurs décalages, pour bien maîtriser ces concepts.
 
 [[sec:G54-a-G59-3]]
 == G54-G59.3 Choix du système de coordonnées
 
-(((G54   Origine pièce 1)))
-(((G55   Origine pièce 2)))
-(((G56   Origine pièce 3))) 
-(((G57   Origine pièce 4)))
-(((G58   Origine pièce 5)))
-(((G59   Origine pièce 6))) 
-(((G59.1 Origine pièce 7)))
-(((G59.2 Origine pièce 8)))
-(((G59.3 Origine pièce 9)))
+* _G54_ - Origine pièce 1
+* _G55_ - Origine pièce 2
+* _G56_ - Origine pièce 3
+* _G57_ - Origine pièce 4
+* _G58_ - Origine pièce 5
+* _G59_ - Origine pièce 6
+* _G59.1_ - Origine pièce 7
+* _G59.2_ - Origine pièce 8
+* _G59.3_ - Origine pièce 9
 
-Le code G54 est apparié avec le système de coordonnées pièce N°1, 
+Le code _G54_ est apparié avec le système de coordonnées pièce N°1, 
 pour le choisir programmer _G54_ et ainsi de suite pour les autres systèmes.
-Les systèmes de coordonnées appariés à un G-code sont les suivants: 
-(1 avec _G54_), (2 avec _G55_), (3 _avec G56_), 
-(4 avec _G57_), (5 avec _G58_), (6 avec _G59_), 
-(7 avec _G59.1_), (8 avec _G59.2_), et (9 avec _G59.3_).
 
-Les systèmes de coordonnées stockent les valeurs
-pour chaque système dans les variables indiquées
-dans le tableau suivant.
+Les systèmes de coordonnées stockent les valeurs de chacun des axes dans les
+variables indiquées dans le tableau ci-dessous.
 
-.Coordonnées pièce[[sec:Coordonnees-Piece]]
+.Paramètres des systèmes de coordonnées pièce[[sec:Coordonnees-Piece]]
 
-[width="100%", options="header"]
+[width="80%", options="header", cols="<,10*^"]
 |=====================================================================
 |Choix  | CS | X    | Y    | Z    | A    | B    | C    | U    | V    | W
 |G54    | 1  | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229
@@ -1207,7 +1214,7 @@ dans le tableau suivant.
 C'est une erreur si:
 
 * Un de ces G-codes est utilisé alors que la compensation de rayon 
-   d'outil est active.
+d'outil est active.
 
 Voir la section <<cha:Systemes-de-coordonnees, sur les systèmes de coordonnée>> 
 pour une vue complète.
@@ -1218,14 +1225,11 @@ pour une vue complète.
 (((G61.1 Arrêt exact)))
 (((Trajectoire contrôlée)))
 
-Programmer _G61_ pour passer la machine en mode de trajectoire exacte,
-_G61.1_ pour la passer en mode arrêt exact, ou _G64 P-_ pour le mode
-trajectoire continue avec tolérance. Ce n'est pas 
-une erreur de programmer un mode déjà actif. Voir cette section 
+* _G61_ - Passe la machine en mode de trajectoire exacte.
+* _G61.1_ - Passe la machine en mode arrêts précis.
+* _G64 P-_ - Passe la machine en mode trajectoire continue avec tolérance.
+Ce n'est pas une erreur de programmer un mode déjà actif. Voir cette section 
 <<sec:Modes-de-controle-trajectoires, pour une discussion de ces modes>>.
-
-* _G61_ Mode parcours exact
-* _G61.1_ Mode arrêt précis
 
 G61 suit exactement le point programmé, même si cela mène à un arrêt
 complet du mouvement.
@@ -1300,50 +1304,50 @@ G76 P- Z- I- J- R- K- Q- H- E- L-
 image::images/g76-threads_fr.png[]
 
 [horizontal]
-Ligne pilote:: (Drive Line) La ligne pilote est une ligne imaginaire, parallèle à
+* _Ligne pilote_ - La ligne pilote est une ligne imaginaire, parallèle à
     l'axe de la broche (Z), située en sécurité à l'extérieur du matériau à
     fileter. La ligne pilote va du point initial en Z jusqu'à la fin du
     filetage donnée par la valeur de _Z-_ dans la commande.
 
-_P-_:: Le pas du filet, ou la longueur du déplacement par tour.
+* _P-_ - Le pas du filet, ou la longueur du déplacement par tour.
 
-_Z-_:: La position finale du filetage. A la fin du cycle, l'outil sera
+* _Z-_ - La position finale du filetage. A la fin du cycle, l'outil sera
     à cette position Z.
 
-_I-_:: La crête du filet est une distance entre la ligne pilote et la 
+* _I-_ - La crête du filet est une distance entre la ligne pilote et la 
     surface de la pièce. Une valeur négative de _I-_, 
     indique un filetage externe et une valeur positive, indique un
     filetage interne. C'est généralement à ce diamètre nominal que le
     matériau est cylindré avant de commencer le cycle _G76_.
 
-_J-_:: Une valeur positive, spécifie la profondeur de la passe initiale.
+* _J-_ - Une valeur positive, spécifie la profondeur de la passe initiale.
      La première passe sera à _J-_ au delà de la crête du filet _I_.
 
-_K-_:: Une valeur positive, spécifie la profondeur du filet. 
+* _K-_ - Une valeur positive, spécifie la profondeur du filet. 
     La dernière passe du filetage sera à _K-_ au delà de la crête du filet.
 
 Paramètres optionnels:
 
 [horizontal]
-_R-_:: La dégressivité de la profondeur de passe. _R1.0_ spécifie une profondeur 
+* _R-_ - La dégressivité de la profondeur de passe. _R1.0_ spécifie une profondeur 
     de passe constante pour les passes successives du filetage. 
     _R2.0_ sélectionne une surface constante.
     Les valeurs comprises entre 1.0 et 2.0 sélectionnent 
     une profondeur décroissante mais une surface croissante. 
     Enfin, les valeurs supérieures à 2.0 sélectionnent une surface décroissante. 
 
-    Attention: les valeurs inutilement hautes de dégressivité, 
-    demanderont un nombre inutilement important de passes.
-    (dégressivité = une plongée par paliers ou par étapes)
+[WARNING]
+Les valeurs inutilement hautes de dégressivité, produiront un nombre inutilement
+important de passes. (dégressivité = une plongée par paliers ou par étapes)
 
-_Q-_:: L'angle de pénétration oblique. C'est l'angle (en degrés) 
+* _Q-_ - L'angle de pénétration oblique. C'est l'angle (en degrés) 
     décrivant de combien, les passes successives doivent être décalées 
     le long de l'axe Z. C'est utilisé pour faire enlever plus de matériau 
     d'un côté de l'outil que de l'autre. 
     Une valeur positive de _Q_ fait couper d'avantage la pointe de l'outil. 
     Typiquement, les valeurs sont 29, 29.5 ou 30 degrés.
 
-_H-_:: Le nombre de passes de finition. Les passes de finition sont 
+* _H-_ - Le nombre de passes de finition. Les passes de finition sont 
     des passes additionnelles en fond de filet. 
     Pour ne pas faire de passe de finition, programmer _H0_.
 
@@ -1351,13 +1355,13 @@ Les entrées et sorties de filetage peuvent être programmées coniques
     avec les valeurs de _E-_ et _L-_.
 
 [horizontal]
-_E-_:: Donne la longueur des parties coniques le long de l'axe Z. 
+* _E-_ - Donne la longueur des parties coniques le long de l'axe Z. 
     L'angle du cône ira de la profondeur de la dernière passe à la
     crête du filet _I_. _E2.0_ donnera un cône d'entrée et de sortie
     d'une longueur de 2.0 unités dans le sens du filetage. Pour
     un cône à 45 degrés, programmer _E_ identique à _K_.
 
-_L-_:: Est utilisé pour spécifier quelles extrémités du filetage doivent 
+* _L-_ - Est utilisé pour spécifier quelles extrémités du filetage doivent 
     être coniques. Programmer _L0_ pour aucune (par défaut), _L1_ pour une
     entrée conique, _L2_ pour une sortie conique, ou _L3_ pour l'entrée et
     la sortie coniques.
