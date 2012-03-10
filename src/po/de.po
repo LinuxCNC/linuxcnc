@@ -3,12 +3,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2009-03-29 00:19+0100\n"
-"Last-Translator: Florian Hahn <Florian-Hahn@web.de>\n"
+"PO-Revision-Date: 2012-03-10 15:38+0200\n"
+"Last-Translator: jepler <jepler@unpythonic.net>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Weblate 0.5\n"
 
 #: hal/utils/meter.c:181
 #, c-format
@@ -323,7 +326,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:791
 msgid "Pick log file to write to:"
-msgstr ""
+msgstr "Wählen Sie Log-Datei zu schreiben:"
 
 #: hal/utils/scope_horiz.c:977
 msgid "Not enough channels"
@@ -4717,8 +4720,9 @@ msgstr ""
 #: emc/usr_intf/stepconf/stepconf.glade:2699
 #: emc/usr_intf/pncconf/pncconf.glade:15598
 #: emc/usr_intf/pncconf/pncconf.glade:17780
-msgid "_:"
-msgstr "_:"
+msgid ""
+"_:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2717
 msgid "Home La_tch direction:"
