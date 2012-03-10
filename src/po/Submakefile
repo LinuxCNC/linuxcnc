@@ -45,6 +45,9 @@ po/linuxcnc.pot:
 	touch $@
 TARGETS += po/linuxcnc.pot
 
+pofiles: po/linuxcnc.pot
+	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
+
 po/linuxcnc.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh
 po/linuxcnc.pot: hal/utils/meter.c \
     hal/utils/scope.c \
