@@ -12,15 +12,15 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-03 19:53+0100\n"
-"Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
-"thank>\n"
+"PO-Revision-Date: 2012-03-10 20:54+0200\n"
+"Last-Translator: jepler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Weblate 0.5\n"
 
 #: src/hal/utils/meter.c:198
 #, c-format
@@ -6943,8 +6943,9 @@ msgstr "Dégagement du contac_t d'origine:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid "_:"
-msgstr "_:"
+msgid ""
+"_:"
+msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
 #: src/emc/usr_intf/pncconf/pncconf.glade:58536
@@ -12250,7 +12251,6 @@ msgstr ""
 "M62 M63 M64 M65 M66 ni code M utilisateur l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:302
-#, fuzzy
 msgid "P value not an integer with G2 or G3"
 msgstr "La valeur de P avec G2 ou G3 n'est pas un entier "
 
