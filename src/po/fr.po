@@ -6945,6 +6945,7 @@ msgstr "Dégagement du contac_t d'origine:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
@@ -12259,7 +12260,6 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valeur de P doit être 1 ou plus avec G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:311
-#, fuzzy
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M66, M67, M68 or user M code "
 "that uses it"
