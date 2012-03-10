@@ -6541,6 +6541,8 @@ msgid ""
 "Out\n"
 "In"
 msgstr ""
+"Sortie\n"
+"Entrée"
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:633
 msgid "S_econd Parport Address:"
