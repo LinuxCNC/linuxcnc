@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-10 20:54+0200\n"
+"PO-Revision-Date: 2012-03-10 20:55+0200\n"
 "Last-Translator: jepler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -12499,7 +12499,6 @@ msgid "Invalid analog index with M68"
 msgstr "Index analogique invalide avec M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:2733
-#, fuzzy
 msgid "Need positive Q-word to specify tool number with M61"
 msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 
