@@ -6948,7 +6948,7 @@ msgstr "Dégagement du contac_t d'origine:"
 msgid ""
 "_:"
 ""
-msgstr ""
+msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
 #: src/emc/usr_intf/pncconf/pncconf.glade:58536
