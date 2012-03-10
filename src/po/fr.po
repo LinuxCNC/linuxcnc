@@ -12,15 +12,15 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-03 19:53+0100\n"
-"Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
-"thank>\n"
+"PO-Revision-Date: 2012-03-10 20:55+0200\n"
+"Last-Translator: jepler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Weblate 0.5\n"
 
 #: src/hal/utils/meter.c:198
 #, c-format
@@ -6546,6 +6546,8 @@ msgid ""
 "Out\n"
 "In"
 msgstr ""
+"Sortie\n"
+"Entrée"
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:633
 msgid "S_econd Parport Address:"
@@ -6948,8 +6950,9 @@ msgstr "Dégagement du contac_t d'origine:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid "_:"
-msgstr "_:"
+msgid ""
+"_:"
+msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
 #: src/emc/usr_intf/pncconf/pncconf.glade:58536
