@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-03-10 15:38+0200\n"
+"PO-Revision-Date: 2012-03-10 15:40+0200\n"
 "Last-Translator: jepler <jepler@unpythonic.net>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -519,7 +519,7 @@ msgstr ""
 
 #: hal/utils/scope_trig.c:242 hal/utils/scope_trig.c:276
 msgid "Level"
-msgstr ""
+msgstr "Pegel"
 
 #: hal/utils/scope_trig.c:314
 msgid "Trigger Source"
@@ -4722,6 +4722,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:17780
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2717
