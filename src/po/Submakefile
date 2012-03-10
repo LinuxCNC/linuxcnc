@@ -41,7 +41,8 @@ TCLSRCS := \
 
 po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
-	$(Q)$(XGETTEXT) -k_ -o $@ $^ && touch $@
+	(cd ..; $(XGETTEXT) -k_ -o src/$@ `src/po/fixpaths.py -j src $^`)
+	touch $@
 TARGETS += po/linuxcnc.pot
 
 po/linuxcnc.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh
