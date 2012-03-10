@@ -49,7 +49,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
 |Code                               |Description
-|<<sec:G0-Rapid,G0>>                |Coordinated Straight Motion Rapid
+|<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid
 |<<sec:G1-Linear-Motion,G1>>        |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2, G3>>           |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
