@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 12:29+0200\n"
+"PO-Revision-Date: 2012-03-11 12:35+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -766,7 +766,7 @@ msgstr "需要允許,以坐標模式 移動探頭    "
 
 #: src/emc/motion/command.c:1348
 msgid "can't do probe move with limits exceeded"
-msgstr ""
+msgstr "不能做探頭移動當有超限"
 
 #: src/emc/motion/command.c:1362
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
