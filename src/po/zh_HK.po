@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 03:49+0200\n"
+"PO-Revision-Date: 2012-03-11 03:50+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -286,7 +286,7 @@ msgstr "%5d 樣品 （16通道）"
 #: lib/python/propertywindow.py:34 share/axis/tcl/axis.tcl:1720
 #: share/axis/tcl/axis.tcl:1757
 msgid "OK"
-msgstr ""
+msgstr "可以"
 
 #: src/hal/utils/scope_horiz.c:713 src/hal/utils/scope_horiz.c:754
 #: tcl/bin/emccalib.tcl:91 tcl/bin/halconfig.tcl:103
