@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 03:53+0200\n"
+"PO-Revision-Date: 2012-03-11 03:54+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -378,7 +378,7 @@ msgstr "千赫"
 
 #: src/hal/utils/scope_horiz.c:1205
 msgid "Mhz"
-msgstr ""
+msgstr "兆赫"
 
 #: src/hal/utils/scope_vert.c:403 src/hal/utils/scope_vert.c:1258
 #, c-format
