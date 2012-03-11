@@ -374,7 +374,7 @@ msgstr "赫茲"
 
 #: src/hal/utils/scope_horiz.c:1201
 msgid "KHz"
-msgstr ""
+msgstr "千赫"
 
 #: src/hal/utils/scope_horiz.c:1205
 msgid "Mhz"
