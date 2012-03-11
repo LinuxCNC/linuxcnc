@@ -680,7 +680,7 @@ msgstr "不能 慢步 Joint 當 在 歸零 時"
 
 #: src/emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
-msgstr "要有 允許 才 能 在 坐標 模式 作 直線 移動"
+msgstr "要有 允許 才能在 坐標 模式 作直線移動"
 
 #: src/emc/motion/command.c:891
 msgid "can't do linear move with limits exceeded"
