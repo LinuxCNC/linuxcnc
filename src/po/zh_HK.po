@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 04:36+0200\n"
+"PO-Revision-Date: 2012-03-11 04:38+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -2699,9 +2699,8 @@ msgid "Autosend"
 msgstr "自動"
 
 #: tcl/ngcgui.tcl:1178
-#, fuzzy
 msgid "Verbose ngcfile"
-msgstr "rs274ngc 文件"
+msgstr "詳細查看ngc文件"
 
 #: tcl/ngcgui.tcl:1188 tcl/ngcgui.tcl:2235 tcl/ngcgui.tcl:2259
 #: tcl/ngcgui.tcl:2289
