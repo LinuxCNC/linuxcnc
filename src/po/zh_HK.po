@@ -2748,9 +2748,8 @@ msgid "No Subfile specified"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1692
-#, fuzzy
 msgid "No parameters yet"
-msgstr " 參數(_m) "
+msgstr "還沒有任何參數"
 
 #: tcl/ngcgui.tcl:1701
 msgid "Missing value for parm"
