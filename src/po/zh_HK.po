@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 12:49+0200\n"
+"PO-Revision-Date: 2012-03-11 12:55+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -777,7 +777,7 @@ msgstr "不能添加探測移動"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for rigid tap move"
-msgstr ""
+msgstr "在坐標模式做剛性攻絲移動,需要啟動指令"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
