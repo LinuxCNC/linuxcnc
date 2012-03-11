@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 03:59+0200\n"
+"PO-Revision-Date: 2012-03-11 04:01+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -537,7 +537,7 @@ msgstr "來源"
 
 #: src/emc/motion/control.c:261
 msgid "Unexpected realtime delay: check dmesg for details."
-msgstr "意外的實時延遲：檢查 dmesg的詳細信息."
+msgstr "意外的實時延遲：檢查 dmesg 的詳細信息."
 
 #: src/emc/motion/control.c:263
 #, c-format
