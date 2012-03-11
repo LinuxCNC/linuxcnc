@@ -353,7 +353,7 @@ msgstr "微秒"
 
 #: src/hal/utils/scope_horiz.c:1177
 msgid "mSec"
-msgstr ""
+msgstr "毫秒"
 
 #: src/hal/utils/scope_horiz.c:1181
 #: src/emc/usr_intf/pncconf/pncconf.glade:1953
