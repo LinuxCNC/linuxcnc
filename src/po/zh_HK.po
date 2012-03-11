@@ -980,9 +980,8 @@ msgid "can't save %s"
 msgstr "不能保存 %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
-#, fuzzy
 msgid "LinuxCNC Debug"
-msgstr "EMC 排錯"
+msgstr "Linuxcnc 排錯"
 
 #: tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
