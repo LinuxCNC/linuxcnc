@@ -2708,9 +2708,8 @@ msgid "Create Feature"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1194 tcl/ngcgui.tcl:2919
-#, fuzzy
 msgid "MakeFile"
-msgstr "文件"
+msgstr "Make文件"
 
 #: tcl/ngcgui.tcl:1195 tcl/ngcgui.tcl:2916
 msgid "Finalize"
