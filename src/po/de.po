@@ -3,13 +3,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2009-03-29 00:19+0100\n"
-"Last-Translator: Florian Hahn <Florian-Hahn@web.de>\n"
+"PO-Revision-Date: 2012-03-11 01:15+0200\n"
+"Last-Translator: Jeff Epler <jepler@unpythonic.net>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
-"Language: \n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Weblate 0.5\n"
 
 #: src/hal/utils/meter.c:198
 #, c-format
@@ -22,10 +24,10 @@ msgid "ERROR: no pin/signal/parameter name\n"
 msgstr "FEHLER: Kein Pin-, Signal- oder Parameter-Name\n"
 
 #: src/hal/utils/meter.c:212
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
-msgstr "FEHLER: Kein Pin-, Signal- oder Parameter-Name\n"
+msgstr "FEHLER: Kein Pin-, Signal- oder Parameter-Name mit -s\n"
 
 #: src/hal/utils/meter.c:238 tcl/tklinuxcnc.tcl:764
 msgid "Hal Meter"
@@ -6979,8 +6981,9 @@ msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid "_:"
-msgstr "_:"
+msgid ""
+"_:"
+msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
 #: src/emc/usr_intf/pncconf/pncconf.glade:58536
