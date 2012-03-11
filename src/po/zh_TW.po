@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-10 13:39-0600\n"
+"POT-Creation-Date: 2012-03-10 13:40-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -276,11 +276,11 @@ msgstr "%5d 樣品 （16通道）"
 #: tcl/tklinuxcnc.tcl:419 tcl/tklinuxcnc.tcl:1338 tcl/tklinuxcnc.tcl:1407
 #: tcl/tklinuxcnc.tcl:1438 tcl/tklinuxcnc.tcl:1469 tcl/tklinuxcnc.tcl:2017
 #: tcl/tklinuxcnc.tcl:2036 tcl/tklinuxcnc.tcl:2055 tcl/tklinuxcnc.tcl:2102
-#: src/emc/usr_intf/axis/scripts/axis.py:1069
-#: src/emc/usr_intf/axis/scripts/axis.py:1129
-#: src/emc/usr_intf/axis/scripts/axis.py:1445
-#: src/emc/usr_intf/axis/scripts/axis.py:2464
-#: src/emc/usr_intf/axis/scripts/axis.py:3320
+#: src/emc/usr_intf/axis/scripts/axis.py:1077
+#: src/emc/usr_intf/axis/scripts/axis.py:1141
+#: src/emc/usr_intf/axis/scripts/axis.py:1458
+#: src/emc/usr_intf/axis/scripts/axis.py:2477
+#: src/emc/usr_intf/axis/scripts/axis.py:3336
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:718
 #: lib/python/propertywindow.py:34 share/axis/tcl/axis.tcl:1720
 #: share/axis/tcl/axis.tcl:1757
@@ -428,9 +428,9 @@ msgstr "交流耦合"
 #: tcl/mini.tcl:3110 tcl/tklinuxcnc.tcl:162 tcl/tklinuxcnc.tcl:213
 #: tcl/tklinuxcnc.tcl:420 tcl/tklinuxcnc.tcl:1339 tcl/tklinuxcnc.tcl:1408
 #: tcl/tklinuxcnc.tcl:1439 tcl/tklinuxcnc.tcl:1470 tcl/tklinuxcnc.tcl:2103
-#: src/emc/usr_intf/axis/scripts/axis.py:1391
-#: src/emc/usr_intf/axis/scripts/axis.py:1446
-#: src/emc/usr_intf/axis/scripts/axis.py:1633
+#: src/emc/usr_intf/axis/scripts/axis.py:1404
+#: src/emc/usr_intf/axis/scripts/axis.py:1459
+#: src/emc/usr_intf/axis/scripts/axis.py:1646
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:720
 msgid "Cancel"
 msgstr "取消"
@@ -575,31 +575,36 @@ msgstr "探頭跳閘在歸零運動."
 msgid "Probe tripped during a jog."
 msgstr "探頭跳閘當正在慢步."
 
-#: src/emc/motion/control.c:697
+#: src/emc/motion/control.c:578
+#, fuzzy, c-format
+msgid "fault %d during orient in progress"
+msgstr "歸零 已在 進行中"
+
+#: src/emc/motion/control.c:718
 msgid "motion stopped by enable input"
 msgstr "運動停止因有 允許 輸入"
 
-#: src/emc/motion/control.c:720
+#: src/emc/motion/control.c:741
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "Joint %d 在限位開關 故障"
 
-#: src/emc/motion/control.c:732
+#: src/emc/motion/control.c:753
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "Joint %d 放大器故障"
 
-#: src/emc/motion/control.c:741
+#: src/emc/motion/control.c:762
 #, c-format
 msgid "joint %d following error"
 msgstr "Joint %d 跟隨 故障"
 
-#: src/emc/motion/control.c:1423
+#: src/emc/motion/control.c:1444
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
 msgstr "超出 正 軟極限在 Joint %d"
 
-#: src/emc/motion/control.c:1428
+#: src/emc/motion/control.c:1449
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
 msgstr "超出 負 軟限制在 Joint %d"
@@ -779,17 +784,17 @@ msgstr ""
 msgid "need to be enabled, in teleop mode for teleop move"
 msgstr ""
 
-#: src/emc/motion/command.c:1556
+#: src/emc/motion/command.c:1605
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "joint %d: 太多的補償條目"
 
-#: src/emc/motion/command.c:1562
+#: src/emc/motion/command.c:1611
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "joint %d: 補償值必須增加"
 
-#: src/emc/motion/command.c:1591
+#: src/emc/motion/command.c:1640
 #, c-format
 msgid "unrecognized command %d"
 msgstr ""
@@ -844,7 +849,7 @@ msgstr ""
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:585
+#: src/emc/motion/motion.c:597
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr ""
@@ -905,7 +910,7 @@ msgid "Save To File"
 msgstr "保存到文件"
 
 #: tcl/bin/emccalib.tcl:106 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:86 tcl/mini.tcl:2516 tcl/tklinuxcnc.tcl:719
+#: tcl/bin/halshow.tcl:85 tcl/mini.tcl:2516 tcl/tklinuxcnc.tcl:719
 #: tcl/ngcgui.tcl:549
 msgid "File"
 msgstr "文件"
@@ -1038,7 +1043,7 @@ msgstr "打開..."
 msgid "Save As..."
 msgstr "另存為..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:93
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:92
 #: tcl/mini.tcl:954 tcl/tklinuxcnc.tcl:734 tcl/ngcgui.tcl:1243
 #: tcl/ngcgui.tcl:3680
 msgid "Exit"
@@ -1117,7 +1122,7 @@ msgid ""
 msgstr ""
 
 #: tcl/bin/genedit.tcl:197 tcl/mini.tcl:1373 tcl/mini.tcl:1775
-#: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2000
+#: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2072
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "不能打開 %s"
@@ -1258,27 +1263,27 @@ msgstr "保存 及 退出"
 msgid "View"
 msgstr "觀看"
 
-#: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:105
+#: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:104
 msgid "Expand Tree"
 msgstr "樹狀 擴張"
 
-#: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:107
+#: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:106
 msgid "Collapse Tree"
 msgstr "樹狀 收縮"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:110
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:109
 msgid "Expand Pins"
 msgstr "展開 針"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:112
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:111
 msgid "Expand Parameters"
 msgstr "展開 參數"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:114
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:113
 msgid "Expand Signals"
 msgstr "展開 信號"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:117
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:116
 msgid "Erase Watch"
 msgstr "清徐 監視"
 
@@ -1294,15 +1299,15 @@ msgstr "主頁"
 msgid "Enter HAL command :"
 msgstr "输入 HAL 指令 :"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:357
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:354
 msgid "Execute"
 msgstr "執行"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:413
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:405
 msgid "Select a node to show."
 msgstr "選定要展示的節點."
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:438
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:429
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- 選定一葉. 點擊它的名字."
 
@@ -1334,35 +1339,35 @@ msgid ""
 "allowed by law."
 msgstr ""
 
-#: tcl/bin/halshow.tcl:70
+#: tcl/bin/halshow.tcl:69
 msgid " SHOW "
 msgstr "展示"
 
-#: tcl/bin/halshow.tcl:71
+#: tcl/bin/halshow.tcl:70
 msgid " WATCH "
 msgstr "監視 "
 
-#: tcl/bin/halshow.tcl:91
+#: tcl/bin/halshow.tcl:90
 msgid "Load Watch List"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:103
+#: tcl/bin/halshow.tcl:102
 msgid "Tree View"
 msgstr "樹狀觀看"
 
-#: tcl/bin/halshow.tcl:354
+#: tcl/bin/halshow.tcl:349
 msgid "Test HAL command :"
 msgstr "測試 HAL 指令 ："
 
-#: tcl/bin/halshow.tcl:556
+#: tcl/bin/halshow.tcl:544
 msgid "Load a watch list"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:579
+#: tcl/bin/halshow.tcl:567
 msgid "Save current watch list"
 msgstr "保存當前觀察名單"
 
-#: tcl/bin/halshow.tcl:593
+#: tcl/bin/halshow.tcl:581
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "指令可以在這兒測試但不會被保存"
 
@@ -1851,7 +1856,7 @@ msgid "Restart"
 msgstr "重新 起動"
 
 #: tcl/mini.tcl:1711 tcl/mini.tcl:2823 tcl/mini.tcl:2882
-#: tcl/tklinuxcnc.tcl:465 src/emc/usr_intf/axis/scripts/axis.py:1872
+#: tcl/tklinuxcnc.tcl:465 src/emc/usr_intf/axis/scripts/axis.py:1885
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:754
 msgid "All files"
 msgstr "所有文件"
@@ -2342,8 +2347,8 @@ msgstr "自動"
 msgid "inches"
 msgstr "英寸"
 
-#: tcl/tklinuxcnc.tcl:757 src/emc/usr_intf/axis/scripts/axis.py:1543
-#: src/emc/usr_intf/axis/scripts/axis.py:1713
+#: tcl/tklinuxcnc.tcl:757 src/emc/usr_intf/axis/scripts/axis.py:1556
+#: src/emc/usr_intf/axis/scripts/axis.py:1726
 #: src/emc/usr_intf/touchy/touchy.glade:3301
 #: src/emc/usr_intf/stepconf/stepconf.py:1685
 #: src/emc/usr_intf/stepconf/stepconf.py:2221
@@ -3162,8 +3167,8 @@ msgstr ""
 msgid "using path"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3642 src/emc/usr_intf/axis/scripts/axis.py:2242
-#: src/emc/usr_intf/axis/scripts/axis.py:2255
+#: tcl/ngcgui.tcl:3642 src/emc/usr_intf/axis/scripts/axis.py:2255
+#: src/emc/usr_intf/axis/scripts/axis.py:2268
 msgid "Warning"
 msgstr "警告"
 
@@ -3360,592 +3365,592 @@ msgstr "文件未打開"
 msgid "Creating new tab page"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:144
+#: src/emc/usr_intf/axis/scripts/axis.py:148
 msgid "Emergency stop"
 msgstr "緊急 停止"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:145
+#: src/emc/usr_intf/axis/scripts/axis.py:149
 msgid "Turn machine on"
 msgstr "開動 機器"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:147
+#: src/emc/usr_intf/axis/scripts/axis.py:151
 msgid "Activate first axis"
 msgstr "激活 第一軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:148
+#: src/emc/usr_intf/axis/scripts/axis.py:152
 msgid "Activate second axis"
 msgstr "激活 第二軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:149
+#: src/emc/usr_intf/axis/scripts/axis.py:153
 msgid "Activate third axis"
 msgstr "激活 第三軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:150
+#: src/emc/usr_intf/axis/scripts/axis.py:154
 msgid "Activate fourth axis"
 msgstr "激活 第四軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:151
+#: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Activate fifth through ninth axis"
 msgstr "激活 第五軸 到 第九軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:152
+#: src/emc/usr_intf/axis/scripts/axis.py:156
 msgid "Set Feed Override from 0% to 100%"
 msgstr "進給 超速設為從　0% 至　100%"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:153
+#: src/emc/usr_intf/axis/scripts/axis.py:157
 msgid ", and ."
 msgstr ", 和 ."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:153
+#: src/emc/usr_intf/axis/scripts/axis.py:157
 msgid "Select jog speed"
 msgstr "選擇 慢步 速度"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:154
+#: src/emc/usr_intf/axis/scripts/axis.py:158
 msgid "< and >"
 msgstr "< 和 >"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:154
+#: src/emc/usr_intf/axis/scripts/axis.py:158
 msgid "Select angular jog speed"
 msgstr "選擇 角 慢步 速度"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155
+#: src/emc/usr_intf/axis/scripts/axis.py:159
 msgid "I, Shift-I"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155 share/axis/tcl/axis.tcl:2356
+#: src/emc/usr_intf/axis/scripts/axis.py:159 share/axis/tcl/axis.tcl:2356
 msgid "Select jog increment"
 msgstr "選擇 慢步 增量"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:160
 msgid "Continuous jog"
 msgstr "連續 慢步"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:157
+#: src/emc/usr_intf/axis/scripts/axis.py:161
 #: src/emc/usr_intf/pncconf/pncconf.py:479
 msgid "Home"
 msgstr "零點"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:157
+#: src/emc/usr_intf/axis/scripts/axis.py:161
 msgid "Send active axis home"
 msgstr "送 活躍軸 回零點"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:158
+#: src/emc/usr_intf/axis/scripts/axis.py:162
 msgid "Ctrl-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:158
+#: src/emc/usr_intf/axis/scripts/axis.py:162
 msgid "Home all axes"
 msgstr "所有軸 回零點"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:159
+#: src/emc/usr_intf/axis/scripts/axis.py:163
 msgid "Shift-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:159
+#: src/emc/usr_intf/axis/scripts/axis.py:163
 msgid "Zero G54 offset for active axis"
 msgstr "置零 G54 偏置 對於 活躍 的軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:160
+#: src/emc/usr_intf/axis/scripts/axis.py:164
 msgid "End"
 msgstr "終止"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:160
+#: src/emc/usr_intf/axis/scripts/axis.py:164
 msgid "Set G54 offset for active axis"
 msgstr "設 G54 偏置 對於 活躍 的軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:161
+#: src/emc/usr_intf/axis/scripts/axis.py:165
 msgid "Jog active axis"
 msgstr "慢步 活躍的 軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:164
+#: src/emc/usr_intf/axis/scripts/axis.py:168
 msgid "Left, Right"
 msgstr "左，右"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:164
+#: src/emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog first axis"
 msgstr "慢步 第一軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:165
+#: src/emc/usr_intf/axis/scripts/axis.py:169
 msgid "Up, Down"
 msgstr "上，下"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:165
+#: src/emc/usr_intf/axis/scripts/axis.py:169
 msgid "Jog second axis"
 msgstr "慢步 第二軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:166
+#: src/emc/usr_intf/axis/scripts/axis.py:170
 msgid "Pg Up, Pg Dn"
 msgstr "頁向上, 頁向下"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:166
+#: src/emc/usr_intf/axis/scripts/axis.py:170
 msgid "Jog third axis"
 msgstr "慢步 第三軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:167
+#: src/emc/usr_intf/axis/scripts/axis.py:171
 msgid "Shift+above jogs"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:167
+#: src/emc/usr_intf/axis/scripts/axis.py:171
 msgid "Jog at traverse speed"
 msgstr "慢步 橫過速度"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:168
+#: src/emc/usr_intf/axis/scripts/axis.py:172
 msgid "Jog fourth axis"
 msgstr "慢步 第四軸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:171
+#: src/emc/usr_intf/axis/scripts/axis.py:175
 msgid "Toggle between Drag and Rotate mode"
 msgstr "切換 拖動 和 旋轉 模式"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:172
+#: src/emc/usr_intf/axis/scripts/axis.py:176
 msgid "Left Button"
 msgstr "左 按鈕"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:172
+#: src/emc/usr_intf/axis/scripts/axis.py:176
 msgid "Pan, rotate or select line"
 msgstr "平移,旋轉 或 行選擇"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:173
+#: src/emc/usr_intf/axis/scripts/axis.py:177
 msgid "Shift+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:173
+#: src/emc/usr_intf/axis/scripts/axis.py:177
 msgid "Rotate or pan"
 msgstr "旋轉 或 平移"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:174
+#: src/emc/usr_intf/axis/scripts/axis.py:178
 msgid "Right Button"
 msgstr "右按鈕"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:174
-#: src/emc/usr_intf/axis/scripts/axis.py:176
-#: src/emc/usr_intf/axis/scripts/axis.py:177
+#: src/emc/usr_intf/axis/scripts/axis.py:178
+#: src/emc/usr_intf/axis/scripts/axis.py:180
+#: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Zoom view"
 msgstr "縮放 視圖"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:175
+#: src/emc/usr_intf/axis/scripts/axis.py:179
 msgid "Wheel Button"
 msgstr "滾輪 按鍵"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:175
+#: src/emc/usr_intf/axis/scripts/axis.py:179
 msgid "Rotate view"
 msgstr "旋轉 視圖"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:176
+#: src/emc/usr_intf/axis/scripts/axis.py:180
 msgid "Rotate Wheel"
 msgstr "旋轉 滾輪"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:177
+#: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Control+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:180
+#: src/emc/usr_intf/axis/scripts/axis.py:184
 msgid "Manual control"
 msgstr "手動 控制"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:181
+#: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Code entry (MDI)"
 msgstr "代碼輸入　(MDI)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Control-M"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Clear MDI history"
 msgstr "清除 MDI 歷史"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:183
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Control-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:183
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Copy selected MDI history elements"
 msgstr "複製 選定的　MDI 歷史 元件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:184
+#: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "to clipboard"
 msgstr "到　剪貼板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "Control-Shift-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "Paste clipboard to MDI history"
 msgstr "剪貼板 貼入到　MDI 歷史"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:186 share/axis/tcl/axis.tcl:1113
+#: src/emc/usr_intf/axis/scripts/axis.py:190 share/axis/tcl/axis.tcl:1113
 #: src/emc/usr_intf/touchy/touchy.glade:508
 msgid "Override Limits"
 msgstr "超速 極限"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:188
+#: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "Open program"
 msgstr "打開 程序"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Control-R"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Reload program"
 msgstr "重裝 程序"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Control-S"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Save g-code as"
 msgstr "另存 G-代碼 為"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:191
+#: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "Run program"
 msgstr "程序 啟動"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:192
+#: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Step program"
 msgstr "步進 程序"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Pause program"
 msgstr "暂停 程序"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Resume program"
 msgstr "恢复 程序"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:195
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Stop running program, or"
 msgstr "停止 正在 運行 的程序, 或"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:196
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "stop loading program preview"
 msgstr "停止 載入 程序 預覽"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:202
 msgid "Toggle mist"
 msgstr "切換 噴霧"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:203
 msgid "Toggle flood"
 msgstr "切換 淹浸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:204
 msgid "Spindle brake off"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Shift-B"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Spindle brake on"
 msgstr "主軸 剎車 開"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:202
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Turn spindle clockwise"
 msgstr "開動 主軸 順時針 方向"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:203
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Turn spindle counterclockwise"
 msgstr "開動 主軸 反時針 方向"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:204
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Turn spindle more slowly"
 msgstr "開動 主軸 速度 比較慢"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:205
+#: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Turn spindle more quickly"
 msgstr "開動 主軸 速度 更快"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:211
 msgid "Control-K"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:211
 msgid "Clear live plot"
 msgstr "清除 現場 繪圖"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Cycle among preset views"
 msgstr "循環 在預設 視圖 之間"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:209
+#: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Cycle among preview, DRO, and user tabs"
 msgstr "循環 在 視圖 之間, DRO, 和 用戶 標籤"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:211
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Ctrl-Space"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:211
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Clear notifications"
 msgstr "清除 通報"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:828
+#: src/emc/usr_intf/axis/scripts/axis.py:836
 #, python-format
 msgid "Unknown tool %d"
 msgstr "未知的刀具 %d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:830
+#: src/emc/usr_intf/axis/scripts/axis.py:838
 msgid "No tool"
 msgstr "沒有刀具"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:832
+#: src/emc/usr_intf/axis/scripts/axis.py:840
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "刀具 %(tool)d, 偏移 %(zo)g, 直徑 %(dia)g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:834
+#: src/emc/usr_intf/axis/scripts/axis.py:842
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "刀具 %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1005
+#: src/emc/usr_intf/axis/scripts/axis.py:1013
 msgid "Filtering..."
 msgstr "篩選...."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1065
+#: src/emc/usr_intf/axis/scripts/axis.py:1073
 msgid "Filter failed"
 msgstr "篩選 失敗"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1066
+#: src/emc/usr_intf/axis/scripts/axis.py:1074
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr "該程序 %(program)r 退出 的 程式碼 %(code)d. 所有 錯誤信息 產生 如下:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1127
+#: src/emc/usr_intf/axis/scripts/axis.py:1139
 #, python-format
 msgid "G-Code error in %s"
 msgstr "G 代碼 錯誤 在 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1128
+#: src/emc/usr_intf/axis/scripts/axis.py:1140
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1279
-#: src/emc/usr_intf/axis/scripts/axis.py:2712 share/axis/tcl/axis.tcl:1092
+#: src/emc/usr_intf/axis/scripts/axis.py:1292
+#: src/emc/usr_intf/axis/scripts/axis.py:2725 share/axis/tcl/axis.tcl:1092
 #: share/axis/tcl/axis.tcl:1094 share/axis/tcl/axis.tcl:2144
 msgid "Continuous"
 msgstr "連續"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1390
+#: src/emc/usr_intf/axis/scripts/axis.py:1403
 msgid "Ok"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1533
+#: src/emc/usr_intf/axis/scripts/axis.py:1546
 msgid "T    Tool Table"
 msgstr "T    刀具表"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1544
-#: src/emc/usr_intf/axis/scripts/axis.py:1717
+#: src/emc/usr_intf/axis/scripts/axis.py:1557
+#: src/emc/usr_intf/axis/scripts/axis.py:1730
 #: src/emc/usr_intf/stepconf/stepconf.py:1691
 #: src/emc/usr_intf/stepconf/stepconf.py:2235
 msgid "in"
 msgstr "英寸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1547
+#: src/emc/usr_intf/axis/scripts/axis.py:1560
 msgid " radius"
 msgstr "  半徑"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1549
+#: src/emc/usr_intf/axis/scripts/axis.py:1562
 msgid " diameter"
 msgstr "  直徑"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1550
+#: src/emc/usr_intf/axis/scripts/axis.py:1563
 msgid "°"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1559
+#: src/emc/usr_intf/axis/scripts/axis.py:1572
 msgid "Coordinate System:"
 msgstr "坐標系:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1575
+#: src/emc/usr_intf/axis/scripts/axis.py:1588
 msgid "fixture"
 msgstr "夾具"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1576
+#: src/emc/usr_intf/axis/scripts/axis.py:1589
 msgid "workpiece"
 msgstr "工件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1592
+#: src/emc/usr_intf/axis/scripts/axis.py:1605
 msgid "Name:"
 msgstr "名稱:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1592
+#: src/emc/usr_intf/axis/scripts/axis.py:1605
 msgid "Size:"
 msgstr "尺寸:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1593
+#: src/emc/usr_intf/axis/scripts/axis.py:1606
 msgid "Tool order:"
 msgstr "刀具秩序:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1593
+#: src/emc/usr_intf/axis/scripts/axis.py:1606
 msgid "Rapid distance:"
 msgstr "快速的距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1594
+#: src/emc/usr_intf/axis/scripts/axis.py:1607
 msgid "Feed distance:"
 msgstr "進給距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1594
+#: src/emc/usr_intf/axis/scripts/axis.py:1607
 msgid "Total distance:"
 msgstr "總距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1595
+#: src/emc/usr_intf/axis/scripts/axis.py:1608
 msgid "Run time:"
 msgstr "運行時間:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1595
+#: src/emc/usr_intf/axis/scripts/axis.py:1608
 msgid "X bounds:"
 msgstr "X 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1596
+#: src/emc/usr_intf/axis/scripts/axis.py:1609
 msgid "Y bounds:"
 msgstr "Y 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1596
+#: src/emc/usr_intf/axis/scripts/axis.py:1609
 msgid "Z bounds:"
 msgstr "Z 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1597
+#: src/emc/usr_intf/axis/scripts/axis.py:1610
 msgid "A bounds:"
 msgstr "A 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1597
+#: src/emc/usr_intf/axis/scripts/axis.py:1610
 msgid "B bounds:"
 msgstr "B 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1598
+#: src/emc/usr_intf/axis/scripts/axis.py:1611
 msgid "C bounds:"
 msgstr "C 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1622
+#: src/emc/usr_intf/axis/scripts/axis.py:1635
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "程序 超出 机床 最低 限度 在 軸 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1625
+#: src/emc/usr_intf/axis/scripts/axis.py:1638
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "程序 超出 机床 最高 限度 在 軸 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1630
+#: src/emc/usr_intf/axis/scripts/axis.py:1643
 msgid "Program exceeds machine limits"
 msgstr "程序 超出 机床 極限"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1633
+#: src/emc/usr_intf/axis/scripts/axis.py:1646
 msgid "Run Anyway"
 msgstr "運行 無論如何"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1695
+#: src/emc/usr_intf/axis/scripts/axis.py:1708
 msgid "No file loaded"
 msgstr "沒有 文件 加載"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1703
+#: src/emc/usr_intf/axis/scripts/axis.py:1716
 #, python-format
 msgid "generated from %s"
 msgstr "產生 於　%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1709
+#: src/emc/usr_intf/axis/scripts/axis.py:1722
 #, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1735
+#: src/emc/usr_intf/axis/scripts/axis.py:1748
 #, python-format
 msgid "%.1f minutes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1737
+#: src/emc/usr_intf/axis/scripts/axis.py:1750
 #, python-format
 msgid "%d seconds"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1745
+#: src/emc/usr_intf/axis/scripts/axis.py:1758
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1746
+#: src/emc/usr_intf/axis/scripts/axis.py:1759
 msgid "G-Code Properties"
 msgstr "G 代碼 性質"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1870
+#: src/emc/usr_intf/axis/scripts/axis.py:1883
 msgid "All machinable files"
 msgstr "所有 可 加工 文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1871
-#: src/emc/usr_intf/axis/scripts/axis.py:2451
+#: src/emc/usr_intf/axis/scripts/axis.py:1884
+#: src/emc/usr_intf/axis/scripts/axis.py:2464
 msgid "rs274ngc files"
 msgstr "rs274ngc 文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1886
+#: src/emc/usr_intf/axis/scripts/axis.py:1899
 msgid "axis cannot accept remote command while running"
 msgstr "軸 不能接受 遠程 指令 在 運行時"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2242
+#: src/emc/usr_intf/axis/scripts/axis.py:2255
 msgid "Axis is already homed, are you sure you want to re-home?"
 msgstr "軸 已經 在零，你一定要 重新 再 歸零?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2255
+#: src/emc/usr_intf/axis/scripts/axis.py:2268
 msgid "This axis is already homed, are you sure you want to re-home?"
 msgstr "這軸 已經 在零，你一定要 重新 再 歸零?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2295 share/axis/tcl/axis.tcl:1108
+#: src/emc/usr_intf/axis/scripts/axis.py:2308 share/axis/tcl/axis.tcl:1108
 msgid "Touch Off"
 msgstr "對刀"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2296
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "輸入 %s 坐標相對於 %%s:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2463
+#: src/emc/usr_intf/axis/scripts/axis.py:2476
 msgid "Error saving file"
 msgstr "保存 文件 時出錯"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2845
+#: src/emc/usr_intf/axis/scripts/axis.py:2859
 #: src/emc/usr_intf/touchy/touchy.glade:577
 msgid "Home All"
 msgstr "全部 歸零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2847
+#: src/emc/usr_intf/axis/scripts/axis.py:2861
 msgid "Home all axes [Ctrl-Home]"
 msgstr "所有軸 歸零 [Ctrl-Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2850
+#: src/emc/usr_intf/axis/scripts/axis.py:2864
 msgid "Home All Axes"
 msgstr "所有軸 歸零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2855
+#: src/emc/usr_intf/axis/scripts/axis.py:2871
 msgid "Unhome All Axes"
 msgstr "所有軸 離零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2879
+#: src/emc/usr_intf/axis/scripts/axis.py:2895
 #, python-format
 msgid "Home Axis _%s"
 msgstr "歸零 軸 _%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2881
+#: src/emc/usr_intf/axis/scripts/axis.py:2897
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr "離零 軸 _%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3024
+#: src/emc/usr_intf/axis/scripts/axis.py:3040
 msgid "Run from here"
 msgstr "從 這裡 運行"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3319
+#: src/emc/usr_intf/axis/scripts/axis.py:3335
 msgid "Error in ~/.axisrc"
 msgstr "錯誤 joi ~/.axisrc"
 
@@ -11684,86 +11689,86 @@ msgstr "<b>動作數據</b>"
 msgid "gtk-cancel"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:427 src/emc/task/emctaskmain.cc:460
+#: src/emc/task/emctaskmain.cc:467 src/emc/task/emctaskmain.cc:500
 #, c-format
 msgid "%s exceeds +X limit"
 msgstr "%s 超過 +X 極限"
 
-#: src/emc/task/emctaskmain.cc:432 src/emc/task/emctaskmain.cc:465
+#: src/emc/task/emctaskmain.cc:472 src/emc/task/emctaskmain.cc:505
 #, c-format
 msgid "%s exceeds +Y limit"
 msgstr "%s 超過 +Y 極限"
 
-#: src/emc/task/emctaskmain.cc:437 src/emc/task/emctaskmain.cc:470
+#: src/emc/task/emctaskmain.cc:477 src/emc/task/emctaskmain.cc:510
 #, c-format
 msgid "%s exceeds +Z limit"
 msgstr "%s 超過 +Z 極限"
 
-#: src/emc/task/emctaskmain.cc:442 src/emc/task/emctaskmain.cc:475
+#: src/emc/task/emctaskmain.cc:482 src/emc/task/emctaskmain.cc:515
 #, c-format
 msgid "%s exceeds -X limit"
 msgstr "%s 超過  -X 極限"
 
-#: src/emc/task/emctaskmain.cc:447 src/emc/task/emctaskmain.cc:480
+#: src/emc/task/emctaskmain.cc:487 src/emc/task/emctaskmain.cc:520
 #, c-format
 msgid "%s exceeds -Y limit"
 msgstr "%s 超過 -Y 極限"
 
-#: src/emc/task/emctaskmain.cc:452 src/emc/task/emctaskmain.cc:485
+#: src/emc/task/emctaskmain.cc:492 src/emc/task/emctaskmain.cc:525
 #, c-format
 msgid "%s exceeds -Z limit"
 msgstr "%s 超過 -Z 極限"
 
-#: src/emc/task/emctaskmain.cc:810
+#: src/emc/task/emctaskmain.cc:853
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr "命令 (%s) 不能執行 直到機器 離開 急停 並開動"
 
-#: src/emc/task/emctaskmain.cc:930
+#: src/emc/task/emctaskmain.cc:973
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "不能做到這一點（%s）在手動模式"
 
-#: src/emc/task/emctaskmain.cc:1027
+#: src/emc/task/emctaskmain.cc:1072
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "不能做到這一點（%s）在自動模式與翻譯空閒"
 
-#: src/emc/task/emctaskmain.cc:1087
+#: src/emc/task/emctaskmain.cc:1132
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "不能做到這一點（%s）在自動模式與翻譯閱讀"
 
-#: src/emc/task/emctaskmain.cc:1169
+#: src/emc/task/emctaskmain.cc:1216
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "不能做到這一點（%s）在自動模式與翻譯暫停"
 
-#: src/emc/task/emctaskmain.cc:1231
+#: src/emc/task/emctaskmain.cc:1278
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "不能做到這一點（%s）在自動模式與翻譯等待"
 
-#: src/emc/task/emctaskmain.cc:1321
+#: src/emc/task/emctaskmain.cc:1370
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "不能做到這一點（%s）在MDI模式"
 
-#: src/emc/task/emctaskmain.cc:1943
+#: src/emc/task/emctaskmain.cc:2015
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "無法切換模式，而模式是AUTO和解釋是沒有閒著"
 
-#: src/emc/task/emctaskmain.cc:2012
+#: src/emc/task/emctaskmain.cc:2084
 msgid "Can't issue MDI command when not homed"
 msgstr "不能發出 MDI命令當沒有歸零"
 
-#: src/emc/task/emctaskmain.cc:2017
+#: src/emc/task/emctaskmain.cc:2089
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "必須在MDI模式下發出 MDI命令"
 
-#: src/emc/task/emctaskmain.cc:2078
+#: src/emc/task/emctaskmain.cc:2151
 msgid "Can't run a program when not homed"
 msgstr "不能運行程序，當沒有歸零"
 
@@ -11779,61 +11784,61 @@ msgid ""
 "rel_err=%.4f%%"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:89
+#: src/emc/rs274ngc/interp_check.cc:90
 msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 不准 和 G2 或 G3使用，因為它們都使用 P"
 
-#: src/emc/rs274ngc/interp_check.cc:92
+#: src/emc/rs274ngc/interp_check.cc:93
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:93
+#: src/emc/rs274ngc/interp_check.cc:94
 msgid "P value not an integer with G10"
 msgstr "P值不是整數使用 G10"
 
-#: src/emc/rs274ngc/interp_check.cc:94
+#: src/emc/rs274ngc/interp_check.cc:95
 msgid "P value out of range (0-9) with G10 L2 or L20"
 msgstr "P值超出範圍（0-9）與 G10 L2或L20"
 
-#: src/emc/rs274ngc/interp_check.cc:95
+#: src/emc/rs274ngc/interp_check.cc:96
 msgid "P value out of range with G10 L1 or G10 L10"
 msgstr "P值超出範圍使用 G10 L1或G10 L10"
 
-#: src/emc/rs274ngc/interp_check.cc:99
+#: src/emc/rs274ngc/interp_check.cc:100
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "G5.2和G5.3之間代碼，只有更多的G5.2代碼是允許的."
 
-#: src/emc/rs274ngc/interp_check.cc:248
+#: src/emc/rs274ngc/interp_check.cc:258
 msgid "D word with no G41, G41.1, G42, G42.1, or G96 to use it"
 msgstr "D 字無 G41，G41.1，G42，G42.1，或G96使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:254
+#: src/emc/rs274ngc/interp_check.cc:264
 msgid "E word with no G76, M66, M67 or M68 to use it"
 msgstr "E字無 G76，M66，M67或M68使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:259
+#: src/emc/rs274ngc/interp_check.cc:269
 msgid "H word with no G43 or G76 to use it"
 msgstr "H字沒有 G43或G76使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:265
+#: src/emc/rs274ngc/interp_check.cc:275
 msgid "I word with no G2, G3, G5, G5.1, G10, G76, or G87 to use it"
 msgstr "I字 沒有 G2，G3，G5，G5.1，G10，G76或G87使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:271
+#: src/emc/rs274ngc/interp_check.cc:281
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
 msgstr "J字 沒有 G2，G3，G5，G5.1，G10，G76或G87使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:277
+#: src/emc/rs274ngc/interp_check.cc:287
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr "K字 沒有 G2，G3，G33，G33.1，G76或G87使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:287
+#: src/emc/rs274ngc/interp_check.cc:297
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "or NURBS code"
 msgstr "L字無 G10，刀具補償，固定循環，數字/模擬輸入, 或 NURBS 代碼"
 
-#: src/emc/rs274ngc/interp_check.cc:299
+#: src/emc/rs274ngc/interp_check.cc:309
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 or user M code to use it"
@@ -11841,22 +11846,30 @@ msgstr ""
 "P字G2 G3 G4沒有 G5 G10 G64 G76 G82 G86 G88 G5.2 G89或M50 M51 M52 M53 M62 M63 "
 "M64 M65 M66或用戶的M代碼使用它"
 
-#: src/emc/rs274ngc/interp_check.cc:302
+#: src/emc/rs274ngc/interp_check.cc:314
 #, fuzzy
-msgid "P value not an integer with G2 or G3"
+msgid "P value not an integer with M19 G2 or G3"
 msgstr "P值不是整數使用 G2或G3"
 
-#: src/emc/rs274ngc/interp_check.cc:304
+#: src/emc/rs274ngc/interp_check.cc:316
+msgid "P value must be 0,1,or 2 with M19"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_check.cc:318
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr "P值應為 1或更大的G2或G3"
 
-#: src/emc/rs274ngc/interp_check.cc:311
+#: src/emc/rs274ngc/interp_check.cc:326
 #, fuzzy
 msgid ""
-"Q word with no G5, G10, G64, G73, G76, G83, M66, M67, M68 or user M code "
-"that uses it"
+"Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
+"code that uses it"
 msgstr ""
 "Q字，沒有 G5，G10，G64，G73，G76，G83，M66，M67，M68或用戶 M代碼 使用它"
+
+#: src/emc/rs274ngc/interp_check.cc:336
+msgid "R value must be within 0..360 with M19"
+msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:138
 msgid "You must specify both X and Y coordinates for Control Points"
@@ -11920,7 +11933,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:382
-#: src/emc/rs274ngc/interp_convert.cc:3909
+#: src/emc/rs274ngc/interp_convert.cc:4266
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "不能進給 用 零速度主軸 在 進給每轉 模式下"
 
@@ -11940,7 +11953,7 @@ msgid ""
 msgstr "刀具半徑補償進入弧不大於刀具半徑"
 
 #: src/emc/rs274ngc/interp_convert.cc:868
-#: src/emc/rs274ngc/interp_convert.cc:878 src/emc/rs274ngc/interp_queue.cc:541
+#: src/emc/rs274ngc/interp_convert.cc:878 src/emc/rs274ngc/interp_queue.cc:592
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr "弧移動無法到達凹角 使用該工具 而沒有刨削槽"
@@ -11958,249 +11971,283 @@ msgstr "弧至弧運動 做一個角落 補償工具 不適合 有刨削槽"
 #: src/emc/rs274ngc/interp_convert.cc:1036
 #: src/emc/rs274ngc/interp_convert.cc:1037
 #: src/emc/rs274ngc/interp_convert.cc:1038
-#: src/emc/rs274ngc/interp_convert.cc:3376
-#: src/emc/rs274ngc/interp_convert.cc:3379
-#: src/emc/rs274ngc/interp_convert.cc:3382 src/emc/rs274ngc/interp_find.cc:97
+#: src/emc/rs274ngc/interp_convert.cc:3733
+#: src/emc/rs274ngc/interp_convert.cc:3736
+#: src/emc/rs274ngc/interp_convert.cc:3739 src/emc/rs274ngc/interp_find.cc:97
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "無效的絕對位置 %5.2f 給包裹 旋轉軸 %c"
 
-#: src/emc/rs274ngc/interp_convert.cc:1466
+#: src/emc/rs274ngc/interp_convert.cc:1494
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr "不能改變控制模式 當 使用刀具半徑補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:1579
+#: src/emc/rs274ngc/interp_convert.cc:1607
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr "不能改變坐標系 當 使用刀具半徑補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:1823
+#: src/emc/rs274ngc/interp_convert.cc:1851
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1826
+#: src/emc/rs274ngc/interp_convert.cc:1854
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1837
+#: src/emc/rs274ngc/interp_convert.cc:1865
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1844
+#: src/emc/rs274ngc/interp_convert.cc:1872
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr "G%d 與車刀，但平面不是 G18"
 
-#: src/emc/rs274ngc/interp_convert.cc:2228
+#: src/emc/rs274ngc/interp_convert.cc:2271
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr "無法設置 參考點 當 使用刀具補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:2628
+#: src/emc/rs274ngc/interp_convert.cc:2786
+#, c-format
+msgid ""
+"BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2787
+#, c-format
+msgid "BUG: restore from level %d !?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2788
+#, c-format
+msgid "BUG: restore to level %d !?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2807
+#, c-format
+msgid "M7x: restore_settings G20/G21 failed: '%s'"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2819
+#, c-format
+msgid "M7x: restore_settings failed executing: '%s': %s"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2885
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr "無法設置 運動 輸出 當 刀具半徑補償 開"
 
-#: src/emc/rs274ngc/interp_convert.cc:2629
+#: src/emc/rs274ngc/interp_convert.cc:2886
 msgid "No valid P word with M62"
 msgstr "沒有有效的P字使用 M62"
 
-#: src/emc/rs274ngc/interp_convert.cc:2633
+#: src/emc/rs274ngc/interp_convert.cc:2890
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2634
+#: src/emc/rs274ngc/interp_convert.cc:2891
 msgid "No valid P word with M63"
 msgstr "沒有有效的P字使用 M62"
 
-#: src/emc/rs274ngc/interp_convert.cc:2638
-#: src/emc/rs274ngc/interp_convert.cc:2643
+#: src/emc/rs274ngc/interp_convert.cc:2895
+#: src/emc/rs274ngc/interp_convert.cc:2900
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr "無法設置附屬數碼輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2639
+#: src/emc/rs274ngc/interp_convert.cc:2896
 msgid "No valid P word with M64"
 msgstr "沒有有效的P字使用 M64"
 
-#: src/emc/rs274ngc/interp_convert.cc:2644
+#: src/emc/rs274ngc/interp_convert.cc:2901
 msgid "No valid P word with M65"
 msgstr "沒有有效的P字使用 M65"
 
-#: src/emc/rs274ngc/interp_convert.cc:2673
+#: src/emc/rs274ngc/interp_convert.cc:2931
 msgid "invalid P-word with M66"
 msgstr "沒有有效的P字使用 M66"
 
-#: src/emc/rs274ngc/interp_convert.cc:2688
+#: src/emc/rs274ngc/interp_convert.cc:2946
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr "不能等待數碼輸入當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2700
+#: src/emc/rs274ngc/interp_convert.cc:2958
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr "不能等待模擬輸入當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2714
+#: src/emc/rs274ngc/interp_convert.cc:2973
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr "無法設置運動模擬輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2715
+#: src/emc/rs274ngc/interp_convert.cc:2974
 msgid "Invalid analog index with M67"
 msgstr "無效的模擬指標使用 M67"
 
-#: src/emc/rs274ngc/interp_convert.cc:2721
+#: src/emc/rs274ngc/interp_convert.cc:2980
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr "無法設置輔助模擬輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2722
+#: src/emc/rs274ngc/interp_convert.cc:2981
 msgid "Invalid analog index with M68"
 msgstr "無效的模擬指標使用 M68"
 
-#: src/emc/rs274ngc/interp_convert.cc:2733
+#: src/emc/rs274ngc/interp_convert.cc:3012
 #, fuzzy
-msgid "Need positive Q-word to specify tool number with M61"
+msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr "需要正的 Q-字 指定刀具號 當使用M61"
 
-#: src/emc/rs274ngc/interp_convert.cc:2806
-#: src/emc/rs274ngc/interp_convert.cc:2823
-#: src/emc/rs274ngc/interp_convert.cc:2837
-#: src/emc/rs274ngc/interp_convert.cc:2851
-#: src/emc/rs274ngc/interp_convert.cc:2865
+#: src/emc/rs274ngc/interp_convert.cc:3087
+msgid "Q word with M19 requires a value > 0"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:3115
+msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:3156
+#: src/emc/rs274ngc/interp_convert.cc:3173
+#: src/emc/rs274ngc/interp_convert.cc:3188
+#: src/emc/rs274ngc/interp_convert.cc:3202
+#: src/emc/rs274ngc/interp_convert.cc:3216
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr "無法啟用超速 當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2813
-#: src/emc/rs274ngc/interp_convert.cc:2828
-#: src/emc/rs274ngc/interp_convert.cc:2842
-#: src/emc/rs274ngc/interp_convert.cc:2856
-#: src/emc/rs274ngc/interp_convert.cc:2870
+#: src/emc/rs274ngc/interp_convert.cc:3163
+#: src/emc/rs274ngc/interp_convert.cc:3178
+#: src/emc/rs274ngc/interp_convert.cc:3193
+#: src/emc/rs274ngc/interp_convert.cc:3207
+#: src/emc/rs274ngc/interp_convert.cc:3221
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr "無法禁用超速 當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:2970
-#: src/emc/rs274ngc/interp_convert.cc:2971
-#: src/emc/rs274ngc/interp_convert.cc:2972
+#: src/emc/rs274ngc/interp_convert.cc:3325
+#: src/emc/rs274ngc/interp_convert.cc:3326
+#: src/emc/rs274ngc/interp_convert.cc:3327
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "指標軸 %c 只能 用 G0 移動"
 
-#: src/emc/rs274ngc/interp_convert.cc:2979
-#: src/emc/rs274ngc/interp_convert.cc:2981
-#: src/emc/rs274ngc/interp_convert.cc:2983
+#: src/emc/rs274ngc/interp_convert.cc:3334
+#: src/emc/rs274ngc/interp_convert.cc:3336
+#: src/emc/rs274ngc/interp_convert.cc:3338
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "指標軸 %c 只能單獨移動 "
 
-#: src/emc/rs274ngc/interp_convert.cc:3076
+#: src/emc/rs274ngc/interp_convert.cc:3433
 msgid "Cannot probe with feed per rev mode"
 msgstr "無法 探測 使用 進給每轉 模式"
 
-#: src/emc/rs274ngc/interp_convert.cc:3124
+#: src/emc/rs274ngc/interp_convert.cc:3481
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr "不能改變回縮模式當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3158
+#: src/emc/rs274ngc/interp_convert.cc:3515
 msgid "G10 L1 without offsets has no effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3264
+#: src/emc/rs274ngc/interp_convert.cc:3621
 msgid "Q number in G10 is not an integer"
 msgstr "Q 編號在 G10 是不是整數"
 
-#: src/emc/rs274ngc/interp_convert.cc:3265
+#: src/emc/rs274ngc/interp_convert.cc:3622
 msgid "Invalid tool orientation"
 msgstr "無效的刀具定位"
 
-#: src/emc/rs274ngc/interp_convert.cc:3364
+#: src/emc/rs274ngc/interp_convert.cc:3721
 msgid "I J words not allowed with G10 L2"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3385
+#: src/emc/rs274ngc/interp_convert.cc:3742
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr "不能改變激活的坐標系當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3393
+#: src/emc/rs274ngc/interp_convert.cc:3750
 msgid "R not allowed in G10 L20"
 msgstr "R 不容許在 G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:3966
+#: src/emc/rs274ngc/interp_convert.cc:4323
 msgid "Spindle not turning in G33"
 msgstr "在 G33 主軸不轉動"
 
-#: src/emc/rs274ngc/interp_convert.cc:3976
+#: src/emc/rs274ngc/interp_convert.cc:4333
 msgid "Spindle not turning in G33.1"
 msgstr "在 G33.1 主軸不轉動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4019
+#: src/emc/rs274ngc/interp_convert.cc:4376
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "BUG: 一軸錯誤地和索引器一起移動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4032
+#: src/emc/rs274ngc/interp_convert.cc:4389
 msgid "BUG: trying to index incorrect axis"
 msgstr "BUG: 試圖指標不正確軸"
 
-#: src/emc/rs274ngc/interp_convert.cc:4124
+#: src/emc/rs274ngc/interp_convert.cc:4481
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "不能使用G76螺紋週期當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:4127
+#: src/emc/rs274ngc/interp_convert.cc:4484
 msgid "In G76, I must not be 0"
 msgstr "在 G76，I 不能為 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4129
+#: src/emc/rs274ngc/interp_convert.cc:4486
 msgid "In G76, J must be greater than 0"
 msgstr "在 G76，J 必須大於 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4131
+#: src/emc/rs274ngc/interp_convert.cc:4488
 msgid "In G76, K must be greater than J"
 msgstr "在 G76，K 必須大於 J"
 
-#: src/emc/rs274ngc/interp_convert.cc:4274
+#: src/emc/rs274ngc/interp_convert.cc:4631
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr "刀具長度補償 進入移動 不大於刀具半徑"
 
-#: src/emc/rs274ngc/interp_convert.cc:4493
+#: src/emc/rs274ngc/interp_convert.cc:4850
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr "零度內角 是無效的刀具補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:4531
-#: src/emc/rs274ngc/interp_convert.cc:4539
+#: src/emc/rs274ngc/interp_convert.cc:4888
+#: src/emc/rs274ngc/interp_convert.cc:4896
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr "弧到直線運動做的角,補償工具不適合會做成刨削槽"
 
-#: src/emc/rs274ngc/interp_convert.cc:4623
+#: src/emc/rs274ngc/interp_convert.cc:4980
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "不能更改工具，刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:4743
+#: src/emc/rs274ngc/interp_convert.cc:5101
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "不能改變刀具補償當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_queue.cc:539
+#: src/emc/rs274ngc/interp_queue.cc:590
 #, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr "BUG: 刀具補償產生了一個無效的圓弧半徑不匹配的 r1 %f r2 %f\n"
 
-#: src/emc/rs274ngc/interp_queue.cc:561
+#: src/emc/rs274ngc/interp_queue.cc:612
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr "BUG: 不支持的平面刀具補償"
 
-#: src/emc/rs274ngc/interp_queue.cc:571
+#: src/emc/rs274ngc/interp_queue.cc:622
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr "直導線在凹角不能達到,會做成刨削槽"
 
-#: src/emc/rs274ngc/interp_queue.cc:599
+#: src/emc/rs274ngc/interp_queue.cc:650
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
 msgstr "BUG: 不支持的平面 [%d] 中的刀具補償"
 
-#: src/emc/rs274ngc/interp_queue.cc:610
+#: src/emc/rs274ngc/interp_queue.cc:661
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr "在凹角直進給不能達到,會做成刨削槽"
@@ -12221,23 +12268,23 @@ msgstr "不能用固定循環當刀具補償在使用中"
 msgid "G17 canned cycle is not possible on a machine without Z axis"
 msgstr "G17 固定循環是不可能的,機器上沒有 Z 軸"
 
-#: src/emc/rs274ngc/interp_cycles.cc:1001
+#: src/emc/rs274ngc/interp_cycles.cc:1004
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
 msgstr "G17.1 固定循環是不可能的機器上沒有 W 軸"
 
-#: src/emc/rs274ngc/interp_cycles.cc:1217
+#: src/emc/rs274ngc/interp_cycles.cc:1220
 msgid "G19 canned cycle is not possible on a machine without X axis"
 msgstr "G19 固定循環是不可能的機器上沒有 X 軸"
 
-#: src/emc/rs274ngc/interp_cycles.cc:1385
+#: src/emc/rs274ngc/interp_cycles.cc:1388
 msgid "G19.1 canned cycle is not possible on a machine without U axis"
 msgstr "G19.1 固定循環是不可能的機器上沒有 U 軸"
 
-#: src/emc/rs274ngc/interp_cycles.cc:1610
+#: src/emc/rs274ngc/interp_cycles.cc:1613
 msgid "G18 canned cycle is not possible on a machine without Y axis"
 msgstr "G18 固定循環是不可能的機器上沒有 Y 軸"
 
-#: src/emc/rs274ngc/interp_cycles.cc:1777
+#: src/emc/rs274ngc/interp_cycles.cc:1780
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
 msgstr "G18.1 固定循環是不可能的機器上沒有 V 軸"
 
@@ -12269,131 +12316,151 @@ msgstr "G91運動使用極坐標是不確定的，當在原點"
 msgid "Requested tool %d not found in the tool table"
 msgstr "請求工具 %d 刀具表找不到"
 
-#: src/emc/rs274ngc/interp_internal.cc:151
+#: src/emc/rs274ngc/interp_internal.cc:154
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
 msgstr "不能用極坐標的機器上沒有 X或Y軸"
 
-#: src/emc/rs274ngc/interp_internal.cc:152
+#: src/emc/rs274ngc/interp_internal.cc:155
 msgid "Cannot use polar coordinate except in G17 plane"
 msgstr "不能使用極坐標除在G17平面"
 
-#: src/emc/rs274ngc/interp_internal.cc:153
+#: src/emc/rs274ngc/interp_internal.cc:156
 msgid "Cannot specify both polar coordinate and X word"
 msgstr "不能同時指定極坐標和 X 字"
 
-#: src/emc/rs274ngc/interp_internal.cc:154
+#: src/emc/rs274ngc/interp_internal.cc:157
 msgid "Cannot specify both polar coordinate and Y word"
 msgstr "不能同時指定極坐標和 Y 字"
 
-#: src/emc/rs274ngc/interp_internal.cc:175
-#: src/emc/rs274ngc/interp_internal.cc:187
-#: src/emc/rs274ngc/interp_internal.cc:200
+#: src/emc/rs274ngc/interp_internal.cc:178
+#: src/emc/rs274ngc/interp_internal.cc:190
+#: src/emc/rs274ngc/interp_internal.cc:203
 msgid "Polar coordinates can only be used for motion"
 msgstr "極坐標只能用於運動"
 
-#: src/emc/rs274ngc/interp_read.cc:1112 src/emc/rs274ngc/interp_read.cc:1116
+#: src/emc/rs274ngc/interp_read.cc:1143 src/emc/rs274ngc/interp_read.cc:1147
 #, c-format
 msgid "Bad character '\\%03o' used"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1116
+#: src/emc/rs274ngc/interp_read.cc:1147
 #, c-format
 msgid "Bad character '%c' used"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1623
+#: src/emc/rs274ngc/interp_read.cc:1671
 msgid "Left bracket missing after 'while'"
 msgstr "'while' 後丟失左括號"
 
-#: src/emc/rs274ngc/interp_read.cc:1638
+#: src/emc/rs274ngc/interp_read.cc:1686
 msgid "Left bracket missing after 'repeat'"
 msgstr "'repeat' 後丟失左括號"
 
-#: src/emc/rs274ngc/interp_read.cc:1653
+#: src/emc/rs274ngc/interp_read.cc:1701
 msgid "Left bracket missing after 'if'"
 msgstr "'if' 後丟失左括號"
 
-#: src/emc/rs274ngc/interp_read.cc:1668
+#: src/emc/rs274ngc/interp_read.cc:1716
 msgid "Left bracket missing after 'elseif'"
 msgstr "'elseif' 後丟失左括號"
 
-#: src/emc/rs274ngc/interp_read.cc:1858
-#, c-format
-msgid "Cannot change #<%s>"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_read.cc:1889 src/emc/rs274ngc/interp_read.cc:1932
-#, c-format
-msgid "Internal error: Could not assign #<%s>"
-msgstr "內部錯誤：無法指派 #<%S>"
-
-#: src/emc/rs274ngc/interp_read.cc:1906
-#, c-format
-msgid "init_named_parameter must be global #<%s>"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_read.cc:2093
-#, c-format
-msgid "Named parameter #<%s> not defined"
-msgstr "命名參數 #<%s> 沒有定義"
-
-#: src/emc/rs274ngc/interp_read.cc:2174
+#: src/emc/rs274ngc/interp_read.cc:1919
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2189
+#: src/emc/rs274ngc/interp_read.cc:1934
 msgid "Expected # reading parameter"
 msgstr "預計 # 讀參數"
 
-#: src/emc/rs274ngc/interp_read.cc:2191
+#: src/emc/rs274ngc/interp_read.cc:1936
 msgid "Expected ] reading bracketed parameter"
 msgstr "預期 ] 讀方括號內的參數"
 
-#: src/emc/rs274ngc/interp_read.cc:2881
+#: src/emc/rs274ngc/interp_read.cc:2608
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
 msgstr "不良數字格式 (轉換失敗) 解析 '%s'"
 
-#: src/emc/rs274ngc/interp_read.cc:2882
+#: src/emc/rs274ngc/interp_read.cc:2609
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
 msgstr "不良數字格式 (尾隨字符) 解析 '%s'"
 
-#: src/emc/rs274ngc/interp_read.cc:2972
+#: src/emc/rs274ngc/interp_read.cc:2699
 msgid "Calculation resulted in 'not a number'"
 msgstr "計算結果 'not a number'"
 
-#: src/emc/rs274ngc/interp_read.cc:2974
+#: src/emc/rs274ngc/interp_read.cc:2701
 msgid "Calculation resulted in 'infinity'"
 msgstr "計算結果 'infinity'"
 
-#: src/emc/rs274ngc/interp_read.cc:3268
+#: src/emc/rs274ngc/interp_read.cc:2994
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3391
+#: src/emc/rs274ngc/interp_read.cc:3106
 msgid "Multiple U words on one line"
 msgstr "多個 U 字在一行"
 
-#: src/emc/rs274ngc/interp_read.cc:3407
+#: src/emc/rs274ngc/interp_read.cc:3122
 msgid "Multiple V words on one line"
 msgstr "多個 V 字在一行"
 
-#: src/emc/rs274ngc/interp_read.cc:3423
+#: src/emc/rs274ngc/interp_read.cc:3138
 msgid "Multiple W words on one line"
 msgstr "多個 W 字在一行"
 
-#: src/emc/rs274ngc/interp_o_word.cc:104
+#: src/emc/rs274ngc/interp_o_word.cc:95
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:897
+#: src/emc/rs274ngc/interp_namedparams.cc:161
+#, c-format
+msgid "Named parameter #<%s> not defined"
+msgstr "命名參數 #<%s> 沒有定義"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:191
+#, fuzzy, c-format
+msgid "cant open ini file '%s'"
+msgstr "不能打開 %s"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:208
+#, fuzzy, c-format
+msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
+msgstr "命名參數 #<%s> 沒有定義"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:232
+#, c-format
+msgid "fetch_hal_param: hal_init(%s): %d"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:233
+#, c-format
+msgid "fetch_hal_param: hal_ready(): %d"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:370
+#, c-format
+msgid "Internal error: Could not assign #<%s>"
+msgstr "內部錯誤：無法指派 #<%S>"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:378
+#, c-format
+msgid "Cannot assign to read-only parameter #<%s>"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:682
+#, c-format
+msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
+msgstr ""
+
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1269 src/emc/rs274ngc/rs274ngc_pre.cc:1344
 msgid "Queue is not empty after tool change"
 msgstr "換刀後隊列不空"
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:1145
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1648
 #, c-format
 msgid "Unable to open parameter file: '%s'"
 msgstr "無法打開參數文件: '%s'"
@@ -13057,136 +13124,128 @@ msgid "Too many subroutine levels"
 msgstr "太多的子程序層面"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:169
+msgid "Bug: call stack underrun"
+msgstr ""
+
+#: src/emc/rs274ngc/rs274ngc_return.hh:170
 msgid "Unknown control command in o word"
 msgstr "未知控制命令在O字"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:170
+#: src/emc/rs274ngc/rs274ngc_return.hh:171
 msgid "Too many oword labels"
 msgstr "太多oword標籤"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:171
+#: src/emc/rs274ngc/rs274ngc_return.hh:172
 msgid "Unknown oword number"
 msgstr "未知oword號"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:172
+#: src/emc/rs274ngc/rs274ngc_return.hh:173
 msgid "Nested subroutine definition"
 msgstr "巢狀子程序定義"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:173
+#: src/emc/rs274ngc/rs274ngc_return.hh:174
 msgid "Not in subroutine definition"
 msgstr "未在子程序定義"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:174
+#: src/emc/rs274ngc/rs274ngc_return.hh:175
 msgid "File not open"
 msgstr "文件未打開"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:175
+#: src/emc/rs274ngc/rs274ngc_return.hh:176
 msgid "Need tool prepared -Txx- for toolchange"
 msgstr "需要準備刀具 -TXX- 供換刀"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:176
+#: src/emc/rs274ngc/rs274ngc_return.hh:177
 msgid "Cannot change planes with cutter radius compensation on"
 msgstr "無法改變平面用了刀具半徑補償"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:177
+#: src/emc/rs274ngc/rs274ngc_return.hh:178
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
 msgstr "刀具半徑補償只允許在XY，XZ平面"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:178
+#: src/emc/rs274ngc/rs274ngc_return.hh:179
 msgid "P word missing with G76"
 msgstr "P字缺少的 G76"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:179
+#: src/emc/rs274ngc/rs274ngc_return.hh:180
 msgid "I J or K words missing with G76"
 msgstr "I J或K字缺失的 G76"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:180
+#: src/emc/rs274ngc/rs274ngc_return.hh:181
 msgid "Cannot move rotary axes with G76"
 msgstr "無法移動旋轉軸使用 G76"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:181
+#: src/emc/rs274ngc/rs274ngc_return.hh:182
 msgid "Multiple e words on one line"
 msgstr "多個 e字在一行"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:182
+#: src/emc/rs274ngc/rs274ngc_return.hh:183
 msgid "Named parameter not terminated"
 msgstr "命名參數沒有端接"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:183
+#: src/emc/rs274ngc/rs274ngc_return.hh:184
 msgid "Out of memory"
 msgstr "內存不足"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:184
+#: src/emc/rs274ngc/rs274ngc_return.hh:185
 msgid "S word missing with G96"
 msgstr "S字缺少的 G96"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:185
+#: src/emc/rs274ngc/rs274ngc_return.hh:186
 msgid "Queue is not empty after external input"
 msgstr "外部輸入後隊列不為空"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:186
+#: src/emc/rs274ngc/rs274ngc_return.hh:187
 msgid "Can't select analog input with wait type != immediate return"
 msgstr "無法選擇模擬輸入的等待類型！=立即返回"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:187
+#: src/emc/rs274ngc/rs274ngc_return.hh:188
 msgid "Zero timeout with wait type != immediate return"
 msgstr "零超時的等待類型！=立即返回"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:188
+#: src/emc/rs274ngc/rs274ngc_return.hh:189
 msgid "Invalid to select both a digital and an analog input with M66"
 msgstr "無效的同時選擇一個數字和模擬輸入用 M66"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:189
+#: src/emc/rs274ngc/rs274ngc_return.hh:190
 msgid "Need to have either a valid P or a valid E word with M66"
 msgstr "需要有一張有效的P或一個有效的E字與 M66"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:190
+#: src/emc/rs274ngc/rs274ngc_return.hh:191
 msgid "Q word missing with g73"
 msgstr "Q缺少字與 G73"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:191
+#: src/emc/rs274ngc/rs274ngc_return.hh:192
 msgid "Digital input selected out of bounds"
 msgstr "數字輸入選擇超出界限"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:192
+#: src/emc/rs274ngc/rs274ngc_return.hh:193
 msgid "Analog input selected out of bounds"
 msgstr "模擬輸入選擇超出界限"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:193
+#: src/emc/rs274ngc/rs274ngc_return.hh:194
 msgid "W value unspecified in UV plane canned cycle"
 msgstr "W值不明在UV平面固定循環"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:194
+#: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "U value unspecified in VW plane canned cycle"
 msgstr "U值不確定的VW平面固定循環"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:195
+#: src/emc/rs274ngc/rs274ngc_return.hh:196
 msgid "V value unspecified in UW plane canned cycle"
 msgstr "V值未指定在UW平面固定循環"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:196
+#: src/emc/rs274ngc/rs274ngc_return.hh:197
 msgid "R less than W in cycle in UV plane"
 msgstr "R小於 W在週期 UV平面"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:197
+#: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than U in cycle in VW plane"
 msgstr "R小於 U在週期VW平面"
 
-#: src/emc/rs274ngc/rs274ngc_return.hh:198
+#: src/emc/rs274ngc/rs274ngc_return.hh:199
 msgid "R less than V in cycle in UW plane"
 msgstr "R小於 V的週期在UW平面"
-
-#, fuzzy
-#~ msgid "fault %d during orient in progress"
-#~ msgstr "歸零 已在 進行中"
-
-#, fuzzy
-#~ msgid "cant open ini file '%s'"
-#~ msgstr "不能打開 %s"
-
-#, fuzzy
-#~ msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-#~ msgstr "命名參數 #<%s> 沒有定義"
 
 #~ msgid "About TkEmc"
 #~ msgstr "關於 TkEmc"

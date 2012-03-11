@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-10 13:39-0600\n"
+"POT-Creation-Date: 2012-03-10 13:40-0600\n"
 "PO-Revision-Date: 2009-01-25 14:12+0100\n"
 "Last-Translator: Ševc Dominik <sevc2post.sk>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
@@ -284,11 +284,11 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:419 tcl/tklinuxcnc.tcl:1338 tcl/tklinuxcnc.tcl:1407
 #: tcl/tklinuxcnc.tcl:1438 tcl/tklinuxcnc.tcl:1469 tcl/tklinuxcnc.tcl:2017
 #: tcl/tklinuxcnc.tcl:2036 tcl/tklinuxcnc.tcl:2055 tcl/tklinuxcnc.tcl:2102
-#: src/emc/usr_intf/axis/scripts/axis.py:1069
-#: src/emc/usr_intf/axis/scripts/axis.py:1129
-#: src/emc/usr_intf/axis/scripts/axis.py:1445
-#: src/emc/usr_intf/axis/scripts/axis.py:2464
-#: src/emc/usr_intf/axis/scripts/axis.py:3320
+#: src/emc/usr_intf/axis/scripts/axis.py:1077
+#: src/emc/usr_intf/axis/scripts/axis.py:1141
+#: src/emc/usr_intf/axis/scripts/axis.py:1458
+#: src/emc/usr_intf/axis/scripts/axis.py:2477
+#: src/emc/usr_intf/axis/scripts/axis.py:3336
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:718
 #: lib/python/propertywindow.py:34 share/axis/tcl/axis.tcl:1720
 #: share/axis/tcl/axis.tcl:1757
@@ -432,9 +432,9 @@ msgstr ""
 #: tcl/mini.tcl:3110 tcl/tklinuxcnc.tcl:162 tcl/tklinuxcnc.tcl:213
 #: tcl/tklinuxcnc.tcl:420 tcl/tklinuxcnc.tcl:1339 tcl/tklinuxcnc.tcl:1408
 #: tcl/tklinuxcnc.tcl:1439 tcl/tklinuxcnc.tcl:1470 tcl/tklinuxcnc.tcl:2103
-#: src/emc/usr_intf/axis/scripts/axis.py:1391
-#: src/emc/usr_intf/axis/scripts/axis.py:1446
-#: src/emc/usr_intf/axis/scripts/axis.py:1633
+#: src/emc/usr_intf/axis/scripts/axis.py:1404
+#: src/emc/usr_intf/axis/scripts/axis.py:1459
+#: src/emc/usr_intf/axis/scripts/axis.py:1646
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:720
 msgid "Cancel"
 msgstr "ZrušiťAbbrechen"
@@ -572,31 +572,36 @@ msgstr ""
 msgid "Probe tripped during a jog."
 msgstr ""
 
-#: src/emc/motion/control.c:697
+#: src/emc/motion/control.c:578
+#, c-format
+msgid "fault %d during orient in progress"
+msgstr ""
+
+#: src/emc/motion/control.c:718
 msgid "motion stopped by enable input"
-msgstr ""
-
-#: src/emc/motion/control.c:720
-#, c-format
-msgid "joint %d on limit switch error"
-msgstr ""
-
-#: src/emc/motion/control.c:732
-#, c-format
-msgid "joint %d amplifier fault"
 msgstr ""
 
 #: src/emc/motion/control.c:741
 #, c-format
+msgid "joint %d on limit switch error"
+msgstr ""
+
+#: src/emc/motion/control.c:753
+#, c-format
+msgid "joint %d amplifier fault"
+msgstr ""
+
+#: src/emc/motion/control.c:762
+#, c-format
 msgid "joint %d following error"
 msgstr ""
 
-#: src/emc/motion/control.c:1423
+#: src/emc/motion/control.c:1444
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
 msgstr ""
 
-#: src/emc/motion/control.c:1428
+#: src/emc/motion/control.c:1449
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
 msgstr ""
@@ -776,17 +781,17 @@ msgstr ""
 msgid "need to be enabled, in teleop mode for teleop move"
 msgstr ""
 
-#: src/emc/motion/command.c:1556
+#: src/emc/motion/command.c:1605
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr ""
 
-#: src/emc/motion/command.c:1562
+#: src/emc/motion/command.c:1611
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr ""
 
-#: src/emc/motion/command.c:1591
+#: src/emc/motion/command.c:1640
 #, c-format
 msgid "unrecognized command %d"
 msgstr ""
@@ -841,7 +846,7 @@ msgstr ""
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:585
+#: src/emc/motion/motion.c:597
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr ""
@@ -902,7 +907,7 @@ msgid "Save To File"
 msgstr "Uložiť"
 
 #: tcl/bin/emccalib.tcl:106 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:86 tcl/mini.tcl:2516 tcl/tklinuxcnc.tcl:719
+#: tcl/bin/halshow.tcl:85 tcl/mini.tcl:2516 tcl/tklinuxcnc.tcl:719
 #: tcl/ngcgui.tcl:549
 msgid "File"
 msgstr "Súbor"
@@ -1035,7 +1040,7 @@ msgstr "Otvoriť..."
 msgid "Save As..."
 msgstr "Uložiť ako..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:93
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:92
 #: tcl/mini.tcl:954 tcl/tklinuxcnc.tcl:734 tcl/ngcgui.tcl:1243
 #: tcl/ngcgui.tcl:3680
 msgid "Exit"
@@ -1119,7 +1124,7 @@ msgstr ""
 "GPL Version 2"
 
 #: tcl/bin/genedit.tcl:197 tcl/mini.tcl:1373 tcl/mini.tcl:1775
-#: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2000
+#: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2072
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "Nie je možné otvoriť %s."
@@ -1260,27 +1265,27 @@ msgstr "Uložiť a ukončiť"
 msgid "View"
 msgstr "Náhľad"
 
-#: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:105
+#: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:104
 msgid "Expand Tree"
 msgstr "Rozšíriť strom"
 
-#: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:107
+#: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:106
 msgid "Collapse Tree"
 msgstr "Uzavrieť strom"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:110
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:109
 msgid "Expand Pins"
 msgstr "Rozšíriť piny"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:112
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:111
 msgid "Expand Parameters"
 msgstr "Rozšíriť parametre"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:114
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:113
 msgid "Expand Signals"
 msgstr "Rozšíriť signály"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:117
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:116
 msgid "Erase Watch"
 msgstr "Vymazať pohľad"
 
@@ -1296,15 +1301,15 @@ msgstr "Hlavné"
 msgid "Enter HAL command :"
 msgstr "Zadať príkaz HAL:"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:357
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:354
 msgid "Execute"
 msgstr "Vykonať"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:413
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:405
 msgid "Select a node to show."
 msgstr "Vyberte premennú pre zobrazenie."
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:438
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:429
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "Vyberte si. Kliknite na názov."
 
@@ -1347,35 +1352,35 @@ msgstr ""
 "This script is not for the faint hearted and carries no warranty or "
 "liability for its use to the extent allowed by law."
 
-#: tcl/bin/halshow.tcl:70
+#: tcl/bin/halshow.tcl:69
 msgid " SHOW "
 msgstr "UKÁZAŤ"
 
-#: tcl/bin/halshow.tcl:71
+#: tcl/bin/halshow.tcl:70
 msgid " WATCH "
 msgstr "POZOROVAŤ"
 
-#: tcl/bin/halshow.tcl:91
+#: tcl/bin/halshow.tcl:90
 msgid "Load Watch List"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:103
+#: tcl/bin/halshow.tcl:102
 msgid "Tree View"
 msgstr "Vetvený Pohľad"
 
-#: tcl/bin/halshow.tcl:354
+#: tcl/bin/halshow.tcl:349
 msgid "Test HAL command :"
 msgstr "Vyskúšať príkaz HAL :"
 
-#: tcl/bin/halshow.tcl:556
+#: tcl/bin/halshow.tcl:544
 msgid "Load a watch list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:579
+#: tcl/bin/halshow.tcl:567
 msgid "Save current watch list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:593
+#: tcl/bin/halshow.tcl:581
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Tu môžete vyskúšať príkazy, ale NEBUDÚ uložené."
 
@@ -1909,7 +1914,7 @@ msgid "Restart"
 msgstr "Reštartovať"
 
 #: tcl/mini.tcl:1711 tcl/mini.tcl:2823 tcl/mini.tcl:2882
-#: tcl/tklinuxcnc.tcl:465 src/emc/usr_intf/axis/scripts/axis.py:1872
+#: tcl/tklinuxcnc.tcl:465 src/emc/usr_intf/axis/scripts/axis.py:1885
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:754
 msgid "All files"
 msgstr "Všetky súbory"
@@ -2433,8 +2438,8 @@ msgstr "auto"
 msgid "inches"
 msgstr "inch"
 
-#: tcl/tklinuxcnc.tcl:757 src/emc/usr_intf/axis/scripts/axis.py:1543
-#: src/emc/usr_intf/axis/scripts/axis.py:1713
+#: tcl/tklinuxcnc.tcl:757 src/emc/usr_intf/axis/scripts/axis.py:1556
+#: src/emc/usr_intf/axis/scripts/axis.py:1726
 #: src/emc/usr_intf/touchy/touchy.glade:3301
 #: src/emc/usr_intf/stepconf/stepconf.py:1685
 #: src/emc/usr_intf/stepconf/stepconf.py:2221
@@ -3242,8 +3247,8 @@ msgstr ""
 msgid "using path"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3642 src/emc/usr_intf/axis/scripts/axis.py:2242
-#: src/emc/usr_intf/axis/scripts/axis.py:2255
+#: tcl/ngcgui.tcl:3642 src/emc/usr_intf/axis/scripts/axis.py:2255
+#: src/emc/usr_intf/axis/scripts/axis.py:2268
 msgid "Warning"
 msgstr ""
 
@@ -3434,624 +3439,624 @@ msgstr ""
 msgid "Creating new tab page"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:144
+#: src/emc/usr_intf/axis/scripts/axis.py:148
 msgid "Emergency stop"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:145
+#: src/emc/usr_intf/axis/scripts/axis.py:149
 #, fuzzy
 msgid "Turn machine on"
 msgstr "Stroj zapnutý"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:147
+#: src/emc/usr_intf/axis/scripts/axis.py:151
 msgid "Activate first axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:148
+#: src/emc/usr_intf/axis/scripts/axis.py:152
 msgid "Activate second axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:149
+#: src/emc/usr_intf/axis/scripts/axis.py:153
 msgid "Activate third axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:150
+#: src/emc/usr_intf/axis/scripts/axis.py:154
 msgid "Activate fourth axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:151
+#: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Activate fifth through ninth axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:152
+#: src/emc/usr_intf/axis/scripts/axis.py:156
 #, fuzzy
 msgid "Set Feed Override from 0% to 100%"
 msgstr "Nastav prechod posunu"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:153
+#: src/emc/usr_intf/axis/scripts/axis.py:157
 msgid ", and ."
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:153
+#: src/emc/usr_intf/axis/scripts/axis.py:157
 #, fuzzy
 msgid "Select jog speed"
 msgstr "Nastaviť rýchlosť krokov:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:154
+#: src/emc/usr_intf/axis/scripts/axis.py:158
 msgid "< and >"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:154
+#: src/emc/usr_intf/axis/scripts/axis.py:158
 #, fuzzy
 msgid "Select angular jog speed"
 msgstr "Nastaviť rýchlosť krokov:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155
+#: src/emc/usr_intf/axis/scripts/axis.py:159
 msgid "I, Shift-I"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155 share/axis/tcl/axis.tcl:2356
+#: src/emc/usr_intf/axis/scripts/axis.py:159 share/axis/tcl/axis.tcl:2356
 #, fuzzy
 msgid "Select jog increment"
 msgstr "Pričítať"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:160
 #, fuzzy
 msgid "Continuous jog"
 msgstr "Priebežný"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:157
+#: src/emc/usr_intf/axis/scripts/axis.py:161
 #: src/emc/usr_intf/pncconf/pncconf.py:479
 #, fuzzy
 msgid "Home"
 msgstr "Domov"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:157
+#: src/emc/usr_intf/axis/scripts/axis.py:161
 msgid "Send active axis home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:158
+#: src/emc/usr_intf/axis/scripts/axis.py:162
 msgid "Ctrl-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:158
+#: src/emc/usr_intf/axis/scripts/axis.py:162
 msgid "Home all axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:159
+#: src/emc/usr_intf/axis/scripts/axis.py:163
 msgid "Shift-Home"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:159
+#: src/emc/usr_intf/axis/scripts/axis.py:163
 msgid "Zero G54 offset for active axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:160
+#: src/emc/usr_intf/axis/scripts/axis.py:164
 msgid "End"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:160
+#: src/emc/usr_intf/axis/scripts/axis.py:164
 msgid "Set G54 offset for active axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:161
+#: src/emc/usr_intf/axis/scripts/axis.py:165
 msgid "Jog active axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:164
+#: src/emc/usr_intf/axis/scripts/axis.py:168
 msgid "Left, Right"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:164
+#: src/emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog first axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:165
+#: src/emc/usr_intf/axis/scripts/axis.py:169
 #, fuzzy
 msgid "Up, Down"
 msgstr "Dole"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:165
+#: src/emc/usr_intf/axis/scripts/axis.py:169
 msgid "Jog second axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:166
+#: src/emc/usr_intf/axis/scripts/axis.py:170
 msgid "Pg Up, Pg Dn"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:166
+#: src/emc/usr_intf/axis/scripts/axis.py:170
 msgid "Jog third axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:167
+#: src/emc/usr_intf/axis/scripts/axis.py:171
 msgid "Shift+above jogs"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:167
+#: src/emc/usr_intf/axis/scripts/axis.py:171
 msgid "Jog at traverse speed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:168
+#: src/emc/usr_intf/axis/scripts/axis.py:172
 msgid "Jog fourth axis"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:171
+#: src/emc/usr_intf/axis/scripts/axis.py:175
 msgid "Toggle between Drag and Rotate mode"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:172
+#: src/emc/usr_intf/axis/scripts/axis.py:176
 msgid "Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:172
+#: src/emc/usr_intf/axis/scripts/axis.py:176
 msgid "Pan, rotate or select line"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:173
+#: src/emc/usr_intf/axis/scripts/axis.py:177
 msgid "Shift+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:173
+#: src/emc/usr_intf/axis/scripts/axis.py:177
 msgid "Rotate or pan"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:174
+#: src/emc/usr_intf/axis/scripts/axis.py:178
 msgid "Right Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:174
-#: src/emc/usr_intf/axis/scripts/axis.py:176
-#: src/emc/usr_intf/axis/scripts/axis.py:177
+#: src/emc/usr_intf/axis/scripts/axis.py:178
+#: src/emc/usr_intf/axis/scripts/axis.py:180
+#: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Zoom view"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:175
+#: src/emc/usr_intf/axis/scripts/axis.py:179
 msgid "Wheel Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:175
+#: src/emc/usr_intf/axis/scripts/axis.py:179
 msgid "Rotate view"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:176
+#: src/emc/usr_intf/axis/scripts/axis.py:180
 msgid "Rotate Wheel"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:177
+#: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Control+Left Button"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:180
+#: src/emc/usr_intf/axis/scripts/axis.py:184
 #, fuzzy
 msgid "Manual control"
 msgstr "Manuál"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:181
+#: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Code entry (MDI)"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Control-M"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Clear MDI history"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:183
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Control-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:183
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Copy selected MDI history elements"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:184
+#: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "to clipboard"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "Control-Shift-H"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "Paste clipboard to MDI history"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:186 share/axis/tcl/axis.tcl:1113
+#: src/emc/usr_intf/axis/scripts/axis.py:190 share/axis/tcl/axis.tcl:1113
 #: src/emc/usr_intf/touchy/touchy.glade:508
 #, fuzzy
 msgid "Override Limits"
 msgstr "Zmeniť limity"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:188
+#: src/emc/usr_intf/axis/scripts/axis.py:192
 #, fuzzy
 msgid "Open program"
 msgstr "Program"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Control-R"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Reload program"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Control-S"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Save g-code as"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:191
+#: src/emc/usr_intf/axis/scripts/axis.py:195
 #, fuzzy
 msgid "Run program"
 msgstr "Program"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:192
+#: src/emc/usr_intf/axis/scripts/axis.py:196
 #, fuzzy
 msgid "Step program"
 msgstr "Program"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 #, fuzzy
 msgid "Pause program"
 msgstr "Program"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 #, fuzzy
 msgid "Resume program"
 msgstr "Pokračovať"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:195
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Stop running program, or"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:196
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "stop loading program preview"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:202
 msgid "Toggle mist"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:203
 msgid "Toggle flood"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:204
 #, fuzzy
 msgid "Spindle brake off"
 msgstr "Vreteno vypni"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Shift-B"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:205
 #, fuzzy
 msgid "Spindle brake on"
 msgstr "Vreteno rýchlejšie"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:202
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 #, fuzzy
 msgid "Turn spindle clockwise"
 msgstr "Vreteno Pomalšie"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:203
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Turn spindle counterclockwise"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:204
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Turn spindle more slowly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:205
+#: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Turn spindle more quickly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:211
 msgid "Control-K"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:211
 msgid "Clear live plot"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Cycle among preset views"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:209
+#: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Cycle among preview, DRO, and user tabs"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:211
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 #, fuzzy
 msgid "Ctrl-Space"
 msgstr "Medzera"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:211
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 #, fuzzy
 msgid "Clear notifications"
 msgstr "Príklady konfigurácií"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:828
+#: src/emc/usr_intf/axis/scripts/axis.py:836
 #, python-format
 msgid "Unknown tool %d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:830
+#: src/emc/usr_intf/axis/scripts/axis.py:838
 msgid "No tool"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:832
+#: src/emc/usr_intf/axis/scripts/axis.py:840
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:834
+#: src/emc/usr_intf/axis/scripts/axis.py:842
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1005
+#: src/emc/usr_intf/axis/scripts/axis.py:1013
 #, fuzzy
 msgid "Filtering..."
 msgstr "Testujem..."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1065
+#: src/emc/usr_intf/axis/scripts/axis.py:1073
 msgid "Filter failed"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1066
+#: src/emc/usr_intf/axis/scripts/axis.py:1074
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1127
+#: src/emc/usr_intf/axis/scripts/axis.py:1139
 #, python-format
 msgid "G-Code error in %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1128
+#: src/emc/usr_intf/axis/scripts/axis.py:1140
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1279
-#: src/emc/usr_intf/axis/scripts/axis.py:2712 share/axis/tcl/axis.tcl:1092
+#: src/emc/usr_intf/axis/scripts/axis.py:1292
+#: src/emc/usr_intf/axis/scripts/axis.py:2725 share/axis/tcl/axis.tcl:1092
 #: share/axis/tcl/axis.tcl:1094 share/axis/tcl/axis.tcl:2144
 #, fuzzy
 msgid "Continuous"
 msgstr "Priebežný"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1390
+#: src/emc/usr_intf/axis/scripts/axis.py:1403
 msgid "Ok"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1533
+#: src/emc/usr_intf/axis/scripts/axis.py:1546
 #, fuzzy
 msgid "T    Tool Table"
 msgstr "Načítať tabuľku nástrojov"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1544
-#: src/emc/usr_intf/axis/scripts/axis.py:1717
+#: src/emc/usr_intf/axis/scripts/axis.py:1557
+#: src/emc/usr_intf/axis/scripts/axis.py:1730
 #: src/emc/usr_intf/stepconf/stepconf.py:1691
 #: src/emc/usr_intf/stepconf/stepconf.py:2235
 #, fuzzy
 msgid "in"
 msgstr "Hlavné"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1547
+#: src/emc/usr_intf/axis/scripts/axis.py:1560
 msgid " radius"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1549
+#: src/emc/usr_intf/axis/scripts/axis.py:1562
 #, fuzzy
 msgid " diameter"
 msgstr "Priemer:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1550
+#: src/emc/usr_intf/axis/scripts/axis.py:1563
 msgid "°"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1559
+#: src/emc/usr_intf/axis/scripts/axis.py:1572
 #, fuzzy
 msgid "Coordinate System:"
 msgstr "Okno Kontroly Systému Súradníc"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1575
+#: src/emc/usr_intf/axis/scripts/axis.py:1588
 msgid "fixture"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1576
+#: src/emc/usr_intf/axis/scripts/axis.py:1589
 msgid "workpiece"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1592
+#: src/emc/usr_intf/axis/scripts/axis.py:1605
 #, fuzzy
 msgid "Name:"
 msgstr "INI-Názov"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1592
+#: src/emc/usr_intf/axis/scripts/axis.py:1605
 #, fuzzy
 msgid "Size:"
 msgstr "Veľkosť"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1593
+#: src/emc/usr_intf/axis/scripts/axis.py:1606
 #, fuzzy
 msgid "Tool order:"
 msgstr "Nástroj :"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1593
+#: src/emc/usr_intf/axis/scripts/axis.py:1606
 msgid "Rapid distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1594
+#: src/emc/usr_intf/axis/scripts/axis.py:1607
 msgid "Feed distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1594
+#: src/emc/usr_intf/axis/scripts/axis.py:1607
 msgid "Total distance:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1595
+#: src/emc/usr_intf/axis/scripts/axis.py:1608
 #, fuzzy
 msgid "Run time:"
 msgstr "Čas pohybu"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1595
+#: src/emc/usr_intf/axis/scripts/axis.py:1608
 msgid "X bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1596
+#: src/emc/usr_intf/axis/scripts/axis.py:1609
 msgid "Y bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1596
+#: src/emc/usr_intf/axis/scripts/axis.py:1609
 msgid "Z bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1597
+#: src/emc/usr_intf/axis/scripts/axis.py:1610
 msgid "A bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1597
+#: src/emc/usr_intf/axis/scripts/axis.py:1610
 msgid "B bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1598
+#: src/emc/usr_intf/axis/scripts/axis.py:1611
 msgid "C bounds:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1622
+#: src/emc/usr_intf/axis/scripts/axis.py:1635
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1625
+#: src/emc/usr_intf/axis/scripts/axis.py:1638
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1630
+#: src/emc/usr_intf/axis/scripts/axis.py:1643
 msgid "Program exceeds machine limits"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1633
+#: src/emc/usr_intf/axis/scripts/axis.py:1646
 msgid "Run Anyway"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1695
+#: src/emc/usr_intf/axis/scripts/axis.py:1708
 msgid "No file loaded"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1703
+#: src/emc/usr_intf/axis/scripts/axis.py:1716
 #, python-format
 msgid "generated from %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1709
+#: src/emc/usr_intf/axis/scripts/axis.py:1722
 #, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1735
+#: src/emc/usr_intf/axis/scripts/axis.py:1748
 #, python-format
 msgid "%.1f minutes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1737
+#: src/emc/usr_intf/axis/scripts/axis.py:1750
 #, python-format
 msgid "%d seconds"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1745
+#: src/emc/usr_intf/axis/scripts/axis.py:1758
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1746
+#: src/emc/usr_intf/axis/scripts/axis.py:1759
 msgid "G-Code Properties"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1870
+#: src/emc/usr_intf/axis/scripts/axis.py:1883
 #, fuzzy
 msgid "All machinable files"
 msgstr "Všetky súbory"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1871
-#: src/emc/usr_intf/axis/scripts/axis.py:2451
+#: src/emc/usr_intf/axis/scripts/axis.py:1884
+#: src/emc/usr_intf/axis/scripts/axis.py:2464
 msgid "rs274ngc files"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1886
+#: src/emc/usr_intf/axis/scripts/axis.py:1899
 msgid "axis cannot accept remote command while running"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2242
+#: src/emc/usr_intf/axis/scripts/axis.py:2255
 msgid "Axis is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2255
+#: src/emc/usr_intf/axis/scripts/axis.py:2268
 msgid "This axis is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2295 share/axis/tcl/axis.tcl:1108
+#: src/emc/usr_intf/axis/scripts/axis.py:2308 share/axis/tcl/axis.tcl:1108
 msgid "Touch Off"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2296
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2463
+#: src/emc/usr_intf/axis/scripts/axis.py:2476
 msgid "Error saving file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2845
+#: src/emc/usr_intf/axis/scripts/axis.py:2859
 #: src/emc/usr_intf/touchy/touchy.glade:577
 #, fuzzy
 msgid "Home All"
 msgstr "Uložiť všetky"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2847
+#: src/emc/usr_intf/axis/scripts/axis.py:2861
 msgid "Home all axes [Ctrl-Home]"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2850
+#: src/emc/usr_intf/axis/scripts/axis.py:2864
 msgid "Home All Axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2855
+#: src/emc/usr_intf/axis/scripts/axis.py:2871
 msgid "Unhome All Axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2879
+#: src/emc/usr_intf/axis/scripts/axis.py:2895
 #, python-format
 msgid "Home Axis _%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2881
+#: src/emc/usr_intf/axis/scripts/axis.py:2897
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3024
+#: src/emc/usr_intf/axis/scripts/axis.py:3040
 msgid "Run from here"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3319
+#: src/emc/usr_intf/axis/scripts/axis.py:3335
 msgid "Error in ~/.axisrc"
 msgstr ""
 
@@ -12003,86 +12008,86 @@ msgstr ""
 msgid "gtk-cancel"
 msgstr "ZrušiťAbbrechen"
 
-#: src/emc/task/emctaskmain.cc:427 src/emc/task/emctaskmain.cc:460
+#: src/emc/task/emctaskmain.cc:467 src/emc/task/emctaskmain.cc:500
 #, c-format
 msgid "%s exceeds +X limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:432 src/emc/task/emctaskmain.cc:465
+#: src/emc/task/emctaskmain.cc:472 src/emc/task/emctaskmain.cc:505
 #, c-format
 msgid "%s exceeds +Y limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:437 src/emc/task/emctaskmain.cc:470
+#: src/emc/task/emctaskmain.cc:477 src/emc/task/emctaskmain.cc:510
 #, c-format
 msgid "%s exceeds +Z limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:442 src/emc/task/emctaskmain.cc:475
+#: src/emc/task/emctaskmain.cc:482 src/emc/task/emctaskmain.cc:515
 #, c-format
 msgid "%s exceeds -X limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:447 src/emc/task/emctaskmain.cc:480
+#: src/emc/task/emctaskmain.cc:487 src/emc/task/emctaskmain.cc:520
 #, c-format
 msgid "%s exceeds -Y limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:452 src/emc/task/emctaskmain.cc:485
+#: src/emc/task/emctaskmain.cc:492 src/emc/task/emctaskmain.cc:525
 #, c-format
 msgid "%s exceeds -Z limit"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:810
+#: src/emc/task/emctaskmain.cc:853
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:930
+#: src/emc/task/emctaskmain.cc:973
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1027
+#: src/emc/task/emctaskmain.cc:1072
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1087
+#: src/emc/task/emctaskmain.cc:1132
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1169
+#: src/emc/task/emctaskmain.cc:1216
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1231
+#: src/emc/task/emctaskmain.cc:1278
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1321
+#: src/emc/task/emctaskmain.cc:1370
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:1943
+#: src/emc/task/emctaskmain.cc:2015
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:2012
+#: src/emc/task/emctaskmain.cc:2084
 msgid "Can't issue MDI command when not homed"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:2017
+#: src/emc/task/emctaskmain.cc:2089
 msgid "Must be in MDI mode to issue MDI command"
 msgstr ""
 
-#: src/emc/task/emctaskmain.cc:2078
+#: src/emc/task/emctaskmain.cc:2151
 msgid "Can't run a program when not homed"
 msgstr ""
 
@@ -12098,78 +12103,86 @@ msgid ""
 "rel_err=%.4f%%"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:89
+#: src/emc/rs274ngc/interp_check.cc:90
 msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:92
+#: src/emc/rs274ngc/interp_check.cc:93
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:93
+#: src/emc/rs274ngc/interp_check.cc:94
 msgid "P value not an integer with G10"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:94
+#: src/emc/rs274ngc/interp_check.cc:95
 msgid "P value out of range (0-9) with G10 L2 or L20"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:95
+#: src/emc/rs274ngc/interp_check.cc:96
 msgid "P value out of range with G10 L1 or G10 L10"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:99
+#: src/emc/rs274ngc/interp_check.cc:100
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:248
+#: src/emc/rs274ngc/interp_check.cc:258
 msgid "D word with no G41, G41.1, G42, G42.1, or G96 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:254
+#: src/emc/rs274ngc/interp_check.cc:264
 msgid "E word with no G76, M66, M67 or M68 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:259
+#: src/emc/rs274ngc/interp_check.cc:269
 msgid "H word with no G43 or G76 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:265
+#: src/emc/rs274ngc/interp_check.cc:275
 msgid "I word with no G2, G3, G5, G5.1, G10, G76, or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:271
+#: src/emc/rs274ngc/interp_check.cc:281
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:277
+#: src/emc/rs274ngc/interp_check.cc:287
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:287
+#: src/emc/rs274ngc/interp_check.cc:297
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "or NURBS code"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:299
+#: src/emc/rs274ngc/interp_check.cc:309
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 or user M code to use it"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:302
-msgid "P value not an integer with G2 or G3"
+#: src/emc/rs274ngc/interp_check.cc:314
+msgid "P value not an integer with M19 G2 or G3"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:304
+#: src/emc/rs274ngc/interp_check.cc:316
+msgid "P value must be 0,1,or 2 with M19"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_check.cc:318
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_check.cc:311
+#: src/emc/rs274ngc/interp_check.cc:326
 msgid ""
-"Q word with no G5, G10, G64, G73, G76, G83, M66, M67, M68 or user M code "
-"that uses it"
+"Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
+"code that uses it"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_check.cc:336
+msgid "R value must be within 0..360 with M19"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:138
@@ -12234,7 +12247,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:382
-#: src/emc/rs274ngc/interp_convert.cc:3909
+#: src/emc/rs274ngc/interp_convert.cc:4266
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 
@@ -12254,7 +12267,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:868
-#: src/emc/rs274ngc/interp_convert.cc:878 src/emc/rs274ngc/interp_queue.cc:541
+#: src/emc/rs274ngc/interp_convert.cc:878 src/emc/rs274ngc/interp_queue.cc:592
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
@@ -12272,248 +12285,282 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1036
 #: src/emc/rs274ngc/interp_convert.cc:1037
 #: src/emc/rs274ngc/interp_convert.cc:1038
-#: src/emc/rs274ngc/interp_convert.cc:3376
-#: src/emc/rs274ngc/interp_convert.cc:3379
-#: src/emc/rs274ngc/interp_convert.cc:3382 src/emc/rs274ngc/interp_find.cc:97
+#: src/emc/rs274ngc/interp_convert.cc:3733
+#: src/emc/rs274ngc/interp_convert.cc:3736
+#: src/emc/rs274ngc/interp_convert.cc:3739 src/emc/rs274ngc/interp_find.cc:97
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1466
+#: src/emc/rs274ngc/interp_convert.cc:1494
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1579
+#: src/emc/rs274ngc/interp_convert.cc:1607
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1823
+#: src/emc/rs274ngc/interp_convert.cc:1851
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1826
+#: src/emc/rs274ngc/interp_convert.cc:1854
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1837
+#: src/emc/rs274ngc/interp_convert.cc:1865
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1844
+#: src/emc/rs274ngc/interp_convert.cc:1872
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2228
+#: src/emc/rs274ngc/interp_convert.cc:2271
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2628
+#: src/emc/rs274ngc/interp_convert.cc:2786
+#, c-format
+msgid ""
+"BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2787
+#, c-format
+msgid "BUG: restore from level %d !?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2788
+#, c-format
+msgid "BUG: restore to level %d !?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2807
+#, c-format
+msgid "M7x: restore_settings G20/G21 failed: '%s'"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2819
+#, c-format
+msgid "M7x: restore_settings failed executing: '%s': %s"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:2885
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2629
+#: src/emc/rs274ngc/interp_convert.cc:2886
 msgid "No valid P word with M62"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2633
+#: src/emc/rs274ngc/interp_convert.cc:2890
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2634
+#: src/emc/rs274ngc/interp_convert.cc:2891
 msgid "No valid P word with M63"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2638
-#: src/emc/rs274ngc/interp_convert.cc:2643
+#: src/emc/rs274ngc/interp_convert.cc:2895
+#: src/emc/rs274ngc/interp_convert.cc:2900
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2639
+#: src/emc/rs274ngc/interp_convert.cc:2896
 msgid "No valid P word with M64"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2644
+#: src/emc/rs274ngc/interp_convert.cc:2901
 msgid "No valid P word with M65"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2673
+#: src/emc/rs274ngc/interp_convert.cc:2931
 msgid "invalid P-word with M66"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2688
+#: src/emc/rs274ngc/interp_convert.cc:2946
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2700
+#: src/emc/rs274ngc/interp_convert.cc:2958
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2714
+#: src/emc/rs274ngc/interp_convert.cc:2973
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2715
+#: src/emc/rs274ngc/interp_convert.cc:2974
 msgid "Invalid analog index with M67"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2721
+#: src/emc/rs274ngc/interp_convert.cc:2980
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2722
+#: src/emc/rs274ngc/interp_convert.cc:2981
 msgid "Invalid analog index with M68"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2733
-msgid "Need positive Q-word to specify tool number with M61"
+#: src/emc/rs274ngc/interp_convert.cc:3012
+msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2806
-#: src/emc/rs274ngc/interp_convert.cc:2823
-#: src/emc/rs274ngc/interp_convert.cc:2837
-#: src/emc/rs274ngc/interp_convert.cc:2851
-#: src/emc/rs274ngc/interp_convert.cc:2865
+#: src/emc/rs274ngc/interp_convert.cc:3087
+msgid "Q word with M19 requires a value > 0"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:3115
+msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_convert.cc:3156
+#: src/emc/rs274ngc/interp_convert.cc:3173
+#: src/emc/rs274ngc/interp_convert.cc:3188
+#: src/emc/rs274ngc/interp_convert.cc:3202
+#: src/emc/rs274ngc/interp_convert.cc:3216
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2813
-#: src/emc/rs274ngc/interp_convert.cc:2828
-#: src/emc/rs274ngc/interp_convert.cc:2842
-#: src/emc/rs274ngc/interp_convert.cc:2856
-#: src/emc/rs274ngc/interp_convert.cc:2870
+#: src/emc/rs274ngc/interp_convert.cc:3163
+#: src/emc/rs274ngc/interp_convert.cc:3178
+#: src/emc/rs274ngc/interp_convert.cc:3193
+#: src/emc/rs274ngc/interp_convert.cc:3207
+#: src/emc/rs274ngc/interp_convert.cc:3221
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2970
-#: src/emc/rs274ngc/interp_convert.cc:2971
-#: src/emc/rs274ngc/interp_convert.cc:2972
+#: src/emc/rs274ngc/interp_convert.cc:3325
+#: src/emc/rs274ngc/interp_convert.cc:3326
+#: src/emc/rs274ngc/interp_convert.cc:3327
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2979
-#: src/emc/rs274ngc/interp_convert.cc:2981
-#: src/emc/rs274ngc/interp_convert.cc:2983
+#: src/emc/rs274ngc/interp_convert.cc:3334
+#: src/emc/rs274ngc/interp_convert.cc:3336
+#: src/emc/rs274ngc/interp_convert.cc:3338
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3076
+#: src/emc/rs274ngc/interp_convert.cc:3433
 msgid "Cannot probe with feed per rev mode"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3124
+#: src/emc/rs274ngc/interp_convert.cc:3481
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3158
+#: src/emc/rs274ngc/interp_convert.cc:3515
 msgid "G10 L1 without offsets has no effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3264
+#: src/emc/rs274ngc/interp_convert.cc:3621
 msgid "Q number in G10 is not an integer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3265
+#: src/emc/rs274ngc/interp_convert.cc:3622
 msgid "Invalid tool orientation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3364
+#: src/emc/rs274ngc/interp_convert.cc:3721
 msgid "I J words not allowed with G10 L2"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3385
+#: src/emc/rs274ngc/interp_convert.cc:3742
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3393
+#: src/emc/rs274ngc/interp_convert.cc:3750
 msgid "R not allowed in G10 L20"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3966
+#: src/emc/rs274ngc/interp_convert.cc:4323
 msgid "Spindle not turning in G33"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3976
+#: src/emc/rs274ngc/interp_convert.cc:4333
 msgid "Spindle not turning in G33.1"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4019
+#: src/emc/rs274ngc/interp_convert.cc:4376
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4032
+#: src/emc/rs274ngc/interp_convert.cc:4389
 msgid "BUG: trying to index incorrect axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4124
+#: src/emc/rs274ngc/interp_convert.cc:4481
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4127
+#: src/emc/rs274ngc/interp_convert.cc:4484
 msgid "In G76, I must not be 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4129
+#: src/emc/rs274ngc/interp_convert.cc:4486
 msgid "In G76, J must be greater than 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4131
+#: src/emc/rs274ngc/interp_convert.cc:4488
 msgid "In G76, K must be greater than J"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4274
+#: src/emc/rs274ngc/interp_convert.cc:4631
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4493
+#: src/emc/rs274ngc/interp_convert.cc:4850
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4531
-#: src/emc/rs274ngc/interp_convert.cc:4539
+#: src/emc/rs274ngc/interp_convert.cc:4888
+#: src/emc/rs274ngc/interp_convert.cc:4896
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4623
+#: src/emc/rs274ngc/interp_convert.cc:4980
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4743
+#: src/emc/rs274ngc/interp_convert.cc:5101
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_queue.cc:539
+#: src/emc/rs274ngc/interp_queue.cc:590
 #, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_queue.cc:561
+#: src/emc/rs274ngc/interp_queue.cc:612
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_queue.cc:571
+#: src/emc/rs274ngc/interp_queue.cc:622
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_queue.cc:599
+#: src/emc/rs274ngc/interp_queue.cc:650
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_queue.cc:610
+#: src/emc/rs274ngc/interp_queue.cc:661
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
@@ -12534,23 +12581,23 @@ msgstr ""
 msgid "G17 canned cycle is not possible on a machine without Z axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_cycles.cc:1001
+#: src/emc/rs274ngc/interp_cycles.cc:1004
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_cycles.cc:1217
+#: src/emc/rs274ngc/interp_cycles.cc:1220
 msgid "G19 canned cycle is not possible on a machine without X axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_cycles.cc:1385
+#: src/emc/rs274ngc/interp_cycles.cc:1388
 msgid "G19.1 canned cycle is not possible on a machine without U axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_cycles.cc:1610
+#: src/emc/rs274ngc/interp_cycles.cc:1613
 msgid "G18 canned cycle is not possible on a machine without Y axis"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_cycles.cc:1777
+#: src/emc/rs274ngc/interp_cycles.cc:1780
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
 msgstr ""
 
@@ -12582,132 +12629,152 @@ msgstr ""
 msgid "Requested tool %d not found in the tool table"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_internal.cc:151
+#: src/emc/rs274ngc/interp_internal.cc:154
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_internal.cc:152
+#: src/emc/rs274ngc/interp_internal.cc:155
 msgid "Cannot use polar coordinate except in G17 plane"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_internal.cc:153
+#: src/emc/rs274ngc/interp_internal.cc:156
 msgid "Cannot specify both polar coordinate and X word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_internal.cc:154
+#: src/emc/rs274ngc/interp_internal.cc:157
 msgid "Cannot specify both polar coordinate and Y word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_internal.cc:175
-#: src/emc/rs274ngc/interp_internal.cc:187
-#: src/emc/rs274ngc/interp_internal.cc:200
+#: src/emc/rs274ngc/interp_internal.cc:178
+#: src/emc/rs274ngc/interp_internal.cc:190
+#: src/emc/rs274ngc/interp_internal.cc:203
 msgid "Polar coordinates can only be used for motion"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1112 src/emc/rs274ngc/interp_read.cc:1116
+#: src/emc/rs274ngc/interp_read.cc:1143 src/emc/rs274ngc/interp_read.cc:1147
 #, c-format
 msgid "Bad character '\\%03o' used"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1116
+#: src/emc/rs274ngc/interp_read.cc:1147
 #, c-format
 msgid "Bad character '%c' used"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1623
+#: src/emc/rs274ngc/interp_read.cc:1671
 msgid "Left bracket missing after 'while'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1638
+#: src/emc/rs274ngc/interp_read.cc:1686
 msgid "Left bracket missing after 'repeat'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1653
+#: src/emc/rs274ngc/interp_read.cc:1701
 msgid "Left bracket missing after 'if'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1668
+#: src/emc/rs274ngc/interp_read.cc:1716
 msgid "Left bracket missing after 'elseif'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1858
-#, c-format
-msgid "Cannot change #<%s>"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_read.cc:1889 src/emc/rs274ngc/interp_read.cc:1932
-#, c-format
-msgid "Internal error: Could not assign #<%s>"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_read.cc:1906
-#, c-format
-msgid "init_named_parameter must be global #<%s>"
-msgstr ""
-
-#: src/emc/rs274ngc/interp_read.cc:2093
-#, fuzzy, c-format
-msgid "Named parameter #<%s> not defined"
-msgstr "Načítať súbor parametra"
-
-#: src/emc/rs274ngc/interp_read.cc:2174
+#: src/emc/rs274ngc/interp_read.cc:1919
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2189
+#: src/emc/rs274ngc/interp_read.cc:1934
 #, fuzzy
 msgid "Expected # reading parameter"
 msgstr "Rozšíriť parametre"
 
-#: src/emc/rs274ngc/interp_read.cc:2191
+#: src/emc/rs274ngc/interp_read.cc:1936
 msgid "Expected ] reading bracketed parameter"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2881
+#: src/emc/rs274ngc/interp_read.cc:2608
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2882
+#: src/emc/rs274ngc/interp_read.cc:2609
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2972
+#: src/emc/rs274ngc/interp_read.cc:2699
 msgid "Calculation resulted in 'not a number'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2974
+#: src/emc/rs274ngc/interp_read.cc:2701
 msgid "Calculation resulted in 'infinity'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3268
+#: src/emc/rs274ngc/interp_read.cc:2994
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3391
+#: src/emc/rs274ngc/interp_read.cc:3106
 msgid "Multiple U words on one line"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3407
+#: src/emc/rs274ngc/interp_read.cc:3122
 msgid "Multiple V words on one line"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3423
+#: src/emc/rs274ngc/interp_read.cc:3138
 msgid "Multiple W words on one line"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_o_word.cc:104
+#: src/emc/rs274ngc/interp_o_word.cc:95
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:897
+#: src/emc/rs274ngc/interp_namedparams.cc:161
+#, fuzzy, c-format
+msgid "Named parameter #<%s> not defined"
+msgstr "Načítať súbor parametra"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:191
+#, fuzzy, c-format
+msgid "cant open ini file '%s'"
+msgstr "Nie je možné otvoriť %s."
+
+#: src/emc/rs274ngc/interp_namedparams.cc:208
+#, fuzzy, c-format
+msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
+msgstr "Načítať súbor parametra"
+
+#: src/emc/rs274ngc/interp_namedparams.cc:232
+#, c-format
+msgid "fetch_hal_param: hal_init(%s): %d"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:233
+#, c-format
+msgid "fetch_hal_param: hal_ready(): %d"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:370
+#, c-format
+msgid "Internal error: Could not assign #<%s>"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:378
+#, c-format
+msgid "Cannot assign to read-only parameter #<%s>"
+msgstr ""
+
+#: src/emc/rs274ngc/interp_namedparams.cc:682
+#, c-format
+msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
+msgstr ""
+
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1269 src/emc/rs274ngc/rs274ngc_pre.cc:1344
 msgid "Queue is not empty after tool change"
 msgstr ""
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:1145
+#: src/emc/rs274ngc/rs274ngc_pre.cc:1648
 #, c-format
 msgid "Unable to open parameter file: '%s'"
 msgstr ""
@@ -13374,128 +13441,128 @@ msgid "Too many subroutine levels"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:169
-msgid "Unknown control command in o word"
+msgid "Bug: call stack underrun"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:170
-msgid "Too many oword labels"
+msgid "Unknown control command in o word"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:171
-msgid "Unknown oword number"
+msgid "Too many oword labels"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:172
-msgid "Nested subroutine definition"
+msgid "Unknown oword number"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:173
-msgid "Not in subroutine definition"
+msgid "Nested subroutine definition"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:174
-msgid "File not open"
+msgid "Not in subroutine definition"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:175
-msgid "Need tool prepared -Txx- for toolchange"
+msgid "File not open"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:176
-msgid "Cannot change planes with cutter radius compensation on"
+msgid "Need tool prepared -Txx- for toolchange"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:177
-msgid "Cutter radius compensation allowed only in XY, XZ planes"
+msgid "Cannot change planes with cutter radius compensation on"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:178
-msgid "P word missing with G76"
+msgid "Cutter radius compensation allowed only in XY, XZ planes"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:179
-msgid "I J or K words missing with G76"
+msgid "P word missing with G76"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:180
-msgid "Cannot move rotary axes with G76"
+msgid "I J or K words missing with G76"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:181
-msgid "Multiple e words on one line"
+msgid "Cannot move rotary axes with G76"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:182
-msgid "Named parameter not terminated"
+msgid "Multiple e words on one line"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:183
-msgid "Out of memory"
+msgid "Named parameter not terminated"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:184
-msgid "S word missing with G96"
+msgid "Out of memory"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:185
-msgid "Queue is not empty after external input"
+msgid "S word missing with G96"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:186
-msgid "Can't select analog input with wait type != immediate return"
+msgid "Queue is not empty after external input"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:187
-msgid "Zero timeout with wait type != immediate return"
+msgid "Can't select analog input with wait type != immediate return"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:188
-msgid "Invalid to select both a digital and an analog input with M66"
+msgid "Zero timeout with wait type != immediate return"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:189
-msgid "Need to have either a valid P or a valid E word with M66"
+msgid "Invalid to select both a digital and an analog input with M66"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:190
-msgid "Q word missing with g73"
+msgid "Need to have either a valid P or a valid E word with M66"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:191
-msgid "Digital input selected out of bounds"
+msgid "Q word missing with g73"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:192
-msgid "Analog input selected out of bounds"
+msgid "Digital input selected out of bounds"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:193
-msgid "W value unspecified in UV plane canned cycle"
+msgid "Analog input selected out of bounds"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
-msgid "U value unspecified in VW plane canned cycle"
+msgid "W value unspecified in UV plane canned cycle"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
-msgid "V value unspecified in UW plane canned cycle"
+msgid "U value unspecified in VW plane canned cycle"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:196
-msgid "R less than W in cycle in UV plane"
+msgid "V value unspecified in UW plane canned cycle"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:197
-msgid "R less than U in cycle in VW plane"
+msgid "R less than W in cycle in UV plane"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
-msgid "R less than V in cycle in UW plane"
+msgid "R less than U in cycle in VW plane"
 msgstr ""
 
-#, fuzzy
-#~ msgid "cant open ini file '%s'"
-#~ msgstr "Nie je možné otvoriť %s."
+#: src/emc/rs274ngc/rs274ngc_return.hh:199
+msgid "R less than V in cycle in UW plane"
+msgstr ""
 
 #~ msgid "ERROR: must specify a path to search for configurations"
 #~ msgstr "CHYBA: Musíte uviesť cestu ku konfigurácii."
