@@ -2566,9 +2566,8 @@ msgid "LUBE ?"
 msgstr "潤滑　?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
-#, fuzzy
 msgid "LinuxCNC Set Coordinate"
-msgstr "EMC 坐摽　設為"
+msgstr "LInuxCNC 坐摽　設為"
 
 #: tcl/scripts/Set_Coordinates.tcl:26
 msgid "Coordinate System Control Window"
