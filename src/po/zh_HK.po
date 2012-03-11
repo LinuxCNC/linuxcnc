@@ -2237,9 +2237,8 @@ msgid "Load Parameter File"
 msgstr "載入 參數 文件"
 
 #: tcl/tklinuxcnc.tcl:261
-#, fuzzy
 msgid "LinuxCNC Diagnostics"
-msgstr "EMC 排錯"
+msgstr "LinuxCNC 排錯"
 
 #: tcl/tklinuxcnc.tcl:263
 msgid "Task"
