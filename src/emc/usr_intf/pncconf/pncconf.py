@@ -1189,6 +1189,8 @@ class Data:
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
             self[temp+"outputscale"]= 10
+            self[temp+"outputminlimit"]= -10
+            self[temp+"outputmaxlimit"]= 10
             self[temp+"maxoutput"]= 10
             self[temp+"P"]= 1.0
             self[temp+"I"]= 0
@@ -1251,9 +1253,6 @@ class Data:
         self.sfiltergain = .1
         self.suseatspeed = False
         self.ssingleinputencoder = False
-        self.spotminlimit = 0
-        self.spotmaxlimit = 100
-        self.spotmaxoutput = 100
 
     def load(self, filename, app=None, force=False):
         self.pncconf_loaded_version = 0.0
@@ -1589,8 +1588,9 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "HOME = %s" % get("homepos")
             print >>file, "FERROR = %s"% get("maxferror")
             print >>file, "MIN_FERROR = %s" % get("minferror")
-        print >>file, "MAX_VELOCITY = %s" % get("maxvel")
-        print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
+        if not letter == "s" or (letter == "s" and stepgen):
+            print >>file, "MAX_VELOCITY = %s" % get("maxvel")
+            print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
         if encoder or resolver:
             if closedloop:
                 print >>file, "P = %s" % get("P")
@@ -1601,6 +1601,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "FF2 = %s" % get("FF2")
                 print >>file, "BIAS = %s"% get("bias") 
                 print >>file, "DEADBAND = %s"% get("deadband")
+                print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
             if get("invertencoder"):
                 temp = -1
             else: temp = 1
@@ -1608,12 +1609,15 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "ENCODER_SCALE = %s" % (get("encoderscale") * temp)
             else:
                 print >>file, "RESOLVER_SCALE = %s" % (get("encoderscale") * temp)
-        if pwmgen:
+        if pwmgen or potoutput:
             if get("invertmotor"):
                 temp = -1
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
-            print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
+            pwmpinname = self.make_pinname(pwmgen)
+            if "analog" in pwmpinname or potoutput:
+                print >>file, "OUTPUT_MIN_LIMIT = %s"% (get("outputminlimit"))
+                print >>file, "OUTPUT_MAX_LIMIT = %s"% (get("outputmaxlimit"))
 
         if stepgen:
             print >>file, "# these are in nanoseconds"
@@ -1915,11 +1919,12 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
 
         if potpinname:
+                # sserial digital potentiometer outputs for spindle eg 7i76 board
                 print >>file, "# ---digital potentionmeter output signals/setup---"
                 print >>file
-                print >>file, "setp   "+potpinname+".spinout-maxlim   %.1f"% self.spotminlimit
-                print >>file, "setp   "+potpinname+".spinout-mixlim   %.1f"% self.spotmaxlimit
-                print >>file, "setp   "+potpinname+".spinout-scalemax %.1f"% self.spotmaxoutput
+                print >>file, "setp   "+potpinname+".spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
+                print >>file, "setp   "+potpinname+".spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
+                print >>file, "setp   "+potpinname+".spinout-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 for i in potinvertlist:
                     if i == POTO:
                         print >>file, "setp   "+potpinname+".spindir-invert   true"
@@ -1935,8 +1940,34 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
 
         if pwmpinname:
-                print >>file, "# ---PWM Generator signals/setup---"
+            print >>file, "# ---PWM Generator signals/setup---"
+            print >>file
+            # sserial daughter board PWMGENS eg 7i77
+            if "analogout" in pwmpinname:
+                print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
+                print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                 print >>file
+                if let == 's':
+                    rawpinname = self.make_pinname(pwmpin,False,True) # dont want the component name
+                    print >>file
+                    if closedloop:
+                        print >>file, "net spindle-output      => " + pwmpinname
+                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                    else:
+                        print >>file, "net spindle-vel-cmd     => " + pwmpinname
+                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                else:
+                    print >>file, "net %s-output                             => "% (let) + pwmpinname
+                    print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
+                    print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
+                    if let == "x":
+                        print >>file, "# enable _all_ sserial pwmgens"
+                        print >>file, "net %s-enable   %s"% (let,pwmpinname) 
+                print >>file
+
+            else:
+                # mainboard PWMGENS
                 pulsetype = 1
                 if self[pwmtype] == PDMP: pulsetype = 3
                 if self[pwmtype] == UDMU: pulsetype = 2
@@ -1944,19 +1975,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 print >>file
                 if let == 's':  
-                    
-                    #x1 = self.spindlepwm1
-                    #x2 = self.spindlepwm2
-                    #y1 = self.spindlespeed1
-                    #y2 = self.spindlespeed2
-                    #scale = (y2-y1) / (x2-x1)
-                    #offset = x1 - y1 / scale
                     print >>file
-                    
-                    #print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
-                    #print >>file, "    setp pwmgen.0.scale %s" % scale
-                    #print >>file, "    setp pwmgen.0.offset %s" % offset
-                    #print >>file, "    setp pwmgen.0.dither-pwm true"
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
                         print >>file, "net spindle-enable      => " + pwmpinname +".enable"    
@@ -1967,8 +1986,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
                     print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
+                print >>file
 
-                print >>file    
         if steppinname:
             print >>file, "# Step Gen signals/setup"
             print >>file
@@ -3573,7 +3592,9 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # gpionumber is a flag to return a gpio piname instead of the component pinname
     # this is used when we want to invert the pins of a component output (such as a stepper)
     # because you actually must invert the GPIO that would be in that position
-    def make_pinname(self, pin, gpionumber = False):
+    # prefixonly flag is used when we want the pin name without the component name.
+    # used with sserial when we want the sserial port and channel so we can add out own name (eg enable pins)
+    def make_pinname(self, pin, gpionumber = False, prefixonly = False):
         test = str(pin)  
         halboardnum = 0
         if test == "None": return None
@@ -3648,9 +3669,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     else:
                         print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype
                         return None
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXE0,MXE1,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,PWME,PDME,UDME,
-                    TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF,AMP8I20,POTO,POTE,POTD):
-                    if ptype in(PWME,PDME,UDME):comptype = "analogena"
+                elif ptype in (AMP8I20,POTO,POTE,POTD) or prefixonly:
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel)
                 elif ptype in(PWMP,PDMP,UDMU):
                     comptype = "analogout"
@@ -5406,10 +5425,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
                     blocksignal = "_mesa%dsignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)
+                    ptypeblocksignal = "_mesa%dptypesignalhandlersserial%i_%ipin%i"% (boardnum, port, channel, pin)
                 else:
                     p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin)
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)
                 modelcheck = self.widgets[p].get_model()
                 modelptcheck = self.widgets[ptype].get_model()
                 new = self.widgets[ptype].get_active_text()
@@ -5449,7 +5470,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         relatedliststore = self.data._udmrelatedliststore
                         controlliststore = self.data._udmcontrolliststore
                     else:print "**** WARNING PNCCONF: pintype error-PWM type not found";return
-                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)
                     self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                     self.widgets[ptype].set_model(controlliststore)
                     self.widgets[ptype].set_active(display)
@@ -5458,7 +5478,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     for i in (pinlist):
                         relatedptype = i[0]
                         if relatedptype == ptype :continue
-                        ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (i[1], i[2],i[4])
+                        if not channel == None:
+                            ptypeblocksignal = "_mesa%dptypesignalhandlersserial%i_%ipin%i"% (i[1], i[2],i[3],i[4])
+                        else:
+                            ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (i[1], i[2],i[4])
                         self.widgets[relatedptype].handler_block(self.data[ptypeblocksignal])
                         j = self.widgets[relatedptype].get_active()
                         self.widgets[relatedptype].set_model(relatedliststore)
@@ -5840,7 +5863,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[complabel].set_text("%d:"%compnum)
                             #print "firmptype = controlling"
                             self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
-                            self.widgets[ptype].set_sensitive(1)
+                            self.widgets[ptype].set_sensitive(not sserialflag) # sserial pwm cannot be changed
                             self.widgets[p].set_sensitive(1)
                             self.widgets[p].set_active(0)
                             self.widgets[ptype].set_active(0)
@@ -7072,15 +7095,19 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
-        spindlepot = False
+        spindlepot = sserial_scaling = False
         if self.data.findsignal("%s-8i20"% axis):amp_8i20 = True
         if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-resolver"): encoder = resolver = True
-        if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
-        if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True ; tppwm = True
-        if self.data.findsignal(axis+"-pot-output"): spindlepot = True
+        temp = self.data.findsignal(axis+"-pwm-pulse")
+        if temp:
+            pwmgen = True
+            pinname = self.data.make_pinname(temp)
+            if "analog" in pinname: sserial_scaling = True
+        if self.data.findsignal(axis+"-tppwm-a"): pwmgen = tppwm = True
+        if self.data.findsignal(axis+"-pot-output"): spindlepot = sserial_scaling = True
 
         model = w[axis+"drivertype"].get_model()
         model.clear()
@@ -7102,6 +7129,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         set_value("dirhold")
         set_value("dirsetup")
         set_value("outputscale")
+        set_value("outputminlimit")
+        set_value("outputmaxlimit")
         set_value("3pwmscale")
         set_value("3pwmdeadtime")
         set_active("invertmotor")
@@ -7166,30 +7195,22 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w[axis + "stepper_info"].show()
         else:
             w[axis + "stepper_info"].hide()
-        if pwmgen:
+        if pwmgen or spindlepot:
             w[axis + "outputscale"].show()
-            w[axis + "maxoutput"].show()
             w[axis + "outputscalelabel"].show()
-            w[axis + "maxoutputlabel"].show()
         else:
             w[axis + "outputscale"].hide()
-            w[axis + "maxoutput"].hide()
             w[axis + "outputscalelabel"].hide()
-            w[axis + "maxoutputlabel"].hide()
-        if spindlepot:
-            w[axis + "potminlimit"].show()
-            w[axis + "potmaxlimit"].show()
-            w[axis + "potmaxoutput"].show()
-            w[axis + "potminlimitlabel"].show()
-            w[axis + "potmaxlimitlabel"].show()
-            w[axis + "potmaxoutputlabel"].show()
+        if sserial_scaling:
+            w[axis + "outputminlimit"].show()
+            w[axis + "outputminlimitlabel"].show()
+            w[axis + "outputmaxlimit"].show()
+            w[axis + "outputmaxlimitlabel"].show()
         else:
-            w[axis + "potminlimit"].hide()
-            w[axis + "potmaxlimit"].hide()
-            w[axis + "potmaxoutput"].hide()
-            w[axis + "potminlimitlabel"].hide()
-            w[axis + "potmaxlimitlabel"].hide()
-            w[axis + "potmaxoutputlabel"].hide()
+            w[axis + "outputminlimit"].hide()
+            w[axis + "outputminlimitlabel"].hide()
+            w[axis + "outputmaxlimit"].hide()
+            w[axis + "outputmaxlimitlabel"].hide()
         if pwmgen or amp_8i20: w[axis + "bldcframe"].show()
         else: w[axis + "bldcframe"].hide()
         if tppwm:
@@ -7252,10 +7273,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
             w["ssingleinputencoder"].show()
-            if spindlepot:
-                set_value("potminlimit")
-                set_value("potmaxlimit")
-                set_value("potmaxoutput")
             w["saxistest"].set_sensitive(pwmgen or spindlepot)
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
@@ -7428,14 +7445,16 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         get_pagevalue("FF2")
         get_pagevalue("bias")
         get_pagevalue("deadband")
+        get_pagevalue("maxoutput")
         get_pagevalue("steptime")
         get_pagevalue("stepspace")
         get_pagevalue("dirhold")
         get_pagevalue("dirsetup")
         get_pagevalue("outputscale")
+        get_pagevalue("outputminlimit")
+        get_pagevalue("outputmaxlimit")
         get_pagevalue("3pwmscale")
         get_pagevalue("3pwmdeadtime")
-        get_pagevalue("maxoutput")
         get_active("bldc_option")
         get_active("bldc_reverse")
         get_pagevalue("bldc_scale")
@@ -7505,9 +7524,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
-            get_pagevalue("potminlimit")
-            get_pagevalue("potmaxlimit")
-            get_pagevalue("potmaxoutput")
 
     def configure_bldc(self,axis):
         d = self.data
@@ -8895,9 +8911,9 @@ But there is not one in the machine-named folder.."""),True)
         dacspeed = widgets.Dac_speed_fast.get_active()
         dac_scale = get_value(widgets[axis+"outputscale"])
         max_dac = get_value(widgets[axis+"maxoutput"])
-        spindleminlimit = get_value(widgets[axis+"potminlimit"])
-        spindlemaxlimit = get_value(widgets[axis+"potmaxlimit"])
-        spindlemaxoutput = get_value(widgets[axis+"potmaxoutput"])
+        spindleminlimit = get_value(widgets[axis+"outputminlimit"])
+        spindlemaxlimit = get_value(widgets[axis+"outputmaxlimit"])
+        spindlemaxoutput = get_value(widgets[axis+"outputscale"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
