@@ -759,6 +759,7 @@ class Gscreen:
         self.toggle_show_dtg()
 
 # ****** do stuff *****
+
     def _dynamic_tab(self, notebook, text):
         s = gtk.Socket()
         notebook.append_page(s, gtk.Label(" " + text + " "))
@@ -796,6 +797,10 @@ class Gscreen:
     def kill_dynamic_childs(self):
         for c in self._dynamic_childs.values():
             c.terminate()
+
+    def postgui(self):
+        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
+        return postgui_halfile,sys.argv[2]
 
     def zoom_in(self,*args):
         print "zoom in"
@@ -1241,10 +1246,15 @@ class Gscreen:
 
 if __name__ == "__main__":
     try:
-        print "ini", sys.argv[2]
+        print "INFO: Gscreen ini", sys.argv[2]
         app = Gscreen(sys.argv[2])
-        gtk.main()
     except KeyboardInterrupt:
         print "linuxcnc closed down"
         sys.exit(0)
+    postgui_halfile,inifile = Gscreen.postgui(app)
+    print "INFO : Gscreen- postgui filename:",postgui_halfile
+    if postgui_halfile:
+        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+        if res: raise SystemExit, res
+    gtk.main()
 
