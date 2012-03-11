@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 04:14+0200\n"
+"PO-Revision-Date: 2012-03-11 04:15+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -658,7 +658,7 @@ msgstr "所有 joint 一定 要在 零點 才能 進入 坐標 模式"
 
 #: src/emc/motion/command.c:521
 msgid "all joints must be homed before going into teleop mode"
-msgstr "所有 joint 一定 要在 零點 才能  進入 遠程操作 模式"
+msgstr "所有 Joint 一定 要在 零點 才能  進入 遠程操作 模式"
 
 #: src/emc/motion/command.c:675 src/emc/motion/command.c:741
 #: src/emc/motion/command.c:814
