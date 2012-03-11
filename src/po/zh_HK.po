@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 03:43+0200\n"
+"PO-Revision-Date: 2012-03-11 03:49+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -228,7 +228,7 @@ msgstr "採樣率:"
 
 #: src/hal/utils/scope_horiz.c:558 src/emc/usr_intf/touchy/mdi.py:78
 msgid "Thread"
-msgstr "線清"
+msgstr "線程"
 
 #: src/hal/utils/scope_horiz.c:559
 msgid "Period"
@@ -6747,6 +6747,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
