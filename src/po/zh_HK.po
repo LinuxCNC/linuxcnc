@@ -2664,9 +2664,8 @@ msgid "Choose Files"
 msgstr "選擇文件"
 
 #: tcl/ngcgui.tcl:1100
-#, fuzzy
 msgid "Controls"
-msgstr "MPG　慢步　操控"
+msgstr "操控"
 
 #: tcl/ngcgui.tcl:1109
 msgid "Preamble"
