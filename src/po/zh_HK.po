@@ -645,7 +645,7 @@ msgstr "%s 在 MDI 移動 將超過 joint %d 的 正 極限"
 #: src/emc/motion/command.c:247
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr "%s 在線 %d 移動 將超過 joint %d 的 負 極限"
+msgstr "%s 在線 %d 移動 將超過 Joint %d 的 負 極限"
 
 #: src/emc/motion/command.c:250
 #, c-format
