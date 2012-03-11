@@ -2210,11 +2210,10 @@ msgid "LinuxCNC Errors"
 msgstr "LinuxCNC 故障"
 
 #: tcl/show_errors.tcl:44
-#, fuzzy
 msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please include "
 "all the information below in your message."
-msgstr "EMC2 因故障 結束. 如要 報告問題, 請包括下面 的所有信息 在您的 消息"
+msgstr "LinuxCNC 因故障 結束. 如要 報告問題, 請包括下面 的所有信息 在您的 消息"
 
 #: tcl/show_errors.tcl:69 tcl/scripts/Set_Coordinates.tcl:103
 msgid "Close"
