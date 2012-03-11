@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 04:01+0200\n"
+"PO-Revision-Date: 2012-03-11 04:12+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -579,9 +579,9 @@ msgid "Probe tripped during a jog."
 msgstr "探頭跳閘當正在慢步."
 
 #: src/emc/motion/control.c:578
-#, fuzzy, c-format
+#, c-format
 msgid "fault %d during orient in progress"
-msgstr "歸零 已在 進行中"
+msgstr "故障 %d 在進行取向時"
 
 #: src/emc/motion/control.c:718
 msgid "motion stopped by enable input"
