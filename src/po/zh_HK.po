@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 04:29+0200\n"
+"PO-Revision-Date: 2012-03-11 04:30+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -1452,9 +1452,8 @@ msgid "Create Desktop Shortcut"
 msgstr "創建 桌面 捷徑"
 
 #: tcl/bin/tkbackplot.tcl:110
-#, fuzzy
 msgid "TkLinuxCNC BackPlot"
-msgstr "TKEmc 路徑模擬"
+msgstr "TKLinuxCNC 路徑模擬"
 
 #: tcl/bin/tkbackplot.tcl:125
 msgid "SETUP"
