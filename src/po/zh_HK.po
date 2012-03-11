@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 04:13+0200\n"
+"PO-Revision-Date: 2012-03-11 04:14+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -640,7 +640,7 @@ msgstr "不能 慢步 Joint %d  超過 最小 的 軟 極限"
 #: src/emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr "%s 在線 %d 移動 將超過 joint %d 的 正 極限"
+msgstr "%s 在線 %d 移動 將超過 Joint %d 的 正 極限"
 
 #: src/emc/motion/command.c:240
 #, c-format
