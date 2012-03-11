@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-03-11 12:48+0200\n"
+"PO-Revision-Date: 2012-03-11 12:49+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -778,7 +778,7 @@ msgstr "探測已經被脫扣當起動G38.2 或G38.3 移動"
 
 #: src/emc/motion/command.c:1376
 msgid "can't add probe move"
-msgstr ""
+msgstr "不能添加探測移動"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for rigid tap move"
