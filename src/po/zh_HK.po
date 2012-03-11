@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 03:51+0200\n"
+"PO-Revision-Date: 2012-03-11 03:52+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -349,7 +349,7 @@ msgstr "納秒"
 
 #: src/hal/utils/scope_horiz.c:1173
 msgid "uSec"
-msgstr ""
+msgstr "微秒"
 
 #: src/hal/utils/scope_horiz.c:1177
 msgid "mSec"
