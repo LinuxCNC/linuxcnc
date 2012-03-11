@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 12:35+0200\n"
+"PO-Revision-Date: 2012-03-11 12:41+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -765,7 +765,7 @@ msgstr "不能做探頭移動當有超限"
 
 #: src/emc/motion/command.c:1362
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
-msgstr ""
+msgstr "探測已經清徐當啟動 G38.4或G38.5 移動"
 
 #: src/emc/motion/command.c:1364
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
