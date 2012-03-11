@@ -1426,11 +1426,11 @@ msgid "Configuration Copied"
 msgstr "複制 配置 文件"
 
 #: tcl/bin/pickconfig.tcl:479
-#, fuzzy, tcl-format
+#, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting LinuxCNC."
-msgstr "配置 文件 被複制 到 %s. 再打開 EMC2 時,先 選 那裡."
+msgstr "配置 文件 被複制 到 %s. 再打開 Linuxcnc 時,先 選 那裡."
 
 #: tcl/bin/pickconfig.tcl:506
 msgid "Shortcut Created"
