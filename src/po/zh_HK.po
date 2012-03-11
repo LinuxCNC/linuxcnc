@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 04:16+0200\n"
+"PO-Revision-Date: 2012-03-11 04:17+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -676,7 +676,7 @@ msgstr "不能 慢步 Joint 當 在 歸零 時"
 
 #: src/emc/motion/command.c:751
 msgid "Can't jog any joint while homing."
-msgstr "不能 慢步 joint 當 在 歸零 時"
+msgstr "不能 慢步 Joint 當 在 歸零 時"
 
 #: src/emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
