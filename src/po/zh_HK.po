@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 04:31+0200\n"
+"PO-Revision-Date: 2012-03-11 04:32+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -2269,9 +2269,8 @@ msgid "Motion"
 msgstr "動作"
 
 #: tcl/tklinuxcnc.tcl:350
-#, fuzzy
 msgid "About TkLinuxCNC"
-msgstr "關于 TkEditor"
+msgstr "關于 TkLinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:351
 msgid ""
