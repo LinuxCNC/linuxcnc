@@ -72969,12 +72969,39 @@ possible.</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <widget class="GtkTextView" id="textview2">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="text" translatable="yes">				PNCconf - Point aNd Click CONFigurator
+PNCconf is a configuration program for Linuxcnc.
+It configures machines using Mesa I/O cards.
+It configures servo,stepper or closed loop stepper machines.
+It supports some of Mesa's sserial cards.
+It will forever be a work in progress as Linuxcnc changes.
+
+Many thanks To:
+Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with techincal difficulties.
+Big John T - John drew the original machine illustrations. Testing and suggestions.
+Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample equipment to test with.
+Andy Pugh - suggestions, questions answered and many pin name changes :) 
+Dave Armstrong - testing and suggestions expecially with resolvers.
+Everyone who gave a bug report ! I cannot test everything thoughly enough so reports help.
+
+Beta 1 version</property>
+          </widget>
+          <packing>
+            <property name="position">3</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
+          <widget class="GtkLabel" id="label191">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">About</property>
+          </widget>
           <packing>
             <property name="type">tab</property>
+            <property name="position">3</property>
+            <property name="tab_fill">False</property>
           </packing>
         </child>
       </widget>
