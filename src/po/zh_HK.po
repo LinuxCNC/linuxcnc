@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 12:41+0200\n"
+"PO-Revision-Date: 2012-03-11 12:48+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -769,7 +769,7 @@ msgstr "探測已經清徐當啟動 G38.4或G38.5 移動"
 
 #: src/emc/motion/command.c:1364
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr ""
+msgstr "探測已經被脫扣當起動G38.2 或G38.3 移動"
 
 #: src/emc/motion/command.c:1376
 msgid "can't add probe move"
