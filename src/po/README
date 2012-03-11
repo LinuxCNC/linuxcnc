@@ -9,15 +9,24 @@ the source repository, then create one from the linuxcnc.pot template:
 
 To update a language's .po file from its .pot file, use the "msgmerge" command.
 Because doing this needlessly creates lots of uneeded revisions of the
-.po files in the history, and because different translators have preferences
-about msgmerge flags (particularly --width, --no-wrap, and
---no-fuzzy-matching), this is not done automatically by the "make" process.
-The simplest "msgmerge" commandline is:
+.po files in the history, this is not done automatically by "make".
+Instead, it is done by explicitly executing "make pofiles".  This must be
+done from time to time in order to make new messages available for translation
+in the experimental "weblate" interface.
+
+If you are working by hand, you can also update just a single pofile:
     msgmerge -U xx.po linuxcnc.pot
 
 When you are done, "git commit" the new .po file.  If you have push access,
 "git push".  Otherwise, format your changes as a patch with "git format-patch"
 and send it to the emc-developers mailing list.
+
+Experimental "weblate" web interface
+====================================
+
+There's an experimental web interface for translating linuxcnc:
+    http://l10n.unpythonic.net/
+
 
 Graphical tools for editing .po files
 =====================================
