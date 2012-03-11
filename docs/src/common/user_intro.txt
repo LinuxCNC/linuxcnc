@@ -103,8 +103,18 @@ image::images/keystick.png[align="center"]
 * 'PyVCP' a python based virtual control panel that can be added to the
    Axis GUI or be stand alone.
 
+.PyVCP with Axis[[fig:pyvcp-with-axis]]
+
+image::images/axis-pyvcp.png[align="center"]
+
 * 'GladeVCP' - a glade based virtual control panel that can be added to
    the Axis GUI or be stand alone.
+
+.GladeVCP with Axis[[fig:gladevcp-with-axis]]
+
+image::images/axis-gladevcp.png[align="center"]
+
+See the Integrators manual for more information on Virtual Control Panels.
 
 == Languages
 
