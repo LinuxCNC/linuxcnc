@@ -16,6 +16,8 @@ bi-directional digital I/O.
 
 == Firmware Binaries
 
+.50 Pin Header FPGA cards
+
 Several pre-compiled HostMot2 firmware binaries are available for the
 different Anything I/O boards. (This list is incomplete, check the
 hostmot2-firmware distribution for up-to-date firmware lists.)
@@ -26,16 +28,21 @@ hostmot2-firmware distribution for up-to-date firmware lists.)
 
 * 5i22 (96 I/O pins): using hm2_pci module
 ** 16-channel servo
-** 8-channel servo plus 24 step/dir generators 
+** 8-channel servo plus 24 step/dir generators
 
 * 5i20, 5i23, 4i65, 4i68 (72 I/O pins): using hm2_pci module
 ** 12-channel servo
 ** 8-channel servo plus 4 step/dir generators
-** 4-channel servo plus 8 step/dir generators 
+** 4-channel servo plus 8 step/dir generators
 
 * 7i43 (48 I/O pins): using hm2_7i43 module
 ** 8-channel servo (8 PWM generators & 8 encoders)
-** 4-channel servo plus 4 step/dir generators 
+** 4-channel servo plus 4 step/dir generators
+
+.DB25 FPGA cards
+
+The 5i25 Superport FPGA card is preprogrammed when purchased and does not
+need a firmware binary.
 
 == Installing Firmware
 
@@ -746,7 +753,72 @@ following pins and parameters:
     next pulse, before reporting the encoder stopped. This parameter is in
     seconds.
 
-== Examples
+== Smart Serial Cards
+
+=== Overview
+
+Mesa 'Smart Serial' cards use a DB25M to DB25M IEEE 1284 compliant parallel
+port cable to connect from the 'Anything I/O' card to the 'Daughter Card'.
+The firmware for the daughter cards is installed when the card is purchased.
+
+=== Configuration
+
+.5i25 + 7i76 Card
+----
+# load the generic driver
+loadrt hostmot2
+
+# load the PCI driver and configure
+loadrt hm2_pci config="num_encoders=1 num_stepgens=5 sserial_port_0=0XXX"
+----
+
+.5i25 + 7i77 Card
+----
+# load the generic driver
+loadrt hostmot2
+
+# load the PCI driver and configure
+loadrt hm2_pci config="num_encoders=6 num_pwmgens=6 sserial_port_0=0XXX"
+----
+
+=== SSERIAL Configuration
+
+The 'sserial_port_0=0XXX' configuration string sets some options for the smart
+serial card. The first number is for the mode of the first card. The second
+number is for the analog out section (mode 0 only). The third and forth numbers
+are for the expansion connector and are only used if you have an additional
+SSERIAL card. Mode 1 adds 4 analog inputs, mode 2 adds field voltage to that.
+
+=== Limits
+
+The minlimit and maxlimit are bounds on the pn value (in this case the analog
+out value) fullscalemax is the scale factor.
+
+These are by default set to the analog in or analog range (most likely in
+volts).
+
+So for example on the 7I77 +-10V analog outputs, the default values are:
+
+minlimit -10
+maxlimit +10
+maxfullscale 10
+
+If you wanted to say scale the analog out of a channel to IPS for a velocity
+mode servo (say 24 IPS max) you could set the limits like this:
+
+minlimit -24
+maxlimit +24
+maxfullscale 24
+
+If you wanted to scale the analog out of a channel to RPM for a 0 to 6000 RPM
+spindle with 0-10V control you could set the limits like this:
+
+minlimit 0
+maxlimit 6000
+maxfullscale 6000
+(this would prevent unwanted negative output voltages from being set)
+
+== Example Configurations
 
 Several example configurations are included with LinuxCNC for both stepper
 and servo applications. The configurations are located in the hm2-servo
