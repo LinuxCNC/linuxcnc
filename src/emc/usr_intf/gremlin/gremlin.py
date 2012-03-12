@@ -127,6 +127,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         temp = inifile.find("DISPLAY", "LATHE")
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.show_offsets = False
+        self.foam_option = False
 
 	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
 	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
@@ -266,6 +267,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         return view_dict.get(self.current_view, 3)
 
     def is_lathe(self): return self.lathe_option
+    def is_foam(self):return self.foam_option
     def get_current_tool(self):
         for i in self.stat.tool_table:
             if i[0] == self.stat.tool_in_spindle:
