@@ -307,6 +307,7 @@ int Interp::execute_call(setup_pointer settings,
 	    if (remap->remap_py) { 
 		status = pycall(settings, current_frame, REMAP_MODULE, remap->remap_py,
 				settings->call_state == CS_NORMAL ? PY_BODY : PY_FINISH_BODY);
+		CHP(status);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_PYBODY;
@@ -439,7 +440,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			     settings->skipping_o);
 		    settings->skipping_o = NULL;
 		}
-		settings->defining_sub = NULL;
+		settings->defining_sub = 0;
 		settings->sub_name = NULL;
 	    }
 	}
@@ -463,13 +464,11 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 {
     static char name[] = "control_back_to";
     char newFileName[PATH_MAX+1];
-    char foundPlace[PATH_MAX+1];
     char tmpFileName[PATH_MAX+1];
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
 
-    foundPlace[0] = 0;
     logOword("Entered:%s %s", name,block->o_name);
 
     it = settings->offset_map.find(block->o_name);

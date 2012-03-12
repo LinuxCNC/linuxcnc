@@ -88,15 +88,10 @@ include an option for suppressing superfluous commands.
 #include "interp_internal.hh"	// interpreter private definitions
 #include "interp_queue.hh"
 #include "rs274ngc_interp.hh"
-//#include "rs274ngc_errors.cc"
-
-#include "interpmodule.hh"
 
 #include "units.h"
 
-static void interpDeallocFunc(Interp *interp) {} // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 extern char * _rs274ngc_errors[];
-
 
 const char *Interp::interp_status(int status) {
     static char statustext[50];
@@ -114,15 +109,12 @@ int trace;
 Interp::Interp()
     : log_file(0)
 {
-    // _setup.py_module_stat = PYMOD_NONE;
+    _setup.init_once = 1;  
     init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
-    if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
 
 
 Interp::~Interp() {
-    if (trace) fprintf(stderr,"---> del Interp() pid=%d\"",getpid());
-
     if(log_file) {
 	fclose(log_file);
 	log_file = 0;
@@ -231,7 +223,6 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
-  block_pointer cblock = &CONTROLLING_BLOCK(_setup);
   extern const char *call_statenames[];
   extern const char *call_typenames[];
   extern const char *o_ops[];
@@ -287,6 +278,8 @@ int Interp::_execute(const char *command)
           }
       }
       _setup.mdi_interrupt = false;
+     if (MDImode)
+	  FINISH();
       return INTERP_OK;
     }
 
@@ -362,7 +355,7 @@ int Interp::_execute(const char *command)
 
 
 	  CHP(enter_remap());
-	  cblock = &CONTROLLING_BLOCK(_setup);
+	  block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 	  cblock->phase = next_remap;
 	  // execute up to the first remap including read() of its handler
 	  // this also sets cblock->executing_remap
@@ -476,6 +469,12 @@ int Interp::execute(const char *command)
     }
     return status;
 }
+
+int Interp::execute()
+{
+  return Interp::execute(0);
+}
+
 int Interp::execute(const char *command, int line_number)
 {
     int status;
@@ -649,6 +648,22 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     mode = block->motion_to_be;
     if ((mode != -1) && IS_USER_GCODE(mode)) {
 	block->remappings.insert(STEP_MOTION);
+    }
+
+    // User defined M-Codes in group 4 (stopping)
+    if (IS_USER_MCODE(block,settings,4)) {
+
+	if (remap_in_progress("M0") ||
+	    remap_in_progress("M1") ||
+	    remap_in_progress("M60"))  { // detect recursion case
+
+	    // these require real work.
+	    // remap_in_progress("M2") ||
+	    // remap_in_progress("M60")
+	    CONTROLLING_BLOCK(*settings).builtin_used = true;
+	} else {
+	    block->remappings.insert(STEP_MGROUP4);
+	}
     }
     return block->remappings.size();
 }
@@ -868,14 +883,37 @@ int Interp::init()
 	  // initialize the Python plugin singleton
 	  extern struct _inittab builtin_modules[];
 	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
-	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
-		  logPy("Python plugin configured");
-		  _setup.pythis =  interp_ptr(this, interpDeallocFunc);
+	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
+		  try {
+		      // this import will register the C++->Python converter for Interp
+		      bp::object interp_module = bp::import("interpreter");
+
+		      // use a boost::cref to avoid per-call instantiation of the 
+		      // Interp Python wrapper (used for the 'self' parameter in handlers)
+		      // since interp.init() may be called repeatedly this would create a new
+		      // wrapper instance on every init(), abandoning the old one and all user attributes
+		      // tacked onto it, so make sure this is done exactly once
+		      if (_setup.init_once)  
+			  _setup.pythis =  boost::python::object(boost::cref(this));
+
+		      // alias to 'interpreter.this' for the sake of ';py, .... ' comments
+		      bp::scope(interp_module).attr("this") =  _setup.pythis;
+		  }
+		  catch (bp::error_already_set) {
+		      std::string exception_msg;
+		      if (PyErr_Occurred()) {
+			  exception_msg = handle_pyerror();
+		      } else
+			  exception_msg = "unknown exception";
+		      bp::handle_exception();
+		      PyErr_Clear();
+		      Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+		  }
 	      } else {
 		  Error("no Python plugin available");
 	      }
-	  } else logPy("Python plugin not configured");
-
+	  }
+ 
 	  int n = 1;
 	  int lineno = -1;
 	  _setup.g_remapped.clear();
@@ -887,32 +925,7 @@ int Interp::init()
 	      CHP(parse_remap( inistring,  lineno));
 	      n++;
 	  }
-	  // for generating docs... fixthis.
-	  if (NULL != (inistring = inifile.Find("PRINT_CODES", "RS274NGC"))) {
-	      int i;
 
-	      for (i = 0; i < 1000; i++) {
-		  if (i % 10 == 0)
-		      printf("\n");
-
-		  if (_gees[i] == -1) {
-		      if (i % 10 == 0) {
-			  printf("G%d ",i/10);
-		      } else {
-			  printf("G%d.%d ",i/10,i % 10);
-		      }
-		  }
-	      }
-	      printf("\n");
-	      for (i = 0; i < 1000; i++) {
-		  if (_ems[i] == -1) {
-		      printf("M%d ",i);
-		      if (i % 10 == 0) {
-			  printf("\n");
-		      }
-		  }
-	      }
-	  }
           // close it
           inifile.Close();
       }
@@ -1070,13 +1083,33 @@ int Interp::init()
 
   synch(); //synch first, then update the interface
 
-
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
   write_settings(&_setup);
 
   init_tool_parameters();
   // Synch rest of settings to external world
+
+  // call __init__(self) once in toplevel module if defined
+  // once fully set up and sync()ed
+  if ((iniFileName != NULL) &&
+      _setup.init_once && PYUSABLE && 
+      python_plugin->is_callable(NULL, INIT_FUNC)) {
+
+      bp::object retval, tupleargs, kwargs;
+      bp::list plist;
+      
+      plist.append(_setup.pythis); // self
+      tupleargs = bp::tuple(plist);
+      kwargs = bp::dict();
+      
+      python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
+      CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	   "pycall(%s):\n%s", INIT_FUNC,
+	   python_plugin->last_exception().c_str());
+  }
+  _setup.init_once = 0;
+  
   return INTERP_OK;
 }
 
@@ -1505,6 +1538,10 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 
     qc_reset();
     return INTERP_OK;
+}
+
+int Interp::read() {
+  return read(0);
 }
 /***********************************************************************/
 
@@ -1942,19 +1979,20 @@ max_size.
 
 */
 
-void Interp::error_text(int error_code,        //!< code number of error                
+char * Interp::error_text(int error_code,        //!< code number of error
                          char *error_text,      //!< char array to copy error text into  
-                         int max_size)  //!< maximum number of characters to copy
+                         size_t max_size)  //!< maximum number of characters to copy
 {
     if(error_code == INTERP_ERROR)
     {
         strncpy(error_text, savedError, max_size);
         error_text[max_size-1] = 0;
 
-        return;
+        return error_text;
     }
 
     error_text[0] = 0;
+    return error_text;
 }
 
 /***********************************************************************/
@@ -1974,13 +2012,14 @@ max_size, in which case a null string is put in the file_name array.
 
 */
 
-void Interp::file_name(char *file_name,        //!< string: to copy file name into      
-                        int max_size)   //!< maximum number of characters to copy
+char *Interp::file_name(char *file_name,        //!< string: to copy file name into
+                        size_t max_size)   //!< maximum number of characters to copy
 {
   if (strlen(_setup.filename) < ((size_t) max_size))
     strcpy(file_name, _setup.filename);
   else
     file_name[0] = 0;
+  return file_name;
 }
 
 /***********************************************************************/
@@ -1995,7 +2034,7 @@ Called By: external programs
 
 */
 
-int Interp::line_length()
+size_t Interp::line_length()
 {
   return _setup.line_length;
 }
@@ -2016,10 +2055,10 @@ last non-null character.
 
 */
 
-void Interp::line_text(char *line_text,        //!< string: to copy line into           
-                        int max_size)   //!< maximum number of characters to copy
+char *Interp::line_text(char *line_text,        //!< string: to copy line into
+                        size_t max_size)   //!< maximum number of characters to copy
 {
-  int n;
+  size_t n;
   char *the_text;
 
   the_text = _setup.linetext;
@@ -2030,6 +2069,7 @@ void Interp::line_text(char *line_text,        //!< string: to copy line into
       break;
   }
   line_text[n] = 0;
+  return line_text;
 }
 
 /***********************************************************************/
@@ -2075,11 +2115,11 @@ empty string is returned for the name.
 
 */
 
-void Interp::stack_name(int stack_index,       //!< index into stack of function names  
+char *Interp::stack_name(int stack_index,       //!< index into stack of function names
                          char *function_name,   //!< string: to copy function name into
-                         int max_size)  //!< maximum number of characters to copy
+                         size_t max_size)  //!< maximum number of characters to copy
 {
-  int n;
+  size_t n;
   char *the_name;
 
   if ((stack_index > -1) && (stack_index < STACK_LEN)) {
@@ -2093,6 +2133,7 @@ void Interp::stack_name(int stack_index,       //!< index into stack of function
     function_name[n] = 0;
   } else
     function_name[0] = 0;
+  return function_name;
 }
 
 /***********************************************************************/
@@ -2133,6 +2174,12 @@ int Interp::ini_load(const char *filename)
     if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
 	// found it
 	strncpy(_parameter_file_name, inistring, LINELEN);
+        if (_parameter_file_name[LINELEN-1] != '\0') {
+            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %d)", filename, LINELEN-1);
+            inifile.Close();
+            _parameter_file_name[0] = '\0';
+            return -1;
+        }
         logDebug("found PARAMETER_FILE:%s:", _parameter_file_name);
     } else {
 	// not found, leave RS274NGC_PARAMETER_FILE alone

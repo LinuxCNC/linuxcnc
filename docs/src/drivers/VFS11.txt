@@ -1,0 +1,363 @@
+
+= VFS11 VFD Driver
+
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+[[cha:vfs11-vfd-driver]] (((VFS11 VFD Driver)))
+
+This is a userspace HAL program to control the S11 series of VFD's from
+Toshiba. 
+
+vfs11_vfd supports serial and TCP connections. Serial connections may
+be RS232 or RS485. RS485 is supported in full- and half-duplex
+mode. TCP connections may be passive (wait for incoming connection),
+or active outgoing connections, which may be useful to connect to
+TCP-based devices or through a terminal server.
+
+Regardless of the connection type, vfs11_vfd operates as a Modbus master.
+
+This component is loaded using the halcmd "loadusr" command:
+----
+loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd 
+----
+
+The above command says: loadusr, wait for named to load, 
+component vfs11_vfd, named spindle-vfd
+
+== Command Line Options
+
+'vfs11_vfd' is mostly configured through inifile options. The command
+line options are:
+
+* '-n or --name <halname>' : set the HAL component name
+* '-I or --ini <inifilename>' : take configuration from this ini
+file. Defaults to environment variable INI_FILE_NAME.
+* '-S or --section <section name>' : take configuration from this
+section in the ini file. Defaults to 'VFS11'.
+* '-d or --debug' enable debug messages on console output.
+* '-m or --modbus-debug' enable modbus messages on console output
+* '-r or --report-device' report device properties on console at startup
+
+Debugging can be toggled by sending a USR1 signal to the vfs11_vfd process. Modbus
+debugging can be toggled by sending a USR2 signal to vfs11_vfd process
+(example: +kill -USR1 \`pidof vfs11_vfd`+).
+
+[NOTE]
+That if there are serial configuration errors, turning on verbose
+may result in a flood of timeout errors.
+
+== Pins
+
+Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
+
+* '<n>.acceleration-pattern' (bit, in) when true, set acceleration and
+            deceleration times as defined in registers F500 and F501
+            respecitvely.  Used in PID loops to choose shorter ramp
+            times to avoid oscillation.
+
+* '<n>.alarm-code' (s32, out) non-zero if drive is in alarmed
+            state. Bitmap describing alarm information (see register
+            FC91 description).  Use err-reset (see below) to clear the
+            alarm.
+
+* '<n>.at-speed' (bit, out)
+              when drive is at commanded speed (see speed-tolerance below)
+
+* '<n>.current-load-percentage' (float, out)
+              reported from the VFD
+
+* '<n>.dc-brake' (bit, in)
+              engage the DC brake. Also turns off spindle-on.
+
+* '<n>.enable' (bit, in)
+              enable the VFD. If false, all operating parameters are still read but control is released and  panel  control
+              is enabled (subject to VFD setup).
+
+* '<n>.err-reset' (bit, in)
+              reset  errors  (alarms a.k.a Trip and e-stop status). Resetting the VFD may cause a 2-second delay until it's
+              rebooted and Modbus is up again.
+
+* '<n>.estop' (bit, in)
+              put the VFD into emergency-stopped status. No operation possible until cleared  with  err-reset  or  powercycling.
+
+* '<n>.frequency-command' (float, out)
+              current target frequency in HZ as set through speed-command (which is in RPM), from the VFD
+
+* '<n>.frequency-out' (float, out)
+              current output frequency of the VFD
+
+* '<n>.inverter-load-percentage' (float, out)
+              current load report from VFD
+
+* '<n>.is-e-stopped' (bit, out)
+              the VFD is in emergency stop status (blinking "E" on panel). Use err-reset to reboot the VFD and clear the e-
+              stop status.
+
+* '<n>.is-stopped' (bit, out)
+              true when the VFD reports 0 Hz output
+
+* '<n>.max-rpm' (float, R)
+              actual RPM limit based on maximum frequency the VFD may  generate,  and  the  motors  nameplate  values.  For
+              instance,  if  nameplate-HZ is 50, and nameplate-RPM_ is 1410, but the VFD may generate up to 80Hz, then max-
+              rpm would read as 2256 (80*1410/50). The frequency limit is read from the VFD at startup.   To  increase  the
+              upper  frequency  limit,  the  UL  and FH parameters must be changed on the panel.  See the VF-S11 manual for
+              instructions how to set the maximum frequency.
+
+* '<n>.modbus-ok' (bit, out)
+              true when the Modbus session is successfully established and the last 10 transactions returned without error.
+
+* '<n>.motor-RPM' (float, out)
+              estimated current RPM value, from the VFD
+
+* '<n>.output-current-percentage' (float, out)
+              from the VFD
+
+* '<n>.output-voltage-percentage' (float, out)
+              from the VFD
+
+* '<n>.output-voltage' (float, out)
+              from the VFD
+
+* '<n>.speed-command' (float, in)
+              speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD
+
+* '<n>.spindle-fwd' (bit, in)
+              1 for FWD and 0 for REV, sent to VFD
+
+* '<n>.spindle-on' (bit, in)
+              1 for ON and 0 for OFF sent to VFD, only on when running
+
+* '<n>.spindle-rev' (bit, in)
+              1 for ON and 0 for OFF, only on when running
+
+* '<n>.jog-mode' (bit, in)
+              1 for ON and 0 for OFF, enables the VF-S11 'jog mode'. Speed control is disabled, and the output frequency is
+              determined by register F262 (preset to 5Hz). This might
+              be useful for spindle orientation. In normal mode, the
+              VFD shuts off if the frequency drops below 12Hz.
+
+* '<n>.status' (s32, out)
+              Drive Status of the VFD (see the TOSVERT VF-S11 Communications Function Instruction Manual, register FD01). A
+              bitmap.
+
+* '<n>.trip-code' (s32, out)
+              trip code if VF-S11 is in tripped state.
+
+* '<n>.error-count' (s32, out)
+              number of Modbus transactions which returned an error
+
+* '<n>.max-speed' (bit, in)
+              ignore the loop-time paramater and run Modbus at maximum
+              speed, at the expense of higher CPU usage. Suggested use
+              during spindle positioning.
+
+== Parameters
+
+Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
+
+* '<n>.frequency-limit' (float, RO)
+              upper limit read from VFD setup.
+
+* '<n>.loop-time' (float, RW)
+              how often the Modbus is polled (default interval 0.1 seconds)
+
+* '<n>.nameplate-HZ' (float, RW)
+              Nameplate Hz of motor (default 50). Used to calculate target frequency (together with nameplate-RPM )  for  a
+              target RPM value as given by speed-command.
+
+* '<n>.nameplate-RPM' (float, RW)
+              Nameplate RPM of motor (default 1410)
+
+* '<n>.rpm-limit' (float, RW)
+              do-not-exceed soft limit for motor RPM (defaults to nameplate-RPM ).
+
+* '<n>.tolerance' (float, RW)
+               speed tolerance (default 0.01) for determining wether spindle is at speed (0.01 meaning: output frequency is
+              within 1% of target frequency)
+
+== INI file configuration
+
+This lists all options understood by vfs11_vfd. Typical setups for
+RS232, RS485 and TCP can be found in 'src/hal/user_comps/vfs11_vfd/*.ini'.
+
+[source,{ini}]
+---------------------------------------------------------------------
+[VFS11]
+# serial connection 
+TYPE=rtu
+
+# serial port
+DEVICE=/dev/ttyS0
+
+# TCP server - wait for incoming connection
+TYPE=tcpserver
+
+# tcp portnumber for TYPE=tcpserver or tcpclient
+PORT=1502
+
+# TCP client - active outgoing connection
+TYPE=tcpclient
+
+# destination to connect to if TYPE=tcpclient
+TCPDEST=192.168.1.1
+
+#---------- meaningful only if TYPE=rtu -------
+# serial device detail 
+# 5 6 7 8
+BITS= 5
+
+# even odd none	
+PARITY=none
+
+# 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200
+BAUD=19200
+
+# 1 2
+STOPBITS=1    
+
+#rs232 rs485
+SERIAL_MODE=rs485
+
+# up down none
+RTS_MODE=up
+#---------------------
+
+# modbus timers in seconds
+# inter-character timer
+BYTE_TIMEOUT=0.5
+# packet timer
+RESPONSE_TIMEOUT=0.5
+
+# target modbus ID
+TARGET=1
+
+# on I/O failure, try to reconnect after sleeping
+# for RECONNECT_DELAY seconds
+RECONNECT_DELAY=1
+
+# misc flags
+DEBUG=10
+MODBUS_DEBUG=0
+POLLCYCLES=10
+---------------------------------------------------------------------
+
+== HAL example
+
+[source,{hal}]
+---------------------------------------------------------------------
+#
+# example usage of the VF-S11 VFD driver
+#
+#
+loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd
+
+# connect the spindle direction pins to the VFD
+net vfs11-fwd spindle-vfd.spindle-fwd <= motion.spindle-forward
+net vfs11-rev spindle-vfd.spindle-rev <= motion.spindle-reverse
+
+# connect the spindle on pin to the VF-S11
+net vfs11-run spindle-vfd.spindle-on <= motion.spindle-on
+
+# connect the VF-S11 at speed to the motion at speed
+net vfs11-at-speed motion.spindle-at-speed <= spindle-vfd.at-speed
+
+# connect the spindle RPM to the VF-S11
+net vfs11-RPM spindle-vfd.speed-command <= motion.spindle-speed-out
+
+# connect the VF-S11 DC brake
+# since this draws power during spindle off, the dc-brake pin would
+# better be driven by a monoflop which triggers on spindle-on falling edge
+#net vfs11-spindle-brake motion.spindle-brake => spindle-vfd.dc-brake
+
+# to use the VFS11 jog mode for spindle orient 
+# see orient.9 and motion.9
+net spindle-orient motion.spindle-orient spindle-vfd.max-speed spindle-vfd.jog-mode
+
+# take precedence over control panel
+setp spindle-vfd.enable 1
+---------------------------------------------------------------------
+
+== Panel operation
+
+The vfs11_vfd driver takes precedence over panel control while it is
+enabled (see 'enable' pin), effectively disabling the panel. Clearing
+the 'enable' pin re-enables the panel. Pins and parameters can still
+be set, but will not be written to the VFD untile the 'enable' pin is
+set. Operating parameters are still read while bus control is
+disabled. Exiting the vfs11_vfd driver in a controlled way will release
+the VFD from the bus and restore panel control.
+
+See the EMC2 Integrators Manual for more information. For a detailed
+register description of the Toshiba VFD's, see the "TOSVERT VF-S11
+Communications Function Instruction Manual" (Toshiba document number
+E6581222) and the "TOSVERT VF-S11 Instruction manual" (Toshiba
+document number E6581158).
+
+== Error Recovery
+
++vfs11_vfd+ recovers from I/O errors as follows: First, all HAL pins
+are set to default values, and the driver will sleep for 
++RECONNECT_DELAY+ seconds (default 1 second).
+
+* Serial (+TYPE=rtu+) mode: on error, close and reopen the serial port.
+
+* TCP server (+TYPE=tcpserver+) mode: on losing the TCP connection, the
+  driver will go back to listen for incoming connections.
+
+* TCP client (+TYPE=tcpclient+) mode: on losing the TCP connection, the
+  driver will reconnect to 'TCPDEST:PORTNO'.
+
+== Configuring the VFS11 VFD for Modbus usage
+
+=== Connecting the Serial Port
+
+The VF-S11 has an RJ-45 jack for serial communication. Unfortunately,
+it does not have a standard RS-232 plug and logic levels.  The
+Toshiba-recommended way is: connect the USB001Z USB-to-serial
+conversion unit to the drive, and plug the USB port into the PC. A
+cheaper alternative is a homebrew interface (
+http://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/VFS11-RJ45_e.pdf[hints
+from Toshiba support],
+http://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/vfs11-rs232.pdf[circuit diagram]).
+
+Note: the 24V output from the VFD has no short-circuit protection.
+
+Serial port factory defaults are 9600/8/1/even, the protocol defaults
+to the proprietary "Toshiba Inverter Protocol".
+
+=== Modbus setup
+
+Several parameters need setting before the VF-S11 will talk to
+this module. This can either be done manually with the control panel,
+or over the serial link - Toshiba supplies a Windows application
+called 'PCM001Z' which can read/set parameters in the VFD.  Note -
+PCM001Z only talks the Toshiba inverter protocol. So the last
+parameter which you'd want to change is the protocol - set from
+Toshiba Inverter Protocol to Modbus; thereafter, the Windows app is
+useless.
+
+To increase the upper frequency limit, the UL and FH parameters must
+be changed on the panel. I increased them from 50 to 80.
+
+See dump-params.mio for a description of non-standard VF-S11
+parameters of my setup. This file is for the  
+http://git.mah.priv.at/gitweb/modio.git[modio Modbus interactive utility].
+
+== Programming Note
+
+The vfs11_vfd driver uses the http://www.libmodbus.org[libmodbus
+version 3] library which is more recent than the version 2 code used
+in +gs2_vfd+. Since the Ubuntu +libmodbus5+ and +libmodbus-dev+ packages are
+only available starting from Ubuntu 12 ('Precise Pengolin'), 
+in the interim libmodbus should be installed as outlined 
+https://github.com/stephane/libmodbus/blob/master/README.rst[here].
+
+Libmodbus does not build on Ubuntu Hardy.
+
+// Michael Haberler; loosely based on gs2_vfd by Steve Padnos and John Thornton.
+
+
+

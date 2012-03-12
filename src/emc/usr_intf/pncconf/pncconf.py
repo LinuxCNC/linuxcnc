@@ -1581,7 +1581,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "MIN_FERROR = %s" % get("minferror")
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        if encoder:
+        if encoder or resolver:
             if closedloop:
                 print >>file, "P = %s" % get("P")
                 print >>file, "I = %s" % get("I") 
@@ -5020,11 +5020,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets["mesa%d_numof_tpp_label"% boardnum].show()
                     self.widgets["mesa%d_3pwm_freq_label"% boardnum].show()
                     self.widgets["mesa%d_3pwm_freq_units"% boardnum].show()
+                    self.widgets["mesa%d_3pwm_frequency"% boardnum].show()
                 else:
                     self.widgets["mesa%d_numof_tppwmgens"% boardnum].hide()
                     self.widgets["mesa%d_numof_tpp_label"% boardnum].hide()
                     self.widgets["mesa%d_3pwm_freq_label"% boardnum].hide()
                     self.widgets["mesa%d_3pwm_freq_units"% boardnum].hide()
+                    self.widgets["mesa%d_3pwm_frequency"% boardnum].hide()
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_range(0,d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])

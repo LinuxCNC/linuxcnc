@@ -240,6 +240,7 @@ def settool_epilog(self,**words):
             return INTERP_OK
         else:
             if self.return_value > 0.0:
+                self.current_tool = int(self.params["tool"])
                 self.current_pocket = int(self.params["pocket"])
                 emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
                 # cause a sync()
@@ -271,6 +272,7 @@ def set_tool_number(self, **words):
             return status
 	if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
             self.current_pocket = pocket
+            self.current_tool = toolno
             emccanon.CHANGE_TOOL_NUMBER(pocket)
             # cause a sync()
             self.tool_change_flag = True
@@ -284,38 +286,82 @@ def set_tool_number(self, **words):
         return INTERP_ERROR
 
 
-
-_sticky_params = dict()
-
-
+_uvw = ("u","v","w","a","b","c")
+_xyz = ("x","y","z","a","b","c")
+# given a plane, return  sticky words, incompatible axis words and plane name
+# sticky[0] is also the movement axis
+_compat = {
+    emccanon.CANON_PLANE_XY : (("z","r"),_uvw,"XY"),
+    emccanon.CANON_PLANE_YZ : (("x","r"),_uvw,"YZ"),
+    emccanon.CANON_PLANE_XZ : (("y","r"),_uvw,"XZ"),
+    emccanon.CANON_PLANE_UV : (("w","r"),_xyz,"UV"),
+    emccanon.CANON_PLANE_VW : (("u","r"),_xyz,"VW"),
+    emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}           
 
 # extract and pass parameters from current block, merged with extra paramters on a continuation line
 # keep tjose parameters across invocations
 # export the parameters into the oword procedure
 def cycle_prolog(self,**words):
-
-    global _sticky_params
+    # self.sticky_params is assumed to have been initialized by the
+    # init_stgdlue() method below
+    global _compat
     try:    
         # determine whether this is the first or a subsequent call
         c = self.blocks[self.remap_level]
         r = c.executing_remap
         if c.g_modes[1] == r.motion_code:
-            # first call - clear the dict to remember all sticky parameters.
-            _sticky_params[r.name] = dict()
+            # first call - clear the sticky dict
+            self.sticky_params[r.name] = dict()
 
-        # merge in new parameters
-        _sticky_params[r.name].update(words) 
+        self.params["motion_code"] = c.g_modes[1]
+        
+        (sw,incompat,plane_name) =_compat[self.plane]
+        for (word,value) in words.items():
+            # inject current parameters
+            self.params[word] = value
+            # record sticky words
+            if word in sw:
+                if self.debugmask & 0x00080000: print "%s: record sticky %s = %.4f" % (r.name,word,value)
+                self.sticky_params[r.name][word] = value
+            if word in incompat:
+                return "%s: Cannot put a %s in a canned cycle in the %s plane" % (r.name, word.upper(), plane_name)
 
-        # insert parameters into oword callframe
-        for (key,value) in _sticky_params[r.name].items():
-            self.params[key] = value
+        # inject sticky parameters which were not in words:
+        for (key,value) in self.sticky_params[r.name].items():
+            if not key in words:
+                if self.debugmask & 0x00080000: print "%s: inject sticky %s = %.4f" % (r.name,key,value)
+                self.params[key] = value
+
+        if not "r" in self.sticky_params[r.name]:
+            return "%s: cycle requires R word" % (r.name)
+        else:
+            if self.sticky_params[r.name] <= 0.0:
+                return "%s: R word must be > 0 if used (%.4f)" % (r.name, words["r"])
+
+        if "l" in words:
+            # checked in interpreter during block parsing
+            # if l <= 0 or l not near an int
+            self.params["l"] = words["l"]
+            
+        if "p" in words:
+            p = words["p"]
+            if p < 0.0:
+                return "%s: P word must be >= 0 if used (%.4f)" % (r.name, p)
+            self.params["p"] = p
+
+        if self.feed_rate == 0.0:
+            return "%s: feed rate must be > 0" % (r.name)
+        if self.feed_mode == INVERSE_TIME:
+            return "%s: Cannot use inverse time feed with canned cycles" % (r.name)
+        if self.cutter_comp_side:
+            return "%s: Cannot use canned cycles with cutter compensation on" % (r.name)
         return INTERP_OK
     
     except Exception, e:
-        self.set_errormsg("cycle_prolog failed: %s" % (e))
-        return INTERP_ERROR
+        raise
+        return "cycle_prolog failed: %s" % (e)
 
-# make sure the next line has the same motion code, unless it's overriden by a
+# make sure the next line has the same motion code, unless overriden by a
 # new G code
 def cycle_epilog(self,**words):
     try:
@@ -323,5 +369,9 @@ def cycle_epilog(self,**words):
         self.motion_mode = c.executing_remap.motion_code # retain the current motion mode
         return INTERP_OK
     except Exception, e:
-        self.set_errormsg("cycle_prolog failed: %s" % (e))
-        return INTERP_ERROR
+        return "cycle_epilog failed: %s" % (e)
+
+
+# this should be called from TOPLEVEL __init__()
+def init_stdglue(self):
+    self.sticky_params = dict()

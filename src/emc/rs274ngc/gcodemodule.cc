@@ -144,12 +144,14 @@ static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-static Interp interp_new;
+static InterpBase *pinterp;
+#define interp_new (*pinterp)
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
 static void maybe_new_line(int sequence_number=interp_new.sequence_number());
 static void maybe_new_line(int sequence_number) {
+    if(!pinterp) return;
     if(interp_error) return;
     if(sequence_number == last_sequence_number)
         return;
@@ -681,12 +683,21 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
-    char *unitcode=0, *initcode=0;
+    char *unitcode=0, *initcode=0, *interpname=0;
     int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
-    if(!PyArg_ParseTuple(args, "sO|ss", &f, &callback, &unitcode, &initcode))
+    if(!PyArg_ParseTuple(args, "sO|sss", &f, &callback, &unitcode, &initcode, &interpname))
         return NULL;
+
+    if(pinterp) {
+        delete pinterp;
+        pinterp = 0;
+    }
+    if(interpname && *interpname)
+        pinterp = interp_from_shlib(interpname);
+    if(!pinterp)
+        pinterp = new Interp;
 
     for(int i=0; i<USER_DEFINED_FUNCTION_NUM; i++) 
         USER_DEFINED_FUNCTION[i] = user_defined_function;
@@ -729,7 +740,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_new.execute();
     }
 out_error:
-    interp_new.close();
+    if(pinterp) pinterp->close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,

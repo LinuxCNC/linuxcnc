@@ -1010,7 +1010,7 @@ G42 <D-> (right of programmed path)
 * 'D' - tool number
 
 The D word is optional; if there is no D word, the radius of
-the tool currently loaded with G43 will be used.
+the currently-loaded tool will be used.
 If used, the D number should normally be the slot number of
 the tool in the spindle, although this is not required.
 It is OK for the D number to be zero; a radius value of zero will be used.
@@ -1203,7 +1203,7 @@ systems.
 G64 <P- <Q->>
 ----
 * 'P' - motion blending tolerance
-* 'Q' - naive came tolerance 
+* 'Q' - naive cam tolerance 
 
 * 'G64' - best possible speed.
 * 'G64 P- <Q- >' blending with tolerance.
@@ -1572,7 +1572,7 @@ plane selected and R words. The R (usually meaning retract) position is
 along the axis perpendicular to the currently selected plane (Z-axis
 for XY-plane, etc.) Some canned cycles use additional arguments.
 
-=== Sticky Words
+=== Sticky Words[[sec:Cycle-Sticky-Words]]
 
 For canned cycles, we will call a number 'sticky' if, when the same
 cycle is used on several lines of code in a row, the number must be
@@ -1603,7 +1603,7 @@ repeats. The L number is not sticky. In absolute distance mode,
 L>1 means 'do the same cycle in the same place several
 times', Omitting the L word is equivalent to specifying L=1.
 
-=== Retract Mode
+=== Retract Mode[[sec:Retract-Mode]]
 
 The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
@@ -1611,7 +1611,7 @@ the retract mode: either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<sec:G98-G99-Set,G98 G99>> Section.
 
-=== Canned Cycle Errors
+=== Canned Cycle Errors[[sec:Canned-Cycle-Errors]]
 
 It is an error if:
 

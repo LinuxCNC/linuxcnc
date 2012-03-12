@@ -1079,11 +1079,21 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	halcmd_error("Module path too long\n");
 	return -1;
     }
+
     /* make full module name '<path>/<name>.o' */
-    strcpy (mod_path, rtmod_dir);
-    strcat (mod_path, "/");
-    strcat (mod_path, mod_name);
-    strcat (mod_path, MODULE_EXT);
+    {
+        int r;
+        r = snprintf(mod_path, sizeof(mod_path), "%s/%s%s", rtmod_dir, mod_name, MODULE_EXT);
+        if (r < 0) {
+            halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
+            return -1;
+        } else if (r >= sizeof(mod_path)) {
+            // truncation!
+            halcmd_error("module path too long (max %lu) for %s/%s%s\n", sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
+            return -1;
+        }
+    }
+
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */

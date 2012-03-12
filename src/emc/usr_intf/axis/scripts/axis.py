@@ -51,6 +51,11 @@ Tkinter.Tk = Tk
 
 from Tkinter import *
 from minigl import *
+RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
+old_flags = sys.getdlopenflags()
+sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
+import gcode
+sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
@@ -58,7 +63,6 @@ from hershey import Hershey
 from propertywindow import properties
 import rs274.options
 import nf
-import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
@@ -227,7 +231,9 @@ def install_help(app):
 
 color_names = [
     ('back', 'Background'),
-    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'traverse',
+    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'cone', 'cone_xy', 'cone_uv',
+    'traverse', 'straight_feed_xy', 'arc_feed_xy', 'traverse_xy',
+    'straight_feed_uv', 'arc_feed_uv', 'traverse_uv',
     'backplotjog', 'backplotfeed', 'backplotarc', 'backplottraverse',
     'backplottoolchange', 'backplotprobing',
     'selected',
@@ -431,6 +437,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_commanded(self): return vars.display_type.get()
     def get_show_rapids(self): return vars.show_rapids.get()
     def get_geometry(self): return geometry
+    def is_foam(self): return foam
     def get_num_joints(self): return num_joints
     def get_program_alpha(self): return vars.program_alpha.get()
 
@@ -692,7 +699,7 @@ class LivePlotter:
             C('backplotarc'),
             C('backplottoolchange'),
             C('backplotprobing'),
-            geometry
+            geometry, foam
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
@@ -964,7 +971,7 @@ class Progress:
 
 class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress, arcdivision):
-        GLCanon.__init__(self, widget.colors, geometry)
+        GLCanon.__init__(self, widget.colors, geometry, foam)
         StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
@@ -1109,15 +1116,19 @@ def open_file_guts(f, filtered=False, addrecent=True):
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-        shutil.copy(parameter, temp_parameter)
+        if os.path.exists(parameter):
+            shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-        unitcode = "G%d" % (20 + (s.linear_units == 1))
+        if not interpname:
+		unitcode = "G%d" % (20 + (s.linear_units == 1))
+        else:
+		unitcode = ''
         try:
-            result, seq = o.load_preview(f, canon, unitcode, initcode)
+            result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1130,6 +1141,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
+        o.lp.set_depth(o.get_foam_z(), o.get_foam_w())
 
     finally:
         # Before unbusying, I update again, so that any keystroke events
@@ -2819,6 +2831,7 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
@@ -2851,6 +2864,8 @@ if homing_order_defined:
             _("Home All Axes"))
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
+
+interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))

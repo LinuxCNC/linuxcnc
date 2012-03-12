@@ -1,0 +1,5 @@
+
+net spindle-on motion.spindle-on gladevcp.spindle-on
+net spindle-speed motion.spindle-speed-out gladevcp.spindle-speed
+net mist iocontrol.0.coolant-mist gladevcp.mist
+net flood iocontrol.0.coolant-flood gladevcp.flood

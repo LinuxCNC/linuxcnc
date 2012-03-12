@@ -7,7 +7,6 @@
 
 == Introduction: Extending the RS274NGC Interpreter by Remapping Codes
 
-foo!
 
 === A Definition: Remapping Codes
 
@@ -231,7 +230,7 @@ the other <<sec:Modal-Groups,modal group>> 10 M-codes as per
 
 - the value of `P`, and `Q` are available in the procedure as local
    named parameters. The may be referred to  as `#<P>` and `#<Q>`. The
-   procedure may test wether the `Q` word was present with the
+   procedure may test whether the `Q` word was present with the
    <<EXISTS-Function,`EXISTS`>> builtin function.
 
 The file `myprocedure.ngc` is expected to exists in the `[DISPLAY]NC_FILES` or
@@ -383,7 +382,7 @@ words (eg X,Y,Z) only in the context of a G-code.
 	The `@` (at-sign) tells argspec to pass words as positional
 	parameters, in the order defined following the `@`
 	option. Note that when using positional parameter passing,
-	a procedure cannot tell wether a word was present or not, see
+	a procedure cannot tell whether a word was present or not, see
 	example below.
 
 TIP: this helps with packaging existing NGC procedures as remapped
@@ -460,7 +459,7 @@ M2
 - executing `M410 P10 Q20` will display `m410.ngc: [1]=10.000000 [2]=20.000000`
 
 NB: you lose the capability to distinguish more than one optional
-parameter word, and you cannot tell wether an optional parameter was
+parameter word, and you cannot tell whether an optional parameter was
 present but had the value 0, or was not present at all.
 
 ==== Simple example for named parameter passing to a Python function
@@ -662,7 +661,7 @@ executed, this triggers the  "raise tool-change and wait for
 tool-changed to become high" HAL sequence in iocontrol, besides
 setting the XXXX pins
 
-What you need to decide is wether the existing iocontrol HAL sequences
+What you need to decide is whether the existing iocontrol HAL sequences
 are sufficient to drive your changer. Maybe you need a different
 interaction sequence - for instance more HAL  pins, or maybe a more
 complex interaction. Depending on the answer, we might continue to use the existing
@@ -806,7 +805,7 @@ def change_epilog(self, **words):
 This replacement M6 is compatible with the builtin code,
 except steps 3-5 need to be filled in with your NGC code.
 
-Again, most epilogs have a common scheme: first, determine wether
+Again, most epilogs have a common scheme: first, determine whether
 things went right in the remap procedure, then do any commit and cleanup
 actions which cant be done in NGC code.
 
@@ -1081,6 +1080,23 @@ Note that both `(abort, msg)` and returning INTERP_ERROR from an
 epilog will cause any ON_ABORT handler to be called as well if defined
 (see previous section).
 
+== Remapping other existing codes: S, M0, M1, M60
+
+=== Automatic gear selection be remapping  S (set spindle speed)
+A potential use for a remapped S code would be 'automatic gear
+selection' depending on speed. In the remap procedure one would test
+for the desired speed attainable given the current gear setting, and
+change gears appropriately if not.
+
+=== Adjusting the behaviour of M0, M1, M60
+A use case for remapping M0/M1 would be to customize the behaviour of
+the existing code. For instance, it could be desirable to turn off the
+spindle, mist and flood during an M0 or M1 program pause, and turn
+these settings back on when the program is resumed.
+
+For a complete example doing just that, see
+'configs/sim/remap/extend-builtins/', which adapts M1 as laid out above.
+
 == Creating new G-code cycles [[remap:G-code-cycles]]
 
 A G-code cycle as used here is meant to behave as follows:
@@ -1093,28 +1109,29 @@ parameters changed accordingly.
 
 An example: Assume you have `G84.3` defined as remapped G code cycle
 with the following ini segment (see <<sec::cycle-stdglue,here>> for
-the prolog and epilog):
+a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
 [source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
 # A cycle with an oword procedure: G84.3 <X- Y- Z- Q- P->
-REMAP=G84.3 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1 
+REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1 
 ---------------------------------------------------------------------
-Then you'd execute the following lines:
+Executing the following lines:
 [source,{ngc}]
 ---------------------------------------------------------------------
-g84.3 x1 y2 z3 q5  (line1)
-x3 y4 p2           (line2)
-x6 y7 z5 q3        (line3)
-G80                (line4)
+g17 
+(1)   g84.3 x1 y2 z3  r1  
+(2)   x3 y4 p2            
+(3)   x6 y7 z5            
+(4)   G80                 
 ---------------------------------------------------------------------
-The folowing is executed:
+causes the following (note 'R' is sticky, and 'Z' is sticky since the plane is 'XY'):
 
-* line1: `g843.ngc` is called with words x=1, y=2, z=3, q=5
-* line2: `g843.ngc` is called with words x=3, y=4, z=3, q=5, p=2
-* line3: `g843.ngc` is called with words x=6, y=7, z=3, q=3, p=2
-* line4: The `G84.3` cycle is cancelled.
+. `g843.ngc` is called with words x=1, y=2, z=3, r=1
+. `g843.ngc` is called with words x=3, y=4, z=3, p=2, r=1 
+. `g843.ngc` is called with words x=6, y=7, z=3, r=1
+.  The `G84.3` cycle is cancelled.
 
 Besides creating new cycles, this provides an easy method for
 repackaging existing G-codes which do not behave as cycles. For
@@ -1203,11 +1220,37 @@ The namespace is expected to be laid out as follows:
 === The Interpreter as seen from Python
 
 The interpreter is an existing C++ class ('Interp') defined in
-'src/emc/rs274ngc'. Conceptually all `oword.function` Python calls are
-methods of this Interp class, although there is no explicit Python
-definition of this class (it's a 'Boost.Python' wrapper instance) and
-hence receive the as the first parameter `self` which can be used to
-access internals.
+'src/emc/rs274ngc'. Conceptually all `oword.<function>` and
+`remap.<function>` Python calls are methods of this Interp class,
+although there is no explicit Python definition of this class (it's a
+'Boost.Python' wrapper instance) and hence receive the as the first
+parameter `self` which can be used to access internals.
+
+=== The Interpreter `__init__` function
+
+If the `TOPLEVEL`  module defines a function `__init__`, it will be
+called once the interpreter is fully configured (ini file read, and
+state synchronized with the world model):
+
+[source,python]
+---------------------------------------------------------------------
+# this would be defined in the TOPLEVEL module
+def __init__(self):
+    # add any one-time initialisation here
+    pass
+---------------------------------------------------------------------
+
+This function may be used to initialize any Python-side attributes
+which might be needed later, for instance in remap or oword
+functions. If there are setup actions which are to happen only in the
+milltask Interpreter instance, this can be tested for by
+<<cha:Axis-Preview-and-Remapped-code-execution,evaluating
+'self.task'>>.
+
+An example use of `__init__` can be found in
+'configs/sim/remap/cycle/python/toplevel.py' initialising attributes
+needed to handle cycles in 'configs/sim/remap/python-stdglue/stdglue.py'.
+
 
 === Calling conventions: NGC to Python
 
@@ -1624,7 +1667,29 @@ easy to use, in a realistic scenario you would avoid argspec and do a
 more thorough investigation of the block manually in order to give better
 error messages.
 
+The suggested argspec is as follows:
+[source,{ini}]
+---------------------------------------------------------------------
+REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1 
+---------------------------------------------------------------------
+This will permit +cycle_prolog+ to determine the compabitibily of any
+axis words give in the block, see below.
+
+
+//sec:Cycle-Sticky-Words
+//sec:Canned-Cycle-Errors
+//sec:Retract-Mode
 ==== Actions of +cycle_prolog+
+* Determine whether the words passed in from the current block fulfill
+the conditions outlined under <<sec:Canned-Cycle-Errors,Canned Cycle
+Errors>>.
+** export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
+different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
+** export 'L-' as +#<l>+; default to 1 if not given.
+** export 'P-' as +#<p>+; fail if p less than 0.
+** export 'R-' as +#<r>+; fail if r not given, or less equal 0 if given.
+** fail if feed rate is zero, or inverse time feed or cutter
+compensation is on.
 * Determine whether this is the first invocation of a cycle G code, if
 so:
 ** Add the words passed in (as per argspec) into a set of sticky
@@ -1641,8 +1706,10 @@ motion code will execute the same motion code.
 
 === S (Set Speed) : +setspeed_prolog+ and +setspeed_epilog+ 
 TBD
+
 === F (Set Feed) : +setfeed_prolog+ and +setfeed_epilog+ 
 TBD
+
 === M61 Set tool number : +settool_prolog+ and +settool_epilog+ 
 TBD
 
@@ -1729,6 +1796,7 @@ image::images/debug_embedded_python.png[Debugging with Eclipse]
 See the Python code in `configs/sim/remap/getting-started/python` for details.
 
 == Axis Preview and Remapped code execution
+[[cha:Axis-Preview-and-Remapped-code-execution]]
 
 For complete preview of a remapped code's toolpath some precautions
 need to be taken. To understand what is going on, let's review the
@@ -1764,6 +1832,10 @@ preview. See
 'configs/sim/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
 for a complete usage example.
 
+Within Embedded Python, the task instance can be checked for by
+testing 'self.task' - this will be 1 in the milltask instance, and 0
+in the preview instance(s).
+
 == Remappable Codes [[sec:remap:remappable-codes]]
 
 === Existing codes which can be remapped [[remap:remappable-codes]]
@@ -1773,6 +1845,9 @@ The current set of *existing* codes open to redefinition is:
 - Tx (Prepare)
 - M6 (Change tool)
 - M61 (Set tool number)
+- M0 (pause a running program temporarily)
+- M1 (pause a running program temporarily if the optional stop switch is on)
+- M60 (exchange pallet shuttles and then pause a running program temporarily)
 - S  (set spindle speed)
 - F  (set feed)
 
@@ -1952,7 +2027,7 @@ the speed is set, it remains at this setting until turned off. The
 same goes for many codes, like feed, units, motion modes (feed or
 rapid)  and so forth.
 
-(4) holds information about the block currently executed, wether we
+(4) holds information about the block currently executed, whether we
 are in a subroutine, interpreter variables etc.
 
 Most of this state is aggregated in a - fairly unsystematic -
@@ -2207,7 +2282,7 @@ Even if you are not familiar with C, I suggest you look at the
 ==== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
 When the interpreter sees an M6, it:
 
-. checks wether a T command has already been executed (test
+. checks whether a T command has already been executed (test
 'settings->selected_pocket' to be >= 0) and fail with 'Need tool
 prepared -Txx- for toolchange' message if not.
 . check for cutter compensation being active, and fail with 'Cannot
@@ -2242,7 +2317,7 @@ thing.
 .. execute the 'load_tool()' function with the pocket as parameter.
 
 The last step actually sets the tooltable entries in the 'emcStatus'
-structure. The actual action taken depends on wether the
+structure. The actual action taken depends on whether the
 RANDOM_TOOLCHANGER ini option was set, but at the end of the process
 'toolTable[0]' reflects the tool currently in the spindle.
 

@@ -19,3 +19,11 @@ and changed - any changes will be picked up by the epilog and used to commit the
 Note that using M61 requires iocontrol-v2 as set tool number support in iocontrol is broken.
 
 
+update:
+
+Remapping and extending of M0,M1,M60 added.
+See also thread: http://linuxcnc.org/index.php/english/component/kunena/?func=view&catid=38&id=17637&limit=6#17637
+
+-mah
+
+

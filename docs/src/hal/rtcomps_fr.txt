@@ -3,29 +3,8 @@
 
 = Les composants temps réel 
 
-[[cha:halmeter]] (((halmeter)))
+[[cha:Composants-temps-reel]] (((composants-temps-reel)))
 
-== Halmeter 
-
-halmeter peut être chargé à partir d'un terminal ou d'Axis. halmeter est
-plus rapide que l'affichage de valeurs de Halshow. halmeter a deux fenêtres, une
-pour ramasser la broche, le signal, ou un paramètre à surveiller et celle qui 
-affiche la valeur. halmeters multiples peuvent être ouverts en même temps. Si 
-vous utilisez un script pour ouvrir halmeters multiples, vous pouvez définir la 
-position de chaque l'un avec -g par rapport au coin supérieur gauche de votre 
-écran XY. Par exemple:
-----
-loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
-----
-
-Une description détaillée <<sec:Tutoriel-halmeter, de halmeter>> se trouve 
-dans le manuel de HAL.
-
-.Choix de l'item à mesurer avec halmeter
-image::images/halmeter-select_fr.png[]
-
-.Valeur de l'item choisi
-image::images/halmeter-1_fr.png[]
 
 [[sec:Stepgen]]
 == Stepgen
@@ -50,25 +29,20 @@ pas, se règlent indépendamment et n'importe quelle combinaison peut
 être choisie.
 
 [[fig:Diagramme-bloc-stepgen]]
-
 .Diagramme bloc du générateur de pas stepgen (en mode position)
-
 (((Diagramme bloc stepgen position)))
 
 image::images/stepgen-block-diag.png[]
 
-
 [[fig:Diagramme-bloc-freqgen]]
-
 .Diagramme bloc du générateur de pas stepgen (en mode vitesse)
-
 (((Diagramme bloc freqgen vitesse)))
 
 image::images/freqgen-block-diag.png[]
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>] 
+halcmd: loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>] 
 ----
 
 _<type-array>_ est une série d'entiers décimaux séparés par des
@@ -80,7 +54,7 @@ des virgules, qui spécifient le mode pas ou le mode vitesse.
 _ctrl_type_ est optionnel, si il est omis, tous les générateurs de pas 
 seront en mode position. Par exemple, la commande:
 ----
-linuxcnc$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v 
+halcmd: loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v 
 ----
 
 va installer trois générateurs de pas. Les deux premiers utilisent le
@@ -97,7 +71,7 @@ générateurs commence à 0.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt stepgen
+halcmd: unloadrt stepgen
 ----
 
 === Pins
@@ -280,15 +254,17 @@ résolution, à peut-être 10kHz avec une résolution limitée.
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt pwmgen output_type=<config-array>
+halcmd: loadrt pwmgen output_type=<config-array>
 ----
 
 _<config-array>_ est une série d'entiers décimaux séparés par des
 virgules. Chaque
 chiffre provoquera le chargement d'un simple générateur de PWM, la
-valeur de ce chiffre determinera le type de sortie. Par exemple:
+valeur de ce chiffre determinera le type de sortie.
+
+.Exemple avec pwmgen
 ----
-linuxcnc$ halcmd loadrt pwmgen output_type=0,1,2
+halcmd: loadrt pwmgen output_type=0,1,2
 ----
 
 va installer trois générateurs de PWM. Le premier utilisera une sortie
@@ -305,7 +281,7 @@ générateurs de PWM commence à 0.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt pwmgen
+halcmd: unloadrt pwmgen
 ----
 
 === Pins
@@ -359,20 +335,21 @@ le type de sortie choisi:
 
 === Types de sortie
 
-Le générateur de PWM supporte trois _types de sortie_. Le type 0 a une
-seule pin de sortie. Seules, les commandes positives sont acceptées,
-les valeurs négatives sont traitées comme zéro (elle seront affectées
-par _min-dc_, si il est différent de zéro). Le type 1 a deux pins de
-sortie, une pour le signal PWM/PDM et une pour indiquer la direction. 
-Le rapport cyclique d'une pin PWM est basé sur la valeur absolue de la commande,
-de sorte que les valeurs négatives sont acceptables. La pin de
+Le générateur de PWM supporte trois _types de sortie_.
+
+* Le _type 0_ - A une seule pin de sortie. Seules, les commandes positives sont
+acceptées, les valeurs négatives sont traitées comme zéro (elle seront affectées
+par le paramètre _min-dc_ si il est différent de zéro).
+* Le _type 1_ - A deux pins de sortie, une pour le signal PWM/PDM et une pour
+la direction. Le rapport cyclique d'une pin PWM est basé sur la valeur absolue
+de la commande, de sorte que les valeurs négatives sont acceptables. La pin de
 direction est fausse pour les commandes positives et vraie pour les
-commandes négatives. Finalement, le type 2 a également deux sorties,
-appelées _up_ et _down_. Pour les commandes positives, le signal PWM
-apparaît sur la sortie up et la sortie down reste fausse. Pour les
-commandes négatives, le signal PWM apparaît sur la sortie down et la
-sortie up reste fausse. Les sorties de type 2 sont appropriées pour
-piloter la plupart des ponts en H.
+commandes négatives. 
+* Le _type 2_ - A également deux sorties, appelées _up_ et _down_. Pour
+les commandes positives, le signal PWM apparaît sur la sortie _up_ et la sortie
+_down_ reste fausse. Pour les commandes négatives, le signal PWM apparaît sur
+la sortie _down_ et la sortie _up_ reste fausse. Les sorties de type 2 sont
+appropriées pour piloter la plupart des ponts en H.
 
 === Fonctions
 
@@ -411,7 +388,7 @@ image::images/encoder-block-diag.png[]
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt encoder [num_chan=<counters>]
+halcmd: loadrt encoder [num_chan=<counters>]
 ----
 
 _<counters>_ est le nombre de compteurs de codeur à installer. Si
@@ -424,7 +401,7 @@ numérotation des compteurs commence à 0.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt encoder
+halcmd: unloadrt encoder
 ----
 
 === Pins
@@ -531,7 +508,7 @@ image::images/pid-block-diag.png[]
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
+halcmd: loadrt pid [num_chan=<loops>] [debug=1]
 ----
 
 _<loops>_ est le nombre de boucles PID à installer. Si _numchan_ 
@@ -549,7 +526,7 @@ liste des paramètres.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt pid
+halcmd: unloadrt pid
 ----
 
 === Pins
@@ -656,7 +633,7 @@ contrôlée par une pin de HAL. Surtout utile pour les essais.
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt sim-encoder num_chan=<number>
+halcmd: loadrt sim-encoder num_chan=<number>
 ----
 
 _<number>_ est le nombre de codeurs à simuler. Si aucun n'est
@@ -666,7 +643,7 @@ défini par MAX_CHAN dans sim_encoder.c).
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt sim-encoder
+halcmd: unloadrt sim-encoder
 ----
 
 === Pins
@@ -716,7 +693,7 @@ supprimées.
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt debounce cfg=<config-string>
+halcmd: loadrt debounce cfg=<config-string>
 ----
 
 _<config-string>_ est une série d'entiers décimaux séparés par des
@@ -724,7 +701,7 @@ espaces. Chaque
 chiffre installe un groupe de filtres anti-rebond identiques, le
 chiffre détermine le nombre de filtres dans le groupe. Par exemple:
 ----
-linuxcnc$ halcmd loadrt debounce cfg=1,4,2
+halcmd: loadrt debounce cfg=1,4,2
 ----
 
 va installer trois groupes de filtres. Le groupe 0 contient un filtre,
@@ -743,7 +720,7 @@ filtre 0 dans le groupe 0.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt debounce
+halcmd: unloadrt debounce
 ----
 
 === Pins
@@ -790,7 +767,7 @@ essais.
 
 === L'installer
 ----
-linuxcnc$ halcmd loadrt siggen [num_chan=<chans>]
+halcmd: loadrt siggen [num_chan=<chans>]
 ----
 
 _<chans>_ est le nombre de générateurs de signaux à installer. Si
@@ -804,7 +781,7 @@ commencent à 0.
 
 === Le désinstaller
 ----
-linuxcnc$ halcmd unloadrt siggen
+halcmd: unloadrt siggen
 ----
 
 === Pins

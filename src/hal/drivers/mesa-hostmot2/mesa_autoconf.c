@@ -133,7 +133,7 @@ void hm2_auto_prepare_tram_write(hostmot2_t *hm2){
                                 if (val > pin->maxlim) val = pin->maxlim;
                                 if (val < pin->minlim) val = pin->minlim;
                                 buff = (u64)((val / pin->fullscale) 
-                                             * ((1LL << conf->DataLength) - 1));
+                                             * (~0ull >> (64 - conf->DataLength)));
                                 break;
                             case 0x03: // signed
                                 //this only works if DataLength <= 32
@@ -142,15 +142,15 @@ void hm2_auto_prepare_tram_write(hostmot2_t *hm2){
                                 if (val < pin->minlim) val = pin->minlim;
                                 buff = (((s32)(val / pin->fullscale * 2147483647))
                                               >> (32 - conf->DataLength))
-                                              & ((1 << conf->DataLength) - 1);
+                                              & (~0ull >> (64 - conf->DataLength));
                                 break;
                             case 0x06: // byte stream
-                                buff = *pin->u32_pin & ((1 << conf->DataLength) - 1);
+                                buff = *pin->u32_pin & (~0ull >> (64 - conf->DataLength));
                                 break;
                             case 0x07: // Boolean
                                 buff = 0;
                                 if (*pin->boolean ^ *pin->invert){
-                                    buff = ((1 << conf->DataLength) - 1);
+                                    buff = (~0ull >> (64 - conf->DataLength));
                                 }
                                 break;
                             case 0x08: //Counter
@@ -211,7 +211,7 @@ void hm2_auto_process_tram_read(hostmot2_t *hm2){
                                 * conf->ParmMax;
                                 break;
                             case 0x06: // stream
-                                *pin->u32_pin = buff & ((1 << conf->DataLength) - 1);
+                                *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
                                 break;
                             case 0x07:
                                 *pin->boolean = (buff != 0);
@@ -219,7 +219,7 @@ void hm2_auto_process_tram_read(hostmot2_t *hm2){
                                 break;
                             case 0x08: //Counter
                                 // sign-extend buff into buff32 
-                                buff32 = 1L << (conf->DataLength - 1);
+                                buff32 = (~0ul >> (32 - conf->DataLength));
                                 buff32 = (buff ^ buff32) - buff32;
                                 if ((buff32 - pin->oldval) > (1 << (conf->DataLength - 2))){
                                     *pin->s32_pin -= (1 << conf->DataLength);
@@ -634,7 +634,7 @@ int getbits(hm2_sserial_tram_t *tram, u64 *val, int start, int len){
     long long user0 = (tram->reg_0_read == NULL)? 0 : *tram->reg_0_read;
     long long user1 = (tram->reg_1_read == NULL)? 0 : *tram->reg_1_read;
     long long user2 = (tram->reg_2_read == NULL)? 0 : *tram->reg_2_read;
-    long long mask = (1LL << len) - 1;
+    long long mask = (~0ull >> (64 - len));
     
     if (start + len <= 32){
         *val = (user0 >> start) & mask;
@@ -661,33 +661,33 @@ int getbits(hm2_sserial_tram_t *tram, u64 *val, int start, int len){
 int setbits(hm2_sserial_tram_t *tram, u64 *val, int start, int len){
     // Assumes that all registers are zeroed elsewhere as required
     long long mask0, mask1, mask2;
- 
+    
     if (start + len <= 32){
-        mask0 = (1LL << len) -1;
+        mask0 = (~0ull >> (64 - len));
         *tram->reg_0_write |= (*val  & mask0) << start;
     } else if (start + len <= 64){
         if (start >= 32){
-            mask1 = (1LL << len) -1;
+            mask1 = (~0ull >> (64 - len));
             *tram->reg_1_write |= (*val & mask1) << (start - 32);
         } else { 
-            mask0 = (1LL << (32 - start)) - 1;
-            mask1 = ((1LL << (start + len - 32)) - 1) << (32 - start);
+            mask0 = (~0ull >> (32 + start));
+            mask1 = (~0ull >> (96 - (start + len))) << (32 - start);
             *tram->reg_0_write |= (*val & mask0) << start;
             *tram->reg_1_write |= (*val & mask1) >> (32 - start);
         }
     } else {
         if (start >= 64){
-            mask2 = (1LL << len) - 1;
+            mask2 = (~0ull >> (64 - len));
             *tram->reg_2_write |= (*val  & mask2) << (start - 64);
         } else if (start >= 32) {
-            mask1 = (1LL << (64 - start)) - 1;
-            mask2 = ((1LL << (start + len - 64)) - 1) << (64 - start);
+            mask1 = (~0ull >> start);
+            mask2 = (~0ull >> (128 - (start + len))) << (64 - start);
             *tram->reg_1_write |= (*val & mask1) << (start - 32);
             *tram->reg_2_write |= (*val & mask2) >> (64 - start);
         } else {
-            mask0 = (1LL << (32 - start)) -1;
-            mask1 = ((1LL << 32) - 1) << (32 - start);
-            mask2 = ((1LL << (start + len - 64)) -1 ) << (64 - start);
+            mask0 = (~0ull >> (32 + start));
+            mask1 = (0xFFFFFFFFull << (32 - start));
+            mask2 = (~0ull >> (128 - (start + len))) << (64 - start);
             *tram->reg_0_write |= (*val & mask0) << start;
             *tram->reg_1_write = (*val & mask1) >> (32 - start);
             *tram->reg_2_write |= (*val & mask2) >> (64 - start);

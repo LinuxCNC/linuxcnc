@@ -59,7 +59,7 @@ Pour plus de détails sur ces instructions voir:
 
 * <<sec:G53-Mouvement-Coordonnees-Absolues, mouvement G53>>,
 * <<sec:G0-Interpolation-rapide, mouvement rapide G0>>,
-* <<sec:M0-M1-M2-M30, fin de programme M2>>.
+* <<sec:M2-M30, fin de programme M2>>.
 
 .O- return
 À l'intérieur d'un sous-programme, _O- return_ peut être exécuté,
@@ -228,11 +228,12 @@ Voici un condensé des sections utiles aux calculs des O-codes:
 == Appel de fichier
 (((Appel de fichier)))
 
-Pour appeler un fichier par son nom, celui-ci doit contenir un _sub_
-et un _endsub_. Le fichier appelé doit se trouver dans le répertoire
-pointé par la variable PROGRAM_PREFIX du fichier ini.
-Les noms de fichiers ne peuvent inclure que des *minuscules*, des lettres,
-des nombres, des points et des tirets bas.
+Pour appeler un sous-programme par son nom, ce sous-programme doit contenir
+un _sub_ et un _endsub_. Le fichier appelé doit se trouver dans le répertoire
+pointé par la variable _PROGRAM_PREFIX_ ou _SUBROUTINE_PATH_ du fichier ini.
+Les noms de fichiers ne peuvent inclure que des lettres *minuscules*, des
+chiffres, des points et des tirets bas. Un fichier de sous-programme nommé ne
+peut contenir qu'une seule définition de sous-programme.
 
 .Exemple: l'appel d'un fichier nommé
 ----

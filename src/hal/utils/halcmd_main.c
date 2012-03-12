@@ -219,7 +219,6 @@ int main(int argc, char **argv)
 
     if ( halcmd_startup(0) != 0 ) return 1;
 
-    retval = 0;
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
     if (srcfile == NULL) {

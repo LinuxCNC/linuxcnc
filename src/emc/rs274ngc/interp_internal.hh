@@ -505,7 +505,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
 // for M and G codes
-#define M_MODE_OK(m) ((m > 4) && (m < 11))
+#define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
@@ -722,13 +722,15 @@ typedef struct setup_struct
     // do not lowercase named params inside comments - for #<_hal[PinName]>
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 
-
-    interp_ptr pythis;  // shared_ptr representation of 'this'
-
+    boost::python::object pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
+#define INIT_FUNC  "__init__"
 
+    // task calls upon interp.init() repeatedly
+    // protect init() operations which are not idempotent
+    int init_once;  
 } setup;
 
 typedef setup *setup_pointer;

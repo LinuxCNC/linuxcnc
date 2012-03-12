@@ -1,0 +1,9 @@
+o<extend_m60> sub
+(debug, extend_m60:)
+
+m60 (refer to builtin m60)
+
+(debug, extend_m60 done)
+
+o<extend_m60> endsub
+m2

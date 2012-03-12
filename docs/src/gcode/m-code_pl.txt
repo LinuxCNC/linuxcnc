@@ -563,6 +563,12 @@ file and is executed with the P and Q values as its two arguments.
 Execution of the RS274/NGC file pauses until the invoked program exits.
 Any valid executable file can be used.
 
+[WARNING]
+Do not use a word processor to create or edit the files. A word processor
+will leave unseen codes that will cause problems and may prevent a bash or 
+python file from working. Use a text editor like Gedit in Ubuntu or Notepad++
+in other operating systems to create or edit the files.
+
 The error 'Unknown M code used' denotes one of the following
 
 * The specified User Defined Command does not exist
@@ -576,7 +582,7 @@ parallel port pin is not connected to anything in a HAL file.
 
 .M101 Example File
 ----
-#!/bin/sh
+#!/bin/bash
 # file to turn on parport pin 14 to open the collet closer
 halcmd setp parport.0.pin-14-out True
 exit 0
@@ -584,7 +590,7 @@ exit 0
 
 .M102 Example File
 ----
-#!/bin/sh
+#!/bin/bash
 # file to turn off parport pin 14 to open the collet closer
 halcmd setp parport.0.pin-14-out False
 exit 0
@@ -598,7 +604,7 @@ M100 P123.456 Q321.654
 
 .M100 Example file
 ----
-#!/bin/sh
+#!/bin/bash
 voltage=$1
 feedrate=$2
 halcmd setp thc.voltage $voltage

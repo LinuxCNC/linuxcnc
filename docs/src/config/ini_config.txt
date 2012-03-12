@@ -360,8 +360,8 @@ should be used by any filter that runs for a long time.
    for the inifile or as absolute paths. The list must contain no intervening
    whitespace.
 +
-   A search is made for each possible user defined function, typically
-   (M100-M199). The search order is:
+A search is made for each possible user defined function, typically
+(M100-M199). The search order is:
 +
 . [DISPLAY]PROGRAM_PREFIX (if specified)
 . If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files

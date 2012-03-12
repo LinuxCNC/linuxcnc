@@ -1031,23 +1031,22 @@ AXIS peut afficher un panneau de commande virtuel personnalisé dans le
 volet de droite. Il est possible d'y placer des boutons, des indicateurs qui
 afficheront des données et plus encore. Voir le manuel de l'intégrateur.
 
-=== Commentaires spéciaux
-(((Commentaires spéciaux)))
+=== Commentaires spéciaux[[sub:Commentaires-speciaux]](((Commentaires spéciaux)))
 
 Les commentaires spéciaux peuvent être insérés dans le fichier de G-code pour
 contrôler le comportement de l'affichage d'AXIS. Pour limiter l'aperçu au seul
-affichage du parcours d'outil utiliser ces commentaires spéciaux. Rien ne 
+affichage du parcours d'outil, utiliser ces commentaires spéciaux. Rien ne 
 s'affichera entre le commentaire (AXIS,hide) et le commentaire (AXIS,show) sauf
-le parcours d'outil. l'
-(AXIS,hide) et (AXIS,show) doivent être utilisés par paires avec le (AXIS, hide)
-en premier. Tout ce qui est après un (AXIS,stop) ne sera pas visible.
+le parcours d'outil. Les (AXIS,hide) et (AXIS,show) doivent être utilisés par
+paires avec le (AXIS, hide) en premier. Tout ce qui est après un (AXIS,stop)
+ne sera pas visible.
 
 Ces commentaires sont utiles pour désencombrer l'affichage d'aperçu (Par exemple
  pendant le débogage d'un grand fichier G-code, on peut désactiver l'
 aperçu sur certaines parties qui sont déjà fonctionnelles).
 
-  - (AXIS,hide) Arrête le parcours d'outil (à placer en premier)
-  - (AXIS,show) Reprend le parcours d'outil (il faut suivre un cache)
-  - (AXIS,stop) Arrête le parcours d'outil d'ici à la fin du fichier.
+ - (AXIS,hide) Arrête le parcours d'outil (à placer en premier)
+ - (AXIS,show) Reprend le parcours d'outil (il faut suivre un cache)
+ - (AXIS,stop) Arrête le parcours d'outil d'ici à la fin du fichier.
 
 

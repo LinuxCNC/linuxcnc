@@ -48,45 +48,63 @@ A user interface is the part of the LinuxCNC that the machine tool
 operator interacts with. The LinuxCNC comes with several types of user
 interfaces:
 
+* <<cha:axis-gui,'Axis'>>, the standard GUI interface.
 
- - *AXIS*, an OpenGL-based GUI (Graphical User Interface), with an
-   interactive G-Code previewer. This interface is one of the few that are
-   still under active development and improvement. 
+.Axis GUI[[fig:The-Axis-GUI]]
 
-.The AXIS GUI[[fig:The-Axis-GUI]]
+image::images/axis-2.5.png[align="center"]
 
-image::images/axis-2.5.png[]
+* <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
+.Touchy GUI[[fig:touchy-gui]]
 
- - *Mini*, a Tcl/Tk-based GUI 
+image::images/touchy.png[align="center"]
+
+* <<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'
+   programming of G code. It also supports concatenation of subroutine files
+   to enable you to build a complete G code file without programming.
+
+.NGCGUI GUI imbedded into Axis[[fig:ngcgui-gui]]
+
+image::images/ngcgui.png[align="center"]
+
+* <<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI 
 
 .The Mini GUI[[fig:The-Mini-GUI]]
 
-image::images/mini.png[]
+image::images/mini.png[align="center"]
 
-
- - *TkLinuxCNC*, a Tcl/Tk-based GUI
+* <<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI
 
 .The TkLinuxCNC GUI[[fig:The-TkLinuxCNC-GUI]]
 
-image::images/tkemc.png[]
+image::images/tkemc.png[align="center"]
 
-
- - *Keystick*, a character-based screen graphics program suitable for
-   minimal installations (without the X server running).
+* <<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
+  suitable for minimal installations (without the X server running).
 
 .The Keystick GUI[[fig:The-Keystick-GUI]]
 
-image::images/keystick.png[]
+image::images/keystick.png[align="center"]
 
 
- - *Xemc*, an X-Windows program
+* 'Xemc', an X-Windows program. A simulator configuration of Xemc can be 
+   ran from the configuration picker.
 
- - a HAL based user interface called *halui*, which allows to control LinuxCNC
-   using knobs and switches
+* 'halui' - a HAL based user interface which allows to control LinuxCNC
+   using knobs and switches. See the Integrators manual for more information
+   on halui.
 
- - a telnet based user interface called *linuxcncrsh*, which allows commands to
-   be sent to LinuxCNC from remote computers
+* 'linuxcncrsh' - a telnet based user interface which allows commands to
+   be sent to LinuxCNC from remote computers.
+
+== Virtual Control Panels
+
+* 'PyVCP' a python based virtual control panel that can be added to the
+   Axis GUI or be stand alone.
+
+* 'GladeVCP' - a glade based virtual control panel that can be added to
+   the Axis GUI or be stand alone.
 
 == Languages
 

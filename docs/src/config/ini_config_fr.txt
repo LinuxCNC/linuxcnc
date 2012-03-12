@@ -559,18 +559,17 @@ USER_DEFINED_FUNCTION_MAX_DIRS=5::
      Défini le nombre maximum de répertoire au moment de la compilation.
 [NOTE]
 [WIZARD]WIZARD_ROOT est un chemin de recherche valide mais l'assistant n'est
-pas encore complétement implémenté et les résultats, découlants de son
+pas encore complétement implémenté et les résultats, découlant de son
 utilisation, sont imprévisibles.
-
++
 Une recherche est faite pour chaque fonction utilisateur définie possible,
-    typiquement _M100_ à _M199_.
-    L'ordre de recherche est le suivant:
-
+typiquement _M100_ à _M199_. L'ordre de recherche est le suivant:
++
  . [DISPLAY]PROGRAM_PREFIX (si il est spécifié)
  . Si [DISPLAY]PROGRAM_PREFIX n'est pas spécifié, cherche dans le répertoire
     par défaut: nc_files
  . Recherche ensuite dans chaque répertoire de la liste [RS274NGC]USER_M_PATH
-
++
 Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 
 [[sub:Section-LINUXCNCMOT]]
@@ -594,13 +593,14 @@ BASE_PERIOD = 50000::
     par _BASE_PERIOD_. Ainsi, la _BASE_PERIOD_  utilisée ici donnera une
     fréquence de pas maximum absolue de 20000
     pas par seconde. 50000ns est une valeur assez large. La plus petite
-    valeur utilisable est liée au résultat <<cha:test-de-latence, du test de latence>>,
-    à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
+    valeur utilisable est liée au résultat <<cha:test-de-latence, du test de
+latence>>, à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
     Choisir une BASE_PERIOD trop basse peut amener à des messages
     _Unexpected realtime delay_, des blocages ou des reboots spontanés.
 
 SERVO_PERIOD = 1000000::
-    (((SERVO PERIOD))) (hal) Période de la tâche _Servo_, exprimée également en nanosecondes. 
+    (((SERVO PERIOD))) (hal) Période de la tâche _Servo_, exprimée également en
+nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de _BASE_PERIOD_.
     Elle est utilisée aussi sur des systèmes basés sur des moteurs pas à pas.
     C'est la vitesse avec laquelle la nouvelle position des moteurs est
@@ -610,7 +610,8 @@ SERVO_PERIOD = 1000000::
     s'agit du taux de mise à jour du planificateur de mouvement de bas niveau.
 
 TRAJ_PERIOD = 1000000::
-    (((TRAJ PERIOD))) (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
+    (((TRAJ PERIOD))) (hal) Période du planificateur de trajectoire, exprimée en
+nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de _SERVO_PERIOD_.
     Excepté pour les machines avec une cinématique particulière
     (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur

@@ -24,7 +24,10 @@ except ImportError:
     from nulluserfuncs import UserFuncs
 
 def debug():
-    return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
+    # interpreter.this isnt usable until after Interpreter.init has been called
+    if hasattr(interpreter,'this'):
+        return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
+    return 
 
 
 def handler(signum, frame):

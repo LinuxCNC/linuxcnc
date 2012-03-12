@@ -213,9 +213,9 @@ class Data:
 
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
-        self.pp2_direction = 0 # input
+        self.pp2_direction = 0 # output
         self.ioaddr3 = _("Enter Address")
-        self.pp3_direction = 0 # input
+        self.pp3_direction = 0 # output
         self.number_pports = 1
 
         self.manualtoolchange = 1
