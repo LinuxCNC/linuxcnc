@@ -850,7 +850,7 @@ class GlCanonDraw:
 
             glEnd()
             glDisable(GL_LINE_STIPPLE)
-            glLineStipple(2, 0xffff)
+            glLineStipple(2, 0x5555)
 
         if self.get_show_live_plot():
             glDepthFunc(GL_LEQUAL)
