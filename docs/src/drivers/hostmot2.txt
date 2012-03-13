@@ -753,15 +753,21 @@ following pins and parameters:
     next pulse, before reporting the encoder stopped. This parameter is in
     seconds.
 
-== Smart Serial Cards
+== 5i25 Configuration
 
-=== Overview
+=== Firmware
 
-Mesa 'Smart Serial' cards use a DB25M to DB25M IEEE 1284 compliant parallel
-port cable to connect from the 'Anything I/O' card to the 'Daughter Card'.
-The firmware for the daughter cards is installed when the card is purchased.
+The 5i25 firmware comes preloaded for the daughter card it is purchased with.
+So the 'firmware=xxx.BIT' is not part of the hm2_pci configuration string when
+using a 5i25.
 
 === Configuration
+
+Example configurations of the 5i25/7i76 and 5i25/7i77 cards are included in
+the <<sub:configuration-selector,Configuration Selector>>.
+
+If you like to roll your own configuration the following examples show how
+to load the drivers in the HAL file.
 
 .5i25 + 7i76 Card
 ----
@@ -784,14 +790,12 @@ loadrt hm2_pci config="num_encoders=6 num_pwmgens=6 sserial_port_0=0XXX"
 === SSERIAL Configuration
 
 The 'sserial_port_0=0XXX' configuration string sets some options for the smart
-serial card. The first number is for the mode of the first card. The second
-number is for the analog out section (mode 0 only). The third and forth numbers
-are for the expansion connector and are only used if you have an additional
-SSERIAL card. Mode 1 adds 4 analog inputs, mode 2 adds field voltage to that.
+serial daughter card. These options are specific for each daughter card. See
+the Mesa manual for more information on the exact usuage. 
 
-=== Limits
+=== 7i77 Limits
 
-The minlimit and maxlimit are bounds on the pn value (in this case the analog
+The minlimit and maxlimit are bounds on the pin value (in this case the analog
 out value) fullscalemax is the scale factor.
 
 These are by default set to the analog in or analog range (most likely in
@@ -820,15 +824,13 @@ maxfullscale 6000
 
 == Example Configurations
 
-Several example configurations are included with LinuxCNC for both stepper
-and servo applications. The configurations are located in the hm2-servo
-and hm2-stepper sections of the LinuxCNC Configuration Selector window. You
-will need the same board installed for the configuration you pick to
+Several example configurations for Mesa hardware are included with LinuxCNC.
+The configurations are located in the hm2-servo and hm2-stepper sections of
+the <<sub:configuration-selector,Configuration Selector>>. Typically you
+will need the board installed for the configuration you pick to
 load. The examples are a good place to start and will save you time.
 Just pick the proper example from the LinuxCNC Configuration Selector and
 save a copy to your computer so you can edit it. To see the exact pins
 and parameters that your configuration gave you, open the Show HAL
 Configuration window from the Machine menu, or do dmesg as outlined
 above.
-
-
