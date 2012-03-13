@@ -593,12 +593,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="z0_color">#0000ffff0000</property>
-                                    <property name="show_limits">False</property>
-                                    <property name="z1_color">#ffffffff0000</property>
-                                    <property name="max">2000</property>
                                     <property name="bg_color">#bebebebebebe</property>
+                                    <property name="z0_color">#0000ffff0000</property>
+                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="z2_color">#ffff00000000</property>
+                                    <property name="show_limits">False</property>
+                                    <property name="max">2000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -697,8 +697,8 @@
                               <object class="HAL_Gremlin" id="gremlin">
                                 <property name="visible">True</property>
                                 <property name="double_buffered">False</property>
-                                <property name="show_dtg">False</property>
                                 <property name="enable_dro">False</property>
+                                <property name="show_dtg">False</property>
                               </object>
                             </child>
                           </object>
@@ -1353,12 +1353,6 @@ Aux Coolant</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
                           <object class="GtkToggleButton" id="hide_cursor">
                             <property name="label" translatable="yes">Hide Pointer</property>
                             <property name="visible">True</property>
@@ -1369,6 +1363,12 @@ Aux Coolant</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
@@ -1525,18 +1525,6 @@ Halshow</property>
             <property name="right_attach">6</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">9</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkStatusbar" id="statusbar1">
-            <property name="visible">True</property>
-            <property name="spacing">1</property>
-            <property name="has_resize_grip">False</property>
-          </object>
-          <packing>
-            <property name="right_attach">5</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
           </packing>
         </child>
         <child>
@@ -2317,6 +2305,40 @@ Readout</property>
             <property name="right_attach">6</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox4">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkStatusbar" id="statusbar1">
+                <property name="visible">True</property>
+                <property name="spacing">1</property>
+                <property name="has_resize_grip">False</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="pop_statusbar">
+                <property name="label" translatable="yes">Clear</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_pop_statusbar_clicked"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="right_attach">5</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options">GTK_FILL</property>
           </packing>

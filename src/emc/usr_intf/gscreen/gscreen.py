@@ -302,7 +302,6 @@ class Gscreen:
             sys.exit(0)
     
         panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        self.halcomp.ready()
         # at this point, any glade HL widgets and their pins are set up.
         #handlers = load_handlers(None,self.halcomp,self.xml,None)
     
@@ -343,6 +342,7 @@ class Gscreen:
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
 
         w = self.widgets.statusbar1
+        self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         #w.set_font_name(self.data.error_font_name)
         #self.error_font = pango.FontDescription(self.data.error_font_name)
         #w.modify_font(self.error_font)
@@ -537,6 +537,8 @@ class Gscreen:
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
         # set to 'start mode' 
         self.mode_changed(self.data.mode_order[0])
+        # ok everything that mught make HAL pins should be done now - let HAL know that
+        self.halcomp.ready()
 
 # *** GLADE callbacks ****
 
@@ -758,6 +760,9 @@ class Gscreen:
     def on_show_dtg_pressed(self, *args):
         self.toggle_show_dtg()
 
+    def on_pop_statusbar_clicked(self, *args):
+        self.widgets.statusbar1.pop(self.statusbar_id)
+
 # ****** do stuff *****
 
     def _dynamic_tab(self, notebook, text):
@@ -826,11 +831,15 @@ class Gscreen:
         self.prefs.putpref('show_offsets', data, bool)
 
     def toggle_show_dtg(self):
-        self.widgets.gremlin.set_property('show_dtg',self.widgets.show_dtg.get_active())
+        data = self.widgets.show_dtg.get_active()
+        self.widgets.gremlin.set_property('show_dtg',data)
+        self.prefs.putpref('show_dtg', data, bool)
 
     def toggle_diameter_mode(self):
         print "toggle diameter mode"
-        self.data.diameter_mode = self.widgets.diameter_mode.get_active()
+        data = self.widgets.diameter_mode.get_active()
+        self.data.diameter_mode = data
+        self.prefs.putpref('diameter_mode', data, bool)
 
     def convert_to_rgb(self,spec):
         color =  spec.to_string()
@@ -932,10 +941,10 @@ class Gscreen:
         # jog positive  at selected rate
         if self.data.mode_order[0] == 1:
             if len(self.data.active_axis_buttons) > 1:
-                self.widgets.statusbar1.push(2,"Can't jog multiple axis")
+                self.widgets.statusbar1.push(self.statusbar_id,"Can't jog multiple axis")
                 print self.data.active_axis_buttons
             elif self.data.active_axis_buttons[0][0] == None:
-                self.widgets.statusbar1.push(1,"No axis selected to jog")
+                self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to jog")
             else:
                 print "Jog axis %s" % self.data.active_axis_buttons[0][0]
                 if not self.data.active_axis_buttons[0][0] == "s":
@@ -945,10 +954,10 @@ class Gscreen:
 
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
-            self.widgets.statusbar1.push(2,"Can't jog multiple axis")
+            self.widgets.statusbar1.push(self.statusbar_id,"Can't jog multiple axis")
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.widgets.statusbar1.push(1,"No axis selected to jog")
+            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to jog")
         else:
             print "Jog axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
@@ -990,10 +999,10 @@ class Gscreen:
 
     def unhome_selected(self,axis):
         if len(self.data.active_axis_buttons) > 1:
-            self.widgets.statusbar1.push(2,"Can't unhome multiple axis")
+            self.widgets.statusbar1.push(self.statusbar_id,"Can't unhome multiple axis")
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.widgets.statusbar1.push(1,"No axis selected to unhome")
+            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to unhome")
         else:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
 
@@ -1146,7 +1155,7 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
-            self.widgets.statusbar1.push(1,text)
+            self.widgets.statusbar1.push(self.statusbar_id,text)
         self.emc.unmask()
         #self.hal.periodic(self.tab == 1) # MDI tab?
         self.update_position()
