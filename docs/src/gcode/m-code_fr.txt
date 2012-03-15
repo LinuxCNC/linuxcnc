@@ -7,7 +7,7 @@
 
 == Table des M-codes
 
-[width="100%", options="header"]
+[width="60%", options="header", cols="2^,5<"]
 |==================================================================
 | Description                                                 | Paramètres
 |<<sec:M0-M1, M0 M1 Pause dans le programme>>                 |
@@ -85,7 +85,7 @@ Les lignes de code après un _M2_ ou un _M30_ ne seront pas exécutées.
 
 * _M60_ - Procède à l'échange de porte-pièce avec le chargeur de pièces et
 stoppe temporairement le programme en cours (quel que soit le réglage
-du bouton d'arrêt facultatif). Presser le départ
+du bouton d'arrêt facultatif). Presser le départ le bouton de départ
 cycle après cette commande relance le programme à la ligne suivante.
 
 [[sec:M3-M4-M5]]
@@ -251,23 +251,23 @@ C'est une erreur si:
 == M62 à M65 Contrôle de bits de sortie numérique
 (((M62 Contrôle un bit de sortie numérique)))
 
-Pour contrôler un bit de sortie numérique, programmer _M- P-_ ,
-où le mot _M_ doit être compris entre _62_ et _65_ et le mot P compris
-entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre
-des entrées/sorties peut être augmenté en utilisant le paramètre _num_dio_
-lors du chargement du contrôleur de mouvement. Voir le manuel de
-l'intégrateur, sections LinuxCNC et section de HAL, pour plus d'informations.
+* _M62 P-_ - Active un bit de sortie numérique en synchronisme avec
+un mouvement.
+* _M63 P-_ - Désactive un bit de sortie numérique en synchronisme avec
+un mouvement.
+* _M64 P-_ - Active immédiatement un bit de sortie numérique.
+* _M65 P-_ - Désactive immédiatement un bit de sortie numérique.
 
-* Le mot _P-_ spécifie le numéro du bit de sortie numérique.
-
-* _M62_ - Active un bit de sortie numérique en synchronisme avec un mouvement.
-* _M63_ - Désactive un bit de sortie numérique en synchronisme avec un mouvement.
-* _M64_ - Active directement un bit de sortie numérique.
-* _M65_ - Désactive directement un bit de sortie numérique.
+Le mot _P-_ spécifie le numéro du bit de sortie numérique. Le mot P doit
+être compris entre 0 et une valeur par défaut de 3. Si nécessaire, le
+nombre des entrées/sorties peut être augmenté en utilisant
+le paramètre _num_dio_ lors du chargement du contrôleur de mouvement.
+Voir le manuel de l'intégrateur et section "LinuxCNC et HAL", 
+pour plus d'informations.
 
 Les commandes _M62_ et _M63_ seront mises en file d'attente.
-Toute nouvelle commande, destinée à un bit de sortie écrasera les anciens
-paramètres de ce bit. Plusieurs bits peuvent changer d'état
+Toute nouvelle commande, destinée à un bit de sortie écrasera l'ancien
+réglage de ce bit. Plusieurs bits peuvent changer d'état
 simultanément par l'envoi de plusieurs commandes M62/M63.
 
 Les nouveaux changements d'état des bits de sortie spécifiés, seront
@@ -286,28 +286,29 @@ contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 ----
 M66 P- | E- <L->
 ----
-* Le mot _P-_ spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
-* Le mot _E-_ spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
-* Le mot _L-_ spécifie le mode d'attente.
+* _P-_ - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
+* _E-_ - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
+* _L-_ - Spécifie le mode d'attente.
 ** Mode 0: _IMMEDIATE_ - pas d'attente, retour immédiat, la valeur courante de
 l'entrée est stockée dans le paramètre #5399
 ** Mode 1: _RISE_  attente d'un front montant sur l'entrée.
 ** Mode 2: _FALL_  attente d'un front descendant sur l'entrée.
 ** Mode 3: _HIGH_  attente d'un état logique HAUT sur l'entrée.
 ** Mode 4: _LOW_   attente d'un état logique BAS sur l'entrée.
-* Le mot _Q-_ spécifie le timeout pour l'attente, en secondes. Si le timeout est
+* _Q-_ - Spécifie le timeout pour l'attente, en secondes. Si le timeout est
 dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.
 * Le mode _0_ est le seul autorisé pour une entrée analogique.
 
-.Exemple de ligne pour M66
+.Exemple de lignes avec M66
 ----
 M66 P0 L3 (attend que l'entrée numérique 0 devienne haute)
+M66 E1 L1 (attend que l'entrée analogique 1 augmente)
 ----
+
 * _M66_ attend un nouvel événement sur une entrée ou la fin de l'exécution
 du programme, jusqu'à ce que l'événement sélectionné (ou le timeout
 programmé) ne survienne.
-C'est une erreur de programmer une valeur de timeout à 0 dans tous les modes,
-sauf le mode 0. C'est également une erreur de programmer _M66_ avec les deux
+C'est également une erreur de programmer _M66_ avec les deux
 mots, un mot P- et un mot E- (ce qui reviendrait à sélectionner à la fois une
 entrée analogique et une numérique).
 
@@ -324,14 +325,14 @@ plus d'informations, section des configurations, paragraphes "LinuxCNC et HAL".
 M67 E- Q-
 ----
 * _M67_ - Contrôle une sortie analogique synchronisée avec un mouvement.
-* Le mot _E-_ spécifie le numéro de la sortie, doit être compris entre 0 et 3.
-* Le mot _Q-_ est la valeur à appliquer sur la sortie.
+* _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
+* _Q-_ - Spécifie la valeur à appliquer sur la sortie.
 
 Les changements de valeur spécifiés, seront effectifs au début du
 prochain mouvement commandé. S'il n'y a pas de commande de mouvement ultérieur,
 les changements en attente n'auront pas lieu. Il est préférable de toujours
 programmer un G-code de mouvement (G0, G1, etc) juste après les M67.
-M67 fonctionne comme M62-63.
+M67 fonctionne comme M62 à M63.
 
 Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre
 _num_aio_ au chargement du contrôleur de mouvement. Voir les chapitres
@@ -346,12 +347,12 @@ pour plus d'informations sur le contrôleur de mouvement.
 M68 E- Q-
 ----
 * _M68_ - Contrôle directement une sortie analogique.
-* Le mot _E-_ doit être compris entre 0 et 3.
-* Le mot _Q-_ est la valeur à appliquer sur la sortie. 
+* _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
+* _Q-_ - Spécifie la valeur à appliquer sur la sortie. 
 
 M68 produis son effet immédiatement après être reçu par le
 contrôleur de mouvement. Il n'est pas synchronisé avec un mouvement.
-M68 fonctionne comme M64-65.
+M68 fonctionne comme M64 à M65.
 
 Le nombre d'entrées/sorties peut être augmenté en utilisant
 le paramètre _num_aio_ au chargement du contrôleur de mouvement. Voir le
@@ -364,14 +365,15 @@ d'informations sur le contrôleur de mouvement.
 (((M-codes définis par l'utilisateur M100-M199)))
 
 ----
-M1-- <P- Q->
+M1xx <P- Q->
 ----
 
-* _M1--_ - Invoque une commande définie par l'utilisateur.
-* _P-_ - Premier argument passé au programme externe.
-* _Q-_ - Second argument passé au programme externe.
+* _M1xx_ - Invoque une commande définie par l'utilisateur comprise entre 100
+et 199.
+* _P-_ - Nombre passé en premier argument au programme externe.
+* _Q-_ - Nombre passé en second argument au programme externe.
 
-Le programme externe, nommé _M1--_, qui doit se trouver dans le répertoire
+Le programme externe, nommé _M1xx_, qui doit se trouver dans le répertoire
 pointé par la variable _[DISPLAY] PROGRAM_PREFIX_ du fichier ini, sera exécuté
 avec les valeurs _P-_ et _Q-_ comme étant ses deux arguments. L'exécution du
 fichier G-code courant passe en pause jusqu'à ce que le programme invoqué
@@ -406,8 +408,8 @@ halcmd setp parport.0.pin-14-out False
 exit 0
 ----
 
-Pour passer une variable à un fichier M1--, utiliser les mots optionnels P et Q 
-de cette façon:
+Pour passer une variable à un fichier M1xx, utiliser les mots facultatifs
+P et Q de cette façon:
 
 ----
 M100 P123.456 Q321.654
