@@ -78,6 +78,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.g5x_offset_u = 0.0
         self.g5x_offset_v = 0.0
         self.g5x_offset_w = 0.0
+        self.notify = 0
+        self.notify_message = ""
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -86,6 +88,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             if command == "stop": raise KeyboardInterrupt
             if command == "hide": self.suppress += 1
             if command == "show": self.suppress -= 1
+            if command == "notify":
+                self.notify = self.notify + 1
+                self.notify_message = "(AXIS,notify):" + str(self.notify)
+                if len(parts) > 2:
+                    if len(parts[2]): self.notify_message = parts[2]
 
     def message(self, message): pass
 
