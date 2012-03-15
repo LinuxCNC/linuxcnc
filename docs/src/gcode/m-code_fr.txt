@@ -8,26 +8,26 @@
 == Table des M-codes
 
 [width="60%", options="header", cols="2^,5<"]
-|==================================================================
-| Description                                                 | Paramètres
-|<<sec:M0-M1, M0 M1 Pause dans le programme>>                 |
-|<<sec:M2-M30, M2 M30 Fin de programme>>                      |
-|<<sec:M60, M60 Fin de programme avec déchargement pièce>>    |
-|<<sec:M3-M4-M5, M3 M4 M5 Contrôle de la broche>>             | S
-|<<sec:M6-Appel-Outil, M6 Tn Appel d'outil n=numéro d'outil>> | T
-|<<sec:M7-M8-M9, M7 M8 M9 Contrôle des arrosages>>            |
-|<<sec:M48-M49-Controle-Correcteurs-Vitesse, M48 M49 Contrôle des correcteurs de vitesse>>|
-|<<sec:M50-Controle-Correcteur-Vitesse-Travail, M50 Contrôle du correcteur de vitesse travail>> | P
-|<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51 Contrôle du correcteur de vitesse de broche>> | P
-|<<sec:M52-Controle-Vitesse-Adaptative, M52 Correcteur dynamique de vitesse d'avance>> | P
-|<<sec:M53-Controle-Coupure-Vitesse, M53 Contrôle de la coupure de vitesse>>           | P
-|<<sec:M61-Correction-Numero-Outil-Courant, M61 Correction du numéro de l'outil courant>> | Q
-|<<sec:M62-a-M65-Controle-Sortie-Numerique, M62 à M65 Contrôle de bits de sortie numérique>>| P
-|<<sec:M66-Controle-Bit-Entree, M66 Contrôle d'un bit d'entrée>>  | P, E, L, Q
-|<<sec:M67-Controle-Sortie-Analogique-Synchro, M67 Contrôle sortie analogique synchronisée>>  |
-|<<sec:M68-Controle-Sortie-Analogique-Directe, M68 Contrôle sortie analogique directe>>       |
-|<<sec:M100-a-M199, M100 à M199 M-codes définis par l'utilisateur>>  | P Q
-|==================================================================
+|========================================================
+| Code                                                 | Description
+|<<sec:M0-M1,M0 M1>>                                   | Pause dans le programme
+|<<sec:M2-M30,M2 M30>>                                 | Fin de programme
+|<<sec:M60,M60>>                                       | Fin de programme avec déchargement pièce
+|<<sec:M3-M4-M5,M3 M4 M5>>                             | Contrôle de la broche
+|<<sec:M6-Appel-Outil,M6 Tn>>                          | Appel d'outil n=numéro d'outil
+|<<sec:M7-M8-M9,M7 M8 M9>>                             | Contrôle des arrosages
+|<<sec:M48-M49-Controle-Correcteurs-Vitesse,M48 M49>>  | Contrôle des correcteurs de vitesse
+|<<sec:M50-Controle-Correcteur-Vitesse-Travail,M50>>   | Contrôle du correcteur de vitesse travail
+|<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51>>    | Contrôle du correcteur de vitesse de broche
+|<<sec:M52-Controle-Vitesse-Adaptative,M52>>           | Correcteur dynamique de vitesse d'avance
+|<<sec:M53-Controle-Coupure-Vitesse,M53>>              | Contrôle de la coupure de vitesse
+|<<sec:M61-Correction-Numero-Outil-Courant,M61>>       | Correction du numéro de l'outil courant
+|<<sec:M62-a-M65-Controle-Sortie-Numerique,M62 à M65>> | Contrôle de bits de sortie numérique
+|<<sec:M66-Controle-Bit-Entree,M66>>                   | Contrôle d'un bit d'entrée
+|<<sec:M67-Controle-Sortie-Analogique-Synchro,M67>>    | Contrôle sortie analogique synchronisée
+|<<sec:M68-Controle-Sortie-Analogique-Directe,M68>>    | Contrôle sortie analogique directe
+|<<sec:M100-a-M199, M100 à M199 >>                     | M-codes définis par l'utilisateur
+|========================================================
 
 [[sec:M0-M1]]
 == M0, M1, pause dans le programme
