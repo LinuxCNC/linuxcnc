@@ -34,8 +34,9 @@ o<loadtool> call  [#<toolno>]
 #<tooldiam> = [#5410 + .001]
 
 o<l00> if [[#<dir> NE 2] AND [#<dir> NE 3]]
-         (print, oquad:bogus direction #<dir>)
-         (debug, oquad:bogus direction #<dir>)
+         (debug, oquad: bogus direction #<dir> - EXITING)
+         (print, oquad: bogus direction #<dir> - EXITING)
+         (AXIS,notify, oquad: bogus direction - EXITING)
          m2
 o<l00> endif
 
@@ -89,7 +90,9 @@ o<wh020>   if [#<zcurrent> LT #<cutdepth>]
              #<zcurrent> = #<cutdepth>
 o<wh020>   endif
 o<wh030>   if [#<pass> GT 100]
-             (debug, too many passes ABORT)
+             (debug, oquad: too many passes - EXITING)
+             (print, oquad: too many passes - EXITING)
+             (AXIS,notify, oquad: too many passes - EXITING)
              m2
 o<wh030>   endif
 
