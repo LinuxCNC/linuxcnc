@@ -37,7 +37,7 @@ Synaptic Package Manager from the main Ubuntu menu.
 
 .Installing Dev
 ----
-sudo apt-get emc2-dev
+sudo apt-get linuxcnc-dev
 ----
 
 == Definitions
@@ -282,7 +282,7 @@ The result of using any other option is undefined.
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see '<linux/module.h>'.
 +   
-Starting in EMC 2.3, this declaration is required.
+This declaration is required.
 
 * 'AUTHOR' - Specify the author of the module for the documentation.
 
@@ -405,19 +405,19 @@ for a selection of any of the basic boolean logic functions 'and',
 == Compiling
 
 Place the '.comp' file in the source directory
-'emc2/src/hal/components' and re-run 'make'. 
+'linuxcnc/src/hal/components' and re-run 'make'.
 'Comp' files are automatically detected by the build system.
 
 If a '.comp' file is a driver for hardware, it may be placed in
-'emc2/src/hal/components' and will be built unless LinuxCNC is 
+'linuxcnc/src/hal/components' and will be built unless LinuxCNC is
 configured as a userspace simulator.
 
 [[sec:Compiling-realtime-components]]
 == Compiling realtime components outside the source tree
 (((Compiling realtime components outside the source tree)))
 
-'comp' can process, compile, and install a realtime component 
-in a single step, placing 'rtexample.ko' in the LinuxCNC realtime 
+'comp' can process, compile, and install a realtime component
+in a single step, placing 'rtexample.ko' in the LinuxCNC realtime
 module directory:
 
 ----
