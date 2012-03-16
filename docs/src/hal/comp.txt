@@ -542,7 +542,8 @@ license "GPLv2 or later";
 ;;
 #include <asm/io.h>
 
-#define MAX 8 int io[MAX] = {0,};
+#define MAX 8
+int io[MAX] = {0,};
 RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of out8 boards");
 
 int get_count(void) {
@@ -553,8 +554,8 @@ int get_count(void) {
 
 EXTRA_SETUP() {
     if(!rtapi_request_region(io[extra_arg], 1, "out8")) {
-    // set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
-    // ports that were never requested.
+        // set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
+        // ports that were never requested.
         io[extra_arg] = 0;
         return -EBUSY;
     }
