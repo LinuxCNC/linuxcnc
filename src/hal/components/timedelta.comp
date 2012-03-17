@@ -1,4 +1,4 @@
-component timedelta "EMC2 HAL component that measures thread scheduling timing behavior";
+component timedelta "LinuxCNC HAL component that measures thread scheduling timing behavior";
 pin out s32 out;
 pin out s32 err=0;
 pin out s32 min_=0;
