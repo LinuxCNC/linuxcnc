@@ -75,7 +75,7 @@ SUBROUTINE_PATH = ../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/util
 USER_M_PATH     = ../../../nc_files/ngcgui_lib/mfiles
 ----
 
-[Note]
+[NOTE]
 These are long lines (not continued on multiple lines)
 that specify the directories used in a search patch.  The
 directory names are separated by colons (:)

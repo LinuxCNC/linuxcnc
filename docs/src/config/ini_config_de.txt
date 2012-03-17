@@ -443,8 +443,7 @@ Section.
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-[[sub:[HALUI]-section]]
-=== [HALUI] section
+=== [HALUI] section[[sub:[HALUI]-section]]
 
 (((HALUI (inifile section))))
 

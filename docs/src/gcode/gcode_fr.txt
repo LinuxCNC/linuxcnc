@@ -2108,16 +2108,16 @@ Voir la section sur les <<sec:parametres,paramètres>>.
 [[sec:G92-1-G92-2]]
 == G92.1, G92.2 Remise à zéro des décalages des systèmes de coordonnées
 
-* _G92.1_ - Positionne les paramètres des décalages d'axes à 0 et passe les
-paramètres 5211 à 5219 à zéro.
+* _G92.1_ - Positionne les décalages d'axes à 0 et passe les paramètres
+5211 à 5219 à zéro.
 * _G92.2_ - Positionne les décalages d'axes à 0, laisse les valeurs des
 paramètres inchangées, elles ne seront pas utilisées.
 
 [[sec:G92-3]]
 == G92.3 Restauration des décalages d'axe
 
-* _G92.2_ - Positionne les valeurs de décalage des axes aux valeurs données
-dans les paramètres 5211 à 5219.
+* _G92.3_ - Positionne les décalages d'axes aux valeurs enregistrées dans
+les paramètres 5211 à 5219.
 
 Il est possible de positionner les décalages d'axes dans un programme puis de
 ré-utiliser les mêmes dans un autre programme. Pour cela, programmer _G92_ dans
