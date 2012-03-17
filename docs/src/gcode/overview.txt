@@ -730,6 +730,7 @@ console window) add a line to your G code like...
 .Parameters Example
 ----
 (print,endmill dia = #<_endmill_dia>)
+(print,value of variable 123 is: #123)
 ----
 
 Inside the above types of comments, sequences like '#123' are replaced
