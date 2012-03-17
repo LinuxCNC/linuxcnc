@@ -1,4 +1,4 @@
-component logic "EMC2 HAL component providing experimental logic functions";
+component logic "LinuxCNC HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
