@@ -1,4 +1,4 @@
-component scale "EMC2 HAL component that applies a scale and offset to its input";
+component scale "LinuxCNC HAL component that applies a scale and offset to its input";
 pin in float in;
 pin in float gain;
 pin in float offset;
