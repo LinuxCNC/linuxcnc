@@ -1,6 +1,5 @@
 autosave.halscope
 build-stamp
-lib
 *.pyc
 *.o
 *.ko
@@ -28,3 +27,5 @@ docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
+lib/python/gremlin.py
+lib/python/touchy
