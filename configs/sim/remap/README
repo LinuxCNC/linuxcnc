@@ -22,7 +22,7 @@ This is what the example configs do:
   use sqlite3 for tooltable storage. 
   >>>>>>>>>>>  Not suggested for production use. <<<<<<<<<<<<<<<<<<<<<<<<
 
-- python-stdgĺue contains embedded Python code supporting the above examples. This should
+- python-stdglue contains embedded Python code supporting the above examples. This should
   eventually evolve into canned code which users need not touch except in
   more exotic circumstances. Note all examples above use the same glue code from remap.py.
 
