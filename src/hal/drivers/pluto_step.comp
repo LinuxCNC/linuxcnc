@@ -39,7 +39,7 @@ However, this mode may not work on all EPP parallel ports.
 \\fBwatchdog\\fR [default: 1]
 Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
 outputs approximately 6ms after the last execution of
-\\fBpluto-step.write\\fR, which adds some protection in the case of emc
+\\fBpluto-step.write\\fR, which adds some protection in the case of LinuxCNC
 crashes.
 
 .TP
@@ -62,7 +62,7 @@ may give improved step regularity at low step speeds.
 .RE""";
 
 description """
-Pluto_step is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
+Pluto_step is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
 
 The driver has 4 step+direction channels, 14 dedicated digital outputs, and 16
 dedicated digital inputs.
@@ -121,7 +121,7 @@ pluto-step.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
 outputs will remain unchanged.  If the hardware watchdog is enabled, it will
-activate shortly after the communication error is detected by emc.  To continue
+activate shortly after the communication error is detected by LinuxCNC.  To continue
 after a communication error, set this parameter back to zero.""";
 
 param rw s32 debug_0;
