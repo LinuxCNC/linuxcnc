@@ -689,7 +689,7 @@ It is an error if:
 ----
 G10 L11 P- axes <R- I- J- Q->
 ----
-* 'P' - coordinate system (0-9)
+* 'P' - tool number
 * 'R' - rotation about the Z axis
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)

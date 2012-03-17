@@ -59,7 +59,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G33-1-Taraudage-rigide">G33.1</A> <TD> K <TD> Taraudage rigide </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G76-Filetage">G76</A> <TD> P Z I J R K Q H L E<TD> Cycle de filetage pr&eacute;programm&eacute; (tour) </TR>
 <TR> <TH COLSPAN=3>Types de d&eacute;placements</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G90</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es absolues (par rapport &agrave; l'origine pi&egrave;ce)</TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G90</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es absolues (par rapport &agrave; l'origine)</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G91</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es relatives (incr&eacute;mentales)</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G7-Mode-diametre">G7</A> <TD> <TD> X en mode diam&egrave;tre (tour) </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G8-Mode-rayon">G8</A> <TD> <TD> X en mode rayon (tour) </TR>
@@ -95,11 +95,11 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TH COLSPAN=3>Compensation de rayon d'outil</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G41-G42">G41</A>, <A HREF="gcode/gcode_fr.html#sec:G41-G42">G42</A> <TD> D <TD> Compensation de rayon d'outil, &agrave; gauche ou &agrave; droite du profil </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G41-1-G42-1">G41.1</A>, <A HREF="gcode/gcode_fr.html#sec:G41-1-G42-1">G42.1</A> <TD> D L <TD> Compensation dynamique de rayon d'outil, &agrave; gauche ou &agrave; droite du profil</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G40">G40</A> <TD> <TD> Annulation de la compensation de rayon d'outil </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G40">G40</A> <TD> <TD> R&eacute;vocation de la compensation de rayon d'outil </TR>
 <TR> <TH COLSPAN=3>Types de contr&ocirc;le des trajectoires </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G61</A> <TD> <TD> Mode trajectoire exacte </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G61.1</A> <TD> <TD> Mode arr&ecirc;t exact </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G64</A> <TD> P <TD> Mode trajectoire continue avec tol&eacute;rance optionnelle </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1">G61</A> <TD> <TD> Mode trajectoire exacte </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1">G61.1</A> <TD> <TD> Mode arr&ecirc;t exact </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G64">G64</A> <TD> P <TD> Mode trajectoire continue avec tol&eacute;rance optionnelle </TR>
 <TR> <TH COLSPAN=3>Options de retrait des cycles de per&ccedil;age</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G98-G99-Set">G98</A> <TD> <TD> Retrait au point initial </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G98-G99-Set">G99</A> <TD> <TD> Retrait sur R </TR>
@@ -123,10 +123,10 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G28-G28-1-Aller-a-une-position">G28, G28.1</A> <TD> <TD> Aller &agrave; une position pr&eacute;d&eacute;finie, enregistrement du point courant</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G30-G30-1-Aller-a-une-position-predefinie">G30, G30.1</A> <TD> <TD> Aller &agrave; une position pr&eacute;d&eacute;finie, enregistrement du point courant </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G53-Mouvement-Coordonnees-Absolues">G53</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es machine </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92</A> <TD> X Y Z A B C <TD> D&eacute;calages d'origines avec mise &agrave; jour des param&eacute;tres</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.1</A> <TD> <TD> Annulation des d&eacute;calages d'origine avec remise &agrave; z&eacute;ro des param&eacute;tres </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.2</A> <TD> <TD> Annulation des d&eacute;calages d'origine sans remise &agrave; zero des param&eacute;tres </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.3</A> <TD> <TD> Applique le contenu des param&eacute;tres aux d&eacute;calages d'origine </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92">G92</A> <TD> X Y Z A B C <TD> D&eacute;calages d'origines avec mise &agrave; jour des param&eacute;tres</TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-1-G92-2">G92.1</A> <TD> <TD> R&eacute;vocation des d&eacute;calages d'origine avec remise &agrave; z&eacute;ro des param&egrave;tres </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-1-G92-2">G92.2</A> <TD> <TD> R&eacute;vocation des d&eacute;calages d'origine sans remise &agrave; zero des param&egrave;tres </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-3">G92.3</A> <TD> <TD> Applique le contenu des param&eacute;tres aux d&eacute;calages d'origine </TR>
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M100-a-M199">M101&hellip;M199</A> <TD> P Q <TD> M-codes d&eacute;finis par l'op&eacute;rateur </TR>
 <TR> <TH COLSPAN=3>Commentaires et messages</TR>
 <TR> <TD> <A HREF="gcode/overview_fr.html#sec:Commentaires">(&hellip;)</A> <TD> <TD> Un commentaire "<STRONG>&hellip;</STRONG>" pour l'op&eacute;rateur</TR>

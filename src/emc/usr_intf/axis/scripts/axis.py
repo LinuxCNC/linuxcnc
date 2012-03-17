@@ -995,6 +995,10 @@ class AxisCanon(GLCanon, StatMixin):
     def next_line(self, st):
         GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
+        if self.notify:
+            notifications.add("info",self.notify_message)
+            self.notify = 0
+
 
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
