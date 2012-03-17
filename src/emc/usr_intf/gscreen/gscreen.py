@@ -32,6 +32,7 @@ import traceback
 import atexit
 import vte
 import time
+import hal_glib
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
@@ -297,6 +298,9 @@ class Gscreen:
             self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            for axis in self.data.axis_list:
+                print axis
+                self.halcomp.newpin(axis+"-selected.out", hal.HAL_BIT, hal.HAL_OUT)
         except:
             print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
             sys.exit(0)
@@ -537,6 +541,7 @@ class Gscreen:
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
         # set to 'start mode' 
         self.mode_changed(self.data.mode_order[0])
+        self.message_setup()
         # ok everything that mught make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
 
@@ -762,8 +767,85 @@ class Gscreen:
 
     def on_pop_statusbar_clicked(self, *args):
         self.widgets.statusbar1.pop(self.statusbar_id)
+    
+    def on_printmessage(self, pin, pinname,boldtext,text,type):
+        if pin.get():
+            if boldtext == "NONE": boldtext = None
+            if "status" in type:
+                if boldtext:
+                    statustext = boldtext
+                else:
+                    statustext = text
+                self.widgets.statusbar1.push(self.statusbar_id,statustext)
+            if "dialog" in type or "okdialog" in type:
+                self.halcomp[pinname + "-waiting"] = True
+                if "okdialog" in type:
+                    self.warning_dialog(boldtext,True,text)
+                else:
+                    result = self.warning_dialog(boldtext,False,text)
+                    self.halcomp[pinname + "-response"] = result
+                self.halcomp[pinname + "-waiting"] = False
 
 # ****** do stuff *****
+
+    # search for and set up user requested message system.
+    # status displays on the statusbat and requires no acklowedge.
+    # dialog displays a GTK dialog box with yes or no buttons
+    # okdialog displays a GTK dialog box with an ok button
+    # dialogs require an answer before focus is sent back to main screen
+    def message_setup(self):
+        if not self.inifile:
+            return
+        m_boldtext = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
+        m_text = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
+        m_type = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
+        m_pinname = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
+        if len(m_text) != len(m_type):
+            print "ERROR Gscreen:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section"
+        if len(m_text) != len(m_pinname):
+            print "ERROR Gscreen:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
+        if len(m_text) != len(m_boldtext):
+            print "ERROR Gscreen:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section"
+        for bt,t,c ,name in zip(m_boldtext,m_text, m_type,m_pinname):
+            #print bt,t,c,name
+            if not ("status" in c) and not ("dialog" in c) and not ("okdialog" in c):
+                print "ERROR Gscreen:    invalid message type (%s)in INI File [DISPLAY] section"% c
+                continue
+            if not name == None:
+                # this is how we make a pin that can be connected to a callback 
+                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                if ("dialog" in c):
+                    self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                    if not ("ok" in c):
+                        self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+
+    # display dialog and wait for an answer
+    def warning_dialog(self,message, displaytype, secondary=None):
+        if displaytype:
+            dialog = gtk.MessageDialog(self.widgets.window1,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+            # if there is a secondary message then the first message text is bold
+            if secondary:
+                dialog.format_secondary_text(secondary)
+            dialog.show_all()
+            result = dialog.run()
+            dialog.destroy()
+            return True
+        else:   
+            dialog = gtk.MessageDialog(self.widgets.window1,
+               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+            if secondary:
+                dialog.format_secondary_text(secondary)
+            dialog.show_all()
+            result = dialog.run()
+            dialog.destroy()
+            if result == gtk.RESPONSE_YES:
+                return True
+            else:
+                return False
 
     def _dynamic_tab(self, notebook, text):
         s = gtk.Socket()
