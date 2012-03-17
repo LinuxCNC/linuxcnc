@@ -558,6 +558,15 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       }
     }
 
+    # disallow embedded numbered subroutines within a single-file subroutine
+    if {[regexp -nocase "^o\[0-9\]*sub" $line]} {
+      puts stderr "[_ "bogus"]:$lno<$theline>"
+      lappend emsg \
+         "[_ "can not include subroutines within ngcgui subfile"]:$theline"
+      set ay($hdl,parse,msg) $emsg
+      return 0
+    }
+
     # find subroutine start:
     if [string match o<*>sub* $line] {
       if [info exists found_sub_end] {

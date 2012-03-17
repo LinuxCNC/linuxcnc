@@ -82,6 +82,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.is_foam = is_foam
         self.foam_z = 0
         self.foam_w = 1.5
+        self.notify = 0
+        self.notify_message = ""
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -106,6 +108,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                             self.foam_w = self.foam_w / 25.4
                     except:
                         self.foam_w = 30.0
+            if command == "notify":
+                self.notify = self.notify + 1
+                self.notify_message = "(AXIS,notify):" + str(self.notify)
+                if len(parts) > 2:
+                    if len(parts[2]): self.notify_message = parts[2]
 
     def message(self, message): pass
 
@@ -922,7 +929,7 @@ class GlCanonDraw:
 
             glEnd()
             glDisable(GL_LINE_STIPPLE)
-            glLineStipple(2, 0xffff)
+            glLineStipple(2, 0x5555)
 
         if self.get_show_live_plot():
             glDepthFunc(GL_LEQUAL)
