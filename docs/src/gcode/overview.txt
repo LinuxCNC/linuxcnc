@@ -283,8 +283,11 @@ example '##2'  means the value of the parameter whose index is the
 5211-5219::
     "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
 
+5210::
+    1 if "G92" offset is currently applied, 0 otherwise. Persistent.
+
 5220::
-    Coordinate System number 1 - 9 for G54 - G59.3.
+    Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
 5221-5229::
     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W. Persistent.
