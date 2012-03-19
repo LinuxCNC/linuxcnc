@@ -101,6 +101,13 @@ parser Hal:
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
+# These are symbols that comp puts in the global namespace of the C file it
+# creates.  The user is thus not allowed to add any symbols with these
+# names.  That includes not only global variables and functions, but also
+# HAL pins & parameters, because comp adds #defines with the names of HAL
+# pins & params.
+reserved_names = [ 'state', 'inst', 'first_inst', 'last_inst', 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+
 def _parse(rule, text, filename=None):
     global P, S
     S = HalScanner(text, filename=filename)
@@ -177,11 +184,16 @@ def checkarray(name, array):
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
 
+def check_name_ok(name):
+    if name in reserved_names:
+        Error("Variable name %s is reserved" % name)
+    if name in names:
+        Error("Duplicate item name %s" % name)
+
 def pin(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('pin', name, type, array, dir, doc, value, personality))
     names[name] = None
     pins.append((name, type, array, dir, value, personality))
@@ -189,15 +201,13 @@ def pin(name, type, array, dir, doc, value, personality):
 def param(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('param', name, type, array, dir, doc, value, personality))
     names[name] = None
     params.append((name, type, array, dir, value, personality))
 
 def function(name, fp, doc):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))
@@ -208,14 +218,12 @@ def option(name, value):
     options[name] = value
 
 def variable(type, name, array, default):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     names[name] = None
     variables.append((type, name, array, default))
 
 def modparam(type, name, default, doc):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     names[name] = None
     modparams.append((type, name, default, doc))
 

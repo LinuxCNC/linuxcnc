@@ -338,11 +338,18 @@ Variable names that can not be used or likly to cause problems include:
 
 * 'last_inst'
 
-* 'buf'
+* 'fperiod'
 
-* 'count'
+* 'get_data_size'
 
-* 'default_count'
+* 'rtapi_app_main'
+
+* 'rtapi_app_exit'
+
+* 'extra_setup'
+
+* 'extra_cleanup'
+
 
 == Convenience Macros
 
