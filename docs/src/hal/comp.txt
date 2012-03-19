@@ -328,8 +328,21 @@ C-style multi-line comments (/* ... */) are both supported in the declaration se
 Though HAL permits a pin, a parameter, and a function to have the same
 name, comp does not.
 
-Variable names that can not be used or likly to cause problems include
-'state', 'inst', 'first_inst', 'last_inst', 'buf', 'count', 'default_count'.
+Variable names that can not be used or likly to cause problems include:
+
+* 'state'
+
+* 'inst'
+
+* 'first_inst'
+
+* 'last_inst'
+
+* 'buf'
+
+* 'count'
+
+* 'default_count'
 
 == Convenience Macros
 
