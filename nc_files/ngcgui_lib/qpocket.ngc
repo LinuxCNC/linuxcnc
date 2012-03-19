@@ -15,11 +15,17 @@
 ;      tool diameter (in tool table)
 ;      stepover
 
-; The entry move for dir==2==cw (conventional milling) is along the
-; point1--point4 line. The entry move for dir==3==ccw (climb milling)
-; is along the point1--point2 line.  To accomodate the widest range of
-; tool diameters, order the point sequence (1--2--3--4) so that the
-; entry move is not directed towards an acute angle.
+; Entry moves:
+;   Input point ordering  Requested Direction       Entry line
+;   --------------------  ------------------------  ------------------
+;   1234 == CW            2 == CW  == Conventional  point1 --> point2
+;   1234 == CW            3 == CCW == Climb         point1 --> point4
+
+;   1234 == CCW           2 == CW  == Conventional  point1 --> point4
+;   1234 == CCW           3 == CCW == Climb         point1 --> point2
+
+; To accomodate the widest range of tool diameters, order the point sequence
+; (1234) so that the entry move is not directed towards an acute angle.
 
 ; Scaling, rotations, and offsets are supported.
 ;   Scaling is applied first.
