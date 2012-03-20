@@ -328,7 +328,10 @@ C-style multi-line comments (/* ... */) are both supported in the declaration se
 Though HAL permits a pin, a parameter, and a function to have the same
 name, comp does not.
 
-Variable names that can not be used or likly to cause problems include:
+Variable and function names that can not be used or are likely to cause
+problems include:
+
+* Anything beginning with '__comp_'.
 
 * 'fperiod'
 
