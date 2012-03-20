@@ -106,7 +106,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'inst', 'first_inst', 'last_inst', 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -337,19 +337,19 @@ static int comp_id;
     if options.get("userspace"):
         print >>f, "#include <stdlib.h>"
 
-    print >>f, "struct __comp_state *inst=0;"
-    print >>f, "struct __comp_state *first_inst=0, *last_inst=0;"
+    print >>f, "struct __comp_state *__comp_inst=0;"
+    print >>f, "struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;"
     
     print >>f
     for name, fp in functions:
         if names.has_key(name):
             Error("Duplicate item name: %s" % name)
-        print >>f, "static void %s(struct __comp_state *inst, long period);" % to_c(name)
+        print >>f, "static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name)
         names[name] = 1
 
     print >>f, "static int get_data_size(void);"
     if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct __comp_state *inst, char *prefix, long extra_arg);"
+        print >>f, "static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
@@ -445,9 +445,9 @@ static int comp_id;
         print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
             to_c(name), int(fp))
         print >>f, "    if(r != 0) return r;"
-    print >>f, "    if(last_inst) last_inst->_next = inst;"
-    print >>f, "    last_inst = inst;"
-    print >>f, "    if(!first_inst) first_inst = inst;"
+    print >>f, "    if(__comp_last_inst) __comp_last_inst->_next = inst;"
+    print >>f, "    __comp_last_inst = inst;"
+    print >>f, "    if(!__comp_first_inst) __comp_first_inst = inst;"
     print >>f, "    return 0;"
     print >>f, "}"
 
@@ -569,9 +569,9 @@ static int comp_id;
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#undef FUNCTION"
-        print >>f, "#define FUNCTION(name) static void name(struct __comp_state *inst, long period)"
+        print >>f, "#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)"
         print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct __comp_state *inst, char *prefix, long extra_arg)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)"
         print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#undef fperiod"
@@ -580,36 +580,36 @@ static int comp_id;
             print >>f, "#undef %s" % to_c(name)
             if array:
                 if dir == 'in':
-                    print >>f, "#define %s(i) (0+*(inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s(i) (*(inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
             else:
                 if dir == 'in':
-                    print >>f, "#define %s (0+*inst->%s)" % (to_c(name), to_c(name))
+                    print >>f, "#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s (*inst->%s)" % (to_c(name), to_c(name))
+                    print >>f, "#define %s (*__comp_inst->%s)" % (to_c(name), to_c(name))
         for name, type, array, dir, value, personality in params:
             print >>f, "#undef %s" % to_c(name)
             if array:
-                print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
+                print >>f, "#define %s(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name))
             else:
-                print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
+                print >>f, "#define %s (__comp_inst->%s)" % (to_c(name), to_c(name))
 
         for type, name, array, value in variables:
             name = name.replace("*", "")
             print >>f, "#undef %s" % name
-            print >>f, "#define %s (inst->%s)" % (name, name)
+            print >>f, "#define %s (__comp_inst->%s)" % (name, name)
 
         if has_data:
             print >>f, "#undef data"
-            print >>f, "#define data (*(%s*)(inst->_data))" % options['data']
+            print >>f, "#define data (*(%s*)(__comp_inst->_data))" % options['data']
         if has_personality:
             print >>f, "#undef personality"
-            print >>f, "#define personality (inst->_personality)"
+            print >>f, "#define personality (__comp_inst->_personality)"
 
         if options.get("userspace"):
             print >>f, "#undef FOR_ALL_INSTS"
-            print >>f, "#define FOR_ALL_INSTS() for(inst = first_inst; inst; inst = inst->_next)"    
+            print >>f, "#define FOR_ALL_INSTS() for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)"
     print >>f
     print >>f
 

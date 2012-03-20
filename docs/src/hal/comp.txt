@@ -330,12 +330,6 @@ name, comp does not.
 
 Variable names that can not be used or likly to cause problems include:
 
-* 'inst'
-
-* 'first_inst'
-
-* 'last_inst'
-
 * 'fperiod'
 
 * 'get_data_size'
