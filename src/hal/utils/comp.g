@@ -106,7 +106,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'state', 'inst', 'first_inst', 'last_inst', 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'inst', 'first_inst', 'last_inst', 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -303,8 +303,8 @@ static int comp_id;
             print >>f, "%s(%s, %s);" % (decl, name, q(doc))
             
     print >>f
-    print >>f, "struct state {"
-    print >>f, "    struct state *_next;"
+    print >>f, "struct __comp_state {"
+    print >>f, "    struct __comp_state *_next;"
     if has_personality:
         print >>f, "    int _personality;"
 
@@ -337,19 +337,19 @@ static int comp_id;
     if options.get("userspace"):
         print >>f, "#include <stdlib.h>"
 
-    print >>f, "struct state *inst=0;"
-    print >>f, "struct state *first_inst=0, *last_inst=0;"
+    print >>f, "struct __comp_state *inst=0;"
+    print >>f, "struct __comp_state *first_inst=0, *last_inst=0;"
     
     print >>f
     for name, fp in functions:
         if names.has_key(name):
             Error("Duplicate item name: %s" % name)
-        print >>f, "static void %s(struct state *inst, long period);" % to_c(name)
+        print >>f, "static void %s(struct __comp_state *inst, long period);" % to_c(name)
         names[name] = 1
 
     print >>f, "static int get_data_size(void);"
     if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct state *inst, char *prefix, long extra_arg);"
+        print >>f, "static int extra_setup(struct __comp_state *inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
@@ -372,11 +372,11 @@ static int comp_id;
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
-    print >>f, "    int sz = sizeof(struct state) + get_data_size();"
-    print >>f, "    struct state *inst = hal_malloc(sz);"
+    print >>f, "    int sz = sizeof(struct __comp_state) + get_data_size();"
+    print >>f, "    struct __comp_state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
     if has_data:
-        print >>f, "    inst->_data = (char*)inst + sizeof(struct state);"
+        print >>f, "    inst->_data = (char*)inst + sizeof(struct __comp_state);"
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
@@ -569,9 +569,9 @@ static int comp_id;
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#undef FUNCTION"
-        print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
+        print >>f, "#define FUNCTION(name) static void name(struct __comp_state *inst, long period)"
         print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, char *prefix, long extra_arg)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct __comp_state *inst, char *prefix, long extra_arg)"
         print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#undef fperiod"

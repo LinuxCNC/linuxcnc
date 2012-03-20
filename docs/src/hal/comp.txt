@@ -330,8 +330,6 @@ name, comp does not.
 
 Variable names that can not be used or likly to cause problems include:
 
-* 'state'
-
 * 'inst'
 
 * 'first_inst'
