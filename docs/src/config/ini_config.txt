@@ -512,7 +512,7 @@ planning module in 'motion'.
     machines without home switches.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the user to home the machine
-    before any MDI command or a program is run. Normally jogging only is
+    before any MDI command or a program is run. Normally, only jogging is
     allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
     make MDI moves and run programs without homing the machine first.
     Interfaces without homing ability will need to have this option set to 1.
