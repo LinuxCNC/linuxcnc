@@ -106,7 +106,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
 
 def _parse(rule, text, filename=None):
     global P, S

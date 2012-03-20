@@ -333,6 +333,8 @@ problems include:
 
 * Anything beginning with '__comp_'.
 
+* 'comp_id'
+
 * 'fperiod'
 
 * 'rtapi_app_main'
