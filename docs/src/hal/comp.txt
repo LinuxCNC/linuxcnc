@@ -332,8 +332,6 @@ Variable names that can not be used or likly to cause problems include:
 
 * 'fperiod'
 
-* 'get_data_size'
-
 * 'rtapi_app_main'
 
 * 'rtapi_app_exit'

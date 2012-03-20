@@ -106,7 +106,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'fperiod', 'get_data_size', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -347,7 +347,7 @@ static int comp_id;
         print >>f, "static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int get_data_size(void);"
+    print >>f, "static int __comp_get_data_size(void);"
     if options.get("extra_setup"):
         print >>f, "static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
@@ -372,7 +372,7 @@ static int comp_id;
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
-    print >>f, "    int sz = sizeof(struct __comp_state) + get_data_size();"
+    print >>f, "    int sz = sizeof(struct __comp_state) + __comp_get_data_size();"
     print >>f, "    struct __comp_state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
     if has_data:
@@ -617,9 +617,9 @@ def epilogue(f):
     data = options.get('data')
     print >>f
     if data:
-        print >>f, "static int get_data_size(void) { return sizeof(%s); }" % data
+        print >>f, "static int __comp_get_data_size(void) { return sizeof(%s); }" % data
     else:
-        print >>f, "static int get_data_size(void) { return 0; }"
+        print >>f, "static int __comp_get_data_size(void) { return 0; }"
 
 INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
 modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
