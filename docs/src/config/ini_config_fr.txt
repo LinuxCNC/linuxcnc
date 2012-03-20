@@ -530,7 +530,7 @@ PARAMETER_FILE = monfichier.var::
     fichier ini qui contiendra les paramètres utilisés par l'interpréteur
     (enregistré entre chaque lancement). 
 
-RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98::
+RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98::
     (((RS274NGC STARTUP CODE))) Une chaine de codes NGC qui sera utilisée
     pour initialiser l'interpréteur. Elle ne se substitue pas à la
     spécification des G-codes modaux du début de chaque fichier ngc. Les

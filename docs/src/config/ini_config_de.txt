@@ -331,7 +331,7 @@ should be used by any filter that runs for a long time.
     file which contains the parameters used by the interpreter (saved
     between runs). 
 
-* 'RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98' -
+* 'RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
     (((RS274NGC STARTUP CODE))) A string of NC codes that the interpreter
     is initialized with. This is not a substitute for specifying modal
     g-codes at the top of each ngc file, because the modal codes of
