@@ -1272,6 +1272,13 @@ void ARC_FEED(int line_number,
 
     get_last_pos(lx, ly, lz);
 
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+
     // XXX rotation?
     if( (activePlane == CANON_PLANE_XY)
             && canonMotionMode == CANON_CONTINUOUS
@@ -1299,13 +1306,6 @@ void ARC_FEED(int line_number,
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
-
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
 
     rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 
