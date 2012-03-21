@@ -22,7 +22,9 @@ o<rectangle_probe> sub
       #<wait> = #11 (=   1 Wait for Start)
 
 O1 if [ [#<in_or_mm> ne 20] and [#<in_or_mm> ne 21]]
-     (debug, in_or_mm invalid: #<in_or_mm>)
+     (debug, in_or_mm invalid: #<in_or_mm> - EXITING)
+     (print, in_or_mm invalid: #<in_or_mm> - EXITING)
+     (AXIS,notify, rectangle_probe: in_or_mm invalid - EXITING)
      m2
 O1 endif
 

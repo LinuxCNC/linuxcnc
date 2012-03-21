@@ -331,7 +331,7 @@ should be used by any filter that runs for a long time.
     file which contains the parameters used by the interpreter (saved
     between runs). 
 
-* 'RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98' -
+* 'RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
     (((RS274NGC STARTUP CODE))) A string of NC codes that the interpreter
     is initialized with. This is not a substitute for specifying modal
     g-codes at the top of each ngc file, because the modal codes of
@@ -443,8 +443,7 @@ Section.
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-[[sub:[HALUI]-section]]
-=== [HALUI] section
+=== [HALUI] section[[sub:[HALUI]-section]]
 
 (((HALUI (inifile section))))
 
@@ -473,6 +472,13 @@ planning module in 'motion'.
     joint is numbered 7 and therefore AXES should be 8. For a machine with
     nontrivial kinematics (e.g., scarakins) this will generally be the
     number of controlled joints.
+
+* 'JOINTS = 3' - (This config variable is used by the Axis GUI only,
+    not by the trajectory planner in the motion controller.)  Specifies
+    the number of joints (motors) in the system.  For example, an XYZ
+    machine with a single motor for each axis has 3 joints.  A gantry
+    machine with one motor on each of two of the axes, and two motors
+    on the third axis, has 4 joints.
 
 * 'HOME = 0 0 0' - Coordinates of the homed position of each axis. Again
     for a fourth

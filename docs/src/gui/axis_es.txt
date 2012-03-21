@@ -945,5 +945,8 @@ preview on certain parts that are already working OK).
  - (AXIS,hide) Stops the preview (must be first)
  - (AXIS,show) Resumes the preview (must follow a hide)
  - (AXIS,stop) Stops the preview from here to the end of the file.
+ - (AXIS,notify,the_text) Displays the_text as an info display
+This display can be useful in the Axis preview when (debug,message)
+comments are not displayed.
 
 

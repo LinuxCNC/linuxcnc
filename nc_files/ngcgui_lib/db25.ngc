@@ -17,7 +17,9 @@ o<db25>  sub
 o<loadtool> call  [#<toolno>]
 #<tooldiam> = #5410
 o<if0>  if [#<tooldiam> Gt 0.12501]
-           (debug, tooldiam too big: #<tooldiam>)
+           (debug, db25: tooldiam too big: #<tooldiam> - EXITING)
+           (print, db25: tooldiam too big: #<tooldiam> - EXITING)
+           (AXIS,notify, db25: tooldiam too big - EXITING)
            m2
 o<if0>  endif
 

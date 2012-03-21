@@ -801,9 +801,10 @@ Par exemple: pour afficher le contenu d'une variable nommée globale sur la
 sortie stderr (la fenêtre de la console par défaut), ajouter une ligne au
 G-code comme:
 
-.Exemple de paramètre en commentaire
+.Exemple de paramètres en commentaire
 ----
 (print,diamètre fraise 3 dents = #<_troisdents_dia>)
+(print,la valeur de la variable 123 est: #123)
 ----
 
 À l'intérieur de ces types de commentaires, les séquences comme _#123_

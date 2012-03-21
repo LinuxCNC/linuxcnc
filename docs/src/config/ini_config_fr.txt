@@ -530,7 +530,7 @@ PARAMETER_FILE = monfichier.var::
     fichier ini qui contiendra les paramètres utilisés par l'interpréteur
     (enregistré entre chaque lancement). 
 
-RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98::
+RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98::
     (((RS274NGC STARTUP CODE))) Une chaine de codes NGC qui sera utilisée
     pour initialiser l'interpréteur. Elle ne se substitue pas à la
     spécification des G-codes modaux du début de chaque fichier ngc. Les
@@ -716,6 +716,14 @@ AXES = 3::
     _cinématique triviale_, l'articulation V est numérotée 7 et donc les
     AXES devraient être 8. Pour une machine à cinématique non triviale (ex:
     scarakins) ce sera généralement le nombre d'articulations contrôlées.
+
+JOINTS = 3::
+        (This config variable is used by the Axis GUI only, not by the
+    trajectory planner in the motion controller.)  Specifies the number
+    of joints (motors) in the system.  For example, an XYZ machine with a
+    single motor for each axis has 3 joints.  A gantry machine with one
+    motor on each of two of the axes, and two motors on the third axis,
+    has 4 joints.
 
 HOME = 0 0 0::
       Coordonnées de l'origine machine de chaque axe. De nouveau, pour une

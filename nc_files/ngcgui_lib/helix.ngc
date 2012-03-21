@@ -23,25 +23,29 @@ o<loadtool> call  [#<toolno>]
          #<hr>       = [#<hdiam>/2]
          #<cutdepth> = [-1 * #<cutdepth>]
 o<l00>   if [#<cutdepth> GT 0.0]
-           (debug, helix:bad cutdepth #<cutdepth>)
-           (print, helix:bad cutdepth #<cutdepth>)
+           (debug, helix: bad cutdepth #<cutdepth> - EXITING)
+           (print, helix: bad cutdepth #<cutdepth> - EXITING)
+           (AXIS,notify, helix: bad cutdepth - EXITING)
            m2
 o<l00>   endif
 
          #<zincr> = [-1 * #<zincr>]
 o<l01>   if [#<zincr> GT 0.0]
-           (debug, helix:bad zincr #<zincr>)
-           (print, helix:bad zincr #<zincr>)
+           (debug, helix: bad zincr #<zincr> - EXITING)
+           (print, helix: bad zincr #<zincr> - EXITING)
+           (AXIS,notify, helix: bad zincr - EXITING)
            m2
 o<l01>   endif
 o<l02>   if [[#<inside> NE 0] AND [#<inside> NE 1]]
-           (debug, helix:bad inside specifier #<inside>)
-           (print, helix:bad inside specifier #<inside>)
+           (debug, helix: bad inside specifier #<inside> - EXITING)
+           (print, helix: bad inside specifier #<inside> - EXITING)
+           (AXIS,notify, helix: bad inside specifier - EXITING)
            m2
 o<l02>   endif
 o<l03>   if [[#<dir> NE 2] AND [#<dir> NE 3]]
-           (debug, helix:bad dir specifier #<dir>)
-           (print, helix:bad dir specifier #<dir>)
+           (debug, helix: bad dir specifier #<dir> - EXITING)
+           (print, helix: bad dir specifier #<dir> - EXITING)
+           (AXIS,notify, helix: bad dir specifier - EXITING)
            m2
 o<l03>   endif
 
