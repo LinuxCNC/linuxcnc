@@ -8564,7 +8564,8 @@ But there is not one in the machine-named folder.."""),True)
         #print axis," stepgen--",self.stepgen
         self.encoder = self.data.encoder_sig(axis)
         #print axis," encoder--",self.encoder
-        self.pwmgen  = self.data.pwmgen_sig(axis)
+        pwm_sig = self.data.pwmgen_sig(axis)
+        self.pwm = self.data.make_pinname(pwm_sig)
         #print axis," pwgen--",self.pwmgen
         pump = self.data.findsignal("charge-pump")
         w.tuneaxispage.set_current_page(axnum)
@@ -8630,7 +8631,10 @@ But there is not one in the machine-named folder.."""),True)
         w[axis+"tunerun"].set_active(0)
         w[axis+"tuneinvertmotor"].set_active(w[axis+"invertmotor"].get_active())
         w[axis+"tuneinvertencoder"].set_active(w[axis+"invertencoder"].get_active())
-        
+        dac_scale = get_value(w[axis+"outputscale"])
+        pwmminlimit = get_value(w[axis+"outputminlimit"])
+        pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
+        pwmmaxoutput = get_value(w[axis+"outputscale"])
              
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
@@ -8670,19 +8674,34 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s.velocity -g 0 625 330\n"% (self.enc_signalname))
             halrun.write("loadusr halmeter -s pin %s.position -g 0 675 330\n"% (self.enc_signalname))
             halrun.write("loadusr halmeter pin %s.velocity -g 275 415\n"% (self.enc_signalname))
-        # for pwm components
-        if self.pwmgen:
-            self.pwm_signalname = self.data.make_pinname(self.pwmgen)
-            pwmtype = self.pwmgen +"type"
-            pulsetype = 1
-            if self.data[pwmtype] == PDMP: pulsetype = 3
-            if self.data[pwmtype] == UDMU: pulsetype = 2
-            #print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
-            halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
-            halrun.write("setp %s.output-type %d\n"% (self.pwm_signalname,pulsetype))                             
-            halrun.write("loadusr halmeter pin %s.enable -g 0 415\n"% (self.pwm_signalname))
-            halrun.write("loadusr halmeter -s pin %s.enable -g 0 525 330\n"% (self.pwm_signalname))
-            halrun.write("loadusr halmeter -s pin %s.value -g 0 575 330\n"% (self.pwm_signalname)) 
+
+        # setup pwm generator
+        if self.pwm:
+            print self.pwm
+            if "pwm" in self.pwm: # mainboard PWM
+                pwmtype = self.data[pwm_sig+"type"]
+                if  pwmtype == PWMP: pulsetype = 1
+                elif pwmtype == PDMP: pulsetype = 3
+                elif pwmtype == UDMU: pulsetype = 2
+                else: 
+                    print "**** ERROR PNCCONF- PWM type not recognized in tune test"
+                    return
+                halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
+                halrun.write("net enable %s \n"%  (self.pwm +".enable"))
+                halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
+                ending = ".value"
+            else: # sserial PWM
+                pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
+                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                ending = ""
+            halrun.write("net output %s \n"%  (self.pwm + ending))
+            halrun.write("loadusr halmeter -s pin %s -g 0 575 330\n"%  (self.pwm + ending))
+            halrun.write("loadusr halmeter pin %s -g 0 550 375\n"% (self.pwm + ending) )
+            halrun.write("loadusr halmeter -s sig enable -g 0 525 330\n")
+
         # for step gen components
         if self.stepgen:                        
             # check current component number to signal's component number                             
@@ -8712,7 +8731,7 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
         # set up PID if there is a feedback sensor and pwm. TODO add ability to test closed loop steppers
-        if self.encoder and self.pwmgen:
+        if self.encoder and self.pwm:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
             halrun.write("setp pid.0.Igain     %d\n"% ( w[axis+"I"].get_value() ))
             halrun.write("setp pid.0.Dgain     %d\n"% ( w[axis+"D"].get_value() ))
@@ -8723,9 +8742,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("setp pid.0.deadband  %d\n"% ( w[axis+"deadband"].get_value() ))
             halrun.write("setp pid.0.maxoutput  %d\n"% ( w[axis+"maxoutput"].get_value() ))
             halrun.write("net enable     => pid.0.enable\n")
-            halrun.write("net output     pid.0.output      => %s.value\n"% (self.pwm_signalname))
+            halrun.write("net output     pid.0.output\n")
             halrun.write("net pos-cmd    steptest.0.position-cmd => pid.0.command\n")
-            halrun.write("net enable     =>  %s.enable\n"% (self.pwm_signalname))
             halrun.write("net feedback steptest.0.position-fb <= %s.position \n"% (self.enc_signalname))
    
         self.updaterunning = True
@@ -8911,9 +8929,9 @@ But there is not one in the machine-named folder.."""),True)
         dacspeed = widgets.Dac_speed_fast.get_active()
         dac_scale = get_value(widgets[axis+"outputscale"])
         max_dac = get_value(widgets[axis+"maxoutput"])
-        spindleminlimit = get_value(widgets[axis+"outputminlimit"])
-        spindlemaxlimit = get_value(widgets[axis+"outputmaxlimit"])
-        spindlemaxoutput = get_value(widgets[axis+"outputscale"])
+        pwmminlimit = get_value(widgets[axis+"outputminlimit"])
+        pwmmaxlimit = get_value(widgets[axis+"outputmaxlimit"])
+        pwmmaxoutput = get_value(widgets[axis+"outputscale"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
@@ -8939,9 +8957,9 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("net dac " + self.pot + ".spinout")
             halrun.write("net enable " + self.pot +".spinena")
             halrun.write("net dir " + self.pot +".spindir")
-            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f"% spindleminlimit)
-            halrun.write("setp   "+self.pot+".spinout-mixlim   %.1f"% spindlemaxlimit)
-            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f"% spindlemaxoutput)
+            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f"% pwmminlimit)
+            halrun.write("setp   "+self.pot+".spinout-mixlim   %.1f"% pwmmaxlimit)
+            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f"% pwmmaxoutput)
             potinvertlist = self.data.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == POTO:
@@ -8950,20 +8968,30 @@ But there is not one in the machine-named folder.."""),True)
                         halrun.write("setp   "+self.pot+".spinena-invert   true")
         # setup pwm generator
         if self.pwm:
-            pwmtype = self.data[pwm_sig+"type"]
-            if  pwmtype == PWMP: pulsetype = 1
-            elif pwmtype == PDMP: pulsetype = 3
-            elif pwmtype == UDMU: pulsetype = 2
-            else: 
-                print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
-                return
-            halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
-            halrun.write("net dac %s \n"%  (self.pwm +".value"))
-            halrun.write("net enable %s \n"%  (self.pwm +".enable"))
-            halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
+            if "pwm" in self.pwm: # mainboard PWM
+                pwmtype = self.data[pwm_sig+"type"]
+                if  pwmtype == PWMP: pulsetype = 1
+                elif pwmtype == PDMP: pulsetype = 3
+                elif pwmtype == UDMU: pulsetype = 2
+                else: 
+                    print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
+                    return
+                halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
+                halrun.write("net enable %s \n"%  (self.pwm +".enable"))
+                halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
+                ending = ".value"
+            else: # sserial PWM
+                pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
+                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                ending = ""
+            halrun.write("net dac %s \n"%  (self.pwm + ending))
+            halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (self.pwm + ending))
+            halrun.write("loadusr halmeter pin %s -g 550 375\n"% (self.pwm + ending) )
             halrun.write("loadusr halmeter -s sig enable -g 0 475 330\n")
-            halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (self.pwm +".value"))
-            halrun.write("loadusr halmeter pin %s -g 550 375\n"% (self.pwm +".value") )
+
         # set up encoder     
         if self.enc:
             print self.enc
@@ -9093,6 +9121,7 @@ But there is not one in the machine-named folder.."""),True)
         def write_pins(pname,p,i,t):
             if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
                 pinname  = self.data.make_pinname(pname)
+                print pinname
                 if pinname:
                     #print p, pname, i
                     if p == "estop-out": signal = p
@@ -9103,17 +9132,20 @@ But there is not one in the machine-named folder.."""),True)
                         else:
                             halrun.write("net %s %s \n"% (signal,pinname))
                     else:
-                        if not "sserial" in pname:
+                        if not "sserial" in pname: # mainboard GPIO need to be set to output/opendrain
                             halrun.write("setp %s true\n"% (pinname + ".is_output"))
                             if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                        if "sserial" in pname and "dig" in pinname: ending = ".out" # 7i76 sserial board
+                        elif "sserial" in pname: ending = "" # all other sserial
+                        elif not "sserial" in pname: ending =".out" # mainboard GPIO
                         if p == "force-pin-true":
-                            halrun.write("setp %s true\n"% ((pinname + ".out")))
+                            halrun.write("setp %s true\n"% ((pinname + ending)))
                         else:
-                            halrun.write("net %s %s \n"% (signal,(pinname + ".out")))
+                            halrun.write("net %s %s \n"% (signal,(pinname + ending)))
                     if i: # invert pin
-                        if "sserial" in pname: ending = ".invert"
-                        elif "parport" in pinname: ending = "-invert"
-                        else: ending = ".invert_output"
+                        if "sserial" in pname and "dig" in pinname: ending = ".invert" # 7i76 sserial board
+                        elif "sserial" in pname or "parport" in pinname: ending = "-invert"# all other sserial or parport
+                        else: ending = ".invert_output" # mainboard GPIO
                         halrun.write("setp %s true\n"%  (pinname + ending ))
                     return
 
