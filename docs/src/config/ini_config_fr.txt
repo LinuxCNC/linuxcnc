@@ -717,6 +717,14 @@ AXES = 3::
     AXES devraient être 8. Pour une machine à cinématique non triviale (ex:
     scarakins) ce sera généralement le nombre d'articulations contrôlées.
 
+JOINTS = 3::
+        (This config variable is used by the Axis GUI only, not by the
+    trajectory planner in the motion controller.)  Specifies the number
+    of joints (motors) in the system.  For example, an XYZ machine with a
+    single motor for each axis has 3 joints.  A gantry machine with one
+    motor on each of two of the axes, and two motors on the third axis,
+    has 4 joints.
+
 HOME = 0 0 0::
       Coordonnées de l'origine machine de chaque axe. De nouveau, pour une
     machine 4 axes, vous devrez avoir 0 0 0 0. Cette valeur est utilisée

@@ -473,6 +473,13 @@ planning module in 'motion'.
     nontrivial kinematics (e.g., scarakins) this will generally be the
     number of controlled joints.
 
+* 'JOINTS = 3' - (This config variable is used by the Axis GUI only,
+    not by the trajectory planner in the motion controller.)  Specifies
+    the number of joints (motors) in the system.  For example, an XYZ
+    machine with a single motor for each axis has 3 joints.  A gantry
+    machine with one motor on each of two of the axes, and two motors
+    on the third axis, has 4 joints.
+
 * 'HOME = 0 0 0' - Coordinates of the homed position of each axis. Again
     for a fourth
     axis you will need 0 0 0 0. This value is only used for machines with
