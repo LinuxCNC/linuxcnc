@@ -1279,8 +1279,8 @@ void ARC_FEED(int line_number,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    // XXX rotation?
     if( (activePlane == CANON_PLANE_XY)
+            && xy_rotation == 0.
             && canonMotionMode == CANON_CONTINUOUS
             && chord_deviation(lx, ly,
                 offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
