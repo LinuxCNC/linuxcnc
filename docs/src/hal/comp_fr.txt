@@ -339,6 +339,24 @@ déclaration.
 Bien que HAL permette à une pin, un paramètre et une fonction d'avoir
 le même nom, comp ne le permet pas.
 
+Les noms de variable et de fonction qui ne doivent pas être utilisés ou
+qui posent problème sont les suivants:
+
+* Tous noms commençant par ___comp__.
+
+* _comp_id_
+
+* _fperiod_
+
+* _rtapi_app_main_
+
+* _rtapi_app_exit_
+
+* _extra_setup_
+
+* _extra_cleanup_
+
+
 == Conventions des macros
 
 En se basant sur les déclarations des items de section, _comp_ crée

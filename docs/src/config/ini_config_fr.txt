@@ -718,12 +718,13 @@ AXES = 3::
     scarakins) ce sera généralement le nombre d'articulations contrôlées.
 
 JOINTS = 3::
-        (This config variable is used by the Axis GUI only, not by the
-    trajectory planner in the motion controller.)  Specifies the number
-    of joints (motors) in the system.  For example, an XYZ machine with a
-    single motor for each axis has 3 joints.  A gantry machine with one
-    motor on each of two of the axes, and two motors on the third axis,
-    has 4 joints.
+        (Cette variable de configuration est utilisée seulement par
+    Axis et non par le planificateur de trajectoire du contrôleur de
+    mouvement.) Elle spécifie le nombre d'articulations (moteurs) que
+    comporte le système. Par exemple, une machine XYZ avec un seul moteur
+    pour chacun des 3 axes, comporte 3 articulations (joints). Une machine
+    à portique avec un seul moteur sur deux de ses axes et deux moteurs
+    sur le troisième axe, comporte 4 articulations (joints).
 
 HOME = 0 0 0::
       Coordonnées de l'origine machine de chaque axe. De nouveau, pour une
