@@ -510,6 +510,7 @@ int read_inputs(setup_pointer settings);
 		       char *posarglist);
 
  int init_named_parameters();
+    int init_python_predef_parameter(const char *name);
 
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
@@ -555,6 +556,7 @@ int read_inputs(setup_pointer settings);
 
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
+#define NAMEDPARAMS_MODULE "namedparams"
     // describes intented use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,

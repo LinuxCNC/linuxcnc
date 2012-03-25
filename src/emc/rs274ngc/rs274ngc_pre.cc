@@ -1092,21 +1092,50 @@ int Interp::init()
 
   // call __init__(self) once in toplevel module if defined
   // once fully set up and sync()ed
-  if ((iniFileName != NULL) &&
-      _setup.init_once && PYUSABLE && 
-      python_plugin->is_callable(NULL, INIT_FUNC)) {
+  if ((iniFileName != NULL) && _setup.init_once && PYUSABLE ) {
 
-      bp::object retval, tupleargs, kwargs;
-      bp::list plist;
-      
-      plist.append(_setup.pythis); // self
-      tupleargs = bp::tuple(plist);
-      kwargs = bp::dict();
-      
-      python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
-      CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-	   "pycall(%s):\n%s", INIT_FUNC,
-	   python_plugin->last_exception().c_str());
+      // initialize any python global predefined named parameters
+      // walk the namedparams module for callables and add their names as predefs
+      try {
+	  bp::object npmod =  python_plugin->main_namespace[NAMEDPARAMS_MODULE];
+	  bp::dict predef_dict = bp::extract<bp::dict>(npmod.attr("__dict__"));
+	  bp::list iterkeys = (bp::list) predef_dict.iterkeys();
+	  for (int i = 0; i < bp::len(iterkeys); i++)  {
+	      std::string key = bp::extract<std::string>(iterkeys[i]);
+	      bp::object value = predef_dict[key];
+	      if (PyCallable_Check(value.ptr())) {
+		  CHP(init_python_predef_parameter(key.c_str()));
+	      }
+	  }
+      }
+      catch (bp::error_already_set) {
+	  std::string exception_msg;
+	  bool unexpected = false;
+	  // KeyError is ok - this means the namedparams module doesnt exist
+	  if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
+	      // something else, strange
+	      exception_msg = handle_pyerror();
+	      unexpected = true;
+	  }
+	  bp::handle_exception();
+	  PyErr_Clear();
+	  CHKS(unexpected, "exception adding Python predefined named parameter: %s", exception_msg.c_str());
+      }
+
+      if (python_plugin->is_callable(NULL, INIT_FUNC)) {
+
+	  bp::object retval, tupleargs, kwargs;
+	  bp::list plist;
+
+	  plist.append(_setup.pythis); // self
+	  tupleargs = bp::tuple(plist);
+	  kwargs = bp::dict();
+
+	  python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
+	  CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	       "pycall(%s):\n%s", INIT_FUNC,
+	       python_plugin->last_exception().c_str());
+      }
   }
   _setup.init_once = 0;
   
