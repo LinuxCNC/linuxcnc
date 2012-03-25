@@ -431,7 +431,8 @@ The <<EXISTS-Function,'EXISTS' function>> tests whether a given named parameter 
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
-program with if-then-else statements.
+program with if-then-else statements. Note that <<sec:Adding-Predefined-Named-Parameters,new predefined named
+parameters>> can be added easily without changes to the source code.
 
 * `#<_vmajor>` - Major package version. If current version was 2.5.2 would return 2.5.
 
