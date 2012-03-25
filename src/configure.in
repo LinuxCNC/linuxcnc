@@ -458,7 +458,9 @@ else
       AC_SUBST([LIBMODBUS_CFLAGS])
       AC_SUBST([LIBMODBUS_LIBS])
       AC_MSG_RESULT(yes - version2)
-    ],)
+    ],
+    [AC_MSG_RESULT(no)]
+  )
   LIBS=$saved_LIBS
   CPPFLAGS=$saved_CPPFLAGS
 fi 
