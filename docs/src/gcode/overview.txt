@@ -82,11 +82,13 @@ is on any lines starting with the slash '/' are skipped.
 == Line Number
 (((Line Number)))
 
-A line number is the letter N followed by an unsigned integer. Line
-numbers may be repeated or used out of order, although normal practice
-is to avoid such usage. Line numbers may also be skipped, and that is
-normal practice. A line number is not required to be used, but must be
-in the proper place if used.
+A line number is the letter N followed by an unsigned integer,
+optionally followed by a period and another unsigned integer. For
+example, `N1234` and `N56.78` are valid line numbers. They may be
+repeated or used out of order, although normal practice is to avoid
+such usage. Line numbers may also be skipped, and that is normal
+practice. A line number is not required to be used, but must be in the
+proper place if used.
 
 == Word
 (((Word)))
