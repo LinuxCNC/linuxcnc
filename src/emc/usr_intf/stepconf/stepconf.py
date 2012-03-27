@@ -815,7 +815,7 @@ class Data:
             print >>file, "net charge-pump <= charge-pump.out"
 
         if pwm:
-            print >>file, "loadrt pwmgen output_type=0"
+            print >>file, "loadrt pwmgen output_type=1"
 
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
