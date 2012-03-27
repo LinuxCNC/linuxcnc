@@ -31,6 +31,7 @@
 
 */
 
+
 #ifndef ULAPI
 #error This is intended as a userspace component only.
 #endif
@@ -331,7 +332,7 @@ static params_type param = {
 static int connection_state;
 enum connstate {NOT_CONNECTED, OPENING, CONNECTING, CONNECTED, RECOVER, DONE};
 
-static char *option_string = "dhrMn:S:I:";
+static char *option_string = "dhrmn:S:I:";
 static struct option long_options[] = {
     {"debug", no_argument, 0, 'd'},
     {"help", no_argument, 0, 'h'},
@@ -465,17 +466,25 @@ int read_ini(param_pointer p)
 		    NULL) == KEYWORD_INVALID)
 	    return -1;
 	p->parity = value;
-	
+
+#ifdef MODBUS_RTU_RTS_UP	
 	if (findkwd(p, "RTS_MODE", &p->rts_mode,
 		    "up", MODBUS_RTU_RTS_UP,
 		    "down", MODBUS_RTU_RTS_DOWN, 
 		    "none", MODBUS_RTU_RTS_NONE,
 		    NULL) == KEYWORD_INVALID)
 	    return -1;
-
+#else
+	if (iniFind(p->fp, "RTS_MODE", p->section) != NULL) {
+	    fprintf(stderr,"%s: warning - the RTS_MODE feature is not available with the installed libmodbus version (%s).\n"
+		    "to enable it, uninstall libmodbus-dev and rebuild with "
+		    "libmodbus built http://github.com/stephane/libmodbus:master .\n", 
+		    LIBMODBUS_VERSION_STRING, p->progname);
+	}
+#endif
 	if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
 		    "rs232", MODBUS_RTU_RS232,
-		    "rs485", MODBUS_RTU_RS232,
+		    "rs485", MODBUS_RTU_RS485,
 		    NULL) == KEYWORD_INVALID)
 	    return -1;
 
@@ -963,11 +972,13 @@ int main(int argc, char **argv)
 		    p->modname, p->serial_mode, modbus_strerror(errno));
 	    goto finish;
 	}
+#ifdef MODBUS_RTU_RTS_UP	
 	if ((p->rts_mode != -1) && modbus_rtu_set_rts(p->ctx, p->rts_mode) < 0) {
 	    fprintf(stderr, "%s: ERROR: modbus_rtu_set_rts(%d): %s\n", 
 		    p->modname, p->rts_mode, modbus_strerror(errno));
 	    goto finish;
 	}
+#endif
 	DBG("%s: serial port %s connected\n", p->progname, p->device);
 	break;
 

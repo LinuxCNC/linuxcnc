@@ -222,6 +222,9 @@ STOPBITS=1
 SERIAL_MODE=rs485
 
 # up down none
+# this feature might not work with a stock Ubuntu
+# libmodbus5/libmodbus-dev package, and generate a warning
+# execution will continue as if RTS_MODE=up were given.
 RTS_MODE=up
 #---------------------
 
@@ -350,12 +353,22 @@ http://git.mah.priv.at/gitweb/modio.git[modio Modbus interactive utility].
 
 The vfs11_vfd driver uses the http://www.libmodbus.org[libmodbus
 version 3] library which is more recent than the version 2 code used
-in +gs2_vfd+. Since the Ubuntu +libmodbus5+ and +libmodbus-dev+ packages are
-only available starting from Ubuntu 12 ('Precise Pengolin'), 
-in the interim libmodbus should be installed as outlined 
+in +gs2_vfd+. 
+
+The Ubuntu +libmodbus5+ and +libmodbus-dev+ packages are
+only available starting from Ubuntu 12 ('Precise Pengolin'). Moreover,
+these packages lack support for the MODBUS_RTS_MODE_*
+flags. Therefore, building vfs11_vfd using this library might generate
+a warning if RTS_MODE= is specified in the ini file.
+
+To use the full functionality on lucid and precise:
+* remove the libmodbus packages: `sudo apt-get remove libmodbus5
+libmodbus-dev`
+* build and install libmodbus version 3 from source as outlined 
 https://github.com/stephane/libmodbus/blob/master/README.rst[here].
 
-Libmodbus does not build on Ubuntu Hardy.
+Libmodbus does not build on Ubuntu Hardy, hence vfs11_vfd is not
+available on hardy.
 
 // Michael Haberler; loosely based on gs2_vfd by Steve Padnos and John Thornton.
 
