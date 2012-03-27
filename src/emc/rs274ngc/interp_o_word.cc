@@ -252,6 +252,7 @@ int Interp::execute_call(setup_pointer settings,
 	    status = pycall(settings, current_frame, OWORD_MODULE,
 			    current_frame->subName, 
 			    settings->call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
+	    CHKS(status == INTERP_ERROR, "pycall(%s.%s) failed", OWORD_MODULE, current_frame->subName) ;
 	    switch (status = handler_returned(settings, current_frame, current_frame->subName, true)) {
 	    case INTERP_EXECUTE_FINISH:
 		settings->call_state = CS_REEXEC_PYOSUB;
@@ -291,6 +292,7 @@ int Interp::execute_call(setup_pointer settings,
 	    if (remap->prolog_func) { 
 		status = pycall(settings, current_frame, REMAP_MODULE,remap->prolog_func,
 				settings->call_state == CS_NORMAL ? PY_PROLOG : PY_FINISH_PROLOG);
+		CHKS(status == INTERP_ERROR, "pycall(%s.%s) failed", REMAP_MODULE, remap->prolog_func);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_PROLOG;
