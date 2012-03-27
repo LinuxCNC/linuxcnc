@@ -421,7 +421,7 @@ class Gscreen:
         cb = "button_estop"
         i = "_sighandler_estop"
         self.data[i] = int(self.widgets[cb].connect("clicked", self.on_estop_clicked))
-        for mode in range(0,4):
+        for mode in range(0,5):
             for num in range(0,24):
                 cb = "button_h%d_%d"% (mode,num)
                 i = "_sighandler_button_h%d_%d"% (mode,num)
@@ -454,7 +454,8 @@ class Gscreen:
         self.widgets.run_calibration.connect("clicked", self.on_calibration)
         self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
         self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
-
+        self.widgets.button_override.connect("clicked", self.override)
+        self.widgets.button_graphics.connect("clicked", self.graphics)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -660,41 +661,32 @@ class Gscreen:
             if mode == 3:
                 if number == 6: self.reload_plot()
                 else: raise nofunnction
+            if mode == 4:
+                self.toggle_overrides(widget,mode,number)
             else: raise nofunnction
         except :
-         print "hbutton %d_%d clicked but no function"% (mode,number)
+            print "hbutton %d_%d clicked but no function"% (mode,number)
 
     def on_vbutton_clicked(self,widget,mode,number):
-        #try:
+        try:
             if mode == 0:
-                if number == 0:
-                    self.zero_axis()
-                elif number == 1:
-                    self.set_axis_checks()
-                elif number == 2:
-                    pass
-                elif number == 3:
-                    pass
-                elif number == 4:
-                    self.toggle_feed_hold()
+                if number == 0: self.zero_axis()
+                elif number == 1: self.set_axis_checks()
+                elif number == 2: pass
+                elif number == 3: pass
+                elif number == 4: self.toggle_feed_hold()
                 else: raise nofunnction
             elif mode == 1:
-                if number == 3:
-                    self.full_graphics()
-                elif number == 2:
-                    self.toggle_view()
-                elif number == 4:
-                    self.edit_mode()
-                elif number == 5:
-                    self. zoom_in()
-                elif number == 6:
-                    self. zoom_out()
-                elif number == 7:
-                    self.clear_plot()
+                if number == 3: self.full_graphics()
+                elif number == 2: self.toggle_view()
+                elif number == 4: self.edit_mode()
+                elif number == 5: self. zoom_in()
+                elif number == 6: self. zoom_out()
+                elif number == 7: self.clear_plot()
                 else: raise nofunnction
             else: raise nofunnction
-        #except :
-         #   print "Vbutton %d_%d clicked but no function"% (mode,number)
+        except :
+            print "Vbutton %d_%d clicked but no function"% (mode,number)
 
     def on_button_v0_2_pressed(self,*args):
         self.do_jog(1)
@@ -786,7 +778,34 @@ class Gscreen:
                     self.halcomp[pinname + "-response"] = result
                 self.halcomp[pinname + "-waiting"] = False
 
+    def toggle_overrides(self,widget,mode,number):
+        print widget.get_active()
+        for i in range(0,4):
+            if i == number:continue
+            self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+            self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
+            self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
 # ****** do stuff *****
+
+    def graphics(self,*args):
+        print "show/hide graphics buttons"
+        if self.widgets.button_graphics.get_active():
+            for i in range(0,4):
+                self.widgets["mode%d"% i].hide()
+            self.widgets.mode5.show()
+        else:
+            self.widgets.mode5.hide()
+            self.mode_changed(self.data.mode_order[0])
+
+    def override(self,*args):
+        print "show/hide override buttons"
+        if self.widgets.button_override.get_active():
+            for i in range(0,4):
+                self.widgets["mode%d"% i].hide()
+            self.widgets.mode4.show()
+        else:
+            self.widgets.mode4.hide()
+            self.mode_changed(self.data.mode_order[0])
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acklowedge.
