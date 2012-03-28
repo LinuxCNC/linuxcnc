@@ -104,13 +104,46 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
+extern struct _inittab builtin_modules[];
 int trace;
 
 Interp::Interp()
     : log_file(stderr)  
 {
     _setup.init_once = 1;  
-    init_named_parameters();  
+    init_named_parameters();  // need this before Python init.
+ 
+    if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
+	Error("Interp ctor: cant instantiate Python plugin");
+	return;
+    }
+
+    try {
+	// this import will register the C++->Python converter for Interp
+	bp::object interp_module = bp::import("interpreter");
+	
+	// use a boost::cref to avoid per-call instantiation of the
+	// Interp Python wrapper (used for the 'self' parameter in handlers)
+	// since interp.init() may be called repeatedly this would create a new
+	// wrapper instance on every init(), abandoning the old one and all user attributes
+	// tacked onto it, so make sure this is done exactly once
+	_setup.pythis =  boost::python::object(boost::cref(this));
+	
+	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
+	// besides 'this', eventually use proper instance names to handle
+	// several instances 
+	bp::scope(interp_module).attr("this") =  _setup.pythis;
+    }
+    catch (bp::error_already_set) {
+	std::string exception_msg;
+	if (PyErr_Occurred()) {
+	    exception_msg = handle_pyerror();
+	} else
+	    exception_msg = "unknown exception";
+	bp::handle_exception();
+	PyErr_Clear();
+	Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+    }
 }
 
 
@@ -881,36 +914,10 @@ int Interp::init()
           }
 
 	  // initialize the Python plugin singleton
-	  extern struct _inittab builtin_modules[];
-	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
-	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
-		  try {
-		      // this import will register the C++->Python converter for Interp
-		      bp::object interp_module = bp::import("interpreter");
-
-		      // use a boost::cref to avoid per-call instantiation of the 
-		      // Interp Python wrapper (used for the 'self' parameter in handlers)
-		      // since interp.init() may be called repeatedly this would create a new
-		      // wrapper instance on every init(), abandoning the old one and all user attributes
-		      // tacked onto it, so make sure this is done exactly once
-		      if (_setup.init_once)  
-			  _setup.pythis =  boost::python::object(boost::cref(this));
-
-		      // alias to 'interpreter.this' for the sake of ';py, .... ' comments
-		      bp::scope(interp_module).attr("this") =  _setup.pythis;
-		  }
-		  catch (bp::error_already_set) {
-		      std::string exception_msg;
-		      if (PyErr_Occurred()) {
-			  exception_msg = handle_pyerror();
-		      } else
-			  exception_msg = "unknown exception";
-		      bp::handle_exception();
-		      PyErr_Clear();
-		      Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
-		  }
-	      } else {
-		  Error("no Python plugin available");
+          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
+	      int status = python_plugin->configure(iniFileName,"PYTHON");
+	      if (status != PLUGIN_OK) {
+		  Error("Python plugin configure() failed, status = %d", status);
 	      }
 	  }
  
