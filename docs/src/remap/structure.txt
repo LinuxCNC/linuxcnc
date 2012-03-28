@@ -2609,6 +2609,14 @@ platform trying to run gladevcp.
 
 ==  Workarounds
 
+The workaround mentioned below was necessary up to commit
+d21a488a9e82dd85aa17207b80e3d930afeff202 . References to
+DISPLAY_LD_PRELOAD and TASK_LD_PRELOAD have been removed from the ini
+files under configs/sim/remap because they are not needed anymore.
+
+Configure now tests whether a workaround is required, and
+automatically does 'the right thing' if needed.
+
  # Michael Haberler 4/2011
  #
  # if you get a segfault like described
