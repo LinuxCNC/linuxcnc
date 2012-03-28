@@ -72,7 +72,7 @@ ldpreload_main: ldpreload_main.o
 	gcc -fPIC -o $@ $^ -ldl 
 
 ldpreload_crash.o: %.o: %.cpp
-	$(CXX) -c $< -o $@
+	$(CXX) -fPIC -c $< -o $@
 
 ldpreload_main.o: %.o: %.c
 	gcc -c $< -o $@
