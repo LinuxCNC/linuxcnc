@@ -133,6 +133,10 @@ Interp::Interp()
 	// besides 'this', eventually use proper instance names to handle
 	// several instances 
 	bp::scope(interp_module).attr("this") =  _setup.pythis;
+
+	// make "this" visible without importing interpreter explicitly
+	bp::object retval;
+	python_plugin->run_string("from interpreter import this", retval, false);
     }
     catch (bp::error_already_set) {
 	std::string exception_msg;
