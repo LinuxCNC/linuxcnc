@@ -93,6 +93,23 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
+fi
+
+
+
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -673,6 +690,8 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
+
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -688,6 +707,7 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
+AC_SUBST([PRELOAD_WORKAROUND])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #

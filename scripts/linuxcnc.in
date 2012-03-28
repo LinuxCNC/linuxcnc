@@ -64,6 +64,9 @@ else
 fi
 export PYTHONPATH
 
+PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
+
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -97,6 +100,8 @@ Usage:
 EOF
 
 }
+
+
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -334,8 +339,6 @@ EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
 
-GetFromIni TASK_LD_PRELOAD TASK
-TASK_LD_PRELOAD=$retval
 
 
 # 2.6. we hardcode the server name, change if needed
@@ -351,9 +354,6 @@ HALUI=$retval
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
-
-GetFromIni DISPLAY_LD_PRELOAD DISPLAY
-DISPLAY_LD_PRELOAD=$retval
 
 case $EMCDISPLAY in
     tkemc) EMCDISPLAY=tklinuxcnc ;;
@@ -693,22 +693,14 @@ if ! program_available $EMCTASK ; then
     exit 1
 fi
 
-# setup LD_PRELOAD for task if given
+# setup LD_PRELOAD  if deemed necessary by configure
 unset LD_PRELOAD
-if [ -n "$TASK_LD_PRELOAD" ] ; then
-	# Export LD_PRELOAD
-	export LD_PRELOAD=$TASK_LD_PRELOAD
+if [ -n "$PRELOAD_WORKAROUND" ] ; then
+	export LD_PRELOAD=$PRELOAD_WORKAROUND
 fi
 
 $EMCTASK -ini "$INIFILE" &
 echo task pid=$!
-
-# setup LD_PRELOAD for display if given
-unset LD_PRELOAD
-if [ -n "$DISPLAY_LD_PRELOAD" ] ; then
-	# Export LD_PRELOAD
-	export LD_PRELOAD=$DISPLAY_LD_PRELOAD
-fi
 
 # 4.3.10. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
