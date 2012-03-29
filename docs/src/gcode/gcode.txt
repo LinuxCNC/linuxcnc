@@ -705,10 +705,9 @@ It is an error if:
 (((G10 L20 Set Coordinate System)))
 
 ----
-G10 L20 P- axes <R->
+G10 L20 P- axes
 ----
 * 'P' - coordinate system (0-9)
-* 'R' - rotation about the Z axis
 
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
