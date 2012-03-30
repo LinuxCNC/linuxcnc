@@ -35,7 +35,7 @@ include::gui/ngcgui_es.txt[]
 
 include::gui/touchy_es.txt[]
 
-include::gui/tkemc_es.txt[]
+include::gui/tklinuxcnc_es.txt[]
 
 include::gui/mini_es.txt[]
 

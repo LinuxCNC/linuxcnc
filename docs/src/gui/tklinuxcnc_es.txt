@@ -24,7 +24,7 @@ DISPLAY = tklinuxcnc
 ----
 
 Then, start LinuxCNC and select that ini file. The sample configuration
-'sim/tkemc.ini' is already configured to use TkLinuxCNC as its front-end.
+'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
 
 === A typical session with TkLinuxCNC
 

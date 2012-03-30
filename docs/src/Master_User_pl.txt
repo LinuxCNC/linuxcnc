@@ -33,7 +33,7 @@ include::gui/ngcgui_pl.txt[]
 
 include::gui/touchy_pl.txt[]
 
-include::gui/tkemc_pl.txt[]
+include::gui/tklinuxcnc_pl.txt[]
 
 include::gui/mini_pl.txt[]
 

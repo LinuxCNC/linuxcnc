@@ -28,7 +28,7 @@ DISPLAY = tklinuxcnc
 ----
 
 Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration qui se
-trouve dans _sim/tkemc.ini_ est déjà configurée pour utiliser TkLinuxCNC
+trouve dans _sim/tklinuxcnc/tklinuxcnc.ini_ est déjà configurée pour utiliser TkLinuxCNC
 comme interface utilisateur.
 
 Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre 

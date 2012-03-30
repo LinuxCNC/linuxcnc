@@ -280,11 +280,11 @@ DOC_SRCS := \
 	gui/ngcgui_es.txt \
 	gui/ngcgui_fr.txt \
 	gui/ngcgui_pl.txt \
-	gui/tkemc.txt \
-	gui/tkemc_de.txt \
-	gui/tkemc_es.txt \
+	gui/tklinuxcnc.txt \
+	gui/tklinuxcnc_de.txt \
+	gui/tklinuxcnc_es.txt \
 	gui/tklinuxcnc_fr.txt \
-	gui/tkemc_pl.txt \
+	gui/tklinuxcnc_pl.txt \
 	gui/touchy.txt \
 	gui/touchy_de.txt \
 	gui/touchy_es.txt \
