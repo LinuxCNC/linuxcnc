@@ -551,7 +551,7 @@ $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
-		
+
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf: $(DOC_SRCDIR)/Master_Getting_Started_de.pdf
@@ -617,7 +617,7 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \
 	sed "s/@VERSION@/`cat ../VERSION`/" > $@	
-	
+
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 
@@ -695,7 +695,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p objects/image-cache
 	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
 				(X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -704,7 +704,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_en.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -722,7 +722,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_pl.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -731,7 +731,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_es.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_de.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -740,20 +740,20 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_de.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 $(DOC_DIR)/html/xref_de.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_de" --stringparam language german --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 default: docs
 
 install-doc-pdf:
