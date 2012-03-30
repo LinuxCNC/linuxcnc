@@ -38,7 +38,7 @@ old = tmp;
 
 Si une version pré-installée de LinuxCNC est utilisée, il sera nécessaire
 d'installer les paquets de développement en passant par Synaptic depuis le menu
-_Système -> Administration -> Gestionnaire de paquets Synaptic_ ou en utilisant
+_Système → Administration → Gestionnaire de paquets Synaptic_ ou en utilisant
 la commande suivante dans un terminal:
 
 .Installation des paquets de développement

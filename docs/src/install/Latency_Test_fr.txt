@@ -30,7 +30,7 @@ d'exécuter _un test de latence_.
 La seule façon de découvrir ce qu'il en est sur un PC est d'exécuter le test
 de latence de HAL.
 Pour exécuter ce test, ouvrir une fenêtre de terminal à partir de _Applications
--> Accessoires -> Terminal_ et exécuter la commande suivante:
+→ Accessoires → Terminal_ et exécuter la commande suivante:
 
 ----
 latency-test

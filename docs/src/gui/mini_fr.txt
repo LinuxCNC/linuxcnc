@@ -266,7 +266,7 @@ même manière qu'avec l'interface TkLinuxCNC.
 image::images/miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
-Si l'opérateur veut les voir, il doit utiliser le menu _Informations ->
+Si l'opérateur veut les voir, il doit utiliser le menu _Informations →
 G-codes actifs_ et afficher ainsi la liste des codes modaux dans la
 zône de texte MESSAGES.
 
@@ -553,8 +553,8 @@ s'effectuent vers le bas. Quand un nouvel outil est ajouté, il est
 utilisable dans le programme avec la commande G-code habituelle. Le
 nombre maximum d'outils est de 32 dans le fichier de configuration
 de LinuxCNC mais vous serez arrivé au bout des possibilités d'affichage de
-Mini bien avant celà. A la place vous pouvez utiliser le _menu ->
-Vues -> Afficher dans toute la fenêtre_ pour voir plus d'outils si
+Mini bien avant celà. A la place vous pouvez utiliser le _menu →
+Vues → Afficher dans toute la fenêtre_ pour voir plus d'outils si
 nécessaire.
 
 === Page des offsets

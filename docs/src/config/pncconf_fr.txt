@@ -49,7 +49,7 @@ Elles disparaitront quand le logiciel sera finalisé.
 
 == Instructions pas à pas
 
-Démarrer le programme depuis le menu _Applications -> CNC -> PNCconf_ ou
+Démarrer le programme depuis le menu _Applications → CNC → PNCconf_ ou
 depuis un terminal avec la commande:
 
 ----
@@ -124,7 +124,7 @@ utilisant les ports parallèles de la carte mère.
 
 Le test standard dans LinuxCNC, consiste à vérifier la latence de base du PC. Un
 appui sur le bouton _Test de latence_ lancera le test de latence, il est
-également possible de le lancer depuis le menu _application -> cnc -> latency
+également possible de le lancer depuis le menu _application → cnc → latency
 test_. Une fenêtre s'ouvre dans laquelle s'affichent les temps mesurés.
 Ce test doit fonctionner plusieurs minutes, en fait, le plus longtemps possible.
 15 minutes est un minimum. Pendant le test, essayer d'utiliser le plus possible

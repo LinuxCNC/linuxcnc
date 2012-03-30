@@ -128,7 +128,7 @@ de l'intégrateur).
 
 Quand la machine se déplace, elle laisse un tracé appelé parcours
 d'outil. La fenêtre d'affichage du parcours d'outil s'active via le
-menu _Vues -> Parcours d'outil_.
+menu _Vues → Parcours d'outil_.
 
 === Contrôle en automatique
 

@@ -237,7 +237,7 @@ Le résultat pourrait ressembler à cela:
 image::images/glade-manual-small.png[]
 
 Glade a tendance à écrire beaucoup de messages dans la fenêtre du terminal, la
-plupart peuvent être ignorés. Sélectionner _Fichier -> Enregistrer sous_, donner lui
+plupart peuvent être ignorés. Sélectionner _Fichier → Enregistrer sous_, donner lui
 un nom comme _myui.ui_ et bien vérifier qu'il sera enregistré comme un fichier
 _GtkBuilder_ (bouton radio en bas à gauche du dialogue d'enregistrement). 
 GladeVCP peut aussi traiter correctement l'ancien format _libglade_ mais il n'y 
@@ -470,7 +470,7 @@ ainsi que la documentation pour les liaisons avec http://www.pygtk.org/[PyGTK].
 === Nommage des Widgets HAL et de leurs pins
 
 La plupart des widgets HAL on une simple pin de HAL associée et portant le même 
-nom que le widget (glade: Général->Nom).
+nom que le widget (glade: Général→Nom).
 
 Les exceptions à cette règle sont actuellement:
 
@@ -555,7 +555,7 @@ Définir les groupes de boutons radio dans Glade:
 
 - Décider du bouton actif par défaut
 
-- Dans les boutons radio, _Général->Groupe_ sélectionner le nom du bouton actif 
+- Dans les boutons radio, _Général→Groupe_ sélectionner le nom du bouton actif 
   par défaut dans le dialogue _Choisir un Bouton radio pour ce projet_.
 
 Voir +configs/gladevcp/by-widget/radiobutton+ pour une application GladeVCP avec 
@@ -572,7 +572,7 @@ Elles ont une pin de sortie FLOAT portant le même nom que le widget. Les échel
 n'ont pas de propriété additionnelle.
 
 Pour créer une échelle fonctionnelle dans Glade, ajouter un _Ajustement_
-(Général->Ajustement->Nouveau ou existant) et éditer l'objet ajustement. Il défini
+(Général→Ajustement→Nouveau ou existant) et éditer l'objet ajustement. Il défini
 les valeurs défaut/min/max/incrément. Fixer la _Sensibilité de l'incrément_ de 
 l'ajustement sur automatique pour éviter les warnings.
 
@@ -605,7 +605,7 @@ d'une pin de HAL dans un format défini par l'utilisateur.
 
 HAL pin type::
 	Les pins de HAL sont des types (0:S32, 1:float ou 2:U32), voir aussi l'infobulle
-    d'info sur _Général -> HAL pin type_, (noter que c'est différent de PyVCP qui
+    d'info sur _Général → HAL pin type_, (noter que c'est différent de PyVCP qui
     lui, a trois widgets label, un pour chaque type).
 
 text template::
@@ -879,7 +879,7 @@ en quelques mots:
  - Il n'a pas d'apparence visuelle par lui-même.
  - Son but: associer à un composant d'interface visible, à un composant 
    d'interface sensitif, comme un menu, un bouton outil, un bouton avec une
-   commande. Voir les propriétés des widgets Action dans _Général -> Related
+   commande. Voir les propriétés des widgets Action dans _Général → Related
    Action_ de l'éditeur.
  - L'action préprogrammée sera exécutée quand l'état du composant associé basculera
    (bouton pressé, menu cliqué...)
