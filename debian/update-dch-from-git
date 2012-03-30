@@ -18,7 +18,7 @@ fi
 DEB_VERSION=`git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/'`
 
 NEW_DEB_VERSION=$(echo $GIT_VERSION | sed -r 's/-pre/~pre/; s/-/./g')
-NEW_DEB_VERSION="1:${NEW_DEB_VERSION/v/}"
+NEW_DEB_VERSION="${NEW_DEB_VERSION/v/}"
 
 if [ "$NEW_DEB_VERSION" = "$DEB_VERSION" ]; then
     echo "no changes since the version at the top of the debian/changelog file"
