@@ -15,9 +15,9 @@ Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
-Conflicts: emc2-dev
-Replaces: emc2-dev
-Provides: emc2-dev
+Conflicts: @OLD_PACKAGE_NAME@-dev
+Replaces: @OLD_PACKAGE_NAME@-dev
+Provides: @OLD_PACKAGE_NAME@-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
