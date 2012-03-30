@@ -17,6 +17,7 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: emc2-dev
 Replaces: emc2-dev
+Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
@@ -33,6 +34,7 @@ Description: PC based motion controller for real-time Linux
 
 Package: @MAIN_PACKAGE_NAME@
 Replaces: @OLD_PACKAGE_NAME@
+Provides: @OLD_PACKAGE_NAME@
 Conflicts: emc2, emc2-sim
 Architecture: any
 Recommends: hostmot2-firmware, linuxcnc-doc-en | linuxcnc-doc-fr | linuxcnc-doc-de | linuxcnc-doc-es | linuxcnc-doc-pl
@@ -54,8 +56,9 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
 
 Package: linuxcnc-doc-en
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-en
 Replaces: emc2-doc-en
+Provides: emc2-doc-en
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -67,8 +70,9 @@ Description: PC based motion controller for real-time Linux
  This package contains the documentation in English.
 
 Package: linuxcnc-doc-fr
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-fr
 Replaces: emc2-doc-fr
+Provides: emc2-doc-fr
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -80,8 +84,9 @@ Description: PC based motion controller for real-time Linux
  This package contains the documentation in French.
 
 Package: linuxcnc-doc-de
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-de
 Replaces: emc2-doc-de
+Provides: emc2-doc-de
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -93,8 +98,9 @@ Description: PC based motion controller for real-time Linux
  This package contains the documentation in German.
 
 Package: linuxcnc-doc-es
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-es
 Replaces: emc2-doc-es
+Provides: emc2-doc-es
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -106,8 +112,9 @@ Description: PC based motion controller for real-time Linux
  This package contains the documentation in Spanish.
 
 Package: linuxcnc-doc-pl
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-pl
 Replaces: emc2-doc-pl
+Provides: emc2-doc-pl
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
