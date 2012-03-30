@@ -37,7 +37,7 @@ Replaces: @OLD_PACKAGE_NAME@
 Provides: @OLD_PACKAGE_NAME@
 Conflicts: emc2, emc2-sim
 Architecture: any
-Recommends: hostmot2-firmware, linuxcnc-doc-en | linuxcnc-doc-fr | linuxcnc-doc-de | linuxcnc-doc-es | linuxcnc-doc-pl
+Recommends: linuxcnc-doc-en | linuxcnc-doc-fr | linuxcnc-doc-de | linuxcnc-doc-es | linuxcnc-doc-pl, @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),

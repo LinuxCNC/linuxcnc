@@ -120,6 +120,7 @@ esac
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
 OLD_PACKAGE_NAME=emc2
+EXTRA_RECOMMENDS=hostmot2-firmware
 case $TARGET in
     sim)
         MODULE_PATH=usr/lib/linuxcnc/modules
@@ -131,6 +132,9 @@ case $TARGET in
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
 	OLD_PACKAGE_NAME=emc2-sim
+
+        # don't bother recommending hostmot2 firmware on sim
+        EXTRA_RECOMMENDS=
     ;;
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
@@ -156,6 +160,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
+    -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
