@@ -6,7 +6,28 @@
 
 == Mise à jour 2.4.x à 2.5.x
 
-Auncun changement de configuration n'est nécessaire pour passer de 2.4.x à 2.5.x
+Release 2.5.0 of LinuxCNC switched the name from "EMC2" to "LinuxCNC". All
+programs with "emc" in the name changed to "linuxcnc" instead. All
+documentation was updated.
+
+The user configs moved from $HOME/emc2 to $HOME/linuxcnc, so you will
+need to rename your directory, or move your files to the new place.
+
+The hostmot2 watchdog in LinuxCNC 2.5 does not start running until the
+HAL threads start running. This means it now tolerates a timeout on the
+order of the servo thread period, instead of requiring a timeout that's
+on the order of the time between loading the driver and starting the HAL
+threads. This typically means a few milliseconds (a few times the servo
+thread period) instead of many hundreds of milliseconds. The default
+has been lowered from 1 second to 5 milliseconds. You generally don't
+need to set the hm2 watchdog timeout any more, unless you've changed
+your servo thread period.
+
+The old driver for the Mesa 5i20, hal_m5i20, has been removed after being
+deprecated in favor of hostmot2 since early 2009 (version 2.3.) If you
+are still using this driver, you will need to build a new configuration
+using the hostmot2 driver. Pncconf may help you do this, and we have
+some sample configs (hm2-servo and hm2-stepper) that act as examples.
 
 == Mise à jour 2.3.x à 2.4.x
 
