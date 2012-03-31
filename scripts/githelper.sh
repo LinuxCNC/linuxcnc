@@ -76,11 +76,11 @@ function githelper() {
     fi
 
     if [ $NEWEST_UNSIGNED_TAG_UTIME -gt -1 ]; then
-        echo "no signed tags found, falling back to unsigned tags"
+        echo "no signed tags found, falling back to unsigned tags" > /dev/null 1>&2
         GIT_TAG="$NEWEST_UNSIGNED_TAG"
         return
     fi
 
-    echo "no annotated tags found, not even unsigned"
+    echo "no annotated tags found, not even unsigned" > /dev/null 1>&2
 }
 
