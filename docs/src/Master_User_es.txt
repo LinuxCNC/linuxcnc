@@ -1,4 +1,4 @@
-Manual del Usuario V0.1, {localdate}
+Manual del Usuario V2.5, {localdate}
 ====================================
 
 :lang: es

@@ -1,4 +1,4 @@
-HAL-Handbuch V0.1, {localdate}
+HAL-Handbuch V2.5, {localdate}
 ============================
 
 :lang: de
