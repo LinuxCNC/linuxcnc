@@ -759,10 +759,9 @@ C'est une erreur si:
 (((G10 L20 Établissement de l'origine d'un système de coordonnées)))
 
 ----
-G10 L20 P- axes <R->
+G10 L20 P- axes
 ----
 * _P_ - système de coordonnées (0-9)
-* _R_ - rotation autour de l'axe Z
 
 G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des 
 valeurs données, il les place à des valeurs calculées de sorte que les 

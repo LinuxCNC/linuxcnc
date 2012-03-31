@@ -6,28 +6,29 @@
 
 == Mise à jour 2.4.x à 2.5.x
 
-Release 2.5.0 of LinuxCNC switched the name from "EMC2" to "LinuxCNC". All
-programs with "emc" in the name changed to "linuxcnc" instead. All
-documentation was updated.
+La version 2.5.0 de LinuxCNC change de nom, elle passe de "EMC2" vers
+"LinuxCNC". Tous les programmes dont les noms contenaient "emc" ont été
+renommés pour contenir "linuxcnc". Toute la documentation à été mise à jour.
 
-The user configs moved from $HOME/emc2 to $HOME/linuxcnc, so you will
-need to rename your directory, or move your files to the new place.
+Les configurations utilisateur ont migré de $HOME/emc2 vers $HOME/linuxcnc,
+il sera nécessaire de renommer l'ancien répertoire si il existe, ou de déplacer
+les fichiers vers ce nouvel endroit.
+Le watchdog de hostmod2 dans LinuxCNC 2.5 ne démarre qu'après que les threads
+de HAL soient eux-même démarrés. Cela signifie qu'il tolère désormais un
+délai d'attente de l'ordre de la période servo thread, au lieu de nécessiter
+un délai qui soit de l'ordre du temps entre le chargement du pilote
+et le démarrage des threads de HAL. Ce qui signifie, de l'ordre de quelques
+millisecondes (quelques périodes du thread servo) au lieu de plusieurs 
+centaines de millisecondes préalablement. La valeur par défaut est descendue
+de 1 seconde à 5 millisecondes. Vous ne devriez donc plus avoir a ajuster le
+délai du watchdog, à moins que vous ne modifiez la période du threads servo.
 
-The hostmot2 watchdog in LinuxCNC 2.5 does not start running until the
-HAL threads start running. This means it now tolerates a timeout on the
-order of the servo thread period, instead of requiring a timeout that's
-on the order of the time between loading the driver and starting the HAL
-threads. This typically means a few milliseconds (a few times the servo
-thread period) instead of many hundreds of milliseconds. The default
-has been lowered from 1 second to 5 milliseconds. You generally don't
-need to set the hm2 watchdog timeout any more, unless you've changed
-your servo thread period.
-
-The old driver for the Mesa 5i20, hal_m5i20, has been removed after being
-deprecated in favor of hostmot2 since early 2009 (version 2.3.) If you
-are still using this driver, you will need to build a new configuration
-using the hostmot2 driver. Pncconf may help you do this, and we have
-some sample configs (hm2-servo and hm2-stepper) that act as examples.
+Les anciens pilotes pour les cartes Mesa 5i20, hal_m5i20, ont été enlevés, ils
+étaient obsolètes et remplacés par hostmot2 depuis 2009 (version 2.3.) 
+Si vous utilisiez ces pilotes, vous devrez reconstruire une nouvelle
+configuration utilisant le pilote hostmod2. Pncconf peux vous y aider et il
+contient quelques exemples de configurations (hm2-servo et hm2-stepper)
+qui vous serviront d'exemple.
 
 == Mise à jour 2.3.x à 2.4.x
 
