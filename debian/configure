@@ -119,6 +119,7 @@ esac
 
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
+OTHER_MAIN_PACKAGE_NAME=linuxcnc-sim
 OLD_PACKAGE_NAME=emc2
 EXTRA_RECOMMENDS=hostmot2-firmware
 case $TARGET in
@@ -131,6 +132,7 @@ case $TARGET in
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
+        OTHER_MAIN_PACKAGE_NAME=linuxcnc
 	OLD_PACKAGE_NAME=emc2-sim
 
         # don't bother recommending hostmot2 firmware on sim
@@ -162,6 +164,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
+    -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
