@@ -30,8 +30,8 @@ software:
 
     and click the Edit button.
 
-* In the Components field, change emc2.4 to linuxcnc2.5, or change
-  emc2.4-sim to linuxcnc2.5-sim
+* In the Components field, change `emc2.4` to `linuxcnc2.5`, or change
+  `emc2.4-sim` to `linuxcnc2.5-sim`.
 
 * Click the OK button.
 
@@ -47,7 +47,7 @@ it to install it:
 * Click on the System menu in the top panel and select
   Administration->Synaptic Package Manager
 
-* In the Quick Search bar at the top, type linuxcnc.
+* In the Quick Search bar at the top, type `linuxcnc`.
 
 * Click the check box to mark the new linuxcnc package for installation.
 
@@ -83,11 +83,19 @@ First you need to tell your computer where to find the new LinuxCNC software:
 
 * Back in the Synaptic Package Manager window, click the Reload button.
 
+
 Now your computer knows about the new software, next we need to tell it to install it:
 
-* Click the Mark All Upgrades button.
+* In the Synaptic Package Manager, click the Search button.
 
-* Click acceptance until it downloads and installs all the new packages.
+* In the Find dialog window that pops up, type `linuxcnc` and click the
+  Search button.
+
+* Click the check-box to mark the linuxcnc package for installation.
+
+* Click the Apply button, and let your computer install the new
+  package. The old emc 2.4 package will be automatically removed to make
+  room for the new LinuxCNC 2.5 package.
 
 == Config changes
 
