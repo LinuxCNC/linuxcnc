@@ -2499,25 +2499,6 @@ static int emcTaskExecute(void)
 	}
 	break;
 
-    case EMC_TASK_EXEC_WAITING_FOR_PAUSE:
-	STEPPING_CHECK();
-	if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
-	    if (0 != emcTaskCommand) {
-		if (emcStatus->motion.traj.queue > 0) {
-		    emcStatus->task.execState =
-			EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE;
-		} else {
-		    emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
-			emcTaskCheckPreconditions(emcTaskCommand);
-		    emcTaskEager = 1;
-		}
-	    } else {
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-		emcTaskEager = 1;
-	    }
-	}
-	break;
-
     case EMC_TASK_EXEC_WAITING_FOR_MOTION:
 	STEPPING_CHECK();
 	if (emcStatus->motion.status == RCS_ERROR) {
