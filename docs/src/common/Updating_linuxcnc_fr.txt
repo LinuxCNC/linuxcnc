@@ -42,7 +42,7 @@ paquets Synaptic_
  - L'ancien paquet emc 2.4 sera automatiquement supprimé pour laisser place au
 nouveau paquet LinuxCNC 2.5.
 
-=== On Ubuntu Hardy 8.04
+=== Sous Ubuntu Hardy 8.04
 
 Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
 
