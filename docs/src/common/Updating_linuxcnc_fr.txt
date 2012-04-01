@@ -4,104 +4,74 @@
 = Mises à jour de LinuxCNC
 
 
-== Mise à jour 2.4.x à 2.5.x
+== Mise à jour de 2.4.x vers 2.5.x
 
-La version 2.5.0 de LinuxCNC change de nom, elle passe de "EMC2" vers
-"LinuxCNC". Tous les programmes dont les noms contenaient "emc" ont été
-renommés pour contenir "linuxcnc". Toute la documentation à été mise à jour.
+La version 2.5.0 de LinuxCNC change de nom, elle passe de _EMC2_ vers
+_LinuxCNC_. Tous les programmes dont les noms contenaient _emc_ ont été
+renommés pour contenir _linuxcnc_. Toute la documentation à été mise à jour.
 
-Additionally, the name of the debian package containing the software
-has changed. Unfortunately this breaks automatic upgrades. To upgrade
-from emc2 2.4.X to linuxcnc 2.5.X, do the following:
+De plus, le nom du paquet debian contenant le logiciel a changé.
+Malheureusement les mises à jour automatiques sont cassées. Pour mettre à jour
+depuis emc2 2.4.X vers linuxcnc 2.5.X, suivez ces méthodes:
 
-=== On Ubuntu Lucid 10.04
+=== Sous Ubuntu Lucid 10.04
 
-First you need to tell your computer where to find the new LinuxCNC
-software:
+Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
 
-* Click on the System menu in the top panel and select
-  Administration->Software Sources.
+ - Dans le menu, cliquer sur _Système -> Administration -> Sources de logiciels_.
+ - Sélectionner l'onglet _Autres logiciels_.
+ - Sélectionner la ligne indiquant _http://www.linuxcnc.org/emc2 lucid base
+emc2.4_ ou _http://www.linuxcnc.org/emc2 lucid base emc2.4-sim_ puis cliquer le
+bouton _Éditer_.
+ - Dans le champ _Composants_, modifier _emc2.4_ par _linuxcnc2.5_, ou
+_emc2.4-sim_ par _linuxcnc2.5-sim_.
+ - Cliquer enfin sur le bouton _Valider_.
+ - De retour dans la fenêtre des sources de logiciels, onglet _Autres
+logiciels_, cliquer sur le bouton _Fermer_.
+ - Une fenêtre surgissante informe alors que _Les informations sur les
+logiciels disponibles sont obsolètes_. Cliquer le bouton _Actualiser_.
 
-* Select the Other Software tab.
+Maintenant l'ordinateur sait où trouver le nouveau logiciel, ensuite il faudra
+lui demander de l'installer:
 
-* Select the entry that says
-
-    http://linuxcnc.org/lucid lucid base emc2.4
-
-    or
-
-    http://linuxcnc.org/lucid lucid base emc2.4-sim
-
-    and click the Edit button.
-
-* In the Components field, change `emc2.4` to `linuxcnc2.5`, or change
-  `emc2.4-sim` to `linuxcnc2.5-sim`.
-
-* Click the OK button.
-
-* Back in the Software Sources window, Other Software tab, click the
-  Close button.
-
-* It will pop up a window informing you that the information about
-  available software is out-of-date. Click the Reload button.
-
-Now your computer knows about the new software, next we need to tell
-it to install it:
-
-* Click on the System menu in the top panel and select
-  Administration->Synaptic Package Manager
-
-* In the Quick Search bar at the top, type `linuxcnc`.
-
-* Click the check box to mark the new linuxcnc package for installation.
-
-* Click the Apply button, and let your computer install the new
-  package. The old emc 2.4 package will be automatically removed to make
-  room for the new LinuxCNC 2.5 package.
+ - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
+paquets Synaptic_
+ - Dans la barre de recherche rapide, en haut, taper _linuxcnc_.
+ - Cocher la case pour valider l'installation du nouveau paquet linuxcnc.
+ - Cliquer sur le bouton _Appliquer_ et laisser le paquet s'installer.
+ - L'ancien paquet emc 2.4 sera automatiquement supprimé pour laisser place au
+nouveau paquet LinuxCNC 2.5.
 
 === On Ubuntu Hardy 8.04
 
-First you need to tell your computer where to find the new LinuxCNC software:
+Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
 
-* Click on the System menu in the top panel and select Administration->Synaptic Package Manager
+ - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
+paquets Synaptic_
+ - Aller dans le menu _Configuration -> Dépôts_.
+ - Sélectionner l'onglet _Logiciels tiers_.
+ - Sélectionner la ligne indiquant _http://linuxcnc.org/hardy hardy emc2.4_ ou
+_http://linuxcnc.org/hardy hardy emc2.4-sim_ et cliquer sur le bouton _Éditer_.
+ - Dans le champs _Composants_, modifier _emc2.4_ par _linuxcnc2.5_ ou
+_emc2.4-sim_ par _linuxcnc2.5-sim_.
+ - Cliquer sur le bouton _Valider_.
+ - De retour dans la fenêtre des sources de logiciels, cliquer sur le
+bouton _Fermer_.
+ - De retour dans la fenêtre de Synaptic, cliquer sur le bouton _Actualiser_.
 
-* Go to Settings->Repositories.
+Maintenant l'ordinateur sait où trouver le nouveau logiciel, ensuite il faudra
+lui demander de l'installer:
 
-* Select the "Third-Party Software" tab.
+ - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
+paquets Synaptic_, cliquer sur le bouton _Rechercher_.
+ - Dans le champ du dialogue de recherche qui s'ouvre, taper _linuxcnc_ puis
+cliquer sur le bouton _Rechercher_.
+ - Cocher la case pour valider l'installation du paquet _linuxcnc_.
+ - Cliquer sur le bouton _Appliquer_ et laisser le nouveau paquet s'installer.
+ - L'ancien paquet emc 2.4 sera automatiquement supprimé pour laisser place au
+nouveau paquet LinuxCNC 2.5.
 
-* Select the entry that says
-
-    http://linuxcnc.org/hardy hard emc2.4
-
-    or
-
-    http://linuxcnc.org/hardy hardy emc2.4-sim
-
-    and click the Edit button.
-
-* In the Components field, change `emc2.4` to `linuxcnc2.5` or `emc2.4-sim` to `linuxcnc2.5-sim`.
-
-* Click the OK button.
-
-* Back in the Software Sources window, click the Close button.
-
-* Back in the Synaptic Package Manager window, click the Reload button.
-
-
-Now your computer knows about the new software, next we need to tell it to install it:
-
-* In the Synaptic Package Manager, click the Search button.
-
-* In the Find dialog window that pops up, type `linuxcnc` and click the
-  Search button.
-
-* Click the check-box to mark the linuxcnc package for installation.
-
-* Click the Apply button, and let your computer install the new
-  package. The old emc 2.4 package will be automatically removed to make
-  room for the new LinuxCNC 2.5 package.
-
-== Config changes
+== Changement de configuration
 
 Les configurations utilisateur ont migré de $HOME/emc2 vers $HOME/linuxcnc,
 il sera nécessaire de renommer l'ancien répertoire si il existe, ou de déplacer
