@@ -79,6 +79,15 @@ to another.
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 #include <stdarg.h>
+#include <limits.h>
+
+
+// define a special value to denote an invalid motion ID 
+// NB: do not ever generate a motion id of INT_MIN
+// this should be really be tested for in command.c 
+
+#define MOTION_INVALID_ID INT_MIN
+#define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
 extern "C" {
