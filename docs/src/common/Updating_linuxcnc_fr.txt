@@ -23,6 +23,7 @@ Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
  - Sélectionner la ligne indiquant _http://www.linuxcnc.org/emc2 lucid base
 emc2.4_ ou _http://www.linuxcnc.org/emc2 lucid base emc2.4-sim_ puis cliquer le
 bouton _Éditer_.
+ - Dans le champ _URI_, remplacer la ligne courante par _http://www.linuxcnc.org_
  - Dans le champ _Composants_, modifier _emc2.4_ par _linuxcnc2.5_, ou
 _emc2.4-sim_ par _linuxcnc2.5-sim_.
  - Cliquer enfin sur le bouton _Valider_.
@@ -30,6 +31,8 @@ _emc2.4-sim_ par _linuxcnc2.5-sim_.
 logiciels_, cliquer sur le bouton _Fermer_.
  - Une fenêtre surgissante informe alors que _Les informations sur les
 logiciels disponibles sont obsolètes_. Cliquer le bouton _Actualiser_.
+
+ - Suivre la même procédure pour le _Code source_.
 
 Maintenant l'ordinateur sait où trouver le nouveau logiciel, ensuite il faudra
 lui demander de l'installer:
