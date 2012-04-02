@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-11 12:55+0200\n"
+"PO-Revision-Date: 2012-04-02 15:07+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 0.5\n"
+"X-Generator: Weblate 0.7\n"
 
 #: src/hal/utils/meter.c:198
 #, c-format
@@ -782,7 +782,7 @@ msgstr "在坐標模式做剛性攻絲移動,需要啟動指令"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "不能做剛性攻絲移動當超過極限"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
