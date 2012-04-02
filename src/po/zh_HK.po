@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-02 15:16+0200\n"
+"PO-Revision-Date: 2012-04-02 15:21+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -865,7 +865,7 @@ msgstr ""
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr ""
+msgstr "碰到極限在歸零狀態 %d"
 
 #: src/emc/motion/homing.c:90
 #, c-format
