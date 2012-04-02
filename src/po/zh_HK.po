@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-02 15:29+0200\n"
+"PO-Revision-Date: 2012-04-02 15:34+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -879,7 +879,7 @@ msgstr "在歸零程序時,不明的狀態 '%d'"
 
 #: src/emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr ""
+msgstr "當共享零開關閉上時,不能歸零"
 
 #: src/emc/motion/homing.c:290
 msgid ""
