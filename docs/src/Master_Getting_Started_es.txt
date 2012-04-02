@@ -1,4 +1,4 @@
-Primeros pasos V0.1, {localdate}
+Primeros pasos V2.5, {localdate}
 =================================
 
 :lang: es

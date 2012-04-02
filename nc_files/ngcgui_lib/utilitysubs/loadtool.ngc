@@ -8,6 +8,7 @@ o<loadtool> sub
 o<l0>      if [#<toolno> EQ 0]
              (print, loadtool: EXIT: toolno required not 0)
              (debug, loadtool: EXIT: toolno required not 0)
+             (AXIS,notify, loadtool: EXIT: toolno required not 0)
              m2 (quit)
 o<l0>      endif
 

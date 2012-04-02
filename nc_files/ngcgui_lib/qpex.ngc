@@ -86,7 +86,7 @@ o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<feedrate>][#<cutdepth>][#<zincr>][#<
          #<x3> = -1
          #<y3> = -1
          #<x4> = 0
-         #<y4> = -1
+         #<y4> = -0.999 ;disallow colinear pts in 3-sided figure
        #<xoff> = -2
        #<yoff> = 0
      #<rotate> = 45

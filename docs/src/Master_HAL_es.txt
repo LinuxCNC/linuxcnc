@@ -1,4 +1,4 @@
-Manual de HAL V0.1, {localdate}
+Manual de HAL V2.5, {localdate}
 ===============================
 
 :lang: es

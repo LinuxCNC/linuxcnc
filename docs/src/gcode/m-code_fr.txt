@@ -389,7 +389,7 @@ automatique via une broche du port parallèle, on appellera
 respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
 deux scripts bash correspondants, appelés M101 et M102 seront créés avant
 le lancement de LinuxCNC puis rendus exécutables, par exemple par un clic
-droit puis _propriétés -> permissions -> Exécution_. S'assurer que cette
+droit puis _propriétés → permissions → Exécution_. S'assurer que cette
 broche du port parallèle n'est pas déjà utilisée dans un fichier de HAL.
 
 .Exemple de fichier pour M101 

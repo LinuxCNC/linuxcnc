@@ -822,8 +822,9 @@ static int vti_init_card()
 /* scans possible addresses for vti cards */
 static int vti_autodetect()
 {
-    dev = pci_find_device(VENDOR, DEVICE, dev);
+    dev = pci_get_device(VENDOR, DEVICE, dev);
     if (dev) {
+       pci_dev_put(dev);
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "VTI: Card detected in slot: %2x\n", PCI_SLOT(dev->devfn));
 	return (0);

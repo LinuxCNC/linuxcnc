@@ -837,7 +837,7 @@ class Data:
             print >>file, "loadrt lut5"
 
         if pwm:
-            print >>file, "loadrt pwmgen output_type=0"
+            print >>file, "loadrt pwmgen output_type=1"
 
 
         if self.classicladder:
@@ -890,7 +890,7 @@ class Data:
             offset = x1 - y1 / scale
             print >>file
             print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
-            print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
+            print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
             print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
             print >>file, "setp pwmgen.0.scale %s" % scale
@@ -899,7 +899,7 @@ class Data:
         else: 
             print >>file, "net spindle-cmd <= motion.spindle-speed-out"
 
-        if ON in outputs:
+        if ON in outputs and not pwm:
             print >>file, "net spindle-on <= motion.spindle-on"
         if CW in outputs:
             print >>file, "net spindle-cw <= motion.spindle-forward"

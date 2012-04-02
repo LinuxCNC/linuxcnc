@@ -1,4 +1,3 @@
-
 #
 # This is a bash shell fragment, intended to be sourced by scripts that
 # want to work with git in the emc2 repo.
@@ -45,16 +44,43 @@ function githelper() {
             ;;
     esac
 
-    for TAG in $(git tag -l "$GIT_TAG_GLOB" | sort -r); do
-        if git tag -v "$TAG" > /dev/null 2> /dev/null; then
-            GIT_TAG="$TAG"
-            break
+
+    NEWEST_SIGNED_TAG_UTIME=-1
+    NEWEST_UNSIGNED_TAG_UTIME=-1
+    for TAG in $(git tag -l "$GIT_TAG_GLOB"); do
+        if ! git cat-file tag $TAG > /dev/null 2> /dev/null; then
+            continue
         fi
+
+        TAG_UTIME=$(git cat-file tag $TAG | grep tagger | awk '{print $(NF-1)-$NF*36}')
+
+        if git tag -v "$TAG" > /dev/null 2> /dev/null; then
+            # it's a valid signed tag
+            if [ $TAG_UTIME -gt $NEWEST_SIGNED_TAG_UTIME ]; then
+                NEWEST_SIGNED_TAG=$TAG
+                NEWEST_SIGNED_TAG_UTIME=$TAG_UTIME
+            fi
+        else
+            # unsigned tag
+            if [ $TAG_UTIME -gt $NEWEST_UNSIGNED_TAG_UTIME ]; then
+                NEWEST_UNSIGNED_TAG=$TAG
+                NEWEST_UNSIGNED_TAG_UTIME=$TAG_UTIME
+            fi
+        fi
+
     done
 
-    if [ -z "$GIT_TAG" ]; then
-        GIT_TAG=$(git tag -l "$GIT_TAG_GLOB" | sort -r | head -1)
-        echo "could not verify tag signatures, using $GIT_TAG" > /dev/null 1>&2
+    if [ $NEWEST_SIGNED_TAG_UTIME -gt -1 ]; then
+        GIT_TAG="$NEWEST_SIGNED_TAG"
+        return
     fi
+
+    if [ $NEWEST_UNSIGNED_TAG_UTIME -gt -1 ]; then
+        echo "no signed tags found, falling back to unsigned tags" > /dev/null 1>&2
+        GIT_TAG="$NEWEST_UNSIGNED_TAG"
+        return
+    fi
+
+    echo "no annotated tags found, not even unsigned" > /dev/null 1>&2
 }
 

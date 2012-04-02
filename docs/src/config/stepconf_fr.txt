@@ -18,7 +18,7 @@ via un, ou plusieurs ports parallèles standards et contrôlées par des signaux
 de type pas/direction (step/dir).
 
 Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve
-dans le menu _Application -> CNC -> LinuxCNC StepConf_.
+dans le menu _Application → CNC → LinuxCNC StepConf_.
 
 Stepconf place les fichiers qu'il crée dans le répertoire _~/linuxcnc/config_
 pour y stocker les paramètres de chaque configuration.
@@ -594,7 +594,7 @@ mécaniques. Les limites logicielles n’opèrent qu'après que la POM
 (prise d'origine machine) soit faite sur la machine. Puisqu'il n'y a pas
 de contact, la machine doit être déplacée à la main et à l’œil,
 à sa position d'origine avant de presser le bouton _POM des axes_ ou le
-sous-menu _Machine -> Prises d'origines machine -> POM de l'axe_.
+sous-menu _Machine → Prises d'origines machine → POM de l'axe_.
 L'opérateur devra cocher chacun des axes individuellement pour faire la
 POM de chacun d'eux.
 

@@ -15,7 +15,7 @@ o<helix> sub
 #<faceangle>  = #12 (=0 face angle)
 #<d_angle>    = #13 (=0 d angle)
 #<zstart>     = #14 (=0)
-
+#<spin_notify>= #15 (=0)
 
 o<loadtool> call  [#<toolno>]
 #<tooldiam>   =  [#5410 + .001]
@@ -52,7 +52,9 @@ o<l03>   endif
          #<rtool> = [#<tooldiam> / 2.0]
          G40 (cutter radius compensation off)
          s#<rpm> m3 (spindle cw)
-o<spin>  call [#<rpm>]
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
          f #<feedrate>
 
          #<delta> = #<d_angle>

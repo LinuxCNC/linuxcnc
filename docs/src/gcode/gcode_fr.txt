@@ -56,8 +56,8 @@ chose.
 |<<sec:G1-Interpolation-travail,G1>> | Interpolation linéaire en vitesse travail
 |<<sec:G2-G3-Arc,G2/G3>>  | Interpolation circulaire sens horaire/anti-horaire 
 |<<sec:G4-Tempo,G4>>           | Temporisation
-|<<sec:G5-1-B-spline,G5.1>>    | B-Spline quadratique      
-|<<sec:G5-2-G5-3-NURBs,G5.2 G5.3>>    | NURBs Block  
+|<<sec:G5-1-B-spline,G5.1>>    | B-Spline quadratique  
+|<<sec:G5-2-G5-3-NURBs,G5.2 G5.3>>    | NURBs Block _(expérimental)_
 |<<sec:G7-Mode-diametre,G7>>   | Mode diamètre (sur les tours)  
 |<<sec:G8-Mode-rayon,G8>>| Mode rayon (sur les tours)  
 |<<sec:G10-L1,G10 L1>>   | Ajuste les valeurs de l'outil en table d'outils   
@@ -70,12 +70,12 @@ chose.
 |<<sec:G28-G28-1-Aller-a-une-position,G28 G28.1>> | Aller à une position prédéfinie 
 |<<sec:G30-G30-1-Aller-a-une-position-predefinie,G30 G30.1>> | Aller à une position 
 prédéfinie 
-|<<sec:G33-Broche-synchronisee,G33>>   | Mouvement synchronisé avec la broche  
+|<<sec:G33-Broche-synchronisee,G33>>   | Mouvement avec broche synchronisée  
 |<<sec:G33-1-Taraudage-rigide,G33.1>>    | Taraudage rigide    
 |<<sec:G38-x-Palpeur,G38>> | Mesures au palpeur  
 |<<sec:G40,G40>>           | Révocation de la compensation de rayon d'outil 
 |<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil   
-|<<sec:G41-1-G42-1,G41.1 G42.1>> | Comp. dynamique de rayon d'outil à gauche, à droite
+|<<sec:G41-1-G42-1,G41.1/G42.1>> | Comp. dynamique de rayon d'outil à gauche/à droite
 |<<sec:G43,G43>> | Compensation de longueur d'outil d'après une table d'outils
 |<<sec:G43-1,G43.1>> | Compensation dynamique de longueur d'outil
 |<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de 
@@ -84,28 +84,27 @@ longueur d'outil
 machine (Absolues) 
 |<<sec:G54-a-G59-3,G54 à G59>>     | Choix du système de coordonnées (1 a 6) 
 |<<sec:G54-a-G59-3,G59.1 à G59.3>> | Choix du système de coordonnées (7 a 9) 
-|<<sec:G61-G61-1,G61 G61.1>>   | Mode trajectoire exacte, mode arrêt exact 
+|<<sec:G61-G61-1,G61/G61.1>>   | Mode trajectoire exacte/mode arrêt exact 
 |<<sec:G64,G64>>| Mode trajectoire continue avec tolérance
 |<<sec:G73-Percage-avec-brise-copeaux,G73>> | Cycle de perçage avec brise copeau 
-|<<sec:G76-Filetage,G76>>      | Cycle de filetage multipasses de perçage (tour) 
+|<<sec:G76-Filetage,G76>>      | Cycle de filetage multipasses (tour) 
 |<<sec:G80-Revocation-modaux,G80>>       | Révocation des codes modaux  
 |<<sec:G81-Cycle-de-percage,G81>>        | Cycle de perçage  
 |<<sec:G82-Cycle-de-percage,G82>>        | Autres cycles de perçage 
 |<<sec:G83-Percage-avec-debourrage,G83>> | Perçage avec débourrage 
-|<<sec:G84-Taraudage-a-droite,G84>>      | Taraudage à droite _(pas implémenté)_ 
+|<<sec:G84-Taraudage-a-droite,G84>>      | Taraudage à droite _(pas encore implémenté)_ 
 |<<sec:G85-Alesage-retrait-travail,G85>> | Alésage, retrait en vitesse travail 
 |<<sec:G86-Alesage-retrait-rapide,G86>>  | Alésage, retrait en vitesse rapide 
-|<<sec:G87-Back-Boring,G87>>        | Cycle d'alésage arrière _(pas implémenté)_
+|<<sec:G87-Back-Boring,G87>>        | Cycle d'alésage arrière _(pas encore implémenté)_
 |<<sec:G88-Alesage-Retrait-Manuel-Out,G88>> | Cycle alésage, Stop, Retrait manuel 
-_(pas implémenté)_ 
+_(pas encore implémenté)_ 
 |<<sec:G89-Alesage-Tempo,G89>> | Cycle d'alésage avec tempo, recul vitesse travail 
-|<<sec:G90-G91-Set,G90>>       | Types de déplacements
-|<<sec:G90-1-G91-1,G90.1>>     | Arc Distance Mode 
+|<<sec:G90-G91-Set,G90>>       | Types de déplacement
+|<<sec:G90-1-G91-1,G90.1>>     | Modes de déplacement
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
 |<<sec:G92-1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine 
-|<<sec:G92-3,G92.3>> | Applique contenu des paramètres aux déc.
- d'origine 
-|<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesses 
+|<<sec:G92-3,G92.3>> | Applique contenu des paramètres aux déc. d'origine 
+|<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesse
 |<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn) 
 |<<sec:G96-G97-Broche,G97>>    | Vitesse en tours par minute 
 |<<sec:G98-G99-Set,G98>>       | Options de retrait des cycles de perçage 
@@ -246,8 +245,8 @@ Si la compensation de rayon d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir les sections 
 <<sec:G40, sur G40>> et <<sec:G41-G42, sur G41-G42>>.
 
-Le décalage de l'arc est relatif ou absolu comme fixé par
- <<sec:G90-1-G91-1,G90.1 et G91.1>>.
+Le centre de l'arc est absolu ou relatif, tel que fixé par
+ <<sec:G90-1-G91-1,G90.1 ou G91.1>>, respectivement.
 
 C'est une erreur si:
 
@@ -261,10 +260,10 @@ le format rayon.
 Les arcs au format centre sont plus précis que les arcs au format rayon, c'est
 le format à privilégier.
 
-La distance entre la position courante et le centre de l'arc et facultativement
-le nombre de tours, sont utilisés pour programmer des arcs inférieurs au cercle
-complet. Il est permis d'avoir le point final de l'arc égal à la position
-courante.
+La distance entre la position courante et le centre de l'arc et,
+facultativement, le nombre de tours, sont utilisés pour programmer des arcs
+inférieurs au cercle complet. Il est permis d'avoir le point final de l'arc
+égal à la position courante.
 
 Le décalage entre le centre de l'arc et la position courante ainsi
 que facultativement, le nombre de tours, sont utilisés pour programmer des
@@ -274,9 +273,9 @@ Une erreur d'arrondi peut se produire quand un arc est programmé avec une
 précision inférieure à 4 décimales (0.0000) pour les pouces et à moins de
 3 décimales (0.000) pour les millimètres.
 
-.Arc en mode distance incrémentale
+.Arc en mode distance relative
 Les décalages par rapport au centre de l'arc sont des distances relatives au
-point de départ de l'arc. Le mode distance incrémentale de l'arc est le
+point de départ de l'arc. Le mode distance relative de l'arc est le
 mode par défaut.
 
 Un ou plusieurs mots d'axe et un ou plusieurs décalages doivent être programmés
@@ -285,7 +284,7 @@ pour un arc qui fait moins de 360 degrés.
 Aucun mot d'axe mais un ou plusieurs décalages doivent être programmés pour un
 cercle complet. Le mot _P_, par défaut à 1, est facultatif.
 
-Pour d'avantage d'information sur les arcs en mode incrémental, voir la
+Pour d'avantage d'information sur les arcs en mode relatif, voir la
  <<sec:G90-1-G91-1,section G91.1>>.
 
 .Arc en mode distance absolue
@@ -635,7 +634,7 @@ des axes _XY_ autour de l'axe _Z_. Tous les mots d'axe sont facultatifs.
 L'origine du système de coordonnées spécifié par le nombre _P_ est 
 fixée aux valeurs spécifiées (en termes de coordonnées machine sans décalage). 
 Seules les coordonnées pour lesquelles un mot d'axe est spécifié sur la ligne 
-seront fixées. Être en mode incrémental (_G91_) est sans effet sur _G10 L2_. 
+seront fixées. Être en mode relatif (_G91_) est sans effet sur _G10 L2_. 
 Le sens de rotation est anti-horaire, vu du dessus. 
 
 Concepts importants:
@@ -760,10 +759,9 @@ C'est une erreur si:
 (((G10 L20 Établissement de l'origine d'un système de coordonnées)))
 
 ----
-G10 L20 P- axes <R->
+G10 L20 P- axes
 ----
 * _P_ - système de coordonnées (0-9)
-* _R_ - rotation autour de l'axe Z
 
 G10 L20 est similaire à G10 L2 excepté qu'au lieu d'ajuster les offsets à des 
 valeurs données, il les place à des valeurs calculées de sorte que les 
@@ -1558,9 +1556,9 @@ Y, R, et Z sont des positions absolues dans le système de coordonnées courant.
 
 Le mot L est facultatif et représente le nombre de répétitions.
 L=0 n'est pas permis. Si les fonctionnalités de répétition sont utilisées,
-elles le sont normalement en mode incrémental, de sorte que la même séquence de
+elles le sont normalement en mode relatif, de sorte que la même séquence de
 mouvements se répète à plusieurs emplacements régulièrement espacés le long
-d'une ligne droite. Quand L>1 en mode incrémental et XY comme plan courant,
+d'une ligne droite. Quand L>1 en mode relatif et XY comme plan courant,
 les positions X et Y sont déterminées en ajoutant les valeurs X et Y de
 la commande à celles de la position courante, pour le premier trajet ou
 ensuite, à celles de la position finale du précédent trajet, pour les
@@ -2021,13 +2019,13 @@ prévisible et contrôlable, quel que soit le point de départ du cycle.
 [[sec:G90-G91]]
 == G90, G91: Modes de déplacement
 (((G90 Mode de déplacement absolu)))
-(((G91 Mode de déplacement incrémental)))
+(((G91 Mode de déplacement relatif)))
 
 * _G90_ est le mode de déplacement absolu, les valeurs d'axes
 _X, Y, Z, A, B, C, U, V, W_ représentent les positions dans le système de
 coordonnées courant. Les exceptions à cette règle sont décrites dans
 la section <<sec:G81-a-G89, sur les cycles de perçage>>.
-* _G91_ est le mode de déplacement incrémental, en mode incrémental, les
+* _G91_ est le mode de déplacement relatif, en mode relatif, les
 valeurs d'axes représentent un incrément depuis la position courante.
 
 .Exemple avec G90
@@ -2039,7 +2037,7 @@ incluant tous les offsets en cours)
 
 .Exemple avec G91
 ----
-G91 (passe en mode de déplacement incrémental)
+G91 (passe en mode de déplacement relatif)
 G0 X2.5 (déplacement linéaire en vitesse rapide, à +2.5 en X de la position
 courante)
 ----
@@ -2053,7 +2051,7 @@ courante)
 G90.1 est actif, I et J doivent être tous les deux spécifiés avec G2/G3 pour
 le plan XY ou J et K pour le plan XZ, sinon c'est une erreur.
 
-* _G91.1_ - Mode de déplacement incrémental pour les offsets I, J et K. G91.1
+* _G91.1_ - Mode de déplacement relatif pour les offsets I, J et K. G91.1
 replace I, J et K à leur fonctionnement normal.
 
 [[sec:G92]]
@@ -2084,7 +2082,7 @@ décalage G92 ne soit actif. La ligne _G92 X7_ est programmée, toutes les
 origines seront décalées de -3 en X, ce qui fera que le point courant
 deviendra X=7. Ce -3 est enregistré dans le paramètre 5211.
 
-Être en mode de déplacement incrémental est sans effet sur l'action de _G92_.
+Être en mode de déplacement relatif est sans effet sur l'action de _G92_.
 
 Des décalages G92 peuvent déjà être actifs quand _G92_ est appelé. Si
 c'est le cas, ils seront remplacés par le nouveau décalage, de sorte que le
@@ -2213,7 +2211,7 @@ image:images/G81g98d.png[]
 image:images/G81ret.png[]
 
 Ne pas oublier que la signification du mot R change selon que le mode de 
-déplacement est absolu ou incrémental.
+déplacement est absolu ou relatif.
 
 Le plan de retrait initial (G98) est annulé chaque fois que le mode de 
 mouvement est abandonné, que ce soit explicitement avec G80 ou implicitement 

@@ -16,7 +16,7 @@ pages.
 Quand vous installez LinuxCNC avec le CD-Live Ubuntu, par défaut vous
 devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
 activer le login automatique ouvrez le menu 
-_Système -> Administration -> Fenêtre de connexion_. 
+_Système → Administration → Fenêtre de connexion_. 
 Si l'installation est 
 récente la fenêtre de connexion peut prendre quelques secondes pour
 s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
@@ -33,8 +33,8 @@ Les Man pages sont des pages de manuel générées automatiquement le
 plus souvent. Les Man pages existent pour quasiment tous les programmes
 et les commandes de Linux.
 
-Pour visualiser une man page ouvrez un terminal depuis _Applications ->
- Accessoires -> Terminal_. Par exemple si vous voulez trouver quelques
+Pour visualiser une man page ouvrez un terminal depuis _Applications →
+ Accessoires → Terminal_. Par exemple si vous voulez trouver quelques
 choses concernant la commande _find_, tapez alors dans le terminal:
 ----
 man find
@@ -75,14 +75,14 @@ sont en mode lecture seule.
 
 (((sudo gedit)))
 
-Ouvrir un terminal depuis _Applications -> Accessoires -> Terminal_.
+Ouvrir un terminal depuis _Applications → Accessoires → Terminal_.
 
 Dans ce terminal, tapez:
 ----
 sudo gedit
 ----
 
-Ouvrez un fichier depuis _Fichiers -> Ouvrir_ puis éditez le.
+Ouvrez un fichier depuis _Fichiers → Ouvrir_ puis éditez le.
 
 === En mode graphique
 

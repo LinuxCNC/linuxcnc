@@ -350,7 +350,7 @@ problems include:
 
 Based on the items in the declaration section, 'comp' creates a C
 structure called 'struct state'. However, instead of referring to the
-members of this structure (e.g., '*(inst\->name)' ), they will generally
+members of this structure (e.g., '*(inst->name)' ), they will generally
 be referred to using the macros below. The 
 details of 'struct state' and these macros may change from one version
 of 'comp' to the next.

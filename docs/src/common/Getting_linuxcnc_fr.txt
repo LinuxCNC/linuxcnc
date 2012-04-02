@@ -138,7 +138,7 @@ fois parce que votre connexion Internet est lente ou mauvaise,
 utilisez _wget_ qui permet la reprise après un téléchargement interrompu.
 
 La commande Wget sous Linux:: (((Wget sous Linux)))
-Ouvrez un terminal. Dans Gnome, il est dans _Applications_ -> _Accessoires_ -> 
+Ouvrez un terminal. Dans Gnome, il est dans _Applications_ → _Accessoires_ → 
 _Terminal_.
 Utilisez _cd_ pour changer le répertoire dans lequel vous voulez stocker l'image 
 ISO. Utilisez _mkdir_ pour créer un nouveau répertoire si nécessaire.
@@ -201,7 +201,7 @@ le programme wget sous Windows.
 +
 Pour lancer wget ouvrez l'invite de commande.
 +
-Dans la plupart des Windows elle est dans _Programmes_ -> _Accessoires_ -> 
+Dans la plupart des Windows elle est dans _Programmes_ → _Accessoires_ → 
 _Commande_
 +
 Naviguez jusqu'au répertoire dans lequel s'est installé wget.
@@ -232,7 +232,7 @@ Avant de graver un CD, il est fortement recommandé de vérifier la
 somme de contrôle md5 (hash) du fichier de l'image iso.
 
 Ouvrez un terminal. 
-Dans Ubuntu il est dans _Applications_ -> _Accessoires_ -> _Terminal_.
+Dans Ubuntu il est dans _Applications_ → _Accessoires_ → _Terminal_.
 
 Allez dans le répertoire contenant l'image ISO précédemment téléchargée avec:
 
@@ -304,7 +304,7 @@ d'informations sont disponibles ici: http://doc.ubuntu-fr.org/md5sum
    _Cancel_ si un auto-run démarre.
 - Cliquez bouton droit sur le fichier ISO et sélectionnez le menu 
    _Graver l'image disque_ ou lancez Infra Recorder et choisissez le 
-   menu _Actions->Graver l'image_.   
+   menu _Actions→Graver l'image_.   
 
 == Tester LinuxCNC
 
@@ -348,7 +348,7 @@ image::images/axis_2.5_fr.png[]
 
 Après installation, LinuxCNC se lance comme un autre programme Linux:
 depuis un terminal en passant la commande _linuxcnc_, 
-ou depuis le menu _Applications_ -> _CNC_.
+ou depuis le menu _Applications_ → _CNC_.
 
 === Sélecteur de configuration
 

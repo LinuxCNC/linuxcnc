@@ -1,4 +1,4 @@
-HAL and Device Drivers V0.1, {localdate}
+HAL and Device Drivers V2.5, {localdate}
 ========================================
 
 //:lang: pl

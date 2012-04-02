@@ -228,7 +228,7 @@ the same as they do with the tkLinuxCNC graphical interface.
 image::images/miniauto.png[align="center"]
 
 Auto mode does not normally display the active or modal codes. If the
-operator wishes to check these, use menu Info\->Active_G-Codes. This
+operator wishes to check these, use menu Info→Active_G-Codes. This
 will write all modal codes onto the message scratch pad.
 
 If abort or estop is pressed during a run, a set of buttons will 

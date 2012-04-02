@@ -28,7 +28,7 @@ DISPLAY = tklinuxcnc
 ----
 
 Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration qui se
-trouve dans _sim/tkemc.ini_ est déjà configurée pour utiliser TkLinuxCNC
+trouve dans _sim/tklinuxcnc/tklinuxcnc.ini_ est déjà configurée pour utiliser TkLinuxCNC
 comme interface utilisateur.
 
 Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre 
@@ -128,7 +128,7 @@ de l'intégrateur).
 
 Quand la machine se déplace, elle laisse un tracé appelé parcours
 d'outil. La fenêtre d'affichage du parcours d'outil s'active via le
-menu _Vues -> Parcours d'outil_.
+menu _Vues → Parcours d'outil_.
 
 === Contrôle en automatique
 

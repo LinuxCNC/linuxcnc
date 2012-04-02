@@ -1,4 +1,4 @@
-Manual Integrador V0.1, {localdate}
+Manual Integrador V2.5, {localdate}
 ===================================
 
 :lang: es

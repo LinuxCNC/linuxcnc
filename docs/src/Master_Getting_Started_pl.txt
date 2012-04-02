@@ -1,4 +1,4 @@
-Getting Started V0.1, {localdate}
+Getting Started V2.5, {localdate}
 =================================
 
 //:lang: pl
