@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-02 15:07+0200\n"
+"PO-Revision-Date: 2012-04-02 15:15+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -786,11 +786,11 @@ msgstr "不能做剛性攻絲移動當超過極限"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
-msgstr ""
+msgstr "不能添加剛性攻絲移動"
 
 #: src/emc/motion/command.c:1435
 msgid "need to be enabled, in teleop mode for teleop move"
-msgstr ""
+msgstr "需要激活遠程操作模式，才可作遠程運移動"
 
 #: src/emc/motion/command.c:1556
 #, c-format
@@ -805,7 +805,7 @@ msgstr "joint %d: 補償值必須增加"
 #: src/emc/motion/command.c:1591
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "無法識別的命令"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
