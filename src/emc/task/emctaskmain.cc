@@ -132,7 +132,7 @@ NMLmsg *emcTaskCommand = 0;
 // signal handling code to stop main loop
 int done;
 static int emctask_shutdown(void);
-static int pseudoMdiLineNumber = INT_MIN;
+static int pseudoMdiLineNumber = MOTION_INVALID_ID + 1;
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
 

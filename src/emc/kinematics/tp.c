@@ -191,6 +191,12 @@ int tpSetAmax(TP_STRUCT * tp, double aMax)
   */
 int tpSetId(TP_STRUCT * tp, int id)
 {
+
+    if (!MOTION_ID_VALID(id)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "tpSetId: invalid motion id %d\n", id);
+	return -1;
+    }
+	
     if (0 == tp) {
 	return -1;
     }
@@ -670,8 +676,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
     static double spindleoffset;
-    static int waiting_for_index = 0;
-    static int waiting_for_atspeed = 0;
+    static int waiting_for_index = MOTION_INVALID_ID;
+    static int waiting_for_atspeed = MOTION_INVALID_ID;
     double save_vel;
     static double revs;
     EmcPose target;
@@ -751,8 +757,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if(tp->aborting) {
         // an abort message has come
-        if( waiting_for_index ||
-            waiting_for_atspeed || 
+        if( MOTION_ID_VALID(waiting_for_index) ||
+	    MOTION_ID_VALID(waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && !nexttc) || 
             (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
             tcqInit(&tp->queue);
@@ -763,8 +769,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             tp->execId = 0;
             tp->motionType = 0;
             tp->synchronized = 0;
-            waiting_for_index = 0;
-            waiting_for_atspeed = 0;
+            waiting_for_index = MOTION_INVALID_ID;
+            waiting_for_atspeed = MOTION_INVALID_ID;
             emcmotStatus->spindleSync = 0;
             tpResume(tp);
             return 0;
@@ -775,29 +781,29 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
     // this is no longer the segment we were waiting_for_index for
-    if(waiting_for_index && waiting_for_index != tc->id) 
+    if (MOTION_ID_VALID(waiting_for_index) && waiting_for_index != tc->id) 
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for index on motion id %d, but reached id %d\n",
                 waiting_for_index, tc->id);
-        waiting_for_index = 0;
+        waiting_for_index = MOTION_INVALID_ID;
     }
-    if(waiting_for_atspeed && waiting_for_atspeed != tc->id)  
+    if (MOTION_ID_VALID(waiting_for_atspeed) && waiting_for_atspeed != tc->id)  
     {
 
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for atspeed on motion id %d, but reached id %d\n",
                 waiting_for_atspeed, tc->id);
-        waiting_for_atspeed = 0;
+        waiting_for_atspeed = MOTION_INVALID_ID;
     }
 
     // check for at-speed before marking the tc active
-    if(waiting_for_atspeed) {
+    if (MOTION_ID_VALID(waiting_for_atspeed)) {
         if(!emcmotStatus->spindle_is_atspeed) {
             /* spindle is still not at the right speed: wait */
             return 0;
         } else {
-            waiting_for_atspeed = 0;
+            waiting_for_atspeed = MOTION_INVALID_ID;
         }
     }
 
@@ -846,14 +852,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         }
     }
 
-    if(waiting_for_index) {
+    if (MOTION_ID_VALID(waiting_for_index)) {
         if(emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
             return 0;
         } else {
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
-            waiting_for_index=0;
+            waiting_for_index = MOTION_INVALID_ID;
             tc->sync_accel=1;
             revs=0;
         }
