@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-04-04 16:33+0200\n"
+"PO-Revision-Date: 2012-04-04 16:34+0200\n"
 "Last-Translator: Jeff Epler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -16974,9 +16974,8 @@ msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
 msgstr "Paramètre nommé #<%s> non trouvé au '%s': erreur=0x%x"
 
 #: src/emc/rs274ngc/interp_check.cc:314
-#, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "La valeur de P avec G2 ou G3 n'est pas un entier "
+msgstr "La valeur de P avec M19 G2 ou G3 n'est pas un entier "
 
 #: src/emc/rs274ngc/interp_check.cc:326
 #, fuzzy
