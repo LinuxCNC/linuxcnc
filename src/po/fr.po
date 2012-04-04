@@ -8163,7 +8163,7 @@ msgstr "Dégagement du contac_t d'origine:"
 msgid ""
 "_:"
 ""
-msgstr ""
+msgstr "_:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3437
 #: emc/usr_intf/pncconf/pncconf.glade:58536
