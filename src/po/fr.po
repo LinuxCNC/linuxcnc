@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-03-10 18:47+0200\n"
+"PO-Revision-Date: 2012-04-04 16:32+0200\n"
 "Last-Translator: Jeff Epler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 0.5\n"
+"X-Generator: Weblate 0.7\n"
 
 #: hal/utils/meter.c:198 src/hal/utils/meter.c:198
 #, c-format
@@ -8160,8 +8160,9 @@ msgstr "Dégagement du contac_t d'origine:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid "_:"
-msgstr "_:"
+msgid ""
+"_:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3437
 #: emc/usr_intf/pncconf/pncconf.glade:58536
@@ -16962,7 +16963,7 @@ msgstr ""
 "Entrée"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:191
-#, fuzzy, c-format
+#, c-format
 msgid "cant open ini file '%s'"
 msgstr "Impossible d'ouvrir %s "
 
