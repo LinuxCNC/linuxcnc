@@ -16975,7 +16975,7 @@ msgstr "Paramètre nommé #<%s> non trouvé au '%s': erreur=0x%x"
 
 #: src/emc/rs274ngc/interp_check.cc:314
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "La valeur de P avec M19 G2 ou G3 n'est pas un entier "
+msgstr "La valeur de P avec M19 G2 ou G3 n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_check.cc:326
 #, fuzzy
