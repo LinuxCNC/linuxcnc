@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-04-04 16:34+0200\n"
+"PO-Revision-Date: 2012-04-04 16:35+0200\n"
 "Last-Translator: Jeff Epler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -16978,13 +16978,12 @@ msgid "P value not an integer with M19 G2 or G3"
 msgstr "La valeur de P avec M19 G2 ou G3 n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_check.cc:326
-#, fuzzy
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Mot Q sans G5, G10, G64, G73, G76, G83, M66, M67, M68 ou code M utilisateur "
-"l'utilisant"
+"Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
+"utilisateur l'utilisant"
 
 #: src/emc/rs274ngc/interp_convert.cc:2807
 #, c-format
