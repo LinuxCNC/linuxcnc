@@ -15,7 +15,7 @@ githelper $1
 if [ "$DEB_COMPONENT" = "scratch" ]; then
     # unknown branches get the VERSION file, plus the branch name, plus the
     # HEAD commit SHA1
-    echo v$(git show HEAD:VERSION | cut -d ' ' -f 1)~${GIT_BRANCH}~$(git show --pretty=format:%h HEAD | head -1)
+    echo v$(git show HEAD:VERSION | cut -d ' ' -f 1)~${GIT_BRANCH/[^-.+:~a-z]/-}~$(git show --pretty=format:%h HEAD | head -1)
 else
     # known branches get the "describe" of the most recent signed git tag,
     # or of the most recent unsigned tag if no signed tags are found
