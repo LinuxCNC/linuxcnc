@@ -16,7 +16,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Load the emc package, which defines variables for various useful paths
-package require Emc
+package require Linuxcnc
 
 proc insert_file {w title f {p {}}} {
     set f [open $f r]
@@ -38,10 +38,10 @@ proc insert_file {w title f {p {}}} {
 }
 
 
-wm ti . [msgcat::mc "EMC2 Errors"]
+wm ti . [msgcat::mc "LinuxCNC Errors"]
 frame .f
 label .f.b -bitmap error
-label .f.l -justify l -wraplength 400 -text [msgcat::mc "EMC2 terminated with an error.  When reporting problems, please include all the information below in your message."]
+label .f.l -justify l -wraplength 400 -text [msgcat::mc "LinuxCNC terminated with an error.  When reporting problems, please include all the information below in your message."]
 pack .f.b -side left -padx 8 -pady 8
 pack .f.l -side left
 pack .f -side top -fill x -anchor w
@@ -58,7 +58,7 @@ pack .f2 -fill both -expand 1
 
 insert_file .f2.t "Print file information:" [lindex $argv 1]
 insert_file .f2.t "Debug file information:" [lindex $argv 0]
-if {$emc::SIMULATOR != "yes"} {
+if {$linuxcnc::SIMULATOR != "yes"} {
     insert_file .f2.t "Kernel message information:" {|dmesg} \
 	"^.*Adeos: Pipelining started\.|^.*I-pipe: Domain RTAI registered\."
 }

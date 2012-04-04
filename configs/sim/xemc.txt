@@ -1,1 +1,0 @@
-xemc.ini -- a native X interface, runs ok on older machines

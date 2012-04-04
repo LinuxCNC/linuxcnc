@@ -18,6 +18,7 @@
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
+#include <dlfcn.h>
 
 #include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
@@ -41,10 +42,9 @@
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
-Interp interp;
-setup_pointer _is = &interp._setup; // helper for gdb hardware watchpoints FIXME 
-
-
+InterpBase *pinterp=0;
+#define interp (*pinterp)
+setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
 
 
 /*
@@ -85,10 +85,18 @@ int emcTaskInit()
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        strcpy(mdir[0],inistring);
+        strncpy(mdir[0],inistring, sizeof(mdir[0]));
+        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
+            rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
+            return -1;
+        }
     } else {
         // default dir if no PROGRAM_PREFIX
-        strcpy(mdir[0],"nc_files");
+        strncpy(mdir[0],"nc_files", sizeof(mdir[0]));
+        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
+            rcs_print("default nc_files too long (max len %zu)\n", sizeof(mdir[0]));
+            return -1;
+        }
     }
     dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
 
@@ -100,12 +108,21 @@ int emcTaskInit()
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        strcpy(tmpdirs,inistring);
+        strncpy(tmpdirs,inistring, sizeof(tmpdirs));
+        if (tmpdirs[sizeof(tmpdirs)-1] != '\0') {
+            rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
+            return -1;
+        }
+
         nextdir = strtok(tmpdirs,":");  // first token
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
-            strcpy(mdir[dct],nextdir);
+            strncpy(mdir[dct],nextdir, sizeof(mdir[dct]));
+            if (mdir[dct][sizeof(mdir[dct])-1] != '\0') {
+                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n", nextdir, sizeof(mdir[dct]));
+                return -1;
+            }
             nextdir = strtok(NULL,":");
             dct++;
         }
@@ -117,15 +134,20 @@ int emcTaskInit()
        any to the user defined functions list */
     for (num = 0; num < USER_DEFINED_FUNCTION_NUM; num++) {
 	for (dct=0; dct < dmax; dct++) {
+            char expanddir[LINELEN];
 	    if (!mdir[dct][0]) continue;
-	    snprintf(path, sizeof(path), "%s/M1%02d",mdir[dct],num);
+            if (inifile.TildeExpansion(mdir[dct],expanddir,sizeof(expanddir))) {
+		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
+			 mdir[dct]);
+            }
+	    snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
 	    if (0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
 		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
-			     "%s/M1%%02d", mdir[dct]); // update global
+			     "%s/M1%%02d", expanddir); // update global
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: adding user-defined function %s\n",
@@ -383,7 +405,24 @@ static void print_interp_error(int retval)
 
 int emcTaskPlanInit()
 {
-    //    _is = &interp._setup;  // FIXME
+    if(!pinterp) {
+	IniFile inifile;
+	const char *inistring;
+	inifile.Open(emc_inifile);
+	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
+	    pinterp = interp_from_shlib(inistring);
+	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
+	}
+        inifile.Close();
+    }
+    if(!pinterp) {
+	rcs_print("emcTaskInit: using builtin interpreter\n");
+        pinterp = new Interp;
+    }
+
+    Interp *i = dynamic_cast<Interp*>(pinterp);
+    if(i) _is = &i->_setup; // FIXME
+    else  _is = 0;
     interp.ini_load(emc_inifile);
     waitFlag = 0;
 

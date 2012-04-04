@@ -2,7 +2,7 @@
 # provide tcl package Ngcgui
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2011
+# Copyright: 2010-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 
 proc ngcgui_app_init {} {
   if {[info command inifindall] == ""} {
-    return -code error "ngcgui_app_init: requires command inifindall
-from axis.py (emc2.5) or \[DISPLAY\]USER_COMMAND_FILE (emc2.4)"
+    return -code error "ngcgui_app_init: [_ "requires command inifindall
+from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
   }
 
   # DISPLAY:NGCGUI specifies the file normally named ngcgui.tcl
@@ -51,20 +51,20 @@ from axis.py (emc2.5) or \[DISPLAY\]USER_COMMAND_FILE (emc2.4)"
     set ngcgui $libngcgui ;# normally, use the library supplied ngcgui.tcl
   } else {
     if {"$ngcgui" != "$libngcgui"} {
-      puts stderr "ngcgui_app_init: Substituting $ngcgui for $libngcgui"
+      puts stderr "ngcgui_app_init: [_ "Substituting"] $ngcgui [_ "for"] $libngcgui"
     }
   }
   if ![file readable $ngcgui] {
-    return -code error "ngcgui_app.tcl: <$ngcgui> not readable"
+    return -code error "ngcgui_app.tcl: <$ngcgui> [_ "not readable"]"
   }
   if {[info procs ::ngcui::gui] == ""} {
     source $ngcgui ;# main ngcgui code
   } else {
     # this can occur due to obsolete USER_COMMAND_FILE
-    puts "Unexpected: multiple startups for ngcgui <$ngcgui>"
-    puts "\nEmc version = $::version"
-    puts "for emc2.5.xxx, Do not include tkapp.py in the ini file\n"
-    return -code error "Unexpected: multiple startups for ngcgui <$ngcgui>"
+    puts "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
+    puts "\n[_ LinuxCNC version"] = $::version"
+    puts "[_ "for linuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
+    return -code error "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
   }
 
   if {"$subroutine_path" != ""} {
@@ -80,10 +80,10 @@ from axis.py (emc2.5) or \[DISPLAY\]USER_COMMAND_FILE (emc2.4)"
   foreach fname $ngcgui_subfile {
     set wtab [dynamic_tab ngcgui$::ngcguict [file tail $fname] ] ;# axis func
     if {"$wtab" == "None"} {
-      # functions of tkapp.py were incorporated in emc 2.5 27dec10 af6ae9907e1c0
+      # functions of tkapp.py were incorporated in LinuxCNC  2.5 27dec10 af6ae9907e1c0
       #puts "\nerrorInfo: $::errorInfo"
-      puts "\nEmc version = $::version"
-      puts "for emc2.5.xxx, Do not include tkapp.py in the ini file\n"
+      puts "\n[_ "LinuxCNC version"] = $::version"
+      puts "[_ "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
       continue
     }
     set w [frame $wtab.tframe -container 0 -borderwidth 0 -highlightthickness 0]

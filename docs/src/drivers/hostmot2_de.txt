@@ -1,4 +1,6 @@
-= Mesa HostMot2 (((Mesa HostMot2)))
+= Mesa HostMot2 Driver 
+
+[[cha:mesa-hostmot2-driver]] (((Mesa HostMot2 Driver)))
 
 == Introduction 
 
@@ -37,7 +39,7 @@ hostmot2-firmware distribution for up-to-date firmware lists.)
 
 == Installing Firmware
 
-Depending on how you installed EMC2 you may have to open the Synaptic
+Depending on how you installed LinuxCNC you may have to open the Synaptic
 Package Manager from the System menu and install the package for your
 Mesa card. The quickest way to find them is to do a search for
 'hostmot2' in the Synaptic Package Manager. Mark the firmware for
@@ -45,7 +47,7 @@ installation, then apply.
 
 == Loading HostMot2
 
-The EMC support for the HostMot2 firmware is split into a generic
+The LinuxCNC support for the HostMot2 firmware is split into a generic
 driver called 'hostmot2' and two low-level I/O drivers for the Anything
 I/O boards. The low-level I/O drivers are 'hm2_7i43' and 'hm2_pci' (for
 all the PCI- and PC-104/Plus-based Anything I/O boards). The hostmot2 driver
@@ -74,7 +76,7 @@ The config parameters are described in the hostmot2 man page.
 The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it.
 
-The watchdog must be petted by EMC2 periodically or it will bite.
+The watchdog must be petted by LinuxCNC periodically or it will bite.
 
 When the watchdog bites, all the board's I/O pins are disconnected
 from their Module instances and become high-impedance inputs (pulled
@@ -152,7 +154,7 @@ The hostmot2 driver does not have a particular pinout. The pinout
 comes from the firmware that the hostmot2 driver sends to the Anything I/O
 board. Each firmware has different pinout, and the pinout depends on
 how many of the available encoders, pwmgens, and stepgens are used. To
-get a pinout list for your configuration after loading EMC2 in the
+get a pinout list for your configuration after loading LinuxCNC in the
 terminal window type:
 
 ----
@@ -163,14 +165,14 @@ The resulting text file will contain lots of information as well as
 the pinout for the HostMot2 and any error and warning messages.
 
 To reduce the clutter by clearing the message buffer before loading
-EMC type the following in the terminal window:
+LinuxCNC type the following in the terminal window:
 
 ----
 sudo dmesg -c
 ----
 
-Now when you run EMC and then do a 'dmesg > hm2.txt' in the terminal
-only the info from the time you loaded EMC will be in your file along
+Now when you run LinuxCNC and then do a 'dmesg > hm2.txt' in the terminal
+only the info from the time you loaded LinuxCNC will be in your file along
 with your pinout. The file will be in the current directory of the
 terminal window. Each line will contain the card name, the card number,
 the I/O Pin number, the connector and pin, and the usage. From this
@@ -227,7 +229,7 @@ and PWMGen will also show up as GPIOs in the HAL Configuration screen.
 == PIN Files
 
 The default pinout is described in a .PIN file (human-readable text). 
-When you install a firmware package .deb, the .PIN files are installed in 
+When you install a firmware package the .PIN files are installed in 
 
 ----
 /usr/share/doc/hostmot2-firmware-<board>/ 
@@ -236,7 +238,7 @@ When you install a firmware package .deb, the .PIN files are installed in
 == Firmware
 
 The selected firmware (.BIT file) and configuration is uploaded from 
-the PC motherboard to the Mesa mothercard on EMC2 startup. 
+the PC motherboard to the Mesa mothercard on LinuxCNC startup. 
 If you are using Run In Place, you must still install a 
 hostmot2-firmware-<board> package. There is more information about 
 firmware and configuration in the 'Configurations' section. 
@@ -276,7 +278,7 @@ So in this way we can save two ports (48 bits) for GPIO.
 
 Here are tables of the firmwares available in the official packages. 
 There may be additional firmwares available at the Mesanet.com website 
-that have not yet made it into the EMC2 official firmware packages, so 
+that have not yet made it into the LinuxCNC official firmware packages, so 
 check there too.  
 
 3x20 (6-port various) Default Configurations (The 3x20 comes in 1M, 1.5M, and 2M gate versions. 
@@ -746,12 +748,12 @@ following pins and parameters:
 
 == Examples
 
-Several example configurations are included with EMC for both stepper
+Several example configurations are included with LinuxCNC for both stepper
 and servo applications. The configurations are located in the hm2-servo
-and hm2-stepper sections of the EMC2 Configuration Selector window. You
+and hm2-stepper sections of the LinuxCNC Configuration Selector window. You
 will need the same board installed for the configuration you pick to
 load. The examples are a good place to start and will save you time.
-Just pick the proper example from the EMC2 Configuration Selector and
+Just pick the proper example from the LinuxCNC Configuration Selector and
 save a copy to your computer so you can edit it. To see the exact pins
 and parameters that your configuration gave you, open the Show HAL
 Configuration window from the Machine menu, or do dmesg as outlined

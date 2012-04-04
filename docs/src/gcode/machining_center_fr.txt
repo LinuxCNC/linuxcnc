@@ -3,7 +3,9 @@
 
 = Aperçu global d'une machine CNC
 
-Cette section donne une description des différents organes constituant une 
+[[cha:Apercu-machine-CNC]] (((Aperçu machine CNC)))
+
+Cette section donne une description des différents organes constituant une
 machine à commande numérique (CNC).
 
 == Composants mécaniques
@@ -12,7 +14,7 @@ Une machine à commande numérique dispose de beaucoup de composants mécaniques
 pouvant être contrôlés, ou qui peuvent avoir une incidence sur la façon
 dont le contrôle de la machine s'effectue. Cette section décrit les
 composants qui interagissent avec l'interpréteur. Les autres composants
-mécaniques, comme les boutons de jog, ne seront pas décrits ici, même si 
+mécaniques, comme les boutons de jog, ne seront pas décrits ici, même si
 ils affectent le contrôle.
 
 === Axes (((axes)))
@@ -28,8 +30,8 @@ standards seront quand même utilisables, tant que le contrôle de bas
 niveau sait comment contrôler les mécanismes actuels pour produire le
 mouvement relatif de l'outil et de la pièce qui auraient été produits
 par des axes indépendants. C'est appelé, la cinématique.]
-footnote:[Avec EMC2, le cas de la machine à portique XYYZ avec deux
-moteurs pour un axe est mieux traité par la cinématique que par un 
+footnote:[Avec LinuxCNC, le cas de la machine à portique XYYZ avec deux
+moteurs pour un axe est mieux traité par la cinématique que par un
 axe linéaire supplémentaire.]
 
 ==== Axes linéaires primaires (((axes linéaires primaires)))
@@ -80,14 +82,14 @@ programmées.
 (((Bouton effacement de bloc)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'effacement de
-bloc. Voir la section <<sec:Interaction-effacement-de-bloc>>.
+bloc. Voir la section <<sec:Interaction-effacement-de-bloc,effacement de bloc>>.
 
 === Bouton d'arrêt optionnel du programme[[sec:arret-optionnel]]
 
 (((arrêt optionnel)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'arrêt du programme.
-Voir la section <<sec:Interaction-arrets-optionnels>>.
+Voir la section <<sec:Interaction-arrets-optionnels,arrêts optionnels>>.
 
 == Composants de contrôle et de données
 
@@ -107,7 +109,7 @@ sont parallèles.
 Les axes rotatifs se mesurent en degrés. Leur sens de rotation positif
 est le sens anti-horaire quand l'observateur est placé face à l'axe.
 footnote:[Si les parallélismes sont particuliers, le constructeur du
-système devra indiquer à quels sens de rotation correspondent 
+système devra indiquer à quels sens de rotation correspondent
 horaire et anti-horaire.]
 
 === Point contrôlé[[sec:Point-controle]]
@@ -130,14 +132,14 @@ points de tangence à la pièce, de face et sur le côté de l'outil.
 [[sec:Mouvement-lineaire-coordonne]]
 === Mouvement linéaire coordonné
 
-Pour mener un outil sur une trajectoire spécifiée, une machine à commande numérique
-doit coordonner les mouvements de plusieurs axes. Nous utilisons le
-terme *mouvement linéaire coordonné* pour décrire une situation dans
+Pour mener un outil sur une trajectoire spécifiée, une machine à commande
+numérique doit coordonner les mouvements de plusieurs axes. Nous utilisons le
+terme _mouvement linéaire coordonné_ pour décrire une situation dans
 laquelle, nominalement, chacun des axes se déplace à vitesse constante
 et tous les axes se déplacent de leur point de départ à leur point
 d'arrivée en même temps. Si deux des axes X, Y, Z (ou les trois) se
 déplacent, ceci produit un mouvement en ligne droite, d'où le mot
-*linéaire* dans le terme. Dans les véritables mouvements, ce n'est
+_linéaire_ dans le terme. Dans les véritables mouvements, ce n'est
 souvent pas possible de maintenir la vitesse constante à cause des
 accélérations et décélérations nécessaires en début et fin de
 mouvement. C'est faisable, cependant, de contrôler les axes ainsi,
@@ -149,7 +151,7 @@ linéaire coordonné.
 Un mouvement linéaire coordonné peut être exécuté soit en vitesse
 travail, soit en vitesse rapide, ou il peut être synchronisé à la
 rotation de la broche. Si les limites physiques de l'axe rendent le
-déplacement impossible, tous les axes seront ralentis pour maintenir 
+déplacement impossible, tous les axes seront ralentis pour maintenir
 le parcours prévu.
 
 === Vitesse[[sec:Vitesse-d-avance]]
@@ -173,15 +175,15 @@ l'interpréteur, l'interprétation des vitesses est la suivante:
 === Arrosage (((arrosage)))
 
 Arrosage fluide ou par gouttelettes peuvent être activés
-séparément. Le langage RS274/NGC les arrête ensemble, voir la section 
+séparément. Le langage RS274/NGC les arrête ensemble, voir la section
 <<sec:M7-M8-M9, des contrôles d'arrosage>>.
 
 === Temporisation (((tempo)))
 
 Une temporisation peut être commandée (ex: pour immobiliser tous les
 axes) pendant une durée spécifique. La broche n'est pas arrêtée pendant
-une temporisation! Sans s'occuper <<sec:Modes-de-controle-trajectoires, du mode 
-de contrôle de trajectoire>> la machine s'arrêtera exactement à la fin du 
+une temporisation! Sans s'occuper <<sec:Modes-de-controle-trajectoires, du mode
+de contrôle de trajectoire>> la machine s'arrêtera exactement à la fin du
 dernier mouvement avant la temporisation.
 
 === Unités (((unités)))
@@ -191,19 +193,19 @@ peuvent être les pouces ou les millimètres. La vitesse de rotation de
 la broche est en tours par minute. Les positions des axes rotatifs sont
 exprimées en degrés. Les vitesses d'avance sont exprimées en unités
 machine par minute ou en degrés par minute ou en unités de longueur par
-tour de broche, comme décrit dans la section 
+tour de broche, comme décrit dans la section
 <<sec:Vitesse-d-avance, des vitesses>>.
 
 === Position courante
 
-Le point contrôlé est toujours à un emplacement appelé la *position
-courante*, et le contrôleur sait toujours où est cette position. Les
+Le point contrôlé est toujours à un emplacement appelé la _position
+courante_, et le contrôleur sait toujours où est cette position. Les
 valeurs représentant la position courante doivent être ajustées en
 l'absence de tout mouvement des axes si un de ces événements a lieu:
 
  . Les unités de longueur ont changé.
  . La compensation de longueur d'outil a changé.
- . Le décalage d'origine a changé. 
+ . Le décalage d'origine a changé.
 
 === Choix du plan de travail[[sec:Choix-du-plan-de-travail]]
 
@@ -236,9 +238,9 @@ en position d'usinage.
 Les boutons des correcteurs de vitesses peuvent être activés (ils
 fonctionnent normalement) ou rendus inopérants (Ils n'ont plus aucun
 effet). Le langage RS274/NGC dispose d'une commande qui active tous les
-boutons et une autre qui les désactive. Voir l'inhibition et l'activation   
+boutons et une autre qui les désactive. Voir l'inhibition et l'activation
 <<sec:M48-Activation-Correcteurs-Vitesse, des correcteurs>>.
-Voir également <<sec:Interaction-vitesses, ici pour d'autres détails>>. 
+Voir également <<sec:Interaction-vitesses, ici pour d'autres détails>>.
 
 === Modes de contrôle de trajectoire[[sec:Modes-de-controle-trajectoires]]
 
@@ -259,40 +261,41 @@ trajectoire:
     
 Voir également les G-codes <<sec:G61-G61-1-G64, de contrôle de trajectoire>>.
 
+[[sec:Interaction-vitesses]] (((Interraction vitesse)))
+[[sec:Interaction-effacement-de-bloc]] (((effacement de bloc)))
+[[sec:Interaction-arrets-optionnels]] (((Arrêts optionnels)))
+
 == Interaction de l'interpréteur avec les boutons
 
 L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas
 l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
-=== Boutons de correction de vitesses[[sec:Interaction-vitesses]]
+=== Boutons de correction de vitesses
 
 L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
 l'action des boutons d'ajustement des vitesses. Pour certains
 mouvements, tels que la sortie de filet à la fin d'un cycle de
 filetage, les boutons sont neutralisés automatiquement.
 
-EMC2 réagit aux réglages de ces boutons seulement quand ils sont
+LinuxCNC réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
-=== Bouton d'effacement de bloc[[sec:Interaction-effacement-de-bloc]]
+=== Bouton d'effacement de bloc
 
-(((effacement de bloc)))
-
-Si le bouton *Effacement de bloc* est actif, les lignes de code
+Si le bouton _Effacement de bloc_ est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
 d'effacement de bloc) ne sont pas interprétées. Si le bouton est
 désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
 d'effacement de bloc doit être positionné avant de lancer le programme G-code.
 
-=== Bouton d'arrêt optionnel du programme[[sec:Interaction-arrets-optionnels]]
-
-(((Arrêts optionnels)))
+=== Bouton d'arrêt optionnel du programme
 
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
 est mis en pause.
 
-== Fichier d'outils[[sec:Fichier-Outils]]
+[[sec:Fichier-Outils]] (((Fichier d'outils)))
+== Fichier d'outils
 
 Un fichier d'outils est requis par l'interpréteur. Le fichier indique
 dans quels emplacements du carrousel sont placés les outils, la
@@ -305,7 +308,7 @@ Le nom de la table d'outils est défini sous cette forme dans le fichier ini:
 TOOL_TABLE = tooltable.tbl
 ----
 
-Il est également possible de donner à la table d'outils le même nom que le 
+Il est également possible de donner à la table d'outils le même nom que le
 fichier ini, mais avec une extension tbl, par exemple:
 ----
 TOOL_TABLE = acme_300.tbl
@@ -316,29 +319,27 @@ ou encore:
 TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----
 
-D'autres informations sont disponibles sur les spécificités du 
+D'autres informations sont disponibles sur les spécificités du
 <<sec:Tool-Table-Format, format de la table d'outils>>.
 
-== Paramètres[[sec:Parametres]]
-
-(((paramètres)))
+[[sec:Parametres]] (((paramètres)))
+== Paramètres
 
 Dans le langage RS274/NGC, la machine maintient un tableau
 de 5400 paramètres numériques. La plupart d'entre eux ont un usage
 spécifique. Le tableau de paramètres est persistant, même quand la
-machine est mise hors tension. EMC2 utilise un fichier de paramètres et
+machine est mise hors tension. LinuxCNC utilise un fichier de paramètres et
 assure sa persistance, il donne à l'interpréteur la responsabilité
 d'actualiser le fichier. L'interpréteur lit le fichier quand il démarre
 et l'écrit juste avant de s'arrêter.
 
-Tous les paramètres sont disponibles pour une utilisation dans les 
+Tous les paramètres sont disponibles pour une utilisation dans les
 programmes de G-code.
 
-Le format d'un fichier de paramètres <<sec:Format-fichier-de-parametres, est 
-visible ici>>. Le fichier est composé d'un certain nombre de lignes d'en-tête, 
-suivie par une ligne vide, suivie d'un nombre quelconque de lignes de données. 
-Les lignes d'en-tête sont ignorées par l'interpréteur. Il est important qu'il y 
-ait une ligne vide (sans espace ni tabulation), avant les données. La ligne 
+Un fichier de paramètres est composé d'un certain nombre de lignes d'en-tête,
+suivies par une ligne vide, suivie d'un nombre quelconque de lignes de données.
+Les lignes d'en-tête sont ignorées par l'interpréteur. Il est important qu'il y
+ait une ligne vide (sans espace ni tabulation), avant les données. La ligne
 d'en-tête montrée dans le tableau ci-dessous, décrit
 les colonnes de données, il est donc proposé (mais pas obligatoire) que
 cette ligne soit toujours présente.
@@ -350,11 +351,11 @@ Chaque ligne du fichier contient le numéro d'index d'un paramètre dans
 la première colonne et la valeur attribuée à ce paramètre, dans la
 deuxième colonne. La valeur est représentée par une nombre flottant en
 double précision à l'intérieur de l'interpréteur, mais le point décimal
-n'est pas exigé dans le fichier. Le format des paramètres décrit ci-dessous, 
-est obligatoire et doit être utilisé pour tous les 
-fichiers de paramètres, à l'exception des paramètres représentant une valeur sur 
-un axe rotatif inutilisé, qui peuvent être omis. Une erreur sera signalée si un 
-paramètre requis est absent. Un fichier de paramètres peut inclure tout autre 
+n'est pas exigé dans le fichier. Le format des paramètres décrit ci-dessous,
+est obligatoire et doit être utilisé pour tous les
+fichiers de paramètres, à l'exception des paramètres représentant une valeur sur
+un axe rotatif inutilisé, qui peuvent être omis. Une erreur sera signalée si un
+paramètre requis est absent. Un fichier de paramètres peut inclure tout autre
 paramètre, tant que son numéro est compris dans une fourchette de 1 à 5400. Les
 numéros de paramètre doivent être disposés dans l'ordre croissant.
 Sinon, une erreur sera signalée. Le fichier original est copié comme

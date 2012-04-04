@@ -3,8 +3,6 @@
 
 #include <boost/python.hpp>
 namespace bp = boost::python;
-#include "rs274ngc.hh"
-#include "interpmodule.hh" // interp_ptr
 
 #include <vector>
 #include <string>
@@ -41,8 +39,7 @@ class PythonPlugin {
 public:
     static PythonPlugin *configure(const char *iniFilename = NULL,
 				   const char *section = NULL,
-				   struct _inittab *inittab = NULL,
-				   Interp *interp = NULL
+				   struct _inittab *inittab = NULL
 				   );
     bool is_callable(const char *module, const char *funcname);
     int call(const char *module,const char *callable,
@@ -52,7 +49,7 @@ public:
 
     int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }
-    void initialize(bool reload = false, Interp *interp = NULL);
+    void initialize(bool reload = false);
     std::string last_exception() { return exception_msg; };
     std::string last_errmsg() { return error_msg; };
     bp::object main_namespace;
@@ -60,8 +57,7 @@ public:
 private:
     PythonPlugin(const char *iniFilename,         // no public constructor
 		 const char *section,
-		 struct _inittab *inittab,
-		 Interp *interp);
+		 struct _inittab *inittab);
     PythonPlugin(const PythonPlugin &) {};        // not copyable
     PythonPlugin & operator=(const PythonPlugin&) { return *this; };  // not assignable
     ~PythonPlugin() {};

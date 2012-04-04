@@ -24,5 +24,5 @@ These configurations are for the following Smithy machines:
 
 924 - Lathe equipped with YAKO Automation axis drives, Sieg variable speed brushless DC spindle, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card.
 
-6130 - Lathe equipped with GSK axis drives, VFD and AC induction type spindle motor, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card. (Currently a prototype machine with prototype handwheel jogging pendant.)
+6130 - Lathe equipped with Leadshine three phase axis drives, VFD and AC induction type spindle motor, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card.
 

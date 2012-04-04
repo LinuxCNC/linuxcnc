@@ -1,102 +1,605 @@
 :lang: fr
 :toc:
 
-= L'interface graphique NGCGUI
+= L'utilitaire graphique NGCGUI
 
-image::images/ngcgui.png[]
+[[cha:ngcgui]] (((NGCGUI)))
+
+image::images/ngcgui_fr.png[]
 
 == Vue d'ensemble
-    
- - ngcgui est un utilitaire pour écrire et utiliser les sous-programmes avec EMC2.
- - ngcgui peut être utilisé séparément ou embarqué.
- - Il crée des onglets multiples sur la page de l'interface graphique Axis.
 
-Ngcgui est un outil puissant pour construire les programmes de G-code en sous-programmes::
- - Les sous-programmes peuvent être concaténés pour fournir un programme de G-code complet. 
- - De multiples instances d'un sous-programme peuvent être utilisées pour fournir
-   la même tâche à différents emplacements sur la même pièce. 
- - N'importe quel G-code valide peut être utilisé dans un sous-programme.
+* NGCGUI est un utilitaire pour écrire et utiliser les sous-programmes avec
+LinuxCNC.
+* NGCGUI peut être utilisé en autonome ou intégré, dans ce dernier cas,
+il crée des onglets multiples sur la page de l'interface graphique Axis.
 
-== Embarquer ngcgui dans Axis
+Ngcgui est un outil puissant pour construire les programmes de G-code en
+sous-programmes.
 
-Voici un exemple d'embarquement de Ngcgui dans Axis:: 
-- Les sous-programmes doivent être placés dans un sous-répertoire comme indiqué 
-    si une simple copie de ce texte est faite. 
-- D'autres exemples de sous-programmes utilisent d'autres sous-répertoires,
-    toujours bien le vérifier pour être sûr d'avoir les bonnes dépendances avec le 
-    répertoire indiqué dans les sous-programmes.
+* Les sous-programmes peuvent être concaténés pour fournir un programme de
+G-code complet.
+* De multiples instances d'un sous-programme peuvent être utilisées pour
+fournir la même tâche à différents emplacements sur la même pièce. 
+* N'importe quel G-code valide peut être utilisé dans un sous-programme.
+* De nouveaux sous-programmes peuvent être ajoutés à la volée.
 
-  [DISPLAY]
-  TKPKG             = Ngcgui    1.0
-  TKPKG             = Ngcguittt 1.0
-  # Ngcgui must precede Ngcguittt
+== Configurations fournies en exemple.
 
-  NGCGUI_FONT       = Helvetica -12 normal
-  # specifie le path en relatif ou full path pour ajuster au démarrage,
-  # les pages aux onglets:
-  NGCGUI_PREAMBLE   = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/simp.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/xyz.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/iquad.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/db25.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/ihex.ngc
-  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/gosper.ngc
-  # specifie "" pour l'onglet d'une page personnalisée
-  NGCGUI_SUBFILE    = ""
-  #NGCGUI_SUBFILE   = "" utilisé quand des trames d'image sont spécifiées
-  #                      et requiert d'ouvrir d'autres fichiers
-  #                      d'images seront mis dans une fenêtre de 
-  #                      niveau supérieur
-  NGCGUI_OPTIONS    =
-  #NGCGUI_OPTIONS   = opt1 opt2 ...
-  # opt items:
-  #   nonew      -- interdit la création d'un nouvel onglet personnalisé
-  #   noremove   -- interdit l'effacement d'une page d'onglet
-  #   noauto     -- no auto send (makeFile, then manually send)
-  #   noiframe   -- no internal image, image on separate top level
+Trois configurations sont fournies, elles se trouve dans le répertoire _sim_
+du sélecteur de configuration de LinuxCNC. Le sélecteur de configuration se
+trouve quand à lui dans le menu _Applications → CNC → LinuxCNC_.
 
-  TTT               = truetype-tracer
-  TTT_PREAMBLE      = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+* _ngcgui_ - Un exemple facile à comprendre utilisant ces sous-programmes:
+** _simp_ - Un exemple simple créant deux cercles.
+** _xyz_ - Crée une boîte basée sur deux coins opposés.
+** _iquad_ - Crée un quadrilatère interne.
+** _db25_ - Crée la découpe pour une fiche DB25.
+** _ihex_ - Crée un hexagone interne.
+** _gosper_ - Une démo sur la récursion.
+** _Custom_ - Crée des onglets personnalisés.
+** _ttt_ - Traceur True Type, pour créer des textes à graver.
 
-  PROGRAM_PREFIX          = ../../nc_files
+* _ngcgui-lathe_ - Un exemple de sous-programme pour un tour:
+** _id_ - Alésage intérieur.
+** _od_ - Cylindrage extérieur.
+** _taper-od_ - Tourne un cône mâle.
+** _Custom_ - Crée des onglets personnalisés.
+
+* _ngcgui-simple_ - Un exemple simple:
+** _simp_ - Un exemple simple créant deux cercles.
+** _xyz_ - Crée une boîte basée sur deux coins opposés.
+
+Pour visualiser les sous-programmes presser l'_**A**rrêt d'**U**rgence_ 
+image:images/tool_estop.gif[] puis, activer la _Marche Machine_ 
+image:images/tool_power.gif[] et réaliser la _Prise d'origine générale_.
+Cliquer sur un onglet de ngcgui et presser _Créer la fonction_ 
+puis _Finaliser_. Enfin, presser sur le bouton 
+image:images/tool_run.gif[] _Départ cycle_ pour exécuter le G-code.
+
+[NOTE]
+Les sous-programmes d'exemples fournis avec la distribution doivent tous
+fonctionner avec la configuration de la machine simulée. Un utilisateur doit
+toujours comprendre le comportement et les implications d'un programme avant
+de tenter de l'exécuter sur une machine réelle.
+
+== Librairies
+
+Les configurations en simulation pour ngcgui utilisent les liens suivants vers
+des librairies de LinuxCNC protégées en écriture:
+
+* _Sous-fichiers compatibles ngcgui_ - ngcgui_lib
+* _Sous-programme d'aide_ - ngcgui_lib/utilitysubs
+* _Fichiers M utilisateurs_ - ngcgui_lib/mfiles
+
+Ces librairies sont définies dans le fichier ini par les items:
+
+----
+[RS274NGC]
+SUBROUTINE_PATH = ../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH     = ../../../nc_files/ngcgui_lib/mfiles
+----
+
+C'est une longue ligne (ne pas continuer sur de multiples lignes) qui spécifie
+les répertoires utilisés dans le chemin de recherche. Les noms de répertoires
+sont séparés par le caractère (:).
+
+L'utilisateur peut créer de nouveaux répertoires pour ses propres
+sous-programmes et fichiers M et les ajouter dans le chemin de recherche.
+
+Par exemple, un utilisateur pourrait créer ces répertoires à partir de la
+console.
+
+----
+mkdir /home/myusername/mysubs
+mkdir /home/myusername/mymfiles
+----
+
+Puis y créer ou y copier des fichiers qui lui seront accessibles en écriture.
+Par exemple, créer un sous-fichier compatible ngcgui nommé:
+
+----
+/home/myusername/mysubs/exemple.ngc
+----
+
+Le fichier ini doit être édité pour lui inclure les nouveaux sous-fichiers et
+les ajouter au chemin. Pour cet exemple:
+
+----
+[RS274NGC]
+SUBROUTINE_PATH = /home/myusername/mysubs:../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH     = /home/myusername/mymfiles:../../../nc_files/ngcgui_lib/mfiles
+
+[DISPLAY]
+NGCGUI_SUBFILE = exemple.ngc
+----
+
+LinuxCNC et ngcgui utilisent le premier fichier trouvé lors d'une recherche
+dans les répertoires du chemin de recherche. Avec ce comportement, Il est
+possible de substituer un sous-fichier ngcgui_lib en plaçant un sous-fichier
+avec un nom identique plus tôt dans le chemin de recherche pour qu'il soit 
+trouvé avant. Plus d'informations peuvent être trouvées au chapitre INI dans le
+Manuel de l'intégrateur.
+
+== Intégration de ngcgui dans Axis
+
+D'autres exemples de sous-programmes se trouvent dans le répertoire sim/ngcgui
+
+
+Les items de fichier INI pour NGCGUI vont dans la section [DISPLAY].
+
+* _TKPKG_             = Ngcgui    1.0 - Le paquet principal de NGCGUI (doit
+précéder Ngcguittt).
+* _TKPKG_             = Ngcguittt 1.0 - Le paquet du traceur True Type pour
+générer des textes à graver.
+* _NGCGUI_FONT_       = Helvetica -12 normal - Spécifie la police utilisée.
+* _NGCGUI_PREAMBLE_   = in_std.ngc - Le fichier de préambule à ajouter au début
+du sous-programme. Quand plusieurs sous-programmes sont concaténés, un seul
+est ajouté.
+* _NGCGUI_SUBFILE_    = simp.ngc - Crée un onglet depuis le sous-programme nommé.
+* _NGCGUI_SUBFILE_    = "" - Crée un onglet personnalisé.
+* _#NGCGUI_OPTIONS_   = opt1 opt2 ... - Options Ngcgui
+** # opt items:
+*** #   nonew      -- interdit la création d'un nouvel onglet personnalisé
+*** #   noremove   -- interdit l'effacement d'une page d'onglet
+*** #   noauto     -- pas d'envoi auto (makeFile, puis envoi manuel)
+*** #   noiframe   -- no internal image, image on separate top level
+* _TTT_               = Le programme True-type Tracer
+* _TTT_PREAMBLE_      = in_std.ngc - Optionnel, spécifie le nom de fichier de
+préambule utilisé par ttt pour créer les sous-fichiers.
+
+
+Voici un exemple d'intégration de NGCGUI dans Axis. Les sous-programmes doivent
+être placés dans un répertoire spécifié par la variable 
+[RS274NGC]SUBROUTINE_PATH. Certains exemples de sous-programmes utilisent
+d'autres sous-programmes, bien vérifier pour être sur d'avoir les bonnes 
+dépendances, le cas échéant, dans un répertoire SUBROUTINE_PATH. Certains
+sous-programmes peuvent utiliser des fichiers M (Mfiles) personnalisés qui
+doivent se trouver dans un répertoire spécifié par [RS274NGC]USER_M_PATH.
+
+.Simple INI
+
+----
+[RS274NGC]
+SUBROUTINE_PATH   = ../../../nc_files/ngcgui_lib:../../../ngcgui_lib/utilitysubs
+USER_M_PATH       = ../../../nc_files/ngcgui_lib/mfiles
+
+[DISPLAY]
+TKPKG             = Ngcgui    1.0
+TKPKG             = Ngcguittt 1.0
+# Ngcgui must precede Ngcguittt
+
+NGCGUI_FONT       = Helvetica -12 normal
+# specifie seulement les noms de fichiers, doit être dans [RS274NGC]SUBROUTINE_PATH
+NGCGUI_PREAMBLE   = in_std.ngc
+NGCGUI_SUBFILE    = simp.ngc
+NGCGUI_SUBFILE    = xyz.ngc
+NGCGUI_SUBFILE    = iquad.ngc
+NGCGUI_SUBFILE    = db25.ngc
+NGCGUI_SUBFILE    = ihex.ngc
+NGCGUI_SUBFILE    = gosper.ngc
+# specifie "" pour une page d'onglet personnalisée
+NGCGUI_SUBFILE    = ""
+#NGCGUI_SUBFILE   = "" utilisé quand une trame d'image est spécifiée si
+#                      ouvrir d'autres fichiers est requis
+#                      les images seront mises dans une fenêtre de haut niveau
+NGCGUI_OPTIONS    =
+#NGCGUI_OPTIONS   = opt1 opt2 ...
+# opt items:
+#   nonew      -- interdit la création d'un nouvel onglet personnalisé
+#   noremove   -- interdit l'effacement d'une page d'onglet
+#   noauto     -- pas d'envoi auto (makeFile, puis envoi manuel)
+#   noiframe   -- no internal image, image on separate top level
+
+TTT               = truetype-tracer
+TTT_PREAMBLE      = in_std.ngc
+
+PROGRAM_PREFIX    = ../../nc_files
+----
+
+=== Traceur Truetype
+
+Ngcgui_ttt fourni le support pour truetype-tracer (v4). Il crée un onglet
+sur Axis qui permet à l'utilisateur de créer ses propres textes dans de 
+nouveaux onglets ngcgui et en choisissant leurs fontes et autres paramètres. 
+(Truetype-tracer doit être installé indépendamment).
+
+L'intégration de ngcgui_ttt dans Axis, nécessite les items suivants en plus de
+ceux de ngcgui:
+....
+Item:    [DISPLAY]TKPKG = Ngcgui_ttt numéro_de_version
+Exemple: [DISPLAY]TKPKG = Ngcgui_ttt 1.0
+Note:    Obligatoire, spécifie le chargement de ngcgui_ttt dans un onglet 
+d'Axis nommé ttt. Doit suivre l'item TKPKG = Ngcgui.
+
+Item:    [DISPLAY]TTT = chemein_de_truetype-tracer
+Exemple: [DISPLAY]TTT = truetype-tracer
+Note:    Optionnel, s'il n'est pas spécifié, utilisera 
+/usr/local/bin/truetype-tracer. Spécifier avec un chemin absolut ou simplement
+le nom de l'exécutable, dans ce cas, la variable d'environnement PATH de
+l'utilisateur sera utilisée pour rechercher le programme.
+
+Item:    [DISPLAY]TTT_PREAMBLE = nom_fichier_préambule
+Exemple: [DISPLAY]TTT_PREAMBLE = in_std.ngc
+Note:    Optionnel, spécifie le nom du fichier de préambule utilisé pour
+les sous-fichiers créés par ttt.
+....
+
+=== Exemples d'INI
+
+Ngcgui utilise le chemin de recherche de LinuxCNC pour chercher les fichiers.
+
+Le chemin de recherche commence avec le répertoire standard spécifié par:
+
+  [DISPLAY]PROGRAM_PREFIX
+
+suivi par les répertoires multiples spécifiés par:
+
+  [RS274NGC]SUBROUTINE_PATH
+
+.Répertoires
+Les répertoires peuvent être spécifiés comme des chemins absolus ou des
+chemins relatifs.
+....
+Exemple: [DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files
+Exemple: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files
+Exemple: [DISPLAY]PROGRAM_PREFIX = ../../../nc_files
+....
+
+.Chemins absolus
+Un chemin absolu commence avec un "/" qui indique un emplacement par rapport au
+système de fichiers complet.  Un chemin qui commence par "\~/" indique un
+chemin commençant _depuis_ le répertoire home de l'utilisateur. Un chemin qui
+commence par "~nomutilisateur/" indique un chemin commençant _dans_ le
+répertoire utilisateur.
+
+.Chemins relatifs
+Un chemin relatif commence dans le répertoire de démarrage qui est celui
+contenant le fichier ini. L'usage des chemins relatifs facilite l'accès aux
+configurations mais requiert une bonne compréhension de la façon dont les
+chemins sont spécifiés sous Linux.
+
+....
+./d0      est le même que d0, ex: un répertoire nommé d0 dans le répertoire de
+départ.
+../d1     se réfère au répertoire d1 dans le répertoire parent.
+../../d2  se réfère au répertoire d2 dans le répertoire parent du parent.
+../../../d3 etc.
+....
+
+Des répertoires multiples peuvent être spécifiés par la variable:
+[RS274NGC]SUBROUTINE_PATH suivie des chemins séparés par le signe ":". 
+L'exemple suivant illustre le format utilisé pour les chemins multiples et
+montre l'utilisation de répertoires relatifs et absolus.
+
+Exemple: 
+_[RS274NGC]SUBROUTINE_PATH = ../../../nc_files/ngcgui_lib:
+../../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc_
+
+C'est une longue ligne, ne pas continuer sur de multiples lignes. Quand
+LinuxCNC et/ou Ngcgui cherchent un fichier, c'est le premier trouvé qui est
+utilisé.
+
+LinuxCNC (et NGCGUI) doivent pouvoir trouver tous les sous-programmes avec
+les routines additionnelles qui sont appelées depuis les sous-fichiers NGCGUI.
+Il est pratique de placer les fichiers utilitaires dans un répertoire séparé
+comme indiqué dans l'exemple précédent.
+
+La distribution inclus le répertoire ngcgui_lib et les fichiers de préambule
+, sous-fichiers, postambule et fichiers d'aide pour les démos. Pour modifier
+le comportement des fichiers, il est possible de copier n'importe quel fichier
+et de le placer en avant du chemin de recherche. Le premier répertoire
+recherché est: [DISPLAY]PROGRAM_PREFIX. Il est possible de l'utiliser mais
+c'est une meilleure pratique de créer un répertoire dédié en le plaçant au
+début du chemin donné par [RS274NGC]SUBROUTINE_PATH.
+
+Dans l'exemple suivant, les fichiers dans /home/myname/emc2/mysubs seront 
+trouvés avant ceux étant dans ../../../nc_files/ngcgui_lib.
+
+Exemple:
+_[RS274NGC]SUBROUTINE_PATH = /home/myname/emc2/mysubs:../../../nc_files/
+ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs_
+
+Les débutants pourraient essayer par inadvertance d'utiliser des 
+fichiers non structurés comme le nécessite ngcgui. Ngcgui déclencherait alors
+rapidement de nombreuses erreurs si les fichiers ne répondent pas à ses 
+conventions. Une bonne pratique suggère que les sous-fichiers compatibles
+ngcgui doivent être placés dans un répertoire dédié à cette fin et que
+les préambules, postambules et fichiers d'aide doivent être dans un répertoire
+séparés pour dissuader toute tentative d'utilisation de ces sous-fichiers. 
+
+Pour intégrer ngcgui dans Axis, spécifier les items suivants dans le fichier
+ini:
+....
+Item:    [DISPLAY]PROGRAM_PREFIX = dirname
+Exemple: [DISPLAY]PROGRAM_PREFIX = ../../../nc_files
+Note:    Obligatoire et nécessaire pour de nombreuses fonctions de LinuxCNC.
+         C'est le premier répertoire utilisé lors de la recherche de fichiers.
+
+Item:    [RS274NGC]SUBROUTINE_PATH = dirname1:dirname2:dirname3 ...
+Exemple: [RS274NGC]SUBROUTINE_PATH = ../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
+Note:    Optionnel, mais très utile pour organiser les sous-fichiers et les
+         fichiers utilitaires.
+
+Item:    [DISPLAY]TKPKG=Ngcgui version_number
+Exemple: [DISPLAY]TKPKG=Ngcgui 1.0
+Note:    Obligatoire, spécifie le chargement des onglets ngcgui dans axis.
+
+Item:    [DISPLAY]NGCGUI_FONT = font_descriptor
+Exemple: [DISPLAY]NGCGUI_FONT = Helvetica -12 normal
+Note:    Optionnel, descripteur de fontes compatible avec celui de Tcl.
+         Avec des items pour le type de fonte -fontsize fontweight
+         Par défaut c'est la police: Helvetica -10 normal
+
+Item:    [DISPLAY]NGCGUI_SUBFILE = subfile_filename
+Exemple: [DISPLAY]NGCGUI_SUBFILE = simp.ngc
+Exemple: [DISPLAY]NGCGUI_SUBFILE = xyz.ngc
+Exemple: [DISPLAY]NGCGUI_SUBFILE = ""
+Note:    Utilise un ou plusieurs items pour spécifier les fichiers compatibles
+         avec les sous-fichiers ngcgui qui requiert un onglet dans Axis au
+         départ. Un onglet "personnalisé" est créé quand le nom de fichier est "".
+         Un utilisateur peut utiliser l'onglet "Personnalisé" pour lire un
+         fichier système et identifier un préambule, un sous-fichier ou un
+         postambule.
+
+Item:    [DISPLAY]NGCGUI_PREAMBLE = preamble_filename
+Exemple: [DISPLAY]NGCGUI_PREAMBLE = in_std.ngc
+Note:    Optionnel, si spécifié, alors ce fichier sera prépondérant à tous les
+         sous-fichiers. Les fichiers créés avec l'onglet "Personnalisé"
+         utilisent le préambule spécifié avec cette page.
+
+Item:    [DISPLAY]NGCGUI_POSTAMBLE = postamble_filename
+Exemple: [DISPLAY]NGCGUI_POSTAMBLE = bye.ngc
+Note:    Optionnel, si spécifié, le fichier est ajouté à tous les sous-fichiers.
+         Les fichiers créés avec l'onglet "Personnalisé" utilisent le postambule
+         spécifié avec cette page.
+
+Item:    [DISPLAY]NGCGUI_OPTIONS = opt1 opt2 ...
+Exemple: [DISPLAY]NGCGUI_OPTIONS = nonew noremove
+Note:    De multiples options séparées par des blancs.
+         Par défaut,  ngcgui gère les onglets de cette manière:
+            1) Un utilisateur peut créer de nouveaux onglets.
+            2) Un utilisateur peut enlever des onglets (excepté le dernier 
+         restant)
+            3) La finalisation envoie automatiquement les fichiers à Axis.
+            4) Une trame d'image (iframe) est rendue disponible pour afficher
+            une image pour le sous-fichier.
+
+         Les options _nonew_, _noremove_, _noauto_, _noiframe_ respectivement,
+         désactivent ces comportements par défaut.
+
+         Par défaut, Si un fichier d'image (.png, .gif, .jpg, .pgm)
+         est trouvé dans le même répertoire que le sous-fichier, l'image
+         est affichée dans une iframe.  Spécifier l'option
+         _noiframe_ rendra disponibles d'autres boutons pour sélectionner
+         un préambule, un sous-fichier ou un postambule et
+         des cases à cocher additionnelles. Les cases à cocher sont toujours
+         disponibles avec les touches spéciales suivantes:
+           Ctrl-R Bascule "Conserver les valeurs à la lecture du sous-fichier"
+           Ctrl-E Bascule "Déployer le sous-programme"
+           Ctrl-a Bascule "EnvoiAuto"
+          (Ctrl-k lists all keys and functions)
+
+         Si _noiframe_ est spécifié et qu'un fichier image est trouvé,
+         l'image est affichée dans une fenêtre séparée et
+         toutes les fonctions sont disponibles dans la page de l'onglet.
+
+         Les _NGCGUI_OPTIONS_ s'appliquent à tous les onglets ngcgui excepté
+         ceux sur lesquels les options _nonew_, _noremove_, et _noiframe_ ne
+         sont pas applicables pour l'onglet "Personnalisé". 
+         Ne pas utiliser l'onglet "Personnalisé" si les utilisateurs doivent 
+         avoir des possibilités de sélection de sous-fichiers et de création
+         d'onglet additionnels limitées.
+....
+:showcomments:
+// FIX-ME Keyboard shortcuts do not work in version _fr.
+
+== Besoins des sous-programmes
+
+Un sous-fichiers compatible NGCGUI contient une simple définition de
+sous-programme. Le nom du sous-programme doit être le même que celui du
+fichier (non inclus l'extension .ngc). LinuxCNC supporte les sous-programmes
+nommés ou numérotés, mais seuls les sous-programmes nommés sont compatible
+avec NGCGUI. Pour plus d'informations voir le chapitre sur les 
+<<cha:O-codes,O-Codes>>.
+
+La première ligne, autre qu'un commentaire, doit être une déclaration _sub_.
+La dernière ligne, autre qu'un commentaire, doit être une déclaration _endsub_.
+
+.exemple.ngc:
+----
+o<exemple> sub
+  CORPS DU SOUS-PROGRAMME
+o<exemple> endsub
+----
+
+Le corps du sous-programme doit commencer par un jeu de déclarations
+définissant les paramètres nommés locaux pour chaque paramètre positionnel
+attendu pour l'appel du sous-programme. Ces définitions doivent être
+consécutives, commencer par #1 et finir avec le numéro du dernier paramètre
+utilisé. Les définitions doivent être fournies pour chacun de ces paramètres
+(aucune omissions).
+
+.Numérotation des paramètres
+----
+#<xparm> = #1
+#<yparm> = #2
+#<zparm> = #3
+----
+
+LinuxCNC considère tous les paramètres numérotés entre #1 est #30 comme étant
+des paramètres appelables, de même, ngcgui fourni des dialogues de saisie pour
+n'importe quel paramètres dans cette fourchette. Il est de bonne pratique 
+d'éviter d'utiliser un paramètre numéroté de #1 jusqu'à #30 n'importe où
+ailleurs dans le sous-programme. L'utilisation de paramètres nommés locaux est
+recommandée pour toutes le variables internes.
+
+Chaque définition de déclaration peut optionnellement inclure un commentaire
+spécial et une valeur par défaut pour le paramètre.
+
+.Prototypage de déclaration
+----
+#<vname> = #n (=valeur_par_défaut)
+ou
+#<vname> = #n (texte_de_commentaire)
+ou
+#<vname> = #n (=valeur_par_défaut texte_de_commentaire)
+----
+
+.Exemples de paramètres
+----
+#<xparm> = #1 (=0.0)
+#<yparm> = #2 (Ystart)
+#<zparm> = #3 (=0.0 Z start setting)
+----
+
+Si une valeur_par_défaut est donnée, elle sera placée au démarrage, dans la
+boîte de saisie pour le paramètre.
+
+Si un texte_de_commentaire est inclus, il sera utilisé pour identifier l'entrée
+à la place du nom du paramètre.
+
+.Paramètres nommés globaux
+Note sur les paramètres nommés globaux (#<nom_global>) avec ngcgui:
+
+Comme dans de nombreux langages de programmation, l'utilisation de variables
+globales est puissante, mais peut souvent mener à des conséquences inattendues.
+Dans LinuxCNC, les paramètres nommés globaux existants seront valides lors de
+l'exécution du sous-programme et les sous-programmes peuvent les modifier ou 
+en créer.
+
+L'utilisation de paramètres nommé globaux comme entrées dans un sous-programme
+est déconseillé parce-que de tels usages requiert l'établissement et la
+maintenance d'un contexte global bien défini, ce qui est problématique à
+maintenir. L'utilisation de paramètres numérotés en #1 et #30 devrait être
+suffisant pour satisfaire les besoins les plus exigeants.
+
+Ngcgui supporte quelques entrées par paramètres nommés globaux mais leurs usage
+est obsolète et non documenté ici.
+
+Bien que les entrées par paramètres nommés globaux soient déconseillées, les
+sous-programmes LinuxCNC doivent utiliser des paramètres nommés globaux pour
+retourner les résultats. Puisque les sous-fichiers compatibles ngcgui sont
+destinés à l'usage de l'interface graphique, les valeurs de retour n'ont pas
+d'exigence commune. Toutefois, ngcgui est utile comme outil de test pour les
+sous-programmes qui ne retournent pas de paramètres nommés globaux et il est
+commun pour les sous-fichiers compatibles ngcgui d'appeler des fichiers de 
+sous-programmes utilitaires qui eux retournent des résultats avec des paramètres
+nommés globaux.
+
+Pour supporter ces usages, ngcgui ignore les paramètres nommés globaux qui
+incluent le caractère (:) dans leur nom. Utilisation des deux points (:) dans
+un nom prévient ngcgui de créer une bîte de saisie pour ces paramètres.
+
+.Paramètres nommés globaux
+----
+o<exemp> sub
+...
+#<_exemp:result> = #5410       (retourne le diamètre de l'outil courant)
+...
+o<helper> call [#<x1>] [#<x2>] (appel d'un sous-programme)
+#<xresult> = #<_helper:answer> (localise immédiatement le résultat du
+fichier d'aide)
+#<_helper:answer> = 0.0 (rend nul le paramètre nommé global utilisé par le
+sous-programme)
+...
+o<exemp> endsub
+----
+
+Dans l'exemple précédent, le sous-programme utilitaire sera trouvé dans un 
+fichier séparé nommé helper.ngc. Le sous-programme d'aide retourne un résultat
+dans un paramètre nommé global nommé #<_helper:answer>.
+
+Pour une bonne pratique, le sous-fichier appelant localise immédiatement
+le résultat pour une utilisation ailleurs dans le sous-fichier et le paramètre
+nommé global, utilisé pour retourner le résultat est mis à zéro pour diminuer
+les chances qu'il soit utilisé par inadvertance ailleurs dans le contexte
+global. (La mise à zéro avec 0.0 n'est pas toujours le meilleur choix).
+
+Ngcgui supporte la création et la concaténation de multiples fonctions pour
+un sous-fichier et pour de multiples sous-fichiers. Il est parfois pratique 
+pour les sous-fichiers de déterminer leur ordre au début de l'exécution afin
+que ngcgui insère un paramètre global spécial qui pourra être testé par tous
+les sous-programmes. Ce paramètre est nommé #<_feature:>.
+Sa valeur commence avec 0 et est incrémentée avec chaque fonction qui lui est
+ajoutée.
+
+.Fonctions additionelles
+Un commentaire spécial 'info' peut être inclus quelque part dans les
+sous-fichier compatibles ngcgui. Le format est le suivant:
+
+----
+(info: info_text)
+----
+
+La chaine _info_text_ est affichée vers le haut de la page de l'onglet ngcgui
+dans Axis.
+
+Les fichiers non destinés à servir de sous-fichiers peuvent inclure le
+commentaire spécial: "(not_a_subfile)" de sorte que ngcgui les rejette
+automatiquement avec un message explicatif.
+
+----
+(not_a_subfile)
+----
+
+Un fichier image optionnel (.png, .gif, .jpg, .pgm) peut accompagner un
+sous-fichier. Le fichier image peut aider à clarifier les paramètres utilisés
+ par le sous-fichier. Le fichier image doit être dans le même répertoire que le
+sous-fichier et doit avoir le même nom avec une extension appropriée au fichier
+image, ex: le sous-fichier exemp.ngc doit être accompagné par l'image exemp.png.
+Ngcgui tente de redimensionner de grandes images par sous-échantillonnage à
+une largeur maximale de 320 et une hauteur maximum de 240 pixels.
+
+Aucune des conventions nécessaires pour faire une sous-fichier compatible
+ngcgui n'empêche son utilisation en tant que fichier de sous-programme pour
+LinuxCNC.
+
+La distribution LinuxCNC inclus une librairie (répertoire ngcgui_lib) qui
+contient plusieurs exemples de sous-fichiers et de fichiers utilitaires
+compatibles ngcgui pour illustrer les fonctions des sous-programmes de LinuxCNC
+et l'usage de ngcgui.
+
+Des sous-programmes additionnels soumis par les utilisateurs se trouvent dans
+le forum dans la section _Subroutines_.
+
 
 == Exemple, découpe pour DB25
 
-L'image suivante montre le sous-programme DB25. Dans la première image on voit
-les champs remplis pour chaque variable.
+L'exemple ci-dessous montre l'utilisation du sous-programme DB25. 
+Dans la première image on voit les champs remplis pour chaque variable.
 
-image::images/ngcgui-db25-1.png[]
+image::images/ngcgui-db25-1_fr.png[]
 
 Cette image montre le parcours d'outil du sous-programme DB25.
 
-image::images/ngcgui-db25-2.png[]
+image::images/ngcgui-db25-2_fr.png[]
 
-Cette image montre l'action du bouton `Nouveau` et de l'onglet personnalisé pour 
-créer la découpe de trois DB25 en un seul programme.
+Cette image montre l'action du bouton _Nouveau_ et de l'onglet personnalisé pour
+créer très facilement la découpe de trois DB25 en un seul programme.
 
-image::images/ngcgui-db25-3.png[]
-
+image::images/ngcgui-db25-3_fr.png[]
 
 == Création d'un sous-programme
 
-- Pour la création d'un sous-programme à utiliser avec Ngcgui, le nom de fichier 
+* Pour la création d'un sous-programme à utiliser avec Ngcgui, le nom de fichier 
     et le nom du sous-programme doivent être les mêmes. 
-- Le fichier doit être placé dans le sous-répertoire pointé dans le fichier ini. 
-- À la première ligne peut se trouver un commentaires de type info: qui doit 
+* Le fichier doit être placé dans le sous-répertoire pointé dans le fichier ini. 
+* À la première ligne peut se trouver un commentaires de type info: qui doit 
     être placé au début du sous-programme. 
-- Le sous-programme doit être entouré par les balises `sub` et `endsub`. 
-- Les variables utilisées doivent être des variables numérotées et ne doivent pas 
+* Le sous-programme doit être entouré par les balises `sub` et `endsub`. 
+* Les variables utilisées doivent être des variables numérotées et ne doivent pas 
     sauter de numéro. 
-- Des commentaires et presets peuvent être inclus.
-
-  (info: simp -- simple exemple de sous-programme -- Ctrl-U pour éditer)
-  o<simp> sub
-    #<ra>       = #1 (=.6 Radius A) ;Example de paramètre avec un commentaire
-    #<radius_b> = #2 (=0.4)         ;Example de paramètre sans commentaire
-    #<feedrate> = #3 (Feedrate)     ;Example de paramètre sans preset
-    g0x0y0z1
-    g3 i#<ra> f#<feedrate>
-    g3 i[0-#<radius_b>]
-  o<simp> endsub
-
+* Des commentaires et presets peuvent être inclus.
+----
+(info: simp -- simple exemple de sous-programme -- Ctrl-U pour éditer)
+o<simp> sub
+  #<ra>       = #1 (=.6 Rayon A) ;Example de paramètre avec un commentaire
+  #<radius_b> = #2 (=0.4)         ;Example de paramètre sans commentaire
+  #<feedrate> = #3 (Feedrate)     ;Example de paramètre sans preset
+  g0x0y0z1
+  g3 i#<ra> f#<feedrate>
+  g3 i[0-#<radius_b>]
+o<simp> endsub
+----
 

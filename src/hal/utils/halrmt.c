@@ -23,7 +23,7 @@
              --enablepw <password> --sessions <max sessions> -ini<inifile>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
-            uses default port 5006. (note: emcrsh uses 5007 as default)
+            uses default port 5006. (note: linuxcncrsh uses 5007 as default)
   With -- --name <server name> Sets the server name to specified name for Hello.
   With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
@@ -303,7 +303,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 #endif
 
 /***********************************************************************
@@ -467,11 +467,8 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
-   int ret;
    strcat(context->outBuf, "\r\n");
-   ret = write(context->cliSock, context->outBuf, strlen(context->outBuf));
-   //FIXME return error based on ret, probably return (ret >= 0);
-   return 0;
+   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static void sockWriteError(const char *nakStr, connectionRecType *context)
@@ -480,7 +477,7 @@ static void sockWriteError(const char *nakStr, connectionRecType *context)
     sprintf(context->outBuf, "%s %s", nakStr, errorStr);
   else
     sprintf(context->outBuf, "%s", nakStr);
-  sockWrite(context);
+  if(sockWrite(context) < 0) perror("sockWrite");
 }
 
 pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {
@@ -1183,7 +1180,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
         sockWriteError(nakStr, context);
     }
 
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "insert";
     argv[2] = mod_path;
     /* loop thru remaining arguments */
@@ -1385,7 +1382,7 @@ static int unloadrt_comp(char *mod_name)
     }
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() rmmod */
-	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+	argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
 	argv[1] = "remove";
 	argv[2] = mod_name;
 	/* add a NULL to terminate the argv array */

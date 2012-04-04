@@ -23,9 +23,9 @@
 .\"
 .\"
 .\"
-.TH HALUI "1"  "2006-07-22" "EMC Documentation" "HAL User Interface"
+.TH HALUI "1"  "2006-07-22" "LinuxCNC Documentation" "HAL User Interface"
 .SH NAME
-halui \- observe HAL pins and command EMC through NML
+halui \- observe HAL pins and command LinuxCNC through NML
 .SH SYNOPSIS
 .B halui
 [\fB-ini <path-to-ini>\fR]
@@ -148,7 +148,7 @@ current FO value
 
 .SS program
 .TP
-.B Ihalui.program.block-delete.is-on\fR bit out \fR
+.B halui.program.block-delete.is-on\fR bit out \fR
 status pin telling that block delete is on
 .TP
 .B halui.program.block-delete.off\fR bit in \fR
@@ -398,13 +398,13 @@ current Feed Override value
 .SS estop
 .TP
 .B halui.estop.activate\fR bit in \fR
-pin for setting Estop (emc internal) On
+pin for setting Estop (LinuxCNC internal) On
 .TP
 .B halui.estop.is-activated\fR bit out \fR
-pin for displaying Estop state (emc internal) On/Off
+pin for displaying Estop state (LinuxCNC internal) On/Off
 .TP
 .B halui.estop.reset\fR bit in \fR
-pin for resetting Estop (emc internal) Off
+pin for resetting Estop (LinuxCNC internal) Off
 
 .SS axis
 .TP
@@ -430,8 +430,8 @@ pin for requesting home-all
 .SH BUGS
 none known at this time.
 .SH AUTHOR
-Written by Alex Joni, as part of the Enhanced Machine
-Controller (EMC2) project. Updated by John Thornton
+Written by Alex Joni, as part of the LinuxCNC Enhanced Machine
+Controller project. Updated by John Thornton
 .SH REPORTING BUGS
 Report bugs to alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT

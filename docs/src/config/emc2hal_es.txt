@@ -1,11 +1,13 @@
 = Core Components
 
+[[cha:core-components]] (((Core Components)))
+
 See also the man pages 'motion(9)'.
 
-== Motion [[motion]]
+== Motion [[sec:motion]]
 
 These pins and parameters are created by the realtime 'motmod' module.
-This module provides a HAL interface for EMC’s motion planner.
+This module provides a HAL interface for LinuxCNC’s motion planner.
 Basically motmod takes in a list of waypoints and generates a nice
 blended and constraint-limited stream of joint positions to be fed
 to the motor drives.
@@ -235,7 +237,7 @@ order shown.
     Processes motion commands coming from user space
 
 * 'motion-controller' - 
-    Runs the EMC motion controller
+    Runs the LinuxCNC motion controller
 
 == Axis (Joints)
 

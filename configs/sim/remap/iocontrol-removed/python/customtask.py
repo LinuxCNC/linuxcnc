@@ -8,7 +8,10 @@ import emccanon
 import interpreter
 import hal
 
-import emc  # ini only
+try:
+    import emc
+except ImportError:
+    import linuxcnc as emc  # ini only
 
 try:
     import cPickle as pickle
@@ -21,7 +24,10 @@ except ImportError:
     from nulluserfuncs import UserFuncs
 
 def debug():
-    return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
+    # interpreter.this isnt usable until after Interpreter.init has been called
+    if hasattr(interpreter,'this'):
+        return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
+    return 
 
 
 def handler(signum, frame):

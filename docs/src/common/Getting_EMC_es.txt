@@ -1,331 +1,270 @@
-= About EMC2
+= Sobre LinuxCNC
 
-== The Software
+== El Software
 
-* EMC2 (the Enhanced Machine Control) is a software system for computer
-  control of machine tools such as milling machines and lathes, robots
-  such as puma and scara and other computer controlled machines up to 9 axes.
-* EMC2 is free software with open source code. Current versions of EMC
-  are entirely licensed under the GNU General Public License and Lesser
-  GNU General Public License (GPL and LGPL)
-* EMC2 provides:
-** a graphical user interface (actually several interfaces to choose from)
-** an interpreter for 'G-code' (the RS-274 machine tool programming language)
-** a realtime motion planning system with look-ahead
-** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use 'breadboard' layer for quickly creating a unique 
-   configuration for your machine
-** a software PLC programmable with ladder diagrams
-** easy installation with a Live-CD
-* It does not provide drawing (CAD - Computer Aided Design) or G-code
-  generation from the drawing (CAM - Computer Automated Manufacturing)
-  functions.
-* It can simultaneously move up to 9 axes and supports a variety of
-  interfaces.
-* The control can operate true servos (analog or PWM) with the feedback
-  loop closed by the EMC software at the computer, or open loop with
-  step-servos or stepper motors.
-* Motion control features include: cutter radius and length
-  compensation, path deviation limited to a specified tolerance, lathe
-  threading, synchronized axis motion, adaptive feedrate, operator feed
-  override, and constant velocity control.
-* Support for non-Cartesian motion systems is provided via custom
-  kinematics modules. Available architectures include hexapods (Stewart
-  platforms and similar concepts) and systems with rotary joints to
-  provide motion such as PUMA or SCARA robots.
-* EMC2 runs on Linux using real time extensions. 
+*LinuxCNC (El “Enhanced Machine Control”) es un software para computador que permite el control de maquinas herramienta tales como fresadoras, tornos, robots tipo puma o scara y cualquier otro tipo de maquina de hasta 9 ejes.
+*LinuxCNC es software libre con un código fuente abierto. Las versiones actuales de EMC están enteramente licenciadas bajo las licencia GPL y LGPL (General Public License y Lesser GNU General Public License)
+*LinuxCNC proporciona:
+** una interfase gráfica  (se puede elegir entre varias interfaces diferentes)
+** un interprete para código G (el lenguaje de programación de maquina RS-274)
+**un planeador de movimientos en tiempo real con análisis de instrucción siguiente
+** operación de electrónica de maquina de bajo nivel como sensores y controladores para motores
+** una capa de aislamiento sencilla de usar que permite crear rápidamente configuraciones únicas para cada maquina
+** un PLC basado en software programable con lógica de escalera
+**una instalación sencilla con un Live-CD
+* No provee capacidades de dibujo (CAD - Dibujo asistido por computadora) o generación de código G a partir de dibujos (CAM – Manufactura asistida por computadora).
+* Puede mover 9 ejes simultáneos y soportar una variedad de interfaces.
+* El control puede operar servomecanismos verdaderos (analógicos o por PWM) con retroalimentación del el lazo cerrado por el software LinuxCNC en la computadora, o puede operar en lazo abierto con motores a pasos o “paso-servos”
+*Algunas características del controlador de movimientos: compensación de radio y largo, desviación de la trayectoria limitada a una tolerancia especificada, roscado en torno, movimientos de ejes sincronizados, velocidad de alimentación adaptiva, velocidad de alimentación controlada por el operador, control de velocidad constante.
+*Soporte para sistemas no cartesianos a través de un modulo de cinemática. Algunas de las arquitecturas disponibles son hexapodos (plataformas Stewart y conceptos similares) y sistemas con juntas rotatorias para proporcionar movimiento como en los robots PUMA o SCARA.
+*LinuxCNC se ejecuta en Linux usando exenciones de tiempo real.
 
-== The Operating System
+== El Sistema Operativo
 
-Ubuntu has been chosen because it fits perfectly into the Open Source
-views of EMC2:
+Ubuntu fue seleccionado porque encaja perfectamente en la visión de fuente abierta del LinuxCNC:
 
- - Ubuntu will always be free of charge, and there is no extra fee for
-   the 'enterprise edition', we make our very best work available to
-   everyone on the same Free terms.
- - EMC2 is paired with the LTS versions of Ubuntu which provide support
-   and security fixes from the Ubuntu team for 3 - 5 years.
- - Ubuntu uses the very best in translations and accessibility
-   infrastructure that the Free Software community has to offer, to make
-   Ubuntu usable for as many people as possible.
- - The Ubuntu community is entirely committed to the principles of free
-   software development; we encourage people to use open source software,
-   improve it and pass it on.
+ - Ubuntu sera siempre libre de cargo, y no se tiene que pagar extra por la “versión empresarial”, nosotros hacemos disponible nuestro mejor trabajo para cualquiera en los mismos términos de gratuidad.
+ - LinuxCNC esta acoplado con las versiones con soporte extendido (LTS) de Ubuntu, lo que provee soporte y arreglos de seguridad por parte del equipo de Ubuntu por 3 – 5 años.
+ - Ubuntu utiliza lo mejor en traducciones y fácil acceso que la comunidad de software libre tiene para ofrecer, para hacer Ubuntu practico de usar para la mayor cantidad de gente posible.
+ - La comunidad de Ubuntu esta completamente alineada a los principios de desarrollo del software libre; Nosotros fomentamos el uso por parte de la gente de software de fuente abierta, su mejoramiento y su distribución.
 
-== Getting Help
+== Obtener Ayuda
 
 === IRC
 
-IRC stands for Internet Relay Chat. 
-It is a live connection to other EMC users. 
-The EMC IRC channel is #emc on freenode.
+IRC (Internet Relay Chat) es un protocolo de comunicaciones en tiempo real basado en texto.
+Permite una conexión en vivo con otros usuarios del LinuxCNC.
+El canal del LinuxCNC en IRC es #linuxcnc en freenode.
 
-The simplest way to get on the IRC is to use 
-the embedded java client on this 
-http://www.linuxcnc.org/index.php/english/community[page].
+La manera mas simple de utilizar IRC es utilizar el cliente integrado en la siguiente pagina de internet, http://www.linuxcnc.org/index.php/english/community[pagina].
 
-Some IRC etiquette::
+Reglas de comportamiento en IRC::
 
- - Ask specific questions... Avoid questions like "Can someone help me?". 
- - If you're really new to all this, think a bit about your question 
-   before typing it. Make sure you give enough information so 
-   someone can solve your question. 
- - Have some patience when waiting for an answer, sometimes it takes a 
-   while to formulate an answer or everyone might be busy working or 
-   something. 
- - Set up your IRC account with your unique name so people will know who 
-   you are. If you use the java client, use the same name every time you 
-   log in. This helps people remember who you are and if you have been on 
-   before many will remember the past discussions which 
-   saves time on both ends.
+ - Pregunte cuestiones especificas... Evite realizar preguntas como: “¿Puede alguien ayudarme?”.
+ - Si usted es realmente nuevo en la materia, piense un poco en lo que va a preguntar antes de comenzar a escribir. Asegúrese de proporcionar suficiente información así alguien podría ayudarle a resolver su pregunta.
+ - Sea paciente mientras espera por una respuesta, en algunas ocasiones toma tiempo formular la respuesta o todos los otros usuarios pueden estar ocupados trabajando en algo mas.
+ - Inicie sesión en IRC con un único nombre así la gente sabrá quien es usted. Si utiliza el cliente Java, utilice el mismo apodo cada vez que entre. Esto ayuda a la gente a recordar quien es usted y esto reduce el gasto de tiempo de las dos partes.
+ - La mayoría de los usuarios del canal linuxcnc en IRC son anglo parlantes, tendrá mas probabilidad de éxito si formula sus preguntas en el idioma ingles.
 
-Sharing Files::
-The most common way to share files on the IRC is to upload the file 
-to one of the following or a similar service and paste the link:
+Compartiendo Archivos::
 
-* 'For text' - http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
+La forma mas común de compartir archivos en IRC es subir el archivo a uno de los siguientes servidores y pegar el enlace (puede utilizar servidores similares).
 
-* 'For pictures' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
+* 'Para texto' - http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
 
-* 'For files' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'Para Imagenes' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-=== Mailing List
+* 'Para archivos' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
-An Internet Mailing List is a way to put questions out for everyone on
-that list to see and answer at their convenience. You get better
-exposure to your questions on a mailing list than on the IRC but
-answers take longer. In a nutshell you e-mail a message to the list and
-either get daily digests or individual replies back depending on how
-you set up your account.
+=== Lista de Correo
 
-The https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
+Una Lista de Correo es una forma para preguntar a todos los miembros de la lista y obtener una respuesta a su conveniencia. Usted obtiene una mejor exposición de su pregunta utilizando la Lista de Correo que utilizando IRC, pero las respuestas pueden tardar mas tiempo. En pocas palabras usted manda un correo electrónico con su pregunta a la lista de correo y recibe respuestas individuales o un compilado diario de respuestas individuales, dependiendo de como configure su cuenta.
 
-=== EMC2 Wiki
+Información sobre la lista de correo de LinuxCNC se encuentra en: https://lists.sourceforge.net/lists/listinfo/emc-users [emc-users lista de correo]
 
-A Wiki site is a user maintained web site 
-that anyone can add to or edit.
+=== LinuxCNC Wiki
 
-The user maintained EMC Wiki site contains a 
-wealth of information and tips at:
+Un sitio Wiki es un sitio de internet mantenido por los usuarios en donde todos pueden modificar o agregar información.
+
+El sitio wiki mantenido por los usuarios del LinuxCNC contiene mucha información y consejos y se encuentra en:
 
 link:http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[wiki.linuxcnc.org]
 
-== Getting EMC2
+== Obteniendo LinuxCNC
 
-=== Normal Download
+=== Descarga Normal
 
-Download the Live CD from:
+Descargue el Live-CD de:
 
-http://www.linuxcnc.org/[the EMC2 homepage at www.linuxcnc.org]
+http://www.linuxcnc.org/[La pagina principal del LinuxCNC www.linuxcnc.org]
 
-and follow the Download link.
+y siga el vinculo para descarga.
 
-=== Multi-session Download (((Multi-session Download)))
+=== Descarga Multi-sesion (((Descarga Multi-sesion)))
 
-If the file is too large to download in one session 
-because of a bad or slow Internet connection, 
-use 'wget' to allow resuming after an interrupted download. 
+Si el archivo es demasiado grande para ser descargado en una sesión debido a una conexión a internet lenta o defectuosa, utilice `wget` (o bittorrent) para permitir restaurar la descarga despues de una interrupción.
 
-Wget Linux:: (((Wget Linux)))
-Open a terminal window. In Ubuntu it is Applications/Accessories/Terminal. 
-Use 'cd' to change to the directory where you would like to store the ISO. 
-Use 'mkdir' to create a new directory if needed. 
+Linux Wget:: (((Linux Wget)))
+Abra una ventana de terminal. En Ubuntu valla a Applications/Accessories/Terminal.
+Utilice 'cd' para cambiar al directorio donde desea guardar el ISO.
+Si lo necesita utilice 'mkdir' para crear un nuevo directorio.
 +
-Note that actual file names may change so you might have to go to 
+Note que los nombres de los archivos pueden cambiar, usted debería de ir a 
 http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
-and follow the Download link to get the actual file name. 
-In most browsers you can right click on the link and select 
-Copy Link Location or similar, then paste the link into the 
-terminal window with a right mouse click and select Paste. 
-+
-.Ubuntu 10.04 Lucid Lynx and EMC2 (current release)
-*********************************************************************
-To get the Ubuntu 10.04 Lucid Lynx version, 
-copy one of these in the terminal window and press enter:
+y seguir el vinculo de descarga para obtener el nombre actual del archivo.
+En la mayoría de los buscadores usted puede hacer clic derecho en el vinculo y seleccionar la opción de copiar la locación del vinculo, posteriormente pegue esa locación en la ventana de la terminal utilizando un clic del botón derecho y seleccionando la opción pegar.
 
-For the USA mirror: 
+.Ubuntu 10.04 Lucid Lynx y LinuxCNC (versión actual)
+*********************************************************************
+Para obtener la versión Ubuntu 10.04 Lucid Lynx,
+copie una de las siguientes direcciones en la ventana de terminal y presione la tecla enter:
+
+Para el espejo en USA:
 wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 
-For the European mirror: 
+Para el espejo en Europa:
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
 
-The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f' 
+La md5sum del archivo anterior es: '5283b33b7e23e79da1ee561ad476b05f' 
 *********************************************************************
 +
-To continue a partial download that was interrupted 
-add the -c option to wget:
+Para continuar una descarga parcial que fue interrumpida
+agregue la opción -c al comando wget:
 +
 wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 +
-To stop a download use Ctrl-C or close the terminal window.
+Para detener una descarga en progreso utilice Ctrl-C o cierre la pantalla de la terminal.
 +
-.Ubuntu 8.04 Hardy Heron and EMC2 (older)
+.Ubuntu 8.04 Hardy Heron y LinuxCNC (antiguo)
 *********************************************************************
-If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
-The CD image below has the old emc 2.3.x on it, but can be upgraded to 
-2.4.x by following instructions on the LinuxCNC.org wiki here: 
+Si usted requiere una versión antigua de Ubuntu, usted puede descargar Ubuntu 8.04.
+La imagen CD siguiente tiene el antiguo emc 2.3.x en ella, pero puede ser actualizada a
+la versión 2.4.x siguiendo las instrucciones en el wiki de LinuxCNC.org que se encuentran aquí:
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
 
-For the USA mirror: 
+Para el espejo en USA:
 wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
-For the European mirror: 
+Para el espejo en Europa:
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
-The md5sum of the above file is: '1bab052ec879f941628927c988863f14'
+La md5sum del archivo anterior es: '1bab052ec879f941628927c988863f14'
 *********************************************************************
 +
-After the download is complete you will find the ISO file in the 
-directory that you selected. Next we will burn the CD.
+Cuando la descarga sea completada usted encontrara el archivo ISO en el
+directorio que selecciono. A continuación quemaremos el CD.
 
 Wget Windows:: (((Wget Windows)))
-The wget program is also available for Windows from: 
+El programa wget se encuentra también disponible para Windows descargado de:
 +
 http://gnuwin32.sourceforge.net/packages/wget.htm
 +
-Follow the instructions on the web page for downloading and installing
-the windows version of the wget program.
+Siga las instrucciones de la pagina de internet para descargar e instalar la versión de Windows
+del programa wget.
 +
-To run wget open a command prompt window.
+Para correr wget abra una ventana de linea de comandos.
 +
-In most Windows it is Programs/Accessories/Command Prompt
+En la mayoría de las instalaciones de Windows esto se hace en Programs/Accessories/Command Prompt
 +
-First you have to change to the directory where wget is installed in.
+Primero usted tiene que cambiarse al directorio donde wget esta instalado.
 +
-Typically it is in C:\Program Files\GnuWin32\bin so 
-in the Command Prompt window type:
+Típicamente es en  C:\Program Files\GnuWin32\bin por lo tanto en la ventana de la linea de comandos escriba:
 +
-----
-cd C:\Program Files\GnuWin32\bin
-----
+---
+'cd C:\Program Files\GnuWin32\bin'
+---
 +
-and the prompt should change to: 'C:\Program Files\GnuWin32\bin>'
+y el prompt debería de cambiar a: 'C:\Program Files\GnuWin32\bin>'
 +
-Type the wget command into the window and press enter as above.
+Escriba el comando wget en la ventana de la linea de comandos como se describió en las secciones anteriores dependiendo
+de la versión de LinuxCNC que requiera y presione enter.
 
-=== Burning the CD
+=== Quemando el CD de LinuxCNC
 
-EMC2 is distributed as CD image files, called ISOs. 
-To install EMC2, you first need to burn the ISO file onto a CD. 
-You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
-If the CD writing fails, try writing at a slower burn speed. 
+LinuxCNC es distribuido como una imagen de CD con un formato llamado ISO.
+Para instalar LinuxCNC, usted necesitara primero quemar el archivo ISO en un CD.
+Usted necesita un quemador CD/DVD que funcione y un CD en blanco de 80 minutos (700Mb) para hacer esto.
+Si la escritura del CD falla trate de nuevo con una velocidad de escritura mas baja.
 
-Verify md5sum in Linux::
+Verificando la integridad del CD con md5sum en Linux::
 
-Before burning a CD, it is highly recommended that you verify the 
-md5sum (hash) of the .iso file.
+Antes de quemar el CD, es altamente recomendable que verifique el md5sum (hash)
+del archivo .iso.
 +
-Open a terminal window. 
-In Ubuntu it is Applications/Accessories/Terminal.
+Abra una ventana de terminal.
+En Ubuntu valla a Applications/Accessories/Terminal.
 +
-Change to the directory where the ISO was downloaded to.
+Cambie el directorio a donde el archivo ISO fue descargado.
 +
-----
+---
 cd download_directory
-----
+---
 +
-Then run the md5sum command with the file name you saved.
+Ejecute el comando de verificación de md5sum con el nombre del archivo guardado.
 +
-----
+---
 md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
-----
+---
 +
-The md5sum should print out a single line after 
-calculating the hash. 
-On slower computers this might take a minute or two.
+El comando md5sum deberá de imprimir una linea sencilla después de calcular el hash.
+
+En computadoras lentas esto puede tardar un minuto o dos.
 +
-----
+---
 5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso
-----
+---
 +
-Now compare it to the md5sum value that it should be.
+Ahora compare este valor con el que realmente debería de ser.
 +
-If you downloaded the md5sum as well as the iso, 
-you can ask the md5sum program to do the checking for you. 
-In the same directory: 
+Si descarga el md5sum asi como el iso,
+usted puede preguntar al programa md5sum el hacer la revisión por usted.
+En el mismo directorio:
 +
-----
+---
 md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5
-----
+---
 +
-If all is well, after a short delay the terminal will print: 
+Si todo va bien despues de una pausa la terminal deveria de imprimir:
 +
-----
+---
 ubuntu-10.04-linuxcnc1-i386.iso: OK
-----
-
-Burning the ISO in Linux::
-
- . Insert a blank CD into your burner. A 'CD/DVD Creator' or 
-   'Choose Disc Type' window will pop up. 
-   Close this, as we will not be using it.
- . Browse to the downloaded ISO image in the file browser.
- . Right click on the ISO image file and choose Write to Disc.
- . Select the write speed. If you are burning a Ubuntu Live CD, it is
-   recommended that you write at the lowest possible speed.
- . Start the burning process.
- . If a 'choose a file name for the disc image' window pops up, just pick OK.
-
-Verify md5sum with Windows::
-
-Before burning a CD, it is highly recommended that you verify the md5
-sum (hash) of the .iso file, to ensure that you got a good download.
+---
 +
-Windows does not come with a md5sum program. You will have to download
-and install one to check the md5sum. More information can be found at:
+
+Quemando el archivo ISO en Linux::
+
+ . Inserte un CD en blanco en su quemador. Una ventana de 'CD/DVD creador' o 'Seleccione tipo de disco' aparecera seleccione no hacer nada y cierre la ventana.
+ . Busque la imagen Iso en el buscador de archivos.
+ . Haga click derecro sobre la imagen ISO y seleccione la opcion escrivir a disco.
+ . Seleccione la velocidad de escritura. Si se esta quemando un disco Live CD de Ubuntu seleccione la velocidad mas baja posible.
+ . Inicie el proceso de quemado.
+ . Si una ventana con el titulo 'seleccione el nombre para la imagen de disco' aparece, solo seleccione la opcion OK.
+
+Verificar md5sum con Windows::
+
+Antes de quemar el CD, es altamente recomendable que verifique el md5sum (hash)
+del archivo .iso que se descargo.
++
+Windows no incluye un programa de verificacion de mdsum. Se tendra que descargar e instalar uno para provar la md5sum. mas informacion puede ser encontrada en:
 +
 https://help.ubuntu.com/community/HowToMD5SUM
 
-Burning the ISO in Windows::
+Quemando el archivo ISO en Windows::
 
- . Download and install Infra Recorder, a free and open source image
-   burning program: http://infrarecorder.org/
- . Insert a blank CD in the drive and select Do nothing or Cancel if an
-   auto-run dialog pops up.
- . Open Infra Recorder, and select the 
-   'Actions' menu, then 'Burn image'.
+ . Descargue e instale Infra Recorder, el cual es un programa para quemar imagenes de disco gratuito y libre: http://infrarecorder.org/
+ . Inserte un CD en blanco en la unidad de disco y seleccione la opcion de hacer nada o cancelar si alguna pantalla emergente aparece.
+ . Abra Infra Recorder, seleccione la opcion 'Acciones' del menu, posteriormente seleccione 'Quemar Imagen'.
 
-=== Testing EMC2
+=== Probando LinuxCNC
 
-With the Live CD in the CD/DVD drive shut down the computer then turn
-the computer back on. This will boot the computer from the Live CD.
-Once the computer has booted up you can try out EMC2 without installing
-it. You can not create custom configurations or modify most system
-settings like screen resolution unless you install EMC2.
+Con el Live CD en la unidad CD/DVD apague la computadora y enciéndala de nuevo. 
+Esto hará que la computadora arranque desde el Live CD.
+Una vez que la computadora haya arrancado usted puede probar LinuxCNC sin instalarlo.
+Usted no puede crear configuraciones personalizadas o modificar la mayoría de los 
+parámetros del sistema tales como la resolución de pantalla amenos que instale LinuxCNC.
 
-To try out EMC2 from the Applications/CNC menu pick EMC2. Then select
-a sim configuration to try out.
+Para probar LinuxCNC desde el menú de Applications/CNC seleccione LinuxCNC. Entonces seleccione
+una configuración sim (simulador) para hacer pruebas.
 
-To see if your computer is suitable for software step pulse generation
-run the Latency Test as shown <<latency-test,here>>.
+Para revisar si su computadora es candidata apta para la generación de pasos por software
+corra una prueba de latencia como se describe en la sección (<<sub:latency-test,Latency Test>>)
 
-=== Installing EMC2
+=== Instalar LinuxCNC
 
-If you like what you see, just click the Install icon on the desktop,
-answer a few questions (your name, timezone, password) and the install
-completes in a few minutes. Make sure you write down the name you used
-and the password. Once the install process is complete and you go on
-line the update manager will pop up and allow you to upgrade to the
-latest stable version of EMC2.
+Si le gustan los resultados que obtuvo probando LinuxCNC, solo haga clic en el icono de instalación del escritorio,
+conteste unas cuantas preguntas (su nombre, zona horaria, contraseña) y la instalación se completara en unos pocos minutos. Asegúrese de conservar el nombre y la contraseña que introdujo. Una vez que el proceso de instalación concluya y usted se encuentre en linea el administrador de actualizaciones le permitirá actualizar a la ultima versión estable de LinuxCNC.
 
-=== Updates to EMC2 (((Updates to EMC2)))
+=== Actualizaciones a LinuxCNC(((Actualizaciones a LinuxCNC)))
 
-With the normal install the Update Manager will notify you of updates
-to EMC2 when you go on line and allow you to easily upgrade with no
-Linux knowledge needed. 
-If you want to upgrade to 10.04 from 8.04 a
-clean install from the Live-CD is recommended. 
-It is OK to upgrade everything except the operating system when asked to.
+Con la instalación normal el agente de actualizaciones le notificara de las actualizaciones disponibles para LinuxCNC cuando se conecte a internet, y usted podrá actualizar sin necesidad de conocer mas sobre LINUX.
 
-Warning: Do not upgrade Ubuntu to a new but non-LTS version 
-(like 8.04 to 8.10) as it will prevent EMC from running.
+Si usted desea actualizar a 10.04 de 8.04 se recomienda una instalación limpia de EMC.
+Es correcto actualizar todo cuando se le pregunte por hacerlo exepto el sistema operativo.
 
-=== Install Problems
+Advertencia: No actualice Ubuntu a una versión que no sea LTS (Por ejemplo de 8.04 a 8.10) lo anterior arruinara su instalación de EMC y no podrá utilizarlo.
 
-In rare cases you might have to reset the BIOS to default settings if
-during the Live CD install it cannot recognize the hard drive 
-during the boot up.
+=== Problemas con la instalación
+
+En casos raros deberá de resetear el BIOS a su configuración de fabrica si durante el proceso de instalación desde el Live CD el disco duro no es detectado correctamente.
 
 // vim: set syntax=asciidoc:
-
-

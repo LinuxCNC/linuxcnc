@@ -27,7 +27,7 @@ M66 P2 L0
 ; number of seconds to wait for 'tool-changed' equivalent
 #<timeout> = 9999
 ;
-O<m6demo_spindle_off> if [#<tool_change_with_spindle_on>] EQ 0
+O<m6demo_spindle_off> if [#<tool_change_with_spindle_on> EQ 0]
     M5
 O<m6demo_spindle_off> endif
 

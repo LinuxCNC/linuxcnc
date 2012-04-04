@@ -4,7 +4,7 @@ exec wish "$0" "$@"
 
 ###############################################################
 # Description:  pickconfig.tcl
-#               This file validates an emc2 configuration
+#               This file validates a LinuxCNC configuration
 #               passed to it, or prompts the user to choose
 #               one.
 #
@@ -25,13 +25,14 @@ exec wish "$0" "$@"
 #
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
-set logo [emc::image_search emc2-wizard]
+set logo [linuxcnc::image_search linuxcnc-wizard]
 image create photo machinelogo
 
-option add *font [emc::standard_fixed_font]
+option add *font [linuxcnc::standard_font]
+option add *Text.font [linuxcnc::standard_fixed_font]
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
@@ -40,7 +41,7 @@ option add *Tree*background white
 
 set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
 
-# use initialize_config for bwidget and .emcrc
+# use initialize_config for bwidget and .linuxcncrc
 proc initialize_config {} {
     # need bwidget
     set result [catch {package require BWidget 1.7}]
@@ -50,7 +51,7 @@ proc initialize_config {} {
         exit
         destroy .
     } else {
-        if {[catch {open ~/.emcrc} programin]} {
+        if {[catch {open ~/.linuxcncrc} programin]} {
             return 
         } else {
             set rcstring [read $programin]
@@ -182,7 +183,7 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-set configs_dir_list $emc::CONFIG_DIR
+set configs_dir_list $linuxcnc::CONFIG_DIR
 
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
@@ -190,7 +191,7 @@ foreach class { Button Entry Label Listbox Scale Text } {
 }
 
 # make a toplevel and a master frame.
-wm title . [msgcat::mc "EMC2 Configuration Selector"]
+wm title . [msgcat::mc "LinuxCNC Configuration Selector"]
 set logo [label .logo -image $logo]
 set top [frame .main -borderwidth 0 -relief flat ]
 pack $logo -side left -anchor nw
@@ -211,7 +212,7 @@ proc SW { args } {
 # a frame for packing the top window
 set f1 [ frame $top.f1 ]
 
-set message [msgcat::mc "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"]
+set message [msgcat::mc "Welcome to LinuxCNC.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"]
 
 set lbl [ label $f1.lbl -text $message -justify left -padx 15 -pady 10 -wraplength 600 ]
 pack $lbl -anchor w
@@ -266,10 +267,10 @@ pack $f1 -fill both -expand y
 set ::config_count 0
 
 proc describe {dir} {
-    if {[string compare $dir $emc::USER_CONFIG_DIR] == 0} {
+    if {[string compare $dir $linuxcnc::USER_CONFIG_DIR] == 0} {
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir [lindex $emc::CONFIG_DIR end]] == 0} {
+    if {[string compare $dir [lindex $linuxcnc::CONFIG_DIR end]] == 0} {
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
@@ -322,6 +323,8 @@ proc minimal_tree {node} {
 } ;# minimal_tree
 
 foreach dir $::configs_dir_list {
+  if {[info exists visited($dir)]} continue
+  set visited($dir) {}
   walktree $dir
 }
 
@@ -367,10 +370,10 @@ proc prompt_copy configname {
 
     if {$res == -1 || $res == 1} { return "" }
     set configdir [format %s [file dirname $configname]]
-    foreach d $emc::CONFIG_DIR {
+    foreach d $linuxcnc::CONFIG_DIR {
       if {"$d" == "$configdir"} {
-        # found configdir at level 0 of a directory in the emc::CONFIG_DIR list
-        set copydir [format %s [file join $emc::USER_CONFIG_DIR [file tail $configdir]]]
+        # found configdir at level 0 of a directory in the linuxcnc::CONFIG_DIR list
+        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR [file tail $configdir]]]
         break
       }
       # if configdir not found at level 0, try subdirs
@@ -382,25 +385,38 @@ proc prompt_copy configname {
         # will work in both run-in-place and packaged builds
         set     idx [expr 1 + [string length $d]]
         set copydir [string range $configdir $idx end]
-        set copydir [format %s [file join $emc::USER_CONFIG_DIR $copydir]]
+        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR $copydir]]
         break
       }
     }
     set copybase $copydir
 
     set i 0
-    set ncfiles [file normalize [file join ~ emc2 nc_files]]
-    file mkdir [file join ~ emc2 configs]
+    # distribution config ini files expect nc_files at same level as configs dir
+    set ncfiles [file normalize [file join $linuxcnc::USER_CONFIG_DIR ../nc_files]]
+    file mkdir [file join $linuxcnc::USER_CONFIG_DIR]
+
+    set obsoletedir [file normalize [file join ~ emc2]]
+    if [file isdir $obsoletedir] {
+      tk_messageBox -title "Copy Configuration Notice" \
+        -message "A directory named:\n \
+                  $obsoletedir\n \
+                  exists \n\n \
+                  You may want to copy items to the new directory:\n \
+                  [file normalize [file join $linuxcnc::USER_CONFIG_DIR ..]]" \
+        -type ok
+    }
+
     if {![file exists $ncfiles]} {
         file mkdir $ncfiles
-        file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
+        file link -symbolic [file join $ncfiles/examples] $linuxcnc::NCFILES_DIR
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
         set liblist {ngcgui gladevcp}
         foreach lib $liblist {
            file link -symbolic [file join $ncfiles/${lib}_lib] \
-                               [file join $emc::NCFILES_DIR ${lib}_lib]
+                               [file join $linuxcnc::NCFILES_DIR ${lib}_lib]
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
@@ -408,7 +424,7 @@ proc prompt_copy configname {
         puts $fd "(debug, readme.ngc autogenerated by:)"
         puts $fd "(debug, $::argv0)" 
         puts $fd "(debug, $date)" 
-        puts $fd "(debug, EMC2 vmajor=#<_vmajor> vminor=#<_vminor>)"
+        puts $fd "(debug, LinuxCNC vmajor=#<_vmajor> vminor=#<_vminor>)"
         puts $fd "(debug, User writable directory: $dir)"
         puts $fd "(debug, Example files: $dir/examples)"
         foreach lib $liblist {
@@ -418,19 +434,23 @@ proc prompt_copy configname {
         close $fd
     }
     while {1} {
-        # note: file mkdir will make parents as required
-        if [catch { file mkdir $copydir } msg] {
-            incr i
-            set copydir "$copybase-$i" ;# user may have protected directory, so bump name
-            # limit attempts to avoid infinite loop for hard error
-            if {$i > 1000} {
-              puts stderr "$::argv0:$msg"
-              tk_messageBox -icon error -type ok \
-                -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
-              destroy .
-              exit
-            }
-            continue
+        if [file exists $copydir] {
+          incr i
+          set copydir "$copybase-$i" ;# user may have protected directory, so bump name
+          # limit attempts to avoid infinite loop for hard error
+          if {$i > 1000} {
+             puts stderr "$::argv0:$msg"
+             tk_messageBox -icon error -type ok \
+                  -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
+             destroy .
+             exit
+          }
+          continue ;# try again
+        } else {
+          # note: file mkdir will make parents as required
+          if [catch { file mkdir $copydir } msg] {
+            continue ;# try again
+          }
         }
         # A hierarchy of directories is allowed.
         # User selects an offered ini file.
@@ -460,13 +480,13 @@ proc prompt_copy configname {
         break
     }
 
-    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting EMC2." $copydir] info 0 [msgcat::mc "OK"]
+    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting LinuxCNC." $copydir] info 0 [msgcat::mc "OK"]
 
     return $copydir/[file tail $configname]
 }
 
 
-# add the selection set if a last_ini has been found in ~/.emcrc
+# add the selection set if a last_ini has been found in ~/.linuxcncrc
 
 if {$last_ini != -1 && [file exists $last_ini] && ![catch {$::tree index $last_ini}]} {
     $::tree selection set $last_ini
@@ -485,7 +505,7 @@ proc make_shortcut {inifile} {
 	incr i
 	set filename $filename0${i}.desktop
     }
-    exec emcmkdesktop $inifile $name > $filename
+    exec linuxcncmkdesktop $inifile $name > $filename
     file attributes $filename -permissions +x
     tk_dialog .d [msgcat::mc "Shortcut Created"] [msgcat::mc "A shortcut to this configuration file has been created on your desktop.  You can use it to automatically launch this configuration."] info 0 [msgcat::mc "OK"]
 }
@@ -509,14 +529,14 @@ while {1} {
 	if {$make_shortcut} { make_shortcut $::inifile }
         puts $::inifile
 
-        # test for ~/.emcrc file and modify if needed.
+        # test for ~/.linuxcncrc file and modify if needed.
         # or make this file and add the var.
 
-        if {[file exists ~/.emcrc]} {
+        if {[file exists ~/.linuxcncrc]} {
             if {$::inifile == $last_ini} {
                 exit
             } else {
-                if {[catch {open ~/.emcrc} programin]} {
+                if {[catch {open ~/.linuxcncrc} programin]} {
                     return 
                 } else {
                     set rcstring [read $programin]
@@ -524,8 +544,8 @@ while {1} {
                 }
                 set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $::inifile ]
                 catch {file copy -force $name $name.bak}
-                if {[catch {open ~/.emcrc w} fileout]} {
-                    puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+                if {[catch {open ~/.linuxcncrc w} fileout]} {
+                    puts stdout [msgcat::mc "can't save %s" ~/.linuxcncrc ]
                     exit
                 }
                 puts $fileout $ret
@@ -533,10 +553,10 @@ while {1} {
                 exit
             }
         }
-        set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $::inifile\n"
+        set newfilestring "# .linuxcncrc is a startup configuration file for LinuxCNC. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $::inifile\n"
                 
-        if {[catch {open ~/.emcrc w+} fileout]} {
-            puts stderr [msgcat::mc "can't save %s" ~/.emcrc ]
+        if {[catch {open ~/.linuxcncrc w+} fileout]} {
+            puts stderr [msgcat::mc "can't save %s" ~/.linuxcncrc ]
             exit
         }
 

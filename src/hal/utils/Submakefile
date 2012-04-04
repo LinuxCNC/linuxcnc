@@ -8,12 +8,12 @@ USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS))
 
 $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
-../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/libemcini.so.0 ../lib/libemchal.so.0
+../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^
 TARGETS += ../tcl/hal.so
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemcini.so.0 ../lib/libemchal.so.0 
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
 TARGETS += ../bin/halcmd
@@ -21,7 +21,7 @@ TARGETS += ../bin/halcmd
 HALRMTSRCS := hal/utils/halrmt.c
 USERSRCS += $(HALRMTSRCS)
 
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemchal.so.0
+../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/halrmt
@@ -33,7 +33,7 @@ HALMETERSRCS := \
 
 USERSRCS += $(HALMETERSRCS)
 
-../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemchal.so.0
+../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
@@ -49,7 +49,7 @@ HALSCOPESRCS := \
 
 USERSRCS += $(HALSCOPESRCS)
 
-../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemchal.so.0
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS) -lm
 TARGETS += ../bin/halscope

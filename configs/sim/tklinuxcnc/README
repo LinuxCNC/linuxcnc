@@ -1,0 +1,7 @@
+Sim files using tklinuxcnc gui:
+
+tklinuxcnc.ini     (tcl/tk interface)
+
+servo_sim.ini (simulation for a servo machine)
+
+tripod.ini    (non-trivial kinematics machine)

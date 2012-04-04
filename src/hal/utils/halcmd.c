@@ -45,7 +45,7 @@
 #include "config.h"
 
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 FILE *halcmd_inifile = NULL;
 #endif
 
@@ -148,16 +148,16 @@ struct halcmd_command halcmd_commands[] = {
     {"linksp",  FUNCT(do_linksp_cmd),  A_TWO | A_REMOVE_ARROWS },
     {"list",    FUNCT(do_list_cmd),    A_ONE | A_PLUS },
     {"loadrt",  FUNCT(do_loadrt_cmd),  A_ONE | A_PLUS },
-    {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS },
+    {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS | A_TILDE },
     {"lock",    FUNCT(do_lock_cmd),    A_ONE | A_OPTIONAL },
     {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
     {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
-    {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL },
+    {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL | A_TILDE },
     {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd), A_ZERO },
     {"setp",    FUNCT(do_setp_cmd),    A_TWO },
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
-    {"source",  FUNCT(do_source_cmd),  A_ONE},
+    {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
@@ -317,6 +317,7 @@ static int parse_cmd1(char **argv) {
             return -EINVAL;
         }
     } else {
+	int result = -EINVAL;
 	int is_optional = command->type & A_OPTIONAL,
 	    is_plus = command->type & A_PLUS,
 	    nargs = command->type & 0xff,
@@ -348,64 +349,90 @@ static int parse_cmd1(char **argv) {
 	    return -EINVAL;
         }
 
+#ifndef NO_INI
+	if(command->type & A_TILDE)
+	{
+	    int i;
+	    for(i=0; i<argc; i++)
+	    {
+		char *buf = malloc(LINELEN);
+		TildeExpansion(argv[i], buf, LINELEN);
+		argv[i] = buf;
+	    }
+	}
+#endif
+
 	switch(nargs | is_plus) {
 	case A_ZERO: {
-	    return command->func();
+	    result = command->func();
 	    break;
 	}
 
 	case A_PLUS: {
 	    int(*f)(char **args) = (int(*)(char**))command->func;
-	    return f(REST(1));
+	    result = f(REST(1));
 	    break;
 	}
 
 	case A_ONE: {
 	    int(*f)(char *arg) = (int(*)(char*))command->func;
-	    return f(ARG(1));
+	    result = f(ARG(1));
 	    break;
 	}
 
 	case A_ONE | A_PLUS: {
 	    int(*f)(char *arg, char **rest) =
                 (int(*)(char*,char**))command->func;
-	    return f(ARG(1), REST(2));
+	    result = f(ARG(1), REST(2));
 	    break;
 	}
 
 	case A_TWO: {
 	    int(*f)(char *arg, char *arg2) =
                 (int(*)(char*,char*))command->func;
-	    return f(ARG(1), ARG(2));
+	    result = f(ARG(1), ARG(2));
 	    break;
 	}
 
 	case A_TWO | A_PLUS: {
 	    int(*f)(char *arg, char *arg2, char **rest) =
                 (int(*)(char*,char*,char**))command->func;
-	    return f(ARG(1), ARG(2), REST(3));
+	    result = f(ARG(1), ARG(2), REST(3));
 	    break;
 	}
 
 	case A_THREE: {
 	    int(*f)(char *arg, char *arg2, char *arg3) =
                 (int(*)(char*,char*,char*))command->func;
-	    return f(ARG(1), ARG(2), ARG(3));
+	    result = f(ARG(1), ARG(2), ARG(3));
 	    break;
 	}
 
 	case A_THREE | A_PLUS: {
 	    int(*f)(char *arg, char *arg2, char *arg3, char **rest) =
                 (int(*)(char*,char*,char*,char**))command->func;
-	    return f(ARG(1), ARG(2), ARG(3), REST(4));
+	    result = f(ARG(1), ARG(2), ARG(3), REST(4));
 	    break;
 	}
 
 	default:
 	    halcmd_error("BUG: unchandled case: command=%s type=0x%x",
 		command->name, command->type);
-	    return -EINVAL;
+	    result = -EINVAL;
 	}
+
+#ifndef NO_TILDE
+	if(command->type & A_TILDE)
+	{
+	    int i;
+	    for(i=0; i<argc; i++)
+	    {
+		free(argv[i]);
+	    }
+	}
+#endif
+
+        return result;
     }
 }
 

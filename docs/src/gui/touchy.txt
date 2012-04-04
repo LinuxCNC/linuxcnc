@@ -1,6 +1,8 @@
-= Touchy
+= Touchy GUI
 
-Touchy is a user interface for EMC2 meant for use on machine control panels,
+[cha:touchy-gui]] (((Touchy GUI)))
+
+Touchy is a user interface for LinuxCNC meant for use on machine control panels,
 and therefore does not require keyboard or mouse.
 
 It is meant to be used with a touch screen, and works in combination
@@ -60,15 +62,63 @@ motion controller to control wheel jogging:
 
 == Setup
 
+=== Enabling Touchy
+
 To use Touchy, in the '[DISPLAY]' section of your ini file change the
 display selector line to 'DISPLAY = touchy'
+
+=== Preferences
 
 When you start Touchy the first time, check the Preferences tab.
 If using a touchscreen, choose the option to hide the pointer for
 best results.
 
 The Status Window is a fixed height, set by the size of a fixed font. 
-This can be affected by the Gnome DPI. If the bottom of the screen is 
-cut off return the Gnome DPI to the orignal setting of 96 dots per inch. 
+This can be affected by the Gnome DPI, configured in System /
+Preferences / Appearance / Fonts / Details. If the bottom of the screen is
+cut off, reduce the DPI setting.
 
+All other font sizes can be changed on the Preferences tab.
 
+=== Macros
+
+Touchy can invoke O-word macros using the MDI interface.  To configure
+this, in the '[TOUCHY]' section of the ini file, add one or more 'MACRO'
+lines.  Each should be of the format
+
+'MACRO=increment xinc yinc'
+
+In this example, increment is the name of the macro, and it accepts two
+parameters, named xinc and yinc.
+
+Now, place the macro in a file named 'increment.ngc', in the
+'PROGRAM_PREFIX' directory or any directory in the 'SUBROUTINE_PATH'.
+
+It should look like:
+
+----
+O<increment> sub
+G91 G0 X#1 Y#2
+G90
+O<increment> endsub
+----
+
+Notice the name of the sub matches the file name and macro name exactly,
+including case.
+
+When you invoke the macro by pressing the Macro button on the MDI
+tab in Touchy, you can enter values for xinc and yinc.  These are
+passed to the macro as '#1' and '#2' respectively.  Parameters you
+leave empty are passed as value 0.
+
+If there are several different macros, press the Macro button
+repeatedly to cycle through them.
+
+In this simple example, if you enter -1 for xinc and press cycle
+start, a rapid 'G0' move will be invoked, moving one unit to
+the left.
+
+This macro capability is useful for edge/hole probing and other setup
+tasks, as well as perhaps hole milling or other simple operations
+that can be done from the panel without requiring specially-written
+gcode programs.

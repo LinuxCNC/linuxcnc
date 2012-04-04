@@ -53,7 +53,7 @@ Changing a language defintion: just edit the .lang file in this directory.
 Overruling definitons in the source-highlight standard language definitions:
 
 Copy the <language>.lang file from /usr/share/source-highlight into
-this directoy and edit as needed. The reight things should happen on
+this directory and edit as needed. The right things should happen on
 build (including a massive initial rebuild ;-)
 
 

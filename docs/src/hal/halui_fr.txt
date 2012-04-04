@@ -7,7 +7,7 @@
 
 == Introduction[[sec:HaluiIntroduction]]
 
-Halui est une interface utilisateur pour EMC s'appuyant sur HAL, elle
+Halui est une interface utilisateur pour LinuxCNC s'appuyant sur HAL, elle
 connecte les pins de HAL à des commandes NML. La plupart des
 fonctionnalités (boutons, indicateurs etc.) utilisées par les
 interfaces graphiques traditionnelles (mini, Axis, etc.), sont fournies
@@ -15,15 +15,17 @@ par des pins de HAL dans Halui.
 
 La façon la plus facile pour utiliser halui est de modifier votre
 dossier d'ini pour inclure
-
-    HALUI = halui
+----
+HALUI = halui
+----
 
 dans la section [HAL].
 
 Une solution alternative pour l'invoquer (surtout si vous générez la
 config avec stepconf) est d'inclure
-
-    loadusr halui -ini /path/to/inifile.ini
+----
+loadusr halui -ini /path/to/inifile.ini
+----
 
 dans votre fichier custom.hal.
 
@@ -156,7 +158,7 @@ par exemple:
  - Quand la pin halui.mdi-command-<nr> est activée, halui va essayer
    d'envoyer au MDI la commande définie dans le fichier ini. Ca ne
    fonctionnera pas dans tous les modes de fonctionnement où se trouve
-   EMC2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
+   LinuxCNC, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
    commande MDI. 
 
 Sélection d'une articulation:: (Joint Selection)
@@ -231,23 +233,24 @@ Outil:: (Tool)
 
 Pour que ces exemples fonctionnent, il faut ajouter la ligne
 suivante dans la section [HAL] du fichier ini.
-
-+*HALUI = halui*+ 
+----
+HALUI = halui
+----
 
 === Démarrage à distance
 
-Pour connecter un bouton de démarrage à distance à EMC il faut utiliser
-la pin *halui.program.run* et la pin *halui.mode.auto*. 
+Pour connecter un bouton de démarrage à distance à LinuxCNC il faut utiliser
+la pin _halui.program.run_ et la pin _halui.mode.auto_. 
 
 Il faut s'assurer qu'il est possible de démarrer en utilisant la 
-pin *halui.mode.is-auto*. On peut faire cela avec un composant de HAL *and2*. 
+pin _halui.mode.is-auto_. On peut faire cela avec un composant de HAL _and2_. 
 La figure suivante montre comment faire. 
 
 Quand le bouton de commande à distance est pressé, il est connecté à 
-*halui.mode.auto* et à l'entrée *and2.0.in0*. Si le le mode auto est activé,
-la pin *halui.mode.is-auto* sera TRUE. 
+_halui.mode.auto_ et à l'entrée _and2.0.in0_. Si le le mode auto est activé,
+la pin _halui.mode.is-auto_ sera TRUE. 
 
-Si les deux entrées du composant *and2.0* sont TRUE, la sortie *and2.0.out* 
+Si les deux entrées du composant _and2.0_ sont TRUE, la sortie _and2.0.out_ 
 sera TRUE également et le programme sera démarré. 
 
 [[fig:Remote-Start-Example]]
@@ -271,17 +274,17 @@ net program-start-btn and2.0.in0
 
 === Pause et Reprise
 
-Cet exemple a été developpé pour permettre à EMC2 de déplacer un
+Cet exemple a été developpé pour permettre à LinuxCNC de déplacer un
 axe rotatif selon un signal provenant d'une machine extérieure. La
 coordination entre les deux systèmes est assurée par deux composants de Halui: 
 
  - halui.program.is-paused
  - halui.program.resume
 
-Dans le fichier *custom.hal*, ajoutez les deux lignes suivantes
+Dans le fichier _custom.hal_, ajoutez les deux lignes suivantes
 qui seront connectées à vos entrées/sorties pour mettre le
 programme en pause ou pour le reprendre quand l'autre système veut
-qu'EMC2 soit relancé.
+qu'LinuxCNC soit relancé.
 ----
 net ispaused halui.program.is paused => "la pin de sortie" 
 net resume halui.program.resume <= "la pin d'entrée" 
@@ -292,23 +295,23 @@ câblées vers l'autre contrôleur. Elles peuvent être des broches du
 port parallèle ou toutes autres broches auquelles nous avons accès.
 
 Le fonctionnement est le suivant, quand un M0 est rencontré dans le
-programme G-code, *halui.program.is-paused* devient TRUE. Ce
+programme G-code, _halui.program.is-paused_ devient TRUE. Ce
 qui rend la broche de sortie également TRUE de sorte que
-l'autre contrôleur sait qu'EMC2 est arrêté.
+l'autre contrôleur sait que LinuxCNC est arrêté.
 
 Pour reprendre l'exécution du G-code, l'autre contrôleur devra rendre
-l'entrée TRUE. Ce qui relancera EMC2 jusqu'au prochain M0.
+l'entrée TRUE. Ce qui relancera LinuxCNC jusqu'au prochain M0.
 
 Difficultés de timing
 
  - Le signal de reprise ne doit pas être plus long que le temps
    nécessaire pour exécuter le G-code.
 
- - Le signal *Is Paused* ne doit plus être actif quand le signal
+ - Le signal _Is Paused_ ne doit plus être actif quand le signal
    suivant de reprise arrive.
 
 Ces problèmes de timming pourraient être évités, en utilisant
-ClassicLadder pour activer le signal *is paused* avec une tempo
+ClassicLadder pour activer le signal _is paused_ avec une tempo
 et le désactiver en fin de tempo. La reprise pourrait également
 être fournie par un signal monostable très court.
 

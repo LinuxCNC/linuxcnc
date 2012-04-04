@@ -1,13 +1,15 @@
-= Important Concepts
+= Integrator Concepts
+
+[[cha:integrator-concepts]] (((Integrator Concepts)))
 
 == Stepper Systems
 
 === Base Period
 
-BASE_PERIOD is the 'heartbeat' of your EMC computer.footnote:[This 
-section refers to using *stepgen*, EMC2's built-in 
+BASE_PERIOD is the 'heartbeat' of your LinuxCNC computer.footnote:[This 
+section refers to using *stepgen*, LinuxCNC's built-in 
 step generator. Some hardware devices have their own step 
-generator and do not use EMC2's built-in one. In that case, refer to 
+generator and do not use LinuxCNC's built-in one. In that case, refer to 
 your hardware manual.] Every period, the 
 software step generator decides if it is time for another step pulse. 
 A shorter period will allow you to generate more pulses per second,
@@ -31,10 +33,10 @@ not-so-nice 32,258 steps per second in one mode and 16,129 steps per
 second in another mode. 
 
 The problem is with the 20 us  hold time requirement. That plus the 11 us 
-latency is what forces us to use a slow 31 us  period. But the EMC2
+latency is what forces us to use a slow 31 us  period. But the LinuxCNC
 software step generator has some parameters that let you increase the
 various times from one period to several. For example, if 'steplen' footnote:[steplen 
-refers to a parameter that adjusts the performance of EMC2's built-in step generator, 
+refers to a parameter that adjusts the performance of LinuxCNC's built-in step generator, 
 'stepgen', which is a HAL component. This parameter adjusts the length of the 
 step pulse itself. Keep reading, all will be explained eventually.] is
 changed from 1 to 2, then there will be two periods between the
@@ -95,9 +97,9 @@ world are 'state machines', 'sequential machines' and so forth, where what
 the outputs are doing 'now' depends on what the inputs (and the outputs) 
 were doing 'before'. If it doesn't help, then nevermind.] If 'everything' 
 controls 'everything else', how can that ever work, who's in 
-charge? The answer is that EMC2 'can' control this system, 
+charge? The answer is that LinuxCNC 'can' control this system, 
 but it has to do it by choosing one of several control methods. 
-The control method that EMC2 uses, one of the simplest and best, 
+The control method that LinuxCNC uses, one of the simplest and best, 
 is called PID. 
 
 PID stands for Proportional, Integral, and Derivative. The Proportional
@@ -106,7 +108,7 @@ determines the reaction based on the sum of recent errors, and the
 Derivative value determines the reaction based on the rate at which the
 error has been changing. They are three common mathematical techniques
 that are applied to the task of getting a working process to follow a
-set point. In the case of EMC the process we want to control is actual
+set point. In the case of LinuxCNC the process we want to control is actual
 axis position and the set point is the commanded axis position.
 
 .PID Loop
@@ -206,10 +208,10 @@ timing.
 The Advanced Configuration and Power Interface (ACPI) has a lot of
 different functions, most of which interfere with RT performance (for
 example: power management, CPU power down, CPU frequency scaling, etc).
-The EMC2 kernel (and probably all RTAI-patched kernels) has ACPI
+The LinuxCNC kernel (and probably all RTAI-patched kernels) has ACPI
 disabled. ACPI also takes care of powering down the system after a
 shutdown has been started, and that's why you might need to push the power
 button to completely turn off your computer. The RTAI group has been 
-improving this in recent releases, so your EMC2 system may shut off by 
+improving this in recent releases, so your LinuxCNC system may shut off by 
 itself after all. 
 

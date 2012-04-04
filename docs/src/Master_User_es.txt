@@ -1,10 +1,15 @@
-Manual del Usuario V0.1, {localdate}
+Manual del Usuario V2.5, {localdate}
 ====================================
-The EMC Team
 
 :lang: es
 
 :masterdir: {indir}
+
+The LinuxCNC Team
+
+:leveloffset: 0
+
+= LinuxCNC Introduction
 
 :leveloffset: 1
 
@@ -30,7 +35,7 @@ include::gui/ngcgui_es.txt[]
 
 include::gui/touchy_es.txt[]
 
-include::gui/tkemc_es.txt[]
+include::gui/tklinuxcnc_es.txt[]
 
 include::gui/mini_es.txt[]
 

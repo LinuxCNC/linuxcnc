@@ -2,5 +2,5 @@
 Name=CNC
 Comment=Computer Numerically Controlled
 Type=Directory
-Icon=emc2icon
+Icon=linuxcncicon
 Encoding=UTF-8

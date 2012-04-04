@@ -1,7 +1,0 @@
-Sim files using tkemc gui:
-
-tkemc.ini     (tcl/tk interface)
-
-servo_sim.ini (simulation for a servo machine)
-
-tripod.ini    (non-trivial kinematics machine)

@@ -1,7 +1,9 @@
 :lang: fr
 :toc:
 
-= L'interface textuelle KEYSTICK (((KEYSTICK)))
+= L'interface textuelle KEYSTICK 
+
+[[cha:keystick-gui]] (((KEYSTICK)))
 
 == Introduction
 

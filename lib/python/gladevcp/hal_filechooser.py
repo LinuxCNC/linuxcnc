@@ -20,7 +20,7 @@ import tempfile, atexit, shutil
 import gtk, gobject
 
 from hal_widgets import _HalWidgetBase
-import emc
+import linuxcnc
 from hal_glib import GStat
 
 _ = lambda x: x
@@ -113,15 +113,15 @@ class _EMC_FileChooser(_EMC_ActionBase):
         flt = FilterProgram(flt, filename, tmp, lambda r: r or self._load_file(tmp))
 
     def _load_file(self, filename):
-        self.emc.mode(emc.MODE_AUTO)
+        self.linuxcnc.mode(linuxcnc.MODE_AUTO)
         old = self.gstat.stat.file
-        self.emc.program_open(filename)
+        self.linuxcnc.program_open(filename)
         if old == filename:
             self.gstat.emit('file-loaded', filename)
 
     def load_filters(self, inifile=None):
         inifile = inifile or os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.ini = emc.ini(inifile)
+        self.ini = linuxcnc.ini(inifile)
 
         self._load_filters(self.ini)
 
@@ -177,18 +177,22 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
 
     def _hal_init(self):
         _EMC_Action._hal_init(self)
+        self.currentfolder = os.path.expanduser("~/linuxcnc/nc_files")
 
     def on_activate(self, w):
         if self.fixed_file:
             self._button.load_file(self.fixed_file)
             return
-        dialog = EMC_FileChooserDialog(buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
+                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+        dialog.set_current_folder(self.currentfolder)
         dialog.show()
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.hide()
         if r == gtk.RESPONSE_OK:
             dialog.load_file(fn)
+            self.currentfolder = os.path.dirname(fn)
         dialog.destroy()
 
 class EMC_Action_Reload(_EMC_Action, _EMC_FileChooser):

@@ -39,13 +39,13 @@
 == M0, M1 Program Pause[[sec:M0-M1]]
 (((M0 Program Pause)))(((M1 Program Optional Pause)))
 
-* 'M0' - pause a running program temporarily. EMC2 remains
+* 'M0' - pause a running program temporarily. LinuxCNC remains
          in the Auto Mode so MDI and other manual actions
          are not enabled. Pressing the cycle start button
          will restart the program at the following line.
 
 * 'M1' - pause a running program temporarily if the optional
-         stop switch is on. EMC2 remains in the Auto Mode
+         stop switch is on. LinuxCNC remains in the Auto Mode
          so MDI and other manual actions are not enabled.
          Pressing the cycle start button
          will restart the program at the following line.
@@ -174,7 +174,7 @@ state.
 
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
-See the <<sec:Feed-Interaction,Feed Interaction>> Section for more details.
+See the <<sub:feed-rate,Feed Rate>> Section for more details.
 
 == M50 Feed Override Control[[sec:M50-Feed-Override]]
 (((M50 Feed Override Control)))
@@ -196,7 +196,7 @@ and the motion will be executed at programmed feed rate.
              While disabled the spindle speed override will have
              no influence, and the spindle speed will have the
              exact program specified value of the S-word
-             (described in <<sec:S-Set-Spindle,Spindle Speed>> Section).
+             (described in <<sec:S-spindle-speed,Spindle Speed>> Section).
 
 == M52 Adaptive Feed Control[[sec:M52-Adaptive-Feed-Control]]
 (((M52 Adaptive Feed Control)))
@@ -206,7 +206,7 @@ and the motion will be executed at programmed feed rate.
  
 When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
-to set the actual feed rate. In EMC2, the HAL pin 'motion.adaptive-feed'
+to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
 from 0 (feed hold) to 1 (full speed).
 
@@ -215,7 +215,7 @@ from 0 (feed hold) to 1 (full speed).
 
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
                Enabling the feed stop switch will allow motion to be
-               interrupted by means of the feed stop control. In EMC2,
+               interrupted by means of the feed stop control. In LinuxCNC,
                the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'
                value will cause the motion to stop when 'M53' is active.
 
@@ -227,7 +227,7 @@ from 0 (feed hold) to 1 (full speed).
 (((M61 Set Current Tool Number)))
 
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode.
-             One use is when you power up EMC with a tool currently in
+             One use is when you power up LinuxCNC with a tool currently in
              the spindle you can set that tool number without doing a tool change.
 
 It is an error if:
@@ -251,7 +251,7 @@ It is an error if:
 
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
-the motion controller. See the Integrator's Manual Configuration Section EMC and
+the motion controller. See the Integrator's Manual Configuration Section LinuxCNC and
 HAL section for more information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
@@ -262,7 +262,7 @@ command.
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M62/63.
+program a motion G code (G0, G1, etc) right after the M62/63.
 
 M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
@@ -300,15 +300,13 @@ M66 wait on an input stops further execution of the program, until the
 selected event (or the programmed timeout) occurs.
 
 It is an error to program M66 with both a P-word and an E-word (thus
-selecting both an analog and a digital input).In EMC2 these inputs are
+selecting both an analog and a digital input).In LinuxCNC these inputs are
 not monitored in real time and thus should not be used for
 timing-critical applications.
 
-The number of I/O can be increased
-by using the num_dio or num_aio parameter when
-loading the motion controller. See the Integrator's
-Manual, Configuration Section, EMC and HAL subsection, for more
-information. 
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
 (((M67 Analog Motion Output Control)))
@@ -323,13 +321,12 @@ M67 E- Q-
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M67. M67 functions
+program a motion G code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
-The number of I/O can be increased by
-using the num_aio parameter when loading the motion controller. See the
-'EMC2 and HAL' chapter in the Configuration Section of the Integrator
-Manual for more information on the Motion Controller.
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M68 Analog Output[[sec:M68-Analog-Output]]
 (((M68 Analog Aux Output Control)))
@@ -345,10 +342,9 @@ M68 output happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
-The number of I/O can be increased by using the
-num_aio parameter when loading the motion controller. See the 'EMC2 and
-HAL' chapter in the Configuration Section of the Integrator's Manual for
-more information on the Motion Controller. 
+The number of I/O can be increased by using the num_dio or num_aio parameter
+when loading the motion controller. See the Integrator's Manual, Core 
+Components Section, Motion subsection, for more information. 
 
 == M70 Save Modal State[[sec:M70-Save-Modal-State]]
 (((M70 Save Modal State)))
@@ -564,8 +560,14 @@ M1-- <P- Q->
 The external program 'M1nn'
 must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
-Execution of the RS274NGC file pauses until the invoked program exits.
+Execution of the RS274/NGC file pauses until the invoked program exits.
 Any valid executable file can be used.
+
+[WARNING]
+Do not use a word processor to create or edit the files. A word processor
+will leave unseen codes that will cause problems and may prevent a bash or 
+python file from working. Use a text editor like Gedit in Ubuntu or Notepad++
+in other operating systems to create or edit the files.
 
 The error 'Unknown M code used' denotes one of the following
 
@@ -573,14 +575,14 @@ The error 'Unknown M code used' denotes one of the following
 * The file is not an executable file
 
 For example to open and close a collet closer that is controlled by a
-parport pin using a bash script file using M101 and M102. Create two
+parallel port pin using a bash script file using M101 and M102. Create two
 files named M101 and M102. Set them as executable files (typically
-right click/properties/permissions) before running EMC2. Make sure the
-parport pin is not connected to anything in a HAL file.
+right click/properties/permissions) before running LinuxCNC. Make sure the
+parallel port pin is not connected to anything in a HAL file.
 
 .M101 Example File
 ----
-#!/bin/sh
+#!/bin/bash
 # file to turn on parport pin 14 to open the collet closer
 halcmd setp parport.0.pin-14-out True
 exit 0
@@ -588,7 +590,7 @@ exit 0
 
 .M102 Example File
 ----
-#!/bin/sh
+#!/bin/bash
 # file to turn off parport pin 14 to open the collet closer
 halcmd setp parport.0.pin-14-out False
 exit 0
@@ -602,11 +604,32 @@ M100 P123.456 Q321.654
 
 .M100 Example file
 ----
-#!/bin/sh
+#!/bin/bash
 voltage=$1
 feedrate=$2
 halcmd setp thc.voltage $voltage
 halcmd setp thc.feedrate $feedrate
+exit 0
+----
+
+To display a graphic message and stop until the message window is closed
+use a graphic display program like Eye of Gnome to display the graphic
+file. When you close it the program will resume.
+
+.M110 Example file
+----
+#!/bin/bash
+eog /home/john/linuxcnc/nc_files/message.png
+exit 0
+----
+
+To display a graphic message and continue processing the G code file 
+suffix an ampersand to the command.
+
+.M110 Example display and keep going
+----
+#!/bin/bash
+eog /home/john/linuxcnc/nc_files/message.png &
 exit 0
 ----
 

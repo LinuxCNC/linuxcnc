@@ -1,7 +1,10 @@
 import os
 import re
 import pyodbc
-import emc # for ini file access only
+try:
+    import emc
+except ImportError:
+    import linuxcnc as emc  # ini only
 import sys, traceback
 
 class SqlToolAccess(object):

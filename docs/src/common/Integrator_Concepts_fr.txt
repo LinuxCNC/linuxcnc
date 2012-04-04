@@ -1,17 +1,19 @@
-﻿= Concepts importants pour l'intégrateur
+:lang: fr
+:toc:
 
-== Système de pas
+= Concepts importants pour l'intégrateur
+
+[[cha:concepts-integrateur]] (((Concepts intégrateur)))
+
+== Système pas à pas
 
 === Période de base
-// Il manque une mise en situation, la note de bas de page
-// est insuffisante et devrait être un paragraphe on parle de hal
-// et de ses paramètres
 
-Période de base (BASE_PERIOD) est le *métronome* de 
-l'ordinateur d'EMC2. footnote:[Cette section fait référence à 
-l'utilisation de *stepgen* le générateur de pas intégré à EMC2. 
+Période de base (BASE_PERIOD) est le _métronome_ de 
+l'ordinateur de LinuxCNC. footnote:[Cette section fait référence à 
+l'utilisation de _stepgen_ le générateur de pas intégré à LinuxCNC. 
 Certains dispositifs matériels ont leur propre générateur de pas 
-et n'utilisent pas celui incorporé à EMC. Dans ce cas se référer 
+et n'utilisent pas celui incorporé à LinuxCNC. Dans ce cas se référer 
 au manuel du matériel concerné.] A chaque période le logiciel de 
 génération de pas calcule si c'est le moment pour une autre impulsion 
 de pas. Une période de base plus courte permet de produire plus 
@@ -42,33 +44,33 @@ et de 16129 pas par seconde dans un autre mode.
 Le problème est qu'avec les exigences de 20us pour le maintien 
 du signal et les 11 µs de latence cela nous force à utiliser une 
 période défavorable de 31 µs. Mais le générateur de pas du 
-logiciel EMC2 a quelques paramètres qui nous laissent régler 
+logiciel LinuxCNC a quelques paramètres qui nous laissent régler 
 les divers temps d'une période de différentes manières.
 
-Par exemple, si *steplen* footnote:[Steplen se réfère à un paramètre 
-qui ajuste la performance du générateur de pas incorporé à EMC2, 
-*stepgen*, qui est un composant de HAL. Ce paramètre ajuste 
+Par exemple, si _steplen_ footnote:[Steplen se réfère à un paramètre 
+qui ajuste la performance du générateur de pas incorporé à LinuxCNC, 
+_stepgen_, qui est un composant de HAL. Ce paramètre ajuste 
 la longueur de l'impulsion de pas. Continuez à lire, on expliquera 
 tous finalement.] est changé de 1 à 2, alors il y aura deux 
 périodes entre le commencement et la fin de l'impulsion de pas. 
-De même, si *dirhold* footnote:[dirhold se réfère à un paramètre 
+De même, si _dirhold_ footnote:[dirhold se réfère à un paramètre 
 qui adapte la longueur du maintien du signal de commande 
 de direction.] est changé de 1 à 3, il y aura au moins trois périodes 
 entre l'impulsion de pas et un changement d'état de la commande 
 de direction.
 
-Si nous pouvons utilisez *dirhold* pour répondre aux exigences des 20us 
+Si nous pouvons utilisez _dirhold_ pour répondre aux exigences des 20µs 
 de maintiens du signal de direction, le prochain délai à respecter est 
 la durée de 4.5 µs du signal de pas haut, additionnons les 11 µs de 
 latence au 4.5 µs de signal haut et nous obtenons une période minimum 
 de 15.5 µs.
 Lorsque nous essayons la valeur de 15.5, nous trouvons que l'ordinateur 
 est lent, donc nous réglons sur 16 µs.
-Si nous laissons *dirhold* à 1 (par défaut) alors temps minimum entre 
+Si nous laissons _dirhold_ à 1 (par défaut) alors temps minimum entre 
 un pas et le changement de direction est de 16 µs moins les 11 µs 
-de latence ce qui nous donne 5us. Ce qui n'est pas suffisant il nous 
+de latence ce qui nous donne 5µs. Ce qui n'est pas suffisant il nous 
 manque 15 µs. Puisque la période est 16 µs, nous avons besoin d'encore 
-une période. Dans ce cas nous changeons *dirhold* de 1 à 2. Maintenant 
+une période. Dans ce cas nous changeons _dirhold_ de 1 à 2. Maintenant 
 le temps minimal entre la fin de l'impulsion de pas et le changement 
 du signal de direction et de 5+16=21 µs. Nous n'avons plus à 
 nous inquiéter d'une erreur de direction à cause de la latence.
@@ -96,10 +98,10 @@ ils doivent être calibrés pour fonctionner contrairement aux moteurs
 pas à pas.
 
 Cette différence s'explique par le mode de régulation différent 
-des deux systèmes. Les servosystèmes sont régulés en *boucle fermée* 
-et le moteur pas à pas en *boucle ouverte*.
+des deux systèmes. Les servosystèmes sont régulés en _boucle fermée_ 
+et le moteur pas à pas en _boucle ouverte_.
 
-Que signifie *boucle fermée* ? Regardons un schéma simplifié et 
+Que signifie _boucle fermée_ ? Regardons un schéma simplifié et 
 la façon dont un système de servomoteur fonctionne.
 
 .Boucle fermée
@@ -118,31 +120,31 @@ par rapport aux plus normal des circuits électroniques, où le bon
 déroulement des entrées vers les sorties est de ne jamais revenir 
 en arrière.footnote:[Si cela peut aider, l'équivalent le plus proche 
 dans le monde numérique ce sont les machines d'état, 
-machines séquentielles où l'état des sorties *à ce moment* dépend 
-de l'état que les entrées et sorties avaient *avant*. Si cela n'aide 
+machines séquentielles où l'état des sorties à ce moment dépend 
+de l'état que les entrées et sorties avaient avant. Si cela n'aide 
 pas, alors passons.]
 
-Si *tout* contrôle *tout le reste* comment cela peut-il fonctionner, qui 
-en a la charge ? La réponse est que EMC2 *peut* contrôler ce système, 
+Si tout contrôle tout le reste comment cela peut-il fonctionner, qui 
+en a la charge ? La réponse est que LinuxCNC peut contrôler ce système, 
 mais il doit le faire en choisissant une des différentes méthodes 
 de contrôle.
 
-La méthode de contrôle qu'utilise EMC2, est l'une des plus simples 
+La méthode de contrôle qu'utilise LinuxCNC, est l'une des plus simples 
 et la meilleure appelée PID.
-PID est l'acronyme de *P*roportionnelle, *I*ntégrale et *D*érivée. 
+PID est l'acronyme de **P**roportionnelle, **I**ntégrale et **D**érivée. 
 La valeur proportionnelle détermine la réaction à l'erreur actuelle, 
 la valeur intégrale détermine la réaction basée sur la somme d'erreurs 
 récentes et la valeur dérivée détermine la réaction basée sur 
 la vitesse de variation de l'erreur. Ce sont trois techniques communes 
 de mathématique qui sont appliquées pour fournir un processus de suivi 
-d'une consigne. Dans le cas d'EMC2 le processus que nous 
+d'une consigne. Dans le cas de LinuxCNC le processus que nous 
 voulons contrôler est l'actuelle position de l'axe et le point de 
 consigne qui est la position commandée l'axe.
 
 .Boucle PID
 image::images/pid-feedback_fr.png[]
 
-En *ajustant* trois composantes (proportionnelle, intégrale et dérivée) 
+En ajustant trois composantes (proportionnelle, intégrale et dérivée) 
 dans l'algorithme du contrôleur PID, nous pouvons concevoir 
 une régulation qui s'adapte aux exigences de processus spécifiques. 
 La réponse du contrôleur peut être décrite en trois termes 
@@ -223,13 +225,13 @@ provoquera une réponse excessive et un dépassement.
 Un réglage de boucle PID rapide a un dépassement léger pour atteindre 
 le point de consigne plus rapidement, cependant, certains systèmes ne 
 peuvent accepter de dépassement, dans ce cas, une boucle fermée 
-*sur-amortie* est nécessaire, cela requière une valeur *P* 
+sur-amortie est nécessaire, cela requière une valeur *P* 
 significativement plus basse que celle provoquant l'oscillation.
 
 == RTAI
 
-Le *Real Time Application Interface* (RTAI) Interface d'application
-temps réel est utilisé pour fournir la meilleure performance temps réel.
+La _Real Time Application Interface_ (RTAI) Interface d'application
+temps réel est utilisée pour fournir la meilleure performance temps réel.
 Le noyau patché RTAI permet d'écrire des applications avec des 
 contraintes temporelles strictes. RTAI donne la possibilité 
 d'avoir des logiciels comme ceux de génération de pas qui ont besoin 
@@ -242,11 +244,11 @@ et différentes fonctions, dont la plupart interfèrent avec les
 performances du système temps réel. (Pour par exemple: la gestion de 
 l'énergie, la réduction de puissance du processeur, la variation de 
 fréquence du CPU, etc.)
-Le noyau EMC2 (et probablement tous les noyaux RTAI-patché) ont les 
+Le noyau LinuxCNC (et probablement tous les noyaux RTAI-patché) ont les 
 fonctions ACPI désactivées. ACPI prend également soin de mettre hors 
 tension le système après qu'un arrêt système a été commandé, et 
 c'est pourquoi vous pourriez avoir besoin de presser sur le bouton 
 d'alimentation pour éteindre complètement votre ordinateur. 
 Le groupe RTAI a amélioré cela dans les versions récentes, de sorte 
-que votre système EMC2 peut éteindre le système par lui-même.
+que votre système LinuxCNC peut éteindre le système par lui-même.
 

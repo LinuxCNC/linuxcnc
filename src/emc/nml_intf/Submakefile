@@ -15,9 +15,9 @@ USERSRCS += $(LIBEMCSRCS)
 
 $(call TOOBJSDEPS, $(LIBEMCSRCS)) : EXTRAFLAGS=-fPIC
 
-TARGETS += ../lib/libemc.a
+TARGETS += ../lib/liblinuxcnc.a
 
-../lib/libemc.a: $(call TOOBJS,$(LIBEMCSRCS))
+../lib/liblinuxcnc.a: $(call TOOBJS,$(LIBEMCSRCS))
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@

@@ -1,13 +1,14 @@
 :lang: fr
 :toc:
 
-[[cha:Mini]]
 = L'interface graphique MINI
 
-== Introduction  
+[[cha:Mini]] (((Mini)))
 
-footnote:[Much of this chapter quotes from a 
-chapter of the Sherline CNC operators manual.]
+== Introduction
+
+footnote:[Une grande partie de ce chapitre provient du manuel Sherline CNC 
+operators.]
 
 [[fig:startminif]]
 .L'interface graphique Mini
@@ -26,8 +27,8 @@ instructions écrites par Joe Martin et Ray Henry.
 == L'écran
 
 [[fig:runminif]]
-.Affichage de Mini lors du fonctionnement d'EMC
-image:images/mini_fr.jpg[]
+.Affichage de Mini lors du fonctionnement de LinuxCNC
+image:images/mini_fr.png[]
 
 L'écran de Mini est visible dans plusieurs sections, voir la figure
 ci-dessus. Il inclu une barre de menu, un jeu de boutons de
@@ -35,20 +36,20 @@ contrôle juste en dessous et deux larges colonnes d'information
 montrant l'état de la machine et permettant à l'opérateur d'entrer des
 commandes ou des programmes.
 
-Quand on compare <<fig:startminif, entre l'écran d'accueil>> et <<fig:runminif, 
-l'écran en cours de fonctionnement>>, des différences apparaissent. Sur la seconde
-image:
+Quand on compare <<fig:startminif, entre l'écran d'accueil>> et <<fig:runminif,
+l'écran en cours de fonctionnement>>, des différences apparaissent. Sur la 
+seconde image:
 
  - Chaque axe a été référencé sur son origine -- L'affichage de la visu est vert
    sombre
- - EMC est en mode auto(((Auto))) -- le bouton est vert clair
+ - LinuxCNC est en mode auto(((Auto))) -- le bouton est vert clair
  - Le parcours d'outil a été activé -- le parcours (((parcours outil)))
    est visible dans la fenêtre
  - Le bloc de G-code en cours est en surbrillance blanche sur fond rouge
-  parmi les lignes défilantes du programme. 
+  parmi les lignes défilantes du programme.
 
 Dès le début de l'utilisation de Mini on découvre combien il est
-facile de visualiser le fonctionnement d'EMC et d'agir sur lui.
+facile de visualiser le fonctionnement de LinuxCNC et d'agir sur lui.
 
 == Barre de menu
 
@@ -62,10 +63,10 @@ possibilités qu'il offre.
 Le menu inclus chacune des sections et sous-sections suivantes:
 
 Programme::
-     ce menu inclus les deux fonctions *reset* et *quitter*. Reset renvoie
-    EMC dans l'état dans lequel il était quand il à démarré. Certains items
+     ce menu inclus les deux fonctions _reset_ et _quitter_. Reset renvoie
+    LinuxCNC dans l'état dans lequel il était quand il à démarré. Certains items
     de conditions de démarrage comme les unités du programme peuvent être
-    spécifiés dans le fichier ini. 
+    spécifiés dans le fichier ini.
 
 Vues::
      ce menu inclus plusieurs éléments d'affichage pouvant être ajoutés
@@ -76,9 +77,9 @@ Vues::
          cet item ajoute une ligne, au dessus de l'afficheur principal de
         position, qui indique si la position affichée est en coordonnées
         machine (absolues) ou en coordonnées pièce (relatives), si la
-        position affichée est actuelle ou commandée et si l'unité et 
-        le pouce le millimètre. Ce qui peut être modifié en agissant 
-        sur le menu *Réglages* décrit plus loin. 
+        position affichée est actuelle ou commandée et si l'unité et
+        le pouce le millimètre. Ce qui peut être modifié en agissant
+        sur le menu _Réglages_ décrit plus loin.
    
     Informations_outil;;
          cet item ajoute une ligne immédiatement sous l'afficheur principal,
@@ -100,7 +101,7 @@ Vues::
     
     Masquer_Reprise;;
           enlève le bloc de boutons contrôlant la reprise d'un programme
-        stoppé par Abandon ou Arrêt d'Urgence. 
+        stoppé par Abandon ou Arrêt d'Urgence.
     
     Diviser_la_vue_droite;;
          modifie la nature de l'affichage de la colonne de droite pour qu'il
@@ -110,7 +111,7 @@ Vues::
          modifie l'affichage de la colonne de droite, soit en mode boutons
         et la colonne divisée, soit affichage sur la colonne entière. En mode
         manuel et en utilisant ce mode entier, les boutons de la broche et
-        du lubrifiant sont visibles en plus des boutons de mouvement. 
+        du lubrifiant sont visibles en plus des boutons de mouvement.
     
     Afficher_dans_toute_la_fenêtre;;
          modifie l'affichage dans la colonne de droite pour qu'elle soit
@@ -136,10 +137,10 @@ Réglages::
          régle l'affichage principal pour qu'il affiche les valeurs de la
         position courante en incluant tous les offsets comme les origines
         pièces qui seraient actives. Pour plus de détails voir le chapitre
-        sur les *Systèmes de coordonnées*.
+        sur les _Systèmes de coordonnées_.
 
 Informations::
-     Indique diverses activités en affichant des valeurs dans la zône MESSAGES. 
+     Indique diverses activités en affichant des valeurs dans la zône MESSAGES.
 
     Fichier_programme;;
         Indique le nom du fichier programme actif.
@@ -152,7 +153,7 @@ Informations::
          Indique le nom du fichier devant être utilisé pour enregistrer les
         paramètres du programme. Il est possible d'avoir plus d'informations
         dans le chapitre sur les offsets et l'utilisation des paramètres
-        dans les programmes. 
+        dans les programmes.
     
     Fichiers_d'outils;;
         Indique le nom du fichier d'outils utilisé pour l'usinage en cours.
@@ -177,16 +178,16 @@ droit de la souris.
 
 Sous la ligne de menu se trouve une ligne de boutons de contrôle. Ce
 sont les boutons principaux de l'interface. En utilisant ces boutons il
-est possible de changer de mode cycliquement entre *MANUEL* puis *AUTO*
-puis *MDI* (Manual Data Input). Ces boutons ont un fond vert clair
+est possible de changer de mode cycliquement entre _MANUEL_ puis _AUTO_
+puis _MDI_ (Manual Data Input). Ces boutons ont un fond vert clair
 quand le mode correspondant est actif.
 
-Il est également possible d'utiliser les boutons *VITESSE-0*, 
-*ABANDON* et *A/U* pour contrôler les mouvements du programme.
+Il est également possible d'utiliser les boutons _VITESSE-0_,
+_ABANDON_ et _A/U_ pour contrôler les mouvements du programme.
 
 === MANUEL (((Manuel)))
 
-Ce bouton, ou la touche *F3* placent EMC en mode Manuel et affiche un
+Ce bouton, ou la touche *F3* placent LinuxCNC en mode Manuel et affiche un
 jeu condensé de boutons que l'opérateur peut utiliser pour effectuer
 des commandes de mouvements manuels. Les labels des boutons de jog
 varient pour refléter l'axe actif. Quand en plus de ce mode manuel, la
@@ -200,38 +201,35 @@ l'incrément de jog.
 
 image::images/miniman_fr.png[]
 
-[quote]
-________________________________________
- Un bouton à été ajouté pour désigner la position actuelle comme étant
+Un bouton à été ajouté pour désigner la position actuelle comme étant
 la position d'origine. Une machine simple telle que la Sherline 5400
 serait facile à utiliser sans avoir de position d'origine. Ce bouton
 met les offsets de tous les axes à zéro et place l'origine de tous les
 axes au point courant.
 
- Ce concentrer sur les axes est important ici. Noter que sur la capture
-<<fig:startminif>> qui est en mode manuel, on voit un cadre autour de
-l'axe X pour mettre son affichage en évidence. Ce cadre (le focus)
-indique que l'axe X est l'axe actif. Il est l'axe cible pour les
-mouvements de jog faits par appui sur les boutons 'plus' ou 'moins'.
-Il est possible de changer l'axe actif en cliquant sur l'affichage 
-d'un autre axe. C'est également possible en mode manuel en pressant la 
-touche de son nom sur le clavier. La casse n'a pas d'importance *Y* ou 
-*y* donneront le focus à l'axe Y. *A* ou *a* le donneront à l'axe A. 
+Ce concentrer sur les axes est important ici. Noter que sur la capture
+<<fig:startminif,du début de chapitre>> qui est en mode manuel, 
+on voit un cadre autour de l'axe X pour mettre son affichage en évidence. Ce 
+cadre (le focus) indique que l'axe X est l'axe actif. Il est l'axe cible 
+pour les mouvements de jog faits par appui sur les boutons 'plus' ou 'moins'.
+Il est possible de changer l'axe actif en cliquant sur l'affichage
+d'un autre axe. C'est également possible en mode manuel en pressant la
+touche de son nom sur le clavier. La casse n'a pas d'importance *Y* ou
+*y* donneront le focus à l'axe Y. *A* ou *a* le donneront à l'axe A.
 Pour aider à se rappeller quel est l'axe actif avant de faire un jog,
-son nom est indiqué sur les boutons de jog. 
+son nom est indiqué sur les boutons de jog.
 
- EMC peut faire un jog (mouvement d'un axe particulier) aussi longtemps
-que le bouton est maintenu pressé, si le jog est réglé sur 'continu' ,
+LinuxCNC peut faire un jog (mouvement d'un axe particulier) aussi longtemps
+que le bouton est maintenu pressé, si le jog est réglé sur _continu_ ,
 ou il peut se déplacer d'une valeur prédéfinie, quand il est réglé
-sur 'incrément' s. Il est aussi possible de faire un jog de l'axe
-actif en pressant 
-les touches *+* ou moins *-* du clavier. De nouveau, la casse n'a pas
-d'importance pour les jogs au clavier. Les deux petits boutons situés
-entre les deux gros du jog, permettent de choisir quel type de jog est
-souhaîté. Quand on est en mode incréments, les boutons de taille
+sur _incrément_ s. Il est aussi possible de faire un jog de l'axe
+actif en pressant les touches *+* ou moins *-* du clavier. De nouveau,
+la casse n'a pas d'importance pour les jogs au clavier. Les deux petits
+boutons situés entre les deux gros du jog, permettent de choisir quel type
+de jog est souhaîté. Quand on est en mode incréments, les boutons de taille
 d'incréments sont accessibles. La sélection d'une taille d'incrément se
 fait par clic sur la case à cocher avec la souris ou cycliquement en
-pressant la touche *i* ou *I* sur le clavier. Le jog par incréments 
+pressant la touche *i* ou *I* sur le clavier. Le jog par incréments
 présente quelques effets intéressants autant qu'inattendus. Si vous
 pressez le bouton de jog alors qu'un mouvement de jog est déjà en
 cours, la distance à laquelle il était lorsqu'est arrivée la commande
@@ -239,21 +237,19 @@ du second jog, sera ajoutée à la position. Deux pressions successives
 rapides de 10mm d'incrément ne donneront pas 20mm de mouvement. Vous
 devez attendre que le premier soit terminé avant d'envoyer le second.
 
- La vitesse de jog est affichée au dessus du curseur. Il est possible
+La vitesse de jog est affichée au dessus du curseur. Il est possible
 de régler le curseur en cliquant dans la glissière du curseur, du côté
 où vous voulez son déplacement, ou en cliquant sur les boutons
-*Défault* ou *Rapide*. Ces réglages n'affectent que les mouvements de
+_Défaut_ ou _Rapide_. Ces réglages n'affectent que les mouvements de
 jog en mode manuel. Tant qu'un mouvement de jog est en cours, un
 changement de la vitesse de jog est sans effet sur le jog. Par exemple,
 disons que vous avez réglé le jog par incréments de 10mm. Même si vous
-pressez le bouton *Jog*, le déplacement de dix millimètres se finira à
-la vitesse à laquelle il a commencé. 
-________________________________________
-
+pressez le bouton _Jog_, le déplacement de dix millimètres se finira à
+la vitesse à laquelle il a commencé.
 
 === AUTO (((Auto)))
 
-Quand le bouton Auto est pressé, ou *F4* sur le clavier, EMC passe
+Quand le bouton Auto est pressé, ou *F4* sur le clavier, LinuxCNC passe
 dans ce mode, un jeu de boutons traditionnels des opérations en auto
 est affiché et une petite fenêtre textuelle s'ouvre, montrant une
 partie du programme. Durant un usinage, la ligne active est affichée en
@@ -263,15 +259,15 @@ Dans le mode auto, beaucoup de touches sont liées aux contrôles. Par
 exemple, les touches numérotées au dessus du clavier sont liées aux
 réglages du correcteur de vitesse d'avance travail. Le *0* l'ajuste à
 100%, le *9* l'ajuste à 90% etc. D'autres touches fonctionnent de la
-même manière qu'avec l'interface TkEMC.
+même manière qu'avec l'interface TkLinuxCNC.
 
 .Mode Auto
 
 image::images/miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
-Si l'opérateur veut les voir, il doit utiliser le menu *Informations ->
-G-codes actifs* et afficher ainsi la liste des codes modaux dans la
+Si l'opérateur veut les voir, il doit utiliser le menu _Informations →
+G-codes actifs_ et afficher ainsi la liste des codes modaux dans la
 zône de texte MESSAGES.
 
 Si un Arrêt d'Urgence ou un Abandon est pressé pendant un usinage, un
@@ -282,34 +278,32 @@ elle sera mise en surbrillance blanche sur fond bleu. ATTENTION, une
 vitesse très faible et un doigt collé sur le bouton de pause est
 prudent pendant toute reprise de programme!
 
-[quote]
-________________________________________
- Ce qui est le mieux avec une machine CNC, c'est le mode auto. Le mode
+Ce qui est le mieux avec une machine CNC, c'est le mode auto. Le mode
 auto affiche les fonctions typiques que tout le monde espère utiliser
-avec EMC. Au dessus de la fenêtre un jeu de boutons qui contrôlent ce
+avec LinuxCNC. Au dessus de la fenêtre un jeu de boutons qui contrôlent ce
 qui se passe en mode auto. En dessous, la fenêtre montrant la partie du
 programme en cours d'exécution. Quand le programme est lancé, la ligne
 active s'affiche en surbrillance blanche sur fond rouge. Les trois
-premiers boutons, *Ouvrir*, *Lancer* et *Pause* font ce que leurs noms
-indiquent. *Pause* stoppe le programme en cours d'exécution là où il
-est. Le bouton suivant, *Reprise*, reprend le mouvement. Le résultat
-est le même si le bouton *Vitesse-0* était pressé au lieu du bouton
-*Pause*, le mouvement est stoppé, *Pas à pas* reprend aussi le
+premiers boutons, _Ouvrir_, _Lancer_ et _Pause_ font ce que leurs noms
+indiquent. _Pause_ stoppe le programme en cours d'exécution là où il
+est. Le bouton suivant, _Reprise_, reprend le mouvement. Le résultat
+est le même si le bouton _Vitesse-0_ était pressé au lieu du bouton
+_Pause_, le mouvement est stoppé, _Pas à pas_ reprend aussi le
 mouvement, mais il ne continue que jusqu'à la fin du bloc courant.
-Presser une nouvelle fois *Pas à pas* exécutera le mouvement du bloc
-suivant. Presser *Reprise* à ce moment là et l'interpréteur reviendra
-en arrière lire et relancer le programme. La combinaison entre *Pause* 
-et *Pas à pas* marche un peu comme un seul bloc dans plusieurs
-interpréteurs. Avec la différence que *Pause* ne laisse pas le
+Presser une nouvelle fois _Pas à pas_ exécutera le mouvement du bloc
+suivant. Presser _Reprise_ à ce moment là et l'interpréteur reviendra
+en arrière lire et relancer le programme. La combinaison entre _Pause_
+et _Pas à pas_ marche un peu comme un seul bloc dans plusieurs
+interpréteurs. Avec la différence que _Pause_ ne laisse pas le
 mouvement se poursuivre jusqu'à la fin du bloc courant. Le correcteur
 de vitesse d'avance travail peut se révéler très pratique pour
 s'approchez de la matière pour un premièr usinage. Le placer sur 100%
 pour les déplacements rapides, le régler sur 10% et basculez entre
-*Vitesse-0* et 10% en utilisant le bouton *Pause*. Quand vous êtes
+_Vitesse-0_ et 10% en utilisant le bouton _Pause_. Quand vous êtes
 satisfait et que les choses se présentent bien, pressez le zéro à la
-droite du neuf en haut du clavier, et c'est parti. 
+droite du neuf en haut du clavier, et c'est parti.
 
- Le bouton *Vérifier* passe le code dans l'interpréteur sans production
+Le bouton _Vérifier_ passe le code dans l'interpréteur sans production
 de mouvements. Si Vérifier trouve un problème il stoppe la lecture
 juste derrière le bloc posant problème et affiche un message. La
 plupart du temps vous serez en mesure de régler le problème avec votre
@@ -321,8 +315,6 @@ Occasionnellement le message fait référence à quelque chose très en
 avant de la ligne en surbrillance. Le plus souvent ça se produit si
 vous oubliez de terminer votre programme par un code correct comme %,
 M2, M30, ou M60. 
-________________________________________
-
 
 === MDI[[sub:MDI]](((MDI)))
 
@@ -331,9 +323,7 @@ en manuel (Manual Data Input). Ce mode affiche un simple champ de
 saisie d'une ligne de texte et montre les codes modaux actuellement
 actifs dans l'interpréteur.
 
-[quote]
-________________________________________
- Le mode MDI vous permet d'entrer de simples blocs et de les faire
+Le mode MDI vous permet d'entrer de simples blocs et de les faire
 exécuter par l'interpréteur comme si ils étaient une partie d'un
 programme (Une sorte de programme d'une seule ligne). Vous pouvez
 exécuter des cercles, des arcs, des lignes et autres. Vous pouvez aussi
@@ -346,84 +336,78 @@ regarde dans la liste si G80 est actif. G80 stoppe tous les mouvements.
 Si il y est je me rappelle de mettre un bloc comme G00 X0 Y0 Z0. Dans
 le MDI, vous entrez du texte depuis le clavier, ainsi toutes les
 touches principales ne fonctionnent pas comme raccourcis clavier pour
-les commandes machine. *F1* engage l'Arrêt d'Urgence. 
-________________________________________
-
+les commandes machine. *F1* engage l'Arrêt d'Urgence.
 
 Puisque les touches du clavier sont nécessaires à la saisie du texte,
 beaucoup des raccourcis clavier disponibles en mode auto ne le sont pas
 ici.
 
-=== *VITESSE-0* -- *CONTINUER*
+=== VITESSE-0 et CONTINUER
 
-Vitesse-0 est une bascule. Quand EMC est prêt pour exécuter, ou qu'il
+Vitesse-0 est une bascule. Quand LinuxCNC est prêt pour exécuter, ou qu'il
 exécute une commande de mouvement, ce bouton affiche son label
-*VITESSE-0* sur fond rouge. Si Vitesse-0 a été pressé il affiche le
-label *CONTINUER*. Utiliser ce bouton pour faire une pause dans un
+_VITESSE-0_ sur fond rouge. Si Vitesse-0 a été pressé il affiche le
+label _CONTINUER_. Utiliser ce bouton pour faire une pause dans un
 mouvement présente l'avantage d'être capable de relancer le programme
 d'où il a été stoppé. Vitesse-0 bascule simplement entre vitesse zéro
 et la vitesse d'avance travail avec l'éventuel correcteur qui était
 actif au moment de l'arrêt. Ce bouton et la fonction qu'il active sont
 également liés à la touche pause de la plupart des claviers.
 
-=== *ABANDON*
+=== ABANDON
 
 Le bouton Abandon stoppe tous les mouvements quand il est pressé. Il
-désactive aussi la commande de marche d'EMC. Plus aucun mouvement ne
+désactive aussi la commande de marche de LinuxCNC. Plus aucun mouvement ne
 survient après l'appui sur ce bouton. Si vous êtes en mode auto, ce
 bouton enlève le reste du programme du planificateur de mouvements. Il
 enregistre aussi le numéro de la ligne qui s'exécutait quand il a été
 pressé. Vous pouvez vous servir de ce numéro de ligne pour redémarrer
 le programme après avoir supprimé la raison de l'appui...
 
-=== *A/U*(((ESTOP)))
+=== Arrêt d'Urgence(((ESTOP)))
 
 Le bouton d'Arrêt d'Urgence est une bascule mais il a trois
 fonctionnements possibles.
 
- -  Au démarrage de Mini c'est un bouton avec le texte *A/U* écrit en noir
+ -  Au démarrage de Mini c'est un bouton avec le texte _A/U_ écrit en noir
    sur fond rouge. C'est état de la machine est correct pour charger un
    programme ou faire un jog sur un axe. L'Arrêt d'Urgence est libéré
    quand il s'affiche dans cet état.
  -  Si vous pressez sur le bouton d'Arrêt d'Urgence pendant qu'un
-   mouvement est exécuté, le texte sur le bouton devient *A/U Engagé* sur
+   mouvement est exécuté, le texte sur le bouton devient _A/U Engagé_ sur
    fond gris et le bouton s'enfonce. Plus aucun mouvement n'est possible
    et plus rien ne réagi sur l'interface Mini tant que l'Arrêt d'Urgence
    est dans cet état. Le presser à nouveau à la souris le fera repasser en
    conditions normales de fonctionnement.
  -  Un troisième état est encore possible. Un bouton enfoncé portant le
-   texte *A/U Libéré* sur fond vert signifie que l'A/U a bien été libéré
+   texte _A/U Libéré_ sur fond vert signifie que l'A/U a bien été libéré
    mais que la machine n'a pas été mise en marche. Normalement cet état
    apparaît quand l'A/U était libéré mais que la touche Marche Machine
    *F2* a été pressée.
 
-Joe Martin disait, *Quand tout le reste a échoué, pressez 
-un 'Arrêt d'Urgence' software.* Si vous avez un circuit externe qui 
-gère l'A/U en surveillant une broche du port parallèle ou celle 
-d'une carte d'entrées/sorties, un arrêt d'urgence software pourra 
+Joe Martin disait, _Quand tout le reste a échoué, pressez
+un Arrêt d'Urgence software_. Si vous avez un circuit externe qui
+gère l'A/U en surveillant une broche du port parallèle ou celle
+d'une carte d'entrées/sorties, un arrêt d'urgence software pourra
 couper la puissance sur les moteurs.
 
-[quote]
-________________________________________
- La plupart du temps, quand un Abandon ou un Arrêt d'Urgence est engagé
+La plupart du temps, quand un Abandon ou un Arrêt d'Urgence est engagé
 c'est parce que quelque chose se passe mal. Peut être un outil cassé et
 qui doit être changé. On passe alors en mode manual et on arrête la
 broche, on change l'outil et en supposant que sa longueur reste la
 même, on est prêt pour relancer le programme. Si on renvoie l'outil à
-la même place ou il était avant, EMC va fonctionner parfaitement. Il
+la même place ou il était avant, LinuxCNC va fonctionner parfaitement. Il
 est aussi possible de se déplacer sur la ligne suivante ou précédente
 de celle ou c'est produit l'abandon. Si vous pressez le bouton
-*Arrière* ou *Avant* vous voyez une ligne en surbrillance bleue
+_Arrière_ ou _Avant_ vous voyez une ligne en surbrillance bleue
 montrant l'écart entre la ligne sur laquelle l'abandon s'est produit
-(restée en surbrillance rouge) et la ligne à laquelle EMC va
+(restée en surbrillance rouge) et la ligne à laquelle LinuxCNC va
 redémarrer. En réfléchissant à ce qui va se produire au moment de la
 reprise vous serez en mesure de placer l'arête de l'outil là où la
 reprise pourra se faire de manière acceptable. Vous aurez peut être à
 solutionner certaines difficultés comme celles créées par les
 compensations de rayon d'outil le long d'une ligne diagonale et vous
-devrez être sûr de vous avant de presser sur le bouton *Reprise*. 
-________________________________________
-
+devrez être sûr de vous avant de presser sur le bouton _Reprise_.
 
 == Colonne de gauche
 
@@ -433,7 +417,7 @@ boutons dans cette zône.
 
 === Afficheurs de position des axes
 
-Ces afficheurs se comportent exactement comme ceux de TkeEMC. La
+Ces afficheurs se comportent exactement comme ceux de TkeLinuxCNC. La
 couleur des afficheurs est importante.
 
  - Rouge, elle indique que la machine est en appui sur un contact de fin
@@ -445,7 +429,7 @@ couleur des afficheurs est importante.
    points d'origine.
 
 Le type de position affichée peut varier, selon les options choisies
-dans le menus *Réglages*. Les réglages par défaut, ou de démarrage,
+dans le menus _Réglages_. Les réglages par défaut, ou de démarrage,
 peuvent être changés dans le fichier ini pour correspondre à vos
 besoins.
 
@@ -467,24 +451,24 @@ correction appliquée sur la vitesse d'avance programmée.
 === Messages 
 
 L'affichage des messages situé sous le curseur du correcteur de
-vitesse est une sorte de bloc-notes pour EMC. Si un problème survient,
+vitesse est une sorte de bloc-notes pour LinuxCNC. Si un problème survient,
 il est reporté sur ce bloc-notes. Si vous essayez de déplacer un axe
 alors que l'Arrêt d'Urgence est engagé, vous recevez un message qui dit
-quelques choses à propos des conditions de marche empêchant EMC de
+quelques choses à propos des conditions de marche empêchant LinuxCNC de
 répondre à la commande de mouvement. Si un axe est en défaut, par
 exemple un dépassement de limite, le message affiché sur le bloc-notes
 indiquera ce qui se passe. Pour demander à l'opérateur de changer
 d'outil par exemple, vous pouvez aussi ajouter une ligne de code dans
 le programme qui s'affichera sur l'écran, dans la boîte de messages. Un
 exemple pourrait être: (msg, Montez l'outil N°3 puis pressez Reprise).
-Cette ligne de code, incluse dans un programme, va 
-afficher *Montez l'outil 3 puis pressez Reprise* dans la boîte 
-de messages. Le mot msg, (avec la virgule) est la commande qui fait 
-apparaître le commentaire, sans 'msg,' le message ne serait pas affiché.
+Cette ligne de code, incluse dans un programme, va
+afficher _Montez l'outil 3 puis pressez Reprise_ dans la boîte
+de messages. Le mot msg, (avec la virgule) est la commande qui fait
+apparaître le commentaire, sans _msg_, le message ne serait pas affiché.
 
 Pour effacer les messages cliquer simplement sur le bandeau
 --MESSAGES-- au dessus du bloc-notes ou au clavier, presser *m* tout en
-maintenant la touche *Alt* appuyée.
+maintenant la touche _Alt_ appuyée.
 
 == Colonne de droite
 
@@ -510,11 +494,11 @@ l'excellente possibilité de numéroter et renuméroter un programme de la
 même manière que l'interpréteur le fait avec un fichier. Il permet
 également le couper/coller d'une partie vers une autre du fichier. En
 plus, il permet d'enregistrer les changements faits dans le programme
-et de soumettre celui-ci à l'interpréteur d'EMC depuis le même menu. Il
+et de soumettre celui-ci à l'interpréteur de LinuxCNC depuis le même menu. Il
 est possible de travailler sur un fichier ouvert dans cet éditeur puis
-de l'enregistrer et de le recharger si EMC est en mode Auto. Si vous
+de l'enregistrer et de le recharger si LinuxCNC est en mode Auto. Si vous
 avez lancé un fichier et que vous avez besoin de l'éditer, ce fichier
-sera placé dans l'éditeur quand vous cliquez sur le bouton *Editeur* du
+sera placé dans l'éditeur quand vous cliquez sur le bouton _Editeur_ du
 menu.
 
 === Parcours d'outil(((trace d'outil )))
@@ -523,7 +507,7 @@ menu.
 
 image::images/minibkplot_fr.png[]
 
- Le bouton *Parcours d'outil* du menu, affiche un tracé produit par le
+Le bouton _Parcours d'outil_ du menu, affiche un tracé produit par le
 cheminement de l'outil pendant l'usinage. Cette trace est affichable
 selon plusieurs plans et en *3-D* qui est le mode par défaut. Les choix
 sont affichés au dessus et à droite de cette fenêtre. Si l'usinage est
@@ -535,8 +519,8 @@ l'angle depuis lequel l'opérateur voit le tracé du parcours d'outil. En
 dessous, une série de curseurs permettent de modifier les angles et la
 taille de la vue. Il est possible de contrôler les modifications en
 regardant l'attitude de la petite pyramide. Les modifications ne
-prendront effet qu'après appui sur le bouton *Rafraîchir*. Le bouton
-*Reset* efface toutes les traces du parcours affiché et prépare la
+prendront effet qu'après appui sur le bouton _Rafraîchir_. Le bouton
+_Reset_ efface toutes les traces du parcours affiché et prépare la
 fenêtre pour un nouveau lancement du programme, il conserve toutefois
 les orientations et le niveau de zoom actuellement définis.
 
@@ -555,7 +539,7 @@ enregistrer un chemin d'outil sur une longue période de temps.
 
 La page des outils permet d'ajuster la longueur et le diamètre des
 outils, ces valeurs deviennent effectives dès l'appui sur la touche
-*Entrée*. Il est nécessaire de définir les paramètres des outils avant
+_Entrée_. Il est nécessaire de définir les paramètres des outils avant
 de lancer le programme. Les offsets d'outils ne peuvent pas être
 modifiés une fois le programme démarré ni quand il est en pause.
 
@@ -563,14 +547,14 @@ modifiés une fois le programme démarré ni quand il est en pause.
 
 image::images/minitool_fr.png[]
 
-Les boutons *Ajouter un outil* et *Enlever le dernier outil* portent
+Les boutons _Ajouter un outil_ et _Enlever le dernier outil_ portent
 sur la fin de la liste des outils de sorte que l'ajout d'outils
 s'effectuent vers le bas. Quand un nouvel outil est ajouté, il est
 utilisable dans le programme avec la commande G-code habituelle. Le
 nombre maximum d'outils est de 32 dans le fichier de configuration
-d'EMC mais vous serez arrivé au bout des possibilités d'affichage de
-Mini bien avant celà. A la place vous pouvez utiliser le *menu* ->
-*Vues* -> *Afficher dans toute la fenêtre* pour voir plus d'outils si
+de LinuxCNC mais vous serez arrivé au bout des possibilités d'affichage de
+Mini bien avant celà. A la place vous pouvez utiliser le _menu →
+Vues → Afficher dans toute la fenêtre_ pour voir plus d'outils si
 nécessaire.
 
 === Page des offsets
@@ -580,32 +564,32 @@ décalages d'origine des différents systèmes de coordonnées. Le système
 de coordonnées est choisi dans la colonne de gauche, par sélection
 d'une case à cocher. Quand un système de coordonnées est choisi il est
 possible d'entrer directement les valeurs ou de déplacer l'axe à une
-position d'apprentissage. 
+position d'apprentissage.
 
 .Mini Offset Display
 
 image::images/minioffsets_fr.png[]
 
- Il est également possible d'utiliser une pinnule puis d'ajouter le
-rayon et la longueur par le bouton *Apprentissage*. Pour celà, il peur
+Il est également possible d'utiliser une pinnule puis d'ajouter le
+rayon et la longueur par le bouton _Apprentissage_. Pour celà, il peur
 être nécessaire d'ajouter ou de soustraire le rayon de la pinnule selon
-la surface qui est touchée. C'est la case à cocher *Soustraire* ou
-*Ajouter* qui permet ce choix.
+la surface qui est touchée. C'est la case à cocher _Soustraire_ ou
+_Ajouter_ qui permet ce choix.
 
-Le bouton *Tous les Gxx à zéro* enléve tous les décalages du système
+Le bouton _Tous les Gxx à zéro_ enléve tous les décalages du système
 courant visibles sur l'écran mais ne modifie pas les variables dans le
-fichier tant que le bouton *écrire et recharger* n'est pas pressé. Le
-bouton *écrire et recharger* est à presser pour valider et recharger
+fichier tant que le bouton __écrire et recharger_ n'est pas pressé. Le
+bouton _écrire et recharger_ est à presser pour valider et recharger
 tous les changements effectués sur les valeurs des systèmes de
 coordonnées.
 
 == Raccourcis clavier
 
-Un certain nombre de raccourcis clavier utilisés avec TkEMC ont été
+Un certain nombre de raccourcis clavier utilisés avec TkLinuxCNC ont été
 conservés avec Mini. Quelques uns ont changé pour étendre leurs
 fonctions ou pour faciliter les opérations sur une machine utilisant
 cette interface. Certaines touches opérent de la même manière quelque
-soit le mode. D'autres change en fonction du mode de travail d'EMC.
+soit le mode. D'autres change en fonction du mode de travail de LinuxCNC.
 
 === Touches courantes
 
@@ -688,10 +672,10 @@ Haut Bas::
     jog de l'axe Y
 
 Pg.préc Pg.suiv::
-    jog de l'axe Z 
+    jog de l'axe Z
 
 - _::
-    jog de l'axe actif dans la direction moins 
+    jog de l'axe actif dans la direction moins
 
 + =::
     jog l'axe actif dans la direction plus
@@ -700,7 +684,7 @@ Origine::
     POM de l'axe actif
 
 i I::
-    Bascule cyclique des incréments de jog 
+    Bascule cyclique des incréments de jog
 
 Les touches suivantes ne fonctionnent que sur les machines utilisant
 des entrées sorties auxiliaires

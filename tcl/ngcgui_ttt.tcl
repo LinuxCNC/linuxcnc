@@ -1,7 +1,7 @@
-# ngcgui_ttt.tcl: an emc [DISPLAY]TKAPP for using truetype-tracer and ngcgui
+# ngcgui_ttt.tcl: a LinuxCNC [DISPLAY]TKAPP for using truetype-tracer and ngcgui
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2011
+# Copyright: 2010-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ proc ::ttt::setfont {} {
     set idir [file dirname $::ttt(font)]
   }
   set filename [tk_getOpenFile \
-           -title "Set Font"\
+           -title "[_ "Set Font"]"\
            -defaultextension .ttf \
            -initialfile "" \
            -initialdir  "$idir" \
@@ -64,11 +64,11 @@ proc ::ttt::checkttt {} {
   catch {set ans2 [eval exec grep -c subdiv /tmp/ttt.q]}
   catch {file delete /tmp/ttt.q}
   if {[info exists ans2] && $ans2 == 1} {
-    set ::ttt(msg) "::ttt::embedinit found truetype-tracer v4 -OK"
+    set ::ttt(msg) "::ttt::embedinit [_ "found truetype-tracer v4 -OK"]"
     return 1
   } else {
-    puts stderr "::ttt::embedinit:Note truetype-tracer v4 is required"
-    set ::ttt(msg) "Note: truetype-tracer v4 is required"
+    puts stderr "::ttt::embedinit:[_ "Note truetype-tracer v4 is required"]"
+    set ::ttt(msg) "[_ "Note: truetype-tracer v4 is required"]"
     return 0
   }
 } ;# checkttt

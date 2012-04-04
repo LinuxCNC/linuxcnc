@@ -1,10 +1,15 @@
-Manual Integrador V0.1, {localdate}
+Manual Integrador V2.5, {localdate}
 ===================================
-The EMC Team
 
 :lang: es
 
 :masterdir: {indir}
+
+The LinuxCNC Team
+
+:leveloffset: 0
+
+= LinuxCNC Introduction
 
 :leveloffset: 1
 
@@ -29,6 +34,8 @@ include::config/ini_config_es.txt[]
 include::config/ini_homing_es.txt[]
 
 include::config/lathe_config_es.txt[]
+
+include::hal/haltcl_es.txt[]
 
 include::config/emc2hal_es.txt[]
 
@@ -71,6 +78,8 @@ include::drivers/pico_ppmc_es.txt[]
 include::drivers/pluto_p_es.txt[]
 
 include::drivers/servo_to_go_es.txt[]
+
+include::drivers/shuttlexpress_es.txt[]
 
 :leveloffset: 0
 

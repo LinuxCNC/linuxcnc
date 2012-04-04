@@ -2,24 +2,24 @@
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import emc
+import linuxcnc
 import Tkinter
 import time
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
-    ini = emc.ini(sys.argv[2])
+    ini = linuxcnc.ini(sys.argv[2])
     nmlfile = ini.find("EMC", "NML_FILE")
-    if nmlfile: emc.nmlfile = nmlfile
+    if nmlfile: linuxcnc.nmlfile = nmlfile
     del sys.argv[1:3]
 
-s = emc.stat()
+s = linuxcnc.stat()
 s.poll()
-c = emc.command()
+c = linuxcnc.command()
 
-t = Tkinter.Tk(className="EmcDebugLevel")
-t.wm_title(_("EMC2 Debug Level"))
+t = Tkinter.Tk(className="LinuxCNCDebugLevel")
+t.wm_title(_("LinuxCNC Debug Level"))
 t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
 
@@ -33,14 +33,14 @@ rs274.options.install(t)
 # for those flags, it looks like the state of DEBUG_NML and DEBUG_RCS
 # is only checked early in startup, so changing them later has no effect.
 bits = [
-    (emc.DEBUG_CONFIG, _('Configuration *')),
-    (emc.DEBUG_VERSIONS, _('Version Numbers *')),
-    (emc.DEBUG_NML, _('NML *')),
-    (emc.DEBUG_RCS, _('RCS *')),
-    (emc.DEBUG_TASK_ISSUE, _('Task Issue')),
-    (emc.DEBUG_MOTION_TIME, _('Motion Time')),
-    (emc.DEBUG_INTERP, _('Interpreter')),
-    (emc.DEBUG_INTERP_LIST, _('Interpreter List')),
+    (linuxcnc.DEBUG_CONFIG, _('Configuration *')),
+    (linuxcnc.DEBUG_VERSIONS, _('Version Numbers *')),
+    (linuxcnc.DEBUG_NML, _('NML *')),
+    (linuxcnc.DEBUG_RCS, _('RCS *')),
+    (linuxcnc.DEBUG_TASK_ISSUE, _('Task Issue')),
+    (linuxcnc.DEBUG_MOTION_TIME, _('Motion Time')),
+    (linuxcnc.DEBUG_INTERP, _('Interpreter')),
+    (linuxcnc.DEBUG_INTERP_LIST, _('Interpreter List')),
 ]
 
 def showdebug(value):
@@ -54,7 +54,7 @@ def update_buttons_from_emc():
         return
     try:
         s.poll()
-    except emc.error: # emc exited?
+    except linuxcnc.error: # linuxcnc exited?
         raise SystemExit
     debug = s.debug
     for k, v in vars.items():

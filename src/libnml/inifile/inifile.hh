@@ -16,9 +16,11 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <stdio.h>
-#include <fcntl.h>
+#include <inifile.h>
 
+#ifndef __cplusplus
+#warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.
+#endif
 
 #ifdef __cplusplus
 class IniFile {
@@ -63,10 +65,18 @@ public:
 				     int *lineno = NULL);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1, int *lineno = NULL);
+    const char *                FindString(char *dest, size_t n,
+				     const char *tag, const char *section=NULL,
+				     int num = 1, int *lineno = NULL);
+    const char *                FindPath(char *dest, size_t n,
+				     const char *tag, const char *section=NULL,
+				     int num = 1, int *lineno = NULL);
     void                        EnableExceptions(int _errMask){
                                     errMask = _errMask;
                                 }
 
+    ErrorCode                   TildeExpansion(const char *file, char *path,
+					       size_t n);
 
 protected:
     struct StrIntPair {
@@ -103,13 +113,10 @@ private:
 
     bool                        CheckIfOpen(void);
     bool                        LockFile(void);
-    void                        TildeExpansion(const char *file, char *path);
     void                        ThrowException(ErrorCode);
     char                        *AfterEqual(const char *string);
     char                        *SkipWhite(const char *string);
 };
-#else
-extern const char *iniFind(FILE *fp, const char *tag, const char *section);
 #endif
 
 

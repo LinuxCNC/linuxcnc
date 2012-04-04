@@ -9,10 +9,10 @@ Step Configuration Wizard. See the Getting Started Guide.
 
 This chapter describes some of the more common settings for manually
 setting up a stepper based system. Because of the various possibilities
-of configuring EMC2, it is very hard to document them all, and keep
+of configuring LinuxCNC, it is very hard to document them all, and keep
 this document relatively short.
 
-The most common EMC2 usage is for stepper based systems. These systems
+The most common LinuxCNC usage is for stepper based systems. These systems
 are using stepper motors with drives that accept step & direction
 signals.
 
@@ -21,7 +21,7 @@ feedback comes back from the motors), yet the system needs to be
 configured properly so the motors don't stall or lose steps.
 
 Most of this chapter is based on the sample config released along with
-EMC2. The config is called stepper(((stepper))), and usually it is
+LinuxCNC. The config is called stepper(((stepper))), and usually it is
 found in '/etc/emc2/sample-configs/stepper'.
 
 == Maximum step rate[[sec:Maximum-step-rate]](((step rate)))
@@ -44,13 +44,13 @@ the MAX_VELOCITY and STEPGEN_MAXVEL.
 
 If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY
 is acceptable, then consider using hardware step generation (such as
-with the emc2-supported Universal Stepper Controller, Mesa cards, and
+with the LinuxCNC-supported Universal Stepper Controller, Mesa cards, and
 others.)
 
 == Pinout[[sec:Pinout]](((pinout)))
 
-One of the major flaws in EMC was that you couldn't specify the pinout
-without recompiling the source code. EMC2 is far more flexible, and now
+One of the major flaws in LinuxCNC was that you couldn't specify the pinout
+without recompiling the source code. LinuxCNC is far more flexible, and now
 (thanks to the Hardware Abstraction Layer) you can easily specify which
 signal goes where. See the HAL manual for more detailed information on
 HAL.
@@ -123,7 +123,7 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 ###
 ### A sample home switch on the X axis (axis 0).  make a signal,
 ### link the incoming parport pin to the signal, then link the signal
-### to EMC's axis 0 home switch input pin
+### to LinuxCNC's axis 0 home switch input pin
 ###
 
 # net Xhome parport.0.pin-10-in => axis.0.home-sw-in
@@ -149,7 +149,7 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 
 ###
 ### Just like the shared home switches example, you can wire together
-### limit switches.  Beware if you hit one, EMC will stop but can't tell
+### limit switches.  Beware if you hit one, LinuxCNC will stop but can't tell
 ### you which switch/axis has faulted.  Use caution when recovering from this.
 ###
 
@@ -168,7 +168,7 @@ standard_pinout.hal gets executed/interpreted:
 * The Parport driver gets loaded (see the Parport section of 
    the HAL Manual for details)
 * The read & write functions of the parport driver get assigned to the
-   base thread footnote:[the fastest thread in the EMC2 setup, usually the
+   base thread footnote:[the fastest thread in the LinuxCNC setup, usually the
    code gets executed every few tens of microseconds]
 * The step & direction signals for axes X,Y,Z get linked to pins on the
    parport
@@ -270,10 +270,10 @@ net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
 
 This assumes an ESTOP switch connected to pin 01 on the parport. As
 long as the switch will stay pushedfootnote:[make sure you use a
-maintained switch for ESTOP.], EMC2 will be in the ESTOP state. 
+maintained switch for ESTOP.], LinuxCNC will be in the ESTOP state. 
 When the external button gets 
-released EMC2 will immediately switch to the ESTOP-RESET state, and all
+released LinuxCNC will immediately switch to the ESTOP-RESET state, and all
 you need to do is switch to Machine On(((machine on))) and you'll be
-able to continue your work with EMC2. 
+able to continue your work with LinuxCNC. 
 
 

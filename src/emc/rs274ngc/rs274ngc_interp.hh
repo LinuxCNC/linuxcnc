@@ -2,7 +2,7 @@
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
 
-class Interp {
+class Interp : public InterpBase {
 
 public:
  Interp();
@@ -16,11 +16,8 @@ public:
  int close();
 
 // execute a line of NC code
-#ifndef NOT_OLD_EMC_INTERP_COMPATIBLE
- int execute(const char *command = 0);
-#else
+ int execute(const char *command);
  int execute();
-#endif
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
@@ -37,7 +34,8 @@ public:
  int open(const char *filename);
 
 // read the mdi or the next line of the open NC code file
- int read(const char *mdi = 0);
+ int read(const char *mdi);
+ int read();
 
 // reset yourself
  int reset();
@@ -69,21 +67,21 @@ public:
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
- void error_text(int error_code, char *error_text,
-                                int max_size);
+ char *error_text(int error_code, char *error_text,
+                                size_t max_size);
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
- void file_name(char *file_name, int max_size);
+ char *file_name(char *file_name, size_t max_size);
 
 // return the length of the most recently read line
- int line_length();
+ size_t line_length();
 
 // copy the text of the most recently read line into the line_text array,
 // but stop at max_size if the text is longer
- void line_text(char *line_text, int max_size);
+ char *line_text(char *line_text, size_t max_size);
 
 // return the current sequence number (how many lines read)
  int sequence_number();
@@ -91,8 +89,8 @@ public:
 // copy the function name from the stack_index'th position of the
 // function call stack at the time of the most recent error into
 // the function name string, but stop at max_size if the name is longer
- void stack_name(int stack_index, char *function_name,
-                                int max_size);
+ char *stack_name(int stack_index, char *function_name,
+                                size_t max_size);
 
 // Get the parameter file name from the ini file.
  int ini_load(const char *filename);
@@ -100,9 +98,9 @@ public:
  int line() { return sequence_number(); }
  int call_level();
 
- char *command(char *buf, int len) { line_text(buf, len); return buf; }
+ char *command(char *buf, size_t len) { line_text(buf, len); return buf; }
 
- char *file(char *buf, int len) { file_name(buf, len); return buf; }
+ char *file(char *buf, size_t len) { file_name(buf, len); return buf; }
 
  int init_tool_parameters();
  int default_tool_parameters();
@@ -512,6 +510,7 @@ int read_inputs(setup_pointer settings);
 		       char *posarglist);
 
  int init_named_parameters();
+    int init_python_predef_parameter(const char *name);
 
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
@@ -520,12 +519,18 @@ int read_inputs(setup_pointer settings);
 
     // range for user-remapped M-codes
     // and M6,M61
+    // this is overdue for a bitset
 #define M_REMAPPABLE(m)					\
     (((m > 199) && (m < 1000)) ||			\
      ((m > 0) && (m < 100) &&				\
       !M_BUILTIN(m)) ||					\
      (m == 6) ||					\
-     (m == 61))
+     (m == 61) ||					\
+     (m == 0) ||					\
+     (m == 1) ||					\
+     (m == 60))
+
+
 
     // range for user-remapped G-codes
 #define G_REMAPPABLE(g)	 \
@@ -551,6 +556,7 @@ int read_inputs(setup_pointer settings);
 
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
+#define NAMEDPARAMS_MODULE "namedparams"
     // describes intented use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,

@@ -16,14 +16,17 @@ o<l10> else
 o<l10> endif
 
        #<delv> = [#<vmax> - #<vmin>]
-o<l20> if [ABS[#<delv>] GT 0.9] (protect indicator):w
-         (debug, move too big for indicator #<delv>)
-         (print, move too big for indicator #<delv>)
+o<l20> if [ABS[#<delv>] GT 0.9] (protect indicator)
+         (debug, backlash: move too big for indicator #<delv> - EXITING)
+         (print, backlash: move too big for indicator #<delv> - EXITING)
+         (AXIS,notify, backlash: move too big for indicator - EXITING)
          m2
 o<l20> endif
 o<l30> if [[#<fraction> GT .99] OR [#<fraction> LT .01]]
-         (debug, bad fraction: #<fraction>)
-         (print, bad fraction: #<fraction>)
+         (debug, backlash: bad fraction: #<fraction> - EXITING)
+         (print, backlash: bad fraction: #<fraction> - EXITING)
+         (AXIS,notify, bad fraction - EXITING)
+         m2
 o<l30> endif
 
        #<vzero> = [#<vmin> + [#<vmax> - #<vmin>] * #<fraction>]
@@ -82,6 +85,5 @@ o<l60> if [#<ok> EQ 0]
          (debug, bad axis specifier: #<axis>)
          (print, bad axis specifier: #<axis>)
 o<l60> endif
-       m2
 
 o<backlash> endsub

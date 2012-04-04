@@ -3475,8 +3475,8 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
 }
 
 extern "C" 
-int Emc_Init(Tcl_Interp * interp);
-int Emc_Init(Tcl_Interp * interp)
+int Linuxcnc_Init(Tcl_Interp * interp);
+int Linuxcnc_Init(Tcl_Interp * interp)
 {
     if (Tcl_InitStubs(interp, "8.1", 0) == NULL) 
     {
@@ -3789,7 +3789,7 @@ int Emc_Init(Tcl_Interp * interp)
 
     // set app-specific global variables
     Tcl_SetVar(interp, "EMC_INIFILE", emc_inifile, TCL_GLOBAL_ONLY);
-    Tcl_PkgProvide(interp, "Emc", "1.0");
+    Tcl_PkgProvide(interp, "Linuxcnc", "1.0");
 
     Tcl_ResetResult(interp);
 

@@ -1,4 +1,4 @@
-= PyVCP
+= Python Virtual Control Panel
 
 [[cha:pyvcp]] (((Python Virtual Control Panel)))
 
@@ -136,9 +136,9 @@ The 'sim/lathe' configuration is already configured this way.
 == Stand Alone
 
 This section describes how PyVCP panels can be displayed on their own
-with or without EMC's machine controller.
+with or without LinuxCNC's machine controller.
 
-To load a stand alone PyVCP panel with EMC use these commands:
+To load a stand alone PyVCP panel with LinuxCNC use these commands:
 
 -----------------------------------------------------------------------
 loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml 
@@ -173,7 +173,7 @@ GUI other than AXIS.
      tells PyVCP what to call the component and also the title of the
     window. The panelname can be any name without spaces. 
 
-To load a 'stand alone' PyVCP panel without EMC use this command:
+To load a 'stand alone' PyVCP panel without LinuxCNC use this command:
 
 -----------------------------------------------------------------------
 loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml 
@@ -185,7 +185,7 @@ The minimum command to load a pyvcp panel is:
 loadusr pyvcp mypanel.xml
 -----------------------------
 
-You would use this if you want a panel without EMC's machine
+You would use this if you want a panel without LinuxCNC's machine
 controller such as for testing or a standalone DRO.
 
 The loadusr command is used when you also load a component that will

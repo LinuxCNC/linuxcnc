@@ -6,7 +6,7 @@ HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
 level, it is simply a way to allow a number of 'building blocks' to be
 loaded and interconnected to assemble a complex system. The 'Hardware'
 part is because HAL was originally designed to make it easier to
-configure EMC for a wide variety of hardware devices. Many of the
+configure LinuxCNC for a wide variety of hardware devices. Many of the
 building blocks are drivers for hardware devices. However, HAL can do
 more than just configure hardware drivers.
 
@@ -88,7 +88,7 @@ changes as needed.
 
 This document is aimed at people who already know how to do this kind
 of hardware system integration, but who do not know how to connect the
-hardware to EMC. See Remote Start Example<<fig:Remote-Start-Example>>
+hardware to LinuxCNC. See Remote Start Example<<fig:Remote-Start-Example>>
 
 image::images/remote-start.png[]
 
@@ -232,8 +232,11 @@ available later in this document.
 === External Programs with HAL hooks[[sub:ExternalPrograms]]
 
 motion::
-     (((motion))) A realtime module that accepts NML motion commands and
-    interacts with HAL 
+     (((motion))) A realtime module that accepts NML
+     footnote:[Neutral Message Language provides a mechanism for handling
+     multiple types of messages in the same buffer as well as simplifying
+     the interface for encoding and decoding buffers in neutral format and
+     the configuration mechanism.] motion commands and interacts with HAL 
 
 iocontrol::
      (((iocontrol))) A user space module that accepts NML I/O commands and
@@ -282,7 +285,7 @@ hal_motenc::
     (((hal-motenc))) Vital Systems MOTENC-100 board
 
 hal_parport::
-    (((hal-parport))) PC parallel port. See section <<sec:Parport>>
+    (((hal-parport))) PC parallel port.
 
 hal_ppmc::
     (((hal-ppmc))) Pico Systems family of controllers (PPMC, USC and UPC)
@@ -350,12 +353,12 @@ does - that is determined by which functions are
 connected to it. The real distinction is simply how often a thread
 runs.
 
-In EMC you might have a 50 us thread and a 1 ms thread. 
+In LinuxCNC you might have a 50 us thread and a 1 ms thread. 
 These would be created based on BASE_PERIOD and SERVO_PERIOD, the
 actual times depend on the values in your ini file. 
 
 The next step is to decide what each thread needs to do. Some of those
-decisions are the same in (nearly) any EMC system--For instance,
+decisions are the same in (nearly) any LinuxCNC system--For instance,
 motion-command-handler is always added to servo-thread.
 
 Other connections would be made by the integrator. These might include

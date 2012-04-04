@@ -3,26 +3,29 @@
 
 = Configuration d'un système pas/direction (dir/step)
 
+[[cha:config-steppers]] (((Configuration pas/direction)))
+
+
 [[sec:Introduction]]
 == Introduction
 
 Ce chapitre décrit quelques uns des réglages les plus fréquents, sur
-lesquels l'utilisateur aura à agir lors de la mise au point d'EMC2. En
-raison de l'adaptabilité d'EMC2, il serait très difficile de les
+lesquels l'utilisateur aura à agir lors de la mise au point de LinuxCNC. En
+raison de l'adaptabilité de LinuxCNC, il serait très difficile de les
 documenter tous en gardant ce document relativement concis.
 
-Le système rencontré le plus fréquemment chez les utilisateurs d'EMC2
+Le système rencontré le plus fréquemment chez les utilisateurs de LinuxCNC
 est un système à moteurs pas à pas. Les interfaces de pilotage de ces
-moteurs recoivent d'EMC2 des signaux de pas et de direction.
+moteurs recoivent de LinuxCNC des signaux de pas et de direction.
 
 C'est le système le plus simple à mettre en oeuvre parce que les
 moteurs fonctionnent en boucle ouverte (pas d'information de retour des
 moteurs), le système nécessite donc d'être configuré correctement pour
 que les moteurs ne perdent pas de pas et ne calent pas.
 
-Ce chapitre s'appuie sur la configuration fournie d'origine avec EMC2
-appelée *stepper*(((stepper))) et qui se trouve habituellement dans
-*+/etc/emc2/sample-configs/stepper+*.
+Ce chapitre s'appuie sur la configuration fournie d'origine avec LinuxCNC
+appelée _stepper_(((stepper))) et qui se trouve habituellement dans
+_/etc/linuxcnc/sample-configs/stepper_.
 
 [[sec:Maximum-step-rate]]
 == Fréquence de pas maximale(((Frequence de pas maximale)))
@@ -50,12 +53,12 @@ STEPGEN_MAXVEL.
 Si aucune combinaison entre BASE_PERIOD, INPUT_SCALE et MAX_VELOCITY
 n'est fonctionnelle, il faut alors envisager un générateur de pas
 externe (parmis les contrôleurs de moteurs pas à pas universels
-supportés par EMC2)
+supportés par LinuxCNC)
 
 [[sec:Brochage]]
 == Brochage(((brochage)))
 
-EMC2 est très flexible et grâce à la couche d'abstraction de HAL
+LinuxCNC est très flexible et grâce à la couche d'abstraction de HAL
 (Hardware Abstraction Layer) il est facile de spécifier que tel signal
 ira sur telle broche. 
 
@@ -64,12 +67,12 @@ Voir le tutoriel de HAL pour plus d'informations(((HAL)))).
 Comme décrit dans l'introduction et la manuel de HAL, il comporte des
 composants dont il fourni les signaux, les pins et les paramètres.
 
-Les premiers signaux et pin relatifs au brochage sont:footnote:[Note:
+Les premiers signaux et pins relatifs au brochage sont:footnote:[Note:
 pour rester concis, nous ne présenterons qu'un seul axe, tous
 les autres sont similaires.]
 ----
-    signaux: Xstep, Xdir et Xen
-    pins: parport.0.pin-XX-out & parport.0.pin-XX-in
+signaux: Xstep, Xdir et Xen
+pins: parport.0.pin-XX-out & parport.0.pin-XX-in
 ----
 
 Pour configurer le fichier ini, il est possible de choisir entre les
@@ -77,7 +80,7 @@ deux brochages les plus fréquents, devenus des standards de fait, le
 brochage standard_pinout.hal ou le brochage xylotex_pinout.hal. Ces
 deux fichiers indiquent à HAL comment raccorder les différents signaux
 aux différentes pins. Dans la suite, nous nous concentrerons sur le
-brochage *standard_pinout.hal*.
+brochage _standard_pinout.hal_.
 
 
 === Le fichier standard_pinout.hal[[sec:standard-pinout.hal]]
@@ -136,7 +139,7 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 ###
 ### A sample home switch on the X axis (axis 0).  make a signal,
 ### link the incoming parport pin to the signal, then link the signal
-### to EMC's axis 0 home switch input pin
+### to LinuxCNC's axis 0 home switch input pin
 ###
 # net Xhome parport.0.pin-10-in => axis.0.home-sw-in
 
@@ -159,14 +162,14 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 
 ###
 ### Just like the shared home switches example, you can wire together
-### limit switches.  Beware if you hit one, EMC will stop but can't tell
+### limit switches.  Beware if you hit one, LinuxCNC will stop but can't tell
 ### you which switch/axis has faulted.  Use caution when recovering from this.
 ###
 # net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
 
 ----
 
-Les lignes commençant par *#* sont des commentaires, aidant à la
+Les lignes commençant par *#* sont des commentaires, aident à la
 lecture du fichier.
 
 
@@ -179,7 +182,7 @@ standard_pinout.hal est lu par l'interpréteur:
    le Manuel de HAL pour plus de détails)
  . Les fonctions de lecture/écriture du pilote sont assignée au thread
    «Base thread» footnote:[Le thread le plus rapide parmis les réglages
-   d'EMC2, habituellement il
+   de LinuxCNC, habituellement il
    n'y a que quelques microsecondes entre les exécutions de ce code.]
  . Les signaux du générateur de pas et de direction des axes X,Y,Z...
    sont raccordés aux broches du port parallèle
@@ -196,16 +199,16 @@ dans un éditeur de texte puis d'y localiser les parties à modifier.
 
 Si vous voulez par exemple, modifier les broches de pas et de
 direction de l'axe X, il vous suffit de modifier le numéro de la
-variable nommée *parport.0.pin-XX-out*:
+variable nommée _parport.0.pin-XX-out_:
 ----
-    net Xstep parport.0.pin-03-out 
-    net Xdir  parport.0.pin-02-out
+net Xstep parport.0.pin-03-out 
+net Xdir  parport.0.pin-02-out
 ----
 
 peut être modifiée pour devenir:
 ----
-    net Xstep parport.0.pin-02-out 
-    net Xdir  parport.0.pin-03-out
+net Xstep parport.0.pin-02-out 
+net Xdir  parport.0.pin-03-out
 ----
 
 ou de manière générale n'importe quel numéro que vous souhaiteriez.
@@ -216,44 +219,45 @@ Attention: il faut être certain de n'avoir qu'un seul signal connecté
 [[sec:Modifier-la-polarite]]
 === Modifier la polarité d'un signal(((signal polarite)))
 
-Si une interface attends un signal *actif bas*, ajouter une ligne avec
-le paramètre d'inversion de la sortie, *-invert*. Par exemple, pour
+Si une interface attends un signal _actif bas_, ajouter une ligne avec
+le paramètre d'inversion de la sortie, _-invert_. Par exemple, pour
 inverser le signal de rotation de la broche:
 ----
-    setp parport.0.pin-09-invert TRUE
+setp parport.0.pin-09-invert TRUE
 ----
 
 [[sec:PWM-Vitesse-broche]]
 === Ajouter le contrôle de vitesse broche en PWM(((Vitesse broche PWM)))
 
 Si votre vitesse de broche peut être contrôlée par un signal de PWM,
-utilisez le composant *pwmgen* pour créer ce signal:
+utilisez le composant _pwmgen_ pour créer ce signal:
 ----
-    loadrt pwmgen output_type=0
-    addf pwmgen.update servo-thread
-    addf pwmgen.make-pulses base-thread
-    net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-    net spindle-on motion.spindle-on => pwmgen.0.enable
-    net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-    setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
+loadrt pwmgen output_type=0
+addf pwmgen.update servo-thread
+addf pwmgen.make-pulses base-thread
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
+setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
 ----
 
 Ce qui donnera le fonctionnement suivant, pour un signal PWM à: 0%
 donnera une vitesse de 0tr/mn, 10% une vitesse de 180tr/mn, etc. Si un
 signal PWM supérieur à 0% est requis pour que la broche commence à
-tourner, suivez l'exemple du fichier de configuration *nist-lathe* qui
-utilise un composant d'échelle (*scale*).
+tourner, suivez l'exemple du fichier de configuration _nist-lathe_ qui
+utilise un composant d'échelle (_scale_).
 
 
-=== Ajouter un signal de validation *enable*[[sec:Ajouter-signal-enable]] (((signal enable)))
+=== Ajouter un signal de validation *enable*[[sec:Ajouter-signal-enable]] 
+(((signal enable)))
 
-Certains pilotes de moteurs requiert un signal de validation *enable*
+Certains pilotes de moteurs requiert un signal de validation _enable_
 avant d'autoriser tout mouvement du moteur. Pour celà des signaux sont
-déjà définis et appelés *Xen*, *Yen*, *Zen*.
+déjà définis et appelés _Xen_, _Yen_, _Zen_.
 
 Pour les connecter vous pouvez utilisez l'exemple suivant:
 ----
-    net Xen parport.0.pin-08-out
+net Xen parport.0.pin-08-out
 ----
 
 Il est possible d'avoir une seule pin de validation pour l'ensemble
@@ -264,7 +268,7 @@ validation pour l'ensemble est parfaitement sécurisé.
 
 === Ajouter un bouton d'Arrêt d'Urgence externe (((A/U)))
 
-Comme vous pouvez le voir à la section <<sec:standard-pinout.hal>>,
+Comme vous pouvez <<sec:standard-pinout.hal,le voir ici>>,
 par défaut la configuration standard n'utilise pas de bouton d'Arrêt
 d'Urgence externe. footnote:[Une explication complète sur la manière de
 gérer les circuiteries d'Arrêt d'Urgence se trouve sur le 
@@ -274,13 +278,13 @@ Pour ajouter un simple bouton externe (ou plusieurs en série) vous
 devez compléter les lignes suivantes:
 
 ----
-    net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 ----
 
 avec
 
 ----
-    net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
+net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
 ----
 
 
@@ -288,9 +292,9 @@ Ce qui implique qu'un bouton d'Arrêt d'Urgence soit connecté sur la
 broche 01 du port parallèle. Tant que le bouton est enfoncé (le contact
 ouvert)footnote:[Utiliser exclusivement des contacts normalement fermés
 pour les A/U.], 
-EMC2 restera dans l'état *Arrêt d'Urgence* (ESTOP). Quand le bouton
-externe sera relâché, EMC2 passera immédiatement dans l'état 
-*Arrêt d'Urgence Relâché* (ESTOP-RESET) vous pourrez ensuite mettre 
+LinuxCNC restera dans l'état _Arrêt d'Urgence_ (ESTOP). Quand le bouton
+externe sera relâché, LinuxCNC passera immédiatement dans l'état 
+_Arrêt d'Urgence Relâché_ (ESTOP-RESET) vous pourrez ensuite mettre 
 la machine en marche en pressant 
-le bouton *Marche machine* (((marche machine))) et
-vous êtes alors prêt à continuer votre travail avec EMC2.
+le bouton _Marche machine_ (((marche machine))) et
+vous êtes alors prêt à continuer votre travail avec LinuxCNC.

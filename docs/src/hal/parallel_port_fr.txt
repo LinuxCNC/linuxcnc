@@ -3,34 +3,67 @@
 
 = Port parallèle
 
-== Parport[[sec:Parport]]
-(((Pilote parport)))
+[[cha:Parport]] (((Pilote parport)))
 
-Parport est un pilote pour le port parallèle traditionnel des PC. Le port dispose 
-d'un total de 17 broches physiques. Le port parallèle originel a divisé ces 
-broches en trois groupes: données, contrôles et états. Le groupe *données* 
-consiste en 8 broches de sortie, le groupe *contrôles* consiste en 4 broches 
-et le groupe *états* consiste en 5 broches d'entrée.
+== Parport
 
-Au début des années 1990, le port parallèle bidirectionnel est arrivé, ce qui a permis à l'utilisateur d'ajuster le groupe des données comme étant des sorties ou comme étant des entrées. Le pilote de HAL supporte le port bidirectionnel et permet à l'utilisateur de configurer le groupe des données en entrées ou en sorties. Si il est configuré en sorties, un port fournit un total de 12 sorties et 5 entrées. Si il est configuré en entrées, il fournit 4 sorties et 13 entrées. 
+Parport est un pilote pour le port parallèle traditionnel des PC. Le port
+dispose d'un total de 17 broches physiques. Le port parallèle originel a
+divisé ces broches en trois groupes: données, contrôles et états. Le groupe
+_données_ consiste en 8 broches de sortie, le groupe _contrôles_ consiste en
+4 broches et le groupe _états_ consiste en 5 broches d'entrée.
 
-Dans certains ports parallèles, les broches du groupe contrôle sont des collecteurs ouverts, ils peuvent aussi être mis à l'état bas par une porte extérieure. Sur une carte avec les broches de contrôle en collecteurs ouverts, le mode *x* de HAL permet un usage plus flexible avec 8 sorties dédiées, 5 entrées dédiées et 4 broches en collecteurs ouverts. Dans d'autres ports parallèles, les broches du groupe contrôles sont en push-pull et ne peuvent pas être utilisées comme des entrées.
+Au début des années 1990, le port parallèle bidirectionnel est arrivé,
+ce qui a permis à l'utilisateur d'ajuster le groupe des données comme étant
+des sorties ou comme étant des entrées. Le pilote de HAL supporte le port
+bidirectionnel et permet à l'utilisateur de configurer le groupe des données
+en entrées ou en sorties. Si il est configuré en sorties, un port fournit
+un total de 12 sorties et 5 entrées. Si il est configuré en entrées, il
+fournit 4 sorties et 13 entrées. 
+
+Dans certains ports parallèles, les broches du groupe contrôle sont des
+collecteurs ouverts, ils peuvent aussi être mis à l'état bas par une porte
+extérieure. Sur une carte avec les broches de contrôle en collecteurs ouverts,
+le mode _x_ de HAL permet un usage plus flexible avec 8 sorties dédiées,
+5 entrées dédiées et 4 broches en collecteurs ouverts. Dans d'autres ports
+parallèles, les broches du groupe contrôles sont en push-pull et ne peuvent
+pas être utilisées comme des entrées.
 
 .HAL et les collecteurs ouverts
 [NOTE]
 ====
-HAL ne peut pas déterminer automatiquement si les broches en mode bidirectionnel *x* sont effectivement en collecteurs ouverts. Si elles n'y sont pas, elles ne peuvent pas être utilisées comme des entrées. Essayer de les passer à l'état BAS par une source extérieure peut détériorer le matériel.
+HAL ne peut pas déterminer automatiquement si les broches en mode 
+bidirectionnel _x_ sont effectivement en collecteurs ouverts. Si elles n'y
+sont pas, elles ne peuvent pas être utilisées comme des entrées. Essayer de
+les passer à l'état BAS par une source extérieure peut détériorer le matériel.
 
-Pour déterminer si un port a des broches de contrôle en *collecteur ouvert*, charger hal_parport en mode *x*, positionner les broches de contrôle à une valeur HAUTE. HAL doit lire des pins à l'état VRAI. Ensuite, insérer une résistance de 470Ω entre une des broches de contrôle et GND du port parallèle. Si la tension de cette broche de contrôle est maintenant proche de 0V et que HAL la lit comme une pin FAUSSE, alors vous avez un port OC. Si la tension résultante est loin de 0V ou que HAL ne la lit pas comme étant FAUSSE, votre port ne ne peut pas être utilisé en mode *x*.
+Pour déterminer si un port a des broches de contrôle en _collecteur ouvert_,
+charger hal_parport en mode _x_, positionner les broches de contrôle à une
+valeur HAUTE. HAL doit lire des pins à l'état VRAI. Ensuite, insérer une
+résistance de 470Ω entre une des broches de contrôle et GND du port parallèle.
+Si la tension de cette broche de contrôle est maintenant proche de 0V et
+que HAL la lit comme une pin FAUSSE, alors vous avez un port OC. Si la
+tension résultante est loin de 0V ou que HAL ne la lit pas comme étant FAUSSE,
+votre port ne ne peut pas être utilisé en mode _x_.
 
-Le matériel extérieur qui pilote les broches de contrôle devrait également utiliser des portes en collecteur ouvert (ex: 74LS05...). Généralement, une pin de HAL -out devrait être VRAIE quand la pin physique est utilisée comme une entrée.
+Le matériel extérieur qui pilote les broches de contrôle devrait également
+utiliser des portes en collecteur ouvert (ex: 74LS05...). Généralement,
+une pin de HAL -out devrait être VRAIE quand la pin physique est utilisée
+comme une entrée.
 
-Sur certaines machines, les paramètres du BIOS peuvent affecter la possibilité d'utiliser le mode *x*. Le mode *SPP* est le mode qui fonctionne le plus fréquemment.
+Sur certaines machines, les paramètres du BIOS peuvent affecter la
+possibilité d'utiliser le mode _x_. Le mode _SPP_ est le mode qui
+fonctionne le plus fréquemment.
 ====
 
-Aucune autre combinaison n'est supportée. Un port ne peut plus être modifié pour passer d'entrées en sorties une fois le pilote installé. La figure <<fig:Parport-block-diag>> affiche deux diagrammes, un montre le pilote quand le groupe de données est configuré en sorties et le second le montre configuré en entrées.
+Aucune autre combinaison n'est supportée. Un port ne peut plus être
+modifié pour passer d'entrées en sorties une fois le pilote installé.
+La figure <<fig:Parport-block-diag,des diagrammes blocs>> affiche deux
+diagrammes, un montre le pilote quand le groupe de données est configuré
+en sorties et le second le montre configuré en entrées.
 
-Le pilote *parport* peut contrôler au maximum 8 ports (définis par MAX_PORTS dans le fichier hal_parport.c). Les ports sont numérotés à partir de zéro.
+Le pilote _parport_ peut contrôler au maximum 8 ports (définis par MAX_PORTS
+dans le fichier hal_parport.c). Les ports sont numérotés à partir de zéro.
 
 === Chargement de hal_parport
 ----
@@ -39,9 +72,9 @@ loadrt hal_parport cfg="<config-string>"
 
 === Utiliser l'index du port
 
-Les adresses d'E/S inférieures à 16 sont traitées comme les index de port. C'est 
-la manière la plus simple d'installer le pilote *parport* en coopération avec le
-pilote de Linux parport_pc si il est chargé.
+Les adresses d'E/S inférieures à 16 sont traitées comme les index de port.
+C'est la manière la plus simple d'installer le pilote _parport_ en
+coopération avec le pilote de Linux parport_pc si il est chargé.
 ----
 loadrt hal_parport cfg="0" 
 ----
@@ -50,113 +83,150 @@ Utilisera l'adresse que Linux a détecté pour parport0.
 
 === Utiliser l'adresse du port
 
-La chaine config-string représente l'adresse hexadécimale du port, suivie optionnellement par une direction, le tout répété pour chaque port. Les directions sont *in*, *out*, ou *x*, elles déterminent la direction des broches physiques 2 à 9 et s'il y a lieu de créer des pins d'entrée de HAL pour les broches de contrôle physiques. Si la direction n'est pas précisée, le groupe données sera par défaut configuré en sorties. Par exemple:
+La chaine config-string représente l'adresse hexadécimale du port,
+suivie optionnellement par une direction, le tout répété pour chaque port.
+Les directions sont _in_, _out_, ou _x_, elles déterminent la direction des
+broches physiques 2 à 9 et s'il y a lieu de créer des pins d'entrée de HAL
+pour les broches de contrôle physiques. Si la direction n'est pas précisée,
+le groupe données sera par défaut configuré en sorties. Par exemple:
 ----
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out" 
 ----
 
-Cet exemple installe les pilotes pour un port 0x0278, avec les broches 2 à 9 en sorties (par défaut, puisque ni *in*, ni *out* n'est spécifié), un port 0x0378, avec les broches 2 à 9 en entrées et un port 0x20A0, avec les broches 2 à 9 explicitement spécifiées en sorties. Notez que vous devez connaître l'adresse de base des ports parallèles pour configurer correctement les pilotes. Pour les ports sur bus ISA, ce n'est généralement pas un problème, étant donné que les ports sont presque toujours à une adresse *bien connue*, comme 0x278 ou 0x378 qui sont typiquement configurées dans le BIOS. Les adresses des cartes sur bus PCI sont habituellement trouvées avec *lspci -v* dans une ligne *I/O ports*, ou dans un message du noayau après l'exécution de *sudo modprobe -a parport_pc*. Il n'y a pas d'adresse par défaut, si <config-string> ne contient pas au moins une adresse, c'est une erreur.
+Cet exemple installe les pilotes pour un port 0x0278, avec les broches 2 à 9
+en sorties (par défaut, puisque ni _in_, ni _out_ n'est spécifié), un port
+0x0378, avec les broches 2 à 9 en entrées et un port 0x20A0, avec les
+broches 2 à 9 explicitement spécifiées en sorties. Notez que vous devez
+connaître l'adresse de base des ports parallèles pour configurer
+correctement les pilotes. Pour les ports sur bus ISA, ce n'est généralement
+pas un problème, étant donné que les ports sont presque toujours à une
+adresse _bien connue_, comme 0x278 ou 0x378 qui sont typiquement
+configurées dans le BIOS. Les adresses des cartes sur bus PCI sont
+habituellement trouvées avec _lspci -v_ dans une ligne _I/O ports_,
+ou dans un message du noayau après l'exécution de _sudo modprobe -a parport_pc_.
+Il n'y a pas d'adresse par défaut, si <config-string> ne contient pas au
+moins une adresse, c'est une erreur.
 
-.Diagrammes blocs de parport[[fig:Parport-block-diag]]
+[[fig:Parport-block-diag]] 
+(((Diagramme de parport)))
+
+.Diagrammes blocs de parport
 
 image::images/parport-block-diag.png[]
 
 === Pins
 
- - *(bit) parport.<portnum>.pin-<pinnum>-out* -- Pilote une broche de sortie physique.
-   output pin.
- - *(bit) parport.<portnum>.pin-<pinnum>-in* -- Suit une broche d'entrée physique.
-   pin.
- - *(bit) parport.<portnum>.pin-<pinnum>-in-not* -- Suit une pin d'entrée physique, 
-    mais inversée.
-Pour chaque pin, *<portnum>* est le numéro du port et *<pinnum>* est le numéro de la broche physique du connecteur DB-25.
+* _(bit) parport.<portnum>.pin-<pinnum>-out_ -- Pilote une broche de
+sortie physique. output pin.
+* _(bit) parport.<portnum>.pin-<pinnum>-in_ -- Suit une broche d'entrée
+physique. pin.
+* _(bit) parport.<portnum>.pin-<pinnum>-in-not_ -- Suit une pin d'entrée
+physique, mais inversée.
+Pour chaque pin, _<portnum>_ est le numéro du port et _<pinnum>_ est le
+numéro de la broche physique du connecteur DB-25.
 
-Pour chaque broche de sortie physique, le pilote crée une simple pin de HAL, par exemple parport.0.pin-14-out. Les pins 2 jusqu'à 9 font partie du groupe *données*, elles sont des pins de sortie si le port est défini comme un port de sortie (par défaut, port de sortie). Les broches 1, 14, 16 et 17 sont des sorties dans tous les modes. Ces pins de HAL contrôlent l'état des pins physiques correspondantes.
+Pour chaque broche de sortie physique, le pilote crée une simple pin de HAL,
+par exemple parport.0.pin-14-out. Les pins 2 jusqu'à 9 font partie du
+groupe _données_, elles sont des pins de sortie si le port est défini
+comme un port de sortie (par défaut, port de sortie). Les broches 1, 14,
+16 et 17 sont des sorties dans tous les modes. Ces pins de HAL contrôlent
+l'état des pins physiques correspondantes.
 
-Pour chaque pin d'entrée physique, le pilote crée deux pins de HAL, par exemple: parport.0.pin-12-in et parport.0.pin-12-in-not. Les pins 10, 11, 12, 13 et 15 sont toujours des sorties. Les pins 2 jusqu'à 9 sont des pins d'entrée seulement si le port est défini comme un port d'entrée. Une pin de HAL -in est VRAIE si la pin physique est haute et FAUSSE si la pin physique est basse. Une pin de HAL -in-not est inversée, elle est FAUSSE si la pin physique est haute. En connectant un signal à l'une ou à l'autre, l'utilisateur peut décider de la logique de l'entrée. En mode *x*, les pins 1, 14, 16 et 17 sont également des pins d'entrée.
+Pour chaque pin d'entrée physique, le pilote crée deux pins de HAL, par
+exemple: parport.0.pin-12-in et parport.0.pin-12-in-not. Les pins
+10, 11, 12, 13 et 15 sont toujours des sorties. Les pins 2 jusqu'à 9 sont
+des pins d'entrée seulement si le port est défini comme un port d'entrée.
+Une pin de HAL -in est VRAIE si la pin physique est haute et FAUSSE si la
+pin physique est basse. Une pin de HAL -in-not est inversée, elle est FAUSSE
+si la pin physique est haute. En connectant un signal à l'une ou à l'autre,
+l'utilisateur peut décider de la logique de l'entrée. En mode _x_, les pins
+1, 14, 16 et 17 sont également des pins d'entrée.
 
 === Paramètres
 
- - *(bit) parport.<portnum>.pin-<pinnum>-out-invert* -- Inverse une pin de sortie.
- - *(bit) parport.<portnum>.pin-<pinnum>-out-reset* -- (seulement pour les pins 2..9) 
-    VRAIE si cette pin doit être réinitialisée quand la fonction de réinitialisation 
-    est exécutée.
- - *(U32) parport.<portnum>.reset-time* -- Le temps (en nanosecondes) entre le 
-    moment ou la broche est écrite et le moment ou elle est réinitialisée par les 
-    fonctions de réinitialisation de HAL.
+* _(bit) parport.<portnum>.pin-<pinnum>-out-invert_ -- Inverse une pin de
+    sortie.
+* _(bit) parport.<portnum>.pin-<pinnum>-out-reset_ -- (seulement pour les
+    pins 2..9) VRAIE si cette pin doit être réinitialisée quand la fonction
+    de réinitialisation est exécutée.
+* _(U32) parport.<portnum>.reset-time_ -- Le temps (en nanosecondes) entre le 
+    moment ou la broche est écrite et le moment ou elle est réinitialisée
+    par les fonctions de réinitialisation de HAL.
 
-Le paramètre *-invert* détermine si une pin de sortie est active haute ou active basse. 
-Si *-invert* est FAUX, mettre la pin HAL -out VRAIE, placera la pin physique à l'état 
-haut et mettre la pin HAL FAUSSE, placera la pin physique à l'état bas. 
-Si *-invert* est VRAI, mettre la pin HAL -out VRAIE, va mettre la pin physique à l'état bas.
-Si *-reset* est VRAI, la fonction de réinitialisation va passer la pin à la valeur 
-de *-out-invert*. Ceci peut être utilisé en conjonction avec *stepgen doublefreq* 
-pour produire un pas par période.
+Le paramètre _-invert_ détermine si une pin de sortie est active haute ou
+active basse. Si _-invert_ est FAUX, mettre la pin HAL -out VRAIE, placera
+la pin physique à l'état haut et mettre la pin HAL FAUSSE, placera la pin
+physique à l'état bas. Si _-invert_ est VRAI, mettre la pin HAL -out VRAIE,
+va mettre la pin physique à l'état bas. Si _-reset_ est VRAI, la fonction
+de réinitialisation va passer la pin à la valeur de _-out-invert_. Ceci
+peut être utilisé en conjonction avec _stepgen doublefreq_ pour produire
+un pas par période.
 
 === Fonctions
 
- - *(funct) parport.<portnum>.read*-- Lit les pins physiques du port <portnum> 
+* _(funct) parport.<portnum>.read_-- Lit les pins physiques du port <portnum> 
     et met à jour les pins de HAL -in et -in-not.
- - *(funct) parport.read-all* -- Lit les pins physiques de tous les ports et met 
+* _(funct) parport.read-all_ -- Lit les pins physiques de tous les ports et met 
     à jour les pins de HAL -in et -in-not.
- - *(funct) parport.<portnum>.write* -- Lit les pins de HAL -out du port <portnum> 
+* _(funct) parport.<portnum>.write_ -- Lit les pins de HAL -out du port <portnum> 
     et met à jour les pins de sortie physiques correspondantes.
- - *(funct) parport.write-all* -- Lit les pins de HAL -out de tous les ports et 
+* _(funct) parport.write-all_ -- Lit les pins de HAL -out de tous les ports et 
     met à jour toutes les pins de sortie physiques.
- - *(funct) parport.<portnum>.reset* -- Attends que le délai de mise à jour *reset-time* 
-    soit écoulé depuis la dernière écriture associée *write* puis remet à jour les 
-    pins aux valeurs indiquées par *-out-invert* et les paramètres de *-out-invert*. 
+* _(funct) parport.<portnum>.reset_ -- Attends que le délai de mise à jour _reset-time_ 
+    soit écoulé depuis la dernière écriture associée _write_ puis remet à jour les 
+    pins aux valeurs indiquées par _-out-invert_ et les paramètres de _-out-invert_. 
     La réinitialisation doit être plus tard dans le même thread que l'écriture.
 
 Les différentes fonctions individuelles sont prévues pour les situations où un 
 port doit être mis à jour dans un thread très rapide, mais d'autres ports peuvent 
 être mis à jour dans un thread plus lent pour gagner du temps CPU. Ce n'est 
-probablement pas une bonne idée d'utiliser en même temps, les fonctions -all et une fonction individuelle.
+probablement pas une bonne idée d'utiliser en même temps, les fonctions -all et
+une fonction individuelle.
 
 === Problème courant
 
 Si, au chargement du module un message du genre suivant apparait:
 
-    insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
+    insmod: error inserting '/home/jepler/linuxcnc/rtlib/hal_parport.ko': 
     -1 Device or resource busy 
 
 s'assurer que le module du kernel standard, parport_pc, n'est pas chargé et qu'aucun 
 périphérique dans le système ne revendique les ports concernés. footnote:[Dans le
-paquetage EMC pour Ubuntu, le fichier /etc/modprobe.d/emc2 empêche normalement que
-*parport_pc* soit chargé automatiquement.]
+paquetage LinuxCNC pour Ubuntu, le fichier /etc/modprobe.d/linuxcnc empêche normalement que
+_parport_pc_ soit chargé automatiquement.]
 
-Si le module est chargé mais ne semble pas fonctionner, l'adresse du port est 
-incorrecte ou le module *probe_parport* est revendiqué par un autre périphérique. 
+Si le module est chargé mais ne semble pas fonctionner, l'adresse du port est
+incorrecte ou le module _probe_parport_ est revendiqué par un autre périphérique.
 
 === Utiliser DoubleStep
 
 Pour activer DoubleStep sur un port parallèle, il faut ajouter la fonction
-*parport.n.reset* après *parport.n.write* et configurer *stepspace* à *0* ainsi 
-que le *reset-time* souhaité. Alors ce pas pourra être positionné à chaque période
-dans HAL, puis voir son état basculé par *parport* après été positionné pendant
+_parport.n.reset_ après _parport.n.write_ et configurer _stepspace_ à _0_ ainsi
+que le _reset-time_ souhaité. Alors ce pas pourra être positionné à chaque période
+dans HAL, puis voir son état basculé par _parport_ après été positionné pendant
 le temps spécifié par parport.n.reset-time.
 
 Par exemple:
 ----
-loadrt hal_parport cfg="0x378 out" 
+loadrt hal_parport cfg="0x378 out"
 setp parport.0.reset-time 5000
-loadrt stepgen step_type=0,0,0 
-addf parport.0.read base-thread 
-addf stepgen.make-pulses base-thread 
-addf parport.0.write base-thread 
+loadrt stepgen step_type=0,0,0
+addf parport.0.read base-thread
+addf stepgen.make-pulses base-thread
+addf parport.0.write base-thread
 addf parport.0.reset base-thread
-addf stepgen.capture-position servo-thread 
+addf stepgen.capture-position servo-thread
 ...
-setp stepgen.0.steplen 1 
-setp stepgen.0.stepspace 0 
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
 ----
 
 == probe_parport[[sec:probe_parport]]
 
 Dans les PC actuels, les ports parallèles peuvent requérir une configuration 
 plug and play (PNP) avant qu'ils ne puissent être utilisés. Le module de noyau 
-*probe_parport* effectue la configuration de tous les port PNP présents. Il doit 
-être chargé avant *hal_parport*. Sur les machines sans port PNP, il peut être chargé mais restera sans effet.
+_probe_parport_ effectue la configuration de tous les port PNP présents. Il doit 
+être chargé avant _hal_parport_. Sur les machines sans port PNP, il peut être chargé mais restera sans effet.
 
 === Installer probe_parport
 
@@ -169,7 +239,7 @@ Si le kernel Linux affiche un message similaire à:
 
 +parport: PnPBIOS parport detected.+
 
-Quand le module parport_pc est chargé, avec la commande: *sudo modprobe -a parport_pc; 
-sudo rmmod parport_pc*, l'utilisation de ce module sera probablement nécessaire.
+Quand le module parport_pc est chargé, avec la commande: _sudo modprobe -a parport_pc; 
+sudo rmmod parport_pc_, l'utilisation de ce module sera probablement nécessaire.
 
 

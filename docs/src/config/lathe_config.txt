@@ -1,10 +1,10 @@
-= Lathe
+= Lathe Configuration
 
-[[cha:lathe-config]] (((Lathe Configuration)))
+[[cha:lathe-configuration]] (((Lathe Configuration)))
 
 == Default Plane
 
-When EMC's interpreter was first written, it was designed for mills.
+When LinuxCNC's interpreter was first written, it was designed for mills.
 That is why the default plane is XY (G17). A normal lathe only uses the
 XZ plane (G18). To change the default plane place the following line in
 the .ini file in the RS274NGC section.

@@ -1079,11 +1079,21 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	halcmd_error("Module path too long\n");
 	return -1;
     }
+
     /* make full module name '<path>/<name>.o' */
-    strcpy (mod_path, rtmod_dir);
-    strcat (mod_path, "/");
-    strcat (mod_path, mod_name);
-    strcat (mod_path, MODULE_EXT);
+    {
+        int r;
+        r = snprintf(mod_path, sizeof(mod_path), "%s/%s%s", rtmod_dir, mod_name, MODULE_EXT);
+        if (r < 0) {
+            halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
+            return -1;
+        } else if (r >= sizeof(mod_path)) {
+            // truncation!
+            halcmd_error("module path too long (max %lu) for %s/%s%s\n", sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
+            return -1;
+        }
+    }
+
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */
@@ -1091,7 +1101,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         return -1;
     }
     
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "insert";
     argv[2] = mod_path;
     /* loop thru remaining arguments */
@@ -1307,7 +1317,7 @@ static int unloadrt_comp(char *mod_name)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
     argv[1] = "unload";
 #else
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "remove";
 #endif
     argv[2] = mod_name;
@@ -1405,6 +1415,7 @@ int do_loadusr_cmd(char *args[])
     /* get program and component name */
     args += optind;
     prog_name = *args++;
+    if (prog_name == 0) { return -EINVAL; }
     if(!new_comp_name) {
 	new_comp_name = guess_comp_name(prog_name);
     }
@@ -2370,8 +2381,8 @@ static void save_comps(FILE *dst)
 	}
 	next = comp->next_ptr;
     }
-    next = hal_data->comp_list_ptr;
 #if 0  /* newinst deferred to version 2.2 */
+    next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == 2 ) {

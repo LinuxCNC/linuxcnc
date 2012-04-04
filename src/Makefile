@@ -69,7 +69,7 @@ endif
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -77,7 +77,7 @@ ifeq ($(KERNELRELEASE),)
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),sim)
-	@if [ -f ../bin/emc_module_helper ]; then if ! [ `stat -c %u ../bin/emc_module_helper` -eq 0 -a -u ../bin/emc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
@@ -91,7 +91,7 @@ MAKEFLAGS += w
 # Create the variables with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
 TARGETS :=
-PYTARGETS := 
+PYTARGETS :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
@@ -102,7 +102,7 @@ SUBDIRS := \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
     hal/components hal/drivers hal/user_comps/devices \
-    hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
+    hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \
@@ -115,14 +115,14 @@ SUBDIRS := \
     \
     ../docs/src
 
-ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
+ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
 INCLUDES := .
 
-USERSRCS := 
-PROGRAMS := 
+USERSRCS :=
+PROGRAMS :=
 
 # When used like $(call TOxxx, ...) these turn a list of source files
 # into the corresponding list of object files, dependency files,
@@ -170,7 +170,7 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
-# Compilation options.  Perhaps some of these should come from Makefile.inc?
+# Compilation options.	Perhaps some of these should come from Makefile.inc?
 OPT := -Os
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
@@ -188,7 +188,7 @@ $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	$(ECHO) Depending $<
 	$(Q)$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
 
-$(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
+$(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
 	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
@@ -222,7 +222,7 @@ config.h.in: configure.in
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else \
-	    echo 1>&2 "*** emc2 is not configured.  Run './configure' with appropriate flags."; \
+	    echo 1>&2 "*** linuxcnc is not configured.	Run './configure' with appropriate flags."; \
 	    exit 1; \
 	fi
 endif
@@ -231,17 +231,17 @@ config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
 INFILES = \
-	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
+	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
-	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop \
+	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
+	../scripts/linuxcncmkdesktop \
 	 ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
-	../share/applications/emc.desktop \
-	../share/applications/emc-latency.desktop
+	../share/applications/linuxcnc.desktop \
+	../share/applications/linuxcnc-latency.desktop \
 
 ifeq ($(HAVE_WORKING_BLT),yes)
-INFILES += ../scripts/latencyplot ../share/applications/emc-latencyplot.desktop
+INFILES += ../scripts/latencyplot ../share/applications/linuxcnc-latencyplot.desktop
 endif
 
 $(INFILES): %: %.in config.status
@@ -251,8 +251,8 @@ default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
-# files in the source tree are the ones used when building emc2.  The copy
-# in ../include is used when building external components of emc2.
+# files in the source tree are the ones used when building linuxcnc.  The copy
+# in ../include is used when building external components of linuxcnc.
 HEADERS := \
     config.h \
     emc/ini/emcIniFile.hh \
@@ -307,6 +307,7 @@ HEADERS := \
     libnml/cms/cmsdiag.hh \
     libnml/cms/tcp_opts.hh \
     libnml/cms/tcp_srv.hh \
+    libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
     libnml/linklist/linklist.hh \
     libnml/nml/cmd_msg.hh \
@@ -348,7 +349,7 @@ HEADERS := \
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
 # Add converting of %.po files
-TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
+TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # ngcgui as standalone app:
@@ -370,7 +371,7 @@ clean: docclean pythonclean
 endif
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
-# for building kernel modules.  Other kernel module build styles need to be
+# for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
 
@@ -379,7 +380,7 @@ modules:
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
-# These rules clean things up.  'modclean' cleans files generated by 'modules'
+# These rules clean things up.	'modclean' cleans files generated by 'modules'
 # (except that it doesn't remove the modules that were copied to rtlib)
 # 'clean' cleans everything but dependency files, and 'depclean' cleans them
 # too.
@@ -395,7 +396,7 @@ depclean:
 
 clean: depclean modclean
 	find . -name '*.o' |xargs rm -f
-	-rm -rf objects 
+	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
@@ -409,8 +410,8 @@ setuid:
 	@echo "'make setuid' is not needed for the simulator"
 else
 setuid:
-	chown root ../bin/emc_module_helper
-	chmod 4750 ../bin/emc_module_helper
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
@@ -435,8 +436,8 @@ GLOB=$(wildcard $(1))
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
-You configured run-in-place, but are trying to install.  
-For an installable version, run configure without --enable-run-in-place 
+You configured run-in-place, but are trying to install.
+For an installable version, run configure without --enable-run-in-place
 and rebuild
 endef
 install:
@@ -444,11 +445,11 @@ install:
 
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory \
-    ../share/applications/emc.desktop \
-    ../share/applications/emc-latency.desktop
+    ../share/applications/linuxcnc.desktop \
+    ../share/applications/linuxcnc-latency.desktop
 
 ifeq ($(HAVE_WORKING_BLT),yes)
-MENUS += ../share/applications/emc-latencyplot.desktop
+MENUS += ../share/applications/linuxcnc-latencyplot.desktop
 endif
 
 install-menus install-menu: $(MENUS)
@@ -465,9 +466,9 @@ TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
 install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
-		if dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
+		if dpkg-query -S $(DESTDIR)/usr/bin/linuxcnc > /dev/null 2>&1 || dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
 			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
-			echo "Use './configure --enable-run-in-place' or uninstall the emc2 package"; \
+			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc2 package"; \
 			echo "before installing."; \
 			exit 1; \
 		fi \
@@ -478,8 +479,8 @@ install: install-test install-kernel-dep install-kernel-indep
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
-		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
+		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
+		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -493,7 +494,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
-		$(DESTDIR)$(datadir)/emc/pncconf/pncconf-help
+		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -506,44 +507,44 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
+	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
-        # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
+	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
 endif
-	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
+	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
-	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
+	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/emc
+	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
-	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)
+	$(FILE) ../tcl/linuxcnc.so $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/pkgIndex.tcl $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
-	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
-	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
-	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
+	$(FILE) ../share/linuxcnc/stepconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/touchy.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 
 	$(FILE) ../lib/python/gladevcp/hal_python.xml $(DESTDIR)$(datadir)/glade3/catalogs/
 	$(FILE) ../lib/python/gladevcp/widget*.png  $(DESTDIR)$(datadir)/glade3/pixmaps/
@@ -560,9 +561,9 @@ install-python: install-dirs
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
-	$(FILE) ../share/emc/emc2-wizard.gif $(DESTDIR)$(prefix)/share/emc
+	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
@@ -570,17 +571,17 @@ install-python: install-dirs
 endif
 
 install-kernel-dep:
-	$(DIR)  $(DESTDIR)$(moduledir)/emc2 \
+	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
 		$(DESTDIR)$(bindir) \
-		$(DESTDIR)$(sysconfdir)/emc2
+		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq "$(BUILD_SYS)" "sim"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
+	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
-	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
+	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
 endif # RUN_IN_PLACE
 
 CONF=../configs
@@ -610,7 +611,7 @@ $(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal pr
 	$(Q)-cp $< $@
 $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
 	$(Q)-cp $< $@
- 
+
 endif # userspace
 
 ifneq ($(KERNELRELEASE),)
@@ -626,7 +627,7 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
-        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
 ifeq ($(RTARCH),x86_64)
@@ -723,13 +724,13 @@ obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
-hostmot2-objs :=                          \
+hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
-    hal/drivers/mesa-hostmot2/ioport.o    \
+    hal/drivers/mesa-hostmot2/ioport.o	  \
     hal/drivers/mesa-hostmot2/encoder.o   \
 	hal/drivers/mesa-hostmot2/resolver.o  \
-    hal/drivers/mesa-hostmot2/pwmgen.o    \
+    hal/drivers/mesa-hostmot2/pwmgen.o	  \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
 	hal/drivers/mesa-hostmot2/sserial.o   \
 	hal/drivers/mesa-hostmot2/mesa_autoconf.o   \
@@ -738,21 +739,21 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
     hal/drivers/mesa-hostmot2/watchdog.o  \
-    hal/drivers/mesa-hostmot2/pins.o      \
-    hal/drivers/mesa-hostmot2/led.o       \
-    hal/drivers/mesa-hostmot2/tram.o      \
-    hal/drivers/mesa-hostmot2/raw.o       \
+    hal/drivers/mesa-hostmot2/pins.o	  \
+    hal/drivers/mesa-hostmot2/led.o	  \
+    hal/drivers/mesa-hostmot2/tram.o	  \
+    hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_7i43-objs :=                          \
+hm2_7i43-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i43.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_pci-objs  :=                          \
+hm2_pci-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_pci.o   \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_test-objs :=                          \
+hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
@@ -825,16 +826,16 @@ scarakins-objs += libnml/posemath/_posemath.o
 scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-$(CONFIG_MOTMOD) += motmod.o
-motmod-objs := emc/kinematics/cubic.o 
-motmod-objs += emc/kinematics/tc.o 
-motmod-objs += emc/kinematics/tp.o 
-motmod-objs += emc/motion/motion.o 
-motmod-objs += emc/motion/command.o 
-motmod-objs += emc/motion/control.o 
-motmod-objs += emc/motion/homing.o 
-motmod-objs += emc/motion/simple_tp.o 
-motmod-objs += emc/motion/emcmotglb.o 
-motmod-objs += emc/motion/emcmotutil.o 
+motmod-objs := emc/kinematics/cubic.o
+motmod-objs += emc/kinematics/tc.o
+motmod-objs += emc/kinematics/tp.o
+motmod-objs += emc/motion/motion.o
+motmod-objs += emc/motion/command.o
+motmod-objs += emc/motion/control.o
+motmod-objs += emc/motion/homing.o
+motmod-objs += emc/motion/simple_tp.o
+motmod-objs += emc/motion/emcmotglb.o
+motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
 motmod-objs += libnml/posemath/_posemath.o
@@ -957,7 +958,7 @@ tags:
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
-                -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
+		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
 	find . -type f -name '*.[ch]' |xargs etags -l c --append
@@ -965,16 +966,16 @@ tags:
 	find . -type f -name '*.hh' |xargs etags -l c++ --append
 
 etags:
-	etags 	--extra=+fq \
+	etags	--extra=+fq \
 		--exclude=depends --exclude=objects --exclude=.mod.c \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
-                -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl 
-        find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
-        find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
-        find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
+		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
+		-R . ../tcl ../scripts ../share/axis/tcl
+	find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
+	find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
+	find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
 
 .PHONY: swish
 swish:
@@ -986,7 +987,7 @@ swish:
 		$(dir $(BASEPWD))configs \
 		$(dir $(BASEPWD))docs/src \
 		$(dir $(BASEPWD))docs/man/man1
-        
+
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
 # Makefile.inc

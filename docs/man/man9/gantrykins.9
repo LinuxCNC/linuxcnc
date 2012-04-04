@@ -1,4 +1,4 @@
-.TH GANTRYKINS "9" "2010-10-12" "EMC Documentation" "HAL Component"
+.TH GANTRYKINS "9" "2010-10-12" "LinuxCNC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
@@ -22,7 +22,7 @@ and the Z axis to joint 3.  If not specified, the default mapping is
 or lowercase.
 
 .SS A note about joints and axes
-EMC2 makes a distinction between joints and axes: a joint is something
+LinuxCNC makes a distinction between joints and axes: a joint is something
 controlled by a motor, and an axis is a coordinate you can move via
 G-code.  You can also jog joints or jog axes.
 
@@ -33,15 +33,15 @@ Homing always happens in joint mode (aka Free mode).  The two joints
 of a gantry's axis must be homed together, so they must have the same
 [AXIS_n]HOME_SEQUENCE in the .ini file.
 
-Jogging of a gantry must happen in world mode (aka Teleop mode).  If you
-jog a gantry in joint mode (Free mode), you will move just one of the
-joints, and the gantry will rack.  In contrast, if you jog a gantry in
-world mode (Teleop mode), it's the axis that jogs: emc2 will coordinate
-the motion of the two joints that make up the axis, both joints will
-move together, and the gantry will stay square.
+Jogging of a gantry must happen in world mode (aka Teleop mode).
+If you jog a gantry in joint mode (Free mode), you will move just one
+of the joints, and the gantry will rack.  In contrast, if you jog a
+gantry in world mode (Teleop mode), it's the axis that jogs: linuxcnc
+will coordinate the motion of the two joints that make up the axis,
+both joints will move together, and the gantry will stay square.
 
 The Axis GUI has provisions for jogging in joint mode (Free) and in
-world mode (Teleop).  Use the "$" hotkey, or the View mennu to switch
+world mode (Teleop).  Use the "$" hotkey, or the View menu to switch
 between them.
 
 Joint-mode (aka Free mode) supports continuous and incremental jogging.
@@ -72,8 +72,7 @@ mapping at loadrt-time, and having that output correct is nice.
 \fBgantrykins\fR must be loaded before \fBmotion\fR.
 
 .SH SEE ALSO
-kins(9),
-The Kinematics section of the EMC2 Developer Manual
+\fIKinematics\fR section in the LinuxCNC documentation
 
 .SH LICENSE
 GPL

@@ -2,14 +2,14 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-15"> 
 <META http-equiv="Content-Language" content="fr"> 
-<TITLE> Documentation d'EMC2 - version HTML </TITLE>
+<TITLE> Documentation de LinuxCNC - version HTML </TITLE>
 </HEAD>
 <BODY>
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index_fr.html file in your browser after building the documents -->
 
-Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
+Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> de LinuxCNC.
 <UL>
 <LI>Autres langues disponibles: <A HREF="index.html">English</A> <A HREF="index_de.html">Deutsch</A> <A HREF="index_es.html">Espa&ntilde;ol</A> <A HREF="index_pl.html">Polish</A>
 <LI>
@@ -20,7 +20,8 @@ Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
 <LI><a name="Guide de d&eacute;marrage"></a> Guide de d&eacute;marrage
 	<UL>
 	<LI><A HREF="common/System_Requirements_fr.html">Configuration requise</A>
-	<LI><A HREF="common/Getting_EMC_fr.html">Se procurer et installer EMC2</A>
+	<LI><A HREF="common/Getting_linuxcnc_fr.html">Se procurer et installer LinuxCNC</A>
+	<LI><A HREF="common/Updating_linuxcnc_fr.html">Mise &agrave jour de LinuxCNC</A>
 	<LI><A HREF="quickstart/stepper_quickstart_fr.html">Informations pr&eacute;alables &agrave; la configuration des moteurs pas &agrave; pas</A>
 	<LI><A HREF="config/stepconf_fr.html">L'assistant graphique de configuration StepConf</A>
 	<LI><A HREF="config/pncconf_fr.html">L'assistant graphique de configuration PncConf (cartes Mesa)</A>
@@ -33,8 +34,8 @@ Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
 	<LI><A HREF="common/User_Concepts_fr.html">Concepts importants pour l'utilisateur</A>
 	<LI><A HREF="gui/axis_fr.html">L'interface graphique Axis</A>
 	<LI><A HREF="gui/touchy_fr.html">L'interface graphique Touchy</A>
-	<LI><A HREF="gui/ngcgui_fr.html">L'interface graphique NGCGUI</A>
-	<LI><A HREF="gui/tkemc_fr.html">L'interface graphique TkEMC</A>
+	<LI><A HREF="gui/ngcgui_fr.html">L'utilitaire graphique NGCGUI</A>
+	<LI><A HREF="gui/tklinuxcnc_fr.html">L'interface graphique TkLinuxCNC</A>
 	<LI><A HREF="gui/mini_fr.html">L'interface graphique Mini</A>
 	<LI><A HREF="gui/keystick_fr.html">L'interface textuelle KeyStick</A>
 	<LI><A HREF="gcode/machining_center_fr.html">Aper&ccedil;u global d'une machine CNC</A>
@@ -48,7 +49,7 @@ Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
 	<LI><A HREF="examples/gcode_fr.html">Exemples de programmes en G-code</A>
 	<LI><A HREF="lathe/lathe-user_fr.html">Informations sp&eacute;cifiques aux tours</A>
 	<LI><A HREF="gui/image-to-gcode_fr.html">Les fonctionnalit&eacute;s d'Image-to-gcode</A>
-	<LI><A HREF="gcode/rs274ngc_fr.html">Diff&eacute;rences avec RS-274NGC</A>
+	<LI><A HREF="gcode/rs274ngc_fr.html">Diff&eacute;rences avec RS274/NGC</A>
 	</UL>
 <LI><a name="Manuel de HAL"></a> Manuel de HAL
 	<UL>
@@ -71,32 +72,33 @@ Ces documents d&eacute;crivent la version <strong>@VERSION@</strong> d'EMC2.
 	<LI><A HREF="config/ini_config_fr.html">La configuration en d&eacute;tail</A>
 	<LI><A HREF="config/ini_homing_fr.html">Configuration des prises d'origine</A>
 	<LI><A HREF="config/lathe_config_fr.html">Configuration des tours</A>
-	<LI><A HREF="config/emc2hal_fr.html">Interface entre EMC2 et HAL</A>
+	<LI><A HREF="hal/haltcl_fr.html">Fichiers TCL pour HAL</A>
+	<LI><A HREF="config/linuxcnchal_fr.html">Interface entre LinuxCNC et HAL</A>
 	<LI><A HREF="config/stepper_fr.html">Configuration des moteurs pas &agrave; pas</A>
 	<LI><A HREF="hal/pyvcp_fr.html">Panneaux de commande virtuels avec PyVCP</A>
 	<LI><A HREF="hal/pyvcp_examples_fr.html">Exemples avec pyVCP</A>
 	<LI><A HREF="gui/gladevcp_fr.html">Outil de cr&eacute;ation d'interfaces graphiques GladeVCP</A>
 	<LI><A HREF="hal/parallel_port_fr.html">Pilote de port parall&egrave;le</A>
-	<LI><A HREF="drivers/AX5214H_fr.html">Pilote AX5214H</A>
+	<LI><A HREF="drivers/AX5214H_fr.html">Pilote AX5214H (en anglais)</A>
 	<LI><A HREF="drivers/GS2_fr.html">Pilote GS2</A>
-	<LI><A HREF="drivers/hostmot2_fr.html">Pilote HostMot2</A>
-	<LI><A HREF="drivers/motenc_fr.html">Pilote Motenc Driver</A>
-	<LI><A HREF="drivers/opto22_fr.html">Pilote Opto22 Driver</A>
+	<LI><A HREF="drivers/hostmot2_fr.html">Pilote HostMot2 (en anglais)</A>
+	<LI><A HREF="drivers/motenc_fr.html">Pilote Motenc Driver (en anglais)</A>
+	<LI><A HREF="drivers/opto22_fr.html">Pilote Opto22 Driver (en anglais)</A>
 	<LI><A HREF="drivers/pico_ppmc_fr.html">Pilote Pico PPMC Driver</A>
-	<LI><A HREF="drivers/pluto_p_fr.html">Pilote Pluto-P Driver</A>
-	<LI><A HREF="drivers/servo_to_go_fr.html">Pilote Servo-To-Go Driver</A>
+	<LI><A HREF="drivers/pluto_p_fr.html">Pilote Pluto-P Driver (en anglais)</A>
+	<LI><A HREF="drivers/servo_to_go_fr.html">Pilote Servo-To-Go Driver (en anglais)</A>
 	<LI><A HREF="motion/kinematics_fr.html">Notions de cin&eacute;matique</A>
 	<LI><A HREF="motion/tweaking_steppers_fr.html">R&eacute;glage des moteurs pas &agrave; pas</A>
 	<LI><A HREF="motion/pid_theory_fr.html">Th&eacute;orie du PID</A>
 	<LI><A HREF="ladder/ladder_intro_fr.html">Introduction au langage Ladder</A>
-	<LI><A HREF="ladder/classic_ladder_fr.html">ClassicLadder</A>
-	<LI><A HREF="ladder/ladder_examples_fr.html">Exemples avec ClassicLadder</A>
+	<LI><A HREF="ladder/classic_ladder_fr.html">ClassicLadder (en anglais)</A>
+	<LI><A HREF="ladder/ladder_examples_fr.html">Exemples avec ClassicLadder (en anglais)</A>
 	<LI><A HREF="examples/pci_parallel_port_fr.html">Exemple: Ajouter un port parall&egrave;le PCI</A>
 	<LI><A HREF="examples/spindle_fr.html">Exemple: Contr&ocirc;ler la vitesse de la broche</A>
 	<LI><A HREF="examples/mpg_fr.html">Exemple: Utiliser une manivelle &eacute;lectronique</A>
 	<LI><A HREF="examples/gs2_example_fr.html">Exemple: Utiliser un GS2</A>
 	<LI><A HREF="common/Stepper_Diagnostics_fr.html">Diagnostic des moteurs pas &agrave; pas</A>
-	<LI><A HREF="common/Updating_EMC_fr.html">Mises &agrave; jour d'EMC2</A>
+	<LI><A HREF="common/Updating_linuxcnc_fr.html">Mises &agrave; jour de LinuxCNC</A>
 	</UL>
 <LI><a name="Manuel du d&eacute;veloppeur (en anglais)"></a> Manuel du d&eacute;veloppeur (en anglais)
 	<UL>

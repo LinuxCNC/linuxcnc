@@ -1,21 +1,23 @@
-= EMC2 User Introduction
+= LinuxCNC User Introduction
+
+[[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))
 
 == This Manual
 
-The focus of this manual is on 'using' EMC2. It is intended to be used
-once EMC2 is installed and configured. For standard installations see
+The focus of this manual is on 'using' LinuxCNC. It is intended to be used
+once LinuxCNC is installed and configured. For standard installations see
 the Getting Started Guide for step by step instructions to get you up
 and going. For detailed information on installation and configuration
-of EMC2 see the Integrator Manual.
+of LinuxCNC see the Integrator Manual.
 
-== How EMC2 Works[[how-emc2-works]]
+== How LinuxCNC Works[[how-LinuxCNC-works]]
 
-The Enhanced Machine Controller (EMC2) is a lot more than just another
+The Enhanced Machine Controller (LinuxCNC) is a lot more than just another
 CNC mill program. It can control machine tools, robots, or
 other automated devices. It can control servo motors, stepper motors,
 relays, and other devices related to machine tools.
 
-There are four main components to the EMC2 software: 
+There are four main components to the LinuxCNC software: 
 
 * a motion controller (EMCMOT)
 * a discrete I/O controller (EMCIO)
@@ -23,74 +25,92 @@ There are four main components to the EMC2 software:
 * and one of several graphical user interfaces. 
 
 In addition there is a layer called HAL (Hardware Abstraction Layer) 
-which allows configuration of EMC2 without the need of recompiling.
+which allows configuration of LinuxCNC without the need of recompiling.
 
-.Simple EMC2 Controlled Machine[[fig:Typical_machine]]
+.Simple LinuxCNC Controlled Machine[[fig:Typical_machine]]
 
 image::images/whatstep1.png[align="center"]
 
 The above figure shows a simple block diagram showing
-what a typical 3-axis EMC2 system might look like. This diagram shows a
+what a typical 3-axis LinuxCNC system might look like. This diagram shows a
 stepper motor system. The PC, running Linux(((Linux))) as its operating
 system, is actually controlling the stepper motor drives by sending
 signals through the printer port. These signals (pulses) make the
-stepper drives move the stepper motors. The EMC2 system can also run servo
+stepper drives move the stepper motors. The LinuxCNC system can also run servo
 motors via servo interface cards or by using an extended parallel port
 to connect with external control boards. As we examine each of the
-components that make up an EMC2 system we will remind the reader of
+components that make up an LinuxCNC system we will remind the reader of
 this typical machine. 
 
 == Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
 
-A user interface is the part of the EMC2 that the machine tool
-operator interacts with. The EMC2 comes with several types of user
+A user interface is the part of the LinuxCNC that the machine tool
+operator interacts with. The LinuxCNC comes with several types of user
 interfaces:
 
+* <<cha:axis-gui,'Axis'>>, the standard GUI interface.
 
- - *AXIS*, an OpenGL-based GUI (Graphical User Interface), with an
-   interactive G-Code previewer. This interface is one of the few that are
-   still under active development and improvement. 
+.Axis GUI[[fig:The-Axis-GUI]]
 
-.The AXIS GUI[[fig:The-Axis-GUI]]
+image::images/axis-2.5.png[align="center"]
 
-image::images/axis-2.5.png[]
+* <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
+.Touchy GUI[[fig:touchy-gui]]
 
- - *Mini*, a Tcl/Tk-based GUI 
+image::images/touchy.png[align="center"]
+
+* <<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'
+   programming of G code. It also supports concatenation of subroutine files
+   to enable you to build a complete G code file without programming.
+
+.NGCGUI GUI imbedded into Axis[[fig:ngcgui-gui]]
+
+image::images/ngcgui.png[align="center"]
+
+* <<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI 
 
 .The Mini GUI[[fig:The-Mini-GUI]]
 
-image::images/mini.png[]
+image::images/mini.png[align="center"]
 
+* <<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI
 
- - *TkEMC*, a Tcl/Tk-based GUI
+.The TkLinuxCNC GUI[[fig:The-TkLinuxCNC-GUI]]
 
-.The TkEmc GUI[[fig:The-TkEmc-GUI]]
+image::images/tkemc.png[align="center"]
 
-image::images/tkemc.png[]
-
-
- - *Keystick*, a character-based screen graphics program suitable for
-   minimal installations (without the X server running).
+* <<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
+  suitable for minimal installations (without the X server running).
 
 .The Keystick GUI[[fig:The-Keystick-GUI]]
 
-image::images/keystick.png[]
+image::images/keystick.png[align="center"]
 
 
- - *Xemc*, an X-Windows program
+* 'Xemc', an X-Windows program. A simulator configuration of Xemc can be 
+   ran from the configuration picker.
 
- - a HAL based user interface called *halui*, which allows to control EMC2
-   using knobs and switches
+* 'halui' - a HAL based user interface which allows to control LinuxCNC
+   using knobs and switches. See the Integrators manual for more information
+   on halui.
 
- - a telnet based user interface called *emcrsh*, which allows commands to
-   be sent to EMC2 from remote computers
+* 'linuxcncrsh' - a telnet based user interface which allows commands to
+   be sent to LinuxCNC from remote computers.
+
+== Virtual Control Panels
+
+* 'PyVCP' a python based virtual control panel that can be added to the
+   Axis GUI or be stand alone.
+
+* 'GladeVCP' - a glade based virtual control panel that can be added to
+   the Axis GUI or be stand alone.
 
 == Languages
 
-EMC2 uses translation files to translate EMC User Interfaces into many
+LinuxCNC uses translation files to translate LinuxCNC User Interfaces into many
 languages. You just need to log in with the language you intend to use
-and when you start up EMC it comes up in that language. If your
+and when you start up LinuxCNC it comes up in that language. If your
 language has not been translated contact a developer on the IRC or the
 mailing list if you can assist in the translation.
 
@@ -104,21 +124,21 @@ close tolerances, and careful work are the evidence of lessons learned.
 No machine, no computer program, can take the place of human
 experience.
 
-As you begin to work with the EMC2 program, you will need to place
+As you begin to work with the LinuxCNC program, you will need to place
 yourself in the position of operator. You need to think of yourself in
 the role of the one in charge of a machine. It is a machine that is
 either waiting for your command or executing the command that you have
 just given it. Throughout these pages we will give information that
-will help you become a good operator of the EMC2 system. You will need
+will help you become a good operator of the LinuxCNC system. You will need
 some information right up front here so that the following pages will
 make sense to you.
 
 == Modes of Operation[[sub:Modes-of-Operation]]
 
-When EMC2 is running, there are three different major modes used
+When LinuxCNC is running, there are three different major modes used
 for inputting commands. These are 'Manual', 'Auto',
 and 'MDI'. Changing from one mode to another makes a big
-difference in the way that the EMC2 control behaves. There are specific things
+difference in the way that the LinuxCNC control behaves. There are specific things
 that can be done in one mode that cannot be done in another. An
 operator can home an axis in manual mode but not in auto or MDI modes.
 An operator can cause the machine to execute a whole file full of

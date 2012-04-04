@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 ###############################################################
 # Description:  emccalib.tcl
@@ -24,7 +24,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # and builds widgets to display and manipulate their values
 # it does not and will not sort on hal components.
 
-source [file join [file dirname [info script]] .. emc.tcl]
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 package require BWidget
@@ -77,7 +77,7 @@ foreach wizard_image $wizard_image_search {
     }
 }
 
-wm title . [msgcat::mc "EMC2 Servo Axis Calibration"]
+wm title . [msgcat::mc "LinuxCNC Servo Axis Calibration"]
 set logo [label .logo -image $logo]
 set main [frame .main ]
 set top [NoteBook .main.top]

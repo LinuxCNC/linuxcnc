@@ -31,11 +31,11 @@ exec wish "$0" "$@"
 # by name to extract things like the insertion point, selected text, etc.
 # Mods to fix copy, paste, delete add find and line number by rh 12/1999
 # Mods to add line numbering and find and replace by rh 12/1999.
-# Mod for a script menu that looks for *.ncw files in $emc::TCL_SCRIPT_DIR directory.
+# Mod for a script menu that looks for *.ncw files in $linuxcnc::TCL_SCRIPT_DIR directory.
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {
 
@@ -150,11 +150,11 @@ proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"T
         $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptmenu -underline 1
         #replaced scriptdir
 	#set scriptdir tcl/scripts
-        set files [exec /bin/ls $emc::TCL_SCRIPT_DIR]
+        set files [exec /bin/ls $linuxcnc::TCL_SCRIPT_DIR]
 	foreach file $files {
     	    if {[string match *.ncw $file]} {
         	set geneditfname [file rootname $file]
-            	$scriptmenu add command -label $geneditfname -command "source $emc::TCL_SCRIPT_DIR/$file"
+            	$scriptmenu add command -label $geneditfname -command "source $linuxcnc::TCL_SCRIPT_DIR/$file"
     	    }
     	}
     }

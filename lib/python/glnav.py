@@ -2,7 +2,7 @@ from minigl import *
 import math
 import array, itertools
 
-def use_pango_font(font, start, count):
+def use_pango_font(font, start, count, will_call_prepost=False):
     import pango, cairo, pangocairo
     fontDesc = pango.FontDescription(font)
     a = array.array('b', itertools.repeat(0, 256*256))
@@ -53,12 +53,22 @@ def use_pango_font(font, start, count):
         w, h = pango.PIXELS(w), pango.PIXELS(h)
         glNewList(base+i, GL_COMPILE)
         glBitmap(0, 0, 0, 0, 0, h-d, '');
+        if not will_call_prepost: pango_font_pre()
         if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a)
         glBitmap(0, 0, 0, 0, w, -h+d, '');
+        if not will_call_prepost: pango_font_post()
         glEndList()
 
     glPopClientAttrib()
     return base, pango.PIXELS(width), pango.PIXELS(linespace)
+
+def pango_font_pre(rgba=(1., 1., 0., 1.)):
+    glPushAttrib(GL_COLOR_BUFFER_BIT)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_ONE, GL_ONE)
+
+def pango_font_post():
+    glPopAttrib()
 
 def glTranslateScene(w, s, x, y, mousex, mousey):
     glMatrixMode(GL_MODELVIEW)

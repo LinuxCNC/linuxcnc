@@ -1,5 +1,5 @@
 # Makefile.modinc includes rules for building HAL realtime modules outside
-# the emc2 source tree.  It has three useful targets:
+# the LinuxCNC source tree.  It has three useful targets:
 #
 # modules
 #   Actually build the modules
@@ -40,7 +40,7 @@ BUILDSYS = @BUILD_SYS@
 KERNELDIR := @KERNELDIR@
 CC := @CC@
 RTFLAGS = $(filter-out -ffast-math,@RTFLAGS@ @EXT_RTFLAGS@) -fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations
-RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=2
 ifeq ($(RTARCH),x86_64)
 EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
 endif
@@ -53,7 +53,7 @@ RTLIBDIR := @EMC2_HOME@/rtlib
 LIBDIR := @EMC2_HOME@/lib
 else
 prefix := @prefix@
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/emc2
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/linuxcnc
 RTLIBDIR := @EMC2_RTLIB_DIR@
 LIBDIR := @libdir@
 endif

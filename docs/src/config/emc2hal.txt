@@ -1,11 +1,13 @@
 = Core Components
 
+[[cha:core-components]] (((Core Components)))
+
 See also the man pages 'motion(9)'.
 
-== Motion [[motion]]
+== Motion [[sec:motion]]
 
 These pins and parameters are created by the realtime 'motmod' module.
-This module provides a HAL interface for EMC’s motion planner.
+This module provides a HAL interface for LinuxCNC’s motion planner.
 Basically motmod takes in a list of waypoints and generates a nice
 blended and constraint-limited stream of joint positions to be fed
 to the motor drives.
@@ -24,6 +26,40 @@ before motion.
 loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] 
 [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
 ----
+
+* 'base_period_nsec = 50000' - the 'Base' task period in nanoseconds.
+  This is the fastest thread in the machine.
+
+[NOTE]
+On servo-based systems, there is generally no reason for
+'base_period_nsec' to be smaller than 'servo_period_nsec'.
+On machines with software step generation, the 'base_period_nsec'
+determines the maximum number of steps per second. In the absence of
+long step length and step space requirements, the absolute maximum step
+rate is one step per 'base_period_nsec'. Thus, the 'base_period_nsec' shown
+above gives an absolute maximum step rate of 20,000 steps per
+second. 50,000 ns (50 us) is a fairly conservative value. The
+smallest usable value is related to the Latency Test result, the
+necessary step length, and the processor speed.
+Choosing a 'base_period_nsec' that is too low can lead to the "Unexpected
+real time delay" message, lockups, or spontaneous reboots.
+
+* 'servo_period_nsec = 1000000' - This is the 'Servo' task period in
+  nanoseconds. This value will be rounded to an integer multiple of
+  'base_period_nsec'. This period is used even on systems based on
+  stepper motors.
++
+This is the rate at which new motor positions are computed, following
+error is checked, PID output values are updated, and so on.
+Most systems will not need to change this value. It is the update rate
+of the low level motion planner.
+
+* 'traj_period_nsec = 100000' - This is the 'Trajectory Planner'
+  task period in nanoseconds. This value will be rounded to an integer
+  multiple of 'servo_period_nsec'. Except for machines with unusual 
+  kinematics (e.g., hexapods) there is no reason to make this value larger
+  than 'servo_period_nsec'.
+
 
 === Options
 
@@ -305,7 +341,7 @@ order shown.
     Processes motion commands coming from user space
 
 * 'motion-controller' - 
-    Runs the EMC motion controller
+    Runs the LinuxCNC motion controller
 
 == Axis (Joints)
 

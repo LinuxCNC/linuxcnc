@@ -1,4 +1,4 @@
-.TH rtapi_app_exit "3rtapi" "2008-05-26" "EMC Documentation" "HAL"
+.TH rtapi_app_exit "3rtapi" "2008-05-26" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 rtapi_app_exit \- User-provided function to shut down a component

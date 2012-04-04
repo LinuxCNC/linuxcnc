@@ -25,11 +25,13 @@ o<entry> sub
 o<l20>  if [[#<inside> NE 0] AND [#<inside> NE 1]]
           (debug, entry: bad inside specifier #<inside>)
           (print, entry: bad inside specifier #<inside>)
+          (AXIS,notify, entry: bad inside specifier -- EXITING)
           m2
 o<l20>  endif
 o<l30>  if [[#<dir> NE 2] AND [#<dir> NE 3]]
           (debug, entry: bad dir specifier #<dir>)
           (print, entry: bad dir specifier #<dir>)
+          (print, entry: bad dir specifier #<inside> -- EXITING)
           m2
 o<l30>  endif
 

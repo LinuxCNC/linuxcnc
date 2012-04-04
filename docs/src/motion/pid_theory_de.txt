@@ -175,12 +175,12 @@ period of the output (P~c~). Then adjust the P, I and D
 controls as the table shows:
 
 [width="90%", options="header", cols="4*^"]
-|========================================
-|Control type | P | I | D
-|P | .5K~c~ |  | 
-|PI | .45K~c~ | 1.2/P~c~ | 
-|PID | .6K~c~ | 2/P~c~ | P x P~c~/8
-|========================================
+|==========================================
+|Control type | P       | I        | D
+|P            | .5K~c~  |          | 
+|PI           | .45K~c~ | P~c~/1.2 | 
+|PID          | .6K~c~  | P~c~/2   | P~c~/8
+|==========================================
 
 ==== Final Steps
 

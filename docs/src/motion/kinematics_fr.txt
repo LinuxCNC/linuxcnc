@@ -1,7 +1,9 @@
 :lang: fr
 :toc:
 
-= La cinématique dans EMC2
+= La cinématique dans LinuxCNC
+
+[[cha:Cinematique]] (((Cinématique)))
 
 == Introduction
 
@@ -14,15 +16,15 @@ toutes) utilisent un système de coordonnées courant, le système
 Cartésien.
 
 Le système de coordonnées Cartésiennes est composé de 3 axes (X, Y, Z)
-chacun perpendiculaire aux 2 autres. footnote:[Le mot “axes” est aussi
+chacun perpendiculaire aux 2 autres. footnote:[Le mot _axes_ est aussi
 communément (et incorrectement) utilisé à
 propos des machines CNC, il fait référence aux directions des
 mouvements de la machine.]
 
-Quand nous parlons d'un programme G-code (RS274NGC) nous parlons d'un
+Quand nous parlons d'un programme G-code (RS274/NGC) nous parlons d'un
 certain nombre de commandes (G0, G1, etc.) qui ont comme paramètres (X-
 Y- Z-). Ces positions se référent exactement à des positions
-Cartésiennes. Une partie du contrôleur de mouvements d'EMC2 est
+Cartésiennes. Une partie du contrôleur de mouvements de LinuxCNC est
 responsable de la translation entre ces positions et les positions
 correspondantes de la cinématique (((cinematique))) de la
 machinefootnote:[Cinématique: une fonction à deux voies pour
@@ -54,37 +56,39 @@ chacun des axes est placé le long d'un des axes Cartésiens. Sur ces
 machines le passage, du plan de l'espace Cartésien (le programme
 G-code) au plan de l'espace articulation (l'actuateur actuel de la
 machine), est trivial. C'est un simple plan 1:1:
+----
+pos->tran.x = joints[0];
+pos->tran.y = joints[1];
+pos->tran.z = joints[2];
+pos->a = joints[3];
+pos->b = joints[4];
+pos->c = joints[5];
+----
 
-    pos->tran.x = joints[0]; 
-    pos->tran.y = joints[1]; 
-    pos->tran.z = joints[2]; 
-    pos->a = joints[3]; 
-    pos->b = joints[4]; 
-    pos->c = joints[5];
-    
 Dans l'extrait de code ci-dessus, nous pouvons voir comment le plan
 est fait: la position X est identique avec la articulation 0, Y avec la
 articulation 1 etc. Nous nous référons dans ce cas à une cinématique
 directe (une transformation avant), tandis que dans l'extrait de code
 suivant il est fait référence à une cinématique inverse (ou une
 transformation inverse):
-
-    joints[0] = pos->tran.x; 
-    joints[1] = pos->tran.y; 
-    joints[2] = pos->tran.z; 
-    joints[3] = pos->a; 
-    joints[4] = pos->b; 
-    joints[5] = pos->c;
+----
+joints[0] = pos->tran.x;
+joints[1] = pos->tran.y;
+joints[2] = pos->tran.z;
+joints[3] = pos->a;
+joints[4] = pos->b;
+joints[5] = pos->c;
+----
 
 Comme on peut le voir, c'est assez simple de faire la transformation
 d'une machine à cinématique banale (ou Cartésienne). Cela devient un
 peu plus compliqué si il manque un axe à la machine.footnote:[Si la
 machine (par exemple un tour) est montée avec seulement les axes
-X, Z et A et que le fichier d'init d'EMC2 contient uniquement la
+X, Z et A et que le fichier d'init de LinuxCNC contient uniquement la
 définition de ces 3 articulations, alors l'assertion précédente est fausse.
 Parce-que nous avons actuellement (joint0=x, joint1=Z, joint2=A) ce qui
-suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans EMC2
-il suffit de définir tous les axes (XYZA), EMC2 utilisera alors une
+suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans LinuxCNC
+il suffit de définir tous les axes (XYZA), LinuxCNC utilisera alors une
 simple boucle dans HAL pour l'axe Y inutilisé.]footnote:[Une autre 
 façon de le faire fonctionner, est de changer le code
 correspondant et recompiler le logiciel.]
@@ -109,8 +113,7 @@ image::images/bipod.png[]
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
 placés sur un mur, à cet appareil un mobile est suspendu par des fils.
 Les articulations dans ce cas sont les distances entre le mobile et les
-moteurs de l'appareil (nommées AD et BD sur la figure 
-<<cap:Bipod-setup>>).
+moteurs de l'appareil (nommées AD et BD sur la figure ci-dessus.
 
 La position des moteurs est fixée par convention. Le moteur A est en
 (0,0), qui signifie que sa coordonnée X est 0 et sa coordonnée Y
@@ -148,14 +151,14 @@ dite singulière. Dans ce cas, la cinématique inverse retourne -1.
 
 Traduction en code:
 ----
-    double AD2 = joints[0] * joints[0]; 
-    double BD2 = joints[1] * joints[1]; 
-    double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx); 
-    double y2 = AD2 - x * x; 
-    if(y2 < 0) return -1; 
-    pos->tran.x = x; 
-    pos->tran.y = sqrt(y2); 
-    return 0;
+double AD2 = joints[0] * joints[0];
+double BD2 = joints[1] * joints[1];
+double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx);
+double y2 = AD2 - x * x;
+if(y2 < 0) return -1;
+pos->tran.x = x;
+pos->tran.y = sqrt(y2);
+return 0;
 ----
 
 === Transformation inverse[[sec:Inverse-transformation]]
@@ -169,11 +172,11 @@ sorte que nous pouvons l'écrire directement:
 
 ou traduite en code:
 ----
-    double x2 = pos->tran.x * pos->tran.x; 
-    double y2 = pos->tran.y * pos->tran.y; 
-    joints[0] = sqrt(x2 + y2); 
-    joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2); 
-    return 0;
+double x2 = pos->tran.x * pos->tran.x;
+double y2 = pos->tran.y * pos->tran.y;
+joints[0] = sqrt(x2 + y2);
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
+return 0;
 ----
 
 == Détails d'implémentation
@@ -182,31 +185,26 @@ Un module cinématique est implémenté comme un composant de HAL, et il
 est permis d'exporter ses pins et ses paramètres. Il consiste en
 quelques fonctions “C” (par opposition au fonctions de HAL):
 
- - `int kinematicsForward(const double *joint, EmcPose *world, const
-   KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
-   Implémente la fonction cinématique avant, comme décrite dans la
-   section <<sec:Forward-transformation>>.
- - `int kinematicsInverse(const EmcPose * world, double *joints, const
-   KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)`
-   Implémente la fonction cinématique inverse, comme décrite dans la
-   section <<sec:Inverse-transformation>>.
- - `KINEMATICS_TYPE kinematicsType(void)`
-   Retourne l'identificateur de type de la cinématique, typiquement
-   `KINEMATICS_BOTH`.
- - `int kinematicsHome(EmcPose *world, double *joint,
-   KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
+int kinematicsForward(const double *joint, EmcPose *world, const KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)::
+        Implémente <<sec:Forward-transformation,la fonction cinématique avant>>.
+int kinematicsInverse(const EmcPose * world, double *joints, const KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)::
+        Implémente <<sec:Inverse-transformation,la fonction cinématique inverse>>.
+KINEMATICS_TYPE kinematicsType(void)_::
+        Retourne l'identificateur de type de la cinématique, typiquement
+   _KINEMATICS_BOTH_.
+int kinematicsHome(EmcPose *world, double *joint, KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)::
    La fonction prise d'origine de la cinématique ajuste tous ses
    arguments à leur propre valeur à une position d'origine connue. Quand
    elle est appelée, cette position doit être ajustée, quand elle est
    connue, comme valeurs initiales, par exemple depuis un fichier INI. Si
    la prise d'origine de la cinématique peut accepter des points de départ
    arbitraires, ces valeurs initiales doivent être utilisées.
- - `int rtapi_app_main(void)`
- - `void rtapi_app_exit(void)`
+int rtapi_app_main(void)::
+void rtapi_app_exit(void)::
    Il s'agit des fonctions standards d'installation et de la
    désinstallation des modules RTAPI.
 
 Quand ils sont contenus dans un seul fichier source, les modules de la
-cinématique peuvent être compilés et installés par `«comp`». Voir la
-manpage `«comp(1)»` pour d'autres informations.
+cinématique peuvent être compilés et installés par _comp_. Voir la
+manpage _comp(1)_ pour d'autres informations.
 

@@ -1,4 +1,4 @@
-//    This is a component of AXIS, a front-end for emc
+//    This is a component of AXIS, a front-end for LinuxCNC
 //    Copyright 2005, 2006 Jeff Epler <jepler@unpythonic.net> and 
 //    Chris Radek <chris@timeguy.com>
 //
@@ -120,6 +120,7 @@ GLCALL1V(glCallList, "i", int)
 GLCALL1V(glClear, "i", int)
 GLCALL4V(glClearColor, "ffff", float, float, float, float)
 GLCALL4V(glColorMask, "iiii", int, int, int, int);
+GLCALL2V(glColorMaterial, "ii", int, int);
 GLCALL1V(glDepthFunc, "i", int)
 GLCALL1V(glDepthMask, "i", int)
 GLCALL1V(glDisable, "i", int)
@@ -697,6 +698,7 @@ METH(glCallList, "execute a display list"),
 METH(glClear, "clear buffers to preset values"),
 METH(glClearColor, "specify clear values for the color buffers"),
 METH(glColorMask, "specify which components of color to write"),
+METH(glColorMaterial, "cause a material color to track the current color"),
 METH(glDepthFunc, "specify the value used for depth buffer comparisons"),
 METH(glDepthMask, "enable or disable writing into the depth buffer"),
 METH(glDisable, "enable or disable server-side GL capabilities"),
@@ -784,10 +786,12 @@ void initminigl(void) {
     glerror = PyErr_NewException("minigl.error", PyExc_RuntimeError, NULL);
     PyObject_SetAttrString(m, "error", glerror);
     CONST(GL_ALWAYS);
+    CONST(GL_AMBIENT_AND_DIFFUSE);
     CONST(GL_LEQUAL);
     CONST(GL_BACK);
     CONST(GL_BLEND);
     CONST(GL_COLOR_BUFFER_BIT);
+    CONST(GL_COLOR_MATERIAL);
     CONST(GL_COMPILE);
     CONST(GL_CULL_FACE);
     CONST(GL_DEPTH_BUFFER_BIT);

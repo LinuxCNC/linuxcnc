@@ -93,9 +93,9 @@ If your motor lacks documentation it might be worth trying every pattern.
 <TR><TH>45<TD>111<TD>011<TD>010<TD>000<TD>100<TD>101 \\
 <TR><TH>46<TD>110<TD>010<TD>000<TD>001<TD>101<TD>111 \\
 <TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
-</TABLE> \\
+</TABLE>
 \\}
-\\{\\
+.el \\{\\
 
 .TS
 box tab(;);

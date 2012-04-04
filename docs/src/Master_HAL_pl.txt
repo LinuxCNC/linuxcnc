@@ -1,10 +1,11 @@
-HAL and Device Drivers V0.1, {localdate}
+HAL and Device Drivers V2.5, {localdate}
 ========================================
-The EMC Team
 
 //:lang: pl
 
 :masterdir: {indir}
+
+The LinuxCNC Team
 
 :leveloffset: 1
 

@@ -14,6 +14,7 @@ This is what the example configs do:
 - rack-toolchange: this tries to mimick the racktoolchanger patch - without a patch, 
   but with remapping codes
 
+- cycles: a demo how new cycle codes can be created with O-word subroutines or in Python
 
 - iocontrol-removed: a 'research part' of the (now merged) remapping branch: It demonstrates 
   removing iocontrol altogether, and replacing it by a Python plugin in task. 
@@ -21,7 +22,7 @@ This is what the example configs do:
   use sqlite3 for tooltable storage. 
   >>>>>>>>>>>  Not suggested for production use. <<<<<<<<<<<<<<<<<<<<<<<<
 
-- python-stdgĺue contains embedded Python code supporting the above examples. This should
+- python-stdglue contains embedded Python code supporting the above examples. This should
   eventually evolve into canned code which users need not touch except in
   more exotic circumstances. Note all examples above use the same glue code from remap.py.
 

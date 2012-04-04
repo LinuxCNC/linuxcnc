@@ -1,4 +1,6 @@
-== Ladder Examples (((Classic Ladder)))
+== Ladder Examples 
+
+[[cha:classicladder-examples]] (((Classicladder Examples)))
 
 === Wrapping Counter
 
@@ -36,7 +38,7 @@ image::images/extra-pulse-reject.png[]
 The External E-Stop example is in the /config/classicladder/cl-estop
 folder. It uses a pyVCP panel to simulate the external components.
 
-To interface an external E-Stop to EMC and have the external E-Stop
+To interface an external E-Stop to LinuxCNC and have the external E-Stop
 work together with the internal E-Stop requires a couple of connections
 through Classic Ladder.
 
@@ -70,10 +72,10 @@ Now add the following line to your custom.hal file.
 I/O assignments
 
  - %I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
- - %I1 = Input from EMC's E-Stop
- - %I2 = Input from EMC's E-Stop Reset Pulse
+ - %I1 = Input from LinuxCNC's E-Stop
+ - %I2 = Input from LinuxCNC's E-Stop Reset Pulse
  - %I3 = Input from the pyVCP panel reset button
- - %Q0 = Ouput to EMC to enable
+ - %Q0 = Ouput to LinuxCNC to enable
  - %Q1 = Output to external driver board enable pin (use a N/C output if
    your board had a disable pin)
 
@@ -84,17 +86,17 @@ Next we add the following lines to the custom_postgui.hal file
     # The pyVCP checkbutton simulates a normally closed external E-Stop 
     net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
 
-    # Request E-Stop Enable from EMC 
+    # Request E-Stop Enable from LinuxCNC 
     net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
 
     # Request E-Stop Enable from pyVCP or external source 
     net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
 
-    # This line resets the E-Stop from EMC 
+    # This line resets the E-Stop from LinuxCNC 
      net emc-reset-estop iocontrol.0.user-request-enable =>
     classicladder.0.in-02
 
-    # This line enables EMC to unlatch the E-Stop in Classic Ladder 
+    # This line enables LinuxCNC to unlatch the E-Stop in Classic Ladder 
     net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
 
     # This line turns on the green indicator when out of E-Stop 
@@ -166,7 +168,7 @@ also 'OPERATE' the counter value to a word variable (%W0) that (you can
 assume) is mapped on to a s32 out HAL pin so you can let some other HAL
 component know what the current tool number is. In the real world
 another s32 (in) pin would be used to get the requested tool number
-from EMC.You would have to load Classic Ladder's real time module
+from LinuxCNC.You would have to load Classic Ladder's real time module
 specifying that you want s32 in and out pins. See 'loading options'
 above. [display turret sample]
 

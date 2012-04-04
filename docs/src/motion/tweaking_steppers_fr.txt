@@ -1,117 +1,34 @@
 :lang: fr
 :toc:
 
-= Réglages des pas à pas[[cha:Reglages-de-pas-a-pas]]
+= Réglages des pas à pas
 
-(((Réglages des pas à pas)))
+[[cha:Reglages-de-pas-a-pas]] (((Réglages des pas à pas)))
 
 == Obtenir le meilleur pilotage logiciel possible
 
 Faire générer les impulsions de pas au logiciel présente un gros
-avantage, c'est gratuit. Comme chaque PC est équipé d'un port
-parallèle, il est capable de sortir sur celui-ci, les impulsions
-générées par le logiciel. Toutefois, cette génération d'impulsions
-logicielle présente aussi certains désaventages:
+avantage, c'est gratuit. Quasiment chaque PC dispose d'un port parallèle
+capable de sortir sur ses broches les signaux de pas générés par le logiciel.
+Cependant, les générateurs d'impulsions logiciels ont aussi quelques
+inconvénients:
 
- - La fréquence maximum des impulsions est limitée.
- - Les impulsions générées ne sont pas de très bonne qualité à cause du
-   bruit.
- - Elles sont sujettes à la charge du CPU 
+* La fréquence maximum des impulsions est limitée.
+* Les impulsions générées sont irrégulières à cause du bruit.
+* Elles sont sujettes à la charge du CPU 
 
 Ce chapitre présente certaines mesures qui vous aideront à obtenir les
 meilleurs résultats du logiciel.
 
 === Effectuer un test de latence
 
-La latence correspond au temps pris par le PC pour stopper ce qui est
-en cours et répondre à une requête externe. Dans notre cas, la requête
-est l'horloge qui sert au cadencement des impulsions de pas. Plus basse
-est la latence, plus rapide pourra être l'horloge, plus rapides et plus
-douces seront les impulsions de pas.
-
-La latence est de loin plus importante que la vitesse du CPU. Un
-Pentium II répondant à chaque interruption et toutes les 10
-microsecondes pourra donner de meilleurs résultats qu'un rapide P4 HT.
-
 Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
 mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
 la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
 d'un PC consiste à exécuter le test de latence RTAI.
 
-    NE PAS ESSAYER DE LANCER EMC2 PENDANT QUE LE TEST EST EN COURS
-
-Sous Ubuntu Dapper, vous pouvez lancer le test en ouvrant une console
-et en faisant:
-
-    sudo mkdir /dev/rtf; 
-    sudo mknod /dev/rtf/3 c 150 3; 
-    sudo mknod /dev/rtf3 c 150 3; 
-    cd /usr/realtime*/testsuite/kern/latency; ./run
-
-et vous devriez voir quelques choses comme:
-
-    ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run 
-    * 
-    * 
-    * Type ^C to stop this application. (Tapez CTRL-C pour arrêter cette application)
-    * 
-    *
-    
-    ## RTAI latency calibration tool ## 
-    # period = 100000 (ns) 
-    # avrgtime = 1 (s) 
-    # do not use the FPU 
-    # start the timer 
-    # timer_mode is oneshot
-    
-    RTAI Testsuite - KERNEL latency (all data in nanoseconds) 
-    RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns 
-    RTD|   -1571|   -1571|    1622|    8446|    8446|      0 
-    RTD|   -1558|   -1571|    1607|    7704|    8446|      0 
-    RTD|   -1568|   -1571|    1640|    7359|    8446|      0 
-    RTD|   -1568|   -1571|    1653|    7594|    8446|      0 
-    RTD|   -1568|   -1571|    1640|   10636|   10636|      0 
-    RTD|   -1568|   -1571|    1640|   10636|   10636|      0
-
-Pendant la durée du test, vous devez «abuser» de l'ordinateur.
-Déplacez les fenêtres tout autour de l'écran. Surfez sur le web.
-Déplacez quelques longs fichiers sur le disque. Jouez de la musique.
-Lancez un programme OpenGL comme glxgears. L'idée étant de pousser le
-PC au bout de ses limites pendant que le test de latence observe pour
-trouver les cas les moins bons.
-
-L'avant dernière colonne marquée «ovl max» est la plus importante.
-Notez sa valeur, vous en aurez besoin par la suite. Elle contient les
-mesures de latence les plus mauvaises durant tout le test. Dans
-l'exemple ci-dessus, la valeur est de 10636 nanosecondes, soit 10.6
-microsecondes, ce qui est excellent. Toutefois, le test de l'exemple
-n'a duré que quelques secondes (une ligne s'affiche à chaque seconde).
-Vous devez lancer le test pendant plusieurs minutes, parfois le plus
-mauvais temps n'apparaît pas vraiment, ou il apparaît quand vous faites
-une action particulière. J'ai une carte mère Intel qui marche très bien
-la plupart du temps, mais chaque 64 secondes arrive une valeur très
-mauvaise de 300uS. Par chance, ce cas a trouvé une solution, voyez ici: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[Le Wiky de
-Linuxcnc - Correction des problèmes SMI].
-
-Que signifient les résultats du tableau, à quels résultats s'attendre?
-Si la valeur de votre «ovl max» est inférieure à 15-20 microsecondes
-(15,000-20,000 nanosecondes), l'ordinateur donnera d'excellents
-résultats. Si la latence maximale est près de 30-50 microsecondes, vous
-aurez de bons résultats, mais la fréquence maximale des pas risque
-d'être décevante, spécialement si vous utilisez des micropas ou si vous
-avec une vis avec un pas fin. Si la latence est de 100uS ou plus
-(100,000 nanosecondes), alors le PC n'est pas utilisable pour générer
-des trains d'impulsions par logiciel. Des chiffres suppérieurs à 1
-milliseconde (1,000,000 nanosecondes) signifie que ce PC ne convient
-pas du tout pour EMC2, que vous pensiez générer les pas par logiciel ou
-non.
-
-Notez que si vous obtenez de mauvais résultats, c'est peut être
-améliorable. Par exemple, un PC qui avait une latence très mauvaise
-(plusieurs millisecondes) en utilisant la carte graphique intégrée a vu
-le problème résolu par une carte graphique Matrox à 5$. EMC ne
-nécessite pas du matériel de pointe.
+Lancer un test comme décrit <<cha:test-de-latence, au chapitre sur le test>>
+de latence.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
 
@@ -121,63 +38,40 @@ de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
-
-[quote]
-________________________________________
+....
 Step Frequency: 0 to 200 kHz 
-
-Step Pulse “0” Time: 0.5 uS min (Step on falling edge) 
-
-Step Pulse “1” Time: 4.5 uS min 
-
-Direction Setup: 1 uS min (20 uS min hold time after Step edge)
-________________________________________
-
+Step Pulse “0” Time: 0.5 µs min (Step on falling edge) 
+Step Pulse “1” Time: 4.5 µs min 
+Direction Setup: 1 µs min (20 µs min hold time after Step edge)
+....
 
 Les spécifications du Gecko G203V indiquent:
-
-[quote]
-________________________________________
-
+....
 Step Frequency: 0 to 333 kHz 
+Step Pulse “0” Time: 2.0 µs min (Step on rising edge) 
+Step Pulse “1” Time: 1.0 µs min 
 
-Step Pulse “0” Time: 2.0 uS min (Step on rising edge) 
-
-Step Pulse “1” Time: 1.0 uS min 
-
-200 nS (0.2uS) before step pulse rising edge 
-
-200 nS (0.2uS) hold after step pulse rising edge
-________________________________________
-
+Direction setup:
+    200 ns (0.2µs) before step pulse rising edge 
+    200 ns (0.2µs) hold after step pulse rising edge
+....
 
 Un carte Xylotex donne dans ses données techniques un superbe graphe
 du timing nécessaire, il indique:
-
-[quote]
-________________________________________
-Minimum DIR setup time before rising edge of STEP Pulse 200nS Minimum 
-
-
-DIR hold time after rising edge of STEP pulse 200nS 
-
-
-Minimum STEP pulse high time 2.0uS 
-
-
-Minimum STEP pulse low time 1.0uS 
-
-
+....
+Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum 
+DIR hold time after rising edge of STEP pulse 200ns 
+Minimum STEP pulse high time 2.0µs 
+Minimum STEP pulse low time 1.0µs 
 Step happens on rising edge
-________________________________________
-
+....
 
 Notez les valeurs que vous trouvez, vous en aurez besoin pour la
 prochaine étape.
 
 === Choisir la valeur de BASE_PERIOD
 
-BASE_PERIOD est l'horloge de votre EMC2. A chaque période, le
+BASE_PERIOD est l'horloge de votre LinuxCNC. A chaque période, le
 générateur d'impulsions de pas décide si il est temps pour une autre
 impulsion. Une période plus courte vous permettra de générer plus
 d'impulsions par seconde, dans les limites. Mais si vous la réglez trop
@@ -188,21 +82,21 @@ pas exigent d'affecter la plus courte période utilisable, comme nous le
 verrons un peu plus loin.
 
 Regardons l'exemple du Gecko en premier. Le G202 peut gérer des
-impulsions restant à l'état bas pendant 0.5uS et à l'état haut pendant
-4.5uS, il a besoin que la broche de direction soit stable 1uS avant le
-front descendant et qu'elle reste stable pendant 20uS après le front
-descendant. La plus longue durée est de 20uS, c'est le temps de
-maintien. Une approche simple consisterait à fixer la période à 20uS.
+impulsions restant à l'état bas pendant 0.5µs et à l'état haut pendant
+4.5µs, il a besoin que la broche de direction soit stable 1µs avant le
+front descendant et qu'elle reste stable pendant 20µs après le front
+descendant. La plus longue durée est de 20µs, c'est le temps de
+maintien. Une approche simple consisterait à fixer la période à 20µs.
 Ce qui signifierait que tous les changements d'état des lignes STEP et
-DIR serait espacés de 20uS. C'est tout bon, non?
+DIR serait espacés de 20µs. C'est tout bon, non?
 
 Faux! Si la latence était de zéro, et que tous les fronts soient
-espacés de 20uS, tout irait bien. Mais tous les ordinateurs ont une
-latence. Si l'ordinateur a 11uS de latence, celà signifie que, ce que
-l'ordinateur exécute aura parfois un retard de 11uS et la fois suivante
+espacés de 20µs, tout irait bien. Mais tous les ordinateurs ont une
+latence. Si l'ordinateur a 11µs de latence, celà signifie que, ce que
+l'ordinateur exécute aura parfois un retard de 11µs et la fois suivante
 pourra être juste à l'heure, le délai entre le premier et le second
-sera seulement de 9uS. Si le premier génére l'impulsion de pas et le
-second change la broche de direction, le timing de 20uS requis par le
+sera seulement de 9µs. Si le premier génére l'impulsion de pas et le
+second change la broche de direction, le timing de 20µs requis par le
 G202 sera tout simplement violé. Cela signifie que votre moteur aura
 peut être fait un pas dans la mauvaise direction et que votre pièce ne
 sera pas à la cote.
@@ -217,99 +111,99 @@ pièce de temps en temps et qui sont impossibles à résoudre.
 La façon la plus simple pour éviter ce problème est de choisir une
 BASE_PERIOD qui soit la somme de la plus longue période requise par
 votre carte plus la durée de la pire latence de votre ordinateur. Si
-vous utilisez un Gecko avec un temps de maintien exigé de 20uS et que
-votre test de latence vous avait donné une latence maximum de 11uS,
-alors si vous définissez BASE_PERIOD à 20+11 = 31uS (31000 nanosecondes
+vous utilisez un Gecko avec un temps de maintien exigé de 20µs et que
+votre test de latence vous avait donné une latence maximum de 11µs,
+alors si vous définissez BASE_PERIOD à 20+11 = 31µs (31000 nanosecondes
 dans le fichier ini), vous aurez la garantie de répondre aux exigences
 de votre carte de pilotage.
 
 Mais c'est un compromis. Faire une impulsion de pas demande au moins
 deux périodes. Une pour débuter l'impulsion, et une pour y mettre fin.
-Etant donné que la période est de 31uS, il faut 2x31 = 62uS pour créer
+Etant donné que la période est de 31µs, il faut 2x31 = 62µs pour créer
 une impulsion de pas. Ce qui signifie que la fréquence de pas maximum
 sera seulement de 16129 pas par seconde. Pas très bon. (Mais
 n'abandonnez pas, nous avons encore quelques réglages à faire dans la
 section suivante.)
 
 Pour la Xylotex, la configuration demande des temps de maintien très
-courts de 200nS chacun (0.2uS). Le temps le plus long est de 2uS. Si
-vous avez 11uS de latence, alors vous pouvez définir BASE_PERIOD aussi
-bas que 11+2 = 13uS. Se débarrasser du long temps de maintien de 20uS
-aide vraiment. Avec une période de 13uS, un pas complet ne dure que
-26uS = 2x13 et la fréquence maximum est de 38461 pas par seconde!
+courts de 200ns chacun (0.2µs). Le temps le plus long est de 2µs. Si
+vous avez 11µs de latence, alors vous pouvez définir BASE_PERIOD aussi
+bas que 11+2 = 13µs. Se débarrasser du long temps de maintien de 20µs
+aide vraiment. Avec une période de 13µs, un pas complet ne dure que
+26µs = 2x13 et la fréquence maximum est de 38461 pas par seconde!
 
-Mais ne commencez pas à célébrer celà. Notez que 13uS est une période
+Mais ne commencez pas à célébrer celà. Notez que 13µs est une période
 très courte. Si vous essayez d'exécuter le générateur de pas toutes les
-13uS, il ne restera peut-être pas assez de temps pour faire autre chose
+13µs, il ne restera peut-être pas assez de temps pour faire autre chose
 et votre ordinateur se bloquera. Si vous visez des périodes de moins de
-25uS, vous devez commencer à 25uS ou plus, lancer EMC et voir comment
+25µs, vous devez commencer à 25µs ou plus, lancer LinuxCNC et voir comment
 les choses réagissent. Si tout va bien, vous pouvez réduire
 progressivement la période. Si le pointeur de la souris commence à être
 sacadé et que le reste du PC ralentit, votre période est un peu trop
 court. Retournez alors à la valeur précédente qui permettent le
 meilleur fonctionnement.
 
-Dans ce cas, supposons que vous ayez commencé à 25uS, en essayant
-descendre à 13uS, vous trouvez que c'est autour de 16uS que se situe la
+Dans ce cas, supposons que vous ayez commencé à 25µs, en essayant
+descendre à 13µs, vous trouvez que c'est autour de 16µs que se situe la
 limite la plus basse et qu'en dessous l'ordinateur ne répond plus très
-bien. Alors, vous utilisez 16uS. Avec une période à 16uS et une latence
-à 11uS, le temps de sortie le plus court sera de 16-11 = 5uS. La carte
-demande seulement 2uS, ainsi vous aurez une certaine marge. Il est bon
+bien. Alors, vous utilisez 16µs. Avec une période à 16µs et une latence
+à 11µs, le temps de sortie le plus court sera de 16-11 = 5µs. La carte
+demande seulement 2µs, ainsi vous aurez une certaine marge. Il est bon
 d'avoir une marge si vous ne voulez pas perdre de pas parce que vous
 auriez réglé un timing trop court.
 
 Quel est la fréquence de pas maximum? Rappelez-vous, deux périodes
-pour faire un pas. Vous avez réglé la période à 16uS alors qu'un pas
-prend 32uS. Il fonctionnera à 31250 pas par seconde, ce qui n'est pas
+pour faire un pas. Vous avez réglé la période à 16µs alors qu'un pas
+prend 32µs. Il fonctionnera à 31250 pas par seconde, ce qui n'est pas
 mal.
 
 === Utiliser steplen, stepspace, dirsetup, et/ou dirhold
 
 Dans la section précédente, nous avons utilisé la carte de puissance
-Xylotex pour piloter nos moteurs avec une période de 16uS ce qui nous a
+Xylotex pour piloter nos moteurs avec une période de 16µs ce qui nous a
 donné une fréquence de pas de 31250 pas par seconde maximum. Alors que
-la Gecko a été bloquée à 31uS avec une assez mauvaise fréquence de pas
+la Gecko a été bloquée à 31µs avec une assez mauvaise fréquence de pas
 de 16129 pas par seconde. L'exemple de la Xylotex est au mieux de ce
 que nous puissions faire. Mais la Gecko peut être ameliorées.
 
-Le problème avec le G202 est le temps de maintien demandé de 20uS. Ca
-plus la latence de 11uS nous oblige à utiliser une période longue de
-31uS. Mais le générateur de pas logiciel d'EMC2 a un certain nombre de
+Le problème avec le G202 est le temps de maintien demandé de 20µs. Ca
+plus la latence de 11µs nous oblige à utiliser une période longue de
+31µs. Mais le générateur de pas logiciel de LinuxCNC a un certain nombre de
 paramètres qui permettent d'augmenter les différentes durées d'une
-période à plusieurs autres. Par exemple, si «steplen» passe de 1 à 2,
+période à plusieurs autres. Par exemple, si _steplen_ passe de 1 à 2,
 alors il y aura deux périodes entre le début et la fin de l'impulsion.
-De même, si «dirhold» passe de 1 à 3, il y aura au moins trois périodes
+De même, si _dirhold_ passe de 1 à 3, il y aura au moins trois périodes
 entre l'impulsion de pas et un changement d'état de la broche de
 direction.
 
-Si nous pouvons utiliser «dirhold» pour le temps de maintien de 20uS
-demandé, alors le temps le plus long suivant sera de 4.5uS. Ajoutez les
-11uS de latence à ces 4.5uS, et vous obtenez une période minimale de
-15.5uS. Lorsque vous essayez 15.5uS, vous trouvez que l'ordinateur est
-très lent, donc vous régler sur 16uS. Si nous laissons «dirhold» à 1
+Si nous pouvons utiliser _dirhold_ pour le temps de maintien de 20µs
+demandé, alors le temps le plus long suivant sera de 4.5µs. Ajoutez les
+11µs de latence à ces 4.5µs, et vous obtenez une période minimale de
+15.5µs. Lorsque vous essayez 15.5µs, vous trouvez que l'ordinateur est
+très lent, donc vous régler sur 16µs. Si nous laissons _dirhold_ à 1
 (par défaut), alors le temps minimum entre le pas et la direction est
-de 16uS moins la période de latence de 11uS = 5uS, ce qui n'est pas
-suffisant. Nous avons besoin de 15 autres uS, puisque la période est de
-16uS, nous avons besoin d'une période de plus. Nous allons donc passer
-«dirhold» de 1 à 2. Maintenant, le temps minimum entre la fin de
+de 16µs moins la période de latence de 11µs = 5µs, ce qui n'est pas
+suffisant. Nous avons besoin de 15 autres µs, puisque la période est de
+16µs, nous avons besoin d'une période de plus. Nous allons donc passer
+_dirhold_ de 1 à 2. Maintenant, le temps minimum entre la fin de
 l'impulsion et l'impulsion de changement de direction est de 5+16 =
-21uS et nous n'avons pas à craindre que la Gecko parte dans la mauvaise
+21µs et nous n'avons pas à craindre que la Gecko parte dans la mauvaise
 direction en raison de la latence.
 
-Si l'ordinateur a une latence de 11uS, alors la combinaison d'une
-période de base de 16uS et d'une valeur de «dirhold» de 2 garanti que
+Si l'ordinateur a une latence de 11µs, alors la combinaison d'une
+période de base de 16µs et d'une valeur de _dirhold_ de 2 garanti que
 nous serons toujours dans le respect des délais exigés par la Gecko.
 Pour les pas normaux (sans changement de direction), l'augmentation de
-la valeur de «dirhold» n'aura aucun effet. Il faudra deux périodes d'un
-total de 32uS pour faire un seul pas et nous avons la même fréquence de
+la valeur de _dirhold_ n'aura aucun effet. Il faudra deux périodes d'un
+total de 32µs pour faire un seul pas et nous avons la même fréquence de
 31250 pas par seconde que nous avions eu avec la Xylotex.
 
-Le temps de latence de 11uS utilisé dans cet exemple est très bon. Si
+Le temps de latence de 11µs utilisé dans cet exemple est très bon. Si
 vous travaillez par le biais de ces exemples avec des latences plus
-grandes, comme 20 ou 25uS, la fréquence de pas la plus grande à la fois
+grandes, comme 20 ou 25µs, la fréquence de pas la plus grande à la fois
 pour la Xylotex et la Gecko sera plus faible. Mais les mêmes formules
 sont applicables pour calculer un BASE_PERIOD optimal et pour régler
-«dirhold» ou d'autres paramètres du générateur de pas.
+_dirhold_ ou d'autres paramètres du générateur de pas.
 
 === Pas de secret!
 

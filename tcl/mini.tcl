@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec ${EMC2_EMCSH-emcsh} "$0" "$@"
+exec ${LINUXCNC_EMCSH-emcsh} "$0" "$@"
 
 ###############################################################
 # Description:  mini.tcl
@@ -28,7 +28,7 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 
 
 # Load the emc package, which defines variables for various useful paths
-package require Emc
+package require Linuxcnc
 eval emc_init $argv
 
 set tkemc 1
@@ -986,11 +986,11 @@ $settingsmenu add radiobutton -label [msgcat::mc "Relative Position"] \
     -variable  coords -value relative
 $settingsmenu add separator
 $settingsmenu add command -label [msgcat::mc "Calibration..."] \
-    -command "exec $emc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $linuxcnc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Show..."] \
-    -command "exec $emc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Config..."] \
-    -command "exec $emc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $linuxcnc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 
 # info menu
@@ -1368,7 +1368,7 @@ proc popinHelp {} {
     pack $helptextwin -side top -fill both -expand true
     pack $helptextframe -side top -fill both -expand yes
     # insert contents of filename, if it exists
-    set fname $emc::HELP_DIR/$HELPFILE
+    set fname $linuxcnc::HELP_DIR/$HELPFILE
     if { [catch {open $fname} filein] } {
         mText [msgcat::mc "can't open %s" $fname]
     } else {

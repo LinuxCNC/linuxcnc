@@ -1,4 +1,6 @@
-= Opto22 PCI
+= Opto22 Driver
+
+[[cha:opto22-driver]] (((Opto22 Driver)))
 
 PCI AC5 ADAPTER CARD / HAL DRIVER
 

@@ -34,10 +34,11 @@ DOC_SRCS := \
 	common/Document_Header_es.txt \
 	common/Document_Header_fr.txt \
 	common/Document_Header_pl.txt \
+	common/emc-history.txt \
 	common/Getting_EMC.txt \
 	common/Getting_EMC_de.txt \
 	common/Getting_EMC_es.txt \
-	common/Getting_EMC_fr.txt \
+	common/Getting_linuxcnc_fr.txt \
 	common/Getting_EMC_pl.txt \
 	common/Glossary.txt \
 	common/Glossary_de.txt \
@@ -81,7 +82,7 @@ DOC_SRCS := \
 	common/Updating_EMC.txt \
 	common/Updating_EMC_de.txt \
 	common/Updating_EMC_es.txt \
-	common/Updating_EMC_fr.txt \
+	common/Updating_linuxcnc_fr.txt \
 	common/Updating_EMC_pl.txt \
 	common/User_Concepts.txt \
 	common/User_Concepts_de.txt \
@@ -105,7 +106,7 @@ DOC_SRCS := \
 	config/emc2hal.txt \
 	config/emc2hal_de.txt \
 	config/emc2hal_es.txt \
-	config/emc2hal_fr.txt \
+	config/linuxcnc2hal_fr.txt \
 	config/emc2hal_pl.txt \
 	config/ini_config.txt \
 	config/ini_config_de.txt \
@@ -142,6 +143,7 @@ DOC_SRCS := \
 	drivers/AX5214H_es.txt \
 	drivers/AX5214H_fr.txt \
 	drivers/AX5214H_pl.txt \
+	drivers/VFS11.txt \
 	drivers/GS2.txt \
 	drivers/GS2_de.txt \
 	drivers/GS2_es.txt \
@@ -177,6 +179,10 @@ DOC_SRCS := \
 	drivers/servo_to_go_es.txt \
 	drivers/servo_to_go_fr.txt \
 	drivers/servo_to_go_pl.txt \
+	drivers/shuttlexpress.txt \
+	drivers/shuttlexpress_es.txt \
+	drivers/shuttlexpress_de.txt \
+	drivers/shuttlexpress_pl.txt \
 	examples/gcode.txt \
 	examples/gcode_de.txt \
 	examples/gcode_es.txt \
@@ -282,11 +288,11 @@ DOC_SRCS := \
 	gui/ngcgui_es.txt \
 	gui/ngcgui_fr.txt \
 	gui/ngcgui_pl.txt \
-	gui/tkemc.txt \
-	gui/tkemc_de.txt \
-	gui/tkemc_es.txt \
-	gui/tkemc_fr.txt \
-	gui/tkemc_pl.txt \
+	gui/tklinuxcnc.txt \
+	gui/tklinuxcnc_de.txt \
+	gui/tklinuxcnc_es.txt \
+	gui/tklinuxcnc_fr.txt \
+	gui/tklinuxcnc_pl.txt \
 	gui/touchy.txt \
 	gui/touchy_de.txt \
 	gui/touchy_es.txt \
@@ -331,6 +337,11 @@ DOC_SRCS := \
 	hal/halshow_es.txt \
 	hal/halshow_fr.txt \
 	hal/halshow_pl.txt \
+	hal/haltcl.txt \
+	hal/haltcl_de.txt \
+	hal/haltcl_es.txt \
+	hal/haltcl_fr.txt \
+	hal/haltcl_pl.txt \
 	hal/halui_fr.txt \
 	hal/halui_examples.txt \
 	hal/halui_examples_de.txt \
@@ -458,28 +469,28 @@ DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGE
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/, \
-	EMC2_Getting_Started.pdf \
-	EMC2_Getting_Started_de.pdf \
-	EMC2_Getting_Started_es.pdf \
-	EMC2_Getting_Started_fr.pdf \
-	EMC2_Getting_Started_pl.pdf \
-	EMC2_User_Manual.pdf \
-	EMC2_User_Manual_de.pdf \
-	EMC2_User_Manual_es.pdf \
-	EMC2_User_Manual_fr.pdf \
-	EMC2_User_Manual_pl.pdf \
-	EMC2_HAL_Manual.pdf \
-	EMC2_HAL_Manual_de.pdf \
-	EMC2_HAL_Manual_es.pdf \
-	EMC2_HAL_Manual_fr.pdf \
-	EMC2_HAL_Manual_pl.pdf \
-	EMC2_Integrator_Manual.pdf \
-	EMC2_Integrator_Manual_de.pdf \
-	EMC2_Integrator_Manual_es.pdf \
-	EMC2_Integrator_Manual_fr.pdf \
-	EMC2_Integrator_Manual_pl.pdf \
-	EMC2_Developer_Manual.pdf \
-	EMC2_Manual_Pages.pdf \
+	LinuxCNC_Getting_Started.pdf \
+	LinuxCNC_Getting_Started_de.pdf \
+	LinuxCNC_Getting_Started_es.pdf \
+	LinuxCNC_Getting_Started_fr.pdf \
+	LinuxCNC_Getting_Started_pl.pdf \
+	LinuxCNC_User_Manual.pdf \
+	LinuxCNC_User_Manual_de.pdf \
+	LinuxCNC_User_Manual_es.pdf \
+	LinuxCNC_User_Manual_fr.pdf \
+	LinuxCNC_User_Manual_pl.pdf \
+	LinuxCNC_HAL_Manual.pdf \
+	LinuxCNC_HAL_Manual_de.pdf \
+	LinuxCNC_HAL_Manual_es.pdf \
+	LinuxCNC_HAL_Manual_fr.pdf \
+	LinuxCNC_HAL_Manual_pl.pdf \
+	LinuxCNC_Integrator_Manual.pdf \
+	LinuxCNC_Integrator_Manual_de.pdf \
+	LinuxCNC_Integrator_Manual_es.pdf \
+	LinuxCNC_Integrator_Manual_fr.pdf \
+	LinuxCNC_Integrator_Manual_pl.pdf \
+	LinuxCNC_Developer_Manual.pdf \
+	LinuxCNC_Manual_Pages.pdf \
 	)
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
@@ -521,7 +532,7 @@ htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
@@ -540,57 +551,57 @@ checkref_pl: $(DOC_DIR)/html/gcode_pl.html $(DOC_DIR)/html/gcode/gcode_pl.html
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
 
-PDF_MAN_ORDER := man1/emc.1 $(filter-out %/emc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
+PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
 
-$(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
+$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
 
-$(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Master_Getting_Started_de.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf: $(DOC_SRCDIR)/Master_Getting_Started_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Master_Getting_Started_pl.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_pl.pdf: $(DOC_SRCDIR)/Master_Getting_Started_pl.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
+$(DOC_DIR)/LinuxCNC_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_User_Manual_de.pdf: $(DOC_SRCDIR)/Master_User_de.pdf
+$(DOC_DIR)/LinuxCNC_User_Manual_de.pdf: $(DOC_SRCDIR)/Master_User_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_User_Manual_es.pdf: $(DOC_SRCDIR)/Master_User_es.pdf
+$(DOC_DIR)/LinuxCNC_User_Manual_es.pdf: $(DOC_SRCDIR)/Master_User_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
+$(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_User_Manual_pl.pdf: $(DOC_SRCDIR)/Master_User_pl.pdf
+$(DOC_DIR)/LinuxCNC_User_Manual_pl.pdf: $(DOC_SRCDIR)/Master_User_pl.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+$(DOC_DIR)/LinuxCNC_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual_de.pdf: $(DOC_SRCDIR)/Master_HAL_de.pdf
+$(DOC_DIR)/LinuxCNC_HAL_Manual_de.pdf: $(DOC_SRCDIR)/Master_HAL_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual_es.pdf: $(DOC_SRCDIR)/Master_HAL_es.pdf
+$(DOC_DIR)/LinuxCNC_HAL_Manual_es.pdf: $(DOC_SRCDIR)/Master_HAL_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
+$(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual_pl.pdf: $(DOC_SRCDIR)/Master_HAL_pl.pdf
+$(DOC_DIR)/LinuxCNC_HAL_Manual_pl.pdf: $(DOC_SRCDIR)/Master_HAL_pl.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Integrator_Manual_de.pdf: $(DOC_SRCDIR)/Master_Integrator_de.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_Manual_de.pdf: $(DOC_SRCDIR)/Master_Integrator_de.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Integrator_Manual_es.pdf: $(DOC_SRCDIR)/Master_Integrator_es.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_Manual_es.pdf: $(DOC_SRCDIR)/Master_Integrator_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Integrator_Manual_pl.pdf: $(DOC_SRCDIR)/Master_Integrator_pl.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_Manual_pl.pdf: $(DOC_SRCDIR)/Master_Integrator_pl.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+$(DOC_DIR)/LinuxCNC_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -686,7 +697,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
 	for f in $(shell xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $<); do\
 		mkdir -p $(DOC_DIR)/html/$$d/`dirname $$f`; \
-		cp $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
+		cp -f $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
 	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
@@ -729,7 +740,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_pl.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -778,28 +789,28 @@ docs:
 endif
 
 docclean:
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Getting_Started_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_de.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_es.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_pl.pdf
-	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Manual_Pages.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_de.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_pl.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html

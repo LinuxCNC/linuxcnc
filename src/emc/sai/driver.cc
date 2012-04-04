@@ -30,13 +30,18 @@
 #include <string.h>   /* strcpy     */
 #include <getopt.h>
 #include <stdarg.h>
+#include <string>
 
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <glob.h>
+#include <wordexp.h>
 
-Interp interp_new;
-const char *prompt = "==> ";
-const char *history = "dothistory"; // FIXME -> homedir?
+InterpBase *pinterp;
+#define interp_new (*pinterp)
+const char *prompt = "READ => ";
+const char *history = "~/.rs274";
+#define RS274_HISTORY "RS274_HISTORY"
 
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes
@@ -119,6 +124,27 @@ void report_error( /* ARGUMENTS                            */
     }
 }
 
+
+void initialize_readline ()
+{
+    wordexp_t p;
+    const char *s;
+
+    /* Allow conditional parsing of the ~/.inputrc file. */
+    rl_readline_name = "rs274";
+ 
+    if ((s = getenv(RS274_HISTORY)))
+	history = s;
+    // tilde-expand 
+    if (wordexp(history, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
+	perror("wordexp");
+    } else {
+	history = strdup(p.we_wordv[0]);
+    }
+    if (history)
+	read_history(history);
+}
+
 /***********************************************************************/
 
 /* interpret_from_keyboard
@@ -145,34 +171,39 @@ To exit, the user must enter "quit" (followed by a carriage return).
 */
 
 int interpret_from_keyboard(  /* ARGUMENTS                 */
- int block_delete,            /* switch which is ON or OFF */
- int print_stack)             /* option which is ON or OFF */
+			    int block_delete,            /* switch which is ON or OFF */
+			    int print_stack)             /* option which is ON or OFF */
 {
-  char line[LINELEN];
-  int status;
+    char *line;
+    int status;
 
-  for(; ;)
-    {
-      char *result;
-      printf("READ => ");
-      result = fgets(line, LINELEN, stdin);
-      if (!result || strcmp (line, "quit\n") == 0)
-        return 0;
-      status = interp_read(line);
-      if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
-      else if (status == INTERP_ENDFILE);
-      else if ((status != INTERP_EXECUTE_FINISH) &&
-               (status != INTERP_OK))
-        report_error(status, print_stack);
-      else
-        {
-          status = interp_execute();
-          if ((status == INTERP_EXIT) ||
-              (status == INTERP_EXECUTE_FINISH));
-          else if (status != INTERP_OK)
-            report_error(status, print_stack);
-        }
-    }
+    initialize_readline ();
+      
+    for(; ;)
+	{
+	    line = readline ( prompt);
+	    if (!line || strcmp (line, "quit") == 0) {
+		if (history)
+		    write_history(history);
+		return 0;
+	    }
+	    if (*line)
+		add_history(line);
+	    status = interp_read(line);
+	    if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
+	    else if (status == INTERP_ENDFILE);
+	    else if ((status != INTERP_EXECUTE_FINISH) &&
+		     (status != INTERP_OK))
+		report_error(status, print_stack);
+	    else
+		{
+		    status = interp_execute();
+		    if ((status == INTERP_EXIT) ||
+			(status == INTERP_EXECUTE_FINISH));
+		    else if (status != INTERP_OK)
+			report_error(status, print_stack);
+		}
+	}
 }
 
 /*********************************************************************/
@@ -220,8 +251,7 @@ int interpret_from_file( /* ARGUMENTS                  */
 
   for(; ;)
     {
-      interp_load_tool_table();
-      status = interp_read(NULL);
+      status = interp_read();
       if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
         continue;
       else if (status == INTERP_ENDFILE)
@@ -516,6 +546,7 @@ int main (int argc, char ** argv)
   int go_flag;
   char *inifile = NULL;
   int log_level = -1;
+  std::string interp;
 
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
@@ -526,10 +557,11 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "t:v:bsn:gi:l:T");
+      int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
       if(c == -1) break;
 
       switch(c) {
+          case 'p': interp = optarg; break;
           case 't': read_tool_file(optarg); tool_flag=1; break;
           case 'v': strcpy(_parameter_file_name, optarg); break;
           case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
@@ -547,9 +579,10 @@ int main (int argc, char ** argv)
     {
 usage:
       fprintf(stderr,
-            "Usage: %s [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
+            "Usage: %s [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
             "          [-b] [-s] [-g] [input file [output file]]\n"
             "\n"
+            "    -p: Specify the pluggable interpreter to use\n"
             "    -t: Specify the .tbl (tool table) file to use\n"
             "    -v: Specify the .var (parameter) file to use\n"
             "    -n: Specify the continue mode:\n"
@@ -565,6 +598,11 @@ usage:
             , argv[0]);
       exit(1);
     }
+
+  if(!interp.empty()) {
+    pinterp = interp_from_shlib(interp.c_str());
+  }
+  if(!pinterp) pinterp = new Interp;
 
   for(; !go_flag ;)
     {

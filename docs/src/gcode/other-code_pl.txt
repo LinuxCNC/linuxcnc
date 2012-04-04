@@ -6,7 +6,7 @@
 (((F: Set Feed Rate)))
 
 * 'F-' - sets the feed rate. The application of the feed rate is as described in the
-<<sec:Feed-Rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
+<<sub:feed-rate,Feed Rate>> Section, unless inverse time feed rate mode is in effect,
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
@@ -60,98 +60,5 @@ a feed move. This is for machines that travel long distances to change
 the tool like a lathe. This can be very confusing at first. To turn
 this feature off for the current tool program a G1 without any
 move after the 'T<n>'.
-
-== Comments[[sec:comments]]
-
-(((Comments)))
-
-Printable characters and white space inside parentheses is a comment.
-A left parenthesis always starts a comment. The comment ends at the
-first right parenthesis found thereafter. Once a left parenthesis is
-placed on a line, a matching right parenthesis must appear before the
-end of the line. Comments may not be nested; it is an error if a left
-parenthesis is found after the start of a comment and before the end of
-the comment. A semi-colon is treated as the start of a comment and the
-remainder of the line is part of the comment. A semi-colon enclosed in
-parentheses is not treated as the start of a comment.
-
-.Line Comment Example
-----
-G80 M5 (stop motion)
-; the semi-colon starts a comment line
-----
-
-Comments are only informative, they do not cause a machine to do anything.
-
-== Messages[[sec:Messages]]
-(((Messages)))
-
-* '(MSG,)' - displays message if 'MSG' appears after the left
-             parenthesis and before any other printing characters.
-             Variants of 'MSG' which include white space and lower case
-             characters are allowed. The rest of the characters before
-             the right parenthesis are considered to be a message.
-             Messages should be displayed on the message display device
-             of the user interface if provided.
-
-.Message Example
-----
-(MSG, This is a message)
-----
-
-== Probe Logging[[sec:Probe-Logging]]
-(((Probe Logging)))
-
-* '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
-                               coordinate consisting of XYZABCUVW of each
-                               successful straight probe in it.
-* '(PROBECLOSE)' - will close the open probelog file.
-
-For more information on probing see the <<G38-probe,G38>> Section.
-
-== General Logging[[sec:General-logging]]
-(((General Logging)))
-
-* '(LOGOPEN,filename.txt)' - opens the named log file. If the file
-                             already exists, it is truncated.
-
-* '(LOGAPPEND,filename)' - opens the named log file. If the file already
-                           exists, the data is appended.
-
-* '(LOGCLOSE)' - closes an open log file.
-
-* '(LOG,)' - everything past the ',' is written to the log file if it is open.
-             Supports expansion of parameters as described below.
-
-== Debugging Messages[[sec:Debugging-messages]]
-(((Debugging Messages)))
-
-* '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
-              special handling for parameters as described below.
-
-== Print Messages[[sec:print-messages]]
-(((Print Messages)))
-
-* '(PRINT,)' - messages are output to 'stderr' with special handling
-               for parameters as described below.
-
-== Comment Parameters
-
-In the DEBUG, PRINT and LOG comments, the values of parameters in the
-message are expanded.
-
-For example: to print a named global variable to stderr (the default
-console window) add a line to your gcode like...
-
-.Parameters Example
-----
-(print,endmill dia = #<_endmill_dia>)
-----
-
-Inside the above types of comments, sequences like '#123' are replaced
-by the value of the parameter 123. Sequences like '#<named parameter>'
-are replaced by the value of the named parameter. Remember that named
- parameters will have white space removed from them.
-So, '#<named parameter>' is the same as '#<namedparameter>'.
 
 // vim: set syntax=asciidoc:

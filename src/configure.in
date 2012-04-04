@@ -24,7 +24,7 @@
 ##############################################################################
 
 AC_PREREQ(2.53)
-AC_INIT(EMC2, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
+AC_INIT(LinuxCNC, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(emc/motion/motion.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
@@ -93,6 +93,23 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
+fi
+
+
+
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -113,8 +130,8 @@ else
 fi
 AC_SUBST(AUTODIRS)
 
-# EMC2 internationalisation package name:
-PACKAGE="emc2"
+# internationalisation package name:
+PACKAGE="linuxcnc"
 AC_SUBST([PACKAGE])
 
 if test -f ../VERSION; then
@@ -166,7 +183,7 @@ AC_ARG_ENABLE(simulator,
                 RTS=simulator
                 BUILD_SYS=sim
                 MODEXT=.so
-                MODULE_DIR=${prefix}/lib/emc2/modules
+                MODULE_DIR=${prefix}/lib/linuxcnc/modules
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -419,6 +436,53 @@ long hidiocgrawinfo = HIDIOCGRAWINFO;
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
+
+# libmodbus3 has a pkg-config file:
+AC_MSG_CHECKING([for libmodbus3])
+if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
+  LIBMODBUS_VER=`pkg-config libmodbus --modversion`
+  AC_MSG_RESULT(yes - version [$LIBMODBUS_VER])
+  LIBMODBUS_CFLAGS=`pkg-config libmodbus --cflags`
+  LIBMODBUS_LIBS=`pkg-config libmodbus --libs`
+  AC_DEFINE([LIBMODBUS3_USABLE], [], [Define to 1 if usable libmodbus3 library present])
+  AC_SUBST([LIBMODBUS3_USABLE],yes)
+  # cant have both
+  AC_SUBST([LIBMODBUS2_USABLE],no)
+  AC_SUBST([LIBMODBUS_CFLAGS])
+  AC_SUBST([LIBMODBUS_LIBS])
+else
+  AC_SUBST([LIBMODBUS3_USABLE],no)
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING([for libmodbus2])
+  # check if libmodbus version2 is installed
+  # v2 doesnt have a pkg-config file, so assume
+  # includes are under /usr/include/modbus
+  LIBMODBUS_CFLAGS="-I/usr/include/modbus"
+  LIBMODBUS_LIBS="-lmodbus"
+
+  saved_LIBS=$LIBS
+  saved_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$LIBMODBUS_CFLAGS $saved_CPPFLAGS"
+  LIBS="$saved_LIBS $LIBMODBUS_LIBS"
+
+  AC_TRY_LINK([#include <modbus.h>],[
+      read_holding_registers(0,0,0,0,0);
+      preset_single_register(0,0,0,0);
+    ],
+    [LIBMODBUS2_USABLE=yes
+      AC_DEFINE([LIBMODBUS2_USABLE], [], [Define to 1 if usable libmodbus2 library present])
+      AC_SUBST([LIBMODBUS2_USABLE],yes)
+      AC_SUBST([LIBMODBUS_CFLAGS])
+      AC_SUBST([LIBMODBUS_LIBS])
+      AC_MSG_RESULT(yes - version2)
+    ],
+    [AC_MSG_RESULT(no)]
+  )
+  LIBS=$saved_LIBS
+  CPPFLAGS=$saved_CPPFLAGS
+fi 
+
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -535,13 +599,13 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
+    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
+    DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -581,7 +645,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
-    EMC2_ICON=$EMC2_HOME/emc2icon.png
+    EMC2_ICON=$EMC2_HOME/linuxcncicon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
@@ -589,7 +653,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
+    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -600,20 +664,20 @@ else
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
-    EMC2_ICON=emc2icon
-    EMC2_TCL_DIR=${prefix}/lib/tcltk/emc2
-    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/emc2
-    EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
+    EMC2_ICON=linuxcncicon
+    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
+    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
+    EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
-    EMC2_HELP_DIR=${prefix}/share/doc/emc2
+    EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
-        */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
-	*) EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+        */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
+	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
-    EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
-    EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
+    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=$(fe "$datadir")/emc
+    EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
 fi
 
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
@@ -626,13 +690,15 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
+
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
-AC_SUBST([EMC2_CONFIG_PATH])
+AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
@@ -641,6 +707,7 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
+AC_SUBST([PRELOAD_WORKAROUND])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -748,7 +815,7 @@ AC_ARG_WITH(rmmod,
 	esac
     ],
     [
-            RMMOD="$EMC2_BIN_DIR/emc_module_helper remove"
+            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
     ])
 
 AC_ARG_WITH(insmod,
@@ -766,7 +833,7 @@ AC_ARG_WITH(insmod,
 	esac
     ],
     [
-            INSMOD="$EMC2_BIN_DIR/emc_module_helper insert"
+            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
 
 ##############################################################################
@@ -1093,7 +1160,21 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
 LIBS_hold=$LIBS
 LIBS="$LIBS -lm"
-AC_CHECK_FUNCS(sincos)
+
+AC_MSG_CHECKING([for sincos function])
+sincos_ok=yes
+AC_TRY_LINK(
+    [double a, b;],
+    [sincos(1.0, &a, &b);],
+    AC_DEFINE(
+        [HAVE_SINCOS],
+        1,
+        [Define to 1 if sincos is available.]
+    ),
+    [sincos_ok=no]
+)
+AC_MSG_RESULT([$sincos_ok])
+
 AC_CHECK_FUNCS(__sincos)
 LIBS=$LIBS_hold
 
@@ -1530,21 +1611,21 @@ AC_SUBST([SITEPY])
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
-AC_CONFIG_FILES([../docs/man/man1/emc.1])
-AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
+AC_CONFIG_FILES([../docs/man/man1/linuxcnc.1])
+AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
-AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
+AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-AC_CONFIG_FILES(../tcl/emc.tcl)
+AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
-AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
-AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
-AC_CONFIG_FILES(../share/applications/emc-latencyplot.desktop)
-AC_CONFIG_FILES(../share/applications/emc.desktop)
+AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
+AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
@@ -1569,12 +1650,12 @@ offbold () {
 echo ""
 echo ""
 echo "######################################################################"
-echo "#                  EMC2 - Enhanced Machine Controller                #"
+echo "#                LinuxCNC - Enhanced Machine Controller              #"
 echo "######################################################################"
 echo "#                                                                    #"
-echo "#   EMC2 is a software system for computer control of machine tools, #"
-echo "#   such as milling machines. EMC2 is released under the GPL.        #"
-echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
+echo "#   LinuxCNC is a software system for computer control of machine    #"
+echo "#   tools such as milling machines. LinuxCNC is released under the   #"
+echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
 echo "#   It seems that ./configure completed successfully.                #"
@@ -1595,17 +1676,16 @@ if test $SIMULATOR != yes; then
 echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
-echo "#   Before running the software, set the emc environment:            #"
-echo "#         . (top dir)/scripts/emc-environment                        #"
+echo "#   Before running the software, set the environment:                #"
+echo "#         . (top dir)/scripts/rip-environment                        #"
 else
 bold
-echo "#   warning: If you already have an installed emc2, this will        #"
+echo "#   warning: If you already have an installed linuxcnc, this will    #"
 echo "#         replace an existing installation.  If you have installed   #"
-echo "#         an emc2 package, this will damage the package.             #"
+echo "#         a linuxcnc package, this will damage the package.          #"
 offbold
 echo "#   hint: To test a self-built version of emc without damaging       #"
-echo "#         the package version, use                                   #"
-echo "#             ./configure --enable-run-in-place                      #"
+echo "#         the package version, don't specify a --prefix              #"
 echo "#                                                                    #"
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
@@ -1614,7 +1694,7 @@ echo "#         sudo make install                                          #"
 fi
 echo "#                                                                    #"
 echo "#   To run the software type                                         #"
-echo "#         emc                                                        #"
+echo "#         linuxcnc                                                   #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

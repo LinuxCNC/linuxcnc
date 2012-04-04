@@ -1,10 +1,13 @@
-= Servo-To-Go
+= Servo To Go Driver
+
+[[cha:servo-to-go-driver]] (((Servo To Go Driver)))
 
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
-by EMC. It is an ISA card and it exists in different flavors (all
+by LinuxCNC. It is an ISA card and it exists in different flavors (all
 supported by this driver). The board includes up to 8 channels of
 quadrature encoder input, 8 channels of analog input and output, 32
-bits digital I/O, an interval timer with interrupt and a watchdog.
+bits digital I/O, an interval timer with interrupt and a watchdog. For more
+information see the http://www.servotogo.com/[Servo To Go] web page.
 
 == Installing
 

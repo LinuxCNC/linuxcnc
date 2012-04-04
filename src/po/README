@@ -2,22 +2,31 @@ Note for translators of the pot files:
 ======================================
 
 Make a copy of the pot file renaming it to reflect the language it is
-being translated in to. For example, for a German translation of emc2.pot,
+being translated in to. For example, for a German translation of linuxcnc.pot,
 your working file would be de.po - If the file does not exist within
-the source repository, then create one from the emc2.pot template:
-    cp emc2.pot de.pot
+the source repository, then create one from the linuxcnc.pot template:
+    cp linuxcnc.pot de.pot
 
 To update a language's .po file from its .pot file, use the "msgmerge" command.
 Because doing this needlessly creates lots of uneeded revisions of the
-.po files in the history, and because different translators have preferences
-about msgmerge flags (particularly --width, --no-wrap, and
---no-fuzzy-matching), this is not done automatically by the "make" process.
-The simplest "msgmerge" commandline is:
-    msgmerge -U xx.po emc2.pot
+.po files in the history, this is not done automatically by "make".
+Instead, it is done by explicitly executing "make pofiles".  This must be
+done from time to time in order to make new messages available for translation
+in the experimental "weblate" interface.
+
+If you are working by hand, you can also update just a single pofile:
+    msgmerge -U xx.po linuxcnc.pot
 
 When you are done, "git commit" the new .po file.  If you have push access,
 "git push".  Otherwise, format your changes as a patch with "git format-patch"
 and send it to the emc-developers mailing list.
+
+Experimental "weblate" web interface
+====================================
+
+There's an experimental web interface for translating linuxcnc:
+    http://l10n.unpythonic.net/
+
 
 Graphical tools for editing .po files
 =====================================

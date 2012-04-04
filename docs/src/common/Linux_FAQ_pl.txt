@@ -1,4 +1,6 @@
-= Linux FAQ (((Linux FAQ)))
+= Linux FAQ 
+
+[[cha:linux-faq]] (((Linux FAQ)))
 
 These are some basic Linux commands and techniques for new to Linux
 users. More complete information can be found on the web or by using
@@ -6,9 +8,9 @@ the man pages.
 
 == Automatic Login (((Automatic Login)))
 
-When you install EMC2 with the Ubuntu LiveCD the default is to have to
+When you install LinuxCNC with the Ubuntu LiveCD the default is to have to
 log in each time you turn the computer on. To enable automatic login go
-to System/Administration/Login Window. If it is a fresh install the
+to 'System > Administration > Login Window'. If it is a fresh install the
 Login Window might take a second or three to pop up. You will have to
 have your password that you used for the install to gain access to the
 Login Window Preferences window. In the Security tab check off Enable
@@ -16,11 +18,11 @@ Automatic Login and pick a user name from the list (that would be you).
 
 == Automatic Startup (((Automatic Startup)))
 
-To have EMC start automatically with your config after turning on the
-computer go to System/Preferences/Sessions Startup Programs, add new.
-Navigate to your config and select the .ini file. When the file picker
-dialog closes, add emc and a space in front of the path to your .ini
-file.
+To have LinuxCNC start automatically with your config after turning on the
+computer go to 'System > Preferences > Sessions > Startup Applications',
+click Add. Browse to your config and select the .ini file. When the file
+picker dialog closes, add emc and a space in front of the path to your
+.ini file.
 
 Example:
 
@@ -35,8 +37,8 @@ emc /home/mill/emc2/config/mill/mill.ini
 Man pages are automatically generated manual pages in most cases. Man
 pages are usually available for most programs and commands in Linux.
 
-To view a man page open up a terminal window by going to Applications,
-Accessories, Terminal. For example if you wanted to find out something
+To view a man page open up a terminal window by going to 'Applications >
+Accessories > Terminal'. For example if you wanted to find out something
 about the find command in the terminal window type:
 
 ----
@@ -72,15 +74,15 @@ it will be named mymod.txt or what ever you named it.
 
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
-can have bad results. Be careful when editing root files. Generally, you 
-can open and view most root files, but they will open in “read only”
+can have bad results. Be careful when editing root files. Generally, you
+can open and view most root files, but they will open in 'read only'
 mode.
 
 === The Command Line Way
 
 (((sudo gedit)))
 
-Open up Applications, Accessories, Terminal.
+Open up 'Applications > Accessories > Terminal'.
 
 In the terminal window type
 
@@ -88,7 +90,7 @@ In the terminal window type
 sudo gedit
 ----
 
-Open the file with File, Open then edit
+Open the file with File > Open > Edit
 
 === The GUI Way
 
@@ -186,34 +188,31 @@ And pwd might return the following result:
 With this information put the command together like this:
 
 ----
-find /home/joe/emc2 -name *.ini -print
+find /home/joe/linuxcnc -name \*.ini -print
 ----
 
 The -name is the name of the file your looking for and the -print
-tells it to print out the result to the terminal window. +
-The *.ini tells find to return all files that have the .ini extension.
-
-To find all the files in the named directory and all the
-subdirectories under that, add the -L option to the find command, like
-this:
-
-----
-find -L /home/joe/emc2 -name *.ini -print
-----
+tells it to print out the result to the terminal window.
+The \*.ini tells find to return all files that have the .ini extension.
+The backslash is needed to escape the shell meta-characters. See the find
+man page for more information on find.
 
 === Searching for Text
 
 (((Searching for Text)))(((grep)))
 
 ----
-grep -i -r 'text to search for' * 
+grep -irl 'text to search for' *
 ----
 
 This will find all the files that contain the 'text to search for' in the
 current directory and all the subdirectories below it, while
 ignoring the case. The -i is for ignore case and the -r is for
-recursive (include all subdirectories in the search). The * is a wild
-card for search all files.
+recursive (include all subdirectories in the search). The -l option will
+return a list of the file names, if you leave the -l off you will also
+get the text where each occourance of the "text to search for" is found.
+The * is a wild card for search all files. See the grep man page for more
+information.
 
 === Bootup Messages
 
@@ -234,11 +233,11 @@ To clear the message buffer type this:
 sudo dmesg -c
 ----
 
-This can be helpful to do just before launching EMC, so that there will 
-only be a record of information related to the current launch of EMC. 
+This can be helpful to do just before launching LinuxCNC, so that there will
+only be a record of information related to the current launch of LinuxCNC.
 
 To find the built in parallel port address use grep to filter the information
-out of dmesg. 
+out of dmesg.
 
 After boot up open a terminal and type:
 
@@ -276,6 +275,19 @@ Instructions for fixing this are located here:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
 
+== Paths
+
+.Relative Paths
+Relative paths are based on the startup directory which is the directory
+containing the ini file.  Using relative paths can facilitate relocation of
+configurations but requires a good understanding of linux path specifiers.
+
+....
+   ./f0        is the same as f0, e.g., a file named f0 in the startup directory
+   ../f1       refers to a file f1 in the parent directory
+   ../../f2    refers to a file f2 in the parent of the parent directory
+   ../../../f3 etc.
+....
+
+
 // vim: set syntax=asciidoc:
-
-

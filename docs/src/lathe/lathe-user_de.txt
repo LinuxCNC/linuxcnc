@@ -1,6 +1,6 @@
-= Lathe Specifics
+= Lathe User Information
 
-[[cha:Lathe-Specifics]] (((Lathe-Specifics)))
+[[cha:lathe-user-information]] (((Lathe User Information)))
 
 This chapter attempts to bring together all the lathe specific
 information and is currently under construction.
@@ -9,11 +9,11 @@ information and is currently under construction.
 
 If your CNC machine is a lathe, there are some specific changes you 
 will probably want to make to your ini file in order to get the 
-best results from EMC2. 
+best results from LinuxCNC. 
 
 If you are using the AXIS display, 
 have Axis display your lathe tools properly. 
-See the INI File section of the Integrator Manual for 
+See the INI Configuration section of the Integrator Manual for 
 more details but you will probably want to make an entry like this 
 to set up AXIS for Lathe Mode. 
 
@@ -35,7 +35,7 @@ must program that in the preamble of each gcode file or
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
 
-== Tool Table
+== Lathe Tool Table [[sec:lathe-tool-table]]
 
 The "Tool Table" is a text file that contains information about each tool. 
 The file is located in the same directory as your configuration and is called "tool.tbl" by default. 
@@ -45,12 +45,12 @@ There is also a built-in tool table editor in the Axis display.
 The maximum number of entries in the tool table is 56. 
 The maximum tool and pocket number is 99999. 
 
-Earlier versions of EMC2 had two different tool table formats for mills and lathes, 
+Earlier versions of LinuxCNC had two different tool table formats for mills and lathes, 
 but since the 2.4.x release, one tool table format is used for all machines. 
 Just ignore the parts of the tool table that don't pertain to your machine, 
 or which you don't need to use. 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format,Tool Table Format>> Section.
+see the <<sec:tool-table,Tool Table>> Section.
 
 == Lathe Tool Orientation[[lathe-tool-orientation]]
 
@@ -166,7 +166,7 @@ the tool is used in your program.
 
 == Threading
 
-Threading with a lathe requires feedback from the spindle to EMC.
+Threading with a lathe requires feedback from the spindle to LinuxCNC.
 Typically an encoder is used to provide the feedback. 
 See the Integrator Manual for more information on spindle feedback.
 

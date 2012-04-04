@@ -1,6 +1,6 @@
 = Coding Style
 
-This chapter describes the source code style preferred by the EMC team.
+This chapter describes the source code style preferred by the LinuxCNC team.
 
 == Do no harm
 

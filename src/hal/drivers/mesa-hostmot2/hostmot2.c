@@ -33,11 +33,11 @@
 
 
 
-MODULE_INFO(emc2, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
-MODULE_INFO(emc2, "funct:read:1:Read all registers.");
-MODULE_INFO(emc2, "funct:write:1:Write all registers.");
-MODULE_INFO(emc2, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
-MODULE_INFO(emc2, "license:GPL");
+MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
+MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
+MODULE_INFO(linuxcnc, "funct:write:1:Write all registers.");
+MODULE_INFO(linuxcnc, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
+MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
@@ -67,7 +67,7 @@ static int comp_id;
 
 
 //
-// functions exported to EMC
+// functions exported to LinuxCNC
 //
 
 static void hm2_read(void *void_hm2, long period) {
@@ -76,8 +76,13 @@ static void hm2_read(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // if the watchdog has bit, wait for the user to reset it
-    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+    // is there a watchdog?
+    if (hm2->watchdog.num_instances > 0) {
+        // we're reading from the hm2 board now, so turn on the watchdog
+        hm2->watchdog.instance[0].enable = 1;
+
+        hm2_watchdog_read(hm2);  // look for bite
+    }
 
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
@@ -100,8 +105,11 @@ static void hm2_write(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // if the watchdog has bit, wait for the user to reset it
-    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+    // is there a watchdog?
+    if (hm2->watchdog.num_instances > 0) {
+        // we're writing to the hm2 board now, so turn on the watchdog
+        hm2->watchdog.instance[0].enable = 1;
+    }
 
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
@@ -132,8 +140,11 @@ static void hm2_read_gpio(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // if the watchdog has bit, wait for the user to reset it
-    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+    // is there a watchdog?
+    if (hm2->watchdog.num_instances > 0) {
+        // we're reading from the hm2 board now, so turn on the watchdog
+        hm2->watchdog.instance[0].enable = 1;
+    }
 
     hm2_ioport_gpio_read(hm2);
 }
@@ -145,8 +156,11 @@ static void hm2_write_gpio(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // if the watchdog has bit, wait for the user to reset it
-    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+    // is there a watchdog?
+    if (hm2->watchdog.num_instances > 0) {
+        // we're writing to the hm2 board now, so turn on the watchdog
+        hm2->watchdog.instance[0].enable = 1;
+    }
 
     hm2_ioport_gpio_write(hm2);
 }
@@ -162,11 +176,16 @@ static void hm2_write_gpio(void *void_hm2, long period) {
 // FIXME: the static automatic string makes this function non-reentrant
 const char *hm2_hz_to_mhz(u32 freq_hz) {
     static char mhz_str[20];
+    int r;
     int freq_mhz, freq_mhz_fractional;
 
     freq_mhz = freq_hz / (1000*1000);
     freq_mhz_fractional = (freq_hz / 1000) % 1000;
-    sprintf(mhz_str, "%d.%03d", freq_mhz, freq_mhz_fractional);
+    r = snprintf(mhz_str, sizeof(mhz_str), "%d.%03d", freq_mhz, freq_mhz_fractional);
+    if (r >= sizeof(mhz_str)) {
+        HM2_ERR_NO_LL("too many MHz!\n");
+        return "(unpresentable)";
+    }
 
     return mhz_str;
 }
@@ -1371,13 +1390,16 @@ EXPORT_SYMBOL_GPL(hm2_unregister);
 void hm2_unregister(hm2_lowlevel_io_t *llio) {
     struct list_head *ptr;
 
-    // kill the watchdog?  nah, let it bite us and make the board safe
-
-    // FIXME: make sure to stop the stepgens & pwmgens
-
     list_for_each(ptr, &hm2_list) {
         hostmot2_t *hm2 = list_entry(ptr, hostmot2_t, list);
         if (hm2->llio != llio) continue;
+
+        // if there's a watchdog, set it to safe the board right away
+        if (hm2->watchdog.num_instances > 0) {
+            hm2->watchdog.instance[0].enable = 1;
+            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
+            hm2_watchdog_force_write(hm2);
+        }
 
         HM2_PRINT("unregistered\n");
 

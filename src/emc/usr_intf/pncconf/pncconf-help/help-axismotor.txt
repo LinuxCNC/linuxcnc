@@ -37,11 +37,20 @@ Dac Scale:
     units per second). I reccomend axis speed.
     Note that scale is tied closely to dac max output.
 
+    If Using PWM for spindle control for instance to control a VFD, then scale
+    would be set to max RPM obtained at max dac output. For instance the 7i48 or
+    7i33 daughter board put out maximum 10 volts and say your VFD will spin the
+    spindle at 2000 RPM when 10 volts are applied to it. Then the scale should
+    be 2000. Currently PNCconf does not use PID control for the spindle, so
+    DAC max output does not limit the output. Usually the VFD can do this.
+
 Dac Max Output:
+    Dac max output is a PID setting. (Currently the spindle does not use PID.)
     This is the maximum output that the dac can output to the amps. It is in the 
     units set by the dac scale. It using a simple H-bridge you may have to set 
     this less then the actual max output as H-bridges must turn on and off at a 
-    minimum rate. 
+    minimum rate. For instance if your scaling sets voltage and you want to limit
+    voltage to 7 (as the daughter boards produce 10 volts maximum) set this to 7
 
 Brushless Control:
     Select this to use and configure the BLDC component.

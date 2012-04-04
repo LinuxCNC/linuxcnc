@@ -7,7 +7,7 @@ HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 USERSRCS += $(HALLIBSRCS)
 
-HALLIB := ../lib/libemchal.so
+HALLIB := ../lib/liblinuxcnchal.so
 
 $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	$(ECHO) Creating shared library $(notdir $@)
@@ -23,5 +23,5 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
 
-TARGETS += $(HALLIB) ../lib/libemchal.so.0
+TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

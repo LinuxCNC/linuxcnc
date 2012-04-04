@@ -15,6 +15,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gproperties__ = {
         'is_on' : ( gobject.TYPE_BOOLEAN, 'Is on', 'How to display LED in editor',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'has_hal_pin' : ( gobject.TYPE_BOOLEAN, 'Create HAL pin', 'Whether to create a HAL pin',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_shape' : ( gobject.TYPE_INT, 'Shape', '0: round 1:oval 2:square',
                     0, 2, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_size'  : ( gobject.TYPE_INT, 'Size', 'size of LED',
@@ -48,6 +50,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self.pick_color_on = self.pick_color_off = None
         self.on_color = 'red'
         self.off_color = 'dark'
+        self.has_hal_pin = True
 
         self.set_color('on', gtk.gdk.Color(red=0xffff))
         self.set_color('off', self.off_color)
@@ -205,7 +208,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         return True
 
     def _hal_init(self):
-        _HalSensitiveBase._hal_init(self)
+        if self.has_hal_pin:
+            _HalSensitiveBase._hal_init(self)
         self.set_color('on',  self.pick_color_on or self.on_color)
         self.set_color('off', self.pick_color_off or self.off_color)
         if self.led_blink_rate:

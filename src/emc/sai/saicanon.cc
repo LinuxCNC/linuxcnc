@@ -37,6 +37,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <errno.h>
 
 /* where to print */
 //extern FILE * _outfile;
@@ -106,7 +109,9 @@ stdout to a file.
 */
 
 //extern void rs274ngc_line_text(char * line_text, int max_size);
-extern Interp interp_new;
+extern InterpBase *pinterp;
+#define interp_new (*pinterp)
+
 void print_nc_line_number()
 {
   char text[256];
@@ -1147,15 +1152,24 @@ int GET_EXTERNAL_TC_REASON()
 /* Sends error message */
 void CANON_ERROR(const char *fmt, ...)
 {
-#if 0 // FIXME
     va_list ap;
 
     if (fmt != NULL) {
 	va_start(ap, fmt);
-	vfprintf(, fmt, ap);
+	char *err;
+	int res = vasprintf(&err, fmt, ap);
+	if(res < 0) err = 0;
 	va_end(ap);
+	if(err)
+	{
+	    PRINT1("CANON_ERROR(%s)\n", err);
+	    free(err);
+	}
+	else
+	{
+	    PRINT1("CANON_ERROR(vasprintf failed: %s)\n", strerror(errno));
+	}
     }
-#endif
 }
 void PLUGIN_CALL(int len, const char *call)
 {

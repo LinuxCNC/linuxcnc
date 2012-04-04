@@ -1,14 +1,15 @@
 :lang: fr
 :toc:
 
-[[sec:Prises-d-origine]]
-= Prise d'origine
+= Prise d'origine 
+
+[[sec:Prises-d-origine]] (((Prise d'origine)))
 
 == La prise d'origine
 
 La prise d'origine semble assez simple, il suffit de déplacer chaque
 axe à un emplacement connu et de positionner l'ensemble des variables
-internes d'EMC2 en conséquence. Toutefois, les machines sont différentes
+internes de LinuxCNC en conséquence. Toutefois, les machines sont différentes
 les unes des autres et la prise d'origine est maintenant devenue assez
 complexe.
 
@@ -20,25 +21,25 @@ Une description détaillée des variables de configuration associées
 
 .Les séquences de POM possibles[[fig:Sequences-de-prise-d-origine]]
 
-image::images/emc2-motion-homing-diag_fr.png[]
+image::images/linuxcnc-motion-homing-diag_fr.png[]
 
 
 ==== Vitesse de recherche (HOME_SEARCH_VEL = 0) (((Vitesse de recherche du contact d'origine)))
 
 Vitesse de la phase initiale de prise d'origine, pendant la recherche du
-contact d'origine machine. Une valeur différente de zéro indique à EMC
-la présence d'un contact d'origine machine. EMC va alors commencer par
+contact d'origine machine. Une valeur différente de zéro indique à LinuxCNC
+la présence d'un contact d'origine machine. LinuxCNC va alors commencer par
 vérifier si ce contact est déjà pressé. Si oui, il le dégagera à la
-vitesse établie par *HOME_SEARCH_VEL*, la direction du dégagement sera
-de signe opposé à celui de *HOME_SEARCH_VEL*. Puis, il va revenir vers
+vitesse établie par _HOME_SEARCH_VEL_, la direction du dégagement sera
+de signe opposé à celui de _HOME_SEARCH_VEL_. Puis, il va revenir vers
 le contact en se déplaçant dans la direction spécifiée par le signe de
-*HOME_SEARCH_VEL* et à la vitesse déterminée par sa valeur absolue.
+_HOME_SEARCH_VEL_ et à la vitesse déterminée par sa valeur absolue.
 Quand le contact d'origine machine est détecté, le mobile s'arrête
 aussi vite que possible, il y aura cependant toujours un certain
 dépassement dépendant de la vitesse. Si celle-ci est trop élevée, le
 mobile peut dépasser suffisamment le contact pour aller attaquer un fin
 de course de limite d'axe, voir même aller se crasher dans une butée
-mécanique. À l'opposé, si *HOME_SEARCH_VEL* est trop basse, la prise
+mécanique. À l'opposé, si _HOME_SEARCH_VEL_ est trop basse, la prise
 d'origine peut durer très longtemps.
 
 Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine
@@ -52,31 +53,31 @@ dernière phase de la prise d'origine, c'est la recherche précise du
 contact d'origine machine, si il existe et de l'emplacement de
 l'impulsion d'index, si elle est présente. Cette vitesse est plus lente
 que celle de la phase de recherche initiale, afin d'améliorer la précision. 
-Si *HOME_SEARCH_VEL* et *HOME_LATCH_VEL* sont de mêmes signes, la phase de
+Si _HOME_SEARCH_VEL_ et _HOME_LATCH_VEL_ sont de mêmes signes, la phase de
 recherche précise s'effectuera dans le même sens que la phase de
 recherche initiale. Dans ce cas, le mobile dégagera d'abord le contact
 en sens inverse avant de revenir vers lui à la vitesse définie ici.
 L'acquisition de l'origine machine se fera sur la première
-impulsion de changement d'état du contact. Si *HOME_SEARCH_VEL* et
-*HOME_LATCH_VEL* sont de signes opposés, la phase de recherche précise
+impulsion de changement d'état du contact. Si _HOME_SEARCH_VEL_ et
+_HOME_LATCH_VEL_ sont de signes opposés, la phase de recherche précise
 s'effectuera dans le sens opposé à celui de la recherche initiale. Dans
-ce cas, EMC dégagera le contact à la vitesse définie ici. L'acquisition
+ce cas, LinuxCNC dégagera le contact à la vitesse définie ici. L'acquisition
 de l'origine machine se fera sur la première impulsion de
 changement d'état du contact lors de son dégagement. Si
-*HOME_SEARCH_VEL* est à zéro, signifiant qu'il n'y a pas de contact et
-que *HOME_LATCH_VEL* et différente de zéro, le mobile continuera
+_HOME_SEARCH_VEL_ est à zéro, signifiant qu'il n'y a pas de contact et
+que _HOME_LATCH_VEL_ et différente de zéro, le mobile continuera
 jusqu'à la prochaine impulsion d'index, l'acquisition de l'origine machine
-se fera à cet position. Si *HOME_SEARCH_VEL* est différent de zéro et
- que *HOME_LATCH_VEL* est égale à zéro, c'est une cause d'erreur, 
+se fera à cet position. Si _HOME_SEARCH_VEL_ est différent de zéro et
+ que _HOME_LATCH_VEL_ est égale à zéro, c'est une cause d'erreur, 
 l'opération de prise d'origine échouera. La valeur par défaut est zéro.
 
 ==== HOME_IGNORE_LIMITS = YES/NO (((HOME IGNORE LIMITS)))
 
-Peut contenir les valeurs YES ou NO. Cette variable détermine si EMC
+Peut contenir les valeurs YES ou NO. Cette variable détermine si LinuxCNC
 doit ignorer les fins de course de limites d'axe. Certaines machines
 n'utilisent pas un contact d'origine séparé, à la place, elles
 utilisent un des interrupteurs de fin de course comme contact
-d'origine. Dans ce cas, EMC doit ignorer l'activation de cette limite
+d'origine. Dans ce cas, LinuxCNC doit ignorer l'activation de cette limite
 de course pendant la séquence de prise d'origine. La valeur par défaut
 de ce paramètre est NO.
 
@@ -84,31 +85,31 @@ de ce paramètre est NO.
 
 Spécifie si une impulsion d'index doit être prise en compte (cas de
 règles de mesure ou de codeurs de positions). Si cette variable est
-vraie (HOME_USE_INDEX = YES), EMC fera l'acquisition de l'origine
+vraie (HOME_USE_INDEX = YES), LinuxCNC fera l'acquisition de l'origine
 machine sur le premier front de l'impulsion d'index. Si elle est fausse
-(=NO), EMC fera l'acquisition de l'origine sur le premier front produit
-par le contact d'origine (dépendra des signes de *HOME_SEARCH_VEL* et
-*HOME_LATCH_VEL*). La valeur par défaut est NO.
+(=NO), LinuxCNC fera l'acquisition de l'origine sur le premier front produit
+par le contact d'origine (dépendra des signes de _HOME_SEARCH_VEL_ et
+_HOME_LATCH_VEL_). La valeur par défaut est NO.
 
 ==== HOME_OFFSET (((HOME OFFSET)))
 
 Contient l'emplacement du point d'origine ou de l'impulsion d'index,
 en coordonnées relatives. Il peut aussi être traité comme le décalage
 entre le point d'origine machine et le zéro de l'axe. A la détection de
-l'impulsion d'origine, EMC ajuste les coordonnées de l'axe à la valeur
-de *HOME_OFFSET*. La valeur par défaut est zéro.
+l'impulsion d'origine, LinuxCNC ajuste les coordonnées de l'axe à la valeur
+de _HOME_OFFSET_. La valeur par défaut est zéro.
 
 ==== Position de l'origine (HOME) (((HOME)))
 
 C'est la position sur laquelle ira le mobile à la fin de la séquence
 de prise d'origine machine. Après avoir détecté le contact d'origine, 
-avoir ajusté les coordonnées de ce point à la valeur de *HOME_OFFSET*, 
-le mobile va se déplacer sur la valeur de *HOME*, c'est le point final 
+avoir ajusté les coordonnées de ce point à la valeur de _HOME_OFFSET_, 
+le mobile va se déplacer sur la valeur de _HOME_, c'est le point final 
 de la séquence de prise d'origine. La valeur par défaut est zéro. 
-Notez que même si ce paramètre est égal à la valeur de *HOME_OFFSET*, 
+Notez que même si ce paramètre est égal à la valeur de _HOME_OFFSET_, 
 le mobile dépassera très légérement la position du point d'aquisition de
 l'origine machine avant de s'arrêter. Donc il y aura toujours un petit
-mouvement à ce moment là (sauf bien sûr si *HOME_SEARCH_VEL* est à
+mouvement à ce moment là (sauf bien sûr si _HOME_SEARCH_VEL_ est à
 zéro, et que toute la séquence de POM a été sautée). Ce mouvement final
 s'effectue en vitesse de déplacement rapide. Puisque l'axe est
 maintenant référencé, il n'y a plus de risque pour la machine, un
@@ -125,14 +126,14 @@ permettre la prise d'origine même si un contact est déjà attaqué.
 
 ==== HOME_SEQUENCE (((HOME SEQUENCE)))
 
-Utilisé pour définir l'ordre des séquences *HOME_ALL* de prise
+Utilisé pour définir l'ordre des séquences _HOME_ALL_ de prise
 d'origine des différents axes (exemple: la POM de l'axe X ne pourra se
 faire qu'après celle de Z). La POM d'un axe ne pourra se faire qu'après
-tous les autres en ayant la valeur la plus petite de *HOME_SEQUENCE* et
-après qu'ils soient déjà tous à *HOME_OFFSET*. Si deux axes ont la même
-valeur de *HOME_SEQUENCE*, leur POM s'effectueront simultanément. Si
-*HOME_SEQUENCE* est égale à -1 ou non spécifiée, l'axe ne sera pas
-compris dans la séquence *HOME_ALL*. Les valeurs de *HOME_SEQUENCE*
+tous les autres en ayant la valeur la plus petite de _HOME_SEQUENCE_ et
+après qu'ils soient déjà tous à _HOME_OFFSET_. Si deux axes ont la même
+valeur de _HOME_SEQUENCE_, leur POM s'effectueront simultanément. Si
+_HOME_SEQUENCE_ est égale à -1 ou non spécifiée, l'axe ne sera pas
+compris dans la séquence _HOME_ALL_. Les valeurs de _HOME_SEQUENCE_
 débutent à 0, il ne peut pas y avoir de valeur inutilisée.
 
 ==== VOLATILE_HOME (((VOLATILE HOME)))

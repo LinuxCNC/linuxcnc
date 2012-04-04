@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#    This is a component of AXIS, a front-end for emc
+#    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,17 +22,17 @@ mdi.py may be specified on the commandline, e.g.,
         bin/mdi configs/sim/emc.nml g0 x0
 '''
 import sys, os
-import emc
+import linuxcnc
 
 if len(sys.argv) > 1:
-    emc.nmlfile = sys.argv[1]
+    linuxcnc.nmlfile = sys.argv[1]
     del sys.argv[1]
 
-c = emc.command()
-s = emc.stat()
+c = linuxcnc.command()
+s = linuxcnc.stat()
 
 if len(sys.argv) > 1:
-    c.mode(emc.MODE_MDI)
+    c.mode(linuxcnc.MODE_MDI)
     c.mdi(" ".join(sys.argv[1:]))
 else:
     try:
@@ -42,7 +42,7 @@ else:
                 s.poll()
                 print s.position
             else:
-                c.mode(emc.MODE_MDI)
+                c.mode(linuxcnc.MODE_MDI)
                 c.mdi(mdi)
     except (SystemExit, EOFError, KeyboardInterrupt): pass
 

@@ -20,15 +20,15 @@ import nf, os
 
 # lib/tcltk/emc2 for installed emc
 # tcl            for run-in-place emc
-for candidate in 'lib/tcltk/emc2', 'tcl':
-    EMC_TCL = os.path.join(nf.PREFIX, candidate, 'emc.tcl')
-    if os.path.exists(EMC_TCL): break
+for candidate in 'lib/tcltk/linuxcnc', 'tcl':
+    LINUXCNC_TCL = os.path.join(nf.PREFIX, candidate, 'linuxcnc.tcl')
+    if os.path.exists(LINUXCNC_TCL): break
 
 options = '''
 . configure -bg #d9d9d9
 
-set BASE_FONT [emc::standard_font]
-set FIXED_FONT [emc::standard_fixed_font]
+set BASE_FONT [linuxcnc::standard_font]
+set FIXED_FONT [linuxcnc::standard_fixed_font]
 
 option add *highlightBackground #d9d9d9 $OPTIONLEVEL
 option add *background #d9d9d9 $OPTIONLEVEL
@@ -115,8 +115,17 @@ option add *Togl.dwell #ff8080 startupFile
 option add *Togl.m1xx #8080ff startupFile
 
 option add *Togl.straight_feed #ffffff startupFile
+option add *Togl.straight_feed_xy #40ff40 startupFile
+option add *Togl.straight_feed_uv #4040ff startupFile
 option add *Togl.arc_feed #ffffff startupFile
+option add *Togl.arc_feed_xy #40ff40 startupFile
+option add *Togl.arc_feed_uv #4040ff startupFile
+option add *Togl.cone #ffffff startupFile
+option add *Togl.cone_xy #00ff00 startupFile
+option add *Togl.cone_uv #0000ff startupFile
 option add *Togl.traverse #4c8080 startupFile
+option add *Togl.traverse_xy #4c8080 startupFile
+option add *Togl.traverse_uv #4c8080 startupFile
 option add *Togl.backplotjog yellow startupFile
 option add *Togl.backplotfeed #c04040 startupFile
 option add *Togl.backplotarc #c04080 startupFile
@@ -161,7 +170,7 @@ def install(root = None):
     if root is None: root = Tkinter._default_root
     o = root.option_get("optionLevel", "Level") or "interactive"
     if hasattr(root, 'tk'): root = root.tk
-    root.call('source', EMC_TCL)
+    root.call('source', LINUXCNC_TCL)
     root.call('set', 'OPTIONLEVEL', o)
     root.call('eval', options)
 # vim:sw=4:sts=4:et:ts=8:

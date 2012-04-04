@@ -1,6 +1,5 @@
 autosave.halscope
 build-stamp
-lib
 *.pyc
 *.o
 *.ko
@@ -19,7 +18,6 @@ lib
 # Ignore all LyX files, we're done with them now. 
 *.lyx
 debian/*.debhelper.log
-debian/emc2-dev.files
 rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
@@ -29,3 +27,5 @@ docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
+lib/python/gremlin.py
+lib/python/touchy

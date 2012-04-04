@@ -244,32 +244,7 @@ stepgen:
 
 watchdog:
 
-    currently it's like this:
-
-        if a watchdog exists, it will be initialized with a timeout of
-        1 second (!), but if pet_watchdog doesnt run, it'll bite and we
-        wont know about it
-
-        only the pet_watchdog function detects and reports watchdog bites.
-        So you wont get notified of a bite unless you're running the
-        function that prevents it...  I should fix that...
-
-        Not Good
-
-
-    It should be like this:
-
-        timeout default to 0, meaning no wd (the hm2 firmware reacts to
-        "no write to the watchdog timeout register" by not enabling the
-        watchdog, you can also disable the watchdog later by writing 1
-        to timeout register's MSb)
-
-        let the user set wd.timeout if they want
-
-        dont start watchdog at insmod, start it at the first pet_watchdog
-        (warn if it's 0 and suggest maybe 5x the servo period)
-
-        check for watchdog bite in .read() probably
+    no known issues
 
 
 
@@ -327,7 +302,7 @@ watchdog:
 
     no known bugs
 
-    pci device hotplugging is awkward for emc2
+    pci device hotplugging is awkward for linuxcnc
 
         it'd be nice to know if the pci card(s) failed to initialize by
         having hm2_pci fail to load.  Does pci_register_device() get the
@@ -424,11 +399,11 @@ wishlist:
         skip it"
 
 
-    abstract the EPP code into a proper EMC2 (or RTAI) parport driver
+    abstract the EPP code into a proper LinuxCNC (or RTAI) parport driver
 
 
-    abstract the stepgen code into an EMC2 library
+    abstract the stepgen code into an LinuxCNC library
 
 
-    abstract the encoder code into an EMC2 library
+    abstract the encoder code into an LinuxCNC library
 

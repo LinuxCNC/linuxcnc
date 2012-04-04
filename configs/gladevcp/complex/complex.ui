@@ -4,12 +4,12 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
-    <signal name="destroy" handler="on_destroy"/>
     <child>
       <object class="HAL_Table" id="hal_table1">
         <property name="visible">True</property>
         <property name="n_rows">3</property>
         <property name="n_columns">3</property>
+        <signal name="destroy" handler="on_destroy"/>
         <child>
           <object class="HAL_LED" id="hal_led1">
             <property name="visible">True</property>

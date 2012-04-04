@@ -300,15 +300,15 @@ int emcTaskOnce(const char *filename)
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
-    extern Interp interp;
 
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
     // both Task and Interp use it - first to call configure() instantiates the Python part
+    // NB: the interpreter.this global will appear only after Interp.init()
 
     extern struct _inittab builtin_modules[];
 
-    if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp)) {
+    if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules)) {
 	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 	    rcs_print("emcTaskOnce: Python plugin configured");
 	}

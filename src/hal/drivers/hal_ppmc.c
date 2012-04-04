@@ -639,7 +639,8 @@ int rtapi_app_main(void)
 		    rv1 += export_extra_dac(slot, bus);
 		} else if ( need_extra_dout ) {
 		    rv1 += export_extra_dout(slot, bus);
-		} else if ( need_timestamp ) {
+		}
+		if ( need_timestamp ) {
 		    rv1 += export_timestamp(slot, bus);
 		}		
 		// can't export encoders until we know if they use timestamp feature

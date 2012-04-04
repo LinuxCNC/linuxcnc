@@ -39,12 +39,12 @@ td { background: white; color: black; }
 tr.odd td { background: #d9d9d9; }
 tr.head td, tr.head th { background: black; color: white; }
 --></STYLE>
-<TITLE>EMC2 "G-Code" Aide rapide</TITLE>
+<TITLE>LinuxCNC "G-Code" Aide rapide</TITLE>
 </HEAD>
 
 <BODY>
 <TABLE ID=ref1>
-<CAPTION> EMC2 "G-Code" Aide rapide </CAPTION>
+<CAPTION> LinuxCNC "G-Code" Aide rapide </CAPTION>
 <COL id="groupes"> <COL id="codes"> <COL id="param&egrave;tres"> <COL id="description">
 <TR id="titlerow"> <TH>Codes <TH>Param&egravetres <TH>Description </TR>
 <TR> <TH>Mouvements <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W s'appliquent &agrave; tous les mouvements) </TR>
@@ -59,7 +59,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G33-1-Taraudage-rigide">G33.1</A> <TD> K <TD> Taraudage rigide </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G76-Filetage">G76</A> <TD> P Z I J R K Q H L E<TD> Cycle de filetage pr&eacute;programm&eacute; (tour) </TR>
 <TR> <TH COLSPAN=3>Types de d&eacute;placements</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G90</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es absolues (par rapport &agrave; l'origine pi&egrave;ce)</TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G90</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es absolues (par rapport &agrave; l'origine)</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G90-G91">G91</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es relatives (incr&eacute;mentales)</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G7-Mode-diametre">G7</A> <TD> <TD> X en mode diam&egrave;tre (tour) </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G8-Mode-rayon">G8</A> <TD> <TD> X en mode rayon (tour) </TR>
@@ -77,13 +77,14 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M7-M8-M9">M8</A> <TD> <TD> Marche arrosage </TR>
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M7-M8-M9">M9</A> <TD> <TD> Arr&ecirc;t des arrosages </TR>
 <TR> <TH COLSPAN=3>Correcteurs de longueur d'outil</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G43-G43-1-Longueur-Outil">G43</A> <TD> H <TD> Compensation de longueur d'outil depuis une table d'outils</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G43-G43-1-Longueur-Outil">G43.1</A> <TD> I K <TD> Compensation dynamique de longueur d'outil </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G43">G43</A> <TD> H <TD> Compensation de longueur d'outil depuis une table d'outils</TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G43-1">G43.1</A> <TD> I K <TD> Compensation dynamique de longueur d'outil </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G49-Revocation-Longueur-Outil">G49</A> <TD> <TD> R&eacute;vocation de la compensation de longueur d'outil </TR>
 <TR> <TH COLSPAN=3>Arr&ecirc;ts de programme </TR>
-<TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M0-M1-M2-M30">M0</A> <TD> <TD> Programme en pause </TR>
-<TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M0-M1-M2-M30">M2</A> <TD> <TD> Fin de programme </TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/m-code_fr.html#sec:M0-M1-M2-M30">M1, M30, M60</A> <TD> Autres codes d'arr&ecirc;t </TR>
+<TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M0-M1">M0</A> <TD> <TD> Pause dans le programme </TR>
+<TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M0-M1">M1</A> <TD> <TD> Pause optionnelle dans le programme </TR>
+<TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M2-M30">M2, M30</A> <TD> <TD> Fin de programme </TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/m-code_fr.html#sec:M60">M60</A> <TD> Autre code d'arr&ecirc;t </TR>
 <TR> <TH COLSPAN=3>Unit&eacute;s machine </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G20-G21-Unites-Machine">G20</A> <TD> <TD> Unit&eacute; machine: Pouce </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G20-G21-Unites-Machine">G21</A> <TD> <TD> Unit&eacute; machine: Millim&egrave;tre </TR>
@@ -94,11 +95,11 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TH COLSPAN=3>Compensation de rayon d'outil</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G41-G42">G41</A>, <A HREF="gcode/gcode_fr.html#sec:G41-G42">G42</A> <TD> D <TD> Compensation de rayon d'outil, &agrave; gauche ou &agrave; droite du profil </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G41-1-G42-1">G41.1</A>, <A HREF="gcode/gcode_fr.html#sec:G41-1-G42-1">G42.1</A> <TD> D L <TD> Compensation dynamique de rayon d'outil, &agrave; gauche ou &agrave; droite du profil</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G40">G40</A> <TD> <TD> Annulation de la compensation de rayon d'outil </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G40">G40</A> <TD> <TD> R&eacute;vocation de la compensation de rayon d'outil </TR>
 <TR> <TH COLSPAN=3>Types de contr&ocirc;le des trajectoires </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G61</A> <TD> <TD> Mode trajectoire exacte </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G61.1</A> <TD> <TD> Mode arr&ecirc;t exact </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1-G64">G64</A> <TD> P <TD> Mode trajectoire continue avec tol&eacute;rance optionnelle </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1">G61</A> <TD> <TD> Mode trajectoire exacte </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G61-G61-1">G61.1</A> <TD> <TD> Mode arr&ecirc;t exact </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G64">G64</A> <TD> P <TD> Mode trajectoire continue avec tol&eacute;rance optionnelle </TR>
 <TR> <TH COLSPAN=3>Options de retrait des cycles de per&ccedil;age</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G98-G99-Set">G98</A> <TD> <TD> Retrait au point initial </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G98-G99-Set">G99</A> <TD> <TD> Retrait sur R </TR>
@@ -109,7 +110,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M50-Controle-Correcteur-Vitesse-Travail">M50&hellip;M53</A> <TD> P0 (sans) ou P1 (avec) <TD> Correcteur vitesse travail, Correcteur vitesse broche, Vitesse adaptative, Vitesse constante</TR>
 <TR> <TD COLSPAN=2><A HREF="gcode/gcode_fr.html#sec:G54-a-G59-3">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Choix du syst&egrave;me de coordonn&eacute;es (1 &agrave; 9)</TR>
 <TR> <TH COLSPAN=3>Instructions de contr&ocirc;le </TR>
-<TR> <TD> <A HREF="gcode/o-code_fr.html#sec:Les-O-codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
+<TR> <TD> <A HREF="gcode/o-code_fr.html#cha:O-codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
 <TR> <TH COLSPAN=3>Codes non modaux </TR>
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M6-Appel-Outil">M6</A> <TD> T <TD> Appel d'outil </TR>
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M61-Correction-Numero-Outil-Courant">M61</A> <TD> Q <TD> Fixe le num&eacute;ro de l'outil courant </TR>
@@ -122,15 +123,16 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G28-G28-1-Aller-a-une-position">G28, G28.1</A> <TD> <TD> Aller &agrave; une position pr&eacute;d&eacute;finie, enregistrement du point courant</TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G30-G30-1-Aller-a-une-position-predefinie">G30, G30.1</A> <TD> <TD> Aller &agrave; une position pr&eacute;d&eacute;finie, enregistrement du point courant </TR>
 <TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G53-Mouvement-Coordonnees-Absolues">G53</A> <TD> <TD> D&eacute;placements en coordonn&eacute;es machine </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92</A> <TD> X Y Z A B C <TD> D&eacute;calages d'origines avec mise &agrave; jour des param&eacute;tres</TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.1</A> <TD> <TD> Annulation des d&eacute;calages d'origine avec remise &agrave; z&eacute;ro des param&eacute;tres </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.2</A> <TD> <TD> Annulation des d&eacute;calages d'origine sans remise &agrave; zero des param&eacute;tres </TR>
-<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-G92-1-G92-2-G92-3">G92.3</A> <TD> <TD> Applique le contenu des param&eacute;tres aux d&eacute;calages d'origine </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92">G92</A> <TD> X Y Z A B C <TD> D&eacute;calages d'origines avec mise &agrave; jour des param&eacute;tres</TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-1-G92-2">G92.1</A> <TD> <TD> R&eacute;vocation des d&eacute;calages d'origine avec remise &agrave; z&eacute;ro des param&egrave;tres </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-1-G92-2">G92.2</A> <TD> <TD> R&eacute;vocation des d&eacute;calages d'origine sans remise &agrave; zero des param&egrave;tres </TR>
+<TR> <TD> <A HREF="gcode/gcode_fr.html#sec:G92-3">G92.3</A> <TD> <TD> Applique le contenu des param&eacute;tres aux d&eacute;calages d'origine </TR>
 <TR> <TD> <A HREF="gcode/m-code_fr.html#sec:M100-a-M199">M101&hellip;M199</A> <TD> P Q <TD> M-codes d&eacute;finis par l'op&eacute;rateur </TR>
+<TR> <TH COLSPAN=3>Commentaires et messages</TR>
 <TR> <TD> <A HREF="gcode/overview_fr.html#sec:Commentaires">(&hellip;)</A> <TD> <TD> Un commentaire "<STRONG>&hellip;</STRONG>" pour l'op&eacute;rateur</TR>
-<TR> <TD> <A HREF="gcode/other-code_fr.html#sec:Messages">(MSG,&hellip;)</A> <TD> <TD> Affiche un message "<STRONG>&hellip;</STRONG>" pour l'op&eacute;rateur (ex: dans une fen&ecirc;tre)</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/other-code_fr.html#sec:Messages-debogage">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) comme MSG</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode/other-code_fr.html#sec:Messages-debogage">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) dans stderr</TR>
+<TR> <TD> <A HREF="gcode/overview_fr.html#sec:Messages">(MSG,&hellip;)</A> <TD> <TD> Affiche le message "<STRONG>&hellip;</STRONG>" pour l'op&eacute;rateur (ex: dans une fen&ecirc;tre)</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/overview_fr.html#sec:Messages-debogage">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) comme MSG</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/overview_fr.html#sec:Messages-debogage">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) dans stderr</TR>
 </TABLE>
 <SCRIPT><!--
 var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -156,7 +158,7 @@ var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NO
     }
 }
 
-// In the emc package, gcode/main.html is (probably) not included.  In this
+// In the LinuxCNC package, gcode/main.html is (probably) not included.  In this
 // case, fix up the links to point at the online version instead of a local
 // version
 if(document.location.protocol == "file:") {

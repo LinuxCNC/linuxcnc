@@ -1,4 +1,4 @@
-To use gladevcp in a run in place environment just source scripts/emc-environment
+To use gladevcp in a run in place environment just source scripts/rip-environment
 and it will set all paths.
 
 To install it system-wide you must link files from ./share/glade3/ 

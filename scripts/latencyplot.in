@@ -55,7 +55,7 @@ if [catch {package require BLT} msg] {
 }
 
 proc setdefaults {} {
-  set ::sc(emc2_tcl_lib_dir) @EMC2_TCL_LIB_DIR@
+  set ::sc(linuxcnc_tcl_lib_dir) @EMC2_TCL_LIB_DIR@
   set           ::sc(halrun) @EMC2_HOME@/scripts/halrun
   set         ::sc(realtime) @REALTIME@
 
@@ -147,7 +147,7 @@ proc init_hal_timedelta {} {
   eval exec $::sc(realtime) start
 
   # need with rip & menu for pkg Hal:
-  lappend ::auto_path $::sc(emc2_tcl_lib_dir)
+  lappend ::auto_path $::sc(linuxcnc_tcl_lib_dir)
   package require Hal
 
   set ::sc(v,name,pairs) { ::yv1 b:max \
@@ -165,7 +165,7 @@ proc check {} {
     #puts "ok -- no rtai modules currently loaded"
   } else {
     set msg "Cannot start with rtai modules loaded.\
-Stop all programs (emc) using realtime first and then run:\n\n\
+Stop all programs (linuxcnc) using realtime first and then run:\n\n\
 halrun -U\n"
     popup $msg
     exit 1

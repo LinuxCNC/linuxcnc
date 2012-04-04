@@ -4,9 +4,9 @@
 .TP \\$1
 ..
 
-.TH KINS "9" "2007-01-20" "EMC Documentation" "HAL Component"
+.TH KINS "9" "2007-01-20" "LinuxCNC Documentation" "HAL Component"
 .SH NAME
-kins \- kinematics definitions for emc2
+kins \- kinematics definitions for LinuxCNC
 .SH SYNOPSIS
 .B loadrt trivkins
 .PP
@@ -25,7 +25,7 @@ kins \- kinematics definitions for emc2
 .B loadrt scarakins
 .SH DESCRIPTION
 Rather than exporting HAL pins and functions, these components provide the
-forward and inverse kinematics definitions for emc2.
+forward and inverse kinematics definitions for LinuxCNC.
 .SS trivkins \- Trivial Kinematics
 There is a 1:1 correspondence between joints and axes.  Most standard milling
 machines and lathes use the trivial kinematics module.
@@ -106,5 +106,5 @@ centerline.  Non-zero values should be positive, if negative they
 introduce a 180 degree offset on the value of joint[3].
 
 .SH SEE ALSO
-gantrykins(9),
-The Kinematics section of the EMC2 Developer Manual
+\fIKinematics\fR section in the LinuxCNC documentation
+

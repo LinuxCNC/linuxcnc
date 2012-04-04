@@ -147,10 +147,10 @@ int main(int argc, gchar * argv[])
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
-    bindtextdomain("emc2", EMC2_PO_DIR);
+    bindtextdomain("linuxcnc", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("emc2");
+    textdomain("linuxcnc");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);

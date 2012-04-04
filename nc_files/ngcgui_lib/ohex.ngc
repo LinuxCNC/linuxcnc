@@ -17,6 +17,7 @@ o<ohex>  sub
 #<rotate>   = #11 (=0)
 #<xoff>     = #12 (=0)
 #<yoff>     = #13 (=0)
+#<spin_notify> = #14 (=0)
 
 o<i0> if [#<scale> EQ 0]
         #<scale> = 1.0
@@ -27,8 +28,9 @@ o<loadtool> call  [#<toolno>]
 #<tooldiam> = [#5410 +.001]
 
 o<dir> if [[#<dir> NE 2] AND [#<dir> NE 3]]
-         (print, direction must be 2 or 3)
-         (debug, direction must be 2 or 3)
+         (debug, ohex: direction must be 2 or 3 - EXITING)
+         (print, ohex: direction must be 2 or 3 - EXITING)
+         (AXIS,notify, ohex: direction must be 2 or 3 - EXITING)
          m2
 o<dir> endif
 
@@ -103,7 +105,9 @@ o<line> call [#<x6>][#<y6>][#<x5>][#<y5>]
          g40 (cutter radius compensation off)
          f #<feedrate>
          s #<rpm> m3 (spindle cw)
-o<spin>  call [#<rpm>]
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
          g0 z#<zsafe>
          #<zcurrent> = #<zstart>
          #<pass>     = 1
@@ -114,7 +118,9 @@ o<wh020>   if [#<zcurrent> LT #<cutdepth>]
              #<zcurrent> = #<cutdepth>
 o<wh020>   endif
 o<wh030>   if [#<pass> GT 100]
-             (debug, too many passes ABORT)
+             (debug, ohex: too many passes  - EXITING)
+             (print, ohex: too many passes  - EXITING)
+             (AXIS,notify, ohex: too many passes  - EXITING)
              m2
 o<wh030>   endif
 

@@ -22,7 +22,7 @@
 import xml.dom.minidom
 from Tkinter import *
 import sys, os
-import emc
+import linuxcnc
 import pyvcp_widgets
 import hal 
 import time

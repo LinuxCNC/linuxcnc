@@ -18,6 +18,7 @@ o<ihex>  sub
 #<rotate>   = #11 (=0)
 #<xoff>     = #12 (=0)
 #<yoff>     = #13 (=0)
+#<spin_notify> = #14 (=0)
 
 o<i0> if [#<scale> EQ 0]
         #<scale> = 1.0
@@ -28,8 +29,9 @@ o<loadtool> call  [#<toolno>]
 #<tooldiam> =  [#5410 + .001]
 
 o<dir> if [[#<dir> NE 2] AND [#<dir> NE 3]]
-         (print, direction must be 2 or 3)
-         (debug, direction must be 2 or 3)
+         (debug, ihex: direction must be 2 or 3 - EXITING)
+         (print, ihex: direction must be 2 or 3 - EXITING)
+         (AXIS,notify, ihex: direction must be 2 or 3 - EXITING)
          m2
 o<dir> endif
 
@@ -101,7 +103,9 @@ o<line> call [#<x6>][#<y6>][#<x5>][#<y5>]
          g40 (cutter radius compensation off)
          f #<feedrate>
          s #<rpm> m3 (spindle cw)
-o<spin>  call [#<rpm>]
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
          g0 z#<zsafe>
          #<zcurrent> = #<zstart>
          #<pass>     = 1
@@ -112,7 +116,9 @@ o<wh020>   if [#<zcurrent> LT #<cutdepth>]
                 #<zcurrent> = #<cutdepth>
 o<wh020>   endif
 o<wh030>   if [#<pass> GT 100]
-             (debug, too many passes ABORT)
+             (debug, ihex: too many passes - EXITING)
+             (print, ihex: too many passes - EXITING)
+             (AXIS,notify, ihex: too many passes - EXITING)
              m2
 o<wh030>   endif
 
@@ -141,8 +147,9 @@ o<aaa10>     if [#<pass> EQ 1]
                #<k>     = [#<elen>/#<len23>]
                (print  angle=#<angle> elen=#<elen> k=#<k>)
 o<aaa20>       if [#<k> GE 1]
-                 (debug, can't get in final corner k=#<k>)
-                 (print, cant' get in final corner k=#<k>)
+                 (debug, ihex: can't get in final corner k=#<k> - EXITING)
+                 (print, ihex: cant' get in final corner k=#<k> - EXITING)
+                 (AXIS,notify, ihex: can't get in final corner - EXITING)
                  m2
 o<aaa20>       endif
                #<xfinal_b> = [#<x2> + #<k> * #<len23> * #<cos23>]
@@ -180,8 +187,9 @@ o<bbb10>     if [#<pass> EQ 1]
                #<elen>  = [#<r> / ABS[TAN[#<angle>/2]]]
                #<k>     = [#<elen>/#<len65>]
 o<bbb20>       if [#<k> GE 1]
-                 (debug, cant get in corner k=#<k>)
-                 (print, cant get in corner k=#<k>)
+                 (debug, ihex: cant get in corner k=#<k> - EXITING)
+                 (print, ihex: cant get in corner k=#<k> - EXITING)
+                 (AXIS,notify, ihex: cant get in corner - EXITING)
                  m2
 o<bbb20>       endif
                #<xfinal_b> = [#<x6> + 1.01* #<k> * #<len65> * #<cos65>]

@@ -1,17 +1,22 @@
-= Différences avec RS274NGC
+:lang: fr
+:toc:
 
-== Changements entre RS274NGC et EMC2 
+= Différences avec RS274/NGC
+
+[[cha:Programmation-rs274ngc]] (((Programmation RS274/NGC)))
+
+== Changements entre RS274/NGC et LinuxCNC 
 
 === Position après un changement d'outil
 
-Avec EMC2, le mobile ne retourne pas sur la position de départ après un 
+Avec LinuxCNC, le mobile ne retourne pas sur la position de départ après un 
 changement d'outil. Ce mode de fonctionnement est nécessaire, car un outil peut 
 être plus long que l'outil précédent et dans ce cas un mouvement sur la position
 précédente placerait l'outil trop bas.
 
 === Les paramètres de décalage sont dans l'unité du fichier ini
 
-Dans EMC2, les valeurs mémorisées dans les paramètres pour les positions 
+Dans LinuxCNC, les valeurs mémorisées dans les paramètres pour les positions 
 d'origine des commandes G28 et G30, les systèmes de coordonnées P1 à P9 et le 
 décalage G92 sont dans l'unité du fichier ini.
 Ce changement a été fait car la position d'un point change selon que G20 ou G21 
@@ -19,7 +24,7 @@ Ce changement a été fait car la position d'un point change selon que G20 ou G2
 
 === Table d'outils, longueur et diamètre sont dans l'unité du fichier ini
 
-Dans EMC2, les longueurs d'outil (compensation) et les diamètres sont spécifiés 
+Dans LinuxCNC, les longueurs d'outil (compensation) et les diamètres sont spécifiés 
 seulement dans l'unité du fichier ini. Cela est nécessaire, car la longueur et 
 le diamètre de l'outil changent selon que G20 ou G21 étaient actifs à 
 l'initialisation des modes G43, G41, G42. Il était donc impossible de lancer 
@@ -30,12 +35,12 @@ long  du programme) sans changer la table d'outils.
 === G84, G87 ne sont pas implémentés
 
 G84 et G87 ne sont pour le moment pas implémentés. Ils le seront dans une 
-version futur d'EMC2.
+version futur de LinuxCNC.
 
 === G28, G30 avec des mots d'axe
 
 Lorsqu'un G28 ou un G30 est programmé avec seulement quelques mots d'axe présents, 
-EMC2 déplace seulement les axes nommés. Ce comportement est commun aux 
+LinuxCNC déplace seulement les axes nommés. Ce comportement est commun aux 
 contrôleurs de machine. Pour déplacer certains axes à un point intermédiaire, 
 puis déplacer tous les axes à un point prédéfini, écrire deux lignes de G-code: +
 ----
@@ -43,40 +48,40 @@ G0 X- Y-   (déplace les axes au point intermédiaire)
 G28        (déplace tous les axes au point prédéfini) 
 ----
 
-== Ajouts à RS274NGC
+== Ajouts à RS274/NGC
 
-Différences qui ne changent pas le déroulement des programmes en RS274NGC.
+Différences qui ne changent pas le déroulement des programmes en RS274/NGC.
 
 === Codes de filetage G33 et G76
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === G38.2
 
 La pointe de touche n'est pas rétractée après un mouvement G38.2. 
-Ce mouvement de retrait sera ajouté dans une version futur d'EMC2.
+Ce mouvement de retrait sera ajouté dans une version futur de LinuxCNC.
 
 === G38.3 à G38.5
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === Les O-codes
 
-Ces codes ne sont pas définis dans RS274NGC 
+Ces codes ne sont pas définis dans RS274/NGC 
 
 === M50 à M53 Correcteurs de vitesse 
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === M61 à M66
 
-Ces codes ne sont pas définis dans RS274NGC.
+Ces codes ne sont pas définis dans RS274/NGC.
 
 === G43, G43.1
 
 Longueurs d'outil négatives::
 
-Les spécifications RS274NGC précisent "il est prévu que" toutes les longueurs 
+Les spécifications RS274/NGC précisent "il est prévu que" toutes les longueurs 
 d'outils soient positives. Cependant, G43 fonctionne avec des longueurs d'outil 
 négatives. 
 
@@ -87,17 +92,17 @@ en Z. Cette fonctionnalité est surtout utile sur les tours.
 
 Longueurs d'Outil dynamiques::
 
-EMC2 permet la spécification d'une longueur d'outil calculée par G43.1 I K. 
+LinuxCNC permet la spécification d'une longueur d'outil calculée par G43.1 I K. 
 
 === G41.1, G42.1 Compensation dynamique
 
-EMC2 permet dans le G-code, la spécification d'un diamètre d'outil et en mode 
+LinuxCNC permet dans le G-code, la spécification d'un diamètre d'outil et en mode 
 tour, l'orientation est également spécifiée. Le format est G41.1/G42.1 D L, où 
 D est le diamètre et L (si spécifié) est l'orientation de l'outil de tournage.
 
 === G43 sans le mot H
 
-Ce code n'est pas permis en NGC. Dans EMC2, il fixe la compensation de longueur 
+Ce code n'est pas permis en NGC. Dans LinuxCNC, il fixe la compensation de longueur 
 pour l'outil actuellement chargé. Si aucun outil n'est actuellement  chargé, 
 c'est une erreur. Ceci a été fait afin que l'utilisateur n'ait pas à  spécifier, 
 pour chaque changement d'outil, le numéro d'outil à deux endroits et c'est 
@@ -106,5 +111,5 @@ spécifié.
 
 === U, V et W axes
 
-EMC2 peut admettre des machines ayant jusqu'à 9 axes en définissant un 
+LinuxCNC peut admettre des machines ayant jusqu'à 9 axes en définissant un 
 ensemble supplémentaire de 3 axes linéaires, connus comme U, V et W.

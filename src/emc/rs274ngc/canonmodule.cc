@@ -5,14 +5,12 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "interp_queue.hh"
 
-#pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_canon_error(const char *s)
 {
-    if ((s == NULL) && !strlen(s))
+    if ((s == NULL) || (strlen(s) == 0))
 	return;
-    CANON_ERROR(s);
+    CANON_ERROR("%s", s);
 }
-#pragma GCC diagnostic warning "-Wformat-security"
 
 
 BOOST_PYTHON_MODULE(emccanon) {

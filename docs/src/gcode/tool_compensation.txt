@@ -1,5 +1,7 @@
 = Tool Compensation
 
+[[cha:tool-compensation]] (((Tool Compensation)))
+
 == Tool Length Offsets
 
 === Touch Off(((Touch Off)))
@@ -27,7 +29,7 @@ image::images/ToolTable-TouchOff.png[align="center"]
 === Using G10 L1
 
 The G10 L1x command can be used to set tool table offsets:
-  (these are just quick summaries, see the gcode section for full details)
+  (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 
                       (see <<sec:G10-L1_,G10 L1>> for details)
@@ -38,7 +40,7 @@ The G10 L1x command can be used to set tool table offsets:
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
                       (see <<sec:G10-L11,G10 L10>> for details)
 
-== Tool Table [[sec:Mill-Tool-Table]]
+== Tool Table [[sec:tool-table]]
 
 // carried over from machining_center.txt for salvage -mah
 
@@ -102,12 +104,12 @@ The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
 and is called 'tool.tbl'. The tools might be in a tool changer or just
 changed manually. The file can be edited with a text editor or be
-updated using G10 L1. See the Lathe Specifics Section for lathe tool
-table example. The maximum number of entries in the tool table is 56.
+updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
+Section for an example of the lathe tool table format.
+The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999. 
 
-[[sec:Tool-Table-Format]]
-=== Tool Table Format
+=== Tool Table Format 
 (((Tool-Table-Format)))
 
 .Tool Table Format
@@ -137,11 +139,11 @@ The file consists of one opening semicolon on the first line,
 followed by up to a maximum of 56 tool entries. 
 footnote:[Although tool numbers up to 99999 are allowed, the number 
 of entries in the tool table, at the moment, is still limited to a 
-maximum of 56 tools for technical reasons. The EMC2 developers plan 
+maximum of 56 tools for technical reasons. The LinuxCNC developers plan 
 to remove that limitation eventually. If you have a very large 
-toolchanger, please be patient.]
+tool changer, please be patient.]
 
-Earlier versions of EMC2 had two different tool table formats for 
+Earlier versions of LinuxCNC had two different tool table formats for 
 mills and lathes, but since the 2.4.x release, one tool table format 
 is used for all machines. Just ignore the parts of the tool table 
 that don't pertain to your machine, or which you don't need to use. 
@@ -178,11 +180,11 @@ where the tool can be found. The entries in this column must all be
 different. 
 
 The pocket numbers will typically start at 1 and go up to the highest 
-available pocket on your toolchanger. But not all toolchangers follow 
+available pocket on your tool changer. But not all tool changers follow 
 this pattern. Your pocket numbers will be determined by the numbers 
-that your toolchanger uses to refer to the pockets. So all this is to 
+that your tool changer uses to refer to the pockets. So all this is to 
 say that the pocket numbers you use will be determined by the numbering 
-scheme used in your toolchanger, and the pocket numbers you use must 
+scheme used in your tool changer, and the pocket numbers you use must 
 make sense on your machine.  
 
 .Data Offset Numbers (optional)
@@ -227,11 +229,11 @@ readers only. The comment must be preceded by a semicolon.
 
 === Tool Changers
 
-EMC supports three types of tool changers: 'manual', 'random location'
-and 'fixed location'. Information about configuring an EMC tool changer
+LinuxCNC supports three types of tool changers: 'manual', 'random location'
+and 'fixed location'. Information about configuring an LinuxCNC tool changer
 is in the Integrator Manual.
 
-==== Manual Tool Changer
+.Manual Tool Changer
 
 Manual tool changer (you change the tool by hand) is treated like a
 fixed location tool changer and the P number is ignored. Using the
@@ -241,21 +243,21 @@ preserving the location of the tool to the spindle. Machines with R-8
 or router collet type tool holders do not preserve the location of the
 tool and the manual tool changer should not be used.
 
-==== Fixed Location Tool Changers
+.Fixed Location Tool Changers
 
 Fixed location tool changers always return the tools to a 
 fixed position in the tool changer. This would also include 
-designs like lathe turrets. When EMC is configured for a fixed
+designs like lathe turrets. When LinuxCNC is configured for a fixed
 location tool changer the 'P' number is ignored (but read, preserved
-and rewritten) by EMC, so you can use P for any bookkeeping number you
+and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
 want.
 
-==== Random Location Tool Changers
+.Random Location Tool Changers
 
 Random location tool changers swap the tool in the spindle with the
 one in the changer. With this type of tool changer the tool will 
 always be in a different pocket after a tool change. When a tool is
-changed EMC rewrites the pocket number to keep track of where the tools 
+changed LinuxCNC rewrites the pocket number to keep track of where the tools 
 are. T can be any number but P must be a number that makes sense for
 the machine.
 
@@ -287,13 +289,13 @@ image::images/comp-path.png[align="center"]
 
 === Overview
 
-==== Tool Table
+.Tool Table
 
 Cutter radius compensation uses the data from the tool table to
 determine the offset needed. The data can be set at run time with G10
 L1.
 
-==== Programming Entry Moves
+.Programming Entry Moves
 
 Any move that is long enough to perform the compensation will work as
 the entry move. The minimum length is the cutter radius. This can be a
@@ -311,30 +313,30 @@ entry move.
 
 image::images/comp02.png[]
 
-==== Z Motion
+.Z Motion
 
 Z axis motion may take place while the contour is being followed in
 the XY plane. Portions of the contour may be skipped by retracting the
 Z axis above the part and by extending the Z-axis at the next start
 point.
 
-==== Rapid Moves
+.Rapid Moves
 
 Rapid moves may be programed while compensation is turned on.
 
-==== Good Practices
+.Good Practices
 
  - Start a program with G40 to make sure compensation is off.
 
 === Examples
 
-==== Outside Profile
+.Outside Profile
 
 .Outside Profile[[cap:Outside-Profile]]
 
 image::images/outside-comp.png[]
 
-==== Inside Profile
+.Inside Profile
 
 .Inside Profile[[cap:Inside-Profile]]
 

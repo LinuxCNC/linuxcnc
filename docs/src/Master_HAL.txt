@@ -5,7 +5,7 @@ HAL Manual V2.5, {localdate}
 
 :masterdir: {indir}
 
-The EMC Team
+The LinuxCNC Team
 
 :leveloffset: 1
 
@@ -58,6 +58,8 @@ include::hal/halmodule.txt[]
 include::drivers/AX5214H.txt[]
 
 include::drivers/GS2.txt[]
+
+include::drivers/VFS11.txt[]
 
 include::drivers/hostmot2.txt[]
 

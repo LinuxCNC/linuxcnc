@@ -1,18 +1,20 @@
 :lang: fr
 :toc:
 
-[[cha:HAL-Introduction]]
 = Introduction à HAL
+
+[[cha:HAL-Introduction]] (((Introduction à HAL)))
+
 
 HAL(((HAL))) est le sigle de Hardware Abstraction Layer, le terme
 Anglais pour Couche d'Abstraction Matériel.footnote:[Note du 
 traducteur: nous garderons le sigle HAL dans toute la
 documentation.] 
 Au plus haut niveau, il s'agit simplement d'une méthode pour
-permettre à un grand nombre de *modules* d'être chargés et
-interconnectés pour assembler un système complexe. La partie *matériel*
+permettre à un grand nombre de _modules_ d'être chargés et
+interconnectés pour assembler un système complexe. La partie _matériel_
 devient abstraite parce que HAL a été conçu à l'origine pour faciliter
-la configuration d'EMC pour une large gamme de matériels. Bon nombre de
+la configuration de LinuxCNC pour une large gamme de matériels. Bon nombre de
 ces modules sont des pilotes de périphériques. Cependant, HAL peut
 faire beaucoup plus que configurer les pilotes du matériel.
 
@@ -69,8 +71,8 @@ machine commence à travailler sur le câblage, il crée un grand plan de
 câblage représentant tous les éléments de la machine ainsi que les
 connections qui les relient entre eux.
 
-En utilisant HAL, les *composants* sont interconnectés par des
-*signaux* . Le concepteur peut décider quels signaux sont nécessaires
+En utilisant HAL, les _composants_ sont interconnectés par des
+_signaux_ . Le concepteur peut décider quels signaux sont nécessaires
 et à quoi
 ils doivent être connectés.
 
@@ -82,11 +84,11 @@ peuvent alors être câblées et interconnectées selon le plan de câblage.
 Dans un système physique, chaque interconnexion est un morceau de fil
 qui doit être coupé et raccordé aux bornes appropriées.
 
-HAL fournit un bon nombre d'outils d'aide à la *construction* d'un
-système HAL. Certains de ces outils permettent de *connecter* (ou
-déconnecter) un simple *fil*. D'autres permettent d'enregistrer une
+HAL fournit un bon nombre d'outils d'aide à la _construction_ d'un
+système HAL. Certains de ces outils permettent de _connecter_ (ou
+déconnecter) un simple _fil_. D'autres permettent d'enregistrer une
 liste complète des organes, du câblage et d'autres informations à
-propos du système, de sorte qu'il puisse être *reconstruit* d'une
+propos du système, de sorte qu'il puisse être _reconstruit_ d'une
 simple commande.
 
 === Mise au point(((Mise au point)))
@@ -112,7 +114,7 @@ indispensables.
 
 Ce document est destiné aux personnes déjà capables de concevoir ce
 type de réalisation matérielle, mais qui ne savent pas comment
-connecter le matériel à EMC.
+connecter le matériel à LinuxCNC.
 
 La conception de matériel, telle que décrite précédemment, s'arrête à
 l'interface de contrôle. Au delà, il y a un tas de boîtes noires,
@@ -124,7 +126,7 @@ HAL étend cette méthode traditionnelle de conception de matériel à
 l'intérieur de la grande boîte noire. Il transforme les pilotes de
 matériels et même certaines parties internes du matériel, en petites
 boîtes noires pouvant être interconnectées, elles peuvent alors
-remplacer le matériel externe. Il permet au *plan de câblage* de faire
+remplacer le matériel externe. Il permet au _plan de câblage_ de faire
 voir une partie du contrôleur interne et non plus, juste une grosse
 boîte noire. Plus important encore, il permet à l'intégrateur de tester
 et de modifier le contrôleur en utilisant les mêmes méthodes que celles
@@ -134,8 +136,8 @@ Les termes tels que moteurs, amplis et codeurs sont familiers aux
 intégrateurs de machines. Quand nous parlons d'utiliser un câble extra
 souple à huit conducteurs blindés pour raccorder un codeur de position
 à sa carte d'entrées placée dans l'ordinateur. Le lecteur comprend
-immédiatement de quoi il s'agit et se pose la question, *quel type de
-connecteurs vais-je devoir monter de chaque côté de ce câble ?* Le même
+immédiatement de quoi il s'agit et se pose la question, _quel type de
+connecteurs vais-je devoir monter de chaque côté de ce câble ?_ Le même
 genre de réflexion est indispensable pour HAL mais le cheminement de la
 pensée est différent. Au début les mots utilisés par HAL pourront
 sembler un peu étranges, mais ils sont identiques au concept de travail
@@ -159,10 +161,10 @@ relation ou par le sens du flux à l'intérieur de HAL.
 Component:: (((HAL Composant)))
      (Composant) Lorsque nous avons parlé de la
     conception du matériel, nous avons évoqué les différents éléments
-    individuels comme *pièces*, *modules*, *boîtes noires*, etc.
-    L'équivalent HAL est un *component* ou *HAL component*. (ce document
-    utilisera: *HAL component* quand la confusion avec un autre type de
-    composant est possible, mais normalement, utilisez juste: *component*.)
+    individuels comme _pièces_, _modules_, _boîtes noires_, etc.
+    L'équivalent HAL est un _component_ ou _HAL component_. (ce document
+    utilisera: _HAL component_ quand la confusion avec un autre type de
+    composant est possible, mais normalement, utilisez juste: _component_.)
     Un HAL component est une pièce logicielle avec, bien définis, des
     entrées, des sorties, un comportement, qui peuvent éventuellement être
     interconnectés. 
@@ -174,18 +176,18 @@ Parameter:: (((HAL Paramètre)))
     potentiomètres de réglage et des points tests sur lesquels on peut
     poser une pointe de touche de voltmètre ou une sonde d'oscilloscope
     pour visualiser le résultat des réglages. Les HAL components aussi
-    peuvent avoir de tels éléments, ils sont appelés *parameters*. Il y a
-    deux types de paramètres: *Input parameters* qui sont des équivalents
+    peuvent avoir de tels éléments, ils sont appelés _parameters_. Il y a
+    deux types de paramètres: _Input parameters_ qui sont des équivalents
     des potentiomètres. Ce sont des valeurs qui peuvent être réglées par
     l'utilisateur, elles gardent leur valeur jusqu'à un nouveau réglage.
-    *Output parameters* qui ne sont pas ajustables. Ils sont équivalents
+    _Output parameters_ qui ne sont pas ajustables. Ils sont équivalents
     aux points tests qui permettent de mesurer la valeur d'un signal
     interne.
 
 Pin:: (((HAL pin)))
      (Broche) Les composants matériels ont des broches
     qui peuvent être interconnectées entre elles. L'équivalent HAL est une
-    *pin* ou *HAL pin*. (*HAL pin* est utilisé quand c'est nécessaire pour
+    _pin_ ou _HAL pin_. (_HAL pin_ est utilisé quand c'est nécessaire pour
     éviter la confusion.) Toutes les HAL pins sont nommées et les noms des
     pins sont utilisés lors des interconnexions entre elles. Les HAL pins
     sont des entités logicielles qui n'existent qu'à l'intérieur de
@@ -196,7 +198,7 @@ Physical_Pin:: (((HAL: Broche physique)))
     interfaces d'entrées/sorties ont des broches physiques réelles pour
     leur connexion avec l'extérieur, par exemple, les broches du port
     parallèle. Pour éviter la confusion, elles sont appelées
-    *physical_pins*. Ce sont des repères pour faire penser au monde
+    _physical_pins_. Ce sont des repères pour faire penser au monde
     physique réel.
     Vous vous demandez peut être quelle relation il y a entre les
     HAL_pins, les Physical_pins et les éléments extérieurs comme les
@@ -206,18 +208,18 @@ Physical_Pin:: (((HAL: Broche physique)))
 Signal:: (((HAL Signal)))
      Dans une machine physique réelle, les terminaisons
     des différents organes sont reliées par des fils. L'équivalent HAL d'un
-    fil est un *signal* ou *HAL signal*. Ces signaux connectent les 
-    *HAL pins* entre elles comme le requiert le concepteur de la machine. 
-    Les *HAL signals* peuvent être connectés et déconnectés à volonté 
+    fil est un _signal_ ou _HAL signal_. Ces signaux connectent les 
+    _HAL pins_ entre elles comme le requiert le concepteur de la machine. 
+    Les _HAL signals_ peuvent être connectés et déconnectés à volonté 
     (même avec la machine en marche).
 
 Type:: (((HAL Type)))
      Quand on utilise un matériel réel, il ne viendrait pas
     à l'idée de connecter la sortie 24V d'un relais à l'entrée analogique
-    +/-10V de l'ampli d'un servomoteur. Les *HAL pins* ont les même
-    restrictions, qui sont fondées sur leur type. Les *pins* et les
-    *signals* ont tous un type, un *signals* ne peux être connecté qu'à une
-    *pins* de même type. Il y a actuellement les 4 types suivants:
+    +/-10V de l'ampli d'un servomoteur. Les _HAL pins_ ont les même
+    restrictions, qui sont fondées sur leur type. Les _pins_ et les
+    _signals_ ont tous un type, un _signals_ ne peux être connecté qu'à une
+    _pins_ de même type. Il y a actuellement les 4 types suivants:
 
 - bit - une simple valeur vraie ou fausse TRUE/FALSE ou ON/OFF
 - float - un flottant de 32 bits, avec approximativement 24 bits de
@@ -242,34 +244,34 @@ Function:: (((HAL Fonction)))
     en entrée doivent d'abord être lues avant qu'un calcul ne puisse être
     effectué sur elles et les données en sortie ne peuvent pas être écrites
     tant que le calcul sur les données d'entrée n'est pas terminé. Dans ces
-    cas, le code est confié au système sous forme de *functions*. Chaque
-    *function* est un bloc de code qui effectue une action spécifique.
-    L'intégrateur peut utiliser des *threads* pour combiner des séries de
-    *functions* qui seront exécutées dans un ordre particulier et selon des
+    cas, le code est confié au système sous forme de _functions_. Chaque
+    _function_ est un bloc de code qui effectue une action spécifique.
+    L'intégrateur peut utiliser des _threads_ pour combiner des séries de
+    _functions_ qui seront exécutées dans un ordre particulier et selon des
     intervalles de temps spécifiques.
 
 [[des:Thread]]
 Thread:: (((HAL Fil)))
-     (Fil) Un *thread* est une liste de *functions* qui sont 
+     (Fil) Un _thread_ est une liste de _functions_ qui sont 
     lancées à intervalles spécifiques par une tâche
-    temps réel. Quand un *thread* est créé pour la première fois, il a son
-    cadencement spécifique (période), mais pas de *functions*. Les
-    *functions* seront ajoutées au *thread* et elle seront exécutées dans
-    le même ordre, chaque fois que le *tread* tournera.
+    temps réel. Quand un _thread_ est créé pour la première fois, il a son
+    cadencement spécifique (période), mais pas de _functions_. Les
+    _functions_ seront ajoutées au _thread_ et elle seront exécutées dans
+    le même ordre, chaque fois que le _tread_ tournera.
 
 Prenons un exemple, supposons que nous avons un composant de port
-parallèle nommé *hal_parport*. Ce composant défini une ou plusieurs
-*HAL pins* pour chaque *physical pin*. Les *pins* sont décrites dans ce
-composant, comme expliqué dans la section *component* de cette doc, par:
-leurs noms, comment chaque *pin* est en relation avec la *physical
-pin*, est-elle inversée, peut-on changer sa polarité, etc. Mais ça ne
-permet pas d'obtenir les données des *HAL pins* aux *physical pins*. Le
-code est utilisé pour faire ça, et c'est la où les *functions* entrent
-en œuvre. Le composant parport nécessite deux *functions*: une pour
-lire les broches d'entrée et mettre à jour les *HAL pins*, l'autre pour
-prendre les données des *HAL pins* et les écrire sur les broches de
-sortie *physical pins*. Ce deux fonctions font partie du pilote
-*hal_parport*.
+parallèle nommé _hal_parport_. Ce composant défini une ou plusieurs
+_HAL pins_ pour chaque _physical pin_. Les _pins_ sont décrites dans ce
+composant, comme expliqué dans la section _component_ de cette doc, par:
+leurs noms, comment chaque _pin_ est en relation avec la _physical
+pin_, est-elle inversée, peut-on changer sa polarité, etc. Mais ça ne
+permet pas d'obtenir les données des _HAL pins_ aux _physical pins_. Le
+code est utilisé pour faire ça, et c'est la où les _functions_ entrent
+en œuvre. Le composant parport nécessite deux _functions_: une pour
+lire les broches d'entrée et mettre à jour les _HAL pins_, l'autre pour
+prendre les données des _HAL pins_ et les écrire sur les broches de
+sortie _physical pins_. Ce deux fonctions font partie du pilote
+_hal_parport_.
 
 [[sec:Intro-Composants-HAL]]
 == Composants HAL(((Composants HAL)))
@@ -306,17 +308,20 @@ halui:: (((halui)))
 === Composants internes(((Composants externes)))
 
 stepgen::
-     Générateur d'impulsions de pas avec boucle de position. Voir section <<sec:Stepgen>>.(((stepgen)))
+     Générateur d'impulsions de pas avec boucle de position. Plus de détails
+<<sec:Stepgen, sur stepgen>>.(((stepgen)))
 
 encoder::
-     Codeur/compteur logiciel. Voir section <<sec:Codeur>>.(((Codeur)))
+     Codeur/compteur logiciel. Plus de détails <<sec:Codeur, sur le codeur>>.
+(((Codeur)))
 
 pid::
-     Boucle de contrôle Proportionnelle/Intégrale/Dérivée. Voir section <<sec:PID>>.(((pid)))
+     Boucle de contrôle Proportionnelle/Intégrale/Dérivée. Plus de détails
+<<sec:PID, sur le PID>>.(((pid)))
 
 siggen:: (((siggen)))
      Générateur d'ondes: sinusoïdale/cosinusoïdale/triangle/carrée, 
-    pour la mise au point. Voir section <<sec:Siggen>>
+    pour la mise au point. Plus de détails <<sec:Siggen, sur siggen>>.
 
 supply:: (((supply)))
      Une simple alimentation, pour la mise au point
@@ -337,7 +342,8 @@ hal_motenc:: (((hal-motenc)))
      Un pilote pour la carte Vital Systems MOTENC-100
 
 hal_parport:: (((hal-parport)))
-     Pilote pour le(ou les) port(s) parallèle(s). 
+     Pilote pour le(ou les) port(s) parallèle(s). Plus de détails sur les
+    <<cha:Parport, ports parallèles>>.
 
 hal_ppmc:: (((hal-ppmc)))
      Un pilote pour la famille de contrôleurs Pico Systems 
@@ -359,7 +365,8 @@ halgui:: (((halgui)))
     implémenté).
 
 halmeter:: (((halmeter)))
-      Un multimètre pour les signaux HAL. Voir <<cap:Halmeter>>
+      Un multimètre pour les signaux HAL. Plus de détails pour utiliser 
+<<cha:halmeter, halmeter>>.
 
 halscope:: (((halscope)))
      Un oscilloscope digital à mémoire, complétement
@@ -368,7 +375,8 @@ halscope:: (((halscope)))
 Chacun de ces modules est décrit en détail dans les chapitres suivants.
 
 [[sec:Legos]]
-== Les réflexions qui ont abouti à la création de HAL(((Les origines de HAL)))
+== Les réflexions qui ont abouti à la création de HAL
+(((Les origines de HAL)))
 
 Cette première introduction au concept de HAL peut être un peu
 déconcertante pour l'esprit. Construire quelque chose avec des blocs
@@ -417,7 +425,7 @@ Les composants Hal ne sont pas tous de même taille ni de même forme
 mais ils permettent d'être regroupés en larges unités qui feront bien
 du travail. C'est dans ce sens qu'ils sont comme les pièces d'un jeu
 Erector. Certains composants sont longs et minces. Ils connectent
-essentiellement les commandes de niveau supérieur aux *physical pins*.
+essentiellement les commandes de niveau supérieur aux _physical pins_.
 D'autres composants sont plus comme les plateformes rectangulaires sur
 lesquelles des machines entières pourraient être construites. Un
 intégrateur parviendra rapidement au delà des brefs exemples et
@@ -447,7 +455,7 @@ circulaient par les rayons et les ascenseur qui les transféraient dans
 la fusée arrimée sur le rayon central pendant qu'on déchargeait sa
 précieuse cargaison.
 
-L'idée qu'une *pin* ou qu'un *component* est la plaque centrale pour
+L'idée qu'une _pin_ ou qu'un _component_ est la plaque centrale pour
 de nombreuses connections est aussi une notion facile avec le HAL. Les
 exemples deux à quatre connectent le multimètre et l'oscilloscope aux 
 signaux qui sont prévus pour aller ailleurs. 
@@ -456,19 +464,19 @@ entrants. Mais, c'est également possible avec l'utilisation appropriée
 des fonctions dans ce composant de moyeu qui manipulent les signaux
 quand ils arrivent, venant d'autres composants.
 
-Voir le <<cha:Tutoriel-HAL, tutoriel de HAL>>.
+Tous les détails dans le <<cha:Tutoriel-HAL, tutoriel de HAL>>.
 
 Une autre réflexion qui vient à partir de ce jouet mécanique est une
-représentation de *HAL threads*. Un *thread* pourrait ressembler un peu
+représentation de _HAL threads_. Un _thread_ pourrait ressembler un peu
 à un chilopode, une chenille, ou un perce-oreille. Une épine dorsale,
-des *HAL components*, raccordés entre eux par des tiges, les *HAL
-signals*. Chaque composant prend dans ses propres paramètres et selon
+des _HAL components_, raccordés entre eux par des tiges, les _HAL
+signals_. Chaque composant prend dans ses propres paramètres et selon
 l'état de ses broches d'entrée, les passe sur ses broches de sortie à
 l'intention du composant suivant. Les signaux voyagent ainsi de bout en
 bout, le long de l'épine dorsale où ils sont ajoutés ou modifiés par
 chaque composant son tour venu.
 
-Les *Threads* sont tous synchronisés et exécutent une série de tâches
+Les _Threads_ sont tous synchronisés et exécutent une série de tâches
 de bout en bout. Une représentation mécanique est possible avec
 Thinkertoys si on pense à la longueur du jouet comme étant la mesure du
 temps mis pour aller d'un bout à l'autre. Un thread, ou épine dorsale,
@@ -534,20 +542,20 @@ temps réel de Classic Ladder exporte une fonction pour faire exactement
 cela. Pendant ce temps, un thread exécute les fonctions spécifiques à 
 intervalle régulier. Juste comme on peut choisir de régler la durée de 
 la boucle de programme d'un automate programmable à 10ms, ou à 1 
-seconde, on peut définir des *HAL threads* avec des périodes 
+seconde, on peut définir des _HAL threads_ avec des périodes 
 différentes. 
 
 Ce qui distingue un thread d'un autre n'est pas ce qu'il fait mais 
 quelles fonctions lui sont attachées. La vraie distinction est 
 simplement combien de fois un thread tourne. 
 
-Dans EMC on peut avoir un thread à 50μs et un thread à 
+Dans LinuxCNC on peut avoir un thread à 50μs et un thread à 
 1ms. En se basant sur les valeurs de BASE_PERIOD et de SERVO_PERIOD. 
 Valeurs fixées dans le fichier ini. 
 
 La prochaine étape consiste à décider de ce que chaque thread doit 
 faire. Certaines de ces décisions sont les mêmes dans (presque) tous 
-les systèmes emc. Par exemple, le gestionnaire de mouvement est 
+les systèmes LinuxCNC. Par exemple, le gestionnaire de mouvement est 
 toujours ajouté au servo-thread. 
 
 D'autres connections seront faites par l'intégrateur. Il pourrait 

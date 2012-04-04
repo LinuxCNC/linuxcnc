@@ -208,8 +208,6 @@ int Interp::add_parameters(setup_pointer settings,
 	if (strchr(">^Nn",*s) && !strchr(required,*s)) *r++ = *s;
 	s++;
     }
-    o = optional;
-    r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
     logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s pydict=%d\n",
@@ -357,6 +355,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
+    r.motion_code = INT_MIN;
     strcpy(iniline, inistring);
     // strip trailing comments
     if ((s = strchr(iniline, '#')) != NULL) {
@@ -526,7 +525,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    r.modal_group = MCODE_DEFAULT_MODAL_GROUP;
 	}
 	if (!M_MODE_OK(r.modal_group)) {
-	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
+	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 4..10) : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}
@@ -543,6 +542,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
+	r.motion_code = gcode;
 	if (r.modal_group == -1) {
 	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
 		  code, GCODE_DEFAULT_MODAL_GROUP, lineno, inistring);

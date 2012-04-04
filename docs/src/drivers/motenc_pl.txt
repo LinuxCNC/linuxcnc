@@ -1,4 +1,6 @@
-= Motenc
+= Motenc Driver
+
+[[cha:montec-driver]] (((Motenc Driver)))
 
 Vital Systems Motenc-100 and Motenc-LITE
 
@@ -84,7 +86,7 @@ board.
 Typically, the useful values are 0 (watchdog disabled) or 20 (8ms
 watchdog enabled, cleared by dac-write).
 
-* '(u32) motenc.<board>.led-view' - Maps some of the I/O to onboard LEDs?
+* '(u32) motenc.<board>.led-view' - Maps some of the I/O to onboard LEDs.
 
 == Functions
 

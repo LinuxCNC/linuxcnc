@@ -7,9 +7,9 @@ The submakefile, docs.xml and index.tmpl must be updated to add a file to the do
 docs.xml is used to create the "previous" and "next" buttons at the top of each individual html document. 
 it should generally match the order of the index.tmpl
 
-Notes on EMC2 documentation:
+Notes on LinuxCNC documentation:
 ----------------------------
-The main EMC2 makefile can optionally build the documentation and
+The main LinuxCNC makefile can optionally build the documentation and
 other files in this directory tree.  Use --enable-build-documentation when
 invoking emc2/src/configure, and run make from emc2/src
 
@@ -27,7 +27,7 @@ ubuntu package (and I believe also available for debian).
 
 Unfortunately, EasyCad (and AutoCad) support a number of entities 
 that Qcad does not import properly.  Including some that were used 
-in the EMC2 drawings: filled circles, filled arrowheads, non-zero 
+in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero 
 width lines, and dashed lines.  Qcad renders filled circles as 
 hollow, it renders all lines the same width, and it renders dashed 
 lines as solid, unless you tell it to do otherwise.  All of these 

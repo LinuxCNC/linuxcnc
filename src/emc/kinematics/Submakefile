@@ -4,7 +4,7 @@ GENSERKINSSRCS := \
 	emc/kinematics/genserkins.c
 USERSRCS += $(GENSERKINSSRCS)
 
-../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/libemchal.so ../lib/libposemath.so
+../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/liblinuxcnchal.so ../lib/libposemath.so
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/genserkins

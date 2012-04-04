@@ -259,7 +259,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
             if (pin && !pin->signal) {
 		logOword("%s: no signal connected", hal_name);
-		ptr = &(pin->dummysig);
 	    } 
 	    type = pin->type;
 	    hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);
@@ -344,6 +343,43 @@ int Interp::find_named_param(
       if (pv->attr & PA_USE_LOOKUP) {
 	  CHP(lookup_named_param(nameBuf, pv->value, value));
 	  *status = 1;
+      } else if (pv->attr & PA_PYTHON) {
+	  bp::object retval, tupleargs, kwargs;
+	  bp::list plist;
+
+	  plist.append(_setup.pythis); // self
+	  tupleargs = bp::tuple(plist);
+	  kwargs = bp::dict();
+
+	  python_plugin->call(NAMEDPARAMS_MODULE, nameBuf, tupleargs, kwargs, retval);
+	  CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	       "named param - pycall(%s):\n%s", nameBuf,
+	       python_plugin->last_exception().c_str());
+	  CHKS(retval.ptr() == Py_None, "Python namedparams.%s returns no value", nameBuf);
+	  if (PyString_Check(retval.ptr())) {
+	      // returning a string sets the interpreter error message and aborts
+	      *status = 0;
+	      char *msg = bp::extract<char *>(retval);
+	      ERS("%s", msg);
+	  }
+	  if (PyInt_Check(retval.ptr())) { // widen
+	      *value = (double) bp::extract<int>(retval);
+	      *status = 1;
+	      return INTERP_OK;
+	  }
+	  if (PyFloat_Check(retval.ptr())) {
+	      *value =  bp::extract<double>(retval);
+	      *status = 1;
+	      return INTERP_OK;
+	  }
+	  // ok, that callable returned something botched.
+	  *status = 0;
+	  PyObject *res_str = PyObject_Str(retval.ptr());
+	  Py_XDECREF(res_str);
+	  ERS("Python call %s.%s returned '%s' - expected double, int or string, got %s",
+	      NAMEDPARAMS_MODULE, nameBuf,
+	      PyString_AsString(res_str),
+	      retval.ptr()->ob_type->tp_name);
       } else {
 	  *value = pv->value;
 	  *status = 1;
@@ -682,6 +718,25 @@ int Interp::lookup_named_param(const char *nameBuf,
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
 	      nameBuf,index);
+    }
+    return INTERP_OK;
+}
+
+int Interp::init_python_predef_parameter(const char *name)
+{
+    int exists = 0;
+    double value;
+    parameter_value param;
+
+    if (name[0] == '_') { // globals only
+	find_named_param(name, &exists, &value);
+	if (exists) {
+	    fprintf(stderr, "warning: redefining named parameter %s\n",name);
+	    _setup.sub_context[0].named_params.erase(name);
+	}
+	param.value = 0.0;
+	param.attr = PA_READONLY|PA_PYTHON|PA_GLOBAL;
+	_setup.sub_context[0].named_params[strstore(name)] = param;
     }
     return INTERP_OK;
 }

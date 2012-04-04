@@ -1,4 +1,7 @@
-= KEYSTICK (((KEYSTICK)))
+= KEYSTICK GUI
+
+[[cha:keystick-gui]] (((KEYSTICK)))
+
 
 == Introduction
 

@@ -1,0 +1,24 @@
+(test this with axis_9axis sim mashine )
+G17 G21 G90 G61 G54
+(AXIS,XY_Z_POS,5)
+(AXIS,UV_Z_POS,30)
+(AXIS,GRID,5)
+
+G0 x0 y0 u0 v0
+
+(square uv 45 deg turned offset 10mm to zero )
+G0 x5 y5
+G0 x10 y10  u22.5 v22.5
+G1 x10 y35 u10 v35 F200
+G1 x10 y60 u22.5 v47.5
+G1 x35 y60 u35 v60
+G2 r25 x60 y35 u60 v35
+G1 x60 y10 u47.5 v22.5
+G1 x35 y10 u35 v10
+G1 X10 Y10 u22.5 v22.5
+G1 X5 Y5 U5 V5
+G0 x0 u0
+
+G0 x0 y0 u0 v0
+M30
+%

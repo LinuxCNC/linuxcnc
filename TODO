@@ -6,8 +6,6 @@ TODO for the joints_axes branch
 * update configs
 (and many other probably..)
 
-THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.4)
-
 TODO     sort out axis/joints issues: 
 	    * limits need to be imposed on joints (tricky with kins)
 	    * ini changes 

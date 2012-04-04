@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 ###############################################################
 # Description:  halconfig.tcl
@@ -26,8 +26,8 @@ exec $EMC2_EMCSH "$0" "$@"
 #  Copyright (c) 2006-2009 All rights reserved.
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 package require BWidget
@@ -1278,7 +1278,7 @@ proc showHelp {which} {
 # Help should include files for each of these
 # Components Pins Parameters Signals Functions Threads
 
-set helpabout [msgcat::mc "Copyright Raymond E Henry. 2006\nLicense: GPL Version 2\n\nHalconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.\n\nThis script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law."]
+set helpabout [msgcat::mc "Copyright Raymond E Henry. 2006\nLicense: GPL Version 2\n\nHalconfig is an LinuxCNC configuration tool.  It requires that you have started an instance of linuxcnc.\n\nThis script carries no warranty or liability for its use to the extent allowed by law."]
 
 whichTune
 $top raise ps

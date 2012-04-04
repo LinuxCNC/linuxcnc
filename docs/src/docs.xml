@@ -22,7 +22,7 @@
 <doc name="gui_axis" title="GUI: Axis"/>
 <doc name="gui_touchy" title="GUI: Touchy"/>
 <doc name="gui_ngcgui" title="GUI: NGCGUI"/>
-<doc name="gui_tkemc" title="GUI: TkEMC"/>
+<doc name="gui_tklinuxcnc" title="GUI: TkLinuxCNC"/>
 <doc name="gui_mini" title="GUI: Mini"/>
 <doc name="gui_keystick" title="GUI: Keystick"/>
 <doc name="common_machining_center" title="Machining Center Info"/>
@@ -32,7 +32,7 @@
 <doc name="gcode_main" title="The EMC2 Gcode Language"/>
 <doc name="gcode_mill_canned" title="Gcode Mill Canned Cycle Examples"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
-<doc name="gcode_rs274ngc" title="RS-274NGC Gcode"/>
+<doc name="gcode_rs274ngc" title="RS-274/NGC Gcode"/>
 <doc name="examples_gcode" title="Gcode Examples"/>
 <doc name="gui_image-to-gcode" title="Image to Gcode"/>
 <doc name="common_Glossary" title="Glossary"/>
@@ -119,7 +119,7 @@
 <doc name="gui/axis_de.html" title="GUI: Axis"/>
 <doc name="gui/touchy_de.html" title="GUI: Touchy"/>
 <doc name="gui/ngcgui_de.html" title="GUI: NGCGUI"/>
-<doc name="gui/tkemc_de.html" title="GUI: TkEMC"/>
+<doc name="gui/tklinuxcnc_de.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_de.html" title="GUI: Mini"/>
 <doc name="gui/keystick_de.html" title="GUI: KeyStick"/>
 <doc name="common/machining_center_de.html" title="Informations Centre d'usinage"/>
@@ -129,7 +129,7 @@
 <doc name="gcode/main_de.html" title="Le langage Gcode EMC2"/>
 <doc name="gcode/mill_canned_de.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_de.html" title="Informations spécifiques aux tours"/>
-<doc name="gcode/rs274ngc_de.html" title="Le language G-code RS274NGC"/>
+<doc name="gcode/rs274ngc_de.html" title="Le language G-code RS274/NGC"/>
 <doc name="examples/gcode_de.html" title="Exemples en G-code"/>
 <doc name="gui/image-to-gcode_de.html" title="Les fonctionnalités d'Image-to-gcode"/>
 <doc name="common/Glossary_de.html" title="Glossaire"/>
@@ -217,7 +217,7 @@
 <doc name="gui/axis_es.html" title="GUI: Axis"/>
 <doc name="gui/touchy_es.html" title="GUI: Touchy"/>
 <doc name="gui/ngcgui_es.html" title="GUI: NGCGUI"/>
-<doc name="gui/tkemc_es.html" title="GUI: TkEMC"/>
+<doc name="gui/tklinuxcnc_es.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_es.html" title="GUI: Mini"/>
 <doc name="gui/keystick_es.html" title="GUI: KeyStick"/>
 <doc name="common/machining_center_es.html" title="Informations Centre d'usinage"/>
@@ -227,7 +227,7 @@
 <doc name="gcode/main_es.html" title="Le langage Gcode EMC2"/>
 <doc name="gcode/mill_canned_es.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_es.html" title="Informations spécifiques aux tours"/>
-<doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274NGC"/>
+<doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274/NGC"/>
 <doc name="examples/gcode_es.html" title="Exemples en G-code"/>
 <doc name="gui/image-to-gcode_es.html" title="Les fonctionnalités d'Image-to-gcode"/>
 <doc name="common/Glossary_es.html" title="Glossaire"/>
@@ -264,7 +264,7 @@
 <doc name="config/ini_config_es.html" title="La configuration en détail"/>
 <doc name="config/ini_homing_es.html" title="Configuration des prises d'origine"/>
 <doc name="config/lathe_config_es.html" title="Tour de configuration"/>
-<doc name="config/emc2hal_es.html" title="Interface entre EMC2 et HAL"/>
+<doc name="config/emc2hal_es.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_es.html" title="Configuration pas à pas"/>
 <doc name="hal/pyvcp_es.html" title="Panneaux de commande virtuel Python (pyVCP)"/>
 <doc name="hal/pyvcp_examples_es.html" title="exemples pyVCP"/>
@@ -299,7 +299,7 @@
 
 <doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>
-<doc name="common/Getting_EMC_fr.html" title="Se procurer et installer EMC2"/>
+<doc name="common/Getting_linuxcnc_fr.html" title="Se procurer et installer LinuxCNC"/>
 <doc name="quickstart/stepper_quickstart_fr.html" title="Informations pr&eacte;alables &agrave; configuration"/>
 <doc name="config/stepconf_fr.html" title="L'assistant graphique de configuration StepConf"/>
 <doc name="config/pncconf_fr.html" title="L'assistant graphique de configuration PncConf (Mesa)"/>
@@ -311,7 +311,7 @@
 <doc name="gui/axis_fr.html" title="L'interface graphique Axis"/>
 <doc name="gui/touchy_fr.html" title="L'interface graphique Touchy"/>
 <doc name="gui/ngcgui_fr.html" title="L'interface graphique NGCGUI"/>
-<doc name="gui/tkemc_fr.html" title="L'interface graphique TkEMC"/>
+<doc name="gui/tklinuxcnc_fr.html" title="L'interface graphique TkLinuxCNC"/>
 <doc name="gui/mini_fr.html" title="L'interface graphique Mini"/>
 <doc name="gui/keystick_fr.html" title="L'interface textuelle KeyStick"/>
 <doc name="gcode/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
@@ -340,7 +340,8 @@
 <doc name="config/ini_config_fr.html" title="La configuration en d&eacute;tail"/>
 <doc name="config/ini_homing_fr.html" title="Configuration des prises d'origine"/>
 <doc name="config/lathe_config_fr.html" title="Configuration des tours"/>
-<doc name="config/emc2hal_fr.html" title="Interface entre EMC2 et HAL"/>
+<doc name="hal/haltcl_fr.html" title="Fichiers TCL pour HAL"/>
+<doc name="config/linuxcnchal_fr.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_fr.html" title="Configuration des moteurs pas &agrave; pas"/>
 <doc name="hal/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>
 <doc name="hal/pyvcp_examples_fr.html" title="Exemples avec PyVCP"/>
@@ -364,7 +365,7 @@
 <doc name="examples/mpg_fr.html" title="Exemple: Utiliser une manivelle &eacute;lectronique"/>
 <doc name="examples/gs2_example_fr.html" title="Exemple: Utiliser un GS2"/>
 <doc name="common/Stepper_Diagnostics_fr.html" title="Diagnostic des moteurs pas &agrave; pas"/>
-<doc name="common/Updating_EMC_fr.html" title="Mises &agrave; jour d'EMC2"/>
+<doc name="common/Updating_linuxcnc_fr.html" title="Mises &agrave; jour de LinuxCNC"/>
 
 <doc name="code/Code_Notes.html" title="Notes sur le code (en anglais)"/>
 <doc name="code/NML_Messages.html" title="Messages LNM (en anglais)"/>

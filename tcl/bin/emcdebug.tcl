@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 ###############################################################
 # Description:  emcdebug.tcl
@@ -20,7 +20,7 @@ exec $EMC2_EMCSH "$0" "$@"
 #
 ###############################################################
 
-source [file join [file dirname [info script]] .. emc.tcl]
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 # check if any emc commands exist, and quit if not
@@ -163,7 +163,7 @@ proc popupDebug {{w .debugwindow}} {
     if {$w == "."} {
 	# we're running standalone
         set lw ""
-        wm title $w [msgcat::mc "EMC Debug"]
+        wm title $w [msgcat::mc "LinuxCNC Debug"]
     } else {
 	# we were sourced into tkemc, and run as a popup
         set lw $w
@@ -174,7 +174,7 @@ proc popupDebug {{w .debugwindow}} {
             return
         }
         toplevel $w
-        wm title $w [msgcat::mc "EMC Debug"]
+        wm title $w [msgcat::mc "LinuxCNC Debug"]
     }
 
     # use "lw" as name of top level from now on

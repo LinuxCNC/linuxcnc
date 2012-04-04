@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_User_Manual_fr.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Name=LinuxCNC User Manual (French)
+Comment=The LinuxCNC User Manual. All you need to know to get started. (French)
+StartupNotify=false
+Categories=X-CNC;

@@ -61,10 +61,10 @@ LANGUAGES = @LANGUAGES@
 #still needs discussion
 # do we really need these?
 initd_dir = /etc/init.d
-docsdir = ${prefix}/share/doc/emc2
-sampleconfsdir = ${prefix}/share/doc/emc2/examples/sample-configs
-ncfilesdir = ${prefix}/share/emc/ncfiles
-tcldir = ${prefix}/lib/tcltk/emc2
+docsdir = ${prefix}/share/doc/linuxcnc
+sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
+ncfilesdir = ${prefix}/share/linuxcnc/ncfiles
+tcldir = ${prefix}/lib/tcltk/linuxcnc
 
 
 # /Standard configure directories
@@ -75,7 +75,7 @@ RTPREFIX = @RTPREFIX@
 RTAI = @RTAI@
 RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
 KERNELDIR = @KERNELDIR@
-RTFLAGS := -Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+RTFLAGS := -Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=2
 USE_RTLIBM = @USE_RTLIBM@
 USE_LIBM = @USE_LIBM@
 USE_STUBS = @USE_STUBS@
@@ -133,6 +133,12 @@ BUILD_DOCS_PDF = @BUILD_DOCS_PDF@
 BUILD_DOCS_HTML = @BUILD_DOCS_HTML@
 LYX = @LYX@
 PYTHON = @PYTHON@
+
+LIBMODBUS2_USABLE = @LIBMODBUS2_USABLE@
+LIBMODBUS3_USABLE = @LIBMODBUS3_USABLE@
+LIBMODBUS_LIBS    = @LIBMODBUS_LIBS@
+LIBMODBUS_CFLAGS  = @LIBMODBUS_CFLAGS@
+
 
 #
 # i18n

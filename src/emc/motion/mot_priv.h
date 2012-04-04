@@ -163,7 +163,7 @@ typedef struct {
 
     // realtime overrun detection
     hal_u32_t last_period;	/* param: last period in clocks */
-    hal_float_t last_period_ns;	/* param: last period in clocks */
+    hal_float_t last_period_ns;	/* param: last period in nanoseconds */
     hal_u32_t overruns;		/* param: count of RT overruns */
 
     hal_float_t *tooloffset_x;

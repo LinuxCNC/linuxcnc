@@ -8,8 +8,6 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwmgens=1 num_stepgens=4"
-# set up the watchdog
-#setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
 loadrt trivkins
@@ -98,7 +96,7 @@ net Enable joint.2.jog-vel-mode
 net Enable => hm2_5i20.0.pwmgen.00.enable
 
 # enable the charge pump
-net Enable => charge-pump.enable
+net Enable charge-pump.enable
 
 # connect the charge pump signal to an output
 setp hm2_5i20.0.gpio.022.is_output TRUE

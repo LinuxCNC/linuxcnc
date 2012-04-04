@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using wish \
-exec ${EMC2_EMCSH-wish} "$0" "$@"
+exec ${LINUXCNC_EMCSH-wish} "$0" "$@"
 
 ###############################################################
 # Description:  popimage
@@ -30,7 +30,7 @@ if {$argc < 1} {
   exit
 }
 
-load [file join [file dirname [info script]] .. emc.so]
+load [file join [file dirname [info script]] .. linuxcnc.so]
 
 . configure -borderwidth 0 -highlightthickness 0
 
@@ -61,7 +61,7 @@ set h [image height $image]
 canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
 .c create image 0 0 -anchor nw -image $image
 .c create text 4 [expr $h-4] -anchor sw \
-    -text $env(EMC2VERSION) -fill white -font {Helvetica 18}
+    -text $env(LINUXCNCVERSION) -fill white -font {Helvetica 18}
 
 pack .c
 

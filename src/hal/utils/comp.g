@@ -101,6 +101,13 @@ parser Hal:
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
+# These are symbols that comp puts in the global namespace of the C file it
+# creates.  The user is thus not allowed to add any symbols with these
+# names.  That includes not only global variables and functions, but also
+# HAL pins & parameters, because comp adds #defines with the names of HAL
+# pins & params.
+reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+
 def _parse(rule, text, filename=None):
     global P, S
     S = HalScanner(text, filename=filename)
@@ -177,11 +184,16 @@ def checkarray(name, array):
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
 
+def check_name_ok(name):
+    if name in reserved_names:
+        Error("Variable name %s is reserved" % name)
+    if name in names:
+        Error("Duplicate item name %s" % name)
+
 def pin(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('pin', name, type, array, dir, doc, value, personality))
     names[name] = None
     pins.append((name, type, array, dir, value, personality))
@@ -189,15 +201,13 @@ def pin(name, type, array, dir, doc, value, personality):
 def param(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('param', name, type, array, dir, doc, value, personality))
     names[name] = None
     params.append((name, type, array, dir, value, personality))
 
 def function(name, fp, doc):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))
@@ -208,14 +218,12 @@ def option(name, value):
     options[name] = value
 
 def variable(type, name, array, default):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     names[name] = None
     variables.append((type, name, array, default))
 
 def modparam(type, name, default, doc):
-    if name in names:
-        Error("Duplicate item name %s" % name)
+    check_name_ok(name)
     names[name] = None
     modparams.append((type, name, default, doc))
 
@@ -266,7 +274,7 @@ static int comp_id;
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
-        print >>f, "MODULE_INFO(emc2, %s);" % q(v)
+        print >>f, "MODULE_INFO(linuxcnc, %s);" % q(v)
         license = finddoc('license')
     if license and license[1]:
         print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
@@ -295,8 +303,8 @@ static int comp_id;
             print >>f, "%s(%s, %s);" % (decl, name, q(doc))
             
     print >>f
-    print >>f, "struct state {"
-    print >>f, "    struct state *_next;"
+    print >>f, "struct __comp_state {"
+    print >>f, "    struct __comp_state *_next;"
     if has_personality:
         print >>f, "    int _personality;"
 
@@ -329,19 +337,19 @@ static int comp_id;
     if options.get("userspace"):
         print >>f, "#include <stdlib.h>"
 
-    print >>f, "struct state *inst=0;"
-    print >>f, "struct state *first_inst=0, *last_inst=0;"
+    print >>f, "struct __comp_state *__comp_inst=0;"
+    print >>f, "struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;"
     
     print >>f
     for name, fp in functions:
         if names.has_key(name):
             Error("Duplicate item name: %s" % name)
-        print >>f, "static void %s(struct state *inst, long period);" % to_c(name)
+        print >>f, "static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int get_data_size(void);"
+    print >>f, "static int __comp_get_data_size(void);"
     if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct state *inst, char *prefix, long extra_arg);"
+        print >>f, "static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
@@ -364,11 +372,11 @@ static int comp_id;
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
-    print >>f, "    int sz = sizeof(struct state) + get_data_size();"
-    print >>f, "    struct state *inst = hal_malloc(sz);"
+    print >>f, "    int sz = sizeof(struct __comp_state) + __comp_get_data_size();"
+    print >>f, "    struct __comp_state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
     if has_data:
-        print >>f, "    inst->_data = (char*)inst + sizeof(struct state);"
+        print >>f, "    inst->_data = (char*)inst + sizeof(struct __comp_state);"
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
@@ -437,9 +445,9 @@ static int comp_id;
         print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
             to_c(name), int(fp))
         print >>f, "    if(r != 0) return r;"
-    print >>f, "    if(last_inst) last_inst->_next = inst;"
-    print >>f, "    last_inst = inst;"
-    print >>f, "    if(!first_inst) first_inst = inst;"
+    print >>f, "    if(__comp_last_inst) __comp_last_inst->_next = inst;"
+    print >>f, "    __comp_last_inst = inst;"
+    print >>f, "    if(!__comp_first_inst) __comp_first_inst = inst;"
     print >>f, "    return 0;"
     print >>f, "}"
 
@@ -561,9 +569,9 @@ static int comp_id;
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#undef FUNCTION"
-        print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
+        print >>f, "#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)"
         print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, char *prefix, long extra_arg)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)"
         print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#undef fperiod"
@@ -572,36 +580,36 @@ static int comp_id;
             print >>f, "#undef %s" % to_c(name)
             if array:
                 if dir == 'in':
-                    print >>f, "#define %s(i) (0+*(inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s(i) (*(inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
             else:
                 if dir == 'in':
-                    print >>f, "#define %s (0+*inst->%s)" % (to_c(name), to_c(name))
+                    print >>f, "#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s (*inst->%s)" % (to_c(name), to_c(name))
+                    print >>f, "#define %s (*__comp_inst->%s)" % (to_c(name), to_c(name))
         for name, type, array, dir, value, personality in params:
             print >>f, "#undef %s" % to_c(name)
             if array:
-                print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
+                print >>f, "#define %s(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name))
             else:
-                print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
+                print >>f, "#define %s (__comp_inst->%s)" % (to_c(name), to_c(name))
 
         for type, name, array, value in variables:
             name = name.replace("*", "")
             print >>f, "#undef %s" % name
-            print >>f, "#define %s (inst->%s)" % (name, name)
+            print >>f, "#define %s (__comp_inst->%s)" % (name, name)
 
         if has_data:
             print >>f, "#undef data"
-            print >>f, "#define data (*(%s*)(inst->_data))" % options['data']
+            print >>f, "#define data (*(%s*)(__comp_inst->_data))" % options['data']
         if has_personality:
             print >>f, "#undef personality"
-            print >>f, "#define personality (inst->_personality)"
+            print >>f, "#define personality (__comp_inst->_personality)"
 
         if options.get("userspace"):
             print >>f, "#undef FOR_ALL_INSTS"
-            print >>f, "#define FOR_ALL_INSTS() for(inst = first_inst; inst; inst = inst->_next)"    
+            print >>f, "#define FOR_ALL_INSTS() for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)"
     print >>f
     print >>f
 
@@ -609,9 +617,9 @@ def epilogue(f):
     data = options.get('data')
     print >>f
     if data:
-        print >>f, "static int get_data_size(void) { return sizeof(%s); }" % data
+        print >>f, "static int __comp_get_data_size(void) { return sizeof(%s); }" % data
     else:
-        print >>f, "static int get_data_size(void) { return 0; }"
+        print >>f, "static int __comp_get_data_size(void) { return 0; }"
 
 INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
 modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
@@ -621,7 +629,7 @@ def find_modinc():
     global modinc
     if modinc: return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/emc2', '/etc/emc2', 'share/emc']:
+    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/linuxcnc']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
             modinc = e
@@ -634,7 +642,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal %s" % (
+    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
@@ -722,7 +730,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
+    print >>f, ".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), time.strftime("%F"))
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
@@ -916,7 +924,7 @@ def process(filename, mode, outfilename):
         shutil.rmtree(tempdir) 
 
 def usage(exitval=0):
-    print """%(name)s: Build, compile, and install EMC HAL components
+    print """%(name)s: Build, compile, and install LinuxCNC HAL components
 
 Usage:
            %(name)s [--compile|--preprocess|--document|--view-doc] compfile...

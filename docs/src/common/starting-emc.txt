@@ -1,30 +1,43 @@
-= Starting EMC2
+= Starting LinuxCNC
 
-== Files
+[[cha:starting-linuxcnc]] (((Starting LinuxCNC)))
 
-EMC2 is started with the script file emc. 
+== Running LinuxCNC
+
+LinuxCNC is started with the script file emc.
 
 ----
-usage: emc [options] [<ini-file>]
-
-options:
-    -v = verbose - prints info as it works
-    -d = echos script commands to screen for debugging
+emc [options] [<ini-file>]
 ----
-  
+
+.emc script options
+* '-v' = verbose - prints info as it works
+* '-d' = echos script commands to screen for debugging
+
 The emc script file reads the ini file and starts emc. The ini file
 [HAL] section specifies the order of loading up HAL files if more than
 one is used. Once the HAL=xxx.hal files are loaded then the GUI is loaded
-then the POSTGUI=.xxx.hal file is loaded. If you create pyvcp objects
-with HAL pins you must use the postgui HAL file to make any connections
-to those pins.
+then the POSTGUI=.xxx.hal file is loaded. If you create PyVCP or GladeVCP
+objects with HAL pins you must use the postgui HAL file to make any
+connections to those pins. See the <<sub:[HAL]-section,HAL>> section of the
+INI configuration for more information.
 
+[[sub:configuration-selector]]
+
+.Configuration Selector
 If no ini file is passed to the emc script it loads the configuration 
-selector so you can choose a sample configuration.
+selector so you can choose and save a sample configuration. Once a sample
+configuration has been saved it can be modified to suit your application.
+
+[[fig:configuration-selector]]
+
+.Configuration Selector
+
+image::images/configuration-selector.png[align="center"]
 
 == Files Used for Configuration
 
-EMC is configured with human readable text files. All of these
+LinuxCNC is configured with human readable text files. All of these
 files can be read and edited in any of the common text file editors
 available with most any Linux distribution.footnote:[Don't confuse a
 text editor with a word processor. A text editor like
@@ -40,11 +53,11 @@ is running.
 Configuration files include
 
 * 'INI' (((INI))) The ini file overrides defaults that are compiled into the
-    EMC code. It also provides sections that are read directly by the
+    LinuxCNC code. It also provides sections that are read directly by the
     Hardware Abstraction Layer.
 
 * 'HAL' (((HAL))) The HAL files start up process modules and provide linkages
-    between EMC signals and specific hardware pins.
+    between LinuxCNC signals and specific hardware pins.
 
 * 'VAR' (((VAR))) The var file is a way for the interpreter to save some
     values from one run to the next. These values are saved from one run to
@@ -55,25 +68,25 @@ Configuration files include
     Tool File section for more info.
 
 * 'NML' (((NML))) The nml file configures the communication channels used by
-    the EMC. It is normally setup to run all of the communication within a
+    the LinuxCNC. It is normally setup to run all of the communication within a
     single computer but can be modified to communicate between several
     computers.
 
 * 'emcrc' (((.emcrc))) This file saves user specific information and is created
-    to save the name of the directory when the user first selects an EMC
+    to save the name of the directory when the user first selects an LinuxCNC
     configuration.footnote:[Usually this file is in the users home
     directory (e.g. /home/user/ )]
 
 Items marked *(in HAL)* are used by the sample HAL files and are 
 suggested as a good convention. 
-Other items are used by EMC directly, and must always have 
+Other items are used by LinuxCNC directly, and must always have 
 the section and item names given. 
 
 == TWOPASS
 
-EMC2.5 supports TWOPASS processing of hal configuration files
+LinuxCNC 2.5 supports TWOPASS processing of hal configuration files
 that can help in the modularization and readability of hal files.
-(Hal files are specified in an emc ini file in the HAL stanza 
+(Hal files are specified in an LinuxCNC ini file in the HAL stanza 
 as [HAL]HALFILE=filename).
 
 Normally, a set of one or more hal configuration files must use
@@ -109,6 +122,7 @@ TWOPASS processing is enabled by including an ini file parameter:
 [HAL]TWOPASS=anything
 ----
 
+Where "anything" can be any non-null string.
 With this setting, you can have multiple specifications like:
 
 ----
@@ -120,7 +134,7 @@ loadrt and2 names=ad
 ----
 
 These commands can appear in different HALFILES.  The HALFILES
-are processed in their order of ther appearance in the ini file.
+are processed in the order of their appearance in the ini file.
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
@@ -138,7 +152,7 @@ executed in the order of appearance with other commands during
 this second pass.
 
 While you can use either the count= or names= options, they are
-mutually exclusive only one type can  be specified for a
+mutually exclusive -- only one type can  be specified for a
 given module.
 
 TWOPASS processing is most effective when using the names=
@@ -165,5 +179,9 @@ common logic components that are the glue of many hal configurations.
 
 User-created comps that use the comp utility automatically
 support the names= option as well.  In addition to comps generated
-with the comp utility, a few others comps like the encoder and
-pid also support the names=option.
+with the comp utility, numerous other comps support the names=option.
+Comps that support names= option include: at_pid, encoder,
+encoder_ratio, pid, siggen, and sim_encoder.
+
+Examples of TWOPASS usage for a simulator are included in the
+configs/simtcl directory.

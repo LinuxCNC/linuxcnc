@@ -1,4 +1,4 @@
-.TH rtapi_shmem "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_shmem "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_shmem \- Functions for managing shared memory blocks

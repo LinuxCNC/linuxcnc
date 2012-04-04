@@ -11,8 +11,8 @@ Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
 any later version published by the Free Software Foundation; with no
 Invariant Sections, no Front-Cover Texts, and one Back-Cover Text:
-"This EMC Handbook is the product of several authors writing for
-linuxCNC.org. As you find it to be of value in your work, we invite you
+"This LinuxCNC Handbook is the product of several authors writing for
+linuxcnc.org. As you find it to be of value in your work, we invite you
 to contribute to its revision and growth." A copy of the license is
 included in the section entitled "GNU Free Documentation License". If
 you do not find the license you may order a copy from Free Software

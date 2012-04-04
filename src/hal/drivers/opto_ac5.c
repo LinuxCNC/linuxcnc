@@ -93,7 +93,7 @@ int rtapi_app_main(void)
     for ( n = 0 ; n < MAX_BOARDS ; n++ ) 
     {
 	// Find a M5I20 card.
-	pDev = pci_find_device(opto22_VENDOR_ID, opto22_pci_AC5_DEVICE_ID, pDev);
+	pDev = pci_get_device(opto22_VENDOR_ID, opto22_pci_AC5_DEVICE_ID, pDev);
 	if ( pDev == NULL ) { /* no more boards */break;}
 	
 

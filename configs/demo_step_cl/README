@@ -1,5 +1,5 @@
 This config is "stepper" with the addition of ClassicLadder
-connections to some of the EMC IO.  The initial ladder program
+connections to some of the LinuxCNC IO.  The initial ladder program
 includes several possible estop arrangements and a timed
 lube coil.  The lube ladder includes a sense run that watches
 lube level or lube pressure and warns of a lube condition failure.

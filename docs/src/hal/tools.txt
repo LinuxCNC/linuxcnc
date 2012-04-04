@@ -1,18 +1,20 @@
-= HAL Tools and Utilities
+= HAL Tools
 
-[[cha:hal-tools-utilities]] (((HAL Tools and Utilities)))
+[[cha:hal-tools]] (((HAL Tools)))
 
 == Halcmd[[sec:Halcmd]]
 
 Halcmd is a command line tool for manipulating the HAL. There is a
 rather complete man page for halcmd, which will be installed if you
-have installed EMC2 from either source or a package. If you have
-compiled EMC2 for “run-in-place”, the man page is not installed, but it
-is accessible. From the main EMC2 directory, do:
+have installed LinuxCNC from either source or a package. If you have
+compiled LinuxCNC for “run-in-place”, the man page is not installed, but it
+is accessible. From the main LinuxCNC directory, do:
 
-+$ *man -M docs/man halcmd*+ 
+----
+man -M docs/man halcmd
+----
 
-Chapter <<cha:HAL-tutorial>> has a number of examples of halcmd
+The <<cha:HAL-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
 == Halmeter[[sec:Halmeter]](((halmeter)))
@@ -47,7 +49,8 @@ window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-Refer to section <<sec:Tutorial-Halmeter>> for more information. 
+Refer to <<sec:Tutorial-Halmeter,Halmeter Tutorial>> section for more
+information.
 
 Halmeter can be loaded from a terminal or from Axis. Halmeter is
 faster than Halshow at displaying values. Halmeter has two windows, one
@@ -61,7 +64,7 @@ For example:
 loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 ----
 
-See the man page for more options. See section <<sec:Halmeter>>. 
+See the man page for more options. See section <<sec:Halmeter,Halmeter>>.
   
 .Halmeter
 

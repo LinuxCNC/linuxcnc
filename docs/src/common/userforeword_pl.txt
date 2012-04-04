@@ -1,14 +1,16 @@
-= Foreword
+= User Foreword
 
-EMC2 is modular and flexible. These attributes lead many to see it as
+[[cha:user-foreword]] (((User Foreword)))
+
+LinuxCNC is modular and flexible. These attributes lead many to see it as
 a confusing jumble of little things and wonder why it is the way it is.
 This page attempts to answer that question before you get into the
 thick of things.
 
-EMC started at the National Institute of Standards and Technology in
+LinuxCNC started at the National Institute of Standards and Technology in
 the USA. It grew up using Unix as its operating system. Unix made it
 different. Among early Unix developers there grew a set of code writing
-ideas that some call the Unix way. These early EMC authors followed
+ideas that some call the Unix way. These early LinuxCNC authors followed
 those ways.
 
 Eric S. Raymond, in his book The Art of Unix Programming, summarizes
@@ -29,7 +31,7 @@ the following in actual Unix practice:
     http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
 Mr. Raymond offered several more rules but these four describe
-essential characteristics of the EMC2 motion control system.
+essential characteristics of the LinuxCNC motion control system.
 
 The *Modularity* rule is critical. Throughout these handbooks you
 will find talk of
@@ -37,7 +39,7 @@ the interpreter or task planner or motion or HAL. Each of these is a
 module or collection of modules. It's modularity that allows you to
 connect together just the parts you need to run your machine.
 
-The *Clarity* rule is essential. EMC2 is a work in progress -- it is
+The *Clarity* rule is essential. LinuxCNC is a work in progress -- it is
 not finished
 nor will it ever be. It is complete enough to run most of the machines
 we want it to run. Much of that progress is achieved because many users
@@ -55,7 +57,7 @@ little things. By
 separating functions debugging is much easier and replacement modules
 can be dropped into the system and comparisons easily made.
 
-What does the Unix way mean for you as a user of EMC2. It means that
+What does the Unix way mean for you as a user of LinuxCNC. It means that
 you are able to make choices about how you will use the system. Many of
 these choices are a part of machine integration, but many also affect
 the way you will use your machine. As you read you will find many
@@ -64,13 +66,13 @@ make choices, "I'll use this interface rather than that” or, “I'll
 write part offsets this way rather than that way." Throughout these
 handbooks we describe the range of abilities currently available.
 
-As you begin your journey into using EMC2 we offer two cautionary
+As you begin your journey into using LinuxCNC we offer two cautionary
 notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- - Paraphrasing the words of Doug Gwyn on UNIX: "EMC2 was not designed to
+ - Paraphrasing the words of Doug Gwyn on UNIX: "LinuxCNC was not designed to
    stop its users from doing stupid things, as that would also stop them
    from doing clever things."
- - Likewise the words of Steven King: "EMC2 is user-friendly. It just
+ - Likewise the words of Steven King: "LinuxCNC is user-friendly. It just
    isn't promiscuous about which users it's friendly with."
 
 

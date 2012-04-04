@@ -364,6 +364,10 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   ijk_flag = block->i_flag || block->j_flag || block->k_flag;
   first = settings->cutter_comp_firstmove;
 
+  CHKS((settings->plane == CANON_PLANE_UV
+            || settings->plane == CANON_PLANE_VW
+            || settings->plane == CANON_PLANE_UW),
+    _("Cannot do an arc in planes G17.1, G18.1, or G19.1"));
   CHKS(((!block->r_flag) && (!ijk_flag)),
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
   CHKS(((block->r_flag) && (ijk_flag)),
@@ -2255,7 +2259,6 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
-      // block->g_modes[GM_MOTION] = -1;  // FIXME mah checkthis
       CHP(status);
   }
   return INTERP_OK;
@@ -2864,9 +2867,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 {
   int type;
   double timeout;               // timeout for M66
-  double *pars;                 /* short name for settings->parameters            */
-
-  pars = settings->parameters;
 
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion

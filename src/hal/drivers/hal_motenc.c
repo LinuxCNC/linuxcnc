@@ -291,7 +291,7 @@ rtapi_app_main(void)
 
     i = 0;
     // Find a MOTENC card.
-    while((i < MAX_DEVICES) && ((pDev = pci_find_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
+    while((i < MAX_DEVICES) && ((pDev = pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
 
 	// Allocate memory for device object.
 	pDevice = hal_malloc(sizeof(Device));

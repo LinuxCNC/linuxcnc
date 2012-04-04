@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec $LINUXCNC_EMCSH "$0" "$@"
 
 ####################################################################
 # Description:  Set_Coordinates.tcl
@@ -16,11 +16,11 @@ exec $EMC2_EMCSH "$0" "$@"
 # Writes revised offsets to xxx.var and reloads global variables
 ####################################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] .. emc.tcl]
+# Load the linuxcnc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
-wm title . [msgcat::mc "EMC Set Coordinate"]
+wm title . [msgcat::mc "LinuxCNC Set Coordinate"]
 
 set top [frame .frame -borderwidth 2 -relief raised]
 label $top.l1 -text [msgcat::mc "Coordinate System Control Window"]

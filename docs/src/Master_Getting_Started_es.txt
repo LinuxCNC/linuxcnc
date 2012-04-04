@@ -1,10 +1,11 @@
-Primeros pasos V0.1, {localdate}
+Primeros pasos V2.5, {localdate}
 =================================
-The EMC Team
 
 :lang: es
 
 :masterdir: {indir}
+
+The LinuxCNC Team
 
 :leveloffset: 1
 

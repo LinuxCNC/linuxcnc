@@ -1,6 +1,6 @@
-= G-Code Examples
+= G Code Examples
 
-After you install EMC2 several sample files are placed in the
+After you install LinuxCNC several sample files are placed in the
 /nc_files folder. Make sure the sample file is appropriate for your
 machine before running.
 

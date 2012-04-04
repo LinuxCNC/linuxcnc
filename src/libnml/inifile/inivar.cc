@@ -24,6 +24,7 @@
 #include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),*/
 #include <stdlib.h>		/* exit() */
 #include <string.h>		/* strcmp(), strcpy() */
+#include <limits.h>
 
 #include "config.h"
 #include "inifile.hh"
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
     char path[LINELEN] = "emc.ini";
     const char *inistring;
     int retval;
+    bool tildeexpand=false;
 
     /* process command line args, indexing argv[] from [1] */
     for (t = 1; t < argc; t++) {
@@ -89,6 +91,8 @@ int main(int argc, char *argv[])
 		}
 		t++;		/* step over following arg */
 	    }
+	} else if (!strcmp(argv[t], "-tildeexpand")) {
+	    tildeexpand = !tildeexpand;
 	} else{
 	    /* invalid argument */
 	    fprintf(stderr,
@@ -114,7 +118,14 @@ int main(int argc, char *argv[])
 
     inistring = inifile.Find(variable, section, num);
     if (inistring != NULL) {
-	printf("%s\n", inistring);
+	if(tildeexpand)
+	{
+	    char expanded[PATH_MAX];
+	    inifile.TildeExpansion(inistring, expanded, sizeof(expanded));
+	    printf("%s\n", expanded);
+	} else {
+	    printf("%s\n", inistring);
+	}
 	retval = 0;
     } else {
 	fprintf(stderr, "Can not find -sec %s -var %s -num %i \n", section, variable, num);

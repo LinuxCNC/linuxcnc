@@ -1,70 +1,69 @@
 :lang: fr
 :toc:
 
-= Vue générale du langage G-codes d'EMC2[[cha:Vue-generale-G-code]]
+= Vue générale du langage G-codes de LinuxCNC
 
-(((Vue générale du G-code d'EMC2)))
+[[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))
 
-== Brève description 
+== Brève description du G-code de LinuxCNC
 
 Le G-code est le langage de programmation des machines numériques. Le G-code
-utilisé par EMC2 est basé sur le langage RS274/NGC. Cette documentation le 
+utilisé par LinuxCNC est basé sur le langage RS274/NGC. Cette documentation le 
 décrit de manière exhaustive, c'est donc un gros morceau mais il contient 
 beaucoup de concepts qui seront assimilés par le lecteur dès la première lecture. 
 C'est notamment le cas de ce chapitre. Par la suite, l'utilisateur reviendra ici, 
 d'abord pour chaque détail de création de son G-code, puis plus tard, seulement 
 pour vérifier la syntaxe des codes les moins courants. Il aura alors perçu la 
-puissance de ce langage et d'EMC2 qui le met à profit. 
+puissance de ce langage et de LinuxCNC qui le met à profit. 
 
 
 == Format des paramètres du G-code
 
 Le langage G-code est basé sur des lignes de code. Chaque ligne
-(également appelée un *bloc*) peut inclure des commandes pour faire
+(également appelée un _bloc_) peut inclure des commandes pour faire
 produire diverses actions à la machine. Plusieurs lignes de code
 peuvent être regroupées dans un fichier pour créer un programme G-code.
 
 Une ligne de code typique commence par un numéro de ligne optionnel
-suivi par un ou plusieurs *mots*. Un mot commence par une lettre suivie
+suivi par un ou plusieurs _mots_. Un mot commence par une lettre suivie
 d'un nombre (ou quelque chose qui permet d'évaluer un nombre). Un mot
 peut, soit donner une commande, soit fournir un argument à une
-commande. Par exemple, *G1 X3* est une ligne de code valide avec deux
-mots. *G1* est une commande qui signifie *déplaces toi en ligne
-droite à la vitesse programmée* et *X3* fournit la valeur d'argument 
+commande. Par exemple, _G1 X3_ est une ligne de code valide avec deux
+mots. _G1_ est une commande qui signifie _déplaces toi en ligne
+droite à la vitesse programmée_ et _X3_ fournit la valeur d'argument 
 (la valeur de X doit être 3 à la fin du mouvement). La plupart des 
 commandes G-code commencent avec une lettre G ou M
 (G pour Général et M pour Miscellaneous (auxiliaire)). 
-Les termes pour ces commandes sont *G-codes* et *M-codes.* 
+Les termes pour ces commandes sont _G-codes_ et _M-codes._ 
 
 Le langage G-code(((G-code))) n'a pas d'indicateur de début et de
 fin de programme. L'interpréteur cependant traite les fichiers. Un
 programme simple peut être en un seul fichier, mais il peut aussi être
 partagé sur plusieurs fichiers. Un fichier peut être délimité par le
 signe pour-cent de la manière suivante. La première ligne non vide d'un
-fichier peut contenir un signe *%* seul, éventuellement encadré
+fichier peut contenir un signe _%_ seul, éventuellement encadré
 d'espaces blancs, ensuite, à la fin du fichier on doit trouver une
 ligne similaire. Délimiter un fichier avec des % est facultatif si le
-fichier comporte un *M2* ou un *M30* , mais est requis sinon. Une
+fichier comporte un _M2_ ou un _M30_ , mais est requis sinon. Une
 erreur sera signalée si un fichier a une
 ligne pour-cent au début, mais pas à la fin. Le contenu utile d'un
 fichier délimité par pour-cent s'arrête après la seconde ligne pour-cent.
 Tout le reste est ignoré.
 
-Le langage G-code prévoit les deux commandes (*M2* ou *M30* ) pour
+Le langage G-code prévoit les deux commandes (_M2_ ou _M30_ ) pour
 finir un programme. Le programme peut se terminer avant la fin
 du fichier. Les lignes placées après la fin d'un programme ne seront
 pas exécutées. L'interpréteur ne les lit pas.
 
 == Format d'une ligne
 
-Une ligne de code permise par la norme G-code est construite de la
-façon suivante, dans l'ordre avec la restriction à un maximum de 256
-caractères sur la même ligne.
+Une ligne de G-code typique est construite de la façon suivante,
+dans l'ordre avec la restriction à un maximum de 256 caractères sur la même
+ligne.
 
- . Un bloc optionnel contenant le caractère d'effacement de ligne, barre
-   de fraction */*. 
+ . Un caractère optionnel d'effacement de bloc, qui est la barre oblique _/_.
  . Un numéro de ligne optionnel.
- . N'importe quel nombre de mots, valeurs de paramètres et commentaires.
+ . Un nombre quelconque de mots, valeurs de paramètres et commentaires.
  . Un caractère de fin de ligne (retour chariot ou saut de ligne ou les
    deux).
 
@@ -74,8 +73,8 @@ un message d'erreur de l'interpréteur.
 Les espaces sont permis ainsi que les tabulations dans une ligne de
 code dont ils ne changent pas la signification, excepté dans les
 commentaires. Ceci peut donner d'étranges lignes, mais elles sont
-autorisées. La ligne *g0x +0. 12 34y 7* est équivalente à*g0
-x+0.1234 y7*, par exemple.
+autorisées. La ligne _g0x +0. 12 34y 7_ est équivalente à_g0
+x+0.1234 y7_, par exemple.
 
 Les lignes vides sont permises, elles seront ignorées.
 
@@ -84,16 +83,30 @@ Toutes les lettres en dehors des commentaires peuvent être,
 indifféremment des majuscules ou des minuscules sans changer la
 signification de la ligne.
 
+[[sub:effacement-de-bloc]]
+== Caractère d'effacement de bloc
+(((Block Delete)))
+
+Le caractère optionnel d'effacement de bloc qui est la barre oblique _/_,
+quand il est placé en premier sur une ligne, peut être utilisé par certaines
+interfaces utilisateur pour sauter, si besoin, des lignes de code. Dans Axis, la
+combinaison de touches _Alt-m-/_ est une bascule qui active ou désactive
+l'effacement de bloc. Quand l'effacement de bloc est actif, toutes les lignes
+commençant par _/_ sont sautées.
+
+Dans Axis il est également possible de basculer l'activation d'effacement de
+bloc avec l'icône: 
+image:../gui/images/tool_blockdelete.gif[]
+
 == Numéro de ligne
 (((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
-non signé compris entre 0 et 99999 écrit avec moins de six caractères
-(par exemple: 000009 est interdit). Les numéros de ligne peuvent se
-suivre ou être dans le désordre, bien qu'une pratique normale évite ce
-genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
-pratique normale. L'utilisation d'un numéro de ligne n'est pas
-obligatoire, ni même recommandé, mais si il est utilisé, il doit être à sa place.
+non signé. Les numéros de ligne peuvent se suivre, être répétés ou être dans
+le désordre, bien qu'une pratique normale évite ce genre d'usage. Les numéros
+de ligne peuvent être sautés, c'est une pratique normale. L'utilisation d'un
+numéro de ligne n'est pas obligatoire, ni même recommandée, mais si ils sont
+utilisés, il doivent être placés en début de ligne.
 
 == Les mots
 (((mots)))
@@ -108,7 +121,7 @@ dans des contextes différents. Les lettres qui se réfèrent aux noms d'axes ne
 sont pas valides sur une machine n'ayant pas les axes correspondants.
 
 
-.Les mots et leur signification[[cap:Les-mots-et-leur-significations]]
+.Les mots et leur signification[[sec:Les-mots-et-leur-significations]]
 
 [width="100%", options="header"]
 |========================================
@@ -171,32 +184,36 @@ Si un nombre utilisé dans le langage G-code est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-== Paramètres (Variables)[[parametres]](((Paramètres)))
 
-Le langage RS274/NGC supporte les *paramètres*, qui sont appelés *variables*
+[[sec:parametres]]
+== Paramètres (Variables)
+(((Paramètres)))
+
+Le langage RS274/NGC supporte les _paramètres_, qui sont appelés _variables_
 dans d'autres langages de programmation. Il existe plusieurs types de paramètres
-ayant différents usages et différentes formes. Le seul type de nombre supporté 
-par les paramètres est le flottant, il n'y a pas de string, pas de boolean ni 
-d'entier dans le G-code comme dans d'autres langages de programmation. Toutefois, 
-les expressions logiques peuvent être formulées avec <<sec:Operateurs-Binaires, 
-les opérateurs booléens>> (*AND*, *OR*, *XOR* et les opérateurs de comparaison
-*EQ*, *NE*, *GT*, *GE*, *LT*, *LE*) ainsi que *MOD*, *ROUND*, *FUP* et *FIX* 
-<<cap:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
+ayant différents usages et différentes formes. Le seul type de nombre supporté
+par les paramètres est le flottant, il n'y a pas de string, pas de boolean ni
+d'entier dans le G-code comme dans d'autres langages de programmation. Toutefois,
+les expressions logiques peuvent être formulées avec 
+<<sec:Operateurs-Binaires,les opérateurs booléens>> (_AND_, _OR_, _XOR_ et les
+opérateurs de comparaison
+_EQ_, _NE_, _GT_, _GE_, _LT_, _LE_) ainsi que _MOD_, _ROUND_, _FUP_ et _FIX_
+<<sec:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
 
 Les paramètres différent par leur syntaxe, leur portée, leur comportement quand ils
-ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel 
+ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel
 ils sont prévus.
 
 Syntaxes:: Il y a trois sortes d'apparences syntaxiques:
-* *numéroté* -  #4711
-* *nommé local* -  #<valeurlocale>
-* *nommé global* - #<_valeurglobale>
+* _numéroté_ -  #4711
+* _nommé local_ -  #<valeurlocale>
+* _nommé global_ - #<_valeurglobale>
 
 La portée:: La portée d'un paramètre est soit globale, ou locale à l'intérieur d'un
 sous-programme. Les paramètres de sous-programme et les paramètres nommés ont une
 portée locale. Les paramètres nommés globaux et les paramètres numérotés 
-commencent par un nombre, exemple: 31 a une portée globale. RS274NGC utilise une
-*portée lexicale*, dans un sous-programme, seules sont locales les variables qui
+commencent par un nombre, exemple: 31 a une portée globale. RS274/NGC utilise une
+_portée lexicale_, dans un sous-programme, seules sont locales les variables qui
 y sont définies et toutes les variables globales y sont visibles. Les variables 
 locales à un appel de procédure, ne sont pas visibles dans la procédure appelée.
 
@@ -212,14 +229,14 @@ paramètres prédéfinis, cela n'a pas de sens, ils sont alors en lecture seule.
 peuvent apparaître dans les expressions, mais pas sur le côté gauche d'une
 instruction d'affectation.
 
-La persistance:: Quand EMC2 s'arrête, les paramètres volatiles perdent leurs
+La persistance:: Quand LinuxCNC s'arrête, les paramètres volatiles perdent leurs
 valeurs. Tous les paramètres sont volatiles, excepté les paramètres numérotés
-dans l'étendue courante de persistance footnoteref:[L'étendue de persistance
+dans l'étendue courante de persistance footnote:[L'étendue de persistance
 courante des paramètres évolue en même temps qu'évolue le développement. Cette
-étendue est actuellement de 5161 à 5390. Elle est définie par _required_parameters array 
-dans le fichier src/emc/rs274ngc/interp_array.cc .].
-Les paramètres persistants sont enregistrés dans un fichier *.var* et restaurés à
-leurs valeurs précédentes quand EMC2 est relancé. Les paramètres numérotés 
+étendue est actuellement de 5161 à 5390. Elle est définie par __required_parameters array_
+dans le fichier src/linuxcnc/rs274ngc/interp_array.cc .].
+Les paramètres persistants sont enregistrés dans un fichier _.var_ et restaurés à
+leurs valeurs précédentes quand LinuxCNC est relancé. Les paramètres numérotés 
 volatiles sont remis à zéro.
 
 Utilisation prévue::
@@ -228,84 +245,88 @@ paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Son
 disponibles pour une utilisation générale de stockage de valeurs flottantes, 
 comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
 programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
-////
- . <<sub:Subroutine-Parameters,subroutine parameters>> - these are used to hold the actual parameters passed to a subroutine. 
-////
+
+ . <<sub:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont
+utilisés pour conserver les paramètres actuels passés à un sous-programme.
 
  . <<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces
 paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
  . <<sec:Parametres-Nommes, paramètres nommés prédéfinis>> - utilisés pour 
-déterminer l'état de l'interpréteur et de la machine, par exemple *#<_relative>*
+déterminer l'état de l'interpréteur et de la machine, par exemple _#<_relative>_
 retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
 
-=== Paramètres numérotés[[sec:Parametres-Numerotes]]
+[[sec:Parametres-Numerotes]]
+== Paramètres numérotés
 (((Paramètres numérotés)))
 
-Un paramètre numéroté commence par le caractère *#* suivi par un
+Un paramètre numéroté commence par le caractère _#_ suivi par un
 entier compris entre 1 et 5399. Le paramètre est
 référencé par cet entier, sa valeur est la valeur stockée dans le
 paramètre.
 
 Une valeur est stockée dans un paramètre avec l'opérateur = par
-exemple *#3 = 15* signifie que la valeur 15 est stockée dans le
+exemple _#3 = 15_ signifie que la valeur 15 est stockée dans le
 paramètre numéro 3.
 
-Le caractère *#* a une précédence supérieure à celle des autres
+Le caractère _#_ a une précédence supérieure à celle des autres
 opérations, ainsi par
- exemple, *#1+2* signifie la valeur trouvée en ajoutant 2 à la
+ exemple, _#1+2_ signifie la valeur trouvée en ajoutant 2 à la
 valeur contenue dans
  le paramètre 1 et non la valeur trouvée dans le paramètre 3. Bien sûr,
-*#[1+2]* signifie la valeur trouvée dans le paramètre 3. Le caractère
-*#* peut être répété, par exemple *##2* signifie le paramètre dont le
+_#[1+2]_ signifie la valeur trouvée dans le paramètre 3. Le caractère
+_#_ peut être répété, par exemple _##2_ signifie le paramètre dont le
 numéro est égal à la valeur entière trouvée dans le paramètre 2.
 
 L'interpréteur maintient cette liste de paramètres, concernant l'outil courant:
 
-* *1-30* - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
-section des <<sec:O-Codes,O Codes>>.
-* *1-5000* - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
+* _1-5000_ - Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans 
 le fichier G-code.
-* *5061-5070* - Résultat du palpage *G38.2* pour (X Y Z A B C U V W)
-* *5161-5169* - Origine *G28* pour (X Y Z A B C U V W)
-* *5181-5189* - Origone *G30* pour (X Y Z A B C U V W)
-* *5211-5219* - Offset *G92* pour (X Y Z A B C U V W)
-* *5220* - Numéro du système de coordonnées système courant 1 à 9 pour G54 à G59.3
-* *5221-5229* - Système de coordonnées 1, G54 (X Y Z A B C U V W)
-* *5241-5249* - Système de coordonnées 2, G55 (X Y Z A B C U V W)
-* *5261-5269* - Système de coordonnées 3, G56 (X Y Z A B C U V W)
-* *5281-5289* - Système de coordonnées 4, G57 (X Y Z A B C U V W)
-* *5301-5309* - Système de coordonnées 5, G58 (X Y Z A B C U V W)
-* *5321-5329* - Système de coordonnées 6, G59 (X Y Z A B C U V W)
-* *5341-5349* - Système de coordonnées 7, G59.1 (X Y Z A B C U V W)
-* *5361-5369* - Système de coordonnées 8, G59.2 (X Y Z A B C U V W)
-* *5381-5389* - Système de coordonnées 9, G59.3 (X Y Z A B C U V W)
-* *5399* - Résultat de M66 - Surveille ou attends une entrée
-* *5400* - Numéro de l'outil courant
-* *5401-5409* - Offset d'outil (X Y Z A B C U V W)
-* *5410* - Diamètre de l'outil courant
-* *5411* - Angle frontal de l'outil courant
-* *5412* - Angle arrière de l'outil courant
-* *5413* - Tool Orientation
-* *5420-5428* - Current Position including offsets in current program
-    units (X Y Z A B C U V W)
+* _5061-5070_ - Résultat du palpage _G38.2_ pour (X Y Z A B C U V W)
+* _5161-5169_ - Origine _G28_ pour (X Y Z A B C U V W)
+* _5181-5189_ - Origone _G30_ pour (X Y Z A B C U V W)
+* _5211-5219_ - Offset _G92_ pour (X Y Z A B C U V W)
+* _5220_ - Numéro du système de coordonnées système courant 1 à 9 pour G54 à G59.3
+* _5221-5229_ - Système de coordonnées 1, G54 (X Y Z A B C U V W)
+* _5241-5249_ - Système de coordonnées 2, G55 (X Y Z A B C U V W)
+* _5261-5269_ - Système de coordonnées 3, G56 (X Y Z A B C U V W)
+* _5281-5289_ - Système de coordonnées 4, G57 (X Y Z A B C U V W)
+* _5301-5309_ - Système de coordonnées 5, G58 (X Y Z A B C U V W)
+* _5321-5329_ - Système de coordonnées 6, G59 (X Y Z A B C U V W)
+* _5341-5349_ - Système de coordonnées 7, G59.1 (X Y Z A B C U V W)
+* _5361-5369_ - Système de coordonnées 8, G59.2 (X Y Z A B C U V W)
+* _5381-5389_ - Système de coordonnées 9, G59.3 (X Y Z A B C U V W)
+* _5399_ - Résultat de M66 - Surveille ou attends une entrée
+* _5400_ - Numéro de l'outil courant
+* _5401-5409_ - Offset d'outil (X Y Z A B C U V W)
+* _5410_ - Diamètre de l'outil courant
+* _5411_ - Angle frontal de l'outil courant
+* _5412_ - Angle arrière de l'outil courant
+* _5413_ - Orientation de l'outil
+* _5420-5428_ - Positions courantes incluant les offsets, dans l'unité courante
+du programme (X Y Z A B C U V W)
 
+[[sub:Parametres-sous-programme]]
+== Paramètres de sous-programme
 
-=== Paramètres nommés[[sec:Parametres-Nommes]]
-(((Paramètres nommés)))
+* _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
+section des <<cha:O-codes, O-codes>>.
+
+[[sec:Parametres-Nommes]]
+== Paramètres nommés
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
 minuscules, les espaces et tabulations sont supprimés. Les paramètres
-nommés doivent être encadrés des signes *<* et *>*.
+nommés doivent être encadrés des signes _<_ et _>_.
 
-*#<Un paramètre nommé>* est un paramètre nommé local. Par défaut, un
+_#<Un paramètre nommé>_ est un paramètre nommé local. Par défaut, un
 paramètre nommé est
 local à l'étendue dans laquelle il est assigné. L'accès à un paramètre
 local, en dehors de son sous-programme est impossible, de sorte que
 deux sous-programmes puissent utiliser le même nom de paramètre sans
 craindre qu'un des deux n'écrase la valeur de l'autre.
 
-*#<_un paramètre global>* est un paramètre nommé global. Ils sont
+_#<_un paramètre global>_ est un paramètre nommé global. Ils sont
 accessibles depuis des
 sous-programmes appelés et peuvent placer des valeurs dans tous les
 sous-programmes accessibles à l'appelant. En ce qui concerne la portée,
@@ -336,66 +357,67 @@ utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
 derniers Aword, Bword, Cword, ... Zword etc.
 
 [[sec:Parametres-Systeme]]
-=== Paramètres système
+== Paramètres système
+(((Paramètres système)))
 
 Deux paramètres nommés globaux, permettant de lire, à partir du G-code, 
-quelle est la version courante d'EMC2.
+quelle est la version courante de LinuxCNC.
 ----
 #<_vmajor>
 ----
 
-Major package version. Retourne *2.6.* si la version est *2.6.2*.
+Major package version. Retourne _2.6._ si la version est _2.6.2_.
 ----
 #<_vminor>
 ----
 
-Minor package version. Retourne *0.2* si la version est *2.6.2*.
+Minor package version. Retourne _0.2_ si la version est _2.6.2_.
 
 [[sec:Expressions]]
 == Expressions
 (((Expressions)))
 
 Une expression est un groupe de caractères commençant avec le crochet
-gauche *[* et se terminant avec le crocher droit *]* . Entre les
+gauche _[_ et se terminant avec le crocher droit _]_ . Entre les
 crochets, on trouve des nombres, des valeurs de paramètre,
 des opérations mathématiques et d'autres expressions. Une expression
 est évaluée pour produire un nombre. Les expressions sur une ligne sont
 évaluées quand la ligne est lue et avant que quoi que ce soit ne soit
 éxécuté sur cette ligne. 
-Un exemple d'expression: *[1 + acos[0] - [#3 *** *[4.0/2]]]*.
+Un exemple d'expression: _[1 + acos[0] - [#3 ** [4.0/2]]]_.
 
 [[sec:Operateurs-Binaires]]
 == Opérateurs binaires
 (((Opérateurs binaires)))
 
 Les opérateurs binaires ne se rencontrent que dans les expressions. Il
-y a quatre opérateurs mathématiques de base: addition *+*,
-soustraction *-*, multiplication * et division */*. Il y a
-trois opérateurs logiques: le *ou (OR)*, le *ou exclusif (XOR)* et 
-le *et logique (AND)*. Le huitième opérateur est le *modulo (MOD)*. Le neuvième
-opérateur est l'élévation à la puissance (\*\*) qui élève le nombre
+y a quatre opérateurs mathématiques de base: addition _+_,
+soustraction _-_, multiplication _*_ et division _/_. Il y a
+trois opérateurs logiques: le _ou (OR)_, le _ou exclusif (XOR)_ et 
+le _et logique (AND)_. Le huitième opérateur est le _modulo (MOD)_. Le neuvième
+opérateur est l'élévation à la puissance (_**_) qui élève le nombre
 situé à sa gauche à la puissance du nombre situé  à sa droite. 
-Les opérateurs de relation sont: égalité *(EQ)*, non égalité *(NE)*, strictement 
-supérieur *(GT)*, supérieur ou égal *(GE)*,
-strictement inférieur *(LT)* et inférieur ou égal *(LE)*.
+Les opérateurs de relation sont: égalité _(EQ)_, non égalité _(NE)_, strictement 
+supérieur _(GT)_, supérieur ou égal _(GE)_,
+strictement inférieur _(LT)_ et inférieur ou égal _(LE)_.
 
 Les opérations binaires sont divisées en plusieurs groupes selon leur
 précédence. Si dans une opération se trouvent différents groupes de précédence, 
-par exemple dans l'expression *[2.0 / 3 * 1.5 - 5.5 / 11.0]*, les opérations du
+par exemple dans l'expression _[2.0 / 3 * 1.5 - 5.5 / 11.0]_, les opérations du
 groupe supérieur seront effectuées avant celles
 des groupes inférieurs. Si une expression contient plusieurs opérations
- du même groupe (comme les premiers */* et *** dans l'exemple),
+ du même groupe (comme les premiers _/_ et _*_ dans l'exemple),
 l'opération de gauche est effectuée en premier.
  Notre exemple est équivalent à: 
-*[\[[2.0/3]*1.5]-[5.5/11.0]]*, qui est équivalent à *[1.0-0.5]* , 
-le résultat est: *0.5* .
+_[\[[2.0/3]*1.5]-[5.5/11.0]]_, qui est équivalent à _[1.0-0.5]_ , 
+le résultat est: _0.5_ .
 
 Les opérations logiques et le modulo sont exécutés sur des nombres
 réels et non pas seulement sur des entiers. Le zéro est équivalent à un
-état logique faux *(FALSE)*, tout nombre différent de zéro est équivalent
-à un état logique vrai *(TRUE)*.
+état logique faux (FALSE), tout nombre différent de zéro est équivalent
+à un état logique vrai (TRUE).
 
-[[cap:Precedence-des-operateurs]]
+[[sec:Precedence-des-operateurs]]
 .Précédence des opérateurs
 (((Précédence des opérateurs)))
 
@@ -409,25 +431,26 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-
 [[sec:Fonctions]]
 == Fonctions[[sec:Operations-unaires]]
-(((Fonctions unaires)))
+(((Fonctions)))
+(((Opérations unaires)))
 
-Une fonction commence par son nom, ex: *ATAN* * suivi par une
-expression divisée par une autre expression (par  exemple *ATAN[2]/[1+3]*) ou 
-tout autre nom de fonction suivi par une expression (par exemple *SIN[90]*). 
+
+Une fonction commence par son nom, ex: _ATAN_ suivi par une
+expression divisée par une autre expression (par  exemple _ATAN[2]/[1+3]_) ou 
+tout autre nom de fonction suivi par une expression (par exemple _SIN[90]_). 
 Les fonctions disponibles sont visibles le tableau ci-dessous. Les arguments 
-pour les opérations unaires sur des angles ( *COS*, *SIN* et *TAN* ) sont en 
+pour les opérations unaires sur des angles ( _COS_, _SIN_ et _TAN_ ) sont en 
 degrés. Les valeurs retournées par les opérations sur les angles 
-( *ACOS*, *ASIN* et *ATAN* ) sont également en degrés.
+( _ACOS_, _ASIN_ et _ATAN_ ) sont également en degrés.
 
-La fonction *FIX* arrondi un nombre vers la gauche, (moins positif ou plus 
-négatif) par exemple, *FIX[2.8]=2* et *FIX[-2.8]=-3*. 
-La fonction *FUP* à l'inverse, arrondi un nombre vers la droite (plus positif
-ou moins négatif) par exemple, *FUP[2.8]=3* et *FUP[-2.8]=-2*.
+La fonction _FIX_ arrondi un nombre vers la gauche, (moins positif ou plus 
+négatif) par exemple, _FIX[2.8]=2_ et _FIX[-2.8]=-3_. 
+La fonction _FUP_ à l'inverse, arrondi un nombre vers la droite (plus positif
+ou moins négatif) par exemple, _FUP[2.8]=3_ et _FUP[-2.8]=-2_.
 
-La fonction *EXISTS* vérifie l'existance d'un simple paramètre nommé. Il reçoit
+La fonction _EXISTS_ vérifie l'existence d'un simple paramètre nommé. Il reçoit
 le paramètre à vérifier en argument, il retourne 1 si celui-ci existe et 0 sinon. 
 C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 
@@ -450,7 +473,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 |SIN[arg] | Sinus
 |SQRT[arg] | Racine carrée
 |TAN[arg] | Tangente
-|EXISTS[arg] | Vérifie l'existance d'un paramètre nommé
+|EXISTS[arg] | Vérifie l'existence d'un paramètre nommé
 |========================================
 
 == Répétitions d'items
@@ -465,7 +488,7 @@ Pour toutes les autres lettres légales, un seul mot commençant par
 cette lettre peut se trouver sur la même ligne.
 
 Si plusieurs valeurs de paramètre se répètent sur la même ligne, par
-exemple: *#3=15 #3=6* *, seule la dernière valeur prendra effet. Il
+exemple: _#3=15 #3=6_, seule la dernière valeur prendra effet. Il
 est absurde, mais pas
 illégal, de fixer le même paramètre deux fois sur la même ligne.
 
@@ -488,9 +511,9 @@ Dans le second groupe les valeurs de paramètre, quelque soit leur
 arrangement, il n'y aura pas de changement dans la signification de la
 ligne sauf si le même paramètre est présent plusieurs fois. Dans ce
 cas, seule la valeur du dernier paramètre prendra effet. Par exemple,
-quand la ligne *#3=15 #3=6* * aura été interprétée, la valeur du
+quand la ligne _#3=15 #3=6_ aura été interprétée, la valeur du
 paramètre 3 vaudra 6. Si l'ordre
- est inversé, *#3=6 #3=15* après interprétation, la valeur du
+ est inversé, _#3=6 #3=15_ après interprétation, la valeur du
 paramètre 3 vaudra 15.
 
 Enfin dans le troisième groupe les commentaires, si plusieurs
@@ -500,18 +523,18 @@ sera utilisé.
 Si chaque groupe est laissé, ou réordonné, dans l'ordre recommandé, la
 signification de la ligne ne changera pas, alors les trois groupes
 peuvent être entrecroisés n'importe comment sans changer la
-signification de la ligne. Par exemple, la ligne *g40 g1 #3=15 (foo)
-#4=-7.0* * à cinq items est signifiera exactement la même chose dans
+signification de la ligne. Par exemple, la ligne _g40 g1 #3=15 (foo)
+#4=-7.0_ à cinq items est signifiera exactement la même chose dans
 les 120
- ordres d'arrangement possibles des cinq items comme *#4=-7.0 g1 #3=15
-g40 (foo)*.
+ ordres d'arrangement possibles des cinq items comme _#4=-7.0 g1 #3=15
+g40 (foo)_.
 
 == Commandes et modes machine
 
 En G-code, de nombreuses commandes produisent, d'un mode à un
 autre, quelque chose de différent au niveau de la machine, le mode
 reste actif jusqu'à ce qu'une autre commande ne le révoque,
-implicitement ou explicitement. Ces commandes sont appelées *modales*.
+implicitement ou explicitement. Ces commandes sont appelées _modales_.
 Par exemple, si l'arrosage est mis en marche, il y reste jusqu'à ce
 qu'il soit explicitement arrêté. Les G-codes pour les mouvements sont
 également modaux. Si, par exemple, une commande G1 (déplacement
@@ -520,7 +543,7 @@ suivante avec seulement un mot d'axe, tant qu'une commande explicite
 est donnée sur la ligne suivante en utilisant des axes ou un arrêt de
 mouvement.
 
-Les codes *non modaux* n'ont d'effet que sur la ligne ou ils se
+Les codes _non modaux_ n'ont d'effet que sur la ligne ou ils se
 présentent. Par exemple, G4 (tempo) est non modale.
 
 [[sec:Coordonnees-polaires]]
@@ -528,8 +551,8 @@ présentent. Par exemple, G4 (tempo) est non modale.
 (((coordonnées polaires)))
 
 Des coordonnées polaires peuvent être utilisées pour spécifier 
-les coordonnées *XY* d'un mouvement.
-Le *@n* est la distance et le *^n* est l'angle. L'avantage est important, par
+les coordonnées _XY_ d'un mouvement.
+Le _@n_ est la distance et le _^n_ est l'angle. L'avantage est important, par
 exemple: Pour faire très simplement un cercle de trous tangents:
 
  - Passer un point situé au centre du cercle
@@ -537,17 +560,17 @@ exemple: Pour faire très simplement un cercle de trous tangents:
  - Déplacer l'outil vers le premier trou
  - Enfin, lancer le cycle de perçage. 
 
-Les coordonnées polaires sont toujours données à partir de la position *X0, Y0*. 
+Les coordonnées polaires sont toujours données à partir de la position _X0, Y0_. 
 Pour décaler les coordonnées polaires machine utilisez le décalage pièce  
 ou sélectionnez un système de coordonnées.
 
-En mode absolu, la distance et l'angle sont donnés à partir de la position *X0, Y0*
-et l'angle commence à *0* sur l'axe X positif et augmente dans la direction 
-trigonométrique (anti-horaire) autour de l'axe Z. Le code *+G1 @1 ^90+* est la 
-même que *+G1 Y1+*.
+En mode absolu, la distance et l'angle sont donnés à partir de la position _X0, Y0_
+et l'angle commence à _0_ sur l'axe X positif et augmente dans la direction 
+trigonométrique (anti-horaire) autour de l'axe Z. Le code _+G1 @1 ^90+_ est la 
+même que _+G1 Y1+_.
 
 En mode relatif, la distance et l'angle sont également donnés à partir de la
-position *XY zéro*, mais ils sont cumulatifs. 
+position _XY zéro_, mais ils sont cumulatifs. 
 Ce fonctionnement en mode incrémental peut être déroutant au début.
 
 Par exemple: si vous avez le programme suivant, vous vous attendez à obtenir
@@ -596,8 +619,8 @@ C'est une erreur si:
 == Groupes modaux
 (((Groupes modaux)))
 
-Les commandes modales sont arrangées par lots appelés *groupes
-modaux*, à tout moment, un seul membre d'un groupe modal peut être
+Les commandes modales sont arrangées par lots appelés _groupes
+modaux_, à tout moment, un seul membre d'un groupe modal peut être
 actif. En général, un groupe modal contient des commandes pour
 lesquelles il est logiquement impossible que deux membres soient actifs
 simultanément, comme les unités en pouces et les unités en millimètres.
@@ -613,21 +636,21 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 [width="100%", cols="4,6", options="header"]
 |==========================================================
 |Signification du groupe modal        | Mots G
-|Codes non modaux (*Groupe 0*)| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3
-.2+|Mouvements (*Groupe 1*)      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
+|Codes non modaux (_Groupe 0_)| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3
+.2+|Mouvements (_Groupe 1_)      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
                              | G82, G83, G84, G85, G86, G87, G88, G89
-|Choix du plan de travail (*Groupe 2*)| G17, G18, G19, G17.1, G18.1, G19.1
-|Mode déplacement (*Groupe 3*)     | G90, G91
-|Mode déplacement en arc IJK (*Groupe 4*) |G90.1, G91.1
-|Mode de vitesses (*Groupe 5*)        | G93, G94, G95
-|Unités machine (*Groupe 6*)          | G20, G21
-|Compensation de rayon d'outil (*Groupe 7*)| G40, G41, G42, G41.1, G42.1
-|Compensation de longueur d'outil (*Groupe 8*)| G43, G43.1, G49
-|Plan de retrait cycle de perçage (*Groupe 10*)| G98, G99
-|Systèmes de coordonnées (*Groupe 12*)| G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Mode contrôle de trajectoire (*Groupe 13*) |G61, G61.1, G64
-|Mode contrôle vitesse broche (*Groupe 14*) | G96, G97
-|Mode diamètre/rayon sur les tours (*Groupe 15*) | G7, G8
+|Choix du plan de travail (_Groupe 2_)| G17, G18, G19, G17.1, G18.1, G19.1
+|Mode déplacement (_Groupe 3_)     | G90, G91
+|Mode déplacement en arc IJK (_Groupe 4_) |G90.1, G91.1
+|Mode de vitesses (_Groupe 5_)        | G93, G94, G95
+|Unités machine (_Groupe 6_)          | G20, G21
+|Compensation de rayon d'outil (_Groupe 7_)| G40, G41, G42, G41.1, G42.1
+|Compensation de longueur d'outil (_Groupe 8_)| G43, G43.1, G49
+|Plan de retrait cycle de perçage (_Groupe 10_)| G98, G99
+|Systèmes de coordonnées (_Groupe 12_)| G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Mode contrôle de trajectoire (_Groupe 13_) |G61, G61.1, G64
+|Mode contrôle vitesse broche (_Groupe 14_) | G96, G97
+|Mode diamètre/rayon sur les tours (_Groupe 15_) | G7, G8
 |==========================================================
 
 [[tbl:M-codes-modaux]]
@@ -637,13 +660,13 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 [width="100%", cols="4,6", options="header"]
 |==========================================================
 |Signification du groupe modal        | Mots M
-|Types de fin de programme  (*Groupe 4*) | M0, M1, M2, M30, M60
-|On/Off I/O (*Groupe 5*)              | M6 Tn
-|Appel d'outil (*Groupe 6*)           | M6 Tn
-|Commande de broche (*Groupe 7*)      | M3, M4, M5
-|Arrosages  (*Groupe 8*)     | (M7, M8, peuvent être actifs simultanément), M9 
-|Boutons de correction de vitesse (*Groupe 9*)| M48, M49, M50, M51
-|Définis par l'utilisateur (*Groupe 10*) | M100 à M199
+|Types de fin de programme  (_Groupe 4_) | M0, M1, M2, M30, M60
+|On/Off I/O (_Groupe 5_)              | M6 Tn
+|Appel d'outil (_Groupe 6_)           | M6 Tn
+|Commande de broche (_Groupe 7_)      | M3, M4, M5
+|Arrosages  (_Groupe 8_)     | (M7, M8, peuvent être actifs simultanément), M9 
+|Boutons de correction de vitesse (_Groupe 9_)| M48, M49, M50, M51
+|Définis par l'utilisateur (_Groupe 10_) | M100 à M199
 |==========================================================
 
 Pour plusieurs groupes modaux, quand la machine est prête à accepter
@@ -666,22 +689,18 @@ ligne. Les mots d'axes utilisant des G-codes du groupe 0 sont G10, G28,
 G30 et G92.
 
 C'est une erreur d'inclure des mots sans rapport sur une ligne avec le
-contrôle de flux *O*.
+contrôle de flux _O_.
 
 [[sec:Commentaires]]
 == Commentaires
 (((Commentaires)))
 
-Si un point-virgule est rencontré en début de ligne, le reste de la ligne 
-est un commentaire. Un ensemble de caractères et espaces blancs entre 
-parenthèses est un commentaire. Une parenthèse ouvrante débute toujours un 
-commentaire. Le commentaire se termine à la première parenthèse fermante trouvée. 
-Si une parenthèse ouvrante est trouvée sur une ligne, une parenthèse
-fermante doit être également rencontrée avant la fin de la ligne. Les
-commentaires ne peuvent pas être imbriqués, une erreur sera signalée si
-une parenthèse ouvrante est rencontrée après le début d'un commentaire
-et avant la fin d'un commentaire. Un point-virgule rencontré entre des 
-parenthèses, n'est pas considéré comme le début d'un commentaire.
+Des commentaires peuvent être ajoutés aux lignes de G-code pour clarifier
+l'intention du programmeur. Les commentaires peuvent être placés sur une ligne
+en les encadrant par des parenthèses. Ils peuvent aussi occuper tout le
+reste de la ligne à partir d'un point virgule. Le point virgule
+n'est pas traité comme un début de commentaire si il se trouve entre deux
+parenthèses.
 
 Voici un exemple de programme commenté: 
 ----
@@ -690,20 +709,140 @@ G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.)
 M2 ; Fin du programme.
 ----
 
+Les commentaires peuvent se trouver entre des mots, mais pas entre des mots et
+leur paramètre correspondant. Ainsi, cette ligne est correcte:
+----
+S100(vitesse broche)F200(vitesse d'avance)
+----
+
+mais celle-ci est incorrecte:
+----
+S(speed)100F(feed)200
+----
+
 Les commentaires sont seulement informatifs, ils n'ont aucune 
 influence sur la machine.
+
+Il y a plusieurs commentaires _actif_ qui ressemblent à un commentaire mais qui
+produit certaines actions, comme _(debug,...)_ ou _(print,...)_, expliqués plus
+loin. Si plusieurs commentaires se trouvent sur la même ligne, seul le dernier
+sera interprété selon les règles. Par conséquent, un commentaire normal suivant
+un commentaire actif aura pour effet de désactiver le commentaire actif. Par
+exemple, _(foo) (debug,#1)_ affichera la valeur du paramètre _#1_, mais
+_(debug,#1) (foo)_ ne l'affichera pas.
+
+Un commentaire commençant par un point virgule est par définition le dernier
+commentaire sur cette ligne et sera toujours interprété selon la syntaxe des
+commentaires actifs.
+
+[[sec:Messages]]
+== Messages
+(((Messages)))
+
+* _(MSG,)_ - Un commentaire contient un message si _MSG_ apparaît après la
+            parenthèse ouvrante et avant tout autre caractère. Les variantes de
+            _MSG_ qui incluent un espace blanc et des minuscules sont permises.
+            Le reste du texte avant la parenthèse fermante est considéré comme
+            un message. Les messages sont affichés sur la visu de l'interface
+            utilisateur.
+
+.Exemple de message
+----
+(MSG, Ceci est un message)
+----
+
+[[sec:Log-des-mesures]]
+== Enregistrement des mesures
+(((Enregistrement des mesures)))
+
+* _(PROBEOPEN filename.txt)_ - ouvrira le fichier _filename.txt_ et y
+                            enregistrera les 9 coordonnées de XYZABCUVW pour
+                            chacune des mesures réussie. 
+* _(PROBECLOSE)_. - fermera le fichier de log palpeur.
+
+Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour d'autres
+informations sur le palpage avec G38.
+
+[[sec:Log-general]]
+== Log général
+(((Log général)))
+
+* _(LOGOPEN,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera tronqué.
+
+* _(LOGAPPEND,filename.txt)_ - Ouvre le fichier de log _filename.txt_.
+                            Si le fichier existe déjà, il sera ajoutées.
+
+* _(LOGCLOSE)_ - Si le fichier est ouvert, il sera fermé.
+
+* _(LOG,message)_ - Le _message_ placé derrière la virgule est écrit dans
+                    le fichier de log si il est ouvert. Supporte l'extension
+                    des paramètres comme décrit plus loin.
+
+[[sec:Messages-debogage]]
+== Messages de débogage
+(((Messages de débogage)))
+
+* _(DEBUG,commentaire)_ sont traités de la même façon que ceux avec
+                        _(msg,reste du commentaire)_ avec l'ajout de
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+* _(PRINT,commentaire)_ vont directement sur la sortie _stderr_ avec des
+                        possibilités spéciales pour les paramètres, comme
+                        décrit plus loin.
+
+== Paramètres dans les commentaires
+
+Dans les commentaires avec DEBUG, PRINT et LOG, les valeurs des
+paramètres dans le message sont étendues.
+
+Par exemple: pour afficher le contenu d'une variable nommée globale sur la
+sortie stderr (la fenêtre de la console par défaut), ajouter une ligne au
+G-code comme:
+
+.Exemple de paramètres en commentaire
+----
+(print,diamètre fraise 3 dents = #<_troisdents_dia>)
+(print,la valeur de la variable 123 est: #123)
+----
+
+À l'intérieur de ces types de commentaires, les séquences comme _#123_
+sont remplacées par la valeur du paramètre 123. Les séquences comme
+_#<paramètre nommé>_ sont remplacées par la valeur du paramètre nommé.
+Rappelez vous que
+ les espaces dans les noms des paramètres nommés sont supprimés,
+_#<parametre nomme>_ est équivalent à _#<parametrenomme>_.
+
+== Exigences des fichiers
+
+Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se
+terminer par une ligne de<<sec:M2-M30, fin de programme>>.
+Tout G-code, placé après cette ligne de fin de programme, sera ignoré.
+
+Si le programme n'utilise pas G-code de fin de programme, une paire de
+signes pourcent _%_ peut être utilisées. Le premier signe _%_ doit dans ce cas se
+trouver sur la première ligne du fichier, suivi par une ou plusieurs lignes de
+G-code, puis du second signe _%_. Tout G-code placé après le second signe _%_
+sera ignoré.
+
+[NOTE]
+Les fichiers de G-code doivent être créés avec un éditeur de texte comme Gedit
+et non avec un traitement de texte comme Open Office. Les traitements de
+texte ajoutent de nombreux caractères de contrôle dans les fichiers, ce qui
+les rends inutilisables comme programmes G-code.
 
 == Taille des fichiers
 
 L'interpréteur et le gestionnaire de tâches ont été écrits, de sorte que la 
 taille des fichiers n'est limité que par la capacité du disque dur. Les 
-interfaces graphiques TkEMC et Axis affichent tous les deux le programme G-code
+interfaces graphiques TkLinuxCNC et Axis affichent tous les deux le programme G-code
 à l'écran pour l'utilisateur, cependant, la RAM devient un facteur limitant. 
 Dans Axis, parce-que l'aperçu du parcours d'outil est affiché par défaut, le
 rafraîchissement de l'écran devient une limite pratique à la taille des fichiers.
 Le tracé du parcours d'outil peut être désactivé dans Axis pour accélérer le 
 chargement des fichiers conséquents. L'aperçu peut être désactivé en 
-passant un commentaire spécial.
+passant un <<sub:Commentaires-speciaux,commentaire spécial>>.
 
 [[sec:Ordre-d-execution]]
 == Ordre d'exécution
@@ -753,9 +892,9 @@ Le G-code est plus lisible quand au moins un espace apparaît avant les
 mots. S'il est permis d'insérer des espaces blancs au milieu des
 chiffres, il faut éviter de le faire.
 
-=== Préférer le *format centre* pour les arcs
+=== Préférer le _format centre_ pour les arcs
 
-Les arcs en format centre (qui utilisent *I- J- K-* au lieu de *R-* )
+Les arcs en format centre (qui utilisent _I- J- K-_ au lieu de _R-_ )
 se comportent de façon plus précise que ceux en format rayon,
 particulièrement pour des angles proche de 180 et 360 degrés.
 
@@ -790,7 +929,7 @@ ne pas écrire de ligne de code qui laisse la moindre ambiguïté.
 
 Ne pas _utiliser_ et _définir_ un paramètre sur la même ligne, même si 
 la sémantique est bien définie. Mettre à jour une variable, à une 
-nouvelle valeur, telle que *#1 = [#1 + #2]* est autorisé.
+nouvelle valeur, telle que _#1 = [#1 + #2]_ est autorisé.
 
 === Ne pas utiliser les numéros de ligne
 
@@ -802,7 +941,7 @@ numéros de lignes à l'intérieur du programme, pas aux valeurs des mots N.
 
 envisager le mode vitesse inverse du temps.
 
-Parce que la signification d'un mot *F* en mètres par minute varie selon
+Parce que la signification d'un mot _F_ en mètres par minute varie selon
 les axes à déplacer et parce que la quantité de matière enlevée ne
 dépend pas que de la vitesse travail, il peut être plus simple
 d'utiliser G93, vitesse inverse du temps, pour atteindre l'enlèvement de
@@ -810,10 +949,25 @@ matière souhaité.
 
 == Axes rotatifs et linéaires
 
-La signification du mot *F-*, exprimé en vitesse par minute, étant différente 
+La signification du mot _F-_, exprimé en vitesse par minute, étant différente 
 selon l'axe concerné par la commande de déplacement et parce-que la quantité
 de matière enlevée ne dépend pas seulement de la vitesse d'avance, il est 
-facile d'utiliser le mode inverse du temps *G93* pour atteindre la quantité de 
+facile d'utiliser le mode inverse du temps _G93_ pour atteindre la quantité de 
 matériaux à enlever, souhaitée.
+
+== Messages d'erreur courants
+
+* _G code hors d'étendue_ - Un G-code supérieur à G99 a été utilisé. L'étendue
+des G-codes dans LinuxCNC est comprise entre 0 et 99. Toutefois, les valeurs
+entre 0 et 99 ne sont pas toutes celle d'un G-code valide.
+* _Utilisation d'un G code inconnu_ - Un G-code à été utilisé qui n'appartient
+pas aux langage G-code de LinuxCNC.
+* _Mot i, j, k sans Gx l'utilisant_ - Les mots i, j et k doivent être utilisés
+sur la même ligne que leur G-code.
+* _Impossible d'employer des valeurs d'axe sans G code pour les utiliser_ - Les 
+valeurs d'axe ne peuvent pas être utilisées sur une ligne sans qu'un G-code ne
+se trouve sur la même ligne ou qu'un G-code modal soit actif.
+* _Le fichier se termine sans signe pourcent ni fin de programme_ - Tout fichier
+G-code doit se terminer par un M2, un M30 ou être encadré par le signe _%_.
 
 // vim: set syntax=asciidoc:

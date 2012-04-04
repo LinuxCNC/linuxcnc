@@ -65,7 +65,7 @@ IniFile::Open(const char *file)
 
     if(IsOpen()) Close();
 
-    TildeExpansion(file, path);
+    TildeExpansion(file, path, sizeof(path));
 
     if((fp = fopen(path, "r")) == NULL)
         return(false);
@@ -424,6 +424,31 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     return(NULL);
 }
 
+const char *
+IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+{
+    const char *res = Find(_tag, _section, _num, lineno);
+    if(res == NULL)
+        return res;
+    int r = snprintf(dest, n, "%s", res);
+    if(r < 0 || (size_t)r >= n) {
+        ThrowException(ERR_CONVERSION);
+        return NULL;
+    }
+    return dest;
+}
+
+const char *
+IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+{
+    const char *res = Find(_tag, _section, _num, lineno);
+    if(!res)
+        return res;
+    if(TildeExpansion(res, dest, n)) {
+        return 0;
+    }
+    return dest;
+}
 
 bool
 IniFile::CheckIfOpen(void)
@@ -465,30 +490,42 @@ IniFile::LockFile(void)
    @param pointer for returning the resulting expanded name
 
  */
-void
-IniFile::TildeExpansion(const char *file, char *path)
+IniFile::ErrorCode
+IniFile::TildeExpansion(const char *file, char *path, size_t size)
 {
     char                        *home;
 
-    strncpy(path, file, LINELEN);
+    int res = snprintf(path, size, "%s", file);
+    if(res < 0 || (size_t)res >= size)
+        return ERR_CONVERSION;
+
     if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
 	/* no tilde expansion required, or unsupported
            tilde expansion type requested */
-	return;
+	return ERR_NONE;
     }
 
     home = getenv("HOME");
-    if (!home || strlen(home) + strlen(file) > LINELEN) {
-	return;
+    if (!home) {
+        ThrowException(ERR_CONVERSION);
+	return ERR_CONVERSION;
     }
 
-    /* Buffer overflow has already been checked. */
+    res = snprintf(path, size, "%s%s", home, file + 1);
+    if(res < 0 || (size_t)res >= size) {
+        ThrowException(ERR_CONVERSION);
+        return ERR_CONVERSION;
+    }
 
-    strcpy(path, home);
-    strcat(path, file + 1);
-    return;
+    return ERR_NONE;
 }
 
+int
+TildeExpansion(const char *file, char *path, size_t size)
+{
+    static IniFile f;
+    return !f.TildeExpansion(file, path, size);
+}
 
 void
 IniFile::ThrowException(ErrorCode errCode)
@@ -620,4 +657,18 @@ iniFind(FILE *fp, const char *tag, const char *section)
     IniFile                     f(false, fp);
 
     return(f.Find(tag, section));
+}
+
+extern "C" const int
+iniFindInt(FILE *fp, const char *tag, const char *section, int *result)
+{
+    IniFile f(false, fp);
+    return(f.Find(result, tag, section));
+}
+
+extern "C" const int
+iniFindDouble(FILE *fp, const char *tag, const char *section, double *result)
+{
+    IniFile f(false, fp);
+    return(f.Find(result, tag, section));
 }
