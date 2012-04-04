@@ -66,6 +66,7 @@ extern "C" {
 #define EMCMOT_COMM_ERROR_TIMEOUT -2	/* connected, but send timeout */
 #define EMCMOT_COMM_ERROR_COMMAND -3	/* sent, but can't run command now */
 #define EMCMOT_COMM_SPLIT_READ_TIMEOUT -4	/* can't read without split */
+#define EMCMOT_COMM_INVALID_MOTION_ID -5 /* do not queue a motion id MOTION_INVALID_ID */
 
 /* usrmotWriteEmcmotCommand() writes the command to the emcmot process.
    Return values are as per the #defines above */

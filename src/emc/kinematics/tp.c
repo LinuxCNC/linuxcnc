@@ -191,6 +191,12 @@ int tpSetAmax(TP_STRUCT * tp, double aMax)
   */
 int tpSetId(TP_STRUCT * tp, int id)
 {
+
+    if (!MOTION_ID_VALID(id)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "tpSetId: invalid motion id %d\n", id);
+	return -1;
+    }
+	
     if (0 == tp) {
 	return -1;
     }
@@ -751,8 +757,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if(tp->aborting) {
         // an abort message has come
-        if( waiting_for_index ||
-            waiting_for_atspeed || 
+        if( MOTION_ID_VALID(waiting_for_index) ||
+	    MOTION_ID_VALID(waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && !nexttc) || 
             (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
             tcqInit(&tp->queue);
@@ -792,7 +798,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
     // check for at-speed before marking the tc active
-    if(waiting_for_atspeed) {
+    if (MOTION_ID_VALID(waiting_for_atspeed)) {
         if(!emcmotStatus->spindle_is_atspeed) {
             /* spindle is still not at the right speed: wait */
             return 0;
@@ -846,7 +852,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         }
     }
 
-    if(waiting_for_index) {
+    if (MOTION_ID_VALID(waiting_for_index)) {
         if(emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
             return 0;
