@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-04-04 16:36+0200\n"
+"PO-Revision-Date: 2012-04-04 16:37+0200\n"
 "Last-Translator: Jeff Epler <jepler@unpythonic.net>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -8163,7 +8163,7 @@ msgstr "Dégagement du contac_t d'origine:"
 msgid ""
 "_:"
 ""
-msgstr "_:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3437
 #: emc/usr_intf/pncconf/pncconf.glade:58536
@@ -17001,7 +17001,7 @@ msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 
 #: src/emc/rs274ngc/interp_convert.cc:3087
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Avec M19, un mot Q doit être > 0"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
 #, c-format
