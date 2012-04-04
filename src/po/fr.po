@@ -16996,7 +16996,6 @@ msgid "M7x: restore_settings failed executing: '%s': %s"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3012
-#, fuzzy
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 
