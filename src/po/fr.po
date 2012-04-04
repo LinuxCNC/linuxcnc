@@ -8162,6 +8162,7 @@ msgstr "Dégagement du contac_t d'origine:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3437
@@ -16965,7 +16966,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:191
 #, c-format
 msgid "cant open ini file '%s'"
-msgstr "Impossible d'ouvrir %s "
+msgstr "Impossible d'ouvrir %s"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:208
 #, fuzzy, c-format
