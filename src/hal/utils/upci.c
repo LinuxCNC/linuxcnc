@@ -366,7 +366,14 @@ static int incr_io_usage ( void )
 	retval = iopl(3);
 	eno = errno;
 	/* drop priviliges */
-	seteuid(getuid());
+	if(seteuid(getuid()) != 0)
+	{
+	    errmsg(__func__, "unable to drop root privileges");
+	    /* Don't continue past this point, because following code may
+	     * execute with unexpected privileges
+	     */
+	    _exit(99);
+	}
 	/* check result */
 	if(iopl(3) < 0) {
 	    errmsg(__func__,"opening I/O ports: %s", strerror(eno));
@@ -408,7 +415,14 @@ static int incr_mem_usage ( void )
 	memfd = open("/dev/mem", O_RDWR);
 	eno = errno;
 	/* drop priviliges */
-	seteuid(getuid());
+	if(seteuid(getuid()) != 0)
+	{
+	    errmsg(__func__, "unable to drop root privileges");
+	    /* Don't continue past this point, because following code may
+	     * execute with unexpected privileges
+	     */
+	    _exit(99);
+	}
 	/* check result */
 	if ( memfd < 0 ) {
 	    errmsg(__func__,"can't open /dev/mem: %s", strerror(eno));
