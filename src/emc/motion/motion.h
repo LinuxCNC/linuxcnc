@@ -78,6 +78,7 @@ to another.
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
+#include "rtapi_limits.h"
 #include <stdarg.h>
 
 
@@ -85,7 +86,7 @@ to another.
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
 // this should be really be tested for in command.c 
 
-#define MOTION_INVALID_ID (-((int)(~0U>>1))-1)
+#define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
