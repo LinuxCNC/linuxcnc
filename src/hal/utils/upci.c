@@ -375,7 +375,7 @@ static int incr_io_usage ( void )
 	    _exit(99);
 	}
 	/* check result */
-	if(iopl(3) < 0) {
+	if(retval < 0 || iopl(3) < 0) {
 	    errmsg(__func__,"opening I/O ports: %s", strerror(eno));
 	    return -1;
 	}
