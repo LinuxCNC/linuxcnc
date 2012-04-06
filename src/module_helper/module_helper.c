@@ -55,7 +55,7 @@ void error(int argc, char **argv) {
     if(res != 0)
     {
         perror("setuid");
-        return 1;
+        exit(1);
     }
 
     fprintf(stderr, "%s: Invalid usage with args:", argv[0]);
