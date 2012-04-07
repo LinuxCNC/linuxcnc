@@ -30,15 +30,10 @@
 #include "hostmot2-lowlevel.h"
 #include "hm2_7i43.h"
 
-
-static int comp_id;
-
-#ifdef MODULE_INFO
-MODULE_INFO(linuxcnc, "component:hm2_7i43:LinuxCNC HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2 firmware.");
-MODULE_INFO(linuxcnc, "license:GPL");
-#endif // MODULE_INFO
-
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Sebastian Kuzminsky");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 7i43 Anything I/O boards from Mesa Electronics");
+MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
 static int num_ioaddrs = HM2_7I43_MAX_BOARDS;
@@ -55,14 +50,15 @@ static int num_epp_wides = HM2_7I43_MAX_BOARDS;
 module_param_array(epp_wide, int, &num_epp_wides, S_IRUGO);
 MODULE_PARM_DESC(epp_wide, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
 
-int debug_epp = 0;
-RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
-
 static char *config[HM2_7I43_MAX_BOARDS];
 static int num_config_strings = HM2_7I43_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
 MODULE_PARM_DESC(config, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
 
+int debug_epp = 0;
+RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
+
+static int comp_id;
 
 
 

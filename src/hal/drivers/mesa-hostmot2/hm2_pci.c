@@ -30,21 +30,17 @@
 #include "hostmot2-lowlevel.h"
 #include "hm2_pci.h"
 
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
 MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
-
 
 static char *config[HM2_PCI_MAX_BOARDS];
 static int num_config_strings = HM2_PCI_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
 MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
-
 static int comp_id;
-
 
 // FIXME: should probably have a linked list of boards instead of an array
 static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
