@@ -22,14 +22,13 @@
 
 #include "rtapi.h"
 #include "rtapi_app.h"
-#include "rtapi_math.h"
 #include "rtapi_string.h"
 
 #include "hal.h"
 
-#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
-#include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
+#include "bitfile.h"
+#include "hostmot2-lowlevel.h"
+#include "hm2_7i43.h"
 
 
 static int comp_id;
