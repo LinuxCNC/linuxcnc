@@ -705,7 +705,7 @@ static struct pci_driver hm2_pci_driver = {
 int rtapi_app_main(void) {
     int r = 0;
 
-    LL_PRINT("loading Mesa AnyIO HostMot2 driver version " HM2_PCI_VERSION "\n");
+    LL_PRINT("loading Mesa AnyIO HostMot2 driver version %s\n", HM2_PCI_VERSION);
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
@@ -738,7 +738,7 @@ int rtapi_app_main(void) {
 
 void rtapi_app_exit(void) {
     pci_unregister_driver(&hm2_pci_driver);
-    LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
+    LL_PRINT("driver unloaded\n");
 }
 

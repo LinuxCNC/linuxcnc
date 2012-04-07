@@ -386,8 +386,6 @@ static void hm2_7i43_cleanup(void) {
 static int hm2_7i43_setup(void) {
     int i;
 
-    LL_PRINT("loading HostMot2 Mesa 7i43 driver version %s\n", HM2_7I43_VERSION);
-
     // zero the board structs
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
     num_boards = 0;
@@ -488,18 +486,20 @@ static int hm2_7i43_setup(void) {
 int rtapi_app_main(void) {
     int r = 0;
 
+    LL_PRINT("loading Mesa 7i43 HostMot2 driver version %s\n", HM2_7I43_VERSION);
+
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
 
     r = hm2_7i43_setup();
-    if (r) {
+    if (r != 0) {
         hm2_7i43_cleanup();
         hal_exit(comp_id);
-    } else {
-        hal_ready(comp_id);
+        return r;
     }
 
-    return r;
+    hal_ready(comp_id);
+    return 0;
 }
 
 
