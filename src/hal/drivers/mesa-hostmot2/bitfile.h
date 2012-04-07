@@ -22,15 +22,10 @@
 //    good comments on the bitfile format.
 //
 
-
 #ifndef __BITFILE_H
 #define __BITFILE_H
 
-
 #include <linux/firmware.h>
-
-
-
 
 typedef struct {
     int size;
@@ -42,14 +37,7 @@ typedef struct {
     bitfile_chunk_t a, b, c, d, e;
 } bitfile_t;
 
-
-
-
 int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile);
 u8 bitfile_reverse_bits(u8 data);
 
-
-
-
 #endif  // __BITFILE_H
-

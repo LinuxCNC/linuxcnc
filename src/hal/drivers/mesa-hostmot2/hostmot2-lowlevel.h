@@ -17,8 +17,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifndef HOSTMOT2_LOWLEVEL_H
-#define HOSTMOT2_LOWLEVEL_H
+#ifndef __HOSTMOT2_LOWLEVEL_H
+#define __HOSTMOT2_LOWLEVEL_H
 
 #include <linux/device.h>
 #include <linux/firmware.h>
@@ -27,7 +27,6 @@
 #include "hal.h"
 
 #include "bitfile.h"
-
 
 //
 // Note: LL_PRINT(), LL_PRINT_IF(), and THIS_PRINT() all use rtapi_print()
@@ -114,9 +113,6 @@ struct hm2_lowlevel_io_struct {
     void *private;  // for the low-level driver to hang their struct on
 };
 
-
-
-
 // 
 // HostMot2 functions for the low-level I/O drivers to call
 //
@@ -125,5 +121,5 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config);
 void hm2_unregister(hm2_lowlevel_io_t *llio);
 
 
-#endif //  HOSTMOT2_LOWLEVEL_H
+#endif //  __HOSTMOT2_LOWLEVEL_H
 

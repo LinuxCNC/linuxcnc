@@ -17,6 +17,9 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#ifndef __HOSTMOT2_H
+#define __HOSTMOT2_H
+
 // please God where do these live in real life?
 #define INT32_MIN (-2147483647-1)
 #define INT32_MAX (2147483647)
@@ -1280,3 +1283,4 @@ void hm2_raw_write(hostmot2_t *hm2);
 // used by hm2_register() to initialize and by hm2_pet_watchdog() to recover from io errors and watchdog errors
 void hm2_force_write(hostmot2_t *hm2);
 
+#endif // __HOSTMOT2_H

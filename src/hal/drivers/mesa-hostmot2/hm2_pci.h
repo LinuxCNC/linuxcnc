@@ -17,16 +17,12 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#ifndef __HM2_PCI_H
+#define __HM2_PCI_H
 
 #define HM2_PCI_VERSION "0.7"
-
 #define HM2_LLIO_NAME "hm2_pci"
-
-
-#define HM2_PCI_MAX_BOARDS  8
-
-
-
+#define HM2_PCI_MAX_BOARDS  (8)
 
 // 
 // PCI Device IDs and SubSystem Device IDs
@@ -34,10 +30,10 @@
 
 #define HM2_PCI_VENDORID_PLX   (0x10B5)
 #define HM2_PCI_VENDORID_MESA  (0x2718)
+
 #define HM2_PCI_DEV_PLX9030    (0x9030)
 #define HM2_PCI_DEV_PLX9054    (0x9054)
 #define HM2_PCI_DEV_PLX9056    (0x9056)
-
 #define HM2_PCI_DEV_MESA5I25   (0x5125)
 
 #define HM2_PCI_SSDEV_5I20     (0x3131)
@@ -63,9 +59,6 @@
 #define HM2_PCI_SSDEV_3X20_15  (0x3428)
 #define HM2_PCI_SSDEV_3X20_20  (0x3429)
 
-
-
-
 //
 // the LAS?BRD registers are in the PLX 9030
 //
@@ -80,9 +73,6 @@
 #define LAS3BRD_OFFSET 0x34
 
 #define LASxBRD_READY 0x2
-
-
-
 
 //
 // PLX 9030 (5i20, 4i65)
@@ -99,9 +89,6 @@
 #define GPIO_6_MASK		(1<<20)	/* GPIO 6 */
 #define _WRITE_MASK		(1<<23)	/* GPIO 7 */
 #define _PROGRAM_MASK		(1<<26)	/* GPIO 8 */
-
-
-
 
 //
 // PLX 9054 (5i22, 5i23, 4i68, 4i69)
@@ -123,9 +110,6 @@
 /* how long should we wait for DONE when programming 9054-based cards */
 #define DONE_WAIT_5I22			20000
 
-
-
-
 typedef struct {
     struct pci_dev *dev;
     void __iomem *base;
@@ -135,3 +119,4 @@ typedef struct {
     hm2_lowlevel_io_t llio;
 } hm2_pci_t;
 
+#endif  // __HM2_PCI_H

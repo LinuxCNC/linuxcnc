@@ -17,13 +17,14 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#define HM2_7I43_VERSION "0.3"
-
-#define HM2_LLIO_NAME "hm2_7i43"
+#ifndef __HM2_7I43_H
+#define __HM2_7I43_H
 
 #include "hal_parport.h"
 
-
+#define HM2_7I43_VERSION "0.3"
+#define HM2_LLIO_NAME "hm2_7i43"
+#define HM2_7I43_MAX_BOARDS (4)
 
 // 
 // EPP stuff
@@ -38,13 +39,7 @@
 #define HM2_7I43_ECP_CONFIG_B_HIGH_OFFSET  (1)
 #define HM2_7I43_ECP_CONTROL_HIGH_OFFSET   (2)
 
-
 #define HM2_7I43_ADDR_AUTOINCREMENT (0x8000)
-
-#define HM2_7I43_MAX_BOARDS (4)
-
-
-
 
 //
 // The Mesa 7i43 struct
@@ -56,4 +51,6 @@ typedef struct {
 
     hm2_lowlevel_io_t llio;
 } hm2_7i43_t;
+
+#endif  // __HM2_7I43_H
 
