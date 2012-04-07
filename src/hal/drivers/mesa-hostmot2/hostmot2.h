@@ -20,12 +20,8 @@
 #ifndef __HOSTMOT2_H
 #define __HOSTMOT2_H
 
-// please God where do these live in real life?
-#define INT32_MIN (-2147483647-1)
-#define INT32_MAX (2147483647)
-#define UINT32_MAX (4294967295U)
-
 #include "rtapi.h"
+#include "rtapi_limits.h"     // INT_MAX
 #include "hal.h"
 
 #include "hostmot2-lowlevel.h"
