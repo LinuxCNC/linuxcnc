@@ -42,21 +42,6 @@ MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) ma
 
 static int comp_id;
 
-// FIXME: should probably have a linked list of boards instead of an array
-static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
-static int num_boards = 0;
-static int num_5i20 = 0;
-static int num_5i21 = 0;
-static int num_5i22 = 0;
-static int num_5i23 = 0;
-static int num_5i25 = 0;
-static int num_4i65 = 0;
-static int num_4i68 = 0;
-static int num_4i69 = 0;
-static int num_3x20 = 0;
-static int failed_errno=0; // errno of last failed registration
-
-
 static struct pci_device_id hm2_pci_tbl[] = {
 
     // 5i20
@@ -176,11 +161,22 @@ static struct pci_device_id hm2_pci_tbl[] = {
 
 MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 
-
-
+// FIXME: should probably have a linked list of boards instead of an array
+static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
+static int num_boards = 0;
+static int num_5i20 = 0;
+static int num_5i21 = 0;
+static int num_5i22 = 0;
+static int num_5i23 = 0;
+static int num_5i25 = 0;
+static int num_4i65 = 0;
+static int num_4i68 = 0;
+static int num_4i69 = 0;
+static int num_3x20 = 0;
+static int failed_errno=0; // errno of last failed registration
 
 // 
-// these are the "low-level I/O" functions exported up
+// these are the low-level i/o functions exported to the hostmot2 driver
 //
 
 static int hm2_pci_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
@@ -194,7 +190,6 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
     memcpy((board->base + addr), buffer, size);
     return 1;  // success
 }
-
 
 static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
@@ -238,7 +233,6 @@ fail:
     outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
     return -EIO;
 }
-
 
 static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
@@ -293,7 +287,6 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     return 0;
 }
 
-
 // fix up LASxBRD READY if needed
 static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
     hm2_lowlevel_io_t *this = &board->llio;
@@ -312,9 +305,6 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
         }
     }
 }
-
-
-
 
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
@@ -338,7 +328,6 @@ static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
 
     return 0;
 }
-
 
 static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
@@ -375,13 +364,9 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     return 0;
 }
 
-
-
-
 // 
-// misc internal functions
+// pci driver setup and cleanup functions
 //
-
 
 static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     int r;
@@ -667,7 +652,6 @@ fail0:
     return failed_errno = r;
 }
 
-
 static void hm2_pci_remove(struct pci_dev *dev) {
     int i;
 
@@ -693,14 +677,12 @@ static void hm2_pci_remove(struct pci_dev *dev) {
     }
 }
 
-
 static struct pci_driver hm2_pci_driver = {
 	.name = HM2_LLIO_NAME,
 	.id_table = hm2_pci_tbl,
 	.probe = hm2_pci_probe,
 	.remove = hm2_pci_remove,
 };
-
 
 int rtapi_app_main(void) {
     int r = 0;
@@ -735,10 +717,8 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-
 void rtapi_app_exit(void) {
     pci_unregister_driver(&hm2_pci_driver);
     hal_exit(comp_id);
     LL_PRINT("driver unloaded\n");
 }
-

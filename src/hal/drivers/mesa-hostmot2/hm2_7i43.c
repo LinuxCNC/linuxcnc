@@ -60,8 +60,6 @@ RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most
 
 static int comp_id;
 
-
-
 //
 // this data structure keeps track of all the 7i43 boards found
 //
@@ -69,11 +67,8 @@ static int comp_id;
 static hm2_7i43_t board[HM2_7I43_MAX_BOARDS];
 static int num_boards;
 
-
-
-
 // 
-// EPP I/O code
+// EPP "low-level I/O" functions
 // 
 
 static inline void hm2_7i43_epp_addr8(u8 addr, hm2_7i43_t *board) {
@@ -174,7 +169,6 @@ static int hm2_7i43_epp_clear_timeout(hm2_7i43_t *board) {
     return 1;  // success
 }
 
-
 //
 // misc generic helper functions
 //
@@ -192,9 +186,6 @@ static void hm2_7i43_nanosleep(unsigned long int nanoseconds) {
 
     rtapi_delay(nanoseconds);
 }
-
-
-
 
 // 
 // these are the low-level i/o functions exported to the hostmot2 driver
@@ -227,9 +218,6 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     return 1;  // success
 }
 
-
-
-
 int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
@@ -256,9 +244,6 @@ int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 
     return 1;
 }
-
-
-
 
 int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     int orig_debug_epp = debug_epp;  // we turn off EPP debugging for this part...
@@ -315,9 +300,6 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     return 0;
 }
 
-
-
-
 // return 0 if the board has been reset, -errno if not
 int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     hm2_7i43_t *board = this->private;
@@ -361,13 +343,9 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     return 0;
 }
 
-
-
-
 //
 // setup and cleanup code
 //
-
 
 static void hm2_7i43_cleanup(void) {
     int i;
@@ -381,7 +359,6 @@ static void hm2_7i43_cleanup(void) {
         hal_parport_release(&board[i].port);
     }
 }
-
 
 static int hm2_7i43_setup(void) {
     int i;
@@ -482,7 +459,6 @@ static int hm2_7i43_setup(void) {
     return 0;
 }
 
-
 int rtapi_app_main(void) {
     int r = 0;
 
@@ -502,10 +478,8 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-
 void rtapi_app_exit(void) {
     hm2_7i43_cleanup();
     hal_exit(comp_id);
     LL_PRINT("driver unloaded\n");
 }
-
