@@ -509,6 +509,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 
     if (newFP) {
 	logOword("fopen: |%s| OK", newFileName);
+	settings->sequence_number = 0;
 
 	// close the old file...
 	if (settings->file_pointer)
