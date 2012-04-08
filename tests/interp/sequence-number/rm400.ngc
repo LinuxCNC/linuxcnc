@@ -1,0 +1,5 @@
+o<rm400> sub
+(debug, in rm400.ngc line=#<_line> - expect 2)
+o<rm400> endsub
+m2
+%
