@@ -197,9 +197,9 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     u32 status, control;
 
     // set /WRITE low for data transfer, and turn on LED
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    control = status & ~_WRITE_MASK & ~_LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
+    control = status & ~_WRITE_MASK_9030 & ~_LED_MASK_9030;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
 
     // program the FPGA
     for (i = 0; i < bitfile->e.size; i ++) {
@@ -207,30 +207,30 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     }
 
     // all bytes transferred, make sure FPGA is all set up now
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    if (!(status & _INIT_MASK)) {
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
+    if (!(status & _INIT_MASK_9030)) {
 	// /INIT goes low on CRC error
 	THIS_ERR("FPGA asserted /INIT: CRC error\n");
         goto fail;
     }
-    if (!(status & DONE_MASK)) {
+    if (!(status & DONE_MASK_9030)) {
 	THIS_ERR("FPGA did not assert DONE\n");
 	goto fail;
     }
 
     // turn off write enable and LED
-    control = status | _WRITE_MASK | _LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status | _WRITE_MASK_9030 | _LED_MASK_9030;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
 
     return 0;
 
 
 fail:
     // set /PROGRAM low (reset device), /WRITE high and LED off
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    control = status & ~_PROGRAM_MASK;
-    control |= _WRITE_MASK | _LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
+    control = status & ~_PROGRAM_MASK_9030;
+    control |= _WRITE_MASK_9030 | _LED_MASK_9030;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
     return -EIO;
 }
 
@@ -239,31 +239,31 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     u32 status;
     u32 control;
 
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
 
     // set /PROGRAM bit low to reset the FPGA
-    control = status & ~_PROGRAM_MASK;
+    control = status & ~_PROGRAM_MASK_9030;
 
     // set /WRITE and /LED high (idle state)
-    control |= _WRITE_MASK | _LED_MASK;
+    control |= _WRITE_MASK_9030 | _LED_MASK_9030;
 
     // and write it back
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
 
     // verify that /INIT and DONE went low
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    if (status & (DONE_MASK | _INIT_MASK)) {
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
+    if (status & (DONE_MASK_9030 | _INIT_MASK_9030)) {
 	THIS_ERR(
             "FPGA did not reset: /INIT = %d, DONE = %d\n",
-	    (status & _INIT_MASK ? 1 : 0),
-            (status & DONE_MASK ? 1 : 0)
+	    (status & _INIT_MASK_9030 ? 1 : 0),
+            (status & DONE_MASK_9030 ? 1 : 0)
         );
 	return -EIO;
     }
 
     // set /PROGRAM high, let FPGA come out of reset
-    control = status | _PROGRAM_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status | _PROGRAM_MASK_9030;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
 
     // wait for /INIT to go high when it finishes clearing memory
     // This should take no more than 100uS.  If we assume each PCI read
@@ -274,8 +274,8 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
         int count = 3300;
 
         do {
-            status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-            if (status & _INIT_MASK) break;
+            status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_9030);
+            if (status & _INIT_MASK_9030) break;
         } while (count-- > 0);
 
         if (count == 0) {
@@ -306,7 +306,7 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
     }
 }
 
-static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_plx905x_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status;
@@ -317,11 +317,11 @@ static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     }
 
     // all bytes transferred, make sure FPGA is all set up now
-    for (i = 0; i < DONE_WAIT_5I22; i++) {
-        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-        if (status & DONE_MASK_5I22) break;
+    for (i = 0; i < DONE_WAIT_905x; i++) {
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
+        if (status & DONE_MASK_905x) break;
     }
-    if (i >= DONE_WAIT_5I22) {
+    if (i >= DONE_WAIT_905x) {
         THIS_ERR("Error: Not /DONE; programming not completed.\n");
         return -EIO;
     }
@@ -329,21 +329,21 @@ static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     return 0;
 }
 
-static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
+static int hm2_plx905x_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status, control;
 
     // set GPIO bits to GPIO function
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-    control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
+    control = status | DONE_ENABLE_905x | _PROG_ENABLE_905x;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
 
     // Turn off /PROGRAM bit and insure that DONE isn't asserted
-    outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control & ~_PROGRAM_MASK_905x, board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
 
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-    if (status & DONE_MASK_5I22) {
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
+    if (status & DONE_MASK_905x) {
         // Note that if we see DONE at the start of programming, it's most
         // likely due to an attempt to access the FPGA at the wrong I/O
         // location.
@@ -352,13 +352,13 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     }
 
     // turn on /PROGRAM output bit
-    outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control | _PROGRAM_MASK_905x, board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
 
     // Delay for at least 100 uS. to allow the FPGA to finish its reset
     // sequencing.  3300 reads is at least 100 us, could be as long as a
     // few ms
     for (i = 0; i < 3300; i++) {
-        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_905x);
     }
 
     return 0;
@@ -592,8 +592,8 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
                 goto fail0;
             }
 
-            board->llio.program_fpga = hm2_plx9054_program_fpga;
-            board->llio.reset = hm2_plx9054_reset;
+            board->llio.program_fpga = hm2_plx905x_program_fpga;
+            board->llio.reset = hm2_plx905x_reset;
 
             break;
         }

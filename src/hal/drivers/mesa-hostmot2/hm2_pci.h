@@ -79,16 +79,16 @@
 //
 
 /* I/O registers */
-#define CTRL_STAT_OFFSET	0x0054	/* 9030 GPIO register (region 1) */
+#define CTRL_STAT_OFFSET_9030	0x0054	/* 9030 GPIO register (region 1) */
 
  /* bit number in 9030 GPIO register */
-#define GPIO_3_MASK		(1<<11)	/* GPIO 3 */
-#define DONE_MASK		(1<<11)	/* GPIO 3 */
-#define _INIT_MASK		(1<<14)	/* GPIO 4 */
-#define _LED_MASK		(1<<17)	/* GPIO 5 */
-#define GPIO_6_MASK		(1<<20)	/* GPIO 6 */
-#define _WRITE_MASK		(1<<23)	/* GPIO 7 */
-#define _PROGRAM_MASK		(1<<26)	/* GPIO 8 */
+#define GPIO_3_MASK_9030	(1<<11)	/* GPIO 3 */
+#define DONE_MASK_9030		(1<<11)	/* GPIO 3 */
+#define _INIT_MASK_9030		(1<<14)	/* GPIO 4 */
+#define _LED_MASK_9030		(1<<17)	/* GPIO 5 */
+#define GPIO_6_MASK_9030	(1<<20)	/* GPIO 6 */
+#define _WRITE_MASK_9030	(1<<23)	/* GPIO 7 */
+#define _PROGRAM_MASK_9030	(1<<26)	/* GPIO 8 */
 
 //
 // PLX 9054 (5i22, 5i23, 4i68, 4i69)
@@ -98,17 +98,17 @@
 
 /* I/O register indices.
 */
-#define CTRL_STAT_OFFSET_5I22	0x006C /* 5I22 32-bit control/status register. */
+#define CTRL_STAT_OFFSET_905x	0x006C /* 32-bit control/status register. */
 
 /* bit number in 9054 GPIO register */
 /* yes, the direction control bits are not in the same order as the I/O bits */
-#define DONE_MASK_5I22			(1<<17)	/* GPI */
-#define _PROGRAM_MASK_5I22		(1<<16)	/* GPO, active low */
-#define DONE_ENABLE_5I22		(1<<18) /* GPI direction control, 1=input */
-#define _PROG_ENABLE_5I22		(1<<19) /* GPO direction control, 1=output */
+#define DONE_MASK_905x		(1<<17)	/* GPI */
+#define _PROGRAM_MASK_905x	(1<<16)	/* GPO, active low */
+#define DONE_ENABLE_905x	(1<<18) /* GPI direction control, 1=input */
+#define _PROG_ENABLE_905x	(1<<19) /* GPO direction control, 1=output */
 
 /* how long should we wait for DONE when programming 9054-based cards */
-#define DONE_WAIT_5I22			20000
+#define DONE_WAIT_905x		20000
 
 typedef struct {
     struct pci_dev *dev;
