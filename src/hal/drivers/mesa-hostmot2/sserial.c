@@ -30,7 +30,7 @@
 
 #include "hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 //utility function delarations
 int hm2_sserial_stopstart(hostmot2_t *hm2, hm2_module_descriptor_t *md, 

@@ -18,7 +18,7 @@
 
 #include "rtapi_math.h"
 #include <linux/slab.h>
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 
 int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {

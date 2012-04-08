@@ -25,7 +25,7 @@
 
 #include "hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 
 

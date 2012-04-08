@@ -19,7 +19,7 @@
 
 #include "rtapi_math.h"
 #include <linux/slab.h>
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 // local functions
 int hm2_sserial_auto_read_configs(hostmot2_t *hm2, hm2_sserial_tram_t *tram, hal_sserial_auto_t *chan);

@@ -32,7 +32,7 @@
 
 #include "hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 int hm2_resolver_get_param(int param){
     // This function will eventually return parameters from the 7i49
