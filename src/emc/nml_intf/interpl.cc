@@ -46,57 +46,7 @@ NML_INTERP_LIST::~NML_INTERP_LIST()
 
 int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 {
-    /* check for invalid data */
-    if (0 == nml_msg.type) {
-	rcs_print_error
-	    ("NML_INTERP_LIST::append : attempt to append 0 type\n");
-	return -1;
-    }
-
-    if (NULL == linked_list_ptr) {
-	return -1;
-    }
-
-    if (nml_msg.size > MAX_NML_COMMAND_SIZE - 64) {
-	rcs_print_error
-	    ("NML_INTERP_LIST::append : command size is too large.");
-	return -1;
-    }
-    if (nml_msg.size < 4) {
-	rcs_print_error
-	    ("NML_INTERP_LIST::append : command size is invalid.");
-	return -1;
-    }
-#ifdef DEBUG_INTERPL
-    if (sizeof(temp_node) < MAX_NML_COMMAND_SIZE + 4 ||
-	sizeof(temp_node) > MAX_NML_COMMAND_SIZE + 16) {
-	rcs_print_error
-	    ("NML_INTERP_LIST::append : assumptions about NML_INTERP_LIST_NODE have been violated.\n");
-	return -1;
-    }
-#endif
-
-    // fill in the NML_INTERP_LIST_NODE
-    temp_node.line_number = next_line_number;
-    memcpy(temp_node.command.commandbuf, &nml_msg, nml_msg.size);
-
-    // stick it on the list
-    linked_list_ptr->store_at_tail(&temp_node,
-				   nml_msg.size +
-				   sizeof(temp_node.line_number) +
-				   sizeof(temp_node.dummy) + 32 + (32 -
-								   nml_msg.
-								   size %
-								   32), 1);
-
-    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
-	rcs_print
-	    ("NML_INTERP_LIST::append(nml_msg{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
-	     nml_msg.size, emc_symbol_lookup(nml_msg.type),
-	     linked_list_ptr->list_size, temp_node.line_number);
-    }
-
-    return 0;
+    return append(&nml_msg);
 }
 
 // sets the line number used for subsequent appends
