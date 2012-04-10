@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:24+0200\n"
+"PO-Revision-Date: 2012-04-10 19:27+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -820,7 +820,7 @@ msgstr "Keine weitere Bewegung der Tastspitze möglich"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for rigid tap move"
-msgstr ""
+msgstr "Muß aktiviert werden, im Koordinatenmodus für Gewindebohren"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
