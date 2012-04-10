@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:15+0200\n"
+"PO-Revision-Date: 2012-04-10 19:17+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -776,6 +776,8 @@ msgstr ""
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr ""
+"Joint %d: Während Referenzfahrt kann nicht aus der Referenzpos. gefahren "
+"werden"
 
 #: src/emc/motion/command.c:1279 src/emc/motion/command.c:1302
 #, c-format
