@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:12+0200\n"
+"PO-Revision-Date: 2012-04-10 19:13+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11415,7 +11415,7 @@ msgstr "Referenzfahrt nur im Joint-Modus möglich"
 
 #: src/emc/motion/command.c:1224 src/emc/motion/command.c:1235
 msgid "homing sequence already in progress"
-msgstr ""
+msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1233
 msgid "homing already in progress"
