@@ -748,7 +748,7 @@ msgstr "Keine zusätzl. Kreisbewegung möglich"
 
 #: src/emc/motion/command.c:1048
 msgid "MOTION: can't STEP while already executing"
-msgstr ""
+msgstr "MOTION: bereits begonnen, STEP nicht möglich"
 
 #: src/emc/motion/command.c:1140
 msgid "can't enable motion, enable input is false"
