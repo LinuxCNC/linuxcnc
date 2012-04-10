@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:06+0200\n"
+"PO-Revision-Date: 2012-04-10 19:07+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11387,7 +11387,7 @@ msgstr "Keine Linearbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:910
 msgid "can't add linear move"
-msgstr ""
+msgstr "Keine weitere Linearbewegung möglich"
 
 #: src/emc/motion/command.c:930
 msgid "need to be enabled, in coord mode for circular move"
