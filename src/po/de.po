@@ -11437,7 +11437,7 @@ msgstr ""
 #: src/emc/motion/command.c:1279 src/emc/motion/command.c:1302
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
-msgstr ""
+msgstr "Während der Bewegung kan nicht aus der Referenzpos. gefahren werden"
 
 #: src/emc/motion/command.c:1307
 #, c-format
