@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:41+0200\n"
+"PO-Revision-Date: 2012-04-10 19:42+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -912,7 +912,7 @@ msgstr "Grenze im Referenzstatus erreicht %d"
 #: src/emc/motion/homing.c:90
 #, c-format
 msgid "end of move in home state %d"
-msgstr ""
+msgstr "Bewegungsende im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:185
 #, c-format
