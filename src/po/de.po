@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:22+0200\n"
+"PO-Revision-Date: 2012-04-10 19:23+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11467,7 +11467,7 @@ msgstr "Tastspitze schon abgehoben bei Bewegung durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1364
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr ""
+msgstr "Tastspitze schon ausgelöst bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1376
 msgid "can't add probe move"
