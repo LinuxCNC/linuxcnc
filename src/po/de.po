@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:36+0200\n"
+"PO-Revision-Date: 2012-04-10 19:38+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -883,7 +883,7 @@ msgstr "MOTION: init_threads() fehlgeschlagen"
 #: src/emc/motion/motion.c:254
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: hal_stop_threads() fehlgeschlagen, Rückgabewert %d"
 
 #: src/emc/motion/motion.c:260
 #, c-format
