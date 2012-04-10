@@ -11497,7 +11497,7 @@ msgstr "Joint %d: zu viele Kompensationseingaben"
 #: src/emc/motion/command.c:1562 src/emc/motion/command.c:1611
 #, c-format
 msgid "joint %d: compensation values must increase"
-msgstr ""
+msgstr "Joint %d: Kompensationswerte müssen ansteigen"
 
 #: src/emc/motion/command.c:1591 src/emc/motion/command.c:1640
 #, c-format
