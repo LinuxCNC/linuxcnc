@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:45+0200\n"
+"PO-Revision-Date: 2012-04-10 19:46+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -934,6 +934,7 @@ msgstr ""
 #: src/emc/motion/homing.c:299
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
+"Ungültige Referenz-Konfiguration: SEARCH_VEL ungleich Null braucht LATCH_VEL"
 
 #: src/emc/motion/homing.c:447
 msgid "Home switch inactive before start of backoff move"
