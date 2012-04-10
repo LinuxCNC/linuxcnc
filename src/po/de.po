@@ -551,7 +551,7 @@ msgstr "Zwang"
 
 #: src/hal/utils/scope_trig.c:235 src/hal/utils/scope_trig.c:269
 msgid "Level"
-msgstr ""
+msgstr "Schwelle"
 
 #: src/hal/utils/scope_trig.c:303
 msgid "Trigger Source"
