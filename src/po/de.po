@@ -851,7 +851,7 @@ msgstr "Unerkannter Befehl %d"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
-msgstr ""
+msgstr "MOTION: hal_init fehlgeschlagen"
 
 #: src/emc/motion/motion.c:190
 #, c-format
