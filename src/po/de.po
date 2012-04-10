@@ -740,7 +740,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:940
 msgid "can't do circular move with limits exceeded"
-msgstr ""
+msgstr "Keine Kreisbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:958
 msgid "can't add circular move"
