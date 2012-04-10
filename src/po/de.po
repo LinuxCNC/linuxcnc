@@ -11589,6 +11589,7 @@ msgstr ""
 #: src/emc/motion/homing.c:299
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
+"Ungültige Referenz-Konfiguration: SEARCH_VEL ungleich Null braucht LATCH_VEL"
 
 #: src/emc/motion/homing.c:447
 msgid "Home switch inactive before start of backoff move"
