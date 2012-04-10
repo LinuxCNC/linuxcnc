@@ -11483,7 +11483,7 @@ msgstr "Kein Gewindebohren außerhalb der Grenzen"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
-msgstr "Geweindebohren: keine weitere Bewegung möglich"
+msgstr "Gewindebohren: keine weitere Bewegung möglich"
 
 #: src/emc/motion/command.c:1435
 msgid "need to be enabled, in teleop mode for teleop move"
