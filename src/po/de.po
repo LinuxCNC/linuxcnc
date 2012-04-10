@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 18:43+0200\n"
+"PO-Revision-Date: 2012-04-10 18:45+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -612,7 +612,7 @@ msgstr "G38.4: Bewegung ohne Kontaktschließung beendet."
 
 #: src/emc/motion/control.c:401
 msgid "Probe tripped during non-probe MDI command."
-msgstr ""
+msgstr "Tastspitze bei inaktivem MDI-Befehl ausgelöst."
 
 #: src/emc/motion/control.c:429
 msgid "Probe tripped during homing motion."
