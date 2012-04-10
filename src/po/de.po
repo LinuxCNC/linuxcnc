@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:28+0200\n"
+"PO-Revision-Date: 2012-04-10 19:29+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11492,7 +11492,7 @@ msgstr ""
 #: src/emc/motion/command.c:1556 src/emc/motion/command.c:1605
 #, c-format
 msgid "joint %d: too many compensation entries"
-msgstr ""
+msgstr "Joint %d: zu viele Kompensationseingaben"
 
 #: src/emc/motion/command.c:1562 src/emc/motion/command.c:1611
 #, c-format
