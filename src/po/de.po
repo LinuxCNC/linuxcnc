@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 17:51+0200\n"
+"PO-Revision-Date: 2012-04-10 17:53+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -192,7 +192,7 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:495
 msgid "Realtime function not linked"
-msgstr ""
+msgstr "Echtzeitfunktion nicht gelinkt"
 
 #: src/hal/utils/scope_horiz.c:496
 msgid ""
