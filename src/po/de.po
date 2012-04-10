@@ -337,7 +337,7 @@ msgstr ""
 "\n"
 "Sie starten die Threads und klicken 'OK'\n"
 "oder\n"
-"klicken Sie 'Quit', um HALSCOPE zu verlassen.\n"
+"klicken Sie 'Quit', um HALSCOPE zu verlassen."
 
 #: src/hal/utils/scope_horiz.c:779
 msgid "Pick log file to write to:"
