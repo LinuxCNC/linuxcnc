@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:00+0200\n"
+"PO-Revision-Date: 2012-04-10 19:01+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -694,7 +694,7 @@ msgstr "Bewegung %s in Zeile %d würde neg. Anschlag von Joint %d überschreiten
 #: src/emc/motion/command.c:250
 #, c-format
 msgid "%s move in MDI would exceed joint %d's negative limit"
-msgstr ""
+msgstr "Bewegung %s in MDI würde neg. Anschlag von Joint %s überschreiten"
 
 #: src/emc/motion/command.c:500
 msgid "all joints must be homed before going into coordinated mode"
