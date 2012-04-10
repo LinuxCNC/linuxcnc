@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 18:30+0200\n"
+"PO-Revision-Date: 2012-04-10 18:32+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -607,7 +607,7 @@ msgstr "Auto"
 
 #: hal/utils/scope_trig.c:208 src/hal/utils/scope_trig.c:201
 msgid "Force"
-msgstr ""
+msgstr "Zwang"
 
 #: hal/utils/scope_trig.c:242 hal/utils/scope_trig.c:276
 msgid "Level"
