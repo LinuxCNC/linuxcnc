@@ -11284,7 +11284,7 @@ msgstr "Bewegung durch Enable-Eingabe angehalten."
 #: src/emc/motion/control.c:720 src/emc/motion/control.c:741
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr ""
+msgstr "Fehler: Joint %d am Endschalter"
 
 #: src/emc/motion/control.c:732 src/emc/motion/control.c:753
 #, c-format
