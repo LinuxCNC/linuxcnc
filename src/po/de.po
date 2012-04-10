@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 18:06+0200\n"
+"PO-Revision-Date: 2012-04-10 18:08+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -349,7 +349,7 @@ msgstr "Beenden"
 
 #: hal/utils/scope_horiz.c:757 src/hal/utils/scope_horiz.c:745
 msgid "Realtime thread(s) not running"
-msgstr ""
+msgstr "Echtzeit-Thread ist nicht gestarted"
 
 #: hal/utils/scope_horiz.c:758 src/hal/utils/scope_horiz.c:746
 msgid ""
