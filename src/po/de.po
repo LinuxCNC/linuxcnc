@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:11+0200\n"
+"PO-Revision-Date: 2012-04-10 19:12+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11410,9 +11410,8 @@ msgid "can't enable motion, enable input is false"
 msgstr "Bewegung nicht möglich, Enable-Eingang ist falsch"
 
 #: src/emc/motion/command.c:1213
-#, fuzzy
 msgid "must be in joint mode to home"
-msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
+msgstr "Referenzfahrt nur im Joint-Modus möglich"
 
 #: src/emc/motion/command.c:1224 src/emc/motion/command.c:1235
 msgid "homing sequence already in progress"
