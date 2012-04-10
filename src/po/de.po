@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 18:45+0200\n"
+"PO-Revision-Date: 2012-04-10 18:46+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11271,7 +11271,7 @@ msgstr "Tastspitze bei inaktivem MDI-Befehl ausgelöst."
 
 #: src/emc/motion/control.c:429
 msgid "Probe tripped during homing motion."
-msgstr ""
+msgstr "Tastspitze bei Referenzfahrt ausgelöst."
 
 #: src/emc/motion/control.c:433
 msgid "Probe tripped during a jog."
