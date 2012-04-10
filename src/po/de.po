@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:52+0200\n"
+"PO-Revision-Date: 2012-04-10 19:54+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -822,7 +822,7 @@ msgstr "Einfügen"
 #: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2545 ../tcl/show_errors.tcl:68
 #: tcl/bin/genedit.tcl:99 tcl/mini.tcl:2548 tcl/show_errors.tcl:68
 msgid "Select All"
-msgstr "Alles makieren"
+msgstr "Alles markieren"
 
 #: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:192 ../tcl/mini.tcl:919
 #: ../tcl/mini.tcl:2516 ../tcl/tkemc.tcl:842 tcl/bin/genedit.tcl:104
