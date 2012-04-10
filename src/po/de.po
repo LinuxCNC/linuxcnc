@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:38+0200\n"
+"PO-Revision-Date: 2012-04-10 19:39+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -893,7 +893,7 @@ msgstr "MOTION: rtapi_shmem_delete() fehlgeschlagen, Rückgabewert %d"
 #: src/emc/motion/motion.c:266
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: hal_exit() fehlgeschlagen, Rückgabewert %d"
 
 #: src/emc/motion/motion.c:289
 msgid "MOTION: emcmot_hal_data malloc failed\n"
