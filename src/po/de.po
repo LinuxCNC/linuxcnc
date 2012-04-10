@@ -611,7 +611,7 @@ msgstr "Zwang"
 
 #: hal/utils/scope_trig.c:242 hal/utils/scope_trig.c:276
 msgid "Level"
-msgstr "Pegel"
+msgstr "Schwelle"
 
 #: hal/utils/scope_trig.c:314 src/hal/utils/scope_trig.c:303
 msgid "Trigger Source"
