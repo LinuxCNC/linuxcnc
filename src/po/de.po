@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:20+0200\n"
+"PO-Revision-Date: 2012-04-10 19:21+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11459,7 +11459,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:1348
 msgid "can't do probe move with limits exceeded"
-msgstr ""
+msgstr "Kann Tastspitze nicht außerhalb der Grenzen bewegen"
 
 #: src/emc/motion/command.c:1362
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
