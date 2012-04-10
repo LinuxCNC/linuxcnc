@@ -669,7 +669,7 @@ msgstr "Kann Joint %d nicht über Bahnminimum bewegen"
 #: src/emc/motion/command.c:174
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr ""
+msgstr "Kann Joint %d nicht über max. Softanschlag bewegen"
 
 #: src/emc/motion/command.c:179
 #, c-format
