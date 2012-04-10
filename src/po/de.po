@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:08+0200\n"
+"PO-Revision-Date: 2012-04-10 19:09+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11399,7 +11399,7 @@ msgstr "Keine Kreisbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:958
 msgid "can't add circular move"
-msgstr ""
+msgstr "Keine zusätzl. Kreisbewegung möglich"
 
 #: src/emc/motion/command.c:1048
 msgid "MOTION: can't STEP while already executing"
