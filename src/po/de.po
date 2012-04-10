@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:51+0200\n"
+"PO-Revision-Date: 2012-04-10 19:52+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -736,7 +736,7 @@ msgstr "Konfigurationsinformationen"
 
 #: ../tcl/bin/emcdebug.tcl:187 tcl/bin/emcdebug.tcl:187
 msgid "Use of defaults"
-msgstr "Benutzen der Standartwerte"
+msgstr "Benutzen der Standardwerte"
 
 #: ../tcl/bin/emcdebug.tcl:188 tcl/bin/emcdebug.tcl:188
 msgid "Version information"
