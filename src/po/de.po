@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:33+0200\n"
+"PO-Revision-Date: 2012-04-10 19:34+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -870,7 +870,7 @@ msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen"
 
 #: src/emc/motion/motion.c:212
 msgid "MOTION: init_hal_io() failed\n"
-msgstr ""
+msgstr "MOTION: init_hal_io() fehlgeschlagen"
 
 #: src/emc/motion/motion.c:221
 msgid "MOTION: init_comm_buffers() failed\n"
