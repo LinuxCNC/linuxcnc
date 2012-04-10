@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:13+0200\n"
+"PO-Revision-Date: 2012-04-10 19:15+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -767,9 +767,10 @@ msgid "homing already in progress"
 msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1263
-#, fuzzy
 msgid "must be in joint mode or disabled to unhome"
-msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
+msgstr ""
+"Kann nur im Joint-Modus oder abgeschaltet aus der Referenzpos. gefahren "
+"werden"
 
 #: src/emc/motion/command.c:1275 src/emc/motion/command.c:1298
 #, c-format
