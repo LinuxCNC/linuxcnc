@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 18:50+0200\n"
+"PO-Revision-Date: 2012-04-10 18:51+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -644,7 +644,7 @@ msgstr ""
 #: src/emc/motion/control.c:1423
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
-msgstr ""
+msgstr "Positiver Softanschlag bei Joint $d überschritten"
 
 #: src/emc/motion/control.c:1428
 #, c-format
