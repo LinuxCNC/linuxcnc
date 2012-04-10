@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:43+0200\n"
+"PO-Revision-Date: 2012-04-10 19:44+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -921,7 +921,7 @@ msgstr "Unbekannter Zustand '%d' bei Referenzfahrt"
 
 #: src/emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr ""
+msgstr "Keine Referenzfahrt bei geschlossenem gemeinsamem Endschalter"
 
 #: src/emc/motion/homing.c:290
 msgid ""
