@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:47+0200\n"
+"PO-Revision-Date: 2012-04-10 19:48+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -951,7 +951,7 @@ msgstr ""
 #: src/emc/motion/homing.c:797
 #, c-format
 msgid "unknown state '%d' during homing"
-msgstr ""
+msgstr "Unbekannter Zustand '%d' während Referenzfahrt"
 
 #: tcl/bin/emccalib.tcl:80
 #, fuzzy
