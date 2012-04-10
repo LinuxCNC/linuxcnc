@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 18:25+0200\n"
+"PO-Revision-Date: 2012-04-10 18:26+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -402,7 +402,7 @@ msgid ""
 "per div"
 msgstr ""
 "%s\n"
-"pro div"
+"pro Teilstrich"
 
 #: hal/utils/scope_horiz.c:1081 src/hal/utils/scope_horiz.c:1066
 #, c-format
