@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 18:32+0200\n"
+"PO-Revision-Date: 2012-04-10 18:33+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -572,6 +572,8 @@ msgstr "Quelle"
 #: src/emc/motion/control.c:261
 msgid "Unexpected realtime delay: check dmesg for details."
 msgstr ""
+"Unerwartete Echtzeitverzögerung.\n"
+"Details stehen in dmesg."
 
 #: src/emc/motion/control.c:263
 #, c-format
