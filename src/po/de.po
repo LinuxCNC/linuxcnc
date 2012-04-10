@@ -11562,7 +11562,7 @@ msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen"
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr ""
+msgstr "Grenze im Referenzstatus erreicht %d"
 
 #: src/emc/motion/homing.c:90
 #, c-format
