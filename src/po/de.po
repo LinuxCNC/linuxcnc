@@ -11419,7 +11419,7 @@ msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1233
 msgid "homing already in progress"
-msgstr ""
+msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1263
 #, fuzzy
