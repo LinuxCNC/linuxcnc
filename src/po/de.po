@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 17:51+0200\n"
+"PO-Revision-Date: 2012-04-10 17:53+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -203,7 +203,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:503 src/hal/utils/scope_horiz.c:495
 msgid "Realtime function not linked"
-msgstr ""
+msgstr "Echtzeitfunktion nicht gelinkt"
 
 #: hal/utils/scope_horiz.c:504 src/hal/utils/scope_horiz.c:496
 msgid ""
@@ -5654,6 +5654,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2717
