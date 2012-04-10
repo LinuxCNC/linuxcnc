@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:32+0200\n"
+"PO-Revision-Date: 2012-04-10 19:33+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -866,7 +866,7 @@ msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen"
 #: src/emc/motion/motion.c:204
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen"
 
 #: src/emc/motion/motion.c:212
 msgid "MOTION: init_hal_io() failed\n"
