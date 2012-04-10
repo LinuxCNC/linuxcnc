@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 19:19+0200\n"
+"PO-Revision-Date: 2012-04-10 19:20+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11450,6 +11450,8 @@ msgstr "Inaktiver Joint %d kann nicht aus der Referenzpos. gefahren werden"
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)"
 msgstr ""
+"Joint %d: Ungültiger Joint kann nicht aus der Referenzpos. gefahren werden "
+"(max. %d)"
 
 #: src/emc/motion/command.c:1338
 msgid "need to be enabled, in coord mode for probe move"
