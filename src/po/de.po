@@ -649,7 +649,7 @@ msgstr "Positiver Softanschlag bei Joint %d überschritten"
 #: src/emc/motion/control.c:1428
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr ""
+msgstr "Negativer Softanschlag bei Joint %d überschritten"
 
 #: src/emc/motion/command.c:159
 #, c-format
