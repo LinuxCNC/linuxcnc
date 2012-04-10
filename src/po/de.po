@@ -11375,7 +11375,7 @@ msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:751
 msgid "Can't jog any joint while homing."
-msgstr ""
+msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
