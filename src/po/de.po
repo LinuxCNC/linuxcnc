@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:49+0200\n"
+"PO-Revision-Date: 2012-04-10 19:50+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -980,7 +980,7 @@ msgstr "Speichern"
 #: tcl/bin/emccalib.tcl:159 tcl/bin/halconfig.tcl:623
 #, tcl-format
 msgid "Tune %d"
-msgstr "Achse %d"
+msgstr "Feineinstellung %d"
 
 #: tcl/bin/emccalib.tcl:160 tcl/bin/halconfig.tcl:628
 msgid "INI Name"
