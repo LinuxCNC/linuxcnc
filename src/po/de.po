@@ -824,7 +824,7 @@ msgstr "Muß aktiviert werden, im Koordinatenmodus für Gewindebohren"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "Kein Gewindebohren außerhalb der Grenzen"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
