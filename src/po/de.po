@@ -694,7 +694,7 @@ msgstr "Bewegung %s in Zeile %d würde neg. Anschlag von Joint %d überschreiten
 #: src/emc/motion/command.c:250
 #, c-format
 msgid "%s move in MDI would exceed joint %d's negative limit"
-msgstr "Bewegung %s in MDI würde neg. Anschlag von Joint %s überschreiten"
+msgstr "Bewegung %s in MDI würde neg. Anschlag von Joint %d überschreiten"
 
 #: src/emc/motion/command.c:500
 msgid "all joints must be homed before going into coordinated mode"
