@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-25 18:57+0200\n"
-"PO-Revision-Date: 2012-04-10 18:54+0200\n"
+"PO-Revision-Date: 2012-04-10 18:55+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -11314,7 +11314,7 @@ msgstr "Kann ungültigen Joint %d nicht bewegen"
 #: src/emc/motion/command.c:163
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Joint %d nicht weiter über Bahngrenze bewegen"
+msgstr "Kann Joint %d nicht weiter über Bahnmaximum bewegen"
 
 #: src/emc/motion/command.c:168
 #, c-format
