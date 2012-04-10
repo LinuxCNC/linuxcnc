@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-04-10 19:40+0200\n"
+"PO-Revision-Date: 2012-04-10 19:41+0200\n"
 "Last-Translator: Peter Blodow <p.blodow@dreki.de>\n"
 "Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
 "Language: de\n"
@@ -902,7 +902,7 @@ msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen"
 #: src/emc/motion/motion.c:585
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr ""
+msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen"
 
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
