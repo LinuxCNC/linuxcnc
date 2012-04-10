@@ -11471,7 +11471,7 @@ msgstr "Tastspitze schon ausgelöst bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1376
 msgid "can't add probe move"
-msgstr ""
+msgstr "Keine weitere Bewegung der Tastspitze möglich"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for rigid tap move"
