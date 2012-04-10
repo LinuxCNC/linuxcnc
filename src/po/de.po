@@ -888,7 +888,7 @@ msgstr "MOTION: hal_stop_threads() fehlgeschlagen, Rückgabewert %d"
 #: src/emc/motion/motion.c:260
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: rtapi_shmem_delete() fehlgeschlagen, Rückgabewert %d"
 
 #: src/emc/motion/motion.c:266
 #, c-format
