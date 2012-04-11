@@ -744,6 +744,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    hal/drivers/mesa-hostmot2/modules.o   \
     $(MATHSTUB)
 hm2_7i43-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i43.o  \

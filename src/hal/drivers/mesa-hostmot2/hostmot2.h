@@ -1279,4 +1279,7 @@ void hm2_raw_write(hostmot2_t *hm2);
 // used by hm2_register() to initialize and by hm2_pet_watchdog() to recover from io errors and watchdog errors
 void hm2_force_write(hostmot2_t *hm2);
 
+int hm2_read_module_descriptors(hostmot2_t *hm2, int debug_module_descriptors);
+int hm2_parse_module_descriptors(hostmot2_t *hm2);
+
 #endif // __HOSTMOT2_H
