@@ -263,7 +263,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         if ((pin->port_num < 0 ) 
             || (pin->port_num >= hm2->llio->num_ioport_connectors)){
             HM2_ERR("hm2_read_pin_descriptors: Calculated port number (%d) is "
-                    "invalid\n", pin->port_pin );
+                    "invalid\n", pin->port_num );
             return -EINVAL;
         }
         
