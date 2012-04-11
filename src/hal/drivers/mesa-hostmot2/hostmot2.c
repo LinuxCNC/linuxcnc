@@ -17,32 +17,27 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+
 #include <linux/slab.h>
 #include <linux/ctype.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
-#include "rtapi_math.h"
 
 #include "hal.h"
 
 #include "hostmot2.h"
 #include "bitfile.h"
 
-
-
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Sebastian Kuzminsky");
 
 MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
 MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
 MODULE_INFO(linuxcnc, "funct:write:1:Write all registers.");
 MODULE_INFO(linuxcnc, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
 MODULE_INFO(linuxcnc, "license:GPL");
-
-MODULE_LICENSE("GPL");
-
-
-
 
 int debug_idrom = 0;
 RTAPI_MP_INT(debug_idrom, "Developer/debug use only!  Enable debug logging of the HostMot2\nIDROM header.");
@@ -53,21 +48,14 @@ RTAPI_MP_INT(debug_module_descriptors, "Developer/debug use only!  Enable debug 
 int debug_modules = 0;
 RTAPI_MP_INT(debug_modules, "Developer/debug use only!  Enable debug logging of the HostMot2\nModules used.");
 
-
-
+static int comp_id;
 
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
 struct list_head hm2_list;
 
-
-static int comp_id;
-
-
-
-
 //
-// functions exported to LinuxCNC
+// functions exported to HAL
 //
 
 static void hm2_read(void *void_hm2, long period) {
@@ -97,7 +85,6 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_raw_read(hm2);
 }
-
 
 static void hm2_write(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
@@ -133,7 +120,6 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_raw_write(hm2);
 }
 
-
 static void hm2_read_gpio(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
 
@@ -148,7 +134,6 @@ static void hm2_read_gpio(void *void_hm2, long period) {
 
     hm2_ioport_gpio_read(hm2);
 }
-
 
 static void hm2_write_gpio(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
@@ -165,13 +150,9 @@ static void hm2_write_gpio(void *void_hm2, long period) {
     hm2_ioport_gpio_write(hm2);
 }
 
-
-
-
 //
 // misc little helper functions
 //
-
 
 // FIXME: the static automatic string makes this function non-reentrant
 const char *hm2_hz_to_mhz(u32 freq_hz) {
@@ -206,7 +187,6 @@ int hm2_get_bspi(hostmot2_t** hm2, char *name){
     return -1;
 }
 
-
 // FIXME: the static automatic string makes this function non-reentrant
 const char *hm2_get_general_function_name(int gtag) {
     switch (gtag) {
@@ -231,7 +211,6 @@ const char *hm2_get_general_function_name(int gtag) {
         }
     }
 }
-
 
 static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     char **argv;
@@ -357,9 +336,6 @@ fail:
     return -EINVAL;
 }
 
-
-
-
 //
 // functions for dealing with the idrom
 //
@@ -411,9 +387,6 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
     HM2_PRINT("    Register Stride 0: 0x%08X\n", hm2->idrom.register_stride_0);
     HM2_PRINT("    Register Stride 1: 0x%08X\n", hm2->idrom.register_stride_1);
 }
-
-
-
 
 static int hm2_read_idrom(hostmot2_t *hm2) {
 
@@ -517,9 +490,6 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     return 0;
 }
 
-
-
-
 // reads the Module Descriptors
 // doesnt do any validation or parsing or anything, that's in hm2_parse_module_descriptors(), which comes next
 static int hm2_read_module_descriptors(hostmot2_t *hm2) {
@@ -598,9 +568,6 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
 
     return 0;
 }
-
-
-
 
 //
 // Here comes the code to "parse" the Module Descriptors, turn them into
@@ -684,9 +651,6 @@ int hm2_md_is_consistent(
 
     return 0;
 }
-
-
-
 
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
@@ -808,8 +772,29 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     return 0;  // success!
 }
 
+void hm2_print_modules(hostmot2_t *hm2) {
+    hm2_encoder_print_module(hm2);
+    hm2_resolver_print_module(hm2);
+    hm2_pwmgen_print_module(hm2);
+    hm2_tp_pwmgen_print_module(hm2);
+    hm2_sserial_print_module(hm2);
+    hm2_stepgen_print_module(hm2);
+    hm2_bspi_print_module(hm2);
+    hm2_ioport_print_module(hm2);
+    hm2_watchdog_print_module(hm2);
+}
 
-
+// this pushes our idea of what things are like into the FPGA's poor little mind
+void hm2_force_write(hostmot2_t *hm2) {
+    hm2_watchdog_force_write(hm2);
+    hm2_ioport_force_write(hm2);
+    hm2_encoder_force_write(hm2);
+    hm2_pwmgen_force_write(hm2);
+    hm2_stepgen_force_write(hm2);
+    hm2_tp_pwmgen_force_write(hm2);
+    hm2_sserial_force_write(hm2);
+    hm2_bspi_force_write(hm2);
+}
 
 //
 // These functions free all the memory kmalloc'ed in hm2_parse_module_descriptors()
@@ -834,33 +819,13 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_tram_cleanup(hm2);
 }
 
-
-
-
-void hm2_print_modules(hostmot2_t *hm2) {
-    hm2_encoder_print_module(hm2);
-    hm2_resolver_print_module(hm2);
-    hm2_pwmgen_print_module(hm2);
-    hm2_tp_pwmgen_print_module(hm2);
-    hm2_sserial_print_module(hm2);
-    hm2_stepgen_print_module(hm2);
-    hm2_bspi_print_module(hm2);
-    hm2_ioport_print_module(hm2);
-    hm2_watchdog_print_module(hm2);
-}
-
-
-
-
 //
 // register and unregister, for the low-level I/O drivers to add and remove boards to this hostmot2 driver
 //
 
-
 static void hm2_release_device(struct device *dev) {
     // nothing to do here
 }
-
 
 EXPORT_SYMBOL_GPL(hm2_register);
 
@@ -1383,10 +1348,8 @@ fail0:
     return r;
 }
 
-
-
-
 EXPORT_SYMBOL_GPL(hm2_unregister);
+
 void hm2_unregister(hm2_lowlevel_io_t *llio) {
     struct list_head *ptr;
 
@@ -1415,9 +1378,6 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
     return;
 }
 
-
-
-
 //
 // setup and cleanup code
 //
@@ -1434,24 +1394,7 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-
 void rtapi_app_exit(void) {
-    HM2_PRINT_NO_LL("unloading\n");
     hal_exit(comp_id);
+    HM2_PRINT_NO_LL("unloading\n");
 }
-
-
-
-
-// this pushes our idea of what things are like into the FPGA's poor little mind
-void hm2_force_write(hostmot2_t *hm2) {
-    hm2_watchdog_force_write(hm2);
-    hm2_ioport_force_write(hm2);
-    hm2_encoder_force_write(hm2);
-    hm2_pwmgen_force_write(hm2);
-    hm2_stepgen_force_write(hm2);
-    hm2_tp_pwmgen_force_write(hm2);
-    hm2_sserial_force_write(hm2);
-    hm2_bspi_force_write(hm2);
-}
-
