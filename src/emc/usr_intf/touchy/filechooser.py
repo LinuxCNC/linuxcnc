@@ -22,7 +22,7 @@ class filechooser:
         self.emc = emc
         self.emccommand = emc.command()
         self.fileoffset = 0
-        self.dir = os.path.join(os.getenv('HOME'), 'emc2', 'nc_files')
+        self.dir = os.path.join(os.getenv('HOME'), 'linuxcnc', 'nc_files')
         self.reload(0)
 
     def populate(self):

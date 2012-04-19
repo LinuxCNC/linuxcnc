@@ -67,33 +67,61 @@ GladeVCP panel windows may be run in three different setups:
  - as a tab in Axis and Touchy; in Axis this would create a third tab besides the Preview and DRO tabs which must be raised explicitly
  - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
+.Installed LinuxCNC
+If your using an installed version of LinuxCNC the examples shown below are in
+the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample
+Configurations > sim > gladevcp' branch.
+
+.Git Checkout
+The following instructions only apply if your using a git checkout. Open a
+terminal and change to the directory created by git then issue the commmands
+as shown.
+
+[NOTE]
+For the following commands to work on your git checkout you must first run
+'make' then run 'sudo make setuid' then run '. ./scripts/rip-environment'.
+More information about a git checkout is on the linuxcnc wiki page.
+
 Run the sample GladeVCP panel integrated into Axis like PyVCP as follows:
 
- $ cd configs/sim
- $ emc gladevcp_panel.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_panel.ini
+----
 
 image::images/example-panel-small.png[]
 
 Run the same panel, but as a tab inside Axis:
 
- $ cd configs/sim
- $ emc gladevcp_tab.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_tab.ini
+----
 
 image::images/example-tabbed-small.png[]
 
 To run this panel as a standalone toplevel window besides Axis, just
 start Axis in the background and start gladevcp as follows:
 
- $ cd configs/sim
- $ emc axis.ini &
- $ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+////
+FIXME: I'm not sure how this is supposed to work with axis in one
+directory and gladevcp in a different directory.
+////
+
+----
+$ cd configs/sim/axis
+$ linuxcnc axis.ini &
+$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+----
 
 image::images/example-float-small.png[]
 
 To run this panel inside 'Touchy':
 
- $ cd configs/sim
- $ emc gladevcp_touchy.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_touchy.ini
+----
 
 image::images/touchy-tab-33.png[]
 

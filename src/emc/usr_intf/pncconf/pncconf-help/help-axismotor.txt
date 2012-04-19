@@ -12,7 +12,6 @@ Servo Info:
         FF0 - zero order feed forward
         FF1 - first order feed forward
         FF2 - second order feed forward
-        Bias - used to add / subtract a constant value to dac.
         Deadband - if the actual position is in this band
             of the commanded proportional control will not be added.
         Dac scale      - scales the output nominal is +-1 volt
@@ -64,7 +63,7 @@ Brushless Control:
     Please send suggestions to EMC mail list or forum.
 
 Open loop servo test Button:
-    Use this test to confirm proper Dac output.
+    Use this test to confirm proper Dac output and encoder input.
     This is unavailable if using simulated realtime.
     It is important to confirm the motor turns in the positive
     direction when the positive jog button is pressed.
@@ -77,6 +76,12 @@ Open loop servo test Button:
     the axis a known distance and noting the encoder count. The encoder
     should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
+    The fast-dac / slow-dac options are preselect options so it is convienant
+    to switch between slow speed and fast speed. Set them to what you like - 
+    remember there is no ramping.
+    Bias - used to add / subtract a constant value to the dac. It can only be 
+    used for this test to tempararily stabilize a drifting motor - it will not 
+    be used in the regular PID control.
 
 Spindle-at-speed settings:
     Set the scaling so EMC knows when the spindle is close enough

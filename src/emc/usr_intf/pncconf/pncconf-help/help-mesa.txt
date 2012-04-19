@@ -119,9 +119,10 @@ Connector Tabs:
         7i70 I/O board
         7i71 I/O board
         7i76 I/O board works only with the 5i25 main board
+        7i77 I/O board works only with the 5i25 main board
         8i20 amplifier ( untested )
         EMC supports 4 ports of 8 channels each of sserial
-        PNCconf only configures 4 channels of port 0 (so max 4 sserial boards)  
+        PNCconf only configures 6 channels of port 0 (so max 6 sserial boards)  
 
     You could change these options in a custom HAL file
     If you wish to connect a component to something in a 
@@ -164,7 +165,10 @@ Signal selection:
     PNCconf will not catch the error of setting two components 
     the same (If fact for GPIOO outputs this is fine anyways)
  
-
+    For testing purposes if you require an output true, for instance to force
+    a relay to close to allow the amplifier to be powered, select the 
+    'force-pin-true' output signal. The openloop and tuning tests will then
+    set the output true for the length of the test. 
 
 
     

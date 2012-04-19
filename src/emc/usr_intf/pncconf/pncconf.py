@@ -1615,7 +1615,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
             pwmpinname = self.make_pinname(pwmgen)
-            if "analog" in pwmpinname or potoutput:
+            if (pwmgen and "analog" in pwmpinname) or potoutput:
                 print >>file, "OUTPUT_MIN_LIMIT = %s"% (get("outputminlimit"))
                 print >>file, "OUTPUT_MAX_LIMIT = %s"% (get("outputmaxlimit"))
 
@@ -1922,21 +1922,21 @@ If you have a REALLY large config that you wish to convert to this newer version
                 # sserial digital potentiometer outputs for spindle eg 7i76 board
                 print >>file, "# ---digital potentionmeter output signals/setup---"
                 print >>file
-                print >>file, "setp   "+potpinname+".spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
-                print >>file, "setp   "+potpinname+".spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
-                print >>file, "setp   "+potpinname+".spinout-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file, "setp   "+potpinname+"spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
+                print >>file, "setp   "+potpinname+"spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
+                print >>file, "setp   "+potpinname+"spinout-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 for i in potinvertlist:
                     if i == POTO:
-                        print >>file, "setp   "+potpinname+".spindir-invert   true"
+                        print >>file, "setp   "+potpinname+"spindir-invert   true"
                     if i == POTE:
-                        print >>file, "setp   "+potpinname+".spinena-invert   true"
+                        print >>file, "setp   "+potpinname+"spinena-invert   true"
                 print >>file
                 if closedloop:
-                    print >>file, "net spindle-output      => " + potpinname + ".spinout"
+                    print >>file, "net spindle-output      => " + potpinname + "spinout"
                 else:
-                    print >>file, "net spindle-vel-cmd     => " + potpinname + ".spinout"
-                print >>file, "net spindle-enable      => " + potpinname +".spinena"
-                print >>file, "net spindle-ccw         => " + potpinname +".spindir"
+                    print >>file, "net spindle-vel-cmd     => " + potpinname + "spinout"
+                print >>file, "net spindle-enable      => " + potpinname +"spinena"
+                print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
 
         if pwmpinname:
@@ -1944,12 +1944,12 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file
             # sserial daughter board PWMGENS eg 7i77
             if "analogout" in pwmpinname:
+                rawpinname = self.make_pinname(pwmpin,False,True) # dont want the component name
                 print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
                 print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                 print >>file
                 if let == 's':
-                    rawpinname = self.make_pinname(pwmpin,False,True) # dont want the component name
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
@@ -1963,7 +1963,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
                     if let == "x":
                         print >>file, "# enable _all_ sserial pwmgens"
-                        print >>file, "net %s-enable   %s"% (let,pwmpinname) 
+                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname) 
                 print >>file
 
             else:
