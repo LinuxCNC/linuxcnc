@@ -353,6 +353,10 @@ extern void STOP_SPEED_FEED_SYNCH();
 
 /* Machining Functions */
 
+extern void ARBARC(int, double, double, double,
+                   double, double, double,
+                   double, double, double, int turn);
+
 extern void ARC_FEED(int lineno,
                      double first_end, double second_end,
 		     double first_axis, double second_axis, int rotation,

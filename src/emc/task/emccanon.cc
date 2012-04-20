@@ -1292,6 +1292,44 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
     knot_vector.clear();
 }
 
+void ARBARC(int l, 
+            double ex, double ey, double ez,
+            double cx, double cy, double cz,
+            double nx, double ny, double nz, int turn) {
+    EmcPose end;
+    PM_CARTESIAN center, normal;
+    EMC_TRAJ_CIRCULAR_MOVE c;
+
+    flush_segments();
+
+    c.vel = 10;
+    c.ini_maxvel = 10;
+    c.acc = 100;
+
+    end.tran.x = ex, end.tran.y = ey, end.tran.z = ez;
+    end.a = canonEndPoint.a;
+    end.b = canonEndPoint.b;
+    end.c = canonEndPoint.c;
+    end.u = canonEndPoint.u;
+    end.v = canonEndPoint.v;
+    end.w = canonEndPoint.w;
+
+    center.x = cx, center.y = cy, center.z = cz;
+    normal.x = nx, normal.y = ny, normal.z = nz;
+
+    c.end = end;
+    c.center = center;
+    c.normal = normal;
+    c.turn = turn;
+
+    interp_list.set_line_number(l);
+    interp_list.append(c);
+
+    canonEndPoint.x = ex;
+    canonEndPoint.y = ey;
+    canonEndPoint.z = ez;
+}
+
 
 void ARC_FEED(int line_number,
               double first_end, double second_end,

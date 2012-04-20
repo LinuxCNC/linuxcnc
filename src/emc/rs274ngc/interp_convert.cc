@@ -1351,7 +1351,7 @@ static int startswith(char *haystack, char *needle) {
     return !strncmp(haystack, needle, strlen(needle));
 }
 
-int Interp::convert_comment(char *comment, bool enqueue)       //!< string with comment
+int Interp::convert_comment(block_pointer block, setup_pointer settings, char *comment, bool enqueue)       //!< string with comment
 {
   enum
   { LC_SIZE = 256, EX_SIZE = 2*LC_SIZE};            // 256 from comment[256] in rs274ngc.hh
@@ -1371,6 +1371,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   char PYRUN_STR[] = "pyrun,";
   char PYRELOAD_STR[] = "pyreload";
   char ABORT_STR[] = "abort,";
+  char ARC_STR[] = "arc,";
   int m, n, start;
 
   // step over leading white space in comment
@@ -1385,7 +1386,17 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   lc[n] = 0;                    // null terminate
 
   // compare with MSG, SYSTEM, DEBUG, PRINT
-  if (startswith(lc, MSG_STR)) {
+  if (startswith(lc, ARC_STR)) {
+      double ex,ey,ez,cx,cy,cz,nx,ny,nz;
+      int t;
+      if(sscanf(lc, "arc,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d", 
+                &ex, &ey, &ez, &cx, &cy, &cz, &nx, &ny, &nz, &t) == 10) {
+          ARBARC(block->line_number, ex, ey, ez, cx, cy, cz, nx, ny, nz, t);
+          settings->current_x = ex;
+          settings->current_y = ey;
+          settings->current_z = ez;
+      }
+  } else if (startswith(lc, MSG_STR)) {
     MESSAGE(comment + start + strlen(MSG_STR));
     return INTERP_OK;
   }

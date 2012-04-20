@@ -187,6 +187,16 @@ void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points
     knot_vector.clear();
 }
 
+void ARBARC(int l, 
+            double ex, double ey, double ez,
+            double cx, double cy, double cz,
+            double nx, double ny, double nz, int t) {
+    STRAIGHT_FEED(l, ex, ey, ez, 
+                  _pos_a, _pos_b, _pos_c,
+                  _pos_u, _pos_v, _pos_w);
+}
+
+
 void ARC_FEED(int line_number,
               double first_end, double second_end, double first_axis,
               double second_axis, int rotation, double axis_end_point,

@@ -240,7 +240,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
   block->line_number = settings->sequence_number;
   if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
-    status = convert_comment(block->comment);
+    status = convert_comment(block, settings, block->comment);
     CHP(status);
   }
   if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {

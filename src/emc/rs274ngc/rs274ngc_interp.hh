@@ -186,7 +186,7 @@ public:
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
  int convert_param_comment(char *comment, char *expanded, int len);
-    int convert_comment(char *comment, bool enqueue = true);
+    int convert_comment(block_pointer, setup_pointer, char *comment, bool enqueue = true);
  int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance, setup_pointer settings);
  int convert_adaptive_mode(int g_code, setup_pointer settings);
 

@@ -311,7 +311,7 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
     (*counter) = strlen(line);
     // pass unmutilated line to convert_comment - FIXME access to _setup
     if (( s = strchr(_setup.linetext,';')) != NULL)
-	CHP(convert_comment(s+1, false));
+	CHP(convert_comment(NULL, NULL, s+1, false));
     return INTERP_OK;
 }
 
