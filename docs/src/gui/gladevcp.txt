@@ -438,21 +438,54 @@ label your panel.
  - Helper widgets: <<gladevcp:HAL_Table,HAL_Table>>, <<gladevcp:HAL_HBox,HAL_HBox>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
 
-HAL Widgets inherit methods, properties and signals from the
-underlying Gtk widgets, so it is helpful to consult the
-http://www.gtk.org/[GTK+] and http://www.pygtk.org/[PyGTK bindings]
-documentation as well.
-
-
 === Widget and HAL pin naming
 
-Most HAL widgets have a single associated HAL pin with the same name
+Most HAL widgets have a single associated HAL pin with the same HAL name
 as the widget (glade: General→Name).
 
 Exceptions to this rule currently are.
 
 - 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
 - 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
+
+===  Python attributes and methods of HAL Widgets
+
+HAL widgets are instances of GtKWidgets and hence inherit the methods,
+properties and signals of the applicable GtkWidget class. For
+instance, to figure out which GtkWidget-related methods, properties
+and signals a 'HAL_Button' has, lookup the description of
+http://www.pygtk.org/docs/pygtk/class-gtkbutton.html[GtkButton] in the
+http://www.pygtk.org/docs/pygtk[PyGtk Reference Manual]. 
+
+An easy way to find out the inheritance relationship of a given HAL
+widget is as follows: run glade, place the widget in a window, and
+select it; then choose the 'Signals' tab in the 'Properties'
+window. For example, selecting a 'HAL_LED' widget, this will show that
+a 'HAL_LED' is derived from a  'GtkWidget', which in turn is derived
+from a 'GtkObject', and eventually a 'GObject'.
+
+HAL Widgets also have a few HAL-specific Python attributes:
+
+hal_pin::
+	 the underlying HAL pin Python object in case the widget has a
+	 single pin type
+
+hal_pin_s, hal_pin_f::
+	 the S32 and float pins of the 'HAL_Spinbutton' and
+	 'HAL_ComboBox' widgets - note these widgets do not have a
+	 'hal_pin' attribute!
+
+hal_pin_scale::
+	the float input pin of 'HAL_ProgressBar' widget representing
+	the maximum absolute value of input. 
+ 
+The are several HAL-specific methods of HAL Widgets, but the only
+relevant method is:
+
+<halpin>.get():: 
+	Retrieve the value of the current HAL pin, where '<halpin>' is
+	the applicable HAL pin name listed above.
+
 
 === Setting pin and widget values
 
