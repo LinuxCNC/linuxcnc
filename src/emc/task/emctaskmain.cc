@@ -679,6 +679,7 @@ static void mdi_execute_abort(void)
     mdi_execute_next = 0;
 
     mdi_execute_queue.clear();
+    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
 
 static void mdi_execute_hook(void)
@@ -699,6 +700,22 @@ static void mdi_execute_hook(void)
     if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
+    }
+
+    // determine when a MDI command actually finishes normally.
+    if (interp_list.len() == 0 &&
+	emcTaskCommand == 0 &&
+	emcStatus->task.execState ==  EMC_TASK_EXEC_DONE && 
+	emcStatus->task.interpState != EMC_TASK_INTERP_IDLE && 
+	emcStatus->motion.traj.queue == 0 &&
+	emcStatus->io.status == RCS_DONE && 
+	!mdi_execute_wait && 
+	!mdi_execute_next) {
+
+	if (emc_debug & EMC_DEBUG_INTERP)
+	    rcs_print("mdi_execute_hook: MDI command '%s' done\n", emcStatus->task.command); 
+	emcStatus->task.command[0] = 0;
+	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
     }
 
     if (!mdi_execute_next) return;
@@ -2086,11 +2103,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+	// track interpState also during MDI - it might be an oword sub call
+	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
 	    if (command[0] == (char) 0xff) {
 		// Empty command recieved. Consider it is NULL
 		command = NULL;
+	    } else {
+		// record initial MDI command
+		strcpy(emcStatus->task.command, execute_msg->command);
 	    }
 
 	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
