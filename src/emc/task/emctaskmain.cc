@@ -2144,7 +2144,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    }
 		}
 	    }
-	    if (execRetval == INTERP_EXECUTE_FINISH) {
+	    switch (execRetval) {
+
+	    case INTERP_EXECUTE_FINISH:
 		// Flag MDI wait
 		mdi_execute_wait = 1;
 		// need to flush execution, so signify no more reading
@@ -2154,10 +2156,28 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		// it's success, so retval really is 0
 		retval = 0;
-	    } else if (execRetval != 0) {
-		// this causes the error msh on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		break;
+
+	    case INTERP_ERROR:
+		// emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
+		interp_list.clear();
+		// abort everything
+		emcTaskAbort();
+		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
+		emcSpindleAbort(); 
+		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP_IDLE
+		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
-	    } else {
+		break;
+
+	    case INTERP_EXIT:
+	    case INTERP_ENDFILE:
+	    case INTERP_FILE_NOT_OPEN:
+		// this caused the error msg on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		retval = -1;
+		break;
+
+	    default:
 		// other codes are OK
 		retval = 0;
 	    }
