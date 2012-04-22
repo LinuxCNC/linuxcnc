@@ -722,6 +722,7 @@ typedef struct setup_struct
 #define FEATURE_HAL_PIN_VARS         0x00000008
     // do not lowercase named params inside comments - for #<_hal[PinName]>
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
+#define FEATURE_OWORD_WARNONLY       0x00000020
 
     boost::python::object pythis;  // boost::cref to 'this'
     const char *on_abort_command;
@@ -759,6 +760,7 @@ macros totally crash-proof. If the function call stack is deeper than
 49, the top of the stack will be missing.
 
 */
+
 
 // Just set an error string using printf-style formats, do NOT return
 #define ERM(fmt, ...)                                      \
@@ -833,6 +835,16 @@ macros totally crash-proof. If the function call stack is deeper than
         if (CHP__status != INTERP_OK) {                            \
 	    ERP(CHP__status);                                      \
         }                                                          \
+    } while(0)
+
+
+// oword warnings 
+#define OERR(fmt, ...)                                      \
+    do {						    \
+	if (FEATURE(OWORD_WARNONLY))			    \
+	    fprintf(stderr,fmt, ## __VA_ARGS__);	    \
+	else						    \
+	    ERS(fmt, ## __VA_ARGS__);			    \
     } while(0)
 
 
