@@ -31,7 +31,7 @@ int kinematicsForward(const double *joints,
 {
     int i;
 
-    for(i=0; i<9; i++) {
+    for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         switch(data->joints[i]) {
             case 0: SET(tran.x); break;
             case 1: SET(tran.y); break;
@@ -54,7 +54,7 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
     int i;
-    for(i=0; i<9; i++) {
+    for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         switch(data->joints[i]) {
             case 0: joints[i] = pos->tran.x; break;
             case 1: joints[i] = pos->tran.y; break;
