@@ -31,14 +31,18 @@ old = tmp;
 
 == Installing
 
-If your working with an installed version of LinuxCNC you need to install
-the development packages by using the following line in a terminal or using the 
-Synaptic Package Manager from the main Ubuntu menu.
+If your working with an installed version of LinuxCNC you will need to install
+the development packages.
+
+One method is to say following line in a terminal.
 
 .Installing Dev
 ----
-sudo apt-get linuxcnc-dev
+sudo apt-get install linuxcnc-dev
 ----
+
+Another method is to use the Synaptic Package Manager from the main Ubuntu menu
+to install linuxcnc-dev.
 
 == Definitions
 
