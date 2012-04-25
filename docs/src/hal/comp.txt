@@ -31,7 +31,7 @@ old = tmp;
 
 == Installing
 
-If your working with an installed version of LinuxCNC you will need to install
+If you're working with an installed version of LinuxCNC you will need to install
 the development packages.
 
 One method is to say following line in a terminal.
