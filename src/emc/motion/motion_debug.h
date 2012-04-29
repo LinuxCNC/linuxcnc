@@ -73,6 +73,10 @@
 /*! \todo FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
 
+	TP_STRUCT altqueue;	/* coordinated mode planner */
+	TC_STRUCT altqueueTcSpace[DEFAULT_ALT_TC_QUEUE_SIZE + 10];
+
+
 	EmcPose oldPos;		/* last position, used for vel differencing */
 	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */
 	EmcPose newAcc;		/* differenced acc */
