@@ -185,7 +185,7 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 int rtapi_app_main(void)
 {
     int retval;
-    rtapi_set_msg_level(RTAPI_MSG_DBG);
+    // rtapi_set_msg_level(RTAPI_MSG_DBG);
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
 
     /* set flag */
