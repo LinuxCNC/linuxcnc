@@ -593,12 +593,12 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
+                                    <property name="z1_color">#ffffffff0000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
+                                    <property name="max">2000</property>
                                     <property name="show_limits">False</property>
                                     <property name="z2_color">#ffff00000000</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
-                                    <property name="z1_color">#ffffffff0000</property>
-                                    <property name="max">2000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -698,7 +698,6 @@
                                 <property name="visible">True</property>
                                 <property name="double_buffered">False</property>
                                 <property name="enable_dro">False</property>
-                                <property name="show_dtg">False</property>
                               </object>
                             </child>
                           </object>
@@ -1767,7 +1766,6 @@ Hold</property>
                           <object class="GtkButton" id="button_v1_2">
                             <property name="label" translatable="yes">Change 
   View</property>
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
@@ -1801,7 +1799,6 @@ Graphics</property>
                         <child>
                           <object class="GtkButton" id="button_v1_5">
                             <property name="label">gtk-zoom-in</property>
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_stock">True</property>
@@ -1813,7 +1810,6 @@ Graphics</property>
                         <child>
                           <object class="GtkButton" id="button_v1_6">
                             <property name="label">gtk-zoom-out</property>
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_stock">True</property>
@@ -1823,16 +1819,10 @@ Graphics</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button_v1_7">
+                          <object class="GtkToggleButton" id="button_v1_7">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <child>
-                              <object class="GtkImage" id="image7">
-                                <property name="visible">True</property>
-                                <property name="pixbuf">../gscreen/images/tool_clear.gif</property>
-                              </object>
-                            </child>
                           </object>
                           <packing>
                             <property name="position">7</property>
@@ -2295,7 +2285,6 @@ Readout</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save-As</property>
                     <property name="use_action_appearance">True</property>
-                    <property name="related_action">hal_action_saveas</property>
                     <property name="image">image2</property>
                     <property name="yalign">0.56999999284744263</property>
                     <property name="image_position">bottom</property>
@@ -2311,7 +2300,6 @@ Readout</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
                     <property name="use_action_appearance">True</property>
-                    <property name="related_action">hal_action_save</property>
                     <property name="image">image3</property>
                     <property name="image_position">bottom</property>
                   </object>
@@ -2462,10 +2450,15 @@ Incrments</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h5_3">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <child>
+                      <object class="GtkImage" id="image7">
+                        <property name="visible">True</property>
+                        <property name="pixbuf">../gscreen/images/tool_clear.gif</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="position">3</property>
@@ -2608,12 +2601,6 @@ Incrments</property>
     <property name="visible">True</property>
     <property name="stock">gtk-save</property>
     <property name="icon-size">3</property>
-  </object>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
   </object>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
 </interface>

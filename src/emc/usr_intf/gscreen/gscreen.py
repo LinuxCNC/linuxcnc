@@ -421,7 +421,7 @@ class Gscreen:
         cb = "button_estop"
         i = "_sighandler_estop"
         self.data[i] = int(self.widgets[cb].connect("clicked", self.on_estop_clicked))
-        for mode in range(0,5):
+        for mode in range(0,6):
             for num in range(0,24):
                 cb = "button_h%d_%d"% (mode,num)
                 i = "_sighandler_button_h%d_%d"% (mode,num)
@@ -663,6 +663,11 @@ class Gscreen:
                 else: raise nofunnction
             if mode == 4:
                 self.toggle_overrides(widget,mode,number)
+            if mode == 5:
+                if number == 0:self.zoom_in()
+                if number == 1:self.zoom_out()
+                if number == 2:self.toggle_view()
+                if number == 3:self.clear_plot()
             else: raise nofunnction
         except :
             print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -680,8 +685,8 @@ class Gscreen:
                 if number == 3: self.full_graphics()
                 elif number == 2: self.toggle_view()
                 elif number == 4: self.edit_mode()
-                elif number == 5: self. zoom_in()
-                elif number == 6: self. zoom_out()
+                elif number == 5: self.zoom_in()
+                elif number == 6: self.zoom_out()
                 elif number == 7: self.clear_plot()
                 else: raise nofunnction
             else: raise nofunnction
