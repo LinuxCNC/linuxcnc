@@ -5,7 +5,7 @@
 ( as the .ini file )
 
 ( Requires a probe connected to motion.probe-input )
-( or use scripts/simulator_probe )
+( or use scripts/simulate_probe )
 
 (info: Probe a rectangular area)
 o<rectangle_probe> sub
