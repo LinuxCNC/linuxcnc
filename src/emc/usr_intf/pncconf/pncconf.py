@@ -8692,10 +8692,10 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
-                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
-                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
-                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
                 ending = ""
             halrun.write("net output %s \n"%  (self.pwm + ending))
             halrun.write("loadusr halmeter -s pin %s -g 0 575 330\n"%  (self.pwm + ending))
@@ -8954,18 +8954,18 @@ But there is not one in the machine-named folder.."""),True)
 
         # setup sserial potentiometer 
         if self.pot:
-            halrun.write("net dac " + self.pot + ".spinout")
-            halrun.write("net enable " + self.pot +".spinena")
-            halrun.write("net dir " + self.pot +".spindir")
-            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f"% pwmminlimit)
-            halrun.write("setp   "+self.pot+".spinout-mixlim   %.1f"% pwmmaxlimit)
-            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f"% pwmmaxoutput)
+            halrun.write("net dac " + self.pot + ".spinout\n")
+            halrun.write("net enable " + self.pot +".spinena\n")
+            halrun.write("net dir " + self.pot +".spindir\n")
+            halrun.write("setp   "+self.pot+".spinout-minlim   %.1f\n"% pwmminlimit)
+            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f\n"% pwmmaxlimit)
+            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f\n"% pwmmaxoutput)
             potinvertlist = self.data.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == POTO:
-                        halrun.write("setp   "+self.pot+".spindir-invert   true")
+                        halrun.write("setp   "+self.pot+".spindir-invert   true\n")
                     if i == POTE:
-                        halrun.write("setp   "+self.pot+".spinena-invert   true")
+                        halrun.write("setp   "+self.pot+".spinena-invert   true\n")
         # setup pwm generator
         if self.pwm:
             if "pwm" in self.pwm: # mainboard PWM
@@ -8982,10 +8982,10 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
-                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
-                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
-                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
                 ending = ""
             halrun.write("net dac %s \n"%  (self.pwm + ending))
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (self.pwm + ending))
