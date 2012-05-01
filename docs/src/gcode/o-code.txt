@@ -234,6 +234,7 @@ M2
 
 [NOTE]
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
-by the interpreter.
+by the interpreter. More information about the search path and options for the
+search path are in the INI Configuration Section.
 
 // vim: set syntax=asciidoc:
