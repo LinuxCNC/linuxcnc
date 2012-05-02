@@ -654,7 +654,6 @@ int acute(TC_STRUCT *a, TC_STRUCT *b) {
         return 1;
 
     v1 = tcGetEndingUnitVector(a);
-    v1 = tcGetEndingUnitVector(a);
     v2 = tcGetStartingUnitVector(b);
     pmCartCartDot(v1, v2, &dot);
 
