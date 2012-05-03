@@ -168,7 +168,7 @@ _("SMARTSERIAL-P0-RX"),_("SMARTSERIAL-P0-EN"), _("SMARTSERIAL-P1-TX"),_("SMARTSE
 _("SMARTSERIAL-P2-TX"),_("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"),
 _("SMARTSERIAL-P4-TX"),_("SMARTSERIAL-P4-RX"),_("SMARTSERIAL-P4-EN"),_("SMARTSERIAL-P5-TX"),_("SMARTSERIAL-P5-RX"),_("SMARTSERIAL-P5-EN"),
 _("SMARTSERIAL-P6-TX"),_("SMARTSERIAL-P6-RX"),_("SMARTSERIAL-P6-EN"),_("SMARTSERIAL-P7-TX"),_("SMARTSERIAL-P7-RX"),_("SMARTSERIAL-P7-EN"),
-_("7i76 sserial #1"),_("7i76 sserial #2"),_("7i77 sserial #1"),_("7i77 sserial #2"),_("7i77 sserial #4"),_("7i77 sserial #5") ]
+_("7i76 sserial #0"),_("7i76 sserial #1"),_("7i77 sserial #0"),_("7i77 sserial #1"),_("7i77 sserial #3"),_("7i77 sserial #4") ]
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
@@ -363,7 +363,7 @@ mesafirmwaredata = [
 
 ]
 _SUBBOARDNAME = 0; _SUBFIRMNAME = 1; _SUBMODE = 2;_SUBCONLIST = 3;_SUBSTARTOFDATA = 12 # 4-10 spare for now.
-mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
+mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Used"], 0,0,0,0,0,0,0,0,
     [AMP8I20,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
@@ -371,7 +371,7 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i64", "7i64", 0,[], 0,0,0,0,0,0,0,0,
+["7i64", "7i64", 0,[_("7i64-Input\nP3 and P4"),_("7i64-Output\nP2 and P5"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -379,7 +379,7 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i69", "7i69", 0,[], 0,0,0,0,0,0,0,0,
+["7i69", "7i69", 0,[_("7i69\nP2"),_("7i69\nP3"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -387,23 +387,23 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i70", "7i70", 0,[], 0,0,0,0,0,0,0,0,
+["7i70", "7i70", 0,[_("7i70-Input\nTB3"),_("7i70-Input\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i71", "7i71", 0,[_("7i71-Output\nTB3"),_("7i71-Output\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i71", "7i71", 0,[], 0,0,0,0,0,0,0,0,
-     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i76", "7i76-m0", 0,[], 0,0,0,0,0,0,0,0,
+["7i76", "7i76-m0", 0,[_("7i76-I/O\nTB6"),_("7i76-I/O\nTB5"),_("7i76-Analog Output\nTB4")], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
@@ -411,11 +411,11 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [POTO,0],[POTE,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i77", "7i77-m0", 0,[], 0,0,0,0,0,0,0,0,
+["7i77", "7i77-m0", 0,[_("7i77-I/O\nTB8"),_("7i77-I/O\nTB7"),_("7i77-Analog Output\nTB5")], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
     [PWMD,5],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
@@ -3640,29 +3640,28 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         if ptype == GPIOI:
                             comptype = "digin"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
-                    elif "7i77" in (subboardname):
+                    elif "7i77" in (subboardname) or "7i76" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
-                            pinnum = pinnum-32
+                            if pinnum >15 and pinnum <24:
+                                pinnum = pinnum-16
+                            elif pinnum >39:
+                                pinnum = pinnum -32
                         elif ptype == GPIOI:
                             comptype = "input"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i76" in(subboardname):
-                        if ptype in(GPIOO,GPIOD):
-                            comptype = "output"
-                            if pinnum <24:
-                                pinnum = pinnum-16 # adjustment for 7i76 pin numbering of output pins vrs pncconf numbering
-                            else:
-                                pinnum = pinnum-31
-                        elif ptype == GPIOI:
-                            comptype = "input"
-                            if pinnum >23:
+                            if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname) or "7i70" in (subboardname) or "7i71" in (subboardname):
+                    elif "7i69" in (subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             pinnum -= 24
+                        elif ptype == GPIOI:
+                            comptype = "input"
+                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                    elif "7i70" in (subboardname) or "7i71" in (subboardname):
+                        if ptype in(GPIOO,GPIOD):
+                            comptype = "output"
                         elif ptype == GPIOI:
                             comptype = "input"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
@@ -5606,7 +5605,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
 
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
@@ -5671,7 +5670,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             numoftppwmgens = 0
             numofstepgens = 0
             self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                    numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,True)
+                                    numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,60):
             firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -5701,7 +5700,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
+                            numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
 
                 # if the board has less then 24 pins hide the extra comboboxes
@@ -5989,10 +5988,22 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 if firmptype in (GPIOI,GPIOO,GPIOD):
                     widgettext = self.widgets[ptype].get_active_text()
                     if sserialflag:
-                        if pin <24 :
-                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                        if "7i77" in subboardname or "7i76" in subboardname:
+                            if pin <16:
+                                self.widgets[complabel].set_text("%02d:"%(pin)) # sserial input
+                            elif (pin >23 and pin < 40):
+                                self.widgets[complabel].set_text("%02d:"%(pin-8)) # sserial input
+                            elif pin >15 and pin < 24:
+                                self.widgets[complabel].set_text("%02d:"%(pin-16)) #sserial output
+                            elif pin >39:
+                                self.widgets[complabel].set_text("%02d:"%(pin-32)) #sserial output
+                        elif "7i70" in subboardname or "7i71" in subboardname:
+                            self.widgets[complabel].set_text("%02d:"%(pin))
                         else:
-                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                            if pin <24 :
+                                self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                            else:
+                                self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
                     else:
                          self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if compnum == 100 and widgettext == firmptype:
@@ -6643,12 +6654,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 # TODO we should search for these names rather then use hard coded logic
                                 # so as to make adding cards easier
                                 temp = self.widgets[p].get_active_text()
-                                tab = "mesa%dsserial%d_%dtab0"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 0")
-                                tab = "mesa%dsserial%d_%dtab1"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 1")
-                                tab = "mesa%dsserial%d_%dtab2"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 2")
                                 table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
                                 self.widgets[table].show()
                                 table = "mesa%dsserial%d_%dtable3"% (boardnum, portnum, channelnum)
@@ -6689,6 +6694,19 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
                                     self.widgets[table].hide()
                                     return
+                                # set sserial tab names to corresond to connector numbers so users have a clue
+                                # first we have to find the daughter board in pncconf's internal list
+                                # TODO here we search the list- this should be done for the table names see above todo
+                                subfirmname = self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
+                                for subnum,temp in enumerate(mesadaughterdata):
+                                    if mesadaughterdata[subnum][_SUBFIRMNAME] == subfirmname: break
+                                subconlist = mesadaughterdata[subnum][_SUBCONLIST]
+                                # now search the connector list and write it to the tab names
+                                for tabnum in range(0,3):
+                                    conname = subconlist[tabnum]
+                                    tab = "mesa%dsserial%d_%dtab%d"% (boardnum, portnum, channelnum,tabnum)
+                                    self.widgets[tab].set_text(conname)
+
                                 #print p,temp," set at",self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
                                 self.set_sserial_options(boardnum,portnum,channelnum)
                                 return
