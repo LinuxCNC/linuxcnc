@@ -121,18 +121,21 @@ ending command as a command to machine zero. It would have been
 possible to use g53 and arrive at the same place but that command would
 not have been modal and any commands issued after it would have
 returned to using the G55 offsets because that coordinate system would
-still be in effect. 
+still be in effect.
+
+// Note for some strange reason a single tab is required to make the following
+// ListingBlock format correctly.
 
 ----
-G54   use preset work coordinate system 1
-G55   use preset work coordinate system 2
-G56   use preset work coordinate system 3
-G57   use preset work coordinate system 4
-G58   use preset work coordinate system 5
-G59   use preset work coordinate system 6
-G59.1 use preset work coordinate system 7
-G59.2 use preset work coordinate system 8
-G59.3 use preset work coordinate system 9
+G54	use preset work coordinate system 1
+G55	use preset work coordinate system 2
+G56	use preset work coordinate system 3
+G57	use preset work coordinate system 4
+G58	use preset work coordinate system 5
+G59	use preset work coordinate system 6
+G59.1	use preset work coordinate system 7
+G59.2	use preset work coordinate system 8
+G59.3	use preset work coordinate system 9
 ----
 
 === Default coordinate system
