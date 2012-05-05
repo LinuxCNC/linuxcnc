@@ -2975,10 +2975,10 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct-value false"
-                print >>file, "    setp halui.feed-override.scale .01"
-                print >>file, "net so-count              =>  halui.feed-override.counts"
+                print >>file, "    setp halui.spindle-override.count-enable true"
+                print >>file, "    setp halui.spindle-override.direct-value false"
+                print >>file, "    setp halui.spindle-override.scale .01"
+                print >>file, "net so-count              =>  halui.spindle-override.counts"
                 print >>file
             elif self.so_useswitch:
                 print >>file, "# connect spindle overide increments "
