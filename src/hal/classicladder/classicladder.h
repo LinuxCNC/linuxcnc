@@ -309,6 +309,7 @@ typedef struct StrInfosGene
 	int CurrentRung;
 	int LastRung;
 	int LadderState;
+	int HideGuiState;
 	int UnderCalculationPleaseWait;
 	int LadderStoppedToRunBack;
 	char CmdRefreshVarsBits;

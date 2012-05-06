@@ -67,6 +67,7 @@ RTAPI_MP_INT(numFloatOut,"i");
 #endif
 
 hal_bit_t **hal_inputs;
+hal_bit_t **hide_gui;
 hal_bit_t **hal_outputs;
 hal_s32_t **hal_s32_inputs;
 hal_s32_t **hal_s32_outputs;
@@ -149,7 +150,9 @@ static void hal_task(void *arg, long period) {
 				HalReads32Inputs();
 				
 				HalReadFloatInputs();
-		
+
+				InfosGene->HideGuiState = *hide_gui[0];
+
 				ClassicLadder_RefreshAllSections();
 		
 				HalWritePhysicalOutputs();
@@ -190,6 +193,8 @@ error:
 
 	hal_inputs = hal_malloc(sizeof(hal_bit_t*) * numPhysInputs);
 	if(!hal_inputs) { result = -ENOMEM; goto error; }
+	hide_gui = hal_malloc(sizeof(hal_bit_t*));
+	if(!hide_gui) { result = -ENOMEM; goto error; }
 	hal_s32_inputs = hal_malloc(sizeof(hal_s32_t*) * numS32in);
 	if(!hal_s32_inputs) { result = -ENOMEM; goto error; }
 	hal_float_inputs = hal_malloc(sizeof(hal_float_t*) * numFloatIn);
@@ -206,6 +211,9 @@ error:
 				"classicladder.0.in-%02d", i);
 		if(result < 0) goto error;
 	}
+	result = hal_pin_bit_newf(HAL_IN, &hide_gui[0], compId,
+				"classicladder.0.hide_gui");
+		if(result < 0) goto error;
 
 	for(i=0; i<numS32in; i++) {
 		result = hal_pin_s32_newf(HAL_IN, &hal_s32_inputs[i], compId,

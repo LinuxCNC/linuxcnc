@@ -934,6 +934,14 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		sprintf(TextBuffer , "%d us", InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
+		ToggleManagerWindow();
+		if (InfosGene->HideGuiState == GTK_WIDGET_VISIBLE( RungWindow ) )
+		{
+			if ( GTK_WIDGET_VISIBLE( RungWindow ) )
+			{	gtk_widget_hide (RungWindow);
+			}else{	gtk_widget_show (RungWindow);
+			}
+		}
 		if (InfosGene->CmdRefreshVarsBits)
 		{
 			RefreshAllBoolsVars();
