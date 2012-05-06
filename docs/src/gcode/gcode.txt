@@ -822,9 +822,14 @@ a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
 [NOTE]
 K follows the drive line described by 'X- Y- Z-' and is not parallel to the Z axis.
 
-Spindle-synchronized motions wait for spindle index, so multiple passes line up.
-'G33' moves end at the programmed endpoint. G33 could be used to cut tapered threads
-or a fusee.
+Spindle-synchronized motion waits for the spindle index and spindle at speed
+pins, so multiple passes line up. 'G33' moves end at the programmed endpoint.
+G33 could be used to cut tapered threads or a fusee.
+
+[NOTE]
+The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+spindle must be connected in your HAL file before G33 will work.
+See the Integrators Manual for more information on spindle synchronized motion.
 
 All the axis words are optional, except that at least one must be used.
 
@@ -1510,6 +1515,11 @@ It is an error if:
 * All the required words are not specified
 * 'P-', 'J-', 'K-' or 'H-' is negative
 * 'E-' is greater than half the drive line length
+
+[NOTE]
+The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+spindle must be connected in your HAL file before G76 will work.
+See the Integrators Manual for more information on spindle synchronized motion.
 
 The sample program 'g76.ngc' shows the use of the G76 canned cycle,
 and can be previewed and
