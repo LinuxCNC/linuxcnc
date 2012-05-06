@@ -1,16 +1,13 @@
 :lang: fr
 :toc:
 
-﻿= Concepts importants pour l'intégrateur
+= Concepts importants pour l'intégrateur
 
-[[cha:integrator-concepts]] (((Integrator Concepts)))
+[[cha:concepts-integrateur]] (((Concepts intégrateur)))
 
-== Système de pas
+== Système pas à pas
 
 === Période de base
-// Il manque une mise en situation, la note de bas de page
-// est insuffisante et devrait être un paragraphe on parle de hal
-// et de ses paramètres
 
 Période de base (BASE_PERIOD) est le _métronome_ de 
 l'ordinateur de LinuxCNC. footnote:[Cette section fait référence à 

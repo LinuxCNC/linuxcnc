@@ -9,11 +9,14 @@ o<hole_circle> sub
 #<cutdepth>   =  #6
 #<zincr>      =  #7
 #<zsafe>      =  #8 (=0.5)
-#<r>          =  #9 (Circle radius)
+#<diam>       =  #9 (Circle diameter)
 #<theta>      = #10 (=0 start theta)
-#<hdiam>      = #11 (diameter)
+#<hdiam>      = #11 (hole diameter)
 #<n>          = #12 (=4  N holes)
 #<zstart>     = #13 (=0)
+#<xctr>       = #14 (= 0)
+#<yctr>       = #15 (= 0)
+#<spin_notify> = #16 (= 0)
 
 o<loadtool> call  [#<toolno>]
 #<tooldiam> = [#5410 + .001]
@@ -22,12 +25,21 @@ o<loadtool> call  [#<toolno>]
 #<deltheta>   = [360/#<n>]
 #<faceangle>  = 0 (notused helix item)
 #<d_angle>    = 0 (notused helix item)
+#<r>          = [#<diam> / 2]
+
+#<x>          = 0 ; not an input
+#<y>          = 0 ; not an input
+#<rotate>     = 0 ; not an input
+#<scale>      = 0 ; not an input
+o<move> call [#<x>][#<y>][#<rotate>][#<scale>][#<xctr>][#<yctr>]
+#<xctr> = #<_move:x>
+#<yctr> = #<_move:y>
 
 o<l20> while [#<i> LT #<n>]
-   #<x> = [#<r> * COS[#<theta>]]
-   #<y> = [#<r> * SIN[#<theta>]]
+   #<x> = [#<xctr> + #<r> * COS[#<theta>]]
+   #<y> = [#<yctr> + #<r> * SIN[#<theta>]]
 
-   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<zstart>][#<faceangle>][#<d_angle>][#<zstart>]
+   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>]
    #<i>         = [#<i> + 1]
    #<theta>     = [#<theta> + #<deltheta>]
    #<_feature:> = #<i> (using _feature: here disables stop)

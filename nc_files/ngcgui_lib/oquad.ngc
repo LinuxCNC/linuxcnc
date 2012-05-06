@@ -24,6 +24,7 @@ o<oquad>  sub
 #<rotate>   = #18 (=0)
 #<xoff>     = #19 (=0)
 #<yoff>     = #20 (=0)
+#<spin_notify> = #21 (=0)
 
 o<i0> if [#<scale> EQ 0]
         #<scale> = 1.0
@@ -34,8 +35,9 @@ o<loadtool> call  [#<toolno>]
 #<tooldiam> = [#5410 + .001]
 
 o<l00> if [[#<dir> NE 2] AND [#<dir> NE 3]]
-         (print, oquad:bogus direction #<dir>)
-         (debug, oquad:bogus direction #<dir>)
+         (debug, oquad: bogus direction #<dir> - EXITING)
+         (print, oquad: bogus direction #<dir> - EXITING)
+         (AXIS,notify, oquad: bogus direction - EXITING)
          m2
 o<l00> endif
 
@@ -78,7 +80,9 @@ o<line> call [#<x1>][#<y1>][#<x2>][#<y2>]
          g40 (cutter radius compensation off)
          f #<feedrate>
          s #<rpm> m3 (spindle cw)
-o<spin>  call [#<rpm>]
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
          g0 z#<zsafe>
          #<zcurrent> = #<zstart>
          #<pass>     = 1
@@ -89,7 +93,9 @@ o<wh020>   if [#<zcurrent> LT #<cutdepth>]
              #<zcurrent> = #<cutdepth>
 o<wh020>   endif
 o<wh030>   if [#<pass> GT 100]
-             (debug, too many passes ABORT)
+             (debug, oquad: too many passes - EXITING)
+             (print, oquad: too many passes - EXITING)
+             (AXIS,notify, oquad: too many passes - EXITING)
              m2
 o<wh030>   endif
 

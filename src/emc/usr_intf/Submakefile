@@ -9,14 +9,6 @@ EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/shcom.cc \
               emc/usr_intf/sockets.c
 
-USRMOTSRCS := \
-	emc/usr_intf/usrmot.c \
-	emc/motion/usrmotintf.cc \
-	emc/motion/emcmotglb.c \
-	emc/motion/emcmotutil.c \
-	emc/motion/dbuf.c \
-	emc/motion/stashf.c
-
 HALUISRCS := emc/usr_intf/halui.cc
 ifeq "$(HAVE_NCURSES)" "yes"
 KEYSTICKSRCS := emc/usr_intf/keystick.cc
@@ -63,11 +55,6 @@ TARGETS += ../bin/schedrmt
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/linuxcnclcd
-
-../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
-TARGETS += ../bin/usrmot
 
 ../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)

@@ -93,6 +93,23 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
+fi
+
+
+
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -458,7 +475,9 @@ else
       AC_SUBST([LIBMODBUS_CFLAGS])
       AC_SUBST([LIBMODBUS_LIBS])
       AC_MSG_RESULT(yes - version2)
-    ],)
+    ],
+    [AC_MSG_RESULT(no)]
+  )
   LIBS=$saved_LIBS
   CPPFLAGS=$saved_CPPFLAGS
 fi 
@@ -671,6 +690,8 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
+
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -686,6 +707,7 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
+AC_SUBST([PRELOAD_WORKAROUND])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -902,7 +924,7 @@ On other systems, do what you need to install asciidoc version 8.5 or newer.])
     set -- `dblatex --version`; DBLATEX_VER=$3
     set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a $3 -lt 12 \) \); then
+    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
         AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
     fi
@@ -1060,7 +1082,7 @@ for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
         rtai rt_mem_mgr rtai_sched rtai_libm \
         rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
     AC_MSG_CHECKING([for $m])
-    TMP=$(find $MODULE_DIR -name $m$MODEXT)
+    TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
     if test -z "$TMP"; then
         TMP=$(find /lib/modules/$KERNEL_VERS -name $m$MODEXT)
     fi

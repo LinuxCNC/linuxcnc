@@ -143,8 +143,6 @@ int rcs_sem_wait_notimeout(rcs_sem_t * sem)
 {
     int retval = -1;
     struct sembuf sops;
-    union semun sem_arg;
-    sem_arg.val = 0;
     sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
     sops.sem_flg = 0;

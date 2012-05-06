@@ -28,7 +28,7 @@ fournir la même tâche à différents emplacements sur la même pièce.
 
 Trois configurations sont fournies, elles se trouve dans le répertoire _sim_
 du sélecteur de configuration de LinuxCNC. Le sélecteur de configuration se
-trouve quand à lui dans le menu _Applications -> CNC -> LinuxCNC_.
+trouve quand à lui dans le menu _Applications → CNC → LinuxCNC_.
 
 * _ngcgui_ - Un exemple facile à comprendre utilisant ces sous-programmes:
 ** _simp_ - Un exemple simple créant deux cercles.

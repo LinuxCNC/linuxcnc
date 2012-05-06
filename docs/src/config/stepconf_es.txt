@@ -1,474 +1,489 @@
-= Stepper Configuration Wizard
+= Asistente de configuracion Stepconf 
 
 [[cha:stepconf-wizard]] (((Stepconf Wizard)))
 
-LinuxCNC is capable of controlling a wide range of machinery 
-using many different hardware interfaces. 
+LinuxCNC es capaz de controlar un vasto rango de diferentes tipos de maquinaria,
+ utilizando diferentes interfaces de Hardware.
 
-Stepconf is a program that generates configuration files for LinuxCNC 
-for a specific class of CNC machine: 
-those that are controlled via a 'standard parallel port', and 
-controlled by signals of type 'step & direction'.
+Stepconf es un programa que genera archivos de configuracion para LinuxCNC
+para un tipo especifico de maquina CNC:
+Aquellas que son controladas atravez de un 'Puerto paralelo estandar', y 
+que son controladas utilizando las senales 'Paso y Direccion'
 
-Stepconf is installed when you install LinuxCNC and is in the CNC menu.
+Stepconf se instala automaticamente cuando instala LinuxCNC y se encuentra en el menu CNC.
 
-Stepconf places a file in the emc2/config directory 
-to store the choices for each configuration you create. 
-When you change something, you need to pick the file 
-that matches your configuration name. 
-The file extension is .stepconf.
+Stepconf genera un archivo en el directorio emc2/config
+en el cual guarda las selecciones de cada configuracion que usted genere.
+Cuando se desea cambia algo, se necesita seleccionar el archivo
+que tenga el mismo numaero que la configuracion que desea modificar.
+La extencion del archivo es .stepconf.
 
-The Stepconf Wizard needs at least 800 x 600 screen resolution 
-to see the buttons on the bottom of the pages. 
+El asistente Stepconf necesita al menos una resolucion de pantalla de 800 x 600
+para que los botones de la parte baja de la pantalla sean visibles.
+
 
 [float]
-Step by Step Instructions
+Instrucciones paso a paso
 =========================
 
-== Entry Page[[sec:Entry-Page]]
+== Pagina de entrada[[sec:Entry-Page]]
 
-.Entry Page[[cap:Entry-Page]]
+.Pagina de entrada[[cap:Entry-Page]]
 
 image::images/stepconf-config.png[align="center"]
 
 Create New::
-    Creates a fresh configuration.
+    Crea una configuracion nueva.
 
 Modify::
-    Modify an existing configuration. 
-    After selecting this a file picker pops up so you 
-    can select the .stepconf file for modification. 
-    If you made any modifications to the main .hal or the .ini file these will be lost. 
-    Modifications to custom.hal and custom_postgui.hal will not be
-    changed by the Stepconf Wizard.
-
-Create Desktop Shortcut::
+    Modifica una configuracion existente.
+    Despues de seleccionar esta opcion una pantalla de seleccion de archivo
+    aparecera y usted devera el archivo con extencion .stepconf que dese modificar.
+    Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini estas modificaciones se perderan.
+    Modificaciones a los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
+    asistente Stepconf.Create Desktop Shortcut::
     This will place a link on your desktop to the files.
 
+Create Desktop Shortcut::
+    Se generara un acceso rapido en su a los archivos. 
+
 Create Desktop Launcher::
-    This will place a launcher on your desktop to start your application.
+    Se generara un acceso rapido pra iniciar la aplicacion.
 
-== Basic Information[[sec:Basic-Information]]
 
-.Basic Information Page[[cap:Basic-Information-Page]]
+== Informacion Basica[[sec:Basic-Information]]
 
-image::images/stepconf-basic.png[align="center"]
+.Informacion Basica[[cap:Basic-Information-Page]]
+
+image::images/stepconf-basic.png[]
 
 Machine Name::
     (((Machine Name)))
-    Choose a name for your machine. 
-    Use only uppercase letters, lowercase letters, digits, '-' and '_'.
+    Seleccione un nombre para su maquina
+    Utilise solo letras mayusculas, minusculas, digitos, '-' y '_'.
 
 Axis Configuration::
     (((Axis Configuration)))
-    Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe). 
+    Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
 
 Machine Units::
     (((Machine Units)))
-    Choose Inch or mm. All subsequent questions 
-    (such as machine travel, leadscrew pitch, etc) 
-    will be answered in the chosen units
+    Seleccione entre pulgadas y milimetros. Todas las preguntas posteriores
+    (Tales como el largo de los ejes, el paso de los tornillos, etc)
+    deveran ser contestadas utilizando las unidades seleccionadas
 
 Driver Type::
     (((Driver Type)))
-    If you have one of the stepper drivers listed in the pull down box, choose it. 
-    Otherwise, find the 4 timing values in 
-    your driver's data sheet and enter them.  
-    If the data sheet gives a value in microseconds, multiply by 1000. 
-    For example, enter 4.5us as 4500ns. 
+    Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
+    En cualquier otor caso, busque los 4 valores de tiempo necesarios
+    utilize los manuales de su controlador y rellene los campos.
+    Si sus manuales le dan los datos en microsegundos multipliquelos por 1000.
+    por ejemplo, si el manual marca 4.5us escriva 4500ns.
 
-A list of some popular drives, along with their timing values, 
-is on the LinuxCNC.org Wiki under 
+Una lista de controladores populares, asi como sus tiempos
+puede ser consultada en la pagina wiki de LinuxCNC.org en la siguiente direccion
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Stepper Drive Timing]. 
 
-Additional signal conditioning or isolation such as 
-optocouplers and RC filters on break out boards 
-can impose timing constraints of their own, in addition to those of the driver. 
-You may find it necessary to 
-add some time to the drive requirements to allow for this. 
-The LinuxCNC Configuration Selector has configs for Sherline already configured.
+Acondicionamiento estra de senal o aislamiento electrico como el uso
+de optoacopladores y filtros RC en targetas de aislamiento
+pueden imponer diferentes valores de tiempo a los normales de su controlador.
+Puede ser el caso que se requiera agregar tiempo extra a los valores de tiepo para compensar los filtros o aislamientos.
+La seccionde seleccion de configuracion tiene las maquinas de marca Sherline ya configuradas para su uso en caso de que posea una de estas.
 
 Step Time::
-    How long the step pulse is 'on' in nano seconds.
+    Cuanto tiempo el pulso de paso esta "Encendido" en nanosegundos.
 
 Step Space::
-    Minimum time between step pulses in nano seconds.
+    Tiempo minimo entre dos pulsos de paso en nanosegundos.
 
 Direction Hold::
-     How long the direction pin is held after a change of direction in nanoseconds.
+    Cuanto tiempo el pin de direccion deve ser mantenido despues de un cambio de direecion en nanosegundos.
 
 Direction Setup::
-     How long before a direction change after the last step pulse in nanoseconds.
+     Cuanto tiempo debe aver antes de un cambio de direccion despues del ultimo pulso de paso.
 
 First Parport::
-    Usually the default of 0x378 is correct. 
+    Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378. 
 
 Second Parport::
-    If you need to specify additional parallel ports enter the address and
-    the type. For information on finding the address of PCI parallel ports
-    see the Port Address in the Integrator Manual. (Try 0x278 or 0x3BC first.) 
+    En caso de ser necesario especificar un puerto paralelo extra introduca la direccion
+    y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
+    vea la seccion Port Address en el manual de integrador. (Trate primero con 0x278 o 0x3BC)
+
 
 Base Period Maximum Jitter::
     (((Base Period Maximum Jitter)))
-    Enter the result of the Latency Test here. 
-    To run a latency test press the 'Test Base Period Jitter' button.
-    See the latency test section for more details.
+    Introduca el resultado de la prueba de latencia.
+    Para correr la prueba de latencia precione el boton "Test Base Period Jitter".
+    Vea la seccion de la prueba de latencia para mas detalles.
 
 Max Step Rate::
     (((Max Step Rate)))
-    Stepconf automatically calculates the Max Step Rate based on the 
-    driver characteristics entered and the latency test result.
+    Stepconf automaticamente calculara la taza maxima de pulsos de pasos
+    basandose en las caracteristicas del controlador de motor a pasos y el resultado de la prueba de latencia.
 
 Min Base Period::
     (((Min Base Period)))
-    Stepconf automatically determines the Min Base Period based on the 
-    driver characteristics entered and latency test result.
+    Stepconf automaticamente calculara el periodo base minimo
+    basandose en las caracteristicas del controlador de motor a pasos y el resultado de la prueba de latencia.    
 
 Onscreen Prompt For Tool Change::
     (((Onscreen Prompt For Tool Change)))
-    If this box is checked, LinuxCNC will pause and prompt you 
-    to change the tool when 'M6' is encountered.
-    Leave this box checked unless you plan to add support
-    for an automatic tool changer in a custom HAL file
+    Si esta casilla es seleccionada, LinuxCNC pausara la ejecucion de un programa y le preguntara
+    por el cambio de herramienta cuando el comando *M6* sea encontrado en el codigo G.
+    Deje esta casilla sin checar amenos que usted planie agregar soporte
+    para una torreta automatica de cambio de herramientas en un archivo HAL personalizado.
 
-== Latency Test[[sub:latency-test]](((Latency Test)))
+== Prueba de latencia[[sub:latency-test]](((Latency Test)))
 
-While the test is running, you should 'abuse' the computer. Move
-windows around on the screen. Surf the web. Copy some large files
-around on the disk. Play some music. Run an OpenGL program such as
-glxgears. The idea is to put the PC through its paces while the latency
-test checks to see what the worst case numbers are.  Run the test at least a few
-minutes. The longer you run the test the
-better it will be at catching events that might occour at less frequent
-intervals. This is a test for your computer only, so no hardware needs
-to be connected to run the test.
+Mientras se ejecute la prueba, usted devera de 'abusar' de la computadora. Mueva
+ventanas alrededor de la pantalla. Navegue en internet. Copie algunos archivos de gran tamano
+en diferentes partes del disco duro. Reproduca musica. Corra algun programa OpenGl como glxgears.
+La idea es poner a la computadora en apuros mientras se ejecuta la prueba para poder tener una idea de 
+cuales seran los peores casos de demanda a la computadora y sus tiempo de respuesta. 
+Ejecute la prueba almenos unos cuantos minutos. Entre mas tiempo la ejecute mas probable es que detecte
+casos especiales que solo suceden en intervalos poco frecuentes. Esta prueba es solo para 
+la computadora, no se requiere que conecte los controladores de motores o la maquina herramienta.
 
-[WARNING]
-Do not attempt run LinuxCNC while the latency test is running.
+[ADVERTENCIA]
+No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
-.Latency Test[[cap:Latency-Test]]
+.Prueba de Latencia[[cap:Latency-Test]]
 
 image::images/latency.png[align="center"]
 
-Latency is how long it takes the PC to stop what it is doing and
-respond to an external request. In our case, the request is the
-periodic 'heartbeat' that serves as a timing reference for the step
-pulses. The lower the latency, the faster you can run the heartbeat,
-and the faster and smoother the step pulses will be.
+Latencia es cuanto le tomara a la PC detenerse en lo que esta haciendo
+y responder a una solicitud externa. En este caso, la solicitud
+el el 'latido periodico' que sirve como referencia de tiempo 
+para la genracion de los pulsos de paso.
+Entre menor sea la latencia, mas rapido se generaran los latidos,
+y mas rapidos y suabes seran los pulsos de paso.
 
-Latency is far more important than CPU speed. The CPU isn't the only
-factor in determining latency. Motherboards, video cards, USB ports, 
-SMI issues, and a number of other things can hurt the latency.
+La latencia es mucho mas importante que la velocidad del CPU. La velocidad
+del CPU no es el unico factor determinate en la latencia. Tahgetas madre, targetas de video, puertos
+USB, Problemas con SMI, y otra cantidad de coasas pueden afectar la latencia.
+
 
 .Troubleshooting SMI Issues (LinuxCNC.org Wiki)
 ************************************************************
-Fixing Realtime problems caused by SMI on Ubuntu
+
+Encuentre soluciones a algunos problemas de SMI comunes en Ubuntu
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
 ************************************************************
 
-The important numbers are the 'max jitter'. In the example above 9075
-nanoseconds, or 9.075 microseconds, is the highest jitter. 
-Record this number, and enter it in
-the Base Period Maximum Jitter box.
+Los numeros importantes son el "max jitter". en el ejemplo de abajo 9075
+nanosegundos, o 9.075 microsegundos, es el maximo retraso.
+Guarde este numero, y escrivalo en la caja Base Period Maximum Jitter.
 
-If your Max Jitter number is less than about 15-20 microseconds
-(15000-20000 nanoseconds), the computer should give very nice results
-with software stepping. If the max latency is more like 30-50
-microseconds, you can still get good results, but your maximum step
-rate might be a little disappointing, especially if you use
-microstepping or have very fine pitch leadscrews. If the numbers are
-100 us  or more (100,000 nanoseconds), then the PC is not a good
-candidate for software stepping. Numbers over 1 millisecond (1,000,000
-nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
-whether you use software stepping or not.
+Si el maximo retrazo es menor o se encuentra entre 15-20 microsegundos
+(15000-20000 nanosegundos), la computadora deveria de dar muy buenos resultados
+con la generacion de pulsos de pasos. Si la latencia maxima esta entre 30-50
+microsegundos, se pueden seguir obteniendo buenos resultados, pero la tasa
+maxima de generacion de pulsos puede ser un poco desepcionante, especialmente si se usan
+micropasos o un tornillo con un paso muy fino. si los numeros son
+100us o mas (100 000 nanosegundos), la PC no es una buena candidata para la generacion 
+de pulsos de paso por software. Numeros arriva de 1 milisegundo (1 000 000 nanosegundos)
+significan que la PC no es una buena candidata para ejecutar LinuxCNC, sin importar si se
+usa generacion de pulsos de paso por software o no.
 
-== Parallel Port Setup[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))
 
-.Parallel Port Setup Page[[cap:Parallel-Port-Setup]]
+== Ajustes del puerto Paralelo[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))
+
+.Pagina de ajuste del Puerto Paralelo[[cap:Parallel-Port-Setup]]
 
 image::images/stepconf-pinout.png[align="center"]
 
-For each pin, choose the signal which matches 
-your parallel port pinout. 
-Turn on the 'invert' check box if the signal is inverted 
-(0V for true/active, 5V for false/inactive).
+Para cada pin se devera seleccionar la señal de control
+que concuerde con la configuracion del puerto.
 
-Output pinout presets::
-    Automatically set pins 2 through 9 according to the Sherline standard
-    (Direction on pins 2, 4, 6, 8) or the Xylotex standard 
-    (Direction on pins 3, 5, 7, 9). 
+Active la casilla "invert" si la señal de control requiere
+ser invertida (0V para activo/Verdadero, 5V para inactivo/Falso)
 
-Inputs and Outputs::
-    If the input or output is not used set the option to 'Unused'.
+Esquemas de pines predefinidos::
+   Se configuraran automaticamente los pines del 2 al 9 deacuerdo al estandar
+   de las maquinas Sherline (Direccion en los pines 2, 4, 6, 8) o Xylotex (Direccion en los
+   pines 3, 5, 7, 9).
 
-External E Stop::
-    This can be selected from an input pin drop down box. 
-    A typical E Stop chain uses all normally closed contacts.
+Entradas y Salidas::
+    Si el pin no sera utilizado como entrada o salida seleccionarlo como "Unused".
 
-Homing & Limit Switches::
-    These can be selected from an input pin drop down box for most
-    configurations.
+Señal de Paro Externo (E stop)::
+    Esta señal pude ser tipicamente seleccionado en la casilla desplegable.
+    Una cadena de señal de paro tipica utiliza solo contactos normalmnete cerrados en serie.
 
-Charge Pump::
-    If your driver board requires a charge pump signal simply select
-    Charge Pump from the drop down list for the output pin you wish to
-    connect to your charge pump input. 
-    The charge pump output is connected to the base thread by Stepconf. 
-    The charge pump output will be about 1/2 of the maximum step rate 
-    shown on the Basic Machine Configuration page.
+Posicion de inicio y limites de seguridad (Homing & Limit Switches)::
+    Estos pines pueden ser seleccionados para la mayoria de las configuraciones
+    utilizando la casilla desplegable.
 
-== Axis Configuration[[sec:Axis-Configuration]](((Axis Configuration)))
+Bomba de Carga (Charge Pump)::
+    Si el controlador de motores requiere de una se;al de bomba de carga
+    simplemente seleccione esta opcion de lalista desplegable y conecte la señal
+    al pin seleccionado.
+    La salida de la bomba de carga sera conectada a la tarea base por el programa Stepconf.
+    La salida de bomba de carga sera aproximadamente 1/2 de la maxima tasa de generacion
+    de pulsos de paso mostrados en la pagina de configuracion basica. 
 
-.Axis Configuration Page[[cap:Axis-Configuration-Page]]
+== Configuracion de los Ejes[[sec:Axis-Configuration]](((Axis Configuration)))
+
+.Pagina de configuracion de eje[[cap:Axis-Configuration-Page]]
 
 image::images/stepconf-axis.png[align="center"]
 
-Motor Steps Per Revolution::
+Pasos del motor por revolucion (Motor Steps Per Revolution)::
     (((Motor Steps Per Revolution)))
-    The number of full steps per motor revolution. 
-    If you know how many degrees per step the motor is (e.g., 1.8 degree), 
-    then divide 360 by the degrees per step to find the 
-    number of steps per motor revolution. 
+    El numero de pasos completos por revolucion del motor.
+    Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados),
+    se deve dividir 360 por el numero de grados por paso
+    para encontrar el numero de pasos por revolucion.
 
-Driver Microstepping::
+Micro pasos (Driver Microstepping)::
     (((Driver Microstepping)))
-    The amount of microstepping performed by the driver. 
-    Enter '2' for half-stepping. 
+    El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
+    entre "2" para medio paso.
+    (ejemplo, si el controlador produce 1/10 de giro de un paso completo
+    en la flecha del motor por cada pulso de paso que recive, escriva 10 en la casilla.
 
-Pulley Ratio::
+Relacion de Poleas (Pulley Ratio)::
     (((Pulley Ratio)))
-    If your machine has pulleys between the motor and leadscrew, 
-    enter the ratio here. If not, enter '1:1'.
+    Si su maquina tiene poleas o engranes entre el motor y el tornillo,
+    escriva la relacion aqui. Si no, escriva "1:1".
 
-Leadscrew Pitch::
+Paso del tornillo (Leadscrew Pitch)::
     (((Leadscrew Pitch)))
-    Enter the pitch of the leadscrew here. 
-    If you chose 'Inch' units, enter the number 
-    of threads per inch here (e.g., enter 8 for 8 TPI). 
-    If you have a multi-lead screw then you need to know 
-    how many turns per inch it takes to move the 'nut'. 
-    If you chose 'mm' units, enter the number of millimeters the 'nut' would move per
-    revolution here (e.g., enter 2 for 2mm/rev). 
-    If the machine travels in the wrong direction, 
-    enter a negative number here instead of a positive number, 
-    or invert the direction pin for the axis.
+    Entre el paso del tornillo aqui.
+    Si se selecciono unidades en "Inch", entre el numero de 
+    cuerdas por pulgada (ejemplo, entre 8 para 8 TPI).
+    Si se tiene un tornillo con multiples cuerdas se requiere saber
+    cuantas vueltas por pulgada se requieren para mover la "nues".
+    Si se selecciono 'mm' como unidades, entre el numero de milimetros que la "nues"
+    se movera por revolucion (ejemplo, entre 2 para 2 mm/rev).
+    Si la maquina se mueve en la direccion opuesta a la esperada,
+    entre un valor negativo, o invierta la direccion del pin para el eje.
 
-Maximum Velocity::
+Velocidad Maxima (Maximum Velocity)::
     (((Maximum Velocity)))
-    Enter the maximum velocity for the axis in units per second.
+    Entre la velocidad maxima del eje en unidades por segundo.
 
-Maximum Acceleration::
+Aceleracion Maxima (Maximum Acceleration)::
     (((Maximum Acceleration)))
-    The correct values for these items can only 
-    be determined through experimentation. See 
-    <<finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and
-    <<finding-maximum-acceleration,Finding Maximum Acceleration>> to set the acceleration.
+    El valor correcto de esta casilla solo puede ser determinado
+    por experimentacion. Vea 
+    <<sub:Finding-Maximum-Velocity>> para ajustar la velocidad
+    <<sub:Finding-Maximum-Acceleration>> para ajustar la aceleracion.
 
-Home Location::
+Posicion de Inicio (Home Location)::        
     (((Home Location)))
-    The position the machine moves to after completing
-    the homing procedure for this axis. 
-    For machines without home switches, 
-    this is the location the operator manually moves the machine to 
-    before pressing the Home button. 
-    If you combine the home and limit switches
-    you must move off of the switch to the home position 
-    or you will get a joint limit error.
+    La posicion a la que la maquina se movera despues de completar
+    el procedimiento de inicio del eje.
+    Para maquinas sin interruptores de posicion de inicio,
+    esta es la posicion a la cual el operador devera mover la maquina
+    antes de precionar el boton de inicializanon del eje (Home).
+    Si se combinan los interruptores de inicio y de limite
+    se devera mover la maquina fuera del interruptor para inicializar el eje
+    o se recivira un error de limite en el eje.
 
-Table Travel::
+Area de la bancada (Table Travel)::
     (((Table Travel)))
-    The range of travel that g code programs must not exceed. 
-    The home location must be inside the Table Travel. 
-    In particular, having Home Location exactly equal to 
-    one of the Table Travel values is incorrect configuration
+    El rango de viaje que el codigo g no podra sobrepasar.
+    La posicion de inicializacion del eje deve estar dentro del area de bancada.
+    En particular, tener la posicion de inicializacion (Home) de un eje exactamente
+    en un limite del area de bancada producira una configuracion invalida.    
 
-Home Switch Location::
+Localizacionde los interruptores de inializacion(Home Switch Location)::
     (((Home Switch Location)))
-    The location at which the home switch trips
-    or releases during the homing process. This item and the two below only
-    appear when Home Switches were chosen in the Parallel Port Pinout. If
-    you combine home and limit switches the home switch location can not be
-    the same as the home position or you will get a joint limit error.
-
-Home Search Velocity::
+    La posicion en la cual el interruptor de inializacion se activa o desactiva
+    durante un proceso de inicializacion. Este apartado y los dos siguientes
+    solo apareceran cuando se seleccione la existencia de interruptores de limite
+    en la configuracion del los pines del puerto paralelo. Si se combinan los 
+    interruptores de limite y de inicializacion la posicion del interruptor de inicializacion
+    no puede ser la misma que la posicoin de inicializacion o se producira un error de limite en el eje.
+    
+Velocidad de inicializacion (Home Search Velocity)::
     (((Home Search Velocity)))
-    The velocity to use when moving towards the switch. 
-    If the switch is near the end of travel, 
-    this velocity must be chosen so that the axis can 
-    decelerate to a stop before hitting the end of travel. 
-    If the switch is only closed for a short range of travel
-    (instead of being closed from its trip point to one end of travel),
-    this velocity must be chosen so that the axis can decelerate to a stop
-    before the switch opens again, and homing must always be started from
-    the same side of the switch. 
-    If the machine moves the wrong direction at the beginning of the
-    homing procedure, negate the value of 'Home Search Velocity'.
+    La velocidad usada en la busqueda de los interruptores.
+    Si el interruptor se encuentra cercano al limite de viaje del eje,
+    esta velocidad deve ser seleccionada de tal forma que el eje tenga
+    suficiente tiempo para desacelerar hasta detenerse antes de llegar al
+    limite fisico de la bancada.
+    Si el interuptor se encuentra cercano por un rango de viaje corto
+    (En lugar de estar cercano desde el punto de inicio al final del viaje),
+    la velocidad devera ser seleccionada de tal forma que el eje pueda desacelerar
+    hasta detenerse antes de que el interruptor se habra otra vez, el procedimiento
+    de inicializacion devera ser comenzarse siempre del mismo lado del interruptor.
+    Si la maquina se mueve en la direccion contraria al inicio de la inicializacion,
+    cambie el signo a negativo del parametro *Home Search Velocity*.
 
-Home Latch Direction::
+
+Direccion de busqueda de posicion de inicio (Home Latch Direction)::
     (((Home Latch Direction)))
-    Choose 'Same' to have homing back off the switch, 
-    then approach it again at a very low speed. 
-    The second time the switch closes, the home position is set. 
-    Choose 'Opposite' to have homing slowly back off the switch. 
-    When the switch opens, the home position is set.
+    Seleccione "Igual (Same)" para que el interruptor sea liberado
+    y posteriormente la maquina se acerque a el a muy baja velocidad.
+    La segunda vez que el interruptor se cierre, se definira la posiocn de inializacion.
+    Seleccione "Opuesto (Opposite)" para realizar la inializacion moviendose despacio fuera del interruptor,
+    cuando el interruptor se habra la posiocion de inializacion sera marcada.
 
-Time to accelerate to max speed::
+Tiempo para acelerar a maxima velocidad (Time to accelerate to max speed)::
     (((Time to accelerate to max speed)))
-    Calculated time. 
+    Tiempo calculado. 
 
-Distance to accelerate to max speed::
+Distancia para acelerar a maxima velocidad (Distance to accelerate to max speed)::
     (((Distance to accelerate to max speed)))
-    Calculated distance.
+    Distancia calculada.
 
-Pulse rate at max speed::
+Taza de generacion de pulsos a maxima velocidad (Pulse rate at max speed)::
     (((Pulse rate at max speed)))
-    Information computed based on the values entered above. 
-    The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'. 
-    Values above 20000Hz may lead to slow response time or even lockups 
-    (the fastest usable pulse rate varies from computer to computer)
+    Este dato se calcula en base a los valores anteriores.
+    El valor maximo de la *Taza de generacion de pulsos a maxima velocidad* determina el *Periodo base*.
+    Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
+    (La taza de generacion maxima de pulsos varia entre computadoras)
 
-Axis SCALE::
-    The number that will be used in the ini file [SCALE] setting. 
-    This is how many steps per user unit.
+Escala del Eje (Axis SCALE)::
+    El numero que sera usado en el archivo ini en la seccion [SCALE].
+    Representa cuantos pasos se deven dar por unidad de usuario.
 
-Test this axis::
+Probar este Eje (Test this axis)::
     (((Test this axis)))
-    This will open a window to allow testing for each axis. 
-    This can be used after filling out all the information for this axis. 
+    Esta opcion abre una ventana para permitir probar cada eje.
+    Esta opcion puede ser utilizada despues de llenar toda la informacion referente al eje.
 
-=== Test This Axis
+=== Probar este Eje
 
-.Test This Axis[[cap:Test-This-Axis]]
+.Probar este Eje[[cap:Test-This-Axis]]
 
 image::images/stepconf-test.png[align="center"]
 
-With Stepconf it is easy to try different values for acceleration and velocity.
+Con Stepconf es sencillo probar diferentes valores de aceleracion y velocidad.
+ 
+==== Busqueda de Velocidad Maxima[[finding-maximum-velocity]](((Finding Maximum Velocity)))
 
-==== Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))
-
-Begin with a low Acceleration 
+Comiense con una aceleracion baja 
 // comment out latexmath until a fix is found for the html docs
-// (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])
-(for example, *+2 inches/s^2^+* or *+50 mm/s^2^+*)
-and the velocity you hope to attain. 
-Using the buttons provided, jog the axis to near the center of travel. 
-Take care because with a low acceleration value, 
-it can take a surprising distance for the axis to decelerate to a stop.
+//(ejemplo, latexmath:[ 2 in/s^2 ] o latexmath:[ 50 mm/s^2 ]) y 
+(por ejemplo, *+2 pulgadas/s^2^+* or *+50 mm/s^2^+*)
+la velocidad que se desea obtener.
+Utilizando los botones disponibles, mueva el eje cerca al centro de su carrera.
+Tenga cuidado porque con un valor de aceleracion bajo,
+puede tomarle al eje una sorpendente distancia para desacelerar hasta detenerse.
 
-After gauging the amount of travel available, 
-enter a safe distance in Test Area, keeping in mind that 
-after a stall the motor may next start to move in an unexpected direction. 
-Then click Run. 
-The machine will begin to move back and forth along this axis. 
-In this test, it is important that the combination of Acceleration and 
-Test Area allow the machine to reach the selected Velocity and 'cruise' for 
-at least a short distance -- the more distance, the better this test is. 
-The formula *+d = 0.5 * v * v/a+*
-// latexmath:[ d = 0.5 * v * v/a ] 
-gives the minimum distance required to reach the 
-specified velocity with the given acceleration. 
-If it is convenient and safe to do so, 
-push the table against the direction of motion to simulate cutting forces. 
-If the machine stalls, reduce the speed and start the test again. 
+Despues de medir la cantidad de espacio de movimiento disponible para el eje, 
+introduca una distancia segura en el area de prueba, mantenga en mente que
+despues de un atoramiento, el motor puede acontinuacion comenzar a moverse en una direccion inesperada.
+Entonses haga click en la opcion Correr (Run).
 
-If the machine did not obviously stall, click the 'Run' button off.
-The axis now returns to the position where it started. 
-If the position is incorrect, then the axis stalled or lost steps during the test.
-Reduce Velocity and start the test again.
+La maquina comenzara a moverse hacia adelante y atras a lo largo del eje.
+En esta prueba, es importante que la combinacion de aceleracion y 
+area de prueba permita a la maquina alcanzar la velocidad seleccionada y que la bancada viaje 
+por almenos una distancia corta a esta velocidad -- entre mas distancia mejor sera la prueba.
+La formula *+d = 0.5 * v * v/a+*
+//latexmath:[ d = 0.5 * v * v/a ] 
+proporciona la minima distancia requerida para alcanzar
+la velocidad especificada con la aceleracion seleccionada.
+Si es conveniente y seguro de hacer,
+precione la bancada contra la direcion del movimiento para simular las fuerzas de corte.
+si la maquina se detiene, redusca la velocidad y comiense la prueba de nuevo.
 
-If the machine doesn't move, stalls, or loses steps, no matter how low
-you turn Velocity, verify the following:
+Si la maquina no se detiene de manera evidente, precione el boton 'Run' de nuevo, para detener la prueba.
+La maquina regresara a la posicion donde comenso la prueba.
+Si la posicion es incorrecta, la maquina perdio pasos o se detubo durante la prueba.
+Redusca la velocidad y comienze la prueba de nuevo.
 
- - Correct step waveform timings
- - Correct pinout, including 'Invert' on step pins
- - Correct, well-shielded cabling
- - Physical problems with the motor, motor coupling, leadscrew, etc.
+Si la maquina no se mueve, se detiene, o pierde pasos, sin importar cuan baja 
+sea la velocidad seleccionada, verifique lo siguiente:
 
-Once you have found a speed at which the axis 
-does not stall or lose steps during this testing procedure, 
-reduce it by 10% and use that as the axis Maximum Velocity.
+ - Valores correctos de la forma de pulsos de pasos
+ - Seleccion correcta de los pines de salida del puerto, incluyendo si es necesario la opcion de 'Invertido'
+ - Cableado blindado para reducir interferencia
+ - Problemas fisicos con el motor, acoplamientos, tornillos embalados o de bolas, etc.
 
-==== Finding Maximum Acceleration[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))
+Una ves que se encuentre una velocidad a la cual el eje 
+no se detenga o pierda pasos durante la prueba,
+redusca la velocidad un 10% y utilize esta nueva velocidad como velocidad Maxima.
 
-With the Maximum Velocity you found in the previous step, 
-enter the acceleration value to test. 
-Using the same procedure as above, 
-adjust the Acceleration value up or down as necessary. 
-In this test, it is important that the combination of 
-Acceleration and Test Area allow the machine to reach the selected Velocity. 
-Once you have found a value at which the axis 
-does not stall or lose steps during this testing procedure, 
-reduce it by 10% and use that as the axis Maximum Acceleration.
+==== Encontrando la maxima aceleracion[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))
 
-== Spindle Configuration[[sec:Spindle-Configuration]](((Spindle Configuration)))
+Con la velocidad maxima que se encontro en el paso anterior,
+introduca un valor de aceleracion a probar.
+Utilizando el mismo procedimiento antes descrito,
+redusca la aceleracion si en necesario.
+En esta prueba, es importante que la combinacion de
+Aceleracion y area de prueba permita a la maquina alcanzar la velocidad seleccionada.
+Una ves que se encuentre un valor de aceleracion en el cual la maquina no pierda pasos o se detenga 
+durante la prueba, redusca el valor encontrado un 10% y utilice este nuevo valor como el valor de Aceleracion Maxima.
 
-.Spindle Configuration Page[[cap:Spindle-Configuration-Page]]
+== Configuracion del Husillo[[sec:Spindle-Configuration]](((Spindle Configuration)))
+
+.Pagina configuracion del Husillo[[cap:Spindle-Configuration-Page]]
 
 image::images/stepconf-spindle.png[align="center"]
 
-This page only appears when 'Spindle PWM' is chosen in the 
-'Parallel Port Pinout' page for one of the outputs.
+Esta pagina solo aparece cuando la opcion 'Spindle PWM' es seleccionada en la 
+pagina de seleccion de las salidad 'Parallel Port Pinout
 
-=== Spindle Speed Control[[spindle-speed-control]](((spindle speed control)))
+=== Control de la velocidad del Husillo[[spindle-speed-control]](((spindle speed control)))
 
-If 'Spindle PWM' appears on the pinout, 
-the following information should be entered:
+Si la opcion 'Spindle PWM' fue seleccionada en el mapeo de salidas, 
+la siguiente informacion deve ser proporcionada:
 
-PWM Rate::
+Taza de PWM (PWM Rate)::
     (((PWM Rate)))
-    The 'carrier frequency' of the PWM signal to the spindle. 
-    Enter '0' for PDM mode, 
-    which is useful for generating an analog control voltage. 
-    Refer to the documentation for your spindle controller for the appropriate value.
+    La frecuencia portadora de la señal PWM que controlara la velocidad del Husillo.
+    Introdusca un '0' para modo PDM,
+    El cual es util para generar un voltage de control.
+    Revisese la documentacion del controlador del husillo para el valor adecuado.
 
-Speed 1 and 2, PWM 1 and 2::
+Velocidad 1 y 2, PWM 1 y 2::
     (((Speed 1 and 2)))(((PWM 1 and 2)))
-    The generated configuration file uses a simple linear relationship 
-    to determine the PWM value for a given RPM value. 
-    If the values are not known, they can be determined.
-    For more information see <<determining-spindle-calibration,Determining Spindle Calibration>>.
+    Los archivos de configuracion generados usan una relacion lineal simple
+    para determinar el valor de PWM para un valor de RPM dado.
+    Si los valores son desconocidos, puedn ser determinados.
+    Para mas informacion vease la seccion: (<<determining-spindle-calibration,Determining Spindle Calibration>>)
 
-=== Spindle-synchronized motion (lathe threading, rigid tapping)[[sub:Spindle-synchronized-motion-lathe]]
+===Sincronizacion de movimientos del Husillo (Cuerdas automaticas y uso de machuelo)[[sub:Spindle-synchronized-motion-lathe]]
 (((Spindle-synchronized motion)))(((Lathe Threading)))
 
-When the appropriate signals from a spindle encoder are connected to 
-LinuxCNC via HAL, LinuxCNC supports lathe threading. 
-These signals are:
+Cuando son proporcionadas las señales correctas desde un encoder conectado
+a LinuxCNC utilizando los componentes del HAL (Capa de abstraccionde Hardware),
+LinuxCNC soportara el roscado en torno.
+Las señales requeridas son:
 
-Spindle Index::
+
+Indice del Husillo::
     (((Spindle Index)))
-    Is a pulse that occurs once per revolution of the spindle.
+    Es un pulso que ocurre una vez por revolucion del Husillo.
 
-Spindle Phase A::
+Fase A del Husillo::
     (((Spindle A)))
-    This is a pulse that occurs in multiple equally-spaced locations 
-    as the spindle turns.
+    Es un pulso que ocurre en varias ocaciones igualmente espaciadas
+    conforme el husillo gira.
 
-Spindle Phase B (optional)::
+Fase B del Husillo (Opcional)::
     (((Spindle B)))
-    This is a second pulse that occurs, 
-    but with an offset from Spindle Phase A. 
-    The advantages to using both A and B are 
-    direction sensing, increased noise immunity, and increased resolution.
+    Este es un pulso secundario que ocurre en
+    desface con respecto al pulso de Fase A.
+    La ventaja de usar ambos pulsos A y B son
+    la capacidad de determinar la direccion del giro,
+    ahumento de la inmunidad al ruido y el aumento de la resolucion.
 
-If 'Spindle Phase A' and 'Spindle Index' appear 
-on the pinout, the following information should be entered:
+    
+Si las opciones de 'Fase A' e 'Indice del Husillo' fueron seleccionadas
+en la configuracion del puerto, la siguiente informacion devera ser introducida:
 
-Cycles per revolution::
+Ciclos por revolucion::
     (((Cycles per revolution)))
-    The number of cycles of the 'Spindle A' signal during one revolution of the spindle. 
-    This option is only enabled when an input has been set to 'Spindle Phase A'
+    El numero de ciclos de la señal fase A  que se producen durante una vuelta completa del husillo.
+    Esta opcion solo se encontrara disponible Si alguna de las entradas de configuracion
+    del puerto fue seleccionada como 'Spindle Phase A'
 
-Maximum speed in thread::
-    The maximum spindle speed used in threading. 
-    For a high spindle RPM or a spindle encoder with high resolution, 
-    a low value of 'BASE_PERIOD' is required. 
+Velocidad Maxima al momento de hacer una cuerda::
+    Seleccionar la maxima velocidad permitida al momento de hacer una cuerda.
+    Para un husillo de altas RPM o un encoder con alta resolucion,
+    un valor bajo de 'BASE_PERIOD' es requerido. 
 
-=== Determining Spindle Calibration[[determining-spindle-calibration]]
+=== Determinacion de la Calibracion del Husillo[[determining-spindle-calibration]]
 (((Determining Spindle Calibration)))
 
-Enter the following values in the Spindle Configuration page:
+Introdusca los siguientes valores en la pagina de configuracion del husillo:
 
 [width="100%"]
 |========================================
@@ -476,146 +491,158 @@ Enter the following values in the Spindle Configuration page:
 |Speed 2: | 1000 | PWM 2: | 1
 |========================================
 
-Finish the remaining steps of the configuration process, 
-then launch LinuxCNC with your configuration. 
-Turn the machine on and select the MDI tab. 
-Start the spindle turning by entering: 'M3 S100'. 
-Change the spindle speed by entering a different S-number: 'S800'. 
-Valid numbers (at this point) range from 1 to 1000.
+Termine los pasos restantes del proceso de configuracion,
+posteriormente inicie LinuxCNC con la configuracion recien creada.
+Encienda la maquina y seleccione la pestaña MDI.
+Encienda el husillo entrando el comando: 'M3 S100'.
+Cambie la velocidad del husillo entrando un valor diferente de parametro S: 'S800'. 
+Valores validos en este momento van desde 1 hasta 1000.
 
-For two different S-numbers, measure the actual spindle speed in RPM.
-Record the S-numbers and actual spindle speeds. Run Stepconf again. 
-For 'Speed' enter the measured speed, and 
-for 'PWM' enter the S-number divided by 1000.
+Para dos valores de parametro S diferentes, mida las RPM que el husillo este proporcionando.
+Guarde los valores S utilizados en la prueba y los valores reales de RPM proporcionados por el husillo.
+Ejecute el programa Stepconf de nuevo.
+Para el parametro  'Speed' introdusca la velocidad en RPM medida, y 
+para 'PWM' introdusca el valor del parametro S dividido entre 1000.
+Recuerde que deve tener dos valores del parametro S y sus correspondientes 
+RPM proporcionadas por el husillo para generar un ajuste de velocidad lineal.
 
-Because most spindle drivers are somewhat nonlinear in their response
-curves, it is best to:
 
- - Make sure the two calibration speeds are not too close together in RPM
- - Make sure the two calibration speeds are in the range of speeds you
-   will typically use while milling
+Devido a que la mayoria de los controladores de husillo precentan nolinealidades en su respuesta
+es mejor hacer lo siguiente:
 
-For instance, if your spindle will go from 0 RPM to 8000 RPM, 
-but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%), 
-then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
+ - Asegurese que las dos calibraciones utilizadas no se encuentren cerca en los valores de RPM proporcionados.
+ - Asegurese que las dos calibraciones se encuentren en los rangos de RPM que usted normalmente 
+   utilizara al maquinar.
 
-== Advanced Configuration Options[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))
+Por lo tanto si el husillo deve de ir de las 0 RPM a las 8000 RPM,
+pero usted generalmente utiliza velocidades de las 400 RPM (10%) a las 4000 RPM (100%), 
+vusque los valores de PWM que proporcionen 1600 RPM (40%) y 2800 RPM (70%).
 
-.Advanced Configuration[[cap:Advanced-Configuration]]
+== Opciones de configuracion avanzada[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))
+
+.Configuracion avanzada[[cap:Advanced-Configuration]]
 
 image::images/stepconf-advanced.png[align="center"]
 
-Include Halui::
-    This will add the Halui user interface component. 
-    See the Integrator Manual for more information on Halui.
+Incluir Halui::
+    Esta opcion incluira la interface de usuario Halui.
+    (Control remoto de los parametros de pantalla de la GUI)
+    Vea el manual del integrador para mas detalles.
 
-Include pyVCP::
-    This option adds the pyVCP panel base file or a sample file to work on. 
-    See the Integrator Manual for more information on pyVCP.
+Incluir pyVCP::
+    Esta opcion agrega el pnel base de pyVCP y un archivo simple para comenzar a trabajar en el.
+    Vea el manual del integrador para mas detalles.
+ 
+Incluir ClassicLadder PLC::
+    Esta opcion agregara el ClassicLadder PLC (Programmable Logic Controller). 
+    Vea el manual del integrador para mas detalles.
 
-Include ClassicLadder PLC::
-    This option will add the ClassicLadder PLC (Programmable Logic Controller). 
-    See the Integrator Manual for more information on ClassicLadder.
+== Terminando de configurar la Maquina[[sub:Machine-Configuration-Complete]]
 
-== Machine Configuration Complete[[sub:Machine-Configuration-Complete]]
+Seleccione 'Apply' para escrivir los archivos de configuracion. 
+Mas tarde puede correrse el programa de configuracion Stepconf de nuevo
+y recuperar los valores que se introdugeron anteriormente.
 
-Click 'Apply' to write the configuration files. 
-Later, you can re-run this program and tweak the settings you entered before.
-
-== Axis Travel, Home Location, and Home Switch Location[[sec:Axis-Travel-Home]]
+== Carrera de Eje, Localizacion de los interruptores de inicio y la pocicion inicial[[sec:Axis-Travel-Home]]
 (((Axis Travel)))(((Home Location)))(((Home Switch Location)))
 
-For each axis, there is a limited range of travel. 
-The physical end of travel is called the 'hard stop'.
+Para cada eje, existe un rango limitado de carrera.
+El limite fisico de la carrera se conoce como 'hard stop'.
 
-Before the 'hard stop' there is a 'limit switch'. 
-If the limit switch is encountered during normal operation, 
-LinuxCNC shuts down the motor amplifier. 
-The distance between the 'hard stop' and 'limit switch' 
-must be long enough to allow an unpowered motor to coast to a stop.
 
-Before the 'limit switch' there is a 'soft limit'. 
-This is a limit enforced in software after homing. 
-If a MDI command or g code program would pass the soft limit, it is not executed. 
-If a jog would pass the soft limit, it is terminated at the soft limit.
+ANtes de alcanzar el limite fisico 'hard stop' existe un interruptor de limite 'limit switch'. 
+Si se encuentra el interruptor de limite durante la operacion normal,
+EMC apagara el controlador del eje.
+La distancia entre el limite fisico y el interruptor de limite
+Deve ser suficiente para permitir al eje sin energia detenerse.
 
-The 'home switch' can be placed anywhere within the travel (between hard stops). 
-As long as external hardware does not deactivate the motor amplifiers 
-when the limit switch is reached, one of the limit switches 
-can be used as a home switch.
+Antes del interruptor de limite existe un limite suabe 'soft limit'.
+Este es un limite determinado por programa despues de la rutina de inicializacion.
+Si un comando MDI o G exede el limite suabe, el comando no se ejecutara.
+Si un movimiento manual del eje exede el limite suabe, el movimiento es terminado en el
+limite suabe.
 
-The 'zero position' is the location on the axis that is 0 in 
-the machine coordinate system. 
-Usually the 'zero position' will be within the 'soft limits'.
-On lathes, constant surface speed mode requires that machine 'X=0' 
-correspond to the center of spindle rotation when no tool offset is in effect.
+El interruptor de inicializacion 'home switch' puede ser colocado en cualquier lugar de la 
+carrera del eje entre los dos limites fisicos del eje.
+Mientras algun dispositivo externo no desactive los controladores de motor 
+cuando el interruptor de limite es activado, uno de los interruptores de limite
+puede ser utilizado para la posicion de inicializacion.
 
-The 'home position' is the location within travel that the axis will
-be moved to at the end of the homing sequence. 
-This value must be within the 'soft limits'. 
-In particular, the 'home position' 
-should never be exactly equal to a 'soft limit'.
+La posicion cero 'zero position' es la posicion en el eje que tienen el valor de 0
+en el sistema coordenado de la maquina.
+Usualmente la posicion cero se encontrara dentro de los limites suabes.
+En los tornos, la opcion de velocidad de superficie constante 
+requiere que la posicion 'X=0' corresponda al centro de rotacion del husillo
+cuando no exista alguna compensacion en la herramienta.
 
-=== Operating without Limit Switches[[sub:Operating-without-Limit]]
+La posicion de inizializacion es la posicion a la que el eje sera desplazado
+al final de la secuencia de inizializacion.
+Este valor deve de encontrarse dentro de los limites suabes.
+En particular la posicion de inizializacion
+nunca deve ser igual a un limite suabe.
+
+=== Operacion sin interruptores de limite[[sub:Operating-without-Limit]]
 (((Operating without Limit Switches)))
 
-A machine can be operated without limit switches. In this case, only
-the soft limits stop the machine from reaching the hard stop. 
-Soft limits only operate after the machine has been homed.
+Una maquina puede ser operada sin interruptores de limite. En ese caso, solo
+los limites suabes detendran al eje de alcanzar el limite fisico.
+Los limites suabes solo operan despues de que se a ejecutado la rutina de inizializacion.
 
-=== Operating without Home Switches[[sub:Operating-without-Home]]
+=== Operacion sin limites de inizializacion[[sub:Operating-without-Home]]
 (((Operating without Home Switches)))
 
-A machine can be operated without home switches. 
-If the machine has limit switches, but no home switches, 
-it is best to use a limit switch as the home switch 
-(e.g., choose 'Minimum Limit + Home X'  in the pinout). 
-If the machine has no switches at all, or the limit
-switches cannot be used as home switches for another reason, then the
-machine must be homed 'by eye' or by using match marks. Homing by eye
-is not as repeatable as homing to switches, but it still allows the
-soft limits to be useful.
+Una maquina puede ser operada sin interruptores de inicializacion.
+Si la maquina tiene interruptores de limite pero no de inicializacion,
+es mejor utilizar un interruptor de limite como interruptor de inizializacion
+(ejemplo, seleccione la opcion 'Minimum Limit + Home X' cuando configure el puerto en Stepconf).
+Si la maquina no tiene interruptores de ningun tipo, o si los interruptores 
+no pueden ser utilizados como interruptores de inizializacion por cualquier otra razon,
+entonces la maquina devera ser inicializada a mano, o utilizando marcas en la bancada.
+la inicializacion a mano no es tan confiable como la inicializacion con interruptores,
+pero permite seguir utilizando los limites suabes.
 
-=== Home and Limit Switch wiring options[[sub:Home-and-Limit]]
+=== Opciones de cableado de los interruptores de inicializacion y limite[[sub:Home-and-Limit]]
 (((Home and Limit Switch wiring options)))
 
-The ideal wiring for external switches would be one input per switch.
-However, the PC parallel port only offers a total of 5 inputs, 
-while there are as many as 9 switches on a 3-axis machine. 
-Instead, multiple switches are wired together in various 
-ways so that a smaller number of inputs are required.
+El cableado ideal deve de incluir un interruptor por señal.
+Sin embargo, el puerto paralelo del computador solo ofrece un total de 5 entradas,
+mientras que se necesitan 9 en una maquina de 3 ejes.
+Por lo tanto, Varios interruptores pueden ser cableados en conjunto
+en diversas formas para permitir utilizar menos entradas.
 
-The figures below show the general idea of wiring multiple switches 
-to a single input pin. 
-In each case, when one switch is actuated, 
-the value seen on INPUT goes from logic HIGH to LOW. 
-However, LinuxCNC expects a TRUE value when a switch is closed, 
-so the corresponding 'Invert' box
-must be checked on the pinout configuration page. 
-The pull up resistor show in the diagrams pulls the input high 
-until the connection to ground is made and then the input goes low. 
-Otherwise the input might float between on and off when the circuit is open. 
-Typically for a parallel port you might use 47k.
+La siguiente figura muestra la idea general de cablear varios interruptores
+a una unica entrada.
+En el caso ilustrado, cuando un interruptor es precionado,
+El valor mandado atraves de la entrada va de un valor logico ALTO a BAJO.
+Sin embargo LinuxCNC espera un valor logico ALTO cuando un interruptor es precionado,
+Por lo tanto se devera seleccionar la opcion de invercion 'Invert' cuando se configure la entrada 
+del puerto paralelo en el Stepconf.
 
-.Normally Closed Switches[[cap:Normally-Closed-Switches]]
+La resistencia de polarizacion mostrada en el diagrama fija la señal de entrada a ALTO
+Amenos que una conexion a tierra sea realizada, en tal caso la señal ira a BAJO.
+Sin la resistencia la entrada quedaria flotando y la entrada podria variar entre ALTO y BAJO
+cuando el circuito este abierto.
+Un balor tipoco de resistencia de polarizacion es de 47K.
 
-Wiring N/C switches in series (simplified diagram)
+.Interruptores normalmente cerrados[[cap:Normally-Closed-Switches]]
+
+Cableado de Interruptores Normalmente Cerrados en serie (diagrama simplificado)
 
 image::images/switch-nc-series.png[]
 
-.Normally Open Switches[[cap:Normally-Open-Switches]]
+.Interruptores normalmente abiertos[[cap:Normally-Open-Switches]]
 
-Wiring N/O switches in parallel (simplified diagram)
+Cableado de interruptores normalmente abiertos en paralelo (diagrama simplificado)
 
 image::images/switch-no-parallel.png[]
 
-The following combinations of switches are permitted in Stepconf:
+Las siguientes configuraciones de interruptores estan permitidas en Stepconf:
 
-* Combine home switches for all axes
-* Combine limit switches for all axes
-* Combine both limit switches for one axis
-* Combine both limit switches and the home switch for one axis
-* Combine one limit switch and the home switch for one axis
+* Interruptores de inizializacion combinados para todos los ejes
+* Interruptores de limite combinados para todos los ejes
+* Combinar ambos interruptores de limite para un eje
+* Combinar ambos interruptores de limite y el interruptor de inizializacion para un eje
+* Combinar un interruptor de limite y el interruptor de inicializacion de un eje
 
 // vim: set syntax=asciidoc:
 

@@ -2,7 +2,121 @@
 
 == Updating from 2.4.x to 2.5.x
 
-No configuration changes need to be made to upgrade from 2.4.x to 2.5.x
+As of version 2.5.0, the name of the project has changed from EMC2
+to LinuxCNC. All programs with "emc" in the name have been changed to
+"linuxcnc" instead. All documentation has been updated.
+
+Additionally, the name of the debian package containing the software
+has changed. Unfortunately this breaks automatic upgrades. To upgrade
+from emc2 2.4.X to linuxcnc 2.5.X, do the following:
+
+=== On Ubuntu Lucid 10.04
+
+First you need to tell your computer where to find the new LinuxCNC
+software:
+
+* Click on the System menu in the top panel and select
+  Administration->Software Sources.
+
+* Select the Other Software tab.
+
+* Select the entry that says
+
+    http://linuxcnc.org/lucid lucid base emc2.4
+
+    or
+
+    http://linuxcnc.org/lucid lucid base emc2.4-sim
+
+    and click the Edit button.
+
+* In the Components field, change `emc2.4` to `linuxcnc2.5`, or change
+  `emc2.4-sim` to `linuxcnc2.5-sim`.
+
+* Click the OK button.
+
+* Back in the Software Sources window, Other Software tab, click the
+  Close button.
+
+* It will pop up a window informing you that the information about
+  available software is out-of-date. Click the Reload button.
+
+Now your computer knows about the new software, next we need to tell
+it to install it:
+
+* Click on the System menu in the top panel and select
+  Administration->Synaptic Package Manager
+
+* In the Quick Search bar at the top, type `linuxcnc`.
+
+* Click the check box to mark the new linuxcnc package for installation.
+
+* Click the Apply button, and let your computer install the new
+  package. The old emc 2.4 package will be automatically removed to make
+  room for the new LinuxCNC 2.5 package.
+
+=== On Ubuntu Hardy 8.04
+
+First you need to tell your computer where to find the new LinuxCNC software:
+
+* Click on the System menu in the top panel and select Administration->Synaptic Package Manager
+
+* Go to Settings->Repositories.
+
+* Select the "Third-Party Software" tab.
+
+* Select the entry that says
+
+    http://linuxcnc.org/hardy hard emc2.4
+
+    or
+
+    http://linuxcnc.org/hardy hardy emc2.4-sim
+
+    and click the Edit button.
+
+* In the Components field, change `emc2.4` to `linuxcnc2.5` or `emc2.4-sim` to `linuxcnc2.5-sim`.
+
+* Click the OK button.
+
+* Back in the Software Sources window, click the Close button.
+
+* Back in the Synaptic Package Manager window, click the Reload button.
+
+
+Now your computer knows about the new software, next we need to tell it to install it:
+
+* In the Synaptic Package Manager, click the Search button.
+
+* In the Find dialog window that pops up, type `linuxcnc` and click the
+  Search button.
+
+* Click the check-box to mark the linuxcnc package for installation.
+
+* Click the Apply button, and let your computer install the new
+  package. The old emc 2.4 package will be automatically removed to make
+  room for the new LinuxCNC 2.5 package.
+
+== Config changes
+
+The user configs moved from $HOME/emc2 to $HOME/linuxcnc, so you will
+need to rename your directory, or move your files to the new place.
+
+The hostmot2 watchdog in LinuxCNC 2.5 does not start running until the
+HAL threads start running. This means it now tolerates a timeout on the
+order of the servo thread period, instead of requiring a timeout that's
+on the order of the time between loading the driver and starting the HAL
+threads. This typically means a few milliseconds (a few times the servo
+thread period) instead of many hundreds of milliseconds. The default
+has been lowered from 1 second to 5 milliseconds. You generally don't
+need to set the hm2 watchdog timeout any more, unless you've changed
+your servo thread period.
+
+The old driver for the Mesa 5i20, hal_m5i20, has been removed after being
+deprecated in favor of hostmot2 since early 2009 (version 2.3.) If you
+are still using this driver, you will need to build a new configuration
+using the hostmot2 driver. Pncconf may help you do this, and we have
+some sample configs (hm2-servo and hm2-stepper) that act as examples.
 
 == Upgrading from 2.3.x to 2.4.x
 

@@ -22,7 +22,7 @@
 <doc name="gui_axis" title="GUI: Axis"/>
 <doc name="gui_touchy" title="GUI: Touchy"/>
 <doc name="gui_ngcgui" title="GUI: NGCGUI"/>
-<doc name="gui_tkemc" title="GUI: TkEMC"/>
+<doc name="gui_tklinuxcnc" title="GUI: TkLinuxCNC"/>
 <doc name="gui_mini" title="GUI: Mini"/>
 <doc name="gui_keystick" title="GUI: Keystick"/>
 <doc name="common_machining_center" title="Machining Center Info"/>
@@ -119,7 +119,7 @@
 <doc name="gui/axis_de.html" title="GUI: Axis"/>
 <doc name="gui/touchy_de.html" title="GUI: Touchy"/>
 <doc name="gui/ngcgui_de.html" title="GUI: NGCGUI"/>
-<doc name="gui/tkemc_de.html" title="GUI: TkEMC"/>
+<doc name="gui/tklinuxcnc_de.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_de.html" title="GUI: Mini"/>
 <doc name="gui/keystick_de.html" title="GUI: KeyStick"/>
 <doc name="common/machining_center_de.html" title="Informations Centre d'usinage"/>
@@ -217,7 +217,7 @@
 <doc name="gui/axis_es.html" title="GUI: Axis"/>
 <doc name="gui/touchy_es.html" title="GUI: Touchy"/>
 <doc name="gui/ngcgui_es.html" title="GUI: NGCGUI"/>
-<doc name="gui/tkemc_es.html" title="GUI: TkEMC"/>
+<doc name="gui/tklinuxcnc_es.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_es.html" title="GUI: Mini"/>
 <doc name="gui/keystick_es.html" title="GUI: KeyStick"/>
 <doc name="common/machining_center_es.html" title="Informations Centre d'usinage"/>

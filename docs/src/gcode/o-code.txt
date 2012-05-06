@@ -29,6 +29,21 @@ Using the lower case o makes it easier to distinguish from a 0
 that might have been mistyped. For example o100 is easier to
 see than O100 that it is not a 0.
 
+The following statements  cause an error message and  abort the
+interpreter:
+
+ - a `return` or `endsub` not within a sub defintion
+ - a label on `repeat` which is defined elsewhere
+ - a label on `while` which is defińed elsewhere and not referring to a `do`
+ - a label on `if` defined elsewhere
+ - a undefined label on `else` or `elseif`
+ - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
+ - a label on `break` or `continue` which does not point to a matching `while` or `do`
+ - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
+    
+To make these errors non-fatal  warnings on stderr, set bit 0x20 in
+the `[RS274NGC]FEATURE=` mask ini option. 
+
 == Subroutines[[sec:subroutines]](((Subroutines)))
 (((sub)))(((endsub)))(((return)))(((call)))
 

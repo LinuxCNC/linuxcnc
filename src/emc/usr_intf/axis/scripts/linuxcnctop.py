@@ -50,7 +50,6 @@ maps = {
                 linuxcnc.EXEC_WAITING_FOR_MOTION: 'motion',
                 linuxcnc.EXEC_WAITING_FOR_MOTION_QUEUE: 'motion queue',
                 linuxcnc.EXEC_WAITING_FOR_IO: 'io',
-                linuxcnc.EXEC_WAITING_FOR_PAUSE: 'pause',
                 linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO: 'motion and io',
                 linuxcnc.EXEC_WAITING_FOR_DELAY: 'delay',
                 linuxcnc.EXEC_WAITING_FOR_SYSTEM_CMD: 'system command'},

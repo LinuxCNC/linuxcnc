@@ -223,7 +223,8 @@ Lines of this sort are hardly ever programmed.
 If cutter radius compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
 
-The arc offset is relative or absolute as set by <<sec:G90.1-G91.1,G90.1 & G91.1>>.
+The arc center is absolute or relative as set by <<sec:G90.1-G91.1,G90.1
+or G91.1>> respectively.
 
 Two formats are allowed for specifying an arc:
 Center Format and Radius Format.
@@ -689,7 +690,7 @@ It is an error if:
 ----
 G10 L11 P- axes <R- I- J- Q->
 ----
-* 'P' - coordinate system (0-9)
+* 'P' - tool number
 * 'R' - rotation about the Z axis
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
@@ -718,10 +719,9 @@ It is an error if:
 (((G10 L20 Set Coordinate System)))
 
 ----
-G10 L20 P- axes <R->
+G10 L20 P- axes
 ----
 * 'P' - coordinate system (0-9)
-* 'R' - rotation about the Z axis
 
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
@@ -1327,9 +1327,9 @@ See the <<sec:parameters,Parameters>> Section for more information.
             5211 - 5219 to zero.
 * 'G92.2' - reset axis offsets to zero.
 
-== G93.3 Restore Axis Offsets[[sec:G93.3]]
+== G92.3 Restore Axis Offsets[[sec:G92.3]]
 
-* 'G93.3' - set the axis offset to the values saved in parameters 5211 to 5219
+* 'G92.3' - set the axis offset to the values saved in parameters 5211 to 5219
 
 You can set axis offsets in one program and use the same offsets in
 another program. Program 'G92' in the first program. This will set

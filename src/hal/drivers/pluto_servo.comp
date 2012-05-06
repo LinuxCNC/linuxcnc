@@ -17,7 +17,7 @@
 component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.""";
 
 description """
-Pluto_servo is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
+Pluto_servo is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
 
 The driver has 4 PWM channels, 4 quadrature channels with index pulse, 18
 digital outputs (8 shared with PWM), and 20 digital inputs (12 shared with
@@ -28,7 +28,7 @@ The encoder pins and parameters conform to the `canonical encoder' interface
 described in the HAL manual.  It operates in `x4 mode'.
 
 The sample rate of the encoder is 40MHz.  The maximum number quadrature rate is
-8191 counts per emc2 servo cycle.  For correct handling of the index pulse, the
+8191 counts per LinuxCNC servo cycle.  For correct handling of the index pulse, the
 number of encoder counts per revolution must be less than 8191.
 
 .SS PWM
@@ -179,7 +179,7 @@ functions.  However, this may not work on all EPP parallel ports.""";
 modparam dummy watchdog = 1
     """Set to zero to disable the "hardware watchdog".  "Watchdog" will
 tristate all outputs approximately 6ms after the last execution of
-\\fBpluto-servo.write\\fR, which adds some protection in the case of emc
+\\fBpluto-servo.write\\fR, which adds some protection in the case of LinuxCNC
 crashes.""";
 
 modparam int test_encoder = 0 

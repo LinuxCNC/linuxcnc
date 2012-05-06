@@ -67,33 +67,61 @@ GladeVCP panel windows may be run in three different setups:
  - as a tab in Axis and Touchy; in Axis this would create a third tab besides the Preview and DRO tabs which must be raised explicitly
  - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
+.Installed LinuxCNC
+If your using an installed version of LinuxCNC the examples shown below are in
+the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample
+Configurations > sim > gladevcp' branch.
+
+.Git Checkout
+The following instructions only apply if your using a git checkout. Open a
+terminal and change to the directory created by git then issue the commmands
+as shown.
+
+[NOTE]
+For the following commands to work on your git checkout you must first run
+'make' then run 'sudo make setuid' then run '. ./scripts/rip-environment'.
+More information about a git checkout is on the linuxcnc wiki page.
+
 Run the sample GladeVCP panel integrated into Axis like PyVCP as follows:
 
- $ cd configs/sim
- $ emc gladevcp_panel.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_panel.ini
+----
 
 image::images/example-panel-small.png[]
 
 Run the same panel, but as a tab inside Axis:
 
- $ cd configs/sim
- $ emc gladevcp_tab.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_tab.ini
+----
 
 image::images/example-tabbed-small.png[]
 
 To run this panel as a standalone toplevel window besides Axis, just
 start Axis in the background and start gladevcp as follows:
 
- $ cd configs/sim
- $ emc axis.ini &
- $ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+////
+FIXME: I'm not sure how this is supposed to work with axis in one
+directory and gladevcp in a different directory.
+////
+
+----
+$ cd configs/sim/axis
+$ linuxcnc axis.ini &
+$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+----
 
 image::images/example-float-small.png[]
 
 To run this panel inside 'Touchy':
 
- $ cd configs/sim
- $ emc gladevcp_touchy.ini
+----
+$ cd configs/sim/gladevcp
+$ linuxcnc gladevcp_touchy.ini
+----
 
 image::images/touchy-tab-33.png[]
 
@@ -202,7 +230,7 @@ This will look like so:
 image::images/glade-manual-small.png[]
 
 Glade tends to write a lot of messages to the shell window, which
-mostly can be ignored.  Select 'File\->Save as', give it a name like
+mostly can be ignored.  Select 'File→Save as', give it a name like
 'myui.ui' and make sure it's saved as 'GtkBuilder' file (radio button
 left bottom corner in Save dialog). GladeVCP will also process the
 older 'libglade' format correctly but there is no point in using it. The
@@ -410,21 +438,54 @@ label your panel.
  - Helper widgets: <<gladevcp:HAL_Table,HAL_Table>>, <<gladevcp:HAL_HBox,HAL_HBox>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
 
-HAL Widgets inherit methods, properties and signals from the
-underlying Gtk widgets, so it is helpful to consult the
-http://www.gtk.org/[GTK+] and http://www.pygtk.org/[PyGTK bindings]
-documentation as well.
-
-
 === Widget and HAL pin naming
 
-Most HAL widgets have a single associated HAL pin with the same name
-as the widget (glade: General\->Name).
+Most HAL widgets have a single associated HAL pin with the same HAL name
+as the widget (glade: General→Name).
 
 Exceptions to this rule currently are.
 
 - 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
 - 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
+
+===  Python attributes and methods of HAL Widgets
+
+HAL widgets are instances of GtKWidgets and hence inherit the methods,
+properties and signals of the applicable GtkWidget class. For
+instance, to figure out which GtkWidget-related methods, properties
+and signals a 'HAL_Button' has, lookup the description of
+http://www.pygtk.org/docs/pygtk/class-gtkbutton.html[GtkButton] in the
+http://www.pygtk.org/docs/pygtk[PyGtk Reference Manual]. 
+
+An easy way to find out the inheritance relationship of a given HAL
+widget is as follows: run glade, place the widget in a window, and
+select it; then choose the 'Signals' tab in the 'Properties'
+window. For example, selecting a 'HAL_LED' widget, this will show that
+a 'HAL_LED' is derived from a  'GtkWidget', which in turn is derived
+from a 'GtkObject', and eventually a 'GObject'.
+
+HAL Widgets also have a few HAL-specific Python attributes:
+
+hal_pin::
+	 the underlying HAL pin Python object in case the widget has a
+	 single pin type
+
+hal_pin_s, hal_pin_f::
+	 the S32 and float pins of the 'HAL_Spinbutton' and
+	 'HAL_ComboBox' widgets - note these widgets do not have a
+	 'hal_pin' attribute!
+
+hal_pin_scale::
+	the float input pin of 'HAL_ProgressBar' widget representing
+	the maximum absolute value of input. 
+ 
+The are several HAL-specific methods of HAL Widgets, but the only
+relevant method is:
+
+<halpin>.get():: 
+	Retrieve the value of the current HAL pin, where '<halpin>' is
+	the applicable HAL pin name listed above.
+
 
 === Setting pin and widget values
 
@@ -502,7 +563,7 @@ Defining radio button groups in Glade:
 
 - decide on default active button
 
-- in the other button's 'General\->Group' select the default active
+- in the other button's 'General→Group' select the default active
 button's name in the 'Choose a Radio Button in this project' dialog.
 
 See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
@@ -518,7 +579,7 @@ respectively. They have one output FLOAT pin with name equal to widget
 name. Scales have no additional properties.
 
 To make a scale useful in Glade, add an 'Adjustment'
-(General\->Adjustment\->New or existing adjustment) and edit the
+(General→Adjustment→New or existing adjustment) and edit the
 adjustment object. It defines the default/min/max/increment 
 values. Also, set adjustment 'Page size' and 'Page increment' to zero
 to avoid warnings.
@@ -552,7 +613,7 @@ pin value in a user-defined format.
 
 label_pin_type::
 	The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
-	on 'General\->HAL pin type '(note this is different from PyVCP which has
+	on 'General→HAL pin type '(note this is different from PyVCP which has
 	three label widgets, one for each type).
 
 text_template::
@@ -824,7 +885,7 @@ widget in a nutshell:
  - it is an object available in Glade
  - it has no visual appearance by itself
  -  it's purpose: associate a visible, sensitive UI component like menu,
-   toolbutton, button with a command. See these widget's 'General\->Related
+   toolbutton, button with a command. See these widget's 'General→Related
    Action' property.
  -  the "canned action" will be executed when the associated UI component
    is triggered (button press, menu click..)

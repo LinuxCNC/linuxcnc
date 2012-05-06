@@ -1002,9 +1002,15 @@ int Interp::read_n_number(char *line, //!< string: line of RS274    code being p
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_integer_unsigned(line, counter, &value));
-/* This next test is problematic as many CAM systems will exceed this !
+  /* This next test is problematic as many CAM systems will exceed this !
   CHKS((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
   block->n_number = value;
+
+  // accept & ignore fractional line numbers
+  if (line[*counter] == '.') {
+      *counter = (*counter + 1);
+      CHP(read_integer_unsigned(line, counter, &value));
+  }
   return INTERP_OK;
 }
 

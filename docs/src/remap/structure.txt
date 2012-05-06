@@ -1213,6 +1213,11 @@ The namespace is expected to be laid out as follows:
 	Python callables referenced in an argspec `prolog`,`epilog` or
 	`python` option are expected to be found here.
 
+`namedparams`::
+	Python funtcions int this module extend or redefine the namespace of
+	predefined named parameters, see
+	<<sec:Adding-Predefined-Named-Parameters,adding predefined parameters>>.
+
 `task`::
 	Task-related callables are expected here.
 
@@ -1554,6 +1559,53 @@ The following modules are builtin:
 	Not present when using the `gcode` module used for user
 	interfaces - only present in the milltask instance of the interpreter.
 
+== Adding Predefined Named Parameters [[sec:Adding-Predefined-Named-Parameters]]
+
+The interpreter comes with a set of <<sec:Predefined-Named-Parameters,predefined named parameters>> for
+accessing internal state from the NGC language level. These parameters
+are read-only and global, and hence cannot be assigned to.
+
+Additional parameters may be added by defining a function in the
+`namedparams` module. The name of the function defines the name of the
+new predefined named parameter, which now can be referenced in
+arbitrary expressions.
+
+To add or redefine a named parameter:
+
+* add a `namedparams` module so it can be found by the interpreter
+* define new parameters by functions (see below). These functions
+ receive `self` (the interpreter instance) as parameter and so can
+ access aribtrary state. Arbitrary Python capabilities can be used to return a value.
+* import that module from the `TOPLEVEL` script
+
+[source,python]
+---------------------------------------------------------------------
+# namedparams.py
+# trivial example
+def _pi(self):
+    return 3.1415926535
+---------------------------------------------------------------------
+
+[source,{ngc}]
+---------------------------------------------------------------------
+#<circumference> = [2 * #<radius> * #<_pi>]
+---------------------------------------------------------------------
+
+Functions in `namedparams.py` are expected to return a float or int
+value. If a string is returned, this sets the interpreter error
+message and aborts execution.
+
+Ònly functions with a leading underscore are added as parameters,
+since this is the RS274NGC convention for globals.
+
+It is possible to redefine an existing predefined parameter by adding
+a Python function of the same name to the `namedparams` module. In
+this case, a warning is generated during startup.
+
+While the above example isnt terribly useful, note that pretty much
+all of the interpreter internal state is accessible from Python, so
+arbitrary predicates may be defined this way. For a slightly more
+advanced example, see `tests/remap/predefined-named-params`.
 
 == Standard Glue routines [[sec:Standard-glue]]
 
@@ -2556,6 +2608,14 @@ Note that has nothing to to with the new code but rather the very old
 platform trying to run gladevcp.
 
 ==  Workarounds
+
+The workaround mentioned below was necessary up to commit
+d21a488a9e82dd85aa17207b80e3d930afeff202 . References to
+DISPLAY_LD_PRELOAD and TASK_LD_PRELOAD have been removed from the ini
+files under configs/sim/remap because they are not needed anymore.
+
+Configure now tests whether a workaround is required, and
+automatically does 'the right thing' if needed.
 
  # Michael Haberler 4/2011
  #

@@ -172,6 +172,7 @@ reste inchangée.
 courante devienne la position donnée en paramètre.
     (Voir la section <<sec:G10-L20,G10 L20>> pour les détails)
 
+[[sec:G92-Decalages]]
 == Décalages d'axes G92
 
 G92 est la plus incomprise et la plus maligne des commandes

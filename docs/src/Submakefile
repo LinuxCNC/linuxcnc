@@ -288,11 +288,11 @@ DOC_SRCS := \
 	gui/ngcgui_es.txt \
 	gui/ngcgui_fr.txt \
 	gui/ngcgui_pl.txt \
-	gui/tkemc.txt \
-	gui/tkemc_de.txt \
-	gui/tkemc_es.txt \
+	gui/tklinuxcnc.txt \
+	gui/tklinuxcnc_de.txt \
+	gui/tklinuxcnc_es.txt \
 	gui/tklinuxcnc_fr.txt \
-	gui/tkemc_pl.txt \
+	gui/tklinuxcnc_pl.txt \
 	gui/touchy.txt \
 	gui/touchy_de.txt \
 	gui/touchy_es.txt \
@@ -740,7 +740,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_pl.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \

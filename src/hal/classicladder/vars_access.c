@@ -48,6 +48,7 @@ void InitVars(void)
         VarFloatArray[NumVar] = 0;
     /* to tell the GTK application to refresh the bits */
     InfosGene->CmdRefreshVarsBits = TRUE;
+	InfosGene->HideGuiState = FALSE;
 }
 
 int ReadVar(int TypeVar,int Offset)

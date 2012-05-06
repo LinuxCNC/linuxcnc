@@ -1295,6 +1295,7 @@ int main(int argc, char *argv[])
 
     schedInit();
     res = pthread_create(&updateThread, NULL, checkQueue, (void *)NULL);
+    if(res < 0) { perror("pthread_create"); return 1; }
     if (useSockets) sockMain();
 
     return 0;

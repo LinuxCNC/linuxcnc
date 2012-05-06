@@ -38,7 +38,7 @@ old = tmp;
 
 Si une version pré-installée de LinuxCNC est utilisée, il sera nécessaire
 d'installer les paquets de développement en passant par Synaptic depuis le menu
-_Système -> Administration -> Gestionnaire de paquets Synaptic_ ou en utilisant
+_Système → Administration → Gestionnaire de paquets Synaptic_ ou en utilisant
 la commande suivante dans un terminal:
 
 .Installation des paquets de développement
@@ -338,6 +338,24 @@ déclaration.
 
 Bien que HAL permette à une pin, un paramètre et une fonction d'avoir
 le même nom, comp ne le permet pas.
+
+Les noms de variable et de fonction qui ne doivent pas être utilisés ou
+qui posent problème sont les suivants:
+
+* Tous noms commençant par ___comp__.
+
+* _comp_id_
+
+* _fperiod_
+
+* _rtapi_app_main_
+
+* _rtapi_app_exit_
+
+* _extra_setup_
+
+* _extra_cleanup_
+
 
 == Conventions des macros
 

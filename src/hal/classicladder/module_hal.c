@@ -67,6 +67,7 @@ RTAPI_MP_INT(numFloatOut,"i");
 #endif
 
 hal_bit_t **hal_inputs;
+hal_bit_t **hide_gui;
 hal_bit_t **hal_outputs;
 hal_s32_t **hal_s32_inputs;
 hal_s32_t **hal_s32_outputs;
@@ -133,41 +134,43 @@ void HalWriteFloatOutputs(void) {
 
 static void hal_task(void *arg, long period) {
 	unsigned long t0, t1,milliseconds;
- 	static unsigned long leftover=0;
-         leftover += period;
-	 milliseconds= leftover / 1000000;
+	static unsigned long leftover=0;
+	leftover += period;
+	milliseconds= leftover / 1000000;
 	leftover %= 1000000;
 
 	if (milliseconds >= 1) {
-	InfosGene->GeneralParams.PeriodicRefreshMilliSecs=milliseconds;
-	*hal_state = InfosGene->LadderState;
-	t0 = rtapi_get_time();
+		InfosGene->GeneralParams.PeriodicRefreshMilliSecs=milliseconds;
+		*hal_state = InfosGene->LadderState;
+		t0 = rtapi_get_time();
 		if (InfosGene->LadderState==STATE_RUN)
 			{
 				HalReadPhysicalInputs();
 
 				HalReads32Inputs();
-                                
-                                HalReadFloatInputs();
-		
+				
+				HalReadFloatInputs();
+
+				InfosGene->HideGuiState = *hide_gui[0];
+
 				ClassicLadder_RefreshAllSections();
 		
 				HalWritePhysicalOutputs();
 
 				HalWrites32Outputs();
     
-                                HalWriteFloatOutputs();
+				HalWriteFloatOutputs();
 			}
-     	 t1 = rtapi_get_time();
-         InfosGene->DurationOfLastScan = t1 - t0;
-				}
+	 	t1 = rtapi_get_time();
+	 	InfosGene->DurationOfLastScan = t1 - t0;
+	}
 }
 
 extern void CopySizesInfosFromModuleParams( void );
 
 int rtapi_app_main(void) {
 	int result, i;
-        CopySizesInfosFromModuleParams();
+	CopySizesInfosFromModuleParams();
 
 	compId = hal_init("classicladder_rt");
 	if(compId < 0) return compId;
@@ -183,38 +186,42 @@ error:
 
 	hal_state = hal_malloc(sizeof(hal_s32_t));
 	result = hal_param_s32_new("classicladder.ladder-state", HAL_RO, hal_state, compId);
-        if(result < 0) {
-             	 hal_exit(compId);
-                 return result;
-        }
+	if(result < 0) {
+		 hal_exit(compId);
+		 return result;
+	}
 
 	hal_inputs = hal_malloc(sizeof(hal_bit_t*) * numPhysInputs);
 	if(!hal_inputs) { result = -ENOMEM; goto error; }
+	hide_gui = hal_malloc(sizeof(hal_bit_t*));
+	if(!hide_gui) { result = -ENOMEM; goto error; }
 	hal_s32_inputs = hal_malloc(sizeof(hal_s32_t*) * numS32in);
 	if(!hal_s32_inputs) { result = -ENOMEM; goto error; }
-        hal_float_inputs = hal_malloc(sizeof(hal_float_t*) * numFloatIn);
+	hal_float_inputs = hal_malloc(sizeof(hal_float_t*) * numFloatIn);
 	if(!hal_float_inputs) { result = -ENOMEM; goto error; }
 	hal_outputs = hal_malloc(sizeof(hal_bit_t*) * numPhysOutputs);
 	if(!hal_outputs) { result = -ENOMEM; goto error; }
 	hal_s32_outputs = hal_malloc(sizeof(hal_s32_t*) * numS32out);
 	if(!hal_s32_outputs) { result = -ENOMEM; goto error; }
-        hal_float_outputs = hal_malloc(sizeof(hal_float_t*) * numFloatOut);
+	hal_float_outputs = hal_malloc(sizeof(hal_float_t*) * numFloatOut);
 	if(!hal_float_outputs) { result = -ENOMEM; goto error; }
-        
-
 
 	for(i=0; i<numPhysInputs; i++) {
 		result = hal_pin_bit_newf(HAL_IN, &hal_inputs[i], compId,
 				"classicladder.0.in-%02d", i);
 		if(result < 0) goto error;
 	}
+	result = hal_pin_bit_newf(HAL_IN, &hide_gui[0], compId,
+				"classicladder.0.hide_gui");
+		if(result < 0) goto error;
 
 	for(i=0; i<numS32in; i++) {
 		result = hal_pin_s32_newf(HAL_IN, &hal_s32_inputs[i], compId,
 				"classicladder.0.s32in-%02d", i);
 		if(result < 0) goto error;
 	}
-        for(i=0; i<numFloatIn; i++) {
+
+	for(i=0; i<numFloatIn; i++) {
 		result = hal_pin_float_newf(HAL_IN, &hal_float_inputs[i], compId,
 				"classicladder.0.floatin-%02d", i);
 		if(result < 0) goto error;
@@ -225,18 +232,20 @@ error:
 				"classicladder.0.out-%02d", i);
 		if(result < 0) goto error;
 	}
+
 	for(i=0; i<numS32out; i++) {
 		result = hal_pin_s32_newf(HAL_OUT, &hal_s32_outputs[i], compId,
 				"classicladder.0.s32out-%02d", i);
 		if(result < 0) goto error;
 	}
-        for(i=0; i<numFloatOut; i++) {
+
+	for(i=0; i<numFloatOut; i++) {
 		result = hal_pin_float_newf(HAL_OUT, &hal_float_outputs[i], compId,
 				"classicladder.0.floatout-%02d", i);
 		if(result < 0) goto error;
 	}
-	hal_ready(compId);
 
+	hal_ready(compId);
 	ClassicLadder_AllocAll( );
 	return 0;
 }
@@ -251,8 +260,8 @@ void rtapi_app_exit(void) {
 // Symbols allotment is calculated to be large enough to have symbols for all the elements unless specified smaller
 // on the command line (the symbols window will only assign -GeneralParamsMirror.SizesInfos.nbr_symbols- number of symbols )
 void CopySizesInfosFromModuleParams( void ) {
-        plc_sizeinfo_s *pSizesInfos;
-        pSizesInfos = &GeneralParamsMirror.SizesInfos;
+	plc_sizeinfo_s *pSizesInfos;
+	pSizesInfos = &GeneralParamsMirror.SizesInfos;
 #ifdef DYNAMIC_PLCSIZE
 	if ( numRungs>0 )
 		GeneralParamsMirror.SizesInfos.nbr_rungs = numRungs;
@@ -276,20 +285,20 @@ void CopySizesInfosFromModuleParams( void ) {
 		GeneralParamsMirror.SizesInfos.nbr_arithm_expr = numArithmExpr;
 	if ( numSections>0 )
 		GeneralParamsMirror.SizesInfos.nbr_sections = numSections;
-    	if ( numS32in>0 )
+	if ( numS32in>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = numS32in;
 	if ( numS32out>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs = numS32out;
-        if ( numFloatIn>0 )
+	if ( numFloatIn>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs = numFloatIn;
 	if ( numFloatOut>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;        
-    GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words ;
-    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
-    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec ;
-    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
-    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs;
-    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_inputs + pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
+		GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words ;
+		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
+		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec ;
+		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
+		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs;
+		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_inputs + pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
 	if (numSymbols < GeneralParamsMirror.SizesInfos.nbr_symbols ) {  GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;  }
     
 	#endif

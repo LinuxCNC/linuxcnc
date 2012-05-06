@@ -71,34 +71,41 @@ The KT and NGC manuals say nothing about case or spaces and tabs.
 
 int Interp::close_and_downcase(char *line)       //!< string: one line of NC code
 {
-  int m;
-  int n;
-  int comment;
-  char item;
-  comment = 0;
-  for (n = 0, m = 0; (item = line[m]) != (char) NULL; m++) {
-    if (comment) {
-      line[n++] = item;
-      if (item == ')') {
-        comment = 0;
-      } else if (item == '(')
-        ERS(NCE_NESTED_COMMENT_FOUND);
-    } else if ((item == ' ') || (item == '\t') || (item == '\r'));
-    /* don't copy blank or tab or CR */
-    else if (item == '\n') {    /* don't copy newline            *//* but check null follows        */
-      CHKS((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
-    } else if ((64 < item) && (item < 91)) {    /* downcase upper case letters */
-      line[n++] = (32 + item);
-    } else if (item == '(') {   /* comment is starting */
-      comment = 1;
-      line[n++] = item;
-    } else {
-      line[n++] = item;         /* copy anything else */
+    int m;
+    int n;
+    int comment, semicomment;
+    char item;
+    comment = semicomment = 0;
+    for (n = 0, m = 0; (item = line[m]) != (char) NULL; m++) {
+	if ((item == ';') && !comment)
+	    semicomment = 1;
+
+	if (semicomment) {
+	    line[n++] = item; // pass literally
+	     continue;
+	}
+	if (comment) {
+	    line[n++] = item;
+	    if (item == ')') {
+		comment = 0;
+	    } else if (item == '(')
+		ERS(NCE_NESTED_COMMENT_FOUND);
+	} else if ((item == ' ') || (item == '\t') || (item == '\r'));
+	/* don't copy blank or tab or CR */
+	else if (item == '\n') {    /* don't copy newline            *//* but check null follows        */
+	    CHKS((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
+	} else if ((64 < item) && (item < 91)) {    /* downcase upper case letters */
+	    line[n++] = (32 + item);
+	} else if ((item == '(') && !semicomment) {   /* (comment is starting */
+	    comment = 1;
+	    line[n++] = item;
+	} else {
+	    line[n++] = item;         /* copy anything else */
+	}
     }
-  }
-  CHKS((comment), NCE_UNCLOSED_COMMENT_FOUND);
-  line[n] = 0;
-  return INTERP_OK;
+    CHKS((comment), NCE_UNCLOSED_COMMENT_FOUND);
+    line[n] = 0;
+    return INTERP_OK;
 }
 
 

@@ -1,173 +1,183 @@
-= Stepper Quickstart
+= Configuración de motores a pasos
 
 [[cha:stepper-quickstart]] (((Stepper Quickstart)))
 
-This section assumes you have done a standard install from the Live
-CD. After installation it is recommended that you connect the computer
-to the Internet and wait for the update manager to pop up and get the
-latest updates for LinuxCNC and Ubuntu before continuing. For more complex
-installations see the Integrator Manual.
+Esta sección asume que una instalación estándar a partir de un LiveCd 
+ha sido realizada. Posterior a la instalación es recomendable conectar 
+la computadora al internet y esperar por la aparición del manejador de 
+actualizaciones y obtener las ultimas actualizaciones para el EMC 
+y Ubuntu antes de continuar. Para instalaciones mas complejas vea el 
+manual del integrador.
 
-== Latency Test
+== Prueba de Latencia
 
-The Latency Test determines how late your computer processor is in
-responding to a request. Some hardware can interrupt the processing
-which could cause missed steps when running a CNC machine. This is the
-first thing you need to do. Follow the instructions  
-<<latency-test,here>> to run the latency test.
+La prueba de latencia determina cuanto tiempo le toma al procesador 
+de su computadora responder a una solicitud de procesamiento. Algunos 
+Hardware pueden interrumpir el procesamiento lo que puede traducirse 
+a la perdida de algunos pasos cuando se opera una maquina CNC. Esto 
+es la primer cosa que se requiere hacer posterior a la instalación.
+Siga las instrucciones de la sección <<latency-test,here>> Para correr
+La prueba de latencia.
 
 [[sec:Sherline]]
 == Sherline
 (((Sherline)))
 
-If you have a Sherline several predefined configurations are provided.
-This is on the main menu CNC/EMC then pick the Sherline configuration
-that matches yours and save a copy.
+Si usted posee una maquina marca Sherline varias configuraciones predefinidas
+están disponibles. Estas configuraciones se encuentran en el menú principal 
+CNC/EMC donde puede seleccionar la configuración que sea compatible con el tipo de 
+maquina que posea y hacer clic, para copiarla y salvarla.
 
 [[sec:Xylotex]]
 == Xylotex
 (((Xylotex)))
 
-If you have a Xylotex you can skip the following sections and go
-straight to the Stepper Config <<stepconf-wizard,Wizard>>.
-LinuxCNC has provided quick setup for the Xylotex machines.
+Si usted tiene una maquina marca Xylotex, usted puede escapar las siguientes secciones 
+para pasar directamente a la sección de Asistente de Configuración de Motores a Pasos 
+ubicada en <<stepconf-wizard,Wizard>>. EMC provee una configuración rápida para maquinas 
+Xylotex.
 
-== Machine Information
+== Información sobre la Maquina
 
-Gather the information about each axis of your machine.
+Obtenga la información sobre cada eje de su maquina.
 
-Drive timing is in nano seconds. If you're unsure about the timing
-many popular drives are included in the stepper configuration wizard.
-Note some newer Gecko drives have different timing than the original
-one. A http://wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC
-wiki site of more drives.
+Los tiempos de los controladores están en nanosegundos. Si usted no esta seguro 
+con respecto a los tiempos de su controlador de motor a pasos algunos tiempos 
+específicos para controladores populares están incluidos en el asistente de configuración 
+de motores a pasos.
+Nota: Algunos controladores marca Gecko de nueva generación tienen tiempos 
+que difieren con los originales. Una lista con tiempos de diversos controladores es mantenida 
+en el sitio wiki del LinuxCNC que es administrado por los mismos usuarios, 
+en la siguiente dirección: http://wiki.linuxcnc.org/[list]
 
 [width="100%", options="header"]
 |====================================================================
-|Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
-|X    |            |              |               |              | 
-|Y    |            |              |               |              | 
-|Z    |            |              |               |              | 
-|     |            |              |               |              | 
+|Eje  | Tipo de controlador | Tiempo de paso en ns | Tiempo entre pasos en ns | Dir. Mantener en ns | Dir. Cambiar en ns
+|X    |                     |                      |                          |                     | 
+|Y    |                     |                      |                          |                     | 
+|Z    |                     |                      |                          |                     | 
+|     |                     |                      |                          |                     | 
 |====================================================================
 
-== Pinout Information
+== Información de los pines de salida
 
-Gather the information about the connections from your machine to the
-PC parallel port.
-
-[width="100%", options="header"]
-|==============================================================================
-|Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different
-|1          | E-Stop Out       |              | 10        | X Limit/Home  | 
-|2          | X Step           |              | 11        | Y Limit/Home  | 
-|3          | X Direction      |              | 12        | Z Limit/Home  | 
-|4          | Y Step           |              | 13        | A Limit/Home  | 
-|5          | Y Direction      |              | 15        | Probe In      | 
-|6          | Z Step           |              |           |               | 
-|7          | Z Direction      |              |           |               | 
-|8          | A Step           |              |           |               | 
-|9          | A Direction      |              |           |               | 
-|14         | Spindle CW       |              |           |               | 
-|16         | Spindle PWM      |              |           |               | 
-|17         | Amplifier Enable |              |           |               | 
-|==============================================================================
-
-Note any pins not used should be set to Unused in the drop down box.
-These can always be changed later by running Stepconf again.
-
-== Mechanical Information
-
-Gather information on steps and gearing. The result of this is steps
-per user unit which is used for SCALE in the .ini file.
+Obtenga la información sobre las conecciones de su maquina hacia el puerto 
+Paralelo de su computadora.
 
 [width="100%", options="header"]
 |==============================================================================
-|Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
-|X    |            |             |             |                 | 
-|Y    |            |             |             |                 | 
-|Z    |            |             |             |                 | 
-|     |            |             |             |                 | 
+|Pin de Salida | Función Típica         | Si es Diferente | Pin de Entrada | Función típica   | Si es Diferente
+|1            | Salida de Paro E-stop  |                 | 10       	  | X Limite/Casa   | 
+|2            | Paso eje X             |                 | 11        	  | Y Limite/Casa   | 
+|3            | Dirección Eje X        |                 | 12             | Z Limite/Casa   | 
+|4            | Paso eje Y             |                 | 13             | A Limite/Casa   | 
+|5            | Dirección Eje Y        |                 | 15             | Zonda de Prueba | 
+|6            | Paso eje Z             |                 |                |                 | 
+|7            | Dirección Eje Z        |                 |                |                 | 
+|8            | Paso eje A             |                 |                |                 | 
+|9            | Dirección Eje A        |                 |                |                 | 
+|14           | Husillo CW             |                 |                |                 | 
+|16           | Husillo PWM            |                 |                |                 | 
+|17           | Amplificador Habilitado |                 |                |                 | 
 |==============================================================================
 
-* 'Steps per revolution' - is how many stepper-motor-steps it takes to turn 
-the stepper motor one revolution. 
-Typical is 200.
+Nota: Cualquier pin no usado debe ser definido como *Unused* en el menú desplegable de configuaracion.
+Esto puede ser cambiado posteriormente ejecutando de nuevo el programa Stepconf
 
-* 'Micro Steps' - is how many steps the drive needs 
-to move the stepper motor one full step. 
-If microstepping is not used, this number will be 1. 
-If microstepping is used the value will depend on the 
-stepper drive hardware. 
+== Información Mecánica
 
-* 'Motor Teeth and Leadscrew Teeth' - is if you have some reduction 
-(gears, chain, timing belt, etc.) between the motor and the leadscrew. 
-If not, then set these both to 1. 
 
-* 'Leadscrew Pitch' - is how much movement occurs 
-(in user units) in one leadscrew turn. 
-If you're setting up in inches then it is inches per turn. 
-If you're setting up in millimeters then it is millimeters per turn. 
+Obtenga la información de sus motores a pasos y en caso de existir de las reducciones mecánicas que este usando.
+El resultado sera el desplazamiento lineal en cada eje por paso en el motor, esta información sera utilizada
+en el parámetro SCALE del archivo de configuración .ini.
 
-The net result you're looking for is how many CNC-output-steps it takes 
-to move one user unit (inches or mm).
+[width="100%", options="header"]
+|==============================================================================
+|Eje  | Pasos/Rev. | Micro Pasos | Dientes del motor | Dientes en el tornillo guía | Paso del tornillo guía
+|X    |            |             |                   |                             | 
+|Y    |            |             |                   |                             | 
+|Z    |            |             |                   |                             | 
+|     |            |             |                   |                             | 
+|==============================================================================
 
-.Units inches
+* 'Pasos por revolución' - indica cuantos pasos del motor le toma a la flecha del motor
+completar una revolución completa, un valor típico es 200 Pasos/Rev.
+
+* 'Micro Pasos' - este parámetro indica cuantos pasos generador por el software 
+necesita el controlador del motor para producir un paso completo en el motor
+Algunos controladores dividen los pasos del motor para aumentar la resolución
+si no se utilizaran Micro Pasos este parámetro debe ser puesto en 1, en caso
+de utilizar micro pasos el valor dependera del Hardware especifico usado. 
+
+* 'Dientes del Motor y *Dientes del tornillo guía' - estos parámetros se utilizan si 
+se esta utilizando algún tipo de reducción mecánica (engranes, cadenas, bandas de tiempo, etc.) 
+entre el motor y el tornillo guía. 
+Si no se utiliza reducción el parámetro debe ser puesto al valor 1. 
+
+* 'Paso del tornillo guía' - es cuanto movimiento lineal ocurre
+(en las unidades de usuario) cuando el tornillo guía da una vuelta completa. 
+Si se utilizan pulgadas entonces es pulgadas por revolución.
+Si se utilizan milímetros entonces es milímetros por revolución 
+
+El resultado de la combinación de parámetros que se busca es cuantos
+pasos producidos por el software CNC le tomara al eje moverse linealmente
+una unidad de usuario (pulgadas o mm).
+
+.Unidades Pulgadas
 ============================================
 ............................................
-Stepper         = 200 steps per revolution
-Drive           =  10 micro steps per step
-Motor Teeth     =  20
-Leadscrew Teeth =  40
-Leadscrew Pitch =   0.2000 inches per turn
+Motor a Pasos             = 200 Pasos por revolución
+Controlador de Motor      =  10 micro pasos por paso
+Dientes del motor         =  20
+Dientes del tornillo guía =  40
+Paso del tornillo guía    =   0.2000 pulgadas por revolución
 ............................................
 ============================================
 
-From the above information, the leadscrew moves 0.200 inches per turn. 
- - The motor turns 2.000 times per 1 leadscrew turn. 
- - The drive takes 10 microstep inputs to make the stepper step once. 
- - The drive needs 2000 steps to turn the stepper one revolution. 
-So the scale needed is: 
+A partir de la información anterior, el tornillo guía se mueve 0.200 pulgadas por vuelta.
+ - El motor da  2 vueltas por una vuelta del tornillo guía. 
+ - El controlador necesita 10 micro pasos de entrada para hacer al motor dar un paso. 
+ - El controlador necesita 2000 pasos para hacer que el motor de una revolución. 
+Por lo tanto la escala necesitada es:
 
 image::images/step-calc-inch-math.png[align="center"]
 
 ////////////////////////////////////////////
 latexmath:[ 
-\frac{200 motor steps}{1 motor rev} \times 
-\frac{10 microsteps}{1 motor step} \times
-\frac{2 motor revs}{1 leadscrew rev} \times 
-\frac{1 leadscrew revs}{0.2000 inch} 
-= \frac{20,000 microsteps}{inch} ]
+\frac{200 pasos del motor}{1 revolución del motor} \times 
+\frac{10 micro pasos}{1 paso del motor} \times
+\frac{2 revoluciones del motor}{1 revoluciones del tornillo guía} \times 
+\frac{1 revoluciones del tornillo guía}{0.2000 pulgadas} 
+= \frac{20,000 micro pasos}{pulgadas}]
 ///////////////////////////////////////////
 
-.Units mm
+.Unidades mm
 ============================================
 ............................................
-    Stepper         = 200 steps per revolution
-    Drive           =   8 micro steps per step
-    Motor Teeth     =  30 
-    Leadscrew Teeth =  90
-    Leadscrew Pitch =   5.00 mm per turn
+Motor a Pasos             = 200 Pasos por revolución
+Controlador de Motor      =  8 micro pasos por paso
+Dientes del motor         =  30
+Dientes del tornillo guía =  90
+Paso del tornillo guía    =   5.00 mm por revolución 
 ............................................
-============================================
+============================================   
 
-From the above information: 
- - The leadscrew moves 5.00 mm per turn. 
- - The motor turns 3.000 times per 1 leadscrew turn. 
- - The drive takes 8 microstep inputs to make the stepper step once. 
- - The drive needs 1600 steps to turn the stepper one revolution. 
-So the scale needed is: 
+A partir de la información anterior, el tornillo guía se mueve 5.00 mm por vuelta.
+ - El motor da  3 vueltas por una vuelta del tornillo guía. 
+ - El controlador necesita 8 micro pasos de entrada para hacer al motor dar un paso. 
+ - El controlador necesita 1600 pasos para hacer que el motor de una revolución. 
+Por lo tanto la escala necesitada es:
 
 image::images/step-calc-mm-math.png[align="center"]
 
 //////////////////////////////////////////////
 latexmath:[ 
-\frac{200 motor steps}{1 motor rev} \times 
-\frac{8 microsteps}{1 motor step} \times
-\frac{3 motor revs}{1 leadscrew rev} \times 
-\frac{1 leadscrew revs}{5.000 mm} 
-= \frac{960 microsteps}{mm} ]
-/////////////////////////////////////////////
+\frac{200 pasos del motor}{1 revolución del motor} \times 
+\frac{8 micro pasos}{1 paso del motor} \times
+\frac{3 revoluciones del motor}{1 revolución del tornillo guía} \times 
+\frac{1 revoluciones del tornillo guía}{5.000 mm} 
+= \frac{960 micro pasos}{mm}]
+//////////////////////////////////////////////
 
 // vim: set syntax=asciidoc:
 

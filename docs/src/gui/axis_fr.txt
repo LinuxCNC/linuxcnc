@@ -1019,8 +1019,8 @@ help2.append(("Control-Q", "Quit"))
 === Éditeur externe
 (((Éditeur externe)))
 
-En définissant: [DISPLAY]EDITOR , les options de menu: _Fichier_ ->
-_Éditer_ ainsi que _Fichier_ -> _Éditer la table d'outils_, deviennent accessibles.
+En définissant: [DISPLAY]EDITOR , les options de menu: _Fichier_ →
+_Éditer_ ainsi que _Fichier_ → _Éditer la table d'outils_, deviennent accessibles.
 Deux valeurs qui fonctionnent bien: EDITOR=gedit et
 _EDITOR=gnome-terminal -e nano_.
 
@@ -1048,5 +1048,8 @@ aperçu sur certaines parties qui sont déjà fonctionnelles).
  - (AXIS,hide) Arrête le parcours d'outil (à placer en premier)
  - (AXIS,show) Reprend le parcours d'outil (il faut suivre un cache)
  - (AXIS,stop) Arrête le parcours d'outil d'ici à la fin du fichier.
+ - (AXIS,notify,le_texte) Affiche _le_texte_ à l'écran, comme une info.
+Cet affichage peut être très utile lors du pré-affichage du parcours d'outil,
+quand les commentaires (debug,message) ne sont pas affichés.
 
 

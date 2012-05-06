@@ -1,4 +1,4 @@
-User Manuelle V0.1, {localdate}
+User Manuelle V2.5, {localdate}
 =============================
 
 :lang: de
@@ -35,7 +35,7 @@ include::gui/ngcgui_de.txt[]
 
 include::gui/touchy_de.txt[]
 
-include::gui/tkemc_de.txt[]
+include::gui/tklinuxcnc_de.txt[]
 
 include::gui/mini_de.txt[]
 

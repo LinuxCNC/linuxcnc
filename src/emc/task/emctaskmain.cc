@@ -132,7 +132,6 @@ NMLmsg *emcTaskCommand = 0;
 // signal handling code to stop main loop
 int done;
 static int emctask_shutdown(void);
-static int pseudoMdiLineNumber = INT_MIN;
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
 
@@ -580,8 +579,6 @@ interpret_again:
 			    // record the line number and command
 			    emcStatus->task.readLine = emcTaskPlanLine();
 
-			    interp_list.set_line_number(emcStatus->task.
-							readLine);
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
 			    // and execute it
@@ -682,6 +679,7 @@ static void mdi_execute_abort(void)
     mdi_execute_next = 0;
 
     mdi_execute_queue.clear();
+    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
 
 static void mdi_execute_hook(void)
@@ -702,6 +700,22 @@ static void mdi_execute_hook(void)
     if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
+    }
+
+    // determine when a MDI command actually finishes normally.
+    if (interp_list.len() == 0 &&
+	emcTaskCommand == 0 &&
+	emcStatus->task.execState ==  EMC_TASK_EXEC_DONE && 
+	emcStatus->task.interpState != EMC_TASK_INTERP_IDLE && 
+	emcStatus->motion.traj.queue == 0 &&
+	emcStatus->io.status == RCS_DONE && 
+	!mdi_execute_wait && 
+	!mdi_execute_next) {
+
+	if (emc_debug & EMC_DEBUG_INTERP)
+	    rcs_print("mdi_execute_hook: MDI command '%s' done\n", emcStatus->task.command); 
+	emcStatus->task.command[0] = 0;
+	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
     }
 
     if (!mdi_execute_next) return;
@@ -740,7 +754,6 @@ void readahead_waiting(void)
 		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 	    }
 	    emcStatus->task.readLine = 0;
-	    interp_list.set_line_number(0);
 	} else {
 	    // still executing
         }
@@ -2090,11 +2103,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+	// track interpState also during MDI - it might be an oword sub call
+	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
 	    if (command[0] == (char) 0xff) {
 		// Empty command recieved. Consider it is NULL
 		command = NULL;
+	    } else {
+		// record initial MDI command
+		strcpy(emcStatus->task.command, execute_msg->command);
 	    }
 
 	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
@@ -2104,12 +2123,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-		interp_list.set_line_number(++pseudoMdiLineNumber);
 		if (mdi_execute_level < 0)
 		    mdi_execute_level = level;
 	    }
 
-	    execRetval = emcTaskPlanExecute(command, pseudoMdiLineNumber);
+	    execRetval = emcTaskPlanExecute(command, 0);
 
 	    level = emcTaskPlanLevel();
 
@@ -2126,7 +2144,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    }
 		}
 	    }
-	    if (execRetval == INTERP_EXECUTE_FINISH) {
+	    switch (execRetval) {
+
+	    case INTERP_EXECUTE_FINISH:
 		// Flag MDI wait
 		mdi_execute_wait = 1;
 		// need to flush execution, so signify no more reading
@@ -2136,10 +2156,28 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		// it's success, so retval really is 0
 		retval = 0;
-	    } else if (execRetval != 0) {
-		// this causes the error msh on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		break;
+
+	    case INTERP_ERROR:
+		// emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
+		interp_list.clear();
+		// abort everything
+		emcTaskAbort();
+		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
+		emcSpindleAbort(); 
+		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP_IDLE
+		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
-	    } else {
+		break;
+
+	    case INTERP_EXIT:
+	    case INTERP_ENDFILE:
+	    case INTERP_FILE_NOT_OPEN:
+		// this caused the error msg on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		retval = -1;
+		break;
+
+	    default:
 		// other codes are OK
 		retval = 0;
 	    }
@@ -2492,25 +2530,6 @@ static int emcTaskExecute(void)
 		emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
 		    emcTaskCheckPreconditions(emcTaskCommand);
 		emcTaskEager = 1;
-	    } else {
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-		emcTaskEager = 1;
-	    }
-	}
-	break;
-
-    case EMC_TASK_EXEC_WAITING_FOR_PAUSE:
-	STEPPING_CHECK();
-	if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
-	    if (0 != emcTaskCommand) {
-		if (emcStatus->motion.traj.queue > 0) {
-		    emcStatus->task.execState =
-			EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE;
-		} else {
-		    emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
-			emcTaskCheckPreconditions(emcTaskCommand);
-		    emcTaskEager = 1;
-		}
 	    } else {
 		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 		emcTaskEager = 1;

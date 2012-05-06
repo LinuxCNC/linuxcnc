@@ -191,6 +191,12 @@ int tpSetAmax(TP_STRUCT * tp, double aMax)
   */
 int tpSetId(TP_STRUCT * tp, int id)
 {
+
+    if (!MOTION_ID_VALID(id)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "tpSetId: invalid motion id %d\n", id);
+	return -1;
+    }
+	
     if (0 == tp) {
 	return -1;
     }
@@ -577,9 +583,9 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
         // should never happen: means we've overshot the target
         newvel = maxnewvel = 0.0;
     } else {
-        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
-        newvel = maxnewvel = -0.5 * tc->maxaccel * tc->cycle_time + 
-            tc->maxaccel * pmSqrt(discr);
+        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->a2 * discr;
+        newvel = maxnewvel = -0.5 * tc->a2 * tc->cycle_time +
+            tc->a2 * pmSqrt(discr);
     }
     if(newvel <= 0.0) {
         // also should never happen - if we already finished this tc, it was
@@ -605,12 +611,12 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
         
         // constrain acceleration and get resulting velocity
-        if(newaccel > 0.0 && newaccel > tc->maxaccel) {
-            newaccel = tc->maxaccel;
+        if(newaccel > 0.0 && newaccel > tc->a1) {
+            newaccel = tc->a1;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
         }
-        if(newaccel < 0.0 && newaccel < -tc->maxaccel) {
-            newaccel = -tc->maxaccel;
+        if(newaccel < 0.0 && newaccel < -tc->a2) {
+            newaccel = -tc->a2;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
         }
         // update position in this tc
@@ -621,6 +627,39 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
     if(on_final_decel) *on_final_decel = fabs(maxnewvel - newvel) < 0.001;
 }
 
+
+// Return 1 if the "angle" between the TC elements is acute enough that
+// accelerations may add to exceed a constraint.  It also returns 1
+// in some "hard to tell" cases, which is the safe thing to do because
+// acceleration is cut in half whenever acute() is true.
+int acute(TC_STRUCT *a, TC_STRUCT *b) {
+    PmCartesian v1, v2;
+    PmPose p1, p2;
+    double dot;
+
+    if(!a || !b)
+        return 1;
+
+    if(a->motion_type == TC_CIRCULAR)
+        p1 = a->coords.circle.abc.end;
+    else
+        p1 = a->coords.line.abc.end;
+
+    if(b->motion_type == TC_CIRCULAR)
+        p2 = b->coords.circle.abc.start;
+    else
+        p2 = b->coords.line.abc.start;
+
+    if(!pmPosePoseCompare(p1, p2))
+        return 1;
+
+    v1 = tcGetEndingUnitVector(a);
+    v1 = tcGetEndingUnitVector(a);
+    v2 = tcGetStartingUnitVector(b);
+    pmCartCartDot(v1, v2, &dot);
+
+    return dot < 0.5;
+}
 
 void tpToggleDIOs(TC_STRUCT * tc) {
     int i=0;
@@ -663,15 +702,15 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     // acc = (new vel - old vel) / cycle time
     // (three position points required)
 
-    TC_STRUCT *tc, *nexttc;
+    TC_STRUCT *tc, *nexttc, *thirdtc;
     double primary_vel;
     int on_final_decel;
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
     static double spindleoffset;
-    static int waiting_for_index = 0;
-    static int waiting_for_atspeed = 0;
+    static int waiting_for_index = MOTION_INVALID_ID;
+    static int waiting_for_atspeed = MOTION_INVALID_ID;
     double save_vel;
     static double revs;
     EmcPose target;
@@ -726,9 +765,32 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
-    if(!emcmotDebug->stepping && tc->blend_with_next) 
+    if(!emcmotDebug->stepping && tc->blend_with_next) {
         nexttc = tcqItem(&tp->queue, 1, period);
-    else
+        if(nexttc && !nexttc->active) {
+            nexttc->a1 = nexttc->a2 = nexttc->maxaccel;
+            if(acute(tc, nexttc)) {
+                tc->a2 = tc->maxaccel / 2.;
+                nexttc->a1 /= 2.;
+            } else {
+                tc->a2 = tc->maxaccel;
+            }
+
+            // ideally we've got some future moves and we can set acceleration before
+            // we even read them in...
+            thirdtc = tcqItem(&tp->queue, 2, period);
+            if(thirdtc && !thirdtc->active) {
+                thirdtc->a1 = thirdtc->a2 = thirdtc->maxaccel;
+
+                // honor accel constraint if we happen to make an acute angle with the
+                // above segment or the following one
+                if(acute(nexttc, thirdtc)) {
+                    nexttc->a2 /= 2.;
+                    thirdtc->a1 /= 2.;
+                }
+            }
+        }
+    } else
         nexttc = NULL;
 
     {
@@ -751,8 +813,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if(tp->aborting) {
         // an abort message has come
-        if( waiting_for_index ||
-            waiting_for_atspeed || 
+        if( MOTION_ID_VALID(waiting_for_index) ||
+	    MOTION_ID_VALID(waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && !nexttc) || 
             (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
             tcqInit(&tp->queue);
@@ -763,8 +825,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             tp->execId = 0;
             tp->motionType = 0;
             tp->synchronized = 0;
-            waiting_for_index = 0;
-            waiting_for_atspeed = 0;
+            waiting_for_index = MOTION_INVALID_ID;
+            waiting_for_atspeed = MOTION_INVALID_ID;
             emcmotStatus->spindleSync = 0;
             tpResume(tp);
             return 0;
@@ -775,29 +837,29 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
     // this is no longer the segment we were waiting_for_index for
-    if(waiting_for_index && waiting_for_index != tc->id) 
+    if (MOTION_ID_VALID(waiting_for_index) && waiting_for_index != tc->id) 
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for index on motion id %d, but reached id %d\n",
                 waiting_for_index, tc->id);
-        waiting_for_index = 0;
+        waiting_for_index = MOTION_INVALID_ID;
     }
-    if(waiting_for_atspeed && waiting_for_atspeed != tc->id)  
+    if (MOTION_ID_VALID(waiting_for_atspeed) && waiting_for_atspeed != tc->id)  
     {
 
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for atspeed on motion id %d, but reached id %d\n",
                 waiting_for_atspeed, tc->id);
-        waiting_for_atspeed = 0;
+        waiting_for_atspeed = MOTION_INVALID_ID;
     }
 
     // check for at-speed before marking the tc active
-    if(waiting_for_atspeed) {
+    if (MOTION_ID_VALID(waiting_for_atspeed)) {
         if(!emcmotStatus->spindle_is_atspeed) {
             /* spindle is still not at the right speed: wait */
             return 0;
         } else {
-            waiting_for_atspeed = 0;
+            waiting_for_atspeed = MOTION_INVALID_ID;
         }
     }
 
@@ -828,10 +890,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->motionType = tc->canon_motion_type;
         tc->blending = 0;
 
-        // honor accel constraint in case we happen to make an acute angle
-        // with the next segment.
+        tc->a1 = tc->maxaccel;    // first move in a chain doesn't blend 
+                                  // into the end of another move
         if(tc->blend_with_next) 
-            tc->maxaccel /= 2.0;
+            // but one might come in afterward...  if it does, and it's ok, we'll
+            // increase this again.
+            tc->a2 = tc->maxaccel/2.; 
+        else
+            tc->a2 = tc->maxaccel;
 
         if(tc->synchronized) {
             if(!tc->velocity_mode && !emcmotStatus->spindleSync) {
@@ -846,14 +912,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         }
     }
 
-    if(waiting_for_index) {
+    if (MOTION_ID_VALID(waiting_for_index)) {
         if(emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
             return 0;
         } else {
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
-            waiting_for_index=0;
+            waiting_for_index = MOTION_INVALID_ID;
             tc->sync_accel=1;
             revs=0;
         }
@@ -929,11 +995,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
         nexttc->blending = 0;
-
-        // honor accel constraint if we happen to make an acute angle with the
-        // above segment or the following one
-        if(tc->blend_with_next || nexttc->blend_with_next)
-            nexttc->maxaccel /= 2.0;
     }
 
 
@@ -984,7 +1045,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
                 double errorvel;
                 spindle_vel = (revs - oldrevs) / tc->cycle_time;
                 target_vel = spindle_vel * tc->uu_per_rev;
-                errorvel = pmSqrt(fabs(pos_error) * tc->maxaccel);
+                errorvel = pmSqrt(fabs(pos_error) * tc->a1);
                 if(pos_error<0) errorvel = -errorvel;
                 tc->reqvel = target_vel + errorvel;
             }
@@ -1017,16 +1078,19 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     // calculate the approximate peak velocity the nexttc will hit.
     // we know to start blending it in when the current tc goes below
     // this velocity...
-    if(nexttc && nexttc->maxaccel) {
-        tc->blend_vel = nexttc->maxaccel * 
-            pmSqrt(nexttc->target / nexttc->maxaccel);
+    if(nexttc && nexttc->a1) {
+        tc->blend_vel = nexttc->a1 * 
+            pmSqrt(2 * nexttc->a2 * nexttc->target / 
+                   (nexttc->a1 * (nexttc->a1 + nexttc->a2)));
+
         if(tc->blend_vel > nexttc->reqvel * nexttc->feed_override) {
             // segment has a cruise phase so let's blend over the 
             // whole accel period if possible
             tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
         }
-        if(tc->maxaccel < nexttc->maxaccel)
-            tc->blend_vel *= tc->maxaccel/nexttc->maxaccel;
+
+        if(tc->a2 < nexttc->a1)
+            tc->blend_vel *= tc->a2/nexttc->a1;
 
         if(tc->tolerance) {
             /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1054,7 +1118,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
             theta = acos(-dot)/2.0; 
             if(cos(theta) > 0.001) {
-                tblend_vel = 2.0 * pmSqrt(tc->maxaccel * tc->tolerance / cos(theta));
+                tblend_vel = 2.0 * pmSqrt(tc->a2 * tc->tolerance / cos(theta));
                 if(tblend_vel < tc->blend_vel)
                     tc->blend_vel = tblend_vel;
             }
@@ -1104,6 +1168,9 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         }
 
         emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
+        emcmot_hal_data->debug_float_0 = tc->currentvel;
+        emcmot_hal_data->debug_float_1 = nexttc->currentvel;
+        emcmot_hal_data->debug_float_2 = tc->blend_vel;
 
         secondary_before = tcGetPos(nexttc);
         save_vel = nexttc->reqvel;
@@ -1142,6 +1209,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
         emcmotStatus->current_vel = tc->currentvel;
+        emcmot_hal_data->debug_float_0 = tc->currentvel;
+        emcmot_hal_data->debug_float_1 = 0.;
         emcmotStatus->requested_vel = tc->reqvel;
 	emcmotStatus->enables_queued = tc->enables;
 	// report our line number to the guis

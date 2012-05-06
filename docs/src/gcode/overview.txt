@@ -82,11 +82,13 @@ is on any lines starting with the slash '/' are skipped.
 == Line Number
 (((Line Number)))
 
-A line number is the letter N followed by an unsigned integer. Line
-numbers may be repeated or used out of order, although normal practice
-is to avoid such usage. Line numbers may also be skipped, and that is
-normal practice. A line number is not required to be used, but must be
-in the proper place if used.
+A line number is the letter N followed by an unsigned integer,
+optionally followed by a period and another unsigned integer. For
+example, `N1234` and `N56.78` are valid line numbers. They may be
+repeated or used out of order, although normal practice is to avoid
+such usage. Line numbers may also be skipped, and that is normal
+practice. A line number is not required to be used, but must be in the
+proper place if used.
 
 == Word
 (((Word)))
@@ -283,8 +285,11 @@ example '##2'  means the value of the parameter whose index is the
 5211-5219::
     "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
 
+5210::
+    1 if "G92" offset is currently applied, 0 otherwise. Persistent.
+
 5220::
-    Coordinate System number 1 - 9 for G54 - G59.3.
+    Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
 5221-5229::
     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W. Persistent.
@@ -428,7 +433,8 @@ The <<EXISTS-Function,'EXISTS' function>> tests whether a given named parameter 
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
-program with if-then-else statements.
+program with if-then-else statements. Note that <<sec:Adding-Predefined-Named-Parameters,new predefined named
+parameters>> can be added easily without changes to the source code.
 
 * `#<_vmajor>` - Major package version. If current version was 2.5.2 would return 2.5.
 
@@ -1065,6 +1071,7 @@ console window) add a line to your G code like...
 .Parameters Example
 ----
 (print,endmill dia = #<_endmill_dia>)
+(print,value of variable 123 is: #123)
 ----
 
 Inside the above types of comments, sequences like '#123' are replaced

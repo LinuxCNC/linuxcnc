@@ -64,6 +64,9 @@ else
 fi
 export PYTHONPATH
 
+PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
+
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -97,6 +100,8 @@ Usage:
 EOF
 
 }
+
+
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -178,7 +183,7 @@ function ErrorCheck () {
             fi
 
             echo "\
-EMC terminated with an error.  You can find more information in the log:
+LinuxCNC terminated with an error.  You can find more information in the log:
     $HOME/linuxcnc_debug.txt
 and
     $HOME/linuxcnc_print.txt
@@ -334,8 +339,6 @@ EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
 
-GetFromIni TASK_LD_PRELOAD TASK
-TASK_LD_PRELOAD=$retval
 
 
 # 2.6. we hardcode the server name, change if needed
@@ -351,9 +354,6 @@ HALUI=$retval
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
-
-GetFromIni DISPLAY_LD_PRELOAD DISPLAY
-DISPLAY_LD_PRELOAD=$retval
 
 case $EMCDISPLAY in
     tkemc) EMCDISPLAY=tklinuxcnc ;;
@@ -512,7 +512,7 @@ function Cleanup() {
 # 4. done with function definitions, execution resumes here
 ################################################################################
 
-# Name of lock file to check for that signifies that EMC is up,
+# Name of lock file to check for that signifies that LinuxCNC is up,
 # to prevent multiple copies of controller
 LOCKFILE=/tmp/linuxcnc.lock
 
@@ -579,7 +579,7 @@ if [ "$img" != "" ] ; then
 fi
  
 ################################################################################
-# 4.2. Now we can finally start loading EMC
+# 4.2. Now we can finally start loading LinuxCNC
 ################################################################################
 
 # 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
@@ -686,32 +686,24 @@ done
 $HALCMD start
 
 # 4.3.9. Run task in background
-echo "Starting EMC2 TASK program: $EMCTASK" >>$PRINT_FILE
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
 if ! program_available $EMCTASK ; then
     echo "Can't execute TASK program $EMCTASK"
     Cleanup
     exit 1
 fi
 
-# setup LD_PRELOAD for task if given
+# setup LD_PRELOAD  if deemed necessary by configure
 unset LD_PRELOAD
-if [ -n "$TASK_LD_PRELOAD" ] ; then
-	# Export LD_PRELOAD
-	export LD_PRELOAD=$TASK_LD_PRELOAD
+if [ -n "$PRELOAD_WORKAROUND" ] ; then
+	export LD_PRELOAD=$PRELOAD_WORKAROUND
 fi
 
 $EMCTASK -ini "$INIFILE" &
 echo task pid=$!
 
-# setup LD_PRELOAD for display if given
-unset LD_PRELOAD
-if [ -n "$DISPLAY_LD_PRELOAD" ] ; then
-	# Export LD_PRELOAD
-	export LD_PRELOAD=$DISPLAY_LD_PRELOAD
-fi
-
 # 4.3.10. Run display in foreground
-echo "Starting EMC2 DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
+echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 result=0
 case $EMCDISPLAY in
   tklinuxcnc|mini)

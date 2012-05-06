@@ -233,10 +233,13 @@ void emcmotController(void *arg, long period)
     // check below if you set this under 5
 #define CYCLE_HISTORY 5
 
-    static long int cycles[CYCLE_HISTORY];
-    static long long int last = 0;
 
-    static int index = 0, priming = 1;
+    static long long int last = 0;
+#ifndef RTAPI_SIM
+    static int index = 0;
+    static long int cycles[CYCLE_HISTORY];
+    static int priming = 1;
+#endif
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
@@ -277,7 +280,6 @@ void emcmotController(void *arg, long period)
 	    }
         }
     }
-#endif
     if(last) {
         cycles[index++] = this_run;
     }
@@ -287,6 +289,7 @@ void emcmotController(void *arg, long period)
         // we now have CYCLE_HISTORY good samples, so start checking times
         priming = 0;
     }
+#endif
     // we need this for next time
     last = now;
 
@@ -1813,9 +1816,7 @@ static void output_to_hal(void)
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
-    emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
-    emcmot_hal_data->debug_float_1 = emcmotStatus->spindleRevs;
-    emcmot_hal_data->debug_float_2 = emcmotStatus->spindleSpeedIn;
+
     emcmot_hal_data->debug_float_3 = emcmotStatus->net_spindle_scale;
     emcmot_hal_data->debug_s32_0 = emcmotStatus->overrideLimitMask;
     emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;

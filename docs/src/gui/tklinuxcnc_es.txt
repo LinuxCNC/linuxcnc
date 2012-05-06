@@ -24,7 +24,7 @@ DISPLAY = tklinuxcnc
 ----
 
 Then, start LinuxCNC and select that ini file. The sample configuration
-'sim/tkemc.ini' is already configured to use TkLinuxCNC as its front-end.
+'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
 
 === A typical session with TkLinuxCNC
 
@@ -114,7 +114,7 @@ in the Integrator Manual).
 ==== Backplot
 
 When the machine moves, it leaves a trail called the backplot. You can
-start the backplot window by selecting View\->Backplot.
+start the backplot window by selecting View→Backplot.
 
 === Automatic control
 

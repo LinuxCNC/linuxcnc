@@ -1010,8 +1010,6 @@ int CMS_SERVER::get_access_type()
 
 int CMS_SERVER::security_check(CMS_USER_INFO * user_info, int buffer_number)
 {
-    CMS_SERVER_LOCAL_PORT *local_port;
-    local_port = find_local_port(buffer_number);
     if (!using_passwd_file) {
 	return 1;
     }

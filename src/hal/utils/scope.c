@@ -176,7 +176,7 @@ int main(int argc, gchar * argv[])
     hal_ready(comp_id);
 
     /* register an exit function to cleanup and disconnect from the HAL */
-    g_atexit(exit_from_hal);
+    atexit(exit_from_hal);
 
     /* init control structure */
     ctrl_usr = &ctrl_struct;

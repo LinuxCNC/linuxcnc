@@ -252,6 +252,7 @@ int Interp::execute_call(setup_pointer settings,
 	    status = pycall(settings, current_frame, OWORD_MODULE,
 			    current_frame->subName, 
 			    settings->call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
+	    CHKS(status == INTERP_ERROR, "pycall(%s.%s) failed", OWORD_MODULE, current_frame->subName) ;
 	    switch (status = handler_returned(settings, current_frame, current_frame->subName, true)) {
 	    case INTERP_EXECUTE_FINISH:
 		settings->call_state = CS_REEXEC_PYOSUB;
@@ -291,6 +292,7 @@ int Interp::execute_call(setup_pointer settings,
 	    if (remap->prolog_func) { 
 		status = pycall(settings, current_frame, REMAP_MODULE,remap->prolog_func,
 				settings->call_state == CS_NORMAL ? PY_PROLOG : PY_FINISH_PROLOG);
+		CHKS(status == INTERP_ERROR, "pycall(%s.%s) failed", REMAP_MODULE, remap->prolog_func);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_PROLOG;
@@ -507,6 +509,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 
     if (newFP) {
 	logOword("fopen: |%s| OK", newFileName);
+	settings->sequence_number = 0;
 
 	// close the old file...
 	if (settings->file_pointer)
@@ -637,10 +640,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 				      setup_pointer settings)  // pointer to machine settings
 {
     int status = INTERP_OK;
-    // block_pointer eblock = &EXECUTING_BLOCK(*settings);
-    // block_pointer cblock = &CONTROLLING_BLOCK(*settings);
     context_pointer current_frame;
-
     offset_pointer op = NULL;
 
     logOword("convert_control_functions %s", o_ops[block->o_type]);
@@ -700,6 +700,16 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 
     case O_endsub:
     case O_return:
+
+	if  ((settings->call_level == 0) && 
+	     (settings->sub_name == NULL)) {
+	    // detect a standalone 'o<label> return|endsub'
+	    OERR(_("%d: not in a subroutine definition: '%s'"),
+		 settings->sequence_number, settings->linetext);
+	} 
+
+	// proper label semantics (only refer to defined sub, within sub defn etc)
+	// is handled in read_o() for return & endsub
 	current_frame = &settings->sub_context[settings->call_level];
 	CHP(execute_return(settings, current_frame,
 			   current_frame->call_type)); 
@@ -729,6 +739,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_repeat:
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if (settings->sequence_number != (op->sequence_number + 1)) 
+	        OERR(_("%d: duplicate O-word label: '%s' - defined in line %d"),
+		    settings->sequence_number, 
+		    settings->linetext, op->sequence_number + 1);
+	} else 
+	    CHP(control_save_offset(block, settings));
+
 	// if we were skipping, no longer
 	settings->skipping_o = NULL;
 	status = control_find_oword(block, settings, &op); // &index);
@@ -770,6 +788,16 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_while:
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if ((op->type != O_do) &&
+		(settings->sequence_number != (op->sequence_number + 1)))
+	        OERR(_("%d: duplicate O-word label: '%s' - defined in line %d"),
+		    settings->sequence_number, 
+		    settings->linetext, op->sequence_number + 1);
+	} else 
+	    // record only if this is a while/endwhile loop
+	    CHP(control_save_offset(block, settings));
+
 	// if we were skipping, no longer
 	settings->skipping_o = NULL;
 	status = control_find_oword(block, settings, &op); //  &index);
@@ -812,7 +840,16 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	}
 	break;
 
+	    
     case O_if:
+	if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	    if (settings->sequence_number != (op->sequence_number + 1)) 
+	        OERR(_("%d: duplicate O-word label - already defined in line %d: '%s'"),
+		    settings->sequence_number, op->sequence_number + 1,
+		    settings->linetext);
+	} else 
+	    CHP(control_save_offset(block, settings));
+
 	if (settings->test_value != 0.0) {
 	    //true
 	    logOword("executing forward: [%s] in 'if'",
@@ -830,6 +867,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_elseif:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching 'if' label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
 	if ((settings->skipping_o) &&
 	    (0 != strcmp(settings->skipping_o, block->o_name)))  {
 
@@ -880,6 +925,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_else:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching 'if' label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
 	// were we ever not skipping
 	if (settings->executed_if) {
 	    // we have already executed, skip
@@ -906,6 +959,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_endif:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (op->type != O_if)
+	    OERR(_("%d: no matching label: '%s' (found '%s' in line %d): '%s'"),
+		settings->sequence_number, block->o_name, 
+		o_ops[op->type] + 2, op->sequence_number + 1, settings->linetext);
+
 	// stop skipping if we were
 	settings->skipping_o = NULL;
 	logOword("stop skipping forward: [%s] in 'endif'",
@@ -916,6 +977,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_break:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if ((op->type != O_while) && (op->type != O_do))
+	    OERR(_("%d: no matching while/do label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
       // start skipping
       settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
@@ -925,6 +994,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
       break;
 
     case O_continue:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if ((op->type != O_while) && (op->type != O_do))
+	    OERR(_("%d: no matching while/do label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
 	// if already skipping, do nothing
 	if ((settings->skipping_o) &&
 	    (0 == strcmp(settings->skipping_o, block->o_name))) {
@@ -942,6 +1019,15 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 
     case O_endrepeat:
     case O_endwhile:
+	if (control_find_oword(block, settings, &op) != INTERP_OK) 
+	    OERR(_("%d: undefined O-word label: '%s'"),
+		settings->sequence_number, settings->linetext);
+	if (((block->o_type == O_endrepeat) && (op->type != O_repeat)) ||
+	    ((block->o_type == O_endwhile) && (op->type != O_while)))
+	    OERR(_("%d: no matching label: '%s' (found '%s' in line %d)"),
+		settings->sequence_number, settings->linetext, 
+		o_ops[op->type] + 2, op->sequence_number + 1);
+
 	// end of a while loop
 	logOword("endwhile: skipping_o:%s", settings->skipping_o);
 	if ((settings->skipping_o) &&
