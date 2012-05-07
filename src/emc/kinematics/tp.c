@@ -583,9 +583,9 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
         // should never happen: means we've overshot the target
         newvel = maxnewvel = 0.0;
     } else {
-        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->a2 * discr;
-        newvel = maxnewvel = -0.5 * tc->a2 * tc->cycle_time +
-            tc->a2 * pmSqrt(discr);
+        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
+        newvel = maxnewvel = -0.5 * tc->maxaccel * tc->cycle_time + 
+            tc->maxaccel * pmSqrt(discr);
     }
     if(newvel <= 0.0) {
         // also should never happen - if we already finished this tc, it was
@@ -611,12 +611,12 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
         
         // constrain acceleration and get resulting velocity
-        if(newaccel > 0.0 && newaccel > tc->a1) {
-            newaccel = tc->a1;
+        if(newaccel > 0.0 && newaccel > tc->maxaccel) {
+            newaccel = tc->maxaccel;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
         }
-        if(newaccel < 0.0 && newaccel < -tc->a2) {
-            newaccel = -tc->a2;
+        if(newaccel < 0.0 && newaccel < -tc->maxaccel) {
+            newaccel = -tc->maxaccel;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
         }
         // update position in this tc
@@ -838,7 +838,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         // with the next segment.
         if(tc->blend_with_next) 
             tc->maxaccel /= 2.0;
-        tc->a1 = tc->a2 = tc->maxaccel;
 
         if(tc->synchronized) {
             if(!tc->velocity_mode && !emcmotStatus->spindleSync) {
@@ -941,7 +940,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         // above segment or the following one
         if(tc->blend_with_next || nexttc->blend_with_next)
             nexttc->maxaccel /= 2.0;
-        nexttc->a1 = nexttc->a2 = nexttc->maxaccel;
     }
 
 
@@ -992,7 +990,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
                 double errorvel;
                 spindle_vel = (revs - oldrevs) / tc->cycle_time;
                 target_vel = spindle_vel * tc->uu_per_rev;
-                errorvel = pmSqrt(fabs(pos_error) * tc->a1);
+                errorvel = pmSqrt(fabs(pos_error) * tc->maxaccel);
                 if(pos_error<0) errorvel = -errorvel;
                 tc->reqvel = target_vel + errorvel;
             }
@@ -1025,16 +1023,16 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     // calculate the approximate peak velocity the nexttc will hit.
     // we know to start blending it in when the current tc goes below
     // this velocity...
-    if(nexttc && nexttc->a1) {
-        tc->blend_vel = nexttc->a1 *
-            pmSqrt(nexttc->target / nexttc->a1);
+    if(nexttc && nexttc->maxaccel) {
+        tc->blend_vel = nexttc->maxaccel * 
+            pmSqrt(nexttc->target / nexttc->maxaccel);
         if(tc->blend_vel > nexttc->reqvel * nexttc->feed_override) {
             // segment has a cruise phase so let's blend over the 
             // whole accel period if possible
             tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
         }
-        if(tc->a2 < nexttc->a1)
-            tc->blend_vel *= tc->a2/nexttc->a1;
+        if(tc->maxaccel < nexttc->maxaccel)
+            tc->blend_vel *= tc->maxaccel/nexttc->maxaccel;
 
         if(tc->tolerance) {
             /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1062,7 +1060,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
             theta = acos(-dot)/2.0; 
             if(cos(theta) > 0.001) {
-                tblend_vel = 2.0 * pmSqrt(tc->a2 * tc->tolerance / cos(theta));
+                tblend_vel = 2.0 * pmSqrt(tc->maxaccel * tc->tolerance / cos(theta));
                 if(tblend_vel < tc->blend_vel)
                     tc->blend_vel = tblend_vel;
             }
