@@ -260,6 +260,10 @@ M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
 break blending.
 
+[NOTE]
+M62-65 will not function unless the appropriate motion.digital-out-nn pins are
+connected in your hal file to outputs.
+
 == M66 Wait on Input[[sec:M66-Input-Control]]
 (((M66 Input Control)))
 
@@ -298,7 +302,12 @@ timing-critical applications.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the Integrator's Manual, Core 
-Components Section, Motion subsection, for more information. 
+Components Section, Motion subsection, for more information.
+
+[NOTE]
+M66 will not function unless the appropriate motion.digital-in-nn pins or
+motion.analog-in-nn pins are connected in your hal file to an input.
+
 
 == M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
 (((M67 Analog Motion Output Control)))
@@ -320,6 +329,10 @@ The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the Integrator's Manual, Core 
 Components Section, Motion subsection, for more information. 
 
+[NOTE]
+M67 will not function unless the appropriate motion.analog-out-nn pins are
+connected in your hal file to outputs.
+
 == M68 Analog Output[[sec:M68-Analog-Output]]
 (((M68 Analog Aux Output Control)))
 
@@ -336,7 +349,11 @@ break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the Integrator's Manual, Core 
-Components Section, Motion subsection, for more information. 
+Components Section, Motion subsection, for more information.
+
+[NOTE]
+M68 will not function unless the appropriate motion.analog-out-nn pins are
+connected in your hal file to outputs.
 
 == M100 to M199 User Defined Commands[[sec:M100-to-M199]]
 (((M100 to M199 User Defined Commands)))(((User Defined Commands M100-M199)))
