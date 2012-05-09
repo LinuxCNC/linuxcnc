@@ -34,6 +34,7 @@ import gettext;
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
+import traceback
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
@@ -3333,7 +3334,6 @@ if user_command_file:
     rcfile = user_command_file
 rcfile = os.path.expanduser(rcfile)
 if os.path.exists(rcfile):
-    import traceback
     try:
         execfile(rcfile)
     except:
