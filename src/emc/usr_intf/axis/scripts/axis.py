@@ -1509,8 +1509,11 @@ class _prompt_float:
 
         if ok:
             ok, value = parse_gcode_expression(v)
-            if ok: self.w.set("= %f%s" % (value, self.unit_str))
-            else:  self.w.set(value)
+            if ok:
+                self.w.set("= %f%s" % (value, self.unit_str))
+                self.vv.set(value)
+            else:
+                self.w.set(value)
 
         if ok: 
             self.ok.configure(state="normal")
@@ -1526,7 +1529,7 @@ class _prompt_float:
             self._after = None
 
     def result(self):
-        if self.u.get(): return self.v.get()
+        if self.u.get(): return self.vv.get()
         return None
 
     def run(self):
