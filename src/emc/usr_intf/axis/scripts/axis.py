@@ -230,25 +230,6 @@ def install_help(app):
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=4, sticky="w")
     Label(keys, text="    ").grid(row=0, column=2)
 
-color_names = [
-    ('back', 'Background'),
-    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'cone', 'cone_xy', 'cone_uv',
-    'traverse', 'straight_feed_xy', 'arc_feed_xy', 'traverse_xy',
-    'straight_feed_uv', 'arc_feed_uv', 'traverse_uv',
-    'backplotjog', 'backplotfeed', 'backplotarc', 'backplottraverse',
-    'backplottoolchange', 'backplotprobing',
-    'selected',
-
-    'tool_ambient', 'tool_diffuse', 'lathetool',
-
-    'overlay_foreground', ('overlay_background', 'Background'),
-
-    'label_ok', 'label_limit',
-
-    'small_origin', 'axis_x', 'axis_y', 'axis_z',
-    'cone',
-]   
-
 def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
 
@@ -381,36 +362,25 @@ class MyOpengl(GlCanonDraw, Opengl):
         return coordinate_charwidth, coordinate_linespace, fontbase
 
     def get_resources(self):
-        self.colors = {}
-        for c in color_names:
+        self.colors = dict(GlCanonDraw.colors)
+        for c in self.colors.keys():
             if isinstance(c, tuple):
                 c, d = c
+            elif c.endswith("_alpha"):
+                d = "Alpha"
             else:
                 d = "Foreground"
-            self.colors[c] = parse_color(self.option_get(c, d))
-        self.colors['backplotjog_alpha'] = \
-            float(self.option_get("backplotjog_alpha", "Float"))
-        self.colors['backplotfeed_alpha'] = \
-            float(self.option_get("backplotfeed_alpha", "Float"))
-        self.colors['backplotarc_alpha'] = \
-            float(self.option_get("backplotarc_alpha", "Float"))
-        self.colors['backplottraverse_alpha'] = \
-            float(self.option_get("backplottraverse_alpha", "Float"))
-        self.colors['backplottoolchange_alpha'] = \
-            float(self.option_get("backplottoolchange_alpha", "Float"))
-        self.colors['backplotprobing_alpha'] = \
-            float(self.option_get("backplotprobing_alpha", "Float"))
-        self.colors['overlay_alpha'] = \
-            float(self.option_get("overlay_alpha", "Float"))
+            option_value = self.option_get(c, d)
+            if option_value:
+                if d == "Alpha":
+                    self.colors[c] = float(option_value)
+                else:
+                    self.colors[c] = parse_color(option_value)
         x = float(self.option_get("tool_light_x", "Float"))
         y = float(self.option_get("tool_light_y", "Float"))
         z = float(self.option_get("tool_light_z", "Float"))
         dist = (x**2 + y**2 + z**2) ** .5
         self.light_position = (x/dist, y/dist, z/dist, 0)
-        self.colors['tool_alpha'] = \
-            float(self.option_get("tool_alpha", "Float"))
-        self.colors['lathetool_alpha'] = \
-            float(self.option_get("lathetool_alpha", "Float"))
 
     def select_prime(self, event):
         self.select_primed = event
