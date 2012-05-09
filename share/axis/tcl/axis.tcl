@@ -337,6 +337,10 @@ setup_menu_accel .menu.view end [_ "Show too_l"]
 	-command toggle_show_extents
 setup_menu_accel .menu.view end [_ "Show e_xtents"]
 
+.menu.view add cascade \
+	-menu .menu.view.grid
+setup_menu_accel .menu.view end [_ "_Grid"]
+
 .menu.view add checkbutton \
 	-variable show_offsets \
 	-command toggle_show_offsets
@@ -414,6 +418,22 @@ setup_menu_accel .menu.view end [_ "Joint mode"]
         -accelerator $ \
         -command set_joint_mode
 setup_menu_accel .menu.view end [_ "World mode"]
+
+menu .menu.view.grid
+
+.menu.view.grid add radiobutton \
+        -value 0 \
+        -variable grid_size \
+        -command set_grid_size
+setup_menu_accel .menu.view.grid end [_ "_Off"]
+
+.menu.view.grid add radiobutton \
+        -value -1 \
+        -variable grid_size \
+        -command set_grid_size_custom
+setup_menu_accel .menu.view.grid end [_ "_Custom"]
+
+
 # ----------------------------------------------------------------------
 .menu.help add command \
 	-command {

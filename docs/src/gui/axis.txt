@@ -433,6 +433,18 @@ Yellow for jogs, faint green for rapid movements,
 red for straight moves at a feed rate, 
 and magenta for circular moves at a feed rate.
 
+.Grid
+
+Axis can optionally display a grid when in orthogonal views.  Enable
+or disable the grid using the 'Grid' menu under 'View'.  When
+enabled, the grid is shown in the top and rotated top views; when
+coordinate system is not rotated, the grid is shown in the front and
+side views as well.  The presets in the 'Grid' menu are controlled
+by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is
+`10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
+
+Specifying a very small grid may decrease performance.
+
 .Interacting
 
 By left-clicking on a portion of the preview plot, 

@@ -502,6 +502,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_program(self): return vars.show_program.get()
     def get_show_offsets(self): return vars.show_offsets.get()
     def get_show_extents(self): return vars.show_extents.get()
+    def get_grid_size(self): return vars.grid_size.get()
     def get_show_metric(self): return vars.metric.get()
     def get_show_live_plot(self): return vars.show_live_plot.get()
     def get_show_machine_speed(self): return vars.show_machine_speed.get()
@@ -1212,6 +1213,7 @@ widgets = nf.Widgets(root_window,
     ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
     ("menu_view", Menu, ".menu.view"),
+    ("menu_grid", Menu, ".menu.view.grid"),
     ("menu_file", Menu, ".menu.file"),
     ("menu_machine", Menu, ".menu.machine"),
     ("menu_touchoff", Menu, ".menu.machine.touchoff"),
@@ -1423,6 +1425,7 @@ class _prompt_float:
         t.wm_resizable(0, 0)
         self.m = m = Message(t, text=text, aspect=500, anchor="w", justify="left")
         self.v = v = StringVar(t)
+        self.vv = vv = DoubleVar(t)
         self.u = u = BooleanVar(t)
         self.w = w = StringVar(t)
         l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
@@ -2184,6 +2187,19 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_offsets", vars.show_offsets.get())
         o.tkRedraw()
 
+    def set_grid_size(*event):
+        ap.putpref("grid_size", vars.grid_size.get(), type=float)
+        o.tkRedraw()
+
+    def set_grid_size_custom(*event):
+        if vars.metric.get(): unit_str = " " + _("mm")
+        else: unit_str = " " + _("in")
+        v = prompt_float("Custom Grid", "Enter grid size",
+                "", unit_str) or 0
+        if v <= 0: return
+        if vars.metric.get(): v /= 25.4
+        match_grid_size(v)
+
     def toggle_show_machine_limits(*event):
         ap.putpref("show_machine_limits", vars.show_machine_limits.get())
         o.tkRedraw()
@@ -2499,6 +2515,7 @@ vars = nf.Variables(root_window,
     ("show_tool", IntVar),
     ("show_extents", IntVar),
     ("show_offsets", IntVar),
+    ("grid_size", DoubleVar),
     ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
@@ -2540,6 +2557,7 @@ vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
 vars.show_offsets.set(ap.getpref("show_offsets", True))
+vars.grid_size.set(ap.getpref("grid_size", 0.0, type=float))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
@@ -2975,6 +2993,30 @@ c.wait_complete()
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
+
+def match_grid_size(v):
+    for idx in range(3, widgets.menu_grid.index("end")+1):
+        gv = widgets.menu_grid.entrycget(idx, "value")
+        if abs(float(gv)-v) < 1e-5:
+            vars.grid_size.set(gv)
+            widgets.menu_grid.entryconfigure(2, value=-1)
+            break
+    else:
+        vars.grid_size.set(v)
+        widgets.menu_grid.entryconfigure(2, value=v)
+    commands.set_grid_size()
+    o.tkRedraw()
+
+def setup_grid_menu(grids):
+    for i in grids.split():
+        v = to_internal_linear_unit(parse_increment(i))
+        widgets.menu_grid.add_radiobutton(value=v, label=i,
+                variable="grid_size", command="set_grid_size")
+    match_grid_size(vars.grid_size.get())
+
+grids = inifile.find("DISPLAY", "GRIDS") \
+        or "10mm 20mm 50mm 100mm 1in 2in 5in 10in"
+setup_grid_menu(grids)
 
 
 # Find font for coordinate readout and get metrics
