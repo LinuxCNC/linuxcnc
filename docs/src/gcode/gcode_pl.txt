@@ -1071,7 +1071,7 @@ G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 It is an error if:
 
 * the H number is not an integer, is negative, or is larger than the
-   number of carousel slots.
+   number of entries in the tool table.
 
 == G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-length-offset]]
 (((G43.1 Dynamic Tool Length Offset)))

@@ -1186,7 +1186,7 @@ la table d'outils)
 C'est une erreur si:
 
 * La valeur de H n'est pas un entier, il est négatif, ou il est
-supérieur au nombre de poches dans le carrousel.
+supérieur au le nombre d'entrées dans la table d'outils.
 
 [[sec:G43-1]]
 == G43.1 Compensation dynamique de longueur d'outil
