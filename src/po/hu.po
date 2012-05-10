@@ -161,9 +161,8 @@ msgid "Roll"
 msgstr "Görgetés"
 
 #: src/hal/utils/scope_horiz.c:130
-#, fuzzy
 msgid "Zoom"
-msgstr "Közelítés [+]"
+msgstr "Közelítés"
 
 #: src/hal/utils/scope_horiz.c:131
 msgid " Pos "
