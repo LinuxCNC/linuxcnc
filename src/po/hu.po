@@ -129,7 +129,7 @@ msgstr "Horizontális"
 
 #: src/hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr ""
+msgstr "Kiválasztott csatorna"
 
 #: src/hal/utils/scope.c:683
 msgid "Run Mode"
