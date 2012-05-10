@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-05-10 14:26+0200\n"
+"PO-Revision-Date: 2012-05-10 14:27+0200\n"
 "Last-Translator: Janos Bujtar <janos.bujtar@gmail.com>\n"
 "Language-Team: Hungarian <LL@li.org>\n"
 "Language: hu\n"
@@ -89,9 +89,8 @@ msgid "_Open Configuration..."
 msgstr "Konfiguráció meg_nyitása..."
 
 #: src/hal/utils/scope.c:541
-#, fuzzy
 msgid "_Save Configuration..."
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Konfiguráció el_mentése..."
 
 #: src/hal/utils/scope.c:550
 msgid "O_pen Data File..."
