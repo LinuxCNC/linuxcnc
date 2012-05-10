@@ -141,7 +141,7 @@ msgstr "Trigger jel"
 
 #: src/hal/utils/scope.c:692
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikális"
 
 #: src/hal/utils/scope.c:700 share/axis/tcl/axis.tcl:135
 #: share/axis/tcl/axis.tcl:1199
