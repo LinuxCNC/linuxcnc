@@ -98,7 +98,7 @@ msgstr "Adatfájl meg_nyitása..."
 
 #: src/hal/utils/scope.c:557
 msgid "S_ave Data File..."
-msgstr ""
+msgstr "Adatfájl el_mentésa..."
 
 #: src/hal/utils/scope.c:566 share/axis/tcl/axis.tcl:93
 #, fuzzy
