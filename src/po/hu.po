@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-05-10 14:08+0200\n"
+"PO-Revision-Date: 2012-05-10 14:09+0200\n"
 "Last-Translator: Janos Bujtar <janos.bujtar@gmail.com>\n"
 "Language-Team: Hungarian <LL@li.org>\n"
 "Language: hu\n"
@@ -70,7 +70,7 @@ msgstr " Para_méterek "
 
 #: src/hal/utils/meter.c:685
 msgid "_Close"
-msgstr ""
+msgstr "_Bezárás"
 
 #: src/hal/utils/scope.c:126
 msgid ""
