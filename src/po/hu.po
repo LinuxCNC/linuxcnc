@@ -173,6 +173,8 @@ msgid ""
 "----- Samples\n"
 "at ---- KHz"
 msgstr ""
+"----- mintavétel\n"
+"---- KHz-en"
 
 #: src/hal/utils/scope_horiz.c:459
 msgid "Realtime component not loaded"
