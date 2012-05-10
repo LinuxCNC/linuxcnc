@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-10 13:40-0600\n"
-"PO-Revision-Date: 2012-05-10 14:35+0200\n"
+"PO-Revision-Date: 2012-05-10 14:36+0200\n"
 "Last-Translator: Janos Bujtar <janos.bujtar@gmail.com>\n"
 "Language-Team: Hungarian <LL@li.org>\n"
 "Language: hu\n"
@@ -145,9 +145,8 @@ msgstr "Vertikális"
 
 #: src/hal/utils/scope.c:700 share/axis/tcl/axis.tcl:135
 #: share/axis/tcl/axis.tcl:1199
-#, fuzzy
 msgid "Stop"
-msgstr "S_top"
+msgstr "Stop"
 
 #: src/hal/utils/scope.c:703
 msgid "Normal"
