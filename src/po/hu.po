@@ -158,7 +158,7 @@ msgstr "Egyedi"
 
 #: src/hal/utils/scope.c:709
 msgid "Roll"
-msgstr ""
+msgstr "Görgetés"
 
 #: src/hal/utils/scope_horiz.c:130
 #, fuzzy
