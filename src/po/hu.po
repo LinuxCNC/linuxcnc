@@ -58,7 +58,7 @@ msgstr "Válaszd ki a vizsgálandó elemet"
 
 #: src/hal/utils/meter.c:640
 msgid " _Pins "
-msgstr "_Lábak"
+msgstr " _Lábak "
 
 #: src/hal/utils/meter.c:641
 msgid " _Signals "
