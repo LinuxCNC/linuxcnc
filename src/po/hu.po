@@ -154,7 +154,7 @@ msgstr "Normál"
 
 #: src/hal/utils/scope.c:706
 msgid "Single"
-msgstr ""
+msgstr "Egyedi"
 
 #: src/hal/utils/scope.c:709
 msgid "Roll"
