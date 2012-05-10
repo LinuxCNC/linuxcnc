@@ -121,7 +121,7 @@ msgstr "_Segítség"
 
 #: src/hal/utils/scope.c:641
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL Oszcilloszkóp"
 
 #: src/hal/utils/scope.c:669
 msgid "Horizontal"
