@@ -790,7 +790,20 @@ class Gscreen:
             self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
             self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
             self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+
 # ****** do stuff *****
+
+    def adjustment_buttons(self,widget,action):
+        pass
+        if self.widgets.button_override.get_active():
+            pass
+            # what override is selected
+                # if zero button
+                # if set at button
+                # if up button
+                # if down button
+        # if jogging is set
+            # what axis is set
 
     def graphics(self,*args):
         print "show/hide graphics buttons"
