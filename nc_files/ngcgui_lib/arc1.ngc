@@ -290,6 +290,7 @@ o<wh1>  endwhile
         g#<dir2> x#<x3> y#<y3> i#<vx2> j#<vy2>
         g#<dir1> x#<x4> y#<y4> i#<vx3> j#<vy3>
         g#<dir1> x#<x0> y#<y0> i#<vx4> j#<vy4>
+        g#<dir1> x#<x1> y#<y1> i#<vx0> j#<vy0>
 
         g0 z#<zsafe>
         g40 ;# cancel cutter radius compensation
