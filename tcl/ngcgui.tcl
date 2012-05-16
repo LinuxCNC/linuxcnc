@@ -3684,6 +3684,10 @@ proc ::ngcgui::pathto {fname  {mode info}} {
     set i 1
     foreach p $::ngc(any,paths) {
       set msg "$msg\n$i  $p"
+      set fullp [file normalize $p]
+      if {"$p" != "$fullp"} {
+        set msg "$msg\n== $fullp"
+      }
       incr i
     }
     set msg "$msg\n\n[_ "Check setting for"]: \[RS274NGC\]SUBROUTINE_PATH"
