@@ -752,7 +752,7 @@ void hm2_sserial_auto_print_modes(hostmot2_t *hm2, hm2_sserial_mode_t *modes){
 void hm2_sserial_auto_cleanup(hostmot2_t *hm2){
     
     int i,j;
-    for (i = 1 ; i < hm2->sserial.num_instances; i++){
+    for (i = 0 ; i < hm2->sserial.num_instances; i++){
         if (hm2->sserial.instance[i].tram_auto){
             for (j = 0 ; j < hm2->sserial.instance[i].num_auto; j++){
                 if (hm2->sserial.instance[i].hal_auto[j].num_confs > 0){
