@@ -4460,6 +4460,7 @@ Ok to reset data and start a new configuration?"),False):
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
                 temp = pins[i].find("secondaryfunctionname").text
+                # this converts the XML file componennt names to pncconf's names
                 try:
                     modulename = pins[i].find("secondarymodulename").text
                     #print temp,modulename
@@ -4475,7 +4476,7 @@ Ok to reset data and start a new configuration?"),False):
                         convertedname = pinconverttppwm[temp]
                     elif modulename == "SSerial":
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
-                        # as the 5i25/7i76 requires this to work.
+                        # as the 5i25/7i76 uses some of the sserial channels for it's pins.
                         if boardname == "5i25":
                             if "7i77_7i76" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I77M0
@@ -4506,8 +4507,19 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
+                    instance_num = int(pins[i].find("secondaryinstance").text)
+                    # this is a workaround for the 7i77_7i776 firmware. it uses a mux encoder for the 7i76 but only uses half of it
+                    # this is because of a limitation of hostmot2 - it can't have mux encoders and regular encoders
+                    # so in pncconf we look for this and change it to a regular encoder.
+                    if boardname == "5i25" and currentfirm == "7i77_7i76":
+                        if modulename == "MuxedQCount" and  instance_num == 3:
+                            instance_num = 6
+                            encoder =-1
+                            if convertedname == MXE0: convertedname = ENCA
+                            elif convertedname == MXE1: convertedname = ENCB
+                            elif convertedname == MXEI: convertedname = ENCI
                     temppinunit.append(convertedname)
-                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    temppinunit.append(instance_num)
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = pins[i].find("secondaryfunctionname").text
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
