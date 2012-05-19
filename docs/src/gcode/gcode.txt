@@ -611,7 +611,7 @@ In the above example the origin of the first coordinate system
 Because only X and Y are specified, the origin point is only moved in X and Y;
 the other coordinates are not changed.
 
-.G2 L2 Example Line
+.G10 L2 Example Line
 ----
 G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
