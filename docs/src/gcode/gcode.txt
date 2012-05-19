@@ -569,20 +569,37 @@ G10 L2 P- <axes R->
 * 'P' - coordinate system (0-9)
 * 'R' - rotation about the Z axis
 
-G10 L2 sets the origin of a coordinate system.
+G10 L2 offsets the origin of the axes in the coordinate system specified to
+the value of the axis word. The offset is from the machine origin established
+during homing. The offset value will replace any current offsets in effect for
+the coordinate system specified. Axis words not used will not be changed.
 
-To specify a coordinate system program P1 to P9 corresponding to 'G54' to 'G59.3'.
-For the currently active coordinate system program P0.
+Program P0 to P9 to specify which coordinate system to change.
+
+.Coordinate System[[cap:Set-Coordinate-System]]
+
+[width="50%", options="header", cols="^,^,^"]
+|========================================
+|P Value |Coordinate System |G code
+|0 |Active |n/a
+|1 |1 |G54
+|2 |2 |G55
+|3 |3 |G56
+|4 |4 |G57
+|5 |5 |G58
+|6 |6 |G59
+|7 |7 |G59.1
+|8 |8 |G59.2
+|9 |9 |G59.3
+|========================================
+
 
 Optionally program R to indicate the rotation of the XY axis around the Z axis.
+The direction of rotation is CCW as viewed from the positive end of the Z axis.
+
 All axis words are optional.
 
-The origin of the coordinate system specified by the P number is
-set to the given values (in terms of the not offset machine coordinate system).
-Only those coordinates for which an axis word is included on the line will be set.
-
 Being in incremental distance mode (<<sec:G90-G91,'G91'>>) has no effect on 'G10 L2'.
-The direction of rotation is CCW as viewed from the Top View.
 
 Important Concepts:
 
@@ -617,23 +634,6 @@ G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
 The above example sets the XYZ coordinates of the coordinate system 1 to the machine origin.
-
-.Coordinate System[[cap:Set-Coordinate-System]]
-
-[width="50%", options="header", cols="^,^,^"]
-|========================================
-|P Value |Coordinate System |G code
-|0 |Active |n/a
-|1 |1 |G54
-|2 |2 |G55
-|3 |3 |G56
-|4 |4 |G57
-|5 |5 |G58
-|6 |6 |G59
-|7 |7 |G59.1
-|8 |8 |G59.2
-|9 |9 |G59.3
-|========================================
 
 The coordinate system is described in the <<cha:coordinate-system,Coordinate System>> Section.
 
