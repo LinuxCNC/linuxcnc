@@ -8993,18 +8993,18 @@ But there is not one in the machine-named folder.."""),True)
 
         # setup sserial potentiometer 
         if self.pot:
-            halrun.write("net dac " + self.pot + ".spinout\n")
-            halrun.write("net enable " + self.pot +".spinena\n")
-            halrun.write("net dir " + self.pot +".spindir\n")
-            halrun.write("setp   "+self.pot+".spinout-minlim   %.1f\n"% pwmminlimit)
-            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f\n"% pwmmaxlimit)
-            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f\n"% pwmmaxoutput)
+            halrun.write("net dac " + self.pot + "spinout\n")
+            halrun.write("net enable " + self.pot +"spinena\n")
+            halrun.write("net dir " + self.pot +"spindir\n")
+            halrun.write("setp   "+self.pot+"spinout-minlim   %.1f\n"% pwmminlimit)
+            halrun.write("setp   "+self.pot+"spinout-maxlim   %.1f\n"% pwmmaxlimit)
+            halrun.write("setp   "+self.pot+"spinout-scalemax %.1f\n"% pwmmaxoutput)
             potinvertlist = self.data.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == POTO:
-                        halrun.write("setp   "+self.pot+".spindir-invert   true\n")
+                        halrun.write("setp   "+self.pot+"spindir-invert   true\n")
                     if i == POTE:
-                        halrun.write("setp   "+self.pot+".spinena-invert   true\n")
+                        halrun.write("setp   "+self.pot+"spinena-invert   true\n")
         # setup pwm generator
         if self.pwm:
             if "pwm" in self.pwm: # mainboard PWM
@@ -9108,9 +9108,9 @@ But there is not one in the machine-named folder.."""),True)
             if invertmotor:
                 output = output * -1
             if output < 0:
-                halrun.write("sets dir true")
+                halrun.write("sets dir true\n")
             else:
-                halrun.write("sets dir false")
+                halrun.write("sets dir false\n")
             halrun.write("""sets dac %(output)f\n""" % { 'output': abs(output)})
         halrun.flush()
 
@@ -9172,8 +9172,8 @@ But there is not one in the machine-named folder.."""),True)
                             halrun.write("net %s %s \n"% (signal,pinname))
                     else:
                         if not "sserial" in pname: # mainboard GPIO need to be set to output/opendrain
-                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
-                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                            halrun.write("setp %s true\n"% (pinname + ".is_output\n"))
+                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true\n")
                         if "sserial" in pname and "dig" in pinname: ending = ".out" # 7i76 sserial board
                         elif "sserial" in pname: ending = "" # all other sserial
                         elif not "sserial" in pname: ending =".out" # mainboard GPIO
