@@ -766,7 +766,7 @@ of each G code file.
 
 * 'G28.1' - stores the current absolute position into parameters 5161-5166.
 
-.G30 Example Line
+.G28 Example Line
 ----
 G28 Z2.5 (rapid to Z2.5 then to location specified in the G28 stored parameters)
 ----
