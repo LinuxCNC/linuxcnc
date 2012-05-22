@@ -1439,51 +1439,55 @@ image::images/g76-threads.png[align="center"]
 * 'P-' - The 'thread pitch' in distance per revolution.
 
 * 'Z-' - The final position of threads. At the end of the cycle the tool will
-    be at this Z position.
+be at this Z position.
+
+[NOTE]
+When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' are
+diameter measurements. When G8 'Lathe Radius Mode' is in force the values for
+'I', 'J' and 'K' are radius measurements.
 
 * 'I-' - The 'thread peak' offset from the 'drive line'. Negative 'I' values
-    are external threads, and positive 'I' values are internal threads.
-    Generally the material has been turned
-    to this size before the 'G76' cycle.
+are external threads, and positive 'I' values are internal threads.
+Generally the material has been turned to this size before the 'G76' cycle.
 
 * 'J-' - A positive value specifying the 'initial cut depth'. The first
-    threading cut will be 'J' beyond the 'thread peak' position.
+threading cut will be 'J' beyond the 'thread peak' position.
 
 * 'K-' - A positive value specifying the 'full thread depth'. The final
-    threading cut will be 'K' beyond the 'thread peak' position.
+threading cut will be 'K' beyond the 'thread peak' position.
 
 Optional settings
 
 * 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive
-    threading passes. 'R2.0' selects constant area. Values between 1.0 and
-    2.0 select decreasing
-    depth but increasing area. Values above 2.0 select decreasing area.
-    Beware that unnecessarily high degression values will cause a large
-    number of passes to be used. (degression = a descent by stages or
-    steps.)
+threading passes. 'R2.0' selects constant area. Values between 1.0 and
+2.0 select decreasing
+depth but increasing area. Values above 2.0 select decreasing area.
+Beware that unnecessarily high degression values will cause a large
+number of passes to be used. (degression = a descent by stages or
+steps.)
 
 * 'Q-' - The 'compound slide angle' is the angle (in degrees) describing to
-    what extent successive passes should be offset along the drive line.
-    This is used to cause one side of the tool to remove more material than
-    the other. A positive 'Q' value causes the leading edge of the tool to
-    cut more heavily.
-    Typical values are 29, 29.5 or 30.
+what extent successive passes should be offset along the drive line.
+This is used to cause one side of the tool to remove more material than
+the other. A positive 'Q' value causes the leading edge of the tool to
+cut more heavily.
+Typical values are 29, 29.5 or 30.
 
 * 'H-' - The number of 'spring passes'. Spring passes are additional passes at
-    full thread depth. If no additional passes are desired, program 'H0'.
+full thread depth. If no additional passes are desired, program 'H0'.
 
 * 'E-' - Specifies the distance along the drive line used for the taper. The
-    angle of the taper will be so the last pass tapers to the thread crest
-    over the distance specified with E.' E0.2' will give a taper for the
-    first/last 0.2 length units along the
-    thread. For a 45 degree taper program E the same as K
+angle of the taper will be so the last pass tapers to the thread crest
+over the distance specified with E.' E0.2' will give a taper for the
+first/last 0.2 length units along the
+thread. For a 45 degree taper program E the same as K
 
 * 'L-' - Specifies which ends of the thread get the taper. Program 'L0' for no
-    taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
-     for both entry and exit tapers. Entry tapers will pause at the drive
-    line to synchronize with the index pulse then feed in to the beginning
-    of the taper. No entry taper and the tool will rapid to the cut depth
-    then synchronize and begin the cut.
+taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
+for both entry and exit tapers. Entry tapers will pause at the drive
+line to synchronize with the index pulse then feed in to the beginning
+of the taper. No entry taper and the tool will rapid to the cut depth
+then synchronize and begin the cut.
 
 The tool is moved to the initial X and Z positions prior to issuing
 the G76. The X position is the 'drive line' and the Z position is the
