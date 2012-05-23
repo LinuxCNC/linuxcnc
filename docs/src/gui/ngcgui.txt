@@ -440,8 +440,10 @@ global context that is problematic to maintain. Using numbered parameters #1
 thru #30 as subroutine inputs should be sufficient to satisfy a wide range of
 design requirements.
 
+Declining Feature:
 Ngcgui includes some support for global named input parameters but usage
-is deprecated and not documented here.
+is deprecated and not documented here.  Use of global named input parameters
+will not be supported with linuxCNC2.6.
 
 While input global named parameters are discouraged, emc subroutines must use
 global named parameters for returning results. Since ngcgui-compatible
