@@ -423,19 +423,20 @@ otherwise it is a helical arc.
 ----
 G4 P-
 ----
-* 'P' - seconds to dwell
+* 'P' - seconds to dwell (floating point)
 
 The P number is the time in seconds that all axes will remain unmoving.
-This does not affect spindle, coolant and other I/O.
+The P number is a floating point number so fractions of a second may be used.
+G4 does not affect spindle, coolant and any I/O.
 
 .G4 Example Line
 ----
-G4 P1.5 (wait for 1.5 seconds before proceeding)
+G4 P0.5 (wait for 0.5 seconds before proceeding)
 ----
 
 It is an error if:
 
-* the P number is negative.
+* the P number is negative or not specificed.
 
 == G5.1 Quadratic B-spline[[sec:G5.1-B-spline]]
 (((G5.1 Quadratic B-spline)))
