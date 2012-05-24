@@ -272,7 +272,7 @@ Pour cela:
  - Supprimez tous les décalages _G92_ avec _G92.1_
  - Utilisez les coordonnées utilisateur avec _G54_
  - Rendez les coordonnées utilisateur _G54_, identiques aux
-   coordonnées machine avec _G10 L2 P1 X0 Y0 Z0_
+   coordonnées machine avec _G10 L2 P1 X0 Y0 Z0 R0_
  - Annulez les offsets d'outil avec _G49_
  - Activez l'affichage des coordonnées relatives depuis le menu.
 
