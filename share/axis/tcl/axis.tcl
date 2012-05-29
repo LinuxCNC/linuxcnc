@@ -2001,11 +2001,18 @@ proc update_state {args} {
         set ::position [concat [_ "Position:"] $coord_str $display_str]
     }
 
-    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
-        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
-            set_mode_from_tab
-        }
-        enable_group $::manual
+    if {$::task_state == $::STATE_ON} {
+	if {$::interp_state == $::INTERP_IDLE} {
+	    if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+		set_mode_from_tab
+	    }
+	    enable_group $::manual
+	}
+	if {$::queued_mdi_commands < $::max_queued_mdi_commands } {
+	    enable_group $::manual
+	} else {
+	    disable_group $::manual
+	}
     } else {
         disable_group $::manual
     }
@@ -2085,6 +2092,8 @@ set motion_mode 0
 set kinematics_type -1
 set metric 0
 set max_speed 1
+set queued_mdi_commands 0
+set max_queued_mdi_commands 10
 trace variable taskfile w update_title
 trace variable machine w update_title
 trace variable taskfile w queue_update_state
@@ -2104,6 +2113,7 @@ trace variable motion_mode w queue_update_state
 trace variable kinematics_type w queue_update_state
 trace variable on_any_limit w queue_update_state
 trace variable motion_mode w joint_mode_switch
+trace variable queued_mdi_commands  w queue_update_state
 
 set editor_deleted 0
 

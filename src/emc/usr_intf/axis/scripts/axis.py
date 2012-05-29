@@ -130,6 +130,8 @@ try:
 except TclError:
     print root_window.tk.call("set", "errorInfo")
     raise
+
+
 program_start_line = 0
 program_start_line_last = -1
 
@@ -752,6 +754,7 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
         if hal_present == 1 :
             set_manual_mode = comp["set-manual-mode"]
             if self.set_manual_mode != set_manual_mode:
@@ -858,7 +861,7 @@ initiated action (whether an MDI command or a jog) is acceptable.
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != linuxcnc.STATE_ON: return False
-    return s.interp_state == linuxcnc.INTERP_IDLE
+    return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
 # first mode
@@ -2545,6 +2548,8 @@ vars = nf.Variables(root_window,
     ("touch_off_system", StringVar),
     ("machine", StringVar),
     ("on_any_limit", BooleanVar),
+    ("queued_mdi_commands", IntVar),
+    ("max_queued_mdi_commands", IntVar),
 )
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
@@ -3261,6 +3266,8 @@ _tk_seticon.seticon(widgets.about_window, icon)
 _tk_seticon.seticon(widgets.help_window, icon)
 
 vars.kinematics_type.set(s.kinematics_type)
+vars.max_queued_mdi_commands.set(int(inifile.find("TASK", "MDI_QUEUED_COMMANDS") or  10))
+
 def balance_ja():
     w = max(widgets.axes.winfo_reqwidth(), widgets.joints.winfo_reqwidth())
     h = max(widgets.axes.winfo_reqheight(), widgets.joints.winfo_reqheight())
