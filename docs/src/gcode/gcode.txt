@@ -71,7 +71,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G38-probe,G38.2 - G38.5>>        |Probing
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41, G42>>           |Cutter Compensation
-|<<sec:G41.1-G42.1,G41.1, G42.1>>   |Cutter Compensation Transient
+|<<sec:G41.1-G42.1,G41.1, G42.1>>   |Dynamic Cutter Compensation
 |<<sec:G43-G43.1-Tool,G43, G43.1>>  |Use Tool Length Offset from Tool Table
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
@@ -124,8 +124,8 @@ M2 (end program)
 ----
 * See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more information.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -159,8 +159,8 @@ M2 (end program)
 ----
 * See <<sec:G90-G91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections for more information.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -213,8 +213,8 @@ the rotary axes turn at a constant rate so that the rotary
 motion starts and finishes when the XYZ motion starts and finishes.
 Lines of this sort are hardly ever programmed.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 The arc center is absolute or relative as set by <<sec:G90.1-G91.1,G90.1
 or G91.1>> respectively.
@@ -774,7 +774,7 @@ G28 Z2.5 (rapid to Z2.5 then to location specified in the G28 stored parameters)
 
 It is an error if :
 
-* Radius compensation is turned on
+* Cutter Compensation is turned on
 
 == G30, G30.1 Go to Predefined Position[[sec:G30-G30.1]]
 (((G30)))
@@ -802,7 +802,7 @@ G30 Z2.5 (rapid to Z2.5 then to the location specified in the G30 stored paramet
 
 It is an error if :
 
-* Radius compensation is turned on
+* Cutter Compensation is turned on
 
 == G33 Spindle Synchronized Motion[[sec:G33-Spindle-Sync]]
 (((G33 Spindle Synchronized Motion)))
@@ -966,14 +966,14 @@ It is an error if:
 
 * the current point is the same as the programmed point.
 * no axis word is used
-* cutter radius compensation is enabled
+* cutter compensation is enabled
 * the feed rate is zero
 * the probe is already in the target state
 
 == G40 Compensation Off[[sec:G40]]
-(((G40 Radius Compensation Off)))
+(((G40 Cutter Compensation Off)))
 
-* 'G40' - turn cutter radius compensation off. If tool compensation was on the
+* 'G40' - turn cutter compensation off. If tool compensation was on the
           next move must be a linear move and longer than the tool diameter.
           It is OK to turn compensation off when it is already off.
 
@@ -991,8 +991,8 @@ It is an error if:
 * A G2/G3 arc move is programmed next after a G40.
 * The linear move after turning compensation off is less than the tool diameter.
 
-== G41, G42 Tool Radius Compensation[[sec:G41-G42]]
-(((G41 G42 Radius Compensation)))
+== G41, G42 Cutter Compensation[[sec:G41-G42]]
+(((G41 G42 Cutter Compensation)))
 
 ----
 G41 <D-> (left of programmed path)
@@ -1000,29 +1000,29 @@ G42 <D-> (right of programmed path)
 ----
 * 'D' - tool number
 
-The D word is optional; if there is no D word, the radius of
+The D word is optional; if there is no D word, the diameter of
 the currently-loaded tool will be used.
 If used, the D number should normally be the slot number of
 the tool in the spindle, although this is not required.
 It is OK for the D number to be zero; a radius value of zero will be used.
 
-To start tool radius compensation to the left of the part profile, use G41.
-G41 starts cutter radius compensation to the left of the programmed line
+To start cutter compensation to the left of the part profile, use G41.
+G41 starts cutter compensation to the left of the programmed line
 as viewed from the positive end of the axis perpendicular to the plane.
 
-To start tool radius compensation to the right of the part profile, use G42.
-G42 starts cutter radius compensation to the right of the programmed line
+To start cutter compensation to the right of the part profile, use G42.
+G42 starts cutter compensation to the right of the programmed line
 as viewed from the positive end of the axis perpendicular to the plane.
 
 The lead in move must be at least as long as the tool radius.
 The lead in move can be a rapid move.
 
-Cutter radius compensation may be performed if the XY-plane or XZ-plane is active.
+Cutter compensation may be performed if the XY-plane or XZ-plane is active.
 
 User M100-M199 commands are allowed when Cutter Compensation is on.
 
-The behavior of the machining center when cutter radius compensation
-is on is described in the <<sec:cutter-radius-compensation,Radius Compensation>>
+The behavior of the machining center when cutter compensation
+is on is described in the <<sec:cutter-compensation,Cutter Compensation>>
 Section along with code examples.
 
 It is an error if:
@@ -1030,10 +1030,10 @@ It is an error if:
 * The D number is not an integer, is negative, or is larger than the
    number of carousel slots.
 * The YZ plane is active.
-* Cutter radius compensation is commanded to turn on when it is already on.
+* Cutter compensation is commanded to turn on when it is already on.
 
-== G41.1, G42.1 Dynamic Cutter Radius Compensation[[sec:G41.1-G42.1]]
-(((G41.1 G42.1 Dynamic Radius Compensation)))
+== G41.1, G42.1 Dynamic Cutter Compensation[[sec:G41.1-G42.1]]
+(((G41.1 G42.1 Dynamic Compensation)))
 
 ----
 G41.1 D- <L-> (left of programmed path)
@@ -1138,7 +1138,7 @@ G53 X2 (rapid linear move to absolute coordinate X2)
 It is an error if:
 
 * G53 is used without G0 or G1 being active, 
-* or G53 is used while cutter radius compensation is on.
+* or G53 is used while cutter compensation is on.
 
 == G54-G59.3 Select Coordinate System[[sec:G54-G59.3]]
 (((G54-G59.3 Select Coordinate System)))
@@ -1174,7 +1174,7 @@ in the parameters shown in the following table.
 
 It is an error if:
 
-* selecting a coordinate system is used while cutter radius compensation is on.
+* selecting a coordinate system is used while cutter compensation is on.
 
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
@@ -1620,7 +1620,7 @@ It is an error if:
 * an L number is used that does not evaluate to a positive integer,
 * rotary axis motion is used during a canned cycle,
 * inverse time feed rate is active during a canned cycle,
-* or cutter radius compensation is active during a canned cycle.
+* or cutter compensation is active during a canned cycle.
 
 If the XY plane is active, the Z number is sticky, and it is an error
 if:
