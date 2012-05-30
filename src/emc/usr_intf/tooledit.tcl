@@ -40,6 +40,14 @@ namespace eval ::tooledit {
 }
 
 proc ::tooledit::init {} {
+  if [file readable ~/.tooleditrc] {
+    if [catch {source ~/.tooleditrc} msg] {
+      puts stderr "Problem reading ~/.tooleditrc:\n$msg"
+    }
+    if [info exists geometry] {
+      set ::te(top,restore,geometry) $geometry
+    }
+  }
   set ::te(fmt,int)   %d
   set ::te(fmt,real)  %g
   set ::te(fmt,angle) %f
@@ -403,6 +411,10 @@ proc ::tooledit::tooledit {filename} {
   pack $msg -side top -expand 0 -fill x -anchor w
 
   update ;# wait for display before binding Configure events
+  if [info exists ::te(top,restore,geometry)] {
+    wm geometry $::te(top) $::te(top,restore,geometry)
+    unset ::te(top,restore,geometry)
+  }
   set ::te(top,geometry) [wm geometry $::te(top)]
   set ::te(top,height)   [winfo height $::te(top)]
   # set min width so top cannot be disappeared inadvertently
@@ -783,6 +795,13 @@ proc ::tooledit::showerr {msg} {
 
 proc ::tooledit::bye {} {
   catch {after cancel $::te(afterid)}
+
+  set fd [open ~/.tooleditrc w]
+  set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]"
+  puts $fd "# $time Created by $::argv0"
+  puts $fd "set geometry [wm geometry $::te(top)]"
+  close $fd
+
   destroy $::te(top)      ;# for embedded usage
   set ::tooledit::finis 1 ;# for standalone usage
 } ;# bye
