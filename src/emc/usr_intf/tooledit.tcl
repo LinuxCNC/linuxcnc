@@ -52,6 +52,11 @@ proc ::tooledit::init {} {
   set ::te(header)  {tool poc x y z a b c u v w \
                           diam front back orien comment}
 
+  foreach item $::te(header) { set ::te(type,$item) real ;# default }
+  set ::te(type,tool)    integer
+  set ::te(type,poc)     integer
+  set ::te(type,comment) ascii
+
   # include values for each (header) item:
   set ::te(tool,width)     5; set ::te(tool,tag)     T
   set ::te(poc,width)      5; set ::te(poc,tag)      P
@@ -243,6 +248,7 @@ proc ::tooledit::readfile {filename} {
     }
     if $bogus continue
     makeline u
+    ::tooledit::repack
   } ;# while
   close $fd
   if {$bct >0} {
@@ -250,6 +256,7 @@ proc ::tooledit::readfile {filename} {
     after 0 {::tooledit::message bogus}
   }
   message opened
+  ::tooledit::column_sort $::te(entry,header,tool) tool 1
   return
 } ;# readfile
 
@@ -287,6 +294,8 @@ proc ::tooledit::watch {args} {
       && "$::te(msg,last)" != "filegone"
       && "$::te(msg,last)" != "changed"
       && "$::te(msg,last)" != "bogus"
+      && "$::te(msg,last)" != "isort"
+      && "$::te(msg,last)" != "dsort"
      } {
     ::tooledit::toolvalidate silent ;# to clear errors
   }
@@ -341,10 +350,14 @@ proc ::tooledit::tooledit {filename} {
   foreach h $::te(header) {
     set e 0;set j center
     if {"$h" == "comment"} {set e 1;set j left}
-    pack [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
+    set ey [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
          -state disabled -relief groove \
          -disabledforeground black \
-         -width $::te($h,width)] -side left -fill x -expand $e
+         -width $::te($h,width)]
+    pack $ey -side left -fill x -expand $e
+    set ::te(entry,header,$h) $ey
+    $ey configure -cursor arrow
+    bind $ey <ButtonRelease-1> "::tooledit::column_sort $ey $h"
   }
 
   readfile $::te(filename)
@@ -432,6 +445,8 @@ proc ::tooledit::message {mtype} {
                  update idletasks
                  $::te(scroll,frame) yview moveto 1.0
              }
+    isort    {$w conf -text "$dt: Sorted by $::te(lastsort), increasing" -fg darkgreen}
+    dsort    {$w conf -text "$dt: Sorted by $::te(lastsort), decreasing" -fg darkgreen}
   }
   set ::te(msg,last) $mtype
 } ;# message
@@ -488,7 +503,11 @@ proc ::tooledit::makeline {ay_name} {
   set i $::te(lasti)
   set f [frame $::te(main,frame).[qid]]
   set ::te(entry,$i,frame) $f
-  pack $f -side top -expand 1 -fill x -anchor n
+  if {"$ay_name" == "new"} {
+    pack $f -side top -expand 1 -fill x -anchor n
+  } else {
+    # caller must pack (use ::tooledit::repack)
+  }
   lappend ::te(items) $i
   set ::te(parm,$i,tool)      $ay(t)
   set ::te(parm,$i,poc)       $ay(p)
@@ -818,8 +837,65 @@ proc ::tooledit::sendaxis {cmd} {
   return 0 ;# fail
 } ;# sendaxis
 
+proc ::tooledit::repack { {entryname tool} {mode increasing} } {
+
+  set type $::te(type,$entryname)
+
+  foreach item $::te(items) {
+    set value $::te(parm,$item,$entryname)
+    if {    ( ("$type"  == "real") || ("$type"  == "integer") )\
+         && ( ("$value" == ""    ) || ("$value" == "NEW"    ) ) } {
+      set value 0
+    }
+    lappend parms   $value
+    lappend parms_i $item
+  }
+
+  foreach i $::te(items) {
+    pack forget $::te(entry,$i,frame)
+  }
+
+  set  indices [lsort -$type -$mode -indices $parms]
+  foreach idx $indices {
+    set i [lindex $parms_i $idx]
+    pack $::te(entry,$i,frame) -side top -expand 1 -fill x -anchor n
+  }
+} ;# repack
+
+proc ::tooledit::column_sort {e parm {initialize 0} } {
+  if {$initialize || ![info exists ::te(columnsortorder)]} {
+    set ::te(columnsortorder) increasing
+    catch {$::te(lastsort,entry) configure -disabledforeground black}
+  } else {
+    if [info exists ::te(lastsort,entry)] {
+      $::te(lastsort,entry) configure -disabledforeground black
+      if {"$::te(lastsort,entry)" != "$e"} {
+        set ::te(columnsortorder) decreasing
+      }
+    }
+    if {"$::te(columnsortorder)" == "increasing"} {
+      set ::te(columnsortorder) decreasing
+    } else {
+      set ::te(columnsortorder) increasing
+    }
+  }
+  ::tooledit::repack $parm $::te(columnsortorder)
+  set ::te(lastsort,entry) $e
+  set ::te(lastsort) [string toupper $parm]
+  switch $::te(columnsortorder) {
+    increasing {
+      $e configure -disabledforeground blue
+      ::tooledit::message isort
+    }
+    decreasing {
+      $e configure -disabledforeground violetred
+      ::tooledit::message dsort
+    }
+  }
+} ;# column_sort
+
 #------------------------------------------------------------------------
-if {[info script] == $argv0} {
+if {[info script] == $::argv0} {
   # configure for standalone usage:
   set ::te(standalone) 1
   wm withdraw .
