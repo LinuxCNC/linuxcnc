@@ -102,6 +102,7 @@ augment the path(s).  For this example:
 
 ----
 [RS274NGC]
+...
 SUBROUTINE_PATH = /home/myusername/mysubs:../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
 USER_M_PATH     = /home/myusername/mymfiles:../../../nc_files/ngcgui_lib/mfiles
 
@@ -150,9 +151,14 @@ dependences, if any, in a SUBROUTINE_PATH directory.  Some subroutines may
 use custom Mfiles which must be in a directory specified by the
 [RS274NGC]USER_M_PATH.
 
+[NOTE]
+This is not a complete INI the items show are what is used by ngcgui.
+Many additional items are required by LinuxCNC to have a complete INI file.
+
 .Sample INI
 ----
 [RS274NGC]
+...
 SUBROUTINE_PATH   = ../../../nc_files/ngcgui_lib:../../../ngcgui_lib/utilitysubs
 USER_M_PATH       = ../../../nc_files/ngcgui_lib/mfiles
 
