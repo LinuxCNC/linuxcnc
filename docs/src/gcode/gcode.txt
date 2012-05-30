@@ -755,17 +755,24 @@ of each G code file.
 == G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]]
 (((G28)))
 
+[WARNING]
+Only use G28 when your machine is homed to a repeatable position and the
+desired G28 position has been stored with G28.1.
+
+G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
+5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+values are 'absolute' machine coordinates in the native machine 'units' as 
+specifed in the ini file. All axes defined in the ini file will be moved when
+a G28 is issued.
+
 * 'G28' - makes a rapid traverse move from the current position to the
-          absolute position of the values in <<sub:numbered-parameters,parameters>>
-          5161-5166. The parameter values are in terms of the 'absolute' coordinate
-          system and the machine's native coordinate system.
+'absolute' position of the values in parameters 5161-5166.
 
 * 'G28 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the 'absolute'
-              position of the values in <<sub:numbered-parameters,parameters>>
-              5161-5166.
+'axes' including any offsets, then will make a rapid traverse move to the
+'absolute' position of the values in parameters 5161-5166.
 
-* 'G28.1' - stores the current absolute position into parameters 5161-5166.
+* 'G28.1' - stores the current 'absolute' position into parameters 5161-5166.
 
 .G28 Example Line
 ----
@@ -779,21 +786,28 @@ It is an error if :
 == G30, G30.1 Go to Predefined Position[[sec:G30-G30.1]]
 (((G30)))
 
-* 'G30' - makes a rapid traverse move from the current position to the
-          absolute position of the values in <<sub:numbered-parameters,parameters>>
-          5181-5186. The parameter values are in terms of the 'absolute' coordinate
-          system and the machine's native coordinate system.
+[WARNING]
+Only use G30 when your machine is homed to a repeatable position and the
+desired G30 position has been stored with G30.1.
 
-* 'G30 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the 'absolute'
-              position of the values in <<sub:numbered-parameters,parameters>>
-              5181-5186.
-
-* 'G30.1' - stores the current absolute position into parameters 5181-5186.
+G30 functions the same as G28 but uses the values stored in
+<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+final point to move to. The parameter values are 'absolute' machine
+coordinates in the native machine 'units' as specifed in the ini file.
+All axes defined in the ini file will be moved when a G30 is issued.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
 if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
+
+* 'G30' - makes a rapid traverse move from the current position to the
+'absolute' position of the values in parameters 5181-5186.
+
+* 'G30 axes' - moves in a rapid traverse to the position specified by
+'axes' including any offsets, then will make a rapid traverse move to the
+'absolute' position of the values in parameters 5181-5186.
+
+* 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
 .G30 Example Line
 ----
