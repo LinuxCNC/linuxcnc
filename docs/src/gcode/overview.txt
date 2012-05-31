@@ -240,11 +240,11 @@ found. For example, if parameter 3 has been previously set to 15 and
 where X equals 15 will
 occur and the value of parameter 3 will be 6.
 
-The '#'  character takes precedence over other operations, so that, for
- example, '#1+2' means the number found by adding 2 to the value of
+The '\#'  character takes precedence over other operations, so that, for
+ example, '\#1+2' means the number found by adding 2 to the value of
 parameter 1, not 
- the value found in parameter 3. Of course, '#[1+2]' does mean the
-value found in parameter 3. The '#' character may be repeated; for
+ the value found in parameter 3. Of course, '\#[1+2]' does mean the
+value found in parameter 3. The '\#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
 (integer) value of parameter 2.
 
@@ -733,10 +733,10 @@ console window) add a line to your G code like...
 (print,value of variable 123 is: #123)
 ----
 
-Inside the above types of comments, sequences like '#123' are replaced
-by the value of the parameter 123. Sequences like '#<named parameter>'
+Inside the above types of comments, sequences like '\#123' are replaced
+by the value of the parameter 123. Sequences like '\#<named parameter>'
 are replaced by the value of the named parameter. Named parameters
-will have white space removed from them. So, '#<named parameter>'
+will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
 == File Requirements
@@ -848,7 +848,7 @@ write no line of code that is the slightest bit ambiguous.
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
-'#1=[#1+#2'] is OK.
+'#1=[#1+#2]' is OK.
 
 === Don't use line numbers
 
