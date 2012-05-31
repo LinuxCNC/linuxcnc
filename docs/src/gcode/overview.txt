@@ -259,15 +259,15 @@ tool:
 * '5181-5189' - 'G30' Home for (X Y Z A B C U V W)
 * '5211-5219' - 'G92' offset (X Y Z A B C U V W)
 * '5220' - Current Coordinate System number 1 - 9 for G54 - G59.3
-* '5221-5229' - Coordinate System 1, G54 (X Y Z A B C U V W)
-* '5241-5249' - Coordinate System 2, G55 (X Y Z A B C U V W)
-* '5261-5269' - Coordinate System 3, G56 (X Y Z A B C U V W)
-* '5281-5289' - Coordinate System 4, G57 (X Y Z A B C U V W)
-* '5301-5309' - Coordinate System 5, G58 (X Y Z A B C U V W)
-* '5321-5329' - Coordinate System 6, G59 (X Y Z A B C U V W)
-* '5341-5349' - Coordinate System 7, G59.1 (X Y Z A B C U V W)
-* '5361-5369' - Coordinate System 8, G59.2 (X Y Z A B C U V W)
-* '5381-5389' - Coordinate System 9, G59.3 (X Y Z A B C U V W)
+* '5221-5230' - Coordinate System 1, G54 (X Y Z A B C U V W R) - R denotes the XY rotation angle around the Z axis
+* '5241-5250' - Coordinate System 2, G55 (X Y Z A B C U V W R)
+* '5261-5270' - Coordinate System 3, G56 (X Y Z A B C U V W R)
+* '5281-5290' - Coordinate System 4, G57 (X Y Z A B C U V W R)
+* '5301-5310' - Coordinate System 5, G58 (X Y Z A B C U V W R)
+* '5321-5330' - Coordinate System 6, G59 (X Y Z A B C U V W R)
+* '5341-5350' - Coordinate System 7, G59.1 (X Y Z A B C U V W R)
+* '5361-5370' - Coordinate System 8, G59.2 (X Y Z A B C U V W R)
+* '5381-5390' - Coordinate System 9, G59.3 (X Y Z A B C U V W R)
 * '5399' - Result of M66 - Check or wait for input
 * '5400' - Current Tool Number
 * '5401-5409' - Tool Offset (X Y Z A B C U V W)
