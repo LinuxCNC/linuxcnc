@@ -138,11 +138,20 @@ proc ::tooledit::ventry {f validatenumber tvar \
     set e [entry $f.[qid] \
           -width $twidth -relief sunken -justify $justify\
           -textvariable $tvar \
+          -validate all \
+          -validatecommand [list ::tooledit::validateOther $tvar %W %s %P] \
          ]
     pack $e -side left -expand $expand -fill $fill
   }
   return $e
 } ;# ventry
+
+proc ::tooledit::validateOther {varname widget current new} {
+   if {"$current" != $new} {
+     incr ::te(filemod)
+   }
+   return 1 ;# 1==>ok
+} ;# validateOther
 
 proc ::tooledit::validateNumber {varname widget current new} {
    if ![info exists $varname] {return 1}
@@ -161,6 +170,7 @@ proc ::tooledit::validateNumber {varname widget current new} {
    } else {
      if {"$current" != "$new"} {message modified}
      $widget configure -fg black
+     incr ::te(filemod)
      return 1 ;# 1==>ok
    }
 } ;# validateNumber
@@ -193,6 +203,7 @@ proc ::tooledit::readfile {filename} {
   if [info exists msg] {return -code error $msg}
   if [info exists new] {
     makeline new
+    incr ::te(filemod)
     message newfile
     return
   }
@@ -265,6 +276,7 @@ proc ::tooledit::readfile {filename} {
   }
   message opened
   ::tooledit::column_sort $::te(entry,header,tool) tool 1
+  set ::te(filemod) 0
   return
 } ;# readfile
 
@@ -494,6 +506,7 @@ proc ::tooledit::deleteline {} {
   }
   checkdelete
   if {$dct >0}  { message delete}
+  incr ::te(filemod)
 } ;# deleteline
 
 proc ::tooledit::makeline {ay_name} {
@@ -692,6 +705,7 @@ proc ::tooledit::writefile {filename} {
   close $fd
   watch start
   message write
+  set ::te(filemod) 0
 } ;# writefile
 
 proc ::tooledit::toolvalidate {args} {
@@ -794,6 +808,18 @@ proc ::tooledit::showerr {msg} {
 } ;# showerr
 
 proc ::tooledit::bye {} {
+  if $::te(filemod) {
+    set ans [tk_dialog .filemod \
+              "File Modified" \
+              "Save Modifications to File?" \
+              {} \
+              0 \
+              Yes No]
+    if {$ans == 0} {
+      ::tooledit::writefile $::te(filename)
+    }
+  }
+
   catch {after cancel $::te(afterid)}
 
   set fd [open ~/.tooleditrc w]
