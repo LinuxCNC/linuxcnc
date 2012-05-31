@@ -102,6 +102,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_ENCODER          (4)
 #define HM2_GTAG_STEPGEN          (5)
 #define HM2_GTAG_PWMGEN           (6)
+#define HM2_GTAG_UART_TX          (9)
+#define HM2_GTAG_UART_RX         (10)
 #define HM2_GTAG_TRANSLATIONRAM  (11)
 #define HM2_GTAG_BSPI            (14)
 #define HM2_GTAG_TPPWM           (19)
@@ -864,6 +866,38 @@ typedef struct {
     u8 num_registers;
 } hm2_bspi_t;
 
+//
+// UART
+// 
+
+typedef struct {
+    u32 clock_freq;
+    u32 bitrate;
+    u32 tx_fifo_count_addr;
+    u32 tx_fifo_count;
+    u32 tx_bitrate_addr;
+    u32 tx1_addr;
+    u32 tx2_addr;
+    u32 tx3_addr;
+    u32 tx4_addr;
+    u32 tx_mode_addr;
+    u32 rx_fifo_count_addr;
+    u32 rx_bitrate_addr;
+    u32 rx1_addr;
+    u32 rx2_addr;
+    u32 rx3_addr;
+    u32 rx4_addr;
+    u32 rx_mode_addr;
+    char name[HAL_NAME_LEN+1];
+} hm2_uart_instance_t;
+
+typedef struct {
+    int version;
+    int num_instances;
+    hm2_uart_instance_t *instance;
+    u8 instances;
+    u8 num_registers;
+} hm2_uart_t;
 
 // 
 // watchdog
@@ -988,6 +1022,7 @@ typedef struct {
         int num_leds;
         int num_sserials;
         int num_bspis;
+        int num_uarts;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1021,6 +1056,7 @@ typedef struct {
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
     hm2_bspi_t bspi;
+    hm2_uart_t uart;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_led_t led;
@@ -1242,6 +1278,21 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 int hm2_bspi_set_read_function(char *name, void *func, void *subdata);
 int hm2_bspi_set_write_function(char *name, void *func, void *subdata);
 
+//
+// UART functions
+//
+
+int  hm2_uart_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_uart_print_module(hostmot2_t *hm2);
+void hm2_uart_cleanup(hostmot2_t *hm2);
+void hm2_uart_write(hostmot2_t *hm2);
+void hm2_uart_force_write(hostmot2_t *hm2);
+void hm2_uart_prepare_tram_write(hostmot2_t *hm2, long period);
+void hm2_uart_process_tram_read(hostmot2_t *hm2, long period);
+int hm2_get_uart(hostmot2_t **hm2, char *name); // actually in hostmot.c
+int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode);
+int hm2_uart_send(char *name, unsigned char data[], int count);
+int hm2_uart_read(char *name, unsigned char data[]);
 
 // 
 // watchdog functions
