@@ -164,7 +164,9 @@ class PM_CARTESIAN;
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
 #define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)
 #define EMC_TASK_PLAN_READ_TYPE                      ((NMLTYPE) 508)
-#define EMC_TASK_PLAN_EXECUTE_TYPE                   ((NMLTYPE) 509)
+// this enables distinguishing MDI commands coming from the UI from
+// internally generated execute commands
+#define EMC_TASK_PLAN_EXECUTE_INTERNAL_TYPE                   ((NMLTYPE) 509)
 #define EMC_TASK_PLAN_PAUSE_TYPE                     ((NMLTYPE) 510)
 #define EMC_TASK_PLAN_STEP_TYPE                      ((NMLTYPE) 511)
 #define EMC_TASK_PLAN_RESUME_TYPE                    ((NMLTYPE) 512)
@@ -175,6 +177,7 @@ class PM_CARTESIAN;
 #define EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE         ((NMLTYPE) 517)
 #define EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE          ((NMLTYPE) 518)
 #define EMC_TASK_PLAN_OPTIONAL_STOP_TYPE             ((NMLTYPE) 519)
+#define EMC_TASK_PLAN_EXECUTE_TYPE                   ((NMLTYPE) 520)
 
 #define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
 
@@ -336,6 +339,7 @@ enum EMC_IO_ABORT_REASON_ENUM {
 	EMC_ABORT_TASK_STATE_NOT_ON = 7,
 	EMC_ABORT_TASK_ABORT = 8,
 	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
+	EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
 	EMC_ABORT_USER = 100  // user-defined abort codes start here
 };
 // --------------

@@ -1,4 +1,4 @@
-; loadtool:  issue TnM6 iff necessary
+; loadtool:  issue Tn M6 G43 if and only if necessary
 ;            this precludes unneeded moves to tool change position
 
 o<loadtool> sub
@@ -13,7 +13,7 @@ o<l0>      if [#<toolno> EQ 0]
 o<l0>      endif
 
 o<l1>      if [#5400 NE #<toolno>]
-             t#<toolno>m6
+             T#<toolno> M6 G43
 o<l1>      endif
 
 o<loadtool> endsub

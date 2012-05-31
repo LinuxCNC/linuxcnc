@@ -107,10 +107,10 @@ const char *Interp::interp_status(int status) {
 int trace;
 
 Interp::Interp()
-    : log_file(0)
+    : log_file(stderr)  
 {
     _setup.init_once = 1;  
-    init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
+    init_named_parameters();  
 }
 
 
@@ -1048,6 +1048,7 @@ int Interp::init()
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
+  _setup.spindle_mode = CONSTANT_RPM;
 //_setup.speed_override set in Interp::synch
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization

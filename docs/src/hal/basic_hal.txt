@@ -94,22 +94,26 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 The command 'net' creates a 'connection' between a signal and and one
 or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The optional direction
-indicators '<=' and '=>' are only to make it easier for humans to follow
+indicators '<=', '=>' and '<=>' are only to make it easier for humans to follow
 the logic and are not used by the net command.
 
 The syntax and an example:
 
 ----
-net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
+net <direction>* <signal-name> <direction>* <pin-name> (<pin-name>|<direction>)*
 
 net both-home-y <= parport.0.pin-11-in
 ----
 
-Each signal can only have one source (a HAL 'Dir out' pin) and as many
-readers (a HAL 'Dir in' pin) as you like. In the Dir column of the HAL
-Configuration window you can see which pins are 'in' and which are
-'out'. The following figure shows the 'direction' of the signal from
-the source, through the signal, and then out to the reader(s).
+A pin can be connected to a signal if it obeys the following rules:
+
+* An IN pin can always be connected to a signal
+* An IO pin can be connected unless there's an OUT pin on the signal
+* An OUT pin can be connected only if there are no other OUT or IO pins
+  on the signal
+
+The same <signal-name> can be used in multiple net commands to connect
+additional pins, as long as the rules above are obeyed.
 
 .Signal Direction[[cap:Signal-Direction]]
 
@@ -122,7 +126,7 @@ the signal xStep and that value is then sent to parport.0.pin-02-out
 and parport.0.pin-08-out.
 
 ----
-    signal    source            destination          destination 
+#   signal    source            destination          destination
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 ----
 

@@ -1253,6 +1253,19 @@ class EMC_TASK_PLAN_READ:public EMC_TASK_CMD_MSG {
     void update(CMS * cms);
 };
 
+class EMC_TASK_PLAN_EXECUTE_INTERNAL:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_EXECUTE_INTERNAL():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_EXECUTE_INTERNAL_TYPE,
+					     sizeof(EMC_TASK_PLAN_EXECUTE_INTERNAL))
+    {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    char command[LINELEN];
+};
+
 class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_EXECUTE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_EXECUTE_TYPE,
@@ -1419,6 +1432,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
     double delayLeft;           // delay time left of G4, M66..
+    int queuedMDIcommands;      // current length of MDI input queue
 };
 
 // declarations for EMC_TOOL classes

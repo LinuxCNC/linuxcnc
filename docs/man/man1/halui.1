@@ -56,31 +56,31 @@ pin for clearing most errors
 .SS tool
 .TP
 .B halui.tool.length-offset.a\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the A axis
 .TP
 .B halui.tool.length-offset.b\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the B axis
 .TP
 .B halui.tool.length-offset.c\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the C axis
 .TP
 .B halui.tool.length-offset.u\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the U axis
 .TP
 .B halui.tool.length-offset.v\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the V axis
 .TP
 .B halui.tool.length-offset.w\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the W axis
 .TP
 .B halui.tool.length-offset.x\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the X axis
 .TP
 .B halui.tool.length-offset.y\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the Y axis
 .TP
 .B halui.tool.length-offset.z\fR float out \fR
-current applied tool-length-offset
+current applied tool length offset for the Z axis
 .TP
 .B halui.tool.number\fR u32 out \fR
 current selected tool
@@ -97,13 +97,13 @@ pin for deactivating the spindle brake
 pin for activating the spindle brake
 .TP
 .B halui.spindle.decrease\fR bit in \fR
-pin for making the spindle go slower
+a rising edge on this pin decreases the current spindle speed by 100
 .TP
 .B halui.spindle.forward\fR bit in \fR
 a rising edge on this pin makes the spindle go forward
 .TP
 .B halui.spindle.increase\fR bit in \fR
-pin for making the spindle go faster
+a rising edge on this pin increases the current spindle speed by 100
 .TP
 .B halui.spindle.is-on\fR bit out \fR
 status pin telling if the spindle is on
@@ -344,16 +344,34 @@ pin for unhoming the selected joint
 pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
 .TP
 .B halui.jog-speed\fR float in \fR
-pin for setting jog speed. will be used for minus/plus jogging.
+pin for setting jog speed for plus/minus jogging.
 .TP
 .B halui.jog.N.analog\fR float in \fR
 pin for jogging the axis N using an float value (e.g. joystick)
+.TP
+.B halui.jog.N.increment\fR float in \fR
+pin for setting the jog increment for axis N when using increment-plus/minus
+.TP
+.B halui.jog.N.increment-minus\fR float in \fR
+a rising edge will will make axis N jog in the negative direction by the increment amount
+.TP
+.B halui.jog.N.increment-plus\fR float in \fR
+a rising edge will will make axis N jog in the positive direction by the increment amount
 .TP
 .B halui.jog.N.minus\fR bit in \fR
 pin for jogging axis N in negative direction at the halui.jog-speed velocity
 .TP
 .B halui.jog.N.plus\fR bit in \fR
 pin for jogging axis N in positive direction at the halui.jog-speed velocity
+.TP
+.B halui.jog.selected.increment\fR float in \fR
+pin for setting the jog increment for the selected axis when using increment-plus/minus
+.TP
+.B halui.jog.selected.increment-minus\fR float in \fR
+a rising edge will will make the selected axis jog in the negative direction by the increment amount
+.TP
+.B halui.jog.selected.increment-plus\fR float in \fR
+a rising edge will will make the selected axis jog in the positive direction by the increment amount
 .TP
 .B halui.jog.selected.minus\fR bit in \fR
 pin for jogging the selected axis in negative direction at the halui.jog-speed velocity

@@ -262,6 +262,11 @@ int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_bspi_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_UART_RX:
+            case HM2_GTAG_UART_TX:
+                md_accepted = hm2_uart_parse_md(hm2, md_index);
+                break;
+                
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;

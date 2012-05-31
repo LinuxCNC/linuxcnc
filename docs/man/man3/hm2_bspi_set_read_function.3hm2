@@ -1,7 +1,7 @@
 .TH hm2_bspi_set_read_function "3hm2" "2011-05-31" "EMC Documentation" "Hostmot2"
 .SH NAME
 
-hm2_bspi_set_write_function \- Register a function to handle the tram write phase
+hm2_bspi_set_read_function \- Register a function to handle the tram write phase
 of a hostmot2 buffered SPI driver. 
 .SH SYNTAX
 .HP

@@ -135,3 +135,8 @@ External Feed Override:
     allows feed speed override to be set by MPG or switches.
     works the same way as spindle override - see above.
     
+External Max Velocity Override:
+    allows maximum axis velocity override to be set by MPG or switches.
+    works the same way as spindle override - see above.
+    Max axis velocity includes rapid moves where feed override only modifies
+    feed moves.

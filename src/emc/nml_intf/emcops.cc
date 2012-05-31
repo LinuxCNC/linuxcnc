@@ -142,6 +142,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     interpreter_errcode = 0;
     task_paused = 0;
     delayLeft = 0.0;
+    queuedMDIcommands = 0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():

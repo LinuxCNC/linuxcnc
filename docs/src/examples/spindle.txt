@@ -158,12 +158,17 @@ Hardware assumptions:
 * The encoder index pulse is connected to the parallel port pin 11
 
 Basic Steps to add the components and configure them:
+footnote:[In this example, we will assume that some encoders have already
+been issued to axes/joints 0, 1, and 2. So the next encoder available for us
+to attach to the spindle would be number 3. Your situation may differ.]
+footnote:[The HAL encoder index-enable is an exception to the rule in that
+it behaves as both an input and an output, see manual for details]
+footnote:[It is because we selected 'non-quadrature simple counting...' above
+that we can get away with 'quadrature' counting without having any 
+B quadrature input.] 
 
 ----
-# add the encoder to HAL and attach it to threads.footnote:[In this 
-example, we will assume that some encoders have already been issued 
-to axes/joints 0, 1, and 2. So the next encoder available for us to 
-attach to the spindle would be number 3. Your situation may differ.] 
+# add the encoder to HAL and attach it to threads.
 loadrt encoder num_chan=1
 addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
@@ -174,19 +179,14 @@ setp encoder.3.position-scale 100
 # set the HAL encoder to non-quadrature simple counting using A only.
 setp encoder.3.counter-mode true
 
-# connect the HAL encoder outputs to LinuxCNC.footnote:[The HAL encoder 
-index-enable is an exception to the rule in that it behaves 
-as both an input and an output, see manual for details]
+# connect the HAL encoder outputs to LinuxCNC.
 net spindle-position encoder.3.position => motion.spindle-revs
 net spindle-velocity encoder.3.velocity => motion.spindle-speed-in
 net spindle-index-enable encoder.3.index-enable <=> motion.spindle-index-enable
 
 # connect the HAL encoder inputs to the real encoder.
 net spindle-phase-a encoder.3.phase-A <= parport.0.pin-10-in
-net spindle-phase-b encoder.3.phase-B footnote:[It is because 
-we selected 'non-quadrature simple counting...' above that we 
-can get away with 'quadrature' counting without having any 
-B quadrature input.] 
+net spindle-phase-b encoder.3.phase-B 
 net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 ----
 

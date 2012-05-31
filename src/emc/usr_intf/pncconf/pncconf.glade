@@ -188,7 +188,7 @@
                       <widget class="GtkAlignment" id="alignment8">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="xscale">0.67000001668930054</property>
+                        <property name="xscale">0.76999998092651367</property>
                         <child>
                           <widget class="GtkFrame" id="frame6">
                             <property name="visible">True</property>
@@ -238,7 +238,6 @@
                                         <child>
                                           <widget class="GtkHBox" id="hbox21">
                                             <property name="visible">True</property>
-                                            <property name="homogeneous">True</property>
                                             <child>
                                               <widget class="GtkLabel" id="label1">
                                                 <property name="visible">True</property>
@@ -247,6 +246,7 @@
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
+                                                <property name="fill">False</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -254,12 +254,11 @@
                                                 <property name="width_request">250</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="xalign">0</property>
+                                                <property name="xalign">1</property>
                                                 <property name="label">confdir</property>
                                                 <property name="selectable">True</property>
                                               </widget>
                                               <packing>
-                                                <property name="expand">False</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
@@ -286,15 +285,21 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <widget class="GtkComboBox" id="axes">
+                                              <widget class="GtkAlignment" id="alignment48">
                                                 <property name="visible">True</property>
-                                                <property name="items" translatable="yes">XYZ
+                                                <property name="xalign">1</property>
+                                                <property name="xscale">0</property>
+                                                <child>
+                                                  <widget class="GtkComboBox" id="axes">
+                                                    <property name="visible">True</property>
+                                                    <property name="items" translatable="yes">XYZ
 XYZA
 XZ (Lathe)</property>
+                                                  </widget>
+                                                </child>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">False</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
@@ -308,6 +313,7 @@ XZ (Lathe)</property>
                                         <child>
                                           <widget class="GtkHBox" id="hbox24">
                                             <property name="visible">True</property>
+                                            <property name="spacing">2</property>
                                             <property name="homogeneous">True</property>
                                             <child>
                                               <widget class="GtkLabel" id="label4">
@@ -321,14 +327,20 @@ XZ (Lathe)</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <widget class="GtkComboBox" id="units">
+                                              <widget class="GtkAlignment" id="alignment47">
                                                 <property name="visible">True</property>
-                                                <property name="items" translatable="yes">Inch
+                                                <property name="xalign">1</property>
+                                                <property name="xscale">0</property>
+                                                <child>
+                                                  <widget class="GtkComboBox" id="units">
+                                                    <property name="visible">True</property>
+                                                    <property name="items" translatable="yes">Inch
 Millimeter</property>
+                                                  </widget>
+                                                </child>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">False</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
@@ -340,10 +352,6 @@ Millimeter</property>
                                           </packing>
                                         </child>
                                       </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                      </packing>
                                     </child>
                                   </widget>
                                 </child>
@@ -62969,6 +62977,12 @@ Charge Pump</property>
                                     <property name="n_rows">10</property>
                                     <property name="n_columns">2</property>
                                     <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
                                       <widget class="GtkSpinButton" id="xmaxoutput">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -62996,12 +63010,6 @@ Charge Pump</property>
                                         <property name="x_options">GTK_FILL</property>
                                         <property name="y_options"></property>
                                       </packing>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
                                     </child>
                                     <child>
                                       <widget class="GtkSpinButton" id="xFF2">
@@ -63773,6 +63781,7 @@ Charge Pump</property>
                                 <child>
                                   <widget class="GtkHBox" id="xbldcoptionbox">
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <child>
                                       <widget class="GtkFrame" id="xbldcinputframe">
                                         <property name="visible">True</property>

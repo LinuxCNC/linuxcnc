@@ -653,7 +653,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             }
             else if (inst->tag_7i64 & (1 << chan)) {
                 for (i = 0
-                     ; (i < inst->num_auto) && (inst->tram_7i64[i].index != chan)
+                     ; (i < inst->num_7i64) && (inst->tram_7i64[i].index != chan)
                      ; i++){}
                 if (i >= inst->num_7i64) {
                     HM2_ERR("7i64 on sserial port %i, channel %i not found\n",

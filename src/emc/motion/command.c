@@ -233,22 +233,14 @@ static int inRange(EmcPose pos, int id, char *move_type)
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-            if (id > 0)
-                reportError(_("%s move on line %d would exceed joint %d's positive limit"),
-                            move_type, id, joint_num);
-            else
-                reportError(_("%s move in MDI would exceed joint %d's positive limit"),
-                            move_type, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's positive limit"),
+			move_type, id, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-            if (id > 0)
-                reportError(_("%s move on line %d would exceed joint %d's negative limit"),
-                            move_type, id, joint_num);
-            else
-                reportError(_("%s move in MDI would exceed joint %d's negative limit"),
-                            move_type, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's negative limit"),
+			move_type, id, joint_num);
 	}
     }
     return in_range;

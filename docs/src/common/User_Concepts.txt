@@ -276,7 +276,7 @@ them.
  - Clear any G92 offset with G92.1
  - Use the G54 coordinate system with G54
  - Set the G54 coordinate system to be the same as the 
-   machine coordinate system with G10 L2 P1 X0 Y0 Z0
+   machine coordinate system with G10 L2 P1 X0 Y0 Z0 R0
  - Turn off tool offsets with G49
  - Turn on the Relative Coordinate Display from the menu
 

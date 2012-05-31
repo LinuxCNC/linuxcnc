@@ -337,6 +337,10 @@ setup_menu_accel .menu.view end [_ "Show too_l"]
 	-command toggle_show_extents
 setup_menu_accel .menu.view end [_ "Show e_xtents"]
 
+.menu.view add cascade \
+	-menu .menu.view.grid
+setup_menu_accel .menu.view end [_ "_Grid"]
+
 .menu.view add checkbutton \
 	-variable show_offsets \
 	-command toggle_show_offsets
@@ -414,6 +418,22 @@ setup_menu_accel .menu.view end [_ "Joint mode"]
         -accelerator $ \
         -command set_joint_mode
 setup_menu_accel .menu.view end [_ "World mode"]
+
+menu .menu.view.grid
+
+.menu.view.grid add radiobutton \
+        -value 0 \
+        -variable grid_size \
+        -command set_grid_size
+setup_menu_accel .menu.view.grid end [_ "_Off"]
+
+.menu.view.grid add radiobutton \
+        -value -1 \
+        -variable grid_size \
+        -command set_grid_size_custom
+setup_menu_accel .menu.view.grid end [_ "_Custom"]
+
+
 # ----------------------------------------------------------------------
 .menu.help add command \
 	-command {
@@ -1708,7 +1728,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
 button .about.ok \
@@ -1981,11 +2001,18 @@ proc update_state {args} {
         set ::position [concat [_ "Position:"] $coord_str $display_str]
     }
 
-    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
-        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
-            set_mode_from_tab
-        }
-        enable_group $::manual
+    if {$::task_state == $::STATE_ON} {
+	if {$::interp_state == $::INTERP_IDLE} {
+	    if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+		set_mode_from_tab
+	    }
+	    enable_group $::manual
+	}
+	if {$::queued_mdi_commands < $::max_queued_mdi_commands } {
+	    enable_group $::manual
+	} else {
+	    disable_group $::manual
+	}
     } else {
         disable_group $::manual
     }
@@ -2065,6 +2092,8 @@ set motion_mode 0
 set kinematics_type -1
 set metric 0
 set max_speed 1
+set queued_mdi_commands 0
+set max_queued_mdi_commands 10
 trace variable taskfile w update_title
 trace variable machine w update_title
 trace variable taskfile w queue_update_state
@@ -2084,6 +2113,7 @@ trace variable motion_mode w queue_update_state
 trace variable kinematics_type w queue_update_state
 trace variable on_any_limit w queue_update_state
 trace variable motion_mode w joint_mode_switch
+trace variable queued_mdi_commands  w queue_update_state
 
 set editor_deleted 0
 

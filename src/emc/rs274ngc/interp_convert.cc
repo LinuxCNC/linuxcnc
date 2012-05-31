@@ -3979,8 +3979,10 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
 int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 {
     if(block->g_modes[14] == G_97) {
+        settings->spindle_mode = CONSTANT_RPM;
 	enqueue_SET_SPINDLE_MODE(0);
     } else { /* G_96 */
+        settings->spindle_mode = CONSTANT_SURFACE;
 	if(block->d_flag)
 	    enqueue_SET_SPINDLE_MODE(block->d_number_float);
 	else

@@ -193,9 +193,9 @@ def change_epilog(self, **words):
                 self.selected_pocket = -1
                 self.selected_tool = -1
                 # cause a sync()
-                self.toolchange_flag = True
                 self.set_tool_parameters()
-                return INTERP_OK
+                self.toolchange_flag = True
+                return INTERP_EXECUTE_FINISH
             else:
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 return INTERP_ERROR

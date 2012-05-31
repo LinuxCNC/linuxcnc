@@ -55,6 +55,8 @@
     information, go to www.linuxcnc.org.
 */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>		/* sprintf() */
 #include <string.h>		/* strcpy, etc. */
 #include <stddef.h>		/* NULL, needed for rtai_shm.h */
