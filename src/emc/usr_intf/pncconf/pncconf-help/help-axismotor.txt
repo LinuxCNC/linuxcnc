@@ -43,6 +43,20 @@ Dac Scale:
     be 2000. Currently PNCconf does not use PID control for the spindle, so
     DAC max output does not limit the output. Usually the VFD can do this.
 
+Analog Min Limit
+Analog Max Limit
+Analog Scale:
+    The 5i25 spindle/analog outputs use these three settings to scale and range
+    the ouput voltage.
+    Min Limit is the minimum output eg -10 or 0 volts.
+    Max Limit is the Maximuim output eg 10 volts.
+    Scale sets the user units based on the maximuim output of 10 volts.
+    If you wish the units to be voltage then set the scale to 10
+    If you wish the units to be RPM (of say a VDF spindle) set the scale to the
+    maximuim RPM of the spindle.
+    For an axis setting the scale at maximuim axis velocity (machine units per 
+    second) would make sense.
+
 Dac Max Output:
     Dac max output is a PID setting. (Currently the spindle does not use PID.)
     This is the maximum output that the dac can output to the amps. It is in the 
@@ -83,8 +97,16 @@ Open loop servo test Button:
     used for this test to tempararily stabilize a drifting motor - it will not 
     be used in the regular PID control.
 
+    For testing purposes if you require an output true, for instance to force
+    a relay to close to allow the amplifier to be powered, select the 
+    'force-pin-true' output signal on the Mesa page. The openloop and tuning 
+    tests will then set the output true for the length of the test.
+
+    Note that 7i77 and 7i76 daughter boards need their field power supplied
+    or some of the HAL pins will not be made and could cause an error message.
+
 Spindle-at-speed settings:
-    Set the scaling so EMC knows when the spindle is close enough
+    Set the scaling so Linuxcnc knows when the spindle is close enough
     to the requested speed. A spindle encoder or spindle-at-speed 
     digital input signal is required for this.
 
@@ -156,3 +178,5 @@ Test / Tune Axis Button:
     pressing OK will transfer the settings to the axis page.
     pressing cancel will keep the existing settings.
 
+    Note that 7i77 and 7i76 daughter boards need their field power supplied
+    or some of the HAL pins will not be made and could cause an error message.

@@ -78,7 +78,7 @@ as the 'L number', and so on for any other letter.
 |<<sec:G38-probe,G38.2 - G38.5>>        |Probing
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41, G42>>           |Cutter Compensation
-|<<sec:G41.1-G42.1,G41.1, G42.1>>   |Cutter Compensation Transient
+|<<sec:G41.1-G42.1,G41.1, G42.1>>   |Dynamic Cutter Compensation
 |<<sec:G43-G43.1-Tool,G43, G43.1>>  |Use Tool Length Offset from Tool Table
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
@@ -131,8 +131,8 @@ M2 (end program)
 ----
 * See <<sec:G90-G91,G90>> & <<sec:M2-M30,M2>> sections for more information.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -166,8 +166,8 @@ M2 (end program)
 ----
 * See <<sec:G90-G91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections for more information.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
@@ -220,8 +220,8 @@ the rotary axes turn at a constant rate so that the rotary
 motion starts and finishes when the XYZ motion starts and finishes.
 Lines of this sort are hardly ever programmed.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see the <<sec:cutter-radius-compensation,Radius Compensation>> Section.
+If cutter compensation is active, the motion will differ from
+the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 
 The arc center is absolute or relative as set by <<sec:G90.1-G91.1,G90.1
 or G91.1>> respectively.
@@ -434,19 +434,20 @@ otherwise it is a helical arc.
 ----
 G4 P-
 ----
-* 'P' - seconds to dwell
+* 'P' - seconds to dwell (floating point)
 
 The P number is the time in seconds that all axes will remain unmoving.
-This does not affect spindle, coolant and other I/O.
+The P number is a floating point number so fractions of a second may be used.
+G4 does not affect spindle, coolant and any I/O.
 
 .G4 Example Line
 ----
-G4 P1.5 (wait for 1.5 seconds before proceeding)
+G4 P0.5 (wait for 0.5 seconds before proceeding)
 ----
 
 It is an error if:
 
-* the P number is negative.
+* the P number is negative or not specificed.
 
 == G5.1 Quadratic B-spline[[sec:G5.1-B-spline]]
 (((G5.1 Quadratic B-spline)))
@@ -581,20 +582,37 @@ G10 L2 P- <axes R->
 * 'P' - coordinate system (0-9)
 * 'R' - rotation about the Z axis
 
-G10 L2 sets the origin of a coordinate system.
+G10 L2 offsets the origin of the axes in the coordinate system specified to
+the value of the axis word. The offset is from the machine origin established
+during homing. The offset value will replace any current offsets in effect for
+the coordinate system specified. Axis words not used will not be changed.
 
-To specify a coordinate system program P1 to P9 corresponding to 'G54' to 'G59.3'.
-For the currently active coordinate system program P0.
+Program P0 to P9 to specify which coordinate system to change.
+
+.Coordinate System[[cap:Set-Coordinate-System]]
+
+[width="50%", options="header", cols="^,^,^"]
+|========================================
+|P Value |Coordinate System |G code
+|0 |Active |n/a
+|1 |1 |G54
+|2 |2 |G55
+|3 |3 |G56
+|4 |4 |G57
+|5 |5 |G58
+|6 |6 |G59
+|7 |7 |G59.1
+|8 |8 |G59.2
+|9 |9 |G59.3
+|========================================
+
 
 Optionally program R to indicate the rotation of the XY axis around the Z axis.
+The direction of rotation is CCW as viewed from the positive end of the Z axis.
+
 All axis words are optional.
 
-The origin of the coordinate system specified by the P number is
-set to the given values (in terms of the not offset machine coordinate system).
-Only those coordinates for which an axis word is included on the line will be set.
-
 Being in incremental distance mode (<<sec:G90-G91,'G91'>>) has no effect on 'G10 L2'.
-The direction of rotation is CCW as viewed from the Top View.
 
 Important Concepts:
 
@@ -624,30 +642,13 @@ In the above example the origin of the first coordinate system
 Because only X and Y are specified, the origin point is only moved in X and Y;
 the other coordinates are not changed.
 
-.G2 L2 Example Line
+.G10 L2 Example Line
 [source,{ngc}]
 ----
 G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
 The above example sets the XYZ coordinates of the coordinate system 1 to the machine origin.
-
-.Coordinate System[[cap:Set-Coordinate-System]]
-
-[width="50%", options="header", cols="^,^,^"]
-|========================================
-|P Value |Coordinate System |G code
-|0 |Active |n/a
-|1 |1 |G54
-|2 |2 |G55
-|3 |3 |G56
-|4 |4 |G57
-|5 |5 |G58
-|6 |6 |G59
-|7 |7 |G59.1
-|8 |8 |G59.2
-|9 |9 |G59.3
-|========================================
 
 The coordinate system is described in the <<cha:coordinate-system,Coordinate System>> Section.
 
@@ -768,45 +769,59 @@ of each G code file.
 == G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]]
 (((G28)))
 
+[WARNING]
+Only use G28 when your machine is homed to a repeatable position and the
+desired G28 position has been stored with G28.1.
+
+G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
+5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+values are 'absolute' machine coordinates in the native machine 'units' as 
+specifed in the ini file. All axes defined in the ini file will be moved when
+a G28 is issued.
+
 * 'G28' - makes a rapid traverse move from the current position to the
-          absolute position of the values in <<sub:numbered-parameters,parameters>>
-          5161-5166. The parameter values are in terms of the 'absolute' coordinate
-          system and the machine's native coordinate system.
+'absolute' position of the values in parameters 5161-5166.
 
 * 'G28 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the 'absolute'
-              position of the values in <<sub:numbered-parameters,parameters>>
-              5161-5166.
+'axes' including any offsets, then will make a rapid traverse move to the
+'absolute' position of the values in parameters 5161-5166.
 
-* 'G28.1' - stores the current absolute position into parameters 5161-5166.
+* 'G28.1' - stores the current 'absolute' position into parameters 5161-5166.
 
-.G30 Example Line
+.G28 Example Line
 ----
 G28 Z2.5 (rapid to Z2.5 then to location specified in the G28 stored parameters)
 ----
 
 It is an error if :
 
-* Radius compensation is turned on
+* Cutter Compensation is turned on
 
 == G30, G30.1 Go to Predefined Position[[sec:G30-G30.1]]
 (((G30)))
 
-* 'G30' - makes a rapid traverse move from the current position to the
-          absolute position of the values in <<sub:numbered-parameters,parameters>>
-          5181-5186. The parameter values are in terms of the 'absolute' coordinate
-          system and the machine's native coordinate system.
+[WARNING]
+Only use G30 when your machine is homed to a repeatable position and the
+desired G30 position has been stored with G30.1.
 
-* 'G30 axes' - will make a rapid traverse move to the position specified by
-              'axes', then will make a rapid traverse move to the 'absolute'
-              position of the values in <<sub:numbered-parameters,parameters>>
-              5181-5186.
-
-* 'G30.1' - stores the current absolute position into parameters 5181-5186.
+G30 functions the same as G28 but uses the values stored in
+<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+final point to move to. The parameter values are 'absolute' machine
+coordinates in the native machine 'units' as specifed in the ini file.
+All axes defined in the ini file will be moved when a G30 is issued.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
 if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
+
+* 'G30' - makes a rapid traverse move from the current position to the
+'absolute' position of the values in parameters 5181-5186.
+
+* 'G30 axes' - moves in a rapid traverse to the position specified by
+'axes' including any offsets, then will make a rapid traverse move to the
+'absolute' position of the values in parameters 5181-5186.
+
+* 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
 .G30 Example Line
 ----
@@ -815,7 +830,7 @@ G30 Z2.5 (rapid to Z2.5 then to the location specified in the G30 stored paramet
 
 It is an error if :
 
-* Radius compensation is turned on
+* Cutter Compensation is turned on
 
 == G33 Spindle Synchronized Motion[[sec:G33-Spindle-Sync]]
 (((G33 Spindle Synchronized Motion)))
@@ -836,9 +851,14 @@ a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
 [NOTE]
 K follows the drive line described by 'X- Y- Z-' and is not parallel to the Z axis.
 
-Spindle-synchronized motions wait for spindle index, so multiple passes line up.
-'G33' moves end at the programmed endpoint. G33 could be used to cut tapered threads
-or a fusee.
+Spindle-synchronized motion waits for the spindle index and spindle at speed
+pins, so multiple passes line up. 'G33' moves end at the programmed endpoint.
+G33 could be used to cut tapered threads or a fusee.
+
+[NOTE]
+The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+spindle must be connected in your HAL file before G33 will work.
+See the Integrators Manual for more information on spindle synchronized motion.
 
 All the axis words are optional, except that at least one must be used.
 
@@ -975,14 +995,14 @@ It is an error if:
 
 * the current point is the same as the programmed point.
 * no axis word is used
-* cutter radius compensation is enabled
+* cutter compensation is enabled
 * the feed rate is zero
 * the probe is already in the target state
 
 == G40 Compensation Off[[sec:G40]]
-(((G40 Radius Compensation Off)))
+(((G40 Cutter Compensation Off)))
 
-* 'G40' - turn cutter radius compensation off. If tool compensation was on the
+* 'G40' - turn cutter compensation off. If tool compensation was on the
           next move must be a linear move and longer than the tool diameter.
           It is OK to turn compensation off when it is already off.
 
@@ -1000,8 +1020,8 @@ It is an error if:
 * A G2/G3 arc move is programmed next after a G40.
 * The linear move after turning compensation off is less than the tool diameter.
 
-== G41, G42 Tool Radius Compensation[[sec:G41-G42]]
-(((G41 G42 Radius Compensation)))
+== G41, G42 Cutter Compensation[[sec:G41-G42]]
+(((G41 G42 Cutter Compensation)))
 
 ----
 G41 <D-> (left of programmed path)
@@ -1009,29 +1029,29 @@ G42 <D-> (right of programmed path)
 ----
 * 'D' - tool number
 
-The D word is optional; if there is no D word, the radius of
+The D word is optional; if there is no D word, the diameter of
 the currently-loaded tool will be used.
 If used, the D number should normally be the slot number of
 the tool in the spindle, although this is not required.
 It is OK for the D number to be zero; a radius value of zero will be used.
 
-To start tool radius compensation to the left of the part profile, use G41.
-G41 starts cutter radius compensation to the left of the programmed line
+To start cutter compensation to the left of the part profile, use G41.
+G41 starts cutter compensation to the left of the programmed line
 as viewed from the positive end of the axis perpendicular to the plane.
 
-To start tool radius compensation to the right of the part profile, use G42.
-G42 starts cutter radius compensation to the right of the programmed line
+To start cutter compensation to the right of the part profile, use G42.
+G42 starts cutter compensation to the right of the programmed line
 as viewed from the positive end of the axis perpendicular to the plane.
 
 The lead in move must be at least as long as the tool radius.
 The lead in move can be a rapid move.
 
-Cutter radius compensation may be performed if the XY-plane or XZ-plane is active.
+Cutter compensation may be performed if the XY-plane or XZ-plane is active.
 
 User M100-M199 commands are allowed when Cutter Compensation is on.
 
-The behavior of the machining center when cutter radius compensation
-is on is described in the <<sec:cutter-radius-compensation,Radius Compensation>>
+The behavior of the machining center when cutter compensation
+is on is described in the <<sec:cutter-compensation,Cutter Compensation>>
 Section along with code examples.
 
 It is an error if:
@@ -1039,10 +1059,10 @@ It is an error if:
 * The D number is not an integer, is negative, or is larger than the
    number of carousel slots.
 * The YZ plane is active.
-* Cutter radius compensation is commanded to turn on when it is already on.
+* Cutter compensation is commanded to turn on when it is already on.
 
-== G41.1, G42.1 Dynamic Cutter Radius Compensation[[sec:G41.1-G42.1]]
-(((G41.1 G42.1 Dynamic Radius Compensation)))
+== G41.1, G42.1 Dynamic Cutter Compensation[[sec:G41.1-G42.1]]
+(((G41.1 G42.1 Dynamic Compensation)))
 
 ----
 G41.1 D- <L-> (left of programmed path)
@@ -1086,7 +1106,7 @@ G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 It is an error if:
 
 * the H number is not an integer, is negative, or is larger than the
-   number of carousel slots.
+   number of entries in the tool table.
 
 == G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-length-offset]]
 (((G43.1 Dynamic Tool Length Offset)))
@@ -1147,7 +1167,7 @@ G53 X2 (rapid linear move to absolute coordinate X2)
 It is an error if:
 
 * G53 is used without G0 or G1 being active, 
-* or G53 is used while cutter radius compensation is on.
+* or G53 is used while cutter compensation is on.
 
 == G54-G59.3 Select Coordinate System[[sec:G54-G59.3]]
 (((G54-G59.3 Select Coordinate System)))
@@ -1162,28 +1182,29 @@ It is an error if:
 * 'G59.2' - select coordinate system 8
 * 'G59.3' - select coordinate system 9
 
-The coordinate systems store the axis values
+The coordinate systems store the axis values and the
+XY rotation angle around the Z axis
 in the parameters shown in the following table.
 
 .Coordinate System Parameters[[cap:Coordinate-Systems]]
 
 [width="80%", options="header", cols="<,10*^"]
 |====================================================================
-|Select | CS | X    | Y    | Z    | A    | B    | C    | U    | V    | W
-|G54    | 1  | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229
-|G55    | 2  | 5241 | 5242 | 5243 | 5244 | 5245 | 5246 | 5247 | 5248 | 5249
-|G56    | 3  | 5261 | 5262 | 5263 | 5264 | 5265 | 5266 | 5267 | 5268 | 5269
-|G57    | 4  | 5281 | 5282 | 5283 | 5284 | 5285 | 5286 | 5287 | 5288 | 5289
-|G58    | 5  | 5301 | 5302 | 5303 | 5304 | 5305 | 5306 | 5307 | 5308 | 5309
-|G59    | 6  | 5321 | 5322 | 5323 | 5324 | 5325 | 5326 | 5327 | 5328 | 5329
-|G59.1  | 7  | 5341 | 5342 | 5343 | 5344 | 5345 | 5346 | 5347 | 5348 | 5349
-|G59.2  | 8  | 5361 | 5362 | 5363 | 5364 | 5365 | 5366 | 5367 | 5368 | 5369
-|G59.3  | 9  | 5381 | 5382 | 5383 | 5384 | 5385 | 5386 | 5387 | 5388 | 5389
+|Select | CS | X    | Y    | Z    | A    | B    | C    | U    | V    | W    |  R   |
+|G54    | 1  | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229 | 5230 | 
+|G55    | 2  | 5241 | 5242 | 5243 | 5244 | 5245 | 5246 | 5247 | 5248 | 5249 | 5250 |
+|G56    | 3  | 5261 | 5262 | 5263 | 5264 | 5265 | 5266 | 5267 | 5268 | 5269 | 5270 |
+|G57    | 4  | 5281 | 5282 | 5283 | 5284 | 5285 | 5286 | 5287 | 5288 | 5289 | 5290 |
+|G58    | 5  | 5301 | 5302 | 5303 | 5304 | 5305 | 5306 | 5307 | 5308 | 5309 | 5310 |
+|G59    | 6  | 5321 | 5322 | 5323 | 5324 | 5325 | 5326 | 5327 | 5328 | 5329 | 5330 |
+|G59.1  | 7  | 5341 | 5342 | 5343 | 5344 | 5345 | 5346 | 5347 | 5348 | 5349 | 5350 |
+|G59.2  | 8  | 5361 | 5362 | 5363 | 5364 | 5365 | 5366 | 5367 | 5368 | 5369 | 5370 |
+|G59.3  | 9  | 5381 | 5382 | 5383 | 5384 | 5385 | 5386 | 5387 | 5388 | 5389 | 5390 |
 |====================================================================
 
 It is an error if:
 
-* selecting a coordinate system is used while cutter radius compensation is on.
+* selecting a coordinate system is used while cutter compensation is on.
 
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
@@ -1449,51 +1470,55 @@ image::images/g76-threads.png[align="center"]
 * 'P-' - The 'thread pitch' in distance per revolution.
 
 * 'Z-' - The final position of threads. At the end of the cycle the tool will
-    be at this Z position.
+be at this Z position.
+
+[NOTE]
+When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' are
+diameter measurements. When G8 'Lathe Radius Mode' is in force the values for
+'I', 'J' and 'K' are radius measurements.
 
 * 'I-' - The 'thread peak' offset from the 'drive line'. Negative 'I' values
-    are external threads, and positive 'I' values are internal threads.
-    Generally the material has been turned
-    to this size before the 'G76' cycle.
+are external threads, and positive 'I' values are internal threads.
+Generally the material has been turned to this size before the 'G76' cycle.
 
 * 'J-' - A positive value specifying the 'initial cut depth'. The first
-    threading cut will be 'J' beyond the 'thread peak' position.
+threading cut will be 'J' beyond the 'thread peak' position.
 
 * 'K-' - A positive value specifying the 'full thread depth'. The final
-    threading cut will be 'K' beyond the 'thread peak' position.
+threading cut will be 'K' beyond the 'thread peak' position.
 
 Optional settings
 
 * 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive
-    threading passes. 'R2.0' selects constant area. Values between 1.0 and
-    2.0 select decreasing
-    depth but increasing area. Values above 2.0 select decreasing area.
-    Beware that unnecessarily high degression values will cause a large
-    number of passes to be used. (degression = a descent by stages or
-    steps.)
+threading passes. 'R2.0' selects constant area. Values between 1.0 and
+2.0 select decreasing
+depth but increasing area. Values above 2.0 select decreasing area.
+Beware that unnecessarily high degression values will cause a large
+number of passes to be used. (degression = a descent by stages or
+steps.)
 
 * 'Q-' - The 'compound slide angle' is the angle (in degrees) describing to
-    what extent successive passes should be offset along the drive line.
-    This is used to cause one side of the tool to remove more material than
-    the other. A positive 'Q' value causes the leading edge of the tool to
-    cut more heavily.
-    Typical values are 29, 29.5 or 30.
+what extent successive passes should be offset along the drive line.
+This is used to cause one side of the tool to remove more material than
+the other. A positive 'Q' value causes the leading edge of the tool to
+cut more heavily.
+Typical values are 29, 29.5 or 30.
 
 * 'H-' - The number of 'spring passes'. Spring passes are additional passes at
-    full thread depth. If no additional passes are desired, program 'H0'.
+full thread depth. If no additional passes are desired, program 'H0'.
 
 * 'E-' - Specifies the distance along the drive line used for the taper. The
-    angle of the taper will be so the last pass tapers to the thread crest
-    over the distance specified with E.' E0.2' will give a taper for the
-    first/last 0.2 length units along the
-    thread. For a 45 degree taper program E the same as K
+angle of the taper will be so the last pass tapers to the thread crest
+over the distance specified with E.' E0.2' will give a taper for the
+first/last 0.2 length units along the
+thread. For a 45 degree taper program E the same as K
 
 * 'L-' - Specifies which ends of the thread get the taper. Program 'L0' for no
-    taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
-     for both entry and exit tapers. Entry tapers will pause at the drive
-    line to synchronize with the index pulse then feed in to the beginning
-    of the taper. No entry taper and the tool will rapid to the cut depth
-    then synchronize and begin the cut.
+taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
+for both entry and exit tapers. Entry tapers will pause at the drive
+line to synchronize with the index pulse then feed in to the beginning
+of the taper. No entry taper and the tool will rapid to the cut depth
+then synchronize and begin the cut.
 
 The tool is moved to the initial X and Z positions prior to issuing
 the G76. The X position is the 'drive line' and the Z position is the
@@ -1525,6 +1550,11 @@ It is an error if:
 * All the required words are not specified
 * 'P-', 'J-', 'K-' or 'H-' is negative
 * 'E-' is greater than half the drive line length
+
+[NOTE]
+The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+spindle must be connected in your HAL file before G76 will work.
+See the Integrators Manual for more information on spindle synchronized motion.
 
 The sample program 'g76.ngc' shows the use of the G76 canned cycle,
 and can be previewed and
@@ -1621,7 +1651,7 @@ It is an error if:
 * an L number is used that does not evaluate to a positive integer,
 * rotary axis motion is used during a canned cycle,
 * inverse time feed rate is active during a canned cycle,
-* or cutter radius compensation is active during a canned cycle.
+* or cutter compensation is active during a canned cycle.
 
 If the XY plane is active, the Z number is sticky, and it is an error
 if:

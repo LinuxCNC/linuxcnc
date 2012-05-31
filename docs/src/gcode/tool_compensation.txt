@@ -213,14 +213,14 @@ A complete description of the lathe entries can be found in the lathe
 section of the user manual <<cha:Lathe-Specifics,here>>. 
 
 The 'Diameter' column contains a real number. This number is used only
-if tool radius compensation is turned on using this tool. If the
+if cutter compensation is turned on using this tool. If the
 programmed path during compensation is the edge of the material being
 cut, this should be a positive real number representing the measured
 diameter of the tool. If the programmed path during compensation is the
 path of a tool whose diameter is nominal, this should be a small number
 (positive or negative, but near zero) representing only the difference 
 between the measured diameter of the tool and the nominal diameter. 
-If cutter radius compensation is not used with a tool, it does not 
+If cutter compensation is not used with a tool, it does not 
 matter what number is in this column.
 
 The 'Comment' column may optionally be used to describe the tool. Any 
@@ -262,14 +262,14 @@ are. T can be any number but P must be a number that makes sense for
 the machine.
 
 
-== Cutter Radius Compensation[[sec:cutter-radius-compensation]]
+== Cutter Compensation[[sec:cutter-compensation]]
 
-Cutter Radius Compensation allows the programmer to program the tool
+Cutter Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
 programmer must program the lead in move to be at least as long as the
 largest tool radius that might be used.
 
-There are two possible paths the cutter can take while cutter radius
+There are two possible paths the cutter can take while cutter
 compensation is on to the left or right side of a line when facing the
 direction of cutter motion from behind the cutter. To visualize this
 imagine you were standing on the part walking behind the tool as it
@@ -291,7 +291,7 @@ image::images/comp-path.png[align="center"]
 
 .Tool Table
 
-Cutter radius compensation uses the data from the tool table to
+Cutter compensation uses the data from the tool table to
 determine the offset needed. The data can be set at run time with G10
 L1.
 
