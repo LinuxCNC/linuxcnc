@@ -21,6 +21,7 @@
 # As standalone tool table editor
 # Usage:
 #        tooleditor.tcl filename
+#        tooleditor.tcl [column_1 ... column_n] filename
 #
 # This file can also be sourced and included in tcl scripts
 # The namespace ::tooledit exports a single function:
@@ -368,6 +369,7 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   foreach h $::te(header)  {set ::te($h) [string toupper $h]}
 
   set ::te(top) [toplevel .tooledit]
+  wm withdraw $::te(top); update
   wm resizable $::te(top) 1 1
   wm protocol $::te(top) WM_DELETE_WINDOW ::tooledit::bye
   wm title $::te(top) "tooledit: [file tail $::te(filename)]"
@@ -414,30 +416,32 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   set bf [frame $::te(top).[qid]]
   pack $bf -side top -expand 0 -fill both -anchor nw
 
-  set   bb [button $bf.[qid] -text "Delete"\
-           -command {::tooledit::deleteline}]
-  pack $bb -side left -fill x -expand 1
-  set ::te(deletebutton) $bb
-  checkdelete
+  pack [button $bf.[qid] -text Quit \
+       -command ::tooledit::bye] \
+       -side right -fill x -expand 1
 
-  pack [button $bf.[qid] -text "AddTool" \
-       -command {::tooledit::makeline new}] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "ReRead" \
-       -command  ::tooledit::toolreread] -side left -fill x -expand 1
-# pack [button $bf.[qid] -text "Check Entries" \
-#      -command [list ::tooledit::toolvalidate]] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "SaveFile" \
-       -command [list ::tooledit::writefile $::te(filename)]] \
-       -side left -fill x -expand 1
   if {[sendaxis ping] && [sendaxis tool_table_filename]} {
     set ::te(load,button) [button $bf.[qid] -text "ReLoadTable" \
          -state disabled \
          -command [list ::tooledit::sendaxis reload_tool_table]]
-    pack $::te(load,button) -side left -fill x -expand 1
+    pack $::te(load,button) -side right -fill x -expand 1
   }
-  pack [button $bf.[qid] -text Quit \
-       -command ::tooledit::bye] \
-       -side left -fill x -expand 1
+  pack [button $bf.[qid] -text "SaveFile" \
+       -command [list ::tooledit::writefile $::te(filename)]] \
+       -side right -fill x -expand 1
+# pack [button $bf.[qid] -text "Check Entries" \
+#      -command [list ::tooledit::toolvalidate]] -side right -fill x -expand 1
+  pack [button $bf.[qid] -text "ReRead" \
+       -command  ::tooledit::toolreread] -side right -fill x -expand 1
+  pack [button $bf.[qid] -text "AddTool" \
+       -command {::tooledit::makeline new}] -side right -fill x -expand 1
+
+  set   bb [button $bf.[qid] -text "Delete"\
+           -command {::tooledit::deleteline}]
+  pack $bb -side right -fill x -expand 1
+  set ::te(deletebutton) $bb
+  checkdelete
+
 
   # message frame -------------------------------------------------
   set mf [frame $::te(top).[qid]]
@@ -457,8 +461,8 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   # set min width so top cannot be disappeared inadvertently
   # set min height to initial
   wm minsize $::te(top) 100 $::te(top,height)
-
   bind $::te(top) <Configure> {::tooledit::configure %W %w %h}
+  wm deiconify $::te(top)
 } ;# tooledit
 
 proc ::tooledit::configure {W w h} {
