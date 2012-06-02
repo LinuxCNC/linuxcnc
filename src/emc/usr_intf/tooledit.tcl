@@ -53,6 +53,7 @@ proc ::tooledit::init { {columns ""} } {
     set columns $::te(allcolumns)
   } else {
     set columns [string tolower $columns]
+    set ::te(user_specified_columns) $columns
   }
 
   # disallow duplicate columns (order according to first occurrence)
@@ -851,14 +852,55 @@ proc ::tooledit::bye {} {
 
   catch {after cancel $::te(afterid)}
 
-  set fd [open ~/.tooleditrc w]
-  set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]
-  puts $fd   "# $time Created by [file normalize $::argv0]"
-  puts $fd "\n# Saved geometry (updated on program termination):"
-  puts $fd "set geometry [wm geometry $::te(top)]"
-  close $fd
+  if ![file exists ~/.tooleditrc] {
+    # first time use presumed, instruct for configuring columns
+    set used ""
+    foreach item $::te(items) {
+      foreach col $::te(allcolumns) {
+        if {"$::te(parm,$item,$col)" != ""} {lappend used $col}
+      }
+    }
+    # make used list unique:
+    foreach item $used { set tmp($item) "" }
+    set used [array names tmp]
 
-  destroy $::te(top)      ;# for embedded usage
+    if {   ![info exists ::te(user_specified_columns)] \
+        && ("$used" != "") \
+        && ([llength $used] < [llength $::te(allcolumns)]) } {
+      set prog [file tail $::argv0]
+      set msg "Only these columns are currently used:\
+           \n\n  $used\
+           \n\nLimit display to these columns by specifying\
+             \n \[DISPLAY\]TOOL_EDITOR = $used $prog\
+           \n\nFormat for ini file is:\
+             \n  \[DISPLAY\]TOOL_EDITOR = col_1 col_2 ... col_n $prog\
+           \n\nOr, for standalone use, invoke as:\
+           \n\n  $prog col_1 col_2 ... col_n tool_table_filename
+              "
+      catch {destroy .msg}
+      toplevel .msg
+      set txt [text .msg.txt -width 80 -height 14]
+      $txt insert end $msg
+      pack $txt -side top -fill x -expand 0
+      pack [button .msg.b -text OK -command {destroy .msg}] -side top
+    }
+    update
+  }
+  while 1 {
+    if ![winfo exists .msg] break
+    after 1000
+    update
+  }
+
+  if [winfo exists $::te(top)] {
+    set fd [open ~/.tooleditrc w]
+    set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]
+    puts $fd   "# $time Created by [file normalize $::argv0]"
+    puts $fd "\n# Saved geometry (updated on program termination):"
+    puts $fd "set geometry [wm geometry $::te(top)]"
+    close $fd
+    destroy $::te(top)    ;# for embedded usage
+  }
   set ::tooledit::finis 1 ;# for standalone usage
 } ;# bye
 
