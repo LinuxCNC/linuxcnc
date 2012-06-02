@@ -84,12 +84,14 @@ proc ::tooledit::init { {columns ""} } {
   set ::te(initial,width)     0 ;# initial width as reqd
   set ::te(initial,height)  110 ;# initial height limit here
   set ::te(hincr)             1 ;# height increment to bump scrollable size
-  set ::te(header) [linsert $::te(columns) 0 tool poc] ;# mandatory leading columns
-  set ::te(header) [linsert $::te(header) end comment] ;# mandatory trailing column
+
+  set ::te(autocolumns) {tool poc}
+  set ::te(header) [concat $::te(autocolumns) $::te(columns) comment]
 
   foreach item $::te(header) { set ::te(type,$item) real ;# default }
   set ::te(type,tool)    integer
   set ::te(type,poc)     integer
+  set ::te(type,orien)   integer
   set ::te(type,comment) ascii
 
   # include values for each (header) item:
@@ -715,8 +717,11 @@ proc ::tooledit::writefile {filename} {
     }
   }
 
+  # write to all populated header items (to preserve values if not displayed)
+  set allheader [concat $::te(autocolumns) $::te(allcolumns) comment]
+
   foreach i $::te(items) {
-    foreach h $::te(header) {
+    foreach h $allheader {
       set j ""
       set w $::te($h,width)
       # correct entries with leading zeros
