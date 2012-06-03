@@ -22,11 +22,10 @@
 #include <linux/list.h>
 
 typedef struct {
-    void (*read)(hostmot2_t *hm2, void *mod);
-    void (*write)(hostmot2_t *hm2, void *mod);
-    void (*cleanup)(hostmot2_t *hm2, void *mod);
+    void (*read)(hostmot2_t *hm2, void *void_module);
+    void (*write)(hostmot2_t *hm2, void *void_module);
+    void (*cleanup)(hostmot2_t *hm2, void *void_module);
     void *data;
-    void *hal;
 
     struct list_head list;
 } hm2_module_t;

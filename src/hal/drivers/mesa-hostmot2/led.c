@@ -32,15 +32,15 @@
 #include "modules.h"
 #include "led.h"
 
-static void write(hostmot2_t *hm2, void *mod) {
+static void write(hostmot2_t *hm2, void *void_module) {
     u32 regval = 0;
-    hm2_module_t *module = mod;
-    hm2_led_hal_t *hal = (hm2_led_hal_t*) module->hal;
+    hm2_module_t *module = void_module;
     hm2_led_t *data = (hm2_led_t*) module->data;
+    hm2_led_instance_t *instance = (hm2_led_instance_t*) data->instance;
     int i;
 
     for (i = 0 ; i < hm2->config.num_leds; i++ ) {
-        if (*hal[i].led) {
+        if (*instance[i].led) {
             regval |= 1 << (31 - i);
         }
     }
@@ -52,8 +52,8 @@ static void write(hostmot2_t *hm2, void *mod) {
     }
 }
 
-static void cleanup(hostmot2_t *hm2, void *mod) {
-    hm2_module_t *module = mod;
+static void cleanup(hostmot2_t *hm2, void *void_module) {
+    hm2_module_t *module = void_module;
     hm2_led_t *data = (hm2_led_t*) module->data;
     if (data->led_reg != NULL) {
 	kfree(data->led_reg);
@@ -67,7 +67,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     hm2_module_t *mod;
     hm2_led_t *data;
-    hm2_led_hal_t *hal;
+    hm2_led_instance_t *instance;
     int r;
 
     //
@@ -105,8 +105,8 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     mod->cleanup = cleanup;
 
     // allocate the module-global HAL shared memory
-    hal = (hm2_led_hal_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_hal_t));
-    if (hal == NULL) {
+    instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));
+    if (instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
@@ -130,7 +130,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     data->led_addr = md->base_address;
 
     mod->data = data;
-    mod->hal = hal;
+    data->instance = instance;
 
     // export to HAL
     {
@@ -138,7 +138,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
         char name[HAL_NAME_LEN+1];
         for (i = 0 ; i < hm2->config.num_leds ; i++) {
             rtapi_snprintf(name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1 );
-            r = hal_pin_bit_new(name, HAL_IN, &(hal[i].led), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IN, &(instance[i].led), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;

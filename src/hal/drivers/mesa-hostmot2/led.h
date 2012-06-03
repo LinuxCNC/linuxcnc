@@ -4,10 +4,11 @@
 
 typedef struct {
     hal_bit_t *led;
-} hm2_led_hal_t ;
+} hm2_led_instance_t ;
 
 typedef struct {
     int num_instances ;
+    hm2_led_instance_t *instance;
 
     u32 written_buff ;
 
