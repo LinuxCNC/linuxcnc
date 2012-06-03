@@ -28,6 +28,7 @@
 #include "hal.h"
 
 #include "hostmot2.h"
+#include "modules.h"
 #include "bitfile.h"
 
 MODULE_LICENSE("GPL");
@@ -89,6 +90,7 @@ static void hm2_read(void *void_hm2, long period) {
 
 static void hm2_write(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
+    struct list_head *ptr;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
@@ -117,9 +119,14 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
     hm2_encoder_write(hm2);   // update ctrl register if needed
     hm2_resolver_write(hm2, period); // Update the excitation frequency
-    hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+
+    list_for_each(ptr, &hm2->modules) {
+        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
+        if (module->write != NULL)
+            module->write(hm2, module);
+    }
 }
 
 static void hm2_read_gpio(void *void_hm2, long period) {
@@ -544,6 +551,8 @@ void hm2_force_write(hostmot2_t *hm2) {
 //
 
 static void hm2_cleanup(hostmot2_t *hm2) {
+    struct list_head *ptr;
+
     // clean up the Pins, if they're initialized
     if (hm2->pin != NULL) kfree(hm2->pin);
 
@@ -554,12 +563,17 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);
     hm2_tp_pwmgen_cleanup(hm2);
-    hm2_led_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
+
+    list_for_each(ptr, &hm2->modules) {
+        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
+        if (module->cleanup != NULL)
+            module->cleanup(hm2, module);
+    }
 }
 
 //

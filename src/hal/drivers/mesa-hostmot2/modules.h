@@ -19,4 +19,16 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
+#include <linux/list.h>
+
+typedef struct {
+    void (*read)(hostmot2_t *hm2, void *mod);
+    void (*write)(hostmot2_t *hm2, void *mod);
+    void (*cleanup)(hostmot2_t *hm2, void *mod);
+    void *data;
+    void *hal;
+
+    struct list_head list;
+} hm2_module_t;
+
 #endif

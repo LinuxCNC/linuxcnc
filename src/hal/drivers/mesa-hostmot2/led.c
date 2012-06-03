@@ -29,10 +29,45 @@
 #include "hal.h"
 
 #include "hostmot2.h"
+#include "modules.h"
+#include "led.h"
+
+static void write(hostmot2_t *hm2, void *mod) {
+    u32 regval = 0;
+    hm2_module_t *module = mod;
+    hm2_led_hal_t *hal = (hm2_led_hal_t*) module->hal;
+    hm2_led_t *data = (hm2_led_t*) module->data;
+    int i;
+
+    for (i = 0 ; i < hm2->config.num_leds; i++ ) {
+        if (*hal[i].led) {
+            regval |= 1 << (31 - i);
+        }
+    }
+
+    if (regval != data->written_buff) {
+        *data->led_reg = regval;
+        data->written_buff = regval;
+        hm2->llio->write(hm2->llio, data->led_addr, data->led_reg, sizeof(u32));
+    }
+}
+
+static void cleanup(hostmot2_t *hm2, void *mod) {
+    hm2_module_t *module = mod;
+    hm2_led_t *data = (hm2_led_t*) module->data;
+    if (data->led_reg != NULL) {
+	kfree(data->led_reg);
+	data->led_reg = NULL;
+    }
+    kfree(data);
+}
 
 int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     hm2_module_descriptor_t *md = &hm2->md[md_index];
+    hm2_module_t *mod;
+    hm2_led_t *data;
+    hm2_led_hal_t *hal;
     int r;
 
     //
@@ -63,21 +98,39 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
 
+    mod = (hm2_module_t*) kmalloc(sizeof(hm2_module_t), GFP_KERNEL);
+    memset(mod, 0, sizeof(hm2_module_t));
+    list_add_tail(&mod->list, &hm2->modules);
+    mod->write = write;
+    mod->cleanup = cleanup;
+
     // allocate the module-global HAL shared memory
-    hm2->led.instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));
-    if (hm2->led.instance == NULL) {
-        HM2_ERR("out of memory!\n");
-        r = -ENOMEM;
-        goto fail0;
-    }
-    hm2->led.led_reg = (u32 *)kmalloc( sizeof(u32), GFP_KERNEL);
-    if (hm2->led.led_reg == NULL) {
+    hal = (hm2_led_hal_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_hal_t));
+    if (hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    hm2->led.led_addr = md->base_address;
+    data = (hm2_led_t *)kmalloc(sizeof(hm2_led_t), GFP_KERNEL);
+    memset(data, 0, sizeof(hm2_led_t));
+    if (data == NULL) {
+        HM2_ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail0;
+    }
+
+    data->led_reg = (u32 *)kmalloc( sizeof(u32), GFP_KERNEL);
+    if (data->led_reg == NULL) {
+        HM2_ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail1;
+    }
+
+    data->led_addr = md->base_address;
+
+    mod->data = data;
+    mod->hal = hal;
 
     // export to HAL
     {
@@ -85,44 +138,21 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
         char name[HAL_NAME_LEN+1];
         for (i = 0 ; i < hm2->config.num_leds ; i++) {
             rtapi_snprintf(name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1 );
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->led.instance[i].led), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IN, &(hal[i].led), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
-                goto fail1;
+                goto fail2;
             }
         }
         return 1;
+    }
+
+    fail2:
+        kfree(data->led_reg);
 
     fail1:
-
-        kfree(hm2->led.led_reg);
+        kfree(data);
 
     fail0:
         return r;
-
-    }
-}
-
-void hm2_led_write(hostmot2_t *hm2) {
-    u32 regval = 0;
-    int i;
-
-    for (i = 0 ; i < hm2->config.num_leds; i++ ) {
-        if (*hm2->led.instance[i].led) {
-            regval |= 1 << (31 - i);
-        }
-    }
-
-    if (regval != hm2->led.written_buff) {
-        *hm2->led.led_reg = regval;
-        hm2->led.written_buff = regval;
-        hm2->llio->write(hm2->llio, hm2->led.led_addr, hm2->led.led_reg, sizeof(u32));
-    }
-}
-
-void hm2_led_cleanup(hostmot2_t *hm2) {
-    if (hm2->led.led_reg != NULL) {
-	kfree(hm2->led.led_reg);
-	hm2->led.led_reg = NULL;
-    }
 }

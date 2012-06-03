@@ -185,6 +185,8 @@ int hm2_read_module_descriptors(hostmot2_t *hm2, int debug_module_descriptors) {
 int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
     
+    INIT_LIST_HEAD(&hm2->modules);
+
     // Run through once looking for IO Ports in case other modules
     // need them
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
@@ -306,4 +308,3 @@ int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                                            
     return 0;  // success!
 }
-
