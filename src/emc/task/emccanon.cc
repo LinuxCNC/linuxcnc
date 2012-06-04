@@ -43,7 +43,8 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 
 static int debug_velacc = 0;
-static double css_maximum, css_numerator;
+static double css_maximum, css_numerator; // both always positive
+static int spindle_dir = 0;
 
 static const double tiny = 1e-7;
 static double xy_rotation = 0.;
@@ -351,7 +352,7 @@ static double canonMotionTolerance = 0.0;
 static double canonNaivecamTolerance = 0.0;
 
 /* Spindle speed is saved here */
-static double spindleSpeed = 0.0;
+static double spindleSpeed = 0.0; // always positive
 
 /* Prepped tool is saved here */
 static int preppedTool = 0;
@@ -412,11 +413,7 @@ static void send_g5x_msg(int index) {
     set_g5x_msg.origin.w = TO_EXT_LEN(g5xOffset.w);
 
     if(css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = css_maximum;
-	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(spindleSpeed);
     }
     interp_list.append(set_g5x_msg);
 }
@@ -441,11 +438,7 @@ static void send_g92_msg(void) {
     set_g92_msg.origin.w = TO_EXT_LEN(g92Offset.w);
 
     if(css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = css_maximum;
-	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(spindleSpeed);
     }
     interp_list.append(set_g92_msg);
 }
@@ -1652,7 +1645,7 @@ void SPINDLE_RETRACT_TRAVERSE()
 }
 
 void SET_SPINDLE_MODE(double css_max) {
-    css_maximum = css_max;
+    css_maximum = fabs(css_max);
 }
 
 void START_SPINDLE_CLOCKWISE()
@@ -1660,17 +1653,18 @@ void START_SPINDLE_CLOCKWISE()
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
+    spindle_dir = 1;
 
     if(css_maximum) {
 	if(lengthUnits == CANON_UNITS_INCHES) 
 	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
 	else
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = css_maximum;
-	emc_spindle_on_msg.factor = css_numerator;
+	emc_spindle_on_msg.speed = spindle_dir * css_maximum;
+	emc_spindle_on_msg.factor = spindle_dir * css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = spindleSpeed;
+	emc_spindle_on_msg.speed = spindle_dir * spindleSpeed;
 	css_numerator = 0;
     }
     interp_list.append(emc_spindle_on_msg);
@@ -1681,28 +1675,27 @@ void START_SPINDLE_COUNTERCLOCKWISE()
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
+    spindle_dir = -1;
 
     if(css_maximum) {
 	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = -12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
+	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = -css_maximum;
-	emc_spindle_on_msg.factor = css_numerator;
+	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
+	emc_spindle_on_msg.speed = spindle_dir * css_maximum;
+	emc_spindle_on_msg.factor = spindle_dir * css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = -spindleSpeed;
+	emc_spindle_on_msg.speed = spindle_dir * spindleSpeed;
 	css_numerator = 0;
     }
-
-
     interp_list.append(emc_spindle_on_msg);
 }
 
 void SET_SPINDLE_SPEED(double r)
 {
     // speed is in RPMs everywhere
-    spindleSpeed = r;
+    spindleSpeed = fabs(r); // interp will never send negative anyway ...
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
@@ -1713,11 +1706,11 @@ void SET_SPINDLE_SPEED(double r)
 	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
 	else
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_speed_msg.speed = css_maximum;
-	emc_spindle_speed_msg.factor = css_numerator;
+	emc_spindle_speed_msg.speed = spindle_dir * css_maximum;
+	emc_spindle_speed_msg.factor = spindle_dir * css_numerator;
 	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
-	emc_spindle_speed_msg.speed = spindleSpeed;
+	emc_spindle_speed_msg.speed = spindle_dir * spindleSpeed;
 	css_numerator = 0;
     }
     interp_list.append(emc_spindle_speed_msg);
@@ -1823,11 +1816,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     set_offset_msg.offset.w = TO_EXT_LEN(currentToolOffset.w);
 
     if(css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = css_maximum;
-	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(spindleSpeed);
     }
     interp_list.append(set_offset_msg);
 }
