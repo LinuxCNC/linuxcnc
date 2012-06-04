@@ -3516,7 +3516,7 @@ int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
     } else { /* G_96 */
         settings->spindle_mode = CONSTANT_SURFACE;
 	if(block->d_flag)
-	    enqueue_SET_SPINDLE_MODE(block->d_number_float);
+	    enqueue_SET_SPINDLE_MODE(fabs(block->d_number_float));
 	else
 	    enqueue_SET_SPINDLE_MODE(1e30);
     }
