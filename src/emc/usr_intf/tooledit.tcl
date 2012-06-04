@@ -75,6 +75,7 @@ proc ::tooledit::init { {columns ""} } {
     }
   }
 
+  set ::te(filemod) 0
   set ::te(fmt,int)   %d
   set ::te(fmt,real)  %g
   set ::te(fmt,angle) %f
@@ -158,6 +159,7 @@ proc ::tooledit::ventry {f validatenumber tvar \
     set e [entry $f.[qid] \
           -width $twidth -relief sunken -justify $justify \
           -textvariable    $tvar \
+          -bg white \
           -validate        all \
           -validatecommand [list ::tooledit::validateNumber $tvar %W %s %P] \
           -invalidcommand  [list ::tooledit::invalidNumber  $tvar %W] \
@@ -167,6 +169,7 @@ proc ::tooledit::ventry {f validatenumber tvar \
     set e [entry $f.[qid] \
           -width $twidth -relief sunken -justify $justify\
           -textvariable $tvar \
+          -bg white \
           -validate all \
           -validatecommand [list ::tooledit::validateOther $tvar %W %s %P] \
          ]
@@ -366,6 +369,12 @@ proc ::tooledit::watch {args} {
 
 proc ::tooledit::tooledit {filename {columns ""} } {
   package require Tk
+  if {[package vcompare $::tcl_version 8.5] >= 0} {
+    # tcl8.5 lsort -indices available
+    set ::te(enable_column_sorting) 1
+  } else {
+    puts stderr "Column sorting not available with tcl_version=$::tcl_version"
+  }
   ::tooledit::init $columns
   set ::te(filename) $filename
 
@@ -960,6 +969,12 @@ proc ::tooledit::sendaxis {cmd} {
 } ;# sendaxis
 
 proc ::tooledit::repack { {entryname tool} {mode increasing} } {
+  if ![info exist ::te(enable_column_sorting)] {
+    foreach name [array names ::te entry*frame] {
+     pack $::te($name) -side top -expand 1 -fill x -anchor n
+    }
+    return
+  }
 
   set type $::te(type,$entryname)
 
@@ -977,7 +992,7 @@ proc ::tooledit::repack { {entryname tool} {mode increasing} } {
     pack forget $::te(entry,$i,frame)
   }
 
-  set  indices [lsort -$type -$mode -indices $parms]
+  set indices [lsort -$type -$mode -indices $parms]
   foreach idx $indices {
     set i [lindex $parms_i $idx]
     pack $::te(entry,$i,frame) -side top -expand 1 -fill x -anchor n
@@ -1002,6 +1017,9 @@ proc ::tooledit::column_sort {e parm {initialize 0} } {
     }
   }
   ::tooledit::repack $parm $::te(columnsortorder)
+
+  if ![info exists ::te(enable_column_sorting)] return
+
   set ::te(lastsort,entry) $e
   set ::te(lastsort) [string toupper $parm]
   switch $::te(columnsortorder) {
