@@ -40,7 +40,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     
     //The UART declares a TX and RX module separately
     
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 0x04, 0x000F)) {
+    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 0x10, 0x000F)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }

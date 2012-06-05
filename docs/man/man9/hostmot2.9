@@ -819,6 +819,21 @@ driver loading process and take the form
 hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
 .SH General Purpose I/O
 
+.SH UART
+The UART driver also does not create any HAL pins, instead it declares two 
+simple read/write functions and a setup function to be utilised by user-written
+code.  Typically this would be written in the "comp"
+pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
+comp for further details. See man mesa_uart and the source of mesa_uart.comp for
+details of a typical sub-driver.
+See man hm2_uart_setup_chan, man hm2_uart_send, man hm2_uart_read and man 
+hm2_uart_setup.
+
+The names of the available uart channels are printed to standard output during the
+driver loading process and take the form
+hm2_<board name>.<board index>uart.<index> For example hm2_5i23.0.uart.0
+.SH General Purpose I/O
+
 I/O pins on the board which are not used by a module instance are exported
 to HAL as "full" GPIO pins.  Full GPIO pins can be configured at run-time
 to be inputs, outputs, or open drains, and have a HAL interface that
