@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: EMC2 2.5.0-pre2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-26 10:58-0600\n"
-"PO-Revision-Date: 2011-12-26 10:58-0600\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2012-06-07 00:14+0200\n"
+"Last-Translator: E. Koski <erkkak@mbnet.fi>\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -108,7 +108,7 @@ msgstr ""
 
 #: hal/utils/scope.c:641
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL skooppi"
 
 #: hal/utils/scope.c:669
 msgid "Horizontal"
@@ -116,7 +116,7 @@ msgstr ""
 
 #: hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr ""
+msgstr "Valittu kanava"
 
 #: hal/utils/scope.c:683
 msgid "Run Mode"
@@ -133,7 +133,7 @@ msgstr ""
 #: hal/utils/scope.c:700 ../share/axis/tcl/axis.tcl:135
 #: ../share/axis/tcl/axis.tcl:1199
 msgid "Stop"
-msgstr ""
+msgstr "Seis"
 
 #: hal/utils/scope.c:703
 msgid "Normal"
@@ -149,7 +149,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:130
 msgid "Zoom"
-msgstr ""
+msgstr "Zoom"
 
 #: hal/utils/scope_horiz.c:131
 msgid " Pos "
@@ -198,7 +198,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:503
 msgid "Select Sample Rate"
-msgstr ""
+msgstr "Valitse näytteistysnopeus"
 
 #: hal/utils/scope_horiz.c:504
 msgid ""
@@ -336,22 +336,22 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:1170
 msgid "nSec"
-msgstr ""
+msgstr "ns"
 
 #: hal/utils/scope_horiz.c:1173
 msgid "uSec"
-msgstr ""
+msgstr "us"
 
 #: hal/utils/scope_horiz.c:1177
 msgid "mSec"
-msgstr ""
+msgstr "m"
 
 #: hal/utils/scope_horiz.c:1181 emc/usr_intf/pncconf/pncconf.glade:1953
 #: emc/usr_intf/pncconf/pncconf.glade:2825
 #: emc/usr_intf/pncconf/pncconf.glade:3706
 #: emc/usr_intf/pncconf/pncconf.glade:4587
 msgid "Sec"
-msgstr ""
+msgstr "s"
 
 #: hal/utils/scope_horiz.c:1198 emc/usr_intf/stepconf/stepconf.glade:3664
 #: emc/usr_intf/stepconf/stepconf.glade:4040
@@ -359,15 +359,15 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:8281
 #: emc/usr_intf/pncconf/pncconf.glade:8458
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: hal/utils/scope_horiz.c:1201
 msgid "KHz"
-msgstr ""
+msgstr "kHz"
 
 #: hal/utils/scope_horiz.c:1205
 msgid "Mhz"
-msgstr ""
+msgstr "Mhz"
 
 #: hal/utils/scope_vert.c:403 hal/utils/scope_vert.c:1258
 #, c-format
@@ -378,7 +378,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:618
 msgid "Gain"
-msgstr ""
+msgstr "Vahvistus"
 
 #: hal/utils/scope_vert.c:630 hal/utils/scope_trig.c:252
 msgid "Pos"
@@ -406,7 +406,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:734
 msgid "AC Coupled"
-msgstr ""
+msgstr "AC-kytketty"
 
 #: hal/utils/scope_vert.c:769 hal/utils/scope_vert.c:1171
 #: hal/utils/scope_trig.c:367 ../tcl/bin/emccalib.tcl:229
@@ -453,7 +453,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:1060
 msgid "Signals"
-msgstr ""
+msgstr "Signaalit"
 
 #: hal/utils/scope_vert.c:1061
 msgid "Parameters"
@@ -6408,7 +6408,8 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:66253
 #: emc/usr_intf/pncconf/pncconf.glade:66484
 #: emc/usr_intf/pncconf/pncconf.glade:66549
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3437
