@@ -705,6 +705,7 @@ proc ::combobox::HandleEvent {w event args} {
 	    $widgets(listbox) selection clear 0 end
 	    $widgets(listbox) selection anchor $index
 	    $widgets(listbox) selection set $index
+	    return -code break;
 
 	}
 
@@ -716,31 +717,28 @@ proc ::combobox::HandleEvent {w event args} {
 	    $widgets(listbox) selection clear 0 end
 	    $widgets(listbox) selection anchor $index
 	    $widgets(listbox) selection set $index
+	    return -code break;
 	}
 
 	"<Down>" {
 	    if {[winfo ismapped $widgets(dropdown)]} {
 		::combobox::tkListboxUpDown $widgets(listbox) 1
-		return -code break;
-
 	    } else {
 		if {$options(-state) != "disabled"} {
 		    $widgets(this) open
-		    return -code break;
 		}
 	    }
+	    return -code break;
 	}
 	"<Up>" {
 	    if {[winfo ismapped $widgets(dropdown)]} {
 		::combobox::tkListboxUpDown $widgets(listbox) -1
-		return -code break;
-
 	    } else {
 		if {$options(-state) != "disabled"} {
 		    $widgets(this) open
-		    return -code break;
 		}
 	    }
+	    return -code break;
 	}
 
 	"<KeyRelease-Up>" - "<KeyRelease-Down>" -

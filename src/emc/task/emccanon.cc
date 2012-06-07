@@ -2531,7 +2531,7 @@ int GET_EXTERNAL_FLOOD()
 double GET_EXTERNAL_SPEED()
 {
     // speed is in RPMs everywhere
-    return emcStatus->motion.spindle.speed;
+    return spindleSpeed;
 }
 
 CANON_DIRECTION GET_EXTERNAL_SPINDLE()
