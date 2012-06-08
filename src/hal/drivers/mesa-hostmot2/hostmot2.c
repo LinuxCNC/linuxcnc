@@ -29,6 +29,7 @@
 
 #include "hostmot2.h"
 #include "modules.h"
+#include "watchdog.h"
 #include "bitfile.h"
 
 MODULE_LICENSE("GPL");
@@ -61,16 +62,20 @@ struct list_head hm2_list;
 
 static void hm2_read(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
+    hm2_module_t *module;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're reading from the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-
-        hm2_watchdog_read(hm2);  // look for bite
+    module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+    if (module) {
+        hm2_watchdog_t *wd = module->data;
+        // is there a watchdog?
+        if (wd->num_instances > 0) {
+            // we're writing to the hm2 board now, so turn on the watchdog
+            wd->instance[0].enable = 1;
+            module->read(hm2, module);  // look for bite
+        }
     }
 
     hm2_tram_read(hm2);
@@ -91,14 +96,19 @@ static void hm2_read(void *void_hm2, long period) {
 static void hm2_write(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
     struct list_head *ptr;
+    hm2_module_t *module;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
+    module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+    if (module) {
+        hm2_watchdog_t *wd = module->data;
+        // is there a watchdog?
+        if (wd->num_instances > 0) {
+            // we're writing to the hm2 board now, so turn on the watchdog
+            wd->instance[0].enable = 1;
+        }
     }
 
     hm2_ioport_gpio_prepare_tram_write(hm2);
@@ -113,7 +123,7 @@ static void hm2_write(void *void_hm2, long period) {
     // these usually do nothing
     // they only write to the FPGA if certain pins & params have changed
     hm2_ioport_write(hm2);    // handles gpio.is_output but not gpio.out (that's done in tram_write() above)
-    hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
+//    hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
@@ -131,14 +141,19 @@ static void hm2_write(void *void_hm2, long period) {
 
 static void hm2_read_gpio(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
+    hm2_module_t *module;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're reading from the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
+    module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+    if (module) {
+        hm2_watchdog_t *wd = module->data;
+        // is there a watchdog?
+        if (wd->num_instances > 0) {
+            // we're writing to the hm2 board now, so turn on the watchdog
+            wd->instance[0].enable = 1;
+        }
     }
 
     hm2_ioport_gpio_read(hm2);
@@ -146,14 +161,19 @@ static void hm2_read_gpio(void *void_hm2, long period) {
 
 static void hm2_write_gpio(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
+    hm2_module_t *module;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
+    module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+    if (module) {
+        hm2_watchdog_t *wd = module->data;
+        // is there a watchdog?
+        if (wd->num_instances > 0) {
+            // we're writing to the hm2 board now, so turn on the watchdog
+            wd->instance[0].enable = 1;
+        }
     }
 
     hm2_ioport_gpio_write(hm2);
@@ -536,7 +556,15 @@ void hm2_print_modules(hostmot2_t *hm2) {
 
 // this pushes our idea of what things are like into the FPGA's poor little mind
 void hm2_force_write(hostmot2_t *hm2) {
-    hm2_watchdog_force_write(hm2);
+    struct list_head *ptr;
+
+    list_for_each(ptr, &hm2->modules) {
+        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
+        if (module->force_write != NULL)
+            module->force_write(hm2, module);
+    }
+
+//    hm2_watchdog_force_write(hm2);
     hm2_ioport_force_write(hm2);
     hm2_encoder_force_write(hm2);
     hm2_pwmgen_force_write(hm2);
@@ -556,11 +584,17 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     // clean up the Pins, if they're initialized
     if (hm2->pin != NULL) kfree(hm2->pin);
 
+    list_for_each(ptr, &hm2->modules) {
+        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
+        if (module->cleanup != NULL)
+            module->cleanup(hm2, module);
+    }
+
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);
     hm2_resolver_cleanup(hm2);
-    hm2_watchdog_cleanup(hm2);
+//    hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);
     hm2_tp_pwmgen_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
@@ -568,12 +602,6 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
-
-    list_for_each(ptr, &hm2->modules) {
-        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
-        if (module->cleanup != NULL)
-            module->cleanup(hm2, module);
-    }
 }
 
 //
@@ -1112,13 +1140,19 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
 
     list_for_each(ptr, &hm2_list) {
         hostmot2_t *hm2 = list_entry(ptr, hostmot2_t, list);
+        hm2_module_t *module;
         if (hm2->llio != llio) continue;
 
-        // if there's a watchdog, set it to safe the board right away
-        if (hm2->watchdog.num_instances > 0) {
-            hm2->watchdog.instance[0].enable = 1;
-            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
-            hm2_watchdog_force_write(hm2);
+        module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+        if (module) {
+            hm2_watchdog_t *wd = module->data;
+            // if there's a watchdog, set it to safe the board right away
+            if (wd->num_instances > 0) {
+                wd->instance[0].enable = 1;
+                wd->instance[0].hal.param.timeout_ns = 1;
+                module->force_write(hm2, module);
+                //hm2_watchdog_force_write(hm2);
+            }
         }
 
         HM2_PRINT("unregistered\n");

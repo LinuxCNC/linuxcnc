@@ -20,6 +20,7 @@
 
 #include "hostmot2.h"
 #include "modules.h"
+#include <linux/list.h>
 
 //
 // Here comes the code to "parse" the Module Descriptors, turn them into
@@ -35,6 +36,16 @@
 // user has disabled some instances using modparams.  The per-Module
 // parsers return -1 on error, which causes the module load to fail.
 //
+
+hm2_module_t *hm2_find_module(hostmot2_t *hm2, int tag) {
+    hm2_module_t *module;
+
+    list_for_each_entry(module, &hm2->modules, list) {
+        if (module->type == tag)
+            return module;
+    }
+    return NULL;
+}
 
 int hm2_md_is_consistent_or_complain(
     hostmot2_t *hm2,

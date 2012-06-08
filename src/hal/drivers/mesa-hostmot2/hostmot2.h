@@ -899,56 +899,6 @@ typedef struct {
 } hm2_uart_t;
 
 // 
-// watchdog
-// 
-
-typedef struct {
-    struct {
-
-        struct {
-            hal_bit_t *has_bit;
-        } pin;
-
-        struct {
-            hal_u32_t timeout_ns;
-        } param;
-
-    } hal;
-
-    u32 written_timeout_ns;
-
-    int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
-    int written_enable;
-
-    // This is a flag to help warn the user if they specify a too-short
-    // timeout.  The flag gets set to 0 whenever the user changes the
-    // timeout.  The pet_watchdog() funtion checks the requested timeout
-    // against the reported period, if if it's dangeriously short it warns
-    // about it once, and sets this flag to remind it not to warn again
-    // (until the user changes the timeout again).
-    int warned_about_short_timeout;
-} hm2_watchdog_instance_t;
-
-
-typedef struct {
-    int num_instances;
-    hm2_watchdog_instance_t *instance;
-
-    u32 clock_frequency;
-    u8 version;
-
-    u32 timer_addr;
-    u32 *timer_reg;
-
-    u32 status_addr;
-    u32 *status_reg;
-
-    u32 reset_addr;
-    u32 *reset_reg;
-} hm2_watchdog_t;
-
-
-// 
 // raw peek/poke access
 //
 
@@ -1036,7 +986,7 @@ typedef struct {
     hm2_bspi_t bspi;
     hm2_uart_t uart;
     hm2_ioport_t ioport;
-    hm2_watchdog_t watchdog;
+//    hm2_watchdog_t watchdog;
 
     struct list_head modules;
 
@@ -1279,13 +1229,10 @@ int hm2_uart_read(char *name, unsigned char data[]);
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
-void hm2_watchdog_cleanup(hostmot2_t *hm2);
-void hm2_watchdog_read(hostmot2_t *hm2);
-void hm2_watchdog_write(hostmot2_t *hm2);
-void hm2_watchdog_force_write(hostmot2_t *hm2);
-
-
-
+//void hm2_watchdog_cleanup(hostmot2_t *hm2);
+//void hm2_watchdog_read(hostmot2_t *hm2);
+//void hm2_watchdog_write(hostmot2_t *hm2);
+//void hm2_watchdog_force_write(hostmot2_t *hm2, void *module);
 
 // 
 // LED functions

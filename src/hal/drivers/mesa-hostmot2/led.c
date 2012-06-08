@@ -103,6 +103,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     list_add_tail(&mod->list, &hm2->modules);
     mod->write = write;
     mod->cleanup = cleanup;
+    mod->type = HM2_GTAG_LED;
 
     // allocate the module-global HAL shared memory
     instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));

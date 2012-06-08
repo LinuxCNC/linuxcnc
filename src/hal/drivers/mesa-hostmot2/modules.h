@@ -24,10 +24,15 @@
 typedef struct {
     void (*read)(hostmot2_t *hm2, void *void_module);
     void (*write)(hostmot2_t *hm2, void *void_module);
+    void (*force_write)(hostmot2_t *hm2, void *void_module);
     void (*cleanup)(hostmot2_t *hm2, void *void_module);
     void *data;
+    int type;
 
     struct list_head list;
 } hm2_module_t;
+
+
+hm2_module_t *hm2_find_module(hostmot2_t *hm2, int tag);
 
 #endif
