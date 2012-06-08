@@ -35,8 +35,8 @@
 static void write(hostmot2_t *hm2, void *void_module) {
     u32 regval = 0;
     hm2_module_t *module = void_module;
-    hm2_led_t *data = (hm2_led_t*) module->data;
-    hm2_led_instance_t *instance = (hm2_led_instance_t*) data->instance;
+    hm2_led_t *data = module->data;
+    hm2_led_instance_t *instance = data->instance;
     int i;
 
     for (i = 0 ; i < hm2->config.num_leds; i++ ) {
@@ -54,7 +54,8 @@ static void write(hostmot2_t *hm2, void *void_module) {
 
 static void cleanup(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *module = void_module;
-    hm2_led_t *data = (hm2_led_t*) module->data;
+    hm2_led_t *data = module->data;
+
     if (data->led_reg != NULL) {
 	kfree(data->led_reg);
 	data->led_reg = NULL;
@@ -64,7 +65,7 @@ static void cleanup(hostmot2_t *hm2, void *void_module) {
 
 static void print_module(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *module = void_module;
-    hm2_led_t *data = (hm2_led_t*) module->data;
+    hm2_led_t *data = module->data;
 
     HM2_PRINT("Led: 1\n");
     HM2_PRINT("    leds count: %02d\n", hm2->config.num_leds);

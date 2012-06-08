@@ -1228,11 +1228,6 @@ int hm2_uart_read(char *name, unsigned char data[]);
 // 
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
-//void hm2_watchdog_print_module(hostmot2_t *hm2);
-//void hm2_watchdog_cleanup(hostmot2_t *hm2);
-//void hm2_watchdog_read(hostmot2_t *hm2);
-//void hm2_watchdog_write(hostmot2_t *hm2);
-//void hm2_watchdog_force_write(hostmot2_t *hm2, void *module);
 
 // 
 // LED functions

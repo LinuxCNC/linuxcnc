@@ -34,7 +34,7 @@
 // (timeout_ns * (1 s/1e9 ns) * clock_hz) - 1 = timer_counts
 static void force_write(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *wd_module = void_module;
-    hm2_watchdog_t *wd_data = (hm2_watchdog_t*) wd_module->data;
+    hm2_watchdog_t *wd_data = wd_module->data;
     u64 tmp;
 
     if (wd_data->instance[0].enable == 0) {
@@ -68,10 +68,8 @@ static void force_write(hostmot2_t *hm2, void *void_module) {
 // if the user has changed the timeout, sync it out to the watchdog
 static void write(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *wd_module = void_module;
-    hm2_watchdog_t *wd_data;
-
-    if (wd_module == NULL) return;
-    wd_data = wd_module->data;
+    hm2_watchdog_t *wd_data = wd_module->data;
+    
     if ((wd_data->instance[0].hal.param.timeout_ns == wd_data->instance[0].written_timeout_ns) &&
         (wd_data->instance[0].enable == wd_data->instance[0].written_enable)) {
         return;
@@ -81,11 +79,7 @@ static void write(hostmot2_t *hm2, void *void_module) {
 
 static void read(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *wd_module = void_module;
-    hm2_watchdog_t *wd_data;
-
-    // if there is no watchdog, then there's nothing to do
-    if (wd_module == NULL) return;
-    wd_data = wd_module->data;
+    hm2_watchdog_t *wd_data = wd_module->data;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
@@ -110,10 +104,8 @@ static void read(hostmot2_t *hm2, void *void_module) {
 
 static void cleanup(hostmot2_t *hm2, void *void_module) {
     hm2_module_t *wd_module = void_module;
-    hm2_watchdog_t *wd_data;
+    hm2_watchdog_t *wd_data = wd_module->data;
 
-    if (wd_module == NULL) return;
-    wd_data = wd_module->data;
     if (wd_data->status_reg != NULL) kfree(wd_data->status_reg);
     if (wd_data->reset_reg != NULL) kfree(wd_data->reset_reg);
     if (wd_data->timer_reg != NULL) kfree(wd_data->timer_reg);
