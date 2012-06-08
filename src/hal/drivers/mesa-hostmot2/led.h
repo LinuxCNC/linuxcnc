@@ -16,4 +16,6 @@ typedef struct {
     u32 *led_reg;
 } hm2_led_t ;
 
+int hm2_led_parse_md(hostmot2_t *hm2, int md_index);
+
 

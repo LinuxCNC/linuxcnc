@@ -26,6 +26,7 @@ typedef struct {
     void (*write)(hostmot2_t *hm2, void *void_module);
     void (*force_write)(hostmot2_t *hm2, void *void_module);
     void (*cleanup)(hostmot2_t *hm2, void *void_module);
+    void (*print_module)(hostmot2_t *hm2, void *void_module);
     void *data;
     int type;
 

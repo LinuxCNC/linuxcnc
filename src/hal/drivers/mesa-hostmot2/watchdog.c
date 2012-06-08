@@ -109,7 +109,7 @@ static void read(hostmot2_t *hm2, void *void_module) {
 }
 
 static void cleanup(hostmot2_t *hm2, void *void_module) {
-    hm2_module_t *wd_module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
+    hm2_module_t *wd_module = void_module;
     hm2_watchdog_t *wd_data;
 
     if (wd_module == NULL) return;
@@ -119,17 +119,10 @@ static void cleanup(hostmot2_t *hm2, void *void_module) {
     if (wd_data->timer_reg != NULL) kfree(wd_data->timer_reg);
 }
 
-void hm2_watchdog_print_module(hostmot2_t *hm2) {
-    hm2_module_t *wd_module = hm2_find_module(hm2, HM2_GTAG_WATCHDOG);
-    hm2_watchdog_t *wd_data;
+static void print_module(hostmot2_t *hm2, void *void_module) {
+    hm2_module_t *wd_module = void_module;
+    hm2_watchdog_t *wd_data = wd_module->data;
     int i;
-
-    // if there is no watchdog, then there's nothing to do
-    if (wd_module == NULL) {
-        HM2_PRINT("Watchdog: %d\n", 0);
-        return;
-    }
-    wd_data = wd_module->data;
 
     HM2_PRINT("Watchdog: %d\n", wd_data->num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", wd_data->clock_frequency, hm2_hz_to_mhz(wd_data->clock_frequency));
@@ -244,6 +237,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     module->write = write;
     module->force_write = force_write;
     module->cleanup = cleanup;
+    module->print_module = print_module;
     module->type = HM2_GTAG_WATCHDOG;
 
     wd_data = (hm2_watchdog_t *)kmalloc(sizeof(hm2_watchdog_t), GFP_KERNEL);

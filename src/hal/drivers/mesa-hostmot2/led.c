@@ -62,10 +62,19 @@ static void cleanup(hostmot2_t *hm2, void *void_module) {
     kfree(data);
 }
 
+static void print_module(hostmot2_t *hm2, void *void_module) {
+    hm2_module_t *module = void_module;
+    hm2_led_t *data = (hm2_led_t*) module->data;
+
+    HM2_PRINT("Led: 1\n");
+    HM2_PRINT("    leds count: %02d\n", hm2->config.num_leds);
+    HM2_PRINT("    led_addr: 0x%04X\n", data->led_addr);
+}
+
 int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     hm2_module_descriptor_t *md = &hm2->md[md_index];
-    hm2_module_t *mod;
+    hm2_module_t *module;
     hm2_led_t *data;
     hm2_led_instance_t *instance;
     int r;
@@ -98,12 +107,13 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
 
-    mod = (hm2_module_t*) kmalloc(sizeof(hm2_module_t), GFP_KERNEL);
-    memset(mod, 0, sizeof(hm2_module_t));
-    list_add_tail(&mod->list, &hm2->modules);
-    mod->write = write;
-    mod->cleanup = cleanup;
-    mod->type = HM2_GTAG_LED;
+    module = (hm2_module_t*) kmalloc(sizeof(hm2_module_t), GFP_KERNEL);
+    memset(module, 0, sizeof(hm2_module_t));
+    list_add_tail(&module->list, &hm2->modules);
+    module->write = write;
+    module->cleanup = cleanup;
+    module->print_module = print_module;
+    module->type = HM2_GTAG_LED;
 
     // allocate the module-global HAL shared memory
     instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));
@@ -130,7 +140,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     data->led_addr = md->base_address;
 
-    mod->data = data;
+    module->data = data;
     data->instance = instance;
 
     // export to HAL

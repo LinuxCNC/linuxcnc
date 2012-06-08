@@ -543,6 +543,14 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
 }
 
 void hm2_print_modules(hostmot2_t *hm2) {
+    struct list_head *ptr;
+
+    list_for_each(ptr, &hm2->modules) {
+        hm2_module_t *module = list_entry(ptr, hm2_module_t, list);
+        if (module->print_module != NULL)
+            module->print_module(hm2, module);
+    }
+
     hm2_encoder_print_module(hm2);
     hm2_resolver_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
@@ -551,7 +559,6 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_stepgen_print_module(hm2);
     hm2_bspi_print_module(hm2);
     hm2_ioport_print_module(hm2);
-    hm2_watchdog_print_module(hm2);
 }
 
 // this pushes our idea of what things are like into the FPGA's poor little mind
