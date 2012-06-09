@@ -834,19 +834,31 @@ This command might be part of a program to produce a 16TPI thread.
 Another example in metric, 'G33 Z-15 K1.5' produces
 a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
 
-[NOTE]
-K follows the drive line described by 'X- Y- Z-' and is not parallel to the Z axis.
-
 Spindle-synchronized motion waits for the spindle index and spindle at speed
 pins, so multiple passes line up. 'G33' moves end at the programmed endpoint.
 G33 could be used to cut tapered threads or a fusee.
 
+All the axis words are optional, except that at least one must be used.
+
 [NOTE]
+K follows the drive line described by 'X- Y- Z-'. K is not parallel to
+the Z axis if X or Y endpoints are used for example when cutting tapered
+threads.
+
+.Technical Info
+At the beginning of each G33 pass, LinuxCNC uses the spindle speed and the
+machine acceleration limits to calculate how long it will take Z to
+accelerate after the index pulse, and determines how many degrees the
+spindle will rotate during that time. It then adds that angle to the
+index position and computes the Z position using the corrected spindle
+angle. That means that Z will reach the correct position just as it
+finishes accelerating to the proper speed, and can immediately begin
+cutting a good thread.
+
+.HAL Connections
 The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G33 will work.
 See the Integrators Manual for more information on spindle synchronized motion.
-
-All the axis words are optional, except that at least one must be used.
 
 .G33 Example
 ----
