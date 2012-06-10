@@ -845,7 +845,7 @@ K follows the drive line described by 'X- Y- Z-'. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
-.Technical Info
+.Technical Info[[g33-tech-info]]
 At the beginning of each G33 pass, LinuxCNC uses the spindle speed and the
 machine acceleration limits to calculate how long it will take Z to
 accelerate after the index pulse, and determines how many degrees the
@@ -1548,10 +1548,14 @@ It is an error if:
 * 'P-', 'J-', 'K-' or 'H-' is negative
 * 'E-' is greater than half the drive line length
 
-[NOTE]
+.HAL Connections
 The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the Integrators Manual for more information on spindle synchronized motion.
+
+.Technical Info
+The G76 canned cycle is based on the G33 Spindle Synchronized Motion. For more
+information see the G33 <<g33-tech-info,Technical Info>>.
 
 The sample program 'g76.ngc' shows the use of the G76 canned cycle,
 and can be previewed and
