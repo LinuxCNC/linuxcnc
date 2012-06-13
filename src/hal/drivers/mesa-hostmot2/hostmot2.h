@@ -260,6 +260,7 @@ typedef struct {
             hal_bit_t *index_enable;
             hal_bit_t *latch_enable;
             hal_bit_t *latch_polarity;
+            hal_bit_t *quadrature_error;
         } pin;
 
         struct {
@@ -309,6 +310,7 @@ typedef struct {
 
     u32 latch_control_addr;
     u32 *control_reg;
+    u32 *read_control_reg;
 
     u32 timestamp_div_addr;
     u32 timestamp_div_reg;  // one register for the whole Function
