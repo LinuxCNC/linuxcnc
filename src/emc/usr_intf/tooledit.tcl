@@ -373,7 +373,8 @@ proc ::tooledit::tooledit {filename {columns ""} } {
     # tcl8.5 lsort -indices available
     set ::te(enable_column_sorting) 1
   } else {
-    puts stderr "Column sorting not available with tcl_version=$::tcl_version"
+    set prog [file tail $::argv0]
+    puts stderr "$prog: Column sorting not available with tcl_version=$::tcl_version"
   }
   ::tooledit::init $columns
   set ::te(filename) $filename
@@ -885,9 +886,9 @@ proc ::tooledit::bye {} {
       set msg "Only these columns are currently used:\
            \n\n  $used\
            \n\nLimit display to these columns by specifying\
-             \n \[DISPLAY\]TOOL_EDITOR = $used $prog\
+             \n \[DISPLAY\]TOOL_EDITOR = $prog $used\
            \n\nFormat for ini file is:\
-             \n  \[DISPLAY\]TOOL_EDITOR = col_1 col_2 ... col_n $prog\
+             \n  \[DISPLAY\]TOOL_EDITOR = $prog col_1 col_2 ... col_n\
            \n\nOr, for standalone use, invoke as:\
            \n\n  $prog col_1 col_2 ... col_n tool_table_filename
               "
