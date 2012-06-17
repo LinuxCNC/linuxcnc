@@ -1918,6 +1918,10 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                 rx = status->motion.traj.position.u - status->task.toolOffset.u,
                 ry = status->motion.traj.position.v - status->task.toolOffset.v,
                 rz = s->foam_w;
+                /* TODO .01, the distance at which a preview line is dropped,
+                 * should either be dependent on units or configurable, because
+                 * 0.1 is inappropriate for mm systems
+                 */
                 add_point = add_point || (dist2(x, y, oop->x, oop->y) > .01)
                     || (dist2(rx, ry, oop->rx, oop->ry) > .01);
                 add_point = add_point || !colinear( x, y, z,
