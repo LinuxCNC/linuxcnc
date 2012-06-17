@@ -1120,7 +1120,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
-        o.lp.set_depth(o.get_foam_z(), o.get_foam_w())
+        o.lp.set_depth(from_internal_linear_unit(o.get_foam_z()),
+                       from_internal_linear_unit(o.get_foam_w()))
 
     finally:
         # Before unbusying, I update again, so that any keystroke events
