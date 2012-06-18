@@ -593,9 +593,9 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="bg_color">#bebebebebebe</property>
                                     <property name="show_limits">False</property>
+                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="z2_color">#ffff00000000</property>
                                     <property name="max">2000</property>
                                     <property name="z0_color">#0000ffff0000</property>
@@ -1607,8 +1607,8 @@ Halshow</property>
                                   <object class="HAL_LED" id="led_on">
                                     <property name="visible">True</property>
                                     <property name="led_shape">1</property>
-                                    <property name="on_color">green</property>
                                     <property name="off_color">red</property>
+                                    <property name="on_color">green</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -1646,8 +1646,8 @@ Halshow</property>
                         <property name="visible">True</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkToggleButton" id="button_v0_0">
-                            <property name="label" translatable="yes">Zero</property>
+                          <object class="GtkButton" id="button_v0_0">
+                            <property name="label">Zero Origin</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1657,8 +1657,8 @@ Halshow</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkToggleButton" id="button_v0_1">
-                            <property name="label" translatable="yes">Set At</property>
+                          <object class="GtkButton" id="button_v0_1">
+                            <property name="label">Offset Origin</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1669,11 +1669,11 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v0_2">
-                            <property name="label">gtk-go-up</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_stock">True</property>
+                            <property name="image">image8</property>
+                            <property name="image_position">bottom</property>
                           </object>
                           <packing>
                             <property name="position">2</property>
@@ -1681,11 +1681,10 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v0_3">
-                            <property name="label">gtk-go-down</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_stock">True</property>
+                            <property name="image">image9</property>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -2063,7 +2062,7 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_h1_1">
-                    <property name="label" translatable="yes">Override</property>
+                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2284,8 +2283,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save-As</property>
-                    <property name="use_action_appearance">True</property>
-                    <property name="image">image2</property>
+                    <property name="related_action">hal_action_save</property>
+                    <property name="image">image3</property>
                     <property name="yalign">0.56999999284744263</property>
                     <property name="image_position">bottom</property>
                   </object>
@@ -2299,8 +2298,8 @@ Readout</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
-                    <property name="use_action_appearance">True</property>
-                    <property name="image">image3</property>
+                    <property name="related_action">hal_action_saveas</property>
+                    <property name="image">image2</property>
                     <property name="image_position">bottom</property>
                   </object>
                   <packing>
@@ -2597,10 +2596,29 @@ Incrments</property>
   <object class="EMC_ToggleAction_Pause" id="hal_toggleaction_pause">
     <property name="stock_id">gtk-media-pause</property>
   </object>
+  <object class="EMC_Action_Reload" id="hal_action_reload"/>
+  <object class="GtkImage" id="image8">
+    <property name="visible">True</property>
+    <property name="stock">gtk-add</property>
+    <property name="icon-size">3</property>
+  </object>
+  <object class="GtkImage" id="image9">
+    <property name="visible">True</property>
+    <property name="stock">gtk-remove</property>
+    <property name="icon-size">3</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="stock_id">gtk-save-as</property>
+    <property name="icon_name">document-save</property>
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="stock_id">gtk-save</property>
+    <property name="always_show_image">True</property>
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
     <property name="stock">gtk-save</property>
-    <property name="icon-size">3</property>
   </object>
-  <object class="EMC_Action_Reload" id="hal_action_reload"/>
 </interface>

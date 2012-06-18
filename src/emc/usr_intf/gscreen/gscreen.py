@@ -103,7 +103,7 @@ X = 0;Y = 1;Z = 2;A = 3;B = 4;C = 5;U = 6;V = 7;W = 8
 _ABS = 0;_REL = 1;_DTG = 2
 _START = 0;_MAN = 1;_MDI = 2;_AUTO = 3
 _MM = 1;_IMPERIAL = 0
-_SPINDLE_INPUT = 9
+_SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -148,7 +148,6 @@ class Data:
         self.task_mode = 0
         self.active_gcodes = []
         self.active_mcodes = []
-        self.maxvelocity = 1
         self.x_abs = 0.0
         self.x_rel = 1.0
         self.x_dtg = -2.0
@@ -179,9 +178,18 @@ class Data:
         self.mist = False
         self.machine_on = False
         self.or_limits = 0
+        self.jog_rate = 15
+        self.jog_rate_inc = 1
+        self.jog_rate_max = 60
         self.feed_override = 1.0
+        self.feed_override_inc = .05
+        self.feed_override_max = 2.0
         self.spindle_override = 1.0
-        self.max_velocity = 1.0
+        self.spindle_override_inc = .05
+        self.spindle_override_max = 1.2
+        self.maxvelocity = 1
+        self.velocity_override = 1.0
+        self.velocity_override_inc = .05
         self.edit_mode = False
         self.full_graphics = False
         self.file = ""
@@ -298,9 +306,10 @@ class Gscreen:
             self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
             for axis in self.data.axis_list:
                 print axis
-                self.halcomp.newpin(axis+"-selected.out", hal.HAL_BIT, hal.HAL_OUT)
+                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
         except:
             print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
             sys.exit(0)
@@ -407,6 +416,9 @@ class Gscreen:
         cb = "axis_a"
         i = "_sighandler_axis_a"
         self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_a_clicked))
+        cb = "axis_s"
+        i = "_sighandler_axis_s"
+        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_s_clicked))
 
         cb = "button_menu"
         i = "_sighandler_mode_select"
@@ -515,7 +527,7 @@ class Gscreen:
         # timers for updates
         gobject.timeout_add(50, self.periodic_status)
         #gobject.timeout_add(100, self.periodic_radiobuttons)
-
+        self.emc.continuous_jog_velocity(self.data.jog_rate)
         # dynamic tabs
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
@@ -543,7 +555,7 @@ class Gscreen:
         # set to 'start mode' 
         self.mode_changed(self.data.mode_order[0])
         self.message_setup()
-        # ok everything that mught make HAL pins should be done now - let HAL know that
+        # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
 
 # *** GLADE callbacks ****
@@ -582,47 +594,20 @@ class Gscreen:
         print "kill"
     	gtk.main_quit()
 
-    def on_axis_x_clicked(self,*args):
-        def unclick():
-            self.widgets.axis_x.handler_block(self.data._sighandler_axis_x)
-            self.widgets.axis_x.set_active(False)
-            self.widgets.axis_x.handler_unblock(self.data._sighandler_axis_x)
+    def on_axis_x_clicked(self,widget):
+        self.update_active_axis_buttons(widget)
 
-        if self.widgets.button_v0_1.get_active():
-            self.set_axis_checks()
-            unclick()
-        elif self.widgets.button_v0_0.get_active():
-            self.zero_axis()
-            unclick()
-        self.update_active_axis_buttons()
+    def on_axis_y_clicked(self,widget):
+        self.update_active_axis_buttons(widget)
 
-    def on_axis_y_clicked(self,*args):
-        if self.widgets.button_v0_1.get_active():
-         self.on_axis_set_clicked(None)
-        elif self.widgets.button_v0_1.get_active():
-         self.on_axis_zero_clicked(None)
-        self.update_active_axis_buttons()
+    def on_axis_z_clicked(self,widget):
+        self.update_active_axis_buttons(widget)
 
-    def on_axis_z_clicked(self,*args):
-        if self.widgets.button_v0_1.get_active():
-         self.on_axis_set_clicked(None)
-        if self.widgets.button_v0_0.get_active():
-         self.on_axis_zero_clicked(None)
-        self.update_active_axis_buttons()
+    def on_axis_a_clicked(self,widget):
+        self.update_active_axis_buttons(widget)
 
-    def on_axis_a_clicked(self,*args):
-        if self.widgets.button_v0_1.get_active():
-         self.on_axis_set_clicked(None)
-        if self.widgets.button_v0_0.get_active():
-         self.on_axis_zero_clicked(None)
-        self.update_active_axis_buttons()
-
-    def on_axis_s_clicked(self,*args):
-        if self.widgets.button_v0_1.get_active():
-         self.on_axis_set_clicked(None)
-        if self.widgets.button_v0_0.get_active():
-         self.on_axis_zero_clicked(None)
-        self.update_active_axis_buttons()
+    def on_axis_s_clicked(self,widget):
+        self.update_active_axis_buttons(widget)
 
     def on_mode_clicked(self,widget,event):
         # only change machine modes on click
@@ -651,19 +636,19 @@ class Gscreen:
                 elif number == 4: self.unhome_all()
                 elif number == 5: self.dro_toggle()
                 else: raise nofunnction
-            if mode == 1:
+            elif mode == 1:
                 if number == 0: self.jog_mode()
                 elif number == 2: self.toggle_mist()
                 elif number == 3: self.toggle_flood()
                 elif number == 4: self.reload_tooltable()
                 elif number == 5: self.dro_toggle()
                 else: raise nofunnction
-            if mode == 3:
+            elif mode == 3:
                 if number == 6: self.reload_plot()
                 else: raise nofunnction
-            if mode == 4:
+            elif mode == 4:
                 self.toggle_overrides(widget,mode,number)
-            if mode == 5:
+            elif mode == 5:
                 if number == 0:self.zoom_in()
                 if number == 1:self.zoom_out()
                 if number == 2:self.toggle_view()
@@ -675,10 +660,10 @@ class Gscreen:
     def on_vbutton_clicked(self,widget,mode,number):
         try:
             if mode == 0:
-                if number == 0: self.zero_axis()
-                elif number == 1: self.set_axis_checks()
-                elif number == 2: pass
-                elif number == 3: pass
+                if number == 0: self.adjustment_buttons(widget,True)
+                elif number == 1: self.adjustment_buttons(widget,True)
+                elif number == 2: pass # using press and release signals
+                elif number == 3: pass # ditto
                 elif number == 4: self.toggle_feed_hold()
                 else: raise nofunnction
             elif mode == 1:
@@ -693,14 +678,14 @@ class Gscreen:
         except :
             print "Vbutton %d_%d clicked but no function"% (mode,number)
 
-    def on_button_v0_2_pressed(self,*args):
-        self.do_jog(1)
-    def on_button_v0_2_released(self,*args):
-        self.do_jog(0)
-    def on_button_v0_3_pressed(self,*args):
-        self.do_jog(-1)
-    def on_button_v0_3_released(self,*args):
-        self.do_jog(0)
+    def on_button_v0_2_pressed(self,widget):
+        self.adjustment_buttons(widget,True)
+    def on_button_v0_2_released(self,widget):
+        self.adjustment_buttons(widget,False)
+    def on_button_v0_3_pressed(self,widget):
+        self.adjustment_buttons(widget,True)
+    def on_button_v0_3_released(self,widget):
+        self.adjustment_buttons(widget,False)
 
     def on_mode_select_clicked(self,widget,event):
         # was it a multiple click?
@@ -784,7 +769,7 @@ class Gscreen:
                 self.halcomp[pinname + "-waiting"] = False
 
     def toggle_overrides(self,widget,mode,number):
-        print widget.get_active()
+        print "overrides",widget.get_active()
         for i in range(0,4):
             if i == number:continue
             self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
@@ -793,17 +778,112 @@ class Gscreen:
 
 # ****** do stuff *****
 
+    def set_feed_override(self,percent_rate,absolute=False):
+        if absolute:
+            rate = percent_rate
+        else:
+            rate = self.data.feed_override + percent_rate
+        if rate > self.data.feed_override_max: rate = self.data.feed_override_max
+        self.emc.feed_override(rate)
+
+    def set_spindle_override(self,percent_rate,absolute=False):
+        if absolute:
+            rate = percent_rate
+        else:
+            rate = self.data.spindle_override + percent_rate
+        if rate > self.data.spindle_override_max: rate = self.data.spindle_override_max
+        self.emc.spindle_override(rate)
+
+    def set_velocity_override(self,percent_rate,absolute=False):
+        if absolute:
+            rate = percent_rate
+        else:
+            rate = self.data.velocity_override + percent_rate
+        if rate > 1.0: rate = 1.0
+        self.emc.max_velocity(rate * self.data._maxvelocity)
+
+    def set_jog_rate(self,beginning_rate,absolute=False):
+        # in units per minute
+        print "jog rate =",beginning_rate,self.data.jog_rate
+        if absolute:
+            rate = begining_rate
+        else:
+            rate = self.data.jog_rate + beginning_rate
+        if rate < 0: rate = 0
+        if rate > self.data.jog_rate_max: rate = self.data.jog_rate_max
+        rate = round(rate,1)
+        self.emc.continuous_jog_velocity(rate)
+        self.data.jog_rate = rate
+
     def adjustment_buttons(self,widget,action):
-        pass
+        # is over ride adjustment selection active?
         if self.widgets.button_override.get_active():
-            pass
+            if widget == self.widgets.button_v0_0:
+                print "zero button",action
+                change = 0
+                absolute = True
+            if widget == self.widgets.button_v0_1:
+                print "set at button",action
+                change = self.get_qualified_input(_PERCENT_INPUT)/100
+                print "qualified=",change
+                absolute = True
+            if widget == self.widgets.button_v0_2:
+                print "up button",action
+                change = 1
+                absolute = False
+            if widget == self.widgets.button_v0_3:
+                print "down button",action
+                change = -1
+                absolute = False
             # what override is selected
-                # if zero button
-                # if set at button
-                # if up button
-                # if down button
-        # if jogging is set
+            if self.widgets.button_h4_0.get_active() and action:
+                print "feed override"
+                if absolute:
+                    self.set_feed_override(change,absolute)
+                else:
+                    self.set_feed_override((change * self.data.feed_override_inc),absolute)
+            elif self.widgets.button_h4_1.get_active() and action:
+                print "spindle override"
+                if absolute:
+                    self.set_spindle_override(change,absolute)
+                else:
+                    self.set_spindle_override((change * self.data.spindle_override_inc),absolute)
+            elif self.widgets.button_h4_2.get_active() and action:
+                print "velocity override"
+                if absolute:
+                    self.set_velocity_override(change,absolute)
+                else:
+                    self.set_velocity_override((change * self.data.velocity_override_inc),absolute)
+            elif self.widgets.button_h4_3.get_active() and action:
+                print "jog override"
+                if widget == self.widgets.button_v0_1:
+                    change = self.get_qualified_input()
+                if absolute:
+                    self.set_jog_rate(change,absolute)
+                else:
+                    self.set_jog_rate((change * self.data.jog_rate_inc),absolute)
+            #elif not action:
+             #   self.widgets.statusbar1.push(self.statusbar_id,"No override selected")
+             #  return
+        # if jogging is active
+        elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode
             # what axis is set
+            if widget == self.widgets.button_v0_0:
+                print "zero button",action
+                self.zero_axis()
+            if widget == self.widgets.button_v0_1:
+                print "move to button",action
+                self.set_axis_checks()
+            if widget == self.widgets.button_v0_2:
+                print "up button",action
+                self.do_jog(action)
+            if widget == self.widgets.button_v0_3:
+                print "down button",action
+                self.do_jog(-(action))
+        elif widget == self.widgets.button_v0_0:
+                self.zero_axis()
+        elif widget == self.widgets.button_v0_1:
+            self.set_axis_checks()
 
     def graphics(self,*args):
         print "show/hide graphics buttons"
@@ -811,9 +891,15 @@ class Gscreen:
             for i in range(0,4):
                 self.widgets["mode%d"% i].hide()
             self.widgets.mode5.show()
+            self.widgets.dro_frame.set_sensitive(False)
+            self.widgets.button_mode.set_sensitive(False)
+            self.widgets.button_override.set_sensitive(False)
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
+            self.widgets.dro_frame.set_sensitive(True)
+            self.widgets.button_mode.set_sensitive(True)
+            self.widgets.button_override.set_sensitive(True)
 
     def override(self,*args):
         print "show/hide override buttons"
@@ -821,9 +907,17 @@ class Gscreen:
             for i in range(0,4):
                 self.widgets["mode%d"% i].hide()
             self.widgets.mode4.show()
+            self.widgets.vmode0.show()
+            self.widgets.vmode1.hide()
+            self.widgets.dro_frame.set_sensitive(False)
+            self.widgets.button_mode.set_sensitive(False)
+            self.widgets.button_graphics.set_sensitive(False)
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
+            self.widgets.dro_frame.set_sensitive(True)
+            self.widgets.button_mode.set_sensitive(True)
+            self.widgets.button_graphics.set_sensitive(True)
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acklowedge.
@@ -1038,21 +1132,40 @@ class Gscreen:
     def save_edit(self):
         print "edit"
 
-    def update_active_axis_buttons(self):
+    def block(self,widget_name):
+        self.widgets["%s"%(widget_name)].handler_block(self.data["_sighandler_%s"% (widget_name)])
+
+    def unblock(self,widget_name):
+         self.widgets["%s"%(widget_name)].handler_unblock(self.data["_sighandler_%s"% (widget_name)])
+
+    def update_active_axis_buttons(self,widget):
         count = 0;temp = []
         self.data.active_axis_buttons = []
         for num,i in enumerate(self.data.axis_list):
+            if self.widgets.button_h1_0.get_active() and not self.widgets["axis_%s"%i] == widget:
+                # unselect axis / HAL pin
+                self.block("axis_%s"%i)
+                self.widgets["axis_%s"%i].set_active(False)
+                self.unblock("axis_%s"%i)
+                continue
             if self.widgets["axis_%s"%i].get_active():
                 count +=1
                 axisnum = num
                 self.data.active_axis_buttons.append((i,num))
         if count == 0: self.data.active_axis_buttons.append((None,None))
+        self.update_hal_jog_pins()
 
     def jog_mode(self):
+        print "jog mode:",self.widgets.button_h1_0.get_active()
         # if muliple axis selected - unselect all of them
         if len(self.data.active_axis_buttons) > 1 and self.widgets.button_h1_0.get_active():
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
+        if self.widgets.button_h1_0.get_active():
+            self.widgets.button_v0_1.set_label("Move To")
+        else:
+            self.widgets.button_v0_1.set_label("Offset Origin")
+        self.update_hal_jog_pins()
 
     def do_jog(self,direction):
         # if manual mode, if jogging
@@ -1068,7 +1181,6 @@ class Gscreen:
                 print "Jog axis %s" % self.data.active_axis_buttons[0][0]
                 if not self.data.active_axis_buttons[0][0] == "s":
                     self.emc.jogging(1)
-                    self.emc.continuous_jog_velocity(20) # TODO make selectable
                     self.emc.continuous_jog(self.data.active_axis_buttons[0][1],direction)
 
     def do_jog_to_position(self):
@@ -1080,7 +1192,7 @@ class Gscreen:
         else:
             print "Jog axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
-                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),20) #TODO config jog rate
+                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
 
     def toggle_screen2(self):
         self.data.use_screen2 = self.widgets.use_screen2.get_active()
@@ -1095,6 +1207,8 @@ class Gscreen:
         raw = self.widgets.data_input.get_value()
         if switch == _SPINDLE_INPUT:
             return raw
+        elif switch == _PERCENT_INPUT:
+            return round(raw,2)
         else:
             if self.data.dro_units != self.data.machine_units:
                 print "conversion needed"
@@ -1126,44 +1240,26 @@ class Gscreen:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
 
     def zero_axis(self):
-        # cancel set mode
-        if self.widgets.button_v0_1.get_active():
-            self.widgets.button_v0_1.set_active(False)
         # if an axis is selected then set it
-        keep = True
         for i in self.data.axis_list:
             if self.widgets["axis_%s"%i].get_active():
-                keep = False
                 if i == "s":
                     self.emc.spindle_off(1)
                 else:
                     print "zero %s axis" %i
                     self.mdi_control.set_axis(i,0)
                     self.reload_plot()
-        if keep == False:
-            self.widgets.button_v0_0.handler_block(self.data._sighandler_button_v0_0)
-            self.widgets.button_v0_0.set_active(keep)
-            self.widgets.button_v0_0.handler_unblock(self.data._sighandler_button_v0_0)
 
     def set_axis_checks(self):
-        # cancel zero mode
-        if self.widgets.button_v0_0.get_active():
-            self.widgets.button_v0_0.set_active(False)
         if self.data.mode_order[0] in (_START,_MAN):
             # if in jog mode
             if self.widgets.button_h1_0.get_active():
-                "print jog to position"
-                # unpress toggle buttonn
-                self.widgets.button_v0_1.handler_block(self.data._sighandler_button_v0_1)
-                self.widgets.button_v0_1.set_active(False)
-                self.widgets.button_v0_1.handler_unblock(self.data._sighandler_button_v0_1)
+                print "jog to position"
                 self.do_jog_to_position()
             else:
                 # if an axis is selected then set it
-                keep = True
                 for i in self.data.axis_list:
                     if self.widgets["axis_%s"%i].get_active():
-                        keep = False
                         print "set %s axis" %i
                         if i == "s":
                             if self.widgets.s_display_fwd.get_active():
@@ -1175,10 +1271,6 @@ class Gscreen:
                         else:
                             self.mdi_control.set_axis(i,self.get_qualified_input(i))
                             self.reload_plot()
-                if keep == False:
-                    self.widgets.button_v0_1.handler_block(self.data._sighandler_button_v0_1)
-                    self.widgets.button_v0_1.set_active(keep)
-                    self.widgets.button_v0_1.handler_unblock(self.data._sighandler_button_v0_1)
 
     def clear_plot(self):
         self.widgets.gremlin.clear_live_plotter()
@@ -1364,13 +1456,29 @@ class Gscreen:
         self.widgets.led_estop.set_active(self.data.estopped)
         self.widgets.led_on.set_active(self.data.machine_on)
         # overrides
-        self.widgets.fo.set_text("FO: %d%%"%(self.data.feed_override*100))
-        self.widgets.so.set_text("SO: %d%%"%(self.data.spindle_override*100))
-        self.widgets.mv.set_text("VO: %d%%"%( int(self.data.max_velocity/self.data._maxvelocity *100)) )
-        #print self.data.max_velocity,self.data._maxvelocity
+        self.widgets.fo.set_text("FO: %d%%"%(round(self.data.feed_override,2)*100))
+        self.widgets.so.set_text("SO: %d%%"%(round(self.data.spindle_override,2)*100))
+        self.widgets.mv.set_text("VO: %d%%"%(round((self.data.velocity_override),2) *100))
+        if self.data.dro_units == _MM:
+            text = "Jog: %4.2f mm/min"% (round(self.data.jog_rate*25.4,2))
+        else:
+            text = "Jog: %3.2f IPM"% (round(self.data.jog_rate,2))
+        self.widgets.jog_rate.set_text(text)
+        #print self.data.velocity_override,self.data._maxvelocity
         # Mode / view
         modenames = ("Startup","Manual","MDI","Auto")
         self.widgets.mode_label.set_label( "%s Mode   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
+
+    def update_hal_jog_pins(self):
+         for num,i in enumerate(self.data.axis_list):
+            if self.widgets.button_h1_0.get_active() and self.widgets["axis_%s"%i].get_active():
+                self.halcomp["jog-enable-%s.out"%i] = True
+            else:
+                self.halcomp["jog-enable-%s.out"%i] = False
+            if self.widgets.button_h1_0.get_active():
+                self.halcomp["jog-enable.out"] = True
+            else:
+                self.halcomp["jog-enable.out"] = False
 
 if __name__ == "__main__":
     try:
