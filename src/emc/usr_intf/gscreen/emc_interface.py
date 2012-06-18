@@ -151,15 +151,15 @@ class emc_control:
 
         def feed_override(self, f):
                 if self.masked: return
-                self.emccommand.feedrate(f/100.0)
+                self.emccommand.feedrate(f)
 
         def spindle_override(self, s):
                 if self.masked: return
-                self.emccommand.spindleoverride(s/100.0)
+                self.emccommand.spindleoverride(s)
 
         def max_velocity(self, m):
                 if self.masked: return
-                self.emccommand.maxvel(m/60.0)
+                self.emccommand.maxvel(m)
 
         def reload_tooltable(self, b):
                 if self.masked: return
@@ -355,7 +355,7 @@ class emc_status:
             self.data.or_limits = self.emcstat.axis[0]['override_limits']
             self.data.feed_hold = self.emcstat.feed_hold_enabled
             self.data.feed_override = self.emcstat.feedrate
-            self.data.max_velocity = self.emcstat.max_velocity
+            self.data.velocity_override = self.emcstat.max_velocity / self.data._maxvelocity
             self.data.file = self.emcstat.file
             #self.data.file_lines =  len(self.listing.program)
             self.data.line =  self.emcstat.current_line
