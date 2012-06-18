@@ -1482,12 +1482,6 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SET_SPINDLE_VEL:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_SPINDLE_VEL");
-	    emcmotStatus->spindle.speed = emcmotCommand->vel;
-            emcmotStatus->atspeed_next_feed = 1;
-	    break;
-	    
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
 

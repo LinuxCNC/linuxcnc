@@ -23,18 +23,18 @@ net vel-ok-y <= wcomp.3.out
 net acc-ok-z <= wcomp.4.out
 net vel-ok-z <= wcomp.5.out
 
-setp wcomp.0.max 20.001
-setp wcomp.0.min -20.001
-setp wcomp.1.max 1.2001
-setp wcomp.1.min -1.2001
-setp wcomp.2.max 20.001
-setp wcomp.2.min -20.001
-setp wcomp.3.max 1.2001
-setp wcomp.3.min -1.2001
-setp wcomp.4.max 20.001
-setp wcomp.4.min -20.001
-setp wcomp.5.max 1.2001
-setp wcomp.5.min -1.2001
+setp wcomp.0.max 50.001
+setp wcomp.0.min -50.001
+setp wcomp.1.max 5.001
+setp wcomp.1.min -5.001
+setp wcomp.2.max 50.001
+setp wcomp.2.min -50.001
+setp wcomp.3.max 5.001
+setp wcomp.3.min -5.001
+setp wcomp.4.max 50.001
+setp wcomp.4.min -50.001
+setp wcomp.5.max 5.001
+setp wcomp.5.min -5.001
 
 loadrt match8 count=1
 

@@ -27,14 +27,6 @@ o<loadtool> call  [#<toolno>]
 #<d_angle>    = 0 (notused helix item)
 #<r>          = [#<diam> / 2]
 
-#<x>          = 0 ; not an input
-#<y>          = 0 ; not an input
-#<rotate>     = 0 ; not an input
-#<scale>      = 0 ; not an input
-o<move> call [#<x>][#<y>][#<rotate>][#<scale>][#<xctr>][#<yctr>]
-#<xctr> = #<_move:x>
-#<yctr> = #<_move:y>
-
 o<l20> while [#<i> LT #<n>]
    #<x> = [#<xctr> + #<r> * COS[#<theta>]]
    #<y> = [#<yctr> + #<r> * SIN[#<theta>]]

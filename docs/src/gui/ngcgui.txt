@@ -102,6 +102,7 @@ augment the path(s).  For this example:
 
 ----
 [RS274NGC]
+...
 SUBROUTINE_PATH = /home/myusername/mysubs:../../../nc_files/ngcgui_lib:../../../nc_files/ngcgui_lib/utilitysubs
 USER_M_PATH     = /home/myusername/mymfiles:../../../nc_files/ngcgui_lib/mfiles
 
@@ -150,9 +151,14 @@ dependences, if any, in a SUBROUTINE_PATH directory.  Some subroutines may
 use custom Mfiles which must be in a directory specified by the
 [RS274NGC]USER_M_PATH.
 
+[NOTE]
+This is not a complete INI the items show are what is used by ngcgui.
+Many additional items are required by LinuxCNC to have a complete INI file.
+
 .Sample INI
 ----
 [RS274NGC]
+...
 SUBROUTINE_PATH   = ../../../nc_files/ngcgui_lib:../../../ngcgui_lib/utilitysubs
 USER_M_PATH       = ../../../nc_files/ngcgui_lib/mfiles
 
@@ -440,8 +446,10 @@ global context that is problematic to maintain. Using numbered parameters #1
 thru #30 as subroutine inputs should be sufficient to satisfy a wide range of
 design requirements.
 
+Declining Feature:
 Ngcgui includes some support for global named input parameters but usage
-is deprecated and not documented here.
+is deprecated and not documented here.  Use of global named input parameters
+will not be supported with linuxCNC2.6.
 
 While input global named parameters are discouraged, emc subroutines must use
 global named parameters for returning results. Since ngcgui-compatible

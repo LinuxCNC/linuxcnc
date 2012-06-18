@@ -176,12 +176,15 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
     fixed_file = gobject.property(type=str, default='', nick='Fixed file name')
 
     def _hal_init(self):
+        _EMC_FileChooser._hal_init(self)
         _EMC_Action._hal_init(self)
         self.currentfolder = os.path.expanduser("~/linuxcnc/nc_files")
 
+    def _load_filters(self, ini): pass
+
     def on_activate(self, w):
         if self.fixed_file:
-            self._button.load_file(self.fixed_file)
+            self.load_file(self.fixed_file)
             return
         dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
                 buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))

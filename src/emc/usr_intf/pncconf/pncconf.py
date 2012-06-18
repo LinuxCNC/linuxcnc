@@ -162,13 +162,15 @@ _("Resolver 3 Encoder"),_("Resolver 4 Encoder"),_("Resolver 5 Encoder"), "resolv
 ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
     _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
 ( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,TXDATA4,RXDATA4,TXEN4,
-TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2,
+TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,SS7I76M0,SS7I76M2,SS7I76M3,
 SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
 _("SMARTSERIAL-P0-RX"),_("SMARTSERIAL-P0-EN"), _("SMARTSERIAL-P1-TX"),_("SMARTSERIAL-P1-RX"),_("SMARTSERIAL-P1-EN"),
 _("SMARTSERIAL-P2-TX"),_("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"),
 _("SMARTSERIAL-P4-TX"),_("SMARTSERIAL-P4-RX"),_("SMARTSERIAL-P4-EN"),_("SMARTSERIAL-P5-TX"),_("SMARTSERIAL-P5-RX"),_("SMARTSERIAL-P5-EN"),
 _("SMARTSERIAL-P6-TX"),_("SMARTSERIAL-P6-RX"),_("SMARTSERIAL-P6-EN"),_("SMARTSERIAL-P7-TX"),_("SMARTSERIAL-P7-RX"),_("SMARTSERIAL-P7-EN"),
-_("7i76 sserial #1"),_("7i76 sserial #2"),_("7i77 sserial #1"),_("7i77 sserial #2"),_("7i77 sserial #4"),_("7i77 sserial #5") ]
+_("7i76 I/O (SS0)"),_("7i76 I/O (SS2)"),_("7i76 I/O (SS3)"),_("7i77 I/O (SS0)"),_("7i77 Analog   (SS1)"),
+_("7i77 I/O (SS3)"),_("7i77 Analog   (SS4)"),
+ ]
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
@@ -363,7 +365,7 @@ mesafirmwaredata = [
 
 ]
 _SUBBOARDNAME = 0; _SUBFIRMNAME = 1; _SUBMODE = 2;_SUBCONLIST = 3;_SUBSTARTOFDATA = 12 # 4-10 spare for now.
-mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
+mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Used"], 0,0,0,0,0,0,0,0,
     [AMP8I20,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
@@ -371,7 +373,7 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i64", "7i64", 0,[], 0,0,0,0,0,0,0,0,
+["7i64", "7i64", 0,[_("7i64-Input\nP3 and P4"),_("7i64-Output\nP2 and P5"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -379,7 +381,7 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i69", "7i69", 0,[], 0,0,0,0,0,0,0,0,
+["7i69", "7i69", 0,[_("7i69\nP2"),_("7i69\nP3"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -387,23 +389,23 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i70", "7i70", 0,[], 0,0,0,0,0,0,0,0,
+["7i70", "7i70", 0,[_("7i70-Input\nTB3"),_("7i70-Input\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i71", "7i71", 0,[_("7i71-Output\nTB3"),_("7i71-Output\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i71", "7i71", 0,[], 0,0,0,0,0,0,0,0,
-     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i76", "7i76-m0", 0,[], 0,0,0,0,0,0,0,0,
+["7i76", "7i76-m0", 0,[_("7i76-I/O\nTB6"),_("7i76-I/O\nTB5"),_("7i76-Analog Output\nTB4")], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
@@ -411,11 +413,11 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[], 0,0,0,0,0,0,0,0,
     [POTO,0],[POTE,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i77", "7i77-m0", 0,[], 0,0,0,0,0,0,0,0,
+["7i77", "7i77-m0", 0,[_("7i77-I/O\nTB8"),_("7i77-I/O\nTB7"),_("7i77-Analog Output\nTB5")], 0,0,0,0,0,0,0,0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
     [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
     [PWMD,5],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
@@ -2975,10 +2977,10 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct-value false"
-                print >>file, "    setp halui.feed-override.scale .01"
-                print >>file, "net so-count              =>  halui.feed-override.counts"
+                print >>file, "    setp halui.spindle-override.count-enable true"
+                print >>file, "    setp halui.spindle-override.direct-value false"
+                print >>file, "    setp halui.spindle-override.scale .01"
+                print >>file, "net so-count              =>  halui.spindle-override.counts"
                 print >>file
             elif self.so_useswitch:
                 print >>file, "# connect spindle overide increments "
@@ -3640,29 +3642,28 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         if ptype == GPIOI:
                             comptype = "digin"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
-                    elif "7i77" in (subboardname):
+                    elif "7i77" in (subboardname) or "7i76" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
-                            pinnum = pinnum-32
+                            if pinnum >15 and pinnum <24:
+                                pinnum = pinnum-16
+                            elif pinnum >39:
+                                pinnum = pinnum -32
                         elif ptype == GPIOI:
                             comptype = "input"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i76" in(subboardname):
-                        if ptype in(GPIOO,GPIOD):
-                            comptype = "output"
-                            if pinnum <24:
-                                pinnum = pinnum-16 # adjustment for 7i76 pin numbering of output pins vrs pncconf numbering
-                            else:
-                                pinnum = pinnum-31
-                        elif ptype == GPIOI:
-                            comptype = "input"
-                            if pinnum >23:
+                            if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname) or "7i70" in (subboardname) or "7i71" in (subboardname):
+                    elif "7i69" in (subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             pinnum -= 24
+                        elif ptype == GPIOI:
+                            comptype = "input"
+                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                    elif "7i70" in (subboardname) or "7i71" in (subboardname):
+                        if ptype in(GPIOO,GPIOD):
+                            comptype = "output"
                         elif ptype == GPIOI:
                             comptype = "input"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
@@ -4459,6 +4460,7 @@ Ok to reset data and start a new configuration?"),False):
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
                 temp = pins[i].find("secondaryfunctionname").text
+                # this converts the XML file componennt names to pncconf's names
                 try:
                     modulename = pins[i].find("secondarymodulename").text
                     #print temp,modulename
@@ -4474,19 +4476,26 @@ Ok to reset data and start a new configuration?"),False):
                         convertedname = pinconverttppwm[temp]
                     elif modulename == "SSerial":
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
-                        # as the 5i25/7i76 requires this to work.
+                        # as the 5i25/7i76 uses some of the sserial channels for it's pins.
                         if boardname == "5i25":
-                            if  "7i76" in currentfirm:
+                            if "7i77_7i76" in currentfirm:
+                                if temp == "TXData1": convertedname = SS7I77M0
+                                elif temp == "TXData2": convertedname = SS7I77M1
+                                elif temp == "TXData4": convertedname = SS7I76M3
+                                else: convertedname = pinconvertsserial[temp]
+                                #print "XML ",currentfirm, temp,convertedname
+                            elif "7i76x2" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I76M0
                                 elif temp == "TXData3": convertedname = SS7I76M2
                                 else: convertedname = pinconvertsserial[temp]
-                            elif "7i77" in currentfirm:
+                                #print "XML ",currentfirm, temp,convertedname
+                            elif "7i77x2" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I77M0
                                 elif temp == "TXData2": convertedname = SS7I77M1
                                 elif temp == "TXData4": convertedname = SS7I77M3
                                 elif temp == "TXData5": convertedname = SS7I77M4
                                 else: convertedname = pinconvertsserial[temp]
-                                print "XML 7i77", temp,convertedname
+                                #print "XML ",currentfirm, temp,convertedname
                         else:
                             convertedname = pinconvertsserial[temp]
                     elif modulename == "None":
@@ -4498,8 +4507,19 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
+                    instance_num = int(pins[i].find("secondaryinstance").text)
+                    # this is a workaround for the 7i77_7i776 firmware. it uses a mux encoder for the 7i76 but only uses half of it
+                    # this is because of a limitation of hostmot2 - it can't have mux encoders and regular encoders
+                    # so in pncconf we look for this and change it to a regular encoder.
+                    if boardname == "5i25" and currentfirm == "7i77_7i76":
+                        if modulename == "MuxedQCount" and  instance_num == 3:
+                            instance_num = 6
+                            encoder =-1
+                            if convertedname == MXE0: convertedname = ENCA
+                            elif convertedname == MXE1: convertedname = ENCB
+                            elif convertedname == MXEI: convertedname = ENCI
                     temppinunit.append(convertedname)
-                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    temppinunit.append(instance_num)
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = pins[i].find("secondaryfunctionname").text
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
@@ -5245,7 +5265,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # type sserial
                 elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3,
                                  RXDATA4,TXDATA4,TXEN4,RXDATA5,TXDATA5,TXEN5,RXDATA6,TXDATA6,TXEN6,RXDATA7,TXDATA7,TXEN7,
-                                 SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
+                                 SS7I76M0,SS7I76M2,SS7I76M3,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     signaltree = self.data._sserialsignaltree
                     ptypetree = self.data._sserialliststore
                     signaltocheck = hal_sserial_names
@@ -5279,7 +5299,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
                 if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU,SS7I76M0,
-                                SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) or (index == 0):index2 = 0
+                                SS7I76M2,SS7I76M3,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) or (index == 0):index2 = 0
                 elif pintype in ( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,TXDATA4,RXDATA4,TXEN4,
                                   TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7 ):index2 = 0
                 #print index,index2,signaltocheck[index+index2]
@@ -5606,7 +5626,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
 
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
@@ -5671,7 +5691,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             numoftppwmgens = 0
             numofstepgens = 0
             self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                    numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,True)
+                                    numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,60):
             firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -5701,7 +5721,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
+                            numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
 
                 # if the board has less then 24 pins hide the extra comboboxes
@@ -5911,11 +5931,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # so the component number check is different from other components it checks the port number and channel number
                 elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,
                                     TXDATA4,RXDATA4,TXEN4,TXDATA5,RXDATA5,TXEN5,TXDATA6,RXDATA6,TXEN6,TXDATA7,RXDATA7,TXEN7,
-                                    SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
+                                    SS7I76M0,SS7I76M2,SS7I76M3,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     channelnum = 1
                     if firmptype in (TXDATA1,RXDATA1,TXEN1,SS7I77M1): channelnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2,SS7I76M2): channelnum = 3
-                    if firmptype in (TXDATA3,RXDATA3,TXEN3,SS7I77M3): channelnum = 4
+                    if firmptype in (TXDATA3,RXDATA3,TXEN3,SS7I76M3,SS7I77M3): channelnum = 4
                     if firmptype in (TXDATA4,RXDATA4,TXEN4,SS7I77M4): channelnum = 5
                     if firmptype in (TXDATA5,RXDATA5,TXEN5): channelnum = 6
                     if firmptype in (TXDATA6,RXDATA6,TXEN6): channelnum = 7
@@ -5935,15 +5955,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
                         self.widgets[p].child.set_editable(False) # sserial cannot have custom names
-                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
+                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,SS7I76M0,SS7I76M2,SS7I76M3,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                             self.widgets[complabel].set_text("%d:"% (channelnum -1))
-                            if channelnum < 5:#TODO fix hack hardcoded at 4 sserial channels
+                            if channelnum < 6:#TODO fix hack hardcoded at 5 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
                             # if the sserial ptype is 7i76 or 7i77 then the data must be set to 7i76/7i77 signal
                             # as that sserial instance can only be for the 7i76/7i77 I/O points
-                            if firmptype in (SS7I76M0,SS7I76M2):
+                            if firmptype in (SS7I76M0,SS7I76M2,SS7I76M3):
                                 self.data[p] = I7I76_M0_T
                                 self.data[ptype] = firmptype
                                 self.widgets[p].set_sensitive(0)
@@ -5989,10 +6009,22 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 if firmptype in (GPIOI,GPIOO,GPIOD):
                     widgettext = self.widgets[ptype].get_active_text()
                     if sserialflag:
-                        if pin <24 :
-                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                        if "7i77" in subboardname or "7i76" in subboardname:
+                            if pin <16:
+                                self.widgets[complabel].set_text("%02d:"%(pin)) # sserial input
+                            elif (pin >23 and pin < 40):
+                                self.widgets[complabel].set_text("%02d:"%(pin-8)) # sserial input
+                            elif pin >15 and pin < 24:
+                                self.widgets[complabel].set_text("%02d:"%(pin-16)) #sserial output
+                            elif pin >39:
+                                self.widgets[complabel].set_text("%02d:"%(pin-32)) #sserial output
+                        elif "7i70" in subboardname or "7i71" in subboardname:
+                            self.widgets[complabel].set_text("%02d:"%(pin))
                         else:
-                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                            if pin <24 :
+                                self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                            else:
+                                self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
                     else:
                          self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if compnum == 100 and widgettext == firmptype:
@@ -6364,7 +6396,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
                 # type smartserial  
                 elif widgetptype in( TXDATA0,SS7I76M0,SS7I77M0,SS7I77M3,TXDATA1,TXDATA2,TXDATA3,TXDATA4,TXDATA5,TXDATA6,TXDATA7,
-                                    SS7I76M2,SS7I77M1,SS7I77M4):
+                                    SS7I76M2,SS7I76M3,SS7I77M1,SS7I77M4):
                     #print "SMART SERIAL", dataptype,widgetptype
                     self.widgets[pinv].set_active(datapinv)
                     try:
@@ -6624,7 +6656,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedsearch = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                     customindex = 6
-                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
+                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,SS7I76M0,SS7I76M3,SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4):
                     portnum = 0 #TODO support more ports
                     for count,temp in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
                         if connector == temp:
@@ -6632,7 +6664,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             if widgetptype in (TXDATA0,SS7I76M0,SS7I77M0): channelnum = 0
                             elif widgetptype in (TXDATA1,SS7I77M1): channelnum = 1
                             elif widgetptype in (TXDATA2,SS7I76M2): channelnum = 2
-                            elif widgetptype in (TXDATA3,SS7I77M3): channelnum = 3
+                            elif widgetptype in (TXDATA3,SS7I77M3,SS7I76M3): channelnum = 3
                             elif widgetptype in (TXDATA4,SS7I77M4): channelnum = 4
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets["mesa%dsserial0_%d"% (boardnum,channelnum)].hide()
@@ -6643,12 +6675,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 # TODO we should search for these names rather then use hard coded logic
                                 # so as to make adding cards easier
                                 temp = self.widgets[p].get_active_text()
-                                tab = "mesa%dsserial%d_%dtab0"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 0")
-                                tab = "mesa%dsserial%d_%dtab1"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 1")
-                                tab = "mesa%dsserial%d_%dtab2"% (boardnum, portnum, channelnum)
-                                self.widgets[tab].set_text(temp + "\n Tab 2")
                                 table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
                                 self.widgets[table].show()
                                 table = "mesa%dsserial%d_%dtable3"% (boardnum, portnum, channelnum)
@@ -6689,6 +6715,19 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
                                     self.widgets[table].hide()
                                     return
+                                # set sserial tab names to corresond to connector numbers so users have a clue
+                                # first we have to find the daughter board in pncconf's internal list
+                                # TODO here we search the list- this should be done for the table names see above todo
+                                subfirmname = self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
+                                for subnum,temp in enumerate(mesadaughterdata):
+                                    if mesadaughterdata[subnum][_SUBFIRMNAME] == subfirmname: break
+                                subconlist = mesadaughterdata[subnum][_SUBCONLIST]
+                                # now search the connector list and write it to the tab names
+                                for tabnum in range(0,3):
+                                    conname = subconlist[tabnum]
+                                    tab = "mesa%dsserial%d_%dtab%d"% (boardnum, portnum, channelnum,tabnum)
+                                    self.widgets[tab].set_text(conname)
+
                                 #print p,temp," set at",self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
                                 self.set_sserial_options(boardnum,portnum,channelnum)
                                 return
@@ -8072,12 +8111,12 @@ different program to copy to your configuration file.\nThe edited program will b
                         firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,SS7I76M0,
-                                                SS7I76M2,SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) and not self.data[p] == UNUSED_SSERIAL:
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,TXDATA4,SS7I76M0,SS7I76M2,SS7I76M3,
+                                                SS7I77M0,SS7I77M1,SS7I77M3,SS7I77M4) and not self.data[p] == UNUSED_SSERIAL:
                             if self.data[ptype] in (TXDATA0,SS7I76M0,SS7I77M0): channelnum = 0
                             elif self.data[ptype] in (TXDATA1,SS7I77M1): channelnum = 1
                             elif self.data[ptype] == TXDATA2: channelnum = 2
-                            elif self.data[ptype] in (TXDATA3,SS7I77M3): channelnum = 3
+                            elif self.data[ptype] in (TXDATA3,SS7I76M3,SS7I77M3): channelnum = 3
                             elif self.data[ptype] in (TXDATA4,SS7I77M4): channelnum = 4
                             keeplist.append(channelnum)
             #print "board # %d sserial keeplist"%(boardnum),keeplist
@@ -8692,10 +8731,10 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
-                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
-                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
-                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
                 ending = ""
             halrun.write("net output %s \n"%  (self.pwm + ending))
             halrun.write("loadusr halmeter -s pin %s -g 0 575 330\n"%  (self.pwm + ending))
@@ -8954,18 +8993,18 @@ But there is not one in the machine-named folder.."""),True)
 
         # setup sserial potentiometer 
         if self.pot:
-            halrun.write("net dac " + self.pot + ".spinout")
-            halrun.write("net enable " + self.pot +".spinena")
-            halrun.write("net dir " + self.pot +".spindir")
-            halrun.write("setp   "+self.pot+".spinout-maxlim   %.1f"% pwmminlimit)
-            halrun.write("setp   "+self.pot+".spinout-mixlim   %.1f"% pwmmaxlimit)
-            halrun.write("setp   "+self.pot+".spinout-scalemax %.1f"% pwmmaxoutput)
+            halrun.write("net dac " + self.pot + "spinout\n")
+            halrun.write("net enable " + self.pot +"spinena\n")
+            halrun.write("net dir " + self.pot +"spindir\n")
+            halrun.write("setp   "+self.pot+"spinout-minlim   %.1f\n"% pwmminlimit)
+            halrun.write("setp   "+self.pot+"spinout-maxlim   %.1f\n"% pwmmaxlimit)
+            halrun.write("setp   "+self.pot+"spinout-scalemax %.1f\n"% pwmmaxoutput)
             potinvertlist = self.data.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == POTO:
-                        halrun.write("setp   "+self.pot+".spindir-invert   true")
+                        halrun.write("setp   "+self.pot+"spindir-invert   true\n")
                     if i == POTE:
-                        halrun.write("setp   "+self.pot+".spinena-invert   true")
+                        halrun.write("setp   "+self.pot+"spinena-invert   true\n")
         # setup pwm generator
         if self.pwm:
             if "pwm" in self.pwm: # mainboard PWM
@@ -8982,10 +9021,10 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +".analogena"))
-                halrun.write("setp   "+self.pwm+"-maxlim   %.1f"% pwmminlimit)
-                halrun.write("setp   "+self.pwm+"-mixlim   %.1f"% pwmmaxlimit)
-                halrun.write("setp   "+self.pwm+"-scalemax %.1f"% pwmmaxoutput)
+                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
+                halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
+                halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
                 ending = ""
             halrun.write("net dac %s \n"%  (self.pwm + ending))
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (self.pwm + ending))
@@ -9069,9 +9108,9 @@ But there is not one in the machine-named folder.."""),True)
             if invertmotor:
                 output = output * -1
             if output < 0:
-                halrun.write("sets dir true")
+                halrun.write("sets dir true\n")
             else:
-                halrun.write("sets dir false")
+                halrun.write("sets dir false\n")
             halrun.write("""sets dac %(output)f\n""" % { 'output': abs(output)})
         halrun.flush()
 
@@ -9133,8 +9172,8 @@ But there is not one in the machine-named folder.."""),True)
                             halrun.write("net %s %s \n"% (signal,pinname))
                     else:
                         if not "sserial" in pname: # mainboard GPIO need to be set to output/opendrain
-                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
-                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                            halrun.write("setp %s true\n"% (pinname + ".is_output\n"))
+                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true\n")
                         if "sserial" in pname and "dig" in pinname: ending = ".out" # 7i76 sserial board
                         elif "sserial" in pname: ending = "" # all other sserial
                         elif not "sserial" in pname: ending =".out" # mainboard GPIO
