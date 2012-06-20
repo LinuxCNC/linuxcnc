@@ -27,6 +27,7 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
+    <glade-widget-class name="Calculator" generic-name="calc" title="calculator"/>
 
     <!-- Actions -->
     <glade-widget-class name="EMC_Action_ESTOP" generic-name="hal_action_estop" title="EMC Action ESTOP" icon-name='gtk-stop'/>
@@ -88,6 +89,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+   <glade-widget-class-ref name="Calculator"/>
 
    <glade-widget-class-ref name="EMC_Stat"/>
 
