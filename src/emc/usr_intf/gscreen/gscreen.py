@@ -363,7 +363,7 @@ class Gscreen:
             print"change error color",self.data.err_textcolor
             w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.data.err_textcolor))
         self.widgets.statusbar1.push(1,"Status bar text                                                                       to here?")
-        self.widgets.data_input.set_value(50.567)
+        self.widgets.data_input.set_value(5.125)
         self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
         # add terminal window
         v = vte.Terminal ()
@@ -468,6 +468,7 @@ class Gscreen:
         self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
         self.widgets.button_override.connect("clicked", self.override)
         self.widgets.button_graphics.connect("clicked", self.graphics)
+        self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -559,6 +560,16 @@ class Gscreen:
         self.halcomp.ready()
 
 # *** GLADE callbacks ****
+
+    def launch_numerical_input(self,widget,event):
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            dialog = self.widgets.dialog_entry
+            self.widgets.calc_entry.set_value(self.widgets.data_input.get_value())
+            dialog.show_all()
+            result = dialog.run()
+            dialog.hide()
+            if result:
+                self.widgets.data_input.set_value(self.widgets.calc_entry.get_value())
 
     def hack_leave(self,*args):
         if not self.data.hide_cursor: return
