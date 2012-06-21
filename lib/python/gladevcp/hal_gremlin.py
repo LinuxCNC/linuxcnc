@@ -53,6 +53,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'show_dtg' : ( gobject.TYPE_BOOLEAN, 'Show DTG', 'Show Distance To Go',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'grid_size' : ( gobject.TYPE_FLOAT, 'Grid Size', 'Grid Size',
+                    0, 100, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'use_joints_mode' : ( gobject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
