@@ -30,7 +30,7 @@ class Calculator(gtk.VBox):
 	__gtype_name__ = 'Calculator'
 	def __init__(self, *a, **kw):
 		gtk.VBox.__init__(self, *a, **kw)
-		self.set_value = None
+		self.preset_value = None
 		self.eval_string=""
 		self.wTree = gtk.Builder()
 		self.wTree.add_from_file(os.path.join(datadir, "calculator.glade") )
@@ -63,7 +63,7 @@ class Calculator(gtk.VBox):
 	def set_value(self,value):
 		self.delete()
 		self.displayOperand(str(value))
-		self.set_value = value
+		self.preset_value = value
 
 	def get_value(self):
 		self.compute()
@@ -73,8 +73,8 @@ class Calculator(gtk.VBox):
 			value = 0
 		return value
 
-	def get_set_value(self):
-		return self.set_value
+	def get_preset_value(self):
+		return self.preset_value
 
 	def compute(self):
 		print"string:",self.eval_string
@@ -171,7 +171,7 @@ def main():
     if response == gtk.RESPONSE_ACCEPT:
        print calc.get_value()
     else:
-       print calc.get_set_value()
+       print calc.get_preset_value()
     gtk.main()
 if __name__ == "__main__":	
 	main()
