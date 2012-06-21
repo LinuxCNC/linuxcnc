@@ -124,6 +124,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.use_relative = True
         self.show_tool = True
         self.show_dtg = True
+        self.grid_size = 0.0
         temp = inifile.find("DISPLAY", "LATHE")
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.foam_option = bool(inifile.find("DISPLAY", "FOAM"))
@@ -261,6 +262,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_show_relative(self): return self.use_relative
     def get_show_tool(self): return self.show_tool
     def get_show_distance_to_go(self): return self.show_dtg
+    def get_grid_size(self): return self.grid_size
 
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'z':2, 'p':3}
