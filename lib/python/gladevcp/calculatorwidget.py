@@ -28,13 +28,25 @@ except:
 
 class Calculator(gtk.VBox):
 	__gtype_name__ = 'Calculator'
+	__gproperties__ = {
+        'is_editable' : ( gobject.TYPE_BOOLEAN, 'Is Editable', 'Ability to use a keyboard to enter data',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+		'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+	}
+	__gproperties = __gproperties__
+
 	def __init__(self, *a, **kw):
 		gtk.VBox.__init__(self, *a, **kw)
 		self.preset_value = None
 		self.eval_string=""
+		self.font="sans 12"
+		self.is_editable=False
 		self.wTree = gtk.Builder()
 		self.wTree.add_from_file(os.path.join(datadir, "calculator.glade") )
 		dic = {
+			"on_displayText_activate" : self.displayText,
+			"on_displayText_changed" : self.displayText_changed,
 			"on_CLR_clicked" : self.displayClr,
 			"on_Pi_clicked" : self.displayPi,
 			"on_Left_bracket_clicked" : self.displayLeftBracket,
@@ -58,11 +70,17 @@ class Calculator(gtk.VBox):
 			}
 		self.wTree.connect_signals( dic )
 		entry = self.wTree.get_object("displayText")
-		entry.modify_font(pango.FontDescription("sans 12"))
+		entry.modify_font(pango.FontDescription(self.font))
 		window = self.wTree.get_object("calc_box")
 		window.reparent(self)
 
+	def set_editable(self,value):
+		self.is_editable = value
+		entry = self.wTree.get_object("displayText")
+		entry.set_editable(value)
+
 	def set_font(self,font):
+		self.font = font
 		entry = self.wTree.get_object("displayText")
 		entry.modify_font(pango.FontDescription(font))
 
@@ -83,7 +101,7 @@ class Calculator(gtk.VBox):
 		return self.preset_value
 
 	def compute(self):
-		print"string:",self.eval_string
+		#print"string:",self.eval_string
 		try   :
 			b=str(eval(self.eval_string))
 		except:
@@ -100,6 +118,12 @@ class Calculator(gtk.VBox):
 	def displayOperand(self,i):
 		self.eval_string=self.eval_string+i
 		self.wTree.get_object("displayText").set_text(str(self.eval_string))
+
+	def displayText_changed(self,widget):
+		self.eval_string=widget.get_text()
+
+	def displayText(self,widget):
+		self.compute()
 	
 	def displayClr(self,widget):
 		self.delete()
@@ -161,6 +185,21 @@ class Calculator(gtk.VBox):
 	def displayAdd(self,widget):
 		self.displayOperand("+")
 
+	def do_get_property(self, property):
+		name = property.name.replace('-', '_')
+		if name in self.__gproperties.keys():
+			return getattr(self, name)
+		else:
+			raise AttributeError('unknown property %s' % property.name)
+
+	def do_set_property(self, property, value):
+		name = property.name.replace('-', '_')
+		if name == 'is_editable':
+			self.set_editable(value)
+		if name == 'font':
+			self.set_font(value)
+
+# for testing without glade editor:
 def main():
     window = gtk.Dialog("My dialog",
                    None,
@@ -173,6 +212,7 @@ def main():
     window.connect("destroy", gtk.main_quit)
     calc.set_value(2.5)
     calc.set_font("sans 25")
+    calc.set_editable(True)
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
