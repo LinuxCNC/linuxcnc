@@ -16,7 +16,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os
+import sys,os,pango
 import math
 datadir = os.path.abspath(os.path.dirname(__file__))
 
@@ -57,8 +57,14 @@ class Calculator(gtk.VBox):
 			"on_Add_clicked" : self.displayAdd,
 			}
 		self.wTree.connect_signals( dic )
+		entry = self.wTree.get_object("displayText")
+		entry.modify_font(pango.FontDescription("sans 12"))
 		window = self.wTree.get_object("calc_box")
 		window.reparent(self)
+
+	def set_font(self,font):
+		entry = self.wTree.get_object("displayText")
+		entry.modify_font(pango.FontDescription(font))
 
 	def set_value(self,value):
 		self.delete()
@@ -166,13 +172,14 @@ def main():
     window.vbox.add(calc)
     window.connect("destroy", gtk.main_quit)
     calc.set_value(2.5)
+    calc.set_font("sans 25")
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
        print calc.get_value()
     else:
        print calc.get_preset_value()
-    gtk.main()
+
 if __name__ == "__main__":	
 	main()
 	
