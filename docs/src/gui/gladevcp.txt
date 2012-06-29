@@ -1628,15 +1628,8 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
   adjustment. The workaround mentione for instance in
   http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
   not reliably set the HAL pin value, it is better to set it
-  explicitly in an `on_realize` signal handler during widget creation
-  like so:
-
-
-[source,python]
-----------------------------------
- def on_realize(self,widget):
-    widget.set_value(3.14)
-----------------------------------
+  explicitly in an `on_realize` signal handler during widget creation.
+  See the example in `configs/gladevcp/by-widget/spinbutton`.
 
 
 == Troubleshooting

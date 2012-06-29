@@ -2129,17 +2129,17 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 		return retval;
 	}
+	retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].vel), comp_id,
+	    "ppmc.%d.encoder.%02d.velocity",bus->busnum,bus->last_encoder);
+	if (retval != 0) {
+	  return retval;
+	}
 	if (slot->ver >= 2) {
 	  /* encoder index enable bit */
 	  /* if the ver of the board firmware is >= 2 then the board supports
 	     this function, so export the pin */
 	  retval = hal_pin_bit_newf(HAL_IO, &(slot->encoder[n].index_enable), comp_id,
 		"ppmc.%d.encoder.%02d.index-enable", bus->busnum, bus->last_encoder);
-	  if (retval != 0) {
-	    return retval;
-	  }
-	  retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].vel), comp_id,
-	        "ppmc.%d.encoder.%02d.velocity",bus->busnum,bus->last_encoder);
 	  if (retval != 0) {
 	    return retval;
 	  }
