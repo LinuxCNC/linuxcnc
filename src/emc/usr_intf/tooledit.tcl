@@ -1,6 +1,6 @@
 #!/usr/bin/wish
 #
-# Copyright: 2009-2011
+# Copyright: 2009-2012
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 # As standalone tool table editor
 # Usage:
 #        tooleditor.tcl filename
+#        tooleditor.tcl [column_1 ... column_n] filename
 #
 # This file can also be sourced and included in tcl scripts
 # The namespace ::tooledit exports a single function:
@@ -39,7 +40,42 @@ namespace eval ::tooledit {
   namespace export tooledit ;# public interface
 }
 
-proc ::tooledit::init {} {
+proc ::tooledit::init { {columns ""} } {
+  if [file readable ~/.tooleditrc] {
+    if [catch {source ~/.tooleditrc} msg] {
+      puts stderr "Problem reading ~/.tooleditrc:\n$msg"
+    }
+    if [info exists geometry] {
+      set ::te(top,restore,geometry) $geometry
+    }
+  }
+  if {"$columns" == ""} {
+    set columns $::te(allcolumns)
+  } else {
+    set columns [string tolower $columns]
+    set ::te(user_specified_columns) $columns
+  }
+
+  # disallow duplicate columns (order according to first occurrence)
+  set checked_columns {}
+  foreach cname $columns {
+    if {[lsearch $checked_columns $cname] >= 0} {
+       puts stderr "Note: Ignoring duplicate column name: $cname"
+       continue ;# duplicate col name
+    }
+    lappend checked_columns $cname
+  }
+
+  # include only allowed column names:
+  foreach cname $checked_columns {
+    if {[lsearch $::te(allcolumns) $cname] >= 0} {
+      lappend ::te(columns) $cname
+    } else {
+      puts stderr "Unknown column: $cname"
+    }
+  }
+
+  set ::te(filemod) 0
   set ::te(fmt,int)   %d
   set ::te(fmt,real)  %g
   set ::te(fmt,angle) %f
@@ -49,8 +85,15 @@ proc ::tooledit::init {} {
   set ::te(initial,width)     0 ;# initial width as reqd
   set ::te(initial,height)  110 ;# initial height limit here
   set ::te(hincr)             1 ;# height increment to bump scrollable size
-  set ::te(header)  {tool poc x y z a b c u v w \
-                          diam front back orien comment}
+
+  set ::te(autocolumns) {tool poc}
+  set ::te(header) [concat $::te(autocolumns) $::te(columns) comment]
+
+  foreach item $::te(header) { set ::te(type,$item) real ;# default }
+  set ::te(type,tool)    integer
+  set ::te(type,poc)     integer
+  set ::te(type,orien)   integer
+  set ::te(type,comment) ascii
 
   # include values for each (header) item:
   set ::te(tool,width)     5; set ::te(tool,tag)     T
@@ -116,6 +159,7 @@ proc ::tooledit::ventry {f validatenumber tvar \
     set e [entry $f.[qid] \
           -width $twidth -relief sunken -justify $justify \
           -textvariable    $tvar \
+          -bg white \
           -validate        all \
           -validatecommand [list ::tooledit::validateNumber $tvar %W %s %P] \
           -invalidcommand  [list ::tooledit::invalidNumber  $tvar %W] \
@@ -125,11 +169,21 @@ proc ::tooledit::ventry {f validatenumber tvar \
     set e [entry $f.[qid] \
           -width $twidth -relief sunken -justify $justify\
           -textvariable $tvar \
+          -bg white \
+          -validate all \
+          -validatecommand [list ::tooledit::validateOther $tvar %W %s %P] \
          ]
     pack $e -side left -expand $expand -fill $fill
   }
   return $e
 } ;# ventry
+
+proc ::tooledit::validateOther {varname widget current new} {
+   if {"$current" != $new} {
+     incr ::te(filemod)
+   }
+   return 1 ;# 1==>ok
+} ;# validateOther
 
 proc ::tooledit::validateNumber {varname widget current new} {
    if ![info exists $varname] {return 1}
@@ -148,6 +202,7 @@ proc ::tooledit::validateNumber {varname widget current new} {
    } else {
      if {"$current" != "$new"} {message modified}
      $widget configure -fg black
+     incr ::te(filemod)
      return 1 ;# 1==>ok
    }
 } ;# validateNumber
@@ -180,6 +235,7 @@ proc ::tooledit::readfile {filename} {
   if [info exists msg] {return -code error $msg}
   if [info exists new] {
     makeline new
+    incr ::te(filemod)
     message newfile
     return
   }
@@ -243,6 +299,7 @@ proc ::tooledit::readfile {filename} {
     }
     if $bogus continue
     makeline u
+    ::tooledit::repack
   } ;# while
   close $fd
   if {$bct >0} {
@@ -250,6 +307,8 @@ proc ::tooledit::readfile {filename} {
     after 0 {::tooledit::message bogus}
   }
   message opened
+  ::tooledit::column_sort $::te(entry,header,tool) tool 1
+  set ::te(filemod) 0
   return
 } ;# readfile
 
@@ -287,6 +346,8 @@ proc ::tooledit::watch {args} {
       && "$::te(msg,last)" != "filegone"
       && "$::te(msg,last)" != "changed"
       && "$::te(msg,last)" != "bogus"
+      && "$::te(msg,last)" != "isort"
+      && "$::te(msg,last)" != "dsort"
      } {
     ::tooledit::toolvalidate silent ;# to clear errors
   }
@@ -306,14 +367,22 @@ proc ::tooledit::watch {args} {
   set ::te(afterid) [after $::te(pollms) ::tooledit::watch]
 } ;# watch
 
-proc ::tooledit::tooledit {filename} {
+proc ::tooledit::tooledit {filename {columns ""} } {
   package require Tk
-  init
+  if {[package vcompare $::tcl_version 8.5] >= 0} {
+    # tcl8.5 lsort -indices available
+    set ::te(enable_column_sorting) 1
+  } else {
+    set prog [file tail $::argv0]
+    puts stderr "$prog: Column sorting not available with tcl_version=$::tcl_version"
+  }
+  ::tooledit::init $columns
   set ::te(filename) $filename
 
   foreach h $::te(header)  {set ::te($h) [string toupper $h]}
 
   set ::te(top) [toplevel .tooledit]
+  wm withdraw $::te(top); update
   wm resizable $::te(top) 1 1
   wm protocol $::te(top) WM_DELETE_WINDOW ::tooledit::bye
   wm title $::te(top) "tooledit: [file tail $::te(filename)]"
@@ -341,10 +410,14 @@ proc ::tooledit::tooledit {filename} {
   foreach h $::te(header) {
     set e 0;set j center
     if {"$h" == "comment"} {set e 1;set j left}
-    pack [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
+    set ey [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
          -state disabled -relief groove \
          -disabledforeground black \
-         -width $::te($h,width)] -side left -fill x -expand $e
+         -width $::te($h,width)]
+    pack $ey -side left -fill x -expand $e
+    set ::te(entry,header,$h) $ey
+    $ey configure -cursor arrow
+    bind $ey <ButtonRelease-1> "::tooledit::column_sort $ey $h"
   }
 
   readfile $::te(filename)
@@ -356,30 +429,32 @@ proc ::tooledit::tooledit {filename} {
   set bf [frame $::te(top).[qid]]
   pack $bf -side top -expand 0 -fill both -anchor nw
 
-  set   bb [button $bf.[qid] -text "Delete items"\
+  pack [button $bf.[qid] -text Quit \
+       -command ::tooledit::bye] \
+       -side right -fill x -expand 1
+
+  if {[sendaxis ping] && [sendaxis tool_table_filename]} {
+    set ::te(load,button) [button $bf.[qid] -text "ReLoadTable" \
+         -state disabled \
+         -command [list ::tooledit::sendaxis reload_tool_table]]
+    pack $::te(load,button) -side right -fill x -expand 1
+  }
+  pack [button $bf.[qid] -text "SaveFile" \
+       -command [list ::tooledit::writefile $::te(filename)]] \
+       -side right -fill x -expand 1
+# pack [button $bf.[qid] -text "Check Entries" \
+#      -command [list ::tooledit::toolvalidate]] -side right -fill x -expand 1
+  pack [button $bf.[qid] -text "ReRead" \
+       -command  ::tooledit::toolreread] -side right -fill x -expand 1
+  pack [button $bf.[qid] -text "AddTool" \
+       -command {::tooledit::makeline new}] -side right -fill x -expand 1
+
+  set   bb [button $bf.[qid] -text "Delete"\
            -command {::tooledit::deleteline}]
-  pack $bb -side left -fill y -expand 0
+  pack $bb -side right -fill x -expand 1
   set ::te(deletebutton) $bb
   checkdelete
 
-  pack [button $bf.[qid] -text "Add Tool" \
-       -command {::tooledit::makeline new}] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "Reload File" \
-       -command  ::tooledit::toolreread] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "Check Entries" \
-       -command [list ::tooledit::toolvalidate]] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "Write Tool Table File" \
-       -command [list ::tooledit::writefile $::te(filename)]] \
-       -side left -fill x -expand 1
-  if {[sendaxis ping] && [sendaxis tool_table_filename]} {
-    set ::te(load,button) [button $bf.[qid] -text "ReLoad Tool Table" \
-         -state disabled \
-         -command [list ::tooledit::sendaxis reload_tool_table]]
-    pack $::te(load,button) -side left -fill x -expand 1
-  }
-  pack [button $bf.[qid] -text Dismiss \
-       -command ::tooledit::bye] \
-       -side left -fill x -expand 1
 
   # message frame -------------------------------------------------
   set mf [frame $::te(top).[qid]]
@@ -390,13 +465,17 @@ proc ::tooledit::tooledit {filename} {
   pack $msg -side top -expand 0 -fill x -anchor w
 
   update ;# wait for display before binding Configure events
+  if [info exists ::te(top,restore,geometry)] {
+    wm geometry $::te(top) $::te(top,restore,geometry)
+    unset ::te(top,restore,geometry)
+  }
   set ::te(top,geometry) [wm geometry $::te(top)]
   set ::te(top,height)   [winfo height $::te(top)]
   # set min width so top cannot be disappeared inadvertently
   # set min height to initial
   wm minsize $::te(top) 100 $::te(top,height)
-
   bind $::te(top) <Configure> {::tooledit::configure %W %w %h}
+  wm deiconify $::te(top)
 } ;# tooledit
 
 proc ::tooledit::configure {W w h} {
@@ -432,6 +511,8 @@ proc ::tooledit::message {mtype} {
                  update idletasks
                  $::te(scroll,frame) yview moveto 1.0
              }
+    isort    {$w conf -text "$dt: Sorted by $::te(lastsort), increasing" -fg darkgreen}
+    dsort    {$w conf -text "$dt: Sorted by $::te(lastsort), decreasing" -fg darkgreen}
   }
   set ::te(msg,last) $mtype
 } ;# message
@@ -467,6 +548,7 @@ proc ::tooledit::deleteline {} {
   }
   checkdelete
   if {$dct >0}  { message delete}
+  incr ::te(filemod)
 } ;# deleteline
 
 proc ::tooledit::makeline {ay_name} {
@@ -488,7 +570,11 @@ proc ::tooledit::makeline {ay_name} {
   set i $::te(lasti)
   set f [frame $::te(main,frame).[qid]]
   set ::te(entry,$i,frame) $f
-  pack $f -side top -expand 1 -fill x -anchor n
+  if {"$ay_name" == "new"} {
+    pack $f -side top -expand 1 -fill x -anchor n
+  } else {
+    # caller must pack (use ::tooledit::repack)
+  }
   lappend ::te(items) $i
   set ::te(parm,$i,tool)      $ay(t)
   set ::te(parm,$i,poc)       $ay(p)
@@ -641,8 +727,11 @@ proc ::tooledit::writefile {filename} {
     }
   }
 
+  # write to all populated header items (to preserve values if not displayed)
+  set allheader [concat $::te(autocolumns) $::te(allcolumns) comment]
+
   foreach i $::te(items) {
-    foreach h $::te(header) {
+    foreach h $allheader {
       set j ""
       set w $::te($h,width)
       # correct entries with leading zeros
@@ -661,6 +750,7 @@ proc ::tooledit::writefile {filename} {
   close $fd
   watch start
   message write
+  set ::te(filemod) 0
 } ;# writefile
 
 proc ::tooledit::toolvalidate {args} {
@@ -763,8 +853,69 @@ proc ::tooledit::showerr {msg} {
 } ;# showerr
 
 proc ::tooledit::bye {} {
+  if $::te(filemod) {
+    set ans [tk_dialog .filemod \
+              "File Modified" \
+              "Save Modifications to File?" \
+              {} \
+              0 \
+              Yes No]
+    if {$ans == 0} {
+      ::tooledit::writefile $::te(filename)
+    }
+  }
+
   catch {after cancel $::te(afterid)}
-  destroy $::te(top)      ;# for embedded usage
+
+  if ![file exists ~/.tooleditrc] {
+    # first time use presumed, instruct for configuring columns
+    set used ""
+    foreach item $::te(items) {
+      foreach col $::te(allcolumns) {
+        if {"$::te(parm,$item,$col)" != ""} {lappend used $col}
+      }
+    }
+    # make used list unique:
+    foreach item $used { set tmp($item) "" }
+    set used [array names tmp]
+
+    if {   ![info exists ::te(user_specified_columns)] \
+        && ("$used" != "") \
+        && ([llength $used] < [llength $::te(allcolumns)]) } {
+      set prog [file tail $::argv0]
+      set msg "Only these columns are currently used:\
+           \n\n  $used\
+           \n\nLimit display to these columns by specifying\
+             \n \[DISPLAY\]TOOL_EDITOR = $prog $used\
+           \n\nFormat for ini file is:\
+             \n  \[DISPLAY\]TOOL_EDITOR = $prog col_1 col_2 ... col_n\
+           \n\nOr, for standalone use, invoke as:\
+           \n\n  $prog col_1 col_2 ... col_n tool_table_filename
+              "
+      catch {destroy .msg}
+      toplevel .msg
+      set txt [text .msg.txt -width 80 -height 14]
+      $txt insert end $msg
+      pack $txt -side top -fill x -expand 0
+      pack [button .msg.b -text OK -command {destroy .msg}] -side top
+    }
+    update
+  }
+  while 1 {
+    if ![winfo exists .msg] break
+    after 1000
+    update
+  }
+
+  if [winfo exists $::te(top)] {
+    set fd [open ~/.tooleditrc w]
+    set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]
+    puts $fd   "# $time Created by [file normalize $::argv0]"
+    puts $fd "\n# Saved geometry (updated on program termination):"
+    puts $fd "set geometry [wm geometry $::te(top)]"
+    close $fd
+    destroy $::te(top)    ;# for embedded usage
+  }
   set ::tooledit::finis 1 ;# for standalone usage
 } ;# bye
 
@@ -818,18 +969,100 @@ proc ::tooledit::sendaxis {cmd} {
   return 0 ;# fail
 } ;# sendaxis
 
+proc ::tooledit::repack { {entryname tool} {mode increasing} } {
+  if ![info exist ::te(enable_column_sorting)] {
+    foreach name [array names ::te entry*frame] {
+     pack $::te($name) -side top -expand 1 -fill x -anchor n
+    }
+    return
+  }
+
+  set type $::te(type,$entryname)
+
+  foreach item $::te(items) {
+    set value $::te(parm,$item,$entryname)
+    if {    ( ("$type"  == "real") || ("$type"  == "integer") )\
+         && ( ("$value" == ""    ) || ("$value" == "NEW"    ) ) } {
+      set value 0
+    }
+    lappend parms   $value
+    lappend parms_i $item
+  }
+
+  foreach i $::te(items) {
+    pack forget $::te(entry,$i,frame)
+  }
+
+  set indices [lsort -$type -$mode -indices $parms]
+  foreach idx $indices {
+    set i [lindex $parms_i $idx]
+    pack $::te(entry,$i,frame) -side top -expand 1 -fill x -anchor n
+  }
+} ;# repack
+
+proc ::tooledit::column_sort {e parm {initialize 0} } {
+  if {$initialize || ![info exists ::te(columnsortorder)]} {
+    set ::te(columnsortorder) increasing
+    catch {$::te(lastsort,entry) configure -disabledforeground black}
+  } else {
+    if [info exists ::te(lastsort,entry)] {
+      $::te(lastsort,entry) configure -disabledforeground black
+      if {"$::te(lastsort,entry)" != "$e"} {
+        set ::te(columnsortorder) decreasing
+      }
+    }
+    if {"$::te(columnsortorder)" == "increasing"} {
+      set ::te(columnsortorder) decreasing
+    } else {
+      set ::te(columnsortorder) increasing
+    }
+  }
+  ::tooledit::repack $parm $::te(columnsortorder)
+
+  if ![info exists ::te(enable_column_sorting)] return
+
+  set ::te(lastsort,entry) $e
+  set ::te(lastsort) [string toupper $parm]
+  switch $::te(columnsortorder) {
+    increasing {
+      $e configure -disabledforeground blue
+      ::tooledit::message isort
+    }
+    decreasing {
+      $e configure -disabledforeground violetred
+      ::tooledit::message dsort
+    }
+  }
+} ;# column_sort
+
 #------------------------------------------------------------------------
-if {[info script] == $argv0} {
+set ::te(allcolumns)  {x y z a b c u v w diam front back orien}
+if {[info script] == $::argv0} {
   # configure for standalone usage:
   set ::te(standalone) 1
   wm withdraw .
-  if {[lindex $argv 0] == ""} {
-    puts stderr "Usage: $::argv0 filename"
+  if {[lindex $::argv 0] == ""} {
+    set prog [file tail $::argv0]
+    puts stderr "\nUsage:"
+    puts stderr "       $prog filename"
+    puts stderr "       $prog \[column_1 ... column_n\] filename"
+    puts stderr "\nAllowed column_ names are: $::te(allcolumns)"
     exit 1
   }
   # start, unless already started (convenient for debug sourcing):
   if ![info exists ::te(top)] {
-    ::tooledit::tooledit [lindex $argv 0] ;# arg: filename
+    # expect ::argv == [colname colname ...] filename
+    set columns "" ;# default use all columns
+    set argct [llength $::argv]
+    switch $argct] {
+          0 {#notreached
+             puts stderr "$::argv0: Missing filename";exit 1}
+          1 {set filename $::argv}
+    default {set filename [lindex $::argv end]
+             set  columns [lreplace $::argv end end]
+            }
+    }
+    ::tooledit::tooledit $filename $columns
     tkwait variable ::tooledit::finis
     exit 0
   }

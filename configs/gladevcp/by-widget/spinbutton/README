@@ -1,0 +1,6 @@
+spinbutton example
+
+run as:
+$ gladevcp -u spinbutton.py spinbutton.ui
+
+Michael Haberler 06/2012
