@@ -8988,6 +8988,8 @@ But there is not one in the machine-named folder.."""),True)
         self.hal_cmnds("WRITE")
         halrun.write( "newsig estop-out bit\n")
         halrun.write( "sets estop-out false\n")
+        halrun.write( "newsig enable-not bit\n")
+        halrun.write( "newsig dir-not bit\n")
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
 
@@ -9093,7 +9095,10 @@ But there is not one in the machine-named folder.."""),True)
         invertmotor = self.widgets.testinvertmotor.get_active()
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
+        halrun.write("sets enable-not %d\n"% ( not(self.enable_amp)))
         halrun.write("sets estop-out %d\n"% ( self.enable_amp))
+        if invertmotor:
+            output = output * -1
         if self.enc:
             halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
             halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -9101,17 +9106,18 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.res, 'scale': (enc_scale * enc_invert)})
             halrun.write("""sets resolver-reset %(reset)d\n""" % { 'reset': self.res_reset})
         if self.pwm:
-            if invertmotor:
-                output = output * -1
             halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         if self.pot:
-            if invertmotor:
-                output = output * -1
-            if output < 0:
-                halrun.write("sets dir true\n")
-            else:
-                halrun.write("sets dir false\n")
             halrun.write("""sets dac %(output)f\n""" % { 'output': abs(output)})
+        if output == 0:
+            halrun.write("sets dir false\n")
+            halrun.write("sets dir-not false\n")
+        elif output < 0:
+            halrun.write("sets dir true\n")
+            halrun.write("sets dir-not false\n")
+        else:
+            halrun.write("sets dir false\n")
+            halrun.write("sets dir-not true\n")
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
@@ -9156,15 +9162,23 @@ But there is not one in the machine-named folder.."""),True)
         # force-pin-true will just make the pin be true all the time
         # this could be used as a temparary way to enable I/O that the
         # specific machine needs on for the amp to work but pncconf doesn't look for.
+        if not axis == "s":
+            signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
+        else:
+            signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-enable","machine-is-enabled",
+                            "estop-out","charge-pump","force-pin-true")
         halrun = self.halrun
         def write_pins(pname,p,i,t):
-            if p in ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
+            if p in signallist:
                 pinname  = self.data.make_pinname(pname)
-                print pinname
                 if pinname:
                     #print p, pname, i
                     if p == "estop-out": signal = p
+                    elif p == "spindle-cw": signal = "dir"
+                    elif p == "spindle-ccw": signal = "dir-not"
+                    elif p == "spindle-brake": signal = "enable-not"
                     else: signal = "enable"
+                    print pinname, p
                     if "parport" in pinname:
                         if p == "force-pin-true":
                             halrun.write("setp %s true\n"% (pinname))
