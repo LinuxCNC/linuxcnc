@@ -440,7 +440,7 @@ A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
+"coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "x-enable", "y-enable", "z-enable", "a-enable",
 "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -9158,7 +9158,7 @@ But there is not one in the machine-named folder.."""),True)
         # specific machine needs on for the amp to work but pncconf doesn't look for.
         halrun = self.halrun
         def write_pins(pname,p,i,t):
-            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
+            if p in ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
                 pinname  = self.data.make_pinname(pname)
                 print pinname
                 if pinname:
