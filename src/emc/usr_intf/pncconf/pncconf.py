@@ -171,11 +171,13 @@ _("SMARTSERIAL-P6-TX"),_("SMARTSERIAL-P6-RX"),_("SMARTSERIAL-P6-EN"),_("SMARTSER
 _("7i76 I/O (SS0)"),_("7i76 I/O (SS2)"),_("7i76 I/O (SS3)"),_("7i77 I/O (SS0)"),_("7i77 Analog   (SS1)"),
 _("7i77 I/O (SS3)"),_("7i77 Analog   (SS4)"),
  ]
+(ANALOGIN,DUMMY3) = pintype_analog_in = [ _("Analog Input"), _("Dummy")]
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
 _PWMPINS = 10;_MAXTPPWM = 11;_TTPWMPINMS = 12;_MAXSTEP = 13;_STEPPINS = 14;_MAXSSERIALPORTS = 15;_MAXSSERIALCHANNELS = 16;_HASWATCHDOG = 25;
 _MAXGPIO = 26;_LOWFREQ = 27;_HIFREQ = 28;_NUMOFCNCTRS = 29;_STARTOFDATA = 30
+_SSCOMBOLEN = 60
 _AXIS = 1;_TKLINUXCNC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
 
@@ -421,6 +423,14 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Use
     [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
     [PWMD,5],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
+["7i73", "7i73-m1", 0,[_("7i73-I/O\n1"),"7i73-I/O\n 1","7i73-Analog/Encoders\n 2"], 0,0,0,0,0,0,0,0,
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [ANALOGIN,0],[ANALOGIN,1],[ANALOGIN,2],[ANALOGIN,3],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[ENCA,0],[ENCA,1],[ENCA,2],[ENCA,3],
+    [GPIOO,100],[GPIOO,100],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["error"]
  ]
 
@@ -641,12 +651,16 @@ human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[
 
 (UNUSED_SSERIAL,A8I20_T,A8I20_R,A8I20_E,I7I64_T,I7I64_R,I7I64_E,I7I69_T,I7I69_R,I7I69_E,
 I7I70_T,I7I70_R,I7I70_E,I7I71_T,I7I71_R,I7I71_E,I7I76_M0_T,I7I76_M0_R,I7I76_M0_E,
-I7I77_M0_T,I7I77_M0_R,I7I77_M0_E) = hal_sserial_names = ["unused-sserial",
+I7I77_M0_T,I7I77_M0_R,I7I77_M0_E,I7I73_M0_T,I7I73_M0_R,I7I73_M0_E) = hal_sserial_names = ["unused-sserial",
 "8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e","7i70-t","7i70-r","7i70-e",
-"7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i77-m0-t","7i77-m0-r","7i77-m0-e"]
+"7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i77-m0-t","7i77-m0-r","7i77-m0-e", "7i73-m1-t","7i73-m1-r","7i73-m1-e"]
  
 human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
-                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]],[ _("7i77 Mode 0 I/O Card"),[]] ]
+                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]],[ _("7i77 Mode 0 I/O Card"),[]],
+                        [ _("7i73 Mode 1 Pendant Card"),[]] ]
+(UNUSED_ANALOG_IN) = hal_analog_input_names = ["unused-analog-input"]
+human_analog_input_names = [ [_("Unused Analog In"),[]],[_("Custom Signals"),[]] ]
+
 prefs = preferences.preferences()
 
 def md5sum(filename):
@@ -683,6 +697,7 @@ class Data:
         self.haloutputsignames = []
         self.halsteppersignames = []
         self.halpotsignames = []
+        self.halanaloginsignames = []
 
         # internal flags
         self._arrayloaded = False
@@ -702,6 +717,7 @@ class Data:
         self._tppwmliststore = None
         self._sserialliststore = None
         self._potliststore = None
+        self._analoginliststore = None
 
         self._gpioosignaltree = None
         self._gpioisignaltree = None
@@ -715,6 +731,7 @@ class Data:
         self._tppwmsignaltree = None
         self._sserialsignaltree = None
         self._potsignaltree = None
+        self._analoginsignaltree = None
 
         # pncconf default options
         self.createsymlink = 1
@@ -1133,7 +1150,7 @@ class Data:
             for channel in range(0,5): #TODO add more sserial widgets should be 8
                 self["mesa%dsserial%d_%dsubboard"% (boardnum, port,channel)] = "none"
                 # This initializes pins
-                for i in range(0,60):
+                for i in range(0,_SSCOMBOLEN):
                     pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
                     if i < 24:
                         self[pinname] = UNUSED_INPUT
@@ -1299,6 +1316,12 @@ class Data:
             for j in(["-output","-enable"]):
                 hal_pot_output_names.append(i+j)
         if i: human_pot_output_names[2][1]= temp
+        # analog input
+        temp = []; i = False
+        for i in  self.halanaloginsignames:
+            temp.append(i)
+            hal_analog_input_names.append(i)
+        if i: human_analog_input_names[1][1]= temp
         #pwm
         temp =[]; i = False
         for i in  self.halpwmoutputsignames:
@@ -2192,6 +2215,12 @@ If you have a REALLY large config that you wish to convert to this newer version
                                 self._substitution_list.append((title.upper(),name))
                             self._substitution_list.append(("",""))
                             break
+            # for analog in pins
+            elif t == (ANALOGIN):
+                if not p == "unused-analog-input":
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "\n# ---",p.upper(),"---"
+                            print >>file, "net %s         <=  "% (p)+pinname
 
         # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
@@ -2208,7 +2237,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >4: break # TODO only have 5 channels worth of glade widgets
-                    for pin in range (0,60):
+                    for pin in range (0,_SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
@@ -2369,7 +2398,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >4: break # TODO only have 5 channels worth of glade widgets
-                    for pin in range (0,60):
+                    for pin in range (0,_SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
@@ -2447,14 +2476,22 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.mesa0_numof_sserialports:
             for i in range(1,9):
                 if i <= self.mesa0_numof_sserialchannels:
-                    temp = temp + "0"
+                    # if m1 in the name then it needs mode 1
+                    if "m1" in self["mesa0sserial0_%dsubboard"% (i-1)]:
+                        temp = temp + "1"
+                    else:
+                        temp = temp + "0"
                 else:
                     temp = temp + "x"
             ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
             for i in range(1,9):
                 if i <= self.mesa1_numof_sserialchannels:
-                    temp = temp + "0"
+                    # if m1 in the name then it needs mode 1
+                    if "m1" in self["mesa1sserial0_%dsubboard"% (i-1)]:
+                        temp = temp + "1"
+                    else:
+                        temp = temp + "0"
                 else:
                     temp = temp + "x"
             ssconfig1 = "sserial_port_0=%s"% temp
@@ -3522,7 +3559,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                         if channel >4: break # TODO only have 5 channels worth of glade widgets
-                        for pin in range (0,60):       
+                        for pin in range (0,_SSCOMBOLEN):       
                             key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
                             sserial[key] = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
         try:
@@ -3556,7 +3593,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 if mesadaughterdata[subnum][_SUBFIRMNAME] == subfirmname: break
             subboardname = mesadaughterdata[subnum][_SUBBOARDNAME]
             currentptype,currentcompnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+pin]
-            for t_pin in range (0,60):
+            for t_pin in range (0,_SSCOMBOLEN):
                 comptype,compnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+t_pin]
                 if compnum != currentcompnum: continue
                 if comptype not in (relatedsearch): continue
@@ -3607,7 +3644,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",
                 UDMU:"pwmgen",UDMD:"pwmgen", UDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
-                TPPWME:"tppwmgen",TPPWMF:"tppwmgen",AMP8I20:"8i20",POTO:"spinout",POTE:"spinena",POTD:"spindir","Error":"None" }
+                TPPWME:"tppwmgen",TPPWMF:"tppwmgen",AMP8I20:"8i20",POTO:"spinout",POTE:"spinena",POTD:"spindir",ANALOGIN:"analog","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
             ptype = self[pin+"type"]
@@ -3675,8 +3712,14 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 elif ptype in(PWMP,PDMP,UDMU):
                     comptype = "analogout"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                elif ptype == (ANALOGIN):
+                    comptype = "analogin"
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                elif ptype == (ENCA):
+                    comptype = "encoder"
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 else:
-                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype,pin
                     return None
             else:
                 # sample pin name = mesa0c3pin1
@@ -3960,7 +4003,7 @@ class App:
 
                 port = 0 #TODO we only support one serial port
                 for channel in range (0,5):# TODO only have 5 channels worth of glade widgets
-                    for pin in range (0,60):
+                    for pin in range (0,_SSCOMBOLEN):
                         cb = "mesa%dsserial%i_%ipin%i"% (boardnum,port,channel,pin)
                         i = "_mesa%dsignalhandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
                         self.data[i] = int(self.widgets[cb].connect("changed",
@@ -5171,7 +5214,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     #print "no subboard for %s"% subboardname
                     continue
                 #print "sserial data transfering"
-                for pin in range (0,60):
+                for pin in range (0,_SSCOMBOLEN):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
@@ -5223,6 +5266,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltree = self.data._potsignaltree
                     ptypetree = self.data._potliststore
                     signaltocheck = hal_pot_output_names
+                # analog in 
+                elif pintype == (ANALOGIN):
+                    signaltree = self.data._analoginsignaltree
+                    ptypetree = self.data._analoginliststore
+                    signaltocheck = hal_analog_input_names
                 #type mux encoder
                 elif pintype in (MXE0, MXE1, MXEI, MXEM, MXES):
                     signaltree = self.data._muxencodersignaltree
@@ -5668,7 +5716,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             #print mesadaughterdata[subnum][_SUBFIRMNAME],subboardname
             if mesadaughterdata[subnum][_SUBFIRMNAME] == subboardname: break
         #print "found subboard name:",mesadaughterdata[subnum][_SUBFIRMNAME],subboardname,subnum,"channel:",channel
-        for pin in range (0,60):
+        for pin in range (0,_SSCOMBOLEN):
             self.pbar.set_fraction((pin+1)/60.0)
             while gtk.events_pending():
                 gtk.main_iteration()      
@@ -5693,7 +5741,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
                                     numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
-        for pin in range (0,60):
+        for pin in range (0,_SSCOMBOLEN):
             firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
             p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
             ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
@@ -5707,7 +5755,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             self.widgets[p].handler_unblock(self.data[blocksignal]) 
             self.widgets[p].child.handler_unblock(self.data[actblocksignal])
         # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
-        for pin in range (0,60):
+        for pin in range (0,_SSCOMBOLEN):
             firmptype,compnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+pin]       
             p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
             #print "INFO: data to widget smartserial- ",p, firmptype
@@ -5870,6 +5918,18 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         else:
                             self.widgets[ptype].set_active(1)
                             self.widgets[p].set_sensitive(0)
+
+                # --- SETUP analog input
+                elif firmptype == (ANALOGIN):
+                        self.widgets[ptype].set_model(self.data._analoginliststore)
+                        self.widgets[p].set_model(self.data._analoginsignaltree)
+                        self.widgets[complabel].set_text("%d:"%compnum)
+                        self.widgets[p].set_active(0)
+                        self.widgets[pinv].set_sensitive(1)
+                        self.widgets[pinv].set_active(0)
+                        self.widgets[ptype].set_sensitive(0)
+                        self.widgets[ptype].set_active(0)
+                        self.widgets[p].set_sensitive(1)
 
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 # the user has a choice of pulse width or pulse density modulation
@@ -6274,6 +6334,40 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._potsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
+                # Type analog in
+                elif widgetptype == ANALOGIN:
+                    try:
+                        signalindex = hal_analog_input_names.index(datap)
+                    except:
+                        if debug: print "**** INFO: PNCCONF warning no analog in signal named: %s\n     found for pin %s"% (datap ,p)
+                        signalindex = 0
+                    #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
+                    count = 0
+                    if signalindex > 0:
+                        for row,parent in enumerate(human_analog_input_names):
+                            if row == 0: continue
+                            if len(parent[1]) == 0:
+                                    count +=1
+                                    #print row,count,"parent-",parent[0]
+                                    if count == signalindex:
+                                        #print "match",row
+                                        temp = (row)
+                                        break
+                                    continue
+                            for column,child in enumerate(parent[1]):
+                                count +=1
+                                #print row,column,count,parent[0],child
+                                if count == signalindex:
+                                    #print "match",row
+                                    temp = (row,column)
+                                    break
+                            if count >= signalindex:break
+                    else:
+                        temp = (0) # set unused 8i20 amp
+                    #print "temp",temp
+                    treeiter = self.data._analoginsignaltree.get_iter(temp)
+                    self.widgets[p].set_active_iter(treeiter)
+
                 # type PWM gen
                 elif widgetptype in (PDMP,PWMP,UDMU):
                     if self.widgets["mesa%d_numof_resolvers"% boardnum].get_value(): dataptype = UDMU # hack resolver board needs UDMU
@@ -6457,6 +6551,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data._potliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_potentiometer):
             self.data._potliststore.append([text,number])
+        # analog input
+        self.data._analoginliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_analog_in):
+            self.data._analoginliststore.append([text,number])
         # pwm
         self.data._pwmrelatedliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pwm):
@@ -6497,7 +6595,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                      ["_steppersignaltree",human_stepper_names,6],
                      ["_muxencodersignaltree",human_encoder_input_names,4],
                      ["_8i20signaltree",human_8i20_input_names,1], ["_potsignaltree",human_pot_output_names,2],
-                     ["_sserialsignaltree",human_sserial_names,3]]
+                     ["_analoginsignaltree",human_analog_input_names,1],["_sserialsignaltree",human_sserial_names,3]]
         for item in templist:
             #print "\ntype",item[0]
             count = 0
@@ -6637,6 +6735,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedsearch = [POTO,POTE]
                     relatedending = ["-output","-enable"]
                     customindex = 2
+                # analog input
+                elif widgetptype == ANALOGIN:
+                    signaltree = self.data._analoginsignaltree
+                    halsignallist = hal_analog_input_names
+                    humansignallist = human_analog_input_names
+                    addsignalto = self.data.halanaloginsignames
+                    relatedsearch = ["dummy"]
+                    relatedending = [""]
+                    customindex = 1
                 # for PWM,PDM,UDM pins
                 elif widgetptype in(PWMP,PDMP,UDMU): 
                     #print"ptype pwmp\n"
@@ -6693,6 +6800,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 elif "7i71" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i71"
                                     self.widgets[table].hide()
+                                elif "7i73" in temp:
+                                    self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i73-m1"
                                 elif "7i77" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i77-m0"
                                     if channelnum in(0,3):
@@ -6770,7 +6879,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
                 # this components have no related pins - fake the list
-                if widgetptype in(GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES0,RES1,RES2,RES3,RES4,RES5,AMP8I20):
+                if widgetptype in(GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES0,RES1,RES2,RES3,RES4,RES5,AMP8I20,ANALOGIN):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
@@ -8125,7 +8234,7 @@ different program to copy to your configuration file.\nThe edited program will b
             for channel in range(0,5): #TODO hardcoded at 5 sserial channels instead of 8
                 if channel in keeplist: continue
                 # This initializes pins
-                for i in range(0,60):
+                for i in range(0,_SSCOMBOLEN):
                     pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
                     if i < 24:
                         self.data[pinname] = UNUSED_INPUT
@@ -9218,7 +9327,7 @@ But there is not one in the machine-named folder.."""),True)
                 port = 0
                 for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >4: break # TODO only have 5 channels worth of glade widgets
-                    for pin in range (0,60):
+                    for pin in range (0,_SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.data['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self.data['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
@@ -9281,14 +9390,22 @@ But there is not one in the machine-named folder.."""),True)
             if self.data.mesa0_numof_sserialports:
                 for i in range(1,9):
                     if i <= self.data.mesa0_numof_sserialchannels:
-                        temp = temp + "0"
+                        # if m1 in the name then it needs mode 1
+                        if "m1" in self["mesa0sserial0_%dsubboard"% (i-1)]:
+                            temp = temp + "1"
+                        else:
+                            temp = temp + "0"
                     else:
                         temp = temp + "x"
                 ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
                 for i in range(1,9):
                     if i <= self.data.mesa1_numof_sserialchannels:
-                        temp = temp + "0"
+                        # if m1 in the name then it needs mode 1
+                        if "m1" in self["mesa1sserial1_%dsubboard"% (i-1)]:
+                            temp = temp + "1"
+                        else:
+                            temp = temp + "0"
                     else:
                         temp = temp + "x"
                 ssconfig1 = "sserial_port_0=%s"% temp
