@@ -375,12 +375,12 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Use
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i64", "7i64", 0,[_("7i64-Input\nP3 and P4"),_("7i64-Output\nP2 and P5"),"Not Used"], 0,0,0,0,0,0,0,0,
+["7i64", "7i64", 0,[_("7i64-Input\nP3 and P4"),_("7i64-Output\nP2 and P5"),_("7i64-Analog In")], 0,0,0,0,0,0,0,0,
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
      [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
-    [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+    [ANALOGIN,0],[ANALOGIN,1],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["7i69", "7i69", 0,[_("7i69\nP2"),_("7i69\nP3"),"Not Used"], 0,0,0,0,0,0,0,0,
@@ -423,13 +423,13 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Use
     [PWME,0],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],[PWMP,2],[PWMD,2],[PWMP,3],[PWMD,3],[PWMP,4],[PWMD,4],[PWMP,5],
     [PWMD,5],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
-["7i73", "7i73-m1", 0,[_("7i73-I/O\n1"),"7i73-I/O\n 1","7i73-Analog/Encoders\n 2"], 0,0,0,0,0,0,0,0,
-    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
-    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+["7i73", "7i73-m1", 0,[_("7i73-I/O\n"),"7i73-I/O\n ","7i73-Analog/Encoders\n "], 0,0,0,0,0,0,0,0,
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[NUSED,0],[NUSED,0],
+    [ANALOGIN,0],[ANALOGIN,1],[ANALOGIN,2],[ANALOGIN,3],[ENCA,0],[ENCA,1],[ENCA,2],[ENCA,3],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
-    [ANALOGIN,0],[ANALOGIN,1],[ANALOGIN,2],[ANALOGIN,3],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[ENCA,0],[ENCA,1],[ENCA,2],[ENCA,3],
-    [GPIOO,100],[GPIOO,100],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["error"]
  ]
@@ -3691,7 +3691,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                             if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname):
+                    elif "7i69" in (subboardname) or "7i73" in (subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             pinnum -= 24
@@ -3705,7 +3705,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                             comptype = "input"
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     else:
-                        print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype
+                        print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype,pin
                         return None
                 elif ptype in (AMP8I20,POTO,POTE,POTD) or prefixonly:
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel)
@@ -3713,10 +3713,14 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     comptype = "analogout"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ANALOGIN):
-                    comptype = "analogin"
-                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    if "7i64" in(subboardname):
+                        comptype = "adcin"
+                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (compnum)+".in"
+                    else:
+                        comptype = "analogin"
+                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ENCA):
-                    comptype = "encoder"
+                    comptype = "enc"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 else:
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype,pin
@@ -6790,7 +6794,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i76-m0"
                                 elif "7i64" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i64"
-                                    self.widgets[table].hide()
                                 elif "7i69" in temp:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i69"
                                     self.widgets[table].hide()
@@ -9391,7 +9394,7 @@ But there is not one in the machine-named folder.."""),True)
                 for i in range(1,9):
                     if i <= self.data.mesa0_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
-                        if "m1" in self["mesa0sserial0_%dsubboard"% (i-1)]:
+                        if "m1" in self.data["mesa0sserial0_%dsubboard"% (i-1)]:
                             temp = temp + "1"
                         else:
                             temp = temp + "0"
@@ -9402,7 +9405,7 @@ But there is not one in the machine-named folder.."""),True)
                 for i in range(1,9):
                     if i <= self.data.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
-                        if "m1" in self["mesa1sserial1_%dsubboard"% (i-1)]:
+                        if "m1" in self.data["mesa1sserial1_%dsubboard"% (i-1)]:
                             temp = temp + "1"
                         else:
                             temp = temp + "0"
