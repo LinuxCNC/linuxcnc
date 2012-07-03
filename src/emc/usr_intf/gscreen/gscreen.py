@@ -307,6 +307,7 @@ class Gscreen:
             self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
             for axis in self.data.axis_list:
                 print axis
                 self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
@@ -561,15 +562,24 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    # display calculator for input
     def launch_numerical_input(self,widget,event):
         if event.type == gtk.gdk._2BUTTON_PRESS:
             dialog = self.widgets.dialog_entry
             self.widgets.calc_entry.set_value(self.widgets.data_input.get_value())
             dialog.show_all()
-            result = dialog.run()
-            dialog.hide()
-            if result:
-                self.widgets.data_input.set_value(self.widgets.calc_entry.get_value())
+            self.widgets.data_input.set_sensitive(False)
+
+    # calculator input accepted
+    def on_button_yes_clicked(self,widget):
+        self.widgets.data_input.set_value(self.widgets.calc_entry.get_value())
+        self.widgets.data_input.set_sensitive(True)
+        self.widgets.dialog_entry.hide()
+
+    # calculator input canceled
+    def on_button_no_clicked(self,widget):
+        self.widgets.data_input.set_sensitive(True)
+        self.widgets.dialog_entry.hide()
 
     def hack_leave(self,*args):
         if not self.data.hide_cursor: return
@@ -1215,7 +1225,11 @@ class Gscreen:
         self.prefs.putpref('use_screen2', self.data.use_screen2, bool)
 
     def get_qualified_input(self,switch = None):
-        raw = self.widgets.data_input.get_value()
+        # If the calculator is displayed use it for input instead of spinbox
+        if self.widgets.dialog_entry.get_property("visible"):
+            raw = self.widgets.calc_entry.get_value()
+        else:
+            raw = self.widgets.data_input.get_value()
         if switch == _SPINDLE_INPUT:
             return raw
         elif switch == _PERCENT_INPUT:
@@ -1387,7 +1401,7 @@ class Gscreen:
         # DRO 
         for i in ("x","y","z","a","s"):
             if i == "s":
-                self.widgets.s_display.set_value(abs(self.data.spindle_speed))
+                self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
                 self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
             else:
                 
