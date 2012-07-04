@@ -84,7 +84,7 @@ FUNCTION(_) {
     totalseconds = totalnsec * 0.000000001;
     seconds = totalseconds % 60;
 	minutes = (totalseconds / 60) % 60;
-	hours = (totalseconds / 3600) % 60;
+	hours = (totalseconds / 3600);
 	}
 	old_start = start;
 }
