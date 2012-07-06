@@ -46,11 +46,15 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'value' : ( gobject.TYPE_FLOAT, 'Value', 'Current bar value (for glade testing)',
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'target_value' : ( gobject.TYPE_FLOAT, 'Target_Value', 'Target value (for glade testing)',
+                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'z0_color' : ( gtk.gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
                         gobject.PARAM_READWRITE),
         'z1_color' : ( gtk.gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
                         gobject.PARAM_READWRITE),
         'z2_color' : ( gtk.gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
+                        gobject.PARAM_READWRITE),
+        'target_color' : ( gtk.gdk.Color.__gtype__, 'Target color', "Set color for target indicator",
                         gobject.PARAM_READWRITE),
         'z0_border' : ( gobject.TYPE_FLOAT, 'Zone 0 up limit', 'Up limit (fraction) of zone 0',
                     0, 1, 1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -76,6 +80,7 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         self.z0_color = gtk.gdk.Color('green')
         self.z1_color = gtk.gdk.Color('yellow')
         self.z2_color = gtk.gdk.Color('red')
+        self.target_color = gtk.gdk.Color('black')
 
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
@@ -197,6 +202,10 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         self.value = value
         self.queue_draw()
 
+    def set_target_value(self, value):
+        self.target_value = value
+        self.queue_draw()
+
     def get_value_diff(self, value):
         value = max(self.min, min(value, self.max))
         return (value - self.min) / (self.max - self.min)
@@ -233,6 +242,22 @@ class HAL_HBar(HAL_Bar):
         cr.set_source(lg)
         cr.fill()
         cr.restore()
+
+        # make target line
+        set_color(self.target_color)
+        if self.target_value > self.max:
+            tvalue = self.max
+        else:
+            tvalue = self.target_value
+        wv = w * self.get_value_diff(tvalue)
+        zv = wv -4
+        if not self.invert:
+            cr.rectangle(zv, 0, wv - zv, h)
+        else:
+            cr.rectangle(w - wv, 0, wv - zv, h)
+        #cr.clip_preserve()
+        cr.stroke_preserve()
+        cr.fill()
 
         set_color(gtk.gdk.Color('black'))
 
