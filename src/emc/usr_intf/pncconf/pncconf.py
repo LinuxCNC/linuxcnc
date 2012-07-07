@@ -4543,6 +4543,7 @@ Ok to reset data and start a new configuration?"),False):
                                 elif temp == "TXData5": convertedname = SS7I77M4
                                 else: convertedname = pinconvertsserial[temp]
                                 #print "XML ",currentfirm, temp,convertedname
+                            else: convertedname = pinconvertsserial[temp]
                         else:
                             convertedname = pinconvertsserial[temp]
                     elif modulename == "None":
