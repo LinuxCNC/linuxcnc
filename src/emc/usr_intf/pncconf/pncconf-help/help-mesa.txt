@@ -99,6 +99,7 @@ Connector Tabs:
         Please see the Mesa daughter board documentaion for the most up-to-date
         recommendations for frequency and type. Here are the common ones: 
         The 7i33 daughter board requires PDM @ 6 MHz.
+        The 7i78 daughter board (for the 5i25) requires PDM @ 5 Mhz.
         The 7i29,7i30,7i40 require PWM @ 20 KHz
         the 7i48 and 7i49 require UDM @ 24 KHz
 
@@ -125,11 +126,12 @@ Connector Tabs:
         7i71 I/O board
         7i76 I/O board works only with the 5i25 main board
         7i77 I/O board works only with the 5i25 main board
+        7i78 breakout board works only with the 5i25 main board
         8i20 amplifier ( untested )
         Linuxcnc supports 4 ports of 8 channels each of sserial
         PNCconf only configures 5 channels of port 0 (so max 5 sserial boards -
         note that some 5i25 daugther boards use some of the sserial channels 
-        internally. 
+        internally.)
 
     You could change these options in a custom HAL file
     If you wish to connect a component to something in a 
