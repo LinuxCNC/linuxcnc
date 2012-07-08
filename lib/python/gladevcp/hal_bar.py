@@ -48,6 +48,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'target_value' : ( gobject.TYPE_FLOAT, 'Target_Value', 'Target value (for glade testing)',
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'target_width' : ( gobject.TYPE_FLOAT, 'Target Width', 'Target pixel width',
+                    1, 5, 2, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'z0_color' : ( gtk.gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
                         gobject.PARAM_READWRITE),
         'z1_color' : ( gtk.gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
@@ -80,8 +82,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         self.z0_color = gtk.gdk.Color('green')
         self.z1_color = gtk.gdk.Color('yellow')
         self.z2_color = gtk.gdk.Color('red')
-        self.target_color = gtk.gdk.Color('black')
-
+        self.target_color = gtk.gdk.Color('violet')
+        self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
         self.set_size_request(*self._size_request)
@@ -223,6 +225,7 @@ class HAL_HBar(HAL_Bar):
     def expose(self, widget, event):
         cr, (w, h), set_color, alpha = self._expose_prepare(widget)
 
+        # make bar
         set_color(gtk.gdk.Color('black'))
         cr.save()
         zv = w * self.get_value_diff(self.zero)
@@ -244,23 +247,24 @@ class HAL_HBar(HAL_Bar):
         cr.restore()
 
         # make target line
-        set_color(self.target_color)
-        if self.target_value > self.max:
-            tvalue = self.max
-        else:
-            tvalue = self.target_value
-        wv = w * self.get_value_diff(tvalue)
-        zv = wv -4
-        if not self.invert:
-            cr.rectangle(zv, 0, wv - zv, h)
-        else:
-            cr.rectangle(w - wv, 0, wv - zv, h)
-        #cr.clip_preserve()
-        cr.stroke_preserve()
-        cr.fill()
+        if self.target_value > 0:
+            set_color(self.target_color)
+            if self.target_value > self.max:
+                tvalue = self.max
+            else:
+                tvalue = self.target_value
+            wv = w * self.get_value_diff(tvalue)
+            cr.set_line_width(self.target_width)
+            if not self.invert:
+                cr.move_to(wv,0)
+                cr.rel_line_to(0,h)
+            else:
+                cr.move_to(w-wv,0)
+                cr.rel_line_to(0,h)
+            cr.stroke()
 
+        # write text
         set_color(gtk.gdk.Color('black'))
-
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
@@ -280,6 +284,7 @@ class HAL_VBar(HAL_Bar):
     def expose(self, widget, event):
         cr, (w, h), set_color, alpha = self._expose_prepare(widget)
 
+        # make bar
         cr.save()
         set_color(gtk.gdk.Color('black'))
         zv = h * self.get_value_diff(self.zero)
@@ -300,8 +305,26 @@ class HAL_VBar(HAL_Bar):
         cr.fill()
         cr.restore()
 
-        set_color(gtk.gdk.Color('black'))
+        # make target line
+        if self.target_value > 0:
+            set_color(self.target_color)
+            if self.target_value > self.max:
+                tvalue = self.max
+            else:
+                tvalue = self.target_value
+            wv = h * self.get_value_diff(tvalue)
+            cr.set_line_width(self.target_width)
+            if not self.invert:
+                cr.move_to(0,h - wv)
+                cr.rel_line_to(w,0)
+            else:
+                #cr.rectangle(w - wv, 0, wv - zv, h)
+                cr.move_to(0,zv + wv)
+                cr.rel_line_to(w,0)
+            cr.stroke()
 
+        # make text
+        set_color(gtk.gdk.Color('black'))
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
