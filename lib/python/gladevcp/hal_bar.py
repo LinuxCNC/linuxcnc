@@ -82,7 +82,7 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         self.z0_color = gtk.gdk.Color('green')
         self.z1_color = gtk.gdk.Color('yellow')
         self.z2_color = gtk.gdk.Color('red')
-        self.target_color = gtk.gdk.Color('violet')
+        self.target_color = gtk.gdk.Color('purple')
         self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
