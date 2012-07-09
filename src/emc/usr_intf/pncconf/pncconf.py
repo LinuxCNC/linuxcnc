@@ -1268,7 +1268,8 @@ class Data:
         self.aminlim = -9999
         self.amaxlim =  9999
         # spindle at speed near settings
-        self.snearscale = .95
+        self.srpmrange = 200.0
+        self.snearscale = 1.00
         self.sfiltergain = .1
         self.suseatspeed = False
         self.ssingleinputencoder = False
@@ -2118,6 +2119,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
                     print >>file, "setp near.0.scale %f"% self.snearscale
+                    print >>file, "setp near.0.difference %f"% (self.srpmrange/60)
                     print >>file
                 else:
                     print >>file, "sets spindle-at-speed true"
@@ -7441,6 +7443,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     w["sfiltergainframe"].show()
             set_active("useatspeed")
             w["snearscale"].set_value(d["snearscale"]*100)
+            w["srpmrange"].set_value(d["srpmrange"])
             set_value("filtergain")
             set_active("singleinputencoder")
         else:
@@ -7674,6 +7677,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             get_active("useatspeed")
             get_pagevalue("nearscale")
             d["snearscale"] = w["snearscale"].get_value()/100
+            d["srpmrange"] = w["srpmrange"].get_value()
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
 
