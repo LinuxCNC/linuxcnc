@@ -623,16 +623,22 @@ X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_ST
 Y_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
 Z_STEPGEN_STEP, Z_STEPGEN_DIR, Z_STEPGEN_PHC, Z_STEPGEN_PHD, Z_STEPGEN_PHE, Z_STEPGEN_PHF,
 A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_STEPGEN_PHF,
-SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_PHD, SPINDLE_STEPGEN_PHE, SPINDLE_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
-"x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f", 
+SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_PHD, SPINDLE_STEPGEN_PHE, SPINDLE_STEPGEN_PHF,
+X2_STEPGEN_STEP, X2_STEPGEN_DIR, X2_STEPGEN_PHC, X2_STEPGEN_PHD, X2_STEPGEN_PHE, X2_STEPGEN_PHF,
+Y2_STEPGEN_STEP, Y2_STEPGEN_DIR, Y2_STEPGEN_PHC, Y2_STEPGEN_PHD, Y2_STEPGEN_PHE, Y2_STEPGEN_PHF,
+Z2_STEPGEN_STEP, Z2_STEPGEN_DIR, Z2_STEPGEN_PHC, Z2_STEPGEN_PHD, Z2_STEPGEN_PHE, Z2_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
+"x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
 "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
 "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
-"s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
-"s-stepgen-phase-f"]
+"s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", "s-stepgen-phase-f",
+"x2-stepgen-step", "x2-stepgen-dir", "x2-stepgen-phase-c", "x2-stepgen-phase-d", "x2-stepgen-phase-e", "x2-stepgen-phase-f",
+"y2-stepgen-step", "y2-stepgen-dir", "y2-stepgen-phase-c", "y2-stepgen-phase-d", "y2-stepgen-phase-e", "y2-stepgen-phase-f",
+"z2-stepgen-step", "z2-stepgen-dir", "z2-stepgen-phase-c", "z2-stepgen-phase-d", "z2-stepgen-phase-e", "z2-stepgen-phase-f",]
 
 human_stepper_names = [ [_("Unused StepGen"),[]],[_("X Axis StepGen"),[]],[_("Y Axis StepGen"),[]],[_("Z Axis StepGen"),[]],
-                        [_("A Axis StepGen"),[]],[_("Spindle StepGen"),[]],[_("Custom Signals"),[]] ]
+                        [_("A Axis StepGen"),[]],[_("Spindle StepGen"),[]],[_("X2 Tandem StepGen"),[]],[_("Y2 Tandem StepGen"),[]],
+                        [_("Z2 Tandem StepGen"),[]],[_("Custom Signals"),[]] ]
 
 (UNUSED_TPPWM,
 X_TPPWM_A, X_TPPWM_B,X_TPPWM_C,X_TPPWM_AN,X_TPPWM_BN,X_TPPWM_CN,X_TPPWM_ENABLE,X_TPPWM_FAULT,
@@ -1811,9 +1817,12 @@ If you have a REALLY large config that you wish to convert to this newer version
         tppwmpinname = self.make_pinname(self.tppwmgen_sig(let))
         tppwm_six = self.tppwmgen_has_6(let)
         steppinname = self.make_pinname(self.stepgen_sig(let))
+        steppinname2 = self.make_pinname(self.stepgen_sig(let+"2"))
         bldc_control = self[let+"bldc_option"]
         if steppinname:
             stepinvertlist = self.stepgen_invert_pins(self.stepgen_sig(let))
+        if steppinname2:
+            stepinvertlist2 = self.stepgen_invert_pins(self.stepgen_sig(let+"2"))
         encoderpinname = self.make_pinname(self.encoder_sig(let))
         amp8i20pinname = self.make_pinname(self.amp_8i20_sig(let))
         resolverpinname = self.make_pinname(self.resolver_sig(let))
@@ -1826,8 +1835,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         print let + " is closedloop? "+ str(closedloop)
         print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
         print " PWM:",pwmpinname," 3PWM:",tppwmpinname," 8i20:",amp8i20pinname
-        print " STEPPER:",steppinname, "POTENTIOMETER:",potpinname
-
+        print " STEPPER:",steppinname, "STEPPER2:",steppinname2
+        print " POTENTIOMETER:",potpinname
         lat = self.latency
         print >>file, "#*******************"
         print >>file, "#  %s %s" % (title, let.upper())
@@ -2052,6 +2061,37 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
                 print >>file, "net %s-enable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
             for i in stepinvertlist:
+                   print >>file, "setp    "+i+".invert_output true"
+            print >>file
+
+        if steppinname2:
+            steppinname = steppinname2
+            print >>file, "# Step Gen signals/setup for tandem axis stepper"
+            print >>file
+            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".step_type        0"
+            if closedloop:
+                print >>file, "setp   " + steppinname + ".control-type     1"
+            else:
+                print >>file, "setp   " + steppinname + ".control-type     0"
+            print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
+            print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
+            if closedloop:
+                print >>file
+                print >>file, "# ---closedloop stepper signals---"
+                print >>file
+                print >>file, "net %s-output                             => "% (let) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-enable                             => "% (let) + steppinname +".enable"
+            else:
+                print >>file
+                print >>file, "net %s2-pos-fb                            <=  " % (let) + steppinname + ".position-fb"
+                print >>file, "net %s-pos-cmd                            =>  " % (let) + steppinname + ".position-cmd"
+                print >>file, "net %s-enable                             =>  " % (let)+ steppinname + ".enable"
+            for i in stepinvertlist2:
                    print >>file, "setp    "+i+".invert_output true"
             print >>file
 
@@ -7100,6 +7140,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         for i in self.data.available_axes:
             tppwm = pwm = amp_8i20 = False
             step = self.data.findsignal(i+"-stepgen-step")
+            step2 = self.data.findsignal(i+"2-stepgen-step")
             enc = self.data.findsignal(i+"-encoder-a")
             resolver = self.data.findsignal(i+"-resolver")
             if self.data.findsignal("%s-8i20"% i): amp_8i20 = pwm =True
@@ -7123,6 +7164,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             if step and pwm: 
                 warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
                 do_warning = True
+            if step2 and not step: 
+                warnings.append(_("If using a tandem axis stepper, you must select a master stepgen for axis %s\n")% i)
+                do_warning = True
+
         if self.data.frontend == _TOUCHY:# TOUCHY GUI
             abort = self.data.findsignal("abort")
             cycle = self.data.findsignal("cycle-start")

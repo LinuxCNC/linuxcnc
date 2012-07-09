@@ -113,6 +113,12 @@ Connector Tabs:
         only step and direction stepgens are supported
         You select the STEP signal and the direction and enable
         signals are automatically setup
+        If you wish to have a slave stepper for a tandem axis
+        select a master axis and a tandem axis.
+        The tandem axis will be connected to the master axis command signal and
+        will be set at all the same settings as the master axis stepper, so the
+        stepper/driver should match. There is no facility to align these steppers
+        while homing, the slave simpily follows the master's command.
     
      POTENTIOMETER - A digital potentiometer used primaraly to control
         a spindle found with sserial card combo 5i25/7i76
