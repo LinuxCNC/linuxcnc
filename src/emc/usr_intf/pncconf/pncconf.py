@@ -4696,7 +4696,7 @@ Ok to reset data and start a new configuration?"),False):
             filename = os.path.join(sourcefile, "LINUXCNCtempGeneral.rules")
             file = open(filename, "w")
             print >>file, ("# This is a rule for LinuxCNC's hal_input\n")
-            print >>file, ("""SUBSYSTEM="input", mode="0660", group="plugdev" """) 
+            print >>file, ("""SUBSYSTEM="input", MODE="0660", GROUP="plugdev" """) 
             file.close()
             p=os.popen("gksudo cp  %sLINUXCNCtempGeneral.rules /etc/udev/rules.d/50-LINUXCNC-general.rules"% sourcefile )
             time.sleep(.1)
@@ -4751,7 +4751,7 @@ Ok to reset data and start a new configuration?"),False):
             file = open(tempname, "w")
             print >>file, ("# This is a rule for LINUXCNC's hal_input\n")
             print >>file, ("# For devicename=%s\n"% name)
-            print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
+            print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", MODE="0660", GROUP="plugdev" """%(product,vendor)) 
             file.close()
             # remove illegal filename characters
             for i in ("(",")"):
