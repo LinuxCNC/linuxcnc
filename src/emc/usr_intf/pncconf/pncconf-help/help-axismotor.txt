@@ -109,10 +109,15 @@ Spindle-at-speed settings:
     Set the scaling so Linuxcnc knows when the spindle is close enough
     to the requested speed. A spindle encoder or spindle-at-speed 
     digital input signal is required for this.
+    There is the option of percent or RPM range.
+    If you leave percent at 100 then set the RPM difference that is acceptable.
+    Other wise set the RPM difference to 0 and set the percent that is acceptable.
+    The default is a difference of +-200 RPM. Maximuim is 500 RPM.
 
 Spindle display filter gain:
     If a spindle speed display was chosen, this sets the filter
     gain which helps stop the display from bouncing around.
+    The default gain is 1
 
 Stepper Info:
     This is for setting up the Stepper control loop:
