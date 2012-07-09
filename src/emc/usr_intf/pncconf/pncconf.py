@@ -1270,7 +1270,7 @@ class Data:
         # spindle at speed near settings
         self.srpmrange = 200.0
         self.snearscale = 1.00
-        self.sfiltergain = .1
+        self.sfiltergain = 1.0
         self.suseatspeed = False
         self.ssingleinputencoder = False
 
