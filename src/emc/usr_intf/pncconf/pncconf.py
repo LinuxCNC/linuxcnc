@@ -4942,7 +4942,8 @@ Ok to reset data and start a new configuration?"),False):
             if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
                 if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/gvcp-panel.ui" % self.data.machinename)):
                     if not self.warning_dialog(_("OK to replace existing glade panel ?\
-\nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
+\nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will avoid this warning, but \
+if you change related options later -such as spindle feedback- the HAL connection will not update"),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
