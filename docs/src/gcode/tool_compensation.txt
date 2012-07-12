@@ -49,7 +49,11 @@ changed manually. The file can be edited with a text editor or be
 updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
 Section for an example of the lathe tool table format.
 The maximum number of entries in the tool table is 56.
-The maximum tool and pocket number is 99999. 
+The maximum tool and pocket number is 99999.
+
+The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the
+tool table. If you use a text editor make sure you reload the tool table in
+the GUI.
 
 === Tool Table Format 
 (((Tool-Table-Format)))
