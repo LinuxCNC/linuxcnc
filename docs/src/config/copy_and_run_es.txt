@@ -1,49 +1,50 @@
-= Running LinuxCNC
+= Ejecutando LinuxCNC
 
-[[cha:running-emc]] (((Running LinuxCNC)))
+[[cha:running-emc]] (((Ejecutando LinuxCNC)))
 
-== Invoking LinuxCNC
+== invocación de LinuxCNC
 
-After installation, LinuxCNC starts just like any other Linux program: 
-run it from the terminal by issuing the command 'emc', 
-or select it in the Applications - CNC menu.
+Después de la instalación, LinuxCNC comienza como cualquier otro programa de Linux:
+Ejecutándolo desde la terminal con el comando `emc`,
+O seleccionandolo en el menu de aplicaciones -> CNC menu.
 
-== Configuration Selector
+== Selector de configuración
 
-By default, the Configuration Selector dialog 
-is shown when you first run LinuxCNC. 
-Your own personalized configurations are shown at the top of the list, 
-followed by sample configurations. 
-Because each sample configuration is for a different type of hardware interface, 
-almost all will not run without the hardware installed. 
-The configurations listed under the category 'sim' run entirely 
-without attached hardware.
+De manera determinada, el dialogo de seleccion de configuracion
+Se muestra cuando se ejecuta LinuxCNC por primera vez.
+Las configuraciones personalizadas se muestran en la parte superior de la lista,
+Seguida de ejemplos de configuraciones.
+Devido a que cada ejemplo de configuraciones es para un tipo diferente de interface de hardware.
+Casi ninguna funcionara sin el hardware espcifico instalado.
+Las configuraciones que están en la categoría  "sim" se ejecutan completamente
+Sin ningun hardware conectado.
 
-.LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]
+Figura <<cap:EMC2-seleccion-de-configuracion>> muestra la apariencia
+De ventana de selección de configuración.
+
+.LinuxCNC seleccion de configuración[[cap:LinuxCNC-Configuration-Selector]]
 
 image::images/configuration-selector.png[]
 
-Click any of the listed configurations 
-to display specific information about it. 
-Double-click a configuration or click OK 
-to start the configuration. 
-Select 'Create Desktop Shortcut' and then click OK 
-to add an icon on the Ubuntu desktop 
-to directly launch this configuration 
-without showing the Configuration Selector screen. 
+De click en cualquiera de las configuraciones que se indican
+para mostrar información específica al respecto.
+De doble click en una configuración o haga click en aceptar
+para ejecutar la configuración.
+Seleccione "crear acceso directo en el escritorio" y luego de click en aceptar
+para añadir un icono en el escritorio de Ubuntu
+para iniciar directamente esta configuración
+sin mostrar la pantalla de selección de configuración.
 
-When you select a configuration from the Sample Configurations section, 
-it will automaticly place a copy of that config in the
-emc/configs directory. 
+Cuan do se selecciona una configuracion de la seccion de muestras de configuracion,
+se creeara un a copia de la misma en el directorio
+emc/configs
 
-== Next steps in configuration
+== Los siguientes pasos en la configuración son
 
-After finding the sample configuration that uses 
-the same interface hardware as your machine, 
-and saving a copy to your home directory, 
-you can customize it according to the details of your machine. 
-Refer to the Integrator Manual for topics on configuration.
+Después de encontrar el ejemplo de la configuración que utiliza
+la misma interface que el hardware de su máquina,
+guarde una copia en su directorio personal.
+Usted puede personalizar de acuerdo a los detalles d su maquina
+consulte el manual de integración  de los temas de configuración.
 
 // vim: set syntax=asciidoc:
-
-
