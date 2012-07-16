@@ -57,6 +57,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     0, 100, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'use_joints_mode' : ( gobject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'use_default_controls' : ( gobject.TYPE_BOOLEAN, 'Use Default Mouse Controls', 'Use Default Mouse Controls',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):

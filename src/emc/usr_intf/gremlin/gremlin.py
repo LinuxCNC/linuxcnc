@@ -92,7 +92,6 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.connect('configure_event', self.reshape)
         self.connect('map_event', self.map)
         self.connect('expose_event', self.expose)
-
         self.connect('motion-notify-event', self.motion)
         self.connect('button-press-event', self.pressed)
         self.connect('button-release-event', self.select_fire)
@@ -129,6 +128,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.foam_option = bool(inifile.find("DISPLAY", "FOAM"))
         self.show_offsets = False
+        self.use_default_controls = True
 
 	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
 	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
@@ -299,6 +299,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.select_primed = None
 
     def pressed(self, widget, event):
+        if not self.use_default_controls:return
         button1 = event.button == 1
         button2 = event.button == 2
         button3 = event.button == 3
@@ -314,6 +315,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.startZoom(event.y)
 
     def motion(self, widget, event):
+        if not self.use_default_controls:return
         button1 = event.state & gtk.gdk.BUTTON1_MASK
         button2 = event.state & gtk.gdk.BUTTON2_MASK
         button3 = event.state & gtk.gdk.BUTTON3_MASK
@@ -334,11 +336,35 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             self.continueZoom(event.y)
 
     def scroll(self, widget, event):
+        if not self.use_default_controls:return
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
+
+    # These are for external controlling of the view
 
     def zoom_in(self):
         self.zoomin()
 
     def zoom_out(self):
         self.zoomout()
+
+    def start_continuous_zoom(self, y):
+        self.startZoom(y)
+
+    def continuous_zoom(self, y):
+        self.continueZoom(y)
+
+    def set_mouse_start(self, x, y):
+        self.recordMouse(x, y)
+
+    def set_prime(self, x, y):
+        if self.select_primed:
+            primedx, primedy = self.select_primed
+            distance = max(abs(x - primedx), abs(y - primedy))
+            if distance > 8: self.select_cancel()
+
+    def pan(self,x,y):
+        self.translateOrRotate(x, y)
+
+    def rotate_view(self,x,y):
+        self.rotateOrTranslate(x, y)
