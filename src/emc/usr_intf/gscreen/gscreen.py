@@ -192,6 +192,7 @@ class Data:
         self.velocity_override_inc = .05
         self.edit_mode = False
         self.full_graphics = False
+        self.graphic_move_inc = 20
         self.file = ""
         self.file_lines = 0
         self.line = 0
@@ -426,11 +427,14 @@ class Gscreen:
         self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_mode_select_clicked))
 
         cb = "button_mode"
-        i = "_sighandler_mode"
+        i = "_sighandler_mode" 
         self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_mode_clicked))
         cb = "gremlin"
         i = "_sighandler_gremlin"
         self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_gremlin_clicked))
+        cb = "gremlin"
+        i = "_sighandler_gremlin_motion"
+        self.data[i] = int(self.widgets[cb].connect("motion-notify-event", self.on_gremlin_motion))
         cb = "button_estop"
         i = "_sighandler_estop"
         self.data[i] = int(self.widgets[cb].connect("clicked", self.on_estop_clicked))
@@ -562,6 +566,33 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    # for plot view controls with touchscreen
+    def on_eventbox_gremlin_enter_notify_event(self,widget,event):
+        if self.widgets.button_graphics.get_active():
+            if self.widgets.button_h5_0.get_active():
+                self.widgets.gremlin.start_continuous_zoom(event.y)
+            elif self.widgets.button_h5_6.get_active():
+                self.widgets.gremlin.select_prime(event.x,event.y)
+            self.widgets.gremlin.set_mouse_start(event.x,event.y)
+
+    # for plot view controls with touchscreen
+    def on_eventbox_gremlin_leave_notify_event(self,widget,event):
+        self.widgets.gremlin.select_fire(event.x,event.y)
+
+    # for plot view controls with touchscreen
+    def on_gremlin_motion(self,widget,event):
+        if self.widgets.button_graphics.get_active():
+            if self.widgets.button_h5_0.get_active():
+                self.widgets.gremlin.continuous_zoom(event.y)
+            elif self.widgets.button_h5_4.get_active():
+                self.pan(event.x,event.y)
+            elif self.widgets.button_h5_5.get_active():
+                self.pan(event.x,event.y)
+            elif self.widgets.button_h5_6.get_active():
+                self.rotate(event.x,event.y)
+            elif self.widgets.button_h5_7.get_active():
+                self.rotate(event.x,event.y)
+
     # display calculator for input
     def launch_numerical_input(self,widget,event):
         if event.type == gtk.gdk._2BUTTON_PRESS:
@@ -670,10 +701,14 @@ class Gscreen:
             elif mode == 4:
                 self.toggle_overrides(widget,mode,number)
             elif mode == 5:
-                if number == 0:self.zoom_in()
-                if number == 1:self.zoom_out()
+                if number == 0:pass
+                if number == 1:pass
                 if number == 2:self.toggle_view()
                 if number == 3:self.clear_plot()
+                if number == 4:pass
+                if number == 5:pass
+                if number == 6:pass
+                if number == 7:pass
             else: raise nofunnction
         except :
             print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -905,6 +940,38 @@ class Gscreen:
                 self.zero_axis()
         elif widget == self.widgets.button_v0_1:
             self.set_axis_checks()
+        elif self.widgets.button_graphics.get_active():
+            inc = self.data.graphic_move_inc
+            if widget == self.widgets.button_v0_2:
+                print "up button",action
+                change = 1
+            elif widget == self.widgets.button_v0_3:
+                print "down button",action
+                change = -1
+            if self.widgets.button_h5_0.get_active() and action:
+                print "zoom"
+                if change == 1: self.zoom_in()
+                else: self.zoom_out()
+            elif self.widgets.button_h5_4.get_active() and action:
+                print "pan vertical"
+                self.widgets.gremlin.set_mouse_start(0,0)
+                if change == 1: self.pan(0,-inc)
+                else: self.pan(0,inc)
+            elif self.widgets.button_h5_5.get_active() and action:
+                print "pan horizontal"
+                self.widgets.gremlin.set_mouse_start(0,0)
+                if change == 1: self.pan(-inc,0)
+                else: self.pan(inc,0)
+            elif self.widgets.button_h5_6.get_active() and action:
+                print "rotate horiontal"
+                self.widgets.gremlin.set_mouse_start(0,0)
+                if change == 1: self.rotate(-inc,0)
+                else: self.rotate(inc,0)
+            elif self.widgets.button_h5_7.get_active() and action:
+                print "rotate horiontal"
+                self.widgets.gremlin.set_mouse_start(0,0)
+                if change == 1: self.rotate(0,-inc)
+                else: self.rotate(0,inc)
 
     def graphics(self,*args):
         print "show/hide graphics buttons"
@@ -1042,11 +1109,9 @@ class Gscreen:
         return postgui_halfile,sys.argv[2]
 
     def zoom_in(self,*args):
-        print "zoom in"
         self.widgets.gremlin.zoom_in()
 
     def zoom_out(self,*args):
-        print "zoom out"
         self.widgets.gremlin.zoom_out()
 
     def toggle_fullscreen1(self):
@@ -1300,6 +1365,12 @@ class Gscreen:
     def clear_plot(self):
         self.widgets.gremlin.clear_live_plotter()
 
+    def pan(self,x,y):
+        self.widgets.gremlin.pan(x,y)
+
+    def rotate(self,x,y):
+        self.widgets.gremlin.rotate_view(x,y)
+
     def reload_plot(self):
         print "reload plot"
         self.widgets.button_h3_7.emit("clicked")
@@ -1317,7 +1388,7 @@ class Gscreen:
             self.emc.flood_on(1)
 
     def toggle_feed_hold(self):
-        print "toggle feed hold",self.data.feed_hold
+        print "toggle feed hold from",self.data.feed_hold
         if self.data.feed_hold:
             self.emc.feed_hold(0)
         else:
