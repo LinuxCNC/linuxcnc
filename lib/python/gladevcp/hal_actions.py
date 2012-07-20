@@ -142,7 +142,7 @@ class _EMC_RadioAction(gtk.RadioAction, _EMC_ToggleAction):
 class EMC_Stat(GStat, _EMC_ActionBase):
     __gtype_name__ = 'EMC_Stat'
     def __init__(self):
-        stat = self.linuxcnc_static.get()[2]
+        stat = self.linuxcnc_static.get()[1]
         GStat.__init__(self, stat)
 
     def _hal_init(self):

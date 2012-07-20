@@ -61,6 +61,15 @@ Virtual Control Panels:
             button is active. It will then load the existing panel in the 
             machined named config as long as it's still named gvcp-panel.ui.
             Close the panel to continue editing config.
+        If there is already a panel in the config folder named gvcp-panel.ui,
+        PNCconf will complain asking if you wish to overwrite it. If you say yes
+        the old file will be saved in the backup folder. Selecting the option
+        Use-existing-custom-program will avoid this warning but if you change
+        options related to the display panel such as spindle feedback options 
+        The HAL commands will not be updated so the options might not work. In
+        that case select Sample-display again and allow pncconf to overwrite it.
+        If you are using a glade file you have modified outside of PNCconf then 
+        you will have to take care that the HAL commands are right.
 
 INI Option:
     -Require homing before MDI / Running
