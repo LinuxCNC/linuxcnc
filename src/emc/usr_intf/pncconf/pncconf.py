@@ -2496,7 +2496,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             theme = self.gladevcptheme
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
-            print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp.hal gvcp-panel.ui"%(theme,fmax,geo)
+            print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo)
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
