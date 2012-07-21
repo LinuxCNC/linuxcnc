@@ -449,7 +449,7 @@ Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
 A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
-"spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
+"spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "x-enable", "y-enable", "z-enable", "a-enable",
 "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
@@ -1970,7 +1970,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net spindle-output      => " + potpinname + "spinout"
                 else:
                     print >>file, "net spindle-vel-cmd     => " + potpinname + "spinout"
-                print >>file, "net spindle-enable      => " + potpinname +"spinena"
+                print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
 
@@ -1988,10 +1988,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
-                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname
-                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -2013,10 +2013,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
-                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"    
+                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
-                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
+                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -2044,7 +2044,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             if let == "s":
                 print >>file
-                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
+                print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
@@ -2142,7 +2142,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file
             print >>file, "net spindle-vel-cmd-rps    <=  motion.spindle-speed-out-rps"
             print >>file, "net spindle-vel-cmd        <=  motion.spindle-speed-out"
-            print >>file, "net spindle-enable         <=  motion.spindle-on"
+            print >>file, "net spindle-on             <=  motion.spindle-on"
             print >>file, "net spindle-cw             <=  motion.spindle-forward"
             print >>file, "net spindle-ccw            <=  motion.spindle-reverse"
             print >>file, "net spindle-brake          <=  motion.spindle-brake"            
@@ -2604,7 +2604,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             pump = True
         if self.findsignal("estop-ext"):
             estop = True
-        if self.findsignal("spindle-enable"):
+        if self.findsignal("spindle-on"):
             spindle_on = True
         if self.findsignal("spindle-cw"):
             spindle_cw = True
@@ -8032,7 +8032,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         return True
 
     def has_spindle_speed_control(self):
-        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
+        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
                     "s-pot-output"):
             has_spindle = self.data.findsignal(test)
             if has_spindle:
@@ -9344,7 +9344,7 @@ But there is not one in the machine-named folder.."""),True)
         if not axis == "s":
             signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
         else:
-            signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-enable","machine-is-enabled",
+            signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-on","machine-is-enabled",
                             "estop-out","charge-pump","force-pin-true")
         halrun = self.halrun
         def write_pins(pname,p,i,t):
