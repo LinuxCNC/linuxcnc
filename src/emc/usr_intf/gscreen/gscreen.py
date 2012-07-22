@@ -187,6 +187,7 @@ class Data:
         self.spindle_override = 1.0
         self.spindle_override_inc = .05
         self.spindle_override_max = 1.2
+        self.spindle_override_min = .50
         self.maxvelocity = 1
         self.velocity_override = 1.0
         self.velocity_override_inc = .05
@@ -484,21 +485,43 @@ class Gscreen:
         self.mdi_control = mdi.mdi_control(gtk, linuxcnc, mdi_labels, mdi_eventboxes)
         # set up EMC stuff
 
-        # check the ini file if UNITS are set to mm"
+        # pull info from the INI file
         self.inifile = self.emc.emc.ini(self.inipath)
+        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+        if temp == None:
+            temp = self.inifile.find("TRAJ","MAX_VELOCITY")
+            if temp == None:
+                temp = 1.0
+        self.data._maxvelocity = float(temp)
+        temp = self.inifile.find("TRAJ","COORDINATES")
+        if "A" in temp:
+            self.widgets.frame3.show()
+            self.widgets.image6.hide() # make more room for axis display
+        if "Y" in temp:
+            self.widgets.frame2.show()
+        temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
+        if temp:
+            self.data.spindle_override_max = float(temp)
+        temp = self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")
+        if temp:
+            self.data.spindle_override_min = float(temp)
+        temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
+        if temp:
+            self.data.feed_override_max = float(temp)
+        # check the ini file if UNITS are set to mm"
         # first check the global settings
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
+            # else then the X axis units
             units=self.inifile.find("AXIS_0","UNITS")
-
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
         else:
             self.machine_units_mm=0
             conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
         self.status.set_machine_units(self.machine_units_mm,conversion)
+        self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
 
         if self.prefs.getpref('toolsetting_fixture', 0):
             self.g10l11 = 1
@@ -524,13 +547,7 @@ class Gscreen:
            self.emc.opstop_on(0)
         else:
            self.emc.opstop_off(0)                   
-        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-        if temp == None:
-            temp = self.inifile.find("TRAJ","MAX_VELOCITY")
-            if temp == None:
-                temp = 1.0
-        self.data._maxvelocity = float(temp)
-        print "max velocity",(float(self.data._maxvelocity) )
+
         # timers for updates
         gobject.timeout_add(50, self.periodic_status)
         #gobject.timeout_add(100, self.periodic_radiobuttons)
@@ -539,12 +556,7 @@ class Gscreen:
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
         self.set_dynamic_tabs()
-        temp = self.inifile.find("TRAJ","COORDINATES")
-        if "A" in temp:
-            self.widgets.frame3.show()
-            self.widgets.image6.hide() # make more room for axis display
-        if "Y" in temp:
-            self.widgets.frame2.show()
+
         # and display everything
         self.widgets.window1.set_title("Gscreen for linuxcnc")
 
@@ -854,6 +866,7 @@ class Gscreen:
         else:
             rate = self.data.spindle_override + percent_rate
         if rate > self.data.spindle_override_max: rate = self.data.spindle_override_max
+        elif rate < self.data.spindle_override_min: rate = self.data.spindle_override_min
         self.emc.spindle_override(rate)
 
     def set_velocity_override(self,percent_rate,absolute=False):
