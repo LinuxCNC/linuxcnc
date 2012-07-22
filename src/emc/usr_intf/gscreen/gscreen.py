@@ -101,7 +101,7 @@ sys.excepthook = excepthook
 # constants
 X = 0;Y = 1;Z = 2;A = 3;B = 4;C = 5;U = 6;V = 7;W = 8
 _ABS = 0;_REL = 1;_DTG = 2
-_START = 0;_MAN = 1;_MDI = 2;_AUTO = 3
+_MAN = 0;_MDI = 1;_AUTO = 2
 _MM = 1;_IMPERIAL = 0
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
 
@@ -136,14 +136,14 @@ class Data:
         self.window_geometry = ""
         self.window_max = ""
         self.axis_list = ("x","y","z","a","s")
-        self.active_axis_buttons = [(None,None)]
+        self.active_axis_buttons = [(None,None)] # axis letter,axis number
         self.abs_color = (0, 65535, 0)
         self.rel_color = (65535, 0, 0)
         self.dtg_color = (0, 0, 65535)
         self.highlight_color = (65535,65535,65535)
         self.highlight_major = False
         self.display_order = (_REL,_DTG,_ABS)
-        self.mode_order = (_START,_MAN,_MDI,_AUTO)
+        self.mode_order = (_MAN,_MDI,_AUTO)
         self.plot_view = ("P","X","Y","Z","Z2")
         self.task_mode = 0
         self.active_gcodes = []
@@ -471,6 +471,7 @@ class Gscreen:
         self.widgets.run_calibration.connect("clicked", self.on_calibration)
         self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
         self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
+        self.widgets.button_homing.connect("clicked", self.homing)
         self.widgets.button_override.connect("clicked", self.override)
         self.widgets.button_graphics.connect("clicked", self.graphics)
         self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
@@ -664,8 +665,8 @@ class Gscreen:
     def on_mode_clicked(self,widget,event):
         # only change machine modes on click
         if event.type == gtk.gdk.BUTTON_PRESS:
-            a,b,c,d = self.data.mode_order
-            self.data.mode_order = b,c,d,a
+            a,b,c = self.data.mode_order
+            self.data.mode_order = b,c,a
             self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
             self.mode_changed(self.data.mode_order[0])
 
@@ -685,30 +686,32 @@ class Gscreen:
             if mode == 0:
                 if number == 0: self.toggle_ignore_limits()
                 elif number == 2: self.home_all()
+                elif number == 3: self.home_selected()
                 elif number == 4: self.unhome_all()
                 elif number == 5: self.dro_toggle()
                 else: raise nofunnction
             elif mode == 1:
                 if number == 0: self.jog_mode()
+                elif number == 1: self.origin_system()
                 elif number == 2: self.toggle_mist()
                 elif number == 3: self.toggle_flood()
                 elif number == 4: self.reload_tooltable()
                 elif number == 5: self.dro_toggle()
                 else: raise nofunnction
             elif mode == 3:
-                if number == 6: self.reload_plot()
+                if number == 7: self.next_tab()
                 else: raise nofunnction
             elif mode == 4:
                 self.toggle_overrides(widget,mode,number)
             elif mode == 5:
                 if number == 0:pass
-                if number == 1:pass
-                if number == 2:self.toggle_view()
-                if number == 3:self.clear_plot()
-                if number == 4:pass
-                if number == 5:pass
-                if number == 6:pass
-                if number == 7:pass
+                elif number == 1:pass
+                elif number == 2:self.toggle_view()
+                elif number == 3:self.clear_plot()
+                elif number == 4:pass
+                elif number == 5:pass
+                elif number == 6:pass
+                elif number == 7:pass
             else: raise nofunnction
         except :
             print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -744,22 +747,12 @@ class Gscreen:
         self.adjustment_buttons(widget,False)
 
     def on_mode_select_clicked(self,widget,event):
-        # was it a multiple click?
-        if event.type == gtk.gdk.BUTTON_PRESS:
-            maxpage = self.widgets.notebook_mode.get_n_pages()
-            page = self.widgets.notebook_mode.get_current_page()
-            nextpage = page + 1
-            print "mode select",maxpage,page,nextpage
-            if nextpage == maxpage:nextpage = 0
-            self.widgets.notebook_mode.set_current_page(nextpage)
-        elif event.type == gtk.gdk._2BUTTON_PRESS:
-            maxpage = self.widgets.notebook_main.get_n_pages()
-            page = self.widgets.notebook_main.get_current_page()
-            nextpage = page + 1
-            print "double"
-            print "mode select",maxpage,page,nextpage
-            if nextpage == maxpage:nextpage = 0
-            self.widgets.notebook_main.set_current_page(nextpage)
+        maxpage = self.widgets.notebook_main.get_n_pages()
+        page = self.widgets.notebook_main.get_current_page()
+        nextpage = page + 1
+        print "mode select",maxpage,page,nextpage
+        if nextpage == maxpage:nextpage = 0
+        self.widgets.notebook_main.set_current_page(nextpage)
 
     def on_estop_clicked(self,*args):
         if self.data.estopped:
@@ -833,6 +826,14 @@ class Gscreen:
             self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
 
 # ****** do stuff *****
+
+    def next_tab(self):
+        maxpage = self.widgets.notebook_mode.get_n_pages()
+        page = self.widgets.notebook_mode.get_current_page()
+        nextpage = page + 1
+        print "mode select",maxpage,page,nextpage
+        if nextpage == maxpage:nextpage = 0
+        self.widgets.notebook_mode.set_current_page(nextpage)
 
     def set_feed_override(self,percent_rate,absolute=False):
         if absolute:
@@ -972,13 +973,63 @@ class Gscreen:
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.rotate(0,-inc)
                 else: self.rotate(0,inc)
+        # user coordinate system
+        elif self.widgets.button_h1_1.get_active():
+            if widget == self.widgets.button_v0_2 and action:
+                print "up button",action
+                change = 1
+            elif widget == self.widgets.button_v0_3 and action:
+                print "down button",action
+                change = -1
+            else: return
+            self.change_origin_system(None,change)
+
+    def origin_system(self,*args):
+        print "origin system button"
+        if self.widgets.button_h1_1.get_active():
+            self.widgets.button_mode.set_sensitive(False)
+            self.widgets.button_override.set_sensitive(False)
+            self.widgets.dro_frame.set_sensitive(False)
+            self.widgets.button_graphics.set_sensitive(False)
+            self.widgets.button_homing.set_sensitive(False)
+        else:
+            self.widgets.button_mode.set_sensitive(True)
+            self.widgets.button_override.set_sensitive(True)
+            self.widgets.dro_frame.set_sensitive(True)
+            self.widgets.button_graphics.set_sensitive(True)
+            self.widgets.button_homing.set_sensitive(True)
+
+    def change_origin_system(self,system,direction=None):
+        print system,direction
+        system_list = (0,54,55,56,57,58,59,59.1,59.2,59.3)
+        current = system_list[self.data.system]
+        if not system:
+            if direction > 0 and not current == 59.3: self.mdi_control.set_user_system(system_list[self.data.system+1])
+            elif direction < 0 and not current == 54: self.mdi_control.set_user_system(system_list[self.data.system-1])
+
+
+    def homing(self,*args):
+        print "show/hide homing buttons"
+        if self.widgets.button_homing.get_active():
+            for i in range(0,3):
+                self.widgets["mode%d"% i].hide()
+            self.widgets.mode3.show()
+            self.widgets.button_mode.set_sensitive(False)
+            self.widgets.button_override.set_sensitive(False)
+        else:
+            self.widgets.mode3.hide()
+            self.mode_changed(self.data.mode_order[0])
+            self.widgets.button_mode.set_sensitive(True)
+            self.widgets.button_override.set_sensitive(True)
 
     def graphics(self,*args):
         print "show/hide graphics buttons"
         if self.widgets.button_graphics.get_active():
-            for i in range(0,4):
+            for i in range(0,3):
                 self.widgets["mode%d"% i].hide()
             self.widgets.mode5.show()
+            self.widgets.vmode0.show()
+            self.widgets.vmode1.hide()
             self.widgets.dro_frame.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
@@ -992,7 +1043,7 @@ class Gscreen:
     def override(self,*args):
         print "show/hide override buttons"
         if self.widgets.button_override.get_active():
-            for i in range(0,4):
+            for i in range(0,3):
                 self.widgets["mode%d"% i].hide()
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
@@ -1257,7 +1308,7 @@ class Gscreen:
         # if manual mode, if jogging
         # if only one axis button pressed
         # jog positive  at selected rate
-        if self.data.mode_order[0] == 1:
+        if self.data.mode_order[0] == _MAN:
             if len(self.data.active_axis_buttons) > 1:
                 self.widgets.statusbar1.push(self.statusbar_id,"Can't jog multiple axis")
                 print self.data.active_axis_buttons
@@ -1320,6 +1371,17 @@ class Gscreen:
     def home_all(self):
         self.emc.home_all(1)
 
+    def home_selected(self):
+        print "home selected"
+        if len(self.data.active_axis_buttons) > 1:
+            self.widgets.statusbar1.push(self.statusbar_id,"Can't home multiple axis - select HOME ALL instead")
+            print self.data.active_axis_buttons
+        elif self.data.active_axis_buttons[0][0] == None:
+            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to home")
+        else:
+            print "home axis %s" % self.data.active_axis_buttons[0][0]
+            self.emc.home_selected(self.data.active_axis_buttons[0][1])
+
     def unhome_selected(self,axis):
         if len(self.data.active_axis_buttons) > 1:
             self.widgets.statusbar1.push(self.statusbar_id,"Can't unhome multiple axis")
@@ -1341,7 +1403,7 @@ class Gscreen:
                     self.reload_plot()
 
     def set_axis_checks(self):
-        if self.data.mode_order[0] in (_START,_MAN):
+        if self.data.mode_order[0] == _MAN:
             # if in jog mode
             if self.widgets.button_h1_0.get_active():
                 print "jog to position"
@@ -1356,7 +1418,9 @@ class Gscreen:
                                 self.emc.spindle_forward(1)
                             elif self.widgets.s_display_rev.get_active():
                                 self.emc.spindle_reverse(1)
-                            else: continue
+                            else:
+                                self.widgets.statusbar1.push(self.statusbar_id,"No jog direction selected")
+                                continue
                             self.mdi_control.set_spindle_speed(self.get_qualified_input(_SPINDLE_INPUT))
                         else:
                             self.mdi_control.set_axis(i,self.get_qualified_input(i))
@@ -1373,7 +1437,7 @@ class Gscreen:
 
     def reload_plot(self):
         print "reload plot"
-        self.widgets.button_h3_7.emit("clicked")
+        self.widgets.button_h3_6.emit("clicked")
 
     def toggle_mist(self):
         if self.data.mist:
@@ -1415,14 +1479,23 @@ class Gscreen:
         self.update_position()
 
     def mode_changed(self,mode):
-        for i in range(0,4):
+        for i in range(0,3):
             if i == mode:
                 self.widgets["mode%d"% i].show()
             else:
                 self.widgets["mode%d"% i].hide()
-        if not mode == _START or not mode == _MAN:
-            self.widgets.button_h1_0.set_active(False)
-        if mode == _AUTO:
+        if mode == _MAN: 
+            self.widgets.vmode0.show()
+            self.widgets.vmode1.hide()
+            self.widgets.notebook_mode.hide()
+            self.widgets.hal_mdihistory.hide()
+            self.widgets.button_homing.show()
+        elif mode == _MDI:
+            self.widgets.hal_mdihistory.show()
+            self.widgets.vmode0.show()
+            self.widgets.vmode1.hide()
+            self.widgets.notebook_mode.hide()
+        elif mode == _AUTO:
             self.widgets.vmode0.hide()
             self.widgets.vmode1.show()
             if self.data.full_graphics:
@@ -1430,16 +1503,10 @@ class Gscreen:
             else:
                 self.widgets.notebook_mode.show()
             self.widgets.hal_mdihistory.hide()
-        elif mode == _MDI:
-            self.widgets.hal_mdihistory.show()
-            self.widgets.vmode0.show()
-            self.widgets.vmode1.hide()
-            self.widgets.notebook_mode.hide()
-        else: 
-            self.widgets.vmode0.show()
-            self.widgets.vmode1.hide()
-            self.widgets.notebook_mode.hide()
-            self.widgets.hal_mdihistory.hide()
+        if not mode == _MAN:
+            self.widgets.button_h1_0.set_active(False)
+            self.widgets.button_homing.set_active(False)
+            self.widgets.button_homing.hide()
 
     def change_theme(self):
         theme = self.widgets.theme_choice.get_active_text()
@@ -1563,7 +1630,7 @@ class Gscreen:
         self.widgets.jog_rate.set_text(text)
         #print self.data.velocity_override,self.data._maxvelocity
         # Mode / view
-        modenames = ("Startup","Manual","MDI","Auto")
+        modenames = ("Manual","MDI","Auto")
         self.widgets.mode_label.set_label( "%s Mode   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
 
     def update_hal_jog_pins(self):
