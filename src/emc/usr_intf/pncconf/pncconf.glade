@@ -5682,7 +5682,7 @@ Relative
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkSpinButton" id="Max_spindle_override">
+                                                  <widget class="GtkSpinButton" id="max_spindle_override">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="adjustment">200 100 200 1 10 0</property>

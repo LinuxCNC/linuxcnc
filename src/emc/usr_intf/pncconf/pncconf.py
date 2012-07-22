@@ -4923,6 +4923,8 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.pyvcp1.set_active(self.data.pyvcp1)
         self.widgets.pyvcpblank.set_active(self.data.pyvcpblank)
         self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity*60)
+        self.widgets.max_spindle_override.set_value( self.data.max_spindle_override*100)
+        self.widgets.min_spindle_override.set_value( self.data.min_spindle_override*100)
         self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity*60)
         self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity*60)
         self.widgets.default_angular_velocity.set_value( self.data.default_angular_velocity*60)
@@ -5008,6 +5010,8 @@ if you change related options later -such as spindle feedback- the HAL connectio
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
+        self.data.max_spindle_override = self.widgets.max_spindle_override.get_value()/100
+        self.data.min_spindle_override = self.widgets.min_spindle_override.get_value()/100
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
         self.data.default_angular_velocity = self.widgets.default_angular_velocity.get_value()/60
