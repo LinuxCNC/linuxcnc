@@ -539,7 +539,12 @@ class Gscreen:
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
         self.set_dynamic_tabs()
-
+        temp = self.inifile.find("TRAJ","COORDINATES")
+        if "A" in temp:
+            self.widgets.frame3.show()
+            self.widgets.image6.hide() # make more room for axis display
+        if "Y" in temp:
+            self.widgets.frame2.show()
         # and display everything
         self.widgets.window1.set_title("Gscreen for linuxcnc")
 

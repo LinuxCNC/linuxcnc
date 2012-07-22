@@ -160,7 +160,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame2">
-                            <property name="visible">True</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">etched-out</property>
                             <child>
