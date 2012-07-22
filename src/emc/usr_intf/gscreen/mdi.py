@@ -172,6 +172,14 @@ class mdi:
             self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
+    def set_user_system(self,value):
+        m = "g %f"%(value)
+        self.emcstat.poll()
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
+        self.emccommand.mdi(m)
+
 class mdi_control:
     def __init__(self, gtk, emc, labels, eventboxes):
         self.labels = labels
@@ -195,6 +203,10 @@ class mdi_control:
 
     def go_to_position(self,axis,position,feedrate):
         self.mdi.go_to_position(axis,position,feedrate)
+
+    def set_user_system(self,system):
+        print "set user system to :G",system
+        self.mdi.set_user_system(system)
 
     def not_editing(self, n):
         e = self.eventboxes[n]
