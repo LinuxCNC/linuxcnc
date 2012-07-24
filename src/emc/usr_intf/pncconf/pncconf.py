@@ -4589,12 +4589,12 @@ Ok to reset data and start a new configuration?"),False):
                                 elif temp == "TXData4": convertedname = SS7I76M3
                                 else: convertedname = pinconvertsserial[temp]
                                 #print "XML ",currentfirm, temp,convertedname
-                            elif "7i76x2" in currentfirm:
+                            elif "7i76x2" in currentfirm or "7i76x1" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I76M0
                                 elif temp == "TXData3": convertedname = SS7I76M2
                                 else: convertedname = pinconvertsserial[temp]
                                 #print "XML ",currentfirm, temp,convertedname
-                            elif "7i77x2" in currentfirm:
+                            elif "7i77x2" in currentfirm or "7i77x1" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I77M0
                                 elif temp == "TXData2": convertedname = SS7I77M1
                                 elif temp == "TXData4": convertedname = SS7I77M3
