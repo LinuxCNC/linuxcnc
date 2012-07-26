@@ -38,7 +38,8 @@ TCLSRCS := \
 	../tcl/scripts/emchelp.tcl \
 	../tcl/ngcgui.tcl \
 	../tcl/ngcgui_ttt.tcl \
-	../tcl/ngcgui_app.tcl
+	../tcl/ngcgui_app.tcl \
+	emc/usr_intf/tooledit.tcl
 
 po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
