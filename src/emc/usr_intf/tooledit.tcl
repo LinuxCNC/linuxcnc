@@ -262,10 +262,10 @@ proc ::tooledit::readfile {filename} {
   set fd [open $filename r]
 
   set bct 0
-  set lno 1
+  set lno 0
   while {1} {
     gets $fd newline
-    incr lno
+    incr lno ;# starts at 1
     if [eof $fd] break
     foreach item {t p x y z a b c u v w d i j q comment} {
       set u($item) ""
@@ -833,31 +833,33 @@ proc ::tooledit::toolvalidate {args} {
   }
 
   # check for multiple uses of a single pocket
-  if ![info exists ::te(items)] continue
-  set pocs ""
-  foreach i $::te(items) {
-    set p $::te(parm,$i,poc)
+  if [info exists ::te(items)] {
+    set pocs ""
+    foreach i $::te(items) {
+      set p $::te(parm,$i,poc)
 
-    if {[lsearch $pocs $p] >= 0} {
-      set nextmsg [format [_ "Pocket <%s> specified multiple times"]  $p]
-      if {[lsearch $msg $nextmsg] >= 0} continue
-      lappend msg $nextmsg
-    } else {
-      lappend pocs $p
+      if {[lsearch $pocs $p] >= 0} {
+        set nextmsg [format [_ "Pocket <%s> specified multiple times"]  $p]
+        if {[lsearch $msg $nextmsg] >= 0} continue
+        lappend msg $nextmsg
+      } else {
+        lappend pocs $p
+      }
     }
   }
   # check for multiple uses of a single tool
-  if ![info exists ::te(items)] continue
-  set tools ""
-  foreach i $::te(items) {
-    set t $::te(parm,$i,tool)
+  if [info exists ::te(items)] {
+    set tools ""
+    foreach i $::te(items) {
+      set t $::te(parm,$i,tool)
 
-    if {[lsearch $tools $t] >= 0} {
-      set nextmsg [format [_ "Tool <%s> specified multiple times"] $t]
-      if {[lsearch $msg $nextmsg] >= 0} continue
-      lappend msg $nextmsg
-    } else {
-      lappend tools $t
+      if {[lsearch $tools $t] >= 0} {
+        set nextmsg [format [_ "Tool <%s> specified multiple times"] $t]
+        if {[lsearch $msg $nextmsg] >= 0} continue
+        lappend msg $nextmsg
+      } else {
+        lappend tools $t
+      }
     }
   }
 
