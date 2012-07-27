@@ -102,7 +102,7 @@ class emc_control:
         def spindle_forward(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(1);
+                self.emccommand.spindle(1,100);
 
         def spindle_off(self, b):
                 if self.masked: return
@@ -112,7 +112,7 @@ class emc_control:
         def spindle_reverse(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(-1);
+                self.emccommand.spindle(-1,100);
 
         def spindle_faster(self, b):
                 if self.masked: return
