@@ -583,6 +583,31 @@ class Gscreen:
         self.halcomp.ready()
 
 # *** GLADE callbacks ****
+    def on_s_display_fwd_toggled(self,widget):
+        if self.data.mode_order[0] == _MAN:
+            if self.widgets.button_h1_0.get_active():# jogging mode active
+                if widget.get_active():
+                    self.widgets.s_display_rev.set_active(False)
+                    print "forward"
+                    self.emc.spindle_forward(1)
+                elif not self.widgets.s_display_rev.get_active():
+                    self.emc.spindle_off(1)
+            elif widget.get_active():
+                widget.set_active(False)
+                self.widgets.statusbar1.push(self.statusbar_id,"Manual Spindle Control requires jogging mode active")
+
+    def on_s_display_rev_toggled(self,widget):
+        if self.data.mode_order[0] == _MAN:
+            if self.widgets.button_h1_0.get_active():# jogging mode active
+                if widget.get_active():
+                    self.widgets.s_display_fwd.set_active(False)
+                    print "reverse"
+                    self.emc.spindle_reverse(1)
+                elif not self.widgets.s_display_fwd.get_active():
+                    self.emc.spindle_off(1)
+            elif widget.get_active():
+                widget.set_active(False)
+                self.widgets.statusbar1.push(self.statusbar_id,"Manual Spindle Control requires jogging mode active")
 
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
@@ -661,7 +686,10 @@ class Gscreen:
         p = os.popen("halmeter &")
 
     def on_window1_destroy(self, widget, data=None):
-        print "kill"
+        print "estopping / killing gscreen"
+        self.emc.machine_off(1)
+        self.emc.estop(1)
+        time.sleep(2)
     	gtk.main_quit()
 
     def on_axis_x_clicked(self,widget):
@@ -951,14 +979,15 @@ class Gscreen:
                 self.set_axis_checks()
             if widget == self.widgets.button_v0_2:
                 print "up button",action
-                self.do_jog(action)
+                self.do_jog(True,action)
             if widget == self.widgets.button_v0_3:
                 print "down button",action
-                self.do_jog(-(action))
+                self.do_jog(False,action)
         elif widget == self.widgets.button_v0_0:
                 self.zero_axis()
         elif widget == self.widgets.button_v0_1:
             self.set_axis_checks()
+        # graphics
         elif self.widgets.button_graphics.get_active():
             inc = self.data.graphic_move_inc
             if widget == self.widgets.button_v0_2:
@@ -1320,9 +1349,10 @@ class Gscreen:
             self.widgets.button_v0_1.set_label("Move To")
         else:
             self.widgets.button_v0_1.set_label("Offset Origin")
+            self.emc.spindle_off(1)
         self.update_hal_jog_pins()
 
-    def do_jog(self,direction):
+    def do_jog(self,direction,action):
         # if manual mode, if jogging
         # if only one axis button pressed
         # jog positive  at selected rate
@@ -1335,8 +1365,19 @@ class Gscreen:
             else:
                 print "Jog axis %s" % self.data.active_axis_buttons[0][0]
                 if not self.data.active_axis_buttons[0][0] == "s":
+                    if not action: cmd = 0
+                    elif direction: cmd = 1
+                    else: cmd = -1
                     self.emc.jogging(1)
-                    self.emc.continuous_jog(self.data.active_axis_buttons[0][1],direction)
+                    self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
+                else:
+                    if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
+                        self.widgets.statusbar1.push(self.statusbar_id,"No jog direction selected for spindle")
+                        return
+                    if direction and action:
+                        self.emc.spindle_faster(1)
+                        print direction,action
+                    elif not direction and action:self.emc.spindle_slower(1)
 
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
@@ -1364,6 +1405,7 @@ class Gscreen:
             raw = self.widgets.calc_entry.get_value()
         else:
             raw = self.widgets.data_input.get_value()
+        print "RAW input:",raw
         if switch == _SPINDLE_INPUT:
             return raw
         elif switch == _PERCENT_INPUT:
@@ -1381,6 +1423,7 @@ class Gscreen:
             if switch == "x" and self.data.diameter_mode:
                 print "convert from diameter"
                 raw = raw / 2.0
+        print "Qualified input:",raw
         return raw
 
     def unhome_all(self):
@@ -1433,8 +1476,10 @@ class Gscreen:
                         print "set %s axis" %i
                         if i == "s":
                             if self.widgets.s_display_fwd.get_active():
+                                print "forward"
                                 self.emc.spindle_forward(1)
                             elif self.widgets.s_display_rev.get_active():
+                                print "reverse"
                                 self.emc.spindle_reverse(1)
                             else:
                                 self.widgets.statusbar1.push(self.statusbar_id,"No jog direction selected")
