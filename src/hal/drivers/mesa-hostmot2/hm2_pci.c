@@ -289,7 +289,7 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
         } while (count-- > 0);
 
         if (count == 0) {
-            THIS_ERR("FPGA did not come out of /INIT");
+            THIS_ERR("FPGA did not come out of /INIT\n");
             return -EIO;
         }
     }
@@ -566,7 +566,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         }
 
         default: {
-            LL_ERR("unknown subsystem device id 0x%04x", dev->subsystem_device);
+            LL_ERR("unknown subsystem device id 0x%04x\n", dev->subsystem_device);
             return failed_errno = -ENODEV;
         }
     }
