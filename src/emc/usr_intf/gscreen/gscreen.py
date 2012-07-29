@@ -34,13 +34,23 @@ import vte
 import time
 import hal_glib
 
+try:
+    import pynotify
+    if not pynotify.init("Gscreen"):
+        print "There was a problem initializing the pynotify module"
+except:
+    print "You don't seem to have pynotify installed"
+
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
 datadir = os.path.join(BASE, "share", "linuxcnc")
+imagedir = os.path.join(BASE, "share","gscreen","images")
 sys.path.insert(0, libdir)
 themedir = "/usr/share/themes"
 xmlname = os.path.join(datadir,"gscreen.glade")
 xmlname2 = os.path.join(datadir,"gscreen2.glade")
+ALERT_ICON = os.path.join(imagedir,"applet-critical.png")
+INFO_ICON = os.path.join(imagedir,"std_info.gif")
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
@@ -582,6 +592,7 @@ class Gscreen:
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
 
+
 # *** GLADE callbacks ****
     def on_s_display_fwd_toggled(self,widget):
         if self.data.mode_order[0] == _MAN:
@@ -594,7 +605,7 @@ class Gscreen:
                     self.emc.spindle_off(1)
             elif widget.get_active():
                 widget.set_active(False)
-                self.widgets.statusbar1.push(self.statusbar_id,"Manual Spindle Control requires jogging mode active")
+                self.notify("INFO:","Manual Spindle Control requires jogging mode active",INFO_ICON)
 
     def on_s_display_rev_toggled(self,widget):
         if self.data.mode_order[0] == _MAN:
@@ -607,7 +618,7 @@ class Gscreen:
                     self.emc.spindle_off(1)
             elif widget.get_active():
                 widget.set_active(False)
-                self.widgets.statusbar1.push(self.statusbar_id,"Manual Spindle Control requires jogging mode active")
+                self.notify("INFO:","Manual Spindle Control requires jogging mode active",INFO_ICON)
 
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
@@ -852,7 +863,7 @@ class Gscreen:
                     statustext = boldtext
                 else:
                     statustext = text
-                self.widgets.statusbar1.push(self.statusbar_id,statustext)
+                self.notify("INFO:",statustext,INFO_ICON)
             if "dialog" in type or "okdialog" in type:
                 self.halcomp[pinname + "-waiting"] = True
                 if "okdialog" in type:
@@ -871,6 +882,17 @@ class Gscreen:
             self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
 
 # ****** do stuff *****
+
+    def notify(self,title,message,icon="",timeout=2):
+            self.widgets.statusbar1.push(self.statusbar_id,message)
+            uri = ""
+            if icon:
+                uri = "file://" + icon
+            n = pynotify.Notification(title, message, uri)
+            n.set_hint_string("x-canonical-append","True")
+            n.set_urgency(pynotify.URGENCY_CRITICAL)
+            n.set_timeout(timeout * 1000)
+            n.show()
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
@@ -1358,10 +1380,10 @@ class Gscreen:
         # jog positive  at selected rate
         if self.data.mode_order[0] == _MAN:
             if len(self.data.active_axis_buttons) > 1:
-                self.widgets.statusbar1.push(self.statusbar_id,"Can't jog multiple axis")
+                self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
                 print self.data.active_axis_buttons
             elif self.data.active_axis_buttons[0][0] == None:
-                self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to jog")
+                self.notify("INFO:","No axis selected to jog",INFO_ICON)
             else:
                 print "Jog axis %s" % self.data.active_axis_buttons[0][0]
                 if not self.data.active_axis_buttons[0][0] == "s":
@@ -1372,7 +1394,7 @@ class Gscreen:
                     self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
                 else:
                     if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-                        self.widgets.statusbar1.push(self.statusbar_id,"No jog direction selected for spindle")
+                        self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
                         return
                     if direction and action:
                         self.emc.spindle_faster(1)
@@ -1381,10 +1403,10 @@ class Gscreen:
 
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
-            self.widgets.statusbar1.push(self.statusbar_id,"Can't jog multiple axis")
+            self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to jog")
+            self.notify("INFO:","No axis selected to jog",INFO_ICON)
         else:
             print "Jog axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
@@ -1435,20 +1457,20 @@ class Gscreen:
     def home_selected(self):
         print "home selected"
         if len(self.data.active_axis_buttons) > 1:
-            self.widgets.statusbar1.push(self.statusbar_id,"Can't home multiple axis - select HOME ALL instead")
+            self.notify("INFO:","Can't home multiple axis - select HOME ALL instead",INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to home")
+            self.notify("INFO:","No axis selected to home",INFO_ICON)
         else:
             print "home axis %s" % self.data.active_axis_buttons[0][0]
             self.emc.home_selected(self.data.active_axis_buttons[0][1])
 
     def unhome_selected(self,axis):
         if len(self.data.active_axis_buttons) > 1:
-            self.widgets.statusbar1.push(self.statusbar_id,"Can't unhome multiple axis")
+            self.notify("INFO:","Can't unhome multiple axis",INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.widgets.statusbar1.push(self.statusbar_id,"No axis selected to unhome")
+            self.notify("INFO:","No axis selected to unhome",INFO_ICON)
         else:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
 
@@ -1482,7 +1504,7 @@ class Gscreen:
                                 print "reverse"
                                 self.emc.spindle_reverse(1)
                             else:
-                                self.widgets.statusbar1.push(self.statusbar_id,"No jog direction selected")
+                                self.notify("INFO:","No jog direction selected",INFO_ICON)
                                 continue
                             self.mdi_control.set_spindle_speed(self.get_qualified_input(_SPINDLE_INPUT))
                         else:
@@ -1592,7 +1614,7 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
-            self.widgets.statusbar1.push(self.statusbar_id,text)
+            self.notify("Error Message",text,ALERT_ICON,3)
         self.emc.unmask()
         #self.hal.periodic(self.tab == 1) # MDI tab?
         self.update_position()
