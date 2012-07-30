@@ -35,11 +35,15 @@ import time
 import hal_glib
 
 try:
+    NOTIFY_AVAILABLE = False
     import pynotify
     if not pynotify.init("Gscreen"):
         print "There was a problem initializing the pynotify module"
+    else:
+        NOTIFY_AVAILABLE = True
 except:
     print "You don't seem to have pynotify installed"
+
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
@@ -191,6 +195,7 @@ class Data:
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
+        self.current_jogincr_index = 0
         self.feed_override = 1.0
         self.feed_override_inc = .05
         self.feed_override_max = 2.0
@@ -319,6 +324,7 @@ class Gscreen:
             self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
             self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
             self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
             for axis in self.data.axis_list:
                 print axis
@@ -497,12 +503,23 @@ class Gscreen:
 
         # pull info from the INI file
         self.inifile = self.emc.emc.ini(self.inipath)
+
+        increments = self.inifile.find("DISPLAY", "INCREMENTS")
+        if increments:
+            if "," in increments:
+                self.jog_increments = [i.strip() for i in increments.split(",")]
+            else:
+                self.jog_increments = increments.split()
+        self.jog_increments.insert(0,"Continuous")
+        print "increments:",self.jog_increments
+
         temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
             temp = self.inifile.find("TRAJ","MAX_VELOCITY")
             if temp == None:
                 temp = 1.0
         self.data._maxvelocity = float(temp)
+
         temp = self.inifile.find("TRAJ","COORDINATES")
         if "A" in temp:
             self.widgets.frame3.show()
@@ -594,6 +611,8 @@ class Gscreen:
 
 
 # *** GLADE callbacks ****
+
+    # manual spindle control
     def on_s_display_fwd_toggled(self,widget):
         if self.data.mode_order[0] == _MAN:
             if self.widgets.button_h1_0.get_active():# jogging mode active
@@ -607,6 +626,7 @@ class Gscreen:
                 widget.set_active(False)
                 self.notify("INFO:","Manual Spindle Control requires jogging mode active",INFO_ICON)
 
+    # manual spindle control
     def on_s_display_rev_toggled(self,widget):
         if self.data.mode_order[0] == _MAN:
             if self.widgets.button_h1_0.get_active():# jogging mode active
@@ -760,14 +780,10 @@ class Gscreen:
             elif mode == 4:
                 self.toggle_overrides(widget,mode,number)
             elif mode == 5:
-                if number == 0:pass
-                elif number == 1:pass
+                if number == 1:pass
                 elif number == 2:self.toggle_view()
                 elif number == 3:self.clear_plot()
-                elif number == 4:pass
-                elif number == 5:pass
-                elif number == 6:pass
-                elif number == 7:pass
+                else: self.toggle_graphic_overrides(widget,mode,number)
             else: raise nofunnction
         except :
             print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -874,25 +890,61 @@ class Gscreen:
                 self.halcomp[pinname + "-waiting"] = False
 
     def toggle_overrides(self,widget,mode,number):
-        print "overrides",widget.get_active()
-        for i in range(0,4):
+        print "overrides - button_h_%d_%d"%(mode,number)
+        for i in range(0,5):
             if i == number:continue
+            self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+            self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
+            self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+
+    def toggle_graphic_overrides(self,widget,mode,number):
+        print "graphic overrides - button_h_%d_%d"%(mode,number)
+        for i in range(0,8):
+            if i == number or i in(1,2,3):continue
             self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
             self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
             self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
 
 # ****** do stuff *****
 
+    def from_internal_linear_unit(self,v, unit=None):
+        if unit is None:
+            unit = self.status.get_linear_units()
+        lu = (unit or 1) * 25.4
+        return v*lu
+
+    def parse_increment(self,jogincr):
+        if jogincr.endswith("mm"):
+            scale = self.from_internal_linear_unit(1/25.4)
+        elif jogincr.endswith("cm"):
+            scale = self.from_internal_linear_unit(10/25.4)
+        elif jogincr.endswith("um"):
+            scale = self.from_internal_linear_unit(.001/25.4)
+        elif jogincr.endswith("in") or jogincr.endswith("inch"):
+            scale = self.from_internal_linear_unit(1.)
+        elif jogincr.endswith("mil"):
+            scale = self.from_internal_linear_unit(.001)
+        else:
+            scale = 1
+        jogincr = jogincr.rstrip(" inchmuil")
+        if "/" in jogincr:
+            p, q = jogincr.split("/")
+            jogincr = float(p) / float(q)
+        else:
+            jogincr = float(jogincr)
+        return jogincr * scale
+
     def notify(self,title,message,icon="",timeout=2):
             self.widgets.statusbar1.push(self.statusbar_id,message)
-            uri = ""
-            if icon:
-                uri = "file://" + icon
-            n = pynotify.Notification(title, message, uri)
-            n.set_hint_string("x-canonical-append","True")
-            n.set_urgency(pynotify.URGENCY_CRITICAL)
-            n.set_timeout(timeout * 1000)
-            n.show()
+            if NOTIFY_AVAILABLE:
+                uri = ""
+                if icon:
+                    uri = "file://" + icon
+                n = pynotify.Notification(title, message, uri)
+                n.set_hint_string("x-canonical-append","True")
+                n.set_urgency(pynotify.URGENCY_CRITICAL)
+                n.set_timeout(int(timeout * 1000) )
+                n.show()
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
@@ -940,6 +992,22 @@ class Gscreen:
         self.emc.continuous_jog_velocity(rate)
         self.data.jog_rate = rate
 
+    def set_jog_increments(self,index_dir,absolute=False):
+        next = self.data.current_jogincr_index + index_dir
+        end = len(self.jog_increments)-1
+        if next < 0: next = end
+        if next > end: next = 0
+        self.data.current_jogincr_index = next
+        print "index jog increments"
+        jogincr = self.jog_increments[next]
+        self.widgets.jog_increment.set_text(jogincr)
+        if jogincr == ("Continuous"):
+            distance = 0
+        else:
+            distance = self.parse_increment(jogincr)
+        self.halcomp["jog-increment.out"] = distance
+        print jogincr,distance
+
     def adjustment_buttons(self,widget,action):
         # is over ride adjustment selection active?
         if self.widgets.button_override.get_active():
@@ -980,36 +1048,20 @@ class Gscreen:
                 else:
                     self.set_velocity_override((change * self.data.velocity_override_inc),absolute)
             elif self.widgets.button_h4_3.get_active() and action:
-                print "jog override"
+                print "jog speed adjustment"
                 if widget == self.widgets.button_v0_1:
                     change = self.get_qualified_input()
                 if absolute:
                     self.set_jog_rate(change,absolute)
                 else:
                     self.set_jog_rate((change * self.data.jog_rate_inc),absolute)
-            #elif not action:
-             #   self.widgets.statusbar1.push(self.statusbar_id,"No override selected")
-             #  return
-        # if jogging is active
-        elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode
-            # what axis is set
-            if widget == self.widgets.button_v0_0:
-                print "zero button",action
-                self.zero_axis()
-            if widget == self.widgets.button_v0_1:
-                print "move to button",action
-                self.set_axis_checks()
-            if widget == self.widgets.button_v0_2:
-                print "up button",action
-                self.do_jog(True,action)
-            if widget == self.widgets.button_v0_3:
-                print "down button",action
-                self.do_jog(False,action)
-        elif widget == self.widgets.button_v0_0:
-                self.zero_axis()
-        elif widget == self.widgets.button_v0_1:
-            self.set_axis_checks()
-        # graphics
+            elif self.widgets.button_h4_4.get_active() and action:
+                print "jog increments adjustment"
+                if widget == self.widgets.button_v0_1:
+                    change = self.get_qualified_input()
+                self.set_jog_increments(change,absolute)
+
+        # graphics adjustment
         elif self.widgets.button_graphics.get_active():
             inc = self.data.graphic_move_inc
             if widget == self.widgets.button_v0_2:
@@ -1042,6 +1094,7 @@ class Gscreen:
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.rotate(0,-inc)
                 else: self.rotate(0,inc)
+
         # user coordinate system
         elif self.widgets.button_h1_1.get_active():
             if widget == self.widgets.button_v0_2 and action:
@@ -1052,6 +1105,26 @@ class Gscreen:
                 change = -1
             else: return
             self.change_origin_system(None,change)
+
+        # Jogging mode (This needs to be last)
+        elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
+            # what axis is set
+            if widget == self.widgets.button_v0_0:
+                print "zero button",action
+                self.zero_axis()
+            if widget == self.widgets.button_v0_1:
+                print "move to button",action
+                self.set_axis_checks()
+            if widget == self.widgets.button_v0_2:
+                print "up button",action
+                self.do_jog(True,action)
+            if widget == self.widgets.button_v0_3:
+                print "down button",action
+                self.do_jog(False,action)
+        elif widget == self.widgets.button_v0_0:
+                self.zero_axis()
+        elif widget == self.widgets.button_v0_1:
+            self.set_axis_checks()
 
     def origin_system(self,*args):
         print "origin system button"
@@ -1085,11 +1158,13 @@ class Gscreen:
             self.widgets.mode3.show()
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
+            self.widgets.button_graphics.set_sensitive(False)
         else:
             self.widgets.mode3.hide()
             self.mode_changed(self.data.mode_order[0])
             self.widgets.button_mode.set_sensitive(True)
             self.widgets.button_override.set_sensitive(True)
+            self.widgets.button_graphics.set_sensitive(True)
 
     def graphics(self,*args):
         print "show/hide graphics buttons"
@@ -1102,12 +1177,14 @@ class Gscreen:
             self.widgets.dro_frame.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
+            self.widgets.button_homing.set_sensitive(False)
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
             self.widgets.dro_frame.set_sensitive(True)
             self.widgets.button_mode.set_sensitive(True)
             self.widgets.button_override.set_sensitive(True)
+            self.widgets.button_homing.set_sensitive(True)
 
     def override(self,*args):
         print "show/hide override buttons"
@@ -1120,12 +1197,14 @@ class Gscreen:
             self.widgets.dro_frame.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_graphics.set_sensitive(False)
+            self.widgets.button_homing.set_sensitive(False)
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
             self.widgets.dro_frame.set_sensitive(True)
             self.widgets.button_mode.set_sensitive(True)
             self.widgets.button_graphics.set_sensitive(True)
+            self.widgets.button_homing.set_sensitive(True)
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acklowedge.
@@ -1369,8 +1448,12 @@ class Gscreen:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
             self.widgets.button_v0_1.set_label("Move To")
+            self.widgets.s_display_fwd.set_sensitive(True)
+            self.widgets.s_display_rev.set_sensitive(True)
         else:
             self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.s_display_fwd.set_sensitive(False)
+            self.widgets.s_display_rev.set_sensitive(False)
             self.emc.spindle_off(1)
         self.update_hal_jog_pins()
 
@@ -1391,7 +1474,15 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
+                    if self.data.current_jogincr_index == 0: # continuous jog
+                        self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
+                    else:
+                        print "jog incremental"
+                        if cmd == 0: return # don't want release of button to stop jog
+                        jogincr = self.jog_increments[self.data.current_jogincr_index]
+                        distance = self.parse_increment(jogincr)
+                        self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
+
                 else:
                     if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
                         self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
@@ -1411,6 +1502,16 @@ class Gscreen:
             print "Jog axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
                 self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
+            else:
+                 rpm = self.get_qualified_input(_SPINDLE_INPUT)
+                 if self.widgets.s_display_fwd.get_active():
+                    print "forward"
+                    self.emc.spindle_forward(1, rpm)
+                 elif self.widgets.s_display_rev.get_active():
+                    print "reverse"
+                    self.emc.spindle_reverse(1, rpm)
+                 else:
+                    self.notify("INFO:","No spindle direction selected",INFO_ICON)
 
     def toggle_screen2(self):
         self.data.use_screen2 = self.widgets.use_screen2.get_active()
@@ -1486,9 +1587,8 @@ class Gscreen:
                     self.reload_plot()
 
     def set_axis_checks(self):
-        if self.data.mode_order[0] == _MAN:
-            # if in jog mode
-            if self.widgets.button_h1_0.get_active():
+        if self.data.mode_order[0] == _MAN:# if in manual mode
+            if self.widgets.button_h1_0.get_active(): # jog mode active
                 print "jog to position"
                 self.do_jog_to_position()
             else:
@@ -1497,16 +1597,8 @@ class Gscreen:
                     if self.widgets["axis_%s"%i].get_active():
                         print "set %s axis" %i
                         if i == "s":
-                            if self.widgets.s_display_fwd.get_active():
-                                print "forward"
-                                self.emc.spindle_forward(1)
-                            elif self.widgets.s_display_rev.get_active():
-                                print "reverse"
-                                self.emc.spindle_reverse(1)
-                            else:
-                                self.notify("INFO:","No jog direction selected",INFO_ICON)
-                                continue
-                            self.mdi_control.set_spindle_speed(self.get_qualified_input(_SPINDLE_INPUT))
+                            self.notify("INFO:","Jogging mode must be active to operate spindle",INFO_ICON)
+                            continue
                         else:
                             self.mdi_control.set_axis(i,self.get_qualified_input(i))
                             self.reload_plot()

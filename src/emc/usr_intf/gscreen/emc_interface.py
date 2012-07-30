@@ -99,20 +99,20 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.override_limits()
 
-        def spindle_forward(self, b):
+        def spindle_forward(self, b, rpm=100):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(1,100);
+                self.emccommand.spindle(1,rpm);
 
         def spindle_off(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.spindle(0);
 
-        def spindle_reverse(self, b):
+        def spindle_reverse(self, b, rpm=100):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(-1,100);
+                self.emccommand.spindle(-1,rpm);
 
         def spindle_faster(self, b):
                 if self.masked: return
@@ -138,6 +138,12 @@ class emc_control:
                 else:
                         self.isjogging[axis] = direction
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
+
+        def incremental_jog(self, axis, direction, distance):
+                if self.masked: return
+                self.isjogging[axis] = direction
+                self.emccommand.jog(self.emc.JOG_INCREMENT, axis, direction * self.jog_velocity, distance)
+                self.isjogging[axis] = 0
                 
         def quill_up(self):
                 if self.masked: return
@@ -247,6 +253,9 @@ class emc_status:
         def convert_units(self,v):
                 c = self.unit_convert
                 return map(lambda x,y: x*y, v, c)
+
+        def get_linear_units(self):
+            return self.emcstat.linear_units
 
         def dro_commanded(self, b):
                 self.actual = 0
