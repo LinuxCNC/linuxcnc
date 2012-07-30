@@ -23,9 +23,6 @@ step type are set independently, and any combination can be selected.
 .Step Pulse Generator Block Diagram position mode[[fig:Stepgen-Block-Diag]]
 image::images/stepgen-block-diag.png[]
 
-.Step Pulse Generator Block Diagram velocity mode[[fig:Freqgen-Block-Diag]]
-image::images/freqgen-block-diag.png[]
-
 === Installing
 
 ----

@@ -58,10 +58,10 @@ as the 'L number', and so on for any other letter.
 |Code                               |Description
 |<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid
 |<<sec:G1-Linear-Motion,G1>>        |Coordinated Straight Motion Feed Rate
-|<<sec:G2-G3-Arc,G2, G3>>           |Coordinated Helical Motion Feed Rate
+|<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
 |<<sec:G5.1-B-spline,G5.1>>         |Quadratic B-Spline
-|<<sec:G5.2-G5.3-NURBs,G5.2, G5.3>> |NURBs Block
+|<<sec:G5.2-G5.3-NURBs,G5.2 G5.3>>  |NURBs Block
 |<<sec:G7-Diameter-Mode,G7>>        |Diameter Mode (lathe)
 |<<sec:G8-Radius-Mode,G8>>          |Radius Mode (lathe)
 |<<sec:G10-L1_,G10 L1>>             |Set Tool Table Entry
@@ -70,21 +70,21 @@ as the 'L number', and so on for any other letter.
 |<<sec:G10-L2_,G10 L2>>             |Coordinate System Origin Setting
 |<<sec:G10-L20,G10 L20>>            |Coordinate System Origin Setting Calculated
 |<<sec:G17-G18-G19,G17 - G19.1>>    |Plane Select
-|<<sec:G20-G21-Units,G20, G21>>     |Units of Measure
+|<<sec:G20-G21-Units,G20 G21>>      |Units of Measure
 |<<sec:G28-G28.1,G28 - G28.1>>      |Go to Predefined Position
 |<<sec:G30-G30.1,G30 - G30.1>>      |Go to Predefined Position
 |<<sec:G33-Spindle-Sync,G33>>       |Spindle Synchronized Motion
 |<<sec:G33.1-Rigid-Tapping,G33.1>>  |Rigid Tapping
-|<<sec:G38-probe,G38.2 - G38.5>>        |Probing
+|<<sec:G38-probe,G38.2 - G38.5>>    |Probing
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
-|<<sec:G41-G42,G41, G42>>           |Cutter Compensation
-|<<sec:G41.1-G42.1,G41.1, G42.1>>   |Dynamic Cutter Compensation
-|<<sec:G43-G43.1-Tool,G43, G43.1>>  |Use Tool Length Offset from Tool Table
+|<<sec:G41-G42,G41 G42>>            |Cutter Compensation
+|<<sec:G41.1-G42.1,G41.1 G42.1>>    |Dynamic Cutter Compensation
+|<<sec:G43-G43.1-Tool,G43 G43.1>>   |Use Tool Length Offset from Tool Table
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
 |<<sec:G54-G59.3,G54-G59>>          |Select Coordinate System (1 - 6)
 |<<sec:G54-G59.3,G59.1-G59.3>>      |Select Coordinate System (7 - 9)
-|<<sec:G61-G61.1-G64,G61, G61.1>>   |Path Control Mode
+|<<sec:G61-G61.1-G64,G61 G61.1>>    |Path Control Mode
 |<<sec:G61-G61.1-G64,G64>>          |Path Control Mode with Optional Tolerance
 |<<sec:G73-Drilling-Cycle,G73>>     |Drilling Cycle with Chip Breaking
 |<<sec:G76-Threading-Canned,G76>>   |Multi-pass Threading Cycle (Lathe)
@@ -92,21 +92,18 @@ as the 'L number', and so on for any other letter.
 |<<sec:G81-Drilling-Cycle,G81>>     |Drilling Cycle
 |<<sec:G82-Drilling-Dwell,G82>>     |Drilling Cycle with Dwell
 |<<sec:G83-Drilling-Peck,G83>>      |Drilling Cycle with Peck
-|<<sec:G84-Right-Hand-Tapping,G84>> |Right Hand Tapping Cycle *(unimplemented)*
 |<<sec:G85-Boring-Feed-Out,G85>>    |Boring Cycle, No Dwell, Feed Out
 |<<sec:G86-Boring-Rapid-Out,G86>>   |Boring Cycle, Stop, Rapid Out
-|<<sec:G87-Back-Boring,G87>>        |Back-Boring Cycle *(unimplemented)*
-|<<sec:G88-Boring-Manual-Out,G88>>  |Boring Cycle, Stop, Manual Out *(unimplemented)*
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
-|<<sec:G90-G91-Set,G90, G91>>       |Distance Mode
-|<<sec:G90.1-G91.1,G90.1, G91.1>>   |Arc Distance Mode
+|<<sec:G90-G91-Set,G90 G91>>        |Distance Mode
+|<<sec:G90.1-G91.1,G90.1 G91.1>>    |Arc Distance Mode
 |<<sec:G92-G92.1-G92.2-G92.3,G92>>  |Offset Coordinate Systems & Set Parameters
 |<<sec:G92-G92.1-G92.2-G92.3,G92.1 G92.2>>|Cancel Offsets
 |<<sec:G92-G92.1-G92.2-G92.3,G92.3>>|Apply Parameters to Offset Coordinate Systems
-|<<sec:G93-G94-G95-Mode,G93, G94, G95>> |Feed Modes
+|<<sec:G93-G94-G95-Mode,G93 G94 G95>> |Feed Modes
 |<<sec:G96-G97-Spindle,G96>>        |Constant Surface Speed
 |<<sec:G96-G97-Spindle,G97>>        |RPM Mode
-|<<sec:G98-G99-Set,G98, G99>>       |Canned Cycle Z Retract Mode 
+|<<sec:G98-G99-Set,G98 G99>>        |Canned Cycle Z Retract Mode 
 |====================================================================
 
 == G0 Rapid Motion[[sec:G0]]

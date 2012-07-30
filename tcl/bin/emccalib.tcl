@@ -4,7 +4,7 @@ exec $LINUXCNC_EMCSH "$0" "$@"
 
 ###############################################################
 # Description:  emccalib.tcl
-#               A Tcl/Tk script that interfaces with EMC2 
+#               A Tcl/Tk script that interfaces with LinuxCNC
 #               through GUIs.  It configures ini tuning variables 
 #               on the fly and saves if desired.
 #
@@ -173,7 +173,7 @@ proc makeIniTune {} {
         if {[catch {open $fname} programin]} {
             return
         } else {
-            $haltext insert end [halcmdSubstitute [read $programin]]
+            $haltext insert end [read $programin]
             catch {close $programin}
         }
 
@@ -194,8 +194,7 @@ proc makeIniTune {} {
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
-                        set thishalcommand [halcmdSubstitute $thishalcommand]
-			set tmpval [string trim [hal getp $thishalcommand]]
+                        set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval
@@ -304,7 +303,7 @@ proc changeIni {how } {
                 # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
                 # set new parameter value in hal
-                set thisret [hal setp $tmpcmd $newval]
+                set thisret [hal setp [halcmdSubstitute $tmpcmd] $newval]
                 # see if we need to swap the new and old control values
                 if {[lsearch -exact $swapvars $thisvar] < 0} {
                     # set the current value for display
@@ -339,7 +338,7 @@ proc changeIni {how } {
                 # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
                 # get parameter value from hal
-                set val [string trim [hal getp $tmpcmd]]
+                set val [string trim [hal getp [halcmdSubstitute $tmpcmd]]]
                 set $var $val
                 set $var-next $val
             }
@@ -351,7 +350,7 @@ proc changeIni {how } {
                 set cmds [lindex [array get commandarray $j] 1]
                 set k 0
                 foreach cmd $cmds {
-                    set tmpval [string trim [exec hal getp $cmd]]
+                    set tmpval [string trim [hal getp [halcmdSubstitute $cmd]]]
                     set oldval [lindex $oldvals $k]
                     if {$tmpval != $oldval} {
                         set answer [tk_messageBox \
@@ -407,7 +406,7 @@ proc saveIni {which} {
                             if {$tmpindx != -1} {
                                 set cmd [lindex $varcommands $tmpindx]
                                 $initext mark set insert $ind.0
-                                set newval [string trim [hal getp $cmd]]
+                                set newval [string trim [hal getp [halcmdSubstitute $cmd]]]
                                 set tmptest [string first "e" $newval]
                                 if {[string first "e" $newval] > 1} {
                                     set newval [format %f $newval]
@@ -433,7 +432,7 @@ proc halcmdSubstitute {s} {
     set pat {\[([^]]+)\](\([^)]+\)|[^() \r\n\t]+)}
     set pos 0
     set result {}
-    while {$pos < [string length s]
+    while {$pos < [string length $s]
             && [regexp -start $pos -indices $pat $s indx]} {
         set start [lindex $indx 0]
         set end [lindex $indx 1]
@@ -441,7 +440,7 @@ proc halcmdSubstitute {s} {
         append result [string range $s $pos [expr $start-1]]
 
         set query [string range $s $start $end]
-        regexp $pat $s - section var
+        regexp $pat $query - section var
         set var [regsub {\((.*)\)} $var {\1}]
         append result [emc_ini $var $section]
         
