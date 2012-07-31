@@ -1208,8 +1208,9 @@ Here is a minimum user-defined handler example module:
 class MyCallbacks :
     def on_this_signal(self,obj,data=None):
         print "this_signal happened, obj=",obj
-    def get_handlers(halcomp,builder,useropts):
-        return [MyCallbacks ()]
+
+def get_handlers(halcomp,builder,useropts):
+    return [MyCallbacks ()]
 ----------------------------------
 
 Now, 'on_this_signal' will be available as signal handler to your
