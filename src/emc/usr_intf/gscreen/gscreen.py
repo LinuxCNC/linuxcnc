@@ -798,12 +798,12 @@ class Gscreen:
                 elif number == 4: self.toggle_feed_hold()
                 else: raise nofunnction
             elif mode == 1:
-                if number == 3: self.full_graphics()
-                elif number == 2: self.toggle_view()
+                if number == 2: self.toggle_view()
+                elif number == 3: self.full_graphics()
                 elif number == 4: self.edit_mode()
-                elif number == 5: self.zoom_in()
-                elif number == 6: self.zoom_out()
-                elif number == 7: self.clear_plot()
+                elif number == 5: pass
+                elif number == 6: pass
+                elif number == 7: pass
                 else: raise nofunnction
             else: raise nofunnction
         except :
@@ -1447,7 +1447,11 @@ class Gscreen:
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
-            self.widgets.button_v0_1.set_label("Move To")
+            if self.data.active_axis_buttons[0][0] == "s":
+                label = "Set RPM"
+            else:
+                label = "Move To"
+            self.widgets.button_v0_1.set_label(label)
             self.widgets.s_display_fwd.set_sensitive(True)
             self.widgets.s_display_rev.set_sensitive(True)
         else:
