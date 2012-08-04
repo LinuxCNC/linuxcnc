@@ -399,7 +399,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     if (probe->window == NULL) {
 	create_probe_window(probe);
     }else{
-    gtk_window_present(GTK_WIDGET(probe->window));
+    gtk_window_present(GTK_WINDOW(probe->window));
     }
 
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
