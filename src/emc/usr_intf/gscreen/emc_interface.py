@@ -171,21 +171,13 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.load_tool_table()                
 
-        def opstop_on(self, b):
+        def opstop(self, data):
                 if self.masked: return
-                self.emccommand.set_optional_stop(1)
+                self.emccommand.set_optional_stop(data)
 
-        def opstop_off(self, b):
+        def blockdel(self, data):
                 if self.masked: return
-                self.emccommand.set_optional_stop(0)
-
-        def blockdel_on(self, b):
-                if self.masked: return
-                self.emccommand.set_block_delete(1)
-
-        def blockdel_off(self, b):
-                if self.masked: return
-                self.emccommand.set_block_delete(0)
+                self.emccommand.set_block_delete(data)
 
         def abort(self):
                 self.emccommand.abort()

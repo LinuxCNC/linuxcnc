@@ -61,7 +61,7 @@ gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
 gtk.glade.textdomain("linuxcnc")
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
-
+CONFIGPATH = os.environ['CONFIG_DIR']
 def set_active(w, s):
 	if not w: return
 	os = w.get_active()
@@ -192,6 +192,8 @@ class Data:
         self.mist = False
         self.machine_on = False
         self.or_limits = 0
+        self.op_stop = 0
+        self.block_del = 0
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
@@ -293,13 +295,19 @@ class Gscreen:
 
     def __init__(self,inipath):
         (progdir, progname) = os.path.split(sys.argv[0])
-        print progdir,progname
+        global xmlname
         #usage = "usage: %prog [options] myfile.ui"
         #parser = OptionParser(usage=usage)
         #parser.disable_interspersed_args()
         #(opts, args) = parser.parse_args()
         #print args
         self.inipath = inipath
+        localglade = os.path.join(CONFIGPATH,"gscreen.glade")
+        if os.path.exists(localglade):
+            print "\n**** GSCREEN INFO:  Using local glade file from %s ****"% localglade
+            xmlname = localglade
+        else:
+            print"\n**** GSCREEN INFO:  using glade file from: %s ****"% xmlname
         try:
             # loading as a gtk.builder project
             self.xml = gtk.Builder()
@@ -565,15 +573,11 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
-        if self.prefs.getpref('blockdel', 0):
-           self.emc.blockdel_on(0)
-        else:
-           self.emc.blockdel_off(0)
+        self.data.block_del = self.prefs.getpref('blockdel', 0)
+        self.emc.blockdel(self.data.block_del)
 
-        if self.prefs.getpref('opstop', 1):
-           self.emc.opstop_on(0)
-        else:
-           self.emc.opstop_off(0)                   
+        self.data.op_stop = self.prefs.getpref('opstop', 1)
+        self.emc.opstop(self.data.op_stop)
 
         # timers for updates
         gobject.timeout_add(50, self.periodic_status)
@@ -758,14 +762,13 @@ class Gscreen:
             self.widgets.gremlin.set_property('enable_dro',(not temp))
 
     def on_hbutton_clicked(self,widget,mode,number):
-        try:
             if mode == 0:
                 if number == 0: self.toggle_ignore_limits()
                 elif number == 2: self.home_all()
                 elif number == 3: self.home_selected()
                 elif number == 4: self.unhome_all()
                 elif number == 5: self.dro_toggle()
-                else: raise nofunnction
+                else: print "hbutton %d_%d clicked but no function"% (mode,number)
             elif mode == 1:
                 if number == 0: self.jog_mode()
                 elif number == 1: self.origin_system()
@@ -773,10 +776,12 @@ class Gscreen:
                 elif number == 3: self.toggle_flood()
                 elif number == 4: self.reload_tooltable()
                 elif number == 5: self.dro_toggle()
-                else: raise nofunnction
+                else: print "hbutton %d_%d clicked but no function"% (mode,number)
             elif mode == 3:
-                if number == 7: self.next_tab()
-                else: raise nofunnction
+                if number == 1: self.toggle_block_delete()
+                elif number == 2: self.toggle_optional_stop()
+                elif number == 7: self.next_tab()
+                else: print "hbutton %d_%d clicked but no function"% (mode,number)
             elif mode == 4:
                 self.toggle_overrides(widget,mode,number)
             elif mode == 5:
@@ -784,30 +789,26 @@ class Gscreen:
                 elif number == 2:self.toggle_view()
                 elif number == 3:self.clear_plot()
                 else: self.toggle_graphic_overrides(widget,mode,number)
-            else: raise nofunnction
-        except :
-            print "hbutton %d_%d clicked but no function"% (mode,number)
+            else: print "hbutton %d_%d clicked but no function"% (mode,number)
 
     def on_vbutton_clicked(self,widget,mode,number):
-        try:
-            if mode == 0:
-                if number == 0: self.adjustment_buttons(widget,True)
-                elif number == 1: self.adjustment_buttons(widget,True)
-                elif number == 2: pass # using press and release signals
-                elif number == 3: pass # ditto
-                elif number == 4: self.toggle_feed_hold()
-                else: raise nofunnction
-            elif mode == 1:
-                if number == 2: self.toggle_view()
-                elif number == 3: self.full_graphics()
-                elif number == 4: self.edit_mode()
-                elif number == 5: pass
-                elif number == 6: pass
-                elif number == 7: pass
-                else: raise nofunnction
-            else: raise nofunnction
-        except :
-            print "Vbutton %d_%d clicked but no function"% (mode,number)
+        if mode == 0:
+            if number == 0: self.adjustment_buttons(widget,True)
+            elif number == 1: self.adjustment_buttons(widget,True)
+            elif number == 2: pass # using press and release signals
+            elif number == 3: pass # ditto
+            elif number == 4: self.toggle_feed_hold()
+            else: print "Vbutton %d_%d clicked but no function"% (mode,number)
+        elif mode == 1:
+            if number == 1: pass
+            elif number == 2: pass
+            elif number == 3: pass
+            elif number == 4: pass
+            elif number == 5: self.toggle_view()
+            elif number == 6: self.full_graphics()
+            elif number == 7: self.edit_mode()
+            else: print "Vbutton %d_%d clicked but no function"% (mode,number)
+
 
     def on_button_v0_2_pressed(self,widget):
         self.adjustment_buttons(widget,True)
@@ -1413,6 +1414,21 @@ class Gscreen:
             self.status.dro_mm(1)
             self.widgets.gremlin.set_property('metric_units',True)
         self.data.dro_units = self.widgets.dro_units.get_active()
+
+    def toggle_optional_stop(self):
+        self.set_optional_stop(self.widgets.button_h3_2.get_active())
+
+    def set_optional_stop(self,data):
+        self.data.op_stop = data
+        self.emc.opstop(data)
+
+    def toggle_block_delete(self):
+        self.set_block_delete(self.widgets.button_h3_1.get_active())
+
+    def set_block_delete(self,data):
+        print "block delete"
+        self.data.block_del = data
+        self.emc.blockdel(data)
 
     def save_edit(self):
         print "edit"
