@@ -797,7 +797,7 @@ class Gscreen:
             elif number == 1: self.adjustment_buttons(widget,True)
             elif number == 2: pass # using press and release signals
             elif number == 3: pass # ditto
-            elif number == 4: self.toggle_feed_hold()
+            elif number == 4: pass
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
             if number == 1: pass
@@ -1647,13 +1647,6 @@ class Gscreen:
             self.emc.flood_off(1)
         else:
             self.emc.flood_on(1)
-
-    def toggle_feed_hold(self):
-        print "toggle feed hold from",self.data.feed_hold
-        if self.data.feed_hold:
-            self.emc.feed_hold(0)
-        else:
-            self.emc.feed_hold(1)
 
     def toggle_ignore_limits(self):
         print "over ride limits"
