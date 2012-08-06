@@ -191,9 +191,9 @@ class Data:
         self.flood = False
         self.mist = False
         self.machine_on = False
-        self.or_limits = 0
-        self.op_stop = 0
-        self.block_del = 0
+        self.or_limits = False
+        self.op_stop = False
+        self.block_del = False
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
@@ -352,9 +352,9 @@ class Gscreen:
         self.prefs = preferences.preferences()
 
         #setup default stuff
-        self.data.hide_cursor = self.prefs.getpref('hide_cursor', 'False', bool)
+        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
         self.widgets.hide_cursor.set_active(self.data.hide_cursor)
-        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
+        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
         self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
         self.set_abs_color()
@@ -367,17 +367,17 @@ class Gscreen:
         self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
         self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
-        self.data.window_max = self.prefs.getpref('window_force_max', 'False', bool)
+        self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
         self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
-        self.data.window2_max = self.prefs.getpref('window2_force_max', 'False', bool)
-        self.data.use_screen2 = self.prefs.getpref('use_screen2', 'True', bool)
+        self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
+        self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
         self.widgets.use_screen2.set_active(self.data.use_screen2)
-        self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', 'True', bool) )
-        self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', 'True', bool) )
+        self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', False, bool) )
+        self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', True, bool) )
         self.widgets.gremlin.show_offsets = self.widgets.show_offsets.get_active()
-        self.data.diameter_mode = self.prefs.getpref('diameter_mode', 'True', bool)
+        self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
-        self.data.dro_units = self.prefs.getpref('units', 'False', bool)
+        self.data.dro_units = self.prefs.getpref('units', False, bool)
         self.widgets.dro_units.set_active(self.data.dro_units)
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
 
@@ -427,7 +427,7 @@ class Gscreen:
             self.widgets.window1.parse_geometry(self.data.window_geometry)
             if self.data.window_max:
                 self.widgets.window1.maximize()
-        if self.prefs.getpref('fullscreen1', 'True', bool):
+        if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
         # setup signals that can be blocked 
@@ -558,25 +558,25 @@ class Gscreen:
         self.status.set_machine_units(self.machine_units_mm,conversion)
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
 
-        if self.prefs.getpref('toolsetting_fixture', 0):
+        if self.prefs.getpref('toolsetting_fixture', False):
             self.g10l11 = 1
         else:
             self.g10l11 = 0
 
-        if self.prefs.getpref('dro_mm', 0):
+        if self.prefs.getpref('dro_mm', False):
             self.status.dro_mm(0)
         else:
             self.status.dro_inch(0)
 
-        if self.prefs.getpref('dro_actual', 0):
+        if self.prefs.getpref('dro_actual', False):
            self.status.dro_actual(0)
         else:
            self.status.dro_commanded(0)
 
-        self.data.block_del = self.prefs.getpref('blockdel', 0)
+        self.widgets.button_h3_1.set_active(self.prefs.getpref('blockdel', False))
         self.emc.blockdel(self.data.block_del)
 
-        self.data.op_stop = self.prefs.getpref('opstop', 1)
+        self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
         self.emc.opstop(self.data.op_stop)
 
         # timers for updates
@@ -699,14 +699,15 @@ class Gscreen:
         d.warp_pointer(s, x, y)
 
     def on_hide_cursor(self,*args):
-        if self.data.hide_cursor:
-            self.prefs.putpref('hide_cursor', False)
-            self.data.hide_cursor = False
-            self.widgets.window1.window.set_cursor(None)
-        else:
+        print "hide cursor change"
+        if self.widgets.hide_cursor.get_active():
             self.prefs.putpref('hide_cursor', True)
             self.data.hide_cursor = True
             self.widgets.window1.window.set_cursor(invisible)
+        else:
+            self.prefs.putpref('hide_cursor', False)
+            self.data.hide_cursor = False
+            self.widgets.window1.window.set_cursor(None)
 
     def on_halshow(self,*args):
         print "halshow",TCLPATH
@@ -1419,6 +1420,7 @@ class Gscreen:
         self.set_optional_stop(self.widgets.button_h3_2.get_active())
 
     def set_optional_stop(self,data):
+        self.prefs.putpref('opstop', data, bool)
         self.data.op_stop = data
         self.emc.opstop(data)
 
@@ -1427,6 +1429,7 @@ class Gscreen:
 
     def set_block_delete(self,data):
         print "block delete"
+        self.prefs.putpref('blockdel', data, bool)
         self.data.block_del = data
         self.emc.blockdel(data)
 
