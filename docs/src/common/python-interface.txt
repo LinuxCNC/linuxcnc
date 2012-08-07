@@ -704,6 +704,8 @@ if nmlfile:
 
 == The `linuxcnc.positionlogger` type
 
+Some usage hints can be gleaned from
+`src/emc/usr_intf/gremlin/gremlin.py`.
 
 
 === members

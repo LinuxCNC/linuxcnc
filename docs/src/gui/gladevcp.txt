@@ -217,7 +217,7 @@ Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
 
 - If LinuxCNC was not installed from a package, the LinuxCNC shell environment needs to be set up with
-+. <emcdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
++. <linuxcncdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
 - When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
 - From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
 by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
@@ -1006,7 +1006,7 @@ other handler.
 
 Here's an example how a feed value might be saved and restored by such
 handlers (note that LinuxCNC command and status channels are available as
-+self.emc+ and +self.stat+ through the EMC_ActionBase class:
++self.linuxcnc+ and +self.stat+ through the EMC_ActionBase class:
 
 [source,python]
 ----------------------------------
@@ -1015,8 +1015,8 @@ handlers (note that LinuxCNC command and status channels are available as
         self.start_feed = action.stat.settings[1]
     
     def on_mdi_command_stop(self, action, userdata=None):
-        action.emc.mdi('F%.1f' % (self.start_feed))
-        while action.emc.wait_complete() == -1:
+        action.linuxcnc.mdi('F%.1f' % (self.start_feed))
+        while action.linuxcnc.wait_complete() == -1:
             pass
 ----------------------------------
 
@@ -1526,7 +1526,7 @@ is set via a HAL pin, which causese the widget's scale to readjust dynamically:
 
 [source,python]
 ----------------------------------
-import emc
+import linuxcnc
 import os
 import hal
 import hal_glib
@@ -1545,7 +1545,7 @@ class HandlerClass:
         self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
         self.max_value.connect('value-changed', self._on_max_value_change)
 
-	inifile = emc.ini(os.getenv("INI_FILE_NAME"))
+	inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
 	mmin = float(inifile.find("METER", "MIN") or 0.0)
         self.meter = self.builder.get_object('meter')
         self.meter.min = mmin
@@ -1558,7 +1558,7 @@ def get_handlers(halcomp,builder,useropts):
 
 === Examples, and rolling your own GladeVCP application
 
-Visit +emc2/configs/gladevcp+ for running examples and starters for your own projects.
+Visit +linuxcnc/configs/gladevcp+ for running examples and starters for your own projects.
 
 
 == FAQ
