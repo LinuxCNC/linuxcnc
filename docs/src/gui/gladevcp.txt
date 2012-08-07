@@ -1414,9 +1414,16 @@ ini.restore_state(obj)::
 	restore HAL out pins and obj's attributes as
    	saved/initialized to default as above
 
-To save the widget and/or variable state on exit, connect a signal
-handler to one of the widget's +destroy+ event; the following Python
-fragment will save state and shutdown GladeVCP properly:
+=== Saving the state on Gladvcp shutdown
+
+To save the widget and/or variable state on exit, proceed as follows:
+
+- select some interior widget (type is not important, for instance a
+table).
+- in the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
+signal in the first column.
+- add the handler name, e.g. 'on_destroy' to the second column.
+- add a Python handler like below:
 
 [source,python]
 ----------------------------------
@@ -1424,18 +1431,25 @@ import gtk
 ...
 def on_destroy(self,obj,data=None):
     self.ini.save_state(self)
-    gtk.main_quit()
 ----------------------------------
 
-CAUTION: Do not use  +window1+ (the toplevel window) to connect a
+This will save state and shutdown GladeVCP properly, regardless
+whether the panel is embedded in Axis, or a standalone window.
+
+CAUTION: Do not use +window1+ (the toplevel window) to connect a
 +destroy+ event. Due to the way a GladeVCP panel interacts with Axis
-if a panel is embedded within Axis, *window1 will not receive
-destroy events properly*. However, since on shutdown all widgets are
+if a panel is embedded within Axis, *window1 will not receive destroy
+events properly*. However, since on shutdown all widgets are
 destroyed, anyone will do. Recommended: use a second-level widget -
-for instance, if you have a table container in your panel, use that.
+for instance, if you have a table container in your panel, use
+that.
 
 Next time you start the GladeVCP application, the widgets should come
 up in the state when the application was closed.
+
+CAUTION: The 'GtkWidget' line has a similarly sounding 'destroy-event' -
+*dont use that to connect to the 'on_destroy' handler, it wont work* -
+make sure you use the 'destroy' event from the 'GtkObject' line.
 
 === Saving state when Ctrl-C is pressed
 
@@ -1450,7 +1464,6 @@ on Ctrl-C (actuall on the SIGINT and SIGTERM signals). Example
 def on_unix_signal(self,signum,stack_frame):
     print "on_unix_signal(): signal %d received, saving state" % (signum)
     self.ini.save_state(self)
-    gtk.main_quit()
 ----------------------------------
 
 === Hand-editing .ini files
