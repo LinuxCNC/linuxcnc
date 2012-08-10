@@ -4,8 +4,6 @@ import time
 
 from inspect import stack
 
-debug = 1
-
 class OtherClass:
     '''
     methods in this class are not exposed as callback handlers

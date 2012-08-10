@@ -40,10 +40,29 @@ namespace eval ::tooledit {
   namespace export tooledit ;# public interface
 }
 
+#-----------------------------------------------------------------------
+# Internationalization
+
+# use the tcl-package named Emc to set up I18n support
+if [catch {package require Emc} msg] {
+  # if user is trying to use as standalone in an unconfigured (non-Emc)
+  # environment, just continue without internationalization
+  puts stderr "Internationalization not available: <$msg>"
+}
+# use a command or proc named "_" for ::msgcat::mc
+# when embedded in axis, a command named "_" is predefined,
+# since "_" is not defined for standalone usage, make a proc named "_"
+if {"" == [info command "_"]} {
+  package require msgcat
+  proc _ {s} {return [::msgcat::mc $s]}
+}
+#-----------------------------------------------------------------------
+
+
 proc ::tooledit::init { {columns ""} } {
   if [file readable ~/.tooleditrc] {
     if [catch {source ~/.tooleditrc} msg] {
-      puts stderr "Problem reading ~/.tooleditrc:\n$msg"
+      puts stderr "[_ "Problem reading ~/.tooleditrc"]:"\n$msg"
     }
     if [info exists geometry] {
       set ::te(top,restore,geometry) $geometry
@@ -60,7 +79,7 @@ proc ::tooledit::init { {columns ""} } {
   set checked_columns {}
   foreach cname $columns {
     if {[lsearch $checked_columns $cname] >= 0} {
-       puts stderr "Note: Ignoring duplicate column name: $cname"
+       puts stderr [format [_ "Note: Ignoring duplicate column name: %s"] $cname]
        continue ;# duplicate col name
     }
     lappend checked_columns $cname
@@ -71,7 +90,7 @@ proc ::tooledit::init { {columns ""} } {
     if {[lsearch $::te(allcolumns) $cname] >= 0} {
       lappend ::te(columns) $cname
     } else {
-      puts stderr "Unknown column: $cname"
+      puts stderr [format [_ "Unknown column: %s"] $cname]
     }
   }
 
@@ -188,10 +207,10 @@ proc ::tooledit::validateOther {varname widget current new} {
 proc ::tooledit::validateNumber {varname widget current new} {
    if ![info exists $varname] {return 1}
    if {"$new" == ""} {return 1}
-   if {"$new" == "NEW"} {
+   if {"$new" == "[_ "NEW"]"} {
      return 1 ;# 1==>ok dont flag items tagged "NEW"
    }
-   if {"$current" == "NEW"} {
+   if {"$current" == "[_ "NEW"]"} {
      $widget configure -selectbackground $::te(restore,selectbackground)
      $widget configure -selectforeground $::te(restore,selectforeground)
    }
@@ -210,7 +229,7 @@ proc ::tooledit::validateNumber {varname widget current new} {
 proc ::tooledit::invalidNumber {varname widget} {
   tk_dialog .problem \
             Problem \
-            "$varname must be a number" \
+            "[format [_ "%s must be a number"] $varname]" \
             {} \
             0 \
             ok
@@ -219,16 +238,16 @@ proc ::tooledit::invalidNumber {varname widget} {
 
 proc ::tooledit::readfile {filename} {
   if {[file exists $filename] && ![file readable $filename]} {
-    set msg "filename: <$filename> not readable"
+    lappend msg [format [_ "filename: <%s> not readable"] $filename]
   }
   if [file exists $filename] {
     if ![file writable $filename] {
-      set msg "filename: <$filename> not writable"
+      lappend msg "[format [_ "filename: <%s> not writable"] $filename]"
     }
   } else {
     set new 1
     if ![file writable [file dirname $filename]] {
-      set msg "filename: <$filename> directory not writable"
+      lappend msg "[format [_ "directory: <%s> not writable"] $filename]"
     }
   }
 
@@ -243,10 +262,10 @@ proc ::tooledit::readfile {filename} {
   set fd [open $filename r]
 
   set bct 0
-  set lno 1
+  set lno 0
   while {1} {
     gets $fd newline
-    incr lno
+    incr lno ;# starts at 1
     if [eof $fd] break
     foreach item {t p x y z a b c u v w d i j q comment} {
       set u($item) ""
@@ -272,12 +291,14 @@ proc ::tooledit::readfile {filename} {
       set tag   [string range $tagvalue 0 0   ]
       set value [string range $tagvalue 1 end ]
       if ![isnumber $value] {
-        puts stderr "Skipping linenumber $lno: not a number for tag=$tag <$value>"
+        puts stderr [format [_ "Skipping linenumber %d for tag %s, value <%s> is not a number"] \
+                    $lno $tag $value]
         incr bct; set bogus 1
       }
       switch $tag {
         t - p - q {  if ![isinteger $value] {
-                   puts stderr "Skipping linenumber $lno: expected integer $tag $value"
+                   puts stderr [format [_ "Skipping linenumber %d for tag %s, expected integer not <%s>"] \
+                               $lno $tag $value]
                    incr bct; set bogus 1
                  }
               }
@@ -292,7 +313,8 @@ proc ::tooledit::readfile {filename} {
         u - v - w -
         d           {catch {set u($tag) [format "$::te(fmt,real)"  $value]}}
         i - j       {catch {set u($tag) [format "$::te(fmt,angle)" $value]}}
-        default     {puts stderr "At linenumber $lno: unknown tag <$tag>"
+        default     {puts stderr [format [_ "At linenumber %d, Unknown tag <%s>"] \
+                                  $lno $tag]
                      incr bct; set bogus 1
                     }
       }
@@ -374,12 +396,26 @@ proc ::tooledit::tooledit {filename {columns ""} } {
     set ::te(enable_column_sorting) 1
   } else {
     set prog [file tail $::argv0]
-    puts stderr "$prog: Column sorting not available with tcl_version=$::tcl_version"
+    puts stderr [format [_ "%s: Column sorting not available with tcl_version==%s"] \
+                         $prog $::tcl_version]
   }
   ::tooledit::init $columns
   set ::te(filename) $filename
 
-  foreach h $::te(header)  {set ::te($h) [string toupper $h]}
+  # allow for translated names for header columns:
+  foreach h $::te(header) {
+    switch -exact $h {
+      tool    {set ::te($h,show) [_ "tool"]}
+      poc     {set ::te($h,show) [_ "poc"]}
+      diam    {set ::te($h,show) [_ "diam"]}
+      front   {set ::te($h,show) [_ "front"]}
+      back    {set ::te($h,show) [_ "back"]}
+      orien   {set ::te($h,show) [_ "orien"]}
+      comment {set ::te($h,show) [_ "comment"]}
+      default {set ::te($h,show) $h}
+    }
+    set ::te($h,show) [string toupper $::te($h,show)]
+  }
 
   set ::te(top) [toplevel .tooledit]
   wm withdraw $::te(top); update
@@ -405,12 +441,12 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   set f [frame $::te(top).header]
   set ::te(header,frame) $f
   pack $f -side top -expand 1 -fill x -anchor n
-  pack [label $f.b -text Del -width 3] -side left -expand 0
+  pack [label $f.b -text [_ "Del"] -width 3] -side left -expand 0
 
   foreach h $::te(header) {
     set e 0;set j center
     if {"$h" == "comment"} {set e 1;set j left}
-    set ey [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
+    set ey [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h,show) \
          -state disabled -relief groove \
          -disabledforeground black \
          -width $::te($h,width)]
@@ -434,22 +470,22 @@ proc ::tooledit::tooledit {filename {columns ""} } {
        -side right -fill x -expand 1
 
   if {[sendaxis ping] && [sendaxis tool_table_filename]} {
-    set ::te(load,button) [button $bf.[qid] -text "ReLoadTable" \
+    set ::te(load,button) [button $bf.[qid] -text "[_ "ReLoadTable"]" \
          -state disabled \
          -command [list ::tooledit::sendaxis reload_tool_table]]
     pack $::te(load,button) -side right -fill x -expand 1
   }
-  pack [button $bf.[qid] -text "SaveFile" \
+  pack [button $bf.[qid] -text "[_ "SaveFile"]" \
        -command [list ::tooledit::writefile $::te(filename)]] \
        -side right -fill x -expand 1
-# pack [button $bf.[qid] -text "Check Entries" \
+# pack [button $bf.[qid] -text "[_ "Check Entries"]" \
 #      -command [list ::tooledit::toolvalidate]] -side right -fill x -expand 1
-  pack [button $bf.[qid] -text "ReRead" \
+  pack [button $bf.[qid] -text "[_ "ReRead"]" \
        -command  ::tooledit::toolreread] -side right -fill x -expand 1
-  pack [button $bf.[qid] -text "AddTool" \
+  pack [button $bf.[qid] -text "[_ "AddTool"]" \
        -command {::tooledit::makeline new}] -side right -fill x -expand 1
 
-  set   bb [button $bf.[qid] -text "Delete"\
+  set   bb [button $bf.[qid] -text "[_ "Delete"]"\
            -command {::tooledit::deleteline}]
   pack $bb -side right -fill x -expand 1
   set ::te(deletebutton) $bb
@@ -496,23 +532,23 @@ proc ::tooledit::message {mtype} {
   set w $::te(msg,widget)
   set dt [clock format [clock seconds]]
   switch $mtype {
-    opened   {$w conf -text "$dt: Opened $::te(filename)"      -fg darkblue}
-    newfile  {$w conf -text "$dt: Created $::te(filename)"     -fg darkblue}
-    write    {$w conf -text "$dt: File updated"                -fg green4}
-    modified {$w conf -text "$dt: File modified"               -fg darkred}
-    checke   {$w conf -text "$dt: File check errors"           -fg red}
-    checkok  {$w conf -text "$dt: File checked"                -fg darkgreen}
-    delete   {$w conf -text "$dt: File items deleted"          -fg cyan4}
-    bogus    {$w conf -text "$dt: Bogus lines in file ignored" -fg darkorange}
-    verror   {$w conf -text "$dt: File errors -- Check Entries"   -fg red}
-    changed  {$w conf -text "$dt: Warning: File changed by another process" -fg red}
-    filegone {$w conf -text "$dt: Warning: File deleted by another process" -fg red}
-    newtool  {$w conf -text "$dt: Added Tool" -fg green4
+    opened   {$w conf -text "$dt: [format [_ "Opened %s"] $::te(filename)]"  -fg darkblue}
+    newfile  {$w conf -text "$dt: [format [_ "Created %s"] $::te(filename)]" -fg darkblue}
+    write    {$w conf -text "$dt: [_ "File updated"]"                -fg green4}
+    modified {$w conf -text "$dt: [_ "File modified"]"               -fg darkred}
+    checke   {$w conf -text "$dt: [_ "File check errors"]"           -fg red}
+    checkok  {$w conf -text "$dt: [_ "File checked"]"                -fg darkgreen}
+    delete   {$w conf -text "$dt: [_ "File items deleted"]"          -fg cyan4}
+    bogus    {$w conf -text "$dt: [_ "Bogus lines in file ignored"]" -fg darkorange}
+    verror   {$w conf -text "$dt: [_ "File errors -- Check Entries"]"   -fg red}
+    changed  {$w conf -text "$dt: [_ "Warning: File changed by another process"]" -fg red}
+    filegone {$w conf -text "$dt: [_ "Warning: File deleted by another process"]" -fg red}
+    newtool  {$w conf -text "$dt: [_ "Added Tool"]" -fg green4
                  update idletasks
                  $::te(scroll,frame) yview moveto 1.0
              }
-    isort    {$w conf -text "$dt: Sorted by $::te(lastsort), increasing" -fg darkgreen}
-    dsort    {$w conf -text "$dt: Sorted by $::te(lastsort), decreasing" -fg darkgreen}
+    isort    {$w conf -text "$dt: [format [_ "Sorted by %s, increasing"] $::te(lastsort)]" -fg darkgreen}
+    dsort    {$w conf -text "$dt: [format [_ "Sorted by %s, decreasing"] $::te(lastsort)]" -fg darkgreen}
   }
   set ::te(msg,last) $mtype
 } ;# message
@@ -554,13 +590,13 @@ proc ::tooledit::deleteline {} {
 proc ::tooledit::makeline {ay_name} {
   if {"$ay_name" == "new"} {
     set new 1
-    set date "Added [clock format [clock seconds] -format %Y%m%d]"
+    set date "[_ "Added"] [clock format [clock seconds] -format %Y%m%d]"
 
     foreach item {t p x y z a b c u v w d i j q} {
       set ay($item) ""
     }
-    set ay(p) NEW
-    set ay(t) NEW
+    set ay(p) [_ "NEW"] ;# support translation of special entry item value
+    set ay(t) [_ "NEW"] ;# support translation of special entry item value
     set ay(comment) "$date"
     after 0 {::tooledit::message newtool}
   } else {
@@ -763,7 +799,8 @@ proc ::tooledit::toolvalidate {args} {
       foreach h $::te(header) {
         if {"$h" == "comment"} continue
         if ![isnumber $::te(parm,$i,$h)] {
-          set nextmsg "Tool $::te(parm,$i,tool): $h value=$::te(parm,$i,$h) is not a number"
+          set nextmsg [format [_ "Tool %s, Column %s, parameter %s is not a number"] \
+                       $::te(parm,$i,tool) $h $::te(parm,$i,$h)]
           if {[lsearch $msg $nextmsg] >= 0} continue
           lappend msg $nextmsg
         }
@@ -771,18 +808,23 @@ proc ::tooledit::toolvalidate {args} {
         switch -glob $h {
           tool* - poc* {
             if {![isinteger $::te(parm,$i,$h)] || [isnegative $::te(parm,$i,$h)]} {
-               lappend msg "Tool $::te(parm,$i,tool): $h must be nonnegative integer"
+              lappend msg [format [_ "Tool %s, parameter %s must be nonnegative integer"] \
+                          $::te(parm,$i,tool) $h]
+
             }
           }
           orien* {
             if {   "$::te(parm,$i,$h)" != "" \
                 && [lsearch {0 1 2 3 4 5 6 7 8 9} $::te(parm,$i,$h)] < 0} {
-              lappend msg "Tool $::te(parm,$i,tool): Orientation must be 0..9 integer"
+              lappend msg [format [_ "Tool %s: <Orientation> must be 0..9 integer"] \
+                          $::te(parm,$i,tool)]
+
             }
           }
           front* - back* {
             if {![validangle $::te(parm,$i,$h)] } {
-              lappend msg "Tool $::te(parm,$i,tool): $h must be between -360 and 360"
+              lappend msg [format [_ "Tool %s: <%s> must be between -360 and 360"] \
+                          $::te(parm,$i,tool) $h]
             }
           }
         }
@@ -791,31 +833,33 @@ proc ::tooledit::toolvalidate {args} {
   }
 
   # check for multiple uses of a single pocket
-  if ![info exists ::te(items)] continue
-  set pocs ""
-  foreach i $::te(items) {
-    set p $::te(parm,$i,poc)
+  if [info exists ::te(items)] {
+    set pocs ""
+    foreach i $::te(items) {
+      set p $::te(parm,$i,poc)
 
-    if {[lsearch $pocs $p] >= 0} {
-      set nextmsg "Pocket $p specified multiple times"
-      if {[lsearch $msg $nextmsg] >= 0} continue
-      lappend msg $nextmsg
-    } else {
-      lappend pocs $p
+      if {[lsearch $pocs $p] >= 0} {
+        set nextmsg [format [_ "Pocket <%s> specified multiple times"]  $p]
+        if {[lsearch $msg $nextmsg] >= 0} continue
+        lappend msg $nextmsg
+      } else {
+        lappend pocs $p
+      }
     }
   }
   # check for multiple uses of a single tool
-  if ![info exists ::te(items)] continue
-  set tools ""
-  foreach i $::te(items) {
-    set t $::te(parm,$i,tool)
+  if [info exists ::te(items)] {
+    set tools ""
+    foreach i $::te(items) {
+      set t $::te(parm,$i,tool)
 
-    if {[lsearch $tools $t] >= 0} {
-      set nextmsg "Tool $t specified multiple times"
-      if {[lsearch $msg $nextmsg] >= 0} continue
-      lappend msg $nextmsg
-    } else {
-      lappend tools $t
+      if {[lsearch $tools $t] >= 0} {
+        set nextmsg [format [_ "Tool <%s> specified multiple times"] $t]
+        if {[lsearch $msg $nextmsg] >= 0} continue
+        lappend msg $nextmsg
+      } else {
+        lappend tools $t
+      }
     }
   }
 
@@ -855,8 +899,8 @@ proc ::tooledit::showerr {msg} {
 proc ::tooledit::bye {} {
   if $::te(filemod) {
     set ans [tk_dialog .filemod \
-              "File Modified" \
-              "Save Modifications to File?" \
+              "[_ "File Modified"]" \
+              "[_ "Save Modifications to File?"]" \
               {} \
               0 \
               Yes No]
@@ -883,14 +927,13 @@ proc ::tooledit::bye {} {
         && ("$used" != "") \
         && ([llength $used] < [llength $::te(allcolumns)]) } {
       set prog [file tail $::argv0]
-      set msg "Only these columns are currently used:\
-           \n\n  $used\
-           \n\nLimit display to these columns by specifying\
+      set msg "[format [_ "Only these columns are currently used:\n\n %s"] $used] \
+           \n\n[_ "Limit display to these columns by specifying"]:\
              \n \[DISPLAY\]TOOL_EDITOR = $prog $used\
-           \n\nFormat for ini file is:\
+           \n\n[_ "Format for ini file is"]:\
              \n  \[DISPLAY\]TOOL_EDITOR = $prog col_1 col_2 ... col_n\
-           \n\nOr, for standalone use, invoke as:\
-           \n\n  $prog col_1 col_2 ... col_n tool_table_filename
+           \n\n[_ "For standalone use, invoke as"]:\
+           \n\n  $prog col_1 col_2 ... col_n [_ "tool_table_filename"]
               "
       catch {destroy .msg}
       toplevel .msg
@@ -910,8 +953,8 @@ proc ::tooledit::bye {} {
   if [winfo exists $::te(top)] {
     set fd [open ~/.tooleditrc w]
     set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]
-    puts $fd   "# $time Created by [file normalize $::argv0]"
-    puts $fd "\n# Saved geometry (updated on program termination):"
+    puts $fd   "# $time [format [_ "Created by %s"] [file normalize $::argv0]]"
+    puts $fd "\n# [_ "Saved geometry (updated on program termination)"]:"
     puts $fd "set geometry [wm geometry $::te(top)]"
     close $fd
     destroy $::te(top)    ;# for embedded usage
@@ -927,15 +970,15 @@ proc ::tooledit::sendaxis {cmd} {
       if ![catch {set ::te(axis,pwd) [send axis pwd]} msg] {return 1 ;#ok}
     }
     tool_table_filename {
+      set prog [file tail $::argv0]
       # check that tooledit opened with same filename as axis
       if [catch {set f [send axis inifindall EMCIO TOOL_TABLE]} msg] {
         return -code error "::tooledit::sendaxis tool_table_filename <$msg>"
       }
       if {[llength $f] > 1} {
         set f [lindex $f 0] ;# use first item specified for compatibility
-        puts stderr \
-        "tooledit: Warning: multiple items specified for \[EMCIO\]TOOL_TABLE"
-        puts stderr "tooledit: Using: $f"
+        puts stderr [format [_ "%s: Axis inifile specifies multiple inifile items for: \[EMCIO\]TOOL_TABLE"] $prog]
+        puts stderr [format [_ "%s: Using: %s"] $prog $f]
       }
       if {[file pathtype $f] == "relative"} {
         set f [file join $::te(axis,pwd) $f]
@@ -943,6 +986,10 @@ proc ::tooledit::sendaxis {cmd} {
       set ::te(axis,filename) [file normalize $f]
       if {"$::te(axis,filename)" == [file normalize $::te(filename)]} {
         return 1 ;# ok
+      } else {
+        puts stderr [format [_ "%s: Warning: Axis is running but the tool table file <%s>\
+                               \ndiffers from the standalone startup file <%s>"]\
+                     $prog $::te(axis,filename) $::te(filename)]
       }
     }
     check_for_reload {
@@ -954,7 +1001,7 @@ proc ::tooledit::sendaxis {cmd} {
     }
     reload_tool_table {
       if ![sendaxis check_for_reload] {
-        showerr [list "Must be On and Idle to reload tool table"]
+        showerr [list "[_ "Must be On and Idle to reload tool table"]"]
         return 0 ;# fail
       }
       ::tooledit::writefile $::te(filename)
@@ -982,7 +1029,7 @@ proc ::tooledit::repack { {entryname tool} {mode increasing} } {
   foreach item $::te(items) {
     set value $::te(parm,$item,$entryname)
     if {    ( ("$type"  == "real") || ("$type"  == "integer") )\
-         && ( ("$value" == ""    ) || ("$value" == "NEW"    ) ) } {
+         && ( ("$value" == ""    ) || ("$value" == "[_ "NEW"]") ) } {
       set value 0
     }
     lappend parms   $value
@@ -1043,10 +1090,10 @@ if {[info script] == $::argv0} {
   wm withdraw .
   if {[lindex $::argv 0] == ""} {
     set prog [file tail $::argv0]
-    puts stderr "\nUsage:"
-    puts stderr "       $prog filename"
-    puts stderr "       $prog \[column_1 ... column_n\] filename"
-    puts stderr "\nAllowed column_ names are: $::te(allcolumns)"
+    puts stderr "\n[_ "Usage"]:"
+    puts stderr "       $prog [_ "filename"]"
+    puts stderr "       $prog \[column_1 ... column_n\] [_ "filename"]"
+    puts stderr "\n[format [_ "Allowed column_ names are: %s"] $::te(allcolumns)]"
     exit 1
   }
   # start, unless already started (convenient for debug sourcing):
@@ -1056,7 +1103,7 @@ if {[info script] == $::argv0} {
     set argct [llength $::argv]
     switch $argct] {
           0 {#notreached
-             puts stderr "$::argv0: Missing filename";exit 1}
+             puts stderr "$::argv0: [_ "Missing filename"]";exit 1}
           1 {set filename $::argv}
     default {set filename [lindex $::argv end]
              set  columns [lreplace $::argv end end]

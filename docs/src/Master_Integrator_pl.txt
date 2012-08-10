@@ -85,6 +85,8 @@ include::drivers/shuttlexpress_pl.txt[]
 
 :leveloffset: 1
 
+include::common/python-interface.txt[]
+
 include::motion/kinematics_pl.txt[]
 
 include::motion/tweaking_steppers_pl.txt[]

@@ -449,7 +449,7 @@ Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
 A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
-"spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
+"spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "x-enable", "y-enable", "z-enable", "a-enable",
 "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
@@ -1970,7 +1970,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net spindle-output      => " + potpinname + "spinout"
                 else:
                     print >>file, "net spindle-vel-cmd     => " + potpinname + "spinout"
-                print >>file, "net spindle-enable      => " + potpinname +"spinena"
+                print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
 
@@ -1988,10 +1988,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
-                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname
-                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
+                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -2013,10 +2013,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
-                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"    
+                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
-                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
+                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -2044,7 +2044,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             if let == "s":
                 print >>file
-                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
+                print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
@@ -2142,7 +2142,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file
             print >>file, "net spindle-vel-cmd-rps    <=  motion.spindle-speed-out-rps"
             print >>file, "net spindle-vel-cmd        <=  motion.spindle-speed-out"
-            print >>file, "net spindle-enable         <=  motion.spindle-on"
+            print >>file, "net spindle-on             <=  motion.spindle-on"
             print >>file, "net spindle-cw             <=  motion.spindle-forward"
             print >>file, "net spindle-ccw            <=  motion.spindle-reverse"
             print >>file, "net spindle-brake          <=  motion.spindle-brake"            
@@ -2496,7 +2496,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             theme = self.gladevcptheme
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
-            print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp.hal gvcp-panel.ui"%(theme,fmax,geo)
+            print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo)
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
@@ -2604,7 +2604,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             pump = True
         if self.findsignal("estop-ext"):
             estop = True
-        if self.findsignal("spindle-enable"):
+        if self.findsignal("spindle-on"):
             spindle_on = True
         if self.findsignal("spindle-cw"):
             spindle_cw = True
@@ -2906,11 +2906,14 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
+            ending = ""
+            if "encoder" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
-            print >>file, "net joint-selected-count     <=  %s.count"% (pinname)
-            print >>file, "setp    %s.filter true" % pinname
-            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file, "net joint-selected-count     <=  %s%s"% (pinname,ending)
+            if ending:
+                print >>file, "setp    %s.filter true" % pinname
+                print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
             if self.externalmpg:
                     print >>file, _("#  ---mpg signals---")
@@ -2928,11 +2931,14 @@ If you have a REALLY large config that you wish to convert to this newer version
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
                 if pinname:
+                    ending = ""
+                    if "encoder" in pinname: ending = ".count"
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
-                    print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
-                    print >>file, "setp    %s.filter true" % pinname
-                    print >>file, "setp    %s.counter-mode false" % pinname
+                    print >>file, "net %s-jog-count          <=  %s%s"% (axletter, pinname,ending)
+                    if ending:
+                        print >>file, "setp    %s.filter true" % pinname
+                        print >>file, "setp    %s.counter-mode false" % pinname
                     print >>file
                     if self.externalmpg:
                         print >>file, _("#  ---mpg signals---")
@@ -2963,14 +2969,18 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
             else:
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
+                print >>file
 
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
+            ending = ""
+            if "encoder" in pinname: ending = ".count"
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
-            print >>file, "net fo-count     <=  %s.count"% (pinname)
-            print >>file, "setp    %s.filter true" % pinname
-            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file, "net fo-count     <=  %s%s"% (pinname,ending)
+            if ending:
+                print >>file, "setp    %s.filter true" % pinname
+                print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
         if self.externalfo:
             if self.fo_usempg:
@@ -3004,11 +3014,14 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
         if pinname:
+            ending = ""
+            if "encoder" in pinname: ending = ".count"
             print >>file, "# ---max velocity override signals to mesa encoder - mpg---"
             print >>file
-            print >>file, "net mvo-count     <=  %s.count"% (pinname)
-            print >>file, "setp    %s.filter true" % pinname
-            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file, "net mvo-count     <=  %s%s"% (pinname,ending)
+            if ending:
+                print >>file, "setp    %s.filter true" % pinname
+                print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
         if self.externalmvo:
             temp=[]
@@ -3046,11 +3059,14 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
+            ending = ""
+            if "encoder" in pinname: ending = ".count"
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
-            print >>file, "net so-count     <=  %s.count"% (pinname)
-            print >>file, "setp    %s.filter true" % pinname
-            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file, "net so-count     <=  %s%s"% (pinname,ending)
+            if ending:
+                print >>file, "setp    %s.filter true" % pinname
+                print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
         if self.externalso:
             if self.so_usempg:
@@ -4573,12 +4589,12 @@ Ok to reset data and start a new configuration?"),False):
                                 elif temp == "TXData4": convertedname = SS7I76M3
                                 else: convertedname = pinconvertsserial[temp]
                                 #print "XML ",currentfirm, temp,convertedname
-                            elif "7i76x2" in currentfirm:
+                            elif "7i76x2" in currentfirm or "7i76x1" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I76M0
                                 elif temp == "TXData3": convertedname = SS7I76M2
                                 else: convertedname = pinconvertsserial[temp]
                                 #print "XML ",currentfirm, temp,convertedname
-                            elif "7i77x2" in currentfirm:
+                            elif "7i77x2" in currentfirm or "7i77x1" in currentfirm:
                                 if temp == "TXData1": convertedname = SS7I77M0
                                 elif temp == "TXData2": convertedname = SS7I77M1
                                 elif temp == "TXData4": convertedname = SS7I77M3
@@ -4907,6 +4923,8 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.pyvcp1.set_active(self.data.pyvcp1)
         self.widgets.pyvcpblank.set_active(self.data.pyvcpblank)
         self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity*60)
+        self.widgets.max_spindle_override.set_value( self.data.max_spindle_override*100)
+        self.widgets.min_spindle_override.set_value( self.data.min_spindle_override*100)
         self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity*60)
         self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity*60)
         self.widgets.default_angular_velocity.set_value( self.data.default_angular_velocity*60)
@@ -4992,6 +5010,8 @@ if you change related options later -such as spindle feedback- the HAL connectio
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
+        self.data.max_spindle_override = self.widgets.max_spindle_override.get_value()/100
+        self.data.min_spindle_override = self.widgets.min_spindle_override.get_value()/100
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
         self.data.default_angular_velocity = self.widgets.default_angular_velocity.get_value()/60
@@ -8016,7 +8036,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         return True
 
     def has_spindle_speed_control(self):
-        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
+        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
                     "s-pot-output"):
             has_spindle = self.data.findsignal(test)
             if has_spindle:
@@ -9328,7 +9348,7 @@ But there is not one in the machine-named folder.."""),True)
         if not axis == "s":
             signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
         else:
-            signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-enable","machine-is-enabled",
+            signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-on","machine-is-enabled",
                             "estop-out","charge-pump","force-pin-true")
         halrun = self.halrun
         def write_pins(pname,p,i,t):
