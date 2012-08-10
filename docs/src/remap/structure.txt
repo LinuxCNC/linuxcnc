@@ -585,6 +585,53 @@ The examples described so far can be found in
 'configs/sim/remap/getting-started' with complete working
 configurations.
 
+== Upgrading an existing configuration for remapping
+
+The minimal prerequisites for using `REMAP` statements are as follows:
+
+- the Python plugin must be activated by specifying a
+ `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the ini file.
+- the toplevel script needs to import the `remap` module, which can be
+ initially empty, but the import needs to be in place.
+- The Python interpreter needs to find the remap.py module above, so
+ the path to the directory where your Python modules live needs to be
+ added with  `[PYTHON]APPEND=<path-to-your-local-Python-directory>`
+- Recommended: import the `stdglue` handlers in the `remap` module. In
+ this case Python also needs to find `stdglue.py` - we just copy it
+ from the distribution so you can make local changes as
+ needed. Depending on your installation the path to `stdglue.py` might
+ vary. 
+
+Assuming your configuration lives under `/home/user/xxx` and the ini
+file is `/home/user/xxx/xxx.ini`, execute the following commands.
+
+[source,sh]
+---------------------------------------------------------------------
+$ cd /home/user/xxx
+$ mkdir python
+$ cd python
+$ cp /usr/share/doc/linuxcnc/examples/sample-configs/sim/remap/python-stdglue/stdglue.py .
+$ echo 'from stdglue import *' >remap.py
+$ echo 'import remap' >toplevel.py
+---------------------------------------------------------------------
+
+Now edit `/home/user/xxx/xxx.ini` and add the following:
+
+[source,ini]
+---------------------------------------------------------------------
+[PYTHON]
+TOPLEVEL=/home/user/xxx/python/toplevel.py
+APPEND=/home/user/xxx/python
+---------------------------------------------------------------------
+
+Now verify that LinuxCNC comes up with no error messages - from a
+terminal window execute:
+
+[source,sh]
+---------------------------------------------------------------------
+$ cd /home/user/xxx
+$ linuxcnc xxx.ini
+---------------------------------------------------------------------
 
 
 == Remapping toolchange-related codes: T, M6, M61
