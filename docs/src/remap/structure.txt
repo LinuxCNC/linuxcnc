@@ -617,7 +617,7 @@ $ echo 'import remap' >toplevel.py
 
 Now edit `/home/user/xxx/xxx.ini` and add the following:
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [PYTHON]
 TOPLEVEL=/home/user/xxx/python/toplevel.py
