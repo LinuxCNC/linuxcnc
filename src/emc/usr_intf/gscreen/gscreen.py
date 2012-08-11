@@ -43,7 +43,15 @@ try:
         NOTIFY_AVAILABLE = True
 except:
     print "You don't seem to have pynotify installed"
-
+try:
+    _AUDIO_AVAIALBLE = False
+    import pygst
+    pygst.require("0.10")
+    import gst
+    _AUDIO_AVAIALBLE = True
+    print "audio good!"
+except:
+    print "**** ERROR audio_alerts:    PYGST libray not available"
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
@@ -118,6 +126,35 @@ _ABS = 0;_REL = 1;_DTG = 2
 _MAN = 0;_MDI = 1;_AUTO = 2
 _MM = 1;_IMPERIAL = 0
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
+
+class Player:
+    def __init__(self, file):
+        #Element playbin automatic plays any file
+        self.player = gst.element_factory_make("playbin", "player")
+        #Set the uri to the file
+        self.player.set_property("uri", "file://" + file)
+        #Enable message bus to check for errors in the pipeline
+        bus = self.player.get_bus()
+        bus.add_signal_watch()
+        bus.connect("message", self.on_message)
+        self.loop = gobject.MainLoop()
+
+    def run(self):
+        self.player.set_state(gst.STATE_PLAYING)
+        self.loop.run()
+
+    def on_message(self, bus, message):
+        t = message.type
+        if t == gst.MESSAGE_EOS:
+            #file ended, stop
+            self.player.set_state(gst.STATE_NULL)
+            self.loop.quit()
+        elif t == gst.MESSAGE_ERROR:
+            #Error ocurred, print and stop
+            self.player.set_state(gst.STATE_NULL)
+            err, debug = message.parse_error()
+            print "Error: %s" % err, debug
+            self.loop.quit()
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -324,7 +361,9 @@ class Gscreen:
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
-
+        if _AUDIO_AVAIALBLE:
+            self.click = Player("/usr/share/sounds/ubuntu/stereo/bell.ogg")         
+            self.error  = Player("/usr/share/sounds/KDE-Sys-App-Error.ogg")
         try:
             self.halcomp = hal.component("gscreen")
             self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
@@ -389,7 +428,7 @@ class Gscreen:
         if not self.data.err_textcolor == "default":
             print"change error color",self.data.err_textcolor
             w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.data.err_textcolor))
-        self.widgets.statusbar1.push(1,"Status bar text                                                                       to here?")
+        self.widgets.statusbar1.push(1,"Ready")
         self.widgets.data_input.set_value(5.125)
         self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
         # add terminal window
@@ -947,6 +986,12 @@ class Gscreen:
                 n.set_urgency(pynotify.URGENCY_CRITICAL)
                 n.set_timeout(int(timeout * 1000) )
                 n.show()
+            if _AUDIO_AVAIALBLE:
+                print icon
+                if icon == ALERT_ICON:
+                    self.error.run()
+                else:
+                    self.click.run()
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
@@ -1722,7 +1767,10 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
-            self.notify("Error Message",text,ALERT_ICON,3)
+            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+                self.notify("Error Message",text,ALERT_ICON,3)
+            else:
+                self.notify("Error Message",text,INFO_ICON,3)
         self.emc.unmask()
         #self.hal.periodic(self.tab == 1) # MDI tab?
         self.update_position()
