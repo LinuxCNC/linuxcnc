@@ -2632,7 +2632,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             temp = temp + "pid.%s,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
         for i in range(0,self.userneededpid):
-                temp=temp+"%d,"% (i)
+                temp=temp+"pid.%d,"% (i)
         pidlist = temp.rstrip(",")
         if not pidlist == "":
             print >>file, "loadrt pid names=%s"% pidlist
@@ -2676,6 +2676,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             if needed:
                 self.lowpassnames=self.lowpassnames+"lowpass.spindle"
             temp = self.lowpassnames.rstrip(",")
+            self.lowpassnames = temp
             print >>file, "loadrt lowpass names=%s"% temp
 
         pytest = self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1
@@ -2702,7 +2703,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
             self.mux16names=""
             for i in range(0,self.userneededmux16):
-                self.mux16names = self.mux16names+"%d,"% (i)
+                self.mux16names = self.mux16names+"mux16.%d,"% (i)
             if self.joystickjog: 
                 self.mux16names = self.mux16names+"jogspeed,"
             if self.externalmpg: 
@@ -2762,7 +2763,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if not pidlist == "":
             temp = pidlist.split(",")
             for i in temp:
-                print >>file, "addf %s.do-pid-calcs servo-thread"% i
+                print >>file, "addf %s.do-pid-calcs                 servo-thread"% i
         
         if bldc or self.userneededbldc:
             temp=self._bldcconfigstring.split(",")
@@ -2775,29 +2776,29 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
             temp=self.mux16names.split(",")
             for j in (temp):
-                print >>file, "addf %s servo-thread"% j
+                print >>file, "addf %s               servo-thread"% j
         needed = False
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
         if self.userneededabs > 0 or (self.gladevcp and self.spindlespeedbar): needed = True
         if needed:
             temp=self.absnames.split(",")
             for j in (temp):
-                print >>file, "addf %s servo-thread"% j
+                print >>file, "addf %s                 servo-thread"% j
         needed = False
         if spindle_enc:
             if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
             if (self.gladevcp and self.spindlespeedbar): needed = True
-        if self.userneededabs > 0 or needed :
+        if self.userneededscale > 0 or needed :
                 temp=self.scalenames.split(",")
                 for j in (temp):
-                    print >>file, "addf %s servo-thread"% j
+                    print >>file, "addf %s                 servo-thread"% j
         needed = False
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
-        if self.userneededabs > 0 or (self.gladevcp and self.spindlespeedbar): needed = True
+        if self.userneededlowpass > 0 or (self.gladevcp and self.spindlespeedbar): needed = True
         if needed:
             temp=self.lowpassnames.split(",")
             for j in (temp):
-                print >>file, "addf %s servo-thread"% j
+                print >>file, "addf %s             servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
