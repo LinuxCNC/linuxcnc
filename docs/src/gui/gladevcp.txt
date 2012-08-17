@@ -406,6 +406,48 @@ Options:
 -U USEROPT::
     pass USEROPTs to Python modules
 
+== Understanding the gladeVCP startup process
+
+The integration steps outlined above look a bit tricky, and they
+are. It does therefore help to understand the startup process of
+LinuxCNC and how this relates to gladeVCP.
+
+The normal LinuxCNC startup process does the following:
+
+- the realtime environment is started
+- all HAL components are loaded
+- the HAL components are linked together through the .hal cmd scripts
+- task, iocontrol and eventually the user interface is started
+- pre-gladeVCP the assumption was: by the time the UI starts, all of HAL is loaded, plumbed and ready to go
+
+The introduction of gladeVCP brought the following issue:
+
+- gladeVCP panels need to be embedded in a master GUI window setup, e.g. Axis, or Touchy (embedded window or as an embedded tab)
+- this requires the master GUI to run before the gladeVCP window can be hooked into the master GUI
+- however gladeVCP is also a HAL component, and creates HAL pins of its own.
+- as a consequence, all HAL plumbing involving gladeVCP HAL pins as source or destination must be run *after* the GUI has been set up
+
+This is the purpose of the `POSTGUI_HALFILE`. This ini option is
+inspected by the GUIs. If a GUI detects this option, it runs the
+corresponding HAl file after any embedded gladVCP panel is set
+up. However, it does not check whether a gladeVCP panel is actually
+used, in which case the HAL cmd file is just run normally. So if you
+do NOT start gladeVCP through `GLADEVCP` or `EMBED_TAB` etc, but later
+in a separate shell window or some other mechanism, a HAL
+command file in `POSTGUI_HALFILE` will be executed too early. Assuming
+gladeVCP pins are referenced herein, this will fail with an error
+message indicating that the gladeVCP HAL component is not available.
+
+So, in case you run gladeVCP from a separate shell window (i.e. not
+started by the GUI in an embedded fashion):
+
+- you cannot rely on the `POSTGUI_HALFILE` ini option causing the HAL
+commands being run 'at the right point in time', so comment that out
+in the ini file
+- explicitly pass the HAL command file which refers to gladeVCP pins
+to gladeVCP with the '-H <halcmd file>' option (see previous section).
+
+
 == HAL Widget reference
 
 GladeVcp includes a collection of Gtk widgets with attached HAL pins
@@ -1059,8 +1101,8 @@ signals:
   - +interp-paused+
   - +interp-reading+
   - +interp-waiting+
-
-
+  - +file-loaded+
+  - +line-changed+
 
 [[gladevcp:GladeVCP_Programming]]
 == GladeVCP Programming
