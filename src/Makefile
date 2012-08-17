@@ -114,9 +114,9 @@ SUBDIRS := \
     po \
     \
     ../docs/src \
+	redis \
+    redis/examples/c \
     hal/simdrivers
-
-
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
@@ -346,7 +346,8 @@ HEADERS := \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
+    rtapi/rtapi_string.h \
+    redis/redis/deps/hiredis/hiredis.h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))

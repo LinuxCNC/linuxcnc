@@ -107,8 +107,13 @@ else
    AC_MSG_RESULT(not required)
 fi
 
+AC_MSG_RESULT(assuming current redis-server libhiredis-dev and python-redis packages unusable)
+# this will force the build of builtin snapshots
+AC_SUBST([REDIS_INSTALL_USABLE],no)
 
-
+# since we built it, we have it.
+AC_SUBST([CONFIG_REDIS],yes)
+AC_DEFINE([CONFIG_REDIS], [], [signal it's ok to use redis API])
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
