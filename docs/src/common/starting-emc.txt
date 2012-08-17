@@ -4,28 +4,28 @@
 
 == Running LinuxCNC
 
-LinuxCNC is started with the script file emc.
+LinuxCNC is started with the script file 'linuxcnc'.
 
 ----
-emc [options] [<ini-file>]
+linuxcnc [options] [<ini-file>]
 ----
 
-.emc script options
+.linuxcnc script options
 * '-v' = verbose - prints info as it works
-* '-d' = echos script commands to screen for debugging
+* '-d' = echoes script commands to screen for debugging
 
-The emc script file reads the ini file and starts emc. The ini file
-[HAL] section specifies the order of loading up HAL files if more than
-one is used. Once the HAL=xxx.hal files are loaded then the GUI is loaded
-then the POSTGUI=.xxx.hal file is loaded. If you create PyVCP or GladeVCP
-objects with HAL pins you must use the postgui HAL file to make any
+If the linuxcnc script is passed an ini file it reads the ini file and starts
+LinuxCNC. The ini file [HAL] section specifies the order of loading up HAL
+files if more than one is used. Once the HAL=xxx.hal files are loaded then the
+GUI is loaded then the POSTGUI=.xxx.hal file is loaded. If you create PyVCP or
+GladeVCP objects with HAL pins you must use the postgui HAL file to make any
 connections to those pins. See the <<sub:[HAL]-section,HAL>> section of the
 INI configuration for more information.
 
 [[sub:configuration-selector]]
 
 .Configuration Selector
-If no ini file is passed to the emc script it loads the configuration 
+If no ini file is passed to the linuxcnc script it loads the configuration 
 selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.
 
@@ -72,7 +72,7 @@ Configuration files include
     single computer but can be modified to communicate between several
     computers.
 
-* 'emcrc' (((.emcrc))) This file saves user specific information and is created
+* 'linuxcncrc' (((.linuxcncrc))) This file saves user specific information and is created
     to save the name of the directory when the user first selects an LinuxCNC
     configuration.footnote:[Usually this file is in the users home
     directory (e.g. /home/user/ )]

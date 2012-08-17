@@ -24,8 +24,6 @@
 
 import glib
 
-debug = 0
-
 class HandlerClass:
 
 
@@ -55,7 +53,6 @@ class HandlerClass:
 
 def get_handlers(halcomp,builder,useropts):
 
-    global debug
     for cmd in useropts:
         exec cmd in globals()
 

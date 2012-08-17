@@ -283,4 +283,19 @@ them.
 Now you should be at the machine origin X0 Y0 Z0 and the relative
 coordinate system should be the same as the machine coordinate system.
 
+== Machine Configurations
 
+The following diagram shows a typical mill showing direction of travel
+of the tool and the mill table and limit switches. Notice how the mill table
+moves in the opposite direction of the Cartesian coordinate system arrows
+shown by the 'Tool Direction' image. This makes the 'tool' move in the
+correct direction in relation to the material.
+
+.Mill Configuration
+image::images/mill-diagram.png[align="center"]
+
+The following diagram shows a typical lathe showing direction of travel
+of the tool and limit switches.
+
+.Lathe Configuration
+image::images/lathe-diagram.png[align="center"]

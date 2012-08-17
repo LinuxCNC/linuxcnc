@@ -68,7 +68,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
                 self.buf.delete_mark(self.mark)
                 self.mark = None
             return
-        line = self.buf.get_iter_at_line(l)
+        line = self.buf.get_iter_at_line(l-1)
         if not self.mark:
             self.mark = self.buf.create_source_mark('motion', 'motion', line)
             self.mark.set_visible(True)
