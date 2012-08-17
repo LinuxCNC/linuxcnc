@@ -1,0 +1,3 @@
+Example Submakefile how to link a C hiredis client
+
+source file copied over from src/redis/redis/deps/hiredis/example.c
