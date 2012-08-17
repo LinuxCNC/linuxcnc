@@ -97,13 +97,19 @@ This replaces the need to use the command newsig. The optional direction
 indicators '<=', '=>' and '<=>' are only to make it easier for humans to follow
 the logic and are not used by the net command.
 
-The syntax and an example:
-
+.Syntax and Example:
 ----
-net <direction>* <signal-name> <direction>* <pin-name> (<pin-name>|<direction>)*
+net signal-name <pin-name> <optional direction> (<pin-name>|<direction>)
 
-net both-home-y <= parport.0.pin-11-in
+net home-x axis.0.home-sw-in <= parport.0.pin-11-in
 ----
+
+In the above example 'home-x' is the signal name, 'axis.0.home-sw-in' is a
+'Direction IN' pin, '<=' is the optional direction indicator, and 
+'parport.0.pin-11-in' is a 'Direction OUT' pin. This may seem confusing but
+the in and out labels for a parallel port pin indicates the physical way the
+pin works not how it is handled in HAL.
+
 
 A pin can be connected to a signal if it obeys the following rules:
 
