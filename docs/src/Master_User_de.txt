@@ -42,7 +42,7 @@ include::gui/mini_de.txt[]
 include::gui/keystick_de.txt[]
 
 :leveloffset: 0
-= Using EMC
+= Using LinuxCNC
 :leveloffset: 1
 
 include::gcode/machining_center_de.txt[]

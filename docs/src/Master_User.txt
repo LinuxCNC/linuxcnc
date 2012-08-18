@@ -43,7 +43,7 @@ include::gui/keystick.txt[]
 
 :leveloffset: 0
 
-= Using EMC
+= Using LinuxCNC
 
 :leveloffset: 1
 
