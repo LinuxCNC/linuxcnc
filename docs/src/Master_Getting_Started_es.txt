@@ -13,8 +13,6 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::common/translator-needed_es.txt[]
-
 include::common/System_Requirements_es.txt[]
 
 include::common/Getting_EMC_es.txt[]

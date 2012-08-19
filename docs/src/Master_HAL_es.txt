@@ -13,7 +13,7 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::common/translator-needed.txt[]
+include::common/translator-needed_es.txt[]
 
 :leveloffset: 0
 = HAL
