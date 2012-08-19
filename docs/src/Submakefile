@@ -22,11 +22,6 @@ DOC_SRCS := \
 	code/Code_Notes.txt \
 	code/Style_Guide.txt \
 	code/NML_Messages.txt \
-	common/Document_Header.txt \
-	common/Document_Header_de.txt \
-	common/Document_Header_es.txt \
-	common/Document_Header_fr.txt \
-	common/Document_Header_pl.txt \
 	common/emc-history.txt \
 	common/Getting_EMC.txt \
 	common/Getting_EMC_de.txt \
