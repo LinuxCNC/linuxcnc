@@ -13,61 +13,61 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::common/translator-needed_de.txt[]
+include::common/translator-needed.txt[]
 
 :leveloffset: 0
 = HAL
 :leveloffset: 1
 
-include::hal/intro_de.txt[]
+include::hal/intro.txt[]
 
-include::hal/tutorial_de.txt[]
+include::hal/tutorial.txt[]
 
-include::hal/general_ref_de.txt[]
+include::hal/general_ref.txt[]
 
-include::hal/canonical-devices_de.txt[]
+include::hal/canonical-devices.txt[]
 
-include::hal/tools_de.txt[]
+include::hal/tools.txt[]
 
-include::hal/basic_hal_de.txt[]
+include::hal/basic_hal.txt[]
 
-include::hal/halshow_de.txt[]
+include::hal/halshow.txt[]
 
-include::hal/components_de.txt[]
+include::hal/components.txt[]
 
-include::hal/rtcomps_de.txt[]
+include::hal/rtcomps.txt[]
 
-include::hal/parallel_port_de.txt[]
+include::hal/parallel_port.txt[]
 
-include::hal/hal-examples_de.txt[]
+include::hal/hal-examples.txt[]
 
-include::gui/halui_de.txt[]
+include::gui/halui.txt[]
 
-include::hal/halui_examples_de.txt[]
+include::hal/halui_examples.txt[]
 
-include::hal/comp_de.txt[]
+include::hal/comp.txt[]
 
-include::hal/halmodule_de.txt[]
+include::hal/halmodule.txt[]
 
 :leveloffset: 0
 = Hardware Drivers
 :leveloffset: 1
 
-include::drivers/AX5214H_de.txt[]
+include::drivers/AX5214H.txt[]
 
-include::drivers/GS2_de.txt[]
+include::drivers/GS2.txt[]
 
-include::drivers/hostmot2_de.txt[]
+include::drivers/hostmot2.txt[]
 
-include::drivers/motenc_de.txt[]
+include::drivers/motenc.txt[]
 
-include::drivers/opto22_de.txt[]
+include::drivers/opto22.txt[]
 
-include::drivers/pico_ppmc_de.txt[]
+include::drivers/pico_ppmc.txt[]
 
-include::drivers/pluto_p_de.txt[]
+include::drivers/pluto_p.txt[]
 
-include::drivers/servo_to_go_de.txt[]
+include::drivers/servo_to_go.txt[]
 
 include::common/GPLD_Copyright.txt[]
 

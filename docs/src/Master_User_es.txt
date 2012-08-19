@@ -17,59 +17,57 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::common/translator-needed_es.txt[]
+include::common/userforeword.txt[]
 
-include::common/userforeword_es.txt[]
+include::common/user_intro.txt[]
 
-include::common/user_intro_es.txt[]
-
-include::common/User_Concepts_es.txt[]
+include::common/User_Concepts.txt[]
 
 :leveloffset: 0
 = User Interfaces
 :leveloffset: 1
 
-include::gui/axis_es.txt[]
+include::gui/axis.txt[]
 
-include::gui/ngcgui_es.txt[]
+include::gui/ngcgui.txt[]
 
-include::gui/touchy_es.txt[]
+include::gui/touchy.txt[]
 
-include::gui/tklinuxcnc_es.txt[]
+include::gui/tklinuxcnc.txt[]
 
-include::gui/mini_es.txt[]
+include::gui/mini.txt[]
 
-include::gui/keystick_es.txt[]
+include::gui/keystick.txt[]
 
 :leveloffset: 0
 = Using LinuxCNC
 :leveloffset: 1
 
-include::gcode/machining_center_es.txt[]
+include::gcode/machining_center.txt[]
 
-include::gcode/coordinates_es.txt[]
+include::gcode/coordinates.txt[]
 
-include::gcode/tool_compensation_es.txt[]
+include::gcode/tool_compensation.txt[]
 
-include::gcode/overview_es.txt[]
+include::gcode/overview.txt[]
 
-include::gcode/gcode_es.txt[]
+include::gcode/gcode.txt[]
 
-include::gcode/m-code_es.txt[]
+include::gcode/m-code.txt[]
 
-include::gcode/o-code_es.txt[]
+include::gcode/o-code.txt[]
 
-include::gcode/other-code_es.txt[]
+include::gcode/other-code.txt[]
 
-include::examples/gcode_es.txt[]
+include::examples/gcode.txt[]
 
-include::lathe/lathe-user_es.txt[]
+include::lathe/lathe-user.txt[]
 
-include::gcode/rs274ngc_es.txt[]
+include::gcode/rs274ngc.txt[]
 
-include::gui/image-to-gcode_es.txt[]
+include::gui/image-to-gcode.txt[]
 
-include::common/Glossary_es.txt[]
+include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
