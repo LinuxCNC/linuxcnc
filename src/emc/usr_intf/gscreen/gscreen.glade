@@ -592,15 +592,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="target_value">500</property>
                                     <property name="z1_color">#ffffffff0000</property>
-                                    <property name="z2_color">#ffff00000000</property>
-                                    <property name="value">-7</property>
+                                    <property name="target_value">500</property>
                                     <property name="show_limits">False</property>
+                                    <property name="z2_color">#ffff00000000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
+                                    <property name="value">-7</property>
                                     <property name="target_color">#e21911831183</property>
                                     <property name="max">2000</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -1286,16 +1286,48 @@ Text Color</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkFileChooserButton" id="audio_error_chooser">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkLabel" id="label25">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Warning
+ audio</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkLabel" id="label27">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes"> Alert
+audio</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkFileChooserButton" id="audio_alert_chooser">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -1548,8 +1580,9 @@ Halshow</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button4">
-                        <property name="label" translatable="yes">button</property>
+                      <object class="GtkButton" id="run_status">
+                        <property name="label" translatable="yes">linuxcnc
+  Status</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1692,8 +1725,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="on_color">green</property>
                                 <property name="off_color">red</property>
+                                <property name="on_color">green</property>
                                 <property name="led_shape">1</property>
                               </object>
                               <packing>

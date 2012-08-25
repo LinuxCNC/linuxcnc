@@ -128,11 +128,9 @@ _MM = 1;_IMPERIAL = 0
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
 
 class Player:
-    def __init__(self, file):
+    def __init__(self):
         #Element playbin automatic plays any file
         self.player = gst.element_factory_make("playbin", "player")
-        #Set the uri to the file
-        self.player.set_property("uri", "file://" + file)
         #Enable message bus to check for errors in the pipeline
         bus = self.player.get_bus()
         bus.add_signal_watch()
@@ -142,6 +140,10 @@ class Player:
     def run(self):
         self.player.set_state(gst.STATE_PLAYING)
         self.loop.run()
+
+    def set_sound(self,file):
+        #Set the uri to the file
+        self.player.set_property("uri", "file://" + file)
 
     def on_message(self, bus, message):
         t = message.type
@@ -258,6 +260,8 @@ class Data:
         self.preppedtool = None
         self.lathe_mode = False
         self.diameter_mode = True
+        self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"         
+        self.error_sound  = "/usr/share/sounds/KDE-Sys-App-Error.ogg"
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -362,8 +366,7 @@ class Gscreen:
         self.widgets = Widgets(self.xml)
         self.data = Data()
         if _AUDIO_AVAIALBLE:
-            self.click = Player("/usr/share/sounds/ubuntu/stereo/bell.ogg")         
-            self.error  = Player("/usr/share/sounds/KDE-Sys-App-Error.ogg")
+            self.audio = Player()         
         try:
             self.halcomp = hal.component("gscreen")
             self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
@@ -419,6 +422,11 @@ class Gscreen:
         self.data.dro_units = self.prefs.getpref('units', False, bool)
         self.widgets.dro_units.set_active(self.data.dro_units)
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
+        self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
+        self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
+        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
+        self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
+
 
         w = self.widgets.statusbar1
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
@@ -533,12 +541,17 @@ class Gscreen:
         self.widgets.shut_down.connect_after('released',self.hack_leave)
         self.widgets.run_halshow.connect("clicked", self.on_halshow)
         self.widgets.run_calibration.connect("clicked", self.on_calibration)
+        self.widgets.run_status.connect("clicked", self.on_status)
         self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
         self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
         self.widgets.button_homing.connect("clicked", self.homing)
         self.widgets.button_override.connect("clicked", self.override)
         self.widgets.button_graphics.connect("clicked", self.graphics)
         self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
+        self.widgets.audio_error_chooser.connect("selection_changed",self.change_sound,"error")
+        self.widgets.audio_error_chooser.connect("update-preview", self.update_preview)
+        self.widgets.audio_alert_chooser.connect("selection_changed",self.change_sound,"alert")
+        self.widgets.audio_alert_chooser.connect("update-preview", self.update_preview)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -654,6 +667,21 @@ class Gscreen:
 
 
 # *** GLADE callbacks ****
+    def update_preview(self,widget):
+        file = widget.get_filename()
+        if file:
+            try:
+                test = Player()
+                test.set_sound(file)
+                test.run()
+            except:pass
+
+    def change_sound(self,widget,sound):
+        file = widget.get_filename()
+        if file:
+            self.data[sound+"_sound"] = file
+            temp = "audio_"+ sound
+            self.prefs.putpref(temp, file, str)
 
     # manual spindle control
     def on_s_display_fwd_toggled(self,widget):
@@ -755,6 +783,9 @@ class Gscreen:
     def on_calibration(self,*args):
         print "calibration --%s"% self.inipath
         p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH,self.inipath),"w")
+
+    def on_status(self,*args):
+        p = os.popen("linuxcnctop  > /dev/null &","w")
 
     def on_halmeter(self,*args):
         print "halmeter"
@@ -922,6 +953,7 @@ class Gscreen:
                     statustext = text
                 self.notify("INFO:",statustext,INFO_ICON)
             if "dialog" in type or "okdialog" in type:
+                self.notify("INFO:","Dialog Responce Required",INFO_ICON)
                 self.halcomp[pinname + "-waiting"] = True
                 if "okdialog" in type:
                     self.warning_dialog(boldtext,True,text)
@@ -929,6 +961,7 @@ class Gscreen:
                     result = self.warning_dialog(boldtext,False,text)
                     self.halcomp[pinname + "-response"] = result
                 self.halcomp[pinname + "-waiting"] = False
+                self.widgets.statusbar1.pop(self.statusbar_id)
 
     def toggle_overrides(self,widget,mode,number):
         print "overrides - button_h_%d_%d"%(mode,number)
@@ -989,9 +1022,10 @@ class Gscreen:
             if _AUDIO_AVAIALBLE:
                 print icon
                 if icon == ALERT_ICON:
-                    self.error.run()
+                    self.audio.set_sound(self.data.error_sound)
                 else:
-                    self.click.run()
+                    self.audio.set_sound(self.data.alert_sound)
+                self.audio.run()
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
