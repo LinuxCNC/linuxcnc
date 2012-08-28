@@ -14,15 +14,21 @@ REDIS_SERVER_INCLUDES := $(filter-out release.h,$(wildcard redis/redis/src/*.h \
 LIBHIREDIS_SRCS := $(wildcard redis/redis/deps/hiredis/*.c)
 LIBHIREDIS_INCLUDES := $(wildcard redis/redis/deps/hiredis/*.h redis/redis/deps/hiredis/adapters/*.h )
 
+LIBREDISGLUE_SRCS :=  $(wildcard redis/redislib*.c)
+LIBREDISGLUE_INCLUDES = $(wildcard redis/*.h)
+REDISGLUE_LIB := ../lib/libredisglue.so
+
 REDIS_PY_SRCS +=  $(notdir $(basename $(wildcard redis/redis-py/redis/*.py)))
 USERSRCS += $(LIBHIREDIS_SRCS)
 USERSRCS += $(REDIS_SERVER_SRCS)
+USERSRCS += $(LIBREDISGLUE_SRCS)
 
 TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 	../lib/python/redis/__init__.py \
-	$(patsubst %,../lib/python/redis/%.py,$(REDIS_PY_SRCS))
+	$(patsubst %,../lib/python/redis/%.py,$(REDIS_PY_SRCS)) \
+	$(REDISGLUE_LIB)
 
-../include/%.h: ./redis/redis/deps/hiredis/%.h
+../include/%.h: ./redis/redis/deps/hiredis/%.h ./redis/%.h
 	cp $^ $@
 
 # use redis supplied Makefile for now
@@ -44,6 +50,7 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 		install \
 	)
 
+
 # redis-py install
 ../lib/python/redis/__init__.py: redis/redis-py/redis/__init__.py
 	$(Q)mkdir -p ../lib/python/redis
@@ -55,5 +62,27 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)mkdir -p ../lib/python/touchy
 	$(Q)cp $< $@
+
+# redis/linuxcnc glue library
+$(REDISGLUE_LIB).0:  $(call TOOBJS, $(LIBREDISGLUE_SRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+
+REDISLIB_TEST_SRCS := redis/redislib-test.c
+
+USERSRCS += $(REDISLIB_TEST_SRCS)
+
+../bin/redislib-test: $(call TOOBJS, $(REDISLIB_TEST_SRCS)) \
+	$(REDISGLUE_LIB).0 ../lib/libhiredis.so.0 \
+	../lib/liblinuxcncini.so.0  ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
+
+TARGETS += ../bin/redislib-test
+
+
 
 endif
