@@ -42,7 +42,7 @@ loadrt abs
 loadrt comp count=2
 setp comp.0.in0 1.0
 setp comp.1.in0 0.0
-loadrt and2
+loadrt and2 count=2
 # Filter srps 
 loadrt lowpass
 setp lowpass.0.gain 0.07
@@ -56,7 +56,7 @@ net fb hm2_5i20.0.encoder.00.velocity lowpass.0.in comp.1.in1
 net sflt lowpass.0.out near.0.in2
 net at-speed near.0.out motion.spindle-at-speed
 net scur-abs abs.0.out comp.0.in1
-net scmd-ok comp.0.equal and2.0.in0 
+net scmd-ok comp.0.equal and2.0.in0
 net sfb-ok comp.1.equal and2.0.in1
 net stall and2.0.out
 
@@ -67,7 +67,7 @@ net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 ### q = encoder, h=hall sensors, i=index
 loadrt bldc cfg=qh
 setp bldc.0.rev 1
-net machine-on hm2_5i20.0.8i20.0.0.amp_enable hm2_5i20.0.sserial.port-0.run
+net machine-on hm2_5i20.0.8i20.0.0.amp_enable
 setp hm2_5i20.0.encoder.00.scale 2880
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
@@ -141,22 +141,22 @@ setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
 
 # connect position commands from motion module to step generator
-net Xpos-cmd axis.0.motor-pos-cmd => hm2_5i20.0.stepgen.00.position-cmd
-net Ypos-cmd axis.1.motor-pos-cmd => hm2_5i20.0.stepgen.01.position-cmd
-net Zpos-cmd axis.2.motor-pos-cmd => hm2_5i20.0.stepgen.02.position-cmd
-net Apos-cmd axis.3.motor-pos-cmd => hm2_5i20.0.stepgen.03.position-cmd
+net Xpos-cmd axis.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
+net Ypos-cmd axis.1.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
+net Zpos-cmd axis.2.motor-pos-cmd hm2_5i20.0.stepgen.02.position-cmd
+net Apos-cmd axis.3.motor-pos-cmd hm2_5i20.0.stepgen.03.position-cmd
 
 # connect position feedback from step generators to motion module
-net Xpos-fb hm2_5i20.0.stepgen.00.position-fb => axis.0.motor-pos-fb
-net Ypos-fb hm2_5i20.0.stepgen.01.position-fb => axis.1.motor-pos-fb
-net Zpos-fb hm2_5i20.0.stepgen.02.position-fb => axis.2.motor-pos-fb
-net Apos-fb hm2_5i20.0.stepgen.03.position-fb => axis.3.motor-pos-fb
+net Xpos-fb hm2_5i20.0.stepgen.00.position-fb axis.0.motor-pos-fb
+net Ypos-fb hm2_5i20.0.stepgen.01.position-fb axis.1.motor-pos-fb
+net Zpos-fb hm2_5i20.0.stepgen.02.position-fb axis.2.motor-pos-fb
+net Apos-fb hm2_5i20.0.stepgen.03.position-fb axis.3.motor-pos-fb
 
 # connect enable signals for step generators
-net Xen axis.0.amp-enable-out => hm2_5i20.0.stepgen.00.enable
-net Yen axis.1.amp-enable-out => hm2_5i20.0.stepgen.01.enable
-net Zen axis.2.amp-enable-out => hm2_5i20.0.stepgen.02.enable
-net Aen axis.3.amp-enable-out => hm2_5i20.0.stepgen.03.enable
+net Xen axis.0.amp-enable-out hm2_5i20.0.stepgen.00.enable
+net Yen axis.1.amp-enable-out hm2_5i20.0.stepgen.01.enable
+net Zen axis.2.amp-enable-out hm2_5i20.0.stepgen.02.enable
+net Aen axis.3.amp-enable-out hm2_5i20.0.stepgen.03.enable
 
 # enable velocity mode jogging
 setp axis.0.jog-vel-mode TRUE
@@ -166,25 +166,29 @@ setp axis.3.jog-vel-mode TRUE
 
 # connect the charge pump signal to an output
 setp hm2_5i20.0.gpio.022.is_output TRUE
-net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
+net chargepump hm2_5i20.0.gpio.022.out charge-pump.out
 
 # Safety Relay Monitoring Contacts
-net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in iocontrol.0.emc-enable-in
 # Run Switch
-net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
+loadrt debounce cfg=1
+setp debounce.0.delay 1000
+net machine-on hm2_5i20.0.gpio.039.in_not halui.machine.on debounce.0.0.in and2.1.in0
+net machine-on-delayed debounce.0.0.out and2.1.in1
+net 8i20-on and2.1.out hm2_5i20.0.sserial.port-0.run
 
 #connect limit switches to limit inputs
-net Xmax hm2_5i20.0.gpio.024.in_not => axis.0.pos-lim-sw-in
-net Xmin hm2_5i20.0.gpio.026.in_not => axis.0.neg-lim-sw-in
-net Ymax hm2_5i20.0.gpio.028.in_not => axis.1.pos-lim-sw-in
-net Ymin hm2_5i20.0.gpio.030.in_not => axis.1.neg-lim-sw-in
-net Zmax hm2_5i20.0.gpio.032.in_not => axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.034.in_not => axis.2.neg-lim-sw-in
+net Xmax hm2_5i20.0.gpio.024.in_not axis.0.pos-lim-sw-in
+net Xmin hm2_5i20.0.gpio.026.in_not axis.0.neg-lim-sw-in
+net Ymax hm2_5i20.0.gpio.028.in_not axis.1.pos-lim-sw-in
+net Ymin hm2_5i20.0.gpio.030.in_not axis.1.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.032.in_not axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.034.in_not axis.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
-net Xmax => axis.0.home-sw-in
-net Ymax => axis.1.home-sw-in
-net Zmax => axis.2.home-sw-in
+net Xmax axis.0.home-sw-in
+net Ymax axis.1.home-sw-in
+net Zmax axis.2.home-sw-in
 
 # Spindle Contactor Enable
 setp hm2_5i20.0.gpio.041.is_output TRUE
@@ -218,11 +222,11 @@ net REV motion.spindle-forward
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
-net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+net M8 hm2_5i20.0.gpio.043.out iocontrol.0.coolant-flood
 # Mist Coolant
 setp hm2_5i20.0.gpio.045.is_output TRUE
 setp hm2_5i20.0.gpio.045.invert_output TRUE
-net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
+net M7 hm2_5i20.0.gpio.045.out iocontrol.0.coolant-mist
 
 # hook the functions to threads
 # read inputs
@@ -244,6 +248,9 @@ addf abs.0 servo-thread
 addf comp.0 servo-thread
 addf comp.1 servo-thread
 addf and2.0 servo-thread
+# delay running the 8i20 smart serial channel
+addf debounce.0 servo-thread
+addf and2.1 servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 # run bldc function

@@ -30,7 +30,7 @@ import hal_glib
 import gtk
 import glib
 
-import emc
+import linuxcnc
 
 debug = 0
 
@@ -39,8 +39,6 @@ class EmcInterface(object):
 
     def __init__(self):
         try:
-            emcIniFile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-            linuxcnc.nmlfile = os.path.join(os.path.dirname(os.environ['INI_FILE_NAME']), emcIniFile.find("EMC", "NML_FILE"))
             self.s = linuxcnc.stat();
             self.c = linuxcnc.command()
         except Exception, msg:

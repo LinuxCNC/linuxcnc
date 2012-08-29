@@ -295,7 +295,7 @@ int Interp::add_parameters(setup_pointer settings,
     // special cases:
     // N...add line number
     if (strchr(required,'n') || strchr(required,'N')) {
-	STORE("n",(double) block->line_number);
+	STORE("n",(double) cblock->saved_line_number);
     }
 
     // >...require positive feed

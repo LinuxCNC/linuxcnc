@@ -341,7 +341,7 @@ static int init_hal_io(void)
 
     /* export machine wide hal parameters */
     retval =
-	hal_pin_bit_new("motion.motion-enabled", HAL_IN, &(emcmot_hal_data->motion_enabled),
+	hal_pin_bit_new("motion.motion-enabled", HAL_OUT, &(emcmot_hal_data->motion_enabled),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;

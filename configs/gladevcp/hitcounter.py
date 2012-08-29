@@ -2,8 +2,6 @@ import hal
 import glib
 import time
 
-debug = 1
-
 class HandlerClass:
     '''
     class with gladevcp callback handlers

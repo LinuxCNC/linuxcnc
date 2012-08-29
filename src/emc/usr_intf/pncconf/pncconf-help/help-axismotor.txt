@@ -33,7 +33,7 @@ Dac Scale:
     You could scale this to represent motor speed, voltage, duty cycle or anything
     else. Common settings would be duty cycle (scale of 1), voltage (scale of
     maximum voltage) or axis speed (scale of maximum axis speed in machine 
-    units per second). I reccomend axis speed.
+    units per second). I recommend axis speed.
     Note that scale is tied closely to dac max output.
 
     If Using PWM for spindle control for instance to control a VFD, then scale
@@ -47,15 +47,32 @@ Analog Min Limit
 Analog Max Limit
 Analog Scale:
     The 5i25 spindle/analog outputs use these three settings to scale and range
-    the ouput voltage.
+    the output voltage.
     Min Limit is the minimum output eg -10 or 0 volts.
     Max Limit is the Maximuim output eg 10 volts.
     Scale sets the user units based on the maximuim output of 10 volts.
     If you wish the units to be voltage then set the scale to 10
     If you wish the units to be RPM (of say a VDF spindle) set the scale to the
-    maximuim RPM of the spindle.
+    maximuim RPM of the spindle with a 10 volt signal.
     For an axis setting the scale at maximuim axis velocity (machine units per 
     second) would make sense.
+
+    eg. scale to voltage, range of +- 10
+        Analog Min Limit = -10
+        Analog Max Limit = 10
+        Analog Scale =     10
+
+    eg. scale to RPM, range 0 to 3000 ( assumes 3000 rpm with a 10 volt output )
+        Analog Min Limit = 0
+        Analog Max Limit = 3000
+        Analog Scale =     3000
+        ( This would have an output between 0 and 10 volts )
+
+    eg. scale to RPM, range -3000 to 3000 ( assumes 6000 rpm with a 10 volt output )
+        Analog Min Limit = 3000
+        Analog Max Limit = 3000
+        Analog Scale =     6000
+        ( This would limit the output to +- 5 volts )
 
 Dac Max Output:
     Dac max output is a PID setting. (Currently the spindle does not use PID.)

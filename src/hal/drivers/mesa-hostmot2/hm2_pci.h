@@ -39,6 +39,7 @@
 #define HM2_PCI_DEV_PLX9056    (0x9056)
 
 #define HM2_PCI_DEV_MESA5I25   (0x5125)
+#define HM2_PCI_DEV_MESA6I25   (0x6125)
 
 #define HM2_PCI_SSDEV_5I20     (0x3131)
 
@@ -52,6 +53,7 @@
 #define HM2_PCI_SSDEV_5I23     (0x3315)
 
 #define HM2_PCI_SSDEV_5I25     (0x5125)
+#define HM2_PCI_SSDEV_6I25     (0x6125)
 
 #define HM2_PCI_SSDEV_4I68     (0x3311)
 #define HM2_PCI_SSDEV_4I68_OLD (0x3133)
