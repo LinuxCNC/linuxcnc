@@ -1223,7 +1223,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
 {
   FILE *infile;
   FILE *outfile;
-  char line[256];
+  char line[PATH_MAX];
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1233,8 +1233,9 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   if(access(filename, F_OK)==0) 
   {
     // rename as .bak
-    strcpy(line, filename);
-    strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    int r;
+    r = snprintf(line, sizeof(line), "%s%s", filename, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    CHKS((r >= (int)sizeof(line)), NCE_CANNOT_CREATE_BACKUP_FILE);
     CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
 
     // open backup for reading
