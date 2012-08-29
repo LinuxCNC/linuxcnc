@@ -1159,9 +1159,10 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           pars[k] = value;
           if (k == required)
             required = _required_parameters[index++];
@@ -1261,9 +1262,11 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
+          fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           sprintf(line, "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
