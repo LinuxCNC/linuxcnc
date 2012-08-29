@@ -261,7 +261,7 @@ class Data:
         self.lathe_mode = False
         self.diameter_mode = True
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"         
-        self.error_sound  = "/usr/share/sounds/KDE-Sys-App-Error.ogg"
+        self.error_sound  = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
 
     def __getitem__(self, item):
         return getattr(self, item)
