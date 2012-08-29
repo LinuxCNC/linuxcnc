@@ -652,8 +652,10 @@ class Gscreen:
         # hide cursor
         if self.data.hide_cursor:
             self.widgets.window1.window.set_cursor(invisible)
+            self.widgets.gremlin.set_property('use_default_controls',False)
         else:
             self.widgets.window1.window.set_cursor(None)
+            self.widgets.gremlin.set_property('use_default_controls',True)
         self.update_position()
         #self.widgets.gcode_view.set_sensitive(0)
         #self.widgets.hal_led1.set_shape(2)
@@ -771,10 +773,12 @@ class Gscreen:
             self.prefs.putpref('hide_cursor', True)
             self.data.hide_cursor = True
             self.widgets.window1.window.set_cursor(invisible)
+            self.widgets.gremlin.set_property('use_default_controls',False)
         else:
             self.prefs.putpref('hide_cursor', False)
             self.data.hide_cursor = False
             self.widgets.window1.window.set_cursor(None)
+            self.widgets.gremlin.set_property('use_default_controls',True)
 
     def on_halshow(self,*args):
         print "halshow",TCLPATH
