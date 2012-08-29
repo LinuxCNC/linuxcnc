@@ -114,8 +114,6 @@ void Interp::doLog(const char *fmt, ...)
     struct tm *tm;
     va_list ap;
 
-    va_start(ap, fmt);
-
     if(log_file == NULL)
     {
        log_file = fopen(LOG_FILE, "a");
@@ -135,6 +133,8 @@ void Interp::doLog(const char *fmt, ...)
 	    tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
 	    tm->tm_hour, tm->tm_min, tm->tm_sec,
 	    tv.tv_usec/1000);
+
+    va_start(ap, fmt);
 
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
