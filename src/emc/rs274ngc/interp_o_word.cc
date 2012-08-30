@@ -195,7 +195,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
               // set the line number
               settings->sequence_number = 0;
 
-              strcpy(settings->filename, settings->oword_offset[i].filename);
+              strncpy(settings->filename, settings->oword_offset[i].filename, sizeof(settings->filename)-1);
 
               if(newFP)
               {
