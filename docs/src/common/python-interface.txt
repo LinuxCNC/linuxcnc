@@ -551,7 +551,11 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	home a given axis.
 
 `jog(int, int, [, int[,int]])`::
-	  jog a given axis.
+	Syntax: +
+	jog(command, axis[, velocity[, distance]]) +
+	jog(linuxcnc.JOG_STOP, axis) +
+	jog(linuxcnc.JOG_CONTINUOUS, axis, velocity) +
+	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
 
 `load_tool_table()`::
 	reload the tool table.
