@@ -260,6 +260,8 @@ class Data:
         self.preppedtool = None
         self.lathe_mode = False
         self.diameter_mode = True
+        self.tooleditor = ""
+        self.tooltable = ""
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"         
         self.error_sound  = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
 
@@ -610,6 +612,8 @@ class Gscreen:
         self.status.set_machine_units(self.machine_units_mm,conversion)
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
 
+        self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
+        self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
         if self.prefs.getpref('toolsetting_fixture', False):
             self.g10l11 = 1
         else:
@@ -1739,6 +1743,15 @@ class Gscreen:
         self.emc.override_limits(1)
 
     def reload_tooltable(self):
+        print "tooltable",self.data.tooltable
+        editor = self.data.tooleditor
+        if editor == None:
+            self.notify("INFO:","No Tool editor was specified in the INI file",INFO_ICON,3)
+            return
+        path = os.path.join(CONFIGPATH,self.data.tooltable)
+        res = os.spawnvp(os.P_WAIT, editor, [editor, path])
+        if res:
+            self.notify("Error Message","Tool editor error - is the %s editor available?"% editor,ALERT_ICON,3)
         self.emc.reload_tooltable(1)
 
     def dro_toggle(self):

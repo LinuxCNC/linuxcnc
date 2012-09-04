@@ -2264,8 +2264,8 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h1_4">
-                    <property name="label" translatable="yes">Reload
-  Tool</property>
+                    <property name="label" translatable="yes"> Tool
+Editor</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
