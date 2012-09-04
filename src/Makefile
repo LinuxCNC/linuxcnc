@@ -113,7 +113,10 @@ SUBDIRS := \
     \
     po \
     \
-    ../docs/src
+    ../docs/src \
+    hal/simdrivers
+
+
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
@@ -913,6 +916,7 @@ endif
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
+#../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
