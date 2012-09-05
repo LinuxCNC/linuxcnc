@@ -143,7 +143,7 @@ int redis_get_double(double *value,const char *format, ...)
 	if (reply->str + reply->len < endptr) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: trailing garbage after char %d: '%s'\n",
-			    __FUNCTION__, endptr-reply->str,
+			    __FUNCTION__, (int)(endptr-reply->str),
 			    reply->str);
 	}
 	*value = d;
