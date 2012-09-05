@@ -48,6 +48,32 @@ typedef struct hal_parport_t
 } hal_parport_t;
 
 #ifdef SIM
+float cpu_MHz(void) 
+{
+    char *path = "/proc/cpuinfo",  *s, line[1024];
+    float freq;
+    char *cpu_line = "cpu MHz";
+
+    // parse /proc/cpuinfo for the line:
+    // cpu MHz		: 2378.041
+    FILE *f = fopen(path,"r");
+    if (!f) {
+	perror(path);
+	return -1.0;
+    }
+    while (fgets(line, sizeof(line), f)) {
+	if (!strncmp(line, cpu_line, strlen(cpu_line))) {
+	    s = strchr(line, ':');
+	    if (s && 1 == sscanf(s, ":%g", &freq)) {
+		fclose(f);
+		return freq;
+	    }
+	}
+    }
+    fclose(f);
+    return -1.0;
+}
+
 int get_ppdev_res(int dev, struct ppres *ppres)
 {
     FILE *f;
