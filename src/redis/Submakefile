@@ -63,6 +63,8 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 	$(Q)mkdir -p ../lib/python/touchy
 	$(Q)cp $< $@
 
+$(call TOOBJSDEPS, $(LIBREDISGLUE_SRCS)) : EXTRAFLAGS=-fPIC
+
 # redis/linuxcnc glue library
 $(REDISGLUE_LIB).0:  $(call TOOBJS, $(LIBREDISGLUE_SRCS))
 	$(ECHO) Creating shared library $(notdir $@)
