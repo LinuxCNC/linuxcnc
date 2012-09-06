@@ -10,4 +10,4 @@ USERSRCS += $(REDIS_EXAMPLE_SRCS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 
-TARGETS += ../bin/redis-example
+#TARGETS += ../bin/redis-example

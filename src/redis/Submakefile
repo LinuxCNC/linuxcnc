@@ -83,7 +83,7 @@ USERSRCS += $(REDISLIB_TEST_SRCS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 
-TARGETS += ../bin/redislib-test
+#TARGETS += ../bin/redislib-test
 
 
 
