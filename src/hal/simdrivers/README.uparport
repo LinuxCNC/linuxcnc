@@ -1,0 +1,25 @@
+Trying the uparport driver:
+
+
+1. build linuxCNC with '--enable-simulator'
+===========================================
+
+This now compiles uparport.c,h into hal_parport
+
+2. for now, manual step required - make rtapi_app setuid root
+=============================================================
+
+so uparport can gain parport register access privileges:
+
+chown root ../bin/rtapi_app
+chmod 4755 ../bin/rtapi_app
+
+3: to give it a spin, run demo in this directory:
+=================================================
+halcmd -f signal.hal
+
+this wiggles parport pins 2,3,4,5,6,7 with a frequency settable in the gladevp panel.
+
+---
+
+libcpuid dependency removed mah 5/9/2012.

@@ -15,6 +15,7 @@
     } while(0)
 
 const char *strstore(const char *s) { return strdup(s); }
+extern PythonPlugin *python_plugin;
 
 void analyze(const char *what,bp::object retval)
 {
@@ -84,10 +85,11 @@ main (int argc, char **argv)
 
     int index;
     int c;
-    bp::object retval;
+    bp::object retval, pythis;
     char *callablefunc = NULL;
     char *callablemod = NULL;
     char *xcallable = NULL;
+    int status;
 
     opterr = 0;
 
@@ -125,31 +127,39 @@ main (int argc, char **argv)
 	    abort ();
 	}
     }
+
+    if (!PythonPlugin::instantiate(builtins ? builtin_modules : NULL)) {
+	fprintf (stderr,"instantiate: cant instantiate Python plugin");
+    }
+
     // creates the singleton instance
-    PythonPlugin *pp = PythonPlugin::configure(inifile,
-						 section,
-						 builtins ? builtin_modules : NULL);
-    // PythonPlugin two = pp; // this fails since copy constructor is private.
+    status = python_plugin->configure(inifile, section);
+
+    if (status != PLUGIN_OK) {
+	fprintf (stderr, "configure failed: %d\n",status);
+    }
+
+    // PythonPlugin two = python_plugin; // this fails since copy constructor is private.
     // PythonPlugin &second = PythonPlugin::getInstance();  // returns the singleton instance
 
-    printf("status = %d\n", pp->plugin_status());
+    printf("status = %d\n", python_plugin->plugin_status());
     bp::tuple tupleargs,nulltupleargs;
     bp::dict kwargs,nullkwargs;
     kwargs['x'] = 10;
     kwargs['y'] = 20;
     tupleargs = bp::make_tuple(3,2,1,"foo");
 
-    exercise(pp,NULL,"func",nulltupleargs, nullkwargs);
+    exercise(python_plugin,NULL,"func",nulltupleargs, nullkwargs);
 
     system("/usr/bin/touch testmod.py");
 
-    exercise(pp,NULL,"badfunc",tupleargs,kwargs);
-    exercise(pp,NULL,"retstring",tupleargs,kwargs);
-    exercise(pp,NULL,"retdouble",tupleargs,kwargs);
-    // exercise(pp,"submod","subfunc");
+    exercise(python_plugin,NULL,"badfunc",tupleargs,kwargs);
+    exercise(python_plugin,NULL,"retstring",tupleargs,kwargs);
+    exercise(python_plugin,NULL,"retdouble",tupleargs,kwargs);
+    // exercise(python_plugin,"submod","subfunc");
 
     for (index = optind; index < argc; index++) {
-	run(pp, argv[index], as_file);
+	run(python_plugin, argv[index], as_file);
     }
     return 0;
 }

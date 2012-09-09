@@ -113,7 +113,10 @@ SUBDIRS := \
     \
     po \
     \
-    ../docs/src
+    ../docs/src \
+	redis \
+    redis/examples/c \
+    hal/simdrivers
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
@@ -343,7 +346,8 @@ HEADERS := \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
+    rtapi/rtapi_string.h \
+    redis/redis/deps/hiredis/hiredis.h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -919,6 +923,7 @@ endif
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
+#../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))

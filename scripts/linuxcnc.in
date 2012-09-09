@@ -367,6 +367,27 @@ GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
 export NMLFILE
 
+# 2.11. get redis information
+
+# redis-server will be started unless explicitly disabled by [REDIS]DISABLE_SERVER=1
+GetFromIni DISABLE_SERVER REDIS
+DISABLE_REDIS=$retval
+
+# the redis startup command defaults to 'redis-server'
+# override with [REDIS]SERVER_PATH=<pathname>  (no args!)
+GetFromIni SERVER_PATH REDIS
+REDIS_SERVER_PATH=$retval
+
+# the redis-server startup arguments default to ' <default server config path>'
+# override with [REDIS]SERVER_ARGS=<pathname> <other args>
+GetFromIni SERVER_ARGS REDIS
+REDIS_SERVER_ARGS=$retval
+
+# the output from running the redis server will be redirected to /dev/null
+# unless a [REDIS]SERVER_LOG=<pathname> is specified.
+GetFromIni SERVER_LOG REDIS
+REDIS_SERVER_LOG=$retval
+
 ################################################################################
 # 3. Done gathering information, define a few functions
 # Execution resumes after function definitions...
@@ -472,7 +493,7 @@ function Cleanup() {
     fi
 
     # now kill all the other user space components
-    for KILL_TASK in linuxcncsvr milltask; do
+    for KILL_TASK in linuxcncsvr milltask redis-server; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -583,6 +604,31 @@ fi
 ################################################################################
 # 4.2. Now we can finally start loading LinuxCNC
 ################################################################################
+
+
+# 4.2.1 start redis-server as the very first thing
+echo "Starting redis server program: $REDIS_SERVER"  >>$PRINT_FILE
+#
+if [ "$DISABLE_REDIS" = "" ] ; then
+    if [ "$REDIS_SERVER_PATH" = "" ] ; then
+	REDIS_SERVER_PATH=redis-server
+    fi
+    if ! program_available $REDIS_SERVER_PATH; then
+       echo "Can't execute Redis server program $REDIS_SERVER_PATH"
+       Cleanup
+       exit 1
+    fi
+    if [ "$REDIS_SERVER_ARGS" = "" ] ; then
+	REDIS_SERVER_ARGS=''
+    fi
+    if [ "$REDIS_SERVER_LOG" = "" ] ; then
+	REDIS_SERVER_LOG=/dev/null
+    fi
+    $REDIS_SERVER_PATH $REDIS_SERVER_ARGS >$REDIS_SERVER_LOG &
+    echo "redis server started as: '"$REDIS_SERVER_PATH $REDIS_SERVER_ARGS"', logging to:" $REDIS_SERVER_LOG
+else
+    echo "redis server startup disabled in inifile"
+fi
 
 # 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
 echo "Starting LinuxCNC server program: $EMCSERVER" >>$PRINT_FILE
