@@ -553,6 +553,12 @@ To assign the value of 12 to s32out bit 3 the syntax would be:
 %QW3=12
 ----
 
+[NOTE]
+When you assign a value to a variable with the variable assignment block
+the value is retained until you assign a new value using the variable
+assignment block. The last value assigned will be restored when LinuxCNC
+is started.
+
 The following figure shows an Assignment and a Comparison Example.
 %QW0 is a S32out bit and %IW0 is a S32in bit. In this case the HAL pin
 classicladder.0.s32out-00 will be set to a value of 5 and when the HAL
