@@ -895,7 +895,7 @@ int Interp::init()
 			break;
 		    } else {
 			_setup.subroutines[dct] = ".";
-			logDebug("program prefix[%d]:%s (unexpanded)",dct,_setup.subroutines[dct]);
+			logDebug("subroutine path[%d]:%s (unexpanded)",dct,_setup.subroutines[dct]);
 			dct++;
 			nextdir = strtok(NULL,":");
 			if (nextdir == NULL) break; // no more tokens
@@ -911,7 +911,7 @@ int Interp::init()
                     _setup.subroutines[dct] = NULL;
                 } else {
 		    _setup.subroutines[dct] = strstore(tmp_path);
-                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
+                    logDebug("subroutine path[%d]:%s",dct,_setup.subroutines[dct]);
 		    dct++;
                 }
                 if (dct >= MAX_SUB_DIRS) {
