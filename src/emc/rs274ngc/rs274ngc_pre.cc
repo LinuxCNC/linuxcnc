@@ -2412,7 +2412,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
-    int have_filename = strlen(settings->filename) > 0;
+    int have_filename = (settings->filename != NULL) && (strlen(settings->filename) > 0);
 
     // look for a new file
     sprintf(tmpFileName, "%s.ngc", basename);
@@ -2433,7 +2433,6 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 		sprintf(newFileName, "%s/%s", dirname(settings->filename), tmpFileName);
 		logDebug("trying '%s' (expanded '.' to '%s')", 
 			 newFileName, dirname(settings->filename));
-				
 	    } else {
 		sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
 		logDebug("trying '%s'", newFileName);
