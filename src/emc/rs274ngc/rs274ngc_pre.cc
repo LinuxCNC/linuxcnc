@@ -79,6 +79,7 @@ include an option for suppressing superfluous commands.
 #include <time.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <libgen.h>   // basename(), dirname()
 #include <set>
 #include <stdexcept>
 
@@ -874,6 +875,8 @@ int Interp::init()
             char* nextdir;
             char tmpdirs[PATH_MAX+1];
 
+	    logDebug("SUBROUTINE_PATH='%s'",inistring);
+
             for (dct=0; dct < MAX_SUB_DIRS; dct++) {
                  _setup.subroutines[dct] = NULL;
             }
@@ -884,6 +887,21 @@ int Interp::init()
             while (1) {
                 char tmp_path[PATH_MAX];
                 char expandnextdir[LINELEN];
+
+		// dont expand '.' - expanded at lookup time
+		if (!strcmp(nextdir, ".")) {
+		    if (dct >= MAX_SUB_DIRS) {
+			logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
+			break;
+		    } else {
+			_setup.subroutines[dct] = ".";
+			logDebug("program prefix[%d]:%s (unexpanded)",dct,_setup.subroutines[dct]);
+			dct++;
+			nextdir = strtok(NULL,":");
+			if (nextdir == NULL) break; // no more tokens
+			continue;
+		    }
+                }
                 if (inifile.TildeExpansion(nextdir,expandnextdir,sizeof(expandnextdir))) {
                    logDebug("TildeExpansion failed for: %s",nextdir);
                 }
@@ -2394,6 +2412,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
+    int have_filename = strlen(settings->filename) > 0;
 
     // look for a new file
     sprintf(tmpFileName, "%s.ngc", basename);
@@ -2410,7 +2429,15 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
 	    if (!settings->subroutines[dct])
 		continue;
-	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+	    if (!strcmp(settings->subroutines[dct], ".") && have_filename) {
+		sprintf(newFileName, "%s/%s", dirname(settings->filename), tmpFileName);
+		logDebug("trying '%s' (expanded '.' to '%s')", 
+			 newFileName, dirname(settings->filename));
+				
+	    } else {
+		sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+		logDebug("trying '%s'", newFileName);
+	    }
 	    newFP = fopen(newFileName, "r");
 	    if (newFP) {
 		// logOword("fopen: |%s|", newFileName);
