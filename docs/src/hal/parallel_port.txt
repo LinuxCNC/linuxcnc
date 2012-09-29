@@ -153,27 +153,27 @@ low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
 physical pin high, and FALSE drives it low. If '-invert' is TRUE, then
 setting the HAL '-out' pin TRUE will drive the physical pin low.
 
-=== Functions
+=== Functions [[parport-functions]] (((parport functions)))
 
 * 'parport.<p>.read' (funct) Reads physical input pins of port
    '<portnum>' and updates HAL '-in' and '-in-not' pins.
-   
+
 * 'parport.read-all' (funct) Reads physical input pins of all ports
    and updates HAL '-in' and '-in-not' pins.
-   
+
 * 'parport.<p>.write' (funct) Reads HAL '-out' pins of port
    '<p>' and updates that port's physical output pins.
-   
+
 * 'parport.write-all' (funct) Reads HAL '-out' pins of all ports
    and updates all physical output pins.
-   
+
 * 'parport.<p>.reset' (funct) Waits until 'reset-time' has
    elapsed since the associated 'write', then resets pins to values
    indicated by '-out-invert' and '-out-invert' settings. 'reset' must be
    later in the same thread as 'write. 'If '-reset' is TRUE, then the
    'reset' function will set the pin to the value of '-out-invert'. This
-   can be used in conjunction with stepgen's 'doublefreq'  to produce one
-   step per period. The stepgen stepspace for that pin
+   can be used in conjunction with stepgen's 'doublefreq' to produce one
+   step per period. The <<stepgen-parameters,stepgen stepspace>> for that pin
    must be set to 0 to enable doublefreq.
 
 The individual functions are provided for situations where one port
