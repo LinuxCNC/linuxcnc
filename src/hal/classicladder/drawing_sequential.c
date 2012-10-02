@@ -36,7 +36,6 @@
 void DrawSeqStep(GdkPixmap * DrawPixmap,int x,int y,int Size,StrStep * pStep,char DrawingOption)
 {
 	char BufTxt[50];
-	GdkGC * DynaGcOff;
 	GdkGC * TheGc;
 	GdkColor DynaGdkColor;
 	GdkGC * DynaGcOn;
@@ -51,7 +50,6 @@ void DrawSeqStep(GdkPixmap * DrawPixmap,int x,int y,int Size,StrStep * pStep,cha
 	gdk_gc_set_line_attributes(DynaGcOn, THICK_LINE_ELE_ACTIVATED,
 	GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
 	#endif
-	DynaGcOff = drawing_area->style->black_gc;
 	/* State with color */
 	TheGc = drawing_area->style->black_gc;
 	if ( (DrawingOption==DRAW_NORMAL) && (!EditDatas.ModeEdit) && (pStep->Activated) )
