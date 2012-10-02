@@ -178,7 +178,8 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     if (flags & LOG_PID) {
 	fprintf(log_file, "%4d ",getpid());
     }
-    if (flags & LOG_FILENAME) {fprintf(log_file, "%s:%d: ",file,line);
+    if (flags & LOG_FILENAME) {
+        fprintf(log_file, "%s:%d: ",file,line);
     }
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
