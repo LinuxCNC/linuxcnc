@@ -188,4 +188,54 @@ prevent EMC from loading.
 
 For more information on Halscope see the HAL manual.
 
+== Stand Alone HAL
+
+In some cases you might want to run a GladeVCP screen with just HAL. For
+example say you had a stepper driven device that all you need is to run a
+stepper motor. A simple 'Start/Stop' interface is all you need for your
+application so no need to load up and configure a full blown CNC application.
+
+In the following example we have created a simple GladeVCP panel with one 
+
+.Basic Syntax
+----
+# load the winder.glade GUI and name it winder
+loadusr -Wn winder gladevcp -c winder -u handler.py winder.glade
+
+# load realtime components
+loadrt threads name1=fast period1=50000 fp1=0 name2=slow period2=1000000
+loadrt stepgen step_type=0 ctrl_type=v
+loadrt hal_parport cfg="0x378 out"
+
+# add functions to threads
+addf stepgen.make-pulses fast
+addf stepgen.update-freq slow
+addf stepgen.capture-position slow
+addf parport.0.read fast
+addf parport.0.write fast
+
+# make hal connections
+net winder-step parport.0.pin-02-out <= stepgen.0.step
+net winder-dir parport.0.pin-03-out <= stepgen.0.dir
+net run-stepgen stepgen.0.enable <= winder.start_button
+
+
+
+# start the threads
+start
+
+# comment out the following lines while testing and use the interactive
+# option halrun -I -f start.hal to be able to show pins etc.
+
+# wait until the gladevcp GUI named winder terminates
+waitusr winder
+
+# stop HAL threads
+stop
+
+# unload HAL all components before exiting
+unloadrt all
+----
+
+
 

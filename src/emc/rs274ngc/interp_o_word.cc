@@ -486,7 +486,12 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    newFP = fopen(op->filename, "r");
 	    // set the line number
 	    settings->sequence_number = 0;
-	    strcpy(settings->filename, op->filename);
+            strncpy(settings->filename, op->filename, sizeof(settings->filename));
+            if (settings->filename[sizeof(settings->filename)-1] != '\0') {
+                fclose(settings->file_pointer);
+                logOword("filename too long: %s", op->filename);
+                ERS(NCE_UNABLE_TO_OPEN_FILE, op->filename);
+            }
 
 	    if (newFP) {
 		// close the old file...
@@ -515,7 +520,11 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	if (settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer = newFP;
-	strcpy(settings->filename, newFileName);
+        strncpy(settings->filename, newFileName, sizeof(settings->filename));
+        if (settings->filename[sizeof(settings->filename)-1] != '\0') {
+            logOword("new filename '%s' is too long (max len %d)\n", newFileName, sizeof(settings->filename)-1);
+            settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
+        }
     } else {
 	char *dirname = get_current_dir_name();
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,

@@ -1260,7 +1260,6 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                 if('>' != *comment)
                 {
                     ERS(NCE_NAMED_PARAMETER_NOT_TERMINATED);
-                    logDebug("parameter not terminated");
                 }
                 else
                 {

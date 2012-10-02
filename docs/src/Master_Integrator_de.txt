@@ -19,7 +19,7 @@ include::common/overleaf.txt[]
 
 include::common/translator-needed_de.txt[]
 
-include::common/Integrator_Concepts_de.txt[]
+include::common/Integrator_Concepts.txt[]
 
 :leveloffset: 0
 
@@ -27,19 +27,19 @@ include::common/Integrator_Concepts_de.txt[]
 
 :leveloffset: 1
 
-include::install/Latency_Test_de.txt[]
+include::install/Latency_Test.txt[]
 
-include::config/ini_config_de.txt[]
+include::config/ini_config.txt[]
 
-include::config/ini_homing_de.txt[]
+include::config/ini_homing.txt[]
 
-include::config/lathe_config_de.txt[]
+include::config/lathe_config.txt[]
 
-include::hal/haltcl_de.txt[]
+include::hal/haltcl.txt[]
 
-include::config/emc2hal_de.txt[]
+include::config/emc2hal.txt[]
 
-include::config/stepper_de.txt[]
+include::config/stepper.txt[]
 
 :leveloffset: 0
 
@@ -47,11 +47,11 @@ include::config/stepper_de.txt[]
 
 :leveloffset: 1
 
-include::hal/pyvcp_de.txt[]
+include::hal/pyvcp.txt[]
 
-include::hal/pyvcp_examples_de.txt[]
+include::hal/pyvcp_examples.txt[]
 
-include::gui/gladevcp_de.txt[]
+include::gui/gladevcp.txt[]
 
 include::gui/halui.txt[]
 
@@ -61,25 +61,25 @@ include::gui/halui.txt[]
 
 :leveloffset: 1
 
-include::hal/parallel_port_de.txt[]
+include::hal/parallel_port.txt[]
 
-include::drivers/AX5214H_de.txt[]
+include::drivers/AX5214H.txt[]
 
-include::drivers/GS2_de.txt[]
+include::drivers/GS2.txt[]
 
-include::drivers/hostmot2_de.txt[]
+include::drivers/hostmot2.txt[]
 
-include::drivers/motenc_de.txt[]
+include::drivers/motenc.txt[]
 
-include::drivers/opto22_de.txt[]
+include::drivers/opto22.txt[]
 
-include::drivers/pico_ppmc_de.txt[]
+include::drivers/pico_ppmc.txt[]
 
-include::drivers/pluto_p_de.txt[]
+include::drivers/pluto_p.txt[]
 
-include::drivers/servo_to_go_de.txt[]
+include::drivers/servo_to_go.txt[]
 
-include::drivers/shuttlexpress_de.txt[]
+include::drivers/shuttlexpress.txt[]
 
 :leveloffset: 0
 
@@ -89,11 +89,11 @@ include::drivers/shuttlexpress_de.txt[]
 
 include::common/python-interface.txt[]
 
-include::motion/kinematics_de.txt[]
+include::motion/kinematics.txt[]
 
-include::motion/tweaking_steppers_de.txt[]
+include::motion/tweaking_steppers.txt[]
 
-include::motion/pid_theory_de.txt[]
+include::motion/pid_theory.txt[]
 
 :leveloffset: 0
 
@@ -101,11 +101,11 @@ include::motion/pid_theory_de.txt[]
 
 :leveloffset: 1
 
-include::ladder/ladder_intro_de.txt[]
+include::ladder/ladder_intro.txt[]
 
-include::ladder/classic_ladder_de.txt[]
+include::ladder/classic_ladder.txt[]
 
-include::ladder/ladder_examples_de.txt[]
+include::ladder/ladder_examples.txt[]
 
 :leveloffset: 0
 
@@ -113,13 +113,13 @@ include::ladder/ladder_examples_de.txt[]
 
 :leveloffset: 1
 
-include::examples/pci_parallel_port_de.txt[]
+include::examples/pci_parallel_port.txt[]
 
-include::examples/spindle_de.txt[]
+include::examples/spindle.txt[]
 
-include::examples/mpg_de.txt[]
+include::examples/mpg.txt[]
 
-include::examples/gs2_example_de.txt[]
+include::examples/gs2_example.txt[]
 
 :leveloffset: 0
 
@@ -127,11 +127,11 @@ include::examples/gs2_example_de.txt[]
 
 :leveloffset: 1
 
-include::common/Stepper_Diagnostics_de.txt[]
+include::common/Stepper_Diagnostics.txt[]
 
-include::common/Linux_FAQ_de.txt[]
+include::common/Linux_FAQ.txt[]
 
-include::common/Glossary_de.txt[]
+include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 

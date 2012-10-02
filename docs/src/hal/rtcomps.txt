@@ -84,7 +84,7 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-=== Parameters
+=== Parameters [[stepgen-parameters]]
 
 * '(float) stepgen.<chan>.position-scale'  - Steps per position unit.
    This parameter is used for both output and feedback.
@@ -99,8 +99,9 @@ on the step type and control type selected.
    type 0 and 1) or minimum time in a
    given state (step types 2-14), in nano-seconds.
 * '(float) stepgen.<chan>.stepspace' - Minimum spacing between two
-   step pulses (step types 0 and 1 only),
-   in nano-seconds.
+   step pulses (step types 0 and 1 only), in nano-seconds. Set to 0 to
+   enable the stepgen 'doublefreq' function. To use 'doublefreq' the
+   <<parport-functions,parport reset function>> must be enabled.
 * '(float) stepgen.<chan>.dirsetup' - Minimum time from a direction
    change to the beginning of the next
    step pulse (step type 0 only), in nanoseconds.
@@ -131,11 +132,11 @@ generated pulse train.
 
 === Step Types[[sub:Stepgen-Step-Types]]
 
-The step generator supports 15 different 'step types'. Step type 0 is
-the most familiar, standard step and direction. When configured for
+.Step Type 0
+Step type 0 is the standard step and direction type. When configured for
 step type 0, there are four extra parameters that determine the exact
-timing of the step and direction signals. See figure 
-<<fig:StepDir-timing>> for the meaning of these parameters. The
+timing of the step and direction signals. In the following figure 
+the meaning of these parameters is shown. The
 parameters are in nanoseconds, but will be rounded up to an integer
 multiple of the thread period for the threaed that calls
 'make_pulses()'. For example, if 'make_pulses()'  is called every 16 us,
@@ -149,10 +150,15 @@ will be lowered automatically. If
 maxfreq is zero, it will remain zero, but the output frequency will
 still be limited.
 
+When using the parallel port driver the step frequency can be doubled using
+the <<parport-functions,parport reset>> function together with stepgen's
+'doublefreq' setting.
+
 .Step and Direction Timing[[fig:StepDir-timing]]
 
 image::images/stepgen-type0.png[]
 
+.Step Type 1
 Step type 1 has two outputs, up and down. Pulses appear on one or the
 other, depending on the direction of travel. Each pulse is 'steplen' ns
 long, and the pulses are separated by at least 'stepspace' ns. The
@@ -161,6 +167,11 @@ higher than the limit it will be lowered. If 'maxfreq'  is zero, it
 will remain zero but the output frequency will still be
 limited.
 
+[WARNING]
+Do not use the parport reset function with step types 2 - 14. Unexpected
+results can happen.
+
+.Step Type 2 - 14
 Step types 2 through 14 are state based, and have from two to five
 outputs. On each step, a state counter is incremented or decremented.
 Figures  <<fig:Two-and-Three-Phase>>,  <<fig:Four-Phase>>, and 

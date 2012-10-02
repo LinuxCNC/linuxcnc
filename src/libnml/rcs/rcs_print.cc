@@ -512,7 +512,7 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
     static char temp_string[256];
     static char message_string[512];
     va_list args;
-    va_start(args, _fmt);
+    int r;
 
     if (NULL == _fmt) {
 	return (EOF);
@@ -520,10 +520,15 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
     if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
 	return (EOF);
     }
-    if (EOF == (int) vsnprintf(temp_string, sizeof(temp_string), _fmt, args)) {
-	return (EOF);
-    }
+
+    va_start(args, _fmt);
+    r = vsnprintf(temp_string, sizeof(temp_string), _fmt, args);
     va_end(args);
+
+    if (r < 0) {
+	return EOF;
+    }
+
     if (max_rcs_errors_to_print == rcs_errors_printed &&
 	max_rcs_errors_to_print >= 0) {
 	rcs_print("\nMaximum number of errors to print exceeded!\n");

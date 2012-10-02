@@ -144,10 +144,10 @@ To get the Ubuntu 10.04 Lucid Lynx version,
 copy one of these in the terminal window and press enter:
 
 For the USA mirror: 
-wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
 
 For the European mirror: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
 
 The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f' 
 *********************************************************************
@@ -155,7 +155,7 @@ The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f'
 To continue a partial download that was interrupted 
 add the -c option to wget:
 +
-wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
 +
 To stop a download use Ctrl-C or close the terminal window.
 +
@@ -235,7 +235,7 @@ calculating the hash.
 On slower computers this might take a minute or two.
 +
 ----
-5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso
+76dc2416b917679b71255e464ede84ec *ubuntu-10.04-linuxcnc3-i386.iso
 ----
 +
 Now compare it to the md5sum value that it should be.
@@ -325,7 +325,4 @@ Warning: Do not upgrade Ubuntu to a new but non-LTS version
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
 during the boot up.
-
-// vim: set syntax=asciidoc:
-
 
