@@ -75,7 +75,6 @@ net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 ### q = encoder, h=hall sensors, i=index
 loadrt bldc cfg=qh
 setp bldc.0.rev 1
-net machine-on hm2_5i20.0.8i20.0.0.amp_enable
 setp hm2_5i20.0.encoder.00.scale 2880
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
@@ -181,9 +180,8 @@ net estop-enable hm2_5i20.0.gpio.037.in iocontrol.0.emc-enable-in
 # Run Switch
 loadrt debounce cfg=1
 setp debounce.0.delay 1000
-net machine-on hm2_5i20.0.gpio.039.in_not halui.machine.on debounce.0.0.in and2.1.in0
-net machine-on-delayed debounce.0.0.out and2.1.in1
-net 8i20-on and2.1.out hm2_5i20.0.sserial.port-0.run
+net key-on hm2_5i20.0.gpio.039.in_not debounce.0.0.in
+net machine-on debounce.0.0.out hm2_5i20.0.sserial.port-0.run hm2_5i20.0.8i20.0.0.amp_enable halui.machine.on
 
 #connect limit switches to limit inputs
 net Xmax hm2_5i20.0.gpio.024.in_not axis.0.pos-lim-sw-in
@@ -210,8 +208,17 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 #net VFDOK hm2_5i20.0.gpio.031.in_not
 # A Axis Home - On Sieg machines there is no VFD fault signal,
 # it is used for the A axis home sensor on 4 axis machines
-net VFDOK hm2_5i20.0.gpio.031.in_not
 #net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+
+# Stop on any spindle fault
+loadrt or2
+#net VFDOK hm2_5i20.0.gpio.031.in_not and2.1.in0
+net VFDOK hm2_5i20.0.gpio.031.in_not or2.0.in0
+#net AUTO halui.mode.is-auto and2.1.in1
+net stall or2.0.in1
+#net ABORT and2.1.out halui.abort
+net ABORT or2.0.out halui.abort
+
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
@@ -258,6 +265,7 @@ addf comp.1 servo-thread
 addf and2.0 servo-thread
 # delay running the 8i20 smart serial channel
 addf debounce.0 servo-thread
+# detect a spindle fault
 addf and2.1 servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
