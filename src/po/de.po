@@ -2161,7 +2161,7 @@ msgstr "Rückgängig"
 msgid "Redo"
 msgstr "Wiederherstellen"
 
-#: tcl/mini.tcl:2546
+#: tcl/mini.tcl:2546 src/emc/usr_intf/tooledit.tcl:488
 msgid "Delete"
 msgstr "Löschen"
 
@@ -3459,6 +3459,294 @@ msgstr "Datei ist nicht geöffnet"
 #: tcl/ngcgui_ttt.tcl:507
 msgid "Creating new tab page"
 msgstr ""
+
+#: src/emc/usr_intf/tooledit.tcl:65
+msgid "Problem reading ~/.tooleditrc"
+msgstr "Kann ~/.tooleditrc nicht lesen"
+
+#: src/emc/usr_intf/tooledit.tcl:82
+#, tcl-format
+msgid "Note: Ignoring duplicate column name: %s"
+msgstr "Hinweis: Ignoriere doppelten Spaltenname: %s"
+
+#: src/emc/usr_intf/tooledit.tcl:93
+#, tcl-format
+msgid "Unknown column: %s"
+msgstr "Unbekannte Spalte: %s"
+
+#: src/emc/usr_intf/tooledit.tcl:210 src/emc/usr_intf/tooledit.tcl:213
+#: src/emc/usr_intf/tooledit.tcl:598 src/emc/usr_intf/tooledit.tcl:599
+#: src/emc/usr_intf/tooledit.tcl:1032
+msgid "NEW"
+msgstr "NEU"
+
+#: src/emc/usr_intf/tooledit.tcl:232
+#, tcl-format
+msgid "%s must be a number"
+msgstr "%s muss eine Zahl sein"
+
+#: src/emc/usr_intf/tooledit.tcl:241
+#, tcl-format
+msgid "filename: <%s> not readable"
+msgstr "Dateiname: <%s> nicht lesbar"
+
+#: src/emc/usr_intf/tooledit.tcl:245
+#, tcl-format
+msgid "filename: <%s> not writable"
+msgstr "Dateiname: <%s> nicht schreibbar"
+
+#: src/emc/usr_intf/tooledit.tcl:250
+#, tcl-format
+msgid "directory: <%s> not writable"
+msgstr "Verzeichnis: <%s> nicht schreibbar"
+
+#: src/emc/usr_intf/tooledit.tcl:294
+#, tcl-format
+msgid "Skipping linenumber %d for tag %s, value <%s> is not a number"
+msgstr "Überspringe Zeile %d wg. Knoten %s, Wert <%s> is keine Zahl"
+
+#: src/emc/usr_intf/tooledit.tcl:300
+#, tcl-format
+msgid "Skipping linenumber %d for tag %s, expected integer not <%s>"
+msgstr "Überspringe Zeile %d wg. Knoten %s, erwarte Integer, nicht <%s>"
+
+#: src/emc/usr_intf/tooledit.tcl:316
+#, tcl-format
+msgid "At linenumber %d, Unknown tag <%s>"
+msgstr "Zeile %d: Unbekannter Knoten <%s>"
+
+#: src/emc/usr_intf/tooledit.tcl:399
+#, tcl-format
+msgid "%s: Column sorting not available with tcl_version==%s"
+msgstr "%s: Spaltensortierung in tcl_version==%s nicht verfügbar"
+
+#: src/emc/usr_intf/tooledit.tcl:408
+msgid "tool"
+msgstr "Wkz"
+
+#: src/emc/usr_intf/tooledit.tcl:409
+msgid "poc"
+msgstr "Fach"
+
+#: src/emc/usr_intf/tooledit.tcl:410
+msgid "diam"
+msgstr "Dmess"
+
+#: src/emc/usr_intf/tooledit.tcl:411
+msgid "front"
+msgstr "vorne"
+
+#: src/emc/usr_intf/tooledit.tcl:412
+msgid "back"
+msgstr "hinten"
+
+#: src/emc/usr_intf/tooledit.tcl:413
+msgid "orien"
+msgstr "Ausr"
+
+#: src/emc/usr_intf/tooledit.tcl:414
+msgid "comment"
+msgstr "Bemerkung"
+
+#: src/emc/usr_intf/tooledit.tcl:444
+msgid "Del"
+msgstr "Lö "
+
+#: src/emc/usr_intf/tooledit.tcl:473
+msgid "ReLoadTable"
+msgstr "Tabelle neu laden"
+
+#: src/emc/usr_intf/tooledit.tcl:478
+msgid "SaveFile"
+msgstr "Datei speichern"
+
+#: src/emc/usr_intf/tooledit.tcl:483
+msgid "ReRead"
+msgstr "Neu laden"
+
+#: src/emc/usr_intf/tooledit.tcl:485
+msgid "AddTool"
+msgstr "Werkzeug anlegen"
+
+#: src/emc/usr_intf/tooledit.tcl:535
+#, tcl-format
+msgid "Opened %s"
+msgstr "%s geöffnet"
+
+#: src/emc/usr_intf/tooledit.tcl:536
+#, tcl-format
+msgid "Created %s"
+msgstr "%s erstellt"
+
+#: src/emc/usr_intf/tooledit.tcl:537
+msgid "File updated"
+msgstr "Datei aktualisiert"
+
+#: src/emc/usr_intf/tooledit.tcl:538
+msgid "File modified"
+msgstr "Datei geändert"
+
+#: src/emc/usr_intf/tooledit.tcl:539
+msgid "File check errors"
+msgstr "Fehler bei Dateiprüfung"
+
+#: src/emc/usr_intf/tooledit.tcl:540
+msgid "File checked"
+msgstr "Datei geprüft"
+
+#: src/emc/usr_intf/tooledit.tcl:541
+msgid "File items deleted"
+msgstr "Dateieinträge gelöscht"
+
+#: src/emc/usr_intf/tooledit.tcl:542
+msgid "Bogus lines in file ignored"
+msgstr "Fehlerhafte Zeilen in Datei ignoriert"
+
+#: src/emc/usr_intf/tooledit.tcl:543
+msgid "File errors -- Check Entries"
+msgstr "Dateifehler -- bitte Datensätze prüfen"
+
+#: src/emc/usr_intf/tooledit.tcl:544
+msgid "Warning: File changed by another process"
+msgstr "Warnung: Datei von fremden Prozess verändert"
+
+#: src/emc/usr_intf/tooledit.tcl:545
+msgid "Warning: File deleted by another process"
+msgstr "Warnung: Datei von fremden Prozess gelöscht"
+
+#: src/emc/usr_intf/tooledit.tcl:546
+msgid "Added Tool"
+msgstr "Werkzeug angelegt"
+
+#: src/emc/usr_intf/tooledit.tcl:550
+#, tcl-format
+msgid "Sorted by %s, increasing"
+msgstr "Sortiert nach %s, aufsteigend"
+
+#: src/emc/usr_intf/tooledit.tcl:551
+#, tcl-format
+msgid "Sorted by %s, decreasing"
+msgstr "Sortiert nach %s, absteigend"
+
+#: src/emc/usr_intf/tooledit.tcl:593
+msgid "Added"
+msgstr "Angelegt"
+
+#: src/emc/usr_intf/tooledit.tcl:802
+#, tcl-format
+msgid "Tool %s, Column %s, parameter %s is not a number"
+msgstr "Werkzeug %s, Spalte %s, Parameter %s ist keine Zahl"
+
+#: src/emc/usr_intf/tooledit.tcl:811
+#, tcl-format
+msgid "Tool %s, parameter %s must be nonnegative integer"
+msgstr "Werkzeug %s, Parameter %s muss positive Integerzahl sein"
+
+#: src/emc/usr_intf/tooledit.tcl:819
+#, tcl-format
+msgid "Tool %s: <Orientation> must be 0..9 integer"
+msgstr "Werkzeug %s: <Ausrichtung> muss Integerzahl zwischen 0..9 sein"
+
+#: src/emc/usr_intf/tooledit.tcl:826
+#, tcl-format
+msgid "Tool %s: <%s> must be between -360 and 360"
+msgstr "Werkzeug %s: <%s> muss zwischen -360 und 360 liegen"
+
+#: src/emc/usr_intf/tooledit.tcl:842
+#, tcl-format
+msgid "Pocket <%s> specified multiple times"
+msgstr "Fach <%s> mehrmals angegeben"
+
+#: src/emc/usr_intf/tooledit.tcl:857
+#, tcl-format
+msgid "Tool <%s> specified multiple times"
+msgstr "Werkzeug <%s> mehrmals angegeben"
+
+#: src/emc/usr_intf/tooledit.tcl:902
+msgid "File Modified"
+msgstr "Datei geändert"
+
+#: src/emc/usr_intf/tooledit.tcl:903
+msgid "Save Modifications to File?"
+msgstr "Änderungen in Datei speichern?"
+
+#: src/emc/usr_intf/tooledit.tcl:930
+#, tcl-format
+msgid ""
+"Only these columns are currently used:\n"
+"\n"
+" %s"
+msgstr ""
+"Nur die folgenden Spalten werden aktuell benutzt:\n"
+"\n"
+" %s"
+
+#: src/emc/usr_intf/tooledit.tcl:931
+msgid "Limit display to these columns by specifying"
+msgstr "Anzeige auf diese Spalten beschränken durch"
+
+#: src/emc/usr_intf/tooledit.tcl:933
+msgid "Format for ini file is"
+msgstr "Das Format für die INI-Datei ist"
+
+#: src/emc/usr_intf/tooledit.tcl:935
+msgid "For standalone use, invoke as"
+msgstr "Zum eingenständigen Gebrauch starten mit"
+
+#: src/emc/usr_intf/tooledit.tcl:936
+msgid "tool_table_filename"
+msgstr "WkzTabelle_Dateiname"
+
+#: src/emc/usr_intf/tooledit.tcl:956
+#, tcl-format
+msgid "Created by %s"
+msgstr "Erstellt von %s"
+
+#: src/emc/usr_intf/tooledit.tcl:957
+msgid "Saved geometry (updated on program termination)"
+msgstr "Gespeicherte Geometrie (aktualisiert bei Programmende)"
+
+#: src/emc/usr_intf/tooledit.tcl:980
+#, tcl-format
+msgid ""
+"%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
+msgstr ""
+"%s: Axis INI-Datei enthält mehrere Einträge für: [EMCIO]TOOL_TABLE"
+
+#: src/emc/usr_intf/tooledit.tcl:981
+#, tcl-format
+msgid "%s: Using: %s"
+msgstr "%s: Benutzt: %s"
+
+#: src/emc/usr_intf/tooledit.tcl:990
+#, tcl-format
+msgid ""
+"%s: Warning: Axis is running but the tool table file <%s> \n"
+"differs from the standalone startup file <%s>"
+msgstr ""
+"%s: Warnung: Axis läuft aber die Werkzeug-Datei <%s> \n"
+"unterscheidet sich vom der eigenständigen Datei <%s>"
+
+#: src/emc/usr_intf/tooledit.tcl:1004
+msgid "Must be On and Idle to reload tool table"
+msgstr "Muss eingeschaltet und im Leerlauf sein, um Werkzeugtabelle zu laden"
+
+#: src/emc/usr_intf/tooledit.tcl:1093
+msgid "Usage"
+msgstr "Gebrauch"
+
+#: src/emc/usr_intf/tooledit.tcl:1094 src/emc/usr_intf/tooledit.tcl:1095
+msgid "filename"
+msgstr "Dateiname"
+
+#: src/emc/usr_intf/tooledit.tcl:1096
+#, tcl-format
+msgid "Allowed column_ names are: %s"
+msgstr "Erlaubte Spaltennamen sind: %s"
+
+#: src/emc/usr_intf/tooledit.tcl:1106
+msgid "Missing filename"
+msgstr "Fehlender Dateiname"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:144
 msgid "Emergency stop"

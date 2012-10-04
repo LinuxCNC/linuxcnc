@@ -209,7 +209,7 @@ int build_request_packet_tcp(int slave, int function, int start_addr,
 
   /* Length to fix later with set_packet_length_tcp (4 and 5) */
 
-  packet[6] = 0xFF;
+  packet[6] = slave;
   packet[7] = function;
   packet[8] = start_addr >> 8;
   packet[9] = start_addr & 0x00ff;

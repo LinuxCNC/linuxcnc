@@ -588,17 +588,26 @@ static setCommandType lookupSetCommand(char *s)
 static int commandHello(connectionRecType *context)
 {
   char *pch;
-  
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   if (strcmp(pch, pwd) != 0) return -1;
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  strncpy(context->hostName, pch, sizeof(context->hostName));
+  if (context->hostName[sizeof(context->hostName)-1] != '\0') {
+    return -1;
+  }
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  context->linked = true;    
-  strcpy(context->version, pch);
+  strncpy(context->version, pch, sizeof(context->version));
+  if (context->version[sizeof(context->version)-1] != '\0') {
+    return -1;
+  }
+
+  context->linked = true;
   printf("Connected to %s\n", context->hostName);
   return 0;
 }
