@@ -1,3 +1,4 @@
+TODO     Add preempt-rt patchs
 
 TODO     sort out axis/joints issues: 
 	    * limits need to be imposed on joints (tricky with kins)
