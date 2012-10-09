@@ -83,6 +83,7 @@ RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
+LINUX_REALTIME=no
 
 RTAI3_MOD=""
 RTAI_MOD=""
@@ -116,17 +117,27 @@ AC_ARG_ENABLE(simulator,
 AC_SUBST(SIMULATOR)
 
 AC_ARG_WITH(realtime,
-    [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed],
+    [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed or 'linux' for linux-rt],
     [   case "$withval" in
 	"" | y | ye | yes | n | no)
 	    AC_MSG_ERROR([You must supply a path for --with-realtime.]) ;;
+	linux)
+		LINUX_REALTIME=yes
+		BUILD_SYS=linux
+		RTPREFIX=linux
+		MODEXT=.so
+                MODULE_DIR=${prefix}/lib/emc2/modules
+                AC_MSG_RESULT([configuring for Realtime-Linux])
+		;;
 	*)
-		case "$SIMULATOR" in
-		yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
-		*) RTDIR="$withval" ;;
-		esac
-	;;
+		RTDIR="$withval" ;;
         esac])
+if test x$RTDIR != x; then
+  case "$SIMULATOR" in
+    yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
+  esac
+fi
+
 
 ##############################################################################
 # Subsection 2.2                                                             #
@@ -143,13 +154,8 @@ AC_ARG_WITH(realtime,
 ##############################################################################
 
 #at this point if RTDIR is empty, we need to find RT ourselves
-if test $SIMULATOR = yes; then
-  RTS=sim
-  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-  if test "$PTH_CONFIG" = ""; then
-    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-  fi
-else
+if test $SIMULATOR != yes -a $LINUX_REALTIME != yes; then
+  # Using realtime hypervisor
   if test -z "$RTDIR"; then
     DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
   else
@@ -173,6 +179,20 @@ or use
 to build without a realtime system.])
   fi
   AC_MSG_RESULT([Using $RTS as the RT signature])
+fi
+
+if test $LINUX_REALTIME = yes; then
+  # Using realtime capable linux
+  RTS=linux
+fi
+
+if test $SIMULATOR = yes; then
+  # Using simulator
+  RTS=sim
+  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
+  if test "$PTH_CONFIG" = ""; then
+    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
+  fi
 fi
 
 
@@ -246,7 +266,7 @@ sim)
     RTFLAGS=-DSIMULATOR
 esac
 
-if test $RTS != sim; then
+if test $RTS != sim -a $RTS != linux; then
     AC_MSG_CHECKING([for location of kernel headers])
     AC_ARG_WITH(kernel-headers,
 	[  --with-kernel-headers=<directory>       Location for kernel headers],
@@ -274,6 +294,8 @@ elif test $RTPREFIX = rtai; then
     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
 elif test $RTPREFIX = rtl; then
     AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL])
+elif test $RTPREFIX = linux; then
+    AC_DEFINE(RTAPI_LINUX, [], [Realtime capable Linux])
 fi
 
 
@@ -366,7 +388,7 @@ AC_SUBST([HIDRAW_H_USABLE])
 # compiled against.                                                          #
 ##############################################################################
 
-if test $RTS '!=' sim; then
+if test $RTS '!=' sim -a $RTS != linux; then
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
 # Unfortunately, many distributions (redhat, mandrake) have #defines
@@ -1507,6 +1529,9 @@ echo "#   capabilities will be used. In this mode no control of hardware   #"
 echo "#   is possible. Drivers won't be built.                             #"
 else
 echo "#   This means that RT is properly installed                         #"
+fi
+if test $LINUX_REALTIME = yes; then
+echo "#   Using realtime capable Linux.                                    #"
 fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
