@@ -636,9 +636,8 @@ contrôlée par une pin de HAL. Surtout utile pour les essais.
 halcmd: loadrt sim-encoder num_chan=<number>
 ----
 
-_<number>_ est le nombre de codeurs à simuler. Si aucun n'est
-spécifié, un seul
-codeur sera installé. Le nombre maximum de codeurs est de 8 (comme
+_<number>_ est le nombre de canaux à simuler. Si rien n'est spécifié, un seul
+canal sera installé. Le nombre maximum de canaux est de 8 (comme
 défini par MAX_CHAN dans sim_encoder.c).
 
 === Le désinstaller

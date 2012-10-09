@@ -8,34 +8,21 @@
 # thank you very much to "mbaillif" for is help.
 # Francis Tisserant <tissf@free.fr> with the help of mbaillif thank>, 2011, 2012.
 # tissf <tissf@free.fr>, 2012.
+# Francis Tisserant <tissf@free.fr>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-<<<<<<< Updated upstream
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-12 00:17+0100\n"
-"PO-Revision-Date: 2012-03-10 20:55+0200\n"
-"Last-Translator: jepler <jepler@unpythonic.net>\n"
-"Language-Team: French <gnomefr@traduc.org>\n"
-=======
 "Report-Msgid-Bugs-To: tissf@free.fr\n"
-"POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-10-09 19:37+0200\n"
-"Last-Translator: tissf <tissf@free.fr>\n"
+"PO-Revision-Date: 2012-10-10 00:07+0200\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <tissf@free.fr>\n"
-"Language: fr\n"
->>>>>>> Stashed changes
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 0.5\n"
 
 #: hal/utils/meter.c:198
 #, c-format
 msgid "ERROR: '%s' is not a valid probe type\n"
-msgstr "ERROR: '%s' is not a valid probe type\n"
+msgstr "ERREUR: '%s' n'est pas un type de sonde valide\n"
 
 #: hal/utils/meter.c:206
 #, c-format
@@ -13502,66 +13489,20 @@ msgstr "R inférieur à U dans un cycle dans le plan VW"
 msgid "R less than V in cycle in UW plane"
 msgstr "R inférieur à V dans un cycle dans le plan UW"
 
-#~ msgid ""
-#~ "Out\n"
-#~ "In"
-#~ msgstr ""
-#~ "Sortie\n"
-#~ "Entrée"
-
-#~ msgid "fault %d during orient in progress"
-#~ msgstr "Défaut %d pendant une orientation"
-
-#~ msgid "P value must be 0,1,or 2 with M19"
-#~ msgstr "Valeur de P doit être 0, 1 ou 2 avec M19 "
-
-#~ msgid "R value must be within 0..360 with M19"
-#~ msgstr "La valeur de R doit être comprise entre 0 et 360 avec M19"
-
-<<<<<<< Updated upstream
-#~ msgid ""
-#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
-#~ "d)"
-#~ msgstr ""
-#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
-#~ "d)"
-
-#~ msgid "BUG: restore from level %d !?"
-#~ msgstr "BUG: restore from level %d !?"
-=======
 #: src/emc/rs274ngc/interp_convert.cc:3115
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr "Cannot restore context from invalid stack frame - missing M70/M73?"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:191
-#, c-format
+#, fuzzy
 msgid "cant open ini file '%s'"
 msgstr "Impossible d'ouvrir le fichier ini '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:208
-#, c-format
+#, fuzzy
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
 msgstr "Paramètre nommé #<%s> non défini dans le fichier ini '%s': erreur=0x%x"
->>>>>>> Stashed changes
 
-#~ msgid "BUG: restore to level %d !?"
-#~ msgstr "BUG: restore to level %d !?"
-
-<<<<<<< Updated upstream
-#~ msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
-#~ msgstr "Cannot restore context from invalid stack frame - missing M70/M73?"
-
-#, fuzzy
-#~ msgid "cant open ini file '%s'"
-#~ msgstr "Impossible d'ouvrir %s "
-
-#, fuzzy
-#~ msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-#~ msgstr "Paramètre nommé #<%s> non défini"
-
-#~ msgid "Cannot assign to read-only parameter #<%s>"
-#~ msgstr "Impossible d'assigner au paramètre #<%s> il est en lecture seule"
-=======
 #: src/emc/rs274ngc/interp_check.cc:314
 msgid "P value not an integer with M19 G2 or G3"
 msgstr "La valeur de P n'est pas un entier avec M19, G2 ou G3"
@@ -13610,7 +13551,38 @@ msgstr "BUG: lookup_named_param(%s): unhandled index=%fn"
 #: src/emc/rs274ngc/rs274ngc_return.hh:169
 msgid "Bug: call stack underrun"
 msgstr "Bogue: violation d'accès à la pile"
->>>>>>> Stashed changes
+
+#~ msgid ""
+#~ "Out\n"
+#~ "In"
+#~ msgstr ""
+#~ "Sortie\n"
+#~ "Entrée"
+
+#~ msgid "fault %d during orient in progress"
+#~ msgstr "Défaut %d pendant une orientation"
+
+#~ msgid "P value must be 0,1,or 2 with M19"
+#~ msgstr "Valeur de P doit être 0, 1 ou 2 avec M19 "
+
+#~ msgid "R value must be within 0..360 with M19"
+#~ msgstr "La valeur de R doit être comprise entre 0 et 360 avec M19"
+
+#~ msgid ""
+#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
+#~ "d)"
+#~ msgstr ""
+#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
+#~ "d)"
+
+#~ msgid "BUG: restore from level %d !?"
+#~ msgstr "BUG: restore from level %d !?"
+
+#~ msgid "BUG: restore to level %d !?"
+#~ msgstr "BUG: restore to level %d !?"
+
+#~ msgid "Cannot assign to read-only parameter #<%s>"
+#~ msgstr "Impossible d'assigner au paramètre #<%s> il est en lecture seule"
 
 #~ msgid "EMC Debug"
 #~ msgstr "Débogueur LinuxCNC"
