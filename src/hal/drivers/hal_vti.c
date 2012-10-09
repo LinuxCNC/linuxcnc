@@ -152,7 +152,6 @@
 	information, go to www.linuxcnc.org.
 */
 
-#include <asm/io.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include <linux/pci.h>
@@ -208,8 +207,7 @@ typedef struct {
 } vti_struct;
 
 static vti_struct *vti_driver;
-struct pci_dev *dev = NULL;
-struct pci_access *device;
+static struct rtapi_pcidev *dev = NULL;
 volatile struct encoder *encoder = NULL;
 volatile struct timer *timer = NULL;
 volatile struct dac *dac = NULL;
@@ -314,6 +312,7 @@ int rtapi_app_main(void)
 
     diocount = vti_parse_dio();
     if (diocount == -1) {
+	rtapi_pci_put_device(dev);
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: bad config info for port.\n");
 	return -1;
@@ -324,6 +323,7 @@ int rtapi_app_main(void)
 
     /* init counter chip */
     if (vti_counter_init(num_chan) == -1) {
+	rtapi_pci_put_device(dev);
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: bad config info counter.\n");
 	return -1;
@@ -341,6 +341,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.counter-capture funct export failed\n");
+	rtapi_pci_put_device(dev);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -352,6 +353,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.write-dacs funct export failed\n");
+	rtapi_pci_put_device(dev);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -362,6 +364,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.read-adcs funct export failed\n");
+	rtapi_pci_put_device(dev);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -372,6 +375,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.di-read funct export failed\n");
+	rtapi_pci_put_device(dev);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -384,6 +388,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.do-write funct export failed\n");
+	rtapi_pci_put_device(dev);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -441,6 +446,11 @@ static int vti_parse_dio(void)
 
 void rtapi_app_exit(void)
 {
+    rtapi_pci_iounmap(dev, (void __iomem *)encoder);
+    rtapi_pci_iounmap(dev, (void __iomem *)dac);
+    rtapi_pci_iounmap(dev, (void __iomem *)timer);
+    rtapi_pci_iounmap(dev, (void __iomem *)ip);
+    rtapi_pci_put_device(dev);
     hal_exit(comp_id);
 }
 
@@ -792,16 +802,10 @@ static int vti_init_card()
 {
     int retval=vti_autodetect();
     if (retval == 0) {
-	encoder = (volatile struct encoder *)
-	    ioremap(pci_resource_start(dev, 2), sizeof(encoder));
-	dac =
-	    (volatile struct dac *) ioremap(pci_resource_start(dev,
-		4), sizeof(dac));
-	timer =
-	    (volatile struct timer *) ioremap(pci_resource_start(dev,
-		3), sizeof(timer));
-	ip = (volatile struct ip *) ioremap(pci_resource_start(dev, 5),
-	    sizeof(ip));
+	encoder = (volatile struct encoder *) rtapi_pci_ioremap(dev, 2, sizeof(encoder));
+	dac = (volatile struct dac *) rtapi_pci_ioremap(dev, 4, sizeof(dac));
+	timer = (volatile struct timer *) rtapi_pci_ioremap(dev, 3, sizeof(timer));
+	ip = (volatile struct ip *) rtapi_pci_ioremap(dev, 5, sizeof(ip));
     } else {
 	return (retval);
     }
@@ -822,11 +826,11 @@ static int vti_init_card()
 /* scans possible addresses for vti cards */
 static int vti_autodetect()
 {
-    dev = pci_get_device(VENDOR, DEVICE, dev);
+    dev = rtapi_pci_get_device(VENDOR, DEVICE, NULL);
     if (dev) {
-       pci_dev_put(dev);
+       rtapi_pci_put_device(dev);
 	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "VTI: Card detected in slot: %2x\n", PCI_SLOT(dev->devfn));
+			"VTI: Card detected in slot");
 	return (0);
     } else {
 	rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Exiting with auto detect failed\n");

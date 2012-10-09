@@ -135,7 +135,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#include <asm/io.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -645,15 +644,15 @@ static void stg_debug_print( void *arg, long period )
 
   if( stg->model == 1 ) 
   {
-		intc_reg = inb(base + INTC);
+		intc_reg = rtapi_inb(base + INTC);
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS1 is %s\n", counter, ( intc_reg & IXS1 ) ? "TRUE" : "FALSE" );    
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS0 is %s\n", counter, ( intc_reg & IXS0 ) ? "TRUE" : "FALSE" );
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXLVL is active %s\n", counter, ( intc_reg & IXLVL ) ? "TRUE" : "FALSE" );
 
   } else if (stg->model == 2 ) 
   {
-    idlen_reg = inb( base + IDLEN );
-    seldi_reg = inb( base + SELDI );
+    idlen_reg = rtapi_inb( base + IDLEN );
+    seldi_reg = rtapi_inb( base + SELDI );
       
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IDLEN is 0x%02x\n", counter, idlen_reg );
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: SELDI is 0x%02x\n", counter, seldi_reg );
@@ -806,30 +805,30 @@ static void stg_di_read(void *arg, long period) //reads digital inputs from the 
     
     if ( (stg->dir_bits & 0x01) == 0) { // if port A is set as input, read the bits
 	if (stg->model == 1)
-	    val = inb(base + DIO_A);
+	    val = rtapi_inb(base + DIO_A);
 	else
-	    val = inb(base + PORT_A);
+	    val = rtapi_inb(base + PORT_A);
 	split_input(val, &(stg->port[0][0]), 8);
     }
     if ( (stg->dir_bits & 0x02) == 0) { // if port B is set as input, read the bits
 	if (stg->model == 1)
-    	    val = inb(base + DIO_B);
+    	    val = rtapi_inb(base + DIO_B);
 	else
-	    val = inb(base + PORT_B);
+	    val = rtapi_inb(base + PORT_B);
 	split_input(val, &(stg->port[1][0]), 8);
     }
     if ( (stg->dir_bits & 0x04) == 0) { // if port C is set as input, read the bits
 	if (stg->model == 1)
-	    val = inb(base + DIO_C);
+	    val = rtapi_inb(base + DIO_C);
 	else
-	    val = inb(base + PORT_C);
+	    val = rtapi_inb(base + PORT_C);
 	split_input(val, &(stg->port[2][0]), 8);
     }
     if ( (stg->dir_bits & 0x08) == 0) { // if port D is set as input, read the bits
 	if (stg->model == 1)
-    	    val = inb(base + DIO_D);
+    	    val = rtapi_inb(base + DIO_D);
 	else
-	    val = inb(base + PORT_D);
+	    val = rtapi_inb(base + PORT_D);
 	split_input(val, &(stg->port[3][0]), 8);
     }
 }
@@ -843,30 +842,30 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
     if ( (stg->dir_bits & 0x01) != 0) { // if port A is set as output, write the bits
 	val = build_output(&(stg->port[0][0]), 8);
 	if (stg->model == 1)
-	    outb(val, base + DIO_A);
+	    rtapi_outb(val, base + DIO_A);
 	else
-	    outb(val, base + PORT_A);
+	    rtapi_outb(val, base + PORT_A);
     }
     if ( (stg->dir_bits & 0x02) != 0) { // if port B is set as output, write the bits
 	val = build_output(&(stg->port[1][0]), 8);
 	if (stg->model == 1)
-	    outb(val, base + DIO_B);
+	    rtapi_outb(val, base + DIO_B);
 	else
-	    outb(val, base + PORT_B);
+	    rtapi_outb(val, base + PORT_B);
     }
     if ( (stg->dir_bits & 0x04) != 0) { // if port C is set as output, write the bits
 	val = build_output(&(stg->port[2][0]), 8);
 	if (stg->model == 1)
-	    outb(val, base + DIO_C);
+	    rtapi_outb(val, base + DIO_C);
 	else
-	    outb(val, base + PORT_C);
+	    rtapi_outb(val, base + PORT_C);
     }
     if ( (stg->dir_bits & 0x08) != 0) { // if port D is set as output, write the bits
 	val = build_output(&(stg->port[3][0]), 8);
 	if (stg->model == 1)
-	    outb(val, base + DIO_D);
+	    rtapi_outb(val, base + DIO_D);
 	else
-	    outb(val, base + PORT_D);
+	    rtapi_outb(val, base + PORT_D);
     }
 }
 
@@ -889,17 +888,17 @@ static int stg_counter_init(int ch)
 {
     /* Set Counter Command Register - Master Control, Master Reset (MRST), */
     /* and Reset address pointer (RADR). */
-    outb(0x23, CTRL(ch));
+    rtapi_outb(0x23, CTRL(ch));
 
     /* Set Counter Command Register - Input Control, OL Load (P3), */
     /* and Enable Inputs A and B (INA/B). */
-    outb(0x68, CTRL(ch));
+    rtapi_outb(0x68, CTRL(ch));
 
     /* Set Counter Command Register - Output Control */
-    outb(0x80, CTRL(ch));
+    rtapi_outb(0x80, CTRL(ch));
 
     /* Set Counter Command Register - Quadrature */
-    outb(0xC3, CTRL(ch));
+    rtapi_outb(0xC3, CTRL(ch));
     return 0;
 }
 
@@ -929,7 +928,7 @@ static int stg_adc_init(int ch)
     /* not much to setup for the ADC's */
     /* only select the mode of operation we will work with AutoZero */
     if (stg_driver->model == 1)
-	outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
+	rtapi_outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
 					// we only set bit 8 (AZ) to 1 to enable it
     return 0;
 }
@@ -953,13 +952,13 @@ static int stg_dio_init(void)
     
     if (stg_driver->model == 1) {
 	// write the computed control to MIO_1
-	outb(control, base+MIO_1);
+	rtapi_outb(control, base+MIO_1);
     } else { //model STG2
 	// write port A,B,C direction to ABC_DIR
-	outb(control, base+ABC_DIR);
+	rtapi_outb(control, base+ABC_DIR);
     }
     
-	tempINTC = inb(base + INTC);
+	tempINTC = rtapi_inb(base + INTC);
     
     if (stg_driver->model == 1) {
 	// next compute the directions for port D, located on the second 82C55
@@ -968,22 +967,22 @@ static int stg_dio_init(void)
 	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
 	    control = 0x92;
 
-	tempIMR = inb(base + IMR); // get the current interrupt mask
+	tempIMR = rtapi_inb(base + IMR); // get the current interrupt mask
         
-	outb(0xff, base + OCW1); //mask off all interrupts
+	rtapi_outb(0xff, base + OCW1); //mask off all interrupts
     
 	// write the computed control to MIO_2
-	outb(control, base+MIO_2);
+	rtapi_outb(control, base+MIO_2);
     
-	outb(tempINTC, base + INTC); //restore interrupt control reg.
+	rtapi_outb(tempINTC, base + INTC); //restore interrupt control reg.
     
-	outb(tempIMR, base+ OCW1); //restore int mask
+	rtapi_outb(tempIMR, base+ OCW1); //restore int mask
 
     } else { //model STG2
     
 	// save contents of CNTRL0, it will get reinitialized
-	tempCtrl0 = inb(base+CNTRL0);
-	tempCtrl1 = inb(base+CNTRL1);
+	tempCtrl0 = rtapi_inb(base+CNTRL0);
+	tempCtrl1 = rtapi_inb(base+CNTRL1);
     
 	// CNTRL0 output, BRDTST input, D output
 	control = 0x82;
@@ -991,12 +990,12 @@ static int stg_dio_init(void)
 	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
 	    control = 0x8b;
 	
-	outb(0xff, base + CNTRL1); // disable interrupts
+	rtapi_outb(0xff, base + CNTRL1); // disable interrupts
 	
-	outb(control, base + D_DIR); // set port D direction, also resets CNTRL0
+	rtapi_outb(control, base + D_DIR); // set port D direction, also resets CNTRL0
 	
-	outb(tempCtrl0, base + CNTRL0);
-	outb( (tempCtrl1 & 0x0f) | 0xf0, base + CNTRL1);
+	rtapi_outb(tempCtrl0, base + CNTRL0);
+	rtapi_outb( (tempCtrl1 & 0x0f) | 0xf0, base + CNTRL1);
     }
     
     return 0;
@@ -1010,7 +1009,7 @@ static int stg_dio_init(void)
 
 static void stg_counter_latch(int i) 
 {
-    outb(0x03, CTRL(i));
+    rtapi_outb(0x03, CTRL(i));
 }
 
 
@@ -1032,9 +1031,9 @@ static long stg_counter_read(int i)
 	} byte;
     } pos;
 
-    pos.byte.b0 = inb(DATA(i));
-    pos.byte.b1 = inb(DATA(i));
-    pos.byte.b2 = inb(DATA(i));
+    pos.byte.b0 = rtapi_inb(DATA(i));
+    pos.byte.b1 = rtapi_inb(DATA(i));
+    pos.byte.b2 = rtapi_inb(DATA(i));
     if (pos.byte.b2 < 0) {
 	pos.byte.b3 = -1;
     } else {
@@ -1069,13 +1068,13 @@ static void stg1_select_index_axis(void *arg, unsigned int channel)
 		
 		byAxis &= 0x6;						// ignore low bit, we check 2 axes at a time
 		byAxis <<= 3;						// shift into position for IXS1, IXS0
-		byIntc = inb(base + INTC);			// get a copy of INTC, we'll change
+		byIntc = rtapi_inb(base + INTC);			// get a copy of INTC, we'll change
 											// some bits in it, not all
 		byIntc &= ~(IXLVL | IXS1 | IXS0);	// zero bits for axis and polarity
 		byIntc |= byAxis;					// put axes address in INTC
 		if (byPol != 0)					// is index pulse active high?
 			byIntc |= IXLVL;
-		outb(byIntc, base + INTC);
+		rtapi_outb(byIntc, base + INTC);
 	}
 }
 
@@ -1085,7 +1084,7 @@ static void stg2_select_index_axes( void *arg, unsigned char mask )
      *  writing 0 to the corresponding bit disables the index pulse
      *  writing 1 enables it
      */
-    outb( mask, base + IDLEN );
+    rtapi_outb( mask, base + IDLEN );
     return;
 }
 
@@ -1097,8 +1096,8 @@ static void stg1_reset_index_latch(void *arg, unsigned int channel)
 
   if (stg->model == 1)
   {   // routine for Model 1
-   	inb(base + ODDRST);        //reset index pulse latch for ODD axis
-   	inb(base + BRDTST);        //reset index pulse latch for EVEN axis
+   	rtapi_inb(base + ODDRST);        //reset index pulse latch for ODD axis
+   	rtapi_inb(base + BRDTST);        //reset index pulse latch for EVEN axis
   }
   return;
 }
@@ -1113,15 +1112,15 @@ static void stg2_reset_all_index_latches( void *arg )
      *  writing 0 to IDL resets the index latch, 
      *  writing 1 has no effect
      */
-    outb( 0x00, base + IDL);
+    rtapi_outb( 0x00, base + IDL);
   }
   return;
 }
 
 unsigned char stg1_get_current_IRR(void)
 {
-    outb(base + OCW3, 0x0a);           // IRR on next read
-    return inb(base + IRR);
+    rtapi_outb(base + OCW3, 0x0a);           // IRR on next read
+    return rtapi_inb(base + IRR);
 }
 
 static unsigned short stg1_get_index_pulse_latch(void *arg, unsigned int chan)
@@ -1150,7 +1149,7 @@ static unsigned char stg2_get_all_index_pulse_latches( void *arg )
   unsigned char indexRegister = 0;
 
   if( stg-> model == 2 )
-    indexRegister = inb( base + IDL );
+    indexRegister = rtapi_inb( base + IDL );
   return indexRegister;
 }
 
@@ -1163,7 +1162,7 @@ static unsigned char stg2_get_all_index_pulse_latches( void *arg )
 static int stg_dac_write(int ch, short value)
 {        
     /* write the DAC */
-    outw(value, base + DAC_0 + (ch << 1));
+    rtapi_outw(value, base + DAC_0 + (ch << 1));
 
     return 0;
 }
@@ -1180,32 +1179,32 @@ int stg_adc_start(void *arg, unsigned short wAxis)
     if (stg->model == 1) {
 	/* do a dummy read from the ADC, just to set the input multiplexer to
 	 the right channel */
-	inw(base + ADC_0 + (wAxis << 1));
+	rtapi_inw(base + ADC_0 + (wAxis << 1));
 
 	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
 	 shouldn't really have a delay in a driver */
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
 
 	/* now start conversion */
-	outw(0, base + ADC_0 + (wAxis << 1));
+	rtapi_outw(0, base + ADC_0 + (wAxis << 1));
     } else { //model STG2
 
-	tempCtrl0 = inb(base+CNTRL0) & 0x07; // save IRQ
+	tempCtrl0 = rtapi_inb(base+CNTRL0) & 0x07; // save IRQ
 	tempCtrl0 |= (wAxis << 4) | 0x88; //autozero & cal cycle
-	outb(tempCtrl0, base + CNTRL0); // select channel
+	rtapi_outb(tempCtrl0, base + CNTRL0); // select channel
 
 	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
 	 shouldn't really have a delay in a driver */
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
+	rtapi_outb(0, 0x80);
 	
 	/* now start conversion */
-	outw(0, base + ADC_0);
+	rtapi_outw(0, base + ADC_0);
     }
     return 0;
 };
@@ -1232,15 +1231,15 @@ static short stg_adc_read(void *arg, int axis)
 	Register) of Interrupt Controller.  Don't wait forever though
 	bail out eventually. */
 
-	for (j = 0; !(inb(base + IRR) & 0x08) && (j < 1000); j++);
+	for (j = 0; !(rtapi_inb(base + IRR) & 0x08) && (j < 1000); j++);
     
-	j = inw(base + ADC_0 + (axis << 1));
+	j = rtapi_inw(base + ADC_0 + (axis << 1));
 
     } else { //model 2
 
-	for (j = 0; (inb(base + BRDTST) & 0x08) && (j < 1000); j++);
+	for (j = 0; (rtapi_inb(base + BRDTST) & 0x08) && (j < 1000); j++);
 	
-	j = inw(base + ADC_0 + (axis << 1));	
+	j = rtapi_inw(base + ADC_0 + (axis << 1));	
     
     }
 
@@ -1279,9 +1278,9 @@ static int stg_set_interrupt(short interrupt)
 	default: tempINTC |= 4;break;
     }        
     if (stg_driver->model == 1)
-	outb(tempINTC, base + INTC);
+	rtapi_outb(tempINTC, base + INTC);
     else
-	outb(tempINTC, base + CNTRL0);
+	rtapi_outb(tempINTC, base + CNTRL0);
 
     return 0;
 }
@@ -1319,32 +1318,32 @@ static int stg_init_card()
      * STG1
      */
 	// initialize INTC as output
-	outb(0x92, base +  MIO_2);
+	rtapi_outb(0x92, base +  MIO_2);
     
 	stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
     
-	outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
-	outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
-	outb(0xff, base + OCW1); // mask off all interrupts
+	rtapi_outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
+	rtapi_outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
+	rtapi_outb(0xff, base + OCW1); // mask off all interrupts
     rtapi_print_msg(RTAPI_MSG_INFO,
       "STG: Initialised stg%1d card at address %x\n", stg_driver->model, base);
   } else if (stg_driver->model == 2 ) { 
     /*
      * STG2
      */
-	outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
+	rtapi_outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
     
     /* stg2 manual, p.21
      *  writing 0 to the corresponding bit disables the index pulse
      *  writing 1 enables it
      */
-    outb( 0x00, base + IDLEN );
+    rtapi_outb( 0x00, base + IDLEN );
 
     /* stg2 manual, p.21
      *  writing 0 to the corresponding bit selects the index pulse to latch the counter
      *  writing 1 to the corresponding bit selects EXLATCH to latch the counter
      */
-    outb( 0x00, base + SELDI );
+    rtapi_outb( 0x00, base + SELDI );
 
   	stg_set_interrupt(5); // initialize it to something, we won't use it anyways
     rtapi_print_msg(RTAPI_MSG_INFO,
@@ -1378,10 +1377,10 @@ unsigned short stg_autodetect()
 	address = i * 0x20 + 0x200;
 
 	/* does jumper = i? */
-	//if ((inb(address + BRDTST) & 0x0f) == i) { // by Xuecheng, not necessary
+	//if ((rtapi_inb(address + BRDTST) & 0x0f) == i) { // by Xuecheng, not necessary
 	    k = 0;		// var for getting the serial
 	    for (j = 0; j < 8; j++) {
-		ofs = (inb(address + BRDTST) >> 4);
+		ofs = (rtapi_inb(address + BRDTST) >> 4);
 
 		if (ofs & 8) {	/* is SER set? */
 		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */

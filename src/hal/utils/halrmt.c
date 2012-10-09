@@ -1135,7 +1135,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     char *cp1;
     const char *nakStr = "SET LOADRT NAK";
 
-#if defined(RTAPI_SIM)
+#if defined(RTAPI_SIM) || defined(RTAPI_LINUX)
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";

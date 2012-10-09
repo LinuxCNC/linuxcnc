@@ -24,7 +24,7 @@ static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( 
 		"btsl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"Ir" (nr));
 }
 
@@ -72,7 +72,7 @@ static __inline__ void clear_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( 
 		"btrl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"Ir" (nr));
 }
 
@@ -90,7 +90,7 @@ static __inline__ int test_and_set_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"Ir" (nr) : "memory");
 	return oldbit;
 }
@@ -110,7 +110,7 @@ static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( 
 		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"Ir" (nr) : "memory");
 	return oldbit;
 }
@@ -138,7 +138,7 @@ static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 }
 
@@ -157,7 +157,7 @@ static __inline__ void clear_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( LOCK_PREFIX
 		"btrl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"dIr" (nr));
 }
 
@@ -198,9 +198,10 @@ static __inline__ int test_and_set_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 	return oldbit;
+
 }
 
 /**
@@ -217,7 +218,7 @@ static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 	return oldbit;
 }
