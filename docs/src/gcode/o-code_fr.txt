@@ -123,7 +123,7 @@ La boucle _while - endwhile_ effectue le test d'abord.
 ----
 (dessine la forme d'une dent de scie)
 G0 X1 Y0 (déplacement en position de départ)
-#1 = 1 (assigne la valeur 0 au paramètre #1)
+#1 = 1 (assigne la valeur 1 au paramètre #1)
 F25 (fixe la vitesse d'avance travail)
 o101 while [#1 LT 10]
   G1 X0

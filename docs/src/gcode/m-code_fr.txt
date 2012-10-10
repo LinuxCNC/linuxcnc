@@ -60,7 +60,7 @@ de s'arrêter, de toute façon, à la fin de chaque ligne.
 * _M2_ - Indique la fin du programme. Presser le départ cycle après cette
 commande relance le programme au début du fichier.
 
-* _M30_ - Changer le porte-pièce du chargeur et termine le programme. Presser
+* _M30_ - Décharge le porte-pièce du chargeur et termine le programme. Presser
 le départ cycle après cette commande relance le programme au début du fichier.
 
 Les deux commandes précédentes produisent les effets suivants:
@@ -77,7 +77,7 @@ Les deux commandes précédentes produisent les effets suivants:
  . L'arrosage est arrêté (comme avec _M9_).
 
 [NOTE]
-Les lignes de code après un _M2_ ou un _M30_ ne seront pas exécutées.
+Les lignes de code placées après un _M2_ ou un _M30_ ne sont pas exécutées.
 
 [[sec:M60]]
 == M60, fin de programme avec déchargement de pièce
