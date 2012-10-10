@@ -274,14 +274,14 @@ d'Urgence externe. footnote:[Une explication complète sur la manière de
 gérer les circuiteries d'Arrêt d'Urgence se trouve sur le 
 http://wiki.linuxcnc.org/[ wiki(en)] et dans le Manuel de l'intégrateur.
 
-Pour ajouter un simple bouton externe (ou plusieurs en série) vous
-devez compléter les lignes suivantes:
+Pour ajouter un simple bouton d'AU externe (ou plusieurs en série) vous
+devez remplacer la ligne suivante:
 
 ----
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 ----
 
-avec
+par
 
 ----
 net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
@@ -295,6 +295,5 @@ pour les A/U.],
 LinuxCNC restera dans l'état _Arrêt d'Urgence_ (ESTOP). Quand le bouton
 externe sera relâché, LinuxCNC passera immédiatement dans l'état 
 _Arrêt d'Urgence Relâché_ (ESTOP-RESET) vous pourrez ensuite mettre 
-la machine en marche en pressant 
-le bouton _Marche machine_ (((marche machine))) et
-vous êtes alors prêt à continuer votre travail avec LinuxCNC.
+la machine en marche en pressant le bouton _Marche machine_ (((marche machine)))
+et vous êtes alors prêt à continuer votre travail avec LinuxCNC.
