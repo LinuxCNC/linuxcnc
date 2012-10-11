@@ -76,7 +76,7 @@ prédéfinie
 |<<sec:G40,G40>>           | Révocation de la compensation de rayon d'outil 
 |<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil   
 |<<sec:G41-1-G42-1,G41.1/G42.1>> | Comp. dynamique de rayon d'outil à gauche/à droite
-|<<sec:G43,G43>> | Compensation de longueur d'outil d'après une table d'outils
+|<<sec:G43,G43>> | Compensation de longueur d'outil d'après la table d'outils
 |<<sec:G43-1,G43.1>> | Compensation dynamique de longueur d'outil
 |<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de 
 longueur d'outil 
@@ -136,9 +136,9 @@ M2 (fin de programme)
 * Voir les sections <<sec:G90-G91-Set,G90>> et <<sec:M2-M30,M2>> pour plus
 d'informations.
 
-Si la compensation de rayon d'outil est active, le mouvement sera 
+Si la compensation d'outil est active, le mouvement sera 
 différent de celui décrit ci-dessus, voir la section 
-<<sec:Compensation-rayon-d-outil, sur la compensation de rayon d'outil>>. 
+<<sec:Compensation-rayon-d-outil, sur la compensation de d'outil>>. 
 
 Si _G53_ est programmé sur la même ligne, le mouvement sera également 
 différent, voir la section <<sec:G53-Mouvement-Coordonnees-Absolues, sur les
@@ -184,9 +184,9 @@ M2 (Fin de programme)
 * Voir les sections <<sec:G90-G91-Set,G90>> et <<sec:M2-M30,M2>> pour plus
 d'informations.
 
-Si la compensation de rayon d'outil est active, le mouvement sera
+Si la compensation d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir la section 
-<<sec:Compensation-rayon-d-outil, sur la compensation de rayon d'outil>>. 
+<<sec:Compensation-rayon-d-outil, sur la compensation d'outil>>. 
 Si _G53_ est programmé sur la même ligne, le mouvement sera également
 différent, voir la section <<sec:G53-Mouvement-Coordonnees-Absolues, sur les
 mouvements en coordonnées absolues>>.
@@ -241,7 +241,7 @@ axe rotatif, l'axe rotatif tournera à vitesse constante de sorte que
 le mouvement de l'axe rotatif commence et se termine en même temps que
 les autres axes XYZ. De telles lignes sont rarement programmées.
 
-Si la compensation de rayon d'outil est active, le mouvement sera
+Si la compensation d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir les sections 
 <<sec:G40, sur G40>> et <<sec:G41-G42, sur G41-G42>>.
 
@@ -483,14 +483,14 @@ de cercle parallèle au plan XY sinon, ce sera un arc hélicoïdal.
 G4 P-
 ----
 
-* _P_ - durée de la temporisation en secondes
+* _P_ - durée de la temporisation en secondes (un flottant)
 
 Les axes s'immobiliseront pour une durée de P secondes. Cette commande n'affecte
 pas la broche, les arrosages ni les entrées/sorties.
 
 C'est une erreur si:
 
-* Le nombre P est négatif.
+* Le nombre P est négatif ou n'est pas spécifié.
 
 [[sec:G5-1-B-spline]]
 == G5.1 B-spline quadratique
@@ -624,18 +624,40 @@ G10 L2 P- <axes R->
 * _P_ - système de coordonnées (0 à 9)
 * _R_ - rotation autour de l'axe Z
 
-G10 L2 fixe l'origine d'un système de coordonnées.
+G10 L2 décale l'origine des axes dans le système de coordonnées spécifié par
+la valeur du mot d'axe. Le décalage s'effectue à partir de l'origine machine 
+établie par la prise d'origine machine (homing). Les valeurs de ce décalage vont
+remplacer toutes celles en effet sur le système de coordonnées spécifié. Les
+mots d'axe inutilisés resteront inchangés.
 
-Pour définir l'origine d'un système de coordonnées, programmer _G10 L2 P- R-
-axes_, où le nombre _P_ est compris entre _P1 et P9_ correspondant aux
-systèmes G54 à G59.3. Pour le système de coordonnées actuellement actif,
-programmer _P0_. Facultativement, programmer _R_ pour indiquer la rotation
-des axes _XY_ autour de l'axe _Z_. Tous les mots d'axe sont facultatifs. 
-L'origine du système de coordonnées spécifié par le nombre _P_ est 
-fixée aux valeurs spécifiées (en termes de coordonnées machine sans décalage). 
-Seules les coordonnées pour lesquelles un mot d'axe est spécifié sur la ligne 
-seront fixées. Être en mode relatif (_G91_) est sans effet sur _G10 L2_. 
-Le sens de rotation est anti-horaire, vu du dessus. 
+Programmer P0 à P9 pour spécifier le système de coordonnées à décaler.
+
+[[sec:Systeme-Coordonnees]]
+.Systèmes de coordonnées
+
+[width="50%", options="header", cols="^,^,^"]
+|=========================================
+|Valeur P| Système de coordonnées | G-code
+|       0|          Actif courant | n/a
+|       1|                      1 | G54
+|       2|                      2 | G55
+|       3|                      3 | G56
+|       4|                      4 | G57
+|       5|                      5 | G58
+|       6|                      6 | G59
+|       7|                      7 | G59.1
+|       8|                      8 | G59.2
+|       9|                      9 | G59.3
+|==========================================
+
+Facultativement, programmer _R_ pour indiquer la rotation des axes _XY_ autour
+de l'axe _Z_.
+La direction de rotation est anti-horaire comme vue depuis le côté positif de
+l'axe Z.
+ 
+Tous les mots d'axe sont facultatifs. 
+
+Être en mode relatif (_G91_) est sans effet sur _G10 L2_. 
 
 Concepts importants:
 
@@ -671,28 +693,11 @@ restent inchangées puisque seuls X et Y étaient spécifiés.
 G10 L2 P1 X0 Y0 Z0 (révoque les décalages en X, Y et Z du système N°1)
 ----
 
-Fixe les origines XYZ du système de coordonnées G54, à l'origine machine.
+L'exemple précédent fixe les origines XYZ du système de coordonnées G54, à 
+l'origine machine.
 
-[[sec:Systeme-Coordonnees]]
-.Systèmes de coordonnées
-
-[width="50%", options="header", cols="^,^,^"]
-|=========================================
-|Valeur P| Système de coordonnées | G-code
-|       0|          Actif courant | n/a
-|       1|                      1 | G54
-|       2|                      2 | G55
-|       3|                      3 | G56
-|       4|                      4 | G57
-|       5|                      5 | G58
-|       6|                      6 | G59
-|       7|                      7 | G59.1
-|       8|                      8 | G59.2
-|       9|                      9 | G59.3
-|==========================================
-
-Les systèmes de coordonnées utilisés par <<cha:Systemes-de-coordonnees, le 
-langage G-code sont décrits en détail ici>>.
+Les systèmes de coordonnées <<cha:Systemes-de-coordonnees, sont décrits en 
+détail ici>>.
 
 [[sec:G10-L10]]
 == G10 L10 modifie les offsets d'outil dans la table d'outils
@@ -815,45 +820,61 @@ ailleurs dans le programme.
 (((G28)))
 (((G28.1)))
 
+[WARNING]
+Pour une bonne répétabilité de la position et que la position soit correctement 
+enregistrée avec G28.1, faire la prise d'origine générale avant d'utiliser G28. 
+
+G28 utilise les valeurs enregistrées dans les paramètres 5161 à 5166 comme
+points finaux des mouvements des axes X Y Z A B C U V W. 
+Les valeurs des paramètres sont des coordonnées machine _absolues_, en unités
+machine natives, telles que fixées dans le fichier ini. Tous les axes définis 
+dans le fichier ini seront déplacés lors d'un G28.
+
 * G28 - effectue un mouvement en vitesse rapide de la position courante à la
-position absolue définie dans les <<sec:Parametres-Numerotes,paramètres>> 5161
-à 5166. Les valeurs stockées dans les paramètres font référence au
-système de coordonnées absolues qui est le système de coordonnées machine.
+position _absolue_ définie dans les paramètres 5161 à 5166. 
 
 * _G28 axes_ - effectue un déplacement en vitesse rapide depuis la position
-courante jusqu'à la position spécifiée par _axes_, suivi d'un mouvement
-rapide à la position absolue prédéfinie dans les <<sec:Parametres-Numerotes,
-paramètres>> 5161 à 5166.
-
-* G28.1 - enregistre la position absolue courante dans les paramètres 5161
+spécifiée par _axes_ y compris les décalages, puis effectuera un mouvement en
+vitesse rapide aux coordonnées _absolues_ stockées dans les paramètres 5161 
 à 5166.
 
+* G28.1 - enregistre la position _absolue_ courante dans les paramètres 5161
+à 5166.
+
+.Exemple avec G28
+----
+G28 Z2.5 (vitesse rapide vers Z2.5 puis emplacement spécifié dans les paramètres enregistrés de G28)
+----
+ 
 C'est une erreur si:
 
-* La compensation de rayon d'outil est active.
+* La compensation d'outil est active.
 
 [[sec:G30-G30-1-Aller-a-une-position-predefinie]]
 == G30, G30.1 Aller à une position prédéfinie
 (((G30)))
 (((G30.1)))
 
+[WARNING]
+Pour une bonne répétabilité de la position et que la position soit correctement 
+enregistrée avec G30.1, faire la prise d'origine générale avant d'utiliser G30.
+
 * _G30_ - effectue un mouvement en vitesse rapide de la position courante à la
-position absolue définie dans les <<sec:Parametres-Numerotes,paramètres>>
-5181 à 5186 
+position _absolue_ stockée dans les paramètres 5181 à 5186. 
 Les valeurs stockées dans les paramètres font référence au système de
 coordonnées absolues qui est le système de coordonnées machine.
 
 * _G30 axes_ - effectue un déplacement en vitesse rapide depuis la position
-courante jusqu'à la position spécifiée par _axes_, suivi d'un mouvement
-rapide à la position absolue prédéfinie dans les <<sec:Parametres-Numerotes,
-paramètres>> 5181-5186.
+courante jusqu'à la position spécifiée par _axes_, y compris les décalages,
+suivi d'un mouvement rapide à la position _absolue_ stockée dans les paramètres
+5181 à 5186.
 
 * _G30.1_ - enregistre la position absolue courante dans les paramètres 5181 à
 5186.
 
 [NOTE]
 Les paramètres de _G30_ peuvent être utilisés pour déplacer l'outil quand un M6
-est programmé et que la variable _[TOOL_CHANGE_AT_G30]=1_ dans la section
+est programmé avec la variable _[TOOL_CHANGE_AT_G30]=1_ dans la section
 _[EMCIO]_ du fichier ini.
 
 .Exemple avec G30
@@ -864,7 +885,7 @@ stockés)
 
 C'est une erreur si:
 
-* La compensation de rayon d'outil est active.
+* La compensation de d'outil est active.
 
 [[sec:G33-Broche-synchronisee]]
 == G33 Mouvement avec broche synchronisée
@@ -885,15 +906,29 @@ Cette commande peut être la base d'un programme pour faire un filetage de
 un mouvement de 15mm de long pendant que la broche fera 10 tours soit un
 pas de 1.5mm.
 
+Les mouvements avec broche synchronisée utilisent l'index de broche et les pins
+_spindle at speed_ pour le filetage multi-passes. Un mouvement avec _G33_ se
+termine au point final programmé.
+
 [NOTE]
-K suit la ligne d'avance décrite par _X- Y- Z-_, elle n'est pas forcément
-parallèle à l'axe Z, G33 permet donc le filetages coniques.
+K suit la ligne d'avance décrite par _X- Y- Z-_. K n'est pas parallèle à 
+l'axe Z si les points d'arrivée des axes X et Y sont utilisés, par exemple pour
+réaliser un filetage conique.
 
-Les mouvements avec broche synchronisée ont besoin d'un index de broche pour
-le filetage multi-passes. Un mouvement avec _G33_ se termine au point final
-programmé.
+.Informations techniques[[g33-tech-info]]
+Au début de chaque passe G33, LinuxCNC utilise la vitesse de broche et les 
+limites d'accélération de la machine pour calculer combien de temps prendra Z 
+pour accélérer après chaque impulsion d'index et détermine de combien de degrés
+la broche tournera pendant ce temps là. Il ajoute alors cet angle à la position 
+de l'index puis calcule la position de Z utilisant l'angle de broche correct.
+Cela signifie que Z aura atteints la position correcte juste en fin 
+d'accélération à la bonne vitesse, il peux immédiatement usiner le bon filetage.
 
-Les mots d'axes sont facultatifs, sauf au moins un qui doit être utilisé.
+.Connections de hAL
+Les pins _motion.spindle-at-speed_ et l'index _encoder.n.phase-Z_ pour la broche 
+doivent être connectés dans le fichier HAL pour que G33 soit opérationnel.
+Voir le Manuel de l'intégrateur pour plus d'informations sur les mouvements
+synchronisés avec la broche.
 
 .Exemple avec G33:
 ----
@@ -1056,15 +1091,15 @@ C'est une erreur si:
 
 * Le point programmé est le même que le point courant.
 * Aucun mot d'axe n'est utilisé.
-* La compensation de rayon d'outil est activée.
+* La compensation de d'outil est activée.
 * La vitesse travail est à zéro.
 * Le palpeur est déjà au contact de la cible.
 
 [[sec:G40]]
-== G40 Révocation de la compensation de rayon d'outil
+== G40 Révocation de la compensation de d'outil
 (((G40 Révocation de la compensation de rayon)))
 
-* _G40_ - révoque la compensation de rayon d'outil. Le mouvement suivant, de
+* _G40_ - révoque la compensation d'outil. Le mouvement suivant, de
 sortie de compensation, doit être une droite au moins aussi longue que le
 diamètre de l'outil. Ce n'est pas une erreur de désactiver la compensation
 quand elle est déjà inactive. 
@@ -1087,9 +1122,9 @@ C'est une erreur si:
 diamètre de l'outil.
 
 [[sec:G41-G42]]
-== G41, G42 Compensation de rayon d'outil
-(((G41 Compensation de rayon d'outil)))
-(((G42 Compensation de rayon d'outil)))
+== G41, G42 Compensation d'outil
+(((G41 Compensation d'outil)))
+(((G42 Compensation d'outil)))
 
 ----
 G41 <D-> (compensation à gauche du profil)
@@ -1098,44 +1133,44 @@ G42 <D-> (compensation à droite du profil)
 
 * _D_ - Numéro d'outil
 
-Le mot D est facultatif. En l'absence de mot D, le rayon de l'outil
+Le mot D est facultatif. En l'absence de mot D, le diamètre de l'outil
 courant est utilisé. Si le mot D est présent, il doit normalement correspondre
 au numéro de poche de l'outil monté dans la broche, bien que cela ne soit pas
 indispensable. Le nombre D à zéro est autorisé, un rayon de valeur zéro sera
 alors utilisé.
 
-Pour activer la compensation de rayon d'outil à gauche du profil,
-programmer _G41_. G41 applique la correction de rayon d'outil à gauche de la
+Pour activer la compensation d'outil à gauche du profil,
+programmer _G41_. G41 applique la compensation d'outil à gauche de la
 ligne programmée vu de l'extrémité positive de l'axe perpendiculaire au plan.
 
-Pour activer la compensation de rayon d'outil à droite du profil,
-programmer _G42_. G42 applique la correction de rayon d'outil à droite de la
+Pour activer la compensation d'outil à droite du profil,
+programmer _G42_. G42 applique la correction d'outil à droite de la
 ligne programmée vu de l'extrémité positive de l'axe perpendiculaire au plan.
 
 Le mouvement d'entrée doit être au moins aussi long que le rayon de l'outil. 
 Le mouvement d'entrée peut être effectué en vitesse rapide.
 
-La compensation de rayon d'outil ne peut être effectuée que si le plan XY ou
+La compensation d'outil ne peut être effectuée que si le plan XY ou
 le plan XZ est actif.
 
 Les commandes définies par l'utilisateur, M100 à M199, sont autorisées
 lorsque la compensation d'outil est activée.
 
-Le comportement de la machine, quand la compensation de rayon
-d'outil est activée, est décrit dans la section <<sec:Compensation-rayon-d-outil,
-sur la compensation de rayon d'outil>>.
+Le comportement de la machine, quand la compensation d'outil est activée, 
+est décrit dans la section <<sec:Compensation-rayon-d-outil,
+sur la compensation d'outil>>.
 
 C'est une erreur si:
 
 * La valeur de D n'est pas un entier, il est négatif, ou supérieur au
    nombre d'emplacements dans le carrousel. 
 * Le plan YZ est le plan de travail actif.
-* La compensation de rayon d'outil est activée alors qu'elle est déjà active.
+* La compensation d'outil est activée alors qu'elle est déjà active.
 
 [[sec:G41-1-G42-1]]
-== G41.1, G42.1 Compensation dynamique de rayon d'outil
-(((G41.1 Compensation dynamique de rayon)))
-(((G42.1 Compensation dynamique de rayon)))
+== G41.1, G42.1 Compensation dynamique d'outil
+(((G41.1 Compensation dynamique)))
+(((G42.1 Compensation dynamique)))
 
 ----
 G41.1 D- <L-> (à gauche du profil)
@@ -1146,10 +1181,10 @@ G42.1 D- <L-> (à droite du profil)
 * Le mot L spécifie l'orientation de l'outil, est à 0 par défaut si
 non spécifié.
 
-Pour activer la compensation dynamique de rayon d'outil à gauche du profil,
+Pour activer la compensation dynamique d'outil à gauche du profil,
 programmer _G41.1 D- L-_. 
 
-Pour activer la compensation dynamique de rayon d'outil à droite du profil,
+Pour activer la compensation dynamique d'outil à droite du profil,
 programmer _G42.1 D- L-_. 
 
 C'est une erreur si:
@@ -1157,7 +1192,7 @@ C'est une erreur si:
 * Le plan YZ est le plan de travail actif.
 * La valeur de L n'est pas comprise entre 0 et 9 inclus.
 * Le nombre L est utilisée alors que le plan XZ n'est pas le plan actif.
-* La compensation de rayon d'outil est activée alors qu'elle est déjà active.
+* La compensation d'outil est activée alors qu'elle est déjà active.
 
 Plus d'informations sur <<sec:Orientations-des-outils-de-tour, l'orientation des 
 outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et 
@@ -1186,7 +1221,7 @@ la table d'outils)
 C'est une erreur si:
 
 * La valeur de H n'est pas un entier, il est négatif, ou il est
-supérieur au le nombre d'entrées dans la table d'outils.
+supérieur au nombre d'entrées dans la table d'outils.
 
 [[sec:G43-1]]
 == G43.1 Compensation dynamique de longueur d'outil
@@ -1258,7 +1293,7 @@ G53 X2 (mouvement linéaire rapide à la coordonnée absolue X=2)
 C'est une erreur si:
 
 * _G53_ est utilisé sans que G0 ou G1 ne soit actif. 
-* _G53_ est utilisé alors que la compensation de rayon d'outil est active.
+* _G53_ est utilisé alors que la compensation d'outil est active.
 
 Étudier le <<cha:Systemes-de-coordonnees, chapitre sur les systèmes de 
 coordonnées>> et de leurs décalages, pour bien maîtriser ces concepts.
@@ -1284,25 +1319,24 @@ variables indiquées dans le tableau ci-dessous.
 
 .Paramètres des systèmes de coordonnées pièce[[sec:Coordonnees-Piece]]
 
-[width="80%", options="header", cols="<,10*^"]
-|=====================================================================
-|Choix  | CS | X    | Y    | Z    | A    | B    | C    | U    | V    | W
-|G54    | 1  | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229
-|G55    | 2  | 5241 | 5242 | 5243 | 5244 | 5245 | 5246 | 5247 | 5248 | 5249
-|G56    | 3  | 5261 | 5262 | 5263 | 5264 | 5265 | 5266 | 5267 | 5268 | 5269
-|G57    | 4  | 5281 | 5282 | 5283 | 5284 | 5285 | 5286 | 5287 | 5288 | 5289
-|G58    | 5  | 5301 | 5302 | 5303 | 5304 | 5305 | 5306 | 5307 | 5308 | 5309
-|G59    | 6  | 5321 | 5322 | 5323 | 5324 | 5325 | 5326 | 5327 | 5328 | 5329
-|G59.1  | 7  | 5341 | 5342 | 5343 | 5344 | 5345 | 5346 | 5347 | 5348 | 5349
-|G59.2  | 8  | 5361 | 5362 | 5363 | 5364 | 5365 | 5366 | 5367 | 5368 | 5369
-|G59.3  | 9  | 5381 | 5382 | 5383 | 5384 | 5385 | 5386 | 5387 | 5388 | 5389
-|=====================================================================
+[width="80%", options="header", cols="<,11*^"]
+|============================================================
+|Choix |CS|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R   
+|G54   |1 |5221|5222|5223|5224|5225|5226|5227|5228|5229|5230
+|G55   |2 |5241|5242|5243|5244|5245|5246|5247|5248|5249|5250
+|G56   |3 |5261|5262|5263|5264|5265|5266|5267|5268|5269|5270
+|G57   |4 |5281|5282|5283|5284|5285|5286|5287|5288|5289|5290
+|G58   |5 |5301|5302|5303|5304|5305|5306|5307|5308|5309|5310
+|G59   |6 |5321|5322|5323|5324|5325|5326|5327|5328|5329|5330
+|G59.1 |7 |5341|5342|5343|5344|5345|5346|5347|5348|5349|5350
+|G59.2 |8 |5361|5362|5363|5364|5365|5366|5367|5368|5369|5370
+|G59.3 |9 |5381|5382|5383|5384|5385|5386|5387|5388|5389|5390
+|============================================================
 
 
 C'est une erreur si:
 
-* Un de ces G-codes est utilisé alors que la compensation de rayon 
-d'outil est active.
+* Un de ces G-codes est utilisé alors que la compensation d'outil est active.
 
 Voir la section <<cha:Systemes-de-coordonnees, sur les systèmes de coordonnée>> 
 pour une vue complète.
@@ -1401,24 +1435,28 @@ image::images/g76-threads_fr.png[]
 * _Ligne pilote_ - La ligne pilote est une ligne imaginaire, parallèle à
     l'axe de la broche (Z), située en sécurité à l'extérieur du matériau à
     fileter. La ligne pilote va du point initial en Z jusqu'à la fin du
-    filetage donnée par la valeur de _Z-_ dans la commande.
+    filetage donnée par la valeur de _Z_ dans la commande.
 
 * _P-_ - Le pas du filet en distance de déplacement par tour.
 
 * _Z-_ - La position finale du filetage. A la fin du cycle, l'outil sera
-    à cette position Z.
+    à cette position _Z_.
+
+[NOTE]
+En mode diamètre G7, les valeurs _I_, _J_ et _K_ sont des mesures de diamètre.
+En mode rayon G8, les valeurs _I_, _J_ et _K_ sont des mesures de rayon.
 
 * _I-_ - La crête du filet est une distance entre la ligne pilote et la 
-    surface de la pièce. Une valeur négative de _I-_, 
+    surface de la pièce. Une valeur négative de _I_, 
     indique un filetage externe et une valeur positive, indique un
     filetage interne. C'est généralement à ce diamètre nominal que le
     matériau est cylindré avant de commencer le cycle _G76_.
 
 * _J-_ - Une valeur positive, spécifie la profondeur de la passe initiale.
-     La première passe sera à _J-_ au delà de la crête du filet _I_.
+     La première passe sera à _J_ au delà de la crête du filet _I_.
 
 * _K-_ - Une valeur positive, spécifie la profondeur finale du filet. 
-    La dernière passe du filetage sera à _K-_ au delà de la crête du filet.
+    La dernière passe du filetage sera à _K_ au delà de la crête du filet _I_.
 
 Paramètres facultatifs:
 
@@ -1445,7 +1483,7 @@ important de passes. (dégressivité = plongée par paliers)
     Pour ne pas faire de passe de finition, programmer _H0_.
 
 Les entrées et sorties de filetage peuvent être programmées coniques
-    avec les valeurs de _E-_ et _L-_.
+    avec les valeurs de _E_ et _L_.
 
 * _E-_ - Spécifie la longueur des parties coniques le long de l'axe Z. 
     L'angle du cône ira de la profondeur de la dernière passe à la
@@ -1481,10 +1519,21 @@ C'est une erreur si:
 
 * Le plan de travail actif n'est pas ZX.
 * D'autres mots d'axes que X ou Y, sont spécifiés.
-* La dégressivité _R-_ est inférieure à 1.0.
+* La dégressivité _R_ est inférieure à 1.0.
 * Tous les mots requis ne sont pas spécifiés.
-* _P-_, _J-_, _K-_ ou _H-_ est négatif.
+* _P_, _J_, _K_ ou _H_ est négatif.
 * _E-_ est supérieur à la moitié de la longueur de la ligne pilote.
+
+.Connections de HAL
+Les pins _motion.spindle-at-speed_ et l'index _encoder.n.phase-Z_ doivent être
+connectées dans le fichier HAL pour que G76 soit opérationnel.
+Voir le Manuel de l'intégrateur pour plus d'informations sur les mouvements
+synchronisés avec la broche.
+
+.Informations techniques
+Le cycle préprogrammé G76 est basé sur le mouvement avec broche synchronisée G33,
+voir les <<g33-tech-info, informations technique relatives à G33>>.
+
 
 Un programme de filetage, _g76.ngc_ montre l'utilisation d'un cycle de
 filetage G76, il peut être visualisé et exécuté sur n'importe quelle machine 
@@ -1589,7 +1638,7 @@ Il y a une erreur si:
 * Un nombre L est utilisé mais n'est pas un entier positif. 
 * Un mouvement d'axe rotatif est utilisé durant un cycle de perçage. 
 * Une vitesse inverse du temps est activée durant un cycle de perçage. 
-* La correction de rayon d'outil est activée durant un cycle de perçage.
+* La compensation d'outil est activée durant un cycle de perçage.
 
 Quand le plan XY est actif, la valeur de Z est _sticky_, et c'est une
 erreur si:

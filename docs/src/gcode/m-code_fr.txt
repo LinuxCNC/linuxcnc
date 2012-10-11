@@ -279,6 +279,10 @@ G-code de mouvement (G0, G1, etc) juste après les M62/63.
 _M64_ et _M65_ produisent leur effet immédiatement après être reçus par le
 contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 
+[NOTE]
+M62 à M66 ne seront opérationnels que si les pins _motion.digital-out-nn 
+appropriées sont connectées aux sorties dans le fichier HAL.
+
 [[sec:M66-Controle-Bit-Entree]]
 == M66 Contrôle d'un bit d'entrée
 (((M66 Contrôle d'un bit d'entrée)))
@@ -317,6 +321,10 @@ utilisant les paramètres _num_dio_ ou _num_aio_ lors du chargement du
 contrôleur de mouvement. Voir le Manuel de l'intégrateur pour
 plus d'informations, section des configurations, paragraphes "LinuxCNC et HAL".
 
+[NOTE]
+M66 ne sera opérationnel que si les pins motion.digital-in-nn ou
+motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier HAL.
+
 [[sec:M67-Controle-Sortie-Analogique-Synchro]]
 == M67 Contrôle de sortie analogique
 (((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
@@ -339,6 +347,9 @@ _num_aio_ au chargement du contrôleur de mouvement. Voir les chapitres
 "LinuxCNC et HAL" dans la section configuration du Manuel de l'intégrateur
 pour plus d'informations sur le contrôleur de mouvement.
 
+[NOTE]
+M67 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont connectées aux sorties dans le fichier HAL.
+
 [[sec:M68-Controle-Sortie-Analogique-Directe]]
 == M68 Contrôle de sortie analogique directe
 (((M68 Contrôle de Sortie analogique directe)))
@@ -350,7 +361,7 @@ M68 E- Q-
 * _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
 * _Q-_ - Spécifie la valeur à appliquer sur la sortie. 
 
-M68 produis son effet immédiatement après être reçu par le
+M68 produit son effet immédiatement après être reçu par le
 contrôleur de mouvement. Il n'est pas synchronisé avec un mouvement.
 M68 fonctionne comme M64 à M65.
 
@@ -358,6 +369,9 @@ Le nombre d'entrées/sorties peut être augmenté en utilisant
 le paramètre _num_aio_ au chargement du contrôleur de mouvement. Voir le
 chapitre "LinuxCNC et HAL" dans le Manuel de l'intégrateur pour plus
 d'informations sur le contrôleur de mouvement.
+
+[NOTE]
+M68 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont connectées aux sorties dans le fichier HAL.
 
 [[sec:M100-a-M199]]
 == M100 à M199 Commandes définies par l'utilisateur
