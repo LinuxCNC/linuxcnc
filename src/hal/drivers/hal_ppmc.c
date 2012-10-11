@@ -430,6 +430,7 @@ int rtapi_app_main(void)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
+        rtapi_set_msg_level(RTAPI_MSG_INFO);
     //    rtapi_set_msg_level(RTAPI_MSG_ERR);
 
     /* validate port addresses */
@@ -544,7 +545,7 @@ int rtapi_app_main(void)
 	
 	    /* check slot */
 	    idcode = SelRead(slot->slot_base+SLOT_ID_OFFSET, slot->port_addr);
-	    if ((idcode == 0) || (idcode == 0xFF)|| (idcode&0x0f == 0x0f)) {
+	    if ((idcode == 0)||(idcode == 0xFF)||((idcode&0x0f) == 0x0f)) {
 	    // version of 0x0f will not be used so we can detect SLOT_ID_OFFSET
 	    //   being left on the bus by a non-implemented device slot
 		slot->id = 0;
