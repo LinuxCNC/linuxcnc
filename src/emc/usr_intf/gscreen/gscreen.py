@@ -1743,15 +1743,23 @@ class Gscreen:
         self.emc.override_limits(1)
 
     def reload_tooltable(self):
-        print "tooltable",self.data.tooltable
-        editor = self.data.tooleditor
-        if editor == None:
-            self.notify("INFO:","No Tool editor was specified in the INI file",INFO_ICON,3)
+        # show the tool table page or return to the main page
+        if not self.widgets.notebook_main.get_current_page() == 3:
+            self.widgets.notebook_main.set_current_page(3)
+        else:
+            self.widgets.notebook_main.set_current_page(0)
             return
+        # set the tooltable path from the INI file and reload it
         path = os.path.join(CONFIGPATH,self.data.tooltable)
-        res = os.spawnvp(os.P_WAIT, editor, [editor, path])
-        if res:
-            self.notify("Error Message","Tool editor error - is the %s editor available?"% editor,ALERT_ICON,3)
+        print "tooltable:",path
+        self.widgets.tooledit1.set_filename(path)
+        # see if user requested an external editor and spawn it 
+        editor = self.data.tooleditor
+        if not editor == None:
+            res = os.spawnvp(os.P_WAIT, editor, [editor, path])
+            if res:
+                self.notify("Error Message","Tool editor error - is the %s editor available?"% editor,ALERT_ICON,3)
+        # tell linuxcnc that the tooltable may have changed
         self.emc.reload_tooltable(1)
 
     def dro_toggle(self):
