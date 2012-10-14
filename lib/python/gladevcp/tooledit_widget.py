@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os,pango
+import sys,os,pango,linuxcnc
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
@@ -57,7 +57,7 @@ class ToolEdit(gtk.VBox):
             #print name,col
             renderer = self.wTree.get_object(name)
             renderer.connect( 'edited', self.col_editted, col+1 )
-        temp =[ ("cell_tool#1",1),("cell_pos1",2),("cell_x1",3),("cell_z1",5),("cell_front1",13),("cell_back1",14), \
+        temp =[ ("cell_tool#1",1),("cell_pos1",2),("cell_x1",3),("cell_z1",5),("cell_d1",12),("cell_front1",13),("cell_back1",14), \
                 ("cell_orient1",15), ("cell_comments1",16)]
         for name,col in temp:
             renderer = self.wTree.get_object(name)
@@ -150,7 +150,10 @@ class ToolEdit(gtk.VBox):
                     line = line + "%s%d "%(KEYWORDS[num], i)
             print >>file,line
             print line
-
+        try:
+            linuxcnc.command().load_tool_table()
+        except:
+            print "Reloading tooltable into linuxcnc failed"
 
     def style(self,widget):
         self.display_type = (self.display_type * -1) +1
