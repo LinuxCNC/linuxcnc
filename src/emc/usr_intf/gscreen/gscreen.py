@@ -611,8 +611,11 @@ class Gscreen:
             conversion=[25.4]*3+[1]*3+[25.4]*3
         self.status.set_machine_units(self.machine_units_mm,conversion)
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
-
+        if self.data.lathe_mode:
+            self.widgets.tooledit1.change_display(0)
         self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
+        path = os.path.join(CONFIGPATH,self.data.tooltable)
+        self.widgets.tooledit1.set_filename(path)
         self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
         if self.prefs.getpref('toolsetting_fixture', False):
             self.g10l11 = 1
