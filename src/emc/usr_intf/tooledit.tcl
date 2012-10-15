@@ -44,7 +44,7 @@ namespace eval ::tooledit {
 # Internationalization
 
 # use the tcl-package named Emc to set up I18n support
-if [catch {package require Emc} msg] {
+if [catch {package require Linuxcnc} msg] {
   # if user is trying to use as standalone in an unconfigured (non-Emc)
   # environment, just continue without internationalization
   puts stderr "Internationalization not available: <$msg>"
@@ -465,7 +465,7 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   set bf [frame $::te(top).[qid]]
   pack $bf -side top -expand 0 -fill both -anchor nw
 
-  pack [button $bf.[qid] -text Quit \
+  pack [button $bf.[qid] -text "[_ "Quit"]" \
        -command ::tooledit::bye] \
        -side right -fill x -expand 1
 

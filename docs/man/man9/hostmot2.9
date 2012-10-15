@@ -346,6 +346,17 @@ rotation speed and machine velocity. A value of 1 will typically give motor
 speed in rps, a value of 0.01666667 will give (approximate) RPM. 
 
 .TP
+(u32, read/write) index-divisor (default 1)
+The resolver component emulates an index at a fixed point in the sin/cos cycle.
+Some resolvers have multiple cycles per rev (often related to the number of
+pole-pairs on the attached motor). LinuxCNC requires an index once per
+revolution for proper threading etc.
+This parameter should be set to the number of cycles per rev of the resolver.
+CAUTION: Which pseudo-index is used will not necessarily be consistent between
+LinuxCNC runs. Do not expect to re-start a thread after restarting LinuxCNC.
+It is not appropriate to use this parameter for index-homing of axis drives.
+
+.TP
 (float, read/write) excitation-khz
 This pin sets the excitation frequency for
 the resolver. This pin is module-level rather than instance-level as all

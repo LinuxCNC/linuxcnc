@@ -345,6 +345,7 @@ typedef struct {
         struct {
             hal_float_t scale;
             hal_float_t vel_scale;
+            hal_u32_t index_div;
         } param;
 
     } hal;
@@ -352,6 +353,7 @@ typedef struct {
     long long accum;
     long long offset;
     u32 old_reg;
+    u32 index_cnts;
 
 } hm2_resolver_instance_t;
 

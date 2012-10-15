@@ -2,6 +2,11 @@
 
 [[cha:important-user-concepts]] (((User Concepts)))
 
+////
+TRANSLATORS copy and paste the English version of this file into 
+to this file before translating. This file is NOT up to date.
+////
+
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 

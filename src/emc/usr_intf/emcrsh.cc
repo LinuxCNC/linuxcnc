@@ -29,6 +29,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <getopt.h>
 
@@ -455,7 +456,7 @@ typedef struct {
   int commProt;
   char inBuf[256];
   char outBuf[4096];
-  char progName[256];} connectionRecType;
+  char progName[PATH_MAX];} connectionRecType;
 
 int port = 5007;
 int server_sockfd, client_sockfd;
@@ -588,17 +589,26 @@ static setCommandType lookupSetCommand(char *s)
 static int commandHello(connectionRecType *context)
 {
   char *pch;
-  
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   if (strcmp(pch, pwd) != 0) return -1;
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  strncpy(context->hostName, pch, sizeof(context->hostName));
+  if (context->hostName[sizeof(context->hostName)-1] != '\0') {
+    return -1;
+  }
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  context->linked = true;    
-  strcpy(context->version, pch);
+  strncpy(context->version, pch, sizeof(context->version));
+  if (context->version[sizeof(context->version)-1] != '\0') {
+    return -1;
+  }
+
+  context->linked = true;
   printf("Connected to %s\n", context->hostName);
   return 0;
 }
@@ -1055,15 +1065,17 @@ static cmdResponseType setTaskPlanInit(char *s, connectionRecType *context)
 static cmdResponseType setOpen(char *s, connectionRecType *context)
 {
   char *pch;
-  char fileStr[80];
-  
+
   pch = strtok(NULL, "\n\r\0");
   if (pch == NULL) return rtStandardError;
-  strcpy(context->progName, pch);
-//  strcpy(fileStr, "../../nc_files/");
-  strcpy(fileStr, defaultPath);
-  strcat(fileStr, pch);
-  if (sendProgramOpen(fileStr) != 0) return rtStandardError;
+
+  strncpy(context->progName, pch, sizeof(context->progName));
+  if (context->progName[sizeof(context->progName) - 1] != '\0') {
+    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", strlen(pch), sizeof(context->progName));
+    return rtStandardError;
+  }
+
+  if (sendProgramOpen(context->progName) != 0) return rtStandardError;
   return rtNoError;
 }
 

@@ -430,6 +430,7 @@ int rtapi_app_main(void)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
+        rtapi_set_msg_level(RTAPI_MSG_INFO);
     //    rtapi_set_msg_level(RTAPI_MSG_ERR);
 
     /* validate port addresses */
@@ -544,10 +545,13 @@ int rtapi_app_main(void)
 	
 	    /* check slot */
 	    idcode = SelRead(slot->slot_base+SLOT_ID_OFFSET, slot->port_addr);
-	    if ( ( idcode == 0 ) || ( idcode == 0xFF ) ) {
+	    if ((idcode == 0)||(idcode == 0xFF)||((idcode&0x0f) == 0x0f)) {
+	    // version of 0x0f will not be used so we can detect SLOT_ID_OFFSET
+	    //   being left on the bus by a non-implemented device slot
 		slot->id = 0;
 		slot->ver = 0;
-		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected\n");
+		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected at addr %x reads %x\n",
+				slotnum,idcode);
 		ClrTimeout(slot->port_addr);
 		/* skip to next slot */
 		continue;
@@ -649,7 +653,7 @@ int rtapi_app_main(void)
 		slotnum++;
 		break;
 	    default:
-	      rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: Check Parallel Port connection.\n");
+	      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: Check Parallel Port connection.\n");
 		/* mark slot as empty */
 		bus->slot_valid[slotnum] = 0;
 		/* mark bus failed */

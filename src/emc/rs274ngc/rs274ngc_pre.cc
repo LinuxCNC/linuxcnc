@@ -165,7 +165,6 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     struct tm *tm;
     va_list ap;
 
-    va_start(ap, fmt);
     if (flags & LOG_TIME) {
 	gettimeofday(&tv, NULL);
 	tm = localtime(&tv.tv_sec);
@@ -178,8 +177,11 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     if (flags & LOG_PID) {
 	fprintf(log_file, "%4d ",getpid());
     }
-    if (flags & LOG_FILENAME) {fprintf(log_file, "%s:%d: ",file,line);
+    if (flags & LOG_FILENAME) {
+        fprintf(log_file, "%s:%d: ",file,line);
     }
+
+    va_start(ap, fmt);
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
     va_end(ap);
@@ -1702,9 +1704,10 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           pars[k] = value;
           if (k == required)
             required = _required_parameters[index++];
@@ -1765,7 +1768,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
 {
   FILE *infile;
   FILE *outfile;
-  char line[256];
+  char line[PATH_MAX];
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1775,8 +1778,9 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   if(access(filename, F_OK)==0) 
   {
     // rename as .bak
-    strcpy(line, filename);
-    strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    int r;
+    r = snprintf(line, sizeof(line), "%s%s", filename, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    CHKS((r >= (int)sizeof(line)), NCE_CANNOT_CREATE_BACKUP_FILE);
     CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
 
     // open backup for reading
@@ -1804,9 +1808,11 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
+          fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           sprintf(line, "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
