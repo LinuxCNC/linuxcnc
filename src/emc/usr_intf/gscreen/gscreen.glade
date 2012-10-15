@@ -592,15 +592,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="max">2000</property>
-                                    <property name="value">-7</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
+                                    <property name="value">-7</property>
                                     <property name="z1_color">#ffffffff0000</property>
                                     <property name="target_color">#e21911831183</property>
-                                    <property name="show_limits">False</property>
+                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z2_color">#ffff00000000</property>
                                     <property name="target_value">500</property>
+                                    <property name="max">2000</property>
+                                    <property name="show_limits">False</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -693,8 +693,8 @@
                                     <child>
                                       <object class="HAL_LED" id="spindle-at-speed">
                                         <property name="visible">True</property>
-                                        <property name="on_color">Green</property>
                                         <property name="led_shape">1</property>
+                                        <property name="on_color">Green</property>
                                       </object>
                                       <packing>
                                         <property name="resize">False</property>
@@ -1038,8 +1038,8 @@ Speed</property>
                                             <child>
                                               <object class="HAL_LED" id="led_mist">
                                                 <property name="visible">True</property>
-                                                <property name="on_color">yellow</property>
                                                 <property name="led_shape">1</property>
+                                                <property name="on_color">yellow</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1050,8 +1050,8 @@ Speed</property>
                                             <child>
                                               <object class="HAL_LED" id="led_flood">
                                                 <property name="visible">True</property>
-                                                <property name="on_color">green</property>
                                                 <property name="led_shape">1</property>
+                                                <property name="on_color">green</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1733,8 +1733,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
-                                <property name="off_color">green</property>
                                 <property name="led_shape">1</property>
+                                <property name="off_color">green</property>
                               </object>
                               <packing>
                                 <property name="position">0</property>
@@ -1743,9 +1743,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="off_color">red</property>
-                                <property name="on_color">green</property>
                                 <property name="led_shape">1</property>
+                                <property name="on_color">green</property>
+                                <property name="off_color">red</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -1773,6 +1773,18 @@ Halshow</property>
                         <property name="visible">True</property>
                         <property name="homogeneous">True</property>
                         <child>
+                          <object class="GtkToggleToolButton" id="button_v0_4">
+                            <property name="visible">True</property>
+                            <property name="related_action">hal_toggleaction_stop</property>
+                            <property name="label" translatable="yes">_Stop</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-stop</property>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkButton" id="button_v0_0">
                             <property name="label">Zero Origin</property>
                             <property name="visible">True</property>
@@ -1780,7 +1792,7 @@ Halshow</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -1791,7 +1803,7 @@ Halshow</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -1803,7 +1815,7 @@ Halshow</property>
                             <property name="image_position">bottom</property>
                           </object>
                           <packing>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -1812,16 +1824,6 @@ Halshow</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="image">image9</property>
-                          </object>
-                          <packing>
-                            <property name="position">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="button_v0_4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
                           </object>
                           <packing>
                             <property name="position">4</property>
@@ -1864,6 +1866,18 @@ Halshow</property>
                       <object class="GtkVBox" id="vmode1">
                         <property name="homogeneous">True</property>
                         <child>
+                          <object class="GtkToggleToolButton" id="button_v1_2">
+                            <property name="visible">True</property>
+                            <property name="related_action">hal_toggleaction_stop</property>
+                            <property name="label" translatable="yes">Stop</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-cancel</property>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkToggleToolButton" id="button_v1_0">
                             <property name="visible">True</property>
                             <property name="related_action">hal_toggleaction_run</property>
@@ -1873,7 +1887,7 @@ Halshow</property>
                             <accelerator key="r" signal="clicked"/>
                           </object>
                           <packing>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -1883,18 +1897,6 @@ Halshow</property>
                             <property name="label" translatable="yes">Pause</property>
                             <property name="use_underline">True</property>
                             <property name="stock_id">gtk-media-pause</property>
-                          </object>
-                          <packing>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkToggleToolButton" id="button_v1_2">
-                            <property name="visible">True</property>
-                            <property name="related_action">hal_toggleaction_stop</property>
-                            <property name="label" translatable="yes">Stop</property>
-                            <property name="use_underline">True</property>
-                            <property name="stock_id">gtk-cancel</property>
                           </object>
                           <packing>
                             <property name="position">2</property>
@@ -2824,6 +2826,7 @@ Vertical</property>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
     <property name="stock">gtk-save</property>
+    <property name="icon-size">3</property>
   </object>
   <object class="GtkDialog" id="dialog_entry">
     <property name="width_request">500</property>
