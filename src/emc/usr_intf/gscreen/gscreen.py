@@ -1068,13 +1068,13 @@ class Gscreen:
         if rate > 1.0: rate = 1.0
         self.emc.max_velocity(rate * self.data._maxvelocity)
 
-    def set_jog_rate(self,beginning_rate,absolute=False):
+    def set_jog_rate(self,begining_rate,absolute=False):
         # in units per minute
-        print "jog rate =",beginning_rate,self.data.jog_rate
+        print "jog rate =",begining_rate,self.data.jog_rate
         if absolute:
             rate = begining_rate
         else:
-            rate = self.data.jog_rate + beginning_rate
+            rate = self.data.jog_rate + begining_rate
         if rate < 0: rate = 0
         if rate > self.data.jog_rate_max: rate = self.data.jog_rate_max
         rate = round(rate,1)
@@ -1087,7 +1087,6 @@ class Gscreen:
         if next < 0: next = end
         if next > end: next = 0
         self.data.current_jogincr_index = next
-        print "index jog increments"
         jogincr = self.jog_increments[next]
         self.widgets.jog_increment.set_text(jogincr)
         if jogincr == ("Continuous"):
@@ -1095,7 +1094,7 @@ class Gscreen:
         else:
             distance = self.parse_increment(jogincr)
         self.halcomp["jog-increment.out"] = distance
-        print jogincr,distance
+        print "index jog increments",jogincr,distance
 
     def adjustment_buttons(self,widget,action):
         # is over ride adjustment selection active?
@@ -1147,7 +1146,7 @@ class Gscreen:
             elif self.widgets.button_h4_4.get_active() and action:
                 print "jog increments adjustment"
                 if widget == self.widgets.button_v0_1:
-                    change = self.get_qualified_input()
+                    return
                 self.set_jog_increments(change,absolute)
 
         # graphics adjustment
@@ -1244,11 +1243,15 @@ class Gscreen:
         if self.widgets.button_homing.get_active():
             for i in range(0,3):
                 self.widgets["mode%d"% i].hide()
+            for i in range(0,4):
+                self.widgets["button_v0_%d"% i].set_sensitive(False)
             self.widgets.mode3.show()
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
             self.widgets.button_graphics.set_sensitive(False)
         else:
+            for i in range(0,4):
+                self.widgets["button_v0_%d"% i].set_sensitive(True)
             self.widgets.mode3.hide()
             self.mode_changed(self.data.mode_order[0])
             self.widgets.button_mode.set_sensitive(True)
@@ -1287,6 +1290,8 @@ class Gscreen:
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_graphics.set_sensitive(False)
             self.widgets.button_homing.set_sensitive(False)
+            self.widgets.button_v0_0.set_label("Zero")
+            self.widgets.button_v0_1.set_label("Set At")
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
@@ -1294,6 +1299,8 @@ class Gscreen:
             self.widgets.button_mode.set_sensitive(True)
             self.widgets.button_graphics.set_sensitive(True)
             self.widgets.button_homing.set_sensitive(True)
+            self.widgets.button_v0_0.set_label("Zero Origin")
+            self.widgets.button_v0_1.set_label("Offset Origin")
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acklowedge.
