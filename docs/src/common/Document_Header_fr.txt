@@ -5,7 +5,7 @@ dans sa rédaction, son édition ou à la préparation des graphiques,
 merci de contacter un membre de l'équipe de documentation en envoyant
 un email à emc-users@lists.sourceforge.net.
 
-Copyright (c) 2000-9 LinuxCNC.org
+Copyright (c) 2000-2012 LinuxCNC.org
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
