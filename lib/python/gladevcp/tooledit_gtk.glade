@@ -60,6 +60,8 @@
                 <property name="enable_grid_lines">both</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                    <property name="title">Select</property>
+                    <signal name="clicked" handler="&lt;Type her&gt;"/>
                     <child>
                       <object class="GtkCellRendererToggle" id="cell_toggle0">
                         <signal name="toggled" handler="cell_toggled"/>
@@ -283,6 +285,7 @@
                 <property name="enable_grid_lines">both</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn19">
+                    <property name="title">Select</property>
                     <child>
                       <object class="GtkCellRendererToggle" id="cell_toggle1">
                         <signal name="toggled" handler="cell_toggled"/>
