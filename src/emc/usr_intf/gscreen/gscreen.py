@@ -70,20 +70,6 @@ gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
 gtk.glade.textdomain("linuxcnc")
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 CONFIGPATH = os.environ['CONFIG_DIR']
-def set_active(w, s):
-	if not w: return
-	os = w.get_active()
-	if os != s: w.set_active(s)
-
-def set_label(w, l):
-	if not w: return
-	ol = w.get_label()
-	if ol != l: w.set_label(l)
-
-def set_text(w, t):
-	if not w: return
-	ot = w.get_label()
-	if ot != t: w.set_label(t)
 
 import linuxcnc
 from gscreen import emc_interface
