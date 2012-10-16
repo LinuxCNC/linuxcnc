@@ -47,6 +47,10 @@ a sa man page. A partir de cette liste vous connaîtrez quels composants
 existent avec le nom et le N° de leur man page permettant d'avoir plus
 de détails.
 
+[NOTE]
+Si le composant requière un thread avec flottant, c'est habituellement le plus
+lent, soit  _servo-thread_.
+
 abs:: [[sub:abs]] (((abs)))Calcule la valeur absolue et le signe d'un signal
 d'entrée.
 
@@ -67,7 +71,12 @@ pour moteur sans balais (BLDC) avec capteurs de Hall.
 blend:: (((blend)))Provoque une interpolation linéaire entre deux valeurs
 
 charge_pump:: (((charge_pump)))Crée un signal carré destiné à l'entrée
-_pompe de charge_ de certaines cartes de contrôle.
+_pompe de charge_ de certaines cartes de contrôle. Le composant _charg_pump_ doit
+être ajouté à _base_ _thread_. Quand il est activé, sa sortie est haute pour une
+période puis basse pour une autre période. Pour calculer la fréquence de sortie
+faire 1/(durée de la période en secondes * 2) = fréquence en Hz. Par exemple, si
+vous avez une période de base de 100000ns soit 0.0001 seconde, la formule devient:
+1/(0.0001 * 2) = 5000 Hz ou 5kHz.
 
 clarke2:: (((clarke2)))Transformation de Clarke, version à deux entrées.
 
