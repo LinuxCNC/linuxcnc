@@ -224,7 +224,7 @@ maj3:: (((maj3)))Calcule l'entrée majoritaire parmi 3.
 match8:: (((match8)))Détecteur de coïncidence binaire sur 8 bits.
 
 maxkins:: (((maxkins)))
-Cinématique d'une fraiseuse 5 axes nommée _max_, avec tête inclinable (axe B) 
+Cinématique d'une fraiseuse 5 axes nommée _max_, avec tête inclinable (axe B)
 ​et un axe rotatif horizontal monté sur la table (axe C).
 Fournit le mouvement UVW dans le système de coordonnées système tourné.
 Le fichier source, maxkins.c, peut être un point de départ utile
@@ -255,7 +255,12 @@ not:: (((not)))Inverseur.
 offset:: (((offset)))Ajoute un décalage à une entrée et la soustrait à la
 valeur de retour.
 
-oneshot:: (((oneshot)))Générateur d'impulsion monostable.
+oneshot:: (((oneshot)))Générateur d'impulsion monostable. Crée sur sa sortie
+une impulsion de longueur variable quand son entrée change d'état. Cette fonction
+nécessite un thread supportant les flottants (habituellement servo thread). Ce
+qui signifie que la longueur de l'impulsion sera un multiple de la période de ce
+thread, typiquement 1ms. Il existe aussi la fonction _edge_ qui est similaire,
+et peut fonctionner dans base thread, elle offre une résolution plus élevée.
 
 or2:: (((or2)))Porte OR (OU) à deux entrées.
 
