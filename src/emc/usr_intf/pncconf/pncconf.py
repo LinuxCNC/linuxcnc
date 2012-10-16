@@ -486,7 +486,8 @@ axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("J
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
     _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
     _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
-    _("Max Vel Override incr C"),_("Max Vel Override incr D") ]
+    _("Max Vel Override incr C"),_("Max Vel Override incr D"), _("Feed Override enable"), _("Spindle Override enable"),
+_("Max Vel Override enable") ]
 spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
 operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
@@ -515,6 +516,7 @@ DIN0, DIN1, DIN2, DIN3,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
 SOA,SOB,SOC,SOD, MVOA, MVOB, MVOC, MVOD,
+FOE,SOE,MVOE,
 SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,SPINDLE_AT_SPEED,
 CYCLE_START, ABORT, SINGLE_STEP,
 ESTOP_IN, PROBE,
@@ -535,6 +537,7 @@ S_HALL1_IN,S_HALL2_IN,S_HALL3_IN,S_C1_IN,S_C2_IN,S_C4_IN,S_C8_IN ) = hal_input_n
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
 "so-incr-a","so-incr-b","so-incr-c","so-incr-d","mvo-incr-a","mvo-incr-b","mvo-incr-c","mvo-incr-d",
+"fo-enable","so-enable","mvo-enable",
 "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
 "cycle-start","abort","single-step",
 "estop-ext", "probe-in",
@@ -2905,6 +2908,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                         print >>file, "net jog-%s-analog         %s"% (axletter,pin_analog)
             print >>file
 
+        # check for shared MPG 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
             ending = ""
@@ -2916,6 +2920,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+            # was jogging MPG option selected?
             if self.externalmpg:
                     print >>file, _("#  ---mpg signals---")
                     print >>file
@@ -2928,6 +2933,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                                 print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
                                 print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
                             print >>file
+        # check for dedicated axis MPG jogging option
         for axnum,axletter in enumerate(axis_convert):
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
@@ -2944,7 +2950,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     if self.externalmpg:
                         print >>file, _("#  ---mpg signals---")
                         print >>file
-                        if self.multimpg:
+                        if self.multimpg: # means MPG per axis
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "net %s-jog-enable         =>  axis.%d.jog-enable"% (axletter, axnum)            
                             print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter, axnum)
@@ -2972,6 +2978,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
                 print >>file
 
+        # check for dedicated feed override MPG
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
             ending = ""
@@ -2983,14 +2990,22 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+        # was feed overrride option selected? MPG or switch selcted?
         if self.externalfo:
             if self.fo_usempg:
                 print >>file, "# connect feed overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.feed-override.count-enable true"
                 print >>file, "    setp halui.feed-override.direct-value false"
                 print >>file, "    setp halui.feed-override.scale .01"
-                print >>file, "net fo-count            =>  halui.feed-override.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("fo-enable"): # make it enable-able externally 
+                        print >>file, "net  fo-enable           => halui.feed-override.count-enable"
+                    else:
+                        print >>file, "    setp halui.feed-override.count-enable true"
+                    print >>file, "net fo-count            =>  halui.feed-override.counts"
+                else: # shared MPG
+                    print >>file, "net fo-enable            => halui.feed-override.count-enable"
+                    print >>file, "net joint-selected-count => halui.feed-override.counts"
                 print >>file
             elif self.fo_useswitch:
                 print >>file, "# connect feed overide increments - switches"
@@ -3013,6 +3028,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
                 print >>file
 
+        # check for dedicated max velocity MPG
         pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
         if pinname:
             ending = ""
@@ -3024,6 +3040,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+        # was max velocity override option selected? MPG or switch selected?
         if self.externalmvo:
             temp=[]
             for i in self.available_axes:
@@ -3032,10 +3049,17 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.mvo_usempg:
                 print >>file, "# connect max velocity overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.max-velocity.count-enable true"
                 print >>file, "    setp halui.max-velocity.direct-value false"
                 print >>file, "    setp halui.max-velocity.scale %04f"% scale
-                print >>file, "net mvo-count            =>  halui.max-velocity.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("mvo-enable"): # make it enable-able externally 
+                        print >>file, "net mvo-enable           =>  halui.max-velocity.count-enable"
+                    else:
+                        print >>file, "    setp halui.max-velocity.count-enable true"
+                    print >>file, "net mvo-count            =>  halui.max-velocity.counts"
+                else: # shared MPG
+                    print >>file, "net mvo-enable           =>  halui.max-velocity.count-enable"
+                    print >>file, "net joint-selected-count =>  halui.max-velocity.counts"
                 print >>file
             elif self.mvo_useswitch:
                 print >>file, "# connect max velocity overide increments - switches"
@@ -3058,6 +3082,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "    setp mvoincr.in%02d          %f"% (i,value)
                 print >>file
 
+        # check for dedicated spindle override MPG
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             ending = ""
@@ -3073,10 +3098,17 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.spindle-override.count-enable true"
                 print >>file, "    setp halui.spindle-override.direct-value false"
                 print >>file, "    setp halui.spindle-override.scale .01"
-                print >>file, "net so-count              =>  halui.spindle-override.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("so-enable"): # make it enable-able externally
+                        print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                    else:
+                        print >>file, "    setp halui.spindle-override.count-enable true"
+                    print >>file, "net so-count              =>  halui.spindle-override.counts"
+                else: # shared MPG
+                    print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                    print >>file, "net joint-selected-count  =>  halui.spindle-override.counts"
                 print >>file
             elif self.so_useswitch:
                 print >>file, "# connect spindle overide increments "
