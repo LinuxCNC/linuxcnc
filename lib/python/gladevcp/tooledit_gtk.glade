@@ -61,7 +61,6 @@
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                     <property name="title">Select</property>
-                    <signal name="clicked" handler="&lt;Type her&gt;"/>
                     <child>
                       <object class="GtkCellRendererToggle" id="cell_toggle0">
                         <signal name="toggled" handler="cell_toggled"/>
