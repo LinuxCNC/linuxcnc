@@ -4791,7 +4791,7 @@ Ok to reset data and start a new configuration?"),False):
             time.sleep(.1)
             p.flush()
             p.close()
-            os.remove('%sLINUXCNCempGeneral.rules'% sourcefile)
+            os.remove('%sLINUXCNCtempGeneral.rules'% sourcefile)
         text.append(("disconect USB device please\n"))
         if not self.warning_dialog("\n".join(text),False):return
 
