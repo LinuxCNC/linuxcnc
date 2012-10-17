@@ -539,7 +539,7 @@ Ensuite, il sera possible de relancer ce programme et ajuster les réglages
 entrés précédemment.
 
 [[sec:Position-Origine-Position-Contacts]]
-== Position des fin de course sur les axes
+== Position des fins de course sur les axes
 (((Position origine machine)))(((Emplacements des contacts)))
 
 image::images/HomeAxisTravel.png[]
@@ -554,7 +554,7 @@ Avant la butée mécanique se trouve un contact de fin de course *[green]#(b)#*.
 Si ce contact est rencontré pendant les opérations normales, LinuxCNC coupe
 la puissance du moteur. La distance entre le fin de course et la butée
 mécanique doit être suffisante pour permettre au moteur, dont la puissance
-a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fin de course
+a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fins de course
 doivent détecter le mobile sur toutes la distance d'arrêt et ne pas se
 réactiver à cause d'un dépassement dû à l'inertie.
  
