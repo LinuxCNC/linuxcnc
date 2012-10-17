@@ -1081,7 +1081,7 @@ class Data:
         self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = True
+        self.mesa1_sanity_7i33 = False
         self.mesa1_sanity_7i40 = False
         self.mesa1_sanity_7i48 = False
 
