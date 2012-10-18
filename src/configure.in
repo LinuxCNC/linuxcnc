@@ -88,8 +88,17 @@ RTNAME=""
 # RTAI version define. 1 with RTNAME=rtai, 3 with rtai-3.0
 RTAI=""
 
-# used in scripts/realtime and scripts/rtapi.conf to signify the threadsystem.
-# also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files.
+# used  to signify the threadsystem.
+# also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files (src/Makefile)
+# current values: 'sim', 'rtai', or 'rtl'.
+#
+# used in:
+# src/Makefile.inc
+# src/Makefile 
+# src/module_helper/Submakefile
+# scripts/realtime
+# scripts/rtapi.conf
+
 RTPREFIX=""
 
 # currently has values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
@@ -101,6 +110,22 @@ KERNELDIR=""
 
 # the c flags for compiling kernel modules. set by calling RTS. rtai* and rtlinux only.
 RTFLAGS=""
+
+# introduce new build categories as per:
+# http://wiki.linuxcnc.org/cgi-bin/wiki.pl?RealtimeConfiguratonProposal
+#
+# at the shell script/makefile level, 
+ RTAPI_THREADS = one of :
+	      RTAI_KERNEL 
+	      XENOMAI_KERNEL 
+	      XENOMAI_USER 
+	      RT_PREEMPT_USER 
+	      RT_PREEMPT_KTHREADS
+	      POSIX
+
+ MODULE_TYPE = one of:	
+	    KERNEL_MODULE
+	    USER_DSO
 
 
 ##############################################################################
