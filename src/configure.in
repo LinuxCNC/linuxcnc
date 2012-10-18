@@ -88,10 +88,6 @@ RTNAME=""
 # RTAI version define. 1 with RTNAME=rtai, 3 with rtai-3.0
 RTAI=""
 
-# never set. obviously used in the past for RT Linux, which doesnt exist anymore.
-# also not referenced in source. Can go.
-# RTLINUX and RTLINUXPRO deleted.
-
 # used in scripts/realtime and scripts/rtapi.conf to signify the threadsystem.
 # also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files.
 RTPREFIX=""
@@ -106,12 +102,6 @@ KERNELDIR=""
 # the c flags for compiling kernel modules. set by calling RTS. rtai* and rtlinux only.
 RTFLAGS=""
 
-# never set and never used. Probably can go.
-# deleted RTAI3_MOD=""
-# deleted RTAI_MOD=""
-
-# never set and never used. Probably can go.
-# deleted RTL_MOD=""
 
 ##############################################################################
 # Subsection 2.1                                                             #
