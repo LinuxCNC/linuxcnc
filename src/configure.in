@@ -90,8 +90,7 @@ RTAI=""
 
 # never set. obviously used in the past for RT Linux, which doesnt exist anymore.
 # also not referenced in source. Can go.
-RTLINUX=""
-RTLINUXPRO=""
+# RTLINUX and RTLINUXPRO deleted.
 
 # used in scripts/realtime and scripts/rtapi.conf to signify the threadsystem.
 # also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files.
@@ -286,8 +285,6 @@ fi
 
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
-AC_SUBST([RTLINUX])
-AC_SUBST([RTLINUXPRO])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
