@@ -75,17 +75,43 @@ AC_PATH_PROG(EGREP, egrep)
 AC_MSG_CHECKING(for RT dir)
 
 # set up some default values
+
+
+# RTDIR points to some directory which is supposed to reveal which RT thread
+# system is in use, like /usr/realtime* or /usr/src/rtai* .
+# used in Makefile and Makefile.modinc to set a threadsystem specific include path.
 RTDIR=""
+
+# shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
 RTNAME=""
+
+# RTAI version define. 1 with RTNAME=rtai, 3 with rtai-3.0
 RTAI=""
+
+# never set. obviously used in the past for RT Linux, which doesnt exist anymore.
+# also not referenced in source. Can go.
 RTLINUX=""
 RTLINUXPRO=""
+
+# used in scripts/realtime and scripts/rtapi.conf to signify the threadsystem.
+# also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files.
 RTPREFIX=""
+
+# currently has values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
+# which can be used to extract c or ld flags specific for the thread system.
+#RTS
+
+# checked only if RTS equals */rtai-config or */realtime-config. empty for sim.
 KERNELDIR=""
+
+# the c flags for compiling kernel modules. set by calling RTS. rtai* and rtlinux only.
 RTFLAGS=""
 
+# never set and never used. Probably can go.
 RTAI3_MOD=""
 RTAI_MOD=""
+
+# never set and never used. Probably can go.
 RTL_MOD=""
 
 ##############################################################################
