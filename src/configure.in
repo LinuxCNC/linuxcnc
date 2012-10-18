@@ -107,11 +107,11 @@ KERNELDIR=""
 RTFLAGS=""
 
 # never set and never used. Probably can go.
-RTAI3_MOD=""
-RTAI_MOD=""
+# deleted RTAI3_MOD=""
+# deleted RTAI_MOD=""
 
 # never set and never used. Probably can go.
-RTL_MOD=""
+# deleted RTL_MOD=""
 
 ##############################################################################
 # Subsection 2.1                                                             #
@@ -965,11 +965,6 @@ AC_SUBST([USE_STUBS])
 AC_SUBST([USE_RTLIBM])
 AC_SUBST([MATHINC])
 AC_SUBST([MATHLIB])
-
-# Export substitution symbols for module loading
-AC_SUBST([RTAI3_MOD])
-AC_SUBST([RTAI_MOD])
-AC_SUBST([RTL_MOD])
 
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
         rtai rt_mem_mgr rtai_sched rtai_libm \
