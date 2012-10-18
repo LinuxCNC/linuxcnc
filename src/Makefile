@@ -1,3 +1,7 @@
+# see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
+OLD_SHELL := $(SHELL)
+SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+
 # Delete the default suffix rules
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean
@@ -76,7 +80,7 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),user-dso)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
@@ -400,7 +404,7 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),user-dso)
 setuid:
 	@echo "'make setuid' is not needed for the simulator"
 else
@@ -571,7 +575,7 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(BUILD_SYS)" "user-dso"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
@@ -645,7 +649,7 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
 endif
@@ -693,7 +697,7 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
@@ -833,7 +837,7 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
@@ -881,8 +885,8 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
-ifneq "$(filter normal sim,$(BUILD_SYS))" ""
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))

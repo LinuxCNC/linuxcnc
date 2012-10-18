@@ -67,7 +67,7 @@ $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
 $(call TOOBJS, $(HALGTKSRCS)): Makefile.inc
 endif
 
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),user-dso)
 PCIWRITESRCS := hal/utils/pci_write.c hal/utils/upci.c
 USERSRCS += $(PCIWRITESRCS)
 ../bin/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
