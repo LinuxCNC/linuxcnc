@@ -98,7 +98,6 @@ RTAI=""
 # src/module_helper/Submakefile
 # scripts/realtime
 # scripts/rtapi.conf
-
 RTPREFIX=""
 
 # currently has values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
@@ -111,21 +110,46 @@ KERNELDIR=""
 # the c flags for compiling kernel modules. set by calling RTS. rtai* and rtlinux only.
 RTFLAGS=""
 
+# this (currently) can be: 'sim', 'kbuild' or 'normal' 
+# 'normal' was used by rtlinux, and is deprecated.
+# 'sim' will be renamed 'user-dso' because it does not imply simulator mode anymore -
+#   too much confusion.
+BUILD_SYS=""
+
 # introduce new build categories as per:
 # http://wiki.linuxcnc.org/cgi-bin/wiki.pl?RealtimeConfiguratonProposal
 #
-# at the shell script/makefile level, 
- RTAPI_THREADS = one of :
-	      RTAI_KERNEL 
-	      XENOMAI_KERNEL 
-	      XENOMAI_USER 
-	      RT_PREEMPT_USER 
-	      RT_PREEMPT_KTHREADS
-	      POSIX
-
- MODULE_TYPE = one of:	
-	    KERNEL_MODULE
-	    USER_DSO
+# at the shell script/makefile level, we have:
+#
+# 'THREADS' - one of 'rtai', 'posix', 'xenomai-user', 'xenomai-kernel',
+# 'rt-preempt-user', 'rt-preempt-kernel' 
+#
+# 'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
+#
+# in config.h we have a corresponding #define / and  #undef's for the others:
+#
+# THREAD_RTAI_KERNEL 
+# THREAD_XENOMAI_KERNEL 
+# THREAD_XENOMAI_USER 
+# THREAD_RT_PREEMPT_USER 
+# THREAD_RT_PREEMPT_KERNEL
+# THREAD_POSIX_USER
+#
+# BUILD_USER_DSO
+# BUILD_KBUILD
+# BUILD_NORMAL (not used - should deprecate).
+#
+# the latter is implied by the former, so we have:
+# 'rtai', 'xenomai-kernel', 'rt-preempt-kernel' -> implies 'kbuild' 
+# 'posix', 'xenomai-user', 'rt-preempt-user' -> implies 'user-dso'
+# and the corresponding #defines.
+#
+# the existing configurations will translate as follows:
+# --enable-simulator:
+#   defines shell subsitution, and make variables BUILD_SYS=usr-dso and THREADS=posix
+#   define in config.h: BUILD_USER_DSO 
+#
+# note to mah: dont forget debian/configure FIXME
 
 
 ##############################################################################
