@@ -937,6 +937,11 @@ o<mychange> endsub
 m2
 ---------------------------------------------------------------------
 
+
+CAUTION: when redefining a builtin code, *do not specify any leading
+zeroes in G- or M-codes* - for example, say `REMAP=M1 ..`, not
+`REMAP=M01 ...`.
+
 See the `configs/sim/remap/extend-builtins` directory for a complete
 configuration which is the recommded starting point for own work
 when extending builtin codes.
