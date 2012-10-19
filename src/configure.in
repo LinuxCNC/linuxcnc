@@ -119,6 +119,9 @@ BUILD_SYS=""
 
 
 # SIMULATOR=yes if --enable-simulator was given - use this to derive other values
+# used in tcl :-/
+# tcl/show_errors.tcl
+# tcl/linuxcnc.tcl.in
 SIMULATOR=no
 
 #----------------------------------------------------------------------------
@@ -166,7 +169,7 @@ THREADS=""
 # BUILD_DRIVERS defaults to 'no' for the 'simulator' build. 
 # to explicitly enable them, we add a '--enable-drivers' option for that case.
 #
-BUILD_DRIVERS=""
+BUILD_DRIVERS="no"
 
 #
 # the existing configurations will translate as follows:
@@ -319,7 +322,7 @@ AC_ARG_WITH(threads,
     [  --with-threads=<style>   the thread style to use; styles are:
     		                posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel ],
     [  
-	if test  "$SIMULATOR" == yes; then
+	if test  "$SIMULATOR" = yes; then
 	    AC_MSG_ERROR([ --with-threads is incompatible with --enable-simulator ]) 
 	fi
         case "$withval" in
@@ -371,19 +374,19 @@ AC_ARG_WITH(realtime,
     [  --with-realtime  A deprecated option, ignored
                    instead, use
 		   --with-threads=posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel 
-		   and --with-kernel==<config>],
+		   and --with-kernel=<config>],
     [  
-        AC_MSG_WARN([--with-realtime will be removed soon.])
+        AC_MSG_WARN([--with-realtime will be removed soon and has no effect.])
     ],
     [])
 
 
-kversion=`uname -r`
 
 # if we dont have a kernel configuration, and the threadstyle requires one, 
 # use the running config.
 if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
   AC_MSG_CHECKING(for config file of running kernel)
+  kversion=`uname -r`
   if test -z "$kversion"; then 
     AC_MSG_ERROR([cannot determine  kernel configuration - 'uname -r' failed ]) 
   fi
@@ -395,14 +398,9 @@ if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
   fi
 fi
 
-# we have a kernel config path; extract version
-KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
-AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
-
 # a kernel configuration path is set at this point (KCONFIG).
 # if we do not have a thread style set, we try to guess
 # by probing the kernel config for typical config options
-
 if test -z "$THREADS"; then
    AC_MSG_CHECKING(kernel for type of realtime system)
 
@@ -434,6 +432,11 @@ fi
 # If required, dig for kernel-headers 
 
 if test "$THREADS" != posix; then
+
+   # we have a kernel config path; extract version
+   KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+   AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
+
     AC_MSG_CHECKING([for location of kernel headers])
     AC_ARG_WITH(kernel-headers,
 	[  --with-kernel-headers=<directory>       Location for kernel headers],
@@ -448,8 +451,8 @@ if test "$THREADS" != posix; then
 fi
 
 # Validate the userland part - config programs, directories, libraries  etc
-
 AC_MSG_CHECKING(for $THREADS build support)
+SIMULATOR=no
 case "$THREADS" in
 
     posix)
@@ -457,6 +460,13 @@ case "$THREADS" in
 	if test "$PTH_CONFIG" = ""; then
 	    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
         fi
+	# BUILD_DRIVERS already set or default
+	# RTPREFIX not needed
+	# KERNELDIR not needed
+	RTFLAGS=FIXME # dso flags for posix 
+	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
+	BUILD_SYS=user-dso
+	SIMULATOR=yes	 # tcl legacy
     ;;
 
     rtai)
@@ -476,9 +486,18 @@ case "$THREADS" in
     	    done
         done
 	if test -z "$RTS"; then
-	    AC_MSG_ERROR([could not find xeno-config in $DIRS - wrong directory or 
-	    libxenomai-dev not installed])
+	    AC_MSG_ERROR([could not find rtai-config in $DIRS - wrong directory or not installed])
 	fi
+
+	BUILD_DRIVERS=yes
+	BUILD_SYS=kbuild
+	RTDIR=`$RTS --prefix`	
+	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
+  	RTFLAGS=`$RTS --module-cflags`
+        RTFLAGS="$RTFLAGS -DRTAI=3"
+	# or use explicitly set KERNELDIR?
+        KERNELDIR=`$RTS --linux-dir`
+    	RTARCH=`$RTS --arch`
     ;;
 
     rt-preempt-user|rt-preempt-kernel)
@@ -500,6 +519,13 @@ case "$THREADS" in
 	just installed it: try running ldconfig
 	as root]))
 	LIBS=$LIBS_hold
+
+	BUILD_DRIVERS=yes
+	if test "$THREADS" = rt-preempt-user ; then
+	   BUILD_SYS=user-dso
+	else
+	   BUILD_SYS=kbuild
+	fi
     ;;
 
     xenomai-user|xenomai-kernel)
@@ -546,189 +572,31 @@ case "$THREADS" in
 	LIBS=$LIBS_hold
 	CFLAGS=$CFLAGS_hold
 	CC=$CC_hold
+
+	BUILD_DRIVERS=yes
+	if test "$THREADS" = xenomai-user ; then
+	   BUILD_SYS=user-dso
+	else
+	   BUILD_SYS=kbuild
+	fi
     ;;
     *)
     AC_MSG_ERROR([duh? thread-style = $THREADS ]) 
     ;;
 esac  
 
-
-exit 0
-# now check validity of option combinations:
-
-#http://lwn.net/Articles/146861/
-#https://rt.wiki.kernel.org/index.php/RT_PREEMPT_HOWTO#Configuration_and_Compilation
-#To assure that you have the correct kernel up and running, you can also check the dmesg output for following #strings:
-#Real-Time Preemption Support (C) 2004-2006 Ingo Molnar
-# PREEMPT_RT
-#CONFIG_PREEMPT_RT=y
-#CONFIG_PREEMPT_RT_FULL=y
+# RTPREFIX: used in:
+# src/Makefile.inc
+# src/Makefile 
+# src/module_helper/Submakefile
+# scripts/realtime
+# scripts/rtapi.conf
+RTPREFIX=$THREADS
 
 
 AC_SUBST(SIMULATOR)
-AC_SUBST(BUILD_DRIVERS)
-AC_SUBST(THREADS)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-dnl AC_ARG_WITH(realtime,
-dnl     [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed],
-dnl     [   case "$withval" in
-dnl 	"" | y | ye | yes | n | no)
-dnl 	    AC_MSG_ERROR([You must supply a path for --with-realtime.]) ;;
-dnl 	*)
-dnl 		case "$SIMULATOR" in
-dnl 		yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
-dnl 		*) RTDIR="$withval" ;;
-dnl 		esac
-dnl 	;;
-dnl         esac])
-
-##############################################################################
-# Subsection 2.2                                                             #
-# 1. If a RT has been specified by the user it needs to be checked for       #
-# validity. That is done by checking default locations for a certain script  #
-# (similar to 2)                                                             #
-#                                                                            #
-# 2. If no RT has been specified explicitely by the user, one has to be      #
-# found by search. In order to do that the following code will search for a  #
-# RT-specific script:                                                        #
-# rtlinux-config for RTLinux                                                 #
-# realtime-config for RTAI 24.1.x                                            #
-# rtai-config for RTAI 3.x                                                   #
-##############################################################################
-
-#at this point if RTDIR is empty, we need to find RT ourselves
-if test $SIMULATOR = yes; then
-  RTS=sim
-  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-  if test "$PTH_CONFIG" = ""; then
-    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-  fi
-else
-  if test -z "$RTDIR"; then
-    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-  else
-    DIRS="$RTDIR"
-  fi
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-      for signature in rtai rtl realtime; do
-	candidate=$location/$subdir/$signature-config
-	if test -z "$RTS" -a -e $candidate; then
-	  RTS=$candidate
-	fi
-      done
-    done
- done
- if test -z "$RTS"; then
-    AC_MSG_ERROR([RT not found.  Specify:
-	--with-realtime=<path>
-or use
-	--enable-simulator
-to build without a realtime system.])
-  fi
-  AC_MSG_RESULT([Using $RTS as the RT signature])
-fi
-
-
-##############################################################################
-# Subsection 2.3                                                             #
-# we have the RT-script now, it's time to query it for some values           #
-# it can provide us with default values such as CC, CFLAGS, etc              #
-# see each case for more details                                             #
-##############################################################################
-
-RTARCH=`uname -m | sed s/i.86/i386/`
-case $RTS in
-*/rtai-config)
-    RTNAME=rtai-3.0
-    RTPREFIX=rtai
-    RTAI=3
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=3"
-    KERNELDIR=`$RTS --linux-dir`
-    RTARCH=`$RTS --arch`
-;;
-*/realtime-config)
-# For RTAI-24.1x $RTS = realtime-config
-# Options and their return values for realtime-config
-#	 Option		Returns
-#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
-#	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--cflags	Flags used to compile the realtime modules with.
-#	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
-#	--dump		Dumps the .buildvars to screen - Grep for linuxdir
-    RTNAME=rtai
-    RTPREFIX=rtai
-    RTAI=1
-
-    # any other rtai-24.1.x system
-    TEMP=`$RTS --prefix`
-    if (test -d $TEMP) ; then
-        RTDIR=$(cd $TEMP ; pwd -P )
-    else
-        RTDIR=${RTS%%/scripts/realtime-config}
-    fi
-    RTFLAGS=`$RTS --cflags-fp | head -n 1`
-    RTFLAGS="$RTFLAGS -DRTAI=1"
-    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
-#"
-    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
-;;
-*/rtl-config)
-# For RTLinux-3.? $RTS = rtl-config
-# Options and their return values for rtl-config
-#	 Option		Returns
-#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
-#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux		Path to the source directory of the patched kernel.
-#	--module_dir	Path to the directory where the RTLinux modules are installed
-#	--modules	A list of the available realtime modules.
-    RTPREFIX=rtl
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --cflags`
-    KERNELDIR=`$RTS --linux`
-;;
-sim)
-    RTPREFIX=sim
-    RTDIR=$(pwd -P)
-    RTFLAGS=-DSIMULATOR
-esac
-
-if test $RTS != sim; then
-    AC_MSG_CHECKING([for location of kernel headers])
-    AC_ARG_WITH(kernel-headers,
-	[  --with-kernel-headers=<directory>       Location for kernel headers],
-	[
-	    KERNELDIR="$withval"
-	    AC_MSG_RESULT(using specified value: $KERNELDIR)
-	],[
-	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
-	])
-fi
-
 AC_SUBST([RTNAME])
+
 AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
@@ -736,13 +604,199 @@ AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 AC_SUBST([RTARCH])
 
-if test $RTPREFIX = sim; then
-    AC_DEFINE(RTAPI_SIM, [], [Realtime system is simulated])
-elif test $RTPREFIX = rtai; then
-    AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
-elif test $RTPREFIX = rtl; then
-    AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL])
+dnl if test "$BUILD_DRIVERS" = yes; then
+dnl    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
+dnl fi
+dnl AC_SUBST(BUILD_DRIVERS)
+
+buildsys=`echo $BUILD_SYS |tr '[a-z\-]' '[A-Z_]'`
+AC_DEFINE_UNQUOTED(BUILD_SYS_$buildsys, [], [module build style])
+AC_SUBST(BUILD_SYS)
+
+threadstyle=`echo $THREADS |tr '[a-z\-]' '[A-Z_]'`
+AC_DEFINE_UNQUOTED(RTAPI_$threadstyle, [], [thread style])
+AC_SUBST(THREADS)
+
+# while we are at it, drop a git scent mark
+GIT_VERSION=unknown
+gitcmd=`which git`
+if test -n "$gitcmd"; then
+   version=`$gitcmd describe --dirty --always`
+   if test -n "$version"; then
+      GIT_VERSION=$version
+   fi
 fi
+AC_SUBST(GIT_VERSION)
+
+#git describe --dirty --always
+# this trims the dirname off:
+#mah@ubuntu-10:~/emc2-dev/src$ RTS=c/onf
+#mah@ubuntu-10:~/emc2-dev/src$ echo  ${RTS##*/}
+#onf
+
+dnl if test $RTPREFIX = posix; then
+dnl     AC_DEFINE(RTAPI_POSIX, [], [Realtime system uses Posix threads (sim)])
+dnl elif test $RTPREFIX = rtai; then
+dnl     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
+dnl elif test $RTPREFIX = xenomai-user; then
+dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
+dnl elif test $RTPREFIX = xenomai-user; then
+dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
+dnl elif test $RTPREFIX = xenomai-user; then
+dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
+dnl fi
+
+
+dnl exit 0
+dnl # now check validity of option combinations:
+
+
+
+dnl ##############################################################################
+dnl # Subsection 2.2                                                             #
+dnl # 1. If a RT has been specified by the user it needs to be checked for       #
+dnl # validity. That is done by checking default locations for a certain script  #
+dnl # (similar to 2)                                                             #
+dnl #                                                                            #
+dnl # 2. If no RT has been specified explicitely by the user, one has to be      #
+dnl # found by search. In order to do that the following code will search for a  #
+dnl # RT-specific script:                                                        #
+dnl # rtlinux-config for RTLinux                                                 #
+dnl # realtime-config for RTAI 24.1.x                                            #
+dnl # rtai-config for RTAI 3.x                                                   #
+dnl ##############################################################################
+
+dnl #at this point if RTDIR is empty, we need to find RT ourselves
+dnl if test $SIMULATOR = yes; then
+dnl   RTS=sim
+dnl   AC_PATH_PROG(PTH_CONFIG,pth-config,"")
+dnl   if test "$PTH_CONFIG" = ""; then
+dnl     AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
+dnl   fi
+dnl else
+dnl   if test -z "$RTDIR"; then
+dnl     DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
+dnl   else
+dnl     DIRS="$RTDIR"
+dnl   fi
+dnl   for location in $DIRS; do
+dnl     for subdir in . scripts bin; do
+dnl       for signature in rtai rtl realtime; do
+dnl 	candidate=$location/$subdir/$signature-config
+dnl 	if test -z "$RTS" -a -e $candidate; then
+dnl 	  RTS=$candidate
+dnl 	fi
+dnl       done
+dnl     done
+dnl  done
+dnl  if test -z "$RTS"; then
+dnl     AC_MSG_ERROR([RT not found.  Specify:
+dnl 	--with-realtime=<path>
+dnl or use
+dnl 	--enable-simulator
+dnl to build without a realtime system.])
+dnl   fi
+dnl   AC_MSG_RESULT([Using $RTS as the RT signature])
+dnl fi
+
+
+dnl ##############################################################################
+dnl # Subsection 2.3                                                             #
+dnl # we have the RT-script now, it's time to query it for some values           #
+dnl # it can provide us with default values such as CC, CFLAGS, etc              #
+dnl # see each case for more details                                             #
+dnl ##############################################################################
+
+dnl RTARCH=`uname -m | sed s/i.86/i386/`
+dnl case $RTS in
+dnl */rtai-config)
+dnl     RTNAME=rtai-3.0
+dnl     RTPREFIX=rtai
+dnl     RTAI=3
+dnl     RTDIR=`$RTS --prefix`
+dnl     RTDIR=$(cd $RTDIR ; pwd -P )
+dnl     RTFLAGS=`$RTS --module-cflags`
+dnl     RTFLAGS="$RTFLAGS -DRTAI=3"
+dnl     KERNELDIR=`$RTS --linux-dir`
+dnl     RTARCH=`$RTS --arch`
+dnl ;;
+dnl */realtime-config)
+dnl # For RTAI-24.1x $RTS = realtime-config
+dnl # Options and their return values for realtime-config
+dnl #	 Option		Returns
+dnl #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
+dnl #	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
+dnl #	--cc		The compiler used for the C sources - Not necessarily the default cc
+dnl #	--cflags	Flags used to compile the realtime modules with.
+dnl #	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
+dnl #	--dump		Dumps the .buildvars to screen - Grep for linuxdir
+dnl     RTNAME=rtai
+dnl     RTPREFIX=rtai
+dnl     RTAI=1
+
+dnl     # any other rtai-24.1.x system
+dnl     TEMP=`$RTS --prefix`
+dnl     if (test -d $TEMP) ; then
+dnl         RTDIR=$(cd $TEMP ; pwd -P )
+dnl     else
+dnl         RTDIR=${RTS%%/scripts/realtime-config}
+dnl     fi
+dnl     RTFLAGS=`$RTS --cflags-fp | head -n 1`
+dnl     RTFLAGS="$RTFLAGS -DRTAI=1"
+dnl     KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
+dnl #"
+dnl     KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+dnl ;;
+dnl */rtl-config)
+dnl # For RTLinux-3.? $RTS = rtl-config
+dnl # Options and their return values for rtl-config
+dnl #	 Option		Returns
+dnl #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
+dnl #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
+dnl #	--cc		The compiler used for the C sources - Not necessarily the default cc
+dnl #	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+dnl #	--linux		Path to the source directory of the patched kernel.
+dnl #	--module_dir	Path to the directory where the RTLinux modules are installed
+dnl #	--modules	A list of the available realtime modules.
+dnl     RTPREFIX=rtl
+dnl     RTDIR=`$RTS --prefix`
+dnl     RTDIR=$(cd $RTDIR ; pwd -P )
+dnl     RTFLAGS=`$RTS --cflags`
+dnl     KERNELDIR=`$RTS --linux`
+dnl ;;
+dnl sim)
+dnl     RTPREFIX=sim
+dnl     RTDIR=$(pwd -P)
+dnl     RTFLAGS=-DSIMULATOR
+dnl esac
+
+dnl if test $RTS != sim; then
+dnl     AC_MSG_CHECKING([for location of kernel headers])
+dnl     AC_ARG_WITH(kernel-headers,
+dnl 	[  --with-kernel-headers=<directory>       Location for kernel headers],
+dnl 	[
+dnl 	    KERNELDIR="$withval"
+dnl 	    AC_MSG_RESULT(using specified value: $KERNELDIR)
+dnl 	],[
+dnl 	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
+dnl 	])
+dnl fi
+
+dnl AC_SUBST([RTNAME])
+dnl AC_SUBST([RTAI])
+dnl AC_SUBST([RTPREFIX])
+dnl AC_SUBST([KERNELDIR])
+dnl AC_SUBST([RTFLAGS])
+dnl AC_SUBST([RTDIR])
+dnl AC_SUBST([RTARCH])
+
+dnl if test $RTPREFIX = sim; then
+dnl     AC_DEFINE(RTAPI_SIM, [], [Realtime system is simulated])
+dnl elif test $RTPREFIX = rtai; then
+dnl     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
+dnl elif test $RTPREFIX = rtl; then
+dnl     AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL])
+dnl fi
 
 
 EMC2_HOME=`(cd .. ; pwd)`
