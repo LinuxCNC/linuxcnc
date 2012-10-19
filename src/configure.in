@@ -247,6 +247,25 @@ AC_ARG_ENABLE(drivers,
       AC_MSG_RESULT([hardware drivers build will be determined by --with-threads])
     ])
 
+AC_MSG_CHECKING(realtime support directory)
+AC_ARG_WITH(rt-dir,
+    [  --with-rt-dir=<directory>  specify a directory to look for realtime config scripts
+       				  like rtai-config or xeno-config
+                        	  use this if not installed in a standard location)
+    ],
+    [  
+	if test -d "$withval"; then 
+	    RTDIR="$withval"
+	    AC_MSG_RESULT([using $RTDIR to look for realtime config scripts])
+
+	else 
+	    AC_MSG_ERROR([$withval - no such directory ]) 
+	fi
+    ],
+    [
+      AC_MSG_RESULT([using defaults ])
+    ])  
+
 
 AC_MSG_CHECKING(kernel configuration)
 AC_ARG_WITH(kernel,
@@ -376,6 +395,9 @@ if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
   fi
 fi
 
+# we have a kernel config path; extract version
+KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
 
 # a kernel configuration path is set at this point (KCONFIG).
 # if we do not have a thread style set, we try to guess
@@ -409,6 +431,22 @@ if test -z "$THREADS"; then
 fi
 
 # at this point, both THREADS and KCONFIG is set.
+# If required, dig for kernel-headers 
+
+if test "$THREADS" != posix; then
+    AC_MSG_CHECKING([for location of kernel headers])
+    AC_ARG_WITH(kernel-headers,
+	[  --with-kernel-headers=<directory>       Location for kernel headers],
+	[ KERNELDIR="$withval"	],
+	[ KERNELDIR="/usr/src/linux-headers-$KERNEL_VERSION" ])
+	
+    if test -d "$KERNELDIR"; then
+       AC_MSG_RESULT(using kernel headers from $KERNELDIR)
+    else
+       AC_MSG_ERROR([kernel header directory not found: $KERNELDIR ])
+    fi
+fi
+
 # Validate the userland part - config programs, directories, libraries  etc
 
 AC_MSG_CHECKING(for $THREADS build support)
@@ -438,14 +476,14 @@ case "$THREADS" in
     	    done
         done
 	if test -z "$RTS"; then
-	    AC_MSG_ERROR([could not find xeno-config in $DIRS - please install libxenomai-dev])
+	    AC_MSG_ERROR([could not find xeno-config in $DIRS - wrong directory or 
+	    libxenomai-dev not installed])
 	fi
     ;;
 
     rt-preempt-user|rt-preempt-kernel)
-
-	CFLAGS="$CFLAGS $X_CFLAGS"
-	LIBS="$X_PRE_LIBS $X_LIBS -lrt"
+	LIBS_hold=$LIBS
+	LIBS="$LIBS -lrt"
 
 	AC_TRY_LINK([
 	#include <time.h>
@@ -461,6 +499,7 @@ case "$THREADS" in
 	Unable to link to librt.a library. If you
 	just installed it: try running ldconfig
 	as root]))
+	LIBS=$LIBS_hold
     ;;
 
     xenomai-user|xenomai-kernel)
@@ -479,10 +518,15 @@ case "$THREADS" in
 	    fi
         done
 	if test -z "$RTS"; then
-	    AC_MSG_ERROR([could not find xeno-config in $DIRS - please install libxenomai-dev])
+	    AC_MSG_ERROR([could not find xeno-config in $DIRS -  wrong directory or libxenomai-dev not installed])
 	fi
-	CFLAGS="$CFLAGS $X_CFLAGS "`$RTS --skin=native --cflags`
-	LIBS="$X_PRE_LIBS $X_LIBS "`$RTS --skin=native --ldflags`
+
+	CC_hold=$CC
+	AC_PROG_CC  # unclear why this is needed
+	CFLAGS_hold=$CFLAGS
+	CFLAGS="$CFLAGS "`$RTS --skin=native --cflags`
+	LIBS_hold=$LIBS
+	LIBS="$LIBS "`$RTS --skin=native --ldflags`
 
 	AC_TRY_LINK([
 	#include <native/task.h>
@@ -499,6 +543,9 @@ case "$THREADS" in
 	Unable to link to Xenomai support library. If you
 	just installed it: try running ldconfig
 	as root]))
+	LIBS=$LIBS_hold
+	CFLAGS=$CFLAGS_hold
+	CC=$CC_hold
     ;;
     *)
     AC_MSG_ERROR([duh? thread-style = $THREADS ]) 
@@ -506,44 +553,7 @@ case "$THREADS" in
 esac  
 
 
-
-
-
 exit 0
-
-at this point if RTDIR is empty, we need to find RT ourselves
-if test $SIMULATOR = yes; then
-  RTS=sim
-  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-  if test "$PTH_CONFIG" = ""; then
-    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-  fi
-else
-  if test -z "$RTDIR"; then
-    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-  else
-    DIRS="$RTDIR"
-  fi
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-      for signature in rtai rtl realtime; do
-	candidate=$location/$subdir/$signature-config
-	if test -z "$RTS" -a -e $candidate; then
-	  RTS=$candidate
-	fi
-      done
-    done
- done
- if test -z "$RTS"; then
-    AC_MSG_ERROR([RT not found.  Specify:
-	--with-realtime=<path>
-or use
-	--enable-simulator
-to build without a realtime system.])
-  fi
-  AC_MSG_RESULT([Using $RTS as the RT signature])
-fi
-
 # now check validity of option combinations:
 
 #http://lwn.net/Articles/146861/
@@ -553,36 +563,6 @@ fi
 # PREEMPT_RT
 #CONFIG_PREEMPT_RT=y
 #CONFIG_PREEMPT_RT_FULL=y
-
-#include <time.h>
-#include <sched.h>
-#include <sys/mman.h>
-
- struct timespec t;
- clock_gettime(CLOCK_MONOTONIC ,&t);
- clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-
-AC_MSG_CHECKING(for librt.a)
-AC_TRY_LINK([
-#include <time.h>
-#include <sched.h>
-#include <sys/mman.h>
-],[
-struct timespec t;
-clock_gettime(CLOCK_MONOTONIC ,&t);
-clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-],AC_MSG_RESULT(yes),AC_MSG_ERROR([
-Unable to link to librt.a library. If you
-just installed it: try running ldconfig
-as root]))
-
-
-
-
-
-
-
-
 
 
 AC_SUBST(SIMULATOR)
