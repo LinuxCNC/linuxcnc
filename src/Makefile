@@ -1,6 +1,6 @@
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
-OLD_SHELL := $(SHELL)
-SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+#OLD_SHELL := $(SHELL)
+#SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
 
 # Delete the default suffix rules
 .SUFFIXES:
@@ -80,7 +80,7 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
@@ -119,7 +119,8 @@ SUBDIRS := \
     \
     ../docs/src
 
-ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
+# moved to src/rtapi/Submakefile
+# ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
@@ -405,8 +406,14 @@ clean: depclean modclean
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
 ifeq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
 setuid:
-	@echo "'make setuid' is not needed for the simulator"
+	chown root ../bin/rtapi_app
+	chmod 4750 ../bin/rtapi_app
+else	
+setuid:
+	@echo "'make setuid' is not needed if hardware drivers are not used"
+endif
 else
 setuid:
 	chown root ../bin/linuxcnc_module_helper
@@ -697,7 +704,8 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(BUILD_SYS),kbuild)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
@@ -760,6 +768,7 @@ hm2_test-objs :=			  \
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
+endif
 endif
 endif
 
