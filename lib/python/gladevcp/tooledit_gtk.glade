@@ -462,7 +462,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="save">
+              <object class="GtkButton" id="apply">
                 <property name="label" translatable="yes">Apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>

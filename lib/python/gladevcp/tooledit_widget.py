@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os,pango,linuxcnc
+import sys, os, pango, linuxcnc, hashlib
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
@@ -34,6 +34,8 @@ class ToolEdit(gtk.VBox):
 
     def __init__(self,toolfile=None, *a, **kw):
         super(ToolEdit, self).__init__()
+        self.emcstat = linuxcnc.stat()
+        self.hash_check = None 
         self.display_type = 0
         self.toolfile = toolfile
         self.num_of_col = 1
@@ -73,6 +75,7 @@ class ToolEdit(gtk.VBox):
         self.lathe_window = self.wTree.get_object("lathe_window")
         self.view1 = self.wTree.get_object("treeview1")
         self.view2 = self.wTree.get_object("treeview2")
+        self.apply = self.wTree.get_object("apply")
         # reparent tooledit box from Glades tp level window to tooledit's VBox
         window = self.wTree.get_object("tooledit_box")
         window.reparent(self)
@@ -80,6 +83,8 @@ class ToolEdit(gtk.VBox):
         if toolfile:
             self.reload(None)
         self.set_display(0)
+        # check linuxcnc status every second
+        gobject.timeout_add(1000, self.periodic_check)
 
     def delete(self,widget):
         liststore  = self.model
@@ -106,6 +111,7 @@ class ToolEdit(gtk.VBox):
 
         # Reload the tool file into display
     def reload(self,widget):
+        self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
         if self.toolfile == None:return
         self.model.clear()
@@ -168,7 +174,7 @@ class ToolEdit(gtk.VBox):
             print "Reloading tooltable into linuxcnc failed"
 
 
-        # This is for changing the display after tool editor was loaded using tye style button
+        # This is for changing the display after tool editor was loaded using the style button
         # note that it toggles the display
     def display_toggle(self,widget=None):
         value = (self.display_type * -1) +1
@@ -211,6 +217,42 @@ class ToolEdit(gtk.VBox):
         model = self.model
         model[path][0] = not model[path][0]
 
+        # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
+        # check to see if the tool file is current
+    def periodic_check(self):
+        try:
+            self.emcstat.poll()
+            on = self.emcstat.task_state > linuxcnc.STATE_OFF
+            idle = self.emcstat.interp_state == linuxcnc.INTERP_IDLE
+            self.apply.set_sensitive(bool(on and idle))
+        except:
+            pass
+        if self.toolfile:
+            self.file_current_check()
+        return True
+
+        # create a hash code
+    def md5sum(self,filename):
+        try:
+            f = open(filename, "rb")
+        except IOError:
+            return None
+        else:
+            return hashlib.md5(f.read()).hexdigest()
+
+        # check the hash code on the toolfile against
+        # the saved hash code when last reloaded.
+    def file_current_check(self):
+        m = self.hash_code
+        m1 = self.md5sum(self.toolfile)
+        if m1 and m != m1:
+            self.toolfile_stale()
+
+        # you could overload this to do something else.
+    def toolfile_stale(self):
+        print "Tool file was modified since it was last read"
+        self.reload(None)
+
         # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -220,9 +262,9 @@ class ToolEdit(gtk.VBox):
             raise AttributeError('unknown property %s' % property.name)
 
         # standard Gobject method
-        # changing tye Gobject property 'display_type' will actually change the display
-        # This is so the the Glade editor you can change the display
-        # Note this sets the display absolutely vrs display_toggle method that toggles the display
+        # changing the Gobject property 'display_type' will actually change the display
+        # This is so that in the Glade editor, you can change the display
+        # Note this sets the display absolutely vrs the display_toggle method that toggles the display
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
         if name == 'font':
