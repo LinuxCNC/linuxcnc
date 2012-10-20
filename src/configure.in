@@ -499,7 +499,7 @@ case "$THREADS" in
 	# BUILD_DRIVERS already set or default
 	# RTPREFIX not needed
 	# KERNELDIR not needed
-	RTFLAGS=FIXME # dso flags for posix 
+	RTFLAGS= # dso flags for posix - FIXME needed?
 	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
 	BUILD_SYS=user-dso
 	SIMULATOR=yes	 # tcl legacy
@@ -666,17 +666,53 @@ AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 AC_SUBST([RTARCH])
 
-dnl if test "$BUILD_DRIVERS" = yes; then
-dnl    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
-dnl fi
-dnl AC_SUBST(BUILD_DRIVERS)
+if test "$BUILD_DRIVERS" = yes; then
+   AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
+fi
+AC_SUBST(BUILD_DRIVERS)
 
-buildsys=`echo $BUILD_SYS |tr '[a-z\-]' '[A-Z_]'`
-AC_DEFINE_UNQUOTED(BUILD_SYS_$buildsys, [], [module build style])
+dnl buildsys=`echo $BUILD_SYS |tr '[a-z\-]' '[A-Z_]'`
+dnl AC_DEFINE_UNQUOTED([BUILD_SYS_$buildsys], [], [module build style])
+dnl AC_SUBST(BUILD_SYS_$buildsys)
+
+# man, is this lame
+case $BUILD_SYS in
+  user-dso)
+      AC_DEFINE(BUILD_SYS_USER_DSO, [], [build modules as .so shared objects])
+      ;;
+  kbuild)
+      AC_DEFINE(BUILD_SYS_KBUILD, [], [build modules through kbuild])
+      ;;
+  normal)
+      # I dont see _anything_ 'normal' here
+      AC_DEFINE(BUILD_SYS_NORMAL, [], [build normal (unused)])
+      ;;
+esac
 AC_SUBST(BUILD_SYS)
 
-threadstyle=`echo $THREADS |tr '[a-z\-]' '[A-Z_]'`
-AC_DEFINE_UNQUOTED(RTAPI_$threadstyle, [], [thread style])
+dnl threadstyle=`echo $THREADS |tr '[a-z\-]' '[A-Z_]'`
+dnl AC_DEFINE_UNQUOTED([RTAPI_$threadstyle], [], [thread style])
+dnl AC_SUBST(RTAPI_$threadstyle)
+case $THREADS in
+  posix)
+      AC_DEFINE(RTAPI_POSIX, [], [thread style posix])
+      ;;
+  rtai)
+      AC_DEFINE(RTAPI_RTAI, [], [thread style rtai])
+      ;;
+  xenomai-user)
+      AC_DEFINE(RTAPI_XENOMAI_USER, [], [thread style xenomai-user])
+      ;;
+  xenomai-kernel)
+      AC_DEFINE(RTAPI_XENOMAI_KERNEL, [], [thread style xenomai-kernel])
+      ;;
+  rt-preempt-user)
+      AC_DEFINE(RTAPI_RTPREEMPT_USER, [], [thread style rt-preempt-user])
+      ;;
+  rt-preempt-kernel)
+      AC_DEFINE(RTAPI_RTPREEMPT_KERNEL, [], [thread style rt-preempt-kernel])
+      ;;
+esac
 AC_SUBST(THREADS)
 
 # while we are at it, drop a git scent mark
