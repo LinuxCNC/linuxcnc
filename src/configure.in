@@ -23,8 +23,8 @@
 # Autoconf initialisation                                                    #
 ##############################################################################
 
-AC_PREREQ(2.53)
-AC_INIT(LinuxCNC, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
+AC_PREREQ(2.65)
+AC_INIT([LinuxCNC],[m4_normalize(esyscmd(cat ../VERSION))],[emc-developers@lists.sourceforge.net])
 AC_CONFIG_SRCDIR(emc/motion/motion.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
@@ -76,18 +76,29 @@ AC_PATH_PROG(EGREP, egrep)
 
 # set up some default values
 
+# we'll be using it for compile tests
+# might be extended by RTSCC later
+AC_PROG_CC([gcc])  
 
 # RTDIR points to some directory which is supposed to reveal which RT thread
 # system is in use, like /usr/realtime* or /usr/src/rtai* .
-# used in Makefile and Makefile.modinc to set a threadsystem specific include path.
-# FIXME make this an --with-rtdir option
+# used in Makefile and Makefile.modinc to set a threadsystem specific include path,
+# it is assumed to have subdirs:
+# modules
+# include
 RTDIR=""
+#  it can be explicitly set with the --with-rtdir=<directory> option
+WITH_RTDIR=""
 
 # shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
 RTNAME=""
 
 # RTAI version define. 1 with RTNAME=rtai, 3 with rtai-3.0
 RTAI=""
+
+# a compiler which might be specific for the realime system.
+# relevant case: rtai-config -cc
+RTSCC=""
 
 # used  to signify the threadsystem.
 # also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files (src/Makefile)
@@ -212,7 +223,7 @@ KCONFIG=""
 
 # if autoconfiguring from kernel config, use these
 # defaults as thread style:
-DEFAULT_THREADSTYLE_XENO=xenomai-user
+DEFAULT_THREADSTYLE_XENOMAI=xenomai-user
 DEFAULT_THREADSTYLE_RTAI=rtai
 DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt-user
 
@@ -258,8 +269,8 @@ AC_ARG_WITH(rt-dir,
     ],
     [  
 	if test -d "$withval"; then 
-	    RTDIR="$withval"
-	    AC_MSG_RESULT([using $RTDIR to look for realtime config scripts])
+	    WITH_RTDIR="$withval"
+	    AC_MSG_RESULT([using $WITH_RTDIR to look for realtime config scripts])
 
 	else 
 	    AC_MSG_ERROR([$withval - no such directory ]) 
@@ -310,6 +321,7 @@ AC_ARG_ENABLE(simulator,
             ;;
             *)
                 SIMULATOR=no
+		;;
         esac
     ],
     [
@@ -322,8 +334,8 @@ AC_ARG_WITH(threads,
     [  --with-threads=<style>   the thread style to use; styles are:
     		                posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel ],
     [  
-	if test  "$SIMULATOR" = yes; then
-	    AC_MSG_ERROR([ --with-threads is incompatible with --enable-simulator ]) 
+	if test  "$SIMULATOR" = yes -a \( "$withval" != posix \) ; then
+	    AC_MSG_ERROR([ --with-threads=$withval is incompatible with --enable-simulator ]) 
 	fi
         case "$withval" in
             posix)
@@ -399,33 +411,57 @@ if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
 fi
 
 # a kernel configuration path is set at this point (KCONFIG).
-# if we do not have a thread style set, we try to guess
-# by probing the kernel config for typical config options
-if test -z "$THREADS"; then
-   AC_MSG_CHECKING(kernel for type of realtime system)
+# dig and determine the type of kernel RT system
+KTYPE=""
+DEFAULT_THREAD_STYLE=""
 
-   opt_ipipe=`grep '^CONFIG_IPIPE' $KCONFIG |wc -l`
-   opt_xeno=`grep '^CONFIG_XENO_' $KCONFIG |wc -l`
-   opt_preempt_rt=`grep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
+if test -n "$THREADS" -a \( "$THREADS" != posix \); then
+    AC_MSG_CHECKING(kernel for type of realtime system)
 
-   #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
+    opt_ipipe=`grep '^CONFIG_IPIPE' $KCONFIG |wc -l`
+    opt_xeno=`grep '^CONFIG_XENO_' $KCONFIG |wc -l`
+    opt_preempt_rt=`grep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
 
-   if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-       THREADS=$DEFAULT_THREADSTYLE_RTAI
-       AC_MSG_RESULT([looks like a RTAI configuration, proceeding --with-threads=$THREADS ])
-   else 
-   if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-       THREADS=$DEFAULT_THREADSTYLE_XENO
-       AC_MSG_RESULT([looks like a Xenomai configuration, proceeding --with-threads=$THREADS ])
-   else 
-      if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
-       THREADS=$DEFAULT_THREADSTYLE_RTPREEMPT
-       AC_MSG_RESULT([looks like a RT_PREEMPT configuration, proceeding --with-threads=$THREADS ])
-   else
-       AC_MSG_ERROR([failed to guess realtime system from $KCONFIG - sure this is a realtime kernel? ]) 
-       fi
-       fi
-       fi
+    #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
+
+    if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+	KTYPE=rtai
+	DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_RTAI
+	AC_MSG_RESULT([looks like a RTAI configuration])
+    else 
+    if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+	KTYPE=xenomai
+	DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_XENOMAI
+	AC_MSG_RESULT([looks like a Xenomai configuration ])
+    else 
+       if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
+       KTYPE=rt-preempt
+       DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_RTPREEMPT
+       AC_MSG_RESULT([looks like a RT_PREEMPT configuration])
+    else
+	AC_MSG_ERROR([failed to guess realtime system from $KCONFIG - sure this is a realtime kernel? ]) 
+	fi
+	fi
+	fi
+fi
+
+# check if THREADS style compatible with KTYPE
+# if THREADS was not set, set default thread style for this kernel type
+AC_MSG_CHECKING(kernel and thread style compatibility)
+if `echo $THREADS | grep $KTYPE 1>/dev/null 2>&1`
+then
+  AC_MSG_RESULT([kernel type $KTYPE and thread style $THREADS are compatible])
+else
+  if test -z "$THREADS"; then
+   THREADS=$DEFAULT_THREAD_STYLE
+   AC_MSG_RESULT([setting thread style to $THREADS - default for $KTYPE])
+  else
+    if test "$THREADS" != posix; then
+        AC_MSG_ERROR([thread style $THREADS and kernel type $KTYPE are incompatible])
+    else
+        AC_MSG_RESULT([thread style Posix has no special kernel requirements])
+    fi
+  fi 
 fi
 
 # at this point, both THREADS and KCONFIG is set.
@@ -470,10 +506,10 @@ case "$THREADS" in
     ;;
 
     rtai)
-	if test -z "$RTDIR"; then
+	if test -z "$WITH_RTDIR"; then
 	    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
  	else	    
-            DIRS="$RTDIR"
+            DIRS="$WITH_RTDIR"
         fi
   	for location in $DIRS; do
     	    for subdir in .  bin; do
@@ -489,8 +525,21 @@ case "$THREADS" in
 	    AC_MSG_ERROR([could not find rtai-config in $DIRS - wrong directory or not installed])
 	fi
 
+	# The compiler MUST match the one used to compile the realtime modules if the
+	# kernel level code is to function correctly. But if the kernel has been
+	# compiled with gcc-2.96, it is unlikely to ever work !
+
+	AC_MSG_CHECKING([for cc version])
+  	RTSCC=`$RTS --cc`
+	if test -n "$RTSCC"; then
+	   AC_MSG_RESULT(found $RTSCC in $RTS) 
+	else
+	   AC_MSG_RESULT(not specified)
+        fi
+
 	BUILD_DRIVERS=yes
 	BUILD_SYS=kbuild
+	# replace given RTDIR by what rtai-config thinks it is
 	RTDIR=`$RTS --prefix`	
 	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
   	RTFLAGS=`$RTS --module-cflags`
@@ -504,20 +553,18 @@ case "$THREADS" in
 	LIBS_hold=$LIBS
 	LIBS="$LIBS -lrt"
 
-	AC_TRY_LINK([
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <time.h>
 	#include <sched.h>
 	#include <sys/mman.h>
-	],[
+	]], [[
 	struct timespec t;
 	clock_gettime(CLOCK_MONOTONIC ,&t);
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-	],
-	AC_MSG_RESULT(linking against $THREADS support library librt.a - works),
-	AC_MSG_ERROR([
+	]])],[AC_MSG_RESULT(linking against $THREADS support library librt.a - works)],[AC_MSG_ERROR(
 	Unable to link to librt.a library. If you
 	just installed it: try running ldconfig
-	as root]))
+	as root)])
 	LIBS=$LIBS_hold
 
 	BUILD_DRIVERS=yes
@@ -548,27 +595,33 @@ case "$THREADS" in
 	fi
 
 	CC_hold=$CC
-	AC_PROG_CC  # unclear why this is needed
 	CFLAGS_hold=$CFLAGS
 	CFLAGS="$CFLAGS "`$RTS --skin=native --cflags`
 	LIBS_hold=$LIBS
 	LIBS="$LIBS "`$RTS --skin=native --ldflags`
 
-	AC_TRY_LINK([
+
+	AC_MSG_CHECKING([for cc version])
+  	RTSCC=`$RTS --cc`
+	if test -n "$RTSCC"; then
+	   AC_MSG_RESULT(found $RTSCC in $RTS) 
+	else
+	   AC_MSG_RESULT(not specified)
+        fi
+
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <native/task.h>
 	#include <native/timer.h>
 	RT_TASK demo_task;
         RTIME now;
-	],[
+	]], [[
         rt_task_create(&demo_task, "trivial", 0, 99, 0);
         rt_task_set_periodic(NULL, TM_NOW, 1000000000);
         rt_timer_read();
-	],
-	AC_MSG_RESULT(linking against xenomai support library - works),
-	AC_MSG_ERROR([
+	]])],[AC_MSG_RESULT(linking against xenomai support library - works)],[AC_MSG_ERROR(
 	Unable to link to Xenomai support library. If you
 	just installed it: try running ldconfig
-	as root]))
+	as root)])
 	LIBS=$LIBS_hold
 	CFLAGS=$CFLAGS_hold
 	CC=$CC_hold
@@ -584,6 +637,15 @@ case "$THREADS" in
     AC_MSG_ERROR([duh? thread-style = $THREADS ]) 
     ;;
 esac  
+
+AC_PROG_CC([$RTSCC gcc])
+AC_PROG_CPP()
+
+if test -z "$CC"; then
+  AC_MSG_ERROR([no acceptable cc found])
+elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
+  AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
+fi
 
 # RTPREFIX: used in:
 # src/Makefile.inc
@@ -628,7 +690,6 @@ if test -n "$gitcmd"; then
 fi
 AC_SUBST(GIT_VERSION)
 
-#git describe --dirty --always
 # this trims the dirname off:
 #mah@ubuntu-10:~/emc2-dev/src$ RTS=c/onf
 #mah@ubuntu-10:~/emc2-dev/src$ echo  ${RTS##*/}
@@ -823,58 +884,51 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 # $RTS --cc should return the C compiler used - Verify this is acceptable.   #
 # if version is gcc-2.96 check for alternative                               #
 ##############################################################################
-AC_MSG_CHECKING([for cc version])
+dnl AC_MSG_CHECKING([for cc version])
 
 # The compiler MUST match the one used to compile the realtime modules if the
 # kernel level code is to function correctly. But if the kernel has been
 # compiled with gcc-2.96, it is unlikely to ever work !
 # However realtime-config doesn't seem to have such an option
-if (test ${RTS##*/} = rtai-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtai-config)
-elif (test ${RTS##*/} = rtl-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtl-config)
-else
-  AC_MSG_RESULT(not specified)
-fi
+dnl if test $THREADS = rtai; then
+dnl   RTSCC=`$RTS --cc`
+dnl   AC_MSG_RESULT(found $RTSCC in $RTS) # rtai-config
+dnl elif (test ${RTS##*/} = rtl-config ) ; then
+dnl   RTSCC=`$RTS --cc`
+dnl   AC_MSG_RESULT(found $RTSCC in rtl-config)
+dnl else
+dnl   AC_MSG_RESULT(not specified)
+dnl fi
 
-AC_PROG_CC([$RTSCC gcc])
-AC_PROG_CPP()
+dnl AC_PROG_CC([$RTSCC gcc])
+dnl AC_PROG_CPP()
 
-if test -z "$CC"; then
-  AC_MSG_ERROR([no acceptable cc found])
-elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
-fi
+dnl if test -z "$CC"; then
+dnl   AC_MSG_ERROR([no acceptable cc found])
+dnl elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
+dnl   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
+dnl fi
 
 AC_MSG_CHECKING([for usability of rdtscll from asm/msr.h])
-AC_TRY_LINK(
-    [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <asm/msr.h>
 #include <stdio.h>
 void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
-],
-    [],
-    [
+]], [[]])],[
         MSR_H_USABLE=yes
         AC_DEFINE([MSR_H_USABLE], [], [Define to 1 if asm/msr.h is usable and defines rdtscll])
-    ], [MSR_H_USABLE=no])
+    ],[MSR_H_USABLE=no])
 AC_MSG_RESULT($MSR_H_USABLE)
 
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
-AC_TRY_LINK(
-    [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
 #include <linux/hidraw.h>
 long hidiocgrawinfo = HIDIOCGRAWINFO;
-    ],
-    [],
-    [
+    ]], [[]])],[
 	HIDRAW_H_USABLE=yes
         AC_DEFINE([HIDRAW_H_USABLE], [], [Define to 1 if linux/hidraw.h is usable and defines HIDIOCGRAWINFO])
-],
-    [HIDRAW_H_USABLE=no])
+],[HIDRAW_H_USABLE=no])
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
@@ -888,69 +942,70 @@ AC_SUBST([HIDRAW_H_USABLE])
 # compiled against.                                                          #
 ##############################################################################
 
-if test $RTS '!=' sim; then
-AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
+if test $THREADS '!=' posix; then
+    AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
+        [AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
-# Unfortunately, many distributions (redhat, mandrake) have #defines
-# inside version.h, so a simple cat|grep|cut test won't work... But then again,
-# RH & Mandrake kernels are notorious for their use of patches that break
-# the RT patching - Both RTAI and RTLinux strongly recommend using
-# a virgin source from kernel.org.
+    # Unfortunately, many distributions (redhat, mandrake) have #defines
+    # inside version.h, so a simple cat|grep|cut test won't work... But then again,
+    # RH & Mandrake kernels are notorious for their use of patches that break
+    # the RT patching - Both RTAI and RTLinux strongly recommend using
+    # a virgin source from kernel.org.
 
-# Get the kernel version from version.h
-AC_MSG_CHECKING([for kernel version string])
+    # Get the kernel version from version.h
+    AC_MSG_CHECKING([for kernel version string])
 
-if test -e $KERNELDIR/include/linux/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
-elif test -e $KERNELDIR/include/generated/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
-else
-    VERSION_FILE=$KERNELDIR/include/linux/version.h
-fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+    if test -e $KERNELDIR/include/linux/utsrelease.h; then
+	VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
+    elif test -e $KERNELDIR/include/generated/utsrelease.h; then
+	VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
+    else
+	VERSION_FILE=$KERNELDIR/include/linux/version.h
+    fi
+    KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
-if test -z "$KERNEL_VERS"; then 
-    AC_MSG_ERROR(Kernel version string not found)
-fi
+    if test -z "$KERNEL_VERS"; then 
+	AC_MSG_ERROR(Kernel version string not found)
+    fi
 
-AC_MSG_RESULT([$KERNEL_VERS])
-AC_SUBST([KERNEL_VERS])
-AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
+    AC_MSG_RESULT([$KERNEL_VERS])
+    AC_SUBST([KERNEL_VERS])
+    AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
 
-# Do a quick test for module extension..
-AC_MSG_CHECKING([for kernel module extension])
-MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-if test "x" = "x$MODEXT"; then
-    MODEXT=".o"
-fi
-AC_MSG_RESULT([$MODEXT])
+    # Do a quick test for module extension..
+    AC_MSG_CHECKING([for kernel module extension])
+    MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
+    if test "x" = "x$MODEXT"; then
+	MODEXT=".o"
+    fi
+    AC_MSG_RESULT([$MODEXT])
 
-# This check should see if kbuild is or isn't used
-AC_MSG_CHECKING([kernel build system])
-# FIXME FIXME FIXME
-# right now it will assume based on the kernel module extension
-EXT_RTFLAGS=""
-BUILD_SYS="normal"
+    # This check should see if kbuild is or isn't used
+    AC_MSG_CHECKING([kernel build system])
+    # FIXME FIXME FIXME
+    # right now it will assume based on the kernel module extension
+    EXT_RTFLAGS=""
+    BUILD_SYS="normal"
 
-if test "x$MODEXT" = "x.ko" ; then
-    BUILD_SYS="kbuild"
-else
-    EXT_RTFLAGS="-DEXPORT_SYMTAB"
-fi
+    if test "x$MODEXT" = "x.ko" ; then
+	BUILD_SYS="kbuild"
+    else
+	EXT_RTFLAGS="-DEXPORT_SYMTAB"
+    fi
 
-AC_ARG_WITH(kbuild,
-    [  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
-    [
-        case "$withval" in
-        "" | y | ye | yes )
-	    BUILD_SYS="kbuild"
-          ;;
-        n | no )
-	    BUILD_SYS="normal"
-          ;;
-        esac
-    ])
-AC_MSG_RESULT([$BUILD_SYS])
+    AC_ARG_WITH(kbuild,
+	[  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
+	[
+	    case "$withval" in
+	    "" | y | ye | yes )
+		BUILD_SYS="kbuild"
+	      ;;
+	    n | no )
+		BUILD_SYS="normal"
+	      ;;
+	    esac
+	])
+    AC_MSG_RESULT([$BUILD_SYS])
 fi
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
@@ -1407,7 +1462,7 @@ MATHINC=""
 
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
-if (test ${RTS##*/} = rtai-config ) ; then
+if test $THREADS = rtai ; then
     if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
        USE_RTLIBM=1
     fi
@@ -1550,16 +1605,12 @@ LIBS="$LIBS -lm"
 
 AC_MSG_CHECKING([for sincos function])
 sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[double a, b;]], [[sincos(1.0, &a, &b);]])],[AC_DEFINE(
+        HAVE_SINCOS,
         1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
+        Define to 1 if sincos is available.
+    )],[sincos_ok=no
+])
 AC_MSG_RESULT([$sincos_ok])
 
 AC_CHECK_FUNCS(__sincos)
@@ -1674,7 +1725,7 @@ else
 fi
 
 HAVE_WORKING_BLT=no
-AC_MSG_CHECKING([for BLT using tclsh8.5])else
+AC_MSG_CHECKING([for BLT using tclsh8.5])
 if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
     AC_MSG_RESULT([found])
     HAVE_WORKING_BLT=yes
@@ -1946,15 +1997,13 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
     AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
 
     AC_MSG_CHECKING(for working GLU quadrics)
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <GL/gl.h>
 #include <GL/glu.h>
-],
-	[GLUquadric *q;],
-	[AC_MSG_RESULT(yes)],[
-		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python])]
+]], [[GLUquadric *q;]])],[AC_MSG_RESULT(yes)],[
+		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python])
 	
-    )
+    ])
 
     AC_MSG_CHECKING(for Xmu headers)
     AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
@@ -1987,7 +2036,7 @@ AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
-AC_OUTPUT()
+AC_OUTPUT
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #

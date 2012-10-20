@@ -1,6 +1,6 @@
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
-OLD_SHELL := $(SHELL)
-SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+#OLD_SHELL := $(SHELL)
+#SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
 
 # Delete the default suffix rules
 .SUFFIXES:
