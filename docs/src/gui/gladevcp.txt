@@ -1731,3 +1731,8 @@ Therefore, key events in GladeVCP are explicitly handled, and
 selectively forwarded to Axis, to assure that such situations cannot
 arise. For details, see the `keyboard_forward()` function in
 `lib/python/gladevcp/xembed.py`.
+
+== Adding Custom Widgets
+
+The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
+link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
