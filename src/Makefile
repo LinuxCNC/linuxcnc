@@ -738,9 +738,6 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/pwmgen.o	  \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
 	hal/drivers/mesa-hostmot2/sserial.o   \
-	hal/drivers/mesa-hostmot2/mesa_autoconf.o   \
-	hal/drivers/mesa-hostmot2/mesa_8i20.o \
-	hal/drivers/mesa-hostmot2/mesa_7i64.o \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
 	hal/drivers/mesa-hostmot2/uart.o	  \
