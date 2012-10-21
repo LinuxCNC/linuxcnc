@@ -273,29 +273,29 @@ def load_handlers(usermod,halcomp,builder,useropts):
             directory = '.'
         if directory not in sys.path:
             sys.path.insert(0,directory)
-            dbg('adding import dir %s' % directory)
+            print ('adding import dir %s' % directory)
 
         try:
             mod = __import__(basename)
         except ImportError,msg:
             print "module '%s' skipped - import error: %s" %(basename,msg)
 	    continue
-        dbg("module '%s' imported OK" % mod.__name__)
+        print("module '%s' imported OK" % mod.__name__)
         try:
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
 
             if h and callable(h):
-                dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                print("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
                 objlist = h(halcomp,builder,useropts)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
-                dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
+                print("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
                 objlist =  [mod]
             # extract callback candidates
             for object in objlist:
-                dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
+                print("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
                     methods = dict.items()
                 else:
@@ -304,7 +304,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
                     if method.startswith('_'):
                         continue
                     if callable(f):
-                        dbg("Register callback '%s' in %s" % (method, object))
+                        #dbg("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
         except Exception, e:
             print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
@@ -325,11 +325,6 @@ class Gscreen:
     def __init__(self,inipath):
         (progdir, progname) = os.path.split(sys.argv[0])
         global xmlname
-        #usage = "usage: %prog [options] myfile.ui"
-        #parser = OptionParser(usage=usage)
-        #parser.disable_interspersed_args()
-        #(opts, args) = parser.parse_args()
-        #print args
         self.inipath = inipath
         localglade = os.path.join(CONFIGPATH,"gscreen.glade")
         if os.path.exists(localglade):
@@ -338,14 +333,12 @@ class Gscreen:
         else:
             print"\n**** GSCREEN INFO:  using glade file from: %s ****"% xmlname
         try:
-            # loading as a gtk.builder project
             self.xml = gtk.Builder()
             self.xml.add_from_file(xmlname)
         except:
             print "**** Gscreen GLADE ERROR:    With xml file: %s"% xmlname
             sys.exit(0)
         try:
-            # loading as a gtk.builder project
             self.xml.add_from_file(xmlname2)
             self.screen2 = True
         except:
@@ -373,11 +366,11 @@ class Gscreen:
     
         panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
         # at this point, any glade HL widgets and their pins are set up.
-        #handlers = load_handlers(None,self.halcomp,self.xml,None)
-    
+        self.xml.connect_signals( self )
+        # TODO this could be used to add user methods from a separate file see gladvcp.py
+        #handlers = load_handlers([sys.argv[0]],self.halcomp,self.xml,[])
         #self.xml.connect_signals(handlers)
 
-        self.xml.connect_signals( self )
         # access to saved prefernces
         self.prefs = preferences.preferences()
 
@@ -418,9 +411,6 @@ class Gscreen:
 
         w = self.widgets.statusbar1
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
-        #w.set_font_name(self.data.error_font_name)
-        #self.error_font = pango.FontDescription(self.data.error_font_name)
-        #w.modify_font(self.error_font)
         if not self.data.err_textcolor == "default":
             print"change error color",self.data.err_textcolor
             w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.data.err_textcolor))
@@ -433,7 +423,6 @@ class Gscreen:
         v.fork_command()
         v.show()
         window = self.widgets.terminal_window.add(v)
-        #window.add(v)
         self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
         self.widgets.terminal_window.show()
 
@@ -626,7 +615,7 @@ class Gscreen:
 
         # timers for updates
         gobject.timeout_add(50, self.periodic_status)
-        #gobject.timeout_add(100, self.periodic_radiobuttons)
+
         self.emc.continuous_jog_velocity(self.data.jog_rate)
         # dynamic tabs
         self._dynamic_childs = {}
@@ -650,8 +639,7 @@ class Gscreen:
             self.widgets.window1.window.set_cursor(None)
             self.widgets.gremlin.set_property('use_default_controls',True)
         self.update_position()
-        #self.widgets.gcode_view.set_sensitive(0)
-        #self.widgets.hal_led1.set_shape(2)
+
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
         # set to 'start mode' 
@@ -1817,8 +1805,6 @@ class Gscreen:
         self.data.task_mode = self.emcstat.task_mode 
         self.status.periodic()
         self.data.system = self.status.get_current_system()
-        #print self.status.data.x_abs
-        #self.radiobutton_mask = 0
         e = self.emcerror.poll()
         if e:
             kind, text = e
@@ -1827,7 +1813,6 @@ class Gscreen:
             else:
                 self.notify("Error Message",text,INFO_ICON,3)
         self.emc.unmask()
-        #self.hal.periodic(self.tab == 1) # MDI tab?
         self.update_position()
         return True
 
@@ -1905,7 +1890,6 @@ class Gscreen:
                 else:
                     self.halcomp["flood-coolant.out"] = True
         self.widgets.active_feed_speed_label.set_label("F%s    S%s"% (self.data.active_feed_command,self.data.active_spindle_command))
-        #tool = str(self.data.preppedtool)
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
         self.widgets.system.set_text("Tool %s     %s"%(tool,systemlabel[self.data.system]))
@@ -1924,7 +1908,6 @@ class Gscreen:
         else:
             text = "Jog: %3.2f IPM"% (round(self.data.jog_rate,2))
         self.widgets.jog_rate.set_text(text)
-        #print self.data.velocity_override,self.data._maxvelocity
         # Mode / view
         modenames = ("Manual","MDI","Auto")
         self.widgets.mode_label.set_label( "%s Mode   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
