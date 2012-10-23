@@ -17,6 +17,15 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# Gscreen is made for running linuxcnc CNC machines
+# currently only machines with XYZA or less are useable.
+# Gscreen was built with touchscreens in mind though a mouse works too.
+# a keyboard is necessary for editting gcode
+# Gscreen is, at it's heart, a gladevcp program though loaded in a non standard way.
+# one can also use a second monitor to display a second glade panel
+# this would probably be most useful for user's custom status widgets.
+# you would need to calibrate your touchscreen to just work on a single screen
+ 
 import pygtk
 pygtk.require("2.0")
 import gtk
@@ -34,41 +43,61 @@ import vte
 import time
 import hal_glib
 
+# try to add a notify system so messages use the
+# nice intergrated pop-ups
+# Ubuntu kinda wrecks this be not following the
+# standard - you can't set how long the message stays up for.
+# I suggest fixing this with a PPA off the net
+# https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
 try:
     NOTIFY_AVAILABLE = False
     import pynotify
     if not pynotify.init("Gscreen"):
-        print "There was a problem initializing the pynotify module"
+        print "**** INFO Gscreen: There was a problem initializing the pynotify module"
     else:
         NOTIFY_AVAILABLE = True
 except:
-    print "You don't seem to have pynotify installed"
+    print "**** INFO Gscreen: You don't seem to have pynotify installed"
+
+# try to add ability for audio feedback to user.
 try:
     _AUDIO_AVAIALBLE = False
     import pygst
     pygst.require("0.10")
     import gst
     _AUDIO_AVAIALBLE = True
-    print "audio good!"
+    print "**** INFO Gscreen: audio available!"
 except:
-    print "**** ERROR audio_alerts:    PYGST libray not available"
+    print "**** INFO Gscreen: no audio alerts available - PYGST libray not installed?"
 
+# BASE is the absolute path to linuxcnc base
+# libdir is the path to Gscreen python files
+# datadir is where the standarad GLADE files are
+# imagedir is for icons
+# themesdir is path to system's GTK2 theme folder
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
 datadir = os.path.join(BASE, "share", "linuxcnc")
 imagedir = os.path.join(BASE, "share","gscreen","images")
 sys.path.insert(0, libdir)
 themedir = "/usr/share/themes"
+
 xmlname = os.path.join(datadir,"gscreen.glade")
 xmlname2 = os.path.join(datadir,"gscreen2.glade")
 ALERT_ICON = os.path.join(imagedir,"applet-critical.png")
 INFO_ICON = os.path.join(imagedir,"std_info.gif")
+
+# internationalization and localization
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
 gtk.glade.textdomain("linuxcnc")
+
+# path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
+# path to the configuration the user requested
+# used to see if the is local GLADE files to use
 CONFIGPATH = os.environ['CONFIG_DIR']
 
 import linuxcnc
@@ -76,17 +105,17 @@ from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
 
+# this is for hiding the pointer when using a touch screen
 pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
 "1 1 1 1",
 "	c None",
 " "};'''
-
-
 color = gtk.gdk.Color()
 pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
 invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
+# Throws up a dialog with debug info when an error is encountered 
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
         w = app.widgets.window1
@@ -113,6 +142,8 @@ _MAN = 0;_MDI = 1;_AUTO = 2
 _MM = 1;_IMPERIAL = 0
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
 
+# the player class does the work of playing the audio hints
+# http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
     def __init__(self):
         #Element playbin automatic plays any file
@@ -144,14 +175,7 @@ class Player:
             print "Error: %s" % err, debug
             self.loop.quit()
 
-class Trampoline(object):
-    def __init__(self,methods):
-        self.methods = methods
-
-    def __call__(self, *a, **kw):
-        for m in self.methods:
-            m(*a, **kw)
-
+# a class for holding the glade widgets rather then searching for them each time
 class Widgets:
     def __init__(self, xml):
         self._xml = xml
@@ -164,6 +188,8 @@ class Widgets:
         if r is None: raise IndexError, "No widget %r" % attr
         return r
 
+# a class for holding data
+# here we intialize the data
 class Data:
     def __init__(self):
         self.use_screen2 = False
@@ -256,6 +282,17 @@ class Data:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+# trampoline and load_handlers are copied from gladevcp
+# these are used to load user-made methods into Gscreen
+# this is not actually available yet
+class Trampoline(object):
+    def __init__(self,methods):
+        self.methods = methods
+
+    def __call__(self, *a, **kw):
+        for m in self.methods:
+            m(*a, **kw)
+
 def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
 
@@ -319,6 +356,12 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
     return handlers
 
+# ok here is the Gscreen class
+# there are also three other files:
+# mdi.py for mdi commands (which incluse non-obvious mdi commands done in maual mode
+# preference.py for keeping track of stored user preferences
+# emc_interface.py which does the most of the commands and status of linnuxcnc
+# keep in mind some of the gladeVCP widgets send-commands-to/monitor linuxcnc also
 
 class Gscreen: 
 
