@@ -72,8 +72,8 @@ the GUI.
 In general, the new tool table line format is:
 
  - ; - opening semicolon, no data
- - T - tool number, 0-99999 (you can have a large number of tools in inventory)
- - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - T - tool number, 0-99999 (tool numbers must be unique)
+ - P - pocket number, 1-99999 (pocket numbers must be unique)
  - X..W - tool offset on specified axis - floating-point
  - D - tool diameter - floating-point, absolute value
  - I - front angle (lathe only) - floating-point 
