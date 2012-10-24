@@ -1,0 +1,43 @@
+From ebaefba238af22e4f30febc61175c7f9d3211cb4 Mon Sep 17 00:00:00 2001
+From: Les Newell <les.newell@fastmail.co.uk>
+Date: Mon, 13 Aug 2012 11:15:19 +0100
+Subject: [PATCH] A number of bug fixes for modbus:
+Not calculating packet size for function code 2 (Read discrete inputs)
+sending incorrect data when forcing multiple coils using more than one byte.
+
+---
+ src/hal/user_comps/modbus.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/hal/user_comps/modbus.c b/src/hal/user_comps/modbus.c
+index ed213c2..fe9cf37 100644
+--- a/src/hal/user_comps/modbus.c
++++ b/src/hal/user_comps/modbus.c
+@@ -151,7 +151,8 @@ static unsigned int compute_response_size(modbus_param_t *mb_param,
+   offset = mb_param->header_length;
+
+   switch (query[offset + 1]) {
+-    case 0x01: {
++    case 0x01:
++    case 0x02: {
+       /* Header + nb values (code from force_multiple_coils) */
+       int coil_count = (query[offset + 4] << 8) | query[offset + 5];
+       response_size_computed = 3 +
+@@ -784,6 +785,7 @@ int force_multiple_coils(modbus_param_t *mb_param, int slave,
+   int coil_check = 0;
+   int status;
+   int query_ret;
++  int pos = 0;
+
+   unsigned char query[MAX_PACKET_SIZE];
+
+@@ -800,7 +802,6 @@ int force_multiple_coils(modbus_param_t *mb_param, int slave,
+
+   for (i = 0; i < byte_count; i++) {
+     int bit;
+-    int pos = 0;
+
+     bit = 0x01;
+     query[query_size] = 0;
+--
+1.5.4.3
