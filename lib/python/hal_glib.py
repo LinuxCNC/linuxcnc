@@ -108,6 +108,11 @@ class _GStat(gobject.GObject):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.old = {}
+        try:
+            self.stat.poll()
+            self.merge()
+        except:
+            pass
         gobject.timeout_add(100, self.update)
 
     def merge(self):
