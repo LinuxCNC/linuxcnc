@@ -1054,7 +1054,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
-#if defined(RTAPI_SIM)
+#if defined(BUILD_SYS_USER_DSO)
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
