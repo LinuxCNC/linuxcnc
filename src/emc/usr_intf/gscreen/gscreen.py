@@ -450,8 +450,7 @@ class Gscreen:
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
         self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
-
-
+        self.on_hal_status_state_off(None)
         w = self.widgets.statusbar1
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         if not self.data.err_textcolor == "default":
@@ -459,6 +458,8 @@ class Gscreen:
             w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.data.err_textcolor))
         self.widgets.statusbar1.push(1,"Ready")
         self.widgets.data_input.set_value(5.125)
+        pangoFont = pango.FontDescription("Tahoma 18")
+        self.widgets.data_input.modify_font(pangoFont)
         self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
         # add terminal window
         v = vte.Terminal ()
@@ -572,6 +573,10 @@ class Gscreen:
         self.widgets.audio_error_chooser.connect("update-preview", self.update_preview)
         self.widgets.audio_alert_chooser.connect("selection_changed",self.change_sound,"alert")
         self.widgets.audio_alert_chooser.connect("update-preview", self.update_preview)
+        self.widgets.hal_status.connect("interp-idle", self.on_hal_status_interp_idle)
+        self.widgets.hal_status.connect("interp-run", self.on_hal_status_interp_run)
+        self.widgets.hal_status.connect("state-on", self.on_hal_status_state_on)
+        self.widgets.hal_status.connect("state-off", self.on_hal_status_state_off)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -899,7 +904,8 @@ class Gscreen:
             elif number == 4: pass
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
-            if number == 1: pass
+            if number == 0: pass
+            elif number == 1: pass
             elif number == 2: pass
             elif number == 3: pass
             elif number == 4: pass
@@ -1007,7 +1013,31 @@ class Gscreen:
             self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
             self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
 
+    def on_hal_status_interp_run(self,widget):
+        print "run"
+        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s","button_mode"]
+        self.sensitize_widgets(temp,False)
+
+    def on_hal_status_interp_idle(self,widget):
+        print "idle"
+        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s","button_mode"]
+        self.sensitize_widgets(temp,True)
+
+    def on_hal_status_state_on(self,widget):
+        print "on"
+        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_graphics","button_mode"]
+        self.sensitize_widgets(temp,True)
+
+    def on_hal_status_state_off(self,widget):
+        print "off"
+        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_mode","button_graphics"]
+        self.sensitize_widgets(temp,False)
+
 # ****** do stuff *****
+
+    def sensitize_widgets(self, widgetlist, value):
+        for name in widgetlist:
+            self.widgets[name].set_sensitive(value)
 
     def from_internal_linear_unit(self,v, unit=None):
         if unit is None:
@@ -1236,18 +1266,10 @@ class Gscreen:
 
     def origin_system(self,*args):
         print "origin system button"
-        if self.widgets.button_h1_1.get_active():
-            self.widgets.button_mode.set_sensitive(False)
-            self.widgets.button_override.set_sensitive(False)
-            self.widgets.dro_frame.set_sensitive(False)
-            self.widgets.button_graphics.set_sensitive(False)
-            self.widgets.button_homing.set_sensitive(False)
-        else:
-            self.widgets.button_mode.set_sensitive(True)
-            self.widgets.button_override.set_sensitive(True)
-            self.widgets.dro_frame.set_sensitive(True)
-            self.widgets.button_graphics.set_sensitive(True)
-            self.widgets.button_homing.set_sensitive(True)
+        value = self.widgets.button_h1_1.get_active()
+        temp = ["button_override","button_graphics","button_homing","axis_x","axis_y","axis_z","axis_z","axis_s","button_mode",
+                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
+        self.sensitize_widgets(temp,not value)
 
     def change_origin_system(self,system,direction=None):
         print system,direction
@@ -1286,17 +1308,24 @@ class Gscreen:
             self.widgets.mode5.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.dro_frame.set_sensitive(False)
-            self.widgets.button_mode.set_sensitive(False)
-            self.widgets.button_override.set_sensitive(False)
-            self.widgets.button_homing.set_sensitive(False)
+            self._tempholder = []
+            self._templist = ["button_override","button_homing","button_mode","axis_x","axis_y","axis_z","axis_s",
+                                "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
+            for name in (self._templist):
+                self._tempholder.append(self.widgets[name].get_sensitive())
+                self.widgets[name].set_sensitive(False)
+            self.widgets.vmode0.set_sensitive(True)
+            self.widgets.button_v0_2.set_sensitive(True)
+            self.widgets.button_v0_3.set_sensitive(True)
+
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.dro_frame.set_sensitive(True)
-            self.widgets.button_mode.set_sensitive(True)
-            self.widgets.button_override.set_sensitive(True)
-            self.widgets.button_homing.set_sensitive(True)
+            for num,name in enumerate(self._templist):
+                if self.data.machine_on:
+                    self.widgets[name].set_sensitive(True)
+                else:
+                    self.widgets[name].set_sensitive(self._tempholder[num])
 
     def override(self,*args):
         print "show/hide override buttons"
