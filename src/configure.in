@@ -572,6 +572,7 @@ case "$THREADS" in
 	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
   	RTFLAGS=`$RTS --module-cflags`
         RTFLAGS="$RTFLAGS -DRTAI=3"
+	RTAI=3
 	# or use explicitly set KERNELDIR?
         KERNELDIR=`$RTS --linux-dir`
     	RTARCH=`$RTS --arch`
