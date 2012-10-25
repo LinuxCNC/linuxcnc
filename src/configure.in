@@ -72,8 +72,6 @@ AC_PATH_PROG(EGREP, egrep)
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
-#AC_MSG_CHECKING(for realtime setup)
-
 # set up some default values
 
 # we'll be using it for compile tests
@@ -100,7 +98,7 @@ RTAI=""
 # relevant case: rtai-config -cc
 RTSCC=""
 
-# used  to signify the threadsystem.
+# used  to signify the thread style
 # also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files (src/Makefile)
 # historic values: 'sim', 'rtai', or 'rtl'.
 #
@@ -127,6 +125,16 @@ RTFLAGS=""
 # 'sim' has been renamed 'user-dso' because it does not imply simulator mode anymore -
 #   too much confusion.
 BUILD_SYS=""
+# reflected in config.h like so:
+#
+# /* build modules through kbuild */
+# /* #undef BUILD_SYS_KBUILD */
+#
+# /* build normal (unused) */
+# /* #undef BUILD_SYS_NORMAL */
+#
+# /* build modules as .so shared objects */
+# #define BUILD_SYS_USER_DSO /**/
 
 
 # SIMULATOR=yes if --enable-simulator was given - use this to derive other values
@@ -143,25 +151,45 @@ SIMULATOR=no
 # at the shell script/makefile level, we have:
 #
 # 'THREADS' - one of 'rtai', 'posix', 'xenomai-user', 'xenomai-kernel',
-# 'rt-preempt-user', 'rt-preempt-kernel' 
+# 'rt-preempt-user', 'rt-preempt-kernel' in shell/Makefile
 #
 THREADS=""
 
-# 'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
+# reflected in config.h like so:
 #
-# in config.h we have a corresponding #define / and  #undef's for the others:
+# /* thread style posix */
+# /* #undef RTAPI_POSIX */
 #
-# THREAD_RTAI_KERNEL 
-# THREAD_XENOMAI_KERNEL 
-# THREAD_XENOMAI_USER 
-# THREAD_RT_PREEMPT_USER 
-# THREAD_RT_PREEMPT_KERNEL
-# THREAD_POSIX_USER
+# /* thread style rtai */
+# /* #undef RTAPI_RTAI */
 #
-# BUILD_USER_DSO
-# BUILD_KBUILD
-# BUILD_NORMAL (not used - should deprecate).
+# /* thread style rt-preempt-kernel */
+# /* #undef RTAPI_RTPREEMPT_KERNEL */
 #
+# /* thread style rt-preempt-user */
+# /* #undef RTAPI_RTPREEMPT_USER */
+#
+# /* thread style xenomai-kernel */
+# /* #undef RTAPI_XENOMAI_KERNEL */
+#
+# /* thread style xenomai-user */
+# #define RTAPI_XENOMAI_USER /**/
+#
+
+# 'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' in shell/Makkefile
+#
+# this is reflected in config.h like so:
+#
+# /* build modules through kbuild */
+# /* #undef BUILD_SYS_KBUILD */
+#
+# /* build normal (unused) */
+# /* #undef BUILD_SYS_NORMAL */
+#
+# /* build modules as .so shared objects */
+# #define BUILD_SYS_USER_DSO /**/
+
+
 # the latter is implied by the former, so we have:
 # 'rtai', 'xenomai-kernel', 'rt-preempt-kernel' -> implies 'kbuild' 
 # 'posix', 'xenomai-user', 'rt-preempt-user' -> implies 'user-dso'
@@ -181,14 +209,16 @@ THREADS=""
 # to explicitly enable them, we add a '--enable-drivers' option for that case.
 #
 BUILD_DRIVERS="no"
-
+# reflected in config.h as follows:
+# /* build hardware drivers */
+# #define BUILD_DRIVERS /**/
 #
 # the existing configurations will translate as follows:
 #
 # --enable-simulator: THREADS=posix, BUILD_SYS=user-dso, BUILD_DRIVERS=no
 #   defines shell subsitution, and make variables as follows:
 #           BUILD_SYS=usr-dso THREADS=posix BUILD_DRIVERS=no
-#   define in config.h: BUILD_USER_DSO THREAD_POSIX_USER
+#   define in config.h: BUILD_USER_DSO RTAPI_POSIX
 #
 # --enable-simulator --enable-drivers will set BUILD_DRIVERS=yes in shell/Makefiles
 #   and define in config.h: BUILD_DRIVERS
@@ -228,9 +258,7 @@ DEFAULT_THREADSTYLE_RTAI=rtai
 DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt-user
 
 # note to mah: dont forget debian/configure FIXME
-
-# ------------- #defines -----------
-# SIMULATOR 
+ 
 
 ##############################################################################
 # Subsection 2.1                                                             #
@@ -671,10 +699,6 @@ if test "$BUILD_DRIVERS" = yes; then
 fi
 AC_SUBST(BUILD_DRIVERS)
 
-dnl buildsys=`echo $BUILD_SYS |tr '[a-z\-]' '[A-Z_]'`
-dnl AC_DEFINE_UNQUOTED([BUILD_SYS_$buildsys], [], [module build style])
-dnl AC_SUBST(BUILD_SYS_$buildsys)
-
 # man, is this lame
 case $BUILD_SYS in
   user-dso)
@@ -726,175 +750,6 @@ if test -n "$gitcmd"; then
 fi
 AC_SUBST(GIT_VERSION)
 
-# this trims the dirname off:
-#mah@ubuntu-10:~/emc2-dev/src$ RTS=c/onf
-#mah@ubuntu-10:~/emc2-dev/src$ echo  ${RTS##*/}
-#onf
-
-dnl if test $RTPREFIX = posix; then
-dnl     AC_DEFINE(RTAPI_POSIX, [], [Realtime system uses Posix threads (sim)])
-dnl elif test $RTPREFIX = rtai; then
-dnl     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
-dnl elif test $RTPREFIX = xenomai-user; then
-dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
-dnl elif test $RTPREFIX = xenomai-user; then
-dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
-dnl elif test $RTPREFIX = xenomai-user; then
-dnl     AC_DEFINE(RTAPI_XENOMAI_USER, [], [Realtime system is Xenomai user RT])
-dnl fi
-
-
-dnl exit 0
-dnl # now check validity of option combinations:
-
-
-
-dnl ##############################################################################
-dnl # Subsection 2.2                                                             #
-dnl # 1. If a RT has been specified by the user it needs to be checked for       #
-dnl # validity. That is done by checking default locations for a certain script  #
-dnl # (similar to 2)                                                             #
-dnl #                                                                            #
-dnl # 2. If no RT has been specified explicitely by the user, one has to be      #
-dnl # found by search. In order to do that the following code will search for a  #
-dnl # RT-specific script:                                                        #
-dnl # rtlinux-config for RTLinux                                                 #
-dnl # realtime-config for RTAI 24.1.x                                            #
-dnl # rtai-config for RTAI 3.x                                                   #
-dnl ##############################################################################
-
-dnl #at this point if RTDIR is empty, we need to find RT ourselves
-dnl if test $SIMULATOR = yes; then
-dnl   RTS=sim
-dnl   AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-dnl   if test "$PTH_CONFIG" = ""; then
-dnl     AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-dnl   fi
-dnl else
-dnl   if test -z "$RTDIR"; then
-dnl     DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-dnl   else
-dnl     DIRS="$RTDIR"
-dnl   fi
-dnl   for location in $DIRS; do
-dnl     for subdir in . scripts bin; do
-dnl       for signature in rtai rtl realtime; do
-dnl 	candidate=$location/$subdir/$signature-config
-dnl 	if test -z "$RTS" -a -e $candidate; then
-dnl 	  RTS=$candidate
-dnl 	fi
-dnl       done
-dnl     done
-dnl  done
-dnl  if test -z "$RTS"; then
-dnl     AC_MSG_ERROR([RT not found.  Specify:
-dnl 	--with-realtime=<path>
-dnl or use
-dnl 	--enable-simulator
-dnl to build without a realtime system.])
-dnl   fi
-dnl   AC_MSG_RESULT([Using $RTS as the RT signature])
-dnl fi
-
-
-dnl ##############################################################################
-dnl # Subsection 2.3                                                             #
-dnl # we have the RT-script now, it's time to query it for some values           #
-dnl # it can provide us with default values such as CC, CFLAGS, etc              #
-dnl # see each case for more details                                             #
-dnl ##############################################################################
-
-dnl RTARCH=`uname -m | sed s/i.86/i386/`
-dnl case $RTS in
-dnl */rtai-config)
-dnl     RTNAME=rtai-3.0
-dnl     RTPREFIX=rtai
-dnl     RTAI=3
-dnl     RTDIR=`$RTS --prefix`
-dnl     RTDIR=$(cd $RTDIR ; pwd -P )
-dnl     RTFLAGS=`$RTS --module-cflags`
-dnl     RTFLAGS="$RTFLAGS -DRTAI=3"
-dnl     KERNELDIR=`$RTS --linux-dir`
-dnl     RTARCH=`$RTS --arch`
-dnl ;;
-dnl */realtime-config)
-dnl # For RTAI-24.1x $RTS = realtime-config
-dnl # Options and their return values for realtime-config
-dnl #	 Option		Returns
-dnl #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
-dnl #	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
-dnl #	--cc		The compiler used for the C sources - Not necessarily the default cc
-dnl #	--cflags	Flags used to compile the realtime modules with.
-dnl #	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
-dnl #	--dump		Dumps the .buildvars to screen - Grep for linuxdir
-dnl     RTNAME=rtai
-dnl     RTPREFIX=rtai
-dnl     RTAI=1
-
-dnl     # any other rtai-24.1.x system
-dnl     TEMP=`$RTS --prefix`
-dnl     if (test -d $TEMP) ; then
-dnl         RTDIR=$(cd $TEMP ; pwd -P )
-dnl     else
-dnl         RTDIR=${RTS%%/scripts/realtime-config}
-dnl     fi
-dnl     RTFLAGS=`$RTS --cflags-fp | head -n 1`
-dnl     RTFLAGS="$RTFLAGS -DRTAI=1"
-dnl     KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
-dnl #"
-dnl     KERNELDIR=$(cd $KERNELDIR ; pwd -P )
-dnl ;;
-dnl */rtl-config)
-dnl # For RTLinux-3.? $RTS = rtl-config
-dnl # Options and their return values for rtl-config
-dnl #	 Option		Returns
-dnl #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
-dnl #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
-dnl #	--cc		The compiler used for the C sources - Not necessarily the default cc
-dnl #	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-dnl #	--linux		Path to the source directory of the patched kernel.
-dnl #	--module_dir	Path to the directory where the RTLinux modules are installed
-dnl #	--modules	A list of the available realtime modules.
-dnl     RTPREFIX=rtl
-dnl     RTDIR=`$RTS --prefix`
-dnl     RTDIR=$(cd $RTDIR ; pwd -P )
-dnl     RTFLAGS=`$RTS --cflags`
-dnl     KERNELDIR=`$RTS --linux`
-dnl ;;
-dnl sim)
-dnl     RTPREFIX=sim
-dnl     RTDIR=$(pwd -P)
-dnl     RTFLAGS=-DSIMULATOR
-dnl esac
-
-dnl if test $RTS != sim; then
-dnl     AC_MSG_CHECKING([for location of kernel headers])
-dnl     AC_ARG_WITH(kernel-headers,
-dnl 	[  --with-kernel-headers=<directory>       Location for kernel headers],
-dnl 	[
-dnl 	    KERNELDIR="$withval"
-dnl 	    AC_MSG_RESULT(using specified value: $KERNELDIR)
-dnl 	],[
-dnl 	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
-dnl 	])
-dnl fi
-
-dnl AC_SUBST([RTNAME])
-dnl AC_SUBST([RTAI])
-dnl AC_SUBST([RTPREFIX])
-dnl AC_SUBST([KERNELDIR])
-dnl AC_SUBST([RTFLAGS])
-dnl AC_SUBST([RTDIR])
-dnl AC_SUBST([RTARCH])
-
-dnl if test $RTPREFIX = sim; then
-dnl     AC_DEFINE(RTAPI_SIM, [], [Realtime system is simulated])
-dnl elif test $RTPREFIX = rtai; then
-dnl     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
-dnl elif test $RTPREFIX = rtl; then
-dnl     AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL])
-dnl fi
-
 
 EMC2_HOME=`(cd .. ; pwd)`
 AC_SUBST([EMC2_HOME])
@@ -920,30 +775,6 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 # $RTS --cc should return the C compiler used - Verify this is acceptable.   #
 # if version is gcc-2.96 check for alternative                               #
 ##############################################################################
-dnl AC_MSG_CHECKING([for cc version])
-
-# The compiler MUST match the one used to compile the realtime modules if the
-# kernel level code is to function correctly. But if the kernel has been
-# compiled with gcc-2.96, it is unlikely to ever work !
-# However realtime-config doesn't seem to have such an option
-dnl if test $THREADS = rtai; then
-dnl   RTSCC=`$RTS --cc`
-dnl   AC_MSG_RESULT(found $RTSCC in $RTS) # rtai-config
-dnl elif (test ${RTS##*/} = rtl-config ) ; then
-dnl   RTSCC=`$RTS --cc`
-dnl   AC_MSG_RESULT(found $RTSCC in rtl-config)
-dnl else
-dnl   AC_MSG_RESULT(not specified)
-dnl fi
-
-dnl AC_PROG_CC([$RTSCC gcc])
-dnl AC_PROG_CPP()
-
-dnl if test -z "$CC"; then
-dnl   AC_MSG_ERROR([no acceptable cc found])
-dnl elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-dnl   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
-dnl fi
 
 AC_MSG_CHECKING([for usability of rdtscll from asm/msr.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
