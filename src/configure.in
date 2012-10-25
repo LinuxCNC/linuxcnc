@@ -978,7 +978,8 @@ AC_SUBST([HIDRAW_H_USABLE])
 # compiled against.                                                          #
 ##############################################################################
 
-if test $THREADS '!=' posix; then
+case $THREADS in
+    rt-preempt-kernel|rtai|xenomai-kernel)
     AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
         [AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
@@ -1042,7 +1043,14 @@ if test $THREADS '!=' posix; then
 	    esac
 	])
     AC_MSG_RESULT([$BUILD_SYS])
-fi
+    ;;
+   posix|xenomai-user|rt-preempt-user)
+      MODEXT=".so"
+   ;;
+   *)
+   echo "duh?" THREADS=$THREADS
+   ;;
+esac
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 AC_SUBST([BUILD_SYS])

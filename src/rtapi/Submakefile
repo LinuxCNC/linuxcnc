@@ -5,19 +5,59 @@ INCLUDES += rtapi
 ../include/%.hh: ./rtapi/%.hh
 	cp $^ $@
 
-ifeq ($(BUILD_SYS),user-dso)
+# defaults for kernel thread styles
+# there's no rtapi_app  
+RTAPI_APP_SRCS := 
+# but a style-dependent userland rtapi which is needed by 
+# hal_lib and usrmotintf.cc
+ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
+#NB: redefined below
+
+
+# for now, handle all three rtapi_app flavors through conditional compilation in
+# the sim_rtapi*c files
+
+ifeq ($(THREADS),posix)
+RTAPI_APP_SRCS := \
+	rtapi/sim_rtapi_app.cc \
+	rtapi/sim_rtapi.c
+ULAPISRCS := rtapi/sim_ulapi.c
+
+PTH_CONFIG ?= pth-config
+RTAPI_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
+RTAPI_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
+endif
+
+ifeq ($(THREADS),xenomai-user)
+$(warning the xenomai-user RTAPI is not complete.)
+RTAPI_APP_SRCS := \
+	rtapi/sim_rtapi_app.cc \
+	rtapi/sim_rtapi.c
+ULAPISRCS := rtapi/sim_ulapi.c
+endif
+
+ifeq ($(THREADS),rt-preempt-user)
+$(warning the RT_PREEMPT RTAPI is not complete.)
 
 RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
 	rtapi/sim_rtapi.c
-USERSRCS += $(RTAPI_APP_SRCS)
-PTH_CONFIG ?= pth-config
-PTH_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
-PTH_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
+ULAPISRCS := rtapi/sim_ulapi.c
+endif
 
-$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(PTH_CFLAGS) -DSIM
+
+ifneq "$(filter posix xenomai-user rt-preempt-user,$(THREADS))" ""
+
+$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(RTAPI_CFLAGS) #-DSIM
 ../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(PTH_LINK)
+	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(RTAPI_LINK)
 TARGETS += ../bin/rtapi_app
 endif
+
+
+
+USERSRCS += $(ULAPISRCS)
+USERSRCS += $(RTAPI_APP_SRCS)
+
+

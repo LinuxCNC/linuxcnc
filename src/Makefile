@@ -119,7 +119,8 @@ SUBDIRS := \
     \
     ../docs/src
 
-ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
+# moved to src/rtapi/Submakefile
+# ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
@@ -697,7 +698,7 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
