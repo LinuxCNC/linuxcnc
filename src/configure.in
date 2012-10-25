@@ -102,7 +102,7 @@ RTSCC=""
 
 # used  to signify the threadsystem.
 # also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files (src/Makefile)
-# current values: 'sim', 'rtai', or 'rtl'.
+# historic values: 'sim', 'rtai', or 'rtl'.
 #
 # used in:
 # src/Makefile.inc
@@ -112,7 +112,7 @@ RTSCC=""
 # scripts/rtapi.conf
 RTPREFIX=""
 
-# currently has values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
+# historic values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
 # which can be used to extract c or ld flags specific for the thread system.
 #RTS
 
