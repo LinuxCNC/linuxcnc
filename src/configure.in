@@ -2124,7 +2124,7 @@ echo "#                                                                    #"
 if test "xyes" = "x$RUN_IN_PLACE"; then
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
-if test $SIMULATOR != yes; then
+if test $THREADS != posix -o \( $BUILD_DRIVERS = yes \) ; then
 echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
