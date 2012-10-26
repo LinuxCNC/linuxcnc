@@ -278,6 +278,9 @@ hal_ax5214h::
      (((hal-ax5214h))) A driver for the Axiom Measurement & Control AX5241H
     digital I/O board
 
+hal_gm::
+    (((hal-gm))) General Mechatronics 6 axis PCI motion controller
+
 hal_m5i20::
     (((hal-m5i20))) Mesa Electronics 5i20 board
 
