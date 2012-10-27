@@ -1,7 +1,13 @@
 #!/bin/sh
 . rtapi.conf
 
+<<<<<<< HEAD
 if [ "$BUILD_SYS" = user-dso ]; then
+|||||||
+if [ "$RTPREFIX" = sim ]; then
+=======
+if [ "$RTPREFIX" = sim -o "$RTPREFIX" = linux ]; then
+>>>>>>> rt-preempt-integration
     exit 1
 fi
 

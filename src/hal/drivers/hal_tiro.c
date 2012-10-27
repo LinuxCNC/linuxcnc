@@ -57,13 +57,14 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
 #define FASTIO
 
-#ifdef FASTIO
+#if defined(FASTIO) && !defined(RTAPI_LINUX)
 #define rtapi_inb inb
 #define rtapi_outb outb
 #include <asm/io.h>

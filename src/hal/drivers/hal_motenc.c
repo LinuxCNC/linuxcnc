@@ -207,6 +207,7 @@ typedef struct {
 
 typedef struct {
     // Private data.
+    struct rtapi_pcidev			*pDev;
     MotencRegMap			*pCard;
     int					boardType;
     char				*pTypeName;
@@ -273,7 +274,7 @@ int
 rtapi_app_main(void)
 {
     int					i, j;
-    struct pci_dev			*pDev = NULL;
+    struct rtapi_pcidev			*pDev = NULL;
     MotencRegMap			*pCard = NULL;
     Device				*pDevice;
 
@@ -291,7 +292,7 @@ rtapi_app_main(void)
 
     i = 0;
     // Find a MOTENC card.
-    while((i < MAX_DEVICES) && ((pDev = pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
+    while((i < MAX_DEVICES) && ((pDev = rtapi_pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
 
 	// Allocate memory for device object.
 	pDevice = hal_malloc(sizeof(Device));
@@ -301,14 +302,15 @@ rtapi_app_main(void)
 	    hal_exit(driver.componentId);
 	    return(-ENOMEM);
 	}
+	pDevice->pDev = pDev;
 
 	// Save pointer to device object.
 	driver.deviceTable[i++] = pDevice;
 	
 	// Map card into memory.
-	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in slot %2x\n", PCI_SLOT(pDev->devfn));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)pci_resource_len(pDev, 2));
+	pCard = (MotencRegMap *)rtapi_pci_ioremap(pDev, 2, sizeof(MotencRegMap));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)sizeof(MotencRegMap));
 
 	// Initialize device.
 	Device_Init(pDevice, pCard);
@@ -376,7 +378,9 @@ rtapi_app_exit(void)
 	    }
 	    
 	    // Unmap card.
-	    iounmap((void *)(pDevice->pCard));
+	    rtapi_pci_iounmap(pDevice->pDev, (void *)(pDevice->pCard));
+	    // Unregister the device
+	    rtapi_pci_put_device(pDevice->pDev);
 
 	    // TODO: Free device object when HAL supports free.
 //	    hal_free(pDevice);

@@ -59,6 +59,8 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
+
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
 #endif
@@ -72,7 +74,26 @@
     only.  Since we have a simulator that runs everything in user
     space, the non-underscore types should NEVER be used.
 */
-#include <asm/types.h>
+#ifdef RTAPI_LINUX
+# include <stdint.h>
+# include <string.h>
+typedef uint8_t		u8;
+typedef uint8_t		__u8;
+typedef uint16_t	u16;
+typedef uint16_t	__u16;
+typedef uint32_t	u32;
+typedef uint32_t	__u32;
+typedef int8_t		s8;
+typedef int8_t		__s8;
+typedef int16_t		s16;
+typedef int16_t		__s16;
+typedef int32_t		s32;
+typedef int32_t		__s32;
+#define __iomem		/* Nothing */
+#else
+# include <asm/types.h>
+#endif
+
 #include <rtapi_errno.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
@@ -721,7 +742,21 @@ RTAPI_BEGIN_DECLS
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
-#if defined(RTAPI) && !defined(SIM)
+/** 'rtapi_outw() writes 'word' to 'port'.  May be called from
+    init/cleanup code, and from within realtime tasks.
+    Note: This function does nothing on the simulated RTOS.
+    Note: Many platforms provide an inline outw() that is faster.
+*/
+    extern void rtapi_outw(unsigned short word, unsigned int port);
+
+/** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
+    be called from init/cleanup code, and from within realtime tasks.
+    Note: This function always returns zero on the simulated RTOS.
+    Note: Many platforms provide an inline inw() that is faster.
+*/
+    extern unsigned short rtapi_inw(unsigned int port);
+
+#if (defined(RTAPI) && !defined(SIM)) || defined(RTAPI_LINUX)
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'size' bytes, for component 'name'.
 
@@ -731,11 +766,13 @@ RTAPI_BEGIN_DECLS
     a non-NULL value.
 */
 #include <linux/version.h>
-#include <linux/ioport.h>
+#ifndef RTAPI_LINUX
+# include <linux/ioport.h>
+#endif
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(RTAPI_LINUX)
         return (void*)request_region(base, size, name);
 #else
         return (void*)-1;
@@ -749,11 +786,107 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(RTAPI_LINUX)
         release_region(base, size);
 #endif
     }
 #endif
+
+/***********************************************************************
+*                        PCI DEVICE SUPPORT                            *
+************************************************************************/
+
+/** struct rtapi_pcidev - Opaque data structure for the PCI device */
+struct rtapi_pcidev;
+
+/** rtapi_pci_get_device - Find a PCI device
+ * @vendor: The vendor ID to search for
+ * @device: The device ID to search for
+ * @from: The device to start searching from. Can be NULL.
+ */
+extern
+struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
+					   struct rtapi_pcidev *from);
+
+/** rtapi_pci_put_device - Free a PCI device obtained by rtapi_pci_get_device() */
+extern
+void rtapi_pci_put_device(struct rtapi_pcidev *dev);
+
+/** rtapi_pci_ioremap - Remap I/O memory
+ * Returns NULL on error.
+ * @dev: The device
+ * @bar: The PCI BAR to remap.
+ * @size: The size of the mapping.
+ */
+extern
+void __iomem * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size);
+
+/** rtapi_pci_iounmap - Unmap an MMIO region
+ * @dev: The device
+ * @mmio: The MMIO region obtained by rtapi_pci_ioremap()
+ */
+extern
+void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void __iomem *mmio);
+
+static inline
+__u8 rtapi_pci_readb(const void __iomem *mmio)
+{
+#ifdef RTAPI_LINUX
+	return *((volatile const __u8 __iomem *)mmio);
+#else
+	return readb(mmio);
+#endif
+}
+
+static inline
+__u16 rtapi_pci_readw(const void __iomem *mmio)
+{
+#ifdef RTAPI_LINUX
+	return *((volatile const __u16 __iomem *)mmio);
+#else
+	return readw(mmio);
+#endif
+}
+
+static inline
+__u32 rtapi_pci_readl(const void __iomem *mmio)
+{
+#ifdef RTAPI_LINUX
+	return *((volatile const __u32 __iomem *)mmio);
+#else
+	return readl(mmio);
+#endif
+}
+
+static inline
+void rtapi_pci_writeb(void __iomem *mmio, unsigned int offset, __u8 value)
+{
+#ifdef RTAPI_LINUX
+	*((volatile __u8 __iomem *)mmio) = value;
+#else
+	writeb(value, mmio);
+#endif
+}
+
+static inline
+void rtapi_pci_writew(void __iomem *mmio, unsigned int offset, __u16 value)
+{
+#ifdef RTAPI_LINUX
+	*((volatile __u16 __iomem *)mmio) = value;
+#else
+	writew(value, mmio);
+#endif
+}
+
+static inline
+void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
+{
+#ifdef RTAPI_LINUX
+	*((volatile __u32 __iomem *)mmio) = value;
+#else
+	writel(value, mmio);
+#endif
+}
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *

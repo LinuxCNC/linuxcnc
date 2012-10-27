@@ -82,6 +82,7 @@ default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifeq ($(BUILD_DRIVERS),yes)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
@@ -716,18 +717,23 @@ obj-$(CONFIG_HAL_STG) += hal_stg.o
 hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_VTI) += hal_vti.o
 hal_vti-objs := hal/drivers/hal_vti.o $(MATHSTUB)
-obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
-hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
+#obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+#hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
-obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
-hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
+
+# these won't compile as-is with realtime=linux
+ifneq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
+hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
+obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
+hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 
@@ -764,8 +770,9 @@ hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
+endif
 
-ifneq "$(filter 2.6.%, $(kernelvers))" ""
+ifneq "$(filter linux,$(BUILD_SYS))$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif
@@ -919,11 +926,14 @@ endif
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
+ifeq ($(BUILD_SYS),linux)
+../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
+endif
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
 ../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
-../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
+#../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
