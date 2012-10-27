@@ -30,7 +30,7 @@ typedef struct hal_parport_t
 } hal_parport_t;
 
 
-#ifdef RTAPI_LINUX /***** REALTIME CAPABLE LINUX *****/
+#if defined(BUILD_SYS_USER_DSO)
 
 #include <string.h>
 #include <errno.h>
@@ -385,6 +385,6 @@ static inline void hal_parport_set_datadir(hal_parport_t *port, int enable_input
 		hal_parport_write_control(port, hal_parport_read_control(port) & ~0x20);
 }
 
-#endif /* RTAPI_LINUX */
+#endif /* BUILD_SYS_USER_DSO */
 
 #endif

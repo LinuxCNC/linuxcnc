@@ -74,7 +74,7 @@
     only.  Since we have a simulator that runs everything in user
     space, the non-underscore types should NEVER be used.
 */
-#ifdef RTAPI_LINUX
+#if defined(BUILD_SYS_USER_DSO)
 # include <stdint.h>
 # include <string.h>
 typedef uint8_t		u8;
@@ -756,7 +756,7 @@ RTAPI_BEGIN_DECLS
 */
     extern unsigned short rtapi_inw(unsigned int port);
 
-#if (defined(RTAPI) && !defined(SIM)) || defined(RTAPI_LINUX)
+#if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'size' bytes, for component 'name'.
 
@@ -766,13 +766,13 @@ RTAPI_BEGIN_DECLS
     a non-NULL value.
 */
 #include <linux/version.h>
-#ifndef RTAPI_LINUX
+#if !defined(BUILD_SYS_USER_DSO)
 # include <linux/ioport.h>
 #endif
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(RTAPI_LINUX)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
         return (void*)request_region(base, size, name);
 #else
         return (void*)-1;
@@ -786,7 +786,7 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(RTAPI_LINUX)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
         release_region(base, size);
 #endif
     }
@@ -831,7 +831,7 @@ void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void __iomem *mmio);
 static inline
 __u8 rtapi_pci_readb(const void __iomem *mmio)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u8 __iomem *)mmio);
 #else
 	return readb(mmio);
@@ -841,7 +841,7 @@ __u8 rtapi_pci_readb(const void __iomem *mmio)
 static inline
 __u16 rtapi_pci_readw(const void __iomem *mmio)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u16 __iomem *)mmio);
 #else
 	return readw(mmio);
@@ -851,7 +851,7 @@ __u16 rtapi_pci_readw(const void __iomem *mmio)
 static inline
 __u32 rtapi_pci_readl(const void __iomem *mmio)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u32 __iomem *)mmio);
 #else
 	return readl(mmio);
@@ -861,7 +861,7 @@ __u32 rtapi_pci_readl(const void __iomem *mmio)
 static inline
 void rtapi_pci_writeb(void __iomem *mmio, unsigned int offset, __u8 value)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u8 __iomem *)mmio) = value;
 #else
 	writeb(value, mmio);
@@ -871,7 +871,7 @@ void rtapi_pci_writeb(void __iomem *mmio, unsigned int offset, __u8 value)
 static inline
 void rtapi_pci_writew(void __iomem *mmio, unsigned int offset, __u16 value)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u16 __iomem *)mmio) = value;
 #else
 	writew(value, mmio);
@@ -881,7 +881,7 @@ void rtapi_pci_writew(void __iomem *mmio, unsigned int offset, __u16 value)
 static inline
 void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 {
-#ifdef RTAPI_LINUX
+#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u32 __iomem *)mmio) = value;
 #else
 	writel(value, mmio);
