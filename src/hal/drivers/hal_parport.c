@@ -108,9 +108,9 @@
 */
 #define FASTIO
 
-#ifdef RTAPI_LINUX	/* Realtime-Linux */
+#ifdef BUILD_SYS_USER_DSO	/* userland builds */
 # include <string.h>
-#else			/* Realtime hypervisor */
+#else			/* kernel, Realtime hypervisor */
 # ifdef FASTIO
 #  define rtapi_inb inb
 #  define rtapi_outb outb

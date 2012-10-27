@@ -45,7 +45,7 @@
 
 static int comp_id;
 
-#ifdef RTAPI_LINUX
+#if defined(BUILD_SYS_USER_DSO)
 
 int rtapi_app_main(void) {
     comp_id = hal_init("probe_parport");

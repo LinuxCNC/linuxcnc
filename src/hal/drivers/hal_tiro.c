@@ -64,7 +64,7 @@
 
 #define FASTIO
 
-#if defined(FASTIO) && !defined(RTAPI_LINUX)
+#if defined(FASTIO) && !defined(BUILD_SYS_USER_DSO)
 #define rtapi_inb inb
 #define rtapi_outb outb
 #include <asm/io.h>

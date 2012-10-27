@@ -287,7 +287,7 @@ typedef struct {
     int funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
-#ifdef RTAPI_LINUX
+#ifdef RTAPI_RTPREEMPT_USER
 #define HAL_STACKSIZE 4194304	/* realtime task stacksize for PREEMPT_RT */
 #else
 #define HAL_STACKSIZE 16384	/* realtime task stacksize for RTAI (RT-Linux?) */
