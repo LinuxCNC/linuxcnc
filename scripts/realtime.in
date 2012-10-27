@@ -75,13 +75,7 @@ CheckConfig(){
     MODULES_LOAD=
     MODULES_UNLOAD=
     case $RTPREFIX in
-<<<<<<< HEAD
     posix|xenomai-user|rt-preempt-user) SHM_DEV=/dev/zero;;
-|||||||
-    sim) SHM_DEV=/dev/zero;;
-=======
-    sim|linux) SHM_DEV=/dev/zero;;
->>>>>>> rt-preempt-integration
     *)
         for  MOD in $MODULES ; do
             eval MOD=\${MODPATH_$MOD}
@@ -109,13 +103,7 @@ CheckConfig(){
 
 CheckStatus(){
     case $RTPREFIX in
-<<<<<<< HEAD
     posix|xenomai-user|rt-preempt-user)
-|||||||
-    sim)
-=======
-    sim|linux)
->>>>>>> rt-preempt-integration
         if [ -z "$($PIDOF rtapi_app)" ]; then
             exit 1
         else
@@ -164,13 +152,7 @@ CheckMem(){
 Load(){
     CheckKernel
     case $RTPREFIX in
-<<<<<<< HEAD
     posix|xenomai-user|rt-preempt-user)
-|||||||
-    sim)
-=======
-    sim|linux)
->>>>>>> rt-preempt-integration
     ;;
     *)
         for MOD in $MODULES_LOAD ; do
@@ -199,13 +181,7 @@ CheckLoaded(){
 Unload(){
     CheckKernel
     case $RTPREFIX in
-<<<<<<< HEAD
     posix|xenomai-user|rt-preempt-user)
-|||||||
-    sim)
-=======
-    sim|linux)
->>>>>>> rt-preempt-integration
         rtapi_app exit 
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
