@@ -181,7 +181,7 @@ CheckLoaded(){
 Unload(){
     CheckKernel
     case $RTPREFIX in
-    sim)
+    posix|xenomai-user|rt-preempt-user)
         rtapi_app exit 
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
