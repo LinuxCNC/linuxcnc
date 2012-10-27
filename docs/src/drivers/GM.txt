@@ -2,11 +2,11 @@
 
 [[cha:gm-driver]] (((General Mechatronics Driver)))
 
-General Mechatronics PCI card based motion control system
+General Mechatronics GM6-PCI card based motion control system
 
 For detailed description, please refer to the http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
-The PCI motion control card is based on an FPGA and a PCI bridge 
+The GM6-PCI motion control card is based on an FPGA and a PCI bridge 
 interface ASIC. A small automated manufacturing cell can be controlled, 
 with a short time system integration procedure. The following figure 
 demonstrating the typical connection of devices related to the control 
@@ -39,9 +39,9 @@ debugging messages to the kernel log, which can be viewed with dmesg.
 
 Up to 3 boards may be used in one system.
 
-The following connectors can be found on the PCI card:
+The following connectors can be found on the GM6-PCI card:
 
-.PCI card connectors and LEDs(((pci-card connectors)))[[fig:PCI-card-connectors]]
+.GM6-PCI card connectors and LEDs(((pci-card connectors)))[[fig:PCI-card-connectors]]
 
 image::images/GM_PCIpinout.png[align="center",scaledwidth="70%"]
 
@@ -67,7 +67,7 @@ image::images/GM_IOpinout.png[align="center"]
 |========================================
 
 Each pin can be configured as digital input or output. 
-GM 6 axis motion control card has 4 general purpose I/O 
+GM6-PCI motion control card has 4 general purpose I/O 
 (GPIO) connectors, with eight configurable I/O on each. 
 Every GPIO pin and parameter name begins as follows:
 
@@ -82,7 +82,7 @@ gm.0.gpio.0.in-0
 ----
 
 indicates the state of the first pin of the first GPIO 
-connector on the PCI card. Hal pins are updated by function
+connector on the GM6-PCI card. Hal pins are updated by function
 
 ----
 gm.<nr of card>.read
@@ -152,7 +152,7 @@ image::images/GM_AxisInterface.png[align="center", scaledwidth="100%"]
 
 === Encoder
 
-The motion control card has six encoder modules. 
+The GM6-PCI motion control card has six encoder modules. 
 Each encoder module has three channels:
 
 *  Channel-A
@@ -177,7 +177,7 @@ gm.0.encoder.0.position
 
 refers to the position of encoder module of axis 0.
 
-The PCI card counts the encoder signal independently from LinuxCNC. 
+The GM6-PCI card counts the encoder signal independently from LinuxCNC. 
 Hal pins are updated by function:
 
 ----
@@ -268,7 +268,7 @@ net Xpos-fb gm.0.encoder.0.position => axis.0.motor-pos-fb
 
 === Stepgen module
 
-The motion control card has six stepgen modules, one for each axis. 
+The GM6-PCI motion control card has six stepgen modules, one for each axis. 
 Each module has two output signals. It can produce Step/Direction, 
 Up/Down or Quadrature (A/B) pulses. Each stepgen module is connected 
 to the pins of the corresponding RJ50 axis connector.
@@ -287,7 +287,7 @@ gm.0.stepgen.0.position-cmd
 
 refers to the position command of stepgen module of axis 0 on card 0.
 
-The PCI card generates step pulses independently from LinuxCNC. 
+The GM6-PCI card generates step pulses independently from LinuxCNC. 
 Hal pins are updated by function
 
 ----
@@ -371,7 +371,7 @@ net Xen axis.0.amp-enable-out => gm.0.stepgen.0.enable
 
 === Enable and Fault signals
 
-The PCI motion control card has one enable output and one fault 
+The GM6-PCI motion control card has one enable output and one fault 
 input HAL pins, both are connected to each RJ50 axis connector 
 and to the CAN connector.
 
@@ -399,7 +399,7 @@ gm.<nr of card>.read
 
 === Axis DAC
 
-The motion control card has six serial axis DAC driver modules, 
+The GM6-PCI motion control card has six serial axis DAC driver modules, 
 one for each axis. Each module is connected to the pin of the 
 corresponding RJ50 axis connector.
 Every axis DAC pin and parameter name begins as follows:
@@ -448,7 +448,7 @@ gm.<nr of card>.write
                                         hardware in volts.
 | .low-limit     | (float, R/W)       | Minimum output voltage of the 
                                         hardware in volts.
-| .invert-serial | (float, R/W)       | PCI card is communicating with DAC 
+| .invert-serial | (float, R/W)       | GM6-PCI card is communicating with DAC 
                                         hardware via fast serial communication 
 										to highly reduce time delay compared to 
 										PWM. DAC module is recommended to be 
@@ -461,7 +461,7 @@ gm.<nr of card>.write
 
 == CAN-bus servo amplifiers
 
-The motion control card has CAN module to drive CAN 
+The GM6-PCI motion control card has CAN module to drive CAN 
 servo amplifiers. Implementation of higher level protocols 
 like CANopen is further development. Currently GM produced 
 power amplifiers has upper level driver which export pins 
@@ -581,7 +581,7 @@ image::images/GM_ENDSWpinout.png[align="center"]
 2+| GND       | 1/End+ | 1/Hom-ing | 2/End- | 3/End+ | 3/Hom-ing | 4/End- | 5/End+ | 5/Hom-ing | 6/End- | E-Stop 1 | V+ (Ext.)
 |========================================
 
-The PCI motion control card has two limit- and one homing switch input for each axis. All the names of these pins begin as follows:
+The GM6-PCI motion control card has two limit- and one homing switch input for each axis. All the names of these pins begin as follows:
 
 ----
 gm.<nr. of card>.axis.<nr of axis>
@@ -667,7 +667,7 @@ Color: Red
 == RS485 I/O expander modules
 
 These modules were developed for expanding the I/O and function 
-capability along an RS485 line of the PCI motion control card.
+capability along an RS485 line of the GM6-PCI motion control card.
 
 Available module types:
 
@@ -677,17 +677,17 @@ Available module types:
    isolated digital input pins.
 *  8 channel ADC and 4-channel DAC module - gives four digital-to-analogue 
    converter outputs and eight analogue-to-digital inputs. 
-   This module is also optically isolated from the PCI card.
+   This module is also optically isolated from the GM6-PCI card.
 
 *Automatic node recognizing:*
 
-Each node connected to the bus was recognized by the PCI card automatically. 
+Each node connected to the bus was recognized by the GM6-PCI card automatically. 
 During starting LinuxCNC, the driver export pins and parameters of all 
 available modules automatically.
 
 *Fault handling:*
 
-If a module does not answer regularly the PCI card drops down the module.
+If a module does not answer regularly the GM6-PCI card drops down the module.
 If a module with output do not gets data with correct CRC regularly, the 
 module switch to error sate (green LED blinking), and turns all outputs 
 to error sate.
@@ -698,7 +698,7 @@ The modules on the bus have to be connected in serial topology, with
 termination resistors on the end. The start of the topology is the PCI 
 card, and the end is the last module.
 
-.Connecting the RS485 nodes to the PCI card(((connecting-rs485)))[[fig:connecting-rs485]]
+.Connecting the RS485 nodes to the GM6-PCI card(((connecting-rs485)))[[fig:connecting-rs485]]
 
 image::images/GM_RS485topology.png[align="center", scaledwidth="60%"]
 
@@ -760,7 +760,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ----
 gm.0.rs485.0.relay-0 # First relay of the node.
-gm.0                 # Means the first PCI motion control card (PCI card address = 0)
+gm.0                 # Means the first GM6-PCI motion control card (PCI card address = 0)
 .rs485.0             # Select node with address 0 on the RS485 bus
 .relay-0             # Select the first relay
 ----
@@ -800,7 +800,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ----
 gm.0.rs485.0.in-0 # First input of the node.
-# gm.0     - Means the first PCI motion control card (PCI card address = 0)
+# gm.0     - Means the first GM6-PCI motion control card (PCI card address = 0)
 # .rs485.0 - Select node with address 0 on the RS485 bus
 # .in-0    - Select the first digital input module
 ----
@@ -858,7 +858,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ----
 gm.0.rs485.0.adc-0 # First analogue channel of the node.
-# gm.0     - Means the first PCI motion control card (PCI card address = 0)
+# gm.0     - Means the first GM6-PCI motion control card (PCI card address = 0)
 # .rs485.0 - Select node with address 0 on the RS485 bus
 # .adc-0   - Select the first analogue input of the module
 ----
