@@ -482,7 +482,7 @@ then
 else
   if test -z "$THREADS"; then
    THREADS=$DEFAULT_THREAD_STYLE
-   AC_MSG_RESULT([setting thread style to $THREADS - default for $KTYPE])
+   AC_MSG_RESULT([setting thread style to $THREADS (default for $KTYPE)])
   else
     if test "$THREADS" != posix; then
         AC_MSG_ERROR([thread style $THREADS and kernel type $KTYPE are incompatible])
