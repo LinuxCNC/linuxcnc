@@ -322,8 +322,10 @@ static gm_driver_t				driver;
   static void GM_CAN_SERVO(void *arg);
   static void CAN_SendDataFrame(void *arg, CANmsg_t *Msg);
   static void CAN_ReceiveDataFrame(void *arg, CANmsg_t *Msg);
+#ifdef CANOPEN
   static void CAN_Reset(void *arg);
   static void CAN_SetBaud(void *arg, hal_u32_t Baud);
+#endif
   static int CAN_ReadStatus(void *arg, hal_u32_t *RxCnt, hal_u32_t *TxCnt);
   //Card management
   static void card_mgr(void *arg, long period);
@@ -1031,17 +1033,6 @@ GM_CAN_SERVO(void *arg)
 	  }
 	}
 
-      //Check if no reciever or bad baud rate cause buffer full (buffer size is 514 msg)
-      /*
-       //Reset cause CAN LED blinking in case of communication error.
-       //This part was removed for proper CAN LED operation. (CAN LED is on when any of the buffers are full) 
-	if(Tx_buf_cntr > 500)
-	{
-	    CAN_Reset(arg);	//Reset all Rx, Tx buffers
-	    CAN_SetBaud(arg, 1000); //Set to 1 Mbit
-	}
-      */
-
       //Send reference
 	for(i=0;i<6;i++)
 	{
@@ -1138,6 +1129,8 @@ CAN_SendDataFrame(void *arg, CANmsg_t *Msg)
 	pCard->CAN_TX_buffer[3] = Msg->DLC;	  	  	
 }
 
+#ifdef CANOPEN
+//Higher level protocols may need these functions
 static void
 CAN_Reset(void *arg)
 {
@@ -1179,6 +1172,7 @@ CAN_SetBaud(void *arg, hal_u32_t Baud)
 	    rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics:Not valid CAN Baud Rate. Supported: 125,250,500 and 1000 kBit/s.\n");  
 	}
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //                        Card manage functions                             //
