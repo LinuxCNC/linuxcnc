@@ -366,6 +366,10 @@ M1-- <P- Q->
 * 'P-' - a number passed to the file as the first parameter.
 * 'Q-' - a number passed to the file as the second parameter.
 
+[NOTICE]
+After creating a new 'M1nn' file you must restart the GUI so it is aware
+of the new file, otherwise you will get an 'Unkown m code' error.
+
 The external program named 'M100' through 'M199' (no extension and a capitol M)
 must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
