@@ -371,10 +371,11 @@ After creating a new 'M1nn' file you must restart the GUI so it is aware
 of the new file, otherwise you will get an 'Unkown m code' error.
 
 The external program named 'M100' through 'M199' (no extension and a capitol M)
-must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
-file and is executed with the P and Q values as its two arguments.
-Execution of the RS274/NGC file pauses until the invoked program exits.
-Any valid executable file can be used.
+is executed with the optional P and Q values as its two arguments.
+Execution of the G code file pauses until the external program exits.
+Any valid executable file can be used. The file must be located in the search
+path specificed in the ini file configuration. See the ini config section of
+the Integrators Manual for more information on search paths.
 
 [WARNING]
 Do not use a word processor to create or edit the files. A word processor
