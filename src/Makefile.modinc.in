@@ -70,7 +70,7 @@ install:
 	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/
 endif
 
-ifneq "$(filter sim linux,$(BUILDSYS))" ""
+ifeq ($(BUILDSYS),user-dso)
 EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)

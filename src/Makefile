@@ -1,3 +1,7 @@
+# see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
+#OLD_SHELL := $(SHELL)
+#SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+
 # Delete the default suffix rules
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean
@@ -76,7 +80,7 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-ifneq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_DRIVERS),yes)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
@@ -116,7 +120,8 @@ SUBDIRS := \
     \
     ../docs/src
 
-ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
+# moved to src/rtapi/Submakefile
+# ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
@@ -401,27 +406,23 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
 setuid:
-	@echo "'make setuid' is not needed for the simulator"
+	chown root ../bin/rtapi_app
+	chmod 4750 ../bin/rtapi_app
+else	
+setuid:
+	@echo "'make setuid' is not needed if hardware drivers are not used"
+endif
 else
 setuid:
-	if test -f ../bin/rtapi_app; then\
-	  chown root ../bin/rtapi_app;\
-	  chmod 4750 ../bin/rtapi_app;\
-	fi
-	if test -f ../bin/linuxcnc_module_helper; then\
-	  chown root ../bin/linuxcnc_module_helper;\
-	  chmod 4750 ../bin/linuxcnc_module_helper;\
-	fi
-	if test -f ../bin/pci_write; then\
-	  chown root ../bin/pci_write;\
-	  chmod 4750 ../bin/pci_write;\
-	fi
-	if test -f ../bin/pci_read; then\
-	  chown root ../bin/pci_read;\
-	  chmod 4750 ../bin/pci_read;\
-	fi
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
+	chown root ../bin/pci_write
+	chmod 4750 ../bin/pci_write
+	chown root ../bin/pci_read
+	chmod 4750 ../bin/pci_read
 endif
 
 # These rules allows a header file from this directory to be installed into
@@ -582,7 +583,7 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifeq "$(filter sim linux,$(BUILD_SYS))" ""
+ifneq "$(BUILD_SYS)" "user-dso"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
@@ -656,7 +657,7 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-ifeq "$(filter sim linux,$(BUILD_SYS))" ""
+ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
 endif
@@ -704,7 +705,8 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(BUILD_SYS),kbuild)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
@@ -727,7 +729,7 @@ obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
 # these won't compile as-is with realtime=linux
-ifneq ($(BUILD_SYS),linux)
+ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
 hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
@@ -773,6 +775,7 @@ endif
 ifneq "$(filter linux,$(BUILD_SYS))$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
+endif
 endif
 endif
 
@@ -850,7 +853,7 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
-ifneq "$(filter sim linux,$(BUILD_SYS))" ""
+ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
@@ -898,8 +901,8 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
-ifneq "$(filter normal sim linux,$(BUILD_SYS))" ""
-ifeq "$(filter sim linux,$(BUILD_SYS))" ""
+ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))

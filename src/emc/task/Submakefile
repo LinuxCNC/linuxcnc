@@ -17,11 +17,12 @@ MILLTASKSRCS := \
 	emc/task/taskintf.cc \
 	emc/task/iotaskintf.cc \
 	emc/motion/dbuf.c \
-	emc/motion/stashf.c \
-	$(ULAPISRCS)
+	emc/motion/stashf.c 
+
 USERSRCS += $(MILLTASKSRCS)
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
+	../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/milltask

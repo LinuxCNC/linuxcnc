@@ -245,7 +245,7 @@ void emcmotController(void *arg, long period)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-#ifndef RTAPI_SIM
+#ifndef RTAPI_POSIX
     if(!priming) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late

@@ -926,7 +926,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
     char rtapi_exported_##x[] = #x;
 #endif
 
-#if !defined(RTAPI_SIM)
+#if !defined(BUILD_SYS_USER_DSO)
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
 #endif
