@@ -168,8 +168,11 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 
+# this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
+ifneq ($(BUILD_SYS),user-dso)
 INCLUDE += -I$(KERNELDIR)/include
+endif
 endif
 
 ifeq ($(BUILD_PYTHON),yes)
@@ -706,7 +709,7 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
 ifeq ($(BUILD_DRIVERS),yes)
-ifeq ($(BUILD_SYS),kbuild)
+#ifeq ($(BUILD_SYS),kbuild)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
@@ -777,7 +780,7 @@ obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif
 endif
-endif
+#endif
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
 classicladder_rt-objs := hal/classicladder/module_hal.o $(MATHSTUB)
