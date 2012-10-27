@@ -282,9 +282,63 @@ devices but the encoders are conventional hostmot2 encoders and further details
 of them may be found in the hostmot2 manpage. 
 
 Pins:
-TODO: Add 7i77 data here:
+(bit out) .7i77.0.0.input-NN: (NN = 0 to 31) 32 digital inputs.
+
+(bit in) .7i77.0.0.input-NN-not: (NN = 0 to 31) An inverted copy of the inputs
+provided for convenience. The two complementary pins may be connected to
+different signal nets.
+
+(bit out) .7i77.0.0.output-NN: (NN = 0 to 15). 16 digital outputs. The sense of
+the signal can be set via a parameter
+
+(bit in) .7i77.0.0.spindir: This pin provides a means to drive the spindle VFD
+direction terminals on the 7i76 board.
+
+(bit in) .7i77.0.0.spinena: This pin drives the spindle-enable terminals on the 
+7i76 board.
+
+(float in) .7i77.0.0.spinout: This controls the analog output of the 7i77.
+This is intended as a speed control signal for a VFD. 
+
+(bit in) .7i77.0.1.analogena: This pin drives the analog enable terminals on the
+7i77 board.
+
+(float in) .7i77.0.1.analogoutN: (N = 0 to 5) This controls the analog output
+of the 7i77.
+
 Parameters:
-TODO: Add 7i77 data here:
+(bit rw) .7i77.0.0.output-NN-invert: Invert the sense of the corresponding
+output pin.
+
+(bit rw) .7i77.0.0.spindir-invert: Invert the senseof the spindle direction pin.
+
+(bit rw) .7i77.0.0.spinena-invert: Invert the sense of the spindle-enable pin.
+
+(float rw) .7i77.0.0.spinout-maxlim: The maximum speed request allowable
+
+(float rw) .7i77.0.0.spinout-minlim: The minimum speed request.
+
+(float rw) .7i77.0.0.spinout-scalemax: The spindle speed scaling. This is the
+speed request which would correspond to full-scale output from the spindle
+control pin. For example with a 10V drive voltage and a 10000rpm scalemax a
+value of 10,000 rpm on the spinout pin would produce 10V output. However, if
+spinout-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
+
+(float rw) .7i77.0.0.analogoutN-maxlim: (N = 0 to 5) The maximum speed request
+allowable
+
+(float rw) .7i77.0.0.analogoutN-minlim: (N = 0 to 5) The minimum speed request.
+
+////
+***** CHECK ME ***** I'm not sure about the description on analogoutN-scalemax
+////
+
+(float rw) .7i77.0.0.analogoutN-scalemax: (N = 0 to 5) The analog speed scaling.
+This is the speed request which would correspond to full-scale output from the
+spindle control pin. For example with a 10V drive voltage and a 10000rpm scalemax a
+value of 10,000 rpm on the spinout pin would produce 10V output. However, if
+spinout-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
+
 
 .TP
 .SH 7i69
