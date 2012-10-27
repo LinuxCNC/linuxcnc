@@ -126,8 +126,7 @@ retCode fnct_04_read_input_registers(mb_tx_t *mb_tx)
 retCode fnct_15_write_multiple_coils(mb_tx_t *mb_tx)
 {
     char *fnct_name = "fnct_15_write_multiple_coils";
-    int start = mb_tx->mb_nelements - 1;
-    int end = 0;
+    int start, end;
     int counter;
     int ret;
     int bits[MAX_WRITE_COILS];
@@ -168,8 +167,7 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *mb_tx)
 retCode fnct_16_write_multiple_registers(mb_tx_t *mb_tx)
 {
     char *fnct_name = "scan_write_holding";
-    int start = mb_tx->mb_nelements - 1;
-    int end = 0;
+    int start, end;
     int counter;
     int data[MAX_WRITE_REGS];
     int ret;
