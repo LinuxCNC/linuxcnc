@@ -510,7 +510,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         return -EINVAL;
     }	
 
-#if defined(RTAPI_POSIX)
+#if defined(BUILD_SYS_USER_DSO)
     {
         char *argv[MAX_TOK];
         int m = 0, result;
@@ -1118,7 +1118,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d\n"
-#if !defined(RTAPI_POSIX)
+#if !defined(BUILD_SYS_USER_DSO)
             "See the output of 'dmesg' for more information.\n"
 #endif
         , retval );
@@ -1313,7 +1313,7 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
-#if defined(RTAPI_POSIX)
+#if defined(BUILD_SYS_USER_DSO)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
     argv[1] = "unload";
 #else
