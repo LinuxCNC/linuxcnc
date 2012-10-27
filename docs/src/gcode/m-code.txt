@@ -366,7 +366,7 @@ M1-- <P- Q->
 * 'P-' - a number passed to the file as the first parameter.
 * 'Q-' - a number passed to the file as the second parameter.
 
-The external program named 'M100' through 'M199' (no extension)
+The external program named 'M100' through 'M199' (no extension and a capitol M)
 must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
 Execution of the RS274/NGC file pauses until the invoked program exits.
@@ -383,6 +383,8 @@ The error 'Unknown M code used' denotes one of the following
 * The specified User Defined Command does not exist
 * The file is not an executable file
 * The file name has an extension
+* The file name does not follow this format M1nn where nn = 00 through 99
+* The file name used a lower case M
 
 For example to open and close a collet closer that is controlled by a
 parallel port pin using a bash script file using M101 and M102. Create two
