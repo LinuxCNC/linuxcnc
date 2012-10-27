@@ -443,7 +443,7 @@ fi
 KTYPE=""
 DEFAULT_THREAD_STYLE=""
 
-if test -n "$THREADS" -a \( "$THREADS" != posix \); then
+if test  "$THREADS" != posix; then
     AC_MSG_CHECKING(kernel for type of realtime system)
 
     opt_ipipe=`grep '^CONFIG_IPIPE' $KCONFIG |wc -l`
