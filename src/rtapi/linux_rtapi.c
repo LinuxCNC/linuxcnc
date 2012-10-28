@@ -349,7 +349,7 @@ static int realtime_set_affinity(struct rtapi_task *task)
 	cpu_set_t set;
 	int err, cpu_nr, use_cpu = -1;
 
-printf("Setting affinity of %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"Setting affinity of %d\n", task_id(task));
 	pthread_getaffinity_np(task->thread, sizeof(set), &set);
 	for (cpu_nr = CPU_SETSIZE - 1; cpu_nr >= 0; cpu_nr--) {
 		if (CPU_ISSET(cpu_nr, &set)) {
@@ -364,14 +364,14 @@ printf("Setting affinity of %d\n", task_id(task));
 	rtapi_print_msg(RTAPI_MSG_INFO, "Using CPU %d\n", use_cpu);
 	CPU_ZERO(&set);
 	CPU_SET(use_cpu, &set);
-printf("Calling pthread_setaffinity_np() for %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"Calling pthread_setaffinity_np() for %d\n", task_id(task));
 	err = pthread_setaffinity_np(task->thread, sizeof(set), &set);
 	if (err) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to set CPU affinity to CPU %d (%s)\n",
 				use_cpu, strerror(errno));
 		return -1;
 	}
-printf("pthread_setaffinity_np() for %d done\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"pthread_setaffinity_np() for %d done\n", task_id(task));
 
 	err = realtime_cpuset_add_task(getpid());
 	if (err) {
@@ -379,7 +379,7 @@ printf("pthread_setaffinity_np() for %d done\n", task_id(task));
 		return -1;
 	}
 
-printf("Affinity set for %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"Affinity set for %d\n", task_id(task));
 	return 0;
 }
 
@@ -460,7 +460,7 @@ static int realtime_set_priority(struct rtapi_task *task)
 		ex.sched_deadline.tv_nsec = period;
 		ex.sched_runtime.tv_nsec = 8000; //FIXME
 		ex.sched_flags = SCHED_SIG_RORUN | SCHED_SIG_DMISS;
-printf("Setting deadline scheduler for %d\n", task_id(task));
+		rtapi_print_msg(RTAPI_MSG_DBG,"Setting deadline scheduler for %d\n", task_id(task));
 		if (sched_setscheduler_ex(0, SCHED_DEADLINE, sizeof(ex), &ex)) {
 			rtapi_print_msg(RTAPI_MSG_INFO,
 					"Unable to set DEADLINE scheduling policy (%s). Trying FIFO.\n",
@@ -488,7 +488,7 @@ static void *realtime_thread(void *arg)
 {
 	struct rtapi_task *task = arg;
 
-printf("Hello world, I am task %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"Hello world, I am task %d\n", task_id(task));
 	rtapi_set_task(task);
 
 	/* The task should not pagefault at all. So reset the counter now.
@@ -555,9 +555,9 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 	pthread_barrier_init(&task->thread_init_barrier, NULL, 2);
 	pthread_attr_init(&attr);
 	pthread_attr_setstack(&attr, task->stackaddr, task->stacksize);
-printf("About to pthread_create task %d\n", task_id);
+	rtapi_print_msg(RTAPI_MSG_DBG,"About to pthread_create task %d\n", task_id);
 	retval = pthread_create(&task->thread, &attr, realtime_thread, (void *)task);
-printf("Created task %d\n", task_id);
+	rtapi_print_msg(RTAPI_MSG_DBG,"Created task %d\n", task_id);
 	pthread_attr_destroy(&attr);
 	if (retval) {
 		pthread_barrier_destroy(&task->thread_init_barrier);
@@ -571,7 +571,7 @@ printf("Created task %d\n", task_id);
 		rtapi_print_msg(RTAPI_MSG_ERR, "Realtime thread initialization failed\n");
 		return -ENOMEM;
 	}
-printf("Task %d finished its basic init\n", task_id);
+	rtapi_print_msg(RTAPI_MSG_DBG,"Task %d finished its basic init\n", task_id);
 
 	return 0;
 }
