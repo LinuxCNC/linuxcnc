@@ -8,7 +8,7 @@ static int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
 #include <sys/shm.h>		/* shmget() */
 #include <pthread.h>
 #include <stdlib.h>
-
+#include <unistd.h>
 
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
@@ -58,8 +58,20 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
 	if (shmem->id == -1) {
 		if (errno == ENOENT) {
-			shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
-			is_new = 1;
+		    int euid = geteuid();
+		    if (!euid) { // running as root 
+			// switch to real user during shm creation
+			// so segment can be removed by 'realtime stop'
+			// without sudo
+			if (seteuid(getuid()) < 0)
+			    rtapi_print_msg(RTAPI_MSG_ERR,"seteuid(%d): %s",getuid(), strerror(errno));
+		    }
+		    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
+		    if (!euid) { // switch back
+			if (seteuid(euid) < 0) 
+			    rtapi_print_msg(RTAPI_MSG_ERR,"seteuid(%d): %s",euid, strerror(errno));
+		    }
+		    is_new = 1;
 		}
 		if (shmem->id == -1) {
 			rtapi_print_msg(RTAPI_MSG_ERR,
