@@ -178,6 +178,13 @@ or RT_PREEMPT kernel was found.
 
  ./configure --with-threads=xenomai-user  --with-kernel=/boot/config-2.6.38.8-xenomai+:: explicitly  select kernel version and thread style
 
+== Running RT_PREEMPT 
+
+It seems currently this is needed:
+
+ $ sudo mkdir /dev/cpuset
+ $ sudo mount -t cpuset cpuset /dev/cpuset
+
 
 == TODO
 
