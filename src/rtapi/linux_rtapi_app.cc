@@ -288,6 +288,9 @@ static int do_unload_cmd(string name)
 	return 0;
 }
 
+struct ReadError : std::exception {};
+struct WriteError : std::exception {};
+
 static int read_number(int fd)
 {
 	int r = 0, neg = 1;
@@ -310,7 +313,7 @@ static string read_string(int fd)
 {
 	int len = read_number(fd);
 	char buf[len];
-	read(fd, buf, len);
+	if(read(fd, buf, len) != len) throw ReadError();
 	return string(buf, len);
 }
 
@@ -344,7 +347,7 @@ static void write_strings(int fd, vector<string> strings)
 	for (unsigned int i = 0; i < strings.size(); i++) {
 		write_string(buf, strings[i]);
 	}
-	write(fd, buf.data(), buf.size());
+	if(write(fd, buf.data(), buf.size()) != (ssize_t)buf.size()) throw WriteError();
 }
 
 static int handle_command(vector<string> args)
@@ -402,10 +405,21 @@ static int master(int fd, vector<string> args)
 			perror("accept");
 			return -1;
 		} else {
-			int result = handle_command(read_strings(fd1));
+		    int result;
+			try {
+			    result = handle_command(read_strings(fd1));
+			} catch (ReadError &e) {
+			    rtapi_print_msg(RTAPI_MSG_ERR,
+					    "rtapi_app: failed to read from slave: %s\n", strerror(errno));
+			    close(fd1);
+			    continue;
+			}
 			string buf;
 			write_number(buf, result);
-			write(fd1, buf.data(), buf.size());
+			if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
+			    rtapi_print_msg(RTAPI_MSG_ERR,
+					    "rtapi_app: failed to write to slave: %s\n", strerror(errno));
+			};
 			close(fd1);
 		}
 	} while (!force_exit && instance_count > 0);
@@ -673,7 +687,8 @@ int main(int argc, char **argv)
 {
 	/* Request RAW-I/O */
 	if (iopl(3)) {
-		perror("Failed to request RAW-I/O permissions (iopl)");
+		perror("Failed to request RAW-I/O permissions (iopl) - "
+		       "did you forget to 'sudo make setuid' ?");
 		return 1;
 	}
 	if (configure_memory())
