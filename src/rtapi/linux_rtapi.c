@@ -361,7 +361,7 @@ static int realtime_set_affinity(struct rtapi_task *task)
 		rtapi_print_msg(RTAPI_MSG_ERR, "Unable to get ID of the last CPU\n");
 		return -1;
 	}
-	rtapi_print_msg(RTAPI_MSG_INFO, "Using CPU %d\n", use_cpu);
+	rtapi_print_msg(RTAPI_MSG_DBG, "Using CPU %d\n", use_cpu);
 	CPU_ZERO(&set);
 	CPU_SET(use_cpu, &set);
 	rtapi_print_msg(RTAPI_MSG_DBG,"Calling pthread_setaffinity_np() for %d\n", task_id(task));
