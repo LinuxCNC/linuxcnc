@@ -775,12 +775,9 @@ hm2_test-objs :=			  \
     $(MATHSTUB)
 endif
 
-ifneq "$(filter linux,$(BUILD_SYS))$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif
-endif
-#endif
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
 classicladder_rt-objs := hal/classicladder/module_hal.o $(MATHSTUB)
@@ -929,7 +926,7 @@ endif
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
-ifeq ($(BUILD_SYS),linux)
+ifeq "$(BUILD_SYS)" "user-dso"
 ../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
 endif
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
