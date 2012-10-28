@@ -1,0 +1,185 @@
+= LinuxCNC Build Configuration changes
+
+[[cha:build-config]] (((LinuxCNC Build Configuration changes)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+// begin a listing of ini/hal/ngc files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+
+
+== Rationale for reworking the LinuxCNC configuration options
+
+Up to now configuration options for LinuxCNC regarding 'real time
+environments' are:
+
+--enable-simulator:: - userland threads, HAL components are `.so` dynamic shared objects, 
+--with-realtime=<rtai config directory>:: RTAI - kernel threads, HAL components are .ko kernel modules
+--with-realtime=<rtl config directory>:: RT linux - kernel threads , HAL components are `.ko` kernel modules (deprecated, since RT Linux is pretty much dead)
+
+The underlying assumptions at the time likely were: 
+
+* a realtime enviroment uses kernel modules
+* a system with userland threads and .so dynamic shared objects is not suited for real applications, just a 'simulator'
+* consequently the simulator has no hardware drivers, since it is, well, a simulator and hence useless for real work.
+* a simulator does not do any hardware I/O, so there is no need I/O access and hence for setuid root programs (ioperm(2))
+
+Several options for realtime Linux have appeared since, which are:
+
+* Linux with the RT_PREEMPT kernel patch, to improve latency but otherwise remain with the user process programming paradigm - with some 'RT fortification system calls' peppered in
+
+* Xenomai, which is similar to RTAI with it's hypervisor approach to  RT threads, but supports BOTH a kernel and a user process paradigm for 'realtime processes', albeit with a slight performance advantage  for in-kernel processes.
+
+These two platforms provide new options:
+
+* With RT_PREEMPT, the current 'simulator process' (rtapi_app) becomes
+  'realtime fortified' (locking down memory, setting scheduling priorities etc) but otherwise remains a user process; see for instance the current hardened rtapi_app for rt-preempt:  http://git.mah.priv.at/gitweb/emc2-dev.git/blob/6640ed5d6ef20c582bf515a7ac7eb527ce486e19:/src/rtapi/linux_rtapi_app.cc
+
+* while the option so far has not explored in the context of LinuxCNC, it seems entirely reasonable to employ normal Linux kernel threads for RTAPI functions; this has been done in the past, for instance with KHTTPD (in-kernel HTTP server to improve performance), and would be an interesting route to explore with RT_PREEMPT.
+
+* with Xenomai, both paradigms are possible: kernel RT threads and kernel modules,  as well as userland RT threads and .so shared object modules
+
+Also, given reasonable latency of one of the user RT process schemes, it becomes entirely feasible to use user-mode device drivers.
+
+These new options cannot be consistently
+adressed with the current configuration assumptions. Realtime does not
+imply kernel threads exclusively anymore, and User process mode does
+not imply 'useless so no drivers' please.  Also, user RT modules will do I/O, hence rtapi_app needs to be setuid root in this case. 
+
+As work progresses on different branches in parallel, configuration
+problems will likely be solved ad-hoc and conflicts  will
+arise during merge, also with the consequence of an even more incoherent set of options.
+
+=== The new option space 
+
+The basic idea is to describe the build from the following angles:
+
+* the `thread style` - whether userland- or kernel threads are used,
+and which RT platform is employed if hard RT behaviour is desired
+* the `module build system` - either kernel modules, or user dynamic
+shared objects; this parameter is derived from the thread style.
+* whether hardware drivers should be built, or not
+
+All three parameters are reflected in Shell/Makefile
+variables, replacements in '*.in' files as needed, and also as
+`#defines` in config.h.
+
+
+=== The old option space 
+
+The following symbols/shell/Makefile variables have been removed:
+
+SIM, SIMULATOR, RTAPI_SIM, sim::  lost its meaning, removed.
+
+rtl:: RT Linux support has been removed - RT Linux is dead.
+
+--with-realtime:: deprecated.
+
+The 'normal' build system is not used anymore.
+
+=== Options of unclear status
+
+* PowerPC architecture: src/Makefile contains the following line:
+
+  Makefile:IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
+
+
+=== Kernel autodetection
+
+The new method assumes that the target kernel (which is built for) is
+'installed'; it need not necessarily be the running kernel, but
+'runtests' will only succeed if the target kernel is running. A build
+machine therefore should have all the desired target kernels installed.
+
+To autodetect the kernel style (RTAI, Xenomai, RT_PREEMPT patches to
+generic kernel), the kernel config files under
+'/boot/config-<kernel-version>' are investigated for typical option combinations.
+
+To force build for a specific kernel version, use '--with-kernel' like
+so:
+
+  ./configure --with-kernel=/boot/config-2.6.32-122-rtai
+
+=== New configuration options to support different realtime kernels
+
+(for now, this only applies to http://git.mah.priv.at/gitweb/emc2-dev.git/shortlog/refs/heads/integration-configuration-dev as it is not merged yet):
+
+==== The thread style
+
+--with-threads=<arg>:: 'arg' being one of:
+
+* `posix`: will be implied by the current '--enable-simulator' option, meaning: simulator rtapi_app, no RT hardening, user mode .so modules
+
+* `rt-preempt-user`: as above, but hardened rtapi_app.
+
+* `rt-preempt-kernel`: this would imply: an rt-preempt kernel,  kthreads for RTAPI execution, and .ko modules.
+
+* `xenomai-user`: as posix, but using xenomai user RT process hardening (rouhgly as used in the miniemc2 project: http://code.google.com/p/miniemc2/)
+
+* `xenomai-kernel`: very similar to current RTAI threads.
+
+* `rtai`: as before
+
+The thread style is reflected in the THREADS shell/Makefile variable;
+in config.h as one of the following defined:
+
+`RTAPI_POSIX` `RTAPI_RT_PREEMPT_USER` `RTAPI_RT_PREEMPT_KERNEL`
+`RTAPI_XENOMAI_USER` `RTAPI_XENOMAI_KERNEL` `RTAPI_RTAI`
+
+==== the Build system
+
+There are two build styles:
+
+* 'kbuild' (kernel modules) 
+* 'user-dso' (userland dynamic shared objects). 
+
+The thread style implies a build system: 'posix', 'xenomai-user',
+'rt-preempt-user' imply 'user-dso', the others imply 'kbuild'. 
+
+The used build system is reflected as follows:
+
+* shell/Makefile:  `BUILD_SYS` - possible values: `kbuild` or `user-dso`
+* config.h: either `BUILD_SYSTEM_KBUILD` or `BUILD_SYSTEM_USER_DSO` defined.
+
+
+==== Building hardware drivers
+
+Building hardware drivers can be explicitly controlled with
+'--enable-drivers'. This  defaults to 'yes' except for '--with-threads=posix' (what used
+to be the 'simulator' configuration). 
+
+Some hardware drivers will build as kernel modules only, some as user shared objects, some may build as both; in that case the Submakefile needs to test for `BUILD_SYS` having the proper value.
+
+This option is reflected as `BUILD_DRIVERS`=yes/no in shell/Makefile
+and  conditionally defined as macro in config.h .
+
+== Make setuid ==
+
+This has been adapted to take care of the case where userland drivers
+are used - here rtapi_app needs to be setuid root to gain IO
+permissions.
+
+== Configuration examples
+
+ ./configure --enable-simulator::  as before - Posix userland threads,
+no hardware drivers
+
+ ./configure --enable-simulator --enable-drivers:: Posix userland
+threads, enable drivers which can run in userspace
+
+ ./configure:: build for the current kernel - autodetect the RT thread
+style . Defaults to --with-threads=posix if neither an RTAI, Xenomai
+or RT_PREEMPT kernel was found.
+
+ ./configure --with-threads=rt-preempt-user  --with-kernel=/boot/config-3.4.13-rt-preempt-rt22+ :: explicitly select kernel version and thread style
+
+ ./configure --with-threads=xenomai-user  --with-kernel=/boot/config-2.6.38.8-xenomai+:: explicitly  select kernel version and thread style
+
+
+== TODO
+
+debian/configure still needs to be adapted.
+

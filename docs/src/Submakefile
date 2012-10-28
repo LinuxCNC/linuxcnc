@@ -370,6 +370,7 @@ DOC_SRCS := \
 	hal/tutorial_es.txt \
 	hal/tutorial_fr.txt \
 	hal/tutorial_pl.txt \
+	install/ConfigurationChanges.txt \
 	install/Latency_Test.txt \
 	install/Latency_Test_de.txt \
 	install/Latency_Test_es.txt \
