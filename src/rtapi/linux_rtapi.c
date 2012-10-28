@@ -128,7 +128,7 @@ static void rtapi_reset_pagefault_count(struct rtapi_task *task)
 	    task->majfault_base != rusage.ru_majflt) {
 		task->minfault_base = rusage.ru_minflt;
 		task->majfault_base = rusage.ru_majflt;
-		rtapi_print_msg(RTAPI_MSG_INFO, "rtapi task %d: Reset pagefault counter\n",
+		rtapi_print_msg(RTAPI_MSG_DBG, "rtapi task %d: Reset pagefault counter\n",
 				task_id(task));
 	}
 }
@@ -241,7 +241,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
 	period = (nsecs / res.tv_nsec) * res.tv_nsec;
 	if (period < 1)
 		period = res.tv_nsec;
-	rtapi_print_msg(RTAPI_MSG_INFO,
+	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi_clock_set_period (res=%ld) -> %d\n", res.tv_nsec,
 			period);
 
@@ -290,7 +290,7 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 			free(stackaddr);
 			return -EINVAL;
 		}
-		rtapi_print_msg(RTAPI_MSG_INFO,
+		rtapi_print_msg(RTAPI_MSG_DBG,
 				"Creating new task with requested priority %d (highest=%d lowest=%d)\n",
 				prio, highest, lowest);
 	}
@@ -499,7 +499,7 @@ static void *realtime_thread(void *arg)
 	if (task->period < period)
 		task->period = period;
 	task->ratio = task->period / period;
-	rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %d ratio=%d\n",
+	rtapi_print_msg(RTAPI_MSG_DBG, "task %p period = %d ratio=%d\n",
 			task, task->period, task->ratio);
 
 	if (realtime_set_affinity(task))
