@@ -152,6 +152,7 @@
 	information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
 #if !defined(BUILD_SYS_USER_DSO)
 #include <asm/io.h>
 #endif

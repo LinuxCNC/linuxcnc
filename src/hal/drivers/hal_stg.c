@@ -135,9 +135,10 @@
     information, go to www.linuxcnc.org.
 */
 
-//#ifdef BUILD_SYS_KBUILD
+#include "config.h"
+#ifdef BUILD_SYS_KBUILD
 #include <asm/io.h>
-//#endif /* BUILD_SYS_KBUILD */
+#endif 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
