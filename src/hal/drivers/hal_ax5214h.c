@@ -87,6 +87,7 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -101,7 +102,11 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
+#ifdef BUILD_SYS_USER_DSO
+#include <sys/io.h> 
+#else
 #include <asm/io.h>
+#endif
 #endif
 
 /* module information */
