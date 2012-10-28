@@ -96,7 +96,7 @@
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
    are inlined, and save a microsecond or two (on my 233MHz box)
 */
-#define NOFASTIO
+#define FASTIO  
 
 #ifdef FASTIO
 #define rtapi_inb inb

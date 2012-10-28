@@ -28,6 +28,10 @@ RTAPI_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
 RTAPI_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
 endif
 
+ifeq ($(THREADS),rtai)
+ULAPISRCS := rtapi/rtai_ulapi.c
+endif
+
 ifeq ($(THREADS),xenomai-user)
 $(warning the xenomai-user RTAPI is not complete.)
 RTAPI_APP_SRCS := \
