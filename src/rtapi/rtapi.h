@@ -795,6 +795,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *
 ************************************************************************/
+#if defined(RTAPI_RTPREEMPT_USER)
 
 /** struct rtapi_pcidev - Opaque data structure for the PCI device */
 struct rtapi_pcidev;
@@ -887,6 +888,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 	writel(value, mmio);
 #endif
 }
+#endif
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *

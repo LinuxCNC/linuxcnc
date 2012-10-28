@@ -86,6 +86,8 @@ The 'normal' build system is not used anymore.
 
   Makefile:IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 
+* src/hal/drivers/hal_ax5241h.c had FASTIO defined - this was changed
+to NOFASTIO - why? (changed back for now)
 
 === Kernel autodetection
 

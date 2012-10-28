@@ -207,7 +207,9 @@ typedef struct {
 
 typedef struct {
     // Private data.
+#if defined(BUILD_SYS_USER_DSO)
     struct rtapi_pcidev			*pDev;
+#endif
     MotencRegMap			*pCard;
     int					boardType;
     char				*pTypeName;
@@ -274,7 +276,11 @@ int
 rtapi_app_main(void)
 {
     int					i, j;
+#if defined(BUILD_SYS_USER_DSO)
     struct rtapi_pcidev			*pDev = NULL;
+#else
+    struct pci_dev			*pDev = NULL;
+#endif
     MotencRegMap			*pCard = NULL;
     Device				*pDevice;
 
@@ -292,8 +298,11 @@ rtapi_app_main(void)
 
     i = 0;
     // Find a MOTENC card.
+#if defined(BUILD_SYS_USER_DSO)
     while((i < MAX_DEVICES) && ((pDev = rtapi_pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
-
+#else
+	while((i < MAX_DEVICES) && ((pDev = pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
+#endif
 	// Allocate memory for device object.
 	pDevice = hal_malloc(sizeof(Device));
 
@@ -302,16 +311,22 @@ rtapi_app_main(void)
 	    hal_exit(driver.componentId);
 	    return(-ENOMEM);
 	}
+#if defined(BUILD_SYS_USER_DSO)
 	pDevice->pDev = pDev;
-
+#endif
 	// Save pointer to device object.
 	driver.deviceTable[i++] = pDevice;
 	
 	// Map card into memory.
+#if defined(BUILD_SYS_USER_DSO)
 	pCard = (MotencRegMap *)rtapi_pci_ioremap(pDev, 2, sizeof(MotencRegMap));
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected\n");
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)sizeof(MotencRegMap));
-
+#else
+	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in slot %2x\n", PCI_SLOT(pDev->devfn));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)pci_resource_len(pDev, 2));
+#endif
 	// Initialize device.
 	Device_Init(pDevice, pCard);
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is %s, ID: %d\n", pDevice->pTypeName, pDevice->boardID);
@@ -378,10 +393,13 @@ rtapi_app_exit(void)
 	    }
 	    
 	    // Unmap card.
+#if defined(BUILD_SYS_USER_DSO)
 	    rtapi_pci_iounmap(pDevice->pDev, (void *)(pDevice->pCard));
 	    // Unregister the device
 	    rtapi_pci_put_device(pDevice->pDev);
-
+#else
+	    iounmap((void *)(pDevice->pCard));
+#endif
 	    // TODO: Free device object when HAL supports free.
 //	    hal_free(pDevice);
 	}
