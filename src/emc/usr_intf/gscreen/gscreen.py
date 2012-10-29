@@ -358,9 +358,9 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
 # ok here is the Gscreen class
 # there are also three other files:
-# mdi.py for mdi commands (which incluse non-obvious mdi commands done in maual mode
+# mdi.py for mdi commands (which include non-obvious mdi commands done in maual mode)
 # preference.py for keeping track of stored user preferences
-# emc_interface.py which does the most of the commands and status of linnuxcnc
+# emc_interface.py which does most of the commands and status of linuxcnc
 # keep in mind some of the gladeVCP widgets send-commands-to/monitor linuxcnc also
 
 class Gscreen: 
@@ -589,6 +589,7 @@ class Gscreen:
         # pull info from the INI file
         self.inifile = self.emc.emc.ini(self.inipath)
 
+        # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
             if "," in increments:
@@ -596,8 +597,8 @@ class Gscreen:
             else:
                 self.jog_increments = increments.split()
         self.jog_increments.insert(0,"Continuous")
-        print "increments:",self.jog_increments
 
+        # max velocity settings: more then one place to check
         temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
             temp = self.inifile.find("TRAJ","MAX_VELOCITY")
@@ -605,12 +606,15 @@ class Gscreen:
                 temp = 1.0
         self.data._maxvelocity = float(temp)
 
+        # change the display based on the requested axis
         temp = self.inifile.find("TRAJ","COORDINATES")
         if "A" in temp:
             self.widgets.frame3.show()
             self.widgets.image6.hide() # make more room for axis display
         if "Y" in temp:
             self.widgets.frame2.show()
+
+        # check for override settings
         temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_max = float(temp)
@@ -620,6 +624,7 @@ class Gscreen:
         temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
         if temp:
             self.data.feed_override_max = float(temp)
+
         # check the ini file if UNITS are set to mm"
         # first check the global settings
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
@@ -633,18 +638,27 @@ class Gscreen:
             self.machine_units_mm=0
             conversion=[25.4]*3+[1]*3+[25.4]*3
         self.status.set_machine_units(self.machine_units_mm,conversion)
+
+        # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
         if self.data.lathe_mode:
             self.widgets.tooledit1.set_display(0)
+
+        # get the path to the tool table
         self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
         path = os.path.join(CONFIGPATH,self.data.tooltable)
         self.widgets.tooledit1.set_filename(path)
+
+        # see if the user specified a tool editor
         self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
+
+        # toolsetting reference type
         if self.prefs.getpref('toolsetting_fixture', False):
             self.g10l11 = 1
         else:
             self.g10l11 = 0
 
+        # set the display options from preference file
         if self.prefs.getpref('dro_mm', False):
             self.status.dro_mm(0)
         else:
@@ -661,25 +675,28 @@ class Gscreen:
         self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
         self.emc.opstop(self.data.op_stop)
 
-        # timers for updates
+        # timers for display updates
         gobject.timeout_add(50, self.periodic_status)
 
+        # set default jog rate
         self.emc.continuous_jog_velocity(self.data.jog_rate)
-        # dynamic tabs
+
+        # dynamic tabs setup
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
         self.set_dynamic_tabs()
 
-        # and display everything
+        # set title and display everything including the second screen if requested
         self.widgets.window1.set_title("Gscreen for linuxcnc")
-
         if self.screen2:
             self.widgets.window2.show()
             self.widgets.window2.move(0,0)
             if not self.data.use_screen2:
                 self.widgets.window2.hide()
         self.widgets.window1.show()
-        # hide cursor
+
+        # hide cursor if requested
+        # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
             self.widgets.window1.window.set_cursor(invisible)
             self.widgets.gremlin.set_property('use_default_controls',False)
@@ -690,9 +707,13 @@ class Gscreen:
 
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
-        # set to 'start mode' 
+
+        # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
+
+        # see if there are user messages in the ini file 
         self.message_setup()
+
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
 
@@ -788,6 +809,7 @@ class Gscreen:
         self.widgets.data_input.set_sensitive(True)
         self.widgets.dialog_entry.hide()
 
+    # shows the cursor and warps it to the origin before exiting
     def hack_leave(self,*args):
         if not self.data.hide_cursor: return
         w = self.widgets.window1.window
@@ -809,21 +831,26 @@ class Gscreen:
             self.widgets.window1.window.set_cursor(None)
             self.widgets.gremlin.set_property('use_default_controls',True)
 
+    # opens halshow
     def on_halshow(self,*args):
         print "halshow",TCLPATH
         p = os.popen("tclsh %s/bin/halshow.tcl -- -ini %s &" % (TCLPATH,self.inipath))
 
+    # opens the calibration program
     def on_calibration(self,*args):
         print "calibration --%s"% self.inipath
         p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH,self.inipath),"w")
 
+    # opens the linuxcnc status program
     def on_status(self,*args):
         p = os.popen("linuxcnctop  > /dev/null &","w")
 
+    # opens a halmeter
     def on_halmeter(self,*args):
         print "halmeter"
         p = os.popen("halmeter &")
 
+    # estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         print "estopping / killing gscreen"
         self.emc.machine_off(1)
