@@ -1437,9 +1437,15 @@ class Gscreen:
             else:
                 return False
 
-    def _dynamic_tab(self, notebook, text):
+    def _dynamic_tab(self, widget, text):
         s = gtk.Socket()
-        notebook.append_page(s, gtk.Label(" " + text + " "))
+        try:
+            widget.append_page(s, gtk.Label(" " + text + " "))
+        except:
+            try:
+                widget.pack_end(s,True,True,0)
+            except:
+                return None
         return s.get_id()
 
     def set_dynamic_tabs(self):
