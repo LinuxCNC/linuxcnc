@@ -1,0 +1,26 @@
+; restore metric/inch absolute/relative, feed as per paramter values
+; call as 'O<restore> call [originalmetric] [originalabs] [originalfeed]
+;
+O<restore> sub
+O100 if [#1 NE #<_metric>]
+O200    if [#1]
+        G21
+O200    else
+        G20
+O200    endif
+O100 endif
+
+O300 if [#2 NE #<_absolute>]
+O400    if [#2]
+        G90
+O400    else
+        G91
+O400    endif
+O300 endif
+
+O500 if [#3 NE #<_feed>]
+     F[#3]
+O500 endif
+
+O<restore> endsub
+m2
