@@ -28,8 +28,26 @@ RTAPI_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
 RTAPI_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
 endif
 
+obj-$(CONFIG_RTAPI) += rtapi.o
+
+
 ifeq ($(THREADS),rtai)
 ULAPISRCS := rtapi/rtai_ulapi.c
+rtapi-objs := rtapi/rtai_rtapi.o
+endif
+
+
+ifeq ($(THREADS),xenomai-kernel)
+
+rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+ULAPISRCS := rtapi/xenomai_ulapi.c
+
+XENO_CONFIG ?= xeno-config --skin=native
+XENO_CFLAGS := $(shell $(XENO_CONFIG) --cflags )
+XENO_LINK := $(shell $(XENO_CONFIG) --ldflags )
+
+$(call TOOBJSDEPS, $(ULAPISRCS)): EXTRAFLAGS += -fPIC $(XENO_CFLAGS)
+
 endif
 
 ifeq ($(THREADS),xenomai-user)
@@ -63,5 +81,7 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(RTAPI_CFLAGS) #-DSIM
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(RTAPI_LINK)
 TARGETS += ../bin/rtapi_app
 endif
+
+
 USERSRCS += $(ULAPISRCS)
 USERSRCS += $(RTAPI_APP_SRCS)

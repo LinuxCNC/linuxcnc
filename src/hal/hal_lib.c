@@ -1821,7 +1821,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     new->priority = rtapi_prio_next_lower(prev_priority);
     /* create task - owned by library module, not caller */
     retval = rtapi_task_new(thread_task, new, new->priority,
-	lib_module_id, HAL_STACKSIZE, uses_fp);
+			    lib_module_id, HAL_STACKSIZE, uses_fp, new->name);
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
