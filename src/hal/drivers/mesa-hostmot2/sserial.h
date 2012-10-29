@@ -153,12 +153,13 @@ typedef struct {
     int index;
     u32 command_reg_addr; // a duplicate so that a single channel can be passed
     u32 data_reg_addr;
-    char name[10];
+    char name[21];
     
 }hm2_sserial_remote_t;
 
 typedef struct {
     int device_id;
+    int use_serial_numbers;
     int num_remotes;
     int num_channels;
     int tag;

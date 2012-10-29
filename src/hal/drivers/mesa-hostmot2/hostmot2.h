@@ -882,6 +882,8 @@ typedef struct {
     hm2_module_descriptor_t md[HM2_MAX_MODULE_DESCRIPTORS];
     int num_mds;
 
+    int use_serial_numbers;
+    
     hm2_pin_t *pin;
     int num_pins;
 
@@ -944,7 +946,10 @@ const char *hm2_hz_to_mhz(u32 freq_hz);
 
 void hm2_print_modules(hostmot2_t *hm2);
 
-
+// functions to get handles to components by name
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, char *name);
+int hm2_get_bspi(hostmot2_t **hm2, char *name);
+int hm2_get_uart(hostmot2_t **hm2, char *name);
 
 
 //
@@ -1089,7 +1094,6 @@ void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_bspi_write_chan(char* name, int chan, u32 val);
-int hm2_get_bspi(hostmot2_t **hm2, char *name); // actually in hostmot.c
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
@@ -1108,7 +1112,6 @@ void hm2_uart_write(hostmot2_t *hm2);
 void hm2_uart_force_write(hostmot2_t *hm2);
 void hm2_uart_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_uart_process_tram_read(hostmot2_t *hm2, long period);
-int hm2_get_uart(hostmot2_t **hm2, char *name); // actually in hostmot.c
 int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode);
 int hm2_uart_send(char *name, unsigned char data[], int count);
 int hm2_uart_read(char *name, unsigned char data[]);

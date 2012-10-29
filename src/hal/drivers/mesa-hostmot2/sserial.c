@@ -16,11 +16,6 @@
 //   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-// FIXME: Since the change to auto-configuring cards, the separate drivers
-// for 8i20 and 7i64 make no sense. They should simply spoof a GTOC and share a
-// structure with the auto-conf type. It probably makes sense to consolidate
-// into one file too, though it will be a biggie. 
-
 
 #include <linux/slab.h>
 
@@ -44,7 +39,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 
 // Main functions
 
-int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
+int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int i, c;
     int pin = -1;
@@ -183,17 +178,17 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             u32 user0, user1, user2;
             // user10 addr
             addr = md->base_address + 3 * md->register_stride
-            + i * md->instance_stride + c * sizeof(u32);
+                                    + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &user0, sizeof(u32));
             HM2_DBG("User0 = %x\n", user0);
             // user1 addr
             addr = md->base_address + 4 * md->register_stride
-            + i * md->instance_stride + c * sizeof(u32);
+                                    + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &user1, sizeof(u32));
             HM2_DBG("User1 = %x\n", user1);
             // user2 addr
             addr = md->base_address + 5 * md->register_stride
-            + i * md->instance_stride + c * sizeof(u32);
+                                    + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &user2, sizeof(u32));
             HM2_DBG("User2 = %x\n", user2);
             if ((user2 & 0x0000ffff) // Parameter discovery
@@ -409,9 +404,23 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
             hm2->llio->read(hm2->llio, chan->reg_0_addr, 
                             &buff, sizeof(u32));
             chan->serialnumber = buff;
+            HM2_DBG("BoardSerial %08x\n", chan->serialnumber);
             hm2->llio->read(hm2->llio, chan->reg_1_addr, name, sizeof(u32));
-            rtapi_snprintf(chan->name, 9, "%2s.%d.%d",name, inst->index, c);
-            chan->name[1] |= 0x20; ///lower case
+            name[1] |= 0x20; ///lower case
+            if (hm2->use_serial_numbers){
+                rtapi_snprintf(chan->name, 20, 
+                               "hm2_%2s.%04x",
+                               name, 
+                               (chan->serialnumber & 0xffff));
+            } else {
+                rtapi_snprintf(chan->name, 20, 
+                               "%s.%2s.%d.%d",
+                               hm2->llio->name, 
+                               name,
+                               inst->index,
+                               c);
+            }
+            
             HM2_DBG("BoardName %s\n", chan->name);
             
             
@@ -536,10 +545,10 @@ int hm2_sserial_read_globals(hostmot2_t *hm2,
     hm2->llio->read(hm2->llio, chan->reg_2_addr, &buff, sizeof(u32)); 
     gtoc=(buff & 0xffff0000) >> 16; 
     if (gtoc == 0){
-        if ( !strncmp(chan->name, "8i20",4)){
+        if (strstr(chan->name, "8i20")){
             config_8i20(hm2, chan);
         }
-        else if ( !strncmp(chan->name, "7i64",4)){
+        else if (strstr(chan->name, "7i64")){
             config_7i64(hm2, chan);
         }
     }
@@ -653,8 +662,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                         r = hal_param_u32_newf(HAL_RO, 
                                                &(chan->params[i].u32_param), 
                                                hm2->llio->comp_id,
-                                               "%s.%s.%s", 
-                                               hm2->llio->name,
+                                               "%s.%s", 
                                                chan->name, 
                                                global.NameString);
                         if (r < 0) {HM2_ERR("Out of memory\n") ; return -ENOMEM;}
@@ -670,8 +678,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 r = hal_param_u32_newf(HAL_RO, 
                                        &(chan->params[i].u32_param), 
                                        hm2->llio->comp_id,
-                                       "%s.%s.%s", 
-                                       hm2->llio->name,
+                                       "%s.%s", 
                                        chan->name, 
                                        global.NameString);
                 if (r < 0) {HM2_ERR("Out of memory\n") ; return -ENOMEM;}
@@ -686,8 +693,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 r = hal_param_s32_newf(HAL_RO, 
                                        &(chan->params[i].s32_param), 
                                        hm2->llio->comp_id,
-                                       "%s.%s.%s", 
-                                       hm2->llio->name,
+                                       "%s.%s", 
                                        chan->name, 
                                        chan->globals[i].NameString);
                 if (r < 0) {HM2_ERR("Out of memory\n") ; return -ENOMEM;}
@@ -749,8 +755,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                 hal_malloc(chan->confs[i].DataLength * sizeof(hal_bit_t));
                 for (j = 0; j < chan->confs[i].DataLength ; j++){
                     
-                    rtapi_snprintf(name, sizeof(name), "%s.%s.%s-%02d",
-                                   hm2->llio->name,
+                    rtapi_snprintf(name, sizeof(name), "%s.%s-%02d",
                                    chan->name, 
                                    chan->confs[i].NameString,
                                    j);
@@ -763,8 +768,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                         return r;
                     }
                     if (data_dir != HAL_IN) {
-                        rtapi_snprintf(name, sizeof(name), "%s.%s.%s-%02d-not",
-                                       hm2->llio->name,
+                        rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-not",
                                        chan->name, 
                                        chan->confs[i].NameString,
                                        j);
@@ -778,8 +782,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                         }
                     }
                     if (data_dir != HAL_OUT){
-                        rtapi_snprintf(name, sizeof(name), "%s.%s.%s-%02d-invert",
-                                       hm2->llio->name,
+                        rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-invert",
                                        chan->name, 
                                        chan->confs[i].NameString,
                                        j);
@@ -796,8 +799,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                 break;
             case 0x02: // unsigned
             case 0x03: // signed
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_pin_float_new(name,
@@ -809,8 +811,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                     return r;
                 }
                 if (data_dir == HAL_OUT) {break;}
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s-maxlim",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s-maxlim",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_param_float_new(name,
@@ -822,8 +823,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                     return r;
                 }
                 chan->pins[i].maxlim = chan->confs[i].ParmMax;
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s-minlim",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s-minlim",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_param_float_new(name,
@@ -835,8 +835,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                     return r;
                 }
                 chan->pins[i].minlim = chan->confs[i].ParmMin;
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s-scalemax",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s-scalemax",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_param_float_new(name,
@@ -855,8 +854,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                         "never happen. Aborting");
                 return r;
             case 0x06: // stream
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_pin_u32_new(name,
@@ -869,8 +867,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                 }
                 break;
             case 0x07: // boolean
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_pin_bit_new(name,
@@ -882,8 +879,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                     return r;
                 }
                 if (data_dir != HAL_IN) {
-                    rtapi_snprintf(name, sizeof(name), "%s.%s.%s-not",
-                                   hm2->llio->name,
+                    rtapi_snprintf(name, sizeof(name), "%s.%s-not",
                                    chan->name, 
                                    chan->confs[i].NameString);
                     r = hal_pin_bit_new(name,
@@ -897,8 +893,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                 }
                 if (data_dir != HAL_OUT) {
                     chan->pins[i].invert = hal_malloc(sizeof(hal_bit_t));
-                    rtapi_snprintf(name, sizeof(name), "%s.%s.%s-invert",
-                                   hm2->llio->name,
+                    rtapi_snprintf(name, sizeof(name), "%s.%s-invert",
                                    chan->name, 
                                    chan->confs[i].NameString);
                     r = hal_param_bit_new(name,
@@ -912,8 +907,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst,
                 }
                 break;
             case 0x08: // Encoder Counts
-                rtapi_snprintf(name, sizeof(name), "%s.%s.%s",
-                               hm2->llio->name,
+                rtapi_snprintf(name, sizeof(name), "%s.%s",
                                chan->name, 
                                chan->confs[i].NameString);
                 r = hal_pin_s32_new(name,
@@ -1051,7 +1045,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 break;
             case 0x01: // normal running
                 if (!*inst->run){
-                    *inst->state = 0x02;
+                     *inst->state = 0x02;
                     break;
                 }
                 

@@ -53,8 +53,8 @@ RTAPI_MP_INT(debug_module_descriptors, "Developer/debug use only!  Enable debug 
 int debug_modules = 0;
 RTAPI_MP_INT(debug_modules, "Developer/debug use only!  Enable debug logging of the HostMot2\nModules used.");
 
-
-
+int use_serial_numbers = 0;
+RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration order (smart-serial only)");
 
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
@@ -200,7 +200,7 @@ int hm2_get_bspi(hostmot2_t** hm2, char *name){
     list_for_each(ptr, &hm2_list) {
         *hm2 = list_entry(ptr, hostmot2_t, list);
         if ((*hm2)->bspi.num_instances > 0) {
-            for (i = 0; i <= (*hm2)->bspi.num_instances ; i++) {
+            for (i = 0; i < (*hm2)->bspi.num_instances ; i++) {
                 if (!strcmp((*hm2)->bspi.instance[i].name, name)) {return i;}
             }
         }
@@ -215,13 +215,36 @@ int hm2_get_uart(hostmot2_t** hm2, char *name){
     list_for_each(ptr, &hm2_list) {
         *hm2 = list_entry(ptr, hostmot2_t, list);
         if ((*hm2)->uart.num_instances > 0) {
-            for (i = 0; i <= (*hm2)->uart.num_instances ; i++) {
+            for (i = 0; i < (*hm2)->uart.num_instances ; i++) {
                 if (!strcmp((*hm2)->uart.instance[i].name, name)) {return i;}
             }
         }
     }
     return -1;
 }
+
+EXPORT_SYMBOL_GPL(hm2_get_sserial);
+// returns a pointer to a remote struct
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, char *name){
+   // returns inst * 64 + remote index
+    struct list_head *ptr;
+    int i, j;
+    list_for_each(ptr, &hm2_list) {
+        *hm2 = list_entry(ptr, hostmot2_t, list);
+        if ((*hm2)->sserial.num_instances > 0) {
+            for (i = 0; i < (*hm2)->sserial.num_instances ; i++) {
+                for (j = 0; j < (*hm2)->sserial.instance[j].num_remotes; j++){
+                    if (strstr(name, (*hm2)->sserial.instance[i].remotes[j].name)) {
+                        return &((*hm2)->sserial.instance[i].remotes[j]);
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+
 
 
 
@@ -1010,6 +1033,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     memset(hm2, 0, sizeof(hostmot2_t));
 
     hm2->llio = llio;
+    hm2->use_serial_numbers = use_serial_numbers;
 
     INIT_LIST_HEAD(&hm2->tram_read_entries);
     INIT_LIST_HEAD(&hm2->tram_write_entries);

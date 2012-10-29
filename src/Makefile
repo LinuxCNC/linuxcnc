@@ -728,7 +728,7 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o setsserial.o
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -759,6 +759,9 @@ hm2_pci-objs  :=			  \
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+setsserial-objs :=			  \
+    hal/drivers/mesa-hostmot2/setsserial.o  \
     $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
