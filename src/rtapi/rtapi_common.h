@@ -73,6 +73,8 @@
 
 #include "rtapi_bitops.h"
 
+#undef RTAPI_FIFO  // drop support for RTAPI fifos
+
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
 #define RTAPI_MAX_TASKS   64
@@ -89,7 +91,13 @@
    against the code in the shared memory area.  If they don't match,
    the rtapi_init() call will faill.
 */
+#if defined(RTAPI_RTAI)
 static unsigned int rev_code = 1;  // increment this whenever you change the data structures
+#endif
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+static unsigned int rev_code = 2;  // increment this whenever you change the data structures
+#endif
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -151,6 +159,7 @@ typedef struct {
     unsigned long int size;	/* size of fifo area */
 } fifo_data;
 
+
 typedef struct {
     int irq_num;		/* IRQ number */
     int owner;			/* owning module */
@@ -178,6 +187,11 @@ typedef struct {
     int irq_count;		/* interrupts hooked */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
+#if defined(RTAPI_XENOMAI_KERNEL)
+    int rt_wait_error;          /* release point missed */
+    int rt_last_overrun;       /* last  number of overruns reported by Xenomai */
+    int rt_total_overruns;      /* total number of overruns reported by Xenomai */
+#endif
     long int timer_period;	/* HW timer period */
     module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
@@ -236,6 +250,11 @@ static void init_rtapi_data(rtapi_data_t * data)
     data->irq_count = 0;
     data->timer_running = 0;
     data->timer_period = 0;
+#if defined(RTAPI_XENOMAI_KERNEL)
+    data->rt_wait_error = 0;
+    data->rt_last_overrun = 0;
+    data->rt_total_overruns = 0;
+#endif
     /* init the arrays */
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	data->module_array[n].state = EMPTY;
@@ -252,6 +271,9 @@ static void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
+#if 0 // defined(RTAPI_XENOMAI_KERNEL) 
+	memset(&shmem_heap_array[n].heap, 0, sizeof(shmem_heap_array[n]));
+#endif
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}

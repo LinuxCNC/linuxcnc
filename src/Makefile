@@ -171,7 +171,7 @@ INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 # this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
 ifneq ($(BUILD_SYS),user-dso)
-INCLUDE += -I$(KERNELDIR)/include
+#INCLUDE += -I$(KERNELDIR)/include
 endif
 endif
 
@@ -378,9 +378,10 @@ endif
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
-
 modules:
-	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
+	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) V=$(BUILD_VERBOSE) modules)
+	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -625,6 +626,9 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 
 endif # userspace
 
+#KERNELRELEASE=2.6.38.8-xenomai+
+#KERNELRELEASE=3.2.21-xenomai+
+
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
@@ -653,6 +657,9 @@ ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
 endif
 
+#$(warning KERNELRELEASE=$(KERNELRELEASE) EXTRA_CFLAGS=$(EXTRA_CFLAGS))
+
+
 # For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
 # plus a definition of foo-objs, which contains the full path to the
 # object file(s) that the module contains.  Unfortunately, this setup pollutes
@@ -660,9 +667,13 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-ifneq ($(BUILD_SYS),user-dso)
+
 obj-$(CONFIG_RTAPI) += rtapi.o
-rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+
+ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(THREADS),xenomai-kernel)
+rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+endif
 endif
 
 # Subdirectory: rtapi/examples (unneeded?)

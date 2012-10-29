@@ -629,6 +629,10 @@ case "$THREADS" in
 	LIBS_hold=$LIBS
 	LIBS="$LIBS "`$RTS --skin=native --ldflags`
 
+	# need to force hard-float for kernel modules
+	if test "$THREADS" = xenomai-kernel ; then
+  	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0 -ffast-math -mhard-float"
+	fi
 
 	AC_MSG_CHECKING([for cc version])
   	RTSCC=`$RTS --cc`
@@ -841,11 +845,16 @@ case $THREADS in
     AC_SUBST([KERNEL_VERS])
     AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
 
-    # Do a quick test for module extension..
-    AC_MSG_CHECKING([for kernel module extension])
-    MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-    if test "x" = "x$MODEXT"; then
-	MODEXT=".o"
+    if test $THREADS = xenomai-kernel; then
+       	# no support in xeno-config, so force
+        MODEXT=".ko" 
+    else
+	# Do a quick test for module extension..
+	AC_MSG_CHECKING([for kernel module extension])
+    	MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
+    	if test "x" = "x$MODEXT"; then
+	   MODEXT=".o"
+	fi
     fi
     AC_MSG_RESULT([$MODEXT])
 
@@ -854,7 +863,7 @@ case $THREADS in
     # FIXME FIXME FIXME
     # right now it will assume based on the kernel module extension
     EXT_RTFLAGS=""
-    BUILD_SYS="normal"
+    BUILD_SYS="kbuild"
 
     if test "x$MODEXT" = "x.ko" ; then
 	BUILD_SYS="kbuild"
@@ -1398,7 +1407,7 @@ AC_SUBST([MATHLIB])
 
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
         rtai rt_mem_mgr rtai_sched rtai_libm \
-        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
+        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo xeno_math; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
     if test -z "$TMP"; then
@@ -1427,6 +1436,7 @@ AC_SUBST(MODPATH_rtl_time)
 AC_SUBST(MODPATH_rtl_sched)
 AC_SUBST(MODPATH_rtl_posixio)
 AC_SUBST(MODPATH_rtl_fifo)
+AC_SUBST(MODPATH_xeno_math)
 fi
 
 # Checks for header files.

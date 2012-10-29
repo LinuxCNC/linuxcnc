@@ -46,4 +46,6 @@ elif [ $RTPREFIX = rtl ] ; then
     MODPATH_rtl_sched=@MODPATH_rtl_sched@
     MODPATH_rtl_posixio=@MODPATH_rtl_posixio@
     MODPATH_rtl_fifo=@MODPATH_rtl_fifo@
+elif [ $RTPREFIX = xenomai-kernel ] ; then
+    MODULES="xeno_math"
 fi

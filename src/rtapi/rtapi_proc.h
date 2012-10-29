@@ -118,6 +118,11 @@ static int proc_read_status(char *page, char **start, off_t off,
     } else {
 	PROC_PRINT(" Timer status = Stopped\n");
     }
+#if defined(RTAPI_XENOMAI_KERNEL)
+    PROC_PRINT("  Wait errors = %i\n", rtapi_data->rt_wait_error);
+    PROC_PRINT(" Last overrun = %i\n", rtapi_data->rt_last_overrun);
+    PROC_PRINT("Total overruns = %i\n", rtapi_data->rt_total_overruns);
+#endif
     PROC_PRINT("Message level = %i\n", msg_level);
     PROC_PRINT("\n");
     PROC_PRINT_DONE;

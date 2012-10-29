@@ -443,7 +443,8 @@ RTAPI_BEGIN_DECLS
 #define RTAPI_USES_FP 1
 
     extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
-	int prio, int owner, unsigned long int stacksize, int uses_fp);
+			      int prio, int owner, unsigned long int stacksize, 
+			      int uses_fp, char *name);
 
 /** 'rtapi_task_delete()' deletes a task.  'task_id' is a task ID
     from a previous call to rtapi_task_new().  It frees memory
