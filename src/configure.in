@@ -391,7 +391,7 @@ AC_ARG_WITH(threads,
                 AC_MSG_RESULT([configuring for Xenomai user threads])
             ;;
             xenomai-kernel)
-                THREADS=posix	
+                THREADS=xenomai-kernel	
                 AC_MSG_RESULT([configuring for Xenomai kernel threads])
             ;;
             *)
