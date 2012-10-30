@@ -380,7 +380,8 @@ endif
 ifeq ($(BUILD_SYS),kbuild)
 
 modules:
-	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=1 modules
+#	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -625,6 +626,8 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 
 endif # userspace
 
+#KERNELRELEASE=2.6.38.8-xenomai+
+
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
@@ -653,6 +656,9 @@ ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
 endif
 
+#$(warning KERNELRELEASE=$(KERNELRELEASE) EXTRA_CFLAGS=$(EXTRA_CFLAGS))
+
+
 # For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
 # plus a definition of foo-objs, which contains the full path to the
 # object file(s) that the module contains.  Unfortunately, this setup pollutes
@@ -660,9 +666,11 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
+# WTF does this up here? moved to rtapi/Submakefile
 ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_RTAPI) += rtapi.o
-rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+#rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+rtapi-objs := rtapi/xenomai_kernel_rtapi.o
 endif
 
 # Subdirectory: rtapi/examples (unneeded?)

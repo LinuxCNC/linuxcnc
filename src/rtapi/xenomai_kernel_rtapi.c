@@ -59,6 +59,8 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"	
+
 #include <stdarg.h>		/* va_* */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -99,20 +101,22 @@
 #include <rtai_fifos.h>
 #endif
 
+#include "rtapi.h"		/* public RTAPI decls */
+#include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
+
 #if defined(RTAPI_XENOMAI_KERNEL)
 #include <native/heap.h>
 #include <native/timer.h>
+#include <native/task.h>
 #include <native/intr.h>
+#include <native/sem.h>
 #include "xenomai_common.h"
 static RT_HEAP master_heap;
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
-static RT_INT xeno_irq_array|RTAPI_MAX_IRQS+1];
+static RT_INTR xeno_irq_array[RTAPI_MAX_IRQS+1];
 static rthal_trap_handler_t old_trap_handler;
 static int rtapi_trap_handler(unsigned event, unsigned domid, void *data);
 #endif
-
-#include "rtapi.h"		/* public RTAPI decls */
-#include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* resource data unique to kernel space */
 static RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
@@ -139,7 +143,6 @@ RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 MODULE_AUTHOR("John Kasunich, Fred Proctor, Paul Corner & Michael Haberler");
 MODULE_DESCRIPTION("Portable Real Time API for RTAI and Xenomai");
 MODULE_LICENSE("GPL");
-
 
 
 #include "rtapi_proc.h"		/* proc filesystem decls & code */
@@ -171,11 +174,11 @@ int init_module(void)
     /* get master shared memory block from OS and save its address */
 #if defined(RTAPI_XENOMAI_KERNEL)
     if ((n = rt_heap_create(&master_heap, MASTER_HEAP, 
-			    sizeof(rtapi_data_t), HEAP_MODE)) != 0) {
+			    sizeof(rtapi_data_t), H_SHARED)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d\n", n);
 	return -EINVAL;
     }
-    if ((n = rt_heap_alloc(&master_heap, sizeof(rtapi_data_t), TM_INFINITE ,&rtapi_data)) != 0) {
+    if ((n = rt_heap_alloc(&master_heap, sizeof(rtapi_data_t), TM_INFINITE , (void **)&rtapi_data)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
 	return -EINVAL;
     }

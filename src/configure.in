@@ -629,6 +629,10 @@ case "$THREADS" in
 	LIBS_hold=$LIBS
 	LIBS="$LIBS "`$RTS --skin=native --ldflags`
 
+	# need to force hard-float for kernel modules
+	if test "$THREADS" = xenomai-kernel ; then
+  	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0 -ffast-math -mhard-float"
+	fi
 
 	AC_MSG_CHECKING([for cc version])
   	RTSCC=`$RTS --cc`
@@ -854,7 +858,7 @@ case $THREADS in
     # FIXME FIXME FIXME
     # right now it will assume based on the kernel module extension
     EXT_RTFLAGS=""
-    BUILD_SYS="normal"
+    BUILD_SYS="kbuild"
 
     if test "x$MODEXT" = "x.ko" ; then
 	BUILD_SYS="kbuild"
