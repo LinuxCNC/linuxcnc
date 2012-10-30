@@ -1560,23 +1560,26 @@ class Gscreen:
             print "shrink"
             self.data.full_graphics = False
             self.widgets.notebook_mode.show()
+            self.widgets.dro_frame.show()
         else:
             print "enlarge"
             self.data.full_graphics = True
             self.widgets.notebook_mode.hide()
+            self.widgets.dro_frame.hide()
 
     def edit_mode(self):
         print "edit mode pressed"
         if self.data.edit_mode:
             self.widgets.gcode_view.set_sensitive(0)
             self.data.edit_mode = False
-            self.widgets.eventbox_gremlin.show()
+            self.widgets.show_box.show()
             self.widgets.hbuttonbox.set_sensitive(True)
             self.widgets.button_mode.set_sensitive(True)
         else:
             self.widgets.gcode_view.set_sensitive(1)
             self.data.edit_mode = True
-            self.widgets.eventbox_gremlin.hide()
+            self.widgets.show_box.hide()
+            self.widgets.notebook_mode.show()
             self.widgets.hbuttonbox.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
 
@@ -1876,6 +1879,7 @@ class Gscreen:
             self.widgets.notebook_mode.hide()
             self.widgets.hal_mdihistory.hide()
             self.widgets.button_homing.show()
+            self.widgets.dro_frame.show()
         elif mode == _MDI:
             self.widgets.hal_mdihistory.show()
             self.widgets.vmode0.show()
