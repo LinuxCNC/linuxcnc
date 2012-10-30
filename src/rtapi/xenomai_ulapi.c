@@ -100,9 +100,6 @@ static int fifo_delete(int fifo_id, int module_id);
 
 /* resource data unique to this process */
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
-#if defined(RTAPI_XENOMAI_KERNEL)
-static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
-#endif
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
@@ -141,8 +138,8 @@ int rtapi_init(const char *modname)
 
 #if defined(RTAPI_XENOMAI_KERNEL)
     if ((n = rt_heap_bind(&ul_heap_desc, MASTER_HEAP, TM_NONBLOCK))) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_bind() returns %d - %s\n", 
-			n, strerror(n));
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_init: rt_heap_bind() returns %d - %s\n", 
+			n, strerror(-n));
 	return -EINVAL;
     }
     if ((n = rt_heap_alloc(&ul_heap_desc, 0, TM_NONBLOCK, (void **)&rtapi_data)) != 0) {
@@ -484,12 +481,12 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 #if defined(RTAPI_XENOMAI_KERNEL)
 	    snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 
-	    if ((retval = rt_heap_bind(&shmem_heap_array[shmem_id], shm_name, TM_NONBLOCK))) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_bind() returns %d - %s\n", 
-				retval, strerror(retval));
+	    if ((retval = rt_heap_bind(&shmem_array[n].heap, shm_name, TM_NONBLOCK))) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_shmem_new: rt_heap_bind() returns %d - %s\n", 
+				retval, strerror(-retval));
 		return -EINVAL;
 	    }
-	    if ((retval = rt_heap_alloc(&shmem_heap_array[shmem_id], 0, TM_NONBLOCK, 
+	    if ((retval = rt_heap_alloc(&shmem_array[n].heap, 0, TM_NONBLOCK, 
 					&shmem_addr_array[shmem_id])) != 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
 				retval, strerror(retval));
@@ -538,12 +535,12 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 #if defined(RTAPI_XENOMAI_KERNEL)
     snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
-    if ((retval = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, size, H_SHARED))) {
+    if ((retval = rt_heap_create(&shmem_array[n].heap, shm_name, size, H_SHARED))) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d - %s\n", 
 			retval, strerror(retval));
 	return -EINVAL;
     }
-    if ((retval = rt_heap_alloc(&shmem_heap_array[shmem_id], 0, TM_NONBLOCK, 
+    if ((retval = rt_heap_alloc(&shmem_array[n].heap, 0, TM_NONBLOCK, 
 				&shmem_addr_array[shmem_id])) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
 			retval, strerror(retval));
@@ -642,7 +639,7 @@ int shmem_delete(int shmem_id, int module_id)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-    rt_heap_delete(&shmem_heap_array[shmem_id]);
+    rt_heap_delete(&shmem_array[shmem_id].heap);
 #endif
 
     shmem_addr_array[shmem_id] = NULL;

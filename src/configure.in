@@ -845,11 +845,16 @@ case $THREADS in
     AC_SUBST([KERNEL_VERS])
     AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
 
-    # Do a quick test for module extension..
-    AC_MSG_CHECKING([for kernel module extension])
-    MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-    if test "x" = "x$MODEXT"; then
-	MODEXT=".o"
+    if test $THREADS = xenomai-kernel; then
+       	# no support in xeno-config, so force
+        MODEXT=".ko" 
+    else
+	# Do a quick test for module extension..
+	AC_MSG_CHECKING([for kernel module extension])
+    	MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
+    	if test "x" = "x$MODEXT"; then
+	   MODEXT=".o"
+	fi
     fi
     AC_MSG_RESULT([$MODEXT])
 

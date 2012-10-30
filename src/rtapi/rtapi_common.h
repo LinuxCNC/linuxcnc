@@ -73,6 +73,8 @@
 
 #include "rtapi_bitops.h"
 
+#undef RTAPI_FIFO  // drop support for RTAPI fifos
+
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
 #define RTAPI_MAX_TASKS   64
@@ -127,6 +129,11 @@ typedef struct {
     unsigned long size;		/* size of shared memory area */
     unsigned long bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are
 							   using block */
+#if defined(RTAPI_XENOMAI_KERNEL)
+    // this needs to be in global so RTAPI can map a shm which was
+    // allocated by ULAPI
+    RT_HEAP heap;             
+#endif
 } shmem_data;
 
 typedef struct {
@@ -150,6 +157,7 @@ typedef struct {
     int writer;			/* module ID of writer */
     unsigned long int size;	/* size of fifo area */
 } fifo_data;
+
 
 typedef struct {
     int irq_num;		/* IRQ number */
@@ -252,6 +260,9 @@ static void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
+#if defined(RTAPI_XENOMAI_KERNEL)
+	memset(&data->shmem_array[n].heap, 0, sizeof(data->shmem_array[n].heap));
+#endif
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}

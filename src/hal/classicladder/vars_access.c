@@ -25,10 +25,19 @@
 #include "classicladder_gtk.h"
 #endif
 
-#if defined(MODULE) && defined(RTAI)
+#include "config.h"
+
+
+
+#if defined(MODULE) 
 #include <linux/kernel.h>
 #include <linux/module.h>
+#if defined(RTAPI_RTAI) 
 #include "rtai.h"
+#endif
+#if defined(RTAPI_XENOMAI_KERNEL)
+#warn foo!
+#endif
 #else
 #include <stdio.h>
 #include <stdlib.h>
