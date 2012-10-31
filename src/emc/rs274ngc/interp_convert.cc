@@ -4760,37 +4760,37 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
-  int index;
+  int pocket_number;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    index = 0;
+    pocket_number = 0;
   } else if (g_code == G_43) {
     if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &index)));
+        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
     } else if (settings->toolchange_flag) {
         // we haven't loaded the tool and swapped pockets quite yet
-        index = settings->current_pocket;
+        pocket_number = settings->current_pocket;
     } else {
         // tool change is done so pockets are swapped
-        index = 0;
+        pocket_number = 0;
     }
 
-    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
-    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
-    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
+    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
+    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
+    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
+    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
+    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
+    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
+    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
-    index = -1;
+    pocket_number = -1;
     if(block->x_flag) tool_offset.tran.x = block->x_number;
     if(block->y_flag) tool_offset.tran.y = block->y_number;
     if(block->z_flag) tool_offset.tran.z = block->z_number;
@@ -4823,7 +4823,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
-  settings->tool_offset_index = index;
+  settings->tool_offset_index = pocket_number;
   return INTERP_OK;
 }
 
