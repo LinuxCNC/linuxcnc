@@ -547,6 +547,7 @@ class Gscreen:
                     self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
                 except:
                     break
+        self.widgets.unhome_axis.connect("clicked", self.unhome_selected)
         self.widgets.button_v0_2.connect("pressed", self.on_button_v0_2_pressed)
         self.widgets.button_v0_2.connect("released", self.on_button_v0_2_released)
         self.widgets.button_v0_3.connect("pressed", self.on_button_v0_3_pressed)
@@ -1795,7 +1796,7 @@ class Gscreen:
             print "home axis %s" % self.data.active_axis_buttons[0][0]
             self.emc.home_selected(self.data.active_axis_buttons[0][1])
 
-    def unhome_selected(self,axis):
+    def unhome_selected(self,widget):
         if len(self.data.active_axis_buttons) > 1:
             self.notify("INFO:","Can't unhome multiple axis",INFO_ICON)
             print self.data.active_axis_buttons
@@ -1803,6 +1804,7 @@ class Gscreen:
             self.notify("INFO:","No axis selected to unhome",INFO_ICON)
         else:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
+            self.emc.unhome_selected(self.data.active_axis_buttons[0][1])
 
     # Touchoff the axis zeroing it
     # or stop the spindle in in spindle mode

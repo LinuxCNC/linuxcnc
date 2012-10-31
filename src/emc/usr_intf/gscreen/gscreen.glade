@@ -2203,13 +2203,26 @@ Limits</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h0_4">
-                    <property name="label" translatable="yes">Unhome All</property>
+                    <property name="label" translatable="yes">Unhome 
+    All</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="unhome_axis">
+                    <property name="label" translatable="yes">Unhome
+   Axis</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -2221,11 +2234,8 @@ Readout</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
