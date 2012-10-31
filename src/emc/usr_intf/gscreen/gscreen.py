@@ -1379,7 +1379,7 @@ class Gscreen:
             self.widgets.button_v0_1.set_label("Offset Origin")
 
     # search for and set up user requested message system.
-    # status displays on the statusbat and requires no acklowedge.
+    # status displays on the statusbat and requires no acknowledge.
     # dialog displays a GTK dialog box with yes or no buttons
     # okdialog displays a GTK dialog box with an ok button
     # dialogs require an answer before focus is sent back to main screen
@@ -1437,6 +1437,7 @@ class Gscreen:
             else:
                 return False
 
+    # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
         s = gtk.Socket()
         try:
@@ -1448,6 +1449,11 @@ class Gscreen:
                 return None
         return s.get_id()
 
+    # Check INI file for embed commands
+    # NAME is used as the tab label if a notebook is used
+    # LOCATION is the widgets name from the gladefile.
+    # COMMAND is the actual program command
+    # if no location is specified the main notebook is used
     def set_dynamic_tabs(self):
         from subprocess import Popen
 
@@ -1477,14 +1483,17 @@ class Gscreen:
             self._dynamic_childs[xid] = child
             nb.show_all()
 
+    # Gotta kill the embedded processes when gscreen closes
     def kill_dynamic_childs(self):
         for c in self._dynamic_childs.values():
             c.terminate()
 
+    # finds the postgui file name and INI file path
     def postgui(self):
         postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
         return postgui_halfile,sys.argv[2]
 
+    # zooms in a set amount (set deep in gremlin)
     def zoom_in(self,*args):
         self.widgets.gremlin.zoom_in()
 
@@ -1517,6 +1526,7 @@ class Gscreen:
         self.data.diameter_mode = data
         self.prefs.putpref('diameter_mode', data, bool)
 
+    # returns the separate RGB color numbers from the color widget
     def convert_to_rgb(self,spec):
         color =  spec.to_string()
         temp = color.strip("#")
@@ -1540,6 +1550,8 @@ class Gscreen:
         self.data.dtg_color = self.convert_to_rgb(self.widgets.dtg_colorbutton.get_color())
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
 
+    # toggles gremlin's different views
+    # if in lathe mode only P and Y available
     def toggle_view(self):
         def shift():
             a = self.data.plot_view[0]
@@ -1554,6 +1566,7 @@ class Gscreen:
                 shift()
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
 
+    # toggle a large graphics view
     def full_graphics(self):
         print "graphics mode"
         if self.data.full_graphics:
@@ -1569,6 +1582,7 @@ class Gscreen:
             self.widgets.dro_frame.hide()
             self.widgets.gremlin.set_property('enable_dro',True)
 
+    # enlargen the Gcode box while in edit mode
     def edit_mode(self):
         print "edit mode pressed"
         if self.data.edit_mode:
@@ -1617,12 +1631,16 @@ class Gscreen:
     def save_edit(self):
         print "edit"
 
+    # helper method to block and unblock GTK widget signals
     def block(self,widget_name):
         self.widgets["%s"%(widget_name)].handler_block(self.data["_sighandler_%s"% (widget_name)])
 
     def unblock(self,widget_name):
          self.widgets["%s"%(widget_name)].handler_unblock(self.data["_sighandler_%s"% (widget_name)])
 
+    # update the global variable of active axis buttons
+    # if in jogging mode only one axis can be active at once
+    # update the related axis HAL pins
     def update_active_axis_buttons(self,widget):
         count = 0;temp = []
         self.data.active_axis_buttons = []
@@ -1640,6 +1658,7 @@ class Gscreen:
         if count == 0: self.data.active_axis_buttons.append((None,None))
         self.update_hal_jog_pins()
 
+    # adjust sensitivity and labels of buttons
     def jog_mode(self):
         print "jog mode:",self.widgets.button_h1_0.get_active()
         # if muliple axis selected - unselect all of them
@@ -1661,6 +1680,7 @@ class Gscreen:
             self.emc.spindle_off(1)
         self.update_hal_jog_pins()
 
+    # do some checks then jog selected axis or start spindle
     def do_jog(self,direction,action):
         # if manual mode, if jogging
         # if only one axis button pressed
@@ -1696,6 +1716,7 @@ class Gscreen:
                         print direction,action
                     elif not direction and action:self.emc.spindle_slower(1)
 
+    # feeds to a position (while in manual mode) 
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
             self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
@@ -1717,6 +1738,7 @@ class Gscreen:
                  else:
                     self.notify("INFO:","No spindle direction selected",INFO_ICON)
 
+    # shows the second glade file panel
     def toggle_screen2(self):
         self.data.use_screen2 = self.widgets.use_screen2.get_active()
         if self.screen2:
@@ -1726,8 +1748,10 @@ class Gscreen:
                 self.widgets.window2.hide()
         self.prefs.putpref('use_screen2', self.data.use_screen2, bool)
 
+    # This converts and qualifies the input
+    # eg for diameter, metric or percentage
+    # If the calculator is displayed use it for input instead of spinbox
     def get_qualified_input(self,switch = None):
-        # If the calculator is displayed use it for input instead of spinbox
         if self.widgets.dialog_entry.get_property("visible"):
             raw = self.widgets.calc_entry.get_value()
         else:
@@ -1759,6 +1783,7 @@ class Gscreen:
     def home_all(self):
         self.emc.home_all(1)
 
+    # do some checks first the home the selected axis
     def home_selected(self):
         print "home selected"
         if len(self.data.active_axis_buttons) > 1:
@@ -1779,6 +1804,9 @@ class Gscreen:
         else:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
 
+    # Touchoff the axis zeroing it
+    # or stop the spindle in in spindle mode
+    # reload the plot to update the display
     def zero_axis(self):
         # if an axis is selected then set it
         for i in self.data.axis_list:
@@ -1790,6 +1818,7 @@ class Gscreen:
                     self.mdi_control.set_axis(i,0)
                     self.reload_plot()
 
+    # touchoff setting the axis to the input
     def set_axis_checks(self):
         if self.data.mode_order[0] == _MAN:# if in manual mode
             if self.widgets.button_h1_0.get_active(): # jog mode active
@@ -1836,6 +1865,9 @@ class Gscreen:
         print "over ride limits"
         self.emc.override_limits(1)
 
+    # toggle the tool editor page forward
+    # reload the page when doing this
+    # If the user specified a tool editor spawn it. 
     def reload_tooltable(self):
         # show the tool table page or return to the main page
         if not self.widgets.notebook_main.get_current_page() == 3:
@@ -1856,6 +1888,7 @@ class Gscreen:
         # tell linuxcnc that the tooltable may have changed
         self.emc.reload_tooltable(1)
 
+    # toggle thru the DRO large display
     def dro_toggle(self):
         print "toggle axis display"
         a = self.data.display_order[0]
@@ -1869,6 +1902,7 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_relative',True)
         self.update_position()
 
+    # adjust the screen as per each mode toggled 
     def mode_changed(self,mode):
         for i in range(0,3):
             if i == mode:
@@ -1908,6 +1942,7 @@ class Gscreen:
         settings = gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", theme, "")
 
+    # check linuxcnc for status, error and then update the readout
     def periodic_status(self):
         self.emc.mask()
         self.emcstat = linuxcnc.stat()
@@ -1927,6 +1962,7 @@ class Gscreen:
         self.update_position()
         return True
 
+    # update the whole display
     def update_position(self,*args):
         # DRO 
         for i in ("x","y","z","a","s"):
@@ -2034,6 +2070,8 @@ class Gscreen:
             else:
                 self.halcomp["jog-enable.out"] = False
 
+# calls a postgui file if there is one.
+# then starts Gscreen
 if __name__ == "__main__":
     try:
         print "INFO: Gscreen ini", sys.argv[2]
