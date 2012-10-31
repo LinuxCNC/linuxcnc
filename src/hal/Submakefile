@@ -28,7 +28,7 @@ PYSRCS += $(HALMODULESRCS)
 HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ 
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)
