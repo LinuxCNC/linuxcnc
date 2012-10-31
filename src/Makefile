@@ -633,7 +633,7 @@ endif # userspace
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
-include $(BASEPWD)/rtapi/xeno_math/Submakefile
+#include $(BASEPWD)/rtapi/xeno_math/Submakefile
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because

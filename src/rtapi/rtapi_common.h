@@ -221,7 +221,7 @@ static void init_rtapi_data(rtapi_data_t * data)
     /* has the block already been initialized? */
     if (data->magic == RTAPI_MAGIC) {
 	/* yes, nothing to do */
-    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:init_rtapi_data MAGIC OK\n");
+	//rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:init_rtapi_data MAGIC OK\n");
 
 	return;
     }

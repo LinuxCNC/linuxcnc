@@ -474,7 +474,7 @@ void cleanup_module(void)
 	rt_free_timer();
 #endif
 #if defined(RTAPI_XENOMAI_KERNEL)
-#warning FIXME
+	// nothing to do here
 #endif
 	rtapi_data->timer_period = 0;
 	timer_counts = 0;
@@ -634,7 +634,7 @@ static int module_delete(int module_id)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-#warning FIXME unsure
+	// nothing to do here
 #endif	    
 	    rtapi_data->timer_period = 0;
 	    timer_counts = 0;
@@ -908,26 +908,19 @@ int rtapi_prio_next_lower(int prio)
 }
 #endif
 
+#if defined(RTAPI_RTAI)
 /* We define taskcode as taking a void pointer and returning void, but
    rtai wants it to take an int and return void.
    We solve this with a wrapper function that meets rtai's needs.
    The wrapper functions also properly deals with tasks that return.
    (Most tasks are infinite loops, and don't return.)
 */
-#if defined(RTAPI_XENOMAI_KERNEL)
-static void wrapper(void *cookie)
-{
-    task_data *task = cookie;
-#endif
-
-#if defined(RTAPI_RTAI)
 static void wrapper(long task_id)
 {
     task_data *task;
 
     /* point to the task data */
     task = &task_array[task_id];
-#endif
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
     /* if the task ever returns, we record that fact */
@@ -935,6 +928,7 @@ static void wrapper(long task_id)
     /* and return to end the thread */
     return;
 }
+#endif
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
 #define IP(x) ((x)->ip)
@@ -1041,7 +1035,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\"cpu=%d\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\" cpu=%d\n", 
 		    task_id, name, rtapi_data->rt_cpu );
 
     retval = rt_task_create(ostask_array[task_id], name, stacksize, task->prio, 
@@ -1140,7 +1134,7 @@ static int task_delete(int task_id)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-#warning "clarifiy stop timer"
+	    // nothing to do
 #endif
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
@@ -1188,16 +1182,26 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
     retval = rt_task_make_periodic(ostask_array[task_id],
 	rt_get_time() + period_counts, period_counts);
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-#warning "clarify period"
-    retval = rt_task_start( ostask_array[task_id], wrapper, (void*)task_id );
-#endif
 
     if (retval != 0) {
 	return -EINVAL;
     }
+#endif
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+    // we get a single Unexpected realtime delay here it seems
+    if ((retval = rt_task_set_periodic( ostask_array[task_id], TM_NOW, period_nsec)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_set_periodic() task_id %d periodns=%ld returns %d\n", 
+			task_id, period_nsec, retval);
+	return -EINVAL;
+    }
+    if ((retval = rt_task_start( ostask_array[task_id], task->taskcode, (void*)task->arg )) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_start() task_id %d returns %d\n", 
+			task_id, retval);
+	return -EINVAL;
+    }
+#endif
+
     /* ok, task is started */
     task->state = PERIODIC;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: start_task id: %02d\n", task_id);
@@ -1474,17 +1478,17 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* we have space for the block data */
     shmem_id = n;
     shmem = &(shmem_array[n]);
+
     /* get shared memory block from OS and save its address */
+
 #if defined(RTAPI_RTAI)
     shmem_addr_array[shmem_id] = rtai_kmalloc(key, size);
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-
-
     snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: rtapi_shmem_new %s module_id=%d key=%d mname=%s size=%d\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: rtapi_shmem_new %s module_id=%d key=%d mname=%s size=%ld\n", 
 		    shm_name, module_id, key,module_array[module_id].name, size);
 
     if ((n = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, 
@@ -1525,7 +1529,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 int rtapi_shmem_delete(int shmem_id, int module_id)
 {
     int retval;
-    rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     retval = shmem_delete(shmem_id, module_id);

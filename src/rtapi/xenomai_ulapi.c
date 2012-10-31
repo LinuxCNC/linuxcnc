@@ -437,9 +437,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_data *shmem;
     char shm_name[20];
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: rtapi_shmem_new(key=%d module_id=%d size=%ld)\n",key,module_id, size);
-
-
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad shmem key: %d\n",
@@ -621,7 +618,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id)
 {
     int retval;
 
-    rtapi_print_msg(RTAPI_MSG_ERR,"ULAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
+    // rtapi_print_msg(RTAPI_MSG_ERR,"ULAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     retval = shmem_delete(shmem_id, module_id);
