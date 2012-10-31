@@ -3136,7 +3136,8 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
-// G10 L1 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
+// G10 L1  P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
+// G10 L10 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     int pocket = -1, toolno;
@@ -3311,9 +3312,11 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     settings->parameters[5412] = settings->tool_table[0].backangle;
     settings->parameters[5413] = settings->tool_table[0].orientation;
 
-    //persuade axis-gui to update parameters widget for current tool:
+    // if the modified tool is currently in the spindle, then copy its
+    // information to pocket 0 of the tool table (which signifies the
+    // spindle)
     if (   !_setup.random_toolchanger
-        && toolno == settings->current_pocket) {
+        && pocket == settings->current_pocket) {
         SET_TOOL_TABLE_ENTRY(0,
                              settings->tool_table[pocket].toolno,
                              settings->tool_table[pocket].offset,
