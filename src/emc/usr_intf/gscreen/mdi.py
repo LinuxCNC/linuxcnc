@@ -195,8 +195,12 @@ class mdi_control:
         #    self.not_editing(i)
         #self.editing(self.selected)
         #self.set_text("G")
+
     def set_axis(self,axis,value):
+        premode = self.mdi.emcstat.task_mode
         self.mdi.set_axis_origin(axis,value)
+        self.mdi.emccommand.mode(premode)
+        self.mdi.emccommand.wait_complete()
 
     def set_spindle_speed(self,value):
         self.mdi.set_spindle_speed(value)
@@ -206,7 +210,10 @@ class mdi_control:
 
     def set_user_system(self,system):
         print "set user system to :G",system
+        premode = self.mdi.emcstat.task_mode
         self.mdi.set_user_system(system)
+        self.mdi.emccommand.mode(premode)
+        self.mdi.emccommand.wait_complete()
 
     def not_editing(self, n):
         e = self.eventboxes[n]
