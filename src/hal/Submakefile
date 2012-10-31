@@ -20,7 +20,7 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS) $(XENO_LINK) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(XENO_LINK)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
