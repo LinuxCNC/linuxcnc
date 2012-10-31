@@ -379,10 +379,11 @@ endif
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
 # FIXME HACK
-moduledir=/home/mah/emc2-dev/src
+#moduledir=/home/mah/emc2-dev/src
 modules:
 	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
-#	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=1 modules
+	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) modules)
+	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -633,7 +634,6 @@ endif # userspace
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
-#include $(BASEPWD)/rtapi/xeno_math/Submakefile
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
@@ -669,11 +669,13 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-# WTF does this up here? moved to rtapi/Submakefile
-ifneq ($(BUILD_SYS),user-dso)
+
 obj-$(CONFIG_RTAPI) += rtapi.o
-#rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+
+ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+endif
 endif
 
 # Subdirectory: rtapi/examples (unneeded?)

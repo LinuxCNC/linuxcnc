@@ -28,7 +28,6 @@ RTAPI_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
 RTAPI_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
 endif
 
-obj-$(CONFIG_RTAPI) += rtapi.o
 
 
 ifeq ($(THREADS),rtai)
