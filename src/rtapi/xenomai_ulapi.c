@@ -100,6 +100,8 @@ static int fifo_delete(int fifo_id, int module_id);
 
 /* resource data unique to this process */
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
+static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
+
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
@@ -148,6 +150,9 @@ int rtapi_init(const char *modname)
 	return -EINVAL;
     }
 #endif
+
+    //rtapi_printall();
+
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check revision code */
@@ -432,6 +437,9 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_data *shmem;
     char shm_name[20];
 
+    rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: rtapi_shmem_new(key=%d module_id=%d size=%ld)\n",key,module_id, size);
+
+
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad shmem key: %d\n",
@@ -481,17 +489,23 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 #if defined(RTAPI_XENOMAI_KERNEL)
 	    snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 
-	    if ((retval = rt_heap_bind(&shmem_array[n].heap, shm_name, TM_NONBLOCK))) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_shmem_new: rt_heap_bind() returns %d - %s\n", 
-				retval, strerror(-retval));
-		return -EINVAL;
+	    if (shmem_addr_array[shmem_id] == NULL) {
+		if ((retval = rt_heap_bind(&shmem_heap_array[n], shm_name, TM_NONBLOCK))) {
+		    rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: ERROR: rtapi_shmem_new: rt_heap_bind(%s) returns %d - %s\n", 
+				    shm_name, retval, strerror(-retval));
+		    return -EINVAL;
+		}
+		if ((retval = rt_heap_alloc(&shmem_heap_array[n], 0, TM_NONBLOCK, 
+					    &shmem_addr_array[shmem_id])) != 0) {
+		    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
+				    retval, strerror(retval));
+		    return -EINVAL;
+		}
+	    } else {
+	    rtapi_print_msg(RTAPI_MSG_WARN,"ulapi %s already mapped \n",shm_name);
+
 	    }
-	    if ((retval = rt_heap_alloc(&shmem_array[n].heap, 0, TM_NONBLOCK, 
-					&shmem_addr_array[shmem_id])) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
-				retval, strerror(retval));
-		return -EINVAL;
-	    }
+	    rtapi_print_msg(RTAPI_MSG_WARN,"ulapi rt_heap_bind(%s) OK\n",shm_name);
 #endif
 
             // the check for -1 here is because rtai_malloc (in at least
@@ -516,6 +530,8 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* find empty spot in shmem array */
     n = 1;
     while ((n <= RTAPI_MAX_SHMEMS) && (shmem_array[n].key != 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: shmem %d occupuied \n",n);
+
 	n++;
     }
     if (n > RTAPI_MAX_SHMEMS) {
@@ -526,6 +542,8 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	return -EMFILE;
     }
     /* we have space for the block data */
+	rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: using new shmem %d  \n",n);
+
     shmem_id = n;
     shmem = &(shmem_array[n]);
     /* now get shared memory block from OS and save its address */
@@ -534,17 +552,22 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-    snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
-    if ((retval = rt_heap_create(&shmem_array[n].heap, shm_name, size, H_SHARED))) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d - %s\n", 
-			retval, strerror(retval));
-	return -EINVAL;
-    }
-    if ((retval = rt_heap_alloc(&shmem_array[n].heap, 0, TM_NONBLOCK, 
-				&shmem_addr_array[shmem_id])) != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
-			retval, strerror(retval));
-	return -EINVAL;
+    if (shmem_addr_array[shmem_id] == NULL) {
+	snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
+	if ((retval = rt_heap_create(&shmem_heap_array[n], shm_name, size, H_SHARED))) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_shmem_new: rt_heap_create(%s,%ld) returns %d\n", 
+			    shm_name, size, retval);
+	    return -EINVAL;
+	}
+	if ((retval = rt_heap_alloc(&shmem_heap_array[n], 0, TM_NONBLOCK, 
+				    &shmem_addr_array[shmem_id])) != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
+			    retval, strerror(retval));
+	    return -EINVAL;
+	}
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: %s already mapped\n", shm_name);
+	
     }
 #endif
     
@@ -598,6 +621,8 @@ int rtapi_shmem_delete(int shmem_id, int module_id)
 {
     int retval;
 
+    rtapi_print_msg(RTAPI_MSG_ERR,"ULAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
+
     rtapi_mutex_get(&(rtapi_data->mutex));
     retval = shmem_delete(shmem_id, module_id);
     rtapi_mutex_give(&(rtapi_data->mutex));
@@ -634,12 +659,9 @@ int shmem_delete(int shmem_id, int module_id)
     shmem->ulusers--;
     /* unmap the block */
 
+    // FIXME move this down after use test?
 #if defined(RTAPI_RTAI)
     rtai_free(shmem->key, shmem_addr_array[shmem_id]);
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-    rt_heap_delete(&shmem_array[shmem_id].heap);
 #endif
 
     shmem_addr_array[shmem_id] = NULL;
@@ -648,6 +670,11 @@ int shmem_delete(int shmem_id, int module_id)
 	/* yes, we're done for now */
 	return 0;
     }
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+    rt_heap_delete(&shmem_heap_array[shmem_id]);
+#endif
+
     /* update the data array and usage count */
     shmem->key = 0;
     shmem->size = 0;

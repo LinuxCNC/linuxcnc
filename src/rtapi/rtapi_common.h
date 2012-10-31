@@ -129,11 +129,6 @@ typedef struct {
     unsigned long size;		/* size of shared memory area */
     unsigned long bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are
 							   using block */
-#if defined(RTAPI_XENOMAI_KERNEL)
-    // this needs to be in global so RTAPI can map a shm which was
-    // allocated by ULAPI
-    RT_HEAP heap;             
-#endif
 } shmem_data;
 
 typedef struct {
@@ -226,8 +221,12 @@ static void init_rtapi_data(rtapi_data_t * data)
     /* has the block already been initialized? */
     if (data->magic == RTAPI_MAGIC) {
 	/* yes, nothing to do */
+    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:init_rtapi_data MAGIC OK\n");
+
 	return;
     }
+    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: MAGIC mismatch %x != %x\n", data->magic,  RTAPI_MAGIC);
+
     /* no, we need to init it, grab mutex unconditionally */
     rtapi_mutex_try(&(data->mutex));
     /* set magic number so nobody else init's the block */
@@ -260,8 +259,8 @@ static void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
-#if defined(RTAPI_XENOMAI_KERNEL)
-	memset(&data->shmem_array[n].heap, 0, sizeof(data->shmem_array[n].heap));
+#if 0 // defined(RTAPI_XENOMAI_KERNEL) 
+	memset(&shmem_heap_array[n].heap, 0, sizeof(shmem_heap_array[n]));
 #endif
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;

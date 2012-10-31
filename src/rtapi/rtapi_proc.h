@@ -100,6 +100,7 @@ static int proc_read_status(char *page, char **start, off_t off,
 {
     PROC_PRINT_VARS;
     PROC_PRINT("******* RTAPI STATUS ********\n");
+    PROC_PRINT("   magic = %x revcode=%x rt_cpu=%d\n", rtapi_data->magic, rtapi_data->rev_code, rtapi_data->rt_cpu);
     PROC_PRINT("   RT Modules = %i\n", rtapi_data->rt_module_count);
     PROC_PRINT("   UL Modules = %i\n", rtapi_data->ul_module_count);
     PROC_PRINT("        Tasks = %i/%i\n", rtapi_data->task_count,

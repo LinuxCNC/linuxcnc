@@ -171,7 +171,7 @@ INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 # this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
 ifneq ($(BUILD_SYS),user-dso)
-INCLUDE += -I$(KERNELDIR)/include
+#INCLUDE += -I$(KERNELDIR)/include
 endif
 endif
 
@@ -378,9 +378,11 @@ endif
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
-
+# FIXME HACK
+moduledir=/home/mah/emc2-dev/src
 modules:
 	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+#	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=1 modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -626,10 +628,12 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 endif # userspace
 
 #KERNELRELEASE=2.6.38.8-xenomai+
+#KERNELRELEASE=3.2.21-xenomai+
 
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
+include $(BASEPWD)/rtapi/xeno_math/Submakefile
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because

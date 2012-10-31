@@ -114,6 +114,7 @@
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 static RT_HEAP master_heap;
+static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 static RT_INTR xeno_irq_array[RTAPI_MAX_IRQS+1];
 static rthal_trap_handler_t old_trap_handler;
 static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, void *data);
@@ -141,7 +142,7 @@ static unsigned long timer_counts;
 
 /* module parameters */
 
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
+static int msg_level = RTAPI_MSG_DBG;	/* message printing level */
 RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 
 /* other module information */
@@ -168,6 +169,139 @@ static int fifo_delete(int fifo_id, int module_id);
 #endif
 static int irq_delete(unsigned int irq_num);
 
+
+void  rtapi_verify(char *tag)
+{
+    if (rtapi_data->magic != RTAPI_MAGIC) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI VERIFY BUG: magic=%x tag=%s\n", rtapi_data->magic, tag);
+    }
+}
+EXPORT_SYMBOL(rtapi_verify);
+
+
+void rtapi_printall(void)
+{
+    module_data *modules;
+    task_data *tasks;
+    shmem_data *shmems;
+    sem_data *sems;
+    fifo_data *fifos;
+    irq_data *irqs;
+    int n, m;
+
+    if (rtapi_data == NULL) {
+	printk("rtapi_data = NULL, not initialized\n");
+	return;
+    }
+    printk("rtapi_data = %p size=%d\n", rtapi_data, sizeof(rtapi_data_t));
+    printk("RTAPI_MAX_MODULES = %d\n",RTAPI_MAX_MODULES );
+    printk("RTAPI_MAX_TASKS = %d\n" , RTAPI_MAX_TASKS);
+    printk("RTAPI_MAX_SHMEMS = %d\n" , RTAPI_MAX_SHMEMS);
+    printk("RTAPI_MAX_SEMS = %d\n",RTAPI_MAX_SEMS);
+    printk("RTAPI_MAX_FIFOS = %d\n"  ,RTAPI_MAX_FIFOS);
+    printk("RTAPI_MAX_IRQS = %d\n"  ,RTAPI_MAX_IRQS );
+    printk("RTAPI_NAME_LEN = %d\n"  ,RTAPI_NAME_LEN);
+    printk("RT_HEAP = %d\n"  ,sizeof(RT_HEAP));
+
+    printk("  magic = %d\n", rtapi_data->magic);
+    printk("  rev_code = %08x\n", rtapi_data->rev_code);
+    printk("  mutex = %lu\n", rtapi_data->mutex);
+    printk("  rt_module_count = %d\n", rtapi_data->rt_module_count);
+    printk("  ul_module_count = %d\n", rtapi_data->ul_module_count);
+    printk("  task_count  = %d\n", rtapi_data->task_count);
+    printk("  shmem_count = %d\n", rtapi_data->shmem_count);
+    printk("  sem_count   = %d\n", rtapi_data->sem_count);
+    printk("  fifo_count  = %d\n", rtapi_data->fifo_count);
+    printk("  irq_countc  = %d\n", rtapi_data->irq_count);
+    printk("  timer_running = %d\n", rtapi_data->timer_running);
+    printk("  timer_period  = %ld\n", rtapi_data->timer_period);
+    modules = &(rtapi_data->module_array[0]);
+    tasks = &(rtapi_data->task_array[0]);
+    shmems = &(rtapi_data->shmem_array[0]);
+    sems = &(rtapi_data->sem_array[0]);
+    fifos = &(rtapi_data->fifo_array[0]);
+    irqs = &(rtapi_data->irq_array[0]);
+    printk("  module array = %p\n", modules);
+    printk("  task array   = %p\n", tasks);
+    printk("  shmem array  = %p\n", shmems);
+    printk("  sem array    = %p\n", sems);
+    printk("  fifo array   = %p\n", fifos);
+    printk("  irq array    = %p\n", irqs);
+    for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
+	if (modules[n].state != NO_MODULE) {
+	    printk("  module %02d\n", n);
+	    printk("    state = %d\n", modules[n].state);
+	    printk("    name = %p\n", modules[n].name);
+	    printk("    name = '%s'\n", modules[n].name);
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
+	if (tasks[n].state != EMPTY) {
+	    printk("  task %02d\n", n);
+	    printk("    state = %d\n", tasks[n].state);
+	    printk("    prio  = %d\n", tasks[n].prio);
+	    printk("    owner = %d\n", tasks[n].owner);
+	    printk("    code  = %p\n", tasks[n].taskcode);
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
+	if (shmems[n].key != 0) {
+	    printk("  shmem %02d\n", n);
+	    printk("    key     = %d\n", shmems[n].key);
+	    printk("    rtusers = %d\n", shmems[n].rtusers);
+	    printk("    ulusers = %d\n", shmems[n].ulusers);
+	    printk("    size    = %ld\n", shmems[n].size);
+	    printk("    bitmap  = ");
+	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
+		if (test_bit(m, shmems[n].bitmap)) {
+		    printk("1");
+		} else {
+		    printk("0");
+		}
+	    }
+
+	    printk("\n");
+
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
+	if (sems[n].key != 0) {
+	    printk("  sem %02d\n", n);
+	    printk("    key     = %d\n", sems[n].key);
+	    printk("    users   = %d\n", sems[n].users);
+	    printk("    bitmap  = ");
+	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
+		if (test_bit(m, sems[n].bitmap)) {
+		    printk("1");
+
+		} else {
+		    printk("0");
+
+		}
+	    }
+	    printk("\n");
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
+	if (fifos[n].state != UNUSED) {
+	    printk("  fifo %02d\n", n);
+	    printk("    state  = %d\n", fifos[n].state);
+	    printk("    key    = %d\n", fifos[n].key);
+	    printk("    reader = %d\n", fifos[n].reader);
+	    printk("    writer = %d\n", fifos[n].writer);
+	    printk("    size   = %ld\n", fifos[n].size);
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
+	if (irqs[n].irq_num != 0) {
+	    printk("  irq %02d\n", n);
+	    printk("    irq_num = %d\n", irqs[n].irq_num);
+	    printk("    owner   = %d\n", irqs[n].owner);
+	    printk("    handler = %p\n", irqs[n].handler);
+	}
+    }
+}
+EXPORT_SYMBOL(rtapi_printall);
 /***********************************************************************
 *                   INIT AND SHUTDOWN FUNCTIONS                        *
 ************************************************************************/
@@ -185,7 +319,7 @@ int init_module(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d\n", n);
 	return -EINVAL;
     }
-    if ((n = rt_heap_alloc(&master_heap, sizeof(rtapi_data_t), TM_INFINITE , (void **)&rtapi_data)) != 0) {
+    if ((n = rt_heap_alloc(&master_heap, 0, TM_INFINITE , (void **)&rtapi_data)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
 	return -EINVAL;
     }
@@ -266,6 +400,8 @@ int init_module(void)
 #endif
 
     /* done */
+
+    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: magic=%x revcode=%x\n", rtapi_data->magic,rtapi_data->rev_code);
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init complete\n");
     return 0;
 }
@@ -1273,6 +1409,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
+
     /* check if a block is already open for this key */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
 	if (shmem_array[n].key == key) {
@@ -1289,13 +1426,16 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		/* no, map it and save the address */
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-		if ((n = rt_heap_alloc(&shmem_array[n].heap, 0 /*shmem->size*/,
-				       TM_INFINITE, shmem_addr_array[shmem_id])) != 0) {
-		    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
-		    rtapi_mutex_give(&(rtapi_data->mutex));
+
+		/* if ((n = rt_heap_alloc(&shmem_heap_array[n], 0 /\*shmem->size*\/, */
+		/* 		       TM_INFINITE, shmem_addr_array[shmem_id])) != 0) { */
+		/*     rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n); */
+		/*     rtapi_mutex_give(&(rtapi_data->mutex)); */
 		    
-		    return -EINVAL;
-		}
+		/*     return -EINVAL; */
+		/* } */
+		rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: UNSUPPORTED - cant map user segment %d into kernel\n",n);
+
 #endif
 #if defined(RTAPI_RTAI)
 		shmem_addr_array[shmem_id] = rtai_kmalloc(key, shmem->size);
@@ -1340,13 +1480,19 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
+
+
     snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
-    if ((n = rt_heap_create(&shmem_array[shmem_id].heap, shm_name, 
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: rtapi_shmem_new %s module_id=%d key=%d mname=%s size=%d\n", 
+		    shm_name, module_id, key,module_array[module_id].name, size);
+
+    if ((n = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, 
 			    size, H_SHARED)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d\n", n);
 	return -EINVAL;
     }
-    if ((n = rt_heap_alloc(&master_heap, sizeof(rtapi_data_t), TM_INFINITE , 
+    if ((n = rt_heap_alloc(&shmem_heap_array[shmem_id], 0, TM_INFINITE , 
 			   (void **)&shmem_addr_array[shmem_id])) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
 	return -EINVAL;
@@ -1370,6 +1516,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: shmem %02d created by module %02d, key: %d, size: %lu\n",
 	shmem_id, module_id, key, size);
+
     /* and return the ID to the proud parent */
     rtapi_mutex_give(&(rtapi_data->mutex));
     return shmem_id;
@@ -1378,6 +1525,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 int rtapi_shmem_delete(int shmem_id, int module_id)
 {
     int retval;
+    rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     retval = shmem_delete(shmem_id, module_id);
@@ -1425,7 +1573,7 @@ static int shmem_delete(int shmem_id, int module_id)
     rtai_kfree(shmem->key);
 #endif
 #if defined(RTAPI_XENOMAI_KERNEL)
-    rt_heap_delete(&shmem->heap);
+    rt_heap_delete(&shmem_heap_array[shmem_id]);
 #endif
     shmem_addr_array[shmem_id] = NULL;
     shmem->rtusers = 0;
