@@ -1561,11 +1561,13 @@ class Gscreen:
             self.data.full_graphics = False
             self.widgets.notebook_mode.show()
             self.widgets.dro_frame.show()
+            self.widgets.gremlin.set_property('enable_dro',False)
         else:
             print "enlarge"
             self.data.full_graphics = True
             self.widgets.notebook_mode.hide()
             self.widgets.dro_frame.hide()
+            self.widgets.gremlin.set_property('enable_dro',True)
 
     def edit_mode(self):
         print "edit mode pressed"
