@@ -844,7 +844,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     long task_id;
     int retval;
     task_data *task;
-
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_task_new  \"%s\" fpu=%d prio=%d\n", 
+		    name ? name : "<none>", uses_fp, prio );
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate owner */
