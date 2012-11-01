@@ -17,7 +17,7 @@ You need:
 - a machine running Ubuntu 10.04 lts 
 - a 3.2.21 kernel with Xenomai 2.6.1 patches applied (see below for packages)
 - the Xenomai 2.6.1 userland support package configured with --enable-dlopen-skins
-- a grub configuration which grants Xenomai permissions to your userid
+- if you have a multicore CPU: a grub configuration isolates the RT thread core
 
 It is ok to install on a LinuxCNC CD installed machine; the kernel and the Xenomai userland support packages will be 'ships in the night" with respect to the RTAI installation. 
 
