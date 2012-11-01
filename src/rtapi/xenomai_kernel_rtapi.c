@@ -1224,6 +1224,10 @@ void rtapi_wait(void)
 	break;
 
     case -ETIMEDOUT: // release point was missed
+	rtapi_data->rt_wait_error++;
+	rtapi_data->rt_last_overrun = overruns;
+	rtapi_data->rt_total_overruns += overruns;
+
 	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
 			"RTAPI: ERROR: Unexpected realtime delay on task %d (%lu overruns)\n" 
 			"This Message will only display once per session.\n"

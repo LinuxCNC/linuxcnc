@@ -91,7 +91,13 @@
    against the code in the shared memory area.  If they don't match,
    the rtapi_init() call will faill.
 */
+#if defined(RTAPI_RTAI)
 static unsigned int rev_code = 1;  // increment this whenever you change the data structures
+#endif
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+static unsigned int rev_code = 2;  // increment this whenever you change the data structures
+#endif
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -181,6 +187,11 @@ typedef struct {
     int irq_count;		/* interrupts hooked */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
+#if defined(RTAPI_XENOMAI_KERNEL)
+    int rt_wait_error;          /* release point missed */
+    int rt_last_overrun;       /* last  number of overruns reported by Xenomai */
+    int rt_total_overruns;      /* total number of overruns reported by Xenomai */
+#endif
     long int timer_period;	/* HW timer period */
     module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
