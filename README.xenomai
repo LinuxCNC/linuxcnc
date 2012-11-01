@@ -73,8 +73,36 @@ $ ./configure --with-threads=xenomai-kernel --with-kernel=/boot/config-3.2.21-xe
 
 Then make, and sudo make setuid.
 
+Undefined symbol "pow"
+----------------------
+
+Start realtime like so:
+$ . emc2-dev/rip-environment
+$ realtime start
+$ dmesg
+
+If dmesg shows an undefined symbol "pow": I have no idea why, but on precise the following 
+snippet needs to be activated in src/rtap/xeno_math/libm.c: 
+
+#if 1
+double __ieee754_pow(double x, double y);
+double pow(double x, double y)
+{
+    return  __ieee754_pow(x,y);
+}
+#endif
+
+replace by '#if 0' if you get duplicate symbols during 'realtime start', and 'make' again.
+
+
 Running:
 --------
+You need to add the linuxcnc user to the xenomai group; if you dont you get errors like
+'Xenomai: binding failed: Cannot allocate memory.' and the like.
+
+$ sudo addgroup <your-userid> xenomai
+
+
 latency-test and various config work as usual. 
 I tried a mesa 5i25 config which seems to work fine.
 
@@ -114,7 +142,7 @@ Shared memory = 1/32
         FIFOs = 0/32
    Semaphores = 0/64
    Interrupts = 0
-  RT task CPU = 1
+  RT task CPU = 1                  <---- isolcpus at work: RT thread on CPU #1
  Timer status = Running
  Timer period = 25000 nSec
   Wait errors = 0                  <---- how many times the scheduling deadline was missed
@@ -132,8 +160,8 @@ Issues
   On RTAI, the latency-test figures are roughly 11/17 usec
   with Xenomai, I have around 9/12usec except for an occasional spike at ca 50usec in the RT thread
 
-- Precise: this builds in principle; the kernel math module (src/rtap/xeno_math) needs work to export
-  the math symbols properly under precise
+- Precise: this builds and runs now. the kernel math module (src/rtap/xeno_math) needs work to export
+  the math symbols properly under precise; I'd be grateful for hints why this klduge is needed.
 
 - 2.6.38.8 xenomai kernel: build + run is ok, but modules are marked as '[permanent]' and cannot be unloaded; this needs tracking down. This does not happen on the 3.2.21 kernel.
 
