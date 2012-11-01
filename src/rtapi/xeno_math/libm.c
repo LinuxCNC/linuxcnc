@@ -50,6 +50,18 @@ void __rtai_math_exit(void)
 	}
 }
 
+
+// I have no idea why this is needed on precise
+
+#if 1
+double __ieee754_pow(double x, double y);
+double pow(double x, double y)
+{
+    return  __ieee754_pow(x,y);
+}
+#endif
+
+
 #ifndef CONFIG_RTAI_MATH_BUILTIN
 module_init(__rtai_math_init);
 module_exit(__rtai_math_exit);

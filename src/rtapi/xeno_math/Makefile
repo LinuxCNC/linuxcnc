@@ -7,19 +7,19 @@ EXTRA_CFLAGS += -I/usr/include -ffast-math -mhard-float \
 	-D_IEEE_LIBM \
 	-D_ISOC99_SOURCE \
 	-D_SVID_SOURCE \
+	-I/usr/include/i386-linux-gnu \
 	-I$(BASEPWD)   # for config.h
 
 obj-m := xeno_math.o
 xeno_math-objs := libm.o
 xeno_math-objs += s_floor.o
 xeno_math-objs += w_pow.o
+xeno_math-objs += e_pow.o
 xeno_math-objs += s_frexp.o 
 xeno_math-objs += s_fabs.o
-xeno_math-objs += e_pow.o
 xeno_math-objs += e_sqrt.o 
 xeno_math-objs += s_scalbn.o 
 xeno_math-objs += s_copysign.o
-
 
 # take here if you need more
 
