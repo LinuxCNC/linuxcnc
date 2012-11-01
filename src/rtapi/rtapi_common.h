@@ -232,12 +232,8 @@ static void init_rtapi_data(rtapi_data_t * data)
     /* has the block already been initialized? */
     if (data->magic == RTAPI_MAGIC) {
 	/* yes, nothing to do */
-	//rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:init_rtapi_data MAGIC OK\n");
-
 	return;
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: MAGIC mismatch %x != %x\n", data->magic,  RTAPI_MAGIC);
-
     /* no, we need to init it, grab mutex unconditionally */
     rtapi_mutex_try(&(data->mutex));
     /* set magic number so nobody else init's the block */
@@ -254,6 +250,11 @@ static void init_rtapi_data(rtapi_data_t * data)
     data->irq_count = 0;
     data->timer_running = 0;
     data->timer_period = 0;
+#if defined(RTAPI_XENOMAI_KERNEL)
+    data->rt_wait_error = 0;
+    data->rt_last_overrun = 0;
+    data->rt_total_overruns = 0;
+#endif
     /* init the arrays */
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	data->module_array[n].state = EMPTY;
