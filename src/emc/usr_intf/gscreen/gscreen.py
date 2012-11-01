@@ -1312,6 +1312,9 @@ class Gscreen:
     def homing(self,*args):
         print "show/hide homing buttons"
         if self.widgets.button_homing.get_active():
+            if len(self.data.active_axis_buttons) > 1:
+                for i in self.data.axis_list:
+                    self.widgets["axis_%s"%i].set_active(False)
             for i in range(0,3):
                 self.widgets["mode%d"% i].hide()
             for i in range(0,4):
@@ -1641,18 +1644,19 @@ class Gscreen:
          self.widgets["%s"%(widget_name)].handler_unblock(self.data["_sighandler_%s"% (widget_name)])
 
     # update the global variable of active axis buttons
-    # if in jogging mode only one axis can be active at once
+    # if in jogging or homing mode, only one axis can be active at once
     # update the related axis HAL pins
     def update_active_axis_buttons(self,widget):
         count = 0;temp = []
         self.data.active_axis_buttons = []
         for num,i in enumerate(self.data.axis_list):
-            if self.widgets.button_h1_0.get_active() and not self.widgets["axis_%s"%i] == widget:
-                # unselect axis / HAL pin
-                self.block("axis_%s"%i)
-                self.widgets["axis_%s"%i].set_active(False)
-                self.unblock("axis_%s"%i)
-                continue
+            if self.widgets.button_h1_0.get_active() or self.widgets.button_homing.get_active():
+                if not self.widgets["axis_%s"%i] == widget:
+                    # unselect axis / HAL pin
+                    self.block("axis_%s"%i)
+                    self.widgets["axis_%s"%i].set_active(False)
+                    self.unblock("axis_%s"%i)
+                    continue
             if self.widgets["axis_%s"%i].get_active():
                 count +=1
                 axisnum = num
