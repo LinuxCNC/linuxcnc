@@ -95,14 +95,17 @@
    needs to delete something, it calls these functions directly.
 */
 
-static int shmem_delete(int shmem_id, int module_id);
-static int fifo_delete(int fifo_id, int module_id);
-
 /* resource data unique to this process */
+
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 
+static int shmem_delete(int shmem_id, int module_id);
+
+#if defined(RTAPI_FIFO)
+static int fifo_delete(int fifo_id, int module_id);
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
+#endif
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
@@ -111,6 +114,7 @@ static void check_memlock_limit(const char *where);
 #if defined(RTAPI_XENOMAI_KERNEL)
 RT_HEAP ul_heap_desc;
 #endif
+
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
 ************************************************************************/
@@ -242,6 +246,7 @@ int rtapi_exit(int module_id)
 	    shmem_delete(n, module_id);
 	}
     }
+#if defined(RTAPI_FIFO)
     for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
 	if ((fifo_array[n].reader == module_id) ||
 	    (fifo_array[n].writer == module_id)) {
@@ -251,6 +256,7 @@ int rtapi_exit(int module_id)
 	    fifo_delete(n, module_id);
 	}
     }
+#endif
     /* update module data */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exited, name = '%s'\n",
 	module_id, module->name);
@@ -488,23 +494,22 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 	    if (shmem_addr_array[shmem_id] == NULL) {
 		if ((retval = rt_heap_bind(&shmem_heap_array[n], shm_name, TM_NONBLOCK))) {
-		    rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: ERROR: rtapi_shmem_new: rt_heap_bind(%s) returns %d - %s\n", 
+		    rtapi_print_msg(RTAPI_MSG_ERR, 
+				    "ULAPI: ERROR: rtapi_shmem_new: rt_heap_bind(%s) returns %d - %s\n", 
 				    shm_name, retval, strerror(-retval));
 		    return -EINVAL;
 		}
 		if ((retval = rt_heap_alloc(&shmem_heap_array[n], 0, TM_NONBLOCK, 
 					    &shmem_addr_array[shmem_id])) != 0) {
-		    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
+		    rtapi_print_msg(RTAPI_MSG_ERR, 
+				    "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
 				    retval, strerror(retval));
 		    return -EINVAL;
 		}
 	    } else {
-	    rtapi_print_msg(RTAPI_MSG_WARN,"ulapi %s already mapped \n",shm_name);
-
+		rtapi_print_msg(RTAPI_MSG_DBG,"ulapi %s already mapped \n",shm_name);
 	    }
-	    rtapi_print_msg(RTAPI_MSG_WARN,"ulapi rt_heap_bind(%s) OK\n",shm_name);
 #endif
-
             // the check for -1 here is because rtai_malloc (in at least
             // rtai 3.6.1, and probably others) has a bug where it
             // sometimes returns -1 on error
@@ -552,19 +557,20 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if (shmem_addr_array[shmem_id] == NULL) {
 	snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 	if ((retval = rt_heap_create(&shmem_heap_array[n], shm_name, size, H_SHARED))) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_shmem_new: rt_heap_create(%s,%ld) returns %d\n", 
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "RTAPI: ERROR: rtapi_shmem_new: rt_heap_create(%s,%ld) returns %d\n", 
 			    shm_name, size, retval);
 	    return -EINVAL;
 	}
 	if ((retval = rt_heap_alloc(&shmem_heap_array[n], 0, TM_NONBLOCK, 
 				    &shmem_addr_array[shmem_id])) != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
 			    retval, strerror(retval));
 	    return -EINVAL;
 	}
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "ULAPI: %s already mapped\n", shm_name);
-	
+	rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI: %s already mapped\n", shm_name);
     }
 #endif
     
@@ -617,8 +623,6 @@ static void check_memlock_limit(const char *where) {
 int rtapi_shmem_delete(int shmem_id, int module_id)
 {
     int retval;
-
-    // rtapi_print_msg(RTAPI_MSG_ERR,"ULAPI rtapi_shmem_delete(id=%d module=%d)\n",shmem_id,  module_id);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     retval = shmem_delete(shmem_id, module_id);
@@ -698,6 +702,7 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 *                       FIFO RELATED FUNCTIONS                         *
 ************************************************************************/
 
+#if defined(RTAPI_FIFO)
 int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 {
     enum { DEVSTR_LEN = 256 };
@@ -928,6 +933,30 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
     }
     return retval;
 }
+
+#else // RTAPI_FIFO not defined
+
+int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
+
+{
+  return -ENOSYS;
+}
+
+int rtapi_fifo_delete(int fifo_id, int module_id)
+{
+  return -ENOSYS;
+}
+
+int rtapi_fifo_read(int fifo_id, char *buf, unsigned long size)
+{
+  return -ENOSYS;
+}
+
+int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
+{
+  return -ENOSYS;
+}
+#endif
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *

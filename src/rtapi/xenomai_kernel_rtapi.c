@@ -142,7 +142,7 @@ static unsigned long timer_counts;
 
 /* module parameters */
 
-static int msg_level = RTAPI_MSG_DBG;	/* message printing level */
+static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 
 /* other module information */
@@ -267,8 +267,6 @@ int init_module(void)
 #endif
 
     /* done */
-
-    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: magic=%x revcode=%x\n", rtapi_data->magic,rtapi_data->rev_code);
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init complete\n");
     return 0;
 }
@@ -844,8 +842,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     long task_id;
     int retval;
     task_data *task;
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_task_new  \"%s\" fpu=%d prio=%d\n", 
-		    name ? name : "<none>", uses_fp, prio );
+
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate owner */
@@ -903,7 +900,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create %ld \"%s\" cpu=%d fpu=%d prio=%d\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\" cpu=%d fpu=%d prio=%d\n", 
 		    task_id, name, rtapi_data->rt_cpu, uses_fp, task->prio );
 
     retval = rt_task_create(ostask_array[task_id], name, stacksize, task->prio, 
@@ -1057,7 +1054,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
-    // we get a single Unexpected realtime delay here it seems
     if ((retval = rt_task_set_periodic( ostask_array[task_id], TM_NOW, period_nsec)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_set_periodic() task_id %d periodns=%ld returns %d\n", 
 			task_id, period_nsec, retval);
@@ -1303,7 +1299,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 #if defined(RTAPI_XENOMAI_KERNEL)
 		rtapi_print_msg(RTAPI_MSG_ERR, 
-				"RTAPI: UNSUPPORTED - cannott map user segment %d into kernel\n",n);
+				"RTAPI: UNSUPPORTED OPERATION - cannot map user segment %d into kernel\n",n);
 #endif
 #if defined(RTAPI_RTAI)
 		shmem_addr_array[shmem_id] = rtai_kmalloc(key, shmem->size);
@@ -1351,10 +1347,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 #if defined(RTAPI_XENOMAI_KERNEL)
     snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: rtapi_shmem_new %s module_id=%d key=%d mname=%s size=%ld\n", 
-		    shm_name, module_id, key,module_array[module_id].name, size);
-
     if ((n = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, 
 			    size, H_SHARED)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d\n", n);
