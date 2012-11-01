@@ -65,6 +65,6 @@ KSRC ?= /lib/modules/$(shell uname -r)/build
 PWD      := $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
 
 modules::
-	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules V=0
+	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules V=$(V)
 
 
