@@ -1922,9 +1922,12 @@ Halshow</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button_v1_3">
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
+                          <object class="GtkToggleToolButton" id="button_v1_3">
+                            <property name="visible">True</property>
+                            <property name="related_action">hal_action_step</property>
+                            <property name="label" translatable="yes">P_ause</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-media-next</property>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -2955,5 +2958,8 @@ status</property>
   <object class="GtkImage" id="image12">
     <property name="visible">True</property>
     <property name="stock">gtk-media-forward</property>
+  </object>
+  <object class="EMC_Action_Step" id="hal_action_step">
+    <property name="stock_id">gtk-media-next</property>
   </object>
 </interface>
