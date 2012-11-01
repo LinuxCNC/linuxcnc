@@ -793,7 +793,8 @@ class Gscreen:
 
     # display calculator for input
     def launch_numerical_input(self,widget,event):
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if (event.type == gtk.gdk._2BUTTON_PRESS and not self.data.hide_cursor) or \
+        (event.type == gtk.gdk.BUTTON_PRESS and self.data.hide_cursor):
             dialog = self.widgets.dialog_entry
             self.widgets.calc_entry.set_value(self.widgets.data_input.get_value())
             dialog.show_all()
