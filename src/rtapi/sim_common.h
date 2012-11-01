@@ -1,6 +1,9 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#if defined(RTAPI_XENOMAI_USER)
+#include <sys/mman.h>
+#endif
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
@@ -188,7 +191,22 @@ int rtapi_get_msg_level() {
     return msg_level;
 }
 
+#if defined(RTAPI_XENOMAI_USER)
+long long rtapi_get_time(void)
+{
+    RTIME now = rt_timer_read();
+    return (long long) now;
+}
+
+long long rtapi_get_clocks(void)
+{
+ return (long long) rt_timer_tsc();
+}
+
+#else
+
 long long rtapi_get_time(void) {
+
     struct timeval tv;
     gettimeofday(&tv, 0);
     return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
@@ -211,6 +229,7 @@ long long rtapi_get_clocks(void)
     rdtscll(retval);
     return retval;    
 }
+#endif
 
 typedef struct {
     unsigned long mutex;
@@ -228,6 +247,9 @@ int rtapi_init(const char *modname)
     static char* uuid_shmem_base = 0;
     int retval,id;
     void *uuid_mem;
+#if defined(RTAPI_XENOMAI_USER)
+    mlockall(MCL_CURRENT | MCL_FUTURE);
+#endif
 
     uuid_mem_id = rtapi_shmem_new(UUID_KEY,uuid_id,sizeof(uuid_data_t));
     if (uuid_mem_id < 0) {
@@ -257,6 +279,8 @@ int rtapi_init(const char *modname)
 
 int rtapi_exit(int module_id)
 {
-  /* does nothing, for now */
+#if defined(RTAPI_XENOMAI)
+  munlockall();
+#endif
   return 0;
 }

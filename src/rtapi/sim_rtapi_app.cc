@@ -36,6 +36,10 @@
 #include <errno.h>
 
 #include "config.h"
+#if defined(RTAPI_XENOMAI_USER)
+#include <execinfo.h>
+#include <rtdk.h>
+#endif
 
 #include "rtapi.h"
 #include "hal.h"
@@ -217,6 +221,7 @@ static int do_load_cmd(string name, vector<string> args) {
 
         if ((result=start()) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %d\n", name.c_str(), result);
+	    modules.erase(modules.find(name));
 	    return result;
         } else {
             instance_count ++;
@@ -344,8 +349,10 @@ static int master(int fd, vector<string> args) {
         memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
 
+#if !defined(RTAPI_XENOMAI_USER)
 	sim_rtapi_run_threads(fd);
 
+#endif
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
             perror("accept");
@@ -373,9 +380,30 @@ static int master(int fd, vector<string> args) {
     return 0;
 }
 
+#if defined(RTAPI_XENOMAI_USER)
+void warn_upon_switch(int sig __attribute__((unused)))
+{
+ void *bt[32];
+ int nentries;
+/* Dump a backtrace of the frame which caused the switch to
+secondary mode: */
+ nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
+ backtrace_symbols_fd(bt,nentries,fileno(stdout));
+ fprintf(stderr, "SIGXCPU received\n" );
+}
+#endif
+
 int main(int argc, char **argv) {
+
+#if defined(RTAPI_XENOMAI_USER)
+    signal(SIGXCPU, warn_upon_switch);
+    rt_print_auto_init(1);
+#endif
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
+    
+    if (getenv("MSGLEVEL"))
+	rtapi_set_msg_level(atoi(getenv("MSGLEVEL")));
 
 become_master:
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);

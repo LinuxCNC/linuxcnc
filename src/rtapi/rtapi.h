@@ -225,10 +225,10 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(RTAPI) && !defined(SIM)
-#include <linux/sched.h>	/* for blocking when needed */
-#else
+#if defined(BUILD_SYS_USER_DSO)) 
 #include <sched.h>		/* for blocking when needed */
+#else
+#include <linux/sched.h>	/* for blocking when needed */
 #endif
 #include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
 
@@ -269,7 +269,7 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#if defined(RTAPI) && !defined(SIM)
+#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
 	    schedule();
 #else
 	    sched_yield();
