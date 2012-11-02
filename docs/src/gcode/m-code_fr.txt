@@ -375,7 +375,7 @@ d'informations sur le contrôleur de mouvement.
 M68 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
 connectées aux sorties dans le fichier HAL.
 
-[[sec:M100-à-M199]]
+[[sec:M100-a-M199]]
 == M100 à M199 Commandes définies par l'utilisateur
 (((M100 à M199 M-codes définis par l'utilisateur)))
 (((M-codes définis par l'utilisateur M100-M199)))
@@ -393,7 +393,10 @@ extension) qui doit se trouver dans le répertoire pointé par la variable
 _[DISPLAY] PROGRAM_PREFIX_ du fichier ini, sera exécuté avec les valeurs
 _P-_ et _Q-_ comme étant ses deux arguments. L'exécution du fichier G-code
 courant passera en pause jusqu'à ce que le programme invoqué soit terminé.
-Tout fichier exécutable valide peut être utilisé.
+Tout fichier exécutable valide peut être utilisé. Le fichier doit se trouver
+dans le chemin spécifié dans le fichier ini de configuration. Voir la section
+sur le fichier de configuration dans le manuel de l'intégrateur.
+
 Après la création d'un nouveau programme M1nn, l'interface graphique doit être
 redémarrée pour que le nouveau programme soit pris en compte, autrement une
 erreur _m code inconnu_ surviendra.
