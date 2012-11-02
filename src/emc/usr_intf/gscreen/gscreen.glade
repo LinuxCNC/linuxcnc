@@ -1794,7 +1794,7 @@ Halshow</property>
                         <child>
                           <object class="GtkToggleToolButton" id="button_v0_4">
                             <property name="visible">True</property>
-                            <property name="related_action">hal_toggleaction_stop</property>
+                            <property name="related_action">hal_action_stop</property>
                             <property name="label" translatable="yes">_Stop</property>
                             <property name="use_underline">True</property>
                             <property name="stock_id">gtk-stop</property>
@@ -2961,5 +2961,8 @@ status</property>
   </object>
   <object class="EMC_Action_Step" id="hal_action_step">
     <property name="stock_id">gtk-media-next</property>
+  </object>
+  <object class="EMC_Action_Stop" id="hal_action_stop">
+    <property name="stock_id">gtk-stop</property>
   </object>
 </interface>
