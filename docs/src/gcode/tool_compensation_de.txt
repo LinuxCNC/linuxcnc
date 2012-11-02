@@ -28,9 +28,9 @@ available when a tool is loaded with 'Tn M6'.
 
 image::images/ToolTable-TouchOff.png[align="center"]
 
-=== Using G10 L1
+=== Using G10 L1/L10/L11
 
-The G10 L1x command can be used to set tool table offsets:
+The G10 L1/L10/L11 commands can be used to set tool table offsets:
   (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 

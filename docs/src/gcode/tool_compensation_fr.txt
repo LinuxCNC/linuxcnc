@@ -37,9 +37,9 @@ avec _Tn M6_.
 
 image::images/ToolTable-TouchOff_fr.png[]
 
-=== Utilisation de G10 L1
+=== Utilisation de G10 L1/L10/L11
 
-La commande G10 L1x peut être utilisée pour ajuster les compensations dans la
+Les commandes G10 L1/L10/L11 peut être utilisée pour ajuster les compensations dans la
 table d'outils:
   (Ce sera juste une brève présentation, se reporter au guide de références du
 G-code pour des explications plus détaillées)
