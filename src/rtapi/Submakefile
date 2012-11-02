@@ -86,6 +86,8 @@ RTAPI_APP_SRCS := \
 USERSRCS += $(RTAPI_APP_SRCS)
 ULAPISRCS := rtapi/linux_ulapi.c 
 
+RT_CFLAGS +=  -lpthread -lrt
+
 ../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl -lpthread -lrt

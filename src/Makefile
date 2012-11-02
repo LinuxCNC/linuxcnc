@@ -675,8 +675,9 @@ rtapi-objs := rtapi/sim_ulapi.o
 endif
 ifeq ($(THREADS),posix)
 rtapi-objs := rtapi/sim_ulapi.o
-#ULAPISRCS := rtapi/sim_ulapi.c
-
+endif
+ifeq ($(THREADS),rt-preempt-user)
+rtapi-objs := rtapi/linux_ulapi.o
 endif
 ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := rtapi/xenomai_kernel_rtapi.o
