@@ -225,7 +225,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(BUILD_SYS_USER_DSO)) 
+#if defined(BUILD_SYS_USER_DSO) 
 #include <sched.h>		/* for blocking when needed */
 #else
 #include <linux/sched.h>	/* for blocking when needed */

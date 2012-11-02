@@ -47,9 +47,11 @@ struct rtapi_module {
 struct rtapi_task {
   int magic;			/* to check for valid handle */
   int owner;
-#if defined(RTAPI_XENOMAI)
+#if defined(RTAPI_XENOMAI_USER)
   RT_TASK ctx;		/* Xenomai task */
   char name[XNOBJECT_NAME_LEN];
+#else
+  char name[RTAPI_NAME_LEN];
 #endif
 #if defined(RTAPI_POSIX)
   pth_uctx_t ctx;		/* thread's context */
@@ -169,8 +171,15 @@ int rtapi_clock_set_period(unsigned long int nsecs)
 
 
 int rtapi_task_new(void (*taskcode) (void*), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp) {
+		   int prio, int owner, unsigned long int stacksize, 
+		   int uses_fp, char *name) 
+{
   int n;
+  int task_id;
+#if defined(RTAPI_XENOMAI_USER)
+  int retval;
+  int cpu_num = 0; // FIXME make this use csets eventually
+#endif
   struct rtapi_task *task;
 
   /* find an empty entry in the task array */
@@ -184,12 +193,14 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     n++;
   if (n == MAX_TASKS)
     return -ENOMEM;
+  task_id = n;
   task = &(task_array[n]);
 
   /* check requested priority */
 #if defined(RTAPI_XENOMAI_USER)
   if ((prio < rtapi_prio_lowest()) || (prio > rtapi_prio_highest()))
     return -EINVAL;
+#endif
 #if defined(RTAPI_POSIX)
   if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
     return -EINVAL;
@@ -200,7 +211,9 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   if(stacksize < 16384) stacksize = 16384;
   task->magic = TASK_MAGIC;
   task->owner = owner;
+#if defined(RTAPI_POSIX)
   task->ctx = NULL;
+#endif
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
@@ -209,6 +222,24 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   strncpy(task->name, name, sizeof(task->name));
   task->name[sizeof(task->name) - 1]= '\0';
 
+#if defined(RTAPI_XENOMAI_USER)
+  rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %d \"%s\"\n", task_id, task->name );
+
+  // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
+  // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a 
+  // task with FPU support enabled and which will be affine to CPU #1
+  // the task will start out dormant; execution begins with rt_task_start()
+
+  // not sure T_CPU(1) is possible - see:
+  // http://www.xenomai.org/pipermail/xenomai-help/2010-09/msg00081.html
+
+  // since this is a usermode RT task, it will be FP anyway
+  if ((retval = rt_task_create (&task->ctx, task->name, task->stacksize, task->prio, 
+				(uses_fp ? T_FPU : 0) | T_CPU(cpu_num))) != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
+      return -ENOMEM;
+  }
+#endif
   /* and return handle to the caller */
 
   return n;
@@ -217,7 +248,9 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
 int rtapi_task_delete(int id) {
   struct rtapi_task *task;
+#if defined(RTAPI_XENOMAI_USER)
   int retval;
+#endif
 
   if(id < 0 || id >= MAX_TASKS) return -EINVAL;
 
@@ -241,7 +274,7 @@ int rtapi_task_delete(int id) {
   return 0;
 }
 
-
+#if !defined(RTAPI_XENOMAI_USER)
 static void wrapper(void *arg)
 {
   struct rtapi_task *task;
@@ -254,21 +287,12 @@ static void wrapper(void *arg)
   rtapi_print_msg(RTAPI_MSG_DBG, "task %p '%s' period=%d prio=%d ratio=%d\n",
 		  task, task->name, task->prio, task->period, task->ratio);
 
-#if  defined(RTAPI_XENOMAI_USER)
-  if ((retval = rt_task_set_mode(T_WARNSW, 0, NULL)) < 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_set_mode() = %d %s\n", retval, strerror(retval));
-  }
-  if ((retval = rt_task_set_periodic(NULL, TM_NOW, task->period * task->ratio)) < 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_set_periodic() = %d %s\n", retval, strerror(retval));
-  }
-#endif
-
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
   rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
 }
-
+#endif
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
@@ -289,26 +313,14 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
   /* create the thread - use the wrapper function, pass it a pointer
      to the task structure so it can call the actual task function */
+
 #if defined(RTAPI_XENOMAI_USER)
-  rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %d \"%s\"\n", task_id, task->name );
-
-  // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
-  // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a 
-  // task with FPU support enabled and which will be affine to CPU #1
-  // the task will start out dormant; execution begins with rt_task_start()
-
-  // not sure T_CPU(1) is possible - see:
-  // http://www.xenomai.org/pipermail/xenomai-help/2010-09/msg00081.html
-
-  // since this is a usermode RT task, it will be FP anyway
-  retval = rt_task_create (&task->ctx, task->name, task->stacksize, task->prio, T_FPU);
-  if (retval != 0 )
-  {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
-    return -ENOMEM;
+  if ((retval = rt_task_set_periodic( &task->ctx, TM_NOW, task->period)) != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_set_periodic() task_id %d periodns=%ld returns %d\n", 
+		      task_id, period_nsec, retval);
+      return -EINVAL;
   }
-
-  retval = rt_task_start( &task->ctx, wrapper, (void*)task );
+  retval = rt_task_start( &task->ctx, task->taskcode, (void*)task->arg);
   if( retval )
   {
 	rtapi_print_msg(RTAPI_MSG_INFO, "rt_task_start failed, rc = %d\n", retval );
@@ -332,7 +344,10 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 int rtapi_task_stop(int task_id)
 {
   struct rtapi_task *task;
+#if defined(RTAPI_XENOMAI_USER)
   int retval;
+#endif
+
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
@@ -341,7 +356,7 @@ int rtapi_task_stop(int task_id)
   if (task->magic != TASK_MAGIC)
     return -EINVAL;
 
-#if defined(RTAPI_XENOMAI)
+#if defined(RTAPI_XENOMAI_USER)
  if ((retval = rt_task_delete( &task->ctx )) < 0) {
      rtapi_print_msg(RTAPI_MSG_ERR,"rt_task_delete() = %d\n", retval);
      return retval;
@@ -389,7 +404,7 @@ int rtapi_task_resume(int task_id)
 #endif
 }
 
-
+#if 0
 int rtapi_task_set_period(int task_id,
 			  unsigned long int period_nsec)
 {
@@ -410,6 +425,7 @@ int rtapi_task_set_period(int task_id,
   return 0;
 #endif
 }
+#endif 
 
 int rtapi_wait(void)
 {

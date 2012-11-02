@@ -1,7 +1,15 @@
+
+#include "config.h"
+
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
 #if defined(RTAPI_XENOMAI_USER)
+#include <native/heap.h>
+#include <native/timer.h>
+#include <native/task.h>
+#include <native/intr.h>
+#include <native/sem.h>
 #include <sys/mman.h>
 #endif
 
@@ -191,19 +199,7 @@ int rtapi_get_msg_level() {
     return msg_level;
 }
 
-#if defined(RTAPI_XENOMAI_USER)
-long long rtapi_get_time(void)
-{
-    RTIME now = rt_timer_read();
-    return (long long) now;
-}
-
-long long rtapi_get_clocks(void)
-{
- return (long long) rt_timer_tsc();
-}
-
-#else
+#if defined(RTAPI_POSIX)
 
 long long rtapi_get_time(void) {
 
@@ -279,7 +275,7 @@ int rtapi_init(const char *modname)
 
 int rtapi_exit(int module_id)
 {
-#if defined(RTAPI_XENOMAI)
+#if defined(RTAPI_XENOMAI_USER)
   munlockall();
 #endif
   return 0;
