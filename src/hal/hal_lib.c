@@ -2587,7 +2587,7 @@ int rtapi_app_main(void)
 {
     int retval;
     void *mem;
-    rtapi_set_msg_level(RTAPI_MSG_DBG);
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: loading kernel lib\n");
     /* do RTAPI init */
     lib_module_id = rtapi_init("HAL_LIB");
