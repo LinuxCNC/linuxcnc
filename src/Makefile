@@ -670,11 +670,18 @@ endif
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(THREADS),xenomai-user)
+rtapi-objs := rtapi/sim_ulapi.o
+endif
+ifeq ($(THREADS),posix)
+rtapi-objs := rtapi/sim_ulapi.o
+#ULAPISRCS := rtapi/sim_ulapi.c
+
+endif
 ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := rtapi/xenomai_kernel_rtapi.o
 endif
-endif
+
 
 # Subdirectory: rtapi/examples (unneeded?)
 
@@ -742,7 +749,8 @@ hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
-# these won't compile as-is with realtime=linux
+# these won't compile as-is with userland threading
+
 ifneq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
 hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
@@ -864,11 +872,13 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
+
 ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+
 IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
@@ -887,35 +897,37 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
-endif
+	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
 
-ifeq ($(BUILD_SYS),normal)
-modules: $(patsubst %,../rtlib/%,$(obj-m))
-RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
-RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+endif # end BUILD_SYS=user-dso
 
-$(sort $(RTDEPS)): depends/rt%.d: %.c
-	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
+# # ------ not used anymore -------------
+# ifeq ($(BUILD_SYS),normal)
+# modules: $(patsubst %,../rtlib/%,$(obj-m))
+# RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+# RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+
+# $(sort $(RTDEPS)): depends/rt%.d: %.c
+# 	@mkdir -p $(dir $@)
+# 	$(ECHO) Depending $<
+# 	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
-# Rules to make .o (object) files
-$(sort $(RTOBJS)) : objects/rt%.o : %.c
-	$(ECHO) Compiling realtime $<
-	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
+# # Rules to make .o (object) files
+# $(sort $(RTOBJS)) : objects/rt%.o : %.c
+# 	$(ECHO) Compiling realtime $<
+# 	@mkdir -p $(dir $@)
+# 	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
-../rtlib/%.o:
-	$(ECHO) Linking $@
-	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
-endif
+# ../rtlib/%.o:
+# 	$(ECHO) Linking $@
+# 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
+# endif # end 'normal'
 
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
-ifneq "$(BUILD_SYS)" "user-dso"
+#ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
-endif
+#endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))
