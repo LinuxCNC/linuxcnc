@@ -147,7 +147,6 @@ typedef struct {
     pth_uctx_t ctx;		/* thread's context */
 #endif
 #if defined(RTAPI_RTPREEMPT_USER)
-    int magic;
     int deleted;
     int destroyed;
     int deadline_scheduling;
@@ -163,6 +162,7 @@ typedef struct {
     unsigned long majfault_base;
     unsigned int failures;
 #endif
+    int magic;
     int uses_fp;
     size_t stacksize;
     int period;

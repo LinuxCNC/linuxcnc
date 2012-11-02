@@ -53,6 +53,7 @@
 
 */
 
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
@@ -78,7 +79,7 @@ static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
 
  extern void  rtapi_verify(char *tag);
- extern void  rtapi_printall();
+ extern void  rtapi_printall(void);
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -2534,8 +2535,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 /* these functions are called when the hal_lib module is insmod'ed
    or rmmod'ed.
 */
-
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #undef CONFIG_PROC_FS
 #endif
 

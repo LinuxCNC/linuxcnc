@@ -1,6 +1,7 @@
 #ifndef RTAPI_APP_H
 #define RTAPI_APP_H
 
+#include "config.h"
 /*
   for Linux kernel modules, exactly one file needs to
   include <linux/module.h>. We put this in this header.
@@ -8,7 +9,7 @@
   get full of ifdefs.
 */
 
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 EXPORT_SYMBOL(rtapi_app_main);
 EXPORT_SYMBOL(rtapi_app_exit);
 #else
