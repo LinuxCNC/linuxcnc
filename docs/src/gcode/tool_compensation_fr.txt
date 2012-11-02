@@ -20,6 +20,8 @@ Séquence typique de mise à jour de la table d'outils:
  . Déplacer l'outil pour établir le zéro pièce, en utilisant une cale
 d'épaisseur
    ou en faisant un test de coupe et une mesure.
+ . Click the "Touch Off" button in the Manual Control tab (or hit the
+   End button on your keyboard).
  . Sélectionner _Table d'outils_ dans la liste déroulante des systèmes de
 coordonnées.
  . Entrer l'épaisseur de la cale ou la cote mesurée.
@@ -29,7 +31,7 @@ La table d'outil sera alors modifiée avec la longueur correcte en Z de l'outil.
 La visu affichera la position en Z correcte et une commande G43 sera passée pour
 que la nouvelle longueur Z de l'outil soit effective. Le choix _Table d'outils_
 n'apparaitra dans la liste déroulante du _Toucher_, que si l'outil à été chargé
-avec _M6 tn_.
+avec _Tn M6_.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
 
