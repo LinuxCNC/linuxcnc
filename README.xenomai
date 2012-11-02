@@ -49,6 +49,12 @@ If this file does not exist, create it manually as root like so
 
 # update-initramfs -c -k 3.2.21-xenomai+
 
+and then, still as root, one must update grub to include the newly 
+generated initrd.img-3.2.21-xenomai+ file
+
+# update-grub
+
+
 Now reboot, and Xenomai should come up. Verify this by:
 
 $ dmesg |grep Xenomai
