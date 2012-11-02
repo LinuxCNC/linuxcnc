@@ -34,6 +34,37 @@ you will need from http://static.mah.priv.at/public/xenomai-debs/:
 
 Install these packages as root with 'dpkg -i *.deb'.
 
+Verify initrd has been created
+------------------------------
+
+The lucid dpkg & friends tools are very outdated, and fail to create 
+an initramfs after the above  'dpkg -i *.deb' step. 
+
+Depending on your installation, this might have happened or not.
+See if this has happened:
+
+$ ls -l /boot/initrd.img-3.2.21-xenomai+
+
+If this file does not exist, create it manually as root like so 
+
+# update-initramfs -c -k 3.2.21-xenomai+
+
+Now reboot, and Xenomai should come up. Verify this by:
+
+$ dmesg |grep Xenomai
+[    3.250972] I-pipe: head domain Xenomai registered.
+[    3.340753] Xenomai: hal/i386 started.
+[    3.410749] Xenomai: scheduling class idle registered.
+[    3.511046] Xenomai: scheduling class rt registered.
+[    3.664165] Xenomai: real-time nucleus v2.6.1 (Light Years Away) loaded.
+[    3.830540] Xenomai: debug mode enabled.
+[    3.891351] Xenomai: starting native API services.
+[    4.030965] Xenomai: starting POSIX services.
+[    4.240531] Xenomai: starting RTDM services.
+
+
+Building your own kernels
+-------------------------
 if you want to build yourself, eg to explore kernel options, try these repos:
 
 Kernel:
@@ -43,11 +74,14 @@ http://git.mah.priv.at/gitweb/linuxcnc-kernel.git/shortlog/refs/heads/linuxcnc-3
 see files under linuxcnc: 
 http://git.mah.priv.at/gitweb/linuxcnc-kernel.git/tree/93403bfda8fc98061f8adceac605203ae4424626:/linuxcnc
 
-Xenomai userland support:
--------------------------
+Building your own Xenomai userland support:
+-------------------------------------------
 http://git.mah.priv.at/gitweb/xenomai-linuxcnc.git/shortlog/refs/heads/linuxcnc-v2.6.1
 again, see files under linuxcnc:
 http://git.mah.priv.at/gitweb/xenomai-linuxcnc.git/tree/79a0c12f7f56b9f777a56eb40ef09b9a26c2b96b:/linuxcnc
+
+NB: note the --enable-dlopen-skins switch I added in debian/rules; it is needed or Python import of '_hal.so' fails miserably.
+
 
 Grub configuration:
 -------------------
@@ -164,5 +198,18 @@ Issues
   the math symbols properly under precise; I'd be grateful for hints why this klduge is needed.
 
 - 2.6.38.8 xenomai kernel: build + run is ok, but modules are marked as '[permanent]' and cannot be unloaded; this needs tracking down. This does not happen on the 3.2.21 kernel.
+
+Misc Notes
+----------
+
+- trying the Xenomai examples:
+  there are a few (userland RT) examples in /usr/share/libxenomai-dev/examples/native .
+  copy this directory elsewhere, or make as root.
+  The linker on precise is much more touchy wrt library ordering than the lucid linker,
+  so I updated the Makefile there to add explicit rules for sigdebug and trivial-periodic.
+
+
+
+
 
 
