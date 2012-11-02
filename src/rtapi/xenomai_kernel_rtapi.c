@@ -123,8 +123,9 @@ static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, voi
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 #endif
 
+
 /* resource data unique to kernel space */
-static RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
+RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 #if defined(RTAPI_XENOMAI_KERNEL)
@@ -694,33 +695,21 @@ long int rtapi_delay_max(void)
 
 /* Priority functions.  RTAI uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
+#if defined(RTAPI_RTAI)
 
 int rtapi_prio_highest(void)
 {
-#if defined(RTAPI_RTAI)
     return 0;
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
-    /* The base priority of the new task. This value must range from  */
-    /* [0..99] (inclusive) where 0 is the lowest effective priority. */
-    return 99;
-#endif
 }
 
 int rtapi_prio_lowest(void)
 {
-#if defined(RTAPI_RTAI)
     /* RTAI has LOTS of different priorities - RT_LOWEST_PRIORITY is
        0x3FFFFFFF! I don't want such ugly numbers, and we only need a few
        levels, so we use 0xFFF (4095) instead */
     return 0xFFF;
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
-    return 0;
-#endif
 }
 
-#if defined(RTAPI_RTAI)
 int rtapi_prio_next_higher(int prio)
 {
     /* return a valid priority for out of range arg */
@@ -748,30 +737,6 @@ int rtapi_prio_next_lower(int prio)
 }
 #endif
 
-#if defined(RTAPI_XENOMAI_KERNEL)
-int rtapi_prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
-}
-
-int rtapi_prio_next_lower(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
-}
-#endif
 
 #if defined(RTAPI_RTAI)
 /* We define taskcode as taking a void pointer and returning void, but
@@ -1076,59 +1041,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
     return retval;
 }
 
-#if defined(RTAPI_XENOMAI_KERNEL)
-void rtapi_wait(void)
-{
-    unsigned long overruns;
-    static int error_printed = 0;
-
-    int result =  rt_task_wait_period(&overruns);
-    switch (result) {
-    case 0: // ok - no overruns;
-	break;
-
-    case -ETIMEDOUT: // release point was missed
-	rtapi_data->rt_wait_error++;
-	rtapi_data->rt_last_overrun = overruns;
-	rtapi_data->rt_total_overruns += overruns;
-
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: Unexpected realtime delay on task %d (%lu overruns)\n" 
-			"This Message will only display once per session.\n"
-			"Run the Latency Test and resolve before continuing.\n", 
-			rtapi_task_self(), overruns);
-
-	error_printed++;
-	if(error_printed == 10)
-	    rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			    "RTAPI: (further messages will be suppressed)\n");
-	break;
-
-    case -EWOULDBLOCK:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_wait_period() without previous rt_task_set_periodic()\n");
-	error_printed++;
-	break;
-
-    case -EINTR:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_unblock() called before release point\n");
-	error_printed++;
-	break;
-
-    case -EPERM:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: cannot rt_task_wait_period() from this context\n");
-	error_printed++;
-	break;
-    default:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: unknown error code %d\n", result);
-	error_printed++;
-	break;
-    }
-}
-#endif
 
 #if defined(RTAPI_RTAI)
 void rtapi_wait(void)
@@ -1224,6 +1136,7 @@ int rtapi_task_pause(int task_id)
     return 0;
 }
 
+#if defined(RTAPI_RTAI)
 int rtapi_task_self(void)
 {
     RT_TASK *ptr;
@@ -1231,13 +1144,7 @@ int rtapi_task_self(void)
 
     /* ask OS for pointer to its data for the current task */
 
-#if defined(RTAPI_RTAI)
     ptr = rt_whoami();
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-    ptr = rt_task_self();
-#endif
 
     if (ptr == NULL) {
 	/* called from outside a task? */
@@ -1254,6 +1161,7 @@ int rtapi_task_self(void)
     }
     return -EINVAL;
 }
+#endif
 
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *

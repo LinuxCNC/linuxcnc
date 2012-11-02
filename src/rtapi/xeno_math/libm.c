@@ -53,7 +53,7 @@ void __rtai_math_exit(void)
 
 // I have no idea why this is needed on precise
 
-#if 1
+#if 0
 double __ieee754_pow(double x, double y);
 double pow(double x, double y)
 {

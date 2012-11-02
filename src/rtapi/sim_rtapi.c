@@ -34,38 +34,15 @@
 #include <time.h>               /* gettimeofday */
 #include <sys/time.h>           /* gettimeofday */
 #include "rtapi.h"		/* these decls */
+#include "rtapi_common.h"		/* these decls */
 #include <errno.h>
 #include <string.h>
 
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
-struct rtapi_module {
-  int magic;
-};
-
-struct rtapi_task {
-  int magic;			/* to check for valid handle */
-  int owner;
-#if defined(RTAPI_XENOMAI_USER)
-  RT_TASK ctx;		/* Xenomai task */
-  char name[XNOBJECT_NAME_LEN];
-#else
-  char name[RTAPI_NAME_LEN];
-#endif
-#if defined(RTAPI_POSIX)
-  pth_uctx_t ctx;		/* thread's context */
-#endif
-  int uses_fp;
-  size_t stacksize;
-  int prio;
-  int period;
-  int ratio;
-  void *arg;
-  void (*taskcode) (void*);	/* pointer to task function */
-};
-
 static struct timeval schedule;
+
 #if !defined(RTAPI_XENOMAI_USER)
 static int base_periods;
 static pth_uctx_t main_ctx, this_ctx;
@@ -80,45 +57,10 @@ static pth_uctx_t main_ctx, this_ctx;
 #define MODULE_OFFSET 32768
 
 /* data for all tasks */
-static struct rtapi_task task_array[MAX_TASKS] = {{0},};
+//static task_data task_array[MAX_TASKS] = {{0},};
 
-#if defined(RTAPI_XENOMAI_USER)
-//FIXME do this once for xenomai (see xenomai_*c)
 
-// Xenomai rt_task priorities are 0: lowest .. 99: highest
-int rtapi_prio_highest(void)
-{
-  return 99;
-}
-
-int rtapi_prio_lowest(void)
-{
-  return 0;
-}
-
-int rtapi_prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
-}
-
-int rtapi_prio_next_lower(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
-}
-#else
+#if defined(RTAPI_POSIX)
 /* Priority functions.  SIM uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
 
@@ -180,7 +122,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   int retval;
   int cpu_num = 0; // FIXME make this use csets eventually
 #endif
-  struct rtapi_task *task;
+  task_data *task;
 
   /* find an empty entry in the task array */
   /*! \todo  FIXME - this is not 100% thread safe.  If another thread
@@ -247,7 +189,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
 
 int rtapi_task_delete(int id) {
-  struct rtapi_task *task;
+  task_data *task;
 #if defined(RTAPI_XENOMAI_USER)
   int retval;
 #endif
@@ -277,11 +219,10 @@ int rtapi_task_delete(int id) {
 #if !defined(RTAPI_XENOMAI_USER)
 static void wrapper(void *arg)
 {
-  struct rtapi_task *task;
-  int retval;
+  task_data *task;
 
   /* use the argument to point to the task data */
-  task = (struct rtapi_task*)arg;
+  task = (task_data*)arg;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
   rtapi_print_msg(RTAPI_MSG_DBG, "task %p '%s' period=%d prio=%d ratio=%d\n",
@@ -296,7 +237,7 @@ static void wrapper(void *arg)
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
-  struct rtapi_task *task;
+  task_data *task;
   int retval;
 
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
@@ -343,7 +284,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
 int rtapi_task_stop(int task_id)
 {
-  struct rtapi_task *task;
+  task_data *task;
 #if defined(RTAPI_XENOMAI_USER)
   int retval;
 #endif
@@ -370,7 +311,7 @@ int rtapi_task_stop(int task_id)
 
 int rtapi_task_pause(int task_id)
 {
-  struct rtapi_task *task;
+  task_data *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
@@ -388,7 +329,7 @@ int rtapi_task_pause(int task_id)
 
 int rtapi_task_resume(int task_id)
 {
-  struct rtapi_task *task;
+  task_data *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
@@ -408,7 +349,7 @@ int rtapi_task_resume(int task_id)
 int rtapi_task_set_period(int task_id,
 			  unsigned long int period_nsec)
 {
-  struct rtapi_task *task;
+  struct task_data *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
@@ -427,16 +368,13 @@ int rtapi_task_set_period(int task_id,
 }
 #endif 
 
+#if defined(RTAPI_POSIX)
 int rtapi_wait(void)
 {
-#if defined(RTAPI_XENOMAI_USER)
-  return rt_task_wait_period(NULL);
-#endif
-#if defined(RTAPI_POSIX)
   pth_uctx_switch(this_ctx, main_ctx);
-#endif
   return 0;
 }
+#endif
 
 
 void rtapi_outb(unsigned char byte, unsigned int port)
@@ -532,7 +470,7 @@ int sim_rtapi_run_threads(int fd) {
 	    int t;
 	    base_periods++;
 	    for(t=0; t<MAX_TASKS; t++) {
-		struct rtapi_task *task = &task_array[t];
+		task_data *task = &task_array[t];
 		if(task->magic == TASK_MAGIC && task->ctx && 
 			(base_periods % task->ratio == 0)) {
 		    this_ctx = task->ctx;

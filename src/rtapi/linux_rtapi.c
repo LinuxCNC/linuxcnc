@@ -22,6 +22,7 @@
 #include <sys/io.h>		/* shmget() */
 #include <time.h>		/* clock_gettime etc */
 #include "rtapi.h"		/* these decls */
+#include "rtapi_common.h"	
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
@@ -32,42 +33,7 @@
 #include <dirent.h>
 #include <sys/mman.h>
 
-
 extern int realtime_cpuset_add_task(pid_t pid); /* Defined in rtapi_app */
-
-
-/* These structs hold data associated with objects like tasks, etc. */
-/* Task handles are pointers to these structs.                      */
-
-struct rtapi_module {
-	int magic;
-};
-
-struct rtapi_task {
-	int magic;		/* to check for valid handle */
-	int owner;
-	int deleted;
-
-	/* The realtime thread. */
-	pthread_t thread;
-	pthread_barrier_t thread_init_barrier;
-	void *stackaddr;
-	size_t stacksize;
-
-	int prio;
-	int period;
-	int ratio;
-	int destroyed;
-	int deadline_scheduling;
-	struct timespec next_time;
-	void *arg;
-	void (*taskcode)(void *);	/* pointer to task function */
-
-	/* Statistics */
-	unsigned long minfault_base;
-	unsigned long majfault_base;
-	unsigned int failures;
-};
 
 #define MODULE_MAGIC		30812
 #define TASK_MAGIC		21979	/* random numbers used as signatures */
@@ -80,10 +46,6 @@ struct rtapi_task {
 # define max(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-
-/* data for all tasks */
-static struct rtapi_task task_array[MAX_TASKS];
-static struct rtapi_module module_array[MAX_MODULES];
 /* Lock for task_array and module_array allocations. */
 static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -91,16 +53,15 @@ static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
-
 static int period;
 
 
-static inline int task_id(struct rtapi_task *task)
+static inline int task_id(task_data *task)
 {
 	return (int)(task - task_array);
 }
 
-static unsigned long rtapi_get_pagefault_count(struct rtapi_task *task)
+static unsigned long rtapi_get_pagefault_count(task_data *task)
 {
 	struct rusage rusage;
 	unsigned long minor, major;
@@ -119,7 +80,7 @@ static unsigned long rtapi_get_pagefault_count(struct rtapi_task *task)
 	return minor + major;
 }
 
-static void rtapi_reset_pagefault_count(struct rtapi_task *task)
+static void rtapi_reset_pagefault_count(task_data *task)
 {
 	struct rusage rusage;
 
@@ -150,16 +111,16 @@ static void rtapi_key_alloc()
 	pthread_key_create(&task_key, NULL);
 }
 
-static void rtapi_set_task(struct rtapi_task *t)
+static void rtapi_set_task(task_data *t)
 {
 	pthread_once(&task_key_once, rtapi_key_alloc);
 	pthread_setspecific(task_key, (void *)t);
 }
 
-static struct rtapi_task *rtapi_this_task()
+static task_data *rtapi_this_task()
 {
 	pthread_once(&task_key_once, rtapi_key_alloc);
-	return (struct rtapi_task *)pthread_getspecific(task_key);
+	return (task_data *)pthread_getspecific(task_key);
 }
 
 int rtapi_prio_highest(void)
@@ -253,7 +214,7 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		   int uses_fp)
 {
 	int n;
-	struct rtapi_task *task;
+	task_data *task;
 	void *stackaddr;
 
 	stacksize = max(stacksize, 16384);
@@ -310,7 +271,7 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 
 int rtapi_task_delete(int id)
 {
-	struct rtapi_task *task;
+	task_data *task;
 	void *returncode;
 	int err;
 
@@ -344,7 +305,7 @@ int rtapi_task_delete(int id)
 #define CPU_SETSIZE (8*sizeof(cpu_set_t))
 #endif
 
-static int realtime_set_affinity(struct rtapi_task *task)
+static int realtime_set_affinity(task_data *task)
 {
 	cpu_set_t set;
 	int err, cpu_nr, use_cpu = -1;
@@ -438,7 +399,7 @@ static void deadline_exception(int signr)
 			"scheduling runtime!\n");
 }
 
-static int realtime_set_priority(struct rtapi_task *task)
+static int realtime_set_priority(task_data *task)
 {
 	struct sched_param schedp;
 	struct sched_param_ex ex;
@@ -486,7 +447,7 @@ static int realtime_set_priority(struct rtapi_task *task)
 
 static void *realtime_thread(void *arg)
 {
-	struct rtapi_task *task = arg;
+	task_data *task = arg;
 
 	rtapi_print_msg(RTAPI_MSG_DBG,"Hello world, I am task %d\n", task_id(task));
 	rtapi_set_task(task);
@@ -530,7 +491,7 @@ error:
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
-	struct rtapi_task *task;
+	task_data *task;
 	pthread_attr_t attr;
 	int retval;
 
@@ -578,7 +539,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
 int rtapi_task_stop(int task_id)
 {
-	struct rtapi_task *task;
+	task_data *task;
 
 	if (task_id < 0 || task_id >= MAX_TASKS)
 		return -EINVAL;
@@ -596,7 +557,7 @@ int rtapi_task_stop(int task_id)
 
 int rtapi_task_pause(int task_id)
 {
-	struct rtapi_task *task;
+	task_data *task;
 
 	if (task_id < 0 || task_id >= MAX_TASKS)
 		return -EINVAL;
@@ -612,7 +573,7 @@ int rtapi_task_pause(int task_id)
 
 int rtapi_task_resume(int task_id)
 {
-	struct rtapi_task *task;
+	task_data *task;
 
 	if (task_id < 0 || task_id >= MAX_TASKS)
 		return -EINVAL;
@@ -628,7 +589,7 @@ int rtapi_task_resume(int task_id)
 
 int rtapi_task_set_period(int task_id, unsigned long int period_nsec)
 {
-	struct rtapi_task *task;
+	task_data *task;
 
 	if (task_id < 0 || task_id >= MAX_TASKS)
 		return -EINVAL;
@@ -647,7 +608,7 @@ int rtapi_task_set_period(int task_id, unsigned long int period_nsec)
 int rtapi_wait(void)
 {
 	struct timespec ts;
-	struct rtapi_task *task = rtapi_this_task();
+	task_data *task = rtapi_this_task();
 
 	if (task->deleted)
 		pthread_exit(0);

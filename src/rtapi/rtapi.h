@@ -225,7 +225,8 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(BUILD_SYS_USER_DSO) 
+//#if defined(BUILD_SYS_USER_DSO) 
+#if defined(ULAPI) 
 #include <sched.h>		/* for blocking when needed */
 #else
 #include <linux/sched.h>	/* for blocking when needed */
@@ -381,7 +382,6 @@ RTAPI_BEGIN_DECLS
 /** NOTE: These realtime task related functions are only available in
     realtime modules.  User processes may not call them!
 */
-#ifdef RTAPI
 
 /** NOTE: The RTAPI is designed to be a _simple_ API.  As such, it uses
     a very simple strategy to deal with SMP systems.  It ignores them!
@@ -413,6 +413,8 @@ RTAPI_BEGIN_DECLS
     extern int rtapi_prio_lowest(void);
     extern int rtapi_prio_next_higher(int prio);
     extern int rtapi_prio_next_lower(int prio);
+
+#ifdef RTAPI
 
 /** 'rtapi_task_new()' creates but does not start a realtime task.
     The task is created in the "paused" state.  To start it, call
