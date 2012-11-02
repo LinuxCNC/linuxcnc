@@ -931,6 +931,7 @@ class Gscreen:
             elif number == 2: pass # using press and release signals
             elif number == 3: pass # ditto
             elif number == 4: pass
+            elif number == 5: self.adjustment_buttons(widget,True)
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
             if number == 0: pass
@@ -1279,15 +1280,17 @@ class Gscreen:
             if widget == self.widgets.button_v0_0:
                 print "zero button",action
                 self.zero_axis()
-            if widget == self.widgets.button_v0_1:
+            elif widget == self.widgets.button_v0_5:
                 print "move to button",action
-                self.set_axis_checks()
-            if widget == self.widgets.button_v0_2:
+                self.move_to()
+            elif widget == self.widgets.button_v0_2:
                 print "up button",action
                 self.do_jog(True,action)
-            if widget == self.widgets.button_v0_3:
+            elif widget == self.widgets.button_v0_3:
                 print "down button",action
                 self.do_jog(False,action)
+            elif widget == self.widgets.button_v0_1:
+                self.set_axis_checks()
         elif widget == self.widgets.button_v0_0:
                 self.zero_axis()
         elif widget == self.widgets.button_v0_1:
@@ -1663,6 +1666,8 @@ class Gscreen:
                 self.data.active_axis_buttons.append((i,num))
         if count == 0: self.data.active_axis_buttons.append((None,None))
         self.update_hal_jog_pins()
+        # check and update jogging buttons
+        self.jog_mode()
 
     # adjust sensitivity and labels of buttons
     def jog_mode(self):
@@ -1674,13 +1679,18 @@ class Gscreen:
         if self.widgets.button_h1_0.get_active():
             if self.data.active_axis_buttons[0][0] == "s":
                 label = "Set RPM"
+                self.widgets.button_v0_0.set_label("Stop Spindle")
+                self.widgets.button_v0_1.set_label("")
             else:
                 label = "Move To"
-            self.widgets.button_v0_1.set_label(label)
+                self.widgets.button_v0_0.set_label("Zero Origin")
+                self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.button_v0_5.set_label(label)
+
             self.widgets.s_display_fwd.set_sensitive(True)
             self.widgets.s_display_rev.set_sensitive(True)
         else:
-            self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.button_v0_5.set_label("")
             self.widgets.s_display_fwd.set_sensitive(False)
             self.widgets.s_display_rev.set_sensitive(False)
             self.emc.spindle_off(1)
@@ -1722,7 +1732,7 @@ class Gscreen:
                         print direction,action
                     elif not direction and action:self.emc.spindle_slower(1)
 
-    # feeds to a position (while in manual mode) 
+    # feeds to a position (while in manual mode) or set spindle speed to spinbox
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
             self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
@@ -1825,23 +1835,23 @@ class Gscreen:
                     self.mdi_control.set_axis(i,0)
                     self.reload_plot()
 
-    # touchoff setting the axis to the input
+    # touchoff - setting the axis to the input
     def set_axis_checks(self):
+        if self.data.mode_order[0] == _MAN:# if in manual mode
+            # if an axis is selected then set it
+            for i in self.data.axis_list:
+                if self.widgets["axis_%s"%i].get_active():
+                    print "set %s axis" %i
+                    if not i == "s":
+                        self.mdi_control.set_axis(i,self.get_qualified_input(i))
+                        self.reload_plot()
+
+    # move axis to a position (while in manual mode)
+    def move_to(self):
         if self.data.mode_order[0] == _MAN:# if in manual mode
             if self.widgets.button_h1_0.get_active(): # jog mode active
                 print "jog to position"
                 self.do_jog_to_position()
-            else:
-                # if an axis is selected then set it
-                for i in self.data.axis_list:
-                    if self.widgets["axis_%s"%i].get_active():
-                        print "set %s axis" %i
-                        if i == "s":
-                            self.notify("INFO:","Jogging mode must be active to operate spindle",INFO_ICON)
-                            continue
-                        else:
-                            self.mdi_control.set_axis(i,self.get_qualified_input(i))
-                            self.reload_plot()
 
     def clear_plot(self):
         self.widgets.gremlin.clear_live_plotter()

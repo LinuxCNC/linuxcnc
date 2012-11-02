@@ -1850,6 +1850,7 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v0_5">
+                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
@@ -1868,7 +1869,6 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="button_v0_7">
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
