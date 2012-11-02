@@ -904,7 +904,7 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
 
 endif # end BUILD_SYS=user-dso
 

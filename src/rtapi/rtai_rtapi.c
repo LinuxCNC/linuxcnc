@@ -670,7 +670,8 @@ static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 }
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp)
+		   int prio, int owner, unsigned long int stacksize, 
+		   int uses_fp, char *name)
 {
     int n;
     long task_id;

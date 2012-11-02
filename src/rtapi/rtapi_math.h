@@ -3,7 +3,7 @@
 
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
-#if defined(RTAPI) && !defined(SIM)
+#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
 extern double sin(double);
 extern double cos(double);
 extern double tan(double);

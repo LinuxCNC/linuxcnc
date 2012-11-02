@@ -225,8 +225,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-//#if defined(BUILD_SYS_USER_DSO) 
-#if defined(ULAPI) 
+#if defined(BUILD_SYS_USER_DSO) || defined(ULAPI) 
 #include <sched.h>		/* for blocking when needed */
 #else
 #include <linux/sched.h>	/* for blocking when needed */
@@ -917,7 +916,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
     'num' is the number of elements in an array.
 */
 
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
@@ -944,7 +943,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if defined(SIM) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+#if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
    
@@ -1005,7 +1004,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 
 #endif /* version < 2.6 */
 
-#if !defined(SIM)
+#if !defined(BUILD_SYS_USER_DSO)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
 #define MODULE_LICENSE(license)         \
 static const char __module_license[] __attribute__((section(".modinfo"))) =   \
@@ -1015,7 +1014,7 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
-#if defined(SIM)
+#if defined(BUILD_SYS_USER_DSO)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
 

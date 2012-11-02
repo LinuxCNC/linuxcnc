@@ -1,6 +1,6 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if (defined(__MODULE__) && !defined(SIM))
+#if (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
 #include <asm/bitops.h>
 #elif defined(__i386__)
 /* From <asm/bitops.h>

@@ -332,7 +332,7 @@ extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2)));
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FAULT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FAULT_BIT;
 
-#if defined(LINUX_VERSION_CODE) && !defined(SIM)
+#if defined(LINUX_VERSION_CODE) && !defined(BUILD_SYS_USER_DSO)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #define HAVE_CPU_KHZ
 #endif

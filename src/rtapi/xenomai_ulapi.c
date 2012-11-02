@@ -76,6 +76,7 @@
 
 #if defined(RTAPI_XENOMAI_KERNEL)
 #include <native/heap.h>
+#include <native/task.h>
 #include "xenomai_common.h"
 #endif
 
