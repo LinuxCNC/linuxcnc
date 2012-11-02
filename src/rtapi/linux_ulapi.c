@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
+#include <sched.h>
 #include "rtapi.h"
 #include <unistd.h>
 

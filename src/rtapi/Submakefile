@@ -8,19 +8,15 @@ INCLUDES += rtapi
 # defaults for kernel thread styles
 # there's no rtapi_app  
 RTAPI_APP_SRCS := 
-# but a style-dependent userland rtapi which is needed by 
-# hal_lib and usrmotintf.cc
-#ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
-#NB: redefined below
+
 
 #  ---------------- kernel thread styles ----------------
 ifeq ($(THREADS),rtai)
 ULAPISRCS := rtapi/rtai_ulapi.c
-rtapi-objs := rtapi/rtai_rtapi.o
 endif
 
 ifeq ($(THREADS),xenomai-kernel)
-rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+
 ULAPISRCS := rtapi/xenomai_ulapi.c
 
 XENO_CONFIG ?= xeno-config --skin=native
@@ -37,7 +33,9 @@ endif
 ifeq ($(THREADS),posix)
 RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
+	rtapi/rtapi_common.c \
 	rtapi/sim_rtapi.c
+
 ULAPISRCS := rtapi/sim_ulapi.c
 
 PTH_CONFIG ?= pth-config
@@ -49,8 +47,6 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(RTAPI_CFLAGS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(RTAPI_LINK)
 TARGETS += ../bin/rtapi_app
-#obj-m += rtapi.o
-#rtapi-objs := rtapi/sim_ulapi.o
 
 endif
 
@@ -61,6 +57,8 @@ XENO_CFLAGS := $(shell $(XENO_CONFIG) --cflags )
 RT_CFLAGS +=  $(XENO_CFLAGS)
 RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
+	rtapi/xenomai_common.c \
+	rtapi/rtapi_common.c \
 	rtapi/sim_rtapi.c
 
 ULAPISRCS := rtapi/sim_ulapi.c
@@ -74,14 +72,13 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS =  $(XENO_CFLAGS)
 $(call TOOBJSDEPS, $(ULAPISRCS)): EXTRAFLAGS = -fPIC  $(shell $(XENO_CONFIG) --cflags) 
 
 TARGETS += ../bin/rtapi_app
-#obj-m += rtapi.o
-#rtapi-objs := rtapi/sim_ulapi.o
 
 endif
 
 ifeq ($(THREADS),rt-preempt-user)
 RTAPI_APP_SRCS := \
 	rtapi/linux_rtapi_app.cc \
+	rtapi/rtapi_common.c \
 	rtapi/linux_rtapi.c
 USERSRCS += $(RTAPI_APP_SRCS)
 ULAPISRCS := rtapi/linux_ulapi.c 
@@ -95,6 +92,5 @@ TARGETS += ../bin/rtapi_app
 endif
 
 
-
-#USERSRCS += $(ULAPISRCS)
+ULAPISRCS += rtapi/rtapi_common.c
 USERSRCS += $(RTAPI_APP_SRCS)

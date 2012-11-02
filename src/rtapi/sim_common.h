@@ -1,9 +1,12 @@
 
 #include "config.h"
+#include "rtapi.h"
+#include "rtapi_common.h"
 
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+
 #if defined(RTAPI_XENOMAI_USER)
 #include <native/heap.h>
 #include <native/timer.h>
@@ -17,27 +20,14 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
-/* These structs hold data associated with objects like tasks, etc. */
-/* Task handles are pointers to these structs.                      */
-
-typedef struct {
-  int magic;			/* to check for valid handle */
-  int key;			/* key to shared memory area */
-  int id;			/* OS identifier for shmem */
-  int count;                    /* count of maps in this process */
-  unsigned long int size;	/* size of shared memory area */
-  void *mem;			/* pointer to the memory */
-} rtapi_shmem_handle;
 
 #define MAX_SHM 64
-
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 
-static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
-  rtapi_shmem_handle *shmem;
+  shmem_data *shmem;
   int i;
 
   for(i=0 ; i < MAX_SHM; i++) {
@@ -81,7 +71,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 int rtapi_shmem_getptr(int handle, void **ptr)
 {
-  rtapi_shmem_handle *shmem;
+  shmem_data *shmem;
   if(handle < 0 || handle >= MAX_SHM)
     return -EINVAL;
 
@@ -101,7 +91,7 @@ int rtapi_shmem_delete(int handle, int module_id)
 {
   struct shmid_ds d;
   int r1, r2;
-  rtapi_shmem_handle *shmem;
+  shmem_data *shmem;
 
   if(handle < 0 || handle >= MAX_SHM)
     return -EINVAL;

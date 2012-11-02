@@ -2,6 +2,10 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "config.h"
+#include "rtapi.h"
+#include "rtapi_common.h"
+
 static int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
 
 #include <sys/ipc.h>		/* IPC_* */
@@ -13,14 +17,14 @@ static int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
-typedef struct {
-	int magic;		/* to check for valid handle */
-	int key;		/* key to shared memory area */
-	int id;			/* OS identifier for shmem */
-	int count;		/* count of maps in this process */
-	unsigned long int size;	/* size of shared memory area */
-	void *mem;		/* pointer to the memory */
-} rtapi_shmem_handle;
+/* typedef struct { */
+/* 	int magic;		/\* to check for valid handle *\/ */
+/* 	int key;		/\* key to shared memory area *\/ */
+/* 	int id;			/\* OS identifier for shmem *\/ */
+/* 	int count;		/\* count of maps in this process *\/ */
+/* 	unsigned long int size;	/\* size of shared memory area *\/ */
+/* 	void *mem;		/\* pointer to the memory *\/ */
+/* } rtapi_shmem_handle; */
 
 #define MAX_SHM		64
 #define SHM_PERMISSIONS	0666
@@ -28,13 +32,13 @@ typedef struct {
 #define SHMEM_MAGIC	25453	/* random numbers used as signatures */
 
 
-static rtapi_shmem_handle shmem_array[MAX_SHM];
+//static shmem_data shmem_array[MAX_SHM];
 static pthread_mutex_t shmem_array_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
-	rtapi_shmem_handle *shmem;
+	shmem_data *shmem;
 	int is_new = 0, i;
 
 	pthread_mutex_lock(&shmem_array_mutex);
@@ -116,7 +120,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
 int rtapi_shmem_getptr(int handle, void **ptr)
 {
-	rtapi_shmem_handle *shmem;
+	shmem_data *shmem;
 
 	if (handle < 0 || handle >= MAX_SHM)
 		return -EINVAL;
@@ -137,7 +141,7 @@ int rtapi_shmem_delete(int handle, int module_id)
 {
 	struct shmid_ds d;
 	int r1, r2;
-	rtapi_shmem_handle *shmem;
+	shmem_data *shmem;
 
 	if (handle < 0 || handle >= MAX_SHM)
 		return -EINVAL;
