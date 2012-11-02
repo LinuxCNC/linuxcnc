@@ -95,7 +95,7 @@
     information, go to www.linuxcnc.org.
 */
 
-#include <config.h>
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
