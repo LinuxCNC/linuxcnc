@@ -1677,18 +1677,14 @@ class Gscreen:
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
+            label = "Move To"
+            button = False;
             if self.data.active_axis_buttons[0][0] == "s":
+                button = True
                 label = "Set RPM"
-                self.widgets.button_v0_0.set_label("Stop Spindle")
-                self.widgets.button_v0_1.set_label("")
-            else:
-                label = "Move To"
-                self.widgets.button_v0_0.set_label("Zero Origin")
-                self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.s_display_fwd.set_sensitive(button)
+            self.widgets.s_display_rev.set_sensitive(button)
             self.widgets.button_v0_5.set_label(label)
-
-            self.widgets.s_display_fwd.set_sensitive(True)
-            self.widgets.s_display_rev.set_sensitive(True)
         else:
             self.widgets.button_v0_5.set_label("")
             self.widgets.s_display_fwd.set_sensitive(False)
@@ -1828,12 +1824,9 @@ class Gscreen:
         # if an axis is selected then set it
         for i in self.data.axis_list:
             if self.widgets["axis_%s"%i].get_active():
-                if i == "s":
-                    self.emc.spindle_off(1)
-                else:
-                    print "zero %s axis" %i
-                    self.mdi_control.set_axis(i,0)
-                    self.reload_plot()
+                print "zero %s axis" %i
+                self.mdi_control.set_axis(i,0)
+                self.reload_plot()
 
     # touchoff - setting the axis to the input
     def set_axis_checks(self):
