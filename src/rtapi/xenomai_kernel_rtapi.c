@@ -670,10 +670,19 @@ long long int rtapi_get_time(void)
 
 long long int rtapi_get_clocks(void)
 {
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+    // Gilles says: do this - it's portable
+    return rt_timer_tsc();
+#endif
+
+#if defined(RTAPI_RTAI)
     long long int retval;
 
     rdtscll(retval);
     return retval;    
+#endif
+
 }
 
 void rtapi_delay(long int nsec)
@@ -801,7 +810,7 @@ static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, voi
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize, int uses_fp,
-		   char *name)
+		   char *name, int cpu_id)
 {
     int n;
     long task_id;
@@ -861,7 +870,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 
 #if defined(RTAPI_RTAI)
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
-	 stacksize, prio, uses_fp, 0 /* signal */, rtapi_data->rt_cpu );
+				stacksize, prio, uses_fp, 0 /* signal */, 
+				cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu );
 #endif
 
 #if defined(RTAPI_XENOMAI_KERNEL)
@@ -869,7 +879,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 		    task_id, name, rtapi_data->rt_cpu, uses_fp, task->prio );
 
     retval = rt_task_create(ostask_array[task_id], name, stacksize, task->prio, 
-			    (uses_fp ? T_FPU : 0) | T_CPU(rtapi_data->rt_cpu));
+			    (uses_fp ? T_FPU : 0) | 
+			    T_CPU(cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu));
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
     }

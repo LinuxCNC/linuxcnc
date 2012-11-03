@@ -190,7 +190,10 @@ Unload(){
         rtapi_app exit 
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
-        ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
+	if test $RTPREFIX != rt-preempt-user; then
+	    # rt-preempt-user does not use the UUID shm segment
+            ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
+	fi
         ;;
     *)
         for module in $MODULES_UNLOAD ; do
