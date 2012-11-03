@@ -545,6 +545,15 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkImage" id="image6">
+                            <property name="visible">True</property>
+                            <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
+                          </object>
+                          <packing>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkFrame" id="frame5">
                             <property name="visible">True</property>
                             <property name="label_xalign">0</property>
@@ -729,15 +738,6 @@ Speed</property>
                                 <property name="use_markup">True</property>
                               </object>
                             </child>
-                          </object>
-                          <packing>
-                            <property name="position">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkImage" id="image6">
-                            <property name="visible">True</property>
-                            <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
                           </object>
                           <packing>
                             <property name="position">5</property>
@@ -1792,12 +1792,13 @@ Halshow</property>
                         <property name="visible">True</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkToggleToolButton" id="button_v0_4">
+                          <object class="GtkButton" id="button_v0_4">
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
                             <property name="related_action">hal_action_stop</property>
-                            <property name="label" translatable="yes">_Stop</property>
-                            <property name="use_underline">True</property>
-                            <property name="stock_id">gtk-stop</property>
+                            <property name="image">image15</property>
+                            <property name="image_position">right</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -1890,7 +1891,6 @@ Halshow</property>
                             <property name="related_action">hal_toggleaction_stop</property>
                             <property name="label" translatable="yes">Stop</property>
                             <property name="use_underline">True</property>
-                            <property name="stock_id">gtk-cancel</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -2114,7 +2114,6 @@ Level</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="tooltip_markup">Double click to change mode</property>
             <property name="image">image12</property>
             <property name="image_position">right</property>
           </object>
@@ -2480,11 +2479,10 @@ Delete</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save-As</property>
+                    <property name="tooltip_markup">Save</property>
                     <property name="related_action">hal_action_save</property>
                     <property name="image">image3</property>
                     <property name="yalign">0.56999999284744263</property>
-                    <property name="image_position">bottom</property>
                   </object>
                   <packing>
                     <property name="position">4</property>
@@ -2495,10 +2493,9 @@ Delete</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save</property>
+                    <property name="tooltip_markup">Save As</property>
                     <property name="related_action">hal_action_saveas</property>
                     <property name="image">image2</property>
-                    <property name="image_position">bottom</property>
                   </object>
                   <packing>
                     <property name="position">5</property>
@@ -2858,7 +2855,8 @@ status</property>
   </object>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
-    <property name="stock">gtk-save</property>
+    <property name="pixel_size">27</property>
+    <property name="icon_name">document-save</property>
     <property name="icon-size">3</property>
   </object>
   <object class="GtkDialog" id="dialog_entry">
@@ -2963,6 +2961,13 @@ status</property>
     <property name="stock_id">gtk-media-next</property>
   </object>
   <object class="EMC_Action_Stop" id="hal_action_stop">
-    <property name="stock_id">gtk-stop</property>
+    <property name="icon_name">emblem-important</property>
+    <property name="always_show_image">True</property>
+  </object>
+  <object class="GtkImage" id="image15">
+    <property name="visible">True</property>
+    <property name="pixel_size">32</property>
+    <property name="icon_name">emblem-important</property>
+    <property name="icon-size">3</property>
   </object>
 </interface>

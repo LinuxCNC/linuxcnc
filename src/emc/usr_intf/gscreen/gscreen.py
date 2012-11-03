@@ -485,6 +485,7 @@ class Gscreen:
             self.widgets.theme_choice.set_active(temp)
         # get the system wide theme
         settings = gtk.settings_get_default()
+        settings.props.gtk_button_images = True
         self.data.system_theme = settings.get_property("gtk-theme-name")
         if not self.data.theme_name == "Follow System Theme":
             settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
@@ -717,7 +718,7 @@ class Gscreen:
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
-
+        v.feed_child('halcmd show pin gscreen\n')
 
 # *** GLADE callbacks ****
     def update_preview(self,widget):
