@@ -1735,9 +1735,9 @@ class Gscreen:
             self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected to jog",INFO_ICON)
+            self.notify("INFO:","No axis selected to move",INFO_ICON)
         else:
-            print "Jog axis %s" % self.data.active_axis_buttons[0][0]
+            print "move axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
                 self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
             else:
@@ -1822,6 +1822,8 @@ class Gscreen:
     # or stop the spindle in in spindle mode
     # reload the plot to update the display
     def zero_axis(self):
+        if self.data.active_axis_buttons[0][0] == None:
+            self.notify("INFO:","No axis selected for origin zeroing",INFO_ICON)
         # if an axis is selected then set it
         for i in self.data.axis_list:
             if self.widgets["axis_%s"%i].get_active():
@@ -1831,14 +1833,15 @@ class Gscreen:
 
     # touchoff - setting the axis to the input
     def set_axis_checks(self):
-        if self.data.mode_order[0] == _MAN:# if in manual mode
-            # if an axis is selected then set it
-            for i in self.data.axis_list:
-                if self.widgets["axis_%s"%i].get_active():
-                    print "set %s axis" %i
-                    if not i == "s":
-                        self.mdi_control.set_axis(i,self.get_qualified_input(i))
-                        self.reload_plot()
+        if self.data.active_axis_buttons[0][0] == None:
+            self.notify("INFO:","No axis selected for origin touch-off",INFO_ICON)
+        # if an axis is selected then set it
+        for i in self.data.axis_list:
+            if self.widgets["axis_%s"%i].get_active():
+                print "set %s axis" %i
+                if not i == "s":
+                    self.mdi_control.set_axis(i,self.get_qualified_input(i))
+                    self.reload_plot()
 
     # move axis to a position (while in manual mode)
     def move_to(self):
