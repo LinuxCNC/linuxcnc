@@ -8,7 +8,7 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_cpu=\fIcpu number\fB] [servo_period_nsec=\fIperiod\fB]  [servo_cpu=\fIcpu number\fB]  [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
 
 .SH DESCRIPTION
 These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for LinuxCNC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
@@ -327,6 +327,12 @@ The number of CPU cycles between invocations of the servo thread. Typically, thi
 .TP
 \fBmotion.servo.overruns\fR 
 By noting large differences between successive values of motion.servo.last-period, the motion controller can determine that there has probably been a failure to meet its timing constraints. Each time such a failure is detected, this value is incremented.
+
+
+
+\fBbase_cpu\fR is optional and intended to explicitly 
+assign an RT thread to a specific CPU, instead of the default.
+\fBservo_cpu\fR works identical. This feature is experimental.
 
 
 .SH FUNCTIONS

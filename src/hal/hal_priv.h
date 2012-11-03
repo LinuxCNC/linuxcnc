@@ -303,6 +303,7 @@ typedef struct {
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
+    int cpu_id;                 /* cpu to bind on, or -1 */
 } hal_thread_t;
 
 /* IMPORTANT:  If any of the structures in this file are changed, the

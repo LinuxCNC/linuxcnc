@@ -1705,7 +1705,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     return 0;
 }
 
-int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
+int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp, int cpu_id)
 {
     int next, cmp, prev_priority;
     int retval, n;
@@ -1768,6 +1768,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
+    new->cpu_id = cpu_id;
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
@@ -1829,7 +1830,8 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     new->priority = rtapi_prio_next_lower(prev_priority);
     /* create task - owned by library module, not caller */
     retval = rtapi_task_new(thread_task, new, new->priority,
-			    lib_module_id, HAL_STACKSIZE, uses_fp, new->name);
+			    lib_module_id, HAL_STACKSIZE, uses_fp, 
+			    new->name, new->cpu_id);
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,

@@ -671,7 +671,7 @@ static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize, 
-		   int uses_fp, char *name)
+		   int uses_fp, char *name, int cpu_id)
 {
     int n;
     long task_id;
@@ -718,7 +718,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     task->arg = arg;
     /* call OS to initialize the task - use predetermined CPU */
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
-	 stacksize, prio, uses_fp, 0 /* signal */, rtapi_data->rt_cpu );
+				stacksize, prio, uses_fp, 0 /* signal */, 
+				cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu);
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);

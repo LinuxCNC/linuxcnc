@@ -211,7 +211,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
 
 int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize,
-		   int uses_fp)
+		   int uses_fp, int cpu_id)
 {
 	int n;
 	task_data *task;

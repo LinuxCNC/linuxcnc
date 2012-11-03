@@ -445,7 +445,7 @@ RTAPI_BEGIN_DECLS
 
     extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
 			      int prio, int owner, unsigned long int stacksize, 
-			      int uses_fp, char *name);
+			      int uses_fp, char *name, int cpu_id);
 
 /** 'rtapi_task_delete()' deletes a task.  'task_id' is a task ID
     from a previous call to rtapi_task_new().  It frees memory
