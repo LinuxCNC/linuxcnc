@@ -389,14 +389,17 @@ static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
 }
 #endif /* SCHED_DEADLINE */
 
+static int error_printed;
+
 static void deadline_exception(int signr)
 {
 	if (signr != SIGXCPU) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Received unknown signal %d\n", signr);
 		return;
 	}
-	rtapi_print_msg(RTAPI_MSG_ERR, "Missed scheduling deadline or overran "
-			"scheduling runtime!\n");
+	if (!error_printed++)
+	    rtapi_print_msg(RTAPI_MSG_ERR, "Missed scheduling deadline or overran "
+			    "scheduling runtime!\n");
 }
 
 static int realtime_set_priority(task_data *task)
