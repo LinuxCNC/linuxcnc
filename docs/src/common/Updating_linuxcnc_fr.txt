@@ -6,7 +6,7 @@
 
 == Mise à jour de 2.4.x vers 2.5.x
 
-La version 2.5.0 de LinuxCNC change de nom, elle passe de _EMC2_ vers
+La version 2.5.0 de LinuxCNC change de nom, elle passe de _EMC2_ à
 _LinuxCNC_. Tous les programmes dont les noms contenaient _emc_ ont été
 renommés pour contenir _linuxcnc_. Toute la documentation à été mise à jour.
 

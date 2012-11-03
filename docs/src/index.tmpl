@@ -7,7 +7,8 @@
 <BODY>
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
-     open the /html/index.html file in your browser after building the documents -->
+     open the /html/index.html file in your browser after building the documents
+     If this is the .html file do not edit it, edit the .tmpl file then build the documents -->
 
 <p>This documentation refers to LinuxCNC version <strong>@VERSION@</strong>.</p>
 <UL>
@@ -15,8 +16,9 @@
 <p></p>
 <LI><A HREF="common/overleaf.html">LinuxCNC Document Overleaf</A>
 <LI><A HREF="../html/gcode.html">LinuxCNC G Code Quick Reference</A>
+<LI><A HREF="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">LinuxCNC Wiki Community</A>
 <p></p>
-<LI><a name="Getting Started"></a> Getting Started (Manual)
+<LI><a name="Getting Started"></a>Getting Started with LinuxCNC
 	<UL>
 	<LI><A HREF="common/System_Requirements.html">System Requirements</A>
 	<LI><A HREF="common/Getting_EMC.html">Getting LinuxCNC</A>
@@ -28,7 +30,8 @@
 	<LI><A HREF="common/Stepper_Diagnostics.html">Stepper Diagnostics</A>
 	<LI><A HREF="common/Linux_FAQ.html">Linux FAQ</A>
 	</UL>
-<LI><a name="User Manual"></a> User Manual
+<p></p>
+<LI><a name="User Manual"></a>Using LinuxCNC
 	<UL>
 	<LI><A HREF="common/userforeword.html">Foreword</A>
 	<LI><A HREF="common/user_intro.html">LinuxCNC User Introduction</A>
@@ -53,7 +56,8 @@
 	<LI><A HREF="gui/image-to-gcode.html">Image to G Code</A>
 	<LI><A HREF="gcode/rs274ngc.html">RS274/NGC Differences</A>
 	</UL>
-<LI><a name="Integrator Manual"></a> Integrator Manual
+<p></p>
+<LI><a name="Integrator Manual"></a>Configuring LinuxCNC
 	<UL>
 	<LI><A HREF="common/Integrator_Concepts.html">Integrator Concepts</A>
 	<LI><A HREF="install/Latency_Test.html">Latency Test</A>
@@ -92,9 +96,6 @@
 	<LI><A HREF="examples/spindle.html">Spindle Control</A>
 	<LI><A HREF="examples/mpg.html">MPG Example</A>
 	<LI><A HREF="examples/gs2_example.html">GS2 Example</A>
-	</UL>
-<LI><a name="HAL Manual"></a> HAL Manual
-	<UL>
 	<LI><A HREF="hal/intro.html">HAL Introduction</A>
 	<LI><A HREF="hal/basic_hal.html">Basic HAL Tutorial</A>
 	<LI><A HREF="hal/tutorial.html">Advanced HAL Tutorial</A>
@@ -107,17 +108,23 @@
 	<LI><A HREF="hal/comp.html">Comp HAL Component Generator</A>
 	<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
 	</UL>
-<LI><a name="Developer Manual"></a> Developer Manual
+<p></p>
+<LI><a name="Developer Manual"></a>Developer Manual
 	<UL>
 	<LI><A HREF="hal/general_ref.html">General Reference</A>
 	<LI><A HREF="code/Code_Notes.html">Code Notes</A>
 	<LI><A HREF="code/NML_Messages.html">NML Messages</A>
 	<LI><A HREF="code/Style_Guide.html">Style Guide</A>
 	</UL>
-<LI><a name="Glossary, Copyright"></a> Glossary, Copyright
+<p></p>
+<LI><a name="Glossary, Copyright"></a>Glossary, Copyright
 	<UL>	
 <!--	<LI><A HREF="./xref_pl.html">Cross Reference Index</A> The CRI is broken-->
 	<LI><A HREF="common/emc-history.html">LinuxCNC History</A>
 	<LI><A HREF="common/Glossary.html">Glossary</A>
 	<LI><A HREF="common/GPLD_Copyright_pl.html">Copyright and Documentation License</A>
 	</UL>
+<p></p>
+<p>The following Manual Pages can be viewed locally in a terminal by typing in
+man name of component. For example man axis-remote.</p>
+<p></p>

@@ -470,7 +470,7 @@ planning module in 'motion'.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code. This has no effect on the mapping from G-code
     axis names (X- Y- Z-) to joint numbers--for 'trivial kinematics', X is
-    always joint 0, A is always joint 4, and U is always joint 7, and so
+    always joint 0, A is always joint 3, and U is always joint 6, and so
     on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
     gantry machine) but this has no effect.
 

@@ -41,10 +41,6 @@ include::hal/parallel_port.txt[]
 
 include::hal/hal-examples.txt[]
 
-include::gui/halui.txt[]
-
-include::hal/halui_examples.txt[]
-
 include::hal/comp.txt[]
 
 include::hal/halmodule.txt[]

@@ -704,8 +704,8 @@ COORDINATES = X Y Z::
     valides. Seuls les axes nommés dans _COORDINATES_ seront acceptés dans
     le G-code. Cela n'a aucun effet sur l'ordonnancement des noms d'axes depuis
     le G-code (X- Y- Z-) jusqu'aux numéros d'articulations. Pour une _cinématique 
-    triviale_, X est toujours l'articulation 0, A est toujours l'articulation 4, 
-    U est toujours l'articulation 7 et ainsi de suite. Il est permis d'écrire les
+    triviale_, X est toujours l'articulation 0, A est toujours l'articulation 3, 
+    U est toujours l'articulation 6 et ainsi de suite. Il est permis d'écrire les
     noms d'axe par paire (ex: X Y Y Z pour une machine à portique) mais
     cela n'a aucun effet.
 

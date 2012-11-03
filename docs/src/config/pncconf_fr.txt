@@ -264,8 +264,8 @@ Les boutons externes peuvent être ceux d'une manette de jeu.
 
 Joystick USB pour le jog::
      Demande des règlages spécifiques personnalisés pour être installé dans le
-    système. Il s'agi d'un fichier qui est utilisé par LinuxCNC pour se connecter à
-    la liste des périphériques Linux. PNCconf aidera à la construction de ce
+    système. Il s'agi d'un fichier qui est utilisé par LinuxCNC pour se connecter
+    à la liste des périphériques Linux. PNCconf aidera à la construction de ce
     fichier.
 
 * Ajouter règle dispositif: s'utilise pour configurer un nouveau périphérique
@@ -456,10 +456,10 @@ Densité d'Impulsions, PWM: acronyme de Modulation de Largeur d'Impulsions]
 
 Par exemple....::
 - La carte 7i33 demande un PDM et une fréquence de base de 6 mHz.
-- La carte 7i29 demande un PWM et une fréquence de base de 20 Khz
-- La carte 7i30 demande un PWM et une fréquence de base de 20 Khz
-- La carte 7i40 demande un PWM et une fréquence de base de 50 Khz
-- La carte 7i48 demande un PWM et une fréquence de base de 24 Khz
+- La carte 7i29 demande un PWM et une fréquence de base de 20 Khz.
+- La carte 7i30 demande un PWM et une fréquence de base de 20 Khz.
+- La carte 7i40 demande un PWM et une fréquence de base de 50 Khz.
+- La carte 7i48 demande un PWM et une fréquence de base de 24 Khz.
 
 Délai du chien de garde::
      Définit le délai durant lequel la carte Mesa va attendre avant de
@@ -573,7 +573,7 @@ Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
 
 Théorie::
      Ces deux valeurs sont les facteurs d'échelle et d'offset de la sortie vers
-    l’amplificateur moteur, de l'axe. La deuxième valeur, l'offset, est soustraite 
+    l’amplificateur moteur, de l'axe. La deuxième valeur, l'offset, est soustraite
     de la sortie calculée (en Volts) et divisée par la première valeur (le facteur
 d'échelle),
     avant d'être écrite dans le DAC. La valeur d'échelle (Scale) s'exprime en
@@ -634,7 +634,7 @@ sur l'axe sont correctes. Puis tester le système en déplaçant l'axe d’avant
 si l'accélération ou la vitesse maximum sont trop élevées, des pas seront perdus.
 Attention: Au cours de ce déplacement manuel garder à l'esprit que la distance
 d’arrêt est inversement proportionnelle à l’accélération et qu'avec une accélération
-faible il faut du temps et de la distance pour arrêter l’axe. Les fin de course
+faible il faut du temps et de la distance pour arrêter l’axe. Les fins de course
 ne sont pas fonctionnels pendant ce test. Un temps de pause peut être défini
 entre chaque mouvement d'essai. Cela permet de vérifier la position de l’axe et
 de voir si des pas sont perdus.
@@ -704,25 +704,25 @@ machine est mauvaise (fichier ini), LinuxCNC lancera la séquence de recherche d
 machine de l'axe dans la mauvaise direction.
 
 Décider de l'emplacement des fins de courses::
-     Les fin de course de limite d'axe sont au delà des limites logicielles, ils
+     Les fins de course de limite d'axe sont au delà des limites logicielles, ils
     protègent la machine en cas de problème électrique, par exemple, l'emballement
     d'un servomoteur.
-    Les fin de course doivent être placés de manière à ce que l'axe ne puisse pas
+    Les fins de course doivent être placés de manière à ce que l'axe ne puisse pas
     percuter une butée mécanique. Attention: si la distance d'activation du contact
     de fin de course est trop faible, avec l'inertie du mobile il pourra le dépasser.
-    Les fin de course des limites d'axes, doivent être actifs à l'état bas et
+    Les fins de course des limites d'axes, doivent être actifs à l'état bas et
     ils doivent aussi couper la puissance sur l'axe concerné. Le contact doit
     s'ouvrir à l'activation du fin de course. Utiliser un autre câblage est
     possible mais il est moins sécurisé.
     Il peut être nécessaire d'inverser le signal de HAL dans LinuxCNC pour avoir un
     état actif haut, TRUE signifie que le contact a été activé. Lorsqu'au
     démarrage de LinuxCNC un avertissement de limite et affiché même si l'axe n'est
-    pas sur un des fin de course, le signal est probablement inversé. Utiliser
+    pas sur un des fins de course, le signal est probablement inversé. Utiliser
     HALMETER pour vérifier l'état du signal de HAL correspondant, par exemple,
     axis.0.pos-lim-sw-in, fin de course positif de l'axe X.
 
 Décider de l'emplacement des contacts d'origine machine::
-    Si des fin de course de limite d'axe sont utilisés, il est possible de les
+    Si des fins de course de limite d'axe sont utilisés, il est possible de les
     utiliser également comme contacts d'origine machine.
     Un contact d'origine machine séparé est utile si les axes sont longs et que
     le déplacement vers un fin de course dure trop longtemps pour un usage normale
@@ -743,7 +743,7 @@ Décider de la position de l'origine machine::
     l'origine machine sur le contact d'origine.
 
 Décider de la position finale de l'origine::
-     Ça consiste simplement à placer le chariot ou la broche à la position 
+     Ça consiste simplement à placer le chariot ou la broche à la position
     la plus commode après que LinuxCNC soit initialisé et que les points d'origines
     machine de chacun des axes lui soit connus.
 
@@ -775,9 +775,9 @@ Course de la table::
     longueur de course totale.
 
 Course positive::
-     C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite 
-    du côté positif. Si l'origine de l'axe est placée sur le fin de course de 
-    limite positive, cette valeur est égale à zéro. Les valeurs possibles sont 
+     C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite
+    du côté positif. Si l'origine de l'axe est placée sur le fin de course de
+    limite positive, cette valeur est égale à zéro. Les valeurs possibles sont
     positives ou égales à zéro.
 
 Course négative::
@@ -835,7 +835,7 @@ Utiliser la compensation de jeu::
      Permet de régler la compensation du jeu de la vis, ne peut pas être utilisé
     en même temps qu'un fichier de compensation. Voir le manuel.
 
-.Dessin d'aide à l'identification des axes et fin de course
+.Dessin d'aide à l'identification des axes et fins de course
 
 image::images/pncconf-diagram-lathe_fr.png[]
 
@@ -949,10 +949,10 @@ Composants de commande personnalisés::
 
 == Utilisation avancée de PNCConf
 
-PNCconf fait de son mieux pour permettre un personnalisation souple à l'utilisateur, 
-PNCconf supporte les noms de signaux particuliers, le chargement de composants 
+PNCconf fait de son mieux pour permettre un personnalisation souple à l'utilisateur,
+PNCconf supporte les noms de signaux particuliers, le chargement de composants
 personnalisés comme la personnalisation des fichiers de HAL et des microprogrammes.
-Il y a aussi les noms de signaux que PNCconf fournit, indépendamment des options 
+Il y a aussi les noms de signaux que PNCconf fournit, indépendamment des options
 choisies, pour les fichiers HAL personnalisés.
 
 Avec une conception réfléchie, la plupart des personnalisations devraient fonctionner,

@@ -3,7 +3,7 @@ sa rédaction, sa traduction ou la préparation des graphiques, merci de contact
 n'importe quel membre de l'équipe de traduction ou envoyez un courrier 
 électronique à emc-users@lists.sourceforge.net.
 
-    Copyright © 2000-2011 LinuxCNC.org
+    Copyright © 2000-2012 LinuxCNC.org
 
 
 Permission is granted to copy, distribute and/or modify this document under

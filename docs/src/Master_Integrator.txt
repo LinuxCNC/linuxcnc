@@ -57,6 +57,8 @@ include::gui/gladevcp.txt[]
 
 include::gui/halui.txt[]
 
+include::hal/halui_examples.txt[]
+
 :leveloffset: 0
 
 = Hardware Drivers
