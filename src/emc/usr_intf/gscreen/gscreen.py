@@ -582,6 +582,7 @@ class Gscreen:
         self.widgets.hal_status.connect("state-off", self.on_hal_status_state_off)
         self.widgets.hal_status.connect("all-homed", self.on_hal_status_all_homed)
         self.widgets.hal_status.connect("not-all-homed", self.on_hal_status_not_all_homed)
+        self.widgets.hal_status.connect("file-loaded", self.on_hal_status_file_loaded)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -1085,6 +1086,10 @@ class Gscreen:
     def on_hal_status_not_all_homed(self,widget):
         print "not-all-homed"
         self.data.all_homed = False
+
+    def on_hal_status_file_loaded(self,widget,filename):
+        path,name = os.path.split(filename)
+        self.widgets.gcode_tab.set_text(name)
 
 # ****** do stuff *****
 

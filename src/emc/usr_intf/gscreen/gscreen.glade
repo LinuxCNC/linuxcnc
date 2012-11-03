@@ -846,7 +846,7 @@ Speed</property>
                               </object>
                             </child>
                             <child type="tab">
-                              <object class="GtkLabel" id="label5">
+                              <object class="GtkLabel" id="gcode_tab">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">G code</property>
                               </object>
