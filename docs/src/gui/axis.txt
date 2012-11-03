@@ -186,7 +186,7 @@ is relative to the ninth ('G59.3') coordinate system, with the axis offset
 ('G92') ignored.  This is useful when there is a tool touch-off fixture at a
 fixed location on the machine, with the ninth ('G59.3') coordinate system set
 such that the tip of a zero-length tool is at the fixture's origin when the
-Relative coordinates are 0.  See <<G10-L11,G10 L11>> in the G code chapter.
+Relative coordinates are 0.  See <<sec:G10-L11,G10 L11>> in the G code chapter.
 
 .View Menu
 

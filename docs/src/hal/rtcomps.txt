@@ -21,7 +21,7 @@ step type are set independently, and any combination can be selected.
 (((Stepgen Block Diagram)))
 
 .Step Pulse Generator Block Diagram position mode[[fig:Stepgen-Block-Diag]]
-image::images/stepgen-block-diag.png[]
+image::images/stepgen-block-diag.png["align="center"]
 
 === Installing
 
@@ -156,7 +156,7 @@ the <<parport-functions,parport reset>> function together with stepgen's
 
 .Step and Direction Timing[[fig:StepDir-timing]]
 
-image::images/stepgen-type0.png[]
+image::images/stepgen-type0.png["align="center"]
 
 .Step Type 1
 Step type 1 has two outputs, up and down. Pulses appear on one or the
@@ -182,15 +182,15 @@ limit.
 
 .Two-and-Three-Phase Step Types[[fig:Two-and-Three-Phase]]
 
-image::images/stepgen-type2-4.png[]
+image::images/stepgen-type2-4.png[align="center"]
 
 .Four-Phase Step Types[[fig:Four-Phase]]
 
-image::images/stepgen-type5-10.png[]
+image::images/stepgen-type5-10.png[align="center", width=800]
 
 .Five-Phase Step Types[[fig:Five-Phase]]
 
-image::images/stepgen-type11-14.png[]
+image::images/stepgen-type11-14.png[align="center"]
 
 === Functions
 
@@ -338,7 +338,7 @@ diagram of one channel of encoder counter.
 
 .Encoder Counter Block Diagram[[fig:Encoder-Block-Diag]]
 
-image::images/encoder-block-diag.png[]
+image::images/encoder-block-diag.png["align="center"]
 
 === Installing
 
@@ -458,7 +458,7 @@ block diagram of a single PID loop.
 
 .PID Loop Block Diagram[[fig:PID-block-diag]]
 
-image::images/pid-block-diag.png[]
+image::images/pid-block-diag.png["align="center"]
 
 === Installing
 
