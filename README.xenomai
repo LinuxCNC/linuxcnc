@@ -140,7 +140,7 @@ Running:
 You need to add the linuxcnc user to the xenomai group; if you dont you get errors like
 'Xenomai: binding failed: Cannot allocate memory.' and the like.
 
-$ sudo addgroup <your-userid> xenomai
+$ sudo adduser <your-userid> xenomai
 
 
 latency-test and various config work as usual. 
@@ -205,6 +205,8 @@ Issues
 
 - 2.6.38.8 xenomai kernel: build + run is ok, but modules are marked as '[permanent]' and cannot be unloaded; this needs tracking down. This does not happen on the 3.2.21 kernel.
 
+- debian/configure support for building packages is not in place yet.
+
 Misc Notes
 ----------
 
@@ -213,9 +215,6 @@ Misc Notes
   copy this directory elsewhere, or make as root.
   The linker on precise is much more touchy wrt library ordering than the lucid linker,
   so I updated the Makefile there to add explicit rules for sigdebug and trivial-periodic.
-
-
-
 
 
 
