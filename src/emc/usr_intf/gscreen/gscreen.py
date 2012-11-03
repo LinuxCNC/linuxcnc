@@ -245,6 +245,7 @@ class Data:
         self.or_limits = False
         self.op_stop = False
         self.block_del = False
+        self.all_homed = False
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
@@ -579,6 +580,8 @@ class Gscreen:
         self.widgets.hal_status.connect("interp-run", self.on_hal_status_interp_run)
         self.widgets.hal_status.connect("state-on", self.on_hal_status_state_on)
         self.widgets.hal_status.connect("state-off", self.on_hal_status_state_off)
+        self.widgets.hal_status.connect("all-homed", self.on_hal_status_all_homed)
+        self.widgets.hal_status.connect("not-all-homed", self.on_hal_status_not_all_homed)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
@@ -1051,18 +1054,36 @@ class Gscreen:
 
     def on_hal_status_interp_idle(self,widget):
         print "idle"
-        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s","button_mode"]
+        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s"]
         self.sensitize_widgets(temp,True)
+        state = self.data.all_homed
+        self.widgets.button_mode.set_sensitive(state)
+        self.widgets.button_v0_0.set_sensitive(state)
+        self.widgets.button_v0_1.set_sensitive(state)
+        self.widgets.button_h1_1.set_sensitive(state)
 
     def on_hal_status_state_on(self,widget):
         print "on"
-        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_graphics","button_mode"]
+        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_graphics"]
         self.sensitize_widgets(temp,True)
+        state = self.data.all_homed
+        self.widgets.button_mode.set_sensitive(state)
+        self.widgets.button_v0_0.set_sensitive(state)
+        self.widgets.button_v0_1.set_sensitive(state)
+        self.widgets.button_h1_1.set_sensitive(state)
 
     def on_hal_status_state_off(self,widget):
         print "off"
         temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_mode","button_graphics"]
         self.sensitize_widgets(temp,False)
+
+    def on_hal_status_all_homed(self,widget):
+        print "all-homed"
+        self.data.all_homed = True
+
+    def on_hal_status_not_all_homed(self,widget):
+        print "not-all-homed"
+        self.data.all_homed = False
 
 # ****** do stuff *****
 
@@ -1332,7 +1353,11 @@ class Gscreen:
                 self.widgets["button_v0_%d"% i].set_sensitive(True)
             self.widgets.mode3.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.button_mode.set_sensitive(True)
+            state = self.data.all_homed
+            self.widgets.button_mode.set_sensitive(state)
+            self.widgets.button_v0_0.set_sensitive(state)
+            self.widgets.button_v0_1.set_sensitive(state)
+            self.widgets.button_h1_1.set_sensitive(state)
             self.widgets.button_override.set_sensitive(True)
             self.widgets.button_graphics.set_sensitive(True)
 
