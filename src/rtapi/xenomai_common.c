@@ -5,6 +5,7 @@
 
 #if defined(RTAPI_XENOMAI_USER) || defined(RTAPI_XENOMAI_KERNEL)
 #include <native/task.h>
+#include <rtdk.h>
 #include "xenomai_common.h"		/* these decls */
 
 // Xenomai rt_task priorities are 0: lowest .. 99: highest
@@ -91,9 +92,8 @@ void rtapi_wait(void)
 	rtapi_data->rt_total_overruns += overruns;
 
 	if (!error_printed)
-	    //rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-	    rt_printf(
-		      "RTAPI: ERROR: Unexpected realtime delay on task %d (%lu overruns)\n" 
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    	      "RTAPI: ERROR: Unexpected realtime delay on task %d (%lu overruns)\n" 
 		      "This Message will only display once per session.\n"
 		      "Run the Latency Test and resolve before continuing.\n", 
 		      rtapi_task_self(), overruns);
