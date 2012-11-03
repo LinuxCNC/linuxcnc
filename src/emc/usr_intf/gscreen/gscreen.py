@@ -1080,6 +1080,7 @@ class Gscreen:
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
         self.data.all_homed = True
+        self.widgets.button_homing.set_active(False)
 
     def on_hal_status_not_all_homed(self,widget):
         print "not-all-homed"
