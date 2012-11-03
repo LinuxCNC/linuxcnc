@@ -1071,7 +1071,7 @@ static cmdResponseType setOpen(char *s, connectionRecType *context)
 
   strncpy(context->progName, pch, sizeof(context->progName));
   if (context->progName[sizeof(context->progName) - 1] != '\0') {
-    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", strlen(pch), sizeof(context->progName));
+    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", (unsigned long)strlen(pch), (unsigned long)sizeof(context->progName));
     return rtStandardError;
   }
 
