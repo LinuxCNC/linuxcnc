@@ -396,6 +396,7 @@ secondary mode: */
 int main(int argc, char **argv) 
 {
     int msg_level = RTAPI_MSG_ERR;
+    char *s;
 
 #if defined(RTAPI_XENOMAI_USER)
     signal(SIGXCPU, warn_upon_switch);
@@ -405,9 +406,10 @@ int main(int argc, char **argv)
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
     
-    if (getenv("MSGLEVEL"))
-	msg_level = atoi(getenv("MSGLEVEL"));
-    rtapi_set_msg_level(msg_level);
+    if ((s =getenv("MSGLEVEL")) != NULL) {
+	msg_level = atoi(s);
+	rtapi_set_msg_level(msg_level);
+    }
 
 become_master:
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
