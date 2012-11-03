@@ -670,10 +670,19 @@ long long int rtapi_get_time(void)
 
 long long int rtapi_get_clocks(void)
 {
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+    // Gilles says: do this - it's portable
+    return rt_timer_tsc();
+#endif
+
+#if defined(RTAPI_RTAI)
     long long int retval;
 
     rdtscll(retval);
     return retval;    
+#endif
+
 }
 
 void rtapi_delay(long int nsec)
