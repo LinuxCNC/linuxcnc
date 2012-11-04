@@ -91,16 +91,6 @@
 
 #include "vsnprintf.h"
 
-#if defined(RTAPI_RTAI)
-#include <rtai.h>
-#include <rtai_sched.h>
-#if RTAI > 2
-#endif
-#include <rtai_shm.h>
-#endif
-
-
-#if defined(RTAPI_XENOMAI_KERNEL)
 #include <native/heap.h>
 #include <native/timer.h>
 #include <native/task.h>
@@ -114,11 +104,6 @@ static RT_HEAP master_heap;
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 static rthal_trap_handler_t old_trap_handler;
 static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, void *data);
-#else
-#include "rtapi.h"		/* public RTAPI decls */
-#include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
-#endif
-
 
 /* resource data unique to kernel space */
 RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
@@ -166,7 +151,6 @@ int init_module(void)
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init\n");
     /* get master shared memory block from OS and save its address */
-#if defined(RTAPI_XENOMAI_KERNEL)
     if ((n = rt_heap_create(&master_heap, MASTER_HEAP, 
 			    sizeof(rtapi_data_t), H_SHARED)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_create() returns %d\n", n);
@@ -176,27 +160,14 @@ int init_module(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
 	return -EINVAL;
     }
-#endif
-#if defined(RTAPI_RTAI)
-    rtapi_data = rtai_kmalloc(RTAPI_KEY, sizeof(rtapi_data_t));
-    if (rtapi_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open shared memory\n");
-	return -ENOMEM;
-    }
-#endif
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check revision code */
     if (rtapi_data->rev_code != rev_code) {
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
-#if defined(RTAPI_RTAI)
-	rtai_kfree(RTAPI_KEY);
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
+
 	rt_heap_delete(&master_heap);
-#endif
 	return -EINVAL;
     }
     /* set up local pointers to global data */
@@ -246,9 +217,7 @@ int init_module(void)
     }
 #endif
 
-#if defined(RTAPI_XENOMAI_KERNEL)
     old_trap_handler = rthal_trap_catch((rthal_trap_handler_t) rtapi_trap_handler);
-#endif
 
     /* done */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init complete\n");
@@ -298,13 +267,6 @@ void cleanup_module(void)
 	}
     }
     if (rtapi_data->timer_running != 0) {
-#if defined(RTAPI_RTAI)
-	stop_rt_timer();
-	rt_free_timer();
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
-	// nothing to do here
-#endif
 	rtapi_data->timer_period = 0;
 	timer_counts = 0;
 	rtapi_data->timer_running = 0;
@@ -315,13 +277,9 @@ void cleanup_module(void)
     proc_clean();
 #endif
     /* release master shared memory block */
-#if defined(RTAPI_RTAI)
-    rtai_kfree(RTAPI_KEY);
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
     rt_heap_delete(&master_heap);
     rthal_trap_catch(old_trap_handler);
-#endif
+
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Exit complete\n");
     return;
 }
@@ -430,15 +388,6 @@ static int module_delete(int module_id)
     rtapi_data->rt_module_count--;
     if (rtapi_data->rt_module_count == 0) {
 	if (rtapi_data->timer_running != 0) {
-
-#if defined(RTAPI_RTAI)
-	    stop_rt_timer();
-	    rt_free_timer();
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-	// nothing to do here
-#endif	    
 	    rtapi_data->timer_period = 0;
 	    timer_counts = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
@@ -466,14 +415,8 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     char buf[RTPRINTBUFFERLEN];
     rtapi_vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-
-#if defined(RTAPI_RTAI)
-    rt_printk(buf);
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
     // FIXME unsure
     printk(buf);
-#endif
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
@@ -544,21 +487,11 @@ long int rtapi_clock_set_period(long int nsecs)
 	    nsecs);
 	return -EINVAL;
     }
-#if defined(RTAPI_RTAI)
-    rt_set_periodic_mode();
-    counts = nano2count((RTIME) nsecs);
-    if(count2nano(counts) > nsecs) counts--;
-    got_counts = start_rt_timer(counts);
-    rtapi_data->timer_period = count2nano(got_counts);
-    timer_counts = got_counts;
-#endif
 
-#if defined(RTAPI_XENOMAI_KERNEL)
     counts = rt_timer_ns2ticks((RTIME) nsecs);
     rt_timer_set_mode(counts);
     rtapi_data->timer_period = got_counts = rt_timer_ticks2ns(counts);
     timer_counts = got_counts;
-#endif
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: clock_set_period requested: %ld  actual: %ld  counts requested: %d  actual: %d\n",
@@ -570,33 +503,10 @@ long int rtapi_clock_set_period(long int nsecs)
 
 long long int rtapi_get_time(void)
 {
-    //struct timeval tv;
-
-    //AJ: commenting the following code out, as it seems on some systems it
-    // really breaks
-    
-    /* call the kernel's internal implementation of gettimeofday() */
-    /* unfortunately timeval has only usec, struct timespec would be
-       better, it has nsec resolution.  Doing this right probably
-       involves a number of ifdefs based on kernel version and such */
-    /*do_gettimeofday(&tv);*/
-    /* convert to nanoseconds */
-    /*return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);*/
-    
-    //reverted to old code for now
-    /* this is a monstrosity that seems to take several MICROSECONDS!!!
-       on some boxes.  Why the RTAI folks even bothered I have no idea!
-       If you have any need for speed at all use rtapi_get_clocks()!!
-    */
-#if defined(RTAPI_RTAI)
-    return rt_get_cpu_time_ns();    
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
     /* The value returned will represent a count of jiffies if the native  */
     /* skin is bound to a periodic time base (see CONFIG_XENO_OPT_NATIVE_PERIOD),  */
     /* or nanoseconds otherwise.  */
     return  rt_timer_read();
-#endif
 }
 
 /* This returns a result in clocks instead of nS, and needs to be used
@@ -607,19 +517,8 @@ long long int rtapi_get_time(void)
 
 long long int rtapi_get_clocks(void)
 {
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
-#endif
-
-#if defined(RTAPI_RTAI)
-    long long int retval;
-
-    rdtscll(retval);
-    return retval;    
-#endif
-
 }
 
 void rtapi_delay(long int nsec)
@@ -639,73 +538,6 @@ long int rtapi_delay_max(void)
 *                     TASK RELATED FUNCTIONS                           *
 ************************************************************************/
 
-/* Priority functions.  RTAI uses 0 as the highest priority, as the
-number increases, the actual priority of the task decreases. */
-#if defined(RTAPI_RTAI)
-
-int rtapi_prio_highest(void)
-{
-    return 0;
-}
-
-int rtapi_prio_lowest(void)
-{
-    /* RTAI has LOTS of different priorities - RT_LOWEST_PRIORITY is
-       0x3FFFFFFF! I don't want such ugly numbers, and we only need a few
-       levels, so we use 0xFFF (4095) instead */
-    return 0xFFF;
-}
-
-int rtapi_prio_next_higher(int prio)
-{
-    /* return a valid priority for out of range arg */
-    if (prio <= rtapi_prio_highest()) {
-	return rtapi_prio_highest();
-    }
-    if (prio > rtapi_prio_lowest()) {
-	return rtapi_prio_lowest();
-    }
-
-    /* return next higher priority for in-range arg */
-    return prio - 1;
-}
-int rtapi_prio_next_lower(int prio)
-{
-    /* return a valid priority for out of range arg */
-    if (prio >= rtapi_prio_lowest()) {
-	return rtapi_prio_lowest();
-    }
-    if (prio < rtapi_prio_highest()) {
-	return rtapi_prio_highest();
-    }
-    /* return next lower priority for in-range arg */
-    return prio + 1;
-}
-#endif
-
-
-#if defined(RTAPI_RTAI)
-/* We define taskcode as taking a void pointer and returning void, but
-   rtai wants it to take an int and return void.
-   We solve this with a wrapper function that meets rtai's needs.
-   The wrapper functions also properly deals with tasks that return.
-   (Most tasks are infinite loops, and don't return.)
-*/
-static void wrapper(long task_id)
-{
-    task_data *task;
-
-    /* point to the task data */
-    task = &task_array[task_id];
-    /* call the task function with the task argument */
-    (task->taskcode) (task->arg);
-    /* if the task ever returns, we record that fact */
-    task->state = ENDED;
-    /* and return to end the thread */
-    return;
-}
-#endif
-
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
 #define IP(x) ((x)->ip)
 #elif defined(__i386__)
@@ -714,20 +546,6 @@ static void wrapper(long task_id)
 #define IP(x) ((x)->rip)
 #endif
 
-#if defined(RTAPI_RTAI)
-static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
-        void *task) {
-    int self = rtapi_task_self();
-    rtapi_print_msg(RTAPI_MSG_ERR,
-	"RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d ip=%08lx.\n"
-	"RTAPI: This fault may not be recoverable without rebooting.\n",
-	self, task, vec, signo, IP(regs));
-    rtapi_task_pause(self);
-    return 0;
-}
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
 // not better than the builtin Xenomai handler, but at least
 // hook into to rtapi_print
 static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, void *data)
@@ -743,7 +561,6 @@ static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, voi
     // forward to default Xenomai trap handler
     return ((rthal_trap_handler_t) old_trap_handler)(event, stage, data);
 }
-#endif
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize, int uses_fp,
@@ -780,19 +597,10 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     task = &(task_array[n]);
     /* check requested priority */
 
-#if defined(RTAPI_RTAI)
-    if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest())) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     if ((prio < rtapi_prio_lowest()) || (prio > rtapi_prio_highest())) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
-#endif
 
     /* get space for the OS's task data - this is around 900 bytes, */
     /* so we don't want to statically allocate it for unused tasks. */
@@ -805,13 +613,6 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     task->arg = arg;
     /* call OS to initialize the task - use predetermined CPU */
 
-#if defined(RTAPI_RTAI)
-    retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
-				stacksize, prio, uses_fp, 0 /* signal */, 
-				cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu );
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\" cpu=%d fpu=%d prio=%d\n", 
 		    task_id, name, rtapi_data->rt_cpu, uses_fp, task->prio );
 
@@ -821,8 +622,6 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
     }
-#endif
-
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);
@@ -834,15 +633,6 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 	/* unknown error */
 	return -EINVAL;
     }
-
-#if defined(RTAPI_RTAI)
-    /* request to handle traps in the new task */
-    {
-    int v;
-    for(v=0; v<HAL_NR_FAULTS; v++)
-        rt_set_task_trap_handler(ostask_array[task_id], v, rtapi_trap_handler);
-    }
-#endif
 
     /* the task has been created, update data */
     task->state = PAUSED;
@@ -905,15 +695,6 @@ static int task_delete(int task_id)
     /* if no more tasks, stop the timer */
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
-
-#if defined(RTAPI_RTAI)
-	    stop_rt_timer();
-	    rt_free_timer();
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-	    // nothing to do
-#endif
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
 	    rtapi_data->timer_running = 0;
@@ -927,10 +708,6 @@ static int task_delete(int task_id)
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
     int retval;
-#if defined(RTAPI_RTAI)
-    unsigned long int period_counts;
-    unsigned long int quo;
-#endif
     task_data *task;
 
     /* validate task ID */
@@ -950,23 +727,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 	return -EINVAL;
     }
 
-#if defined(RTAPI_RTAI)
-    period_counts = nano2count((RTIME)period_nsec);  
-    quo = (period_counts + timer_counts / 2) / timer_counts;
-    period_counts = quo * timer_counts;
-    period_nsec = count2nano(period_counts);
-
-    /* start the task */
-
-    retval = rt_task_make_periodic(ostask_array[task_id],
-	rt_get_time() + period_counts, period_counts);
-
-    if (retval != 0) {
-	return -EINVAL;
-    }
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     if ((retval = rt_task_set_periodic( ostask_array[task_id], TM_NOW, period_nsec)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_set_periodic() task_id %d periodns=%ld returns %d\n", 
 			task_id, period_nsec, retval);
@@ -977,57 +737,15 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 			task_id, retval);
 	return -EINVAL;
     }
-#endif
 
     /* ok, task is started */
     task->state = PERIODIC;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: start_task id: %02d\n", task_id);
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
-#if defined(RTAPI_RTAI)
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: count: %ld\n", period_counts);
-#endif
+
     return retval;
 }
 
-
-#if defined(RTAPI_RTAI)
-void rtapi_wait(void)
-{
-    int result = rt_task_wait_period();
-    if(result != 0) {
-	static int error_printed = 0;
-	if(error_printed < 10) {
-#ifdef RTE_TMROVRN
-	    if(result == RTE_TMROVRN) {
-		rtapi_print_msg(
-		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		    "RTAPI: ERROR: Unexpected realtime delay on task %d\n" 
-		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.\n", 
-		    rtapi_task_self());
-	    } else
-#endif
-#ifdef RTE_UNBLKD
-		    if(result == RTE_UNBLKD) {
-		rtapi_print_msg(
-		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		    "RTAPI: ERROR: rt_task_wait_period() returned RTE_UNBLKD (%d).\n", result);
-	    } else
-#endif
-	    {
-		rtapi_print_msg(
-		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		    "RTAPI: ERROR: rt_task_wait_period() returned %d.\n", result);
-	    }
-	    error_printed++;
-	    if(error_printed == 10)
-	        rtapi_print_msg(
-		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		    "RTAPI: (further messages will be suppressed)\n");
-	}
-    }
-}
-#endif
 
 int rtapi_task_resume(int task_id)
 {
@@ -1084,33 +802,6 @@ int rtapi_task_pause(int task_id)
     return 0;
 }
 
-#if defined(RTAPI_RTAI)
-int rtapi_task_self(void)
-{
-    RT_TASK *ptr;
-    int n;
-
-    /* ask OS for pointer to its data for the current task */
-
-    ptr = rt_whoami();
-
-    if (ptr == NULL) {
-	/* called from outside a task? */
-	return -EINVAL;
-    }
-    /* find matching entry in task array */
-    n = 1;
-    while (n <= RTAPI_MAX_TASKS) {
-	if (ostask_array[n] == ptr) {
-	    /* found a match */
-	    return n;
-	}
-	n++;
-    }
-    return -EINVAL;
-}
-#endif
-
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
@@ -1153,17 +844,10 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    if (shmem->rtusers == 0) {
 		/* no, map it and save the address */
 
-#if defined(RTAPI_XENOMAI_KERNEL)
 		rtapi_print_msg(RTAPI_MSG_ERR, 
 				"RTAPI: UNSUPPORTED OPERATION - cannot map user segment %d into kernel\n",n);
-#endif
-#if defined(RTAPI_RTAI)
-		shmem_addr_array[shmem_id] = rtai_kmalloc(key, shmem->size);
-#endif
-		if (shmem_addr_array[shmem_id] == NULL) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOMEM;
-		}
+		rtapi_mutex_give(&(rtapi_data->mutex));
+		return -ENOMEM;
 	    }
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
@@ -1197,11 +881,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
     /* get shared memory block from OS and save its address */
 
-#if defined(RTAPI_RTAI)
-    shmem_addr_array[shmem_id] = rtai_kmalloc(key, size);
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
     if ((n = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, 
 			    size, H_SHARED)) != 0) {
@@ -1213,7 +892,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
 	return -EINVAL;
     }
-#endif
 
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
@@ -1284,12 +962,9 @@ static int shmem_delete(int shmem_id, int module_id)
 	return 0;
     }
     /* no other realtime users, free the shared memory from kernel space */
-#if defined(RTAPI_RTAI)
-    rtai_kfree(shmem->key);
-#endif
-#if defined(RTAPI_XENOMAI_KERNEL)
+
     rt_heap_delete(&shmem_heap_array[shmem_id]);
-#endif
+
     shmem_addr_array[shmem_id] = NULL;
     shmem->rtusers = 0;
     /* are any user processes using the block? */
