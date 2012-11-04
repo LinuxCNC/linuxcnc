@@ -82,11 +82,9 @@
 */
 
 static int shmem_delete(int shmem_id, int module_id);
-static int fifo_delete(int fifo_id, int module_id);
 
 /* resource data unique to this process */
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
-static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
@@ -127,9 +125,6 @@ int rtapi_init(const char *modname)
     module_array = rtapi_data->module_array;
     task_array = rtapi_data->task_array;
     shmem_array = rtapi_data->shmem_array;
-    sem_array = rtapi_data->sem_array;
-    fifo_array = rtapi_data->fifo_array;
-    irq_array = rtapi_data->irq_array;
     /* perform local init */
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
 	shmem_addr_array[n] = NULL;
@@ -204,15 +199,6 @@ int rtapi_exit(int module_id)
 	    shmem_delete(n, module_id);
 	}
     }
-    for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
-	if ((fifo_array[n].reader == module_id) ||
-	    (fifo_array[n].writer == module_id)) {
-	    fprintf(stderr,
-		"ULAPI: WARNING: module '%s' failed to delete fifo %02d\n",
-		module->name, n);
-	    fifo_delete(n, module_id);
-	}
-    }
     /* update module data */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exited, name = '%s'\n",
 	module_id, module->name);
@@ -283,9 +269,6 @@ void rtapi_printall(void)
     module_data *modules;
     task_data *tasks;
     shmem_data *shmems;
-    sem_data *sems;
-    fifo_data *fifos;
-    irq_data *irqs;
     int n, m;
 
     if (rtapi_data == NULL) {
@@ -300,23 +283,14 @@ void rtapi_printall(void)
     printf("  ul_module_count = %d\n", rtapi_data->ul_module_count);
     printf("  task_count  = %d\n", rtapi_data->task_count);
     printf("  shmem_count = %d\n", rtapi_data->shmem_count);
-    printf("  sem_count   = %d\n", rtapi_data->sem_count);
-    printf("  fifo_count  = %d\n", rtapi_data->fifo_count);
-    printf("  irq_countc  = %d\n", rtapi_data->irq_count);
     printf("  timer_running = %d\n", rtapi_data->timer_running);
     printf("  timer_period  = %ld\n", rtapi_data->timer_period);
     modules = &(rtapi_data->module_array[0]);
     tasks = &(rtapi_data->task_array[0]);
     shmems = &(rtapi_data->shmem_array[0]);
-    sems = &(rtapi_data->sem_array[0]);
-    fifos = &(rtapi_data->fifo_array[0]);
-    irqs = &(rtapi_data->irq_array[0]);
     printf("  module array = %p\n", modules);
     printf("  task array   = %p\n", tasks);
     printf("  shmem array  = %p\n", shmems);
-    printf("  sem array    = %p\n", sems);
-    printf("  fifo array   = %p\n", fifos);
-    printf("  irq array    = %p\n", irqs);
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	if (modules[n].state != NO_MODULE) {
 	    printf("  module %02d\n", n);
@@ -352,41 +326,7 @@ void rtapi_printall(void)
 	    putchar('\n');
 	}
     }
-    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
-	if (sems[n].key != 0) {
-	    printf("  sem %02d\n", n);
-	    printf("    key     = %d\n", sems[n].key);
-	    printf("    users   = %d\n", sems[n].users);
-	    printf("    bitmap  = ");
-	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, sems[n].bitmap)) {
-		    putchar('1');
-		} else {
-		    putchar('0');
-		}
-	    }
-	    putchar('\n');
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
-	if (fifos[n].state != UNUSED) {
-	    printf("  fifo %02d\n", n);
-	    printf("    state  = %d\n", fifos[n].state);
-	    printf("    key    = %d\n", fifos[n].key);
-	    printf("    reader = %d\n", fifos[n].reader);
-	    printf("    writer = %d\n", fifos[n].writer);
-	    printf("    size   = %ld\n", fifos[n].size);
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
-	if (irqs[n].irq_num != 0) {
-	    printf("  irq %02d\n", n);
-	    printf("    irq_num = %d\n", irqs[n].irq_num);
-	    printf("    owner   = %d\n", irqs[n].owner);
-	    printf("    handler = %p\n", irqs[n].handler);
-	}
-    }
-}
+ }
 
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
@@ -589,241 +529,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
     return 0;
-}
-
-/***********************************************************************
-*                       FIFO RELATED FUNCTIONS                         *
-************************************************************************/
-
-int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
-{
-    enum { DEVSTR_LEN = 256 };
-    char devstr[DEVSTR_LEN];
-    int n, flags;
-    int fifo_id;
-    fifo_data *fifo;
-
-    /* key must be non-zero */
-    if (key == 0) {
-	return -EINVAL;
-    }
-    /* mode must be "R" or "W" */
-    if ((mode != 'R') && (mode != 'W')) {
-	return -EINVAL;
-    }
-    /* determine mode for fifo */
-    if (mode == 'R') {
-	flags = O_RDONLY;
-    } else {			/* mode == 'W' */
-
-	flags = O_WRONLY;
-    }
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* validate module_id */
-    if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    if (module_array[module_id].state != USERSPACE) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    /* check if a fifo already exists for this key */
-    for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
-	if ((fifo_array[n].state != UNUSED) && (fifo_array[n].key == key)) {
-	    /* found a match */
-	    fifo_id = n;
-	    fifo = &(fifo_array[n]);
-	    /* is the desired mode available */
-	    if (mode == 'R') {
-		if (fifo->state & HAS_READER) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -EBUSY;
-		}
-		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
-		/* open the fifo */
-		fifo_fd_array[fifo_id] = open(devstr, flags);
-		if (fifo_fd_array[fifo_id] < 0) {
-		    /* open failed */
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOENT;
-		}
-		/* fifo opened, update status */
-		fifo->state |= HAS_READER;
-		fifo->reader = module_id;
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		return fifo_id;
-	    } else {		/* mode == 'W' */
-
-		if (fifo->state & HAS_WRITER) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -EBUSY;
-		}
-		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
-		/* open the fifo */
-		fifo_fd_array[fifo_id] = open(devstr, flags);
-		if (fifo_fd_array[fifo_id] < 0) {
-		    /* open failed */
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOENT;
-		}
-		/* fifo opened, update status */
-		fifo->state |= HAS_WRITER;
-		fifo->writer = module_id;
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		return fifo_id;
-	    }
-	}
-    }
-    /* find empty spot in fifo array */
-    n = 1;
-    while ((n <= RTAPI_MAX_FIFOS) && (fifo_array[n].state != UNUSED)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_FIFOS) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EMFILE;
-    }
-    /* we have a free ID for the fifo */
-    fifo_id = n;
-    fifo = &(fifo_array[n]);
-    /* determine system name for fifo */
-    sprintf(devstr, "/dev/rtf%d", fifo_id);
-    /* open the fifo */
-    fifo_fd_array[fifo_id] = open(devstr, flags);
-    if (fifo_fd_array[fifo_id] < 0) {
-	/* open failed */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -ENOENT;
-    }
-    /* the fifo has been created, update data */
-    if (mode == 'R') {
-	fifo->state = HAS_READER;
-	fifo->reader = module_id;
-    } else {			/* mode == 'W' */
-
-	fifo->state = HAS_WRITER;
-	fifo->writer = module_id;
-    }
-    fifo->key = key;
-    fifo->size = size;
-    rtapi_data->fifo_count++;
-    /* done */
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return fifo_id;
-}
-
-int rtapi_fifo_delete(int fifo_id, int module_id)
-{
-    int retval;
-
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    retval = fifo_delete(fifo_id, module_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return retval;
-}
-
-static int fifo_delete(int fifo_id, int module_id)
-{
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if (fifo->state == UNUSED) {
-	return -EINVAL;
-    }
-    /* validate module_id */
-    if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return -EINVAL;
-    }
-    if (module_array[module_id].state != USERSPACE) {
-	return -EINVAL;
-    }
-    /* is this module using the fifo? */
-    if ((fifo->reader != module_id) && (fifo->writer != module_id)) {
-	return -EINVAL;
-    }
-    /* update fifo state */
-    if (fifo->reader == module_id) {
-	fifo->state &= ~HAS_READER;
-	fifo->reader = 0;
-    }
-    if (fifo->writer == module_id) {
-	fifo->state &= ~HAS_WRITER;
-	fifo->writer = 0;
-    }
-    /* close the fifo */
-    if (close(fifo_id) < 0) {
-	return -ENOENT;
-    }
-    /* is somebody else still using the fifo */
-    if (fifo->state != UNUSED) {
-	/* yes, done for now */
-	return 0;
-    }
-    /* no other users, update the data array and usage count */
-    fifo->state = UNUSED;
-    fifo->key = 0;
-    fifo->size = 0;
-    rtapi_data->fifo_count--;
-    return 0;
-}
-
-int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
-{
-    int retval;
-
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if ((fifo->state & HAS_READER) == 0) {
-	return -EINVAL;
-    }
-    /* get whatever data is available */
-    retval = read(fifo_fd_array[fifo_id], buf, size);
-    if (retval <= 0) {
-	return -EINVAL;
-    }
-    return retval;
-
-}
-
-int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
-{
-    int retval;
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if ((fifo->state & HAS_WRITER) == 0) {
-	return -EINVAL;
-    }
-    /* put whatever data will fit */
-    retval = write(fifo_fd_array[fifo_id], buf, size);
-    if (retval < 0) {
-	return -EINVAL;
-    }
-    return retval;
 }
 
 /***********************************************************************
