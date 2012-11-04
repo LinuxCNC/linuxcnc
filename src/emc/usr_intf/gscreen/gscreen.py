@@ -1338,6 +1338,7 @@ class Gscreen:
         if not system:
             if direction > 0 and not current == 59.3: self.mdi_control.set_user_system(system_list[self.data.system+1])
             elif direction < 0 and not current == 54: self.mdi_control.set_user_system(system_list[self.data.system-1])
+            self.reload_plot()
 
 
     def homing(self,*args):
@@ -1346,10 +1347,9 @@ class Gscreen:
             if len(self.data.active_axis_buttons) > 1:
                 for i in self.data.axis_list:
                     self.widgets["axis_%s"%i].set_active(False)
-            for i in range(0,3):
-                self.widgets["mode%d"% i].hide()
             for i in range(0,4):
                 self.widgets["button_v0_%d"% i].set_sensitive(False)
+            self.widgets.mode0.hide()
             self.widgets.mode3.show()
             self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
@@ -1358,7 +1358,7 @@ class Gscreen:
             for i in range(0,4):
                 self.widgets["button_v0_%d"% i].set_sensitive(True)
             self.widgets.mode3.hide()
-            self.mode_changed(self.data.mode_order[0])
+            self.widgets.mode0.show()
             state = self.data.all_homed
             self.widgets.button_mode.set_sensitive(state)
             self.widgets.button_v0_0.set_sensitive(state)
@@ -1565,6 +1565,7 @@ class Gscreen:
         data = self.widgets.diameter_mode.get_active()
         self.data.diameter_mode = data
         self.prefs.putpref('diameter_mode', data, bool)
+        self.widgets.gremlin.set_property('show_lathe_radius',not data)
 
     # returns the separate RGB color numbers from the color widget
     def convert_to_rgb(self,spec):
