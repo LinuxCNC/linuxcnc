@@ -170,10 +170,7 @@ int rtapi_init(const char *modname)
     module_array = rtapi_data->module_array;
     task_array = rtapi_data->task_array;
     shmem_array = rtapi_data->shmem_array;
-    sem_array = rtapi_data->sem_array;
-    fifo_array = rtapi_data->fifo_array;
-    irq_array = rtapi_data->irq_array;
-    /* perform local init */
+     /* perform local init */
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
 	shmem_addr_array[n] = NULL;
     }
@@ -328,9 +325,6 @@ void rtapi_printall(void)
     module_data *modules;
     task_data *tasks;
     shmem_data *shmems;
-    sem_data *sems;
-    fifo_data *fifos;
-    irq_data *irqs;
     int n, m;
 
     if (rtapi_data == NULL) {
@@ -345,23 +339,14 @@ void rtapi_printall(void)
     printf("  ul_module_count = %d\n", rtapi_data->ul_module_count);
     printf("  task_count  = %d\n", rtapi_data->task_count);
     printf("  shmem_count = %d\n", rtapi_data->shmem_count);
-    printf("  sem_count   = %d\n", rtapi_data->sem_count);
-    printf("  fifo_count  = %d\n", rtapi_data->fifo_count);
-    printf("  irq_countc  = %d\n", rtapi_data->irq_count);
     printf("  timer_running = %d\n", rtapi_data->timer_running);
     printf("  timer_period  = %ld\n", rtapi_data->timer_period);
     modules = &(rtapi_data->module_array[0]);
     tasks = &(rtapi_data->task_array[0]);
     shmems = &(rtapi_data->shmem_array[0]);
-    sems = &(rtapi_data->sem_array[0]);
-    fifos = &(rtapi_data->fifo_array[0]);
-    irqs = &(rtapi_data->irq_array[0]);
-    printf("  module array = %p\n", modules);
+       printf("  module array = %p\n", modules);
     printf("  task array   = %p\n", tasks);
     printf("  shmem array  = %p\n", shmems);
-    printf("  sem array    = %p\n", sems);
-    printf("  fifo array   = %p\n", fifos);
-    printf("  irq array    = %p\n", irqs);
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	if (modules[n].state != NO_MODULE) {
 	    printf("  module %02d\n", n);
@@ -397,41 +382,7 @@ void rtapi_printall(void)
 	    putchar('\n');
 	}
     }
-    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
-	if (sems[n].key != 0) {
-	    printf("  sem %02d\n", n);
-	    printf("    key     = %d\n", sems[n].key);
-	    printf("    users   = %d\n", sems[n].users);
-	    printf("    bitmap  = ");
-	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, sems[n].bitmap)) {
-		    putchar('1');
-		} else {
-		    putchar('0');
-		}
-	    }
-	    putchar('\n');
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
-	if (fifos[n].state != UNUSED) {
-	    printf("  fifo %02d\n", n);
-	    printf("    state  = %d\n", fifos[n].state);
-	    printf("    key    = %d\n", fifos[n].key);
-	    printf("    reader = %d\n", fifos[n].reader);
-	    printf("    writer = %d\n", fifos[n].writer);
-	    printf("    size   = %ld\n", fifos[n].size);
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
-	if (irqs[n].irq_num != 0) {
-	    printf("  irq %02d\n", n);
-	    printf("    irq_num = %d\n", irqs[n].irq_num);
-	    printf("    owner   = %d\n", irqs[n].owner);
-	    printf("    handler = %p\n", irqs[n].handler);
-	}
-    }
-}
+ }
 
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
