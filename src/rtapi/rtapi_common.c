@@ -48,19 +48,12 @@ rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
-sem_data *sem_array = local_rtapi_data.sem_array;
-fifo_data *fifo_array = local_rtapi_data.fifo_array;
-irq_data *irq_array = local_rtapi_data.irq_array;
-
 #else
 
 rtapi_data_t *rtapi_data = NULL;
 task_data *task_array = NULL;
 shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
-sem_data *sem_array = NULL;
-fifo_data *fifo_array = NULL;
-irq_data *irq_array = NULL;
 
 #endif
 
