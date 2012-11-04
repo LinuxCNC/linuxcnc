@@ -612,7 +612,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *
 ************************************************************************/
-#if defined(RTAPI_RTPREEMPT_USER)
+#if defined(BUILD_SYS_USER_DSO)
 
 /** struct rtapi_pcidev - Opaque data structure for the PCI device */
 struct rtapi_pcidev;
