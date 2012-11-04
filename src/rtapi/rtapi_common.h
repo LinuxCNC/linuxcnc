@@ -232,9 +232,6 @@ typedef struct {
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */
     int shmem_count;		/* shared memory blocks in use */
-    int sem_count;		/* semaphores in use */
-    int fifo_count;		/* fifos in use */
-    int irq_count;		/* interrupts hooked */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
 #if defined(RTAPI_XENOMAI_KERNEL) || defined(RTAPI_XENOMAI_USER) 
@@ -247,9 +244,6 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
-    sem_data sem_array[RTAPI_MAX_SEMS + 1];	/* data for semaphores */
-    fifo_data fifo_array[RTAPI_MAX_FIFOS + 1];	/* data for fifos */
-    irq_data irq_array[RTAPI_MAX_IRQS + 1];	/* data for hooked irqs */
 } rtapi_data_t;
 
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
@@ -259,9 +253,7 @@ extern rtapi_data_t *rtapi_data;
 extern module_data *module_array;
 extern task_data *task_array;
 extern shmem_data *shmem_array;
-extern sem_data *sem_array;
-extern fifo_data *fifo_array;
-extern irq_data *irq_array;
+
 
 extern void init_rtapi_data(rtapi_data_t * data);
 

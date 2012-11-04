@@ -85,9 +85,6 @@ void init_rtapi_data(rtapi_data_t * data)
     data->ul_module_count = 0;
     data->task_count = 0;
     data->shmem_count = 0;
-    data->sem_count = 0;
-    data->fifo_count = 0;
-    data->irq_count = 0;
     data->timer_running = 0;
     data->timer_period = 0;
 #if defined(RTAPI_XENOMAI_KERNEL)
@@ -117,25 +114,6 @@ void init_rtapi_data(rtapi_data_t * data)
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
-    }
-    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
-	data->sem_array[n].users = 0;
-	data->sem_array[n].key = 0;
-	for (m = 0; m < (RTAPI_MAX_SEMS / 8) + 1; m++) {
-	    data->sem_array[n].bitmap[m] = 0;
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
-	data->fifo_array[n].state = UNUSED;
-	data->fifo_array[n].key = 0;
-	data->fifo_array[n].size = 0;
-	data->fifo_array[n].reader = 0;
-	data->fifo_array[n].writer = 0;
-    }
-    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
-	data->irq_array[n].irq_num = 0;
-	data->irq_array[n].owner = 0;
-	data->irq_array[n].handler = NULL;
     }
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
