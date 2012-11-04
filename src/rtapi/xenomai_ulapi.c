@@ -70,15 +70,9 @@
 #include <sys/types.h>		/* off_t, needed for rtai_shm.h */
 #include <sys/fcntl.h>		/* O_RDWR, needed for rtai_shm.h */
 
-#if defined(RTAPI_RTAI)
-#include "rtapi_rtai_shm_wrap.h" /*rtai_malloc,free() */
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
 #include <native/heap.h>
 #include <native/task.h>
 #include "xenomai_common.h"
-#endif
 
 #include <malloc.h>		/* malloc(), free() */
 #include <sys/io.h>		/* inb(), outb() */
@@ -103,18 +97,11 @@ static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
 
 static int shmem_delete(int shmem_id, int module_id);
 
-#if defined(RTAPI_FIFO)
-static int fifo_delete(int fifo_id, int module_id);
-static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
-#endif
-
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 static void check_memlock_limit(const char *where);
 
-#if defined(RTAPI_XENOMAI_KERNEL)
 RT_HEAP ul_heap_desc;
-#endif
 
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
@@ -130,20 +117,6 @@ int rtapi_init(const char *modname)
     /* get shared memory block from OS and save its address */
     errno = 0;
 
-#if defined(RTAPI_RTAI)
-    rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
-    // the check for -1 here is because rtai_malloc (in at least
-    // rtai 3.6.1, and probably others) has a bug where it
-    // sometimes returns -1 on error
-    if (rtapi_data == NULL || rtapi_data == (rtapi_data_t*)-1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
-	check_memlock_limit("could not open shared memory");
-	return -ENOMEM;
-    }
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
     if ((n = rt_heap_bind(&ul_heap_desc, MASTER_HEAP, TM_NONBLOCK))) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_init: rt_heap_bind() returns %d - %s\n", 
 			n, strerror(-n));
@@ -154,7 +127,6 @@ int rtapi_init(const char *modname)
 			n, strerror(n));
 	return -EINVAL;
     }
-#endif
 
     //rtapi_printall();
 
@@ -244,17 +216,6 @@ int rtapi_exit(int module_id)
 	    shmem_delete(n, module_id);
 	}
     }
-#if defined(RTAPI_FIFO)
-    for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
-	if ((fifo_array[n].reader == module_id) ||
-	    (fifo_array[n].writer == module_id)) {
-	    fprintf(stderr,
-		"ULAPI: WARNING: module '%s' failed to delete fifo %02d\n",
-		module->name, n);
-	    fifo_delete(n, module_id);
-	}
-    }
-#endif
     /* update module data */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exited, name = '%s'\n",
 	module_id, module->name);
@@ -437,11 +398,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		return -EINVAL;
 	    }
 	    /* no, map it */
-#if defined(RTAPI_RTAI)
-	    shmem_addr_array[shmem_id] = rtai_malloc(key, shmem->size);
-#endif
 
-#if defined(RTAPI_XENOMAI_KERNEL)
 	    snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 
 	    if (shmem_addr_array[shmem_id] == NULL) {
@@ -461,7 +418,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_DBG,"ulapi %s already mapped \n",shm_name);
 	    }
-#endif
             // the check for -1 here is because rtai_malloc (in at least
             // rtai 3.6.1, and probably others) has a bug where it
             // sometimes returns -1 on error
@@ -501,11 +457,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_id = n;
     shmem = &(shmem_array[n]);
     /* now get shared memory block from OS and save its address */
-#if defined(RTAPI_RTAI)
-    shmem_addr_array[shmem_id] = rtai_malloc(key, size);
-#endif
 
-#if defined(RTAPI_XENOMAI_KERNEL)
     if (shmem_addr_array[shmem_id] == NULL) {
 	snprintf(shm_name, sizeof(shm_name), "shm-%d", shmem_id);
 	if ((retval = rt_heap_create(&shmem_heap_array[n], shm_name, size, H_SHARED))) {
@@ -524,7 +476,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     } else {
 	rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI: %s already mapped\n", shm_name);
     }
-#endif
     
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
@@ -612,10 +563,6 @@ int shmem_delete(int shmem_id, int module_id)
     shmem->ulusers--;
     /* unmap the block */
 
-    // FIXME move this down after use test?
-#if defined(RTAPI_RTAI)
-    rtai_free(shmem->key, shmem_addr_array[shmem_id]);
-#endif
 
     shmem_addr_array[shmem_id] = NULL;
     /* is somebody else still using the block? */
@@ -624,9 +571,7 @@ int shmem_delete(int shmem_id, int module_id)
 	return 0;
     }
 
-#if defined(RTAPI_XENOMAI_KERNEL)
     rt_heap_delete(&shmem_heap_array[shmem_id]);
-#endif
 
     /* update the data array and usage count */
     shmem->key = 0;
@@ -649,266 +594,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
     *ptr = shmem_addr_array[shmem_id];
     return 0;
 }
-
-/***********************************************************************
-*                       FIFO RELATED FUNCTIONS                         *
-************************************************************************/
-
-#if defined(RTAPI_FIFO)
-int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
-{
-    enum { DEVSTR_LEN = 256 };
-    char devstr[DEVSTR_LEN];
-    int n, flags;
-    int fifo_id;
-    fifo_data *fifo;
-
-    /* key must be non-zero */
-    if (key == 0) {
-	return -EINVAL;
-    }
-    /* mode must be "R" or "W" */
-    if ((mode != 'R') && (mode != 'W')) {
-	return -EINVAL;
-    }
-    /* determine mode for fifo */
-    if (mode == 'R') {
-	flags = O_RDONLY;
-    } else {			/* mode == 'W' */
-
-	flags = O_WRONLY;
-    }
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* validate module_id */
-    if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    if (module_array[module_id].state != USERSPACE) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    /* check if a fifo already exists for this key */
-    for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
-	if ((fifo_array[n].state != UNUSED) && (fifo_array[n].key == key)) {
-	    /* found a match */
-	    fifo_id = n;
-	    fifo = &(fifo_array[n]);
-	    /* is the desired mode available */
-	    if (mode == 'R') {
-		if (fifo->state & HAS_READER) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -EBUSY;
-		}
-		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
-		/* open the fifo */
-		fifo_fd_array[fifo_id] = open(devstr, flags);
-		if (fifo_fd_array[fifo_id] < 0) {
-		    /* open failed */
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOENT;
-		}
-		/* fifo opened, update status */
-		fifo->state |= HAS_READER;
-		fifo->reader = module_id;
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		return fifo_id;
-	    } else {		/* mode == 'W' */
-
-		if (fifo->state & HAS_WRITER) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -EBUSY;
-		}
-		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
-		/* open the fifo */
-		fifo_fd_array[fifo_id] = open(devstr, flags);
-		if (fifo_fd_array[fifo_id] < 0) {
-		    /* open failed */
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOENT;
-		}
-		/* fifo opened, update status */
-		fifo->state |= HAS_WRITER;
-		fifo->writer = module_id;
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		return fifo_id;
-	    }
-	}
-    }
-    /* find empty spot in fifo array */
-    n = 1;
-    while ((n <= RTAPI_MAX_FIFOS) && (fifo_array[n].state != UNUSED)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_FIFOS) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EMFILE;
-    }
-    /* we have a free ID for the fifo */
-    fifo_id = n;
-    fifo = &(fifo_array[n]);
-    /* determine system name for fifo */
-    sprintf(devstr, "/dev/rtf%d", fifo_id);
-    /* open the fifo */
-    fifo_fd_array[fifo_id] = open(devstr, flags);
-    if (fifo_fd_array[fifo_id] < 0) {
-	/* open failed */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -ENOENT;
-    }
-    /* the fifo has been created, update data */
-    if (mode == 'R') {
-	fifo->state = HAS_READER;
-	fifo->reader = module_id;
-    } else {			/* mode == 'W' */
-
-	fifo->state = HAS_WRITER;
-	fifo->writer = module_id;
-    }
-    fifo->key = key;
-    fifo->size = size;
-    rtapi_data->fifo_count++;
-    /* done */
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return fifo_id;
-}
-
-int rtapi_fifo_delete(int fifo_id, int module_id)
-{
-    int retval;
-
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    retval = fifo_delete(fifo_id, module_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return retval;
-}
-
-static int fifo_delete(int fifo_id, int module_id)
-{
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if (fifo->state == UNUSED) {
-	return -EINVAL;
-    }
-    /* validate module_id */
-    if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return -EINVAL;
-    }
-    if (module_array[module_id].state != USERSPACE) {
-	return -EINVAL;
-    }
-    /* is this module using the fifo? */
-    if ((fifo->reader != module_id) && (fifo->writer != module_id)) {
-	return -EINVAL;
-    }
-    /* update fifo state */
-    if (fifo->reader == module_id) {
-	fifo->state &= ~HAS_READER;
-	fifo->reader = 0;
-    }
-    if (fifo->writer == module_id) {
-	fifo->state &= ~HAS_WRITER;
-	fifo->writer = 0;
-    }
-    /* close the fifo */
-    if (close(fifo_id) < 0) {
-	return -ENOENT;
-    }
-    /* is somebody else still using the fifo */
-    if (fifo->state != UNUSED) {
-	/* yes, done for now */
-	return 0;
-    }
-    /* no other users, update the data array and usage count */
-    fifo->state = UNUSED;
-    fifo->key = 0;
-    fifo->size = 0;
-    rtapi_data->fifo_count--;
-    return 0;
-}
-
-int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
-{
-    int retval;
-
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if ((fifo->state & HAS_READER) == 0) {
-	return -EINVAL;
-    }
-    /* get whatever data is available */
-    retval = read(fifo_fd_array[fifo_id], buf, size);
-    if (retval <= 0) {
-	return -EINVAL;
-    }
-    return retval;
-
-}
-
-int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
-{
-    int retval;
-    fifo_data *fifo;
-
-    /* validate fifo ID */
-    if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return -EINVAL;
-    }
-    /* point to the fifo's data */
-    fifo = &(fifo_array[fifo_id]);
-    /* is the fifo valid? */
-    if ((fifo->state & HAS_WRITER) == 0) {
-	return -EINVAL;
-    }
-    /* put whatever data will fit */
-    retval = write(fifo_fd_array[fifo_id], buf, size);
-    if (retval < 0) {
-	return -EINVAL;
-    }
-    return retval;
-}
-
-#else // RTAPI_FIFO not defined
-
-int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
-
-{
-  return -ENOSYS;
-}
-
-int rtapi_fifo_delete(int fifo_id, int module_id)
-{
-  return -ENOSYS;
-}
-
-int rtapi_fifo_read(int fifo_id, char *buf, unsigned long size)
-{
-  return -ENOSYS;
-}
-
-int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
-{
-  return -ENOSYS;
-}
-#endif
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
