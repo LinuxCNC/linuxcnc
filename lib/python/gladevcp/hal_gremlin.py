@@ -27,7 +27,7 @@ from hal_glib import GStat
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gproperties__ = {
-        'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: x, y, z, p',
+        'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: p, x, y, y2, z, z2',
                     'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'enable_dro' : ( gobject.TYPE_BOOLEAN, 'Enable DRO', 'Show DRO on graphics',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -86,9 +86,10 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
         if name == 'view':
             view = value.lower()
-            if self.lathe_option and view not in ['p','y']:
-                return False
-            if view not in ['x', 'y', 'z', 'p']:
+            if self.lathe_option:
+                if view not in ['p','y','y2']:
+                    return False
+            elif view not in ['p', 'x', 'y', 'z', 'z2']:
                 return False
             self.current_view = view
             if self.initialised:
