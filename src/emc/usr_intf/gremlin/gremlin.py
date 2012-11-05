@@ -212,7 +212,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         if s.file: self.load()
 
     def set_current_view(self):
-        if self.current_view not in ['x', 'y', 'z', 'p']:
+        if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:
             return
         return getattr(self, 'set_view_%s' % self.current_view)()
 
