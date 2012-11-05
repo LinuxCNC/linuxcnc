@@ -450,6 +450,7 @@ class Gscreen:
         self.data.dro_units = self.prefs.getpref('units', False, bool)
         self.widgets.dro_units.set_active(self.data.dro_units)
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
+        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr) 
         self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
         self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
@@ -1619,6 +1620,7 @@ class Gscreen:
         elif self.data.plot_view[0].lower() == "y2":
                 shift()
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
+        self.prefs.putpref('view', self.data.plot_view, tuple)
 
     # toggle a large graphics view
     def full_graphics(self):
