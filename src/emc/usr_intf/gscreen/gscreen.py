@@ -442,6 +442,9 @@ class Gscreen:
         self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', False, bool) )
         self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', True, bool) )
         self.widgets.gremlin.show_offsets = self.widgets.show_offsets.get_active()
+        data = self.prefs.getpref('grid_size', 1.0 , float)
+        self.widgets.grid_size.set_value(data) 
+        self.widgets.gremlin.grid_size = data
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
         self.data.dro_units = self.prefs.getpref('units', False, bool)
@@ -572,6 +575,7 @@ class Gscreen:
         self.widgets.button_override.connect("clicked", self.override)
         self.widgets.button_graphics.connect("clicked", self.graphics)
         self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
+        self.widgets.grid_size.connect("value_changed", self.set_grid_size)
         self.widgets.audio_error_chooser.connect("selection_changed",self.change_sound,"error")
         self.widgets.audio_error_chooser.connect("update-preview", self.update_preview)
         self.widgets.audio_alert_chooser.connect("selection_changed",self.change_sound,"alert")
@@ -725,6 +729,12 @@ class Gscreen:
         v.feed_child('halcmd show pin gscreen\n')
 
 # *** GLADE callbacks ****
+
+    def set_grid_size(self,widget):
+        data = widget.get_value()
+        self.widgets.gremlin.set_property('grid_size',data)
+        self.prefs.putpref('grid_size', data,float)
+
     def update_preview(self,widget):
         file = widget.get_filename()
         if file:
