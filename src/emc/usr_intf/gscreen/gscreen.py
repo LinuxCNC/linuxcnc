@@ -209,7 +209,7 @@ class Data:
         self.highlight_major = False
         self.display_order = (_REL,_DTG,_ABS)
         self.mode_order = (_MAN,_MDI,_AUTO)
-        self.plot_view = ("P","X","Y","Z","Z2")
+        self.plot_view = ("p","x","y","y2","z","z2")
         self.task_mode = 0
         self.active_gcodes = []
         self.active_mcodes = []
@@ -1592,7 +1592,7 @@ class Gscreen:
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
 
     # toggles gremlin's different views
-    # if in lathe mode only P and Y available
+    # if in lathe mode only P, Y and Y2 available
     def toggle_view(self):
         def shift():
             a = self.data.plot_view[0]
@@ -1600,10 +1600,13 @@ class Gscreen:
             c = self.data.plot_view[2]
             d = self.data.plot_view[3]
             e = self.data.plot_view[4]
-            self.data.plot_view = (b,c,d,e,a)
+            f = self.data.plot_view[5]
+            self.data.plot_view = (b,c,d,e,f,a)
         shift()
         if self.data.lathe_mode:
-            while not self.data.plot_view[0] in("P","Y","p","y"):
+            while not self.data.plot_view[0].lower() in("p","y","y2"):
+                shift()
+        elif self.data.plot_view[0].lower() == "y2":
                 shift()
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
 
