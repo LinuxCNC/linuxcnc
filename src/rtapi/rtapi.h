@@ -66,6 +66,8 @@
 #error "Can't define both RTAPI and ULAPI!"
 #endif
 
+#include <stddef.h> // provides NULL
+
 /** Provide fixed length types of the form __u8, __s32, etc.  These
     can be used in both kernel and user space.  There are also types
     without the leading underscores, but they work in kernel space
