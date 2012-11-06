@@ -342,7 +342,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
                     if method.startswith('_'):
                         continue
                     if callable(f):
-                        #dbg("Register callback '%s' in %s" % (method, object))
+                        print("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
         except Exception, e:
             print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
@@ -409,11 +409,14 @@ class Gscreen:
             sys.exit(0)
     
         panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        # at this point, any glade HL widgets and their pins are set up.
-        self.xml.connect_signals( self )
-        # TODO this could be used to add user methods from a separate file see gladvcp.py
-        #handlers = load_handlers([sys.argv[0]],self.halcomp,self.xml,[])
-        #self.xml.connect_signals(handlers)
+        # at this point, any glade HAL widgets and their pins are set up.
+
+        # look for custom handler files:
+        HANDLER_FN = "gscreen_handler.py"
+        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        if not os.path.exists(local_handler_path): HANDLER_FN = ""
+        handlers = load_handlers([HANDLER_FN],self.halcomp,self.xml,[])
+        self.xml.connect_signals(handlers)
 
         # access to saved prefernces
         self.prefs = preferences.preferences()
@@ -588,6 +591,17 @@ class Gscreen:
         self.widgets.hal_status.connect("all-homed", self.on_hal_status_all_homed)
         self.widgets.hal_status.connect("not-all-homed", self.on_hal_status_not_all_homed)
         self.widgets.hal_status.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.widgets.button_no.connect("clicked", self.on_button_no_clicked)
+        self.widgets.button_yes.connect("clicked", self.on_button_yes_clicked)
+        self.widgets.window1.connect("destroy", self.on_window1_destroy)
+        self.widgets.pop_statusbar.connect("clicked", self.on_pop_statusbar_clicked)
+        self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
+        self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
+        self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
+        self.widgets.eventbox_gremlin.connect("leave_notify_event", self.on_eventbox_gremlin_leave_notify_event)
+        self.widgets.eventbox_gremlin.connect("enter_notify_event", self.on_eventbox_gremlin_enter_notify_event)
+        self.widgets.s_display_rev.connect("toggled", self.on_s_display_rev_toggled)
+        self.widgets.s_display_fwd.connect("toggled", self.on_s_display_fwd_toggled)
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
         # access to EMC status
