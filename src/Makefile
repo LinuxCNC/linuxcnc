@@ -380,7 +380,8 @@ endif
 ifeq ($(BUILD_SYS),kbuild)
 modules:
 	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
-	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) V=$(BUILD_VERBOSE) modules)
+	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) \
+	KERNELDIR=$(KERNELDIR) V=$(BUILD_VERBOSE) modules)
 	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
