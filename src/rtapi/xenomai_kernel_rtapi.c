@@ -611,14 +611,16 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     }
     task->taskcode = taskcode;
     task->arg = arg;
-    /* call OS to initialize the task - use predetermined CPU */
+    task->cpu = cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu;
+
+    /* call OS to initialize the task - use predetermined or explicitly assigned CPU */
 
     rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\" cpu=%d fpu=%d prio=%d\n", 
-		    task_id, name, rtapi_data->rt_cpu, uses_fp, task->prio );
+		    task_id, name, task->cpu, uses_fp, task->prio );
 
     retval = rt_task_create(ostask_array[task_id], name, stacksize, task->prio, 
 			    (uses_fp ? T_FPU : 0) | 
-			    T_CPU(cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu));
+			    T_CPU(task->cpu));
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
     }

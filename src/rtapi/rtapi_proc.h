@@ -104,7 +104,7 @@ static int proc_read_status(char *page, char **start, off_t off,
 	RTAPI_MAX_TASKS);
     PROC_PRINT("Shared memory = %i/%i\n", rtapi_data->shmem_count,
 	RTAPI_MAX_SHMEMS);
-    PROC_PRINT("  RT task CPU = %i\n", rtapi_data->rt_cpu);
+    PROC_PRINT("default RT task CPU = %i\n", rtapi_data->rt_cpu);
     if (rtapi_data->timer_running) {
 	PROC_PRINT(" Timer status = Running\n");
 	PROC_PRINT(" Timer period = %li nSec\n", rtapi_data->timer_period);
@@ -158,7 +158,7 @@ static int proc_read_tasks(char *page, char **start, off_t off,
 
     PROC_PRINT_VARS;
     PROC_PRINT("******** RTAPI TASKS ********\n");
-    PROC_PRINT("ID  Own  Prio  State     Code\n");
+    PROC_PRINT("ID CPU Own  Prio  State     Code\n");
     for (n = 1; n <= RTAPI_MAX_TASKS; n++) {
 	if (task_array[n].state != EMPTY) {
 	    switch (task_array[n].state) {
@@ -178,8 +178,8 @@ static int proc_read_tasks(char *page, char **start, off_t off,
 		state_str = "UNKNOWN ";
 		break;
 	    }
-	    PROC_PRINT("%02d  %02d   %3d   %s  %p\n", n, task_array[n].owner,
-		task_array[n].prio, state_str, task_array[n].taskcode);
+	    PROC_PRINT("%02d %2d  %02d   %3d   %s  %p\n", n, task_array[n].owner,
+		task_array[n].prio, task_array[n].cpu, state_str, task_array[n].taskcode);
 	}
     }
     PROC_PRINT("\n");
