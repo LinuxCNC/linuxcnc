@@ -423,8 +423,11 @@ class Gscreen:
         # look for custom handler files:
         HANDLER_FN = "gscreen_handler.py"
         local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        if not os.path.exists(local_handler_path): HANDLER_FN = ""
-        handlers = load_handlers([HANDLER_FN],self.halcomp,self.xml,[])
+        if os.path.exists(local_handler_path):
+            temp = [HANDLER_FN]
+        else:
+            temp = []
+        handlers = load_handlers(temp,self.halcomp,self.xml,[])
         self.xml.connect_signals(handlers)
 
         # access to saved prefernces
