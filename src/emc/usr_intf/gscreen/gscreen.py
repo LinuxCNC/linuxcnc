@@ -2053,7 +2053,10 @@ class Gscreen:
             if i == "s":
                 self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
                 self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
-                self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
+                try:
+                    self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
+                except:
+                    pass
             else:
                 
                 for j in range (0,3):
