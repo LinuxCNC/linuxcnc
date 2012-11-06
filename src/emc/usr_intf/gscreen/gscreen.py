@@ -370,23 +370,32 @@ class Gscreen:
         (progdir, progname) = os.path.split(sys.argv[0])
         global xmlname
         self.inipath = inipath
+        # main screen
         localglade = os.path.join(CONFIGPATH,"gscreen.glade")
         if os.path.exists(localglade):
-            print "\n**** GSCREEN INFO:  Using local glade file from %s ****"% localglade
+            print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
             xmlname = localglade
         else:
-            print"\n**** GSCREEN INFO:  using glade file from: %s ****"% xmlname
+            print"\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname
         try:
             self.xml = gtk.Builder()
             self.xml.add_from_file(xmlname)
         except:
-            print "**** Gscreen GLADE ERROR:    With xml file: %s"% xmlname
+            print "**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname
             sys.exit(0)
+        # second screen
+        global xmlname2
+        localglade = os.path.join(CONFIGPATH,"gscreen2.glade")
+        if os.path.exists(localglade):
+            print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
+            xmlname2 = localglade
+        else:
+            print"\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2
         try:
             self.xml.add_from_file(xmlname2)
             self.screen2 = True
         except:
-            print "**** Gscreen GLADE ERROR:    With xml file: %s"% xmlname
+            print "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
