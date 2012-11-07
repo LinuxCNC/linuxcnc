@@ -1,5 +1,20 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
+
+// the Linux kernel has very nice bitmap handling
+// unfortunately it is not available through /usr/include
+// therefore replicate from linux/bitops.h and linux/kernel.h
+// and prefix with an '_' to roll our own
+#define _DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define _BIT(nr)                 (1UL << (nr))
+#define _BIT_MASK(nr)            (1UL << ((nr) % _BITS_PER_LONG))
+#define _BIT_WORD(nr)            ((nr) / _BITS_PER_LONG)
+#define _BITS_PER_BYTE           8
+#define _BITS_TO_LONGS(nr)       _DIV_ROUND_UP(nr, _BITS_PER_BYTE * sizeof(long))
+#define _DECLARE_BITMAP(name,bits) \
+    unsigned long name[_BITS_TO_LONGS(bits)]
+
+
 #if (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
 #include <asm/bitops.h>
 #elif defined(__i386__)
