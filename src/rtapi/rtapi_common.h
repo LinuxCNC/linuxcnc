@@ -182,8 +182,8 @@ typedef struct {
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    unsigned long bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are
-							   using block */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1); /* which modules are
+						   using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
 
