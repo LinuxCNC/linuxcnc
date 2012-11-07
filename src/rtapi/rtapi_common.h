@@ -98,9 +98,6 @@
 #define RTAPI_MAX_MODULES 64
 #define RTAPI_MAX_TASKS   64
 #define RTAPI_MAX_SHMEMS  32
-#define RTAPI_MAX_SEMS    64
-#define RTAPI_MAX_FIFOS   32
-#define RTAPI_MAX_IRQS    16
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
