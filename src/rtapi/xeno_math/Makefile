@@ -61,10 +61,9 @@ xeno_math-objs += s_copysign.o
 # xeno_math-objs += w_sinh.o
 # xeno_math-objs += w_sqrt.o
 
-KSRC ?= /lib/modules/$(shell uname -r)/build
 PWD      := $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
 
 modules::
-	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules V=$(V)
+	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules V=$(V)
 
 

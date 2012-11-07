@@ -169,6 +169,7 @@ typedef struct {
     int owner;			/* owning module */
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
+    int cpu;
 } task_data;
 
 typedef struct {

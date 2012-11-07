@@ -663,10 +663,12 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     }
     task->taskcode = taskcode;
     task->arg = arg;
-    /* call OS to initialize the task - use predetermined CPU */
+    task->cpu = cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu;
+
+    /* call OS to initialize the task - use predetermined or explicitly assigned CPU */
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
 				stacksize, prio, uses_fp, 0 /* signal */, 
-				cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu);
+				task->cpu);
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);
