@@ -578,7 +578,7 @@ install-python: install-dirs
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
-	$(FILE) ../share/gscreen/images/*.gif ../share/gscreen/images/*.xbm ../share/gscreen/images/*.ngc $(DESTDIR)$(datadir)/gscreen/images
+	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 endif
 
 install-kernel-dep:
