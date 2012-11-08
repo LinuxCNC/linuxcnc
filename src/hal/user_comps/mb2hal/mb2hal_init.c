@@ -1,277 +1,288 @@
 #include "mb2hal.h"
 
-retCode parse_main_args(char **ini_file_path, int argc, char **argv)
+retCode parse_main_args(int argc, char **argv)
 {
     char *fnct_name = "parse_main_args";
     char *arg_filename;
     char *tmp;
 
     if (argc != 2) {
-        ERR(init_debug, "wrong number of args");
+        ERR(gbl.init_dbg, "wrong number of args");
         return retERR;
     }
 
-    if (strncmp(argv[1], "config=", 7) != 0) { // has config file
-        ERR(init_debug, "config parameter not found");
+    if (strncmp(argv[1], "config=", 7) != 0) { //has config file
+        ERR(gbl.init_dbg, "config parameter not found");
         return retERR;
     }
 
     arg_filename = argv[1];
     arg_filename += 7;
 
-    if (*arg_filename == '\"') { // file name is quoted
+    if (*arg_filename == '\"') { //file name is quoted
         arg_filename++;
         tmp = arg_filename;
         while (*tmp != '\"' && *tmp != 0) {
             tmp++;
         }
-        *tmp = 0; // remove trailing quote
+        *tmp = 0; //remove trailing quote
     }
-    *ini_file_path = strdup(arg_filename);
+    gbl.ini_file_path = strdup(arg_filename);
 
     return retOK;
 }
 
-retCode parse_ini_file(FILE *ini_file_ptr)
+retCode parse_ini_file()
 {
     char *fnct_name = "parse_ini_file";
     int counter;
 
-    if (ini_file_ptr == NULL) {
-        ERR(init_debug, "NULL pointer");
+    if (gbl.ini_file_ptr == NULL) {
+        ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
 
-    if (parse_common_section(ini_file_ptr) != retOK) {
-        ERR(init_debug, "parse_common_section failed");
+    if (parse_common_section() != retOK) {
+        ERR(gbl.init_dbg, "parse_common_section failed");
         return retERR;
     }
 
-    gbl_mb_tx = malloc(sizeof(mb_tx_t) * gbl_n_mb_tx);
-    memset(gbl_mb_tx, 0, sizeof(mb_tx_t) * gbl_n_mb_tx);
+    //default = one link per transaction
+    //realloc will be used if there are common links
+    gbl.mb_links = malloc(sizeof(mb_link_t) * gbl.tot_mb_tx);
+    if (gbl.mb_links == NULL) {
+        ERR(gbl.init_dbg, "malloc gbl.mb_links failed [%s]", strerror(errno));
+        return retERR;
+    }
+    memset(gbl.mb_links, 0, sizeof(mb_link_t) * gbl.tot_mb_tx);
 
-    for (counter = 0; counter < gbl_n_mb_tx; counter++) {
-        if (parse_transaction_section(ini_file_ptr, counter) != retOK) {
-            ERR(init_debug, "parse_transaction_section %d failed", counter);
+    gbl.mb_tx = malloc(sizeof(mb_tx_t) * gbl.tot_mb_tx);
+    if (gbl.mb_tx == NULL) {
+        ERR(gbl.init_dbg, "malloc gbl.mb_tx failed [%s]", strerror(errno));
+        return retERR;
+    }
+    memset(gbl.mb_tx, 0, sizeof(mb_tx_t) * gbl.tot_mb_tx);
+
+    for (counter = 0; counter < gbl.tot_mb_tx; counter++) {
+        if (parse_transaction_section(counter) != retOK) {
+            ERR(gbl.init_dbg, "parse_transaction_section %d failed", counter);
             return retERR;
         }
-        OK(init_debug, "parse_transaction_section %d OK", counter);
+        OK(gbl.init_dbg, "parse_transaction_section %d OK", counter);
     }
 
     return retOK;
 }
 
-retCode parse_common_section(FILE *ini_file_ptr)
+retCode parse_common_section()
 {
     char *fnct_name = "parse_common_section";
     char *section, *tag;
 
-    if (ini_file_ptr == NULL) {
-        ERR(init_debug, "NULL pointer");
+    if (gbl.ini_file_ptr == NULL) {
+        ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
 
     section = "MB2HAL_INIT";
     tag     = "INIT_DEBUG"; //optional
-    //init_debug = debugMAX; //previously initialized in main()
-    iniFindInt(ini_file_ptr, tag, section, &init_debug);
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, init_debug);
+    iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
     section = "MB2HAL_INIT";
     tag     = "SLOWDOWN"; //optional
-    //init_debug_slowdown = 0; //previously initialized in main()
-    iniFindDouble(ini_file_ptr, tag, section, &slowdown);
-    DBG(init_debug, "[%s] [%s] [%0.3f]", section, tag, slowdown);
+    iniFindDouble(gbl.ini_file_ptr, tag, section, &gbl.slowdown);
+    DBG(gbl.init_dbg, "[%s] [%s] [%0.3f]", section, tag, gbl.slowdown);
 
     section = "MB2HAL_INIT";
     tag     = "TOTAL_TRANSACTIONS"; //required
-    if (iniFindInt(ini_file_ptr, tag, section, &gbl_n_mb_tx) != 0) {
-        ERR(init_debug, "required [%s] [%s] not found", section, tag);
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.tot_mb_tx) != 0) {
+        ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
         return retERR;
     }
-    if (gbl_n_mb_tx <= 0) {
-        ERR(init_debug, "[%s] [%s] [%d], must be > 0", section, tag, gbl_n_mb_tx);
+    if (gbl.tot_mb_tx <= 0) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%d], must be > 0", section, tag, gbl.tot_mb_tx);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, gbl_n_mb_tx);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.tot_mb_tx);
 
     return retOK;
 }
 
 
-retCode parse_transaction_section(FILE *ini_file_ptr, const int mb_tx_num)
+retCode parse_transaction_section(const int mb_tx_num)
 {
     char *fnct_name = "parse_transaction_section";
     char section[20];
     char *tag;
     const char *tmpstr;
-    mb_tx_t *tmp_mb_tx;
+    mb_tx_t *this_mb_tx;
 
-    if (ini_file_ptr == NULL) {
-        ERR(init_debug, "NULL pointer");
+    if (gbl.ini_file_ptr == NULL) {
+        ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
-    if (mb_tx_num < 0 || mb_tx_num > gbl_n_mb_tx) {
-        ERR(init_debug, "out of range");
+    if (mb_tx_num < 0 || mb_tx_num > gbl.tot_mb_tx) {
+        ERR(gbl.init_dbg, "out of range");
         return retERR;
     }
 
-    tmp_mb_tx = &gbl_mb_tx[mb_tx_num];
+    this_mb_tx = &gbl.mb_tx[mb_tx_num];
 
-    if (ini_file_ptr == NULL || mb_tx_num < 0 || mb_tx_num > gbl_n_mb_tx) {
-        ERR(init_debug, "parameter error");
+    if (gbl.ini_file_ptr == NULL || mb_tx_num < 0 || mb_tx_num > gbl.tot_mb_tx) {
+        ERR(gbl.init_dbg, "parameter error");
         return retERR;
     }
 
     snprintf(section, sizeof(section)-1, "TRANSACTION_%02d", mb_tx_num);
 
     tag = "LINK_TYPE"; //required 1st time, then optional
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
         if (strcasecmp(tmpstr, "tcp") == retOK) {
-            tmp_mb_tx->cfg_lk_param.type_com = TCP;
-            strcpy(tmp_mb_tx->lp_type_com_str, tmpstr);
+            this_mb_tx->cfg_link_type = linkTCP;
+            strcpy(this_mb_tx->cfg_link_type_str, tmpstr);
         }
         else if (strcasecmp(tmpstr, "serial") == retOK) {
-            tmp_mb_tx->cfg_lk_param.type_com = RTU;
-            strcpy(tmp_mb_tx->lp_type_com_str, tmpstr);
+            this_mb_tx->cfg_link_type = linkRTU;
+            strcpy(this_mb_tx->cfg_link_type_str, tmpstr);
         }
         else {
-            tmp_mb_tx->cfg_lk_param.type_com = -1;
-            strcpy(tmp_mb_tx->lp_type_com_str, "");
-            ERR(init_debug, "[%s] [%s] [%s] is not valid", section, tag, tmpstr);
+            this_mb_tx->cfg_link_type = -1;
+            strcpy(this_mb_tx->cfg_link_type_str, "");
+            ERR(gbl.init_dbg, "[%s] [%s] [%s] is not valid", section, tag, tmpstr);
             return retERR;
         }
     }
     else {
         if (mb_tx_num > 0) { //previous value
-            tmp_mb_tx->cfg_lk_param.type_com = gbl_mb_tx[mb_tx_num-1].cfg_lk_param.type_com;
-            strcpy(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str);
+            this_mb_tx->cfg_link_type = gbl.mb_tx[mb_tx_num-1].cfg_link_type;
+            strcpy(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str);
         }
         else { //required 1rst time
-            tmp_mb_tx->cfg_lk_param.type_com = -1;
-            strcpy(tmp_mb_tx->lp_type_com_str, "");
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            this_mb_tx->cfg_link_type = -1;
+            strcpy(this_mb_tx->cfg_link_type_str, "");
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    DBG(init_debug, "[%s] [%s] [%s] [%d]", section, tag, tmp_mb_tx->lp_type_com_str, tmp_mb_tx->cfg_lk_param.type_com);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s] [%d]", section, tag, this_mb_tx->cfg_link_type_str, this_mb_tx->cfg_link_type);
 
-    if (tmp_mb_tx->cfg_lk_param.type_com == TCP) { //tcp
-        if (parse_tcp_subsection(ini_file_ptr, section, mb_tx_num) != retOK) {
-            ERR(init_debug, "parsing error");
+    if (this_mb_tx->cfg_link_type == linkTCP) { //tcp
+        if (parse_tcp_subsection(section, mb_tx_num) != retOK) {
+            ERR(gbl.init_dbg, "parsing error");
             return retERR;
         }
     }
     else { //serial
-        if (parse_serial_subsection(ini_file_ptr, section, mb_tx_num) != retOK) {
-            ERR(init_debug, "parsing error");
+        if (parse_serial_subsection(section, mb_tx_num) != retOK) {
+            ERR(gbl.init_dbg, "parsing error");
             return retERR;
         }
     }
 
     tag = "MB_SLAVE_ID"; //1st time required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->mb_slave_id) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_tx_slave_id) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->mb_slave_id = gbl_mb_tx[mb_tx_num-1].mb_slave_id;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->mb_tx_slave_id = gbl.mb_tx[mb_tx_num-1].mb_tx_slave_id;
             }
             else {
-                tmp_mb_tx->mb_slave_id = -1;
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                this_mb_tx->mb_tx_slave_id = -1;
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            tmp_mb_tx->mb_slave_id = -1;
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            this_mb_tx->mb_tx_slave_id = -1;
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->mb_slave_id);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_slave_id);
 
     tag = "FIRST_ELEMENT"; //required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->mb_first_addr) != 0) {
-        ERR(init_debug, "required [%s] [%s] not found", section, tag);
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_tx_1st_addr) != 0) {
+        ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
         return retERR;
     }
-    if (tmp_mb_tx->mb_first_addr < 0) {
-        ERR(init_debug, "[%s] [%s] [%d] out of range", section, tag, tmp_mb_tx->mb_first_addr);
+    if (this_mb_tx->mb_tx_1st_addr < 0) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%d] out of range", section, tag, this_mb_tx->mb_tx_1st_addr);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->mb_first_addr);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_1st_addr);
 
     tag = "NELEMENTS";  //required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->mb_nelements) != 0) {
-        ERR(init_debug, "required [%s] [%s] not found", section, tag);
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_tx_nelem) != 0) {
+        ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
         return retERR;
     }
-    if (tmp_mb_tx->mb_nelements < 1) {
-        ERR(init_debug, "[%s] [%s] [%d] out of range", section, tag, tmp_mb_tx->mb_nelements);
+    if (this_mb_tx->mb_tx_nelem < 1) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%d] out of range", section, tag, this_mb_tx->mb_tx_nelem);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->mb_nelements);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_nelem);
 
     tag = "MAX_UPDATE_RATE"; //optional
-    if (iniFindDouble(ini_file_ptr, tag, section, &tmp_mb_tx->cfg_update_rate) != 0) { //not found
+    if (iniFindDouble(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_update_rate) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->cfg_update_rate = gbl_mb_tx[mb_tx_num-1].cfg_update_rate;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_update_rate = gbl.mb_tx[mb_tx_num-1].cfg_update_rate;
             }
             else { //default
-                tmp_mb_tx->cfg_update_rate = 0; //0=infinit
+                this_mb_tx->cfg_update_rate = 0; //0=infinit
             }
         }
     }
-    DBG(init_debug, "[%s] [%s] [%0.3f]", section, tag, tmp_mb_tx->cfg_update_rate);
+    DBG(gbl.init_dbg, "[%s] [%s] [%0.3f]", section, tag, this_mb_tx->cfg_update_rate);
 
     tag = "DEBUG"; //optional
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->cfg_debug) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_debug) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->cfg_debug = gbl_mb_tx[mb_tx_num-1].cfg_debug;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_debug = gbl.mb_tx[mb_tx_num-1].cfg_debug;
             }
             else { //default
-                tmp_mb_tx->cfg_debug = debugERR;
+                this_mb_tx->cfg_debug = debugERR;
             }
         }
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->cfg_debug);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_debug);
 
     tag = "MB_TX_CODE"; //required
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
         int i;
         for (i=0 ; i<mbtxMAX; i++) {
-            if (strcasecmp(tmpstr, gbl_mb_tx_codes[i]) == 0) {
-                tmp_mb_tx->mb_tx_code = i;
-                strncpy(tmp_mb_tx->cfg_mb_tx_code_name, tmpstr, sizeof(tmp_mb_tx->cfg_mb_tx_code_name)-1);
+            if (strcasecmp(tmpstr, gbl.mb_tx_fncts[i]) == 0) {
+                this_mb_tx->mb_tx_fnct = i;
+                strncpy(this_mb_tx->mb_tx_fnct_name, tmpstr, sizeof(this_mb_tx->mb_tx_fnct_name)-1);
                 break;
             }
         }
-        if (tmp_mb_tx->mb_tx_code <= mbtxERR || tmp_mb_tx->mb_tx_code >= mbtxMAX) {
-            ERR(init_debug, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
+        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= mbtxMAX) {
+            ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
             return retERR;
         }
     }
     else {
-        ERR(init_debug, "required [%s] [%s] not found", section, tag);
+        ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%s] [%d]", section, tag, tmp_mb_tx->cfg_mb_tx_code_name, tmp_mb_tx->mb_tx_code);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_fnct_name, this_mb_tx->mb_tx_fnct);
 
     tag = "HAL_TX_NAME"; //optional
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
-        strncpy(tmp_mb_tx->hal_tx_name, tmpstr, HAL_NAME_LEN);
+        strncpy(this_mb_tx->hal_tx_name, tmpstr, HAL_NAME_LEN);
     }
     else {
-        sprintf(tmp_mb_tx->hal_tx_name, "%02d", mb_tx_num);
+        sprintf(this_mb_tx->hal_tx_name, "%02d", mb_tx_num);
     }
-    DBG(init_debug, "[%s] [%s] [%s]", section, tag, tmp_mb_tx->hal_tx_name);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->hal_tx_name);
 
     /*
-        str = iniFind(ini_file_ptr, "PINNAME", mb_tx_name);
+        str = iniFind(gbl.ini_file_ptr, "PINNAME", mb_tx_name);
         if (str != NULL) {
             pin_name = malloc(strlen(str) + 1);
             strcpy(pin_name, str);	// convert a const string into one
@@ -287,11 +298,11 @@ retCode parse_transaction_section(FILE *ini_file_ptr, const int mb_tx_num)
         else {
             sprintf(mb_tx_name, "%02d", mb_tx_num);
         }
-        memcpy(&gbl_mb_tx[mb_tx_num], mb_tx, sizeof(mb_tx_t));
-        rc = create_pins(mb_tx_name, &gbl_mb_tx[mb_tx_num], pin_name);
+        memcpy(&gbl.mb_tx[mb_tx_num], mb_tx, sizeof(mb_tx_t));
+        rc = create_pins(mb_tx_name, &gbl.mb_tx[mb_tx_num], pin_name);
         free(pin_name);
         if (rc != retOK) {
-            ERR(init_debug, "Failed to create pins");
+            ERR(gbl.init_dbg, "Failed to create pins");
             return retERR;
         }
     */
@@ -299,215 +310,214 @@ retCode parse_transaction_section(FILE *ini_file_ptr, const int mb_tx_num)
     return retOK;
 }
 
-retCode parse_tcp_subsection(FILE *ini_file_ptr, const char *section, const int mb_tx_num)
+retCode parse_tcp_subsection(const char *section, const int mb_tx_num)
 {
     char *fnct_name="parse_tcp_subsection";
     char *tag;
     const char *tmpstr;
-    mb_tx_t *tmp_mb_tx;
+    mb_tx_t *this_mb_tx;
 
-    if (ini_file_ptr == NULL || section == NULL) {
-        ERR(init_debug, "NULL pointer");
+    if (gbl.ini_file_ptr == NULL || section == NULL) {
+        ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
-    if (mb_tx_num < 0 || mb_tx_num > gbl_n_mb_tx) {
-        ERR(init_debug, "out of range");
+    if (mb_tx_num < 0 || mb_tx_num > gbl.tot_mb_tx) {
+        ERR(gbl.init_dbg, "out of range");
         return retERR;
     }
 
-    tmp_mb_tx = &gbl_mb_tx[mb_tx_num];
+    this_mb_tx = &gbl.mb_tx[mb_tx_num];
 
     tag = "TCP_IP"; //required 1st time, then optional
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
-        strncpy(tmp_mb_tx->cfg_lk_param.ip, tmpstr, sizeof(tmp_mb_tx->cfg_lk_param.ip)-1);
+        strncpy(this_mb_tx->cfg_tcp_ip, tmpstr, sizeof(this_mb_tx->cfg_tcp_ip)-1);
     }
     else {
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                strcpy(tmp_mb_tx->cfg_lk_param.ip, gbl_mb_tx[mb_tx_num-1].cfg_lk_param.ip);
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                strcpy(this_mb_tx->cfg_tcp_ip, gbl.mb_tx[mb_tx_num-1].cfg_tcp_ip);
             }
             else {
-                strcpy(tmp_mb_tx->cfg_lk_param.ip, "");
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                strcpy(this_mb_tx->cfg_tcp_ip, "");
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(tmp_mb_tx->cfg_lk_param.ip, "");
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            strcpy(this_mb_tx->cfg_tcp_ip, "");
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    DBG(init_debug, "[%s] [%s] [%s]", section, tag, tmp_mb_tx->cfg_lk_param.ip);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->cfg_tcp_ip);
 
-    //Ignored due to NO supported in hal/user_comps/modbus.c, fixed at 502
     tag = "TCP_PORT"; //optional
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->lp_tcp_port) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_tcp_port) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->lp_tcp_port = gbl_mb_tx[mb_tx_num-1].lp_tcp_port;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_tcp_port = gbl.mb_tx[mb_tx_num-1].cfg_tcp_port;
             }
             else { //default
-                tmp_mb_tx->lp_tcp_port = MODBUS_TCP_PORT;
+                this_mb_tx->cfg_tcp_port = MB2HAL_DEFAULT_TCP_PORT;
             }
         }
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->lp_tcp_port);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_tcp_port);
 
     return retOK;
 }
 
-retCode parse_serial_subsection(FILE *ini_file_ptr, const char *section, const int mb_tx_num)
+retCode parse_serial_subsection(const char *section, const int mb_tx_num)
 {
     char *fnct_name="parse_serial_subsection";
     char *tag;
     const char *tmpstr;
-    mb_tx_t *tmp_mb_tx;
+    mb_tx_t *this_mb_tx;
 
-    if (ini_file_ptr == NULL || section == NULL) {
-        ERR(init_debug, "NULL pointer");
+    if (gbl.ini_file_ptr == NULL || section == NULL) {
+        ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
-    if (mb_tx_num < 0 || mb_tx_num > gbl_n_mb_tx) {
-        ERR(init_debug, "out of range");
+    if (mb_tx_num < 0 || mb_tx_num > gbl.tot_mb_tx) {
+        ERR(gbl.init_dbg, "out of range");
         return retERR;
     }
 
-    tmp_mb_tx = &gbl_mb_tx[mb_tx_num];
+    this_mb_tx = &gbl.mb_tx[mb_tx_num];
 
     tag = "SERIAL_PORT"; //required 1st time
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
-        strncpy(tmp_mb_tx->cfg_lk_param.device, tmpstr, sizeof(tmp_mb_tx->cfg_lk_param.device)-1);
+        strncpy(this_mb_tx->cfg_serial_device, tmpstr, sizeof(this_mb_tx->cfg_serial_device)-1);
     }
     else {
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                strcpy(tmp_mb_tx->cfg_lk_param.device, gbl_mb_tx[mb_tx_num-1].cfg_lk_param.device);
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                strcpy(this_mb_tx->cfg_serial_device, gbl.mb_tx[mb_tx_num-1].cfg_serial_device);
             }
             else {
-                strcpy(tmp_mb_tx->cfg_lk_param.device, "");
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                strcpy(this_mb_tx->cfg_serial_device, "");
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(tmp_mb_tx->cfg_lk_param.device, "");
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            strcpy(this_mb_tx->cfg_serial_device, "");
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    DBG(init_debug, "[%s] [%s] [%s]", section, tag, tmp_mb_tx->cfg_lk_param.device);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->cfg_serial_device);
 
     tag = "SERIAL_BAUD"; //1st time required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->cfg_lk_param.baud_i) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_serial_baud) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->cfg_lk_param.baud_i = gbl_mb_tx[mb_tx_num-1].cfg_lk_param.baud_i;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_serial_baud = gbl.mb_tx[mb_tx_num-1].cfg_serial_baud;
             }
             else {
-                tmp_mb_tx->cfg_lk_param.baud_i = -1;
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                this_mb_tx->cfg_serial_baud = -1;
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            tmp_mb_tx->cfg_lk_param.baud_i = -1;
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            this_mb_tx->cfg_serial_baud = -1;
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->cfg_lk_param.baud_i);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_serial_baud);
 
     tag = "SERIAL_BITS"; //1st time required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->cfg_lk_param.data_bit) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_serial_data_bit) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->cfg_lk_param.data_bit = gbl_mb_tx[mb_tx_num-1].cfg_lk_param.data_bit;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_serial_data_bit = gbl.mb_tx[mb_tx_num-1].cfg_serial_data_bit;
             }
             else {
-                tmp_mb_tx->cfg_lk_param.data_bit = -1;
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                this_mb_tx->cfg_serial_data_bit = -1;
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            tmp_mb_tx->cfg_lk_param.data_bit = -1;
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            this_mb_tx->cfg_serial_data_bit = -1;
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    if (check_int_in(4, tmp_mb_tx->cfg_lk_param.data_bit, 5, 6, 7, 8) != retOK) {
-        ERR(init_debug, "[%s] [%s] [%d] out of range", section, tag, tmp_mb_tx->cfg_lk_param.data_bit);
+    if (check_int_in(4, this_mb_tx->cfg_serial_data_bit, 5, 6, 7, 8) != retOK) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%d] out of range", section, tag, this_mb_tx->cfg_serial_data_bit);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->cfg_lk_param.data_bit);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_serial_data_bit);
 
     tag = "SERIAL_PARITY"; //required 1st time
-    tmpstr = iniFind(ini_file_ptr, tag, section);
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
-        strncpy(tmp_mb_tx->cfg_lk_param.parity, tmpstr, sizeof(tmp_mb_tx->cfg_lk_param.parity)-1);
+        strncpy(this_mb_tx->cfg_serial_parity, tmpstr, sizeof(this_mb_tx->cfg_serial_parity)-1);
     }
     else {
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                strcpy(tmp_mb_tx->cfg_lk_param.parity, gbl_mb_tx[mb_tx_num-1].cfg_lk_param.parity);
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                strcpy(this_mb_tx->cfg_serial_parity, gbl.mb_tx[mb_tx_num-1].cfg_serial_parity);
             }
             else {
-                strcpy(tmp_mb_tx->cfg_lk_param.parity, "");
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                strcpy(this_mb_tx->cfg_serial_parity, "");
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(tmp_mb_tx->cfg_lk_param.parity, "");
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            strcpy(this_mb_tx->cfg_serial_parity, "");
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    if (check_str_in(3, tmp_mb_tx->cfg_lk_param.parity, "even", "odd", "none") != retOK) {
-        ERR(init_debug, "[%s] [%s] [%s] out of range", section, tag, tmp_mb_tx->cfg_lk_param.parity);
+    if (check_str_in(3, this_mb_tx->cfg_serial_parity, "even", "odd", "none") != retOK) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, this_mb_tx->cfg_serial_parity);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%s]", section, tag, tmp_mb_tx->cfg_lk_param.parity);
+    DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->cfg_serial_parity);
 
     tag = "SERIAL_STOP"; //1st time required
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->cfg_lk_param.stop_bit) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_serial_stop_bit) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->cfg_lk_param.stop_bit = gbl_mb_tx[mb_tx_num-1].cfg_lk_param.stop_bit;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_serial_stop_bit = gbl.mb_tx[mb_tx_num-1].cfg_serial_stop_bit;
             }
             else {
-                tmp_mb_tx->cfg_lk_param.stop_bit = -1;
-                ERR(init_debug, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
+                this_mb_tx->cfg_serial_stop_bit = -1;
+                ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            tmp_mb_tx->cfg_lk_param.stop_bit = -1;
-            ERR(init_debug, "required 1st time [%s] [%s] not found", section, tag);
+            this_mb_tx->cfg_serial_stop_bit = -1;
+            ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
     }
-    if (check_int_in(2, tmp_mb_tx->cfg_lk_param.stop_bit, 1, 2) != retOK) {
-        ERR(init_debug, "[%s] [%s] [%d] out of range", section, tag, tmp_mb_tx->cfg_lk_param.stop_bit);
+    if (check_int_in(2, this_mb_tx->cfg_serial_stop_bit, 1, 2) != retOK) {
+        ERR(gbl.init_dbg, "[%s] [%s] [%d] out of range", section, tag, this_mb_tx->cfg_serial_stop_bit);
         return retERR;
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->cfg_lk_param.stop_bit);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_serial_stop_bit);
 
     tag = "SERIAL_DELAY_MS"; //optional
-    if (iniFindInt(ini_file_ptr, tag, section, &tmp_mb_tx->lp_serial_delay_ms) != 0) { //not found
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_serial_delay_ms) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
-            if (strcasecmp(tmp_mb_tx->lp_type_com_str, gbl_mb_tx[mb_tx_num-1].lp_type_com_str) == 0) {
-                tmp_mb_tx->lp_serial_delay_ms = gbl_mb_tx[mb_tx_num-1].lp_serial_delay_ms;
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->cfg_serial_delay_ms = gbl.mb_tx[mb_tx_num-1].cfg_serial_delay_ms;
             }
             else { //default
-                tmp_mb_tx->lp_serial_delay_ms = 0;
+                this_mb_tx->cfg_serial_delay_ms = 0;
             }
         }
     }
-    DBG(init_debug, "[%s] [%s] [%d]", section, tag, tmp_mb_tx->lp_serial_delay_ms);
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_serial_delay_ms);
 
     return retOK;
 }
@@ -553,130 +563,145 @@ retCode check_str_in(int n_args, const char *str_value, ...)
 }
 
 /*
- * init global (unrepeated) modbus links (gbl_mb_links)
+ * init global (unrepeated) modbus links (gbl.mb_links[])
  * (serial or tcp connections)
  */
-retCode init_gbl_mb_links()
+retCode init_mb_links()
 {
-    char *fnct_name="init_gbl_mb_links";
+    char *fnct_name="init_mb_links";
     int tx_counter, lk_counter;
     int isNewLink;
-    modbus_param_t *tmp_lk_param_ptr, *new_gbl_mb_links_ptr;
-    mb_tx_t *tmp_mb_tx_ptr;
-
-    //maximum one link per transaction
-    gbl_mb_links = malloc(sizeof(modbus_param_t) * gbl_n_mb_tx);
-    memset(gbl_mb_links, 0, sizeof(modbus_param_t) * gbl_n_mb_tx);
-
-    //maximum one link per transaction
-    tmp_mb_links_num = malloc(sizeof(int) * gbl_n_mb_tx);
-    memset(tmp_mb_links_num, 0, sizeof(int) * gbl_n_mb_tx);
+    mb_link_t *this_mb_link;
+    mb_tx_t   *this_mb_tx;
 
     //group common links transactions
-    gbl_n_mb_links = 0; //next available unused link
+    gbl.tot_mb_links = 0; //total and next available unused link
 
-    for (tx_counter = 0; tx_counter < gbl_n_mb_tx; tx_counter++) {
-        tmp_mb_tx_ptr    = &gbl_mb_tx[tx_counter];
-        tmp_lk_param_ptr = &gbl_mb_tx[tx_counter].cfg_lk_param;
+    for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
+        this_mb_tx   = &gbl.mb_tx[tx_counter];
 
         isNewLink = 1; //Default to true
-        if (tmp_lk_param_ptr->type_com == RTU) { //serial
-            for (lk_counter = 0; lk_counter < gbl_n_mb_links; lk_counter++) {
-                if (strcasecmp(tmp_lk_param_ptr->device, gbl_mb_links[lk_counter].device) == 0) {
+        if (this_mb_tx->cfg_link_type == linkRTU) { //serial
+            for (lk_counter = 0; lk_counter < gbl.tot_mb_links; lk_counter++) {
+                if (strcasecmp(this_mb_tx->cfg_serial_device, gbl.mb_links[lk_counter].lp_serial_device) == 0) {
                     isNewLink = 0; //repeated link
-                    tmp_mb_tx_ptr->mb_links_num = lk_counter; //each tx know its own link
+                    this_mb_tx->mb_link_num = lk_counter; //each tx know its own link
                     break;
                 }
             }
         }
         else { //tcp
-            for (lk_counter = 0; lk_counter < gbl_n_mb_links; lk_counter++) {
-                if (strcasecmp(tmp_lk_param_ptr->ip, gbl_mb_links[lk_counter].ip) == 0) {
+            for (lk_counter = 0; lk_counter < gbl.tot_mb_links; lk_counter++) {
+                if (strcasecmp(this_mb_tx->cfg_tcp_ip, gbl.mb_links[lk_counter].lp_tcp_ip) == 0) {
                     isNewLink = 0; //repeated link
-                    tmp_mb_tx_ptr->mb_links_num = lk_counter; //each tx know its own link
+                    this_mb_tx->mb_link_num = lk_counter; //each tx know its own link
                     break;
                 }
             }
         }
         if (isNewLink != 0) { //initialize new link
-            tmp_mb_tx_ptr->mb_links_num = gbl_n_mb_links; //each tx know its own link
-            tmp_mb_links_num[gbl_n_mb_links] = gbl_n_mb_links; //for thread parameter use only
+            this_mb_tx->mb_link_num = gbl.mb_links[gbl.tot_mb_links].mb_link_num  = gbl.tot_mb_links; //next available unused link
+            this_mb_link = &gbl.mb_links[gbl.tot_mb_links];
 
-            new_gbl_mb_links_ptr = &gbl_mb_links[gbl_n_mb_links];
+            this_mb_link->lp_link_type = this_mb_tx->cfg_link_type;
 
-            new_gbl_mb_links_ptr->type_com = tmp_lk_param_ptr->type_com;
+            if (this_mb_link->lp_link_type == linkRTU) { //serial
+                strncpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH-1);
+                this_mb_link->lp_serial_baud=this_mb_tx->cfg_serial_baud;
 
-            new_gbl_mb_links_ptr->fd = -1; //link closed
-            //new_gbl_mb_links_ptr->mb_links_num; //already initialized
-            //copied run time for each mb_tx from mb_tx.cfk_lk_param to mb_link
-            //new_gbl_mb_links_ptr->print_errors = (tmp_mb_tx_ptr->cfg_debug >= debugERR)? 1 : 0;
-            //new_gbl_mb_links_ptr->debug = (tmp_mb_tx_ptr->cfg_debug >= debugDEBUG)? 1 : 0;
+                if (strcasecmp(this_mb_tx->cfg_serial_parity, "even") == 0) {
+                    this_mb_link->lp_serial_parity = 'E';
+                }
+                else if (strcasecmp(this_mb_tx->cfg_serial_parity, "odd") == 0) {
+                    this_mb_link->lp_serial_parity = 'O';
+                }
+                else { //default = parity none
+                    this_mb_link->lp_serial_parity = 'N';
+                }
 
-            if (new_gbl_mb_links_ptr->type_com == RTU) { //serial
-                modbus_init_rtu(new_gbl_mb_links_ptr, tmp_lk_param_ptr->device,
-                                tmp_lk_param_ptr->baud_i, tmp_lk_param_ptr->parity,
-                                tmp_lk_param_ptr->data_bit, tmp_lk_param_ptr->stop_bit, 0);
+                this_mb_link->lp_serial_data_bit=this_mb_tx->cfg_serial_data_bit;
+                this_mb_link->lp_serial_stop_bit=this_mb_tx->cfg_serial_stop_bit;
+
+                this_mb_link->modbus = modbus_new_rtu(this_mb_link->lp_serial_device,
+                                                      this_mb_link->lp_serial_baud, this_mb_link->lp_serial_parity,
+                                                      this_mb_link->lp_serial_data_bit, this_mb_link->lp_serial_stop_bit);
+                if (this_mb_link->modbus == NULL) {
+                    ERR(gbl.init_dbg, "modbus_new_rtu failed [%s] [%d] [%c] [%d] [%d]", this_mb_link->lp_serial_device,
+                        this_mb_link->lp_serial_baud, this_mb_link->lp_serial_parity, this_mb_link->lp_serial_data_bit,
+                        this_mb_link->lp_serial_stop_bit);
+                    return retERR;
+                }
             }
             else { //tcp
-                modbus_init_tcp(new_gbl_mb_links_ptr, tmp_lk_param_ptr->ip, 0);
+                strncpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip)-1);
+                this_mb_link->lp_tcp_port=this_mb_tx->cfg_tcp_port;
+
+                this_mb_link->modbus = modbus_new_tcp(this_mb_link->lp_tcp_ip, this_mb_link->lp_tcp_port);
+                if (this_mb_link->modbus == NULL) {
+                    ERR(gbl.init_dbg, "modbus_new_tcp failed [%s] [%d]", this_mb_link->lp_tcp_ip, this_mb_link->lp_tcp_port);
+                    return retERR;
+                }
             }
 
-            new_gbl_mb_links_ptr->fd = -1; //link closed
-            gbl_n_mb_links++; //next available unused link
+            if (this_mb_link->modbus)
+
+            {
+                gbl.tot_mb_links++;    //set new total and next available unused link
+            }
         }
     }
 
     //DEBUG messagess if needed
-    for (lk_counter = 0; lk_counter < gbl_n_mb_links; lk_counter++) {
-        tmp_lk_param_ptr = &gbl_mb_links[lk_counter];
+    for (lk_counter = 0; lk_counter < gbl.tot_mb_links; lk_counter++) {
+        this_mb_link = &gbl.mb_links[lk_counter];
 
-        if (tmp_lk_param_ptr->type_com == RTU) { //serial
-            DBG(init_debug, "LINK %d (RTU) type_com[%d] device[%s] baud[%d] data[%d] parity[%s] stop[%d] fd[%d]",
-                lk_counter, tmp_lk_param_ptr->type_com, tmp_lk_param_ptr->device,
-                tmp_lk_param_ptr->baud_i, tmp_lk_param_ptr->data_bit, tmp_lk_param_ptr->parity,
-                tmp_lk_param_ptr->stop_bit, tmp_lk_param_ptr->fd);
+        if (this_mb_link->lp_link_type == linkRTU) { //serial
+            DBG(gbl.init_dbg, "LINK %d (RTU) link_type[%d] device[%s] baud[%d] data[%d] parity[%c] stop[%d] fd[%d]",
+                lk_counter, this_mb_link->lp_link_type, this_mb_link->lp_serial_device,
+                this_mb_link->lp_serial_baud, this_mb_link->lp_serial_data_bit, this_mb_link->lp_serial_parity,
+                this_mb_link->lp_serial_stop_bit, modbus_get_socket(this_mb_link->modbus));
         }
         else { //tcp
-            DBG(init_debug, "LINK %d (TCP) type_com[%d] IP[%s] fd[%d]",
-                lk_counter, tmp_lk_param_ptr->type_com, tmp_lk_param_ptr->ip, tmp_lk_param_ptr->fd);
+            DBG(gbl.init_dbg, "LINK %d (TCP) link_type[%d] IP[%s] port[%d] fd[%d]",
+                lk_counter, this_mb_link->lp_link_type, this_mb_link->lp_tcp_ip,
+                this_mb_link->lp_tcp_port, modbus_get_socket(this_mb_link->modbus));
         }
+    }
+
+    gbl.mb_links = realloc(gbl.mb_links, sizeof(mb_link_t) * gbl.tot_mb_links);
+    if (gbl.mb_links == NULL) {
+        DBG(gbl.init_dbg, "realloc gbl.mb_links failed [%s]", strerror(errno));
+        return retERR;
     }
 
     return retOK;
 }
 
 /*
- * init more parameters of global modbus transactions (gbl_mb_tx)
+ * init more parameters of global modbus transactions (gbl.mb_tx)
  */
-retCode init_gbl_mb_tx()
+retCode init_mb_tx()
 {
-    char *fnct_name="init_gbl_mb_tx";
+    char *fnct_name="init_mb_tx";
     int tx_counter;
-    modbus_param_t *tmp_lk_param_ptr;
-    mb_tx_t *tmp_mb_tx_ptr;
+    mb_link_t *this_mb_link;
+    mb_tx_t   *this_mb_tx;
 
-    for (tx_counter = 0; tx_counter < gbl_n_mb_tx; tx_counter++) {
-        tmp_mb_tx_ptr    = &gbl_mb_tx[tx_counter];
-        tmp_lk_param_ptr = &gbl_mb_tx[tx_counter].cfg_lk_param;
+    for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
+        this_mb_tx = &gbl.mb_tx[tx_counter];
+        this_mb_link = &gbl.mb_links[this_mb_tx->mb_link_num];
 
-        tmp_mb_tx_ptr->mb_tx_num = tx_counter;
+        this_mb_tx->mb_tx_num = tx_counter;
+        this_mb_tx->protocol_debug = (this_mb_tx->cfg_debug >= debugDEBUG)? 1 : 0;
 
-        //initialized in init_gbl_mb_links
-        //tmp_lk_param_ptr->fd = -1; //link closed
-        //tmp_mb_tx_ptr->mb_links_num;
-        //copied run time from this to mb_link for each mb_tx
-        tmp_lk_param_ptr->print_errors = (tmp_mb_tx_ptr->cfg_debug >= debugERR)? 1 : 0;
-        tmp_lk_param_ptr->debug = (tmp_mb_tx_ptr->cfg_debug >= debugDEBUG)? 1 : 0;
-
-        if (tmp_mb_tx_ptr->cfg_update_rate > 0) {
-            tmp_mb_tx_ptr->time_increment = 1.0 / tmp_mb_tx_ptr->cfg_update_rate; //wait time between tx
+        if (this_mb_tx->cfg_update_rate > 0) {
+            this_mb_tx->time_increment = 1.0 / this_mb_tx->cfg_update_rate; //wait time between tx
         }
-        tmp_mb_tx_ptr->next_time = 0; //next time for this tx
+        this_mb_tx->next_time = 0; //next time for this tx
 
-        DBG(init_debug, "MB_TX %d lk_n[%d] tx_n[%d] cfg_dbg[%d] fd[%d] lk_print_err[%d] lk_dbg[%d] t_inc[%0.3f] nxt_t[%0.3f]",
-            tx_counter, tmp_mb_tx_ptr->mb_links_num, tmp_mb_tx_ptr->mb_tx_num, tmp_mb_tx_ptr->cfg_debug,
-            tmp_lk_param_ptr->fd, tmp_lk_param_ptr->print_errors,
-            tmp_lk_param_ptr->debug, tmp_mb_tx_ptr->time_increment, tmp_mb_tx_ptr->next_time);
+        DBG(gbl.init_dbg, "MB_TX %d lk_n[%d] tx_n[%d] cfg_dbg[%d] lk_dbg[%d] t_inc[%0.3f] nxt_t[%0.3f]",
+            tx_counter, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_num, this_mb_tx->cfg_debug,
+            this_mb_tx->protocol_debug, this_mb_tx->time_increment, this_mb_tx->next_time);
     }
 
     return retOK;

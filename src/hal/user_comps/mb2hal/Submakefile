@@ -1,34 +1,28 @@
+ifeq ($(LIBMODBUS3_USABLE),yes)
+
 # Local configuration
-# (antes :=, ahora = )
-MB2HALSRCS = hal/user_comps/mb2hal/mb2hal.c \
+MB2HAL_SRCS = \
+        hal/user_comps/mb2hal/mb2hal.c \
 	hal/user_comps/mb2hal/mb2hal_init.c \
-	hal/user_comps/mb2hal/mb2hal_hal.c \
 	hal/user_comps/mb2hal/mb2hal_modbus.c \
-	hal/user_comps/modbus.c
+	hal/user_comps/mb2hal/mb2hal_hal.c
 #GLIB_CFLAGS and GLIB_LIBS used by modbus.c
-#MB2HALCCFLAGS = $(GLIB_CFLAGS) -DDEBUG -Wall -w -I. -I../
-MB2HALCCFLAGS = $(GLIB_CFLAGS) -DDEBUG -Wall
-MB2HALLDFLAGS = $(GLIB_LIBS) -lpthread
+MB2HAL_CCFLAGS = -DDEBUG -Wall -I. $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
+MB2HAL_LDFLAGS = -lpthread $(GLIB_LIBS) $(LIBMODBUS_LIBS)
 
 # Extra preprocessor symbols.
 # EXTRAFLAGS can be used to specify any C compiler flag.
-# (antes =, ahora +=)
-$(call TOOBJSDEPS, $(MB2HALSRCS)) : EXTRAFLAGS += $(MB2HALCCFLAGS)
-$(call TOOBJS, $(MB2HALSRCS)): Makefile.inc
+$(call TOOBJSDEPS, $(MB2HAL_SRCS)) : EXTRAFLAGS += $(MB2HAL_CCFLAGS)
+$(call TOOBJS, $(MB2HAL_SRCS)): Makefile.inc
 
 # Add the list of source files
-USERSRCS += $(MB2HALSRCS)
+USERSRCS += $(MB2HAL_SRCS)
 
 # This is how the binaries are linked.
-# (antes MB2HALLDFLAGS antes de -o, ahora al final)
-../bin/mb2hal: $(call TOOBJS, $(MB2HALSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnc.a
+../bin/mb2hal: $(call TOOBJS, $(MB2HAL_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnc.a
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) $(LDFLAGS) -o $@ $^ $(MB2HALLDFLAGS)
+	$(Q)@$(CC) $(LDFLAGS) -o $@ $^ $(MB2HAL_LDFLAGS)
 
 TARGETS += ../bin/mb2hal
 
-#Copy the headers to common include directory
-../include/%.h: ./hal/user_comps/mb2hal/%.h
-	cp $^ $@
-../include/%.hh: ./hal/user_comps/mb2hal/%.hh
-	cp $^ $@
+endif

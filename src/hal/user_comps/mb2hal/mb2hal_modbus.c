@@ -1,205 +1,186 @@
 #include <sys/time.h>
 #include "mb2hal.h"
 
-const char *gbl_mb_tx_codes[mbtxMAX] = {
-    "",	                               //mbtxERR
-    "fnct_02_read_discrete_inputs",    //mbtx_02_READ_DISCRETE_INPUTS,
-    "fnct_03_read_holding_registers",  //mbtx_03_READ_HOLDING_REGISTERS,
-    "fnct_04_read_input_registers",    //mbtx_04_READ_INPUT_REGISTERS,
-    "fnct_15_write_multiple_coils",    //mbtx_15_WRITE_MULTIPLE_COILS,
-    "fnct_16_write_multiple_registers" //mbtx_16_WRITE_MULTIPLE_REGISTERS,
-};
-
-retCode fnct_02_read_discrete_inputs(mb_tx_t *mb_tx)
+retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_02_read_discrete_inputs";
-    int counter;
-    int bits[MAX_WRITE_COILS];
-    int ret;
+    int counter, ret;
+    uint8_t bits[MB2HAL_MAX_FNCT02_ELEMENTS];
 
-    if (mb_tx == NULL) {
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT02_ELEMENTS) {
         return retERR;
     }
 
-    DBG(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
-        mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, gbl_mb_links[mb_tx->mb_links_num].fd,
-        mb_tx->mb_first_addr, mb_tx->mb_nelements);
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, modbus_get_socket(this_mb_link->modbus),
+        this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
-    ret = read_input_status(&gbl_mb_links[mb_tx->mb_links_num], mb_tx->mb_slave_id,
-                            mb_tx->mb_first_addr, mb_tx->mb_nelements, bits);
+    ret = modbus_read_input_bits(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, bits);
     if (ret < 0) {
-        if (ret == PORT_SOCKET_FAILURE) {
-            modbus_close(&gbl_mb_links[mb_tx->mb_links_num]);
-            //transmit failed, force to reconnect the link
-            gbl_mb_links[mb_tx->mb_links_num].fd = -1;
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
         }
-        ERR(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
-            mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, ret, gbl_mb_links[mb_tx->mb_links_num].fd);
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
         return retERR;
     }
 
-    for (counter = 0; counter < mb_tx->mb_nelements; counter++) {
-        *(mb_tx->bit[counter]) = bits[counter];
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
+        *(this_mb_tx->bit[counter]) = bits[counter];
     }
 
     return retOK;
 }
 
-retCode fnct_03_read_holding_registers(mb_tx_t *mb_tx)
+retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_03_read_holding_registers";
-    int data[MAX_READ_HOLD_REGS];
-    int counter;
-    int ret;
+    int counter, ret;
+    uint16_t data[MB2HAL_MAX_FNCT03_ELEMENTS];
 
-    if (mb_tx == NULL) {
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT03_ELEMENTS) {
         return retERR;
     }
 
-    DBG(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
-        mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, gbl_mb_links[mb_tx->mb_links_num].fd,
-        mb_tx->mb_first_addr, mb_tx->mb_nelements);
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
-    ret = read_holding_registers(&gbl_mb_links[mb_tx->mb_links_num], mb_tx->mb_slave_id,
-                                 mb_tx->mb_first_addr, mb_tx->mb_nelements, data);
+    ret = modbus_read_registers(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, data);
     if (ret < 0) {
-        if (ret == PORT_SOCKET_FAILURE) {
-            modbus_close(&gbl_mb_links[mb_tx->mb_links_num]);
-            //transmit failed, force to reconnect the link
-            gbl_mb_links[mb_tx->mb_links_num].fd = -1;
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
         }
-        ERR(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
-            mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, ret, gbl_mb_links[mb_tx->mb_links_num].fd);
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
         return retERR;
     }
 
-    for (counter = 0; counter < mb_tx->mb_nelements; counter++) {
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
-        //val *= mb_tx->scale[counter];
-        //val += mb_tx->offset[counter];
-        *(mb_tx->float_value[counter]) = val;
-        *(mb_tx->int_value[counter]) = (hal_s32_t) val;
+        //val *= this_mb_tx->scale[counter];
+        //val += this_mb_tx->offset[counter];
+        *(this_mb_tx->float_value[counter]) = val;
+        *(this_mb_tx->int_value[counter]) = (hal_s32_t) val;
     }
 
     return retOK;
 }
 
-retCode fnct_04_read_input_registers(mb_tx_t *mb_tx)
+retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_04_read_input_registers";
-    int counter;
-    int data[MAX_READ_INPUT_REGS];
-    int ret;
+    int counter, ret;
+    uint16_t data[MB2HAL_MAX_FNCT04_ELEMENTS];
 
-    if (mb_tx == NULL) {
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT04_ELEMENTS) {
         return retERR;
     }
 
-    DBG(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
-        mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, gbl_mb_links[mb_tx->mb_links_num].fd,
-        mb_tx->mb_first_addr, mb_tx->mb_nelements);
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
-    ret = read_input_registers(&gbl_mb_links[mb_tx->mb_links_num], mb_tx->mb_slave_id,
-                               mb_tx->mb_first_addr, mb_tx->mb_nelements, data);
+    ret = modbus_read_input_registers(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, data);
     if (ret < 0) {
-        if (ret == PORT_SOCKET_FAILURE) {
-            modbus_close(&gbl_mb_links[mb_tx->mb_links_num]);
-            //transmit failed, force to reconnect the link
-            gbl_mb_links[mb_tx->mb_links_num].fd = -1;
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
         }
-        ERR(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
-            mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, ret, gbl_mb_links[mb_tx->mb_links_num].fd);
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
         return retERR;
     }
 
-    for (counter = 0; counter < mb_tx->mb_nelements; counter++) {
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
-        //val += mb_tx->offset[counter];
-        //val *= mb_tx->scale[counter];
-        *(mb_tx->float_value[counter]) = val;
-        *(mb_tx->int_value[counter]) = (hal_s32_t) val;
+        //val += this_mb_tx->offset[counter];
+        //val *= this_mb_tx->scale[counter];
+        *(this_mb_tx->float_value[counter]) = val;
+        *(this_mb_tx->int_value[counter]) = (hal_s32_t) val;
     }
 
     return retOK;
 }
 
-retCode fnct_15_write_multiple_coils(mb_tx_t *mb_tx)
+retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_15_write_multiple_coils";
-    int start, end;
-    int counter;
-    int ret;
-    int bits[MAX_WRITE_COILS];
+    int counter, ret;
+    uint8_t bits[MB2HAL_MAX_FNCT15_ELEMENTS];
 
-    if (mb_tx == NULL) {
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT15_ELEMENTS) {
         return retERR;
     }
 
-    start = 0;
-    end = mb_tx->mb_nelements;
-
-    for (counter = start; counter < end; counter++) {
-        bits[counter - start] = *(mb_tx->bit[counter]);
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
+        bits[counter] = *(this_mb_tx->bit[counter]);
     }
 
-    DBG(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
-        mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, gbl_mb_links[mb_tx->mb_links_num].fd,
-        mb_tx->mb_first_addr, mb_tx->mb_nelements);
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
-    // we could use force_single_coil if only one coil has changed but it
-    // is probably not worth the effort
-    ret = force_multiple_coils(&gbl_mb_links[mb_tx->mb_links_num], mb_tx->mb_slave_id,
-                               mb_tx->mb_first_addr + start, end - start, bits);
+    ret = modbus_write_bits(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, bits);
     if (ret < 0) {
-        if (ret == PORT_SOCKET_FAILURE) {
-            modbus_close(&gbl_mb_links[mb_tx->mb_links_num]);
-            //transmit failed, force to reconnect the link
-            gbl_mb_links[mb_tx->mb_links_num].fd = -1;
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
         }
-        ERR(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
-            mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, ret, gbl_mb_links[mb_tx->mb_links_num].fd);
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
         return retERR;
     }
 
     return retOK;
 }
 
-retCode fnct_16_write_multiple_registers(mb_tx_t *mb_tx)
+retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
-    char *fnct_name = "scan_write_holding";
-    int start, end;
-    int counter;
-    int data[MAX_WRITE_REGS];
-    int ret;
+    char *fnct_name = "fnct_16_write_multiple_registers";
+    int counter, ret;
+    uint16_t data[MB2HAL_MAX_FNCT16_ELEMENTS];
 
-    if (mb_tx == NULL) {
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT16_ELEMENTS) {
         return retERR;
     }
 
-    start = 0;
-    end = mb_tx->mb_nelements;
-
-    for (counter = start; counter < end; counter++) {
-        //float val = *(mb_tx->float_value[counter]) / mb_tx->scale[counter];
-        //val -= mb_tx->offset[counter];
-        float val = *(mb_tx->float_value[counter]);
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
+        //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
+        //val -= this_mb_tx->offset[counter];
+        float val = *(this_mb_tx->float_value[counter]);
         data[counter] = (int) val;
     }
 
-    DBG(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
-        mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, gbl_mb_links[mb_tx->mb_links_num].fd,
-        mb_tx->mb_first_addr, mb_tx->mb_nelements);
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
-    ret = preset_multiple_registers(&gbl_mb_links[mb_tx->mb_links_num], mb_tx->mb_slave_id,
-                                    mb_tx->mb_first_addr + start, end - start, data + start);
+    ret = modbus_write_registers(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, data);
     if (ret < 0) {
-        if (ret == PORT_SOCKET_FAILURE) {
-            modbus_close(&gbl_mb_links[mb_tx->mb_links_num]);
-            //transmit failed, force to reconnect the link
-            gbl_mb_links[mb_tx->mb_links_num].fd = -1;
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
         }
-        ERR(mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
-            mb_tx->mb_tx_num, mb_tx->mb_links_num, mb_tx->mb_slave_id, ret, gbl_mb_links[mb_tx->mb_links_num].fd);
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
         return retERR;
     }
 
