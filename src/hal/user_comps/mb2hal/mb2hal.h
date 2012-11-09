@@ -20,6 +20,9 @@
 #define MB2HAL_MAX_LINKS            32
 #define MB2HAL_MAX_DEVICE_LENGTH    32
 #define MB2HAL_DEFAULT_TCP_PORT    502
+#define MB2HAL_DEFAULT_MB_RESPONSE_TIMEOUT_MS 500
+#define MB2HAL_DEFAULT_MB_BYTE_TIMEOUT_MS     500
+#define MB2HAL_DEFAULT_TCP_PORT    502
 #define MB2HAL_MAX_FNCT02_ELEMENTS 100
 #define MB2HAL_MAX_FNCT03_ELEMENTS 100
 #define MB2HAL_MAX_FNCT04_ELEMENTS 100
@@ -76,11 +79,13 @@ typedef struct {
     char       mb_tx_fnct_name[64]; //str version of mb_tx_fnct
     int        mb_tx_1st_addr; //MB first register
     int        mb_tx_nelem;    //MB n registers
+    int        mb_response_timeout_ms; //MB response timeout
+    int        mb_byte_timeout_ms;     //MB byte timeout
     //cfg_* are others INI config params
-    double cfg_update_rate;         //tx update rate
-    int    cfg_debug;               //tx debug level (program, may be also protocol)
+    double cfg_update_rate;    //tx update rate
+    int    cfg_debug;          //tx debug level (program, may be also protocol)
     //Modbus protocol debug
-    int  protocol_debug;        //Flag debug Modbus protocol
+    int  protocol_debug;       //Flag debug Modbus protocol
     //internal processing values
     int mb_tx_num;         //each tx know it's own number
     int mb_link_num;       //each tx know it's own link
@@ -88,7 +93,6 @@ typedef struct {
     double time_increment; //wait time between tx
     double next_time;      //next time for this tx
     double last_time_ok;   //last OK tx time
-    int    num_errors;     //num of acummulated erros (0=last tx OK)
     //HAL related params
     char hal_tx_name[HAL_NAME_LEN + 1];
     hal_float_t **float_value;
@@ -96,6 +100,7 @@ typedef struct {
     //hal_float_t *scale;  //not yet implemented
     //hal_float_t *offset; //not yet implemented
     hal_bit_t **bit;
+    hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
 //Modbus link structure (mb_link_t)

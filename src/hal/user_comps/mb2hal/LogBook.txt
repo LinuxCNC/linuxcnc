@@ -24,6 +24,15 @@
  * USA.
  */
 
+2012-11-12:
+  # Arduino example added.
+    - Tested with Arduino Mega 2560 R3 using Modbusino over USB at 115200 bps.
+  # New parameters in config file.
+    - HAL_MODULE_NAME, MB_RESPONSE_TIMEOUT_MS and MB_BYTE_TIMEOUT_MS.
+  # New HAL pin "num_errors" for each transaction. num_errors = 0 if last
+    transaction OK, else the count of failed transactions.
+  # Fix a bug, OPTIONAL's parameters may be 0 instead of default value if
+    not specified in 1st transaction.
 2012-11-08:
   # Mb2hal now uses libmodbus3 instead of the old libmodbus
     src/hal/user_comps/modbus.c used by gs2_vfd.c

@@ -77,24 +77,30 @@ retCode parse_ini_file()
 retCode parse_common_section()
 {
     char *fnct_name = "parse_common_section";
-    char *section, *tag;
+    char *section = "MB2HAL_INIT", *tag;
+    const char *tmpstr;
 
     if (gbl.ini_file_ptr == NULL) {
         ERR(gbl.init_dbg, "gbl.ini_file_ptr NULL pointer");
         return retERR;
     }
 
-    section = "MB2HAL_INIT";
     tag     = "INIT_DEBUG"; //optional
     iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
-    section = "MB2HAL_INIT";
+    tag    = "HAL_MODULE_NAME"; //optional
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        gbl.hal_mod_name = strdup(tmpstr);
+    }
+    //else already initilizaed by default
+    DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, gbl.hal_mod_name);
+
     tag     = "SLOWDOWN"; //optional
     iniFindDouble(gbl.ini_file_ptr, tag, section, &gbl.slowdown);
     DBG(gbl.init_dbg, "[%s] [%s] [%0.3f]", section, tag, gbl.slowdown);
 
-    section = "MB2HAL_INIT";
     tag     = "TOTAL_TRANSACTIONS"; //required
     if (iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.tot_mb_tx) != 0) {
         ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
@@ -224,26 +230,44 @@ retCode parse_transaction_section(const int mb_tx_num)
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_nelem);
 
     tag = "MAX_UPDATE_RATE"; //optional
+    this_mb_tx->cfg_update_rate = 0; //default: 0=infinit
     if (iniFindDouble(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_update_rate) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
                 this_mb_tx->cfg_update_rate = gbl.mb_tx[mb_tx_num-1].cfg_update_rate;
             }
-            else { //default
-                this_mb_tx->cfg_update_rate = 0; //0=infinit
-            }
         }
     }
     DBG(gbl.init_dbg, "[%s] [%s] [%0.3f]", section, tag, this_mb_tx->cfg_update_rate);
 
+    tag = "MB_RESPONSE_TIMEOUT_MS"; //optional
+    this_mb_tx->mb_response_timeout_ms = MB2HAL_DEFAULT_MB_RESPONSE_TIMEOUT_MS; //default
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_response_timeout_ms) != 0) { //not found
+        if (mb_tx_num > 0) { //previous value?
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->mb_response_timeout_ms = gbl.mb_tx[mb_tx_num-1].mb_response_timeout_ms;
+            }
+        }
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_response_timeout_ms);
+
+    tag = "MB_BYTE_TIMEOUT_MS"; //optional
+    this_mb_tx->mb_byte_timeout_ms = MB2HAL_DEFAULT_MB_BYTE_TIMEOUT_MS; //default
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_byte_timeout_ms) != 0) { //not found
+        if (mb_tx_num > 0) { //previous value?
+            if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
+                this_mb_tx->mb_byte_timeout_ms = gbl.mb_tx[mb_tx_num-1].mb_byte_timeout_ms;
+            }
+        }
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_byte_timeout_ms);
+
     tag = "DEBUG"; //optional
+    this_mb_tx->cfg_debug = debugERR; //default
     if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_debug) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
                 this_mb_tx->cfg_debug = gbl.mb_tx[mb_tx_num-1].cfg_debug;
-            }
-            else { //default
-                this_mb_tx->cfg_debug = debugERR;
             }
         }
     }
@@ -353,13 +377,11 @@ retCode parse_tcp_subsection(const char *section, const int mb_tx_num)
     DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->cfg_tcp_ip);
 
     tag = "TCP_PORT"; //optional
+    this_mb_tx->cfg_tcp_port = MB2HAL_DEFAULT_TCP_PORT; //default
     if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_tcp_port) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
                 this_mb_tx->cfg_tcp_port = gbl.mb_tx[mb_tx_num-1].cfg_tcp_port;
-            }
-            else { //default
-                this_mb_tx->cfg_tcp_port = MB2HAL_DEFAULT_TCP_PORT;
             }
         }
     }
@@ -507,13 +529,11 @@ retCode parse_serial_subsection(const char *section, const int mb_tx_num)
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->cfg_serial_stop_bit);
 
     tag = "SERIAL_DELAY_MS"; //optional
+    this_mb_tx->cfg_serial_delay_ms = 0; //default
     if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->cfg_serial_delay_ms) != 0) { //not found
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
                 this_mb_tx->cfg_serial_delay_ms = gbl.mb_tx[mb_tx_num-1].cfg_serial_delay_ms;
-            }
-            else { //default
-                this_mb_tx->cfg_serial_delay_ms = 0;
             }
         }
     }

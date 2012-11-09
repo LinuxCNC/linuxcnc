@@ -211,22 +211,22 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
 
             if (ret != retOK && modbus_get_socket(this_mb_link->modbus) < 0) { //link failure
-                this_mb_tx->num_errors++;
+                (*this_mb_tx->num_errors)++;
                 ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] link failure, going to close link",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 modbus_close(this_mb_link->modbus);
             }
             else if (ret != retOK) {  //transaction failure but link OK
-                this_mb_tx->num_errors++;
+                (**this_mb_tx->num_errors)++;
                 ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
-                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), this_mb_tx->num_errors);
+                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
             }
             else { //transaction and link OK
                 OK(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction OK, update_HZ[%0.03f]",
                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                    1.0/(get_time()-this_mb_tx->last_time_ok));
                 this_mb_tx->last_time_ok = get_time();
-                this_mb_tx->num_errors=0;
+                (**this_mb_tx->num_errors) = 0;
             }
 
             //set the next (waiting) time for update rate
@@ -307,6 +307,7 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     mb_tx_t   *this_mb_tx;
     mb_link_t *this_mb_link;
     int        this_mb_link_num;
+    struct timeval timeout;
 
     if (this_mb_tx_num < 0 || this_mb_tx_num > gbl.tot_mb_tx) {
         ERR(gbl.init_dbg, "parameter out of range this_mb_tx_num[%d]", this_mb_tx_num);
@@ -342,7 +343,6 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     else {
         DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
-
     }
 
     //set slave id according to each mb_tx
@@ -356,13 +356,28 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     //set the low level mb_link debug according to each mb_tx
     modbus_set_debug(this_mb_link->modbus, this_mb_tx->protocol_debug);
 
+    //set response and byte timeout according to each mb_tx
+    timeout.tv_sec  = (int)(float)(this_mb_tx->mb_response_timeout_ms / 1000.0);  //int part of the float
+    timeout.tv_usec = ((float)(this_mb_tx->mb_response_timeout_ms / 1000.0) - timeout.tv_sec) * 1000000;
+    modbus_set_response_timeout(this_mb_link->modbus, &timeout);
+    //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] response timeout [%d] ([%d] [%d])",
+    //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_response_timeout_ms,
+    //    (int) timeout.tv_sec, (int) timeout.tv_usec);
+
+    timeout.tv_sec  = (int)(float)(this_mb_tx->mb_byte_timeout_ms / 1000.0);  //int part of the float
+    timeout.tv_usec = ((float)(this_mb_tx->mb_byte_timeout_ms / 1000.0) - timeout.tv_sec) * 1000000;
+    modbus_set_byte_timeout(this_mb_link->modbus, &timeout);
+    //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] byte timeout [%d] ([%d] [%d])",
+    //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_byte_timeout_ms,
+    //    (int) timeout.tv_sec, (int) timeout.tv_usec);
+
     *ret_connected = 1; //is connected (fd >= 0)
     return retOK;
 }
 
 void set_init_gbl_params()
 {
-    gbl.hal_mod_name = "mb2hal";
+    gbl.hal_mod_name = "mb2hal"; //until readed in config file
     gbl.hal_mod_id   = -1;
     gbl.init_dbg     = debugERR; //until readed in config file
     gbl.slowdown     = 0;        //until readed in config file
