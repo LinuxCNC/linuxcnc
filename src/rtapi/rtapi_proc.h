@@ -178,8 +178,13 @@ static int proc_read_tasks(char *page, char **start, off_t off,
 		state_str = "UNKNOWN ";
 		break;
 	    }
-	    PROC_PRINT("%02d %2d  %02d   %3d   %s  %p\n", n, task_array[n].owner,
-		task_array[n].prio, task_array[n].cpu, state_str, task_array[n].taskcode);
+	    PROC_PRINT("%02d %2d  %02d   %3d   %s  %p\n", 
+		       n, 
+		       task_array[n].cpu, 
+		       task_array[n].owner,
+		       task_array[n].prio,  
+		       state_str, 
+		       task_array[n].taskcode);
 	}
     }
     PROC_PRINT("\n");
