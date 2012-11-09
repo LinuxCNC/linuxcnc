@@ -98,9 +98,6 @@
 #define RTAPI_MAX_MODULES 64
 #define RTAPI_MAX_TASKS   64
 #define RTAPI_MAX_SHMEMS  32
-#define RTAPI_MAX_SEMS    64
-#define RTAPI_MAX_FIFOS   32
-#define RTAPI_MAX_IRQS    16
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
@@ -183,39 +180,10 @@ typedef struct {
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    unsigned long bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are
-							   using block */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1); /* which modules are
+						   using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
-
-typedef struct {
-    int users;			/* number of modules using the semaphore */
-    int key;			/* key to semaphore */
-    unsigned long bitmap[(RTAPI_MAX_SEMS / 8) + 1];	/* which modules are
-							   using sem */
-} sem_data;
-
-typedef enum {
-    UNUSED = 0,
-    HAS_READER = 1,
-    HAS_WRITER = 2,
-    HAS_BOTH = 3
-} fifo_state_t;			/* used as bitmasks */
-
-typedef struct {
-    fifo_state_t state;		/* task state */
-    int key;			/* key to fifo */
-    int reader;			/* module ID of reader */
-    int writer;			/* module ID of writer */
-    unsigned long int size;	/* size of fifo area */
-} fifo_data;
-
-
-typedef struct {
-    int irq_num;		/* IRQ number */
-    int owner;			/* owning module */
-    void (*handler) (void);	/* interrupt handler function */
-} irq_data;
 
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
