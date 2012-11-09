@@ -381,7 +381,8 @@ ifeq ($(BUILD_SYS),kbuild)
 modules:
 	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
 	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) \
-	KERNELDIR=$(KERNELDIR) V=$(BUILD_VERBOSE) modules)
+	KERNELDIR=$(KERNELDIR) KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
+	V=$(BUILD_VERBOSE) modules)
 	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
@@ -638,24 +639,32 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
-	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
-	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
-	$(call cc-option,-Wframe-larger-than=2560)
-ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
-endif
+EXTRA_CFLAGS = $(RTFLAGS) \
+	-D__MODULE__ \
+	-I$(BASEPWD) \
+	-I$(BASEPWD)/libnml/linklist \
+	-I$(BASEPWD)/libnml/cms \
+	-I$(BASEPWD)/libnml/rcs \
+	-I$(BASEPWD)/libnml/inifile \
+	-I$(BASEPWD)/libnml/os_intf \
+	-I$(BASEPWD)/libnml/nml \
+	-I$(BASEPWD)/libnml/buffer \
+	-I$(BASEPWD)/libnml/posemath \
+	-I$(BASEPWD)/rtapi \
+	-I$(BASEPWD)/hal \
+	-I$(BASEPWD)/emc/nml_intf \
+	-I$(BASEPWD)/emc/kinematics \
+	-I$(BASEPWD)/emc/motion \
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
+	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	-fno-fast-math \
+	-fno-unsafe-math-optimizations \
+	$(call cc-option,-mieee-fp) \
+	$(call cc-option,-Wframe-larger-than=2560) \
+	$(KERNEL_MATH_CFLAGS)
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
-endif
-
-ifdef SEQUENTIAL_SUPPORT
-EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
 endif
 
 #$(warning KERNELRELEASE=$(KERNELRELEASE) EXTRA_CFLAGS=$(EXTRA_CFLAGS))
