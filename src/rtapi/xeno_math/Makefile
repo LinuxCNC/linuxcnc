@@ -4,6 +4,7 @@
 obj-m += xeno_math.o
 
 EXTRA_CFLAGS += -I/usr/include -ffast-math -mhard-float \
+	$(KERNEL_MATH_CFLAGS) \
 	-D_IEEE_LIBM \
 	-D_ISOC99_SOURCE \
 	-D_SVID_SOURCE \
