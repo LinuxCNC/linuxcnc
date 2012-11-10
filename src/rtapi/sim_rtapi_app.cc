@@ -37,6 +37,7 @@
 
 #include "config.h"
 #if defined(RTAPI_XENOMAI_USER)
+#include <sys/mman.h>
 #include <execinfo.h>
 #include <rtdk.h>
 #endif
@@ -401,12 +402,15 @@ int main(int argc, char **argv)
 #if defined(RTAPI_XENOMAI_USER)
     signal(SIGXCPU, warn_upon_switch);
     rt_print_auto_init(1);
+    if (mlockall(MCL_CURRENT|MCL_FUTURE)) {
+	fprintf(stderr,"mlockall() failed: %d '%s'\n",errno,strerror(errno)); 
+    }
 #endif
 
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
     
-    if ((s =getenv("MSGLEVEL")) != NULL) {
+    if ((s = getenv("MSGLEVEL")) != NULL) {
 	msg_level = atoi(s);
 	rtapi_set_msg_level(msg_level);
     }
