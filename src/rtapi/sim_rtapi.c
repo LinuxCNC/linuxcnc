@@ -482,17 +482,4 @@ int sim_rtapi_run_threads(int fd) {
 }
 #endif
 
-#if defined(RTAPI_XENOMAI_USER)
-long long rtapi_get_time(void)
-{
-    RTIME now = rt_timer_read();
-    return (long long) now;
-}
-
-long long rtapi_get_clocks(void)
-{
- return (long long) rt_timer_tsc();
-}
-#endif
-
 #include "rtapi/sim_common.h"
