@@ -234,7 +234,9 @@ int rtapi_init(const char *modname)
     int retval,id;
     void *uuid_mem;
 #if defined(RTAPI_XENOMAI_USER)
-    mlockall(MCL_CURRENT | MCL_FUTURE);
+    if (mlockall(MCL_CURRENT|MCL_FUTURE)) {
+	rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_init: mlockall() failed: %d '%s'\n",errno,strerror(errno)); 
+    }
 #endif
 
     uuid_mem_id = rtapi_shmem_new(UUID_KEY,uuid_id,sizeof(uuid_data_t));

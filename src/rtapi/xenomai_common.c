@@ -5,6 +5,7 @@
 
 #if defined(RTAPI_XENOMAI_USER) || defined(RTAPI_XENOMAI_KERNEL)
 #include <native/task.h>
+#include <native/timer.h>
 #include <rtdk.h>
 #include "xenomai_common.h"		/* these decls */
 
@@ -57,13 +58,15 @@ int rtapi_task_self(void)
 
     if (ptr == NULL) {
 	/* called from outside a task? */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: rtapi_task_self() = NULL\n");
 	return -EINVAL;
     }
     /* find matching entry in task array */
     n = 1;
     while (n <= RTAPI_MAX_TASKS) {
 #if defined(RTAPI_XENOMAI_USER) 
-	if (&task_array[n].ctx == ptr) {
+	if (&ostask_array[n] == ptr) {
 #endif
 #if defined(RTAPI_XENOMAI_KERNEL)
 	if (ostask_array[n] == ptr) {
@@ -118,9 +121,8 @@ void rtapi_wait(void)
 		      rtapi_task_self(), overruns);
 	
 	error_printed++;
-	if(error_printed == 10)
-	    //rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-	    rt_printf("RTAPI: (further messages will be suppressed)\n");
+	/* if(error_printed > 10) // FIXME */
+	/*     rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: (further messages will be suppressed)\n"); */
 	break;
 
     case -EWOULDBLOCK:

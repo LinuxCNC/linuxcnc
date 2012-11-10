@@ -96,7 +96,8 @@
 #include <native/task.h>
 #include <native/intr.h>
 #include  <rtdk.h>
-#include "xenomai_common.h"
+#include "xenomai_common.h"	
+
 #include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
