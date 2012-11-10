@@ -378,11 +378,17 @@ endif
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
+KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers
+ifeq ($(THREADS),xenomai-kernel)
+KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
+endif
 modules:
-	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
-	(cd rtapi/xeno_math; $(MAKE) BASEPWD=$(BASEPWD) \
-	KERNELDIR=$(KERNELDIR) KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
-	V=$(BUILD_VERBOSE) modules)
+	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
+	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
+	    V=$(BUILD_VERBOSE) modules
+	$(PYTHON) modsilent.py $(MAKE) \
+	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
+	    SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
 	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
