@@ -200,7 +200,7 @@ class Data:
         self.err_textcolor = ""
         self.window_geometry = ""
         self.window_max = ""
-        self.axis_list = ("x","y","z","a","s")
+        self.axis_list = []
         self.active_axis_buttons = [(None,None)] # axis letter,axis number
         self.abs_color = (0, 65535, 0)
         self.rel_color = (65535, 0, 0)
@@ -401,37 +401,31 @@ class Gscreen:
         self.data = Data()
         if _AUDIO_AVAIALBLE:
             self.audio = Player()         
-        try:
-            self.halcomp = hal.component("gscreen")
-            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
-            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
-            for axis in self.data.axis_list:
-                print axis
-                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-        except:
-            print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
-            sys.exit(0)
-    
-        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        # at this point, any glade HAL widgets and their pins are set up.
-
-        # look for custom handler files:
-        HANDLER_FN = "gscreen_handler.py"
-        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        if os.path.exists(local_handler_path):
-            temp = [HANDLER_FN]
-        else:
-            temp = []
-        handlers = load_handlers(temp,self.halcomp,self.xml,[])
-        self.xml.connect_signals(handlers)
 
         # access to saved prefernces
         self.prefs = preferences.preferences()
+        # access to EMC control
+        self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
+        # access to EMC status
+        self.status = emc_interface.emc_status( self.data, linuxcnc)
+        # access to MDI
+        mdi_labels = mdi_eventboxes = []
+        self.mdi_control = mdi.mdi_control(gtk, linuxcnc, mdi_labels, mdi_eventboxes)
+        # pull info from the INI file
+        self.inifile = self.emc.emc.ini(self.inipath)
+        # change the display based on the requested axis
+        temp = self.inifile.find("TRAJ","COORDINATES")
+        self.data.axis_list = []
+        for letter in temp:
+            if letter.lower() in self.data.axis_list: continue
+            if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
+            self.data.axis_list.append(letter.lower())
+        self.data.axis_list.append("s")
+        if "A" in temp:
+            self.widgets.frame3.show()
+            self.widgets.image6.hide() # make more room for axis display
+        if "Y" in temp:
+            self.widgets.frame2.show()
 
         #setup default stuff
         self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
@@ -519,22 +513,11 @@ class Gscreen:
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
-        # setup signals that can be blocked 
-        cb = "axis_x"
-        i = "_sighandler_axis_x"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_x_clicked))
-        cb = "axis_y"
-        i = "_sighandler_axis_y"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_y_clicked))
-        cb = "axis_z"
-        i = "_sighandler_axis_z"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_z_clicked))
-        cb = "axis_a"
-        i = "_sighandler_axis_a"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_a_clicked))
-        cb = "axis_s"
-        i = "_sighandler_axis_s"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_s_clicked))
+        # setup signals that can be blocked
+        for axis in self.data.axis_list:
+            cb = "axis_%s"% axis
+            i = "_sighandler_axis_%s"% axis
+            self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
 
         cb = "button_menu"
         i = "_sighandler_mode_select"
@@ -614,17 +597,6 @@ class Gscreen:
         self.widgets.eventbox_gremlin.connect("enter_notify_event", self.on_eventbox_gremlin_enter_notify_event)
         self.widgets.s_display_rev.connect("toggled", self.on_s_display_rev_toggled)
         self.widgets.s_display_fwd.connect("toggled", self.on_s_display_fwd_toggled)
-        # access to EMC control
-        self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
-        # access to EMC status
-        self.status = emc_interface.emc_status( self.data, linuxcnc)
-        # access to MDI
-        mdi_labels = mdi_eventboxes = []
-        self.mdi_control = mdi.mdi_control(gtk, linuxcnc, mdi_labels, mdi_eventboxes)
-        # set up EMC stuff
-
-        # pull info from the INI file
-        self.inifile = self.emc.emc.ini(self.inipath)
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
@@ -642,14 +614,6 @@ class Gscreen:
             if temp == None:
                 temp = 1.0
         self.data._maxvelocity = float(temp)
-
-        # change the display based on the requested axis
-        temp = self.inifile.find("TRAJ","COORDINATES")
-        if "A" in temp:
-            self.widgets.frame3.show()
-            self.widgets.image6.hide() # make more room for axis display
-        if "Y" in temp:
-            self.widgets.frame2.show()
 
         # check for override settings
         temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
@@ -688,6 +652,35 @@ class Gscreen:
 
         # see if the user specified a tool editor
         self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
+
+        # set-up HAL component
+        try:
+            self.halcomp = hal.component("gscreen")
+            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
+            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
+            for axis in self.data.axis_list:
+                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+        except:
+            print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
+            sys.exit(0)
+    
+        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
+        # at this point, any glade HAL widgets and their pins are set up.
+
+        # look for custom handler files:
+        HANDLER_FN = "gscreen_handler.py"
+        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        if os.path.exists(local_handler_path):
+            temp = [HANDLER_FN]
+        else:
+            temp = []
+        handlers = load_handlers(temp,self.halcomp,self.xml,[])
+        self.xml.connect_signals(handlers)
 
         # toolsetting reference type
         if self.prefs.getpref('toolsetting_fixture', False):
@@ -902,19 +895,7 @@ class Gscreen:
         time.sleep(2)
     	gtk.main_quit()
 
-    def on_axis_x_clicked(self,widget):
-        self.update_active_axis_buttons(widget)
-
-    def on_axis_y_clicked(self,widget):
-        self.update_active_axis_buttons(widget)
-
-    def on_axis_z_clicked(self,widget):
-        self.update_active_axis_buttons(widget)
-
-    def on_axis_a_clicked(self,widget):
-        self.update_active_axis_buttons(widget)
-
-    def on_axis_s_clicked(self,widget):
+    def on_axis_selection_clicked(self,widget):
         self.update_active_axis_buttons(widget)
 
     def on_mode_clicked(self,widget,event):
@@ -1087,12 +1068,16 @@ class Gscreen:
 
     def on_hal_status_interp_run(self,widget):
         print "run"
-        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s","button_mode"]
+        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
+        for axis in self.data.axis_list:
+            temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,False)
 
     def on_hal_status_interp_idle(self,widget):
         print "idle"
-        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","axis_x","axis_y","axis_z","axis_s"]
+        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6"]
+        for axis in self.data.axis_list:
+            temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,True)
         state = self.data.all_homed
         self.widgets.button_mode.set_sensitive(state)
@@ -1102,7 +1087,10 @@ class Gscreen:
 
     def on_hal_status_state_on(self,widget):
         print "on"
-        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_graphics"]
+        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics"]
+        for axis in self.data.axis_list:
+            temp.append("axis_%s"% axis)
+        print temp
         self.sensitize_widgets(temp,True)
         state = self.data.all_homed
         self.widgets.button_mode.set_sensitive(state)
@@ -1112,7 +1100,9 @@ class Gscreen:
 
     def on_hal_status_state_off(self,widget):
         print "off"
-        temp = ["vmode0","mode0","mode1","axis_x","axis_y","axis_z","axis_s","button_homing","button_override","button_mode","button_graphics"]
+        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_mode","button_graphics"]
+        for axis in self.data.axis_list:
+            temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,False)
 
     def on_hal_status_all_homed(self,widget):
@@ -2052,7 +2042,8 @@ class Gscreen:
     # update the whole display
     def update_position(self,*args):
         # DRO 
-        for i in ("x","y","z","a","s"):
+        for i in self.data.axis_list:
+            if i in ('b','c','u','v','w'): continue
             if i == "s":
                 self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
                 self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
@@ -2159,6 +2150,11 @@ class Gscreen:
                 self.halcomp["jog-enable.out"] = True
             else:
                 self.halcomp["jog-enable.out"] = False
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 # calls a postgui file if there is one.
 # then starts Gscreen
