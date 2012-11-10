@@ -313,6 +313,7 @@ class emc_status:
                 relp = self.convert_units(relp)
                 dtg = self.convert_units(dtg)
             for count,letter in enumerate(self.data.axis_list):
+                if letter == 's':continue
                 if not count == len(self.data.axis_list):
                     self.data["%s_is_homed"% letter] = self.emcstat.homed[count]
                     self.data["%s_abs"% letter] = p[count]
