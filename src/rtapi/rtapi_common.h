@@ -135,14 +135,11 @@ typedef enum {
 
 typedef struct {
 #if defined(RTAPI_XENOMAI_USER)
-    RT_TASK ctx;		/* Xenomai task */
     char name[XNOBJECT_NAME_LEN];
 #else
     char name[RTAPI_NAME_LEN];
 #endif
-#if defined(RTAPI_POSIX)
-    pth_uctx_t ctx;		/* thread's context */
-#endif
+
 #if defined(RTAPI_RTPREEMPT_USER)
     int deleted;
     int destroyed;

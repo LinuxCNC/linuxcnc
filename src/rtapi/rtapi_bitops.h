@@ -6,7 +6,9 @@
 // therefore replicate from linux/bitops.h and linux/kernel.h
 // and prefix with an '_' to roll our own
 #define _DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#ifndef _BIT  // /usr/include/pth.h might bring this in too
 #define _BIT(nr)                 (1UL << (nr))
+#endif
 #define _BIT_MASK(nr)            (1UL << ((nr) % _BITS_PER_LONG))
 #define _BIT_WORD(nr)            ((nr) / _BITS_PER_LONG)
 #define _BITS_PER_BYTE           8
