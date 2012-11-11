@@ -135,6 +135,7 @@ typedef enum {
 
 typedef struct {
 #if defined(RTAPI_XENOMAI_USER)
+    RT_TASK *self;   
     char name[XNOBJECT_NAME_LEN];
 #else
     char name[RTAPI_NAME_LEN];

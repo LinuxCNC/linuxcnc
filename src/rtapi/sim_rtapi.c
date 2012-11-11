@@ -49,8 +49,16 @@ static pth_uctx_t main_ctx, this_ctx;
 
 // task descriptors are now banned from rtapi_data
 // that's just too dangerous
+
 #if defined(RTAPI_XENOMAI_USER)
+
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
+
+// this is needed due to the weirdness of the rt_task_self return value -
+// it does _not_ match the address of the RT_TASK structure it was 
+// created with
+RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
+
 #endif
 
 #if defined(RTAPI_POSIX)
@@ -134,7 +142,8 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
      the loop but before it sets the magic number, two tasks
      might wind up assigned to the same structure.  Need an
      atomic test and set for the magic number.  Not tonight! */
-  n = 0;
+
+  n = 1; // tasks start at one!
   while ((n < MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
     n++;
   if (n == MAX_TASKS)
@@ -205,23 +214,36 @@ int rtapi_task_delete(int id) {
 
 static void wrapper(void *arg)
 {
-  task_data *task;
 
-  /* use the argument to point to the task data */
-  task = (task_data*)arg;
-  if(task->period < period) task->period = period;
-  task->ratio = task->period / period;
-  rtapi_print_msg(RTAPI_MSG_DBG, "task %p '%s' period=%d task->period=%d actper=%d prio=%d ratio=%d\n",
-		  task, task->name, period, task->period, task->prio, task->ratio * period, task->ratio);
+    int task_id = (int) arg;
+    task_data *task = &task_array[task_id];
+    int ret;
 
+#define FIRST_RELEASE  (task->ratio * period)  // was TM_NOW
+
+    /* use the argument to point to the task data */
+    if(task->period < period) task->period = period;
+    task->ratio = task->period / period;
+    rtapi_print_msg(RTAPI_MSG_DBG, "wrapper: task %p '%s' period=%d prio=%d ratio=%d\n",
+		    task, task->name, task->ratio * period, task->prio, task->ratio);
+    
 #if defined(RTAPI_XENOMAI_USER)
-  rt_task_set_periodic(NULL, TM_NOW, task->ratio * period);
+    ostask_self[task_id]  = rt_task_self();
+    
+    if ((ret = rt_task_set_periodic(NULL, 
+				    TM_NOW , // + task->ratio * period, 
+				    task->ratio * period)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
+			task_id, task->name, ret);
+	abort();
+    }
 #endif
-
+    
   /* call the task function with the task argument */
-  (task->taskcode) (task->arg);
-
-  rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
+    (task->taskcode) (task->arg);
+    
+    rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: reached end of wrapper for task %d '%s'\n", 
+		    task_id, task->name);
 }
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
@@ -252,6 +274,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 #if  defined(RTAPI_XENOMAI_USER)
 
 #if !defined(BROKEN_XENOMAU_CPU_AFFINITY)
+  // seems to work for me
   // not sure T_CPU(n) is possible - see:
   // http://www.xenomai.org/pipermail/xenomai-help/2010-09/msg00081.html
 
@@ -270,12 +293,9 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
       rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
       return -ENOMEM;
   }
-
-  retval = rt_task_start( &ostask_array[task_id], wrapper, (void*)task);
-  if( retval )
-  {
-	rtapi_print_msg(RTAPI_MSG_INFO, "rt_task_start failed, rc = %d\n", retval );
-        return -ENOMEM;
+  if ((retval = rt_task_start( &ostask_array[task_id], wrapper, (void*)task_id))) {
+      rtapi_print_msg(RTAPI_MSG_INFO, "rt_task_start failed, rc = %d\n", retval );
+      return -ENOMEM;
   }
 #endif
 

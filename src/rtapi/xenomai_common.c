@@ -58,18 +58,16 @@ int rtapi_task_self(void)
 
     if (ptr == NULL) {
 	/* called from outside a task? */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI: ERROR: rtapi_task_self() = NULL\n");
 	return -EINVAL;
     }
     /* find matching entry in task array */
     n = 1;
     while (n <= RTAPI_MAX_TASKS) {
 #if defined(RTAPI_XENOMAI_USER) 
-	if (&ostask_array[n] == ptr) {
+	if (ostask_self[n] == ptr) {
 #endif
 #if defined(RTAPI_XENOMAI_KERNEL)
-	if (ostask_array[n] == ptr) {
+        if (ostask_array[n] == ptr) {
 #endif
 	    /* found a match */
 	    return n;
@@ -102,6 +100,8 @@ void rtapi_wait(void)
 {
     unsigned long overruns;
     static int error_printed = 0;
+    int task_id;
+    task_data *task;
 
     int result =  rt_task_wait_period(&overruns);
     switch (result) {
@@ -113,13 +113,16 @@ void rtapi_wait(void)
 	rtapi_data->rt_last_overrun = overruns;
 	rtapi_data->rt_total_overruns += overruns;
 
-	if (!error_printed)
+	if (!error_printed) {
+	    task_id = rtapi_task_self();
+	    task = &(task_array[task_id]);
+
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-	    	      "RTAPI: ERROR: Unexpected realtime delay on task %d (%lu overruns)\n" 
+	    	      "RTAPI: ERROR: Unexpected realtime delay on task %d - '%s' (%lu overruns)\n" 
 		      "This Message will only display once per session.\n"
 		      "Run the Latency Test and resolve before continuing.\n", 
-		      rtapi_task_self(), overruns);
-	
+			    task_id, task->name, overruns);
+	}
 	error_printed++;
 	/* if(error_printed > 10) // FIXME */
 	/*     rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: (further messages will be suppressed)\n"); */
