@@ -4,6 +4,9 @@
 #include "rtapi_common.h"		/* these decls */
 
 #if defined(RTAPI_XENOMAI_USER) || defined(RTAPI_XENOMAI_KERNEL)
+
+#define  MAX_ERRORS 3
+
 #include <native/task.h>
 #include <native/timer.h>
 #include <rtdk.h>
@@ -28,7 +31,7 @@ int rtapi_prio_next_higher(int prio)
   /* return a valid priority for out of range arg */
   if (prio >= rtapi_prio_highest())
     return rtapi_prio_highest();
-  if (prio <= rtapi_prio_lowest())
+  if (prio < rtapi_prio_lowest())
     return rtapi_prio_lowest();
 
   /* return next higher priority for in-range arg */
@@ -38,7 +41,7 @@ int rtapi_prio_next_higher(int prio)
 int rtapi_prio_next_lower(int prio)
 {
   /* return a valid priority for out of range arg */
-  if (prio < rtapi_prio_lowest())
+  if (prio <= rtapi_prio_lowest())
     return rtapi_prio_lowest();
   if (prio > rtapi_prio_highest())
     return rtapi_prio_highest();
@@ -96,6 +99,7 @@ long long int rtapi_get_clocks(void)
     return rt_timer_tsc();
 }
 
+
 void rtapi_wait(void)
 {
     unsigned long overruns;
@@ -113,7 +117,7 @@ void rtapi_wait(void)
 	rtapi_data->rt_last_overrun = overruns;
 	rtapi_data->rt_total_overruns += overruns;
 
-	if (!error_printed) {
+	if (error_printed < MAX_ERRORS) {
 	    task_id = rtapi_task_self();
 	    task = &(task_array[task_id]);
 
@@ -124,8 +128,8 @@ void rtapi_wait(void)
 			    task_id, task->name, overruns);
 	}
 	error_printed++;
-	/* if(error_printed > 10) // FIXME */
-	/*     rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: (further messages will be suppressed)\n"); */
+	if(error_printed == MAX_ERRORS) 
+	    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: (further messages will be suppressed)\n"); 
 	break;
 
     case -EWOULDBLOCK:
