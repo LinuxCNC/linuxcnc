@@ -53,11 +53,11 @@ try:
     NOTIFY_AVAILABLE = False
     import pynotify
     if not pynotify.init("Gscreen"):
-        print "**** INFO Gscreen: There was a problem initializing the pynotify module"
+        print "**** GSCREEN INFO: There was a problem initializing the pynotify module"
     else:
         NOTIFY_AVAILABLE = True
 except:
-    print "**** INFO Gscreen: You don't seem to have pynotify installed"
+    print "**** GSCREEN INFO: You don't seem to have pynotify installed"
 
 # try to add ability for audio feedback to user.
 try:
@@ -66,9 +66,9 @@ try:
     pygst.require("0.10")
     import gst
     _AUDIO_AVAIALBLE = True
-    print "**** INFO Gscreen: audio available!"
+    print "**** GSCREEN INFO: audio available!"
 except:
-    print "**** INFO Gscreen: no audio alerts available - PYGST libray not installed?"
+    print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
 
 # BASE is the absolute path to linuxcnc base
 # libdir is the path to Gscreen python files
@@ -340,7 +340,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
                         print("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
         except Exception, e:
-            print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
+            print "**** GSCREEN ERROR: trouble looking for handlers in '%s': %s" %(basename, e)
             traceback.print_exc()
 
     # Wrap lists in Trampoline, unwrap single functions
@@ -1169,7 +1169,6 @@ class Gscreen:
                 n.set_timeout(int(timeout * 1000) )
                 n.show()
             if _AUDIO_AVAIALBLE:
-                print icon
                 if icon == ALERT_ICON:
                     self.audio.set_sound(self.data.error_sound)
                 else:
@@ -1468,15 +1467,15 @@ class Gscreen:
         m_type = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
         m_pinname = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
         if len(m_text) != len(m_type):
-            print "ERROR Gscreen:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section"
+            print "**** Gscreen ERROR:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section"
         if len(m_text) != len(m_pinname):
-            print "ERROR Gscreen:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
+            print "**** Gscreen ERROR:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
         if len(m_text) != len(m_boldtext):
-            print "ERROR Gscreen:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section"
+            print "**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section"
         for bt,t,c ,name in zip(m_boldtext,m_text, m_type,m_pinname):
             #print bt,t,c,name
             if not ("status" in c) and not ("dialog" in c) and not ("okdialog" in c):
-                print "ERROR Gscreen:    invalid message type (%s)in INI File [DISPLAY] section"% c
+                print "**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"% c
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
@@ -1614,17 +1613,14 @@ class Gscreen:
         return (int(r,16),int(g,16),int(b,16))
 
     def set_rel_color(self):
-        print self.widgets.rel_colorbutton.get_color()
         self.data.rel_color = self.convert_to_rgb(self.widgets.rel_colorbutton.get_color())
         self.prefs.putpref('rel_textcolor', self.widgets.rel_colorbutton.get_color(),str)
 
     def set_abs_color(self):
-        print self.widgets.abs_colorbutton.get_color()
         self.data.abs_color = self.convert_to_rgb(self.widgets.abs_colorbutton.get_color())
         self.prefs.putpref('abs_textcolor', self.widgets.abs_colorbutton.get_color(),str)
 
     def set_dtg_color(self):
-        print self.widgets.dtg_colorbutton.get_color()
         self.data.dtg_color = self.convert_to_rgb(self.widgets.dtg_colorbutton.get_color())
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
 
@@ -2170,13 +2166,12 @@ class Gscreen:
 # then starts Gscreen
 if __name__ == "__main__":
     try:
-        print "INFO: Gscreen ini", sys.argv[2]
+        print "**** GSCREEN INFO ini:", sys.argv[2]
         app = Gscreen(sys.argv[2])
     except KeyboardInterrupt:
-        print "linuxcnc closed down"
         sys.exit(0)
     postgui_halfile,inifile = Gscreen.postgui(app)
-    print "INFO : Gscreen- postgui filename:",postgui_halfile
+    print "**** GSCREEN INFO: postgui filename:",postgui_halfile
     if postgui_halfile:
         res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
         if res: raise SystemExit, res
