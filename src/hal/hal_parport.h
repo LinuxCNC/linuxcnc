@@ -41,7 +41,11 @@ typedef struct hal_parport_t
 #include <sys/ioctl.h>
 #include <linux/ppdev.h>
 
+#if defined(USE_PORTABLE_PARPORT_IO)
 static unsigned int hal_parport_error_count;
+#else
+#include <sys/io.h>
+#endif
 
 static int
 hal_parport_get(int comp_id, hal_parport_t *port,
@@ -98,9 +102,14 @@ hal_parport_get(int comp_id, hal_parport_t *port,
 	return -ENODEV;
 found_dev:
 	snprintf(devpath, sizeof(devpath), "/dev/%s", devname);
-	rtapi_print_msg(RTAPI_MSG_INFO, "Using parallel port %s (base 0x%03X)\n",
-			devpath, base);
 
+#if defined(USE_PORTABLE_PARPORT_IO)
+	rtapi_print_msg(RTAPI_MSG_INFO, "Using parallel port %s (base 0x%03X) with ioctl I/O\n",
+			devpath, base);
+#else
+	rtapi_print_msg(RTAPI_MSG_INFO, "Using parallel port %s (base 0x%03X) with direct inb/outb I/O\n",
+			devpath, base);
+#endif
 	port->dev_fd = open(devpath, O_RDWR);
 	if (port->dev_fd < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to open parallel port %s: %s\n",
@@ -121,7 +130,14 @@ found_dev:
 		close(port->dev_fd);
 		return -ENODEV;
 	}
-
+#if !defined(USE_PORTABLE_PARPORT_IO)
+	if (ioperm(base, 3, 1) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "PARPORT: ERROR: cant get access to 0x%x (not running as root?)\n",
+			    base);
+	    return -EPERM;
+	}
+#endif
 	return 0;
 }
 
@@ -133,6 +149,7 @@ static void hal_parport_release(hal_parport_t *port)
 	close(port->dev_fd);
 }
 
+#if defined(USE_PORTABLE_PARPORT_IO)
 static inline unsigned char hal_parport_read_status(hal_parport_t *port)
 {
 	unsigned char x;
@@ -211,6 +228,7 @@ static inline void hal_parport_set_datadir(hal_parport_t *port, int enable_input
 		}
 	}
 }
+#endif // defined(USE_PORTABLE_PARPORT_IO)
 
 
 
