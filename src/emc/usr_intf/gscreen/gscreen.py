@@ -106,14 +106,9 @@ from gscreen import mdi
 from gscreen import preferences
 
 # this is for hiding the pointer when using a touch screen
-pix_data = '''/* XPM */
-static char * invisible_xpm[] = {
-"1 1 1 1",
-"	c None",
-" "};'''
+pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
 color = gtk.gdk.Color()
-pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
-invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # Throws up a dialog with debug info when an error is encountered 
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -728,7 +723,7 @@ class Gscreen:
         # hide cursor if requested
         # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
-            self.widgets.window1.window.set_cursor(invisible)
+            self.widgets.window1.window.set_cursor(INVISABLE)
             self.widgets.gremlin.set_property('use_default_controls',False)
         else:
             self.widgets.window1.window.set_cursor(None)
@@ -874,7 +869,7 @@ class Gscreen:
         if self.widgets.hide_cursor.get_active():
             self.prefs.putpref('hide_cursor', True)
             self.data.hide_cursor = True
-            self.widgets.window1.window.set_cursor(invisible)
+            self.widgets.window1.window.set_cursor(INVISABLE)
         else:
             self.prefs.putpref('hide_cursor', False)
             self.data.hide_cursor = False
