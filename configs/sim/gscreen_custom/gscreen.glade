@@ -320,8 +320,8 @@
                                             <child>
                                               <object class="HAL_LED" id="led_mist">
                                                 <property name="visible">True</property>
-                                                <property name="led_shape">1</property>
                                                 <property name="on_color">yellow</property>
+                                                <property name="led_shape">1</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -332,8 +332,8 @@
                                             <child>
                                               <object class="HAL_LED" id="led_flood">
                                                 <property name="visible">True</property>
-                                                <property name="led_shape">1</property>
                                                 <property name="on_color">green</property>
+                                                <property name="led_shape">1</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1056,15 +1056,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="show_limits">False</property>
                                     <property name="z0_color">#0000ffff0000</property>
                                     <property name="max">2000</property>
                                     <property name="z1_color">#ffffffff0000</property>
-                                    <property name="target_color">#e21911831183</property>
-                                    <property name="value">-7</property>
                                     <property name="bg_color">#bebebebebebe</property>
+                                    <property name="target_color">#e21911831183</property>
                                     <property name="z2_color">#ffff00000000</property>
                                     <property name="target_value">500</property>
+                                    <property name="show_limits">False</property>
+                                    <property name="value">-7</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -1155,8 +1155,8 @@
                                     <child>
                                       <object class="HAL_LED" id="spindle-at-speed">
                                         <property name="visible">True</property>
-                                        <property name="led_shape">1</property>
                                         <property name="on_color">Green</property>
+                                        <property name="led_shape">1</property>
                                       </object>
                                       <packing>
                                         <property name="resize">False</property>
@@ -1892,8 +1892,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
-                                <property name="led_shape">1</property>
                                 <property name="off_color">green</property>
+                                <property name="led_shape">1</property>
                               </object>
                               <packing>
                                 <property name="position">0</property>
@@ -1902,9 +1902,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="led_shape">1</property>
-                                <property name="on_color">green</property>
                                 <property name="off_color">red</property>
+                                <property name="on_color">green</property>
+                                <property name="led_shape">1</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -1991,12 +1991,9 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v0_5">
-                            <property name="label" translatable="yes">Custom
-Button</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <signal name="clicked" handler="on_button_press"/>
                           </object>
                           <packing>
                             <property name="position">5</property>
@@ -2004,8 +2001,12 @@ Button</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v0_6">
+                            <property name="label" translatable="yes">Custom
+ Button</property>
+                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler="on_button_press"/>
                           </object>
                           <packing>
                             <property name="position">6</property>
