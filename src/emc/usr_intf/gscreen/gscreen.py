@@ -1090,7 +1090,6 @@ class Gscreen:
         temp = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics"]
         for axis in self.data.axis_list:
             temp.append("axis_%s"% axis)
-        print temp
         self.sensitize_widgets(temp,True)
         state = self.data.all_homed
         self.widgets.button_mode.set_sensitive(state)
@@ -1354,8 +1353,10 @@ class Gscreen:
     def origin_system(self,*args):
         print "origin system button"
         value = self.widgets.button_h1_1.get_active()
-        temp = ["button_override","button_graphics","button_homing","axis_x","axis_y","axis_z","axis_z","axis_s","button_mode",
+        temp = ["button_override","button_graphics","button_homing","button_mode",
                 "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
+        for axis in self.data.axis_list:
+            temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,not value)
 
     def change_origin_system(self,system,direction=None):
@@ -1403,8 +1404,10 @@ class Gscreen:
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
             self._tempholder = []
-            self._templist = ["button_override","button_homing","button_mode","axis_x","axis_y","axis_z","axis_s",
+            self._templist = ["button_override","button_homing","button_mode",
                                 "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
+            for axis in self.data.axis_list:
+                self._templist.append("axis_%s"% axis)
             for name in (self._templist):
                 self._tempholder.append(self.widgets[name].get_sensitive())
                 self.widgets[name].set_sensitive(False)
