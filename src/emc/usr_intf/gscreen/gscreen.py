@@ -289,7 +289,7 @@ class Trampoline(object):
         for m in self.methods:
             m(*a, **kw)
 
-def load_handlers(usermod,halcomp,builder,useropts):
+def load_handlers(usermod,halcomp,builder,useropts,gscreen):
     hdl_func = 'get_handlers'
 
     def add_handler(method, f):
@@ -320,7 +320,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
             if h and callable(h):
                 print("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                objlist = h(halcomp,builder,useropts)
+                objlist = h(halcomp,builder,useropts,gscreen)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
@@ -674,7 +674,7 @@ class Gscreen:
             temp = [HANDLER_FN]
         else:
             temp = []
-        handlers = load_handlers(temp,self.halcomp,self.xml,[])
+        handlers = load_handlers(temp,self.halcomp,self.xml,[],self)
         self.xml.connect_signals(handlers)
 
         # toolsetting reference type
