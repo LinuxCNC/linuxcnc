@@ -1,0 +1,145 @@
+#!/bin/bash
+SCRIPT_LOCATION=$(dirname $(readlink -f $0));
+if [ -f $SCRIPT_LOCATION/rip-environment ] && [ -z "$EMC2_HOME" ]; then
+    . $SCRIPT_LOCATION/rip-environment
+fi
+
+T=`mktemp -d`
+trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
+cd $T
+
+calc() { echo "scale=1; $1" | bc; }
+icalc() { echo "scale=0; ($1)*1" | bc | sed 's/\..*//'; }
+
+parse_time () {
+    case $1 in
+    -)   echo "0" ;;
+    *ns) icalc "${1%ns}" ;;
+    *us|*µs) icalc "1000*${1%us}" ;;
+    *ms) icalc "1000*1000*${1%ms}" ;;
+    *s)  icalc "1000*1000*1000*${1%s}" ;;
+    *)   if [ $1 -lt 1000 ]; then icalc "1000$*1"; else icalc "$1"; fi ;;
+    esac
+}
+
+human_time () {
+    if [ "$1" -eq 0 ]; then echo "-"
+    elif [ "$1" -ge 1000000000 ]; then echo "$(calc $1/1000/1000/1000)s"
+    elif [ "$1" -ge 1000000 ]; then echo "$(calc $1/1000/1000)ms"
+    elif [ "$1" -ge 1000 ]; then echo "$(calc $1/1000)µs"
+    else echo "$1ns"
+    fi
+}
+
+BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
+case $# in
+0) ;;
+1) BASE=$(parse_time $1) ;;
+2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
+*)
+    echo "Usage: latency-test [base-period [servo-period]]"
+    echo "Default: latency-test 25us 1ms"
+    echo "Times may be specified with suffix \"s\", \"ms\", \"us\" \"µs\", or \"ns\""
+    echo "Times without a suffix and less than 1000 are taken to be in us;"
+    echo "other times without a suffix are taken to be in ns"
+    echo ""
+    echo "The worst-case latency seen in any run of latency-test"
+    echo "is written to the file ~/.latency"
+    exit 1
+esac
+
+if [ "$BASE" -gt "$SERVO" ]; then TEMP=$BASE; BASE=$SERVO; SERVO=$TEMP; fi
+if [ "$BASE" -eq "$SERVO" ]; then BASE=0; fi
+
+BASE_HUMAN=$(human_time $BASE)
+SERVO_HUMAN=$(human_time $SERVO)
+if [ $BASE -eq 0 ]; then
+cat > lat.hal <<EOF
+loadrt threads name1=slow period1=$SERVO
+loadrt timedelta count=1
+addf timedelta.0 slow
+start
+loadusr -Wn lat pyvcp lat.xml
+net sl timedelta.0.max => lat.sl
+net sj timedelta.0.jitter => lat.sj
+net st timedelta.0.out => lat.st
+net reset lat.reset => timedelta.0.reset
+waitusr lat
+loadusr -w bash latexit.sh
+EOF
+
+cat > lat.xml <<EOF
+<pyvcp>
+<title title="EMC2 / HAL Latency Test"/>
+<axisoptions/>
+<table>
+<tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
+<text>
+"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring emc2.
+
+While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
+</text>
+</label>
+<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
+<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+<tablerow/><button text="Reset Statistics" halpin="reset"/>
+</table>
+</pyvcp>
+EOF
+
+cat > latexit.sh <<EOF
+L=\$((halcmd gets sj
+    if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
+    ) | sort -n | tail -1)
+echo \$L > $HOME/.latency
+EOF
+
+else
+cat > lat.hal <<EOF
+loadrt threads name1=fast period1=$BASE cpu1=1 name2=slow period2=$SERVO cpu2=1
+loadrt timedelta count=2
+addf timedelta.0 fast
+addf timedelta.1 slow
+start
+loadusr -Wn lat pyvcp lat.xml
+net sl timedelta.1.max => lat.sl
+net sj timedelta.1.jitter => lat.sj
+net st timedelta.1.out => lat.st
+net bl timedelta.0.max => lat.bl
+net bj timedelta.0.jitter => lat.bj
+net bt timedelta.0.out => lat.bt
+net reset lat.reset => timedelta.0.reset timedelta.1.reset
+waitusr lat
+loadusr -w bash latexit.sh
+EOF
+
+cat > lat.xml <<EOF
+<pyvcp>
+<title title="EMC2 / HAL Latency Test"/>
+<axisoptions/>
+<table>
+<tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
+<text>
+"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring emc2.
+
+While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
+</text>
+</label>
+<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
+<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+<tablerow/><label text="Base thread ($BASE_HUMAN):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
+<tablerow/><button text="Reset Statistics" halpin="reset"/>
+</table>
+</pyvcp>
+EOF
+
+cat > latexit.sh <<EOF
+L=\$((halcmd gets sj; halcmd gets bj;
+    if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
+    ) | sort -n | tail -1)
+echo \$L > $HOME/.latency
+EOF
+fi
+
+
+halrun lat.hal
