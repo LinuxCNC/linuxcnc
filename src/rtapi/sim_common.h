@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #if defined(RTAPI_XENOMAI_USER)
 #include <native/heap.h>
@@ -28,7 +30,8 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
   shmem_data *shmem;
-  int i;
+  struct shmid_ds d;
+  int i, ret;
 
   for(i=0 ; i < MAX_SHM; i++) {
     if(shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
@@ -47,14 +50,34 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
-    return -errno;
+      rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new shmget(0x%x, IPC_CREAT) failed: %d '%s'\n",
+		      key, errno, strerror(errno));    
+      return -errno;
+  }
+  
+  // get actual user/group and drop to ruid/rgid so removing is always possible
+  if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR,
+		      "rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) failed: %d '%s'\n", 
+		      key, errno, strerror(errno));      
+  } else {
+      // drop permissions of shmseg to real userid/group id
+      if (!d.shm_perm.uid) { // uh, root perms 
+	  d.shm_perm.uid = getuid();
+	  d.shm_perm.gid = getgid();
+	  if ((ret = shmctl(shmem->id, IPC_SET, &d)) < 0) {
+	      rtapi_print_msg(RTAPI_MSG_ERR,
+			      "rtapi_shmem_new: shm_ctl(key=0x%x, IPC_SET) failed: %d '%s'\n", 
+			      key, errno, strerror(errno));      
+	  } 
+      }
   }
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((ssize_t) (shmem->mem) == -1) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
-    return -errno;
+      rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
+		      shmem->id, errno, strerror(errno));
+      return -errno;
   }
 
   /* label as a valid shmem structure */
@@ -103,16 +126,34 @@ int rtapi_shmem_delete(int handle, int module_id)
     return -EINVAL;
 
   shmem->count --;
-  if(shmem->count) return 0;
-
+  if(shmem->count) {
+      rtapi_print_msg(RTAPI_MSG_DBG,
+		      "rtapi_shmem_delete: handle=%d module=%d key=0x%x:  %d remaining users\n", 
+		      handle, module_id, shmem->key, shmem->count);
+      return 0;
+  }
   /* unmap the shared memory */
   r1 = shmdt(shmem->mem);
-
+  if (r1 < 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR,
+		      "rtapi_shmem_delete: shmdt(key=0x%x) failed: %d '%s'\n", 
+		      shmem->key, errno, strerror(errno));      
+  }
   /* destroy the shared memory */
   r2 = shmctl(shmem->id, IPC_STAT, &d);
+  if (r2 < 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR,
+		      "rtapi_shmem_delete: shm_ctl(0x%x, IPC_STAT) failed: %d '%s'\n", 
+		      shmem->key, errno, strerror(errno));      
+  }
   if(r2 == 0 && d.shm_nattch == 0) {
       r2 = shmctl(shmem->id, IPC_RMID, &d);
-  }
+      if (r2 < 0) {
+	  rtapi_print_msg(RTAPI_MSG_ERR,
+			  "rtapi_shmem_delete: shm_ctl(0x%x, IPC_RMID) failed: %d '%s'\n", 
+			  shmem->key, errno, strerror(errno));      
+      }
+  }  
 
   /* free the shmem structure */
   shmem->magic = 0;
