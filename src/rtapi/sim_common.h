@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -25,13 +26,14 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #define MAX_SHM 64
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
-
+#define SHM_PERMISSIONS	0666
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
   shmem_data *shmem;
   struct shmid_ds d;
   int i, ret;
+  int is_new = 0;
 
   for(i=0 ; i < MAX_SHM; i++) {
     if(shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
@@ -48,12 +50,21 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
-  shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
-  if (shmem->id == -1) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new shmget(0x%x, IPC_CREAT) failed: %d '%s'\n",
-		      key, errno, strerror(errno));    
-      return -errno;
-  }
+
+  // try to attach
+  shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
+  if (shmem->id == -1) {  
+      if (errno == ENOENT) {
+	  // nope, doesnt exist - create
+	  shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
+	  is_new = 1;
+      }
+      if (shmem->id == -1) {
+	  rtapi_print_msg(RTAPI_MSG_ERR,
+			  "Failed to allocate shared memory, key=0x%x size=%ld\n", key, size);
+	  return -ENOMEM;
+      }
+  } 
   
   // get actual user/group and drop to ruid/rgid so removing is always possible
   if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
@@ -78,6 +89,20 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
       rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
 		      shmem->id, errno, strerror(errno));
       return -errno;
+  }
+  /* Touch each page by either zeroing the whole mem (if it's a new SHM region),
+   * or by reading from it. */
+  if (is_new) {
+      memset(shmem->mem, 0, size);
+  } else {
+      unsigned int i, pagesize;
+      
+      pagesize = sysconf(_SC_PAGESIZE);
+      for (i = 0; i < size; i += pagesize) {
+	  unsigned int x = *(volatile unsigned int *)((unsigned char *)shmem->mem + i);
+	  /* Use rand_r to clobber the read so GCC won't optimize it out. */
+	  rand_r(&x);
+      }
   }
 
   /* label as a valid shmem structure */
@@ -274,11 +299,6 @@ int rtapi_init(const char *modname)
     static char* uuid_shmem_base = 0;
     int retval,id;
     void *uuid_mem;
-#if defined(RTAPI_XENOMAI_USER)
-    if (mlockall(MCL_CURRENT|MCL_FUTURE)) {
-	rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_init: mlockall() failed: %d '%s'\n",errno,strerror(errno)); 
-    }
-#endif
 
     uuid_mem_id = rtapi_shmem_new(UUID_KEY,uuid_id,sizeof(uuid_data_t));
     if (uuid_mem_id < 0) {

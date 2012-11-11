@@ -30,10 +30,12 @@
 #include <map>
 #include <algorithm>
 #include <sys/time.h>
+#include <sys/resource.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <malloc.h>
 
 #include "config.h"
 #if defined(RTAPI_XENOMAI_USER)
@@ -52,6 +54,10 @@ using namespace std;
 
 #define SOCKET_PATH "\0/tmp/rtapi_fifo"
 
+/* Pre-allocation size. Must be enough for the whole application life to avoid
+ * pagefaults by new memory requested from the system. */
+#define PRE_ALLOC_SIZE		(30 * 1024 * 1024)
+
 template<class T> T DLSYM(void *handle, const string &name) {
 	return (T)(dlsym(handle, name.c_str()));
 }
@@ -66,6 +72,10 @@ extern "C" int schedule(void) { return sched_yield(); }
 
 static int instance_count = 0;
 static int force_exit = 0;
+
+static struct rusage rusage;
+static unsigned long minflt, majflt;
+
 
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
@@ -381,24 +391,92 @@ static int master(int fd, vector<string> args) {
     return 0;
 }
 
+static int configure_memory(void)
+{
+	unsigned int i, pagesize;
+	char *buf;
+
+	/* Lock all memory. This includes all current allocations (BSS/data)
+	 * and future allocations. */
+	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+			    "rtapi_app_main: mlockall() failed: %d '%s'\n",
+			    errno,strerror(errno)); 
+	    perror("Failed to lock memory (mlockall)");
+	    return 1;
+	}
+	/* Turn off malloc trimming.*/
+	mallopt(M_TRIM_THRESHOLD, -1);
+	/* Turn off mmap usage. */
+	mallopt(M_MMAP_MAX, 0);
+
+	buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+	pagesize = sysconf(_SC_PAGESIZE);
+	/* Touch each page in this piece of memory to get it mapped into RAM */
+	for (i = 0; i < PRE_ALLOC_SIZE; i += pagesize) {
+		/* Each write to this buffer will generate a pagefault.
+		 * Once the pagefault is handled a page will be locked in
+		 * memory and never given back to the system. */
+		buf[i] = 0;
+	}
+	/* buffer will now be released. As Glibc is configured such that it
+	 * never gives back memory to the kernel, the memory allocated above is
+	 * locked for this process. All malloc() and new() calls come from
+	 * the memory pool reserved and locked above. Issuing free() and
+	 * delete() does NOT make this locking undone. So, with this locking
+	 * mechanism we can build C++ applications that will never run into
+	 * a major/minor pagefault, even with swapping enabled. */
+	free(buf);
+
+	return 0;
+}
+
 #if defined(RTAPI_XENOMAI_USER)
 void warn_upon_switch(int sig __attribute__((unused)))
 {
- void *bt[32];
- int nentries;
-/* Dump a backtrace of the frame which caused the switch to
-secondary mode: */
- nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
- backtrace_symbols_fd(bt,nentries,fileno(stdout));
- fprintf(stderr, "SIGXCPU received\n" );
+    void *bt[32];
+    int nentries;
+    
+    /* Dump a backtrace of the frame which caused the switch 
+     * to secondary mode: 
+     */
+    nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
+    backtrace_symbols_fd(bt,nentries,fileno(stdout));
+    fprintf(stderr, "SIGXCPU received\n" );
 }
 #endif
+
+static void
+exit_handler(void)
+{
+    struct rusage rusage;
+	
+    getrusage(RUSAGE_SELF, &rusage);
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app_main: %ld page faults, %ld page reclaims\n",
+		    rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+}
 
 int main(int argc, char **argv) 
 {
     int msg_level = RTAPI_MSG_ERR;
     char *s;
 
+    configure_memory();
+
+    if (getrusage(RUSAGE_SELF, &rusage)) {
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"rtapi_app_main: getrusage(RUSAGE_SELF) failed: %d '%s'\n",
+			errno,strerror(errno)); 
+    } else {
+	minflt = rusage.ru_minflt;
+	majflt = rusage.ru_majflt;
+
+	if (atexit(exit_handler)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+			    "rtapi_app_main: atexit() failed: %d '%s'\n",
+			    errno,strerror(errno)); 
+	}
+    }
 #if defined(RTAPI_XENOMAI_USER)
     signal(SIGXCPU, warn_upon_switch);
     rt_print_auto_init(1);
