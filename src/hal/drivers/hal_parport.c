@@ -343,7 +343,11 @@ static void read_port(void *arg, long period)
 
     port = arg;
     /* read the status port */
+#if defined(USE_PORTABLE_PARPORT_IO)
     indata = hal_parport_read_status(&port->portdata);
+#else
+    indata = inb(port->base_addr + 1);
+#endif
     /* invert bit 7 (pin 11) to compensate for hardware inverter */
     indata ^= 0x80;
     /* split the bits into 10 variables (5 regular, 5 inverted) */
@@ -356,7 +360,11 @@ static void read_port(void *arg, long period)
     /* are we using the data port for input? */
     if (port->data_dir != 0) {
 	/* yes, read the data port */
+#if defined(USE_PORTABLE_PARPORT_IO)
         indata = hal_parport_read_data(&port->portdata);
+#else
+	indata = inb(port->base_addr);
+#endif
 	/* split the bits into 16 variables (8 regular, 8 inverted) */
 	mask = 0x01;
 	for (b = 0; b < 16; b += 2) {
@@ -369,7 +377,11 @@ static void read_port(void *arg, long period)
     if(port->use_control_in) {
         mask = 0x01;
         /* correct for hardware inverters on pins 1, 14, & 17 */
+#if defined(USE_PORTABLE_PARPORT_IO)
         indata = hal_parport_read_control(&port->portdata) ^ 0x0B;
+#else
+	indata = inb(port->base_addr + 2) ^ 0x0B;
+#endif
         for (b = 0; b < 8; b += 2) {
             *(port->control_in[b]) = indata & mask;
             *(port->control_in[b + 1]) = !(indata & mask);
@@ -389,7 +401,11 @@ static void reset_port(void *arg, long period) {
     if(outdata != port->outdata) {
         deadline = port->write_time + reset_time_tsc;
         while(rtapi_get_clocks() < deadline) {}
+#if defined(USE_PORTABLE_PARPORT_IO)
         hal_parport_write_data(&port->portdata, outdata);
+#else
+        outb(outdata, port->base_addr);
+#endif
     }
 
     outdata = (port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl;
@@ -399,7 +415,11 @@ static void reset_port(void *arg, long period) {
 	outdata ^= 0x0B;
         deadline = port->write_time_ctrl + reset_time_tsc;
         while(rtapi_get_clocks() < deadline) {}
+#if defined(USE_PORTABLE_PARPORT_IO)
         hal_parport_write_control(&port->portdata, outdata);
+#else
+        rtapi_outb(outdata, port->base_addr + 2);
+#endif
     }
 }
 
@@ -432,7 +452,11 @@ static void write_port(void *arg, long period)
 	    mask <<= 1;
 	}
 	/* write it to the hardware */
+#if defined(USE_PORTABLE_PARPORT_IO)
         hal_parport_write_data(&port->portdata, outdata);
+#else
+	outb(outdata, port->base_addr);
+#endif
 	port->write_time = rtapi_get_clocks();
 	port->reset_val = reset_val;
 	port->reset_mask = reset_mask;
@@ -472,7 +496,11 @@ static void write_port(void *arg, long period)
     /* correct for hardware inverters on pins 1, 14, & 17 */
     outdata ^= 0x0B;
     /* write it to the hardware */
+#if defined(USE_PORTABLE_PARPORT_IO)
     hal_parport_write_control(&port->portdata, outdata);
+#else
+    outb(outdata, port->base_addr + 2);
+#endif
     port->write_time_ctrl = rtapi_get_clocks();
 }
 
@@ -586,8 +614,11 @@ static int pins_and_params(char *argv[])
 	port_data_array[n].use_control_in = use_control_in[n];
 
 	/* set data port (pins 2-9) direction to "in" if needed */
+#if defined(USE_PORTABLE_PARPORT_IO)
         hal_parport_set_datadir(&port_data_array[n].portdata, (data_dir[n] != 0));
-
+#else
+	outb(inb(port_data_array[n].base_addr+2) | 0x20, port_data_array[n].base_addr+2);
+#endif
 	/* export all vars */
 	retval = export_port(n, &(port_data_array[n]));
 	if (retval != 0) {

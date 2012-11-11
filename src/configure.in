@@ -261,6 +261,15 @@ DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt-user
 # onto EXTRA_CFLAGS to override anything conflicting.
 KERNEL_MATH_CFLAGS=""
 
+
+# Parport: on x86 PC platform, we can use either use
+# direct inb/outb or the slower but portable ppdev ioctl
+USE_PORTABLE_PARPORT_IO="no"
+# reflected in config.h as follows:
+# /* build hardware drivers */
+# #define USE_PORTABLE_PARPORT_IO /**/
+
+
 # note to mah: dont forget debian/configure FIXME
  
 
@@ -292,6 +301,29 @@ AC_ARG_ENABLE(drivers,
     [
       AC_MSG_RESULT([hardware drivers build will be determined by --with-threads])
     ])
+
+AC_MSG_CHECKING(whether to use inb/outb or ppdev ioctl on the x86 for parport I/O)
+AC_ARG_ENABLE(portable-parport,
+    [  --enable-portable-parport      Build hal_parport using the ppdev ioctl instead of inb/outb],
+    [
+        case "$enableval" in
+            Y*|y*)
+		USE_PORTABLE_PARPORT_IO=yes
+                AC_MSG_RESULT([explicitly configuring for ppdev ioctl])
+            ;;
+            N*|n*)
+		USE_PORTABLE_PARPORT_IO=no
+                AC_MSG_RESULT([explicitly disabling ppdev ioctl and using inb/outb])
+            ;;
+        esac
+	if test -z "$USE_PORTABLE_PARPORT_IO"; then
+	   AC_MSG_ERROR([ I dont understand $enableval, just yes or no ])
+	fi
+    ],
+    [
+      AC_MSG_RESULT([using defaults])
+    ])
+
 
 AC_MSG_CHECKING(realtime support directory)
 AC_ARG_WITH(rt-dir,
@@ -713,6 +745,11 @@ if test "$BUILD_DRIVERS" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
 AC_SUBST(BUILD_DRIVERS)
+
+if test "$USE_PORTABLE_PARPORT_IO" = yes; then
+   AC_DEFINE(USE_PORTABLE_PARPORT_IO, [], [use ppdev ioctl instead of inb/outb])
+fi
+AC_SUBST(USE_PORTABLE_PARPORT_IO)
 
 # man, is this lame
 case $BUILD_SYS in
