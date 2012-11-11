@@ -211,11 +211,11 @@ static void wrapper(void *arg)
   task = (task_data*)arg;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
-  rtapi_print_msg(RTAPI_MSG_DBG, "task %p '%s' period=%d prio=%d ratio=%d\n",
-		  task, task->name, task->prio, task->period, task->ratio);
+  rtapi_print_msg(RTAPI_MSG_DBG, "task %p '%s' period=%d task->period=%d actper=%d prio=%d ratio=%d\n",
+		  task, task->name, period, task->period, task->prio, task->ratio * period, task->ratio);
 
 #if defined(RTAPI_XENOMAI_USER)
-  rt_task_set_periodic(NULL, TM_NOW, task->period * task->ratio );
+  rt_task_set_periodic(NULL, TM_NOW, task->ratio * period);
 #endif
 
   /* call the task function with the task argument */
