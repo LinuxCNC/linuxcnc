@@ -130,14 +130,6 @@ found_dev:
 		close(port->dev_fd);
 		return -ENODEV;
 	}
-#if !defined(USE_PORTABLE_PARPORT_IO)
-	if (ioperm(base, 3, 1) < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "PARPORT: ERROR: cant get access to 0x%x (not running as root?)\n",
-			    base);
-	    return -EPERM;
-	}
-#endif
 	return 0;
 }
 

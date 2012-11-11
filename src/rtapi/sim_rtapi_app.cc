@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/io.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -493,6 +494,21 @@ int main(int argc, char **argv)
 #if defined(RTAPI_XENOMAI_USER)
     sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
     rt_print_auto_init(1);
+#endif
+
+#if defined(BUILD_DRIVERS) && (defined(__x86_64) || defined(i386))
+
+    // this is a bit of a shotgun approach and should be made more selective
+    // however, due to serial invocations of rtapi_app during setup it is not
+    // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
+    // the same process which starts the RT threads, causing hal_parport
+    // thread functions to fail on inb/outb
+
+    if (iopl(3) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app: cannot gain I/O privileges - forgot 'sudo make setuid'?\n");
+	return -EPERM;
+    }
 #endif
 
     vector<string> args;
