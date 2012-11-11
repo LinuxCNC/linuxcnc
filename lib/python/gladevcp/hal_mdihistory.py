@@ -54,7 +54,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
 
         self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.POS_RIGHT, 'gtk-ok')
+        self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
