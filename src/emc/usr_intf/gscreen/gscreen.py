@@ -812,19 +812,33 @@ class Gscreen:
     def on_eventbox_gremlin_leave_notify_event(self,widget,event):
         self.widgets.gremlin.select_fire(event.x,event.y)
 
-    # for plot view controls with touchscreen
+    # for plot view controls with touchscreen or mouse
+    # if using mouse and when in graphics adjustment mode,
+    # we don't use mouse controls when we have selected button controls
     def on_gremlin_motion(self,widget,event):
         if self.widgets.button_graphics.get_active():
-            if self.widgets.button_h5_0.get_active():
-                self.widgets.gremlin.continuous_zoom(event.y)
-            elif self.widgets.button_h5_4.get_active():
-                self.pan(event.x,event.y)
-            elif self.widgets.button_h5_5.get_active():
-                self.pan(event.x,event.y)
-            elif self.widgets.button_h5_6.get_active():
-                self.rotate(event.x,event.y)
+            self.widgets.gremlin.set_property('use_default_controls',False)
+            if self.data.hide_cursor:
+                if self.widgets.button_h5_0.get_active():
+                    self.widgets.gremlin.continuous_zoom(event.y)
+                elif self.widgets.button_h5_4.get_active():
+                    self.pan(event.x,event.y)
+                elif self.widgets.button_h5_5.get_active():
+                    self.pan(event.x,event.y)
+                elif self.widgets.button_h5_6.get_active():
+                    self.rotate(event.x,event.y)
+                elif self.widgets.button_h5_7.get_active():
+                    self.rotate(event.x,event.y)
+            elif self.widgets.button_h5_0.get_active() or self.widgets.button_h5_4.get_active():
+                return
+            elif self.widgets.button_h5_5.get_active() or self.widgets.button_h5_6.get_active():
+                return
             elif self.widgets.button_h5_7.get_active():
-                self.rotate(event.x,event.y)
+                return
+            else:
+                self.widgets.gremlin.set_property('use_default_controls',True)
+        else:
+            self.widgets.gremlin.set_property('use_default_controls',not self.data.hide_cursor)
 
     # display calculator for input
     def launch_numerical_input(self,widget,event):
@@ -861,12 +875,10 @@ class Gscreen:
             self.prefs.putpref('hide_cursor', True)
             self.data.hide_cursor = True
             self.widgets.window1.window.set_cursor(invisible)
-            self.widgets.gremlin.set_property('use_default_controls',False)
         else:
             self.prefs.putpref('hide_cursor', False)
             self.data.hide_cursor = False
             self.widgets.window1.window.set_cursor(None)
-            self.widgets.gremlin.set_property('use_default_controls',True)
 
     # opens halshow
     def on_halshow(self,*args):
