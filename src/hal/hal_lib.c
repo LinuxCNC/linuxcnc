@@ -1869,7 +1869,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp, 
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread %s created prio=%d\n", name, new->priority);
     return 0;
 }
 
