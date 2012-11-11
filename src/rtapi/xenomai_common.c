@@ -38,9 +38,9 @@ int rtapi_prio_next_higher(int prio)
 int rtapi_prio_next_lower(int prio)
 {
   /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
+  if (prio < rtapi_prio_lowest())
     return rtapi_prio_lowest();
-  if (prio >= rtapi_prio_highest())
+  if (prio > rtapi_prio_highest())
     return rtapi_prio_highest();
   /* return next lower priority for in-range arg */
   return prio - 1;
