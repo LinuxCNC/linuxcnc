@@ -431,20 +431,22 @@ static int configure_memory(void)
 	return 0;
 }
 
-#if defined(RTAPI_XENOMAI_USER)
-void warn_upon_switch(int sig __attribute__((unused)))
+void signal_handler(int sig)
 {
     void *bt[32];
     int nentries;
-    
-    /* Dump a backtrace of the frame which caused the switch 
-     * to secondary mode: 
-     */
+ 
+#if defined(RTAPI_XENOMAI_USER)
+    if (sig == SIGXCPU) 
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Xenomai switched RT task to secondary domain\n");
+    else
+#endif
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: signal %s received\n", strsignal(sig));
+
     nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
     backtrace_symbols_fd(bt,nentries,fileno(stdout));
-    fprintf(stderr, "SIGXCPU received\n" );
+    exit(sig);
 }
-#endif
 
 static void
 exit_handler(void)
@@ -460,6 +462,7 @@ int main(int argc, char **argv)
 {
     int msg_level = RTAPI_MSG_ERR;
     char *s;
+    struct sigaction backtrace_action;
 
     configure_memory();
 
@@ -477,10 +480,19 @@ int main(int argc, char **argv)
 			    errno,strerror(errno)); 
 	}
     }
-#if defined(RTAPI_XENOMAI_USER)
-    signal(SIGXCPU, warn_upon_switch);
-    rt_print_auto_init(1);
 
+    sigemptyset( &backtrace_action.sa_mask );
+    backtrace_action.sa_handler = signal_handler;
+    backtrace_action.sa_flags   = 0;
+
+    sigaction(SIGSEGV, &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGILL,  &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGFPE,  &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGABRT, &backtrace_action, (struct sigaction *) NULL);
+
+#if defined(RTAPI_XENOMAI_USER)
+    sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
+    rt_print_auto_init(1);
 #endif
 
     vector<string> args;
