@@ -250,7 +250,6 @@ BUILD_DRIVERS="no"
 #	this would check whether the running kernel is in fact rt-preempt by inspecting /boot/config-`uname #-r` for appropriate flags, and complain otherwise-
 KCONFIG=""
 
-
 # if autoconfiguring from kernel config, use these
 # defaults as thread style:
 DEFAULT_THREADSTYLE_XENOMAI=xenomai-user
@@ -470,7 +469,13 @@ if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
   if test -f "$KCONFIG"; then
     AC_MSG_RESULT([Using $KCONFIG as kernel configuration ])
   else
-    AC_MSG_ERROR([cannot read $KCONFIG kernel configuration ]) 
+    # try compressed builtin config
+    if test -f "/proc/config.gz"; then
+       KCONFIG="/proc/config.gz"
+       AC_MSG_RESULT([Using compiled-in kernel config $KCONFIG ])
+    else
+       AC_MSG_ERROR([cannot read $KCONFIG kernel configuration ]) 
+    fi
   fi
 fi
 
@@ -482,10 +487,11 @@ DEFAULT_THREAD_STYLE=""
 if test  "$THREADS" != posix; then
     AC_MSG_CHECKING(kernel for type of realtime system)
 
-    opt_ipipe=`grep '^CONFIG_IPIPE' $KCONFIG |wc -l`
-    opt_xeno=`grep '^CONFIG_XENO_' $KCONFIG |wc -l`
-    opt_preempt_rt=`grep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
-
+    # use zgrep to deal with /proc/config.gz
+    opt_ipipe=`zgrep '^CONFIG_IPIPE' $KCONFIG |wc -l`
+    opt_xeno=`zgrep '^CONFIG_XENO_' $KCONFIG |wc -l`
+    opt_preempt_rt=`zgrep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
+   
     #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
 
     if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
@@ -534,7 +540,13 @@ fi
 if test "$THREADS" != posix; then
 
    # we have a kernel config path; extract version
-   KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+
+   # if /proc/config.gz given, then this is for the running kernel
+   if test "$KCONFIG" = "/proc/config.gz"; then
+      KERNEL_VERSION=`uname -r`
+   else
+      KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+   fi
    AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
 
     AC_MSG_CHECKING([for location of kernel headers])
@@ -644,9 +656,9 @@ case "$THREADS" in
 
     xenomai-user|xenomai-kernel)
 	if test -z "$RTDIR"; then
-     	   DIRS="/usr/bin /usr/xenomai/bin"
+     	    DIRS="/usr/bin /usr/xenomai/bin"
  	else	    
-            DIRS="$RTDIR"
+            DIRS="$RTDIR /usr/xenomai/bin"
         fi
   	for location in $DIRS; do
  	    candidate=$location/xeno-config
