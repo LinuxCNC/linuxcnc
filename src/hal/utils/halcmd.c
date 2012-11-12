@@ -249,6 +249,17 @@ int hal_systemv(char *const argv[]) {
 	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
 	return -1;
     }
+    if (WIFSIGNALED(status) && WTERMSIG(status))
+    {
+	halcmd_error("child %s caught signal %s\n", 
+		     argv[0], strsignal(WTERMSIG(status)));
+    }
+    if (WIFSIGNALED(status) && WCOREDUMP(status))
+    {
+	halcmd_error("child %s created a core dump, signal %s\n", 
+		     argv[0], strsignal(WTERMSIG(status)));
+	return -1;
+    }
     if ( WIFEXITED(status) == 0 ) {
 	halcmd_error("child did not exit normally\n");
 	return -1;
