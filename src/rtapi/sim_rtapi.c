@@ -217,12 +217,12 @@ static void wrapper(void *arg)
 
     int task_id = (int) arg;
     task_data *task = &task_array[task_id];
+#if defined(RTAPI_XENOMAI_USER)
     int ret;
-
-#define FIRST_RELEASE  (task->ratio * period)  // was TM_NOW
+#endif
 
     /* use the argument to point to the task data */
-    if(task->period < period) task->period = period;
+    if (task->period < period) task->period = period;
     task->ratio = task->period / period;
     rtapi_print_msg(RTAPI_MSG_DBG, "wrapper: task %p '%s' period=%d prio=%d ratio=%d\n",
 		    task, task->name, task->ratio * period, task->prio, task->ratio);
@@ -231,7 +231,7 @@ static void wrapper(void *arg)
     ostask_self[task_id]  = rt_task_self();
     
     if ((ret = rt_task_set_periodic(NULL, 
-				    TM_NOW , // + task->ratio * period, 
+				    TM_NOW , 
 				    task->ratio * period)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
 			task_id, task->name, ret);
@@ -304,7 +304,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (retval == FALSE)
     return -ENOMEM;
   retval = pth_uctx_make(ostask_array[task_id], NULL, task->stacksize, NULL,
-			 wrapper, (void*)task, 0);
+			 wrapper, (void*)task_id, 0);
   if (retval == FALSE)
     return -ENOMEM;
 #endif
