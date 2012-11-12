@@ -511,92 +511,6 @@ class Gscreen:
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
-        # setup signals that can be blocked
-        for axis in self.data.axis_list:
-            cb = "axis_%s"% axis
-            i = "_sighandler_axis_%s"% axis
-            self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
-
-        cb = "button_menu"
-        i = "_sighandler_mode_select"
-        self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_mode_select_clicked))
-
-        cb = "button_mode"
-        i = "_sighandler_mode" 
-        self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_mode_clicked))
-        cb = "gremlin"
-        i = "_sighandler_gremlin"
-        self.data[i] = int(self.widgets[cb].connect("button_press_event", self.on_gremlin_clicked))
-        cb = "gremlin"
-        i = "_sighandler_gremlin_motion"
-        self.data[i] = int(self.widgets[cb].connect("motion-notify-event", self.on_gremlin_motion))
-        cb = "button_estop"
-        i = "_sighandler_estop"
-        self.data[i] = int(self.widgets[cb].connect("clicked", self.on_estop_clicked))
-        for mode in range(0,6):
-            for num in range(0,24):
-                cb = "button_h%d_%d"% (mode,num)
-                i = "_sighandler_button_h%d_%d"% (mode,num)
-                try:
-                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_hbutton_clicked,mode,num))
-                except:
-                    break
-        for mode in range(0,2):
-            for num in range(0,11):
-                cb = "button_v%d_%d"% (mode,num)
-                i = "_sighandler_button_v%d_%d"% (mode,num)
-                try:
-                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
-                except:
-                    break
-        self.widgets.unhome_axis.connect("clicked", self.unhome_selected)
-        self.widgets.button_v0_2.connect("pressed", self.on_button_v0_2_pressed)
-        self.widgets.button_v0_2.connect("released", self.on_button_v0_2_released)
-        self.widgets.button_v0_3.connect("pressed", self.on_button_v0_3_pressed)
-        self.widgets.button_v0_3.connect("released", self.on_button_v0_3_released)
-        self.widgets.theme_choice.connect("changed", self.on_theme_choice_changed)
-        self.widgets.use_screen2.connect("clicked", self.on_use_screen2_pressed)
-        self.widgets.dro_units.connect("clicked", self.on_dro_units_pressed)
-        self.widgets.diameter_mode.connect("clicked", self.on_diameter_mode_pressed)
-        self.widgets.show_offsets.connect("clicked", self.on_show_offsets_pressed)
-        self.widgets.show_dtg.connect("clicked", self.on_show_dtg_pressed)
-        self.widgets.fullscreen1.connect("clicked", self.on_fullscreen1_pressed)
-        self.widgets.shut_down.connect("clicked", self.on_window1_destroy)
-        self.widgets.shut_down.connect_after('released',self.hack_leave)
-        self.widgets.run_halshow.connect("clicked", self.on_halshow)
-        self.widgets.run_calibration.connect("clicked", self.on_calibration)
-        self.widgets.run_status.connect("clicked", self.on_status)
-        self.widgets.run_halmeter.connect("clicked", self.on_halmeter)
-        self.widgets.hide_cursor.connect("clicked", self.on_hide_cursor)
-        self.widgets.button_homing.connect("clicked", self.homing)
-        self.widgets.button_override.connect("clicked", self.override)
-        self.widgets.button_graphics.connect("clicked", self.graphics)
-        self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
-        self.widgets.grid_size.connect("value_changed", self.set_grid_size)
-        self.widgets.spindle_start_rpm.connect("value_changed", self.set_spindle_start_rpm)
-        self.widgets.audio_error_chooser.connect("selection_changed",self.change_sound,"error")
-        self.widgets.audio_error_chooser.connect("update-preview", self.update_preview)
-        self.widgets.audio_alert_chooser.connect("selection_changed",self.change_sound,"alert")
-        self.widgets.audio_alert_chooser.connect("update-preview", self.update_preview)
-        self.widgets.hal_status.connect("interp-idle", self.on_hal_status_interp_idle)
-        self.widgets.hal_status.connect("interp-run", self.on_hal_status_interp_run)
-        self.widgets.hal_status.connect("state-on", self.on_hal_status_state_on)
-        self.widgets.hal_status.connect("state-off", self.on_hal_status_state_off)
-        self.widgets.hal_status.connect("all-homed", self.on_hal_status_all_homed)
-        self.widgets.hal_status.connect("not-all-homed", self.on_hal_status_not_all_homed)
-        self.widgets.hal_status.connect("file-loaded", self.on_hal_status_file_loaded)
-        self.widgets.button_no.connect("clicked", self.on_button_no_clicked)
-        self.widgets.button_yes.connect("clicked", self.on_button_yes_clicked)
-        self.widgets.window1.connect("destroy", self.on_window1_destroy)
-        self.widgets.pop_statusbar.connect("clicked", self.on_pop_statusbar_clicked)
-        self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
-        self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
-        self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
-        self.widgets.eventbox_gremlin.connect("leave_notify_event", self.on_eventbox_gremlin_leave_notify_event)
-        self.widgets.eventbox_gremlin.connect("enter_notify_event", self.on_eventbox_gremlin_enter_notify_event)
-        self.widgets.s_display_rev.connect("toggled", self.on_s_display_rev_toggled)
-        self.widgets.s_display_fwd.connect("toggled", self.on_s_display_fwd_toggled)
-
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
@@ -680,6 +594,13 @@ class Gscreen:
             temp = []
         handlers = load_handlers(temp,self.halcomp,self.xml,[],self)
         self.xml.connect_signals(handlers)
+
+        # TODO the user should be able to invoke this so they know what methods are available
+        # and what handers are registered
+        #print dir(self)
+        #print handlers
+
+        self.install_signals(handlers)
 
         # toolsetting reference type
         if self.prefs.getpref('toolsetting_fixture', False):
@@ -1070,17 +991,19 @@ class Gscreen:
         print "overrides - button_h_%d_%d"%(mode,number)
         for i in range(0,5):
             if i == number:continue
-            self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
-            self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
-            self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+            button = "button_h%d_%d"% (mode,i)
+            self.block(button)
+            self.widgets[button].set_active(False)
+            self.unblock(button)
 
     def toggle_graphic_overrides(self,widget,mode,number):
         print "graphic overrides - button_h_%d_%d"%(mode,number)
         for i in range(0,8):
             if i == number or i in(1,2,3):continue
-            self.widgets["button_h%d_%d"% (mode,i)].handler_block(self.data["_sighandler_button_h%d_%d"% (mode,i)])
-            self.widgets["button_h%d_%d"% (mode,i)].set_active(False)
-            self.widgets["button_h%d_%d"% (mode,i)].handler_unblock(self.data["_sighandler_button_h%d_%d"% (mode,i)])
+            button = "button_h%d_%d"% (mode,i)
+            self.block(button)
+            self.widgets[button].set_active(False)
+            self.unblock(button)
 
     def on_hal_status_interp_run(self,widget):
         print "run"
@@ -1134,6 +1057,100 @@ class Gscreen:
         self.widgets.gcode_tab.set_text(name)
 
 # ****** do stuff *****
+
+    # this installs local signals unless overriden by custom handlers
+    def install_signals(self, handlers):
+
+        signal_list = [ ["unhome_axis","clicked", "unhome_selected"],
+                        ["button_estop","clicked", "on_estop_clicked"],
+                        ["gremlin","motion-notify-event", "on_gremlin_motion"],
+                        ["gremlin","button_press_event", "on_gremlin_clicked"],
+                        ["button_mode","button_press_event", "on_mode_clicked"],
+                        ["button_menu","button_press_event", "on_mode_select_clicked"],
+                        ["button_v0_2","pressed", "on_button_v0_2_pressed"],
+                        ["button_v0_2","released", "on_button_v0_2_released"],
+                        ["button_v0_3","pressed", "on_button_v0_3_pressed"],
+                        ["button_v0_3","released", "on_button_v0_3_released"],
+                        ["theme_choice","changed", "on_theme_choice_changed"],
+                        ["use_screen2","clicked", "on_use_screen2_pressed"],
+                        ["dro_units","clicked", "on_dro_units_pressed"],
+                        ["diameter_mode","clicked", "on_diameter_mode_pressed"],
+                        ["show_offsets","clicked", "on_show_offsets_pressed"],
+                        ["show_dtg","clicked", "on_show_dtg_pressed"],
+                        ["fullscreen1","clicked", "on_fullscreen1_pressed"],
+                        ["shut_down","clicked", "on_window1_destroy"],
+                        ["shut_down",'released',"hack_leave"],
+                        ["run_halshow","clicked", "on_halshow"],
+                        ["run_calibration","clicked", "on_calibration"],
+                        ["run_status","clicked", "on_status"],
+                        ["run_halmeter","clicked", "on_halmeter"],
+                        ["hide_cursor","clicked", "on_hide_cursor"],
+                        ["button_homing","clicked", "homing"],
+                        ["button_override","clicked", "override"],
+                        ["button_graphics","clicked", "graphics"],
+                        ["data_input","button_press_event", "launch_numerical_input"],
+                        ["grid_size","value_changed", "set_grid_size"],
+                        ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
+                        ["audio_error_chooser","update-preview", "update_preview"],
+                        ["audio_alert_chooser","update-preview", "update_preview"],
+                        ["hal_status","interp-idle", "on_hal_status_interp_idle"],
+                        ["hal_status","interp-run", "on_hal_status_interp_run"],
+                        ["hal_status","state-on", "on_hal_status_state_on"],
+                        ["hal_status","state-off", "on_hal_status_state_off"],
+                        ["hal_status","all-homed", "on_hal_status_all_homed"],
+                        ["hal_status","not-all-homed", "on_hal_status_not_all_homed"],
+                        ["hal_status","file-loaded", "on_hal_status_file_loaded"],
+                        ["button_no","clicked", "on_button_no_clicked"],
+                        ["button_yes","clicked", "on_button_yes_clicked"],
+                        ["window1","destroy", "on_window1_destroy"],
+                        ["pop_statusbar","clicked", "on_pop_statusbar_clicked"],
+                        ["dtg_colorbutton","color-set", "on_dtg_colorbutton_color_set"],
+                        ["abs_colorbutton","color-set", "on_abs_colorbutton_color_set"],
+                        ["rel_colorbutton","color-set", "on_rel_colorbutton_color_set"],
+                        ["eventbox_gremlin","leave_notify_event", "on_eventbox_gremlin_leave_notify_event"],
+                        ["eventbox_gremlin","enter_notify_event", "on_eventbox_gremlin_enter_notify_event"],
+                        ["s_display_rev","toggled", "on_s_display_rev_toggled"],
+                        ["s_display_fwd","toggled", "on_s_display_fwd_toggled"],
+                        ["audio_error_chooser","selection_changed","change_sound","error"],
+                        ["audio_alert_chooser","selection_changed","change_sound","alert"], ]
+
+        # check to see if the calls in the signal list are in the custom handler's list of calls
+        # if so skip the call in the signal list
+        # else connect the signals based on how many arguments they have 
+        for i in signal_list:
+            if i[2] in handlers:
+                print "**** GSCREEN INFO: Overriding internal signal call to %s"% i[2]
+                continue
+            try:
+                if len(i) == 3:
+                        self.widgets[i[0]].connect(i[1], self[i[2]])
+                elif len(i) == 4:
+                    self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
+            except:
+                print "**** GSCREEN WARNING: could not connect %s to %s" (i[0],i[2])
+
+        # setup signals that can be blocked but not overriden 
+        for axis in self.data.axis_list:
+            cb = "axis_%s"% axis
+            i = "_sighandler_axis_%s"% axis
+            self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
+
+        for mode in range(0,6):
+            for num in range(0,24):
+                cb = "button_h%d_%d"% (mode,num)
+                i = "_sighandler_button_h%d_%d"% (mode,num)
+                try:
+                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_hbutton_clicked,mode,num))
+                except:
+                    break
+        for mode in range(0,2):
+            for num in range(0,11):
+                cb = "button_v%d_%d"% (mode,num)
+                i = "_sighandler_button_v%d_%d"% (mode,num)
+                try:
+                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
+                except:
+                    break
 
     def sensitize_widgets(self, widgetlist, value):
         for name in widgetlist:
