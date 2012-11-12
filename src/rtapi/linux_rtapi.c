@@ -33,8 +33,6 @@
 #include <dirent.h>
 #include <sys/mman.h>
 
-extern int realtime_cpuset_add_task(pid_t pid); /* Defined in rtapi_app */
-
 #define MODULE_MAGIC		30812
 #define TASK_MAGIC		21979	/* random numbers used as signatures */
 
@@ -70,8 +68,8 @@ static unsigned long rtapi_get_pagefault_count(task_data *task)
 	minor = rusage.ru_minflt;
 	major = rusage.ru_majflt;
 	if (minor < task->minfault_base || major < task->majfault_base) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi task %d: Got invalid fault counts.\n",
-				task_id(task));
+		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi task %d %s: Got invalid fault counts.\n",
+				task_id(task), task->name);
 		return 0;
 	}
 	minor -= task->minfault_base;
@@ -89,8 +87,8 @@ static void rtapi_reset_pagefault_count(task_data *task)
 	    task->majfault_base != rusage.ru_majflt) {
 		task->minfault_base = rusage.ru_minflt;
 		task->majfault_base = rusage.ru_majflt;
-		rtapi_print_msg(RTAPI_MSG_DBG, "rtapi task %d: Reset pagefault counter\n",
-				task_id(task));
+		rtapi_print_msg(RTAPI_MSG_DBG, "rtapi task %d %s: Reset pagefault counter\n",
+				task_id(task), task->name);
 	}
 }
 
@@ -211,7 +209,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
 
 int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize,
-		   int uses_fp, int cpu_id)
+		   int uses_fp, char *name, int cpu_id)
 {
 	int n;
 	task_data *task;
@@ -246,14 +244,14 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		int lowest = rtapi_prio_lowest();
 		if (prio < lowest || prio > highest) {
 			rtapi_print_msg(RTAPI_MSG_ERR,
-					"New task invalid priority %d (highest=%d lowest=%d)\n",
-					prio, highest, lowest);
+					"New task  %d  '%s': invalid priority %d (highest=%d lowest=%d)\n",
+					n, name, prio, highest, lowest);
 			free(stackaddr);
 			return -EINVAL;
 		}
 		rtapi_print_msg(RTAPI_MSG_DBG,
-				"Creating new task with requested priority %d (highest=%d lowest=%d)\n",
-				prio, highest, lowest);
+				"Creating new task %d  '%s': requested priority %d (highest=%d lowest=%d)\n",
+				n, name, prio, highest, lowest);
 	}
 
 	task->owner = owner;
@@ -263,6 +261,10 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 	task->destroyed = 0;
 	task->taskcode = taskcode;
 	task->prio = prio;
+	task->uses_fp = uses_fp;
+	task->cpu = cpu_id;
+	strncpy(task->name, name, sizeof(task->name));
+	task->name[sizeof(task->name) - 1]= '\0';
 
 	/* and return handle to the caller */
 
@@ -301,46 +303,46 @@ int rtapi_task_delete(int id)
 	return 0;
 }
 
-#ifndef CPU_SETSIZE
-#define CPU_SETSIZE (8*sizeof(cpu_set_t))
-#endif
-
 static int realtime_set_affinity(task_data *task)
 {
 	cpu_set_t set;
 	int err, cpu_nr, use_cpu = -1;
 
-	rtapi_print_msg(RTAPI_MSG_DBG,"Setting affinity of %d\n", task_id(task));
 	pthread_getaffinity_np(task->thread, sizeof(set), &set);
-	for (cpu_nr = CPU_SETSIZE - 1; cpu_nr >= 0; cpu_nr--) {
+	if (task->cpu > -1) { // CPU set explicitly
+	    if (!CPU_ISSET(task->cpu, &set)) {
+		rtapi_print_msg(RTAPI_MSG_ERR, 
+				"RTAPI: ERROR: realtime_set_affinity(%s): CPU %d not available\n",
+				task->name, task->cpu);
+		return -EINVAL;
+	    }
+	    use_cpu = task->cpu;
+	} else {
+	    // select last CPU as default
+	    for (cpu_nr = CPU_SETSIZE - 1; cpu_nr >= 0; cpu_nr--) {
 		if (CPU_ISSET(cpu_nr, &set)) {
-			use_cpu = cpu_nr;
-			break;
+		    use_cpu = cpu_nr;
+		    break;
 		}
-	}
-	if (use_cpu < 0) {
+	    }
+	    if (use_cpu < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Unable to get ID of the last CPU\n");
-		return -1;
+		return -EINVAL;
+	    }
+	    rtapi_print_msg(RTAPI_MSG_DBG, "task %s: using default CPU %d\n",
+			    task->name, use_cpu);
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG, "Using CPU %d\n", use_cpu);
 	CPU_ZERO(&set);
 	CPU_SET(use_cpu, &set);
-	rtapi_print_msg(RTAPI_MSG_DBG,"Calling pthread_setaffinity_np() for %d\n", task_id(task));
+
 	err = pthread_setaffinity_np(task->thread, sizeof(set), &set);
 	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to set CPU affinity to CPU %d (%s)\n",
-				use_cpu, strerror(errno));
-		return -1;
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%d %s: Failed to set CPU affinity to CPU %d (%s)\n",
+			    task_id(task), task->name, use_cpu, strerror(errno));
+	    return -EINVAL;
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG,"pthread_setaffinity_np() for %d done\n", task_id(task));
-
-	err = realtime_cpuset_add_task(getpid());
-	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to add realtime task to realtime cpuset\n");
-		return -1;
-	}
-
-	rtapi_print_msg(RTAPI_MSG_DBG,"Affinity set for %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"realtime_set_affinity(): task %s assigned to CPU %d\n", 
+			task->name, use_cpu);
 	return 0;
 }
 
@@ -452,7 +454,6 @@ static void *realtime_thread(void *arg)
 {
 	task_data *task = arg;
 
-	rtapi_print_msg(RTAPI_MSG_DBG,"Hello world, I am task %d\n", task_id(task));
 	rtapi_set_task(task);
 
 	/* The task should not pagefault at all. So reset the counter now.
@@ -625,17 +626,17 @@ int rtapi_wait(void)
 	if (ts.tv_sec > task->next_time.tv_sec
 	    || (ts.tv_sec == task->next_time.tv_sec
 		&& ts.tv_nsec > task->next_time.tv_nsec)) {
-		int msglevel = RTAPI_MSG_NONE;
+		int msg_level = RTAPI_MSG_NONE;
 
 		task->failures++;
 		if (task->failures == 1)
-			msglevel = RTAPI_MSG_ERR;
+			msg_level = RTAPI_MSG_ERR;
 		//else if (task->failures < 10 || (task->failures % 10000 == 0))
 		else if (task->failures < 10)
-			msglevel = RTAPI_MSG_WARN;
+			msg_level = RTAPI_MSG_WARN;
 
-		if (msglevel != RTAPI_MSG_NONE) {
-			rtapi_print_msg(msglevel,
+		if (msg_level != RTAPI_MSG_NONE) {
+			rtapi_print_msg(msg_level,
 					"ERROR: Missed scheduling deadline for task %d [%d times]\n"
 					"Now is %ld.%09ld, deadline was %ld.%09ld\n"
 					"Absolute number of pagefaults in realtime context: %lu\n",
