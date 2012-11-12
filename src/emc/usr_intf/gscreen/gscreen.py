@@ -472,7 +472,8 @@ class Gscreen:
         self.widgets.data_input.set_value(5.125)
         pangoFont = pango.FontDescription("Tahoma 18")
         self.widgets.data_input.modify_font(pangoFont)
-        self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
+        label = ["Manual","MDI","Auto"]
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         # add terminal window
         v = vte.Terminal ()
         v.connect ("child-exited", lambda term: gtk.main_quit())
@@ -840,7 +841,8 @@ class Gscreen:
         if event.type == gtk.gdk.BUTTON_PRESS:
             a,b,c = self.data.mode_order
             self.data.mode_order = b,c,a
-            self.widgets.button_mode.set_label("Mode %d"% self.data.mode_order[0])
+            label = ["Manual","MDI","Auto"]
+            self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
             self.mode_changed(self.data.mode_order[0])
 
     def on_gremlin_clicked(self,widget,event):
