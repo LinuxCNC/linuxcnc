@@ -1,6 +1,8 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
 
+#include "config.h"  // for USE_GCC_ATOMIC_OPS
+
 // the Linux kernel has very nice bitmap handling
 // unfortunately it is not available through /usr/include
 // therefore replicate from linux/bitops.h and linux/kernel.h
@@ -16,6 +18,14 @@
 #define _DECLARE_BITMAP(name,bits) \
     unsigned long name[_BITS_TO_LONGS(bits)]
 
+#if defined( USE_GCC_ATOMIC_OPS)
+
+// #warning Using GCC builtin atomic operations
+
+#define test_and_set_bit(bit, value) __sync_fetch_and_or(value, _BIT(bit))
+#define test_and_clear_bit(bit, value)  __sync_fetch_and_and(value, ~_BIT(bit))
+
+#else
 
 #if (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
 #include <asm/bitops.h>
@@ -296,7 +306,8 @@ static __inline__ int test_and_clear_bit(unsigned long nr,
         return (old & mask) != 0;
 }
 
-#else
+#else // out of architectures
 #error The header file <asm/bitops.h> is not usable and rtapi does not yet have support for your CPU
-#endif
-#endif
+#endif // (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
+#endif // defined(USE_GCC_ATOMIC_OPS)
+#endif // RTAPI_BITOPS_H
