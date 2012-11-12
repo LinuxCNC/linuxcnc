@@ -39,9 +39,10 @@
 #include <malloc.h>
 
 #include "config.h"
-#if defined(RTAPI_XENOMAI_USER)
 #include <sys/mman.h>
 #include <execinfo.h>
+#include <sys/prctl.h>
+#if defined(RTAPI_XENOMAI_USER)
 #include <rtdk.h>
 #endif
 
@@ -394,24 +395,35 @@ static int master(int fd, vector<string> args) {
 
 static int configure_memory(void)
 {
-	unsigned int i, pagesize;
-	char *buf;
-
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
 	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN, 
 			    "rtapi_app_main: mlockall() failed: %d '%s'\n",
 			    errno,strerror(errno)); 
-	    perror("Failed to lock memory (mlockall)");
 	    return 1;
 	}
-	/* Turn off malloc trimming.*/
-	mallopt(M_TRIM_THRESHOLD, -1);
-	/* Turn off mmap usage. */
-	mallopt(M_MMAP_MAX, 0);
 
+#if !defined(RTAPI_POSIX)  
+	// fails badly on POSIX threads build - FIXME find out why
+	unsigned int i, pagesize;
+	char *buf;
+
+	/* Turn off malloc trimming.*/
+	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_TRIM_THRESHOLD, -1) failed\n");
+	    return 1;
+	}
+	/* Turn off mmap usage. */
+	if (!mallopt(M_MMAP_MAX, 0)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_MMAP_MAX, -1) failed\n");
+	    return 1;
+	}
 	buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+	if (buf == NULL) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: malloc(PRE_ALLOC_SIZE) failed\n");
+	    return 1;
+	}
 	pagesize = sysconf(_SC_PAGESIZE);
 	/* Touch each page in this piece of memory to get it mapped into RAM */
 	for (i = 0; i < PRE_ALLOC_SIZE; i += pagesize) {
@@ -428,24 +440,28 @@ static int configure_memory(void)
 	 * mechanism we can build C++ applications that will never run into
 	 * a major/minor pagefault, even with swapping enabled. */
 	free(buf);
-
+#endif
 	return 0;
 }
 
-void signal_handler(int sig)
+void signal_handler(int sig, siginfo_t *si, void *uctx)
 {
     void *bt[32];
     int nentries;
  
 #if defined(RTAPI_XENOMAI_USER)
     if (sig == SIGXCPU) 
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Xenomai switched RT task to secondary domain\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: Xenomai switched RT task to secondary domain\n",
+			getpid());
     else
 #endif
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: signal %s received\n", strsignal(sig));
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: signal %d - '%s' received\n",
+			getpid(), sig, strsignal(sig));
 
     nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
-    backtrace_symbols_fd(bt,nentries,fileno(stdout));
+    backtrace_symbols_fd(bt,nentries,fileno(stderr));
+    if (sig != SIGXCPU)
+	abort();
     exit(sig);
 }
 
@@ -455,8 +471,8 @@ exit_handler(void)
     struct rusage rusage;
 	
     getrusage(RUSAGE_SELF, &rusage);
-    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app_main: %ld page faults, %ld page reclaims\n",
-		    rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
+		    getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
 }
 
 int main(int argc, char **argv) 
@@ -465,7 +481,29 @@ int main(int argc, char **argv)
     char *s;
     struct sigaction backtrace_action;
 
-    configure_memory();
+    
+    if ((s = getenv("MSGLEVEL")) != NULL) {
+	msg_level = atoi(s);
+	rtapi_set_msg_level(msg_level);
+    }
+
+    // enable core dumps
+    struct rlimit core_limit;
+    core_limit.rlim_cur = RLIM_INFINITY;
+    core_limit.rlim_max = RLIM_INFINITY;
+    
+    if (setrlimit(RLIMIT_CORE, &core_limit) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"rtapi_app_main: setrlimit: %s - core dumps may be truncated or non-existant\n",
+			strerror(errno));
+
+    // even when setuid root
+    if (prctl(PR_SET_DUMPABLE, 1) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
+			errno, strerror(errno));
+
+    configure_memory();    
 
     if (getrusage(RUSAGE_SELF, &rusage)) {
 	rtapi_print_msg(RTAPI_MSG_WARN, 
@@ -483,13 +521,12 @@ int main(int argc, char **argv)
     }
 
     sigemptyset( &backtrace_action.sa_mask );
-    backtrace_action.sa_handler = signal_handler;
-    backtrace_action.sa_flags   = 0;
+    backtrace_action.sa_sigaction = signal_handler;
+    backtrace_action.sa_flags   = SA_SIGINFO;
 
     sigaction(SIGSEGV, &backtrace_action, (struct sigaction *) NULL);
     sigaction(SIGILL,  &backtrace_action, (struct sigaction *) NULL);
     sigaction(SIGFPE,  &backtrace_action, (struct sigaction *) NULL);
-    sigaction(SIGABRT, &backtrace_action, (struct sigaction *) NULL);
 
 #if defined(RTAPI_XENOMAI_USER)
     sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
@@ -513,11 +550,6 @@ int main(int argc, char **argv)
 
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
-    
-    if ((s = getenv("MSGLEVEL")) != NULL) {
-	msg_level = atoi(s);
-	rtapi_set_msg_level(msg_level);
-    }
 
 become_master:
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
