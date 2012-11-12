@@ -227,6 +227,7 @@ class Data:
         self.spindle_request_rpm = 0
         self.spindle_dir = 0
         self.spindle_speed = 0
+        self.spindle_start_rpm = 100
         self.active_spindle_command = "" # spindle command setting
         self.active_feed_command = "" # feed command setting
         self.system = 1
@@ -449,6 +450,8 @@ class Gscreen:
         data = self.prefs.getpref('grid_size', 1.0 , float)
         self.widgets.grid_size.set_value(data) 
         self.widgets.gremlin.grid_size = data
+        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 100 , float)
+        self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
         self.data.dro_units = self.prefs.getpref('units', False, bool)
@@ -570,6 +573,7 @@ class Gscreen:
         self.widgets.button_graphics.connect("clicked", self.graphics)
         self.widgets.data_input.connect("button_press_event", self.launch_numerical_input)
         self.widgets.grid_size.connect("value_changed", self.set_grid_size)
+        self.widgets.spindle_start_rpm.connect("value_changed", self.set_spindle_start_rpm)
         self.widgets.audio_error_chooser.connect("selection_changed",self.change_sound,"error")
         self.widgets.audio_error_chooser.connect("update-preview", self.update_preview)
         self.widgets.audio_alert_chooser.connect("selection_changed",self.change_sound,"alert")
@@ -750,6 +754,11 @@ class Gscreen:
         self.widgets.gremlin.set_property('grid_size',data)
         self.prefs.putpref('grid_size', data,float)
 
+    def set_spindle_start_rpm(self,widget):
+        data = widget.get_value()
+        self.data.spindle_start_rpm = data
+        self.prefs.putpref('spindle_start_rpm', data,float)
+
     def update_preview(self,widget):
         file = widget.get_filename()
         if file:
@@ -773,7 +782,7 @@ class Gscreen:
                 if widget.get_active():
                     self.widgets.s_display_rev.set_active(False)
                     print "forward"
-                    self.emc.spindle_forward(1)
+                    self.emc.spindle_forward(1,self.data.spindle_start_rpm)
                 elif not self.widgets.s_display_rev.get_active():
                     self.emc.spindle_off(1)
             elif widget.get_active():
@@ -787,7 +796,7 @@ class Gscreen:
                 if widget.get_active():
                     self.widgets.s_display_fwd.set_active(False)
                     print "reverse"
-                    self.emc.spindle_reverse(1)
+                    self.emc.spindle_reverse(1,self.data.spindle_start_rpm)
                 elif not self.widgets.s_display_fwd.get_active():
                     self.emc.spindle_off(1)
             elif widget.get_active():

@@ -1056,14 +1056,14 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="z0_color">#0000ffff0000</property>
-                                    <property name="target_color">#e21911831183</property>
-                                    <property name="z1_color">#ffffffff0000</property>
-                                    <property name="bg_color">#bebebebebebe</property>
-                                    <property name="target_value">500</property>
                                     <property name="value">-7</property>
                                     <property name="show_limits">False</property>
                                     <property name="max">2000</property>
+                                    <property name="target_color">#e21911831183</property>
+                                    <property name="z0_color">#0000ffff0000</property>
+                                    <property name="target_value">500</property>
+                                    <property name="z1_color">#ffffffff0000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z2_color">#ffff00000000</property>
                                   </object>
                                   <packing>
@@ -1310,192 +1310,6 @@ Speed</property>
                     <property name="visible">True</property>
                     <property name="n_columns">3</property>
                     <child>
-                      <object class="GtkTable" id="table9">
-                        <property name="visible">True</property>
-                        <property name="n_rows">7</property>
-                        <property name="n_columns">2</property>
-                        <child>
-                          <object class="GtkComboBox" id="theme_choice">
-                            <property name="visible">True</property>
-                            <property name="model">liststore1</property>
-                            <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                              <attributes>
-                                <attribute name="text">0</attribute>
-                              </attributes>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label11">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Themes</property>
-                          </object>
-                          <packing>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkColorButton" id="rel_colorbutton">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="color">#000000000000</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label13">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Relative
-Text Color</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label19">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Absolute
-Text Color</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkColorButton" id="abs_colorbutton">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="color">#000000000000</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkColorButton" id="dtg_colorbutton">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="color">#000000000000</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label21">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">DTG Text
-   Color</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFileChooserButton" id="audio_error_chooser">
-                            <property name="visible">True</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">5</property>
-                            <property name="bottom_attach">6</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label25">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Warning
- audio</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">5</property>
-                            <property name="bottom_attach">6</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label27">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes"> Alert
-audio</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">6</property>
-                            <property name="bottom_attach">7</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFileChooserButton" id="audio_alert_chooser">
-                            <property name="visible">True</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">6</property>
-                            <property name="bottom_attach">7</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label5">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Grid
-Size</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="grid_size">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
-                            <property name="adjustment">adjustment2</property>
-                            <property name="digits">3</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="x_options">GTK_EXPAND</property>
-                        <property name="y_options">GTK_EXPAND</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkTable" id="table11">
                         <property name="visible">True</property>
                         <property name="n_rows">6</property>
@@ -1656,6 +1470,216 @@ Aux Coolant</property>
                     </child>
                     <child>
                       <placeholder/>
+                    </child>
+                    <child>
+                      <object class="GtkTable" id="table9">
+                        <property name="visible">True</property>
+                        <property name="n_rows">9</property>
+                        <property name="n_columns">2</property>
+                        <child>
+                          <object class="GtkComboBox" id="theme_choice">
+                            <property name="visible">True</property>
+                            <property name="model">liststore1</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options"></property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label11">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Themes</property>
+                          </object>
+                          <packing>
+                            <property name="x_options"></property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkColorButton" id="rel_colorbutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="color">#000000000000</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label13">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Relative Text Color</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label19">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Absolute Text Color</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkColorButton" id="abs_colorbutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="color">#000000000000</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkColorButton" id="dtg_colorbutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="color">#000000000000</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label21">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">DTG Text Color</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFileChooserButton" id="audio_error_chooser">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label25">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Warning Audio</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label27">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Alert Audio</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">6</property>
+                            <property name="bottom_attach">7</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFileChooserButton" id="audio_alert_chooser">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">6</property>
+                            <property name="bottom_attach">7</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label5">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Grid Size</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="grid_size">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="adjustment">adjustment2</property>
+                            <property name="digits">3</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="spindle_start_rpm">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="adjustment">adjustment3</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">7</property>
+                            <property name="bottom_attach">8</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label29">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Starting RPM</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">7</property>
+                            <property name="bottom_attach">8</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_EXPAND</property>
+                        <property name="y_options">GTK_EXPAND</property>
+                      </packing>
                     </child>
                   </object>
                 </child>
@@ -1886,8 +1910,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
-                                <property name="led_shape">1</property>
                                 <property name="off_color">green</property>
+                                <property name="led_shape">1</property>
                               </object>
                               <packing>
                                 <property name="position">0</property>
@@ -1950,9 +1974,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
+                                <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
                                 <property name="on_color">green</property>
-                                <property name="off_color">red</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -3158,5 +3182,10 @@ status</property>
   <object class="GtkAdjustment" id="adjustment2">
     <property name="upper">100</property>
     <property name="step_increment">0.25</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="lower">1</property>
+    <property name="upper">1000</property>
+    <property name="step_increment">50</property>
   </object>
 </interface>
