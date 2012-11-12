@@ -701,10 +701,10 @@ class Gscreen:
         if self.data.mode_order[0] == _MAN:
             if self.widgets.button_h1_0.get_active():# jogging mode active
                 if widget.get_active():
-                    self.widgets.s_display_rev.set_active(False)
-                    print "forward"
-                    self.emc.spindle_forward(1,self.data.spindle_start_rpm)
-                elif not self.widgets.s_display_rev.get_active():
+                    if self.widgets.s_display_rev.get_active():
+                        self.widgets.s_display_rev.set_active(False)
+                        self.emc.spindle_off(1)
+                else:
                     self.emc.spindle_off(1)
             elif widget.get_active():
                 widget.set_active(False)
@@ -715,10 +715,10 @@ class Gscreen:
         if self.data.mode_order[0] == _MAN:
             if self.widgets.button_h1_0.get_active():# jogging mode active
                 if widget.get_active():
-                    self.widgets.s_display_fwd.set_active(False)
-                    print "reverse"
-                    self.emc.spindle_reverse(1,self.data.spindle_start_rpm)
-                elif not self.widgets.s_display_fwd.get_active():
+                    if self.widgets.s_display_fwd.get_active():
+                        self.widgets.s_display_fwd.set_active(False)
+                        self.emc.spindle_off(1)
+                else:
                     self.emc.spindle_off(1)
             elif widget.get_active():
                 widget.set_active(False)
@@ -1820,9 +1820,19 @@ class Gscreen:
                         self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
                         return
                     if direction and action:
-                        self.emc.spindle_faster(1)
+                        if self.data.spindle_speed:
+                            self.emc.spindle_faster(1)
+                        elif self.widgets.s_display_fwd.get_active():
+                            self.emc.spindle_forward(1,self.data.spindle_start_rpm)
+                        else:
+                            self.emc.spindle_reverse(1,self.data.spindle_start_rpm)
                         print direction,action
-                    elif not direction and action:self.emc.spindle_slower(1)
+                    elif not direction and action:
+                        if self.data.spindle_speed:
+                            if self.data.spindle_speed >100:
+                                self.emc.spindle_slower(1)
+                            else:
+                                self.emc.spindle_off(1)
 
     # feeds to a position (while in manual mode) or set spindle speed to spinbox
     def do_jog_to_position(self):
