@@ -10,18 +10,23 @@
 *
 ********************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <stdio.h>		/* vprintf() */
 #include <stdlib.h>		/* malloc(), sizeof() */
 #include <unistd.h>		/* usleep() */
 #include <sys/io.h>		/* shmget() */
-#include "rtapi.h"
-#include "rtapi_common.h"	
 #include <errno.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <sys/mman.h>
+#include <time.h>
 
+#include "config.h"
+#include "rtapi.h"
+#include "rtapi_common.h"
 
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *

@@ -335,7 +335,6 @@ BUILD_DRIVERS="no"
 #	this would check whether the running kernel is in fact rt-preempt by inspecting /boot/config-`uname #-r` for appropriate flags, and complain otherwise-
 KCONFIG=""
 
-
 # if autoconfiguring from kernel config, use these
 # defaults as thread style:
 DEFAULT_THREADSTYLE_XENOMAI=xenomai-user
@@ -354,6 +353,11 @@ USE_PORTABLE_PARPORT_IO="no"
 # /* build hardware drivers */
 # #define USE_PORTABLE_PARPORT_IO /**/
 
+# atomic bitops. We have the inline asm stuff in rtapi_bitops.h
+# but that's x86 and ppc only. We could just as well use the
+# gcc builtin atomic ops which have appeared since, and whack!
+# all portable
+USE_GCC_ATOMIC_OPS="no"
 
 # note to mah: dont forget debian/configure FIXME
  
@@ -406,7 +410,29 @@ AC_ARG_ENABLE(portable-parport,
 	fi
     ],
     [
-      AC_MSG_RESULT([using defaults])
+      AC_MSG_RESULT([using defaults: $USE_PORTABLE_PARPORT_IO])
+    ])
+
+AC_MSG_CHECKING(whether to use GCC's builtin atomic operations)
+AC_ARG_ENABLE(gcc-atomic-ops,
+    [  --enable-gcc-atomic-ops      Build using GCC's builtin atomic operations],
+    [
+        case "$enableval" in
+            Y*|y*)
+		USE_GCC_ATOMIC_OPS=yes
+                AC_MSG_RESULT([using GCC's builtin atomic operations])
+            ;;
+            N*|n*)
+		USE_GCC_ATOMIC_OPS=no
+                AC_MSG_RESULT([explicitly disabling GCC's builtin atomic operations])
+            ;;
+        esac
+	if test -z "$USE_GCC_ATOMIC_OPS"; then
+	   AC_MSG_ERROR([ I dont understand $enableval, just yes or no ])
+	fi
+    ],
+    [
+      AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
     ])
 
 
@@ -555,7 +581,13 @@ if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
   if test -f "$KCONFIG"; then
     AC_MSG_RESULT([Using $KCONFIG as kernel configuration ])
   else
-    AC_MSG_ERROR([cannot read $KCONFIG kernel configuration ]) 
+    # try compressed builtin config
+    if test -f "/proc/config.gz"; then
+       KCONFIG="/proc/config.gz"
+       AC_MSG_RESULT([Using compiled-in kernel config $KCONFIG ])
+    else
+       AC_MSG_ERROR([cannot read $KCONFIG kernel configuration ]) 
+    fi
   fi
 fi
 
@@ -567,10 +599,11 @@ DEFAULT_THREAD_STYLE=""
 if test  "$THREADS" != posix; then
     AC_MSG_CHECKING(kernel for type of realtime system)
 
-    opt_ipipe=`grep '^CONFIG_IPIPE' $KCONFIG |wc -l`
-    opt_xeno=`grep '^CONFIG_XENO_' $KCONFIG |wc -l`
-    opt_preempt_rt=`grep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
-
+    # use zgrep to deal with /proc/config.gz
+    opt_ipipe=`zgrep '^CONFIG_IPIPE' $KCONFIG |wc -l`
+    opt_xeno=`zgrep '^CONFIG_XENO_' $KCONFIG |wc -l`
+    opt_preempt_rt=`zgrep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
+   
     #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
 
     if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
@@ -619,7 +652,13 @@ fi
 if test "$THREADS" != posix; then
 
    # we have a kernel config path; extract version
-   KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+
+   # if /proc/config.gz given, then this is for the running kernel
+   if test "$KCONFIG" = "/proc/config.gz"; then
+      KERNEL_VERSION=`uname -r`
+   else
+      KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
+   fi
    AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
 
     AC_MSG_CHECKING([for location of kernel headers])
@@ -729,9 +768,9 @@ case "$THREADS" in
 
     xenomai-user|xenomai-kernel)
 	if test -z "$RTDIR"; then
-     	   DIRS="/usr/bin /usr/xenomai/bin"
+     	    DIRS="/usr/bin /usr/xenomai/bin"
  	else	    
-            DIRS="$RTDIR"
+            DIRS="$RTDIR /usr/xenomai/bin"
         fi
   	for location in $DIRS; do
  	    candidate=$location/xeno-config
@@ -830,6 +869,11 @@ if test "$BUILD_DRIVERS" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
 AC_SUBST(BUILD_DRIVERS)
+
+if test "$USE_GCC_ATOMIC_OPS" = yes; then
+   AC_DEFINE(USE_GCC_ATOMIC_OPS, [], [use GCC builtin atomic operations])
+fi
+AC_SUBST(USE_GCC_ATOMIC_OPS)
 
 if test "$USE_PORTABLE_PARPORT_IO" = yes; then
    AC_DEFINE(USE_PORTABLE_PARPORT_IO, [], [use ppdev ioctl instead of inb/outb])
