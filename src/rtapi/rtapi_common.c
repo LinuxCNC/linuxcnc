@@ -95,6 +95,7 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->task_array[n].prio = 0;
 	data->task_array[n].owner = 0;
 	data->task_array[n].taskcode = NULL;
+	data->task_array[n].cpu = -1;   // use default
     }
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
 	data->shmem_array[n].key = 0;
