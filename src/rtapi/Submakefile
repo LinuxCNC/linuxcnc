@@ -34,6 +34,7 @@ ifeq ($(THREADS),posix)
 RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
 	rtapi/rtapi_common.c \
+	rtapi/rtapi_pci.c \
 	rtapi/sim_rtapi.c
 
 ULAPISRCS := rtapi/sim_ulapi.c
@@ -58,6 +59,7 @@ RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
 	rtapi/xenomai_common.c \
 	rtapi/rtapi_common.c \
+	rtapi/rtapi_pci.c \
 	rtapi/sim_rtapi.c
 
 ULAPISRCS := rtapi/sim_ulapi.c
@@ -78,6 +80,7 @@ ifeq ($(THREADS),rt-preempt-user)
 RTAPI_APP_SRCS := \
 	rtapi/linux_rtapi_app.cc \
 	rtapi/rtapi_common.c \
+	rtapi/rtapi_pci.c \
 	rtapi/linux_rtapi.c
 USERSRCS += $(RTAPI_APP_SRCS)
 ULAPISRCS := rtapi/linux_ulapi.c 

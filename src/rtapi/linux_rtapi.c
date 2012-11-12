@@ -33,8 +33,6 @@
 #include <dirent.h>
 #include <sys/mman.h>
 
-extern int realtime_cpuset_add_task(pid_t pid); /* Defined in rtapi_app */
-
 #define MODULE_MAGIC		30812
 #define TASK_MAGIC		21979	/* random numbers used as signatures */
 
@@ -70,8 +68,8 @@ static unsigned long rtapi_get_pagefault_count(task_data *task)
 	minor = rusage.ru_minflt;
 	major = rusage.ru_majflt;
 	if (minor < task->minfault_base || major < task->majfault_base) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi task %d: Got invalid fault counts.\n",
-				task_id(task));
+		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi task %d %s: Got invalid fault counts.\n",
+				task_id(task), task->name);
 		return 0;
 	}
 	minor -= task->minfault_base;
@@ -89,8 +87,8 @@ static void rtapi_reset_pagefault_count(task_data *task)
 	    task->majfault_base != rusage.ru_majflt) {
 		task->minfault_base = rusage.ru_minflt;
 		task->majfault_base = rusage.ru_majflt;
-		rtapi_print_msg(RTAPI_MSG_DBG, "rtapi task %d: Reset pagefault counter\n",
-				task_id(task));
+		rtapi_print_msg(RTAPI_MSG_DBG, "rtapi task %d %s: Reset pagefault counter\n",
+				task_id(task), task->name);
 	}
 }
 
@@ -211,7 +209,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
 
 int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		   int prio, int owner, unsigned long int stacksize,
-		   int uses_fp, int cpu_id)
+		   int uses_fp, char *name, int cpu_id)
 {
 	int n;
 	task_data *task;
@@ -246,14 +244,14 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 		int lowest = rtapi_prio_lowest();
 		if (prio < lowest || prio > highest) {
 			rtapi_print_msg(RTAPI_MSG_ERR,
-					"New task invalid priority %d (highest=%d lowest=%d)\n",
-					prio, highest, lowest);
+					"New task  %d  '%s': invalid priority %d (highest=%d lowest=%d)\n",
+					n, name, prio, highest, lowest);
 			free(stackaddr);
 			return -EINVAL;
 		}
 		rtapi_print_msg(RTAPI_MSG_DBG,
-				"Creating new task with requested priority %d (highest=%d lowest=%d)\n",
-				prio, highest, lowest);
+				"Creating new task %d  '%s': requested priority %d (highest=%d lowest=%d)\n",
+				n, name, prio, highest, lowest);
 	}
 
 	task->owner = owner;
@@ -263,6 +261,10 @@ int rtapi_task_new(void (*taskcode)(void *), void *arg,
 	task->destroyed = 0;
 	task->taskcode = taskcode;
 	task->prio = prio;
+	task->uses_fp = uses_fp;
+	task->cpu = cpu_id;
+	strncpy(task->name, name, sizeof(task->name));
+	task->name[sizeof(task->name) - 1]= '\0';
 
 	/* and return handle to the caller */
 
@@ -301,46 +303,46 @@ int rtapi_task_delete(int id)
 	return 0;
 }
 
-#ifndef CPU_SETSIZE
-#define CPU_SETSIZE (8*sizeof(cpu_set_t))
-#endif
-
 static int realtime_set_affinity(task_data *task)
 {
 	cpu_set_t set;
 	int err, cpu_nr, use_cpu = -1;
 
-	rtapi_print_msg(RTAPI_MSG_DBG,"Setting affinity of %d\n", task_id(task));
 	pthread_getaffinity_np(task->thread, sizeof(set), &set);
-	for (cpu_nr = CPU_SETSIZE - 1; cpu_nr >= 0; cpu_nr--) {
+	if (task->cpu > -1) { // CPU set explicitly
+	    if (!CPU_ISSET(task->cpu, &set)) {
+		rtapi_print_msg(RTAPI_MSG_ERR, 
+				"RTAPI: ERROR: realtime_set_affinity(%s): CPU %d not available\n",
+				task->name, task->cpu);
+		return -EINVAL;
+	    }
+	    use_cpu = task->cpu;
+	} else {
+	    // select last CPU as default
+	    for (cpu_nr = CPU_SETSIZE - 1; cpu_nr >= 0; cpu_nr--) {
 		if (CPU_ISSET(cpu_nr, &set)) {
-			use_cpu = cpu_nr;
-			break;
+		    use_cpu = cpu_nr;
+		    break;
 		}
-	}
-	if (use_cpu < 0) {
+	    }
+	    if (use_cpu < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Unable to get ID of the last CPU\n");
-		return -1;
+		return -EINVAL;
+	    }
+	    rtapi_print_msg(RTAPI_MSG_DBG, "task %s: using default CPU %d\n",
+			    task->name, use_cpu);
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG, "Using CPU %d\n", use_cpu);
 	CPU_ZERO(&set);
 	CPU_SET(use_cpu, &set);
-	rtapi_print_msg(RTAPI_MSG_DBG,"Calling pthread_setaffinity_np() for %d\n", task_id(task));
+
 	err = pthread_setaffinity_np(task->thread, sizeof(set), &set);
 	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to set CPU affinity to CPU %d (%s)\n",
-				use_cpu, strerror(errno));
-		return -1;
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%d %s: Failed to set CPU affinity to CPU %d (%s)\n",
+			    task_id(task), task->name, use_cpu, strerror(errno));
+	    return -EINVAL;
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG,"pthread_setaffinity_np() for %d done\n", task_id(task));
-
-	err = realtime_cpuset_add_task(getpid());
-	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to add realtime task to realtime cpuset\n");
-		return -1;
-	}
-
-	rtapi_print_msg(RTAPI_MSG_DBG,"Affinity set for %d\n", task_id(task));
+	rtapi_print_msg(RTAPI_MSG_DBG,"realtime_set_affinity(): task %s assigned to CPU %d\n", 
+			task->name, use_cpu);
 	return 0;
 }
 
@@ -452,7 +454,6 @@ static void *realtime_thread(void *arg)
 {
 	task_data *task = arg;
 
-	rtapi_print_msg(RTAPI_MSG_DBG,"Hello world, I am task %d\n", task_id(task));
 	rtapi_set_task(task);
 
 	/* The task should not pagefault at all. So reset the counter now.
@@ -625,17 +626,17 @@ int rtapi_wait(void)
 	if (ts.tv_sec > task->next_time.tv_sec
 	    || (ts.tv_sec == task->next_time.tv_sec
 		&& ts.tv_nsec > task->next_time.tv_nsec)) {
-		int msglevel = RTAPI_MSG_NONE;
+		int msg_level = RTAPI_MSG_NONE;
 
 		task->failures++;
 		if (task->failures == 1)
-			msglevel = RTAPI_MSG_ERR;
+			msg_level = RTAPI_MSG_ERR;
 		//else if (task->failures < 10 || (task->failures % 10000 == 0))
 		else if (task->failures < 10)
-			msglevel = RTAPI_MSG_WARN;
+			msg_level = RTAPI_MSG_WARN;
 
-		if (msglevel != RTAPI_MSG_NONE) {
-			rtapi_print_msg(msglevel,
+		if (msg_level != RTAPI_MSG_NONE) {
+			rtapi_print_msg(msg_level,
 					"ERROR: Missed scheduling deadline for task %d [%d times]\n"
 					"Now is %ld.%09ld, deadline was %ld.%09ld\n"
 					"Absolute number of pagefaults in realtime context: %lu\n",
@@ -680,310 +681,6 @@ long long rtapi_get_time(void)
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	return ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec;
-}
-
-/***********************************************************************
-*                        PCI DEVICE SUPPORT                            *
-************************************************************************/
-
-struct rtapi_pcidev_mmio {
-	int bar;			/* The PCI BAR */
-	void *mmio;			/* The MMIO address */
-	size_t length;			/* Length of the mapping */
-};
-
-struct rtapi_pcidev {
-	__u16 vendor;				/* Vendor ID */
-	__u16 device;				/* Device ID */
-	char busid[32];				/* PCI bus ID (0000:00:00.0) */
-	char devnode[32];			/* UIO /dev node */
-	int fd;					/* UIO /dev file descriptor */
-	int mmio_refcnt;			/* MMIO resource reference count */
-	struct rtapi_pcidev_mmio mmio[8];	/* Mappings */
-};
-
-#define UIO_PCI_PATH	"/sys/bus/pci/drivers/uio_pci_generic"
-
-static ssize_t readfile(const char *path, char *buf, size_t buflen)
-{
-	int fd;
-	ssize_t res;
-
-	fd = open(path, O_RDONLY);
-	if (!fd) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to open \"%s\" (%s)\n",
-				path, strerror(errno));
-		return -1;
-	}
-	memset(buf, 0, buflen);
-	res = read(fd, buf, buflen - 1);
-	close(fd);
-	if (res < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to read \"%s\" (%s)\n",
-				path, strerror(errno));
-		return -1;
-	}
-
-	return res;
-}
-
-static int writefile(const char *path, const char *buf, size_t len)
-{
-	int fd;
-	ssize_t res;
-
-	fd = open(path, O_RDWR);
-	if (!fd) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to open \"%s\" (%s)\n",
-				path, strerror(errno));
-		return -1;
-	}
-	res = write(fd, buf, len);
-	close(fd);
-	if (res != len) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to write \"%s\" (%s)\n",
-				path, strerror(errno));
-		return -1;
-	}
-
-	return 0;
-}
-
-struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
-					   struct rtapi_pcidev *from)
-{
-	int err;
-	DIR *dir;
-	struct dirent dirent_buf, *dirent;
-	ssize_t res;
-	char buf[256], path[256];
-	struct rtapi_pcidev *dev = NULL;
-	int found_start = 0;
-
-	/* Register the new device IDs */
-	snprintf(buf, sizeof(buf), "%04X %04X", vendor, device);
-	err = writefile(UIO_PCI_PATH "/new_id", buf, strlen(buf));
-	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to register PCI device to UIO-pci-generic. "
-				"Is the \"uio-pci-generic\" kernel module loaded?\n");
-		goto error;
-	}
-
-	/* UIO-pci-generic should bind to the device now. Wait to avoid races. */
-	{
-		struct timespec time = {
-			.tv_sec = 0,
-			.tv_nsec = 1000 * 1000 * 100,
-		};
-		do {
-			err = nanosleep(&time, &time);
-			if (err && errno != EINTR) {
-				rtapi_print_msg(RTAPI_MSG_ERR,
-						"Nanosleep failure (%s)\n",
-						strerror(errno));
-				break;
-			}
-		} while (time.tv_sec || time.tv_nsec);
-	}
-
-	/* Find the device */
-	dir = opendir(UIO_PCI_PATH);
-	if (!dir) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to open UIO-pci-generic sysfs directory. (%s)\n",
-				strerror(errno));
-		goto error;
-	}
-	while (1) {
-		unsigned int tmp;
-
-		err = readdir_r(dir, &dirent_buf, &dirent);
-		if (err) {
-			rtapi_print_msg(RTAPI_MSG_ERR,
-					"Failed to read UIO-pci-generic sysfs directory. (%s)\n",
-					strerror(errno));
-			closedir(dir);
-			goto error;
-		}
-		if (from && !found_start) {
-			if (strcmp(dirent->d_name, from->busid) == 0) {
-				/* Found the start entry. */
-				found_start = 1;
-			}
-			continue;
-		}
-		res = sscanf(dirent->d_name, "%X:%X:%X.%X", &tmp, &tmp, &tmp, &tmp);
-		if (res != 4)
-			continue;
-		/* Check the vendor ID */
-		snprintf(path, sizeof(path), UIO_PCI_PATH "/%s/vendor", dirent->d_name);
-		res = readfile(path, buf, sizeof(buf));
-		if (res <= 0)
-			continue;
-		res = sscanf(buf, "%X", &tmp);
-		if (res != 1 || tmp != vendor)
-			continue;
-		/* Check the device ID */
-		snprintf(path, sizeof(path), UIO_PCI_PATH "/%s/device", dirent->d_name);
-		res = readfile(path, buf, sizeof(buf));
-		if (res <= 0)
-			continue;
-		res = sscanf(buf, "%X", &tmp);
-		if (res != 1 || tmp != device)
-			continue;
-
-		/* We got a device! */
-		dev = malloc(sizeof(*dev));
-		if (!dev) {
-			rtapi_print_msg(RTAPI_MSG_ERR, "Out of memory\n");
-			closedir(dir);
-			goto error;
-		}
-		memset(dev, 0, sizeof(*dev));
-		strncpy(dev->busid, dirent->d_name, sizeof(dev->busid) - 1);
-		break;
-	}
-	closedir(dir);
-	if (!dev) {
-		rtapi_print_msg(RTAPI_MSG_INFO, "PCI device %04X:%04X not found\n",
-				vendor, device);
-		goto error;
-	}
-
-	dev->vendor = vendor;
-	dev->device = device;
-
-	/* Check which /dev node the device is on. */
-	snprintf(path, sizeof(path), UIO_PCI_PATH "/%s/uio", dev->busid);
-	dir = opendir(path);
-	if (!dir) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to open UIO directory. (%s)\n",
-				strerror(errno));
-		goto error;
-	}
-	while (1) {
-		unsigned int tmp;
-
-		err = readdir_r(dir, &dirent_buf, &dirent);
-		if (err) {
-			rtapi_print_msg(RTAPI_MSG_ERR,
-					"Failed to read UIO directory. (%s)\n",
-					strerror(errno));
-			closedir(dir);
-			goto error;
-		}
-		res = sscanf(dirent->d_name, "uio%u", &tmp);
-		if (res != 1)
-			continue;
-		snprintf(dev->devnode, sizeof(dev->devnode), "/dev/uio%u", tmp);
-		break;
-	}
-	closedir(dir);
-	if (strlen(dev->devnode) == 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Could not determine UIO /dev node.\n");
-		goto error;
-	}
-
-	/* Open the device node */
-	dev->fd = open(dev->devnode, O_RDWR);
-	if (dev->fd < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Could not open UIO node \"%s\". (%s)\n",
-				dev->devnode, strerror(errno));
-		goto error;
-	}
-
-	return dev;
-
-error:
-	if (dev)
-		free(dev);
-	return NULL;
-}
-
-void rtapi_pci_put_device(struct rtapi_pcidev *dev)
-{
-	int err;
-	char buf[256];
-
-	if (!dev)
-		return;
-
-	if (dev->mmio_refcnt != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Nonzero PCI MMIO reference count (%d). "
-				"Check your ioremap/iounmap calls.\n", dev->mmio_refcnt);
-	}
-
-	/* Remove the device IDs */
-	snprintf(buf, sizeof(buf), "%04X %04X", dev->vendor, dev->device);
-	err = writefile(UIO_PCI_PATH "/remove_id", buf, strlen(buf));
-	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to remove PCI device ID from UIO-pci-generic.\n");
-	}
-
-	/* Unbind the device from the UIO-pci-generic driver. */
-	err = writefile(UIO_PCI_PATH "/unbind", dev->busid, strlen(dev->busid));
-	if (err) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"Failed to unbind the PCI device %s\n", dev->busid);
-	}
-
-	close(dev->fd);
-
-	memset(dev, 0, sizeof(*dev));
-	free(dev);
-}
-
-void * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
-{
-	size_t pagesize;
-	void *mmio;
-
-	if (bar < 0 || bar >= sizeof(dev->mmio)) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "Invalid PCI BAR %d\n", bar);
-		return NULL;
-	}
-
-	pagesize = sysconf(_SC_PAGESIZE);
-
-	mmio = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED,
-		    dev->fd, bar * pagesize);
-	if (mmio == NULL || mmio == MAP_FAILED) {
-		if (mmio == NULL)
-			munmap(mmio, size);
-		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to remap MMIO %d of PCI device %s\n",
-				bar, dev->busid);
-		return NULL;
-	}
-	dev->mmio[bar].bar = bar;
-	dev->mmio[bar].mmio = mmio;
-	dev->mmio[bar].length = size;
-	dev->mmio_refcnt++;
-
-	return mmio;
-}
-
-void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void *mmio)
-{
-	unsigned int i;
-
-	if (!dev || !mmio)
-		return;
-
-	for (i = 0; i < sizeof(dev->mmio); i++) {
-		if (dev->mmio[i].mmio == mmio) {
-			munmap(mmio, dev->mmio[i].length);
-			memset(&dev->mmio[i], 0, sizeof(dev->mmio[i]));
-			dev->mmio_refcnt--;
-			return;
-		}
-	}
-	rtapi_print_msg(RTAPI_MSG_ERR, "IO-unmap: Did not find PCI mapping %p", mmio);
 }
 
 #include "rtapi/linux_common.h"

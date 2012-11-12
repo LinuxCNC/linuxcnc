@@ -70,6 +70,8 @@ template <class T> T DLSYM(void *handle, const char *name)
 	return (T) (dlsym(handle, name));
 }
 
+int msg_level = RTAPI_MSG_WARN;
+
 static map<string, void *> modules;
 
 static int instance_count = 0;
@@ -464,228 +466,16 @@ static int configure_memory(void)
 	return 0;
 }
 
-/* Get the number of CPUs in the system. */
-static unsigned int get_number_of_cpus(void)
-{
-	char buf[256] = { 0, };
-	ifstream fd;
-	string line;
-
-	static unsigned int nr_cpus;
-
-	if (nr_cpus)
-		return nr_cpus;
-
-	fd.open("/proc/cpuinfo");
-	if (!fd) {
-		cerr << "Failed to open /proc/cpuinfo" << endl;
-		return 0;
-	}
-	while (fd.getline(buf, sizeof(buf) - 1)) {
-		line = buf;
-		if (line.substr(0, 9) == "processor")
-			nr_cpus++;
-	}
-	if (!nr_cpus)
-		cerr << "Found zero CPUs in the system. Confused..." << endl;
-
-	return nr_cpus;
-}
-
-/* Get cpuset-FS mountpoint. */
-static string cpusetfs_mountpoint(void)
-{
-	char buf[256] = { 0, };
-	ifstream fd;
-	bool ok;
-	string::size_type start, length;
-	string line;
-
-	static string mountpoint;
-
-	if (mountpoint.size())
-		return mountpoint;
-
-	fd.open("/proc/mounts");
-	if (!fd)
-		goto error;
-	ok = false;
-	while (fd.getline(buf, sizeof(buf) - 1)) {
-		line = buf;
-		if (line.find("cpuset") != string::npos) {
-			ok = true;
-			break;
-		}
-	}
-	if (!ok)
-		goto error;
-	start = line.find_first_of(" \t");
-	if (start == string::npos)
-		goto error;
-	start++;
-	length = line.find_first_of(" \t");
-	if (length == string::npos)
-		goto error;
-	mountpoint = line.substr(start, length);
-
-//	cout << "cpuset-FS mount point: " << mountpoint << endl;
-
-	return mountpoint;
-error:
-	cerr << "Could not find cpusetfs mount point" << endl;
-	return "";
-}
-
-#define CPUSET_NAME	"emc2_realtime"
-
-static int reset_cpusets(void)
-{
-	unsigned int nr_cpus;
-	string mountpoint;
-
-	nr_cpus = get_number_of_cpus();
-	if (nr_cpus < 2)
-		return -1;
-	mountpoint = cpusetfs_mountpoint();
-	if (!mountpoint.size())
-		return -1;
-
-	rmdir(string(mountpoint + "/" + CPUSET_NAME).c_str());
-
-	return 0;
-}
-
-extern "C" int realtime_cpuset_add_task(pid_t pid)
-{
-	string mountpoint, dir;
-	unsigned int nr_cpus;
-	ofstream fd;
-	char buf[32];
-
-return 0;
-	nr_cpus = get_number_of_cpus();
-	if (!nr_cpus)
-		return -1;
-	if (nr_cpus < 2)
-		return 0;
-	mountpoint = cpusetfs_mountpoint();
-	if (!mountpoint.size())
-		return -1;
-	dir = mountpoint + "/" + CPUSET_NAME;
-
-	fd.open(string(dir + "/tasks").c_str());
-	if (!fd)
-		return -1;
-	snprintf(buf, sizeof(buf), "%u\n", (unsigned int)pid);
-	fd.write(buf, strlen(buf));
-	if (!fd)
-		return -1;
-	fd.close();
-
-	return 0;
-}
-
-static int configure_cpusets(void)
-{
-	unsigned int nr_cpus;
-	string mountpoint, dir;
-	int err;
-	ofstream fd;
-	char buf[32];
-
-return 0;
-	nr_cpus = get_number_of_cpus();
-	if (!nr_cpus)
-		return -1;
-	if (nr_cpus < 2)
-		return 0; /* No need to configure cpusets. */
-
-	reset_cpusets();
-
-	mountpoint = cpusetfs_mountpoint();
-	if (!mountpoint.size())
-		return -1;
-
-	/* Create the new cpuset for realtime tasks. */
-	dir = mountpoint + "/" + CPUSET_NAME;
-	err = mkdir(dir.c_str(), 0644);
-	if (err && errno != EEXIST) {
-		cerr << "Failed to create cpuset: " << strerror(errno) << endl;
-		return -1;
-	}
-
-	/* Set cpu_exclusive */
-	fd.open(string(dir + "/cpu_exclusive").c_str());
-	if (!fd) {
-		cerr << "Failed to open cpuset cpu_exclusive file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	snprintf(buf, sizeof(buf), "%u\n", 1);
-	fd.write(buf, strlen(buf));
-	if (!fd) {
-		cerr << "Failed to write cpuset cpu_exclusive file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	fd.close();
-
-	/* Put the last CPU into the set. */
-	fd.open(string(dir + "/cpus").c_str());
-	if (!fd) {
-		cerr << "Failed to open cpuset cpus file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	snprintf(buf, sizeof(buf), "%u-%u\n", nr_cpus - 1, nr_cpus - 1);
-	fd.write(buf, strlen(buf));
-	if (!fd) {
-		cerr << "Failed to write cpuset cpus file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	fd.close();
-
-	/* Put the first NUMA node into the set.
-	 * This probably needs fixing for NUMA machines. */
-	fd.open(string(dir + "/mems").c_str());
-	if (!fd) {
-		cerr << "Failed to open cpuset mems file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	snprintf(buf, sizeof(buf), "%u\n", 0);
-	fd.write(buf, strlen(buf));
-	if (!fd) {
-		cerr << "Failed to write cpuset mems file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	fd.close();
-
-	/* Remove the last CPU from the root-set. */
-	//FIXME that doesn't work
-	fd.open(string(mountpoint + "/cpus").c_str());
-	if (!fd) {
-		cerr << "Failed to open root cpuset cpus file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	snprintf(buf, sizeof(buf), "%u-%u\n", 0, nr_cpus - 2);
-	fd.write(buf, strlen(buf));
-	if (!fd) {
-		cerr << "Failed to write root cpuset cpus file" << endl;
-		reset_cpusets();
-		return -1;
-	}
-	fd.close();
-
-	return 0;
-}
-
 int main(int argc, char **argv)
 {
-	/* Request RAW-I/O */
+   char *s;
+
+    if ((s = getenv("MSGLEVEL")) != NULL) {
+	msg_level = atoi(s);
+	rtapi_set_msg_level(msg_level);
+    }
+    
+    /* Request RAW-I/O */
 	if (iopl(3)) {
 		perror("Failed to request RAW-I/O permissions (iopl) - "
 		       "did you forget to 'sudo make setuid' ?");
@@ -693,17 +483,6 @@ int main(int argc, char **argv)
 	}
 	if (configure_memory())
 		return 1;
-
-#if 0
-	cap_user_header_t header;
-	cap_user_data_t data;
-	capget(header, data);
-	data->effective |= CAP_SYS_NICE | CAP_SYS_RAWIO;
-	if (capset(header, data) != 0) {
-		perror("capset");
-	}
-	seteuid(getuid());
-#endif
 
 	vector<string> args;
 	for (int i = 1; i < argc; i++) {
@@ -723,8 +502,6 @@ become_master:
 	int result = bind(fd, (sockaddr *)&addr, sizeof(addr));
 
 	if (result == 0) {
-		if (configure_cpusets())
-			return 1;
 		int result = listen(fd, 10);
 		if (result != 0) {
 			perror("listen");
@@ -732,7 +509,6 @@ become_master:
 		}
 		result = master(fd, args);
 		unlink(SOCKET_PATH);
-		reset_cpusets();
 		return result;
 	} else if (errno == EADDRINUSE) {
 		struct timeval t0, t1;
