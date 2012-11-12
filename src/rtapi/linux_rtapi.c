@@ -630,7 +630,8 @@ int rtapi_wait(void)
 		task->failures++;
 		if (task->failures == 1)
 			msglevel = RTAPI_MSG_ERR;
-		else if (task->failures < 10 || (task->failures % 10000 == 0))
+		//else if (task->failures < 10 || (task->failures % 10000 == 0))
+		else if (task->failures < 10)
 			msglevel = RTAPI_MSG_WARN;
 
 		if (msglevel != RTAPI_MSG_NONE) {
