@@ -1,6 +1,23 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if (defined(__MODULE__) && !defined(SIM))
+
+// the Linux kernel has very nice bitmap handling
+// unfortunately it is not available through /usr/include
+// therefore replicate from linux/bitops.h and linux/kernel.h
+// and prefix with an '_' to roll our own
+#define _DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#ifndef _BIT  // /usr/include/pth.h might bring this in too
+#define _BIT(nr)                 (1UL << (nr))
+#endif
+#define _BIT_MASK(nr)            (1UL << ((nr) % _BITS_PER_LONG))
+#define _BIT_WORD(nr)            ((nr) / _BITS_PER_LONG)
+#define _BITS_PER_BYTE           8
+#define _BITS_TO_LONGS(nr)       _DIV_ROUND_UP(nr, _BITS_PER_BYTE * sizeof(long))
+#define _DECLARE_BITMAP(name,bits) \
+    unsigned long name[_BITS_TO_LONGS(bits)]
+
+
+#if (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
 #include <asm/bitops.h>
 #elif defined(__i386__)
 /* From <asm/bitops.h>
@@ -24,7 +41,7 @@ static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( 
 		"btsl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"Ir" (nr));
 }
 
@@ -72,7 +89,7 @@ static __inline__ void clear_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( 
 		"btrl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"Ir" (nr));
 }
 
@@ -90,7 +107,7 @@ static __inline__ int test_and_set_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"Ir" (nr) : "memory");
 	return oldbit;
 }
@@ -110,7 +127,7 @@ static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( 
 		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"Ir" (nr) : "memory");
 	return oldbit;
 }
@@ -138,7 +155,7 @@ static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 }
 
@@ -157,7 +174,7 @@ static __inline__ void clear_bit(int nr, volatile void * addr)
 {
 	__asm__ __volatile__( LOCK_PREFIX
 		"btrl %1,%0"
-		:"=m" (ADDR)
+		:"+m" (ADDR)
 		:"dIr" (nr));
 }
 
@@ -198,9 +215,10 @@ static __inline__ int test_and_set_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 	return oldbit;
+
 }
 
 /**
@@ -217,7 +235,7 @@ static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 
 	__asm__ __volatile__( LOCK_PREFIX
 		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
+		:"=r" (oldbit),"+m" (ADDR)
 		:"dIr" (nr) : "memory");
 	return oldbit;
 }

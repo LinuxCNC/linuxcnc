@@ -10,6 +10,7 @@ KERNELDIR=@KERNELDIR@
 RTLIB_DIR=@EMC2_RTLIB_DIR@
 MODULE_EXT=@MODEXT@
 RTPREFIX=@RTPREFIX@
+BUILD_SYS=@BUILD_SYS@
 KERNEL_VERS=@KERNEL_VERS@
 
 # Sets the default DEBUG level
@@ -45,4 +46,6 @@ elif [ $RTPREFIX = rtl ] ; then
     MODPATH_rtl_sched=@MODPATH_rtl_sched@
     MODPATH_rtl_posixio=@MODPATH_rtl_posixio@
     MODPATH_rtl_fifo=@MODPATH_rtl_fifo@
+elif [ $RTPREFIX = xenomai-kernel ] ; then
+    MODULES="xeno_math"
 fi

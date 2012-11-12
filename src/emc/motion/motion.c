@@ -44,11 +44,14 @@ RTAPI_MP_INT(DEBUG_MOTION, "debug motion");
 
 /* RTAPI shmem key - for comms with higher level user space stuff */
 RTAPI_MP_INT(key, "shared memory key");
-
 static long base_period_nsec = 0;	/* fastest thread period */
 RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
+static int base_cpu = -1;		/* explicitly bind to CPU */
+RTAPI_MP_INT(base_cpu, "CPU of base thread");
 static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
+static int servo_cpu = -1;		/* explicitly bind to CPU */
+RTAPI_MP_INT(servo_cpu, "CPU of servo thread");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
@@ -1073,7 +1076,7 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, 0);
+	retval = hal_create_thread("base-thread", base_period_nsec, 0, base_cpu);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",
@@ -1081,7 +1084,7 @@ static int init_threads(void)
 	    return -1;
 	}
     }
-    retval = hal_create_thread("servo-thread", servo_period_nsec, 1);
+    retval = hal_create_thread("servo-thread", servo_period_nsec, 1, servo_cpu);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create %ld nsec servo thread\n",

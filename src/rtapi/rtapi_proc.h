@@ -83,8 +83,6 @@ static struct proc_dir_entry *status_file = 0;	/* /proc/rtapi/status */
 static struct proc_dir_entry *modules_file = 0;	/* /proc/rtapi/modules */
 static struct proc_dir_entry *tasks_file = 0;	/* /proc/rtapi/tasks */
 static struct proc_dir_entry *shmem_file = 0;	/* /proc/rtapi/shmem */
-static struct proc_dir_entry *sems_file = 0;	/* /proc/rtapi/sems */
-static struct proc_dir_entry *fifos_file = 0;	/* /proc/rtapi/fifos */
 static struct proc_dir_entry *debug_file = 0;	/* /proc/rtapi/debug */
 
 /** The following are callback functions for the /proc filesystem
@@ -106,18 +104,18 @@ static int proc_read_status(char *page, char **start, off_t off,
 	RTAPI_MAX_TASKS);
     PROC_PRINT("Shared memory = %i/%i\n", rtapi_data->shmem_count,
 	RTAPI_MAX_SHMEMS);
-    PROC_PRINT("        FIFOs = %i/%i\n", rtapi_data->fifo_count,
-	RTAPI_MAX_FIFOS);
-    PROC_PRINT("   Semaphores = %i/%i\n", rtapi_data->sem_count,
-	RTAPI_MAX_SEMS);
-    PROC_PRINT("   Interrupts = %i\n", rtapi_data->irq_count);
-    PROC_PRINT("  RT task CPU = %i\n", rtapi_data->rt_cpu);
+    PROC_PRINT("default RT task CPU = %i\n", rtapi_data->rt_cpu);
     if (rtapi_data->timer_running) {
 	PROC_PRINT(" Timer status = Running\n");
 	PROC_PRINT(" Timer period = %li nSec\n", rtapi_data->timer_period);
     } else {
 	PROC_PRINT(" Timer status = Stopped\n");
     }
+#if defined(RTAPI_XENOMAI_KERNEL)
+    PROC_PRINT("  Wait errors = %i\n", rtapi_data->rt_wait_error);
+    PROC_PRINT(" Last overrun = %i\n", rtapi_data->rt_last_overrun);
+    PROC_PRINT("Total overruns = %i\n", rtapi_data->rt_total_overruns);
+#endif
     PROC_PRINT("Message level = %i\n", msg_level);
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
@@ -160,7 +158,7 @@ static int proc_read_tasks(char *page, char **start, off_t off,
 
     PROC_PRINT_VARS;
     PROC_PRINT("******** RTAPI TASKS ********\n");
-    PROC_PRINT("ID  Own  Prio  State     Code\n");
+    PROC_PRINT("ID CPU Own  Prio  State     Code\n");
     for (n = 1; n <= RTAPI_MAX_TASKS; n++) {
 	if (task_array[n].state != EMPTY) {
 	    switch (task_array[n].state) {
@@ -180,8 +178,13 @@ static int proc_read_tasks(char *page, char **start, off_t off,
 		state_str = "UNKNOWN ";
 		break;
 	    }
-	    PROC_PRINT("%02d  %02d   %3d   %s  %p\n", n, task_array[n].owner,
-		task_array[n].prio, state_str, task_array[n].taskcode);
+	    PROC_PRINT("%02d %2d  %02d   %3d   %s  %p\n", 
+		       n, 
+		       task_array[n].cpu, 
+		       task_array[n].owner,
+		       task_array[n].prio,  
+		       state_str, 
+		       task_array[n].taskcode);
 	}
     }
     PROC_PRINT("\n");
@@ -202,57 +205,6 @@ static int proc_read_shmem(char *page, char **start, off_t off,
 	    PROC_PRINT("%02d  %2d/%-2d  %-10d  %-10lu\n",
 		n, shmem_array[n].rtusers, shmem_array[n].ulusers,
 		shmem_array[n].key, shmem_array[n].size);
-	}
-    }
-    PROC_PRINT("\n");
-    PROC_PRINT_DONE;
-}
-
-static int proc_read_sems(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
-{
-    int n;
-
-    PROC_PRINT_VARS;
-    PROC_PRINT("***** RTAPI SEMAPHORES ******\n");
-    PROC_PRINT("ID  Users  Key\n");
-    for (n = 1; n <= RTAPI_MAX_SEMS; n++) {
-	if (sem_array[n].users != 0) {
-	    PROC_PRINT("%02d  %3d    %-10d\n",
-		n, sem_array[n].users, sem_array[n].key);
-	}
-    }
-    PROC_PRINT("\n");
-    PROC_PRINT_DONE;
-}
-
-static int proc_read_fifos(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
-{
-    int n;
-    char *state_str;
-
-    PROC_PRINT_VARS;
-    PROC_PRINT("******** RTAPI FIFOS ********\n");
-    PROC_PRINT("ID  State  Key         Size\n");
-    for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
-	if (fifo_array[n].state != UNUSED) {
-	    switch (fifo_array[n].state) {
-	    case HAS_READER:
-		state_str = "R-";
-		break;
-	    case HAS_WRITER:
-		state_str = "-W";
-		break;
-	    case HAS_BOTH:
-		state_str = "RW";
-		break;
-	    default:
-		state_str = "UNKNOWN ";
-		break;
-	    }
-	    PROC_PRINT("%02d   %s    %-10d  %-10ld\n",
-		n, state_str, fifo_array[n].key, fifo_array[n].size);
 	}
     }
     PROC_PRINT("\n");
@@ -346,20 +298,6 @@ static int proc_init(void)
     }
     shmem_file->read_proc = proc_read_shmem;
 
-    /* create read only file "/proc/rtapi/sems" */
-    sems_file = create_proc_entry("sems", S_IRUGO, rtapi_dir);
-    if (sems_file == NULL) {
-	return -1;
-    }
-    sems_file->read_proc = proc_read_sems;
-
-    /* create read only file "/proc/rtapi/fifos" */
-    fifos_file = create_proc_entry("fifos", S_IRUGO, rtapi_dir);
-    if (fifos_file == NULL) {
-	return -1;
-    }
-    fifos_file->read_proc = proc_read_fifos;
-
     /* create read/write file "/proc/rtapi/debug" */
     debug_file = create_proc_entry("debug", S_IRUGO | S_IWUGO, rtapi_dir);
     if (debug_file == NULL) {
@@ -396,14 +334,6 @@ static void proc_clean(void)
 	if (shmem_file != NULL) {
 	    remove_proc_entry("shmem", rtapi_dir);
 	    shmem_file = NULL;
-	}
-	if (sems_file != NULL) {
-	    remove_proc_entry("sems", rtapi_dir);
-	    sems_file = NULL;
-	}
-	if (fifos_file != NULL) {
-	    remove_proc_entry("fifos", rtapi_dir);
-	    fifos_file = NULL;
 	}
 	if (debug_file != NULL) {
 	    remove_proc_entry("debug", rtapi_dir);

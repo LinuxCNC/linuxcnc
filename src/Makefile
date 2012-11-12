@@ -1,3 +1,7 @@
+# see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
+#OLD_SHELL := $(SHELL)
+#SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+
 # Delete the default suffix rules
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean
@@ -76,8 +80,9 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-ifneq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_DRIVERS),yes)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
@@ -118,7 +123,8 @@ SUBDIRS := \
     redis/examples/c \
     hal/simdrivers
 
-ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
+# moved to src/rtapi/Submakefile
+# ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
@@ -165,8 +171,11 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 
+# this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
-INCLUDE += -I$(KERNELDIR)/include
+ifneq ($(BUILD_SYS),user-dso)
+#INCLUDE += -I$(KERNELDIR)/include
+endif
 endif
 
 ifeq ($(BUILD_PYTHON),yes)
@@ -378,9 +387,18 @@ endif
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
-
+KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers
+ifeq ($(THREADS),xenomai-kernel)
+KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
+endif
 modules:
-	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
+	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
+	    V=$(BUILD_VERBOSE) modules
+	$(PYTHON) modsilent.py $(MAKE) \
+	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
+	    SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
+	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -409,9 +427,15 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
 setuid:
-	@echo "'make setuid' is not needed for the simulator"
+	chown root ../bin/rtapi_app
+	chmod 4750 ../bin/rtapi_app
+else	
+setuid:
+	@echo "'make setuid' is not needed if hardware drivers are not used"
+endif
 else
 setuid:
 	chown root ../bin/linuxcnc_module_helper
@@ -586,7 +610,7 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(BUILD_SYS)" "user-dso"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
@@ -625,6 +649,9 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 
 endif # userspace
 
+#KERNELRELEASE=2.6.38.8-xenomai+
+#KERNELRELEASE=3.2.21-xenomai+
+
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 endif
@@ -633,25 +660,36 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
-	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
-	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
-	$(call cc-option,-Wframe-larger-than=2560)
-ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
-endif
+EXTRA_CFLAGS = $(RTFLAGS) \
+	-D__MODULE__ \
+	-I$(BASEPWD) \
+	-I$(BASEPWD)/libnml/linklist \
+	-I$(BASEPWD)/libnml/cms \
+	-I$(BASEPWD)/libnml/rcs \
+	-I$(BASEPWD)/libnml/inifile \
+	-I$(BASEPWD)/libnml/os_intf \
+	-I$(BASEPWD)/libnml/nml \
+	-I$(BASEPWD)/libnml/buffer \
+	-I$(BASEPWD)/libnml/posemath \
+	-I$(BASEPWD)/rtapi \
+	-I$(BASEPWD)/hal \
+	-I$(BASEPWD)/emc/nml_intf \
+	-I$(BASEPWD)/emc/kinematics \
+	-I$(BASEPWD)/emc/motion \
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
+	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	-fno-fast-math \
+	-fno-unsafe-math-optimizations \
+	$(call cc-option,-mieee-fp) \
+	$(call cc-option,-Wframe-larger-than=2560) \
+	$(KERNEL_MATH_CFLAGS)
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
 endif
 
-ifdef SEQUENTIAL_SUPPORT
-EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
-endif
+#$(warning KERNELRELEASE=$(KERNELRELEASE) EXTRA_CFLAGS=$(EXTRA_CFLAGS))
+
 
 # For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
 # plus a definition of foo-objs, which contains the full path to the
@@ -660,10 +698,28 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-ifneq ($(BUILD_SYS),sim)
+
 obj-$(CONFIG_RTAPI) += rtapi.o
-rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+
+ifeq ($(THREADS),xenomai-user)
+rtapi-objs := rtapi/sim_ulapi.o
 endif
+ifeq ($(THREADS),posix)
+rtapi-objs := rtapi/sim_ulapi.o
+endif
+ifeq ($(THREADS),rt-preempt-user)
+rtapi-objs := rtapi/linux_ulapi.o
+endif
+ifeq ($(THREADS),xenomai-kernel)
+rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+rtapi-objs += rtapi/xenomai_common.o
+rtapi-objs += rtapi/rtapi_common.o
+endif
+ifeq ($(THREADS),rtai)
+rtapi-objs := rtapi/rtai_rtapi.o
+rtapi-objs += rtapi/rtapi_common.o
+endif
+
 
 # Subdirectory: rtapi/examples (unneeded?)
 
@@ -710,7 +766,8 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_DRIVERS),yes)
+#ifeq ($(BUILD_SYS),kbuild)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
@@ -721,18 +778,24 @@ obj-$(CONFIG_HAL_STG) += hal_stg.o
 hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_VTI) += hal_vti.o
 hal_vti-objs := hal/drivers/hal_vti.o $(MATHSTUB)
-obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
-hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
+#obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+#hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
-obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
-hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
+
+# these won't compile as-is with userland threading
+
+ifneq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
+hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
+obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
+hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HAL_GM) += hal_gm.o
@@ -770,11 +833,10 @@ hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
+endif
 
-ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
-endif
 endif
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
@@ -851,11 +913,13 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
-ifeq ($(BUILD_SYS),sim)
+
+ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+
 IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
@@ -874,35 +938,37 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
-endif
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
 
-ifeq ($(BUILD_SYS),normal)
-modules: $(patsubst %,../rtlib/%,$(obj-m))
-RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
-RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+endif # end BUILD_SYS=user-dso
 
-$(sort $(RTDEPS)): depends/rt%.d: %.c
-	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
+# # ------ not used anymore -------------
+# ifeq ($(BUILD_SYS),normal)
+# modules: $(patsubst %,../rtlib/%,$(obj-m))
+# RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+# RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+
+# $(sort $(RTDEPS)): depends/rt%.d: %.c
+# 	@mkdir -p $(dir $@)
+# 	$(ECHO) Depending $<
+# 	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
-# Rules to make .o (object) files
-$(sort $(RTOBJS)) : objects/rt%.o : %.c
-	$(ECHO) Compiling realtime $<
-	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
+# # Rules to make .o (object) files
+# $(sort $(RTOBJS)) : objects/rt%.o : %.c
+# 	$(ECHO) Compiling realtime $<
+# 	@mkdir -p $(dir $@)
+# 	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
-../rtlib/%.o:
-	$(ECHO) Linking $@
-	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
-endif
+# ../rtlib/%.o:
+# 	$(ECHO) Linking $@
+# 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
+# endif # end 'normal'
 
-ifneq "$(filter normal sim,$(BUILD_SYS))" ""
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+#ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
-endif
+#endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))
@@ -926,11 +992,14 @@ endif
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 #../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
+ifeq "$(BUILD_SYS)" "user-dso"
+../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
+endif
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
 ../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
-../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
+#../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))

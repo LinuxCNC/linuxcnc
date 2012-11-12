@@ -11,6 +11,7 @@ build-stamp
 *.mod.c
 *.cmd
 .tmp*
+*~
 # Ignore generated html files, 
 *.html
 # Except Gcode quick-ref cards (en,de,sp,fr) which are maintained by hand

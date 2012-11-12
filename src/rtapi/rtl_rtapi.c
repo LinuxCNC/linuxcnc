@@ -687,7 +687,7 @@ static void *wrapper(void *wrapper_arg)
 }
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp)
+    int prio, int owner, unsigned long int stacksize, int uses_fp, int cpu_id)
 {
     int n;
     int task_id;
