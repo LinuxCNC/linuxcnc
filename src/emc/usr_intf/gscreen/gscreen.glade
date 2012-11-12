@@ -2840,7 +2840,7 @@ status</property>
     </child>
   </object>
   <object class="GtkAdjustment" id="adjustment1">
-    <property name="lower">-1000</property>
+    <property name="lower">-10000</property>
     <property name="upper">10000</property>
     <property name="step_increment">1</property>
   </object>
@@ -3021,7 +3021,7 @@ status</property>
   <object class="GtkAdjustment" id="adjustment3">
     <property name="value">100</property>
     <property name="lower">1</property>
-    <property name="upper">1000</property>
+    <property name="upper">10000</property>
     <property name="step_increment">50</property>
   </object>
 </interface>
