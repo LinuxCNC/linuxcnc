@@ -503,12 +503,16 @@ class Gscreen:
         if not self.data.theme_name == "Follow System Theme":
             settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
         # maximize window or set geometry and optionally maximize 
-        if self.data.window_geometry == "default":
+        if "max" in self.data.window_geometry:
 		    self.widgets.window1.maximize()
+        elif self.data.window_geometry == "default":
+            pass
         else:
-            self.widgets.window1.parse_geometry(self.data.window_geometry)
+            good = self.widgets.window1.parse_geometry(self.data.window_geometry)
             if self.data.window_max:
-                self.widgets.window1.maximize()
+               self.widgets.window1.maximize()
+            if not good:
+                print "**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file"
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 

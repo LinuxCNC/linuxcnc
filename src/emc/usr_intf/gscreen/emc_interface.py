@@ -327,7 +327,8 @@ class emc_status:
                         temp.append("%d" % (i/10))
                 else:
                         temp.append("%d.%d" % (i/10, i%10))
-            for i in (temp):
+            for num,i in enumerate(temp):
+                if num == 8:active_codes.append("\n")
                 active_codes.append("G"+i)
             self.data.active_gcodes = active_codes
             temp = []; active_codes = []
