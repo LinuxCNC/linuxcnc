@@ -772,6 +772,11 @@ hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
+ifeq ($(TARGET_PLATFORM), raspberry)
+obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
+hal_gpio-objs := hal/drivers/hal_gpio.o 
+endif
+
 # these won't compile as-is with userland threading
 
 ifneq ($(BUILD_SYS),user-dso)
@@ -975,6 +980,11 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ifeq "$(BUILD_SYS)" "user-dso"
 ../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
 endif
+
+ifeq ($(TARGET_PLATFORM),raspberry)
+../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
+endif
+
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
