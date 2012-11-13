@@ -2088,6 +2088,44 @@ Graphics</property>
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkButton" id="ignore_limits">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <child>
+                              <object class="GtkHBox" id="hbox8">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label30">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Ignore
+Limits</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LED" id="led_ignore_limits">
+                                    <property name="visible">True</property>
+                                    <property name="has_hal_pin">False</property>
+                                    <property name="led_size">5</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkToggleButton" id="button_override">
                             <property name="label" translatable="yes">    Set
 Override</property>
@@ -2098,7 +2136,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -2112,7 +2150,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -2126,7 +2164,7 @@ Level</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                       </object>
@@ -2208,8 +2246,6 @@ Level</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="button_h0_0">
-                    <property name="label" translatable="yes">Ignore
-Limits</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3019,7 +3055,7 @@ status</property>
     <property name="step_increment">0.25</property>
   </object>
   <object class="GtkAdjustment" id="adjustment3">
-    <property name="value">100</property>
+    <property name="value">300</property>
     <property name="lower">1</property>
     <property name="upper">10000</property>
     <property name="step_increment">50</property>

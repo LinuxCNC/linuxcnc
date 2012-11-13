@@ -1021,7 +1021,7 @@ class Gscreen:
             temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,True)
         state = self.data.all_homed
-        self.widgets.button_mode.set_sensitive(state)
+        self.widgets.button_mode.set_sensitive(True)
         self.widgets.button_v0_0.set_sensitive(state)
         self.widgets.button_v0_1.set_sensitive(state)
         self.widgets.button_h1_1.set_sensitive(state)
@@ -1033,7 +1033,7 @@ class Gscreen:
             temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,True)
         state = self.data.all_homed
-        self.widgets.button_mode.set_sensitive(state)
+        self.widgets.button_mode.set_sensitive(True)
         self.widgets.button_v0_0.set_sensitive(state)
         self.widgets.button_v0_1.set_sensitive(state)
         self.widgets.button_h1_1.set_sensitive(state)
@@ -1113,6 +1113,7 @@ class Gscreen:
                         ["eventbox_gremlin","enter_notify_event", "on_eventbox_gremlin_enter_notify_event"],
                         ["s_display_rev","toggled", "on_s_display_rev_toggled"],
                         ["s_display_fwd","toggled", "on_s_display_fwd_toggled"],
+                        ["ignore_limits","clicked", "toggle_ignore_limits"],
                         ["audio_error_chooser","selection_changed","change_sound","error"],
                         ["audio_alert_chooser","selection_changed","change_sound","alert"], ]
 
@@ -1129,7 +1130,7 @@ class Gscreen:
                 elif len(i) == 4:
                     self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
             except:
-                print "**** GSCREEN WARNING: could not connect %s to %s" (i[0],i[2])
+                print "**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2])
 
         # setup signals that can be blocked but not overriden 
         for axis in self.data.axis_list:
@@ -1413,7 +1414,7 @@ class Gscreen:
                 self.widgets["button_v0_%d"% i].set_sensitive(False)
             self.widgets.mode0.hide()
             self.widgets.mode3.show()
-            self.widgets.button_mode.set_sensitive(False)
+            #self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
             self.widgets.button_graphics.set_sensitive(False)
         else:
@@ -1422,7 +1423,7 @@ class Gscreen:
             self.widgets.mode3.hide()
             self.widgets.mode0.show()
             state = self.data.all_homed
-            self.widgets.button_mode.set_sensitive(state)
+            #self.widgets.button_mode.set_sensitive(state)
             self.widgets.button_v0_0.set_sensitive(state)
             self.widgets.button_v0_1.set_sensitive(state)
             self.widgets.button_h1_1.set_sensitive(state)
@@ -1982,7 +1983,7 @@ class Gscreen:
         else:
             self.emc.flood_on(1)
 
-    def toggle_ignore_limits(self):
+    def toggle_ignore_limits(self,*args):
         print "over ride limits"
         self.emc.override_limits(1)
 
@@ -2171,6 +2172,8 @@ class Gscreen:
         # estop
         self.widgets.led_estop.set_active(self.data.estopped)
         self.widgets.led_on.set_active(self.data.machine_on)
+        # ignore limts led
+        self.widgets.led_ignore_limits.set_active(self.data.or_limits)
         # overrides
         self.widgets.fo.set_text("FO: %d%%"%(round(self.data.feed_override,2)*100))
         self.widgets.so.set_text("SO: %d%%"%(round(self.data.spindle_override,2)*100))
