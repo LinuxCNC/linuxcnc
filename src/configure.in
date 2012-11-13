@@ -63,6 +63,7 @@ AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
+AC_PATH_PROG(ARCHCMD, arch)
 
 ##############################################################################
 # Section 2                                                                  #
@@ -279,6 +280,9 @@ USE_GCC_ATOMIC_OPS="no"
 PLATFORM="PC"
 TARGET_PLATFORM=""
 
+# Architecture. Use output of arch(1).
+ARCH=`$ARCHCMD`
+
 
 # note to mah: dont forget debian/configure FIXME
  
@@ -310,6 +314,7 @@ AC_ARG_WITH(platform,
     ],
     [
       AC_MSG_RESULT([using default platform: $PLATFORM])
+      TARGET_PLATFORM="$PLATFORM"
     ])
 
 
@@ -837,6 +842,8 @@ if test "$TARGET_PLATFORM" = "raspberry"; then
    AC_DEFINE(TARGET_PLATFORM_RASPBERRY, [], [build for Raspberry Pi platform])
 fi
 AC_SUBST(TARGET_PLATFORM)
+
+AC_SUBST(ARCH)
 
 
 # man, is this lame

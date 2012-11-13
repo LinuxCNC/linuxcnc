@@ -39,6 +39,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 BUILDSYS = @BUILD_SYS@
 TARGET_PLATFORM = @TARGET_PLATFORM@
 USE_PORTABLE_PARPORT_IO = @USE_PORTABLE_PARPORT_IO@
+ARCH = @ARCH@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
