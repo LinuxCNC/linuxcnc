@@ -4,39 +4,24 @@
 *
 * Author: Michael Haberler
 * License: GPL Version 2
-*    
-* Copyright (c) 2012 All rights reserved.
+* Copyright (c) 2012.
+*
+* some code  taken from the bcm2835 library by::
+*
+* Author: Mike McCauley (mikem@open.com.au)
+* Copyright (C) 2011 Mike McCauley    
+* see http://www.open.com.au/mikem/bcm2835/
 *
 * Last change: 
 ********************************************************************/
 
-/*
-
- The driver creates a HAL pin and if it run in realtime a function
- as follows:
-
- Pin: 'skeleton.<portnum>.pin-<pinnum>-out'
- Function: 'skeleton.<portnum>.write'
-
- This skeleton driver also doesn't use arguments you can pass to the driver
- at startup. Please look at the parport driver how to implement this if you need
- this for your driver.
-
- (added 17 Nov 2006)
- The approach used for writing HAL drivers has evolved quite a bit over the
- three years since this was written.  Driver writers should consult the HAL
- User Manual for information about canonical device interfaces, and should
- examine some of the more complex drivers, before using this as a basis for
- a new driver.
-
-*/
-
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_bitops.h"		/* RTAPI realtime OS API */
+#include "rtapi_bitops.h"	
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */
 #include "hal.h"		/* HAL public API decls */
+#include "bcm2835.h"
 
 #if !defined(BUILD_SYS_USER_DSO) 
 #error "This driver is for usermode threads only"
@@ -55,7 +40,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <errno.h>
 
 
@@ -64,15 +48,19 @@
 
 // http://elinux.org/index.php?title=RPi_Low-level_peripherals&printable=yes
 // Rev 1 Raspberry:
-static unsigned char rev1_pins[] = {0, 1, 4, 7, 8, 9, 10, 11, 14, 15, 17, 18, 21, 22, 23, 24, 25};
+static unsigned char rev1_gpios[] = {0, 1, 4, 7,   8,  9, 10, 11, 14, 15, 17, 18, 21, 22, 23, 24, 25};
+static unsigned char rev1_pins[] = {3, 5, 7, 26, 24, 21, 19, 23,  8, 10, 11, 12, 13, 15, 16, 18, 22};
+
 // Rev2 Raspberry:
-static unsigned char rev2_pins[] = {2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 17, 18, 22, 23, 24, 25, 27};
+static unsigned char rev2_gpios[] = {2, 3, 4,  7,  8,  9, 10, 11, 14, 15, 17, 18, 22, 23, 24, 25, 27};
+static unsigned char rev2_pins[] = {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
+
 static int npins;
 
 #define PAGE_SIZE (4*1024)
 #define BLOCK_SIZE (4*1024)
 static int  mem_fd;
-static unsigned char *gpio_mem, *gpio_malloc, *gpio_map;
+
 // I/O access
 volatile unsigned *gpio;
 // GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) or SET_GPIO_ALT(x,y)
@@ -87,16 +75,98 @@ MODULE_DESCRIPTION("Driver for Raspberry Pi GPIO pins");
 MODULE_LICENSE("GPL");
 
 // port direction bits, 1=output
-static char *dir = "0x1ff"; // all output
+static char *dir = "-1"; // all output
 RTAPI_MP_STRING(dir, "port direction, 1=output");
 static unsigned dir_map;
 
+// exclude pins from usage
+static char *exclude = "0"; // all used
+RTAPI_MP_STRING(exclude, "exclude pins, 1=dont use");
+static unsigned exclude_map;
+
 static int comp_id;		/* component ID */
-static unsigned char *pins;
+static unsigned char *pins, *gpios;
 hal_bit_t **port_data;
 
 static void write_port(void *arg, long period);
 static void read_port(void *arg, long period);
+
+// Set output pin
+void bcm2835_gpio_set(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPSET0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  bcm2835_peri_write(paddr, 1 << shift);
+}
+
+// Clear output pin
+void bcm2835_gpio_clr(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPCLR0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  bcm2835_peri_write(paddr, 1 << shift);
+}
+
+// Read input pin
+uint8_t bcm2835_gpio_lev(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPLEV0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  uint32_t value = bcm2835_peri_read(paddr);
+  return (value & (1 << shift)) ? HIGH : LOW;
+}
+
+uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
+{
+  // Make sure we dont return the _last_ read which might get lost
+  // if subsequent code changes to a different peripheral
+  uint32_t ret = *paddr;
+  uint32_t dummy = *paddr;
+  return ret;
+}
+
+void bcm2835_peri_write(volatile uint32_t* paddr, uint32_t value)
+{
+  // Make sure we don't rely on the first write, which may get
+  // lost if the previous access was to a different peripheral.
+  *paddr = value;
+  *paddr = value;
+}
+
+// Set/clear only the bits in value covered by the mask
+void bcm2835_peri_set_bits(volatile uint32_t* paddr, uint32_t value, uint32_t mask)
+{
+  uint32_t v = bcm2835_peri_read(paddr);
+  v = (v & ~mask) | (value & mask);
+  bcm2835_peri_write(paddr, v);
+}
+
+// Function select
+// pin is a BCM2835 GPIO pin number NOT RPi pin number
+//      There are 6 control registers, each control the functions of a block
+//      of 10 pins.
+//      Each control register has 10 sets of 3 bits per GPIO pin:
+//
+//      000 = GPIO Pin X is an input
+//      001 = GPIO Pin X is an output
+//      100 = GPIO Pin X takes alternate function 0
+//      101 = GPIO Pin X takes alternate function 1
+//      110 = GPIO Pin X takes alternate function 2
+//      111 = GPIO Pin X takes alternate function 3
+//      011 = GPIO Pin X takes alternate function 4
+//      010 = GPIO Pin X takes alternate function 5
+//
+// So the 3 bits for port X are:
+//      X / 10 + ((X % 10) * 3)
+void bcm2835_gpio_fsel(uint8_t pin, uint8_t mode)
+{
+  // Function selects are 10 pins per 32 bit word, 3 bits per pin
+  volatile uint32_t* paddr = gpio + BCM2835_GPFSEL0/4 + (pin/10);
+  uint8_t   shift = (pin % 10) * 3;
+  uint32_t  mask = BCM2835_GPIO_FSEL_MASK << shift;
+  uint32_t  value = mode << shift;
+  bcm2835_peri_set_bits(paddr, value, mask);
+}
 
 // figure Raspberry board revision number
 static int rpi_revision()
@@ -134,36 +204,18 @@ static int  setup_gpio_access()
     rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/mem \n");
     return -EPERM;
   }
-  // mmap GPIO - allocate MAP block
-  if ((gpio_mem = malloc(BLOCK_SIZE + (PAGE_SIZE-1))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL_GPIO: can't malloc(%d)\n", 
-		    BLOCK_SIZE + (PAGE_SIZE-1));
-    return -ENOMEM;
-  }
-  gpio_malloc = gpio_mem;
-  // Make sure pointer is on 4K boundary
-  if ((unsigned long)gpio_mem % PAGE_SIZE)
-    gpio_mem += PAGE_SIZE - ((unsigned long)gpio_mem % PAGE_SIZE);
-
-  // Now map it
-  gpio_map = (unsigned char *)mmap(
-				   (caddr_t)gpio_mem,
-				   BLOCK_SIZE,
-				   PROT_READ|PROT_WRITE,
-				   MAP_SHARED|MAP_FIXED,
-				   mem_fd,
-				   GPIO_BASE
+  // mmap GPIO range
+  gpio = (volatile unsigned char *)mmap(NULL, BCM2835_BLOCK_SIZE, 
+				   PROT_READ|PROT_WRITE, MAP_SHARED,
+				   mem_fd, BCM2835_GPIO_BASE
 				   );
 
-  if ((long)gpio_map < 0) {
+  if (gpio == MAP_FAILED) {
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL_GPIO: mmap failed: %d - %s\n", 
 		    errno, strerror(errno));
     return -ENOMEM;;
   }
-  // Always use volatile pointer!
-  gpio = (volatile unsigned *)gpio_map;
   return 0;
 } 
 
@@ -181,12 +233,14 @@ int rtapi_app_main(void)
       rtapi_print_msg(RTAPI_MSG_INFO, 
 		      "Raspberry Model B Revision 1.0 + ECN0001 (no fuses, D14 removed)\n");
       pins = rev1_pins;
+      gpios = rev1_gpios;
       npins = sizeof(rev1_pins);
       break;
     case 2:
       rtapi_print_msg(RTAPI_MSG_INFO, 
 		      "Raspberry Model B Revision 1.0\n");
       pins = rev1_pins;
+      gpios = rev1_gpios;
       npins = sizeof(rev1_pins);
       break;
       
@@ -196,6 +250,7 @@ int rtapi_app_main(void)
       rtapi_print_msg(RTAPI_MSG_INFO, 
 		      "Raspberry Model B Revision 2.0\n");
       pins = rev2_pins;
+      gpios = rev2_gpios;
       npins = sizeof(rev2_pins);
       break;
 
@@ -224,6 +279,18 @@ int rtapi_app_main(void)
 	return -1;
     }
 
+    if (exclude == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_GPIO: ERROR: no exclude string\n");
+	return -1;
+    }
+    exclude_map = strtoul(exclude, &endptr,0);
+    if (*endptr) {
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"HAL_GPIO: exclude=%s - trailing garbage: '%s'\n",
+			exclude, endptr);
+	return -1;
+    }
+
     if (setup_gpio_access())
       return -1;
 
@@ -233,15 +300,21 @@ int rtapi_app_main(void)
 	    "HAL_GPIO: ERROR: hal_init() failed\n");
 	return -1;
     }
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL_GPIO: dir=0x%x excl=0x%x\n", dir_map, exclude_map);
 
     for (n = 0; n < npins; n++) {
+      if (exclude_map & _BIT(n))
+	continue;
       pinno = pins[n];
       if (dir_map & _BIT(n)) {
-	if ((retval = hal_pin_bit_newf(HAL_OUT, &(port_data[n]),
+	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_OUTP);
+	if ((retval = hal_pin_bit_newf(HAL_IN, &(port_data[n]),
 				       comp_id, "hal_gpio.pin-%02d-out", pinno)) < 0)
 	  break;
       } else {
-	if ((retval = hal_pin_bit_newf(HAL_IN, &(port_data[n]),
+	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_INPT);
+	if ((retval = hal_pin_bit_newf(HAL_OUT, &(port_data[n]),
 				       comp_id, "hal_gpio.pin-%02d-in", pinno)) < 0)
 	  break;
       }
@@ -279,32 +352,36 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-  if (gpio_map)
-    munmap(gpio_map, BLOCK_SIZE);
+  if (gpio)
+    munmap(gpio, BLOCK_SIZE);
   close(mem_fd);
-  if (gpio_malloc)
-    free(gpio_malloc);
   hal_exit(comp_id);
 }
 
 static void write_port(void *arg, long period)
 {
-  //hal_gpio_t *port;
-  //unsigned char outdata;
-    // port = arg;
+  int n;
+  hal_bit_t **p = arg;
 
-    //outdata = *(port->data_out) & 0xFF;
-    /* write it to the hardware */
-    // rtapi_outb(outdata, 0x378);
+  // FIXME optimize this
+  for (n = 0; n < npins; n++) {
+    if ((dir_map & _BIT(n)) && !(exclude_map & _BIT(n)))
+      if (*(p[n])) 
+	bcm2835_gpio_set(pins[n]);
+      else
+	bcm2835_gpio_clr(pins[n]);
+  }
 }
 
 static void read_port(void *arg, long period)
 {
-  //hal_gpio_t *port;
-  // unsigned char outdata;
-    // port = arg;
+  int n;
+  hal_bit_t **p = arg;
 
-    //outdata = *(port->data_out) & 0xFF;
-    /* write it to the hardware */
-    // rtapi_outb(outdata, 0x378);
+  // FIXME optimize this
+  for (n = 0; n < npins; n++) {
+    if (!(dir_map & _BIT(n)) && !(exclude_map & _BIT(n)))
+
+      *p[n] = bcm2835_gpio_lev(pins[n]);
+  }
 }
