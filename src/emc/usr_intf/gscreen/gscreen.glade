@@ -600,15 +600,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="value">-7</property>
-                                    <property name="show_limits">False</property>
-                                    <property name="max">2000</property>
-                                    <property name="target_color">#e21911831183</property>
-                                    <property name="z0_color">#0000ffff0000</property>
                                     <property name="target_value">500</property>
+                                    <property name="z0_color">#0000ffff0000</property>
                                     <property name="z1_color">#ffffffff0000</property>
+                                    <property name="max">2000</property>
                                     <property name="bg_color">#bebebebebebe</property>
                                     <property name="z2_color">#ffff00000000</property>
+                                    <property name="value">-7</property>
+                                    <property name="show_limits">False</property>
+                                    <property name="target_color">#e21911831183</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -699,8 +699,8 @@
                                     <child>
                                       <object class="HAL_LED" id="spindle-at-speed">
                                         <property name="visible">True</property>
-                                        <property name="led_shape">1</property>
                                         <property name="on_color">Green</property>
+                                        <property name="led_shape">1</property>
                                       </object>
                                       <packing>
                                         <property name="resize">False</property>
@@ -1055,8 +1055,8 @@ Speed</property>
                                             <child>
                                               <object class="HAL_LED" id="led_mist">
                                                 <property name="visible">True</property>
-                                                <property name="led_shape">1</property>
                                                 <property name="on_color">yellow</property>
+                                                <property name="led_shape">1</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1067,8 +1067,8 @@ Speed</property>
                                             <child>
                                               <object class="HAL_LED" id="led_flood">
                                                 <property name="visible">True</property>
-                                                <property name="led_shape">1</property>
                                                 <property name="on_color">green</property>
+                                                <property name="led_shape">1</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1491,7 +1491,7 @@ DTG</property>
                         <child>
                           <object class="GtkToggleButton" id="fullscreen1">
                             <property name="label" translatable="yes"> Gscreen
-fullscreen</property>
+Fullscreen</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1568,7 +1568,6 @@ Aux Coolant</property>
                 <child type="label">
                   <object class="GtkLabel" id="label10">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Preference stuff&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
@@ -1802,22 +1801,25 @@ Halshow</property>
                                 <property name="led_shape">1</property>
                               </object>
                               <packing>
+                                <property name="expand">False</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
+                                <property name="on_color">green</property>
                                 <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
-                                <property name="on_color">green</property>
                               </object>
                               <packing>
+                                <property name="expand">False</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -2108,8 +2110,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="has_hal_pin">False</property>
                                     <property name="led_size">5</property>
+                                    <property name="has_hal_pin">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2256,7 +2258,6 @@ Level</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_h0_1">
-                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2432,7 +2433,6 @@ Readout</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="button_h2_0">
-                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2443,7 +2443,6 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_h2_1">
-                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2454,7 +2453,6 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_2">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2465,7 +2463,6 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_3">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2476,7 +2473,7 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_4">
-                    <property name="label" translatable="yes">button
+                    <property name="label" translatable="yes">
 </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -2488,7 +2485,6 @@ Readout</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_5">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2657,6 +2653,17 @@ Override</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkToggleButton" id="button_h4_5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkToggleButton" id="button_h4_3">
                     <property name="label" translatable="yes">   Jog
 Speed</property>
@@ -2666,7 +2673,7 @@ Speed</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -2679,11 +2686,8 @@ Increments</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -2965,8 +2969,8 @@ status</property>
             <child>
               <object class="Calculator" id="calc_entry">
                 <property name="visible">True</property>
-                <property name="font">sans 20</property>
                 <property name="is_editable">True</property>
+                <property name="font">sans 20</property>
               </object>
             </child>
             <child type="label">
