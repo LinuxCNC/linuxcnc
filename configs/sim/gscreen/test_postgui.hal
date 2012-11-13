@@ -1,2 +1,2 @@
-net spindle-speed-limited gscreen.spindle-readout.in
+net spindle-speed-limited gscreen.spindle-readout.in vcp_box.hal_meter1
 net spindle-at-speed gscreen.spindle-at-speed
