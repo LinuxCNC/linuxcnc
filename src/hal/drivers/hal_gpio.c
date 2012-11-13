@@ -31,20 +31,13 @@
 #endif
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <dirent.h>
 #include <fcntl.h>
-#include <assert.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-
-
-#define BCM2708_PERI_BASE        0x20000000
-#define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
 
 // http://elinux.org/index.php?title=RPi_Low-level_peripherals&printable=yes
 // Rev 1 Raspberry:
@@ -56,19 +49,9 @@ static unsigned char rev2_gpios[] = {2, 3, 4,  7,  8,  9, 10, 11, 14, 15, 17, 18
 static unsigned char rev2_pins[] = {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
 
 static int npins;
-
-#define PAGE_SIZE (4*1024)
-#define BLOCK_SIZE (4*1024)
 static int  mem_fd;
-
 // I/O access
 volatile unsigned *gpio;
-// GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) or SET_GPIO_ALT(x,y)
-#define INP_GPIO(gpio, g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
-#define OUT_GPIO(gpio, g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
-#define SET_GPIO_ALT(gpio,g,a) *(gpio+(((g)/10))) |= (((a)<=3?(a)+4:(a)==4?3:2)<<(((g)%10)*3))
-#define GPIO_SET(gpio) (*(gpio+7))  // sets   bits which are 1 ignores bits which are 0
-#define GPIO_CLR(gpio) (*(gpio+10)) // clears bits which are 1 ignores bits which are 0
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("Driver for Raspberry Pi GPIO pins");
@@ -91,32 +74,8 @@ hal_bit_t **port_data;
 static void write_port(void *arg, long period);
 static void read_port(void *arg, long period);
 
-// Set output pin
-void bcm2835_gpio_set(uint8_t pin)
-{
-  volatile uint32_t* paddr = gpio + BCM2835_GPSET0/4 + pin/32;
-  uint8_t shift = pin % 32;
-  bcm2835_peri_write(paddr, 1 << shift);
-}
 
-// Clear output pin
-void bcm2835_gpio_clr(uint8_t pin)
-{
-  volatile uint32_t* paddr = gpio + BCM2835_GPCLR0/4 + pin/32;
-  uint8_t shift = pin % 32;
-  bcm2835_peri_write(paddr, 1 << shift);
-}
-
-// Read input pin
-uint8_t bcm2835_gpio_lev(uint8_t pin)
-{
-  volatile uint32_t* paddr = gpio + BCM2835_GPLEV0/4 + pin/32;
-  uint8_t shift = pin % 32;
-  uint32_t value = bcm2835_peri_read(paddr);
-  return (value & (1 << shift)) ? HIGH : LOW;
-}
-
-uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
+static __inline__ uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
 {
   // Make sure we dont return the _last_ read which might get lost
   // if subsequent code changes to a different peripheral
@@ -125,7 +84,16 @@ uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
   return ret;
 }
 
-void bcm2835_peri_write(volatile uint32_t* paddr, uint32_t value)
+// Read input pin
+static __inline__ uint8_t bcm2835_gpio_lev(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPLEV0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  uint32_t value = bcm2835_peri_read(paddr);
+  return (value & (1 << shift)) ? HIGH : LOW;
+}
+
+static __inline__ void bcm2835_peri_write(volatile uint32_t* paddr, uint32_t value)
 {
   // Make sure we don't rely on the first write, which may get
   // lost if the previous access was to a different peripheral.
@@ -133,8 +101,24 @@ void bcm2835_peri_write(volatile uint32_t* paddr, uint32_t value)
   *paddr = value;
 }
 
+// Set output pin
+static __inline__ void bcm2835_gpio_set(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPSET0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  bcm2835_peri_write(paddr, 1 << shift);
+}
+
+// Clear output pin
+static __inline__ void bcm2835_gpio_clr(uint8_t pin)
+{
+  volatile uint32_t* paddr = gpio + BCM2835_GPCLR0/4 + pin/32;
+  uint8_t shift = pin % 32;
+  bcm2835_peri_write(paddr, 1 << shift);
+}
+
 // Set/clear only the bits in value covered by the mask
-void bcm2835_peri_set_bits(volatile uint32_t* paddr, uint32_t value, uint32_t mask)
+static __inline__ void bcm2835_peri_set_bits(volatile uint32_t* paddr, uint32_t value, uint32_t mask)
 {
   uint32_t v = bcm2835_peri_read(paddr);
   v = (v & ~mask) | (value & mask);
@@ -205,11 +189,10 @@ static int  setup_gpio_access()
     return -EPERM;
   }
   // mmap GPIO range
-  gpio = (volatile unsigned char *)mmap(NULL, BCM2835_BLOCK_SIZE, 
-				   PROT_READ|PROT_WRITE, MAP_SHARED,
-				   mem_fd, BCM2835_GPIO_BASE
-				   );
-
+  gpio = mmap(NULL, BCM2835_BLOCK_SIZE, 
+	      PROT_READ|PROT_WRITE, MAP_SHARED,
+	      mem_fd, BCM2835_GPIO_BASE);
+  
   if (gpio == MAP_FAILED) {
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL_GPIO: mmap failed: %d - %s\n", 
@@ -259,7 +242,7 @@ int rtapi_app_main(void)
 			"HAL_GPIO: ERROR: board revision %d not supported\n", rev);
 	return -1;
     }
-    port_data = hal_malloc(npins * sizeof(hal_bit_t));
+    port_data = hal_malloc(npins * sizeof(void *));
     if (port_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_GPIO: ERROR: hal_malloc() failed\n");
@@ -300,8 +283,6 @@ int rtapi_app_main(void)
 	    "HAL_GPIO: ERROR: hal_init() failed\n");
 	return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL_GPIO: dir=0x%x excl=0x%x\n", dir_map, exclude_map);
 
     for (n = 0; n < npins; n++) {
       if (exclude_map & _BIT(n))
@@ -309,12 +290,12 @@ int rtapi_app_main(void)
       pinno = pins[n];
       if (dir_map & _BIT(n)) {
 	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_OUTP);
-	if ((retval = hal_pin_bit_newf(HAL_IN, &(port_data[n]),
+	if ((retval = hal_pin_bit_newf(HAL_IN, &port_data[n],
 				       comp_id, "hal_gpio.pin-%02d-out", pinno)) < 0)
 	  break;
       } else {
 	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_INPT);
-	if ((retval = hal_pin_bit_newf(HAL_OUT, &(port_data[n]),
+	if ((retval = hal_pin_bit_newf(HAL_OUT, &port_data[n],
 				       comp_id, "hal_gpio.pin-%02d-in", pinno)) < 0)
 	  break;
       }
@@ -327,7 +308,7 @@ int rtapi_app_main(void)
       return -1;
     }
 
-    retval = hal_export_funct("hal_gpio.write", write_port, port_data,
+    retval = hal_export_funct("hal_gpio.write", write_port, 0,
 			      0, 0, comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -335,7 +316,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("hal_gpio.read", read_port, port_data,
+    retval = hal_export_funct("hal_gpio.read", read_port, 0,
 			      0, 0, comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -353,7 +334,7 @@ int rtapi_app_main(void)
 void rtapi_app_exit(void)
 {
   if (gpio)
-    munmap(gpio, BLOCK_SIZE);
+    munmap((void *) gpio, BCM2835_BLOCK_SIZE);
   close(mem_fd);
   hal_exit(comp_id);
 }
@@ -361,27 +342,28 @@ void rtapi_app_exit(void)
 static void write_port(void *arg, long period)
 {
   int n;
-  hal_bit_t **p = arg;
 
   // FIXME optimize this
   for (n = 0; n < npins; n++) {
-    if ((dir_map & _BIT(n)) && !(exclude_map & _BIT(n)))
-      if (*(p[n])) 
-	bcm2835_gpio_set(pins[n]);
-      else
-	bcm2835_gpio_clr(pins[n]);
+    if (exclude_map & _BIT(n)) 
+      continue;
+    if (dir_map & _BIT(n)) {
+      if (*(port_data[n])) { 
+	bcm2835_gpio_set(gpios[n]);
+      } else {
+	bcm2835_gpio_clr(gpios[n]);
+      }
+    }
   }
 }
 
 static void read_port(void *arg, long period)
 {
   int n;
-  hal_bit_t **p = arg;
 
   // FIXME optimize this
   for (n = 0; n < npins; n++) {
-    if (!(dir_map & _BIT(n)) && !(exclude_map & _BIT(n)))
-
-      *p[n] = bcm2835_gpio_lev(pins[n]);
+    if ((~dir_map & _BIT(n)) && (~exclude_map & _BIT(n)))
+      *port_data[n] = bcm2835_gpio_lev(gpios[n]);
   }
 }
