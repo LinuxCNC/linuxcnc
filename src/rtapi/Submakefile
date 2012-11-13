@@ -79,7 +79,7 @@ endif
 
 ifeq ($(THREADS),rt-preempt-user)
 RTAPI_APP_SRCS := \
-	rtapi/linux_rtapi_app.cc \
+	rtapi/sim_rtapi_app.cc \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_pci.c \
 	rtapi/linux_rtapi.c

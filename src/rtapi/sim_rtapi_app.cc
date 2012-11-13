@@ -15,6 +15,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -25,12 +27,14 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
 #include <algorithm>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <linux/capability.h>
 #include <sys/io.h>
 #include <time.h>
 #include <stdlib.h>
@@ -38,7 +42,6 @@
 #include <errno.h>
 #include <malloc.h>
 
-#include "config.h"
 #include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/prctl.h>
@@ -72,6 +75,7 @@ static std::map<string, void*> modules;
 
 extern "C" int schedule(void) { return sched_yield(); }
 
+int msg_level = RTAPI_MSG_WARN;
 static int instance_count = 0;
 static int force_exit = 0;
 
@@ -362,9 +366,8 @@ static int master(int fd, vector<string> args) {
         memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
 
-#if !defined(RTAPI_XENOMAI_USER)
+#if defined(RTAPI_POSIX)
 	sim_rtapi_run_threads(fd);
-
 #endif
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
@@ -477,7 +480,6 @@ exit_handler(void)
 
 int main(int argc, char **argv) 
 {
-    int msg_level = RTAPI_MSG_ERR;
     char *s;
     struct sigaction backtrace_action;
 
