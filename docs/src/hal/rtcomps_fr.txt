@@ -23,22 +23,17 @@ fonctionnels, chacun est un simple générateur d'impulsions de pas. Le
 premier diagramme est pour le type _0_, (pas et direction). Le second
 est pour le type _1_ (up/down, ou pseudo-PWM) et le troisième est pour
 les types 2 jusqu'à 14 (les différentes séquences de pas). Les deux
-premiers diagrammes montrent le mode de commande position et le
-troisième montre le mode vitesse. Le mode de commande et le type de
+premiers diagrammes montrent le mode de commande _position_ et le
+troisième montre le mode _vitesse_. Le mode de commande et le type de
 pas, se règlent indépendamment et n'importe quelle combinaison peut
 être choisie.
 
 [[fig:Diagramme-bloc-stepgen]]
-.Diagramme bloc du générateur de pas stepgen (en mode position)
-(((Diagramme bloc stepgen position)))
+.Diagramme bloc du générateur de pas stepgen
+(((Diagramme bloc stepgen)))
 
 image::images/stepgen-block-diag.png[]
 
-[[fig:Diagramme-bloc-freqgen]]
-.Diagramme bloc du générateur de pas stepgen (en mode vitesse)
-(((Diagramme bloc freqgen vitesse)))
-
-image::images/freqgen-block-diag.png[]
 
 === L'installer
 ----
@@ -636,9 +631,8 @@ contrôlée par une pin de HAL. Surtout utile pour les essais.
 halcmd: loadrt sim-encoder num_chan=<number>
 ----
 
-_<number>_ est le nombre de codeurs à simuler. Si aucun n'est
-spécifié, un seul
-codeur sera installé. Le nombre maximum de codeurs est de 8 (comme
+_<number>_ est le nombre de canaux à simuler. Si rien n'est spécifié, un seul
+canal sera installé. Le nombre maximum de canaux est de 8 (comme
 défini par MAX_CHAN dans sim_encoder.c).
 
 === Le désinstaller

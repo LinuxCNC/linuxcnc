@@ -144,35 +144,28 @@ To get the Ubuntu 10.04 Lucid Lynx version,
 copy one of these in the terminal window and press enter:
 
 For the USA mirror: 
-wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
+wget http://linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
 
 For the European mirror: 
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
 
-The md5sum of the above file is: '5283b33b7e23e79da1ee561ad476b05f' 
+The md5sum of the above file is: '76dc2416b917679b71255e464ede84ec' 
 *********************************************************************
 +
 To continue a partial download that was interrupted 
 add the -c option to wget:
 +
-wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
+wget -c http://linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
 +
 To stop a download use Ctrl-C or close the terminal window.
 +
 .Ubuntu 8.04 Hardy Heron and LinuxCNC (older)
 *********************************************************************
-If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
-The CD image below has the old LinuxCNC 2.3.x on it, but can be upgraded to 
-2.4.x by following instructions on the LinuxCNC.org wiki here: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
+If your hardware requires an older version of Ubuntu, you can download Ubuntu
+8.04 and upgrade to the latest LinuxCNC version by following the instructions
+on the LinuxCNC.org download page.
 
-For the USA mirror: 
-wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
-
-For the European mirror: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
-
-The md5sum of the above file is: '1bab052ec879f941628927c988863f14'
+http://linuxcnc.org/index.php/english/download
 *********************************************************************
 +
 After the download is complete you will find the ISO file in the 

@@ -266,7 +266,8 @@ addf and2.0 servo-thread
 # delay running the 8i20 smart serial channel
 addf debounce.0 servo-thread
 # detect a spindle fault
-addf and2.1 servo-thread
+#addf and2.1 servo-thread
+addf or2.0 servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 # run bldc function

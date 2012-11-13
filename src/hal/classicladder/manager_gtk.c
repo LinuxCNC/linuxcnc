@@ -31,6 +31,7 @@
 #include "manager_gtk.h"
 #include "edit_gtk.h"
 
+GtkWidget *ManagerWindow;
 GtkWidget *SectionsList;
 GtkWidget *ButtonAddSection;
 GtkWidget *ButtonDelSection;
@@ -291,9 +292,18 @@ void AddSectionWindowInit( )
 		(GtkSignalFunc)AddSectionWindowDeleteEvent, 0 );
 }
 
+void ToggleManagerWindow()
+{
+	if (InfosGene->HideGuiState == GTK_WIDGET_VISIBLE( ManagerWindow ))
+	{
+		if ( GTK_WIDGET_VISIBLE( ManagerWindow ) )
+		{	gtk_widget_hide (ManagerWindow);
+		}else{	gtk_widget_show (ManagerWindow);
+		}
+	}
+}
 void ManagerInitGtk()
 {
-	GtkWidget *ManagerWindow;
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 	char * List[ ] = {"Section Name   ", "Language    ", "Type   ", "debug" };

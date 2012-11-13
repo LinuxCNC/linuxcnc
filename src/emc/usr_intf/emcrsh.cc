@@ -29,6 +29,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <getopt.h>
 
@@ -455,7 +456,7 @@ typedef struct {
   int commProt;
   char inBuf[256];
   char outBuf[4096];
-  char progName[256];} connectionRecType;
+  char progName[PATH_MAX];} connectionRecType;
 
 int port = 5007;
 int server_sockfd, client_sockfd;
@@ -1064,15 +1065,17 @@ static cmdResponseType setTaskPlanInit(char *s, connectionRecType *context)
 static cmdResponseType setOpen(char *s, connectionRecType *context)
 {
   char *pch;
-  char fileStr[80];
-  
+
   pch = strtok(NULL, "\n\r\0");
   if (pch == NULL) return rtStandardError;
-  strcpy(context->progName, pch);
-//  strcpy(fileStr, "../../nc_files/");
-  strcpy(fileStr, defaultPath);
-  strcat(fileStr, pch);
-  if (sendProgramOpen(fileStr) != 0) return rtStandardError;
+
+  strncpy(context->progName, pch, sizeof(context->progName));
+  if (context->progName[sizeof(context->progName) - 1] != '\0') {
+    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", (unsigned long)strlen(pch), (unsigned long)sizeof(context->progName));
+    return rtStandardError;
+  }
+
+  if (sendProgramOpen(context->progName) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1212,6 +1215,14 @@ int commandSet(connectionRecType *context)
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
+    sprintf(context->outBuf, setCmdNakStr, pch);
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    }
+  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE_ON)) {
+//  Extra check in the event of an undetected change in Machine state resulting in
+//  sending a set command when the machine state is off. This condition is detected
+//  and appropriate error messages are generated, however erratic behavior has been
+//  seen when doing certain set commands when the Machine state is other than 'On'.
     sprintf(context->outBuf, setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
@@ -2227,7 +2238,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 {
   const char *pIniFile = "INIFILE %s";
   
-  sprintf(context->outBuf, pIniFile, EMC_INIFILE);
+  sprintf(context->outBuf, pIniFile, emc_inifile);
   return rtNoError;
 }
 
@@ -2752,7 +2763,7 @@ static void usage(char* pname) {
            "         --path       <path>         (default=%s)\n"
            "emcOptions:\n"
            "          -ini        <inifile>      (default=%s)\n"
-          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,EMC_INIFILE
+          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,emc_inifile
           );
 }
 
@@ -2780,7 +2791,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
     initSockets();
     // init NML
     if (tryNml() != 0) {

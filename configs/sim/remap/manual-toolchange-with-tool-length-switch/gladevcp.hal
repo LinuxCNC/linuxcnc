@@ -1,0 +1,14 @@
+
+net tool-change  motion.digital-out-00   gladevcp.change-led 
+net tool-changed gladevcp.changed        motion.digital-in-00
+net toolno       motion.analog-out-00    gladevcp.number
+
+
+net probing        motion.digital-out-01  gladevcp.probing-led
+net enable         motion.digital-out-02  gladevcp.enable
+net probe-contact  gladevcp.probe-contact motion.probe-input 
+net reftool 	   gladevcp.reftool       motion.digital-in-01
+
+net reflen	   motion.analog-out-01   gladevcp.reflen
+net currlen	   motion.analog-out-02   gladevcp.currlen
+

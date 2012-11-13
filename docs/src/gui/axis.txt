@@ -186,7 +186,7 @@ is relative to the ninth ('G59.3') coordinate system, with the axis offset
 ('G92') ignored.  This is useful when there is a tool touch-off fixture at a
 fixed location on the machine, with the ninth ('G59.3') coordinate system set
 such that the tip of a zero-length tool is at the fixture's origin when the
-Relative coordinates are 0.  See <<G10-L11,G10 L11>> in the G code chapter.
+Relative coordinates are 0.  See <<sec:G10-L11,G10 L11>> in the G code chapter.
 
 .View Menu
 
@@ -431,6 +431,18 @@ The color of the line indicates the type of motion:
 Yellow for jogs, faint green for rapid movements, 
 red for straight moves at a feed rate, 
 and magenta for circular moves at a feed rate.
+
+.Grid
+
+Axis can optionally display a grid when in orthogonal views.  Enable
+or disable the grid using the 'Grid' menu under 'View'.  When
+enabled, the grid is shown in the top and rotated top views; when
+coordinate system is not rotated, the grid is shown in the front and
+side views as well.  The presets in the 'Grid' menu are controlled
+by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is
+`10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
+
+Specifying a very small grid may decrease performance.
 
 .Interacting
 

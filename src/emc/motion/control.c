@@ -233,10 +233,13 @@ void emcmotController(void *arg, long period)
     // check below if you set this under 5
 #define CYCLE_HISTORY 5
 
-    static long int cycles[CYCLE_HISTORY];
-    static long long int last = 0;
 
-    static int index = 0, priming = 1;
+    static long long int last = 0;
+#ifndef RTAPI_SIM
+    static int index = 0;
+    static long int cycles[CYCLE_HISTORY];
+    static int priming = 1;
+#endif
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
@@ -277,7 +280,6 @@ void emcmotController(void *arg, long period)
 	    }
         }
     }
-#endif
     if(last) {
         cycles[index++] = this_run;
     }
@@ -287,6 +289,7 @@ void emcmotController(void *arg, long period)
         // we now have CYCLE_HISTORY good samples, so start checking times
         priming = 0;
     }
+#endif
     // we need this for next time
     last = now;
 
@@ -566,6 +569,27 @@ static void process_inputs(void)
 	    SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
 	}
 	/* end of read and process joint inputs loop */
+    }
+
+    // a fault was signalled during a spindle-orient in progress
+    // signal error, and cancel the orient
+    if (*(emcmot_hal_data->spindle_orient)) {
+	if (*(emcmot_hal_data->spindle_orient_fault)) {
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_FAULTED;
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
+	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
+	    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+	    tpAbort(&emcmotDebug->queue);
+	    SET_MOTION_ERROR_FLAG(1);
+	} else if (*(emcmot_hal_data->spindle_is_oriented)) {
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    *(emcmot_hal_data->spindle_locked) = 1;
+	    emcmotStatus->spindle.locked = 1;
+	    emcmotStatus->spindle.brake = 1;
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_COMPLETE;
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
+	}
     }
 }
 

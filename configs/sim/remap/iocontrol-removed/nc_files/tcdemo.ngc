@@ -1,0 +1,11 @@
+(change tools 1 through 6)
+F100
+#1 = 1
+O101 while [#1 lt 7]
+
+T#1 M6
+
+#1 = [#1+1]
+O101 endwhile
+
+m2

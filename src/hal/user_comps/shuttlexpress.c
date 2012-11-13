@@ -35,12 +35,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <linux/types.h>
 #include <linux/hidraw.h>
 
 #include "hal.h"
 
 
 
+#ifndef HIDIOCGRAWNAME
+#define HIDIOCGRAWNAME(len)     _IOC(_IOC_READ, 'H', 0x04, len)
+#endif
 
 #define Max(a, b)  ((a) > (b) ? (a) : (b))
 

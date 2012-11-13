@@ -111,7 +111,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&axisType, "TYPE", axisString);
 
         if (0 != emcAxisSetAxis(axis, axisType)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetAxis\n");
             }
             return -1;
@@ -127,7 +127,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
 
         if (0 != emcAxisSetUnits(axis, units)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetUnits\n");
             }
             return -1;
@@ -138,7 +138,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&backlash, "BACKLASH", axisString);
 
         if (0 != emcAxisSetBacklash(axis, backlash)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetBacklash\n");
             }
             return -1;
@@ -149,7 +149,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&limit, "MIN_LIMIT", axisString);
 
         if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMinPositionLimit\n");
             }
             return -1;
@@ -160,7 +160,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&limit, "MAX_LIMIT", axisString);
 
         if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMaxPositionLimit\n");
             }
             return -1;
@@ -171,7 +171,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&ferror, "FERROR", axisString);
 
         if (0 != emcAxisSetFerror(axis, ferror)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetFerror\n");
             }
             return -1;
@@ -181,7 +181,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&ferror, "MIN_FERROR", axisString);
 
         if (0 != emcAxisSetMinFerror(axis, ferror)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMinFerror\n");
             }
             return -1;
@@ -215,7 +215,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         if (0 != emcAxisSetHomingParams(axis, home, offset, home_final_vel, search_vel,
                                         latch_vel, (int)use_index, (int)ignore_limits,
                                         (int)is_shared, sequence, volatile_home, locking_indexer)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetHomingParams\n");
             }
             return -1;
@@ -226,7 +226,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&maxVelocity, "MAX_VELOCITY", axisString);
 
         if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
             }
             return -1;
@@ -236,7 +236,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
 
         if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
             }
             return -1;
@@ -247,7 +247,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
 
         if (NULL != (inistring = axisIniFile->Find("COMP_FILE", axisString))) {
             if (0 != emcAxisLoadComp(axis, inistring, comp_file_type)) {
-                if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("bad return from emcAxisLoadComp\n");
                 }
                 return -1;

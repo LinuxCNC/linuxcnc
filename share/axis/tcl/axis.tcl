@@ -337,6 +337,10 @@ setup_menu_accel .menu.view end [_ "Show too_l"]
 	-command toggle_show_extents
 setup_menu_accel .menu.view end [_ "Show e_xtents"]
 
+.menu.view add cascade \
+	-menu .menu.view.grid
+setup_menu_accel .menu.view end [_ "_Grid"]
+
 .menu.view add checkbutton \
 	-variable show_offsets \
 	-command toggle_show_offsets
@@ -414,6 +418,22 @@ setup_menu_accel .menu.view end [_ "Joint mode"]
         -accelerator $ \
         -command set_joint_mode
 setup_menu_accel .menu.view end [_ "World mode"]
+
+menu .menu.view.grid
+
+.menu.view.grid add radiobutton \
+        -value 0 \
+        -variable grid_size \
+        -command set_grid_size
+setup_menu_accel .menu.view.grid end [_ "_Off"]
+
+.menu.view.grid add radiobutton \
+        -value -1 \
+        -variable grid_size \
+        -command set_grid_size_custom
+setup_menu_accel .menu.view.grid end [_ "_Custom"]
+
+
 # ----------------------------------------------------------------------
 .menu.help add command \
 	-command {
@@ -1981,11 +2001,18 @@ proc update_state {args} {
         set ::position [concat [_ "Position:"] $coord_str $display_str]
     }
 
-    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
-        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
-            set_mode_from_tab
-        }
-        enable_group $::manual
+    if {$::task_state == $::STATE_ON} {
+	if {$::interp_state == $::INTERP_IDLE} {
+	    if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+		set_mode_from_tab
+	    }
+	    enable_group $::manual
+	}
+	if {$::queued_mdi_commands < $::max_queued_mdi_commands } {
+	    enable_group $::manual
+	} else {
+	    disable_group $::manual
+	}
     } else {
         disable_group $::manual
     }
@@ -2065,6 +2092,8 @@ set motion_mode 0
 set kinematics_type -1
 set metric 0
 set max_speed 1
+set queued_mdi_commands 0
+set max_queued_mdi_commands 10
 trace variable taskfile w update_title
 trace variable machine w update_title
 trace variable taskfile w queue_update_state
@@ -2084,6 +2113,7 @@ trace variable motion_mode w queue_update_state
 trace variable kinematics_type w queue_update_state
 trace variable on_any_limit w queue_update_state
 trace variable motion_mode w joint_mode_switch
+trace variable queued_mdi_commands  w queue_update_state
 
 set editor_deleted 0
 

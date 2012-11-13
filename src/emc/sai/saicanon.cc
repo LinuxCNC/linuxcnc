@@ -37,6 +37,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <errno.h>
 
 /* where to print */
 //extern FILE * _outfile;
@@ -85,7 +88,8 @@ static double naivecam_tolerance = 0.;
 static double            _traverse_rate;
 
 static EmcPose _tool_offset;
-
+static bool _toolchanger_fault;
+static int  _toolchanger_reason;
 
 /************************************************************************/
 
@@ -105,7 +109,9 @@ stdout to a file.
 */
 
 //extern void rs274ngc_line_text(char * line_text, int max_size);
-extern Interp interp_new;
+extern InterpBase *pinterp;
+#define interp_new (*pinterp)
+
 void print_nc_line_number()
 {
   char text[256];
@@ -604,10 +610,13 @@ void STOP_SPINDLE_TURNING()
 void SPINDLE_RETRACT()
 {PRINT0("SPINDLE_RETRACT()\n");}
 
-void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
-{PRINT2("ORIENT_SPINDLE(%.4f, %s)\n", orientation,
-        (direction == CANON_CLOCKWISE) ? "CANON_CLOCKWISE" :
-                                         "CANON_COUNTERCLOCKWISE");
+void ORIENT_SPINDLE(double orientation, int mode)
+{PRINT2("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
+}
+
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) 
+{
+  PRINT1("SPINDLE_WAIT_ORIENT_COMPLETE(%.4f)\n", timeout);
 }
 
 void USE_NO_SPINDLE_FORCE()
@@ -642,7 +651,7 @@ void CHANGE_TOOL(int slot)
   _tools[0] = _tools[slot];
 }
 
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot, int tool)
 {PRINT1("SELECT_POCKET(%d)\n", slot);}
 
 void CHANGE_TOOL_NUMBER(int slot)
@@ -1123,4 +1132,51 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
 
 void FINISH(void) {
     PRINT0("FINISH()\n");
+}
+
+void START_CHANGE(void) {
+    PRINT0("START_CHANGE()\n");
+}
+
+
+int GET_EXTERNAL_TC_FAULT()
+{
+    return _toolchanger_fault;
+}
+
+int GET_EXTERNAL_TC_REASON()
+{
+    return _toolchanger_reason;
+}
+
+/* Sends error message */
+void CANON_ERROR(const char *fmt, ...)
+{
+    va_list ap;
+
+    if (fmt != NULL) {
+	va_start(ap, fmt);
+	char *err;
+	int res = vasprintf(&err, fmt, ap);
+	if(res < 0) err = 0;
+	va_end(ap);
+	if(err)
+	{
+	    PRINT1("CANON_ERROR(%s)\n", err);
+	    free(err);
+	}
+	else
+	{
+	    PRINT1("CANON_ERROR(vasprintf failed: %s)\n", strerror(errno));
+	}
+    }
+}
+void PLUGIN_CALL(int len, const char *call)
+{
+    printf("PLUGIN_CALL(%d)\n",len);
+}
+
+void IO_PLUGIN_CALL(int len, const char *call)
+{
+    printf("IO_PLUGIN_CALL(%d)\n",len);
 }

@@ -1,0 +1,18 @@
+o<rm400> sub
+(debug, M400 call_level= #<_call_level> remap_level=#<_remap_level>)
+
+o100 if [EXISTS[#<P>]]
+     (debug, P word set: #<P>)
+o100 else
+     (debug, P word missing)
+o100 endif
+
+o120 if [EXISTS[#<Q>]]
+     (debug, Q word set: #<Q>)
+o120 else
+     (debug, Q word missing)
+o120 endif
+
+o<rm400> endsub
+m2
+%

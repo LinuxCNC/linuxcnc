@@ -48,6 +48,7 @@
  N..... SET_FEED_RATE(119.3022)
  N..... COMMENT("set up the tool")
  N..... SELECT_POCKET(1)
+ N..... START_CHANGE()
  N..... STOP_SPINDLE_TURNING()
  N..... CHANGE_TOOL(1)
  N..... COMMENT("-----------------")

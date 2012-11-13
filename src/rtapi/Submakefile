@@ -50,7 +50,6 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(RTAPI_CFLAGS)
 TARGETS += ../bin/rtapi_app
 
 endif
-
 ifeq ($(THREADS),xenomai-user)
 XENO_CONFIG ?= xeno-config --skin=native
 XENO_CFLAGS := $(shell $(XENO_CONFIG) --cflags )
@@ -93,6 +92,16 @@ RT_CFLAGS +=  -lpthread -lrt
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl -lpthread -lrt
 TARGETS += ../bin/rtapi_app
 endif
+
+
+
+TEST_RTAPI_VSNPRINTF_SRCS := rtapi/test_rtapi_vsnprintf.c
+USERSRCS += $(TEST_RTAPI_VSNPRINTF_SRCS)
+$(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
+../bin/test_rtapi_vsnprintf: $(call TOOBJS, $(TEST_RTAPI_VSNPRINTF_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/test_rtapi_vsnprintf
 
 
 ULAPISRCS += rtapi/rtapi_common.c

@@ -1,0 +1,47 @@
+This directory contains snapshots of:
+=====================================
+
+redis: https://github.com/antirez/redis.git branch 2.6
+$ git describe --dirty --always
+2.6.0-rc6-1-g013189e
+
+redis-py: https://github.com/andymccurdy/redis-py.git branch master
+$ git describe --dirty --always
+fd82c5d
+
+Directory layout:
+=================
+
+'redis/redis': server and hiredis C API source
+'redis/redis-py': Python bindings
+'examples/c' and 'examples/python': linuxcnc-specific redis examples.
+
+later:
+'include' eventually to contain a C include file describing the namespace and query templates.
+'python' : any linuxcnc-specific redis-dependent Pyhton modules
+
+LinuxCNC startup and shutdown:
+=============================
+
+ini options: you dont need any of them, but these are understood:
+
+    [REDIS]
+    SERVER_PATH=redis-server
+    SERVER_LOG=/tmp/redis.log
+    SERVER_ARGS=
+    #DISABLE_SERVER=1
+
+by default, the redis-server startup command is 'redis-server >/dev/null' .
+
+--
+
+post-build test to increase confidence (this runs quite a while so I dont include it in runtests):
+
+$ cd src/redis/redis
+$ make tests
+
+
+Programming notes:
+
+including config.h #defines or #undefs CONFIG_REDIS
+for now, this defaults to true

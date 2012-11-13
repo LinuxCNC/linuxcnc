@@ -949,6 +949,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                                   settings->spindle_turning)) settings->
       cycle_p = block->p_number;
     break;
+
   case G_89:
     CHKS(((settings->motion_mode != G_89) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
@@ -971,6 +972,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   return INTERP_OK;
 }
+
+
 
 int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a canned cycle
                             block_pointer block,        //!< pointer to a block of RS274 instructions      

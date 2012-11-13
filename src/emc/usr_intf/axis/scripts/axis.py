@@ -34,6 +34,7 @@ import gettext;
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
+import traceback
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
@@ -51,6 +52,11 @@ Tkinter.Tk = Tk
 
 from Tkinter import *
 from minigl import *
+RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
+old_flags = sys.getdlopenflags()
+sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
+import gcode
+sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
@@ -58,7 +64,6 @@ from hershey import Hershey
 from propertywindow import properties
 import rs274.options
 import nf
-import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
@@ -125,6 +130,8 @@ try:
 except TclError:
     print root_window.tk.call("set", "errorInfo")
     raise
+
+
 program_start_line = 0
 program_start_line_last = -1
 
@@ -224,23 +231,6 @@ def install_help(app):
         Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=4, sticky="w")
     Label(keys, text="    ").grid(row=0, column=2)
-
-color_names = [
-    ('back', 'Background'),
-    'dwell', 'm1xx', 'straight_feed', 'arc_feed', 'traverse',
-    'backplotjog', 'backplotfeed', 'backplotarc', 'backplottraverse',
-    'backplottoolchange', 'backplotprobing',
-    'selected',
-
-    'tool_ambient', 'tool_diffuse', 'lathetool',
-
-    'overlay_foreground', ('overlay_background', 'Background'),
-
-    'label_ok', 'label_limit',
-
-    'small_origin', 'axis_x', 'axis_y', 'axis_z',
-    'cone',
-]   
 
 def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
@@ -374,36 +364,25 @@ class MyOpengl(GlCanonDraw, Opengl):
         return coordinate_charwidth, coordinate_linespace, fontbase
 
     def get_resources(self):
-        self.colors = {}
-        for c in color_names:
+        self.colors = dict(GlCanonDraw.colors)
+        for c in self.colors.keys():
             if isinstance(c, tuple):
                 c, d = c
+            elif c.endswith("_alpha"):
+                d = "Alpha"
             else:
                 d = "Foreground"
-            self.colors[c] = parse_color(self.option_get(c, d))
-        self.colors['backplotjog_alpha'] = \
-            float(self.option_get("backplotjog_alpha", "Float"))
-        self.colors['backplotfeed_alpha'] = \
-            float(self.option_get("backplotfeed_alpha", "Float"))
-        self.colors['backplotarc_alpha'] = \
-            float(self.option_get("backplotarc_alpha", "Float"))
-        self.colors['backplottraverse_alpha'] = \
-            float(self.option_get("backplottraverse_alpha", "Float"))
-        self.colors['backplottoolchange_alpha'] = \
-            float(self.option_get("backplottoolchange_alpha", "Float"))
-        self.colors['backplotprobing_alpha'] = \
-            float(self.option_get("backplotprobing_alpha", "Float"))
-        self.colors['overlay_alpha'] = \
-            float(self.option_get("overlay_alpha", "Float"))
+            option_value = self.option_get(c, d)
+            if option_value:
+                if d == "Alpha":
+                    self.colors[c] = float(option_value)
+                else:
+                    self.colors[c] = parse_color(option_value)
         x = float(self.option_get("tool_light_x", "Float"))
         y = float(self.option_get("tool_light_y", "Float"))
         z = float(self.option_get("tool_light_z", "Float"))
         dist = (x**2 + y**2 + z**2) ** .5
         self.light_position = (x/dist, y/dist, z/dist, 0)
-        self.colors['tool_alpha'] = \
-            float(self.option_get("tool_alpha", "Float"))
-        self.colors['lathetool_alpha'] = \
-            float(self.option_get("lathetool_alpha", "Float"))
 
     def select_prime(self, event):
         self.select_primed = event
@@ -431,6 +410,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_commanded(self): return vars.display_type.get()
     def get_show_rapids(self): return vars.show_rapids.get()
     def get_geometry(self): return geometry
+    def is_foam(self): return foam
     def get_num_joints(self): return num_joints
     def get_program_alpha(self): return vars.program_alpha.get()
 
@@ -524,6 +504,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_program(self): return vars.show_program.get()
     def get_show_offsets(self): return vars.show_offsets.get()
     def get_show_extents(self): return vars.show_extents.get()
+    def get_grid_size(self): return vars.grid_size.get()
     def get_show_metric(self): return vars.metric.get()
     def get_show_live_plot(self): return vars.show_live_plot.get()
     def get_show_machine_speed(self): return vars.show_machine_speed.get()
@@ -692,7 +673,7 @@ class LivePlotter:
             C('backplotarc'),
             C('backplottoolchange'),
             C('backplotprobing'),
-            geometry
+            geometry, foam
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
@@ -715,13 +696,14 @@ class LivePlotter:
 
     def error_task(self):
         error = e.poll()
-        if error: 
+        while error: 
             kind, text = error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
             else:
                 icon = "info"
             notifications.add(icon, text)
+            error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
 
     def update(self):
@@ -772,6 +754,7 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
         if hal_present == 1 :
             set_manual_mode = comp["set-manual-mode"]
             if self.set_manual_mode != set_manual_mode:
@@ -878,7 +861,7 @@ initiated action (whether an MDI command or a jog) is acceptable.
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != linuxcnc.STATE_ON: return False
-    return s.interp_state == linuxcnc.INTERP_IDLE
+    return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
 # first mode
@@ -963,7 +946,7 @@ class Progress:
 
 class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress, arcdivision):
-        GLCanon.__init__(self, widget.colors, geometry)
+        GLCanon.__init__(self, widget.colors, geometry, foam)
         StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
@@ -1112,15 +1095,19 @@ def open_file_guts(f, filtered=False, addrecent=True):
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-        shutil.copy(parameter, temp_parameter)
+        if os.path.exists(parameter):
+            shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-        unitcode = "G%d" % (20 + (s.linear_units == 1))
+        if not interpname:
+		unitcode = "G%d" % (20 + (s.linear_units == 1))
+        else:
+		unitcode = ''
         try:
-            result, seq = o.load_preview(f, canon, unitcode, initcode)
+            result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1133,6 +1120,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
+        o.lp.set_depth(from_internal_linear_unit(o.get_foam_z()),
+                       from_internal_linear_unit(o.get_foam_w()))
 
     finally:
         # Before unbusying, I update again, so that any keystroke events
@@ -1228,6 +1217,7 @@ widgets = nf.Widgets(root_window,
     ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
     ("menu_view", Menu, ".menu.view"),
+    ("menu_grid", Menu, ".menu.view.grid"),
     ("menu_file", Menu, ".menu.file"),
     ("menu_machine", Menu, ".menu.machine"),
     ("menu_touchoff", Menu, ".menu.machine.touchoff"),
@@ -1439,6 +1429,7 @@ class _prompt_float:
         t.wm_resizable(0, 0)
         self.m = m = Message(t, text=text, aspect=500, anchor="w", justify="left")
         self.v = v = StringVar(t)
+        self.vv = vv = DoubleVar(t)
         self.u = u = BooleanVar(t)
         self.w = w = StringVar(t)
         l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
@@ -1496,8 +1487,11 @@ class _prompt_float:
 
         if ok:
             ok, value = parse_gcode_expression(v)
-            if ok: self.w.set("= %f%s" % (value, self.unit_str))
-            else:  self.w.set(value)
+            if ok:
+                self.w.set("= %f%s" % (value, self.unit_str))
+                self.vv.set(value)
+            else:
+                self.w.set(value)
 
         if ok: 
             self.ok.configure(state="normal")
@@ -1513,7 +1507,7 @@ class _prompt_float:
             self._after = None
 
     def result(self):
-        if self.u.get(): return self.v.get()
+        if self.u.get(): return self.vv.get()
         return None
 
     def run(self):
@@ -2197,6 +2191,19 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_offsets", vars.show_offsets.get())
         o.tkRedraw()
 
+    def set_grid_size(*event):
+        ap.putpref("grid_size", vars.grid_size.get(), type=float)
+        o.tkRedraw()
+
+    def set_grid_size_custom(*event):
+        if vars.metric.get(): unit_str = " " + _("mm")
+        else: unit_str = " " + _("in")
+        v = prompt_float("Custom Grid", "Enter grid size",
+                "", unit_str) or 0
+        if v <= 0: return
+        if vars.metric.get(): v /= 25.4
+        match_grid_size(v)
+
     def toggle_show_machine_limits(*event):
         ap.putpref("show_machine_limits", vars.show_machine_limits.get())
         o.tkRedraw()
@@ -2512,6 +2519,7 @@ vars = nf.Variables(root_window,
     ("show_tool", IntVar),
     ("show_extents", IntVar),
     ("show_offsets", IntVar),
+    ("grid_size", DoubleVar),
     ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
@@ -2541,6 +2549,8 @@ vars = nf.Variables(root_window,
     ("touch_off_system", StringVar),
     ("machine", StringVar),
     ("on_any_limit", BooleanVar),
+    ("queued_mdi_commands", IntVar),
+    ("max_queued_mdi_commands", IntVar),
 )
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
@@ -2553,6 +2563,7 @@ vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
 vars.show_offsets.set(ap.getpref("show_offsets", True))
+vars.grid_size.set(ap.getpref("grid_size", 0.0, type=float))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
@@ -2822,6 +2833,7 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
@@ -2854,6 +2866,8 @@ if homing_order_defined:
             _("Home All Axes"))
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
+
+interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
@@ -2985,6 +2999,30 @@ c.wait_complete()
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
+
+def match_grid_size(v):
+    for idx in range(3, widgets.menu_grid.index("end")+1):
+        gv = widgets.menu_grid.entrycget(idx, "value")
+        if abs(float(gv)-v) < 1e-5:
+            vars.grid_size.set(gv)
+            widgets.menu_grid.entryconfigure(2, value=-1)
+            break
+    else:
+        vars.grid_size.set(v)
+        widgets.menu_grid.entryconfigure(2, value=v)
+    commands.set_grid_size()
+    o.tkRedraw()
+
+def setup_grid_menu(grids):
+    for i in grids.split():
+        v = to_internal_linear_unit(parse_increment(i))
+        widgets.menu_grid.add_radiobutton(value=v, label=i,
+                variable="grid_size", command="set_grid_size")
+    match_grid_size(vars.grid_size.get())
+
+grids = inifile.find("DISPLAY", "GRIDS") \
+        or "10mm 20mm 50mm 100mm 1in 2in 5in 10in"
+setup_grid_menu(grids)
 
 
 # Find font for coordinate readout and get metrics
@@ -3229,6 +3267,8 @@ _tk_seticon.seticon(widgets.about_window, icon)
 _tk_seticon.seticon(widgets.help_window, icon)
 
 vars.kinematics_type.set(s.kinematics_type)
+vars.max_queued_mdi_commands.set(int(inifile.find("TASK", "MDI_QUEUED_COMMANDS") or  10))
+
 def balance_ja():
     w = max(widgets.axes.winfo_reqwidth(), widgets.joints.winfo_reqwidth())
     h = max(widgets.axes.winfo_reqheight(), widgets.joints.winfo_reqheight())
@@ -3304,9 +3344,9 @@ if not has_limit_switch:
     widgets.override.grid_forget()
 
 
-forget(widgets.mist, "iocontrol.0.coolant-mist")
-forget(widgets.flood, "iocontrol.0.coolant-flood")
-forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+#forget(widgets.mist, "iocontrol.0.coolant-mist")
+#forget(widgets.flood, "iocontrol.0.coolant-flood")
+#forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
@@ -3314,7 +3354,6 @@ if user_command_file:
     rcfile = user_command_file
 rcfile = os.path.expanduser(rcfile)
 if os.path.exists(rcfile):
-    import traceback
     try:
         execfile(rcfile)
     except:

@@ -761,7 +761,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 {
   const char *pIniFile = "INIFILE %s";
   
-  sprintf(context->outBuf, pIniFile, EMC_INIFILE);
+  sprintf(context->outBuf, pIniFile, emc_inifile);
   return rtNoError;
 }
 
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
     initSockets();
     // init NML
     if (tryNml() != 0) {
@@ -1295,6 +1295,7 @@ int main(int argc, char *argv[])
 
     schedInit();
     res = pthread_create(&updateThread, NULL, checkQueue, (void *)NULL);
+    if(res != 0) { perror("pthread_create"); return 1; }
     if (useSockets) sockMain();
 
     return 0;

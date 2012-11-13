@@ -1,0 +1,10 @@
+o<rm406> sub
+o100 if [[#<_seq>] GT 6]
+     (debug,M406 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 6
+o<rm406> endsub
+m2
+%

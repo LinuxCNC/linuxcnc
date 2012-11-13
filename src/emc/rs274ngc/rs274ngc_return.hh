@@ -166,6 +166,7 @@
 #define NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_L _("Unknown operation name starting with l")
 #define NCE_TOO_MANY_SUBROUTINE_PARAMETERS _("Too many subroutine parameters")
 #define NCE_TOO_MANY_SUBROUTINE_LEVELS _("Too many subroutine levels")
+#define NCE_CALL_STACK_UNDERRUN  _("Bug: call stack underrun")
 #define NCE_UNKNOWN_COMMAND_IN_O_LINE _("Unknown control command in o word")
 #define NCE_TOO_MANY_OWORD_LABELS _("Too many oword labels")
 #define NCE_UNKNOWN_OWORD_NUMBER _("Unknown oword number")

@@ -20,7 +20,6 @@
 #include <linux/slab.h>
 
 #include "rtapi.h"
-#include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
@@ -84,7 +83,7 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **bu
 int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     struct list_head *ptr;
     u16 offset;
-
+    
     hm2->tram_read_size = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
@@ -103,18 +102,18 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         hm2->tram_write_size
     );
 
-    hm2->tram_read_buffer = (u32 *)kmalloc(hm2->tram_read_size, GFP_KERNEL);
+    hm2->tram_read_buffer = (u32 *)krealloc(hm2->tram_read_buffer, hm2->tram_read_size, GFP_KERNEL);
     if (hm2->tram_read_buffer == NULL) {
-        HM2_ERR("out of memory while allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
+        HM2_ERR("Error while (re)allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
         return -ENOMEM;
     }
-
-    hm2->tram_write_buffer = (u32 *)kmalloc(hm2->tram_write_size, GFP_KERNEL);
+    
+    hm2->tram_write_buffer = (u32 *)krealloc(hm2->tram_write_buffer, hm2->tram_write_size, GFP_KERNEL);
     if (hm2->tram_write_buffer == NULL) {
-        HM2_ERR("out of memory while allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
+        HM2_ERR("Error while (re)allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
         return -ENOMEM;
     }
-
+    HM2_DBG("buffer address %p\n", &hm2->tram_write_buffer);
     HM2_DBG("Translation RAM read buffer:\n");
     offset = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
@@ -132,7 +131,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         offset += tram_entry->size;
         HM2_DBG("    addr=0x%04x, size=%d, buffer=%p\n", tram_entry->addr, tram_entry->size, *tram_entry->buffer);
     }
-
+    
     return 0;
 }
 

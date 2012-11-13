@@ -30,3 +30,4 @@ docs/html/drivers
 /docs/src/source-highlight/local
 lib/python/gremlin.py
 lib/python/touchy
+redis/redis/src/release.h

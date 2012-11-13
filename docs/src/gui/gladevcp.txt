@@ -1619,6 +1619,7 @@ Visit +linuxcnc/configs/gladevcp+ for running examples and starters for your own
 == FAQ
 
 [qanda]
+
 I get an unexpected unmap event in my handler function right after startup. What's this?::
 
    This is a consequence of your Glade UI file
@@ -1655,7 +1656,6 @@ I want a blinking LED, but it wont blink::
   rate field, and save again - this works for me.
 
 My gladevcp panel in Axis doesnt save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
-
    Very likely this handler is linked to window1,
    which due to reparenting isnt usable for this purpose. Please link
    the on_destroy handler to the destroy signal of an interior
@@ -1686,7 +1686,6 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
   not reliably set the HAL pin value, it is better to set it
   explicitly in an `on_realize` signal handler during widget creation.
   See the example in `configs/gladevcp/by-widget/spinbutton`.
-
 
 
 == Troubleshooting
@@ -1731,3 +1730,8 @@ Therefore, key events in GladeVCP are explicitly handled, and
 selectively forwarded to Axis, to assure that such situations cannot
 arise. For details, see the `keyboard_forward()` function in
 `lib/python/gladevcp/xembed.py`.
+
+== Adding Custom Widgets
+
+The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
+link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]

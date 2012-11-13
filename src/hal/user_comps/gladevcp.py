@@ -181,16 +181,17 @@ def main():
 
     #try loading as a libglade project
     try:
-        builder = gtk.glade.XML(xmlname)
-        builder = GladeBuilder(builder)
+        builder = gtk.Builder()
+        builder.add_from_file(xmlname)
     except:
         try:
             # try loading as a gtk.builder project
-            print "**** GLADE VCP INFO:    Not a libglade project, trying to load as a GTK builder project"
-            builder = gtk.Builder()
-            builder.add_from_file(xmlname)
-        except:
-            print "**** GLADE VCP ERROR:    With xml file: %s"% xmlname
+            dbg("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
+            builder = gtk.glade.XML(xmlname)
+            builder = GladeBuilder(builder)
+
+        except Exception,e:
+            print >> sys.stderr, "**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e)
             sys.exit(0)
 
     window = builder.get_object("window1")
@@ -200,7 +201,7 @@ def main():
     try:
         halcomp = hal.component(opts.component)
     except:
-        print "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+        print >> sys.stderr, "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
         sys.exit(0)
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
@@ -231,7 +232,7 @@ def main():
             pos = j[2].partition("+")
             window.move( int(pos[0]), int(pos[2]) )
         except:
-            print "**** GLADE VCP ERROR:    With window position data"
+            print >> sys.stderr, "**** GLADE VCP ERROR:    With window position data"
             parser.print_usage()
             sys.exit(1)
     if "x" in opts.geometry:
@@ -243,7 +244,7 @@ def main():
                 t = window_geometry.partition("x")
             window.resize( int(t[0]), int(t[2]) )
         except:
-            print "**** GLADE VCP ERROR:    With window resize data"
+            print >> sys.stderr, "**** GLADE VCP ERROR:    With window resize data"
             parser.print_usage()
             sys.exit(1)
 
@@ -267,6 +268,7 @@ def main():
         dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
         settings = gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
+
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
     if opts.maximum:
         window.window.maximize()
@@ -297,7 +299,7 @@ def main():
         gtk.gdk.flush()
         error = gtk.gdk.error_trap_pop()
         if error:
-            print "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
+            print >> sys.stderr, "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
 
 
 if __name__ == '__main__':

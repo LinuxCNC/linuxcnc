@@ -1,0 +1,8 @@
+o<setfeed> sub
+(debug, in setfeed feed=#<feed>)
+; using the code being remapped here means 'use builtin behaviour'
+F#<feed>
+; signal success be returning a value > 0:
+o<setfeed> endsub [1]
+m2
+

@@ -1,0 +1,15 @@
+msc {
+ hscale="1.5", arcgradient="5";
+
+ a [label="EMC"], b [label="iocontrol"],c [label="HAL TC component"], d [label="Machine"];
+ a=>b [label="T13"];
+ b=>c [label="tool-prep-number = 13\ntool-prep-pocket = 47\ntool-prepare = 1",ID=1];
+ c=>d [label="move to pocket 47",ID=2];
+ c=>c [label="wait for pocket 47 set"];
+ c<=d [label="pocket 47 set"];
+ b<=c [label="tool-prepared = 1",ID=3];
+ b=>c [label="tool-prepare = 0",ID=4];
+ a<=b [label="T command complete", ID=5];
+ b<=c [label="tool-prepared = 0",ID=6];
+
+}

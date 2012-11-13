@@ -1112,7 +1112,6 @@ static gboolean dialog_select_source(int chan_num)
     gtk_clist_clear(GTK_CLIST(vert->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
-    row = -1;
     initial_row = -1;
     max_row = -1;
     while (next != 0) {

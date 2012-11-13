@@ -486,7 +486,8 @@ axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("J
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
     _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
     _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
-    _("Max Vel Override incr C"),_("Max Vel Override incr D") ]
+    _("Max Vel Override incr C"),_("Max Vel Override incr D"), _("Feed Override enable"), _("Spindle Override enable"),
+_("Max Vel Override enable") ]
 spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
 operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
@@ -515,6 +516,7 @@ DIN0, DIN1, DIN2, DIN3,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
 SOA,SOB,SOC,SOD, MVOA, MVOB, MVOC, MVOD,
+FOE,SOE,MVOE,
 SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,SPINDLE_AT_SPEED,
 CYCLE_START, ABORT, SINGLE_STEP,
 ESTOP_IN, PROBE,
@@ -535,6 +537,7 @@ S_HALL1_IN,S_HALL2_IN,S_HALL3_IN,S_C1_IN,S_C2_IN,S_C4_IN,S_C8_IN ) = hal_input_n
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
 "so-incr-a","so-incr-b","so-incr-c","so-incr-d","mvo-incr-a","mvo-incr-b","mvo-incr-c","mvo-incr-d",
+"fo-enable","so-enable","mvo-enable",
 "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
 "cycle-start","abort","single-step",
 "estop-ext", "probe-in",
@@ -1078,7 +1081,7 @@ class Data:
         self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = True
+        self.mesa1_sanity_7i33 = False
         self.mesa1_sanity_7i40 = False
         self.mesa1_sanity_7i48 = False
 
@@ -2905,6 +2908,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                         print >>file, "net jog-%s-analog         %s"% (axletter,pin_analog)
             print >>file
 
+        # check for shared MPG 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
             ending = ""
@@ -2916,6 +2920,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+            # was jogging MPG option selected?
             if self.externalmpg:
                     print >>file, _("#  ---mpg signals---")
                     print >>file
@@ -2928,6 +2933,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                                 print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
                                 print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
                             print >>file
+        # check for dedicated axis MPG jogging option
         for axnum,axletter in enumerate(axis_convert):
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
@@ -2944,7 +2950,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     if self.externalmpg:
                         print >>file, _("#  ---mpg signals---")
                         print >>file
-                        if self.multimpg:
+                        if self.multimpg: # means MPG per axis
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "net %s-jog-enable         =>  axis.%d.jog-enable"% (axletter, axnum)            
                             print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter, axnum)
@@ -2972,6 +2978,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
                 print >>file
 
+        # check for dedicated feed override MPG
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
             ending = ""
@@ -2983,14 +2990,22 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+        # was feed overrride option selected? MPG or switch selcted?
         if self.externalfo:
             if self.fo_usempg:
                 print >>file, "# connect feed overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.feed-override.count-enable true"
                 print >>file, "    setp halui.feed-override.direct-value false"
                 print >>file, "    setp halui.feed-override.scale .01"
-                print >>file, "net fo-count            =>  halui.feed-override.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("fo-enable"): # make it enable-able externally 
+                        print >>file, "net  fo-enable           => halui.feed-override.count-enable"
+                    else:
+                        print >>file, "    setp halui.feed-override.count-enable true"
+                    print >>file, "net fo-count            =>  halui.feed-override.counts"
+                else: # shared MPG
+                    print >>file, "net fo-enable            => halui.feed-override.count-enable"
+                    print >>file, "net joint-selected-count => halui.feed-override.counts"
                 print >>file
             elif self.fo_useswitch:
                 print >>file, "# connect feed overide increments - switches"
@@ -3013,6 +3028,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
                 print >>file
 
+        # check for dedicated max velocity MPG
         pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
         if pinname:
             ending = ""
@@ -3024,6 +3040,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
+        # was max velocity override option selected? MPG or switch selected?
         if self.externalmvo:
             temp=[]
             for i in self.available_axes:
@@ -3032,10 +3049,17 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.mvo_usempg:
                 print >>file, "# connect max velocity overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.max-velocity.count-enable true"
                 print >>file, "    setp halui.max-velocity.direct-value false"
                 print >>file, "    setp halui.max-velocity.scale %04f"% scale
-                print >>file, "net mvo-count            =>  halui.max-velocity.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("mvo-enable"): # make it enable-able externally 
+                        print >>file, "net mvo-enable           =>  halui.max-velocity.count-enable"
+                    else:
+                        print >>file, "    setp halui.max-velocity.count-enable true"
+                    print >>file, "net mvo-count            =>  halui.max-velocity.counts"
+                else: # shared MPG
+                    print >>file, "net mvo-enable           =>  halui.max-velocity.count-enable"
+                    print >>file, "net joint-selected-count =>  halui.max-velocity.counts"
                 print >>file
             elif self.mvo_useswitch:
                 print >>file, "# connect max velocity overide increments - switches"
@@ -3058,6 +3082,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "    setp mvoincr.in%02d          %f"% (i,value)
                 print >>file
 
+        # check for dedicated spindle override MPG
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             ending = ""
@@ -3073,10 +3098,17 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.spindle-override.count-enable true"
                 print >>file, "    setp halui.spindle-override.direct-value false"
                 print >>file, "    setp halui.spindle-override.scale .01"
-                print >>file, "net so-count              =>  halui.spindle-override.counts"
+                if pinname: # dedicated MPG
+                    if self.findsignal("so-enable"): # make it enable-able externally
+                        print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                    else:
+                        print >>file, "    setp halui.spindle-override.count-enable true"
+                    print >>file, "net so-count              =>  halui.spindle-override.counts"
+                else: # shared MPG
+                    print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                    print >>file, "net joint-selected-count  =>  halui.spindle-override.counts"
                 print >>file
             elif self.so_useswitch:
                 print >>file, "# connect spindle overide increments "
@@ -4759,7 +4791,7 @@ Ok to reset data and start a new configuration?"),False):
             time.sleep(.1)
             p.flush()
             p.close()
-            os.remove('%sLINUXCNCempGeneral.rules'% sourcefile)
+            os.remove('%sLINUXCNCtempGeneral.rules'% sourcefile)
         text.append(("disconect USB device please\n"))
         if not self.warning_dialog("\n".join(text),False):return
 
@@ -4822,7 +4854,7 @@ Ok to reset data and start a new configuration?"),False):
             if not self.warning_dialog("\n".join(text),True):return
 
     def on_joysticktest_clicked(self, *args):
-        halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
+        halrun = subprocess.Popen("halrun -I  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
         #print "requested devicename = ",self.widgets.usbdevicename.get_text()
         halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
@@ -5520,7 +5552,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
-        self.halrun = os.popen("halrun -sf > /dev/null", "w") 
+        self.halrun = os.popen("halrun -I > /dev/null", "w") 
         self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")
@@ -8372,7 +8404,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if not self.check_for_rt(self):
             return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
         self.hal_cmnds("LOAD")
         for i in range(0,self.data.number_pports ):
@@ -8437,7 +8469,7 @@ different program to copy to your configuration file.\nThe edited program will b
             width = self.widgets.pyvcpwidth.get_value()
             height = self.widgets.pyvcpheight.get_value()
             size = "%dx%d"% (width,height)    
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.widgets.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
@@ -8498,7 +8530,7 @@ But there is not one in the machine-named folder.."""),True)
         if not self.widgets.gladevcptheme.get_active_text() == "Follow System Theme":
             options ="-t %s"% (self.widgets.gladevcptheme.get_active_text())
             print options
-        self.halrun = halrun = os.popen("cd %s\nhalrun -sf > /dev/null"%(folder), "w" )    
+        self.halrun = halrun = os.popen("cd %s\nhalrun -I > /dev/null"%(folder), "w" )    
         halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{'size':size,'pos':pos,'option':options})
         if self.widgets.spindlespeedbar.get_active():
             halrun.write("setp displaytest.spindle-speed 500\n")
@@ -8724,7 +8756,7 @@ But there is not one in the machine-named folder.."""),True)
     def load_ladder(self,w): 
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write(""" 
               loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
@@ -8859,7 +8891,7 @@ But there is not one in the machine-named folder.."""),True)
         pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
         pwmmaxoutput = get_value(w[axis+"outputscale"])
              
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
@@ -9142,7 +9174,7 @@ But there is not one in the machine-named folder.."""),True)
                 self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
                 return           
 
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")  
         data = self.data
         widgets = self.widgets
         axnum = "xyzas".index(axis)

@@ -1,0 +1,41 @@
+; Demonstrate saving and explicitely restoring the global state around
+; a subroutine call using  M70 - save state and M72 - restore state
+;
+; note that the subroutine itself is not aware of the M7x features
+
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+O<imperialsub> sub
+;
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+;
+(debug, in subroutine, state now:)
+o<showstate> call
+;
+O<imperialsub> endsub
+
+
+; main program
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+;
+(debug, in main, state now:)
+o<showstate> call
+;;
+M70 (save caller state in at global level)
+;
+O<imperialsub> call
+;
+M72 (explicitely restore state)
+;
+(debug, back in main, state now:)
+o<showstate> call
+;
+m2

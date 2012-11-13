@@ -1,0 +1,9 @@
+o<rm405> sub
+o100 if [#<foo405> NE  42]
+     (abort,rm405: foo405=#<foo405>)
+o100 endif
+; bump by 1 and check in epilog wether change is visible
+#<foo405> = [#<foo405> + 1]
+o<rm405> endsub
+m2
+%

@@ -1,0 +1,5 @@
+
+Please use
+ python setup.py install
+
+and report errors to Andy McCurdy (sedrik@gmail.com)

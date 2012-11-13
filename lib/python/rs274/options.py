@@ -115,8 +115,17 @@ option add *Togl.dwell #ff8080 startupFile
 option add *Togl.m1xx #8080ff startupFile
 
 option add *Togl.straight_feed #ffffff startupFile
+option add *Togl.straight_feed_xy #40ff40 startupFile
+option add *Togl.straight_feed_uv #4040ff startupFile
 option add *Togl.arc_feed #ffffff startupFile
+option add *Togl.arc_feed_xy #40ff40 startupFile
+option add *Togl.arc_feed_uv #4040ff startupFile
+option add *Togl.cone #ffffff startupFile
+option add *Togl.cone_xy #00ff00 startupFile
+option add *Togl.cone_uv #0000ff startupFile
 option add *Togl.traverse #4c8080 startupFile
+option add *Togl.traverse_xy #4c8080 startupFile
+option add *Togl.traverse_uv #4c8080 startupFile
 option add *Togl.backplotjog yellow startupFile
 option add *Togl.backplotfeed #c04040 startupFile
 option add *Togl.backplotarc #c04080 startupFile

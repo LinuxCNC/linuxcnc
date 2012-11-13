@@ -4,6 +4,13 @@
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
+# oh man..
+HL_DIR=/usr/share/source-highlight
+LANG_MAP=$(HL_DIR)/lang.map
+LOC_HL_DIR=../docs/src/source-highlight
+LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
+
+
 MAN_SRCS := $(sort \
 	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
 	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
@@ -132,6 +139,8 @@ DOC_SRCS := \
 	drivers/AX5214H_es.txt \
 	drivers/AX5214H_fr.txt \
 	drivers/AX5214H_pl.txt \
+	drivers/VFS11.txt \
+        drivers/GM.txt \
 	drivers/GS2.txt \
 	drivers/GS2_de.txt \
 	drivers/GS2_es.txt \
@@ -416,6 +425,7 @@ DOC_SRCS := \
 	quickstart/stepper_quickstart_es.txt \
 	quickstart/stepper_quickstart_fr.txt \
 	quickstart/stepper_quickstart_pl.txt \
+	remap/structure.txt \
 	Master_Getting_Started.txt \
 	Master_Getting_Started_de.txt \
 	Master_Getting_Started_es.txt \
@@ -436,7 +446,7 @@ DOC_SRCS := \
 	Master_Integrator_es.txt \
 	Master_Integrator_fr.txt \
 	Master_Integrator_pl.txt \
-	Master_Developer.txt \
+	Master_Developer.txt
 
 DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
 
@@ -614,7 +624,7 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \
-	sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+		sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
@@ -694,18 +704,27 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
 				(X=$$?; rm $@; exit $$X)
 
+# rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
+# unsure how to do this as Submakefile -mah
+$(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
+	(cd $(LOC_HL_DIR); make all)
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_en.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_fr.links" \
@@ -812,6 +831,9 @@ docclean:
 	-rm -f $(DOC_DIR)/html/man/man3/*.*
 	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
+# unsure how to do this as Submakefile: -mah
+	-(cd $(LOC_HL_DIR); make clean)
+
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%

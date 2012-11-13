@@ -1,0 +1,13 @@
+
+o<on_abort> sub
+
+(print, on_abort executing)
+
+; add any resetting specific to your config here,
+; like setting HAL pin values
+
+
+o<reset_state> call
+
+o<on_abort> endsub
+m2

@@ -303,7 +303,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 #endif
 
 /***********************************************************************
@@ -467,11 +467,8 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
-   int ret;
    strcat(context->outBuf, "\r\n");
-   ret = write(context->cliSock, context->outBuf, strlen(context->outBuf));
-   //FIXME return error based on ret, probably return (ret >= 0);
-   return 0;
+   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static void sockWriteError(const char *nakStr, connectionRecType *context)
@@ -480,7 +477,7 @@ static void sockWriteError(const char *nakStr, connectionRecType *context)
     sprintf(context->outBuf, "%s %s", nakStr, errorStr);
   else
     sprintf(context->outBuf, "%s", nakStr);
-  sockWrite(context);
+  if(sockWrite(context) < 0) perror("sockWrite");
 }
 
 pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {

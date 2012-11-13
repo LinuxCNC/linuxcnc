@@ -102,7 +102,7 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 	analog_input[i] = 0.0;
 	analog_output[i] = 0.0;
     }
-    
+
     debug = 0;
 };
 
@@ -142,6 +142,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     interpreter_errcode = 0;
     task_paused = 0;
     delayLeft = 0.0;
+    queuedMDIcommands = 0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():

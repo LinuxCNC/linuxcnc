@@ -9,6 +9,7 @@
 *
 ********************************************************************/
 
+#include <boost/python.hpp>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -186,6 +187,33 @@ void enqueue_STOP_SPINDLE_TURNING(void) {
     qc().push_back(q);
 }
 
+void enqueue_ORIENT_SPINDLE(double orientation, int mode) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle orient\n");
+        ORIENT_SPINDLE(orientation,mode);
+        return;
+    }
+    queued_canon q;
+    q.type = QORIENT_SPINDLE;
+    q.data.orient_spindle.orientation = orientation;
+    q.data.orient_spindle.mode = mode;
+    if(debug_qc) printf("enqueue spindle orient\n");
+    qc().push_back(q);
+}
+
+void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(double timeout) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate wait spindle orient complete\n");
+        WAIT_SPINDLE_ORIENT_COMPLETE(timeout);
+        return;
+    }
+    queued_canon q;
+    q.type = QWAIT_ORIENT_SPINDLE_COMPLETE;
+    q.data.wait_orient_spindle_complete.timeout = timeout;
+    if(debug_qc) printf("enqueue wait spindle orient complete\n");
+    qc().push_back(q);
+}
+
 void enqueue_SET_SPINDLE_MODE(double mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle mode %f\n", mode);
@@ -349,6 +377,16 @@ void enqueue_M_USER_COMMAND (int index, double p_number, double q_number) {
     qc().push_back(q);
 }
 
+void enqueue_START_CHANGE (void) {
+    queued_canon q;
+    q.type = QSTART_CHANGE;
+    if(debug_qc) printf("enqueue START_CHANGE\n");
+    qc().push_back(q);
+}
+
+
+
+
 void qc_scale(double scale) {
     
     if(qc().empty()) {
@@ -496,6 +534,19 @@ void dequeue_canons(setup_pointer settings) {
                                                     q.data.mcommand.p_number,
                                                     q.data.mcommand.q_number);
             }
+            break;
+	case QSTART_CHANGE:
+            if(debug_qc) printf("issuing start_change\n");
+            START_CHANGE();
+            free(q.data.comment.comment);
+            break;
+        case QORIENT_SPINDLE:
+            if(debug_qc) printf("issuing orient spindle\n");
+            ORIENT_SPINDLE(q.data.orient_spindle.orientation, q.data.orient_spindle.mode);
+            break;
+	case QWAIT_ORIENT_SPINDLE_COMPLETE:
+            if(debug_qc) printf("issuing wait orient spindle complete\n");
+            WAIT_SPINDLE_ORIENT_COMPLETE(q.data.wait_orient_spindle_complete.timeout);
             break;
         }
     }

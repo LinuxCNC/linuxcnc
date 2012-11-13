@@ -29,7 +29,6 @@
 #include <linux/slab.h>
 
 #include "rtapi.h"
-#include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
@@ -115,7 +114,18 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
 }
 
 
+static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
+    int i;
 
+    for (i = 0; i < hm2->encoder.num_instances; i ++) {
+        hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
+        int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+        if ((*e->hal.pin.quadrature_error == 0) && state) {
+            HM2_ERR("Encoder %d: quadrature count error", i);
+        }
+        *e->hal.pin.quadrature_error = (hal_bit_t) state;
+    }
+}
 
 void hm2_encoder_write(hostmot2_t *hm2) {
     int i;
@@ -272,6 +282,12 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         goto fail0;
     }
 
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.read_control_reg);
+    if (r < 0) {
+        HM2_ERR("error registering tram read region for Encoder Latch/Control register (%d)\n", r);
+        goto fail0;
+    }
+
     hm2->encoder.control_reg = (u32 *)kmalloc(hm2->encoder.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->encoder.control_reg == NULL) {
         HM2_ERR("out of memory!\n");
@@ -366,6 +382,12 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quadrature-error", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.quadrature_error), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
 
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.scale", hm2->llio->name, i);
@@ -517,6 +539,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
         *hm2->encoder.instance[i].hal.pin.position_latch = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
+        *hm2->encoder.instance[i].hal.pin.quadrature_error = 0;
 
         hm2->encoder.instance[i].zero_offset = count;
 
@@ -716,6 +739,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
         e->hal.param.scale = 1.0;
     }
 
+    hm2_encoder_read_control_register(hm2);
 
     switch (e->state) {
 

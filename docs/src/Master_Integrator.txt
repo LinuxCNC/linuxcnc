@@ -41,6 +41,8 @@ include::config/stepper.txt[]
 
 include::hal/basic_hal.txt[]
 
+include::remap/structure.txt[]
+
 :leveloffset: 0
 
 = GUI
@@ -54,6 +56,8 @@ include::hal/pyvcp_examples.txt[]
 include::gui/gladevcp.txt[]
 
 include::gui/halui.txt[]
+
+include::hal/halui_examples.txt[]
 
 :leveloffset: 0
 
@@ -80,6 +84,8 @@ include::drivers/pluto_p.txt[]
 include::drivers/servo_to_go.txt[]
 
 include::drivers/shuttlexpress.txt[]
+
+include::drivers/GM.txt[]
 
 :leveloffset: 0
 

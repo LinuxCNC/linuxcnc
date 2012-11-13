@@ -1,0 +1,25 @@
+; using M70/M71/M72 at the top level
+; note that the 'Active G-codes' window in Axis isnt properly updated
+; when single stepping
+
+F200
+S1200
+G90 (absolute mode)
+
+M70 (save state)
+
+f50
+s120
+g91 (relative motion)
+g1 x5
+
+M72 (restore without invalidating - multiple use possible)
+(DEBUG, feed and speed back at f200 s1200 plus G90 restored)
+f100
+
+M71 (restore and invalidate)
+(DEBUG, another M71 or M72 here should fail with an error message)
+
+; M71
+
+M2
