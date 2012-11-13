@@ -378,28 +378,6 @@ int rtapi_task_resume(int task_id)
 #endif
 }
 
-#if 0
-int rtapi_task_set_period(int task_id,
-			  unsigned long int period_nsec)
-{
-  struct task_data *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
-  task = &task_array[task_id];
-  
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  task->period = period_nsec;
-
-#if defined(RTAPI_XENOMAI_USER)
-  return rt_task_set_periodic(&ostask_array[task_id], TM_NOW, task->period * task->ratio );
-#else
-  return 0;
-#endif
-}
-#endif 
 
 #if defined(RTAPI_POSIX)
 int rtapi_wait(void)

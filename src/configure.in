@@ -148,6 +148,7 @@ AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
+AC_PATH_PROG(ARCHCMD, arch)
 
 ##############################################################################
 # Section 2                                                                  #
@@ -359,6 +360,15 @@ USE_PORTABLE_PARPORT_IO="no"
 # all portable
 USE_GCC_ATOMIC_OPS="no"
 
+# Platforms. set by --enable-platform=<platform>
+# see Section 2.1 to enable other platforms, and later to AC_DEFINE it
+PLATFORM="PC"
+TARGET_PLATFORM=""
+
+# Architecture. Use output of arch(1).
+ARCH=`$ARCHCMD`
+
+
 # note to mah: dont forget debian/configure FIXME
  
 
@@ -368,6 +378,31 @@ USE_GCC_ATOMIC_OPS="no"
 # parse --enable-drivers, --with-kernel, --with-threads, --enable-simulator  #
 # complain about --with-realtime                                             #
 ##############################################################################
+
+AC_MSG_CHECKING(platform)
+AC_ARG_WITH(platform,
+    [  --with-platform=<platform>   Build for specific platform],
+    [
+        case "$withval" in
+            PC*|pc*)
+		TARGET_PLATFORM=PC
+                AC_MSG_RESULT([configuring for PC platform])
+            ;;
+            raspberry*|pi*)
+		TARGET_PLATFORM=raspberry
+                AC_MSG_RESULT([configuring for Raspberry Pi])
+            ;;
+        esac
+	if test -z "$TARGET_PLATFORM"; then
+	   AC_MSG_ERROR([ I dont understand $enableval, just PC or raspberry ]) 
+	fi
+    ],
+    [
+      AC_MSG_RESULT([using default platform: $PLATFORM])
+      TARGET_PLATFORM="$PLATFORM"
+    ])
+
+
 
 AC_MSG_CHECKING(whether to build hardware drivers)
 AC_ARG_ENABLE(drivers,
@@ -423,7 +458,10 @@ AC_ARG_ENABLE(gcc-atomic-ops,
                 AC_MSG_RESULT([using GCC's builtin atomic operations])
             ;;
             N*|n*)
-		USE_GCC_ATOMIC_OPS=no
+		if test "$TARGET_PLATFORM" = "raspberry"; then
+		   AC_MSG_ERROR([raspberry: ARM platforms need --enable-gcc-atomic-ops=yes])
+		fi
+ 		USE_GCC_ATOMIC_OPS=no
                 AC_MSG_RESULT([explicitly disabling GCC's builtin atomic operations])
             ;;
         esac
@@ -432,28 +470,13 @@ AC_ARG_ENABLE(gcc-atomic-ops,
 	fi
     ],
     [
-      AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
+      if test "$TARGET_PLATFORM" = "raspberry"; then
+          AC_MSG_RESULT([raspberry platform: forcing --enable-gcc-atomic-ops=yes])
+	  USE_GCC_ATOMIC_OPS=yes
+      else
+          AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
+      fi
     ])
-
-
-AC_MSG_CHECKING(realtime support directory)
-AC_ARG_WITH(rt-dir,
-    [  --with-rt-dir=<directory>  specify a directory to look for realtime config scripts
-       				  like rtai-config or xeno-config
-                        	  use this if not installed in a standard location)
-    ],
-    [  
-	if test -d "$withval"; then 
-	    WITH_RTDIR="$withval"
-	    AC_MSG_RESULT([using $WITH_RTDIR to look for realtime config scripts])
-
-	else 
-	    AC_MSG_ERROR([$withval - no such directory ]) 
-	fi
-    ],
-    [
-      AC_MSG_RESULT([using defaults ])
-    ])  
 
 
 AC_MSG_CHECKING(kernel configuration)
@@ -879,6 +902,19 @@ if test "$USE_PORTABLE_PARPORT_IO" = yes; then
    AC_DEFINE(USE_PORTABLE_PARPORT_IO, [], [use ppdev ioctl instead of inb/outb])
 fi
 AC_SUBST(USE_PORTABLE_PARPORT_IO)
+
+if test "$TARGET_PLATFORM" = "PC"; then
+   TARGET_PLATFORM_PC=1
+   AC_DEFINE(TARGET_PLATFORM_PC, [], [build for PC platform])
+fi
+if test "$TARGET_PLATFORM" = "raspberry"; then
+   TARGET_PLATFORM_RASPBERRY=1
+   AC_DEFINE(TARGET_PLATFORM_RASPBERRY, [], [build for Raspberry Pi platform])
+fi
+AC_SUBST(TARGET_PLATFORM)
+
+AC_SUBST(ARCH)
+
 
 # man, is this lame
 case $BUILD_SYS in
