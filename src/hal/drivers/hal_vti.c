@@ -212,6 +212,7 @@ typedef struct {
 
 static vti_struct *vti_driver;
 #if defined(BUILD_SYS_USER_DSO)
+#include "rtapi_pci.h"
 static struct rtapi_pcidev *dev = NULL;
 #else
 struct pci_dev *dev = NULL;
