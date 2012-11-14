@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "rtapi.h"
+#include "rtapi_pci.h"
 #include "rtapi_common.h"
 
 /***********************************************************************
