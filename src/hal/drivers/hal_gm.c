@@ -360,7 +360,7 @@ rtapi_app_main(void)
 
 	// Find General Mechatronics cards
 	device_ctr = 0;
-	while((device_ctr < MAX_GM_DEVICES) && ((pDev = pci_find_device(PLX_VENDOR_ID, GM_DEVICE_ID, pDev)) != NULL)){
+	while((device_ctr < MAX_GM_DEVICES) && ((pDev = pci_get_device(PLX_VENDOR_ID, GM_DEVICE_ID, pDev)) != NULL)){
 
 		// Allocate memory for device object.
 		pDevice = hal_malloc(sizeof(gm_device_t));
