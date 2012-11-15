@@ -1887,15 +1887,17 @@ class Gscreen:
         elif switch == _PERCENT_INPUT:
             return round(raw,2)
         else:
-            if self.data.dro_units != self.data.machine_units:
-                print "conversion needed"
-                if self.data.dro_units == _MM:
+            g21 = False
+            if "G21" in self.data.active_gcodes: g21 = True
+
+            # metric DRO - imperial mode
+            if self.data.dro_units == _MM:
+                if not g21:
                     raw = raw / 25.4
-                else:
-                    raw = raw * 25.4
-                print "converted to:",raw
-            else:
-                print "no conversion"
+            # imperial DRO - metric mode
+            elif g21:
+                raw = raw * 25.4
+
             if switch == "x" and self.data.diameter_mode:
                 print "convert from diameter"
                 raw = raw / 2.0
