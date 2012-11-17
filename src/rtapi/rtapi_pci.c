@@ -81,7 +81,7 @@ static int writefile(const char *path, const char *buf, size_t len)
 	int fd;
 	ssize_t res;
 
-	fd = open(path, O_RDWR);
+	fd = open(path, O_WRONLY);
 	if (!fd) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"Failed to open \"%s\" (%s)\n",
