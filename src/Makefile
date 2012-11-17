@@ -423,6 +423,10 @@ ifeq ($(BUILD_DRIVERS),yes)
 setuid:
 	chown root ../bin/rtapi_app
 	chmod 4750 ../bin/rtapi_app
+	chown root ../bin/pci_read
+	chmod 4750 ../bin/pci_read
+	chown root ../bin/pci_write
+	chmod 4750 ../bin/pci_write
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
@@ -595,9 +599,11 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifneq "$(BUILD_SYS)" "user-dso"
+ifneq ($(BUILD_SYS),user-dso)
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
+endif
+ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
@@ -977,7 +983,7 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
-ifeq "$(BUILD_SYS)" "user-dso"
+ifeq ($(BUILD_SYS),user-dso)
 ../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
 endif
 
