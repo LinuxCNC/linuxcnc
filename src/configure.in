@@ -734,6 +734,13 @@ case "$THREADS" in
   	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0 -ffast-math -mhard-float"
 	fi
 
+	# Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
+	# on all arches but x86_64; this causes missing symbols without
+	# this CFLAG
+	if ! grep -q CONFIG_X86_64=y $KCONFIG; then
+	  RTFLAGS="$RTFLAGS -fno-stack-protector"
+	fi
+
 	test "$THREADS" = xenomai-kernel -a "$($RTS --arch)" = x86 && \
 	    KERNEL_MATH_CFLAGS="-msse -ffast-math -funsafe-math-optimizations"
 
