@@ -99,7 +99,6 @@ TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 # path to the configuration the user requested
 # used to see if the is local GLADE files to use
 CONFIGPATH = os.environ['CONFIG_DIR']
-
 import linuxcnc
 from gscreen import emc_interface
 from gscreen import mdi
@@ -109,6 +108,13 @@ from gscreen import preferences
 pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
 color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+
+# print debug messages if debug is true
+gscreen_debug = False
+def dbg(str):
+    global gscreen_debug
+    if not gscreen_debug: return
+    print str
 
 # Throws up a dialog with debug info when an error is encountered 
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -246,6 +252,7 @@ class Data:
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
+        self.jog_increments = []
         self.current_jogincr_index = 0
         self.feed_override = 1.0
         self.feed_override_inc = .05
@@ -280,9 +287,7 @@ class Data:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-# trampoline and load_handlers are copied from gladevcp
-# these are used to load user-made methods into Gscreen
-# this is not actually available yet
+# trampoline and load_handlers are used for custom displays
 class Trampoline(object):
     def __init__(self,methods):
         self.methods = methods
@@ -293,13 +298,12 @@ class Trampoline(object):
 
 def load_handlers(usermod,halcomp,builder,useropts,gscreen):
     hdl_func = 'get_handlers'
-
+    mod = None
     def add_handler(method, f):
         if method in handlers:
             handlers[method].append(f)
         else:
             handlers[method] = [f]
-
     handlers = {}
     for u in usermod:
         (directory,filename) = os.path.split(u)
@@ -317,20 +321,25 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
 	    continue
         print("module '%s' imported OK" % mod.__name__)
         try:
+            # look for functions
+            for temp in ("periodic","connect_signals","initialize_widgets"):
+                h = getattr(mod,temp,None)
+                if h and callable(h):
+                    print("module '%s' : '%s' function found" % (mod.__name__,temp))
+
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
-
             if h and callable(h):
                 print("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
                 objlist = h(halcomp,builder,useropts,gscreen)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
-                print("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
+                dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
                 objlist =  [mod]
             # extract callback candidates
             for object in objlist:
-                print("Registering handlers in module %s object %s" % (mod.__name__, object))
+                dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
                     methods = dict.items()
                 else:
@@ -339,7 +348,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
                     if method.startswith('_'):
                         continue
                     if callable(f):
-                        print("Register callback '%s' in %s" % (method, object))
+                        dbg("Register callback '%s' in %s" % (method, basename))
                         add_handler(method, f)
         except Exception, e:
             print "**** GSCREEN ERROR: trouble looking for handlers in '%s': %s" %(basename, e)
@@ -352,7 +361,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers
+    return handlers,mod
 
 # ok here is the Gscreen class
 # there are also three other files:
@@ -363,12 +372,27 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
 
 class Gscreen: 
 
-    def __init__(self,inipath):
-        (progdir, progname) = os.path.split(sys.argv[0])
+    def __init__(self):
         global xmlname
-        self.inipath = inipath
+        global xmlname2
+        global gscreen_debug
+        skinname = "gscreen"
+        self.inipath = sys.argv[2]
+        (progdir, progname) = os.path.split(sys.argv[0])
+
+        # linuxcnc adds -ini to display name and optparse
+        # can't understand that, so we do it manually 
+        for num,temp in enumerate(sys.argv):
+            if temp == '-c':
+                try:
+                    print "component =",sys.argv[num+1]
+                    skinname = sys.argv[num+1]
+                except:
+                    pass
+            if temp == '-d': gscreen_debug = True
+
         # main screen
-        localglade = os.path.join(CONFIGPATH,"gscreen.glade")
+        localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
         if os.path.exists(localglade):
             print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
             xmlname = localglade
@@ -381,8 +405,7 @@ class Gscreen:
             print "**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname
             sys.exit(0)
         # second screen
-        global xmlname2
-        localglade = os.path.join(CONFIGPATH,"gscreen2.glade")
+        localglade = os.path.join(CONFIGPATH,"%s2.glade"%skinname)
         if os.path.exists(localglade):
             print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
             xmlname2 = localglade
@@ -418,25 +441,17 @@ class Gscreen:
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
         self.data.axis_list.append("s")
-        if "A" in temp:
-            self.widgets.frame3.show()
-            self.widgets.image6.hide() # make more room for axis display
-        if "Y" in temp:
-            self.widgets.frame2.show()
 
         #setup default stuff
         self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
-        self.widgets.hide_cursor.set_active(self.data.hide_cursor)
+
         self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
         self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
-        self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
-        self.set_abs_color()
+
         self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
-        self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_textcolor))
-        self.set_rel_color()
+
         self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
-        self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_textcolor))
-        self.set_dtg_color()
+
         self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
         self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
@@ -444,88 +459,30 @@ class Gscreen:
         self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
         self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
         self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
-        self.widgets.use_screen2.set_active(self.data.use_screen2)
-        self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', False, bool) )
-        self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', True, bool) )
-        self.widgets.gremlin.show_offsets = self.widgets.show_offsets.get_active()
-        data = self.prefs.getpref('grid_size', 1.0 , float)
-        self.widgets.grid_size.set_value(data) 
-        self.widgets.gremlin.grid_size = data
+        self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
-        self.preset_spindle_speed(self.data.spindle_start_rpm)
-        self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
-        self.widgets.diameter_mode.set_active(self.data.diameter_mode)
+
         self.data.dro_units = self.prefs.getpref('units', False, bool)
-        self.widgets.dro_units.set_active(self.data.dro_units)
+
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
         self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr) 
         self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
-        self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
-        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
-        self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
-        self.on_hal_status_state_off(None)
-        w = self.widgets.statusbar1
-        self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
-        if not self.data.err_textcolor == "default":
-            print"change error color",self.data.err_textcolor
-            w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.data.err_textcolor))
-        self.widgets.statusbar1.push(1,"Ready")
-        self.widgets.data_input.set_value(5.125)
-        pangoFont = pango.FontDescription("Tahoma 18")
-        self.widgets.data_input.modify_font(pangoFont)
-        label = ["Manual","MDI","Auto"]
-        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
-        # add terminal window
-        v = vte.Terminal ()
-        v.connect ("child-exited", lambda term: gtk.main_quit())
-        v.fork_command()
-        v.show()
-        window = self.widgets.terminal_window.add(v)
-        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
-        self.widgets.terminal_window.show()
 
-        # If there are themes then add them to combo box
-        if os.path.exists(themedir):
-            model = self.widgets.theme_choice.get_model()
-            model.clear()
-            model.append(("Follow System Theme",))
-            temp = 0
-            names = os.listdir(themedir)
-            names.sort()
-            for search,dirs in enumerate(names):
-                model.append((dirs,))
-                if dirs  == self.data.theme_name:
-                    temp = search+1
-            self.widgets.theme_choice.set_active(temp)
+        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         # get the system wide theme
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
         self.data.system_theme = settings.get_property("gtk-theme-name")
-        if not self.data.theme_name == "Follow System Theme":
-            settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
-        # maximize window or set geometry and optionally maximize 
-        if "max" in self.data.window_geometry:
-		    self.widgets.window1.maximize()
-        elif self.data.window_geometry == "default":
-            pass
-        else:
-            good = self.widgets.window1.parse_geometry(self.data.window_geometry)
-            if self.data.window_max:
-               self.widgets.window1.maximize()
-            if not good:
-                print "**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file"
-        if self.widgets.fullscreen1.get_active():
-            self.widgets.window1.fullscreen()
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
             if "," in increments:
-                self.jog_increments = [i.strip() for i in increments.split(",")]
+                self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
-                self.jog_increments = increments.split()
-        self.jog_increments.insert(0,"Continuous")
+                self.data.jog_increments = increments.split()
+        self.data.jog_increments.insert(0,"Continuous")
 
         # max velocity settings: more then one place to check
         temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
@@ -562,52 +519,12 @@ class Gscreen:
 
         # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
-        if self.data.lathe_mode:
-            self.widgets.tooledit1.set_display(0)
 
         # get the path to the tool table
         self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
-        path = os.path.join(CONFIGPATH,self.data.tooltable)
-        self.widgets.tooledit1.set_filename(path)
 
         # see if the user specified a tool editor
         self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
-
-        # set-up HAL component
-        try:
-            self.halcomp = hal.component("gscreen")
-            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
-            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
-            for axis in self.data.axis_list:
-                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-        except:
-            print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
-            sys.exit(0)
-    
-        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        # at this point, any glade HAL widgets and their pins are set up.
-
-        # look for custom handler files:
-        HANDLER_FN = "gscreen_handler.py"
-        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        if os.path.exists(local_handler_path):
-            temp = [HANDLER_FN]
-        else:
-            temp = []
-        handlers = load_handlers(temp,self.halcomp,self.xml,[],self)
-        self.xml.connect_signals(handlers)
-
-        # TODO the user should be able to invoke this so they know what methods are available
-        # and what handers are registered
-        #print dir(self)
-        #print handlers
-
-        self.install_signals(handlers)
 
         # toolsetting reference type
         if self.prefs.getpref('toolsetting_fixture', False):
@@ -626,17 +543,46 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
-        self.widgets.button_h3_1.set_active(self.prefs.getpref('blockdel', False))
-        self.emc.blockdel(self.data.block_del)
-
-        self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
-        self.emc.opstop(self.data.op_stop)
-
-        # timers for display updates
-        gobject.timeout_add(50, self.periodic_status)
-
         # set default jog rate
         self.emc.continuous_jog_velocity(self.data.jog_rate)
+
+        # set-up HAL component
+        try:
+            self.halcomp = hal.component(skinname)
+            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
+            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
+            for axis in self.data.axis_list:
+                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+        except:
+            print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
+            sys.exit(0)
+    
+        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
+        # at this point, any glade HAL widgets and their pins are set up.
+
+        # look for custom handler files:
+        HANDLER_FN = "%s_handler.py"%skinname
+        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        if os.path.exists(local_handler_path):
+            temp = [HANDLER_FN]
+        else:
+            temp = []
+        handlers,module = load_handlers(temp,self.halcomp,self.xml,[],self)
+        self.xml.connect_signals(handlers)
+        self.custom_handler = module
+        # TODO the user should be able to invoke this so they know what methods are available
+        # and what handers are registered
+        #print handlers
+        if "connect_signals" in dir(self.custom_handler):
+            self.custom_handler.connect_signals(self)
+        else:
+            self.install_signals(handlers)
+
 
         # dynamic tabs setup
         self._dynamic_childs = {}
@@ -644,7 +590,11 @@ class Gscreen:
         self.set_dynamic_tabs()
 
         # set title and display everything including the second screen if requested
-        self.widgets.window1.set_title("Gscreen for linuxcnc")
+        if skinname == "gscreen":
+            title = "Gscreen"
+        else:
+            title = "Gscreen-%s"% skinname
+        self.widgets.window1.set_title("%s for linuxcnc"% title)
         if self.screen2:
             self.widgets.window2.show()
             self.widgets.window2.move(0,0)
@@ -652,6 +602,110 @@ class Gscreen:
                 self.widgets.window2.hide()
         self.widgets.window1.show()
 
+        # Set up the widgets
+        if "initialize_widgets" in dir(self.custom_handler):
+            self.custom_handler.initialize_widgets(self)
+        else:
+            self.initialize_widgets()
+
+        # see if there are user messages in the ini file 
+        self.message_setup()
+
+        # ok everything that might make HAL pins should be done now - let HAL know that
+        self.halcomp.ready()
+        try:
+            self.widgets._terminal.feed_child('halcmd show pin gscreen\n')
+        except:
+            pass
+        # timers for display updates
+        gobject.timeout_add(50, self.periodic_status)
+
+# intitialize #
+    def initialize_widgets(self):
+        temp = self.data.axis_list
+        if "a" in temp:
+            self.widgets.frame3.show()
+            self.widgets.image6.hide() # make more room for axis display
+        if "y" in temp:
+            self.widgets.frame2.show()
+        self.widgets.hide_cursor.set_active(self.data.hide_cursor)
+
+        self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
+        self.set_abs_color()
+        self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_textcolor))
+        self.set_rel_color()
+        self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_textcolor))
+        self.set_dtg_color()
+
+        self.widgets.use_screen2.set_active(self.data.use_screen2)
+        self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', False, bool) )
+        self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', True, bool) )
+        self.widgets.gremlin.show_offsets = self.widgets.show_offsets.get_active()
+        self.widgets.grid_size.set_value(self.data.grid_size) 
+        self.widgets.gremlin.grid_size = self.data.grid_size
+        self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
+        self.widgets.diameter_mode.set_active(self.data.diameter_mode)
+        self.widgets.dro_units.set_active(self.data.dro_units)
+        self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
+        self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
+        self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
+        self.widgets.statusbar1.push(1,"Ready")
+        self.widgets.data_input.set_value(5.125)
+        pangoFont = pango.FontDescription("Tahoma 18")
+        self.widgets.data_input.modify_font(pangoFont)
+        label = ["Manual","MDI","Auto"]
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
+        self.preset_spindle_speed(self.data.spindle_start_rpm)
+        if self.data.lathe_mode:
+            self.widgets.tooledit1.set_display(0)
+        path = os.path.join(CONFIGPATH,self.data.tooltable)
+        self.widgets.tooledit1.set_filename(path)
+        # add terminal window
+        self.widgets._terminal = vte.Terminal ()
+        self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
+        self.widgets._terminal.fork_command()
+        self.widgets._terminal.show()
+        window = self.widgets.terminal_window.add(self.widgets._terminal)
+        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+        self.widgets.terminal_window.show()
+
+        # If there are themes then add them to combo box
+        if os.path.exists(themedir):
+            model = self.widgets.theme_choice.get_model()
+            model.clear()
+            model.append(("Follow System Theme",))
+            temp = 0
+            names = os.listdir(themedir)
+            names.sort()
+            for search,dirs in enumerate(names):
+                model.append((dirs,))
+                if dirs  == self.data.theme_name:
+                    temp = search+1
+            self.widgets.theme_choice.set_active(temp)
+        settings = gtk.settings_get_default()
+        if not self.data.theme_name == "Follow System Theme":
+            settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
+        # maximize window or set geometry and optionally maximize 
+        if "max" in self.data.window_geometry:
+		    self.widgets.window1.maximize()
+        elif self.data.window_geometry == "default":
+            pass
+        else:
+            good = self.widgets.window1.parse_geometry(self.data.window_geometry)
+            if self.data.window_max:
+               self.widgets.window1.maximize()
+            if not good:
+                print "**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file"
+        if self.widgets.fullscreen1.get_active():
+            self.widgets.window1.fullscreen()
+
+
+        self.widgets.button_h3_1.set_active(self.prefs.getpref('blockdel', False))
+        self.emc.blockdel(self.data.block_del)
+
+        self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
+        self.emc.opstop(self.data.op_stop)
+        self.on_hal_status_state_off(None)
         # hide cursor if requested
         # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
@@ -667,13 +721,6 @@ class Gscreen:
 
         # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
-
-        # see if there are user messages in the ini file 
-        self.message_setup()
-
-        # ok everything that might make HAL pins should be done now - let HAL know that
-        self.halcomp.ready()
-        v.feed_child('halcmd show pin gscreen\n')
 
 # *** GLADE callbacks ****
 
@@ -1165,7 +1212,10 @@ class Gscreen:
         for axis in self.data.axis_list:
             cb = "axis_%s"% axis
             i = "_sighandler_axis_%s"% axis
-            self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
+            try:
+                self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
+            except:
+                pass
 
         for mode in range(0,6):
             for num in range(0,24):
@@ -1220,7 +1270,10 @@ class Gscreen:
         return jogincr * scale
 
     def notify(self,title,message,icon="",timeout=2):
-            self.widgets.statusbar1.push(self.statusbar_id,message)
+            try:
+                self.widgets.statusbar1.push(self.statusbar_id,message)
+            except:
+                pass
             if NOTIFY_AVAILABLE:
                 uri = ""
                 if icon:
@@ -1285,11 +1338,11 @@ class Gscreen:
 
     def set_jog_increments(self,index_dir,absolute=False):
         next = self.data.current_jogincr_index + index_dir
-        end = len(self.jog_increments)-1
+        end = len(self.data.jog_increments)-1
         if next < 0: next = end
         if next > end: next = 0
         self.data.current_jogincr_index = next
-        jogincr = self.jog_increments[next]
+        jogincr = self.data.jog_increments[next]
         self.widgets.jog_increment.set_text(jogincr)
         if jogincr == ("Continuous"):
             distance = 0
@@ -1842,7 +1895,7 @@ class Gscreen:
                     else:
                         print "jog incremental"
                         if cmd == 0: return # don't want release of button to stop jog
-                        jogincr = self.jog_increments[self.data.current_jogincr_index]
+                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
@@ -2092,6 +2145,7 @@ class Gscreen:
     def change_theme(self):
         theme = self.widgets.theme_choice.get_active_text()
         self.prefs.putpref('gtk_theme', theme, str)
+        if theme == None:return
         if theme == "Follow System Theme":
             theme = self.data.system_theme
         settings = gtk.settings_get_default()
@@ -2114,7 +2168,10 @@ class Gscreen:
             else:
                 self.notify("Error Message",text,INFO_ICON,3)
         self.emc.unmask()
-        self.update_position()
+        if "periodic" in dir(self.custom_handler):
+            self.custom_handler.periodic(self)
+        else:
+            self.update_position()
         return True
 
     # update the whole display
@@ -2241,7 +2298,7 @@ class Gscreen:
 if __name__ == "__main__":
     try:
         print "**** GSCREEN INFO ini:", sys.argv[2]
-        app = Gscreen(sys.argv[2])
+        app = Gscreen()
     except KeyboardInterrupt:
         sys.exit(0)
     postgui_halfile,inifile = Gscreen.postgui(app)
