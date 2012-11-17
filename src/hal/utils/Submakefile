@@ -67,8 +67,14 @@ $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
 $(call TOOBJS, $(HALGTKSRCS)): Makefile.inc
 endif
 
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_DRIVERS),yes)
+# normal
+#PCI_DEBUG_FLAGS =
+# debug build for now
+PCI_DEBUG_FLAGS = -DDEBUG_PRINTS
+
 PCIWRITESRCS := hal/utils/pci_write.c hal/utils/upci.c
+$(call TOOBJSDEPS, $(PCIWRITESRCS)) : EXTRAFLAGS = $(PCI_DEBUG_FLAGS)
 USERSRCS += $(PCIWRITESRCS)
 ../bin/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
 	$(ECHO) Linking $(notdir $@)
@@ -76,6 +82,7 @@ USERSRCS += $(PCIWRITESRCS)
 TARGETS += ../bin/pci_write
 
 PCIREADSRCS := hal/utils/pci_read.c hal/utils/upci.c
+$(call TOOBJSDEPS, $(PCIREADSRCS)) : EXTRAFLAGS = $(PCI_DEBUG_FLAGS)
 USERSRCS += $(PCIREADSRCS)
 ../bin/pci_read: $(call TOOBJS, $(PCIREADSRCS))
 	$(ECHO) Linking $(notdir $@)
