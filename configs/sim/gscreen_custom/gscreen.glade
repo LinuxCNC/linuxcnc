@@ -1098,18 +1098,6 @@
                                 <property name="n_rows">3</property>
                                 <property name="n_columns">4</property>
                                 <child>
-                                  <object class="GtkToggleButton" id="axis_s">
-                                    <property name="label" translatable="yes">Spindle</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkLabel" id="a_display_3">
                                     <property name="visible">True</property>
                                     <property name="xalign">0.47999998927116394</property>
@@ -1262,7 +1250,22 @@ Speed</property>
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="spindle_preset">
-                                    <property name="label" translatable="yes">Preset</property>
+                                    <property name="label" translatable="yes">S 1000</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="spindle_control">
+                                    <property name="label" translatable="yes">Start</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -1274,16 +1277,24 @@ Speed</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkButton" id="spindle_start">
-                                    <property name="label" translatable="yes">Start At
-  2000</property>
+                                  <object class="GtkButton" id="spindle_increase">
+                                    <property name="label" translatable="yes">+</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                   </object>
                                   <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="spindle_decrease">
+                                    <property name="label" translatable="yes">-</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>

@@ -440,7 +440,6 @@ class Gscreen:
             if letter.lower() in self.data.axis_list: continue
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
-        self.data.axis_list.append("s")
 
         #setup default stuff
         self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
@@ -644,6 +643,9 @@ class Gscreen:
         self.widgets.grid_size.set_value(self.data.grid_size) 
         self.widgets.gremlin.grid_size = self.data.grid_size
         self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
+        self.block("s_display_fwd")
+        self.widgets.s_display_fwd.set_active(True)
+        self.unblock("s_display_fwd")
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
         self.widgets.dro_units.set_active(self.data.dro_units)
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
@@ -724,16 +726,32 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
-    # start the spindle according to preset rpm and direction buttons, unless interp is busy
-    def start_spindle(self,*args):
+    def on_spindle_speed_adjust(self,widget):
+                # spindle increase /decrease controls
         if self.mdi_control.mdi_is_reading():
             self.notify("INFO:","Can't start spindle manually while MDI busy ",INFO_ICON)
             return
         elif self.data.mode_order[0] == _AUTO:
             self.notify("INFO:","can't start spindle manually in Auto mode",INFO_ICON)
             return
+        if widget == self.widgets.spindle_increase:
+            self.spindle_adjustment(True,True)
+        elif widget == self.widgets.spindle_decrease:
+            self.spindle_adjustment(False,True)
+
+    # start the spindle according to preset rpm and direction buttons, unless interp is busy
+    def on_spindle_control_clicked(self,*args):
+        if self.mdi_control.mdi_is_reading():
+            self.notify("INFO:","Can't start spindle manually while MDI busy ",INFO_ICON)
+            return
+        elif self.data.mode_order[0] == _AUTO:
+            self.notify("INFO:","can't start spindle manually in Auto mode",INFO_ICON)
+            return
+        if not self.data.spindle_speed == 0:
+            self.emc.spindle_off(1)
+            return
         if not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-            self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
+            self.notify("INFO:","No direction selected for spindle",INFO_ICON)
             return
         if self.widgets.s_display_fwd.get_active():
             self.adjust_spindle_rpm(self.data.spindle_preset,1)
@@ -773,31 +791,29 @@ class Gscreen:
 
     # manual spindle control
     def on_s_display_fwd_toggled(self,widget):
-        def kill():
-            if not self.mdi_control.mdi_is_reading() and not self.data.mode_order[0] == _AUTO:
-                    self.emc.spindle_off(1)
-
-        if widget.get_active():
-            if self.widgets.s_display_rev.get_active():
-                self.widgets.s_display_rev.set_active(False)
-                widget.set_active(False)
-                kill()
-        else:
-                kill()
-
-    # manual spindle control
-    def on_s_display_rev_toggled(self,widget):
-        def kill():
-            if not self.mdi_control.mdi_is_reading() and not self.data.mode_order[0] == _AUTO:
-                    self.emc.spindle_off(1)
-
         if widget.get_active():
             if self.widgets.s_display_fwd.get_active():
-                self.widgets.s_display_fwd.set_active(False)
-                widget.set_active(False)
-                kill()
+                self.emc.spindle_off(1)
+                self.block("s_display_rev")
+                self.widgets.s_display_rev.set_active(False)
+                self.unblock("s_display_rev")
         else:
-            kill()
+            self.block("s_display_fwd")
+            widget.set_active(True)
+            self.unblock("s_display_fwd")
+ 
+    # manual spindle control
+    def on_s_display_rev_toggled(self,widget):
+        if widget.get_active():
+            if self.widgets.s_display_fwd.get_active():
+                self.emc.spindle_off(1)
+                self.block("s_display_fwd")
+                self.widgets.s_display_fwd.set_active(False)
+                self.unblock("s_display_fwd")
+        else:
+            self.block("s_display_rev")
+            widget.set_active(True)
+            self.unblock("s_display_rev")
 
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
@@ -1102,7 +1118,7 @@ class Gscreen:
 
     def on_hal_status_state_on(self,widget):
         print "on"
-        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics"]
+        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5"]
         for axis in self.data.axis_list:
             temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,True)
@@ -1111,10 +1127,12 @@ class Gscreen:
         self.widgets.button_v0_0.set_sensitive(state)
         self.widgets.button_v0_1.set_sensitive(state)
         self.widgets.button_h1_1.set_sensitive(state)
+        if not state:
+            self.widgets.button_homing.emit("clicked")
 
     def on_hal_status_state_off(self,widget):
         print "off"
-        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_mode","button_graphics"]
+        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_mode","button_graphics","frame5"]
         for axis in self.data.axis_list:
             temp.append("axis_%s"% axis)
         self.sensitize_widgets(temp,False)
@@ -1167,8 +1185,10 @@ class Gscreen:
                         ["data_input","button_press_event", "launch_numerical_input"],
                         ["grid_size","value_changed", "set_grid_size"],
                         ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
-                        ["spindle_start","clicked", "start_spindle"],
+                        ["spindle_control","clicked", "on_spindle_control_clicked"],
                         ["spindle_preset","clicked", "on_preset_spindle"],
+                        ["spindle_increase","clicked", "on_spindle_speed_adjust"],
+                        ["spindle_decrease","clicked", "on_spindle_speed_adjust"],
                         ["audio_error_chooser","update-preview", "update_preview"],
                         ["audio_alert_chooser","update-preview", "update_preview"],
                         ["hal_status","interp-idle", "on_hal_status_interp_idle"],
@@ -1201,7 +1221,10 @@ class Gscreen:
                 print "**** GSCREEN INFO: Overriding internal signal call to %s"% i[2]
                 continue
             try:
-                if len(i) == 3:
+                if  i[0] in("s_display_rev","s_display_fwd"):
+                    j = "_sighandler_%s"% i[0]
+                    self.data[j] = int(self.widgets[i[0]].connect(i[1], self[i[2]]))
+                elif len(i) == 3:
                         self.widgets[i[0]].connect(i[1], self[i[2]])
                 elif len(i) == 4:
                     self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
@@ -1233,10 +1256,11 @@ class Gscreen:
                     self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
                 except:
                     break
+                self.widgets.s_display_fwd
 
     def preset_spindle_speed(self,rpm):
         self.data.spindle_preset = rpm
-        self.widgets.spindle_start.set_label(" Start At\n  %d"% rpm)
+        self.widgets.spindle_preset.set_label(" S %d"% rpm)
 
     def sensitize_widgets(self, widgetlist, value):
         for name in widgetlist:
@@ -1448,12 +1472,6 @@ class Gscreen:
                 change = -1
             else: return
             self.change_origin_system(None,change)
-        # spindle increase /decrease controls
-        elif self.data.mode_order[0] == _MAN and self.widgets.axis_s.get_active():
-            if widget == self.widgets.button_v0_2:
-                self.spindle_adjustment(True,action)
-            elif widget == self.widgets.button_v0_3:
-                self.spindle_adjustment(False,action)
         # Jogging mode (This needs to be last)
         elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
             # what axis is set
@@ -1902,7 +1920,7 @@ class Gscreen:
     # spindle control
     def spindle_adjustment(self,direction,action):
         if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-            self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
+            self.notify("INFO:","No direction selected for spindle",INFO_ICON)
             return
         if direction and action:
             if self.data.spindle_speed:
@@ -2111,11 +2129,7 @@ class Gscreen:
 
     # adjust the screen as per each mode toggled 
     def mode_changed(self,mode):
-        for i in range(0,3):
-            if i == mode:
-                self.widgets["mode%d"% i].show()
-            else:
-                self.widgets["mode%d"% i].hide()
+
         if mode == _MAN: 
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
@@ -2124,6 +2138,8 @@ class Gscreen:
             self.widgets.button_homing.show()
             self.widgets.dro_frame.show()
         elif mode == _MDI:
+            if self.widgets.button_homing.get_active():
+                self.widgets.button_homing.emit("clicked")
             self.mdi_control.set_mdi_mode()
             self.widgets.hal_mdihistory.show()
             self.widgets.vmode0.show()
@@ -2141,6 +2157,11 @@ class Gscreen:
             self.widgets.button_h1_0.set_active(False)
             self.widgets.button_homing.set_active(False)
             self.widgets.button_homing.hide()
+        for i in range(0,3):
+            if i == mode:
+                self.widgets["mode%d"% i].show()
+            else:
+                self.widgets["mode%d"% i].hide()
 
     def change_theme(self):
         theme = self.widgets.theme_choice.get_active_text()
@@ -2176,60 +2197,63 @@ class Gscreen:
 
     # update the whole display
     def update_position(self,*args):
-        # DRO 
+        # spindle controls
+        if self.data.spindle_speed == 0:
+            temp = "Start"
+        else:
+            temp = "Stop"
+        self.widgets.spindle_control.set_label(temp)
+        self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
+        self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
+        try:
+            self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
+        except:
+            pass
+        # DRO
         for i in self.data.axis_list:
             if i in ('b','c','u','v','w'): continue
-            if i == "s":
-                self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
-                self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
-                try:
-                    self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
-                except:
-                    pass
-            else:
                 
-                for j in range (0,3):
-                    current = self.data.display_order[j]
-                    attr = pango.AttrList()
-                    if current == _ABS:
-                        color = self.data.abs_color
-                        data = self.data["%s_abs"%i]
-                        #text = "%+ 10.4f"% self.data["%s_abs"%i]
-                        label = "ABS"
-                    elif current == _REL:
-                        color = self.data.rel_color
-                        data = self.data["%s_rel"%i]
-                        #text = "%+ 10.4f"% self.data["%s_rel"%i]
-                        label= "REL"
-                    elif current == _DTG:
-                        color = self.data.dtg_color
-                        data = self.data["%s_dtg"%i]
-                        #text = "%+ 10.4f"% self.data["%s_dtg"%i]
-                        label = "DTG"
-                    if j == 2:
-                        if self.data.highlight_major:
-                            hlcolor = self.data.highlight_color
-                            bg_color = pango.AttrBackground(hlcolor[0],hlcolor[1],hlcolor[2], 0, -1)
-                            attr.insert(bg_color)
-                        size = pango.AttrSize(30000, 0, -1)
-                        attr.insert(size)
-                        weight = pango.AttrWeight(600, 0, -1)
-                        attr.insert(weight)
-                    fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
-                    attr.insert(fg_color)
-                    self.widgets["%s_display_%d"%(i,j)].set_attributes(attr)
-                    h = " "
-                    if current == _ABS and self.data["%s_is_homed"% i]: h = "*"
-                    if self.data.diameter_mode and i == 'x': data = data * 2.0
-                    if self.data.dro_units == _MM:
-                        text = "%s% 10.3f"% (h,data)
-                    else:
-                        text = "%s% 9.4f"% (h,data)
-                    self.widgets["%s_display_%d"%(i,j)].set_text(text)
-                    self.widgets["%s_display_%d"%(i,j)].set_alignment(0,.5)
-                    self.widgets["%s_display_%d_label"%(i,j)].set_alignment(1,.5)
-                    self.widgets["%s_display_%d_label"%(i,j)].set_text(label)
-
+            for j in range (0,3):
+                current = self.data.display_order[j]
+                attr = pango.AttrList()
+                if current == _ABS:
+                    color = self.data.abs_color
+                    data = self.data["%s_abs"%i]
+                    #text = "%+ 10.4f"% self.data["%s_abs"%i]
+                    label = "ABS"
+                elif current == _REL:
+                    color = self.data.rel_color
+                    data = self.data["%s_rel"%i]
+                    #text = "%+ 10.4f"% self.data["%s_rel"%i]
+                    label= "REL"
+                elif current == _DTG:
+                    color = self.data.dtg_color
+                    data = self.data["%s_dtg"%i]
+                    #text = "%+ 10.4f"% self.data["%s_dtg"%i]
+                    label = "DTG"
+                if j == 2:
+                    if self.data.highlight_major:
+                        hlcolor = self.data.highlight_color
+                        bg_color = pango.AttrBackground(hlcolor[0],hlcolor[1],hlcolor[2], 0, -1)
+                        attr.insert(bg_color)
+                    size = pango.AttrSize(30000, 0, -1)
+                    attr.insert(size)
+                    weight = pango.AttrWeight(600, 0, -1)
+                    attr.insert(weight)
+                fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+                attr.insert(fg_color)
+                self.widgets["%s_display_%d"%(i,j)].set_attributes(attr)
+                h = " "
+                if current == _ABS and self.data["%s_is_homed"% i]: h = "*"
+                if self.data.diameter_mode and i == 'x': data = data * 2.0
+                if self.data.dro_units == _MM:
+                    text = "%s% 10.3f"% (h,data)
+                else:
+                    text = "%s% 9.4f"% (h,data)
+                self.widgets["%s_display_%d"%(i,j)].set_text(text)
+                self.widgets["%s_display_%d"%(i,j)].set_alignment(0,.5)
+                self.widgets["%s_display_%d_label"%(i,j)].set_alignment(1,.5)
+                self.widgets["%s_display_%d_label"%(i,j)].set_text(label)
         # corodinate system:
         systemlabel = ("Machine","G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
         # active codes
@@ -2243,15 +2267,15 @@ class Gscreen:
         self.halcomp["aux-coolant-m7.out"] = False
         self.halcomp["flood-coolant.out"] = False
         if self.data.mist:
-                if self.widgets.aux_coolant_m7.get_active():
-                    self.halcomp["aux-coolant-m7.out"] = True
-                else:
-                    self.halcomp["mist-coolant.out"] = True
+            if self.widgets.aux_coolant_m7.get_active():
+               self.halcomp["aux-coolant-m7.out"] = True
+            else:
+                self.halcomp["mist-coolant.out"] = True
         if self.data.flood:
-                if self.widgets.aux_coolant_m8.get_active():
-                    self.halcomp["aux-coolant-m8.out"] = True
-                else:
-                    self.halcomp["flood-coolant.out"] = True
+            if self.widgets.aux_coolant_m8.get_active():
+                self.halcomp["aux-coolant-m8.out"] = True
+            else:
+                self.halcomp["flood-coolant.out"] = True
         self.widgets.active_feed_speed_label.set_label("F%s    S%s"% (self.data.active_feed_command,self.data.active_spindle_command))
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
