@@ -196,6 +196,18 @@ class mdi_control:
         #self.editing(self.selected)
         #self.set_text("G")
 
+    def mdi_is_reading(self):
+        self.mdi.emcstat.poll()
+        if self.mdi.emcstat.interp_state == self.mdi.emc.INTERP_READING:
+            return True
+        return False
+
+    def set_mdi_mode(self):
+        self.mdi.emcstat.poll()
+        if self.mdi.emcstat.task_mode != self.mdi.emc.MODE_MDI:
+            self.mdi.emccommand.mode(self.mdi.emc.MODE_MDI)
+            self.mdi.emccommand.wait_complete()
+
     def set_axis(self,axis,value):
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_axis_origin(axis,value)
