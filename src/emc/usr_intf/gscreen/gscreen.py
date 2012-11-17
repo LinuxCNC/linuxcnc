@@ -227,7 +227,8 @@ class Data:
         self.spindle_request_rpm = 0
         self.spindle_dir = 0
         self.spindle_speed = 0
-        self.spindle_start_rpm = 100
+        self.spindle_start_rpm = 300
+        self.spindle_preset = 300
         self.active_spindle_command = "" # spindle command setting
         self.active_feed_command = "" # feed command setting
         self.system = 1
@@ -450,7 +451,8 @@ class Gscreen:
         data = self.prefs.getpref('grid_size', 1.0 , float)
         self.widgets.grid_size.set_value(data) 
         self.widgets.gremlin.grid_size = data
-        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 100 , float)
+        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
+        self.preset_spindle_speed(self.data.spindle_start_rpm)
         self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
@@ -675,15 +677,36 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    # start the spindle according to preset rpm and direction buttons, unless interp is busy
+    def start_spindle(self,*args):
+        if self.mdi_control.mdi_is_reading():
+            self.notify("INFO:","Can't start spindle manually while MDI busy ",INFO_ICON)
+            return
+        elif self.data.mode_order[0] == _AUTO:
+            self.notify("INFO:","can't start spindle manually in Auto mode",INFO_ICON)
+            return
+        if not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
+            self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
+            return
+        if self.widgets.s_display_fwd.get_active():
+            self.adjust_spindle_rpm(self.data.spindle_preset,1)
+        else:
+            self.adjust_spindle_rpm(self.data.spindle_preset,-1)
+
+    def on_preset_spindle(self,*args):
+        self.preset_spindle_speed(self.get_qualified_input(_SPINDLE_INPUT))
+
     def set_grid_size(self,widget):
         data = widget.get_value()
         self.widgets.gremlin.set_property('grid_size',data)
         self.prefs.putpref('grid_size', data,float)
 
+    # from prefererence page
     def set_spindle_start_rpm(self,widget):
         data = widget.get_value()
         self.data.spindle_start_rpm = data
         self.prefs.putpref('spindle_start_rpm', data,float)
+        self.preset_spindle_speed(data)
 
     def update_preview(self,widget):
         file = widget.get_filename()
@@ -703,31 +726,31 @@ class Gscreen:
 
     # manual spindle control
     def on_s_display_fwd_toggled(self,widget):
-        if self.data.mode_order[0] == _MAN:
-            if self.widgets.button_h1_0.get_active():# jogging mode active
-                if widget.get_active():
-                    if self.widgets.s_display_rev.get_active():
-                        self.widgets.s_display_rev.set_active(False)
-                        self.emc.spindle_off(1)
-                else:
+        def kill():
+            if not self.mdi_control.mdi_is_reading() and not self.data.mode_order[0] == _AUTO:
                     self.emc.spindle_off(1)
-            elif widget.get_active():
+
+        if widget.get_active():
+            if self.widgets.s_display_rev.get_active():
+                self.widgets.s_display_rev.set_active(False)
                 widget.set_active(False)
-                self.notify("INFO:","Manual Spindle Control requires jogging mode active",INFO_ICON)
+                kill()
+        else:
+                kill()
 
     # manual spindle control
     def on_s_display_rev_toggled(self,widget):
-        if self.data.mode_order[0] == _MAN:
-            if self.widgets.button_h1_0.get_active():# jogging mode active
-                if widget.get_active():
-                    if self.widgets.s_display_fwd.get_active():
-                        self.widgets.s_display_fwd.set_active(False)
-                        self.emc.spindle_off(1)
-                else:
+        def kill():
+            if not self.mdi_control.mdi_is_reading() and not self.data.mode_order[0] == _AUTO:
                     self.emc.spindle_off(1)
-            elif widget.get_active():
+
+        if widget.get_active():
+            if self.widgets.s_display_fwd.get_active():
+                self.widgets.s_display_fwd.set_active(False)
                 widget.set_active(False)
-                self.notify("INFO:","Manual Spindle Control requires jogging mode active",INFO_ICON)
+                kill()
+        else:
+            kill()
 
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
@@ -1097,6 +1120,8 @@ class Gscreen:
                         ["data_input","button_press_event", "launch_numerical_input"],
                         ["grid_size","value_changed", "set_grid_size"],
                         ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
+                        ["spindle_start","clicked", "start_spindle"],
+                        ["spindle_preset","clicked", "on_preset_spindle"],
                         ["audio_error_chooser","update-preview", "update_preview"],
                         ["audio_alert_chooser","update-preview", "update_preview"],
                         ["hal_status","interp-idle", "on_hal_status_interp_idle"],
@@ -1158,6 +1183,10 @@ class Gscreen:
                     self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
                 except:
                     break
+
+    def preset_spindle_speed(self,rpm):
+        self.data.spindle_preset = rpm
+        self.widgets.spindle_start.set_label(" Start At\n  %d"% rpm)
 
     def sensitize_widgets(self, widgetlist, value):
         for name in widgetlist:
@@ -1366,7 +1395,12 @@ class Gscreen:
                 change = -1
             else: return
             self.change_origin_system(None,change)
-
+        # spindle increase /decrease controls
+        elif self.data.mode_order[0] == _MAN and self.widgets.axis_s.get_active():
+            if widget == self.widgets.button_v0_2:
+                self.spindle_adjustment(True,action)
+            elif widget == self.widgets.button_v0_3:
+                self.spindle_adjustment(False,action)
         # Jogging mode (This needs to be last)
         elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
             # what axis is set
@@ -1780,19 +1814,9 @@ class Gscreen:
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
-            label = "Move To"
-            button = False;
-            if self.data.active_axis_buttons[0][0] == "s":
-                button = True
-                label = "Set RPM"
-            self.widgets.s_display_fwd.set_sensitive(button)
-            self.widgets.s_display_rev.set_sensitive(button)
-            self.widgets.button_v0_5.set_label(label)
+            self.widgets.button_v0_5.set_label("Move To")
         else:
             self.widgets.button_v0_5.set_label("")
-            self.widgets.s_display_fwd.set_sensitive(False)
-            self.widgets.s_display_rev.set_sensitive(False)
-            self.emc.spindle_off(1)
         self.update_hal_jog_pins()
 
     # do some checks then jog selected axis or start spindle
@@ -1822,26 +1846,27 @@ class Gscreen:
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
+    # spindle control
+    def spindle_adjustment(self,direction,action):
+        if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
+            self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
+            return
+        if direction and action:
+            if self.data.spindle_speed:
+                self.emc.spindle_faster(1)
+            elif self.widgets.s_display_fwd.get_active():
+               self.emc.spindle_forward(1,self.data.spindle_start_rpm)
+            else:
+                self.emc.spindle_reverse(1,self.data.spindle_start_rpm)
+            print direction,action
+        elif not direction and action:
+            if self.data.spindle_speed:
+                if self.data.spindle_speed >100:
+                    self.emc.spindle_slower(1)
                 else:
-                    if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-                        self.notify("INFO:","No jog direction selected for spindle",INFO_ICON)
-                        return
-                    if direction and action:
-                        if self.data.spindle_speed:
-                            self.emc.spindle_faster(1)
-                        elif self.widgets.s_display_fwd.get_active():
-                            self.emc.spindle_forward(1,self.data.spindle_start_rpm)
-                        else:
-                            self.emc.spindle_reverse(1,self.data.spindle_start_rpm)
-                        print direction,action
-                    elif not direction and action:
-                        if self.data.spindle_speed:
-                            if self.data.spindle_speed >100:
-                                self.emc.spindle_slower(1)
-                            else:
-                                self.emc.spindle_off(1)
+                    self.emc.spindle_off(1)
 
-    # feeds to a position (while in manual mode) or set spindle speed to spinbox
+    # feeds to a position (while in manual mode)
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
             self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
@@ -1849,19 +1874,21 @@ class Gscreen:
         elif self.data.active_axis_buttons[0][0] == None:
             self.notify("INFO:","No axis selected to move",INFO_ICON)
         else:
-            print "move axis %s" % self.data.active_axis_buttons[0][0]
             if not self.data.active_axis_buttons[0][0] == "s":
                 self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
-            else:
-                 rpm = self.get_qualified_input(_SPINDLE_INPUT)
-                 if self.widgets.s_display_fwd.get_active():
-                    print "forward"
-                    self.emc.spindle_forward(1, rpm)
-                 elif self.widgets.s_display_rev.get_active():
-                    print "reverse"
-                    self.emc.spindle_reverse(1, rpm)
-                 else:
-                    self.notify("INFO:","No spindle direction selected",INFO_ICON)
+
+    def adjust_spindle_rpm(self, rpm, direction=None):
+            # spindle control
+             if direction == None:
+                direction = self.data.spindle_dir
+             if direction > 0:
+                print "forward"
+                self.emc.spindle_forward(1, float(rpm))
+             elif direction < 0:
+                print "reverse"
+                self.emc.spindle_reverse(1, float(rpm))
+             else:
+                self.emc.spindle_off(1)
 
     # shows the second glade file panel
     def toggle_screen2(self):
@@ -1933,7 +1960,6 @@ class Gscreen:
             self.emc.unhome_selected(self.data.active_axis_buttons[0][1])
 
     # Touchoff the axis zeroing it
-    # or stop the spindle in in spindle mode
     # reload the plot to update the display
     def zero_axis(self):
         if self.data.active_axis_buttons[0][0] == None:
@@ -2045,6 +2071,7 @@ class Gscreen:
             self.widgets.button_homing.show()
             self.widgets.dro_frame.show()
         elif mode == _MDI:
+            self.mdi_control.set_mdi_mode()
             self.widgets.hal_mdihistory.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
