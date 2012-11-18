@@ -1035,8 +1035,9 @@ class Gscreen:
     def on_use_screen2_pressed(self,*args):
         self.toggle_screen2()
 
-    def on_dro_units_pressed(self,*args):
-        self.toggle_dro_units()
+    # True is metric
+    def on_dro_units_pressed(self,widget):
+        self.set_dro_units(widget.get_active())
 
     def on_diameter_mode_pressed(self, *args):
         self.toggle_diameter_mode()
@@ -1815,9 +1816,9 @@ class Gscreen:
             self.widgets.hbuttonbox.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
 
-    def toggle_dro_units(self):
-        print "toggle dro units",self.data.dro_units
-        if self.data.dro_units == _MM:
+    def set_dro_units(self, data):
+        print "toggle dro units",self.data.dro_units,data
+        if data == _IMPERIAL:
             print "switch to imperial"
             self.status.dro_inch(1)
             self.widgets.gremlin.set_property('metric_units',False)
@@ -1825,7 +1826,7 @@ class Gscreen:
             print "switch to mm"
             self.status.dro_mm(1)
             self.widgets.gremlin.set_property('metric_units',True)
-        self.data.dro_units = self.widgets.dro_units.get_active()
+        self.data.dro_units = data
 
     def toggle_optional_stop(self):
         self.set_optional_stop(self.widgets.button_h3_2.get_active())
