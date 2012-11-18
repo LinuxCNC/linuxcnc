@@ -28,8 +28,9 @@ def connect_signals(gscreen):
 # you could initialize your widgets here
 # overwise add the pass command so gscreen doesn't try to initialize
 # the regular widgets
+# here we chose to change the GTK theme to whats in gscreen's preference file
 def initialize_widgets(gscreen):
-    pass
+    gscreen.change_theme(gscreen.data.theme_name)
 
 # every 50 milli seconds this gets called
 # add pass so gscreen does update it's regular widgets
