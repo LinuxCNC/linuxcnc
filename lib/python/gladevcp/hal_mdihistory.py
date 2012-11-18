@@ -76,7 +76,6 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         lines = map(str.strip, fp.readlines())
         fp.close()
 
-        lines = list(reversed(list(set(reversed(lines)))))
         lines = filter(bool, lines)
         for l in lines:
             self.model.append((l,))
