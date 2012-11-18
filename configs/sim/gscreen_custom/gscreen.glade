@@ -1357,7 +1357,6 @@ Speed</property>
                           <object class="GtkToggleButton" id="dro_units">
                             <property name="label" translatable="yes">Metric
 </property>
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
@@ -1889,23 +1888,6 @@ Halshow</property>
           </packing>
         </child>
         <child>
-          <object class="GtkSpinButton" id="data_input">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">&#x25CF;</property>
-            <property name="xalign">0.10000000149011612</property>
-            <property name="adjustment">adjustment1</property>
-            <property name="digits">4</property>
-            <property name="numeric">True</property>
-          </object>
-          <packing>
-            <property name="left_attach">6</property>
-            <property name="right_attach">7</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkAlignment" id="alignment7">
             <property name="visible">True</property>
             <property name="xalign">0.50999999046325684</property>
@@ -2408,31 +2390,6 @@ Level</property>
             <property name="right_attach">7</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame8">
-            <property name="visible">True</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">etched-out</property>
-            <child>
-              <object class="GtkLabel" id="system">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">G54</property>
-              </object>
-            </child>
-            <child type="label">
-              <object class="GtkLabel" id="label15">
-                <property name="visible">True</property>
-                <property name="use_markup">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">5</property>
-            <property name="right_attach">6</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options">GTK_FILL</property>
           </packing>
@@ -3056,9 +3013,73 @@ status</property>
             </child>
           </object>
           <packing>
+            <property name="right_attach">4</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frame8">
+            <property name="visible">True</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-out</property>
+            <child>
+              <object class="GtkLabel" id="system">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">G54</property>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label15">
+                <property name="visible">True</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
             <property name="right_attach">5</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox11">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkSpinButton" id="data_input">
+                <property name="width_request">50</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">&#x25CF;</property>
+                <property name="xalign">0.10000000149011612</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="digits">4</property>
+                <property name="numeric">True</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="metric_select">
+                <property name="label" translatable="yes">Inch</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_metric_select_toggled"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">5</property>
+            <property name="right_attach">7</property>
+            <property name="x_options">GTK_FILL</property>
           </packing>
         </child>
         <child>

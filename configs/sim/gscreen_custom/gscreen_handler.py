@@ -2,12 +2,15 @@
 class HandlerClass:
 
     # this will be pretty standard to gain access to everything
+    # other then setting the gremlin DRO on from the start
     def __init__(self, halcomp,builder,useropts,gscreen):
             self.nhits = 0
             self.emc = gscreen.emc
             self.data = gscreen.data
             self.widgets = gscreen.widgets
             self.gscreen = gscreen
+
+            self.widgets.gremlin.set_property('enable_dro',True)
 
     # This is a new method for a couple of widgets we added callbacks to
     # the argument 'widget' is a reference to the actual widget that called.
@@ -44,6 +47,15 @@ class HandlerClass:
         else:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
+
+    # This is a new method that calls a gscreen method to toggle the DRO units
+    # It also updates it's label. We made gscreen's regular unit button non visable in glade file
+    def on_metric_select_toggled(self,widget):
+        if widget.get_active():
+            widget.set_label(" MM ")
+        else:
+            widget.set_label("INCH")
+        self.gscreen.on_dro_units_pressed(widget)
 
     # here we override gscreen's method of hiding the cursor
     # by writing a method with the same name that gscreen connects a signal to.
