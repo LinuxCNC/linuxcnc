@@ -1180,18 +1180,32 @@ class GlCanonDraw:
         ypos -= linespace+5
         i=0
         glColor3f(*self.colors['overlay_foreground'])
-        for string in posstrs:
-            maxlen = max(maxlen, len(string))
-            glRasterPos2i(5, ypos)
-            for char in string:
-                glCallList(base + ord(char))
-            if i < len(homed) and homed[i]:
-                glRasterPos2i(pixel_width + 8, ypos)
-                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-            if i < len(homed) and limit[i]:
-                glBitmap(13, 16, 0, 1, 17, 0, limiticon)
-            ypos -= linespace
-            i = i + 1
+        if not self.get_show_offsets():
+            for string in posstrs:
+                maxlen = max(maxlen, len(string))
+                glRasterPos2i(5, ypos)
+                for char in string:
+                    glCallList(base + ord(char))
+                if i < len(homed) and homed[i]:
+                    glRasterPos2i(pixel_width + 8, ypos)
+                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                if i < len(homed) and limit[i]:
+                    glBitmap(13, 16, 0, 1, 17, 0, limiticon)
+                ypos -= linespace
+                i = i + 1
+        if self.get_show_offsets():
+            i=0
+            for string in droposstrs:
+                maxlen = max(maxlen, len(string))
+                glRasterPos2i(5, ypos)
+                for char in string:
+                    glCallList(base + ord(char))
+                if i < len(homed) and homed[i]:
+                    glRasterPos2i(charwidth *3, ypos)
+                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                ypos -= linespace
+                i = i + 1
+
         glDepthFunc(GL_LESS)
         glDepthMask(GL_TRUE)
 
@@ -1277,7 +1291,27 @@ class GlCanonDraw:
             g5x_offset = self.to_internal_units(s.g5x_offset)
             g92_offset = self.to_internal_units(s.g92_offset)
             tlo_offset = self.to_internal_units(s.tool_offset)
+            dtg = self.to_internal_linear_unit(s.distance_to_go)
+            spd = self.to_internal_linear_unit(s.current_vel)
 
+            if self.get_show_metric():
+                positions = self.from_internal_units(positions, 1)
+                axisdtg = self.from_internal_units(axisdtg, 1)
+                g5x_offset = self.from_internal_units(g5x_offset, 1)
+                g92_offset = self.from_internal_units(g92_offset, 1)
+                tlo_offset = self.from_internal_units(tlo_offset, 1)
+                dtg *= 25.4
+                spd = spd * 25.4
+            spd = spd * 60
+            limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+        else:
+            # N.B. no conversion here because joint positions are unitless
+            posstrs = ["  %s:% 9.4f" % i for i in
+                zip(range(self.get_num_joints()), s.joint_actual_position)]
+            droposstrs = posstrs
+        return limit, homed, posstrs, droposstrs
+
+    def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
                 positions = self.from_internal_units(positions, 1)
                 axisdtg = self.from_internal_units(axisdtg, 1)
@@ -1331,26 +1365,12 @@ class GlCanonDraw:
                 droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.get_show_machine_speed():
-                spd = self.to_internal_linear_unit(s.current_vel)
-                if self.get_show_metric():
-                    spd = spd * 25.4 * 60
-                else:
-                    spd = spd * 60
                 posstrs.append(format % ("Vel", spd))
 
             if self.get_show_distance_to_go():
-                dtg = self.to_internal_linear_unit(s.distance_to_go)
-                if self.get_show_metric():
-                    dtg *= 25.4
                 posstrs.append(format % ("DTG", dtg))
-        else:
-            # N.B. no conversion here because joint positions are unitless
-            posstrs = ["  %s:% 9.4f" % i for i in
-                zip(range(self.get_num_joints()), s.joint_actual_position)]
-            droposstrs = posstrs
 
-        return limit, homed, posstrs, droposstrs
-
+            return limit, homed, posstrs, droposstrs
 
     def draw_small_origin(self, n):
         glNewList(n, GL_COMPILE)

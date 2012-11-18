@@ -43,7 +43,7 @@ la commande suivante dans un terminal:
 
 .Installation des paquets de développement
 ----
-sudo apt-get emc2-dev
+sudo apt-get install linuxcnc-dev
 ----
 
 == Définitions

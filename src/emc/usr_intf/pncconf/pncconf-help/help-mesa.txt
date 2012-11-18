@@ -17,6 +17,8 @@ Configuration Tab:
     the component is the same as before the change.
     Depending on the board chosen, the connector tabs will disapear
     if not available.
+    Sanity checks are available for some boards - these just remind you to
+    check some settings that are specific for the choosen board.
     The help page output tab will show the firmware PIN file,
     which shows the default components, their channel number
     and their Component number. The component number is useful for
@@ -138,6 +140,7 @@ Connector Tabs:
         PNCconf only configures 5 channels of port 0 (so max 5 sserial boards -
         note that some 5i25 daugther boards use some of the sserial channels 
         internally.)
+        Note that some daughter boards use multiple sserial channels.
 
     You could change these options in a custom HAL file
     If you wish to connect a component to something in a 

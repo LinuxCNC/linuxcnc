@@ -60,7 +60,7 @@ de s'arrêter, de toute façon, à la fin de chaque ligne.
 * _M2_ - Indique la fin du programme. Presser le départ cycle après cette
 commande relance le programme au début du fichier.
 
-* _M30_ - Changer le porte-pièce du chargeur et termine le programme. Presser
+* _M30_ - Décharge le porte-pièce du chargeur et termine le programme. Presser
 le départ cycle après cette commande relance le programme au début du fichier.
 
 Les deux commandes précédentes produisent les effets suivants:
@@ -77,7 +77,7 @@ Les deux commandes précédentes produisent les effets suivants:
  . L'arrosage est arrêté (comme avec _M9_).
 
 [NOTE]
-Les lignes de code après un _M2_ ou un _M30_ ne seront pas exécutées.
+Les lignes de code placées après un _M2_ ou un _M30_ ne sont pas exécutées.
 
 [[sec:M60]]
 == M60, fin de programme avec déchargement de pièce
@@ -279,6 +279,10 @@ G-code de mouvement (G0, G1, etc) juste après les M62/63.
 _M64_ et _M65_ produisent leur effet immédiatement après être reçus par le
 contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 
+[NOTE]
+M62 à M66 ne seront opérationnels que si les pins _motion.digital-out-nn 
+appropriées sont connectées aux sorties dans le fichier HAL.
+
 [[sec:M66-Controle-Bit-Entree]]
 == M66 Contrôle d'un bit d'entrée
 (((M66 Contrôle d'un bit d'entrée)))
@@ -317,6 +321,10 @@ utilisant les paramètres _num_dio_ ou _num_aio_ lors du chargement du
 contrôleur de mouvement. Voir le Manuel de l'intégrateur pour
 plus d'informations, section des configurations, paragraphes "LinuxCNC et HAL".
 
+[NOTE]
+M66 ne sera opérationnel que si les pins motion.digital-in-nn ou
+motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier HAL.
+
 [[sec:M67-Controle-Sortie-Analogique-Synchro]]
 == M67 Contrôle de sortie analogique
 (((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
@@ -339,6 +347,10 @@ _num_aio_ au chargement du contrôleur de mouvement. Voir les chapitres
 "LinuxCNC et HAL" dans la section configuration du Manuel de l'intégrateur
 pour plus d'informations sur le contrôleur de mouvement.
 
+[NOTE]
+M67 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
+connectées aux sorties dans le fichier HAL.
+
 [[sec:M68-Controle-Sortie-Analogique-Directe]]
 == M68 Contrôle de sortie analogique directe
 (((M68 Contrôle de Sortie analogique directe)))
@@ -350,7 +362,7 @@ M68 E- Q-
 * _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
 * _Q-_ - Spécifie la valeur à appliquer sur la sortie. 
 
-M68 produis son effet immédiatement après être reçu par le
+M68 produit son effet immédiatement après être reçu par le
 contrôleur de mouvement. Il n'est pas synchronisé avec un mouvement.
 M68 fonctionne comme M64 à M65.
 
@@ -359,33 +371,53 @@ le paramètre _num_aio_ au chargement du contrôleur de mouvement. Voir le
 chapitre "LinuxCNC et HAL" dans le Manuel de l'intégrateur pour plus
 d'informations sur le contrôleur de mouvement.
 
+[NOTE]
+M68 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
+connectées aux sorties dans le fichier HAL.
+
 [[sec:M100-a-M199]]
 == M100 à M199 Commandes définies par l'utilisateur
 (((M100 à M199 M-codes définis par l'utilisateur)))
 (((M-codes définis par l'utilisateur M100-M199)))
 
 ----
-M1xx <P- Q->
+M1-- <P- Q->
 ----
 
-* _M1xx_ - Invoque une commande définie par l'utilisateur comprise entre 100
-et 199.
-* _P-_ - Nombre passé en premier argument au programme externe.
-* _Q-_ - Nombre passé en second argument au programme externe.
+* _M1--_ - Un entier compris entre 100 et 199.
+* _P-_ - Un nombre passé comme premier argument au programme externe.
+* _Q-_ - Un nombre passé comme second argument au programme externe.
 
-Le programme externe, nommé _M1xx_, qui doit se trouver dans le répertoire
-pointé par la variable _[DISPLAY] PROGRAM_PREFIX_ du fichier ini, sera exécuté
-avec les valeurs _P-_ et _Q-_ comme étant ses deux arguments. L'exécution du
-fichier G-code courant passe en pause jusqu'à ce que le programme invoqué
-soit terminé. Tout fichier exécutable valide peut être utilisé.
+Le programme externe, nommé _M100_ à _M199_, (avec un _M_ majuscule et aucune
+extension) qui doit se trouver dans le répertoire pointé par la variable
+_[DISPLAY] PROGRAM_PREFIX_ du fichier ini, sera exécuté avec les valeurs
+_P-_ et _Q-_ comme étant ses deux arguments. L'exécution du fichier G-code
+courant passera en pause jusqu'à ce que le programme invoqué soit terminé.
+Tout fichier exécutable valide peut être utilisé. Le fichier doit se trouver
+dans le chemin spécifié dans le fichier ini de configuration. Voir la section
+sur le fichier de configuration dans le manuel de l'intégrateur.
+
+Après la création d'un nouveau programme M1nn, l'interface graphique doit être
+redémarrée pour que le nouveau programme soit pris en compte, autrement une
+erreur _m code inconnu_ surviendra.
+
+[WARNING]
+Ne pas utiliser un traitement de texte pour créer ou éditer ces fichiers.
+Un traitement de texte ajoute des caractères invisibles qui causent des problèmes
+et empêchent les scripts bash ou Python de fonctionner. Pour ces raisons,
+utiliser un éditeur de texte tel que _Gedit_ dans Ubuntu ou le Notepad++ dans un
+autre OS.
 
 Le message d'erreur _M-code inconnu_ signifie que:
 
 * La commande utilisateur spécifiée n'existe pas.
-* Le fichier n'est pas exécutable.
+* Le fichier n'a pas été rendu exécutable.
+* Le nom du fichier comporte une extension.
+* Le nom du fichier ne suis pas le format suivant: M1nn où nn = 00 à 99.
+* Le nom de fichier utilise un _m_ minuscule.
 
-Exemple, dans un programme G-code, on doit ouvrir et fermer un mandrin
-automatique via une broche du port parallèle, on appellera
+Exemple d'utilisation, dans un programme G-code, on doit ouvrir et fermer un
+mandrin automatique via une broche du port parallèle, on appellera
 respectivement M101 pour ouvrir le mandrin et M102 pour le fermer. Les
 deux scripts bash correspondants, appelés M101 et M102 seront créés avant
 le lancement de LinuxCNC puis rendus exécutables, par exemple par un clic
@@ -408,7 +440,7 @@ halcmd setp parport.0.pin-14-out False
 exit 0
 ----
 
-Pour passer une variable à un fichier M1xx, utiliser les mots facultatifs
+Pour passer des variables à un fichier M1nn, utiliser les mots facultatifs
 P et Q de cette façon:
 
 ----
@@ -426,7 +458,7 @@ exit 0
 ----
 
 Pour ouvrir un message graphique et passer en pause jusqu'à ce que la fenêtre
-du message soit fermée, utiliser un programme comme Eye of Gnome pour
+du message soit fermée, utiliser un programme comme _Eye of Gnome_ pour
 afficher le fichier graphique. Quand la fenêtre sera fermée, le programme
 reprendra.
 

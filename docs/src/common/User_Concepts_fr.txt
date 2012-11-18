@@ -5,6 +5,33 @@
 
 [[cha:Concepts-pour-utilisateur]] (((Concepts pour l'utilisateur)))
 
+== La configuration machine
+
+Le dessin suivant montre les directions de déplacement de l'outil et la position
+des fins de course de limite sur une fraiseuse classique.
+Noter le diagramme cartésien représentant les directions de déplacement de
+l'outil (Tool Direction). La direction de déplacement de la table et en
+opposition du système de coordonnées cartésiennes. Le système de coordonnées
+cartésiennes représente le sens de déplacement de l'outil. C'est toujours les
+déplacements de l'outil qui doivent être programmés pour que l'outil se déplace
+dans les directions correctes par rapport au matériel.
+
+Noter également la position des fins de course et le sens d'activation de leurs
+cames. Plusieurs combinaisons sont possibles, par exemple il est possible, à
+l'inverse du dessin, de placer un seul fin de course fixe au milieu de la table
+et deux cames mobiles pour l'actionner. Dans ce cas les limites seront inversées,
++X sera à droite de la table et -X à gauche. Cette inversion ne change rien du
+point de vue du sens de déplacement de l'outil.
+
+.Configuration typique d'une fraiseuse
+image::images/mill-diagram.png[align="left"]
+
+Le dessin suivant montre les directions de déplacement de l'outil et la position
+des fins de course de limite sur un tour classique.
+
+.Configuration typique d'un tour
+image::images/lathe-diagram.png[align="left"]
+
 == Contrôle de trajectoire
 
 === La planification de trajectoire

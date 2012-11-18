@@ -101,11 +101,11 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/user_comps/devices \
+    hal/components hal/drivers hal/user_comps/devices hal/user_comps/mb2hal \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin \
+    emc/usr_intf/gremlin \ emc/usr_intf/gscreen \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     \
@@ -495,6 +495,7 @@ install-dirs:
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl \
+		$(DESTDIR)$(datadir)/gscreen/images \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
@@ -545,6 +546,8 @@ endif
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/linuxcnc/stepconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/touchy.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
@@ -560,19 +563,22 @@ install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
+	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
+	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
+	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 endif
 
 install-kernel-dep:
@@ -674,6 +680,8 @@ obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
 encoder_ratio-objs := hal/components/encoder_ratio.o $(MATHSTUB)
 obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
+obj-$(CONFIG_LCD) += lcd.o
+lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
@@ -727,6 +735,8 @@ obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
+obj-$(CONFIG_HAL_GM) += hal_gm.o
+hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o setsserial.o
 hostmot2-objs :=			  \
@@ -792,9 +802,6 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
-
-obj-m += 5axiskins.o
-5axiskins-objs := emc/kinematics/5axiskins.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
@@ -903,6 +910,7 @@ endif
 ../rtlib/counter$(MODULE_EXT): $(addprefix objects/rt,$(counter-objs))
 ../rtlib/encoder_ratio$(MODULE_EXT): $(addprefix objects/rt,$(encoder_ratio-objs))
 ../rtlib/stepgen$(MODULE_EXT): $(addprefix objects/rt,$(stepgen-objs))
+../rtlib/lcd$(MODULE_EXT): $(addprefix objects/rt,$(lcd-objs))
 ../rtlib/freqgen$(MODULE_EXT): $(addprefix objects/rt,$(freqgen-objs))
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))
@@ -942,6 +950,7 @@ endif
 ../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
+../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))

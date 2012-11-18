@@ -792,13 +792,17 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
-    if(!PyArg_ParseTuple(o, "i", &dir)) return NULL;
+    double vel;
+    if(!PyArg_ParseTuple(o, "i|d", &dir, &vel)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
         {
+            if(PyTuple_Size(o) != 2) {
+            vel = 1;
+            }
             EMC_SPINDLE_ON m;
-            m.speed = dir;
+            m.speed = dir * vel;
             m.serial_number = next_serial(s);
             s->c->write(m);
             emcWaitCommandReceived(s->serial, s->s);
