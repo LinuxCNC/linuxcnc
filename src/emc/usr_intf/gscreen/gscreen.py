@@ -1026,21 +1026,23 @@ class Gscreen:
             self.widgets.on_label.set_text("Machine Off")
 
 
-    def on_theme_choice_changed(self,*args):
-        self.change_theme()
+    def on_theme_choice_changed(self, widget):
+        self.change_theme(widget.get_active_text())
 
-    def on_fullscreen1_pressed(self,*args):
-        self.toggle_fullscreen1()
+    # True is fullscreen
+    def on_fullscreen1_pressed(self, widget):
+        self.set_fullscreen1(widget.get_active())
 
     def on_use_screen2_pressed(self,*args):
         self.toggle_screen2()
 
     # True is metric
-    def on_dro_units_pressed(self,widget):
+    def on_dro_units_pressed(self, widget):
         self.set_dro_units(widget.get_active())
 
-    def on_diameter_mode_pressed(self, *args):
-        self.toggle_diameter_mode()
+    # True is diameter mode
+    def on_diameter_mode_pressed(self, widget):
+        self.set_diameter_mode(widget.get_active())
 
     def on_rel_colorbutton_color_set(self,*args):
         self.set_rel_color()
@@ -1051,11 +1053,13 @@ class Gscreen:
     def on_dtg_colorbutton_color_set(self,*args):
         self.set_dtg_color()
 
-    def on_show_offsets_pressed(self, *args):
-        self.toggle_show_offsets()
+    # True for showing full offsets
+    def on_show_offsets_pressed(self, widget):
+        self.set_show_offsets(widget.get_active())
 
-    def on_show_dtg_pressed(self, *args):
-        self.toggle_show_dtg()
+    # True is for showing DTG
+    def on_show_dtg_pressed(self, widget):
+        self.set_show_dtg(widget.get_active())
 
     def on_pop_statusbar_clicked(self, *args):
         self.widgets.statusbar1.pop(self.statusbar_id)
@@ -1715,32 +1719,35 @@ class Gscreen:
     def zoom_out(self,*args):
         self.widgets.gremlin.zoom_out()
 
-    def toggle_fullscreen1(self):
-        print "toggle fullscreen"
-        data = self.widgets.fullscreen1.get_active()
-        print data
+    def set_fullscreen1(self, data):
+        self.prefs.putpref('fullscreen1', data, bool)
         if data:
             self.widgets.window1.fullscreen()
         else:
             self.widgets.window1.unfullscreen()
-        self.prefs.putpref('fullscreen1', data, bool)
 
-    def toggle_show_offsets(self):
-        data = self.widgets.show_offsets.get_active()
-        self.widgets.gremlin.show_offsets = data
+    def set_show_offsets(self, data):
         self.prefs.putpref('show_offsets', data, bool)
+        try:
+            self.widgets.gremlin.show_offsets = data
+        except:
+            pass
 
-    def toggle_show_dtg(self):
-        data = self.widgets.show_dtg.get_active()
-        self.widgets.gremlin.set_property('show_dtg',data)
+    def set_show_dtg(self, data):
         self.prefs.putpref('show_dtg', data, bool)
+        try:
+            self.widgets.gremlin.set_property('show_dtg',data)
+        except:
+            pass
 
-    def toggle_diameter_mode(self):
+    def set_diameter_mode(self, data):
         print "toggle diameter mode"
-        data = self.widgets.diameter_mode.get_active()
         self.data.diameter_mode = data
         self.prefs.putpref('diameter_mode', data, bool)
-        self.widgets.gremlin.set_property('show_lathe_radius',not data)
+        try:
+            self.widgets.gremlin.set_property('show_lathe_radius',not data)
+        except:
+            pass
 
     # returns the separate RGB color numbers from the color widget
     def convert_to_rgb(self,spec):
@@ -2164,8 +2171,7 @@ class Gscreen:
             else:
                 self.widgets["mode%d"% i].hide()
 
-    def change_theme(self):
-        theme = self.widgets.theme_choice.get_active_text()
+    def change_theme(self, theme):
         self.prefs.putpref('gtk_theme', theme, str)
         if theme == None:return
         if theme == "Follow System Theme":
