@@ -651,7 +651,7 @@ class Gscreen:
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
         self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
-        self.widgets.statusbar1.push(1,"Ready")
+        self.widgets.statusbar1.push(1,"Ready For Homing")
         self.widgets.data_input.set_value(5.125)
         pangoFont = pango.FontDescription("Tahoma 18")
         self.widgets.data_input.modify_font(pangoFont)
