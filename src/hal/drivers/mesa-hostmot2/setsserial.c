@@ -118,7 +118,7 @@ int rtapi_app_main(void)
         }
         if (! addr) {   
             rtapi_print_msg(RTAPI_MSG_ERR,
-                            "Unable to find paramter corresponding to %s\n", 
+                            "Unable to find parameter corresponding to %s\n", 
                             cmd_list[1]);
             return -1;
         }

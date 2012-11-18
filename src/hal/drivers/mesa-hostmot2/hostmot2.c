@@ -233,7 +233,7 @@ hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, char *name){
         *hm2 = list_entry(ptr, hostmot2_t, list);
         if ((*hm2)->sserial.num_instances > 0) {
             for (i = 0; i < (*hm2)->sserial.num_instances ; i++) {
-                for (j = 0; j < (*hm2)->sserial.instance[j].num_remotes; j++){
+                for (j = 0; j < (*hm2)->sserial.instance[i].num_remotes; j++){
                     if (strstr(name, (*hm2)->sserial.instance[i].remotes[j].name)) {
                         return &((*hm2)->sserial.instance[i].remotes[j]);
                     }
