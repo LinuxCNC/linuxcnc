@@ -1868,7 +1868,8 @@ class Gscreen:
     def update_active_axis_buttons(self,widget):
         count = 0;temp = []
         self.data.active_axis_buttons = []
-        for num,i in enumerate(self.data.axis_list):
+        for i in self.data.axis_list:
+            num = "xyzabcuvws".index(i)
             if self.widgets.button_h1_0.get_active() or self.widgets.button_homing.get_active():
                 if not self.widgets["axis_%s"%i] == widget:
                     # unselect axis / HAL pin
@@ -1917,6 +1918,7 @@ class Gscreen:
                     else: cmd = -1
                     self.emc.jogging(1)
                     if self.data.current_jogincr_index == 0: # continuous jog
+                        print "active axis jog:",self.data.active_axis_buttons[0][1]
                         self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
                     else:
                         print "jog incremental"
@@ -2309,7 +2311,7 @@ class Gscreen:
         self.widgets.mode_label.set_label( "%s Mode   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
 
     def update_hal_jog_pins(self):
-         for num,i in enumerate(self.data.axis_list):
+         for i in self.data.axis_list:
             if self.widgets.button_h1_0.get_active() and self.widgets["axis_%s"%i].get_active():
                 self.halcomp["jog-enable-%s.out"%i] = True
             else:
