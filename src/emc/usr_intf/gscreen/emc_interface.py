@@ -312,13 +312,12 @@ class emc_status:
                 p = self.convert_units(p)
                 relp = self.convert_units(relp)
                 dtg = self.convert_units(dtg)
-            for count,letter in enumerate(self.data.axis_list):
-                if letter == 's':continue
-                if not count == len(self.data.axis_list):
-                    self.data["%s_is_homed"% letter] = self.emcstat.homed[count]
-                    self.data["%s_abs"% letter] = p[count]
-                    self.data["%s_rel"% letter] = relp[count]
-                    self.data["%s_dtg"% letter] = dtg[count]
+            for letter in self.data.axis_list:
+                count = "xyzabcuvws".index(letter)
+                self.data["%s_is_homed"% letter] = self.emcstat.homed[count]
+                self.data["%s_abs"% letter] = p[count]
+                self.data["%s_rel"% letter] = relp[count]
+                self.data["%s_dtg"% letter] = dtg[count]
             # active G codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.gcodes[1:]):
