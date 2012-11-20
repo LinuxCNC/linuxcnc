@@ -462,7 +462,7 @@ class Gscreen:
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
 
-        self.data.dro_units = self.prefs.getpref('units', False, bool)
+        self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
 
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
         self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr) 
@@ -532,7 +532,7 @@ class Gscreen:
             self.g10l11 = 0
 
         # set the display options from preference file
-        if self.prefs.getpref('dro_mm', False):
+        if self.prefs.getpref('dro_is_metric', False):
             self.status.dro_mm(0)
         else:
             self.status.dro_inch(0)
@@ -1824,7 +1824,7 @@ class Gscreen:
             self.widgets.hbuttonbox.set_sensitive(False)
             self.widgets.button_mode.set_sensitive(False)
 
-    def set_dro_units(self, data):
+    def set_dro_units(self, data, save=True):
         print "toggle dro units",self.data.dro_units,data
         if data == _IMPERIAL:
             print "switch to imperial"
@@ -1835,6 +1835,8 @@ class Gscreen:
             self.status.dro_mm(1)
             self.widgets.gremlin.set_property('metric_units',True)
         self.data.dro_units = data
+        if save:
+            self.prefs.putpref('dro_is_metric', data, bool)
 
     def toggle_optional_stop(self):
         self.set_optional_stop(self.widgets.button_h3_2.get_active())
