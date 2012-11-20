@@ -281,7 +281,7 @@ PLATFORM="PC"
 TARGET_PLATFORM=""
 
 # Architecture. Use output of arch(1).
-ARCH=`$ARCHCMD`
+ARCHITECTURE=`$ARCHCMD`
 
 
 # note to mah: dont forget debian/configure FIXME
@@ -835,7 +835,7 @@ if test "$TARGET_PLATFORM" = "raspberry"; then
 fi
 AC_SUBST(TARGET_PLATFORM)
 
-AC_SUBST(ARCH)
+AC_SUBST(ARCHITECTURE)
 
 
 # man, is this lame
