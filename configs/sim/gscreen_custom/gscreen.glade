@@ -9,7 +9,7 @@
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>
         <property name="n_rows">11</property>
-        <property name="n_columns">7</property>
+        <property name="n_columns">8</property>
         <child>
           <object class="GtkNotebook" id="notebook_main">
             <property name="visible">True</property>
@@ -320,8 +320,8 @@
                                             <child>
                                               <object class="HAL_LED" id="led_mist">
                                                 <property name="visible">True</property>
-                                                <property name="on_color">yellow</property>
                                                 <property name="led_shape">1</property>
+                                                <property name="on_color">yellow</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -332,8 +332,8 @@
                                             <child>
                                               <object class="HAL_LED" id="led_flood">
                                                 <property name="visible">True</property>
-                                                <property name="on_color">green</property>
                                                 <property name="led_shape">1</property>
+                                                <property name="on_color">green</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -1123,15 +1123,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="max">2000</property>
                                     <property name="z1_color">#ffffffff0000</property>
-                                    <property name="value">-7</property>
-                                    <property name="z2_color">#ffff00000000</property>
-                                    <property name="target_color">#e21911831183</property>
-                                    <property name="target_value">500</property>
-                                    <property name="z0_color">#0000ffff0000</property>
                                     <property name="show_limits">False</property>
                                     <property name="bg_color">#bebebebebebe</property>
+                                    <property name="z2_color">#ffff00000000</property>
+                                    <property name="max">2000</property>
+                                    <property name="target_color">#e21911831183</property>
+                                    <property name="value">-7</property>
+                                    <property name="target_value">500</property>
+                                    <property name="z0_color">#0000ffff0000</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -1220,8 +1220,8 @@
                                     <child>
                                       <object class="HAL_LED" id="spindle-at-speed">
                                         <property name="visible">True</property>
-                                        <property name="on_color">Green</property>
                                         <property name="led_shape">1</property>
+                                        <property name="on_color">Green</property>
                                       </object>
                                       <packing>
                                         <property name="resize">False</property>
@@ -1355,8 +1355,9 @@ Speed</property>
                         <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkToggleButton" id="dro_units">
-                            <property name="label" translatable="yes">Metric
-</property>
+                            <property name="label" translatable="yes">Default to
+   Metric</property>
+                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                           </object>
@@ -1882,7 +1883,8 @@ Halshow</property>
             </child>
           </object>
           <packing>
-            <property name="right_attach">6</property>
+            <property name="left_attach">1</property>
+            <property name="right_attach">7</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">9</property>
           </packing>
@@ -1995,9 +1997,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="on_color">green</property>
                                 <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
+                                <property name="on_color">green</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -2290,8 +2292,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="led_size">5</property>
                                     <property name="has_hal_pin">False</property>
+                                    <property name="led_size">5</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2369,8 +2371,8 @@ Level</property>
             </child>
           </object>
           <packing>
-            <property name="left_attach">6</property>
-            <property name="right_attach">7</property>
+            <property name="left_attach">7</property>
+            <property name="right_attach">8</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">9</property>
             <property name="x_options">GTK_FILL</property>
@@ -2386,8 +2388,8 @@ Level</property>
             <property name="image_position">right</property>
           </object>
           <packing>
-            <property name="left_attach">6</property>
-            <property name="right_attach">7</property>
+            <property name="left_attach">7</property>
+            <property name="right_attach">8</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
             <property name="x_options">GTK_FILL</property>
@@ -2977,7 +2979,8 @@ Vertical</property>
             </child>
           </object>
           <packing>
-            <property name="right_attach">6</property>
+            <property name="left_attach">1</property>
+            <property name="right_attach">7</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
             <property name="x_options">GTK_FILL</property>
@@ -3013,7 +3016,8 @@ status</property>
             </child>
           </object>
           <packing>
-            <property name="right_attach">4</property>
+            <property name="left_attach">1</property>
+            <property name="right_attach">5</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options">GTK_FILL</property>
           </packing>
@@ -3037,8 +3041,8 @@ status</property>
             </child>
           </object>
           <packing>
-            <property name="left_attach">4</property>
-            <property name="right_attach">5</property>
+            <property name="left_attach">5</property>
+            <property name="right_attach">6</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options">GTK_FILL</property>
           </packing>
@@ -3067,7 +3071,7 @@ status</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="toggled" handler="on_metric_select_toggled"/>
+                <signal name="clicked" handler="on_metric_select_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -3077,10 +3081,24 @@ status</property>
             </child>
           </object>
           <packing>
-            <property name="left_attach">5</property>
-            <property name="right_attach">7</property>
+            <property name="left_attach">6</property>
+            <property name="right_attach">8</property>
             <property name="x_options">GTK_FILL</property>
           </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="vcp_side_box">
+            <property name="visible">True</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>
