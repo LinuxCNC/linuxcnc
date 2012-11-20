@@ -1121,7 +1121,7 @@ T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows 
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> sections for more information.
 
 It is an error if:
 
