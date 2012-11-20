@@ -281,7 +281,7 @@ PLATFORM="PC"
 TARGET_PLATFORM=""
 
 # Architecture. Use output of arch(1).
-ARCH=`$ARCHCMD`
+ARCHITECTURE=`$ARCHCMD`
 
 # Name of thread system source file to include, with no extension
 # e.g. 'rt-preempt-user'; used to generate #include "rt-preempt-user.h"
@@ -840,7 +840,7 @@ if test "$TARGET_PLATFORM" = "raspberry"; then
 fi
 AC_SUBST(TARGET_PLATFORM)
 
-AC_SUBST(ARCH)
+AC_SUBST(ARCHITECTURE)
 
 
 # man, is this lame
