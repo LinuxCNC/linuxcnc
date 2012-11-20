@@ -49,13 +49,11 @@ class HandlerClass:
             self.widgets.on_label.set_text("Machine Off")
 
     # This is a new method that calls a gscreen method to toggle the DRO units
-    # It also updates it's label. We made gscreen's regular unit button non visable in glade file
-    def on_metric_select_toggled(self,widget):
-        if widget.get_active():
-            widget.set_label(" MM ")
-        else:
-            widget.set_label("INCH")
-        self.gscreen.on_dro_units_pressed(widget)
+    # Gscreen's regular unit button saves the state
+    # for startup, This one just changes it for the session
+    def on_metric_select_clicked(self,widget):
+        data = (self.data.dro_units -1) * -1
+        self.gscreen.set_dro_units(data,False)
 
     # here we override gscreen's method of hiding the cursor
     # by writing a method with the same name that gscreen connects a signal to.
@@ -66,6 +64,17 @@ class HandlerClass:
         self.gscreen.audio.set_sound(self.data.alert_sound)
         self.gscreen.audio.run()
         self.gscreen.on_hide_cursor(None)
+
+# every 50 milli seconds this gets called
+# here we update a button label then call gscreen's
+# regular update method so it updates it's regular widgets
+def periodic(gscreen):
+    data = gscreen.data.dro_units
+    if data:
+        gscreen.widgets.metric_select.set_label(" MM ")
+    else:
+        gscreen.widgets.metric_select.set_label("INCH")
+    gscreen.update_position()
 
 def get_handlers(halcomp,builder,useropts,gscreen):
      return [HandlerClass(halcomp,builder,useropts,gscreen)]
