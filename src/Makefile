@@ -700,6 +700,7 @@ rtapi-objs := rtapi/sim_common.o
 endif
 ifeq ($(THREADS),rt-preempt-user)
 rtapi-objs := rtapi/linux_ulapi.o
+rtapi-objs += rtapi/linux_common.o
 endif
 ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := rtapi/xenomai_kernel_rtapi.o
