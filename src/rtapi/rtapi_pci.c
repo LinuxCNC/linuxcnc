@@ -35,6 +35,7 @@
 
 struct rtapi_pcidev_mmio {
 	int bar;			/* The PCI BAR */
+	int fd;				/* sysfs_pci resourceN file descriptor */
 	void *mmio;			/* The MMIO address */
 	size_t length;			/* Length of the mapping */
 };
@@ -50,6 +51,7 @@ struct rtapi_pcidev {
 };
 
 #define UIO_PCI_PATH	"/sys/bus/pci/drivers/uio_pci_generic"
+#define UIO_BAR_PATH	"/sys/devices/pci/drivers/uio_pci_generic"
 
 static ssize_t readfile(const char *path, char *buf, size_t buflen)
 {
@@ -121,8 +123,12 @@ struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
 		goto error;
 	}
 
+rtapi_print_msg(RTAPI_MSG_ERR,
+		"RTAPI_PCI: Registered device (%s)\n", buf);
+
 	/* UIO-pci-generic should bind to the device now. Wait to avoid races. */
-	{
+usleep(1000);
+/*	{
 		struct timespec time = {
 			.tv_sec = 0,
 			.tv_nsec = 1000 * 1000 * 100,
@@ -137,6 +143,9 @@ struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
 			}
 		} while (time.tv_sec || time.tv_nsec);
 	}
+*/
+rtapi_print_msg(RTAPI_MSG_ERR,
+		"RTAPI_PCI: Finished waiting.\n");
 
 	/* Find the device */
 	dir = opendir(UIO_PCI_PATH);
@@ -288,18 +297,31 @@ void rtapi_pci_put_device(struct rtapi_pcidev *dev)
 
 void * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 {
-	size_t pagesize;
+	//size_t pagesize;
 	void *mmio;
+	char path[256];
+	int i;
 
 	if (bar < 0 || bar >= sizeof(dev->mmio)) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Invalid PCI BAR %d\n", bar);
 		return NULL;
 	}
 
-	pagesize = sysconf(_SC_PAGESIZE);
+	snprintf(path, sizeof(path), UIO_PCI_PATH "/%s/resource%i", dev->busid, bar);
+
+	/* Open the resource node */
+	dev->mmio[bar].fd = open(path, O_RDWR | O_SYNC);
+	if (dev->mmio[bar].fd < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "Could not open UIO resource \"%s\". (%s)\n",
+				path, strerror(errno));
+		return NULL;
+	}
+
+	//pagesize = sysconf(_SC_PAGESIZE);
 
 	mmio = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED,
-		    dev->fd, bar * pagesize);
+		    dev->mmio[bar].fd, 0);
+
 	if (mmio == NULL || mmio == MAP_FAILED) {
 		if (mmio == NULL)
 			munmap(mmio, size);
@@ -307,6 +329,13 @@ void * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 				bar, dev->busid);
 		return NULL;
 	}
+
+//	rtapi_print_msg(RTAPI_MSG_ERR, "%i: %lx.%lx %lx.%lx\n", i, 
+//		*((unsigned long *) (mmio + 0xff0)),
+//		*((unsigned long *) (mmio + 0xff4)),
+//		*((unsigned long *) (mmio + 0xff8)),
+//		*((unsigned long *) (mmio + 0xffc)) );
+
 	dev->mmio[bar].bar = bar;
 	dev->mmio[bar].mmio = mmio;
 	dev->mmio[bar].length = size;
