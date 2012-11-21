@@ -84,10 +84,12 @@ RTAPI_APP_SRCS := \
 	rtapi/sim_rtapi_app.cc \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_pci.c \
-	rtapi/linux_rtapi.c
+	rtapi/linux_rtapi.c \
+	rtapi/linux_common.c
 
 USERSRCS += $(RTAPI_APP_SRCS)
-ULAPISRCS := rtapi/linux_ulapi.c 
+
+ULAPISRCS := rtapi/linux_ulapi.c rtapi/linux_common.c
 
 RT_CFLAGS +=  -lpthread -lrt
 

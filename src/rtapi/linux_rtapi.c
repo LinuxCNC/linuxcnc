@@ -683,4 +683,4 @@ long long rtapi_get_time(void)
 	return ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec;
 }
 
-#include "rtapi/linux_common.h"
+// #include "rtapi/linux_common.h"
