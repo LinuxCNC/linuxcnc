@@ -4823,21 +4823,18 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 /*! convert_tool_select
 
 Returned Value: int
-   If the tool slot given in the block is larger than allowed,
-   this returns NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE.
-   Otherwise, it returns INTERP_OK.
+   If the tool number given in the block is not found in the tool table,
+   it returns INTERP_ERROR.  Otherwise (if the tool *is* found) it returns
+   INTERP_OK.
 
 Side effects: See below
 
 Called by: execute_block
 
 A select tool command is given, which causes the changer chain to move
-so that the slot with the t_number given in the block is next to the
-tool changer, ready for a tool change.  The
+so that the slot with the tool identified by the t_number given in the
+block is next to the tool changer, ready for a tool change.  The
 settings->selected_tool_slot is set to the given slot.
-
-An alternative in this function is to select by tool id. This was used
-in the K&T and VGER interpreters. It is easy to code.
 
 A check that the t_number is not negative has already been made in read_t.
 A zero t_number is allowed and means no tool should be selected.
