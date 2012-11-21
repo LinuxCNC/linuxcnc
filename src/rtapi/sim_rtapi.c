@@ -493,4 +493,5 @@ int sim_rtapi_run_threads(int fd) {
 }
 #endif
 
-#include "rtapi/sim_common.h"
+// terminate the habit of having executable code in include files _for good_
+// #include "rtapi/sim_common.h"

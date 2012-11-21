@@ -693,10 +693,10 @@ endif
 obj-$(CONFIG_RTAPI) += rtapi.o
 
 ifeq ($(THREADS),xenomai-user)
-rtapi-objs := rtapi/sim_ulapi.o
+rtapi-objs := rtapi/sim_common.o
 endif
 ifeq ($(THREADS),posix)
-rtapi-objs := rtapi/sim_ulapi.o
+rtapi-objs := rtapi/sim_common.o
 endif
 ifeq ($(THREADS),rt-preempt-user)
 rtapi-objs := rtapi/linux_ulapi.o
