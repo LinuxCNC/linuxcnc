@@ -1516,6 +1516,7 @@ int hm2_sserial_waitfor(hostmot2_t *hm2, u32 addr, u32 mask, int ms){
     u32 d;
     t1 = rtapi_get_time();
     do { // wait for addr to clear
+        rtapi_delay(50000);
         hm2->llio->read(hm2->llio, addr, &d, sizeof(u32));
         t2 = rtapi_get_time();
         if ((u32)(t2 - t1) > 1000000L * ms) {
