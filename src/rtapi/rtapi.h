@@ -109,8 +109,9 @@ typedef int32_t		__s32;
 RTAPI_BEGIN_DECLS
 
 /***********************************************************************
-*                   GENERAL PURPOSE FUNCTIONS                          *
+*                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
+/* implemented in $THREADS.c (rt-preempt-user.c, xenomai-user.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI
@@ -139,6 +140,12 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_exit(int module_id);
 
+/***********************************************************************
+*                      MESSAGING FUNCTIONS                             *
+************************************************************************/
+/* implemented in rtapi_msg.c */
+#include <stdarg.h>		/* va_start and va_end macros */
+
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
     C library, except that it may not handle long longs.
     It is provided here because some RTOS kernels don't provide
@@ -161,7 +168,6 @@ RTAPI_BEGIN_DECLS
     simply calls the normal vsnrintf().  May be called from user,
     init/cleanup, and realtime code.
 */
-#include <stdarg.h>
     extern int rtapi_vsnprintf(char *buf, unsigned long size,
 	const char *fmt, va_list ap);
 
@@ -216,7 +222,8 @@ RTAPI_BEGIN_DECLS
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
+				       va_list ap);
 #ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
@@ -280,6 +287,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
 ************************************************************************/
+/* implemented in rtapi_time.c */
 
 /** NOTE: These timing related functions are only available in
     realtime modules.  User processes may not call them!
@@ -377,6 +385,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                     TASK RELATED FUNCTIONS                           *
 ************************************************************************/
+/* implemented in rtapi_task.c */
 
 /** NOTE: These realtime task related functions are only available in
     realtime modules.  User processes may not call them!
@@ -507,6 +516,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
+/* implemented in rtapi_shmem.c */
 
 /** 'rtapi_shmem_new()' allocates a block of shared memory.  'key'
     identifies the memory block, and must be non-zero.  All modules

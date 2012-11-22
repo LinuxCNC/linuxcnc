@@ -388,7 +388,7 @@ modules:
 	    V=$(BUILD_VERBOSE) modules
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
-	    SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
+	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
@@ -692,6 +692,9 @@ endif
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
+rtapi-objs-kernel := rtapi/rtapi_msg.o \
+	rtapi/rtapi_task.o
+
 ifeq ($(THREADS),xenomai-user)
 rtapi-objs := rtapi/sim_ulapi.o
 endif
@@ -705,6 +708,7 @@ ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := rtapi/xenomai_kernel_rtapi.o
 rtapi-objs += rtapi/xenomai_common.o
 rtapi-objs += rtapi/rtapi_common.o
+rtapi-objs += $(rtapi-objs-kernel)
 endif
 ifeq ($(THREADS),rtai)
 rtapi-objs := rtapi/rtai_rtapi.o
