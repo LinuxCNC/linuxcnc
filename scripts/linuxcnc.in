@@ -82,17 +82,18 @@ usage () {
 $P: Run LINUXCNC
 
 Usage:
-	$P [-d] [-v]
+	$P [-d] [-v] [-V]
 		Choose the configuration file graphically
 
-	$P [-k] [-d] [-v] path/to/your.ini
+	$P [-k] [-d] [-v] [-V] path/to/your.ini
 		Name the configuration file using its path
 
-	$P [-k] [-d] [-v] -l
+	$P [-k] [-d] [-v] [-V] -l
 		Use the previous configuration file
 
 	-d: Turn on "debug" mode
 	-v: Turn on "verbose" mode
+	-V: Turn on "print lots of junk" mode in halcmd
         -k: Continue in the presence of errors in .hal files
 EOF
 
@@ -101,7 +102,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvlhk" opt
+while getopts "dvVlhk" opt
 do
 	case "$opt" in
 	d)
@@ -117,6 +118,12 @@ do
 		    PRINT_FILE=/dev/fd/1
 		    echo "Verbose mode on" >$PRINT_FILE
 		fi;;
+	V)
+		# enable printing of 'lots of junk' from halcmd
+		if tty -s; then
+		    echo "halcmd 'print lots of junk' mode on" >$PRINT_FILE
+		fi
+		DASHV=-V;;
 	l)
 		USE_LAST_INIFILE=1;;
         k)      DASHK=-k;;
@@ -215,7 +222,7 @@ LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
 
 # common from here..
 INIVAR=inivar
-HALCMD="halcmd $DASHK"
+HALCMD="halcmd $DASHK $DASHV"
 PICKCONFIG="@WISH@ $LINUXCNC_TCL_DIR/bin/pickconfig.tcl"
 LINUXCNC_EMCSH=@WISH@
 
