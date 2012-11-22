@@ -1,32 +1,12 @@
 
 #include "config.h"
 #include "rtapi.h"
+#include "rtapi_common.h"
+
 #ifndef NULL
 #define NULL 0
 #endif
 
-#include "rtapi_common.h"
-
-
-#if defined(RTAPI_RTAI)
-unsigned int rev_code = 1;  // increment this whenever you change the data structures
-#endif
-
-#if defined(RTAPI_XENOMAI_KERNEL)
-unsigned int rev_code = 2; 
-#endif
-
-#if defined(RTAPI_XENOMAI_USER)
-unsigned int rev_code = 3; 
-#endif
-
-#if defined(RTAPI_POSIX)
-unsigned int rev_code = 4; 
-#endif
-
-#if defined(RTAPI_RTPREEMPT_USER)
-unsigned int rev_code = 5; 
-#endif
 
 /* these pointers are initialized at startup to point
    to resource data in the master data structure above
@@ -38,7 +18,7 @@ unsigned int rev_code = 5;
    that process's memory mapping.)
 */
 
-#if defined(RTAPI_XENOMAI_USER) || defined(RTAPI_POSIX) || defined(RTAPI_RTPREEMPT_USER)
+#ifdef BUILD_SYS_USER_DSO
 
 // in the userland threads scenario, there is no point in having this 
 // in shared memory, so keep it here
@@ -56,6 +36,8 @@ shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
 
 #endif
+
+unsigned int rev_code = REV_CODE;
 
 /* global init code */
 void init_rtapi_data(rtapi_data_t * data)

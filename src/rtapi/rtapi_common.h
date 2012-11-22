@@ -73,24 +73,7 @@
 
 #include "rtapi_bitops.h"
 
-#if defined(RTAPI_XENOMAI_USER)
-//FIXME minimize
-#include <native/task.h>        /* Xenomai task */
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <rtdk.h>
-#include <nucleus/types.h>     /* for XNOBJECT_NAME_LEN */
-
-#include <sys/io.h>             /* inb, outb */
-#endif
-#if defined(RTAPI_POSIX)
-#include <pth.h>		/* pth_uctx_* */
-#endif
-
-#if defined(RTAPI_RTPREEMPT_USER)
-#include <pthread.h>
-#endif
-
+#include THREADS_HEADERS	/* thread-specific headers */
 
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
@@ -98,6 +81,14 @@
 #define RTAPI_MAX_MODULES 64
 #define RTAPI_MAX_TASKS   64
 #define RTAPI_MAX_SHMEMS  32
+
+#define MAX_TASKS		64
+#define MAX_MODULES		64
+
+/* random numbers used as signatures */
+#define TASK_MAGIC		21979
+#define MODULE_MAGIC		30812
+
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
@@ -107,7 +98,7 @@
    against the code in the shared memory area.  If they don't match,
    the rtapi_init() call will faill.
 */
-extern unsigned int rev_code; // see rtapi_common.c
+extern unsigned int rev_code;
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -118,11 +109,11 @@ typedef enum {
 } mod_type_t;
 
 typedef struct {
-#if defined(RTAPI_RTPREEMPT_USER)
-    int magic;
-#endif
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
+#ifdef THREAD_MODULE_DATA
+    THREAD_MODULE_DATA
+#endif
 } module_data;
 
 typedef enum {
@@ -135,28 +126,11 @@ typedef enum {
 
 typedef struct {
 #if defined(RTAPI_XENOMAI_USER)
-    RT_TASK *self;   
     char name[XNOBJECT_NAME_LEN];
 #else
     char name[RTAPI_NAME_LEN];
 #endif
 
-#if defined(RTAPI_RTPREEMPT_USER)
-    int deleted;
-    int destroyed;
-    int deadline_scheduling;
-    struct timespec next_time;
-
-    /* The realtime thread. */
-    pthread_t thread;
-    pthread_barrier_t thread_init_barrier;
-    void *stackaddr;
-
-    /* Statistics */
-    unsigned long minfault_base;
-    unsigned long majfault_base;
-    unsigned int failures;
-#endif
     int magic;
     int uses_fp;
     size_t stacksize;
@@ -168,6 +142,9 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
+#ifdef THREAD_TASK_DATA
+    THREAD_TASK_DATA		/* task data defined in thread system */
+#endif
 } task_data;
 
 typedef struct {
@@ -223,5 +200,8 @@ extern shmem_data *shmem_array;
 
 
 extern void init_rtapi_data(rtapi_data_t * data);
+
+extern int period;		/* defined in rtapi_time.c */
+
 
 #endif /* RTAPI_COMMON_H */
