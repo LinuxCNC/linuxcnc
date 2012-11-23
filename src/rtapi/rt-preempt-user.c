@@ -470,31 +470,3 @@ void rtapi_shmem_array_lock() {
 void rtapi_shmem_array_unlock() {
     pthread_mutex_unlock(&shmem_array_mutex);
 }
-
-
-/* misc functions */
-
-void rtapi_task_free(task_data *task) {
-    free(task->tdata.stackaddr);
-}
-
-void drop_privs() {
-    int euid = geteuid();
-    if (euid == 0) {
-	/* running as root:  switch to real user during shm creation so
-	   segment can be removed by 'realtime stop' without sudo */
-	if (seteuid(getuid()) < 0)
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "seteuid(%d): %s",getuid(), strerror(errno));
-    }
-}
-
-void restore_privs() {
-    int euid = geteuid();
-    if (euid == 0) { 
-	/* switch back */
-	if (seteuid(euid) < 0) 
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "seteuid(%d): %s",euid, strerror(errno));
-    }
-}
