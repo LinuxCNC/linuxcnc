@@ -295,6 +295,14 @@ class GlNavBase:
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self.tkRedraw()
 
+    def get_zoom_distance(self):
+        data = self.distance
+        return data
+
+    def set_zoom_distance(self,data):
+        self.distance = data
+        self._redraw()
+
     def zoomin(self):
         self.distance = self.distance / 1.1
         self._redraw()
