@@ -689,28 +689,30 @@ endif
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
-rtapi-objs-kernel := rtapi/rtapi_msg.o \
-	rtapi/rtapi_task.o
+# this is unused anywhere
+#rtapi-objs-kernel := rtapi/rtapi_msg.o \
+#	rtapi/rtapi_task.o
 
-ifeq ($(THREADS),xenomai-user)
-rtapi-objs := rtapi/sim_ulapi.o
-endif
-ifeq ($(THREADS),posix)
-rtapi-objs := rtapi/sim_ulapi.o
-endif
-ifeq ($(THREADS),rt-preempt-user)
-rtapi-objs := rtapi/linux_ulapi.o
-endif
-ifeq ($(THREADS),xenomai-kernel)
-rtapi-objs := rtapi/xenomai_kernel_rtapi.o
-rtapi-objs += rtapi/xenomai_common.o
-rtapi-objs += rtapi/rtapi_common.o
-rtapi-objs += $(rtapi-objs-kernel)
-endif
-ifeq ($(THREADS),rtai)
-rtapi-objs := rtapi/rtai_rtapi.o
-rtapi-objs += rtapi/rtapi_common.o
-endif
+# moving this definition to rtapi/Submakefile
+#ifeq ($(THREADS),xenomai-user)
+#rtapi-objs := rtapi/sim_ulapi.o
+#endif
+#ifeq ($(THREADS),posix)
+#rtapi-objs := rtapi/sim_ulapi.o
+#endif
+#ifeq ($(THREADS),rt-preempt-user)
+#rtapi-objs := rtapi/linux_ulapi.o
+#endif
+#ifeq ($(THREADS),xenomai-kernel)
+#rtapi-objs := rtapi/xenomai_kernel_rtapi.o
+#rtapi-objs += rtapi/xenomai_common.o
+#rtapi-objs += rtapi/rtapi_common.o
+#rtapi-objs += $(rtapi-objs-kernel)
+#endif
+#ifeq ($(THREADS),rtai)
+#rtapi-objs := rtapi/rtai_rtapi.o
+#rtapi-objs += rtapi/rtapi_common.o
+#endif
 
 
 # Subdirectory: rtapi/examples (unneeded?)
@@ -959,6 +961,7 @@ endif # end BUILD_SYS=user-dso
 # 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 # endif # end 'normal'
 
+# build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 #ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
@@ -1022,7 +1025,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
 endif
-endif
+endif  # build kernel RTAPI modules
 
 # Phony so that it is always rebuilt when requested, not because it
 # shouldn't exist as a file
