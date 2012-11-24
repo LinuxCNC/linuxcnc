@@ -348,7 +348,7 @@ int rtapi_task_resume(int task_id)
 int rtapi_wait_hook();
 #endif
 
-int rtapi_wait(void)
+void rtapi_wait(void)
 {
 #ifdef HAVE_RTAPI_WAIT_HOOK
     return rtapi_wait_hook();
