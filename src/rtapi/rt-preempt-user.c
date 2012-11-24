@@ -43,7 +43,9 @@ int rtapi_exit(int module_id)
 
 /* Lock for task_array and module_array allocations */
 static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
+#ifdef DISABLED
 static pthread_mutex_t shmem_array_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
