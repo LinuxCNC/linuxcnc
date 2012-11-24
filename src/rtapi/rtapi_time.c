@@ -33,8 +33,7 @@
 
 int period = 0;
 
-int rtapi_clock_set_period(unsigned long int nsecs)
-{
+long int rtapi_clock_set_period(long int nsecs) {
     struct timespec res = { 0, 0 };
 
     if (nsecs == 0)
