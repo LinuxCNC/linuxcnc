@@ -10,13 +10,12 @@
 #include "rtapi_common.h"
 
 #ifdef MODULE
-#include <linux/module.h>	/* EXPORT_SYMBOL */
-#include <linux/kernel.h>	/* kernel's vsnprintf */
-#define RTPRINTBUFFERLEN 1024
-
+#    include <linux/module.h>	/* EXPORT_SYMBOL */
+#    include <linux/kernel.h>	/* kernel's vsnprintf */
+#    define RTPRINTBUFFERLEN 1024
 #else  /* user land */
-#include <stdio.h>		/* libc's vsnprintf() */
-#endif  /* MODULE */
+#    include <stdio.h>		/* libc's vsnprintf() */
+#endif
 
 static int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
 
@@ -42,9 +41,11 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
     else
 	vfprintf(stderr, fmt, ap);
 }
-#endif  /* MODULE */
+#endif
 
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
+
+#ifdef RTAPI
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {
     return rtapi_msg_handler;
@@ -56,6 +57,7 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
     else
 	rtapi_msg_handler = handler;
 }
+#endif  /* RTAPI */
 
 void rtapi_print(const char *fmt, ...)
 {

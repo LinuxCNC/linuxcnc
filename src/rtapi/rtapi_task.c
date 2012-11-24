@@ -78,6 +78,7 @@ int rtapi_prio_next_lower(int prio)
 }
 
 
+#ifdef RTAPI  /* below functions not available to user programs */
 /* task array mutex functions */
 #ifdef HAVE_RTAPI_TASK_ARRAY_LOCK
 void rtapi_task_array_lock();
@@ -356,6 +357,7 @@ int rtapi_wait(void)
 #endif
 }
 
+#endif  /* RTAPI */
 
 #ifdef MODULE
 EXPORT_SYMBOL(rtapi_prio_highest);

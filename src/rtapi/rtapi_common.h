@@ -125,7 +125,8 @@ typedef enum {
 } task_state_t;
 
 typedef struct {
-#if defined(RTAPI_XENOMAI_USER)
+#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
+					   somehow */
     char name[XNOBJECT_NAME_LEN];
 #else
     char name[RTAPI_NAME_LEN];
@@ -151,12 +152,12 @@ typedef struct {
     int magic;			/* to check for valid handle */
     int key;			/* key to shared memory area */
     int id;			/* OS identifier for shmem */
-    int count;                    /* count of maps in this process */
+    int count;                  /* count of maps in this process */
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1); /* which modules are
-						   using block */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1);
+				/* which modules are using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
 
@@ -178,16 +179,14 @@ typedef struct {
     int shmem_count;		/* shared memory blocks in use */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
-#if defined(RTAPI_XENOMAI_KERNEL) || defined(RTAPI_XENOMAI_USER) 
-    int rt_wait_error;          /* release point missed */
-    int rt_last_overrun;       /* last  number of overruns reported by Xenomai */
-    int rt_total_overruns;      /* total number of overruns reported by Xenomai */
-#endif
     long int timer_period;	/* HW timer period */
     module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
+#ifdef THREAD_RTAPI_DATA
+    THREAD_RTAPI_DATA		/* RTAPI data defined in thread system */
+#endif
 } rtapi_data_t;
 
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */

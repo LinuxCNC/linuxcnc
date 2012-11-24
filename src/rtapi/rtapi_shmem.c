@@ -24,21 +24,24 @@
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 #define SHM_PERMISSIONS	0666
 
+unsigned long shmem_array_mutex;
+
 /* shmem array mutex functions */
 /* if the thread system provides these, declare a prototype */
-#ifdef HAVE_RTAPI_SHMEM_ARRAY_LOCK
+/* test using bitops for this */
+#ifdef HAVE_RTAPI_SHMEM_ARRAY_LOCK_TEST
 void rtapi_shmem_array_lock();
 #else
 inline void rtapi_shmem_array_lock() {
-    /* better implement this soon! */ ;
+    rtapi_mutex_get(&shmem_array_mutex);
 }
 #endif
 
-#ifdef HAVE_RTAPI_SHMEM_ARRAY_UNLOCK
+#ifdef HAVE_RTAPI_SHMEM_ARRAY_UNLOCK_TEST
 void rtapi_shmem_array_unlock();
 #else
 inline void rtapi_shmem_array_unlock() {
-    /* better implement this soon! */ ;
+    rtapi_mutex_give(&shmem_array_mutex);
 }
 #endif
 
@@ -49,7 +52,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     struct shmid_ds d;
     int i, ret;
     int is_new = 0;
-    int dbg = 0;
 
     rtapi_shmem_array_lock();
     for (i=0 ; i < MAX_SHM; i++) {
@@ -72,7 +74,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* now get shared memory block from OS */
 
     // try to attach
-    rtapi_print_msg(RTAPI_MSG_INFO,"here trying to attach:  %d\n", dbg++);
     shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
     if (shmem->id == -1) {  
 	if (errno == ENOENT) {
@@ -91,7 +92,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   
     // get actual user/group and drop to ruid/rgid so removing is
     // always possible
-    rtapi_print_msg(RTAPI_MSG_INFO,"here dropping privs:  %d\n", dbg++);
     if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) "
@@ -111,7 +111,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	}
     }
     /* and map it into process space */
-    rtapi_print_msg(RTAPI_MSG_INFO,"here mapping to process space:  %d\n", dbg++);
     shmem->mem = shmat(shmem->id, 0, 0);
     if ((ssize_t) (shmem->mem) == -1) {
 	rtapi_shmem_array_unlock();

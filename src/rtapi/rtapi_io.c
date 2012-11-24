@@ -14,7 +14,6 @@
 #include <linux/module.h>	// EXPORT_SYMBOL
 #else
 #include <sys/io.h>		/* inb(), outb(), inw(), outw() */
-#include <stdlib.h>		/* strtol() */
 #endif
 
 void rtapi_outb(unsigned char byte, unsigned int port) {
@@ -45,14 +44,5 @@ unsigned short rtapi_inw(unsigned int port)
     return rtapi_inw_hook(port);
 #else
     return inw(port);
-#endif
-}
-
-// this goes somewhere else
-long int simple_strtol(const char *nptr, char **endptr, int base) {
-#ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
-    return rtapi_simple_strtol_hook(nptr,endptr,base);
-#else
-    return strtol(nptr, endptr, base);
 #endif
 }
