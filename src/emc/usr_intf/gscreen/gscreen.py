@@ -267,6 +267,7 @@ class Data:
         self.edit_mode = False
         self.full_graphics = False
         self.graphic_move_inc = 20
+        self.plot_hidden = False
         self.file = ""
         self.file_lines = 0
         self.line = 0
@@ -946,6 +947,9 @@ class Gscreen:
             self.widgets.dro_frame.set_visible(temp)
             self.widgets.gremlin.set_property('enable_dro',(not temp))
 
+    def on_button_offsets(self,widget):
+        self.toggle_offset_view()
+
     def on_hbutton_clicked(self,widget,mode,number):
             if mode == 0:
                 if number == 0: self.toggle_ignore_limits()
@@ -1195,6 +1199,7 @@ class Gscreen:
                         ["spindle_preset","clicked", "on_preset_spindle"],
                         ["spindle_increase","clicked", "on_spindle_speed_adjust"],
                         ["spindle_decrease","clicked", "on_spindle_speed_adjust"],
+                        ["button_offsets","clicked", "on_button_offsets"],
                         ["audio_error_chooser","update-preview", "update_preview"],
                         ["audio_alert_chooser","update-preview", "update_preview"],
                         ["hal_status","interp-idle", "on_hal_status_interp_idle"],
@@ -1263,6 +1268,19 @@ class Gscreen:
                 except:
                     break
                 self.widgets.s_display_fwd
+
+    def toggle_offset_view(self):
+            data = self.data.plot_hidden
+            data = (data * -1) +1
+            self.widgets.dro_frame.set_visible(not data)
+            self.widgets.gremlin.set_property('enable_dro', data)
+            self.widgets.gremlin.set_property('show_program', not data)
+            self.widgets.gremlin.set_property('show_limits', not data)
+            self.widgets.gremlin.set_property('show_extents_option', not data)
+            self.widgets.gremlin.set_property('show_live_plot', not data)
+            self.widgets.gremlin.set_property('show_tool', not data)
+            self.widgets.gremlin.show_offsets = data
+            self.data.plot_hidden = data
 
     def preset_spindle_speed(self,rpm):
         self.data.spindle_preset = rpm
@@ -2153,6 +2171,8 @@ class Gscreen:
         elif mode == _MDI:
             if self.widgets.button_homing.get_active():
                 self.widgets.button_homing.emit("clicked")
+            if self.data.plot_hidden:
+                self.toggle_offset_view()
             self.mdi_control.set_mdi_mode()
             self.widgets.hal_mdihistory.show()
             self.widgets.vmode0.show()
