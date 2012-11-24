@@ -1792,6 +1792,7 @@ class Gscreen:
     # toggles gremlin's different views
     # if in lathe mode only P, Y and Y2 available
     def toggle_view(self):
+        dist = self.widgets.gremlin.get_zoom_distance()
         def shift():
             a = self.data.plot_view[0]
             b = self.data.plot_view[1]
@@ -1808,6 +1809,7 @@ class Gscreen:
                 shift()
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.prefs.putpref('view', self.data.plot_view, tuple)
+        self.widgets.gremlin.set_zoom_distance(dist)
 
     # toggle a large graphics view
     def full_graphics(self):
