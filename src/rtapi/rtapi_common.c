@@ -3,6 +3,8 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#include <stdlib.h>		/* strtol() */
+
 #ifndef NULL
 #define NULL 0
 #endif
@@ -40,6 +42,10 @@ module_data *module_array = NULL;
 unsigned int rev_code = REV_CODE;
 
 /* global init code */
+#ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
+void init_rtapi_data_hook(rtapi_data_t * data);
+#endif
+
 void init_rtapi_data(rtapi_data_t * data)
 {
     int n, m;
@@ -62,11 +68,6 @@ void init_rtapi_data(rtapi_data_t * data)
     data->shmem_count = 0;
     data->timer_running = 0;
     data->timer_period = 0;
-#if defined(RTAPI_XENOMAI_KERNEL)
-    data->rt_wait_error = 0;
-    data->rt_last_overrun = 0;
-    data->rt_total_overruns = 0;
-#endif
     /* init the arrays */
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	data->module_array[n].state = EMPTY;
@@ -84,14 +85,25 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
-#if 0 // defined(RTAPI_XENOMAI_KERNEL) 
-	memset(&shmem_heap_array[n].heap, 0, sizeof(shmem_heap_array[n]));
-#endif
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
+#ifdef HAVE_INIT_RTAPI_DATA_HOOK
+    init_rtapi_data_hook(data);
+#endif
+
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
     return;
+}
+
+
+
+long int simple_strtol(const char *nptr, char **endptr, int base) {
+#ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
+    return rtapi_simple_strtol_hook(nptr,endptr,base);
+#else
+    return strtol(nptr, endptr, base);
+#endif
 }

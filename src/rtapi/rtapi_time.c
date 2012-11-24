@@ -7,15 +7,16 @@
 
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
+#ifdef RTAPI
+#include <time.h>		// clock_getres(), clock_gettime()
+#else  /* ULAPI */
+#include <sys/time.h>		// gettimeofday()
+#endif
 
 #ifdef MODULE
 #include <linux/module.h>	// EXPORT_SYMBOL
 #endif
 
-#include <time.h>		// clock_getres(), clock_gettime()
-
-// shared within rtapi
-int period = 0;
 
 // find a useable time stamp counter
 #ifdef MSR_H_USABLE
@@ -28,6 +29,9 @@ int period = 0;
 #define rdtscll(val) (val)=0
 #endif
 
+#ifdef RTAPI  /* hide most functions from ULAPI */
+
+int period = 0;
 
 int rtapi_clock_set_period(unsigned long int nsecs)
 {
@@ -52,7 +56,11 @@ int rtapi_clock_set_period(unsigned long int nsecs)
     return period;
 }
 
+#endif /* RTAPI */
 
+/* The following functions are common to both RTAPI and ULAPI */
+
+#ifdef RTAPI
 long long int rtapi_get_time(void) {
 
     struct timespec ts;
@@ -60,9 +68,21 @@ long long int rtapi_get_time(void) {
     return ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec;
 }
 
+#else /* ULAPI */
+long long rtapi_get_time(void)
+{
+	struct timeval tv;
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"ulapi get_time\n");
+	gettimeofday(&tv, 0);
+	return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
+}
+#endif
+
 long long int rtapi_get_clocks(void) {
     long long int retval;
 
     rdtscll(retval);
     return retval;
 }
+

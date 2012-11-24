@@ -8,16 +8,38 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
-#include <stdlib.h>		// malloc(), sizeof(), free()
-#include <string.h>		// memset()
-#include <unistd.h>		// syscall()
-#include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
-#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
-
-
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
 ************************************************************************/
+
+#include <unistd.h>		// getpid(), syscall()
+
+#ifdef ULAPI
+/* RT_PREEMPT ULAPI doesn't do anything */
+int rtapi_init(const char *modname)
+{
+	/* does nothing, for now */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"ulapi rtapi_init(%s):  doing nothing\n",modname);
+	return getpid();
+}
+
+int rtapi_exit(int module_id)
+{
+	/* does nothing, for now */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"ulapi rtapi_exit(%d):  doing nothing\n",module_id);
+	return 0;
+}
+
+
+#else /* RTAPI is where everything happens */
+
+#include <stdlib.h>		// malloc(), sizeof(), free()
+#include <string.h>		// memset()
+#include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
+#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
+
 
 /* Lock for task_array and module_array allocations */
 static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -463,6 +485,8 @@ void rtapi_task_array_unlock() {
 *                          SHMEM FUNCTIONS                             *
 ************************************************************************/
 
+#ifdef DISABLED
+/* testing using the rtapi.h mutex_give and get functions */
 void rtapi_shmem_array_lock() {
     pthread_mutex_lock(&shmem_array_mutex);
 }
@@ -470,3 +494,6 @@ void rtapi_shmem_array_lock() {
 void rtapi_shmem_array_unlock() {
     pthread_mutex_unlock(&shmem_array_mutex);
 }
+#endif
+
+#endif /* RTAPI */

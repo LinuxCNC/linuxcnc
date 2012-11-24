@@ -11,6 +11,7 @@ unsigned int rev_code = 3;
 
 /* RTAPI task-related functions */
 
+//FIXME minimize
 #include <native/task.h>        /* Xenomai task */
 #include <native/timer.h>
 #include <native/mutex.h>

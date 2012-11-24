@@ -4,24 +4,11 @@
 *               the Xenomai user land thread system
 ********************************************************************/
 
-//FIXME minimize
-#include <native/task.h>        /* Xenomai task */
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <rtdk.h>
-#include <nucleus/types.h>     /* for XNOBJECT_NAME_LEN */
-
-#include <sys/io.h>             /* inb, outb */
-
 /* this needs to be fixed in rtapi_common.h
 #undefine RTAPI_NAME_LEN
 #define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
 */
 #define THREAD_TASK_DATA RT_TASK *self;
-
-/* Priority functions settings */
-
-#include <sched.h>		/* sched_get_priority_*() */
 
 // Xenomai rt_task priorities are 0: lowest .. 99: highest
 #define PRIO_LOWEST 0
@@ -30,4 +17,16 @@
 #define HAVE_RTAPI_OUTB_HOOK
 #define HAVE_RTAPI_INB_HOOK
 
-#endif  /* RTAPI_TASK  */
+
+/* additional struct stored in rtapi_data->tdata... */
+typedef struct {
+    int rt_wait_error;		/* release point missed */
+    int rt_last_overrun;	/* last number of overruns reported by
+				   Xenomai */
+    int rt_total_overruns;	/* total number of overruns reported
+				   by Xenomai */
+} thread_rtapi_data;
+#define THREAD_RTAPI_DATA thread_rtapi_data tdata;
+
+/* ...and a hook to initialize it */
+#define HAVE_INIT_RTAPI_DATA_HOOK
