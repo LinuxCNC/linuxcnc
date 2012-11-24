@@ -623,19 +623,15 @@ COPY_CONFIGS := \
 
 configs: $(COPY_CONFIGS)
 
-.PHONY: print_copy_configs
-print_copy_configs:
-	$(ECHO) copying shared configs
-
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal print_copy_configs
+$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal print_copy_configs
+$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal print_copy_configs
+$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal print_copy_configs
+$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
+$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 	$(Q)-cp $< $@
 
 endif # userspace
