@@ -4772,10 +4772,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
     } else if (settings->toolchange_flag) {
-        // we haven't loaded the tool and swapped pockets quite yet
+        // Tool change is in progress, so the "current tool" is in its
+        // original pocket still.
         pocket_number = settings->current_pocket;
     } else {
-        // tool change is done so pockets are swapped
+        // Tool change is done so the current tool is in pocket 0 (aka the
+        // spindle).
         pocket_number = 0;
     }
 
