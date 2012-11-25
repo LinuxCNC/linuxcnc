@@ -3273,7 +3273,15 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].backangle,
                              settings->tool_table[pocket].orientation);
 
-    if(settings->current_pocket == pocket) {
+    //
+    // On non-random tool changers we just updated the tool's "home pocket"
+    // in the tool changer carousel, so now, if the tool is currently
+    // loaded, we need to copy the new tool information to the spindle
+    // (pocket 0).  This is never needed on random tool changers because
+    // there tools don't have a home pocket, and instead we updated pocket
+    // 0 (the spindle) directly when modifying the loaded tool.
+    //
+    if ((!settings->random_toolchanger) && (settings->current_pocket == pocket)) {
        settings->tool_table[0] = settings->tool_table[pocket];
     }
 
