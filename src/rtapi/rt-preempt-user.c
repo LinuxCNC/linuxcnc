@@ -14,35 +14,13 @@
 
 #include <unistd.h>		// getpid(), syscall()
 
-#ifdef ULAPI
-/* RT_PREEMPT ULAPI doesn't do anything */
-int rtapi_init(const char *modname)
-{
-	/* does nothing, for now */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ulapi rtapi_init(%s):  doing nothing\n",modname);
-	return getpid();
-}
-
-int rtapi_exit(int module_id)
-{
-	/* does nothing, for now */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ulapi rtapi_exit(%d):  doing nothing\n",module_id);
-	return 0;
-}
-
-
-#else /* RTAPI is where everything happens */
-
+#ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
 #include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
 #include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
-
 /* Lock for task_array and module_array allocations */
-static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
 #ifdef DISABLED
 static pthread_mutex_t shmem_array_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -50,6 +28,9 @@ static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 static int error_printed;
+#endif
+
+static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define MODULE_OFFSET		32768
 
@@ -67,7 +48,8 @@ int rtapi_init(const char *modname) {
     }
     pthread_mutex_unlock(&array_mutex);
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_init: initialized module slot %d\n", n);
+		    "rtapi_init: initialized module slot %d for %s\n",
+		    n, modname);
 
     return result;
 }
@@ -80,10 +62,15 @@ int rtapi_exit(int id) {
     /* Remove the module from the module_array. */
     pthread_mutex_lock(&array_mutex);
     module_array[n].magic = 0;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "rtapi_exit: freed module slot %d, was %s\n",
+		    n, module_array[n].name);
     pthread_mutex_unlock(&array_mutex);
 
     return 0;
 }
+
+#ifdef RTAPI
 
 static inline int task_id(task_data *task)
 {
