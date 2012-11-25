@@ -2715,6 +2715,10 @@ int GET_EXTERNAL_TOOL_SLOT()
     return 0;  // no tool in spindle
 }
 
+// If the tool changer has prepped a pocket (after a Txxx command) and is
+// ready to perform a tool change, return the currently prepped pocket
+// number.  If the tool changer is idle (because no Txxx command has been
+// run, or because an M6 tool change has completed), return -1.
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
     return emcStatus->io.tool.pocketPrepped;
