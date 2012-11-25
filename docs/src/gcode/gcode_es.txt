@@ -548,7 +548,7 @@ A valid G10 L1 rewrites and reloads the tool table.
 .G10 L1 Example Line
 ----
 G10 L1 P1 Z1.5 (set tool 1 Z offset from the machine origin to 1.5)
-G10 L1 P3 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
+G10 L1 P2 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
 ----
 
 It is an error if:
