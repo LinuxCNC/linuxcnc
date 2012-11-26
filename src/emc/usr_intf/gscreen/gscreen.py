@@ -549,19 +549,9 @@ class Gscreen:
         # set-up HAL component
         try:
             self.halcomp = hal.component(skinname)
-            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
-            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
-            for axis in self.data.axis_list:
-                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
         except:
             print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
             sys.exit(0)
-    
         panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
         # at this point, any glade HAL widgets and their pins are set up.
 
@@ -582,8 +572,10 @@ class Gscreen:
             self.custom_handler.connect_signals(self)
         else:
             self.install_signals(handlers)
-
-
+        if "initialize_pins" in dir(self.custom_handler):
+            self.custom_handler.initialize_pins(self)
+        else:
+            self.initialize_pins()
         # dynamic tabs setup
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
@@ -724,6 +716,17 @@ class Gscreen:
 
         # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
+
+    def initialize_pins(self):
+            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
+            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
+            for axis in self.data.axis_list:
+                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
 
 # *** GLADE callbacks ****
 
