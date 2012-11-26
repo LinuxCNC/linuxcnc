@@ -161,15 +161,6 @@ static void free_thread_struct(hal_thread_t * thread);
 static void thread_task(void *arg);
 #endif /* RTAPI */
 
-#if defined(ULAPI) && defined(BUILD_SYS_USER_DSO)
-/* hack:  For now, rtapi_init() should just return getpid(), as the
-   rt-preempt linux_ulapi.c did in this case.  Once we know which
-   rtapi_init() to use, we can decide the right thing to do.
- */
-#define rtapi_init(modname) getpid()
-#define rtapi_exit(mod_id) /* do nothing */
-#endif
-
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/

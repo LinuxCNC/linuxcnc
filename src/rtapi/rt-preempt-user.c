@@ -29,6 +29,20 @@ static int error_printed;
 
 #define MODULE_OFFSET		32768
 
+#ifdef ULAPI
+
+int rtapi_init(const char *modname) {
+	/* do nothing for ULAPI */
+	return getpid();
+}
+
+int rtapi_exit(int module_id) {
+	/* do nothing for ULAPI */
+	return 0;
+}
+
+#else /* RTAPI */
+
 int rtapi_init(const char *modname) {
     int n, result = -ENOMEM;
 
@@ -65,8 +79,6 @@ int rtapi_exit(int id) {
 
     return 0;
 }
-
-#ifdef RTAPI
 
 static inline int task_id(task_data *task)
 {
@@ -454,4 +466,4 @@ int rtapi_wait_hook(void)
     return 0;
 }
 
-#endif /* RTAPI */
+#endif /* ULAPI/RTAPI */
