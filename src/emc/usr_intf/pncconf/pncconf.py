@@ -1573,9 +1573,9 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
         if self.allow_spindle_on_toolchange:
-            print >>file, "TOOLCHANGE_WITH_SPINDLE_ON = 1"
+            print >>file, "TOOL_CHANGE_WITH_SPINDLE_ON = 1"
         if self.raise_z_on_toolchange:
-            print >>file, "TOOLCHANGE_QUILL_UP = 1"
+            print >>file, "TOOL_CHANGE_QUILL_UP = 1"
         if self.random_toolchanger:
             print >>file, "RANDOM_TOOLCHANGER = 1"
         
