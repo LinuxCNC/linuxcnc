@@ -1,3 +1,4 @@
+import hal
 # This is a handler file for using Gscreen's infastructure
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
@@ -42,8 +43,15 @@ def connect_signals(gscreen):
 def initialize_widgets(gscreen):
     gscreen.change_theme(gscreen.data.theme_name)
 
+# If we need extra HAL pins here is where we do it.
+# Note you must import hal at the top of this script to do it.
+# For gaxis there is no extra pins but since we don't want gscreen to
+# add it's default pins we added this function
+def initialize_pins(gscreen):
+    pass
+
 # every 50 milli seconds this gets called
-# add pass so gscreen doesn't update it's regular widgets
+# add pass so gscreen doesn't try to update it's regular widgets.
 def periodic(gscreen):
     pass
 
