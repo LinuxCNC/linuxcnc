@@ -10,14 +10,10 @@ README          : this file
 rtapi.h         : decls for the generic RTAPI functions.
 rtapi_app.h     : decls for the kernel modules
 rtapi_common.h  : Collection of typedefs, etc,  used internally by RTAPI.
-procfs_macros.h : Macros used to impliment the /proc interface
+procfs_macros.h : Macros used to implement the /proc interface
 rtapi_proc.h    : more stuff implementing the /proc interface
-rtai_rtapi.c    : implementation of real-time API, for RTAI
-rtai_ulapi.c    : implementation of user-level API, for RTAI
-rtl_rtapi.c     : implementation of real-time API, for RTL
-rtl_ulapi.c     : implementation of user-level API, for RTL
-sim_rtapi.c     : implementation of real-time API, for Linux simulation
-sim_ulapi.c     : implementation of user-level API, for Linux simulation
+$(THREADS).h	: Thread system-specific headers
+$(THREADS).c	: Thread system-specific definitions, esp. RTAPI hooks
 
 
 ../../Makefile.inc    : contains compile-time flags, etc.
@@ -205,7 +201,8 @@ flexibility in what can be done. 'config' currently checks to see what
 real-time Linux installations exist, using 'find' and checking for
 "rtl.mk" and ".buildvars" as the telltale signs. If found, RTDIR is set
 to the associated parent directory.
- Alternatively, RTDIR can be set via a command line argument as described
+
+Alternatively, RTDIR can be set via a command line argument as described
 in "The Build Process". This gives us the flexibility to cross-compile on
 a system not running a realtime kernel.
 
