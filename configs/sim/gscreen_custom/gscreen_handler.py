@@ -2,18 +2,24 @@
 class HandlerClass:
 
     # this will be pretty standard to gain access to everything
-    # other then setting the gremlin DRO on from the start
+    # emc is for control and status of linuxcnc
+    # data is important data from gscreen and linuxcnc
+    # widgets is all the widgets from the glade files
+    # gscreen is for access to gscreens methods
+    #
+    # we added setting the gremlin DRO on from the startup
+    # and a global variable for the number of key presses
     def __init__(self, halcomp,builder,useropts,gscreen):
-            self.nhits = 0
             self.emc = gscreen.emc
             self.data = gscreen.data
             self.widgets = gscreen.widgets
             self.gscreen = gscreen
 
+            self.nhits = 0
             self.widgets.gremlin.set_property('enable_dro',True)
 
-    # This is a new method for a couple of widgets we added callbacks to
-    # the argument 'widget' is a reference to the actual widget that called.
+    # This is a new method for a couple of widgets we added callbacks to.
+    # The argument 'widget' is a reference to the actual widget that called.
     # In this way we can use this method on a bunch of widgets without knowing
     # their name ahead of time.
     def on_button_press(self,widget,data=None):
@@ -65,9 +71,15 @@ class HandlerClass:
         self.gscreen.audio.run()
         self.gscreen.on_hide_cursor(None)
 
+
+# **************************************************************************
+# Since these next function calls are outside the HandlerClass the reference 
+# names don't use self
+# **************************************************************************
+
 # every 50 milli seconds this gets called
 # here we update a button label then call gscreen's
-# regular update method so it updates it's regular widgets
+# regular update method so it updates it's regular widgets too
 def periodic(gscreen):
     data = gscreen.data.dro_units
     if data:
