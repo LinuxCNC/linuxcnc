@@ -1081,15 +1081,15 @@ class Gscreen:
                     statustext = text
                 self.notify("INFO:",statustext,INFO_ICON)
             if "dialog" in type or "okdialog" in type:
-                self.notify("INFO:","Dialog Responce Required",INFO_ICON)
+                self.notify("INFO:","Dialog Response Required",INFO_ICON)
                 self.halcomp[pinname + "-waiting"] = True
                 if "okdialog" in type:
-                    self.warning_dialog(boldtext,True,text)
+                    self.warning_dialog(boldtext,True,text,pinname)
                 else:
-                    result = self.warning_dialog(boldtext,False,text)
-                    self.halcomp[pinname + "-response"] = result
-                self.halcomp[pinname + "-waiting"] = False
-                self.widgets.statusbar1.pop(self.statusbar_id)
+                    self.halcomp[pinname + "-response"] = 0
+                    self.warning_dialog(boldtext,False,text,pinname)
+
+
 
     def toggle_overrides(self,widget,mode,number):
         print "overrides - button_h_%d_%d"%(mode,number)
@@ -1651,32 +1651,38 @@ class Gscreen:
                     if not ("ok" in c):
                         self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
 
-    # display dialog and wait for an answer
-    def warning_dialog(self,message, displaytype, secondary=None):
+    # display dialog
+    def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
         if displaytype:
             dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
-            # if there is a secondary message then the first message text is bold
-            if secondary:
-                dialog.format_secondary_text(secondary)
-            dialog.show_all()
-            result = dialog.run()
-            dialog.destroy()
-            return True
         else:   
             dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.DIALOG_DESTROY_WITH_PARENT,
                gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
-            if secondary:
-                dialog.format_secondary_text(secondary)
-            dialog.show_all()
-            result = dialog.run()
-            dialog.destroy()
-            if result == gtk.RESPONSE_YES:
-                return True
+        # if there is a secondary message then the first message text is bold
+        if secondary:
+            dialog.format_secondary_text(secondary)
+        dialog.show_all()
+        try:
+            if "dialog" in dir(self.custom_handler):
+                dialog.connect("response", self.custom_handler.dialog,self,displaytype,pinname)
             else:
-                return False
+                dialog.connect("response", self.dialog,displaytype,pinname)
+        except:
+            dialog.destroy()
+            raise NameError ('Dialog error - Is the dialog handler missing from the handler file?')
+
+    # dialog returns a response here
+    def dialog(self,widget,result,dialogtype,pinname):
+        if not dialogtype: # yes/no dialog
+            if result == gtk.RESPONSE_YES:result = True
+            else: result = False
+            self.halcomp[pinname + "-response"] = result
+        self.halcomp[pinname + "-waiting"] = False
+        self.widgets.statusbar1.pop(self.statusbar_id)
+        widget.destroy()
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
