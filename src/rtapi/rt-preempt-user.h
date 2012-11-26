@@ -50,12 +50,6 @@ typedef struct {
 #define HAVE_RTAPI_TASK_STOP_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
 
-/* mutex functions */
-#define HAVE_RTAPI_TASK_ARRAY_LOCK
-#define HAVE_RTAPI_TASK_ARRAY_UNLOCK
-#define HAVE_RTAPI_SHMEM_ARRAY_LOCK
-#define HAVE_RTAPI_SHMEM_ARRAY_UNLOCK
-
 /* misc */
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS

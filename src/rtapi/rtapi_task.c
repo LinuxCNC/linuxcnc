@@ -13,7 +13,6 @@
 #include <linux/module.h>	/* EXPORT_SYMBOL */
 #endif
 
-
 /*
   These functions are completely different between each thread system,
   so they should be defined in their respective $THREADS.c files:
@@ -79,22 +78,6 @@ int rtapi_prio_next_lower(int prio)
 
 
 #ifdef RTAPI  /* below functions not available to user programs */
-/* task array mutex functions */
-#ifdef HAVE_RTAPI_TASK_ARRAY_LOCK
-void rtapi_task_array_lock();
-#define RTAPI_TASK_ARRAY_LOCK() rtapi_task_array_lock()
-#else
-#define RTAPI_TASK_ARRAY_LOCK() /* do nothing; better fix this! */
-#endif
-
-#ifdef HAVE_RTAPI_TASK_ARRAY_UNLOCK
-void rtapi_task_array_unlock();
-#define RTAPI_TASK_ARRAY_UNLOCK() rtapi_task_array_unlock()
-#else
-#define RTAPI_TASK_ARRAY_UNLOCK() /* do nothing; better fix this! */
-#endif
-
-
 
 /* task setup and teardown functions */
 #ifdef HAVE_RTAPI_TASK_NEW_HOOK
@@ -115,7 +98,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
       the loop but before it sets the magic number, two tasks
       might wind up assigned to the same structure.  Need an
       atomic test and set for the magic number.  Not tonight! */
-    RTAPI_TASK_ARRAY_LOCK();
+    rtapi_mutex_get(&(rtapi_data->mutex));
 
     n = 1; // tasks start at one!
     // go through task_array until an empty task slot is found
@@ -123,7 +106,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 	n++;
     // if task_array is full, release lock and return error
     if (n == MAX_TASKS) {
-	RTAPI_TASK_ARRAY_UNLOCK();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -ENOMEM;
     }
     task_id = n;
@@ -139,7 +122,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 			task_id, name, prio,
 			rtapi_prio_highest(),
 			rtapi_prio_lowest());
-	RTAPI_TASK_ARRAY_UNLOCK();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
 
@@ -152,7 +135,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 		    rtapi_prio_lowest());
     task->magic = TASK_MAGIC;
 
-    RTAPI_TASK_ARRAY_UNLOCK();
+    rtapi_mutex_give(&(rtapi_data->mutex));
     /*! \todo FIXME - end of non-threadsafe window */
 
     /* fill out task structure */
@@ -200,9 +183,9 @@ int rtapi_task_delete(int task_id) {
     rtapi_task_delete_hook(task,task_id);
 #endif
 
-    RTAPI_TASK_ARRAY_LOCK();
+    rtapi_mutex_get(&(rtapi_data->mutex));
     task->magic = 0;
-    RTAPI_TASK_ARRAY_UNLOCK();
+    rtapi_mutex_give(&(rtapi_data->mutex));
     return 0;
 }
 
@@ -351,10 +334,9 @@ int rtapi_wait_hook();
 void rtapi_wait(void)
 {
 #ifdef HAVE_RTAPI_WAIT_HOOK
-    return rtapi_wait_hook();
-#else
-    return 0;
+    rtapi_wait_hook();
 #endif
+    return;
 }
 
 #endif  /* RTAPI */

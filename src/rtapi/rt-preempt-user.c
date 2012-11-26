@@ -21,16 +21,11 @@
 #include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 /* Lock for task_array and module_array allocations */
-#ifdef DISABLED
-static pthread_mutex_t shmem_array_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 static int error_printed;
 #endif
-
-static pthread_mutex_t array_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define MODULE_OFFSET		32768
 
@@ -38,15 +33,16 @@ int rtapi_init(const char *modname) {
     int n, result = -ENOMEM;
 
     /* debugging statements can be removed */
-    pthread_mutex_lock(&array_mutex);
+    rtapi_mutex_get(&(rtapi_data->mutex));
     for (n = 0; n < MAX_MODULES; n++) {
 	if (module_array[n].magic != MODULE_MAGIC) {
 	    result = n + MODULE_OFFSET;
 	    module_array[n].magic = MODULE_MAGIC;
+	    strncpy(module_array[n].name, modname, RTAPI_NAME_LEN);
 	    break;
 	}
     }
-    pthread_mutex_unlock(&array_mutex);
+    rtapi_mutex_give(&(rtapi_data->mutex));
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_init: initialized module slot %d for %s\n",
 		    n, modname);
@@ -60,12 +56,12 @@ int rtapi_exit(int id) {
     if (n < 0 || n >= MAX_MODULES)
 	return -1;
     /* Remove the module from the module_array. */
-    pthread_mutex_lock(&array_mutex);
+    rtapi_mutex_get(&(rtapi_data->mutex));
     module_array[n].magic = 0;
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_exit: freed module slot %d, was %s\n",
 		    n, module_array[n].name);
-    pthread_mutex_unlock(&array_mutex);
+    rtapi_mutex_give(&(rtapi_data->mutex));
 
     return 0;
 }
@@ -457,32 +453,5 @@ int rtapi_wait_hook(void)
 
     return 0;
 }
-
-
-
-/* array locking functions */
-
-void rtapi_task_array_lock() {
-    pthread_mutex_lock(&array_mutex);
-}
-
-void rtapi_task_array_unlock() {
-    pthread_mutex_unlock(&array_mutex);
-}
-
-/***********************************************************************
-*                          SHMEM FUNCTIONS                             *
-************************************************************************/
-
-#ifdef DISABLED
-/* testing using the rtapi.h mutex_give and get functions */
-void rtapi_shmem_array_lock() {
-    pthread_mutex_lock(&shmem_array_mutex);
-}
-
-void rtapi_shmem_array_unlock() {
-    pthread_mutex_unlock(&shmem_array_mutex);
-}
-#endif
 
 #endif /* RTAPI */

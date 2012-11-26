@@ -33,7 +33,7 @@ unsigned long shmem_array_mutex;
 void rtapi_shmem_array_lock();
 #else
 inline void rtapi_shmem_array_lock() {
-    rtapi_mutex_get(&shmem_array_mutex);
+    rtapi_mutex_get(&(rtapi_data->mutex));
 }
 #endif
 
@@ -41,7 +41,7 @@ inline void rtapi_shmem_array_lock() {
 void rtapi_shmem_array_unlock();
 #else
 inline void rtapi_shmem_array_unlock() {
-    rtapi_mutex_give(&shmem_array_mutex);
+    rtapi_mutex_give(&(rtapi_data->mutex));
 }
 #endif
 
