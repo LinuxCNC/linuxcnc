@@ -1096,10 +1096,10 @@ C'est une erreur si:
 * Le palpeur est déjà au contact de la cible.
 
 [[sec:G40]]
-== G40 Révocation de la compensation de d'outil
+== G40 Révocation de la compensation de rayon d'outil
 (((G40 Révocation de la compensation de rayon)))
 
-* _G40_ - révoque la compensation d'outil. Le mouvement suivant, de
+* _G40_ - révoque la compensation de rayon d'outil. Le mouvement suivant, de
 sortie de compensation, doit être une droite au moins aussi longue que le
 diamètre de l'outil. Ce n'est pas une erreur de désactiver la compensation
 quand elle est déjà inactive.
@@ -1122,7 +1122,7 @@ C'est une erreur si:
 diamètre de l'outil.
 
 [[sec:G41-G42]]
-== G41, G42 Compensation d'outil
+== G41, G42 Compensation de rayon d'outil
 (((G41 Compensation d'outil)))
 (((G42 Compensation d'outil)))
 
@@ -1133,11 +1133,10 @@ G42 <D-> (compensation à droite du profil)
 
 * _D_ - Numéro d'outil
 
-Le mot D est facultatif. En l'absence de mot D, le diamètre de l'outil
-courant est utilisé. Si le mot D est présent, il doit normalement correspondre
-au numéro de poche de l'outil monté dans la broche, bien que cela ne soit pas
-indispensable. Le nombre D à zéro est autorisé, un rayon de valeur zéro sera
-alors utilisé.
+Le mot D est facultatif. En son absence ou si il est à zéro, le rayon de l'outil
+courant est utilisé. Si le mot D est présent, il devrait normalement correspondre
+au numéro de l'outil monté dans la broche, bien que cela ne soit pas
+indispensable, il doit par contre correspondre à un numéro d'outil valide.
 
 Pour activer la compensation d'outil à gauche du profil,
 programmer _G41_. G41 applique la compensation d'outil à gauche de la
@@ -1162,8 +1161,7 @@ sur la compensation d'outil>>.
 
 C'est une erreur si:
 
-* La valeur de D n'est pas un entier, il est négatif, ou supérieur au
-   nombre d'emplacements dans le carrousel.
+* Le nombre D ne correspond, ni à zéro, ni à un numéro d'outil valide.
 * Le plan YZ est le plan de travail actif.
 * La compensation d'outil est activée alors qu'elle est déjà active.
 
@@ -1209,8 +1207,8 @@ longueur de l'outil. G43 ne provoque aucun mouvement. L'effet de la
 compensation ne se produira qu'au cours du prochain mouvement des axes compensés,
 de sorte que le point final de ce mouvement sera la position compensée.
 * _G43 H-_ - Utilise l'offset de l'outil correspondant fourni par la table
-d'outils. Ce n'est pas une erreur d'avoir la valeur de H à zéro, une
-compensation égale à zéro sera utilisée.
+d'outils. Ce n'est pas une erreur d'avoir la valeur de H à zéro, le numéro de
+l'outil courant sera utilisé.
 
 .Exemple de ligne avec G43 H-
 ----
@@ -1220,8 +1218,8 @@ la table d'outils)
 
 C'est une erreur si:
 
-* La valeur de H n'est pas un entier, il est négatif, ou il est
-supérieur au nombre d'entrées dans la table d'outils.
+* La valeur de H n'est pas un entier, il est négatif, ou il ne correspond, ni
+à zéro, ni à un numéro d'outil valide.
 
 [[sec:G43-1]]
 == G43.1 Compensation dynamique de longueur d'outil
