@@ -1811,7 +1811,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                                           setup_pointer settings)       //!< pointer to machine settings              
 {
   double radius;
-  int index, orientation;
+  int pocket_number, orientation;
 
   CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
@@ -1829,17 +1829,17 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
   } else {
       if(!block->d_flag) {
-          index = 0;
+          pocket_number = 0;
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[7]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_pocket(settings, tool, &index)));
+          CHP((find_tool_pocket(settings, tool, &pocket_number)));
       }
-      radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
-      orientation = settings->tool_table[index].orientation;
+      radius = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].diameter) / 2.0;
+      orientation = settings->tool_table[pocket_number].orientation;
       CHKS((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
