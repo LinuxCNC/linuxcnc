@@ -25,7 +25,7 @@ static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 static int error_printed;
-#endif
+#endif  /* RTAPI */
 
 #define MODULE_OFFSET		32768
 

@@ -16,14 +16,22 @@
 #include <sys/io.h>		/* inb(), outb(), inw(), outw() */
 #endif
 
+#ifdef HAVE_RTAPI_OUTB_HOOK
+void rtapi_outb_hook(unsigned char byte, unsigned int port);
+#endif
+
 void rtapi_outb(unsigned char byte, unsigned int port) {
 #ifdef HAVE_RTAPI_OUTB_HOOK
     rtapi_outb_hook(byte,port);
 #endif
 }
 
-unsigned char rtapi_inb(unsigned int port)
-{
+
+#ifdef HAVE_RTAPI_INB_HOOK
+unsigned char rtapi_inb_hook(unsigned int port);
+#endif
+
+unsigned char rtapi_inb(unsigned int port) {
 #ifdef HAVE_RTAPI_INB_HOOK
     return rtapi_inb_hook(port);
 #else
@@ -31,12 +39,21 @@ unsigned char rtapi_inb(unsigned int port)
 #endif
 }
 
-void rtapi_outw(unsigned short word, unsigned int port)
-{
+
+#ifdef HAVE_RTAPI_OUTW_HOOK
+void rtapi_outw_hook(unsigned short word, unsigned int port);
+#endif
+
+void rtapi_outw(unsigned short word, unsigned int port) {
 #ifdef HAVE_RTAPI_OUTW_HOOK
     rtapi_outw_hook(word,port);
 #endif
 }
+
+
+#ifdef HAVE_RTAPI_INW_HOOK
+unsigned short rtapi_inw_hook(unsigned int port);
+#endif
 
 unsigned short rtapi_inw(unsigned int port)
 {

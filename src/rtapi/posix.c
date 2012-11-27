@@ -7,8 +7,6 @@
 #include "config.h"
 #include "rtapi.h"
 
-unsigned int rev_code = 4;
-
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
 ************************************************************************/
@@ -38,7 +36,7 @@ void rtapi_task_create_hook(task_data *task, int task_id) {
     if (retval == FALSE)
 	return -ENOMEM;
     retval = pth_uctx_make(ostask_array[task_id], NULL, task->stacksize, NULL,
-			   wrapper, (void*)task_id, 0);
+			   rtapi_task_wrapper, (void*)task_id, 0);
     if (retval == FALSE)
 	return -ENOMEM;
 

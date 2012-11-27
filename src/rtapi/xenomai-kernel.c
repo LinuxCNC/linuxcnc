@@ -3,8 +3,6 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
-unsigned int rev_code = 2;
-
 /* fill out Xenomai-specific fields in rtapi_data */
 void init_rtapi_data_hook(rtapi_data_t * data) {
     data->rt_wait_error = 0;

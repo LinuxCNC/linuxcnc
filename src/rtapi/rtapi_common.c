@@ -39,8 +39,6 @@ module_data *module_array = NULL;
 
 #endif
 
-unsigned int rev_code = REV_CODE;
-
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
 void init_rtapi_data_hook(rtapi_data_t * data);
@@ -60,7 +58,7 @@ void init_rtapi_data(rtapi_data_t * data)
     /* set magic number so nobody else init's the block */
     data->magic = RTAPI_MAGIC;
     /* set version code so other modules can check it */
-    data->rev_code = rev_code;
+    data->rev_code = REV_CODE;
     /* and get busy */
     data->rt_module_count = 0;
     data->ul_module_count = 0;
