@@ -784,6 +784,11 @@ obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
 hal_gpio-objs := hal/drivers/hal_gpio.o 
 endif
 
+#ifeq ($(TARGET_PLATFORM), beaglebone)
+#obj-$(CONFIG_HAL_GPIO) += hal_bbgpio.o
+#hal_gpio-objs := hal/drivers/hal_bbgpio.o 
+#endif
+
 # these won't compile as-is with userland threading
 
 ifneq ($(BUILD_SYS),user-dso)
