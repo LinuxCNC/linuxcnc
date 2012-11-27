@@ -14,7 +14,7 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(ULAPI_LINK)
+	    -o $@ $^ $(ULAPI_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)

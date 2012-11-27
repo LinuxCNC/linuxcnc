@@ -43,12 +43,14 @@ typedef struct {
 #define PRIO_LOWEST sched_get_priority_min(SCHED_FIFO)
 #define PRIO_HIGHEST sched_get_priority_max(SCHED_FIFO)
 
-/* hooks defined for this thread system */
+
+/* rtapi_task hooks */
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_TASK_DELETE_HOOK
 #define HAVE_RTAPI_TASK_START_HOOK
 #define HAVE_RTAPI_TASK_STOP_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
+#define NO_RTAPI_TASK_WRAPPER
 
 /* misc */
 #define HAVE_RTAPI_TASK_FREE

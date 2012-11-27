@@ -96,9 +96,11 @@
    programs don't match, that's bad.  So we have revision checking.
    Whenever a module or program is loaded, the rev_code is checked
    against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will faill.
-*/
-extern unsigned int rev_code;
+   the rtapi_init() call will fail.
+
+   Thread system header files should define the macro REV_CODE with a
+   unique integer value.
+  */
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -185,7 +187,7 @@ typedef struct {
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
 #ifdef THREAD_RTAPI_DATA
-    THREAD_RTAPI_DATA		/* RTAPI data defined in thread system */
+    THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
 #endif
 } rtapi_data_t;
 

@@ -3,6 +3,13 @@
 *               This file, 'rtapi_task.c', implements the task-
 *               related functions for realtime modules.  See rtapi.h
 *               for more info.
+*
+*		The functions here can be customized by defining
+*		'hook' functions in a separate source file for the
+*		thread system, and define a macro indicating that the
+*		definition exists.  The functions below that accept
+*		hooks are preceded by a prototype for the hook
+*		function.
 ********************************************************************/
 
 #include "config.h"		// build configuration
@@ -168,6 +175,7 @@ int rtapi_task_delete_hook(task_data *task, int task_id);
 
 int rtapi_task_delete(int task_id) {
     task_data *task;
+    int retval = 0;
 
     if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
 
@@ -180,47 +188,49 @@ int rtapi_task_delete(int task_id) {
 		    task->name );
 
 #ifdef HAVE_RTAPI_TASK_DELETE_HOOK
-    rtapi_task_delete_hook(task,task_id);
+    retval = rtapi_task_delete_hook(task,task_id);
 #endif
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     task->magic = 0;
     rtapi_mutex_give(&(rtapi_data->mutex));
-    return 0;
+    return retval;
 }
 
-static void wrapper(void *arg) {
+
+#ifdef HAVE_RTAPI_TASK_WRAPPER_HOOK
+void rtapi_task_wrapper_hook(task_data *task, int task_id);
+#endif
+
+#ifndef NO_RTAPI_TASK_WRAPPER
+void task_wrapper(void *arg) {
 
     int task_id = (int) arg;
     task_data *task = &task_array[task_id];
-#if defined(RTAPI_XENOMAI_USER)
-    int ret;
-#endif
 
     /* use the argument to point to the task data */
     if (task->period < period) task->period = period;
     task->ratio = task->period / period;
-    rtapi_print_msg(RTAPI_MSG_DBG, "wrapper: task %p '%s' period=%d prio=%d ratio=%d\n",
-		    task, task->name, task->ratio * period, task->prio, task->ratio);
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "rtapi_task_wrapper: task %p '%s' period=%d "
+		    "prio=%d ratio=%d\n",
+		    task, task->name, task->ratio * period,
+		    task->prio, task->ratio);
     
-#if defined(RTAPI_XENOMAI_USER)
-    ostask_self[task_id]  = rt_task_self();
-    
-    if ((ret = rt_task_set_periodic(NULL, 
-				    TM_NOW , 
-				    task->ratio * period)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
-			task_id, task->name, ret);
-	abort();
-    }
+#ifdef HAVE_RTAPI_TASK_WRAPPER_HOOK
+    rtapi_task_wrapper_hook(task, task_id);
 #endif
-    
+
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
     
-    rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: reached end of wrapper for task %d '%s'\n", 
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "ERROR: reached end of wrapper for task %d '%s'\n", 
 		    task_id, task->name);
 }
+wrapper_t rtapi_task_wrapper = &task_wrapper;
+#endif
+
 
 #ifdef HAVE_RTAPI_TASK_START_HOOK
 int rtapi_task_start_hook(task_data *task, int task_id);
@@ -304,6 +314,18 @@ int rtapi_task_pause(int task_id)
 
 }
 
+#ifdef HAVE_RTAPI_WAIT_HOOK
+void rtapi_wait_hook();
+#endif
+
+void rtapi_wait(void)
+{
+#ifdef HAVE_RTAPI_WAIT_HOOK
+    rtapi_wait_hook();
+#endif
+    return;
+}
+
 #ifdef HAVE_RTAPI_TASK_RESUME_HOOK
 int rtapi_task_resume_hook(task_data *task, int task_id);
 #endif
@@ -327,16 +349,18 @@ int rtapi_task_resume(int task_id)
 }
 
 
-#ifdef HAVE_RTAPI_WAIT_HOOK
-int rtapi_wait_hook();
+/* not defined in rt-preempt */
+#ifdef HAVE_RTAPI_TASK_SELF_HOOK
+int rtapi_task_self_hook();
 #endif
 
-void rtapi_wait(void)
-{
-#ifdef HAVE_RTAPI_WAIT_HOOK
-    rtapi_wait_hook();
+int rtapi_task_self(void) {
+#ifdef HAVE_RTAPI_TASK_SELF_HOOK
+    return rtapi_task_self_hook();
+#else
+    /* not implemented */
+    return -EINVAL;
 #endif
-    return;
 }
 
 #endif  /* RTAPI */

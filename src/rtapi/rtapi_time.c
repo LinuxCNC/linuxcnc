@@ -43,6 +43,9 @@ long int rtapi_clock_set_period(long int nsecs) {
 	return -EINVAL;
     }
 
+#ifdef RTAPI_TIME_NO_CLOCK_MONOTONIC
+    period = nsec;
+#else
     clock_getres(CLOCK_MONOTONIC, &res);
     period = (nsecs / res.tv_nsec) * res.tv_nsec;
     if (period < 1)
@@ -51,6 +54,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_clock_set_period (res=%ld) -> %d\n", res.tv_nsec,
 		    period);
+#endif
 
     return period;
 }
@@ -59,7 +63,13 @@ long int rtapi_clock_set_period(long int nsecs) {
 
 /* The following functions are common to both RTAPI and ULAPI */
 
-#ifdef RTAPI
+#ifdef HAVE_RTAPI_GET_TIME_HOOK
+long long int rtapi_get_time_hook(void);
+
+long long int rtapi_get_time(void) {
+    return rtapi_get_time_hook();
+}
+#elif defined(RTAPI)
 long long int rtapi_get_time(void) {
 
     struct timespec ts;
@@ -81,7 +91,11 @@ long long rtapi_get_time(void)
 long long int rtapi_get_clocks(void) {
     long long int retval;
 
+#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
+    retval = rtapi_get_clocks_hook();
+#else
     rdtscll(retval);
+#endif
     return retval;
 }
 
