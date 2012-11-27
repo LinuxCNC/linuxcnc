@@ -1081,7 +1081,6 @@ class Gscreen:
                     statustext = text
                 self.notify("INFO:",statustext,INFO_ICON)
             if "dialog" in type or "okdialog" in type:
-                self.notify("INFO:","Dialog Response Required",INFO_ICON)
                 self.halcomp[pinname + "-waiting"] = True
                 if "okdialog" in type:
                     self.warning_dialog(boldtext,True,text,pinname)
@@ -1674,14 +1673,13 @@ class Gscreen:
             dialog.destroy()
             raise NameError ('Dialog error - Is the dialog handler missing from the handler file?')
 
-    # dialog returns a response here
+    # message dialog returns a response here
     def dialog(self,widget,result,dialogtype,pinname):
         if not dialogtype: # yes/no dialog
             if result == gtk.RESPONSE_YES:result = True
             else: result = False
             self.halcomp[pinname + "-response"] = result
         self.halcomp[pinname + "-waiting"] = False
-        self.widgets.statusbar1.pop(self.statusbar_id)
         widget.destroy()
 
     # adds the embedded object to a notebook tab or box
