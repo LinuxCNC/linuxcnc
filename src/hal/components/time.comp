@@ -4,7 +4,10 @@ description
 """
 Cycle Timer
 
-Connect time.n.start to halui.is-running to complete the cycle timer.
+Each time the time.n.start is true the cycle timer resets and starts
+to time. If you connect time.n.start to halui.is-running to complete
+the cycle timer it will reset durning a pause. See the example connections
+below to keep the timer timing during a pause.
 
 The pyVCP code to display it might be like:
 <pyvcp>
