@@ -377,8 +377,8 @@ AC_ARG_ENABLE(gcc-atomic-ops,
                 AC_MSG_RESULT([using GCC's builtin atomic operations])
             ;;
             N*|n*)
-	        if "$TARGET_PLATFORM" = "raspberry" -o \( "$TARGET_PLATFORM" = "beaglebone" \); then
-		   AC_MSG_ERROR([ARM platforms need --enable-gcc-atomic-ops=yes])
+	        if test "$TARGET_PLATFORM" = "raspberry" -o \( "$TARGET_PLATFORM" = "beaglebone" \); then
+		   AC_MSG_ERROR([$TARGET_PLATFORM: ARM platforms need --enable-gcc-atomic-ops=yes])
 		fi
  		USE_GCC_ATOMIC_OPS=no
                 AC_MSG_RESULT([explicitly disabling GCC's builtin atomic operations])
@@ -389,8 +389,8 @@ AC_ARG_ENABLE(gcc-atomic-ops,
 	fi
     ],
     [
-      if "$TARGET_PLATFORM" = "raspberry" -o \( "$TARGET_PLATFORM" = "beaglebone" \); then
-          AC_MSG_RESULT([$TARGET_PLATFORM platform: forcing --enable-gcc-atomic-ops=yes])
+      if test "$TARGET_PLATFORM" = "raspberry" -o \( "$TARGET_PLATFORM" = "beaglebone" \); then
+          AC_MSG_RESULT([ARM platforms($TARGET_PLATFORM): forcing --enable-gcc-atomic-ops=yes])
 	  USE_GCC_ATOMIC_OPS=yes
       else
           AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
