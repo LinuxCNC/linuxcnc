@@ -1,3 +1,8 @@
+HALCOMP_SUBMAKEFILE= hal/components/Submakefile
+# for debugging this file - to prevent recompilation of
+# everything under the sun with every small change
+#HALCOMP_SUBMAKEFILE=
+
 ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
@@ -32,7 +37,7 @@ $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
-objects/%.mak: %.comp hal/components/Submakefile
+objects/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
 	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
@@ -66,73 +71,56 @@ USERSRCS += $(HALSAMPLERSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
 
-hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
 
-hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh float u32 "" 0 2147483647 < $< > $@
 
-hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh bit s32 // < $< > $@
 
-hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh bit u32 // < $< > $@
 
-hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh s32 float // < $< > $@
 
-hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh s32 bit "" 0 1 < $< > $@
 
-hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh s32 u32 "" 0 0 < $< > $@
 
-hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 float // < $< > $@
 
-hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 bit "" -1 1 < $< > $@
 
-hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
+
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 
 # support for ARM335x PRU (Programmable Realtime Unit) components and
-# supporting assembly fragments
-# before loading any PRU HAL driver/component, make sure uio_pross is insmoded
-PRU_SRCS := $(wildcard hal/components/*.p)
-# .bin files produced by PASM -b
-PRU_BINS := $(patsubst hal/components/%.p, ../rtlib/%.bin, $(PRU_SRCS))
+PRU_SUPPORT_DIR := hal/components/pru_support
 
+# The PRU assembler proper
 PASM := ../bin/pasm
 PASM_BINFLAGS := -b
 PASM_HFLAGS := -c
-
-# application loader UIO interface
-# compile into a shared library
-PRU_SUPPORT_DIR := hal/components/pru_support
-PRUSS_INC :=  $(PRU_SUPPORT_DIR)
-PRUSSDRV_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/, \
-	prussdrv.c)
-USERSRCS += $(PRUSSDRV_SRCS)
-$(call TOOBJSDEPS, $(PRUSSDRV_SRCS)) : EXTRAFLAGS= -D__DEBUG #-fPIC
-
-# PRU, prussdrv includes
-../include/%.h: $(PRU_SUPPORT_DIR)/%.h
-	cp $^ $@
-
-# The PRU assembler proper
 PASM_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/pasm/, \
 	pasm.c pasmpp.c pasmexp.c pasmop.c pasmdot.c pasmstruct.c pasmmacro.c)
 
@@ -142,22 +130,46 @@ $(call TOOBJSDEPS, $(PASM_SRCS)) : EXTRAFLAGS=-Wall -D_UNIX_
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^
 
-
 USERSRCS += $(PASM_SRCS)
 TARGETS += $(PASM)
 
-# assemble .p  into .bin object files
+# application loader UIO interface
+# the matching uio_pruss kernel module is part of the
+# kernel build
+PRUSS_INC :=  $(PRU_SUPPORT_DIR)
+PRUSSDRV_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/, \
+	prussdrv.c)
+$(call TOOBJSDEPS, $(PRUSSDRV_SRCS)) : EXTRAFLAGS= -D__DEBUG #-fPIC
+USERSRCS += $(PRUSSDRV_SRCS)
+
+# install PRU, prussdrv includes
+# not needed for now
+#../include/%.h: $(PRU_SUPPORT_DIR)/%.h
+#	cp $^ $@
+
+# Assembly of PRU code
+# the list of assembly source files
+PRU_SRCS := $(wildcard hal/components/*.p)
+
+# .bin files produced by PASM -b go in rtlib
+PRU_BINS := $(patsubst hal/components/%.p, ../rtlib/%.bin, $(PRU_SRCS))
+
+# also produce _bin.h files for inclusion by HAL comps
+PRU_CODE_SRCS := $(patsubst hal/components/%.p, hal/components/%_bin.h, $(PRU_SRCS))
+
+# both .bin and _bin.h files are targets
+TARGETS +=  $(PRU_BINS) $(PRU_CODE_SRCS)
+USERSRCS += $(PRU_SRCS)
+
+# conversion rules for the above
+# assemble .p  into .bin object files and _bin.h includes
 ../rtlib/%.bin: hal/components/%.p
-	$(ECHO) Assembling PRU code $(notdir $@)
+	$(ECHO) Assembling PRU code $@ #$(notdir $@)
 	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
 
-# include files produced by PASM -c
-# assemble .p into include files containg a named code array
-# assembly triggered by include dependency in HAL component
 hal/components/%_bin.h: hal/components/%.p
 	$(ECHO) Assembling PRU include  $@ # $(notdir $@)
-	$(Q)$(PASM) $(PASM_FLAGS) -C$(notdir $(basename $@))  $^ $(subst _bin,,$(basename $@))
+	$(Q)$(PASM) $(PASM_FLAGS) -C$(notdir $(basename $@))    \
+	$(subst _bin,,$(basename $@)).p $(subst _bin,,$(basename $@))
 
-USERSRCS += $(PRU_SRCS)
-TARGETS += $(PRU_BINS) # test: hal/components/maxrate_bin.h
 endif
