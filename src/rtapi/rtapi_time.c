@@ -7,6 +7,8 @@
 
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
+#include "rtapi_common.h"	// these functions
+
 #ifdef RTAPI
 #include <time.h>		// clock_getres(), clock_gettime()
 #else  /* ULAPI */
@@ -19,6 +21,7 @@
 
 
 // find a useable time stamp counter
+#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK  // only if thread system uses the default
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
 #elif defined(__i386__) || defined(__x86_64__)
@@ -28,13 +31,17 @@
 #warning No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
 #endif
+#endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
+
 
 #ifdef RTAPI  /* hide most functions from ULAPI */
 
 int period = 0;
 
 long int rtapi_clock_set_period(long int nsecs) {
+#ifndef RTAPI_TIME_NO_CLOCK_MONOTONIC
     struct timespec res = { 0, 0 };
+#endif
 
     if (nsecs == 0)
 	return period;
@@ -44,7 +51,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     }
 
 #ifdef RTAPI_TIME_NO_CLOCK_MONOTONIC
-    period = nsec;
+    period = nsecs;
 #else
     clock_getres(CLOCK_MONOTONIC, &res);
     period = (nsecs / res.tv_nsec) * res.tv_nsec;
@@ -88,14 +95,18 @@ long long rtapi_get_time(void)
 }
 #endif
 
+#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
+long long int rtapi_get_clocks_hook(void);
+#endif
+
 long long int rtapi_get_clocks(void) {
+#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
     long long int retval;
 
-#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-    retval = rtapi_get_clocks_hook();
-#else
     rdtscll(retval);
-#endif
     return retval;
+#else
+    return rtapi_get_clocks_hook();
+#endif
 }
 
