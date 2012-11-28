@@ -636,6 +636,25 @@ int prussdrv_exec_program(int prunum, char *filename)
     return 0;
 }
 
+int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen)
+{
+    unsigned int pru_ram_id;
+
+    if (prunum == 0)
+        pru_ram_id = PRUSS0_PRU0_IRAM;
+    else if (prunum == 1)
+        pru_ram_id = PRUSS0_PRU1_IRAM;
+    else
+        return -1;
+
+    // Make sure PRU sub system is first disabled/reset
+    prussdrv_pru_disable(prunum);
+    prussdrv_pru_write_memory(pru_ram_id, 0, (unsigned int *) code, codelen);
+    prussdrv_pru_enable(prunum);
+
+    return 0;
+}
+
 int prussdrv_start_irqthread(unsigned int pru_evtout_num, int priority,
                              prussdrv_function_handler irqhandler)
 {

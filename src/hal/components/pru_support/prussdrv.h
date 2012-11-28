@@ -150,6 +150,8 @@ extern "C" {
 
     int prussdrv_exec_program(int prunum, char *filename);
 
+    int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen);
+
     int prussdrv_start_irqthread(unsigned int pru_evtout_num, int priority,
                                  prussdrv_function_handler irqhandler);
 
