@@ -85,9 +85,7 @@ int rtapi_init(const char *modname)
 
 int rtapi_exit(int module_id)
 {
-#if defined(RTAPI_XENOMAI_USER)
   munlockall();
-#endif
   return 0;
 }
 
@@ -263,8 +261,7 @@ int rtapi_task_self_hook(void) {
 
 
 /*  RTAPI time functions */
-long long int rtapi_get_time_hook(void)
-{
+long long int rtapi_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see
        CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
@@ -276,8 +273,7 @@ long long int rtapi_get_time_hook(void)
    other disgusting, non-realtime oriented behavior.  But at least it
    doesn't take a week every time you call it.
 */
-long long int rtapi_get_clocks_hook(void)
-{
+long long int rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
 }
