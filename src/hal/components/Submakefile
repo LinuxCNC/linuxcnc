@@ -105,3 +105,59 @@ hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkc
 hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
+
+ifeq ($(TARGET_PLATFORM),beaglebone)
+
+# support for ARM335x PRU (Programmable Realtime Unit) components and
+# supporting assembly fragments
+# before loading any PRU HAL driver/component, make sure uio_pross is insmoded
+PRU_SRCS := $(wildcard hal/components/*.p)
+# .bin files produced by PASM -b
+PRU_BINS := $(patsubst hal/components/%.p, ../rtlib/%.bin, $(PRU_SRCS))
+
+PASM := ../bin/pasm
+PASM_BINFLAGS := -b
+PASM_HFLAGS := -c
+
+# application loader UIO interface
+# compile into a shared library
+PRU_SUPPORT_DIR := hal/components/pru_support
+PRUSS_INC :=  $(PRU_SUPPORT_DIR)
+PRUSSDRV_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/, \
+	prussdrv.c)
+USERSRCS += $(PRUSSDRV_SRCS)
+$(call TOOBJSDEPS, $(PRUSSDRV_SRCS)) : EXTRAFLAGS= -D__DEBUG #-fPIC
+
+# PRU, prussdrv includes
+../include/%.h: $(PRU_SUPPORT_DIR)/%.h
+	cp $^ $@
+
+# The PRU assembler proper
+PASM_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/pasm/, \
+	pasm.c pasmpp.c pasmexp.c pasmop.c pasmdot.c pasmstruct.c pasmmacro.c)
+
+$(call TOOBJSDEPS, $(PASM_SRCS)) : EXTRAFLAGS=-Wall -D_UNIX_
+
+../bin/pasm: $(call TOOBJS, $(PASM_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^
+
+
+USERSRCS += $(PASM_SRCS)
+TARGETS += $(PASM)
+
+# assemble .p  into .bin object files
+../rtlib/%.bin: hal/components/%.p
+	$(ECHO) Assembling PRU code $(notdir $@)
+	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
+
+# include files produced by PASM -c
+# assemble .p into include files containg a named code array
+# assembly triggered by include dependency in HAL component
+hal/components/%_bin.h: hal/components/%.p
+	$(ECHO) Assembling PRU include  $@ # $(notdir $@)
+	$(Q)$(PASM) $(PASM_FLAGS) -C$(notdir $(basename $@))  $^ $(subst _bin,,$(basename $@))
+
+USERSRCS += $(PRU_SRCS)
+TARGETS += $(PRU_BINS) # test: hal/components/maxrate_bin.h
+endif
