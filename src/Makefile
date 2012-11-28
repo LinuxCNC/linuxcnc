@@ -144,7 +144,12 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
+ifeq ($(TARGET_PLATFORM),beaglebone)
+# the beaglebone port adds .p (PRU assembly) source files, see hal/components
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p, $(USERSRCS)))
+else
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
+endif
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
@@ -672,6 +677,10 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	$(call cc-option,-Wframe-larger-than=2560) \
 	$(KERNEL_MATH_CFLAGS)
 
+ifeq ($(TARGET_PLATFORM),beaglebone)
+EXTRA_CFLAGS += -I$(BASEPWD)/hal/components/pru_support
+endif
+
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
 endif
@@ -755,6 +764,11 @@ obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
+
+ifeq ($(TARGET_PLATFORM),beaglebone)
+obj-m += hal_pru.o
+hal_pru-objs := hal/components/hal_pru.o hal/components/pru_support/prussdrv.o
+endif
 
 # Subdirectory: hal/drivers
 ifeq ($(BUILD_DRIVERS),yes)
@@ -1031,6 +1045,11 @@ ifeq ($(USERMODE_PCI),yes)
 ../rtlib/hm2_pci$(MODULE_EXT): $(addprefix objects/rt,$(hm2_pci-objs))
 #CS#../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
 endif
+
+ifeq ($(TARGET_PLATFORM),beaglebone)
+../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
+endif
+
 ifeq ($(TARGET_PLATFORM),raspberry)
 ../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
 endif
