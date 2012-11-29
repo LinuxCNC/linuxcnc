@@ -46,6 +46,8 @@
  * ============================================================================
  */
 
+#include "config.h"
+#include "rtapi.h"		/* RTAPI realtime OS API */
 
 #include <prussdrv.h>
 #include "__prussdrv.h"
@@ -55,6 +57,7 @@
 #define PRUSS_UIO_PARAM_VAL_LEN 20
 #define HEXA_DECIMAL_BASE 16
 
+static char *modname = "prussdrv"; // for error messages
 static tprussdrv prussdrv;
 
 int __prussdrv_memmap_init(void)
@@ -98,7 +101,7 @@ int __prussdrv_memmap_init(void)
     switch (prussdrv.version) {
     case PRUSS_V1:
         {
-            printf("AM18XX\n");
+	    rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM18XX detected\n", modname);
             prussdrv.pru0_dataram_phy_base = AM18XX_DATARAM0_PHYS_BASE;
             prussdrv.pru1_dataram_phy_base = AM18XX_DATARAM1_PHYS_BASE;
             prussdrv.intc_phy_base = AM18XX_INTC_PHYS_BASE;
@@ -112,7 +115,7 @@ int __prussdrv_memmap_init(void)
         break;
     case PRUSS_V2:
         {
-            printf("AM33XX\n");
+	    rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM33XX detected\n", modname);
             prussdrv.pru0_dataram_phy_base = AM33XX_DATARAM0_PHYS_BASE;
             prussdrv.pru1_dataram_phy_base = AM33XX_DATARAM1_PHYS_BASE;
             prussdrv.intc_phy_base = AM33XX_INTC_PHYS_BASE;
@@ -133,7 +136,8 @@ int __prussdrv_memmap_init(void)
         }
         break;
     default:
-        printf("UNKNOWN\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: __prussdrv_memmap_init: invalid pruss driver version %d\n",
+			modname, prussdrv.version);
     }
 
     prussdrv.pru1_dataram_base =
@@ -251,8 +255,9 @@ int prussdrv_open(unsigned int pru_evtout_num)
         prussdrv.fd[pru_evtout_num] = open(name, O_RDWR | O_SYNC);
         return __prussdrv_memmap_init();
     } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open(%d) failed\n",
+			modname, pru_evtout_num);
         return -1;
-
     }
 }
 
@@ -387,8 +392,8 @@ int prussdrv_pruintc_init(tpruss_intc_initdata * prussintc_init_data)
                 mask2 +
                 (1 << (prussintc_init_data->sysevts_enabled[i] - 32));
         } else {
-            printf("Error: SYS_EVT%d out of range\n",
-                   prussintc_init_data->sysevts_enabled[i]);
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_pruintc_init(): Error: SYS_EVT%d out of range\n",
+			modname, prussintc_init_data->sysevts_enabled[i]);
             return -1;
         }
     }
@@ -591,7 +596,7 @@ int prussdrv_exec_program(int prunum, char *filename)
 {
     FILE *fPtr;
     unsigned char fileDataArray[PRUSS_MAX_IRAM_SIZE];
-    int fileSize = 0;
+    int fileSize = 0, got;
     unsigned int pru_ram_id;
 
     if (prunum == 0)
@@ -604,27 +609,30 @@ int prussdrv_exec_program(int prunum, char *filename)
     // Open an File from the hard drive
     fPtr = fopen(filename, "rb");
     if (fPtr == NULL) {
-        printf("File %s open failed\n", filename);
-    } else {
-        printf("File %s open passed\n", filename);
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_exec_program(%d,%s): cant open file\n",
+			modname, prunum, filename);
+        return -1;
     }
     // Read file size
     fseek(fPtr, 0, SEEK_END);
     fileSize = ftell(fPtr);
 
     if (fileSize == 0) {
-        printf("File read failed.. Closing program\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_exec_program(%d,%s): file size is zero\n",
+		modname, prunum, filename);
         fclose(fPtr);
         return -1;
     }
 
     fseek(fPtr, 0, SEEK_SET);
+    got = fread((unsigned char *) fileDataArray, 1, fileSize, fPtr);
 
-    if (fileSize !=
-        fread((unsigned char *) fileDataArray, 1, fileSize, fPtr)) {
-        printf("WARNING: File Size mismatch\n");
+    if (fileSize != got)  {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_exec_program(%d,%s): file size mismatch - %d/%d\n",
+			modname, prunum, filename, fileSize, got);
+	fclose(fPtr);
+	return -1;
     }
-
     fclose(fPtr);
 
     // Make sure PRU sub system is first disabled/reset
