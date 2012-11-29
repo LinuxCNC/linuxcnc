@@ -2591,6 +2591,8 @@ commandTokenType lookupToken(char *s)
   return i;
 }
   
+// handle the linuxcncrsh command in context->inBuf
+// return 0 on success, -1 on error, and -2 on unknown command
 int parseCommand(connectionRecType *context)
 {
   int ret = 0;
@@ -2639,14 +2641,13 @@ int parseCommand(connectionRecType *context)
 
 void *readClient(void *arg)
 {
-  char str[1600];
   char buf[1600];
   unsigned int i, j;
   int len;
   connectionRecType *context;
-  
+
   signal(SIGPIPE, SIG_IGN);
-  
+
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2658,17 +2659,34 @@ void *readClient(void *arg)
   context->commMode = 0;
   context->commProt = 0;
   context->inBuf[0] = 0;
-  buf[0] = 0;
-  
+  buf[0] = '\0';
+
   while (1) {
-    len = read(context->cliSock, &str, 1600);
-    if (len <= 0) goto finished;
-    str[len] = 0;
-    strcat(buf, str);
-    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
+    int bytes_used_in_buf;
+    int bytes_free_in_buf;
+
+    bytes_used_in_buf = strlen(buf);
+    bytes_free_in_buf = sizeof(buf) - bytes_used_in_buf - 1;
+    if (bytes_free_in_buf <= 0) {
+      fprintf(stderr, "linuxcncrsh: out of space in input buffer\n");
+      goto finished;
+    }
+
+    len = read(context->cliSock, &buf[bytes_used_in_buf], bytes_free_in_buf);
+    if (len < 0) {
+      fprintf(stderr, "linuxcncrsh: error reading from client: %s\n", strerror(errno));
+      goto finished;
+    }
+    if (len == 0) {
+      printf("linuxcncrsh: eof from client\n");
+      goto finished;
+    }
+    buf[bytes_used_in_buf + len] = '\0';
+
+    if ((!memchr(&buf[bytes_used_in_buf], '\r', len)) && (!memchr(&buf[bytes_used_in_buf], '\n', len))) continue;
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
-        fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
+        fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
       }
     i = 0;
     j = 0;
@@ -2676,20 +2694,22 @@ void *readClient(void *arg)
       if ((buf[i] != '\n') && (buf[i] != '\r')) {
         context->inBuf[j] = buf[i];
 	j++;
+      } else {
+        if (j > 0) {
+          int r;
+          context->inBuf[j] = 0;
+          r = parseCommand(context);
+          if (r == -1) goto finished;
+          j = 0;
 	}
-      else
-        if (j > 0)
-          {
-  	    context->inBuf[j] = 0;
-            if (parseCommand(context) == -1) goto finished;
-	    j = 0;
-	}
-        i++;	
       }
+      i++;
+    }
     buf[0] = 0;
-    } 
+  }
 
 finished:
+  printf("linuxcncrsh: disconnecting client %s (%s)\n", context->hostName, context->version);
   close(context->cliSock);
   free(context);
   pthread_exit((void *)0);
