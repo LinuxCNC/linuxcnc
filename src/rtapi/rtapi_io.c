@@ -6,60 +6,77 @@
 *               info.
 ********************************************************************/
 
+#define RTAPI_IO		// for disabling parts of header files
+
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
 
+#include <sys/io.h>             /* in*(), out*() */
+
 #ifdef MODULE
 #include <linux/module.h>	// EXPORT_SYMBOL
-#else
-#include <sys/io.h>		/* inb(), outb(), inw(), outw() */
 #endif
 
+
 #ifdef HAVE_RTAPI_OUTB_HOOK
-void rtapi_outb_hook(unsigned char byte, unsigned int port);
-#endif
+extern inline void rtapi_outb_hook(unsigned char byte, unsigned int port);
 
 void rtapi_outb(unsigned char byte, unsigned int port) {
-#ifdef HAVE_RTAPI_OUTB_HOOK
     rtapi_outb_hook(byte,port);
-#endif
 }
+
+#else  /* default:  use outb() */
+void rtapi_outb(unsigned char byte, unsigned int port) {
+    outb(byte,port);
+}
+#endif
 
 
 #ifdef HAVE_RTAPI_INB_HOOK
-unsigned char rtapi_inb_hook(unsigned int port);
-#endif
+extern inline unsigned char rtapi_inb_hook(unsigned int port);
 
 unsigned char rtapi_inb(unsigned int port) {
-#ifdef HAVE_RTAPI_INB_HOOK
     return rtapi_inb_hook(port);
-#else
-    return 0;
-#endif
 }
+
+#else  /* default:  use inb() */
+unsigned char rtapi_inb(unsigned int port) {
+    return inb(port);
+}
+#endif
 
 
 #ifdef HAVE_RTAPI_OUTW_HOOK
-void rtapi_outw_hook(unsigned short word, unsigned int port);
-#endif
+extern inline void rtapi_outw_hook(unsigned short word, unsigned int port);
 
 void rtapi_outw(unsigned short word, unsigned int port) {
-#ifdef HAVE_RTAPI_OUTW_HOOK
     rtapi_outw_hook(word,port);
-#endif
 }
-
-
-#ifdef HAVE_RTAPI_INW_HOOK
-unsigned short rtapi_inw_hook(unsigned int port);
+#else  /* default:  use outw() */
+void rtapi_outw(unsigned short word, unsigned int port) {
+    outw(word,port);
+}
 #endif
 
-unsigned short rtapi_inw(unsigned int port)
-{
+
 #ifdef HAVE_RTAPI_INW_HOOK
+extern inline unsigned short rtapi_inw_hook(unsigned int port);
+
+unsigned short rtapi_inw(unsigned int port) {
     return rtapi_inw_hook(port);
-#else
-    return inw(port);
-#endif
 }
+
+#else /* default:  use inw() */
+unsigned short rtapi_inw(unsigned int port) {
+    return inw(port);
+}
+#endif
+
+
+#ifdef MODULE
+EXPORT_SYMBOL(rtapi_outb);
+EXPORT_SYMBOL(rtapi_inb);
+EXPORT_SYMBOL(rtapi_outw);
+EXPORT_SYMBOL(rtapi_inw);
+#endif
