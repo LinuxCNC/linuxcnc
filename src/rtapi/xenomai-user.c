@@ -8,7 +8,6 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
-#include <sys/io.h>             /* inb, outb */
 #include <sys/mman.h>		/* munlockall() */
 #include <native/timer.h>	/* rt_timer_*() */
 
@@ -276,14 +275,4 @@ long long int rtapi_get_time_hook(void) {
 long long int rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
-}
-
-
-/*  RTAPI I/O functions */
-void rtapi_outb_hook(unsigned char byte, unsigned int port) {
-    outb(byte,port);
-}
-
-unsigned char rtapi_inb_hook(unsigned int port) {
-    return inb(port);
 }

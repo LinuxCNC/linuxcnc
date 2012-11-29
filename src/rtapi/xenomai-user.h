@@ -4,14 +4,17 @@
 *               the Xenomai user land thread system
 ********************************************************************/
 
-#define REV_CODE 3	// see rtapi_common.h
-
+#include <native/task.h>	/* RT_TASK */
 #include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
-/* this needs to be fixed in rtapi_common.h
+
+
+/* rtapi_common.h */
+#define REV_CODE 3
+
+/* this needs to be fixed
 #undefine RTAPI_NAME_LEN
 #define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
 */
-
 
 /* add some fields to rtapi_data_t:
    rt_wait_error:		release point missed
@@ -24,15 +27,14 @@
 /* ...and a hook to initialize it: */
 #define HAVE_INIT_RTAPI_DATA_HOOK
 
-#include <native/task.h>	/* RT_TASK */
 #define THREAD_TASK_DATA RT_TASK *self;
 
+
+/* rtapi_task.c */
 // Xenomai rt_task priorities are 0: lowest .. 99: highest
 #define PRIO_LOWEST 0
 #define PRIO_HIGHEST 99
 
-
-/* rtapi_task hooks */
 #define HAVE_RTAPI_TASK_DELETE_HOOK
 #define HAVE_RTAPI_TASK_WRAPPER_HOOK
 #define HAVE_RTAPI_TASK_START_HOOK
@@ -43,12 +45,7 @@
 #define HAVE_RTAPI_TASK_SELF_HOOK
 
 
-/* rtapi_io hooks */
-#define HAVE_RTAPI_OUTB_HOOK
-#define HAVE_RTAPI_INB_HOOK
-
-
-/* rtapi_time hooks */
+/* rtapi_time.c */
 #define RTAPI_TIME_NO_CLOCK_MONOTONIC  // Xenomai has its own time features
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_GET_CLOCKS_HOOK
