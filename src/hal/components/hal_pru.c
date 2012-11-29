@@ -14,6 +14,9 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
+// load this PRU code (prefixed by EMC_RTLIB_DIR)
+#define  DEFAULT_CODE  "blinkleds.bin"
+
 #include "prussdrv.h"           // UIO interface to uio_pruss
 #include "pru.h"                // PRU-related defines
 #include "pruss_intc_mapping.h"
@@ -25,26 +28,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-// the code blob assembled from hal/components/maxrate.p
-// this looks like so:
-// const unsigned int maxrate_bin[] =  {
-//     0x1f0ffefe,
-//     0x1d0ffefe,
-//     0x21000000 };
-
-// PRU assembly code generated from maxrate.p
-
-#include "blinkleds_bin.h"
-
-#define PRU_CODE blinkleds_bin
-#define PRU_CODE_SIZE sizeof(blinkleds_bin)
-
 MODULE_AUTHOR("Michael Haberler");
-MODULE_DESCRIPTION("ARM335x PRU demo component");
+MODULE_DESCRIPTION("AM335x PRU demo component");
 MODULE_LICENSE("GPL");
 
 static char *prucode = "";
-RTAPI_MP_STRING(prucode, "alternative filename of PRU code (.bin), default: use compiled in code");
+RTAPI_MP_STRING(prucode, "filename of PRU code (.bin), default: blinkleds.bin");
 
 static int pru = 0;
 RTAPI_MP_INT(pru, "PRU number to execute this code in, default 0; values 0 or 1");
@@ -75,7 +64,7 @@ static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 ************************************************************************/
 static int export_pru(hal_pru_ptr addr);
 static void update_pru(void *arg, long l);
-static int setup_pru(int pru, char *filename, const unsigned int *code, int codelen);
+static int setup_pru(int pru, char *filename);
 static void pru_shutdown(int pru);
 
 /***********************************************************************
@@ -91,7 +80,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_init() failed\n", modname);
 	return -1;
     }
-    /* allocate shared memory for supply data */
+    /* allocate shared memory for HAL data */
     hal_pru = hal_malloc(sizeof(hal_pru_t));
     if (hal_pru == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -106,7 +95,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    if ((retval = setup_pru(pru, prucode, PRU_CODE, PRU_CODE_SIZE))) {
+    if ((retval = setup_pru(pru, prucode))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: ERROR: failed to initialize PRU\n", modname);
 	    hal_exit(comp_id);
@@ -206,7 +195,7 @@ static int assure_module_loaded(const char *module)
     return 0;
 }
 
-static int setup_pru(int pru, char *filename, const unsigned int *code, int codelen)
+static int setup_pru(int pru, char *filename)
 {
     int retval;
 
@@ -237,13 +226,12 @@ static int setup_pru(int pru, char *filename, const unsigned int *code, int code
     pru_data_mem[2] = 0;
     pru_data_mem[3] = 1;
 
-    if (strlen(filename) > 0) {
-	// Load and execute binary on PRU
-	prussdrv_exec_program (pru, filename);
-    } else {
-	prussdrv_exec_code(pru, code, codelen);
-    }
-    return 0;
+    // Load and execute binary on PRU
+    if (!strlen(filename))
+	filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
+    retval =  prussdrv_exec_program (pru, filename);
+
+    return retval;
 }
 
 static void pru_shutdown(int pru)
