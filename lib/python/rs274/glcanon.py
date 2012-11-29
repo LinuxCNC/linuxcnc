@@ -1313,11 +1313,6 @@ class GlCanonDraw:
 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
-                positions = self.from_internal_units(positions, 1)
-                axisdtg = self.from_internal_units(axisdtg, 1)
-                g5x_offset = self.from_internal_units(g5x_offset, 1)
-                g92_offset = self.from_internal_units(g92_offset, 1)
-                tlo_offset = self.from_internal_units(tlo_offset, 1)
                 format = "% 6s:% 9.3f"
                 droformat = " " + format + "  DTG %1s:% 9.3f"
                 offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
