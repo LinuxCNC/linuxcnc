@@ -146,7 +146,7 @@ typedef struct {
     void *arg;			/* task argument */
     int cpu;
 #ifdef THREAD_TASK_DATA
-    THREAD_TASK_DATA		/* task data defined in thread system */
+    THREAD_TASK_DATA;		/* task data defined in thread system */
 #endif
 } task_data;
 

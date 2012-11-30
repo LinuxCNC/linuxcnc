@@ -33,7 +33,7 @@ typedef struct {
     unsigned long majfault_base;
     unsigned int failures;
 } thread_task_data;
-#define THREAD_TASK_DATA thread_task_data tdata;
+#define THREAD_TASK_DATA thread_task_data tdata
 
 // extra module data
 #define THREAD_MODULE_DATA int magic;

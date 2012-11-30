@@ -27,7 +27,7 @@
 /* ...and a hook to initialize it: */
 #define HAVE_INIT_RTAPI_DATA_HOOK
 
-#define THREAD_TASK_DATA RT_TASK *self;
+#define THREAD_TASK_DATA RT_TASK *self
 
 
 /* rtapi_task.c */
