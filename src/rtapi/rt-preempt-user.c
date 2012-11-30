@@ -425,6 +425,7 @@ int rtapi_wait_hook(void)
 {
     struct timespec ts;
     task_data *task = rtapi_this_task();
+    message_level_t msg_level = RTAPI_MSG_NONE;
 
     if (task->tdata.deleted)
 	pthread_exit(0);
@@ -439,8 +440,6 @@ int rtapi_wait_hook(void)
     if (ts.tv_sec > task->tdata.next_time.tv_sec
 	|| (ts.tv_sec == task->tdata.next_time.tv_sec
 	    && ts.tv_nsec > task->tdata.next_time.tv_nsec)) {
-	int msg_level = RTAPI_MSG_NONE;
-
 	task->tdata.failures++;
 	if (task->tdata.failures == 1)
 	    msg_level = RTAPI_MSG_ERR;
