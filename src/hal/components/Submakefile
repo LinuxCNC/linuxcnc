@@ -119,8 +119,7 @@ PRU_SUPPORT_DIR := hal/components/pru_support
 
 # The PRU assembler proper
 PASM := ../bin/pasm
-PASM_BINFLAGS := -b
-PASM_HFLAGS := -c
+PASM_BINFLAGS := -b -L  # .bin output, create listing
 PASM_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/pasm/, \
 	pasm.c pasmpp.c pasmexp.c pasmop.c pasmdot.c pasmstruct.c pasmmacro.c)
 

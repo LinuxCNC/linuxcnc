@@ -44,6 +44,8 @@ RTAPI_MP_INT(pru, "PRU number to execute this code in, default 0; values 0 or 1"
 
 typedef struct {
     hal_bit_t *enable;		// pin: enable PRU pin wiggling
+    hal_bit_t *dump;		// pin: trigger register dump
+    hal_bit_t prev_dump;
     hal_u32_t *speed;		// pin: parameter for PRU code
 } hal_pru_t, *hal_pru_ptr;
 
@@ -56,8 +58,9 @@ static int comp_id;		/* component ID */
 static const char *modname = MODNAME;
 
 // shared with PRU
-static unsigned char *pru_data_mem;     // points to PRU data RAM
+static unsigned char *pru_data_ram;     // points to PRU data RAM
 static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+static tprussdrv *pruss;                // driver descriptor
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -66,6 +69,7 @@ static int export_pru(hal_pru_ptr addr);
 static void update_pru(void *arg, long l);
 static int setup_pru(int pru, char *filename);
 static void pru_shutdown(int pru);
+static void read_pru_state();
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -119,11 +123,16 @@ void rtapi_app_exit(void)
 static void update_pru(void *arg, long l)
 {
     hal_pru_ptr p = (hal_pru_ptr) arg;
-    pru_data_mem[0] = *(p->enable);
-    pru_data_mem[1] = *(p->enable);
-    pru_data_mem[2] = *(p->enable);
 
-    // pru_data_mem[3] =
+    if (*(p->dump) ^ p->prev_dump)
+	read_pru_state(pru);
+
+    pru_data_ram[0] = *(p->enable);
+    pru_data_ram[1] = *(p->enable);
+    pru_data_ram[2] = *(p->enable);
+
+    // pru_data_ram[3] =
+    p->prev_dump =  *(p->dump);
 }
 
 /***********************************************************************
@@ -140,12 +149,18 @@ static int export_pru(hal_pru_ptr addr)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->dump), comp_id, "%s.dump", modname);
+    if (retval != 0) {
+	return retval;
+    }
     retval = hal_pin_u32_newf(HAL_IN, &(addr->speed), comp_id, "%s.speed", modname);
     if (retval != 0) {
 	return retval;
     }
     /* init all structure members */
     *(addr->enable) = 0;
+    *(addr->dump) = 0;
+    addr->prev_dump = 0;
     *(addr->speed) = 0;
 
     /* export function  */
@@ -158,6 +173,45 @@ static int export_pru(hal_pru_ptr addr)
 	return -1;
     }
     return 0;
+}
+
+static void read_pru_state(int pru)
+{
+    int i, running;
+    volatile unsigned long *ctrl, *reg;
+
+    ctrl = pru ? pruss->pru1_control_base : pruss->pru0_control_base;
+
+#define RUNNING (ctrl[0] & (1 << 15)) //RUNSTATE
+    running = RUNNING;
+
+    while (RUNNING)
+	ctrl[0] &= ~(1 << 1); // clear enable
+    // prussdrv_pru_disable(pru); // this resets the cpu!
+
+    printf("CONTROL = %8.8lx %s\n", ctrl[0], running ? "running" : "halted" );
+    printf("PC = %8.8lx (%ld)\n", ctrl[1], ctrl[1]);
+    printf("WAKEUP_EN = %8.8lx\n", ctrl[2]);
+    printf("CYCLE = %8.8lx\n", ctrl[3]);
+    printf("STALL = %8.8lx\n", ctrl[4]);
+    printf("CTBIR0 = %8.8lx\n", ctrl[8]);
+    printf("CTBIR1 = %8.8lx\n", ctrl[9]);
+    printf("CTPPR0 = %8.8lx\n", ctrl[10]);
+    printf("CTPPR1 = %8.8lx\n", ctrl[11]);
+
+    reg = pru ? pruss->pru1_debug_base : pruss->pru0_debug_base;
+
+    for (i = 0; i < 32; i++) {
+	printf("R%-2d = %8.8lx  ", i,reg[i]);
+	if ((i & 3) == 3)
+	    printf("\n");
+    }
+    // for (i = 32; i < 64; i++)
+    for (i = 32; i < 34; i++)
+	printf("CT_REG%d = %8.8lx\n", i-32, reg[i]);
+
+    if (running)
+	ctrl[0] |= (1 << 1);
 }
 
 static int assure_module_loaded(const char *module)
@@ -185,7 +239,7 @@ static int assure_module_loaded(const char *module)
     fclose(fd);
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: loading module '%s'\n",
 		    modname, module);
-    sprintf(line, "modprobe %s", module);
+    sprintf(line, "/sbin/modprobe %s", module);
     if ((retval = system(line))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: executing '%s'  %d - %s\n",
@@ -210,21 +264,42 @@ static int setup_pru(int pru, char *filename)
 
     // Allocate and initialize memory
     prussdrv_init ();
+
     // opens an event out and initializes memory mapping
     prussdrv_open (PRU_EVTOUT_0);
+
+    // expose the driver data, filled in by prussdrv_open
+    pruss = prussdrv_self();
 
     // Map PRU's INTC
     prussdrv_pruintc_init(&pruss_intc_initdata);
 
     // Maps the PRU DRAM memory to input pointer
     prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
-			(void **) &pru_data_mem);
+			(void **) &pru_data_ram);
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
+		    modname, pru_data_ram);
+#if 1
+    printf("intc_base = %p %x\n", pruss->intc_base,
+	   (unsigned char*)  pruss->intc_base -pru_data_ram);
+    printf("pru0_control_base = %p %x\n", pruss->pru0_control_base,
+	   (unsigned char*)pruss->pru0_control_base - pru_data_ram);
+    printf("pru0_debug_base = %p %x\n", pruss->pru0_debug_base,
+	   (unsigned char*)pruss->pru0_debug_base - pru_data_ram);
+    printf("pru1_iram_base = %p %x\n", pruss->pru1_iram_base,
+	   (unsigned char*)pruss->pru1_iram_base -  pru_data_ram);
+    printf("pruss_sharedram_base = %p %x\n", pruss->pruss_sharedram_base,
+	   (unsigned char*)pruss->pruss_sharedram_base -  pru_data_ram);
+    printf("pruss_cfg_base = %p %x\n", pruss->pruss_cfg_base,
+	   (unsigned char*)pruss->pruss_cfg_base - pru_data_ram);
+#endif
 
     // setup dataram as expected by blinkleds.p
-    pru_data_mem[0] = 0;
-    pru_data_mem[1] = 0;
-    pru_data_mem[2] = 0;
-    pru_data_mem[3] = 1;
+    pru_data_ram[0] = 0;
+    pru_data_ram[1] = 0;
+    pru_data_ram[2] = 0;
+    pru_data_ram[3] = 1;
 
     // Load and execute binary on PRU
     if (!strlen(filename))
