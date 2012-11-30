@@ -12,9 +12,7 @@
 #if defined(BUILD_SYS_USER_DSO)
 EXPORT_SYMBOL(rtapi_app_main);
 EXPORT_SYMBOL(rtapi_app_exit);
-#else
-#include <linux/module.h>
-
+#else  /*  BUILD_SYS_KBUILD  */
 #define rtapi_app_main(a) init_module(a)
 #define rtapi_app_exit(a) cleanup_module(a)
 #endif
