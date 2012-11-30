@@ -32,7 +32,7 @@ typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 #define COUNTER_ENABLE (1 << 3)
 #define SLEEPING (1 << 2)
 #define ENABLE (1 << 1)
-#define SOFT_RST_N (1 << 1)
+#define SOFT_RST_N (1 << 0)
 
 // a void * to the PRU's control base
 #define CTRLBASE(pru) (pru ? (PRUSSDESC)->pru1_control_base : (PRUSSDESC)->pru0_control_base)
@@ -53,7 +53,7 @@ typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 #define PRU_ENABLE(pru) (SETCTRL(pru, ENABLE))
 #define PRU_SET_STEPPING(pru) (SETCTRL(pru, SINGLE_STEP))
 #define PRU_CLEAR_STEPPING(pru) (CLRCTRL(pru, SINGLE_STEP))
-#define PRU_RESET(pru) (SETCTRL(pru, SOFT_RST_N))
+#define PRU_RESET(pru) (CLRCTRL(pru, SOFT_RST_N))
 
 #define PC_AT_RESET(pru) (PCOUNTER_RST_VAL(*CONTROL_REG(pru)))
 #define CURRENT_PC(pru) (*(CONTROL_REG(pru)+1))
@@ -75,15 +75,28 @@ RTAPI_MP_STRING(prucode, "filename of PRU code (.bin), default: blinkleds.bin");
 static int pru = 0;
 RTAPI_MP_INT(pru, "PRU number to execute this code in, default 0; values 0 or 1");
 
+static int disabled = 0;
+RTAPI_MP_INT(disabled, "start the PRU in disabled state (for debugging); default: enabled");
+
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
 typedef struct {
     hal_bit_t *enable;		// pin: enable PRU pin wiggling
+    hal_u32_t *speed;		// pin: parameter for PRU code
+
+    // PRU control
     hal_bit_t *dump;		// pin: trigger register dump
     hal_bit_t prev_dump;
-    hal_u32_t *speed;		// pin: parameter for PRU code
+    hal_bit_t *step;
+    hal_bit_t prev_step;
+    hal_bit_t *_continue;
+    hal_bit_t prev_continue;
+    hal_bit_t *halt;
+    hal_bit_t prev_halt;
+    hal_bit_t *reset;
+    hal_bit_t prev_reset;
 } hal_pru_t, *hal_pru_ptr;
 
 hal_pru_ptr hal_pru;
@@ -104,7 +117,7 @@ static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 ************************************************************************/
 static int export_pru(hal_pru_ptr addr);
 static void update_pru(void *arg, long l);
-static int setup_pru(int pru, char *filename);
+static int setup_pru(int pru, char *filename, int disabled);
 static void pru_shutdown(int pru);
 static void read_pru_state();
 
@@ -136,7 +149,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    if ((retval = setup_pru(pru, prucode))) {
+    if ((retval = setup_pru(pru, prucode, disabled))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: ERROR: failed to initialize PRU\n", modname);
 	    hal_exit(comp_id);
@@ -161,15 +174,38 @@ static void update_pru(void *arg, long l)
 {
     hal_pru_ptr p = (hal_pru_ptr) arg;
 
-    if (*(p->dump) ^ p->prev_dump)
+    if ((*(p->dump) ^ p->prev_dump) && *(p->dump))  // on rising edge
 	read_pru_state(pru);
 
+    if ((*(p->halt) ^ p->prev_halt) && *(p->halt)) {
+	while (IS_RUNNING(pru))
+	    PRU_DISABLE(pru);
+    }
+    if ((*(p->step) ^ p->prev_step) && *(p->step))  {
+	PRU_SET_STEPPING(pru);
+    }
+    if ((*(p->step) ^ p->prev_step) && !*(p->step))  {
+	PRU_CLEAR_STEPPING(pru);
+    }
+
+    if ((*(p->reset) ^ p->prev_reset) && *(p->reset))  {
+	PRU_RESET(pru);
+    }
+    if ((*(p->_continue) ^ p->prev_continue) && *(p->_continue))  {
+	PRU_ENABLE(pru);
+    }
+
+    // tracking variables for edge detection
+    p->prev_halt = *(p->halt);
+    p->prev_step =  *(p->step);
+    p->prev_continue = *(p->_continue);
+    p->prev_dump =  *(p->dump);
+    p->prev_reset =*(p->reset);
+
+    // feeding params down to PRU ram
     pru_data_ram[0] = *(p->enable);
     pru_data_ram[1] = *(p->enable);
     pru_data_ram[2] = *(p->enable);
-
-    // pru_data_ram[3] =
-    p->prev_dump =  *(p->dump);
 }
 
 /***********************************************************************
@@ -186,6 +222,22 @@ static int export_pru(hal_pru_ptr addr)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->step), comp_id, "%s.step", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->halt), comp_id, "%s.halt", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->_continue), comp_id, "%s.continue", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id, "%s.reset", modname);
+    if (retval != 0) {
+	return retval;
+    }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->dump), comp_id, "%s.dump", modname);
     if (retval != 0) {
 	return retval;
@@ -196,9 +248,14 @@ static int export_pru(hal_pru_ptr addr)
     }
     /* init all structure members */
     *(addr->enable) = 0;
-    *(addr->dump) = 0;
-    addr->prev_dump = 0;
     *(addr->speed) = 0;
+
+    // PRU control pins
+    *(addr->dump) = addr->prev_dump = 0;
+    *(addr->halt) = addr->prev_halt = 0;
+    *(addr->step) = addr->prev_step = 0;
+    *(addr->_continue) = addr->prev_continue = 0;
+    *(addr->reset) = addr->prev_reset = 0;
 
     /* export function  */
     rtapi_snprintf(buf, sizeof(buf), "%s.update", modname);
@@ -290,7 +347,7 @@ static int assure_module_loaded(const char *module)
     return 0;
 }
 
-static int setup_pru(int pru, char *filename)
+static int setup_pru(int pru, char *filename, int disabled)
 {
     int retval;
 
@@ -331,7 +388,7 @@ static int setup_pru(int pru, char *filename)
     // Load and execute binary on PRU
     if (!strlen(filename))
 	filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
-    retval =  prussdrv_exec_program (pru, filename);
+    retval =  prussdrv_exec_program (pru, filename, disabled);
 
     return retval;
 }
