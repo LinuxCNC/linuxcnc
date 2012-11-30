@@ -276,7 +276,7 @@ int rtapi_task_stop(int task_id)
 {
     task_data *task;
 
-    if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
 
@@ -298,7 +298,7 @@ int rtapi_task_pause_hook(task_data *task, int task_id);
 int rtapi_task_pause(int task_id)
 {
     task_data *task;
-    if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
   
@@ -333,7 +333,7 @@ int rtapi_task_resume_hook(task_data *task, int task_id);
 int rtapi_task_resume(int task_id)
 {
     task_data *task;
-    if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
   
