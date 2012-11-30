@@ -50,7 +50,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 
 #include <prussdrv.h>
-#include "__prussdrv.h"
 #include <pthread.h>
 
 #define PRUSS_UIO_PRAM_PATH_LEN 128
@@ -59,6 +58,47 @@
 
 static char *modname = "prussdrv"; // for error messages
 static tprussdrv prussdrv;
+
+tprussdrv *prussdrv_self()
+{
+    return &prussdrv;
+}
+
+
+int __pruss_detect_hw_version(unsigned int *pruss_io)
+{
+
+    if (pruss_io[(AM18XX_INTC_PHYS_BASE - AM18XX_DATARAM0_PHYS_BASE) >> 2]
+        == AM18XX_PRUSS_INTC_REV)
+        return PRUSS_V1;
+    else {
+        if (pruss_io
+            [(AM33XX_INTC_PHYS_BASE - AM33XX_DATARAM0_PHYS_BASE) >> 2] ==
+            AM33XX_PRUSS_INTC_REV)
+            return PRUSS_V2;
+        else
+            return -1;
+    }
+}
+
+void __prussintc_set_cmr(unsigned int *pruintc_io, unsigned short sysevt,
+                         unsigned short channel)
+{
+    pruintc_io[(PRU_INTC_CMR1_REG + (sysevt & ~(0x3))) >> 2] |=
+        ((channel & 0xF) << ((sysevt & 0x3) << 3));
+
+}
+
+
+void __prussintc_set_hmr(unsigned int *pruintc_io, unsigned short channel,
+                         unsigned short host)
+{
+    pruintc_io[(PRU_INTC_HMR1_REG + (channel & ~(0x3))) >> 2] =
+        pruintc_io[(PRU_INTC_HMR1_REG +
+                    (channel & ~(0x3))) >> 2] | (((host) & 0xF) <<
+                                                 (((channel) & 0x3) << 3));
+
+}
 
 int __prussdrv_memmap_init(void)
 {
@@ -116,6 +156,7 @@ int __prussdrv_memmap_init(void)
     case PRUSS_V2:
         {
 	    rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM33XX detected\n", modname);
+
             prussdrv.pru0_dataram_phy_base = AM33XX_DATARAM0_PHYS_BASE;
             prussdrv.pru1_dataram_phy_base = AM33XX_DATARAM1_PHYS_BASE;
             prussdrv.intc_phy_base = AM33XX_INTC_PHYS_BASE;
@@ -262,7 +303,17 @@ int prussdrv_open(unsigned int pru_evtout_num)
 }
 
 
-
+int prussdrv_pru_running(unsigned int prunum)
+{
+    unsigned int *prucontrolregs;
+    if (prunum == 0)
+        prucontrolregs = (unsigned int *) prussdrv.pru0_control_base;
+    else if (prunum == 1)
+        prucontrolregs = (unsigned int *) prussdrv.pru1_control_base;
+    else
+        return 0;
+    return *(prucontrolregs+1) &  (1 << 15);
+}
 
 int prussdrv_pru_reset(unsigned int prunum)
 {
