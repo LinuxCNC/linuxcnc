@@ -20,7 +20,6 @@
 #include <unistd.h>		/* getuid(), getgid(), sysconf(),
 				   ssize_t, _SC_PAGESIZE */
 
-#define MAX_SHM 64
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 #define SHM_PERMISSIONS	0666
 
@@ -54,7 +53,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     int is_new = 0;
 
     rtapi_shmem_array_lock();
-    for (i=0 ; i < MAX_SHM; i++) {
+    for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
 	if (shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
 	    shmem_array[i].count ++;
 	    rtapi_shmem_array_unlock();
@@ -63,10 +62,10 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	if (shmem_array[i].magic != SHMEM_MAGIC)
 	    break;
     }
-    if (i == MAX_SHM) {
+    if (i == RTAPI_MAX_SHMEMS) {
 	rtapi_shmem_array_unlock();
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new failed due to MAX_SHM\n");
+			"rtapi_shmem_new failed due to RTAPI_MAX_SHMEMS\n");
 	return -ENOMEM;
     }
     shmem = &shmem_array[i];
@@ -153,7 +152,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 int rtapi_shmem_getptr(int handle, void **ptr)
 {
     shmem_data *shmem;
-    if (handle < 0 || handle >= MAX_SHM)
+    if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
 
     shmem = &shmem_array[handle];
@@ -174,7 +173,7 @@ int rtapi_shmem_delete(int handle, int module_id)
     int r1, r2;
     shmem_data *shmem;
 
-    if(handle < 0 || handle >= MAX_SHM)
+    if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
 
     rtapi_shmem_array_lock();
