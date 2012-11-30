@@ -570,7 +570,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	turn on/off mist.
 
 `mode(int)`::
-	set mode (MDI, manual, auto).
+	set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
 
 `override_limits()`::
 	set the override axis limits flag.
