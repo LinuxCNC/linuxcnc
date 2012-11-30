@@ -23,27 +23,11 @@
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 #define SHM_PERMISSIONS	0666
 
-unsigned long shmem_array_mutex;
 
-/* shmem array mutex functions */
-/* if the thread system provides these, declare a prototype */
-/* test using bitops for this */
-#ifdef HAVE_RTAPI_SHMEM_ARRAY_LOCK_TEST
-void rtapi_shmem_array_lock();
-#else
-inline void rtapi_shmem_array_lock() {
-    rtapi_mutex_get(&(rtapi_data->mutex));
-}
-#endif
-
-#ifdef HAVE_RTAPI_SHMEM_ARRAY_UNLOCK_TEST
-void rtapi_shmem_array_unlock();
-#else
-inline void rtapi_shmem_array_unlock() {
-    rtapi_mutex_give(&(rtapi_data->mutex));
-}
-#endif
-
+#ifndef MODULE
+/***********************************************************************
+*                           USERLAND THREADS                           *
+************************************************************************/
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
@@ -52,18 +36,18 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     int i, ret;
     int is_new = 0;
 
-    rtapi_shmem_array_lock();
+    rtapi_mutex_get(&(rtapi_data->mutex));
     for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
 	if (shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
 	    shmem_array[i].count ++;
-	    rtapi_shmem_array_unlock();
+	    rtapi_mutex_give(&(rtapi_data->mutex));
 	    return i;
 	}
 	if (shmem_array[i].magic != SHMEM_MAGIC)
 	    break;
     }
     if (i == RTAPI_MAX_SHMEMS) {
-	rtapi_shmem_array_unlock();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_new failed due to RTAPI_MAX_SHMEMS\n");
 	return -ENOMEM;
@@ -81,7 +65,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    is_new = 1;
 	}
 	if (shmem->id == -1) {
-	    rtapi_shmem_array_unlock();
+	    rtapi_mutex_give(&(rtapi_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "Failed to allocate shared memory, "
 			    "key=0x%x size=%ld\n", key, size);
@@ -112,7 +96,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* and map it into process space */
     shmem->mem = shmat(shmem->id, 0, 0);
     if ((ssize_t) (shmem->mem) == -1) {
-	rtapi_shmem_array_unlock();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
 			shmem->id, errno, strerror(errno));
@@ -142,7 +126,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem->key = key;
     shmem->count = 1;
 
-    rtapi_shmem_array_unlock();
+    rtapi_mutex_give(&(rtapi_data->mutex));
 
     /* return handle to the caller */
     return i;
@@ -176,18 +160,18 @@ int rtapi_shmem_delete(int handle, int module_id)
     if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
 
-    rtapi_shmem_array_lock();
+    rtapi_mutex_get(&(rtapi_data->mutex));
     shmem = &shmem_array[handle];
 
     /* validate shmem handle */
     if (shmem->magic != SHMEM_MAGIC) {
-	rtapi_shmem_array_unlock();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
 
     shmem->count --;
     if(shmem->count) {
-	rtapi_shmem_array_unlock();
+	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi_shmem_delete: handle=%d module=%d key=0x%x:  "
 			"%d remaining users\n", 
@@ -224,7 +208,7 @@ int rtapi_shmem_delete(int handle, int module_id)
     /* free the shmem structure */
     shmem->magic = 0;
 
-    rtapi_shmem_array_unlock();
+    rtapi_mutex_give(&(rtapi_data->mutex));
 
     if ((r1 != 0) || (r2 != 0))
 	return -EINVAL;
