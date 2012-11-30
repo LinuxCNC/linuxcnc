@@ -113,6 +113,8 @@ extern "C" {
 
     int prussdrv_pru_reset(unsigned int prunum);
 
+    int prussdrv_pru_running(unsigned int prunum);
+
     int prussdrv_pru_disable(unsigned int prunum);
 
     int prussdrv_pru_enable(unsigned int prunum);
@@ -154,6 +156,10 @@ extern "C" {
 
     int prussdrv_start_irqthread(unsigned int pru_evtout_num, int priority,
                                  prussdrv_function_handler irqhandler);
+
+#include "__prussdrv.h"
+
+    tprussdrv *prussdrv_self();
 
 
 #if defined (__cplusplus)
