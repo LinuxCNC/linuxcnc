@@ -146,7 +146,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     /*! \todo FIXME - end of non-threadsafe window */
 
     /* fill out task structure */
-    if(stacksize < 16384) stacksize = 16384;
+    if(stacksize < MIN_STACKSIZE) stacksize = MIN_STACKSIZE;
     task->owner = owner;
     task->arg = arg;
     task->stacksize = stacksize;
