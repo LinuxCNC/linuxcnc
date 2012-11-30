@@ -48,7 +48,7 @@ int rtapi_init(const char *modname) {
 
     /* debugging statements can be removed */
     rtapi_mutex_get(&(rtapi_data->mutex));
-    for (n = 0; n < MAX_MODULES; n++) {
+    for (n = 0; n < RTAPI_MAX_MODULES; n++) {
 	if (module_array[n].magic != MODULE_MAGIC) {
 	    result = n + MODULE_OFFSET;
 	    module_array[n].magic = MODULE_MAGIC;
@@ -67,7 +67,7 @@ int rtapi_init(const char *modname) {
 int rtapi_exit(int id) {
     int n = id - MODULE_OFFSET;
 
-    if (n < 0 || n >= MAX_MODULES)
+    if (n < 0 || n >= RTAPI_MAX_MODULES)
 	return -1;
     /* Remove the module from the module_array. */
     rtapi_mutex_get(&(rtapi_data->mutex));

@@ -70,7 +70,7 @@ pth_uctx_t ostask_array[RTAPI_MAX_TASKS + 1]; /* thread's context */
 #define SHMEM_MAGIC   25453
 
 #define MAX_TASKS  64
-#define MAX_MODULES  64
+#define RTAPI_MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
 
