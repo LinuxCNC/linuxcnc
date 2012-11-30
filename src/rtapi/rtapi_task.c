@@ -109,10 +109,10 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
     n = 1; // tasks start at one!
     // go through task_array until an empty task slot is found
-    while ((n < MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
+    while ((n < RTAPI_MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
 	n++;
     // if task_array is full, release lock and return error
-    if (n == MAX_TASKS) {
+    if (n == RTAPI_MAX_TASKS) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -ENOMEM;
     }
@@ -177,7 +177,7 @@ int rtapi_task_delete(int task_id) {
     task_data *task;
     int retval = 0;
 
-    if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
 
     task = &(task_array[task_id]);
     /* validate task handle */
@@ -240,7 +240,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
     task_data *task;
 
-    if (task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+    if (task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
 
