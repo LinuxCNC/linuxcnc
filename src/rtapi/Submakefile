@@ -5,89 +5,55 @@ INCLUDES += rtapi
 ../include/%.hh: ./rtapi/%.hh
 	cp $^ $@
 
-ifeq ($(BUILD_SYS),user-dso)
 ##########################################
-# userland thread systems defaults
+# defaults for all thread styles
 
-# Sources needed to be linked into ../bin/rtapi_app
-# (Can some of these be trimmed out and moved into ULAPISRCS?)
-RTAPI_APP_SRCS := \
+# Base list of all sources
+RTAPI_SRCS := \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_msg.c \
 	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_time.c \
 	rtapi/rtapi_pci.c \
 	rtapi/rtapi_task.c \
+	rtapi/rtapi_io.c \
 	rtapi/$(THREADS).c
 
-# The full list of RTAPI sources.
-# These will be compiled twice:
-# - once with -DRTAPI for the ../rtlib/* modules
-# - once with -DULAPI for ../lib/liblinuxcnchal.so
-ULAPISRCS := $(RTAPI_APP_SRCS) \
-	rtapi/rtapi_io.c
 
-# HACK:  This should be in RTAPI_APP_SRCS, but those need to be
-# compiled with -DRTAPI.  This could be also, but the Makefile doesn't
-# know how to compile C++ RTAPI sources, so for now it's hacked in
-# here.
-USERSRCS +=  rtapi/sim_rtapi_app.cc
+# RTAPI module:  ../rtlib/rtapi.[ks]o
+#
+# compile all RTAPI_SRCS -DRTAPI -> objects/rtrtapi/*.o
+# and link into ../rtlib/rtapi.[ks]o; see Makefile
+rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
 
-# Compile and link flags for RT
-#RT_CFLAGS :=  -lrt  # this is wrong, right?
-RT_CFLAGS := 
-RT_LDFLAGS := 
 
-# add rtapi_app to the build
-TARGETS += ../bin/rtapi_app
+# ULAPI:  ../lib/liblinuxcnchal.so
+#
+# List of sources whose objects objects/rtapi/*.o link into
+# ../lib/liblinuxcnchal.so; see hal/Submakefile
+#
+# hal/Submakefile includes these in USERSRCS so that .o files are
+# built, so no need to do that here
+ULAPI_SRCS := $(RTAPI_SRCS)
 
-else
-##########################################
-# defaults for kernel thread styles
-
-# there's no rtapi_app  
-RTAPI_APP_SRCS := 
-
-RT_CFLAGS := 
-
-endif
 
 # flags for linking ../lib/liblinuxcnchal.so
 ULAPI_LDFLAGS := 
 
-# compile any userland sources with -DULAPI
-USERSRCS += $(RTAPI_APP_SRCS)
+# cflags for all sources, -DRTAPI or -DULAPI
+#
+# see bottom of this file and Makefile
+RT_CFLAGS := 
+# link flags for -DRTAPI/rtapi_app/rtapi.[ks]o and
+# ../lib/liblinuxcnchal.so
+#
+# see below and hal/Submakefile
+RT_LDFLAGS := 
 
-# add .o files to be turned into modules
-rtapi-objs := $(patsubst %.c, %.o, $(ULAPISRCS))
 
-
+ifeq ($(BUILD_SYS),user-dso)
 ##################################################################
-#  ---------------- kernel thread styles ----------------
-##################################################################
-ifeq ($(THREADS),rtai)
-################################################
-# rtai settings
-
-ULAPISRCS := rtapi/rtai_ulapi.c
-endif
-
-ifeq ($(THREADS),xenomai-kernel)
-################################################
-# xenomai-kernel settings
-
-ULAPISRCS := rtapi/xenomai_ulapi.c
-
-XENO_CONFIG ?= xeno-config --skin=native
-XENO_CFLAGS := $(shell $(XENO_CONFIG) --cflags )
-ULAPI_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
-
-$(call TOOBJSDEPS, $(ULAPISRCS)): EXTRAFLAGS += -fPIC $(XENO_CFLAGS)
-endif
-
-
-##################################################################
-#  ---------------- userland thread styles ----------------
+#                 USERLAND THREAD STYLES
 ##################################################################
 
 ifeq ($(THREADS),posix)
@@ -95,10 +61,8 @@ ifeq ($(THREADS),posix)
 # simulator settings
 
 PTH_CONFIG ?= pth-config
-RTAPI_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
-RTAPI_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
-
-$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(RTAPI_CFLAGS)
+RT_CFLAGS += $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
+RT_LDFLAGS += $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
 endif
 
 
@@ -108,14 +72,8 @@ ifeq ($(THREADS),xenomai-user)
 
 XENO_CONFIG ?= xeno-config --skin=native
 
-XENO_CFLAGS := $(shell $(XENO_CONFIG) --cflags )
-RT_CFLAGS +=  $(XENO_CFLAGS)
-$(call TOOBJSDEPS, $(ULAPISRCS) rtapi/sim_rtapi_app.c): \
-	EXTRAFLAGS +=  $(XENO_CFLAGS)
-
-XENO_LDFLAGS := $(shell $(XENO_CONFIG) --ldflags )
-RT_LDFLAGS += $(XENO_LDFLAGS)
-ULAPI_LDFLAGS += $(XENO_LDFLAGS)
+RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
+RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
 endif
 
 
@@ -123,22 +81,63 @@ ifeq ($(THREADS),rt-preempt-user)
 ################################################
 # rt-preempt-user settings
 
-# Compile flags for objects/rtrtapi/*.o
-#RT_CFLAGS +=  -lpthread  # this is wrong, right?
+#RT_CFLAGS +=  
 RT_LDFLAGS += -lpthread -lrt
 endif
 
 
-ifeq ($(BUILD_SYS),user-dso)
 ################################################
-# build rtapi_app for userland thread systems
-
-# HACK:  prepending 'rt' ('rtrtapi/rtapi_foo.o') so that RTAPI_APP_SRCS
-# are compiled with -DRTAPI.  The sim_rtapi_app object file must be
-# specified separately for the reason described above.
-../bin/rtapi_app: $(call TOOBJS, $(patsubst %,rt%, $(RTAPI_APP_SRCS))) \
+# ../bin/rtapi_app
+#
+# Build objects/rtapi/sim_rtapi_app.o; see Makefile
+USERSRCS +=  rtapi/sim_rtapi_app.cc
+#
+# List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
+# see that target below
+#
+# These must be included in USERSRCS for .o files to be built
+RTAPI_APP_C_SRCS := $(filter-out rtapi/rtapi_io.c, $(RTAPI_SRCS))
+RTAPI_APP_OBJS := \
+	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_APP_C_SRCS))) \
 			objects/rtapi/sim_rtapi_app.o
+#
+# Add RT_CFLAGS to sim_rtapi_app.cc compilation
+$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+#
+# Build target
+../bin/rtapi_app: $(RTAPI_APP_OBJS)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS) -ldl
 TARGETS += ../bin/rtapi_app
+
+
+else  # BUILD_SYS == kbuild
+##################################################################
+#                     KERNEL THREAD STYLES
+##################################################################
+ifeq ($(THREADS),rtai)
+################################################
+# rtai settings
+
+# ...nothing
 endif
+
+ifeq ($(THREADS),xenomai-kernel)
+################################################
+# xenomai-kernel settings
+
+XENO_CONFIG ?= xeno-config --skin=native
+
+RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
+ULAPI_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
+endif
+
+endif  # BUILD_SYS != user-dso
+
+
+##################################################################
+#                     ALL THREAD STYLES
+##################################################################
+
+# Add RT_CFLAGS to ULAPI compilation
+$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
