@@ -425,7 +425,7 @@ int rtapi_wait_hook(void)
 {
     struct timespec ts;
     task_data *task = rtapi_this_task();
-    message_level_t msg_level = RTAPI_MSG_NONE;
+    int msg_level = RTAPI_MSG_NONE;
 
     if (task->tdata.deleted)
 	pthread_exit(0);
