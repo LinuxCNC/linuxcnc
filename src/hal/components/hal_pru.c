@@ -21,6 +21,43 @@
 #include "pru.h"                // PRU-related defines
 #include "pruss_intc_mapping.h"
 
+static tprussdrv *pruss;                // driver descriptor
+#define PRUSSDESC (pruss)
+
+typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
+
+#define PCOUNTER_RST_VAL(control) (((control) >> 16) & 0x0000ffff)
+#define RUNSTATE (1 << 15)
+#define SINGLE_STEP (1 << 8)
+#define COUNTER_ENABLE (1 << 3)
+#define SLEEPING (1 << 2)
+#define ENABLE (1 << 1)
+#define SOFT_RST_N (1 << 1)
+
+// a void * to the PRU's control base
+#define CTRLBASE(pru) (pru ? (PRUSSDESC)->pru1_control_base : (PRUSSDESC)->pru0_control_base)
+// a void * to the PRU's debug base
+#define DEBUGBASE(pru) (pru ? (PRUSSDESC)->pru1_debug_base : (PRUSSDESC)->pru0_debug_base)
+// an unsigned long pointer to the control register
+#define CONTROL_REG(pru) ((pru_reg_ptr)CTRLBASE(pru))
+
+#define IS_RUNNING(pru) (*CONTROL_REG(pru) & RUNSTATE)
+#define IS_ENABLED(pru) (*CONTROL_REG(pru) & ENABLE)
+#define IS_SLEEPING(pru) (*CONTROL_REG(pru) & SLEEPING)
+#define IS_STEPPING(pru) (*CONTROL_REG(pru) & SINGLE_STEP)
+
+#define CLRCTRL(pru, bit) (*CONTROL_REG(pru) &=  ~(bit))
+#define SETCTRL(pru, bit) (*CONTROL_REG(pru) |=  (bit))
+
+#define PRU_DISABLE(pru) (CLRCTRL(pru, ENABLE))
+#define PRU_ENABLE(pru) (SETCTRL(pru, ENABLE))
+#define PRU_SET_STEPPING(pru) (SETCTRL(pru, SINGLE_STEP))
+#define PRU_CLEAR_STEPPING(pru) (CLRCTRL(pru, SINGLE_STEP))
+#define PRU_RESET(pru) (SETCTRL(pru, SOFT_RST_N))
+
+#define PC_AT_RESET(pru) (PCOUNTER_RST_VAL(*CONTROL_REG(pru)))
+#define CURRENT_PC(pru) (*(CONTROL_REG(pru)+1))
+
 #define UIO_PRUSS  "uio_pruss"  // required kernel module
 
 #include <stdio.h>
@@ -60,7 +97,7 @@ static const char *modname = MODNAME;
 // shared with PRU
 static unsigned char *pru_data_ram;     // points to PRU data RAM
 static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-static tprussdrv *pruss;                // driver descriptor
+
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -177,30 +214,33 @@ static int export_pru(hal_pru_ptr addr)
 
 static void read_pru_state(int pru)
 {
-    int i, running;
-    volatile unsigned long *ctrl, *reg;
+    int i, was_running;
+    pru_reg_ptr ctrl, reg;
 
-    ctrl = pru ? pruss->pru1_control_base : pruss->pru0_control_base;
+    ctrl = CTRLBASE(pru);
+    was_running = IS_RUNNING(pru);
 
-#define RUNNING (ctrl[0] & (1 << 15)) //RUNSTATE
-    running = RUNNING;
+    // dont use prussdrv_pru_disable(pru) - this resets the cpu
+    // we just want to halt while looking at the registers
+    while (IS_RUNNING(pru))
+	PRU_DISABLE(pru);
 
-    while (RUNNING)
-	ctrl[0] &= ~(1 << 1); // clear enable
-    // prussdrv_pru_disable(pru); // this resets the cpu!
+    printf("CONTROL = %8.8lx, ",(*CONTROL_REG(pru)));
+    printf(was_running ? "running" : "halted");
+    printf(IS_STEPPING(pru) ? ", stepping" : "");
+    printf(IS_SLEEPING(pru) ? ", sleeping" : "");
+    printf(", start after reset at: %8.8lx\n", PC_AT_RESET(pru));
 
-    printf("CONTROL = %8.8lx %s\n", ctrl[0], running ? "running" : "halted" );
-    printf("PC = %8.8lx (%ld)\n", ctrl[1], ctrl[1]);
-    printf("WAKEUP_EN = %8.8lx\n", ctrl[2]);
-    printf("CYCLE = %8.8lx\n", ctrl[3]);
+    printf("PC = %8.8lx (%ld)\n", CURRENT_PC(pru), CURRENT_PC(pru));
+    printf("WAKEUP_EN = %8.8lx\t", ctrl[2]);
+    printf("CYCLE = %8.8lx\t", ctrl[3]);
     printf("STALL = %8.8lx\n", ctrl[4]);
-    printf("CTBIR0 = %8.8lx\n", ctrl[8]);
+    printf("CTBIR0 = %8.8lx\t", ctrl[8]);
     printf("CTBIR1 = %8.8lx\n", ctrl[9]);
-    printf("CTPPR0 = %8.8lx\n", ctrl[10]);
+    printf("CTPPR0 = %8.8lx\t", ctrl[10]);
     printf("CTPPR1 = %8.8lx\n", ctrl[11]);
 
-    reg = pru ? pruss->pru1_debug_base : pruss->pru0_debug_base;
-
+    reg = DEBUGBASE(pru);
     for (i = 0; i < 32; i++) {
 	printf("R%-2d = %8.8lx  ", i,reg[i]);
 	if ((i & 3) == 3)
@@ -208,10 +248,11 @@ static void read_pru_state(int pru)
     }
     // for (i = 32; i < 64; i++)
     for (i = 32; i < 34; i++)
-	printf("CT_REG%d = %8.8lx\n", i-32, reg[i]);
+	printf("CT_REG%d = %8.8lx\t", i-32, reg[i]);
+    printf("\n");
 
-    if (running)
-	ctrl[0] |= (1 << 1);
+    if (was_running) // if PRU was found running, reenable
+	PRU_ENABLE(pru);
 }
 
 static int assure_module_loaded(const char *module)
@@ -280,20 +321,6 @@ static int setup_pru(int pru, char *filename)
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
 		    modname, pru_data_ram);
-#if 1
-    printf("intc_base = %p %x\n", pruss->intc_base,
-	   (unsigned char*)  pruss->intc_base -pru_data_ram);
-    printf("pru0_control_base = %p %x\n", pruss->pru0_control_base,
-	   (unsigned char*)pruss->pru0_control_base - pru_data_ram);
-    printf("pru0_debug_base = %p %x\n", pruss->pru0_debug_base,
-	   (unsigned char*)pruss->pru0_debug_base - pru_data_ram);
-    printf("pru1_iram_base = %p %x\n", pruss->pru1_iram_base,
-	   (unsigned char*)pruss->pru1_iram_base -  pru_data_ram);
-    printf("pruss_sharedram_base = %p %x\n", pruss->pruss_sharedram_base,
-	   (unsigned char*)pruss->pruss_sharedram_base -  pru_data_ram);
-    printf("pruss_cfg_base = %p %x\n", pruss->pruss_cfg_base,
-	   (unsigned char*)pruss->pruss_cfg_base - pru_data_ram);
-#endif
 
     // setup dataram as expected by blinkleds.p
     pru_data_ram[0] = 0;

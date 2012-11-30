@@ -8,10 +8,12 @@
 .entrypoint START
 
 START:
-    // clear that bit
-    LBCO r0, CONST_PRUCFG, 4, 4
-    CLR r0, r0, 4
-    SBCO r0, CONST_PRUCFG, 4, 4
+    // Clear syscfg[standby_init] to enable ocp master port
+    lbco r0, CONST_PRUCFG, 4, 4
+    clr r0, r0, 4
+    sbco r0, CONST_PRUCFG, 4, 4
+
+
 
 //    MOV r7, 7<<22
 //    MOV r4, GPIO1 | GPIO_SETDATAOUT
