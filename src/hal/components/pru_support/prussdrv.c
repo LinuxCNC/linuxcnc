@@ -643,7 +643,7 @@ int prussdrv_exit()
     return 0;
 }
 
-int prussdrv_exec_program(int prunum, char *filename)
+int prussdrv_exec_program(int prunum, char *filename, int disabled)
 {
     FILE *fPtr;
     unsigned char fileDataArray[PRUSS_MAX_IRAM_SIZE];
@@ -690,12 +690,13 @@ int prussdrv_exec_program(int prunum, char *filename)
     prussdrv_pru_disable(prunum);
     prussdrv_pru_write_memory(pru_ram_id, 0,
                               (unsigned int *) fileDataArray, fileSize);
-    prussdrv_pru_enable(prunum);
+    if (!disabled)
+	prussdrv_pru_enable(prunum);
 
     return 0;
 }
 
-int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen)
+int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen, int disabled)
 {
     unsigned int pru_ram_id;
 
@@ -709,7 +710,9 @@ int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen)
     // Make sure PRU sub system is first disabled/reset
     prussdrv_pru_disable(prunum);
     prussdrv_pru_write_memory(pru_ram_id, 0, (unsigned int *) code, codelen);
-    prussdrv_pru_enable(prunum);
+
+    if (!disabled)
+	prussdrv_pru_enable(prunum);
 
     return 0;
 }
