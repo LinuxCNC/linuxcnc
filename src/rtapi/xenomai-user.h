@@ -4,7 +4,7 @@
 *               the Xenomai user land thread system
 ********************************************************************/
 
-#include <native/task.h>	/* RT_TASK */
+#include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
 
 

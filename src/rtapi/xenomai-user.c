@@ -118,6 +118,7 @@ void rtapi_task_wrapper_hook(task_data *task, int task_id) {
 int rtapi_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int retval;
+    long task_id_long = task_id;  // silence gcc warnings on 64-bit arch
 
 #if !defined(BROKEN_XENOMAU_CPU_AFFINITY)
     // seems to work for me
@@ -144,7 +145,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
-				 rtapi_task_wrapper, (void*)task_id))) {
+				 rtapi_task_wrapper, (void*)task_id_long))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"rt_task_start failed, rc = %d\n", retval );
 	return -ENOMEM;

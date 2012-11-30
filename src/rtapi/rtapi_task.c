@@ -204,8 +204,8 @@ void rtapi_task_wrapper_hook(task_data *task, int task_id);
 
 #ifndef NO_RTAPI_TASK_WRAPPER
 void task_wrapper(void *arg) {
-
-    int task_id = (int) arg;
+    long task_id_long = (long) arg;  // silence gcc warnings on 64-bit arch
+    int task_id = (int) task_id_long;
     task_data *task = &task_array[task_id];
 
     /* use the argument to point to the task data */
