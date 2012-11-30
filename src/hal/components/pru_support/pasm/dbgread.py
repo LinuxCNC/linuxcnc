@@ -79,7 +79,7 @@ if debug: print len(data),data
 (file_id,label_count, label_offset,file_count,file_offset,code_count,code_offset,entrypoint,flags) = struct.unpack("@IIIIIIIII", data[0:36])
 
 if file_id != fid:
-    print STDERR, "file id doesnt match: %x/%x", fid, file_id
+    sys.stderr.write("file id doesnt match: %x/%x", fid, file_id
 
 if debug: print file_id,label_count, label_offset,file_count,file_offset,code_count,code_offset,entrypoint,flags
 
