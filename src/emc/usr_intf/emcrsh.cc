@@ -2642,7 +2642,8 @@ int parseCommand(connectionRecType *context)
 void *readClient(void *arg)
 {
   char buf[1600];
-  unsigned int i, j;
+  int context_index;
+  int i;
   int len;
   connectionRecType *context;
 
@@ -2659,20 +2660,13 @@ void *readClient(void *arg)
   context->commMode = 0;
   context->commProt = 0;
   context->inBuf[0] = 0;
-  buf[0] = '\0';
+
+  context_index = 0;
 
   while (1) {
-    int bytes_used_in_buf;
-    int bytes_free_in_buf;
-
-    bytes_used_in_buf = strlen(buf);
-    bytes_free_in_buf = sizeof(buf) - bytes_used_in_buf - 1;
-    if (bytes_free_in_buf <= 0) {
-      fprintf(stderr, "linuxcncrsh: out of space in input buffer\n");
-      goto finished;
-    }
-
-    len = read(context->cliSock, &buf[bytes_used_in_buf], bytes_free_in_buf);
+    // We always start this loop with an empty buf, though there may be one
+    // partial line in context->inBuf[0..context_index].
+    len = read(context->cliSock, buf, sizeof(buf));
     if (len < 0) {
       fprintf(stderr, "linuxcncrsh: error reading from client: %s\n", strerror(errno));
       goto finished;
@@ -2681,31 +2675,30 @@ void *readClient(void *arg)
       printf("linuxcncrsh: eof from client\n");
       goto finished;
     }
-    buf[bytes_used_in_buf + len] = '\0';
 
-    if ((!memchr(&buf[bytes_used_in_buf], '\r', len)) && (!memchr(&buf[bytes_used_in_buf], '\n', len))) continue;
     if (context->echo && context->linked)
-      if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
+      if(write(context->cliSock, buf, len) != (ssize_t)len) {
         fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
       }
-    i = 0;
-    j = 0;
-    while (i <= strlen(buf)) {
-      if ((buf[i] != '\n') && (buf[i] != '\r')) {
-        context->inBuf[j] = buf[i];
-	j++;
-      } else {
-        if (j > 0) {
-          int r;
-          context->inBuf[j] = 0;
-          r = parseCommand(context);
-          if (r == -1) goto finished;
-          j = 0;
-	}
-      }
-      i++;
+
+    for (i = 0; i < len; i ++) {
+        if ((buf[i] != '\n') && (buf[i] != '\r')) {
+            context->inBuf[context_index] = buf[i];
+            context_index ++;
+            continue;
+        }
+
+        // if we get here, i is the index of a line terminator in buf
+
+        if (context_index > 0) {
+            int r;
+            // we have some bytes in the context buffer, parse them now
+            context->inBuf[context_index] = '\0';
+            r = parseCommand(context);
+            if (r == -1) goto finished;
+            context_index = 0;
+        }
     }
-    buf[0] = 0;
   }
 
 finished:
