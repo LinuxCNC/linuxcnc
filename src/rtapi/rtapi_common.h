@@ -83,7 +83,7 @@
 #define RTAPI_MAX_SHMEMS  32
 
 #define MAX_TASKS		64
-#define MAX_MODULES		64
+#define RTAPI_MAX_MODULES		64
 
 /* random numbers used as signatures */
 #define TASK_MAGIC		21979
