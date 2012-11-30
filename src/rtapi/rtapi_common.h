@@ -78,17 +78,17 @@
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
 /* maximum number of various resources */
-#define RTAPI_MAX_MODULES 64
-#define RTAPI_MAX_TASKS   64
-#define RTAPI_MAX_SHMEMS  32
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
 
-#define MAX_TASKS		64
-#define RTAPI_MAX_MODULES		64
+#define DEFAULT_MAX_DELAY	10000
 
 /* random numbers used as signatures */
 #define TASK_MAGIC		21979
 #define MODULE_MAGIC		30812
 
+#define MIN_STACKSIZE		32768
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
@@ -133,7 +133,6 @@ typedef struct {
 #else
     char name[RTAPI_NAME_LEN];
 #endif
-
     int magic;
     int uses_fp;
     size_t stacksize;
