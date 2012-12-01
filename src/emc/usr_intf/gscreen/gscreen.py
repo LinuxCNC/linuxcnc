@@ -568,14 +568,15 @@ class Gscreen:
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
-        if "connect_signals" in dir(self.custom_handler):
-            self.custom_handler.connect_signals(self)
-        else:
-            self.install_signals(handlers)
         if "initialize_pins" in dir(self.custom_handler):
             self.custom_handler.initialize_pins(self)
         else:
             self.initialize_pins()
+        if "connect_signals" in dir(self.custom_handler):
+            self.custom_handler.connect_signals(self)
+        else:
+            self.install_signals(handlers)
+
         # dynamic tabs setup
         self._dynamic_childs = {}
         atexit.register(self.kill_dynamic_childs)
@@ -727,8 +728,27 @@ class Gscreen:
             self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
             for axis in self.data.axis_list:
                 self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+            # for manual tool change dialog
+            self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
+            self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
+            self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
 
 # *** GLADE callbacks ****
+
+    # Here we create a manual tool change dialog
+    # This can be overridden in a handler file
+    def on_tool_change(self,widget):
+        h = self.halcomp
+        c = h['change-tool']
+        n = h['tool-number']
+        cd = h['tool-changed']
+        print "tool change",c,cd,n
+        if c:
+            message =  "Please change to tool # %s, then click OK."% n
+            self.data.tool_message = self.notify("INFO:",message,None)
+            self.warning_dialog(message, True,pinname="TOOLCHANGE")
+        else:
+            h['tool-changed'] = False
 
     def on_spindle_speed_adjust(self,widget):
                 # spindle increase /decrease controls
@@ -1070,23 +1090,31 @@ class Gscreen:
 
     def on_pop_statusbar_clicked(self, *args):
         self.widgets.statusbar1.pop(self.statusbar_id)
-    
+
+    # This is part of the user message system
+    # There is status that prints to the status bar
+    # There is Okdialog that prints a dialog that the user must acknoledge
+    # there is yes/no dialog where the user must choose between yes or no
+    # you can combine status and dialog messages so they print to the status bar 
+    # and pop a dialog
     def on_printmessage(self, pin, pinname,boldtext,text,type):
-        if pin.get():
-            if boldtext == "NONE": boldtext = None
-            if "status" in type:
-                if boldtext:
-                    statustext = boldtext
-                else:
-                    statustext = text
-                self.notify("INFO:",statustext,INFO_ICON)
-            if "dialog" in type or "okdialog" in type:
+        if not pin.get(): return
+        if boldtext == "NONE": boldtext = None
+        if "status" in type:
+            if boldtext:
+                statustext = boldtext
+            else:
+                statustext = text
+            self.notify("INFO:",statustext,INFO_ICON)
+        if "dialog" in type or "okdialog" in type:
+            if pin.get():
                 self.halcomp[pinname + "-waiting"] = True
-                if "okdialog" in type:
-                    self.warning_dialog(boldtext,True,text,pinname)
-                else:
+            if "okdialog" in type:
+                self.warning_dialog(boldtext,True,text,pinname)
+            else:
+                if pin.get():
                     self.halcomp[pinname + "-response"] = 0
-                    self.warning_dialog(boldtext,False,text,pinname)
+                self.warning_dialog(boldtext,False,text,pinname)
 
 
 
@@ -1243,6 +1271,11 @@ class Gscreen:
                     self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
             except:
                 print "**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2])
+        # you can override manual tool change
+        if "on_tool_change" in dir(self.custom_handler):
+            self.data['change-tool'].connect('value-changed', self.custom_handler.on_tool_change)
+        else:
+            self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
         # setup signals that can be blocked but not overriden 
         for axis in self.data.axis_list:
@@ -1319,9 +1352,16 @@ class Gscreen:
             jogincr = float(jogincr)
         return jogincr * scale
 
+    # This prints a message in the status bar, the system notifier (if available)
+    # and makes a sound (if available)
+    # It returns a statusbar message id reference so one can directly erase the message later.
+    # Ubuntu screws with the system notification program so it does follow timeouts
+    # There is a ppa on the net to fix this I suggest it.
+    # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
     def notify(self,title,message,icon="",timeout=2):
+            messageid = None
             try:
-                self.widgets.statusbar1.push(self.statusbar_id,message)
+                messageid = self.widgets.statusbar1.push(self.statusbar_id,message)
             except:
                 pass
             if NOTIFY_AVAILABLE:
@@ -1339,6 +1379,7 @@ class Gscreen:
                 else:
                     self.audio.set_sound(self.data.alert_sound)
                 self.audio.run()
+            return messageid
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
@@ -1655,7 +1696,7 @@ class Gscreen:
         if displaytype:
             dialog = gtk.MessageDialog(self.widgets.window1,
                 gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+                gtk.MESSAGE_INFO, gtk.BUTTONS_OK,message)
         else:   
             dialog = gtk.MessageDialog(self.widgets.window1,
                gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -1665,21 +1706,30 @@ class Gscreen:
             dialog.format_secondary_text(secondary)
         dialog.show_all()
         try:
-            if "dialog" in dir(self.custom_handler):
-                dialog.connect("response", self.custom_handler.dialog,self,displaytype,pinname)
+            if "dialog_return" in dir(self.custom_handler):
+                dialog.connect("response", self.custom_handler.dialog_return,self,displaytype,pinname)
             else:
-                dialog.connect("response", self.dialog,displaytype,pinname)
+                dialog.connect("response", self.dialog_return,displaytype,pinname)
         except:
             dialog.destroy()
             raise NameError ('Dialog error - Is the dialog handler missing from the handler file?')
 
     # message dialog returns a response here
-    def dialog(self,widget,result,dialogtype,pinname):
+    # This includes the manual tool change dialog
+    # We know this by the pinname being called 'TOOLCHANGE' 
+    def dialog_return(self,widget,result,dialogtype,pinname):
+        if pinname == "TOOLCHANGE":
+            self.halcomp["tool-changed"] = True
+            widget.destroy()
+            self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
+            return
         if not dialogtype: # yes/no dialog
             if result == gtk.RESPONSE_YES:result = True
             else: result = False
-            self.halcomp[pinname + "-response"] = result
-        self.halcomp[pinname + "-waiting"] = False
+            if pinname:
+                self.halcomp[pinname + "-response"] = result
+        if pinname:
+            self.halcomp[pinname + "-waiting"] = False
         widget.destroy()
 
     # adds the embedded object to a notebook tab or box
