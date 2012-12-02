@@ -14,6 +14,7 @@
 #define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
 */
 
+#define MASTER_HEAP "rtapi-heap"
 
 /* add some fields to rtapi_data_t:
    rt_wait_error:		release point missed

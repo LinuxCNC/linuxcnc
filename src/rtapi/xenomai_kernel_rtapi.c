@@ -23,7 +23,6 @@
 #include <native/task.h>
 #include <native/intr.h>
 #include  <rtdk.h>
-#include "xenomai_common.h"	
 
 #include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
@@ -53,7 +52,6 @@ MODULE_LICENSE("GPL");
    needs to delete something, it calls these functions directly.
 */
 static int module_delete(int module_id);
-static int task_delete(int task_id);
 static int shmem_delete(int shmem_id, int module_id);
 
 /***********************************************************************
@@ -179,7 +177,8 @@ void cleanup_module(void)
 		"RTAPI: ERROR: task %02d not deleted\n", n);
 	    /* probably un-recoverable, but try anyway */
 	    rtapi_task_pause(n);
-	    task_delete(n);
+	    task_array[n].state = DELETE_LOCKED;
+	    rtapi_task_delete(n);
 	}
     }
     if (rtapi_data->timer_running != 0) {
@@ -284,7 +283,8 @@ static int module_delete(int module_id)
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 		"RTAPI: WARNING: module '%s' failed to delete task %02d\n",
 		module->name, n);
-	    task_delete(n);
+	    task_array[n].state = DELETE_LOCKED;
+	    rtapi_task_delete(n);
 	}
     }
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -312,276 +312,6 @@ static int module_delete(int module_id)
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %d exited, name: '%s'\n",
 	module_id, name);
-    return 0;
-}
-
-/***********************************************************************
-*                     TASK RELATED FUNCTIONS                           *
-************************************************************************/
-
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
-#define IP(x) ((x)->ip)
-#elif defined(__i386__)
-#define IP(x) ((x)->eip)
-#else
-#define IP(x) ((x)->rip)
-#endif
-
-// not better than the builtin Xenomai handler, but at least
-// hook into to rtapi_print
-static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, void *data)
-{
-    struct pt_regs *regs = data;
-    xnthread_t *thread = xnpod_current_thread(); ;
-
-    rtapi_print_msg(RTAPI_MSG_ERR, 
-		    "RTAPI: trap event=%d thread=%s ip:%lx sp:%lx userpid=%d errcode=%d\n",
-		    event, thread->name,
-		    regs->ip, regs->sp, 
-		    xnthread_user_pid(thread), thread->errcode);
-    // forward to default Xenomai trap handler
-    return ((rthal_trap_handler_t) old_trap_handler)(event, stage, data);
-}
-
-int rtapi_task_new(void (*taskcode) (void *), void *arg,
-		   int prio, int owner, unsigned long int stacksize, int uses_fp,
-		   char *name, int cpu_id)
-{
-    int n;
-    long task_id;
-    int retval;
-    task_data *task;
-
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* validate owner */
-    if ((owner < 1) || (owner > RTAPI_MAX_MODULES)) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    if (module_array[owner].state != REALTIME) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    /* find empty spot in task array */
-    n = 1;
-    while ((n <= RTAPI_MAX_TASKS) && (task_array[n].state != EMPTY)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_TASKS) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EMFILE;
-    }
-    /* we have space for the task */
-    task_id = n;
-    task = &(task_array[n]);
-    /* check requested priority */
-
-    if ((prio < rtapi_prio_lowest()) || (prio > rtapi_prio_highest())) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-
-    /* get space for the OS's task data - this is around 900 bytes, */
-    /* so we don't want to statically allocate it for unused tasks. */
-    ostask_array[task_id] = kmalloc(sizeof(RT_TASK), GFP_USER);
-    if (ostask_array[task_id] == NULL) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -ENOMEM;
-    }
-    task->taskcode = taskcode;
-    task->arg = arg;
-    task->cpu = cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu;
-
-    /* call OS to initialize the task - use predetermined or explicitly assigned CPU */
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_create %ld \"%s\" cpu=%d fpu=%d prio=%d\n", 
-		    task_id, name, task->cpu, uses_fp, task->prio );
-
-    retval = rt_task_create(ostask_array[task_id], name, stacksize, task->prio, 
-			    (uses_fp ? T_FPU : 0) | 
-			    T_CPU(task->cpu));
-    if (retval) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_create failed, rc = %d\n", retval );
-    }
-    if (retval != 0) {
-	/* couldn't create task, free task data memory */
-	kfree(ostask_array[task_id]);
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	if (retval == ENOMEM) {
-	    /* not enough space for stack */
-	    return -ENOMEM;
-	}
-	/* unknown error */
-	return -EINVAL;
-    }
-
-    /* the task has been created, update data */
-    task->state = PAUSED;
-    task->prio = prio;
-    task->owner = owner;
-    task->taskcode = taskcode;
-    rtapi_data->task_count++;
-    /* announce the birth of a brand new baby task */
-    rtapi_print_msg(RTAPI_MSG_DBG,
-	"RTAPI: task %02ld installed by module %02d, priority %d, code: %p\n",
-	task_id, task->owner, task->prio, taskcode);
-    /* and return the ID to the proud parent */
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return task_id;
-}
-
-int rtapi_task_delete(int task_id)
-{
-    int retval;
-
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    retval = task_delete(task_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return retval;
-}
-
-static int task_delete(int task_id)
-{
-    task_data *task;
-
-    /* validate task ID */
-    if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return -EINVAL;
-    }
-    /* point to the task's data */
-    task = &(task_array[task_id]);
-    /* check task status */
-    if (task->state == EMPTY) {
-	/* nothing to delete */
-	return -EINVAL;
-    }
-    if ((task->state == PERIODIC) || (task->state == FREERUN)) {
-	/* task is running, need to stop it */
-	rtapi_print_msg(RTAPI_MSG_WARN,
-	    "RTAPI: WARNING: tried to delete task %02d while running\n",
-	    task_id);
-	rtapi_task_pause(task_id);
-    }
-    /* get rid of it */
-    rt_task_delete(ostask_array[task_id]); // ok for both RTAI and Xenomai
-    /* free kernel memory */
-    kfree(ostask_array[task_id]);
-    /* update data */
-    task->state = EMPTY;
-    task->prio = 0;
-    task->owner = 0;
-    task->taskcode = NULL;
-    ostask_array[task_id] = NULL;
-    rtapi_data->task_count--;
-    /* if no more tasks, stop the timer */
-    if (rtapi_data->task_count == 0) {
-	if (rtapi_data->timer_running != 0) {
-	    rtapi_data->timer_period = 0;
-	    max_delay = DEFAULT_MAX_DELAY;
-	    rtapi_data->timer_running = 0;
-	}
-    }
-    /* done */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: task %02d deleted\n", task_id);
-    return 0;
-}
-
-int rtapi_task_start(int task_id, unsigned long int period_nsec)
-{
-    int retval;
-    task_data *task;
-
-    /* validate task ID */
-    if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return -EINVAL;
-    }
-    /* point to the task's data */
-    task = &(task_array[task_id]);
-    /* is task ready to be started? */
-    if (task->state != PAUSED) {
-	return -EINVAL;
-    }
-    /* can't start periodic tasks if timer isn't running */
-    if ((rtapi_data->timer_running == 0) || (rtapi_data->timer_period == 0)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
-                "RTAPI: could not start task: timer isn't running\n");
-	return -EINVAL;
-    }
-
-    if ((retval = rt_task_set_periodic( ostask_array[task_id], TM_NOW, period_nsec)) != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_set_periodic() task_id %d periodns=%ld returns %d\n", 
-			task_id, period_nsec, retval);
-	return -EINVAL;
-    }
-    if ((retval = rt_task_start( ostask_array[task_id], task->taskcode, (void*)task->arg )) != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: rt_task_start() task_id %d returns %d\n", 
-			task_id, retval);
-	return -EINVAL;
-    }
-
-    /* ok, task is started */
-    task->state = PERIODIC;
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: start_task id: %02d\n", task_id);
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
-
-    return retval;
-}
-
-
-int rtapi_task_resume(int task_id)
-{
-    int retval;
-    task_data *task;
-
-    /* validate task ID */
-    if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return -EINVAL;
-    }
-    /* point to the task's data */
-    task = &(task_array[task_id]);
-    /* is task ready to be started? */
-    if (task->state != PAUSED) {
-	return -EINVAL;
-    }
-    /* start the task */
-    // ok for both RTAI and Xenomai
-    retval = rt_task_resume(ostask_array[task_id]);
-    if (retval != 0) {
-	return -EINVAL;
-    }
-    /* update task data */
-    task->state = FREERUN;
-    return 0;
-}
-
-int rtapi_task_pause(int task_id)
-{
-    int retval;
-    int oldstate;
-    task_data *task;
-
-    /* validate task ID */
-    if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return -EINVAL;
-    }
-    /* point to the task's data */
-    task = &(task_array[task_id]);
-    /* is it running? */
-    if ((task->state != PERIODIC) && (task->state != FREERUN)) {
-	return -EINVAL;
-    }
-    /* pause the task */
-    oldstate = task->state;
-    task->state = PAUSED;
-    // ok for both RTAI and Xenomai
-    retval = rt_task_suspend(ostask_array[task_id]);
-    if (retval != 0) {
-        task->state = oldstate;
-	return -EINVAL;
-    }
-    /* update task data */
     return 0;
 }
 
@@ -796,17 +526,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 
 EXPORT_SYMBOL(rtapi_init);
 EXPORT_SYMBOL(rtapi_exit);
-EXPORT_SYMBOL(rtapi_prio_highest);
-EXPORT_SYMBOL(rtapi_prio_lowest);
-EXPORT_SYMBOL(rtapi_prio_next_higher);
-EXPORT_SYMBOL(rtapi_prio_next_lower);
-EXPORT_SYMBOL(rtapi_task_new);
-EXPORT_SYMBOL(rtapi_task_delete);
-EXPORT_SYMBOL(rtapi_task_start);
-EXPORT_SYMBOL(rtapi_wait);
-EXPORT_SYMBOL(rtapi_task_resume);
-EXPORT_SYMBOL(rtapi_task_pause);
-EXPORT_SYMBOL(rtapi_task_self);
 EXPORT_SYMBOL(rtapi_shmem_new);
 EXPORT_SYMBOL(rtapi_shmem_delete);
 EXPORT_SYMBOL(rtapi_shmem_getptr);

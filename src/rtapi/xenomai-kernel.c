@@ -21,9 +21,6 @@
 
 #define MAX_ERRORS 3
 
-/* resource data unique to kernel space */
-RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
-
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 
 #ifdef RTAPI
@@ -88,4 +85,167 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 }
 #endif /* RTAPI */
 
+
+/***********************************************************************
+*                            rtapi_task.c                              *
+************************************************************************/
+
+#ifdef RTAPI
+// not better than the builtin Xenomai handler, but at least
+// hook into to rtapi_print
+int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage,
+		       void *data) {
+    struct pt_regs *regs = data;
+    xnthread_t *thread = xnpod_current_thread(); ;
+
+    rtapi_print_msg(RTAPI_MSG_ERR, 
+		    "RTAPI: trap event=%d thread=%s ip:%lx sp:%lx "
+		    "userpid=%d errcode=%d\n",
+		    event, thread->name,
+		    regs->ip, regs->sp, 
+		    xnthread_user_pid(thread), thread->errcode);
+    // forward to default Xenomai trap handler
+    return ((rthal_trap_handler_t) old_trap_handler)(event, stage, data);
+}
+
+int rtapi_task_self_hook(void) {
+    RT_TASK *ptr;
+    int n;
+
+    /* ask OS for pointer to its data for the current task */
+    ptr = rt_task_self();
+
+    if (ptr == NULL) {
+	/* called from outside a task? */
+	return -EINVAL;
+    }
+    /* find matching entry in task array */
+    n = 1;
+    while (n <= RTAPI_MAX_TASKS) {
+        if (ostask_array[n] == ptr) {
+	    /* found a match */
+	    return n;
+	}
+	n++;
+    }
+    return -EINVAL;
+}
+
+
+void rtapi_wait_hook(void) {
+    unsigned long overruns;
+    static int error_printed = 0;
+    int task_id;
+    task_data *task;
+
+    int result =  rt_task_wait_period(&overruns);
+    switch (result) {
+    case 0: // ok - no overruns;
+	break;
+
+    case -ETIMEDOUT: // release point was missed
+	rtapi_data->rt_wait_error++;
+	rtapi_data->rt_last_overrun = overruns;
+	rtapi_data->rt_total_overruns += overruns;
+
+	if (error_printed < MAX_ERRORS) {
+	    task_id = rtapi_task_self();
+	    task = &(task_array[task_id]);
+
+	    rtapi_print_msg
+		(RTAPI_MSG_ERR,
+		 "RTAPI: ERROR: Unexpected realtime delay on task %d - "
+		 "'%s' (%lu overruns)\n" 
+		 "This Message will only display once per session.\n"
+		 "Run the Latency Test and resolve before continuing.\n", 
+		 task_id, task->name, overruns);
+	}
+	error_printed++;
+	if(error_printed == MAX_ERRORS) 
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "RTAPI: (further messages will be suppressed)\n");
+	break;
+
+    case -EWOULDBLOCK:
+	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
+			"RTAPI: ERROR: rt_task_wait_period() without "
+			"previous rt_task_set_periodic()\n");
+	error_printed++;
+	break;
+
+    case -EINTR:
+	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
+			"RTAPI: ERROR: rt_task_unblock() called before "
+			"release point\n");
+	error_printed++;
+	break;
+
+    case -EPERM:
+	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
+			"RTAPI: ERROR: cannot rt_task_wait_period() from "
+			"this context\n");
+	error_printed++;
+	break;
+    default:
+	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
+			"RTAPI: ERROR: unknown error code %d\n", result);
+	error_printed++;
+	break;
+    }
+}
+
+
+int rtapi_task_new_hook(task_data *task, int task_id) {
+    return rt_task_create(ostask_array[task_id], task->name, task->stacksize,
+			 task->prio,
+			 (task->uses_fp ? T_FPU : 0) | T_CPU(task->cpu));
+}
+
+int rtapi_task_start_hook(task_data *task, int task_id,
+			  unsigned long int period_nsec) {
+    int retval;
+
+    if ((retval = rt_task_set_periodic(ostask_array[task_id], TM_NOW,
+				       period_nsec)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: rt_task_set_periodic() task_id %d "
+			"periodns=%ld returns %d\n", 
+			task_id, period_nsec, retval);
+	return -EINVAL;
+    }
+    if ((retval = rt_task_start(ostask_array[task_id], task->taskcode,
+				(void*)task->arg )) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: rt_task_start() task_id %d returns %d\n", 
+			task_id, retval);
+	return -EINVAL;
+    }
+
+    return 0;
+}
+
+#else /* ULAPI */
+rtapi_data_t *rtapi_init_hook() {
+    int retval;
+    rtapi_data_t *rtapi_data;
+
+    if ((retval = rt_heap_bind(&ul_heap_desc, MASTER_HEAP, TM_NONBLOCK))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: rtapi_init: rt_heap_bind() "
+			"returns %d - %s\n", 
+			retval, strerror(-retval));
+	return NULL;
+    }
+    if ((retval = rt_heap_alloc(&ul_heap_desc, 0,
+				TM_NONBLOCK, (void **)&rtapi_data)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
+			retval, strerror(retval));
+	return NULL;
+    }
+
+    //rtapi_printall();
+    return rtapi_data;
+}
+#endif /* ULAPI */
 

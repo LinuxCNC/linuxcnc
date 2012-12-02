@@ -27,13 +27,11 @@
 // in shared memory, so keep it here
 static rtapi_data_t local_rtapi_data;
 rtapi_data_t *rtapi_data = &local_rtapi_data;
-task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
 #else
 
 rtapi_data_t *rtapi_data = NULL;
-task_data *task_array = NULL;
 shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
 
