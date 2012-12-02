@@ -605,7 +605,7 @@ RTAPI_BEGIN_DECLS
 */
 #include <linux/version.h>
 #if !defined(BUILD_SYS_USER_DSO)
-# include <linux/module.h>    /* EXPORT_SYMBOL */
+#include <linux/module.h>
 # include <linux/ioport.h>
 #endif
 

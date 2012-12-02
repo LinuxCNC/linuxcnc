@@ -203,5 +203,7 @@ extern void init_rtapi_data(rtapi_data_t * data);
 
 extern int period;		/* defined in rtapi_time.c */
 
+/* rtapi_msg.c */
+extern int msg_level;		/* needed in rtapi_proc.h */
 
 #endif /* RTAPI_COMMON_H */

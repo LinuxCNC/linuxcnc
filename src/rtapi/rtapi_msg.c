@@ -10,14 +10,17 @@
 #include "rtapi_common.h"
 
 #ifdef MODULE
-#    include <linux/module.h>	/* EXPORT_SYMBOL */
+#    include <stdarg.h>		/* va_* */
 #    include <linux/kernel.h>	/* kernel's vsnprintf */
 #    define RTPRINTBUFFERLEN 1024
 #else  /* user land */
 #    include <stdio.h>		/* libc's vsnprintf() */
 #endif
 
-static int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
+int msg_level = RTAPI_MSG_INFO;	/* message printing level */ //XXX
+#ifdef MODULE
+RTAPI_MP_INT(msg_level, "debug message level (default=1)");
+#endif
 
 // most RT systems use printk()
 #ifndef PRINTK

@@ -1,60 +1,3 @@
-/** RTAPI is a library providing a uniform API for several real time
-    operating systems.  As of ver 2.0, RTLinux and RTAI are supported.
-*/
-/********************************************************************
-* Description:  rtai_ulapi.c
-*               This file, 'rtai_ulapi.c', implements the nonrealtime 
-*               portion of the API for the RTAI platform.
-*
-* Author: John Kasunich, Paul Corner
-* License: LGPL Version 2
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
-********************************************************************/
-
-/** This file, 'rtai_ulapi.c', implements the non-realtime portion of
-    the API for the RTAI platform.  The API is defined in rtapi.h,
-    which includes documentation for all the API functions.  The
-    realtime portion of the API is implemented in rtai_rtapi.c
-    (for the RTAI platform).
-*/
-
-/** Copyright (C) 2003 John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
-    Copyright (C) 2003 Paul Corner
-                       <paul_c AT users DOT sourceforge DOT net>
-    This library is based on version 1.0, which was released into
-    the public domain by its author, Fred Proctor.  Thanks Fred!
-*/
-
-/* This library is free software; you can redistribute it and/or
-   modify it under the terms of version 2.1 of the GNU Lesser General
-   Public License as published by the Free Software Foundation.
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU General Lesser Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
-*/
-
-/** THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
-
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
-*/
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -64,7 +7,6 @@
 #include <stdio.h>		/* sprintf() */
 #include <string.h>		/* strcpy, etc. */
 #include <stddef.h>		/* NULL, needed for rtai_shm.h */
-#include <stdarg.h>		/* va_arg, etc. */
 #include <unistd.h>		/* open(), close() */
 #include <sys/mman.h>		/* PROT_READ, needed for rtai_shm.h */
 #include <sys/types.h>		/* off_t, needed for rtai_shm.h */
@@ -75,7 +17,6 @@
 #include "xenomai_common.h"
 
 #include <malloc.h>		/* malloc(), free() */
-#include <sys/io.h>		/* inb(), outb() */
 #include <errno.h>		/* errno */
 
 
@@ -96,8 +37,6 @@ static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 
 static int shmem_delete(int shmem_id, int module_id);
-
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 static void check_memlock_limit(const char *where);
 
@@ -224,61 +163,6 @@ int rtapi_exit(int module_id)
     rtapi_data->ul_module_count--;
     rtapi_mutex_give(&(rtapi_data->mutex));
     return 0;
-}
-
-int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
-    return vsnprintf(buf, size, fmt, ap);
-}
-
-int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
-{
-    va_list args;
-    int i;
-
-    va_start(args, fmt);
-    /* call the normal library vnsprintf() */
-    i = vsnprintf(buf, size, fmt, args);
-    va_end(args);
-    return i;
-}
-
-#define RTPRINTBUFFERLEN 1024
-
-void rtapi_print(const char *fmt, ...)
-{
-    char buffer[RTPRINTBUFFERLEN + 1];
-    va_list args;
-
-    va_start(args, fmt);
-    /* call the normal library vnsprintf() */
-    vsnprintf(buffer, RTPRINTBUFFERLEN, fmt, args);
-    fputs(buffer, stdout);
-    va_end(args);
-}
-
-void rtapi_print_msg(int level, const char *fmt, ...)
-{
-    va_list args;
-
-    if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-    }
-}
-
-int rtapi_set_msg_level(int level)
-{
-    if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
-	return -EINVAL;
-    }
-    msg_level = level;
-    return 0;
-}
-
-int rtapi_get_msg_level(void)
-{
-    return msg_level;
 }
 
 void rtapi_printall(void)
