@@ -17,6 +17,12 @@ class HandlerClass:
             self.widgets = gscreen.widgets
             self.gscreen = gscreen
 
+    # erase the ready-to-home message on statusbar
+    def on_hal_status_all_homed(self,widget):
+        print "all-homed"
+        self.data.all_homed = True
+        self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
+
 # **************************************************************************
 # Since these next function calls are outside the HandlerClass the reference 
 # names don't use self
@@ -27,7 +33,7 @@ class HandlerClass:
 # it calls the method in gscreen: gscreen.on_window_destroy()
 def connect_signals(gscreen):
     signal_list = [ ["window1","destroy", "on_window1_destroy"],
-                    ]
+                ]
     for i in signal_list:
         gscreen.widgets[i[0]].connect(i[1], gscreen[i[2]])
 
@@ -40,8 +46,11 @@ def connect_signals(gscreen):
 # gscreen.change_theme() is a method in gscreen that changes the GTK theme of window1
 # gscreen.data.theme_name is the name of the theme from the preference file 
 # To truely be friendly, we should add a way to change the theme directly in the custom screen.
+# we also set up the statusbar and add a ready-to-home message
 def initialize_widgets(gscreen):
     gscreen.change_theme(gscreen.data.theme_name)
+    gscreen.statusbar_id = gscreen.widgets.statusbar1.get_context_id("Statusbar1")
+    gscreen.homed_status_message = gscreen.widgets.statusbar1.push(1,"Ready For Homing")
 
 # If we need extra HAL pins here is where we do it.
 # Note you must import hal at the top of this script to do it.

@@ -713,11 +713,13 @@
   </object>
   <object class="EMC_Action_Unhome" id="emc_unhome_all"/>
   <object class="EMC_Action_Home" id="emc_home_x">
-    <property name="axis">0</property>
     <property name="confirm_homed">True</property>
+    <property name="axis">0</property>
   </object>
   <object class="EMC_Action_Unhome" id="emc_unhome_x">
     <property name="axis">0</property>
   </object>
-  <object class="EMC_Stat" id="hal_stat1"/>
+  <object class="EMC_Stat" id="hal_status">
+    <signal name="all_homed" handler="on_hal_status_all_homed"/>
+  </object>
 </interface>
