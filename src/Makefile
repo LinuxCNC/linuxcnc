@@ -708,6 +708,7 @@ rtapi-objs := \
 	rtapi/xenomai_kernel_rtapi.o \
 	rtapi/xenomai_common.o \
 	rtapi/rtapi_common.o \
+	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \
 	rtapi/xenomai-kernel.o
 endif

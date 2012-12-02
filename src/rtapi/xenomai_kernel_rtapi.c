@@ -1,67 +1,5 @@
-/** RTAPI is a library providing a uniform API for several real time
-    operating systems.  As of ver 2.0, RTLinux and RTAI are supported.
-*/
-/********************************************************************
-* Description:  rtai_rtapi.c
-*               Realtime RTAPI implementation for the RTAI platform.
-*
-* Author: John Kasunich, Paul Corner
-* License: GPL Version 2
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
-********************************************************************/
-
-/** This file, 'rtai_rtapi.c', implements the realtime portion of the
-    API for the RTAI platform.  The API is defined in rtapi.h, which
-    includes documentation for all of the API functions.  The non-
-    real-time portion of the API is implemented in rtai_ulapi.c (for
-    the RTAI platform).  This implementation attempts to prevent
-    kernel panics, 'oops'es, and other nasty stuff that can happen
-    when writing and testing realtime code.  Wherever possible,
-    common errors are detected and corrected before they can cause a
-    crash.  This implementation also includes several /proc filesystem
-    entries and numerous debugging print statements.
-*/
-
-/** Copyright (C) 2003 John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
-    Copyright (C) 2003 Paul Corner
-                       <paul_c AT users DOT sourceforge DOT net>
-    This library is based on version 1.0, which was released into
-    the public domain by its author, Fred Proctor.  Thanks Fred!
-*/
-
-/* This library is free software; you can redistribute it and/or
-   modify it under the terms of version 2 of the GNU General Public
-   License as published by the Free Software Foundation.
-   This library is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
-*/
-
-/** THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
-
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
-*/
-
 #include "config.h"	
 
-#include <stdarg.h>		/* va_* */
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
@@ -78,18 +16,9 @@
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
-/* get inb(), outb(), ioperm() */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,17)
-#include <asm/io.h>
-#else
-#include <sys/io.h>
-#endif
-
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 #endif
-
-#include "vsnprintf.h"
 
 #include <native/heap.h>
 #include <native/timer.h>
@@ -118,9 +47,6 @@ static long int max_delay = DEFAULT_MAX_DELAY;
 static unsigned long timer_counts; 
 
 /* module parameters */
-
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
-RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 
 /* other module information */
 MODULE_AUTHOR("John Kasunich, Fred Proctor, Paul Corner & Michael Haberler");
@@ -398,71 +324,6 @@ static int module_delete(int module_id)
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %d exited, name: '%s'\n",
 	module_id, name);
     return 0;
-}
-
-int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
-{
-    va_list args;
-    int i;
-
-    va_start(args, fmt);
-    i = rtapi_vsnprintf(buf, size, fmt, args);
-    va_end(args);
-    return i;
-}
-
-#define RTPRINTBUFFERLEN 1024
-
-void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    char buf[RTPRINTBUFFERLEN];
-    rtapi_vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-    // FIXME unsure
-    printk(buf);
-}
-static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
-
-rtapi_msg_handler_t rtapi_get_msg_handler(void) {
-    return rtapi_msg_handler;
-}
-
-void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
-    if(handler == NULL) rtapi_msg_handler = default_rtapi_msg_handler;
-    else rtapi_msg_handler = handler;
-}
-
-void rtapi_print(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
-    va_end(args);
-}
-
-
-void rtapi_print_msg(int level, const char *fmt, ...)
-{
-    va_list args;
-
-    if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
-	va_start(args, fmt);
-	rtapi_msg_handler(level, fmt, args);
-	va_end(args);
-    }
-}
-
-int rtapi_set_msg_level(int level)
-{
-    if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
-	return -EINVAL;
-    }
-    msg_level = level;
-    return 0;
-}
-
-int rtapi_get_msg_level(void)
-{
-    return msg_level;
 }
 
 /***********************************************************************
@@ -996,14 +857,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 
 EXPORT_SYMBOL(rtapi_init);
 EXPORT_SYMBOL(rtapi_exit);
-EXPORT_SYMBOL(rtapi_snprintf);
-EXPORT_SYMBOL(rtapi_vsnprintf);
-EXPORT_SYMBOL(rtapi_print);
-EXPORT_SYMBOL(rtapi_print_msg);
-EXPORT_SYMBOL(rtapi_set_msg_level);
-EXPORT_SYMBOL(rtapi_get_msg_level);
-EXPORT_SYMBOL(rtapi_set_msg_handler);
-EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_clock_set_period);
 EXPORT_SYMBOL(rtapi_get_time);
 EXPORT_SYMBOL(rtapi_get_clocks);
