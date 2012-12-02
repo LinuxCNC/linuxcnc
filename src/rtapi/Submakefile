@@ -37,9 +37,6 @@ rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
 ULAPI_SRCS := $(RTAPI_SRCS)
 
 
-# flags for linking ../lib/liblinuxcnchal.so
-ULAPI_LDFLAGS := 
-
 # cflags for all sources, -DRTAPI or -DULAPI
 #
 # see bottom of this file and Makefile
@@ -129,7 +126,7 @@ ifeq ($(THREADS),xenomai-kernel)
 XENO_CONFIG ?= xeno-config --skin=native
 
 RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
-ULAPI_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
+RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
 endif
 
 endif  # BUILD_SYS != user-dso
