@@ -984,21 +984,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 }
 
 
-/***********************************************************************
-*                        I/O RELATED FUNCTIONS                         *
-************************************************************************/
-
-void rtapi_outb(unsigned char byte, unsigned int port)
-{
-    outb(byte, port);
-}
-
-unsigned char rtapi_inb(unsigned int port)
-{
-    return inb(port);
-}
-
-
 /* starting with kernel 2.6, symbols that are used by other modules
    _must_ be explicitly exported.  2.4 and earlier kernels exported
    all non-static global symbols by default, so these explicit exports
@@ -1038,5 +1023,3 @@ EXPORT_SYMBOL(rtapi_task_self);
 EXPORT_SYMBOL(rtapi_shmem_new);
 EXPORT_SYMBOL(rtapi_shmem_delete);
 EXPORT_SYMBOL(rtapi_shmem_getptr);
-EXPORT_SYMBOL(rtapi_outb);
-EXPORT_SYMBOL(rtapi_inb);
