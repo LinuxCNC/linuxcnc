@@ -362,7 +362,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers,mod
+    return handlers,mod,object
 
 # ok here is the Gscreen class
 # there are also three other files:
@@ -562,19 +562,18 @@ class Gscreen:
             temp = [HANDLER_FN]
         else:
             temp = []
-        handlers,module = load_handlers(temp,self.halcomp,self.xml,[],self)
+        handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
         self.xml.connect_signals(handlers)
-        self.custom_handler = module
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
-        if "initialize_pins" in dir(self.custom_handler):
-            self.custom_handler.initialize_pins(self)
+        if "initialize_pins" in dir(self.handler_instance):
+            self.handler_instance.initialize_pins()
         else:
             self.initialize_pins()
         self.initialize_manual_toolchange()
-        if "connect_signals" in dir(self.custom_handler):
-            self.custom_handler.connect_signals(self)
+        if "connect_signals" in dir(self.handler_instance):
+            self.handler_instance.connect_signals()
         else:
             self.install_signals(handlers)
 
@@ -597,8 +596,8 @@ class Gscreen:
         self.widgets.window1.show()
 
         # Set up the widgets
-        if "initialize_widgets" in dir(self.custom_handler):
-            self.custom_handler.initialize_widgets(self)
+        if "initialize_widgets" in dir(self.handler_instance):
+            self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
 
@@ -736,8 +735,8 @@ class Gscreen:
         self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
         self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
         # you can override manual tool change
-        if "on_tool_change" in dir(self.custom_handler):
-            self.data['change-tool'].connect('value-changed', self.custom_handler.on_tool_change)
+        if "on_tool_change" in dir(self.handler_instance):
+            self.data['change-tool'].connect('value-changed', self.handler_instance.on_tool_change)
         else:
             self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
@@ -1709,8 +1708,8 @@ class Gscreen:
             dialog.format_secondary_text(secondary)
         dialog.show_all()
         try:
-            if "dialog_return" in dir(self.custom_handler):
-                dialog.connect("response", self.custom_handler.dialog_return,self,displaytype,pinname)
+            if "dialog_return" in dir(self.handler_instance):
+                dialog.connect("response", self.handler_instance.dialog_return,self,displaytype,pinname)
             else:
                 dialog.connect("response", self.dialog_return,displaytype,pinname)
         except:
@@ -2290,8 +2289,8 @@ class Gscreen:
             else:
                 self.notify("Error Message",text,INFO_ICON,3)
         self.emc.unmask()
-        if "periodic" in dir(self.custom_handler):
-            self.custom_handler.periodic(self)
+        if "periodic" in dir(self.handler_instance):
+            self.handler_instance.periodic()
         else:
             self.update_position()
         return True

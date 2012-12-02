@@ -1,4 +1,8 @@
-
+# This is a handler file for using Gscreen's infrastructure
+# to load a completely custom glade screen
+# The only things that really matters is that it's saved as a GTK builder project,
+# the toplevel window is caller window1 (The default name) and you connect a destroy
+# window signal else you can't close down linuxcnc 
 class HandlerClass:
 
     # this will be pretty standard to gain access to everything
@@ -17,6 +21,18 @@ class HandlerClass:
 
             self.nhits = 0
             self.widgets.gremlin.set_property('enable_dro',True)
+
+    
+    # every 50 milli seconds this gets called
+    # here we update a button label then call gscreen's
+    # regular update method so it updates it's regular widgets too
+    def periodic(self):
+        data = self.data.dro_units
+        if data:
+            self.widgets.metric_select.set_label(" MM ")
+        else:
+            self.widgets.metric_select.set_label("INCH")
+        self.gscreen.update_position()
 
     # This is a new method for a couple of widgets we added callbacks to.
     # The argument 'widget' is a reference to the actual widget that called.
@@ -70,23 +86,6 @@ class HandlerClass:
         self.gscreen.audio.set_sound(self.data.alert_sound)
         self.gscreen.audio.run()
         self.gscreen.on_hide_cursor(None)
-
-
-# **************************************************************************
-# Since these next function calls are outside the HandlerClass the reference 
-# names don't use self
-# **************************************************************************
-
-# every 50 milli seconds this gets called
-# here we update a button label then call gscreen's
-# regular update method so it updates it's regular widgets too
-def periodic(gscreen):
-    data = gscreen.data.dro_units
-    if data:
-        gscreen.widgets.metric_select.set_label(" MM ")
-    else:
-        gscreen.widgets.metric_select.set_label("INCH")
-    gscreen.update_position()
 
 def get_handlers(halcomp,builder,useropts,gscreen):
      return [HandlerClass(halcomp,builder,useropts,gscreen)]
