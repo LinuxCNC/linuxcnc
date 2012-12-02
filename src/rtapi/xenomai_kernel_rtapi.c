@@ -164,9 +164,9 @@ int init_module(void)
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check revision code */
-    if (rtapi_data->rev_code != rev_code) {
+    if (rtapi_data->rev_code != REV_CODE) {
 	/* mismatch - release master shared memory block */
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, REV_CODE);
 
 	rt_heap_delete(&master_heap);
 	return -EINVAL;

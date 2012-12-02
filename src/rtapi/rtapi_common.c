@@ -3,7 +3,9 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#ifndef MODULE
 #include <stdlib.h>		/* strtol() */
+#endif
 
 #ifndef NULL
 #define NULL 0
@@ -21,10 +23,8 @@
 */
 
 #ifdef BUILD_SYS_USER_DSO
-
 // in the userland threads scenario, there is no point in having this 
 // in shared memory, so keep it here
-
 static rtapi_data_t local_rtapi_data;
 rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
@@ -97,7 +97,9 @@ void init_rtapi_data(rtapi_data_t * data)
 }
 
 
-
+/* simple_strtol defined in
+   /usr/src/kernels/<kversion>/include/linux/kernel.h */
+#ifndef MODULE
 long int simple_strtol(const char *nptr, char **endptr, int base) {
 #ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
     return rtapi_simple_strtol_hook(nptr,endptr,base);
@@ -105,3 +107,4 @@ long int simple_strtol(const char *nptr, char **endptr, int base) {
     return strtol(nptr, endptr, base);
 #endif
 }
+#endif
