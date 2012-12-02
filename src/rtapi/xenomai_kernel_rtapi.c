@@ -7,7 +7,6 @@
 #include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
 #include <asm/msr.h>		/* rdtscll() */
-#include <linux/time.h>		/* timeval & do_gettimeofday() */
 
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
@@ -21,7 +20,6 @@
 #endif
 
 #include <native/heap.h>
-#include <native/timer.h>
 #include <native/task.h>
 #include <native/intr.h>
 #include  <rtdk.h>
@@ -35,16 +33,7 @@ static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
 static rthal_trap_handler_t old_trap_handler;
 static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage, void *data);
 
-/* resource data unique to kernel space */
-RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
-
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
-
-#define DEFAULT_MAX_DELAY 10000
-static long int max_delay = DEFAULT_MAX_DELAY;
-
-// Actual number of RTAI timer counts of the periodic timer
-static unsigned long timer_counts; 
 
 /* module parameters */
 
@@ -324,56 +313,6 @@ static int module_delete(int module_id)
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %d exited, name: '%s'\n",
 	module_id, name);
     return 0;
-}
-
-/***********************************************************************
-*                     CLOCK RELATED FUNCTIONS                          *
-************************************************************************/
-
-long int rtapi_clock_set_period(long int nsecs)
-{
-    RTIME counts, got_counts;
-
-    if (nsecs == 0) {
-	/* it's a query, not a command */
-	return rtapi_data->timer_period;
-    }
-    if (rtapi_data->timer_running) {
-	/* already started, can't restart */
-	return -EINVAL;
-    }
-    /* limit period to 2 micro-seconds min, 1 second max */
-    if ((nsecs < 2000) || (nsecs > 1000000000L)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERR: clock_set_period: %ld nsecs,  out of range\n",
-	    nsecs);
-	return -EINVAL;
-    }
-
-    counts = rt_timer_ns2ticks((RTIME) nsecs);
-    rt_timer_set_mode(counts);
-    rtapi_data->timer_period = got_counts = rt_timer_ticks2ns(counts);
-    timer_counts = got_counts;
-
-    rtapi_print_msg(RTAPI_MSG_DBG,
-	"RTAPI: clock_set_period requested: %ld  actual: %ld  counts requested: %d  actual: %d\n",
-	nsecs, rtapi_data->timer_period, (int)counts, (int)got_counts);
-    rtapi_data->timer_running = 1;
-    max_delay = rtapi_data->timer_period / 4;
-    return rtapi_data->timer_period;
-}
-
-void rtapi_delay(long int nsec)
-{
-    if (nsec > max_delay) {
-	nsec = max_delay;
-    }
-    udelay(nsec / 1000);
-}
-
-long int rtapi_delay_max(void)
-{
-    return max_delay;
 }
 
 /***********************************************************************
@@ -857,11 +796,6 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 
 EXPORT_SYMBOL(rtapi_init);
 EXPORT_SYMBOL(rtapi_exit);
-EXPORT_SYMBOL(rtapi_clock_set_period);
-EXPORT_SYMBOL(rtapi_get_time);
-EXPORT_SYMBOL(rtapi_get_clocks);
-EXPORT_SYMBOL(rtapi_delay);
-EXPORT_SYMBOL(rtapi_delay_max);
 EXPORT_SYMBOL(rtapi_prio_highest);
 EXPORT_SYMBOL(rtapi_prio_lowest);
 EXPORT_SYMBOL(rtapi_prio_next_higher);
