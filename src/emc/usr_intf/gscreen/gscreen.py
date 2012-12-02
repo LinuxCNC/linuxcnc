@@ -572,6 +572,7 @@ class Gscreen:
             self.custom_handler.initialize_pins(self)
         else:
             self.initialize_pins()
+        self.initialize_manual_toolchange()
         if "connect_signals" in dir(self.custom_handler):
             self.custom_handler.connect_signals(self)
         else:
@@ -728,10 +729,17 @@ class Gscreen:
             self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
             for axis in self.data.axis_list:
                 self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-            # for manual tool change dialog
-            self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-            self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
-            self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
+
+    def initialize_manual_toolchange(self):
+        # for manual tool change dialog
+        self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
+        self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
+        self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
+        # you can override manual tool change
+        if "on_tool_change" in dir(self.custom_handler):
+            self.data['change-tool'].connect('value-changed', self.custom_handler.on_tool_change)
+        else:
+            self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
 # *** GLADE callbacks ****
 
@@ -1271,11 +1279,6 @@ class Gscreen:
                     self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
             except:
                 print "**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2])
-        # you can override manual tool change
-        if "on_tool_change" in dir(self.custom_handler):
-            self.data['change-tool'].connect('value-changed', self.custom_handler.on_tool_change)
-        else:
-            self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
         # setup signals that can be blocked but not overriden 
         for axis in self.data.axis_list:
@@ -1713,6 +1716,10 @@ class Gscreen:
         except:
             dialog.destroy()
             raise NameError ('Dialog error - Is the dialog handler missing from the handler file?')
+        if pinname == "TOOLCHANGE":
+            dialog.set_title("Manual Toolchange")
+        else:
+            dialog.set_title("Operator Message")
 
     # message dialog returns a response here
     # This includes the manual tool change dialog
@@ -1721,7 +1728,10 @@ class Gscreen:
         if pinname == "TOOLCHANGE":
             self.halcomp["tool-changed"] = True
             widget.destroy()
-            self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
+            try:
+                self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
+            except:
+                pass
             return
         if not dialogtype: # yes/no dialog
             if result == gtk.RESPONSE_YES:result = True
