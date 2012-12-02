@@ -595,16 +595,3 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
     return 0;
 }
 
-/***********************************************************************
-*                        I/O RELATED FUNCTIONS                         *
-************************************************************************/
-
-void rtapi_outb(unsigned char byte, unsigned int port)
-{
-    outb(byte, port);
-}
-
-unsigned char rtapi_inb(unsigned int port)
-{
-    return inb(port);
-}

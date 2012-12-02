@@ -704,10 +704,12 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 #rtapi-objs := rtapi/linux_ulapi.o
 #endif
 ifeq ($(THREADS),xenomai-kernel)
-rtapi-objs := rtapi/xenomai_kernel_rtapi.o
-rtapi-objs += rtapi/xenomai_common.o
-rtapi-objs += rtapi/rtapi_common.o
-rtapi-objs += rtapi/xenomai-kernel.o
+rtapi-objs := \
+	rtapi/xenomai_kernel_rtapi.o \
+	rtapi/xenomai_common.o \
+	rtapi/rtapi_common.o \
+	rtapi/rtapi_io.o \
+	rtapi/xenomai-kernel.o
 endif
 #ifeq ($(THREADS),rtai)
 #rtapi-objs := rtapi/rtai_rtapi.o

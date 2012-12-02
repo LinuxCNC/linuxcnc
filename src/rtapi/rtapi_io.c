@@ -12,10 +12,14 @@
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
 
-#include <sys/io.h>             /* in*(), out*() */
-
 #ifdef MODULE
-#include <linux/module.h>	// EXPORT_SYMBOL
+#  if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,17)
+#    include <asm/io.h>		/* inb(), outb() */
+#  else
+#    include <sys/io.h>		/* inb(), outb() */
+#  endif
+#else
+#  include <sys/io.h>		/* inb(), outb() */
 #endif
 
 
@@ -53,6 +57,7 @@ extern inline void rtapi_outw_hook(unsigned short word, unsigned int port);
 void rtapi_outw(unsigned short word, unsigned int port) {
     rtapi_outw_hook(word,port);
 }
+
 #else  /* default:  use outw() */
 void rtapi_outw(unsigned short word, unsigned int port) {
     outw(word,port);
