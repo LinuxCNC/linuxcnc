@@ -11,8 +11,9 @@ class HandlerClass:
     # widgets is all the widgets from the glade files
     # gscreen is for access to gscreens methods
     #
-    # we added setting the gremlin DRO on from the startup
-    # and a global variable for the number of key presses
+    # we added setting the gremlin DRO on from the startup,
+    # a global variable for the number of key presses,
+    # and make only the active axis buttons visible
     def __init__(self, halcomp,builder,useropts,gscreen):
             self.emc = gscreen.emc
             self.data = gscreen.data
@@ -21,7 +22,6 @@ class HandlerClass:
 
             self.nhits = 0
             self.widgets.gremlin.set_property('enable_dro',True)
-
             for i in ("x","y","z","a","b","c","u","v","w","s"):
                 if i in self.data.axis_list:
                     self.widgets["axis_%s"%i].set_visible(True)
