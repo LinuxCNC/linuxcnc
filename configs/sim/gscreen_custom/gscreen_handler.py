@@ -22,6 +22,9 @@ class HandlerClass:
             self.nhits = 0
             self.widgets.gremlin.set_property('enable_dro',True)
 
+            for i in ("x","y","z","a","b","c","u","v","w","s"):
+                if i in self.data.axis_list:
+                    self.widgets["axis_%s"%i].set_visible(True)
     
     # every 50 milli seconds this gets called
     # here we update a button label then call gscreen's
