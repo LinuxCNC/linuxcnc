@@ -8,7 +8,6 @@
 #define  MAX_ERRORS 3
 
 #include <native/task.h>
-#include <native/timer.h>
 #include <rtdk.h>
 #include "xenomai_common.h"		/* these decls */
 
@@ -79,26 +78,6 @@ int rtapi_task_self(void)
     }
     return -EINVAL;
 }
-
-long long int rtapi_get_time(void)
-{
-    /* The value returned will represent a count of jiffies if the native  */
-    /* skin is bound to a periodic time base (see CONFIG_XENO_OPT_NATIVE_PERIOD),  */
-    /* or nanoseconds otherwise.  */
-    return  rt_timer_read();
-}
-
-/* This returns a result in clocks instead of nS, and needs to be used
-   with care around CPUs that change the clock speed to save power and
-   other disgusting, non-realtime oriented behavior.  But at least it
-   doesn't take a week every time you call it.
-*/
-long long int rtapi_get_clocks(void)
-{
-    // Gilles says: do this - it's portable
-    return rt_timer_tsc();
-}
-
 
 void rtapi_wait(void)
 {

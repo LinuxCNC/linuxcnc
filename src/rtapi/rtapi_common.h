@@ -190,9 +190,6 @@ typedef struct {
 #endif
 } rtapi_data_t;
 
-#define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
-#define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
-
 extern rtapi_data_t *rtapi_data;
 extern module_data *module_array;
 extern task_data *task_array;
@@ -201,9 +198,21 @@ extern shmem_data *shmem_array;
 
 extern void init_rtapi_data(rtapi_data_t * data);
 
-extern int period;		/* defined in rtapi_time.c */
 
 /* rtapi_msg.c */
 extern int msg_level;		/* needed in rtapi_proc.h */
+
+/* rtapi_time.c */
+extern int period;
+#ifndef BUILD_SYS_USER_DSO
+extern long int max_delay;
+extern unsigned long timer_counts;
+#endif
+
+/* rtapi_shmem.c */
+#define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
+#define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
+#define SHMEM_MAGIC_LOCK_DELETE 25454  /* sig for blocks to be deleted
+					  without obtaining mutex */
 
 #endif /* RTAPI_COMMON_H */
