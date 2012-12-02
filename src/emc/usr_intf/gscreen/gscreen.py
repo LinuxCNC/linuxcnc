@@ -548,7 +548,7 @@ class Gscreen:
 
         # set-up HAL component
         try:
-            self.halcomp = hal.component(skinname)
+            self.halcomp = hal.component("gscreen")
         except:
             print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
             sys.exit(0)

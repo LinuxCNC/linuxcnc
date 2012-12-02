@@ -7,6 +7,6 @@ unlinkp hal_manualtoolchange.change
 unlinkp hal_manualtoolchange.changed
 unlinkp hal_manualtoolchange.number
 
-net tool-change gaxis.change-tool iocontrol.0.tool-change 
-net tool-changed gaxis.tool-changed iocontrol.0.tool-changed
-net tool-prep-number gaxis.tool-number iocontrol.0.tool-prep-number
+net tool-change gscreen.change-tool iocontrol.0.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
