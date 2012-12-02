@@ -8,6 +8,13 @@ INCLUDES += rtapi
 ##########################################
 # defaults for all thread styles
 
+ifeq ($(THREADS),xenomai-kernel)
+ULAPI_SRCS := \
+	rtapi/xenomai_ulapi.c \
+	rtapi/rtapi_common.c \
+	rtapi/$(THREADS).c
+
+else
 # Base list of all sources
 RTAPI_SRCS := \
 	rtapi/rtapi_common.c \
@@ -20,13 +27,6 @@ RTAPI_SRCS := \
 	rtapi/$(THREADS).c
 
 
-# RTAPI module:  ../rtlib/rtapi.[ks]o
-#
-# compile all RTAPI_SRCS -DRTAPI -> objects/rtrtapi/*.o
-# and link into ../rtlib/rtapi.[ks]o; see Makefile
-rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
-
-
 # ULAPI:  ../lib/liblinuxcnchal.so
 #
 # List of sources whose objects objects/rtapi/*.o link into
@@ -35,6 +35,7 @@ rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
 # hal/Submakefile includes these in USERSRCS so that .o files are
 # built, so no need to do that here
 ULAPI_SRCS := $(RTAPI_SRCS)
+endif
 
 
 # cflags for all sources, -DRTAPI or -DULAPI
@@ -138,3 +139,10 @@ endif  # BUILD_SYS != user-dso
 
 # Add RT_CFLAGS to ULAPI compilation
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+
+
+# RTAPI module:  ../rtlib/rtapi.[ks]o
+#
+# compile all RTAPI_SRCS -DRTAPI -> objects/rtrtapi/*.o
+# and link into ../rtlib/rtapi.[ks]o; see Makefile
+rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
