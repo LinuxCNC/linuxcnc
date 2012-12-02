@@ -123,7 +123,9 @@ typedef enum {
     PAUSED,
     PERIODIC,
     FREERUN,
-    ENDED
+    ENDED,
+    USERLAND,
+    DELETE_LOCKED	// task ready to be deleted; mutex already obtained
 } task_state_t;
 
 typedef struct {
@@ -192,11 +194,18 @@ typedef struct {
 
 extern rtapi_data_t *rtapi_data;
 extern module_data *module_array;
-extern task_data *task_array;
 extern shmem_data *shmem_array;
 
 
 extern void init_rtapi_data(rtapi_data_t * data);
+
+
+/* rtapi_task.c */
+extern task_data *task_array;
+#ifdef MODULE
+/* resource data unique to kernel space */
+extern RT_TASK *ostask_array[];
+#endif
 
 
 /* rtapi_msg.c */

@@ -706,8 +706,8 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := \
 	rtapi/xenomai_kernel_rtapi.o \
-	rtapi/xenomai_common.o \
 	rtapi/rtapi_common.o \
+	rtapi/rtapi_task.o \
 	rtapi/rtapi_time.o \
 	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \

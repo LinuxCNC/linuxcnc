@@ -14,7 +14,6 @@
 
 #include <native/heap.h>
 #include <native/task.h>
-#include "xenomai_common.h"
 
 #include <malloc.h>		/* malloc(), free() */
 #include <errno.h>		/* errno */

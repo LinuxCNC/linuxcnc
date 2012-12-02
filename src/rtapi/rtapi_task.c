@@ -16,10 +16,6 @@
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
 
-#ifdef MODULE
-#include <linux/module.h>	/* EXPORT_SYMBOL */
-#endif
-
 /*
   These functions are completely different between each thread system,
   so they should be defined in their respective $THREADS.c files:
@@ -27,6 +23,20 @@
   int rtapi_init(const char *modname)
   int rtapi_exit(int id)
 */
+
+
+#ifdef BUILD_SYS_USER_DSO
+// in the userland threads scenario, there is no point in having this 
+// in shared memory, so keep it here
+task_data *task_array =  local_rtapi_data.task_array;
+#else
+task_data *task_array = NULL;
+#endif
+
+#ifdef MODULE
+/* resource data unique to kernel space */
+RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
+#endif
 
 
 /* priority functions */
@@ -45,18 +55,15 @@
 #    define PRIO_LT(a,b) (a<b)
 #endif
 
-int rtapi_prio_highest(void)
-{
+int rtapi_prio_highest(void) {
     return PRIO_HIGHEST;
 }
 
-int rtapi_prio_lowest(void)
-{
+int rtapi_prio_lowest(void) {
     return PRIO_LOWEST;
 }
 
-int rtapi_prio_next_higher(int prio)
-{
+int rtapi_prio_next_higher(int prio) {
     /* next higher priority for arg */
     prio PRIO_INCR;
 
@@ -69,8 +76,7 @@ int rtapi_prio_next_higher(int prio)
     return prio;
 }
 
-int rtapi_prio_next_lower(int prio)
-{
+int rtapi_prio_next_lower(int prio) {
     /* next lower priority for arg */
     prio PRIO_DECR;
 
@@ -93,30 +99,37 @@ int rtapi_task_new_hook(task_data *task, int task_id);
 
 int rtapi_task_new(void (*taskcode) (void*), void *arg,
 		   int prio, int owner, unsigned long int stacksize, 
-		   int uses_fp, char *name, int cpu_id) 
-{
-    int n;
+		   int uses_fp, char *name, int cpu_id) {
     int task_id;
+    int retval = 0;
     task_data *task;
 
-    /* find an empty entry in the task array */
-    /*! \todo  FIXME - this is not 100% thread safe.  If another thread
-      calls this function after the first thread breaks out of
-      the loop but before it sets the magic number, two tasks
-      might wind up assigned to the same structure.  Need an
-      atomic test and set for the magic number.  Not tonight! */
+    /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
 
-    n = 1; // tasks start at one!
+#ifdef MODULE
+    /* validate owner */
+    if ((owner < 1) || (owner > RTAPI_MAX_MODULES)) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	return -EINVAL;
+    }
+    if (module_array[owner].state != REALTIME) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	return -EINVAL;
+    }
+#endif
+
+    /* find an empty entry in the task array */
+    task_id = 1; // tasks start at one!
     // go through task_array until an empty task slot is found
-    while ((n < RTAPI_MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
-	n++;
+    while ((task_id < RTAPI_MAX_TASKS) &&
+	   (task_array[task_id].magic == TASK_MAGIC))
+	task_id++;
     // if task_array is full, release lock and return error
-    if (n == RTAPI_MAX_TASKS) {
+    if (task_id == RTAPI_MAX_TASKS) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -ENOMEM;
     }
-    task_id = n;
     task = &(task_array[task_id]);
 
     // if requested priority is invalid, release lock and return error
@@ -142,9 +155,6 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 		    rtapi_prio_lowest());
     task->magic = TASK_MAGIC;
 
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    /*! \todo FIXME - end of non-threadsafe window */
-
     /* fill out task structure */
     if(stacksize < MIN_STACKSIZE) stacksize = MIN_STACKSIZE;
     task->owner = owner;
@@ -153,19 +163,69 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     task->taskcode = taskcode;
     task->prio = prio;
     task->uses_fp = uses_fp;
-    task->cpu = cpu_id;
+    /*  hopefully this works for userland thread systems too  */
+    task->cpu = cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "Task CPU:  %d\n", task->cpu);
+    /*    task->cpu = cpu_id;  */
     strncpy(task->name, name, sizeof(task->name));
     task->name[sizeof(task->name) - 1] = '\0';
 
-    /* rtapi_task_new_hook() should perform any thread system-specific
-       tasks, and return task_id or an error code back to the
-       caller */
-#ifdef HAVE_RTAPI_TASK_NEW_HOOK
-    return rtapi_task_new_hook(task,task_id);
-#else
-    return task_id;
-#endif
+#ifdef MODULE
+    /* get space for the OS's task data - this is around 900 bytes, */
+    /* so we don't want to statically allocate it for unused tasks. */
+    ostask_array[task_id] = kmalloc(sizeof(RT_TASK), GFP_USER);
+    if (ostask_array[task_id] == NULL) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	return -ENOMEM;
+    }
 
+    /* kernel threads: rtapi_task_new_hook() should call OS to
+       initialize the task - use predetermined or explicitly assigned
+       CPU */
+    retval = rtapi_task_new_hook(task, task_id);
+
+    if (retval) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rt_task_create failed, rc = %d\n", retval );
+
+	/* couldn't create task, free task data memory */
+	kfree(ostask_array[task_id]);
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	if (retval == ENOMEM) {
+	    /* not enough space for stack */
+	    return -ENOMEM;
+	}
+	/* unknown error */
+	return -EINVAL;
+    }
+
+    task->state = PAUSED;
+    retval = task_id;
+#else  /* userland thread */
+    /* userland threads: rtapi_task_new_hook() should perform any
+       thread system-specific tasks, and return task_id or an error
+       code back to the caller (how do we know the diff between an
+       error and a task_id???).  */
+    task->state = USERLAND;	// userland threads don't track this
+
+#  ifdef HAVE_RTAPI_TASK_NEW_HOOK
+    retval = rtapi_task_new_hook(task,task_id);
+#  else
+    retval = task_id;
+#  endif
+#endif  /* userland thread */
+
+    rtapi_data->task_count++;
+
+    rtapi_mutex_give(&(rtapi_data->mutex));
+
+    /* announce the birth of a brand new baby task */
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"RTAPI: task %02d installed by module %02d, priority %d, code: %p\n",
+	task_id, task->owner, task->prio, taskcode);
+
+    return task_id;
 }
 
 
@@ -181,19 +241,59 @@ int rtapi_task_delete(int task_id) {
 
     task = &(task_array[task_id]);
     /* validate task handle */
-    if (task->magic != TASK_MAGIC)
+    if (task->magic != TASK_MAGIC)	// nothing to delete
 	return -EINVAL;
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_delete %d \"%s\"\n", task_id, 
-		    task->name );
 
 #ifdef HAVE_RTAPI_TASK_DELETE_HOOK
     retval = rtapi_task_delete_hook(task,task_id);
 #endif
 
+#ifdef MODULE
+    if (task->state != DELETE_LOCKED)	// we don't already hold mutex
+	rtapi_mutex_get(&(rtapi_data->mutex));
+
+    if ((task->state == PERIODIC) || (task->state == FREERUN)) {
+	/* task is running, need to stop it */
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "RTAPI: WARNING: tried to delete task %02d while running\n",
+	    task_id);
+	rtapi_task_pause(task_id);
+    }
+    /* get rid of it */
+    rt_task_delete(ostask_array[task_id]);
+    /* free kernel memory */
+    kfree(ostask_array[task_id]);
+    /* update data */
+    task->magic = 0;
+    task->prio = 0;
+    task->owner = 0;
+    task->taskcode = NULL;
+    ostask_array[task_id] = NULL;
+    rtapi_data->task_count--;
+    /* if no more tasks, stop the timer */
+    if (rtapi_data->task_count == 0) {
+	if (rtapi_data->timer_running != 0) {
+#  ifdef HAVE_RTAPI_MODULE_TIMER_STOP
+	    rtapi_module_timer_stop()
+#  endif
+	    rtapi_data->timer_period = 0;
+	    max_delay = DEFAULT_MAX_DELAY;
+	    rtapi_data->timer_running = 0;
+	}
+    }
+
+    if (task->state != DELETE_LOCKED)	// we don't already hold mutex
+	rtapi_mutex_give(&(rtapi_data->mutex));
+    task->state = EMPTY;
+#else  /* userland thread */
     rtapi_mutex_get(&(rtapi_data->mutex));
     task->magic = 0;
     rtapi_mutex_give(&(rtapi_data->mutex));
+#endif
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_delete %d \"%s\"\n", task_id, 
+		    task->name );
+
     return retval;
 }
 
@@ -216,7 +316,7 @@ void task_wrapper(void *arg) {
 		    "prio=%d ratio=%d\n",
 		    task, task->name, task->ratio * period,
 		    task->prio, task->ratio);
-    
+
 #ifdef HAVE_RTAPI_TASK_WRAPPER_HOOK
     rtapi_task_wrapper_hook(task, task_id);
 #endif
@@ -233,11 +333,12 @@ wrapper_t rtapi_task_wrapper = &task_wrapper;
 
 
 #ifdef HAVE_RTAPI_TASK_START_HOOK
-int rtapi_task_start_hook(task_data *task, int task_id);
+int rtapi_task_start_hook(task_data *task, int task_id,
+			  unsigned long int period_nsec);
 #endif
 
-int rtapi_task_start(int task_id, unsigned long int period_nsec)
-{
+#ifndef MODULE  /* userspace threads */
+int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task_data *task;
 
     if (task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -261,19 +362,52 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 		    task_id, task->name);
 
 #ifdef HAVE_RTAPI_TASK_START_HOOK
-    return rtapi_task_start_hook(task,task_id);
+    return rtapi_task_start_hook(task,task_id,0);
 #else
     return 0;
 #endif
 }
+#else  /* kernel threads */
+int rtapi_task_start(int task_id, unsigned long int period_nsec) {
+    int retval;
+    task_data *task;
+
+    /* validate task ID */
+    if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
+	return -EINVAL;
+    }
+    /* point to the task's data */
+    task = &(task_array[task_id]);
+    /* is task ready to be started? */
+    if (task->state != PAUSED) {
+	return -EINVAL;
+    }
+    /* can't start periodic tasks if timer isn't running */
+    if ((rtapi_data->timer_running == 0) || (rtapi_data->timer_period == 0)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, 
+                "RTAPI: could not start task: timer isn't running\n");
+	return -EINVAL;
+    }
+
+#ifdef HAVE_RTAPI_TASK_START_HOOK
+    if ((retval = rtapi_task_start_hook(task, task_id, period_nsec)))
+	return retval;
+#endif
+
+    /* ok, task is started */
+    task->state = PERIODIC;
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: start_task id: %02d\n", task_id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
+    return retval;
+}
+#endif  /* kernel threads */
 
 
 #ifdef HAVE_RTAPI_TASK_STOP_HOOK
 int rtapi_task_stop_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_stop(int task_id)
-{
+int rtapi_task_stop(int task_id) {
     task_data *task;
 
     if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -295,9 +429,13 @@ int rtapi_task_stop(int task_id)
 int rtapi_task_pause_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_pause(int task_id)
-{
+int rtapi_task_pause(int task_id) {
     task_data *task;
+#ifdef MODULE
+    task_state_t oldstate;
+    int retval;
+#endif
+
     if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
@@ -305,6 +443,23 @@ int rtapi_task_pause(int task_id)
     /* validate task handle */
     if (task->magic != TASK_MAGIC)
 	return -EINVAL;
+
+#ifdef MODULE
+    if ((task->state != PERIODIC) && (task->state != FREERUN)) {
+	return -EINVAL;
+    }
+    /* pause the task */
+    oldstate = task->state;
+    task->state = PAUSED;
+    // ok for both RTAI and Xenomai
+    retval = rt_task_suspend(ostask_array[task_id]);
+    if (retval != 0) {
+        task->state = oldstate;
+	return -EINVAL;
+    }
+    /* update task data */
+    return 0;
+#endif
 
 #ifdef HAVE_RTAPI_TASK_PAUSE_HOOK
     return rtapi_task_pause_hook(task,task_id);
@@ -315,11 +470,10 @@ int rtapi_task_pause(int task_id)
 }
 
 #ifdef HAVE_RTAPI_WAIT_HOOK
-void rtapi_wait_hook();
+extern void rtapi_wait_hook(void);
 #endif
 
-void rtapi_wait(void)
-{
+void rtapi_wait(void) {
 #ifdef HAVE_RTAPI_WAIT_HOOK
     rtapi_wait_hook();
 #endif
@@ -330,9 +484,12 @@ void rtapi_wait(void)
 int rtapi_task_resume_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_resume(int task_id)
-{
+int rtapi_task_resume(int task_id) {
     task_data *task;
+#ifdef MODULE
+    int retval;
+#endif
+
     if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
     
     task = &task_array[task_id];
@@ -340,6 +497,22 @@ int rtapi_task_resume(int task_id)
     /* validate task handle */
     if (task->magic != TASK_MAGIC)
 	return -EINVAL;
+
+#ifdef MODULE
+    if (task->state != PAUSED) {
+	return -EINVAL;
+    }
+    /* start the task */
+    // ok for both RTAI and Xenomai
+    retval = rt_task_resume(ostask_array[task_id]);
+    if (retval != 0) {
+	return -EINVAL;
+    }
+    /* update task data */
+    task->state = FREERUN;
+
+    return 0;
+#endif
 
 #ifdef HAVE_RTAPI_TASK_RESUME_HOOK
     return rtapi_task_resume_hook(task,task_id);
@@ -376,4 +549,5 @@ EXPORT_SYMBOL(rtapi_task_start);
 EXPORT_SYMBOL(rtapi_wait);
 EXPORT_SYMBOL(rtapi_task_resume);
 EXPORT_SYMBOL(rtapi_task_pause);
+EXPORT_SYMBOL(rtapi_task_self);
 #endif
