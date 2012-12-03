@@ -200,9 +200,11 @@ extern rtapi_data_t *rtapi_data;
 
 /* rtapi_task.c */
 extern task_data *task_array;
-#ifdef MODULE
-/* resource data unique to kernel space */
-extern RT_TASK *ostask_array[];
+
+
+/* $(THREADS).c */
+#if defined(MODULE)
+extern RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 #endif
 
 

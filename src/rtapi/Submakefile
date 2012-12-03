@@ -10,10 +10,10 @@ INCLUDES += rtapi
 
 ifeq ($(THREADS),xenomai-kernel)
 ULAPI_SRCS := \
-	rtapi/xenomai_ulapi.c \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_module.c \
 	rtapi/rtapi_task.c \
+	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_time.c \
 	rtapi/rtapi_msg.c \
 	rtapi/rtapi_io.c \
@@ -23,13 +23,14 @@ else
 # Base list of all sources
 RTAPI_SRCS := \
 	rtapi/rtapi_common.c \
-	rtapi/rtapi_msg.c \
+	rtapi/rtapi_task.c \
 	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_time.c \
-	rtapi/rtapi_pci.c \
-	rtapi/rtapi_task.c \
+	rtapi/rtapi_msg.c \
 	rtapi/rtapi_io.c \
-	rtapi/$(THREADS).c
+	rtapi/$(THREADS).c \
+	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) \
+	$(if $(filter $(BUILD_SYS),user-dso),rtapi/rtapi_pci.c)
 
 
 # ULAPI:  ../lib/liblinuxcnchal.so

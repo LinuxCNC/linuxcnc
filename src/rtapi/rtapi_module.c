@@ -14,10 +14,7 @@
 
 
 #ifdef RTAPI
-// Disabling from now.  This needs a bunch of currently inaccessible stuff
-// from various places.
-//#include "rtapi_proc.h"		/* proc filesystem decls & code */
-#undef CONFIG_PROC_FS
+#include "rtapi_proc.h"		/* proc filesystem decls & code */
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
