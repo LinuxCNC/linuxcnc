@@ -3,6 +3,9 @@
 #endif
 
 #include "config.h"
+#include "rtapi.h"		/* public RTAPI decls */
+#include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
+
 
 #include <stdio.h>		/* sprintf() */
 #include <string.h>		/* strcpy, etc. */
@@ -19,9 +22,6 @@
 #include <errno.h>		/* errno */
 
 
-#include "rtapi.h"		/* public RTAPI decls */
-#include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
-
 /* the following are internal functions that do the real work associated
    with deleting resources.  They do not check the mutex that protects
    the internal data structures.  When someone calls a rtapi_xxx_delete()
@@ -32,7 +32,7 @@
 
 /* resource data unique to this process */
 
-static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
+void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];        
 
 static int shmem_delete(int shmem_id, int module_id);
@@ -40,129 +40,6 @@ static int shmem_delete(int shmem_id, int module_id);
 static void check_memlock_limit(const char *where);
 
 RT_HEAP ul_heap_desc;
-
-/***********************************************************************
-*                      GENERAL PURPOSE FUNCTIONS                       *
-************************************************************************/
-
-int rtapi_init(const char *modname)
-{
-    int n, module_id;
-    module_data *module;
-
-    /* say hello */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
-    /* get shared memory block from OS and save its address */
-    errno = 0;
-
-    if ((n = rt_heap_bind(&ul_heap_desc, MASTER_HEAP, TM_NONBLOCK))) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rtapi_init: rt_heap_bind() returns %d - %s\n", 
-			n, strerror(-n));
-	return -EINVAL;
-    }
-    if ((n = rt_heap_alloc(&ul_heap_desc, 0, TM_NONBLOCK, (void **)&rtapi_data)) != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: rt_heap_alloc() returns %d - %s\n", 
-			n, strerror(n));
-	return -EINVAL;
-    }
-
-    //rtapi_printall();
-
-    /* perform a global init if needed */
-    init_rtapi_data(rtapi_data);
-    /* check revision code */
-    if (rtapi_data->rev_code != REV_CODE) {
-	/* mismatch - release master shared memory block */
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, REV_CODE);
-	return -EINVAL;
-    }
-    /* set up local pointers to global data */
-    module_array = rtapi_data->module_array;
-    task_array = rtapi_data->task_array;
-    shmem_array = rtapi_data->shmem_array;
-     /* perform local init */
-    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
-	shmem_addr_array[n] = NULL;
-    }
-
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* find empty spot in module array */
-    n = 1;
-    while ((n <= RTAPI_MAX_MODULES) && (module_array[n].state != NO_MODULE)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_MODULES) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
-	    n);
-	return -EMFILE;
-    }
-    /* we have space for the module */
-    module_id = n;
-    module = &(module_array[n]);
-    /* update module data */
-    module->state = USERSPACE;
-    if (modname != NULL) {
-	/* use name supplied by caller, truncating if needed */
-	snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
-    } else {
-	/* make up a name */
-	snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
-    }
-    rtapi_data->ul_module_count++;
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module '%s' inited, ID = %02d\n",
-	module->name, module_id);
-    return module_id;
-}
-
-int rtapi_exit(int module_id)
-{
-    module_data *module;
-    int n;
-
-    if (rtapi_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: exit called before init\n");
-	return -EINVAL;
-    }
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exiting\n", module_id);
-    /* validate module ID */
-    if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad module id\n");
-	return -EINVAL;
-    }
-    /* get mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* point to the module's data */
-    module = &(module_array[module_id]);
-    /* check module status */
-    if (module->state != USERSPACE) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: not a userspace module\n");
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	return -EINVAL;
-    }
-    /* clean up any mess left behind by the module */
-    for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (test_bit(module_id, shmem_array[n].bitmap)) {
-	    fprintf(stderr,
-		"ULAPI: WARNING: module '%s' failed to delete shmem %02d\n",
-		module->name, n);
-	    shmem_delete(n, module_id);
-	}
-    }
-    /* update module data */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exited, name = '%s'\n",
-	module_id, module->name);
-    module->state = NO_MODULE;
-    module->name[0] = '\0';
-    rtapi_data->ul_module_count--;
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return 0;
-}
 
 void rtapi_printall(void)
 {

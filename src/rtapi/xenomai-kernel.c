@@ -52,6 +52,48 @@ void init_rtapi_data_hook(rtapi_data_t * data) {
 
 }
 
+
+/***********************************************************************
+*                          rtapi_module.c                              *
+************************************************************************/
+
+#ifdef RTAPI
+int rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
+    int n;
+
+    /* get master shared memory block from OS and save its address */
+    if ((n = rt_heap_create(&master_heap, MASTER_HEAP, 
+			    sizeof(rtapi_data_t), H_SHARED)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: rt_heap_create() returns %d\n", n);
+	return -EINVAL;
+    }
+    if ((n = rt_heap_alloc(&master_heap, 0, TM_INFINITE,
+			   (void **)rtapi_data)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: rt_heap_alloc() returns %d\n", n);
+	return -EINVAL;
+    }
+    return 0;
+}
+
+void rtapi_module_master_shared_memory_free(void) {
+    rt_heap_delete(&master_heap);
+}
+
+void rtapi_module_init_hook(void) {
+    old_trap_handler = \
+	rthal_trap_catch((rthal_trap_handler_t) rtapi_trap_handler);
+}
+
+void rtapi_module_cleanup_hook(void) {
+    /* release master shared memory block */
+    rt_heap_delete(&master_heap);
+    rthal_trap_catch(old_trap_handler);
+}
+#endif /* RTAPI */
+
+
 /***********************************************************************
 *                           rtapi_time.c                               *
 ************************************************************************/

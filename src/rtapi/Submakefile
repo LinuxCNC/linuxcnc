@@ -12,6 +12,7 @@ ifeq ($(THREADS),xenomai-kernel)
 ULAPI_SRCS := \
 	rtapi/xenomai_ulapi.c \
 	rtapi/rtapi_common.c \
+	rtapi/rtapi_module.c \
 	rtapi/rtapi_task.c \
 	rtapi/rtapi_time.c \
 	rtapi/rtapi_msg.c \

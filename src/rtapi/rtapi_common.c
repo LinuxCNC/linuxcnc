@@ -28,13 +28,9 @@
 static rtapi_data_t local_rtapi_data;
 rtapi_data_t *rtapi_data = &local_rtapi_data;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
-module_data *module_array = local_rtapi_data.module_array;
 #else
-
 rtapi_data_t *rtapi_data = NULL;
 shmem_data *shmem_array = NULL;
-module_data *module_array = NULL;
-
 #endif
 
 /* global init code */
@@ -99,10 +95,10 @@ void init_rtapi_data(rtapi_data_t * data)
    /usr/src/kernels/<kversion>/include/linux/kernel.h */
 #ifndef MODULE
 long int simple_strtol(const char *nptr, char **endptr, int base) {
-#ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
+# ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
     return rtapi_simple_strtol_hook(nptr,endptr,base);
-#else
+# else
     return strtol(nptr, endptr, base);
-#endif
+# endif
 }
 #endif
