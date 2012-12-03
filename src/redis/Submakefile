@@ -18,11 +18,11 @@ REDIS_PY_SRCS +=  $(notdir $(basename $(wildcard redis/redis-py/redis/*.py)))
 USERSRCS += $(LIBHIREDIS_SRCS)
 USERSRCS += $(REDIS_SERVER_SRCS)
 
-TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
+TARGETS +=  ../lib/libhiredis.a ../bin/redis-server  \
 	../lib/python/redis/__init__.py \
 	$(patsubst %,../lib/python/redis/%.py,$(REDIS_PY_SRCS)) 
 
-../include/%.h: ./redis/redis/deps/hiredis/%.h ./redis/%.h
+../include/%.h: redis/redis/deps/hiredis/%.h 
 	cp $^ $@
 
 # use redis supplied Makefile for now
@@ -36,7 +36,7 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 	make INSTALL_BIN=../../../../bin dep install)
 
 # use hiredis supplied Makefile for now
-../lib/libhiredis.a: $(LIBHIREDIS_SRCS) $(LIBHIREDIS_INCLUDES)
+../lib/libhiredis.a: $(LIBHIREDIS_SRCS) $(LIBHIREDIS_INCLUDES) ../bin/redis-server
 	(cd  redis/redis/deps/hiredis/; \
 	make -f Makefile \
 		INSTALL_INCLUDE_PATH=../../../../../include \
@@ -46,11 +46,11 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server \
 
 
 # redis-py install
-../lib/python/redis/__init__.py: redis/redis-py/redis/__init__.py
+../lib/python/redis/__init__.py: redis/redis-py/redis/__init__.py ../lib/libhiredis.a
 	$(Q)mkdir -p ../lib/python/redis
 	$(Q)cp $< $@
 
-../lib/python/redis/%: redis/redis-py/redis/%
+../lib/python/redis/%: redis/redis-py/redis/% ../lib/libhiredis.a
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
