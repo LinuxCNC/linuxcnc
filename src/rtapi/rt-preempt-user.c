@@ -45,37 +45,58 @@ int rtapi_exit(int module_id) {
 #else /* RTAPI */
 
 int rtapi_init(const char *modname) {
-    int n, result = -ENOMEM;
+    int n, module_id = -ENOMEM;
+    module_data *module;
 
-    /* debugging statements can be removed */
+    /* say hello */
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
+
+    /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
-    for (n = 0; n < RTAPI_MAX_MODULES; n++) {
-	if (module_array[n].magic != MODULE_MAGIC) {
-	    result = n + MODULE_OFFSET;
-	    module_array[n].magic = MODULE_MAGIC;
-	    strncpy(module_array[n].name, modname, RTAPI_NAME_LEN);
-	    break;
-	}
+    /* find empty spot in module array */
+    n = 1;
+    while ((n <= RTAPI_MAX_MODULES) && (module_array[n].state != NO_MODULE)) {
+	n++;
     }
+    if (n > RTAPI_MAX_MODULES) {
+	/* no room */
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
+			n);
+	return -EMFILE;
+    }
+    /* we have space for the module */
+    module_id = n + MODULE_OFFSET;
+    module = &(module_array[n]);
+    /* update module data */
+    module->state = REALTIME;
+    if (modname != NULL) {
+	/* use name supplied by caller, truncating if needed */
+	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
+    } else {
+	/* make up a name */
+	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
+    }
+    rtapi_data->ul_module_count++;
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module '%s' loaded, ID: %d\n",
+	module->name, module_id);
     rtapi_mutex_give(&(rtapi_data->mutex));
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_init: initialized module slot %d for %s\n",
-		    n, modname);
-
-    return result;
+    return module_id;
 }
 
-int rtapi_exit(int id) {
-    int n = id - MODULE_OFFSET;
+int rtapi_exit(int module_id) {
+    int retval;
 
-    if (n < 0 || n >= RTAPI_MAX_MODULES)
+    module_id -= MODULE_OFFSET;
+
+    if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
 	return -1;
     /* Remove the module from the module_array. */
     rtapi_mutex_get(&(rtapi_data->mutex));
-    module_array[n].magic = 0;
+    module_array[module_id].state = NO_MODULE;
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_exit: freed module slot %d, was %s\n",
-		    n, module_array[n].name);
+		    module_id, module_array[module_id].name);
     rtapi_mutex_give(&(rtapi_data->mutex));
 
     return 0;
