@@ -685,10 +685,17 @@ endif
 # the source directory with object files and other temporaries, but I can't
 # find a way around it.
 
+# These lists would be best moved to their respective subdirectories'
+# Submakefiles to make this more modular and avoid maintaining
+# multiple lists of the same things.  This won't work as-is right now
+# because the Submakefiles are included in a conditional block that is
+# not evaluated during kernel module build.
+
 # Subdirectory:  rtapi
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
+# Sources for all thread systems
 rtapi-objs := \
 	rtapi/rtapi_common.o \
 	rtapi/rtapi_task.o \
@@ -697,10 +704,12 @@ rtapi-objs := \
 	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \
 	rtapi/$(THREADS).o
-
+# Kernel threads need rtapi_module.c
 ifeq ($(BUILD_SYS),kbuild)
 rtapi-objs += rtapi/rtapi_module.o
-else
+endif
+# User threads need rtapi_pci.c
+ifeq ($(BUILD_SYS),user-dso)
 rtapi-objs += rtapi/rtapi_pci.o
 endif
 

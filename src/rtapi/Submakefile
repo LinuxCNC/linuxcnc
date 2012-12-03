@@ -33,16 +33,6 @@ ULAPI_SRCS := \
 # date.
 
 
-ifeq ($(BUILD_SYS),user-dso)
-# RTAPI_SRCS:  ../bin/rtapi_app
-#
-# This is the list of C sources to compile -DRTAPI and link into
-# ../bin/rtapi_app.  (Omit the main .cc file.)  (Can this be pruned?)
-RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
-$(info RTAPI_SRCS:  $(RTAPI_SRCS))
-endif
-
-
 # cflags for all sources, -DRTAPI or -DULAPI
 #
 # see bottom of this file and Makefile
@@ -54,45 +44,41 @@ RT_CFLAGS :=
 RT_LDFLAGS := 
 
 
-ifeq ($(BUILD_SYS),user-dso)
 ##################################################################
 #                 USERLAND THREAD STYLES
 ##################################################################
+ifeq ($(BUILD_SYS),user-dso)
 
-ifeq ($(THREADS),posix)
-################################################
-# simulator settings
-
-PTH_CONFIG ?= pth-config
-RT_CFLAGS += $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
-RT_LDFLAGS += $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)  -lrt
-endif
-
-
-ifeq ($(THREADS),xenomai-user)
 ################################################
 # xenomai-user settings
+ifeq ($(THREADS),xenomai-user)
 
 XENO_CONFIG ?= xeno-config --skin=native
 
 RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
 RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
-endif
+endif # xenomai-user
 
 
-ifeq ($(THREADS),rt-preempt-user)
 ################################################
-# rt-preempt-user settings
+# rt-preempt-user and posix settings
+ifneq ($(filter $(THREADS),rt-preempt-user posix),'')
 
 #RT_CFLAGS +=  
 RT_LDFLAGS += -lpthread -lrt
-endif
+
+endif  # rt-preempt-user/posix
 
 
 ################################################
 # ../bin/rtapi_app
 #
-# Build objects/rtapi/sim_rtapi_app.o; see Makefile
+# C sources to compile -DRTAPI and link into ../bin/rtapi_app.  (Omit
+# the main .cc file.)  (Can this be pruned?)
+RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
+#
+# Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
+# despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
 USERSRCS +=  rtapi/sim_rtapi_app.cc
 #
 # List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
@@ -113,29 +99,29 @@ $(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 TARGETS += ../bin/rtapi_app
 
 
-else  # BUILD_SYS == kbuild
 ##################################################################
 #                     KERNEL THREAD STYLES
 ##################################################################
-ifeq ($(THREADS),rtai)
+else  # BUILD_SYS == kbuild
+
 ################################################
 # rtai settings
+# ifeq ($(THREADS),rtai)
 
-# ...nothing
-endif
+# # ...nothing
+# endif  # rtai
 
-ifeq ($(THREADS),xenomai-kernel)
 ################################################
 # xenomai-kernel settings
+ifeq ($(THREADS),xenomai-kernel)
 
 XENO_CONFIG ?= xeno-config --skin=native
 
 RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
 RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
-endif
+endif  # xenomai-kernel
 
-endif  # BUILD_SYS != user-dso
-
+endif  # BUILD_SYS == kbuild
 
 ##################################################################
 #                     ALL THREAD STYLES
