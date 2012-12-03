@@ -1,6 +1,7 @@
 /********************************************************************
-* Description:  rt-preempt.c
-*               This file, 'rt-preempt.c', implements the unique
+* Description:  rt-preempt-user.c
+*
+*               This file, 'rt-preempt-user.c', implements the unique
 *               functions for the RT_PREEMPT thread system.
 ********************************************************************/
 
@@ -80,13 +81,11 @@ int rtapi_exit(int id) {
     return 0;
 }
 
-static inline int task_id(task_data *task)
-{
+static inline int task_id(task_data *task) {
     return (int)(task - task_array);
 }
 
-static unsigned long rtapi_get_pagefault_count(task_data *task)
-{
+static unsigned long rtapi_get_pagefault_count(task_data *task) {
     struct rusage rusage;
     unsigned long minor, major;
 
@@ -105,8 +104,7 @@ static unsigned long rtapi_get_pagefault_count(task_data *task)
     return minor + major;
 }
 
-static void rtapi_reset_pagefault_count(task_data *task)
-{
+static void rtapi_reset_pagefault_count(task_data *task) {
     struct rusage rusage;
 
     getrusage(RUSAGE_SELF, &rusage);
@@ -121,8 +119,7 @@ static void rtapi_reset_pagefault_count(task_data *task)
 }
 
 static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
-			       unsigned long s)
-{
+			       unsigned long s) {
     ns += tv->tv_nsec;
     while (ns > 1000000000) {
 	s++;
@@ -132,19 +129,16 @@ static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
     tv->tv_sec += s;
 }
 
-static void rtapi_key_alloc()
-{
+static void rtapi_key_alloc() {
     pthread_key_create(&task_key, NULL);
 }
 
-static void rtapi_set_task(task_data *t)
-{
+static void rtapi_set_task(task_data *t) {
     pthread_once(&task_key_once, rtapi_key_alloc);
     pthread_setspecific(task_key, (void *)t);
 }
 
-static task_data *rtapi_this_task()
-{
+static task_data *rtapi_this_task() {
     pthread_once(&task_key_once, rtapi_key_alloc);
     return (task_data *)pthread_getspecific(task_key);
 }
@@ -182,8 +176,7 @@ void rtapi_task_delete_hook(task_data *task, int task_id) {
     task->tdata.stackaddr = NULL;
 }
 
-static int realtime_set_affinity(task_data *task)
-{
+static int realtime_set_affinity(task_data *task) {
     cpu_set_t set;
     int err, cpu_nr, use_cpu = -1;
 
@@ -255,16 +248,14 @@ struct sched_param_ex {
 #define SCHED_SIG_DMISS		0x40000000
 
 static inline int sched_setscheduler_ex(pid_t pid, int policy, unsigned len,
-					struct sched_param_ex *param)
-{
+					struct sched_param_ex *param) {
 #ifdef __NR_sched_setscheduler_ex
     return syscall(__NR_sched_setscheduler_ex, pid, policy, len, param);
 #endif
     return -ENOSYS;
 }
 static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
-				      struct timespec *rmtp)
-{
+				      struct timespec *rmtp) {
 #ifdef __NR_sched_wait_interval
     return syscall(__NR_sched_wait_interval, flags, rqtp, rmtp);
 #endif
@@ -273,8 +264,7 @@ static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
 #endif /* SCHED_DEADLINE */
 
 
-static void deadline_exception(int signr)
-{
+static void deadline_exception(int signr) {
     if (signr != SIGXCPU) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Received unknown signal %d\n", signr);
 	return;
@@ -285,8 +275,7 @@ static void deadline_exception(int signr)
 			"scheduling runtime!\n");
 }
 
-static int realtime_set_priority(task_data *task)
-{
+static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
     struct sched_param_ex ex;
     struct sigaction sa;
@@ -336,8 +325,7 @@ static int realtime_set_priority(task_data *task)
 }
 
 
-static void *realtime_thread(void *arg)
-{
+static void *realtime_thread(void *arg) {
     task_data *task = arg;
 
     rtapi_set_task(task);
@@ -421,8 +409,7 @@ void rtapi_task_stop_hook(task_data *task, int task_id) {
     task->tdata.destroyed = 1;
 }
 
-int rtapi_wait_hook(void)
-{
+int rtapi_wait_hook(void) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
     int msg_level = RTAPI_MSG_NONE;

@@ -45,8 +45,7 @@ extern void rtapi_module_master_shared_memory_free(void);
 void rtapi_module_init_hook(void);
 #endif
 
-int init_module(void)
-{
+int init_module(void) {
   int n, res;
 
     /* say hello */
@@ -119,8 +118,7 @@ int init_module(void)
 /* This cleanup code attempts to fix any messes left by modules
 that fail to load properly, or fail to clean up after themselves */
 
-void cleanup_module(void)
-{
+void cleanup_module(void) {
     int n;
 
     if (rtapi_data == NULL) {
