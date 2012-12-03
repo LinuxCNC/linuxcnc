@@ -707,6 +707,7 @@ ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := \
 	rtapi/xenomai_kernel_rtapi.o \
 	rtapi/rtapi_common.o \
+	rtapi/rtapi_module.o \
 	rtapi/rtapi_task.o \
 	rtapi/rtapi_time.o \
 	rtapi/rtapi_msg.o \

@@ -94,6 +94,16 @@ typedef int32_t		__s32;
 # include <asm/types.h>
 #endif
 
+/* LINUX_VERSION_CODE for rtapi_{module,io}.c */
+#ifdef MODULE
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+#endif
+
 #include <rtapi_errno.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
