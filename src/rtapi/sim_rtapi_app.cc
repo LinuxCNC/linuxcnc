@@ -75,7 +75,7 @@ static std::map<string, void*> modules;
 
 extern "C" int schedule(void) { return sched_yield(); }
 
-int msg_level = RTAPI_MSG_WARN;
+int my_msg_level = RTAPI_MSG_WARN;
 static int instance_count = 0;
 static int force_exit = 0;
 
@@ -485,8 +485,8 @@ int main(int argc, char **argv)
 
     
     if ((s = getenv("MSGLEVEL")) != NULL) {
-	msg_level = atoi(s);
-	rtapi_set_msg_level(msg_level);
+	my_msg_level = atoi(s);
+	rtapi_set_msg_level(my_msg_level);
     }
 
     // enable core dumps

@@ -45,19 +45,14 @@ extern void *rtapi_shmem_new_realloc_hook(int shmem_id);
 extern void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 					 unsigned long int size);
 extern void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
-#  ifdef ULAPI
+#if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 static void check_memlock_limit(const char *where);
-#  endif
+#endif
 
 
-#ifdef BUILD_SYS_USER_DSO
-// in the userland threads scenario, there is no point in having this 
-// in shared memory, so keep it here
-shmem_data *shmem_array = local_rtapi_data.shmem_array;
-#else  /* BUILD_SYS_KBUILD */
-shmem_data *shmem_array = NULL;
+#ifdef BUILD_SYS_KBUILD
 void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
-#endif  /* BUILD_SYS_KBUILD */
+#endif
 
 
 #ifdef BUILD_SYS_USER_DSO

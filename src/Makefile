@@ -705,7 +705,6 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 #endif
 rtapi-objs := \
 	rtapi/rtapi_common.o \
-	rtapi/rtapi_module.o \
 	rtapi/rtapi_task.o \
 	rtapi/rtapi_shmem.o \
 	rtapi/rtapi_time.o \
