@@ -6,6 +6,8 @@
 *               rtapi_exit() and module_delete() functions for kernel
 *               space thread systems.
 *
+*		It should not be built for userspace thread systems.
+*
 ********************************************************************/
 
 #include "config.h"		// build configuration
@@ -13,27 +15,12 @@
 #include "rtapi_common.h"	// RTAPI macros and decls
 
 
-#ifdef RTAPI
+#ifdef MODULE
 #include "rtapi_proc.h"		/* proc filesystem decls & code */
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
-#include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
-#endif
-
-/* module parameters */
-
-/* other module information */
-MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
-MODULE_DESCRIPTION("Portable Real Time API for RTAI");
-MODULE_LICENSE("GPL");
-#endif
-
-#ifdef BUILD_SYS_USER_DSO
-// in the userland threads scenario, there is no point in having this 
-// in shared memory, so keep it here
-module_data *module_array = local_rtapi_data.module_array;
-#else
-module_data *module_array = NULL;
+#  if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+#    include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
+#  endif
 #endif
 
 

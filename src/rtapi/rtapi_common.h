@@ -75,6 +75,15 @@
 
 #include THREADS_HEADERS	/* thread-specific headers */
 
+
+/* module information */
+#ifdef MODULE
+MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
+MODULE_DESCRIPTION("Portable Real Time API");
+MODULE_LICENSE("GPL");
+#endif
+
+
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
 /* maximum number of various resources */
@@ -194,8 +203,8 @@ typedef struct {
 
 
 /* rtapi_common.c */
-extern void init_rtapi_data(rtapi_data_t * data);
 extern rtapi_data_t *rtapi_data;
+extern void init_rtapi_data(rtapi_data_t * data);
 
 
 /* rtapi_task.c */

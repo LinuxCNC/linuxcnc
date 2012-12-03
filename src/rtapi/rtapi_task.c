@@ -26,14 +26,6 @@
 */
 
 
-#ifdef BUILD_SYS_USER_DSO
-// in the userland threads scenario, there is no point in having this 
-// in shared memory, so keep it here
-task_data *task_array =  local_rtapi_data.task_array;
-#else
-task_data *task_array = NULL;
-#endif
-
 #ifdef MODULE
 /* resource data unique to kernel space */
 RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
