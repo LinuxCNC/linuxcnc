@@ -34,6 +34,7 @@ domain="glade-3" depends="gtk+">
             <property id="homogeneous" query="False" default="0" visible="False"/>
         </properties>
     </glade-widget-class>
+    <glade-widget-class name="HAL_DRO" generic-name="hal_dro" title="HAL DRO"/>
     <glade-widget-class name="Calculator" generic-name="calc" title="calculator">
         <properties>
             <property id="size" query="False" default="1" visible="False"/>
@@ -103,7 +104,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Graph"/>
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
-
+   <glade-widget-class-ref name="HAL_DRO"/>
    <glade-widget-class-ref name="EMC_Stat"/>
 
    <glade-widget-class-ref name="EMC_FileChooserDialog"/>
