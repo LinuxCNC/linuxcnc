@@ -76,6 +76,7 @@
 */
 #ifdef CONFIG_PROC_FS
 
+#include <linux/ctype.h>	/* isdigit */
 #include "procfs_macros.h"	/* macros for read functions */
 
 struct proc_dir_entry *rtapi_dir = 0;	/* /proc/rtapi directory */

@@ -703,16 +703,20 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 #ifeq ($(THREADS),rt-preempt-user)
 #rtapi-objs := rtapi/linux_ulapi.o
 #endif
-ifeq ($(THREADS),xenomai-kernel)
 rtapi-objs := \
-	rtapi/xenomai_kernel_rtapi.o \
 	rtapi/rtapi_common.o \
 	rtapi/rtapi_module.o \
 	rtapi/rtapi_task.o \
+	rtapi/rtapi_shmem.o \
 	rtapi/rtapi_time.o \
 	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \
-	rtapi/xenomai-kernel.o
+	rtapi/$(THREADS).o
+
+ifeq ($(BUILD_SYS),kbuild)
+rtapi-objs += rtapi/rtapi_module.o
+else
+rtapi-objs += rtapi/rtapi_pci.o
 endif
 #ifeq ($(THREADS),rtai)
 #rtapi-objs := rtapi/rtai_rtapi.o

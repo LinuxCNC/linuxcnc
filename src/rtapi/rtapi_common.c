@@ -27,10 +27,8 @@
 // in shared memory, so keep it here
 static rtapi_data_t local_rtapi_data;
 rtapi_data_t *rtapi_data = &local_rtapi_data;
-shmem_data *shmem_array = local_rtapi_data.shmem_array;
 #else
 rtapi_data_t *rtapi_data = NULL;
-shmem_data *shmem_array = NULL;
 #endif
 
 /* global init code */
@@ -100,5 +98,72 @@ long int simple_strtol(const char *nptr, char **endptr, int base) {
 # else
     return strtol(nptr, endptr, base);
 # endif
+}
+#endif
+
+
+#if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
+/*  This function is disabled everywhere...  */
+void rtapi_printall(void) {
+    module_data *modules;
+    task_data *tasks;
+    shmem_data *shmems;
+    int n, m;
+
+    if (rtapi_data == NULL) {
+	printf("rtapi_data = NULL, not initialized\n");
+	return;
+    }
+    printf("rtapi_data = %p\n", rtapi_data);
+    printf("  magic = %d\n", rtapi_data->magic);
+    printf("  rev_code = %08x\n", rtapi_data->rev_code);
+    printf("  mutex = %lu\n", rtapi_data->mutex);
+    printf("  rt_module_count = %d\n", rtapi_data->rt_module_count);
+    printf("  ul_module_count = %d\n", rtapi_data->ul_module_count);
+    printf("  task_count  = %d\n", rtapi_data->task_count);
+    printf("  shmem_count = %d\n", rtapi_data->shmem_count);
+    printf("  timer_running = %d\n", rtapi_data->timer_running);
+    printf("  timer_period  = %ld\n", rtapi_data->timer_period);
+    modules = &(rtapi_data->module_array[0]);
+    tasks = &(rtapi_data->task_array[0]);
+    shmems = &(rtapi_data->shmem_array[0]);
+    printf("  module array = %p\n", modules);
+    printf("  task array   = %p\n", tasks);
+    printf("  shmem array  = %p\n", shmems);
+    for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
+	if (modules[n].state != NO_MODULE) {
+	    printf("  module %02d\n", n);
+	    printf("    state = %d\n", modules[n].state);
+	    printf("    name = %p\n", modules[n].name);
+	    printf("    name = '%s'\n", modules[n].name);
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
+	if (tasks[n].state != EMPTY) {
+	    printf("  task %02d\n", n);
+	    printf("    state = %d\n", tasks[n].state);
+	    printf("    prio  = %d\n", tasks[n].prio);
+	    printf("    owner = %d\n", tasks[n].owner);
+	    printf("    code  = %p\n", tasks[n].taskcode);
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
+	if (shmems[n].key != 0) {
+	    printf("  shmem %02d\n", n);
+	    printf("    key     = %d\n", shmems[n].key);
+	    printf("    rtusers = %d\n", shmems[n].rtusers);
+	    printf("    ulusers = %d\n", shmems[n].ulusers);
+	    printf("    size    = %ld\n", shmems[n].size);
+	    printf("    bitmap  = ");
+	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
+		if (test_bit(m, shmems[n].bitmap)) {
+		    putchar('1');
+		} else {
+		    putchar('0');
+		}
+	    }
+	    putchar('\n');
+	}
+    }
 }
 #endif
