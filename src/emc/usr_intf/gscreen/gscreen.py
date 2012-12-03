@@ -426,7 +426,7 @@ class Gscreen:
         # access to saved prefernces
         self.prefs = preferences.preferences()
         # access to EMC control
-        self.emc = emc_interface.emc_control(linuxcnc, self.widgets.statusbar1)
+        self.emc = emc_interface.emc_control(linuxcnc)
         # access to EMC status
         self.status = emc_interface.emc_status( self.data, linuxcnc)
         # access to MDI

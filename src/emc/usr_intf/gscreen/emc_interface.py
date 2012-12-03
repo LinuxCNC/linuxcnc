@@ -15,7 +15,7 @@ import math
 
 
 class emc_control:
-        def __init__(self, emc, error):
+        def __init__(self, emc):
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emccommand = emc.command()
@@ -23,8 +23,6 @@ class emc_control:
                 self.sb = 0;
                 self.jog_velocity = 100.0/60.0
                 self.mdi = 0
-                #self.listing = listing
-                self.error = error
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
 
         def mask(self):
@@ -180,7 +178,6 @@ class emc_control:
 
         def abort(self):
                 self.emccommand.abort()
-                set_text(self.error, "")
 
         def single_block(self, s):
                 self.sb = s
