@@ -8,31 +8,6 @@ INCLUDES += rtapi
 ##########################################
 # defaults for all thread styles
 
-ifeq ($(THREADS),xenomai-kernel)
-ULAPI_SRCS := \
-	rtapi/rtapi_common.c \
-	rtapi/rtapi_module.c \
-	rtapi/rtapi_task.c \
-	rtapi/rtapi_shmem.c \
-	rtapi/rtapi_time.c \
-	rtapi/rtapi_msg.c \
-	rtapi/rtapi_io.c \
-	rtapi/$(THREADS).c
-
-else
-# Base list of all sources
-RTAPI_SRCS := \
-	rtapi/rtapi_common.c \
-	rtapi/rtapi_task.c \
-	rtapi/rtapi_shmem.c \
-	rtapi/rtapi_time.c \
-	rtapi/rtapi_msg.c \
-	rtapi/rtapi_io.c \
-	rtapi/$(THREADS).c \
-	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) \
-	$(if $(filter $(BUILD_SYS),user-dso),rtapi/rtapi_pci.c)
-
-
 # ULAPI:  ../lib/liblinuxcnchal.so
 #
 # List of sources whose objects objects/rtapi/*.o link into
@@ -40,7 +15,31 @@ RTAPI_SRCS := \
 #
 # hal/Submakefile includes these in USERSRCS so that .o files are
 # built, so no need to do that here
-ULAPI_SRCS := $(RTAPI_SRCS)
+ULAPI_SRCS := \
+	rtapi/rtapi_common.c \
+	rtapi/rtapi_task.c \
+	rtapi/rtapi_shmem.c \
+	rtapi/rtapi_time.c \
+	rtapi/rtapi_msg.c \
+	rtapi/rtapi_io.c \
+	rtapi/$(THREADS).c \
+	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
+
+
+# RTAPI:  ../rtlib/*
+#
+# Makefile defines rtapi-objs, a list of all objects whose sources are
+# compiled -DRTAPI and linked into rtapi.[sk]o.  Keep that list up to
+# date.
+
+
+ifeq ($(BUILD_SYS),user-dso)
+# RTAPI_SRCS:  ../bin/rtapi_app
+#
+# This is the list of C sources to compile -DRTAPI and link into
+# ../bin/rtapi_app.  (Omit the main .cc file.)  (Can this be pruned?)
+RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
+$(info RTAPI_SRCS:  $(RTAPI_SRCS))
 endif
 
 
@@ -100,9 +99,8 @@ USERSRCS +=  rtapi/sim_rtapi_app.cc
 # see that target below
 #
 # These must be included in USERSRCS for .o files to be built
-RTAPI_APP_C_SRCS := $(filter-out rtapi/rtapi_io.c, $(RTAPI_SRCS))
 RTAPI_APP_OBJS := \
-	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_APP_C_SRCS))) \
+	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_SRCS))) \
 			objects/rtapi/sim_rtapi_app.o
 #
 # Add RT_CFLAGS to sim_rtapi_app.cc compilation
@@ -145,10 +143,3 @@ endif  # BUILD_SYS != user-dso
 
 # Add RT_CFLAGS to ULAPI compilation
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
-
-
-# RTAPI module:  ../rtlib/rtapi.[ks]o
-#
-# compile all RTAPI_SRCS -DRTAPI -> objects/rtrtapi/*.o
-# and link into ../rtlib/rtapi.[ks]o; see Makefile
-rtapi-objs := $(patsubst %.c, %.o, $(RTAPI_SRCS))
