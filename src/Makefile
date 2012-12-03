@@ -689,20 +689,6 @@ endif
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
-# this is unused anywhere
-#rtapi-objs-kernel := rtapi/rtapi_msg.o \
-#	rtapi/rtapi_task.o
-
-# moving this definition to rtapi/Submakefile
-#ifeq ($(THREADS),xenomai-user)
-#rtapi-objs := rtapi/sim_ulapi.o
-#endif
-#ifeq ($(THREADS),posix)
-#rtapi-objs := rtapi/sim_ulapi.o
-#endif
-#ifeq ($(THREADS),rt-preempt-user)
-#rtapi-objs := rtapi/linux_ulapi.o
-#endif
 rtapi-objs := \
 	rtapi/rtapi_common.o \
 	rtapi/rtapi_task.o \
@@ -717,10 +703,6 @@ rtapi-objs += rtapi/rtapi_module.o
 else
 rtapi-objs += rtapi/rtapi_pci.o
 endif
-#ifeq ($(THREADS),rtai)
-#rtapi-objs := rtapi/rtai_rtapi.o
-#rtapi-objs += rtapi/rtapi_common.o
-#endif
 
 
 # Subdirectory: rtapi/examples (unneeded?)
