@@ -65,7 +65,7 @@ ifeq ($(THREADS),posix)
 
 PTH_CONFIG ?= pth-config
 RT_CFLAGS += $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
-RT_LDFLAGS += $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
+RT_LDFLAGS += $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)  -lrt
 endif
 
 
