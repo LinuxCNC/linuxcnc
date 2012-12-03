@@ -36,7 +36,7 @@ typedef struct {
 #define THREAD_TASK_DATA thread_task_data tdata
 
 // extra module data
-#define THREAD_MODULE_DATA int magic;
+#define THREAD_MODULE_DATA int magic
 
 
 /* rtapi_io.c */

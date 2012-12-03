@@ -123,7 +123,7 @@ typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
 #ifdef THREAD_MODULE_DATA
-    THREAD_MODULE_DATA
+    THREAD_MODULE_DATA;
 #endif
 } module_data;
 
