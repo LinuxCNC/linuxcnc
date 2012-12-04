@@ -397,6 +397,7 @@ static int configure_memory(void) {
 	unsigned int i, pagesize;
 	char *buf;
 
+#ifndef RTAPI_POSIX  // Realtime tweak requires privs
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
 	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
@@ -405,6 +406,7 @@ static int configure_memory(void) {
 			    errno,strerror(errno)); 
 	    return 1;
 	}
+#endif
 
 	/* Turn off malloc trimming.*/
 	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
