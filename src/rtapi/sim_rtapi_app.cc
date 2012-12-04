@@ -366,9 +366,6 @@ static int master(int fd, vector<string> args) {
         memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
 
-#if defined(RTAPI_POSIX)
-	sim_rtapi_run_threads(fd);
-#endif
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
             perror("accept");
@@ -396,8 +393,10 @@ static int master(int fd, vector<string> args) {
     return 0;
 }
 
-static int configure_memory(void)
-{
+static int configure_memory(void) {
+	unsigned int i, pagesize;
+	char *buf;
+
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
 	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
@@ -406,11 +405,6 @@ static int configure_memory(void)
 			    errno,strerror(errno)); 
 	    return 1;
 	}
-
-#if !defined(RTAPI_POSIX)  
-	// fails badly on POSIX threads build - FIXME find out why
-	unsigned int i, pagesize;
-	char *buf;
 
 	/* Turn off malloc trimming.*/
 	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
@@ -443,7 +437,7 @@ static int configure_memory(void)
 	 * mechanism we can build C++ applications that will never run into
 	 * a major/minor pagefault, even with swapping enabled. */
 	free(buf);
-#endif
+
 	return 0;
 }
 
