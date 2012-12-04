@@ -283,6 +283,10 @@ TARGET_PLATFORM=""
 # Architecture. Use output of arch(1).
 ARCH=`$ARCHCMD`
 
+# Name of thread system source file to include, with no extension
+# e.g. 'rt-preempt-user'; used to generate #include "rt-preempt-user.h"
+# in config.h, rtapi/$(THREADS_SOURCE).c in Makefile.inc
+THREADS_SOURCE=""
 
 # note to mah: dont forget debian/configure FIXME
  
@@ -615,6 +619,7 @@ fi
 # Validate the userland part - config programs, directories, libraries  etc
 AC_MSG_CHECKING(for $THREADS build support)
 SIMULATOR=no
+THREADS_SOURCE="$(THREADS)"
 case "$THREADS" in
 
     posix)
@@ -629,6 +634,7 @@ case "$THREADS" in
 	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
 	BUILD_SYS=user-dso
 	SIMULATOR=yes	 # tcl legacy
+	THREADS_SOURCE="rt-preempt-user"  # use RT_PREEMPT code
     ;;
 
     rtai)
@@ -877,8 +883,9 @@ case $THREADS in
       ;;
 esac
 AC_SUBST(THREADS)
-AC_DEFINE_UNQUOTED(THREADS_HEADERS,"rtapi/${THREADS}.h",
+AC_DEFINE_UNQUOTED(THREADS_HEADERS,"rtapi/${THREADS_SOURCE}.h",
 	[thread system settings header file])
+AC_SUBST(THREADS_SOURCE)
 
 # while we are at it, drop a git scent mark
 GIT_VERSION=unknown

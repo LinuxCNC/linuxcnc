@@ -348,7 +348,7 @@ HEADERS := \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
-    rtapi/$(THREADS).h
+    rtapi/$(THREADS_SOURCE).h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -703,7 +703,7 @@ rtapi-objs := \
 	rtapi/rtapi_time.o \
 	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \
-	rtapi/$(THREADS).o
+	rtapi/$(THREADS_SOURCE).o
 # Kernel threads need rtapi_module.c
 ifeq ($(BUILD_SYS),kbuild)
 rtapi-objs += rtapi/rtapi_module.o
