@@ -101,9 +101,9 @@ void rtapi_module_cleanup_hook(void) {
 #ifdef RTAPI
 /*  RTAPI time functions */
 long long int rtapi_get_time_hook(void) {
-    /* The value returned will represent a count of jiffies if the native  */
-    /* skin is bound to a periodic time base (see CONFIG_XENO_OPT_NATIVE_PERIOD),  */
-    /* or nanoseconds otherwise.  */
+    /* The value returned will represent a count of jiffies if the
+       native skin is bound to a periodic time base (see
+       CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
     return  rt_timer_read();
 }
 
@@ -243,6 +243,7 @@ int rtapi_task_new_hook(task_data *task, int task_id) {
 			 (task->uses_fp ? T_FPU : 0) | T_CPU(task->cpu));
 }
 
+
 int rtapi_task_start_hook(task_data *task, int task_id,
 			  unsigned long int period_nsec) {
     int retval;
@@ -265,6 +266,7 @@ int rtapi_task_start_hook(task_data *task, int task_id,
 
     return 0;
 }
+
 
 #else /* ULAPI */
 rtapi_data_t *rtapi_init_hook() {
