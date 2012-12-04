@@ -370,8 +370,10 @@ static void *realtime_thread(void *arg) {
 
     if (realtime_set_affinity(task))
 	goto error;
+#ifndef RTAPI_POSIX // This requires privs; skip it in simulator build
     if (realtime_set_priority(task))
 	goto error;
+#endif
 
     /* We're done initializing. Open the barrier. */
     pthread_barrier_wait(&task->thread_init_barrier);
@@ -453,6 +455,7 @@ int rtapi_wait_hook(void) {
 	|| (ts.tv_sec == task->next_time.tv_sec
 	    && ts.tv_nsec > task->next_time.tv_nsec)) {
 	task->failures++;
+#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
 	if (task->failures == 1)
 	    msg_level = RTAPI_MSG_ERR;
 	/* else if (task->failures < 10 ||		\
@@ -472,6 +475,7 @@ int rtapi_wait_hook(void) {
 		 (long)task->next_time.tv_nsec,
 		 rtapi_get_pagefault_count(task));
 	}
+#endif
     }
 
     return 0;
