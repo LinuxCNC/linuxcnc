@@ -334,11 +334,11 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 	    shmem->ulusers++;
 #else  /* RTAPI */
 	    shmem->rtusers++;
+#endif  /* RTAPI */
 	    /* announce another user for this shmem */
 	    rtapi_print_msg(RTAPI_MSG_DBG,
 		"RTAPI: shmem %02d opened by module %02d\n",
 		shmem_id, module_id);
-#endif  /* RTAPI */
 	    /* done */
 	    rtapi_mutex_give(&(rtapi_data->mutex));
 	    return shmem_id;
