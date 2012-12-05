@@ -619,14 +619,10 @@ fi
 # Validate the userland part - config programs, directories, libraries  etc
 AC_MSG_CHECKING(for $THREADS build support)
 SIMULATOR=no
-THREADS_SOURCE="$(THREADS)"
+THREADS_SOURCE="${THREADS}"
 case "$THREADS" in
 
     posix)
-	AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-	if test "$PTH_CONFIG" = ""; then
-	    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-        fi
 	# BUILD_DRIVERS already set or default
 	# RTPREFIX not needed
 	# KERNELDIR not needed
