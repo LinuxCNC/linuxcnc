@@ -427,6 +427,7 @@ static void check_memlock_limit(const char *where) {
 
 int rtapi_shmem_delete(int shmem_id, int module_id) {
     shmem_data *shmem;
+    int manage_lock;
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
@@ -449,9 +450,10 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
     if (test_bit(module_id, shmem->bitmap) == 0) {
 	return -EINVAL;
     }
+    /* check if we need to manage the mutex */
+    manage_lock = (shmem->magic != SHMEM_MAGIC_DEL_LOCKED)
     /* if no magic delete lock held is set, get the mutex */
-    if (shmem->magic != SHMEM_MAGIC_LOCK_DELETE)
-	rtapi_mutex_get(&(rtapi_data->mutex));
+    if (manage_lock) rtapi_mutex_get(&(rtapi_data->mutex));
     /* OK, we're no longer using it */
     clear_bit(module_id, shmem->bitmap);
 #ifdef ULAPI
@@ -466,8 +468,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
 	/* yes, we're done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d closed by module %02d\n", shmem_id, module_id);
-	if (shmem->magic != SHMEM_MAGIC_LOCK_DELETE)
-	    rtapi_mutex_give(&(rtapi_data->mutex));
+	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
     /* no other realtime users, free the shared memory from kernel space */
@@ -483,8 +484,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d unmapped by module %02d\n", shmem_id,
 	    module_id);
-	if (shmem->magic != SHMEM_MAGIC_LOCK_DELETE)
-	    rtapi_mutex_give(&(rtapi_data->mutex));
+	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
     /* no other users at all, this ID is now free */
@@ -494,8 +494,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
     shmem->size = 0;
     rtapi_data->shmem_count--;
     /* release the lock if needed, print a debug message and return */
-    if (shmem->magic != SHMEM_MAGIC_LOCK_DELETE)
-	rtapi_mutex_give(&(rtapi_data->mutex));
+    if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: shmem %02d freed by module %02d\n",
 	shmem_id, module_id);
     return 0;
