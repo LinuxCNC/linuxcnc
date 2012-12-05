@@ -396,7 +396,7 @@ int rtapi_exit(int module_id) {
 		    "ULAPI: WARNING: module '%s' failed to delete shmem %02d\n",
 		    module->name, n);
 	    // mark block as ready for delete, lock already held
-	    shmem_array[n].magic = SHMEM_MAGIC_LOCK_DELETE;
+	    shmem_array[n].magic = SHMEM_MAGIC_DEL_LOCKED;
 	    rtapi_shmem_delete(n, module_id);
 	}
     }
