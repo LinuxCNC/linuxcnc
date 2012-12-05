@@ -451,7 +451,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
 	return -EINVAL;
     }
     /* check if we need to manage the mutex */
-    manage_lock = (shmem->magic != SHMEM_MAGIC_DEL_LOCKED)
+    manage_lock = (shmem->magic != SHMEM_MAGIC_DEL_LOCKED);
     /* if no magic delete lock held is set, get the mutex */
     if (manage_lock) rtapi_mutex_get(&(rtapi_data->mutex));
     /* OK, we're no longer using it */

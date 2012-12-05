@@ -267,7 +267,7 @@ int rtapi_task_delete(int task_id) {
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 #  ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-	    rtapi_module_timer_stop()
+	    rtapi_module_timer_stop();
 #  endif
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
