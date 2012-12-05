@@ -231,8 +231,7 @@ extern unsigned long timer_counts;
 /* rtapi_shmem.c */
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
-#define SHMEM_MAGIC_LOCK_DELETE 25454  /* sig for blocks to be deleted
-					  without obtaining mutex */
+#define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
 extern shmem_data *shmem_array;
 extern void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
