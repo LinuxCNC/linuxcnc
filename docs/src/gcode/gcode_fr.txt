@@ -610,6 +610,7 @@ C'est une erreur si:
 
 * La compensation d'outil est active
 * Le mot P n'est pas spécifié
+* Le mot P ne correspond pas à un numéro d'outil valide de la table d'outils.
 
 D'autres informations sur l'orientation <<sec:Orientations-des-outils-de-tour,
 des outils de tour sont disponibles ici>>.
@@ -731,6 +732,8 @@ et <<sec:G43, G43>>.
 C'est une erreur si:
 
 * La compensation d'outil est activée.
+* Le mot P n'est pas spécifié.
+* Le mot P ne correspond pas à un numéro d'outil valide de la table d'outils.
 
 [[sec:G10-L11]]
 == G10 L11 modifie les offsets d'outil dans la table d'outils
@@ -758,6 +761,8 @@ l'outil sans s'occuper des autres décalages courants actifs.
 C'est une erreur si:
 
 * La compensation d'outil est activée
+* Le mot P n'est pas spécifié.
+* Le mot P ne correspond pas à un numéro d'outil valide de la table d'outils.
 
 [[sec:G10-L20]]
 == G10 L20 Établissement de l'origine d'un système de coordonnées
