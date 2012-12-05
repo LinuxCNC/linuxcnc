@@ -44,6 +44,7 @@
 // #define RT_LINUX_USE_FPU
 
 #define HAVE_RTAPI_MODULE_INIT_HOOK
+#define HAVE_RTAPI_MODULE_TIMER_STOP
 
 
 /* rtapi_task.c */
