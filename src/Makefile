@@ -772,7 +772,9 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 obj-m += hal_pru.o
-hal_pru-objs := hal/components/hal_pru.o hal/components/pru_support/prussdrv.o
+hal_pru-objs := hal/components/hal_pru.o hal/components/pru_support/prussdrv.o $(LIBPTHREAD)
+obj-m += hal_prudebug.o
+hal_prudebug-objs := hal/components/hal_prudebug.o hal/components/pru_support/prussdrv.o $(LIBPTHREAD)
 endif
 
 # Subdirectory: hal/drivers
@@ -977,7 +979,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	$(Q)ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm -lpthread
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
@@ -1053,6 +1055,7 @@ endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 ../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
+../rtlib/hal_prudebug$(MODULE_EXT): $(addprefix objects/rt,$(hal_prudebug-objs))
 endif
 
 ifeq ($(TARGET_PLATFORM),raspberry)
@@ -1104,9 +1107,9 @@ tags:
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
-	find . -type f -name '*.[ch]' |xargs etags -l c --append
-	find . -type f -name '*.cc' |xargs etags -l c++ --append
-	find . -type f -name '*.hh' |xargs etags -l c++ --append
+	find . -type f -name '*.[ch]' |xargs etags --language-force=c --append
+	find . -type f -name '*.cc' |xargs etags --language-force=c++ --append
+	find . -type f -name '*.hh' |xargs etags --language-force=c++ --append
 
 .PHONY: swish
 swish:
