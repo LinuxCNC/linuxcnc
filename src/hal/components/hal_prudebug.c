@@ -1,4 +1,6 @@
 // based on supply.c
+
+
 #include "config.h"
 
 // this probably should be an ARM335x #define
@@ -10,13 +12,14 @@
 #error "This driver is for usermode threads only"
 #endif
 
+// try to make sense of IEP and ECAP counters
+// not part of debugging
+#define EXPLORE_COUNTERS 1
+
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include <pthread.h>
-
-// load this PRU code (prefixed by EMC_RTLIB_DIR)
-#define  DEFAULT_CODE  "blinkleds.bin"
 
 #include "prussdrv.h"           // UIO interface to uio_pruss
 #include "pru.h"                // PRU-related defines
@@ -24,8 +27,6 @@
 
 static tprussdrv *pruss;                // driver descriptor
 #define PRUSSDESC (pruss)
-
-typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 
 #define PCOUNTER_RST_VAL(control) (((control) >> 16) & 0x0000ffff)
 #define RUNSTATE (1 << 15)
@@ -35,13 +36,12 @@ typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 #define ENABLE (1 << 1)
 #define SOFT_RST_N (1 << 0)
 
-#if 0
 // a void * to the PRU's control base
-#define CTRLBASE(pru) ((PRUSSDESC)->base[((pru) & 1)].control_base)
+#define CTRLBASE(pru) ((PRUSSDESC)->base[PN(pru)].control_base)
 // a void * to the PRU's debug base
-#define DEBUGBASE(pru) ((PRUSSDESC)->base[((pru) & 1)].debug_base)
+#define DEBUGBASE(pru) ((PRUSSDESC)->base[PN(pru)].debug_base)
 // an unsigned long pointer to the control register
-#define CONTROL_REG(pru) ((pru_reg_ptr)CTRLBASE(pru))
+#define CONTROL_REG(pru) ((preg_ptr)CTRLBASE(pru))
 
 #define IS_RUNNING(pru) (*CONTROL_REG(pru) & RUNSTATE)
 #define IS_ENABLED(pru) (*CONTROL_REG(pru) & ENABLE)
@@ -59,7 +59,11 @@ typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 
 #define PC_AT_RESET(pru) (PCOUNTER_RST_VAL(*CONTROL_REG(pru)))
 #define CURRENT_PC(pru) (*(CONTROL_REG(pru)+1))
-#endif
+
+
+#define IEP_COUNT  (iep_base[3])  // see SPRUHF8 p249
+// http://e2e.ti.com/support/dsp/sitara_arm174_microprocessors/f/791/t/169620.aspx
+#define ECAP_COUNT  (ecap_base[3])
 
 #define UIO_PRUSS  "uio_pruss"  // required kernel module
 
@@ -69,17 +73,8 @@ typedef volatile unsigned long pru_reg_t, *pru_reg_ptr;
 #include <sys/types.h>
 
 MODULE_AUTHOR("Michael Haberler");
-MODULE_DESCRIPTION("AM335x PRU demo component");
+MODULE_DESCRIPTION("AM335x PRU debugger component");
 MODULE_LICENSE("GPL");
-
-static char *prucode = "";
-RTAPI_MP_STRING(prucode, "filename of PRU code (.bin), default: blinkleds.bin");
-
-static int pru = 0;
-RTAPI_MP_INT(pru, "PRU number to execute this code in, default 0; values 0 or 1");
-
-static int disabled = 0;
-RTAPI_MP_INT(disabled, "start the PRU in disabled state (for debugging); default: enabled");
 
 static int event = -1;
 RTAPI_MP_INT(event, "PRU event number to listen for (0..7, default: none)");
@@ -89,10 +84,22 @@ RTAPI_MP_INT(event, "PRU event number to listen for (0..7, default: none)");
 ************************************************************************/
 
 typedef struct {
-    hal_bit_t *enable;		// pin: enable PRU pin wiggling
-    hal_bit_t *exit;		// pin: exit PRU program and execute HALT
-    hal_u32_t *speed;		// pin: parameter for PRU code
+    hal_bit_t *continuous;	// pin: sample CPU state every thread period if true
+    hal_u32_t *prunum;	        // pin: 0 or 1
 
+    // PRU control
+    hal_bit_t *snap;		// pin: trigger state snapshot
+    hal_bit_t prev_snap;
+    hal_bit_t *step;
+    hal_bit_t prev_step;
+    hal_bit_t *_continue;
+    hal_bit_t prev_continue;
+    hal_bit_t *halt;
+    hal_bit_t prev_halt;
+    hal_bit_t *reset;
+    hal_bit_t prev_reset;
+    hal_u32_t *registers[32];
+    hal_u32_t *controlreg, *program_counter, *events, *iep_count, *ecap_count;
 } hal_pru_t, *hal_pru_ptr;
 
 hal_pru_ptr hal_pru;
@@ -100,21 +107,21 @@ hal_pru_ptr hal_pru;
 /* other globals */
 static int comp_id;		/* component ID */
 
-#define MODNAME "hal_pru"
+#define MODNAME "hal_prudebug"
 static const char *modname = MODNAME;
 
-// shared with PRU
-static unsigned char *pru_data_ram;     // points to PRU data RAM
 static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-
+preg_ptr iep_base;  // to access IEP COUNT (200Mhz)
+preg_ptr ecap_base;  // to access eCAP COUNT (200Mhz)
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 static int export_pru(hal_pru_ptr addr);
 static void update_pru(void *arg, long l);
-static int setup_pru(int pru, char *filename, int disabled);
+static int setup_pru();
 static void pru_shutdown(int pru);
+static void read_pru_state();
 static void *pruevent_thread(void *arg);
 
 /***********************************************************************
@@ -145,7 +152,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    if ((retval = setup_pru(pru, prucode, disabled))) {
+    if ((retval = setup_pru())) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: ERROR: failed to initialize PRU\n", modname);
 	    hal_exit(comp_id);
@@ -158,7 +165,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-    pru_shutdown(pru);
+    pru_shutdown(*(hal_pru->prunum));
     hal_exit(comp_id);
 }
 
@@ -170,38 +177,40 @@ static void update_pru(void *arg, long l)
 {
     hal_pru_ptr p = (hal_pru_ptr) arg;
 
-    if ((*(p->dump) ^ p->prev_dump) && *(p->dump))  // on rising edge
-	read_pru_state(pru);
+    if ((*(p->snap) ^ p->prev_snap) && *(p->snap))  // on rising edge of snap
+	read_pru_state(*(p->prunum));
+    else if (*(p->continuous))                      // or if continuous set
+	read_pru_state(*(p->prunum));
 
     if ((*(p->halt) ^ p->prev_halt) && *(p->halt)) {
-	while (IS_RUNNING(pru))
-	    PRU_DISABLE(pru);
+	while (IS_RUNNING(*(p->prunum)))
+	    PRU_DISABLE(*(p->prunum));
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU%d: disabled\n", modname, *(p->prunum));
     }
     if ((*(p->step) ^ p->prev_step) && *(p->step))  {
-	PRU_SET_STEPPING(pru);
+	PRU_SET_STEPPING(*(p->prunum));
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU%d: stepping enabled\n", modname, *(p->prunum));
     }
     if ((*(p->step) ^ p->prev_step) && !*(p->step))  {
-	PRU_CLEAR_STEPPING(pru);
+	PRU_CLEAR_STEPPING(*(p->prunum));
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU%d: stepping disabled\n", modname, *(p->prunum));
     }
-
     if ((*(p->reset) ^ p->prev_reset) && *(p->reset))  {
-	PRU_RESET(pru);
+	PRU_RESET(*(p->prunum));
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU%d: reset\n", modname, *(p->prunum));
     }
     if ((*(p->_continue) ^ p->prev_continue) && *(p->_continue))  {
-	PRU_ENABLE(pru);
+	PRU_ENABLE(*(p->prunum));
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU%d: enabled\n", modname,*(p->prunum));
     }
 
     // tracking variables for edge detection
     p->prev_halt = *(p->halt);
     p->prev_step =  *(p->step);
     p->prev_continue = *(p->_continue);
-    p->prev_dump =  *(p->dump);
+    p->prev_snap =  *(p->snap);
     p->prev_reset =*(p->reset);
-    // feeding params down to PRU ram
-    pru_data_ram[0] = *(p->enable);
-    pru_data_ram[1] = *(p->enable);
-    pru_data_ram[2] = *(p->enable);
-    pru_data_ram[3] = *(p->exit);
+
 }
 
 /***********************************************************************
@@ -210,29 +219,86 @@ static void update_pru(void *arg, long l)
 
 static int export_pru(hal_pru_ptr addr)
 {
-    int retval;
+    int retval, i;
     char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id, "%s.enable", modname);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->continuous), comp_id, "%s.continuous", modname);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->exit), comp_id, "%s.exit", modname);
+    retval = hal_pin_u32_newf(HAL_IN, &(addr->prunum), comp_id, "%s.pru", modname);
     if (retval != 0) {
 	return retval;
     }
-     retval = hal_pin_u32_newf(HAL_IN, &(addr->speed), comp_id, "%s.speed", modname);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->step), comp_id, "%s.step", modname);
     if (retval != 0) {
 	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->halt), comp_id, "%s.halt", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->_continue), comp_id, "%s.continue", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id, "%s.reset", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->snap), comp_id, "%s.snap", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_u32_newf(HAL_OUT, &(addr->events), comp_id, "%s.events", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_u32_newf(HAL_OUT, &(addr->controlreg), comp_id, "%s.CONTROL", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_u32_newf(HAL_OUT, &(addr->program_counter), comp_id, "%s.PC", modname);
+    if (retval != 0) {
+	return retval;
+    }
+#ifdef EXPLORE_COUNTERS
+    retval = hal_pin_u32_newf(HAL_OUT, &(addr->iep_count), comp_id, "%s.IEP_COUNT", modname);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_u32_newf(HAL_OUT, &(addr->ecap_count), comp_id, "%s.ECAP_COUNT", modname);
+    if (retval != 0) {
+	return retval;
+    }
+#endif
+    for (i = 0; i < 32; i++) {
+	retval = hal_pin_u32_newf(HAL_OUT, &(addr->registers[i]), comp_id, "%s.R%d", modname, i);
+	if (retval != 0)
+	    return retval;
+	*(addr->registers[i]) = 0;
     }
 
     /* init all structure members */
-    *(addr->enable) = 0;
-    *(addr->speed) = 0;
-    *(addr->exit) = 1;
+    *(addr->continuous) = 0;
+    *(addr->prunum) = 0;
+    *(addr->controlreg) = 0;
+    *(addr->program_counter) = 0;
+    *(addr->events) = 0;
+#ifdef EXPLORE_COUNTERS
+    *(addr->iep_count) = 0;
+    *(addr->ecap_count) = 0;
+#endif
 
-       /* export function  */
+    // PRU control pins
+    *(addr->snap) = addr->prev_snap = 0;
+    *(addr->halt) = addr->prev_halt = 0;
+    *(addr->step) = addr->prev_step = 0;
+    *(addr->_continue) = addr->prev_continue = 0;
+    *(addr->reset) = addr->prev_reset = 0;
+
+    /* export function  */
     rtapi_snprintf(buf, sizeof(buf), "%s.update", modname);
     retval = hal_export_funct(buf, update_pru, addr, 1, 0, comp_id);
     if (retval != 0) {
@@ -246,44 +312,32 @@ static int export_pru(hal_pru_ptr addr)
 
 static void read_pru_state(int pru)
 {
-    int i, was_running;
-    pru_reg_ptr ctrl, reg;
+    int i;
+    preg control_prev;
+    preg_ptr reg;
 
-    ctrl = CTRLBASE(pru);
-    was_running = IS_RUNNING(pru);
+    control_prev = IS_RUNNING(pru);  // RUNSTATE bit
 
     // dont use prussdrv_pru_disable(pru) - this resets the cpu
     // we just want to halt while looking at the registers
     while (IS_RUNNING(pru))
 	PRU_DISABLE(pru);
 
-    printf("CONTROL = %8.8lx, ",(*CONTROL_REG(pru)));
-    printf(was_running ? "running" : "halted");
-    printf(IS_STEPPING(pru) ? ", stepping" : "");
-    printf(IS_SLEEPING(pru) ? ", sleeping" : "");
-    printf(", start after reset at: %8.8lx\n", PC_AT_RESET(pru));
+    // since just halted for inspection, or in the RUNSTATE bit
+    *(hal_pru->controlreg) = (*CONTROL_REG(pru)) |  control_prev;
+    *(hal_pru->program_counter) = CURRENT_PC(pru);
 
-    printf("PC = %8.8lx (%ld)\n", CURRENT_PC(pru), CURRENT_PC(pru));
-    printf("WAKEUP_EN = %8.8lx\t", ctrl[2]);
-    printf("CYCLE = %8.8lx\t", ctrl[3]);
-    printf("STALL = %8.8lx\n", ctrl[4]);
-    printf("CTBIR0 = %8.8lx\t", ctrl[8]);
-    printf("CTBIR1 = %8.8lx\n", ctrl[9]);
-    printf("CTPPR0 = %8.8lx\t", ctrl[10]);
-    printf("CTPPR1 = %8.8lx\n", ctrl[11]);
-
+#ifdef EXPLORE_COUNTERS
+    // sample the Industrial Ethernet peripheral counter (200Mhz)
+    // not important for debugging but good to know how it's accessed
+    *(hal_pru->iep_count) = IEP_COUNT;
+    *(hal_pru->ecap_count) = ECAP_COUNT; // doesnt work
+#endif
     reg = DEBUGBASE(pru);
-    for (i = 0; i < 32; i++) {
-	printf("R%-2d = %8.8lx  ", i,reg[i]);
-	if ((i & 3) == 3)
-	    printf("\n");
-    }
-    // for (i = 32; i < 64; i++)
-    for (i = 32; i < 34; i++)
-	printf("CT_REG%d = %8.8lx\t", i-32, reg[i]);
-    printf("\n");
+    for (i = 0; i < 32; i++)
+	*(hal_pru->registers[i]) = reg[i];
 
-    if (was_running) // if PRU was found running, reenable
+    if (control_prev) // if PRU was found running, reenable
 	PRU_ENABLE(pru);
 }
 
@@ -322,9 +376,9 @@ static int assure_module_loaded(const char *module)
     return 0;
 }
 
-static int setup_pru(int pru, char *filename, int disabled)
+static int setup_pru(int pru)
 {
-    int retval;
+    int retval = 0;
 
     if (geteuid()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -339,20 +393,24 @@ static int setup_pru(int pru, char *filename, int disabled)
     prussdrv_init ();
 
     // opens an event out and initializes memory mapping
-    prussdrv_open (PRU_EVTOUT_0);
+    if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
+	return -1;
 
     // expose the driver data, filled in by prussdrv_open
     pruss = prussdrv_self();
-
+#ifdef EXPLORE_COUNTERS
+    if (prussdrv_map_peripheral_io(PRUSS0_IEP, (void **)&iep_base)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to map IEP base\n",
+		    modname);
+    }
+    if (prussdrv_map_peripheral_io(PRUSS0_ECAP, (void **)&ecap_base)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to map eCAP base\n",
+		    modname);
+    }
+#endif
     // Map PRU's INTC
-    prussdrv_pruintc_init(&pruss_intc_initdata);
-
-    // Maps the PRU DRAM memory to input pointer
-    prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
-			(void **) &pru_data_ram);
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
-		    modname, pru_data_ram);
+    if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
+	return -1;
 
     if (event > -1) {
 	prussdrv_start_irqthread (event, sched_get_priority_max(SCHED_FIFO) - 2,
@@ -360,29 +418,39 @@ static int setup_pru(int pru, char *filename, int disabled)
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d listener started\n",
 		    modname, event);
     }
-    // setup dataram as expected by blinkleds.p
-    pru_data_ram[0] = 0;
-    pru_data_ram[1] = 0;
-    pru_data_ram[2] = 0;
-    pru_data_ram[3] = 1;
+#ifdef EXPLORE_COUNTERS
+    // this one works
+    iep_base[0]  |= 1;  // enable 200Mhz IEP counter see p250
 
-    // Load and execute binary on PRU
-    if (!strlen(filename))
-	filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
-    retval =  prussdrv_exec_program (pru, filename, disabled);
-
+    // this doesnt work yet
+    // struct ecap_regs *erp = (struct ecap_regs *)ecap_base;
+    // erp->ecctl2   |= ECTRL2_CTRSTP_FREERUN;  // enable 200Mhz eCAP counter
+    // ecap_base[0]  |= 1;  // enable 200Mhz eCAP counter
+#endif
     return retval;
 }
 
 static void *pruevent_thread(void *arg)
 {
-    // Wait for event completion from PRU
-    // This assumes the PRU generates an interrupt
-    // connected to event out 0 immediately before halting
-    // prussdrv_pru_wait_event (PRU_EVTOUT_0);
-    // prussdrv_pru_clear_event (PRU0_ARM_INTERRUPT);
+    int event = (int) arg;
+    int event_count = 0;
+    do {
+	if (prussdrv_pru_wait_event(event, &event_count) < 0)
+	    continue;
+	    //	    break;
+	*(hal_pru->events) = (unsigned) event_count;
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d received count=%d\n",
+			modname, event, event_count);
+	prussdrv_pru_clear_event(*(hal_pru->prunum) ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+    } while (1);
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: pruevent_thread exiting\n",
+		    modname);
+    return NULL; // silence compiler warning
+}
 
+static void pru_shutdown(int pru)
+{
     // Disable PRU and close memory mappings
     prussdrv_pru_disable(pru);
-    prussdrv_exit ();
+    prussdrv_exit (); // also joins event listen thread
 }
