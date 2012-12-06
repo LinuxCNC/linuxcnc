@@ -23,7 +23,7 @@ START:
     MOV r4, GPIO1 | GPIO_CLEARDATAOUT
     SBBO r7, r4, 0, 4
 
-LOOP:
+MAINLOOP:
     // Exit this program if the exit flag is cleared
     LBCO r2, CONST_PRUDRAM, 3, 1
     QBEQ EXIT, r2.b0, 0
@@ -62,7 +62,7 @@ DO_IT_3:
     SBBO r6, r4, 0, 4
     MOV r4, GPIO1 | GPIO_SETDATAOUT
     SBBO r7, r4, 0, 4
-    QBA LOOP
+    QBA MAINLOOP
 
 
 EXIT:
