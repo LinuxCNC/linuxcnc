@@ -34,7 +34,7 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
-*/
+ */
 
 
 /*
@@ -132,103 +132,113 @@ int __prussdrv_memmap_init(void)
     } else
         return -1;
 
-    prussdrv.pru0_dataram_base =
+    prussdrv.base[0].dataram_base =
         mmap(0, prussdrv.pruss_map_size, PROT_READ | PROT_WRITE,
              MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_PRUSS);
     prussdrv.version =
-        __pruss_detect_hw_version(prussdrv.pru0_dataram_base);
+        __pruss_detect_hw_version(prussdrv.base[0].dataram_base);
 
     switch (prussdrv.version) {
-    case PRUSS_V1:
-        {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM18XX detected\n", modname);
-            prussdrv.pru0_dataram_phy_base = AM18XX_DATARAM0_PHYS_BASE;
-            prussdrv.pru1_dataram_phy_base = AM18XX_DATARAM1_PHYS_BASE;
-            prussdrv.intc_phy_base = AM18XX_INTC_PHYS_BASE;
-            prussdrv.pru0_control_phy_base = AM18XX_PRU0CONTROL_PHYS_BASE;
-            prussdrv.pru0_debug_phy_base = AM18XX_PRU0DEBUG_PHYS_BASE;
-            prussdrv.pru1_control_phy_base = AM18XX_PRU1CONTROL_PHYS_BASE;
-            prussdrv.pru1_debug_phy_base = AM18XX_PRU1DEBUG_PHYS_BASE;
-            prussdrv.pru0_iram_phy_base = AM18XX_PRU0IRAM_PHYS_BASE;
-            prussdrv.pru1_iram_phy_base = AM18XX_PRU1IRAM_PHYS_BASE;
-        }
-        break;
-    case PRUSS_V2:
-        {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM33XX detected\n", modname);
 
-            prussdrv.pru0_dataram_phy_base = AM33XX_DATARAM0_PHYS_BASE;
-            prussdrv.pru1_dataram_phy_base = AM33XX_DATARAM1_PHYS_BASE;
-            prussdrv.intc_phy_base = AM33XX_INTC_PHYS_BASE;
-            prussdrv.pru0_control_phy_base = AM33XX_PRU0CONTROL_PHYS_BASE;
-            prussdrv.pru0_debug_phy_base = AM33XX_PRU0DEBUG_PHYS_BASE;
-            prussdrv.pru1_control_phy_base = AM33XX_PRU1CONTROL_PHYS_BASE;
-            prussdrv.pru1_debug_phy_base = AM33XX_PRU1DEBUG_PHYS_BASE;
-            prussdrv.pru0_iram_phy_base = AM33XX_PRU0IRAM_PHYS_BASE;
-            prussdrv.pru1_iram_phy_base = AM33XX_PRU1IRAM_PHYS_BASE;
-            prussdrv.pruss_sharedram_phy_base =
-                AM33XX_PRUSS_SHAREDRAM_BASE;
-            prussdrv.pruss_cfg_phy_base = AM33XX_PRUSS_CFG_BASE;
-            prussdrv.pruss_uart_phy_base = AM33XX_PRUSS_UART_BASE;
-            prussdrv.pruss_iep_phy_base = AM33XX_PRUSS_IEP_BASE;
-            prussdrv.pruss_ecap_phy_base = AM33XX_PRUSS_ECAP_BASE;
-            prussdrv.pruss_miirt_phy_base = AM33XX_PRUSS_MIIRT_BASE;
-            prussdrv.pruss_mdio_phy_base = AM33XX_PRUSS_MDIO_BASE;
-        }
+    case PRUSS_V1:
+	rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM18XX detected\n", modname);
+
+	prussdrv.intc_phy_base = AM18XX_INTC_PHYS_BASE;
+
+	prussdrv.base[0].dataram_phy_base = AM18XX_DATARAM0_PHYS_BASE;
+	prussdrv.base[1].dataram_phy_base = AM18XX_DATARAM1_PHYS_BASE;
+
+	prussdrv.base[0].control_phy_base = AM18XX_PRU0CONTROL_PHYS_BASE;
+	prussdrv.base[1].control_phy_base = AM18XX_PRU1CONTROL_PHYS_BASE;
+
+	prussdrv.base[0].debug_phy_base = AM18XX_PRU0DEBUG_PHYS_BASE;
+	prussdrv.base[1].debug_phy_base = AM18XX_PRU1DEBUG_PHYS_BASE;
+
+	prussdrv.base[0].iram_phy_base = AM18XX_PRU0IRAM_PHYS_BASE;
+	prussdrv.base[1].iram_phy_base = AM18XX_PRU1IRAM_PHYS_BASE;
         break;
+
+    case PRUSS_V2:
+
+	rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM33XX detected\n", modname);
+
+	prussdrv.intc_phy_base = AM33XX_INTC_PHYS_BASE;
+	prussdrv.pruss_sharedram_phy_base = AM33XX_PRUSS_SHAREDRAM_BASE;
+	prussdrv.pruss_cfg_phy_base = AM33XX_PRUSS_CFG_BASE;
+	prussdrv.pruss_uart_phy_base = AM33XX_PRUSS_UART_BASE;
+	prussdrv.pruss_iep_phy_base = AM33XX_PRUSS_IEP_BASE;
+	prussdrv.pruss_ecap_phy_base = AM33XX_PRUSS_ECAP_BASE;
+	prussdrv.pruss_miirt_phy_base = AM33XX_PRUSS_MIIRT_BASE;
+	prussdrv.pruss_mdio_phy_base = AM33XX_PRUSS_MDIO_BASE;
+
+	prussdrv.base[0].dataram_phy_base = AM33XX_DATARAM0_PHYS_BASE;
+	prussdrv.base[1].dataram_phy_base = AM33XX_DATARAM1_PHYS_BASE;
+
+	prussdrv.base[0].control_phy_base = AM33XX_PRU0CONTROL_PHYS_BASE;
+	prussdrv.base[1].control_phy_base = AM33XX_PRU1CONTROL_PHYS_BASE;
+
+	prussdrv.base[0].debug_phy_base = AM33XX_PRU0DEBUG_PHYS_BASE;
+	prussdrv.base[1].debug_phy_base = AM33XX_PRU1DEBUG_PHYS_BASE;
+
+	prussdrv.base[0].iram_phy_base = AM33XX_PRU0IRAM_PHYS_BASE;
+	prussdrv.base[1].iram_phy_base = AM33XX_PRU1IRAM_PHYS_BASE;
+        break;
+
     default:
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: __prussdrv_memmap_init: invalid pruss driver version %d\n",
 			modname, prussdrv.version);
     }
 
-    prussdrv.pru1_dataram_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru1_dataram_phy_base -
-        prussdrv.pru0_dataram_phy_base;
+    prussdrv.base[1].dataram_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[1].dataram_phy_base -
+        prussdrv.base[0].dataram_phy_base;
     prussdrv.intc_base =
-        prussdrv.pru0_dataram_base + prussdrv.intc_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru0_control_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru0_control_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru0_debug_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru0_debug_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru1_control_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru1_control_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru1_debug_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru1_debug_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru0_iram_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru0_iram_phy_base -
-        prussdrv.pru0_dataram_phy_base;
-    prussdrv.pru1_iram_base =
-        prussdrv.pru0_dataram_base + prussdrv.pru1_iram_phy_base -
-        prussdrv.pru0_dataram_phy_base;
+        prussdrv.base[0].dataram_base + prussdrv.intc_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[0].control_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[0].control_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[0].debug_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[0].debug_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[1].control_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[1].control_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[1].debug_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[1].debug_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[0].iram_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[0].iram_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+    prussdrv.base[1].iram_base =
+        prussdrv.base[0].dataram_base + prussdrv.base[1].iram_phy_base -
+        prussdrv.base[0].dataram_phy_base;
+
     if (prussdrv.version == PRUSS_V2) {
         prussdrv.pruss_sharedram_base =
-            prussdrv.pru0_dataram_base +
+            prussdrv.base[0].dataram_base +
             prussdrv.pruss_sharedram_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_cfg_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_cfg_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_cfg_phy_base -
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_uart_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_uart_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_uart_phy_base -
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_iep_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_iep_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_iep_phy_base -
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_ecap_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_ecap_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_ecap_phy_base -
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_miirt_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_miirt_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_miirt_phy_base -
+            prussdrv.base[0].dataram_phy_base;
         prussdrv.pruss_mdio_base =
-            prussdrv.pru0_dataram_base + prussdrv.pruss_mdio_phy_base -
-            prussdrv.pru0_dataram_phy_base;
+            prussdrv.base[0].dataram_base + prussdrv.pruss_mdio_phy_base -
+            prussdrv.base[0].dataram_phy_base;
     }
+
 #ifndef DISABLE_L3RAM_SUPPORT
     fd = open(PRUSS_UIO_DRV_L3RAM_BASE, O_RDONLY);
     if (fd >= 0) {
@@ -238,7 +248,6 @@ int __prussdrv_memmap_init(void)
         close(fd);
     } else
         return -1;
-
 
     fd = open(PRUSS_UIO_DRV_L3RAM_SIZE, O_RDONLY);
     if (fd >= 0) {
@@ -272,7 +281,6 @@ int __prussdrv_memmap_init(void)
     } else
         return -1;
 
-
     prussdrv.extram_base =
         mmap(0, prussdrv.extram_map_size, PROT_READ | PROT_WRITE,
              MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_EXTRAM);
@@ -285,7 +293,6 @@ int prussdrv_init(void)
 {
     memset(&prussdrv, 0, sizeof(prussdrv));
     return 0;
-
 }
 
 int prussdrv_open(unsigned int pru_evtout_num)
@@ -302,59 +309,56 @@ int prussdrv_open(unsigned int pru_evtout_num)
     }
 }
 
+preg prussdrv_pru_ctrl(unsigned int prunum)
+{
+    return *((preg_ptr) prussdrv.base[PN(prunum)].control_base);
+}
+
+preg prussdrv_pru_ctrl_clearbits(unsigned int prunum, preg bits)
+{
+    preg_ptr pructrl = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    preg previous = *pructrl;
+    *pructrl &= ~bits;
+    return previous;
+}
+
+preg prussdrv_pru_ctrl_setbits(unsigned int prunum, preg bits)
+{
+    preg_ptr pructrl = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    preg previous = *pructrl;
+    *pructrl |= bits;
+    return previous;
+}
 
 int prussdrv_pru_running(unsigned int prunum)
 {
-    unsigned int *prucontrolregs;
-    if (prunum == 0)
-        prucontrolregs = (unsigned int *) prussdrv.pru0_control_base;
-    else if (prunum == 1)
-        prucontrolregs = (unsigned int *) prussdrv.pru1_control_base;
-    else
-        return 0;
-    return *(prucontrolregs+1) &  (1 << 15);
+    // preg_ptr prucontrolregs = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    // return *(prucontrolregs+1) &  (1 << 15); //mah: pretty sure this was wrong
+    return prussdrv_pru_ctrl(prunum) &  (1 << 15);
 }
 
 int prussdrv_pru_reset(unsigned int prunum)
 {
-    unsigned int *prucontrolregs;
-    if (prunum == 0)
-        prucontrolregs = (unsigned int *) prussdrv.pru0_control_base;
-    else if (prunum == 1)
-        prucontrolregs = (unsigned int *) prussdrv.pru1_control_base;
-    else
-        return -1;
-    *prucontrolregs = 0;
-    return 0;
+    preg_ptr pructrl = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    preg previous = *pructrl;
+    *pructrl = 0;
+    return previous;
 }
 
-int prussdrv_pru_enable(unsigned int prunum)
+preg prussdrv_pru_enable(unsigned int prunum)
 {
-    unsigned int *prucontrolregs;
-    if (prunum == 0)
-        prucontrolregs = (unsigned int *) prussdrv.pru0_control_base;
-    else if (prunum == 1)
-        prucontrolregs = (unsigned int *) prussdrv.pru1_control_base;
-    else
-        return -1;
-
-    *prucontrolregs = 2;
-    return 0;
-
+    preg_ptr pructrl = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    preg previous = *pructrl;
+    *pructrl = 2;
+    return previous;
 }
 
-int prussdrv_pru_disable(unsigned int prunum)
+preg prussdrv_pru_disable(unsigned int prunum)
 {
-    unsigned int *prucontrolregs;
-    if (prunum == 0)
-        prucontrolregs = (unsigned int *) prussdrv.pru0_control_base;
-    else if (prunum == 1)
-        prucontrolregs = (unsigned int *) prussdrv.pru1_control_base;
-    else
-        return -1;
-    *prucontrolregs = 1;
-    return 0;
-
+    preg_ptr pructrl = (preg_ptr) prussdrv.base[PN(prunum)].control_base;
+    preg previous = *pructrl;
+    *pructrl = 1;
+    return previous;
 }
 
 int prussdrv_pru_write_memory(unsigned int pru_ram_id,
@@ -365,16 +369,16 @@ int prussdrv_pru_write_memory(unsigned int pru_ram_id,
     unsigned int *pruramarea, i, wordlength;
     switch (pru_ram_id) {
     case PRUSS0_PRU0_IRAM:
-        pruramarea = (unsigned int *) prussdrv.pru0_iram_base;
+        pruramarea = (unsigned int *) prussdrv.base[0].iram_base;
         break;
     case PRUSS0_PRU1_IRAM:
-        pruramarea = (unsigned int *) prussdrv.pru1_iram_base;
+        pruramarea = (unsigned int *) prussdrv.base[1].iram_base;
         break;
     case PRUSS0_PRU0_DATARAM:
-        pruramarea = (unsigned int *) prussdrv.pru0_dataram_base;
+        pruramarea = (unsigned int *) prussdrv.base[0].dataram_base;
         break;
     case PRUSS0_PRU1_DATARAM:
-        pruramarea = (unsigned int *) prussdrv.pru1_dataram_base;
+        pruramarea = (unsigned int *) prussdrv.base[1].dataram_base;
         break;
     case PRUSS0_SHARED_DATARAM:
         if (prussdrv.version != PRUSS_V2)
@@ -385,13 +389,11 @@ int prussdrv_pru_write_memory(unsigned int pru_ram_id,
         return -1;
     }
 
-
     wordlength = (bytelength + 3) >> 2; //Adjust length as multiple of 4 bytes
     for (i = 0; i < wordlength; i++) {
         *(pruramarea + i + wordoffset) = *(memarea + i);
     }
     return wordlength;
-
 }
 
 
@@ -443,8 +445,8 @@ int prussdrv_pruintc_init(tpruss_intc_initdata * prussintc_init_data)
                 mask2 +
                 (1 << (prussintc_init_data->sysevts_enabled[i] - 32));
         } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_pruintc_init(): Error: SYS_EVT%d out of range\n",
-			modname, prussintc_init_data->sysevts_enabled[i]);
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_pruintc_init(): Error: SYS_EVT%d out of range\n",
+			    modname, prussintc_init_data->sysevts_enabled[i]);
             return -1;
         }
     }
@@ -474,14 +476,16 @@ int prussdrv_pru_send_event(unsigned int eventnum)
     return 0;
 }
 
-int prussdrv_pru_wait_event(unsigned int pru_evtout_num)
+int prussdrv_pru_wait_event(unsigned int pru_evtout_num, int *event_count)
 {
-    int event_count;
+    int retval;
     unsigned int *pruintc_io = (unsigned int *) prussdrv.intc_base;
-    read(prussdrv.fd[pru_evtout_num], &event_count, sizeof(int));
+    retval = read(prussdrv.fd[pru_evtout_num], event_count, sizeof(int));
+    if (retval < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_pru_wait_event: read returned %d - %s\n",
+			modname, retval, strerror(errno));
     pruintc_io[PRU_INTC_HIEISR_REG >> 2] = pru_evtout_num+2;
-    return 0;
-
+    return retval;
 }
 
 int prussdrv_pru_clear_event(unsigned int eventnum)
@@ -498,11 +502,11 @@ int prussdrv_pru_send_wait_clear_event(unsigned int send_eventnum,
                                        unsigned int pru_evtout_num,
                                        unsigned int ack_eventnum)
 {
+    int event_count;
     prussdrv_pru_send_event(send_eventnum);
-    prussdrv_pru_wait_event(pru_evtout_num);
+    prussdrv_pru_wait_event(pru_evtout_num, &event_count);
     prussdrv_pru_clear_event(ack_eventnum);
     return 0;
-
 }
 
 
@@ -516,10 +520,8 @@ int prussdrv_map_l3mem(void **address)
 
 int prussdrv_map_extmem(void **address)
 {
-
     *address = prussdrv.extram_base;
     return 0;
-
 }
 
 
@@ -527,10 +529,10 @@ int prussdrv_map_prumem(unsigned int pru_ram_id, void **address)
 {
     switch (pru_ram_id) {
     case PRUSS0_PRU0_DATARAM:
-        *address = prussdrv.pru0_dataram_base;
+        *address = prussdrv.base[0].dataram_base;
         break;
     case PRUSS0_PRU1_DATARAM:
-        *address = prussdrv.pru1_dataram_base;
+        *address = prussdrv.base[1].dataram_base;
         break;
     case PRUSS0_SHARED_DATARAM:
         if (prussdrv.version != PRUSS_V2)
@@ -578,12 +580,12 @@ int prussdrv_map_peripheral_io(unsigned int per_id, void **address)
 unsigned int prussdrv_get_phys_addr(void *address)
 {
     unsigned int retaddr = 0;
-    if ((address >= prussdrv.pru0_dataram_base)
+    if ((address >= prussdrv.base[0].dataram_base)
         && (address <
-            prussdrv.pru0_dataram_base + prussdrv.pruss_map_size)) {
+            prussdrv.base[0].dataram_base + prussdrv.pruss_map_size)) {
         retaddr =
-            ((unsigned int) (address - prussdrv.pru0_dataram_base) +
-             prussdrv.pru0_dataram_phy_base);
+            ((unsigned int) (address - prussdrv.base[0].dataram_base) +
+             prussdrv.base[0].dataram_phy_base);
     } else if ((address >= prussdrv.l3ram_base)
                && (address <
                    prussdrv.l3ram_base + prussdrv.l3ram_map_size)) {
@@ -604,12 +606,12 @@ unsigned int prussdrv_get_phys_addr(void *address)
 void *prussdrv_get_virt_addr(unsigned int phyaddr)
 {
     void *address = 0;
-    if ((phyaddr >= prussdrv.pru0_dataram_phy_base)
+    if ((phyaddr >= prussdrv.base[0].dataram_phy_base)
         && (phyaddr <
-            prussdrv.pru0_dataram_phy_base + prussdrv.pruss_map_size)) {
+            prussdrv.base[0].dataram_phy_base + prussdrv.pruss_map_size)) {
         address =
-            (void *) ((unsigned int) prussdrv.pru0_dataram_base +
-                      (phyaddr - prussdrv.pru0_dataram_phy_base));
+            (void *) ((unsigned int) prussdrv.base[0].dataram_base +
+                      (phyaddr - prussdrv.base[0].dataram_phy_base));
     } else if ((phyaddr >= prussdrv.l3ram_phys_base)
                && (phyaddr <
                    prussdrv.l3ram_phys_base + prussdrv.l3ram_map_size)) {
@@ -631,7 +633,7 @@ void *prussdrv_get_virt_addr(unsigned int phyaddr)
 int prussdrv_exit()
 {
     int i;
-    munmap(prussdrv.pru0_dataram_base, prussdrv.pruss_map_size);
+    munmap(prussdrv.base[0].dataram_base, prussdrv.pruss_map_size);
     munmap(prussdrv.l3ram_base, prussdrv.l3ram_map_size);
     munmap(prussdrv.extram_base, prussdrv.extram_map_size);
     for (i = 0; i < NUM_PRU_HOSTIRQS; i++) {
@@ -670,7 +672,7 @@ int prussdrv_exec_program(int prunum, char *filename, int disabled)
 
     if (fileSize == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_exec_program(%d,%s): file size is zero\n",
-		modname, prunum, filename);
+			modname, prunum, filename);
         fclose(fPtr);
         return -1;
     }
@@ -718,11 +720,12 @@ int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen, int di
 }
 
 int prussdrv_start_irqthread(unsigned int pru_evtout_num, int priority,
-                             prussdrv_function_handler irqhandler)
+                             prussdrv_function_handler irqhandler, void *arg)
 {
     pthread_attr_t pthread_attr;
     struct sched_param sched_param;
     pthread_attr_init(&pthread_attr);
+    pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_JOINABLE);
     if (priority != 0) {
         pthread_attr_setinheritsched(&pthread_attr,
                                      PTHREAD_EXPLICIT_SCHED);
@@ -732,7 +735,7 @@ int prussdrv_start_irqthread(unsigned int pru_evtout_num, int priority,
     }
 
     pthread_create(&prussdrv.irq_thread[pru_evtout_num], &pthread_attr,
-                   irqhandler, NULL);
+                   irqhandler, arg);
 
     pthread_attr_destroy(&pthread_attr);
 

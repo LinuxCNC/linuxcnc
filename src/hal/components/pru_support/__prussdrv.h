@@ -61,7 +61,8 @@
 
 #include <linux/unistd.h>
 
-#define DISABLE_L3RAM_SUPPORT
+//mah #define DISABLE_L3RAM_SUPPORT
+
 
 #define	PAGE_SIZE                     4096
 
@@ -189,22 +190,28 @@
 #endif
 
 
+typedef struct pru_base {
+    void *dataram_base;
+    void *control_base;
+    void *debug_base;
+    void *iram_base;
+    unsigned int dataram_phy_base;
+    unsigned int control_phy_base;
+    unsigned int debug_phy_base;
+    unsigned int iram_phy_base;
+} pru_base, *pru_base_ptr;
+
 typedef struct __prussdrv {
     int version;
     int fd[NUM_PRU_HOSTIRQS];
-    void *pru0_dataram_base;
-    void *pru1_dataram_base;
-    void *intc_base;
-    void *pru0_control_base;
-    void *pru0_debug_base;
-    void *pru1_control_base;
-    void *pru1_debug_base;
-    void *pru0_iram_base;
-    void *pru1_iram_base;
-    void *l3ram_base;
-    void *extram_base;
     pthread_t irq_thread[NUM_PRU_HOSTIRQS];
     int mmap_fd;
+
+    pru_base base[2];
+
+    void *intc_base;
+    void *l3ram_base;
+    void *extram_base;
     void *pruss_sharedram_base;
     void *pruss_cfg_base;
     void *pruss_uart_base;
@@ -212,15 +219,8 @@ typedef struct __prussdrv {
     void *pruss_ecap_base;
     void *pruss_miirt_base;
     void *pruss_mdio_base;
-    unsigned int pru0_dataram_phy_base;
-    unsigned int pru1_dataram_phy_base;
+
     unsigned int intc_phy_base;
-    unsigned int pru0_control_phy_base;
-    unsigned int pru0_debug_phy_base;
-    unsigned int pru1_control_phy_base;
-    unsigned int pru1_debug_phy_base;
-    unsigned int pru0_iram_phy_base;
-    unsigned int pru1_iram_phy_base;
     unsigned int l3ram_phy_base;
     unsigned int extram_phy_base;
     unsigned int pruss_sharedram_phy_base;
