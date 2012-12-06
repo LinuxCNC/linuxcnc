@@ -85,7 +85,7 @@ RTAPI_MP_INT(event, "PRU event number to listen for (0..7, default: none)");
 
 typedef struct {
     hal_bit_t *continuous;	// pin: sample CPU state every thread period if true
-    hal_u32_t *prunum;	        // pin: 0 or 1
+    hal_bit_t *prunum;	        // pin: 0 or 1
 
     // PRU control
     hal_bit_t *snap;		// pin: trigger state snapshot
@@ -227,7 +227,7 @@ static int export_pru(hal_pru_ptr addr)
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_u32_newf(HAL_IN, &(addr->prunum), comp_id, "%s.pru", modname);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->prunum), comp_id, "%s.pru", modname);
     if (retval != 0) {
 	return retval;
     }
