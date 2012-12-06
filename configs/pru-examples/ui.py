@@ -5,6 +5,9 @@ import pango
 import struct
 import string
 import sys,os
+import gtk
+import gtksourceview2 as gtksourceview
+
 
 debug = 0
 font = 'courier bold 12'
@@ -25,7 +28,7 @@ class DebugText:
             off = self.label_offset + i *68
             (loffset,lname) = struct.unpack("@I64s",self.data[off:off+68])
             lname.rstrip('\0')
-            if self.debug: print "label: ", loffset, lname
+            if debug: print "label: ", loffset, lname
             self.labelsbyname[lname] = loffset
             self.labelsbyaddr[loffset] = lname
 
@@ -35,7 +38,7 @@ class DebugText:
             off = self.file_offset + i *64
             (f,) = struct.unpack("64s",self.data[off:off+64])
             fname = nullstrip(f)
-            if self.debug: print "fname: ", i, fname
+            if debug: print "fname: ", i, fname
             self.filenames[i] = fname
             self.files[i] = open(fname, "r").read().splitlines()
 
@@ -44,7 +47,7 @@ class DebugText:
         for i in range(self.code_count):
             off = self.code_offset + i *16
             (f, resv8,fi,l,offset,word) = struct.unpack("@bbHIII",self.data[off:off+16])
-            if self.debug: print "code: ", f, fi,l,offset,word
+            if debug: print "code: ", f, fi,l,offset,word
             self.code [offset ] = word
             self.line [offset ] = l
             self.fileindex [offset ] = fi
@@ -64,8 +67,7 @@ class DebugText:
             self.text += "\n"
         return self.text
 
-    def __init__(self, filename,debug=False):
-        self.debug = debug
+    def __init__(self, filename):
 
         # labels by labelname, returns code address
         self.labelsbyname = dict()
@@ -94,48 +96,66 @@ class DebugText:
 
 class HandlerClass:
 
+    def _set_line(self,l):
+        if not l:
+            if self.mark:
+                self.textbuffer.delete_mark(self.mark)
+                self.mark = None
+            return
+        line = self.textbuffer.get_iter_at_line(l-1)
+        if not self.mark:
+            self.mark = self.textbuffer.create_source_mark('highlight', 'highlight', line)
+            self.mark.set_visible(True)
+        else:
+            self.textbuffer.move_mark(self.mark, line)
+        self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)
+
     def file_set(self,widget,data=None):
-        print "file_set"
         filename = widget.get_filename()
+        if debug: print "file_set",filename
 
-        self.dbtxt = DebugText(filename,True)
+        self.dbtxt = DebugText(filename)
         data = self.dbtxt.gen_text()
+        # the reader routines leave some fluff in the strings, so clean up
         txt = data.replace('\x00', '').decode('utf-8', 'replace').encode('utf-8')
-        self.sourcetextbuffer.set_text(txt)
-
+        self.textbuffer.set_text(txt)
+        self._set_line(0)
         self.have_file = True
-        self.iter1 = self.sourcetextbuffer.get_iter_at_line(1)
-        self.iter2 = self.sourcetextbuffer.get_iter_at_line(2)
+
 
     def pc_changed(self,widget,data=None):
-        print "pc_changed"
         line = widget.hal_pin.get()
-        print "pc_changed: ",line
+        if debug: print "pc_changed: ",line
 
         if not self.have_file:
             return
-        # this doesnt work reliably yet - please fix
-        self.sourcetextbuffer.apply_tag_by_name("default", self.iter1, self.iter2)
-        self.iter1 = self.sourcetextbuffer.get_iter_at_line(line)
-        self.iter2 = self.sourcetextbuffer.get_iter_at_line(line+1)
-        self.sourcetextbuffer.apply_tag_by_name("highlighted", self.iter1, self.iter2)
-        self.sourcetextbuffer.place_cursor(self.iter1)
+        self._set_line(line+1)
 
     def __init__(self, halcomp,builder,useropts):
 
         self.halcomp = halcomp
         self.builder = builder
-        self.sourcetext = builder.get_object('sourcetext')
-        self.sourcetextbuffer = self.sourcetext.get_buffer()
-        self.sourcetext.modify_font(pango.FontDescription(font))
+
+        self.line = 1
+        self.sourceview = builder.get_object('sourceview')
+        self.textbuffer = gtksourceview.Buffer()
+        self.sourceview.set_buffer(self.textbuffer)
+
+        self.sourceview.set_show_line_numbers(False)
+        self.sourceview.set_show_line_marks(True)
+        self.sourceview.set_highlight_current_line(True)
+        self.sourceview.modify_font(pango.FontDescription(font))
+
+        self.sourceview.set_mark_category_icon_from_icon_name('highlight', 'gtk-forward')
+        self.sourceview.set_mark_category_background('highlight', gtk.gdk.Color('yellow'))
+        self.mark = None
+
         for i in range(32):
             builder.get_object(format('R%d' % (i))).modify_font(pango.FontDescription(font))
         builder.get_object("CONTROL").modify_font(pango.FontDescription(font))
         builder.get_object("PC").modify_font(pango.FontDescription(font))
 
         self.have_file = False
-        self.sourcetextbuffer.create_tag("highlighted",  background = "yellow")
-        self.sourcetextbuffer.create_tag("default", background = "white")
 
         self.chooser = builder.get_object('chooser')
         self.chooser.set_current_folder(os.getcwd())
