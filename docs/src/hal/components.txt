@@ -45,35 +45,119 @@ get additional information in a terminal window.
 If the component requires a floating point thread that is usually the slower
 servo-thread.
 
+=== Core LinuxCNC components[[sec:Realtime-Components-core]] ===
+
 [horizontal]
-abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
-and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true.
-
-at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
+motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
 
 axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime.
 
-biquad:: (((biquad)))Biquad IIR filter
+classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See Classic Ladder manual for more information.
 
-bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
+gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
+
+threads:: (((threads)))Creates hard realtime HAL threads.
+
+=== Logic and bitwise components[[sec:Realtime-Components-logic]] ===
+
+[horizontal]
+
+and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true.
+
+not:: (((not)))Inverter.
+
+or2:: (((or2)))Two-input OR gate.
+
+xor2:: (((xor2)))Two-input XOR (exclusive OR) gate.
+
+debounce:: (((debounce)))Filter noisy digital inputs, for more information see <<sec:Debounce>>.
+
+edge:: (((edge)))Edge detector.
+
+flipflop:: (((flipflop)))D type flip-flop.
+
+oneshot:: (((oneshot)))One-shot pulse generator.
+
+logic:: (((logic)))Experimental general logic function component.
+
+lut5:: (((lut5)))Arbitrary 5-input logic function based on a look-up table.
+
+match8:: (((match8)))8-bit binary match detector.
+
+select8:: (((select8)))8-bit binary match detector.
+
+=== Arithmetic and float-components[[sec:Realtime-Components-float]] ===
+
+[horizontal]
+
+abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
 blend:: (((blend)))Perform linear interpolation between two values.
-
-charge_pump:: (((charge_pump)))Creates a square-wave for the 'charge pump' input of some controller boards.
-The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
-
-clarke2:: (((clarke2)))Two input version of Clarke transform.
-
-clarke3:: (((clarke3)))Clarke (3 phase to cartesian) transform.
-
-clarkeinv:: (((clarkeinv)))Inverse Clarke transform.
-
-classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See Classic Ladder manual for more information.
 
 comp:: (((comp)))Two input comparator with hysteresis.
 
 constant:: (((constant)))Use a parameter to set the value of a pin.
+
+sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
+
+counter:: (((counter)))Counts input pulses (deprecated).
+Use the 'encoder' component See <<sec:Encoder>>. 
+
+updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
+
+ddt:: (((ddt)))Compute the derivative of the input function.
+
+deadzone:: (((deadzone)))Return the center if within the threshold.
+
+hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator.
+
+mult2:: (((mult2)))Product of two inputs.
+
+mux16:: (((mux16)))Select from one of sixteen input values.
+
+mux2:: (((mux2)))Select from one of two input values.
+
+mux4:: (((mux4)))Select from one of four input values.
+
+mux8:: (((mux8)))Select from one of eight input values.
+
+near:: (((near)))Determine whether two values are roughly equal.
+
+offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value.
+
+integ:: (((integ)))Integrator.
+
+invert:: (((invert)))Compute the inverse of the input signal.
+
+wcomp:: (((wcomp)))Window comparator.
+
+weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer.
+
+biquad:: (((biquad)))Biquad IIR filter
+
+lowpass:: (((lowpass)))Low-pass filter
+
+limit1:: (((limit1)))Limit the output signal to fall between min and max. footnote:[When the input
+is a position, this means that the 'position' is limited.]
+
+limit2:: (((limit2)))Limit the output signal to fall between min and max.
+Limit its slew rate to less than maxv per second. footnote:[When the input
+is a position, this means that 'position' and 'velocity' are limited.]
+
+limit3:: (((limit3)))Limit the output signal to fall between min and max.
+Limit its slew rate to less than maxv per second.
+Limit its second derivative to less than MaxA per second squared. footnote:[When
+the input is a position, this means that the 'position', 'velocity', and
+'acceleration' are limited.]
+
+maj3:: (((maj3)))Compute the majority of 3 inputs.
+
+scale:: (((scale)))Applies a scale and offset to its input.
+
+=== Type conversion[[sec:Realtime-Components-typeconvert]] ===
+
+[horizontal]
 
 conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32.
 
@@ -95,41 +179,9 @@ conv_u32_float:: (((conv_u32_float)))Convert a value from u32 to float.
 
 conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 
-counter:: (((counter)))Counts input pulses (deprecated).
-Use the 'encoder' component See <<sec:Encoder>>. 
+=== Hardware drivers[[sec:Realtime-Components-hwdrivers]] ===
 
-ddt:: (((ddt)))Compute the derivative of the input function.
-
-deadzone:: (((deadzone)))Return the center if within the threshold.
-
-debounce:: (((debounce)))Filter noisy digital inputs, for more information see <<sec:Debounce>>.
-
-edge:: (((edge)))Edge detector.
-
-encoder:: (((encoder)))Software counting of quadrature encoder signals, for more information
-see <<sec:Encoder>>.
-
-encoder_ratio:: (((encoder_ratio)))An electronic gear to synchronize two axes.
-
-estop_latch:: (((estop_latch)))ESTOP latch.
-
-feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to the feed rate.
-
-flipflop:: (((flipflop)))D type flip-flop.
-
-freqgen:: (((freqgen)))Software step pulse generation.
-
-gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints.
-
-gearchange:: (((gearchange)))Select from one of two speed ranges.
-
-genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC).
-The location of the motors is defined at compile time.
-
-genserkins:: (((genserkins)))Kinematics that can model a general serial-link manipulator with up to
-6 angular joints.
-
-gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
+[horizontal]
 
 hm2_7i43:: (((hm2_7i43)))HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
 HostMot2.
@@ -139,7 +191,94 @@ Anything I/O boards, with HostMot2 firmware.
 
 hostmot2:: (((hostmot2)))HAL driver for the Mesa Electronics HostMot2 firmware.
 
-hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator.
+mesa_7i65:: (((7i65)))Support for the Mesa 7i65 eight-axis servo card.
+
+pluto_servo:: (((pluto_servo)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
+use with servos.
+
+pluto_step:: (((pluto_step)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
+use with steppers.
+
+thc:: (((torch height control)))Torch Height Control using a Mesa THC card.
+
+serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
+
+=== Kinematics[[sec:Realtime-Components-kins]] ===
+
+[horizontal]
+
+kins:: (((kins)))kinematics definitions for LinuxCNC.
+
+gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints.
+
+genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC).
+The location of the motors is defined at compile time.
+
+genserkins:: (((genserkins)))Kinematics that can model a general serial-link manipulator with up to
+6 angular joints.
+
+maxkins:: (((maxkins)))Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and
+horizontal rotary mounted to the table (C axis).
+Provides UVW motion in the rotated coordinate system.
+The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
+
+tripodkins:: (((tripodkins)))The joints represent the distance of the controlled point from three
+predefined locations (the motors), giving three degrees of freedom in
+position (XYZ).
+
+trivkins:: (((trivkins)))There is a 1:1 correspondence between joints and axes. Most standard
+milling machines and lathes use the trivial kinematics module.
+
+pumakins:: (((pumakins)))Kinematics for PUMA-style robots.
+
+rotatekins:: (((rotatekins)))The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
+
+scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
+
+=== Motor control[[sec:Realtime-Components-motor]] ===
+
+[horizontal]
+
+at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
+
+pid:: (((pid)))Proportional/integral/derivative controller, for more information
+see <<sec:PID>>.
+
+pwmgen:: (((pwmgen)))Software PWM/PDM generation, for more information see  <<sec:PWMgen>>.
+
+encoder:: (((encoder)))Software counting of quadrature encoder signals, for more information
+see <<sec:Encoder>>.
+
+stepgen:: (((stepgen)))Software step pulse generation, for more information see <<sec:Stepgen>>.
+
+freqgen:: (((freqgen)))Software step pulse generation.
+
+=== BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
+
+[horizontal]
+
+bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
+
+clarke2:: (((clarke2)))Two input version of Clarke transform.
+
+clarke3:: (((clarke3)))Clarke (3 phase to cartesian) transform.
+
+clarkeinv:: (((clarkeinv)))Inverse Clarke transform.
+
+=== Other[[sec:Realtime-Components-other]] ===
+
+[horizontal]
+
+charge_pump:: (((charge_pump)))Creates a square-wave for the 'charge pump' input of some controller boards.
+The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
+
+encoder_ratio:: (((encoder_ratio)))An electronic gear to synchronize two axes.
+
+estop_latch:: (((estop_latch)))ESTOP latch.
+
+feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to the feed rate.
+
+gearchange:: (((gearchange)))Select from one of two speed ranges.
 
 ilowpass:: [[ilowpass]] (((ilowpass)))While it may find other applications,
 this component was written to create smoother motion while jogging with an MPG.
@@ -152,96 +291,15 @@ Choose scale conservatively so that during a single session there will never
 be more than about 2e9/scale pulses seen on the MPG. Choose gain according
 to the smoothing level desired. Divide the axis.N.jog-scale values by scale.
 
-integ:: (((integ)))Integrator.
-
-invert:: (((invert)))Compute the inverse of the input signal.
-
 joyhandle:: (((joyhandle)))Sets nonlinear joypad movements, deadbands and scales.
-
-kins:: (((kins)))kinematics definitions for LinuxCNC.
 
 knob2float:: (((knob2float)))Convert counts (probably from an encoder) to a float value.
 
-limit1:: (((limit1)))Limit the output signal to fall between min and max. footnote:[When the input
-is a position, this means that the 'position' is limited.]
-
-limit2:: (((limit2)))Limit the output signal to fall between min and max.
-Limit its slew rate to less than maxv per second. footnote:[When the input
-is a position, this means that 'position' and 'velocity' are limited.]
-
-limit3:: (((limit3)))Limit the output signal to fall between min and max.
-Limit its slew rate to less than maxv per second.
-Limit its second derivative to less than MaxA per second squared. footnote:[When
-the input is a position, this means that the 'position', 'velocity', and
-'acceleration' are limited.]
-
-logic:: (((logic)))Experimental general logic function component.
-
-lowpass:: (((lowpass)))Low-pass filter
-
-lut5:: (((lut5)))Arbitrary 5-input logic function based on a look-up table.
-
-maj3:: (((maj3)))Compute the majority of 3 inputs.
-
-match8:: (((match8)))8-bit binary match detector.
-
-maxkins:: (((maxkins)))Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and
-horizontal rotary mounted to the table (C axis).
-Provides UVW motion in the rotated coordinate system.
-The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
-
-mesa_7i65:: (((7i65)))Support for the Mesa 7i65 eight-axis servo card.
-
 minmax:: (((minmax)))Track the minimum and maximum values of the input to the outputs.
-
-motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
-
-mult2:: (((mult2)))Product of two inputs.
-
-mux16:: (((mux16)))Select from one of sixteen input values.
-
-mux2:: (((mux2)))Select from one of two input values.
-
-mux4:: (((mux4)))Select from one of four input values.
-
-mux8:: (((mux8)))Select from one of eight input values.
-
-near:: (((near)))Determine whether two values are roughly equal.
-
-not:: (((not)))Inverter.
-
-offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value.
-
-oneshot:: (((oneshot)))One-shot pulse generator.
-
-or2:: (((or2)))Two-input OR gate.
-
-pid:: (((pid)))Proportional/integral/derivative controller, for more information
-see <<sec:PID>>.
-
-pluto_servo:: (((pluto_servo)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with servos.
-
-pluto_step:: (((pluto_step)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with steppers.
-
-pumakins:: (((pumakins)))Kinematics for PUMA-style robots.
-
-pwmgen:: (((pwmgen)))Software PWM/PDM generation, for more information see  <<sec:PWMgen>>.
-
-rotatekins:: (((rotatekins)))The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 
 sample_hold:: (((sample_hold)))Sample and Hold.
 
 sampler:: (((sampler)))Sample data from HAL in real time.
-
-scale:: (((scale)))Applies a scale and offset to its input.
-
-scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
-
-select8:: (((select8)))8-bit binary match detector.
-
-serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
 
 siggen:: (((siggen)))Signal generator, for more information see <<sec:Siggen>>.
 
@@ -249,19 +307,11 @@ sim_encoder:: (((sim_encoder)))Simulated quadrature encoder, for more informatio
 
 sphereprobe:: (((sphereprobe)))Probe a pretend hemisphere.
 
-stepgen:: (((stepgen)))Software step pulse generation, for more information see <<sec:Stepgen>>.
-
 steptest:: (((steptest)))Used by Stepconf to allow testing of acceleration and velocity values for an axis.
 
 streamer:: (((streamer)))Stream file data into HAL in real time.
 
-sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
-
 supply:: (((supply)))Set output pins with values from parameters (deprecated).
-
-thc:: (((torch height control)))Torch Height Control using a Mesa THC card.
-
-threads:: (((threads)))Creates hard realtime HAL threads.
 
 threadtest:: (((threadtest)))Component for testing thread behavior.
 
@@ -275,28 +325,16 @@ toggle2nist:: (((toggle2nist)))Toggle button to nist logic.
 
 toggle:: (((toggle)))Push-on, push-off from momentary pushbuttons.
 
-tripodkins:: (((tripodkins)))The joints represent the distance of the controlled point from three
-predefined locations (the motors), giving three degrees of freedom in
-position (XYZ).
-
 tristate_bit:: (((tristate_bit)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics.
 
 tristate_float:: (((tristate_float)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics.
 
-trivkins:: (((trivkins)))There is a 1:1 correspondence between joints and axes. Most standard
-milling machines and lathes use the trivial kinematics module.
 
-updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
 
 watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'.
 
-wcomp:: (((wcomp)))Window comparator.
-
-weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer.
-
-xor2:: (((xor2)))Two-input XOR (exclusive OR) gate.
 
 == HAL API calls
 ....
