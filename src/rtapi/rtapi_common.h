@@ -232,6 +232,9 @@ extern int period;
 extern long int max_delay;
 extern unsigned long timer_counts;
 #endif
+#ifdef HAVE_RTAPI_MODULE_TIMER_STOP
+void rtapi_module_timer_stop(void);
+#endif
 
 
 /* rtapi_shmem.c */
@@ -240,7 +243,7 @@ extern unsigned long timer_counts;
 #define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
 extern shmem_data *shmem_array;
-extern void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
+extern void *shmem_addr_array[];
 
 
 /* rtapi_module.c */
