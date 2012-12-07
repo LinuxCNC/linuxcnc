@@ -243,14 +243,10 @@ int rtapi_task_delete(int task_id) {
     if (task->magic != TASK_MAGIC)	// nothing to delete
 	return -EINVAL;
 
-#ifdef HAVE_RTAPI_TASK_DELETE_HOOK
-    retval = rtapi_task_delete_hook(task,task_id);
-#endif
-
-#ifdef MODULE
     if (task->state != DELETE_LOCKED)	// we don't already hold mutex
 	rtapi_mutex_get(&(rtapi_data->mutex));
 
+#ifdef MODULE
     if ((task->state == PERIODIC) || (task->state == FREERUN)) {
 	/* task is running, need to stop it */
 	rtapi_print_msg(RTAPI_MSG_WARN,
@@ -263,7 +259,6 @@ int rtapi_task_delete(int task_id) {
     /* free kernel memory */
     kfree(ostask_array[task_id]);
     /* update data */
-    task->magic = 0;
     task->prio = 0;
     task->owner = 0;
     task->taskcode = NULL;
@@ -280,15 +275,16 @@ int rtapi_task_delete(int task_id) {
 	    rtapi_data->timer_running = 0;
 	}
     }
+#endif /* MODULE */
+
+#ifdef HAVE_RTAPI_TASK_DELETE_HOOK
+    retval = rtapi_task_delete_hook(task,task_id);
+#endif
 
     if (task->state != DELETE_LOCKED)	// we don't already hold mutex
 	rtapi_mutex_give(&(rtapi_data->mutex));
     task->state = EMPTY;
-#else  /* userland thread */
-    rtapi_mutex_get(&(rtapi_data->mutex));
     task->magic = 0;
-    rtapi_mutex_give(&(rtapi_data->mutex));
-#endif
 
     rtapi_print_msg(RTAPI_MSG_DBG, "rt_task_delete %d \"%s\"\n", task_id, 
 		    task->name );
