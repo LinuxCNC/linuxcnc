@@ -71,7 +71,13 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"
+#include "rtapi_bitops.h"	/* test_bit() et al. */
+
+
+#ifndef NULL
+#define NULL 0
+#endif
+
 
 #include THREADS_HEADERS	/* thread-specific headers */
 
