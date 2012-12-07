@@ -86,7 +86,7 @@ extern "C" {
 
 #define PN(p) ((p) & 1) // every non-zero PRU number considered PRU1
 
-    typedef unsigned int preg, *preg_ptr;
+    typedef volatile unsigned int preg, *preg_ptr;
 
     typedef void *(*prussdrv_function_handler) (void *);
 
@@ -119,7 +119,11 @@ extern "C" {
 
     int prussdrv_init(void);
 
+
     int prussdrv_open(unsigned int pru_evtout_num);
+
+    // same thing, but /dev/uio%evtout already opened
+    int prussdrv_open_fd(int fd, unsigned int pru_evtout_num);
 
 
     preg prussdrv_pru_ctrl(unsigned int prunum);
@@ -174,7 +178,7 @@ extern "C" {
 
 #include "__prussdrv.h"
 
-    tprussdrv *prussdrv_self();
+    extern tprussdrv prussdrv;
 
 
 #if defined (__cplusplus)
