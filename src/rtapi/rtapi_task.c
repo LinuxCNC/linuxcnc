@@ -323,6 +323,8 @@ void task_wrapper(void *arg) {
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
     
+    /* if the task ever returns, we record that fact */
+    task->state = ENDED;
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "ERROR: reached end of wrapper for task %d '%s'\n", 
 		    task_id, task->name);
