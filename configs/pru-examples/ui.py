@@ -123,6 +123,7 @@ class HandlerClass:
         self.have_file = True
 
 
+
     def pc_changed(self,widget,data=None):
         line = widget.hal_pin.get()
         if debug: print "pc_changed: ",line

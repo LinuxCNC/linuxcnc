@@ -13,7 +13,7 @@ this will create the .bin and .dbg files
 
 then run this as:
 
-$ halcmd debugger-example.hal
+$ halcmd -f debugger-example.hal
 
 - in the file chooser, select pruexample.dbg
 - select stepping, contuous
@@ -26,3 +26,4 @@ Notes:
   I did this on a normal livcd based PC
 - the text highlighting/scrolling doesnt work reliable, I'd need a good example for Text view
   or gtksourceview for this.
+- You might need to run 'sudo apt-get install python-gtksourceview2' .
