@@ -111,8 +111,8 @@ static int comp_id;		/* component ID */
 static const char *modname = MODNAME;
 
 static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-preg_ptr iep_base;  // to access IEP COUNT (200Mhz)
-preg_ptr ecap_base;  // to access eCAP COUNT (200Mhz)
+static preg_ptr iep_base;  // to access IEP COUNT (200Mhz)
+static preg_ptr ecap_base;  // to access eCAP COUNT (200Mhz)
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
