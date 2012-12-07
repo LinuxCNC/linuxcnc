@@ -16,6 +16,10 @@
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
 
+#ifdef MODULE
+#include <linux/slab.h>		/* kmalloc() */
+#endif
+
 /*
   These functions are completely different between each userland
   thread system, so these are defined in rtapi_module.c for kernel
