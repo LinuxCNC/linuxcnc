@@ -133,8 +133,9 @@ void cleanup_module(void) {
     for (n = 1; n <= RTAPI_MAX_MODULES; n++) {
 	if (module_array[n].state == REALTIME) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
-		"RTAPI: WARNING: module '%s' (ID: %02d) did not call rtapi_exit()\n",
-		module_array[n].name, n);
+			    "RTAPI: WARNING: module '%s' (ID: %02d) did not "
+			    "call rtapi_exit()\n",
+			    module_array[n].name, n);
 	    module_delete(n);
 	}
     }
@@ -275,7 +276,6 @@ static int module_delete(int module_id) {
 	}
     }
  
-    /* use snprintf() to do strncpy(), since we don't have string.h */
     rtapi_snprintf(name, RTAPI_NAME_LEN, "%s", module->name);
     /* update module data */
     module->state = NO_MODULE;
@@ -318,7 +318,9 @@ int rtapi_init(const char *modname) {
     /* check revision code */
     if (rtapi_data->rev_code != REV_CODE) {
 	/* mismatch - release master shared memory block */
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, REV_CODE);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: version mismatch %d vs %d\n",
+			rtapi_data->rev_code, REV_CODE);
 	return -EINVAL;
     }
     /* set up local pointers to global data */
@@ -340,8 +342,8 @@ int rtapi_init(const char *modname) {
     if (n > RTAPI_MAX_MODULES) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
-			n);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI: ERROR: reached module limit %d\n", n);
 	return -EMFILE;
     }
     /* we have space for the module */

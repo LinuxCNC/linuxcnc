@@ -42,6 +42,7 @@ long int max_delay = DEFAULT_MAX_DELAY;
 // Actual number of counts of the periodic timer
 unsigned long timer_counts;
 
+
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
 void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
 				 RTIME *got_counts);
@@ -95,7 +96,7 @@ long int rtapi_clock_set_period(long int nsecs) {
 	return -EINVAL;
     }
 
-    /* kernel thread systems should init counts, timer_counts and
+    /* kernel thread systems should init counts and
        rtapi_data->timer_period using their own timer functions */
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
     rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
@@ -150,6 +151,11 @@ long long int rtapi_get_clocks_hook(void);
 long long int rtapi_get_clocks(void) {
 #ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
     long long int retval;
+
+    /* This returns a result in clocks instead of nS, and needs to be
+       used with care around CPUs that change the clock speed to save
+       power and other disgusting, non-realtime oriented behavior.
+       But at least it doesn't take a week every time you call it.  */
 
     rdtscll(retval);
     return retval;
