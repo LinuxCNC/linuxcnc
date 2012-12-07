@@ -199,6 +199,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     }
 #endif
 
+    /* the task has been created, update data */
     task->state = PAUSED;
     retval = task_id;
 #else  /* userland thread */
@@ -357,6 +358,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_task_start:  starting task %d '%s'\n",
 		    task_id, task->name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
 
 #ifdef HAVE_RTAPI_TASK_START_HOOK
     return rtapi_task_start_hook(task,task_id,0);
