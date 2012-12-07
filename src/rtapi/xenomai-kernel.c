@@ -298,7 +298,8 @@ rtapi_data_t *rtapi_init_hook() {
 ************************************************************************/
 
 #ifdef RTAPI
-void * rtapi_shmem_new_realloc_hook(int shmem_id) {
+void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
+				   unsigned long int size) {
     rtapi_print_msg(RTAPI_MSG_ERR, 
 		    "RTAPI: UNSUPPORTED OPERATION - cannot map "
 		    "user segment %d into kernel\n",shmem_id);
@@ -306,7 +307,8 @@ void * rtapi_shmem_new_realloc_hook(int shmem_id) {
 }
 
 #else  /* ULAPI */
-void * rtapi_shmem_new_realloc_hook(int shmem_id) {
+void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
+				   unsigned long int size) {
     char shm_name[20];
     int retval;
     void *shmem_addr;

@@ -41,7 +41,8 @@
 
 
 /* prototypes for hooks the kernel thread systems must implement */
-extern void *rtapi_shmem_new_realloc_hook(int shmem_id);
+extern void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
+					  unsigned long int size);
 extern void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 					 unsigned long int size);
 extern void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
