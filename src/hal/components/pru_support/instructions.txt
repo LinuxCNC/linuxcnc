@@ -1,0 +1,146 @@
+Symbol Meanings
+================
+<Rx>: Encoded register reference (8 bits)
+<IMMx>: Immediate value (8 bits)
+<IMM16_x>: Immediate value (16 bits)
+
+"x" refers to the position of the operand in the textual representation of the assembly instruction.
+
+Register References
+====================
+Format: xxxyyyyy
+  yyyyy: Register index (0-31)
+  xxx: Sub byte selector
+       000 - b0    100 - w0
+       001 - b1    101 - w1
+       010 - b2    110 - w2
+       011 - b3    111 - (none)
+
+Eg. r3.b1 will encode to 00100011 (0x23)
+
+Multiple Encodings
+===================
+Some instructions have multiple encodings depending on operands.
+Eg. add r0, r1, r2 will be encoded to 0x00e2e1e0 (opcode 00), while
+    add r0, r1, #0x55 will be encoded to 0x0155e1e0 (opcode 01)
+
+Opcode Table
+=============
+All instructions are 32-bit long, first byte is the opcode (usually).
+Row format:
+"ADD  00 <R2> <R1> <R0>" should be parsed as:
+ADD: Instruction name
+00: First byte is the opcode byte (0x00)
+<R2>: Second byte holds a register reference to operand 3
+<R1>: Third byte holds a register reference to operand 2
+<R0>: Fourth byte holds a register reference to operand 1
+
+ADD  00 <R2> <R1> <R0>
+ADD  01 <IMM2> <R1> <R0>
+ADC  02 <R2> <R1> <R0>
+ADC  03 <IMM2> <R1> <R0>
+SUB  04 <R2> <R1> <R0>
+SUB  05 <IMM2> <R1> <R0>
+SUC  06 <R2> <R1> <R0>
+SUC  07 <IMM2> <R1> <R0>
+LSL  08 <R2> <R1> <R0>
+LSL  09 <IMM2> <R1> <R0>
+LSR  0A <R2> <R1> <R0>
+LSR  0B <IMM2> <R1> <R0>
+RSB  0C <R2> <R1> <R0>
+RSB  0D <IMM2> <R1> <R0>
+RSC  0E <R2> <R1> <R0>
+RSC  0F <IMM2> <R1> <R0>
+AND  10 <R2> <R1> <R0>
+AND  11 <IMM2> <R1> <R0>
+OR   12 <R2> <R1> <R0>
+OR   13 <IMM2> <R1> <R0>
+XOR  14 <R2> <R1> <R0>
+XOR  15 <IMM2> <R1> <R0>
+???  16 Probably the same as 0x17 NOT
+NOT  17 00 <R1> <R0>
+MIN  18 <R2> <R1> <R0>
+MIN  19 <IMM2> <R1> <R0>
+MAX  1A <R2> <R1> <R0>
+MAX  1B <IMM2> <R1> <R0>
+CLR  1C <R2> <R1> <R0>
+CLR  1D <IMM2> <R1> <R0>
+SET  1E <R2> <R1> <R0>
+SET  1F <IMM2> <R1> <R0>
+JMP  20 <R0> 00 00
+JMP  21 <IMM16_0> 00
+JAL  22 <R1> 00 <R0>
+JAL  23 <IMM16_1> <R0>
+MOV  24 <IMM16_1> <R0>
+???  25 PRUSSv1: HALT (?)
+LMBD 26 <R2> <R1> <R0>
+LMBD 27 <IMM2> <R1> <R0>
+SCAN 28 <R1> <R0> <R0>
+SCAN 29 <IMM1> <R0> <R0>
+HALT 2A 00 00 00
+???  2B RESERVED HALT code
+???  2C-2D PRUSSv1: currently reserved for MVIx
+???  2E-2F  See section "XIN/XOUT/XCHG Instructions"
+???  30-3B  PRUSSv1: RESERVED
+???  3C-3D  PRUSSv1: currently reserved for RFI  Return From Interrupt
+SLP  3E x0000000 00000000 00000000
+???  3F RESERVED SLP code
+QBN  40-47  See section "QBxx Instructions" - Unused instruction case, Quick Branch Never
+QBLT 48-4F  See section "QBxx Instructions"
+QBEQ 50-57  See section "QBxx Instructions"
+QBLE 58-5F  See section "QBxx Instructions"
+QBGT 60-67  See section "QBxx Instructions"
+QBNE 68-6F  See section "QBxx Instructions"
+QBGE 70-77  See section "QBxx Instructions"
+QBA  78-7F  See section "QBxx Instructions"
+SBCO 8x     See section "LBCO/SBCO Instruction"
+LBCO 9x     See section "LBCO/SBCO Instruction"
+LFC  A0-A1  PRUSSv1: Load from Coprocessor, DEPRECATED
+???  A2-AF
+STC  B0-B1  PRUSSv1: Store to Coprocessor, DEPRECATED
+???  B2-BF
+QBN  C0-C7  See section "QBxx Instructions" - Unused instruction case, Quick Branch Never
+QBBC C8-CF  See section "QBxx Instructions"
+QBBS D0-D7  See section "QBxx Instructions"
+QBA  D7-DF  See section "QBxx Instructions"
+SBBO Ex     See section "LBBO/SBBO Instruction"
+LBBO Fx     See section "LBBO/SBBO Instruction"
+
+XIN/XOUT/XCHG Instructions
+===========================
+Format: cccccccw rxxxxxxx xyzzzzzz zbbaaaaa
+    c: Opcode
+	w: If 1, do an XFR interface write
+	r: If 1, do an XFR interface read
+	x: XFR bus device ID
+	y: Unknown, always 0
+	z: Amount of bytes to copy - 1. z = 124,125,126,127 means b0,b1,b2,b3
+	a: Base index of register to transfer (r0-r31)
+	b: Byte offset in register (b0-b3)
+
+QBxx Instructions
+==================
+Format: cccccxx0 <R1> <R2> xxxxxxxx
+Format: cccccxx1 <R1> <IMM2> xxxxxxxx
+    c: Opcode
+	x: Signed immediate offset to jump to (first "x" is the sign bit),
+	   relative to the first byte of the instruction
+	   (last 2 bits are removed, as they would be always 0; so byte offset is xxx_offset << 2)
+
+LBBO/SBBO Instruction
+======================
+Format: ccccxxxt yyyyyyyy xxxbbbbb xaaaaaaa
+    c: Opcode
+	x: Length of copied data - 1 (IMM3 - 1). x = 124,125,126,127 means b0,b1,b2,b3
+	y: R2, if t = 0. IMM2, if t = 1.
+	b: R1
+	a: Byte address of R0 in register file (eg. r1.b1 would be 5)
+
+LBCO/SBCO Instruction
+======================
+Format: ccccxxxt yyyyyyyy xxxbbbbb xaaaaaaa
+    c: Opcode
+	x: Length of copied data - 1 (IMM3 - 1). x = 124,125,126,127 means b0,b1,b2,b3
+	y: R2, if t = 0. IMM2, if t = 1.
+	b: C1 (constant table index)
+	a: Byte address of R0 in register file (eg. r1.b1 would be 5)
