@@ -108,7 +108,7 @@ SUBDIRS := \
     \
     hal/components hal/drivers hal/user_comps/devices \
     hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
-    \
+    hal/components/pru_support \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
