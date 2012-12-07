@@ -7,6 +7,9 @@
 #include <stdlib.h>		/* strtol() */
 #endif
 
+#if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
+#include <stdio.h>		/* putchar */
+#endif
 
 
 /* these pointers are initialized at startup to point
@@ -114,50 +117,71 @@ void rtapi_printall(void) {
     int n, m;
 
     if (rtapi_data == NULL) {
-	printf("rtapi_data = NULL, not initialized\n");
+	rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_data = NULL, not initialized\n");
 	return;
     }
-    printf("rtapi_data = %p\n", rtapi_data);
-    printf("  magic = %d\n", rtapi_data->magic);
-    printf("  rev_code = %08x\n", rtapi_data->rev_code);
-    printf("  mutex = %lu\n", rtapi_data->mutex);
-    printf("  rt_module_count = %d\n", rtapi_data->rt_module_count);
-    printf("  ul_module_count = %d\n", rtapi_data->ul_module_count);
-    printf("  task_count  = %d\n", rtapi_data->task_count);
-    printf("  shmem_count = %d\n", rtapi_data->shmem_count);
-    printf("  timer_running = %d\n", rtapi_data->timer_running);
-    printf("  timer_period  = %ld\n", rtapi_data->timer_period);
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_data = %p\n",
+		    rtapi_data);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  magic = %d\n",
+		    rtapi_data->magic);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  rev_code = %08x\n",
+		    rtapi_data->rev_code);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  mutex = %lu\n",
+		    rtapi_data->mutex);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  rt_module_count = %d\n",
+		    rtapi_data->rt_module_count);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  ul_module_count = %d\n",
+		    rtapi_data->ul_module_count);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  task_count  = %d\n",
+		    rtapi_data->task_count);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem_count = %d\n",
+		    rtapi_data->shmem_count);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  timer_running = %d\n",
+		    rtapi_data->timer_running);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  timer_period  = %ld\n",
+		    rtapi_data->timer_period);
     modules = &(rtapi_data->module_array[0]);
     tasks = &(rtapi_data->task_array[0]);
     shmems = &(rtapi_data->shmem_array[0]);
-    printf("  module array = %p\n", modules);
-    printf("  task array   = %p\n", tasks);
-    printf("  shmem array  = %p\n", shmems);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  module array = %p\n",modules);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  task array   = %p\n", tasks);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem array  = %p\n", shmems);
     for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
 	if (modules[n].state != NO_MODULE) {
-	    printf("  module %02d\n", n);
-	    printf("    state = %d\n", modules[n].state);
-	    printf("    name = %p\n", modules[n].name);
-	    printf("    name = '%s'\n", modules[n].name);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "  module %02d\n", n);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    state = %d\n",
+			    modules[n].state);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    name = %p\n",
+			    modules[n].name);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    name = '%s'\n",
+			    modules[n].name);
 	}
     }
     for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
 	if (tasks[n].state != EMPTY) {
-	    printf("  task %02d\n", n);
-	    printf("    state = %d\n", tasks[n].state);
-	    printf("    prio  = %d\n", tasks[n].prio);
-	    printf("    owner = %d\n", tasks[n].owner);
-	    printf("    code  = %p\n", tasks[n].taskcode);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "  task %02d\n", n);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    state = %d\n",
+			    tasks[n].state);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    prio  = %d\n",
+			    tasks[n].prio);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    owner = %d\n",
+			    tasks[n].owner);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    code  = %p\n",
+			    tasks[n].taskcode);
 	}
     }
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
 	if (shmems[n].key != 0) {
-	    printf("  shmem %02d\n", n);
-	    printf("    key     = %d\n", shmems[n].key);
-	    printf("    rtusers = %d\n", shmems[n].rtusers);
-	    printf("    ulusers = %d\n", shmems[n].ulusers);
-	    printf("    size    = %ld\n", shmems[n].size);
-	    printf("    bitmap  = ");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem %02d\n", n);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    key     = %d\n",
+			    shmems[n].key);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    rtusers = %d\n",
+			    shmems[n].rtusers);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    ulusers = %d\n",
+			    shmems[n].ulusers);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    size    = %ld\n",
+			    shmems[n].size);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
 		if (test_bit(m, shmems[n].bitmap)) {
 		    putchar('1');
