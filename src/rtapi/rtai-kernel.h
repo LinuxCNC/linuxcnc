@@ -8,7 +8,7 @@
 /* Messaging functions settings */
 
 // RTAI uses rt_printk() instead of printk()
-#define PRINTK rt_printk
+#define RTAPI_PRINTK rt_printk
 
 
 /* Priority functions settings */
