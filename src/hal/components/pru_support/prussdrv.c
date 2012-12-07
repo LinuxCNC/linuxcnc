@@ -51,19 +51,18 @@
 
 #include <prussdrv.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 #define PRUSS_UIO_PRAM_PATH_LEN 128
 #define PRUSS_UIO_PARAM_VAL_LEN 20
 #define HEXA_DECIMAL_BASE 16
 
 static char *modname = "prussdrv"; // for error messages
-static tprussdrv prussdrv;
 
-tprussdrv *prussdrv_self()
-{
-    return &prussdrv;
-}
-
+tprussdrv prussdrv;
 
 int __pruss_detect_hw_version(unsigned int *pruss_io)
 {
@@ -305,6 +304,30 @@ int prussdrv_open(unsigned int pru_evtout_num)
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open(%d) failed\n",
 			modname, pru_evtout_num);
+        return -1;
+    }
+}
+
+int prussdrv_open_fd(int fd, unsigned int pru_evtout_num)
+{
+    struct stat st;
+
+    if (fstat(fd, &st)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open_fd: fstat(%d) failed: %d - %s\n",
+			modname, fd, errno,strerror(errno));
+        return -1;
+    }
+    if (!S_ISCHR(st.st_mode)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open_fd: fd %d: not a char device\n",
+			modname, fd);
+        return -1;
+    }
+    if (!prussdrv.fd[pru_evtout_num]) {
+	prussdrv.fd[pru_evtout_num] = fd;
+        return __prussdrv_memmap_init();
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open_fd(%d,%d): fd already open\n",
+			modname, fd, pru_evtout_num);
         return -1;
     }
 }

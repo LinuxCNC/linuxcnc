@@ -144,7 +144,7 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
-ifeq ($(TARGET_PLATFORM),beaglebone)
+ifeq ($(TARGET_PLATFORM),PC)
 # the beaglebone port adds .p (PRU assembly) source files, see hal/components
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %_bin.h, $(USERSRCS)))
 else
@@ -1107,9 +1107,9 @@ tags:
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
-	find . -type f -name '*.[ch]' |xargs etags --language-force=c --append
-	find . -type f -name '*.cc' |xargs etags --language-force=c++ --append
-	find . -type f -name '*.hh' |xargs etags --language-force=c++ --append
+	find . -type f -name '*.[ch]' |xargs etags --language=c --append
+	find . -type f -name '*.cc' |xargs etags --language=c++ --append
+	find . -type f -name '*.hh' |xargs etags --language=c++ --append
 
 .PHONY: swish
 swish:
