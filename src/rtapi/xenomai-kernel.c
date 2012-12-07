@@ -123,7 +123,6 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
     *counts = rt_timer_ns2ticks((RTIME) nsecs);
     rt_timer_set_mode(*counts);
     rtapi_data->timer_period = *got_counts = rt_timer_ticks2ns(*counts);
-    timer_counts = *got_counts;
 }
 #endif /* RTAPI */
 

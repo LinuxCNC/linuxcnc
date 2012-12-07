@@ -98,6 +98,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     /* kernel thread systems should init counts, timer_counts and
        rtapi_data->timer_period using their own timer functions */
     rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
+    timer_counts = got_counts;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "RTAPI: clock_set_period requested: %ld  actual: %ld  "
