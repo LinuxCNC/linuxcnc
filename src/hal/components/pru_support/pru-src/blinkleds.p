@@ -1,7 +1,7 @@
 // example adapted from http://blog.boxysean.com/2012/08/12/first-steps-with-the-beaglebone-pru/
 // blinkslave.p
 
-#include "pru_support/pru.h"
+#include "../pru.h"
 #define LED_OFFSET 22
 
 .origin 0

@@ -1,0 +1,81 @@
+ifeq ($(TARGET_PLATFORM),beaglebone)
+
+# support for ARM335x PRU (Programmable Realtime Unit) components and
+PRU_SUPPORT_DIR := hal/components/pru_support
+PRU_SRC_DIR := $(PRU_SUPPORT_DIR)/pru-src/
+
+# The PRU assembler proper
+PASM := ../bin/pasm
+PASM_BINFLAGS := -b -L  # .bin output, create listing
+PASM_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/pasm/, \
+	pasm.c pasmpp.c pasmexp.c pasmop.c pasmdot.c pasmstruct.c pasmmacro.c)
+
+$(call TOOBJSDEPS, $(PASM_SRCS)) : EXTRAFLAGS=-Wall -D_UNIX_
+
+../bin/pasm: $(call TOOBJS, $(PASM_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^
+
+USERSRCS += $(PASM_SRCS)
+TARGETS += $(PASM)
+
+# application loader UIO interface
+# the matching uio_pruss kernel module is part of the
+# kernel build
+PRUSS_INC :=  $(PRU_SUPPORT_DIR)
+PRUSSDRV_SRCS := $(addprefix $(PRU_SUPPORT_DIR)/, \
+	prussdrv.c)
+$(call TOOBJSDEPS, $(PRUSSDRV_SRCS)) : EXTRAFLAGS= -D__DEBUG -I$(BASEPWD)/hal/components/pru_support #-fPIC
+USERSRCS += $(PRUSSDRV_SRCS)
+
+# install PRU, prussdrv includes
+# not needed for now
+#../include/%.h: $(PRU_SUPPORT_DIR)/%.h
+#	cp $^ $@
+
+# Assembly of PRU code
+# the list of assembly source files
+PRU_SRCS := $(wildcard $(PRU_SRC_DIR)/*.p)
+
+# .bin files produced by PASM -b go in rtlib
+PRU_BINS := $(patsubst $(PRU_SRC_DIR)/%.p, ../rtlib/%.bin, $(PRU_SRCS))
+
+# .bin files are targets
+TARGETS +=  $(PRU_BINS)
+USERSRCS += $(PRU_SRCS)
+
+# conversion rules for the above
+# assemble .p  into .bin object files
+../rtlib/%.bin: $(PRU_SRC_DIR)/%.p
+	$(ECHO) Assembling PRU code $@ #$(notdir $@)
+	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
+
+
+# pru Python bindings
+# -DBOOST_DEBUG_PYTHON -g -O0
+
+# in master this will come through configure
+# since this is 2.5 based, set manually for now:
+
+BOOST_PYTHON_LIBS=boost_python-py27
+LIBPYTHON=python2.7
+
+BOOST_DEBUG_FLAGS=
+PRUMOD_SRCS=hal/components/pru_support/prumodule.cc #hal/components/pru_support/prussdrv.c
+USERSRCS += $(PRUMOD_SRCS)
+
+$(call TOOBJSDEPS, $(PRUMOD_SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS) -DCPLUSPLUS
+
+../lib/python/pru.so: objects/hal/components/pru_support/prumodule.o \
+	objects/hal/components/pru_support/prussdrv.o ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(CXX) -g  -rdynamic $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ \
+	-l$(BOOST_PYTHON_LIBS)  -l$(LIBPYTHON) ../lib/liblinuxcnchal.so.0
+
+TARGETS += ../lib/python/pru.so
+
+
+
+endif
