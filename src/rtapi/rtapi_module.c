@@ -351,10 +351,10 @@ int rtapi_init(const char *modname) {
     module->state = USERSPACE;
     if (modname != NULL) {
 	/* use name supplied by caller, truncating if needed */
-	snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
+	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
     } else {
 	/* make up a name */
-	snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
+	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
     }
     rtapi_data->ul_module_count++;
     rtapi_mutex_give(&(rtapi_data->mutex));
@@ -392,9 +392,9 @@ int rtapi_exit(int module_id) {
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
 	if (test_bit(module_id, shmem_array[n].bitmap)) {
-	    fprintf(stderr,
-		    "ULAPI: WARNING: module '%s' failed to delete shmem %02d\n",
-		    module->name, n);
+	    rtapi_print_msg(RTAPI_MSG_WARN,
+			    "ULAPI: WARNING: module '%s' failed to delete "
+			    "shmem %02d\n", module->name, n);
 	    // mark block as ready for delete, lock already held
 	    shmem_array[n].magic = SHMEM_MAGIC_DEL_LOCKED;
 	    rtapi_shmem_delete(n, module_id);
