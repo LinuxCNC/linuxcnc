@@ -291,18 +291,6 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 				"RTAPI: ERROR: shmem size mismatch\n");
 		return -EINVAL;
 	    }
-#ifdef RTAPI
-	    /* yes, has it been mapped into kernel space? */
-	    if (shmem->rtusers == 0) {
-		/* no, map it and save the address */
-		shmem_addr_array[shmem_id] = 
-		    rtapi_shmem_new_realloc_hook(shmem_id);
-		if (shmem_addr_array[shmem_id] == NULL) {
-		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return -ENOMEM;
-		}
-	    }
-#endif  /* RTAPI */
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
@@ -310,25 +298,25 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 				"RTAPI: Warning: shmem already mapped\n");
 		return -EINVAL;
 	    }
+	    /* yes, has it been mapped into kernel space? */
+#ifdef RTAPI
+	    if (shmem->rtusers == 0) {
+#endif
+		/* no, map it and save the address */
+		shmem_addr_array[shmem_id] = 
+		    rtapi_shmem_new_realloc_hook(shmem_id, key, size);
+		if (shmem_addr_array[shmem_id] == NULL) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "RTAPI: ERROR: failed to map shmem\n");
+		    rtapi_mutex_give(&(rtapi_data->mutex));
 #ifdef ULAPI
-	    /* no, map it */
-
-	    shmem_addr_array[shmem_id] = 
-		rtapi_shmem_new_realloc_hook(shmem_id);
-
-            // the check for -1 here is because rtai_malloc (in at least
-            // rtai 3.6.1, and probably others) has a bug where it
-            // sometimes returns -1 on error
-            if (shmem_addr_array[shmem_id] == NULL ||
-		shmem_addr_array[shmem_id] == (void*)-1) {
-		/* map failed */
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"RTAPI: ERROR: failed to map shmem\n");
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		check_memlock_limit("failed to map shmem");
-		return -ENOMEM;
+		    check_memlock_limit("failed to map shmem");
+#endif
+		    return -ENOMEM;
+		}
+#ifdef RTAPI
 	    }
-#endif  /* ULAPI */
+#endif
 	    /* update usage data */
 	    set_bit(module_id, shmem->bitmap);
 #ifdef ULAPI
@@ -368,11 +356,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     shmem_addr_array[shmem_id] =
 	rtapi_shmem_new_malloc_hook(shmem_id, key, size);
 
-    // the check for -1 here is because rtai_malloc (in at least
-    // rtai 3.6.1, and probably others) has a bug where it
-    // sometimes returns -1 on error
-    if (shmem_addr_array[shmem_id] == NULL ||
-	shmem_addr_array[shmem_id] == (void*)-1) {
+    if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not create shmem %d\n", n);
