@@ -96,6 +96,46 @@ class DebugText:
 
 class HandlerClass:
 
+    def populate_popup(self,textview,menu,data=None):
+        separator = gtk.SeparatorMenuItem()
+        sbp_item = gtk.MenuItem("Set breakpoint")
+        sbp_item.connect("activate", self.set_breakpoint,"foo")
+        rbp_item = gtk.MenuItem("Remove breakpoint")
+        rbp_item.connect("activate", self.remove_breakpoint,"foo")
+        menu.append(separator)
+        separator.show()
+        menu.append(sbp_item)
+        sbp_item.show()
+        menu.append(rbp_item)
+        rbp_item.show()
+
+    def set_breakpoint(self,widget,data=None):
+        if self.bpline:
+            self._set_bp_line(None)
+        self.bpline = self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line() +1
+        print "not implemented yet: setting breakpoint at line=",self.bpline
+        self._set_bp_line(self.bpline)
+
+    def remove_breakpoint(self,widget,data=None):
+        if self.bpline:
+            self._set_bp_line(None)
+        self.bpline = None
+
+    def _set_bp_line(self,l):
+        if not l:
+            if self.bpmark:
+                self.textbuffer.delete_mark(self.bpmark)
+                self.bpmark = None
+            return
+        line = self.textbuffer.get_iter_at_line(l-1)
+        if not self.bpmark:
+            self.bpmark = self.textbuffer.create_source_mark('breakpoint', 'breakpoint', line)
+            self.bpmark.set_visible(True)
+        else:
+            self.textbuffer.move_mark(self.bpmark, line)
+        #self.sourceview.scroll_to_mark(self.bpmark, 0, True, 0, 0.5)
+
+
     def _set_line(self,l):
         if not l:
             if self.mark:
@@ -141,14 +181,17 @@ class HandlerClass:
         self.textbuffer = gtksourceview.Buffer()
         self.sourceview.set_buffer(self.textbuffer)
 
+        self.sourceview.set_editable(False)
         self.sourceview.set_show_line_numbers(False)
         self.sourceview.set_show_line_marks(True)
         self.sourceview.set_highlight_current_line(True)
         self.sourceview.modify_font(pango.FontDescription(font))
 
-        self.sourceview.set_mark_category_icon_from_icon_name('highlight', 'gtk-forward')
         self.sourceview.set_mark_category_background('highlight', gtk.gdk.Color('yellow'))
+        self.sourceview.set_mark_category_background('breakpoint', gtk.gdk.Color('green'))
         self.mark = None
+        self.bpmark = None
+        self.bpline = None
 
         for i in range(32):
             builder.get_object(format('R%d' % (i))).modify_font(pango.FontDescription(font))

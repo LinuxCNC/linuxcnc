@@ -224,6 +224,7 @@
                 <property name="tab_width">4</property>
                 <property name="auto_indent">True</property>
                 <property name="indent_on_tab">False</property>
+                <signal name="populate_popup" handler="populate_popup"/>
               </object>
             </child>
           </object>
