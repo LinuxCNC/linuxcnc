@@ -23,8 +23,8 @@ RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 #endif
 
 // most RT systems use printk()
-#ifndef PRINTK
-#define PRINTK printk
+#ifndef RTAPI_PRINTK
+#define RTAPI_PRINTK printk
 #endif
 
 
@@ -33,7 +33,7 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			      va_list ap) {
     char buf[RTPRINTBUFFERLEN];
     vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-    PRINTK(buf);
+    RTAPI_PRINTK(buf);
 }
 
 #else /* user land */
