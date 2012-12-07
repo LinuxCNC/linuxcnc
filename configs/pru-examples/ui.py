@@ -121,6 +121,8 @@ class HandlerClass:
         self.textbuffer.set_text(txt)
         self._set_line(0)
         self.have_file = True
+<<<<<<< HEAD
+
 
 
     def pc_changed(self,widget,data=None):
