@@ -7,9 +7,6 @@
 #include <stdlib.h>		/* strtol() */
 #endif
 
-#ifndef NULL
-#define NULL 0
-#endif
 
 
 /* these pointers are initialized at startup to point
