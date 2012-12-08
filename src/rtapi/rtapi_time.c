@@ -19,7 +19,9 @@
 
 
 // find a useable time stamp counter
-#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK  // only if thread system uses the default
+#ifndef MODULE			/* kernel has rdtscll in
+				   arch/x86/include/msr.h; does this
+				   apply to other arches?  */
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
 #elif defined(__i386__) || defined(__x86_64__)
