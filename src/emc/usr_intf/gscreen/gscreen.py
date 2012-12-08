@@ -32,7 +32,7 @@ import gtk
 import gtk.glade
 import gobject
 import hal
-import sys,os
+import sys,os,subprocess
 from optparse import Option, OptionParser
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
@@ -1198,6 +1198,20 @@ class Gscreen:
         self.widgets.gcode_tab.set_text(name)
 
 # ****** do stuff *****
+
+    # shows 'Onboard' virtual keyboard if available
+    def launch_keyboard(self,args="",x="",y=""):
+        try:
+            self.ob = subprocess.Popen(["onboard",args,x,y])
+        except:
+            print "error with 'onboard' on screen keyboard program"
+
+    def kill_keyboard(self):
+        try:
+            self.ob.kill()
+            self.ob.terminate()
+        except:
+            pass
 
     # this installs local signals unless overriden by custom handlers
     def install_signals(self, handlers):
