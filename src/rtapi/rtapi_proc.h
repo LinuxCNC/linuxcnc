@@ -78,6 +78,7 @@
 
 #include <linux/ctype.h>	/* isdigit */
 #include "procfs_macros.h"	/* macros for read functions */
+#include <asm/uaccess.h>	/* copy_from_user() */
 
 struct proc_dir_entry *rtapi_dir = 0;	/* /proc/rtapi directory */
 static struct proc_dir_entry *status_file = 0;	/* /proc/rtapi/status */
