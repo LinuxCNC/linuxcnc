@@ -2383,12 +2383,15 @@ class Gscreen:
         self.update_jog_rate_label()
         self.update_mode_label()
 
+    # spindle controls
     def update_mdi_spindle_button(self):
-        # spindle controls
-        if self.data.spindle_speed == 0:
+        label = self.widgets.spindle_control.get_label()
+        speed = self.data.spindle_speed
+        if speed == 0 and not label == "Start":
             temp = "Start"
-        else:
+        elif speed and not label == "Stop":
             temp = "Stop"
+        else: return
         self.widgets.spindle_control.set_label(temp)
 
     def update_spindle_bar(self):
