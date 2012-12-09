@@ -177,7 +177,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 	return -ENOMEM;
     }
 
-#ifdef RTAPI_TASK_NEW_HOOK
+#ifdef HAVE_RTAPI_TASK_NEW_HOOK
     /* kernel threads: rtapi_task_new_hook() should call OS to
        initialize the task - use predetermined or explicitly assigned
        CPU */
