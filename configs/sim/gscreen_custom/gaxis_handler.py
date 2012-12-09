@@ -26,7 +26,7 @@ class HandlerClass:
     # This connects siganals without using glade's autoconnect method
     # in this case to destroy the window
     # it calls the method in gscreen: gscreen.on_window_destroy()
-    def connect_signals(self):
+    def connect_signals(self,handlers):
         signal_list = [ ["window1","destroy", "on_window1_destroy"],
                     ]
         for i in signal_list:
