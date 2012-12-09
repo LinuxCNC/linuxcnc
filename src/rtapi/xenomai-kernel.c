@@ -26,8 +26,7 @@ static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
 #ifdef RTAPI
 static RT_HEAP master_heap;
 static rthal_trap_handler_t old_trap_handler;
-static int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage,
-			      void *data);
+static int rtapi_trap_handler(unsigned event, unsigned domid, void *data);
 
 #else /* ULAPI */
 RT_HEAP ul_heap_desc;
@@ -134,8 +133,7 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 #ifdef RTAPI
 // not better than the builtin Xenomai handler, but at least
 // hook into to rtapi_print
-int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage,
-		       void *data) {
+int rtapi_trap_handler(unsigned event, unsigned domid, void *data) {
     struct pt_regs *regs = data;
     xnthread_t *thread = xnpod_current_thread(); ;
 
@@ -146,7 +144,7 @@ int rtapi_trap_handler(unsigned event, rthal_pipeline_stage_t *stage,
 		    regs->ip, regs->sp, 
 		    xnthread_user_pid(thread), thread->errcode);
     // forward to default Xenomai trap handler
-    return ((rthal_trap_handler_t) old_trap_handler)(event, stage, data);
+    return ((rthal_trap_handler_t) old_trap_handler)(event, domid, data);
 }
 
 int rtapi_task_self_hook(void) {
