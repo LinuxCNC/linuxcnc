@@ -144,9 +144,9 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
-ifeq ($(TARGET_PLATFORM),PC)
+ifeq ($(TARGET_PLATFORM),beaglebone)
 # the beaglebone port adds .p (PRU assembly) source files, see hal/components
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %_bin.h, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.ph, $(USERSRCS)))
 else
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 endif
