@@ -28,6 +28,9 @@ docs/html/drivers
 /docs/src/source-highlight/local
 lib/python/gremlin.py
 lib/python/touchy
+tests/*/skip
+tests/*/*/skip
+tests/*/*/*/skip
 #
 # emacs droppings
 *~
