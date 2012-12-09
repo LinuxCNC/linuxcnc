@@ -73,6 +73,9 @@
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
 
+#ifdef MODULE
+#include <asm/uaccess.h>	/* copy_from_user() */
+#endif
 
 #ifndef NULL
 #define NULL 0
