@@ -219,7 +219,7 @@ extern task_data *task_array;
 
 /* $(THREADS).c */
 #if defined(MODULE)
-extern RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
+extern RT_TASK *ostask_array[];
 #endif
 
 
