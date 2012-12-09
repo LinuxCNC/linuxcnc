@@ -107,6 +107,42 @@ PRU_INTC_SITR2_REG   = 0xD84/_base
 
 PRU_INTC_HIER_REG    = 0x1500/_base
 
+# offset relative to IEP_BASE, words
+
+IEP_GLOBAL_CFG = 0
+IEP_CNT_ENABLE = 1
+
+IEP_GLOBAL_STATUS  = 0x04/_base
+IEP_COMPEN = 0x08/_base
+IEP_COUNT = 0x0C/_base
+
+IEP_CMP_CFG = 0x40/_base
+
+IEP_CMP0_RST_CNT_EN = 1 # Enable bit for each of the compare registers, where CMP_EN0 maps to CMP0
+
+IEP_CMP_EN0 = 2 # Enable the reset of the counter if a CMP0 event occurs
+IEP_CMP_EN1 = 4
+IEP_CMP_EN2 = 8
+#...
+IEP_CMP_EN7 = 256
+
+
+IEP_CMP_STATUS = 0x44/_base  # Status bit for each of the compare registers, where CMP_HIT0 is mapped to CMP0.
+IEP_CMP_HIT0  = 1
+IEP_CMP_HIT1  = 2
+# etc etc
+
+
+IEP_CMP0 = 0x48/_base
+IEP_CMP1 = 0x4c/_base
+IEP_CMP2 = 0x50/_base
+IEP_CMP3 = 0x54/_base
+IEP_CMP4 = 0x58/_base
+IEP_CMP5 = 0x5c/_base
+IEP_CMP6 = 0x60/_base
+IEP_CMP7 = 0x64/_base
+
+
 #define PRUSS_UIO_MAP_OFFSET_PRUSS 0*PAGE_SIZE
 pruss_base = "/sys/class/uio/uio0/maps/map0/addr"
 pruss_size =  "/sys/class/uio/uio0/maps/map0/size"
@@ -142,10 +178,33 @@ def readhex(filename):
     return n
 
 class Pru:
-    def __init__(self, num):
+    def __init__(self, num,pruss):
         self.num = num
+        self.pruss = pruss
 
 class Pruss:
+
+    def iram(self,pru):
+	if self.version == PRUSS_V1:
+		return AM18XX_PRU0IRAM if pru == 0 else AM18XX_PRU1IRAM
+	if self.version == PRUSS_V2:
+		return AM33XX_PRU0IRAM if pru == 0 else AM33XX_PRU1IRAM
+
+    def halt(self, pru):
+	pass
+
+    def restore(self, pru, status):
+	pass
+
+    def load(self,pru, code):
+	status = self.halt(pru)
+	bytes_read = open(code, "r").read()
+	if len(bytes_read) & 3:
+		raise Exception, "file size not a multiple of 4 : " + code
+	loc = self.iram(pru) * 4
+	for b in bytes_read:
+		self.dataram_b[b]
+		b += 1
 
     def detect_hw_version(self):
         version = self.dataram_w[AM18XX_INTC]
@@ -194,11 +253,11 @@ class Pruss:
 def main():
     p = Pruss(PRU_EVTOUT_0)
 
+    # enable the IEP counter
+    p.dataram_w[AM33XX_PRUSS_IEP_BASE+3]  |= 1;
+
     # reset the IEP counter
     p.dataram_w[AM33XX_PRUSS_IEP_BASE+3] = 0
-
-    # enable it
-    p.dataram_w[AM33XX_PRUSS_IEP_BASE+3]  |= 1;
 
     # PRU 0 processor status register
     control =  p.dataram_w[AM33XX_PRU0CONTROL]
@@ -218,7 +277,7 @@ def main():
             print "%8.8x " % (p.dataram_w[i]),
     else:
         print "enabling pr0"
-        p.dataram_w[AM33XX_PRU0CONTROL] = 2 # |= 0x8001
+        p.dataram_w[AM33XX_PRU0CONTROL] = 2
 
 
 
