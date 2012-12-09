@@ -210,6 +210,7 @@ class Data:
         self.highlight_major = False
         self.display_order = (_REL,_DTG,_ABS)
         self.mode_order = (_MAN,_MDI,_AUTO)
+        self.mode_labels = ["Manual Mode","MDI Mode","Auto Mode"]
         self.plot_view = ("p","x","y","y2","z","z2")
         self.task_mode = 0
         self.active_gcodes = []
@@ -282,6 +283,7 @@ class Data:
         self.tooltable = ""
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"         
         self.error_sound  = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
+        self.ob = None
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -456,10 +458,12 @@ class Gscreen:
         self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
         self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
+        self.data.fullscreen1 = self.prefs.getpref('fullscreen1', False, bool)
         self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
         self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
         self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
         self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
+        self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
 
@@ -573,9 +577,9 @@ class Gscreen:
             self.initialize_pins()
         self.initialize_manual_toolchange()
         if "connect_signals" in dir(self.handler_instance):
-            self.handler_instance.connect_signals()
+            self.handler_instance.connect_signals(handlers)
         else:
-            self.install_signals(handlers)
+            self.connect_signals(handlers)
 
         # dynamic tabs setup
         self._dynamic_childs = {}
@@ -613,16 +617,35 @@ class Gscreen:
         # timers for display updates
         gobject.timeout_add(50, self.periodic_status)
 
-# intitialize #
+    # initialize default widgets
     def initialize_widgets(self):
+        self.init_axis_frames()
+        self.init_dro_colors()
+        self.init_screen2()
+        self.init_fullscreen1()
+        self.init_gremlin()
+        self.init_manual_spindle_controls()
+        self.init_dro()
+        self.init_audio()
+        self.init_statusbar()
+        self.init_entry()
+        self.init_tooleditor()
+        self.init_embeded_terminal()
+        self.init_themes()
+        self.init_screen1_geometry()
+        self.init_running_options()
+        self.init_hide_cursor()
+        self.init_mode()
+
+    def init_axis_frames(self):
         temp = self.data.axis_list
         if "a" in temp:
             self.widgets.frame3.show()
             self.widgets.image6.hide() # make more room for axis display
         if "y" in temp:
             self.widgets.frame2.show()
-        self.widgets.hide_cursor.set_active(self.data.hide_cursor)
 
+    def init_dro_colors(self):
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
         self.set_abs_color()
         self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_textcolor))
@@ -630,32 +653,51 @@ class Gscreen:
         self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_textcolor))
         self.set_dtg_color()
 
+    def init_screen2(self):
         self.widgets.use_screen2.set_active(self.data.use_screen2)
-        self.widgets.fullscreen1.set_active( self.prefs.getpref('fullscreen1', False, bool) )
-        self.widgets.show_offsets.set_active( self.prefs.getpref('show_offsets', True, bool) )
-        self.widgets.gremlin.show_offsets = self.widgets.show_offsets.get_active()
+
+    def init_fullscreen1(self):
+        self.widgets.fullscreen1.set_active(self.data.fullscreen1)
+
+    def init_gremlin(self):
+        self.widgets.show_offsets.set_active( self.data.show_offsets )
+        self.widgets.gremlin.show_offsets = self.data.show_offsets
         self.widgets.grid_size.set_value(self.data.grid_size) 
         self.widgets.gremlin.grid_size = self.data.grid_size
+        self.widgets.gremlin.set_property('view',self.data.plot_view[0])
+        self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
+
+    def init_manual_spindle_controls(self):
         self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
         self.block("s_display_fwd")
         self.widgets.s_display_fwd.set_active(True)
         self.unblock("s_display_fwd")
+        self.preset_spindle_speed(self.data.spindle_start_rpm)
+
+    def init_dro(self):
         self.widgets.diameter_mode.set_active(self.data.diameter_mode)
         self.widgets.dro_units.set_active(self.data.dro_units)
+
+    def init_audio(self):
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
         self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
+
+    def init_statusbar(self):
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
+
+    def init_entry(self):
         self.widgets.data_input.set_value(5.125)
         pangoFont = pango.FontDescription("Tahoma 18")
         self.widgets.data_input.modify_font(pangoFont)
-        label = ["Manual","MDI","Auto"]
-        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
-        self.preset_spindle_speed(self.data.spindle_start_rpm)
+
+    def init_tooleditor(self):
         if self.data.lathe_mode:
             self.widgets.tooledit1.set_display(0)
         path = os.path.join(CONFIGPATH,self.data.tooltable)
         self.widgets.tooledit1.set_filename(path)
+
+    def init_embeded_terminal(self):
         # add terminal window
         self.widgets._terminal = vte.Terminal ()
         self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
@@ -665,6 +707,7 @@ class Gscreen:
         self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
         self.widgets.terminal_window.show()
 
+    def init_themes(self):
         # If there are themes then add them to combo box
         if os.path.exists(themedir):
             model = self.widgets.theme_choice.get_model()
@@ -681,6 +724,8 @@ class Gscreen:
         settings = gtk.settings_get_default()
         if not self.data.theme_name == "Follow System Theme":
             settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
+
+    def init_screen1_geometry(self):
         # maximize window or set geometry and optionally maximize 
         if "max" in self.data.window_geometry:
 		    self.widgets.window1.maximize()
@@ -695,13 +740,15 @@ class Gscreen:
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
-
+    def init_running_options(self):
         self.widgets.button_h3_1.set_active(self.prefs.getpref('blockdel', False))
         self.emc.blockdel(self.data.block_del)
-
         self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
         self.emc.opstop(self.data.op_stop)
         self.on_hal_status_state_off(None)
+
+    def init_hide_cursor(self):
+        self.widgets.hide_cursor.set_active(self.data.hide_cursor)
         # hide cursor if requested
         # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
@@ -710,11 +757,10 @@ class Gscreen:
         else:
             self.widgets.window1.window.set_cursor(None)
             self.widgets.gremlin.set_property('use_default_controls',True)
-        self.update_position()
 
-        self.widgets.gremlin.set_property('view',self.data.plot_view[0])
-        self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
-
+    def init_mode(self):
+        label = self.data.mode_labels
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
 
@@ -962,7 +1008,7 @@ class Gscreen:
         if event.type == gtk.gdk.BUTTON_PRESS:
             a,b,c = self.data.mode_order
             self.data.mode_order = b,c,a
-            label = ["Manual","MDI","Auto"]
+            label = self.data.mode_labels
             self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
             self.mode_changed(self.data.mode_order[0])
 
@@ -1197,24 +1243,32 @@ class Gscreen:
         path,name = os.path.split(filename)
         self.widgets.gcode_tab.set_text(name)
 
+    def on_toggle_keyboard(self,widget,args="",x="",y=""):
+        if self.data.ob:
+            self.kill_keyboard()
+        else:
+            self.launch_keyboard()
+
 # ****** do stuff *****
 
     # shows 'Onboard' virtual keyboard if available
     def launch_keyboard(self,args="",x="",y=""):
+        print args,x,y
         try:
-            self.ob = subprocess.Popen(["onboard",args,x,y])
+            self.data.ob = subprocess.Popen(["onboard",args,x,y])
         except:
             print "error with 'onboard' on screen keyboard program"
 
     def kill_keyboard(self):
         try:
-            self.ob.kill()
-            self.ob.terminate()
+            self.data.ob.kill()
+            self.data.ob.terminate()
+            self.data.ob = None
         except:
             pass
 
     # this installs local signals unless overriden by custom handlers
-    def install_signals(self, handlers):
+    def connect_signals(self, handlers):
 
         signal_list = [ ["unhome_axis","clicked", "unhome_selected"],
                         ["button_estop","clicked", "on_estop_clicked"],
@@ -1820,6 +1874,7 @@ class Gscreen:
 
     def set_fullscreen1(self, data):
         self.prefs.putpref('fullscreen1', data, bool)
+        self.data.fullscreen1 = data
         if data:
             self.widgets.window1.fullscreen()
         else:
@@ -1827,6 +1882,7 @@ class Gscreen:
 
     def set_show_offsets(self, data):
         self.prefs.putpref('show_offsets', data, bool)
+        self.data.show_offsets = data
         try:
             self.widgets.gremlin.show_offsets = data
         except:
@@ -2311,18 +2367,39 @@ class Gscreen:
 
     # update the whole display
     def update_position(self,*args):
+        self.update_mdi_spindle_button()
+        self.update_spindle_bar()
+        self.update_dro()
+        self.update_active_gcodes()
+        self.update_active_mcodes()
+        self.update_aux_coolant_pins()
+        self.update_feed_speed_label()
+        self.update_tool_label()
+        self.update_coolant_leds()
+        self.update_estop_led()
+        self.update_machine_on_led()
+        self.update_limit_override()
+        self.update_override_label()
+        self.update_jog_rate_label()
+        self.update_mode_label()
+
+    def update_mdi_spindle_button(self):
         # spindle controls
         if self.data.spindle_speed == 0:
             temp = "Start"
         else:
             temp = "Stop"
         self.widgets.spindle_control.set_label(temp)
+
+    def update_spindle_bar(self):
         self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
         self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
         except:
             pass
+
+    def update_dro(self):
         # DRO
         for i in self.data.axis_list:
             if i in ('b','c','u','v','w'): continue
@@ -2368,12 +2445,16 @@ class Gscreen:
                 self.widgets["%s_display_%d"%(i,j)].set_alignment(0,.5)
                 self.widgets["%s_display_%d_label"%(i,j)].set_alignment(1,.5)
                 self.widgets["%s_display_%d_label"%(i,j)].set_text(label)
-        # corodinate system:
-        systemlabel = ("Machine","G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
+
+    def update_active_gcodes(self):
         # active codes
         active_g = " ".join(self.data.active_gcodes)
         self.widgets.active_gcodes_label.set_label("%s   "% active_g)
+
+    def update_active_mcodes(self):
         self.widgets.active_mcodes_label.set_label(" ".join(self.data.active_mcodes))
+
+    def update_aux_coolant_pins(self):
         # control aux_coolant  - For Dave Armstrong
         m7 = m8 = False
         self.halcomp["aux-coolant-m8.out"] = False
@@ -2390,30 +2471,50 @@ class Gscreen:
                 self.halcomp["aux-coolant-m8.out"] = True
             else:
                 self.halcomp["flood-coolant.out"] = True
+
+    def update_feed_speed_label(self):
         self.widgets.active_feed_speed_label.set_label("F%s    S%s"% (self.data.active_feed_command,self.data.active_spindle_command))
+
+    def update_tool_label(self):
+        # corodinate system:
+        systemlabel = ("Machine","G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
         self.widgets.system.set_text("Tool %s     %s"%(tool,systemlabel[self.data.system]))
+
+    def update_coolant_leds(self):
         # coolant
         self.widgets.led_mist.set_active(self.data.mist)
         self.widgets.led_flood.set_active(self.data.flood)
+
+    def update_estop_led(self):
         # estop
         self.widgets.led_estop.set_active(self.data.estopped)
+
+    def update_machine_on_led(self):
         self.widgets.led_on.set_active(self.data.machine_on)
+
+    def update_limit_override(self):
         # ignore limts led
         self.widgets.led_ignore_limits.set_active(self.data.or_limits)
+
+    def update_override_label(self):
         # overrides
         self.widgets.fo.set_text("FO: %d%%"%(round(self.data.feed_override,2)*100))
         self.widgets.so.set_text("SO: %d%%"%(round(self.data.spindle_override,2)*100))
         self.widgets.mv.set_text("VO: %d%%"%(round((self.data.velocity_override),2) *100))
+
+    def update_jog_rate_label(self):
         if self.data.dro_units == _MM:
             text = "Jog: %4.2f mm/min"% (round(self.data.jog_rate*25.4,2))
         else:
             text = "Jog: %3.2f IPM"% (round(self.data.jog_rate,2))
         self.widgets.jog_rate.set_text(text)
+
+    def update_mode_label(self):
         # Mode / view
-        modenames = ("Manual","MDI","Auto")
-        self.widgets.mode_label.set_label( "%s Mode   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
+        modenames = self.data.mode_labels
+        self.widgets.mode_label.set_label( "%s   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
 
     def update_hal_jog_pins(self):
          for i in self.data.axis_list:
