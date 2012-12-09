@@ -237,9 +237,14 @@ void rtapi_wait_hook(void) {
 
 
 int rtapi_task_new_hook(task_data *task, int task_id) {
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "rt_task_create %d \"%s\" cpu=%d fpu=%d prio=%d\n", 
+		    task_id, task->name, task->cpu, task->uses_fp,
+		    task->prio );
+
     return rt_task_create(ostask_array[task_id], task->name, task->stacksize,
-			 task->prio,
-			 (task->uses_fp ? T_FPU : 0) | T_CPU(task->cpu));
+			  task->prio,
+			  (task->uses_fp ? T_FPU : 0) | T_CPU(task->cpu));
 }
 
 
