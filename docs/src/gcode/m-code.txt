@@ -308,6 +308,10 @@ Components Section, Motion subsection, for more information.
 M66 will not function unless the appropriate motion.digital-in-nn pins or
 motion.analog-in-nn pins are connected in your hal file to an input.
 
+.Example HAL Connection
+----
+net signal-name motion.digital-in-00 <= parport.0.pin10-in
+----
 
 == M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
 (((M67 Analog Motion Output Control)))
