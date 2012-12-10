@@ -15,7 +15,7 @@ To view the information in the man page, in a terminal window type:
 man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
 
-[horizontal]
+
 axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface.
 axis-remote:: AXIS Remote Interface.
 comp:: Build, compile and install LinuxCNC HAL components.
@@ -47,7 +47,7 @@ servo-thread.
 
 === Core LinuxCNC components[[sec:Realtime-Components-core]] ===
 
-[horizontal]
+
 
 motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
 
@@ -59,9 +59,9 @@ gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
 
 threads:: (((threads)))Creates hard realtime HAL threads.
 
-=== Logic and bitwise components[[sec:Realtime-Components-logic]] ===
+=== Logic and bitwise components[[sec:Realtime-Components-logic]]
 
-[horizontal]
+
 
 and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true.
 
@@ -79,7 +79,7 @@ flipflop:: (((flipflop)))D type flip-flop.
 
 oneshot:: (((oneshot)))One-shot pulse generator.
 
-logic:: (((logic)))Experimental general logic function component.
+logic:: (((logic)))General logic function component.
 
 lut5:: (((lut5)))Arbitrary 5-input logic function based on a look-up table.
 
@@ -89,7 +89,7 @@ select8:: (((select8)))8-bit binary match detector.
 
 === Arithmetic and float-components[[sec:Realtime-Components-float]] ===
 
-[horizontal]
+
 
 abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
@@ -157,7 +157,7 @@ scale:: (((scale)))Applies a scale and offset to its input.
 
 === Type conversion[[sec:Realtime-Components-typeconvert]] ===
 
-[horizontal]
+
 
 conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32.
 
@@ -181,7 +181,7 @@ conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 
 === Hardware drivers[[sec:Realtime-Components-hwdrivers]] ===
 
-[horizontal]
+
 
 hm2_7i43:: (((hm2_7i43)))HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
 HostMot2.
@@ -205,7 +205,7 @@ serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 
 
 === Kinematics[[sec:Realtime-Components-kins]] ===
 
-[horizontal]
+
 
 kins:: (((kins)))kinematics definitions for LinuxCNC.
 
@@ -237,7 +237,7 @@ scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
 
 === Motor control[[sec:Realtime-Components-motor]] ===
 
-[horizontal]
+
 
 at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
 
@@ -255,7 +255,7 @@ freqgen:: (((freqgen)))Software step pulse generation.
 
 === BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
 
-[horizontal]
+
 
 bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
 
@@ -267,7 +267,7 @@ clarkeinv:: (((clarkeinv)))Inverse Clarke transform.
 
 === Other[[sec:Realtime-Components-other]] ===
 
-[horizontal]
+
 
 charge_pump:: (((charge_pump)))Creates a square-wave for the 'charge pump' input of some controller boards.
 The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
