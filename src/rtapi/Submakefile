@@ -53,10 +53,8 @@ ifeq ($(BUILD_SYS),user-dso)
 # xenomai-user settings
 ifeq ($(THREADS),xenomai-user)
 
-XENO_CONFIG ?= xeno-config --skin=native
-
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
-RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
+RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
+RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
 endif # xenomai-user
 
 
@@ -115,10 +113,8 @@ else  # BUILD_SYS == kbuild
 # xenomai-kernel settings
 ifeq ($(THREADS),xenomai-kernel)
 
-XENO_CONFIG ?= xeno-config --skin=native
-
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --cflags )
-RT_LDFLAGS += $(shell $(XENO_CONFIG) --ldflags )
+RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
+RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
 endif  # xenomai-kernel
 
 endif  # BUILD_SYS == kbuild

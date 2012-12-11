@@ -3,7 +3,15 @@ INCLUDES += hal
 ../include/%.h: ./hal/%.h
 	cp $^ $@
 
+
 HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+
+ifeq ($(THREADS),xenomai-kernel)
+XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
+else
+XENO_LINK=
+endif
+
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 
 # Add to list of sources to compile -DULAPI ->
