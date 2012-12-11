@@ -142,8 +142,44 @@ IEP_CMP5 = 0x5c/_base
 IEP_CMP6 = 0x60/_base
 IEP_CMP7 = 0x64/_base
 
+# ecap doc starts p1736 spruh73f.pdf
+# ecap regs
+# p1763ff
 
+#define ECAP_INT_NUM 15
+#define ECAP_INT_BIT 15
+
+#//ecap registers
+ECAP0_TSCTR 	= 0x0/_base
+ECAP0_CTRPHS	= 0x4/_base
+ECAP0_CAP1	= 0x8/_base
+ECAP0_CAP2	= 0xC/_base
+ECAP0_CAP3	= 0x10/_base
+ECAP0_CAP4	= 0x14/_base
+ECAP0_ECCTL1	= 0x28/_base
+
+#TSCTRSTOP = 16  # 1=run !!
+
+ECAP0_ECCTL2	= 0x2A/_base
+ECAP0_ECEINT	= 0x2C/_base
+ECAP0_ECFLG	= 0x2E/_base
+ECAP0_ECCLR	= 0x30/_base
+ECAP0_ECFRC	= 0x32/_base
+ECAP0_REVID	= 0x5C/_base
+
+ECAP_REVID = 0x44D22100
+
+#//ecap bit fields
+#define ECCTL2_APWMPOL_BIT		10
+#define ECCTL2_CAP_APWM_BIT		9
+#define ECCTL2_TSCTRSTOP_BIT	4
+
+#define ECEINT_CTRPRD_BIT		6
+
+#//ecap cfg values
+#define ECCTL2_VAL 1<<ECCTL2_APWMPOL_BIT |(1<<ECCTL2_CAP_APWM_BIT)
 #define PRUSS_UIO_MAP_OFFSET_PRUSS 0*PAGE_SIZE
+
 pruss_base = "/sys/class/uio/uio0/maps/map0/addr"
 pruss_size =  "/sys/class/uio/uio0/maps/map0/size"
 
