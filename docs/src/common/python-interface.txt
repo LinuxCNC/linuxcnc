@@ -555,7 +555,11 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	jog(command, axis[, velocity[, distance]]) +
 	jog(linuxcnc.JOG_STOP, axis) +
 	jog(linuxcnc.JOG_CONTINUOUS, axis, velocity) +
-	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
+	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance) +
+	Constants: +
+	JOG_STOP (0) +
+	JOG_CONTINUOUS (1) +
+	JOG_INCREMENT (2)
 
 `load_tool_table()`::
 	reload the tool table.
@@ -566,8 +570,15 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `mdi(string)`::
 	send an MDI command. Maximum 255 chars.
 
-`mist(int)`::
-	turn on/off mist.
+`mist(int)`:: turn on/off mist. +
+	Syntax: +
+	mist(command) +
+	mist(linuxcnc.MIST_ON) [(1)] +
+	mist(linuxcnc.MIST_OFF) [(0)] +
+	Constants: +
+	MIST_ON (1) +
+	MIST_OFF (0)
+
 
 `mode(int)`::
 	set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
