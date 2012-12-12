@@ -397,7 +397,8 @@ static int setup_pru(int pru)
 	return -1;
 
     // expose the driver data, filled in by prussdrv_open
-    pruss = prussdrv_self();
+    pruss = &prussdrv;
+
 #ifdef EXPLORE_COUNTERS
     if (prussdrv_map_peripheral_io(PRUSS0_IEP, (void **)&iep_base)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to map IEP base\n",

@@ -342,7 +342,7 @@ static int setup_pru(int pru, char *filename, int disabled)
     prussdrv_open (PRU_EVTOUT_0);
 
     // expose the driver data, filled in by prussdrv_open
-    pruss = prussdrv_self();
+    pruss = &prussdrv;
 
     // Map PRU's INTC
     prussdrv_pruintc_init(&pruss_intc_initdata);
