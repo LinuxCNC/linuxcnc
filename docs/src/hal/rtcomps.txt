@@ -761,7 +761,7 @@ components.]
 
 * '(funct) siggen.<chan>.update' - Calculates new values for all five outputs. 
 
-== lut5
+== lut5 [[sec:lut5]](((lut5)))
 
 The lut5 component is a 5 input logic component based on a look up table.
 

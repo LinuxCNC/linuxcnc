@@ -67,7 +67,7 @@ or2:: (((or2)))Two-input OR gate.
 
 xor2:: (((xor2)))Two-input XOR (exclusive OR) gate.
 
-debounce:: (((debounce)))Filter noisy digital inputs, for more information see <<sec:Debounce>>.
+debounce:: (((debounce)))Filter noisy digital inputs. <<sec:Debounce, Description>>
 
 edge:: (((edge)))Edge detector.
 
@@ -77,7 +77,7 @@ oneshot:: (((oneshot)))One-shot pulse generator.
 
 logic:: (((logic)))General logic function component.
 
-lut5:: (((lut5)))A 5-input logic function based on a look-up table.
+lut5:: (((lut5)))A 5-input logic function based on a look-up table. <<sec:lut5,Description>>
 
 match8:: (((match8)))8-bit binary match detector.
 
@@ -96,7 +96,7 @@ constant:: (((constant)))Use a parameter to set the value of a pin.
 sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
 
 counter:: (((counter)))Counts input pulses (deprecated).
-Use the 'encoder' component See <<sec:Encoder>>. 
+Use the <<sec:Encoder, encoder>> component. 
 
 updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
 
@@ -235,15 +235,13 @@ scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
 
 at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
 
-pid:: (((pid)))Proportional/integral/derivative controller, for more information
-see <<sec:PID>>.
+pid:: (((pid)))Proportional/integral/derivative controller. <<sec:PID,Description>>
 
-pwmgen:: (((pwmgen)))Software PWM/PDM generation, for more information see  <<sec:PWMgen>>.
+pwmgen:: (((pwmgen)))Software PWM/PDM generation. <<sec:PWMgen,Description>>
 
-encoder:: (((encoder)))Software counting of quadrature encoder signals, for more information
-see <<sec:Encoder>>.
+encoder:: (((encoder)))Software counting of quadrature encoder signals. <<sec:Encoder,Description>>.
 
-stepgen:: (((stepgen)))Software step pulse generation, for more information see <<sec:Stepgen>>.
+stepgen:: (((stepgen)))Software step pulse generation. <<sec:Stepgen,Description>>.
 
 freqgen:: (((freqgen)))Software step pulse generation.
 
@@ -295,9 +293,9 @@ sample_hold:: (((sample_hold)))Sample and Hold.
 
 sampler:: (((sampler)))Sample data from HAL in real time.
 
-siggen:: (((siggen)))Signal generator, for more information see <<sec:Siggen>>.
+siggen:: (((siggen)))Signal generator. <<sec:Siggen,Description>>.
 
-sim_encoder:: (((sim_encoder)))Simulated quadrature encoder, for more information see <<sec:Simulated-Encoder>>.
+sim_encoder:: (((sim_encoder)))Simulated quadrature encoder. <<sec:Simulated-Encoder,Description>>.
 
 sphereprobe:: (((sphereprobe)))Probe a pretend hemisphere.
 
