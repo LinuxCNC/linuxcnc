@@ -34,7 +34,7 @@ iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
 pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
-== Realtime Components[[sec:Realtime-Components]]
+== Realtime Components List[[sec:Realtime-Components]]
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
@@ -47,8 +47,6 @@ servo-thread.
 
 === Core LinuxCNC components[[sec:Realtime-Components-core]] ===
 
-
-
 motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
 
 axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime.
@@ -60,8 +58,6 @@ gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
 threads:: (((threads)))Creates hard realtime HAL threads.
 
 === Logic and bitwise components[[sec:Realtime-Components-logic]]
-
-
 
 and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true.
 
@@ -81,15 +77,13 @@ oneshot:: (((oneshot)))One-shot pulse generator.
 
 logic:: (((logic)))General logic function component.
 
-lut5:: (((lut5)))Arbitrary 5-input logic function based on a look-up table.
+lut5:: (((lut5)))A 5-input logic function based on a look-up table.
 
 match8:: (((match8)))8-bit binary match detector.
 
 select8:: (((select8)))8-bit binary match detector.
 
 === Arithmetic and float-components[[sec:Realtime-Components-float]] ===
-
-
 
 abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
