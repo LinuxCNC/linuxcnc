@@ -19,104 +19,112 @@ PRUSS_MAX_IRAM_SIZE        = 8192
 AM33XX_PRUSS_IRAM_SIZE     = 8192
 AM33XX_PRUSS_MMAP_SIZE     = 0x40000
 
-# this is now all WORD offsets relative to dataram0_phys_base (0x4a300000)
-_base = 4
+AM33XX_DATARAM0            = 0x00000000
+AM33XX_DATARAM1            = 0x00002000
+AM33XX_INTC                = 0x00020000
+AM33XX_PRU0CONTROL         = 0x00022000
+AM33XX_PRU0DEBUG           = 0x00022400
+AM33XX_PRU1CONTROL         = 0x00024000
+AM33XX_PRU1DEBUG           = 0x00024400
+AM33XX_PRU0IRAM            = 0x00034000
+AM33XX_PRU1IRAM            = 0x00038000
+AM33XX_PRUSS_SHAREDRAM_BASE  = 0x00010000
 
-AM33XX_DATARAM0            = 0x00000000/_base
-AM33XX_DATARAM1            = 0x00002000/_base
-AM33XX_INTC                = 0x00020000/_base
-AM33XX_PRU0CONTROL         = 0x00022000/_base
-AM33XX_PRU0DEBUG           = 0x00022400/_base
-AM33XX_PRU1CONTROL         = 0x00024000/_base
-AM33XX_PRU1DEBUG           = 0x00024400/_base
-AM33XX_PRU0IRAM            = 0x00034000/_base
-AM33XX_PRU1IRAM            = 0x00038000/_base
-AM33XX_PRUSS_SHAREDRAM_BASE  = 0x00010000/_base
-
-AM33XX_PRUSS_CFG_BASE      = 0x00026000/_base
-AM33XX_PRUSS_UART_BASE     = 0x00028000/_base
-AM33XX_PRUSS_IEP_BASE      = 0x0002e000/_base
-AM33XX_PRUSS_ECAP_BASE     = 0x00030000/_base
-AM33XX_PRUSS_MIIRT_BASE    = 0x00032000/_base
-AM33XX_PRUSS_MDIO_BASE     = 0x00032400/_base
+AM33XX_PRUSS_CFG_BASE      = 0x00026000
+AM33XX_PRUSS_UART_BASE     = 0x00028000
+AM33XX_PRUSS_IEP_BASE      = 0x0002e000
+AM33XX_PRUSS_ECAP_BASE     = 0x00030000
+AM33XX_PRUSS_MIIRT_BASE    = 0x00032000
+AM33XX_PRUSS_MDIO_BASE     = 0x00032400
 
 AM18XX_PRUSS_IRAM_SIZE     = 4096
 AM18XX_PRUSS_MMAP_SIZE     = 0x7C00
-AM18XX_DATARAM0            = 0x00000000/_base
-AM18XX_DATARAM1            = 0x00002000/_base
-AM18XX_INTC                = 0x00004000/_base
-AM18XX_PRU0CONTROL         = 0x00007000/_base
-AM18XX_PRU0DEBUG           = 0x00007400/_base
-AM18XX_PRU1CONTROL         = 0x00007800/_base
-AM18XX_PRU1DEBUG           = 0x00007C00/_base
-AM18XX_PRU0IRAM            = 0x00008000/_base
-AM18XX_PRU1IRAM            = 0x0000C000/_base
+AM18XX_DATARAM0            = 0x00000000
+AM18XX_DATARAM1            = 0x00002000
+AM18XX_INTC                = 0x00004000
+AM18XX_PRU0CONTROL         = 0x00007000
+AM18XX_PRU0DEBUG           = 0x00007400
+AM18XX_PRU1CONTROL         = 0x00007800
+AM18XX_PRU1DEBUG           = 0x00007C00
+AM18XX_PRU0IRAM            = 0x00008000
+AM18XX_PRU1IRAM            = 0x0000C000
 
 # PRUSS INTC register offsets
-PRU_INTC_REVID_REG   = 0x000/_base
-PRU_INTC_CR_REG      = 0x004/_base
-PRU_INTC_HCR_REG     = 0x00C/_base
-PRU_INTC_GER_REG     = 0x010/_base
-PRU_INTC_GNLR_REG    = 0x01C/_base
-PRU_INTC_SISR_REG    = 0x020/_base
-PRU_INTC_SICR_REG    = 0x024/_base
-PRU_INTC_EISR_REG    = 0x028/_base
-PRU_INTC_EICR_REG    = 0x02C/_base
-PRU_INTC_HIEISR_REG  = 0x034/_base
-PRU_INTC_HIDISR_REG  = 0x038/_base
-PRU_INTC_GPIR_REG    = 0x080/_base
+PRU_INTC_REVID_REG   = 0x000
+PRU_INTC_CR_REG      = 0x004
+PRU_INTC_HCR_REG     = 0x00C
+PRU_INTC_GER_REG     = 0x010
+PRU_INTC_GNLR_REG    = 0x01C
+PRU_INTC_SISR_REG    = 0x020
+PRU_INTC_SICR_REG    = 0x024
+PRU_INTC_EISR_REG    = 0x028
+PRU_INTC_EICR_REG    = 0x02C
+PRU_INTC_HIEISR_REG  = 0x034
+PRU_INTC_HIDISR_REG  = 0x038
+PRU_INTC_GPIR_REG    = 0x080
 
-PRU_INTC_SRSR1_REG   = 0x200/_base
-PRU_INTC_SRSR2_REG   = 0x204/_base
+PRU_INTC_SRSR1_REG   = 0x200
+PRU_INTC_SRSR2_REG   = 0x204
 
-PRU_INTC_SECR1_REG   = 0x280/_base
-PRU_INTC_SECR2_REG   = 0x284/_base
+PRU_INTC_SECR1_REG   = 0x280
+PRU_INTC_SECR2_REG   = 0x284
 
-PRU_INTC_ESR1_REG    = 0x300/_base
-PRU_INTC_ESR2_REG    = 0x304/_base
+PRU_INTC_ESR1_REG    = 0x300
+PRU_INTC_ESR2_REG    = 0x304
 
-PRU_INTC_ECR1_REG    = 0x380/_base
-PRU_INTC_ECR2_REG    = 0x384/_base
+PRU_INTC_ECR1_REG    = 0x380
+PRU_INTC_ECR2_REG    = 0x384
 
-PRU_INTC_CMR1_REG    = 0x400/_base
-PRU_INTC_CMR2_REG    = 0x404/_base
-PRU_INTC_CMR3_REG    = 0x408/_base
-PRU_INTC_CMR4_REG    = 0x40C/_base
-PRU_INTC_CMR5_REG    = 0x410/_base
-PRU_INTC_CMR6_REG    = 0x414/_base
-PRU_INTC_CMR7_REG    = 0x418/_base
-PRU_INTC_CMR8_REG    = 0x41C/_base
-PRU_INTC_CMR9_REG    = 0x420/_base
-PRU_INTC_CMR10_REG   = 0x424/_base
-PRU_INTC_CMR11_REG   = 0x428/_base
-PRU_INTC_CMR12_REG   = 0x42C/_base
-PRU_INTC_CMR13_REG   = 0x430/_base
-PRU_INTC_CMR14_REG   = 0x434/_base
-PRU_INTC_CMR15_REG   = 0x438/_base
-PRU_INTC_CMR16_REG   = 0x43C/_base
+PRU_INTC_CMR1_REG    = 0x400
+PRU_INTC_CMR2_REG    = 0x404
+PRU_INTC_CMR3_REG    = 0x408
+PRU_INTC_CMR4_REG    = 0x40C
+PRU_INTC_CMR5_REG    = 0x410
+PRU_INTC_CMR6_REG    = 0x414
+PRU_INTC_CMR7_REG    = 0x418
+PRU_INTC_CMR8_REG    = 0x41C
+PRU_INTC_CMR9_REG    = 0x420
+PRU_INTC_CMR10_REG   = 0x424
+PRU_INTC_CMR11_REG   = 0x428
+PRU_INTC_CMR12_REG   = 0x42C
+PRU_INTC_CMR13_REG   = 0x430
+PRU_INTC_CMR14_REG   = 0x434
+PRU_INTC_CMR15_REG   = 0x438
+PRU_INTC_CMR16_REG   = 0x43C
 
-PRU_INTC_HMR1_REG    = 0x800/_base
-PRU_INTC_HMR2_REG    = 0x804/_base
-PRU_INTC_HMR3_REG    = 0x808/_base
+PRU_INTC_HMR1_REG    = 0x800
+PRU_INTC_HMR2_REG    = 0x804
+PRU_INTC_HMR3_REG    = 0x808
 
-PRU_INTC_SIPR1_REG   = 0xD00/_base
-PRU_INTC_SIPR2_REG   = 0xD04/_base
+PRU_INTC_SIPR1_REG   = 0xD00
+PRU_INTC_SIPR2_REG   = 0xD04
 
-PRU_INTC_SITR1_REG   = 0xD80/_base
-PRU_INTC_SITR2_REG   = 0xD84/_base
+PRU_INTC_SITR1_REG   = 0xD80
+PRU_INTC_SITR2_REG   = 0xD84
 
-PRU_INTC_HIER_REG    = 0x1500/_base
+PRU_INTC_HIER_REG    = 0x1500
 
-# offset relative to IEP_BASE, words
+# offset relative to PRUxCONTROL
+PRU_CONTROL = 0
+PRU_STATUS = 4
+PRU_WAKEUP_EN = 8
+PRU_CYCLE = 0xC
+PRU_STALL = 0x10
+PRU_CTBIR0 = 0x20
+PPU_CTBIR1 = 0x24
+PRU_CTPPR0 = 0x28
+PRU_CTPPR1 = 0x2c
 
+
+# offset relative to IEP_BASE
 IEP_GLOBAL_CFG = 0
 IEP_CNT_ENABLE = 1
 
-IEP_GLOBAL_STATUS  = 0x04/_base
-IEP_COMPEN = 0x08/_base
-IEP_COUNT = 0x0C/_base
+IEP_GLOBAL_STATUS  = 0x04
+IEP_COMPEN = 0x08
+IEP_COUNT = 0x0C
 
-IEP_CMP_CFG = 0x40/_base
+IEP_CMP_CFG = 0x40
 
 IEP_CMP0_RST_CNT_EN = 1 # Enable bit for each of the compare registers, where CMP_EN0 maps to CMP0
 
@@ -126,21 +134,20 @@ IEP_CMP_EN2 = 8
 #...
 IEP_CMP_EN7 = 256
 
-
-IEP_CMP_STATUS = 0x44/_base  # Status bit for each of the compare registers, where CMP_HIT0 is mapped to CMP0.
+# Status bit for each of the compare registers, where CMP_HIT0 is mapped to CMP0.
+IEP_CMP_STATUS = 0x44
 IEP_CMP_HIT0  = 1
 IEP_CMP_HIT1  = 2
 # etc etc
 
-
-IEP_CMP0 = 0x48/_base
-IEP_CMP1 = 0x4c/_base
-IEP_CMP2 = 0x50/_base
-IEP_CMP3 = 0x54/_base
-IEP_CMP4 = 0x58/_base
-IEP_CMP5 = 0x5c/_base
-IEP_CMP6 = 0x60/_base
-IEP_CMP7 = 0x64/_base
+IEP_CMP0 = 0x48
+IEP_CMP1 = 0x4c
+IEP_CMP2 = 0x50
+IEP_CMP3 = 0x54
+IEP_CMP4 = 0x58
+IEP_CMP5 = 0x5c
+IEP_CMP6 = 0x60
+IEP_CMP7 = 0x64
 
 # ecap doc starts p1736 spruh73f.pdf
 # ecap regs
@@ -150,22 +157,22 @@ IEP_CMP7 = 0x64/_base
 #define ECAP_INT_BIT 15
 
 #//ecap registers
-ECAP0_TSCTR 	= 0x0/_base
-ECAP0_CTRPHS	= 0x4/_base
-ECAP0_CAP1	= 0x8/_base
-ECAP0_CAP2	= 0xC/_base
-ECAP0_CAP3	= 0x10/_base
-ECAP0_CAP4	= 0x14/_base
-ECAP0_ECCTL1	= 0x28/_base
+ECAP0_TSCTR 	= 0x0
+ECAP0_CTRPHS	= 0x4
+ECAP0_CAP1	= 0x8
+ECAP0_CAP2	= 0xC
+ECAP0_CAP3	= 0x10
+ECAP0_CAP4	= 0x14
+ECAP0_ECCTL1	= 0x28
 
 #TSCTRSTOP = 16  # 1=run !!
 
-ECAP0_ECCTL2	= 0x2A/_base
-ECAP0_ECEINT	= 0x2C/_base
-ECAP0_ECFLG	= 0x2E/_base
-ECAP0_ECCLR	= 0x30/_base
-ECAP0_ECFRC	= 0x32/_base
-ECAP0_REVID	= 0x5C/_base
+ECAP0_ECCTL2	= 0x2A
+ECAP0_ECEINT	= 0x2C
+ECAP0_ECFLG	= 0x2E
+ECAP0_ECCLR	= 0x30
+ECAP0_ECFRC	= 0x32
+ECAP0_REVID	= 0x5C
 
 ECAP_REVID = 0x44D22100
 
@@ -213,24 +220,72 @@ def readhex(filename):
     f.close()
     return n
 
+class Mem:
+    ''' primitive method of accessing memory by a an address (*not* an array index)
+    the key is always a byte address, regardless of byt/short/word access
+    TBD: alignment check
+    '''
+    def __init__(self, wordsize, memaddr, size):
+        self.wordsize = wordsize
+        self.memaddr = memaddr
+        self.size = size
+
+        if wordsize == 1:
+            PTRTYPE = ctypes.POINTER(ctypes.c_uint8)
+            self.shift = 0
+        elif wordsize == 2:
+            PTRTYPE = ctypes.POINTER(ctypes.c_uint16)
+            self.shift = 1
+        elif wordsize == 4:
+            self.shift = 2
+            PTRTYPE = ctypes.POINTER(ctypes.c_uint32)
+        self.memory = ctypes.cast(memaddr, PTRTYPE)
+
+    def __setitem__(self, key, value):
+        if key < 0 or key > self.size-1:
+            raise ValueError, "key out of range: " + str(key)
+        self.memory[key >> self.shift] = value
+
+    def __getitem__(self, key):
+        if key < 0 or key > self.size-1:
+            raise ValueError, "key out of range: " + str(key)
+        return self.memory[key >> self.shift]
+
 class Pru:
-    def __init__(self, num,pruss):
+
+    def __init__(self, num, pruss):
         self.num = num
         self.pruss = pruss
 
-class Pruss:
+    def iram(self):
+	if self.pruss.version == PRUSS_V1:
+		return AM18XX_PRU0IRAM if self.num == 0 else AM18XX_PRU1IRAM
+	if self.pruss.version == PRUSS_V2:
+		return AM33XX_PRU0IRAM if self.num == 0 else AM33XX_PRU1IRAM
 
-    def iram(self,pru):
-	if self.version == PRUSS_V1:
-		return AM18XX_PRU0IRAM if pru == 0 else AM18XX_PRU1IRAM
-	if self.version == PRUSS_V2:
-		return AM33XX_PRU0IRAM if pru == 0 else AM33XX_PRU1IRAM
+    def control(self):
+	if self.pruss.version == PRUSS_V1:
+		return AM18XX_PRU0CONTROL if self.num == 0 else AM18XX_PRU1CONTROL
+	if self.pruss.version == PRUSS_V2:
+		return AM33XX_PRU0CONTROL if self.num == 0 else AM33XX_PRU1CONTROL
 
-    def halt(self, pru):
-	pass
+    def iep(self):
+	if self.pruss.version == PRUSS_V1:
+		raise ValueError,"iep not supported on V1"
+	if self.pruss.version == PRUSS_V2:
+		return AM33XX_PRUSS_IEP_BASE
 
-    def restore(self, pru, status):
-	pass
+    def ecap(self):
+	if self.pruss.version == PRUSS_V1:
+		raise ValueError,"ecap not supported on V1"
+	if self.pruss.version == PRUSS_V2:
+		return AM33XX_PRUSS_ECAP_BASE
+
+    def config(self):
+        if self.pruss.version == PRUSS_V1:
+		raise ValueError,"CFG not supported on V1"
+	if self.pruss.version == PRUSS_V2:
+		return AM33XX_PRUSS_CFG_BASE
 
     def load(self,pru, code):
 	status = self.halt(pru)
@@ -242,13 +297,16 @@ class Pruss:
 		self.dataram_b[b]
 		b += 1
 
+class Pruss:
+
+
     def detect_hw_version(self):
-        version = self.dataram_w[AM18XX_INTC]
+        version = self.drw[AM18XX_INTC]
         if version == AM18XX_PRUSS_INTC_REV:
             print "V1"
             return PRUSS_V1
         else:
-            version = self.dataram_w[AM33XX_INTC]
+            version = self.drw[AM33XX_INTC]
             if version == AM33XX_PRUSS_INTC_REV:
                 print "V2"
                 return PRUSS_V2
@@ -263,11 +321,13 @@ class Pruss:
         self.dataram_base = mmap.mmap(self.uio, self.pruss_map_size,
                                       mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE)
 
-        # make this accessible as an array of uint32 words
-        self.dataram_w = (ctypes.c_uint32 * (self.pruss_map_size/4)).from_buffer(self.dataram_base)
+        # hokey way to get at address of mmap region
+        i = ctypes.c_uint8.from_buffer(self.dataram_base)
+        ba = ctypes.addressof(i)
 
-        # and as byte array for convenience
-        self.dataram_b = (ctypes.c_uint8 * self.pruss_map_size).from_buffer(self.dataram_base)
+        self.drw = Mem(4,ba, self.pruss_map_size)
+        self.drs = Mem(2,ba, self.pruss_map_size)
+        self.drb = Mem(1,ba, self.pruss_map_size)
 
         self.version =  self.detect_hw_version()
         if self.version < 0:
@@ -277,8 +337,13 @@ class Pruss:
         self.extram_map_size = readhex(extram_size)
         self.extram = mmap.mmap(self.uio, self.extram_map_size,
                                 mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE)
-        self.extram_w = (ctypes.c_uint32 * (self.extram_map_size/4)).from_buffer(self.extram)
-        self.extram_b = (ctypes.c_uint8 * self.extram_map_size).from_buffer(self.extram)
+
+        e = ctypes.c_uint8.from_buffer(self.extram)
+        ea = ctypes.addressof(e)
+
+        self.erw = Mem(4,ea, self.extram_map_size)
+        self.ers = Mem(2,ea, self.extram_map_size)
+        self.erb = Mem(1,ea, self.extram_map_size)
 
     def __delete__(self):
         self.pruss_io.close()
@@ -288,32 +353,38 @@ class Pruss:
 
 def main():
     p = Pruss(PRU_EVTOUT_0)
+    p.pru = Pru(0,p)
+
+    iep = p.pru.iep()
+    pructrl = p.pru.control()
+    iram = p.pru.iram()
 
     # enable the IEP counter
-    p.dataram_w[AM33XX_PRUSS_IEP_BASE+3]  |= 1;
+    p.drw[iep + IEP_GLOBAL_CFG]  |= IEP_CNT_ENABLE
 
     # reset the IEP counter
-    p.dataram_w[AM33XX_PRUSS_IEP_BASE+3] = 0
+    p.drw[iep + IEP_COUNT] = 0
 
     # PRU 0 processor status register
-    control =  p.dataram_w[AM33XX_PRU0CONTROL]
+    control =  p.drw[pructrl + PRU_CONTROL]
     print "pr0 control %8.8x" % control
 
     # PRU 0 program counter
-    print "pr0 PC %d" % p.dataram_w[AM33XX_PRU0CONTROL+1]
+    print "pr0 PC %d" % p.drw[pructrl + PRU_STATUS]
 
-    print "pr0 IEP lap count %d (*5nS)" % p.dataram_w[AM33XX_PRUSS_IEP_BASE+3]
+    print "pr0 IEP lap count %d (*5nS)" % p.drw[AM33XX_PRUSS_IEP_BASE + IEP_COUNT]
 
     if control & 0x8000:
         print "disabling pr0"
-        p.dataram_w[AM33XX_PRU0CONTROL] = 0
+        p.drw[pructrl  + PRU_CONTROL] = 0
         # dump few words from PRU0 iram
         # this works only if PRU disabled
-        for i in range(AM33XX_PRU0IRAM,AM33XX_PRU0IRAM+4):
-            print "%8.8x " % (p.dataram_w[i]),
+        for i in range(4):
+            print "%8.8x " % (p.drw[iram + (i << 2)]),
+        print
     else:
         print "enabling pr0"
-        p.dataram_w[AM33XX_PRU0CONTROL] = 2
+        p.drw[pructrl + PRU_CONTROL] = 2
 
 
 
