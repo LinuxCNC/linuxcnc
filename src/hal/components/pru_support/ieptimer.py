@@ -7,35 +7,37 @@ import time
 
 def main():
     p = Pruss(PRU_EVTOUT_0)
+    p.pru = Pru(0,p)
+    iep = p.pru.iep()
 
     # 5 is DEFAULT_INC each tick so this becomes a nsec timer
     # with 5ns resolution
 
     value = 400000000 *5  # 2 seconds
 
-    b = AM33XX_PRUSS_IEP_BASE
+    iep = AM33XX_PRUSS_IEP_BASE
 
     # set IEP compare register 0 value
-    p.dataram_w[b + IEP_CMP0] = value
+    p.drw[iep + IEP_CMP0] = value
 
     # enable counter reset on compare, enable compare0
-    p.dataram_w[b + IEP_CMP_CFG] = IEP_CMP_EN0 | IEP_CMP0_RST_CNT_EN
+    p.drw[iep + IEP_CMP_CFG] = IEP_CMP_EN0 | IEP_CMP0_RST_CNT_EN
 
     # enable  IEP counter
-    p.dataram_w[b+IEP_GLOBAL_CFG]  |= IEP_CNT_ENABLE;
+    p.drw[iep + IEP_GLOBAL_CFG]  |= IEP_CNT_ENABLE;
 
     # reset the IEP counter
-    p.dataram_w[b+IEP_COUNT] = 0
+    p.drw[iep + IEP_COUNT] = 0
 
     t = time.time()
     # this should trigger a compare event and counter reset every value clock ticks
     while True:
-        if p.dataram_w[b+IEP_CMP_STATUS] & IEP_CMP_HIT0:
+        if p.drw[iep + IEP_CMP_STATUS] & IEP_CMP_HIT0:
             now = time.time()
             lap = now -t
             t = now
             # match event occurred, clear it
-            p.dataram_w[b+IEP_CMP_STATUS] = IEP_CMP_HIT0
+            p.drw[iep + IEP_CMP_STATUS] = IEP_CMP_HIT0
             print "CMP0 match lap time=",lap
         time.sleep(0.01)
 
