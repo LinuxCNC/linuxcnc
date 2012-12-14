@@ -98,7 +98,9 @@ int rtapi_task_delete_hook(task_data *task, int task_id) {
     return retval;
 }
 
-void rtapi_task_wrapper(int task_id) {
+void rtapi_task_wrapper(void * task_id_hack) {
+    int ret;
+    int task_id = (int)(long) task_id_hack; // ugly, but I ain't gonna fix it
     task_data *task = &task_array[task_id];
 
     /* use the argument to point to the task data */
@@ -112,7 +114,7 @@ void rtapi_task_wrapper(int task_id) {
 
     ostask_self[task_id]  = rt_task_self();
     
-    if (rt_task_set_periodic(NULL, TM_NOW, task->ratio * period) < 0) {
+    if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
 			task_id, task->name, ret);
@@ -159,7 +161,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
-				 rtapi_task_wrapper, task_id))) {
+				 rtapi_task_wrapper, (void *)(long)task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"rt_task_start failed, rc = %d\n", retval );
 	return -ENOMEM;
