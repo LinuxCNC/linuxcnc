@@ -226,8 +226,9 @@ extern RT_TASK *ostask_array[];
 extern int msg_level;		/* needed in rtapi_proc.h */
 
 /* rtapi_time.c */
+#ifdef BUILD_SYS_USER_DSO
 extern int period;
-#ifndef BUILD_SYS_USER_DSO
+#else /* BUILD_SYS_KBUILD */
 extern long int max_delay;
 extern unsigned long timer_counts;
 #endif

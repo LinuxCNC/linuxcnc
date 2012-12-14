@@ -36,8 +36,9 @@
 
 #ifdef RTAPI  /* hide most functions from ULAPI */
 
+#ifdef BUILD_SYS_USER_DSO
 int period = 0;
-#ifndef BUILD_SYS_USER_DSO
+#else /* BUILD_SYS_KBUILD */
 long int max_delay = DEFAULT_MAX_DELAY;
 #endif
 
