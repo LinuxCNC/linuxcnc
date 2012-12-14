@@ -1,48 +1,54 @@
-component time "Time Converter";
+component time "Time on in Hours, Minutes, Seconds";
 
 description 
 """
-Cycle Timer
+Time
 
-Connect time.n.start to halui.is-running to complete the cycle timer.
+When the time.N.start bit goes true the cycle timer resets and starts
+to time until time.N.start goes false. If you connect time.N.start to
+halui.is-running as a cycle timer it will reset during a pause. See
+the example connections below to keep the timer timing during a pause.
 
-The pyVCP code to display it might be like:
+Time returns the hours, minutes, and seconds that time.N.start is true.
+
+Sample pyVCP code to display the hours:minutes:seconds.
+
 <pyvcp>
-	<hbox>
-	<label>
-		<text>"Cycle Time"</text>
-		<font>("Helvetica",14)</font>	
-	</label>
-	<u32> 
-    	<halpin>"time-hours"</halpin>
-    	<font>("Helvetica",14)</font>
-    	<format>"2d"</format>
-	</u32>
-	<label>
-		<text>":"</text>
-		<font>("Helvetica",14)</font>	
-	</label>
-	<u32> 
-    	<halpin>"time-minutes"</halpin>
-    	<font>("Helvetica",14)</font>
-    	<format>"2d"</format>
-	</u32>
-	<label>
-		<text>":"</text>
-		<font>("Helvetica",14)</font>	
-	</label>
-	<u32> 
-    	<halpin>"time-seconds"</halpin>
-    	<font>("Helvetica",14)</font>
-    	<format>"2d"</format>
-	</u32>
-	</hbox>
+  <hbox>
+  <label>
+    <text>"Cycle Time"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32> 
+      <halpin>"time-hours"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32> 
+      <halpin>"time-minutes"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32> 
+      <halpin>"time-seconds"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  </hbox>
 </pyvcp>
 
 In your post-gui.hal file you might use the following to connect it up
 
  loadrt time
- loadrt not.0
+ loadrt not
  addf time.0 servo-thread
  addf not.0 servo-thread
  net prog-running not.0.in <= halui.program.is-idle
@@ -58,7 +64,7 @@ author "John Thornton";
 license "GPL";
 
 // Input Pins
-pin in bit start "Run Timer";
+pin in bit start "Timer On";
 
 // Output Pins
 pin out u32 seconds "Seconds";

@@ -261,7 +261,7 @@ mot G43.
 [[sec:Compensation-rayon-d-outil]]
 == Compensation de rayon d'outil
 
-La compensation de rayon d'outil permet de un parcours d'outil sans se
+La compensation de rayon d'outil permet de suivre un parcours sans se
 préoccuper du diamètre de l'outil. La seule restriction, c'est que les
 _mouvements d'entrée_ doivent être au moins aussi long que le rayon de
 l'outil utilisé.

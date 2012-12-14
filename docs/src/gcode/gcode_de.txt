@@ -555,6 +555,7 @@ It is an error if:
 
 * Cutter Compensation is on
 * The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
 For more information on cutter orientation used by the 'Q' word,
 see the <<lathe-tool-orientation,Lathe Tool Orientation>> diagram.
@@ -668,6 +669,8 @@ M2 (end program)
 It is an error if:
 
 * Cutter Compensation is on
+* The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
 == G10 L11 Set Tool Table[[sec:G10-L11]]
 (((G10 L11 Set Tool Table)))
@@ -699,6 +702,8 @@ without regard to other currently-active offsets.
 It is an error if:
 
 * Cutter Compensation is on
+* The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
 == G10 L20 Set Coordinate System[[sec:G10-L20]]
 (((G10 L20 Set Coordinate System)))

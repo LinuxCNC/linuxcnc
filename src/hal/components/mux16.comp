@@ -37,15 +37,15 @@ param r float elapsed "Current value of the internal debounce timer\n for debugg
 param r s32 selected "Current value of the internal selection variable after conversion\n for debugging";
 pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
+variable int lastnum;
+variable int running;
 function _;
 license "GPL";
 ;;
 FUNCTION(_) {
     int i,num = 0;
-    static int lastnum = 0;
     int internal[4];
-    delaytime += fperiod;
-    elapsed = delaytime;
+
     if(suppress_no_input) {
         if (sel(0) + sel(1) + sel(2) + sel(3) == 0) {
             return;
@@ -64,17 +64,24 @@ FUNCTION(_) {
         selected = num = (sel(0))+(sel(1)*2) + (sel(2)*4) + (sel(3)*8);
     }
     if(debounce_time) {
-        if (num == lastnum) {
+        if (num != lastnum) {
+            if (!running) {
+                running = 1;
+                delaytime = 0;
+            }
             if (delaytime < debounce_time) {
+                delaytime += fperiod;
+                elapsed = delaytime;
                 return;
-                }
-        }else{
-            delaytime = 0;
+            }else{
+            running = 0;
             lastnum = num;
+            out_s = out_f = in(num);
             return;
             }
+        }
     }
     /* select the output */
-    out_s = out_f = in(num); 
+    out_s = out_f = in(num);
 
 }

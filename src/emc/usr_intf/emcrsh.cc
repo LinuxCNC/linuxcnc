@@ -2602,6 +2602,8 @@ commandTokenType lookupToken(char *s)
   return i;
 }
   
+// handle the linuxcncrsh command in context->inBuf
+// return 0 on success, -1 on error, and -2 on unknown command
 int parseCommand(connectionRecType *context)
 {
   int ret = 0;
@@ -2650,14 +2652,14 @@ int parseCommand(connectionRecType *context)
 
 void *readClient(void *arg)
 {
-  char str[1600];
   char buf[1600];
-  unsigned int i, j;
+  int context_index;
+  int i;
   int len;
   connectionRecType *context;
-  
+
   signal(SIGPIPE, SIG_IGN);
-  
+
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2669,38 +2671,49 @@ void *readClient(void *arg)
   context->commMode = 0;
   context->commProt = 0;
   context->inBuf[0] = 0;
-  buf[0] = 0;
-  
+
+  context_index = 0;
+
   while (1) {
-    len = read(context->cliSock, &str, 1600);
-    if (len <= 0) goto finished;
-    str[len] = 0;
-    strcat(buf, str);
-    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
+    // We always start this loop with an empty buf, though there may be one
+    // partial line in context->inBuf[0..context_index].
+    len = read(context->cliSock, buf, sizeof(buf));
+    if (len < 0) {
+      fprintf(stderr, "linuxcncrsh: error reading from client: %s\n", strerror(errno));
+      goto finished;
+    }
+    if (len == 0) {
+      printf("linuxcncrsh: eof from client\n");
+      goto finished;
+    }
+
     if (context->echo && context->linked)
-      if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
-        fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
+      if(write(context->cliSock, buf, len) != (ssize_t)len) {
+        fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
       }
-    i = 0;
-    j = 0;
-    while (i <= strlen(buf)) {
-      if ((buf[i] != '\n') && (buf[i] != '\r')) {
-        context->inBuf[j] = buf[i];
-	j++;
-	}
-      else
-        if (j > 0)
-          {
-  	    context->inBuf[j] = 0;
-            if (parseCommand(context) == -1) goto finished;
-	    j = 0;
-	}
-        i++;	
-      }
-    buf[0] = 0;
-    } 
+
+    for (i = 0; i < len; i ++) {
+        if ((buf[i] != '\n') && (buf[i] != '\r')) {
+            context->inBuf[context_index] = buf[i];
+            context_index ++;
+            continue;
+        }
+
+        // if we get here, i is the index of a line terminator in buf
+
+        if (context_index > 0) {
+            int r;
+            // we have some bytes in the context buffer, parse them now
+            context->inBuf[context_index] = '\0';
+            r = parseCommand(context);
+            if (r == -1) goto finished;
+            context_index = 0;
+        }
+    }
+  }
 
 finished:
+  printf("linuxcncrsh: disconnecting client %s (%s)\n", context->hostName, context->version);
   close(context->cliSock);
   free(context);
   pthread_exit((void *)0);
