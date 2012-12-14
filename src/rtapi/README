@@ -279,3 +279,37 @@ Configuration Notes
 chmod a+rw /dev/rtai_shm, for RTAI
 chmod a+rw /dev/mem, for mbuff
 
+
+Hooks and the RTOS Integration
+------------------------------
+
+In Nov and Dec 2012, the rt-preempt-user, xenomai-user and
+xenomai-kernel thread systems were added to LinuxCNC.  At that point,
+there were six different threads systems, each implemented by copying
+the rtapi and ulapi source files from an existing system and tweaked
+for the new system.  This resulted in an enormous amount of repeated
+code.
+
+The solution to this was to merge the thread systems (throwing out
+RTLinux and replacing the old sim system with the rt-preempt-user
+pthreads system) into common source files.  There are major
+differences between the the thread systems, so to avoid #ifdef hell, a
+system of 'hooks' was devised to encapsulate the differences.
+
+For any function declared in rtapi.h, for example rtapi_task_start(),
+much of the code is boiler plate.  Where there is thread system-
+specific code, the code is put into a separate function, such as
+rtapi_task_start_hook().  The function is defined in the $(THREADS).c
+source file.
+
+For some functions, the code for most threads systems was the same,
+differing for only a single threads system.  In this case, the
+default code was left in the common source files.  A provision was
+added for a HAVE_RTAPI_FOO_HOOK macro to be defined in $(THREADS).h,
+and a corresponding rtapi_foo_hook() function was called instead of
+the default code.
+
+All hooks have function declarations in the .c source files.  This not
+only helps the compiler with missing symbols, but also forces the
+various thread system implementations to comply with the hook function
+prototypes.
