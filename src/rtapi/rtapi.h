@@ -116,10 +116,6 @@ typedef int32_t		__s32;
 #define RTAPI_END_DECLS
 #endif
 
-/* this weird thing is so we can pass the rtapi_task_wrapper()
-   function as a function parameter in another compilation unit */
-typedef void (*wrapper_t)(void *);
-
 RTAPI_BEGIN_DECLS
 
 /***********************************************************************
@@ -489,13 +485,6 @@ RTAPI_BEGIN_DECLS
     Call only from within init/cleanup code, not from realtime tasks.
 */
     extern int rtapi_task_start(int task_id, unsigned long int period_nsec);
-
-/** 'rtapi_task_wrapper()' wraps the task function, and is called from
-    rtapi_task_start.  It should only be called from the thread system
-    hooks source file rtapi_task_start_hook() function.
-*/
-//    extern void rtapi_task_wrapper(void *arg);
-    extern wrapper_t rtapi_task_wrapper;
 
 /** 'rtapi_wait()' suspends execution of the current task until the
     next period.  The task must be periodic, if not, the result is

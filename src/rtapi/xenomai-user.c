@@ -98,25 +98,41 @@ int rtapi_task_delete_hook(task_data *task, int task_id) {
     return retval;
 }
 
-void rtapi_task_wrapper_hook(task_data *task, int task_id) {
-    int ret;
+void rtapi_task_wrapper(int task_id) {
+    task_data *task = &task_array[task_id];
+
+    /* use the argument to point to the task data */
+    if (task->period < period) task->period = period;
+    task->ratio = task->period / period;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "rtapi_task_wrapper: task %p '%s' period=%d "
+		    "prio=%d ratio=%d\n",
+		    task, task->name, task->ratio * period,
+		    task->prio, task->ratio);
 
     ostask_self[task_id]  = rt_task_self();
     
-    if ((ret = rt_task_set_periodic(NULL, 
-				    TM_NOW , 
-				    task->ratio * period)) < 0) {
+    if (rt_task_set_periodic(NULL, TM_NOW, task->ratio * period) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
 			task_id, task->name, ret);
 	abort();
     }
+
+    /* call the task function with the task argument */
+    (task->taskcode) (task->arg);
+    
+    /* if the task ever returns, we record that fact */
+    task->state = ENDED;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "ERROR: reached end of wrapper for task %d '%s'\n", 
+		    task_id, task->name);
 }
+
 
 int rtapi_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int retval;
-    long task_id_long = task_id;  // silence gcc warnings on 64-bit arch
 
 #if !defined(BROKEN_XENOMAU_CPU_AFFINITY)
     // seems to work for me
@@ -143,7 +159,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
-				 rtapi_task_wrapper, (void*)task_id_long))) {
+				 rtapi_task_wrapper, task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"rt_task_start failed, rc = %d\n", retval );
 	return -ENOMEM;
