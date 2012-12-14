@@ -25,7 +25,9 @@
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
+#  ifndef RTAPI_POSIX
 static int error_printed;
+#  endif
 #endif  /* RTAPI */
 
 #define MODULE_OFFSET		32768
@@ -85,8 +87,6 @@ int rtapi_init(const char *modname) {
 }
 
 int rtapi_exit(int module_id) {
-    int retval;
-
     module_id -= MODULE_OFFSET;
 
     if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
@@ -106,6 +106,8 @@ static inline int task_id(task_data *task) {
     return (int)(task - task_array);
 }
 
+
+#ifndef RTAPI_POSIX
 static unsigned long rtapi_get_pagefault_count(task_data *task) {
     struct rusage rusage;
     unsigned long minor, major;
@@ -138,6 +140,8 @@ static void rtapi_reset_pagefault_count(task_data *task) {
 			task_id(task), task->name);
     }
 }
+#endif
+
 
 static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
@@ -289,6 +293,7 @@ static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
 #endif /* SCHED_DEADLINE */
 
 
+#ifndef RTAPI_POSIX
 static void deadline_exception(int signr) {
     if (signr != SIGXCPU) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Received unknown signal %d\n", signr);
@@ -299,6 +304,7 @@ static void deadline_exception(int signr) {
 			"Missed scheduling deadline or overran "
 			"scheduling runtime!\n");
 }
+
 
 static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
@@ -348,6 +354,7 @@ static int realtime_set_priority(task_data *task) {
 
     return 0;
 }
+#endif
 
 
 static void *realtime_thread(void *arg) {
@@ -360,7 +367,9 @@ static void *realtime_thread(void *arg) {
      * Note that currently we _do_ receive a few pagefaults in the
      * taskcode init. This is noncritical and probably not worth
      * fixing. */
+#ifndef RTAPI_POSIX
     rtapi_reset_pagefault_count(task);
+#endif
 
     if (task->period < period)
 	task->period = period;
@@ -439,7 +448,9 @@ void rtapi_task_stop_hook(task_data *task, int task_id) {
 int rtapi_wait_hook(void) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
+#ifndef RTAPI_POSIX
     int msg_level = RTAPI_MSG_NONE;
+#endif
 
     if (task->deleted)
 	pthread_exit(0);
