@@ -294,48 +294,11 @@ int rtapi_task_delete(int task_id) {
 }
 
 
-#ifdef HAVE_RTAPI_TASK_WRAPPER_HOOK
-void rtapi_task_wrapper_hook(task_data *task, int task_id);
-#endif
-
-#ifndef NO_RTAPI_TASK_WRAPPER
-void task_wrapper(void *arg) {
-    long task_id_long = (long) arg;  // silence gcc warnings on 64-bit arch
-    int task_id = (int) task_id_long;
-    task_data *task = &task_array[task_id];
-
-    /* use the argument to point to the task data */
-    if (task->period < period) task->period = period;
-    task->ratio = task->period / period;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_task_wrapper: task %p '%s' period=%d "
-		    "prio=%d ratio=%d\n",
-		    task, task->name, task->ratio * period,
-		    task->prio, task->ratio);
-
-#ifdef HAVE_RTAPI_TASK_WRAPPER_HOOK
-    rtapi_task_wrapper_hook(task, task_id);
-#endif
-
-    /* call the task function with the task argument */
-    (task->taskcode) (task->arg);
-    
-    /* if the task ever returns, we record that fact */
-    task->state = ENDED;
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "ERROR: reached end of wrapper for task %d '%s'\n", 
-		    task_id, task->name);
-}
-wrapper_t rtapi_task_wrapper = &task_wrapper;
-#endif
-
-
-#ifdef HAVE_RTAPI_TASK_START_HOOK
+/* all threads systems must define this hook */
 int rtapi_task_start_hook(task_data *task, int task_id,
 			  unsigned long int period_nsec);
-#endif
 
-#ifndef MODULE  /* userspace threads */
+#ifndef MODULE  /* userspace RTAPI */
 int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task_data *task;
 
@@ -351,22 +314,14 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task->period = period_nsec;
     task->ratio = period_nsec / period;
 
-    /* create the thread - use the wrapper function, pass it a pointer
-     * to the task structure so it can call the actual task function 
-     */
-
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "rtapi_task_start:  starting task %d '%s'\n",
 		    task_id, task->name);
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
 
-#ifdef HAVE_RTAPI_TASK_START_HOOK
     return rtapi_task_start_hook(task,task_id,0);
-#else
-    return 0;
-#endif
 }
-#else  /* kernel threads */
+#else  /* kernel RTAPI */
 int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     int retval;
     task_data *task;
@@ -388,10 +343,8 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 	return -EINVAL;
     }
 
-#ifdef HAVE_RTAPI_TASK_START_HOOK
     if ((retval = rtapi_task_start_hook(task, task_id, period_nsec)))
 	return retval;
-#endif
 
     /* ok, task is started */
     task->state = PERIODIC;

@@ -119,13 +119,24 @@ static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 }
 
 
+static void rtapi_task_wrapper(long task_id)  {
+    task_data *task;
+
+    /* point to the task data */
+    task = &task_array[task_id];
+    /* call the task function with the task argument */
+    (task->taskcode) (task->arg);
+    /* if the task ever returns, we record that fact */
+    task->state = ENDED;
+    /* and return to end the thread */
+    return;
+}
+
 int rtapi_task_new_hook(task_data *task, int task_id) {
     int retval, v;
-    retval = rt_task_init_cpuid(ostask_array[task_id],
-				(void (*)(long int))rtapi_task_wrapper,
-				task_id, task->stacksize,
-				task->prio, task->uses_fp, 0 /* signal */,
-				task->cpu);
+    retval = rt_task_init_cpuid(ostask_array[task_id], rtapi_task_wrapper,
+				task_id, task->stacksize, task->prio,
+				task->uses_fp, 0 /* signal */, task->cpu);
     if (retval) return retval;
 
     /* request to handle traps in the new task */

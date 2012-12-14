@@ -52,10 +52,8 @@ inline unsigned char rtapi_inb_hook(unsigned int port) { return 0; }
 
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_TASK_DELETE_HOOK
-#define HAVE_RTAPI_TASK_START_HOOK
 #define HAVE_RTAPI_TASK_STOP_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
-#define NO_RTAPI_TASK_WRAPPER
 
 
 /* misc */

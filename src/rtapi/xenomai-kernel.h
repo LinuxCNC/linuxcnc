@@ -49,8 +49,6 @@
 /* rtapi_task.c */
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
-#define HAVE_RTAPI_TASK_START_HOOK
-#define NO_RTAPI_TASK_WRAPPER
 
 
 /* rtapi_io hooks */
