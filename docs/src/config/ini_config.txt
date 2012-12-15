@@ -964,6 +964,8 @@ image::images/encoder-scale.png[align="center"]
 
 (((EMCIO (inifile section))))
 
+* 'EMCIO = io' - Name of IO controller program
+
 * 'CYCLE_TIME = 0.100' -
     The period, in seconds, at which EMCIO will run. Making
     it 0.0 or a
