@@ -1290,6 +1290,13 @@ class Gscreen:
         line = int(widget.get_value())
         self.widgets.gcode_view.set_line_number(line)
 
+    # This is a method that toggles the DRO units
+    # the preference unit button saves the state
+    # for startup, This one just changes it for the session
+    def on_metric_select_clicked(self,widget):
+        data = (self.data.dro_units -1) * -1
+        self.set_dro_units(data,False)
+
 # ****** do stuff *****
 
     # shows 'Onboard' virtual keyboard if available
@@ -1370,6 +1377,9 @@ class Gscreen:
                         ["ignore_limits","clicked", "toggle_ignore_limits"],
                         ["audio_error_chooser","selection_changed","change_sound","error"],
                         ["audio_alert_chooser","selection_changed","change_sound","alert"],
+                        ["button_h3_3","clicked", "on_toggle_keyboard"],
+                        ["button_h2_2","clicked", "on_toggle_keyboard"],
+                        ["metric_select","clicked","on_metric_select_clicked"],
                         ["restart_ok","clicked", "restart_dialog_return", True],
                         ["restart_cancel","clicked", "restart_dialog_return", False],
                         ["restart","clicked", "launch_restart_dialog"],
@@ -2462,6 +2472,7 @@ class Gscreen:
         self.update_override_label()
         self.update_jog_rate_label()
         self.update_mode_label()
+        self.update_units_button_label()
 
     # spindle controls
     def update_mdi_spindle_button(self):
@@ -2598,6 +2609,16 @@ class Gscreen:
         # Mode / view
         modenames = self.data.mode_labels
         self.widgets.mode_label.set_label( "%s   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
+
+    def update_units_button_label(self):
+        label = self.widgets.metric_select.get_label()
+        data = self.data.dro_units
+        if data and not label == " mm ":
+            temp = " mm "
+        elif data == 0 and not label == "Inch":
+            temp = "Inch"
+        else: return
+        self.widgets.metric_select.set_label(temp)
 
     def update_hal_jog_pins(self):
          for i in self.data.axis_list:

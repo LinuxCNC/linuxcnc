@@ -2627,7 +2627,8 @@ Offsets</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_2">
-                    <property name="label" translatable="yes">button</property>
+                    <property name="label" translatable="yes">  Toggle
+Keyboard</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2723,6 +2724,8 @@ Delete</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_h3_3">
+                    <property name="label" translatable="yes">  Toggle
+Keyboard</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -3072,6 +3075,7 @@ status</property>
             <child>
               <object class="GtkToggleButton" id="metric_select">
                 <property name="label" translatable="yes">Inch</property>
+                <property name="width_request">50</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>

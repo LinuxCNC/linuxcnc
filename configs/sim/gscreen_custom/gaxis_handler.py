@@ -35,6 +35,7 @@ class HandlerClass:
                         ["restart_line_up","clicked", "restart_up"],
                         ["restart_line_down","clicked", "restart_down"],
                         ["restart_line_input","value_changed", "restart_set_line"],
+                        ["metric_select","clicked","on_metric_select_clicked"],
                     ]
         for i in signal_list:
             if len(i) == 3:
@@ -64,9 +65,11 @@ class HandlerClass:
         pass
 
     # every 50 milli seconds this gets called
-    # add pass so gscreen doesn't try to update it's regular widgets.
+    # add pass so gscreen doesn't try to update it's regular widgets or
+    # add the individual function names that you would like to call.
+    # In this case we wish to call Gscreen's default function for units button update
     def periodic(self):
-        pass
+        self.gscreen.update_units_button_label()
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):

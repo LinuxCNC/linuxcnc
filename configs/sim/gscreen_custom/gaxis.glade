@@ -310,6 +310,17 @@
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkToolButton" id="metric_select">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Inch</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -609,7 +620,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="HAL_Gremlin" id="hal_gremlin1">
+                          <object class="HAL_Gremlin" id="gremlin">
                             <property name="visible">True</property>
                             <property name="double_buffered">False</property>
                           </object>

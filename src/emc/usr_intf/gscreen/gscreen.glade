@@ -588,15 +588,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
+                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
-                                    <property name="max">2000</property>
-                                    <property name="show_limits">False</property>
-                                    <property name="z1_color">#ffffffff0000</property>
-                                    <property name="z2_color">#ffff00000000</property>
                                     <property name="value">-7</property>
+                                    <property name="z1_color">#ffffffff0000</property>
                                     <property name="target_color">#e21911831183</property>
                                     <property name="target_value">500</property>
-                                    <property name="bg_color">#bebebebebebe</property>
+                                    <property name="max">2000</property>
+                                    <property name="z2_color">#ffff00000000</property>
+                                    <property name="show_limits">False</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -1818,6 +1818,7 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
+                                <property name="led_blink_rate">100</property>
                                 <property name="off_color">green</property>
                                 <property name="led_shape">1</property>
                               </object>
@@ -1829,8 +1830,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="on_color">green</property>
                                 <property name="off_color">red</property>
+                                <property name="on_color">green</property>
                                 <property name="led_shape">1</property>
                               </object>
                               <packing>
@@ -1993,12 +1994,13 @@ Halshow</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkToggleToolButton" id="button_v1_3">
+                          <object class="GtkButton" id="button_v1_3">
+                            <property name="label" translatable="yes">Single
+ Step</property>
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
                             <property name="related_action">hal_action_step</property>
-                            <property name="label" translatable="yes">P_ause</property>
-                            <property name="use_underline">True</property>
-                            <property name="stock_id">gtk-media-next</property>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -2460,6 +2462,8 @@ Offsets</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_2">
+                    <property name="label" translatable="yes">  Toogle
+Keyboard</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2552,7 +2556,9 @@ Delete</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h3_3">
+                  <object class="GtkButton" id="button_h3_3">
+                    <property name="label" translatable="yes">  Toggle
+Keyboard</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2906,7 +2912,18 @@ status</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkToggleButton" id="metric_select">
+                <property name="label" translatable="yes">Inch</property>
+                <property name="width_request">50</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -3029,8 +3046,8 @@ status</property>
             <child>
               <object class="Calculator" id="calc_entry">
                 <property name="visible">True</property>
-                <property name="is_editable">True</property>
                 <property name="font">sans 20</property>
+                <property name="is_editable">True</property>
               </object>
             </child>
             <child type="label">
@@ -3101,9 +3118,7 @@ status</property>
     <property name="visible">True</property>
     <property name="stock">gtk-media-forward</property>
   </object>
-  <object class="EMC_Action_Step" id="hal_action_step">
-    <property name="stock_id">gtk-media-next</property>
-  </object>
+  <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop">
     <property name="icon_name">emblem-important</property>
     <property name="always_show_image">True</property>
