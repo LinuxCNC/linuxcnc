@@ -25,17 +25,6 @@ class HandlerClass:
             for i in ("x","y","z","a","b","c","u","v","w","s"):
                 if i in self.data.axis_list:
                     self.widgets["axis_%s"%i].set_visible(True)
-    
-    # every 50 milli seconds this gets called
-    # here we update a button label then call gscreen's
-    # regular update method so it updates it's regular widgets too
-    def periodic(self):
-        data = self.data.dro_units
-        if data:
-            self.widgets.metric_select.set_label(" MM ")
-        else:
-            self.widgets.metric_select.set_label("INCH")
-        self.gscreen.update_position()
 
     # This is a new method for a couple of widgets we added callbacks to.
     # The argument 'widget' is a reference to the actual widget that called.
@@ -72,13 +61,6 @@ class HandlerClass:
         else:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
-
-    # This is a new method that calls a gscreen method to toggle the DRO units
-    # Gscreen's regular unit button saves the state
-    # for startup, This one just changes it for the session
-    def on_metric_select_clicked(self,widget):
-        data = (self.data.dro_units -1) * -1
-        self.gscreen.set_dro_units(data,False)
 
     # here we override gscreen's method of hiding the cursor
     # by writing a method with the same name that gscreen connects a signal to.
