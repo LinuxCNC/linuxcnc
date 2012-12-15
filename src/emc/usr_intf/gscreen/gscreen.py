@@ -765,15 +765,28 @@ class Gscreen:
         self.mode_changed(self.data.mode_order[0])
 
     def initialize_pins(self):
-            self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
-            self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
-            self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
-            for axis in self.data.axis_list:
-                self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+        self.init_spindle_pins()
+        self.init_coolant_pins()
+        self.init_jog_pins()
+
+    def init_spindle_pins(self):
+        self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
+
+    def init_coolant_pins(self):
+        self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+
+    def init_jog_pins(self):
+        for axis in self.data.axis_list:
+            self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
+        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment.in', hal.HAL_S32, hal.HAL_IN))
+        #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
+        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate.in', hal.HAL_S32, hal.HAL_IN))
+        #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
 
     def initialize_manual_toolchange(self):
         # for manual tool change dialog
@@ -1249,6 +1262,16 @@ class Gscreen:
         else:
             self.launch_keyboard()
 
+    def on_hal_jog_increments_changed(self,halpin):
+        print halpin.get()
+        data = halpin.get()
+        self.set_jog_increments(vector=data)
+
+    def on_hal_jog_rate_changed(self,halpin):
+        print halpin.get()
+        data = halpin.get()
+        self.set_jog_rate(absolute=data)
+
     # highlight the gcode down one line lower
     # used for run-at-line restart
     def restart_down(self,widget):
@@ -1286,6 +1309,7 @@ class Gscreen:
             pass
 
     # this installs local signals unless overriden by custom handlers
+    # HAL pin signal call-backs are covered in the HAL pin initilization functions
     def connect_signals(self, handlers):
 
         signal_list = [ ["unhome_axis","clicked", "unhome_selected"],
@@ -1387,7 +1411,7 @@ class Gscreen:
                 try:
                     self.data[i] = int(self.widgets[cb].connect("clicked", self.on_hbutton_clicked,mode,num))
                 except:
-                    break
+                    pass
         for mode in range(0,2):
             for num in range(0,11):
                 cb = "button_v%d_%d"% (mode,num)
@@ -1395,8 +1419,7 @@ class Gscreen:
                 try:
                     self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
                 except:
-                    break
-                self.widgets.s_display_fwd
+                    pass
 
     def toggle_offset_view(self):
             data = self.data.plot_hidden
@@ -1508,21 +1531,40 @@ class Gscreen:
         if rate > 1.0: rate = 1.0
         self.emc.max_velocity(rate * self.data._maxvelocity)
 
-    def set_jog_rate(self,begining_rate,absolute=False):
+    def set_jog_rate(self,step=None,absolute=None):
         # in units per minute
-        print "jog rate =",begining_rate,self.data.jog_rate
-        if absolute:
-            rate = begining_rate
-        else:
-            rate = self.data.jog_rate + begining_rate
+        print "jog rate =",step,absolute,self.data.jog_rate
+        if not absolute == None:
+            rate = absolute
+        elif not step == None:
+            rate = self.data.jog_rate + step
+        else:return
         if rate < 0: rate = 0
         if rate > self.data.jog_rate_max: rate = self.data.jog_rate_max
         rate = round(rate,1)
         self.emc.continuous_jog_velocity(rate)
         self.data.jog_rate = rate
 
-    def set_jog_increments(self,index_dir,absolute=False):
-        next = self.data.current_jogincr_index + index_dir
+    # This sets the jog increments -there are three ways
+    # ABSOLUTE:
+    # set absolute to the absolute increment wanted
+    # INDEX from INI:
+    # self.data.jog_increments holds the increments from the INI file
+    # do not set absolute variable
+    # index_dir = 1 or -1 to set the rate higher or lower from the list
+    def set_jog_increments(self,vector=None,index_dir=None,absolute=None):
+        print "set jog incr"
+        if not absolute == None:
+            distance = absolute
+            self.widgets.jog_increment.set_text("%f"%distance)
+            self.halcomp["jog-increment.out"] = distance
+            print "index jog increments",distance
+            return
+        elif not index_dir == None:
+            next = self.data.current_jogincr_index + index_dir
+        elif not vector == None:
+            next = vector
+        else: return
         end = len(self.data.jog_increments)-1
         if next < 0: next = end
         if next > end: next = 0
@@ -1533,8 +1575,8 @@ class Gscreen:
             distance = 0
         else:
             distance = self.parse_increment(jogincr)
-        self.halcomp["jog-increment.out"] = distance
         print "index jog increments",jogincr,distance
+        self.halcomp["jog-increment.out"] = distance
 
     def adjustment_buttons(self,widget,action):
         # is over ride adjustment selection active?
@@ -1580,14 +1622,17 @@ class Gscreen:
                 if widget == self.widgets.button_v0_1:
                     change = self.get_qualified_input()
                 if absolute:
-                    self.set_jog_rate(change,absolute)
+                    self.set_jog_rate(absolute = change)
                 else:
-                    self.set_jog_rate((change * self.data.jog_rate_inc),absolute)
+                    self.set_jog_rate(step = (change * self.data.jog_rate_inc))
             elif self.widgets.button_h4_4.get_active() and action:
                 print "jog increments adjustment"
                 if widget == self.widgets.button_v0_1:
-                    return
-                self.set_jog_increments(change,absolute)
+                    change = self.get_qualified_input()
+                if absolute:
+                    self.set_jog_increments(absolute = change)
+                else:
+                    self.set_jog_increments(index_dir = change)
 
         # graphics adjustment
         elif self.widgets.button_graphics.get_active():
