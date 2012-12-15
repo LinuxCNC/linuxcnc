@@ -207,6 +207,11 @@ class emc_control:
                         #        self.emccommand.auto(self.emc.AUTO_RUN, self.listing.get_startline())
                         #        self.listing.clear_startline()
 
+        def re_start(self,line):
+            self.emccommand.mode(self.emc.MODE_AUTO)
+            self.emccommand.wait_complete()
+            self.emccommand.auto(self.emc.AUTO_RUN, line)
+
 class emc_status:
         def __init__(self, data, emc):
             self.data = data

@@ -1249,6 +1249,24 @@ class Gscreen:
         else:
             self.launch_keyboard()
 
+    # highlight the gcode down one line lower
+    # used for run-at-line restart
+    def restart_down(self,widget):
+        self.widgets.gcode_view.line_down()
+        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+
+    # highlight the gcode down one line higher
+    # used for run-at-line restart
+    def restart_up(self,widget):
+        self.widgets.gcode_view.line_up()
+        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+
+    # highlight the gcode line specified
+    # used for run-at-line restart
+    def restart_set_line(self,widget):
+        line = int(widget.get_value())
+        self.widgets.gcode_view.set_line_number(line)
+
 # ****** do stuff *****
 
     # shows 'Onboard' virtual keyboard if available
@@ -1327,7 +1345,13 @@ class Gscreen:
                         ["s_display_fwd","toggled", "on_s_display_fwd_toggled"],
                         ["ignore_limits","clicked", "toggle_ignore_limits"],
                         ["audio_error_chooser","selection_changed","change_sound","error"],
-                        ["audio_alert_chooser","selection_changed","change_sound","alert"], ]
+                        ["audio_alert_chooser","selection_changed","change_sound","alert"],
+                        ["restart_ok","clicked", "restart_dialog_return", True],
+                        ["restart_cancel","clicked", "restart_dialog_return", False],
+                        ["restart","clicked", "launch_restart_dialog"],
+                        ["restart_line_up","clicked", "restart_up"],
+                        ["restart_line_down","clicked", "restart_down"],
+                        ["restart_line_input","value_changed", "restart_set_line"], ]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
         # if so skip the call in the signal list
@@ -1808,6 +1832,17 @@ class Gscreen:
         if pinname:
             self.halcomp[pinname + "-waiting"] = False
         widget.destroy()
+
+    # dialog is used for choosing the run-at-line position
+    def launch_restart_dialog(self,widget):
+        self.widgets.restart_dialog.show_all()
+
+    # either start the gcode at the line specified or cancel
+    def restart_dialog_return(self,widget,result):
+        self.widgets.restart_dialog.hide()
+        if result:
+            line = self.widgets.gcode_view.get_line_number()
+            self.emc.re_start(line)
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
