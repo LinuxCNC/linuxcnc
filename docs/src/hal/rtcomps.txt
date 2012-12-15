@@ -23,7 +23,7 @@ step type are set independently, and any combination can be selected.
 .Step Pulse Generator Block Diagram position mode[[fig:Stepgen-Block-Diag]]
 image::images/stepgen-block-diag.png["align="center"]
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
@@ -53,13 +53,13 @@ Each generator is independent, but all are updated by the same
  function(s) at the same time. In the following descriptions, '<chan>'
 is the number of a specific generator. The first generator is number 0.
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt stepgen
 ----
 
-=== Pins
+.Pins
 
 Each step pulse generator will have only some of these pins, depending
 on the step type and control type selected.
@@ -84,7 +84,7 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-=== Parameters [[stepgen-parameters]]
+.Parameters [[stepgen-parameters]]
 
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
    This parameter is used for both output and feedback.
@@ -130,7 +130,7 @@ if the commanded velocity changes abruptly. As in position mode, proper
 values for these parameters ensure that the motor can follow the
 generated pulse train.
 
-=== Step Types[[sub:Stepgen-Step-Types]]
+.Step Types[[sub:Stepgen-Step-Types]]
 
 .Step Type 0
 Step type 0 is the standard step and direction type. When configured for
@@ -192,7 +192,7 @@ image::images/stepgen-type5-10.png[align="center", width=800]
 
 image::images/stepgen-type11-14.png[align="center"]
 
-=== Functions
+.Functions
 
 The component exports three functions. Each function acts on all of
 the step pulse generators - running different generators in different
@@ -222,7 +222,7 @@ realtime component only, and depending on CPU speed, etc, is capable of
 PWM frequencies from a few hundred Hertz at pretty good resolution, to
 perhaps 10KHz with limited resolution.
 
-=== Installing
+.Installing
 
 ----
 loadrt pwmgen output_type=<config-array>
@@ -243,13 +243,13 @@ generator is number 0.
 loadrt pwmgen output_type=0,1,2
 ----
 
-=== Removing
+.Removing
 
 ----
 unloadrt pwmgen
 ----
 
-=== Output Types
+.Output Types
 
 The PWM generator supports three different 'output types'.
 
@@ -268,7 +268,7 @@ The PWM generator supports three different 'output types'.
    commands, the PWM signal appears on the down output, and the up output
    remains false. Output type 2 is suitable for driving most H-bridges.
 
-=== Pins
+.Pins
 
 Each PWM generator will have the following pins:
 
@@ -288,7 +288,7 @@ output type selected:
 * '(bit) pwmgen.<chan>.down' - PWM/PDM output for negative input
    value (output type 2 only).
 
-=== Parameters
+.Parameters
 
 * '(float) pwmgen.<chan>.scale' - Scaling factor to convert 'value'
    from arbitrary units to duty cycle.
@@ -311,7 +311,7 @@ output type selected:
 * '(float) pwmgen.<chan>.curr-dc' - Current duty cycle - after all
    limiting and rounding (read only).
 
-=== Functions
+.Functions
 
 The component exports two functions. Each function acts on all of the
 PWM generators - running different generators in different threads is
@@ -340,7 +340,7 @@ diagram of one channel of encoder counter.
 
 image::images/encoder-block-diag.png["align="center"]
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt encoder [num_chan=<counters>]
@@ -354,13 +354,13 @@ counter is independent, but all are updated by the same function(s) at
  the same time. In the following descriptions, '<chan>' is the number
 of a specific counter. The first counter is number 0.
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt encoder
 ----
 
-=== Pins
+.Pins
 
 * 'encoder.<chan>.counter-mode' (bit, I/O) (default: FALSE) - Enables
    counter mode. When true, the
@@ -429,14 +429,14 @@ halcmd: unloadrt encoder
    only counts once per full cycle. In counter-mode, this parameter is
    ignored. The 1x mode is useful for some jogwheels.
 
-=== Parameters
+.Parameters
 
 * 'encoder.<chan>.capture-position.time (s32, RO)' 
 * 'encoder.<chan>.capture-position.tmax (s32, RW)'
 * 'encoder.<chan>.update-counters.time (s32, RO)'
 * 'encoder.<chan>.update-counter.tmax (s32, RW)'
 
-=== Functions
+.Functions
 
 The component exports two functions. Each function acts on all of the
 encoder counters - running different counters in different threads is
@@ -460,7 +460,7 @@ block diagram of a single PID loop.
 
 image::images/pid-block-diag.png["align="center"]
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt pid [num_chan=<loops>] [debug=1]
@@ -479,13 +479,13 @@ may be useful during debugging and tuning. By default, the extra
 parameters are not exported, to save shared memory space and avoid
 cluttering the parameter list.
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt pid
 ----
 
-=== Pins
+.Pins
 
 The three most important pins are
 
@@ -521,7 +521,7 @@ the PID block is at its maximum or minimum limit.
 * '(float) pid.<loopnum>.saturated_s' - The time the output has been saturated. 
 * '(s32) pid.<loopnum>.saturated_count' - The time the output has been saturated. 
 
-=== Parameters
+.Parameters
 
 The PID gains, limits, and other 'tunable' features of the loop are
 implemented as parameters.
@@ -557,7 +557,7 @@ additional parameters will be exported:
 * '(float) pid.<loopnum>.commandD' - Derivative of the command.
 * '(float) pid.<loopnum>.commandDD' - 2nd derivative of the command. 
 
-=== Functions
+.Functions
 
 The component exports one function for each PID loop. This function
 performs all the calculations needed for the loop. Since each loop has
@@ -579,7 +579,7 @@ The simulated encoder is exactly that. It produces quadrature pulses
 with an index pulse, at a speed controlled by a HAL pin. Mostly useful
 for testing.
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt sim-encoder num_chan=<number>
@@ -589,13 +589,13 @@ halcmd: loadrt sim-encoder num_chan=<number>
 specified, one encoder will be installed. The maximum number is 8 (as
 defined by MAX_CHAN in sim_encoder.c).
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt sim-encoder
 ----
 
-=== Pins
+.Pins
 
 * '(float) sim-encoder.<chan-num>.speed' - The speed command for the
    simulated shaft.
@@ -605,7 +605,7 @@ halcmd: unloadrt sim-encoder
 
 When '.speed' is positive, '.phase-A' leads '.phase-B'.
 
-=== Parameters
+.Parameters
 
 * '(u32) sim-encoder.<chan-num>.ppr' - Pulses Per Revolution.
 * '(float) sim-encoder.<chan-num>.scale' - Scale Factor for 'speed'.
@@ -617,7 +617,7 @@ Note that pulses per revolution is not the same as counts per
 revolution. A pulse is a complete quadrature cycle. Most encoder
 counters will count four times during one complete cycle.
 
-=== Functions
+.Functions
 
 The component exports two functions. Each function affects all
 simulated encoders.
@@ -633,7 +633,7 @@ Debounce is a realtime component that can filter the glitches created
 by mechanical switch contacts. It may also be useful in other
 applications where short pulses are to be rejected.
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt debounce cfg=<config-string>
@@ -663,20 +663,20 @@ group number and '<F>' is the filter number within the group. The
 first filter is group 0, 
 filter 0.
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt debounce
 ----
 
-=== Pins
+.Pins
 
 Each individual filter has two pins.
 
 * '(bit) debounce.<G>.<F>.in' - Input of filter '<F>' in group '<G>'.
 * '(bit) debounce.<G>.<F>.out' - Output of filter '<F>' in group '<G>'.
 
-=== Parameters
+.Parameters
 
 Each group of filters has one parameterfootnote:[Each individual
 filter also has an internal state variable. There is a
@@ -692,7 +692,7 @@ doesn't filter anything. As 'delay' increases, longer and longer
 glitches are rejected. If 'delay' is 4, all glitches less than or
 equal to four thread periods will be rejected.
 
-=== Functions
+.Functions
 
 Each group of filters has one function, which updates all the filters
 in that group 'simultaneously'. Different groups of filters can be
@@ -705,7 +705,7 @@ updated from different threads at different periods.
 Siggen is a realtime component that generates square, triangle, and
 sine waves. It is primarily used for testing.
 
-=== Installing
+.Installing
 
 ----
 halcmd: loadrt siggen [num_chan=<chans>]
@@ -719,13 +719,13 @@ number of generators is 16 (as defined by MAX_CHAN in siggen.c). Each
 '<chan>' is the number of a specific signal generator (the numbers
 start at 0).
 
-=== Removing
+.Removing
 
 ----
 halcmd: unloadrt siggen
 ----
 
-=== Pins
+.Pins
 
 Each generator has five output pins.
 
@@ -751,7 +751,7 @@ For example, if 'siggen.0.amplitude' is 1.0 and 'siggen.0.offset' is
 is 2.5 and 'siggen.0.offset' is 10.0, then the outputs will swing from
 7.5 to 12.5.
 
-=== Parameters
+.Parameters
 
 None. footnote:[Prior to version 2.1, frequency, amplitude, and offset
 were parameters. They were changed to pins to allow control by other
