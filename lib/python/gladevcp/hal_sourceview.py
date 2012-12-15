@@ -32,6 +32,8 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         gtksourceview.View.__init__(self, *a, **kw)
         self.filename = None
         self.mark = None
+        self.offset = 0
+        self.program_length = 0
         self.buf = gtksourceview.Buffer()
         self.set_buffer(self.buf)
         lm = gtksourceview.LanguageManager()
@@ -49,7 +51,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
         self.gstat.connect('file-loaded', lambda w, f: gobject.timeout_add(1, self.load_file, f))
-        self.gstat.connect('line-changed', self.set_line)
+        self.gstat.connect('line-changed', self.highlight_line)
 
     def get_filename(self):
         return self.filename
@@ -58,11 +60,41 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.filename = fn
         if not fn:
             self.buf.set_text('')
-            return
+            return 
         self.buf.set_text(open(fn).read())
-        self.set_line(self.gstat, self.gstat.stat.motion_line)
+        self.highlight_line(self.gstat, self.gstat.stat.motion_line)
+        self.offset = self.gstat.stat.motion_line
+        f = file(fn, 'r')
+        p = f.readlines()
+        f.close()
+        self.program_length = len(p)
 
-    def set_line(self, w, l):
+    def line_down(self):
+        self.offset +=1
+        self.check_offset()
+        self.highlight_line(self.gstat, self.offset)
+
+    def line_up(self):
+        self.offset -=1
+        self.check_offset()
+        self.highlight_line(self.gstat, self.offset)
+
+    def get_line_number(self):
+        return self.offset
+
+    def set_line_number(self,linenum):
+        self.offset = linenum
+        self.check_offset()
+        self.highlight_line(self.gstat, self.offset)
+
+    def check_offset(self):
+        if self.offset < 0:
+            self.offset = 0
+        elif  self.offset > self.program_length:
+            self.offset = self.program_length
+
+    def highlight_line(self, w, l):
+        self.offset = l
         if not l:
             if self.mark:
                 self.buf.delete_mark(self.mark)
