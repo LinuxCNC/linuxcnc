@@ -26,12 +26,21 @@ class HandlerClass:
     # This connects siganals without using glade's autoconnect method
     # in this case to destroy the window
     # it calls the method in gscreen: gscreen.on_window_destroy()
+    # and run-at-line dialog
     def connect_signals(self,handlers):
         signal_list = [ ["window1","destroy", "on_window1_destroy"],
+                        ["restart_ok","clicked", "restart_dialog_return", True],
+                        ["restart_cancel","clicked", "restart_dialog_return", False],
+                        ["restart","clicked", "launch_restart_dialog"],
+                        ["restart_line_up","clicked", "restart_up"],
+                        ["restart_line_down","clicked", "restart_down"],
+                        ["restart_line_input","value_changed", "restart_set_line"],
                     ]
         for i in signal_list:
-            self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]])
-
+            if len(i) == 3:
+                self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]])
+            elif len(i) == 4:
+                self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
 
     # We don't want Gscreen to initialize it's regular widgets because this custom
     # screen doesn't have most of them. So we add this function call.
