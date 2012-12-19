@@ -8,6 +8,91 @@
 ************************************************************************/
 #if defined(BUILD_SYS_USER_DSO)
 
+/*---------------------------------------------------------------------**
+** Structures and defines that should be pulled in from <linux/pci.h>  **
+** ...except we're not compiling kernel code.  :(                      **
+**---------------------------------------------------------------------*/
+
+struct pci_device_id {
+    __u32 vendor, device;           /* Vendor and device ID or PCI_ANY_ID*/
+    __u32 subvendor, subdevice;     /* Subsystem ID's or PCI_ANY_ID */
+    __u32 class, class_mask;        /* (class,subclass,prog-if) triplet */
+};
+
+/** FIXME: Support more thane one board! **/
+struct pci_resource {
+    void            *start;         /* Details read from device/resource file */
+    void            *end;
+    unsigned long   flags;
+    int             fd;             /* sysfs_pci device/resourceN file descriptor */
+    void            *mmio;          /* The mmap address (if mapped) */
+};
+
+struct pci_dev {
+    char            dev_name[32];   /* Device name (0000:03:00.0) */
+    char            sys_path[256];  /* Path to device (/sys/device/... */
+    unsigned short  vendor;
+    unsigned short  device;
+    unsigned short  subsystem_vendor;
+    unsigned short  subsystem_device;
+    unsigned int    class;          /* 3 bytes: (base,sub,prog-if) */
+    struct pci_resource   
+                    resource[6];    /* Device BARs */    
+    void *driver_data;              /* Data private to the driver */
+};
+
+typedef struct pm_message {
+    int event;
+} pm_message_t;
+
+struct pci_driver {
+//    struct list_head node;
+    char *name;
+    const struct pci_device_id *id_table;   /* must be non-NULL for probe to be called */
+    int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);   /* New device inserted */
+    void (*remove) (struct pci_dev *dev);   /* Device removed (NULL if not a hot-plug capable driver) */
+    int  (*suspend) (struct pci_dev *dev, pm_message_t state);      /* Device suspended */
+    int  (*suspend_late) (struct pci_dev *dev, pm_message_t state);
+    int  (*resume_early) (struct pci_dev *dev);
+    int  (*resume) (struct pci_dev *dev);                   /* Device woken up */
+    void (*shutdown) (struct pci_dev *dev);
+//    struct pci_error_handlers *err_handler;
+//    struct device_driver    driver;
+//    struct pci_dynids dynids;
+};
+
+
+int pci_register_driver(struct pci_driver *driver);
+void pci_unregister_driver(struct pci_driver *driver);
+int pci_enable_device(struct pci_dev *dev);
+int pci_disable_device(struct pci_dev *dev);
+
+int rtapi_assure_module_loaded(const char *module);
+
+#define pci_resource_start(dev, bar)    ((dev)->resource[(bar)].start)
+#define pci_resource_end(dev, bar)      ((dev)->resource[(bar)].end)
+#define pci_resource_flags(dev, bar)    ((dev)->resource[(bar)].flags)
+#define pci_resource_len(dev, bar) \
+        ((pci_resource_start((dev), (bar)) == 0 &&    \
+          pci_resource_end((dev), (bar)) ==           \
+          pci_resource_start((dev), (bar))) ? 0 :     \
+                                                            \
+         (pci_resource_end((dev), (bar)) -            \
+          pci_resource_start((dev), (bar)) + 1))
+
+void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar);
+inline void iounmap(volatile void __iomem *addr);
+
+static inline const char *pci_name(const struct pci_dev *pdev)
+{
+    return pdev->dev_name;
+}
+
+static inline void pci_set_drvdata(struct pci_dev *pdev, void *data)
+{
+    pdev->driver_data = data;
+}
+
 /** struct rtapi_pcidev - Opaque data structure for the PCI device */
 struct rtapi_pcidev;
 
