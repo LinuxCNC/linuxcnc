@@ -283,6 +283,8 @@ TARGET_PLATFORM=""
 # Architecture. Use output of arch(1).
 ARCHITECTURE=`$ARCHCMD`
 
+# whether to build drivers for userland with PCI shim support
+USERMODE_PCI=no
 
 # note to mah: dont forget debian/configure FIXME
  
@@ -616,6 +618,64 @@ if test "$THREADS" != posix; then
     fi
 fi
 
+# now it's safe to investigate whether we should build with usermode PCI support
+# as platform, kernel and thread style is known
+AC_MSG_CHECKING(whether to compile PCI drivers with usermode PCI support)
+AC_ARG_ENABLE(usermode-pci,
+    [  --enable-usermode-pci      Build PCI drivers with usermode PCI support],
+    [
+        case "$enableval" in
+            Y*|y*)
+		# scream if this doesnt make sense for the chosen thread style
+		case "$THREADS" in
+		     rtai|rt-preempt-kernel|xenomai-kernel)
+		        AC_MSG_ERROR([ --enable-usermode-pci does not make sense with thread style $THREADS ]) 
+		     ;;
+		    *)
+		        USERMODE_PCI=yes
+                        AC_MSG_RESULT([explicitly configuring for usermode PCI support])
+		    ;;
+		esac
+            ;;
+            N*|n*)
+		USERMODE_PCI=no
+                AC_MSG_RESULT([explicitly disabling usermode PCI support])
+            ;;
+        esac
+	if test -z "$USERMODE_PCI"; then
+	   AC_MSG_ERROR([ I dont understand $enableval, just yes or no ])
+	fi
+    ],
+    [
+      # for now we default to USERMODE_PCI=no
+      # once this is working, we should enable it here for the userland thread styles
+      # if ARCHITECTURE=PC (and probably if BUILD_DRIVERS=yes)
+      AC_MSG_RESULT([using defaults: $USERMODE_PCI])
+    ])
+
+
+# now test if libudev is usable if USERMODE_PCI was chosen
+LIBUDEV_CFLAGS=
+LIBUDEV_LIBS=
+if test "$USERMODE_PCI" = "yes"; then
+   AC_MSG_CHECKING(for libudev usability since USERMODE_PCI=$USERMODE_PCI)
+   if pkg-config libudev >/dev/null 2>&1; then
+      LIBUDEV_VER=`pkg-config libudev --version`
+      AC_MSG_RESULT(installed - version $LIBUDEV_VER)
+      LIBUDEV_CFLAGS=`pkg-config libudev --cflags`
+      LIBUDEV_LIBS=`pkg-config libudev --libs`
+      LIBS_hold=$LIBS
+      LIBS=$LIBUDEV_LIBS
+      AC_CHECK_LIB(udev, udev_new, [], [
+          echo "Error - libudev isnt usable!"
+	  exit -1
+	  ])
+      LIBS=$LIBS_hold
+   else
+      AC_MSG_ERROR(no -- please install libudev by sudo apt-get install libudev-dev)
+   fi
+fi
+
 # Validate the userland part - config programs, directories, libraries  etc
 AC_MSG_CHECKING(for $THREADS build support)
 SIMULATOR=no
@@ -818,6 +878,14 @@ if test "$BUILD_DRIVERS" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
 AC_SUBST(BUILD_DRIVERS)
+
+if test "$USERMODE_PCI" = yes; then
+   AC_DEFINE(USERMODE_PCI, [], [build PCI drivers with usermode PCI support])
+fi
+AC_SUBST(USERMODE_PCI)
+AC_SUBST(LIBUDEV_CFLAGS)
+AC_SUBST(LIBUDEV_LIBS)
+AC_DEFINE(HAVE_LIBUDEV, [], [libudev installed and available])
 
 if test "$USE_GCC_ATOMIC_OPS" = yes; then
    AC_DEFINE(USE_GCC_ATOMIC_OPS, [], [use GCC builtin atomic operations])
