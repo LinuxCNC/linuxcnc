@@ -18,11 +18,13 @@
 //
 
 
-#include <linux/pci.h>
+//CS//#include <linux/pci.h>
+#include <sys/io.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
+#include "rtapi_pci.h"
 
 #include "hal.h"
 
@@ -38,10 +40,10 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
 static char *config[HM2_PCI_MAX_BOARDS];
-static int num_config_strings = HM2_PCI_MAX_BOARDS;
-module_param_array(config, charp, &num_config_strings, S_IRUGO);
-MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) manpage)");
-
+//CS//static int num_config_strings = HM2_PCI_MAX_BOARDS;
+//CS//module_param_array(config, charp, &num_config_strings, S_IRUGO);
+//CS//MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) manpage)");
+RTAPI_MP_ARRAY_STRING(config, HM2_PCI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
 
 static int comp_id;
 
@@ -198,14 +200,86 @@ MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 
 static int hm2_pci_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    memcpy(buffer, (board->base + addr), size);
+    int i;
+    u32* src = (u32*) (board->base + addr);
+    u32* dst = (u32*) buffer;
+
+    /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
+    /* Check for any address or size values that violate this alignment */
+    if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
+        u16* dst16 = (u16*) dst;
+        u16* src16 = (u16*) src;
+        /* hm2_read_idrom performs a 16-bit read, which seems to be OK, so let's allow it */
+        if ( ((addr & 0x1) != 0) || (size != 2) ){
+            rtapi_print_msg(RTAPI_MSG_ERR, "hm2_pci_read: Unaligned Access: %08x %04x\n", addr,size);
+            memcpy(dst, src, size);
+            return 1;  // success
+        }
+        dst16[0] = src16[0];
+        return 1;  // success
+    }
+
+//    rtapi_print_msg(RTAPI_MSG_ERR, "pci_read : %08x.%04x", addr,size);
+    for (i=0; i<(size/4); i++) {
+        dst[i] = src[i];
+//        rtapi_print_msg(RTAPI_MSG_ERR, " %08x", dst[i]);
+    }
+//    rtapi_print_msg(RTAPI_MSG_ERR, "\n");
     return 1;  // success
 }
 
 static int hm2_pci_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    memcpy((board->base + addr), buffer, size);
+    int i;
+    u32* src = (u32*) buffer;
+    u32* dst = (u32*) (board->base + addr);
+
+    /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
+    /* Check for any address or size values that violate this alignment */
+    if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
+        rtapi_print_msg(RTAPI_MSG_ERR, "hm2_pci_write: Unaligned Access: %08x %04x\n", addr,size);
+        memcpy(dst, src, size);
+        return 1;  // success
+    }
+
+//    rtapi_print_msg(RTAPI_MSG_ERR, "pci_write: %08x.%04x", addr,size);
+    for (i=0; i<(size/4); i++) {
+//        rtapi_print_msg(RTAPI_MSG_ERR, " %08x", src[i]);
+        dst[i] = src[i];
+    }
+//    rtapi_print_msg(RTAPI_MSG_ERR, "\n");
     return 1;  // success
+}
+
+
+/* Bogus FPGA programming routine to check firmware loading on a 5i25 */
+/* This only exists because Charles Steinkuehler doesn't have a 5i20  */
+/* or other board that requires programming (such as a 5i20)          */
+/* Remove once configuration of PLX based boards is working           */
+static int hm2_5i25_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+
+    // program the FPGA...
+    // ...or just dump a few bytes to make sure the bitfile got read OK
+    // Skip the first 16 bytes, which are all 0xff (preamble)
+    LL_PRINT("FPGA bitfile contents: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+        bitfile->e.data[16],
+        bitfile->e.data[17],
+        bitfile->e.data[18],
+        bitfile->e.data[19],
+        bitfile->e.data[20],
+        bitfile->e.data[21],
+        bitfile->e.data[22],
+        bitfile->e.data[23],
+        bitfile->e.data[24],
+        bitfile->e.data[25],
+        bitfile->e.data[26],
+        bitfile->e.data[27],
+        bitfile->e.data[28],
+        bitfile->e.data[29],
+        bitfile->e.data[30],
+        bitfile->e.data[31]);
+
+    return 0;
 }
 
 
@@ -511,6 +585,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.fpga_part_number = "6slx9pq144";
+            board->llio.fpga_part_number = "6slx9tqg144";   //CS// hack to match the firmware blobs in the 5i25.zip file from Mesa...for testing ONLY!!
             board->llio.num_leds = 2;
             break;
         }
@@ -592,12 +667,12 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         case HM2_PCI_DEV_PLX9030: {
             // get a hold of the IO resources we'll need later
             // FIXME: should request_region here
-            board->ctrl_base_addr = pci_resource_start(dev, 1);
-            board->data_base_addr = pci_resource_start(dev, 2);
+            board->ctrl_base_addr = (unsigned long) pci_resource_start(dev, 1);
+            board->data_base_addr = (unsigned long) pci_resource_start(dev, 2);
 
             // BAR 5 is 64K mem (32 bit)
             board->len = pci_resource_len(dev, 5);
-            board->base = ioremap_nocache(pci_resource_start(dev, 5), board->len);
+            board->base = pci_ioremap_bar(dev, 5);
             if (board->base == NULL) {
                 THIS_ERR("could not map in FPGA address space\n");
                 r = -ENODEV;
@@ -615,12 +690,12 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         case HM2_PCI_DEV_PLX9054: {
             // get a hold of the IO resources we'll need later
             // FIXME: should request_region here
-            board->ctrl_base_addr = pci_resource_start(dev, 1);
-            board->data_base_addr = pci_resource_start(dev, 2);
+            board->ctrl_base_addr = (unsigned long) pci_resource_start(dev, 1);
+            board->data_base_addr = (unsigned long) pci_resource_start(dev, 2);
 
             // BAR 3 is 64K mem (32 bit)
             board->len = pci_resource_len(dev, 3);
-            board->base = ioremap_nocache(pci_resource_start(dev,3), board->len);
+            board->base = pci_ioremap_bar(dev, 3);
             if (board->base == NULL) {
                 THIS_ERR("could not map in FPGA address space\n");
                 r = -ENODEV;
@@ -637,12 +712,13 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         case HM2_PCI_DEV_MESA6I25: {
               // BAR 0 is 64K mem (32 bit)
             board->len = pci_resource_len(dev, 0);
-            board->base = ioremap_nocache(pci_resource_start(dev,0), board->len);
+            board->base = pci_ioremap_bar(dev, 0);
             if (board->base == NULL) {
                 THIS_ERR("could not map in FPGA address space\n");
                 r = -ENODEV;
                 goto fail0;
             }
+board->llio.program_fpga = hm2_5i25_program_fpga;
             break;
         }
 
@@ -747,6 +823,7 @@ int rtapi_app_main(void) {
 
     if(num_boards == 0) {
 	// no cards were detected
+    LL_PRINT("error no supported cards detected\n");
 	hal_exit(comp_id);
 	pci_unregister_driver(&hm2_pci_driver);
 	return -ENODEV;
