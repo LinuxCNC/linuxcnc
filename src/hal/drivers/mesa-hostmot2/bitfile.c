@@ -23,7 +23,8 @@
 //
 
 
-#include <linux/firmware.h>
+#include "config_module.h"
+#include RTAPI_INC_FIRMWARE_H
 
 #include "rtapi.h"
 #include "rtapi_app.h"
