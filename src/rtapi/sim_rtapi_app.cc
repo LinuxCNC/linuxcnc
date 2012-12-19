@@ -186,8 +186,8 @@ static int do_comp_args(void *module, vector<string> args) {
                     &a, &b, &item_type_char);
             if(r != 3) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s' (corrupt array type information)\n",
-                    s.c_str());
+                    "Unknown parameter `%s' (corrupt array type information): %s\n",
+                    s.c_str(), item_type_string.c_str());
                 return -1;
             }
             size_t idx = 0;
