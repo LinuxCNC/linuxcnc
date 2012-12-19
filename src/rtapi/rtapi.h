@@ -83,12 +83,16 @@ typedef uint16_t	u16;
 typedef uint16_t	__u16;
 typedef uint32_t	u32;
 typedef uint32_t	__u32;
+typedef uint64_t	u64;
+typedef uint64_t	__u64;
 typedef int8_t		s8;
 typedef int8_t		__s8;
 typedef int16_t		s16;
 typedef int16_t		__s16;
 typedef int32_t		s32;
 typedef int32_t		__s32;
+typedef int64_t		s64;
+typedef int64_t		__s64;
 #define __iomem		/* Nothing */
 #else
 # include <asm/types.h>
@@ -622,6 +626,11 @@ RTAPI_BEGIN_DECLS
    the issue.
 */
 
+/* make sure a given kernel module is loaded.
+   might be needed for some usermode PCI drivers
+*/
+int rtapi_assure_module_loaded(const char *module);
+
 /** RTAPI_MP_INT() declares a single integer module parameter.
     RTAPI_MP_LONG() declares a single long module parameter.
     RTAPI_MP_STRING() declares a single string module parameter.
@@ -644,8 +653,11 @@ RTAPI_BEGIN_DECLS
 #define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
 #define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
 #define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
+#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
+#define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
+#define MODULE_DEVICE_TABLE(type, name)
 #endif
 
 #if !defined(BUILD_SYS_USER_DSO)
