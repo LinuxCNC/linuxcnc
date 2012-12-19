@@ -17,8 +17,10 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
-#include <linux/ctype.h>
+#include "config_module.h"
+#include RTAPI_INC_SLAB_H
+#include RTAPI_INC_CTYPE_H
+#include RTAPI_INC_STRING_H
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -32,15 +34,15 @@
 
 
 
-
+#ifdef MODULE_INFO
 MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
 MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
 MODULE_INFO(linuxcnc, "funct:write:1:Write all registers.");
 MODULE_INFO(linuxcnc, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
 MODULE_INFO(linuxcnc, "license:GPL");
+#endif // MODULE_INFO
 
 MODULE_LICENSE("GPL");
-
 
 
 
@@ -770,6 +772,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             );
         } else {
             HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
+            HM2_ERR("failed to parse Module Descriptor %d of %d gtag %s\n", md_index, hm2->num_mds, hm2_get_general_function_name(md->gtag));
             return md_accepted;
         }
 
@@ -1023,7 +1026,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         if (llio->fpga_part_number == NULL) {
             HM2_ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
         } else {
-            if (strcmp(llio->fpga_part_number, bitfile.b.data) != 0) {
+            if (strcmp(llio->fpga_part_number, (const char *) bitfile.b.data) != 0) {
                 HM2_ERR(
                     "board has FPGA '%s', but the firmware in %s is for FPGA '%s'\n",
                     llio->fpga_part_number,
