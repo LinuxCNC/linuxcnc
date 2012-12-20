@@ -81,13 +81,13 @@
 
 /* Linux kernel module builds */
 
-#define RTAPI_INC_CTYPE_H       <linux/ctype.h>
-#define RTAPI_INC_DEVICE_H      <linux/device.h>
-#define RTAPI_INC_FIRMWARE_H    <linux/firmware.h>
-#define RTAPI_INC_GFP_H         <linux/gfp.h>
-#define RTAPI_INC_LIST_H        <linux/list.h>
-#define RTAPI_INC_SLAB_H        <linux/slab.h>
-#define RTAPI_INC_STRING_H      <linux/string.h>
+#define RTAPI_INC_CTYPE_H       "linux/ctype.h"
+#define RTAPI_INC_DEVICE_H      "linux/device.h"
+#define RTAPI_INC_FIRMWARE_H    "linux/firmware.h"
+#define RTAPI_INC_GFP_H         "linux/gfp.h"
+#define RTAPI_INC_LIST_H        "linux/list.h"
+#define RTAPI_INC_SLAB_H        "linux/slab.h"
+#define RTAPI_INC_STRING_H      "linux/string.h"
 
 #endif /* BUILD_SYS_USER_DSO */
 
