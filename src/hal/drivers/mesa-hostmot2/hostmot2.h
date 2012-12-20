@@ -22,6 +22,8 @@
 #define INT32_MAX (2147483647)
 #define UINT32_MAX (4294967295U)
 
+#include "config_module.h"
+#include RTAPI_INC_LIST_H
 #include "rtapi.h"
 #include "hal.h"
 
