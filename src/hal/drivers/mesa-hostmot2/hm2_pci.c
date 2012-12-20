@@ -18,8 +18,13 @@
 //
 
 
-//CS//#include <linux/pci.h>
+#include "config.h"
+
+#if defined(USERMODE_PCI)
 #include <sys/io.h>
+#else
+#include <linux/pci.h>
+#endif
 
 #include "rtapi.h"
 #include "rtapi_app.h"
