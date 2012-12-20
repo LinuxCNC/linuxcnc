@@ -627,6 +627,23 @@ if test "$THREADS" != posix; then
     fi
 fi
 
+# verify this user is member of group xenomai if threads=xenomai-user otherwise
+# you get 'Xenomai: binding failed: Operation not permitted.' errors
+if test "$THREADS" = xenomai-user; then
+   nmatch=`grep -c xenomai /etc/group`
+   if test $nmatch -eq 0
+   then
+       AC_MSG_ERROR([the xenomai group doesnt exist - is the xenomai userland support properly installed? ])
+   fi
+   nmatch=`id -Gn | grep -c xenomai`
+   if test $nmatch -eq 0
+   then
+       thisuser=`id -un`
+       AC_MSG_WARN([the user $thisuser is not member of the xenomai group\
+ - please run 'sudo adduser $thisuser xenomai', logout and login again to run linuxcnc])
+   fi
+fi
+
 # now it's safe to investigate whether we should build with usermode PCI support
 # as platform, kernel and thread style is known
 AC_MSG_CHECKING(whether to compile PCI drivers with usermode PCI support)
