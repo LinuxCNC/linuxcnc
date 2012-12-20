@@ -1,3 +1,4 @@
+# -*-makefile-gmake-*-
 # Makefile.modinc includes rules for building HAL realtime modules outside
 # the LinuxCNC source tree.  It has three useful targets:
 #
@@ -36,14 +37,26 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 BUILDSYS = @BUILD_SYS@
+TARGET_PLATFORM = @TARGET_PLATFORM@
+USE_PORTABLE_PARPORT_IO = @USE_PORTABLE_PARPORT_IO@
+ARCHITECTURE=@ARCHITECTURE@
+XENO_CONFIG=@XENO_CONFIG@
+
+USERMODE_PCI=@USERMODE_PCI@
+
+#libudev for if USERMODE_PCI==yes
+LIBUDEV_CFLAGS=@LIBUDEV_CFLAGS@
+LIBUDEV_LIBS=@LIBUDEV_LIBS@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
-RTFLAGS = $(filter-out -ffast-math,@RTFLAGS@ @EXT_RTFLAGS@) -fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations
-RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=2
-ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
-endif
+RTFLAGS = @RTFLAGS@ \
+	@EXT_RTFLAGS@ \
+	-fno-fast-math \
+	$(call cc-option,-mieee-fp) \
+	-fno-unsafe-math-optimizations \
+	@KERNEL_MATH_CFLAGS@
+RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
 USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -70,7 +83,7 @@ install:
 	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/
 endif
 
-ifeq ($(BUILDSYS),sim)
+ifeq ($(BUILDSYS),user-dso)
 EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)

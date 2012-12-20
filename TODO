@@ -1,3 +1,4 @@
+TODO     Fix packaging scripts to support generation of preempt-rt *.debs
 
 TODO     sort out axis/joints issues: 
 	    * limits need to be imposed on joints (tricky with kins)

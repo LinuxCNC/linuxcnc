@@ -15,6 +15,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -25,17 +27,27 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
 #include <algorithm>
 #include <sys/time.h>
+#include <sys/resource.h>
+#include <linux/capability.h>
+#include <sys/io.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <malloc.h>
 
-#include "config.h"
+#include <sys/mman.h>
+#include <execinfo.h>
+#include <sys/prctl.h>
+#if defined(RTAPI_XENOMAI_USER)
+#include <rtdk.h>
+#endif
 
 #include "rtapi.h"
 #include "hal.h"
@@ -46,6 +58,10 @@ extern "C" int sim_rtapi_run_threads(int fd);
 using namespace std;
 
 #define SOCKET_PATH "\0/tmp/rtapi_fifo"
+
+/* Pre-allocation size. Must be enough for the whole application life to avoid
+ * pagefaults by new memory requested from the system. */
+#define PRE_ALLOC_SIZE		(30 * 1024 * 1024)
 
 template<class T> T DLSYM(void *handle, const string &name) {
 	return (T)(dlsym(handle, name.c_str()));
@@ -59,8 +75,13 @@ static std::map<string, void*> modules;
 
 extern "C" int schedule(void) { return sched_yield(); }
 
+int my_msg_level = RTAPI_MSG_WARN;
 static int instance_count = 0;
 static int force_exit = 0;
+
+static struct rusage rusage;
+static unsigned long minflt, majflt;
+
 
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
@@ -165,8 +186,8 @@ static int do_comp_args(void *module, vector<string> args) {
                     &a, &b, &item_type_char);
             if(r != 3) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s' (corrupt array type information)\n",
-                    s.c_str());
+                    "Unknown parameter `%s' (corrupt array type information): %s\n",
+                    s.c_str(), item_type_string.c_str());
                 return -1;
             }
             size_t idx = 0;
@@ -217,6 +238,7 @@ static int do_load_cmd(string name, vector<string> args) {
 
         if ((result=start()) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %d\n", name.c_str(), result);
+	    modules.erase(modules.find(name));
 	    return result;
         } else {
             instance_count ++;
@@ -344,8 +366,6 @@ static int master(int fd, vector<string> args) {
         memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
 
-	sim_rtapi_run_threads(fd);
-
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
             perror("accept");
@@ -373,7 +393,159 @@ static int master(int fd, vector<string> args) {
     return 0;
 }
 
-int main(int argc, char **argv) {
+static int configure_memory(void) {
+	unsigned int i, pagesize;
+	char *buf;
+
+#ifndef RTAPI_POSIX  // Realtime tweak requires privs
+	/* Lock all memory. This includes all current allocations (BSS/data)
+	 * and future allocations. */
+	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+			    "rtapi_app_main: mlockall() failed: %d '%s'\n",
+			    errno,strerror(errno)); 
+	    return 1;
+	}
+#endif
+
+	/* Turn off malloc trimming.*/
+	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_TRIM_THRESHOLD, -1) failed\n");
+	    return 1;
+	}
+	/* Turn off mmap usage. */
+	if (!mallopt(M_MMAP_MAX, 0)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_MMAP_MAX, -1) failed\n");
+	    return 1;
+	}
+	buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+	if (buf == NULL) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: malloc(PRE_ALLOC_SIZE) failed\n");
+	    return 1;
+	}
+	pagesize = sysconf(_SC_PAGESIZE);
+	/* Touch each page in this piece of memory to get it mapped into RAM */
+	for (i = 0; i < PRE_ALLOC_SIZE; i += pagesize) {
+		/* Each write to this buffer will generate a pagefault.
+		 * Once the pagefault is handled a page will be locked in
+		 * memory and never given back to the system. */
+		buf[i] = 0;
+	}
+	/* buffer will now be released. As Glibc is configured such that it
+	 * never gives back memory to the kernel, the memory allocated above is
+	 * locked for this process. All malloc() and new() calls come from
+	 * the memory pool reserved and locked above. Issuing free() and
+	 * delete() does NOT make this locking undone. So, with this locking
+	 * mechanism we can build C++ applications that will never run into
+	 * a major/minor pagefault, even with swapping enabled. */
+	free(buf);
+
+	return 0;
+}
+
+void signal_handler(int sig, siginfo_t *si, void *uctx)
+{
+    void *bt[32];
+    int nentries;
+ 
+#if defined(RTAPI_XENOMAI_USER)
+    if (sig == SIGXCPU) 
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: Xenomai switched RT task to secondary domain\n",
+			getpid());
+    else
+#endif
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: signal %d - '%s' received\n",
+			getpid(), sig, strsignal(sig));
+
+    nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
+    backtrace_symbols_fd(bt,nentries,fileno(stderr));
+    if (sig != SIGXCPU)
+	abort();
+    exit(sig);
+}
+
+static void
+exit_handler(void)
+{
+    struct rusage rusage;
+	
+    getrusage(RUSAGE_SELF, &rusage);
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
+		    getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+}
+
+int main(int argc, char **argv) 
+{
+    char *s;
+    struct sigaction backtrace_action;
+
+    
+    if ((s = getenv("MSGLEVEL")) != NULL) {
+	my_msg_level = atoi(s);
+	rtapi_set_msg_level(my_msg_level);
+    }
+
+    // enable core dumps
+    struct rlimit core_limit;
+    core_limit.rlim_cur = RLIM_INFINITY;
+    core_limit.rlim_max = RLIM_INFINITY;
+    
+    if (setrlimit(RLIMIT_CORE, &core_limit) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"rtapi_app_main: setrlimit: %s - core dumps may be truncated or non-existant\n",
+			strerror(errno));
+
+    // even when setuid root
+    if (prctl(PR_SET_DUMPABLE, 1) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
+			errno, strerror(errno));
+
+    configure_memory();    
+
+    if (getrusage(RUSAGE_SELF, &rusage)) {
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+			"rtapi_app_main: getrusage(RUSAGE_SELF) failed: %d '%s'\n",
+			errno,strerror(errno)); 
+    } else {
+	minflt = rusage.ru_minflt;
+	majflt = rusage.ru_majflt;
+
+	if (atexit(exit_handler)) {
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+			    "rtapi_app_main: atexit() failed: %d '%s'\n",
+			    errno,strerror(errno)); 
+	}
+    }
+
+    sigemptyset( &backtrace_action.sa_mask );
+    backtrace_action.sa_sigaction = signal_handler;
+    backtrace_action.sa_flags   = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGILL,  &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGFPE,  &backtrace_action, (struct sigaction *) NULL);
+
+#if defined(RTAPI_XENOMAI_USER)
+    sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
+    rt_print_auto_init(1);
+#endif
+
+#if defined(BUILD_DRIVERS) && (defined(__x86_64) || defined(i386))
+
+    // this is a bit of a shotgun approach and should be made more selective
+    // however, due to serial invocations of rtapi_app during setup it is not
+    // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
+    // the same process which starts the RT threads, causing hal_parport
+    // thread functions to fail on inb/outb
+
+    if (iopl(3) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app: cannot gain I/O privileges - forgot 'sudo make setuid'?\n");
+	return -EPERM;
+    }
+#endif
+
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 

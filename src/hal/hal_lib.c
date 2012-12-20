@@ -53,6 +53,7 @@
 
 */
 
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
@@ -76,6 +77,9 @@ char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
+
+ extern void  rtapi_verify(char *tag);
+ extern void  rtapi_printall(void);
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -189,7 +193,11 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
 	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
 	lib_module_id = rtapi_init(rtapi_name);
-
+	if (lib_module_id < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not not initialize RTAPI\n");
+	    return -EINVAL;
+	}
 	/* get HAL shared memory block from RTAPI */
 	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
 	if (lib_mem_id < 0) {
@@ -1697,7 +1705,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     return 0;
 }
 
-int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
+int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp, int cpu_id)
 {
     int next, cmp, prev_priority;
     int retval, n;
@@ -1760,6 +1768,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
+    new->cpu_id = cpu_id;
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
@@ -1821,7 +1830,8 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     new->priority = rtapi_prio_next_lower(prev_priority);
     /* create task - owned by library module, not caller */
     retval = rtapi_task_new(thread_task, new, new->priority,
-	lib_module_id, HAL_STACKSIZE, uses_fp);
+			    lib_module_id, HAL_STACKSIZE, uses_fp, 
+			    new->name, new->cpu_id);
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1859,7 +1869,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread %s created prio=%d\n", name, new->priority);
     return 0;
 }
 
@@ -2527,8 +2537,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 /* these functions are called when the hal_lib module is insmod'ed
    or rmmod'ed.
 */
-
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #undef CONFIG_PROC_FS
 #endif
 
@@ -2590,6 +2599,7 @@ int rtapi_app_main(void)
     }
     /* get HAL shared memory block from RTAPI */
     lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+
     if (lib_mem_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not open shared memory\n");
@@ -2598,6 +2608,7 @@ int rtapi_app_main(void)
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not access shared memory\n");
@@ -2609,6 +2620,7 @@ int rtapi_app_main(void)
     hal_data = (hal_data_t *) mem;
     /* perform a global init if needed */
     retval = init_hal_data();
+
     if ( retval ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init shared memory\n");
@@ -2616,12 +2628,14 @@ int rtapi_app_main(void)
 	return -EINVAL;
     }
     retval = hal_proc_init();
+
     if ( retval ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init /proc files\n");
 	rtapi_exit(lib_module_id);
 	return -EINVAL;
     }
+    //rtapi_printall();
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
@@ -2724,6 +2738,12 @@ static int init_hal_data(void)
     }
     /* no, we need to init it, grab the mutex unconditionally */
     rtapi_mutex_try(&(hal_data->mutex));
+
+#if defined(RTAPI_XENOMAI_KERNEL)
+    // xenomai heaps contain garbage
+    memset(hal_data, 0, HAL_SIZE);
+#endif
+
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */

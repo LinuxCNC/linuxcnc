@@ -8,7 +8,7 @@
 .SH NAME
 threads \- creates hard realtime HAL threads
 .SH SYNOPSIS
-\fBloadrt threads name1=\fIname\fB period1=\fIperiod\fR [\fBfp1=\fR<\fB0\fR|\fB1\fR>] [<thread-2-info>] [<thread-3-info>]
+\fBloadrt threads name1=\fIname\fB period1=\fIperiod\fR [\fBcpu1=<int>] [<thread-2-info>] [<thread-3-info>]
 
 .SH DESCRIPTION
 \fBthreads\fR is used to create hard realtime threads which can execute
@@ -33,6 +33,11 @@ a small amount of execution time by not saving the FPU context.  For
 additional threads, \fBname2\fR, \fBperiod2\fR, \fBfp2\fR, \fBname3\fR,
 \fBperiod3\fR, and \fBfp3\fR work exactly the same.  If more than three
 threads are needed, unload threads, then reload it to create more threads.
+
+\fBcpu1\fR is optional and intended to explicitly 
+assign an RT thread to a specific CPU, instead of the default.
+\fBcpu2\fR  and \fBcpu3\fR  work identical. This feature is experimental.
+
 
 .SH FUNCTIONS
 .P

@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#if defined(RTAPI) && !defined(SIM)
+#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
 #undef HAVE_SINCOS
 #endif
 

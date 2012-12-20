@@ -668,7 +668,6 @@ static double timestamp()
 
 int main(int argc, char *argv[])
 {
-#define BUFFERLEN 256
     char buffer[BUFFERLEN];
     int inverse = 1;
     int jacobian = 0;

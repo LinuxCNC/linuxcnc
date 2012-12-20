@@ -186,6 +186,7 @@ static int compare_command(const void *namep, const void *commandp) {
 pid_t hal_systemv_nowait(char *const argv[]) {
     pid_t pid;
     int n;
+    char msglevel[20];
 
     /* now we need to fork, and then exec .... */
     /* disconnect from the HAL shmem area before forking */
@@ -217,6 +218,11 @@ pid_t hal_systemv_nowait(char *const argv[]) {
             exit(1);
         }
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+
+	// pass rtapi message level to children
+	sprintf(msglevel,"MSGLEVEL=%d", rtapi_get_msg_level());
+	putenv(msglevel); 
+
         /* call execv() to invoke command */
 	execvp(argv[0], argv);
 	/* should never get here */
@@ -247,6 +253,17 @@ int hal_systemv(char *const argv[]) {
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
+	return -1;
+    }
+    if (WIFSIGNALED(status) && WTERMSIG(status))
+    {
+	halcmd_error("child %s caught signal %s\n", 
+		     argv[0], strsignal(WTERMSIG(status)));
+    }
+    if (WIFSIGNALED(status) && WCOREDUMP(status))
+    {
+	halcmd_error("child %s created a core dump, signal %s\n", 
+		     argv[0], strsignal(WTERMSIG(status)));
 	return -1;
     }
     if ( WIFEXITED(status) == 0 ) {

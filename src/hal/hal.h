@@ -639,9 +639,11 @@ extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     thread ID.  On failure, returns an error code as defined
     above.  Call only from realtime init code, not from user
     space or realtime code.
+    cpu_id is intented to bind the thread explicitly to a 
+    specific CPU id.
 */
 extern int hal_create_thread(const char *name, unsigned long period_nsec,
-    int uses_fp);
+			     int uses_fp, int cpu_id);
 
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created
