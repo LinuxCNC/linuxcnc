@@ -88,12 +88,12 @@ RTAPI_APP_OBJS := \
 			objects/rtapi/sim_rtapi_app.o
 #
 # Add RT_CFLAGS to sim_rtapi_app.cc compilation
-$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS) $(LIBUDEV_CFLAGS)
 #
 # Build target
 ../bin/rtapi_app: $(RTAPI_APP_OBJS)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS) -ldl
+	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  $(LIBUDEV_LIBS) -ldl
 TARGETS += ../bin/rtapi_app
 
 
