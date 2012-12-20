@@ -858,12 +858,13 @@ hostmot2-objs +=			  \
     rtapi/userpci/string.o		  
 endif
 
-
+ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hm2_pci.o
 hm2_pci-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_pci.o   \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
+endif
 
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
