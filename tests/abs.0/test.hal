@@ -12,6 +12,7 @@ addf streamer.0 fast
 addf abs.0 fast
 addf sampler.0 fast
 
+loadusr  halsampler -n 7
 loadusr -w sh runstreamer
+
 start
-loadusr -w halsampler -n 7

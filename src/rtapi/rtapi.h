@@ -98,6 +98,16 @@ typedef int64_t		__s64;
 # include <asm/types.h>
 #endif
 
+/* LINUX_VERSION_CODE for rtapi_{module,io}.c */
+#ifdef MODULE
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+#endif
+
 #include <rtapi_errno.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
@@ -113,8 +123,9 @@ typedef int64_t		__s64;
 RTAPI_BEGIN_DECLS
 
 /***********************************************************************
-*                   GENERAL PURPOSE FUNCTIONS                          *
+*                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
+/* implemented in $THREADS.c (rt-preempt-user.c, xenomai-user.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI
@@ -143,6 +154,12 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_exit(int module_id);
 
+/***********************************************************************
+*                      MESSAGING FUNCTIONS                             *
+************************************************************************/
+/* implemented in rtapi_msg.c */
+#include <stdarg.h>		/* va_start and va_end macros */
+
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
     C library, except that it may not handle long longs.
     It is provided here because some RTOS kernels don't provide
@@ -165,7 +182,6 @@ RTAPI_BEGIN_DECLS
     simply calls the normal vsnrintf().  May be called from user,
     init/cleanup, and realtime code.
 */
-#include <stdarg.h>
     extern int rtapi_vsnprintf(char *buf, unsigned long size,
 	const char *fmt, va_list ap);
 
@@ -220,7 +236,8 @@ RTAPI_BEGIN_DECLS
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
+				       va_list ap);
 #ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
@@ -229,10 +246,10 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(BUILD_SYS_USER_DSO) || defined(ULAPI) 
-#include <sched.h>		/* for blocking when needed */
-#else
+#ifdef MODULE  /* kernel code */
 #include <linux/sched.h>	/* for blocking when needed */
+#else  /* userland code */
+#include <sched.h>		/* for blocking when needed */
 #endif
 #include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
 
@@ -273,9 +290,9 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
+#ifdef MODULE  /* kernel code */
 	    schedule();
-#else
+#else  /* userland code */
 	    sched_yield();
 #endif
 	}
@@ -284,6 +301,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
 ************************************************************************/
+/* implemented in rtapi_time.c */
 
 /** NOTE: These timing related functions are only available in
     realtime modules.  User processes may not call them!
@@ -381,6 +399,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                     TASK RELATED FUNCTIONS                           *
 ************************************************************************/
+/* implemented in rtapi_task.c */
 
 /** NOTE: These realtime task related functions are only available in
     realtime modules.  User processes may not call them!
@@ -511,6 +530,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
+/* implemented in rtapi_shmem.c */
 
 /** 'rtapi_shmem_new()' allocates a block of shared memory.  'key'
     identifies the memory block, and must be non-zero.  All modules
@@ -588,6 +608,7 @@ RTAPI_BEGIN_DECLS
 */
 #include <linux/version.h>
 #if !defined(BUILD_SYS_USER_DSO)
+#include <linux/module.h>
 # include <linux/ioport.h>
 #endif
 

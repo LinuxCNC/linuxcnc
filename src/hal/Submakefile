@@ -3,15 +3,19 @@ INCLUDES += hal
 ../include/%.h: ./hal/%.h
 	cp $^ $@
 
+
+HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+
 ifeq ($(THREADS),xenomai-kernel)
-XENO_CONFIG ?= xeno-config --skin=native
-XENO_LINK := $(shell $(XENO_CONFIG) --ldflags )
+XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
 else
 XENO_LINK=
 endif
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
+
+# Add to list of sources to compile -DULAPI ->
+# objects/{rtapi/*.o,hal/hal_lib.o}
 USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
@@ -20,7 +24,8 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(XENO_LINK)
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(RT_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)

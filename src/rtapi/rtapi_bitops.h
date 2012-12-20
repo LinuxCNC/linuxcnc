@@ -27,7 +27,7 @@
 
 #else
 
-#if (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
+#ifdef MODULE
 #include <asm/bitops.h>
 #elif defined(__i386__)
 /* From <asm/bitops.h>
@@ -308,6 +308,6 @@ static __inline__ int test_and_clear_bit(unsigned long nr,
 
 #else // out of architectures
 #error The header file <asm/bitops.h> is not usable and rtapi does not yet have support for your CPU
-#endif // (defined(__MODULE__) && !defined(BUILD_SYS_USER_DSO))
+#endif // (defined(MODULE) && !defined(BUILD_SYS_USER_DSO))
 #endif // defined(USE_GCC_ATOMIC_OPS)
 #endif // RTAPI_BITOPS_H

@@ -71,33 +71,38 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"
+#include "rtapi_bitops.h"	/* test_bit() et al. */
 
-#if defined(RTAPI_XENOMAI_USER)
-//FIXME minimize
-#include <native/task.h>        /* Xenomai task */
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <rtdk.h>
-#include <nucleus/types.h>     /* for XNOBJECT_NAME_LEN */
-
-#include <sys/io.h>             /* inb, outb */
-#endif
-#if defined(RTAPI_POSIX)
-#include <pth.h>		/* pth_uctx_* */
+#ifndef NULL
+#define NULL 0
 #endif
 
-#if defined(RTAPI_RTPREEMPT_USER)
-#include <pthread.h>
+
+#include THREADS_HEADERS	/* thread-specific headers */
+
+
+/* module information */
+#ifdef MODULE
+MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
+MODULE_DESCRIPTION("Portable Real Time API");
+MODULE_LICENSE("GPL");
 #endif
 
 
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
 /* maximum number of various resources */
-#define RTAPI_MAX_MODULES 64
-#define RTAPI_MAX_TASKS   64
-#define RTAPI_MAX_SHMEMS  32
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
+
+#define DEFAULT_MAX_DELAY	10000
+
+/* random numbers used as signatures */
+#define TASK_MAGIC		21979
+#define MODULE_MAGIC		30812
+
+#define MIN_STACKSIZE		32768
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
@@ -105,9 +110,11 @@
    programs don't match, that's bad.  So we have revision checking.
    Whenever a module or program is loaded, the rev_code is checked
    against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will faill.
-*/
-extern unsigned int rev_code; // see rtapi_common.c
+   the rtapi_init() call will fail.
+
+   Thread system header files should define the macro REV_CODE with a
+   unique integer value.
+  */
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -118,11 +125,11 @@ typedef enum {
 } mod_type_t;
 
 typedef struct {
-#if defined(RTAPI_RTPREEMPT_USER)
-    int magic;
-#endif
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
+#ifdef THREAD_MODULE_DATA
+    THREAD_MODULE_DATA;
+#endif
 } module_data;
 
 typedef enum {
@@ -130,32 +137,17 @@ typedef enum {
     PAUSED,
     PERIODIC,
     FREERUN,
-    ENDED
+    ENDED,
+    USERLAND,
+    DELETE_LOCKED	// task ready to be deleted; mutex already obtained
 } task_state_t;
 
 typedef struct {
-#if defined(RTAPI_XENOMAI_USER)
-    RT_TASK *self;   
+#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
+					   somehow */
     char name[XNOBJECT_NAME_LEN];
 #else
     char name[RTAPI_NAME_LEN];
-#endif
-
-#if defined(RTAPI_RTPREEMPT_USER)
-    int deleted;
-    int destroyed;
-    int deadline_scheduling;
-    struct timespec next_time;
-
-    /* The realtime thread. */
-    pthread_t thread;
-    pthread_barrier_t thread_init_barrier;
-    void *stackaddr;
-
-    /* Statistics */
-    unsigned long minfault_base;
-    unsigned long majfault_base;
-    unsigned int failures;
 #endif
     int magic;
     int uses_fp;
@@ -168,18 +160,21 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
+#ifdef THREAD_TASK_DATA
+    THREAD_TASK_DATA;		/* task data defined in thread system */
+#endif
 } task_data;
 
 typedef struct {
     int magic;			/* to check for valid handle */
     int key;			/* key to shared memory area */
     int id;			/* OS identifier for shmem */
-    int count;                    /* count of maps in this process */
+    int count;                  /* count of maps in this process */
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1); /* which modules are
-						   using block */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1);
+				/* which modules are using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
 
@@ -201,27 +196,60 @@ typedef struct {
     int shmem_count;		/* shared memory blocks in use */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
-#if defined(RTAPI_XENOMAI_KERNEL) || defined(RTAPI_XENOMAI_USER) 
-    int rt_wait_error;          /* release point missed */
-    int rt_last_overrun;       /* last  number of overruns reported by Xenomai */
-    int rt_total_overruns;      /* total number of overruns reported by Xenomai */
-#endif
     long int timer_period;	/* HW timer period */
     module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
+#ifdef THREAD_RTAPI_DATA
+    THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
+#endif
 } rtapi_data_t;
 
+
+/* rtapi_common.c */
+extern rtapi_data_t *rtapi_data;
+extern void init_rtapi_data(rtapi_data_t * data);
+
+
+/* rtapi_task.c */
+extern task_data *task_array;
+
+
+/* $(THREADS).c */
+#if defined(MODULE)
+extern RT_TASK *ostask_array[];
+#endif
+
+
+/* rtapi_msg.c */
+extern int msg_level;		/* needed in rtapi_proc.h */
+
+/* rtapi_time.c */
+#ifdef BUILD_SYS_USER_DSO
+extern int period;
+#else /* BUILD_SYS_KBUILD */
+extern long int max_delay;
+extern unsigned long timer_counts;
+#endif
+#ifdef HAVE_RTAPI_MODULE_TIMER_STOP
+void rtapi_module_timer_stop(void);
+#endif
+
+
+/* rtapi_shmem.c */
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
+#define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
-extern rtapi_data_t *rtapi_data;
-extern module_data *module_array;
-extern task_data *task_array;
 extern shmem_data *shmem_array;
+extern void *shmem_addr_array[];
 
 
-extern void init_rtapi_data(rtapi_data_t * data);
+/* rtapi_module.c */
+#ifndef BUILD_SYS_USER_DSO
+extern int init_master_shared_memory(rtapi_data_t **rtapi_data);
+#endif
+extern module_data *module_array;
 
 #endif /* RTAPI_COMMON_H */

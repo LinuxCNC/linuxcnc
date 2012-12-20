@@ -347,7 +347,8 @@ HEADERS := \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
+    rtapi/rtapi_string.h \
+    rtapi/$(THREADS_SOURCE).h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -388,7 +389,7 @@ modules:
 	    V=$(BUILD_VERBOSE) modules
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
-	    SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
+	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
@@ -623,19 +624,15 @@ COPY_CONFIGS := \
 
 configs: $(COPY_CONFIGS)
 
-.PHONY: print_copy_configs
-print_copy_configs:
-	$(ECHO) copying shared configs
-
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal print_copy_configs
+$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal print_copy_configs
+$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal print_copy_configs
+$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal print_copy_configs
+$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
 	$(Q)-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
+$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 	$(Q)-cp $< $@
 
 endif # userspace
@@ -688,28 +685,32 @@ endif
 # the source directory with object files and other temporaries, but I can't
 # find a way around it.
 
+# These lists would be best moved to their respective subdirectories'
+# Submakefiles to make this more modular and avoid maintaining
+# multiple lists of the same things.  This won't work as-is right now
+# because the Submakefiles are included in a conditional block that is
+# not evaluated during kernel module build.
+
 # Subdirectory:  rtapi
 
 obj-$(CONFIG_RTAPI) += rtapi.o
 
-ifeq ($(THREADS),xenomai-user)
-rtapi-objs := rtapi/sim_common.o
+# Sources for all thread systems
+rtapi-objs := \
+	rtapi/rtapi_common.o \
+	rtapi/rtapi_task.o \
+	rtapi/rtapi_shmem.o \
+	rtapi/rtapi_time.o \
+	rtapi/rtapi_msg.o \
+	rtapi/rtapi_io.o \
+	rtapi/$(THREADS_SOURCE).o
+# Kernel threads need rtapi_module.c
+ifeq ($(BUILD_SYS),kbuild)
+rtapi-objs += rtapi/rtapi_module.o
 endif
-ifeq ($(THREADS),posix)
-rtapi-objs := rtapi/sim_common.o
-endif
-ifeq ($(THREADS),rt-preempt-user)
-rtapi-objs := rtapi/linux_ulapi.o
-rtapi-objs += rtapi/linux_common.o
-endif
-ifeq ($(THREADS),xenomai-kernel)
-rtapi-objs := rtapi/xenomai_kernel_rtapi.o
-rtapi-objs += rtapi/xenomai_common.o
-rtapi-objs += rtapi/rtapi_common.o
-endif
-ifeq ($(THREADS),rtai)
-rtapi-objs := rtapi/rtai_rtapi.o
-rtapi-objs += rtapi/rtapi_common.o
+# User threads need rtapi_pci.c
+ifeq ($(BUILD_SYS),user-dso)
+rtapi-objs += rtapi/rtapi_pci.o
 endif
 
 
@@ -994,6 +995,7 @@ endif # end BUILD_SYS=user-dso
 # 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 # endif # end 'normal'
 
+# build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 #ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
@@ -1062,7 +1064,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
 endif
-endif
+endif  # build kernel RTAPI modules
 
 # Phony so that it is always rebuilt when requested, not because it
 # shouldn't exist as a file

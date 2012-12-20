@@ -32,7 +32,6 @@
     void rtapi_app_exit(a)
 #else
 #include <linux/module.h>
-
 #define rtapi_app_main(a) init_module(a)
 #define rtapi_app_exit(a) cleanup_module(a)
 #endif
