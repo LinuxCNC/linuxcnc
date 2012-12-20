@@ -14,6 +14,9 @@
 #define _GNU_SOURCE
 #endif
 
+#include "config.h"
+#if defined(USERMODE_PCI)
+
 #include <libudev.h>
 #include <stdio.h>		/* vprintf() */
 #include <stdlib.h>		/* malloc(), sizeof() */
@@ -26,7 +29,6 @@
 #include <sys/mman.h>
 #include <time.h>
 
-#include "config.h"
 #include "rtapi.h"
 #include "rtapi_pci.h"
 #include "rtapi_common.h"
@@ -750,4 +752,4 @@ int pci_disable_device(struct pci_dev *dev)
     return r;
 }
 
-
+#endif // USERMODE_PCI
