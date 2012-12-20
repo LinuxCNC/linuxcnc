@@ -1,4 +1,6 @@
 // based on supply.c
+
+
 #include "config.h"
 
 // this probably should be an ARM335x #define
@@ -170,33 +172,6 @@ static void update_pru(void *arg, long l)
 {
     hal_pru_ptr p = (hal_pru_ptr) arg;
 
-    if ((*(p->dump) ^ p->prev_dump) && *(p->dump))  // on rising edge
-	read_pru_state(pru);
-
-    if ((*(p->halt) ^ p->prev_halt) && *(p->halt)) {
-	while (IS_RUNNING(pru))
-	    PRU_DISABLE(pru);
-    }
-    if ((*(p->step) ^ p->prev_step) && *(p->step))  {
-	PRU_SET_STEPPING(pru);
-    }
-    if ((*(p->step) ^ p->prev_step) && !*(p->step))  {
-	PRU_CLEAR_STEPPING(pru);
-    }
-
-    if ((*(p->reset) ^ p->prev_reset) && *(p->reset))  {
-	PRU_RESET(pru);
-    }
-    if ((*(p->_continue) ^ p->prev_continue) && *(p->_continue))  {
-	PRU_ENABLE(pru);
-    }
-
-    // tracking variables for edge detection
-    p->prev_halt = *(p->halt);
-    p->prev_step =  *(p->step);
-    p->prev_continue = *(p->_continue);
-    p->prev_dump =  *(p->dump);
-    p->prev_reset =*(p->reset);
     // feeding params down to PRU ram
     pru_data_ram[0] = *(p->enable);
     pru_data_ram[1] = *(p->enable);
@@ -244,48 +219,6 @@ static int export_pru(hal_pru_ptr addr)
     return 0;
 }
 
-static void read_pru_state(int pru)
-{
-    int i, was_running;
-    pru_reg_ptr ctrl, reg;
-
-    ctrl = CTRLBASE(pru);
-    was_running = IS_RUNNING(pru);
-
-    // dont use prussdrv_pru_disable(pru) - this resets the cpu
-    // we just want to halt while looking at the registers
-    while (IS_RUNNING(pru))
-	PRU_DISABLE(pru);
-
-    printf("CONTROL = %8.8lx, ",(*CONTROL_REG(pru)));
-    printf(was_running ? "running" : "halted");
-    printf(IS_STEPPING(pru) ? ", stepping" : "");
-    printf(IS_SLEEPING(pru) ? ", sleeping" : "");
-    printf(", start after reset at: %8.8lx\n", PC_AT_RESET(pru));
-
-    printf("PC = %8.8lx (%ld)\n", CURRENT_PC(pru), CURRENT_PC(pru));
-    printf("WAKEUP_EN = %8.8lx\t", ctrl[2]);
-    printf("CYCLE = %8.8lx\t", ctrl[3]);
-    printf("STALL = %8.8lx\n", ctrl[4]);
-    printf("CTBIR0 = %8.8lx\t", ctrl[8]);
-    printf("CTBIR1 = %8.8lx\n", ctrl[9]);
-    printf("CTPPR0 = %8.8lx\t", ctrl[10]);
-    printf("CTPPR1 = %8.8lx\n", ctrl[11]);
-
-    reg = DEBUGBASE(pru);
-    for (i = 0; i < 32; i++) {
-	printf("R%-2d = %8.8lx  ", i,reg[i]);
-	if ((i & 3) == 3)
-	    printf("\n");
-    }
-    // for (i = 32; i < 64; i++)
-    for (i = 32; i < 34; i++)
-	printf("CT_REG%d = %8.8lx\t", i-32, reg[i]);
-    printf("\n");
-
-    if (was_running) // if PRU was found running, reenable
-	PRU_ENABLE(pru);
-}
 
 static int assure_module_loaded(const char *module)
 {
@@ -339,17 +272,20 @@ static int setup_pru(int pru, char *filename, int disabled)
     prussdrv_init ();
 
     // opens an event out and initializes memory mapping
-    prussdrv_open (PRU_EVTOUT_0);
+    if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
+	return -1;
 
     // expose the driver data, filled in by prussdrv_open
     pruss = &prussdrv;
 
     // Map PRU's INTC
-    prussdrv_pruintc_init(&pruss_intc_initdata);
+    if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
+	return -1;
 
     // Maps the PRU DRAM memory to input pointer
-    prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
-			(void **) &pru_data_ram);
+    if (prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
+			(void **) &pru_data_ram) < 0)
+	return -1;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
 		    modname, pru_data_ram);
@@ -376,13 +312,23 @@ static int setup_pru(int pru, char *filename, int disabled)
 
 static void *pruevent_thread(void *arg)
 {
-    // Wait for event completion from PRU
-    // This assumes the PRU generates an interrupt
-    // connected to event out 0 immediately before halting
-    // prussdrv_pru_wait_event (PRU_EVTOUT_0);
-    // prussdrv_pru_clear_event (PRU0_ARM_INTERRUPT);
+    int event = (int) arg;
+    int event_count;
+    do {
+	if (prussdrv_pru_wait_event(event, &event_count) < 0)
+	    continue;
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d received\n",
+		    modname, event);
+	prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+    } while (1);
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: pruevent_thread exiting\n",
+		    modname);
+    return NULL; // silence compiler warning
+}
 
+static void pru_shutdown(int pru)
+{
     // Disable PRU and close memory mappings
     prussdrv_pru_disable(pru);
-    prussdrv_exit ();
+    prussdrv_exit (); // also joins event listen thread
 }
