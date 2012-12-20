@@ -11,9 +11,9 @@
 
 #include <linux/kernel.h>
 #include <linux/version.h>
-#include <linux/ctype.h>
-#include <linux/slab.h>
-#include <linux/module.h>
+//CS//#include <linux/ctype.h>
+//CS//#include <linux/slab.h>
+//CS//#include <linux/module.h>
 
 
 

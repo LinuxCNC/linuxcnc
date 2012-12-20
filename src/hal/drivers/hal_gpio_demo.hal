@@ -1,0 +1,22 @@
+# stepgen demo using raspberry hal_gpio driver
+
+loadrt hal_gpio 
+loadrt threads name1=fast period1=100000 name2=slow period2=1000000 
+loadrt stepgen step_type=5 ctrl_type=v 
+
+net a stepgen.0.phase-A => hal_gpio.pin-03-out
+net b stepgen.0.phase-B => hal_gpio.pin-05-out
+net c stepgen.0.phase-C => hal_gpio.pin-07-out
+net d stepgen.0.phase-D => hal_gpio.pin-08-out
+
+net speed stepgen.0.velocity-cmd
+
+addf stepgen.update-freq slow
+addf stepgen.make-pulses fast
+addf hal_gpio.write fast
+
+setp stepgen.0.enable 1
+sets speed 5000
+start
+
+

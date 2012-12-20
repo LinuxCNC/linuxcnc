@@ -38,9 +38,31 @@
  * Updated probing logic - Adam Belay <ambx1@neo.rr.com>
  */
 
+#include "config.h"
 #include "hal.h"
 #include "rtapi.h"
 #include "rtapi_app.h"
+
+static int comp_id;
+
+#if defined(BUILD_SYS_USER_DSO)
+
+int rtapi_app_main(void) {
+    comp_id = hal_init("probe_parport");
+    if (comp_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "PROBE_PARPORT: ERROR: hal_init() failed\n");
+        return -1;
+    }
+    hal_ready(comp_id);
+
+    return 0;
+}
+
+void rtapi_app_exit(void) {
+    hal_exit(comp_id);
+}
+
+#else
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -65,7 +87,6 @@ MODULE_AUTHOR("Jeff Epler");
 MODULE_DESCRIPTION("Parallel Port PNP driver for EMC HAL");
 MODULE_LICENSE("GPL");
 
-static int comp_id;
 static int pnp_registered_parport = 0;
 
 static const struct pnp_device_id probe_parport_pnp_tbl[] = {
@@ -140,3 +161,5 @@ void rtapi_app_exit(void) {
             pnp_unregister_driver (&probe_parport_pnp_driver);
     hal_exit(comp_id);
 }
+
+#endif

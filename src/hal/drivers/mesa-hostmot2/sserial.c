@@ -17,7 +17,8 @@
 //
 
 
-#include <linux/slab.h>
+#include "config_module.h"
+#include RTAPI_INC_SLAB_H
 
 #include "rtapi.h"
 #include "rtapi_string.h"
