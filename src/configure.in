@@ -712,6 +712,23 @@ if test "$THREADS" != posix; then
     fi
 fi
 
+# verify this user is member of group xenomai if threads=xenomai-user otherwise
+# you get 'Xenomai: binding failed: Operation not permitted.' errors
+if test "$THREADS" = xenomai-user; then
+   nmatch=`grep -c xenomai /etc/group`
+   if test $nmatch -eq 0
+   then
+       AC_MSG_ERROR([the xenomai group doesnt exist - is the xenomai userland support properly installed? ])
+   fi
+   nmatch=`id -Gn | grep -c xenomai`
+   if test $nmatch -eq 0
+   then
+       thisuser=`id -un`
+       AC_MSG_WARN([the user $thisuser is not member of the xenomai group\
+ - please run 'sudo adduser $thisuser xenomai', logout and login again to run linuxcnc])
+   fi
+fi
+
 # now it's safe to investigate whether we should build with usermode PCI support
 # as platform, kernel and thread style is known
 AC_MSG_CHECKING(whether to compile PCI drivers with usermode PCI support)
@@ -741,10 +758,21 @@ AC_ARG_ENABLE(usermode-pci,
 	fi
     ],
     [
-      # for now we default to USERMODE_PCI=no
-      # once this is working, we should enable it here for the userland thread styles
-      # if ARCHITECTURE=PC (and probably if BUILD_DRIVERS=yes)
-      AC_MSG_RESULT([using defaults: $USERMODE_PCI])
+      # default: enable if TARGET_PLATFORM=PC and a userland thread style
+      case "$THREADS" in
+           rt-preempt-user|xenomai-user|posix)
+               if test "$TARGET_PLATFORM" = "PC" ; then
+	           USERMODE_PCI=yes
+		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM - enable USERMODE_PCI for userland thread styles])
+	       else
+	           AC_MSG_RESULT([disabling USERMODE_PCI since platform not PC: $TARGET_PLATFORM])
+	       fi
+	       ;;
+	   *)
+	       USERMODE_PCI=no
+               AC_MSG_RESULT([thread style not applicable for USERMODE_PCI])
+	       ;;
+      esac
     ])
 
 
