@@ -220,7 +220,7 @@ L'outil touchera le porte-pièce...::
     sur lequel s'effectue le _Toucher_. Le 9ème système de coordonnées doit
     être ajusté pour que la pointe d'un outil de longueur nulle
     (le nez de broche), soit à l'origine du porte-pièce quand les coordonnées
-    relatives sont à 0. (Voir aussi G10 L11)
+    relatives sont à 0. Voir aussi <<sec:G10-L11,G10 L11>>.
 
 ==== Menu Vues
 

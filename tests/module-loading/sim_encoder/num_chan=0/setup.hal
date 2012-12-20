@@ -1,0 +1,4 @@
+
+loadrt sim_encoder num_chan=0
+show pin
+

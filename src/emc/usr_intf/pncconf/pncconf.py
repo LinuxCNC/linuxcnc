@@ -136,7 +136,7 @@ drivertypes = [
     ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
     ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
     ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-    ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
+    ["gecko540", _("Gecko 540"),  1500, 2500, 700, 700],
     ["l297", _("L297"), 500,  4000, 4000, 1000],
     ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
     ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
@@ -1573,9 +1573,9 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
         if self.allow_spindle_on_toolchange:
-            print >>file, "TOOLCHANGE_WITH_SPINDLE_ON = 1"
+            print >>file, "TOOL_CHANGE_WITH_SPINDLE_ON = 1"
         if self.raise_z_on_toolchange:
-            print >>file, "TOOLCHANGE_QUILL_UP = 1"
+            print >>file, "TOOL_CHANGE_QUILL_UP = 1"
         if self.random_toolchanger:
             print >>file, "RANDOM_TOOLCHANGER = 1"
         
@@ -3305,10 +3305,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
             else:
                 print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
-                print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
-                print >>f1
-                print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
-                print >>f1
+            print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
+            print >>f1
+            print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
+            print >>f1
         else:
             if os.path.exists(pyfilename):
                 os.remove(pyfilename)
