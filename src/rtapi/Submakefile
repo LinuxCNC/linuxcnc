@@ -73,7 +73,11 @@ endif  # rt-preempt-user/posix
 #
 # C sources to compile -DRTAPI and link into ../bin/rtapi_app.  (Omit
 # the main .cc file.)  (Can this be pruned?)
+ifeq ($(USERMODE_PCI),yes)
 RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
+else
+RTAPI_SRCS := $(ULAPI_SRCS) 
+endif
 #
 # Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
 # despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
