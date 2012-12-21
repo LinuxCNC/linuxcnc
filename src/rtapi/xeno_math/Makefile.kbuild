@@ -1,0 +1,15 @@
+EXTRA_CFLAGS += -I$(rtai_srctree)/base/include \
+		-I$(src)/../include \
+		-I$(src)/../.. \
+		-I/usr/include \
+		-isystem $(shell $(CC) -print-file-name=include-fixed) \
+		$(rtai_extradef) \
+		-D_IEEE_LIBM \
+		-D_ISOC99_SOURCE \
+		-D_SVID_SOURCE \
+		$(rtai_extraopt) \
+		-D__IN_RTAI__
+
+obj-m += rtai_math.o
+
+rtai_math-objs := $(rtai_objs)

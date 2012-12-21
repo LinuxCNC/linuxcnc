@@ -56,16 +56,15 @@ static void read_all(struct state *inst, long period);
 
 static void extra_cleanup(void);
 
-#include <asm/io.h>
 #define SHIFT 4
 static inline void WRITE(int value, hal_u32_t base, int offset) { 
     // int *mem = (int*) base;
-    outb(value, base + SHIFT*offset);
+    rtapi_outb(value, base + SHIFT*offset);
     // mem[offset] = value;
 }
 
 static inline int READ(hal_u32_t base, int offset) {
-    return inb(base + SHIFT*offset);
+    return rtapi_inb(base + SHIFT*offset);
     // int *mem = (int*) base;
     // return mem[offset];
 }

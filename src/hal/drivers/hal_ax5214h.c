@@ -87,6 +87,7 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -96,12 +97,16 @@
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
    are inlined, and save a microsecond or two (on my 233MHz box)
 */
-#define FASTIO
+#define FASTIO  
 
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
+#ifdef BUILD_SYS_USER_DSO
+#include <sys/io.h> 
+#else
 #include <asm/io.h>
+#endif
 #endif
 
 /* module information */

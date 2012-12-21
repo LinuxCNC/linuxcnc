@@ -6,11 +6,12 @@ if len(l) != 3500:
     print "result contained %d lines, not the expected 3500 lines!" % (len(l))
     raise SystemExit, 1 # failure
 
-lineno = 1
+lineno = 0
 
 got_reset = 0
 expected = 1
 for i in l:
+    lineno = lineno + 1
     if i == 1:
         if expected != 1: got_reset = 1
         expected = i + 1
@@ -24,7 +25,6 @@ for i in l:
         raise SystemExit, 1 # failure
 
     expected = i + 1
-    lineno = lineno + 1
 
 if got_reset:
     raise SystemExit, 0 # success

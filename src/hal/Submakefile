@@ -3,8 +3,19 @@ INCLUDES += hal
 ../include/%.h: ./hal/%.h
 	cp $^ $@
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
+
+HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+
+ifeq ($(THREADS),xenomai-kernel)
+XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
+else
+XENO_LINK=
+endif
+
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
+
+# Add to list of sources to compile -DULAPI ->
+# objects/{rtapi/*.o,hal/hal_lib.o}
 USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
@@ -13,7 +24,8 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(RT_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
@@ -21,7 +33,7 @@ PYSRCS += $(HALMODULESRCS)
 HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ 
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

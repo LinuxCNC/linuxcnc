@@ -71,15 +71,38 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"
+#include "rtapi_bitops.h"	/* test_bit() et al. */
+
+#ifndef NULL
+#define NULL 0
+#endif
+
+
+#include THREADS_HEADERS	/* thread-specific headers */
+
+
+/* module information */
+#ifdef MODULE
+MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
+MODULE_DESCRIPTION("Portable Real Time API");
+MODULE_LICENSE("GPL");
+#endif
+
+
+#undef RTAPI_FIFO  // drop support for RTAPI fifos
 
 /* maximum number of various resources */
-#define RTAPI_MAX_MODULES 64
-#define RTAPI_MAX_TASKS   64
-#define RTAPI_MAX_SHMEMS  32
-#define RTAPI_MAX_SEMS    64
-#define RTAPI_MAX_FIFOS   32
-#define RTAPI_MAX_IRQS    16
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
+
+#define DEFAULT_MAX_DELAY	10000
+
+/* random numbers used as signatures */
+#define TASK_MAGIC		21979
+#define MODULE_MAGIC		30812
+
+#define MIN_STACKSIZE		32768
 
 /* This file contains data structures that live in shared memory and
    are accessed by multiple different programs, both user processes
@@ -87,9 +110,11 @@
    programs don't match, that's bad.  So we have revision checking.
    Whenever a module or program is loaded, the rev_code is checked
    against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will faill.
-*/
-static unsigned int rev_code = 1;  // increment this whenever you change the data structures
+   the rtapi_init() call will fail.
+
+   Thread system header files should define the macro REV_CODE with a
+   unique integer value.
+  */
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -102,6 +127,9 @@ typedef enum {
 typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
+#ifdef THREAD_MODULE_DATA
+    THREAD_MODULE_DATA;
+#endif
 } module_data;
 
 typedef enum {
@@ -109,53 +137,46 @@ typedef enum {
     PAUSED,
     PERIODIC,
     FREERUN,
-    ENDED
+    ENDED,
+    USERLAND,
+    DELETE_LOCKED	// task ready to be deleted; mutex already obtained
 } task_state_t;
 
 typedef struct {
+#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
+					   somehow */
+    char name[XNOBJECT_NAME_LEN];
+#else
+    char name[RTAPI_NAME_LEN];
+#endif
+    int magic;
+    int uses_fp;
+    size_t stacksize;
+    int period;
+    int ratio;
     task_state_t state;		/* task state */
     int prio;			/* priority */
     int owner;			/* owning module */
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
+    int cpu;
+#ifdef THREAD_TASK_DATA
+    THREAD_TASK_DATA;		/* task data defined in thread system */
+#endif
 } task_data;
 
 typedef struct {
+    int magic;			/* to check for valid handle */
     int key;			/* key to shared memory area */
+    int id;			/* OS identifier for shmem */
+    int count;                  /* count of maps in this process */
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    unsigned long bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are
-							   using block */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1);
+				/* which modules are using block */
+    void *mem;			/* pointer to the memory */
 } shmem_data;
-
-typedef struct {
-    int users;			/* number of modules using the semaphore */
-    int key;			/* key to semaphore */
-    unsigned long bitmap[(RTAPI_MAX_SEMS / 8) + 1];	/* which modules are
-							   using sem */
-} sem_data;
-
-typedef enum {
-    UNUSED = 0,
-    HAS_READER = 1,
-    HAS_WRITER = 2,
-    HAS_BOTH = 3
-} fifo_state_t;			/* used as bitmasks */
-
-typedef struct {
-    fifo_state_t state;		/* task state */
-    int key;			/* key to fifo */
-    int reader;			/* module ID of reader */
-    int writer;			/* module ID of writer */
-    unsigned long int size;	/* size of fifo area */
-} fifo_data;
-
-typedef struct {
-    int irq_num;		/* IRQ number */
-    int owner;			/* owning module */
-    void (*handler) (void);	/* interrupt handler function */
-} irq_data;
 
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
@@ -173,9 +194,6 @@ typedef struct {
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */
     int shmem_count;		/* shared memory blocks in use */
-    int sem_count;		/* semaphores in use */
-    int fifo_count;		/* fifos in use */
-    int irq_count;		/* interrupts hooked */
     int timer_running;		/* state of HW timer */
     int rt_cpu;			/* CPU to use for RT tasks */
     long int timer_period;	/* HW timer period */
@@ -183,101 +201,55 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
-    sem_data sem_array[RTAPI_MAX_SEMS + 1];	/* data for semaphores */
-    fifo_data fifo_array[RTAPI_MAX_FIFOS + 1];	/* data for fifos */
-    irq_data irq_array[RTAPI_MAX_IRQS + 1];	/* data for hooked irqs */
+#ifdef THREAD_RTAPI_DATA
+    THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
+#endif
 } rtapi_data_t;
 
+
+/* rtapi_common.c */
+extern rtapi_data_t *rtapi_data;
+extern void init_rtapi_data(rtapi_data_t * data);
+
+
+/* rtapi_task.c */
+extern task_data *task_array;
+
+
+/* $(THREADS).c */
+#if defined(MODULE)
+extern RT_TASK *ostask_array[];
+#endif
+
+
+/* rtapi_msg.c */
+extern int msg_level;		/* needed in rtapi_proc.h */
+
+/* rtapi_time.c */
+#ifdef BUILD_SYS_USER_DSO
+extern int period;
+#else /* BUILD_SYS_KBUILD */
+extern long int max_delay;
+extern unsigned long timer_counts;
+#endif
+#ifdef HAVE_RTAPI_MODULE_TIMER_STOP
+void rtapi_module_timer_stop(void);
+#endif
+
+
+/* rtapi_shmem.c */
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
+#define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
-/* these pointers are initialized at startup to point
-   to resource data in the master data structure above
-   all access to the data structure should uses these
-   pointers, they take into account the mapping of
-   shared memory into either kernel or user space.
-   (the RTAPI kernel module and each ULAPI user process
-   has its own set of these vars, initialized to match
-   that process's memory mapping.)
-*/
+extern shmem_data *shmem_array;
+extern void *shmem_addr_array[];
 
-rtapi_data_t *rtapi_data = NULL;
-module_data *module_array = NULL;
-task_data *task_array = NULL;
-shmem_data *shmem_array = NULL;
-sem_data *sem_array = NULL;
-fifo_data *fifo_array = NULL;
-irq_data *irq_array = NULL;
 
-/* global init code */
-
-static void init_rtapi_data(rtapi_data_t * data)
-{
-    int n, m;
-
-    /* has the block already been initialized? */
-    if (data->magic == RTAPI_MAGIC) {
-	/* yes, nothing to do */
-	return;
-    }
-    /* no, we need to init it, grab mutex unconditionally */
-    rtapi_mutex_try(&(data->mutex));
-    /* set magic number so nobody else init's the block */
-    data->magic = RTAPI_MAGIC;
-    /* set version code so other modules can check it */
-    data->rev_code = rev_code;
-    /* and get busy */
-    data->rt_module_count = 0;
-    data->ul_module_count = 0;
-    data->task_count = 0;
-    data->shmem_count = 0;
-    data->sem_count = 0;
-    data->fifo_count = 0;
-    data->irq_count = 0;
-    data->timer_running = 0;
-    data->timer_period = 0;
-    /* init the arrays */
-    for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
-	data->module_array[n].state = EMPTY;
-	data->module_array[n].name[0] = '\0';
-    }
-    for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
-	data->task_array[n].state = EMPTY;
-	data->task_array[n].prio = 0;
-	data->task_array[n].owner = 0;
-	data->task_array[n].taskcode = NULL;
-    }
-    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
-	data->shmem_array[n].key = 0;
-	data->shmem_array[n].rtusers = 0;
-	data->shmem_array[n].ulusers = 0;
-	data->shmem_array[n].size = 0;
-	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
-	    data->shmem_array[n].bitmap[m] = 0;
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
-	data->sem_array[n].users = 0;
-	data->sem_array[n].key = 0;
-	for (m = 0; m < (RTAPI_MAX_SEMS / 8) + 1; m++) {
-	    data->sem_array[n].bitmap[m] = 0;
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
-	data->fifo_array[n].state = UNUSED;
-	data->fifo_array[n].key = 0;
-	data->fifo_array[n].size = 0;
-	data->fifo_array[n].reader = 0;
-	data->fifo_array[n].writer = 0;
-    }
-    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
-	data->irq_array[n].irq_num = 0;
-	data->irq_array[n].owner = 0;
-	data->irq_array[n].handler = NULL;
-    }
-    /* done, release the mutex */
-    rtapi_mutex_give(&(data->mutex));
-    return;
-}
+/* rtapi_module.c */
+#ifndef BUILD_SYS_USER_DSO
+extern int init_master_shared_memory(rtapi_data_t **rtapi_data);
+#endif
+extern module_data *module_array;
 
 #endif /* RTAPI_COMMON_H */
