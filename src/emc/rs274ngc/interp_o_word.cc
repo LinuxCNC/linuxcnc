@@ -522,7 +522,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	settings->file_pointer = newFP;
         strncpy(settings->filename, newFileName, sizeof(settings->filename));
         if (settings->filename[sizeof(settings->filename)-1] != '\0') {
-            logOword("new filename '%s' is too long (max len %d)\n", newFileName, sizeof(settings->filename)-1);
+            logOword("new filename '%s' is too long (max len %zd)\n", newFileName, sizeof(settings->filename)-1);
             settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
         }
     } else {
