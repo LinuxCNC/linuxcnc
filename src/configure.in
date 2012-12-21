@@ -574,7 +574,8 @@ if test  "$THREADS" != posix; then
        DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_RTPREEMPT
        AC_MSG_RESULT([looks like a RT_PREEMPT configuration])
     else
-	AC_MSG_ERROR([failed to guess realtime system from $KCONFIG - sure this is a realtime kernel? ]) 
+	AC_MSG_WARN([failed to guess realtime system from $KCONFIG - building simulator ])
+        THREADS=posix	
 	fi
 	fi
 	fi
