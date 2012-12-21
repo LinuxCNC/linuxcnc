@@ -294,6 +294,7 @@ HEADERS := \
     emc/rs274ngc/rs274ngc.hh \
     hal/hal.h \
     hal/hal_parport.h \
+    hal/config_module.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -348,10 +349,25 @@ HEADERS := \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
+    rtapi/rtapi_pci.h \
     rtapi/$(THREADS_SOURCE).h
+
+# need to do ths separately because the subdirectory is required
+# ../include/string.h would wreak havoc because it's the 
+# userland shim replacement for linux/string.h, not /usr/include/string.h
+USERPCI_HEADERS := \
+    ../include/userpci/device.h \
+    ../include/userpci/firmware.h \
+    ../include/userpci/gfp.h \
+    ../include/userpci/list.h \
+    ../include/userpci/module.h \
+    ../include/userpci/slab.h \
+    ../include/userpci/string.h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+
+TARGETS += $(USERPCI_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -449,6 +465,7 @@ endif
 	$(Q)-cp $^ $@
 ../include/%.hh: %.hh
 	$(Q)-cp $^ $@
+
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
