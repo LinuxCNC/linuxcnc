@@ -16,7 +16,7 @@ def reparent(window, parent):
     if not parent:
         return window
 
-    plug = gtk.Plug(parent)
+    plug = gtk.Plug(long(parent))
     plug.show()
 
     d = display.Display()

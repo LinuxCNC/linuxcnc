@@ -46,6 +46,7 @@
 #include <execinfo.h>
 #include <sys/prctl.h>
 #if defined(RTAPI_XENOMAI_USER)
+#include <grp.h>
 #include <rtdk.h>
 #endif
 
@@ -527,6 +528,37 @@ int main(int argc, char **argv)
     sigaction(SIGFPE,  &backtrace_action, (struct sigaction *) NULL);
 
 #if defined(RTAPI_XENOMAI_USER)
+    // check if this user is member of group xenomai, and fail miserably if not
+    int numgroups;
+    gid_t *grouplist;
+
+    struct group *gp = getgrnam("xenomai");
+    if (gp == NULL) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app_main: the group 'xenomai' does not exist - xenomai userland support missing?\n");
+	exit(1);
+    }
+    numgroups = getgroups(0,NULL);
+    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
+    if (getgroups( numgroups, grouplist) != -1) {
+	for (int i = 0; i < numgroups; i++) {
+	    if (grouplist[i] == gp->gr_gid) {
+		free(grouplist);
+		goto is_xenomai_member;
+	    }
+	}
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app_main: getgroups() failed: %d - %s\n",
+			errno, strerror(errno));
+	exit(1);
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "rtapi_app_main: this user is not member of group xenomai\n"
+		    "please 'sudo adduser <username>  xenomai', logout and login again\n");
+    exit(1);
+
+ is_xenomai_member:
     sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
     rt_print_auto_init(1);
 #endif
