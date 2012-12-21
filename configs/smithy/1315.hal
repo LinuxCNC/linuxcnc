@@ -127,11 +127,11 @@ net SS hm2_5i20.0.gpio.029.in
 #KA1
 setp hm2_5i20.0.gpio.040.is_output TRUE
 setp hm2_5i20.0.gpio.040.invert_output TRUE
-net KA1 motion.spindle-reverse => hm2_5i20.0.gpio.040.out
+net KA1 motion.spindle-forward => hm2_5i20.0.gpio.040.out
 #KA2
 setp hm2_5i20.0.gpio.042.is_output TRUE
 setp hm2_5i20.0.gpio.042.invert_output TRUE
-net KA2 motion.spindle-forward => hm2_5i20.0.gpio.042.out
+net KA2 motion.spindle-reverse => hm2_5i20.0.gpio.042.out
 #Tool Post Control Outputs
 net TD classicladder.0.out-00 => iocontrol.0.tool-changed
 net TQ classicladder.0.out-03 => iocontrol.0.tool-prepared
