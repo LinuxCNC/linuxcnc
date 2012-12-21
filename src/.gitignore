@@ -15,3 +15,4 @@ tags
 TAGS
 config.h.in
 configure
+modules.order

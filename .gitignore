@@ -22,11 +22,18 @@ rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
 share/desktop-directories/cnc.directory
-src/modules.order
 docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
 lib/python/gremlin.py
 lib/python/touchy
+tests/*/skip
+tests/*/*/skip
+tests/*/*/*/skip
+#
+# emacs droppings
+*~
+\#*\#
+.\#*
 redis/redis/src/release.h

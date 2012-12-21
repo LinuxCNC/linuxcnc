@@ -104,7 +104,7 @@ int rtapi_app_main(void)
 
     /* create the fifo task */
     fifo_task = rtapi_task_new(fifo_code, 0 /* arg */ , fifo_prio, module,
-	FIFO_STACKSIZE, RTAPI_NO_FP);
+	FIFO_STACKSIZE, RTAPI_NO_FP, int cpu_id);
     if (fifo_task < 0) {
 	rtapi_print("fifotask init: rtapi_task_new failed with %d\n",
 	    fifo_task);

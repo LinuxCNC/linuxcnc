@@ -1,3 +1,4 @@
+# -*-makefile-gmake-*-
 # Makefile.modinc includes rules for building HAL realtime modules outside
 # the LinuxCNC source tree.  It has three useful targets:
 #
@@ -36,6 +37,16 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 BUILDSYS = @BUILD_SYS@
+TARGET_PLATFORM = @TARGET_PLATFORM@
+USE_PORTABLE_PARPORT_IO = @USE_PORTABLE_PARPORT_IO@
+ARCHITECTURE=@ARCHITECTURE@
+XENO_CONFIG=@XENO_CONFIG@
+
+USERMODE_PCI=@USERMODE_PCI@
+
+#libudev for if USERMODE_PCI==yes
+LIBUDEV_CFLAGS=@LIBUDEV_CFLAGS@
+LIBUDEV_LIBS=@LIBUDEV_LIBS@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
@@ -70,7 +81,7 @@ install:
 	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/
 endif
 
-ifeq ($(BUILDSYS),sim)
+ifeq ($(BUILDSYS),user-dso)
 EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)

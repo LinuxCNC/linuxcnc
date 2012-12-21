@@ -1125,7 +1125,7 @@ void init_hal(void) {
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-#ifdef RTAPI_SIM
+#if defined(RTAPI_POSIX)
     PyModule_AddIntConstant(m, "is_sim", 1);
     PyModule_AddIntConstant(m, "is_rt", 0);
 #else

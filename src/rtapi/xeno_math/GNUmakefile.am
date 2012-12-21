@@ -1,0 +1,73 @@
+moduledir = @RTAI_MODULE_DIR@
+
+modext = @RTAI_MODULE_EXT@
+
+CROSS_COMPILE = @CROSS_COMPILE@
+
+if CONFIG_RTAI_MATH_C99
+
+libmath_a_SOURCES = \
+ceilfloor.c e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c \
+e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c e_j1.c  e_jn.c \
+e_lgamma.c e_lgamma_r.c e_log.c e_log10.c e_pow.c e_rem_pio2.c e_remainder.c \
+e_scalb.c e_sinh.c e_sqrt.c fpmacros.c frexpldexp.c k_cos.c k_rem_pio2.c \
+k_sin.c k_standard.c k_tan.c logb.c rndint.c s_asinh.c s_atan.c s_cbrt.c \
+s_ceil.c s_copysign.c s_cos.c s_erf.c s_expm1.c s_fabs.c s_finite.c s_floor.c \
+s_frexp.c s_ilogb.c s_ldexp.c s_lib_version.c s_log1p.c s_logb.c s_matherr.c \
+s_modf.c s_nextafter.c s_rint.c s_scalbn.c s_signgam.c s_significand.c s_sin.c \
+s_tan.c s_tanh.c scalb.c sign.c w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c \
+w_cabs.c w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c w_hypot.c \
+w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c w_log.c w_log10.c w_pow.c \
+w_remainder.c w_scalb.c w_sinh.c w_sqrt.c libm.c
+
+else
+
+libmath_a_SOURCES = \
+e_acos.c e_asin.c e_atan2.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c \
+e_pow.c e_rem_pio2.c e_sinh.c e_sqrt.c k_cos.c k_rem_pio2.c k_sin.c k_tan.c \
+s_atan.c s_ceil.c s_copysign.c s_cos.c s_expm1.c s_fabs.c s_floor.c s_frexp.c \
+s_modf.c s_scalbn.c s_sin.c s_tan.c s_tanh.c sign.c w_acos.c w_asin.c w_atan2.c \
+w_cosh.c w_exp.c w_fmod.c w_log.c w_log10.c w_pow.c w_sinh.c w_sqrt.c libm.c
+
+endif
+
+libmath_a_SOURCES += fpP.h mathP.h
+
+if CONFIG_KBUILD
+rtai_math.ko: @RTAI_KBUILD_ENV@
+rtai_math.ko: $(libmath_a_SOURCES)
+	@RTAI_KBUILD_TOP@ \
+	@RTAI_KBUILD_CMD@ rtai_extradef="@RTAI_FP_CFLAGS@" rtai_extraopt="@RTAI_TARGET_ARCH_OPTS@" \
+	@RTAI_KBUILD_BOTTOM@
+
+clean-local:
+	@RTAI_KBUILD_CLEAN@
+else
+noinst_LIBRARIES = libmath.a
+
+libmath_a_AR = $(CROSS_COMPILE)ar cru
+
+INCLUDES = \
+	@RTAI_KMOD_CFLAGS@ \
+	@RTAI_FP_CFLAGS@ \
+	-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE \
+	-I$(top_srcdir)/base/include \
+	-I../include
+
+rtai_math.o: libmath.a
+	$(CROSS_COMPILE)$(LD) --whole-archive $< -r -o $@
+endif
+
+all-local: rtai_math$(modext)
+if !CONFIG_RTAI_MATH_BUILTIN
+if CONFIG_RTAI_OLD_FASHIONED_BUILD
+	$(mkinstalldirs) $(top_srcdir)/modules
+	$(INSTALL_DATA) $^ $(top_srcdir)/modules
+endif
+
+install-exec-local: rtai_math$(modext)
+	$(mkinstalldirs) $(DESTDIR)$(moduledir)
+	$(INSTALL_DATA) $< $(DESTDIR)$(moduledir)
+endif
+
+EXTRA_DIST = Makefile.kbuild

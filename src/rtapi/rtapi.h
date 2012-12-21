@@ -59,6 +59,8 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"
+
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
 #endif
@@ -74,7 +76,33 @@
     only.  Since we have a simulator that runs everything in user
     space, the non-underscore types should NEVER be used.
 */
-#include <asm/types.h>
+#if defined(BUILD_SYS_USER_DSO)
+# include <linux/types.h>
+# include <stdint.h>
+# include <string.h>
+typedef __u8		u8;
+typedef __u16		u16;
+typedef __u32		u32;
+typedef __u64		u64;
+typedef __s8		s8;
+typedef __s16		s16;
+typedef __s32		s32;
+typedef __s64		s64;
+#define __iomem		/* Nothing */
+#else
+# include <asm/types.h>
+#endif
+
+/* LINUX_VERSION_CODE for rtapi_{module,io}.c */
+#ifdef MODULE
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+#endif
+
 #include <rtapi_errno.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
@@ -90,8 +118,9 @@
 RTAPI_BEGIN_DECLS
 
 /***********************************************************************
-*                   GENERAL PURPOSE FUNCTIONS                          *
+*                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
+/* implemented in $THREADS.c (rt-preempt-user.c, xenomai-user.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI
@@ -120,6 +149,12 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_exit(int module_id);
 
+/***********************************************************************
+*                      MESSAGING FUNCTIONS                             *
+************************************************************************/
+/* implemented in rtapi_msg.c */
+#include <stdarg.h>		/* va_start and va_end macros */
+
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
     C library, except that it may not handle long longs.
     It is provided here because some RTOS kernels don't provide
@@ -142,7 +177,6 @@ RTAPI_BEGIN_DECLS
     simply calls the normal vsnrintf().  May be called from user,
     init/cleanup, and realtime code.
 */
-#include <stdarg.h>
     extern int rtapi_vsnprintf(char *buf, unsigned long size,
 	const char *fmt, va_list ap);
 
@@ -197,7 +231,8 @@ RTAPI_BEGIN_DECLS
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
+				       va_list ap);
 #ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
@@ -206,9 +241,9 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(RTAPI) && !defined(SIM)
+#ifdef MODULE  /* kernel code */
 #include <linux/sched.h>	/* for blocking when needed */
-#else
+#else  /* userland code */
 #include <sched.h>		/* for blocking when needed */
 #endif
 #include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
@@ -250,9 +285,9 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#if defined(RTAPI) && !defined(SIM)
+#ifdef MODULE  /* kernel code */
 	    schedule();
-#else
+#else  /* userland code */
 	    sched_yield();
 #endif
 	}
@@ -261,6 +296,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
 ************************************************************************/
+/* implemented in rtapi_time.c */
 
 /** NOTE: These timing related functions are only available in
     realtime modules.  User processes may not call them!
@@ -358,11 +394,11 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                     TASK RELATED FUNCTIONS                           *
 ************************************************************************/
+/* implemented in rtapi_task.c */
 
 /** NOTE: These realtime task related functions are only available in
     realtime modules.  User processes may not call them!
 */
-#ifdef RTAPI
 
 /** NOTE: The RTAPI is designed to be a _simple_ API.  As such, it uses
     a very simple strategy to deal with SMP systems.  It ignores them!
@@ -395,6 +431,8 @@ RTAPI_BEGIN_DECLS
     extern int rtapi_prio_next_higher(int prio);
     extern int rtapi_prio_next_lower(int prio);
 
+#ifdef RTAPI
+
 /** 'rtapi_task_new()' creates but does not start a realtime task.
     The task is created in the "paused" state.  To start it, call
     either rtapi_task_start() for periodic tasks, or rtapi_task_resume()
@@ -424,7 +462,8 @@ RTAPI_BEGIN_DECLS
 #define RTAPI_USES_FP 1
 
     extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
-	int prio, int owner, unsigned long int stacksize, int uses_fp);
+			      int prio, int owner, unsigned long int stacksize, 
+			      int uses_fp, char *name, int cpu_id);
 
 /** 'rtapi_task_delete()' deletes a task.  'task_id' is a task ID
     from a previous call to rtapi_task_new().  It frees memory
@@ -486,6 +525,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
+/* implemented in rtapi_shmem.c */
 
 /** 'rtapi_shmem_new()' allocates a block of shared memory.  'key'
     identifies the memory block, and must be non-zero.  All modules
@@ -519,191 +559,6 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
 
-/***********************************************************************
-*                    SEMAPHORE RELATED FUNCTIONS                       *
-************************************************************************/
-
-/** NOTE: These semaphore related functions are only available in
-    realtime modules.  User processes may not call them!  Consider
-    the mutex functions listed above instead.
-*/
-#ifdef RTAPI
-
-/** 'rtapi_sem_new()' creates a realtime semaphore.  'key' identifies
-    identifies the semaphore, and must be non-zero.  All modules wishing
-    to use the same semaphore must specify the same key.  'module_id'
-    is the ID of the module making the call (see rtapi_init).  On
-    success, it returns a positive integer semaphore ID, which is used
-    for all subsequent calls dealing with the semaphore.  On failure
-    it returns a negative error code.  Call only from within init/cleanup
-    code, not from realtime tasks.
-*/
-    extern int rtapi_sem_new(int key, int module_id);
-
-/** 'rtapi_sem_delete()' is the counterpart to 'rtapi_sem_new()'.  It
-    discards the semaphore associated with 'sem_id'.  Any tasks blocked
-    on 'sem' will resume execution.  'module_id' is the ID of the calling
-    module.  Returns a status code.  Call only from within init/cleanup
-    code, not from realtime tasks.
-*/
-    extern int rtapi_sem_delete(int sem_id, int module_id);
-
-/** 'rtapi_sem_give()' unlocks a semaphore.  If a higher priority task
-    is blocked on the semaphore, the calling task will block and the
-    higher priority task will begin to run.  Returns a status code.
-    May be called from init/cleanup code, and from within realtime tasks.
-*/
-    extern int rtapi_sem_give(int sem_id);
-
-/** 'rtapi_sem_take()' locks a semaphore.  Returns 0 or
-    -EINVAL.  If the semaphore is unlocked it returns 0
-    immediately.  If the semaphore is locked, the calling task blocks
-    until the semaphore is unlocked, then it returns 0.
-    Call only from within a realtime task.
-*/
-    extern int rtapi_sem_take(int sem_id);
-
-/** 'rtapi_sem_try()' does a non-blocking attempt to lock a semaphore.
-    Returns 0, -EINVAL, or -EBUSY.  If the semaphore
-    is unlocked, it returns 0.  If the semaphore is locked
-    it does not block, instead it returns -EBUSY, and the caller
-    can decide how to deal with the situation.  Call only from within
-    a realtime task.
-*/
-    extern int rtapi_sem_try(int sem_id);
-
-#endif /* RTAPI */
-
-/***********************************************************************
-*                        FIFO RELATED FUNCTIONS                        *
-************************************************************************/
-
-/** 'rtapi_fifo_new()' creates a realtime fifo. 'key' identifies the
-    fifo, all modules wishing to access the same fifo must use the same
-    key.  'module_id' is the ID of the module making the call (see
-    rtapi_init).  'size' is the depth of the fifo.  'mode' is either
-    'R' or 'W', to request either read or write access to the fifo.
-    On success, it returns a positive integer ID, which is used for
-    subsequent calls dealing with the fifo.  On failure, returns a
-    negative error code.  Call only from within user or init/cleanup
-    code, not from realtime tasks.
-*/
-
-/* NOTE - RTAI fifos require (stacksize >= fifosze + 256) to avoid
-   oops messages on removal. (Does this apply to rtlinux as well ?)
-*/
-    extern int rtapi_fifo_new(int key, int module_id,
-	unsigned long int size, char mode);
-
-/** 'rtapi_fifo_delete()' is the counterpart to 'rtapi_fifo_new()'.
-    It closes the fifo associated with 'fifo_ID'.  'module_id' is the
-    ID of the calling module.  Returns status code.  Call only from
-    within user or init/cleanup code, not from realtime tasks.
-*/
-    extern int rtapi_fifo_delete(int fifo_id, int module_id);
-
-/** FIFO notes. These comments apply to both read and write functions.
-    A fifo is a character device, an int is typically four bytes long...
-    If less than four bytes are sent to the fifo, expect corrupt data
-    out of the other end !
-    The RTAI programming manual clearly states that the programmer is
-    responsible for the data format and integrity.
-
-    Additional NOTE:  IMHO you should be able to write any amount of
-    data to a fifo, from 1 byte up to (and even beyond) the size of
-    the fifo.  At a future date, the somewhat peculiar RTAI fifos
-    will be replaced with something that works better.   John Kasunich
-*/
-
-/** NOTE:  The fifo read and write functions operated differently in
-    realtime and user space.  The realtime versions do not block,
-    but the userspace ones do.  A future version of the RTAPI may
-    defined different names for the blocking and non-blocking
-    functions, but for now, just read the following docs carefully!
-*/
-
-#ifdef RTAPI
-/** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
-    for the data, and 'size' is the maximum number of bytes to read.
-    Returns the number of bytes actually read, or -EINVAL.  Does not
-    block.  If 'size' bytes are not available, it will read whatever is
-    available, and return that count (which could be zero).  Call only
-    from within a realtime task.
-*/
-#else /* ULAPI */
-/** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
-    for the data, and 'size' is the maximum number of bytes to read.
-    Returns the number of bytes actually read, or -EINVAL.  If
-    there is no data in the fifo, it blocks until data appears (or
-    a signal occurs).  If 'size' bytes are not available, it will
-    read whatever is available, and return that count (will be
-    greater than zero).  If interrupted by a signal or some other
-    error occurs, will return -EINVAL.
-*/
-#endif /* ULAPI */
-
-    extern int rtapi_fifo_read(int fifo_id, char *buf,
-	unsigned long int size);
-
-#ifdef RTAPI
-/** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
-    are taken from the buffer at 'buf'.  Returns the number of bytes
-    actually written, or -EINVAL.  Does not block.  If 'size' bytes
-    of space are not available in the fifo, it will write as many bytes
-    as it can and return that count (which may be zero).
-*/
-#else /* ULAPI */
-/** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
-    are taken from the buffer at 'buf'.  Returns the number of bytes
-    actually written, or -EINVAL.  If 'size' bytes of space are
-    not available in the fifo, rtapi_fifo_write() may block, or it
-    may write as many bytes as it can and return that count (which
-    may be zero).
-*/
-#endif /* ULAPI */
-
-    extern int rtapi_fifo_write(int fifo_id, char *buf,
-	unsigned long int size);
-
-/***********************************************************************
-*                    INTERRUPT RELATED FUNCTIONS                       *
-************************************************************************/
-
-/** NOTE: These interrupt related functions are only available in
-    realtime modules.  User processes may not call them!
-*/
-#ifdef RTAPI
-
-/** 'rtapi_assign_interrupt_handler()' is used to set up a handler for
-    a hardware interrupt.  'irq' is the interrupt number, and 'handler'
-    is a pointer to a function taking no arguements and returning void.
-    'handler will be called when the interrupt occurs.  'owner' is the
-    ID of the calling module (see rtapi_init).  Returns a status
-    code.  Note:  The simulated RTOS does not support interrupts.
-    Call only from within init/cleanup code, not from realtime tasks.
-*/
-    extern int rtapi_irq_new(unsigned int irq_num, int owner,
-	void (*handler) (void));
-
-/** 'rtapi_free_interrupt_handler()' removes an interrupt handler that
-    was previously installed by rtapi_assign_interrupt_handler(). 'irq'
-    is the interrupt number.  Removing a realtime module without freeing
-    any handlers it has installed will almost certainly crash the box.
-    Returns 0 or -EINVAL.  Call only from within
-    init/cleanup code, not from realtime tasks.
-*/
-    extern int rtapi_irq_delete(unsigned int irq_num);
-
-/** 'rtapi_enable_interrupt()' and 'rtapi_disable_interrupt()' are
-    are used to enable and disable interrupts, presumably ones that
-    have handlers assigned to them.  Returns a status code.  May be
-    called from init/cleanup code, and from within realtime tasks.
-
-*/
-    extern int rtapi_enable_interrupt(unsigned int irq);
-    extern int rtapi_disable_interrupt(unsigned int irq);
-
-#endif /* RTAPI */
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
@@ -723,7 +578,21 @@ RTAPI_BEGIN_DECLS
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
-#if defined(RTAPI) && !defined(SIM)
+/** 'rtapi_outw() writes 'word' to 'port'.  May be called from
+    init/cleanup code, and from within realtime tasks.
+    Note: This function does nothing on the simulated RTOS.
+    Note: Many platforms provide an inline outw() that is faster.
+*/
+    extern void rtapi_outw(unsigned short word, unsigned int port);
+
+/** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
+    be called from init/cleanup code, and from within realtime tasks.
+    Note: This function always returns zero on the simulated RTOS.
+    Note: Many platforms provide an inline inw() that is faster.
+*/
+    extern unsigned short rtapi_inw(unsigned int port);
+
+#if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'size' bytes, for component 'name'.
 
@@ -733,11 +602,14 @@ RTAPI_BEGIN_DECLS
     a non-NULL value.
 */
 #include <linux/version.h>
-#include <linux/ioport.h>
+#if !defined(BUILD_SYS_USER_DSO)
+#include <linux/module.h>
+# include <linux/ioport.h>
+#endif
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
         return (void*)request_region(base, size, name);
 #else
         return (void*)-1;
@@ -751,11 +623,12 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
         release_region(base, size);
 #endif
     }
 #endif
+
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *
@@ -769,6 +642,11 @@ RTAPI_BEGIN_DECLS
    the issue.
 */
 
+/* make sure a given kernel module is loaded.
+   might be needed for some usermode PCI drivers
+*/
+int rtapi_assure_module_loaded(const char *module);
+
 /** RTAPI_MP_INT() declares a single integer module parameter.
     RTAPI_MP_LONG() declares a single long module parameter.
     RTAPI_MP_STRING() declares a single string module parameter.
@@ -781,7 +659,7 @@ RTAPI_BEGIN_DECLS
     'num' is the number of elements in an array.
 */
 
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
@@ -791,11 +669,14 @@ RTAPI_BEGIN_DECLS
 #define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
 #define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
 #define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
+#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
+#define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
+#define MODULE_DEVICE_TABLE(type, name)
 #endif
 
-#if !defined(RTAPI_SIM)
+#if !defined(BUILD_SYS_USER_DSO)
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
 #endif
@@ -808,7 +689,7 @@ RTAPI_BEGIN_DECLS
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if defined(SIM) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+#if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
    
@@ -869,7 +750,7 @@ RTAPI_BEGIN_DECLS
 
 #endif /* version < 2.6 */
 
-#if !defined(SIM)
+#if !defined(BUILD_SYS_USER_DSO)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
 #define MODULE_LICENSE(license)         \
 static const char __module_license[] __attribute__((section(".modinfo"))) =   \
@@ -879,7 +760,7 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
-#if defined(SIM)
+#if defined(BUILD_SYS_USER_DSO)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
 

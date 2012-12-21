@@ -75,7 +75,7 @@ CheckConfig(){
     MODULES_LOAD=
     MODULES_UNLOAD=
     case $RTPREFIX in
-    sim) SHM_DEV=/dev/zero;;
+    posix|xenomai-user|rt-preempt-user) SHM_DEV=/dev/zero;;
     *)
         for  MOD in $MODULES ; do
             eval MOD=\${MODPATH_$MOD}
@@ -88,8 +88,13 @@ CheckConfig(){
             MOD="${MOD%$MODULE_EXT}"
             MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
         done
-        MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+        if test $RTPREFIX = xenomai-kernel; then
+            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
+            MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
+  	else
+            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
+            MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+	fi
         case "$MODULES" in
         *rtai_shm*)
             SHM_DEV=/dev/rtai_shm
@@ -103,7 +108,7 @@ CheckConfig(){
 
 CheckStatus(){
     case $RTPREFIX in
-    sim)
+    posix|xenomai-user|rt-preempt-user)
         if [ -z "$($PIDOF rtapi_app)" ]; then
             exit 1
         else
@@ -152,7 +157,7 @@ CheckMem(){
 Load(){
     CheckKernel
     case $RTPREFIX in
-    sim)
+    posix|xenomai-user|rt-preempt-user)
     ;;
     *)
         for MOD in $MODULES_LOAD ; do
@@ -181,11 +186,18 @@ CheckLoaded(){
 Unload(){
     CheckKernel
     case $RTPREFIX in
-    sim)
+    posix|xenomai-user|rt-preempt-user)
         rtapi_app exit 
-        ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
-        ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
-        ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
+	# remove any linuxcnc-specific shm segments if they exist
+	if ipcs -m | grep 0x48414c32 >/dev/null; then
+	    ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
+	fi     
+        if ipcs -m | grep 0x90280A48 >/dev/null; then
+            ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
+	fi
+        if ipcs -m | grep 0x48484c34 >/dev/null; then
+            ipcrm -M 0x48484c34 2>/dev/null ;#  UUID_KEY
+	fi
         ;;
     *)
         for module in $MODULES_UNLOAD ; do
