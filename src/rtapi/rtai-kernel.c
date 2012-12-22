@@ -266,3 +266,8 @@ void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rtai_kfree(shmem->key);
 }
+
+void rtapi_delay_hook(long int nsec)
+{
+     udelay(delay / 1000);
+}
