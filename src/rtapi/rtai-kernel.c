@@ -22,6 +22,12 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
     *got_counts = start_rt_timer(*counts);
     rtapi_data->timer_period = count2nano(*got_counts);
 }
+
+
+void rtapi_delay_hook(long int nsec)
+{
+     udelay(delay / 1000);
+}
 #endif  /* RTAPI */
 
 long long int rtapi_get_time_hook(void) {
@@ -265,9 +271,4 @@ void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 
 void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rtai_kfree(shmem->key);
-}
-
-void rtapi_delay_hook(long int nsec)
-{
-     udelay(delay / 1000);
 }

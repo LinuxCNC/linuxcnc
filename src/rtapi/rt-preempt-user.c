@@ -493,8 +493,6 @@ int rtapi_wait_hook(void) {
     return 0;
 }
 
-#endif /* ULAPI/RTAPI */
-
 int rtapi_delay_hook(long int nsec)
 {
     struct timespec t;
@@ -503,3 +501,5 @@ int rtapi_delay_hook(long int nsec)
     t.tv_sec = 0;
     clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 }
+
+#endif /* ULAPI/RTAPI */
