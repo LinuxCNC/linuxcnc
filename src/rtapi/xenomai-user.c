@@ -293,3 +293,9 @@ long long int rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
 }
+
+int rtapi_delay_hook(long int nsec)
+{
+    long long int release = rt_timer_tsc() + nsec;
+    while (rt_timer_tsc() < release);
+}

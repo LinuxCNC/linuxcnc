@@ -59,3 +59,6 @@ inline unsigned char rtapi_inb_hook(unsigned int port) { return 0; }
 /* misc */
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS
+
+/* time */
+#define HAVE_RTAPI_DELAY_HOOK
