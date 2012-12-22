@@ -405,3 +405,10 @@ void * rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rt_heap_delete(&shmem_heap_array[shmem_id]);
 }
+
+
+int rtapi_delay_hook(long int nsec) 
+{
+    long long int release = rt_timer_tsc() + nsec;
+    while (rt_timer_tsc() < release);
+}
