@@ -123,6 +123,13 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
     rt_timer_set_mode(*counts);
     rtapi_data->timer_period = *got_counts = rt_timer_ticks2ns(*counts);
 }
+
+
+int rtapi_delay_hook(long int nsec) 
+{
+    long long int release = rt_timer_tsc() + nsec;
+    while (rt_timer_tsc() < release);
+}
 #endif /* RTAPI */
 
 
@@ -404,11 +411,4 @@ void * rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 
 void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rt_heap_delete(&shmem_heap_array[shmem_id]);
-}
-
-
-int rtapi_delay_hook(long int nsec) 
-{
-    long long int release = rt_timer_tsc() + nsec;
-    while (rt_timer_tsc() < release);
 }

@@ -117,6 +117,23 @@ long int rtapi_clock_set_period(long int nsecs) {
 }
 #endif  /* BUILD_SYS_KBUILD  */
 
+// rtapi_delay_hook MUST be implemented by all threads systems
+int rtapi_delay_hook(long int nsec);
+
+void rtapi_delay(long int nsec)
+{
+    if (nsec > max_delay) {
+	nsec = max_delay;
+    }
+    rtapi_delay_hook(nsec);
+}
+
+
+long int rtapi_delay_max(void)
+{
+    return max_delay;
+}
+
 #endif /* RTAPI */
 
 /* The following functions are common to both RTAPI and ULAPI */
@@ -166,24 +183,6 @@ long long int rtapi_get_clocks(void) {
 #endif  /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 }
 
-/*  these are both ULAPI and RTAPI  */
-
-#ifdef HAVE_RTAPI_DELAY_HOOK
-int rtapi_delay_hook(long int nsec);
-
-void rtapi_delay(long int nsec)
-{
-    if (nsec > max_delay) {
-	nsec = max_delay;
-    }
-    rtapi_delay_hook(nsec);
-}
-#endif
-
-long int rtapi_delay_max(void)
-{
-    return max_delay;
-}
 
 #ifdef MODULE
 EXPORT_SYMBOL(rtapi_clock_set_period);

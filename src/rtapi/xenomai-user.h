@@ -47,4 +47,3 @@
 #define RTAPI_TIME_NO_CLOCK_MONOTONIC  // Xenomai has its own time features
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_GET_CLOCKS_HOOK
-#define HAVE_RTAPI_DELAY_HOOK
