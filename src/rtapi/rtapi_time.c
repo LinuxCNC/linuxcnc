@@ -33,13 +33,12 @@
 #endif
 #endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 
+long int max_delay = DEFAULT_MAX_DELAY;
 
 #ifdef RTAPI  /* hide most functions from ULAPI */
 
 #ifdef BUILD_SYS_USER_DSO
 int period = 0;
-#else /* BUILD_SYS_KBUILD */
-long int max_delay = DEFAULT_MAX_DELAY;
 #endif
 
 // Actual number of counts of the periodic timer
@@ -118,6 +117,23 @@ long int rtapi_clock_set_period(long int nsecs) {
 }
 #endif  /* BUILD_SYS_KBUILD  */
 
+// rtapi_delay_hook MUST be implemented by all threads systems
+int rtapi_delay_hook(long int nsec);
+
+void rtapi_delay(long int nsec)
+{
+    if (nsec > max_delay) {
+	nsec = max_delay;
+    }
+    rtapi_delay_hook(nsec);
+}
+
+
+long int rtapi_delay_max(void)
+{
+    return max_delay;
+}
+
 #endif /* RTAPI */
 
 /* The following functions are common to both RTAPI and ULAPI */
@@ -168,21 +184,7 @@ long long int rtapi_get_clocks(void) {
 }
 
 
-/*  these are only found in kernel thread system modules  */
 #ifdef MODULE
-void rtapi_delay(long int nsec)
-{
-    if (nsec > max_delay) {
-	nsec = max_delay;
-    }
-    udelay(nsec / 1000);
-}
-
-long int rtapi_delay_max(void)
-{
-    return max_delay;
-}
-
 EXPORT_SYMBOL(rtapi_clock_set_period);
 EXPORT_SYMBOL(rtapi_get_time);
 EXPORT_SYMBOL(rtapi_get_clocks);
