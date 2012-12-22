@@ -1,9 +1,11 @@
 INCLUDES += rtapi
 
+# this covers the userpci directory too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
-	cp $^ $@
+	mkdir -p ../include/userpci
+	cp  $^ $@
 ../include/%.hh: ./rtapi/%.hh
-	cp $^ $@
+	cp  $^ $@
 
 ##########################################
 # defaults for all thread styles
