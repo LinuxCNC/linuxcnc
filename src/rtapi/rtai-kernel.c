@@ -26,7 +26,7 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 
 void rtapi_delay_hook(long int nsec)
 {
-     udelay(delay / 1000);
+     udelay(nsec / 1000);
 }
 #endif  /* RTAPI */
 
