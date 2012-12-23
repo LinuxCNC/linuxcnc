@@ -68,13 +68,6 @@
 
 #include <stddef.h> // provides NULL
 
-/** Provide fixed length types of the form __u8, __s32, etc.  These
-    can be used in both kernel and user space.  There are also types
-    without the leading underscores, but they work in kernel space
-    only.  Since we have a simulator that runs everything in user
-    space, the non-underscore types should NEVER be used.
-*/
-#include <asm/types.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 

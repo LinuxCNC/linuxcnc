@@ -21,7 +21,7 @@
 #include "rtapi_string.h"
 #include <stdarg.h>
 
-#ifdef RTAPI
+#ifdef __KERNEL__
 #include <linux/kernel.h>
 #define gettext(s) s
 #define alloca __builtin_alloca

@@ -57,7 +57,6 @@
 *
 ********************************************************************/
 
-#include <linux/types.h>
 #include <float.h>
 #include "posemath.h"
 #include "rtapi.h"

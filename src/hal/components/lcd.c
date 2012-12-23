@@ -24,7 +24,6 @@
 #include "rtapi_string.h"
 #include "hal.h"
 #include "rtapi_math.h"
-#include <linux/types.h>
 
 #if !defined(__KERNEL__)
 #include <stdio.h>

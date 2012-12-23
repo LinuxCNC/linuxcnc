@@ -35,7 +35,6 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#include <linux/types.h>
 #include "rtapi_math.h"
 
 /* module information */
