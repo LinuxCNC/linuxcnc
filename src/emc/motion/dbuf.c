@@ -125,7 +125,7 @@ int dbuf_get_byte(dbuf_iter *di, unsigned char *b) {
 
     if(!d) return -EINVAL;
 
-    if(di->offset == d->sz) return -ENODATA;
+    if(di->offset == d->sz) return -EAGAIN;
 
     *b = d->data[di->offset++];
     return 0;
@@ -140,7 +140,7 @@ int dbuf_get_bytes(dbuf_iter *di, unsigned char *data, unsigned sz) {
     d = di->base;
     if(!d) return -EINVAL;
 
-    if(d->sz - di->offset < sz) return -ENODATA;
+    if(d->sz - di->offset < sz) return -EAGAIN;
     p = d->data + di->offset;
     di->offset += sz;
     for(; sz; sz--) {
@@ -175,7 +175,7 @@ int dbuf_get_string(dbuf_iter *di, const char **s) {
     d = di->base;
     if(!d) return -EINVAL;
 
-    if(d->sz == di->offset) return -ENODATA;
+    if(d->sz == di->offset) return -EAGAIN;
     p = d->data + di->offset;
     *s = (char*)p;
 
@@ -188,7 +188,7 @@ int dbuf_get_string(dbuf_iter *di, const char **s) {
     // string in the dbuf
     if(ch != 0) {
         *s = 0;
-        return -ENODATA;
+        return -EAGAIN;
     }
 
     return 0;
