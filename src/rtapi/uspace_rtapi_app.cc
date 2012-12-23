@@ -63,8 +63,6 @@ static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
 
 using namespace std;
 
-#define SOCKET_PATH "\0/tmp/rtapi_fifo"
-
 template<class T> T DLSYM(void *handle, const string &name) {
 	return (T)(dlsym(handle, name.c_str()));
 }
@@ -394,6 +392,42 @@ static int master(int fd, vector<string> args) {
     return 0;
 }
 
+static std::string
+_get_fifo_path() {
+    std::string s;
+    if(getenv("RTAPI_FIFO_PATH"))
+       s = getenv("RTAPI_FIFO_PATH");
+    else if(getenv("HOME"))
+       s = std::string(getenv("HOME")) + "/.rtapi_fifo";
+    else {
+       rtapi_print_msg(RTAPI_MSG_ERR,
+           "rtapi_app: RTAPI_FIFO_PATH and HOME are unset.  rtapi fifo creation is unsafe.");
+       return NULL;
+    }
+    if(s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
+       rtapi_print_msg(RTAPI_MSG_ERR,
+           "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s",
+               sizeof(sockaddr_un::sun_path), s.c_str());
+       return NULL;
+    }
+    return s;
+}
+
+static const char *
+get_fifo_path() {
+    static std::string path = _get_fifo_path();
+    return path.c_str();
+}
+
+static int
+get_fifo_path(char *buf, size_t bufsize) {
+    const char *s = get_fifo_path();
+    if(!s) return -1;
+    strncpy(buf, s, bufsize);
+    return 0;
+}
+
+
 int main(int argc, char **argv) {
     if(getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
@@ -421,14 +455,17 @@ become_master:
 
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-    struct sockaddr_un addr = { AF_UNIX, SOCKET_PATH };
+    struct sockaddr_un addr;
+    addr.sun_family = AF_UNIX;
+    if(get_fifo_path(addr.sun_path, sizeof(addr.sun_path)) < 0)
+       exit(1);
     int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
 
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
         result = master(fd, args);
-        unlink(SOCKET_PATH);
+        unlink(get_fifo_path());
         return result;
     } else if(errno == EADDRINUSE) {
         struct timeval t0, t1;
@@ -442,7 +479,7 @@ become_master:
             gettimeofday(&t1, NULL);
         }
         if(result < 0 && errno == ECONNREFUSED) {
-            unlink(SOCKET_PATH);
+            unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);
             goto become_master;
