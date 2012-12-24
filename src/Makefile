@@ -904,7 +904,6 @@ hm2_pci-objs  :=			  \
     $(MATHSTUB)
 endif
 
-
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif

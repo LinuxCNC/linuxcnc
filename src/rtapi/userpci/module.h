@@ -59,5 +59,7 @@
  */
 
 #include <stdio.h>      // snprintf and friends
+#include <stddef.h>     // standard types
+#include <stdbool.h>    // Linux kernel stddef includes bool types
 
 #endif /* _LINUX_MODULE_H */

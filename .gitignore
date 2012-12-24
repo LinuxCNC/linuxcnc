@@ -37,3 +37,4 @@ tests/*/*/*/skip
 \#*\#
 .\#*
 redis/redis/src/release.h
+

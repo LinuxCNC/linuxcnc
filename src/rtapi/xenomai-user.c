@@ -46,6 +46,11 @@ typedef struct {
 
 #define UUID_KEY  0x48484c34 /* key for UUID for simulator */
 
+
+/***********************************************************************
+*                    INIT AND EXIT FUNCTIONS                           *
+************************************************************************/
+
 int rtapi_init(const char *modname) {
     static uuid_data_t* uuid_data   = 0;
     static         int  uuid_mem_id = 0;
@@ -86,6 +91,10 @@ int rtapi_exit(int module_id) {
   return 0;
 }
 
+
+/***********************************************************************
+*                           rtapi_task.c                               *
+************************************************************************/
 
 #ifdef RTAPI
 int rtapi_task_delete_hook(task_data *task, int task_id) {
@@ -276,7 +285,18 @@ int rtapi_task_self_hook(void) {
 #endif  /* RTAPI */
 
 
-/*  RTAPI time functions */
+/***********************************************************************
+*                           rtapi_time.c                               *
+************************************************************************/
+
+#ifdef RTAPI
+int rtapi_delay_hook(long int nsec)
+{
+    long long int release = rt_timer_tsc() + nsec;
+    while (rt_timer_tsc() < release);
+}
+#endif
+
 long long int rtapi_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see

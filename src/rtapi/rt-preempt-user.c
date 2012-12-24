@@ -14,6 +14,7 @@
 ************************************************************************/
 
 #include <unistd.h>		// getpid(), syscall()
+#include <time.h>               // clock_nanosleep()
 
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
@@ -490,6 +491,15 @@ int rtapi_wait_hook(void) {
     }
 
     return 0;
+}
+
+int rtapi_delay_hook(long int nsec)
+{
+    struct timespec t;
+
+    t.tv_nsec = nsec;
+    t.tv_sec = 0;
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 }
 
 #endif /* ULAPI/RTAPI */

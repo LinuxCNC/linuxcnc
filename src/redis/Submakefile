@@ -26,7 +26,7 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server  \
 	cp $^ $@
 
 # use redis supplied Makefile for now
-../bin/redis-server: $(REDIS_SERVER_SRCS) $(REDIS_SERVER_INCLUDES) $(LIBHIREDIS_INCLUDES)
+../bin/redis-server: $(REDIS_SERVER_SRCS) $(REDIS_SERVER_INCLUDES) 
 	(cd redis/redis; \
 	cd deps/linenoise; \
 	make -j1 ; \
