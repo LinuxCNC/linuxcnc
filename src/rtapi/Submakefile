@@ -131,6 +131,7 @@ endif  # BUILD_SYS == kbuild
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 
 
+
 TEST_RTAPI_VSNPRINTF_SRCS := rtapi/test_rtapi_vsnprintf.c
 USERSRCS += $(TEST_RTAPI_VSNPRINTF_SRCS)
 $(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
@@ -139,3 +140,7 @@ $(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^
 
 TARGETS += ../bin/test_rtapi_vsnprintf
+
+
+
+

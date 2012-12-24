@@ -833,6 +833,8 @@ obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
+obj-$(CONFIG_HAL_GM) += hal_gm.o
+hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 endif
 
 # Gnu make 'expression' syntax is pathetic. What were these guys smoking?

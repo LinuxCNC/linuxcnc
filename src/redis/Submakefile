@@ -29,16 +29,16 @@ TARGETS +=  ../lib/libhiredis.a ../bin/redis-server  \
 ../bin/redis-server: $(REDIS_SERVER_SRCS) $(REDIS_SERVER_INCLUDES) 
 	(cd redis/redis; \
 	cd deps/linenoise; \
-	make ; \
+	make -j1 ; \
 	cd ../.. ; \
-	make all ;\
+	make -j1 all ;\
 	cd src; \
-	make INSTALL_BIN=../../../../bin dep install)
+	make -j1 INSTALL_BIN=../../../../bin dep install)
 
 # use hiredis supplied Makefile for now
 ../lib/libhiredis.a: $(LIBHIREDIS_SRCS) $(LIBHIREDIS_INCLUDES)
 	(cd  redis/redis/deps/hiredis/; \
-	make -f Makefile \
+	make -j1 -f Makefile \
 		INSTALL_INCLUDE_PATH=../../../../../include \
 		INSTALL_LIBRARY_PATH=../../../../../lib \
 		install \
