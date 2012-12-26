@@ -17,8 +17,11 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#include "config_module.h"
 
+#if defined(BUILD_SYS_KBUILD)
 #include <asm/io.h>
+#endif
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -41,29 +44,20 @@ MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
-static int num_ioaddrs = HM2_7I43_MAX_BOARDS;
-module_param_array(ioaddr, int, &num_ioaddrs, S_IRUGO);
-MODULE_PARM_DESC(ioaddr, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
+static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x278, 0x3bc, [3 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
+RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I43_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i43(9) manpage)")
 
 static int ioaddr_hi[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
-static int num_ioaddr_his = HM2_7I43_MAX_BOARDS;
-module_param_array(ioaddr_hi, int, &num_ioaddr_his, S_IRUGO);
-MODULE_PARM_DESC(ioaddr_hi, "secondary address of the parallel port(s) (see hm2_7i43(9) manpage)");
+RTAPI_MP_ARRAY_INT(ioaddr_hi, HM2_7I43_MAX_BOARDS, "secondary address of the parallel port(s) (see hm2_7i43(9) manpage)"); 
 
 static int epp_wide[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 1 };
-static int num_epp_wides = HM2_7I43_MAX_BOARDS;
-module_param_array(epp_wide, int, &num_epp_wides, S_IRUGO);
-MODULE_PARM_DESC(epp_wide, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
+RTAPI_MP_ARRAY_INT(epp_wide,HM2_7I43_MAX_BOARDS, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
 
 int debug_epp = 0;
 RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
 
 static char *config[HM2_7I43_MAX_BOARDS];
-static int num_config_strings = HM2_7I43_MAX_BOARDS;
-module_param_array(config, charp, &num_config_strings, S_IRUGO);
-MODULE_PARM_DESC(config, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
-
+RTAPI_MP_ARRAY_STRING(config,HM2_7I43_MAX_BOARDS, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
 
 
 
@@ -397,7 +391,7 @@ static int hm2_7i43_setup(void) {
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
     num_boards = 0;
 
-    for (i = 0; i < num_config_strings; i ++) {
+    for (i = 0; config[i] != NULL; i ++) {
         hm2_lowlevel_io_t *this;
         int r;
 
