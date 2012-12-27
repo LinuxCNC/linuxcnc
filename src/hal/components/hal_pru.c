@@ -106,7 +106,7 @@ static int comp_id;		/* component ID */
 static const char *modname = MODNAME;
 
 // shared with PRU
-static unsigned char *pru_data_ram;     // points to PRU data RAM
+static unsigned long *pru_data_ram;     // points to PRU data RAM
 static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 
 
@@ -173,10 +173,12 @@ static void update_pru(void *arg, long l)
     hal_pru_ptr p = (hal_pru_ptr) arg;
 
     // feeding params down to PRU ram
-    pru_data_ram[0] = *(p->enable);
-    pru_data_ram[1] = *(p->enable);
-    pru_data_ram[2] = *(p->enable);
-    pru_data_ram[3] = *(p->exit);
+//    pru_data_ram[0] = *(p->enable);
+//    pru_data_ram[1] = *(p->enable);
+//    pru_data_ram[2] = *(p->enable);
+//    pru_data_ram[3] = *(p->exit);
+
+    pru_data_ram[1] = *(p->speed);
 }
 
 /***********************************************************************
@@ -257,6 +259,7 @@ static int assure_module_loaded(const char *module)
 
 static int setup_pru(int pru, char *filename, int disabled)
 {
+    int i;
     int retval;
 
     if (geteuid()) {
@@ -296,11 +299,29 @@ static int setup_pru(int pru, char *filename, int disabled)
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d listener started\n",
 		    modname, event);
     }
-    // setup dataram as expected by blinkleds.p
-    pru_data_ram[0] = 0;
-    pru_data_ram[1] = 0;
-    pru_data_ram[2] = 0;
-    pru_data_ram[3] = 1;
+    // Initialize PRU structure with some defaults for testing
+    // Enable all channels with a simple PWM setting
+    for (i=0; i<7; i++) {
+        pru_data_ram[8*i+0] = ((i*2+3) << 24) | ((i*2+2) << 16) | 0x0401L ;
+        pru_data_ram[8*i+1] = (i+1) << 8;
+        pru_data_ram[8*i+2] = (i+1) << 6;
+        pru_data_ram[8*i+3] = 0x00000080;
+        pru_data_ram[8*i+4] = 0;
+        pru_data_ram[8*i+5] = 0;
+        pru_data_ram[8*i+6] = 0;
+        pru_data_ram[8*i+7] = 0;
+    }
+
+    // Setup channel 0 to do step/dir
+    pru_data_ram[ 0] = 0x03020101;      // DirPin, StepPin, Mode, Enable
+    pru_data_ram[ 1] = 0x00500000;      // Rate (27-bit, sign-extended)
+    pru_data_ram[ 2] = 0x00060004;      // Dir Hold, Step High
+    pru_data_ram[ 3] = 0x00070005;      // Dir Setup, Step Low
+    pru_data_ram[ 4] = 0;
+    pru_data_ram[ 5] = 0;
+    pru_data_ram[ 6] = 0;
+    pru_data_ram[ 7] = 0;
+
 
     // Load and execute binary on PRU
     if (!strlen(filename))
