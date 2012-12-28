@@ -60,7 +60,7 @@ While the PRU is running, you can:
 * Watch the Step and Direction outputs
 
 * Monitor the busy bit to see how much free time is left given the current
-  period setting:
+  period setting
 
 * By default, the outputs will be:
 
@@ -69,6 +69,8 @@ While the PRU is running, you can:
   Busy		PRU1.r30.t0	lcd_data0	P8.45	GPIO2_6
   Step		PRU1.r30.t2	lcd_data2	P8.43	GPIO2_8
   Direction	PRU1.r30.t3	lcd_data3	P8.44	GPIO2_9
+
+  Other PRU1 outputs will have various PWM outputs, edit hal_pru.c to change
 
   See the end of the stepgen.p file for a handy (but not yet complete) table 
   of PRU I/O pins and how they map to the BeagleBone I/O connectors
