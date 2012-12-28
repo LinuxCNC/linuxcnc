@@ -41,7 +41,7 @@
 
 #define HM2_7I43_ADDR_AUTOINCREMENT (0x8000)
 
-#define HM2_7I43_MAX_BOARDS (4)
+#define HM2_7I43_MAX_BOARDS 4
 
 
 
