@@ -1,5 +1,47 @@
-// example adapted from http://blog.boxysean.com/2012/08/12/first-steps-with-the-beaglebone-pru/
-// blinkslave.p
+//----------------------------------------------------------------------//
+// Description: stepgen.p                                               //
+// PRU code implementing step/dir generation and other functions of     //
+// hopeful use to off-load timing critical code from LinuxCNC HAL       //
+//                                                                      //
+// Author(s): Charles Steinkuehler                                      //
+// License: GNU GPL Version 2.0 or (at your option) any later version.  //
+//                                                                      //
+// Last change:                                                         //
+// 2012-Dec-27 Charles Steinkuehler                                     //
+//             Initial version                                          //
+//----------------------------------------------------------------------//
+// This file is part of LinuxCNC HAL                                    //
+//                                                                      //
+// Copyright (C) 2012  Charles Steinkuehler                             //
+//                     <charles AT steinkuehler DOT net>                //
+//                                                                      //
+// This program is free software; you can redistribute it and/or        //
+// modify it under the terms of the GNU General Public License          //
+// as published by the Free Software Foundation; either version 2       //
+// of the License, or (at your option) any later version.               //
+//                                                                      //
+// This program is distributed in the hope that it will be useful,      //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+// GNU General Public License for more details.                         //
+//                                                                      //
+// You should have received a copy of the GNU General Public License    //
+// along with this program; if not, write to the Free Software          //
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA        //
+// 02110-1301, USA.                                                     //
+//                                                                      //
+// THE AUTHORS OF THIS PROGRAM ACCEPT ABSOLUTELY NO LIABILITY FOR       //
+// ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE   //
+// TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of      //
+// harming persons must have provisions for completely removing power   //
+// from all motors, etc, before persons enter any danger area.  All     //
+// machinery must be designed to comply with local and national safety  //
+// codes, and the authors of this software can not, and do not, take    //
+// any responsibility for such compliance.                              //
+//                                                                      //
+// This code was written as part of the LinuxCNC project.  For more     //
+// information, go to www.linuxcnc.org.                                 //
+//----------------------------------------------------------------------//
 
 #include "pru_support/pru.h"
 #define LED_OFFSET 22
@@ -31,14 +73,6 @@
     .u32    Reserved8
 .ends
 
-.struct delta_sig_state
-    .u8     status
-    .u8     mode
-    .u8     pin1
-    .u8     pin2
-    .u32    reserved
-.ends
-
 #define STATE_SIZE SIZE(chan_state)
 #define NUMCHAN 7
 
@@ -54,8 +88,15 @@ START:
     // Clear all outputs
     LDI     r30, 0
 
-// Debugging
-    LDI     r28, 0
+    // Setup IEP timer
+    LBCO    r6, C26, 0x40, 40       // Read 10 32-bit CMP registers
+    OR      r6, r6, 0x03            // Set count reset and enable compare 0 event
+    LDI     r8, 0x2710              // Set 10 uS timeout for CMP0
+    SBCO    r6, C26, 0x40, 40       // Save 10 32-bit CMP registers
+
+    LBCO    r2, C26, 0x00, 16       // Load Base IEP control register
+    SET     r2, 0                   // Enable counter
+    SBCO    r2, C26, 0x00, 4        // Save IEP GLOBAL_CFG register
 
     .assign global_state, r5, r8, GState
 
@@ -88,9 +129,13 @@ MAINLOOP:
 
     // Wait until the next timer tick...
 // FIXME:
-// Enabling a timer (eCAP or IEP), setting up interrupt routing, and waiting for the appropriate event
-// is left as an exercise for the reader...
+// Set up interrupt routing for the IEP timer and watch for the appropriate event
+// (bit set in r31) instead of polling the IEP status register.
 //  WBC     r31, 30
+WAITLOOP:
+    LBCO    r2, C26, 0x44, 4        // Load CMP_STATUS register
+    QBBC    WAITLOOP, r2, 0         // Wait until counter times out
+    SBCO    r2, C26, 0x44, 4        // Clear counter timeout bit
 
     // ...write out the pre-computed output bits...
     MOV     r30, GState.Output
