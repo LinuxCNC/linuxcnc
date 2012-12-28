@@ -3305,10 +3305,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
             else:
                 print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
-                print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
-                print >>f1
-                print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
-                print >>f1
+            print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
+            print >>f1
+            print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
+            print >>f1
         else:
             if os.path.exists(pyfilename):
                 os.remove(pyfilename)
