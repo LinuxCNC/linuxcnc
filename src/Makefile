@@ -790,6 +790,8 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 ifeq ($(TARGET_PLATFORM),beaglebone)
 obj-m += hal_pru.o
 hal_pru-objs := hal/components/hal_pru.o hal/components/pru_support/prussdrv.o $(LIBPTHREAD)
+obj-m += hal_pru_generic.o
+hal_pru_generic-objs := hal/components/hal_pru_generic.o hal/components/pru_support/prussdrv.o $(LIBPTHREAD)
 obj-m += hal_prudebug.o
 hal_prudebug-objs := hal/components/hal_prudebug.o hal/components/pru_support/prussdrv.o $(LIBPTHREAD)
 endif
@@ -1072,6 +1074,7 @@ endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 ../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
+../rtlib/hal_pru_generic$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru_generic-objs))
 ../rtlib/hal_prudebug$(MODULE_EXT): $(addprefix objects/rt,$(hal_prudebug-objs))
 endif
 

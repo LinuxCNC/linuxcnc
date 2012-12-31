@@ -302,10 +302,10 @@ static int setup_pru(int pru, char *filename, int disabled)
     // Initialize PRU structure with some defaults for testing
     // Enable all channels with a simple PWM setting
     for (i=0; i<7; i++) {
-        pru_data_ram[8*i+0] = ((i*2+3) << 24) | ((i*2+2) << 16) | 0x0401L ;
-        pru_data_ram[8*i+1] = (i+1) << 8;
-        pru_data_ram[8*i+2] = (i+1) << 6;
-        pru_data_ram[8*i+3] = 0x00000080;
+        pru_data_ram[8*i+0] = ((i*2+3) << 24) | ((i*2+2) << 16) | 0x0101L ;
+        pru_data_ram[8*i+1] = 0x00100000 + ( i << 20);
+        pru_data_ram[8*i+2] = 0x00060004;
+        pru_data_ram[8*i+3] = 0x00070005;
         pru_data_ram[8*i+4] = 0;
         pru_data_ram[8*i+5] = 0;
         pru_data_ram[8*i+6] = 0;

@@ -3,7 +3,17 @@
 # and leaves the PRU disabled:
 # see the Makefile how pruexample.bin is created
 
-loadrt hal_pru prucode="stepgen.bin" disabled=1 pru=1
+# PRU Channel modes:
+# (0|n|N)  None (channel disabled)
+# (1|s|S)  Step/Dir mode
+# (2|u|U)  Up/Down mode (not yet implemented)
+# (3|d|D)  Delta Sigma: 2 channel 14-bit delta-sigma modulator
+# (4|p|P)  PWM: 2 channel PWM generator
+# (5|g|G)  GPIO: (not yet implemented)
+# (6|x|X)  RESERVED6;
+# (7|y|Y)  RESERVED7;
+
+loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="stepgen.bin" disabled=1 pru=1
 
 # this is the PRU debugger. It connects to PRU shared memory
 # can inspect registers and PRU status (processor status, program counter)
@@ -27,7 +37,8 @@ loadrt hal_pru prucode="stepgen.bin" disabled=1 pru=1
 loadrt hal_prudebug
 
 loadrt threads period1=20000000 # 20msec
-addf hal_pru.update thread1
+addf hal_pru_generic.update thread1
+addf hal_pru_generic.capture-position thread1
 addf hal_prudebug.update thread1
 #
 
@@ -90,6 +101,42 @@ net r29 hal_prudebug.R29 ui.R29
 net r30 hal_prudebug.R30 ui.R30
 net r31 hal_prudebug.R31 ui.R31
 setp ui.register_table 1
+
+
+# Setup something so the PRU can show off a bit
+
+setp hal_pru_generic.stepdir.00.pin1        12
+setp hal_pru_generic.stepdir.00.pin2        13
+setp hal_pru_generic.stepdir.00.command     0.023
+setp hal_pru_generic.stepdir.00.enable      1
+
+setp hal_pru_generic.stepdir.01.pin1        10
+setp hal_pru_generic.stepdir.01.pin2        11
+setp hal_pru_generic.stepdir.01.command     0.018
+setp hal_pru_generic.stepdir.01.enable      1
+
+setp hal_pru_generic.stepdir.02.pin1        6
+setp hal_pru_generic.stepdir.02.pin2        7
+setp hal_pru_generic.stepdir.02.command     -0.015
+setp hal_pru_generic.stepdir.02.enable      1
+
+setp hal_pru_generic.stepdir.03.pin1        8
+setp hal_pru_generic.stepdir.03.pin2        9
+setp hal_pru_generic.stepdir.03.command     -0.01
+setp hal_pru_generic.stepdir.03.enable      1
+
+setp hal_pru_generic.pwm.05.pin1            4
+setp hal_pru_generic.pwm.05.pin2            5
+setp hal_pru_generic.pwm.05.out1            100
+setp hal_pru_generic.pwm.05.out2            200
+setp hal_pru_generic.pwm.05.period          300
+setp hal_pru_generic.pwm.05.enable          1
+
+setp hal_pru_generic.delta.06.pin1          2
+setp hal_pru_generic.delta.06.pin2          3
+setp hal_pru_generic.delta.06.out1          0.5
+setp hal_pru_generic.delta.06.out2          0.35
+setp hal_pru_generic.delta.06.enable        1
 
 
 start
