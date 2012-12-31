@@ -105,8 +105,10 @@ ini file values>> for an example.
 	 tuple of dicts reflecting current axis values. See
 	 <<sec:The-Axis-dictionary,The axis dictionary>>.
 
-`axis_mask`::
-	mask of axis available, int. X=1, Y=2, Z=4 etc.
+`axis_mask`:: (integer)
+	mask of axis available as defined by [TRAJ] COORDINATES in the ini
+	file. Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64,
+	V=128, W=256.
 
 `block_delete`::
 	block delete currently on/off, int.

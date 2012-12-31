@@ -35,9 +35,9 @@ o<dot0> if [#<_dot:dot> LT 0]
 o<dot0> endif
 
         #<_dot:acu> = #<_dot:phi>
-o<dot0> if [#<_dot:ang> GT 90]
+o<dot1> if [#<_dot:ang> GT 90]
           #<_dot:acu> = [180  - #<_dot:ang>]
-o<dot0> endif
+o<dot1> endif
 
 (print  dot: #<x1> #<y1> #<x2> #<y2> #<x3> #<y3> magp=#<magp> )
 (print  dot: dot=#<_dot:dot> ang=#<_dot:ang> phi=#<_dot:phi> acu=#<_dot:acu>)
