@@ -115,6 +115,9 @@ MAINLOOP:
     // Check to see if the channel is enabled
     QBEQ    CHAN_DISABLED, GState.Status, 0
 
+    // Make sure mode is valid or we could fall off the end of the jump table!
+    QBLT    CHAN_DISABLED, GState.Mode, JUMPTABLEEND - JUMPTABLE
+
     // Index into the jump table and call the routine appropriate for our mode
     ADD     r1, GState.Table, GState.Mode
     CALL    r1
@@ -153,7 +156,7 @@ JUMPTABLE:
     JMP     MODE_GPIO
     JMP     MODE_NONE
     JMP     MODE_NONE
-
+JUMPTABLEEND:
 
 MODE_STEP_DIR:
 .enter STEP_DIR_SCOPE
@@ -457,3 +460,5 @@ MODE_NONE:
 //  uart0_txd       5       pru1.r30.15
 //
 //                          pru0.r30.12?    P8.36   UART3_CTSN  J4
+//  ecap0_in_pwm0_out 3     ecap0_ecap_capin_apwm_o
+//                  
