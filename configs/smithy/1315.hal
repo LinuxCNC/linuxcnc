@@ -92,11 +92,10 @@ net Enable => charge-pump.enable
 setp hm2_5i20.0.gpio.022.is_output TRUE
 net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 
-# create a signal for the estop loopback
-#net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+# Safety Relay Monitoring Contacts
 net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
-net machine-on hm2_5i20.0.gpio.039.in => halui.machine.off
-net machine-off hm2_5i20.0.gpio.039.in_not => halui.machine.on
+# Run Switch
+net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
 #connect limit/home switches
 #Brown Wire - Was Zhome, now Xpos
