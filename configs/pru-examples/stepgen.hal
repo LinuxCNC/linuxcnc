@@ -104,26 +104,41 @@ setp ui.register_table 1
 
 
 # Setup something so the PRU can show off a bit
+setp hal_pru_generic.stepgen.00.steppin      12
+setp hal_pru_generic.stepgen.00.dirpin       13
+setp hal_pru_generic.stepgen.00.position-cmd 0.023
+setp hal_pru_generic.stepgen.00.velocity-cmd 0.023
+setp hal_pru_generic.stepgen.00.enable       1
+setp hal_pru_generic.stepgen.00.control-type 0
+setp hal_pru_generic.stepgen.00.maxaccel     0
+setp hal_pru_generic.stepgen.00.maxvel       0
 
-setp hal_pru_generic.stepdir.00.pin1        12
-setp hal_pru_generic.stepdir.00.pin2        13
-setp hal_pru_generic.stepdir.00.command     0.023
-setp hal_pru_generic.stepdir.00.enable      1
+setp hal_pru_generic.stepgen.01.steppin      10
+setp hal_pru_generic.stepgen.01.dirpin       11
+setp hal_pru_generic.stepgen.01.position-cmd 0.018
+setp hal_pru_generic.stepgen.01.velocity-cmd 0.018
+setp hal_pru_generic.stepgen.01.enable       1
+setp hal_pru_generic.stepgen.01.control-type 0
+setp hal_pru_generic.stepgen.01.maxaccel     0
+setp hal_pru_generic.stepgen.01.maxvel       0
 
-setp hal_pru_generic.stepdir.01.pin1        10
-setp hal_pru_generic.stepdir.01.pin2        11
-setp hal_pru_generic.stepdir.01.command     0.018
-setp hal_pru_generic.stepdir.01.enable      1
+setp hal_pru_generic.stepgen.02.steppin      6
+setp hal_pru_generic.stepgen.02.dirpin       7
+setp hal_pru_generic.stepgen.02.position-cmd -0.015
+setp hal_pru_generic.stepgen.02.velocity-cmd -0.015
+setp hal_pru_generic.stepgen.02.enable       1
+setp hal_pru_generic.stepgen.02.control-type 0
+setp hal_pru_generic.stepgen.02.maxaccel     0
+setp hal_pru_generic.stepgen.02.maxvel       0
 
-setp hal_pru_generic.stepdir.02.pin1        6
-setp hal_pru_generic.stepdir.02.pin2        7
-setp hal_pru_generic.stepdir.02.command     -0.015
-setp hal_pru_generic.stepdir.02.enable      1
-
-setp hal_pru_generic.stepdir.03.pin1        8
-setp hal_pru_generic.stepdir.03.pin2        9
-setp hal_pru_generic.stepdir.03.command     -0.01
-setp hal_pru_generic.stepdir.03.enable      1
+setp hal_pru_generic.stepgen.03.steppin      8
+setp hal_pru_generic.stepgen.03.dirpin       9
+setp hal_pru_generic.stepgen.03.position-cmd -0.01
+setp hal_pru_generic.stepgen.03.velocity-cmd -0.01
+setp hal_pru_generic.stepgen.03.enable       1
+setp hal_pru_generic.stepgen.03.control-type 0
+setp hal_pru_generic.stepgen.03.maxaccel     0
+setp hal_pru_generic.stepgen.03.maxvel       0
 
 setp hal_pru_generic.pwm.05.pin1            4
 setp hal_pru_generic.pwm.05.pin2            5
@@ -137,6 +152,8 @@ setp hal_pru_generic.delta.06.pin2          3
 setp hal_pru_generic.delta.06.out1          0.5
 setp hal_pru_generic.delta.06.out2          0.35
 setp hal_pru_generic.delta.06.enable        1
+
+
 
 
 start
