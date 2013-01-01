@@ -117,8 +117,8 @@ RTAPI_MP_ARRAY_STRING(chan_mode,MAX_CHAN,"operating mode for up to 7 channels");
 static char *prucode = "";
 RTAPI_MP_STRING(prucode, "filename of PRU code (.bin), default: stepgen.bin");
 
-static int pru = 0;
-RTAPI_MP_INT(pru, "PRU number to execute this code in, default 0; values 0 or 1");
+static int pru = 1;
+RTAPI_MP_INT(pru, "PRU number to execute this code in, default 1; values 0 or 1");
 
 static int disabled = 0;
 RTAPI_MP_INT(disabled, "start the PRU in disabled state (for debugging); default: enabled");
@@ -344,7 +344,7 @@ static tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 static MODE parse_mode(const char *mode);
-static int export_pru();
+static int export_pru(chan_state_ptr chan_state);
 static void stepgen_position_control(chan_state_ptr chan_state, long l_period_ns, int i, double *new_vel);
 static void update_pru(void *arg, long l);
 static int setup_pru(int pru, char *filename, int disabled, chan_state_ptr chan_state);
@@ -1210,11 +1210,17 @@ static int setup_pru(int pru, char *filename, int disabled, chan_state_ptr chan_
     int i, j;
     int retval;
 
+    if (pru != 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "%s: WARNING: PRU is %d and not 1\n",
+            modname, pru);
+    }
+
     if (geteuid()) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
+        rtapi_print_msg(RTAPI_MSG_ERR,
             "%s: ERROR: not running as root - need to 'sudo make setuid'?\n",
             modname);
-    return -1;
+        return -1;
     }
     if ((retval = assure_module_loaded(UIO_PRUSS)))
     return retval;
