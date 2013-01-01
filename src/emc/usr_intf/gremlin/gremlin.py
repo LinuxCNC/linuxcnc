@@ -181,7 +181,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def poll(self):
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -198,7 +201,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def realize(self, widget):
         self.set_current_view()
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         self._current_file = None
 
         self.font_base, width, linespace = \
