@@ -764,10 +764,14 @@ class Gscreen:
         # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
 
+    # general call to initialize HAL pins
+    # select this if you want all the default pins or select each call for 
+    # which ones you want
     def initialize_pins(self):
         self.init_spindle_pins()
         self.init_coolant_pins()
         self.init_jog_pins()
+        self.init_override_pins()
 
     def init_spindle_pins(self):
         self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
@@ -787,6 +791,12 @@ class Gscreen:
         #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
         #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate.in', hal.HAL_S32, hal.HAL_IN))
         #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
+
+    # pins used for selecting an encoder to adjust overrides
+    def init_override_pins(self):
+        self.halcomp.newpin("s-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("f-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("mv-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
 
     def initialize_manual_toolchange(self):
         # for manual tool change dialog
@@ -1192,6 +1202,7 @@ class Gscreen:
             self.block(button)
             self.widgets[button].set_active(False)
             self.unblock(button)
+        self.update_hal_override_pins()
 
     def toggle_graphic_overrides(self,widget,mode,number):
         print "graphic overrides - button_h_%d_%d"%(mode,number)
@@ -2131,7 +2142,6 @@ class Gscreen:
                 axisnum = num
                 self.data.active_axis_buttons.append((i,num))
         if count == 0: self.data.active_axis_buttons.append((None,None))
-        self.update_hal_jog_pins()
         # check and update jogging buttons
         self.jog_mode()
 
@@ -2147,6 +2157,7 @@ class Gscreen:
         else:
             self.widgets.button_v0_5.set_label("")
         self.update_hal_jog_pins()
+        self.update_hal_override_pins()
 
     # do some checks then jog selected axis or start spindle
     def do_jog(self,direction,action):
@@ -2630,6 +2641,18 @@ class Gscreen:
                 self.halcomp["jog-enable.out"] = True
             else:
                 self.halcomp["jog-enable.out"] = False
+
+    # These pins set and unset enable pins for override adjustment
+    # only true when the screen button is true and not in jog mode 
+    # (because jog mode may use the encoder for jogging)
+    def update_hal_override_pins(self):
+        jogmode = not(self.widgets.button_h1_0.get_active())
+        fo = self.widgets.button_h4_0.get_active() and jogmode
+        so = self.widgets.button_h4_1.get_active() and jogmode
+        mv = self.widgets.button_h4_2.get_active() and jogmode
+        self.halcomp["f-override-enable-out"] = fo
+        self.halcomp["s-override-enable-out"] = so
+        self.halcomp["mv-override-enable-out"] = mv
 
     def __getitem__(self, item):
         return getattr(self, item)
