@@ -113,3 +113,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     def _load(self, filename):
         return self.load(filename)
 
+    # TODO fix this so it doesn't print twice and it should probably pop up a dialog
+    def report_gcode_error(self, result, seq, filename):
+        error_str = gcode.strerror(result)
+        print("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
+                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
