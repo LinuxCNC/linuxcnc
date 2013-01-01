@@ -1587,8 +1587,8 @@ class Gscreen:
             next = vector
         else: return
         end = len(self.data.jog_increments)-1
-        if next < 0: next = end
-        if next > end: next = 0
+        if next < 0: next = 0
+        if next > end: next = end
         self.data.current_jogincr_index = next
         jogincr = self.data.jog_increments[next]
         self.widgets.jog_increment.set_text(jogincr)
