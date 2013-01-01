@@ -224,20 +224,6 @@ struct chan_state_stepdir
 {
     struct PRU_chan_state_stepdir PRU;
 
-    // HAL Pins
-    hal_bit_t       *hal_enable;
-
-    hal_float_t     *hal_command;
-    hal_float_t     *hal_position;
-
-    // HAL Parameters
-    hal_u32_t       hal_steplen;
-    hal_u32_t       hal_stepspace;
-    hal_u32_t       hal_dirhold;
-    hal_u32_t       hal_dirsetup;
-
-    hal_s32_t       hal_rawcount;
-
     // Export pins (mostly) matching hostom2 stepgen instance to ease integration
     struct {
 
@@ -257,6 +243,10 @@ struct chan_state_stepdir
             hal_float_t     *dbg_err_at_match;
             hal_s32_t       *dbg_step_rate;
             hal_float_t     *dbg_pos_minus_prev_cmd;
+
+            hal_s32_t       *test1;
+            hal_s32_t       *test2;
+            hal_s32_t       *test3;
         } pin;
 
         struct {
@@ -450,18 +440,16 @@ static void read_pru(void *arg, long period)
 
             // Update internal state and HAL outputs
             chan_state[i].raw.PRU.qword[2] = x;
-            chan_state[i].step.hal_rawcount = chan_state[i].step.PRU.pos;
 
+    *(chan_state[i].step.hal.pin.test1) = chan_state[i].step.PRU.accum;
+    *(chan_state[i].step.hal.pin.test2) = chan_state[i].step.PRU.pos;
+    
             // Mangle 32-bit step count and 27 bit accumulator (with 5 bits of status)
             // into a 16.16 value as expected by the hostmot2 stepgen logic
-            y >>= 11;                       // Lower 32 bits contains 5 flag bits and a 27-bit accumulator...shift...
-            y &= 0x00000000FFFFFFFF;        // ...and get rid of the flag bits
-            x >>= 16;                       // Shift the full counts down...
-            x &= 0x00000000FFFF0000;        // ...and mask all but the 16 bits we're interested in
-            x |= y;                         // Combine the low & high words to make a 16.16 fixed-point value...
-            x -= 0x0000000000008000;        // ...and subtract off our 1/2 step starting offset
+            acc = (chan_state[i].step.PRU.accum >> 11) & 0x0000FFFF;
+            acc |= (chan_state[i].step.PRU.pos << 16);
 
-            acc = x;
+    *(chan_state[i].step.hal.pin.test3) = acc;
 
             // those tricky users are always trying to get us to divide by zero
             if (fabs(chan_state[i].step.hal.param.position_scale) < 1e-6) {
@@ -582,12 +570,12 @@ static void update_stepgen(chan_state_ptr chan_state, long l_period_ns, int i)
     s->PRU.rate = steps_per_sec_cmd * (134217728.0 / (double)PRU_FREQUENCY);
     
     // clip rate just to be safe...should be limited by code above
-    if (s->PRU.rate > 0x7FFFFFF) {
-        s->PRU.rate = 0x7FFFFFF;
-    } else if (s->PRU.rate < -0x7FFFFFF) {
-        s->PRU.rate = -0x7FFFFFF;
+/*    if (s->PRU.rate > 0x03FFFFFF) {
+        s->PRU.rate = 0x03FFFFFF;
+    } else if (s->PRU.rate < 0xFC000001) {
+        s->PRU.rate = 0xFC000001;
     }
-
+*/
     *s->hal.pin.dbg_step_rate = s->PRU.rate;
 }
 
@@ -940,6 +928,26 @@ static int export_stepgen(chan_state_ptr chan_state, int i)
         return r;
     }
 
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test1", modname, i);
+    r = hal_pin_s32_new(name, HAL_OUT, &(chan_state[i].step.hal.pin.test1), comp_id);
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: Error adding pin '%s', aborting\n", modname, name);
+        return r;
+    }
+
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test2", modname, i);
+    r = hal_pin_s32_new(name, HAL_OUT, &(chan_state[i].step.hal.pin.test2), comp_id);
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: Error adding pin '%s', aborting\n", modname, name);
+        return r;
+    }
+
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test3", modname, i);
+    r = hal_pin_s32_new(name, HAL_OUT, &(chan_state[i].step.hal.pin.test3), comp_id);
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: Error adding pin '%s', aborting\n", modname, name);
+        return r;
+    }
 
     // Parameters
     rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", modname, i);
@@ -1031,8 +1039,10 @@ static int export_stepgen(chan_state_ptr chan_state, int i)
     chan_state[i].step.written_ctrl = 0;
 
     // Start with 1/2 step offset in accumulator
-    chan_state[i].step.PRU.accum = 1 << 26;
-    chan_state[i].step.prev_accumulator = chan_state[i].step.PRU.accum;
+//    chan_state[i].step.PRU.accum = 1 << 26;
+    chan_state[i].step.PRU.accum = 0;
+    chan_state[i].step.prev_accumulator = 0;
+    chan_state[i].step.old_position_cmd = *(chan_state[i].step.hal.pin.position_cmd);
 
     chan_state[i].step.hal.param.steppin = PRU_DEFAULT_PIN;
     chan_state[i].step.hal.param.dirpin  = PRU_DEFAULT_PIN;

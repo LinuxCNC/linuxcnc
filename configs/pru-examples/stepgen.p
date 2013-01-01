@@ -286,7 +286,7 @@ DIR_DONE:
 
     // Update position register
     ADD     State.Pos, State.Pos, 1
-    QBBS    DIR_UP, State.Rate.t28
+    QBBS    DIR_UP, State.Rate, 31
     SUB     State.Pos, State.Pos, 2
 DIR_UP:
 
