@@ -859,7 +859,21 @@ class Gscreen:
             self.adjust_spindle_rpm(self.data.spindle_preset,-1)
 
     def on_preset_spindle(self,*args):
-        self.preset_spindle_speed(self.get_qualified_input(_SPINDLE_INPUT))
+        dialog = gtk.MessageDialog(self.widgets.window1,
+               gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.MESSAGE_QUESTION,  gtk.BUTTONS_OK_CANCEL,"Spindle Preset")
+        calc = gladevcp.Calculator()
+        dialog.vbox.add(calc)
+        calc.set_value("")
+        dialog.show_all()
+        self.widgets.data_input.set_sensitive(False)
+        dialog.connect("response", self.on_preset_spindle_return,calc)
+
+    def on_preset_spindle_return(self,widget,result,calc):
+        if result == gtk.RESPONSE_OK:
+            self.preset_spindle_speed(calc.get_value())
+        self.widgets.data_input.set_sensitive(True)
+        widget.destroy()
 
     def set_grid_size(self,widget):
         data = widget.get_value()
