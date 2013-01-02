@@ -193,11 +193,14 @@ class Calculator(gtk.VBox):
 			raise AttributeError('unknown property %s' % property.name)
 
 	def do_set_property(self, property, value):
-		name = property.name.replace('-', '_')
-		if name == 'is_editable':
-			self.set_editable(value)
-		if name == 'font':
-			self.set_font(value)
+		try:
+			name = property.name.replace('-', '_')
+			if name == 'is_editable':
+				self.set_editable(value)
+			if name == 'font':
+				self.set_font(value)
+		except:
+			pass
 
 # for testing without glade editor:
 def main():
