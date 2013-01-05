@@ -52,12 +52,7 @@ class HandlerClass:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
 
-    # This is a new method for our new button
-    # we selected this method name in the glade file as a signal callback
-    # it calls a gscreen method to toggle the Onboard keyboard on and off 
-    def on_toggle_keyboard_clicked(self,widget):
-        self.gscreen.on_toggle_keyboard(None)
-
+    # These three method are used to select the thre different mode directly
     def on_setup_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _MAN,_MDI,_AUTO
@@ -111,6 +106,7 @@ class HandlerClass:
         self.gscreen.init_sensitive_run_idle()
         self.data.sensitive_run_idle.append("mode_box")
         self.gscreen.init_sensitive_all_homed()
+        self.data.sensitive_all_homed.append("index_tool")
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()

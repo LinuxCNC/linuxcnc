@@ -833,8 +833,8 @@
                                     <child>
                                       <object class="HAL_LED" id="led_mist">
                                         <property name="visible">True</property>
-                                        <property name="off_color">black</property>
                                         <property name="on_color">yellow</property>
+                                        <property name="off_color">black</property>
                                         <property name="led_shape">1</property>
                                       </object>
                                       <packing>
@@ -846,8 +846,8 @@
                                     <child>
                                       <object class="HAL_LED" id="led_flood">
                                         <property name="visible">True</property>
-                                        <property name="off_color">black</property>
                                         <property name="on_color">green</property>
+                                        <property name="off_color">black</property>
                                         <property name="led_shape">1</property>
                                       </object>
                                       <packing>
@@ -935,16 +935,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
+                                <property name="max">2000</property>
                                 <property name="target_color">#e21911831183</property>
+                                <property name="bg_color">#bebebebebebe</property>
+                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="target_value">500</property>
+                                <property name="z1_color">#ffffffff0000</property>
                                 <property name="value">-7</property>
                                 <property name="z2_color">#ffff00000000</property>
-                                <property name="target_value">500</property>
                                 <property name="show_limits">False</property>
-                                <property name="z0_color">#0000ffff0000</property>
                                 <property name="text_template">%d</property>
-                                <property name="z1_color">#ffffffff0000</property>
-                                <property name="bg_color">#bebebebebebe</property>
-                                <property name="max">2000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -1020,8 +1020,8 @@
                                 <child>
                                   <object class="HAL_LED" id="spindle-at-speed">
                                     <property name="visible">True</property>
-                                    <property name="off_color">black</property>
                                     <property name="on_color">Green</property>
+                                    <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
                                   </object>
                                   <packing>
@@ -2053,16 +2053,7 @@ Hold</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button_v1_6">
-                            <property name="label" translatable="yes">    Full
-Graphics</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                          </object>
-                          <packing>
-                            <property name="position">6</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_v1_7">
@@ -2123,6 +2114,17 @@ Graphics</property>
                       <object class="GtkVBox" id="vbox9">
                         <property name="visible">True</property>
                         <child>
+                          <object class="GtkToggleButton" id="spare">
+                            <property name="label" translatable="yes">
+</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkToggleButton" id="button_homing">
                             <property name="label" translatable="yes">Homing
 </property>
@@ -2131,7 +2133,7 @@ Graphics</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -2155,8 +2157,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="has_hal_pin">False</property>
                                     <property name="led_size">5</property>
+                                    <property name="has_hal_pin">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2169,7 +2171,7 @@ Limits</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -2183,7 +2185,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -2197,7 +2199,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
@@ -2207,10 +2209,9 @@ Keyboard</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <signal name="clicked" handler="on_toggle_keyboard_clicked"/>
                           </object>
                           <packing>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                       </object>
@@ -2335,7 +2336,6 @@ Keyboard</property>
                   <object class="GtkButton" id="button_h0_5">
                     <property name="label" translatable="yes">Toggle
 Readout</property>
-                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                   </object>
@@ -2403,9 +2403,9 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h1_6">
-                    <property name="label" translatable="yes">
-</property>
+                  <object class="GtkButton" id="index_tool">
+                    <property name="label" translatable="yes">Index
+ Tool</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2429,7 +2429,6 @@ Editor</property>
                   <object class="GtkButton" id="button_h1_5">
                     <property name="label" translatable="yes">Toggle
 Readout</property>
-                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                   </object>
@@ -2579,6 +2578,8 @@ Delete</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h3_3">
+                    <property name="label" translatable="yes">    Full
+Graphics</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
