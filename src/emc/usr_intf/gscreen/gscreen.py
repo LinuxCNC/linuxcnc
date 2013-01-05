@@ -284,6 +284,8 @@ class Data:
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"         
         self.error_sound  = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
         self.ob = None
+        self.index_tool_dialog = None
+        self.preset_spindle_dialog = None
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -882,21 +884,44 @@ class Gscreen:
             self.adjust_spindle_rpm(self.data.spindle_preset,-1)
 
     def on_preset_spindle(self,*args):
-        dialog = gtk.MessageDialog(self.widgets.window1,
+        if self.data.preset_spindle_dialog: return
+        self.data.preset_spindle_dialog = gtk.MessageDialog(self.widgets.window1,
                gtk.DIALOG_DESTROY_WITH_PARENT,
                gtk.MESSAGE_QUESTION,  gtk.BUTTONS_OK_CANCEL,"Spindle Preset")
         calc = gladevcp.Calculator()
-        dialog.vbox.add(calc)
+        self.data.preset_spindle_dialog.vbox.add(calc)
         calc.set_value("")
-        dialog.show_all()
+        self.data.preset_spindle_dialog.show_all()
         self.widgets.data_input.set_sensitive(False)
-        dialog.connect("response", self.on_preset_spindle_return,calc)
+        self.data.preset_spindle_dialog.connect("response", self.on_preset_spindle_return,calc)
 
     def on_preset_spindle_return(self,widget,result,calc):
         if result == gtk.RESPONSE_OK:
             self.preset_spindle_speed(calc.get_value())
         self.widgets.data_input.set_sensitive(True)
         widget.destroy()
+        self.data.preset_spindle_dialog = None
+
+    def on_index_tool(self,*args):
+        if self.data.index_tool_dialog: return
+        self.data.index_tool_dialog = gtk.MessageDialog(self.widgets.window1,
+               gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.MESSAGE_QUESTION,  gtk.BUTTONS_OK_CANCEL,"Index Tool")
+        calc = gladevcp.Calculator()
+        self.data.index_tool_dialog.vbox.add(calc)
+        calc.set_value("")
+        self.data.index_tool_dialog.show_all()
+        self.widgets.data_input.set_sensitive(False)
+        self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
+
+    def on_index_tool_return(self,widget,result,calc):
+        if result == gtk.RESPONSE_OK:
+            tool = abs(int((calc.get_value())))
+            print tool
+            self.mdi_control.index_tool(tool)
+        self.widgets.data_input.set_sensitive(True)
+        widget.destroy()
+        self.data.index_tool_dialog = None
 
     def set_grid_size(self,widget):
         data = widget.get_value()
@@ -1104,6 +1129,7 @@ class Gscreen:
                 else: print "hbutton %d_%d clicked but no function"% (mode,number)
             elif mode == 3:
                 if number == 1: self.toggle_block_delete()
+                elif number == 3: self.full_graphics()
                 elif number == 2: self.toggle_optional_stop()
                 elif number == 7: self.next_tab()
                 else: print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -1132,7 +1158,7 @@ class Gscreen:
             elif number == 3: pass
             elif number == 4: pass
             elif number == 5: self.toggle_view()
-            elif number == 6: self.full_graphics()
+            elif number == 6: pass
             elif number == 7: self.edit_mode()
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
 
@@ -1407,15 +1433,15 @@ class Gscreen:
                         ["ignore_limits","clicked", "toggle_ignore_limits"],
                         ["audio_error_chooser","selection_changed","change_sound","error"],
                         ["audio_alert_chooser","selection_changed","change_sound","alert"],
-                        ["button_h3_3","clicked", "on_toggle_keyboard"],
-                        ["button_h2_2","clicked", "on_toggle_keyboard"],
+                        ["toggle_keyboard","clicked", "on_toggle_keyboard"],
                         ["metric_select","clicked","on_metric_select_clicked"],
                         ["restart_ok","clicked", "restart_dialog_return", True],
                         ["restart_cancel","clicked", "restart_dialog_return", False],
                         ["restart","clicked", "launch_restart_dialog"],
                         ["restart_line_up","clicked", "restart_up"],
                         ["restart_line_down","clicked", "restart_down"],
-                        ["restart_line_input","value_changed", "restart_set_line"], ]
+                        ["restart_line_input","value_changed", "restart_set_line"],
+                        ["index_tool","clicked", "on_index_tool"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
         # if so skip the call in the signal list
@@ -2422,6 +2448,7 @@ class Gscreen:
             self.widgets.hal_mdihistory.hide()
             self.widgets.button_homing.show()
             self.widgets.dro_frame.show()
+            self.widgets.spare.hide()
         elif mode == _MDI:
             if self.widgets.button_homing.get_active():
                 self.widgets.button_homing.emit("clicked")
@@ -2444,6 +2471,7 @@ class Gscreen:
             self.widgets.button_h1_0.set_active(False)
             self.widgets.button_homing.set_active(False)
             self.widgets.button_homing.hide()
+            self.widgets.spare.show()
         for i in range(0,3):
             if i == mode:
                 self.widgets["mode%d"% i].show()
