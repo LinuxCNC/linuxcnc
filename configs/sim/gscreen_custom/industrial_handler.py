@@ -1,4 +1,5 @@
 import hal
+_MAN = 0;_MDI = 1;_AUTO = 2
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
@@ -56,6 +57,27 @@ class HandlerClass:
     # it calls a gscreen method to toggle the Onboard keyboard on and off 
     def on_toggle_keyboard_clicked(self,widget):
         self.gscreen.on_toggle_keyboard(None)
+
+    def on_setup_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(0)
+        self.data.mode_order = _MAN,_MDI,_AUTO
+        label = self.data.mode_labels
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
+        self.gscreen.mode_changed(self.data.mode_order[0])
+
+    def on_run_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(0)
+        self.data.mode_order = _AUTO,_MAN,_MDI
+        label = self.data.mode_labels
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
+        self.gscreen.mode_changed(self.data.mode_order[0])
+
+    def on_MDI_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(0)
+        self.data.mode_order = _MDI,_MAN,_AUTO
+        label = self.data.mode_labels
+        self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
+        self.gscreen.mode_changed(self.data.mode_order[0])
 
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):

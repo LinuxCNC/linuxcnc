@@ -833,8 +833,8 @@
                                     <child>
                                       <object class="HAL_LED" id="led_mist">
                                         <property name="visible">True</property>
-                                        <property name="on_color">yellow</property>
                                         <property name="off_color">black</property>
+                                        <property name="on_color">yellow</property>
                                         <property name="led_shape">1</property>
                                       </object>
                                       <packing>
@@ -846,8 +846,8 @@
                                     <child>
                                       <object class="HAL_LED" id="led_flood">
                                         <property name="visible">True</property>
-                                        <property name="on_color">green</property>
                                         <property name="off_color">black</property>
+                                        <property name="on_color">green</property>
                                         <property name="led_shape">1</property>
                                       </object>
                                       <packing>
@@ -935,16 +935,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="z2_color">#ffff00000000</property>
                                 <property name="target_color">#e21911831183</property>
-                                <property name="target_value">500</property>
-                                <property name="z0_color">#0000ffff0000</property>
                                 <property name="value">-7</property>
+                                <property name="z2_color">#ffff00000000</property>
+                                <property name="target_value">500</property>
                                 <property name="show_limits">False</property>
-                                <property name="max">2000</property>
+                                <property name="z0_color">#0000ffff0000</property>
                                 <property name="text_template">%d</property>
                                 <property name="z1_color">#ffffffff0000</property>
                                 <property name="bg_color">#bebebebebebe</property>
+                                <property name="max">2000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -1020,8 +1020,8 @@
                                 <child>
                                   <object class="HAL_LED" id="spindle-at-speed">
                                     <property name="visible">True</property>
-                                    <property name="on_color">Green</property>
                                     <property name="off_color">black</property>
+                                    <property name="on_color">Green</property>
                                     <property name="led_shape">1</property>
                                   </object>
                                   <packing>
@@ -1124,10 +1124,44 @@ Speed</property>
               </object>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label1">
+              <object class="GtkHBox" id="hbox13">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Main Level
-</property>
+                <child>
+                  <object class="GtkButton" id="setup_button">
+                    <property name="label" translatable="yes">Set up</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_setup_button_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="MDI_button">
+                    <property name="label" translatable="yes">MDI</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_MDI_button_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="run_button">
+                    <property name="label" translatable="yes">Run</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_run_button_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="tab_fill">False</property>
@@ -1750,8 +1784,8 @@ Aux Coolant</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
-                                <property name="led_shape">1</property>
                                 <property name="led_blink_rate">200</property>
+                                <property name="led_shape">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2121,8 +2155,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="led_size">5</property>
                                     <property name="has_hal_pin">False</property>
+                                    <property name="led_size">5</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
