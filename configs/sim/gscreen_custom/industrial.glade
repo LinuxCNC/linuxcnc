@@ -1124,7 +1124,7 @@ Speed</property>
               </object>
             </child>
             <child type="tab">
-              <object class="GtkHBox" id="hbox13">
+              <object class="GtkHBox" id="mode_box">
                 <property name="visible">True</property>
                 <child>
                   <object class="GtkButton" id="setup_button">
