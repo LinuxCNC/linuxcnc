@@ -636,6 +636,9 @@ class Gscreen:
         self.init_running_options()
         self.init_hide_cursor()
         self.init_mode()
+        self.init_sensitive_on_off()
+        self.init_sensitive_run_idle()
+        self.init_state()
 
     def init_axis_frames(self):
         temp = self.data.axis_list
@@ -745,7 +748,6 @@ class Gscreen:
         self.emc.blockdel(self.data.block_del)
         self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
         self.emc.opstop(self.data.op_stop)
-        self.on_hal_status_state_off(None)
 
     def init_hide_cursor(self):
         self.widgets.hide_cursor.set_active(self.data.hide_cursor)
@@ -763,6 +765,23 @@ class Gscreen:
         self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         # set to 'manual mode' 
         self.mode_changed(self.data.mode_order[0])
+
+    # buttons that need to be sensitive based on the machine being on or off
+    def init_sensitive_on_off(self):
+        print "init sensitive"
+        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode"]
+        for axis in self.data.axis_list:
+            self.data.sensitive_on_off.append("axis_%s"% axis)
+
+    # buttons that need to be sensitive based on the interpeter runing or being idle
+    def init_sensitive_run_idle(self):
+        self.data.sensitive_run_idle = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
+        for axis in self.data.axis_list:
+            self.data.sensitive_run_idle.append("axis_%s"% axis)
+
+    # this needs to be last as it causes methods to be called (eg to sensitize buttons)
+    def init_state(self):
+        self.on_hal_status_state_off(None)
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -1229,31 +1248,20 @@ class Gscreen:
 
     def on_hal_status_interp_run(self,widget):
         print "run"
-        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
-        for axis in self.data.axis_list:
-            temp.append("axis_%s"% axis)
-        self.sensitize_widgets(temp,False)
+        self.sensitize_widgets(self.data.sensitive_run_idle,False)
 
     def on_hal_status_interp_idle(self,widget):
         print "idle"
-        temp = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6"]
-        for axis in self.data.axis_list:
-            temp.append("axis_%s"% axis)
-        self.sensitize_widgets(temp,True)
+        self.sensitize_widgets(self.data.sensitive_run_idle,True)
         state = self.data.all_homed
-        self.widgets.button_mode.set_sensitive(True)
         self.widgets.button_v0_0.set_sensitive(state)
         self.widgets.button_v0_1.set_sensitive(state)
         self.widgets.button_h1_1.set_sensitive(state)
 
     def on_hal_status_state_on(self,widget):
         print "on"
-        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5"]
-        for axis in self.data.axis_list:
-            temp.append("axis_%s"% axis)
-        self.sensitize_widgets(temp,True)
+        self.sensitize_widgets(self.data.sensitive_on_off,True)
         state = self.data.all_homed
-        self.widgets.button_mode.set_sensitive(True)
         self.widgets.button_v0_0.set_sensitive(state)
         self.widgets.button_v0_1.set_sensitive(state)
         self.widgets.button_h1_1.set_sensitive(state)
@@ -1262,10 +1270,7 @@ class Gscreen:
 
     def on_hal_status_state_off(self,widget):
         print "off"
-        temp = ["vmode0","mode0","mode1","button_homing","button_override","button_mode","button_graphics","frame5"]
-        for axis in self.data.axis_list:
-            temp.append("axis_%s"% axis)
-        self.sensitize_widgets(temp,False)
+        self.sensitize_widgets(self.data.sensitive_on_off,False)
 
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
@@ -1799,7 +1804,6 @@ class Gscreen:
             self.widgets.vmode0.set_sensitive(True)
             self.widgets.button_v0_2.set_sensitive(True)
             self.widgets.button_v0_3.set_sensitive(True)
-
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
