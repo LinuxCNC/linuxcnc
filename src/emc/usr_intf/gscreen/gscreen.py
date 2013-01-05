@@ -638,6 +638,7 @@ class Gscreen:
         self.init_mode()
         self.init_sensitive_on_off()
         self.init_sensitive_run_idle()
+        self.init_sensitive_all_homed()
         self.init_state()
 
     def init_axis_frames(self):
@@ -778,6 +779,9 @@ class Gscreen:
         self.data.sensitive_run_idle = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
         for axis in self.data.axis_list:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
+
+    def init_sensitive_all_homed(self):
+        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1"]
 
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
@@ -1254,17 +1258,13 @@ class Gscreen:
         print "idle"
         self.sensitize_widgets(self.data.sensitive_run_idle,True)
         state = self.data.all_homed
-        self.widgets.button_v0_0.set_sensitive(state)
-        self.widgets.button_v0_1.set_sensitive(state)
-        self.widgets.button_h1_1.set_sensitive(state)
+        self.sensitize_widgets(self.data.sensitive_all_homed,state)
 
     def on_hal_status_state_on(self,widget):
         print "on"
         self.sensitize_widgets(self.data.sensitive_on_off,True)
         state = self.data.all_homed
-        self.widgets.button_v0_0.set_sensitive(state)
-        self.widgets.button_v0_1.set_sensitive(state)
-        self.widgets.button_h1_1.set_sensitive(state)
+        self.sensitize_widgets(self.data.sensitive_all_homed,state)
         if not state:
             self.widgets.button_homing.emit("clicked")
 
@@ -1778,10 +1778,7 @@ class Gscreen:
             self.widgets.mode3.hide()
             self.widgets.mode0.show()
             state = self.data.all_homed
-            #self.widgets.button_mode.set_sensitive(state)
-            self.widgets.button_v0_0.set_sensitive(state)
-            self.widgets.button_v0_1.set_sensitive(state)
-            self.widgets.button_h1_1.set_sensitive(state)
+            self.sensitize_widgets(self.data.sensitive_all_homed,state)
             self.widgets.button_override.set_sensitive(True)
             self.widgets.button_graphics.set_sensitive(True)
 
