@@ -110,6 +110,7 @@ class HandlerClass:
         self.data.sensitive_on_off.append("mode_box")
         self.gscreen.init_sensitive_run_idle()
         self.data.sensitive_run_idle.append("mode_box")
+        self.gscreen.init_sensitive_all_homed()
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
