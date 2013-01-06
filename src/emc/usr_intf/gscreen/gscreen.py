@@ -697,9 +697,15 @@ class Gscreen:
         pangoFont = pango.FontDescription("Tahoma 18")
         self.widgets.data_input.modify_font(pangoFont)
 
+    # first we hide all the axis columns the unhide the ones we want
+    # if it's a lathe config we show lathe related columns
+    # and we load the tooltable data
     def init_tooleditor(self):
+        self.widgets.tooledit1.set_visible("abcxyzuvwijq",False)
+        for axis in self.data.axis_list:
+            self.widgets.tooledit1.set_visible("%s"%axis,True)
         if self.data.lathe_mode:
-            self.widgets.tooledit1.set_display(0)
+            self.widgets.tooledit1.set_visible("ijq",True)
         path = os.path.join(CONFIGPATH,self.data.tooltable)
         self.widgets.tooledit1.set_filename(path)
 
