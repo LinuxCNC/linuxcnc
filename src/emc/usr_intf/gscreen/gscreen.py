@@ -1657,19 +1657,20 @@ class Gscreen:
                 print "zero button",action
                 change = 0
                 absolute = True
-            if widget == self.widgets.button_v0_1:
+            elif widget == self.widgets.button_v0_1:
                 print "set at button",action
                 change = self.get_qualified_input(_PERCENT_INPUT)/100
                 print "qualified=",change
                 absolute = True
-            if widget == self.widgets.button_v0_2:
+            elif widget == self.widgets.button_v0_2:
                 print "up button",action
                 change = 1
                 absolute = False
-            if widget == self.widgets.button_v0_3:
+            elif widget == self.widgets.button_v0_3:
                 print "down button",action
                 change = -1
                 absolute = False
+            else:return
             # what override is selected
             if self.widgets.button_h4_0.get_active() and action:
                 print "feed override"
