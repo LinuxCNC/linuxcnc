@@ -88,7 +88,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G85-Boring-Feed-Out,G85>>    |Boring Cycle, No Dwell, Feed Out
 |<<sec:G86-Boring-Rapid-Out,G86>>   |Boring Cycle, Stop, Rapid Out
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
-|<<sec:G90-G91-Set,G90 G91>>        |Distance Mode
+|<<sec:G90-G91,G90 G91>>            |Distance Mode
 |<<sec:G90.1-G91.1,G90.1 G91.1>>    |Arc Distance Mode
 |<<sec:G92-G92.1-G92.2-G92.3,G92>>  |Offset Coordinate Systems & Set Parameters
 |<<sec:G92-G92.1-G92.2-G92.3,G92.1 G92.2>>|Cancel Offsets
