@@ -704,7 +704,9 @@ led_shape::
 led_blink_rate::
    if set and LED is ON then it's blinking. Blink
    period is equal to "led_blink_rate" specified in milliseconds.
-
+create hal pin::
+    select/deselect making of HAL pin to control LED. With no HAL pin created
+    LED can be controlled with a python function. 
 As an input widget, LED also supports the +hal-pin-changed signal+. If
 you want to get a notification in your code when the LED's HAL pin was
 changed, then connect this signal to a handler, for example
@@ -808,6 +810,8 @@ invert::
 min, max::
    Minimum and maximum value of desired range. It is not an
    error condition if the current value is outside this range.
+show limits::
+    Used to select/deselect the limits text on bar.
 zero::
    Zero point of range. If it's inside of min/max range then the
    bar will grow from that value and not from the left (or right) side of
@@ -820,8 +824,18 @@ force_width, force_height::
 text_template::
    Like in Label sets text format for min/max/current
    values. Can be used to turn off value display.
+value::
+    Sets the bar display to the value entered: used only for testing in
+    GLADE editor. The vaue will be set from A HAL pin.
+target value::
+    Sets the target line to the value entered: used only for testing in
+    GLADE editor. The value will can be set in a Python function
+target_width::
+    Width of the line that marks the target value.
 bg_color::
    Background (inactive) color of bar.
+target_color::
+    Color of the the target line.
 z0_color, z1_color, z2_color::
    Colors of different value zones.
    Defaults are `green`, `yellow` and `red`. For description of zones see
@@ -891,16 +905,136 @@ name.
 
 Gremlin does not export any HAL pins. It has the following properties:
 
+show tool speed::
+    TODO
+show commanded::
+    TODO
+use metric units::
+    TODO
+show rapids::
+    TODO
+show DTG::
+    TODO
+show relative::
+    TODO
+show live plot::
+    TODO
+show limits::
+    TODO
+show lathe radius::
+    TODO
+show extents::
+    TODO
+show tool::
+    TODO
+show program::
+    TODO
+use joints mode::
+    TODO
+grid size::
+    TODO
+use default mouse controls::
+    This disables the default mouse controls. This is most useful when using a
+    touchscreen as the default controls do not work well. You can programically
+    add controls using python and the handler file technique. Defaults to 'True'
 view ::
-   may be any of `x`, `y`, `z`, `p` (perspective) . Defaults to
+   may be any of `x`, `y`, 'y2' , `z`, 'z2' , `p` (perspective) . Defaults to
    `z` view.
 enable_dro ::
    boolean; whether to draw a DRO on the plot or not.
-   Defaults to `True`.
+   Defaults to `True`
 
 Example:
 image:images/gremlin.png[]
 
+=== DRO widget
+The DRO widget is used to display the current axis position.
+It has the following properties:
+
+Actual Position::
+    select actual (feedback) position or commanded position.
+Text template for metric units::
+    You can use python formatting to display the position with different precision.
+Text template for imperial units::
+    You can use python formatting to display the position with different precision.
+Reference Type::
+    Absolute (machine origin), Relative (to current user coordinate origin - G5x)
+    or Distance-to-go (realtive to current user coordinate origin)
+Joint Number::
+    Used to select which axis (technically which joint) is displayed.
+    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+
+    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+
+Display units::
+    Used to toggle the display units between metric and imperial.
+
+Hints::
+    - If you want the display to be right justified, set the X align to 1.0
+
+    - If you want different colors or size or text change the attributes in the 
+    glade editor (eg scale is a good way to change the size of the text)
+
+    - The background of the widget is actually see through - so if you place if over
+    an image the DRO numbers will show on top of it with no backgroud. There is a
+    special technique to do this. See the animated function diagrams below.
+
+    - The DRO widget is a modified gtk label widget. As such much or what can be
+    done to a gtk label can be done to DRO widget.
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+    using goobject to set the above listed properties:
+
+    [widget name].set_property("display_units_mm",True)
+    [widget name].set_property("actual",True)
+    [widget name].set_property("mm_text_template","%f")
+    [widget name].set_property("imperial_text_template","%f")
+    [widget name].set_property("Joint_number",3)
+    [widget name].set_property("reference_type",3)
+
+    There are two python methods:
+    [widget name].set_dro_inch()
+    [widget name].set_dro_metric()
+
+=== Calculator widget
+
+This is a simple calulator widget, that can be used for numerical input.
+
+=== Tooleditor widget
+
+This is a tooleditor widget for displaying and modifying a tool editor file.
+It checks the current file once a second to see if linuxcnc updated it.
+It has the following properties:
+
+Hidden Columns::
+    This will hide the given columns: The columns are designated (in order) as such:
+    s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,;
+    You can hide any number of columns including the select and comments
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+    using goobject to set the above listed properties:
+
+    [widget name].set_properties('hide_columns','uvwijq')
+    This would hide the uvwij and q columns and show all others.
+
+    There are python methods:
+    - [widget name].set_visible("ijq",False)
+    Would hide ij and Q columns and leave the rest as they were.
+    - [widget name].set_filename(path_to_file)
+    Sets and loads the tool file.
+    - [widget name].reload(None)
+    Reloads the current toolfile
+
+=== Sourceview widget
+
+This is for displaying and simple editing of Gcode.
+
+=== MDI history
+
+This is for displaying and entering MDI codes.
 
 === Animated function diagrams: HAL widgets in a bitmap
 
@@ -1103,6 +1237,9 @@ signals:
   - +interp-waiting+
   - +file-loaded+
   - +line-changed+
+* homing-related: emitted when linuxcnc is homed or not
+  - +all-homed+
+  - +not-all-homed+
 
 [[gladevcp:GladeVCP_Programming]]
 == GladeVCP Programming
