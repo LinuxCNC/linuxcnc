@@ -42,7 +42,7 @@ class HandlerClass:
 
     # This is a new method for our new button
     # we selected this method name in the glade file as a signal callback 
-    def on_machine_state_clicked(self,*args):
+    def on_machine_state_clicked(self,widget):
         if self.data.estopped:
             return
         elif not self.data.machine_on:
@@ -52,13 +52,14 @@ class HandlerClass:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
 
-    # These three method are used to select the thre different mode directly
+    # These 5 method are used to select the 5 different tabs directly
     def on_setup_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _MAN,_MDI,_AUTO
         label = self.data.mode_labels
         self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         self.gscreen.mode_changed(self.data.mode_order[0])
+        self.toggle_modes(widget)
 
     def on_run_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
@@ -66,19 +67,42 @@ class HandlerClass:
         label = self.data.mode_labels
         self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         self.gscreen.mode_changed(self.data.mode_order[0])
+        self.toggle_modes(widget)
 
-    def on_MDI_button_clicked(self,widget):
+    def on_mdi_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _MDI,_MAN,_AUTO
         label = self.data.mode_labels
         self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
         self.gscreen.mode_changed(self.data.mode_order[0])
+        self.toggle_modes(widget)
+
+    def on_system_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(4)
+        self.toggle_modes(widget)
+
+    def on_tooledit_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(3)
+        self.toggle_modes(widget)
+
+    def toggle_modes(self,widget):
+        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button"
+        for i in temp:
+            state = False
+            if self.widgets[i] == widget: state = True
+            self.gscreen.block(i)
+            self.widgets[i].set_active(state)
+            self.gscreen.unblock(i)
 
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
         # connect to handler file callbacks:
         self.gscreen.widgets.metric_select.connect("clicked", self.on_metric_select_clicked)
+        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button"
+        for cb in temp:
+                i = "_sighandler_%s"% (cb)
+                self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -102,9 +126,9 @@ class HandlerClass:
         self.data.mode_labels = ["Set-Up Mode","MDI Mode","Run Mode"]
         self.gscreen.init_mode()
         self.gscreen.init_sensitive_on_off()
-        self.data.sensitive_on_off.append("mode_box")
+
         self.gscreen.init_sensitive_run_idle()
-        self.data.sensitive_run_idle.append("mode_box")
+
         self.gscreen.init_sensitive_all_homed()
         self.data.sensitive_all_homed.append("index_tool")
         self.gscreen.init_state()
@@ -133,6 +157,11 @@ class HandlerClass:
         self.gscreen.update_jog_rate_label()
         self.gscreen.update_mode_label()
         self.gscreen.update_units_button_label()
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):
