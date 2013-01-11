@@ -41,6 +41,7 @@ import traceback
 import atexit
 import vte
 import time
+from time import strftime,localtime
 import hal_glib
 
 # try to add a notify system so messages use the
@@ -1551,6 +1552,11 @@ class Gscreen:
             messageid = None
             try:
                 messageid = self.widgets.statusbar1.push(self.statusbar_id,message)
+            except:
+                pass
+            try:
+                textbuffer = self.widgets.alarm_history.get_buffer()
+                textbuffer.insert_at_cursor(strftime("%a, %d %b %Y %H:%M:%S     -", localtime())+message+"\n" )
             except:
                 pass
             if NOTIFY_AVAILABLE:
