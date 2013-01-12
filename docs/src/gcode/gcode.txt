@@ -95,7 +95,7 @@ as the 'L number', and so on for any other letter.
 |<<sec:G85-Boring-Feed-Out,G85>>    |Boring Cycle, No Dwell, Feed Out
 |<<sec:G86-Boring-Rapid-Out,G86>>   |Boring Cycle, Stop, Rapid Out
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
-|<<sec:G90-G91-Set,G90 G91>>        |Distance Mode
+|<<sec:G90-G91,G90 G91>>            |Distance Mode
 |<<sec:G90.1-G91.1,G90.1 G91.1>>    |Arc Distance Mode
 |<<sec:G92-G92.1-G92.2-G92.3,G92>>  |Offset Coordinate Systems & Set Parameters
 |<<sec:G92-G92.1-G92.2-G92.3,G92.1 G92.2>>|Cancel Offsets
@@ -657,7 +657,7 @@ The coordinate system is described in the <<cha:coordinate-system,Coordinate Sys
 G10 L10 P- axes <R- I- J- Q->
 ----
 * 'P' - tool number
-* 'R' - rotation about the Z axis
+* 'R' - radius of tool
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
 * 'Q' - orientation (lathe)
@@ -692,7 +692,7 @@ It is an error if:
 G10 L11 P- axes <R- I- J- Q->
 ----
 * 'P' - tool number
-* 'R' - rotation about the Z axis
+* 'R' - radius of tool
 * 'I' - front angle (lathe)
 * 'J' - back angle (lathe)
 * 'Q' - orientation (lathe)

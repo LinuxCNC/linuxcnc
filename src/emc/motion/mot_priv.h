@@ -174,6 +174,10 @@ typedef struct {
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
+    hal_bit_t *ferror_mode;
+#define FERROR_LEGACYMODE (*(emcmot_hal_data->ferror_mode) == 0)
+#define FERROR_NEWPOSMODE (*(emcmot_hal_data->ferror_mode))
+
 } emcmot_hal_data_t;
 
 /***********************************************************************

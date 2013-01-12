@@ -605,9 +605,14 @@ static int init_hal_io(void)
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
     }
+    if ((retval = hal_pin_bit_new("motion.ferror-mode", HAL_IN,
+				  &(emcmot_hal_data->ferror_mode), mot_comp_id)))
+	return retval;
+    *(emcmot_hal_data->ferror_mode) = 0;
+
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_hal_io() complete, %d axes.\n", n);
+		    "MOTION: init_hal_io() complete, %d axes.\n", n);
     return 0;
 
     error:

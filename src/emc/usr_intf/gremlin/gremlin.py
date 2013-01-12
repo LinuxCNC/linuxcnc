@@ -183,7 +183,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def poll(self):
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -200,7 +203,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def realize(self, widget):
         self.set_current_view()
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         self._current_file = None
 
         self.font_base, width, linespace = \
@@ -238,8 +244,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
-	    if result > gcode.MIN_ERROR:
-		self.report_gcode_error(result, seq, filename)
+            if result > gcode.MIN_ERROR:
+                self.report_gcode_error(result, seq, filename)
 
         finally:
             shutil.rmtree(td)
@@ -346,6 +352,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
 
     def report_gcode_error(self, result, seq, filename):
+
 	error_str = gcode.strerror(result)
 	sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
 	                 + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
