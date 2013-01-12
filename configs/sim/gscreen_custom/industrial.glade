@@ -533,8 +533,8 @@
                                       <object class="HAL_DRO" id="dro_y2">
                                         <property name="visible">True</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">1</property>
                                         <attributes>
                                           <attribute name="scale" value="1.200000"/>
                                         </attributes>
@@ -547,8 +547,8 @@
                                       <object class="HAL_DRO" id="dro_z2">
                                         <property name="visible">True</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">2</property>
                                         <attributes>
                                           <attribute name="scale" value="1.200000"/>
                                         </attributes>
@@ -560,8 +560,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">3</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">3</property>
                                       </object>
                                       <packing>
                                         <property name="position">4</property>
@@ -570,8 +570,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">4</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">4</property>
                                       </object>
                                       <packing>
                                         <property name="position">5</property>
@@ -580,8 +580,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">5</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">5</property>
                                       </object>
                                       <packing>
                                         <property name="position">6</property>
@@ -590,8 +590,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">6</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">6</property>
                                       </object>
                                       <packing>
                                         <property name="position">7</property>
@@ -600,8 +600,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">7</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">7</property>
                                       </object>
                                       <packing>
                                         <property name="position">8</property>
@@ -610,8 +610,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">8</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">8</property>
                                       </object>
                                       <packing>
                                         <property name="position">9</property>
@@ -728,12 +728,13 @@
                           <object class="GtkTable" id="status_table1">
                             <property name="visible">True</property>
                             <property name="n_rows">3</property>
-                            <property name="n_columns">4</property>
+                            <property name="n_columns">3</property>
+                            <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="fo">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="xpad">10</property>
+                                <property name="xpad">5</property>
                                 <property name="label" translatable="yes">FO: 100%</property>
                                 <property name="max_width_chars">10</property>
                               </object>
@@ -750,6 +751,21 @@
                                 <property name="max_width_chars">10</property>
                               </object>
                               <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="jog_rate">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">5</property>
+                                <property name="label" translatable="yes"> Jog: 10 Ipm</property>
+                                <property name="max_width_chars">10</property>
+                              </object>
+                              <packing>
+                                <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
                                 <property name="y_options">GTK_FILL</property>
@@ -764,30 +780,14 @@
                                 <property name="max_width_chars">10</property>
                               </object>
                               <packing>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="jog_rate">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="xpad">5</property>
-                                <property name="label" translatable="yes"> Jog: 10 Ipm</property>
-                                <property name="max_width_chars">10</property>
-                              </object>
-                              <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">4</property>
+                                <property name="right_attach">3</property>
                                 <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkTable" id="table10">
+                              <object class="GtkHBox" id="hbox14">
                                 <property name="visible">True</property>
-                                <property name="n_rows">2</property>
-                                <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkLabel" id="label18">
                                     <property name="visible">True</property>
@@ -795,54 +795,23 @@
                                     <property name="label" translatable="yes"> Mist</property>
                                   </object>
                                   <packing>
-                                    <property name="y_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label22">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes"> Flood </property>
-                                  </object>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="y_options">GTK_FILL</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="HAL_LED" id="led_mist">
                                     <property name="visible">True</property>
-                                    <property name="led_shape">1</property>
-                                    <property name="off_color">black</property>
                                     <property name="on_color">yellow</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="x_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="HAL_LED" id="led_flood">
-                                    <property name="visible">True</property>
-                                    <property name="led_shape">1</property>
                                     <property name="off_color">black</property>
-                                    <property name="on_color">green</property>
+                                    <property name="led_shape">1</property>
                                   </object>
                                   <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options"></property>
+                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">1</property>
+                                <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
                               </packing>
                             </child>
@@ -855,21 +824,44 @@
                                 <property name="label" translatable="yes">Continous</property>
                               </object>
                               <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
                                 <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
+                              <object class="GtkHBox" id="hbox15">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label22">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes"> Flood </property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LED" id="led_flood">
+                                    <property name="visible">True</property>
+                                    <property name="on_color">green</property>
+                                    <property name="off_color">black</property>
+                                    <property name="led_shape">1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
@@ -925,16 +917,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="max">2000</property>
-                                <property name="bg_color">#bebebebebebe</property>
-                                <property name="text_template">%d</property>
-                                <property name="z1_color">#ffffffff0000</property>
-                                <property name="value">-7</property>
-                                <property name="z2_color">#ffff00000000</property>
                                 <property name="target_color">#e21911831183</property>
-                                <property name="target_value">500</property>
-                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="z2_color">#ffff00000000</property>
                                 <property name="show_limits">False</property>
+                                <property name="target_value">500</property>
+                                <property name="max">2000</property>
+                                <property name="value">-7</property>
+                                <property name="text_template">%d</property>
+                                <property name="bg_color">#bebebebebebe</property>
+                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="z1_color">#ffffffff0000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -1010,9 +1002,9 @@
                                 <child>
                                   <object class="HAL_LED" id="spindle-at-speed">
                                     <property name="visible">True</property>
-                                    <property name="led_shape">1</property>
-                                    <property name="off_color">black</property>
                                     <property name="on_color">Green</property>
+                                    <property name="off_color">black</property>
+                                    <property name="led_shape">1</property>
                                   </object>
                                   <packing>
                                     <property name="resize">False</property>
@@ -1096,6 +1088,8 @@ Speed</property>
                         <child type="label">
                           <object class="GtkLabel" id="label39">
                             <property name="visible">True</property>
+                            <property name="ypad">1</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Spindle Control&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                         </child>
@@ -1751,613 +1745,6 @@ Aux Coolant</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="button_mode">
-            <property name="label">button</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="image">image12</property>
-            <property name="image_position">right</property>
-          </object>
-          <packing>
-            <property name="left_attach">6</property>
-            <property name="right_attach">7</property>
-            <property name="top_attach">10</property>
-            <property name="bottom_attach">11</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkVBox" id="hbuttonbox">
-            <property name="visible">True</property>
-            <property name="homogeneous">True</property>
-            <child>
-              <object class="GtkHBox" id="mode3">
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="button_h0_0">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h0_1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h0_2">
-                    <property name="label" translatable="yes">Home All</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h0_3">
-                    <property name="label" translatable="yes">Home Axis</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h0_4">
-                    <property name="label" translatable="yes">Unhome 
-    All</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="unhome_axis">
-                    <property name="label" translatable="yes">Unhome
-   Axis</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h0_5">
-                    <property name="label" translatable="yes">Toggle
-Readout</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="mode0">
-                <property name="visible">True</property>
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="HAL_ToggleButton" id="button_h1_0">
-                    <property name="label" translatable="yes">Jogging
-  Mode</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h1_1">
-                    <property name="label" translatable="yes">coordinate
-  System</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h1_2">
-                    <property name="label" translatable="yes">Mist</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h1_3">
-                    <property name="label" translatable="yes">Flood</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="index_tool">
-                    <property name="label" translatable="yes">Index
- Tool</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h1_4">
-                    <property name="label" translatable="yes"> Tool
-Editor</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h1_5">
-                    <property name="label" translatable="yes">Toggle
-Readout</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_offsets">
-                    <property name="label" translatable="yes"> Show
-Offsets</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">7</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="mode1">
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="button_h2_0">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h2_1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h2_2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h2_3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h2_4">
-                    <property name="label" translatable="yes">
-</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h2_5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_6">
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="mode2">
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkButton" id="button_h3_0">
-                    <property name="label" translatable="yes">  load
-program</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="related_action">hal_action_open</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h3_1">
-                    <property name="label" translatable="yes"> Block
-Delete</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h3_2">
-                    <property name="label" translatable="yes">Optional
-  Stop</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_3">
-                    <property name="label" translatable="yes">    Full
-Graphics</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_4">
-                    <property name="label" translatable="yes">Save</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save</property>
-                    <property name="related_action">hal_action_save1</property>
-                    <property name="yalign">0.56999999284744263</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_5">
-                    <property name="label" translatable="yes">Save-As</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save edits with a filename</property>
-                    <property name="related_action">hal_action_saveas1</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_">
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_7">
-                    <property name="label" translatable="yes">Next
- Tab</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">7</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="mode4">
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_0">
-                    <property name="label" translatable="yes">   Feed
-Override</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_1">
-                    <property name="label" translatable="yes">Spindle
-Override</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_2">
-                    <property name="label" translatable="yes">  Rapid
-Override</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_3">
-                    <property name="label" translatable="yes">   Jog
-Speed</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h4_4">
-                    <property name="label" translatable="yes">      Jog
-Increments</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="mode5">
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkButton" id="button_h5_2">
-                    <property name="label" translatable="yes">Change
-  View</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h5_3">
-                    <property name="label" translatable="yes">Clear
- Plot</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h5_1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h5_0">
-                    <property name="label" translatable="yes">Zoom</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h5_4">
-                    <property name="label" translatable="yes">   Pan
-Vertical</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h5_5">
-                    <property name="label" translatable="yes">     Pan
-Horizontal</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h5_6">
-                    <property name="label" translatable="yes">  Rotate
-Horiontal</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="button_h5_7">
-                    <property name="label" translatable="yes"> Rotate
-Vertical</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">7</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="right_attach">6</property>
-            <property name="top_attach">10</property>
-            <property name="bottom_attach">11</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkHBox" id="hbox4">
             <property name="visible">True</property>
             <child>
@@ -2488,8 +1875,8 @@ status</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="run_button">
-                    <property name="label" translatable="yes"> Run </property>
+                  <object class="GtkToggleButton" id="tooledit_button">
+                    <property name="label" translatable="yes">Tooledit</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2499,8 +1886,8 @@ status</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="tooledit_button">
-                    <property name="label" translatable="yes">Tooledit</property>
+                  <object class="GtkToggleButton" id="run_button">
+                    <property name="label" translatable="yes"> Program </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2527,7 +1914,6 @@ status</property>
             <property name="right_attach">6</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">2</property>
-            <property name="y_options">GTK_EXPAND</property>
           </packing>
         </child>
         <child>
@@ -2576,9 +1962,9 @@ status</property>
                         <child>
                           <object class="HAL_LED" id="led_on">
                             <property name="visible">True</property>
-                            <property name="led_shape">1</property>
-                            <property name="off_color">black</property>
                             <property name="on_color">green</property>
+                            <property name="off_color">black</property>
+                            <property name="led_shape">1</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -2834,7 +2220,14 @@ Hold</property>
               <placeholder/>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkButton" id="button_mode">
+                <property name="label" translatable="yes">mode button</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
             </child>
             <child>
               <object class="GtkFrame" id="frame9">
@@ -2889,8 +2282,8 @@ Limits</property>
                               <object class="HAL_LED" id="led_ignore_limits">
                                 <property name="visible">True</property>
                                 <property name="has_hal_pin">False</property>
-                                <property name="off_color">black</property>
                                 <property name="led_size">5</property>
+                                <property name="off_color">black</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2935,16 +2328,7 @@ Override</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="toggle_keyboard">
-                        <property name="label" translatable="yes">  Toggle
-Keyboard</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                      </object>
-                      <packing>
-                        <property name="position">5</property>
-                      </packing>
+                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -3007,9 +2391,9 @@ Keyboard</property>
                     <child>
                       <object class="HAL_LED" id="led_estop">
                         <property name="visible">True</property>
-                        <property name="led_shape">1</property>
                         <property name="led_blink_rate">200</property>
                         <property name="off_color">black</property>
+                        <property name="led_shape">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -3033,6 +2417,610 @@ Keyboard</property>
             <property name="right_attach">7</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="hbuttonbox">
+            <property name="visible">True</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkHBox" id="mode3">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="button_h0_0">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h0_1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h0_2">
+                    <property name="label" translatable="yes">Home All</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h0_3">
+                    <property name="label" translatable="yes">Home Axis</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h0_4">
+                    <property name="label" translatable="yes">Unhome 
+    All</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="unhome_axis">
+                    <property name="label" translatable="yes">Unhome
+   Axis</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h0_5">
+                    <property name="label" translatable="yes">Toggle
+Readout</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode0">
+                <property name="visible">True</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="HAL_ToggleButton" id="button_h1_0">
+                    <property name="label" translatable="yes">Jogging
+  Mode</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h1_1">
+                    <property name="label" translatable="yes">Coordinate
+  System</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h1_2">
+                    <property name="label" translatable="yes">Mist</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h1_3">
+                    <property name="label" translatable="yes">Flood</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="index_tool">
+                    <property name="label" translatable="yes">Index
+ Tool</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h1_4">
+                    <property name="label" translatable="yes"> Tool
+Editor</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h1_5">
+                    <property name="label" translatable="yes">Toggle
+Readout</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_offsets">
+                    <property name="label" translatable="yes"> Show
+Offsets</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode1">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="button_h2_0">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h2_1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_4">
+                    <property name="label" translatable="yes">
+</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_6">
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode2">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="button_h3_0">
+                    <property name="label" translatable="yes">  load
+program</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">hal_action_open</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h3_1">
+                    <property name="label" translatable="yes"> Block
+Delete</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h3_2">
+                    <property name="label" translatable="yes">Optional
+  Stop</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_3">
+                    <property name="label" translatable="yes">    Full
+Graphics</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_4">
+                    <property name="label" translatable="yes">Save</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_markup">Save</property>
+                    <property name="related_action">hal_action_save1</property>
+                    <property name="yalign">0.56999999284744263</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_5">
+                    <property name="label" translatable="yes">Save-As</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_markup">Save edits with a filename</property>
+                    <property name="related_action">hal_action_saveas1</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_7">
+                    <property name="label" translatable="yes">Next
+ Tab</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode4">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_0">
+                    <property name="label" translatable="yes">   Feed
+Override</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_1">
+                    <property name="label" translatable="yes">Spindle
+Override</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_2">
+                    <property name="label" translatable="yes">  Rapid
+Override</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_3">
+                    <property name="label" translatable="yes">   Jog
+Speed</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h4_4">
+                    <property name="label" translatable="yes">      Jog
+Increments</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode5">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="button_h5_2">
+                    <property name="label" translatable="yes">Change
+  View</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h5_3">
+                    <property name="label" translatable="yes">Clear
+ Plot</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h5_1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h5_0">
+                    <property name="label" translatable="yes">Zoom</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h5_4">
+                    <property name="label" translatable="yes">   Pan
+Vertical</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h5_5">
+                    <property name="label" translatable="yes">     Pan
+Horizontal</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h5_6">
+                    <property name="label" translatable="yes">  Rotate
+Horiontal</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h5_7">
+                    <property name="label" translatable="yes"> Rotate
+Vertical</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="right_attach">6</property>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="toggle_keyboard">
+            <property name="label" translatable="yes">  Toggle
+Keyboard</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">6</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
           </packing>
         </child>
       </object>
@@ -3118,8 +3106,8 @@ Hold</property>
             <child>
               <object class="Calculator" id="calc_entry">
                 <property name="visible">True</property>
-                <property name="font">sans 20</property>
                 <property name="is_editable">True</property>
+                <property name="font">sans 20</property>
               </object>
             </child>
             <child type="label">
@@ -3185,10 +3173,6 @@ Hold</property>
   <object class="GtkImage" id="image11">
     <property name="visible">True</property>
     <property name="stock">gtk-apply</property>
-  </object>
-  <object class="GtkImage" id="image12">
-    <property name="visible">True</property>
-    <property name="stock">gtk-media-forward</property>
   </object>
   <object class="EMC_Action_Step" id="hal_action_step">
     <property name="label">Single
