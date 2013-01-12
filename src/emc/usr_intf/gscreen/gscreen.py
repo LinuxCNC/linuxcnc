@@ -618,7 +618,7 @@ class Gscreen:
         except:
             pass
         # timers for display updates
-        gobject.timeout_add(50, self.periodic_status)
+        gobject.timeout_add(100, self.periodic_status)
 
     # initialize default widgets
     def initialize_widgets(self):
