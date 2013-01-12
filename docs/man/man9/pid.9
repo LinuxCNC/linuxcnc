@@ -58,6 +58,10 @@ the feedback is from a quantized position source (e.g., encoder feedback
 position), behavior of the D term can be improved by using a better velocity
 estimate here, such as the velocity output of encoder(9) or hostmot2(9).
 .TP
+\fBpid.\fIN\fB.error-previous-target\fR bit in
+Use previous invocation's target vs. current position for error calculation, like 
+the motion controller expects.
+.TP
 \fBpid.\fIN\fB.error\fR float out
 The difference between command and feedback.
 .TP
