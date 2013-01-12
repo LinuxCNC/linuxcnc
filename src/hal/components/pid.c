@@ -198,6 +198,7 @@ typedef struct {
 			       /* pin: the time the output has been saturated */
     hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
                                        otherwise screw up FF */
+    hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
     char prev_ie;
 } hal_pid_t;
 
@@ -312,7 +313,11 @@ static void calc_pid(void *arg, long period)
     command = *(pid->command);
     feedback = *(pid->feedback);
     /* calculate the error */
-    tmp1 = command - feedback;
+    if (*(pid->error_previous_target)) {
+        tmp1 = pid->prev_cmd - feedback;
+    } else {
+        tmp1 = command - feedback;
+    }
     /* store error to error pin */
     *(pid->error) = tmp1;
     /* apply error limits */
@@ -589,6 +594,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->index_enable), comp_id,
 			      "%s.index-enable", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->error_previous_target), comp_id,
+			      "%s.error-previous-target", prefix);
     if (retval != 0) {
 	return retval;
     }
