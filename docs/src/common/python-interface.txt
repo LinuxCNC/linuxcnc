@@ -351,7 +351,7 @@ woffset, diameter, frontangle, backangle, orientation. The id and orientation
 are integers and the rest are floats.
 
 *velocity*:: '(returns float)' -
- default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
+default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
 
 === The `axis` dictionary [[sec:The-Axis-dictionary]]
 
@@ -369,71 +369,76 @@ print 'Axis 1 homed: ', s.axis[1]['homed']
 
 For each axis, the following dictionary keys are available:
 
-`axisType`:: 
-    type of axis, int. 	configuration parameter, reflects
-    [AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sub:[AXIS]-section, Axis
-    ini configuration>> for details.
+*axisType*:: '(returns integer)' -
+type of axis configuration parameter, reflects
+[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sub:[AXIS]-section, Axis
+ini configuration>> for details.
 
-`backlash`::
-     Backlash in machine units, float. configuration parameter, reflects [AXIS_x]BACKLASH.
+*backlash*:: '(returns float)' -
+Backlash in machine units. configuration parameter, reflects [AXIS_x]BACKLASH.
 
-`enabled`:: 
-     non-zero means enabled, int. 
+*enabled*:: '(returns integer)' -
+non-zero means enabled.
 
-`fault`:: 
-      non-zero means axis amp fault, int.
+*fault*:: '(returns integer)' -
+non-zero means axis amp fault.
 
-`ferror_current`::
-	current following error, float.
+*ferror_current*:: '(returns float)' -
+current following error.
 
-`ferror_highmark`::
-	magnitude of max following error, float.
+*ferror_highmark*:: '(returns float)' -
+magnitude of max following error.
 
-`homed`:: 
-	  non-zero means has been homed, int.
+*homed*:: '(returns integer)' -
+non-zero means has been homed.
 
-`homing`:: 
-	   non-zero means homing in progress, int.
+*homing*:: '(returns integer)' -
+non-zero means homing in progress.
 
-`inpos`:: 
-	  non-zero means in position, int.
+*inpos*:: '(returns integer)' -
+non-zero means in position.
 
-`input`:: 
-	  current input position, float.
+*input*:: '(returns float)' -
+current input position.
 
-`max_ferror`:: 
-	  maximum following error, float. configuration
-	  parameter, reflects [AXIS_x]FERROR.
+*max_ferror*:: '(returns float)' -
+maximum following error. configuration
+parameter, reflects [AXIS_x]FERROR.
 
-`max_hard_limit`::
-         non-zero means max hard limit exceeded, int.
+*max_hard_limit*:: '(returns integer)' -
+non-zero means max hard limit exceeded.
 
-`max_position_limit`:: 
-	  maximum limit (soft limit) for axis motion, in machine units, float.configuration
-	  parameter, reflects [AXIS_x]MAX_LIMIT.
-`max_soft_limit`::
-	non-zero means `max_position_limit` was exceeded, int
+*max_position_limit*:: '(returns float)' -
+maximum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [AXIS_x]MAX_LIMIT.
 
-`min_ferror`:: 
-	  float.configuration parameter, reflects [AXIS_x]MIN_FERROR.
+*max_soft_limit*::
+non-zero means `max_position_limit` was exceeded, int
 
-`min_hard_limit`:: 
-         non-zero means min hard limit exceeded, int.
+*min_ferror*:: '(returns float)' -
+configuration parameter, reflects [AXIS_x]MIN_FERROR.
 
-`min_position_limit`::
- 	  minimum limit (soft limit) for axis motion, in machine units, float.configuration
-	  parameter, reflects [AXIS_x]MIN_LIMIT.
-`min_soft_limit`:: 
-	non-zero means `min_position_limit` was  exceeded, int
-`output`:: 
-	 commanded output position, float.
-`override_limits`:: 
-         non-zero means limits are overridden, int.
-`units`:: 
-	units per mm, deg for linear, angular	
-`velocity`:: 
-	  current velocity, float.
-    
+*min_hard_limit*:: '(returns integer)' -
+non-zero means min hard limit exceeded.
+
+*min_position_limit*:: '(returns float)' -
+minimum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [AXIS_x]MIN_LIMIT.
+
+*min_soft_limit*:: '(returns integer)' -
+non-zero means `min_position_limit` was exceeded.
+
+*output*:: '(returns float)' -
+commanded output position.
+
+*override_limits*:: '(returns integer)' -
+non-zero means limits are overridden.
+
+*units*:: '(returns float)' -
+units per mm, deg for linear, angular
+
+*velocity*:: '(returns float)' -
+current velocity.
 
 ==  Preparing to send  commands 
 
