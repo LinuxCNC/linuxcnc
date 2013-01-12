@@ -890,41 +890,59 @@ class Gscreen:
         else:
             self.adjust_spindle_rpm(self.data.spindle_preset,-1)
 
+    # dialog for setting the spindle preset speed
     def on_preset_spindle(self,*args):
         if self.data.preset_spindle_dialog: return
-        self.data.preset_spindle_dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION,  gtk.BUTTONS_OK_CANCEL,"Spindle Preset")
+        label = gtk.Label("Spindle Speed Preset Entry")
+        label.modify_font(pango.FontDescription("sans 20"))
+        self.data.preset_spindle_dialog = gtk.Dialog("Spindle Speed Preset Entry",
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         calc = gladevcp.Calculator()
+        self.data.preset_spindle_dialog.vbox.pack_start(label)
         self.data.preset_spindle_dialog.vbox.add(calc)
         calc.set_value("")
+        calc.set_property("font","sans 20")
+        self.data.preset_spindle_dialog.parse_geometry("400x400")
+        self.data.preset_spindle_dialog.set_decorated(False)
         self.data.preset_spindle_dialog.show_all()
         self.widgets.data_input.set_sensitive(False)
         self.data.preset_spindle_dialog.connect("response", self.on_preset_spindle_return,calc)
 
     def on_preset_spindle_return(self,widget,result,calc):
-        if result == gtk.RESPONSE_OK:
-            self.preset_spindle_speed(calc.get_value())
+        if result == gtk.RESPONSE_ACCEPT:
+            data = calc.get_value()
+            if data:
+                self.preset_spindle_speed(data)
         self.widgets.data_input.set_sensitive(True)
         widget.destroy()
         self.data.preset_spindle_dialog = None
 
+    # dialog for manually calling a tool
     def on_index_tool(self,*args):
         if self.data.index_tool_dialog: return
-        self.data.index_tool_dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION,  gtk.BUTTONS_OK_CANCEL,"Index Tool")
+        self.data.index_tool_dialog = gtk.Dialog("Manual Tool Index Entry",
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        label = gtk.Label("Manual Tool Index Entry")
+        label.modify_font(pango.FontDescription("sans 20"))
+        self.data.index_tool_dialog.vbox.pack_start(label)
         calc = gladevcp.Calculator()
         self.data.index_tool_dialog.vbox.add(calc)
         calc.set_value("")
+        calc.set_property("font","sans 20")
+        self.data.index_tool_dialog.parse_geometry("400x400")
         self.data.index_tool_dialog.show_all()
         self.widgets.data_input.set_sensitive(False)
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.RESPONSE_ACCEPT:
             tool = abs(int((calc.get_value())))
-            print tool
             self.mdi_control.index_tool(tool)
         self.widgets.data_input.set_sensitive(True)
         widget.destroy()
