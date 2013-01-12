@@ -1,5 +1,10 @@
 import hal
-_MAN = 0;_MDI = 1;_AUTO = 2
+import gtk
+import gladevcp.makepins # needed for the dialog's calulator widget
+import pango
+
+_MAN = 0;_MDI = 1;_AUTO = 2;_UNLOCKCODE = 123
+
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
@@ -52,7 +57,7 @@ class HandlerClass:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
 
-    # These 5 method are used to select the 5 different tabs directly
+    # display the main tab and set the mode to setup
     def on_setup_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _MAN,_MDI,_AUTO
@@ -61,6 +66,7 @@ class HandlerClass:
         self.gscreen.mode_changed(self.data.mode_order[0])
         self.toggle_modes(widget)
 
+    # display the main tab and set the mode to run
     def on_run_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _AUTO,_MAN,_MDI
@@ -69,6 +75,7 @@ class HandlerClass:
         self.gscreen.mode_changed(self.data.mode_order[0])
         self.toggle_modes(widget)
 
+    # display the main tab and set the mode to MDI
     def on_mdi_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(0)
         self.data.mode_order = _MDI,_MAN,_AUTO
@@ -77,14 +84,30 @@ class HandlerClass:
         self.gscreen.mode_changed(self.data.mode_order[0])
         self.toggle_modes(widget)
 
+    # This is called when the system button is toggled
+    # If the page is not showing it displays a unlock code dialog
+    # if that returns true then the page is shown
+    # otherwise the button is untoggled and the page is not shown
     def on_system_button_clicked(self,widget):
+        if self.widgets.notebook_main.get_current_page() == 4:
+            self.gscreen.block("system_button")
+            widget.set_active(True)
+            self.gscreen.unblock("system_button")
+            return
+        if not self.system_dialog():
+            self.gscreen.block("system_button")
+            widget.set_active(False)
+            self.gscreen.unblock("system_button")
+            return
         self.widgets.notebook_main.set_current_page(4)
         self.toggle_modes(widget)
 
+    # Display the tooledit tab
     def on_tooledit_button_clicked(self,widget):
         self.widgets.notebook_main.set_current_page(3)
         self.toggle_modes(widget)
 
+    # This toggles the buttons so only one is presses at any one time
     def toggle_modes(self,widget):
         temp = "setup_button","mdi_button","run_button","tooledit_button","system_button"
         for i in temp:
@@ -93,6 +116,32 @@ class HandlerClass:
             self.gscreen.block(i)
             self.widgets[i].set_active(state)
             self.gscreen.unblock(i)
+
+    # This dialog is for unlocking the system tab
+    # The unlock code number is defined at the top of the page
+    def system_dialog(self):
+        dialog = gtk.Dialog("System Unlock Code",
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        label = gtk.Label("System Unlock Code")
+        label.modify_font(pango.FontDescription("sans 20"))
+        calc = gladevcp.Calculator()
+        dialog.vbox.pack_start(label)
+        dialog.vbox.add(calc)
+        calc.set_value("")
+        calc.set_property("font","sans 20")
+        dialog.parse_geometry("400x400")
+        dialog.set_decorated(False)
+        dialog.show_all()
+        self.widgets.data_input.set_sensitive(False)
+        response = dialog.run()
+        code = calc.get_value()
+        dialog.destroy()
+        if response == gtk.RESPONSE_ACCEPT:
+            if code == _UNLOCKCODE: return True
+        return False
 
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
@@ -123,13 +172,10 @@ class HandlerClass:
         self.gscreen.init_screen1_geometry()
         self.gscreen.init_running_options()
         self.gscreen.init_hide_cursor()
-        self.data.mode_labels = ["Set-Up Mode","MDI Mode","Run Mode"]
         #self.gscreen.init_mode()
         self.gscreen.mode_changed(self.data.mode_order[0])
         self.gscreen.init_sensitive_on_off()
-
         self.gscreen.init_sensitive_run_idle()
-
         self.gscreen.init_sensitive_all_homed()
         self.data.sensitive_all_homed.append("index_tool")
         self.gscreen.init_state()
@@ -138,7 +184,7 @@ class HandlerClass:
             self.widgets["dro_%s2"%i].show()
             self.widgets["axis_%s"%i].show()
 
-    # every 50 milli seconds this gets called
+    # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
     # and add any extra calls/code 
     def periodic(self):
