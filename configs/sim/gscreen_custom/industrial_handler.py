@@ -125,6 +125,7 @@ class HandlerClass:
         self.gscreen.init_hide_cursor()
         self.data.mode_labels = ["Set-Up Mode","MDI Mode","Run Mode"]
         #self.gscreen.init_mode()
+        self.gscreen.mode_changed(self.data.mode_order[0])
         self.gscreen.init_sensitive_on_off()
 
         self.gscreen.init_sensitive_run_idle()
