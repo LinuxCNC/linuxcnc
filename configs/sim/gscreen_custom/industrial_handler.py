@@ -43,6 +43,7 @@ class HandlerClass:
             self.emc.machine_off(1)
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
+            self.gscreen.add_alarm_entry("Machine Estopped!")
         return True
 
     # This is a new method for our new button
@@ -53,6 +54,7 @@ class HandlerClass:
         elif not self.data.machine_on:
             self.emc.machine_on(1)
             self.widgets.on_label.set_text("Machine On")
+            self.gscreen.add_alarm_entry("Machine powered on")
         else:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
