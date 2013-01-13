@@ -642,8 +642,17 @@ class Gscreen:
             self.widgets._terminal.feed_child('halcmd show pin gscreen\n')
         except:
             pass
+
         # timers for display updates
-        gobject.timeout_add(100, self.periodic_status)
+        temp = self.inifile.find("DISPLAY","CYCLE_TIME")
+        if not temp:
+            self.add_alarm_entry("CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms")
+            temp = 100
+        elif float(temp) < 50:
+            self.add_alarm_entry("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms")
+            temp = 100
+        print "timeout %d" % int(temp)
+        gobject.timeout_add(int(temp), self.periodic_status)
 
     # initialize default widgets
     def initialize_widgets(self):
