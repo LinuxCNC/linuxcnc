@@ -139,6 +139,7 @@ class HandlerClass:
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
+        self.widgets.data_input.set_sensitive(True)
         if response == gtk.RESPONSE_ACCEPT:
             if code == _UNLOCKCODE: return True
         return False
