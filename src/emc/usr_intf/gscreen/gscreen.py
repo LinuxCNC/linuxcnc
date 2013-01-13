@@ -441,6 +441,8 @@ class Gscreen:
         self.inifile = self.emc.emc.ini(self.inipath)
         # change the display based on the requested axis
         temp = self.inifile.find("TRAJ","COORDINATES")
+        if temp == None:
+            self.add_alarm_entry("No coordinates entry found in [TRAJ] of INI file")
         self.data.axis_list = []
         for letter in temp:
             if letter.lower() in self.data.axis_list: continue
@@ -489,6 +491,8 @@ class Gscreen:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
+        else:
+            self.add_alarm_entry("No default jog increments entry found in [DISPLAY] of INI file")
         self.data.jog_increments.insert(0,"Continuous")
 
         # max velocity settings: more then one place to check
@@ -496,6 +500,7 @@ class Gscreen:
         if temp == None:
             temp = self.inifile.find("TRAJ","MAX_VELOCITY")
             if temp == None:
+                self.add_alarm_entry("No Max velocity entry found in INI file: using internal default of 1")
                 temp = 1.0
         self.data._maxvelocity = float(temp)
 
@@ -503,12 +508,20 @@ class Gscreen:
         temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_max = float(temp)
+        else:
+            self.add_alarm_entry("No max spindle override entry found in [DISPLAY] of INI file")
+
         temp = self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_min = float(temp)
+        else:
+            self.add_alarm_entry("No minimum spindle override entry found in [DISPLAY] of INI file")
+
         temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
         if temp:
             self.data.feed_override_max = float(temp)
+        else:
+            self.add_alarm_entry("No max feed override entry found in [DISPLAY] of INI file")
 
         # check the ini file if UNITS are set to mm"
         # first check the global settings
@@ -516,6 +529,8 @@ class Gscreen:
         if units==None:
             # else then the X axis units
             units=self.inifile.find("AXIS_0","UNITS")
+            if units==None:
+                self.add_alarm_entry("No units entry found in [TRAJ] or [AXIS_0] of INI file")
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
@@ -526,6 +541,8 @@ class Gscreen:
 
         # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
+        if self.data.lathe_mode:
+            self.add_alarm_entry("This screen will be orientated for Lathe options")
 
         # get the path to the tool table
         self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
@@ -552,7 +569,9 @@ class Gscreen:
 
         # set default jog rate
         temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
-        if not temp: temp = self.data.jog_rate
+        if not temp:
+            temp = self.data.jog_rate
+            self.add_alarm_entry("No default linear velocity entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
         self.data.jog_rate = float(temp)
         self.emc.continuous_jog_velocity(float(temp))
 
@@ -798,7 +817,7 @@ class Gscreen:
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
         self.on_hal_status_state_off(None)
-        self.add_alarm_entry("Control initally powered up")
+        self.add_alarm_entry("Control powered up and initialized")
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -1232,11 +1251,12 @@ class Gscreen:
         elif not self.data.machine_on:
             self.emc.machine_on(1)
             self.widgets.on_label.set_text("Machine On")
+            self.add_alarm_entry("Machine powered on")
         else:
             self.emc.machine_off(1)
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
-
+            self.add_alarm_entry("Machine Estopped!")
 
     def on_theme_choice_changed(self, widget):
         self.change_theme(widget.get_active_text())
