@@ -804,6 +804,7 @@ class Gscreen:
         self.init_coolant_pins()
         self.init_jog_pins()
         self.init_override_pins()
+        self.init_control_pins()
 
     def init_spindle_pins(self):
         self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
@@ -830,6 +831,10 @@ class Gscreen:
         self.halcomp.newpin("f-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
         self.halcomp.newpin("mv-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
 
+    def init_control_pins(self):
+        self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.HAL_BIT, hal.HAL_IN))
+        self.data['cycle_start'].connect('value-changed', self.on_cycle_start_changed)
+
     def initialize_manual_toolchange(self):
         # for manual tool change dialog
         self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
@@ -842,6 +847,18 @@ class Gscreen:
             self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
 # *** GLADE callbacks ****
+
+    def on_cycle_start_changed(self,hal_object):
+        print "cycle start change"
+        h = self.halcomp
+        print h["cycle-start"]
+        if not h["cycle-start"]: return
+        if self.data.mode_order[0] == _AUTO:
+            print "run program"
+            self.emc.cycle_start()
+        elif self.data.mode_order[0] == _MDI:
+            print "run MDI"
+            self.widgets.hal_mdihistory.submit()
 
     # Here we create a manual tool change dialog
     # This can be overridden in a handler file
