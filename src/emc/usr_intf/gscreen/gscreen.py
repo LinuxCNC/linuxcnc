@@ -798,6 +798,7 @@ class Gscreen:
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
         self.on_hal_status_state_off(None)
+        self.add_alarm_entry("Control initally powered up")
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -1592,11 +1593,7 @@ class Gscreen:
                 messageid = self.widgets.statusbar1.push(self.statusbar_id,message)
             except:
                 pass
-            try:
-                textbuffer = self.widgets.alarm_history.get_buffer()
-                textbuffer.insert_at_cursor(strftime("%a, %d %b %Y %H:%M:%S     -", localtime())+message+"\n" )
-            except:
-                pass
+            self.add_alarm_entry(message)
             if NOTIFY_AVAILABLE:
                 uri = ""
                 if icon:
@@ -1613,6 +1610,13 @@ class Gscreen:
                     self.audio.set_sound(self.data.alert_sound)
                 self.audio.run()
             return messageid
+
+    def add_alarm_entry(self,message):
+        try:
+            textbuffer = self.widgets.alarm_history.get_buffer()
+            textbuffer.insert_at_cursor(strftime("%a, %d %b %Y %H:%M:%S     -", localtime())+message+"\n" )
+        except:
+            pass
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
