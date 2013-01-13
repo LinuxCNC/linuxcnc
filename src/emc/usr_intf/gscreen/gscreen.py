@@ -551,7 +551,10 @@ class Gscreen:
            self.status.dro_commanded(0)
 
         # set default jog rate
-        self.emc.continuous_jog_velocity(self.data.jog_rate)
+        temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
+        if not temp: temp = self.data.jog_rate
+        self.data.jog_rate = float(temp)
+        self.emc.continuous_jog_velocity(float(temp))
 
         # set-up HAL component
         try:
