@@ -568,8 +568,11 @@ class Gscreen:
            self.status.dro_commanded(0)
 
         # set default jog rate
+        # must convert from INI's units per second to gscreen's units per minute
         temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
-        if not temp:
+        if temp:
+            temp = float(temp)*60
+        else:
             temp = self.data.jog_rate
             self.add_alarm_entry("No default linear velocity entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
         self.data.jog_rate = float(temp)
