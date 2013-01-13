@@ -189,24 +189,21 @@ class emc_control:
                         else:
                                 self.emccommand.auto(self.emc.AUTO_RESUME)
 
+        # make sure linuxcnc is in AUTO mode
+        # if Linuxcnc is paused then pushing cycle start will step the program
+        # else the program starts from line 0
         def cycle_start(self):
+                if self.emcstat.task_mode != self.emc.MODE_AUTO:
+                    self.emccommand.mode(self.emc.MODE_AUTO)
+                    self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.paused:
-                        if self.sb:
-                                self.emccommand.auto(self.emc.AUTO_STEP)
-                        else:
-                                self.emccommand.auto(self.emc.AUTO_RESUME)
-                        return
-
+                    self.emccommand.auto(self.emc.AUTO_STEP)
+                    return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        self.emccommand.mode(self.emc.MODE_AUTO)
-                        self.emccommand.wait_complete()
-                        if self.sb:
-                                self.emccommand.auto(self.emc.AUTO_STEP)
-                        #else:
-                        #        self.emccommand.auto(self.emc.AUTO_RUN, self.listing.get_startline())
-                        #        self.listing.clear_startline()
+                        self.emccommand.auto(self.emc.AUTO_RUN, 0)
 
+        # this restarts the program at the line specified
         def re_start(self,line):
             self.emccommand.mode(self.emc.MODE_AUTO)
             self.emccommand.wait_complete()
