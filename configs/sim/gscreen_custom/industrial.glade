@@ -533,8 +533,8 @@
                                       <object class="HAL_DRO" id="dro_y2">
                                         <property name="visible">True</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">1</property>
+                                        <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="scale" value="1.200000"/>
                                         </attributes>
@@ -547,8 +547,8 @@
                                       <object class="HAL_DRO" id="dro_z2">
                                         <property name="visible">True</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">2</property>
+                                        <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="scale" value="1.200000"/>
                                         </attributes>
@@ -560,8 +560,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">3</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">4</property>
@@ -570,8 +570,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">4</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">5</property>
@@ -580,8 +580,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">5</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">6</property>
@@ -590,8 +590,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">6</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">7</property>
@@ -600,8 +600,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">7</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">8</property>
@@ -610,8 +610,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">8</property>
+                                        <property name="reference_type">1</property>
                                       </object>
                                       <packing>
                                         <property name="position">9</property>
@@ -917,118 +917,21 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="z2_color">#ffff00000000</property>
                                 <property name="value">-7</property>
-                                <property name="max">2000</property>
-                                <property name="text_template">%d</property>
-                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="z2_color">#ffff00000000</property>
                                 <property name="target_color">#e21911831183</property>
-                                <property name="z1_color">#ffffffff0000</property>
-                                <property name="show_limits">False</property>
+                                <property name="max">2000</property>
                                 <property name="bg_color">#bebebebebebe</property>
+                                <property name="z0_color">#0000ffff0000</property>
                                 <property name="target_value">500</property>
+                                <property name="show_limits">False</property>
+                                <property name="text_template">%d</property>
+                                <property name="z1_color">#ffffffff0000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkToggleButton" id="s_display_fwd">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <child>
-                                  <object class="GtkHBox" id="hbox7">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label36">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes"> FWD</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="x_options">GTK_EXPAND</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkToggleButton" id="s_display_rev">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <child>
-                                  <object class="GtkHBox" id="hbox10">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label37">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes"> REV</property>
-                                      </object>
-                                      <packing>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options">GTK_EXPAND</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHPaned" id="hpaned1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <child>
-                                  <object class="HAL_LED" id="spindle-at-speed">
-                                    <property name="visible">True</property>
-                                    <property name="on_color">Green</property>
-                                    <property name="off_color">black</property>
-                                    <property name="led_shape">1</property>
-                                  </object>
-                                  <packing>
-                                    <property name="resize">False</property>
-                                    <property name="shrink">True</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label38">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">   At
-Speed</property>
-                                  </object>
-                                  <packing>
-                                    <property name="resize">True</property>
-                                    <property name="shrink">True</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_EXPAND</property>
                               </packing>
                             </child>
                             <child>
@@ -1081,6 +984,144 @@ Speed</property>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
                                 <property name="x_options">GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkAlignment" id="alignment3">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="xscale">0.30000001192092896</property>
+                                <child>
+                                  <object class="GtkToggleButton" id="s_display_fwd">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <child>
+                                      <object class="GtkHBox" id="hbox7">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label36">
+                                            <property name="visible">True</property>
+                                            <property name="ypad">1</property>
+                                            <property name="label" translatable="yes"> FWD</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkAlignment" id="alignment4">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="xscale">0.30000001192092896</property>
+                                <child>
+                                  <object class="GtkToggleButton" id="s_display_rev">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <child>
+                                      <object class="GtkHBox" id="hbox10">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label37">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes"> REV</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkAlignment" id="alignment5">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="xscale">0.80000001192092896</property>
+                                <child>
+                                  <object class="GtkVBox" id="vbox16">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkHBox" id="hbox16">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <object class="GtkAlignment" id="alignment6">
+                                            <property name="visible">True</property>
+                                            <property name="xalign">1</property>
+                                            <property name="xscale">0.5</property>
+                                            <child>
+                                              <object class="HAL_LED" id="spindle-at-speed">
+                                                <property name="visible">True</property>
+                                                <property name="led_size">5</property>
+                                                <property name="on_color">Green</property>
+                                                <property name="off_color">black</property>
+                                                <property name="led_shape">1</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label38">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">At</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="at_speed_label">
+                                        <property name="width_request">70</property>
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="label" translatable="yes">10000 RPM</property>
+                                      </object>
+                                      <packing>
+                                        <property name="position">-1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                           </object>

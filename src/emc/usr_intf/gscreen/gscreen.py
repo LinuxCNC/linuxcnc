@@ -2578,6 +2578,7 @@ class Gscreen:
 
     # spindle controls
     def update_mdi_spindle_button(self):
+        self.widgets.at_speed_label.set_label("%d RPM"%abs(self.data.spindle_speed))
         label = self.widgets.spindle_control.get_label()
         speed = self.data.spindle_speed
         if speed == 0 and not label == "Start":
