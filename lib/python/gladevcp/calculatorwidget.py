@@ -16,8 +16,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+# This fixes integer division error
+# so dividing two integers gives a float
+from __future__ import division
 import sys,os,pango
 import math
+
 datadir = os.path.abspath(os.path.dirname(__file__))
 
 try:
