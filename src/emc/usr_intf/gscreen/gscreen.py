@@ -2315,6 +2315,7 @@ class Gscreen:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
             self.widgets.button_v0_5.set_label("Move To")
+            self.emc.set_manual_mode()
         else:
             self.widgets.button_v0_5.set_label("")
         self.update_hal_jog_pins()
@@ -2574,7 +2575,7 @@ class Gscreen:
                 self.widgets.button_homing.emit("clicked")
             if self.data.plot_hidden:
                 self.toggle_offset_view()
-            self.mdi_control.set_mdi_mode()
+            self.emc.set_mdi_mode()
             self.widgets.hal_mdihistory.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
