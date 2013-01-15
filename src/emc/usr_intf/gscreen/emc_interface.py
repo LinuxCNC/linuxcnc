@@ -209,6 +209,24 @@ class emc_control:
             self.emccommand.wait_complete()
             self.emccommand.auto(self.emc.AUTO_RUN, line)
 
+        def set_manual_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_MANUAL:
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.wait_complete()
+
+        def set_mdi_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_MDI:
+                self.emccommand.mode(self.emc.MODE_MDI)
+                self.emccommand.wait_complete()
+
+        def set_auto_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_AUTO:
+                self.emccommand.mode(self.emc.MODE_AUTO)
+                self.emccommand.wait_complete()
+
 class emc_status:
         def __init__(self, data, emc):
             self.data = data
