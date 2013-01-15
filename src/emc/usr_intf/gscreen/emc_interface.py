@@ -258,9 +258,12 @@ class emc_status:
                 self.machine_units_mm = self.data.machine_units = u
                 self.unit_convert = c
 
-        def convert_units(self,v):
+        def convert_units_list(self,v):
                 c = self.unit_convert
                 return map(lambda x,y: x*y, v, c)
+
+        def convert_units(self,data):
+                return self.unit_convert[0] * data
 
         def get_linear_units(self):
             return self.emcstat.linear_units
@@ -326,9 +329,9 @@ class emc_status:
             relp = [x, y, z, a, b, c, u, v, w]
 
             if self.mm != self.machine_units_mm:
-                p = self.convert_units(p)
-                relp = self.convert_units(relp)
-                dtg = self.convert_units(dtg)
+                p = self.convert_units_list(p)
+                relp = self.convert_units_list(relp)
+                dtg = self.convert_units_list(dtg)
             for letter in self.data.axis_list:
                 count = "xyzabcuvws".index(letter)
                 self.data["%s_is_homed"% letter] = self.emcstat.homed[count]
@@ -379,7 +382,10 @@ class emc_status:
             self.data.line =  self.emcstat.current_line
             self.data.id =  self.emcstat.id
             self.data.dtg = self.emcstat.distance_to_go
-            self.data.velocity = (self.emcstat.current_vel * 60.0)
+            if self.mm != self.machine_units_mm:
+                self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
+            else:
+                self.data.velocity = (self.emcstat.current_vel * 60.0)
             self.data.delay = self.emcstat.delay_left
             if self.emcstat.pocket_prepped == -1:
                 self.data.preppedtool = None
