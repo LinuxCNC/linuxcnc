@@ -2743,7 +2743,13 @@ class Gscreen:
                 self.halcomp["flood-coolant.out"] = True
 
     def update_feed_speed_label(self):
-        self.widgets.active_feed_speed_label.set_label("F%s    S%s"% (self.data.active_feed_command,self.data.active_spindle_command))
+        data = self.data.velocity
+        if self.data.dro_units == _MM:
+            text = "%.2f"% (data)
+        else:
+            text = "%.3f"% (data)
+        self.widgets.active_feed_speed_label.set_label("F%s    S%s   V%s"% (self.data.active_feed_command,
+                            self.data.active_spindle_command,text))
 
     def update_tool_label(self):
         # corodinate system:
