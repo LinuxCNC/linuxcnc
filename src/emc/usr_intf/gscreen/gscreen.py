@@ -256,6 +256,8 @@ class Data:
         self.jog_rate_max = 60
         self.jog_increments = []
         self.current_jogincr_index = 0
+        self.angular_jog_rate = 15
+        self.angular_jog_rate_max = 360
         self.feed_override = 1.0
         self.feed_override_inc = .05
         self.feed_override_max = 2.0
@@ -495,33 +497,75 @@ class Gscreen:
             self.add_alarm_entry("No default jog increments entry found in [DISPLAY] of INI file")
         self.data.jog_increments.insert(0,"Continuous")
 
+        # set default jog rate
+        # must convert from INI's units per second to gscreen's units per minute
+        temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
+        if temp:
+            temp = float(temp)*60
+        else:
+            temp = self.data.jog_rate
+            self.add_alarm_entry("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+        self.data.jog_rate = float(temp)
+        self.emc.continuous_jog_velocity(float(temp))
+
+        # set max jog rate
+        # must convert from INI's units per second to gscreen's units per minute
+        temp = self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+        if temp:
+            temp = float(temp)*60
+        else:
+            temp = self.data.jog_rate_max
+            self.add_alarm_entry("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+        self.data.jog_rate_max = float(temp)
+
         # max velocity settings: more then one place to check
-        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+        # This is the maximum velocity of the machine
+        temp = self.inifile.find("TRAJ","MAX_VELOCITY")
         if temp == None:
-            temp = self.inifile.find("TRAJ","MAX_VELOCITY")
-            if temp == None:
-                self.add_alarm_entry("No Max velocity entry found in INI file: using internal default of 1")
-                temp = 1.0
+            self.add_alarm_entry("No MAX_VELOCITY found in [TRAJ] of the INI file")
+            temp = 1.0
         self.data._maxvelocity = float(temp)
+
+        # look for angular defaults if there is angular axis
+        if "a" in self.data.axis_list or "b" in self.data.axis_list or "c" in self.data.axis_list:
+            # set default angular jog rate
+            # must convert from INI's units per second to gscreen's units per minute
+            temp = self.inifile.find("DISPLAY","DEFAULT_ANGULAR_VELOCITY")
+            if temp:
+                temp = float(temp)*60
+            else:
+                temp = self.data.angular_jog_rate
+                self.add_alarm_entry("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+            self.data.angular_jog_rate = float(temp)
+
+            # set default angular jog rate
+            # must convert from INI's units per second to gscreen's units per minute
+            temp = self.inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
+            if temp:
+                temp = float(temp)*60
+            else:
+                temp = self.data.angular_jog_rate_max
+                self.add_alarm_entry("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+            self.data.angular_jog_rate_max = float(temp)
 
         # check for override settings
         temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_max = float(temp)
         else:
-            self.add_alarm_entry("No max spindle override entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
 
         temp = self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_min = float(temp)
         else:
-            self.add_alarm_entry("No minimum spindle override entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
 
         temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
         if temp:
             self.data.feed_override_max = float(temp)
         else:
-            self.add_alarm_entry("No max feed override entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
 
         # check the ini file if UNITS are set to mm"
         # first check the global settings
@@ -530,7 +574,7 @@ class Gscreen:
             # else then the X axis units
             units=self.inifile.find("AXIS_0","UNITS")
             if units==None:
-                self.add_alarm_entry("No units entry found in [TRAJ] or [AXIS_0] of INI file")
+                self.add_alarm_entry("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file")
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
@@ -566,17 +610,6 @@ class Gscreen:
            self.status.dro_actual(0)
         else:
            self.status.dro_commanded(0)
-
-        # set default jog rate
-        # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
-        if temp:
-            temp = float(temp)*60
-        else:
-            temp = self.data.jog_rate
-            self.add_alarm_entry("No default linear velocity entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
-        self.data.jog_rate = float(temp)
-        self.emc.continuous_jog_velocity(float(temp))
 
         # set-up HAL component
         try:
