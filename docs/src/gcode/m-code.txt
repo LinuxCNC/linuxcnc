@@ -12,8 +12,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
 |<<sec:M6-Tool-Change,M6>>               | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
-|<<sec:M48-Both-Override,M48>>           | Feed & Spindle Overrides Enabled
-|<<sec:M49-Neither-Override,M49>>        | Feed & Spindle Overrides Disabled
+|<<sec:M48-M49,M48 M49>>                 | Feed & Spindle Overrides Enable/Disable
 |<<sec:M50-Feed-Override,M50>>           | Feed Override Control
 |<<sec:M51-Spindle-Override,M51>>        | Spindle Override Control
 |<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
