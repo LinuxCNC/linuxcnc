@@ -58,7 +58,7 @@ M2
 Pour plus de détails sur ces instructions voir:
 
 * <<sec:G53-Mouvement-Coordonnees-Absolues, mouvement G53>>,
-* <<sec:G0-Interpolation-rapide, mouvement rapide G0>>,
+* <<sec:G0, mouvement rapide G0>>,
 * <<sec:M2-M30, fin de programme M2>>.
 
 .O- return

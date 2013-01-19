@@ -52,9 +52,9 @@ chose.
 [width="75%", options="header", cols="2^,5<"]
 |==============================================================================
 |Sections                        | Descriptions
-|<<sec:G0-Interpolation-rapide,G0>>  | Interpolation linéaire en vitesse rapide
-|<<sec:G1-Interpolation-travail,G1>> | Interpolation linéaire en vitesse travail
-|<<sec:G2-G3-Arc,G2/G3>>  | Interpolation circulaire sens horaire/anti-horaire
+|<<sec:G0,G0>>  | Interpolation linéaire en vitesse rapide
+|<<sec:G1,G1>> | Interpolation linéaire en vitesse travail
+|<<sec:G2-G3,G2/G3>>  | Interpolation circulaire sens horaire/anti-horaire
 |<<sec:G4-Tempo,G4>>           | Temporisation
 |<<sec:G5-1-B-spline,G5.1>>    | B-Spline quadratique
 |<<sec:G5-2-G5-3-NURBs,G5.2 G5.3>>    | NURBs Block _(expérimental)_
@@ -110,7 +110,7 @@ _(pas encore implémenté)_
 |<<sec:G98-G99-Set,G98>>       | Options de retrait des cycles de perçage
 |==============================================================================
 
-[[sec:G0-Interpolation-rapide]]
+[[sec:G0]]
 == G0 Interpolation linéaire en vitesse rapide
 (((G0 Interpolation linéaire en vitesse rapide)))(((rapide)))
 
@@ -156,7 +156,7 @@ C'est une erreur si:
 * Un mot d'axe est indiqué sans valeur réelle.
 * Un mot d'axe est indiqué qui n'est pas configuré.
 
-[[sec:G1-Interpolation-travail]]
+[[sec:G1]]
 == G1 Interpolation linéaire en vitesse travail
 (((G1 Interpolation linéaire en vitesse travail)))
 
@@ -197,7 +197,7 @@ C'est une erreur si:
 * - un mot d'axe est indiqué sans valeur réelle.
 * - un mot d'axe est indiqué qui n'est pas configuré.
 
-[[sec:G2-G3-Arc]]
+[[sec:G2-G3]]
 == G2, G3 Interpolation circulaire en vitesse travail
 (((G2 Interpolation circulaire sens horaire)))
 (((G3 Interpolation circulaire anti-horaire)))
@@ -806,7 +806,7 @@ Ces codes sélectionnent le plan de travail courant comme décrit ci-dessous:
 Les plans UV, WU et VW ne supportent pas les arcs. Il est de bonne pratique
 d'inclure la sélection du plan de travail dans le préambule du programme G-code.
 Les effets de la sélection d'un plan de travail sont discutés dans la section
-<<sec:G2-G3-Arc, sur les arcs>>.
+<<sec:G2-G3, sur les arcs>>.
 
 [[sec:G20-G21-Unites-Machine]]
 == G20, G21 Choix des unités machine
@@ -946,7 +946,7 @@ Z0.1 (mouvement en vitesse rapide à Z0.1)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0-Interpolation-rapide,G0>>
+* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0,G0>>
 et <<sec:M2-M30,M2>> pour plus d'informations.
 
 C'est une erreur si:
@@ -1009,7 +1009,7 @@ G33.1 Z-0.750 K0.05 (et une profondeur de filet de 0.750)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0-Interpolation-rapide,G0>>
+* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0,G0>>
 et <<sec:M2-M30,M2>> pour plus d'informations.
 
 C'est une erreur si:
@@ -1117,7 +1117,7 @@ G0 X1.6 (mouvement linéaire aussi long que le diamètre d'outil)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G0-Interpolation-rapide,G0>> et <<sec:M2-M30,M2>>
+* Voir les sections <<sec:G0,G0>> et <<sec:M2-M30,M2>>
 pour plus d'informations.
 
 C'est une erreur si:
@@ -2093,7 +2093,7 @@ G0 X2.5 (déplacement linéaire en vitesse rapide, à +2.5 en X de la position
 courante)
 ----
 
-* Voir <<sec:G0-Interpolation-rapide,G0>> pour plus d'information.
+* Voir <<sec:G0,G0>> pour plus d'information.
 
 [[sec:G90-1-G91-1]]
 == G90.1, G91.1: Mode de déplacement en arc (I, J et K)
