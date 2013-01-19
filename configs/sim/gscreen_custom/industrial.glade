@@ -801,7 +801,7 @@
                                 <child>
                                   <object class="HAL_LED" id="led_mist">
                                     <property name="visible">True</property>
-                                    <property name="on_color">yellow</property>
+                                    <property name="on_color">green</property>
                                     <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
                                   </object>
@@ -917,16 +917,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="value">-7</property>
-                                <property name="z2_color">#ffff00000000</property>
-                                <property name="target_color">#e21911831183</property>
-                                <property name="max">2000</property>
-                                <property name="bg_color">#bebebebebebe</property>
                                 <property name="z0_color">#0000ffff0000</property>
-                                <property name="target_value">500</property>
                                 <property name="show_limits">False</property>
-                                <property name="text_template">%d</property>
+                                <property name="max">2000</property>
+                                <property name="target_color">#e21911831183</property>
                                 <property name="z1_color">#ffffffff0000</property>
+                                <property name="bg_color">#bebebebebebe</property>
+                                <property name="target_value">500</property>
+                                <property name="text_template">%d</property>
+                                <property name="z2_color">#ffff00000000</property>
+                                <property name="value">-7</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -2331,8 +2331,8 @@ Limits</property>
                               <object class="HAL_LED" id="led_ignore_limits">
                                 <property name="visible">True</property>
                                 <property name="led_size">5</property>
-                                <property name="off_color">black</property>
                                 <property name="has_hal_pin">False</property>
+                                <property name="off_color">black</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2804,7 +2804,7 @@ Graphics</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
-                    <property name="related_action">hal_action_save1</property>
+                    <property name="related_action">hal_action_save</property>
                     <property name="yalign">0.56999999284744263</property>
                   </object>
                   <packing>
@@ -2818,7 +2818,7 @@ Graphics</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save edits with a filename</property>
-                    <property name="related_action">hal_action_saveas1</property>
+                    <property name="related_action">hal_action_saveas</property>
                   </object>
                   <packing>
                     <property name="position">5</property>
@@ -3248,8 +3248,12 @@ Hold</property>
     <property name="upper">10000</property>
     <property name="step_increment">50</property>
   </object>
-  <object class="EMC_Action_Save" id="hal_action_save1"/>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas1"/>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="GtkDialog" id="restart_dialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Program Restart</property>
