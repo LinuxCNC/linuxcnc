@@ -258,12 +258,20 @@ class emc_status:
                 self.machine_units_mm = self.data.machine_units = u
                 self.unit_convert = c
 
+        # This holds the conversion multiplicand of all 9 axes
+        # angular axes are always 1 - They are not converted.
         def convert_units_list(self,v):
                 c = self.unit_convert
                 return map(lambda x,y: x*y, v, c)
 
+        # This converts the given data units if the current display mode (self.mm)
+        # is not the same as the machine's basic units.
+        # It converts with the multiplicand of joint 0 
         def convert_units(self,data):
+            if self.mm != self.machine_units_mm:
                 return self.unit_convert[0] * data
+            else:
+                return data
 
         def get_linear_units(self):
             return self.emcstat.linear_units
@@ -382,10 +390,7 @@ class emc_status:
             self.data.line =  self.emcstat.current_line
             self.data.id =  self.emcstat.id
             self.data.dtg = self.emcstat.distance_to_go
-            if self.mm != self.machine_units_mm:
-                self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
-            else:
-                self.data.velocity = (self.emcstat.current_vel * 60.0)
+            self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
             self.data.delay = self.emcstat.delay_left
             if self.emcstat.pocket_prepped == -1:
                 self.data.preppedtool = None
