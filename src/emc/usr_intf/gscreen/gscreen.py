@@ -2780,11 +2780,14 @@ class Gscreen:
         self.widgets.so.set_text("SO: %d%%"%(round(self.data.spindle_override,2)*100))
         self.widgets.mv.set_text("VO: %d%%"%(round((self.data.velocity_override),2) *100))
 
+    # we need to check if the current units is in the basic machine units - convert if nesassary.
+    # then set the display according to the current display units.
     def update_jog_rate_label(self):
+        rate = round(self.status.convert_units(self.data.jog_rate),2)
         if self.data.dro_units == _MM:
-            text = "Jog: %4.2f mm/min"% (round(self.data.jog_rate*25.4,2))
+            text = "Jog: %4.2f mm/min"% (rate)
         else:
-            text = "Jog: %3.2f IPM"% (round(self.data.jog_rate,2))
+            text = "Jog: %3.2f IPM"% (rate)
         self.widgets.jog_rate.set_text(text)
 
     def update_mode_label(self):
