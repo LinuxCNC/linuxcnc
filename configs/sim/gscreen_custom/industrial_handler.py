@@ -39,11 +39,12 @@ class HandlerClass:
         print "estop"
         if self.data.estopped:
             self.emc.estop_reset(1)
+            self.gscreen.add_alarm_entry("Machine Estop Reset")
         else:
             self.emc.machine_off(1)
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
-            self.gscreen.add_alarm_entry("Machine Estopped!")
+            self.gscreen.add_alarm_entry("Machine Estopped and Powered Off")
         return True
 
     # This is a new method for our new button
@@ -58,6 +59,7 @@ class HandlerClass:
         else:
             self.emc.machine_off(1)
             self.widgets.on_label.set_text("Machine Off")
+            self.gscreen.add_alarm_entry("Machine powered off")
 
     # display the main tab and set the mode to setup
     def on_setup_button_clicked(self,widget):
@@ -122,12 +124,12 @@ class HandlerClass:
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
     def system_dialog(self):
-        dialog = gtk.Dialog("System Unlock Code",
+        dialog = gtk.Dialog("Enter System Unlock Code",
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label("System Unlock Code")
+        label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
         dialog.vbox.pack_start(label)
