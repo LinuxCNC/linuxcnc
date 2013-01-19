@@ -2619,6 +2619,10 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
+            if "joint" in text:
+                for letter in self.data.axis_list:
+                    axnum = "xyzabcuvws".index(letter)
+                    text = text.replace( "joint %d"%axnum,"Axis %s"%letter.upper() )
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 self.notify("Error Message",text,ALERT_ICON,3)
             else:
