@@ -588,14 +588,15 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="target_color">#e21911831183</property>
-                                    <property name="max">2000</property>
+                                    <property name="z2_color">#ffff00000000</property>
                                     <property name="target_value">500</property>
                                     <property name="show_limits">False</property>
-                                    <property name="z2_color">#ffff00000000</property>
-                                    <property name="value">-7</property>
+                                    <property name="text_template">%d</property>
+                                    <property name="max">2000</property>
                                     <property name="z0_color">#0000ffff0000</property>
                                     <property name="z1_color">#ffffffff0000</property>
+                                    <property name="target_color">#e21911831183</property>
+                                    <property name="value">-7</property>
                                     <property name="bg_color">#bebebebebebe</property>
                                   </object>
                                   <packing>
@@ -762,8 +763,8 @@
                                                   <object class="HAL_LED" id="spindle-at-speed">
                                                     <property name="visible">True</property>
                                                     <property name="led_shape">1</property>
-                                                    <property name="led_size">5</property>
                                                     <property name="on_color">Green</property>
+                                                    <property name="led_size">5</property>
                                                   </object>
                                                   <packing>
                                                     <property name="resize">True</property>
@@ -1911,9 +1912,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
+                                <property name="led_shape">1</property>
                                 <property name="led_blink_rate">200</property>
                                 <property name="off_color">green</property>
-                                <property name="led_shape">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1923,9 +1924,9 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
                                 <property name="on_color">green</property>
+                                <property name="off_color">red</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2230,8 +2231,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="has_hal_pin">False</property>
                                     <property name="led_size">5</property>
+                                    <property name="has_hal_pin">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3162,8 +3163,8 @@ status</property>
             <child>
               <object class="Calculator" id="calc_entry">
                 <property name="visible">True</property>
-                <property name="is_editable">True</property>
                 <property name="font">sans 20</property>
+                <property name="is_editable">True</property>
               </object>
             </child>
             <child type="label">
