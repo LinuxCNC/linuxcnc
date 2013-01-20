@@ -321,25 +321,25 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
             directory = '.'
         if directory not in sys.path:
             sys.path.insert(0,directory)
-            print ('adding import dir %s' % directory)
+            print _('adding import dir %s' % directory)
 
         try:
             mod = __import__(basename)
         except ImportError,msg:
-            print "module '%s' skipped - import error: %s" %(basename,msg)
+            print ("module '%s' skipped - import error: %s" %(basename,msg))
 	    continue
-        print("module '%s' imported OK" % mod.__name__)
+        print _("module '%s' imported OK" % mod.__name__)
         try:
             # look for functions
             for temp in ("periodic","connect_signals","initialize_widgets"):
                 h = getattr(mod,temp,None)
                 if h and callable(h):
-                    print("module '%s' : '%s' function found" % (mod.__name__,temp))
+                    print ("module '%s' : '%s' function found" % (mod.__name__,temp))
 
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
             if h and callable(h):
-                print("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                print ("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
                 objlist = h(halcomp,builder,useropts,gscreen)
             else:
                 # the module has no get_handlers() callable.
@@ -360,7 +360,7 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
                         dbg("Register callback '%s' in %s" % (method, basename))
                         add_handler(method, f)
         except Exception, e:
-            print "**** GSCREEN ERROR: trouble looking for handlers in '%s': %s" %(basename, e)
+            print ("**** GSCREEN ERROR: trouble looking for handlers in '%s': %s" %(basename, e))
             traceback.print_exc()
 
     # Wrap lists in Trampoline, unwrap single functions
@@ -394,7 +394,7 @@ class Gscreen:
         for num,temp in enumerate(sys.argv):
             if temp == '-c':
                 try:
-                    print "component =",sys.argv[num+1]
+                    print _("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
                     skinname = sys.argv[num+1]
                 except:
                     pass
@@ -403,29 +403,29 @@ class Gscreen:
         # main screen
         localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
         if os.path.exists(localglade):
-            print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
+            print _("\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade)
             xmlname = localglade
         else:
-            print"\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname
+            print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname)
         try:
             self.xml = gtk.Builder()
             self.xml.set_translation_domain("linuxcnc") # for locale translations
             self.xml.add_from_file(xmlname)
         except:
-            print "**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname
+            print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
             sys.exit(0)
         # second screen
         localglade = os.path.join(CONFIGPATH,"%s2.glade"%skinname)
         if os.path.exists(localglade):
-            print "\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade
+            print _("\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade)
             xmlname2 = localglade
         else:
-            print"\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2
+            print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
         try:
             self.xml.add_from_file(xmlname2)
             self.screen2 = True
         except:
-            print "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname
+            print _("**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname)
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
@@ -496,7 +496,7 @@ class Gscreen:
             else:
                 self.data.jog_increments = increments.split()
         else:
-            self.add_alarm_entry("No default jog increments entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
         self.data.jog_increments.insert(0,"Continuous")
 
         # set default jog rate
@@ -506,7 +506,7 @@ class Gscreen:
             temp = float(temp)*60
         else:
             temp = self.data.jog_rate
-            self.add_alarm_entry("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+            self.add_alarm_entry(_("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         self.data.jog_rate = float(temp)
         self.emc.continuous_jog_velocity(float(temp))
 
@@ -517,14 +517,14 @@ class Gscreen:
             temp = float(temp)*60
         else:
             temp = self.data.jog_rate_max
-            self.add_alarm_entry("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+            self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         self.data.jog_rate_max = float(temp)
 
         # max velocity settings: more then one place to check
         # This is the maximum velocity of the machine
         temp = self.inifile.find("TRAJ","MAX_VELOCITY")
         if temp == None:
-            self.add_alarm_entry("No MAX_VELOCITY found in [TRAJ] of the INI file")
+            self.add_alarm_entry(_("No MAX_VELOCITY found in [TRAJ] of the INI file"))
             temp = 1.0
         self.data._maxvelocity = float(temp)
 
@@ -537,7 +537,7 @@ class Gscreen:
                 temp = float(temp)*60
             else:
                 temp = self.data.angular_jog_rate
-                self.add_alarm_entry("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+                self.add_alarm_entry(_("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
             self.data.angular_jog_rate = float(temp)
 
             # set default angular jog rate
@@ -547,7 +547,7 @@ class Gscreen:
                 temp = float(temp)*60
             else:
                 temp = self.data.angular_jog_rate_max
-                self.add_alarm_entry("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp)
+                self.add_alarm_entry(_("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
             self.data.angular_jog_rate_max = float(temp)
 
         # check for override settings
@@ -555,19 +555,19 @@ class Gscreen:
         if temp:
             self.data.spindle_override_max = float(temp)
         else:
-            self.add_alarm_entry("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry(_("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"))
 
         temp = self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")
         if temp:
             self.data.spindle_override_min = float(temp)
         else:
-            self.add_alarm_entry("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry(_("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"))
 
         temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
         if temp:
             self.data.feed_override_max = float(temp)
         else:
-            self.add_alarm_entry("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
+            self.add_alarm_entry(_("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"))
 
         # check the ini file if UNITS are set to mm"
         # first check the global settings
@@ -576,7 +576,7 @@ class Gscreen:
             # else then the X axis units
             units=self.inifile.find("AXIS_0","UNITS")
             if units==None:
-                self.add_alarm_entry("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file")
+                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
@@ -588,7 +588,7 @@ class Gscreen:
         # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
         if self.data.lathe_mode:
-            self.add_alarm_entry("This screen will be orientated for Lathe options")
+            self.add_alarm_entry(_("This screen will be orientated for Lathe options"))
 
         # get the path to the tool table
         self.data.tooltable = self.inifile.find("EMCIO","TOOL_TABLE")
@@ -617,7 +617,7 @@ class Gscreen:
         try:
             self.halcomp = hal.component("gscreen")
         except:
-            print "*** Gscreen ERROR:    Asking for a HAL component using a name that already exists."
+            print _("*** Gscreen ERROR:    Asking for a HAL component using a name that already exists.")
             sys.exit(0)
         panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
         # at this point, any glade HAL widgets and their pins are set up.
@@ -681,12 +681,12 @@ class Gscreen:
         # timers for display updates
         temp = self.inifile.find("DISPLAY","CYCLE_TIME")
         if not temp:
-            self.add_alarm_entry("CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms")
+            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"))
             temp = 100
         elif float(temp) < 50:
-            self.add_alarm_entry("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms")
+            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"))
             temp = 100
-        print "timeout %d" % int(temp)
+        print _("timeout %d" % int(temp))
         gobject.timeout_add(int(temp), self.periodic_status)
 
     # initialize default widgets
@@ -818,7 +818,7 @@ class Gscreen:
             if self.data.window_max:
                self.widgets.window1.maximize()
             if not good:
-                print "**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file"
+                print _("**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file")
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
@@ -864,7 +864,7 @@ class Gscreen:
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
         self.on_hal_status_state_off(None)
-        self.add_alarm_entry("Control powered up and initialized")
+        self.add_alarm_entry(_("Control powered up and initialized"))
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -939,8 +939,8 @@ class Gscreen:
         cd = h['tool-changed']
         print "tool change",c,cd,n
         if c:
-            message =  "Please change to tool # %s, then click OK."% n
-            self.data.tool_message = self.notify("INFO:",message,None)
+            message =  _("Please change to tool # %s, then click OK."% n)
+            self.data.tool_message = self.notify(_("INFO:"),message,None)
             self.warning_dialog(message, True,pinname="TOOLCHANGE")
         else:
             h['tool-changed'] = False
@@ -948,10 +948,10 @@ class Gscreen:
     def on_spindle_speed_adjust(self,widget):
                 # spindle increase /decrease controls
         if self.mdi_control.mdi_is_reading():
-            self.notify("INFO:","Can't start spindle manually while MDI busy ",INFO_ICON)
+            self.notify(_("INFO:"),_("Can't start spindle manually while MDI busy"),INFO_ICON)
             return
         elif self.data.mode_order[0] == _AUTO:
-            self.notify("INFO:","can't start spindle manually in Auto mode",INFO_ICON)
+            self.notify(_("INFO:"),_("can't start spindle manually in Auto mode"),INFO_ICON)
             return
         if widget == self.widgets.spindle_increase:
             self.spindle_adjustment(True,True)
@@ -961,16 +961,16 @@ class Gscreen:
     # start the spindle according to preset rpm and direction buttons, unless interp is busy
     def on_spindle_control_clicked(self,*args):
         if self.mdi_control.mdi_is_reading():
-            self.notify("INFO:","Can't start spindle manually while MDI busy ",INFO_ICON)
+            self.notify(_("INFO:"),_("Can't start spindle manually while MDI busy"),INFO_ICON)
             return
         elif self.data.mode_order[0] == _AUTO:
-            self.notify("INFO:","can't start spindle manually in Auto mode",INFO_ICON)
+            self.notify(_("INFO:"),_("can't start spindle manually in Auto mode"),INFO_ICON)
             return
         if not self.data.spindle_speed == 0:
             self.emc.spindle_off(1)
             return
         if not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-            self.notify("INFO:","No direction selected for spindle",INFO_ICON)
+            self.notify(_("INFO:"),_("No direction selected for spindle"),INFO_ICON)
             return
         if self.widgets.s_display_fwd.get_active():
             self.adjust_spindle_rpm(self.data.spindle_preset,1)
@@ -980,9 +980,9 @@ class Gscreen:
     # dialog for setting the spindle preset speed
     def on_preset_spindle(self,*args):
         if self.data.preset_spindle_dialog: return
-        label = gtk.Label("Spindle Speed Preset Entry")
+        label = gtk.Label(_("Spindle Speed Preset Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.preset_spindle_dialog = gtk.Dialog("Spindle Speed Preset Entry",
+        self.data.preset_spindle_dialog = gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -1010,12 +1010,12 @@ class Gscreen:
     # dialog for manually calling a tool
     def on_index_tool(self,*args):
         if self.data.index_tool_dialog: return
-        self.data.index_tool_dialog = gtk.Dialog("Manual Tool Index Entry",
+        self.data.index_tool_dialog = gtk.Dialog(_("Manual Tool Index Entry"),
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label("Manual Tool Index Entry")
+        label = gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.index_tool_dialog.vbox.pack_start(label)
         calc = gladevcp.Calculator()
@@ -1298,12 +1298,12 @@ class Gscreen:
         elif not self.data.machine_on:
             self.emc.machine_on(1)
             self.widgets.on_label.set_text("Machine On")
-            self.add_alarm_entry("Machine powered on")
+            self.add_alarm_entry(_("Machine powered on"))
         else:
             self.emc.machine_off(1)
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
-            self.add_alarm_entry("Machine Estopped!")
+            self.add_alarm_entry(_("Machine Estopped!"))
 
     def on_theme_choice_changed(self, widget):
         self.change_theme(widget.get_active_text())
@@ -1357,7 +1357,7 @@ class Gscreen:
                 statustext = boldtext
             else:
                 statustext = text
-            self.notify("INFO:",statustext,INFO_ICON)
+            self.notify(_("INFO:"),statustext,INFO_ICON)
         if "dialog" in type or "okdialog" in type:
             if pin.get():
                 self.halcomp[pinname + "-waiting"] = True
@@ -1474,7 +1474,7 @@ class Gscreen:
         try:
             self.data.ob = subprocess.Popen(["onboard",args,x,y])
         except:
-            print "error with 'onboard' on screen keyboard program"
+            print _("error with 'onboard' on screen keyboard program")
 
     def kill_keyboard(self):
         try:
@@ -1561,7 +1561,7 @@ class Gscreen:
         # else connect the signals based on how many arguments they have 
         for i in signal_list:
             if i[2] in handlers:
-                print "**** GSCREEN INFO: Overriding internal signal call to %s"% i[2]
+                print _("**** GSCREEN INFO: Overriding internal signal call to %s"% i[2])
                 continue
             try:
                 if  i[0] in("s_display_rev","s_display_fwd"):
@@ -1572,7 +1572,7 @@ class Gscreen:
                 elif len(i) == 4:
                     self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
             except:
-                print "**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2])
+                print ("**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2]))
 
         # setup signals that can be blocked but not overriden 
         for axis in self.data.axis_list:
@@ -1995,15 +1995,15 @@ class Gscreen:
         m_type = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
         m_pinname = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
         if len(m_text) != len(m_type):
-            print "**** Gscreen ERROR:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section"
+            print _("**** Gscreen ERROR:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section")
         if len(m_text) != len(m_pinname):
-            print "**** Gscreen ERROR:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
+            print _("**** Gscreen ERROR:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section")
         if len(m_text) != len(m_boldtext):
-            print "**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section"
+            print _("**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section")
         for bt,t,c ,name in zip(m_boldtext,m_text, m_type,m_pinname):
             #print bt,t,c,name
             if not ("status" in c) and not ("dialog" in c) and not ("okdialog" in c):
-                print "**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"% c
+                print _("**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"% c)
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
@@ -2035,11 +2035,11 @@ class Gscreen:
                 dialog.connect("response", self.dialog_return,displaytype,pinname)
         except:
             dialog.destroy()
-            raise NameError ('Dialog error - Is the dialog handler missing from the handler file?')
+            raise NameError (_('Dialog error - Is the dialog handler missing from the handler file?'))
         if pinname == "TOOLCHANGE":
-            dialog.set_title("Manual Toolchange")
+            dialog.set_title(_("Manual Toolchange"))
         else:
-            dialog.set_title("Operator Message")
+            dialog.set_title(_("Operator Message"))
 
     # message dialog returns a response here
     # This includes the manual tool change dialog
@@ -2101,7 +2101,7 @@ class Gscreen:
         tab_cmd   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
         if len(tab_names) != len(tab_cmd):
-            print "Invalid tab configuration" # Complain somehow
+            print _("Invalid embeded tab configuration") # Complain somehow
         if len(tab_location) != len(tab_names):
             for num,i in enumerate(tab_names):
                 try:
@@ -2330,10 +2330,10 @@ class Gscreen:
         # jog positive  at selected rate
         if self.data.mode_order[0] == _MAN:
             if len(self.data.active_axis_buttons) > 1:
-                self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
+                self.notify(_("INFO:"),_("Can't jog multiple axis"),INFO_ICON)
                 print self.data.active_axis_buttons
             elif self.data.active_axis_buttons[0][0] == None:
-                self.notify("INFO:","No axis selected to jog",INFO_ICON)
+                self.notify(_("INFO:"),_("No axis selected to jog"),INFO_ICON)
             else:
                 print "Jog axis %s" % self.data.active_axis_buttons[0][0]
                 if not self.data.active_axis_buttons[0][0] == "s":
@@ -2354,7 +2354,7 @@ class Gscreen:
     # spindle control
     def spindle_adjustment(self,direction,action):
         if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
-            self.notify("INFO:","No direction selected for spindle",INFO_ICON)
+            self.notify(_("INFO:"),_("No direction selected for spindle"),INFO_ICON)
             return
         if direction and action:
             if self.data.spindle_speed:
@@ -2374,10 +2374,10 @@ class Gscreen:
     # feeds to a position (while in manual mode)
     def do_jog_to_position(self):
         if len(self.data.active_axis_buttons) > 1:
-            self.notify("INFO:","Can't jog multiple axis",INFO_ICON)
+            self.notify(_("INFO:"),_("Can't jog multiple axis"),INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected to move",INFO_ICON)
+            self.notify(_("INFO:"),_("No axis selected to move"),INFO_ICON)
         else:
             if not self.data.active_axis_buttons[0][0] == "s":
                 self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
@@ -2446,20 +2446,20 @@ class Gscreen:
     def home_selected(self):
         print "home selected"
         if len(self.data.active_axis_buttons) > 1:
-            self.notify("INFO:","Can't home multiple axis - select HOME ALL instead",INFO_ICON)
+            self.notify(_("INFO:"),_("Can't home multiple axis - select HOME ALL instead"),INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected to home",INFO_ICON)
+            self.notify(_("INFO:"),_("No axis selected to home"),INFO_ICON)
         else:
             print "home axis %s" % self.data.active_axis_buttons[0][0]
             self.emc.home_selected(self.data.active_axis_buttons[0][1])
 
     def unhome_selected(self,widget):
         if len(self.data.active_axis_buttons) > 1:
-            self.notify("INFO:","Can't unhome multiple axis",INFO_ICON)
+            self.notify(_("INFO:"),_("Can't unhome multiple axis"),INFO_ICON)
             print self.data.active_axis_buttons
         elif self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected to unhome",INFO_ICON)
+            self.notify(_("INFO:"),_("No axis selected to unhome"),INFO_ICON)
         else:
             print "unhome axis %s" % self.data.active_axis_buttons[0][0]
             self.emc.unhome_selected(self.data.active_axis_buttons[0][1])
@@ -2468,7 +2468,7 @@ class Gscreen:
     # reload the plot to update the display
     def zero_axis(self):
         if self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected for origin zeroing",INFO_ICON)
+            self.notify(_("INFO:"),_("No axis selected for origin zeroing"),INFO_ICON)
         # if an axis is selected then set it
         for i in self.data.axis_list:
             if self.widgets["axis_%s"%i].get_active():
@@ -2479,7 +2479,7 @@ class Gscreen:
     # touchoff - setting the axis to the input
     def set_axis_checks(self):
         if self.data.active_axis_buttons[0][0] == None:
-            self.notify("INFO:","No axis selected for origin touch-off",INFO_ICON)
+            self.notify(_("INFO:"),_("No axis selected for origin touch-off"),INFO_ICON)
         # if an axis is selected then set it
         for i in self.data.axis_list:
             if self.widgets["axis_%s"%i].get_active():
@@ -2543,7 +2543,7 @@ class Gscreen:
         if not editor == None:
             res = os.spawnvp(os.P_WAIT, editor, [editor, path])
             if res:
-                self.notify("Error Message","Tool editor error - is the %s editor available?"% editor,ALERT_ICON,3)
+                self.notify(_("Error Message"),_("Tool editor error - is the %s editor available?"% editor,ALERT_ICON,3))
         # tell linuxcnc that the tooltable may have changed
         self.emc.reload_tooltable(1)
 
@@ -2626,9 +2626,9 @@ class Gscreen:
                     axnum = "xyzabcuvws".index(letter)
                     text = text.replace( "joint %d"%axnum,"Axis %s"%letter.upper() )
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                self.notify("Error Message",text,ALERT_ICON,3)
+                self.notify(_("Error Message"),text,ALERT_ICON,3)
             else:
-                self.notify("Error Message",text,INFO_ICON,3)
+                self.notify(_("Error Message"),text,INFO_ICON,3)
         self.emc.unmask()
         if "periodic" in dir(self.handler_instance):
             self.handler_instance.periodic()
@@ -2657,13 +2657,13 @@ class Gscreen:
 
     # spindle controls
     def update_mdi_spindle_button(self):
-        self.widgets.at_speed_label.set_label("%d RPM"%abs(self.data.spindle_speed))
+        self.widgets.at_speed_label.set_label(_("%d RPM"%abs(self.data.spindle_speed)))
         label = self.widgets.spindle_control.get_label()
         speed = self.data.spindle_speed
-        if speed == 0 and not label == "Start":
-            temp = "Start"
-        elif speed and not label == "Stop":
-            temp = "Stop"
+        if speed == 0 and not label == _("Start"):
+            temp = _("Start")
+        elif speed and not label == _("Stop"):
+            temp = _("Stop")
         else: return
         self.widgets.spindle_control.set_label(temp)
 
@@ -2759,10 +2759,10 @@ class Gscreen:
 
     def update_tool_label(self):
         # corodinate system:
-        systemlabel = ("Machine","G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
+        systemlabel = (_("Machine"),"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
-        self.widgets.system.set_text("Tool %s     %s"%(tool,systemlabel[self.data.system]))
+        self.widgets.system.set_text(("Tool %s     %s"%(tool,systemlabel[self.data.system])))
 
     def update_coolant_leds(self):
         # coolant
