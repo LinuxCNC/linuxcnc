@@ -1416,14 +1416,21 @@ class Gscreen:
         self.data.all_homed = True
         self.widgets.button_homing.set_active(False)
         self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
+        self.add_alarm_entry(_("All the axes have been homed"))
 
     def on_hal_status_not_all_homed(self,widget):
         print "not-all-homed"
         self.data.all_homed = False
+        temp =[]
+        for letter in(self.data.axis_list):
+            if self.data["%s_is_homed"% letter]: continue
+            else: temp.append(" %s"%letter.upper())
+        self.add_alarm_entry(_("There are unhomed axes: %s"%temp))
 
     def on_hal_status_file_loaded(self,widget,filename):
         path,name = os.path.split(filename)
         self.widgets.gcode_tab.set_text(name)
+        self.add_alarm_entry(_("Program loaded: %s"%filename))
 
     def on_toggle_keyboard(self,widget,args="",x="",y=""):
         if self.data.ob:
@@ -2071,6 +2078,7 @@ class Gscreen:
         self.widgets.restart_dialog.hide()
         if result:
             line = self.widgets.gcode_view.get_line_number()
+            self.add_alarm_entry(_("Restart program from line %d"%line))
             self.emc.re_start(line)
 
     # adds the embedded object to a notebook tab or box
