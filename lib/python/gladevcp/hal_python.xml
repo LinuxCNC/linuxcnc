@@ -35,6 +35,7 @@ domain="glade-3" depends="gtk+">
         </properties>
     </glade-widget-class>
     <glade-widget-class name="HAL_DRO" generic-name="hal_dro" title="HAL DRO"/>
+    <glade-widget-class name="HAL_OFFSET" generic-name="hal_offset" title="HAL OFFSET"/>
     <glade-widget-class name="Calculator" generic-name="calc" title="calculator">
         <properties>
             <property id="size" query="False" default="1" visible="False"/>
@@ -105,6 +106,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
    <glade-widget-class-ref name="HAL_DRO"/>
+   <glade-widget-class-ref name="HAL_OFFSET"/>
    <glade-widget-class-ref name="EMC_Stat"/>
 
    <glade-widget-class-ref name="EMC_FileChooserDialog"/>
