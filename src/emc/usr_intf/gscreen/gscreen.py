@@ -89,11 +89,12 @@ ALERT_ICON = os.path.join(imagedir,"applet-critical.png")
 INFO_ICON = os.path.join(imagedir,"std_info.gif")
 
 # internationalization and localization
-import gettext
+import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.setlocale(locale.LC_ALL, '')
+locale.bindtextdomain("linuxcnc", LOCALEDIR)
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
-gtk.glade.textdomain("linuxcnc")
+gettext.bindtextdomain("linuxcnc", LOCALEDIR)
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -408,6 +409,7 @@ class Gscreen:
             print"\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname
         try:
             self.xml = gtk.Builder()
+            self.xml.set_translation_domain("linuxcnc") # for locale translations
             self.xml.add_from_file(xmlname)
         except:
             print "**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname
