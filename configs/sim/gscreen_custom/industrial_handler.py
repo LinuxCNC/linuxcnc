@@ -182,13 +182,18 @@ class HandlerClass:
         self.gscreen.init_sensitive_on_off()
         self.gscreen.init_sensitive_run_idle()
         self.gscreen.init_sensitive_all_homed()
-        self.data.sensitive_all_homed.append("index_tool")
+        self.init_sensitive_edit_mode() # local function
+        self.data.sensitive_edit_mode.remove("button_menu")
+        
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
             self.widgets["dro_%s2"%i].show()
             self.widgets["axis_%s"%i].show()
 
+    def init_sensitive_edit_mode(self):
+        self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
+            "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits"]
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
     # and add any extra calls/code 

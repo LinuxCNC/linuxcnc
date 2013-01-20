@@ -711,6 +711,7 @@ class Gscreen:
         self.init_sensitive_on_off()
         self.init_sensitive_run_idle()
         self.init_sensitive_all_homed()
+        self.init_sensitive_edit_mode()
         self.init_state()
 
     def init_axis_frames(self):
@@ -854,12 +855,16 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the interpeter runing or being idle
     def init_sensitive_run_idle(self):
-        self.data.sensitive_run_idle = ["button_v1_7","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
+        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
         for axis in self.data.axis_list:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
     def init_sensitive_all_homed(self):
         self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1"]
+
+    def init_sensitive_edit_mode(self):
+        self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
+            "ignore_limits"]
 
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
@@ -1241,7 +1246,7 @@ class Gscreen:
                 else: print "hbutton %d_%d clicked but no function"% (mode,number)
             elif mode == 3:
                 if number == 1: self.toggle_block_delete()
-                elif number == 3: self.full_graphics()
+                elif number == 3: pass
                 elif number == 2: self.toggle_optional_stop()
                 elif number == 7: self.next_tab()
                 else: print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -1249,7 +1254,7 @@ class Gscreen:
                 self.toggle_overrides(widget,mode,number)
             elif mode == 5:
                 if number == 1:pass
-                elif number == 2:self.toggle_view()
+                elif number == 2:pass
                 elif number == 3:self.clear_plot()
                 else: self.toggle_graphic_overrides(widget,mode,number)
             else: print "hbutton %d_%d clicked but no function"% (mode,number)
@@ -1269,9 +1274,9 @@ class Gscreen:
             elif number == 2: pass
             elif number == 3: pass
             elif number == 4: pass
-            elif number == 5: self.toggle_view()
+            elif number == 5: pass
             elif number == 6: pass
-            elif number == 7: self.edit_mode()
+            elif number == 7: pass
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
 
 
@@ -1473,6 +1478,20 @@ class Gscreen:
         data = (self.data.dro_units -1) * -1
         self.set_dro_units(data,False)
 
+    def on_button_edit_clicked(self,widget):
+        state = widget.get_active()
+        self.widgets.notebook_main.set_current_page(0)
+        self.widgets.notebook_main.set_show_tabs(not (state))
+        self.edit_mode(state)
+        if not state and self.widgets.button_full_view.get_active():
+            self.set_full_graphics_view(True)
+
+    def on_button_change_view_clicked(self,widget):
+        self.toggle_view()
+
+    def on_button_full_view_clicked(self,widget):
+        self.set_full_graphics_view(widget.get_active())
+
 # ****** do stuff *****
 
     # shows 'Onboard' virtual keyboard if available
@@ -1505,10 +1524,13 @@ class Gscreen:
                         ["button_v0_2","released", "on_button_v0_2_released"],
                         ["button_v0_3","pressed", "on_button_v0_3_pressed"],
                         ["button_v0_3","released", "on_button_v0_3_released"],
+                        ["button_change_view","clicked", "on_button_change_view_clicked"],
+                        ["button_full_view","clicked", "on_button_full_view_clicked"],
                         ["theme_choice","changed", "on_theme_choice_changed"],
                         ["use_screen2","clicked", "on_use_screen2_pressed"],
                         ["dro_units","clicked", "on_dro_units_pressed"],
                         ["diameter_mode","clicked", "on_diameter_mode_pressed"],
+                        ["button_edit","toggled", "on_button_edit_clicked"],
                         ["show_offsets","clicked", "on_show_offsets_pressed"],
                         ["show_dtg","clicked", "on_show_dtg_pressed"],
                         ["fullscreen1","clicked", "on_fullscreen1_pressed"],
@@ -2219,38 +2241,42 @@ class Gscreen:
         self.prefs.putpref('view', self.data.plot_view, tuple)
         self.widgets.gremlin.set_zoom_distance(dist)
 
-    # toggle a large graphics view
-    def full_graphics(self):
-        print "graphics mode"
-        if self.data.full_graphics:
-            print "shrink"
-            self.data.full_graphics = False
-            self.widgets.notebook_mode.show()
-            self.widgets.dro_frame.show()
-            self.widgets.gremlin.set_property('enable_dro',False)
-        else:
+    # toggle a large graphics view / gcode view
+    def set_full_graphics_view(self,data):
+        print "full view",data
+        if data:
             print "enlarge"
             self.data.full_graphics = True
             self.widgets.notebook_mode.hide()
             self.widgets.dro_frame.hide()
             self.widgets.gremlin.set_property('enable_dro',True)
+        else:
+            print "shrink"
+            self.data.full_graphics = False
+            self.widgets.notebook_mode.show()
+            self.widgets.dro_frame.show()
+            self.widgets.gremlin.set_property('enable_dro',False)
 
     # enlargen the Gcode box while in edit mode
-    def edit_mode(self):
-        print "edit mode pressed"
-        if self.data.edit_mode:
-            self.widgets.gcode_view.set_sensitive(0)
-            self.data.edit_mode = False
-            self.widgets.show_box.show()
-            self.widgets.hbuttonbox.set_sensitive(True)
-            self.widgets.button_mode.set_sensitive(True)
-        else:
+    def edit_mode(self,data):
+        print "edit mode pressed",data
+        self.sensitize_widgets(self.data.sensitive_edit_mode,not data)
+        if data:
+            self.widgets.mode2.hide()
+            self.widgets.mode6.show()
+            self.widgets.dro_frame.hide()
             self.widgets.gcode_view.set_sensitive(1)
             self.data.edit_mode = True
             self.widgets.show_box.hide()
             self.widgets.notebook_mode.show()
-            self.widgets.hbuttonbox.set_sensitive(False)
-            self.widgets.button_mode.set_sensitive(False)
+        else:
+            self.widgets.mode6.hide()
+            self.widgets.mode2.show()
+            self.widgets.dro_frame.show()
+            self.widgets.gcode_view.set_sensitive(0)
+            self.data.edit_mode = False
+            self.widgets.show_box.show()
+
 
     def set_dro_units(self, data, save=True):
         print "toggle dro units",self.data.dro_units,data
