@@ -238,7 +238,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Section <<sec:G61-G61.1-G64,G61-G64>>. 
+Sections <<sec:G61-G61_1,G61/G61.1>> and <<sec:G64,G64>>.
 
 == Interpreter Interaction with Switches
 

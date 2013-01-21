@@ -78,8 +78,8 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
 |<<sec:G54-G59.3,G54-G59>>          |Select Coordinate System (1 - 6)
 |<<sec:G54-G59.3,G59.1-G59.3>>      |Select Coordinate System (7 - 9)
-|<<sec:G61-G61.1-G64,G61 G61.1>>    |Path Control Mode
-|<<sec:G61-G61.1-G64,G64>>          |Path Control Mode with Optional Tolerance
+|<<sec:G61-G61_1,G61 G61.1>>        |Path Control Mode
+|<<sec:G64,G64>>                    |Path Control Mode with Optional Tolerance
 |<<sec:G73-Drilling-Cycle,G73>>     |Drilling Cycle with Chip Breaking
 |<<sec:G76-Threading-Canned,G76>>   |Multi-pass Threading Cycle (Lathe)
 |<<sec:G80-Cancel-Modal,G80>>       |Cancel Motion Modes
@@ -1211,7 +1211,8 @@ It is an error if:
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
 
-== G61, G61.1 Exact Path Mode[[sec:G61-G61.1-G64]]
+[[sec:G61-G61_1]]
+== G61, G61.1 Exact Path Mode
 (((G61 G61.1 G64 Path Control)))(((Path Control)))(((Trajectory Control)))
 
 * 'G61' - exact path mode. G61 visits the programmed point exactly,
@@ -1219,7 +1220,8 @@ systems.
 
 * 'G61.1' - exact stop mode. Same as G61
 
-== G64 Path Blending[[sec:G64-path-blending]]
+[[sec:G64]]
+== G64 Path Blending
 (((G64 Path Blending)))
 
 ----
