@@ -18,7 +18,7 @@
 |<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
 |<<sec:M53-Feed-Stop-Control,M53>>       | Feed Stop Control
 |<<sec:M61-Set-Current-Tool-Number,M61>> | Set Current Tool Number
-|<<sec:M62-to-M65,M62-65>>               | Output Control
+|<<sec:M62-M65,M62-M65>>                 | Output Control
 |<<sec:M66-Input-Control,M66>>           | Input Control
 |<<sec:M67-Analog-Output,M67>>           | Analog Output Control
 |<<sec:M68-Analog-Output,M68>>           | Analog Output Control
