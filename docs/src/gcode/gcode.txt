@@ -72,7 +72,8 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41 G42>>            |Cutter Compensation
 |<<sec:G41.1-G42.1,G41.1 G42.1>>    |Dynamic Cutter Compensation
-|<<sec:G43-G43.1-Tool,G43 G43.1>>   |Use Tool Length Offset from Tool Table
+|<<sec:G43,G43>>                    |Use Tool Length Offset from Tool Table
+|<<sec:G43_1,G43.1>>                |Dynamic Tool Length Offset
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
 |<<sec:G54-G59.3,G54-G59>>          |Select Coordinate System (1 - 6)
@@ -662,8 +663,8 @@ G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
 G43 (reload the tool length offsets from the changed tool table)
 M2 (end program)
 ----
-* See <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> & <<sec:G43-G43.1,G43>>
-  sections for more information.
+* See <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>>, and
+  <<sec:G43,G43>>/<<sec:G43_1,G43.1>> sections for more information.
 
 It is an error if:
 
@@ -1080,7 +1081,8 @@ It is an error if:
 * The L number is used when the XZ plane is not active.
 * Cutter compensation is commanded to turn on when it is already on.
 
-== G43 Tool Length Offset[[sec:G43-G43.1]]
+[[sec:G43]]
+== G43 Tool Length Offset
 (((G43 Tool Length Offset)))
 
 ----
@@ -1107,7 +1109,8 @@ It is an error if:
 * the H number is not an integer, is negative, or is not 0 or a valid tool
     number.
 
-== G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-length-offset]]
+[[sec:G43_1]]
+== G43.1: Dynamic Tool Length Offset
 (((G43.1 Dynamic Tool Length Offset)))
 
 ----
