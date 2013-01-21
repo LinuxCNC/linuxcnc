@@ -57,7 +57,8 @@ not be controlled by the CNC software.
 If a CNC machine has components to provide mist coolant and/or flood
 coolant they can be controlled by G codes.
 
-=== Feed and Speed Override [[sub:Feed-and-Speed]]
+[[sub:Feed-and-Speed]]
+=== Feed and Speed Override
 
 (((feed override)))
 (((spindle speed override)))
@@ -66,14 +67,16 @@ A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
 speed used in machining at some percentage of the programmed rate.
 
-=== Block Delete Switch[[sub:Block-Delete-Switch]]
+[[sub:Block-Delete-Switch]]
+=== Block Delete Switch
 
 (((optional block delete)))
 
 A CNC machine can have a block delete switch. See the
 <<sub:Block-Delete-Switch-Interaction,Block Delete>> Section.
 
-=== Optional Program Stop Switch[[sub:Optional-Program-Stop]]
+[[sub:Optional-Program-Stop]]
+=== Optional Program Stop Switch
 
 (((optional program stop)))
 
@@ -112,7 +115,8 @@ of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-=== Controlled Point[[sub:Controlled-Point]]
+[[sub:Controlled-Point]]
+=== Controlled Point
 
 (((controlled point)))
 
@@ -130,7 +134,8 @@ controlled point is either at the tool tip or slightly outside it
 (where the perpendicular, axis-aligned lines touched by the 'front' and
 'side' of the tool intersect).
 
-=== Coordinated Linear Motion[[sub:Coordinate-Linear-Motion]]
+[[sub:Coordinate-Linear-Motion]]
+=== Coordinated Linear Motion
 
 To drive a tool along a specified path, a machining center must often
 coordinate the motion of several axes. We use the term 'coordinated
@@ -151,7 +156,8 @@ feed rate, or at traverse rate, or it may be synchronized to the
 spindle rotation. If physical limits on axis speed make the desired
 rate unobtainable, all axes are slowed to maintain the desired path.
 
-=== Feed Rate[[sub:feed-rate]]
+[[sub:feed-rate]]
+=== Feed Rate
 
 (((feed rate)))
 
@@ -207,7 +213,8 @@ any axis motion if any of several events take place:
  . Tool length offset is changed.
  . Coordinate system offsets are changed. 
 
-=== Selected Plane[[sub:Selected-Plane]]
+[[sub:Selected-Plane]]
+=== Selected Plane
 
 There is always a 'selected plane', which must be the XY-plane, the
 YZ-plane, or the XZ-plane of the machining center. The Z-axis is, of
@@ -226,7 +233,8 @@ A machining center may be commanded to change tools.
 
 The two pallets may be exchanged by command.
 
-=== Path Control Mode[[sec:Path-Control-Mode]]
+[[sec:Path-Control-Mode]]
+=== Path Control Mode
 
 (((path control mode)))
 
@@ -260,7 +268,8 @@ switches are enabled.
 See the <<sec:M48-M49-Override,M48 M49 Override>> section for more
 information.
 
-=== Block Delete Switch[[sub:Block-Delete-Switch-Interaction]]
+[[sub:Block-Delete-Switch-Interaction]]
+=== Block Delete Switch
 
 (((block delete)))
 
@@ -269,14 +278,16 @@ with a slash (the block delete character) are not interpreted. If the
 switch is off, such lines are interpreted. Normally the block delete
 switch should be set before starting the NGC program.
 
-=== Optional Program Stop Switch[[sub:Optional-Program-Stop-Interaction]]
+[[sub:Optional-Program-Stop-Interaction]]
+=== Optional Program Stop Switch
 
 (((optional program stop)))
 
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-== Tool Table[[sub:Tool-Table]]
+[[sub:Tool-Table]]
+== Tool Table
 
 A tool table is required to use the Interpreter. The file tells which 
 tools are in which tool changer slots and what the size and type of 
@@ -306,7 +317,8 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, 
 see the <<sec:Tool-Table-Format,Tool Table Format>> Section. 
 
-== Parameters[[sec:Parameters]]
+[[sec:Parameters]]
+== Parameters
 
 (((parameters)))
 

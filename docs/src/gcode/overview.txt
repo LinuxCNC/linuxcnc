@@ -157,7 +157,10 @@ which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
 
-== Parameters (Variables)[[sec:parameters]](((Parameters)))
+[[sec:parameters]]
+== Parameters
+(Variables)
+(((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
@@ -638,7 +641,8 @@ G10, G28, G30, and G92.
 It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
-== Comments[[sec:comments]]
+[[sec:comments]]
+== Comments
 
 Comments can be added to lines of G code to help clear up the
 intention of the programmer. Comments can be embedded in a line using
@@ -667,7 +671,8 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
-== Messages[[sec:messages]]
+[[sec:messages]]
+== Messages
 (((Messages)))
 
 * '(MSG,)' - displays message if 'MSG' appears after the left
@@ -683,7 +688,8 @@ on that line, and will always be interpreted for active comment syntax.
 (MSG, This is a message)
 ----
 
-== Probe Logging[[sec:probe-logging]]
+[[sec:probe-logging]]
+== Probe Logging
 (((Probe Logging)))
 
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
@@ -693,7 +699,8 @@ on that line, and will always be interpreted for active comment syntax.
 
 For more information on probing see the <<sec:G38-probe,G38>> Section.
 
-== Logging[[sec:log]]
+[[sec:log]]
+== Logging
 (((Logging)))
 
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file
@@ -707,13 +714,15 @@ For more information on probing see the <<sec:G38-probe,G38>> Section.
 * '(LOG,)' - everything past the ',' is written to the log file if it is open.
              Supports expansion of parameters as described below.
 
-== Debug Messages[[sec:debug-messages]]
+[[sec:debug-messages]]
+== Debug Messages
 (((Debug Messages)))
 
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
               special handling for comment parameters as described below.
 
-== Print Messages[[sec:print-messages]]
+[[sec:print-messages]]
+== Print Messages
 (((Print Messages)))
 
 * '(PRINT,)' - messages are output to 'stderr' with special handling
@@ -765,8 +774,9 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<sub:axis-preview-control,preview control>> comments.
 
+[[sec:Order-of-Execution]]
 == G Code Order of Execution
-[[sec:Order-of-Execution]] (((G Code Order of Execution)))
+(((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:

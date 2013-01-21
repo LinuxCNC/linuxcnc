@@ -26,7 +26,8 @@
 |========================================
 
 
-== M0, M1 Program Pause[[sec:M0-M1]]
+[[sec:M0-M1]]
+== M0, M1 Program Pause
 (((M0 Program Pause)))(((M1 Program Optional Pause)))
 
 * 'M0' - pause a running program temporarily. LinuxCNC remains
@@ -46,7 +47,8 @@ but the effect will probably not be noticeable,
 because normal behavior in MDI mode is 
 to stop after each line of input anyway.
 
-== M2, M30 Program End[[sec:M2-M30]]
+[[sec:M2-M30]]
+== M2, M30 Program End
 (((M2 Program End)))(((M30 Program End)))
 
 * 'M2' - end the program. Pressing cycle start will
@@ -74,7 +76,8 @@ Lines of code after M2/M30 will not be executed.
 Pressing cycle start will start the program
 at the beginning of the file.
 
-== M60 Pallet Change Pause [[sec:M60]]
+[[sec:M60]]
+== M60 Pallet Change Pause
 (((M60 Pallet Change Pause)))
 
 * 'M60' - exchange pallet shuttles and then pause a running program
@@ -82,7 +85,8 @@ at the beginning of the file.
           switch). Pressing the cycle start button
           will restart the program at the following line.
 
-== M3, M4, M5 Spindle Control[[sec:M3-M4-M5]]
+[[sec:M3-M4-M5]]
+== M3, M4, M5 Spindle Control
 (((M3 Spindle CW)))(((M4 Spindle CCW)))(((M5 Spindle Stop)))
 
 * 'M3' - start the spindle clockwise at the 'S' speed.
@@ -99,8 +103,8 @@ the spindle will start turning.
 It is OK to use 'M3' or 'M4' when the spindle is already
 turning or to use 'M5' when the spindle is already stopped.
 
-== M6 Tool Change[[sec:M6-Tool-Change]]
-
+[[sec:M6-Tool-Change]]
+== M6 Tool Change
 (((M6-Tool-Change)))
 
 === Manual Tool Change
@@ -146,7 +150,8 @@ there will definitely be no tool in the spindle after a tool change. The tool
 changer will have to be setup to perform the tool change in hal and possibly
 classicladder.
 
-== M7, M8, M9 Coolant Control[[sec:M7-M8-M9]]
+[[sec:M7-M8-M9]]
+== M7, M8, M9 Coolant Control
 (((M7 Mist Coolant)))(((M8 Flood Coolant)))(((M9 Coolant Off)))
 
 * 'M7' - turn mist coolant on.
@@ -218,7 +223,8 @@ from 0 (feed hold) to 1 (full speed).
              will have no effect on feed when M53 is not active.
 
 
-== M61 Set Current Tool Number[[sec:M61-Set-Current-Tool-Number]]
+[[sec:M61-Set-Current-Tool-Number]]
+== M61 Set Current Tool Number
 (((M61 Set Current Tool Number)))
 
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode.
@@ -229,7 +235,8 @@ It is an error if:
 
 * Q- is not 0 or greater
 
-== M62 to M65 Output Control[[sec:M62-M65]]
+[[sec:M62-M65]]
+== M62 to M65 Output Control
 (((M62 to M65 Output Control)))
 
 * 'M62 P-' - turn on digital output synchronized with motion.
@@ -267,7 +274,8 @@ break blending.
 M62-65 will not function unless the appropriate motion.digital-out-nn pins are
 connected in your hal file to outputs.
 
-== M66 Wait on Input[[sec:M66-Input-Control]]
+[[sec:M66-Input-Control]]
+== M66 Wait on Input
 (((M66 Input Control)))
 
 ----
@@ -316,7 +324,8 @@ motion.analog-in-nn pins are connected in your hal file to an input.
 net signal-name motion.digital-in-00 <= parport.0.pin10-in
 ----
 
-== M67 Synchronized Analog Output[[sec:M67-Analog-Output]]
+[[sec:M67-Analog-Output]]
+== M67 Synchronized Analog Output
 (((M67 Analog Motion Output Control)))
 
 ----
@@ -340,7 +349,8 @@ Components Section, Motion subsection, for more information.
 M67 will not function unless the appropriate motion.analog-out-nn pins are
 connected in your hal file to outputs.
 
-== M68 Analog Output[[sec:M68-Analog-Output]]
+[[sec:M68-Analog-Output]]
+== M68 Analog Output
 (((M68 Analog Aux Output Control)))
 
 ----
@@ -362,7 +372,8 @@ Components Section, Motion subsection, for more information.
 M68 will not function unless the appropriate motion.analog-out-nn pins are
 connected in your hal file to outputs.
 
-== M100 to M199 User Defined Commands[[sec:M100-to-M199]]
+[[sec:M100-to-M199]]
+== M100 to M199 User Defined Commands
 (((M100 to M199 User Defined Commands)))(((User Defined Commands M100-M199)))
 
 ----

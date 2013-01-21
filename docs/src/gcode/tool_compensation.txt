@@ -42,7 +42,8 @@ The G10 L1/L10/L11 commands can be used to set tool table offsets:
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
                       (see <<sec:G10-L11,G10 L11>> for details)
 
-== Tool Table [[sec:tool-table]]
+[[sec:tool-table]]
+== Tool Table
 
 The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
@@ -210,7 +211,8 @@ are. T can be any number but P must be a number that makes sense for
 the machine.
 
 
-== Cutter Compensation[[sec:cutter-compensation]]
+[[sec:cutter-compensation]]
+== Cutter Compensation
 
 Cutter Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
