@@ -8,7 +8,7 @@
 |Code                                    | Description
 |<<sec:M0-M1,M0 M1>>                     | Program Pause
 |<<sec:M2-M30,M2 M30>>                   | Program End
-|<<sec:M60, M60>>                        | Program End
+|<<sec:M60, M60>>                        | Pallet Change Pause
 |<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
 |<<sec:M6-Tool-Change,M6>>               | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
@@ -75,8 +75,8 @@ Lines of code after M2/M30 will not be executed.
 Pressing cycle start will start the program
 at the beginning of the file.
 
-== M60 Program Pause[[sec:M60]]
-(((M60 Program Pause)))
+== M60 Pallet Change Pause [[sec:M60]]
+(((M60 Pallet Change Pause)))
 
 * 'M60' - exchange pallet shuttles and then pause a running program
           temporarily (regardless of the setting of the optional stop
