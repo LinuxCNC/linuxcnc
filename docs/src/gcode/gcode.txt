@@ -91,9 +91,9 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
 |<<sec:G90-G91,G90 G91>>            |Distance Mode
 |<<sec:G90.1-G91.1,G90.1 G91.1>>    |Arc Distance Mode
-|<<sec:G92-G92.1-G92.2-G92.3,G92>>  |Offset Coordinate Systems & Set Parameters
-|<<sec:G92-G92.1-G92.2-G92.3,G92.1 G92.2>>|Cancel Offsets
-|<<sec:G92-G92.1-G92.2-G92.3,G92.3>>|Apply Parameters to Offset Coordinate Systems
+|<<sec:G92,G92>>                    |Coordinate System Offset
+|<<sec:G92_1-G92_2,G92.1 G92.2>>    |Cancel Coordinate System Offsets
+|<<sec:G92_3,G92.3>>                |Restore Axis Offsets
 |<<sec:G93-G94-G95-Mode,G93 G94 G95>> |Feed Modes
 |<<sec:G96-G97-Spindle,G96>>        |Constant Surface Speed
 |<<sec:G96-G97-Spindle,G97>>        |RPM Mode
@@ -1957,7 +1957,8 @@ G0 X2.5 (rapid linear move 2.5 from current position along the X axis)
 * 'G91.1' - incremental distance mode for I, J & K offsets. G91.1 Returns 
             I, J & K to their default behavior.
 
-== G92 Coordinate System Offset[[sec:G92-G92.1-G92.2-G92.3]]
+[[sec:G92]]
+== G92 Coordinate System Offset
 (((G92 Coordinate System Offset)))
 
 ----
@@ -2001,13 +2002,15 @@ See the <<sec:G92-Offsets,Offsets>> Section for more information.
 
 See the <<sec:parameters,Parameters>> Section for more information.
 
-== G92.1, G92.2 Reset Coordinate System Offsets[[sec:G92.1-G92.2]]
+[[sec:G92_1-G92_2]]
+== G92.1, G92.2 Reset Coordinate System Offsets
 
 * 'G92.1' - reset axis offsets to zero and set <<sub:numbered-parameters,parameters>>
             5211 - 5219 to zero.
 * 'G92.2' - reset axis offsets to zero.
 
-== G92.3 Restore Axis Offsets[[sec:G92.3]]
+[[sec:G92_3]]
+== G92.3 Restore Axis Offsets
 
 * 'G92.3' - set the axis offset to the values saved in parameters 5211 to 5219
 
