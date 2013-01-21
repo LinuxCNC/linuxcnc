@@ -207,7 +207,7 @@ moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
 is narrower than the cutter without any errors. See the 
-<<sec:cutter-radius-compensation,Cutter Radius Compensation>> Section
+<<sec:cutter-compensation,Cutter Compensation>> Section
 for more information.
 
 == Homing
