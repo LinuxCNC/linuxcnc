@@ -1148,7 +1148,7 @@ used.
 G53 axes
 ----
 
-To move in 'absolute coordinates' from the machine origin, program 'G53'
+To move in the machine coordinate system, program 'G53'
 on the same line as a linear move. 'G53' is not modal and must be
 programmed on each line. 'G0' or 'G1' does not have to be programmed
 on the same line if one is currently active. 
