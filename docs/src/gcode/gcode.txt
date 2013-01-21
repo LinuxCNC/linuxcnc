@@ -347,7 +347,7 @@ G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
 G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 ----
 
-.G2-G3 Example[[fig:G2/3-Example]]
+.G2-G3 Example[[fig:G2-G3-Example]]
 
 image::images/g2-3.png[align="center"]
 
