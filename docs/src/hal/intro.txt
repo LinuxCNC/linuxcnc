@@ -88,7 +88,8 @@ changes as needed.
 
 This document is aimed at people who already know how to do this kind
 of hardware system integration, but who do not know how to connect the
-hardware to LinuxCNC. See Remote Start Example<<fig:Remote-Start-Example>>
+hardware to LinuxCNC. See the <<sec:Remote-Start-Example,Remote Start
+Example>> section in the HAL UI Examples documentation.
 
 image::images/remote-start.png[]
 
