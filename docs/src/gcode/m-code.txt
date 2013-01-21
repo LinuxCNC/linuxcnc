@@ -12,7 +12,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
 |<<sec:M6-Tool-Change,M6>>               | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
-|<<sec:M48-M49,M48 M49>>                 | Feed & Spindle Overrides Enable/Disable
+|<<sec:M48-M49-Override,M48 M49>>        | Feed & Spindle Overrides Enable/Disable
 |<<sec:M50-Feed-Override,M50>>           | Feed Override Control
 |<<sec:M51-Spindle-Override,M51>>        | Spindle Override Control
 |<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
@@ -156,7 +156,8 @@ classicladder.
 It is OK to use any of these commands, regardless of the current coolant
 state.
 
-== M48, M49 Override Control[[sec:M48-M49-Override]]
+[[sec:M48-M49-Override]]
+== M48, M49 Speed and Feed Override Control
 (((M48, M49 Override Control)))
 
 * 'M48' - enable the spindle speed and feed rate override controls.
@@ -166,7 +167,8 @@ It is OK to enable or disable the controls when
 they are already enabled or disabled. 
 See the <<sub:feed-rate,Feed Rate>> Section for more details.
 
-== M50 Feed Override Control[[sec:M50-Feed-Override]]
+[[sec:M50-Feed-Override]]
+== M50 Feed Override Control
 (((M50 Feed Override Control)))
 
 * 'M50 <P1>' - enable the feed rate override control. The P1
@@ -177,7 +179,8 @@ While disabled the feed override will have no influence,
 and the motion will be executed at programmed feed rate.
 (unless there is an adaptive feed rate override active).
 
-== M51 Spindle Speed Override Control[[sec:M51-Spindle-Override]]
+[[sec:M51-Spindle-Override]]
+== M51 Spindle Speed Override Control
 (((M51 Spindle Speed Override)))
 
 * 'M51 <P1>' - enable the spindle speed override control. The P1
@@ -188,7 +191,8 @@ and the motion will be executed at programmed feed rate.
              exact program specified value of the S-word
              (described in <<sec:S-spindle-speed,Spindle Speed>> Section).
 
-== M52 Adaptive Feed Control[[sec:M52-Adaptive-Feed-Control]]
+[[sec:M52-Adaptive-Feed-Control]]
+== M52 Adaptive Feed Control
 (((M52 Adaptive Feed Control)))
 
 * 'M52 <P1>' - use an adaptive feed. The P1 is optional.
@@ -200,7 +204,8 @@ to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
 from 0 (feed hold) to 1 (full speed).
 
-== M53 Feed Stop Control[[sec:M53-Feed-Stop-Control]]
+[[sec:M53-Feed-Stop-Control]]
+== M53 Feed Stop Control
 (((M53 Feed Stop Control)))
 
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
