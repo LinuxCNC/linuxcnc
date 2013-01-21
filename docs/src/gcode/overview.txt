@@ -199,7 +199,7 @@ assignment statement.
 
 Persistence:: When LinuxCNC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
-persistent range footnoteref:[persistent range,The range of persistent
+persistent range footnoteref:[persistent_range,The range of persistent
 parameters may change as development progresses. This range is
 currently 5161- 5390. It is defined in the '_required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
