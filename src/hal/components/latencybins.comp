@@ -9,6 +9,7 @@ Usage:
        -N ... 0 ... + N bins
     (the -0 bin is not populated)
     (total effective bins = 2*maxbinnumber +1)
+  Set nsbinsize pin for the binsize (ns)
   Iterate:
     Set index pin to a bin number: 0 <= index <= maxbinnumber.
     Read check pin and verify that check pin == index pin.
@@ -29,6 +30,7 @@ Maintainers note: hardcoded for MAXBINNUMBER==1000
 pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER
 pin in  s32 index;  //use s32 to avoid 0x hex display in hal
 pin in  bit reset;
+pin in  s32 nsbinsize;
 
 pin out s32 check;
 pin out s32 latency;
@@ -67,7 +69,7 @@ if (reset) {first = 1;}
 
 if (   first
      || binmax != last_binmax
-     || binmax == 0  // important to avoid divide by zero
+     || nsbinsize == 0  // important to avoid divide by zero
   ) {
   first = 0;
   latency = 0;
@@ -77,7 +79,7 @@ if (   first
   }
 } else {
   latency = lat32;
-  i = lat32/binmax;
+  i = lat32/nsbinsize;
   if (i >= 0) {
      if (i > binmax) {
        pextra++;

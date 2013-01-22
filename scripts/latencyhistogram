@@ -56,7 +56,7 @@ proc set_defaults {} {
     program_check realtime
   }
 
-  set ::LH(version) 2.5
+  set ::LH(version) 2.6
   set ::LH(verbose) 0
   set ::LH(opt,show) 0
 
@@ -545,6 +545,7 @@ proc start_collection {} {
     }
     hal addf $::LH($thd,name) t_$thd
     hal setp $::LH($thd,name).maxbinnumber $::LH($thd,maxbins)
+    hal setp $::LH($thd,name).nsbinsize    $::LH($thd,binsize,ns)
   }
   hal start
   after 100
