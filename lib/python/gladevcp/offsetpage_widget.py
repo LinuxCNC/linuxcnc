@@ -47,7 +47,7 @@ class OffsetPage(gtk.VBox):
                 "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: 0-9 a-d are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'hide_joints' : ( gobject.TYPE_STRING, 'Hidden Joints', 'A no-spaces list of joints to hide: 0-9 are the options',
+        'hide_joints' : ( gobject.TYPE_STRING, 'Hidden Joints', 'A no-spaces list of joints to hide: 0-9 and/or axis lettets are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
@@ -231,17 +231,25 @@ class OffsetPage(gtk.VBox):
     # the hidejointslist is alway the joints to hide, so if the user asked for 
     # visible-True, then change that list to joints-to-hide
     # ultimately this list is used to decide if the row will be added to the model or not
-    def set_joints_visible(self,list,bool):
+    def set_row_visible(self,list,bool):
         try:
             if bool:
                 # must convert to joints-to-hide by removing the visible ones from a full list
                 self.hidejointslist = [0,1,2,3,4,5,6,7,8]
                 for index in range(0,len(list)):
-                    self.hidejointslist.remove(int(list[index]))
+                    try:
+                        self.hidejointslist.remove(int(list[index]))
+                    except:
+                        axnum = "xyzabcuvw".index(str(list[index]).lower())
+                        self.hidejointslist.remove(axnum)
             else:
                 self.hidejointslist = []
                 for index in range(0,len(list)):
-                    self.hidejointslist.append(int(list[index]))
+                    try:
+                        self.hidejointslist.append(int(list[index]))
+                    except:
+                        axnum = "xyzabcuvw".index(str(list[index]).lower())
+                        self.hidejointslist.append(axnum)
         except:
             self.hidejointslist = []
 
@@ -282,7 +290,7 @@ class OffsetPage(gtk.VBox):
             self.set_col_visible("0123456789abcd",True)
             self.set_col_visible("%s"%value,False)
         if name == 'hide_joints':
-            self.set_joints_visible("%s"%value,False)
+            self.set_row_visible("%s"%value,False)
         if name in self.__gproperties.keys():
             setattr(self, name, value)
 
@@ -306,7 +314,7 @@ def main(filename=None):
     window.vbox.add(offsetpage)
     #offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
     #offsetpage.set_col_visible("1abC",False)
-    #offsetpage.set_joints_visible("123",True)
+    #offsetpage.set_row_visible("0yz3b",True)
     #offsetpage.set_to_mm()
     window.connect("destroy", gtk.main_quit)
     window.show_all()
