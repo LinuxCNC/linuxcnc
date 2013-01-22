@@ -196,7 +196,7 @@ what each one is.
 === Feed Rate
 
 How the feed rate is applied depends on if an axis involved with the
-move is a rotary axis. Read and understand the <<feed-rate,Feed Rate>>
+move is a rotary axis. Read and understand the <<sub:feed-rate,Feed Rate>>
 section if you have a rotary axis or a lathe.
 
 === Tool Radius Offset
