@@ -15,7 +15,7 @@ from led import HAL_LED
 from calculatorwidget import Calculator
 from tooledit_widget import ToolEdit
 from drowidget import HAL_DRO
-from offsetwidget import HAL_OFFSET
+from offsetwidget import HAL_Offset
 from offsetpage_widget import OffsetPage
 from hal_bar import HAL_HBar, HAL_VBar
 from hal_meter import HAL_Meter

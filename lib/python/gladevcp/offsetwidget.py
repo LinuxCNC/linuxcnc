@@ -15,7 +15,6 @@
 # GNU General Public License for more details.
 
 import sys,os,pango
-import math
 import linuxcnc
 
 try:
@@ -30,8 +29,8 @@ try:
 except:
     pass
 
-class HAL_OFFSET(gtk.Label):
-    __gtype_name__ = 'HAL_OFFSET'
+class HAL_Offset(gtk.Label):
+    __gtype_name__ = 'HAL_Offset'
     __gproperties__ = {
         'display_units_mm' : ( gobject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -161,7 +160,7 @@ def main():
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-    offset = HAL_OFFSET()
+    offset = HAL_Offset()
     window.vbox.add(offset)
     window.connect("destroy", gtk.main_quit)
 
