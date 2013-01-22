@@ -168,10 +168,10 @@ class HAL_DRO(gtk.Label):
         c = self.unit_convert
         return map(lambda x,y: x*y, v, c)
 
-    def set_dro_inch(self):
+    def set_to_inch(self):
         self.display_units_mm = 0
 
-    def set_dro_mm(self):
+    def set_to_mm(self):
         self.display_units_mm = 1
 
 # for testing without glade editor:
