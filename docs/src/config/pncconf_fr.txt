@@ -62,6 +62,10 @@ image::images/pncconf-splash_fr.png[]
 
 == Créer ou éditer une configuration
 
+.Créer ou éditer
+
+image::images/pncconf-file_fr.png[]
+
 Il est possible de créer une nouvelle configuration ou d'en modifier une
 existante.
 Si _Modifier une configuration déjà créée_ est choisi, suivi d'un clic
@@ -69,12 +73,12 @@ sur _Suivant_, un sélecteur de fichier apparait pour choisir la configuration
 existante à modifier. Par défaut, Pncconf présélectionne le dernier fichier
 enregistré. Il est possible de cocher les options _Créer un lien sur le
 bureau_ qui créera un lien sur le bureau pointant sur ce nouveau fichier de
-configuration, _Créer un lanceur_ qui créera un lanceur sur le bureau pour
-LinuxCNC dans cette configuration.
+configuration, _Créer un lanceur_ qui créera un lanceur sur le bureau qui
+démarrera LinuxCNC dans cette configuration.
 Si ces options ne sont pas utilisées, le nouveau fichier de configuration se
 trouvera dans le dossier _~/linuxcnc/configs_. Il est toujours  possible de
-lancer LinuxCNC normalement et de sélectionner la configuration souhaitée dans la
-liste.
+lancer LinuxCNC normalement et de sélectionner la configuration souhaitée dans
+la liste.
 
 == Informations machine
 
@@ -214,7 +218,7 @@ _AXIS_
 
 * Supporte les tours.
 * C'est l'interface la plus utilisée et la plus développée.
-* Elle est conçue pour être utilisée à la souris est un clavier.
+* Elle est conçue pour être utilisée à la souris est avec un clavier.
 * Elle est basée sur tkinter et intègre donc PYVCP (contrôle visuel python).
 * Elle dispose d'un affichage graphique en 3D.
 * Elle est intégrable sur les barres de tâches ou sur le bureau.
@@ -381,7 +385,7 @@ ultérieurement dans la section HALUI. Le bouton _Toucher Z automatique_
 nécessite le programme _Touch-off_ de classicladder et que l'entrée de sonde
 soit sélectionnée. Il faut aussi un palpeur qui peut être réalisé avec une
 plaque conductrice reliée à la masse. Pour avoir une idée sur la façon dont
-cela fonctionne voir:
+cela fonctionne, voir:
 //http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff[ Simple bouton "Toucher"]
 
 Sous _Options d'affichage_, les options de géométrie et de dimensions
@@ -419,7 +423,7 @@ Récupérer position jointure après arrêt::
     Mémorise la position des articulations lors de l'arrêt. Utilisé pour les
     machines a cinématique complexe.
 
-Changeur d'outil à position aléatoire::		
+Changeur d'outil à position aléatoire::
     Utilisé pour les changeurs d'outils qui ne reçoivent pas toujours les outils
 au mêmes emplacements. Des codes HAL doivent être ajoutés pour le support de ces
 changeurs d'outils.
