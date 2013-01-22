@@ -89,6 +89,8 @@ USERSRCS +=  rtapi/sim_rtapi_app.cc
 # see that target below
 #
 # These must be included in USERSRCS for .o files to be built
+#RTAPI_APP_OBJS := \
+#			objects/rtapi/sim_rtapi_app.o
 RTAPI_APP_OBJS := \
 	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_SRCS))) \
 			objects/rtapi/sim_rtapi_app.o
@@ -131,3 +133,52 @@ endif  # BUILD_SYS == kbuild
 
 # Add RT_CFLAGS to ULAPI compilation
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+##################################################################
+#                     the kdetect test program
+##################################################################
+RTAPI_KDETECT_SRCS =  rtapi/rtapi_kdetect.c
+USERSRCS += $(RTAPI_KDETECT_SRCS)
+RTAPI_KDETECT_OBJS := \
+	$(call TOOBJS, $(RTAPI_KDETECT_SRCS))
+
+$(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
+	EXTRAFLAGS += -DTEST  \
+	 $(shell $(XENO_CONFIG) --skin=native --cflags )
+
+# Build target
+../bin/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  ../lib/liblinuxcnchal.so -lrt -ldl
+
+TARGETS += ../bin/kdetect
+
+# .so load test
+RTAPI_LOAD_SRCS =  rtapi/rtapi_load.c
+USERSRCS += $(RTAPI_LOAD_SRCS)
+RTAPI_LOAD_OBJS := \
+	$(call TOOBJS, $(RTAPI_LOAD_SRCS))
+
+$(call TOOBJSDEPS, $(RTAPI_LOAD_SRCS)): \
+	EXTRAFLAGS += -DTEST  \
+	 $(shell $(XENO_CONFIG) --skin=native --cflags )
+
+../bin/rtapiload: $(RTAPI_LOAD_OBJS)  ../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  ../lib/liblinuxcnchal.so -lrt -ldl
+
+TARGETS += ../bin/rtapiload
+
+# ----- test shared object ----------
+FLAVOR1_SRCS := rtapi/flavor1.c
+$(call TOOBJSDEPS, $(FLAVOR1_SRCS)): EXTRAFLAGS += -fPIC
+USERSRCS += $(FLAVOR1_SRCS)
+FLAVOR1 := ../lib/flavor1.so
+
+$(FLAVOR1): $(call TOOBJS, $(FLAVOR1_SRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(RT_LDFLAGS)
+
+TARGETS += $(FLAVOR1)
