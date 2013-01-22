@@ -596,6 +596,9 @@ class Gscreen:
         # see if the user specified a tool editor
         self.data.tooleditor = self.inifile.find("DISPLAY","TOOL_EDITOR")
 
+        # see if the user specified a tool editor
+        self.data.varfile = self.inifile.find("RS274NGC","PARAMETER_FILE")
+
         # toolsetting reference type
         if self.prefs.getpref('toolsetting_fixture', False):
             self.g10l11 = 1
@@ -702,6 +705,7 @@ class Gscreen:
         self.init_statusbar()
         self.init_entry()
         self.init_tooleditor()
+        self.init_offsetpage()
         self.init_embeded_terminal()
         self.init_themes()
         self.init_screen1_geometry()
@@ -779,6 +783,16 @@ class Gscreen:
             self.widgets.tooledit1.set_visible("ijq",True)
         path = os.path.join(CONFIGPATH,self.data.tooltable)
         self.widgets.tooledit1.set_filename(path)
+
+    # Only show the rows of the axes we use
+    # set the var path so offsetpage can fill in all the user system offsets
+    def init_offsetpage(self):
+        temp =""
+        for axis in self.data.axis_list:
+            temp=temp+axis
+        self.widgets.offsetpage1.set_row_visible(temp,True)
+        path = os.path.join(CONFIGPATH,self.data.varfile)
+        self.widgets.offsetpage1.set_filename(path)
 
     def init_embeded_terminal(self):
         # add terminal window
@@ -2284,10 +2298,18 @@ class Gscreen:
             print "switch to imperial"
             self.status.dro_inch(1)
             self.widgets.gremlin.set_property('metric_units',False)
+            try:
+                self.widgets.offsetpage1.set_to_inch()
+            except:
+                pass
         else:
             print "switch to mm"
             self.status.dro_mm(1)
             self.widgets.gremlin.set_property('metric_units',True)
+            try:
+                self.widgets.offsetpage1.set_to_mm()
+            except:
+                pass
         self.data.dro_units = data
         if save:
             self.prefs.putpref('dro_is_metric', data, bool)

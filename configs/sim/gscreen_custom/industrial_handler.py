@@ -111,9 +111,14 @@ class HandlerClass:
         self.widgets.notebook_main.set_current_page(3)
         self.toggle_modes(widget)
 
+    # Display the offsetpage tab
+    def on_offsetpage_button_clicked(self,widget):
+        self.widgets.notebook_main.set_current_page(2)
+        self.toggle_modes(widget)
+
     # This toggles the buttons so only one is presses at any one time
     def toggle_modes(self,widget):
-        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button"
+        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button","offsetpage_button"
         for i in temp:
             state = False
             if self.widgets[i] == widget: state = True
@@ -153,7 +158,7 @@ class HandlerClass:
         self.gscreen.connect_signals(handlers)
         # connect to handler file callbacks:
         self.gscreen.widgets.metric_select.connect("clicked", self.on_metric_select_clicked)
-        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button"
+        temp = "setup_button","mdi_button","run_button","tooledit_button","system_button","offsetpage_button"
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
                 self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
@@ -172,6 +177,7 @@ class HandlerClass:
         self.gscreen.init_statusbar()
         self.gscreen.init_entry()
         self.gscreen.init_tooleditor()
+        self.gscreen.init_offsetpage()
         self.gscreen.init_embeded_terminal()
         self.gscreen.init_themes()
         self.gscreen.init_screen1_geometry()
