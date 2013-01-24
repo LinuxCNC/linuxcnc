@@ -536,12 +536,12 @@ checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_D
 		if [ $$BAD_LINKS -eq 0 ]; then \
 			echo "***" 1>&2 ; \
 			echo "*** language: English" 1>&2 ; \
-			echo "*** bad links found in docs!" 1>&2 ; \
+			echo "*** warning: bad links found in docs!" 1>&2 ; \
 			echo "***" 1>&2 ; \
 			exit 1; \
 		else \
 			echo "***"; \
-			echo "*** language: English" 1>&2 ; \
+			echo "*** language: English"; \
 			echo "*** all links are good!"; \
 			echo "***"; \
 		fi \
@@ -560,13 +560,13 @@ checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $
 		if [ $$BAD_LINKS -eq 0 ]; then \
 			echo "***" 1>&2 ; \
 			echo "*** language: French" 1>&2 ; \
-			echo "*** bad links found in docs!" 1>&2 ; \
+			echo "*** warning: bad links found in docs!" 1>&2 ; \
 			echo "*** oh well, continuing anyway" 1>&2 ; \
 			echo "***" 1>&2 ; \
 			exit 0; \
 		else \
 			echo "***"; \
-			echo "*** language: French" 1>&2 ; \
+			echo "*** language: French"; \
 			echo "*** all links are good!"; \
 			echo "***"; \
 		fi \
