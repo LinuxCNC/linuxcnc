@@ -143,6 +143,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
 }
 
 static void Ini_dealloc(pyIniFile *self) {
+    if (!self->i) return;
     self->i->Close();
     delete self->i;
     PyObject_Del(self);
