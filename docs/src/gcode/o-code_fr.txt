@@ -155,7 +155,7 @@ la boucle et _O- continue_, saute immédiatement à la prochaine
 évaluation de la condition du _while_. Si elle est vraie, la boucle
 recommence au début. Si elle est fausse, la boucle est quittée.
 
-[[sec:Conditionnel]]
+[[sec:Conditionnels]]
 == Conditionnel: *if*, *elseif*, *else*, *endif*
 (((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 

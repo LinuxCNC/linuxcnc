@@ -22,10 +22,10 @@
 |<<sec:M52-Controle-Vitesse-Adaptative,M52>>           | Correcteur dynamique de vitesse d'avance
 |<<sec:M53-Controle-Coupure-Vitesse,M53>>              | Contrôle de la coupure de vitesse
 |<<sec:M61-Correction-Numero-Outil-Courant,M61>>       | Correction du numéro de l'outil courant
-|<<sec:M62-a-M65-Controle-Sortie-Numerique,M62 à M65>> | Contrôle de bits de sortie numérique
-|<<sec:M66-Controle-Bit-Entree,M66>>                   | Contrôle d'un bit d'entrée
-|<<sec:M67-Controle-Sortie-Analogique-Synchro,M67>>    | Contrôle sortie analogique synchronisée
-|<<sec:M68-Controle-Sortie-Analogique-Directe,M68>>    | Contrôle sortie analogique directe
+|<<sec:M62-a-M65-Ctrl-Sortie-Numerique,M62 à M65>>     | Contrôle de sortie numérique
+|<<sec:M66-Ctrl-Entree-Numerique-Et-Analogique,M66>>   | Contrôle d'entrée numérique et analogique
+|<<sec:M67-Ctrl-Sortie-Analogique-Synchro,M67>>        | Contrôle sortie analogique synchronisée
+|<<sec:M68-Ctrl-Sortie-Analogique-Directe,M68>>        | Contrôle sortie analogique directe
 |<<sec:M100-a-M199, M100 à M199 >>                     | M-codes définis par l'utilisateur
 |========================================================
 
@@ -245,7 +245,7 @@ C'est une erreur si:
 
 * Q- n'est pas égal où supérieur à 0
 
-[[sec:M62-a-M65-Controle-Sortie-Numerique]]
+[[sec:M62-a-M65-Ctrl-Sorties-Numeriques]]
 == M62 à M65 Contrôle de bits de sortie numérique
 (((M62 Contrôle un bit de sortie numérique)))
 
@@ -281,9 +281,9 @@ contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 M62 à M66 ne seront opérationnels que si les pins _motion.digital-out-nn 
 appropriées sont connectées aux sorties dans le fichier HAL.
 
-[[sec:M66-Controle-Bit-Entree]]
-== M66 Contrôle d'un bit d'entrée
-(((M66 Contrôle d'un bit d'entrée)))
+[[sec:M66-Ctrl-Entrees-Numeriques-Et-Analogiques]]
+== M66 Contrôle d'entrées numériques et analogiques 
+(((M66 Contrôle d'entrées numeriques et analogiques)))
 
 ----
 M66 P- | E- <L->
@@ -323,7 +323,7 @@ plus d'informations, section des configurations, paragraphes "LinuxCNC et HAL".
 M66 ne sera opérationnel que si les pins motion.digital-in-nn ou
 motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier HAL.
 
-[[sec:M67-Controle-Sortie-Analogique-Synchro]]
+[[sec:M67-Ctrl-Sortie-Analogique-Synchro]]
 == M67 Contrôle de sortie analogique
 (((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
 
@@ -349,7 +349,7 @@ pour plus d'informations sur le contrôleur de mouvement.
 M67 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
 connectées aux sorties dans le fichier HAL.
 
-[[sec:M68-Controle-Sortie-Analogique-Directe]]
+[[sec:M68-Ctrl-Sortie-Analogique-Directe]]
 == M68 Contrôle de sortie analogique directe
 (((M68 Contrôle de Sortie analogique directe)))
 

@@ -56,8 +56,8 @@ chose.
 |<<sec:G1,G1>> | Interpolation linéaire en vitesse travail
 |<<sec:G2-G3,G2/G3>>  | Interpolation circulaire sens horaire/anti-horaire
 |<<sec:G4-Tempo,G4>>           | Temporisation
-|<<sec:G5-1-B-spline,G5.1>>    | B-Spline quadratique
-|<<sec:G5-2-G5-3-NURBs,G5.2 G5.3>>    | NURBs Block _(expérimental)_
+|<<sec:G5_1-B-spline,G5.1>>    | B-Spline quadratique
+|<<sec:G5_2-G5_3-NURBs,G5.2 G5.3>>    | NURBs Block _(expérimental)_
 |<<sec:G7-Mode-diametre,G7>>   | Mode diamètre (sur les tours)
 |<<sec:G8-Mode-rayon,G8>>| Mode rayon (sur les tours)
 |<<sec:G10-L1,G10 L1>>   | Ajuste les valeurs de l'outil en table d'outils
@@ -67,22 +67,22 @@ chose.
 |<<sec:G10-L20,G10 L20>> | Fixe l'origine du système de coord. aux valeurs calculées
 |<<sec:G17-G18-G19,G18 G19>>  | Choix du plan de travail
 |<<sec:G20-G21-Unites-Machine,G20 G21>>         | Unités machine
-|<<sec:G28-G28-1-Aller-a-une-position,G28 G28.1>> | Aller à une position prédéfinie
-|<<sec:G30-G30-1-Aller-a-une-position-predefinie,G30 G30.1>> | Aller à une position
+|<<sec:G28-G28_1-Aller-a-une-position,G28 G28.1>> | Aller à une position prédéfinie
+|<<sec:G30-G30_1-Aller-a-une-position-predefinie,G30 G30.1>> | Aller à une position
 prédéfinie
 |<<sec:G33-Broche-synchronisee,G33>>   | Mouvement avec broche synchronisée
-|<<sec:G33-1-Taraudage-rigide,G33.1>>    | Taraudage rigide
+|<<sec:G33_1-Taraudage-rigide,G33.1>>    | Taraudage rigide
 |<<sec:G38-x-Palpeur,G38>> | Mesures au palpeur
 |<<sec:G40,G40>>           | Révocation de la compensation de rayon d'outil
 |<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil
-|<<sec:G41-1-G42-1,G41.1/G42.1>> | Comp. dynamique de rayon d'outil à gauche/à droite
+|<<sec:G41_1-G42_1,G41.1 G42.1>> | Comp. dynamique de rayon d'outil à gauche/à droite
 |<<sec:G43,G43>> | Compensation de longueur d'outil d'après une table d'outils
 |<<sec:G43_1,G43.1>> | Compensation dynamique de longueur d'outil
 |<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de
 longueur d'outil
 |<<sec:G53-Mouvement-Coordonnees-Absolues,G53>> | Déplacements en coordonnées
 machine (Absolues)
-|<<sec:G54-a-G59_3,G54 à G59.3>>     | Choix du système de coordonnées (1 a 9)
+|<<sec:G54-a-G59_3,G54 à G59.3>>     | Choix du système de coordonnées (1 à 9)
 |<<sec:G61-G61_1,G61 G61.1>>   | Mode trajectoire exacte/mode arrêts exacts
 |<<sec:G64,G64>>| Mode trajectoire continue avec tolérance
 |<<sec:G73-Percage-avec-brise-copeaux,G73>> | Cycle de perçage avec brise copeau
@@ -99,7 +99,7 @@ machine (Absolues)
 _(pas encore implémenté)_
 |<<sec:G89-Alesage-Tempo,G89>> | Cycle d'alésage avec tempo, recul vitesse travail
 |<<sec:G90-G91-Set,G90>>       | Types de déplacement
-|<<sec:G90-1-G91-1,G90.1>>     | Modes de déplacement
+|<<sec:G90_1-G91_1,G90.1 G91.1>>     | Arc I,J,K, centre absolu ou relatif
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
 |<<sec:G92_1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
 |<<sec:G92_3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
@@ -245,7 +245,7 @@ différent de celui décrit ci-dessus, voir les sections
 <<sec:G40, sur G40>> et <<sec:G41-G42, sur G41-G42>>.
 
 Le centre de l'arc est absolu ou relatif, tel que fixé par
- <<sec:G90-1-G91-1,G90.1 ou G91.1>>, respectivement.
+ <<sec:G90_1-G91_1,G90.1 ou G91.1>>, respectivement.
 
 C'est une erreur si:
 
@@ -284,7 +284,7 @@ Aucun mot d'axe mais un ou plusieurs décalages doivent être programmés pour u
 cercle complet. Le mot _P_, par défaut à 1, est facultatif.
 
 Pour d'avantage d'information sur les arcs en mode relatif, voir la
- <<sec:G90-1-G91-1,section G91.1>>.
+ <<sec:G90_1-G91_1,section G91.1>>.
 
 .Arc en mode distance absolue
 Les décalages par rapport au centre de l'arc sont des distances absolues depuis
@@ -297,7 +297,7 @@ Aucun mots d'axe mais tous les décalages doivent être programmés pour un
 cercle complet. Le mot _P_, par défaut à 1, est facultatif.
 
 Pour d'avantage d'information sur les arcs en mode absolu, voir la
-<<sec:G90-1-G91-1,section G90.1>>.
+<<sec:G90_1-G91_1,section G90.1>>.
 
 .Plan XY (G17)
 ----
@@ -491,7 +491,7 @@ C'est une erreur si:
 
 * Le nombre P est négatif ou n'est pas spécifié.
 
-[[sec:G5-1-B-spline]]
+[[sec:G5_1-B-spline]]
 == G5.1 B-spline quadratique
 (((G5.1 B-spline quadratique)))
 
@@ -511,7 +511,7 @@ C'est une erreur si:
 * Un axe autre que X ou Y est spécifié
 * Le plan actif n'est pas G17
 
-[[sec:G5-2-G5-3-NURBs]]
+[[sec:G5_2-G5_3-NURBs]]
 == G5.2 G5.3 NURBs Block
 (((G5.2 G5.3 NURBs Block)))
 
@@ -819,7 +819,7 @@ C'est toujours une bonne pratique de programmer soit _G20_, soit _G21_, dans
 le préambule du programme, avant tout mouvement et de ne plus en changer
 ailleurs dans le programme.
 
-[[sec:G28-G28-1-Aller-a-une-position]]
+[[sec:G28-G28_1-Aller-a-une-position]]
 == G28, G28.1 Aller à une position prédéfinie
 (((G28)))
 (((G28.1)))
@@ -854,7 +854,7 @@ C'est une erreur si:
 
 * La compensation d'outil est active.
 
-[[sec:G30-G30-1-Aller-a-une-position-predefinie]]
+[[sec:G30-G30_1-Aller-a-une-position-predefinie]]
 == G30, G30.1 Aller à une position prédéfinie
 (((G30)))
 (((G30.1)))
@@ -955,7 +955,7 @@ C'est une erreur si:
 * Le mouvement linéaire requis excède les limites de vitesse machine
 en raison de la vitesse de broche.
 
-[[sec:G33-1-Taraudage-rigide]]
+[[sec:G33_1-Taraudage-rigide]]
 == G33.1 Taraudage Rigide
 (((G33.1 Taraudage rigide)))
 
@@ -1169,7 +1169,7 @@ C'est une erreur si:
 * Le plan YZ est le plan de travail actif.
 * La compensation d'outil est activée alors qu'elle est déjà active.
 
-[[sec:G41-1-G42-1]]
+[[sec:G41_1-G42_1]]
 == G41.1, G42.1 Compensation dynamique d'outil
 (((G41.1 Compensation dynamique)))
 (((G42.1 Compensation dynamique)))
@@ -1937,7 +1937,7 @@ C'est une erreur si:
 (((G84 Cycle de taraudage)))
 
 Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
-comportement n'est pas défini. Voir le <<sec:G33-1-Taraudage-rigide, taraudage
+comportement n'est pas défini. Voir le <<sec:G33_1-Taraudage-rigide, taraudage
 rigide>>.
 
 [[sec:G85-Alesage-retrait-travail]]
@@ -2094,7 +2094,7 @@ courante)
 
 * Voir <<sec:G0,G0>> pour plus d'information.
 
-[[sec:G90-1-G91-1]]
+[[sec:G90_1-G91_1]]
 == G90.1, G91.1: Mode de déplacement en arc (I, J et K)
 
 * _G90.1_ - Mode de déplacement absolu pour les offsets I, J et K. Quand
