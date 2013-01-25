@@ -76,8 +76,8 @@ prédéfinie
 |<<sec:G40,G40>>           | Révocation de la compensation de rayon d'outil
 |<<sec:G41-G42,G41 G42>>       | Compensation de rayon d'outil
 |<<sec:G41-1-G42-1,G41.1/G42.1>> | Comp. dynamique de rayon d'outil à gauche/à droite
-|<<sec:G43,G43>> | Compensation de longueur d'outil d'après la table d'outils
-|<<sec:G43-1,G43.1>> | Compensation dynamique de longueur d'outil
+|<<sec:G43,G43>> | Compensation de longueur d'outil d'après une table d'outils
+|<<sec:G43_1,G43.1>> | Compensation dynamique de longueur d'outil
 |<<sec:G49-Revocation-Longueur-Outil,G49>>  | Révocation de la compensation de
 longueur d'outil
 |<<sec:G53-Mouvement-Coordonnees-Absolues,G53>> | Déplacements en coordonnées
@@ -726,8 +726,8 @@ G10 L10 P1 Z1.5 (fixe la position courante en Z à 1.5 dans la table d'outils)
 G43 (recharge l'offset de longueur d'outil depuis la table d'outils modifiée)
 M2 (fin de programme)
 ----
-Voir les commandes <<sec:M6-Appel-Outil, M6>>, <<sec:T-Choix-Outil, Tn>>
-et <<sec:G43, G43>>.
+Pour d'autres détals voir les commandes <<sec:M6-Appel-Outil, M6>>,
+<<sec:T-Choix-Outil, Tn>> et <<sec:G43, G43>>/<<sec:G43_1,G43.1>>.
 
 C'est une erreur si:
 
@@ -1226,7 +1226,7 @@ C'est une erreur si:
 * La valeur de H n'est pas un entier, il est négatif, ou il ne correspond, ni
 à zéro, ni à un numéro d'outil valide.
 
-[[sec:G43-1]]
+[[sec:G43_1]]
 == G43.1 Compensation dynamique de longueur d'outil
 (((G43.1 Compensation dynamique de longueur d'outil)))
 
