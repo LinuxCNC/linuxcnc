@@ -259,7 +259,8 @@ trajectoire:
     légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la 
     tolérance, si elle est spécifiée). 
     
-Voir également les G-codes <<sec:G61-G61-1-G64, de contrôle de trajectoire>>.
+Voir également les G-codes <<sec:G61-G61_1,G61/G61.1>> et <<sec:G64,G64>> des
+contrôles de trajectoire.
 
 [[sec:Interaction-vitesses]] (((Interraction vitesse)))
 [[sec:Interaction-effacement-de-bloc]] (((effacement de bloc)))

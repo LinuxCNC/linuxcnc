@@ -84,7 +84,7 @@ longueur d'outil
 machine (Absolues)
 |<<sec:G54-a-G59-3,G54 à G59>>     | Choix du système de coordonnées (1 a 6)
 |<<sec:G54-a-G59-3,G59.1 à G59.3>> | Choix du système de coordonnées (7 a 9)
-|<<sec:G61-G61-1,G61/G61.1>>   | Mode trajectoire exacte/mode arrêt exact
+|<<sec:G61-G61_1,G61/G61.1>>   | Mode trajectoire exacte/mode arrêts exacts
 |<<sec:G64,G64>>| Mode trajectoire continue avec tolérance
 |<<sec:G73-Percage-avec-brise-copeaux,G73>> | Cycle de perçage avec brise copeau
 |<<sec:G76-Filetage,G76>>      | Cycle de filetage multipasses (tour)
@@ -1344,16 +1344,16 @@ C'est une erreur si:
 Voir la section <<cha:Systemes-de-coordonnees, sur les systèmes de coordonnée>>
 pour une vue complète.
 
-[[sec:G61-G61-1]]
+[[sec:G61-G61_1]]
 == G61, G61.1 Contrôle de trajectoire exacte
 (((G61 Trajectoire exacte)))
 (((G61.1 Arrêt exact)))
 (((Trajectoire contrôlée)))
 
-* _G61_ - Passe la machine en mode de trajectoire exacte. G61 suivra exactement
+* _G61_ - Met la machine en mode de trajectoire exacte. G61 suivra exactement
 la trajectoire programmée même si cela doit aboutir à un arrêt complet
 momentané du mobile.
-* _G61.1_ - Passe la machine en mode arrêts exacts. Identique à G61.
+* _G61.1_ - Met la machine en mode arrêts exacts.
 
 [[sec:G64]]
 == G64 Contrôle de trajectoire continue avec tolérance
