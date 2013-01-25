@@ -12,7 +12,7 @@
 | Code                                                 | Description
 |<<sec:M0-M1,M0 M1>>                                   | Pause dans le programme
 |<<sec:M2-M30,M2 M30>>                                 | Fin de programme
-|<<sec:M60,M60>>                                       | Fin de programme avec déchargement pièce
+|<<sec:M60,M60>>                                       | Pause pour déchargement pièce
 |<<sec:M3-M4-M5,M3 M4 M5>>                             | Contrôle de la broche
 |<<sec:M6-Appel-Outil,M6 Tn>>                          | Appel d'outil n=numéro d'outil
 |<<sec:M7-M8-M9,M7 M8 M9>>                             | Contrôle des arrosages
@@ -80,13 +80,13 @@ Les deux commandes précédentes produisent les effets suivants:
 Les lignes de code placées après un _M2_ ou un _M30_ ne sont pas exécutées.
 
 [[sec:M60]]
-== M60, fin de programme avec déchargement de pièce
-(((M60 Fin de programme avec déchargement pièce)))
+== M60, pause pour déchargement pièce
+(((M60 Pause pour déchargement pièce)))
 
-* _M60_ - Procède à l'échange de porte-pièce avec le chargeur de pièces et
-stoppe temporairement le programme en cours (quel que soit le réglage
-du bouton d'arrêt facultatif). Presser le bouton de départ cycle, après cette
-commande, relance le programme à la ligne suivante.
+* _M60_ - Procède au changement de porte-pièce avec le chargeur de pièces et
+effectue une pause dans le programme en cours (quel que soit le réglage
+du bouton d'arrêt facultatif). Presser ensuite le bouton de départ cycle pour
+relancer le programme à la ligne suivante.
 
 [[sec:M3-M4-M5]]
 == M3, M4, M5 Contrôle de la broche
