@@ -244,7 +244,8 @@ suivante dans la section [HAL] du fichier ini.
 HALUI = halui
 ----
 
-=== Démarrage à distance
+[[sec:Exemple-Commande-Distante]]
+== Démarrage à distance
 
 Pour connecter un bouton de démarrage à distance à LinuxCNC il faut utiliser
 la pin _halui.program.run_ et la pin _halui.mode.auto_. 
@@ -260,9 +261,7 @@ la pin _halui.mode.is-auto_ sera TRUE.
 Si les deux entrées du composant _and2.0_ sont TRUE, la sortie _and2.0.out_ 
 sera TRUE également et le programme sera démarré. 
 
-[[fig:Remote-Start-Example]]
-.Exemple de commande à distance
-
+.Exemple de commande distante
 image::images/remote-start.png[]
 
 Les commandes de Hal pour accomplir ces actions sont les suivantes: 

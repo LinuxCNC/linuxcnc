@@ -5,7 +5,6 @@
 
 [[cha:HAL-Introduction]] (((Introduction à HAL)))
 
-
 HAL(((HAL))) est le sigle de Hardware Abstraction Layer, le terme
 Anglais pour Couche d'Abstraction Matériel.footnote:[Note du 
 traducteur: nous garderons le sigle HAL dans toute la
@@ -114,7 +113,9 @@ indispensables.
 
 Ce document est destiné aux personnes déjà capables de concevoir ce
 type de réalisation matérielle, mais qui ne savent pas comment
-connecter le matériel à LinuxCNC.
+connecter le matériel à LinuxCNC, par exemple une
+<<sec:Exemple-Commande-Distante,commande distante>> telle que donnée en exemple
+dans la documentation de Halui.
 
 La conception de matériel, telle que décrite précédemment, s'arrête à
 l'interface de contrôle. Au delà, il y a un tas de boîtes noires,
@@ -149,8 +150,9 @@ d'interconnecter des boîtes noires matérielles, vous n'aurez sans doute
 aucune difficulté à utiliser HAL pour interconnecter des boites noires
 logicielles.
 
-
-== Concept de HAL[[sec:Concept de HAL]](((Concept de HAL)))
+[[sec:Concept de HAL]]
+== Concept de HAL
+(((Concept de HAL)))
 
 Cette section est un glossaire qui définit les termes clés de HAL mais
 il est différent d'un glossaire traditionnel en ce sens que les termes
@@ -229,7 +231,7 @@ Type:: (((HAL Type)))
 - s32 - un entier signé de 32 bits, les valeurs légales vont 
    de -2,147,483,648 à +2,147,483,647
 
-[[des:Function]]
+[[sec:Function]]
 Function:: (((HAL Fonction)))
      (Fonction) Les composants 
     matériels réels ont tendance à réagir immédiatement à leurs signaux
@@ -250,7 +252,7 @@ Function:: (((HAL Fonction)))
     _functions_ qui seront exécutées dans un ordre particulier et selon des
     intervalles de temps spécifiques.
 
-[[des:Thread]]
+[[sec:Thread]]
 Thread:: (((HAL Fil)))
      (Fil) Un _thread_ est une liste de _functions_ qui sont 
     lancées à intervalles spécifiques par une tâche
@@ -283,8 +285,8 @@ composants actuellement disponibles et décrit brièvement ce que chacun
 fait. Les détails complets sur chacun seront donnés plus loin dans ce
 document.
 
-[[sub:Programmes-externes]]
-=== Programmes externes attachés à HAL
+[[sec:Programmes-externes]]
+== Programmes externes attachés à HAL
 
 motion:: (((motion)))
      Un module temps réel qui accepte les commandes de
@@ -305,7 +307,8 @@ halui:: (((halui)))
     interrupteurs externes.
 
 [[sub:Composants-internes]]
-=== Composants internes(((Composants externes)))
+== Composants internes
+(((Composants externes)))
 
 stepgen::
      Générateur d'impulsions de pas avec boucle de position. Plus de détails
@@ -330,7 +333,9 @@ blocks:: (((blocks)))
      Un assortiment de composants (mux, demux, or, and, integ,
     ddt, limit, wcomp, etc.)
 
-=== Pilotes de matériels[[sub:Pilotes de materiels]](((Pilotes de matériel)))
+[[sub:Pilotes de materiels]]
+== Pilotes de matériels
+(((Pilotes de matériel)))
 
 hal_ax5214h:: (((hal-ax5214h)))
      Un pilote pour la carte d'entrées/sorties Axiom Measurement & Control AX5241H
@@ -355,7 +360,9 @@ hal_stg:: (((hal-stg)))
 hal_vti:: (((hal-vti)))
      Un pilote pour le contrôleur Vigilant Technologies PCI ENCDAC-4
 
-=== Outils-Utilitaires[[sub:Outils-Utilitaires]](((Outils et utilitaires)))
+[[sub:Outils-Utilitaires]]
+== Outils-Utilitaires
+(((Outils et utilitaires)))
 
 halcmd:: (((halcmd)))
      Ligne de commande pour la configuration et les réglages. 
@@ -486,8 +493,8 @@ peut aussi être changée en jouant sur la longueur des tiges pour
 connecter les modules. L'ordre des opérations est le même mais le temps
 mis pour aller d'un bout à l'autre est très différent.
 
-[[sub:Un-Exemple-en-Lego]]
-=== Un exemple en Lego footnote:[The Lego name is a trademark of the Lego company.]
+[[sec:Un-Exemple-en-Lego]]
+== Un exemple en Lego footnote:[The Lego name is a trademark of the Lego company.]
 
 Lorsque les blocs de Lego sont arrivés dans nos magasins, ils étaient
 à peu près tous de la même taille et de la même forme. Bien sûr il y
