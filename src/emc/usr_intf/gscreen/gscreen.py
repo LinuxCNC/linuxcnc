@@ -2562,7 +2562,7 @@ class Gscreen:
 
     def reload_plot(self):
         print "reload plot"
-        self.widgets.button_h3_6.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
 
     def toggle_mist(self):
         if self.data.mist:
