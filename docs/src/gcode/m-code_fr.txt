@@ -178,9 +178,7 @@ vitesses de broche et celui de vitesse d'avance travail.
 
 Il est permis d'autoriser ou d'inhiber ces curseurs quand
 ils sont déjà autorisés ou inhibés. Ils peuvent aussi être activés
-individuellement en utilisant les commandes _M50_ et _M51_ comme décrit dans les
-sections <<sec:M50-Controle-Correcteur-Vitesse-Travail, sur M50>> et
-<<sec:M51-Controle-Correcteur-Vitesse-Broche, celle sur M51>>.
+individuellement en utilisant les commandes _M50_ et _M51_, voir ci-dessous.
 
 [[sec:M50-Controle-Correcteur-Vitesse-Travail]]
 == M50 Contrôle du correcteur de vitesse travail
@@ -223,7 +221,7 @@ Les valeurs de _motion.adaptive-feed_ doivent être dans comprises
 entre 0 (vitesse nulle) et 1 (pleine vitesse).
 
 [[sec:M53-Controle-Coupure-Vitesse]]
-== M53 Contrôle de coupure de vitesse
+== M53 Contrôle de la coupure de vitesse
 (((M53 Contrôle coupure vitesse)))
 
 * _M53 P1_ - Autorise le bouton de coupure de vitesse. Le paramètre _P1_ est

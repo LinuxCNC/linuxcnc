@@ -82,9 +82,8 @@ prédéfinie
 longueur d'outil
 |<<sec:G53-Mouvement-Coordonnees-Absolues,G53>> | Déplacements en coordonnées
 machine (Absolues)
-|<<sec:G54-a-G59-3,G54 à G59>>     | Choix du système de coordonnées (1 a 6)
-|<<sec:G54-a-G59-3,G59.1 à G59.3>> | Choix du système de coordonnées (7 a 9)
-|<<sec:G61-G61_1,G61/G61.1>>   | Mode trajectoire exacte/mode arrêts exacts
+|<<sec:G54-a-G59_3,G54 à G59.3>>     | Choix du système de coordonnées (1 a 9)
+|<<sec:G61-G61_1,G61 G61.1>>   | Mode trajectoire exacte/mode arrêts exacts
 |<<sec:G64,G64>>| Mode trajectoire continue avec tolérance
 |<<sec:G73-Percage-avec-brise-copeaux,G73>> | Cycle de perçage avec brise copeau
 |<<sec:G76-Filetage,G76>>      | Cycle de filetage multipasses (tour)
@@ -1301,18 +1300,18 @@ C'est une erreur si:
 Étudier le <<cha:Systemes-de-coordonnees, chapitre sur les systèmes de
 coordonnées>> et de leurs décalages, pour bien maîtriser ces concepts.
 
-[[sec:G54-a-G59-3]]
+[[sec:G54-a-G59_3]]
 == G54 à G59.3 Choix du système de coordonnées
 
-* _G54_ - Origine pièce 1
-* _G55_ - Origine pièce 2
-* _G56_ - Origine pièce 3
-* _G57_ - Origine pièce 4
-* _G58_ - Origine pièce 5
-* _G59_ - Origine pièce 6
-* _G59.1_ - Origine pièce 7
-* _G59.2_ - Origine pièce 8
-* _G59.3_ - Origine pièce 9
+* _G54_ - Système de coordonnées pièce 1
+* _G55_ - Système de coordonnées pièce 2
+* _G56_ - Système de coordonnées pièce 3
+* _G57_ - Système de coordonnées pièce 4
+* _G58_ - Système de coordonnées pièce 5
+* _G59_ - Système de coordonnées pièce 6
+* _G59.1_ - Système de coordonnées pièce 7
+* _G59.2_ - Système de coordonnées pièce 8
+* _G59.3_ - Système de coordonnées pièce 9
 
 Le code _G54_ est apparié avec le système de coordonnées pièce N°1,
 pour le choisir programmer _G54_ et ainsi de suite pour les autres systèmes.
