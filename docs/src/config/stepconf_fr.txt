@@ -164,9 +164,12 @@ Laisser cette case cochée sauf si le support d'un changeur d'outils
 automatique est prévu dans un fichier personnalisé HAL.
 
 [[sec:Options-de-configuration-avancee]]
-== Options de configuration avancée(((Options de configuration avancée)))
-
-.Configuration avancée[[cap:Configuration-avancee]]
+== Options de configuration avancée
+(((Options de configuration avancée)))
+//
+//[[cap:Configuration-avancee]]
+//
+.Configuration avancée
 
 image::images/stepconf-advanced_fr.png[]
 
