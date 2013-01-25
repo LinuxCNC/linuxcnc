@@ -387,7 +387,7 @@ G2 X0 Y1 I1 J0.5 F25 (arc en sens horaire dans le plan XY)
 G3 X0 Y0 I1 J-0.5 F25 (arc en sens anti-horaire dans le plan XY)
 ----
 
-[[fig:G2/G3-Exemple]]
+[[fig:G2-G3-Exemple]]
 .Exemple avec G2-G3
 
 image::images/g2-3_fr.png[align="center"]
