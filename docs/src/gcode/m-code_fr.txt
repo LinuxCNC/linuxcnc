@@ -16,7 +16,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>                             | Contrôle de la broche
 |<<sec:M6-Appel-Outil,M6 Tn>>                          | Appel d'outil n=numéro d'outil
 |<<sec:M7-M8-M9,M7 M8 M9>>                             | Contrôle des arrosages
-|<<sec:M48-M49-Controle-Correcteurs-Vitesse,M48 M49>>  | Contrôle des correcteurs de vitesse
+|<<sec:M48-M49,M48 M49>>                               | Contrôle des correcteurs de vitesse 
 |<<sec:M50-Controle-Correcteur-Vitesse-Travail,M50>>   | Contrôle du correcteur de vitesse travail
 |<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51>>    | Contrôle du correcteur de vitesse de broche
 |<<sec:M52-Controle-Vitesse-Adaptative,M52>>           | Correcteur dynamique de vitesse d'avance
