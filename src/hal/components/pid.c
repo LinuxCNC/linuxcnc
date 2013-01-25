@@ -313,7 +313,14 @@ static void calc_pid(void *arg, long period)
     command = *(pid->command);
     feedback = *(pid->feedback);
     /* calculate the error */
-    if (*(pid->error_previous_target)) {
+    if((!(pid->prev_ie && !*(pid->index_enable))) && 
+       (*(pid->error_previous_target))) {
+        // the user requests ferror against prev_cmd, and we can honor
+        // that request because we haven't just had an index reset that
+        // screwed it up.  Otherwise, if we did just have an index
+        // reset, we will present an unwanted ferror proportional to
+        // velocity for this period, but velocity is usually very small
+        // during index search.
         tmp1 = pid->prev_cmd - feedback;
     } else {
         tmp1 = command - feedback;
