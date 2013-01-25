@@ -53,7 +53,8 @@ de configuration.
 Placera un lanceur sur le bureau pour démarrer l'application avec sa
 configuration.
 
-== Informations machine[[sub:Informations-base]]
+[[sub:Informations-base]]
+== Informations machine
 
 .Page d'informations sur la machine
 
@@ -231,12 +232,11 @@ Le signal de pompe de charge sera d'environ la moitié de la fréquence
 maxi des pas affichée sur la page des informations machine.
 
 [[sec:Configuration-des-axes]]
+== Configuration des axes
 (((Configuration des axes)))
 
-== Configuration des axes
-
-
 [[cap:Configuration-des-axes]]
+
 .Page de configuration des axes
 
 image::images/stepconf-axis_fr.png[]
@@ -367,9 +367,10 @@ Dans ce cas, la commande lspci -v dans un terminal peux aider, si le nom
 du chipset de la carte est connu.
 Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
 
-=== Tester cet axe
+[[cap:Tester-Cet-Axe]]
+== Tester cet axe
 
-.Tester cet axe[[cap:Tester-Cet-Axe]]
+.Tester cet axe
 
 image::images/stepconf-test_fr.png[]
 
@@ -377,7 +378,8 @@ Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et d
 vitesse.
 
 [[sub:Trouver-Vitesse-Maximale]]
-=== Trouver la vitesse maximale(((Trouver Vitesse Maximale)))
+== Trouver la vitesse maximale
+(((Trouver Vitesse Maximale)))
 
 Commencer avec une faible valeur d'accélération
 (par exemple, *+2 pouces/s^2^+* ou *+50 mm/s^2^+*)
@@ -413,8 +415,9 @@ Quand la vitesse à laquelle l'axe ne perd plus de pas et à laquelle les mesure
 sont exactes pendant le test a été déterminée, réduire cette vitesse de 10% et
 l'utiliser comme vitesse maximale pour cet axe.
 
-[[sub:Trouver-Acceleration-Maximale]]
-=== Trouver l'accélération maximale(((Trouver Accélération Maximale)))
+[[sec:Trouver-Acceleration-Maximale]]
+== Trouver l'accélération maximale
+(((Trouver Accélération Maximale)))
 
 Avec la vitesse maximale déterminée à l'étape précédente, entrer
 une valeur d'accélération approximative. Procéder comme pour la vitesse,
@@ -436,8 +439,8 @@ Ces options ne sont accessibles que quand _PWM broche_,
 _Phase A codeur broche_ ou _index broche_ sont configurés dans le
 réglage du port parallèle.
 
-[[sub:Controle-de-la-vitesse-de-broche]]
-=== Contrôle de la vitesse de broche(((Contrôle de la vitesse de broche)))
+[[sec:Controle-de-la-vitesse-de-broche]]
+== Contrôle de la vitesse de broche(((Contrôle de la vitesse de broche)))
 
 Si _PWM broche_ apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
@@ -458,8 +461,8 @@ Si les valeurs ne sont pas connues, elles peuvent être déterminées.
 Voir la section sur <<sub:Determiner-broche-Etalonnage-broche,la calibration
 de la broche>>.
 
-[[sub:Mouvement-avec-broche-synchronisee]]
-=== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)
+[[sec:Mouvement-avec-broche-synchronisee]]
+== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)
 (((Mouvement avec broche synchronisée)))
 
 Lorsque les signaux appropriés, provenant d'un codeur de broche, sont
@@ -499,12 +502,12 @@ Pour exploiter un moteur de broche rapide ou un codeur ayant une résolution
 élevée, une valeur basse de BASE_PERIOD est requise.
 
 [[sub:Determiner-broche-Etalonnage-broche]]
-=== Calibrer la broche
+== Calibrer la broche
 (((Calibrer la broche)))
 
 Entrer les valeurs suivantes dans la page de configuration de la broche:
 
-[width="80%",align="left"]
+[width="80%",options="header", cols="^,^,^,^"]
 |===============================
 | Vitesse 1: | 0    | PWM 1: | 0
 | Vitesse 2: | 1000 | PWM 2: | 1
@@ -533,7 +536,7 @@ Par exemple, si la broche tourne entre 0tr/mn et 8000tr/mn, mais qu'elle est
 utilisée généralement entre 400tr/mn et 4000tr/mn, prendre alors
 des valeurs qui donneront 1600tr/mn et 2800tr/mn.
 
-[[sub:Terminer-configuration]]
+[[sec:Terminer-configuration]]
 == Terminer la configuration
 (((Terminer la configuration)))
 
@@ -588,8 +591,8 @@ la position de l'origine ne doit jamais être égale à une limite logicielle.
 On place habituellement cette position au point le plus facile pour
 réaliser le changement d'outil.
 
-[[sub:exploitation-sans-limite]]
-=== Exploitation sans fin de course(((exploitation sans limite sans fin de course)))
+[[sec:exploitation-sans-limite]]
+== Exploitation sans fin de course(((exploitation sans limite sans fin de course)))
 
 Une machine peut être utilisée sans contact de fin de course. Dans ce cas,
 seules les limites logicielles empêcheront la machine d'atteindre les butées
@@ -601,8 +604,8 @@ sous-menu _Machine → Prises d'origines machine → POM de l'axe_.
 L'opérateur devra cocher chacun des axes individuellement pour faire la
 POM de chacun d'eux.
 
-[[sub:exploitation-sans-origine]]
-=== Exploitation sans contact d'origine(((Exploitation sans contact d'origine)))
+[[sec:exploitation-sans-origine]]
+== Exploitation sans contact d'origine(((Exploitation sans contact d'origine)))
 
 Une machine peut être utilisée sans contact d'origine machine. Si la machine
 dispose de contacts de fin de course, mais pas de contact d'origine
@@ -616,7 +619,7 @@ que sur des contacts, mais elle permet tout de même aux limites logicielles
 d'être utilisables.
 
 [[sec:Contacts-Origine-et-Limites]]
-=== Câblage des contacts de fin de course et d'origine machine
+== Câblage des contacts de fin de course et d'origine machine
 (((Câblage des contacts d'origine machine et des limites)))
 
 Le câblage idéal des contacts externes serait une entrée par contact.

@@ -218,17 +218,17 @@ travail demandé et ne pas supposer que ceux par défaut conviendront.
 Imprimer la page des références rapides du G-code peut aider à se rappeler
 la signification de chacun d'eux.
 
-=== Vitesse d'avance
+== Vitesse d'avance
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
 comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de
 l'utilisateur.
 
-=== Compensation de rayon d'outil
+== Compensation de rayon d'outil
 
 La compensation de rayon d'outil (G41/G42) nécessite que l'outil puisse
-toucher tout au long de la trajectoire programmée sans interférer avec
+usiner tout au long de la trajectoire programmée sans interférer avec
 les mouvements d'entrée ou de sortie. Si c'est impossible avec le
 diamètre de l'outil courant, une erreur est signalée. Un diamètre
 d'outil inférieur est peut être utilisable sans erreur pour le même
@@ -239,7 +239,7 @@ d'informations.
 
 == Prise d'origine machine
 
-Après le démarrage de LinuxCNC chaque axe doit être référencé sur sont
+Après le démarrage de LinuxCNC chaque axe doit être référencé sur son
 point d'origine machine avant tout mouvement ou commande MDI.
 
 Pour déroger à ce comportement par défaut, ou pour utiliser

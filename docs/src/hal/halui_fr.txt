@@ -236,6 +236,7 @@ Outil:: (Tool)
  - halui.tool.length-offset (float, out) - indique la correction de longueur d'outil appliquée
  - halui.tool.number (u32, out) - indique l'outil courant sélectionné
 
+[[sec:Exemple-Commande-Distante]]
 == Exemples de programme avec Halui
 
 Pour que ces exemples fonctionnent, il faut ajouter la ligne
@@ -244,8 +245,7 @@ suivante dans la section [HAL] du fichier ini.
 HALUI = halui
 ----
 
-[[sec:Exemple-Commande-Distante]]
-== Démarrage à distance
+=== Démarrage à distance
 
 Pour connecter un bouton de démarrage à distance à LinuxCNC il faut utiliser
 la pin _halui.program.run_ et la pin _halui.mode.auto_. 

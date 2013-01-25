@@ -113,8 +113,8 @@ indispensables.
 
 Ce document est destiné aux personnes déjà capables de concevoir ce
 type de réalisation matérielle, mais qui ne savent pas comment
-connecter le matériel à LinuxCNC, par exemple une
-<<sec:Exemple-Commande-Distante,commande distante>> telle que donnée en exemple
+connecter le matériel à LinuxCNC, par exemple pour une
+<<sec:Exemple-Commande-Distante,commande distante>> telle que décrite
 dans la documentation de Halui.
 
 La conception de matériel, telle que décrite précédemment, s'arrête à
@@ -150,7 +150,7 @@ d'interconnecter des boîtes noires matérielles, vous n'aurez sans doute
 aucune difficulté à utiliser HAL pour interconnecter des boites noires
 logicielles.
 
-[[sec:Concept de HAL]]
+[[sec:Concept-de-HAL]]
 == Concept de HAL
 (((Concept de HAL)))
 
@@ -306,7 +306,7 @@ halui:: (((halui)))
     comme une interface utilisateur en utilisant les boutons et
     interrupteurs externes.
 
-[[sub:Composants-internes]]
+[[sec:Composants-internes]]
 == Composants internes
 (((Composants externes)))
 
@@ -333,7 +333,7 @@ blocks:: (((blocks)))
      Un assortiment de composants (mux, demux, or, and, integ,
     ddt, limit, wcomp, etc.)
 
-[[sub:Pilotes de materiels]]
+[[sec:Pilotes-de-materiels]]
 == Pilotes de matériels
 (((Pilotes de matériel)))
 
@@ -360,7 +360,7 @@ hal_stg:: (((hal-stg)))
 hal_vti:: (((hal-vti)))
      Un pilote pour le contrôleur Vigilant Technologies PCI ENCDAC-4
 
-[[sub:Outils-Utilitaires]]
+[[sec:Outils-Utilitaires]]
 == Outils-Utilitaires
 (((Outils et utilitaires)))
 
