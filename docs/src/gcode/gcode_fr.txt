@@ -101,8 +101,8 @@ _(pas encore implémenté)_
 |<<sec:G90-G91-Set,G90>>       | Types de déplacement
 |<<sec:G90-1-G91-1,G90.1>>     | Modes de déplacement
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
-|<<sec:G92-1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
-|<<sec:G92-3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
+|<<sec:G92_1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
+|<<sec:G92_3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
 |<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesse
 |<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn)
 |<<sec:G96-G97-Broche,G97>>    | Vitesse en tours par minute
@@ -2153,7 +2153,7 @@ Voir la section sur les <<sec:G92-Decalages,décalages G92>>.
 
 Voir la section sur les <<sec:parametres,paramètres>>.
 
-[[sec:G92-1-G92-2]]
+[[sec:G92_1-G92_2]]
 == G92.1, G92.2 Remise à zéro des décalages des systèmes de coordonnées
 
 * _G92.1_ - Positionne les décalages d'axes à 0 et passe les paramètres
@@ -2161,7 +2161,7 @@ Voir la section sur les <<sec:parametres,paramètres>>.
 * _G92.2_ - Positionne les décalages d'axes à 0, laisse les valeurs des
 paramètres inchangées, elles ne seront pas utilisées.
 
-[[sec:G92-3]]
+[[sec:G92_3]]
 == G92.3 Restauration des décalages d'axe
 
 * _G92.3_ - Positionne les décalages d'axes aux valeurs enregistrées dans
