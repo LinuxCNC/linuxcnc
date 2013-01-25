@@ -1281,11 +1281,11 @@ longueur d'outil alors qu'aucune n'est couramment utilisée.
 G53 axes
 ----
 
-Pour un déplacement à un point exprimé en coordonnées absolues,
-à partir de l'origine machine, programmer _G53_ sur la même ligne
-qu'un mouvement linéaire. _G53_ n'est pas modal, il doit donc être programmé
-sur chaque ligne où il doit être actif. _G0_ ou _G1_ ne doivent pas se trouver
-sur la même ligne si un d'eux est déjà actif. Par exemple:
+Pour un déplacement exprimé en coordonnées système, programmer 
+_G53_ sur la même ligne qu'un mouvement linéaire. _G53_ n'est pas modal, il doit
+donc être programmé sur chaque ligne où il doit être actif. _G0_ ou _G1_ ne
+doivent pas se trouver sur la même ligne si un d'eux est déjà actif.
+Par exemple:
 
 .Exemple avec G53
 ----

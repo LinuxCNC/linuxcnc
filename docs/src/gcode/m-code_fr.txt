@@ -85,8 +85,8 @@ Les lignes de code placées après un _M2_ ou un _M30_ ne sont pas exécutées.
 
 * _M60_ - Procède à l'échange de porte-pièce avec le chargeur de pièces et
 stoppe temporairement le programme en cours (quel que soit le réglage
-du bouton d'arrêt facultatif). Presser le départ le bouton de départ
-cycle après cette commande relance le programme à la ligne suivante.
+du bouton d'arrêt facultatif). Presser le bouton de départ cycle, après cette
+commande, relance le programme à la ligne suivante.
 
 [[sec:M3-M4-M5]]
 == M3, M4, M5 Contrôle de la broche
