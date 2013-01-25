@@ -154,7 +154,7 @@ rotation de la broche. Si les limites physiques de l'axe rendent le
 déplacement impossible, tous les axes seront ralentis pour maintenir
 le parcours prévu.
 
-=== Vitesse[[sec:Vitesse-d-avance]]
+=== [[sub:Vitesse-d-avance]]Vitesse d'avance
 
 (((vitesse d'avance)))
 
