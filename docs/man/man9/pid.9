@@ -205,4 +205,8 @@ function equal to the size of the deadband.  People who prefer that behavior are
 welcome to add a parameter that will change the behavior, or to write their own
 version of \fBpid\fR. However, the default behavior should not be changed.
 
-
+Negative gains may lead to unwanted behavior.  It is possible in some
+situations that negative FF gains make sense, but in general all gains
+should be positive.  If some output is in the wrong direction, negating
+gains to fix it is a mistake; set the scaling correctly elsewhere
+instead.
