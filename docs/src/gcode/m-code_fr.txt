@@ -168,7 +168,7 @@ il n'y aura pas d'outil dans la broche après le changement.
 Il est toujours permis d'utiliser une de ces commandes,
 que les arrosages soient arrêtés ou non.
 
-[[sec:M48-M49-Controle-Correcteurs-Vitesse]]
+[[sec:M48-M49]]
 == M48, M49 Contrôle des correcteurs de vitesse
 (((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
 
@@ -245,7 +245,7 @@ C'est une erreur si:
 
 * Q- n'est pas égal où supérieur à 0
 
-[[sec:M62-a-M65-Ctrl-Sorties-Numeriques]]
+[[sec:M62-a-M65-Ctrl-Sortie-Numerique]]
 == M62 à M65 Contrôle de bits de sortie numérique
 (((M62 Contrôle un bit de sortie numérique)))
 
@@ -281,9 +281,9 @@ contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 M62 à M66 ne seront opérationnels que si les pins _motion.digital-out-nn 
 appropriées sont connectées aux sorties dans le fichier HAL.
 
-[[sec:M66-Ctrl-Entrees-Numeriques-Et-Analogiques]]
-== M66 Contrôle d'entrées numériques et analogiques 
-(((M66 Contrôle d'entrées numeriques et analogiques)))
+[[sec:M66-Ctrl-Entree-Numerique-Et-Analogique]]
+== M66 Contrôle d'entrée numérique et analogique
+(((M66 Contrôle d'entrée numerique et analogique)))
 
 ----
 M66 P- | E- <L->

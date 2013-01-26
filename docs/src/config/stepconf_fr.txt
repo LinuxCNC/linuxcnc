@@ -167,12 +167,13 @@ automatique est prévu dans un fichier personnalisé HAL.
 [[sec:Options-de-configuration-avancee]]
 == Options de configuration avancée
 (((Options de configuration avancée)))
-//
-//[[cap:Configuration-avancee]]
-//
+
+[[cap:Configuration-avancee]]
+
 .Configuration avancée
 
 image::images/stepconf-advanced_fr.png[]
+
 
 * _Inclure l'interface Halui_ - 
 Ajoutera l'interface utilisateur Halui.
@@ -194,7 +195,9 @@ Voir le manuel de l'intégrateur pour plus d'information sur ClassicLadder.
 [[sec:Reglage-du-port-parallele]]
 == Réglage du port parallèle
 
-.Page de réglage du port parallèle[[cap:Reglage-du-port-parallele]]
+[[cap:Reglage-du-port-parallele]]
+
+.Page de réglage du port parallèle
 
 image::images/stepconf-pinout_fr.png[]
 
@@ -277,8 +280,8 @@ seconde.
 (((Accélération maximale)))
 Les valeurs correctes pour ces deux entrées ne peuvent être
 déterminées que par l'expérimentation. Consulter
-<<sub:Trouver-Vitesse-Maximale, le calcul de la vitesse>> pour trouver la
-vitesse et <<sub:Trouver-Acceleration-Maximale, le calcul de l'accélération>>
+<<sec:Trouver-Vitesse-Maximale, le calcul de la vitesse>> pour trouver la
+vitesse et <<sec:Trouver-Acceleration-Maximale, le calcul de l'accélération>>
 pour trouver l'accélération maximale.
 
 * _Emplacement de l'origine machine_ - 
@@ -377,7 +380,7 @@ image::images/stepconf-test_fr.png[]
 Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et de
 vitesse.
 
-[[sub:Trouver-Vitesse-Maximale]]
+[[sec:Trouver-Vitesse-Maximale]]
 == Trouver la vitesse maximale
 (((Trouver Vitesse Maximale)))
 

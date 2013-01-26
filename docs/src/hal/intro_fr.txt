@@ -373,7 +373,7 @@ halgui:: (((halgui)))
 
 halmeter:: (((halmeter)))
       Un multimètre pour les signaux HAL. Plus de détails pour utiliser 
-<<cha:halmeter, halmeter>>.
+<<sec:Tutoriel-halmeter,halmeter>>.
 
 halscope:: (((halscope)))
      Un oscilloscope digital à mémoire, complétement
