@@ -56,6 +56,10 @@ RTAPI_MP_INT(debug_modules, "Developer/debug use only!  Enable debug logging of 
 int use_serial_numbers = 0;
 RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration order (smart-serial only)");
 
+int sserial_baudrate = 2500000;
+RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
+
+
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
 struct list_head hm2_list;
@@ -1043,6 +1047,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     hm2->llio = llio;
     hm2->use_serial_numbers = use_serial_numbers;
+    hm2->sserial.baudrate = sserial_baudrate;
 
     INIT_LIST_HEAD(&hm2->tram_read_entries);
     INIT_LIST_HEAD(&hm2->tram_write_entries);
