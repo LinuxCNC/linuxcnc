@@ -156,7 +156,7 @@ class ToolEdit(gtk.VBox):
                     line = line + "%s%s "%(KEYWORDS[num], test)
                 except:
                     line = line + "%s%d "%(KEYWORDS[num], i)
-            #print >>file,line
+            print >>file,line
             #print line
         # tell linuxcnc we changed the tool table entries
         try:
