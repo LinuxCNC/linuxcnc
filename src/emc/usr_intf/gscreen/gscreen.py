@@ -432,8 +432,6 @@ class Gscreen:
         if _AUDIO_AVAIALBLE:
             self.audio = Player()         
 
-        # access to saved prefernces
-        self.prefs = preferences.preferences()
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc)
         # access to EMC status
@@ -452,6 +450,12 @@ class Gscreen:
             if letter.lower() in self.data.axis_list: continue
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
+
+        # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
+        # then initiate access to saved prefernces
+        temp = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH")
+        dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
+        self.prefs = preferences.preferences(temp)
 
         #setup default stuff
         self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)

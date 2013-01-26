@@ -24,9 +24,11 @@ class preferences(cp):
         repr: lambda self,section,option: eval(cp.get(self,section,option)),
     }
 
-    def __init__(self):
+    def __init__(self,path=None):
         cp.__init__(self)
-        self.fn = os.path.expanduser("~/.gscreen_preferences")
+        if not path:
+            path="~/.gscreen_preferences"
+        self.fn = os.path.expanduser(path)
         self.read(self.fn)
 
     def getpref(self, option, default=False, type=bool):
