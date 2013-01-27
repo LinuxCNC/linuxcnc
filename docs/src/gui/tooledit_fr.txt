@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Éditeur graphique de table d'outils
 
 [[cha:editeur-tooledit]] 
