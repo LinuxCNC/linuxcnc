@@ -629,7 +629,8 @@ A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_ST
 SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_PHD, SPINDLE_STEPGEN_PHE, SPINDLE_STEPGEN_PHF,
 X2_STEPGEN_STEP, X2_STEPGEN_DIR, X2_STEPGEN_PHC, X2_STEPGEN_PHD, X2_STEPGEN_PHE, X2_STEPGEN_PHF,
 Y2_STEPGEN_STEP, Y2_STEPGEN_DIR, Y2_STEPGEN_PHC, Y2_STEPGEN_PHD, Y2_STEPGEN_PHE, Y2_STEPGEN_PHF,
-Z2_STEPGEN_STEP, Z2_STEPGEN_DIR, Z2_STEPGEN_PHC, Z2_STEPGEN_PHD, Z2_STEPGEN_PHE, Z2_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
+Z2_STEPGEN_STEP, Z2_STEPGEN_DIR, Z2_STEPGEN_PHC, Z2_STEPGEN_PHD, Z2_STEPGEN_PHE, Z2_STEPGEN_PHF,
+CHARGE_PUMP_STEP,CHARGE_PUMP_DIR,CHARGE_PUMP_PHC,CHARGE_PUMP_PHD,CHARGE_PUMP_PHE,CHARGE_PUMP_PHF) = hal_stepper_names = ["unused-stepgen", 
 "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
 "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
@@ -637,11 +638,12 @@ Z2_STEPGEN_STEP, Z2_STEPGEN_DIR, Z2_STEPGEN_PHC, Z2_STEPGEN_PHD, Z2_STEPGEN_PHE,
 "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", "s-stepgen-phase-f",
 "x2-stepgen-step", "x2-stepgen-dir", "x2-stepgen-phase-c", "x2-stepgen-phase-d", "x2-stepgen-phase-e", "x2-stepgen-phase-f",
 "y2-stepgen-step", "y2-stepgen-dir", "y2-stepgen-phase-c", "y2-stepgen-phase-d", "y2-stepgen-phase-e", "y2-stepgen-phase-f",
-"z2-stepgen-step", "z2-stepgen-dir", "z2-stepgen-phase-c", "z2-stepgen-phase-d", "z2-stepgen-phase-e", "z2-stepgen-phase-f",]
+"z2-stepgen-step", "z2-stepgen-dir", "z2-stepgen-phase-c", "z2-stepgen-phase-d", "z2-stepgen-phase-e", "z2-stepgen-phase-f",
+"charge-pump-out","cp-dir","cp-pc","cp-pd","cp-fe","cp-pf"]
 
 human_stepper_names = [ [_("Unused StepGen"),[]],[_("X Axis StepGen"),[]],[_("Y Axis StepGen"),[]],[_("Z Axis StepGen"),[]],
                         [_("A Axis StepGen"),[]],[_("Spindle StepGen"),[]],[_("X2 Tandem StepGen"),[]],[_("Y2 Tandem StepGen"),[]],
-                        [_("Z2 Tandem StepGen"),[]],[_("Custom Signals"),[]] ]
+                        [_("Z2 Tandem StepGen"),[]],[_("Charge Pump StepGen"),[]],[_("Custom Signals"),[]] ]
 
 (UNUSED_TPPWM,
 X_TPPWM_A, X_TPPWM_B,X_TPPWM_C,X_TPPWM_AN,X_TPPWM_BN,X_TPPWM_CN,X_TPPWM_ENABLE,X_TPPWM_FAULT,
@@ -2625,6 +2627,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self[i+"bldc_option"]:
                 bldc = True
                 break
+        chargepump = self.findsignal("charge-pump-out")
         # load PID compnent:
         # if axis needs PID- (has pwm signal) then add its letter to pidlist
         temp = ""
@@ -2816,7 +2819,25 @@ If you have a REALLY large config that you wish to convert to this newer version
                     halnum = 0         
                 print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
                 print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
-            
+
+        if chargepump:
+            steppinname = self.make_pinname(chargepump)
+            print >>file
+            print >>file, "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
+            print >>file
+            print >>file, "setp   " + steppinname + ".dirsetup        100"
+            print >>file, "setp   " + steppinname + ".dirhold         100"
+            print >>file, "setp   " + steppinname + ".steplen         100"
+            print >>file, "setp   " + steppinname + ".stepspace       100"
+            print >>file, "setp   " + steppinname + ".position-scale  10000"
+            print >>file, "setp   " + steppinname + ".step_type       2"
+            print >>file, "setp   " + steppinname + ".control-type    1"
+            print >>file, "setp   " + steppinname + ".maxaccel        0"
+            print >>file, "setp   " + steppinname + ".maxvel          0"
+            print >>file, "setp   " + steppinname + ".velocity-cmd    0.25"
+            print >>file
+            print >>file, "net x-enable                                 => " + steppinname +".enable"
+
         print >>file
         self.connect_output(file)              
         print >>file
