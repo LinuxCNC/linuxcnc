@@ -21,6 +21,27 @@ au bouton _RechargerTable_, de rafraichir le fichier tout en mettant à jour la
 table d'outils courante. Ce dernier bouton est disponible uniquement quand la
 machine est _En marche_ et inactive.
 
+== Choix des colonnes
+Par défaut, le programme tooledit affiche toutes les colonnes utilisables dans
+une table d'outils. Très peu de machines utilisent tous les paramètres,
+les colonnes affichées peuvent être limitées aux paramètres utilisés. Pour cela,
+passer une ligne de paramètre dans le fichier ini, comme ci-dessous:
+
+.Syntaxe
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit nom_colonne nom_colonne ...
+----
+
+.Exemple pour les colonnes Z et DIAM
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit Z DIAM
+----
+
+.Résultat obtenu
+image::images/tooledit-columns_fr.png[align="left"]
+
 == Tri par colonne
 Les outils de la table affichée peuvent être triés selon n'importe quelle
 colonne, par ordre croissant ou décroissant, en cliquant sur l'entête de la
@@ -41,28 +62,6 @@ les commandes:
 sudo update-alternatives --config tclsh  ;# choisir l'option pour tclsh8.5
 sudo update-alternatives --config wish   ;# choisir l'option pour wish8.5
 ----
-
-== Choix des colonnes
-Par défaut, le programme tooledit affiche toutes les colonnes utilisables dans
-une table d'outils. Très peu de machines utilisent tous les paramètres, aussi
-les colonnes affichées peuvent être limitées aux paramètres utilisés. Pour cela,
-passer une ligne de paramètre dans le fichier ini, comme ci-dessous:
-
-.Syntaxe
-----
-[DISPLAY]
-TOOL_EDITOR = tooledit nom_colonne nom_column ...
-----
-
-.Exemple pour les colonnes Z et DIAM
-----
-[DISPLAY]
-TOOL_EDITOR = tooledit Z DIAM
-----
-
-.Résultat obtenu
-image::images/tooledit-columns_fr.png[align="left"]
-
 
 == Utilisation autonome
 Le programme _tooledit_ peut aussi être invoqué comme un programme autonome.
@@ -105,8 +104,7 @@ ini pour spécifier quel éditeur doit être utilisé:
 [DISPLAY]TOOL_EDITOR = path_pour_editeur
 ----
 
-Par défaut, le programme nommé tooledit est utilisé. Cette éditeur
-supporte tous les paramètres de table d'outils, permet l'ajout ou l'effacement
-d'outils et fourni un certain nombre de contrôles de validité des paramètres
-introduits.
+Par défaut, le programme tooledit est utilisé. Cet éditeur supporte tous les
+paramètres de table d'outils, permet l'ajout ou l'effacement d'outils et fourni
+un certain nombre de contrôles de validité des paramètres introduits.
 
