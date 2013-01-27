@@ -54,14 +54,15 @@ passer une ligne de paramètre dans le fichier ini, comme ci-dessous:
 TOOL_EDITOR = tooledit nom_colonne nom_column ...
 ----
 
-.Résultat obtenu
-image::images/tooledit-columns_fr.png[align="left"]
-
 .Exemple pour les colonnes Z et DIAM
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit Z DIAM
 ----
+
+.Résultat obtenu
+image::images/tooledit-columns_fr.png[align="left"]
+
 
 == Utilisation autonome
 Le programme _tooledit_ peut aussi être invoqué comme un programme autonome.
@@ -78,7 +79,7 @@ tooledit [colonne_1 ... colonne_n] nomfichier
 
 Pour synchroniser un tooledit autonome avec l'application LinuxCNC courante,
 le nom de fichier doit être le même que celui spécifié par le paramètre
-[EMCIO]TOOL_TABLE dans le fichier ini.
+*[EMCIO]TOOL_TABLE* dans le fichier ini.
 
 Lors de l'utilisation de tooledit pendant la marche de LinuxCNC,
 l'exécution d'un g-code ou d'un autre programme peut altérer les données de la
@@ -91,16 +92,18 @@ L'affichage de la table d'outils dans tooledit peut être rafraichi par le
 bouton _Relire_, pour relire le fichier modifié.
 
 Le nom de la table d'outils est spécifié dans le fichier ini par l'entrée:
-
+----
 [EMCIO]TOOL_TABLE = nom_fichier_table_
+----
 
 Le fichier de table d'outils est éditable avec n'importe quel simple éditeur de
 texte. (et non avec un traitement de texte)
 
 L'interface graphique Axis peut optionnellement utiliser un paramètre du fichier
 ini pour spécifier quel éditeur doit être utilisé:
-
+----
 [DISPLAY]TOOL_EDITOR = path_pour_editeur
+----
 
 Par défaut, le programme nommé tooledit est utilisé. Cette éditeur
 supporte tous les paramètres de table d'outils, permet l'ajout ou l'effacement
