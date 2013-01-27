@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-07 21:02+0100\n"
-"PO-Revision-Date: 2013-01-19 14:24+0100\n"
+"PO-Revision-Date: 2013-01-27 14:07+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <tissf@free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -2091,9 +2091,9 @@ msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
-"RÉGLAGE DES OUTILS \n"
-" Clique ou Tab pour éditer.   Presser Entrée pour retourner au contrôle de "
-"la machine depuis le clavier."
+"RÉGLAGE OUTIL \n"
+" Clic ou Tab pour éditer.   Presser Entrée pour retourner au contrôle de la "
+"machine depuis le clavier."
 
 #: tcl/mini.tcl:2130
 msgid "  TOOL NUMBER  "
@@ -3609,7 +3609,7 @@ msgstr "commentaire"
 
 #: src/emc/usr_intf/tooledit.tcl:444
 msgid "Del"
-msgstr "Suppr"
+msgstr "Eff."
 
 #: src/emc/usr_intf/tooledit.tcl:473
 msgid "ReLoadTable"
@@ -3625,7 +3625,7 @@ msgstr "Relire"
 
 #: src/emc/usr_intf/tooledit.tcl:485
 msgid "AddTool"
-msgstr "AjouteOutil"
+msgstr "AjouterOutil"
 
 #: src/emc/usr_intf/tooledit.tcl:535
 #, tcl-format
@@ -3788,7 +3788,7 @@ msgstr ""
 
 #: src/emc/usr_intf/tooledit.tcl:1004
 msgid "Must be On and Idle to reload tool table"
-msgstr "Doit être En marche et en attente pour recharger la table d'outils"
+msgstr "Doit être En marche et inactive pour recharger la table d'outils"
 
 #: src/emc/usr_intf/tooledit.tcl:1093
 msgid "Usage"

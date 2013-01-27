@@ -5,13 +5,13 @@
 
 == Versions requises pour l'éditeur d'outils
 [NOTE]
-Les caractéristiques _configurables_ avec tooledit décrites ici sont disponibles
+Les éléments de tooledit modifiables décrits ici sont disponibles
 dans les versions 2.5.1 et suivantes. Dans la version 2.5.0, l'interface
 graphique ne permet pas ces ajustements.
 
 image::images/tooledit_fr.png[align="left",width=640]
 
-Le programme _tooledit_ rafraichi le fichier de la table d'outils avec les
+Le programme tooledit rafraichi le fichier de la table d'outils avec les
 changements édités puis enregistrés avec le bouton _EnregistrerFichier_.
 Le bouton _EnregistrerFichier_ met à jour le fichier système mais une action
 manuelle dans le menu _Fichier -> Recharger la table d'outils_ est requise pour
@@ -43,7 +43,7 @@ sudo update-alternatives --config wish   ;# choisir l'option pour wish8.5
 ----
 
 == Choix des colonnes
-Par défaut, le programme _tooledit_ affiche toutes les colonnes utilisables dans
+Par défaut, le programme tooledit affiche toutes les colonnes utilisables dans
 une table d'outils. Très peu de machines utilisent tous les paramètres, aussi
 les colonnes affichées peuvent être limitées aux paramètres utilisés. Pour cela,
 passer une ligne de paramètre dans le fichier ini, comme ci-dessous:
@@ -63,12 +63,12 @@ image::images/tooledit-columns_fr.png[align="left"]
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
-== Utilisation indépendante
-Le programme _tooledit_ peut aussi être invoqué comme un programme indépendant.
+== Utilisation autonome
+Le programme _tooledit_ peut aussi être invoqué comme un programme autonome.
 Par exemple si le programme est dans le PATH de l'utilisateur, taper _tooledit_
 en suivant une des syntaxes suivantes selon le besoin:
 
-.Tooledit indépendant
+.Tooledit autonome
 ----
 tooledit
 Usage:
@@ -76,18 +76,18 @@ tooledit nomfichier
 tooledit [colonne_1 ... colonne_n] nomfichier
 ----
 
-Pour synchroniser un tooledit indépendant avec l'application LinuxCNC courante,
+Pour synchroniser un tooledit autonome avec l'application LinuxCNC courante,
 le nom de fichier doit être le même que celui spécifié par le paramètre
 [EMCIO]TOOL_TABLE dans le fichier ini.
 
-Lors de l'utilisation de _tooledit_ pendant la marche de LinuxCNC,
+Lors de l'utilisation de tooledit pendant la marche de LinuxCNC,
 l'exécution d'un g-code ou d'un autre programme peut altérer les données de la
-table d'outils. Toute modification est alors détectée par _tooledit_ qui affiche
+table d'outils. Toute modification est alors détectée par tooledit qui affiche
 le message: Attention: Fichier modifié par un autre process
 
 image::images/tooledit-warning_fr.png[align="left"]
 
-L'affichage de la table d'outils dans _tooledit_ peut être rafraichi par le
+L'affichage de la table d'outils dans tooledit peut être rafraichi par le
 bouton _Relire_, pour relire le fichier modifié.
 
 Le nom de la table d'outils est spécifié dans le fichier ini par l'entrée:
@@ -102,7 +102,7 @@ ini pour spécifier quel éditeur doit être utilisé:
 
 [DISPLAY]TOOL_EDITOR = path_pour_editeur
 
-Par défaut, le programme nommé _tooledit_ est utilisé. Cette éditeur
+Par défaut, le programme nommé tooledit est utilisé. Cette éditeur
 supporte tous les paramètres de table d'outils, permet l'ajout ou l'effacement
 d'outils et fourni un certain nombre de contrôles de validité des paramètres
 introduits.
