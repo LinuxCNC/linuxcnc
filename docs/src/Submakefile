@@ -282,6 +282,7 @@ DOC_SRCS := \
 	gui/tklinuxcnc_fr.txt \
 	gui/tklinuxcnc_pl.txt \
 	gui/tooledit.txt \
+	gui/tooledit_fr.txt\
 	gui/touchy.txt \
 	gui/touchy_de.txt \
 	gui/touchy_es.txt \
