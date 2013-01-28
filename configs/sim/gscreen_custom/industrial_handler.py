@@ -196,6 +196,7 @@ class HandlerClass:
         self.gscreen.init_sensitive_on_off()
         self.gscreen.init_sensitive_run_idle()
         self.gscreen.init_sensitive_all_homed()
+        self.gscreen.init_sensitive_override_mode()
         self.init_sensitive_edit_mode() # local function
         self.data.sensitive_edit_mode.remove("button_menu")
         

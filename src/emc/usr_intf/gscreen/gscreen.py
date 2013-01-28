@@ -720,6 +720,7 @@ class Gscreen:
         self.init_sensitive_run_idle()
         self.init_sensitive_all_homed()
         self.init_sensitive_edit_mode()
+        self.init_sensitive_override_mode()
         self.init_state()
 
     def init_axis_frames(self):
@@ -883,6 +884,13 @@ class Gscreen:
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
             "ignore_limits"]
+
+    def init_sensitive_override_mode(self):
+        self.data.sensitive_override_mode = ["spindle_preset","spindle_control","spindle_increase","spindle_decrease","s_display_fwd",
+            "s_display_rev","button_graphics","button_homing","button_mode","button_v0_0","button_v0_1","button_h1_0","button_h1_2",
+                "button_h1_3","button_h1_4"]
+        for axis in self.data.axis_list:
+            self.data.sensitive_override_mode.append("axis_%s"% axis)
 
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
@@ -2007,25 +2015,19 @@ class Gscreen:
 
     def override(self,*args):
         print "show/hide override buttons"
+        value = self.widgets.button_override.get_active()
+        self.sensitize_widgets(self.data.sensitive_override_mode,not value)
         if self.widgets.button_override.get_active():
             for i in range(0,3):
                 self.widgets["mode%d"% i].hide()
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.dro_frame.set_sensitive(False)
-            self.widgets.button_mode.set_sensitive(False)
-            self.widgets.button_graphics.set_sensitive(False)
-            self.widgets.button_homing.set_sensitive(False)
             self.widgets.button_v0_0.set_label("Zero")
             self.widgets.button_v0_1.set_label("Set At")
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.dro_frame.set_sensitive(True)
-            self.widgets.button_mode.set_sensitive(True)
-            self.widgets.button_graphics.set_sensitive(True)
-            self.widgets.button_homing.set_sensitive(True)
             self.widgets.button_v0_0.set_label("Zero Origin")
             self.widgets.button_v0_1.set_label("Offset Origin")
 
