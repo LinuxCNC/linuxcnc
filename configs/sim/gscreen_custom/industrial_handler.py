@@ -199,7 +199,7 @@ class HandlerClass:
         self.gscreen.init_sensitive_override_mode()
         self.init_sensitive_edit_mode() # local function
         self.data.sensitive_edit_mode.remove("button_menu")
-        
+        self.widgets["spindle-at-speed"].set_property("on_color","black")
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
@@ -209,11 +209,12 @@ class HandlerClass:
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
             "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits"]
+
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
     # and add any extra calls/code 
     def periodic(self):
-        self.gscreen.update_mdi_spindle_button()
+        self.update_mdi_spindle_button() # local method
         self.gscreen.update_spindle_bar()
         #self.gscreen.update_dro()
         self.gscreen.update_active_gcodes()
@@ -229,6 +230,20 @@ class HandlerClass:
         self.gscreen.update_jog_rate_label()
         self.gscreen.update_mode_label()
         self.gscreen.update_units_button_label()
+
+    # spindle controls
+    def update_mdi_spindle_button(self):
+        self.widgets.at_speed_label.set_label(_("%d RPM"%abs(self.data.spindle_speed)))
+        label = self.widgets.spindle_control.get_label()
+        speed = self.data.spindle_speed
+        if speed == 0 and not label == _("Start"):
+            temp = _("Start")
+            self.widgets["spindle-at-speed"].set_property("on_color","black")
+        elif speed and not label == _("Stop"):
+            temp = _("Stop")
+            self.widgets["spindle-at-speed"].set_property("on_color","green")
+        else: return
+        self.widgets.spindle_control.set_label(temp)
 
     def __getitem__(self, item):
         return getattr(self, item)
