@@ -1468,6 +1468,16 @@ class Gscreen:
             self.kill_keyboard()
         else:
             self.launch_keyboard()
+            if self.data.mode_order[0] == _MDI:
+                try:
+                    self.widgets.hal_mdihistory.entry.grab_focus()
+                except:
+                    dbg("**** GSCREEN ERROR: can't set focus to hal_mdihistory when Onboard launched - Is this widget name in glade file?")
+            elif self.data.mode_order[0] == _AUTO:
+                try:
+                    self.widgets.gcode_view.grab_focus()
+                except:
+                    dbg("**** GSCREEN ERROR: can't set focus to gcode_view when Onboard launched - Is this widget name in glade file?")
 
     def on_hal_jog_increments_changed(self,halpin):
         print halpin.get()
