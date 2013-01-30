@@ -161,6 +161,26 @@ class HandlerClass:
             if code == _UNLOCKCODE: return True
         return False
 
+    def on_abs_colorbutton_color_set(self,widget):
+        self.gscreen.set_abs_color()
+        color = self.data.abs_color
+        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        for i in self.data.axis_list:
+            axis = "dro_%s1"% i
+            attr = self.widgets[axis].get_attributes()
+            attr.insert(fg_color)
+            self.widgets[axis].set_attributes(attr)
+
+    def on_rel_colorbutton_color_set(self,widget):
+        self.gscreen.set_rel_color()
+        color = self.data.rel_color
+        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        for i in self.data.axis_list:
+            axis = "dro_%s2"% i
+            attr = self.widgets[axis].get_attributes()
+            attr.insert(fg_color)
+            self.widgets[axis].set_attributes(attr)
+
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
@@ -170,6 +190,8 @@ class HandlerClass:
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
                 self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
+        self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
+        self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -180,7 +202,8 @@ class HandlerClass:
         self.gscreen.init_fullscreen1()
         self.gscreen.init_gremlin()
         self.gscreen.init_manual_spindle_controls()
-        #self.gscreen.init_dro()
+        self.gscreen.init_dro_colors()
+        self.init_dro() # local function
         self.gscreen.init_audio()
         self.gscreen.init_statusbar()
         self.gscreen.init_entry()
@@ -209,6 +232,10 @@ class HandlerClass:
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
             "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits"]
+
+    def init_dro(self):
+        self.on_abs_colorbutton_color_set(None)
+        self.on_rel_colorbutton_color_set(None)
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
