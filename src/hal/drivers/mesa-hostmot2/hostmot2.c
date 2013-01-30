@@ -56,7 +56,7 @@ RTAPI_MP_INT(debug_modules, "Developer/debug use only!  Enable debug logging of 
 int use_serial_numbers = 0;
 RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration order (smart-serial only)");
 
-int sserial_baudrate = 2500000;
+int sserial_baudrate = -1;
 RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
 
 

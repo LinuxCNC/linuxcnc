@@ -1634,6 +1634,12 @@ int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     u32 buff;
     int c;
     
+    if (hm2->sserial.baudrate < 0){ return 0;}
+    if (hm2->sserial.version < 34) {
+    HM2_ERR("Setting baudrate is not supported in the current firmware version\n"
+    "Version must be > v33 and you have version %i.", hm2->sserial.version);
+    return -1;
+    }
     lbpstride = getlocal8(hm2, inst, SSLBPCHANNELSTRIDELOC);
     HM2_PRINT("num_channels = %i\n", inst->num_channels);
     for (c = 0; c < inst->num_channels; c++){
