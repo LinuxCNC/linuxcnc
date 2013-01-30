@@ -33,7 +33,7 @@ import linuxcnc
 import gcode
 
 import time
-
+import re
 import tempfile
 import shutil
 import os
@@ -255,10 +255,12 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY")
         if temp:
-            self.geometry = temp.upper()
+            geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
+            self.geometry = "".join(reversed(geometry))
         else:
             self.geometry = 'XYZ'
         return self.geometry
+
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
