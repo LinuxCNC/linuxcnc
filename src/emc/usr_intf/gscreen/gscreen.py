@@ -1032,8 +1032,9 @@ class Gscreen:
     def on_preset_spindle_return(self,widget,result,calc):
         if result == gtk.RESPONSE_ACCEPT:
             data = calc.get_value()
-            if data:
-                self.preset_spindle_speed(data)
+            if data == None:
+                return
+            self.preset_spindle_speed(data)
         self.widgets.data_input.set_sensitive(True)
         widget.destroy()
         self.data.preset_spindle_dialog = None
@@ -1060,8 +1061,12 @@ class Gscreen:
 
     def on_index_tool_return(self,widget,result,calc):
         if result == gtk.RESPONSE_ACCEPT:
-            tool = abs(int((calc.get_value())))
-            self.mdi_control.index_tool(tool)
+            raw = calc.get_value()
+            try:
+                tool = abs(int((raw)))
+                self.mdi_control.index_tool(tool)
+            except:
+                return
         self.widgets.data_input.set_sensitive(True)
         widget.destroy()
         self.data.index_tool_dialog = None
@@ -1172,7 +1177,10 @@ class Gscreen:
 
     # calculator input accepted
     def on_button_yes_clicked(self,widget):
-        self.widgets.data_input.set_value(self.widgets.calc_entry.get_value())
+        value = self.widgets.calc_entry.get_value()
+        if value == None:
+            return
+        self.widgets.data_input.set_value(value)
         self.widgets.data_input.set_sensitive(True)
         self.widgets.dialog_entry.hide()
 
