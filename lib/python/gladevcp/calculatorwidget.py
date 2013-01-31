@@ -98,7 +98,7 @@ class Calculator(gtk.VBox):
 		try:
 			value = float(self.wTree.get_object("displayText").get_text())
 		except:
-			value = 0
+			value = None
 		return value
 
 	def get_preset_value(self):
@@ -109,7 +109,7 @@ class Calculator(gtk.VBox):
 		try   :
 			b=str(eval(self.eval_string))
 		except:
-			b= "error"
+			b= "Error"
 			print"error string:",self.eval_string,sys.exc_info()[0]
 			self.eval_string=''
 		else  : self.eval_string=b
@@ -120,6 +120,8 @@ class Calculator(gtk.VBox):
 		self.wTree.get_object("displayText").set_text("")
 
 	def displayOperand(self,i):
+		if "Error" in self.eval_string:
+			self.eval_string=""
 		self.eval_string=self.eval_string+i
 		self.wTree.get_object("displayText").set_text(str(self.eval_string))
 
