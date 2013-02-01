@@ -242,6 +242,7 @@ INFILES = \
 
 ifeq ($(HAVE_WORKING_BLT),yes)
 INFILES += ../scripts/latencyplot ../share/applications/linuxcnc-latencyplot.desktop
+INFILES += ../scripts/latencyhistogram
 endif
 
 $(INFILES): %: %.in config.status
@@ -501,7 +502,6 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
@@ -515,6 +515,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)

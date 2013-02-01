@@ -11,7 +11,7 @@
 #   --base      nS   (base  thread interval, default:   25000, min:  5000)
 #   --servo     nS   (servo thread interval, default: 1000000, min: 25000)
 #   --bbinsize  nS   (base  bin size,  default: 100
-#   --sbinsize  nS   (servo bin size, default: 1000
+#   --sbinsize  nS   (servo bin size, default:  100
 #   --bbins     n    (base  bins, default: 200
 #   --sbins     n    (servo bins, default: 200
 #   --logscale  0|1  (y axis log scale, default: 1)
@@ -50,10 +50,11 @@
 proc set_defaults {} {
   set ::LH(start) [clock seconds]
   # don't include glxgears, error suffices
-  program_check {comp halrun halcmd lsmod pgrep pkill hostname}
+  program_check {halrun halcmd lsmod pgrep pkill hostname}
   if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >=0} {
     set ::LH(rtai) rtai
-    program_check realtime
+    set ::LH(realtime) @REALTIME@
+    program_check $::LH(realtime)
   }
 
   set ::LH(version) 2.6
@@ -90,7 +91,7 @@ proc set_defaults {} {
   set ::LH(servo,period,ns,min)  25000
 
   set ::LH(base,binsize,ns)   100
-  set ::LH(servo,binsize,ns) 1000
+  set ::LH(servo,binsize,ns)  100
 
   # must be integer for window naming and .comp file usage:
   set ::LH(base,maxbins)  200
@@ -110,8 +111,6 @@ proc program_check {plist} {
       set ::LH(prog,$prog) [exec which $prog]
      } msg] {
        set msg  "Cannot find required program named:   <$prog>"
-       set msg  "$msg\n\nThe package linuxcnc-dev (or linuxcnc-sim-dev)"
-       set msg  "$msg is required for the comp utility\n"
        set msg  "$msg\n\nIf Run-in-Place, source rip-environment first"
        popup  $msg
        exit 1
@@ -301,7 +300,7 @@ proc load_packages {} {
       popup "RTAI is already running, (try: \$ halrun -U)"
       exit 1
     }
-    exec realtime start &
+    exec $::LH(realtime) start &
     progress "Delay for realtime startup"
     after 1000 ;# wait to load Hal package
   }
