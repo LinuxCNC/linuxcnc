@@ -1228,6 +1228,10 @@ class Gscreen:
         print "halmeter"
         p = os.popen("halmeter &")
 
+    # opens the halscope
+    def on_halscope(self,*args):
+        p = os.popen("halscope  > /dev/null &","w")
+
     # estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         print "estopping / killing gscreen"
@@ -1584,6 +1588,7 @@ class Gscreen:
                         ["run_calibration","clicked", "on_calibration"],
                         ["run_status","clicked", "on_status"],
                         ["run_halmeter","clicked", "on_halmeter"],
+                        ["run_halscope","clicked", "on_halscope"],
                         ["hide_cursor","clicked", "on_hide_cursor"],
                         ["button_homing","clicked", "homing"],
                         ["button_override","clicked", "override"],
