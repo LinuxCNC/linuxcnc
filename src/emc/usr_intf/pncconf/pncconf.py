@@ -18,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+_DEBUGSTRING = ["NONE"]
 import sys
 import os
 # this is for importing modules from lib/python/pncconf
@@ -673,6 +674,11 @@ human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[
 human_analog_input_names = [ [_("Unused Analog In"),[]],[_("Custom Signals"),[]] ]
 
 prefs = preferences.preferences()
+def dbg(message,mtype):
+    for hint in _DEBUGSTRING:
+        if hint == "all" or hint in mtype:
+            print(message)
+            return
 
 def md5sum(filename):
     try:
@@ -4483,10 +4489,14 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
             for boardnum in (0,1):
                 model = self.widgets["mesa%d_firmware"% boardnum].get_model()
                 model.clear()
+                temp=[]
                 for search, item in enumerate(mesafirmwaredata):
                     d = mesafirmwaredata[search]
                     if not d[_BOARDTITLE] == self.widgets["mesa%d_boardtitle"% boardnum].get_active_text():continue
-                    model.append((d[_FIRMWARE],))
+                    temp.append(d[_FIRMWARE])
+                temp.sort()
+                for i in temp:
+                    model.append((i,))
                 for search,item in enumerate(model):
                     if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
                         self.widgets["mesa%d_firmware"% boardnum].set_active(search)
@@ -4545,7 +4555,9 @@ Ok to reset data and start a new configuration?"),False):
             root = xml.etree.ElementTree.parse(os.path.join(firmdir,boardtitle,currentfirm+".xml"))
             watchdog = encoder = resolver = pwmgen = led = muxedqcount = stepgen = tppwmgen = sserialports = sserialchannels = 0
             numencoderpins = numpwmpins = 3; numstepperpins = 2; numttpwmpins = 0; numresolverpins = 10
-            boardname = root.find("boardname").text;#print boardname, currentfirm
+            temp = root.find("boardname").text
+            boardname = temp.lower()
+            dbg("\nBoard and firmwarename:  %s %s\n"%( boardname, currentfirm), "firm")
             maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
             numcnctrs  = int(root.find("ioports").text) ; #print numcnctrs
             portwidth = int(root.find("portwidth").text)
@@ -4559,7 +4571,7 @@ Ok to reset data and start a new configuration?"),False):
                 driver = "hm2_pci"
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
-                if k == "Watchdog": 
+                if k in ("Watchdog","WatchDog"): 
                     l = modules[i].find("numinstances").text;#print l,k
                     watchdog = int(l)
                 elif k == "Encoder": 
@@ -4596,70 +4608,78 @@ Ok to reset data and start a new configuration?"),False):
             pins = root.findall("//pins")[0]
             temppinlist = []
             tempconlist = []
-            pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
-                "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEI,"Muxed Index Mask (in)":MXEM,
-                "Muxed Encoder Select 0 (out)":MXES}
-            pinconvertresolver = {"Resolver Power Enable (out)":RESU,"Resolver SpiDi 0 (in)":RES0,"Resolver SpiDi 1 (in)":RES1,
-                                "Resolver ADC Channel 2 (out)":RES2,"Resolver ADC Channel 1 (out)":RES3,"Resolver ADC Channel 0 (out)":RES4,
-                                "Resolver Spi Clk (out)":RES5,"Resolver Spi Chip Select (out)":RESU,"Resolver PDMM (out)":RESU,
-                                "Resolver PDMP (out)":RESU}
-            pinconvertstep = {"Step (out)":STEPA,"Dir (out)":STEPB}
-                #"StepTable 2 (out)":STEPC,"StepTable 3 (out)":STEPD,"StepTable 4 (out)":STEPE,"StepTable 5 (out)":STEPF
-            pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
-            pinconverttppwm = {"PWM A (out)":TPPWMA,"PWM B (out)":TPPWMB,"PWM C (out)":TPPWMC,"PWM /A (out)":TPPWMAN,"PWM /B (out)":TPPWMBN,
-                "PWM /C (out)":TPPWMCN,"Fault (in)":TPPWMF,"Enable (out)":TPPWME}
-            pinconvertsserial = {"RXData1":RXDATA0,"TXData1":TXDATA0,"TXE1":TXEN0,"RXData2":RXDATA1,"TXData2":TXDATA1,"TXE2":TXEN1,
-                                "RXData3":RXDATA2,"TXData3":TXDATA2,"TXE3":TXEN2,"RXData4":RXDATA3,"TXData4":TXDATA3,"TXE4":TXEN3,
-                                "RXData5":RXDATA4,"TXData5":TXDATA4,"TXE5":TXEN4,"RXData6":RXDATA5,"TXData6":TXDATA5,"TXE6":TXEN5,
-                                "RXData7":RXDATA6,"TXData7":TXDATA6,"TXE7":TXEN6,"RXData8":RXDATA7,"TXData8":TXDATA7,"TXE8":TXEN7}
-            pinconvertnone = {"Not Used":NUSED}
+            pinconvertenc = {"PHASE A":ENCA,"PHASE B":ENCB,"INDEX":ENCI,"INDEXMASK":ENCM,
+                "MUXED PHASE A":MXE0,"MUXED PHASE B":MXE1,"MUXED INDEX":MXEI,"MUXED INDEX MASK":MXEM,
+                "MUXED ENCODER SELECT 0":MXES,"MUXED ENCODER SELEC":MXES}
+            pinconvertresolver = {"RESOLVER POWER ENABLE":RESU,"RESOLVER SPIDI 0":RES0,"RESOLVER SPIDI 1":RES1,
+                                "RESOLVER ADC CHANNEL 2":RES2,"RESOLVER ADC CHANNEL 1":RES3,"RESOLVER ADC CHANNEL 0":RES4,
+                                "RESOLVER SPI CLK":RES5,"RESOLVER SPI CHIP SELECT":RESU,"RESOLVER PDMM":RESU,
+                                "RESOLVER PDMP":RESU}
+            pinconvertstep = {"STEP":STEPA,"DIR":STEPB}
+                #"StepTable 2":STEPC,"StepTable 3":STEPD,"StepTable 4":STEPE,"StepTable 5":STEPF
+            pinconvertppwm = {"PWM/UP":PWMP,"DIR/DOWN":PWMD,"ENABLE":PWME}
+            pinconverttppwm = {"PWM A":TPPWMA,"PWM B":TPPWMB,"PWM C":TPPWMC,"PWM /A":TPPWMAN,"PWM /B":TPPWMBN,
+                "PWM /C":TPPWMCN,"FAULT":TPPWMF,"ENABLE":TPPWME}
+            pinconvertsserial = {"RXDATA1":RXDATA0,"TXDATA1":TXDATA0,"TXE1":TXEN0,"TXEN1":TXEN0,"RXDATA2":RXDATA1,"TXDATA2":TXDATA1,"TXE2":TXEN1,
+                                "TXEN2":TXEN1,"RXDATA3":RXDATA2,"TXDATA3":TXDATA2,"TXE3":TXEN2,"TXEN3":TXEN2,"RXDATA4":RXDATA3,"TXDATA4":TXDATA3,
+                                "TXE4":TXEN3,"TXEN4":TXEN3,"RXDATA5":RXDATA4,"TXDATA5":TXDATA4,"TXE5":TXEN4,"TXEN4":TXEN4,"RXDATA6":RXDATA5,
+                                "TXDATA6":TXDATA5,"TXE6":TXEN5,"TXEN6":TXEN5,"RXDATA7":RXDATA6,"TXDATA7":TXDATA6,"TXE7":TXEN6,"TXEN7":TXEN6,
+                                "RXDATA8":RXDATA7,"TXDATA8":TXDATA7,"TXE8":TXEN7,"TXEN8":TXEN7}
+            pinconvertnone = {"NOT USED":NUSED}
             count = 0
             for i,j in enumerate(pins):
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
-                temp = pins[i].find("secondaryfunctionname").text
+                tempfunc = pins[i].find("secondaryfunctionname").text
+                tempfunc = tempfunc.upper() # normalise capitalization: Peters XMLs are different from linuxcncs
+
+                if "(IN)" in tempfunc:
+                    tempfunc = tempfunc.rstrip(" (IN)")
+                elif "(OUT" in tempfunc:
+                    tempfunc = tempfunc.rstrip(" (OUT)")
+                convertedname = "Not Converted"
                 # this converts the XML file componennt names to pncconf's names
                 try:
                     modulename = pins[i].find("secondarymodulename").text
-                    #print temp,modulename
-                    if modulename in ("Encoder","MuxedQCount","MuxedQCountSel"):
-                        convertedname = pinconvertenc[temp]
+                    dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firm")
+                    if modulename in ("Encoder","MuxedQCount","MuxedQCountSel","QCount"):
+                        convertedname = pinconvertenc[tempfunc]
                     elif modulename == "ResolverMod":
-                        convertedname = pinconvertresolver[temp]
+                        convertedname = pinconvertresolver[tempfunc]
                     elif modulename == "PWMGen":
-                        convertedname = pinconvertppwm[temp]
+                        convertedname = pinconvertppwm[tempfunc]
                     elif modulename == "StepGen":
-                        convertedname = pinconvertstep[temp]
+                        convertedname = pinconvertstep[tempfunc]
                     elif modulename == "TPPWM":
-                        convertedname = pinconverttppwm[temp]
+                        convertedname = pinconverttppwm[tempfunc]
                     elif modulename == "SSerial":
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 uses some of the sserial channels for it's pins.
                         if boardname == "5i25":
                             if "7i77_7i76" in currentfirm:
-                                if temp == "TXData1": convertedname = SS7I77M0
-                                elif temp == "TXData2": convertedname = SS7I77M1
-                                elif temp == "TXData4": convertedname = SS7I76M3
-                                else: convertedname = pinconvertsserial[temp]
-                                #print "XML ",currentfirm, temp,convertedname
+                                if tempfunc == "TXDATA1": convertedname = SS7I77M0
+                                elif tempfunc == "TXDATA2": convertedname = SS7I77M1
+                                elif tempfunc == "TXDATA4": convertedname = SS7I76M3
+                                else: convertedname = pinconvertsserial[tempfunc]
+                                #print "XML ",currentfirm, tempfunc,convertedname
                             elif "7i76x2" in currentfirm or "7i76x1" in currentfirm:
-                                if temp == "TXData1": convertedname = SS7I76M0
-                                elif temp == "TXData3": convertedname = SS7I76M2
-                                else: convertedname = pinconvertsserial[temp]
-                                #print "XML ",currentfirm, temp,convertedname
+                                if tempfunc == "TXDATA1": convertedname = SS7I76M0
+                                elif tempfunc == "TXDATA3": convertedname = SS7I76M2
+                                else: convertedname = pinconvertsserial[tempfunc]
+                                #print "XML ",currentfirm, tempfunc,convertedname
                             elif "7i77x2" in currentfirm or "7i77x1" in currentfirm:
-                                if temp == "TXData1": convertedname = SS7I77M0
-                                elif temp == "TXData2": convertedname = SS7I77M1
-                                elif temp == "TXData4": convertedname = SS7I77M3
-                                elif temp == "TXData5": convertedname = SS7I77M4
-                                else: convertedname = pinconvertsserial[temp]
-                                #print "XML ",currentfirm, temp,convertedname
-                            else: convertedname = pinconvertsserial[temp]
+                                if tempfunc == "TXDATA1": convertedname = SS7I77M0
+                                elif tempfunc == "TXDATA2": convertedname = SS7I77M1
+                                elif tempfunc == "TXDATA4": convertedname = SS7I77M3
+                                elif tempfunc == "TXDATA5": convertedname = SS7I77M4
+                                else: convertedname = pinconvertsserial[tempfunc]
+                                #print "XML ",currentfirm, tempfunc,convertedname
+                            else: convertedname = pinconvertsserial[tempfunc]
                         else:
-                            convertedname = pinconvertsserial[temp]
+                            convertedname = pinconvertsserial[tempfunc]
                     elif modulename == "None":
-                        convertedname = pinconvertnone[temp]
+                        convertedname = pinconvertnone[tempfunc]
                     else: raise ValueError
                 except:
                     # must be GPIO pins if there is no secondary mudule name
@@ -4679,13 +4699,17 @@ Ok to reset data and start a new configuration?"),False):
                             elif convertedname == MXE1: convertedname = ENCB
                             elif convertedname == MXEI: convertedname = ENCI
                     temppinunit.append(convertedname)
+                    if tempfunc in("MUXED ENCODER SELECT 0") and  instance_num == 6:
+                        instance_num = 3
                     temppinunit.append(instance_num)
                     tempmod = pins[i].find("secondarymodulename").text
-                    tempfunc = pins[i].find("secondaryfunctionname").text
-                    if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
+                    tempfunc = tempfunc.upper()# normalize capitalization
+                    dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firm")
+                    if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
-                    if tempmod =="SSerial" and tempfunc in ("TXData1","TXData2","TXData3","TXData4","TXData5","TXData6","TXData7","TXData8"):
+                    if tempmod =="SSerial" and tempfunc in ("TXDATA1","TXDATA2","TXDATA3","TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
                         sserialchannels +=1
+                dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firm")
                 if not tempcon in tempconlist:
                     tempconlist.append(tempcon)
                 temppinlist.append(temppinunit)
@@ -4698,13 +4722,13 @@ Ok to reset data and start a new configuration?"),False):
                         #print "%d fill here with %d parts"% (k,placeholders)
                         temppinlist.append((NUSED,0))
 
-            temp = [boardtitle,boardname,currentfirm,boardtitle,driver,encoder + muxedqcount,numencoderpins,resolver,numresolverpins,pwmgen,numpwmpins,
+            temp = [boardtitle,boardname,currentfirm,boardtitle,driver,encoder + muxedqcount,
+                    numencoderpins,resolver,numresolverpins,pwmgen,numpwmpins,
                     tppwmgen,numttpwmpins,stepgen,numstepperpins,sserialports,sserialchannels,0,0,0,0,0,0,0,0,watchdog,maxgpio,
                     lowfreq,hifreq,tempconlist]
             for i in temppinlist:
                 temp.append(i)
-            #if temp[1] == "5i25":
-            #    print temp
+            dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
             mesafirmwaredata.append(temp)
         self.window.hide()
 
@@ -9387,10 +9411,12 @@ But there is not one in the machine-named folder.."""),True)
         self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
-    def run(self, filename=None):
-        if filename is not None:
-            self.data.load(filename, self)
-            self.widgets.druid1.set_page(self.widgets.basicinfo)
+    def run(self, debug=None):
+        print "debug",debug
+        if debug is not None:
+            global _DEBUGSTRING
+            _DEBUGSTRING = debug.split(',')
+            print "debug",_DEBUGSTRING
         gtk.main()
 
     def hal_test_signals(self, axis):
