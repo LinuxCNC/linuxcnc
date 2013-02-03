@@ -1252,17 +1252,6 @@ class Gscreen:
             self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
             self.mode_changed(self.data.mode_order[0])
 
-    def on_gremlin_clicked(self,widget,event):
-        # only change machine modes on double click
-        button1 = event.button == 1
-        button2 = event.button == 2
-        button3 = event.button == 3
-        if button1 and event.type == gtk.gdk._2BUTTON_PRESS:
-            temp = self.widgets.dro_frame.get_visible()
-            temp = (temp * -1) +1
-            self.widgets.dro_frame.set_visible(temp)
-            self.widgets.gremlin.set_property('enable_dro',(not temp))
-
     def on_button_offsets(self,widget):
         self.toggle_offset_view()
 
@@ -1565,7 +1554,6 @@ class Gscreen:
         signal_list = [ ["unhome_axis","clicked", "unhome_selected"],
                         ["button_estop","clicked", "on_estop_clicked"],
                         ["gremlin","motion-notify-event", "on_gremlin_motion"],
-                        ["gremlin","button_press_event", "on_gremlin_clicked"],
                         ["button_mode","button_press_event", "on_mode_clicked"],
                         ["button_menu","button_press_event", "on_mode_select_clicked"],
                         ["button_v0_2","pressed", "on_button_v0_2_pressed"],
