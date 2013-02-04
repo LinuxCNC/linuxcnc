@@ -157,7 +157,12 @@ dépendances, le cas échéant, dans un répertoire SUBROUTINE_PATH. Certains
 sous-programmes peuvent utiliser des fichiers M (Mfiles) personnalisés qui
 doivent se trouver dans un répertoire spécifié par [RS274NGC]USER_M_PATH.
 
-.Simple INI
+[NOTE]
+Il ne s'agit pas d'un fichier ini complet, les items montrés sont ceux utilisés 
+par ngcgui. D'autres items sont requis par LinuxCNC pour obtenir un fichier ini
+complet.
+
+.Simple fichier.ini
 
 ----
 [RS274NGC]

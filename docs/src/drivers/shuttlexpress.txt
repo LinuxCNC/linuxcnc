@@ -26,35 +26,28 @@ SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="04
 
 == Pins
 
-(bit out) shuttlexpress.0.button-0
-(bit out) shuttlexpress.0.button-0-not
-(bit out) shuttlexpress.0.button-1
-(bit out) shuttlexpress.0.button-1-not
-(bit out) shuttlexpress.0.button-2
-(bit out) shuttlexpress.0.button-2-not
-(bit out) shuttlexpress.0.button-3
-(bit out) shuttlexpress.0.button-3-not
-(bit out) shuttlexpress.0.button-4
-(bit out) shuttlexpress.0.button-4-not
+* 'shuttlexpress.<DeviceNumber>.button-<ButtonNumber>' (bit out) The
+    ShuttleXpress has five buttons around the outside of the device,
+    numbered 0 through 4.  0 is the counter-clockwise-most button, 4 is
+    the clockwise-most button.  These pins are True (1) when the button
+    is pressed.
 
-The five buttons around the outside, starting with the
-counter-clockwise-most one.
+* 'shuttlexpress.<DeviceNumber>.button-<ButtonNumber>-not' (bit out)
+    These pins have the inverse of the button state, so they're True
+    (1) when the button is not pressed.
 
-(s32 out) shuttlexpress.0.counts
+* 'shuttlexpress.<DeviceNumber>.counts' (s32 out) Accumulated counts
+    from the jog wheel (the inner wheel).
 
-Accumulated counts from the jog wheel (the inner wheel).
+* 'shuttlexpress.<DeviceNumber>.spring-wheel-s32' (s32 out) The current
+    deflection of the spring-wheel (the outer wheel).  It’s 0 at rest,
+    and ranges from -7 at the counter-clockwise extreme to +7 at the
+    clockwise extreme.
 
-(s32 out) shuttlexpress.0.spring-wheel-s32
-
-The current deflection of the spring-wheel (the outer wheel).
-It’s 0 at rest, and ranges from -7 at the counter-clockwise
-extreme to +7 at the clockwise extreme.
-
-(float out) shuttlexpress.0.spring-wheel-f
-
-The current deflection of the spring-wheel (the outer wheel).
-It’s 0 at rest, -1 at the counter-clockwise extreme, and
-+1 at the clockwise extreme. (The ShuttleXpress device reports the
-spring-wheel position quantized from -7 to +7, so this pin reports
-only 15 discrete values in it’s range.)
+* 'shuttlexpress.<DeviceNumber>.spring-wheel-f' (float out) The current
+    deflection of the spring-wheel (the outer wheel).  It’s 0 at
+    rest, -1 at the counter-clockwise extreme, and +1 at the clockwise
+    extreme. (The ShuttleXpress device reports the spring-wheel position
+    quantized from -7 to +7, so this pin reports only 15 discrete values
+    in it’s range.)
 

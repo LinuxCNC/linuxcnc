@@ -59,7 +59,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G8-Radius-Mode,G8>>          |Radius Mode (lathe)
 |<<sec:G10-L1_,G10 L1>>             |Set Tool Table Entry
 |<<sec:G10-L10,G10 L10>>            |Set Tool Table, Calculated, Workpiece
-|<<G10-L11,G10 L11>>                |Set Tool Table, Calculated, Fixture
+|<<sec:G10-L11,G10 L11>>            |Set Tool Table, Calculated, Fixture
 |<<sec:G10-L2_,G10 L2>>             |Coordinate System Origin Setting
 |<<sec:G10-L20,G10 L20>>            |Coordinate System Origin Setting Calculated
 |<<sec:G17-G18-G19,G17 - G19.1>>    |Plane Select
@@ -548,13 +548,14 @@ A valid G10 L1 rewrites and reloads the tool table.
 .G10 L1 Example Line
 ----
 G10 L1 P1 Z1.5 (set tool 1 Z offset from the machine origin to 1.5)
-G10 L1 P3 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
+G10 L1 P2 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
 ----
 
 It is an error if:
 
 * Cutter Compensation is on
 * The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
 For more information on cutter orientation used by the 'Q' word,
 see the <<lathe-tool-orientation,Lathe Tool Orientation>> diagram.
@@ -668,8 +669,10 @@ M2 (end program)
 It is an error if:
 
 * Cutter Compensation is on
+* The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
-== G10 L11 Set Tool Table[[G10-L11]]
+== G10 L11 Set Tool Table[[sec:G10-L11]]
 (((G10 L11 Set Tool Table)))
 
 ----
@@ -699,6 +702,8 @@ without regard to other currently-active offsets.
 It is an error if:
 
 * Cutter Compensation is on
+* The P number is unspecified
+* The P number is not a valid tool number from the tool table
 
 == G10 L20 Set Coordinate System[[sec:G10-L20]]
 (((G10 L20 Set Coordinate System)))
@@ -994,11 +999,12 @@ G42 <D-> (right of programmed path)
 ----
 * 'D' - tool number
 
-The D word is optional; if there is no D word, the radius of
-the tool currently loaded with G43 will be used.
-If used, the D number should normally be the slot number of
-the tool in the spindle, although this is not required.
-It is OK for the D number to be zero; a radius value of zero will be used.
+The D word is optional; if there is no D word or if the D word is 0,
+the radius of the currently loaded tool will be used.
+
+If supplied, the D word is the tool number to use.  This would normally
+be the number of the tool in the spindle (in which case the D word is
+redundant and need not be supplied), but it may be any valid tool number.
 
 To start tool radius compensation to the left of the part profile, use G41.
 G41 starts cutter radius compensation to the left of the programmed line
@@ -1021,8 +1027,7 @@ Section along with code examples.
 
 It is an error if:
 
-* The D number is not an integer, is negative, or is larger than the
-   number of carousel slots.
+* The D number is not a valid tool number or 0.
 * The YZ plane is active.
 * Cutter radius compensation is commanded to turn on when it is already on.
 
@@ -1061,7 +1066,7 @@ G43 <H->
           endpoint is the compensated location.
 
 * 'G43 H-' - use an offset from tool table.
-             It is OK for the H number to be zero; an offset value of zero will be used.
+             It is OK for the H number to be zero; the currently loaded tool will be used.
 
 .G43 H- Example Line
 ----
@@ -1070,8 +1075,8 @@ G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 
 It is an error if:
 
-* the H number is not an integer, is negative, or is larger than the
-   number of entries in the tool table.
+* the H number is not an integer, is negative, or is not 0 or a valid tool
+    number.
 
 == G43.1: Dynamic Tool Length Offset[[sec:G43.1-dynamic-tool-length-offset]]
 (((G43.1 Dynamic Tool Length Offset)))
@@ -1092,7 +1097,7 @@ T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows 
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> sections for more information.
 
 It is an error if:
 

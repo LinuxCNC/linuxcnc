@@ -256,6 +256,7 @@ INFILES = \
 
 ifeq ($(HAVE_WORKING_BLT),yes)
 INFILES += ../scripts/latencyplot ../share/applications/linuxcnc-latencyplot.desktop
+INFILES += ../scripts/latencyhistogram
 endif
 
 $(INFILES): %: %.in config.status
@@ -570,6 +571,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
@@ -760,6 +762,8 @@ obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
 encoder_ratio-objs := hal/components/encoder_ratio.o $(MATHSTUB)
 obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
+obj-$(CONFIG_LCD) += lcd.o
+lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
@@ -933,9 +937,6 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
-obj-m += 5axiskins.o
-5axiskins-objs := emc/kinematics/5axiskins.o
-
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
 
@@ -1048,6 +1049,7 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ../rtlib/counter$(MODULE_EXT): $(addprefix objects/rt,$(counter-objs))
 ../rtlib/encoder_ratio$(MODULE_EXT): $(addprefix objects/rt,$(encoder_ratio-objs))
 ../rtlib/stepgen$(MODULE_EXT): $(addprefix objects/rt,$(stepgen-objs))
+../rtlib/lcd$(MODULE_EXT): $(addprefix objects/rt,$(lcd-objs))
 ../rtlib/freqgen$(MODULE_EXT): $(addprefix objects/rt,$(freqgen-objs))
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))

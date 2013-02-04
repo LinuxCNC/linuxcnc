@@ -267,6 +267,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             int i;
             int c = 0;
             token += 13;
+            int flag = 0;
             i = *token - '0';
             token += 1;
             if (i < 0 || i > 3 || *token != '='){
@@ -275,12 +276,20 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
                 goto fail;
             }
             for (token += 1 ; *token != 0; token++) {
-                if (((*token >= '0' && *token <= '9') || *token == 'x')
-                    && c < 8) {
+                if ((*token >= '0' && *token <= '9') && c < 8) {
+                    hm2->config.sserial_modes[i][c++] = *token;
+                    flag = 1;
+                }
+                else if (*token == 'x' && c < 8) {
                     hm2->config.sserial_modes[i][c++] = *token;
                 }
             }
-            if (i >= hm2->config.num_sserials){
+            
+            if (hm2->config.num_sserials == -1){
+                hm2->config.num_sserials = 0;
+            }
+                
+            if (i >= hm2->config.num_sserials && flag){
                 hm2->config.num_sserials = i + 1;
             }
 

@@ -16,6 +16,9 @@ setp hm2_5i20.0.raw.write_data 8
 # write data
 setp hm2_5i20.0.raw.write_strobe 1
 
+# set up the watchdog
+#setp hm2_5i20.0.watchdog.timeout_ns 10000000
+
 # load kinematics
 loadrt trivkins
 

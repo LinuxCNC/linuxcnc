@@ -14,21 +14,23 @@ Typical steps for updating the tool table:
 * After homing load a tool with 'Tn M6' where 'n' is the tool number. 
 * Move tool to an established point using a gauge or take a test cut and
    measure.
+* Click the "Touch Off" button in the Manual Control tab (or hit the
+   End button on your keyboard).
 * Select 'Tool Table' in the Coordinate System drop down box.
 * Enter the gauge or measured dimension and select OK.
 
 The Tool Table will be changed with the correct Z length to make the
 DRO display the correct Z position and a G43 command will be issued so
 the new tool Z length will be in effect. Tool table touch off is only
-available when a tool is loaded with 'TnM6'.
+available when a tool is loaded with 'Tn M6'.
 
 .Touch Off Tool Table[[cap:Touch-Off-Tool]]
 
 image::images/ToolTable-TouchOff.png[align="center"]
 
-=== Using G10 L1
+=== Using G10 L1/L10/L11
 
-The G10 L1x command can be used to set tool table offsets:
+The G10 L1/L10/L11 commands can be used to set tool table offsets:
   (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 
@@ -38,7 +40,7 @@ The G10 L1x command can be used to set tool table offsets:
                       (see <<sec:G10-L10,G10 L10>> for details)
 
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
-                      (see <<sec:G10-L11,G10 L10>> for details)
+                      (see <<sec:G10-L11,G10 L11>> for details)
 
 == Tool Table [[sec:tool-table]]
 
@@ -68,8 +70,8 @@ The maximum tool and pocket number is 99999.
 In general, the new tool table line format is:
 
  - ; - opening semicolon, no data
- - T - tool number, 0-99999 (you can have a large number of tools in inventory)
- - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - T - tool number, 0-99999 (tool numbers must be unique)
+ - P - pocket number, 1-99999 (pocket numbers must be unique)
  - X..W - tool offset on specified axis - floating-point
  - D - tool diameter - floating-point, absolute value
  - I - front angle (lathe only) - floating-point 

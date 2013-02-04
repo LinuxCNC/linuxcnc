@@ -64754,7 +64754,7 @@ Scale</property>
                               <widget class="GtkSpinButton" id="xmaxacc">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1.5 1 10000 0.5 10 0</property>
+                                <property name="adjustment">1.5 1 50000 0.5 10 0</property>
                                 <property name="digits">1</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
                               </widget>
