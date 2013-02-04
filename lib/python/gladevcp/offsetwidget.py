@@ -15,7 +15,6 @@
 # GNU General Public License for more details.
 
 import sys,os,pango
-import math
 import linuxcnc
 
 try:
@@ -30,13 +29,11 @@ try:
 except:
     pass
 
-class HAL_DRO(gtk.Label):
-    __gtype_name__ = 'HAL_DRO'
+class HAL_Offset(gtk.Label):
+    __gtype_name__ = 'HAL_Offset'
     __gproperties__ = {
         'display_units_mm' : ( gobject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'actual' : ( gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'mm_text_template' : ( gobject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
                 "%10.3f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
@@ -45,8 +42,8 @@ class HAL_DRO(gtk.Label):
                 "%9.4f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'joint_number' : ( gobject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
                     0, 8, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'reference_type' : ( gobject.TYPE_INT, 'Reference Type', '0: Absolute  1:Relative  2:Distance-to-go',
-                    0, 2, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'reference_type' : ( gobject.TYPE_INT, 'Reference Type', '0: G5X  1:Tool  2:G92 3:XY Rotation',
+                    0, 3, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -57,28 +54,30 @@ class HAL_DRO(gtk.Label):
         self.display_units_mm=0
         self.machine_units_mm=0
         self.unit_convert=[1]*9
+        # The update time: every 500 milliseonds
+        gobject.timeout_add(500, self.periodic)
 
-        gobject.timeout_add(100, self.periodic)
-
+        # check the ini file if UNITS are set to mm
+        # first check the global settings
+        # else then the X axis units
         try:
             self.inifile = self.emc.ini(INIPATH)
-            # check the ini file if UNITS are set to mm"
-            # first check the global settings
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
             if units==None:
-                # else then the X axis units
                 units=self.inifile.find("AXIS_0","UNITS")
         except:
             units = "inch"
 
+        # now setup the conversion array depending on the machine native units
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
-            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            self.conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
         else:
             self.machine_units_mm=0
-            conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.set_machine_units(self.machine_units_mm,conversion)
+            self.conversion=[25.4]*3+[1]*3+[25.4]*3
 
+    # This is so GLADE can get the values for the editor
+    # A user can use this too using goobject 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name in self.__gproperties.keys():
@@ -86,6 +85,7 @@ class HAL_DRO(gtk.Label):
         else:
             raise AttributeError('unknown property %s' % property.name)
 
+    # This is used by GLADE editor to set values
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
         if name in ('mm_text_template','imperial_text_template'):
@@ -100,77 +100,56 @@ class HAL_DRO(gtk.Label):
         else:
             raise AttributeError('unknown property %s' % property.name)
 
+    # This runs runs at the gooject timeout rate
+    # it polls linuxcnc gets the offsets in correct units
+    # and displays them according to the formatting entered 
     def periodic(self):
         try:
             self.status.poll()
-            absolute,relative,dtg = self.position()
+            g5x,tool,g92,rot = self.get_offsets()
         except:
-            sys = 0
-            relative = absolute = dtg = [9999.999,0,0,0,0,0,0,0,0]
+            rot = 0
+            g5x = tool = g92 = [9999.999,0,0,0,0,0,0,0,0]
         if self.display_units_mm:
             tmpl = lambda s: self.mm_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
         if self.reference_type == 0:
-            self.set_text(tmpl(absolute[self.joint_number]))
+            self.set_text(tmpl(g5x[self.joint_number]))
         elif self.reference_type == 1:
-            self.set_text(tmpl(relative[self.joint_number]))
+            self.set_text(tmpl(tool[self.joint_number]))
         elif self.reference_type == 2:
-            self.set_text(tmpl(dtg[self.joint_number]))
+            self.set_text(tmpl(g92[self.joint_number]))
+        elif self.reference_type == 3:
+            self.set_text(tmpl(rot))
         return True
 
-    def position(self):
-        if self.actual:
-            p = self.status.actual_position
-        else:
-            p = self.status.position
-        dtg = self.status.dtg
+    # Get the offsets and convert the units if the display 
+    # is not in machine native units
+    def get_offsets(self):
+        g5x = self.status.g5x_offset
+        tool = self.status.tool_offset
+        g92 = self.status.g92_offset
+        rot = self.status.rotation_xy
 
-        x = p[0] - self.status.g5x_offset[0] - self.status.tool_offset[0]
-        y = p[1] - self.status.g5x_offset[1] - self.status.tool_offset[1]
-        z = p[2] - self.status.g5x_offset[2] - self.status.tool_offset[2]
-        a = p[3] - self.status.g5x_offset[3] - self.status.tool_offset[3]
-        b = p[4] - self.status.g5x_offset[4] - self.status.tool_offset[4]
-        c = p[5] - self.status.g5x_offset[5] - self.status.tool_offset[5]
-        u = p[6] - self.status.g5x_offset[6] - self.status.tool_offset[6]
-        v = p[7] - self.status.g5x_offset[7] - self.status.tool_offset[7]
-        w = p[8] - self.status.g5x_offset[8] - self.status.tool_offset[8]
-
-        if self.status.rotation_xy != 0:
-            t = math.radians(-self.status.rotation_xy)
-            xr = x * math.cos(t) - y * math.sin(t)
-            yr = x * math.sin(t) + y * math.cos(t)
-            x = xr
-            y = yr
-
-        x -= self.status.g92_offset[0] 
-        y -= self.status.g92_offset[1] 
-        z -= self.status.g92_offset[2] 
-        a -= self.status.g92_offset[3] 
-        b -= self.status.g92_offset[4] 
-        c -= self.status.g92_offset[5] 
-        u -= self.status.g92_offset[6] 
-        v -= self.status.g92_offset[7] 
-        w -= self.status.g92_offset[8] 
-
-        relp = [x, y, z, a, b, c, u, v, w]
         if self.display_units_mm != self.machine_units_mm:
-            p = self.convert_units(p)
-            relp = self.convert_units(relp)
-            dtg = self.convert_units(dtg)
-        return p,relp,dtg
+            g5x = self.convert_units(g5x)
+            tool = self.convert_units(tool)
+            g92 = self.convert_units(g92)
 
-    def set_machine_units(self,u,c):
-        self.machine_units_mm = u
-        self.unit_convert = c
+        return g5x,tool,g92,rot
 
+    # This does the units conversion
+    # it just mutiplies the two arrays 
     def convert_units(self,v):
-        c = self.unit_convert
+        c = self.conversion
         return map(lambda x,y: x*y, v, c)
 
+    # helper function to set the units to inch
     def set_to_inch(self):
         self.display_units_mm = 0
 
+    # helper function to set the units to mm
     def set_to_mm(self):
         self.display_units_mm = 1
 
@@ -181,9 +160,8 @@ def main():
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-    dro = HAL_DRO()
-    
-    window.vbox.add(dro)
+    offset = HAL_Offset()
+    window.vbox.add(offset)
     window.connect("destroy", gtk.main_quit)
 
     window.show_all()

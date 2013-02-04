@@ -180,6 +180,15 @@ class mdi:
             self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
+    def index_tool(self,toolnumber):
+        m = "T %f M6"%(toolnumber)
+        self.emcstat.poll()
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
+        self.emccommand.mdi("m6 T %f"%(toolnumber))
+        self.emccommand.mdi("g43 h%f"%(toolnumber))
+
 class mdi_control:
     def __init__(self, gtk, emc, labels, eventboxes):
         self.labels = labels
@@ -226,6 +235,13 @@ class mdi_control:
         self.mdi.set_user_system(system)
         self.mdi.emccommand.mode(premode)
         self.mdi.emccommand.wait_complete()
+
+    def index_tool(self,toolnumber):
+        print "set tool number to :T",toolnumber
+        premode = self.mdi.emcstat.task_mode
+        self.mdi.index_tool(toolnumber)
+        #self.mdi.emccommand.mode(premode)
+        #self.mdi.emccommand.wait_complete()
 
     def not_editing(self, n):
         e = self.eventboxes[n]

@@ -23,6 +23,42 @@
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // More to be added later.
 #define HM2_SSERIAL_MAX_STRING_LENGTH       32
 
+//Commands etc
+#define LBPNONVOL_flag      0xCC000000
+#define LBPWRITE            0x20000000
+#define LBPNONVOLCLEAR      0x0
+#define LBPNONVOLEEPROM     0x01             
+#define LBPNONVOLFLASH      0x02
+
+#define READ_LOCAL_CMD      0x2000
+#define WRITE_LOCAL_CMD     0xA000
+
+#define READ_REM_BYTE_CMD     0x44000000
+#define READ_REM_WORD_CMD     0x45000000
+#define READ_REM_LONG_CMD     0x46000000
+#define READ_REM_DOUBLE_CMD   0x47000000
+#define READ_COOKIE_CMD       0xDF000000
+#define WRITE_REM_BYTE_CMD    0x64000000
+#define WRITE_REM_WORD_CMD    0x65000000
+#define WRITE_REM_LONG_CMD    0x66000000
+#define WRITE_REM_DOUBLE_CMD  0x67000000
+#define FLASHERASE_CMD        0xFE
+#define FLASHWRITE_CMD        0xFD
+
+#define SSLBPMAJORREVISIONLOC   2
+#define SSLBPMINORREVISIONLOC   3
+#define SSLBPCHANNELSTARTLOC    4
+#define SSLBPCHANNELSTRIDELOC   5
+#define LBPFLASHOFFSETLOC       0x8000
+#define LBPFLASHERASESIZELOC    0x8004
+#define LBPFLASHWRITESIZELOC    0x8005
+#define LBPFLASHCOMMITLOC       0x8007
+
+#define LBPCOOKIE               0x5A
+
+#define HM2WRITE(a,b)  hm2->llio->write(hm2->llio, a, &b, sizeof(u32))
+#define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(u32)) 
+
 typedef struct {
     unsigned char RecordType;
     unsigned char DataLength;
@@ -153,6 +189,7 @@ typedef struct {
     int index;
     u32 command_reg_addr; // a duplicate so that a single channel can be passed
     u32 data_reg_addr;
+    int myinst;
     char name[21];
     
 }hm2_sserial_remote_t;
@@ -183,6 +220,7 @@ typedef struct {
 
 typedef struct {
     u8 version;
+    int baudrate;
     int num_instances; // number of active instances
     hm2_sserial_instance_t *instance ;
 } hm2_sserial_t;

@@ -46,6 +46,7 @@
         <property name="visible">True</property>
         <child>
           <object class="GtkScrolledWindow" id="all_window">
+            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hscrollbar_policy">automatic</property>
             <property name="vscrollbar_policy">automatic</property>
@@ -58,10 +59,10 @@
                 <property name="hover_expand">True</property>
                 <property name="enable_grid_lines">both</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                  <object class="GtkTreeViewColumn" id="s">
                     <property name="title">Select</property>
                     <child>
-                      <object class="GtkCellRendererToggle" id="cell_toggle0">
+                      <object class="GtkCellRendererToggle" id="cell_toggle">
                         <signal name="toggled" handler="cell_toggled"/>
                       </object>
                       <attributes>
@@ -71,7 +72,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn6">
+                  <object class="GtkTreeViewColumn" id="t">
                     <property name="title">Tool#</property>
                     <property name="sort_indicator">True</property>
                     <property name="sort_column_id">1</property>
@@ -85,7 +86,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                  <object class="GtkTreeViewColumn" id="p">
                     <property name="title">Pocket</property>
                     <property name="sort_indicator">True</property>
                     <property name="sort_column_id">2</property>
@@ -99,7 +100,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                  <object class="GtkTreeViewColumn" id="x">
                     <property name="title">X</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_x"/>
@@ -111,7 +112,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                  <object class="GtkTreeViewColumn" id="y">
                     <property name="title">Y</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_y"/>
@@ -123,7 +124,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn7">
+                  <object class="GtkTreeViewColumn" id="z">
                     <property name="title">Z</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_z"/>
@@ -135,7 +136,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn8">
+                  <object class="GtkTreeViewColumn" id="a">
                     <property name="title">A</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_a"/>
@@ -147,7 +148,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn9">
+                  <object class="GtkTreeViewColumn" id="b">
                     <property name="title">B</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_b"/>
@@ -159,7 +160,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn10">
+                  <object class="GtkTreeViewColumn" id="c">
                     <property name="title">C</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_c"/>
@@ -171,7 +172,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn11">
+                  <object class="GtkTreeViewColumn" id="u">
                     <property name="title">U</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_u"/>
@@ -183,7 +184,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn12">
+                  <object class="GtkTreeViewColumn" id="v">
                     <property name="title">V</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_v"/>
@@ -195,7 +196,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn13">
+                  <object class="GtkTreeViewColumn" id="w">
                     <property name="title">W</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_w"/>
@@ -207,7 +208,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                  <object class="GtkTreeViewColumn" id="d">
                     <property name="title">DIameter</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_d"/>
@@ -219,7 +220,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn14">
+                  <object class="GtkTreeViewColumn" id="i">
                     <property name="title">Front</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_front"/>
@@ -231,7 +232,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn15">
+                  <object class="GtkTreeViewColumn" id="j">
                     <property name="title">Back</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_back"/>
@@ -243,7 +244,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn16">
+                  <object class="GtkTreeViewColumn" id="q">
                     <property name="title">Orientation</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_orient"/>
@@ -255,7 +256,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn17">
+                  <object class="GtkTreeViewColumn" id=";">
                     <property name="title">Comments</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_comments"/>
@@ -274,151 +275,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="lathe_window">
-            <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
-            <child>
-              <object class="GtkTreeView" id="treeview1">
-                <property name="can_focus">True</property>
-                <property name="model">liststore1</property>
-                <property name="search_column">0</property>
-                <property name="enable_grid_lines">both</property>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn19">
-                    <property name="title">Select</property>
-                    <child>
-                      <object class="GtkCellRendererToggle" id="cell_toggle1">
-                        <signal name="toggled" handler="cell_toggled"/>
-                      </object>
-                      <attributes>
-                        <attribute name="active">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="Tool#">
-                    <property name="title">Tool#</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">1</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_tool#1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">1</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn20">
-                    <property name="title">Pocket</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">2</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_pos1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">2</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn18">
-                    <property name="title">X</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_x1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">3</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn21">
-                    <property name="title">Z</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_z1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">5</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn22">
-                    <property name="title">Dia</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_d1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">12</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn23">
-                    <property name="title">Front</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_front1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">13</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn24">
-                    <property name="title">Back</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_back1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">14</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn25">
-                    <property name="title">Orient</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_orient1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">15</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn26">
-                    <property name="title">Comments</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cell_comments1"/>
-                      <attributes>
-                        <attribute name="editable">0</attribute>
-                        <attribute name="text">16</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
           <object class="GtkHButtonBox" id="hbuttonbox1">
             <property name="visible">True</property>
+            <property name="layout_style">center</property>
             <child>
               <object class="GtkButton" id="delete">
                 <property name="label" translatable="yes">Delete</property>
@@ -477,21 +339,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="style">
-                <property name="label" translatable="yes">Style</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_style_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">4</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">2</property>
           </packing>
         </child>

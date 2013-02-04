@@ -189,28 +189,43 @@ class emc_control:
                         else:
                                 self.emccommand.auto(self.emc.AUTO_RESUME)
 
+        # make sure linuxcnc is in AUTO mode
+        # if Linuxcnc is paused then pushing cycle start will step the program
+        # else the program starts from line 0
         def cycle_start(self):
+                if self.emcstat.task_mode != self.emc.MODE_AUTO:
+                    self.emccommand.mode(self.emc.MODE_AUTO)
+                    self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.paused:
-                        if self.sb:
-                                self.emccommand.auto(self.emc.AUTO_STEP)
-                        else:
-                                self.emccommand.auto(self.emc.AUTO_RESUME)
-                        return
-
+                    self.emccommand.auto(self.emc.AUTO_STEP)
+                    return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        self.emccommand.mode(self.emc.MODE_AUTO)
-                        self.emccommand.wait_complete()
-                        if self.sb:
-                                self.emccommand.auto(self.emc.AUTO_STEP)
-                        #else:
-                        #        self.emccommand.auto(self.emc.AUTO_RUN, self.listing.get_startline())
-                        #        self.listing.clear_startline()
+                        self.emccommand.auto(self.emc.AUTO_RUN, 0)
 
+        # this restarts the program at the line specified
         def re_start(self,line):
             self.emccommand.mode(self.emc.MODE_AUTO)
             self.emccommand.wait_complete()
             self.emccommand.auto(self.emc.AUTO_RUN, line)
+
+        def set_manual_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_MANUAL:
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.wait_complete()
+
+        def set_mdi_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_MDI:
+                self.emccommand.mode(self.emc.MODE_MDI)
+                self.emccommand.wait_complete()
+
+        def set_auto_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.task_mode != self.emc.MODE_AUTO:
+                self.emccommand.mode(self.emc.MODE_AUTO)
+                self.emccommand.wait_complete()
 
 class emc_status:
         def __init__(self, data, emc):
@@ -243,9 +258,20 @@ class emc_status:
                 self.machine_units_mm = self.data.machine_units = u
                 self.unit_convert = c
 
-        def convert_units(self,v):
+        # This holds the conversion multiplicand of all 9 axes
+        # angular axes are always 1 - They are not converted.
+        def convert_units_list(self,v):
                 c = self.unit_convert
                 return map(lambda x,y: x*y, v, c)
+
+        # This converts the given data units if the current display mode (self.mm)
+        # is not the same as the machine's basic units.
+        # It converts with the multiplicand of joint 0 
+        def convert_units(self,data):
+            if self.mm != self.machine_units_mm:
+                return self.unit_convert[0] * data
+            else:
+                return data
 
         def get_linear_units(self):
             return self.emcstat.linear_units
@@ -311,9 +337,9 @@ class emc_status:
             relp = [x, y, z, a, b, c, u, v, w]
 
             if self.mm != self.machine_units_mm:
-                p = self.convert_units(p)
-                relp = self.convert_units(relp)
-                dtg = self.convert_units(dtg)
+                p = self.convert_units_list(p)
+                relp = self.convert_units_list(relp)
+                dtg = self.convert_units_list(dtg)
             for letter in self.data.axis_list:
                 count = "xyzabcuvws".index(letter)
                 self.data["%s_is_homed"% letter] = self.emcstat.homed[count]
@@ -364,7 +390,7 @@ class emc_status:
             self.data.line =  self.emcstat.current_line
             self.data.id =  self.emcstat.id
             self.data.dtg = self.emcstat.distance_to_go
-            self.data.velocity = (self.emcstat.current_vel * 60.0)
+            self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
             self.data.delay = self.emcstat.delay_left
             if self.emcstat.pocket_prepped == -1:
                 self.data.preppedtool = None

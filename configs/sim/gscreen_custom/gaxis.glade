@@ -178,8 +178,8 @@
                     <child>
                       <object class="GtkToggleToolButton" id="toolbutton_estop">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">emc_toggle_estop</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="label" translatable="yes">ESTOP</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -191,8 +191,8 @@
                     <child>
                       <object class="GtkToggleToolButton" id="toolbutton_power">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">emc_toggle_power</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="label" translatable="yes">Power</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -339,8 +339,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">True</property>
                             <property name="related_action">emc_toggle_estop</property>
+                            <property name="use_action_appearance">True</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -736,8 +736,8 @@
   </object>
   <object class="EMC_Action_Unhome" id="emc_unhome_all"/>
   <object class="EMC_Action_Home" id="emc_home_x">
-    <property name="confirm_homed">True</property>
     <property name="axis">0</property>
+    <property name="confirm_homed">True</property>
   </object>
   <object class="EMC_Action_Unhome" id="emc_unhome_x">
     <property name="axis">0</property>
@@ -747,6 +747,7 @@
   </object>
   <object class="GtkDialog" id="restart_dialog">
     <property name="border_width">5</property>
+    <property name="type">popup</property>
     <property name="title" translatable="yes">Program Restart</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>

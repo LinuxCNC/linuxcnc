@@ -37,6 +37,10 @@ int setbits(hm2_sserial_remote_t *chan, u64 *val, int start, int len);
 int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buffer, int addr, int size);
 int hm2_sserial_read_globals(hostmot2_t *hm2,hm2_sserial_instance_t *inst,hm2_sserial_remote_t *chan);
 int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
+int getlocal32(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr);
+int getlocal8(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr);
+int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
+int setlocal32(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr, int val);
 
 // Main functions
 
@@ -45,7 +49,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     int i, c;
     int pin = -1;
     int port_pin, port;
-    u32 ddr_reg, src_reg, addr, buff;
+    u32 ddr_reg, src_reg, buff;
     int r = 0;
     int count = 0;
     int chan_counts[] = {0,0,0,0,0,0,0,0};
@@ -152,23 +156,20 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         inst->data_reg_addr = md->base_address + i * md->instance_stride + md->register_stride;
         
         buff=0x4000; //Reset
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+        HM2WRITE(inst->command_reg_addr, buff);
         buff=0x0001; //Clear
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+        HM2WRITE(inst->command_reg_addr, buff);
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,1007) < 0){
             r = -EINVAL;
             goto fail0;
         }
         do {
-            buff=0x2003; //Read firmware version
-            hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-            if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,49) < 0){
-                r = -EINVAL;
-                goto fail0;
-            }
-            hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
+            buff=getlocal8(hm2, inst, SSLBPMINORREVISIONLOC);
         } while (buff == 0xAA);
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
+        hm2->sserial.version = buff;
+        
+        if (check_set_baudrate(hm2, inst) < 0) goto fail0;
         
         //start up in setup mode
         if ( hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0) {goto fail0;}
@@ -176,29 +177,78 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         inst->num_remotes = 0;
         
         for (c = 0 ; c < inst->num_channels ; c++) {
+            u32 addr0, addr1, addr2;
             u32 user0, user1, user2;
-            // user10 addr
-            addr = md->base_address + 3 * md->register_stride
+            
+            addr0 = md->base_address + 3 * md->register_stride
                                     + i * md->instance_stride + c * sizeof(u32);
-            hm2->llio->read(hm2->llio, addr, &user0, sizeof(u32));
-            HM2_DBG("User0 = %x\n", user0);
-            // user1 addr
-            addr = md->base_address + 4 * md->register_stride
+            HM2READ(addr0, user0);
+            HM2_DBG("Inst %i Chan %i User0 = %x\n", i, c, user0);
+
+            addr1 = md->base_address + 4 * md->register_stride
                                     + i * md->instance_stride + c * sizeof(u32);
-            hm2->llio->read(hm2->llio, addr, &user1, sizeof(u32));
-            HM2_DBG("User1 = %x\n", user1);
-            // user2 addr
-            addr = md->base_address + 5 * md->register_stride
-                                    + i * md->instance_stride + c * sizeof(u32);
-            hm2->llio->read(hm2->llio, addr, &user2, sizeof(u32));
-            HM2_DBG("User2 = %x\n", user2);
-            if ((user2 & 0x0000ffff) // Parameter discovery
-                || user1 == HM2_SSERIAL_TYPE_7I64 //predate discovery
-                || user1 == HM2_SSERIAL_TYPE_8I20){
+            HM2READ(addr1, user1);
+            HM2_DBG("Inst %i Chan %i User1 = %x\n", i, c, user1);
+            
+            addr2 = md->base_address + 5 * md->register_stride
+            + i * md->instance_stride + c * sizeof(u32);
+            HM2READ(addr2, user2);
+            HM2_DBG("Inst %i Chan %i User2 = %x\n", i, c, user2);
+            
+            if (hm2->sserial.baudrate == 115200
+                && hm2->config.sserial_modes[i][c] != 'x') { //setup mode
+                rtapi_print("Setup mode\n");
+                if ((user1 & 0xFF00) == 0x4900){ //XiXXboard
+                    
+                    rtapi_print("found a %4s\n", (char*)&user1);
+                    
+                    inst->num_remotes += 1;
+                    inst->tag |= 1<<c;
+                }
+                else { // Look for 8i20s with the CRC check off
+                    int lbpstride = getlocal8(hm2, inst, SSLBPCHANNELSTRIDELOC);
+                    int crc_addr = getlocal8(hm2, inst, SSLBPCHANNELSTARTLOC) 
+                    + (c * lbpstride) + 30;
+                    
+                    rtapi_print("Looking for 8i20s, crc_addr = %i\n", crc_addr);
+                    
+                    if (getlocal8(hm2, inst, SSLBPMINORREVISIONLOC) < 37 ){
+                        HM2_PRINT("Unable to check for 8i20s with firmware < 37 "
+                                  "If you are not trying to reflash an 8i20 then"
+                                  " ignore this message.\n");
+                    }
+                    else if (setlocal32(hm2, inst, crc_addr, 0xFF) < 0) {
+                        HM2_ERR("Unable to disable CRC to check for old 8i20s");
+                    }
+                    else if ( hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0) {
+                        goto fail0;
+                    }
+                    else {
+                        HM2READ(addr1, user1);
+                        
+                        rtapi_print("found a %4s\n", (char*)&user1);
+                        
+                        if ((user1 & 0xFF00) == 0x4900){ //XiXXboard
+                            inst->num_remotes += 1;
+                            inst->tag |= 1<<c;
+                        }
+                    }
+                }
+            }
+            else if ((user2 & 0x0000ffff) // Parameter discovery
+                     || user1 == HM2_SSERIAL_TYPE_7I64 //predate discovery
+                     || user1 == HM2_SSERIAL_TYPE_8I20 ){
                 inst->num_remotes += 1;
                 inst->tag |= 1<<c;
             } 
-            else if (user1 == 0){ // nothing connected, or masked by config
+            else if (hm2->config.sserial_modes[i][c] != 'x'){
+                HM2_ERR("Unsupported Device (%4s) found on sserial %d "
+                        "channel %d\n", (char*)&user1, i, c);
+            }
+            
+            // nothing connected, or masked by config or wrong baudrate or.....
+            // make the pins into GPIO. 
+            if ((inst->tag & 1<<c) == 0){ 
                 for (pin = 0 ; pin < hm2->num_pins ; pin++){
                     if (hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
                         && (hm2->pin[pin].sec_pin & 0x0F) - 1  == c
@@ -207,11 +257,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                     }
                 }
             }
-            else
-            {
-                HM2_ERR("Unsupported Device (%s) found on sserial %d "
-                        "channel %d\n", (char*)&user1, i, c);
-            }
+
         }
         if (inst->num_remotes > 0){
             if (hm2_sserial_setup_channel(hm2, inst, count) < 0 ) {
@@ -227,15 +273,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                         inst->device_id);
                 goto fail0;}
             if (hm2_sserial_check_errors(hm2, inst) < 0) {
-                ///////////////////////
-                buff=0x2003; //Stop All
-                    hm2->llio->write(hm2->llio,hm2->sserial.instance[i].command_reg_addr, &buff, sizeof(u32));
-                if (0 > hm2_sserial_waitfor(hm2, hm2->sserial.instance[i].command_reg_addr, 0xFFFFFFFF, 1012)){
-                    HM2_ERR("Timeout in random debug code\n");
-                }
-                hm2->llio->read(hm2->llio,hm2->sserial.instance[i].data_reg_addr, &buff, sizeof(u32));
-                HM2_PRINT("data reg readback after it all turned bad: %x\n", buff);
-                //goto fail0;
+                //goto fail0; // Ignore it for the moment. 
             }
             //only increment the instance index if this one is populated
             count++ ;
@@ -385,6 +423,7 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
             chan->num_confs = 0;
             chan->num_modes = 0;
             chan->command_reg_addr = inst->command_reg_addr;
+            chan->myinst = inst->index;
             chan->data_reg_addr= inst->data_reg_addr;
             chan->index = c;
             HM2_DBG("Instance %i, channel %i / %i\n", inst->index, c, r);
@@ -546,12 +585,20 @@ int hm2_sserial_read_globals(hostmot2_t *hm2,
     hm2->llio->read(hm2->llio, chan->reg_2_addr, &buff, sizeof(u32)); 
     gtoc=(buff & 0xffff0000) >> 16; 
     if (gtoc == 0){
-        if (strstr(chan->name, "8i20")){
+        if (hm2->sserial.baudrate == 115200) {
+            HM2_PRINT("Setup mode, creating no pins for smart-serial channel %s\n",
+                      chan->name);
+            chan->num_confs = 0;
+            chan->num_globals = 0;
+            return 0;
+        }
+        else if (strstr(chan->name, "8i20")){
             config_8i20(hm2, chan);
         }
         else if (strstr(chan->name, "7i64")){
             config_7i64(hm2, chan);
         }
+        else { HM2_ERR("No GTOC in sserial read globals\n"); return -1;}
     }
     else
     {
@@ -1531,6 +1578,90 @@ int hm2_sserial_waitfor(hostmot2_t *hm2, u32 addr, u32 mask, int ms){
     }while (d & mask);
     return 0;
 }
+
+int getlocal8(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr){
+    u32 val = 0;
+    u32 buff;
+    buff = READ_LOCAL_CMD | addr;
+    HM2WRITE(inst->command_reg_addr, buff);
+    hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 22);
+    HM2READ(inst->data_reg_addr, buff);
+    val = (val << 8) | buff;
+    return val;
+}
+
+int getlocal32(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr){
+    u32 val = 0;
+    int bytes = 4;
+    u32 buff;
+    for (;bytes--;){
+        buff = READ_LOCAL_CMD | (addr + bytes);
+        HM2WRITE(inst->command_reg_addr, buff);
+        hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 22);
+        HM2READ(inst->data_reg_addr, buff);
+        val = (val << 8) | buff;
+    }    
+    return val;
+}
+
+int setlocal32(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int addr, int val){
+    int bytes = 0;
+    u32 buff;
+    for (;bytes < 4; bytes++){
+        
+        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 22) < 0) {
+            HM2_ERR("Command register not ready\n");
+            return -1;
+        }
+        
+        buff = val & 0xff;
+        val >>= 8;
+        HM2WRITE(inst->data_reg_addr, buff);
+        buff = WRITE_LOCAL_CMD | (addr + bytes);
+        HM2WRITE(inst->command_reg_addr, buff);
+        
+        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 22) < 0) {
+            HM2_ERR("Write failure attempting to set baud rate\n");
+            return -1;
+        }
+    }    
+    return 0;
+}
+
+int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+    u32 baudrate;
+    int baudaddr;
+    int lbpstride; 
+    u32 buff;
+    int c;
+    
+    if (hm2->sserial.baudrate < 0){ return 0;}
+    if (hm2->sserial.version < 34) {
+    HM2_ERR("Setting baudrate is not supported in the current firmware version\n"
+    "Version must be > v33 and you have version %i.", hm2->sserial.version);
+    return -1;
+    }
+    lbpstride = getlocal8(hm2, inst, SSLBPCHANNELSTRIDELOC);
+    HM2_PRINT("num_channels = %i\n", inst->num_channels);
+    for (c = 0; c < inst->num_channels; c++){
+        baudaddr = getlocal8(hm2, inst, SSLBPCHANNELSTARTLOC) + (c * lbpstride) + 42;
+        baudrate = getlocal32(hm2, inst, baudaddr);
+        HM2_PRINT("Chan %i baudrate = %i\n", c, baudrate);
+        if (baudrate != hm2->sserial.baudrate) {
+            if (setlocal32(hm2, inst, baudaddr, hm2->sserial.baudrate) < 0) {
+                HM2_ERR("Problem setting new baudrate, power-off reset may be needed to"
+                        " recover from this.\n");
+                return -1;
+            }
+            baudrate = getlocal32(hm2, inst, baudaddr);
+            HM2_PRINT("Chan %i. Baudrate set to %i\n", c, baudrate);
+        }
+    }
+    buff = 0x800; HM2WRITE(inst->command_reg_addr, buff); // stop all
+    
+    return 0;
+}
+
 
 void hm2_sserial_force_write(hostmot2_t *hm2){
     int i;

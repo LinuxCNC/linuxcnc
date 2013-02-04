@@ -246,6 +246,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
+
         finally:
             shutil.rmtree(td)
 
@@ -352,6 +353,36 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
     def report_gcode_error(self, result, seq, filename):
-        error_str = gcode.strerror(result)
-        sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
-                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
+
+	error_str = gcode.strerror(result)
+	sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
+	                 + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
+
+    # These are for external controlling of the view
+
+    def zoom_in(self):
+        self.zoomin()
+
+    def zoom_out(self):
+        self.zoomout()
+
+    def start_continuous_zoom(self, y):
+        self.startZoom(y)
+
+    def continuous_zoom(self, y):
+        self.continueZoom(y)
+
+    def set_mouse_start(self, x, y):
+        self.recordMouse(x, y)
+
+    def set_prime(self, x, y):
+        if self.select_primed:
+            primedx, primedy = self.select_primed
+            distance = max(abs(x - primedx), abs(y - primedy))
+            if distance > 8: self.select_cancel()
+
+    def pan(self,x,y):
+        self.translateOrRotate(x, y)
+
+    def rotate_view(self,x,y):
+        self.rotateOrTranslate(x, y)

@@ -27,8 +27,8 @@ class ToolEdit(gtk.VBox):
     __gproperties__ = {
         'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'display_type' : ( gobject.TYPE_INT, 'Type', '0: All info 1: Lathe info',
-                    0, 1, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 's,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; are the options',
+                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -36,7 +36,6 @@ class ToolEdit(gtk.VBox):
         super(ToolEdit, self).__init__()
         self.emcstat = linuxcnc.stat()
         self.hash_check = None 
-        self.display_type = 0
         self.toolfile = toolfile
         self.num_of_col = 1
         self.font="sans 12"
@@ -48,32 +47,25 @@ class ToolEdit(gtk.VBox):
             "on_add_clicked" : self.add,
             "on_reload_clicked" : self.reload,
             "on_save_clicked" : self.save,
-            "on_style_clicked" : self.display_toggle,
             "cell_toggled" : self.toggled
             }
         self.wTree.connect_signals( dic )
-        renderer = self.wTree.get_object("cell_toggle0")
+        renderer = self.wTree.get_object("cell_toggle")
         renderer.set_property('activatable', True)
+        # list of the columns
+        self.objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
         # these signals include column data so must be made here instead of in Glade
         # for view 2
-        temp = "cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b","cell_c","cell_u","cell_v","cell_w","cell_d", \
-                "cell_front","cell_back","cell_orient","cell_comments"
-        for col,name in enumerate(temp):
-            #print name,col
-            renderer = self.wTree.get_object(name)
-            renderer.connect( 'edited', self.col_editted, col+1 )
-        # for view 1
-        temp =[ ("cell_tool#1",1),("cell_pos1",2),("cell_x1",3),("cell_z1",5),("cell_d1",12),("cell_front1",13),("cell_back1",14), \
-                ("cell_orient1",15), ("cell_comments1",16)]
-        for name,col in temp:
-            renderer = self.wTree.get_object(name)
-            renderer.connect( 'edited', self.col_editted, col )
+        cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
+                         "cell_c","cell_u","cell_v", "cell_w","cell_d","cell_front","cell_back","cell_orient","cell_comments"
+        for col,name in enumerate(cell_list):
+            if col == 0:continue
+            temp = self.wTree.get_object(name)
+            temp.connect( 'edited', self.col_editted, col )
 
         # global references
         self.model = self.wTree.get_object("liststore1")
         self.all_window = self.wTree.get_object("all_window")
-        self.lathe_window = self.wTree.get_object("lathe_window")
-        self.view1 = self.wTree.get_object("treeview1")
         self.view2 = self.wTree.get_object("treeview2")
         self.apply = self.wTree.get_object("apply")
         # reparent tooledit box from Glades tp level window to tooledit's VBox
@@ -82,7 +74,6 @@ class ToolEdit(gtk.VBox):
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
-        self.set_display(0)
         # check linuxcnc status every second
         gobject.timeout_add(1000, self.periodic_check)
 
@@ -166,37 +157,26 @@ class ToolEdit(gtk.VBox):
                 except:
                     line = line + "%s%d "%(KEYWORDS[num], i)
             print >>file,line
-            print line
+            #print line
         # tell linuxcnc we changed the tool table entries
         try:
             linuxcnc.command().load_tool_table()
         except:
             print "Reloading tooltable into linuxcnc failed"
 
-
-        # This is for changing the display after tool editor was loaded using the style button
-        # note that it toggles the display
-    def display_toggle(self,widget=None):
-        value = (self.display_type * -1) +1
-        self.set_display(value)
-
-        # There is an 'everything' display and a 'lathe' display
-        # the same model is used in each case just the listview is different
-        # does the actual display change by hiding what we don't want
-        # for whatever reason I have to hide/show both the view and it's container
-    def set_display(self,value):
-        self.display_type = value
-        #if self.all_window.flags() & gtk.VISIBLE:
-        if value == 0:
-            self.lathe_window.show()
-            self.view1.show()
-            self.all_window.hide()
-            self.view2.hide()
-        else:
-            self.lathe_window.hide()
-            self.view1.hide()
-            self.all_window.show()
-            self.view2.show()
+    # This allows hiding or showing columns of view 2
+    # default, all the columns are shown
+    def set_visible(self,list,bool):
+        try:
+            for index in range(0,len(list)):
+                name = list[index].lower()
+                if not name in self.objectlist:
+                    continue
+                else:
+                    renderer = self.wTree.get_object(name)
+                    renderer.set_property('visible', bool)
+        except:
+            pass
 
         # not done yet should change the font of the text
     def set_font(self,value):
@@ -210,7 +190,7 @@ class ToolEdit(gtk.VBox):
             self.model[path][col] = "%10.4f"% float(new_text)
         elif col == 16:
             self.model[path][col] = (new_text)
-        print new_text, col
+        #print new_text, col
 
         # this makes the checkboxes actually update
     def toggled(self, widget, path):
@@ -269,13 +249,16 @@ class ToolEdit(gtk.VBox):
         name = property.name.replace('-', '_')
         if name == 'font':
             self.set_font(value)
-        if name == 'display_type':
-            print value
-            try:
-                self.set_display(value)
-            except:
-                pass
+        if name == 'hide_columns':
+            self.set_visible("stpxyzabcuxvdijq;",True)
+            self.set_visible("%s"%value,False)
+        if name in self.__gproperties.keys():
+            setattr(self, name, value)
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 # for testing without glade editor:
 # for what ever reason tooledit always shows both display lists,
@@ -291,6 +274,7 @@ def main(filename=None):
     tooledit = ToolEdit(filename)
     
     window.vbox.add(tooledit)
+    tooledit.set_visible("Abcijquvw",False)
     window.connect("destroy", gtk.main_quit)
     #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
     window.show_all()

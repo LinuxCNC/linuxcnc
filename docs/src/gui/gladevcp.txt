@@ -696,7 +696,9 @@ led_shape::
 led_blink_rate::
    if set and LED is ON then it's blinking. Blink
    period is equal to "led_blink_rate" specified in milliseconds.
-
+create hal pin::
+    select/deselect making of HAL pin to control LED. With no HAL pin created
+    LED can be controlled with a python function. 
 As an input widget, LED also supports the +hal-pin-changed signal+. If
 you want to get a notification in your code when the LED's HAL pin was
 changed, then connect this signal to a handler, for example
@@ -799,6 +801,8 @@ invert::
 min, max::
    Minimum and maximum value of desired range. It is not an
    error condition if the current value is outside this range.
+show limits::
+    Used to select/deselect the limits text on bar.
 zero::
    Zero point of range. If it's inside of min/max range then the
    bar will grow from that value and not from the left (or right) side of
@@ -811,8 +815,18 @@ force_width, force_height::
 text_template::
    Like in Label sets text format for min/max/current
    values. Can be used to turn off value display.
+value::
+    Sets the bar display to the value entered: used only for testing in
+    GLADE editor. The vaue will be set from A HAL pin.
+target value::
+    Sets the target line to the value entered: used only for testing in
+    GLADE editor. The value will can be set in a Python function
+target_width::
+    Width of the line that marks the target value.
 bg_color::
    Background (inactive) color of bar.
+target_color::
+    Color of the the target line.
 z0_color, z1_color, z2_color::
    Colors of different value zones.
    Defaults are `green`, `yellow` and `red`. For description of zones see
@@ -882,16 +896,198 @@ name.
 
 Gremlin does not export any HAL pins. It has the following properties:
 
+show tool speed::
+    This displays the tool speed. Defaults true
+show commanded::
+    This selects the DRO to use commanded or actual values. Defaults true
+use metric units::
+    This selects the DRO to use metric or imperial units. Defaults true
+show rapids::
+    This tells the plotter to show the rapid moves. Defaults true
+show DTG::
+    This selects the DRO to display the distance-to-go value. Defaults true
+show relative::
+    This selects the DRO to show values relative to user system or machine 
+    cordinates. Defaults true
+show live plot::
+    This tells the plotter to draw or not. Defaults true
+show limits::
+    This tells the plotter to show the machine's limits. Defaults true 
+show lathe radius::
+    This selects the DRO to display the X axis in radius or diameter, if in lathe
+    mode (selectable in the INI file with LATHE = 1). Defaults false
+show extents::
+    This tells the plotter to show the extents. Defaults true
+show tool::
+    This tells the plotter to draw the tool. Defaults true
+show program::
+    TODO
+use joints mode::
+    Used in non trivialkins machines (eg robots). Defaults false
+grid size::
+    Sets the size of the grid. which is only visible in the X, Y and Z view.
+    Defaults to 0
+use default mouse controls::
+    This disables the default mouse controls. This is most useful when using a
+    touchscreen as the default controls do not work well. You can programically
+    add controls using python and the handler file technique. Defaults to 'True'
 view ::
-   may be any of `x`, `y`, `z`, `p` (perspective) . Defaults to
+   may be any of `x`, `y`, 'y2' , `z`, 'z2' , `p` (perspective) . Defaults to
    `z` view.
 enable_dro ::
    boolean; whether to draw a DRO on the plot or not.
-   Defaults to `True`.
+   Defaults to `True`
 
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+        [widget name].set_property('view','P')
+        [widget name].set_property('metric_units',False)
+        [widget name].set_property('use_default_controls',False)
+        [widget name].set_property('enable_dro' False))
+        [widget name].set_property('show_program', False)
+        [widget name].set_property('show_limits', False)
+        [widget name].set_property('show_extents_option', False)
+        [widget name].set_property('show_live_plot', False)
+        [widget name].set_property('show_tool', False)
+        [widget name].set_property('show_lathe_radius',True)
+        [widget name].set_property('show_dtg',True)
+        [widget name].set_property('show_velocity',False)
+
+    There are python methods:
+        [widget name].show_offsets = True
+        [widget name].grid_size =  .75
+        [widget name].select_fire(event.x,event.y)
+        [widget name].select_prime(event.x,event.y)
+        [widget name].start_continuous_zoom(event.y)
+        [widget name].set_mouse_start(0,0)
+        [widget name].gremlin.zoom_in()
+        [widget name].gremlin.zoom_out()
+        [widget name].get_zoom_distance()
+        [widget name].set_zoom_distance(dist)
+        [widget name].clear_live_plotter()
+        [widget name].rotate_view(x,y)
+        [widget name].pan(x,y)
+
+Hints::
+    - If you set all the plotting options false but show_offsets true you get an
+    offsets page instead of a graphics plot.
+
+    - If you get the zoom distance before changing the view then reset the zoom
+    distance, it's much more user friendly.
+    
 Example:
 image:images/gremlin.png[]
 
+=== DRO widget
+The DRO widget is used to display the current axis position.
+It has the following properties:
+
+Actual Position::
+    select actual (feedback) position or commanded position.
+Text template for metric units::
+    You can use python formatting to display the position with different precision.
+Text template for imperial units::
+    You can use python formatting to display the position with different precision.
+Reference Type::
+    Absolute (machine origin), Relative (to current user coordinate origin - G5x)
+    or Distance-to-go (realtive to current user coordinate origin)
+Joint Number::
+    Used to select which axis (technically which joint) is displayed.
+    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+
+    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+
+Display units::
+    Used to toggle the display units between metric and imperial.
+
+Hints::
+    - If you want the display to be right justified, set the X align to 1.0
+
+    - If you want different colors or size or text change the attributes in the 
+    glade editor (eg scale is a good way to change the size of the text)
+
+    - The background of the widget is actually see through - so if you place if over
+    an image the DRO numbers will show on top of it with no backgroud. There is a
+    special technique to do this. See the animated function diagrams below.
+
+    - The DRO widget is a modified gtk label widget. As such much or what can be
+    done to a gtk label can be done to DRO widget.
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+        [widget name].set_property("display_units_mm",True)
+        [widget name].set_property("actual",True)
+        [widget name].set_property("mm_text_template","%f")
+        [widget name].set_property("imperial_text_template","%f")
+        [widget name].set_property("Joint_number",3)
+        [widget name].set_property("reference_type",3)
+
+    There are two python methods:
+        [widget name].set_dro_inch()
+        [widget name].set_dro_metric()
+
+=== Calculator widget
+
+This is a simple calculator widget, that can be used for numerical input.
+You can preset the display and retrieve the result or that preset value.
+It has the following propeties:
+
+Is editable::
+    This allows the entry display to be typed into from a keyboard.
+Set Font::
+    This allows you to set the font of the display.
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+        [widget name].set_property("is_editable",True)
+        [widget name].set_property("font","sans 25")
+
+    There are python methods:
+       [widget name].set_value(2.5)         -This presets the display and is recorded.
+       [widget name].set_font("sans 25")
+       [widget name].set_editable(True)
+       [widget name].get_value()            -Returns a float.
+       [widget name].set_editable(True)
+       [widget name].get_preset_value()     -Returns the recorded value: a float.
+
+=== Tooleditor widget
+
+This is a tooleditor widget for displaying and modifying a tool editor file.
+It checks the current file once a second to see if linuxcnc updated it.
+It has the following properties:
+
+Hidden Columns::
+    This will hide the given columns: The columns are designated (in order) as such:
+    s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,;
+    You can hide any number of columns including the select and comments
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    using goobject to set the above listed properties:
+        [widget name].set_properties('hide_columns','uvwijq')   -This would hide the uvwij and q columns and show all others.
+
+    There are python methods:
+        [widget name].set_visible("ijq",False)                  -Would hide ij and Q columns and leave the rest as they were.
+        [widget name].set_filename(path_to_file)                -Sets and loads the tool file.
+        [widget name].reload(None)                              -Reloads the current toolfile
+
+=== Sourceview widget
+
+This is for displaying and simple editing of Gcode.
+
+=== MDI history
+
+This is for displaying and entering MDI codes.
 
 === Animated function diagrams: HAL widgets in a bitmap
 
@@ -1094,6 +1290,9 @@ signals:
   - +interp-waiting+
   - +file-loaded+
   - +line-changed+
+* homing-related: emitted when linuxcnc is homed or not
+  - +all-homed+
+  - +not-all-homed+
 
 [[gladevcp:GladeVCP_Programming]]
 == GladeVCP Programming
