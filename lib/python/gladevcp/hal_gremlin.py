@@ -20,6 +20,7 @@ import gtk, gobject
 import linuxcnc
 import gremlin
 import rs274.glcanon
+import gcode
 
 from hal_actions import _EMC_ActionBase
 from hal_glib import GStat

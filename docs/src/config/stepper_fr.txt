@@ -56,7 +56,8 @@ externe (parmis les contrôleurs de moteurs pas à pas universels
 supportés par LinuxCNC)
 
 [[sec:Brochage]]
-== Brochage(((brochage)))
+== Brochage
+(((brochage)))
 
 LinuxCNC est très flexible et grâce à la couche d'abstraction de HAL
 (Hardware Abstraction Layer) il est facile de spécifier que tel signal
@@ -83,7 +84,7 @@ aux différentes pins. Dans la suite, nous nous concentrerons sur le
 brochage _standard_pinout.hal_.
 
 
-=== Le fichier standard_pinout.hal[[sec:standard-pinout.hal]]
+== Le fichier standard_pinout.hal[[sec:standard-pinout.hal]]
 
 (((standard pinout))) 
 
@@ -172,8 +173,8 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 Les lignes commençant par *#* sont des commentaires, aident à la
 lecture du fichier.
 
-
-=== Vue d'ensemble du fichier standard_pinout.hal[[sec:Vue-d-ensemble-standard-pinout.hal]]
+[[sec:Vue-d-ensemble-standard-pinout-hal]]
+== Vue d'ensemble du fichier standard_pinout.hal
 
 Voici les opérations qui sont exécutées quand le fichier
 standard_pinout.hal est lu par l'interpréteur:
@@ -191,8 +192,8 @@ standard_pinout.hal est lu par l'interpréteur:
  . Un signal de marche broche est défini et raccordé à une broche du port
    parallèle
 
-
-=== Modifier le fichier standard_pinout.hal[[sec:Modifier-standard-pinout.hal]]
+[[sec:Modifier-standard-pinout-hal]]
+== Modifier le fichier standard_pinout.hal
 
 Pour modifier le fichier standard_pinout.hal, il suffit de l'ouvrir
 dans un éditeur de texte puis d'y localiser les parties à modifier.
@@ -217,7 +218,8 @@ Attention: il faut être certain de n'avoir qu'un seul signal connecté
 à une broche.
 
 [[sec:Modifier-la-polarite]]
-=== Modifier la polarité d'un signal(((signal polarite)))
+== Modifier la polarité d'un signal
+(((signal polarite)))
 
 Si une interface attends un signal _actif bas_, ajouter une ligne avec
 le paramètre d'inversion de la sortie, _-invert_. Par exemple, pour
@@ -227,7 +229,8 @@ setp parport.0.pin-09-invert TRUE
 ----
 
 [[sec:PWM-Vitesse-broche]]
-=== Ajouter le contrôle de vitesse broche en PWM(((Vitesse broche PWM)))
+== Ajouter le contrôle de vitesse broche en PWM
+(((Vitesse broche PWM)))
 
 Si votre vitesse de broche peut être contrôlée par un signal de PWM,
 utilisez le composant _pwmgen_ pour créer ce signal:
@@ -247,8 +250,8 @@ signal PWM supérieur à 0% est requis pour que la broche commence à
 tourner, suivez l'exemple du fichier de configuration _nist-lathe_ qui
 utilise un composant d'échelle (_scale_).
 
-
-=== Ajouter un signal de validation *enable*[[sec:Ajouter-signal-enable]] 
+[[sec:Ajouter-signal-enable]]
+== Ajouter un signal de validation *enable*
 (((signal enable)))
 
 Certains pilotes de moteurs requiert un signal de validation _enable_
@@ -266,7 +269,8 @@ toutefois qu'habituellement quand un axe est en défaut, tous les autres
 sont invalidés aussi de sorte que, n'avoir qu'un seul signal/pin de
 validation pour l'ensemble est parfaitement sécurisé.
 
-=== Ajouter un bouton d'Arrêt d'Urgence externe (((A/U)))
+== Ajouter un bouton d'Arrêt d'Urgence externe
+(((A/U)))
 
 Comme vous pouvez <<sec:standard-pinout.hal,le voir ici>>,
 par défaut la configuration standard n'utilise pas de bouton d'Arrêt

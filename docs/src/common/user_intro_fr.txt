@@ -33,7 +33,7 @@ Il y a quatre principales composantes du logiciel LinuxCNC:
 En outre il existe une couche appelée HAL (couche d'abstraction du matériel) 
 qui permet la configuration de LinuxCNC sans avoir besoin de recompiler.
 
-.Machine simple contrôlée par LinuxCNC[[fig:Machine typique]]
+.Machine simple contrôlée par LinuxCNC
 image::images/whatstep1.png[align="center"]
 
 La figure ci-dessus montre un diagramme bloc
