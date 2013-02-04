@@ -1,4 +1,4 @@
-= Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
+= Canonical Device Interfaces
 
 .Note
 *********************************************************************
@@ -6,6 +6,8 @@ By version 2.1, the HAL drivers should have all been updated to
 match these specs. Send an email if you spot any problems. 
 ********************************************************************* 
 
+[[cha:Canonical-Device-Interfaces]]
+== Introduction
 The following sections show the pins, parameters, and functions that 
 are supplied by “canonical devices”. All HAL device drivers should 
 supply the same pins and parameters, and implement the same behavior.

@@ -4,6 +4,7 @@ For any Halui examples to work you need to add the following line to the \[HAL\]
 
 +*HALUI = halui*+ 
 
+[[sec:Remote-Start-Example]]
 == Remote Start
 
 To connect a remote program start button to LinuxCNC you use the 
@@ -17,9 +18,7 @@ auto mode the pin `halui.mode.is-auto` will be on.
 If both the inputs to the `and2.0` component are on the 
 `and2.0.out` will be on and this will start the program. 
 
-[[fig:Remote-Start-Example]]
 .Remote Start Example
-
 image::images/remote-start.png[]
 
 The hal commands needed to accomplish the above are: 

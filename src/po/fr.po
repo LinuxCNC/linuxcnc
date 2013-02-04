@@ -7,20 +7,20 @@
 # Francis Tisserant <ftissera@free.fr>, 2007, 2008, 2009, 2010, 2011.
 # thank you very much to "mbaillif" for is help.
 # Francis Tisserant <tissf@free.fr> with the help of mbaillif thank>, 2011, 2012.
+# tissf <tissf@free.fr>, 2012.
+# Francis Tisserant <tissf@free.fr>, 2012, 2013.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-10 13:39-0600\n"
-"PO-Revision-Date: 2012-03-10 20:55+0200\n"
-"Last-Translator: jepler <jepler@unpythonic.net>\n"
-"Language-Team: French <gnomefr@traduc.org>\n"
-"Language: fr\n"
+"POT-Creation-Date: 2012-12-07 21:02+0100\n"
+"PO-Revision-Date: 2013-01-27 14:07+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French <tissf@free.fr>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 0.5\n"
+"Language: fr\n"
 
 #: src/hal/utils/meter.c:198 hal/utils/meter.c:198
 #, c-format
@@ -2344,9 +2344,9 @@ msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
-"RÉGLAGE DES OUTILS \n"
-" Clique ou Tab pour éditer.   Presser Entrée pour retourner au contrôle de "
-"la machine depuis le clavier."
+"RÉGLAGE OUTIL \n"
+" Clic ou Tab pour éditer.   Presser Entrée pour retourner au contrôle de la "
+"machine depuis le clavier."
 
 #: tcl/mini.tcl:2130 ../tcl/mini.tcl:2130
 msgid "  TOOL NUMBER  "
@@ -3982,11 +3982,21 @@ msgstr "Haut, Bas"
 msgid "Jog second axis"
 msgstr "Jog du deuxième axe"
 
+<<<<<<< HEAD
 #: src/emc/usr_intf/axis/scripts/axis.py:166
 #: src/emc/usr_intf/axis/scripts/axis.py:170
 #: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Pg Up, Pg Dn"
 msgstr "Pg.Préc, Pg.Suiv"
+||||||| merged common ancestors
+#: src/emc/usr_intf/tooledit.tcl:444
+msgid "Del"
+msgstr "Suppr"
+=======
+#: src/emc/usr_intf/tooledit.tcl:444
+msgid "Del"
+msgstr "Eff."
+>>>>>>> rtos-integration-preview3
 
 #: src/emc/usr_intf/axis/scripts/axis.py:166
 #: src/emc/usr_intf/axis/scripts/axis.py:170
@@ -4006,11 +4016,21 @@ msgstr "Shift+jog dessus"
 msgid "Jog at traverse speed"
 msgstr "Jog en vitesse rapide"
 
+<<<<<<< HEAD
 #: src/emc/usr_intf/axis/scripts/axis.py:168
 #: src/emc/usr_intf/axis/scripts/axis.py:172
 #: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog fourth axis"
 msgstr "Jog du quatrième axe"
+||||||| merged common ancestors
+#: src/emc/usr_intf/tooledit.tcl:485
+msgid "AddTool"
+msgstr "AjouteOutil"
+=======
+#: src/emc/usr_intf/tooledit.tcl:485
+msgid "AddTool"
+msgstr "AjouterOutil"
+>>>>>>> rtos-integration-preview3
 
 #: src/emc/usr_intf/axis/scripts/axis.py:171
 #: src/emc/usr_intf/axis/scripts/axis.py:175
@@ -4211,11 +4231,39 @@ msgstr "Arrêter le programme, ou"
 msgid "stop loading program preview"
 msgstr "stopper le parcours d'outil"
 
+<<<<<<< HEAD
 #: src/emc/usr_intf/axis/scripts/axis.py:198
 #: src/emc/usr_intf/axis/scripts/axis.py:202
 #: emc/usr_intf/axis/scripts/axis.py:198
 msgid "Toggle mist"
 msgstr "Avec ou sans gouttelettes"
+||||||| merged common ancestors
+#: src/emc/usr_intf/tooledit.tcl:990
+#, tcl-format
+msgid ""
+"%s: Warning: Axis is running but the tool table file <%s> \n"
+"differs from the standalone startup file <%s>"
+msgstr ""
+"%s: Attention: Axis est lancé mais le fichier de table d'outils <%s> \n"
+"diffère du fichier <%s> du lancement en autonome"
+
+#: src/emc/usr_intf/tooledit.tcl:1004
+msgid "Must be On and Idle to reload tool table"
+msgstr "Doit être En marche et en attente pour recharger la table d'outils"
+=======
+#: src/emc/usr_intf/tooledit.tcl:990
+#, tcl-format
+msgid ""
+"%s: Warning: Axis is running but the tool table file <%s> \n"
+"differs from the standalone startup file <%s>"
+msgstr ""
+"%s: Attention: Axis est lancé mais le fichier de table d'outils <%s> \n"
+"diffère du fichier <%s> du lancement en autonome"
+
+#: src/emc/usr_intf/tooledit.tcl:1004
+msgid "Must be On and Idle to reload tool table"
+msgstr "Doit être En marche et inactive pour recharger la table d'outils"
+>>>>>>> rtos-integration-preview3
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 #: src/emc/usr_intf/axis/scripts/axis.py:203
@@ -18508,15 +18556,37 @@ msgstr ""
 "Lecture de la position courante impossible avec la compensation de rayon "
 "d'outil activée"
 
+<<<<<<< HEAD
 #: src/emc/rs274ngc/interp_read.cc:2189 src/emc/rs274ngc/interp_read.cc:1934
 #: emc/rs274ngc/interp_read.cc:2189
 msgid "Expected # reading parameter"
 msgstr "Lecture paramètre # attendue"
+||||||| merged common ancestors
+#: src/emc/rs274ngc/interp_check.cc:94
+msgid "P value out of range (0-9) with G10 L2 or L20"
+msgstr "Valeur de P hors d'échelle (0-9) avec G10 L2 ou L20"
+=======
+#: src/emc/rs274ngc/interp_check.cc:94
+#, c-format
+msgid "P value out of range (0-9) with G10 L%d"
+msgstr "Valeur de P hors d'échelle (0-9) avec G10 L%d"
+>>>>>>> rtos-integration-preview3
 
+<<<<<<< HEAD
 #: src/emc/rs274ngc/interp_read.cc:2191 src/emc/rs274ngc/interp_read.cc:1936
 #: emc/rs274ngc/interp_read.cc:2191
 msgid "Expected ] reading bracketed parameter"
 msgstr "La lecture de paramètre entre crochets attendait un ]"
+||||||| merged common ancestors
+#: src/emc/rs274ngc/interp_check.cc:95
+msgid "P value out of range with G10 L1 or G10 L10"
+msgstr "Valeur de P hors d'échelle avec G10 L1 ou G10 L10"
+=======
+#: src/emc/rs274ngc/interp_check.cc:95
+#, c-format
+msgid "P value out of range with G10 L%d"
+msgstr "Valeur de P hors d'échelle avec G10 L%d"
+>>>>>>> rtos-integration-preview3
 
 #: src/emc/rs274ngc/interp_read.cc:2881 src/emc/rs274ngc/interp_read.cc:2608
 #: emc/rs274ngc/interp_read.cc:2881

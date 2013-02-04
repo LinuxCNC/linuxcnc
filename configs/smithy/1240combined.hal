@@ -8,6 +8,7 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
 loadrt hm2_pci config="firmware=hm2/5i20/sssvst2_2_4_v31.bit num_encoders=1 num_pwmgens=0 num_stepgens=4 sserial_port_0=0xxxxxxx enable_raw"
+#loadrt hm2_pci config="firmware=hm2/5i20/sssvst2_2_2_v35.bit num_encoders=1 num_pwmgens=0 num_stepgens=4 enable_raw"
 
 # 13312 = 0x3400 = Encoder Sample Rate Register
 setp hm2_5i20.0.raw.write_address 13312
@@ -60,7 +61,7 @@ setp near.0.scale 1.1
 setp near.0.difference 0.1
 net srps motion.spindle-speed-out-rps limit2.0.in near.0.in1
 net scmd limit2.0.out pid.0.command
-net fb hm2_5i20.0.encoder.00.velocity lowpass.0.in comp.1.in1
+net fb hm2_5i20.0.encoder.00.velocity pid.0.feedback motion.spindle-speed-in lowpass.0.in comp.1.in1
 net sflt lowpass.0.out near.0.in2
 net at-speed near.0.out motion.spindle-at-speed
 net scur-abs abs.0.out comp.0.in1
@@ -78,7 +79,6 @@ setp bldc.0.rev 1
 setp hm2_5i20.0.encoder.00.scale 2880
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
-net fb hm2_5i20.0.encoder.00.velocity pid.0.feedback
 net pid-out pid.0.output bldc.0.value
 net rawcount hm2_5i20.0.encoder.00.rawcounts
 net rotor_angle hm2_5i20.0.8i20.0.0.angle bldc.0.rotor-angle

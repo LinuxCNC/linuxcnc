@@ -33,7 +33,7 @@ import linuxcnc
 import gcode
 
 import time
-
+import re
 import tempfile
 import shutil
 import os
@@ -132,15 +132,15 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.show_offsets = False
         self.use_default_controls = True
 
-	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
-	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
-	self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
+        self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
+        self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
 
-	live_axis_count = 0
-	for i,j in enumerate("XYZABCUVW"):
-	    if self.stat.axis_mask & (1<<i) == 0: continue
-	    live_axis_count += 1
-	self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+        live_axis_count = 0
+        for i,j in enumerate("XYZABCUVW"):
+            if self.stat.axis_mask & (1<<i) == 0: continue
+            live_axis_count += 1
+        self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
 
     def activate(self):
         glcontext = gtk.gtkgl.widget_get_gl_context(self)
@@ -183,7 +183,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def poll(self):
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -200,7 +203,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def realize(self, widget):
         self.set_current_view()
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         self._current_file = None
 
         self.font_base, width, linespace = \
@@ -238,9 +244,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
-	    if result > gcode.MIN_ERROR:
-		self.report_gcode_error(result, seq, filename)
-
+            if result > gcode.MIN_ERROR:
+                self.report_gcode_error(result, seq, filename)
         finally:
             shutil.rmtree(td)
 
@@ -251,10 +256,12 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY")
         if temp:
-            self.geometry = temp.upper()
+            geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
+            self.geometry = "".join(reversed(geometry))
         else:
             self.geometry = 'XYZ'
         return self.geometry
+
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
@@ -344,37 +351,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         if not self.use_default_controls:return
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
-
     def report_gcode_error(self, result, seq, filename):
-	error_str = gcode.strerror(result)
-	sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
-	                 + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
-
-    # These are for external controlling of the view
-
-    def zoom_in(self):
-        self.zoomin()
-
-    def zoom_out(self):
-        self.zoomout()
-
-    def start_continuous_zoom(self, y):
-        self.startZoom(y)
-
-    def continuous_zoom(self, y):
-        self.continueZoom(y)
-
-    def set_mouse_start(self, x, y):
-        self.recordMouse(x, y)
-
-    def set_prime(self, x, y):
-        if self.select_primed:
-            primedx, primedy = self.select_primed
-            distance = max(abs(x - primedx), abs(y - primedy))
-            if distance > 8: self.select_cancel()
-
-    def pan(self,x,y):
-        self.translateOrRotate(x, y)
-
-    def rotate_view(self,x,y):
-        self.rotateOrTranslate(x, y)
+        error_str = gcode.strerror(result)
+        sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
+                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n")

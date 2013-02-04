@@ -29,7 +29,7 @@ that matches yours and save a copy.
 (((Xylotex)))
 
 If you have a Xylotex you can skip the following sections and go
-straight to the Stepper Config <<stepconf-wizard,Wizard>>.
+straight to the <<cha:stepconf-wizard,Stepper Config Wizard>>.
 LinuxCNC has provided quick setup for the Xylotex machines.
 
 == Machine Information
