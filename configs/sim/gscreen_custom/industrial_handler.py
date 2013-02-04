@@ -205,6 +205,7 @@ class HandlerClass:
         self.gscreen.init_dro_colors()
         self.init_dro() # local function
         self.gscreen.init_audio()
+        self.gscreen.init_desktop_notify()
         self.gscreen.init_statusbar()
         self.gscreen.init_entry()
         self.gscreen.init_tooleditor()

@@ -479,7 +479,7 @@ class Gscreen:
         self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
-
+        self.data.desktop_notify = self.prefs.getpref('desktop_notify', True, bool)
         self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
 
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
@@ -706,6 +706,7 @@ class Gscreen:
         self.init_manual_spindle_controls()
         self.init_dro()
         self.init_audio()
+        self.init_desktop_notify()
         self.init_statusbar()
         self.init_entry()
         self.init_tooleditor()
@@ -767,6 +768,9 @@ class Gscreen:
     def init_audio(self):
         self.widgets.audio_alert_chooser.set_filename(self.data.alert_sound)
         self.widgets.audio_error_chooser.set_filename(self.data.error_sound)
+
+    def init_desktop_notify(self):
+        self.widgets.desktop_notify.set_active(self.data.desktop_notify)
 
     def init_statusbar(self):
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
@@ -1372,6 +1376,10 @@ class Gscreen:
     def on_show_dtg_pressed(self, widget):
         self.set_show_dtg(widget.get_active())
 
+    # True will use notify 
+    def on_desktop_notify_toggled(self,widget):
+        self.set_desktop_notify( widget.get_active())
+
     def on_pop_statusbar_clicked(self, *args):
         self.widgets.statusbar1.pop(self.statusbar_id)
 
@@ -1531,6 +1539,10 @@ class Gscreen:
 
 # ****** do stuff *****
 
+    def set_desktop_notify(self,data):
+        self.data.desktop_notify = data
+        self.prefs.putpref('desktop_notify', data, bool)
+
     # shows 'Onboard' virtual keyboard if available
     def launch_keyboard(self,args="",x="",y=""):
         print args,x,y
@@ -1582,6 +1594,7 @@ class Gscreen:
                         ["button_override","clicked", "override"],
                         ["button_graphics","clicked", "graphics"],
                         ["data_input","button_press_event", "launch_numerical_input"],
+                        ["desktop_notify","toggled", "on_desktop_notify_toggled"],
                         ["grid_size","value_changed", "set_grid_size"],
                         ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
                         ["spindle_control","clicked", "on_spindle_control_clicked"],
@@ -1727,7 +1740,7 @@ class Gscreen:
             except:
                 pass
             self.add_alarm_entry(message)
-            if NOTIFY_AVAILABLE:
+            if NOTIFY_AVAILABLE and self.data.desktop_notify:
                 uri = ""
                 if icon:
                     uri = "file://" + icon
