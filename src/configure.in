@@ -2168,6 +2168,7 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
+AC_CONFIG_FILES([../scripts/latencyhistogram], [chmod +x ../scripts/latencyhistogram])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)

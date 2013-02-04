@@ -65,6 +65,19 @@ document, both from the design point of view and from the developers
 point of view (where to find needed data, how to easily extend/modify
 things, etc.).
 
+image::LinuxCNC-block-diagram-small.png[align="center"]
+
+LinuxCNC software architecture. At the coarsest level, LinuxCNC is a
+hierarchy of three controllers: the task level command handler and program
+interpreter, the motion controller, and the discrete I/O controller. The
+discrete I/O controller is implemented as a hierarchy of controllers,
+in this case for spindle, coolant, and auxiliary (e.g., estop, lube)
+subsystems. The task controller coordinates the actions of the motion and
+discrete I/O controllers. Their actions are programmed in conventional
+numerical control "G and M code" programs, which are interpreted by
+the task controller into NML messages and sent to either the motion or
+discrete I/O controllers at the appropriate times.
+
 == Motion Controller Introduction
 
 The motion controller receives commands from user space modules via a
@@ -77,7 +90,9 @@ of the HAL, and uses terms like HAL pins, HAL signals, etc, without
 explaining them. For more information about the HAL, see the 
 HAL Manual. Another chapter of this document will 
 eventually go into the internals of the HAL itself, but in this
-chapter, we only use the HAL API as defined in emc2/src/hal/hal.h.
+chapter, we only use the HAL API as defined in src/hal/hal.h.
+
+image::LinuxCNC-motion-controller-small.png[align="center"]
 
 == Block diagrams and Data Flow
 

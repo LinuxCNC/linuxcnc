@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-= *comp*: un outil pour créer les modules HAL
+= comp: outil pour créer les modules HAL
 
 [[cha:comp-hal-component-generator]] (((Comp HAL Component Generator)))
 
@@ -43,7 +43,7 @@ la commande suivante dans un terminal:
 
 .Installation des paquets de développement
 ----
-sudo apt-get emc2-dev
+sudo apt-get install linuxcnc-dev
 ----
 
 == Définitions
@@ -629,7 +629,7 @@ void user_mainloop(void) {
 }
 ----
 
-==== logic
+=== logic
 
 Ce composant temps réel montre l'utilisation de la personnalité pour
 créer un tableau de taille variable et des pins optionnelles.

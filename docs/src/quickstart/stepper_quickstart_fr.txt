@@ -1,11 +1,11 @@
 :lang: fr
 :toc:
 
-= Informations de configuration pour moteurs pas à pas
+= Configuration rapide pour moteurs pas à pas
 
 [[cha:stepper-quickstart]] (((Stepper Quickstart)))
 
-Cette section suppose qu'une installation à partir du CD Live a été
+Cette section suppose qu'une installation du logiciel à partir du CD Live a été
 faite. Après cette installation et avant de continuer, il est
 recommandé de connecter le PC sur Internet pour y faire les dernières
 mises à jour. Pour les installations plus complexes se référer au
@@ -26,7 +26,7 @@ sur le test de latence>>.
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
 Au premier démarrage de LinuxCNC, le sélecteur de configuration s'ouvre, sélectionnez 
-alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrez une copie. 
+alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrer une copie. 
 
 [[sec:Xylotex]]
 == Xylotex
