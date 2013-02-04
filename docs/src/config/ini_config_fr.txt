@@ -1071,8 +1071,10 @@ suivez cette procédure:
 -  En conséquence, les coefficients *a* et *b* d'ajustement linéaire
    peuvent être directement utilisés comme valeurs d'échelle et 
    d'offset pour le contrôleur. 
-
-.Mesure des tensions de sortie[[cap:Mesure des tensions de sortie]]
+//
+// [[cap:Mesure des tensions de sortie]]
+//
+.Mesure des tensions de sortie
 
 [width="50%", cols="2*^", options="header"]
 |========================

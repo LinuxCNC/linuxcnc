@@ -1303,14 +1303,14 @@ static void get_pos_cmds(long period)
 	    (emcmotDebug->teleop_data.desiredVel.c -
 	    emcmotDebug->teleop_data.currentVel.c) /
 	    servo_period;
-	if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
-	    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
+	if (fabs(emcmotDebug->teleop_data.desiredAccell.a) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.a);
 	}
-	if (emcmotDebug->teleop_data.desiredAccell.b > accell_mag) {
-	    accell_mag = emcmotDebug->teleop_data.desiredAccell.b;
+	if (fabs(emcmotDebug->teleop_data.desiredAccell.b) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.b);
 	}
-	if (emcmotDebug->teleop_data.desiredAccell.c > accell_mag) {
-	    accell_mag = emcmotDebug->teleop_data.desiredAccell.c;
+	if (fabs(emcmotDebug->teleop_data.desiredAccell.c) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.c);
 	}
 	
 	/* accell_mag should now hold the max accell */

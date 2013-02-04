@@ -2,7 +2,8 @@
 
 [[cha:other-codes]] (((Other Codes)))
 
-== F: Set Feed Rate[[sec:F-feed-rate]]
+[[sec:F-feed-rate]]
+== F: Set Feed Rate
 (((F: Set Feed Rate)))
 
 * 'F-' - sets the feed rate. The application of the feed rate is as described in the
@@ -10,7 +11,8 @@
 in which case the feed rate is as described in 
 the <<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
 
-== S: Set Spindle Speed[[sec:S-spindle-speed]]
+[[sec:S-spindle-speed]]
+== S: Set Spindle Speed
 (((S: Set Spindle Speed)))
 
 * 'S-' - set the speed in revolutions per minute (RPM) of the spindle.
@@ -31,7 +33,8 @@ effect. The speed and feed rates will still be synchronized. In this
 case, the speed may differ from what is programmed, even if the speed
 override switch is set at 100%.
 
-== T: Select Tool[[sec:T-Select-Tool]]
+[[sec:T-Select-Tool]]
+== T: Select Tool
 (((T: Select Tool)))
 
 * 'T-' - call tool prepare. The tool is 

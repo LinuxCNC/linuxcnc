@@ -9,6 +9,5 @@ palpeur est raccordé.
 net probe-in motion.probe-input <= parport.0.pin-15-in
 ----
 
-Pour d'autres informations concernant la sonde de mesure voir 
-<<sec:G38-x:-Palpeur>> et  <<sec:Codes-de-mesure>>
-
+Pour d'autres informations concernant la sonde de mesure voir la documentation
+du G-code, les chapitres relatifs à G38.

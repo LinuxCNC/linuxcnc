@@ -181,7 +181,7 @@ User Manual.
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may select. 1.0 means 100% of
     the programmed spindle speed.
 
-* 'PROGRAM_PREFIX = ~/emc2/nc_files' - The default location for g-code files
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code files
     and the location for user-defined M-codes. This location is searched for
     the file name before the subroutine path and user M path if specified
     in the [RS274NGC] section.
@@ -971,6 +971,8 @@ image::images/encoder-scale.png[align="center"]
 === [EMCIO] Section[[sub:[EMCIO]-Section]]
 
 (((EMCIO (inifile section))))
+
+* 'EMCIO = io' - Name of IO controller program
 
 * 'CYCLE_TIME = 0.100' -
     The period, in seconds, at which EMCIO will run. Making
