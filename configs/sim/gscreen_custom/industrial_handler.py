@@ -3,7 +3,7 @@ import gtk
 import gladevcp.makepins # needed for the dialog's calulator widget
 import pango
 
-_MAN = 0;_MDI = 1;_AUTO = 2;_UNLOCKCODE = 123
+_MAN = 0;_MDI = 1;_AUTO = 2;_UNLOCKCODE = 123;_LOCKTOGGLE = 1
 
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
@@ -90,13 +90,19 @@ class HandlerClass:
 
     # This is called when the system button is toggled
     # If the page is not showing it displays a unlock code dialog
+    # unless you have already unlocked the page.
     # if that returns true then the page is shown
     # otherwise the button is untoggled and the page is not shown
+    # if you press the system buttonn when the system page is already showing
+    # it will relock the page
     def on_system_button_clicked(self,widget):
         if self.widgets.notebook_main.get_current_page() == 4:
             self.gscreen.block("system_button")
             widget.set_active(True)
             self.gscreen.unblock("system_button")
+            global _LOCKTOGGLE
+            _LOCKTOGGLE=1
+            self.gscreen.add_alarm_entry("System page re-locked")
             return
         if not self.system_dialog():
             self.gscreen.block("system_button")
@@ -137,6 +143,8 @@ class HandlerClass:
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
     def system_dialog(self):
+        global _LOCKTOGGLE
+        if _LOCKTOGGLE == 0: return True
         dialog = gtk.Dialog("Enter System Unlock Code",
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -158,7 +166,11 @@ class HandlerClass:
         dialog.destroy()
         self.widgets.data_input.set_sensitive(True)
         if response == gtk.RESPONSE_ACCEPT:
-            if code == _UNLOCKCODE: return True
+            if code == _UNLOCKCODE:
+                self.gscreen.add_alarm_entry("System page unlocked")
+                _LOCKTOGGLE = 0
+                return True
+        _LOCKTOGGLE = 1
         return False
 
     def on_abs_colorbutton_color_set(self,widget):
