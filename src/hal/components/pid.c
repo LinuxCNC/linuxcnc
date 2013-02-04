@@ -198,6 +198,7 @@ typedef struct {
 			       /* pin: the time the output has been saturated */
     hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
                                        otherwise screw up FF */
+    hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
     char prev_ie;
 } hal_pid_t;
 
@@ -232,7 +233,13 @@ int rtapi_app_main(void)
     if(num_chan) {
         howmany = num_chan;
     } else {
-        for(i=0; names[i]; i++) {howmany = i+1;}
+        howmany = 0;
+        for (i = 0; i < MAX_CHAN; i++) {
+            if (names[i] == NULL) {
+                break;
+            }
+            howmany = i + 1;
+        }
     }
 
     /* test for number of channels */
@@ -306,7 +313,18 @@ static void calc_pid(void *arg, long period)
     command = *(pid->command);
     feedback = *(pid->feedback);
     /* calculate the error */
-    tmp1 = command - feedback;
+    if((!(pid->prev_ie && !*(pid->index_enable))) && 
+       (*(pid->error_previous_target))) {
+        // the user requests ferror against prev_cmd, and we can honor
+        // that request because we haven't just had an index reset that
+        // screwed it up.  Otherwise, if we did just have an index
+        // reset, we will present an unwanted ferror proportional to
+        // velocity for this period, but velocity is usually very small
+        // during index search.
+        tmp1 = pid->prev_cmd - feedback;
+    } else {
+        tmp1 = command - feedback;
+    }
     /* store error to error pin */
     *(pid->error) = tmp1;
     /* apply error limits */
@@ -586,6 +604,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->error_previous_target), comp_id,
+			      "%s.error-previous-target", prefix);
+    if (retval != 0) {
+	return retval;
+    }
     /* export optional parameters */
     if (debug > 0) {
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
@@ -621,6 +644,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->cmd_dd) = 0.0;
     /* init all structure members */
     *(addr->enable) = 0;
+    *(addr->error_previous_target) = 0;
     *(addr->command) = 0;
     *(addr->feedback) = 0;
     *(addr->error) = 0;

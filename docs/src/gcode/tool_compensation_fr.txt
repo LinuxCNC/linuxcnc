@@ -10,35 +10,36 @@
 === Toucher
 (((Toucher)))
 
-A partir de la boîte de dialogue du bouton _Toucher_ dans l'interface AXIS, il
+Dans la boîte de dialogue du bouton _Toucher_ de l'interface AXIS, il
 est possible de mettre à jour automatiquement la table d'outils.
 
-Séquence typique de mise à jour de la table d'outils:
+Séquence typique pour mise à jour de la table d'outils:
 
- . Après la prise d'origine, charger un outil _M6 Tn_ dans lequel _n_ est le
-   numéro de l'outil. 
- . Déplacer l'outil pour établir le zéro pièce, en utilisant une cale
-d'épaisseur
-   ou en faisant un test de coupe et une mesure.
- . Sélectionner _Table d'outils_ dans la liste déroulante des systèmes de
+* Après la prise d'origine, charger un outil _Tn M6_ dans lequel _n_ est le
+   numéro de l'outil.
+* Déplacer l'outil pour établir le zéro pièce, en utilisant une cale
+d'épaisseur ou en faisant une petite passe puis une mesure.
+* Cliquer sur le bouton _Toucher_ de l'onglet _Controle manuel_ (ou presser la
+touche _Fin_ du clavier).
+* Sélectionner _Table d'outils_ dans la liste déroulante des systèmes de
 coordonnées.
- . Entrer l'épaisseur de la cale ou la cote mesurée.
- . Presser OK.
+* Entrer l'épaisseur de la cale ou la cote mesurée.
+* Presser OK.
 
 La table d'outil sera alors modifiée avec la longueur correcte en Z de l'outil.
 La visu affichera la position en Z correcte et une commande G43 sera passée pour
 que la nouvelle longueur Z de l'outil soit effective. Le choix _Table d'outils_
 n'apparaitra dans la liste déroulante du _Toucher_, que si l'outil à été chargé
-avec _M6 tn_.
+avec _Tn M6_.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
 
 image::images/ToolTable-TouchOff_fr.png[]
 
-=== Utilisation de G10 L1
+=== Utilisation de G10 L1/L10/L11
 
-La commande G10 L1x peut être utilisée pour ajuster les compensations dans la
-table d'outils:
+Les commandes G10 L1/L10/L11 peuvent être utilisées pour ajuster les compensations
+dans la table d'outils:
   (Ce sera juste une brève présentation, se reporter au guide de références du
 G-code pour des explications plus détaillées)
 
@@ -80,11 +81,9 @@ outils et des poches peut aller jusqu'à 99999.
 
 En général, le format d'une ligne de table d'outils est le suivant:
 
- - ;  point-virgule comme premier caractère, aucune données
- - T  Numéro d'outil, 0-99999 (il est possible d'avoir un grand nombre d'outils
-dans l'inventaire)
- - P  Numéro de poche, 1-99999 (mais la table d'outils ne peut contenir que
-56 outils)
+ - ;  Un point-virgule comme premier caractère, aucune donnée
+ - T  Numéro d'outil, 0-99999 (chaque numéro d'outil doit être unique)
+ - P  Numéro de poche, 1-99999 (chaque numéro de poche doit être unique)
  - X..W  Offset d'outil sur les axes spécifiés - nombre à virgule flottante
  - D  diamètre d'outil - nombre à virgule flottante, valeur absolue
  - I  angle frontal (tour seulement) - nombre à virgule flottante
@@ -262,7 +261,7 @@ mot G43.
 [[sec:Compensation-rayon-d-outil]]
 == Compensation de rayon d'outil
 
-La compensation de rayon d'outil permet de un parcours d'outil sans se
+La compensation de rayon d'outil permet de suivre un parcours sans se
 préoccuper du diamètre de l'outil. La seule restriction, c'est que les
 _mouvements d'entrée_ doivent être au moins aussi long que le rayon de
 l'outil utilisé.

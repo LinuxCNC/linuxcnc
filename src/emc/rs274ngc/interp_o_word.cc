@@ -274,7 +274,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
 
       strncpy(settings->filename, newFileName, sizeof(settings->filename));
       if (settings->filename[sizeof(settings->filename)-1] != '\0') {
-          logDebug("new filename '%s' is too long (max len %d)\n", newFileName, sizeof(settings->filename));
+          logDebug("new filename '%s' is too long (max len %lu)\n", newFileName, sizeof(settings->filename));
           settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
       }
   }

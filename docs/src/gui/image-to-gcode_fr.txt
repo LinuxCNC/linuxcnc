@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Image-to-gcode: Usiner un _depth maps_
+= Image-to-gcode: Usiner un depth maps
 
-image:images/image-to-gcode.png[]
+image::images/image-to-gcode.png[]
 
 == Qu'est-ce qu'un _depth map_?
 
