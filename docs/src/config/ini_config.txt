@@ -181,7 +181,7 @@ User Manual.
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may select. 1.0 means 100% of
     the programmed spindle speed.
 
-* 'PROGRAM_PREFIX = ~/emc2/nc_files' - The default location for g-code files
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code files
     and the location for user-defined M-codes. This location is searched for
     the file name before the subroutine path and user M path if specified
     in the [RS274NGC] section.
@@ -462,7 +462,7 @@ planning module in 'motion'.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code. This has no effect on the mapping from G-code
     axis names (X- Y- Z-) to joint numbers--for 'trivial kinematics', X is
-    always joint 0, A is always joint 4, and U is always joint 7, and so
+    always joint 0, A is always joint 3, and U is always joint 6, and so
     on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
     gantry machine) but this has no effect.
 
@@ -654,9 +654,12 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_OFFSET = 0.0' -
      The axis position of the home switch or index pulse, in
-    <<sub:traj-section,machine units>>. In other words, when the home point is found during
-    the homing process, this is the value or position that should be
-    assigned to the home point, or initialized at the home point.
+    <<sub:traj-section,machine units>>. When the home point is found during
+    the homing process, this is the position that is assigned to that point.
+    When sharing home and limit switches and using a home sequence that will
+    leave the home/limit switch in the toggled state the home offset can be
+    used define the home switch position to be other than 0 if your HOME 
+    position is desired to be 0.
 
 * 'HOME_SEARCH_VEL = 0.0' -
     (((HOME SEARCH VEL))) Initial homing velocity in machine units per second.
@@ -674,18 +677,18 @@ These parameters are Homing related, for a better explanation read the
     used. Must be a positive number.
 
 * 'HOME_USE_INDEX = NO' -
-     If the encoder used for this axis has an index pulse, and
-    the motion
+     If the encoder used for this axis has an index pulse, and the motion
     card has provision for this signal you may set it to yes. When it is
     yes, it will affect the kind of home pattern used. Currently, you can't
     home to index with steppers unless you're using stepgen in velocity mode
     and PID.
 
 * 'HOME_IGNORE_LIMITS = NO' -
-     Some machines use a single switch per axis as a home switch 
-    and limit switch. This variable should be set to YES if the machine 
-    configured this way. When set to YES the limit switch for this axis
-    only is ignored when homing.
+     When you use the limit switch as a home switch and the limit switch
+    this should be set to YES. When set to YES the limit switch for this
+    axis is ignored when homing. You must configure your homing
+    so that at the end of your home move the home/limit switch is not in the
+    toggled state you will get a limit switch error after the home move.
 
 * 'HOME_IS_SHARED = <n>' -
      If the home input is shared by more than one axis set <n> to 1 to
@@ -960,6 +963,8 @@ image::images/encoder-scale.png[align="center"]
 === [EMCIO] Section[[sub:[EMCIO]-Section]]
 
 (((EMCIO (inifile section))))
+
+* 'EMCIO = io' - Name of IO controller program
 
 * 'CYCLE_TIME = 0.100' -
     The period, in seconds, at which EMCIO will run. Making

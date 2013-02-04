@@ -5,6 +5,33 @@
 
 [[cha:Concepts-pour-utilisateur]] (((Concepts pour l'utilisateur)))
 
+== La configuration machine
+
+Le dessin suivant montre les directions de déplacement de l'outil et la position
+des fins de course de limite sur une fraiseuse classique.
+Noter le diagramme cartésien représentant les directions de déplacement de
+l'outil (Tool Direction). La direction de déplacement de la table et en
+opposition du système de coordonnées cartésiennes. Le système de coordonnées
+cartésiennes représente le sens de déplacement de l'outil. C'est toujours les
+déplacements de l'outil qui doivent être programmés pour que l'outil se déplace
+dans les directions correctes par rapport au matériel.
+
+Noter également la position des fins de course et le sens d'activation de leurs
+cames. Plusieurs combinaisons sont possibles, par exemple il est possible, à
+l'inverse du dessin, de placer un seul fin de course fixe au milieu de la table
+et deux cames mobiles pour l'actionner. Dans ce cas les limites seront inversées,
++X sera à droite de la table et -X à gauche. Cette inversion ne change rien du
+point de vue du sens de déplacement de l'outil.
+
+.Configuration typique d'une fraiseuse
+image::images/mill-diagram.png[align="left"]
+
+Le dessin suivant montre les directions de déplacement de l'outil et la position
+des fins de course de limite sur un tour classique.
+
+.Configuration typique d'un tour
+image::images/lathe-diagram.png[align="left"]
+
 == Contrôle de trajectoire
 
 === La planification de trajectoire
@@ -191,16 +218,17 @@ travail demandé et ne pas supposer que ceux par défaut conviendront.
 Imprimer la page des références rapides du G-code peut aider à se rappeler
 la signification de chacun d'eux.
 
-=== Vitesse d'avance
+== Vitesse d'avance
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section _vitesse d'avance_ du manuel de l'utilisateur.
+comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de
+l'utilisateur.
 
-=== Compensation de rayon d'outil
+== Compensation de rayon d'outil
 
 La compensation de rayon d'outil (G41/G42) nécessite que l'outil puisse
-toucher tout au long de la trajectoire programmée sans interférer avec
+usiner tout au long de la trajectoire programmée sans interférer avec
 les mouvements d'entrée ou de sortie. Si c'est impossible avec le
 diamètre de l'outil courant, une erreur est signalée. Un diamètre
 d'outil inférieur est peut être utilisable sans erreur pour le même
@@ -211,7 +239,7 @@ d'informations.
 
 == Prise d'origine machine
 
-Après le démarrage de LinuxCNC chaque axe doit être référencé sur sont
+Après le démarrage de LinuxCNC chaque axe doit être référencé sur son
 point d'origine machine avant tout mouvement ou commande MDI.
 
 Pour déroger à ce comportement par défaut, ou pour utiliser

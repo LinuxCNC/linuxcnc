@@ -22,9 +22,8 @@ image::images/emc2-motion-homing-diag.png[align="center"]
 
 == Configuration
 
-There are six pieces of information that determine exactly how the
-home sequence behaves. They are defined in an [AXIS] section of the
-inifile.
+The following determines exactly how the home sequence behaves.
+They are defined in an [AXIS] section of the inifile.
 
 [width="80%", options="header", cols="4*^"]
 |==========================================================
@@ -83,14 +82,14 @@ The value must be a positive number.
 
 === HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
 
-Can hold the values YES / NO. This flag determines whether LinuxCNC will
-ignore the limit switch input for this axis while homing. Some machine 
-configurations do not use a separate home switch, instead they route 
-one of the limit switch signals to the home switch input as well. 
-In this case, LinuxCNC needs to ignore that limit during homing. The default 
-value for this parameter is NO. To use only one input for all homing and 
-limits you will have to block the limits of the axis not homing with axis 
-that is homing in HAL.
+Can hold the values YES / NO. The default value for this parameter is NO.
+This flag determines whether LinuxCNC will ignore the limit switch input
+for this axis while homing. Setting this to YES will not ignore limit inputs
+for other axes. If you do not have a separate home switch set this to YES and
+case connect the limit switch signal to the home switch input in HAL. LinuxCNC
+will ignore the limit switch input for this axis while homing. To use only
+one input for all homing and limits you will have to block the limit signals
+of the axes not homing in HAL and home one axis at a time.
 
 === HOME_USE_INDEX (((HOME USE INDEX)))
 

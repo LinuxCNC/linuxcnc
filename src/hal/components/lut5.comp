@@ -9,26 +9,39 @@ param rw u32 function;
 function _ nofp;
 description """
 .B lut5
-constructs an arbitrary logic function with up to 5 inputs using a
-\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable.  The function is specified by
-\\fBfunction\\fR.  The necessary value for \\fBfunction\\fR can be determined
-by writing the truth table, and computing the sum of the \\fBweights\\fR for
-which the output value should be \\fRTRUE\\fR.
+constructs a logic function with up to 5 inputs using a
+\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable. The value for \\fBfunction\\fR can be
+determined by writing the truth table, and computing the sum of \\fBall\\fR
+the \\fBweights\\fR for which the output value would be \\fRTRUE\\fR.
+The weights are hexadecimal not decimal so hexadecimal math must be used to
+sum the weights. A wiki page has a calculator to assist in computing the proper
+value for function.
+.PP
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Lut5
+.PP
+Note that LUT5 will generate any of the 4,294,967,296
+logical functions of 5 inputs so \\fBAND\\fR, \\fBOR\\fR, \\fBNAND\\fR,
+\\fBNOR\\fR, \\fBXOR\\fR and every other combinatorial function is possible.
 .PP
 .SS Example Functions
 A 5-input
 \\fIand\\fR function is TRUE only when all the inputs are true, so the correct
 value for \\fBfunction\\fR is \\fB0x80000000\\fR.
 .PP
+A 2-input \\fIor\\fR function would be the sum of \\fB0x2\\fR + \\fB0x4\\fR +
+\\fB0x8\\fR, so the correct value for \\fBfunction\\fR is \\fB0xe\\fR.
+.PP
 A 5-input \\fIor\\fR
 function is TRUE whenever any of the inputs are true, so the correct value for
-\\fBfunction\\fR is \\fB0xfffffffe\\fR.
+\\fBfunction\\fR is \\fB0xfffffffe\\fR. Because every weight except \\fB0x1\\fR
+is true the function is the sum of every line except the first one.
 .PP
 A 2-input \\fIxor\\fR function is
 TRUE whenever exactly one of the inputs is true, so the correct value for
 \\fBfunction\\fR is \\fB0x6\\fR.  Only \\fBin-0\\fR and \\fBin-1\\fR should be
 connected to signals, because if any other bit is \\fBTRUE\\fR then the output
 will be \\fBFALSE\\fR.
+.PP
 .ie '\*[.T]'html' \\{\\
 .HTML \\
 <STYLE> \\

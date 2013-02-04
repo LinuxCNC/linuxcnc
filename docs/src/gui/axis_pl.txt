@@ -187,7 +187,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
     useful when there is a tool touch-off fixture at a fixed location on the
     machine, with the ninth ('G59.3') coordinate system set such that the
     tip of a zero-length tool is at the fixture's origin when the Relative
-    coordinates are 0.  See also <<G10-L11,G10 L11>>.
+    coordinates are 0.  See also <<sec:G10-L11,G10 L11>>.
 
 .View Menu
 
