@@ -1,0 +1,12 @@
+Gscreen is a customizable operator screen for linuxcnc.
+Built with python, GLADE, and GTK
+
+Usable with touchscreens or a mouse.
+           These show the native look of Gscreen.
+
+gscreen         -Imperial milling screen,                        includes optionnal gladevcp
+                    panels
+
+gscreen_lathe   -Imperial basic lathe
+
+gscreen_mm      -Metric milling screen

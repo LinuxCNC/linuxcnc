@@ -115,36 +115,16 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkImage" id="image1">
-                                <property name="visible">True</property>
-                                <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
-                              </object>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child type="tab">
-                              <object class="GtkLabel" id="label6">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">page 2</property>
-                              </object>
-                              <packing>
-                                <property name="position">1</property>
-                                <property name="tab_fill">False</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
                             </child>
                             <child type="tab">
-                              <object class="GtkLabel" id="label12">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">page 3</property>
-                              </object>
-                              <packing>
-                                <property name="position">2</property>
-                                <property name="tab_fill">False</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -437,10 +417,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox6">
+                  <object class="GtkHBox" id="dro_frame">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkFrame" id="dro_frame">
+                      <object class="GtkFrame" id="dro_only_frame">
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">etched-out</property>
@@ -1114,129 +1094,21 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="z0_color">#0000ffff0000</property>
+                                    <property name="target_color">#e21911831183</property>
                                     <property name="value">-7</property>
                                     <property name="z1_color">#ffffffff0000</property>
-                                    <property name="target_color">#e21911831183</property>
                                     <property name="target_value">500</property>
+                                    <property name="bg_color">#bebebebebebe</property>
+                                    <property name="show_limits">False</property>
                                     <property name="max">2000</property>
                                     <property name="z2_color">#ffff00000000</property>
-                                    <property name="show_limits">False</property>
+                                    <property name="text_template">%d</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
                                     <property name="top_attach">2</property>
                                     <property name="bottom_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkToggleButton" id="s_display_fwd">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <child>
-                                      <object class="GtkHBox" id="hbox7">
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <object class="GtkImage" id="image13">
-                                            <property name="visible">True</property>
-                                            <property name="pixbuf">../gscreen/images/spindle_cw.gif</property>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="label17">
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes"> FWD</property>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">3</property>
-                                    <property name="right_attach">4</property>
-                                    <property name="x_options">GTK_EXPAND</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkToggleButton" id="s_display_rev">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <child>
-                                      <object class="GtkHBox" id="hbox8">
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <object class="GtkImage" id="image14">
-                                            <property name="visible">True</property>
-                                            <property name="pixbuf">../gscreen/images/spindle_ccw.gif</property>
-                                          </object>
-                                          <packing>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="label23">
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes"> REV</property>
-                                          </object>
-                                          <packing>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">3</property>
-                                    <property name="right_attach">4</property>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                    <property name="x_options">GTK_EXPAND</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkHPaned" id="hpaned1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <child>
-                                      <object class="HAL_LED" id="spindle-at-speed">
-                                        <property name="visible">True</property>
-                                        <property name="on_color">Green</property>
-                                        <property name="led_shape">1</property>
-                                      </object>
-                                      <packing>
-                                        <property name="resize">False</property>
-                                        <property name="shrink">True</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label16">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">   At
-Speed</property>
-                                      </object>
-                                      <packing>
-                                        <property name="resize">True</property>
-                                        <property name="shrink">True</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">3</property>
-                                    <property name="right_attach">4</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_EXPAND</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -1289,6 +1161,152 @@ Speed</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkVBox" id="vbox11">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="alignment17">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="xscale">0.5</property>
+                                        <child>
+                                          <object class="GtkHPaned" id="hpaned1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <child>
+                                              <object class="HAL_LED" id="spindle-at-speed">
+                                                <property name="visible">True</property>
+                                                <property name="led_size">5</property>
+                                                <property name="on_color">Green</property>
+                                                <property name="led_shape">1</property>
+                                              </object>
+                                              <packing>
+                                                <property name="resize">False</property>
+                                                <property name="shrink">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="label16">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">   At</property>
+                                              </object>
+                                              <packing>
+                                                <property name="resize">True</property>
+                                                <property name="shrink">True</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="at_speed_label">
+                                        <property name="width_request">80</property>
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="label" translatable="yes">label</property>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment18">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkToggleButton" id="s_display_fwd">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkHBox" id="hbox7">
+                                            <property name="visible">True</property>
+                                            <child>
+                                              <object class="GtkImage" id="image13">
+                                                <property name="visible">True</property>
+                                                <property name="pixbuf">../gscreen/images/spindle_cw.gif</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="label17">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes"> FWD</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment19">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkToggleButton" id="s_display_rev">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkHBox" id="hbox8">
+                                            <property name="visible">True</property>
+                                            <child>
+                                              <object class="GtkImage" id="image14">
+                                                <property name="visible">True</property>
+                                                <property name="pixbuf">../gscreen/images/spindle_ccw.gif</property>
+                                              </object>
+                                              <packing>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="label23">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes"> REV</property>
+                                              </object>
+                                              <packing>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -1490,7 +1508,21 @@ Aux Coolant</property>
                           <placeholder/>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkToggleButton" id="desktop_notify">
+                            <property name="label" translatable="yes">  Desktop
+Notification</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -1740,13 +1772,64 @@ Aux Coolant</property>
               <object class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="terminal_window">
+                  <object class="GtkNotebook" id="notebook1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">never</property>
-                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkScrolledWindow" id="terminal_window">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">never</property>
+                        <property name="shadow_type">out</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel" id="label31">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Debug</property>
+                      </object>
+                      <packing>
+                        <property name="tab_fill">False</property>
+                      </packing>
+                    </child>
                     <child>
                       <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTextView" id="alarm_history">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="cursor_visible">False</property>
+                            <property name="buffer">alarm_buffer</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel" id="label33">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Alarm History</property>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                        <property name="tab_fill">False</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -1804,8 +1887,8 @@ Halshow</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button5">
-                        <property name="label" translatable="yes">button</property>
+                      <object class="GtkButton" id="run_halscope">
+                        <property name="label" translatable="yes">Halscope</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1856,7 +1939,6 @@ Halshow</property>
             <child>
               <object class="ToolEdit" id="tooledit1">
                 <property name="visible">True</property>
-                <property name="display_type">1</property>
               </object>
               <packing>
                 <property name="position">3</property>
@@ -1869,6 +1951,25 @@ Halshow</property>
               </object>
               <packing>
                 <property name="position">3</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="OffsetPage" id="offsetpage1">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label333">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Offset   
+  Page</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -1924,7 +2025,7 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_estop">
                                 <property name="visible">True</property>
-                                <property name="led_blink_rate">100</property>
+                                <property name="led_blink_rate">200</property>
                                 <property name="off_color">green</property>
                                 <property name="led_shape">1</property>
                               </object>
@@ -1937,6 +2038,7 @@ Halshow</property>
                             </child>
                           </object>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -1989,8 +2091,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="off_color">red</property>
                                 <property name="on_color">green</property>
+                                <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
                               </object>
                               <packing>
@@ -1999,6 +2101,7 @@ Halshow</property>
                             </child>
                           </object>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -2185,9 +2288,8 @@ Hold</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button_v1_6">
-                            <property name="label" translatable="yes">    Full
-Graphics</property>
+                          <object class="GtkToggleButton" id="button_edit">
+                            <property name="label" translatable="yes">Edit</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2197,15 +2299,7 @@ Graphics</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button_v1_7">
-                            <property name="label" translatable="yes">Edit</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                          </object>
-                          <packing>
-                            <property name="position">7</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
@@ -2255,6 +2349,20 @@ Graphics</property>
                       <object class="GtkVBox" id="vbox9">
                         <property name="visible">True</property>
                         <child>
+                          <object class="GtkButton" id="spare">
+                            <property name="label" translatable="yes">
+</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkToggleButton" id="button_homing">
                             <property name="label" translatable="yes">Homing
 </property>
@@ -2263,7 +2371,7 @@ Graphics</property>
                             <property name="receives_default">True</property>
                           </object>
                           <packing>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -2287,8 +2395,8 @@ Limits</property>
                                 <child>
                                   <object class="HAL_LED" id="led_ignore_limits">
                                     <property name="visible">True</property>
-                                    <property name="led_size">5</property>
                                     <property name="has_hal_pin">False</property>
+                                    <property name="led_size">5</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2301,7 +2409,7 @@ Limits</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -2315,7 +2423,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -2329,7 +2437,7 @@ Override</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
@@ -2343,7 +2451,21 @@ Level</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="toggle_keyboard">
+                            <property name="label" translatable="yes">  Toggle
+Keyboard</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                       </object>
@@ -2605,7 +2727,6 @@ Offsets</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="button_h2_0">
-                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2616,7 +2737,6 @@ Offsets</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="button_h2_1">
-                    <property name="label" translatable="yes">togglebutton</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2627,8 +2747,6 @@ Offsets</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_2">
-                    <property name="label" translatable="yes">  Toggle
-Keyboard</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2639,7 +2757,6 @@ Keyboard</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_3">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2650,7 +2767,7 @@ Keyboard</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_4">
-                    <property name="label" translatable="yes">button
+                    <property name="label" translatable="yes">
 </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -2662,7 +2779,6 @@ Keyboard</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h2_5">
-                    <property name="label" translatable="yes">button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2723,9 +2839,9 @@ Delete</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h3_3">
-                    <property name="label" translatable="yes">  Toggle
-Keyboard</property>
+                  <object class="GtkToggleButton" id="button_full_view">
+                    <property name="label" translatable="yes">    Full
+Graphics</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2740,8 +2856,7 @@ Keyboard</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save</property>
-                    <property name="related_action">hal_action_save</property>
-                    <property name="image">image3</property>
+                    <property name="use_stock">True</property>
                     <property name="yalign">0.56999999284744263</property>
                   </object>
                   <packing>
@@ -2754,8 +2869,7 @@ Keyboard</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_markup">Save As</property>
-                    <property name="related_action">hal_action_saveas</property>
-                    <property name="image">image2</property>
+                    <property name="use_stock">True</property>
                   </object>
                   <packing>
                     <property name="position">5</property>
@@ -2763,11 +2877,9 @@ Keyboard</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_h3_6">
-                    <property name="label" translatable="yes">Reload</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">hal_action_reload</property>
                   </object>
                   <packing>
                     <property name="position">6</property>
@@ -2982,6 +3094,98 @@ Vertical</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="mode6">
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="button_h2_6">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_h2_7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_8">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h2_9">
+                    <property name="label" translatable="yes">
+</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_10">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">hal_action_save</property>
+                    <property name="image">image2</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_h3_9">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">hal_action_saveas</property>
+                    <property name="image">image3</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_reload">
+                    <property name="label" translatable="yes">Reload</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">hal_action_reload</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">6</property>
               </packing>
             </child>
           </object>
@@ -3202,6 +3406,7 @@ status</property>
     <property name="width_request">500</property>
     <property name="height_request">400</property>
     <property name="border_width">5</property>
+    <property name="type">popup</property>
     <property name="title" translatable="yes">Data Entry</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
@@ -3222,8 +3427,8 @@ status</property>
             <child>
               <object class="Calculator" id="calc_entry">
                 <property name="visible">True</property>
-                <property name="font">sans 20</property>
                 <property name="is_editable">True</property>
+                <property name="font">sans 20</property>
               </object>
             </child>
             <child type="label">
@@ -3318,6 +3523,7 @@ status</property>
   </object>
   <object class="GtkDialog" id="restart_dialog">
     <property name="border_width">5</property>
+    <property name="type">popup</property>
     <property name="title" translatable="yes">Program Restart</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
@@ -3438,5 +3644,17 @@ Down</property>
   <object class="GtkAdjustment" id="restart_adjustment">
     <property name="upper">1000000</property>
     <property name="step_increment">1</property>
+  </object>
+  <object class="GtkTextBuffer" id="alarm_buffer"/>
+  <object class="GtkImage" id="image16">
+    <property name="visible">True</property>
+    <property name="pixel_size">27</property>
+    <property name="icon_name">document-save</property>
+    <property name="icon-size">3</property>
+  </object>
+  <object class="GtkImage" id="image17">
+    <property name="visible">True</property>
+    <property name="stock">gtk-save-as</property>
+    <property name="icon-size">3</property>
   </object>
 </interface>

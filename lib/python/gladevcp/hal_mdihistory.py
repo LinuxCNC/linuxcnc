@@ -102,6 +102,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         path = self.model.get_path(last)
         self.tv.scroll_to_cell(path)
         self.tv.set_cursor(path)
+        self.entry.set_text('')
+        self.entry.grab_focus()
 
     def select(self, w):
         idx = w.get_cursor()[0]

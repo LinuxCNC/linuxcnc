@@ -16,8 +16,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+# This fixes integer division error
+# so dividing two integers gives a float
+from __future__ import division
 import sys,os,pango
 import math
+
 datadir = os.path.abspath(os.path.dirname(__file__))
 
 try:
@@ -94,7 +98,7 @@ class Calculator(gtk.VBox):
 		try:
 			value = float(self.wTree.get_object("displayText").get_text())
 		except:
-			value = 0
+			value = None
 		return value
 
 	def get_preset_value(self):
@@ -105,7 +109,7 @@ class Calculator(gtk.VBox):
 		try   :
 			b=str(eval(self.eval_string))
 		except:
-			b= "error"
+			b= "Error"
 			print"error string:",self.eval_string,sys.exc_info()[0]
 			self.eval_string=''
 		else  : self.eval_string=b
@@ -116,6 +120,8 @@ class Calculator(gtk.VBox):
 		self.wTree.get_object("displayText").set_text("")
 
 	def displayOperand(self,i):
+		if "Error" in self.eval_string:
+			self.eval_string=""
 		self.eval_string=self.eval_string+i
 		self.wTree.get_object("displayText").set_text(str(self.eval_string))
 
@@ -193,11 +199,14 @@ class Calculator(gtk.VBox):
 			raise AttributeError('unknown property %s' % property.name)
 
 	def do_set_property(self, property, value):
-		name = property.name.replace('-', '_')
-		if name == 'is_editable':
-			self.set_editable(value)
-		if name == 'font':
-			self.set_font(value)
+		try:
+			name = property.name.replace('-', '_')
+			if name == 'is_editable':
+				self.set_editable(value)
+			if name == 'font':
+				self.set_font(value)
+		except:
+			pass
 
 # for testing without glade editor:
 def main():

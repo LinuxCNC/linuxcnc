@@ -145,7 +145,7 @@ component pin.
 
 * 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is run from a
     terminal. Debug flags are usually only useful to developers. See
-    src/emc/nml_intf/emcglb.h for other settings.
+    src/emc/nml_intf/debugflags.h for other settings.
 
 === [DISPLAY] Section[[sub:[DISPLAY]-section]]
 
