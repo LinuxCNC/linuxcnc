@@ -96,6 +96,8 @@ net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 # Run Switch
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
+# Spindle Contactor - False when spindle contactor is energized
+net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
 #connect limit/home switches
 #Brown Wire - Was Zhome, now Xpos
