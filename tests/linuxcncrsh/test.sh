@@ -29,6 +29,10 @@ fi
     echo hello EMC mt 1.0
     echo set enable EMCTOO
 
+    # ask linuxcncrsh to not read the next command until it's done running
+    # the current one
+    echo set set_wait done
+
     echo set mode manual
     echo set estop off
     echo set machine on
