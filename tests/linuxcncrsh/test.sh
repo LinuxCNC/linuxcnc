@@ -30,7 +30,7 @@ sleep 4
     echo set mdi m100 p-3 q-4
 
     echo shutdown
-) | telnet localhost 5007
+) | nc localhost 5007
 
 
 # wait for linuxcnc to finish
