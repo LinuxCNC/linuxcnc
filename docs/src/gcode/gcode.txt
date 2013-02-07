@@ -1116,16 +1116,26 @@ It is an error if:
 ----
 G43 <H->
 ----
-* 'H' - tool number
+* 'H' - tool number (optional)
 
-* 'G43' - use the currently loaded tool from the last Tn M6.
-          G43 changes subsequent motions by offsetting the Z and/or X
-          coordinates by the length of the tool. G43 does not cause any
-          motion. The next time a compensated axis is moved, that axis's
-          endpoint is the compensated location.
+G43 enables tool length compensation.  G43 changes subsequent motions
+by offsetting the Z and/or X coordinates by the length of the tool. G43
+does not cause any motion. The next time a compensated axis is moved,
+that axis's endpoint is the compensated location.
 
-* 'G43 H-' - use an offset from tool table.
-             It is OK for the H number to be zero; the currently loaded tool will be used.
+'G43' without an H word uses the currently loaded tool from the last
+'Tn M6'.
+
+'G43 Hn' uses the offset for tool n.
+
+[NOTE]
+'G43 H0' is a little special.  Its behavior is different on random
+toolchanger machines and nonrandom toolchanger machines (see the
+<<sec:Tool-Changers,Tool Changers>> section).  On nonrandom toolchanger
+machines, 'G43 H0' applies the TLO of the tool currently in the spindle,
+or a TLO of 0 if no tool is in the spindle.  On random toolchanger
+machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool
+table file (or causes an error if T0 is not defined in the tool table).
 
 .G43 H- Example Line
 ----
@@ -1134,8 +1144,14 @@ G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 
 It is an error if:
 
-* the H number is not an integer, is negative, or is not 0 or a valid tool
-    number.
+* the H number is not an integer, or
+
+* the H number is negative, or
+
+* the H number is not a valid tool number (though note that 0 is a valid
+    tool number on nonrandom toolchanger machines, it means "the tool
+    currently in the spindle")
+
 
 [[sec:G43_1]]
 == G43.1: Dynamic Tool Length Offset
