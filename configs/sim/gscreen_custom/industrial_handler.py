@@ -102,7 +102,9 @@ class HandlerClass:
             self.gscreen.unblock("system_button")
             global _LOCKTOGGLE
             _LOCKTOGGLE=1
+            self.widgets.system_button.set_label(" System\n(Locked)")
             self.gscreen.add_alarm_entry("System page re-locked")
+            self.on_setup_button_clicked(self.widgets.setup_button)
             return
         if not self.system_dialog():
             self.gscreen.block("system_button")
@@ -111,6 +113,7 @@ class HandlerClass:
             return
         self.widgets.notebook_main.set_current_page(4)
         self.toggle_modes(widget)
+        self.widgets.system_button.set_label(" System\n        ")
 
     # Display the tooledit tab
     def on_tooledit_button_clicked(self,widget):
