@@ -39,6 +39,8 @@ class ToolEdit(gtk.VBox):
         self.toolfile = toolfile
         self.num_of_col = 1
         self.font="sans 12"
+        self.toolinfo_num = 0
+        self.toolinfo = []
         self.wTree = gtk.Builder()
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
         # connect the signals from Glade
@@ -111,6 +113,7 @@ class ToolEdit(gtk.VBox):
             print "Toolfile does not exist"
             return
         logfile = open(self.toolfile, "r").readlines()
+        self.toolinfo = []
         for rawline in logfile:
             # strip the comments from line and add directly to array
             index = rawline.find(";")
@@ -118,6 +121,7 @@ class ToolEdit(gtk.VBox):
             comment = comment.rstrip("\n")
             line = rawline.rstrip(comment)
             array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
+            toolinfo_flag = False
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
             # if i = ';' that is the comment and we have already added it
@@ -126,6 +130,9 @@ class ToolEdit(gtk.VBox):
                 if offset == 0 or i == ';': continue
                 for word in line.split():
                     if word.startswith(i):
+                        if offset == 1:
+                            if int(word.lstrip(i)) == self.toolinfo_num:
+                                toolinfo_flag = True
                         if offset in(1,2):
                             try:
                                 array[offset]= int(word.lstrip(i))
@@ -137,6 +144,8 @@ class ToolEdit(gtk.VBox):
                             except:
                                 pass
                         break
+            if toolinfo_flag:
+                self.toolinfo = array
             # add array line to liststore
             self.add(None,array)
 
@@ -232,6 +241,18 @@ class ToolEdit(gtk.VBox):
     def toolfile_stale(self):
         print "Tool file was modified since it was last read"
         self.reload(None)
+
+        # Returns the tool information array of the requested toolnumber
+        # or current tool if no tool number is specified
+        # returns None if tool not found in table or if there is no current tool
+    def get_toolinfo(self,toolnum=None):
+        if toolnum == None:
+            self.toolinfo_num = self.emcstat.tool_in_spindle
+        else:
+            self.toolinfo_num = toolnum
+        self.reload(None)
+        if self.toolinfo == []: return None
+        return self.toolinfo
 
         # standard Gobject method
     def do_get_property(self, property):
