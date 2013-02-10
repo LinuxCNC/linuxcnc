@@ -22,6 +22,12 @@ except:
     print('GTK not available')
     sys.exit(1)
 
+# localization
+import locale
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.setlocale(locale.LC_ALL, '')
+
 class ToolEdit(gtk.VBox):
     __gtype_name__ = 'ToolEdit'
     __gproperties__ = {
@@ -42,6 +48,7 @@ class ToolEdit(gtk.VBox):
         self.toolinfo_num = 0
         self.toolinfo = []
         self.wTree = gtk.Builder()
+        self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
         # connect the signals from Glade
         dic = {
@@ -97,12 +104,14 @@ class ToolEdit(gtk.VBox):
         self.model.append(data)
         self.num_of_col +=1
 
-        # this is for adding a filename path after the tooleditor is already loaded.
+        # This is for adding a filename path after the tooleditor is already loaded.
     def set_filename(self,filename):
         self.toolfile = filename
         self.reload(None)
 
         # Reload the tool file into display
+        # note show the decimal point as the locale requires even though the file
+        # only uses (requires) a decimal point not a comma
     def reload(self,widget):
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
@@ -137,18 +146,19 @@ class ToolEdit(gtk.VBox):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                pass
+                                print "Tooledit widget int error"
                         else:
                             try:
-                                array[offset]= "%10.4f"% float(word.lstrip(i))
+                                array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
-                                pass
+                                print "Tooledit_widget float error"
                         break
             if toolinfo_flag:
                 self.toolinfo = array
             # add array line to liststore
             self.add(None,array)
 
+        # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
         file = open(self.toolfile, "w")
@@ -160,11 +170,15 @@ class ToolEdit(gtk.VBox):
             line = ""
             for num,i in enumerate(values):
                 if num == 0: continue
-                try:
-                    test = i.lstrip()
-                    line = line + "%s%s "%(KEYWORDS[num], test)
-                except:
+                elif num in (1,2): # tool# pocket#
                     line = line + "%s%d "%(KEYWORDS[num], i)
+                elif num == 16: # comments
+                    test = i.lstrip()
+                    line = line + "%s%s "%(KEYWORDS[num],test)
+                else:
+                    test = i.lstrip() # localized floats
+                    line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+
             print >>file,line
             #print line
         # tell linuxcnc we changed the tool table entries
@@ -192,11 +206,12 @@ class ToolEdit(gtk.VBox):
         pass
 
         # depending what is editted add the right type of info integer,float or text
+        # we use locale methods so either a comma or decimal can be used, dependig in locale
     def col_editted(self, widget, path, new_text, col):
         if col in(1,2):
             self.model[path][col] = int(new_text)
         elif col in range(3,16):
-            self.model[path][col] = "%10.4f"% float(new_text)
+            self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
         elif col == 16:
             self.model[path][col] = (new_text)
         #print new_text, col
