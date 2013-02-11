@@ -9251,6 +9251,7 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write( "sets estop-out false\n")
         halrun.write( "newsig enable-not bit\n")
         halrun.write( "newsig dir-not bit\n")
+        halrun.write( "newsig dir bit\n")
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
 
@@ -9370,15 +9371,15 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         if self.pot:
             halrun.write("""sets dac %(output)f\n""" % { 'output': abs(output)})
-        if output == 0:
-            halrun.write("sets dir false\n")
-            halrun.write("sets dir-not false\n")
-        elif output < 0:
-            halrun.write("sets dir true\n")
-            halrun.write("sets dir-not false\n")
-        else:
-            halrun.write("sets dir false\n")
-            halrun.write("sets dir-not true\n")
+            if output == 0:
+                halrun.write("sets dir false\n")
+                halrun.write("sets dir-not false\n")
+            elif output < 0:
+                halrun.write("sets dir true\n")
+                halrun.write("sets dir-not false\n")
+            else:
+                halrun.write("sets dir false\n")
+                halrun.write("sets dir-not true\n")
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
