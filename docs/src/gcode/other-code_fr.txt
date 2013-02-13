@@ -11,7 +11,7 @@
 
 Pour régler la vitesse d'avance, programmer _F-_.
 L'application de la vitesse est telle que décrite dans l'aperçu global d'une
-machine numérique, section <<sec:Vitesse-d-avance,vitesse d'avance>>, à moins
+machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à moins
 que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
 telle que décrite dans la section sur le choix des modes de
 <<sec:G93-G94-G95-Set, vitesse>>.

@@ -26,7 +26,7 @@ sur le test de latence>>.
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
 Au premier démarrage de LinuxCNC, le sélecteur de configuration s'ouvre, sélectionnez 
-alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrez une copie. 
+alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrer une copie. 
 
 [[sec:Xylotex]]
 == Xylotex

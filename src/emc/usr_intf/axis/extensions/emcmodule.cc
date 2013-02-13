@@ -103,7 +103,8 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
     char *inifile;
     if(!PyArg_ParseTuple(a, "s", &inifile)) return -1;
 
-    self->i = new IniFile();
+    if(!self->i)
+        self->i = new IniFile();
 
     if (!self->i->Open(inifile)) {
         PyErr_Format( error, "inifile.open() failed");
@@ -143,7 +144,8 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
 }
 
 static void Ini_dealloc(pyIniFile *self) {
-    self->i->Close();
+    if (self->i)
+        self->i->Close();
     delete self->i;
     PyObject_Del(self);
 }

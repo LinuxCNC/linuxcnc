@@ -236,6 +236,7 @@ Outil:: (Tool)
  - halui.tool.length-offset (float, out) - indique la correction de longueur d'outil appliquée
  - halui.tool.number (u32, out) - indique l'outil courant sélectionné
 
+[[sec:Exemple-Commande-Distante]]
 == Exemples de programme avec Halui
 
 Pour que ces exemples fonctionnent, il faut ajouter la ligne
@@ -260,9 +261,7 @@ la pin _halui.mode.is-auto_ sera TRUE.
 Si les deux entrées du composant _and2.0_ sont TRUE, la sortie _and2.0.out_ 
 sera TRUE également et le programme sera démarré. 
 
-[[fig:Remote-Start-Example]]
-.Exemple de commande à distance
-
+.Exemple de commande distante
 image::images/remote-start.png[]
 
 Les commandes de Hal pour accomplir ces actions sont les suivantes: 

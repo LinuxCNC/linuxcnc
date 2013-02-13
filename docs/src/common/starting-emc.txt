@@ -22,9 +22,9 @@ GladeVCP objects with HAL pins you must use the postgui HAL file to make any
 connections to those pins. See the <<sub:[HAL]-section,HAL>> section of the
 INI configuration for more information.
 
-[[sub:configuration-selector]]
+[float]
+=== [[sub:configuration-selector]] Configuration Selector
 
-.Configuration Selector
 If no ini file is passed to the linuxcnc script it loads the configuration 
 selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.

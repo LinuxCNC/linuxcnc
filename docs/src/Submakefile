@@ -291,6 +291,7 @@ DOC_SRCS := \
 	gui/tklinuxcnc_fr.txt \
 	gui/tklinuxcnc_pl.txt \
 	gui/tooledit.txt \
+	gui/tooledit_fr.txt\
 	gui/touchy.txt \
 	gui/touchy_de.txt \
 	gui/touchy_es.txt \
@@ -526,15 +527,61 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
-htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
+htmldocs: copy_asciidoc_files $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
+
+.PHONY: copy_asciidoc_files
+copy_asciidoc_files:
+	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
+	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
 checkref: checkref_en checkref_fr
 
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html
 	python $(DOC_SRCDIR)/checklinks.py $^
+	if [ ! -z $(shell which checklink) ]; then \
+		rm -f .checklink.en.tmp; \
+		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_EN) | tee .checklink.en.tmp 2>&1 ; \
+		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.en.tmp ; \
+		BAD_LINKS=$$?; \
+		rm -f .checklink.tmp; \
+		if [ $$BAD_LINKS -eq 0 ]; then \
+			echo "***" 1>&2 ; \
+			echo "*** warning: bad links found in English docs!" 1>&2 ; \
+			echo "***" 1>&2 ; \
+			exit 1; \
+		else \
+			echo "***"; \
+			echo "*** language: English"; \
+			echo "*** all links are good!"; \
+			echo "***"; \
+		fi \
+	else \
+		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
+	fi
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
 	python $(DOC_SRCDIR)/checklinks.py $^
+	if [ ! -z $(shell which checklink) ]; then \
+		rm -f .checklink.fr.tmp; \
+		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_FR) | tee .checklink.fr.tmp 2>&1 ; \
+		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.fr.tmp ; \
+		BAD_LINKS=$$?; \
+		rm -f .checklink.fr.tmp; \
+		if [ $$BAD_LINKS -eq 0 ]; then \
+			echo "***" 1>&2 ; \
+			echo "*** warning: bad links found in French docs!" 1>&2 ; \
+			echo "*** oh well, continuing anyway" 1>&2 ; \
+			echo "***" 1>&2 ; \
+			exit 0; \
+		else \
+			echo "***"; \
+			echo "*** language: French"; \
+			echo "*** all links are good!"; \
+			echo "***"; \
+		fi \
+	else \
+		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
+	fi
 
 # These targets don't work yet since we don't have the associated translations
 checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
@@ -607,18 +654,29 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex; list-style-type: none\"
+ST := style=\" \
+    list-style-type: none; \
+    -moz-column-width: 25ex; \
+    -moz-column-gap: 4ex; \
+    -webkit-column-width: 25ex; \
+    -webkit-column-gap: 4ex; \
+    column-width: 25ex; \
+    column-gap: 4ex; \
+\"
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "<A NAME=\"man1\"><LI>Commands and userspace components<UL $(ST)>" > $@.tmp
 	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man9\"></UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man9\"><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man3hal\"></UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man3hal\"><LI>HAL API calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man3rtapi\"></UL><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man3rtapi\"><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
 	mv -f $@.tmp $@
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
@@ -708,15 +766,24 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 $(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
 	(cd $(LOC_HL_DIR); make all)
 
+# Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
+# the relative path from this html target to the root of the generated
+# document tree (docs/html in the git repo).  This is where the CSS files
+# and javascript files will be installed.
+$(DOC_SRCDIR)/%.html: STYLES_SCRIPTS_DIR=$(shell for i in $(shell dirname $* | tr '/' '\n' ); do echo -n "../"; done; echo)
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 -a "scriptsdir=$(STYLES_SCRIPTS_DIR)" \
+		 -a "stylesdir=$(STYLES_SCRIPTS_DIR)" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_en.links" \
-		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
@@ -724,37 +791,49 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 -a "scriptsdir=$(STYLES_SCRIPTS_DIR)" \
+		 -a "stylesdir=$(STYLES_SCRIPTS_DIR)" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_fr.links" \
-		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_PL_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_pl.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -a linkcss \
+		 -a "scriptsdir=$(STYLES_SCRIPTS_DIR)" \
+		 -a "stylesdir=$(STYLES_SCRIPTS_DIR)" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_pl.links" \
-		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -a linkcss \
+		 -a "scriptsdir=$(STYLES_SCRIPTS_DIR)" \
+		 -a "stylesdir=$(STYLES_SCRIPTS_DIR)" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_es.links" \
-		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_de.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -a linkcss \
+		 -a "scriptsdir=$(STYLES_SCRIPTS_DIR)" \
+		 -a "stylesdir=$(STYLES_SCRIPTS_DIR)" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_de.links" \
-		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 default: docs

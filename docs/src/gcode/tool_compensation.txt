@@ -42,7 +42,8 @@ The G10 L1/L10/L11 commands can be used to set tool table offsets:
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
                       (see <<sec:G10-L11,G10 L11>> for details)
 
-== Tool Table [[sec:tool-table]]
+[[sec:tool-table]]
+== Tool Table
 
 // carried over from machining_center.txt for salvage -mah
 
@@ -233,7 +234,7 @@ The 'Comment' column may optionally be used to describe the tool. Any
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon. 
 
-=== Tool Changers
+=== [[sec:Tool-Changers]] Tool Changers
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'fixed location'. Information about configuring an LinuxCNC tool changer
@@ -268,7 +269,8 @@ are. T can be any number but P must be a number that makes sense for
 the machine.
 
 
-== Cutter Compensation[[sec:cutter-compensation]]
+[[sec:cutter-compensation]]
+== Cutter Compensation
 
 Cutter Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
