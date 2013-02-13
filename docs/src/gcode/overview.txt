@@ -365,7 +365,8 @@ example '##2'  means the value of the parameter whose index is the
    Volatile.
 
 
-=== Subroutine Parameters [[sub:subroutine-parameters]]
+[[sub:subroutine-parameters]]
+=== Subroutine Parameters
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are
