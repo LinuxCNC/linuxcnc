@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-07 21:02+0100\n"
-"PO-Revision-Date: 2013-01-27 14:07+0100\n"
+"POT-Creation-Date: 2013-01-27 14:26+0100\n"
+"PO-Revision-Date: 2013-02-14 12:43+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <tissf@free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -1171,7 +1171,7 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:548 tcl/bin/pickconfig.tcl:559
 #, tcl-format
 msgid "can't save %s"
-msgstr "Impossible d'enregistrer %s "
+msgstr "Impossible d'enregistrer %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 #: ../tcl/bin/emcdebug.tcl:166 ../tcl/bin/emcdebug.tcl:177
@@ -1351,7 +1351,7 @@ msgstr ""
 #: emc/task/emctaskmain.cc:2000
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "Impossible d'ouvrir %s "
+msgstr "Impossible d'ouvrir %s"
 
 #: tcl/bin/genedit.tcl:267 tcl/mini.tcl:3090 ../tcl/bin/genedit.tcl:267
 #: ../tcl/mini.tcl:3090
@@ -2771,9 +2771,7 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8512
-#: ../tcl/tklinuxcnc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8510
-#: src/emc/usr_intf/pncconf/pncconf.py:8855
+#: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8876
 msgid "inches"
 msgstr "pouces"
 
@@ -7325,6 +7323,7 @@ msgstr "ma-machine"
 #: emc/usr_intf/pncconf/pncconf.py:983 emc/usr_intf/pncconf/pncconf.py:985
 #: src/emc/usr_intf/pncconf/pncconf.py:1021
 #: src/emc/usr_intf/pncconf/pncconf.py:1023
+#: src/emc/usr_intf/pncconf/pncconf.py:1025
 msgid "Enter Address"
 msgstr "Entrer l'adresse"
 
@@ -7387,9 +7386,6 @@ msgid "# add halui MDI commands here (max 64) "
 msgstr "# ajoutez ici les commandes MDI halui (maximum 64) "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:991
-#: src/emc/usr_intf/pncconf/pncconf.py:2991
-#: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:2991
-#: src/emc/usr_intf/pncconf/pncconf.py:3153
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr "# **** Paramètre -START pour l'A/U externe du programme ladder ****"
 
@@ -9409,9 +9405,9 @@ msgstr " S BLDC Control"
 #: src/emc/usr_intf/pncconf/pncconf.py:612
 #: src/emc/usr_intf/pncconf/pncconf.py:617
 #: src/emc/usr_intf/pncconf/pncconf.py:621
-#: src/emc/usr_intf/pncconf/pncconf.py:644
-#: src/emc/usr_intf/pncconf/pncconf.py:659
-#: src/emc/usr_intf/pncconf/pncconf.py:671
+#: src/emc/usr_intf/pncconf/pncconf.py:646
+#: src/emc/usr_intf/pncconf/pncconf.py:661
+#: src/emc/usr_intf/pncconf/pncconf.py:673
 msgid "Custom Signals"
 msgstr " Signaux personnalisés"
 
@@ -10083,10 +10079,25 @@ msgstr "Géné. de pas axe A"
 msgid "Spindle StepGen"
 msgstr "Géné. de pas de la broche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:628 emc/usr_intf/pncconf/pncconf.py:628
-#: src/emc/usr_intf/pncconf/pncconf.py:658
+#: src/emc/usr_intf/pncconf/pncconf.py:645
+msgid "X2 Tandem StepGen"
+msgstr "X2 Tandem StepGen"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:645
+msgid "Y2 Tandem StepGen"
+msgstr "Y2 Tandem StepGen"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:646
+msgid "Z2 Tandem StepGen"
+msgstr "Z2 Tandem StepGen"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:646
+msgid "Charge Pump StepGen"
+msgstr "Pompe de charge StepGen"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:660
 msgid "Unused TPPWM Gen"
-msgstr "Unused TPPWM Gen"
+msgstr "TPPWM Gen inutilisé"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:628 emc/usr_intf/pncconf/pncconf.py:628
 #: src/emc/usr_intf/pncconf/pncconf.py:658
@@ -10124,7 +10135,7 @@ msgstr "Voie inutilisée"
 #: src/emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:636
 #: src/emc/usr_intf/pncconf/pncconf.py:667
 msgid "8i20 Amplifier Card"
-msgstr "8i20 Carte amplificateur"
+msgstr "Carte ampli. 8i20"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:636
 #: src/emc/usr_intf/pncconf/pncconf.py:667
@@ -10151,8 +10162,19 @@ msgstr "Carte E/S 7i71 "
 msgid "7i76 Mode 0 I/O Card"
 msgstr "Carte E/S 7i76 Mode 0"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:722 emc/usr_intf/pncconf/pncconf.py:722
-#: src/emc/usr_intf/pncconf/pncconf.py:760
+#: src/emc/usr_intf/pncconf/pncconf.py:670
+msgid "7i77 Mode 0 I/O Card"
+msgstr "Carte E/S 7i77 Mode 0"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:671
+msgid "7i73 Mode 1 Pendant Card"
+msgstr "Carte 7i73 Mode 1"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:673
+msgid "Unused Analog In"
+msgstr "Entrée analogique inutilisée"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:762
 msgid "my_LinuxCNC_machine"
 msgstr "ma_machine_LinuxCNC"
 
@@ -10256,8 +10278,8 @@ msgstr ""
 msgid ""
 "#  COMMANDED velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"#  La vitesse COMMANDEE est signée, un composant absolu (abs.0) sera utilisé "
-"pour enlever le signe"
+"#  La vitesse COMMANDEE est signée, un composant absolu sera utilisé pour "
+"enlever le signe"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:2727
 #: emc/usr_intf/pncconf/pncconf.py:2727
@@ -10846,9 +10868,16 @@ msgstr ""
 "Vous ne pouvez pas avoir simultanément des signaux PWM et de pas à pas pour "
 "l'axe %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:6887
-#: emc/usr_intf/pncconf/pncconf.py:6885
-#: src/emc/usr_intf/pncconf/pncconf.py:7230
+#: src/emc/usr_intf/pncconf/pncconf.py:7242
+#, python-format
+msgid ""
+"If using a tandem axis stepper, you must select a master stepgen for axis %"
+"s\n"
+msgstr ""
+"Si un tandem de moteur pas à pas est utilisé, vous devez choisir un stepgen "
+"maître pour l'axe %s \n"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:7251
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiert un signal de départ cycle externe\n"
 
@@ -11035,9 +11064,11 @@ msgstr " / impulsion codeur"
 msgid "Encoder pulses / "
 msgstr "Impulsions de codeur / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7482
-#: emc/usr_intf/pncconf/pncconf.py:7480
-#: src/emc/usr_intf/pncconf/pncconf.py:7821
+#: src/emc/usr_intf/pncconf/pncconf.py:7541
+msgid "Resolver Scale:"
+msgstr "Échelle codeur:"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:7842
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
