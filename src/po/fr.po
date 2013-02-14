@@ -19990,30 +19990,6 @@ msgstr "Correction vitesse de broche activé"
 msgid "Max Vel Override enable"
 msgstr "Correcteur de vitesse maximale activé"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:643
-msgid "X2 Tandem StepGen"
-msgstr "X2 Tandem StepGen"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:643
-msgid "Y2 Tandem StepGen"
-msgstr "Y2 Tandem StepGen"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:644
-msgid "Z2 Tandem StepGen"
-msgstr "Z2 Tandem StepGen"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:668
-msgid "7i77 Mode 0 I/O Card"
-msgstr "Carte E/S 7i77 Mode 0"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:669
-msgid "7i73 Mode 1 Pendant Card"
-msgstr "Carte 7i73 Mode 1"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:671
-msgid "Unused Analog In"
-msgstr "Entrée analogique inutilisée"
-
 #: src/emc/usr_intf/pncconf/pncconf.py:5035
 msgid ""
 "OK to replace existing glade panel ?\n"
@@ -20027,19 +20003,6 @@ msgstr ""
 " Cliquer 'programme utilisateur existant' pour éviter cet avertissement, "
 "mais si vous changez ces options plus tard -comme le retour de vitesse "
 "broche- la connexion ne sera plus à jour"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:7221
-#, python-format
-msgid ""
-"If using a tandem axis stepper, you must select a master stepgen for axis %"
-"s\n"
-msgstr ""
-"Si un tandem de moteur pas à pas est utilisé, vous devez choisir un stepgen "
-"maître pour l'axe %s \n"
-
-#: src/emc/usr_intf/pncconf/pncconf.py:7520
-msgid "Resolver Scale:"
-msgstr "Échelle codeur:"
 
 #: src/emc/usr_intf/pncconf/pncconf.glade:8013
 msgid "Num of resolvers:"
