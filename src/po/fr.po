@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-07 21:02+0100\n"
-"PO-Revision-Date: 2013-01-27 14:07+0100\n"
+"POT-Creation-Date: 2013-01-27 14:26+0100\n"
+"PO-Revision-Date: 2013-02-14 12:43+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <tissf@free.fr>\n"
 "MIME-Version: 1.0\n"
@@ -1049,7 +1049,7 @@ msgstr ""
 #: tcl/scripts/Set_Coordinates.tcl:205 tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
-msgstr "Impossible d'enregistrer %s "
+msgstr "Impossible d'enregistrer %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 msgid "LinuxCNC Debug"
@@ -1203,7 +1203,7 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2000
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "Impossible d'ouvrir %s "
+msgstr "Impossible d'ouvrir %s"
 
 #: tcl/bin/genedit.tcl:267 tcl/mini.tcl:3090
 msgid "Find"
@@ -2501,7 +2501,7 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8855
+#: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8876
 msgid "inches"
 msgstr "pouces"
 
@@ -2511,7 +2511,7 @@ msgstr "pouces"
 #: src/emc/usr_intf/stepconf/stepconf.py:1685
 #: src/emc/usr_intf/stepconf/stepconf.py:2221
 #: src/emc/usr_intf/stepconf/stepconf.glade:4357
-#: src/emc/usr_intf/pncconf/pncconf.py:8851
+#: src/emc/usr_intf/pncconf/pncconf.py:8872
 #: src/emc/usr_intf/pncconf/pncconf.glade:2237
 #: src/emc/usr_intf/pncconf/pncconf.glade:2402
 #: src/emc/usr_intf/pncconf/pncconf.glade:64589
@@ -3270,9 +3270,9 @@ msgstr "enlever"
 msgid "move"
 msgstr "déplacer"
 
-#: tcl/ngcgui.tcl:3587 src/emc/usr_intf/pncconf/pncconf.py:7369
-#: src/emc/usr_intf/pncconf/pncconf.py:7480
-#: src/emc/usr_intf/pncconf/pncconf.py:7645
+#: tcl/ngcgui.tcl:3587 src/emc/usr_intf/pncconf/pncconf.py:7390
+#: src/emc/usr_intf/pncconf/pncconf.py:7501
+#: src/emc/usr_intf/pncconf/pncconf.py:7666
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -6446,8 +6446,8 @@ msgstr "ma-machine"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:215
 #: src/emc/usr_intf/stepconf/stepconf.py:217
-#: src/emc/usr_intf/pncconf/pncconf.py:1021
 #: src/emc/usr_intf/pncconf/pncconf.py:1023
+#: src/emc/usr_intf/pncconf/pncconf.py:1025
 msgid "Enter Address"
 msgstr "Entrer l'adresse"
 
@@ -6465,12 +6465,12 @@ msgstr ""
 "l'extérieur de Stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:393
-#: src/emc/usr_intf/pncconf/pncconf.py:1400
+#: src/emc/usr_intf/pncconf/pncconf.py:1402
 msgid "Continue? "
 msgstr "Continuer ?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:394
-#: src/emc/usr_intf/pncconf/pncconf.py:1401
+#: src/emc/usr_intf/pncconf/pncconf.py:1403
 msgid "yY"
 msgstr "yY"
 
@@ -6482,8 +6482,8 @@ msgstr "# Généré par Stepconf le %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:447
 #: src/emc/usr_intf/stepconf/stepconf.py:787
-#: src/emc/usr_intf/pncconf/pncconf.py:1410
-#: src/emc/usr_intf/pncconf/pncconf.py:2477
+#: src/emc/usr_intf/pncconf/pncconf.py:1412
+#: src/emc/usr_intf/pncconf/pncconf.py:2479
 msgid "# If you make changes to this file, they will be"
 msgstr "# Si vous modifiez ce fichier, il sera"
 
@@ -6497,17 +6497,17 @@ msgid "# add halui MDI commands here (max 64) "
 msgstr "# ajoutez ici les commandes MDI halui (maximum 64) "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:991
-#: src/emc/usr_intf/pncconf/pncconf.py:3153
+#: src/emc/usr_intf/pncconf/pncconf.py:3174
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr "# **** Paramètre -START pour l'A/U externe du programme ladder ****"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:998
-#: src/emc/usr_intf/pncconf/pncconf.py:3160
+#: src/emc/usr_intf/pncconf/pncconf.py:3181
 msgid "# **** Setup for external estop ladder program -END ****"
 msgstr "# **** Paramètre -END pour l'A/U externe du programme ladder ****"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1018
-#: src/emc/usr_intf/pncconf/pncconf.py:3187
+#: src/emc/usr_intf/pncconf/pncconf.py:3208
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
@@ -6515,14 +6515,14 @@ msgstr ""
 "avec Modbus)"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1021
-#: src/emc/usr_intf/pncconf/pncconf.py:3192
+#: src/emc/usr_intf/pncconf/pncconf.py:3213
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 msgstr ""
 "# Chargement de Classicladder sans GUI (peut recharger la GUI LADDER dans la "
 "GUI AXIS)"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1031
-#: src/emc/usr_intf/pncconf/pncconf.py:3274
+#: src/emc/usr_intf/pncconf/pncconf.py:3295
 msgid "Include your PyVCP panel here.\n"
 msgstr "Inclure son propre panneau PyVCP ici.\n"
 
@@ -6540,7 +6540,7 @@ msgstr ""
 "quel'interface graphique AXIS (PyVCP inclus) aura démarré."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1045
-#: src/emc/usr_intf/pncconf/pncconf.py:3302
+#: src/emc/usr_intf/pncconf/pncconf.py:3323
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
 msgstr "# **** Réglage de l'affichage de vitesse broche avec pyvcp -START ****"
 
@@ -6596,7 +6596,7 @@ msgid "Generated by stepconf at %s"
 msgstr "Généré par Stepconf le %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1166
-#: src/emc/usr_intf/pncconf/pncconf.py:3613
+#: src/emc/usr_intf/pncconf/pncconf.py:3634
 #, python-format
 msgid "launch %s"
 msgstr "lancer %s"
@@ -6607,7 +6607,7 @@ msgstr ""
 "Lanceur de bureau pour LinuxCNC avec la configuration faite par Stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1196
-#: src/emc/usr_intf/pncconf/pncconf.py:3883
+#: src/emc/usr_intf/pncconf/pncconf.py:3904
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Configuration axe %s"
@@ -6647,7 +6647,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Fichiers de configuration 'stepconf' de LinuxCNC "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1299
-#: src/emc/usr_intf/pncconf/pncconf.py:4277
+#: src/emc/usr_intf/pncconf/pncconf.py:4298
 msgid "Modify Existing Configuration"
 msgstr "Modifier configuration existante"
 
@@ -6670,7 +6670,7 @@ msgstr ""
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1457
-#: src/emc/usr_intf/pncconf/pncconf.py:8154
+#: src/emc/usr_intf/pncconf/pncconf.py:8175
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -6768,7 +6768,7 @@ msgid "Steps / in"
 msgstr "Pas / pouce"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:2202
-#: src/emc/usr_intf/pncconf/pncconf.py:9265
+#: src/emc/usr_intf/pncconf/pncconf.py:9286
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test axe %s"
@@ -8156,9 +8156,9 @@ msgstr " S BLDC Control"
 #: src/emc/usr_intf/pncconf/pncconf.py:612
 #: src/emc/usr_intf/pncconf/pncconf.py:617
 #: src/emc/usr_intf/pncconf/pncconf.py:621
-#: src/emc/usr_intf/pncconf/pncconf.py:644
-#: src/emc/usr_intf/pncconf/pncconf.py:659
-#: src/emc/usr_intf/pncconf/pncconf.py:671
+#: src/emc/usr_intf/pncconf/pncconf.py:646
+#: src/emc/usr_intf/pncconf/pncconf.py:661
+#: src/emc/usr_intf/pncconf/pncconf.py:673
 msgid "Custom Signals"
 msgstr " Signaux personnalisés"
 
@@ -8651,112 +8651,116 @@ msgstr "Sortie analogique inutilisée"
 msgid "Spindle Output"
 msgstr "Sortie broche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:642
+#: src/emc/usr_intf/pncconf/pncconf.py:644
 msgid "Unused StepGen"
 msgstr "Géné. de pas inutilisé"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:642
+#: src/emc/usr_intf/pncconf/pncconf.py:644
 msgid "X Axis StepGen"
 msgstr "Géné. de pas axe X"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:642
+#: src/emc/usr_intf/pncconf/pncconf.py:644
 msgid "Y Axis StepGen"
 msgstr "Géné. de pas axe Y"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:642
+#: src/emc/usr_intf/pncconf/pncconf.py:644
 msgid "Z Axis StepGen"
 msgstr "Géné. de pas axe Z"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:643
+#: src/emc/usr_intf/pncconf/pncconf.py:645
 msgid "A Axis StepGen"
 msgstr "Géné. de pas axe A"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:643
+#: src/emc/usr_intf/pncconf/pncconf.py:645
 msgid "Spindle StepGen"
 msgstr "Géné. de pas de la broche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:643
+#: src/emc/usr_intf/pncconf/pncconf.py:645
 msgid "X2 Tandem StepGen"
 msgstr "X2 Tandem StepGen"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:643
+#: src/emc/usr_intf/pncconf/pncconf.py:645
 msgid "Y2 Tandem StepGen"
 msgstr "Y2 Tandem StepGen"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:644
+#: src/emc/usr_intf/pncconf/pncconf.py:646
 msgid "Z2 Tandem StepGen"
 msgstr "Z2 Tandem StepGen"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:658
-msgid "Unused TPPWM Gen"
-msgstr "Unused TPPWM Gen"
+#: src/emc/usr_intf/pncconf/pncconf.py:646
+msgid "Charge Pump StepGen"
+msgstr "Pompe de charge StepGen"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:658
+#: src/emc/usr_intf/pncconf/pncconf.py:660
+msgid "Unused TPPWM Gen"
+msgstr "TPPWM Gen inutilisé"
+
+#: src/emc/usr_intf/pncconf/pncconf.py:660
 msgid "X Axis BL Driver"
 msgstr "X Axis BL Driver"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:658
+#: src/emc/usr_intf/pncconf/pncconf.py:660
 msgid "Y Axis BL Driver"
 msgstr "Y Axis BL Driver"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:659
+#: src/emc/usr_intf/pncconf/pncconf.py:661
 msgid "Z Axis BL Driver"
 msgstr "Z Axis BL Driver"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:659
+#: src/emc/usr_intf/pncconf/pncconf.py:661
 msgid "A Axis BL Driver"
 msgstr "A Axis BL Driver"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:659
+#: src/emc/usr_intf/pncconf/pncconf.py:661
 msgid "S Axis BL Driver"
 msgstr "S Axis BL Driver"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:667
-#: src/emc/usr_intf/pncconf/pncconf.py:6877
+#: src/emc/usr_intf/pncconf/pncconf.py:669
+#: src/emc/usr_intf/pncconf/pncconf.py:6898
 msgid "Unused Channel"
 msgstr "Voie inutilisée"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:667
+#: src/emc/usr_intf/pncconf/pncconf.py:669
 msgid "8i20 Amplifier Card"
-msgstr "8i20 Carte amplificateur"
+msgstr "Carte ampli. 8i20"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:667
+#: src/emc/usr_intf/pncconf/pncconf.py:669
 msgid "7i64 I/O Card"
 msgstr "Carte E/S 7i64"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:667
+#: src/emc/usr_intf/pncconf/pncconf.py:669
 msgid "7i69 I/O Card"
 msgstr "Carte E/S 7i69"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:668
+#: src/emc/usr_intf/pncconf/pncconf.py:670
 msgid "7i70 I/O Card"
 msgstr "Carte E/S 7i70"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:668
+#: src/emc/usr_intf/pncconf/pncconf.py:670
 msgid "7i71 I/O Card"
 msgstr "Carte E/S 7i71 "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:668
+#: src/emc/usr_intf/pncconf/pncconf.py:670
 msgid "7i76 Mode 0 I/O Card"
 msgstr "Carte E/S 7i76 Mode 0"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:668
+#: src/emc/usr_intf/pncconf/pncconf.py:670
 msgid "7i77 Mode 0 I/O Card"
 msgstr "Carte E/S 7i77 Mode 0"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:669
+#: src/emc/usr_intf/pncconf/pncconf.py:671
 msgid "7i73 Mode 1 Pendant Card"
 msgstr "Carte 7i73 Mode 1"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:671
+#: src/emc/usr_intf/pncconf/pncconf.py:673
 msgid "Unused Analog In"
 msgstr "Entrée analogique inutilisée"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:760
+#: src/emc/usr_intf/pncconf/pncconf.py:762
 msgid "my_LinuxCNC_machine"
 msgstr "ma_machine_LinuxCNC"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1372
+#: src/emc/usr_intf/pncconf/pncconf.py:1374
 msgid ""
 "This configuration was saved with an earlier version of pncconf which may be "
 "incompatible.\n"
@@ -8774,12 +8778,12 @@ msgstr ""
 "version, posez la question sur le forum linuxcnc.org,\n"
 "c'est peut être possible..."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1378
+#: src/emc/usr_intf/pncconf/pncconf.py:1380
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
 msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par PNCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1382
+#: src/emc/usr_intf/pncconf/pncconf.py:1384
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
@@ -8787,40 +8791,40 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de PNCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1409
-#: src/emc/usr_intf/pncconf/pncconf.py:2476
+#: src/emc/usr_intf/pncconf/pncconf.py:1411
+#: src/emc/usr_intf/pncconf/pncconf.py:2478
 #, python-format
 msgid "# Generated by PNCconf at %s"
 msgstr "# Généré par PNCconf le %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1411
-#: src/emc/usr_intf/pncconf/pncconf.py:2478
+#: src/emc/usr_intf/pncconf/pncconf.py:1413
+#: src/emc/usr_intf/pncconf/pncconf.py:2480
 msgid "# overwritten when you run PNCconf again"
 msgstr "# écrasé quand vous relancerez PNCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2172
+#: src/emc/usr_intf/pncconf/pncconf.py:2174
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
 msgstr "#  Utiliser la vitesse de broche actuelle depuis le codeur de broche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2173
+#: src/emc/usr_intf/pncconf/pncconf.py:2175
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 "#  les variations parasites de la vitesse de broche seront filtrées par un "
 "filtre passe-bas"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2174
+#: src/emc/usr_intf/pncconf/pncconf.py:2176
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
 "#  le signe de la vitesse de broche sera enlevé par un composant absolu"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2175
+#: src/emc/usr_intf/pncconf/pncconf.py:2177
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
 "#  La vitesse ACTUELLE est en tr/s et non en tr/mn elle doit être mise à "
 "l'échelle."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2184
+#: src/emc/usr_intf/pncconf/pncconf.py:2186
 msgid ""
 "#  Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder "
 "was specified"
@@ -8828,94 +8832,94 @@ msgstr ""
 "#  Pas de codeur de broche spécifié, la vitesse de broche COMMANDEE depuis "
 "LinuxCNC sera utilisée"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2185
+#: src/emc/usr_intf/pncconf/pncconf.py:2187
 msgid ""
 "#  COMMANDED velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"#  La vitesse COMMANDEE est signée, un composant absolu (abs.0) sera utilisé "
-"pour enlever le signe"
+"#  La vitesse COMMANDEE est signée, un composant absolu sera utilisé pour "
+"enlever le signe"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2844
+#: src/emc/usr_intf/pncconf/pncconf.py:2865
 msgid "# connect miscellaneous signals"
 msgstr "#connections de signaux divers"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2847
+#: src/emc/usr_intf/pncconf/pncconf.py:2868
 msgid "#  ---HALUI signals---"
 msgstr "#  ---signaux HALUI---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2866
+#: src/emc/usr_intf/pncconf/pncconf.py:2887
 msgid "#  ---charge pump signals---"
 msgstr "#  ---signaux pompe de charge---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2870
+#: src/emc/usr_intf/pncconf/pncconf.py:2891
 msgid "#  ---coolant signals---"
 msgstr "#  ---signaux d'arrosage---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2875
+#: src/emc/usr_intf/pncconf/pncconf.py:2896
 msgid "#  ---probe signal---"
 msgstr "#  ---signal de sonde---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2880
+#: src/emc/usr_intf/pncconf/pncconf.py:2901
 msgid "# ---jog button signals---"
 msgstr "#  ---signaux de boutons de jog---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2885
+#: src/emc/usr_intf/pncconf/pncconf.py:2906
 msgid "# ---USB device jog button signals---"
 msgstr "# ---signaux de boutons de jog sur dispositif USB---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:2925
-#: src/emc/usr_intf/pncconf/pncconf.py:2951
+#: src/emc/usr_intf/pncconf/pncconf.py:2946
+#: src/emc/usr_intf/pncconf/pncconf.py:2972
 msgid "#  ---mpg signals---"
 msgstr "#  ---signaux manivelle---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3133
+#: src/emc/usr_intf/pncconf/pncconf.py:3154
 msgid "#  ---motion control signals---"
 msgstr "#  ---signaux contrôle mouvement---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3138
+#: src/emc/usr_intf/pncconf/pncconf.py:3159
 msgid "#  ---digital in / out signals---"
 msgstr "#  ---signaux entrée / sortie numérique---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3148
+#: src/emc/usr_intf/pncconf/pncconf.py:3169
 msgid "#  ---estop signals---"
 msgstr "#  ---signaux d'A/U---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3167
+#: src/emc/usr_intf/pncconf/pncconf.py:3188
 msgid "#  ---manual tool change signals---"
 msgstr "#  ---signaux changeur manuel d'outil---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3176
+#: src/emc/usr_intf/pncconf/pncconf.py:3197
 msgid "#  ---toolchange signals for custom tool changer---"
 msgstr "#  ---signaux pour changeur d'outil personnalisé---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3198
+#: src/emc/usr_intf/pncconf/pncconf.py:3219
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
 "#  --- signaux Classicladder programme de toucher automatique pour l'axe Z---"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3217
+#: src/emc/usr_intf/pncconf/pncconf.py:3238
 msgid "# These files are loaded post gladeVCP, in the order they appear"
 msgstr ""
 "# Ces fichiers sont chargés après gladeVCP, dans leur ordre d'apparition"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3231
-#: src/emc/usr_intf/pncconf/pncconf.py:3298
+#: src/emc/usr_intf/pncconf/pncconf.py:3252
+#: src/emc/usr_intf/pncconf/pncconf.py:3319
 msgid "# _DO NOT_ include your HAL commands here."
 msgstr "# _NE PAS_ inclure vos commandes HAL ici"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3232
+#: src/emc/usr_intf/pncconf/pncconf.py:3253
 msgid "# Put custom HAL commands in custom_gvcp.hal"
 msgstr "# Placez vos commandes HAL personnalisées dans custom_gvcp.hal"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3235
+#: src/emc/usr_intf/pncconf/pncconf.py:3256
 msgid "# **** Setup of spindle speed display using gladevcp ****"
 msgstr "# **** Réglage de vitesse broche affiché avec gladevcp ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3244
+#: src/emc/usr_intf/pncconf/pncconf.py:3265
 msgid "# **** Setup GLADE MDI buttons ****"
 msgstr "# **** Boutons de réglage GLADE MDI ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3257
+#: src/emc/usr_intf/pncconf/pncconf.py:3278
 msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
@@ -8923,114 +8927,114 @@ msgstr ""
 "# **** Bouton toucher de l'axe Z - requiert le programme de toucher de "
 "classicladder ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3287
+#: src/emc/usr_intf/pncconf/pncconf.py:3308
 msgid "# These files are loaded post GUI, in the order they appear"
 msgstr "# Ces fichiers sont chargés après la GUI, dans leur ordre d'apparition"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3299
+#: src/emc/usr_intf/pncconf/pncconf.py:3320
 msgid "# Put custom HAL commands in custom_postgui.hal"
 msgstr "# Placez vos commandes HAL personnalisées dans custom_postgui.hal"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3300
+#: src/emc/usr_intf/pncconf/pncconf.py:3321
 msgid "# The commands in this file are run after the GUI loads"
 msgstr ""
 "# Les commandes de ce fichier seront exécutées après le chargement de la GUI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3310
+#: src/emc/usr_intf/pncconf/pncconf.py:3331
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
 msgstr "# **** Réglage de vitesse broche affiché avec pyvcp -END ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3322
+#: src/emc/usr_intf/pncconf/pncconf.py:3343
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr "# Ce fichier ne sera pas écrasé si vous relancez PNCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3328
+#: src/emc/usr_intf/pncconf/pncconf.py:3349
 msgid "# These commands are required for Touchy GUI"
 msgstr "# Ces commandes sont requises par la GUI Touchy"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3380
+#: src/emc/usr_intf/pncconf/pncconf.py:3401
 #, python-format
 msgid "Generated by PNCconf at %s"
 msgstr "Généré par PNCconf le %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3392
+#: src/emc/usr_intf/pncconf/pncconf.py:3413
 msgid "configures LinuxCNC as:\n"
 msgstr "configurer LinuxCNC comme:\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3393
+#: src/emc/usr_intf/pncconf/pncconf.py:3414
 msgid "type CNC\n"
 msgstr "type de CNC\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3394
+#: src/emc/usr_intf/pncconf/pncconf.py:3415
 msgid "will be used as the frontend display"
 msgstr "sera utilisé en façade de l'affichage"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3403
+#: src/emc/usr_intf/pncconf/pncconf.py:3424
 msgid " connector"
 msgstr " connecteur"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3415
+#: src/emc/usr_intf/pncconf/pncconf.py:3436
 msgid "invrt"
 msgstr "Inverser"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3424
+#: src/emc/usr_intf/pncconf/pncconf.py:3445
 #, python-format
 msgid "%(name)s Parport"
 msgstr "%(name)s Parport"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3429
-#: src/emc/usr_intf/pncconf/pncconf.py:3437
+#: src/emc/usr_intf/pncconf/pncconf.py:3450
+#: src/emc/usr_intf/pncconf/pncconf.py:3458
 msgid "-> inverted"
 msgstr "-> inversé"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3431
+#: src/emc/usr_intf/pncconf/pncconf.py:3452
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d est connectée au signal d'entrée:'%(data)s' %(mesag)s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3439
+#: src/emc/usr_intf/pncconf/pncconf.py:3460
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d est connectée au signal de sortie:'%(data)s' %(mesag)s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3617
+#: src/emc/usr_intf/pncconf/pncconf.py:3638
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
 msgstr ""
 "Lanceur de bureau pour LinuxCNC avec la configuration faite par PNCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3908
+#: src/emc/usr_intf/pncconf/pncconf.py:3929
 msgid "Spindle Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de la broche"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3910
+#: src/emc/usr_intf/pncconf/pncconf.py:3931
 #, python-format
 msgid "%s Axis Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de l'axe %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3939
+#: src/emc/usr_intf/pncconf/pncconf.py:3960
 #, python-format
 msgid "%s Parallel Port Setup"
 msgstr "Réglage du port parallèle %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3963
+#: src/emc/usr_intf/pncconf/pncconf.py:3984
 #, python-format
 msgid "%s I/0 Setup"
 msgstr "Réglage E/S %s "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4184
+#: src/emc/usr_intf/pncconf/pncconf.py:4205
 msgid "Quit PNCconfig and discard changes?"
 msgstr "Quitter PNCconf et perdre les modifications ?"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4225
+#: src/emc/usr_intf/pncconf/pncconf.py:4246
 #: src/emc/usr_intf/pncconf/pncconf.glade:72825
 msgid "Help Pages"
 msgstr "Pages d'aide"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4230
+#: src/emc/usr_intf/pncconf/pncconf.py:4251
 msgid "Help page is unavailable\n"
 msgstr "Page d'aide indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4237
+#: src/emc/usr_intf/pncconf/pncconf.py:4258
 msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of external hardware is unavailable."
@@ -9038,7 +9042,7 @@ msgstr ""
 "Vous utilisez une version de LinuxCNC en temps réel simulé, les tests et "
 "réglages du matériel externe sont impossibles."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4242
+#: src/emc/usr_intf/pncconf/pncconf.py:4263
 #, python-format
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
@@ -9054,7 +9058,7 @@ msgstr ""
 "incapable de charger le noyau RTAI\n"
 " Vous utilisez actuellement le noyau %(actual)s au lieu du noyau %(needed)s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4262
+#: src/emc/usr_intf/pncconf/pncconf.py:4283
 #, python-format
 msgid ""
 "You are have no hostmot2 firmware downloaded in folder:\n"
@@ -9067,11 +9071,11 @@ msgstr ""
 "PNCconf utilisera un micro-logiciel échantillon,\n"
 "les tests en direct ne seront pas possible."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4276
+#: src/emc/usr_intf/pncconf/pncconf.py:4297
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Fichiers de configuration 'PNCconf' pour LinuxCNC "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4306
+#: src/emc/usr_intf/pncconf/pncconf.py:4327
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue.\n"
@@ -9081,19 +9085,19 @@ msgstr ""
 "ancienne de PNCConf, impossible de continuer.\n"
 "."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4313
-#: src/emc/usr_intf/pncconf/pncconf.py:4411
+#: src/emc/usr_intf/pncconf/pncconf.py:4334
+#: src/emc/usr_intf/pncconf/pncconf.py:4432
 #, python-format
 msgid "Point and click configuration - %s.pncconf "
 msgstr "Configuration à la souris - %s.pncconf "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4433
+#: src/emc/usr_intf/pncconf/pncconf.py:4454
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr ""
 "Vous devez définir un port parallèle et/ou une carte Mesa avant de continuer."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4492
+#: src/emc/usr_intf/pncconf/pncconf.py:4513
 msgid ""
 "You Have choosen to re-edit the current config, so you can not go to the new/"
 "modify page.\n"
@@ -9104,7 +9108,7 @@ msgstr ""
 " Quittez puis relancez PNCconf si vous voulez construire une nouvelle "
 "configuration."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4496
+#: src/emc/usr_intf/pncconf/pncconf.py:4517
 msgid ""
 "If you can not go to the new/modify page your current data will be lost.\n"
 "Ok to reset data and start a new configuration?"
@@ -9114,27 +9118,27 @@ msgstr ""
 "Êtes-vous sûr de vouloir effacer les données courantes et démarrer une "
 "nouvelle configuration ?"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4805
+#: src/emc/usr_intf/pncconf/pncconf.py:4826
 msgid "USB device Info Search"
 msgstr "Recherche informations dispositif USB"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4819
+#: src/emc/usr_intf/pncconf/pncconf.py:4840
 msgid "USB device  page is unavailable\n"
 msgstr "La page du dispositif USB est indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4884
+#: src/emc/usr_intf/pncconf/pncconf.py:4905
 msgid "Pin names are unavailable\n"
 msgstr "Nom de broche indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4906
+#: src/emc/usr_intf/pncconf/pncconf.py:4927
 msgid "Device names are unavailable\n"
 msgstr "Nom de dispositif indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4909
+#: src/emc/usr_intf/pncconf/pncconf.py:4930
 msgid "No Pncconf made device rules were found\n"
 msgstr "Aucune règle créée par Pncconf n'a été trouvée\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5035
+#: src/emc/usr_intf/pncconf/pncconf.py:5056
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -9148,7 +9152,7 @@ msgstr ""
 "mais si vous changez ces options plus tard -comme le retour de vitesse "
 "broche- la connexion ne sera plus à jour"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5041
+#: src/emc/usr_intf/pncconf/pncconf.py:5062
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -9158,7 +9162,7 @@ msgstr ""
 "Le fichier pyvcp-panel.xml sera renommé et ajouté au dossier 'backup'. \n"
 "Cliquez 'programme utilisateur existant' pour éviter cet avertissement."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5486
+#: src/emc/usr_intf/pncconf/pncconf.py:5507
 msgid ""
 "You need to configure the mesa0 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -9168,7 +9172,7 @@ msgstr ""
 "Choisir le type de carte, de micro-logiciel, de composants et presser le "
 "bouton 'Accepter les changements de composants'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5490
+#: src/emc/usr_intf/pncconf/pncconf.py:5511
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -9176,7 +9180,7 @@ msgstr ""
 "La carte Mesa0 choisie est différente de celle affichée.\n"
 "Presser le bouton 'Accepter les changements de composants'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5533
+#: src/emc/usr_intf/pncconf/pncconf.py:5554
 msgid ""
 "You need to configure the mesa1 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -9186,7 +9190,7 @@ msgstr ""
 "Choisir le type de carte, de micro-logiciel, de composants et presser le "
 "bouton 'Accepter les changements de composants'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5537
+#: src/emc/usr_intf/pncconf/pncconf.py:5558
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -9194,7 +9198,7 @@ msgstr ""
 "La carte Mesa1 choisie est différente de celle affichée.\n"
 "Presser le bouton 'Accepter les changements de composants'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:5551
+#: src/emc/usr_intf/pncconf/pncconf.py:5572
 msgid ""
 "Do to technical reasons this test panel can be loaded only once without "
 "reloading pncconf.You also will not be able to do any other testing untill "
@@ -9209,63 +9213,63 @@ msgstr ""
 "permettre son utilisation, mais parfois il est très utile.\n"
 "Souhaitez-vous continuer le test ?"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7037
+#: src/emc/usr_intf/pncconf/pncconf.py:7058
 msgid "First Parallel Port set for OUTPUT"
 msgstr "Réglage du premier port parallèle en SORTIES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7039
+#: src/emc/usr_intf/pncconf/pncconf.py:7060
 msgid "First Parallel Port set for INPUT"
 msgstr "Réglage du premier port parallèle en ENTREES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7063
+#: src/emc/usr_intf/pncconf/pncconf.py:7084
 msgid "Second Parallel Port set for OUTPUT"
 msgstr "Réglage du deuxième port parallèle en SORTIES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7065
+#: src/emc/usr_intf/pncconf/pncconf.py:7086
 msgid "Second Parallel Port set for INPUT"
 msgstr "Réglage du deuxième port parallèle en ENTREES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7077
+#: src/emc/usr_intf/pncconf/pncconf.py:7098
 msgid "Third Parallel Port set for OUTPUT"
 msgstr "Réglage du troisième port parallèle en SORTIES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7079
+#: src/emc/usr_intf/pncconf/pncconf.py:7100
 msgid "Third Parallel Port set for INPUT"
 msgstr "Réglage du troisième port parallèle en ENTREES"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7205
+#: src/emc/usr_intf/pncconf/pncconf.py:7226
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 "Il est impossible d'avoir simultanément les signaux PWM et de pas à pas pour "
 "contrôler la broche\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7209
+#: src/emc/usr_intf/pncconf/pncconf.py:7230
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Vous avez omis de déclarer un signal PWM ou pas à pas pour l'axe %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7212
+#: src/emc/usr_intf/pncconf/pncconf.py:7233
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Vous avez omis de déclarer un signal de codeur/résolveur pour le servo de "
 "l'axe %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7215
+#: src/emc/usr_intf/pncconf/pncconf.py:7236
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 "Vous avez omis de déclarer un signal PWM ou un signal pas à pas pour l'axe %"
 "s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7218
+#: src/emc/usr_intf/pncconf/pncconf.py:7239
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 "Vous ne pouvez pas avoir simultanément des signaux PWM et de pas à pas pour "
 "l'axe %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7221
+#: src/emc/usr_intf/pncconf/pncconf.py:7242
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis %"
@@ -9274,19 +9278,19 @@ msgstr ""
 "Si un tandem de moteur pas à pas est utilisé, vous devez choisir un stepgen "
 "maître pour l'axe %s \n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7230
+#: src/emc/usr_intf/pncconf/pncconf.py:7251
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiert un signal de départ cycle externe\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7233
+#: src/emc/usr_intf/pncconf/pncconf.py:7254
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiert un signal d'abandon externe\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7236
+#: src/emc/usr_intf/pncconf/pncconf.py:7257
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiert un signal d'avance par pas externe\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7239
+#: src/emc/usr_intf/pncconf/pncconf.py:7260
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -9294,7 +9298,7 @@ msgstr ""
 "Touchy requiert le signal du codeur de manivelle multi-axes sur la page "
 "mesa\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7242
+#: src/emc/usr_intf/pncconf/pncconf.py:7263
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -9302,7 +9306,7 @@ msgstr ""
 "Touchy requiert qu'une 'Manivelle de jog externe' soit sélectionnée sur la "
 "page des contrôles externes\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7245
+#: src/emc/usr_intf/pncconf/pncconf.py:7266
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -9310,7 +9314,7 @@ msgstr ""
 "Touchy requiert que la manivelle externe soit en mode 'Manivelle partagée' "
 "sur la page des contrôles externes\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7248
+#: src/emc/usr_intf/pncconf/pncconf.py:7269
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -9318,7 +9322,7 @@ msgstr ""
 "Touchy requiert que la case 'Incréments de manivelle sélectionnables' soit "
 "décochée sur la page des contrôles externes\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7252
+#: src/emc/usr_intf/pncconf/pncconf.py:7273
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -9326,7 +9330,7 @@ msgstr ""
 "La carte fille 7i29 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 20 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7255
+#: src/emc/usr_intf/pncconf/pncconf.py:7276
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -9334,7 +9338,7 @@ msgstr ""
 "La carte fille 7i30 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 20 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7258
+#: src/emc/usr_intf/pncconf/pncconf.py:7279
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -9342,7 +9346,7 @@ msgstr ""
 "La carte fille 7i33 requiert des générateurs de type PDM et une fréquence "
 "PDM de base de 6 MHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7261
+#: src/emc/usr_intf/pncconf/pncconf.py:7282
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -9350,7 +9354,7 @@ msgstr ""
 "La carte fille 7i40 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 50 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7264
+#: src/emc/usr_intf/pncconf/pncconf.py:7285
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -9358,77 +9362,77 @@ msgstr ""
 "La carte fille 7i48 requiert des générateurs de type UDM et une fréquence "
 "PWM de base de 24 kHz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7489
+#: src/emc/usr_intf/pncconf/pncconf.py:7510
 msgid "Gearbox Reduction Ratio"
 msgstr "Rapport de réduction des pignons"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7492
+#: src/emc/usr_intf/pncconf/pncconf.py:7513
 msgid "Reduction Ratio"
 msgstr "Rapport de réduction"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7495
+#: src/emc/usr_intf/pncconf/pncconf.py:7516
 msgid "Leadscrew Pitch"
 msgstr "Pas de la vis"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7498
+#: src/emc/usr_intf/pncconf/pncconf.py:7519
 #: src/emc/usr_intf/pncconf/pncconf.glade:73330
 #: src/emc/usr_intf/pncconf/pncconf.glade:73625
 msgid "Leadscrew TPI"
 msgstr "Filets de la vis par pouce"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7502
-#: src/emc/usr_intf/pncconf/pncconf.py:7503
+#: src/emc/usr_intf/pncconf/pncconf.py:7523
+#: src/emc/usr_intf/pncconf/pncconf.py:7524
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7504
-#: src/emc/usr_intf/pncconf/pncconf.py:7514
-#: src/emc/usr_intf/pncconf/pncconf.py:7515
-#: src/emc/usr_intf/pncconf/pncconf.py:7516
+#: src/emc/usr_intf/pncconf/pncconf.py:7525
+#: src/emc/usr_intf/pncconf/pncconf.py:7535
+#: src/emc/usr_intf/pncconf/pncconf.py:7536
+#: src/emc/usr_intf/pncconf/pncconf.py:7537
 msgid " / min"
 msgstr " / mn"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7505
+#: src/emc/usr_intf/pncconf/pncconf.py:7526
 msgid " / sec²"
 msgstr " / s²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7508
+#: src/emc/usr_intf/pncconf/pncconf.py:7529
 msgid " / Step"
 msgstr " / pas"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7509
+#: src/emc/usr_intf/pncconf/pncconf.py:7530
 msgid "Steps / "
 msgstr "Pas / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7511
+#: src/emc/usr_intf/pncconf/pncconf.py:7532
 msgid " / encoder pulse"
 msgstr " / impulsion codeur"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7512
+#: src/emc/usr_intf/pncconf/pncconf.py:7533
 msgid "Encoder pulses / "
 msgstr "Impulsions de codeur / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7520
+#: src/emc/usr_intf/pncconf/pncconf.py:7541
 msgid "Resolver Scale:"
 msgstr "Échelle codeur:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:7821
+#: src/emc/usr_intf/pncconf/pncconf.py:7842
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8124
+#: src/emc/usr_intf/pncconf/pncconf.py:8145
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour "
 "l'arrêt d'urgence."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8136
+#: src/emc/usr_intf/pncconf/pncconf.py:8157
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour le "
 "palpeur."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8147
+#: src/emc/usr_intf/pncconf/pncconf.py:8168
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -9440,15 +9444,15 @@ msgstr ""
 "Tout autre fichier custom_backup.clp précédent sera écrasé. Presser "
 "'programme ladder existant' pour éviter cet avertissement"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8361
+#: src/emc/usr_intf/pncconf/pncconf.py:8382
 msgid "Do you wish to continue to edit this configuration."
 msgstr "Voulez-vous continuer pour éditer cette configuration."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8400
+#: src/emc/usr_intf/pncconf/pncconf.py:8421
 msgid "PCI search page is unavailable\n"
 msgstr "Page de recherche PCI indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8518
+#: src/emc/usr_intf/pncconf/pncconf.py:8539
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
@@ -9456,59 +9460,59 @@ msgstr ""
 "Vous avez spécifié un fichier glade comme existant alors que le dossier "
 "portant le nom de la machine n'en contient pas..."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8838
+#: src/emc/usr_intf/pncconf/pncconf.py:8859
 msgid "Servo tuning is not avaiable in PNCconf yet\n"
 msgstr "Les réglages de servo ne sont pas  opérationnels dans PNCconf \n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8843
+#: src/emc/usr_intf/pncconf/pncconf.py:8864
 msgid "degrees"
 msgstr "degrés"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8844
+#: src/emc/usr_intf/pncconf/pncconf.py:8865
 msgid "degrees / minute"
 msgstr "degrés / minute"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8845
+#: src/emc/usr_intf/pncconf/pncconf.py:8866
 msgid "degrees / second²"
 msgstr "degrés / seconde²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8847
+#: src/emc/usr_intf/pncconf/pncconf.py:8868
 msgid "revolutions"
 msgstr "tour"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8848
+#: src/emc/usr_intf/pncconf/pncconf.py:8869
 msgid "rpm"
 msgstr "tr/mn"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8849
+#: src/emc/usr_intf/pncconf/pncconf.py:8870
 msgid "revs / second²"
 msgstr "tours / seconde²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8852
+#: src/emc/usr_intf/pncconf/pncconf.py:8873
 #: src/emc/usr_intf/pncconf/pncconf.glade:65268
 #: src/emc/usr_intf/pncconf/pncconf.glade:65452
 #: src/emc/usr_intf/pncconf/pncconf.glade:65549
 msgid "mm / minute"
 msgstr "mm / minute"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8853
+#: src/emc/usr_intf/pncconf/pncconf.py:8874
 msgid "mm / second²"
 msgstr "mm / seconde²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8856
+#: src/emc/usr_intf/pncconf/pncconf.py:8877
 msgid "inches / minute"
 msgstr "pouces / minute"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:8857
+#: src/emc/usr_intf/pncconf/pncconf.py:8878
 msgid "inches / second²"
 msgstr "pouces / seconde²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:9006
+#: src/emc/usr_intf/pncconf/pncconf.py:9027
 #, python-format
 msgid "%s Axis Tune"
 msgstr "Calibration de l'axe %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:9170
+#: src/emc/usr_intf/pncconf/pncconf.py:9191
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
@@ -9516,7 +9520,7 @@ msgstr ""
 " Un signal CODEUR / RESOLVEUR et un signal ANALOGIQUE de broche doivent être "
 "déclarés pour tester cet axe"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:9174
+#: src/emc/usr_intf/pncconf/pncconf.py:9195
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
