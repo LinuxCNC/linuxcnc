@@ -91,19 +91,19 @@ the command line it opens the config picker.
 creates the RCS channels (shared memory buffers) used for
 communications between various parts of LinuxCNC:
 
-emcCommandChannel::
+Command Channel::
     RCS_CMD_CHANNEL, carries commands down the stack?  FIXME
 
-emcStatusChannel::
+Status Channel::
     RCS_STAT_CHANNEL, carries status messages up the stack?  FIXME
 
-emcErrorChannel::
+Error Channel::
     NML, carries error messages?  FIXME
 
-toolCommandChannel::
+Tool Command Channel::
     RCS_CMD_CHANNEL, carries tool commands?  FIXME
 
-toolStatusChannel::
+Status Channel::
     RCS_STAT_CHANNEL, carries tool status messages?  FIXME
 
 `linuxcncsvr` then listens for TCP connections on port 5005, to tell
@@ -112,7 +112,9 @@ to use.
 
 ==== realtime
 
-`linuxcnc` next starts the realtime system (if any).
+`linuxcnc` next starts the realtime system (if any).  On sim this does
+nothing, but on RTAI it loads all the kernel modules needed to bring
+up RTAI.
 
 ==== io
 
@@ -120,6 +122,10 @@ to use.
 `io` is a process that communicates with the rest of LinuxCNC via HAL
 and RCS.  `io` interfaces with any non-realtime I/O devices, including
 the tool changer hardware (if any).  `io` also manages the tool table.
+
+`io` registers with RCS/NML as "tool".  It writes to the Error channel
+and the Tool Status Channel, and it reads and writes to the Tool Command
+Channel.
 
 ==== halui
 
