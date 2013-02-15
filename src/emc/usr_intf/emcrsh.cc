@@ -2676,6 +2676,14 @@ void *readClient(void *arg)
       goto finished;
     }
 
+    {
+        int i;
+        printf("linuxcncrsh: read %d bytes:\n", len);
+        for (i = 0; i < len; i ++) {
+            printf("linuxcncrsh:     %c", buf[i]);
+        }
+    }
+
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, len) != (ssize_t)len) {
         fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
@@ -2694,6 +2702,7 @@ void *readClient(void *arg)
             int r;
             // we have some bytes in the context buffer, parse them now
             context->inBuf[context_index] = '\0';
+            printf("linuxcncrsh: parsing command: [%s]\n", context->inBuf);
             r = parseCommand(context);
             if (r == -1) goto finished;
             context_index = 0;
