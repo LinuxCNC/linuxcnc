@@ -78,6 +78,73 @@ numerical control "G and M code" programs, which are interpreted by
 the task controller into NML messages and sent to either the motion or
 discrete I/O controllers at the appropriate times.
 
+
+=== Startup and initialization
+
+LinuxCNC is started by the `linuxcnc` command.  The command takes an
+optional argument specifying an ini file, if no ini file is given on
+the command line it opens the config picker.
+
+==== linuxcncsvr
+
+`linuxcnc` first starts the `linuxcncsvr` process.  `linuxcncsvr`
+creates the RCS channels (shared memory buffers) used for
+communications between various parts of LinuxCNC:
+
+emcCommandChannel::
+    RCS_CMD_CHANNEL, carries commands down the stack?  FIXME
+
+emcStatusChannel::
+    RCS_STAT_CHANNEL, carries status messages up the stack?  FIXME
+
+emcErrorChannel::
+    NML, carries error messages?  FIXME
+
+toolCommandChannel::
+    RCS_CMD_CHANNEL, carries tool commands?  FIXME
+
+toolStatusChannel::
+    RCS_STAT_CHANNEL, carries tool status messages?  FIXME
+
+`linuxcncsvr` then listens for TCP connections on port 5005, to tell
+the other parts of LinuxCNC that will be starting up about the channels
+to use.
+
+==== realtime
+
+`linuxcnc` next starts the realtime system (if any).
+
+==== io
+
+`linuxcnc` next starts `io`, the non-realtime IO interface (if any).
+`io` is a process that communicates with the rest of LinuxCNC via HAL
+and RCS.  `io` interfaces with any non-realtime I/O devices, including
+the tool changer hardware (if any).  `io` also manages the tool table.
+
+==== halui
+
+`linuxcnc` next starts `halui` (if the ini configuration calls for it).
+`halui` accepts control signals from HAL, and turns them into RCS
+communications to drive the rest of LinuxCNC.
+
+==== HAL wiring
+
+The `linuxcnc` script next hooks up all the HAL wiring specified in the
+`.hal` files in the ini config.
+
+Once this is finished it starts all the HAL threads running.
+
+==== Task
+
+`linuxcnc` next starts the task controller, usually `milltask` (yes,
+even for lathes).  The task controller is a kind of central switchboard
+that coordinates the different parts of LinuxCNC.
+
+==== Display
+
+Finally `linuxcnc` starts the display program, which is the main UI.
+
+
 == Motion Controller Introduction
 
 The motion controller receives commands from user space modules via a

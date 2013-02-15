@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="linuxcnc-block-diagram-new.svg">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4010"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         id="path4028"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.85388801"
+     inkscape:cx="306.91799"
+     inkscape:cy="845.65906"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1201"
+     inkscape:window-height="995"
+     inkscape:window-x="397"
+     inkscape:window-y="24"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3759-34"
+       transform="translate(-458.58153,-26.562029)"
+       style="fill:#ffc5ff;fill-opacity:1" />
+    <g
+       id="g3941"
+       transform="translate(61.059598,-12.882251)">
+      <g
+         id="g4856">
+        <rect
+           transform="translate(-458.58153,-26.562029)"
+           y="91.975754"
+           x="526.6413"
+           height="71.972466"
+           width="142.53543"
+           id="rect2985-5"
+           style="fill:#ffc5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+        <g
+           id="g3863"
+           transform="translate(-78.033933,32.340886)">
+          <text
+             sodipodi:linespacing="125%"
+             id="text3857"
+             y="84.745514"
+             x="162.35704"
+             style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+             xml:space="preserve"><tspan
+               style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+               y="84.745514"
+               x="162.35704"
+               id="tspan3859"
+               sodipodi:role="line">(Axis, Touchy, Halui, etc)</tspan></text>
+          <text
+             sodipodi:linespacing="125%"
+             id="text3755-1"
+             y="65.772629"
+             x="161.38704"
+             style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+             xml:space="preserve"><tspan
+               y="65.772629"
+               x="161.38704"
+               id="tspan3757-9"
+               sodipodi:role="line"
+               style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans">UI</tspan></text>
+        </g>
+      </g>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend);display:inline"
+       d="M 154.66663,124.50394 77.327701,185.37685"
+       id="path3999"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3941"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g4848"
+       inkscape:connection-end-point="d4" />
+    <g
+       id="g4864"
+       transform="translate(159.27147,-11.711138)">
+      <rect
+         y="63.138359"
+         x="421.20236"
+         height="353.80997"
+         width="132.37788"
+         id="rect4447"
+         style="fill:#a1ff8a;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text4449"
+         y="85.022209"
+         x="467.32504"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="85.022209"
+           x="467.32504"
+           id="tspan4451"
+           sodipodi:role="line">HAL</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend);display:inline"
+       d="m 271.6548,110.84529 308.81903,96.75046"
+       id="path4453"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3941"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g4864"
+       inkscape:connection-end-point="d4" />
+    <g
+       id="g4848"
+       transform="translate(-62.069031,-26.350059)">
+      <rect
+         y="210.3786"
+         x="81.279167"
+         height="48.440529"
+         width="58.117565"
+         id="rect3916"
+         style="fill:#00c5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3918"
+         y="225.62886"
+         x="88.870056"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="225.62886"
+           x="88.870056"
+           id="tspan3920"
+           sodipodi:role="line">NML</tspan><tspan
+           id="tspan3924"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="238.12886"
+           x="88.870056"
+           sodipodi:role="line">command</tspan><tspan
+           id="tspan4846"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="250.62886"
+           x="88.870056"
+           sodipodi:role="line">channel</tspan><tspan
+           id="tspan3922"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="263.12885"
+           x="88.870056"
+           sodipodi:role="line" /></text>
+    </g>
+    <g
+       id="g4953"
+       transform="translate(-77.103564,-9.10926)">
+      <rect
+         y="193.1378"
+         x="172.37279"
+         height="48.440529"
+         width="58.117565"
+         id="rect3916-9"
+         style="fill:#00c5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3918-9"
+         y="208.38806"
+         x="179.96367"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="208.38806"
+           x="179.96367"
+           id="tspan3920-1"
+           sodipodi:role="line">NML</tspan><tspan
+           id="tspan3924-1"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="220.88806"
+           x="179.96367"
+           sodipodi:role="line">status</tspan><tspan
+           id="tspan4846-7"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="233.38806"
+           x="179.96367"
+           sodipodi:role="line">channel</tspan><tspan
+           id="tspan3922-0"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="245.88806"
+           x="179.96367"
+           sodipodi:role="line" /></text>
+    </g>
+    <g
+       id="g5019"
+       transform="translate(-91.22025,-18.478172)">
+      <rect
+         y="202.50671"
+         x="262.54855"
+         height="48.440529"
+         width="58.117565"
+         id="rect3916-9-0"
+         style="fill:#00c5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3918-9-5"
+         y="217.75697"
+         x="270.13943"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="217.75697"
+           x="270.13943"
+           id="tspan3920-1-0"
+           sodipodi:role="line">NML</tspan><tspan
+           id="tspan3924-1-5"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="230.25697"
+           x="270.13943"
+           sodipodi:role="line">error</tspan><tspan
+           id="tspan4846-7-3"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="242.75697"
+           x="270.13943"
+           sodipodi:role="line">channel</tspan><tspan
+           id="tspan3922-0-7"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="255.25697"
+           x="270.13943"
+           sodipodi:role="line" /></text>
+    </g>
+    <g
+       id="g5073"
+       transform="translate(145.86698,-126.80621)">
+      <rect
+         y="310.83475"
+         x="101.5204"
+         height="48.440529"
+         width="58.117565"
+         id="rect3916-9-0-6"
+         style="fill:#00c5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3918-9-5-2"
+         y="326.08499"
+         x="109.11128"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="326.08499"
+           x="109.11128"
+           id="tspan3920-1-0-2"
+           sodipodi:role="line">NML</tspan><tspan
+           id="tspan4846-7-3-7"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="338.58499"
+           x="109.11128"
+           sodipodi:role="line">tool cmd</tspan><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="351.08499"
+           x="109.11128"
+           sodipodi:role="line"
+           id="tspan5071">channel</tspan><tspan
+           id="tspan3922-0-7-8"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="363.58499"
+           x="109.11128"
+           sodipodi:role="line" /></text>
+    </g>
+    <g
+       id="g5123"
+       transform="translate(127.6514,-126.22063)">
+      <rect
+         y="310.24918"
+         x="195.79506"
+         height="48.440529"
+         width="58.117565"
+         id="rect3916-9-0-6-2"
+         style="fill:#00c5ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3918-9-5-2-3"
+         y="325.49942"
+         x="203.38594"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="325.49942"
+           x="203.38594"
+           id="tspan3920-1-0-2-2"
+           sodipodi:role="line">NML</tspan><tspan
+           id="tspan4846-7-3-7-2"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="337.99942"
+           x="203.38594"
+           sodipodi:role="line">tool status</tspan><tspan
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="350.49942"
+           x="203.38594"
+           sodipodi:role="line"
+           id="tspan5071-7">channel</tspan><tspan
+           id="tspan3922-0-7-8-4"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="362.99942"
+           x="203.38594"
+           sodipodi:role="line" /></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
+       d="m 139.71391,184.02854 37.81295,-59.5246"
+       id="path5231"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g4953"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3941"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
+       d="m 200.38708,184.02854 0,-59.5246"
+       id="path5233"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g5019"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3941"
+       inkscape:connection-end-point="d4" />
+  </g>
+</svg>
