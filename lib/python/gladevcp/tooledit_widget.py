@@ -65,12 +65,13 @@ class ToolEdit(gtk.VBox):
         self.objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
         # these signals include column data so must be made here instead of in Glade
         # for view 2
-        cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
+        self.cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
                          "cell_c","cell_u","cell_v", "cell_w","cell_d","cell_front","cell_back","cell_orient","cell_comments"
-        for col,name in enumerate(cell_list):
+        for col,name in enumerate(self.cell_list):
             if col == 0:continue
             temp = self.wTree.get_object(name)
             temp.connect( 'edited', self.col_editted, col )
+            temp.set_property('font', self.font)
 
         # global references
         self.model = self.wTree.get_object("liststore1")
@@ -201,9 +202,12 @@ class ToolEdit(gtk.VBox):
         except:
             pass
 
-        # not done yet should change the font of the text
+        # Allows you to change the font of all the columns and rows
     def set_font(self,value):
-        pass
+        for col,name in enumerate(self.cell_list):
+            if col == 0: continue
+            temp = self.wTree.get_object(name)
+            temp.set_property('font', value)
 
         # depending what is editted add the right type of info integer,float or text
         # we use locale methods so either a comma or decimal can be used, dependig in locale
@@ -284,7 +288,10 @@ class ToolEdit(gtk.VBox):
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
         if name == 'font':
-            self.set_font(value)
+            try:
+                self.set_font(value)
+            except:
+                pass
         if name == 'hide_columns':
             self.set_visible("stpxyzabcuxvdijq;",True)
             self.set_visible("%s"%value,False)
@@ -313,6 +320,7 @@ def main(filename=None):
     tooledit.set_visible("Abcijquvw",False)
     window.connect("destroy", gtk.main_quit)
     #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
+    tooledit.set_font("sans 16")
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
