@@ -116,6 +116,9 @@ to use.
 nothing, but on RTAI it loads all the kernel modules needed to bring
 up RTAI.
 
+Also starts all the realtime components, and any non-realtime hal
+components.
+
 ==== io
 
 `linuxcnc` next starts `io`, the non-realtime IO interface (if any).
