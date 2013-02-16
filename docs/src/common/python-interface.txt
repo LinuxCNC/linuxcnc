@@ -11,16 +11,16 @@ addenda are welcome, especially for PositionLogger (A bit of intent, purpose and
 
 == The linuxcnc Python module
 
-User interfaces control Linxuxcnc activity by sending
-NML messages to the Linuxcnc task controller, and monitor results by
-observing the linuxcnc status structure, as well as the error reporting channel. 
+User interfaces control LinuxCNC activity by sending
+NML messages to the LinuxCNC task controller, and monitor results by
+observing the LinuxCNC status structure, as well as the error reporting channel.
 
 Programmatic access to NML is through a C++ API; however, the most
-important parts of the NML interface to Linuxcnc are also available to
-Python programs through the `linxuxcnc` module.
+important parts of the NML interface to LinuxCNC are also available to
+Python programs through the `linuxcnc` module.
 
 Beyond the NML interface to the command, status and error channels,
-the `linxuxcnc` module also contains:
+the `linuxcnc` module also contains:
 
 - support for reading values from ini files
 - support for position logging  (???)
@@ -28,16 +28,16 @@ the `linxuxcnc` module also contains:
 
 == Usage Patterns for the LinuxCNC NML interface
 
-The general pattern for `linxuxcnc` usage is roughly like this:
+The general pattern for `linuxcnc` usage is roughly like this:
 
-- import the `linxuxcnc` module
+- import the `linuxcnc` module
 - establish connections to the command, status and error NML channels as needed
 - poll the status channel, either periodically or as needed
 - before sending a command, determine from status whether it is in
  fact OK to do so (for instance, there is no point in sending a 'Run'
  command if task is in the ESTOP state, or the interpreter is not
  idle)
-- send the command by using one of  the `linxuxcnc`  command channel methods
+- send the command by using one of  the `linuxcnc`  command channel methods
 
 
 To retrieve messages from the error channel, poll the error channel
@@ -46,7 +46,7 @@ periodically, and process any messages retrieved.
 - poll the status channel, either periodically or as needed
 - print any error message FIXME: explore the exception code
 
-`linxuxcnc` also defines the `error` Python exception type to support error reporting.
+`linuxcnc` also defines the `error` Python exception type to support error reporting.
 
 == Reading LinuxCNC status
 
