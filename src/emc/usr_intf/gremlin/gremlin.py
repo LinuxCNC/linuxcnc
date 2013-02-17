@@ -56,6 +56,10 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
     def is_lathe(self): return self.lathe_view_option
 
+    def change_tool(self, pocket):
+        rs274.glcanon.GLCanon.change_tool(self,pocket)
+        rs274.interpret.StatMixin.change_tool(self,pocket)
+
 class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
               rs274.glcanon.GlCanonDraw):
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
