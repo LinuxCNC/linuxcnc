@@ -220,7 +220,50 @@
           <placeholder/>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkHButtonBox" id="buttonbox">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="zero_g92_button">
+                <property name="label" translatable="yes">Zero
+G92</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="edit_button">
+                <property name="label" translatable="yes">Edit</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>

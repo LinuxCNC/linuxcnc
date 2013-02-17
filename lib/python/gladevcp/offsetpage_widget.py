@@ -55,11 +55,16 @@ class OffsetPage(gtk.VBox):
     def __init__(self,filename=None, *a, **kw):
         super(OffsetPage, self).__init__()
         self.filename = filename
+        self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
+        self.cmd = linuxcnc.command()
+        self.hash_check = None
         self.display_units_mm=0
         self.machine_units_mm=0
         self.unit_convert=[1]*9
         self.font="sans 12"
+        self.editing_mode = False
+        self.highlight_color = "yellow"
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()
@@ -69,7 +74,15 @@ class OffsetPage(gtk.VBox):
         self.model = self.wTree.get_object("liststore2")
         self.all_window = self.wTree.get_object("all_window")
         self.view2 = self.wTree.get_object("treeview2")
+        self.edit_button = self.wTree.get_object("edit_button")
+        self.edit_button.connect( 'toggled', self.set_editing)
+        zero_g92_button = self.wTree.get_object("zero_g92_button")
+        zero_g92_button.connect( 'clicked', self.zero_g92)
 
+        for col,name in enumerate(KEYWORDS):
+            temp = self.wTree.get_object("cell_"+ name)
+            temp.connect( 'edited', self.col_editted, col )
+            temp.set_property('font', self.font)
         # reparent tooledit box from Glades top level window to widgets VBox
         window = self.wTree.get_object("offsetpage_box")
         window.reparent(self)
@@ -94,16 +107,7 @@ class OffsetPage(gtk.VBox):
             self.conversion=[25.4]*3+[1]*3+[25.4]*3
 
         # check linuxcnc status every half second
-        gobject.timeout_add(500, self.periodic_check)
-
-    # check for linuxcnc, reload the offsets if it's available 
-    def periodic_check(self):
-        try:
-            self.status.poll()
-        except:
-            return True
-        self.reload_offsets()
-        return True
+        gobject.timeout_add(1000, self.periodic_check)
 
     # Reload the offsets into display
     def reload_offsets(self):
@@ -253,16 +257,89 @@ class OffsetPage(gtk.VBox):
         except:
             self.hidejointslist = []
 
-    # not done yet should change the font of the text
-    def set_font(self,value):
-        pass
-
-
     # This does the units conversion
     # it just mutiplies the two arrays 
     def convert_units(self,v):
         c = self.conversion
         return map(lambda x,y: x*y, v, c)
+
+    # make the cells editable and hilight them
+    def set_editing(self, widget):
+        state = widget.get_active()
+        self.editing_mode = state
+        for obj in ("cell_g5x","cell_g92"):
+            temp = self.wTree.get_object(obj)
+            temp.set_property('editable', state)
+            if state:
+                temp.set_property('background', self.highlight_color)
+            else:
+                temp.set_property('background', None)
+        self.queue_draw()
+
+    # When the column is edited this does the work
+    # TODO the edited column does not end up showing the editted number even though linuxcnc
+    # registered the change 
+    def col_editted(self, widget, path, new_text, col):
+        axlet = "xyzabcuvw"
+        print new_text, col, axlet[int(path)]
+        try:
+            if self.status.task_mode != self.linuxcnc.MODE_MDI:
+                self.cmd.mode(self.linuxcnc.MODE_MDI)
+                self.cmd.wait_complete()
+            if col == 2:
+                self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+            elif col == 3:
+                self.cmd.mdi( "G92 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+            self.cmd.mode(self.linuxcnc.MODE_MANUAL)
+            self.cmd.wait_complete()
+            self.cmd.mode(self.linuxcnc.MODE_MDI)
+            self.cmd.wait_complete()
+        except:
+            print "MDI error in offsetpage widget"
+        try:
+            self.model[path][col] = ("%10.4f"%float(new_text))
+        except:
+            print "offsetpage widget error: unrecognized float input"
+        self.reload_offsets()
+
+    # callback to cancel G92 when button pressed
+    def zero_g92(self,widget):
+        print "zero g92"
+        try:
+            if self.status.task_mode != self.linuxcnc.MODE_MDI:
+                self.cmd.mode(self.linuxcnc.MODE_MDI)
+                self.cmd.wait_complete()
+            self.cmd.mdi( "G92.2" )
+            self.cmd.mode(self.linuxcnc.MODE_MANUAL)
+            self.cmd.wait_complete()
+            self.cmd.mode(self.linuxcnc.MODE_MDI)
+            self.cmd.wait_complete()
+        except:
+            print "MDI error in offsetpage widget"
+
+    # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
+    # if in editing mode don't update else you can't actually edit
+    def periodic_check(self):
+        try:
+            self.status.poll()
+            on = self.status.task_state > linuxcnc.STATE_OFF
+            idle = self.status.interp_state == linuxcnc.INTERP_IDLE
+            self.edit_button.set_sensitive(bool(on and idle))
+        except:
+            pass
+        if self.filename and not self.editing_mode:
+            self.reload_offsets()
+        return True
+
+    # sets the color when editing is active
+    def set_highlight_color(self,value):
+        self.highlight_color = value
+
+    # Allows you to set the text font of all the rows and columns
+    def set_font(self,value):
+        for col,name in enumerate(KEYWORDS):
+            temp = self.wTree.get_object("cell_"+ name)
+            temp.set_property('font', value)
 
     # helper function to set the units to inch
     def set_to_inch(self):
@@ -285,7 +362,7 @@ class OffsetPage(gtk.VBox):
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
         if name == 'font':
-            self.set_font(value)
+            pass
         if name == 'hide_columns':
             self.set_col_visible("0123456789abcd",True)
             self.set_col_visible("%s"%value,False)
@@ -312,10 +389,11 @@ def main(filename=None):
     offsetpage = OffsetPage()
     
     window.vbox.add(offsetpage)
-    #offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
+    offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
     #offsetpage.set_col_visible("1abC",False)
     #offsetpage.set_row_visible("0yz3b",True)
     #offsetpage.set_to_mm()
+    #offsetpage.set_font("sans 10")
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()
