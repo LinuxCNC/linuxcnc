@@ -210,6 +210,9 @@
                 <child>
                   <object class="GtkTreeViewColumn" id="d">
                     <property name="title">DIameter</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <property name="sort_column_id">12</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_d"/>
                       <attributes>
