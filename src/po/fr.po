@@ -8709,8 +8709,6 @@ msgstr ""
 "+\n"
 "-\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:79 emc/usr_intf/pncconf/pncconf.py:79
-#, fuzzy
 msgid ""
 "PNCconf encountered an error.  The following information may be useful in "
 "troubleshooting:\n"
@@ -9068,12 +9066,8 @@ msgstr "Activation ampli Z"
 msgid "A Amplifier Enable"
 msgstr "Activation ampli A"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:443 emc/usr_intf/pncconf/pncconf.py:443
-#: src/emc/usr_intf/pncconf/pncconf.py:464
-#, fuzzy
 msgid "Force Pin True"
-msgstr ""
-"Force la pin à True"
+msgstr "Force la pin à True"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:445
 #: src/emc/usr_intf/pncconf/pncconf.py:472 emc/usr_intf/pncconf/pncconf.py:445
@@ -10612,13 +10606,8 @@ msgstr ""
 "PNCconf utilisera un micro-logiciel échantillon,\n"
 "les tests en direct ne seront pas possible."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4093
-#: emc/usr_intf/pncconf/pncconf.py:4093
-#: src/emc/usr_intf/pncconf/pncconf.py:4276
-#, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
-msgstr ""
-"Fichiers de configuration 'PNCconf' pour LinuxCNC "
+msgstr "Fichiers de configuration 'PNCconf' pour LinuxCNC "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4123
 #: emc/usr_intf/pncconf/pncconf.py:4123
@@ -10698,13 +10687,8 @@ msgstr "Nom de broche indisponible\n"
 msgid "Device names are unavailable\n"
 msgstr "Nom de dispositif indisponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4698
-#: emc/usr_intf/pncconf/pncconf.py:4698
-#: src/emc/usr_intf/pncconf/pncconf.py:4909
-#, fuzzy
 msgid "No Pncconf made device rules were found\n"
-msgstr ""
-"Aucune règle créée par Pncconf n'a été trouvée\n"
+msgstr "Aucune règle créée par Pncconf n'a été trouvée\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4822
 #: emc/usr_intf/pncconf/pncconf.py:4822
@@ -19481,8 +19465,7 @@ msgstr "Impossible d'ouvrir %s "
 #: src/emc/rs274ngc/interp_namedparams.cc:208
 #, fuzzy, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-msgstr ""
-"Paramètre nommé #<%s> non défini dans le fichier ini '%s': erreur=0x%x"
+msgstr "Paramètre nommé #<%s> non défini dans le fichier ini '%s': erreur=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:378
 #, c-format

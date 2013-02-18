@@ -64315,7 +64315,7 @@ Charge Pump</property>
                                 <child>
                                   <widget class="GtkLabel" id="label403">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Use Brushless Motor Control&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Use BLDC Motor Commutation Control&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
                                   </widget>
                                 </child>

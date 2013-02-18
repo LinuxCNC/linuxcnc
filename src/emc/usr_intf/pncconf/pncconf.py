@@ -1803,6 +1803,23 @@ If you have a REALLY large config that you wish to convert to this newer version
            test = self.findsignal( thisaxispwmgen)
            return test
 
+    def pwmgen_invert_pins(self,pinnumber):
+        print "list pwm invert pins"
+        # sample pinname = mesa0c0pin11
+        signallist = []
+        pin = int(pinnumber[10:])
+        connector = int(pinnumber[6:7])
+        boardnum = int(pinnumber[4:5])
+        channel = None
+        pinlist = self.list_related_pins([PWMP, PWMD, PWME], boardnum, connector, channel, pin, 0)
+        print pinlist
+        for i in pinlist:
+            if self[i[0]+"inv"]:
+                gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
+                print gpioname
+                signallist.append(gpioname)
+        return signallist
+
     def tppwmgen_sig(self, axis):
            thisaxispwmgen =  axis + "-tppwm-a" 
            test = self.findsignal(thisaxispwmgen)
@@ -1821,6 +1838,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         closedloop = False
         pwmpin = self.pwmgen_sig(let)
         pwmpinname = self.make_pinname(pwmpin)
+        if pwmpinname:
+            pwminvertlist = self.pwmgen_invert_pins(self.pwmgen_sig(let))
         if not pwmpin == None:
             pwmtype = self.pwmgen_sig(let)+"type"
         else:
@@ -2019,6 +2038,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 if self[pwmtype] == UDMU: pulsetype = 2
                 print >>file, "setp   "+pwmpinname+".output-type %d"% pulsetype 
                 print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                for i in pwminvertlist:
+                    print >>file, "setp    "+i+".invert_output true"
                 print >>file
                 if let == 's':  
                     print >>file
@@ -2053,6 +2074,8 @@ If you have a REALLY large config that you wish to convert to this newer version
             else:
                 print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
                 print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
+            for i in stepinvertlist:
+                   print >>file, "setp    "+i+".invert_output true"
             if let == "s":
                 print >>file
                 print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
@@ -2071,8 +2094,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s-pos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
                 print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
                 print >>file, "net %s-enable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
-            for i in stepinvertlist:
-                   print >>file, "setp    "+i+".invert_output true"
             print >>file
 
         if steppinname2:
@@ -2091,6 +2112,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".control-type     0"
             print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
             print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
+            for i in stepinvertlist2:
+                   print >>file, "setp    "+i+".invert_output true"
             if closedloop:
                 print >>file
                 print >>file, "# ---closedloop stepper signals---"
@@ -2102,8 +2125,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s2-pos-fb                            <=  " % (let) + steppinname + ".position-fb"
                 print >>file, "net %s-pos-cmd                            =>  " % (let) + steppinname + ".position-cmd"
                 print >>file, "net %s-enable                             =>  " % (let)+ steppinname + ".enable"
-            for i in stepinvertlist2:
-                   print >>file, "setp    "+i+".invert_output true"
             print >>file
 
         if encoderpinname:             
@@ -6081,7 +6102,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # the user has a choice of pulse width or pulse density modulation
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
-                        self.widgets[pinv].set_sensitive(0)
+                        self.widgets[pinv].set_sensitive(1)
                         self.widgets[pinv].set_active(0)
                         self.widgets[p].set_model(self.data._pwmsignaltree)         
                         # only add the -pulse signal names for the user to see
@@ -6105,7 +6126,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[p].set_active(0) 
                             self.widgets[ptype].set_sensitive(0)
                             temp = 1
-                            if firmptype in (PWME,PDME): temp = 2
+                            if firmptype in (PWME,PDME):
+                                self.widgets[pinv].set_sensitive(0)
+                                temp = 2
                             self.widgets[ptype].set_active(temp)
                     else:
                         firmptype = GPIOI
@@ -6516,6 +6539,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
                 # type PWM gen
                 elif widgetptype in (PDMP,PWMP,UDMU):
+                    self.widgets[pinv].set_active(datapinv)
                     if self.widgets["mesa%d_numof_resolvers"% boardnum].get_value(): dataptype = UDMU # hack resolver board needs UDMU
                     if dataptype == PDMP:
                         #print "pdm"
@@ -8860,6 +8884,7 @@ But there is not one in the machine-named folder.."""),True)
         self.updaterunning = False
         axnum = "xyzas".index(axis)
         self.axis_under_tune = axis
+        step_sig = self.data.stepgen_sig(axis)
         self.stepgen = self.data.stepgen_sig(axis)
         #print axis," stepgen--",self.stepgen
         self.encoder = self.data.encoder_sig(axis)
@@ -8990,6 +9015,9 @@ But there is not one in the machine-named folder.."""),True)
                 halrun.write("net enable %s \n"%  (self.pwm +".enable"))
                 halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
                 ending = ".value"
+                pwminvertlist = self.data.pwmgen_invert_pins(pwm_sig)
+                for i in pwminvertlist:
+                    halrun.write("setp    "+i+".invert_output true")
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
                 halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
@@ -9011,7 +9039,9 @@ But there is not one in the machine-named folder.."""),True)
                 self.scale = get_value(w[axis + "stepscale"]) * -1
             else:
                 self.scale = get_value(w[axis + "stepscale"]) * 1
-                #halrun.write("setp %s.gpio.%03d.invert_output %d \n"% (self.step_signalname,self.invert,guiinvert))
+            stepinvertlist = self.data.stepgen_invert_pins(step_sig)
+            for i in stepinvertlist:
+                halrun.write("setp    "+i+".invert_output true")
             halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
             halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
             halrun.write("setp %s.steplen %d \n"% (self.step_signalname,w[axis+"steptime"].get_value()))
@@ -9283,6 +9313,10 @@ But there is not one in the machine-named folder.."""),True)
                 halrun.write("net enable %s \n"%  (self.pwm +".enable"))
                 halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
                 ending = ".value"
+                pwminvertlist = self.data.pwmgen_invert_pins(pwm_sig)
+                for i in pwminvertlist:
+                    halrun.write("setp    "+i+".invert_output true")
+
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
                 halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
