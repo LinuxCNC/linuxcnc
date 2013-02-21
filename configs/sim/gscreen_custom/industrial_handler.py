@@ -160,14 +160,13 @@ class HandlerClass:
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.set_editable(True)
         dialog.parse_geometry("400x400")
         dialog.set_decorated(False)
         dialog.show_all()
-        self.widgets.data_input.set_sensitive(False)
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
-        self.widgets.data_input.set_sensitive(True)
         if response == gtk.RESPONSE_ACCEPT:
             if code == _UNLOCKCODE:
                 self.gscreen.add_alarm_entry("System page unlocked")
