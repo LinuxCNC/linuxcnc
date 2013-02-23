@@ -155,6 +155,58 @@ Task sends a command to IO via the Tool Command Channel to initialize
 itself, and reads IO's response via the Tool Status Channel.
 
 
+
+
+
+
+
+To the extent that LinuxCNC has a core process that governs its overall
+behavior, this core process is task (aka milltask, even for lathes and
+3d-printers and other non-mill machines).
+
+Task is a single-threaded process that runs a fairly convoluted main loop.
+
+* Task first looks for a new command in the NML Command channel.
+    Commands in this channel come from user interfaces, and implement
+    all the things we think of as human-level control over the machine:
+    Estop on and off, jog this axis, set this feed override, turn the
+    spindle on/off, flood coolant on/off, run this MDI command, run this
+    gcode file, etc.
+
+* Task then runs emcTaskPlan(), which decides what to do with the command
+    based on the current state of the machine.  For example, emcTaskPlan()
+    enforces the rule that you can't run a gcode file if the machine is
+    in Estop.
+
+    emcTaskPlan will likely call emcTaskIssueCommand() to run the command.
+    This may involve changing state inside Task, or sending messages to
+    IO or Motion.
+
+* Task then runs emcTaskExecute().  emcTaskExecute checks to see if its
+    time to do the next thing, and if so takes the next command off the
+    interp_list and handles it by first checking its precondition, then
+    passing it to emcTaskIssueCommand(), then checking its postcondition.
+
+* Task reads the status from Motion and IO.  IO status can include
+    external estop, which Task handles.  Motion status can also report
+    errors, which Task handles.
+
+* Task updates its own status and writes it to the Status NML channel.
+
+* Task then sleeps a little while, and runs the loop again.
+
+
+Important variables:
+
+interp_list:: An NML_INTERP_LIST, a linked list of NML commands.  Commands
+are added to interp_list by Task and Interp.  The commands are read by
+Task and either handled directly, or passed to Io, or passed to Motion.
+
+
+
+
+
+
 ==== Display
 
 Finally `linuxcnc` starts the display program, which is the main UI.
