@@ -2047,11 +2047,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		command = NULL;
 	    }
 
-	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
-		mdi_execute_queue.append(execute_msg);
-		break;
-	    }
-
 	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(++pseudoMdiLineNumber);
