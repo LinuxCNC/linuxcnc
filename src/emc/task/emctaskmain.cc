@@ -656,7 +656,13 @@ static void mdi_execute_hook(void)
 	return;
     }
 
-    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+    if (
+        (mdi_execute_level < 0)
+        && (mdi_execute_wait == 0)
+        && (mdi_execute_queue.len() > 0)
+        && (interp_list.len() == 0)
+        && (emcTaskCommand == NULL)
+    ) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
     }
