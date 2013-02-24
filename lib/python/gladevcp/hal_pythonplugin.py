@@ -27,3 +27,6 @@ from hal_filechooser import *
 
 from hal_sourceview import *
 from hal_mdihistory import *
+
+from pyngcgui import PyNgcGui
+from hal_gremlin_plus import HAL_GremlinPlus

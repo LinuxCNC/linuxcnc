@@ -238,6 +238,7 @@ class touchy:
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
 
+                self.current_file = self.status.emcstat.file
                 # check the ini file if UNITS are set to mm"
                 inifile=self.linuxcnc.emc.ini(sys.argv[2])
                 # first check the global settings
@@ -645,6 +646,13 @@ class touchy:
                 self.linuxcnc.mask()
                 self.radiobutton_mask = 1
                 self.status.periodic()
+
+                # check if current_file changed
+                # perhaps by another gui or a gladevcp app
+                if self.current_file != self.status.emcstat.file:
+                    self.current_file = self.status.emcstat.file
+                    self.filechooser.select_and_open(self.current_file)
+
                 self.radiobutton_mask = 0
                 self.linuxcnc.unmask()
                 self.hal.periodic(self.tab == 1) # MDI tab?

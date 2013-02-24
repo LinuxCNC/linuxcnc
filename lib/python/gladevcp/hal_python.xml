@@ -27,6 +27,10 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
+
+    <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
+    <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
+
     <glade-widget-class name="ToolEdit" generic-name="tooledit" title="Tooleditor">
        <properties>
             <property id="size" query="False" default="1" visible="False"/>
@@ -110,6 +114,10 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+
+   <glade-widget-class-ref name="PyNgcGui"/>
+   <glade-widget-class-ref name="HAL_GremlinPlus"/>
+
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
    <glade-widget-class-ref name="HAL_DRO"/>
@@ -122,6 +130,8 @@ domain="glade-3" depends="gtk+">
 
    <glade-widget-class-ref name="EMC_SourceView"/>
    <glade-widget-class-ref name="EMC_MDIHistory"/>
+
+
  </glade-widget-group>
  <glade-widget-group name="python" title="EMC Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
@@ -153,6 +163,6 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_Action_Reload"/>
    <glade-widget-class-ref name="EMC_Action_Save"/>
    <glade-widget-class-ref name="EMC_Action_SaveAs"/>
+
  </glade-widget-group>
 </glade-catalog>
-

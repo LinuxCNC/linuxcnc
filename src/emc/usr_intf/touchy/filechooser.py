@@ -48,6 +48,29 @@ class filechooser:
         self.listing.readfile(fn)
         self.populate()
 
+    def select_and_open(self,fn):
+        self.reload(0)
+        numfiles = len(self.files)
+        fn = os.path.basename(fn)
+        self.fileoffset = 0
+        found = False
+        while True:
+            for k in range(self.numlabels):
+                n = k + self.fileoffset
+                if n >= numfiles: return # notfound
+                if self.files[n] == fn:
+                    found = True
+                    break # from for
+            if found: break # from while
+            self.fileoffset += self.numlabels
+
+        self.selected = n
+        self.emccommand.mode(self.emc.MODE_MDI)
+        fn = os.path.join(self.dir, fn)
+        self.emccommand.program_open(fn)
+        self.listing.readfile(fn)
+        self.populate()
+
     def up(self, b):
         self.fileoffset -= self.numlabels
         if self.fileoffset < 0:
