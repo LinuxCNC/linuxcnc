@@ -78,6 +78,7 @@ class ToolEdit(gtk.VBox):
         self.all_window = self.wTree.get_object("all_window")
         self.view2 = self.wTree.get_object("treeview2")
         self.apply = self.wTree.get_object("apply")
+        self.buttonbox = self.wTree.get_object("buttonbox")
         # reparent tooledit box from Glades tp level window to tooledit's VBox
         window = self.wTree.get_object("tooledit_box")
         window.reparent(self)
@@ -87,6 +88,7 @@ class ToolEdit(gtk.VBox):
         # check linuxcnc status every second
         gobject.timeout_add(1000, self.periodic_check)
 
+        # delete the selected tools
     def delete(self,widget):
         liststore  = self.model
         def match_value_cb(model, path, iter, pathlist):
@@ -100,6 +102,21 @@ class ToolEdit(gtk.VBox):
         pathlist.reverse()
         for path in pathlist:
             liststore.remove(liststore.get_iter(path))
+
+        # return the selected tool number
+    def get_selected_tool(self):
+        liststore  = self.model
+        def match_value_cb(model, path, iter, pathlist):
+            if model.get_value(iter, 0) == 1 :
+                pathlist.append(path)
+            return False     # keep the foreach going
+        pathlist = []
+        liststore.foreach(match_value_cb, pathlist)
+        # foreach works in a depth first fashion
+        if len(pathlist) != 1:
+            return None
+        else:
+            return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
 
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',"comment"]):
         self.model.append(data)
@@ -273,6 +290,14 @@ class ToolEdit(gtk.VBox):
         if self.toolinfo == []: return None
         return self.toolinfo
 
+        # 'convenience' method to hide buttons
+        # you must call this after show_all()
+    def hide_buttonbox(self, data):
+        if data:
+            self.buttonbox.hide()
+        else:
+            self.buttonbox.show()
+
         # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -322,6 +347,7 @@ def main(filename=None):
     #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
     tooledit.set_font("sans 16")
     window.show_all()
+    #tooledit.hide_buttonbox(True)
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
        print "True"
