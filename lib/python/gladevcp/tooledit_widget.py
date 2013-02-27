@@ -156,6 +156,7 @@ class ToolEdit(gtk.VBox):
             for offset,i in enumerate(KEYWORDS):
                 if offset == 0 or i == ';': continue
                 for word in line.split():
+                    if word.startswith(';'): break
                     if word.startswith(i):
                         if offset == 1:
                             if int(word.lstrip(i)) == self.toolinfo_num:
