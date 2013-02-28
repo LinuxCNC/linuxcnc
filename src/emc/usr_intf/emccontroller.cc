@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include "emccontroller.hh"
+#include <string.h>
 
 void InitMain();
 int nmlUpdate();
@@ -59,7 +60,7 @@ void EmcController::SetEmcPath(const std::string &path)
 
 int  EmcController::GetAxisNumber()
 {
-	return ::strlen(cAxesNames);
+	return strlen(cAxesNames);
 }
 
 char EmcController::GetAxisName(int i)
