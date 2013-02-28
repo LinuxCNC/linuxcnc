@@ -1,4 +1,24 @@
-#pragma once
+/********************************************************************
+* Description: emccontroller.hh
+*   miniemc2 controller
+*
+*   this file was originally named emccontroller.h
+*
+* Author: Sergey U. Kaydalov
+* License: GPL Version 2
+* System: Linux
+*
+* Copyright (c) 2012 All rights reserved.
+*
+* Last change:
+* $Revision: 1.1 $
+* $Author: GP Orcullo $
+* $Date: 2013/01/03 $
+********************************************************************/
+
+#ifndef EMCCONTROLLER_HH
+#define EMCCONTROLLER_HH
+
 #include <string>
 #include <queue>
 #include <iostream>
@@ -6,7 +26,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
-#include <singleton.h>
+#include "emcweb/singleton.hh"
 
 
 namespace miniemc
@@ -281,3 +301,5 @@ private:
 };
 
 }
+
+#endif

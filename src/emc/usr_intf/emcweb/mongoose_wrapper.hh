@@ -1,5 +1,5 @@
-#ifndef MONGOOSE_WRAPPER_H
-#define MONGOOSE_WRAPPER_H
+#ifndef MONGOOSE_WRAPPER_HH
+#define MONGOOSE_WRAPPER_HH
 
 ///////////////////////////////////////////////////////////////////////////////
 

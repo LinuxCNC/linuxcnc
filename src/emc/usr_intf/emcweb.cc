@@ -1,7 +1,8 @@
 /********************************************************************
-* Description: main.cpp
+* Description: emcweb.cc
 *   miniemc2 WEB-server's main module
 *
+*   this file was originally named main.cpp
 *
 * Author: Sergey U. Kaydalov
 * License: GPL Version 2
@@ -30,7 +31,7 @@
 #include "rcs_print.hh"
 #include "timer.hh"             // etime()
 #include "shcom.hh"             // NML Messaging functions
-#include "mongoose_wrapper.h"
+#include "emcweb/mongoose_wrapper.hh"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
@@ -40,12 +41,12 @@
 #include <fstream>
 #include <queue>
 #include <string>
-#include <emccontroller.h>
+#include "emccontroller.hh"
 
-#define NC_FILES_DIR		__DIR__"nc_files/"
-#define DYNAMIC_JSON		"./www/data/emc_dynamic.json"
-#define CONFIG_JSON		"./www/data/emc_config.json"
-#define WWWROOT			"./www"
+#define NC_FILES_DIR		__DIR__"/nc_files/"
+#define DYNAMIC_JSON		__DIR__"/www/data/emc_dynamic.json"
+#define CONFIG_JSON		__DIR__"/www/data/emc_config.json"
+#define WWWROOT			__DIR__"/www"
 #define WWWPORT			"8080"
 
 static const char *emcCFGJson = CONFIG_JSON;
@@ -433,6 +434,7 @@ void DoCmd()
 			pCtrl->StepProgram();
 		} else if (cmd.first == "program_load") {
 			std::string file = NC_FILES_DIR + cmd.second;
+			std::cout << "load program " << file << std::endl;
 			pCtrl->OpenProgram(file.c_str());
 		} else if (cmd.first == "exec_mdi") {
 			pCtrl->ExecMDI(cmd.second.c_str());
@@ -468,14 +470,9 @@ int main()
 	signal(SIGTERM, term_handler);
 	signal(SIGPIPE, term_handler);
 
-	std::cerr << NC_FILES_DIR << std::endl;
-	std::cerr <<  __DATE__ << std::endl;
-	printf ( NC_FILES_DIR );
-	std::cerr <<  __DIR__ << std::endl;
-
 	handle.Init();
 	miniemc::EmcController *pCtrl = miniemc::EmcController::Instance();
-	pCtrl->SetEmcPath("./");
+	pCtrl->SetEmcPath(__DIR__"/");
 	pCtrl->Init();
 	pCtrl->CreateConfigJSON(emcCFGJson);
 	try {

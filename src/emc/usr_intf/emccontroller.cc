@@ -1,7 +1,8 @@
 /********************************************************************
-* Description: emccontroller.cpp
+* Description: emccontroller.cc
 *   miniemc2 controller
 *
+*   this file was originally named emccontroller.cpp
 *
 * Author: Sergey U. Kaydalov
 * License: GPL Version 2
@@ -30,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <emccontroller.h>
+#include "emccontroller.hh"
 
 void InitMain();
 int nmlUpdate();
@@ -41,7 +42,7 @@ const int cNumLinesPerContext = 16;
 const char *cAxesNames = "XYZABC";
 
 EmcController::EmcController()
-	: m_emcPath(__DIR__)
+	: m_emcPath(__DIR__"/")
 	, m_loadState(lsUnloaded)
 	, m_positionAbsolute(true)
 	, m_overrideLimits(false)
@@ -151,7 +152,7 @@ EmcController::loadState EmcController::Init()
 		// Prepare axis configuration
 		static const char *key =  "axes_conf=";
 		char buff[256];
-		std::ifstream hal(std::string(m_emcPath + std::string("configs/test.hal")).c_str());
+		std::ifstream hal(std::string(m_emcPath + std::string("configs/sim/emcweb.hal")).c_str());
 		m_used_map.clear();
 		while (hal.good()) {
 			char *beg = NULL, *end = NULL;
@@ -242,7 +243,7 @@ void EmcController::Init_thread()
 
 bool EmcController::Init_internal()
 {
-	std::string arg = m_emcPath + "configs/test.ini";
+	std::string arg = m_emcPath + "configs/sim/emcweb.ini";
 
 	::InitMain();
 	::iniLoad(arg.c_str());
@@ -961,13 +962,13 @@ void InitMain()
 int nmlUpdate()
 {
 	static enum { IDLE, TRY, CONNECTED } status = IDLE;
-	int rc = -1, x = 0;
+	int rc = -1;
 	switch (status) {
 	case IDLE:
 		status = TRY;
 		fprintf(stderr, "Init NML connection\n");
 		::InitMain();
-		::iniLoad("./configs/test.ini");
+		::iniLoad("./configs/sim/emcweb.ini");
 
 	case TRY:
 		// We have no connection at this moment

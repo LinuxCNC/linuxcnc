@@ -1,5 +1,5 @@
-#ifndef XLANG_SINGLETON_H_
-#define XLANG_SINGLETON_H_
+#ifndef SINGLETON_HH_
+#define SINGLETON_HH_
 
 namespace xlang {
 
