@@ -57,7 +57,7 @@ proc set_defaults {} {
     program_check $::LH(realtime)
   }
 
-  set ::LH(version) 2.6
+  set ::LH(version) 2.7
   set ::LH(verbose) 0
   set ::LH(opt,show) 0
 
@@ -220,11 +220,17 @@ proc config {} {
 } ;# config
 
 proc other_info {} {
+  if [info exists ::env(DISPLAY)] {
+    set display "DISPLAY=$::env(DISPLAY)"
+  } else {
+    set display "DISPLAY=?"
+  }
   return "\
 $::LH(date) V$::LH(version) \
 [exec hostname] \
 $::tcl_platform(machine) \
 $::tcl_platform(osVersion) \
+$display \
 $::tcl_platform(user) \
 $::LH(note,txt) \
 "
