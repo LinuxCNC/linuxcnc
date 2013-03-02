@@ -32,6 +32,13 @@ except:
     print('GTK not available')
     sys.exit(1)
 
+# we put this in a try so there is no error in the glade editor
+# linuxcnc is probably not running then 
+try:
+    INIPATH = os.environ['INI_FILE_NAME']
+except:
+    pass
+
 class OffsetPage(gtk.VBox):
     __gtype_name__ = 'OffsetPage'
     __gproperties__ = {
@@ -91,11 +98,12 @@ class OffsetPage(gtk.VBox):
         # first check the global settings
         # else then the X axis units
         try:
-            self.inifile = self.emc.ini(INIPATH)
+            self.inifile = self.linuxcnc.ini(INIPATH)
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
             if units==None:
                 units=self.inifile.find("AXIS_0","UNITS")
         except:
+            print "**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -105,6 +113,17 @@ class OffsetPage(gtk.VBox):
         else:
             self.machine_units_mm=0
             self.conversion=[25.4]*3+[1]*3+[25.4]*3
+
+        # make a list of available axis
+        try:
+            temp = self.inifile.find("TRAJ","COORDINATES")
+            self.axisletters = ""
+            for letter in temp:
+                if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
+                self.axisletters += letter.lower()
+        except:
+            print "**** Offsetpage widget ERROR: Axis list not found in INI's TRAJ COODINATES section"
+            self.axisletters ="xyz"
 
         # check linuxcnc status every half second
         gobject.timeout_add(1000, self.periodic_check)
@@ -280,16 +299,15 @@ class OffsetPage(gtk.VBox):
     # TODO the edited column does not end up showing the editted number even though linuxcnc
     # registered the change 
     def col_editted(self, widget, path, new_text, col):
-        axlet = "xyzabcuvw"
-        print new_text, col, axlet[int(path)]
+        print new_text, col, self.axisletters[int(path)]
         try:
             if self.status.task_mode != self.linuxcnc.MODE_MDI:
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
             if col == 2:
-                self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+                self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(self.axisletters[int(path)],float(new_text)) )
             elif col == 3:
-                self.cmd.mdi( "G92 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+                self.cmd.mdi( "G92 %s %10.4f"%(self.axisletters[int(path)],float(new_text)) )
             self.cmd.mode(self.linuxcnc.MODE_MANUAL)
             self.cmd.wait_complete()
             self.cmd.mode(self.linuxcnc.MODE_MDI)
