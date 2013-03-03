@@ -3,7 +3,7 @@ import gtk
 import gladevcp.makepins # needed for the dialog's calulator widget
 import pango
 
-_MAN = 0;_MDI = 1;_AUTO = 2;_UNLOCKCODE = 123;_LOCKTOGGLE = 1
+_MAN = 0;_MDI = 1;_AUTO = 2;_LOCKTOGGLE = 1
 
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
@@ -168,7 +168,7 @@ class HandlerClass:
         code = calc.get_value()
         dialog.destroy()
         if response == gtk.RESPONSE_ACCEPT:
-            if code == _UNLOCKCODE:
+            if code == int(self.data.unlock_code):
                 self.gscreen.add_alarm_entry("System page unlocked")
                 _LOCKTOGGLE = 0
                 return True
@@ -213,6 +213,7 @@ class HandlerClass:
         self.widgets.hal_status.connect("all-homed",self.on_hal_status_all_homed)
         self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
+        self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -245,6 +246,7 @@ class HandlerClass:
         self.init_sensitive_edit_mode() # local function
         self.data.sensitive_edit_mode.remove("button_menu")
         self.widgets["spindle-at-speed"].set_property("on_color","black")
+        self.gscreen.init_unlock_code()
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
