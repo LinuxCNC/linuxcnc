@@ -874,14 +874,13 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the machine being on or off
     def init_sensitive_on_off(self):
-        print "init sensitive"
-        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode"]
+        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode","restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
     # buttons that need to be sensitive based on the interpeter runing or being idle
     def init_sensitive_run_idle(self):
-        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
+        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode","restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
