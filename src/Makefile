@@ -130,7 +130,7 @@ PROGRAMS :=
 # TOOBJSDEPS is used.  See Submakefile.skel for an example.
 TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
 TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.i,$(patsubst %.c,%.ii,$(1)))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
