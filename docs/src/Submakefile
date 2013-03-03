@@ -913,6 +913,7 @@ docclean:
 	-(cd $(LOC_HL_DIR); make clean)
 
 
+ifeq ($(BUILD_DOCS),yes)
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo Depending $(notdir $<)
@@ -934,3 +935,4 @@ endif
 %.ps:; $(error Required image file $@ does not exist)
 %.eps:; $(error Required image file $@ does not exist)
 
+endif
