@@ -498,14 +498,15 @@ class Gscreen:
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
-        if not "continuous" in increments:
-            increments +=",continuous"
         if increments:
+            if not "continuous" in increments:
+                increments +=",continuous"
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
         else:
+            self.data.jog_increments = "continuous"
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
 
         # set default jog rate
