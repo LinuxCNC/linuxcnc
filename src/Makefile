@@ -127,7 +127,10 @@ PROGRAMS :=
 # When used like $(call TOxxx, ...) these turn a list of source files
 # into the corresponding list of object files, dependency files,
 # or both.  When a source file has to be compiled with special flags,
-# TOOBJSDEPS is used.  See Submakefile.skel for an example.
+# TOOBJSDEPS is used.  Confusingly, TOOBJSDEPS includes preprocessed source
+# file names, but this is what allows 'make src.i' to produce proper
+# preprocessed source when src.c needs a customized compile flag.
+# See Submakefile.skel for an example.
 TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
 TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
 TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
