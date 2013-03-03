@@ -77,7 +77,7 @@ msgid ""
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
 "Használat:\\n\n"
-"  halscope [-h] [-i ini_fájl] [-o kimeneti_fájl] [mintavétel_száma]\\n"
+"  halscope [-h] [-i ini_fájl] [-o kimeneti_fájl] [mintavétel_száma]\n"
 
 #: src/hal/utils/scope.c:474 src/hal/utils/scope.c:501
 msgid "Open Configuration File:"

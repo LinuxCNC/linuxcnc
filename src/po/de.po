@@ -221,7 +221,7 @@ msgstr ""
 "Wählen Sie einen Threadnamen, einen\n"
 "Multiplikationsfaktor und klicken Sie \"OK\"\n"
 "oder\n"
-"klicken Sie 'Quit' um HALSCOPE zu verlassen.\n"
+"klicken Sie 'Quit' um HALSCOPE zu verlassen."
 
 #: src/hal/utils/scope_horiz.c:503 hal/utils/scope_horiz.c:511
 msgid "Select Sample Rate"
@@ -639,10 +639,11 @@ msgid ""
 "%ld, %ld, %ld, %ld, and %ld\n"
 "elapsed clocks between calls to the motion controller.\n"
 msgstr ""
+"\n"
 "In der letzten Zeit sind \n"
 "%ld,%ld,%ld,%ld und %ld\n"
 "Clockimpulse zwischen den Impulsen an \n"
-"die Motorsteuerung ausgefallen."
+"die Motorsteuerung ausgefallen.\n"
 
 #: src/emc/motion/control.c:268
 #, c-format
@@ -656,7 +657,7 @@ msgstr ""
 "Dieses Mal waren es %ld, also unnormal viele,\n"
 "was auf ein Problem mit Ihrer Echtzeitkon-\n"
 "figuration hinweist. Für die Restlaufzeit\n"
-"von EMC wird diese Meldung unterdrückt."
+"von EMC wird diese Meldung unterdrückt.\n"
 
 #: src/emc/motion/control.c:384
 msgid "G38.4 move finished without breaking contact."
@@ -907,58 +908,58 @@ msgstr "Unerkannter Befehl %d"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
-msgstr "MOTION: hal_init fehlgeschlagen"
+msgstr "MOTION: hal_init fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:190
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen"
+msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:197
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen"
+msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:204
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen"
+msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:212
 msgid "MOTION: init_hal_io() failed\n"
-msgstr "MOTION: init_hal_io() fehlgeschlagen"
+msgstr "MOTION: init_hal_io() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:221
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr "MOTION: init_comm_buffers() fehlgeschlagen"
+msgstr "MOTION: init_comm_buffers() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:229
 msgid "MOTION: init_threads() failed\n"
-msgstr "MOTION: init_threads() fehlgeschlagen"
+msgstr "MOTION: init_threads() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:254
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr "MOTION: hal_stop_threads() fehlgeschlagen, Rückgabewert %d"
+msgstr "MOTION: hal_stop_threads() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:260
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr "MOTION: rtapi_shmem_delete() fehlgeschlagen, Rückgabewert %d"
+msgstr "MOTION: rtapi_shmem_delete() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:266
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr "MOTION: hal_exit() fehlgeschlagen, Rückgabewert %d"
+msgstr "MOTION: hal_exit() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:289
 msgid "MOTION: emcmot_hal_data malloc failed\n"
-msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen"
+msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:585 src/emc/motion/motion.c:597
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen"
+msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
