@@ -470,7 +470,7 @@ class Gscreen:
         self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
 
         self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
-
+        self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
         self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
         self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
@@ -908,6 +908,10 @@ class Gscreen:
         self.widgets.jog_increment.set_text(jogincr)
         self.on_hal_status_state_off(None)
         self.add_alarm_entry(_("Control powered up and initialized"))
+
+    def init_unlock_code(self):
+        print "unlock code #",int(self.data.unlock_code)
+        self.widgets.unlock_number.set_value(int(self.data.unlock_code))
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -1419,6 +1423,10 @@ class Gscreen:
     # True for showing full offsets
     def on_show_offsets_pressed(self, widget):
         self.set_show_offsets(widget.get_active())
+
+    def on_unlock_number_value_changed(self,widget):
+        self.data.unlock_code = str(int(widget.get_value()))
+        self.set_unlock_code()
 
     # True is for showing DTG
     def on_show_dtg_pressed(self, widget):
@@ -2102,13 +2110,13 @@ class Gscreen:
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.button_v0_0.set_label("Zero")
-            self.widgets.button_v0_1.set_label("Set At")
+            self.widgets.button_v0_0.set_label("Zero\n ")
+            self.widgets.button_v0_1.set_label("Set At\n ")
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.button_v0_0.set_label("Zero Origin")
-            self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.button_v0_0.set_label(_(" Zero\nOrigin"))
+            self.widgets.button_v0_1.set_label(_("Offset\nOrigin"))
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acknowledge.
@@ -2351,6 +2359,9 @@ class Gscreen:
         self.data.dtg_color = self.convert_to_rgb(self.widgets.dtg_colorbutton.get_color())
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
 
+    def set_unlock_code(self):
+        self.prefs.putpref('unlock_code', self.data.unlock_code,str)
+
     # toggles gremlin's different views
     # if in lathe mode only P, Y and Y2 available
     def toggle_view(self):
@@ -2490,7 +2501,7 @@ class Gscreen:
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
-            self.widgets.button_v0_5.set_label("Move To")
+            self.widgets.button_v0_5.set_label("Move To\nPosition")
             self.emc.set_manual_mode()
         else:
             self.widgets.button_v0_5.set_label("")
@@ -2786,14 +2797,17 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
+            print kind,text
             if "joint" in text:
                 for letter in self.data.axis_list:
                     axnum = "xyzabcuvws".index(letter)
                     text = text.replace( "joint %d"%axnum,"Axis %s"%letter.upper() )
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 self.notify(_("Error Message"),text,ALERT_ICON,3)
-            else:
-                self.notify(_("Error Message"),text,INFO_ICON,3)
+            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                self.notify(_("Message"),text,INFO_ICON,3)
+            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                self.notify(_("Message"),text,INFO_ICON,3)
         self.emc.unmask()
         if "periodic" in dir(self.handler_instance):
             self.handler_instance.periodic()
