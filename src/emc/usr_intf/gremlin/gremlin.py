@@ -33,7 +33,7 @@ import linuxcnc
 import gcode
 
 import time
-
+import re
 import tempfile
 import shutil
 import os
@@ -55,6 +55,10 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
         self.lathe_view_option = lathe_view_option
 
     def is_lathe(self): return self.lathe_view_option
+
+    def change_tool(self, pocket):
+        rs274.glcanon.GLCanon.change_tool(self,pocket)
+        rs274.interpret.StatMixin.change_tool(self,pocket)
 
 class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
               rs274.glcanon.GlCanonDraw):
@@ -130,15 +134,15 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.show_offsets = False
 
-	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
-	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
-	self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
+        self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
+        self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
 
-	live_axis_count = 0
-	for i,j in enumerate("XYZABCUVW"):
-	    if self.stat.axis_mask & (1<<i) == 0: continue
-	    live_axis_count += 1
-	self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+        live_axis_count = 0
+        for i,j in enumerate("XYZABCUVW"):
+            if self.stat.axis_mask & (1<<i) == 0: continue
+            live_axis_count += 1
+        self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
 
     def activate(self):
         glcontext = gtk.gtkgl.widget_get_gl_context(self)
@@ -255,10 +259,12 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY")
         if temp:
-            self.geometry = temp.upper()
+            geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
+            self.geometry = "".join(reversed(geometry))
         else:
             self.geometry = 'XYZ'
         return self.geometry
+
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option

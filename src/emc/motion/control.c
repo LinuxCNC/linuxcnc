@@ -131,7 +131,7 @@ static void process_probe_inputs(void);
    up the architecture toward the GUI - printing error messages
    directly seems a little messy)
 */
-static void check_for_faults(int check_ferror);
+static void check_for_faults(void);
 
 /* 'set_operating_mode()' handles transitions between the operating
    modes, which are free, coordinated, and teleop.  This stuff needs
@@ -314,10 +314,7 @@ check_stuff ( "after process_inputs()" );
 check_stuff ( "after do_forward_kins()" );
     process_probe_inputs();
 check_stuff ( "after process_probe_inputs()" );
-    // NB: in FERROR_NEWPOSMODE, check_for_faults is re-run from
-    // update_status only after
-    // the new commanded position has been calculated
-    check_for_faults(FERROR_LEGACYMODE);
+    check_for_faults();
 check_stuff ( "after check_for_faults()" );
     set_operating_mode();
 check_stuff ( "after set_operating_mode()" );
@@ -517,32 +514,29 @@ static void process_inputs(void)
 	    joint->pos_fb = joint->motor_pos_fb -
 		(joint->backlash_filt + joint->motor_offset);
 	}
+	/* calculate following error */
+	joint->ferror = joint->pos_cmd - joint->pos_fb;
+	abs_ferror = fabs(joint->ferror);
+	/* update maximum ferror if needed */
+	if (abs_ferror > joint->ferror_high_mark) {
+	    joint->ferror_high_mark = abs_ferror;
+	}
 
-	if (FERROR_LEGACYMODE) {
-	    /* calculate following error */
-	    joint->ferror = joint->pos_cmd - joint->pos_fb;
-	    abs_ferror = fabs(joint->ferror);
-	    /* update maximum ferror if needed */
-	    if (abs_ferror > joint->ferror_high_mark) {
-		joint->ferror_high_mark = abs_ferror;
-	    }
-
-	    /* calculate following error limit */
-	    if (joint->vel_limit > 0.0) {
-		joint->ferror_limit =
-		    joint->max_ferror * fabs(joint->vel_cmd) / joint->vel_limit;
-	    } else {
-		joint->ferror_limit = 0;
-	    }
-	    if (joint->ferror_limit < joint->min_ferror) {
-		joint->ferror_limit = joint->min_ferror;
-	    }
-	    /* update following error flag */
-	    if (abs_ferror > joint->ferror_limit) {
-		SET_JOINT_FERROR_FLAG(joint, 1);
-	    } else {
-		SET_JOINT_FERROR_FLAG(joint, 0);
-	    }
+	/* calculate following error limit */
+	if (joint->vel_limit > 0.0) {
+	    joint->ferror_limit =
+		joint->max_ferror * fabs(joint->vel_cmd) / joint->vel_limit;
+	} else {
+	    joint->ferror_limit = 0;
+	}
+	if (joint->ferror_limit < joint->min_ferror) {
+	    joint->ferror_limit = joint->min_ferror;
+	}
+	/* update following error flag */
+	if (abs_ferror > joint->ferror_limit) {
+	    SET_JOINT_FERROR_FLAG(joint, 1);
+	} else {
+	    SET_JOINT_FERROR_FLAG(joint, 0);
 	}
 
 	/* read limit switches */
@@ -690,7 +684,7 @@ static void do_forward_kins(void)
     }
 }
 
-static void check_for_faults(int check_ferror)
+static void check_for_faults(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
@@ -704,57 +698,54 @@ static void check_for_faults(int check_ferror)
 	    emcmotDebug->enabling = 0;
 	}
     }
-
-    if (check_ferror) {
-	/* check for various joint fault conditions */
-	for (joint_num = 0; joint_num < num_joints; joint_num++) {
-	    /* point to joint data */
-	    joint = &joints[joint_num];
-	    /* only check active, enabled axes */
-	    if ( GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_ENABLE_FLAG(joint) ) {
-		/* are any limits for this joint overridden? */
-		neg_limit_override = emcmotStatus->overrideLimitMask & ( 1 << (joint_num*2));
-		pos_limit_override = emcmotStatus->overrideLimitMask & ( 2 << (joint_num*2));
-		/* check for hard limits */
-		if ((GET_JOINT_PHL_FLAG(joint) && ! pos_limit_override ) ||
-		    (GET_JOINT_NHL_FLAG(joint) && ! neg_limit_override )) {
-		    /* joint is on limit switch, should we trip? */
-		    if (GET_JOINT_HOMING_FLAG(joint)) {
-			/* no, ignore limits */
-		    } else {
-			/* trip on limits */
-			if (!GET_JOINT_ERROR_FLAG(joint)) {
-			    /* report the error just this once */
-			    reportError(_("joint %d on limit switch error"),
-					joint_num);
-			}
-			SET_JOINT_ERROR_FLAG(joint, 1);
-			emcmotDebug->enabling = 0;
-		    }
-		}
-		/* check for amp fault */
-		if (GET_JOINT_FAULT_FLAG(joint)) {
-		    /* joint is faulted, trip */
+    /* check for various joint fault conditions */
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	/* only check active, enabled axes */
+	if ( GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_ENABLE_FLAG(joint) ) {
+	    /* are any limits for this joint overridden? */
+	    neg_limit_override = emcmotStatus->overrideLimitMask & ( 1 << (joint_num*2));
+	    pos_limit_override = emcmotStatus->overrideLimitMask & ( 2 << (joint_num*2));
+	    /* check for hard limits */
+	    if ((GET_JOINT_PHL_FLAG(joint) && ! pos_limit_override ) ||
+		(GET_JOINT_NHL_FLAG(joint) && ! neg_limit_override )) {
+		/* joint is on limit switch, should we trip? */
+		if (GET_JOINT_HOMING_FLAG(joint)) {
+		    /* no, ignore limits */
+		} else {
+		    /* trip on limits */
 		    if (!GET_JOINT_ERROR_FLAG(joint)) {
 			/* report the error just this once */
-			reportError(_("joint %d amplifier fault"), joint_num);
+			reportError(_("joint %d on limit switch error"),
+			    joint_num);
 		    }
 		    SET_JOINT_ERROR_FLAG(joint, 1);
 		    emcmotDebug->enabling = 0;
 		}
-		/* check for excessive following error */
-		if (GET_JOINT_FERROR_FLAG(joint)) {
-		    if (!GET_JOINT_ERROR_FLAG(joint)) {
-			/* report the error just this once */
-			reportError(_("joint %d following error"), joint_num);
-		    }
-		    SET_JOINT_ERROR_FLAG(joint, 1);
-		    emcmotDebug->enabling = 0;
-		}
-		/* end of if JOINT_ACTIVE_FLAG(joint) */
 	    }
-	    /* end of check for joint faults loop */
+	    /* check for amp fault */
+	    if (GET_JOINT_FAULT_FLAG(joint)) {
+		/* joint is faulted, trip */
+		if (!GET_JOINT_ERROR_FLAG(joint)) {
+		    /* report the error just this once */
+		    reportError(_("joint %d amplifier fault"), joint_num);
+		}
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		emcmotDebug->enabling = 0;
+	    }
+	    /* check for excessive following error */
+	    if (GET_JOINT_FERROR_FLAG(joint)) {
+		if (!GET_JOINT_ERROR_FLAG(joint)) {
+		    /* report the error just this once */
+		    reportError(_("joint %d following error"), joint_num);
+		}
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		emcmotDebug->enabling = 0;
+	    }
+	/* end of if JOINT_ACTIVE_FLAG(joint) */
 	}
+    /* end of check for joint faults loop */
     }
 }
 
@@ -1883,7 +1874,6 @@ static void update_status(void)
     static int old_joint_flags[8];
     static int old_motion_flag;
 #endif
-    double abs_ferror;
 
     /* copy status info from private joint structure to status
        struct in shared memory */
@@ -1900,37 +1890,6 @@ static void update_status(void)
 	    old_joint_flags[joint_num] = joint->flag;
 	}
 #endif
-	if (FERROR_NEWPOSMODE) {
-	    // in ferror 'new position mode', the per-joint ferror
-	    // is calculated on based on the new commanded position,
-	    // not the previous pos_cmd
-
-	    /* calculate following error */
-	    joint->ferror = joint->pos_cmd - joint->pos_fb;
-	    abs_ferror = fabs(joint->ferror);
-	    /* update maximum ferror if needed */
-	    if (abs_ferror > joint->ferror_high_mark) {
-		joint->ferror_high_mark = abs_ferror;
-	    }
-
-	    /* calculate following error limit */
-	    if (joint->vel_limit > 0.0) {
-		joint->ferror_limit =
-		    joint->max_ferror * fabs(joint->vel_cmd) / joint->vel_limit;
-	    } else {
-		joint->ferror_limit = 0;
-	    }
-	    if (joint->ferror_limit < joint->min_ferror) {
-		joint->ferror_limit = joint->min_ferror;
-	    }
-	    /* update following error flag */
-	    if (abs_ferror > joint->ferror_limit) {
-		SET_JOINT_FERROR_FLAG(joint, 1);
-	    } else {
-		SET_JOINT_FERROR_FLAG(joint, 0);
-	    }
-	}
-
 	joint_status->flag = joint->flag;
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
@@ -1943,11 +1902,6 @@ static void update_status(void)
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
 	joint_status->home_offset = joint->home_offset;
-    }
-
-    if (FERROR_NEWPOSMODE) {
-	// ferror updated only above, so check again for following errors
-	check_for_faults(1);
     }
 
     for (dio = 0; dio < num_dio; dio++) {

@@ -590,7 +590,8 @@ void load_tool(int pocket) {
         if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
             emcioStatus.status = RCS_ERROR;
     } else if(pocket == 0) {
-        // magic T0 = pocket 0 = no tool
+        // on non-random tool-changers, asking for pocket 0 is the secret
+        // handshake for "unload the tool from the spindle"
 	emcioStatus.tool.toolTable[0].toolno = -1;
         ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
         emcioStatus.tool.toolTable[0].diameter = 0.0;

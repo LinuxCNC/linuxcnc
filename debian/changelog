@@ -1,3 +1,33 @@
+linuxcnc (1:2.5.2) lucid; urgency=low
+
+  * AXIS: Allow the setting of the top end of the Max Velocity slider
+    according to [DISPLAY]MAX_LINEAR_VELOCITY as the docs say
+  * Components: Fix mux16's debounce function
+  * Components: LCD character display driver
+  * Components: New multiclick component detects single, double, triple clicks
+  * Docs: Many improvements
+  * Gremlin: Better error reporting for gcode errors
+  * Gremlin: Fix rotated axes display
+  * Halui: Include tool length offsets in relative position outputs
+  * Hostmot2: Fixes to sserial
+  * Kins: Fix teleop jogging of ABC axes in the negative direction
+  * Modbus: Fix TCP communication time out error
+  * New config: Gecko G540
+  * New config: Smithy 1240combined_mm
+  * PID: Optional new error-previous-target mode to reduce ferrors detected
+    by motion.  This is especially useful for torque-mode loops and those
+    tunings that use large I gains
+  * pncconf: Many fixes
+  * PPMC: Better error checking for hardware problems causing miscommunication
+  * Tool Table: Many fixes to tool table handling, making tool tables on
+    nonrandom setups using mismatched tool and pocket numbers work correctly
+  * Translations: German for tooledit
+  * Translations: Many improvements to French
+  * Utilities: new latencyhistogram program that shows details about latency
+  * Utilities: sim_pin, a script that simulates writing to hal pins
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 03 Mar 2013 17:07:57 -0600
+
 linuxcnc (1:2.5.1) lucid; urgency=low
 
   * Motion: fix incorrect spindle direction after G43 in CSS+M4 mode

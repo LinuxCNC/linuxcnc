@@ -467,17 +467,13 @@ signal. Another class of helper widgets allow you to organize and
 label your panel.
 
  - Widgets for indicating "bit" signals: <<gladevcp:HAL_LED,HAL_LED>>
- - Widgets for controlling "bit" signals: <<gladevcp:HAL_Button,HAL_Button>>,
-   <<gladevcp:HAL_RadioButton,HAL_RadioButton>>,
-   <<gladevcp:HAL_CheckButton,HAL_CheckButton>>
+ - Widgets for controlling "bit" signals: <<gladevcp:HAL_Buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>
  - Widgets for indicating "number" signals: <<gladevcp:HAL_Label,HAL_Label>>,
    <<gladevcp:HAL_ProgressBar,HAL_ProgressBar>>,
-   <<gladevcp:HAL_HBar,HAL_HBar>>, <<gladevcp:HAL_VBar,HAL_VBar>>,
-   <<gladevcp:HAL_Meter,HAL_Meter>>
+   <<gladevcp:HAL_Bars,HAL_HBar and HAL_VBar>>, <<gladevcp:HAL_Meter,HAL_Meter>>
  - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
-   <<gladevcp:HAL_HScale,HAL_HScale>>,
-   <<gladevcp:HAL_VScale,HAL_VScale>>
- - Helper widgets: <<gladevcp:HAL_Table,HAL_Table>>, <<gladevcp:HAL_HBox,HAL_HBox>>
+   <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>
+ - Helper widgets: <<gladevcp:HAL_HBox_Table,HAL_HBox and HAL_Table>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
 
 === Widget and HAL pin naming
@@ -569,9 +565,7 @@ image::images/hal-pin-change-66.png[]
 The example in +configs/gladevcp/examples/complex+ shows how
 this is handled in Python.
 
-[[gladevcp:HAL_Button]]
-[[gladevcp:HAL_RadioButton]]
-[[gladevcp:HAL_CheckButton]]
+[[gladevcp:HAL_Buttons]]
 === Buttons
 
 This group of widgets are derived from various Gtk buttons and consists
@@ -612,8 +606,7 @@ See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
 and UI file for working with radio buttons.
 ======================================
 
-[[gladevcp:HAL_HScale]]
-[[gladevcp:HAL_VScale]]
+[[gladevcp:HAL_Scales]]
 === Scales
 
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
@@ -666,8 +659,7 @@ text_template::
 	Example: +Distance: %.03f+ will display the text and the pin value with
 	3 fractional digits padded with zeros for a FLOAT pin.
 
-[[gladevcp:HAL_HBox]]
-[[gladevcp:HAL_Table]]
+[[gladevcp:HAL_HBox_Table]]
 === Containers: HAL_HBox and HAL_Table
 
 Compared to their Gtk counterparts they have one input BIT pin which
@@ -794,8 +786,7 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-[[gladevcp:HAL_HBar]]
-[[gladevcp:HAL_VBar]]
+[[gladevcp:HAL_Bars]]
 === Bars
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing

@@ -173,7 +173,7 @@ Syntaxe et exemple:
 setp parport.0.pin-08-out TRUE
 ----
 
-==== unlinkp
+=== unlinkp
 
 La commande _unlinkp_ déconnecte la pin du signal auquel elle est connectée. 
 Si aucun signal n'a été connecté à la pin avant de lancer cette commande, 
@@ -187,9 +187,9 @@ Syntaxe et exemple:
 unlinkp parport.0.pin-02-out 
 ----
 
-=== Commandes obsolètes
+== Commandes obsolètes
 
-==== linksp
+=== linksp
 
 La commande _linksp_ a été incluse dans la commande _net_.
 
@@ -200,7 +200,7 @@ Syntaxe et exemple:
 +linksp <signal-name> <pin-name>+ 
 +linksp X-step parport.0.pin-02-out+ 
 
-==== linkps
+=== linkps
 
 La commande _linkps_ a été incluse dans la commande _net_.
 
@@ -215,7 +215,7 @@ Syntaxe et exemple:
 linkps parport.0.pin-02-out X-Step
 ----
 
-==== newsig
+=== newsig
 
 the command _newsig_ creates a new HAL signal by the name <signame>
 and the data type of <type>. Type must be _bit_, _s32_, _u32_ or
