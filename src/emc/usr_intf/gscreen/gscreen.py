@@ -276,6 +276,8 @@ class Data:
         self.file = ""
         self.file_lines = 0
         self.line = 0
+        self.last_line = 0
+        self.motion_line = 0
         self.id = 0
         self.dtg = 0.0
         self.velocity = 0.0
@@ -291,6 +293,7 @@ class Data:
         self.index_tool_dialog = None
         self.preset_spindle_dialog = None
         self.entry_dialog = None
+        self.restart_dialog = None
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -1544,20 +1547,20 @@ class Gscreen:
 
     # highlight the gcode down one line lower
     # used for run-at-line restart
-    def restart_down(self,widget):
+    def restart_down(self,widget,calc):
         self.widgets.gcode_view.line_down()
-        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
-    def restart_up(self,widget):
+    def restart_up(self,widget,calc):
         self.widgets.gcode_view.line_up()
-        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
 
     # highlight the gcode line specified
     # used for run-at-line restart
-    def restart_set_line(self,widget):
-        line = int(widget.get_value())
+    def restart_set_line(self,widget,calc):
+        line = int(calc.get_value())
         self.widgets.gcode_view.set_line_number(line)
 
     # This is a method that toggles the DRO units
@@ -1668,12 +1671,7 @@ class Gscreen:
                         ["audio_alert_chooser","selection_changed","change_sound","alert"],
                         ["toggle_keyboard","clicked", "on_toggle_keyboard"],
                         ["metric_select","clicked","on_metric_select_clicked"],
-                        ["restart_ok","clicked", "restart_dialog_return", True],
-                        ["restart_cancel","clicked", "restart_dialog_return", False],
                         ["restart","clicked", "launch_restart_dialog"],
-                        ["restart_line_up","clicked", "restart_up"],
-                        ["restart_line_down","clicked", "restart_down"],
-                        ["restart_line_input","value_changed", "restart_set_line"],
                         ["index_tool","clicked", "on_index_tool"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
@@ -2188,15 +2186,48 @@ class Gscreen:
 
     # dialog is used for choosing the run-at-line position
     def launch_restart_dialog(self,widget):
-        self.widgets.restart_dialog.show_all()
+        self.restart_dialog()
+
+    # dialog for manually calling a tool
+    def restart_dialog(self):
+        if self.data.restart_dialog: return
+        self.data.restart_dialog = gtk.Dialog(_("Restart Entry"),
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        label = gtk.Label(_("Restart Entry"))
+        label.modify_font(pango.FontDescription("sans 20"))
+        self.data.restart_dialog.vbox.pack_start(label)
+        calc = gladevcp.Calculator()
+        self.data.restart_dialog.vbox.add(calc)
+        calc.set_value("%d"%self.data.last_line)
+        calc.set_property("font","sans 20")
+        calc.set_editable(True)
+        box = gtk.HButtonBox()
+        upbutton = gtk.Button(label = _("Up"))
+        box.add(upbutton)
+        downbutton = gtk.Button(label = _("Down"))
+        box.add(downbutton)
+        calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
+        upbutton.connect("clicked",self.restart_up,calc)
+        downbutton.connect("clicked",self.restart_down,calc)
+        calc.entry.connect("activate",self.restart_set_line,calc)
+        self.data.restart_dialog.parse_geometry("400x400+0+0")
+        self.data.restart_dialog.show_all()
+        calc.num_pad_only(True)
+        self.data.restart_dialog.connect("response", self.restart_dialog_return,calc)
 
     # either start the gcode at the line specified or cancel
-    def restart_dialog_return(self,widget,result):
-        self.widgets.restart_dialog.hide()
-        if result:
-            line = self.widgets.gcode_view.get_line_number()
-            self.add_alarm_entry(_("Restart program from line %d"%line))
-            self.emc.re_start(line)
+    def restart_dialog_return(self,widget,result,calc):
+        if result == gtk.RESPONSE_ACCEPT:
+            value = calc.get_value()
+            if value == None:
+                return
+            self.add_alarm_entry(_("Restart program from line %d"%value))
+            self.emc.re_start(value)
+        widget.destroy()
+        self.data.restart_dialog = None
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
