@@ -498,6 +498,8 @@ class Gscreen:
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
+        if not "continuous" in increments:
+            increments +=",continuous"
         if increments:
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
@@ -505,7 +507,6 @@ class Gscreen:
                 self.data.jog_increments = increments.split()
         else:
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
-        self.data.jog_increments.insert(0,"Continuous")
 
         # set default jog rate
         # must convert from INI's units per second to gscreen's units per minute
@@ -900,6 +901,11 @@ class Gscreen:
 
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
+        for num,i in enumerate(self.data.jog_increments):
+            if i == "continuous": break
+        self.data.current_jogincr_index = num
+        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+        self.widgets.jog_increment.set_text(jogincr)
         self.on_hal_status_state_off(None)
         self.add_alarm_entry(_("Control powered up and initialized"))
 
@@ -1876,7 +1882,7 @@ class Gscreen:
         self.data.current_jogincr_index = next
         jogincr = self.data.jog_increments[next]
         self.widgets.jog_increment.set_text(jogincr)
-        if jogincr == ("Continuous"):
+        if jogincr == ("continuous"):
             distance = 0
         else:
             distance = self.parse_increment(jogincr)
@@ -2509,7 +2515,8 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    if self.data.current_jogincr_index == 0: # continuous jog
+                    print self.data.jog_increments[self.data.current_jogincr_index]
+                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
                         print "active axis jog:",self.data.active_axis_buttons[0][1]
                         self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
                     else:
