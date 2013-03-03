@@ -195,6 +195,12 @@ class HandlerClass:
             attr.insert(fg_color)
             self.widgets[axis].set_attributes(attr)
 
+    def on_hal_status_all_homed(self,widget):
+        self.gscreen.on_hal_status_all_homed(None)
+        for i in self.data.axis_list:
+            print i
+            self.widgets["home_%s"%i].set_text("*")
+
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
@@ -204,6 +210,7 @@ class HandlerClass:
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
                 self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
+        self.widgets.hal_status.connect("all-homed",self.on_hal_status_all_homed)
         self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
 
@@ -243,6 +250,7 @@ class HandlerClass:
             self.widgets["dro_%s1"%i].show()
             self.widgets["dro_%s2"%i].show()
             self.widgets["axis_%s"%i].show()
+            self.widgets["home_%s"%i].show()
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
