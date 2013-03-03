@@ -186,16 +186,17 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
-"HALSCOPE benutzt eine Echtzeit-Komponente namens scope_rt,\n"
-"um Werte aufzuzeichnen. Sie ist nicht geladen und konnte auch \n"
-"nicht automatisch nachgeladen werden.\n"
-"Weitere Informationen könnten in der Konsole verfügbar sein,\n"
+"HALSCOPE benutzt eine Echtzeit-Komponente namens scope_rt\n"
+"um Werte aufzuzeichnen. Diese wurde nicht geladen und der\n"
+"atomatische Versuch die Komponente zu laden schlug fehl.\n"
+"Weitere Informationen könnten in der Konole verfügbar sein,\n"
 "aus der der Befehl »halscope« gestartet wurde.\n"
 "\n"
 "Wählen Sie eine der folgenden Möglichkeiten:\n"
 "\n"
-"Laden der Komponente (eingeben: »halcmd loadrt scope_rt«) und »OK« wählen\n"
-"oder wählen Sie »Beenden«, um HALSCOPE zu beenden"
+"Laden der Komponente (mittels »halcmd loadrt scope_rt«). Wählen Sie »OK«\n"
+"oder\n"
+"wählen Sie »Beenden« um HALSCOPE zu beenden"
 
 #: hal/utils/scope_horiz.c:503 src/hal/utils/scope_horiz.c:495
 msgid "Realtime function not linked"
@@ -234,10 +235,10 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
-"Wählen Sie einen Thread-Namen und Verviel-\n"
-"facher und bestätigen Sie mit »OK«\n"
+"Wählen Sie einen Tread-Namen und Vervielfacher\n"
+"und bestätigen Sie mit »OK«\n"
 "oder\n"
-"wählen Sie »Beenden« um HALSCOPE zu beenden."
+"wählen Sie »Beenden« um HALSCOPE zu beenden\n"
 
 #: src/hal/utils/scope_horiz.c:526 hal/utils/scope_horiz.c:534
 msgid "Thread:"
@@ -372,7 +373,7 @@ msgstr ""
 "oder\n"
 "klicken Sie 'Quit', um HALSCOPE zu verlassen."
 
-#: hal/utils/scope_horiz.c:791
+#: hal/utils/scope_horiz.c:791 src/hal/utils/scope_horiz.c:779
 msgid "Pick log file to write to:"
 msgstr "Wählen Sie eine Log-Datei zum Speichern:"
 
@@ -606,6 +607,7 @@ msgid "Force"
 msgstr "Zwang"
 
 #: hal/utils/scope_trig.c:242 hal/utils/scope_trig.c:276
+#: src/hal/utils/scope_trig.c:235 src/hal/utils/scope_trig.c:269
 msgid "Level"
 msgstr "Schwelle"
 
@@ -1043,8 +1045,7 @@ msgstr "Speichern"
 #: ../tcl/bin/emccalib.tcl:159 ../tcl/bin/halconfig.tcl:623
 #, fuzzy, tcl-format
 msgid "Tune %d"
-msgstr ""
-"Feineinstellung %d"
+msgstr "Feineinstellung %d"
 
 #: tcl/bin/emccalib.tcl:160 tcl/bin/halconfig.tcl:628
 #: ../tcl/bin/emccalib.tcl:161 ../tcl/bin/halconfig.tcl:628
@@ -1119,8 +1120,7 @@ msgstr "Konfigurationsinformationen"
 #: tcl/bin/emcdebug.tcl:187 ../tcl/bin/emcdebug.tcl:187
 #, fuzzy
 msgid "Use of defaults"
-msgstr ""
-"Benutzen der Standardwerte"
+msgstr "Benutzen der Standardwerte"
 
 #: tcl/bin/emcdebug.tcl:188 ../tcl/bin/emcdebug.tcl:188
 msgid "Version information"
@@ -1207,8 +1207,7 @@ msgstr "Einfügen"
 #: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2545 ../tcl/show_errors.tcl:68
 #, fuzzy
 msgid "Select All"
-msgstr ""
-"Alles markieren"
+msgstr "Alles markieren"
 
 #: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/mini.tcl:919
 #: tcl/mini.tcl:2519 tcl/tklinuxcnc.tcl:790 ../tcl/bin/genedit.tcl:104

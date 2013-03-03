@@ -2721,11 +2721,27 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
+// Returns the "home pocket" of the tool currently in the spindle, ie the
+// pocket that the current tool was loaded from.  Returns 0 if there is no
+// tool in the spindle.
 int GET_EXTERNAL_TOOL_SLOT()
 {
-    return emcStatus->io.tool.toolInSpindle;
+    int toolno = emcStatus->io.tool.toolInSpindle;
+    int pocket;
+
+    for (pocket = 1; pocket < CANON_POCKETS_MAX; pocket++) {
+        if (emcStatus->io.tool.toolTable[pocket].toolno == toolno) {
+            return pocket;
+        }
+    }
+
+    return 0;  // no tool in spindle
 }
 
+// If the tool changer has prepped a pocket (after a Txxx command) and is
+// ready to perform a tool change, return the currently prepped pocket
+// number.  If the tool changer is idle (because no Txxx command has been
+// run, or because an M6 tool change has completed), return -1.
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
     return emcStatus->io.tool.pocketPrepped;
