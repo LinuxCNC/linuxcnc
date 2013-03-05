@@ -356,7 +356,7 @@ proc ::tp::hal_to_tcl {ifile ofile} {
       set line "$notcomment$comment"
     }
     puts $fdout $line
-    if {"$theline" != "$line"} {
+    if {[string trim "$theline"] != [string trim "$line"]} {
       verbose "converted hal line for tcl from $ifile:"
       verbose "   hal: $theline"
       verbose "   tcl: $line"
