@@ -243,8 +243,14 @@ class HandlerClass:
         self.gscreen.init_sensitive_run_idle()
         self.gscreen.init_sensitive_all_homed()
         self.gscreen.init_sensitive_override_mode()
+        self.gscreen.init_sensitive_graphics_mode()
+        self.gscreen.init_sensitive_origin_mode()
         self.init_sensitive_edit_mode() # local function
         self.data.sensitive_edit_mode.remove("button_menu")
+        for i in ("setup_button","mdi_button","run_button"):
+            self.data.sensitive_override_mode.append(i)
+            self.data.sensitive_graphics_mode.append(i)
+            self.data.sensitive_origin_mode.append(i) 
         self.widgets["spindle-at-speed"].set_property("on_color","black")
         self.gscreen.init_unlock_code()
         self.gscreen.init_state()
