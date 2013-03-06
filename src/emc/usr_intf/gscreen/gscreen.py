@@ -1527,6 +1527,15 @@ class Gscreen:
         print "off"
         self.sensitize_widgets(self.data.sensitive_on_off,False)
 
+    def on_hal_status_axis_homed(self,widget,data):
+        print "homed list",data
+        temp=[]
+        for letter in(self.data.axis_list):
+            count = "xyzabcuvws".index(letter)
+            if str(count) in data:
+                temp.append(" %s"%letter.upper())
+        self.add_alarm_entry(_("Axes %s are homed"%temp))
+
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
         self.data.all_homed = True
@@ -1534,13 +1543,14 @@ class Gscreen:
         self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
         self.add_alarm_entry(_("All the axes have been homed"))
 
-    def on_hal_status_not_all_homed(self,widget):
-        print "not-all-homed"
+    def on_hal_status_not_all_homed(self,widget,data):
+        print "not-all-homed",data
         self.data.all_homed = False
         temp =[]
         for letter in(self.data.axis_list):
-            if self.data["%s_is_homed"% letter]: continue
-            else: temp.append(" %s"%letter.upper())
+            count = "xyzabcuvws".index(letter)
+            if str(count) in data:
+                temp.append(" %s"%letter.upper())
         self.add_alarm_entry(_("There are unhomed axes: %s"%temp))
 
     def on_hal_status_file_loaded(self,widget,filename):
@@ -1683,6 +1693,7 @@ class Gscreen:
                         ["hal_status","interp-run", "on_hal_status_interp_run"],
                         ["hal_status","state-on", "on_hal_status_state_on"],
                         ["hal_status","state-off", "on_hal_status_state_off"],
+                        ["hal_status","homed", "on_hal_status_axis_homed"],
                         ["hal_status","all-homed", "on_hal_status_all_homed"],
                         ["hal_status","not-all-homed", "on_hal_status_not_all_homed"],
                         ["hal_status","file-loaded", "on_hal_status_file_loaded"],
