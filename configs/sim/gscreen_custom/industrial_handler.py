@@ -195,11 +195,22 @@ class HandlerClass:
             attr.insert(fg_color)
             self.widgets[axis].set_attributes(attr)
 
-    def on_hal_status_all_homed(self,widget):
-        self.gscreen.on_hal_status_all_homed(None)
-        for i in self.data.axis_list:
-            print i
-            self.widgets["home_%s"%i].set_text("*")
+    def on_hal_status_not_all_homed(self,widget,data):
+        temp =[]
+        for letter in self.data.axis_list:
+            axnum = "xyzabcuvws".index(letter)
+            if str(axnum) in data:
+                self.widgets["home_%s"%letter].set_text(" ")
+                temp.append(" %s"%letter.upper())
+        self.gscreen.add_alarm_entry(_("There are unhomed axes: %s"%temp))
+
+    def on_hal_status_axis_homed(self,widget,data):
+        for letter in self.data.axis_list:
+            axnum = "xyzabcuvws".index(letter)
+            if str(axnum) in data:
+                self.widgets["home_%s"%letter].set_text("*")
+            else:
+                self.widgets["home_%s"%letter].set_text(" ")
 
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
@@ -210,7 +221,8 @@ class HandlerClass:
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
                 self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
-        self.widgets.hal_status.connect("all-homed",self.on_hal_status_all_homed)
+        self.widgets.hal_status.connect("not-all-homed",self.on_hal_status_not_all_homed)
+        self.widgets.hal_status.connect("homed",self.on_hal_status_axis_homed)
         self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
         self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
