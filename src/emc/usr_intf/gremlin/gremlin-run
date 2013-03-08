@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import os
 import gtk
 
@@ -16,8 +17,14 @@ class GremlinApp(gtk.Window):
     def __init__(self, inifile):
         if not inifile:
             inifile = os.environ.get('INI_FILE_NAME', None)
+            if not inifile:
+                usage()
 
-        inifile = linuxcnc.ini(inifile)
+        try:
+            inifile = linuxcnc.ini(inifile)
+        except linuxcnc.error,detail:
+            usage('Using filename = %s\n %s' % (inifile,detail))
+
         gtk.Window.__init__(self)
 
         self.vbox = W(self, gtk.VBox)
@@ -30,9 +37,26 @@ class GremlinApp(gtk.Window):
     def quit(self, event):
         gtk.main_quit()
 
+
+def usage(msg=None):
+    print('Usage: %s inifilename' % sys.argv[0])
+    print('   or: %s              (requires environmental variable INI_FILE_NAME)'
+         % sys.argv[0])
+    if msg:
+        print('\n%s' % msg)
+
+
+    sys.exit(1)
+
 def main():
-    from sys import argv
-    g = GremlinApp(argv[1])
+    if len(sys.argv) == 1:
+        inifilename = None
+    elif len(sys.argv) == 2:
+        inifilename = sys.argv[1]
+    else:
+        usage()
+
+    g = GremlinApp(inifilename)
     gtk.main()
 
 if __name__ == '__main__': raise SystemExit, main()

@@ -603,9 +603,10 @@ else
 fi
 
 # at this point, both THREADS and KCONFIG is set.
-# If required, dig for kernel-headers 
+# If required, dig for kernel-headers; we need this only for the kernel
+# thread styles
 
-if test "$THREADS" != posix; then
+if test "$THREADS" = 'rtai' -o \(  "$THREADS" = 'xenomai-kernel' \); then
 
    # we have a kernel config path; extract version
 
@@ -2180,7 +2181,19 @@ AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
+AC_CONFIG_FILES(linuxcncconfig.py-tmp)
 AC_OUTPUT
+
+# clean up linuxcncconfig.py:
+# subsitute "yes" by True
+# subsitute "no" by False
+AC_MSG_RESULT(touching up ../lib/python/linuxcncconfig.py)
+sed -e 's/"yes"/True/g' -e 's/"no"/False/g' \
+    <linuxcncconfig.py-tmp \
+    >../lib/python/linuxcncconfig.py
+AC_MSG_CHECKING(usability of ../lib/python/linuxcncconfig.py)
+python ../lib/python/linuxcncconfig.py
+AC_MSG_RESULT(done)
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #

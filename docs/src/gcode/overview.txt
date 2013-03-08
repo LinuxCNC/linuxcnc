@@ -260,6 +260,7 @@ tool:
 * '5061-5070' - Result of 'G38.2' Probe (X Y Z A B C U V W)
 * '5161-5169' - 'G28' Home for (X Y Z A B C U V W)
 * '5181-5189' - 'G30' Home for (X Y Z A B C U V W)
+* '5210'      - 1 if 'G92' offsets are active, 0 if not
 * '5211-5219' - 'G92' offset (X Y Z A B C U V W)
 * '5220' - Current Coordinate System number 1 - 9 for G54 - G59.3
 * '5221-5230' - Coordinate System 1, G54 (X Y Z A B C U V W R) - R denotes the XY rotation angle around the Z axis
