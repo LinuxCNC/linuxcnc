@@ -526,7 +526,7 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/ini_config.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 	$(DOC_SRCDIR)/checkref English $^
 
