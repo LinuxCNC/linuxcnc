@@ -52,6 +52,8 @@ class OffsetPage(gtk.VBox):
                 "%9.4f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+        'highlight_color'  : ( gtk.gdk.Color.__gtype__, 'Highlight color',  "",
+                    gobject.PARAM_READWRITE),
         'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: 0-9 a-d are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'hide_joints' : ( gobject.TYPE_STRING, 'Hidden Joints', 'A no-spaces list of joints to hide: 0-9 and/or axis lettets are the options',
@@ -71,7 +73,7 @@ class OffsetPage(gtk.VBox):
         self.unit_convert=[1]*9
         self.font="sans 12"
         self.editing_mode = False
-        self.highlight_color = "yellow"
+        self.highlight_color = gtk.gdk.Color("lightblue")
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()
@@ -351,7 +353,7 @@ class OffsetPage(gtk.VBox):
 
     # sets the color when editing is active
     def set_highlight_color(self,value):
-        self.highlight_color = value
+        self.highlight_color = gtk.gdk.Color(value)
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self,value):
@@ -411,7 +413,9 @@ def main(filename=None):
     #offsetpage.set_col_visible("1abC",False)
     #offsetpage.set_row_visible("0yz3b",True)
     #offsetpage.set_to_mm()
-    #offsetpage.set_font("sans 10")
+    #offsetpage.set_font("sans 20")
+    #offsetpage.set_property("highlight_color",gtk.gdk.Color('blue'))
+    #offsetpage.set_highlight_color("violet")
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()
