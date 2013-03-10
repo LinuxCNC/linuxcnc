@@ -195,6 +195,16 @@ class HandlerClass:
             attr.insert(fg_color)
             self.widgets[axis].set_attributes(attr)
 
+    def on_dtg_colorbutton_color_set(self,widget):
+        self.gscreen.set_dtg_color()
+        color = self.data.dtg_color
+        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        for i in self.data.axis_list:
+            axis = "dro_%s3"% i
+            attr = self.widgets[axis].get_attributes()
+            attr.insert(fg_color)
+            self.widgets[axis].set_attributes(attr)
+
     def on_hal_status_not_all_homed(self,widget,data):
         temp =[]
         for letter in self.data.axis_list:
@@ -225,6 +235,7 @@ class HandlerClass:
         self.widgets.hal_status.connect("homed",self.on_hal_status_axis_homed)
         self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
+        self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
         self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
@@ -282,6 +293,7 @@ class HandlerClass:
     def init_dro(self):
         self.on_abs_colorbutton_color_set(None)
         self.on_rel_colorbutton_color_set(None)
+        self.on_dtg_colorbutton_color_set(None)
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
