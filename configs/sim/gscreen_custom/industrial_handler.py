@@ -271,6 +271,9 @@ class HandlerClass:
             self.widgets["dro_%s2"%i].show()
             self.widgets["axis_%s"%i].show()
             self.widgets["home_%s"%i].show()
+        #self.widgets.offsetpage1.set_highlight_color("lightblue")
+        self.widgets.offsetpage1.set_font("sans 18")
+        self.widgets.tooledit1.set_font("sans 18")
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
