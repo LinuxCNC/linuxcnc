@@ -433,6 +433,7 @@ class Gscreen:
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
+
         if _AUDIO_AVAIALBLE:
             self.audio = Player()         
 
@@ -455,42 +456,37 @@ class Gscreen:
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
 
+        # set-up HAL component
+        try:
+            self.halcomp = hal.component("gscreen")
+        except:
+            print _("*** Gscreen ERROR:    Asking for a HAL component using a name that already exists.")
+            sys.exit(0)
+        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
+        # at this point, any glade HAL widgets and their pins are set up.
+
+        # look for custom handler files:
+        HANDLER_FN = "%s_handler.py"%skinname
+        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        if os.path.exists(local_handler_path):
+            temp = [HANDLER_FN]
+        else:
+            temp = []
+        handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
+        self.xml.connect_signals(handlers)
+
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
         # then initiate access to saved prefernces
         temp = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH")
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
 
-        #setup default stuff
-        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
+        # Intialize prefereces either from the handler file or from Gscreen
+        if "initialize_preferences" in dir(self.handler_instance):
+            self.handler_instance.initialize_preferences()
+        else:
+            self.initialize_preferences()
 
-        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
-        self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
-
-        self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
-
-        self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
-        self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
-        self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
-        self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
-        self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
-        self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
-        self.data.fullscreen1 = self.prefs.getpref('fullscreen1', False, bool)
-        self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
-        self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
-        self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
-        self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
-        self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
-        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
-        self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
-        self.data.desktop_notify = self.prefs.getpref('desktop_notify', True, bool)
-        self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
-
-        self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
-        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr) 
-        self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
-
-        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         # get the system wide theme
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
@@ -626,24 +622,6 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
-        # set-up HAL component
-        try:
-            self.halcomp = hal.component("gscreen")
-        except:
-            print _("*** Gscreen ERROR:    Asking for a HAL component using a name that already exists.")
-            sys.exit(0)
-        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        # at this point, any glade HAL widgets and their pins are set up.
-
-        # look for custom handler files:
-        HANDLER_FN = "%s_handler.py"%skinname
-        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        if os.path.exists(local_handler_path):
-            temp = [HANDLER_FN]
-        else:
-            temp = []
-        handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
-        self.xml.connect_signals(handlers)
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
@@ -701,6 +679,44 @@ class Gscreen:
             temp = 100
         print _("timeout %d" % int(temp))
         gobject.timeout_add(int(temp), self.periodic_status)
+
+    def initialize_preferences(self):
+        self.init_dro_pref()
+        self.init_theme_pref()
+        self.init_window_geometry_pref()
+        self.init_general_pref()
+
+    def init_dro_pref(self):
+        self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
+        self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
+        self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
+
+    def init_theme_pref(self):
+        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
+
+    def init_window_geometry_pref(self):
+        self.data.fullscreen1 = self.prefs.getpref('fullscreen1', False, bool)
+        self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
+        self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
+        self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
+        self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
+        self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
+
+    def init_general_pref(self):
+        self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
+        self.data.desktop_notify = self.prefs.getpref('desktop_notify', True, bool)
+        self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
+        self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
+        self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
+        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
+        self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
+        self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
+        self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
+        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
+        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
+        self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
+        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
+        self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
 
     # initialize default widgets
     def initialize_widgets(self):
