@@ -358,8 +358,7 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
-    rtapi/$(THREADS_SOURCE).h \
-    redis/redis/deps/hiredis/hiredis.h
+    rtapi/$(THREADS_SOURCE).h 
 
 # need to do ths separately because the subdirectory is required
 # ../include/string.h would wreak havoc because it's the 
