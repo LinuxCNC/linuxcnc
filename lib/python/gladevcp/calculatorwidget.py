@@ -73,20 +73,28 @@ class Calculator(gtk.VBox):
 			"on_Add_clicked" : self.displayAdd,
 			}
 		self.wTree.connect_signals( dic )
-		entry = self.wTree.get_object("displayText")
-		entry.modify_font(pango.FontDescription(self.font))
+		self.entry = self.wTree.get_object("displayText")
+		self.entry.modify_font(pango.FontDescription(self.font))
+		self.calc_box = self.wTree.get_object("calc_box")
 		window = self.wTree.get_object("calc_box")
 		window.reparent(self)
 
+	def num_pad_only(self,value):
+		objects = ["Left_bracket","Right_bracket","Pi","Divide","Multiply","Add","Minus","Equal"]
+		for i in objects:
+			temp = self.wTree.get_object(i)
+			if value:
+				temp.hide()
+			else:
+				temp.show()
+
 	def set_editable(self,value):
 		self.is_editable = value
-		entry = self.wTree.get_object("displayText")
-		entry.set_editable(value)
+		self.entry.set_editable(value)
 
 	def set_font(self,font):
 		self.font = font
-		entry = self.wTree.get_object("displayText")
-		entry.modify_font(pango.FontDescription(font))
+		self.entry.modify_font(pango.FontDescription(font))
 
 	def set_value(self,value):
 		self.delete()

@@ -70,7 +70,7 @@ ifeq ($(RTPREFIX),)
 $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
-DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
+DEP = $(1) -MM -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
@@ -119,8 +119,6 @@ SUBDIRS := \
     po \
     \
     ../docs/src \
-	redis \
-    redis/examples/c \
     hal/simdrivers
 
 # moved to src/rtapi/Submakefile
@@ -136,10 +134,13 @@ PROGRAMS :=
 # When used like $(call TOxxx, ...) these turn a list of source files
 # into the corresponding list of object files, dependency files,
 # or both.  When a source file has to be compiled with special flags,
-# TOOBJSDEPS is used.  See Submakefile.skel for an example.
+# TOOBJSDEPS is used.  Confusingly, TOOBJSDEPS includes preprocessed source
+# file names, but this is what allows 'make src.i' to produce proper
+# preprocessed source when src.c needs a customized compile flag.
+# See Submakefile.skel for an example.
 TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
-TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1) $(patsubst %.cc,%.i,$(patsubst %.c,%.i,$(1))))
+TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
@@ -151,7 +152,7 @@ $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
-$(call TOOBJSDEPS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
+$(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
 USERSRCS += $(PYSRCS)
 endif
 
@@ -163,9 +164,11 @@ CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
-DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
--include $(DEPS)
-Makefile: $(DEPS)
+DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
+READ_DEPS = $(wildcard $(DEPS))
+$(shell echo 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
+-include $(READ_DEPS)
+$(shell echo 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
@@ -194,27 +197,22 @@ else
 LDFLAGS := -Wl,-rpath-link,../lib
 endif
 
-# Rules to make .d (dependency) files.
-$(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
-	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
-
-$(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c
-	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
-
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
+	@rm -f $@
+	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
 
 $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
+	@rm -f $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
 
 # Rules to make .i (preprocessed) files
 $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
@@ -239,6 +237,7 @@ config.status: configure
 	fi
 endif
 
+Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
@@ -988,7 +987,6 @@ EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
-
 IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
@@ -998,16 +996,14 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
 
-$(sort $(RTDEPS)): depends/rt%.d: %.c
-	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
-
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
+	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(RT_CFLAGS) $(EXTRA_CFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
 
 endif # end BUILD_SYS=user-dso
 
@@ -1100,9 +1096,10 @@ endif
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
-RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
--include $(RTDEPS)
-Makefile: $(RTDEPS)
+READ_RTDEPS = $(wildcard $(RTDEPS))
+$(shell echo 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
+-include $(READ_RTDEPS)
+$(shell echo 1>&2 Done reading realtime dependencies)
 endif
 endif  # build kernel RTAPI modules
 

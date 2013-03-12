@@ -32,6 +32,13 @@ except:
     print('GTK not available')
     sys.exit(1)
 
+# we put this in a try so there is no error in the glade editor
+# linuxcnc is probably not running then 
+try:
+    INIPATH = os.environ['INI_FILE_NAME']
+except:
+    pass
+
 class OffsetPage(gtk.VBox):
     __gtype_name__ = 'OffsetPage'
     __gproperties__ = {
@@ -45,6 +52,8 @@ class OffsetPage(gtk.VBox):
                 "%9.4f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+        'highlight_color'  : ( gtk.gdk.Color.__gtype__, 'Highlight color',  "",
+                    gobject.PARAM_READWRITE),
         'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: 0-9 a-d are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'hide_joints' : ( gobject.TYPE_STRING, 'Hidden Joints', 'A no-spaces list of joints to hide: 0-9 and/or axis lettets are the options',
@@ -64,7 +73,7 @@ class OffsetPage(gtk.VBox):
         self.unit_convert=[1]*9
         self.font="sans 12"
         self.editing_mode = False
-        self.highlight_color = "yellow"
+        self.highlight_color = gtk.gdk.Color("lightblue")
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()
@@ -91,11 +100,12 @@ class OffsetPage(gtk.VBox):
         # first check the global settings
         # else then the X axis units
         try:
-            self.inifile = self.emc.ini(INIPATH)
+            self.inifile = self.linuxcnc.ini(INIPATH)
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
             if units==None:
                 units=self.inifile.find("AXIS_0","UNITS")
         except:
+            print "**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -105,6 +115,17 @@ class OffsetPage(gtk.VBox):
         else:
             self.machine_units_mm=0
             self.conversion=[25.4]*3+[1]*3+[25.4]*3
+
+        # make a list of available axis
+        try:
+            temp = self.inifile.find("TRAJ","COORDINATES")
+            self.axisletters = ""
+            for letter in temp:
+                if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
+                self.axisletters += letter.lower()
+        except:
+            print "**** Offsetpage widget ERROR: Axis list not found in INI's TRAJ COODINATES section"
+            self.axisletters ="xyz"
 
         # check linuxcnc status every half second
         gobject.timeout_add(1000, self.periodic_check)
@@ -280,16 +301,15 @@ class OffsetPage(gtk.VBox):
     # TODO the edited column does not end up showing the editted number even though linuxcnc
     # registered the change 
     def col_editted(self, widget, path, new_text, col):
-        axlet = "xyzabcuvw"
-        print new_text, col, axlet[int(path)]
+        print new_text, col, self.axisletters[int(path)]
         try:
             if self.status.task_mode != self.linuxcnc.MODE_MDI:
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
             if col == 2:
-                self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+                self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(self.axisletters[int(path)],float(new_text)) )
             elif col == 3:
-                self.cmd.mdi( "G92 %s %10.4f"%(axlet[int(path)],float(new_text)) )
+                self.cmd.mdi( "G92 %s %10.4f"%(self.axisletters[int(path)],float(new_text)) )
             self.cmd.mode(self.linuxcnc.MODE_MANUAL)
             self.cmd.wait_complete()
             self.cmd.mode(self.linuxcnc.MODE_MDI)
@@ -333,7 +353,7 @@ class OffsetPage(gtk.VBox):
 
     # sets the color when editing is active
     def set_highlight_color(self,value):
-        self.highlight_color = value
+        self.highlight_color = gtk.gdk.Color(value)
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self,value):
@@ -393,7 +413,9 @@ def main(filename=None):
     #offsetpage.set_col_visible("1abC",False)
     #offsetpage.set_row_visible("0yz3b",True)
     #offsetpage.set_to_mm()
-    #offsetpage.set_font("sans 10")
+    #offsetpage.set_font("sans 20")
+    #offsetpage.set_property("highlight_color",gtk.gdk.Color('blue'))
+    #offsetpage.set_highlight_color("violet")
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()

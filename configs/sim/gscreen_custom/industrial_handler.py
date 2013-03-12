@@ -3,7 +3,7 @@ import gtk
 import gladevcp.makepins # needed for the dialog's calulator widget
 import pango
 
-_MAN = 0;_MDI = 1;_AUTO = 2;_UNLOCKCODE = 123;_LOCKTOGGLE = 1
+_MAN = 0;_MDI = 1;_AUTO = 2;_LOCKTOGGLE = 1
 
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
@@ -160,16 +160,15 @@ class HandlerClass:
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.set_editable(True)
         dialog.parse_geometry("400x400")
         dialog.set_decorated(False)
         dialog.show_all()
-        self.widgets.data_input.set_sensitive(False)
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
-        self.widgets.data_input.set_sensitive(True)
         if response == gtk.RESPONSE_ACCEPT:
-            if code == _UNLOCKCODE:
+            if code == int(self.data.unlock_code):
                 self.gscreen.add_alarm_entry("System page unlocked")
                 _LOCKTOGGLE = 0
                 return True
@@ -196,6 +195,33 @@ class HandlerClass:
             attr.insert(fg_color)
             self.widgets[axis].set_attributes(attr)
 
+    def on_dtg_colorbutton_color_set(self,widget):
+        self.gscreen.set_dtg_color()
+        color = self.data.dtg_color
+        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        for i in self.data.axis_list:
+            axis = "dro_%s3"% i
+            attr = self.widgets[axis].get_attributes()
+            attr.insert(fg_color)
+            self.widgets[axis].set_attributes(attr)
+
+    def on_hal_status_not_all_homed(self,widget,data):
+        temp =[]
+        for letter in self.data.axis_list:
+            axnum = "xyzabcuvws".index(letter)
+            if str(axnum) in data:
+                self.widgets["home_%s"%letter].set_text(" ")
+                temp.append(" %s"%letter.upper())
+        self.gscreen.add_alarm_entry(_("There are unhomed axes: %s"%temp))
+
+    def on_hal_status_axis_homed(self,widget,data):
+        for letter in self.data.axis_list:
+            axnum = "xyzabcuvws".index(letter)
+            if str(axnum) in data:
+                self.widgets["home_%s"%letter].set_text("*")
+            else:
+                self.widgets["home_%s"%letter].set_text(" ")
+
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
@@ -205,8 +231,12 @@ class HandlerClass:
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
                 self.data[i] = int(self.widgets[cb].connect("toggled", self["on_%s_clicked"%cb]))
+        self.widgets.hal_status.connect("not-all-homed",self.on_hal_status_not_all_homed)
+        self.widgets.hal_status.connect("homed",self.on_hal_status_axis_homed)
         self.widgets.abs_colorbutton.connect("color-set", self.on_abs_colorbutton_color_set)
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
+        self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
+        self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -236,14 +266,25 @@ class HandlerClass:
         self.gscreen.init_sensitive_run_idle()
         self.gscreen.init_sensitive_all_homed()
         self.gscreen.init_sensitive_override_mode()
+        self.gscreen.init_sensitive_graphics_mode()
+        self.gscreen.init_sensitive_origin_mode()
         self.init_sensitive_edit_mode() # local function
         self.data.sensitive_edit_mode.remove("button_menu")
+        for i in ("setup_button","mdi_button","run_button"):
+            self.data.sensitive_override_mode.append(i)
+            self.data.sensitive_graphics_mode.append(i)
+            self.data.sensitive_origin_mode.append(i) 
         self.widgets["spindle-at-speed"].set_property("on_color","black")
+        self.gscreen.init_unlock_code()
         self.gscreen.init_state()
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
             self.widgets["dro_%s2"%i].show()
             self.widgets["axis_%s"%i].show()
+            self.widgets["home_%s"%i].show()
+        #self.widgets.offsetpage1.set_highlight_color("lightblue")
+        self.widgets.offsetpage1.set_font("sans 18")
+        self.widgets.tooledit1.set_font("sans 18")
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
@@ -252,6 +293,7 @@ class HandlerClass:
     def init_dro(self):
         self.on_abs_colorbutton_color_set(None)
         self.on_rel_colorbutton_color_set(None)
+        self.on_dtg_colorbutton_color_set(None)
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.

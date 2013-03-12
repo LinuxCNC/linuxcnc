@@ -717,9 +717,9 @@ int rtapi_assure_module_loaded(const char *module);
   MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
-#else /* version 2.6 */
+#else /* version 2.6 or later */
 
-#include <linux/param.h>
+#include <linux/module.h>
 
 #define RTAPI_MP_INT(var,descr)    \
   module_param(var, int, 0);       \

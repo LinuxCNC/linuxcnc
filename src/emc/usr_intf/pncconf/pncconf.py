@@ -1804,7 +1804,7 @@ If you have a REALLY large config that you wish to convert to this newer version
            return test
 
     def pwmgen_invert_pins(self,pinnumber):
-        print "list pwm invert pins"
+        print "list pwm invert pins",pinnumber
         # sample pinname = mesa0c0pin11
         signallist = []
         pin = int(pinnumber[10:])
@@ -1838,8 +1838,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         closedloop = False
         pwmpin = self.pwmgen_sig(let)
         pwmpinname = self.make_pinname(pwmpin)
-        if pwmpinname:
-            pwminvertlist = self.pwmgen_invert_pins(self.pwmgen_sig(let))
+        if pwmpinname and not 'serial' in pwmpin: # TODO allow sserial PWM to be inverted
+            pwminvertlist = self.pwmgen_invert_pins(pwmpin)
         if not pwmpin == None:
             pwmtype = self.pwmgen_sig(let)+"type"
         else:

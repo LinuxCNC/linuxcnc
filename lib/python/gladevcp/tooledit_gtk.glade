@@ -281,7 +281,7 @@
           <placeholder/>
         </child>
         <child>
-          <object class="GtkHButtonBox" id="hbuttonbox1">
+          <object class="GtkHButtonBox" id="buttonbox">
             <property name="visible">True</property>
             <property name="layout_style">center</property>
             <child>
