@@ -176,7 +176,7 @@ The 'Comment' column may optionally be used to describe the tool. Any
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon. 
 
-=== Tool Changers
+=== [[sec:Tool-Changers]] Tool Changers
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'fixed location'. Information about configuring an LinuxCNC tool changer

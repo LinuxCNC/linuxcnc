@@ -167,6 +167,7 @@ msgid "Realtime component not loaded"
 msgstr "Echtzeicht-Komponente nicht geladen"
 
 #: src/hal/utils/scope_horiz.c:460
+#, fuzzy
 msgid ""
 "HALSCOPE uses a realtime component called scope_rt'\n"
 "to sample signals for display.  It is not currently loaded\n"
@@ -193,7 +194,7 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:495
 msgid "Realtime function not linked"
-msgstr ""
+msgstr "Echtzeitfunktion nicht gelinkt"
 
 #: src/hal/utils/scope_horiz.c:496
 msgid ""
@@ -207,12 +208,22 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"Die HALSCOPE Echtzeit-Samplingfunktion\n"
+"muß aus einem HAL Thread aufgerufen werden,\n"
+"um die Samplingfrequenz zu ermitteln. \n"
+"\n"
+"Führen Sie eine dieser Möglichkeiten aus:\n"
+"Wählen Sie einen Threadnamen, einen\n"
+"Multiplikationsfaktor und klicken Sie \"OK\"\n"
+"oder\n"
+"klicken Sie 'Quit' um HALSCOPE zu verlassen."
 
 #: src/hal/utils/scope_horiz.c:503
 msgid "Select Sample Rate"
 msgstr "Abtastrate auswählen"
 
 #: src/hal/utils/scope_horiz.c:504
+#, fuzzy
 msgid ""
 "Select a thread name and multiplier then click 'OK'\n"
 "or\n"
@@ -221,7 +232,7 @@ msgstr ""
 "Wählen Sie einen Tread-Namen und Vervielfacher\n"
 "und bestätigen Sie mit »OK«\n"
 "oder\n"
-"wählen Sie »Beenden« um HALSCOPE zu beenden"
+"wählen Sie »Beenden« um HALSCOPE zu beenden\n"
 
 #: src/hal/utils/scope_horiz.c:526
 msgid "Thread:"
@@ -304,7 +315,7 @@ msgstr "Beenden"
 
 #: src/hal/utils/scope_horiz.c:745
 msgid "Realtime thread(s) not running"
-msgstr ""
+msgstr "Echtzeit-Thread ist nicht gestarted"
 
 #: src/hal/utils/scope_horiz.c:746
 msgid ""
@@ -319,10 +330,21 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE benutzt HAL-Echtzeitkomponenten, um \n"
+"Signale für die Darstellung abzutasten. Die HAL threads\n"
+"sind nicht geladen. Threads werden normalerweise \n"
+"von der Anwendung geladen, die Sie starten wollen,\n"
+"oder können mit 'halcmd start' aufgerufen werden.\n"
+"\n"
+"Sie haben diese Möglichkeiten:\n"
+"\n"
+"Sie starten die Threads und klicken 'OK'\n"
+"oder\n"
+"klicken Sie 'Quit', um HALSCOPE zu verlassen."
 
 #: src/hal/utils/scope_horiz.c:779
 msgid "Pick log file to write to:"
-msgstr ""
+msgstr "Wählen Sie eine Log-Datei zum Speichern:"
 
 #: src/hal/utils/scope_horiz.c:962
 msgid "Not enough channels"
@@ -334,15 +356,19 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
+"Diese Datensatzlänge kann nicht alle\n"
+"Kanäle verarbeiten wie momentan aktiv\n"
+"sind. Wählen Sie einen kürzeren Wert,\n"
+"um mehr Kanäle zu unterstützen."
 
 #: src/hal/utils/scope_horiz.c:1051
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "%s\n"
 "per div"
 msgstr ""
 "%s\n"
-"pro div"
+"pro Teilstrich"
 
 #: src/hal/utils/scope_horiz.c:1066
 #, c-format
@@ -459,6 +485,11 @@ msgid ""
 "Either turn off one or more channels, or shorten\n"
 "the record length to allow for more channels"
 msgstr ""
+"Kein weiterer Kanal möglich.\n"
+"\n"
+"Einen oder mehrere Kanäle abschalten \n"
+"oder die Datensatzlänge verkleinern,\n"
+"um mehr Kanäle zu ermöglichen."
 
 #: src/hal/utils/scope_vert.c:1026
 msgid "Select Channel Source"
@@ -519,11 +550,11 @@ msgstr "Auto"
 
 #: src/hal/utils/scope_trig.c:201
 msgid "Force"
-msgstr ""
+msgstr "Zwang"
 
 #: src/hal/utils/scope_trig.c:235 src/hal/utils/scope_trig.c:269
 msgid "Level"
-msgstr ""
+msgstr "Schwelle"
 
 #: src/hal/utils/scope_trig.c:303
 msgid "Trigger Source"
@@ -544,6 +575,8 @@ msgstr "Quelle"
 #: src/emc/motion/control.c:261
 msgid "Unexpected realtime delay: check dmesg for details."
 msgstr ""
+"Unerwartete Echtzeitverzögerung.\n"
+"Details stehen in dmesg."
 
 #: src/emc/motion/control.c:263
 #, c-format
@@ -553,6 +586,11 @@ msgid ""
 "%ld, %ld, %ld, %ld, and %ld\n"
 "elapsed clocks between calls to the motion controller.\n"
 msgstr ""
+"\n"
+"In der letzten Zeit sind \n"
+"%ld,%ld,%ld,%ld und %ld\n"
+"Clockimpulse zwischen den Impulsen an \n"
+"die Motorsteuerung ausgefallen.\n"
 
 #: src/emc/motion/control.c:268
 #, c-format
@@ -563,40 +601,44 @@ msgid ""
 "EMC, this message will be suppressed.\n"
 "\n"
 msgstr ""
+"Dieses Mal waren es %ld, also unnormal viele,\n"
+"was auf ein Problem mit Ihrer Echtzeitkon-\n"
+"figuration hinweist. Für die Restlaufzeit\n"
+"von EMC wird diese Meldung unterdrückt.\n"
 
 #: src/emc/motion/control.c:384
 msgid "G38.4 move finished without breaking contact."
-msgstr ""
+msgstr "G38.4: Bewegung ohne Kontaktöffnung beendet."
 
 #: src/emc/motion/control.c:387
 msgid "G38.2 move finished without making contact."
-msgstr ""
+msgstr "G38.4: Bewegung ohne Kontaktschließung beendet."
 
 #: src/emc/motion/control.c:401
 msgid "Probe tripped during non-probe MDI command."
-msgstr ""
+msgstr "Tastspitze bei inaktivem MDI-Befehl ausgelöst."
 
 #: src/emc/motion/control.c:429
 msgid "Probe tripped during homing motion."
-msgstr ""
+msgstr "Tastspitze bei Referenzfahrt ausgelöst."
 
 #: src/emc/motion/control.c:433
 msgid "Probe tripped during a jog."
-msgstr ""
+msgstr "Tastspitze bei Eilfahrt ausgelöst."
 
 #: src/emc/motion/control.c:697
 msgid "motion stopped by enable input"
-msgstr ""
+msgstr "Bewegung durch Enable-Eingabe angehalten."
 
 #: src/emc/motion/control.c:720
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr ""
+msgstr "Fehler: Joint %d am Endschalter"
 
 #: src/emc/motion/control.c:732
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr ""
+msgstr "Verstärkerfehler an Joint %d"
 
 #: src/emc/motion/control.c:741
 #, c-format
@@ -606,57 +648,57 @@ msgstr ""
 #: src/emc/motion/control.c:1423
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
-msgstr ""
+msgstr "Positiver Softanschlag bei Joint %d überschritten"
 
 #: src/emc/motion/control.c:1428
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr ""
+msgstr "Negativer Softanschlag bei Joint %d überschritten"
 
 #: src/emc/motion/command.c:159
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr ""
+msgstr "Kann ungültigen Joint %d nicht bewegen"
 
 #: src/emc/motion/command.c:163
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr ""
+msgstr "Kann Joint %d nicht weiter über Bahnmaximum bewegen"
 
 #: src/emc/motion/command.c:168
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr ""
+msgstr "Kann Joint %d nicht über Bahnminimum bewegen"
 
 #: src/emc/motion/command.c:174
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr ""
+msgstr "Kann Joint %d nicht über max. Softanschlag bewegen"
 
 #: src/emc/motion/command.c:179
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr ""
+msgstr "Kann Joint %d nicht über min. Softanschlag bewegen"
 
 #: src/emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr ""
+msgstr "Bewegung %s in Zeile %d würde pos. Anschlag von Joint %d überschreiten"
 
 #: src/emc/motion/command.c:240
 #, c-format
 msgid "%s move in MDI would exceed joint %d's positive limit"
-msgstr ""
+msgstr "Bewegung %s in MDI würde pos. Anschlag von Joint %d überschreiten"
 
 #: src/emc/motion/command.c:247
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr ""
+msgstr "Bewegung %s in Zeile %d würde neg. Anschlag von Joint %d überschreiten"
 
 #: src/emc/motion/command.c:250
 #, c-format
 msgid "%s move in MDI would exceed joint %d's negative limit"
-msgstr ""
+msgstr "Bewegung %s in MDI würde neg. Anschlag von Joint %d überschreiten"
 
 #: src/emc/motion/command.c:500
 msgid "all joints must be homed before going into coordinated mode"
@@ -678,11 +720,11 @@ msgstr ""
 
 #: src/emc/motion/command.c:685 src/emc/motion/command.c:824
 msgid "Can't jog any joints while homing."
-msgstr ""
+msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:751
 msgid "Can't jog any joint while homing."
-msgstr ""
+msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
@@ -690,11 +732,11 @@ msgstr ""
 
 #: src/emc/motion/command.c:891
 msgid "can't do linear move with limits exceeded"
-msgstr ""
+msgstr "Keine Linearbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:910
 msgid "can't add linear move"
-msgstr ""
+msgstr "Keine zusätzl. Linearbewegung möglich"
 
 #: src/emc/motion/command.c:930
 msgid "need to be enabled, in coord mode for circular move"
@@ -702,57 +744,63 @@ msgstr ""
 
 #: src/emc/motion/command.c:940
 msgid "can't do circular move with limits exceeded"
-msgstr ""
+msgstr "Keine Kreisbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:958
 msgid "can't add circular move"
-msgstr ""
+msgstr "Keine zusätzl. Kreisbewegung möglich"
 
 #: src/emc/motion/command.c:1048
 msgid "MOTION: can't STEP while already executing"
-msgstr ""
+msgstr "MOTION: bereits begonnen, STEP nicht möglich"
 
 #: src/emc/motion/command.c:1140
 msgid "can't enable motion, enable input is false"
-msgstr ""
+msgstr "Bewegung nicht möglich, Enable-Eingang ist falsch"
 
 #: src/emc/motion/command.c:1213
-#, fuzzy
 msgid "must be in joint mode to home"
-msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
+msgstr "Referenzfahrt nur im Joint-Modus möglich"
 
 #: src/emc/motion/command.c:1224 src/emc/motion/command.c:1235
 msgid "homing sequence already in progress"
-msgstr ""
+msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1233
 msgid "homing already in progress"
-msgstr ""
+msgstr "Referenzfahrt bereits begonnen"
 
 #: src/emc/motion/command.c:1263
-#, fuzzy
 msgid "must be in joint mode or disabled to unhome"
-msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
+msgstr ""
+"Kann nur im Joint-Modus oder abgeschaltet aus der Referenzpos. gefahren "
+"werden"
 
 #: src/emc/motion/command.c:1275 src/emc/motion/command.c:1298
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr ""
+"Joint %d: Während Referenzfahrt kann nicht aus der Referenzpos. gefahren "
+"werden"
 
 #: src/emc/motion/command.c:1279 src/emc/motion/command.c:1302
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
 msgstr ""
+"Joint %d: Während der Bewegung kann nicht aus der Referenzpos. gefahren "
+"werden"
 
 #: src/emc/motion/command.c:1307
 #, c-format
 msgid "Cannot unhome inactive joint %d"
-msgstr ""
+msgstr "Inaktiver Joint %d kann nicht aus der Referenzpos. gefahren werden"
 
 #: src/emc/motion/command.c:1311
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)"
 msgstr ""
+"Joint %d: Ungültiger Joint kann nicht aus der Referenzpos. gefahren werden "
+"(max. %d)"
 
 #: src/emc/motion/command.c:1338
 msgid "need to be enabled, in coord mode for probe move"
@@ -760,31 +808,31 @@ msgstr ""
 
 #: src/emc/motion/command.c:1348
 msgid "can't do probe move with limits exceeded"
-msgstr ""
+msgstr "Kann Tastspitze nicht außerhalb der Grenzen bewegen"
 
 #: src/emc/motion/command.c:1362
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
-msgstr ""
+msgstr "Tastspitze schon abgehoben bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1364
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr ""
+msgstr "Tastspitze schon ausgelöst bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1376
 msgid "can't add probe move"
-msgstr ""
+msgstr "Keine weitere Bewegung der Tastspitze möglich"
 
 #: src/emc/motion/command.c:1400
 msgid "need to be enabled, in coord mode for rigid tap move"
-msgstr ""
+msgstr "Muß aktiviert werden, im Koordinatenmodus für Gewindebohren"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "Kein Gewindebohren außerhalb der Grenzen"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
-msgstr ""
+msgstr "Gewindebohren: keine weitere Bewegung möglich"
 
 #: src/emc/motion/command.c:1435
 msgid "need to be enabled, in teleop mode for teleop move"
@@ -793,105 +841,108 @@ msgstr ""
 #: src/emc/motion/command.c:1556
 #, c-format
 msgid "joint %d: too many compensation entries"
-msgstr ""
+msgstr "Joint %d: zu viele Kompensationseingaben"
 
 #: src/emc/motion/command.c:1562
 #, c-format
 msgid "joint %d: compensation values must increase"
-msgstr ""
+msgstr "Joint %d: Kompensationswerte müssen ansteigen"
 
 #: src/emc/motion/command.c:1591
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "Unerkannter Befehl %d"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
-msgstr ""
+msgstr "MOTION: hal_init fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:190
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:197
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:204
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:212
 msgid "MOTION: init_hal_io() failed\n"
-msgstr ""
+msgstr "MOTION: init_hal_io() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:221
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr ""
+msgstr "MOTION: init_comm_buffers() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:229
 msgid "MOTION: init_threads() failed\n"
-msgstr ""
+msgstr "MOTION: init_threads() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:254
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: hal_stop_threads() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:260
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: rtapi_shmem_delete() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:266
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr ""
+msgstr "MOTION: hal_exit() fehlgeschlagen, Rückgabewert %d\n"
 
 #: src/emc/motion/motion.c:289
 msgid "MOTION: emcmot_hal_data malloc failed\n"
-msgstr ""
+msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:585
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr ""
+msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr ""
+msgstr "Grenze im Referenzstatus erreicht %d"
 
 #: src/emc/motion/homing.c:90
 #, c-format
 msgid "end of move in home state %d"
-msgstr ""
+msgstr "Bewegungsende im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:185
 #, c-format
 msgid "unknown state '%d' during homing sequence"
-msgstr ""
+msgstr "Unbekannter Zustand '%d' bei Referenzfahrt"
 
 #: src/emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr ""
+msgstr "Keine Referenzfahrt bei geschlossenem gemeinsamem Endschalter"
 
 #: src/emc/motion/homing.c:290
 msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
+"Ungültige Referenz-Konfiguration: LATCH_VEL ungleich Null braucht SEARCH_VEL "
+"oder USE_INDEX"
 
 #: src/emc/motion/homing.c:299
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
+"Ungültige Referenz-Konfiguration: SEARCH_VEL ungleich Null braucht LATCH_VEL"
 
 #: src/emc/motion/homing.c:447
 msgid "Home switch inactive before start of backoff move"
-msgstr ""
+msgstr "Referenzschalter inaktiv vor der Rückbewegung"
 
 #: src/emc/motion/homing.c:495
 msgid "Home switch active before start of latch move"
@@ -904,12 +955,11 @@ msgstr ""
 #: src/emc/motion/homing.c:797
 #, c-format
 msgid "unknown state '%d' during homing"
-msgstr ""
+msgstr "Unbekannter Zustand '%d' während Referenzfahrt"
 
 #: tcl/bin/emccalib.tcl:80
-#, fuzzy
 msgid "LinuxCNC Servo Axis Calibration"
-msgstr "EMC2 Achsen-Kalibrierung"
+msgstr "LinuxCNC Servoachsen-Kalibrierung"
 
 #: tcl/bin/emccalib.tcl:90
 msgid "Save To File"
@@ -932,9 +982,10 @@ msgid "Save"
 msgstr "Speichern"
 
 #: tcl/bin/emccalib.tcl:159 tcl/bin/halconfig.tcl:623
-#, tcl-format
+#, fuzzy, tcl-format
 msgid "Tune %d"
-msgstr "Achse %d"
+msgstr ""
+"Feineinstellung %d"
 
 #: tcl/bin/emccalib.tcl:160 tcl/bin/halconfig.tcl:628
 msgid "INI Name"
@@ -954,14 +1005,14 @@ msgid "Test"
 msgstr "Ausprobieren"
 
 #: tcl/bin/emccalib.tcl:358 tcl/bin/halconfig.tcl:883
-#, tcl-format
+#, fuzzy, tcl-format
 msgid ""
 "The HAL parameter \n"
 "  %s \n"
 " has changed. \n"
 " Really quit?"
 msgstr ""
-"Das HAL-Parameter \n"
+"Der HAL-Parameter \n"
 "»%s« \n"
 "wurde geändert. \n"
 "Wirklich beenden?"
@@ -985,9 +1036,8 @@ msgid "can't save %s"
 msgstr "Die Datei »%s« konnte nicht gespeichert werden."
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
-#, fuzzy
 msgid "LinuxCNC Debug"
-msgstr "EMC2 Debug"
+msgstr "LinuxCNC Debug"
 
 #: tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
@@ -998,8 +1048,10 @@ msgid "Configuration information"
 msgstr "Konfigurationsinformationen"
 
 #: tcl/bin/emcdebug.tcl:187
+#, fuzzy
 msgid "Use of defaults"
-msgstr "Benutzen der Standartwerte"
+msgstr ""
+"Benutzen der Standardwerte"
 
 #: tcl/bin/emcdebug.tcl:188
 msgid "Version information"
@@ -1073,8 +1125,10 @@ msgid "Paste"
 msgstr "Einfügen"
 
 #: tcl/bin/genedit.tcl:99 tcl/mini.tcl:2548 tcl/show_errors.tcl:68
+#, fuzzy
 msgid "Select All"
-msgstr "Alles makieren"
+msgstr ""
+"Alles markieren"
 
 #: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/mini.tcl:919
 #: tcl/mini.tcl:2519 tcl/tklinuxcnc.tcl:790
@@ -1776,8 +1830,8 @@ msgstr ""
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
 msgstr ""
-"Die .var-Datei kann nicht aktualisiert werden, solange die Maschine im "
-"»auto«-Modus und »%s« ist."
+"Die .var-Datei kann nicht aktualisiert werden, solange die Maschine im »auto«-"
+"Modus und »%s« ist."
 
 #: tcl/mini.tcl:1400 tcl/tklinuxcnc.tcl:1227
 msgid "override limits"
@@ -3710,8 +3764,7 @@ msgstr "Gespeicherte Geometrie (aktualisiert bei Programmende)"
 #, tcl-format
 msgid ""
 "%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
-msgstr ""
-"%s: Axis INI-Datei enthält mehrere Einträge für: [EMCIO]TOOL_TABLE"
+msgstr "%s: Axis INI-Datei enthält mehrere Einträge für: [EMCIO]TOOL_TABLE"
 
 #: src/emc/usr_intf/tooledit.tcl:981
 #, tcl-format
@@ -5155,8 +5208,8 @@ msgstr "%"
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with LinuxCNC.\n"
@@ -5165,8 +5218,8 @@ msgid ""
 msgstr ""
 "LinuxCNC/AXIS Version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler und Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler und Chris Radek.\n"
 "\n"
 "Dieses Programm ist freie Software. Sie sind eingeladen, es unter bestimmten "
 "Bedingungen weiter zu verbreiten. Lesen Sie hierzu die Datei COPYING, die "
@@ -7269,8 +7322,7 @@ msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid ""
-"_:"
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
@@ -7376,8 +7428,8 @@ msgid ""
 "thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"Alle notwendigen Informationen wurden erfasst. Bestätigen Sie mit "
-"»Anwenden«, um die Konfiguration zu speichern.\n"
+"Alle notwendigen Informationen wurden erfasst. Bestätigen Sie mit »Anwenden«, "
+"um die Konfiguration zu speichern.\n"
 "Falls EMC2 nicht mehr reagieren sollte, verkleinern Sie die maximale "
 "Geschwindigkeit, was die Zeit für einen Systemtakt (BASE_PERIOD) "
 "vergrößert.\n"
@@ -7388,9 +7440,8 @@ msgstr ""
 "beschrieben werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
-"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten, dann "
-"führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben "
-"werden:\n"
+"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten, dann führen "
+"bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:4160
@@ -12737,8 +12788,8 @@ msgstr "G53 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
 #: src/emc/rs274ngc/interp_convert.cc:183
 #, c-format
 msgid ""
-"You must specify a number of control points at least equal to the order L = "
-"%d"
+"You must specify a number of control points at least equal to the order L = %"
+"d"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:212
@@ -14121,6 +14172,32 @@ msgstr "R ist kleiner als U während Arbeitszyklus in VW-Ebene"
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr "R ist kleiner als V während Arbeitszyklus in UW-Ebene"
+
+#: share/axis/tcl/axis.tcl:1711
+#, fuzzy
+msgid ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with LinuxCNC.\n"
+"\n"
+"Visit the LinuxCNC web site: "
+msgstr ""
+"EMC2/AXIS Version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler und Chris "
+"Radek.\n"
+"\n"
+"Dieses Programm ist freie Software. Sie sind eingeladen, es unter bestimmten "
+"Bedingungen weiter zu verbreiten. Lesen Sie hierzu die Datei COPYING, die "
+"EMC2 beigelegt ist.\n"
+"\n"
+"Deutsche Übersetzung: Alex Joni, Florian Hahn, Ingrid Kirst\n"
+"\n"
+"Besuchen Sie die EMC-Webseite: "
 
 #, fuzzy
 #~ msgid "P value must be 0,1,or 2 with M19"

@@ -25,18 +25,19 @@ msgstr ""
 #: src/hal/utils/meter.c:198
 #, c-format
 msgid "ERROR: '%s' is not a valid probe type\n"
-msgstr ""
+msgstr "HIBA: '%s' nem érvényes tapintó típus\n"
 
 #: src/hal/utils/meter.c:206
 #, c-format
 msgid "ERROR: no pin/signal/parameter name\n"
-msgstr ""
+msgstr "HIBA: láb/jel/paraméter név hiányzik\n"
 
 #: src/hal/utils/meter.c:212
 #, c-format
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
 msgstr ""
+"HIBA: -s opcióhoz szükséges a tapintó típusa és egy láb/jell/paraméter név\n"
 
 #: src/hal/utils/meter.c:238 tcl/tklinuxcnc.tcl:764
 msgid "Hal Meter"
@@ -52,52 +53,51 @@ msgstr ""
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
-msgstr ""
+msgstr "Válaszd ki a vizsgálandó elemet"
 
 #: src/hal/utils/meter.c:640
 msgid " _Pins "
-msgstr ""
+msgstr " _Lábak "
 
 #: src/hal/utils/meter.c:641
 msgid " _Signals "
-msgstr ""
+msgstr " _Jelek "
 
 #: src/hal/utils/meter.c:642
 msgid " Para_meters "
-msgstr ""
+msgstr " Para_méterek "
 
 #: src/hal/utils/meter.c:685
 msgid "_Close"
-msgstr ""
+msgstr "_Bezárás"
 
 #: src/hal/utils/scope.c:126
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
+"Használat:\n"
+"  halscope [-h] [-i ini_fájl] [-o kimeneti_fájl] [mintavétel_száma]\n"
 
 #: src/hal/utils/scope.c:474 src/hal/utils/scope.c:501
-#, fuzzy
 msgid "Open Configuration File:"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Konfigurációs fájl megnyitása:"
 
 #: src/hal/utils/scope.c:535
-#, fuzzy
 msgid "_Open Configuration..."
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Konfiguráció meg_nyitása..."
 
 #: src/hal/utils/scope.c:541
-#, fuzzy
 msgid "_Save Configuration..."
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Konfiguráció el_mentése..."
 
 #: src/hal/utils/scope.c:550
 msgid "O_pen Data File..."
-msgstr ""
+msgstr "Adatfájl meg_nyitása..."
 
 #: src/hal/utils/scope.c:557
 msgid "S_ave Data File..."
-msgstr ""
+msgstr "Adatfájl el_mentésa..."
 
 #: src/hal/utils/scope.c:566 share/axis/tcl/axis.tcl:93
 #, fuzzy
@@ -106,7 +106,7 @@ msgstr "_Kilépés"
 
 #: src/hal/utils/scope.c:572
 msgid "_About Halscope"
-msgstr ""
+msgstr "_Halszkóp névjegy"
 
 #: src/hal/utils/scope.c:578 share/axis/tcl/axis.tcl:435
 #, fuzzy
@@ -120,64 +120,64 @@ msgstr "_Segítség"
 
 #: src/hal/utils/scope.c:641
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL Oszcilloszkóp"
 
 #: src/hal/utils/scope.c:669
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontális"
 
 #: src/hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr ""
+msgstr "Kiválasztott csatorna"
 
 #: src/hal/utils/scope.c:683
 msgid "Run Mode"
-msgstr ""
+msgstr "Futási mód"
 
 #: src/hal/utils/scope.c:686
 msgid "Trigger"
-msgstr ""
+msgstr "Trigger jel"
 
 #: src/hal/utils/scope.c:692
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikális"
 
 #: src/hal/utils/scope.c:700 share/axis/tcl/axis.tcl:135
 #: share/axis/tcl/axis.tcl:1199
-#, fuzzy
 msgid "Stop"
-msgstr "S_top"
+msgstr "Stop"
 
 #: src/hal/utils/scope.c:703
 msgid "Normal"
-msgstr ""
+msgstr "Normál"
 
 #: src/hal/utils/scope.c:706
 msgid "Single"
-msgstr ""
+msgstr "Egyedi"
 
 #: src/hal/utils/scope.c:709
 msgid "Roll"
-msgstr ""
+msgstr "Görgetés"
 
 #: src/hal/utils/scope_horiz.c:130
-#, fuzzy
 msgid "Zoom"
-msgstr "Közelítés [+]"
+msgstr "Közelítés"
 
 #: src/hal/utils/scope_horiz.c:131
 msgid " Pos "
-msgstr ""
+msgstr " Poz "
 
 #: src/hal/utils/scope_horiz.c:164
 msgid ""
 "----- Samples\n"
 "at ---- KHz"
 msgstr ""
+"----- mintavétel\n"
+"---- KHz-en"
 
 #: src/hal/utils/scope_horiz.c:459
 msgid "Realtime component not loaded"
-msgstr ""
+msgstr "Valós idejű komponens nincs betöltve"
 
 #: src/hal/utils/scope_horiz.c:460
 msgid ""
@@ -4824,8 +4824,8 @@ msgstr ""
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with LinuxCNC.\n"
@@ -4834,7 +4834,8 @@ msgid ""
 msgstr ""
 "LinuxCNC/AXIS verzió $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler es Chris Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler es Chris Radek.\n"
 "\n"
 "Ez egy ingyenes szoftver. Szabadon továbbadható az AXIS csomag COPYING "
 "feltételei szerint.\n"
@@ -12062,8 +12063,8 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:183
 #, c-format
 msgid ""
-"You must specify a number of control points at least equal to the order L = "
-"%d"
+"You must specify a number of control points at least equal to the order L = %"
+"d"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:212
@@ -13360,6 +13361,28 @@ msgstr ""
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr ""
+
+#: share/axis/tcl/axis.tcl:1711
+#, fuzzy
+msgid ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with LinuxCNC.\n"
+"\n"
+"Visit the LinuxCNC web site: "
+msgstr ""
+"AXIS verzió $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006 Jeff Epler es Chris Radek.\n"
+"\n"
+"Ez egy ingyenes szoftver. Szabadon továbbadható az AXIS csomag COPYING "
+"feltételei szerint.\n"
+"\n"
+"Szívesen látunk az AXIS web oldalán: "
 
 #, fuzzy
 #~ msgid "to"
