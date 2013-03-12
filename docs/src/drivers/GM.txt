@@ -840,7 +840,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ==== Parameters
 
-.Relay output module parameters[[table:rs485-relay-parameters]](((rs485-relay-parameters)))
+.Relay output module parameters[[table:rs485-dacadc-parameters]](((rs485-dacadc-parameters)))
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================

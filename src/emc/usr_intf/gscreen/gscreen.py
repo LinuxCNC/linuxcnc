@@ -891,7 +891,7 @@ class Gscreen:
 
     def init_sensitive_override_mode(self):
         self.data.sensitive_override_mode = ["spindle_preset","spindle_control","spindle_increase","spindle_decrease","s_display_fwd",
-            "s_display_rev","button_graphics","button_homing","button_mode","button_v0_0","button_v0_1","button_h1_0","button_h1_2",
+            "s_display_rev","button_graphics","button_homing","button_mode","button_h1_0","button_h1_2",
                 "button_h1_3","button_h1_4"]
         for axis in self.data.axis_list:
             self.data.sensitive_override_mode.append("axis_%s"% axis)

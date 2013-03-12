@@ -3635,11 +3635,25 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
        settings->tool_table[0] = settings->tool_table[pocket];
     }
 
-    if (settings->tool_table[0].toolno < 0) {
-      settings->parameters[5400] = 0; // -1 ==> notool
+    //
+    // Update parameter #5400 with the tool currently in the spindle, or a
+    // special "invalid tool number" marker if no tool is in the spindle.
+    // Unfortunately, random and nonrandom toolchangers use a different
+    // number for "invalid tool number":  nonrandom uses 0, random uses -1.
+    //
+    if (settings->random_toolchanger)
+        if (settings->tool_table[0].toolno >= 0) {
+            settings->parameters[5400] = settings->tool_table[0].toolno;
+        } else {
+            settings->parameters[5400] = -1;
     } else {
-      settings->parameters[5400] = settings->tool_table[0].toolno;
+        if (settings->tool_table[0].toolno > 0) {
+            settings->parameters[5400] = settings->tool_table[0].toolno;
+        } else {
+            settings->parameters[5400] = 0;
+        }
     }
+
     settings->parameters[5401] = settings->tool_table[0].offset.tran.x;
     settings->parameters[5402] = settings->tool_table[0].offset.tran.y;
     settings->parameters[5403] = settings->tool_table[0].offset.tran.z;

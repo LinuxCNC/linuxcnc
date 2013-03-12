@@ -856,8 +856,8 @@
                                 <child>
                                   <object class="HAL_LED" id="led_mist">
                                     <property name="visible">True</property>
-                                    <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
+                                    <property name="off_color">black</property>
                                     <property name="on_color">green</property>
                                   </object>
                                   <packing>
@@ -902,8 +902,8 @@
                                 <child>
                                   <object class="HAL_LED" id="led_flood">
                                     <property name="visible">True</property>
-                                    <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
+                                    <property name="off_color">black</property>
                                     <property name="on_color">green</property>
                                   </object>
                                   <packing>
@@ -972,16 +972,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="target_color">#e21911831183</property>
-                                <property name="text_template">%d</property>
-                                <property name="value">-7</property>
-                                <property name="target_value">500</property>
-                                <property name="z2_color">#ffff00000000</property>
                                 <property name="z0_color">#0000ffff0000</property>
-                                <property name="max">2000</property>
                                 <property name="z1_color">#ffffffff0000</property>
                                 <property name="bg_color">#bebebebebebe</property>
+                                <property name="max">2000</property>
                                 <property name="show_limits">False</property>
+                                <property name="value">-7</property>
+                                <property name="target_color">#e21911831183</property>
+                                <property name="z2_color">#ffff00000000</property>
+                                <property name="target_value">500</property>
+                                <property name="text_template">%d</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -1133,9 +1133,9 @@
                                             <child>
                                               <object class="HAL_LED" id="spindle-at-speed">
                                                 <property name="visible">True</property>
-                                                <property name="off_color">black</property>
                                                 <property name="led_shape">1</property>
                                                 <property name="led_size">5</property>
+                                                <property name="off_color">black</property>
                                                 <property name="on_color">Green</property>
                                               </object>
                                             </child>
@@ -1338,8 +1338,8 @@ Halshow</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="run_halscope">
-                            <property name="label" translatable="yes">Halscope</property>
+                          <object class="GtkButton" id="button5">
+                            <property name="label" translatable="yes">button</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1850,207 +1850,12 @@ Notification</property>
           <packing>
             <property name="right_attach">6</property>
             <property name="top_attach">2</property>
-            <property name="bottom_attach">10</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHBox" id="hbox4">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkStatusbar" id="statusbar1">
-                <property name="visible">True</property>
-                <property name="spacing">1</property>
-                <property name="has_resize_grip">False</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="pop_statusbar">
-                <property name="label" translatable="yes"> Clear
-status</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="right_attach">4</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame8">
-            <property name="visible">True</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">etched-out</property>
-            <child>
-              <object class="GtkLabel" id="system">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">G54</property>
-              </object>
-            </child>
-            <child type="label">
-              <object class="GtkLabel" id="label15">
-                <property name="visible">True</property>
-                <property name="use_markup">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">4</property>
-            <property name="right_attach">5</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHBox" id="hbox9">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkSpinButton" id="data_input">
-                <property name="width_request">50</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-                <property name="xalign">0.10000000149011612</property>
-                <property name="adjustment">adjustment1</property>
-                <property name="digits">4</property>
-                <property name="numeric">True</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="metric_select">
-                <property name="label" translatable="yes">mm</property>
-                <property name="width_request">50</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">5</property>
-            <property name="right_attach">7</property>
-            <property name="x_options">GTK_FILL</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkAlignment" id="alignment2">
-            <property name="visible">True</property>
-            <property name="xalign">0</property>
-            <property name="xscale">0.10000000149011612</property>
-            <child>
-              <object class="GtkHBox" id="hbox13">
-                <property name="visible">True</property>
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="setup_button">
-                    <property name="label" translatable="yes">Setup</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="active">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="mdi_button">
-                    <property name="label" translatable="yes"> MDI</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="tooledit_button">
-                    <property name="label" translatable="yes">Tooledit</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="offsetpage_button">
-                    <property name="label" translatable="yes">Offset
- Page</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="run_button">
-                    <property name="label" translatable="yes"> Program </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label12">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="system_button">
-                    <property name="label" translatable="yes">System</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="right_attach">6</property>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
+            <property name="bottom_attach">9</property>
           </packing>
         </child>
         <child>
           <object class="GtkVBox" id="vbox3">
             <property name="visible">True</property>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <object class="GtkButton" id="button_machine_on">
                 <property name="visible">True</property>
@@ -2071,7 +1876,7 @@ status</property>
                           <object class="GtkLabel" id="on_label">
                             <property name="visible">True</property>
                             <property name="xpad">5</property>
-                            <property name="label" translatable="yes">Machine off</property>
+                            <property name="label" translatable="yes">Machine on</property>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -2091,8 +1896,8 @@ status</property>
                         <child>
                           <object class="HAL_LED" id="led_on">
                             <property name="visible">True</property>
-                            <property name="off_color">black</property>
                             <property name="led_shape">1</property>
+                            <property name="off_color">black</property>
                             <property name="on_color">green</property>
                           </object>
                           <packing>
@@ -2110,10 +1915,14 @@ status</property>
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <object class="GtkHBox" id="hbox1">
@@ -2344,11 +2153,8 @@ Hold</property>
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
             </child>
             <child>
               <object class="GtkButton" id="button_mode">
@@ -2412,9 +2218,9 @@ Limits</property>
                             <child>
                               <object class="HAL_LED" id="led_ignore_limits">
                                 <property name="visible">True</property>
-                                <property name="off_color">black</property>
                                 <property name="led_size">5</property>
                                 <property name="has_hal_pin">False</property>
+                                <property name="off_color">black</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -2482,72 +2288,7 @@ Override</property>
             <property name="left_attach">6</property>
             <property name="right_attach">7</property>
             <property name="top_attach">2</property>
-            <property name="bottom_attach">10</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="button_estop">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="clicked" handler="on_estop_clicked"/>
-            <child>
-              <object class="GtkHBox" id="hbox5">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkVBox" id="vbox7">
-                    <property name="visible">True</property>
-                    <property name="homogeneous">True</property>
-                    <child>
-                      <object class="GtkLabel" id="estop_label">
-                        <property name="visible">True</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes">Estop</property>
-                      </object>
-                      <packing>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkVBox" id="vbox8">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="HAL_LED" id="led_estop">
-                        <property name="visible">True</property>
-                        <property name="off_color">black</property>
-                        <property name="led_shape">1</property>
-                        <property name="led_blink_rate">200</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">6</property>
-            <property name="right_attach">7</property>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
+            <property name="bottom_attach">9</property>
           </packing>
         </child>
         <child>
@@ -3240,6 +2981,293 @@ Keyboard</property>
             <property name="top_attach">10</property>
             <property name="bottom_attach">11</property>
           </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox4">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkStatusbar" id="statusbar1">
+                <property name="visible">True</property>
+                <property name="spacing">1</property>
+                <property name="has_resize_grip">False</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="pop_statusbar">
+                <property name="label" translatable="yes"> Clear
+status</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="right_attach">4</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frame8">
+            <property name="visible">True</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">etched-out</property>
+            <child>
+              <object class="GtkLabel" id="system">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">G54</property>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label15">
+                <property name="visible">True</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">5</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox9">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkSpinButton" id="data_input">
+                <property name="width_request">50</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">&#x25CF;</property>
+                <property name="xalign">0.10000000149011612</property>
+                <property name="adjustment">adjustment1</property>
+                <property name="digits">4</property>
+                <property name="numeric">True</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="metric_select">
+                <property name="label" translatable="yes">mm</property>
+                <property name="width_request">50</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">5</property>
+            <property name="right_attach">6</property>
+            <property name="x_options">GTK_FILL</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="button_estop">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_estop_clicked"/>
+            <child>
+              <object class="GtkHBox" id="hbox5">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkVBox" id="vbox7">
+                    <property name="visible">True</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkLabel" id="estop_label">
+                        <property name="visible">True</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">Estop</property>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkVBox" id="vbox8">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="HAL_LED" id="led_estop">
+                        <property name="visible">True</property>
+                        <property name="led_shape">1</property>
+                        <property name="led_blink_rate">200</property>
+                        <property name="off_color">black</property>
+                        <property name="is_on">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">6</property>
+            <property name="right_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAlignment" id="alignment2">
+            <property name="visible">True</property>
+            <property name="xalign">0</property>
+            <property name="xscale">0.10000000149011612</property>
+            <child>
+              <object class="GtkHBox" id="hbox13">
+                <property name="visible">True</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="setup_button">
+                    <property name="label" translatable="yes">Setup</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="active">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="mdi_button">
+                    <property name="label" translatable="yes"> MDI</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="tooledit_button">
+                    <property name="label" translatable="yes">Tooledit</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="offsetpage_button">
+                    <property name="label" translatable="yes">Offset
+ Page</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="run_button">
+                    <property name="label" translatable="yes"> Program </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label12">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="system_button">
+                    <property name="label" translatable="yes"> System
+(Locked)</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="right_attach">6</property>
+            <property name="top_attach">9</property>
+            <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>

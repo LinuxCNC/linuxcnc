@@ -22,6 +22,12 @@ except:
     print('GTK not available')
     sys.exit(1)
 
+# localization
+import locale
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.setlocale(locale.LC_ALL, '')
+
 class ToolEdit(gtk.VBox):
     __gtype_name__ = 'ToolEdit'
     __gproperties__ = {
@@ -39,7 +45,10 @@ class ToolEdit(gtk.VBox):
         self.toolfile = toolfile
         self.num_of_col = 1
         self.font="sans 12"
+        self.toolinfo_num = 0
+        self.toolinfo = []
         self.wTree = gtk.Builder()
+        self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
         # connect the signals from Glade
         dic = {
@@ -56,12 +65,13 @@ class ToolEdit(gtk.VBox):
         self.objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
         # these signals include column data so must be made here instead of in Glade
         # for view 2
-        cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
+        self.cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
                          "cell_c","cell_u","cell_v", "cell_w","cell_d","cell_front","cell_back","cell_orient","cell_comments"
-        for col,name in enumerate(cell_list):
+        for col,name in enumerate(self.cell_list):
             if col == 0:continue
             temp = self.wTree.get_object(name)
             temp.connect( 'edited', self.col_editted, col )
+            temp.set_property('font', self.font)
 
         # global references
         self.model = self.wTree.get_object("liststore1")
@@ -95,12 +105,14 @@ class ToolEdit(gtk.VBox):
         self.model.append(data)
         self.num_of_col +=1
 
-        # this is for adding a filename path after the tooleditor is already loaded.
+        # This is for adding a filename path after the tooleditor is already loaded.
     def set_filename(self,filename):
         self.toolfile = filename
         self.reload(None)
 
         # Reload the tool file into display
+        # note show the decimal point as the locale requires even though the file
+        # only uses (requires) a decimal point not a comma
     def reload(self,widget):
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
@@ -111,6 +123,7 @@ class ToolEdit(gtk.VBox):
             print "Toolfile does not exist"
             return
         logfile = open(self.toolfile, "r").readlines()
+        self.toolinfo = []
         for rawline in logfile:
             # strip the comments from line and add directly to array
             index = rawline.find(";")
@@ -118,6 +131,7 @@ class ToolEdit(gtk.VBox):
             comment = comment.rstrip("\n")
             line = rawline.rstrip(comment)
             array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
+            toolinfo_flag = False
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
             # if i = ';' that is the comment and we have already added it
@@ -126,20 +140,26 @@ class ToolEdit(gtk.VBox):
                 if offset == 0 or i == ';': continue
                 for word in line.split():
                     if word.startswith(i):
+                        if offset == 1:
+                            if int(word.lstrip(i)) == self.toolinfo_num:
+                                toolinfo_flag = True
                         if offset in(1,2):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                pass
+                                print "Tooledit widget int error"
                         else:
                             try:
-                                array[offset]= "%10.4f"% float(word.lstrip(i))
+                                array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
-                                pass
+                                print "Tooledit_widget float error"
                         break
+            if toolinfo_flag:
+                self.toolinfo = array
             # add array line to liststore
             self.add(None,array)
 
+        # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
         file = open(self.toolfile, "w")
@@ -151,11 +171,15 @@ class ToolEdit(gtk.VBox):
             line = ""
             for num,i in enumerate(values):
                 if num == 0: continue
-                try:
-                    test = i.lstrip()
-                    line = line + "%s%s "%(KEYWORDS[num], test)
-                except:
+                elif num in (1,2): # tool# pocket#
                     line = line + "%s%d "%(KEYWORDS[num], i)
+                elif num == 16: # comments
+                    test = i.lstrip()
+                    line = line + "%s%s "%(KEYWORDS[num],test)
+                else:
+                    test = i.lstrip() # localized floats
+                    line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+
             print >>file,line
             #print line
         # tell linuxcnc we changed the tool table entries
@@ -178,16 +202,20 @@ class ToolEdit(gtk.VBox):
         except:
             pass
 
-        # not done yet should change the font of the text
+        # Allows you to change the font of all the columns and rows
     def set_font(self,value):
-        pass
+        for col,name in enumerate(self.cell_list):
+            if col == 0: continue
+            temp = self.wTree.get_object(name)
+            temp.set_property('font', value)
 
         # depending what is editted add the right type of info integer,float or text
+        # we use locale methods so either a comma or decimal can be used, dependig in locale
     def col_editted(self, widget, path, new_text, col):
         if col in(1,2):
             self.model[path][col] = int(new_text)
         elif col in range(3,16):
-            self.model[path][col] = "%10.4f"% float(new_text)
+            self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
         elif col == 16:
             self.model[path][col] = (new_text)
         #print new_text, col
@@ -233,6 +261,18 @@ class ToolEdit(gtk.VBox):
         print "Tool file was modified since it was last read"
         self.reload(None)
 
+        # Returns the tool information array of the requested toolnumber
+        # or current tool if no tool number is specified
+        # returns None if tool not found in table or if there is no current tool
+    def get_toolinfo(self,toolnum=None):
+        if toolnum == None:
+            self.toolinfo_num = self.emcstat.tool_in_spindle
+        else:
+            self.toolinfo_num = toolnum
+        self.reload(None)
+        if self.toolinfo == []: return None
+        return self.toolinfo
+
         # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -248,7 +288,10 @@ class ToolEdit(gtk.VBox):
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
         if name == 'font':
-            self.set_font(value)
+            try:
+                self.set_font(value)
+            except:
+                pass
         if name == 'hide_columns':
             self.set_visible("stpxyzabcuxvdijq;",True)
             self.set_visible("%s"%value,False)
@@ -277,6 +320,7 @@ def main(filename=None):
     tooledit.set_visible("Abcijquvw",False)
     window.connect("destroy", gtk.main_quit)
     #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
+    tooledit.set_font("sans 16")
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
