@@ -527,52 +527,13 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html
 	python $(DOC_SRCDIR)/checklinks.py $^
-	if [ ! -z $(shell which checklink) ]; then \
-		rm -f .checklink.en.tmp; \
-		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_EN) | tee .checklink.en.tmp 2>&1 ; \
-		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.en.tmp ; \
-		BAD_LINKS=$$?; \
-		rm -f .checklink.tmp; \
-		if [ $$BAD_LINKS -eq 0 ]; then \
-			echo "***" 1>&2 ; \
-			echo "*** warning: bad links found in English docs!" 1>&2 ; \
-			echo "***" 1>&2 ; \
-			exit 1; \
-		else \
-			echo "***"; \
-			echo "*** language: English"; \
-			echo "*** all links are good!"; \
-			echo "***"; \
-		fi \
-	else \
-		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
-	fi
+	$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
 	python $(DOC_SRCDIR)/checklinks.py $^
-	if [ ! -z $(shell which checklink) ]; then \
-		rm -f .checklink.fr.tmp; \
-		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_FR) | tee .checklink.fr.tmp 2>&1 ; \
-		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.fr.tmp ; \
-		BAD_LINKS=$$?; \
-		rm -f .checklink.fr.tmp; \
-		if [ $$BAD_LINKS -eq 0 ]; then \
-			echo "***" 1>&2 ; \
-			echo "*** warning: bad links found in French docs!" 1>&2 ; \
-			echo "*** oh well, continuing anyway" 1>&2 ; \
-			echo "***" 1>&2 ; \
-			exit 0; \
-		else \
-			echo "***"; \
-			echo "*** language: French"; \
-			echo "*** all links are good!"; \
-			echo "***"; \
-		fi \
-	else \
-		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
-	fi
+	$(DOC_SRCDIR)/checkref French $^
 
 # These targets don't work yet since we don't have the associated translations
 checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
@@ -645,18 +606,29 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex; list-style-type: none\"
+ST := style=\" \
+    list-style-type: none; \
+    -moz-column-width: 25ex; \
+    -moz-column-gap: 4ex; \
+    -webkit-column-width: 25ex; \
+    -webkit-column-gap: 4ex; \
+    column-width: 25ex; \
+    column-gap: 4ex; \
+\"
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "<A NAME=\"man1\"><LI>Commands and userspace components<UL $(ST)>" > $@.tmp
 	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man9\"></UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man9\"><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man3hal\"></UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man3hal\"><LI>HAL API calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "<A NAME=\"man3rtapi\"></UL><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
+	echo "<A NAME=\"man3rtapi\"><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL>" >> $@.tmp
+	echo "</UL><BR>" >> $@.tmp
 	mv -f $@.tmp $@
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot

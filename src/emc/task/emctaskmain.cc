@@ -656,7 +656,13 @@ static void mdi_execute_hook(void)
 	return;
     }
 
-    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+    if (
+        (mdi_execute_level < 0)
+        && (mdi_execute_wait == 0)
+        && (mdi_execute_queue.len() > 0)
+        && (interp_list.len() == 0)
+        && (emcTaskCommand == NULL)
+    ) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
     }
@@ -1288,7 +1294,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1305,6 +1310,23 @@ static int emcTaskPlan(void)
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
+
+            case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // If there are no queued MDI commands and no commands
+                // in interp_list, then this new incoming MDI command
+                // can just be issued directly.  Otherwise we need to
+                // queue it and deal with it later.
+                if (
+                    (mdi_execute_queue.len() == 0)
+                    && (interp_list.len() == 0)
+                    && (emcTaskCommand == NULL)
+                ) {
+                    retval = emcTaskIssueCommand(emcCommand);
+                } else {
+                    mdi_execute_queue.append(emcCommand);
+                    retval = 0;
+                }
+                break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    case EMC_TOOL_SET_OFFSET_TYPE:
@@ -2023,11 +2045,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    if (command[0] == (char) 0xff) {
 		// Empty command recieved. Consider it is NULL
 		command = NULL;
-	    }
-
-	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
-		mdi_execute_queue.append(execute_msg);
-		break;
 	    }
 
 	    int level = emcTaskPlanLevel();

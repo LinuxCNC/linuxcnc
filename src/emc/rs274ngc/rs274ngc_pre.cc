@@ -505,7 +505,7 @@ int Interp::init()
                    logDebug("realpath failed to find subroutines[%d]:%s:\n",dct,nextdir);
                     _setup.subroutines[dct][0] = 0;
                 } else {
-                    logDebug("program prefix[%d]:%s\n",dct,_setup.subroutines[dct]);
+                    logDebug("subroutine path[%d]:%s\n",dct,_setup.subroutines[dct]);
                 }
                 dct++;
                 if (dct >= MAX_SUB_DIRS) {
