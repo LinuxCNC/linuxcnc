@@ -286,19 +286,19 @@ keyword-value pairs and currently are:
 `python=`'<Python function name>'::
 	Instead of calling an ngc O-word procedure call a Python
 	function. The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.oword`
+	`module_basename.oword`
 	module. Mutually exclusive with `ngc=`.
 
 `prolog=`'<Python function name>'::
 	Before executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap`
+	`module_basename.remap`
 	module. Optional.
 
 `epilog=`'<Python function name>'::
 	After executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap`
+	`module_basename.remap`
 	module. Optional.
 
 The `python`, `prolog` and `epilog` options require the Python
@@ -473,7 +473,7 @@ Assume the code is defined as
 `REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886`
 
 This instructs the interpreter to execute the Python function `g886`
-in the <<remap:module_basename, module basename>>`.remap` module
+in the `module_basename.remap` module
 which might look like so:
 
 [source,python]

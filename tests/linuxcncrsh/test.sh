@@ -4,12 +4,34 @@ rm -f gcode-output
 
 linuxcnc -v -d linuxcncrsh-test.ini &
 
+
 # let linuxcnc come up
-sleep 4 
+TOGO=80
+while [  $TOGO -gt 0 ]; do
+    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    if nc -z localhost 5007; then
+        # there's apparently a bug somewhere, which makes it so linuxcncrsh
+        # is not ready to talk to clients when it creates its listening
+        # socket
+        sleep 2
+        break
+    fi
+    sleep 0.25
+    TOGO=$(($TOGO - 1))
+done
+if [  $TOGO -eq 0 ]; then
+    echo connection to linuxcncrsh timed out
+    exit 1
+fi
+
 
 (
     echo hello EMC mt 1.0
     echo set enable EMCTOO
+
+    # ask linuxcncrsh to not read the next command until it's done running
+    # the current one
+    echo set set_wait done
 
     echo set mode manual
     echo set estop off
@@ -30,7 +52,7 @@ sleep 4
     echo set mdi m100 p-3 q-4
 
     echo shutdown
-) | telnet localhost 5007
+) | nc localhost 5007
 
 
 # wait for linuxcnc to finish

@@ -292,6 +292,9 @@ example '##2'  means the value of the parameter whose index is the
 5210::
     1 if "G92" offset is currently applied, 0 otherwise. Persistent.
 
+5211-5219::
+    'G92' offset (X Y Z A B C U V W).
+
 5220::
     Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
@@ -361,15 +364,9 @@ example '##2'  means the value of the parameter whose index is the
    Reflects the value of the `toolchanger-reason` HAL pin if a fault occured. 
    Volatile.
 
-=== Subroutine Parameters [[sub:Subroutine-Parameters]]
 
-1-30::
-     Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.
-
-
-
-=== Subroutine Parameters [[sub:subroutine-parameters]]
+[[sub:subroutine-parameters]]
+=== Subroutine Parameters
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are

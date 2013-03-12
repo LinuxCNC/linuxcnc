@@ -45,7 +45,8 @@ To make these errors non-fatal  warnings on stderr, set bit 0x20 in
 the `[RS274NGC]FEATURE=` mask ini option. 
 
 [[sec:subroutines]]
-== Subroutines(((Subroutines)))
+== Subroutines
+(((Subroutines)))
 (((sub)))(((endsub)))(((return)))(((call)))
 
 Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines

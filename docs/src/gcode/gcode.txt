@@ -577,6 +577,7 @@ It is an error if:
 * Cutter Compensation is on
 * The P number is unspecified
 * The P number is not a valid tool number from the tool table
+* The P number is 0
 
 For more information on cutter orientation used by the 'Q' word,
 see the <<lathe-tool-orientation,Lathe Tool Orientation>> diagram.
@@ -696,6 +697,7 @@ It is an error if:
 * Cutter Compensation is on
 * The P number is unspecified
 * The P number is not a valid tool number from the tool table
+* The P number is 0
 
 [[sec:G10-L11]]
 == G10 L11 Set Tool Table
@@ -730,6 +732,7 @@ It is an error if:
 * Cutter Compensation is on
 * The P number is unspecified
 * The P number is not a valid tool number from the tool table
+* The P number is 0
 
 [[sec:G10-L20]]
 == G10 L20 Set Coordinate System
@@ -1068,12 +1071,23 @@ G42 <D-> (right of programmed path)
 ----
 * 'D' - tool number
 
-The D word is optional; if there is no D word or if the D word is 0,
-the radius of the currently loaded tool will be used.
+The D word is optional; if there is no D word the radius of the currently
+loaded tool will be used (if no tool is loaded and no D word is given,
+a radius of 0 will be used).
 
 If supplied, the D word is the tool number to use.  This would normally
 be the number of the tool in the spindle (in which case the D word is
 redundant and need not be supplied), but it may be any valid tool number.
+
+[NOTE]
+'G41/G42 D0' is a little special.  Its behavior is different on
+random toolchanger machines and nonrandom toolchanger machines
+(see the <<sec:Tool-Changers,Tool Changers>> section).  On nonrandom
+toolchanger machines, 'G41/G42 D0' applies the TLO of the tool currently
+in the spindle, or a TLO of 0 if no tool is in the spindle.  On random
+toolchanger machines, 'G41/G42 D0' applies the TLO of the tool T0 defined
+in the tool table file (or causes an error if T0 is not defined in the
+tool table).
 
 To start cutter compensation to the left of the part profile, use G41.
 G41 starts cutter compensation to the left of the programmed line
@@ -1128,16 +1142,26 @@ It is an error if:
 ----
 G43 <H->
 ----
-* 'H' - tool number
+* 'H' - tool number (optional)
 
-* 'G43' - use the currently loaded tool from the last Tn M6.
-          G43 changes subsequent motions by offsetting the Z and/or X
-          coordinates by the length of the tool. G43 does not cause any
-          motion. The next time a compensated axis is moved, that axis's
-          endpoint is the compensated location.
+G43 enables tool length compensation.  G43 changes subsequent motions
+by offsetting the Z and/or X coordinates by the length of the tool. G43
+does not cause any motion. The next time a compensated axis is moved,
+that axis's endpoint is the compensated location.
 
-* 'G43 H-' - use an offset from tool table.
-             It is OK for the H number to be zero; the currently loaded tool will be used.
+'G43' without an H word uses the currently loaded tool from the last
+'Tn M6'.
+
+'G43 Hn' uses the offset for tool n.
+
+[NOTE]
+'G43 H0' is a little special.  Its behavior is different on random
+toolchanger machines and nonrandom toolchanger machines (see the
+<<sec:Tool-Changers,Tool Changers>> section).  On nonrandom toolchanger
+machines, 'G43 H0' applies the TLO of the tool currently in the spindle,
+or a TLO of 0 if no tool is in the spindle.  On random toolchanger
+machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool
+table file (or causes an error if T0 is not defined in the tool table).
 
 .G43 H- Example Line
 ----
@@ -1146,8 +1170,14 @@ G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 
 It is an error if:
 
-* the H number is not an integer, is negative, or is not 0 or a valid tool
-    number.
+* the H number is not an integer, or
+
+* the H number is negative, or
+
+* the H number is not a valid tool number (though note that 0 is a valid
+    tool number on nonrandom toolchanger machines, it means "the tool
+    currently in the spindle")
+
 
 [[sec:G43_1]]
 == G43.1: Dynamic Tool Length Offset

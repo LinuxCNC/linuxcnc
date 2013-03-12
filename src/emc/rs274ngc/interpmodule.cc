@@ -250,7 +250,7 @@ static double get_y(EmcPose &p) { return p.tran.y; }
 static double get_z(EmcPose &p) { return p.tran.z; }
 
 // those are exposed here because they look useful for regression testing
-static bool equal(double a, double b) { return fabs(a - b) < TOLERANCE_EQUAL; }
+static bool __equal(double a, double b) { return fabs(a - b) < TOLERANCE_EQUAL; }
 // see interp_convert.cc
 static bool is_near_int(double value) {
     int i = (int)(value + .5);
@@ -383,7 +383,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("CONSTANT_RPM") =  (int) CONSTANT_RPM;
     scope().attr("CONSTANT_SURFACE") =  (int) CONSTANT_SURFACE;
 
-    def("equal", &equal);  // EMC's perception of equality of doubles
+    def("equal", &__equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
     def("nearest_int", &nearest_int);
 

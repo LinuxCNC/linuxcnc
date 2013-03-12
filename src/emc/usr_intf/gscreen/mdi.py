@@ -189,6 +189,12 @@ class mdi:
         self.emccommand.mdi("m6 T %f"%(toolnumber))
         self.emccommand.mdi("g43 h%f"%(toolnumber))
 
+    def arbitrary_mdi(self,command):
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
+        self.emccommand.mdi(command)
+
 class mdi_control:
     def __init__(self, gtk, emc, labels, eventboxes):
         self.labels = labels
@@ -240,6 +246,12 @@ class mdi_control:
         print "set tool number to :T",toolnumber
         premode = self.mdi.emcstat.task_mode
         self.mdi.index_tool(toolnumber)
+        #self.mdi.emccommand.mode(premode)
+        #self.mdi.emccommand.wait_complete()
+
+    def user_command(self,command):
+        premode = self.mdi.emcstat.task_mode
+        self.mdi.arbitrary_mdi(command)
         #self.mdi.emccommand.mode(premode)
         #self.mdi.emccommand.wait_complete()
 
