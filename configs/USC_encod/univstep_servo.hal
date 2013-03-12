@@ -1,0 +1,95 @@
+# HAL config file for servos -- expanded from core_servo.hal
+# for a full four axis setup
+
+# create four position feedback signals
+
+# connect position feedback to PID loop
+net Xpos-fb => pid.0.feedback
+net Ypos-fb => pid.1.feedback
+net Zpos-fb => pid.2.feedback
+net Apos-fb => pid.3.feedback
+
+# connect position feedback to motion module
+net Xpos-fb => axis.0.motor-pos-fb
+net Ypos-fb => axis.1.motor-pos-fb
+net Zpos-fb => axis.2.motor-pos-fb
+net Apos-fb => axis.3.motor-pos-fb
+
+# create PID to DAC output signals
+
+# connect output signals to output of PID loops
+net Xoutput <= pid.0.output
+net Youtput <= pid.1.output
+net Zoutput <= pid.2.output
+net Aoutput <= pid.3.output
+
+# set PID loop output limits to +/-1.00
+setp pid.0.maxoutput [AXIS_0]PID_MAX_VEL
+setp pid.1.maxoutput [AXIS_1]PID_MAX_VEL
+setp pid.2.maxoutput [AXIS_2]PID_MAX_VEL
+setp pid.3.maxoutput [AXIS_3]PID_MAX_VEL
+
+# set PID loop gains
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+setp pid.0.deadband [AXIS_0]DEADBAND
+
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
+setp pid.1.deadband [AXIS_1]DEADBAND
+
+setp pid.2.Pgain [AXIS_2]P
+setp pid.2.Igain [AXIS_2]I
+setp pid.2.Dgain [AXIS_2]D
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
+setp pid.2.deadband [AXIS_2]DEADBAND
+
+setp pid.3.Pgain [AXIS_3]P
+setp pid.3.Igain [AXIS_3]I
+setp pid.3.Dgain [AXIS_3]D
+setp pid.3.bias [AXIS_3]BIAS
+setp pid.3.FF0 [AXIS_3]FF0
+setp pid.3.FF1 [AXIS_3]FF1
+setp pid.3.FF2 [AXIS_3]FF2
+setp pid.3.deadband [AXIS_3]DEADBAND
+
+# create four position command signals
+
+# connect position commands to motion controller
+net Xpos-cmd <= axis.0.motor-pos-cmd
+net Ypos-cmd <= axis.1.motor-pos-cmd
+net Zpos-cmd <= axis.2.motor-pos-cmd
+net Apos-cmd <= axis.3.motor-pos-cmd
+
+# connect position commands to PID input
+net Xpos-cmd => pid.0.command
+net Ypos-cmd => pid.1.command
+net Zpos-cmd => pid.2.command
+net Apos-cmd => pid.3.command
+
+# create bit signals to enable/disable the PID loops
+
+# connect the signals to the motion controller
+net Xenable <= axis.0.amp-enable-out
+net Yenable <= axis.1.amp-enable-out
+net Zenable <= axis.2.amp-enable-out
+net Aenable <= axis.3.amp-enable-out
+
+# connect the signals to the PID blocks
+net Xenable => pid.0.enable
+net Yenable => pid.1.enable
+net Zenable => pid.2.enable
+net Aenable => pid.3.enable

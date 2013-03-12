@@ -276,6 +276,8 @@ class Data:
         self.file = ""
         self.file_lines = 0
         self.line = 0
+        self.last_line = 0
+        self.motion_line = 0
         self.id = 0
         self.dtg = 0.0
         self.velocity = 0.0
@@ -290,6 +292,8 @@ class Data:
         self.ob = None
         self.index_tool_dialog = None
         self.preset_spindle_dialog = None
+        self.entry_dialog = None
+        self.restart_dialog = None
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -429,6 +433,7 @@ class Gscreen:
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
+
         if _AUDIO_AVAIALBLE:
             self.audio = Player()         
 
@@ -451,42 +456,37 @@ class Gscreen:
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
 
+        # set-up HAL component
+        try:
+            self.halcomp = hal.component("gscreen")
+        except:
+            print _("*** Gscreen ERROR:    Asking for a HAL component using a name that already exists.")
+            sys.exit(0)
+        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
+        # at this point, any glade HAL widgets and their pins are set up.
+
+        # look for custom handler files:
+        HANDLER_FN = "%s_handler.py"%skinname
+        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        if os.path.exists(local_handler_path):
+            temp = [HANDLER_FN]
+        else:
+            temp = []
+        handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
+        self.xml.connect_signals(handlers)
+
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
         # then initiate access to saved prefernces
         temp = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH")
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
 
-        #setup default stuff
-        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
+        # Intialize prefereces either from the handler file or from Gscreen
+        if "initialize_preferences" in dir(self.handler_instance):
+            self.handler_instance.initialize_preferences()
+        else:
+            self.initialize_preferences()
 
-        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
-        self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
-
-        self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
-
-        self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
-
-        self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
-        self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
-        self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
-        self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
-        self.data.fullscreen1 = self.prefs.getpref('fullscreen1', False, bool)
-        self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
-        self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
-        self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
-        self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
-        self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
-        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
-        self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
-        self.data.desktop_notify = self.prefs.getpref('desktop_notify', True, bool)
-        self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
-
-        self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
-        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr) 
-        self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
-
-        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         # get the system wide theme
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
@@ -495,13 +495,15 @@ class Gscreen:
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
+            if not "continuous" in increments:
+                increments +=",continuous"
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
         else:
+            self.data.jog_increments = "continuous"
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
-        self.data.jog_increments.insert(0,"Continuous")
 
         # set default jog rate
         # must convert from INI's units per second to gscreen's units per minute
@@ -620,24 +622,6 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
-        # set-up HAL component
-        try:
-            self.halcomp = hal.component("gscreen")
-        except:
-            print _("*** Gscreen ERROR:    Asking for a HAL component using a name that already exists.")
-            sys.exit(0)
-        panel = gladevcp.makepins.GladePanel( self.halcomp, xmlname, self.xml, None)
-        # at this point, any glade HAL widgets and their pins are set up.
-
-        # look for custom handler files:
-        HANDLER_FN = "%s_handler.py"%skinname
-        local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        if os.path.exists(local_handler_path):
-            temp = [HANDLER_FN]
-        else:
-            temp = []
-        handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
-        self.xml.connect_signals(handlers)
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
@@ -696,6 +680,44 @@ class Gscreen:
         print _("timeout %d" % int(temp))
         gobject.timeout_add(int(temp), self.periodic_status)
 
+    def initialize_preferences(self):
+        self.init_dro_pref()
+        self.init_theme_pref()
+        self.init_window_geometry_pref()
+        self.init_general_pref()
+
+    def init_dro_pref(self):
+        self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
+        self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
+        self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
+
+    def init_theme_pref(self):
+        self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
+
+    def init_window_geometry_pref(self):
+        self.data.fullscreen1 = self.prefs.getpref('fullscreen1', False, bool)
+        self.data.use_screen2 = self.prefs.getpref('use_screen2', False, bool)
+        self.data.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
+        self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
+        self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
+        self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
+
+    def init_general_pref(self):
+        self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
+        self.data.desktop_notify = self.prefs.getpref('desktop_notify', True, bool)
+        self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
+        self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
+        self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
+        self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
+        self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
+        self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
+        self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
+        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
+        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
+        self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
+        self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
+        self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
+
     # initialize default widgets
     def initialize_widgets(self):
         self.init_axis_frames()
@@ -722,6 +744,9 @@ class Gscreen:
         self.init_sensitive_all_homed()
         self.init_sensitive_edit_mode()
         self.init_sensitive_override_mode()
+        self.init_sensitive_graphics_mode()
+        self.init_sensitive_origin_mode()
+
         self.init_state()
 
     def init_axis_frames(self):
@@ -777,9 +802,7 @@ class Gscreen:
         self.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
 
     def init_entry(self):
-        self.widgets.data_input.set_value(5.125)
-        pangoFont = pango.FontDescription("Tahoma 18")
-        self.widgets.data_input.modify_font(pangoFont)
+        return
 
     # first we hide all the axis columns the unhide the ones we want
     # if it's a lathe config we show lathe related columns
@@ -871,14 +894,13 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the machine being on or off
     def init_sensitive_on_off(self):
-        print "init sensitive"
-        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode"]
+        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode","restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
     # buttons that need to be sensitive based on the interpeter runing or being idle
     def init_sensitive_run_idle(self):
-        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode"]
+        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode","restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
@@ -896,10 +918,31 @@ class Gscreen:
         for axis in self.data.axis_list:
             self.data.sensitive_override_mode.append("axis_%s"% axis)
 
+    def init_sensitive_graphics_mode(self):
+        self.data.sensitive_graphics_mode = ["button_override","button_homing","button_mode",
+              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
+        for axis in self.data.axis_list:
+            self.data.sensitive_graphics_mode.append("axis_%s"% axis)
+
+    def init_sensitive_origin_mode(self):
+        self.data.sensitive_origin_mode = ["button_override","button_graphics","button_homing","button_mode",
+                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
+        for axis in self.data.axis_list:
+            self.data.sensitive_origin_mode.append("axis_%s"% axis)
+    
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
+        for num,i in enumerate(self.data.jog_increments):
+            if i == "continuous": break
+        self.data.current_jogincr_index = num
+        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+        self.widgets.jog_increment.set_text(jogincr)
         self.on_hal_status_state_off(None)
         self.add_alarm_entry(_("Control powered up and initialized"))
+
+    def init_unlock_code(self):
+        print "unlock code #",int(self.data.unlock_code)
+        self.widgets.unlock_number.set_value(int(self.data.unlock_code))
 
     # general call to initialize HAL pins
     # select this if you want all the default pins or select each call for 
@@ -1027,10 +1070,10 @@ class Gscreen:
         self.data.preset_spindle_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.set_editable(True)
         self.data.preset_spindle_dialog.parse_geometry("400x400")
         self.data.preset_spindle_dialog.set_decorated(False)
         self.data.preset_spindle_dialog.show_all()
-        self.widgets.data_input.set_sensitive(False)
         self.data.preset_spindle_dialog.connect("response", self.on_preset_spindle_return,calc)
 
     def on_preset_spindle_return(self,widget,result,calc):
@@ -1039,7 +1082,6 @@ class Gscreen:
             if data == None:
                 return
             self.preset_spindle_speed(data)
-        self.widgets.data_input.set_sensitive(True)
         widget.destroy()
         self.data.preset_spindle_dialog = None
 
@@ -1058,9 +1100,9 @@ class Gscreen:
         self.data.index_tool_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.set_editable(True)
         self.data.index_tool_dialog.parse_geometry("400x400")
         self.data.index_tool_dialog.show_all()
-        self.widgets.data_input.set_sensitive(False)
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
@@ -1071,7 +1113,6 @@ class Gscreen:
                 self.mdi_control.index_tool(tool)
             except:
                 return
-        self.widgets.data_input.set_sensitive(True)
         widget.destroy()
         self.data.index_tool_dialog = None
 
@@ -1171,27 +1212,60 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_default_controls',not self.data.hide_cursor)
 
     # display calculator for input
-    def launch_numerical_input(self,widget,event):
-        if (event.type == gtk.gdk._2BUTTON_PRESS and not self.data.hide_cursor) or \
-        (event.type == gtk.gdk.BUTTON_PRESS and self.data.hide_cursor):
-            dialog = self.widgets.dialog_entry
-            self.widgets.calc_entry.set_value(self.widgets.data_input.get_value())
-            dialog.show_all()
-            self.widgets.data_input.set_sensitive(False)
+    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None):
+        if self.data.entry_dialog: return
+        label = gtk.Label(_("Entry Dialog"))
+        label.modify_font(pango.FontDescription("sans 20"))
+        self.data.entry_dialog = gtk.Dialog(_("Entry Dialog"),
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        calc = gladevcp.Calculator()
+        calc.set_editable(True)
+        self.data.entry_dialog.vbox.pack_start(label)
+        self.data.entry_dialog.vbox.add(calc)
+        calc.set_value("")
+        calc.set_property("font","sans 20")
+        self.data.entry_dialog.parse_geometry("400x400")
+        #self.data.entry_dialog.set_decorated(False)
+        self.data.entry_dialog.connect("response", self[callback],calc,data,data2)
+        self.data.entry_dialog.show_all()
 
-    # calculator input accepted
-    def on_button_yes_clicked(self,widget):
-        value = self.widgets.calc_entry.get_value()
-        if value == None:
-            return
-        self.widgets.data_input.set_value(value)
-        self.widgets.data_input.set_sensitive(True)
-        self.widgets.dialog_entry.hide()
+    def on_numerical_entry_return(self,widget,result,calc,userdata,userdata2):
+        data = calc.get_value()
+        if result == gtk.RESPONSE_ACCEPT:
+            print "accept",data
+            if data == None:
+                return None
+            print data
+        widget.destroy()
+        self.data.entry_dialog = None
 
-    # calculator input canceled
-    def on_button_no_clicked(self,widget):
-        self.widgets.data_input.set_sensitive(True)
-        self.widgets.dialog_entry.hide()
+    def on_offset_origin_entry_return(self,widget,result,calc,userdata,userdata2):
+        value = calc.get_value()
+        if result == gtk.RESPONSE_ACCEPT:
+            if value == None:
+                return
+            # if an axis is selected then set it
+            for axis in self.data.axis_list:
+                if self.widgets["axis_%s"%axis].get_active():
+                    print "set %s axis" %axis
+                    if not axis == "s":
+                        self.mdi_control.set_axis(axis,self.get_qualified_input(value))
+                        self.reload_plot()
+        widget.destroy()
+        self.data.entry_dialog = None
+
+    def on_adj_overrides_entry_return(self,widget,result,calc,userdata,userdata2):
+        data = calc.get_value()
+        if result == gtk.RESPONSE_ACCEPT:
+            print "accept",data
+            if data == None:
+                return None
+            self.adjustment_buttons(userdata,userdata2,data)
+        widget.destroy()
+        self.data.entry_dialog = None
 
     # shows the cursor and warps it to the origin before exiting
     def hack_leave(self,*args):
@@ -1293,11 +1367,20 @@ class Gscreen:
     def on_vbutton_clicked(self,widget,mode,number):
         if mode == 0:
             if number == 0: self.adjustment_buttons(widget,True)
-            elif number == 1: self.adjustment_buttons(widget,True)
+            elif number == 1:
+                # adjust overrrides
+                if self.widgets.button_override.get_active():
+                    self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+                # offset origin
+                else:
+                    self.set_axis_checks()
             elif number == 2: pass # using press and release signals
             elif number == 3: pass # ditto
             elif number == 4: pass
-            elif number == 5: self.adjustment_buttons(widget,True)
+            elif number == 5:
+                # Move to button
+                if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
+                    self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
             if number == 0: pass
@@ -1372,6 +1455,10 @@ class Gscreen:
     def on_show_offsets_pressed(self, widget):
         self.set_show_offsets(widget.get_active())
 
+    def on_unlock_number_value_changed(self,widget):
+        self.data.unlock_code = str(int(widget.get_value()))
+        self.set_unlock_code()
+
     # True is for showing DTG
     def on_show_dtg_pressed(self, widget):
         self.set_show_dtg(widget.get_active())
@@ -1438,6 +1525,11 @@ class Gscreen:
         self.sensitize_widgets(self.data.sensitive_run_idle,True)
         state = self.data.all_homed
         self.sensitize_widgets(self.data.sensitive_all_homed,state)
+        mode = self.emc.get_mode()
+        print "mode",mode,self.data.mode_order[0]
+        if self.data.mode_order[0] == _MAN and not mode == 1:
+            print "set to manual"
+            self.emc.set_manual_mode()
 
     def on_hal_status_state_on(self,widget):
         print "on"
@@ -1451,6 +1543,15 @@ class Gscreen:
         print "off"
         self.sensitize_widgets(self.data.sensitive_on_off,False)
 
+    def on_hal_status_axis_homed(self,widget,data):
+        print "homed list",data
+        temp=[]
+        for letter in(self.data.axis_list):
+            count = "xyzabcuvws".index(letter)
+            if str(count) in data:
+                temp.append(" %s"%letter.upper())
+        self.add_alarm_entry(_("Axes %s are homed"%temp))
+
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
         self.data.all_homed = True
@@ -1458,13 +1559,14 @@ class Gscreen:
         self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
         self.add_alarm_entry(_("All the axes have been homed"))
 
-    def on_hal_status_not_all_homed(self,widget):
-        print "not-all-homed"
+    def on_hal_status_not_all_homed(self,widget,data):
+        print "not-all-homed",data
         self.data.all_homed = False
         temp =[]
         for letter in(self.data.axis_list):
-            if self.data["%s_is_homed"% letter]: continue
-            else: temp.append(" %s"%letter.upper())
+            count = "xyzabcuvws".index(letter)
+            if str(count) in data:
+                temp.append(" %s"%letter.upper())
         self.add_alarm_entry(_("There are unhomed axes: %s"%temp))
 
     def on_hal_status_file_loaded(self,widget,filename):
@@ -1500,20 +1602,20 @@ class Gscreen:
 
     # highlight the gcode down one line lower
     # used for run-at-line restart
-    def restart_down(self,widget):
+    def restart_down(self,widget,calc):
         self.widgets.gcode_view.line_down()
-        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
-    def restart_up(self,widget):
+    def restart_up(self,widget,calc):
         self.widgets.gcode_view.line_up()
-        self.widgets.restart_line_input.set_value(int(self.widgets.gcode_view.get_line_number()))
+        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
 
     # highlight the gcode line specified
     # used for run-at-line restart
-    def restart_set_line(self,widget):
-        line = int(widget.get_value())
+    def restart_set_line(self,widget,calc):
+        line = int(calc.get_value())
         self.widgets.gcode_view.set_line_number(line)
 
     # This is a method that toggles the DRO units
@@ -1593,7 +1695,6 @@ class Gscreen:
                         ["button_homing","clicked", "homing"],
                         ["button_override","clicked", "override"],
                         ["button_graphics","clicked", "graphics"],
-                        ["data_input","button_press_event", "launch_numerical_input"],
                         ["desktop_notify","toggled", "on_desktop_notify_toggled"],
                         ["grid_size","value_changed", "set_grid_size"],
                         ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
@@ -1608,11 +1709,10 @@ class Gscreen:
                         ["hal_status","interp-run", "on_hal_status_interp_run"],
                         ["hal_status","state-on", "on_hal_status_state_on"],
                         ["hal_status","state-off", "on_hal_status_state_off"],
+                        ["hal_status","homed", "on_hal_status_axis_homed"],
                         ["hal_status","all-homed", "on_hal_status_all_homed"],
                         ["hal_status","not-all-homed", "on_hal_status_not_all_homed"],
                         ["hal_status","file-loaded", "on_hal_status_file_loaded"],
-                        ["button_no","clicked", "on_button_no_clicked"],
-                        ["button_yes","clicked", "on_button_yes_clicked"],
                         ["window1","destroy", "on_window1_destroy"],
                         ["pop_statusbar","clicked", "on_pop_statusbar_clicked"],
                         ["dtg_colorbutton","color-set", "on_dtg_colorbutton_color_set"],
@@ -1627,12 +1727,7 @@ class Gscreen:
                         ["audio_alert_chooser","selection_changed","change_sound","alert"],
                         ["toggle_keyboard","clicked", "on_toggle_keyboard"],
                         ["metric_select","clicked","on_metric_select_clicked"],
-                        ["restart_ok","clicked", "restart_dialog_return", True],
-                        ["restart_cancel","clicked", "restart_dialog_return", False],
                         ["restart","clicked", "launch_restart_dialog"],
-                        ["restart_line_up","clicked", "restart_up"],
-                        ["restart_line_down","clicked", "restart_down"],
-                        ["restart_line_input","value_changed", "restart_set_line"],
                         ["index_tool","clicked", "on_index_tool"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
@@ -1837,24 +1932,24 @@ class Gscreen:
         self.data.current_jogincr_index = next
         jogincr = self.data.jog_increments[next]
         self.widgets.jog_increment.set_text(jogincr)
-        if jogincr == ("Continuous"):
+        if jogincr == ("continuous"):
             distance = 0
         else:
             distance = self.parse_increment(jogincr)
         print "index jog increments",jogincr,distance
         self.halcomp["jog-increment.out"] = distance
 
-    def adjustment_buttons(self,widget,action):
+    def adjustment_buttons(self,widget,action,change=0):
+        print "adjustment buttons"
         # is over ride adjustment selection active?
         if self.widgets.button_override.get_active():
+            print "override"
             if widget == self.widgets.button_v0_0:
                 print "zero button",action
                 change = 0
                 absolute = True
             elif widget == self.widgets.button_v0_1:
                 print "set at button",action
-                change = self.get_qualified_input(_PERCENT_INPUT)/100
-                print "qualified=",change
                 absolute = True
             elif widget == self.widgets.button_v0_2:
                 print "up button",action
@@ -1865,41 +1960,7 @@ class Gscreen:
                 change = -1
                 absolute = False
             else:return
-            # what override is selected
-            if self.widgets.button_h4_0.get_active() and action:
-                print "feed override"
-                if absolute:
-                    self.set_feed_override(change,absolute)
-                else:
-                    self.set_feed_override((change * self.data.feed_override_inc),absolute)
-            elif self.widgets.button_h4_1.get_active() and action:
-                print "spindle override"
-                if absolute:
-                    self.set_spindle_override(change,absolute)
-                else:
-                    self.set_spindle_override((change * self.data.spindle_override_inc),absolute)
-            elif self.widgets.button_h4_2.get_active() and action:
-                print "velocity override"
-                if absolute:
-                    self.set_velocity_override(change,absolute)
-                else:
-                    self.set_velocity_override((change * self.data.velocity_override_inc),absolute)
-            elif self.widgets.button_h4_3.get_active() and action:
-                print "jog speed adjustment"
-                if widget == self.widgets.button_v0_1:
-                    change = self.get_qualified_input()
-                if absolute:
-                    self.set_jog_rate(absolute = change)
-                else:
-                    self.set_jog_rate(step = (change * self.data.jog_rate_inc))
-            elif self.widgets.button_h4_4.get_active() and action:
-                print "jog increments adjustment"
-                if widget == self.widgets.button_v0_1:
-                    change = self.get_qualified_input()
-                if absolute:
-                    self.set_jog_increments(absolute = change)
-                else:
-                    self.set_jog_increments(index_dir = change)
+            self.adjust_overrides(widget,action,change,absolute)
 
         # graphics adjustment
         elif self.widgets.button_graphics.get_active():
@@ -1953,7 +2014,7 @@ class Gscreen:
                 self.zero_axis()
             elif widget == self.widgets.button_v0_5:
                 print "move to button",action
-                self.move_to()
+                self.move_to(change)
             elif widget == self.widgets.button_v0_2:
                 print "up button",action
                 self.do_jog(True,action)
@@ -1963,18 +2024,58 @@ class Gscreen:
             elif widget == self.widgets.button_v0_1:
                 self.set_axis_checks()
         elif widget == self.widgets.button_v0_0:
-                self.zero_axis()
+            print "zero buttons"
+            self.zero_axis()
         elif widget == self.widgets.button_v0_1:
+            print "set axis buttons"
             self.set_axis_checks()
+
+    def adjust_overrides(self,widget,action,number,absolute):
+            print "adjust overrides",action,number,absolute
+            # what override is selected
+            if absolute:
+                change = self.get_qualified_input(number,_PERCENT_INPUT)/100
+            else:
+                change = number
+            if self.widgets.button_h4_0.get_active() and action:
+                print "feed override"
+                if absolute:
+                    self.set_feed_override(change,absolute)
+                else:
+                    self.set_feed_override((change * self.data.feed_override_inc),absolute)
+            elif self.widgets.button_h4_1.get_active() and action:
+                print "spindle override"
+                if absolute:
+                    self.set_spindle_override(change,absolute)
+                else:
+                    self.set_spindle_override((change * self.data.spindle_override_inc),absolute)
+            elif self.widgets.button_h4_2.get_active() and action:
+                print "velocity override"
+                if absolute:
+                    self.set_velocity_override(change,absolute)
+                else:
+                    self.set_velocity_override((change * self.data.velocity_override_inc),absolute)
+            elif self.widgets.button_h4_3.get_active() and action:
+                print "jog speed adjustment"
+                if widget == self.widgets.button_v0_1:
+                    change = self.get_qualified_input(number)
+                if absolute:
+                    self.set_jog_rate(absolute = change)
+                else:
+                    self.set_jog_rate(step = (change * self.data.jog_rate_inc))
+            elif self.widgets.button_h4_4.get_active() and action:
+                print "jog increments adjustment"
+                if widget == self.widgets.button_v0_1:
+                    change = self.get_qualified_input(number)
+                if absolute:
+                    self.set_jog_increments(absolute = change)
+                else:
+                    self.set_jog_increments(index_dir = change)
 
     def origin_system(self,*args):
         print "origin system button"
         value = self.widgets.button_h1_1.get_active()
-        temp = ["button_override","button_graphics","button_homing","button_mode",
-                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
-        for axis in self.data.axis_list:
-            temp.append("axis_%s"% axis)
-        self.sensitize_widgets(temp,not value)
+        self.sensitize_widgets(self.data.sensitive_origin_mode,not value)
 
     def change_origin_system(self,system,direction=None):
         print system,direction
@@ -2018,11 +2119,7 @@ class Gscreen:
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
             self._tempholder = []
-            self._templist = ["button_override","button_homing","button_mode",
-                                "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
-            for axis in self.data.axis_list:
-                self._templist.append("axis_%s"% axis)
-            for name in (self._templist):
+            for name in (self.data.sensitive_graphics_mode):
                 self._tempholder.append(self.widgets[name].get_sensitive())
                 self.widgets[name].set_sensitive(False)
             self.widgets.vmode0.set_sensitive(True)
@@ -2031,7 +2128,7 @@ class Gscreen:
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
-            for num,name in enumerate(self._templist):
+            for num,name in enumerate(self.data.sensitive_graphics_mode):
                 if self.data.machine_on:
                     self.widgets[name].set_sensitive(True)
                 else:
@@ -2047,13 +2144,13 @@ class Gscreen:
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.button_v0_0.set_label("Zero")
-            self.widgets.button_v0_1.set_label("Set At")
+            self.widgets.button_v0_0.set_label("Zero\n ")
+            self.widgets.button_v0_1.set_label("Set At\n ")
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.button_v0_0.set_label("Zero Origin")
-            self.widgets.button_v0_1.set_label("Offset Origin")
+            self.widgets.button_v0_0.set_label(_(" Zero\nOrigin"))
+            self.widgets.button_v0_1.set_label(_("Offset\nOrigin"))
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acknowledge.
@@ -2137,15 +2234,48 @@ class Gscreen:
 
     # dialog is used for choosing the run-at-line position
     def launch_restart_dialog(self,widget):
-        self.widgets.restart_dialog.show_all()
+        self.restart_dialog()
+
+    # dialog for manually calling a tool
+    def restart_dialog(self):
+        if self.data.restart_dialog: return
+        self.data.restart_dialog = gtk.Dialog(_("Restart Entry"),
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        label = gtk.Label(_("Restart Entry"))
+        label.modify_font(pango.FontDescription("sans 20"))
+        self.data.restart_dialog.vbox.pack_start(label)
+        calc = gladevcp.Calculator()
+        self.data.restart_dialog.vbox.add(calc)
+        calc.set_value("%d"%self.data.last_line)
+        calc.set_property("font","sans 20")
+        calc.set_editable(True)
+        box = gtk.HButtonBox()
+        upbutton = gtk.Button(label = _("Up"))
+        box.add(upbutton)
+        downbutton = gtk.Button(label = _("Down"))
+        box.add(downbutton)
+        calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
+        upbutton.connect("clicked",self.restart_up,calc)
+        downbutton.connect("clicked",self.restart_down,calc)
+        calc.entry.connect("activate",self.restart_set_line,calc)
+        self.data.restart_dialog.parse_geometry("400x400+0+0")
+        self.data.restart_dialog.show_all()
+        calc.num_pad_only(True)
+        self.data.restart_dialog.connect("response", self.restart_dialog_return,calc)
 
     # either start the gcode at the line specified or cancel
-    def restart_dialog_return(self,widget,result):
-        self.widgets.restart_dialog.hide()
-        if result:
-            line = self.widgets.gcode_view.get_line_number()
-            self.add_alarm_entry(_("Restart program from line %d"%line))
-            self.emc.re_start(line)
+    def restart_dialog_return(self,widget,result,calc):
+        if result == gtk.RESPONSE_ACCEPT:
+            value = calc.get_value()
+            if value == None:
+                return
+            self.add_alarm_entry(_("Restart program from line %d"%value))
+            self.emc.re_start(value)
+        widget.destroy()
+        self.data.restart_dialog = None
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
@@ -2262,6 +2392,9 @@ class Gscreen:
     def set_dtg_color(self):
         self.data.dtg_color = self.convert_to_rgb(self.widgets.dtg_colorbutton.get_color())
         self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
+
+    def set_unlock_code(self):
+        self.prefs.putpref('unlock_code', self.data.unlock_code,str)
 
     # toggles gremlin's different views
     # if in lathe mode only P, Y and Y2 available
@@ -2402,7 +2535,7 @@ class Gscreen:
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
         if self.widgets.button_h1_0.get_active():
-            self.widgets.button_v0_5.set_label("Move To")
+            self.widgets.button_v0_5.set_label("Move To\nPosition")
             self.emc.set_manual_mode()
         else:
             self.widgets.button_v0_5.set_label("")
@@ -2427,7 +2560,8 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    if self.data.current_jogincr_index == 0: # continuous jog
+                    print self.data.jog_increments[self.data.current_jogincr_index]
+                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
                         print "active axis jog:",self.data.active_axis_buttons[0][1]
                         self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
                     else:
@@ -2458,7 +2592,7 @@ class Gscreen:
                     self.emc.spindle_off(1)
 
     # feeds to a position (while in manual mode)
-    def do_jog_to_position(self):
+    def do_jog_to_position(self,data):
         if len(self.data.active_axis_buttons) > 1:
             self.notify(_("INFO:"),_("Can't jog multiple axis"),INFO_ICON)
             print self.data.active_axis_buttons
@@ -2466,7 +2600,7 @@ class Gscreen:
             self.notify(_("INFO:"),_("No axis selected to move"),INFO_ICON)
         else:
             if not self.data.active_axis_buttons[0][0] == "s":
-                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(),self.data.jog_rate)
+                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(data),self.data.jog_rate)
 
     def adjust_spindle_rpm(self, rpm, direction=None):
             # spindle control
@@ -2493,12 +2627,7 @@ class Gscreen:
 
     # This converts and qualifies the input
     # eg for diameter, metric or percentage
-    # If the calculator is displayed use it for input instead of spinbox
-    def get_qualified_input(self,switch = None):
-        if self.widgets.dialog_entry.get_property("visible"):
-            raw = self.widgets.calc_entry.get_value()
-        else:
-            raw = self.widgets.data_input.get_value()
+    def get_qualified_input(self,raw = 0,switch = None):
         print "RAW input:",raw
         if switch == _SPINDLE_INPUT:
             return raw
@@ -2566,20 +2695,15 @@ class Gscreen:
     def set_axis_checks(self):
         if self.data.active_axis_buttons[0][0] == None:
             self.notify(_("INFO:"),_("No axis selected for origin touch-off"),INFO_ICON)
-        # if an axis is selected then set it
-        for i in self.data.axis_list:
-            if self.widgets["axis_%s"%i].get_active():
-                print "set %s axis" %i
-                if not i == "s":
-                    self.mdi_control.set_axis(i,self.get_qualified_input(i))
-                    self.reload_plot()
+            return
+        self.launch_numerical_input("on_offset_origin_entry_return")
 
     # move axis to a position (while in manual mode)
-    def move_to(self):
+    def move_to(self,data):
         if self.data.mode_order[0] == _MAN:# if in manual mode
             if self.widgets.button_h1_0.get_active(): # jog mode active
                 print "jog to position"
-                self.do_jog_to_position()
+                self.do_jog_to_position(data)
 
     def clear_plot(self):
         self.widgets.gremlin.clear_live_plotter()
@@ -2707,14 +2831,17 @@ class Gscreen:
         e = self.emcerror.poll()
         if e:
             kind, text = e
+            print kind,text
             if "joint" in text:
                 for letter in self.data.axis_list:
                     axnum = "xyzabcuvws".index(letter)
                     text = text.replace( "joint %d"%axnum,"Axis %s"%letter.upper() )
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 self.notify(_("Error Message"),text,ALERT_ICON,3)
-            else:
-                self.notify(_("Error Message"),text,INFO_ICON,3)
+            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                self.notify(_("Message"),text,INFO_ICON,3)
+            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                self.notify(_("Message"),text,INFO_ICON,3)
         self.emc.unmask()
         if "periodic" in dir(self.handler_instance):
             self.handler_instance.periodic()

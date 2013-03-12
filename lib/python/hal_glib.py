@@ -71,8 +71,9 @@ class _GStat(gobject.GObject):
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -178,20 +179,27 @@ class _GStat(gobject.GObject):
         # if the homed status has changed
         # check number of homed axes against number of available axes
         # if they are equal send the all-homed signal
-        # else not-all-homed
+        # else not-all-homed (with a string of unhomed joint numbers)
+        # if a joint is homed send 'homed' (with a string of homed joint numbers)
         homed_old = old.get('homed', None)
         homed_new = self.old['homed']
         if homed_new != homed_old:
             axis_count = count = 0
+            unhomed = homed = ""
             for i,h in enumerate(homed_new):
                 if h:
                     count +=1
+                    homed += str(i)
                 if self.stat.axis_mask & (1<<i) == 0: continue
                 axis_count += 1
+                if not h:
+                    unhomed += str(i)
+            if count:
+                self.emit('homed',homed)
             if count == axis_count:
                 self.emit('all-homed')
             else:
-                self.emit('not-all-homed')
+                self.emit('not-all-homed',unhomed)
 
         return True
 

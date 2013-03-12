@@ -227,6 +227,10 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_AUTO)
                 self.emccommand.wait_complete()
 
+        def get_mode(self):
+            self.emcstat.poll()
+            return self.emcstat.task_mode
+
 class emc_status:
         def __init__(self, data, emc):
             self.data = data
@@ -386,7 +390,8 @@ class emc_status:
             self.data.feed_override = self.emcstat.feedrate
             self.data.velocity_override = self.emcstat.max_velocity / self.data._maxvelocity
             self.data.file = self.emcstat.file
-            #self.data.file_lines =  len(self.listing.program)
+            self.data.last_line = self.data.motion_line
+            self.data.motion_line = self.emcstat.motion_line
             self.data.line =  self.emcstat.current_line
             self.data.id =  self.emcstat.id
             self.data.dtg = self.emcstat.distance_to_go

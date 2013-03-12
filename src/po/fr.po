@@ -1169,9 +1169,10 @@ msgstr ""
 #: ../tcl/bin/pickconfig.tcl:555 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228 tcl/bin/emccalib.tcl:456
 #: tcl/bin/pickconfig.tcl:548 tcl/bin/pickconfig.tcl:559
-#, tcl-format
+#, fuzzy, tcl-format
 msgid "can't save %s"
-msgstr "Impossible d'enregistrer %s"
+msgstr ""
+"Impossible d'enregistrer %s "
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 #: ../tcl/bin/emcdebug.tcl:166 ../tcl/bin/emcdebug.tcl:177
@@ -1349,9 +1350,10 @@ msgstr ""
 #: src/emc/task/emctaskmain.cc:2072 ../tcl/bin/genedit.tcl:197
 #: ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1775 ../tcl/tklinuxcnc.tcl:451
 #: emc/task/emctaskmain.cc:2000
-#, c-format, tcl-format
+#, fuzzy, c-format, tcl-format
 msgid "can't open %s"
-msgstr "Impossible d'ouvrir %s"
+msgstr ""
+"Impossible d'ouvrir %s "
 
 #: tcl/bin/genedit.tcl:267 tcl/mini.tcl:3090 ../tcl/bin/genedit.tcl:267
 #: ../tcl/mini.tcl:3090
@@ -2340,6 +2342,7 @@ msgid "FEEDHOLD"
 msgstr "VITESSE-0"
 
 #: tcl/mini.tcl:2124 ../tcl/mini.tcl:2124
+#, fuzzy
 msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
@@ -2772,6 +2775,8 @@ msgid "auto"
 msgstr "auto"
 
 #: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8876
+#: ../tcl/tklinuxcnc.tcl:756 emc/usr_intf/pncconf/pncconf.py:8510
+#: src/emc/usr_intf/pncconf/pncconf.py:8512
 msgid "inches"
 msgstr "pouces"
 
@@ -7386,6 +7391,8 @@ msgid "# add halui MDI commands here (max 64) "
 msgstr "# ajoutez ici les commandes MDI halui (maximum 64) "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:991
+#: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:2991
+#: src/emc/usr_intf/pncconf/pncconf.py:2991
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr "# **** Paramètre -START pour l'A/U externe du programme ladder ****"
 
@@ -8709,6 +8716,8 @@ msgstr ""
 "+\n"
 "-\n"
 
+#: emc/usr_intf/pncconf/pncconf.py:79 src/emc/usr_intf/pncconf/pncconf.py:79
+#, fuzzy
 msgid ""
 "PNCconf encountered an error.  The following information may be useful in "
 "troubleshooting:\n"
@@ -9066,8 +9075,11 @@ msgstr "Activation ampli Z"
 msgid "A Amplifier Enable"
 msgstr "Activation ampli A"
 
+#: emc/usr_intf/pncconf/pncconf.py:443 src/emc/usr_intf/pncconf/pncconf.py:443
+#, fuzzy
 msgid "Force Pin True"
-msgstr "Force la pin à True"
+msgstr ""
+"Force la pin à True"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:445
 #: src/emc/usr_intf/pncconf/pncconf.py:472 emc/usr_intf/pncconf/pncconf.py:445
@@ -10089,9 +10101,12 @@ msgstr "Z2 Tandem StepGen"
 msgid "Charge Pump StepGen"
 msgstr "Pompe de charge StepGen"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:660
+#: src/emc/usr_intf/pncconf/pncconf.py:660 emc/usr_intf/pncconf/pncconf.py:628
+#: src/emc/usr_intf/pncconf/pncconf.py:628
+#, fuzzy
 msgid "Unused TPPWM Gen"
-msgstr "TPPWM Gen inutilisé"
+msgstr ""
+"TPPWM Gen inutilisé"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:628 emc/usr_intf/pncconf/pncconf.py:628
 #: src/emc/usr_intf/pncconf/pncconf.py:658
@@ -10128,8 +10143,10 @@ msgstr "Voie inutilisée"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:636
 #: src/emc/usr_intf/pncconf/pncconf.py:667
+#, fuzzy
 msgid "8i20 Amplifier Card"
-msgstr "Carte ampli. 8i20"
+msgstr ""
+"8i20 Carte amplificateur"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:636
 #: src/emc/usr_intf/pncconf/pncconf.py:667
@@ -10168,7 +10185,8 @@ msgstr "Carte 7i73 Mode 1"
 msgid "Unused Analog In"
 msgstr "Entrée analogique inutilisée"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:762
+#: src/emc/usr_intf/pncconf/pncconf.py:762 emc/usr_intf/pncconf/pncconf.py:722
+#: src/emc/usr_intf/pncconf/pncconf.py:722
 msgid "my_LinuxCNC_machine"
 msgstr "ma_machine_LinuxCNC"
 
@@ -10269,11 +10287,12 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:2083
 #: emc/usr_intf/pncconf/pncconf.py:2083
 #: src/emc/usr_intf/pncconf/pncconf.py:2185
+#, fuzzy
 msgid ""
 "#  COMMANDED velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"#  La vitesse COMMANDEE est signée, un composant absolu sera utilisé pour "
-"enlever le signe"
+"#  La vitesse COMMANDEE est signée, un composant absolu (abs.0) sera utilisé "
+"pour enlever le signe"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:2727
 #: emc/usr_intf/pncconf/pncconf.py:2727
@@ -10606,8 +10625,12 @@ msgstr ""
 "PNCconf utilisera un micro-logiciel échantillon,\n"
 "les tests en direct ne seront pas possible."
 
+#: emc/usr_intf/pncconf/pncconf.py:4093
+#: src/emc/usr_intf/pncconf/pncconf.py:4093
+#, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
-msgstr "Fichiers de configuration 'PNCconf' pour LinuxCNC "
+msgstr ""
+"Fichiers de configuration 'PNCconf' de LinuxCNC "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4123
 #: emc/usr_intf/pncconf/pncconf.py:4123
@@ -10687,8 +10710,12 @@ msgstr "Nom de broche indisponible\n"
 msgid "Device names are unavailable\n"
 msgstr "Nom de dispositif indisponible\n"
 
+#: emc/usr_intf/pncconf/pncconf.py:4698
+#: src/emc/usr_intf/pncconf/pncconf.py:4698
+#, fuzzy
 msgid "No Pncconf made device rules were found\n"
-msgstr "Aucune règle créée par Pncconf n'a été trouvée\n"
+msgstr ""
+"Aucune règle créée par Pncconf n'a été trouvée\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4822
 #: emc/usr_intf/pncconf/pncconf.py:4822
@@ -10862,6 +10889,8 @@ msgstr ""
 "maître pour l'axe %s \n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:7251
+#: emc/usr_intf/pncconf/pncconf.py:6885
+#: src/emc/usr_intf/pncconf/pncconf.py:6887
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiert un signal de départ cycle externe\n"
 
@@ -11053,6 +11082,8 @@ msgid "Resolver Scale:"
 msgstr "Échelle codeur:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:7842
+#: emc/usr_intf/pncconf/pncconf.py:7480
+#: src/emc/usr_intf/pncconf/pncconf.py:7482
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
@@ -19456,14 +19487,14 @@ msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr "Cannot restore context from invalid stack frame - missing M70/M73?"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:191
-#, fuzzy, c-format
+#, c-format
 msgid "cant open ini file '%s'"
-msgstr "Impossible d'ouvrir %s "
+msgstr "Impossible d'ouvrir %s"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:208
-#, fuzzy, c-format
+#, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-msgstr "Paramètre nommé #<%s> non défini dans le fichier ini '%s': erreur=0x%x"
+msgstr "Paramètre nommé #<%s> non trouvé au '%s': erreur=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:378
 #, c-format
@@ -20098,27 +20129,59 @@ msgstr ""
 "\n"
 "Beta 1 version"
 
-#~ msgid "P value not an integer with M19 G2 or G3"
-#~ msgstr "La valeur de P n'est pas un entier avec M19, G2 ou G3"
+#: src/emc/rs274ngc/interp_check.cc:314
+#, fuzzy
+msgid "P value not an integer with M19 G2 or G3"
+msgstr ""
+"La valeur de P avec M19 G2 ou G3 n'est pas un entier"
 
-#~ msgid ""
-#~ "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
-#~ "code that uses it"
-#~ msgstr ""
-#~ "Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
-#~ "utilisateur, l'utilisant"
+#: src/emc/rs274ngc/interp_check.cc:326
+#, fuzzy
+msgid ""
+"Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
+"code that uses it"
+msgstr ""
+"Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
+"utilisateur l'utilisant"
+
+#: src/emc/rs274ngc/interp_convert.cc:3012
+#, fuzzy
+msgid "Need non-negative Q-word to specify tool number with M61"
+msgstr ""
+"Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
+
+#: src/emc/rs274ngc/interp_convert.cc:3087
+#, fuzzy
+msgid "Q word with M19 requires a value > 0"
+msgstr ""
+"Avec M19, un mot Q doit être > 0"
+
+#: ../share/axis/tcl/axis.tcl:1711 share/axis/tcl/axis.tcl:1711
+msgid ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with LinuxCNC.\n"
+"\n"
+"Visit the LinuxCNC web site: "
+msgstr ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004-2012 Jeff Epler et Chris Radek.\n"
+"\n"
+"Ceci est un logiciel libre, vous pouvez le redistribuer sous certaines "
+"conditions.  Regardez le fichier COPYING, inclus dans LinuxCNC.\n"
+"\n"
+"Visitez le site web: "
 
 #~ msgid "M7x: restore_settings G20/G21 failed: '%s'"
 #~ msgstr "M7x: restauration paramètres G20/G21 impossible: '%s'"
 
 #~ msgid "M7x: restore_settings failed executing: '%s': %s"
 #~ msgstr "M7x: échec restauration paramètres exécution de: '%s': %s"
-
-#~ msgid "Need non-negative Q-word to specify tool number with M61"
-#~ msgstr "Avec M61, un mot Q non négatif doit spécifier le numéro de l'outil"
-
-#~ msgid "Q word with M19 requires a value > 0"
-#~ msgstr "Le mot Q avec M19 requiert une valeur > 0"
 
 #~ msgid "fetch_hal_param: hal_init(%s): %d"
 #~ msgstr "fetch_hal_param: hal_init(%s): %d"
