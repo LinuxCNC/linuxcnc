@@ -1,0 +1,128 @@
+#!/usr/bin/wish
+
+proc add_pin_to_gui {pinname} {
+  if ![info exists ::SP(id)] {
+    set ::SP(id) 0
+    set ::SP(prefix) "Current = "
+    set ::SP(pulse,ms) 200
+    wm title . $::SP(progname)
+  }
+  set id [incr ::SP(id)]
+  set ::SP($id,pinname) $pinname
+
+  set f [frame .f$id -borderwidth 3 -relief ridge]
+  pack [label $f.hdr -width 20 -bg lightgray -fg blue \
+       -borderwidth 0 -relief raised \
+       -text "$::SP($id,pinname)"] \
+       -fill both -expand 1
+
+  set value [get_pin $id]
+  set color lightgray
+  if $value {set color red}
+  pack [label $f.l -width 20 -bg $color -fg black \
+       -borderwidth 4 -relief raised \
+       -text "$::SP(prefix)$value"] \
+       -fill both -expand 1
+  bind $f.l <ButtonPress-1>   [list b_press   $id]
+  bind $f.l <ButtonRelease-1> [list b_release $id]
+  set ::SP($id,l) $f.l
+
+  set ::SP($id,mode) "pulse"
+  pack [radiobutton $f.p -text OnePulse \
+       -anchor w \
+       -value "pulse" \
+       -variable ::SP($id,mode)] \
+       -fill x -expand 0
+  pack [radiobutton $f.t -text ToggleValue \
+       -anchor w \
+       -value "toggle" \
+       -variable ::SP($id,mode)] \
+       -fill x -expand 0
+  pack [radiobutton $f.h -text "1 WhilePressed" \
+       -anchor w \
+       -value "hold" \
+       -variable ::SP($id,mode)] \
+       -fill x -expand 0
+   pack $f -side top
+} ;# add_pin_to_gui
+
+proc pin_set {id} {
+  if [catch {exec halcmd setp $::SP($id,pinname) 1} msg] {
+    puts stderr "Is linuxcnc running? <$msg>"
+    return
+  }
+  set value [get_pin $id]
+  set color lightgray
+  if $value {set color red}
+  $::SP($id,l) configure -bg $color -fg white \
+               -text "$::SP(prefix) $value"
+} ;# pin_set
+
+proc pin_unset {id} {
+  if [catch {exec halcmd setp $::SP($id,pinname) 0} msg] {
+    puts stderr "Is linuxcnc running? <$msg>"
+  }
+  set value [get_pin $id]
+  set color lightgray
+  if $value {set color red}
+  $::SP($id,l) configure -bg $color -fg black \
+              -text "$::SP(prefix) $value"
+} ;# pin_unset
+
+proc b_press {id} {
+  set value [get_pin $id]
+  switch $::SP($id,mode) {
+    "hold"   {pin_set $id}
+    "toggle" {   if $value {
+                   pin_unset $id
+                 } else {
+                   pin_set $id
+                 }
+             }
+    "pulse"  {pin_set $id; after $::SP(pulse,ms) [list b_release $id]}
+  }
+} ;# b_press
+
+proc b_release {id} {
+  switch $::SP($id,mode) {
+    "hold"   {pin_unset $id}
+    "toggle" {}
+    "pulse"  {pin_unset $id}
+  }
+} ;# b_release
+
+proc get_pin {id} {
+  set value [exec halcmd getp $::SP($id,pinname)]
+  switch $value {
+    FALSE {return 0}
+    TRUE  {return 1}
+  }
+} ;# get_pin
+
+proc usage {} {
+  puts "
+  Usage:
+         $::SP(progname) pin_name1 \[pin_name2 ...\] &
+
+  Note:  linuxcnc must be running
+         The pin(s) may not be connected to a signal
+"
+  exit 1
+} ;# usage
+
+if [catch {
+  if {[info exists ::argv0] && [info script] == $::argv0} {
+    # standalone usage:
+
+    set ::SP(progname) [file tail $::argv0]
+    if {$::argv == ""} {usage}
+
+    foreach pinname $::argv {
+      puts pin=$pinname
+      add_pin_to_gui $pinname
+    }
+  }
+} msg] {
+  puts "\nError: $msg"
+  usage
+}

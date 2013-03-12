@@ -41,19 +41,33 @@ override switch is set at 100%.
 == T: Select Tool
 (((T: Select Tool)))
 
-* 'T-' - call tool prepare. The tool is 
-not changed until an 'M6' is programmed (see Section 
-<<sec:M6-Tool-Change,M6>>). The T word may 
-appear on the same line as the 'M6' or on a previous line. It is OK
-if T words appear on two or more lines with no tool change. Only the
-the most recent T word will take effect at the next
-tool change. It is OK to program 'T0'; no tool will be selected. This
+'Tx' - prepare to change to tool 'x'.
+
+The tool is not changed until an 'M6' is programmed (see Section
+<<sec:M6-Tool-Change,M6>>). The T word may appear on the same line as the
+'M6' or on a previous line. It is OK if T words appear on two or more
+lines with no tool change. Only the the most recent T word will take
+effect at the next tool change.
+
+NOTE: When LinuxCNC is configured for a nonrandom toolchanger (see
+the entry for RANDOM_TOOLCHANGER in the <<sub:[EMCIO]-Section,EMCIO
+Section>>), 'T0' gets special handling: no tool will be selected. This
 is useful if you want the spindle to be empty after a tool change.
+
+NOTE: 'T0' When LinuxCNC is configured for a random toolchanger (see
+the entry for RANDOM_TOOLCHANGER in the <<sub:[EMCIO]-Section,EMCIO
+Section>>), 'T0' does not get any special treatment: T0 is a valid
+tool like any other.  It is customary to use T0 on a random toolchanger
+machine to track an empty pocket, so that it behaves like a nonrandom
+toolchanger machine and unloads the spindle.
 
 It is an error if:
 
-* a negative T number is used, 
-* or a T number larger than the number of slots in the carousel is used.
+* a negative T number is used,
+
+* T number is used that does not appear in the tool table file (with
+    the exception that T0 on nonrandom toolchangers *is* accepted,
+    as noted above).
 
 On some machines, the carousel will move when a T word is programmed,
 at the same time machining is occurring. On such machines, programming

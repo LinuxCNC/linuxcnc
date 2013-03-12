@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+# The linuxcnc starter script sometimes tries to display X windows if
+# DISPLAY is set.  We never want that while running tests, so unset it.
+unset DISPLAY
+
+# Some of our tests emit locale-sensitive strings, so reset the locale
+# to a sane default.
+export LC_ALL=C
+
+
 case "$0" in
 	*/*) MYDIR="${0%/*}" ;;
 	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
