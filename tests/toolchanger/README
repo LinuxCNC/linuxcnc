@@ -1,0 +1,14 @@
+
+The tests in this directory attempt to verify the correct behavior of
+the tool table and the tool changer.
+
+Two tests are run: one on a random toolchanger and one on a nonrandom
+toolchanger.  Both tests perform the same operations, and expect (nearly)
+the same results.
+
+A full LinuxCNC instance is started, with linuxcncrsh as the UI.  A bunch
+of gcode commands are run via MDI, and the internal state of LinuxCNC
+is accessed via numbered parameters.  A custom M-code shell script is
+used to write these parameter values to a file, which is then compared
+to a hand-crafted "expected values" file.
+

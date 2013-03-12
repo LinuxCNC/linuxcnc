@@ -1811,7 +1811,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                                           setup_pointer settings)       //!< pointer to machine settings              
 {
   double radius;
-  int index, orientation;
+  int pocket_number, orientation;
 
   CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
@@ -1829,17 +1829,17 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
   } else {
       if(!block->d_flag) {
-          index = 0;
+          pocket_number = 0;
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[7]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_pocket(settings, tool, &index)));
+          CHP((find_tool_pocket(settings, tool, &pocket_number)));
       }
-      radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
-      orientation = settings->tool_table[index].orientation;
+      radius = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].diameter) / 2.0;
+      orientation = settings->tool_table[pocket_number].orientation;
       CHKS((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
@@ -3136,7 +3136,8 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
-// G10 L1 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
+// G10 L1  P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
+// G10 L10 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     int pocket = -1, toolno;
@@ -3148,8 +3149,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     CHP((find_tool_pocket(settings, toolno, &pocket)));
 
-    settings->tool_table[pocket].toolno = toolno;
-    
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
 	   block->a_flag || block->b_flag || block->c_flag ||
 	   block->u_flag || block->v_flag || block->w_flag ||
@@ -3274,15 +3273,37 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].backangle,
                              settings->tool_table[pocket].orientation);
 
-    if(settings->current_pocket == pocket) {
+    //
+    // On non-random tool changers we just updated the tool's "home pocket"
+    // in the tool changer carousel, so now, if the tool is currently
+    // loaded, we need to copy the new tool information to the spindle
+    // (pocket 0).  This is never needed on random tool changers because
+    // there tools don't have a home pocket, and instead we updated pocket
+    // 0 (the spindle) directly when modifying the loaded tool.
+    //
+    if ((!settings->random_toolchanger) && (settings->current_pocket == pocket)) {
        settings->tool_table[0] = settings->tool_table[pocket];
     }
 
-    if (settings->tool_table[0].toolno < 0) {
-      settings->parameters[5400] = 0; // -1 ==> notool
+    //
+    // Update parameter #5400 with the tool currently in the spindle, or a
+    // special "invalid tool number" marker if no tool is in the spindle.
+    // Unfortunately, random and nonrandom toolchangers use a different
+    // number for "invalid tool number":  nonrandom uses 0, random uses -1.
+    //
+    if (settings->random_toolchanger)
+        if (settings->tool_table[0].toolno >= 0) {
+            settings->parameters[5400] = settings->tool_table[0].toolno;
+        } else {
+            settings->parameters[5400] = -1;
     } else {
-      settings->parameters[5400] = settings->tool_table[0].toolno;
+        if (settings->tool_table[0].toolno > 0) {
+            settings->parameters[5400] = settings->tool_table[0].toolno;
+        } else {
+            settings->parameters[5400] = 0;
+        }
     }
+
     settings->parameters[5401] = settings->tool_table[0].offset.tran.x;
     settings->parameters[5402] = settings->tool_table[0].offset.tran.y;
     settings->parameters[5403] = settings->tool_table[0].offset.tran.z;
@@ -3297,9 +3318,11 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     settings->parameters[5412] = settings->tool_table[0].backangle;
     settings->parameters[5413] = settings->tool_table[0].orientation;
 
-    //persuade axis-gui to update parameters widget for current tool:
+    // if the modified tool is currently in the spindle, then copy its
+    // information to pocket 0 of the tool table (which signifies the
+    // spindle)
     if (   !_setup.random_toolchanger
-        && toolno == settings->current_pocket) {
+        && pocket == settings->current_pocket) {
         SET_TOOL_TABLE_ENTRY(0,
                              settings->tool_table[pocket].toolno,
                              settings->tool_table[pocket].offset,
@@ -4737,37 +4760,39 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
-  int index;
+  int pocket_number;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    index = 0;
+    pocket_number = 0;
   } else if (g_code == G_43) {
     if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &index)));
+        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
     } else if (settings->toolchange_flag) {
-        // we haven't loaded the tool and swapped pockets quite yet
-        index = settings->current_pocket;
+        // Tool change is in progress, so the "current tool" is in its
+        // original pocket still.
+        pocket_number = settings->current_pocket;
     } else {
-        // tool change is done so pockets are swapped
-        index = 0;
+        // Tool change is done so the current tool is in pocket 0 (aka the
+        // spindle).
+        pocket_number = 0;
     }
 
-    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
-    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
-    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
+    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
+    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
+    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
+    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
+    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
+    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
+    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
-    index = -1;
+    pocket_number = -1;
     if(block->x_flag) tool_offset.tran.x = block->x_number;
     if(block->y_flag) tool_offset.tran.y = block->y_number;
     if(block->z_flag) tool_offset.tran.z = block->z_number;
@@ -4800,7 +4825,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
-  settings->tool_offset_index = index;
+  settings->tool_offset_index = pocket_number;
   return INTERP_OK;
 }
 
@@ -4809,21 +4834,18 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 /*! convert_tool_select
 
 Returned Value: int
-   If the tool slot given in the block is larger than allowed,
-   this returns NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE.
-   Otherwise, it returns INTERP_OK.
+   If the tool number given in the block is not found in the tool table,
+   it returns INTERP_ERROR.  Otherwise (if the tool *is* found) it returns
+   INTERP_OK.
 
 Side effects: See below
 
 Called by: execute_block
 
 A select tool command is given, which causes the changer chain to move
-so that the slot with the t_number given in the block is next to the
-tool changer, ready for a tool change.  The
+so that the slot with the tool identified by the t_number given in the
+block is next to the tool changer, ready for a tool change.  The
 settings->selected_tool_slot is set to the given slot.
-
-An alternative in this function is to select by tool id. This was used
-in the K&T and VGER interpreters. It is easy to code.
 
 A check that the t_number is not negative has already been made in read_t.
 A zero t_number is allowed and means no tool should be selected.
