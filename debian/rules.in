@@ -18,6 +18,7 @@
 
 python_version = @PYTHON_VERSION@
 kernel_version = @KERNEL_VERSION@
+BUILD_SYS =      @BUILD_SYS@
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -39,7 +40,7 @@ build-stamp:
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-kernel=/boot/config-$(kernel_version) --enable-build-documentation=pdf
 endif
 	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp
@@ -53,7 +54,7 @@ clean: debian/control
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version)
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-kernel=/boot/config-$(kernel_version) 
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -103,7 +104,7 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-ifneq "$(kernel_version)" "sim"
+ifneq ($(BUILD_SYS),user-dso)
 	dh_fixperms -X/linuxcnc_module_helper
 endif
 	dh_pysupport
