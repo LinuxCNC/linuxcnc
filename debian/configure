@@ -117,7 +117,7 @@ Debian-5.0*)
 	TCLTK_VERSION=8.4
 	;;
 Debian-7.0*)
-	EXTRA_BUILD=dvipng,libudev-dev
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.5
 	;;
 *)
@@ -175,12 +175,12 @@ case $TARGET in
 	# linux-headers-$TARGET would be needed if one were to package
 	# xenomai-kernel threads (not recommended)
 
-	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
+	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime
 	DISTRIB_NAME=xenomai-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-xenomai
 
-# for RT-PREEMPT the above three lines should look like so (no kernel headers needed, libudev-dev)
-#	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
+# for RT-PREEMPT the above three lines should look like so (no kernel headers needed)
+#	KERNEL_DEPENDS=linux-image-$TARGET
 #	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
 #	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
     ;;
