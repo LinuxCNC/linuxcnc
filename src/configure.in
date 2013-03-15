@@ -677,10 +677,20 @@ AC_ARG_ENABLE(usermode-pci,
     [
       # default: enable if TARGET_PLATFORM=PC and a userland thread style
       case "$THREADS" in
-           rt-preempt-user|xenomai-user|posix)
+
+      	   posix)
+	      if test "$TARGET_PLATFORM" = "PC" -a \( "$BUILD_DRIVERS" = "yes"  \) ; then
+  	      	 USERMODE_PCI=yes
+		 AC_MSG_RESULT([posix, but building drivers, so enabling USERMODE_PCI])
+		 else
+		 AC_MSG_RESULT([posix, not building drivers, so disabling USERMODE_PCI])
+	      fi 
+	      ;;
+
+           rt-preempt-user|xenomai-user)
                if test "$TARGET_PLATFORM" = "PC" ; then
 	           USERMODE_PCI=yes
-		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM - enable USERMODE_PCI for userland thread styles])
+		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM, threads $THREADS - enabling USERMODE_PCI])
 	       else
 	           AC_MSG_RESULT([disabling USERMODE_PCI since platform not PC: $TARGET_PLATFORM])
 	       fi
