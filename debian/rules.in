@@ -104,7 +104,7 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-ifneq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_SYS),kbuild)
 	dh_fixperms -X/linuxcnc_module_helper
 endif
 	dh_pysupport

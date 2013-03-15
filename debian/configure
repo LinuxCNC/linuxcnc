@@ -41,28 +41,76 @@ if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     exit 0
 fi
 
+
+inspect_kernel() {
+
+    KCONFIG="/boot/config-$KERNEL"
+    if test ! -f "$KCONFIG"; then 
+	if test -f "/proc/config.gz"; then
+	    KCONFIG="/proc/config.gz"
+	else
+	    echo no kernel configuration found : $KCONFIG
+	    exit 1
+	fi
+    fi
+    opt_ipipe=`zgrep '^CONFIG_IPIPE' $KCONFIG |wc -l`
+    opt_xeno=`zgrep '^CONFIG_XENO_' $KCONFIG |wc -l`
+    opt_preempt_rt=`zgrep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
+   
+    #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
+    if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+	KTYPE=rtai
+	DEFAULT_THREAD_STYLE=rtai
+    else 
+	if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+	    KTYPE=xenomai
+	    DEFAULT_THREAD_STYLE=xenomai-user
+	else 
+	    if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
+		KTYPE=rt-preempt
+		DEFAULT_THREAD_STYLE=rt-preempt-user
+	    else
+		KTYPE=vanilla
+		DEFAULT_THREAD_STYLE=posix
+	    fi
+	fi
+    fi
+    #echo THREADS=$DEFAULT_THREAD_STYLE KTYPE=$KTYPE
+}
+
 if [ $1 = "-r" ]; then
-    set -- `uname -r`
+    KERNEL="$(uname -r)"
+    inspect_kernel
 elif [ $1 = "-a" ]; then
     KERNEL="$(uname -r)"
-    if [ ! -d "/usr/realtime-$KERNEL" ]; then
-        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-        if [ -z "$KERNEL" ]; then
-            echo "no realtime kernels found!"
-            exit 1
-        fi
-    fi
-    set -- $KERNEL
+    # if [ ! -d "/usr/realtime-$KERNEL" ]; then
+    #     KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
+    #     if [ -z "$KERNEL" ]; then
+    #         echo "no realtime kernels found!"
+    #         exit 1
+    #     fi
+    # fi
+else
+    KERNEL=$1
+    inspect_kernel
 fi
 
-TARGET=$1
+# need kernel headers for rtai
+if [ "$KTYPE" == "rtai" ]; then
+    if [ ! -d "/usr/realtime-$KERNEL" ]; then
+	echo "rtai: no kernel headers found for $KERNEL"
+	exit 1
+    fi
+fi
 
-MODULE_PATH=usr/realtime-$1/modules/linuxcnc
+TARGET=$KERNEL
+
+MODULE_PATH=usr/realtime-$KERNEL/modules/linuxcnc
 MODULE_EXT=.ko
-KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
-KERNEL_HEADERS=linux-headers-$1
+KERNEL_DEPENDS=linux-image-$KERNEL,rtai-modules-$KERNEL
+KERNEL_HEADERS=linux-headers-$KERNEL
 EXTRA_FILES="usr/bin/linuxcnc_module_helper"
-KERNEL_VERSION=$1
+KERNEL_VERSION=$KERNEL
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
 PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
@@ -82,6 +130,9 @@ if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
 else
 	EXTRAS=extras
 fi
+
+echo DISTRIB_NAME=$DISTRIB_NAME
+
 
 case $DISTRIB_NAME in
 Ubuntu-12.10) # Quantal Quetzal
@@ -164,7 +215,9 @@ case $TARGET in
     ;;
     2.6.32-122-rtai) ;;
 
-    3.5.7-xenomai-2.6.2.1)
+    # John Morris' Xenomai kernel
+    3.5.7-xenomai-2.6.2.1) 
+       
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
@@ -175,14 +228,26 @@ case $TARGET in
 	# linux-headers-$TARGET would be needed if one were to package
 	# xenomai-kernel threads (not recommended)
 
-	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime
+	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
 	DISTRIB_NAME=xenomai-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-xenomai
+	MAIN_PACKAGE_NAME=linuxcnc-$KTYPE
+	;;
 
-# for RT-PREEMPT the above three lines should look like so (no kernel headers needed)
-#	KERNEL_DEPENDS=linux-image-$TARGET
-#	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
-#	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
+    # the wheezy RT-PREEMPT kernel
+    # Michael Haberler 'stab #1' at an rt-preempt kernel
+
+    3.2.0-4-rt-686-pae|3.4.13-rt-preempt-rt22+) 
+
+	MODULE_PATH=usr/lib/linuxcnc/modules
+	MODULE_EXT=.so
+	KERNEL_DEPENDS=
+	KERNEL_HEADERS=libpth-dev
+        EXTRA_FILES="usr/bin/rtapi_app"
+	BUILD_SYS=user-dso
+
+	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
+	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
+	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
@@ -215,9 +280,9 @@ subst control.in > control
 if [ "$TARGET" == "sim" ]; then
     cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
 else
-    cp linuxcnc-dev.files.in linuxcnc-dev.files
+    cp linuxcnc-dev.files.in linuxcnc-$KTYPE-dev.files
     if [ "$BUILD_SYS" == "kbuild" ]; then
-	echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
+	echo "$MODULE_PATH/Module.symvers" >> linuxcnc-$KTYPE-dev.files
     fi
 fi
 
