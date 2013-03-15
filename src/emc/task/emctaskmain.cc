@@ -702,7 +702,13 @@ static void mdi_execute_hook(void)
 	return;
     }
 
-    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+    if (
+        (mdi_execute_level < 0)
+        && (mdi_execute_wait == 0)
+        && (mdi_execute_queue.len() > 0)
+        && (interp_list.len() == 0)
+        && (emcTaskCommand == NULL)
+    ) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
     }
@@ -1418,7 +1424,6 @@ static int emcTaskPlan(void)
 		    retval = emcTaskIssueCommand(emcCommand);
 		}
 		break;
-
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    case EMC_TOOL_SET_OFFSET_TYPE:
 		// send to IO
@@ -2166,11 +2171,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    } else {
 		// record initial MDI command
 		strcpy(emcStatus->task.command, execute_msg->command);
-	    }
-
-	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
-		mdi_execute_queue.append(execute_msg);
-		break;
 	    }
 
 	    int level = emcTaskPlanLevel();
