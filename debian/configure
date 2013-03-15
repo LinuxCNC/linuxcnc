@@ -251,7 +251,7 @@ case $TARGET in
 
 	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
 	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
+	MAIN_PACKAGE_NAME=linuxcnc-$KTYPE
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
@@ -284,9 +284,16 @@ subst control.in > control
 if [ "$TARGET" == "sim" ]; then
     cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
 else
-    cp linuxcnc-dev.files.in linuxcnc-$KTYPE-dev.files
-    if [ "$BUILD_SYS" == "kbuild" ]; then
-	echo "$MODULE_PATH/Module.symvers" >> linuxcnc-$KTYPE-dev.files
+    if [ "$KTYPE" == "rtai" ]; then
+	cp linuxcnc-dev.files.in linuxcnc-dev.files
+	if [ "$BUILD_SYS" == "kbuild" ]; then
+	    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
+	fi
+    else
+	cp linuxcnc-dev.files.in linuxcnc-$KTYPE-dev.files
+	if [ "$BUILD_SYS" == "kbuild" ]; then
+	    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-$KTYPE-dev.files
+	fi
     fi
 fi
 
