@@ -81,6 +81,10 @@ inspect_kernel() {
 if [ $1 = "-r" ]; then
     KERNEL="$(uname -r)"
     inspect_kernel
+elif [ $1 = "sim" ]; then
+    KTYPE=vanilla
+    DEFAULT_THREAD_STYLE=posix
+    KERNEL="sim"
 elif [ $1 = "-a" ]; then
     KERNEL="$(uname -r)"
     # if [ ! -d "/usr/realtime-$KERNEL" ]; then
@@ -131,7 +135,7 @@ else
 	EXTRAS=extras
 fi
 
-echo DISTRIB_NAME=$DISTRIB_NAME
+#echo DISTRIB_NAME=$DISTRIB_NAME
 
 
 case $DISTRIB_NAME in
