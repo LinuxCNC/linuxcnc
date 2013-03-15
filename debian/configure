@@ -185,7 +185,8 @@ esac
 
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
-OTHER_MAIN_PACKAGE_NAME=linuxcnc-sim
+CONFLICT=linuxcnc-sim,linuxcnc-xenomai,linuxcnc-rtpreempt
+CONFLICT_DEV=linuxcnc-sim-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
 OLD_PACKAGE_NAME=emc2
 EXTRA_RECOMMENDS=hostmot2-firmware
 case $TARGET in
@@ -198,7 +199,8 @@ case $TARGET in
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
-        OTHER_MAIN_PACKAGE_NAME=linuxcnc
+	CONFLICT=linuxcnc,linuxcnc-xenomai,linuxcnc-rtpreempt
+	CONFLICT_DEV=linuxcnc-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
 	OLD_PACKAGE_NAME=emc2-sim
 	BUILD_SYS=user-dso
 
@@ -234,7 +236,10 @@ case $TARGET in
 
 	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
 	DISTRIB_NAME=xenomai-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-$KTYPE
+	MAIN_PACKAGE_NAME=linuxcnc-xenomai
+
+	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
+	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-rtpreempt-dev
 	;;
 
     # the wheezy RT-PREEMPT kernel
@@ -251,7 +256,10 @@ case $TARGET in
 
 	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
 	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-$KTYPE
+	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
+
+	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
+	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-xenomai-dev
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
@@ -266,7 +274,6 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
-    -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
@@ -276,6 +283,8 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
     -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
     -e "s|@BUILD_SYS@|$BUILD_SYS|g" \
+    -e "s|@CONFLICT@|$CONFLICT|g" \
+    -e "s|@CONFLICT_DEV@|$CONFLICT_DEV|g" \
     $*
 }
 
