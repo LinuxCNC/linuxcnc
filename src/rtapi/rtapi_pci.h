@@ -2,6 +2,7 @@
 #define RTAPI_PCI_H
 
 #include "config.h"
+#include <linux/version.h>
 
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *
@@ -125,6 +126,8 @@ void __iomem * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 extern
 void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void __iomem *mmio);
 
+#endif /* BUILD_SYS_USER_DSO */
+
 static inline
 __u8 rtapi_pci_readb(const void __iomem *mmio)
 {
@@ -184,6 +187,15 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 	writel(value, mmio);
 #endif
 }
+
+/* Some kernels don't have pci_ioremap_bar */
+#ifndef BUILD_SYS_USER_DSO
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
+void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar)
+{
+	return ioremap_nocache(pci_resource_start(dev, bar), pci_resource_len(dev, bar));
+}
+#endif
 #endif
 
 #endif // RTAPI_PCI_H
