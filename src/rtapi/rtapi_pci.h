@@ -193,7 +193,7 @@ void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
 void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar)
 {
-	return ioremap_nocache(pci_resource_start(dev, bar), pci_resource_len(dev, bar));
+	return ioremap_nocache(pci_resource_start(pdev, bar), pci_resource_len(pdev, bar));
 }
 #endif
 #endif
