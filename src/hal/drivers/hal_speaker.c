@@ -94,7 +94,7 @@ RTAPI_MP_STRING(cfg, "config string"); */
 
 typedef struct {
     hal_bit_t *signals[8];
-    uint8_t last;
+    __u8 last;
 } speaker_t;
 
 /* pointer to array of speaker_t structs in shared memory, 1 per port */
@@ -110,8 +110,8 @@ static int num_ports;		/* number of ports configured */
 
 static void write_port(void *arg, long period)
 {
-    uint8_t v = 0;
-    uint8_t oldval;
+    __u8 v = 0;
+    __u8 oldval;
     int i;
     speaker_t *port;
     port = arg;
