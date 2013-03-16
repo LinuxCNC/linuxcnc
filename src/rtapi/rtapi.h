@@ -78,7 +78,9 @@
 */
 #if defined(BUILD_SYS_USER_DSO)
 # include <linux/types.h>
+#ifndef int64_t
 # include <stdint.h>
+#endif
 # include <string.h>
 typedef __u8		u8;
 typedef __u16		u16;
