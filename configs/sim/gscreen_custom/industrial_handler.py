@@ -29,9 +29,13 @@ class HandlerClass:
     def on_metric_select_clicked(self,widget):
         data = (self.data.dro_units -1) * -1
         self.gscreen.set_dro_units(data,False)
-        for i in ("1","2"):
-            for axis in ("dro_x","dro_y","dro_z"):
-                self.widgets[axis+i].set_property("display_units_mm",data)
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
 
     # This is a new method for our button
     # we selected this method name in the glade file as a signal callback 
