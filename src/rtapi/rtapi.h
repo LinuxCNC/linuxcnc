@@ -78,7 +78,7 @@
 */
 #if defined(BUILD_SYS_USER_DSO)
 # include <linux/types.h>
-#ifndef int64_t
+#if !defined(__GNUC__) && defined(__STRICT_ANSI__)
 # include <stdint.h>
 #endif
 # include <string.h>
