@@ -401,13 +401,15 @@ ifeq ($(THREADS),xenomai-kernel)
 KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
 endif
 modules:
+ifeq ($(THREADS),xenomai-kernel)
 	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
 	    V=$(BUILD_VERBOSE) modules
+	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
+endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
 	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
