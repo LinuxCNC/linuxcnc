@@ -240,14 +240,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 inst->num_remotes += 1;
                 inst->tag |= 1<<c;
             } 
-            else if (hm2->config.sserial_modes[i][c] != 'x'){
-                HM2_ERR("Unsupported Device (%4s) found on sserial %d "
-                        "channel %d\n", (char*)&user1, i, c);
-            }
             
             // nothing connected, or masked by config or wrong baudrate or.....
             // make the pins into GPIO. 
-            if ((inst->tag & 1<<c) == 0){ 
+            else if (user1 == 0 
+                     || (inst->tag & 1<<c) == 0
+                     || hm2->config.sserial_modes[i][c] == 'x'){ 
                 for (pin = 0 ; pin < hm2->num_pins ; pin++){
                     if (hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
                         && (hm2->pin[pin].sec_pin & 0x0F) - 1  == c
@@ -256,7 +254,10 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                     }
                 }
             }
-
+            else if (hm2->config.sserial_modes[i][c] != 'x'){
+                HM2_ERR("Unsupported Device (%4s) found on sserial %d "
+                        "channel %d\n", (char*)&user1, i, c);
+            }
         }
         if (inst->num_remotes > 0){
             if (hm2_sserial_setup_channel(hm2, inst, count) < 0 ) {
