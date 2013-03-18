@@ -216,6 +216,22 @@ extern int hal_ready(int comp_id);
 */
 extern char* hal_comp_name(int comp_id);
 
+/** attach or detach the HAL shared memory segment
+ *  this might be needed in using code as there have been issues
+ *  in halcmd/RTAI builds.
+ *  originally this was integrated into hal_exit()/hal_init().
+ *  factored out as separate functions to enable a HAL component
+ *  which is instantiated at library load time independent of
+ *  hal_init/hal_exit calls from using code.
+ *
+ *  this cannot be used from RTAPI.
+ */
+
+#ifdef ULAPI
+extern int hal_rtapi_attach();
+extern int hal_rtapi_detach();
+#endif
+
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
     can access it.  To prevent contention, functions that may
