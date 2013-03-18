@@ -161,6 +161,25 @@ static void free_thread_struct(hal_thread_t * thread);
 static void thread_task(void *arg);
 #endif /* RTAPI */
 
+// the phases where startup-related events happen:
+// ULAPI: HAL shared library load/unload
+// RTAPI: beginning or end of rtapi_app_main()
+//        or rtapi_app_exit()
+enum phase_t  {
+    SHLIB_LOADED,
+    SHLIB_UNLOADED,
+    MAIN_START,
+    MAIN_END,
+    EXIT_START,
+    EXIT_END
+};
+
+#ifdef RTAPI
+// constructor/destructor support
+static void rtapi_hal_lib_cleanup(int phase);
+static void rtapi_hal_lib_init(int phase);
+#endif /* RTAPI */
+
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
@@ -170,10 +189,6 @@ static int ref_cnt = 0;
 int hal_init(const char *name)
 {
     int comp_id;
-#ifdef ULAPI
-    int retval;
-    void *mem;
-#endif
     char rtapi_name[RTAPI_NAME_LEN + 1];
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
@@ -188,47 +203,11 @@ int hal_init(const char *name)
 	return -EINVAL;
     }
 
-#ifdef ULAPI
-    if(!lib_mem_id) {
-	rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
-	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
-	lib_module_id = rtapi_init(rtapi_name);
-	if (lib_module_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not not initialize RTAPI\n");
-	    return -EINVAL;
-	}
-	/* get HAL shared memory block from RTAPI */
-	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
-	if (lib_mem_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not open shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* get address of shared memory area */
-	retval = rtapi_shmem_getptr(lib_mem_id, &mem);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not access shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* set up internal pointers to shared mem and data structure */
-        hal_shmem_base = (char *) mem;
-        hal_data = (hal_data_t *) mem;
-	/* perform a global init if needed */
-	retval = init_hal_data();
-	if ( retval ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not init shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-    }
-#endif
+    // rtapi initialisation already done
+    // since this happens through the constructor
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
-	name);
+		    name);
     /* copy name to local vars, truncating if needed */
     rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", name);
     rtapi_snprintf(hal_name, sizeof(hal_name), "%s", name);
@@ -351,12 +330,7 @@ int hal_exit(int comp_id)
 #ifdef ULAPI
     if(ref_cnt == 0) {
 	/* release RTAPI resources */
-	rtapi_shmem_delete(lib_mem_id, lib_module_id);
-	rtapi_exit(lib_module_id);
-	lib_mem_id = 0;
-	lib_module_id = -1;
-	hal_shmem_base = NULL;
-	hal_data = NULL;
+	hal_rtapi_detach();
     }
 #endif
     rtapi_exit(comp_id);
@@ -2591,6 +2565,9 @@ int rtapi_app_main(void)
     void *mem;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: loading kernel lib\n");
+
+    rtapi_hal_lib_init(MAIN_START); // call constructor
+
     /* do RTAPI init */
     lib_module_id = rtapi_init("HAL_LIB");
     if (lib_module_id < 0) {
@@ -2636,6 +2613,8 @@ int rtapi_app_main(void)
 	return -EINVAL;
     }
     //rtapi_printall();
+    rtapi_hal_lib_init(MAIN_END);
+
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
@@ -2647,6 +2626,8 @@ void rtapi_app_exit(void)
     hal_thread_t *thread;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
+    rtapi_hal_lib_cleanup(EXIT_START);
+
     hal_proc_clean();
     /* grab mutex before manipulating list */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2664,6 +2645,8 @@ void rtapi_app_exit(void)
     /* release RTAPI resources */
     rtapi_shmem_delete(lib_mem_id, lib_module_id);
     rtapi_exit(lib_module_id);
+
+    rtapi_hal_lib_cleanup(EXIT_END);
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib removed successfully\n");
@@ -3363,6 +3346,174 @@ static void free_thread_struct(hal_thread_t * thread)
     hal_data->thread_free_ptr = SHMOFF(thread);
 }
 #endif /* RTAPI */
+/***********************************************************************
+*                     HAL Library constructor and destructors          *
+************************************************************************/
+
+#ifdef ULAPI
+int hal_rtapi_attach()
+{
+    int retval;
+    void *mem;
+    char rtapi_name[RTAPI_NAME_LEN + 1];
+
+    if(!lib_mem_id) {
+	rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
+	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
+	lib_module_id = rtapi_init(rtapi_name);
+	if (lib_module_id < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not not initialize RTAPI\n");
+	    return -EINVAL;
+	}
+	/* get HAL shared memory block from RTAPI */
+	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+	if (lib_mem_id < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not open shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+	/* get address of shared memory area */
+	retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not access shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+	/* set up internal pointers to shared mem and data structure */
+        hal_shmem_base = (char *) mem;
+        hal_data = (hal_data_t *) mem;
+	/* perform a global init if needed */
+	retval = init_hal_data();
+	if ( retval ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not init shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG,
+		"HAL: hal_rtapi_attach(): HAL shm segment attached\n");
+    }
+    return 0;
+}
+
+int hal_rtapi_detach()
+{
+    if (ref_cnt == 0) {
+	/* release RTAPI resources */
+	rtapi_shmem_delete(lib_mem_id, lib_module_id);
+	rtapi_exit(lib_module_id);
+	lib_mem_id = 0;
+	lib_module_id = -1;
+	hal_shmem_base = NULL;
+	hal_data = NULL;
+	rtapi_print_msg(RTAPI_MSG_DBG,
+		"HAL: hal_rtapi_detach(): HAL shm segment detached\n");
+    }
+    return 0;
+}
+
+// ULAPI constructor/destructor
+static void __attribute__ ((constructor)) ulapi_hal_lib_init(void);
+static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
+
+#define DEBUG_CONSTRUCTORS
+
+#ifdef DEBUG_CONSTRUCTORS
+#include <stdio.h>  // ok since ULAPI only
+#endif
+
+// ULAPI-side initialization, executed at shared library load time
+// This will be executed before any function like hal_init() can be
+// called by using code.
+static void ulapi_hal_lib_init(void)
+{
+#ifdef DEBUG_CONSTRUCTORS
+    // RTAPI isnt initialized here yet, so rtapi_print_msg wont work
+    fprintf(stderr, "%s:%s(pid=%d) called\n",
+	    __FILE__,__FUNCTION__, getpid());
+#endif
+
+    // previously the HAL shm segment was attached only during the
+    // first hal_init(). Do that now during at shlib load time
+    // so the global HALCOMP can be created right away without
+    // waiting for somebody to do a hal_init()
+    hal_rtapi_attach();
+}
+
+//  ULAPI-side cleanup. Called on shared library unload time.
+static void ulapi_hal_lib_cleanup(void){
+#ifdef DEBUG_CONSTRUCTORS
+    fprintf(stderr, "%s:%s(pid=%d) called\n",
+	    __FILE__,__FUNCTION__, getpid());
+#endif
+}
+#endif
+
+#ifdef RTAPI
+
+// the HAL 'constructor'/'destructor' functions are called
+// from rtapi_app_main() and rtapi_app_exit() respectively
+// they are called twice:
+//
+// 1. once at the very beginning (MAIN_START,EXIT_START)
+// 2. once at the end (MAIN_END,EXIT_END).
+//
+// for ULAPI applications, there are no calls to
+// rtapi_app_main() and rtapi_app_exit() since those are
+// specific to RT components.
+//
+// However, we can detect the HAL shared library being
+// loaded - see 'ULAPI constructor/destructor' above
+// we funnel all these flavors through
+// rtapi_hal_lib_init() and rtapi_hal_lib_cleanup()
+// to make the mechanism work for any scenario. In this
+// case the phase argument is SHLIB_LOADED and SHLIB_UNLOADED
+// respectively.
+//
+// the 'phase' argument gives fine-grained control
+// about what should happen in which phase.
+
+static void rtapi_hal_lib_init(int phase)
+{
+#ifdef DEBUG_CONSTRUCTORS
+    rtapi_print_msg(RTAPI_MSG_DBG,"%s:%s(phase=%d) called\n",
+		    __FILE__,__FUNCTION__, phase);
+#endif
+    switch (phase) {
+    case MAIN_END:
+	break;
+
+    default:
+	break;
+    }
+}
+
+static void rtapi_hal_lib_cleanup(int phase)
+{
+#ifdef DEBUG_CONSTRUCTORS
+    rtapi_print_msg(RTAPI_MSG_DBG,"%s:%s(%d) called\n",
+		    __FILE__,__FUNCTION__, phase);
+#endif
+}
+
+#if defined(BUILD_SYS_USER_DSO)
+static void __attribute__ ((constructor)) rtapi_hal_lib_init_helper(void);
+static void __attribute__ ((destructor))  rtapi_hal_lib_cleanup_helper(void);
+
+static void rtapi_hal_lib_init_helper(void)
+{
+    rtapi_hal_lib_init(SHLIB_LOADED);
+}
+
+static void rtapi_hal_lib_cleanup_helper(void)
+{
+    rtapi_hal_lib_cleanup(SHLIB_UNLOADED);
+}
+#endif
+#endif
 
 
 #ifdef RTAPI
