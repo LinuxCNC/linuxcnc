@@ -54,7 +54,8 @@
 #include "hal.h"
 #include "hal/hal_priv.h"
 
-extern "C" int sim_rtapi_run_threads(int fd);
+//extern "C" int sim_rtapi_run_threads(int fd);
+static int harden_rt();
 
 using namespace std;
 
@@ -76,8 +77,7 @@ static std::map<string, void*> modules;
 
 extern "C" int schedule(void) { return sched_yield(); }
 
-int my_msg_level = RTAPI_MSG_WARN;
-static int instance_count = 0;
+static int msglevel = RTAPI_MSG_WARN;
 static int force_exit = 0;
 
 static struct rusage rusage;
@@ -242,7 +242,6 @@ static int do_load_cmd(string name, vector<string> args) {
 	    modules.erase(modules.find(name));
 	    return result;
         } else {
-            instance_count ++;
 	    return 0;
         }
     } else {
@@ -261,7 +260,6 @@ static int do_unload_cmd(string name) {
 	if(stop) stop();
 	modules.erase(modules.find(name));
         dlclose(w);
-        instance_count --;
     }
     return 0;
 }
@@ -323,10 +321,16 @@ static int handle_command(vector<string> args) {
     if(args.size() == 1 && args[0] == "exit") {
         force_exit = 1;
         return 0;
+    } else if(args.size() == 1 && args[0] == "ping") {
+        return 0;
     } else if(args.size() >= 2 && args[0] == "load") {
         string name = args[1];
         args.erase(args.begin());
         return do_load_cmd(name, args);
+    } else if(args.size() == 2 && args[0] == "msglevel") {
+	msglevel = atoi(args[1].c_str());
+	rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app: msglevel set to %d\n",msglevel);
+        return 0;
     } else if(args.size() == 2 && args[0] == "unload") {
         return do_unload_cmd(args[1]);
     } else if(args.size() == 3 && args[0] == "newinst") {
@@ -355,12 +359,27 @@ static int slave(int fd, vector<string> args) {
 }
 
 static int master(int fd, vector<string> args) {
+
+    int retval;
+
+    pid_t pid = fork();
+    if (pid > 0) { // parent
+	exit(0);
+    }
+    if (pid < 0) { // fork failed
+	perror("fork");
+	exit(1);
+    }
+    // child:
+    if ((retval = harden_rt()))
+	exit(retval);
+
     dlopen(NULL, RTLD_GLOBAL);
-    do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
+    // do_load_cmd("hal_lib", vector<string>());
     if(args.size()) { 
         int result = handle_command(args);
         if(result != 0) return result;
-        if(force_exit || instance_count == 0) return 0;
+        if(force_exit) return 0;
     }
     do {
         struct sockaddr_un client_addr;
@@ -389,7 +408,9 @@ static int master(int fd, vector<string> args) {
             };
             close(fd1);
         }
-    } while(!force_exit && instance_count > 0);
+    } while(!force_exit);
+
+    //    do_unload_cmd("hal_lib"); // assure destructors called
 
     return 0;
 }
@@ -475,16 +496,9 @@ exit_handler(void)
 		    getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
 }
 
-int main(int argc, char **argv) 
+static int harden_rt()
 {
-    char *s;
     struct sigaction sig_act;
-
-    
-    if ((s = getenv("MSGLEVEL")) != NULL) {
-	my_msg_level = atoi(s);
-	rtapi_set_msg_level(my_msg_level);
-    }
 
     // enable core dumps
     struct rlimit core_limit;
@@ -585,6 +599,11 @@ int main(int argc, char **argv)
 	return -EPERM;
     }
 #endif
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
 
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
