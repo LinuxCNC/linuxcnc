@@ -733,6 +733,8 @@ endif
 # User threads need rtapi_pci.c
 ifeq ($(BUILD_SYS),user-dso)
 rtapi-objs += rtapi/rtapi_pci.o
+# and rtapi_app_main/exit stubs
+rtapi-objs += rtapi/rtapi_main.o
 endif
 
 
