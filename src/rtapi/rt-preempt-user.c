@@ -493,7 +493,7 @@ int rtapi_wait_hook(void) {
     return 0;
 }
 
-int rtapi_delay_hook(long int nsec)
+void rtapi_delay_hook(long int nsec)
 {
     struct timespec t;
 

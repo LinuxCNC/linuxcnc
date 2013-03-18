@@ -290,7 +290,7 @@ int rtapi_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-int rtapi_delay_hook(long int nsec)
+void rtapi_delay_hook(long int nsec)
 {
     long long int release = rt_timer_tsc() + nsec;
     while (rt_timer_tsc() < release);
