@@ -158,6 +158,18 @@ Load(){
     CheckKernel
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
+
+	# this is the place to load a
+        # threadstyle-dependent userland RTAPI
+        # see also Unload()
+	rtapi_app load rtapi
+
+	rtapi_app load hal_lib
+
+	if [ "$DEBUG" != "" ] ; then
+            rtapi_app msglevel  "$DEBUG"
+        fi
+
     ;;
     *)
         for MOD in $MODULES_LOAD ; do
@@ -187,7 +199,12 @@ Unload(){
     CheckKernel
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
+
+	rtapi_app unload hal_lib
+	rtapi_app unload rtapi
+
         rtapi_app exit 
+
 	# remove any linuxcnc-specific shm segments if they exist
 	if ipcs -m | grep 0x48414c32 >/dev/null; then
 	    ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY

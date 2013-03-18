@@ -8,11 +8,11 @@ MODULE_LICENSE("GPL2 or later");
 
 int rtapi_app_main(void)
 {
-    rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI startup\n");
+    rtapi_print_msg(RTAPI_MSG_INFO,"RTAPI startup\n");
     return 0;
 }
 
 void rtapi_app_exit(void)
 {
-    rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI exit\n");
+    rtapi_print_msg(RTAPI_MSG_INFO,"RTAPI exit\n");
 }
