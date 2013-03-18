@@ -184,8 +184,6 @@ static void rtapi_hal_lib_init(int phase);
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
 
-static int ref_cnt = 0;
-
 int hal_init(const char *name)
 {
     int comp_id;
@@ -259,7 +257,6 @@ int hal_init(const char *name)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component '%s' initialized, ID = %02d\n", hal_name, comp_id);
-    ref_cnt ++;
     return comp_id;
 }
 
@@ -326,13 +323,10 @@ int hal_exit(int comp_id)
 #endif
     /* release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
-    --ref_cnt;
-#ifdef ULAPI
-    if(ref_cnt == 0) {
-	/* release RTAPI resources */
-	hal_rtapi_detach();
-    }
-#endif
+
+    // the RTAPI resources are now released
+    // on hal_lib shared library unload
+
     rtapi_exit(comp_id);
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
@@ -3401,17 +3395,15 @@ int hal_rtapi_attach()
 
 int hal_rtapi_detach()
 {
-    if (ref_cnt == 0) {
-	/* release RTAPI resources */
-	rtapi_shmem_delete(lib_mem_id, lib_module_id);
-	rtapi_exit(lib_module_id);
-	lib_mem_id = 0;
-	lib_module_id = -1;
-	hal_shmem_base = NULL;
-	hal_data = NULL;
-	rtapi_print_msg(RTAPI_MSG_DBG,
-		"HAL: hal_rtapi_detach(): HAL shm segment detached\n");
-    }
+    /* release RTAPI resources */
+    rtapi_shmem_delete(lib_mem_id, lib_module_id);
+    rtapi_exit(lib_module_id);
+    lib_mem_id = 0;
+    lib_module_id = -1;
+    hal_shmem_base = NULL;
+    hal_data = NULL;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "HAL: hal_rtapi_detach(): HAL shm segment detached\n");
     return 0;
 }
 
@@ -3448,6 +3440,7 @@ static void ulapi_hal_lib_cleanup(void){
 #ifdef DEBUG_CONSTRUCTORS
     fprintf(stderr, "%s:%s(pid=%d) called\n",
 	    __FILE__,__FUNCTION__, getpid());
+    hal_rtapi_detach();
 #endif
 }
 #endif
