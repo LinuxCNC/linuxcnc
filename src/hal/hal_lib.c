@@ -3411,7 +3411,7 @@ int hal_rtapi_detach()
 static void __attribute__ ((constructor)) ulapi_hal_lib_init(void);
 static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 
-#define DEBUG_CONSTRUCTORS
+#undef DEBUG_CONSTRUCTORS
 
 #ifdef DEBUG_CONSTRUCTORS
 #include <stdio.h>  // ok since ULAPI only
