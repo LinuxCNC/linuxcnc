@@ -125,7 +125,7 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 }
 
 
-int rtapi_delay_hook(long int nsec) 
+void rtapi_delay_hook(long int nsec) 
 {
     long long int release = rt_timer_tsc() + nsec;
     while (rt_timer_tsc() < release);
