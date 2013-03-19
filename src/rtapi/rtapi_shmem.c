@@ -485,7 +485,7 @@ int _rtapi_shmem_delete(int shmem_id, int module_id) {
     return 0;
 }
 
-int rtapi_shmem_getptr(int shmem_id, void **ptr) {
+int _rtapi_shmem_getptr(int shmem_id, void **ptr) {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
 	return -EINVAL;
