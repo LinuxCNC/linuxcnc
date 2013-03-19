@@ -51,7 +51,7 @@ typedef struct {
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
     static uuid_data_t* uuid_data   = 0;
     static         int  uuid_mem_id = 0;
     const static   int  uuid_id     = 0;
@@ -86,7 +86,7 @@ int rtapi_init(const char *modname) {
     return id;
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
   munlockall();
   return 0;
 }

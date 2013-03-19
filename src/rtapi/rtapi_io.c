@@ -26,12 +26,12 @@
 #ifdef HAVE_RTAPI_OUTB_HOOK
 extern inline void rtapi_outb_hook(unsigned char byte, unsigned int port);
 
-void rtapi_outb(unsigned char byte, unsigned int port) {
+void _rtapi_outb(unsigned char byte, unsigned int port) {
     rtapi_outb_hook(byte,port);
 }
 
 #else  /* default:  use outb() */
-void rtapi_outb(unsigned char byte, unsigned int port) {
+void _rtapi_outb(unsigned char byte, unsigned int port) {
     outb(byte,port);
 }
 #endif
@@ -40,12 +40,12 @@ void rtapi_outb(unsigned char byte, unsigned int port) {
 #ifdef HAVE_RTAPI_INB_HOOK
 extern inline unsigned char rtapi_inb_hook(unsigned int port);
 
-unsigned char rtapi_inb(unsigned int port) {
+unsigned char _rtapi_inb(unsigned int port) {
     return rtapi_inb_hook(port);
 }
 
 #else  /* default:  use inb() */
-unsigned char rtapi_inb(unsigned int port) {
+unsigned char _rtapi_inb(unsigned int port) {
     return inb(port);
 }
 #endif
@@ -54,12 +54,12 @@ unsigned char rtapi_inb(unsigned int port) {
 #ifdef HAVE_RTAPI_OUTW_HOOK
 extern inline void rtapi_outw_hook(unsigned short word, unsigned int port);
 
-void rtapi_outw(unsigned short word, unsigned int port) {
+void _rtapi_outw(unsigned short word, unsigned int port) {
     rtapi_outw_hook(word,port);
 }
 
 #else  /* default:  use outw() */
-void rtapi_outw(unsigned short word, unsigned int port) {
+void _rtapi_outw(unsigned short word, unsigned int port) {
     outw(word,port);
 }
 #endif
@@ -68,20 +68,20 @@ void rtapi_outw(unsigned short word, unsigned int port) {
 #ifdef HAVE_RTAPI_INW_HOOK
 extern inline unsigned short rtapi_inw_hook(unsigned int port);
 
-unsigned short rtapi_inw(unsigned int port) {
+unsigned short _rtapi_inw(unsigned int port) {
     return rtapi_inw_hook(port);
 }
 
 #else /* default:  use inw() */
-unsigned short rtapi_inw(unsigned int port) {
+unsigned short _rtapi_inw(unsigned int port) {
     return inw(port);
 }
 #endif
 
 
 #ifdef MODULE
-EXPORT_SYMBOL(rtapi_outb);
-EXPORT_SYMBOL(rtapi_inb);
-EXPORT_SYMBOL(rtapi_outw);
-EXPORT_SYMBOL(rtapi_inw);
+EXPORT_SYMBOL(_rtapi_outb);
+EXPORT_SYMBOL(_rtapi_inb);
+EXPORT_SYMBOL(_rtapi_outw);
+EXPORT_SYMBOL(_rtapi_inw);
 #endif

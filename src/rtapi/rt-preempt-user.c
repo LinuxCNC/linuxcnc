@@ -35,19 +35,19 @@ static int error_printed;
 
 #ifdef ULAPI
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
 	/* do nothing for ULAPI */
 	return getpid();
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
 	/* do nothing for ULAPI */
 	return 0;
 }
 
 #else /* RTAPI */
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
     int n, module_id = -ENOMEM;
     module_data *module;
 
@@ -87,7 +87,7 @@ int rtapi_init(const char *modname) {
     return module_id;
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
     module_id -= MODULE_OFFSET;
 
     if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
