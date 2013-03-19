@@ -284,6 +284,7 @@ class HandlerClass:
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
             self.widgets["dro_%s2"%i].show()
+            self.widgets["dro_%s3"%i].show()
             self.widgets["axis_%s"%i].show()
             self.widgets["home_%s"%i].show()
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
