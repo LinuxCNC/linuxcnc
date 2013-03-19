@@ -3456,6 +3456,9 @@ static void ulapi_hal_lib_init(void)
 	    fprintf(stderr,"HAL_LIB: successfully loaded ULAPI '%s' rtapi_switch=%p\n",
 		    ulapi_lib, *symref);
 	rtapi_switch = *symref;
+	// XXX: check for rtapi_switch != NULL, and a signature in
+	// the datastructure here
+
 	// at this point it is safe to call RTAPI functions since the
 	// rtapi_switch pointer is now valid.
     } else {
