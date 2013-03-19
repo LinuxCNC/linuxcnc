@@ -139,7 +139,7 @@ RTAPI_BEGIN_DECLS
 */
 typedef int (*rtapi_init_t)(const char *);
 #define rtapi_init(modname)			\
-    rtapi_switch.rtapi_init(modname)
+    rtapi_switch->rtapi_init(modname)
 extern int _rtapi_init(const char *modname);
 
 /** 'rtapi_exit()' shuts down and cleans up the RTAPI.  It must be
@@ -154,7 +154,7 @@ extern int _rtapi_init(const char *modname);
 */
 typedef int (*rtapi_exit_t)(int);
 #define rtapi_exit(module_id)			\
-    rtapi_switch.rtapi_exit(module_id)
+    rtapi_switch->rtapi_exit(module_id)
 extern int _rtapi_exit(int module_id);
 
 /***********************************************************************
@@ -174,7 +174,7 @@ extern int _rtapi_exit(int module_id);
 */
 typedef int (*rtapi_snprintf_t)(char *, unsigned long int, const char*, ...);
 #define rtapi_snprintf(buf, size, fmt, arg...)		\
-    rtapi_switch.rtapi_snprintf(buf, size, fmt, ## arg)
+    rtapi_switch->rtapi_snprintf(buf, size, fmt, ## arg)
 extern int _rtapi_snprintf(char *buf, unsigned long int size,
 			   const char *fmt, ...)
     __attribute__((format(printf,3,4)));
@@ -191,7 +191,7 @@ extern int _rtapi_snprintf(char *buf, unsigned long int size,
 typedef int (*rtapi_vsnprintf_t)(char *, unsigned long, const char *,
 				 va_list);
 #define rtapi_vsnprintf(buf, size, fmt, ap)		\
-    rtapi_switch.rtapi_vsnprintf(buf, size, fmt, ap)
+    rtapi_switch->rtapi_vsnprintf(buf, size, fmt, ap)
 extern int _rtapi_vsnprintf(char *buf, unsigned long size,
 			    const char *fmt, va_list ap);
 
@@ -210,7 +210,7 @@ extern int _rtapi_vsnprintf(char *buf, unsigned long size,
 */
 typedef void (*rtapi_print_t)(const char *, ...);
 #define rtapi_print(fmt, arg...)		\
-    rtapi_switch.rtapi_print(fmt, ## arg)
+    rtapi_switch->rtapi_print(fmt, ## arg)
 extern void _rtapi_print(const char *fmt, ...)
     __attribute__((format(printf,1,2)));
 
@@ -230,7 +230,7 @@ extern void _rtapi_print(const char *fmt, ...)
 
 typedef void (*rtapi_print_msg_t)(int, const char *, ...);
 #define rtapi_print_msg(level, fmt, arg...)		\
-    rtapi_switch.rtapi_print_msg(level, fmt, ## arg)
+    rtapi_switch->rtapi_print_msg(level, fmt, ## arg)
 extern void _rtapi_print_msg(int level, const char *fmt, ...)
     __attribute__((format(printf,2,3)));
 
@@ -240,13 +240,13 @@ extern void _rtapi_print_msg(int level, const char *fmt, ...)
     success or -EINVAL if the level is out of range. */
 typedef int (*rtapi_set_msg_level_t)(int);
 #define rtapi_set_msg_level(level)		\
-    rtapi_switch.rtapi_set_msg_level(level)
+    rtapi_switch->rtapi_set_msg_level(level)
 extern int _rtapi_set_msg_level(int level);
 
 /** Retrieve the message level set by the last call to rtapi_set_msg_level */
 typedef int (*rtapi_get_msg_level_t)(void);
 #define rtapi_get_msg_level()			\
-    rtapi_switch.rtapi_get_msg_level()
+    rtapi_switch->rtapi_get_msg_level()
 extern int _rtapi_get_msg_level(void);
 
 /** 'rtapi_get_msg_handler' and 'rtapi_set_msg_handler' access the function
@@ -263,12 +263,12 @@ typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
 #ifdef RTAPI
 typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
 #define rtapi_set_msg_handler(handler)		\
-    rtapi_switch.rtapi_set_msg_handler(handler)
+    rtapi_switch->rtapi_set_msg_handler(handler)
 extern void _rtapi_set_msg_handler(rtapi_msg_handler_t handler);
 
 typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 #define rtapi_get_msg_handler()		\
-    rtapi_switch.rtapi_get_msg_handler()
+    rtapi_switch->rtapi_get_msg_handler()
 extern rtapi_msg_handler_t _rtapi_get_msg_handler(void);
 #endif
 
@@ -356,7 +356,7 @@ extern rtapi_msg_handler_t _rtapi_get_msg_handler(void);
 */
 typedef long int (*rtapi_clock_set_period_t)(long int);
 #define rtapi_clock_set_period(nsecs)		\
-    rtapi_switch.rtapi_clock_set_period(nsecs)
+    rtapi_switch->rtapi_clock_set_period(nsecs)
 extern long int _rtapi_clock_set_period(long int nsecs);
 
 /** rtapi_delay() is a simple delay.  It is intended only for short
@@ -372,12 +372,12 @@ extern long int _rtapi_clock_set_period(long int nsecs);
 */
 typedef void (*rtapi_delay_t)(long int);
 #define rtapi_delay(nsec)			\
-    rtapi_switch.rtapi_delay(nsec)
+    rtapi_switch->rtapi_delay(nsec)
 extern void _rtapi_delay(long int nsec);
 
 typedef long int (*rtapi_delay_max_t)(void);
 #define rtapi_delay_max()			\
-    rtapi_switch.rtapi_delay_max()
+    rtapi_switch->rtapi_delay_max()
 extern long int _rtapi_delay_max(void);
 
 #endif /* RTAPI */
@@ -408,7 +408,7 @@ extern long int _rtapi_delay_max(void);
 */
 typedef long long int (*rtapi_get_time_t)(void);
 #define rtapi_get_time()			\
-    rtapi_switch.rtapi_get_time()
+    rtapi_switch->rtapi_get_time()
 extern long long int _rtapi_get_time(void);
 
 /** rtapi_get_clocks returns the current time in CPU clocks.  It is 
@@ -438,7 +438,7 @@ extern long long int _rtapi_get_time(void);
 */
 typedef long long int (*rtapi_get_clocks_t)(void);
 #define rtapi_get_clocks()			\
-    rtapi_switch.rtapi_get_clocks()
+    rtapi_switch->rtapi_get_clocks()
 extern long long int _rtapi_get_clocks(void);
 
 
@@ -479,18 +479,18 @@ extern long long int _rtapi_get_clocks(void);
 */
 typedef int (*rtapi_prio_highest_lowest_t)(void);
 #define rtapi_prio_highest()			\
-    rtapi_switch.rtapi_prio_highest()
+    rtapi_switch->rtapi_prio_highest()
 extern int _rtapi_prio_highest(void);
 #define rtapi_prio_lowest()			\
-    rtapi_switch.rtapi_prio_lowest()
+    rtapi_switch->rtapi_prio_lowest()
 extern int _rtapi_prio_lowest(void);
 
 typedef int (*rtapi_prio_next_higher_lower_t)(int);
 #define rtapi_prio_next_higher(prio)		\
-    rtapi_switch.rtapi_prio_next_higher(prio)
+    rtapi_switch->rtapi_prio_next_higher(prio)
 extern int _rtapi_prio_next_higher(int prio);
 #define rtapi_prio_next_lower(prio)		\
-    rtapi_switch.rtapi_prio_next_lower(prio)
+    rtapi_switch->rtapi_prio_next_lower(prio)
 extern int _rtapi_prio_next_lower(int prio);
 
 #ifdef RTAPI
@@ -528,7 +528,7 @@ typedef int (*rtapi_task_new_t)(void (*) (void *), void *,
 				int, char *, int);
 #define rtapi_task_new(taskcode, arg, prio, owner, stacksize, uses_fp, \
 		       name, cpu_id)				       \
-    rtapi_switch.rtapi_task_new(taskcode, arg, prio, owner, stacksize, \
+    rtapi_switch->rtapi_task_new(taskcode, arg, prio, owner, stacksize, \
 				uses_fp, name, cpu_id)
 extern int _rtapi_task_new(void (*taskcode) (void *), void *arg,
 			      int prio, int owner, unsigned long int stacksize, 
@@ -543,7 +543,7 @@ extern int _rtapi_task_new(void (*taskcode) (void *), void *arg,
 */
 typedef int (*rtapi_task_delete_t)(int);
 #define rtapi_task_delete(task_id)		\
-    rtapi_switch.rtapi_task_delete(task_id)
+    rtapi_switch->rtapi_task_delete(task_id)
 extern int _rtapi_task_delete(int task_id);
 
 /** 'rtapi_task_start()' starts a task in periodic mode.  'task_id' is
@@ -557,7 +557,7 @@ extern int _rtapi_task_delete(int task_id);
 */
 typedef int (*rtapi_task_start_t)(int, unsigned long int);
 #define rtapi_task_start(task_id, period_nsec)	\
-    rtapi_switch.rtapi_task_start(task_id, period_nsec)
+    rtapi_switch->rtapi_task_start(task_id, period_nsec)
 extern int _rtapi_task_start(int task_id, unsigned long int period_nsec);
 
 /** 'rtapi_wait()' suspends execution of the current task until the
@@ -567,7 +567,7 @@ extern int _rtapi_task_start(int task_id, unsigned long int period_nsec);
 */
 typedef void (*rtapi_wait_t)(void);
 #define rtapi_wait()				\
-    rtapi_switch.rtapi_wait()
+    rtapi_switch->rtapi_wait()
 extern void _rtapi_wait(void);
 
 /** 'rtapi_task_resume() starts a task in free-running mode. 'task_id'
@@ -583,7 +583,7 @@ extern void _rtapi_wait(void);
 */
 typedef int (*rtapi_task_resume_t)(int);
 #define rtapi_task_resume(task_id)		\
-    rtapi_switch.rtapi_task_resume(task_id)
+    rtapi_switch->rtapi_task_resume(task_id)
 extern int _rtapi_task_resume(int task_id);
 
 /** 'rtapi_task_pause() causes 'task_id' to stop execution and change
@@ -596,7 +596,7 @@ extern int _rtapi_task_resume(int task_id);
 */
 typedef int (*rtapi_task_pause_t)(int);
 #define rtapi_task_pause(task_id)		\
-    rtapi_switch.rtapi_task_pause(task_id)
+    rtapi_switch->rtapi_task_pause(task_id)
 extern int _rtapi_task_pause(int task_id);
 
 /** 'rtapi_task_self()' returns the task ID of the current task.
@@ -604,7 +604,7 @@ extern int _rtapi_task_pause(int task_id);
 */
 typedef int (*rtapi_task_self_t)(void);
 #define rtapi_task_self()			\
-    rtapi_switch.rtapi_task_self()
+    rtapi_switch->rtapi_task_self()
 extern int _rtapi_task_self(void);
 
 #endif /* RTAPI */
@@ -632,7 +632,7 @@ extern int _rtapi_task_self(void);
 */
 typedef int (*rtapi_shmem_new_t)(int, int, unsigned long int);
 #define rtapi_shmem_new(key, module_id, size)	\
-    rtapi_switch.rtapi_shmem_new(key, module_id, size)
+    rtapi_switch->rtapi_shmem_new(key, module_id, size)
 extern int _rtapi_shmem_new(int key, int module_id,
 			    unsigned long int size);
 
@@ -643,7 +643,7 @@ extern int _rtapi_shmem_new(int key, int module_id,
 */
 typedef int (*rtapi_shmem_delete_t)(int, int);
 #define rtapi_shmem_delete(shmem_id, module_id)		\
-    rtapi_switch.rtapi_shmem_delete(shmem_id, module_id)
+    rtapi_switch->rtapi_shmem_delete(shmem_id, module_id)
 extern int _rtapi_shmem_delete(int shmem_id, int module_id);
 
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
@@ -652,7 +652,7 @@ extern int _rtapi_shmem_delete(int shmem_id, int module_id);
 */
 typedef int (*rtapi_shmem_getptr_t)(int, void **);
 #define rtapi_shmem_getptr(shmem_id, ptr)		\
-    rtapi_switch.rtapi_shmem_getptr(shmem_id, ptr)
+    rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
 extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
 
 
@@ -667,7 +667,7 @@ extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
 */
 typedef void (*rtapi_outb_t)(unsigned char, unsigned int);
 #define rtapi_outb(byte, port)				\
-    rtapi_switch.rtapi_outb(byte, port)
+    rtapi_switch->rtapi_outb(byte, port)
 extern void _rtapi_outb(unsigned char byte, unsigned int port);
 
 /** 'rtapi_inb() gets a byte from 'port'.  Returns the byte.  May
@@ -677,7 +677,7 @@ extern void _rtapi_outb(unsigned char byte, unsigned int port);
 */
 typedef unsigned char (*rtapi_inb_t)(unsigned int);
 #define rtapi_inb(port)				\
-    rtapi_switch.rtapi_inb(port)
+    rtapi_switch->rtapi_inb(port)
 extern unsigned char _rtapi_inb(unsigned int port);
 
 /** 'rtapi_outw() writes 'word' to 'port'.  May be called from
@@ -687,7 +687,7 @@ extern unsigned char _rtapi_inb(unsigned int port);
 */
 typedef void (*rtapi_outw_t)(unsigned short, unsigned int);
 #define rtapi_outw(word, port)				\
-    rtapi_switch.rtapi_outw(word, port)
+    rtapi_switch->rtapi_outw(word, port)
 extern void _rtapi_outw(unsigned short word, unsigned int port);
 
 /** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
@@ -697,7 +697,7 @@ extern void _rtapi_outw(unsigned short word, unsigned int port);
 */
 typedef unsigned short (*rtapi_inw_t)(unsigned int);
 #define rtapi_inw(port)				\
-    rtapi_switch.rtapi_inw(port)
+    rtapi_switch->rtapi_inw(port)
 extern unsigned short _rtapi_inw(unsigned int port);
 
 #if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
@@ -792,7 +792,7 @@ typedef struct {
     rtapi_inw_t rtapi_inw;
 } rtapi_switch_t;
 
-extern rtapi_switch_t rtapi_switch;
+extern rtapi_switch_t *rtapi_switch;
 
 
 /***********************************************************************
