@@ -4,7 +4,7 @@ INCLUDES += hal
 	cp $^ $@
 
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+HALLIBSRCS := hal/hal_lib.c # $(ULAPI_SRCS)
 
 ifeq ($(THREADS),xenomai-kernel)
 XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
