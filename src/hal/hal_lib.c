@@ -69,6 +69,10 @@ MODULE_LICENSE("GPL");
 #endif /* RTAPI */
 
 #if defined(ULAPI)
+// if loading the ulapi shared object fails, we dont have RTAPI
+// calls available for error messages, so fallback to stderr
+// in this case.
+#include <stdio.h>
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
 #include <stdlib.h>		/* exit() */
@@ -3347,6 +3351,8 @@ static void free_thread_struct(hal_thread_t * thread)
 ************************************************************************/
 
 #ifdef ULAPI
+int debug_tors; // leave as extern so gdb can get at it
+
 int hal_rtapi_attach()
 {
     int retval;
@@ -3413,18 +3419,14 @@ int hal_rtapi_detach()
 static void __attribute__ ((constructor)) ulapi_hal_lib_init(void);
 static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 
-#define DEBUG_CONSTRUCTORS
-
-#ifdef DEBUG_CONSTRUCTORS
-#include <stdio.h>  // ok since ULAPI only
-#endif
-
 // ULAPI-side initialization, executed at shared library load time
 // This will be executed before any function like hal_init() can be
 // called by using code.
 
 // this is the pointer through which _all_ RTAPI/ULAPI references go:
 rtapi_switch_t *rtapi_switch;
+
+// still need per-threadstyle path settuings here:
 static void *ulapi_so; // dlopen handle for ULAPI .so
 static char *ulapi_lib = "ulapi.so";
 
@@ -3432,37 +3434,34 @@ static void ulapi_hal_lib_init(void)
 {
     const char *errmsg;
     rtapi_switch_t **symref;
+    debug_tors = (getenv("DEBUG") != NULL);
 
-#ifdef DEBUG_CONSTRUCTORS
-    // RTAPI isnt initialized here yet, so rtapi_print_msg wont work
-    fprintf(stderr, "%s:%s(pid=%d) called\n",
-	    __FILE__,__FUNCTION__, getpid());
-#endif
+    if (debug_tors)
+	// RTAPI isnt initialized here yet, so rtapi_print_msg wont work
+	fprintf(stderr, "%s:%s(pid=%d) called\n",
+		__FILE__,__FUNCTION__, getpid());
 
     // dynload the proper ulapi.so:
     if ((ulapi_so = dlopen(ulapi_lib, RTLD_LAZY)) == NULL) {
 	errmsg = dlerror();
-#ifdef DEBUG_CONSTRUCTORS
 	fprintf(stderr,"HAL_LIB: FATAL - cant dlopen(%s): %s\n",
 		ulapi_lib, errmsg ? errmsg : "NULL");
-#endif
 	exit(1);
     }
     // resolve the pointer to rtapi_switch
     if ((symref = (rtapi_switch_t **) dlsym(ulapi_so, "rtapi_switch")) != NULL) {
-	// at this point it is safe to call RTAPI functions
 	// fprintf(stderr,"successfully loaded ULAPI '%s': '%s'\n",
 	//         ulapi_lib, rtapi_switch->name);
-	fprintf(stderr,"successfully loaded ULAPI '%s' rtapi_switch=%p\n",
-		ulapi_lib, *symref);
+	if (debug_tors)
+	    fprintf(stderr,"HAL_LIB: successfully loaded ULAPI '%s' rtapi_switch=%p\n",
+		    ulapi_lib, *symref);
 	rtapi_switch = *symref;
-
+	// at this point it is safe to call RTAPI functions since the
+	// rtapi_switch pointer is now valid.
     } else {
-#ifdef DEBUG_CONSTRUCTORS
 	errmsg = dlerror();
 	fprintf(stderr,"HAL_LIB: FATAL - resolving %s: cant dlsym(rtapi_switch): %s\n",
 		ulapi_lib, errmsg ? errmsg : "NULL");
-#endif
 	exit(1);
     }
     // and off we go!
@@ -3474,14 +3473,17 @@ static void ulapi_hal_lib_init(void)
     hal_rtapi_attach();
 }
 
-//  ULAPI-side cleanup. Called on shared library unload time.
-static void ulapi_hal_lib_cleanup(void){
-#ifdef DEBUG_CONSTRUCTORS
-    fprintf(stderr, "%s:%s(pid=%d) called\n",
-	    __FILE__,__FUNCTION__, getpid());
+//  ULAPI-side cleanup. Called at shared library unload time.
+static void ulapi_hal_lib_cleanup(void)
+{
+    if (debug_tors)
+	fprintf(stderr, "%s:%s(pid=%d) called\n",
+		__FILE__,__FUNCTION__, getpid());
+
+    // detach the RTAPI data segment
     hal_rtapi_detach();
+    // unload ulapi shared object.
     dlclose(ulapi_so);
-#endif
 }
 #endif
 
@@ -3511,7 +3513,7 @@ static void ulapi_hal_lib_cleanup(void){
 
 static void rtapi_hal_lib_init(int phase)
 {
-#ifdef DEBUG_CONSTRUCTORS
+#ifdef DEBUG_RTAPI_CONSTRUCTORS
     rtapi_print_msg(RTAPI_MSG_DBG,"%s:%s(phase=%d) called\n",
 		    __FILE__,__FUNCTION__, phase);
 #endif
@@ -3526,7 +3528,7 @@ static void rtapi_hal_lib_init(int phase)
 
 static void rtapi_hal_lib_cleanup(int phase)
 {
-#ifdef DEBUG_CONSTRUCTORS
+#ifdef DEBUG_RTAPI_CONSTRUCTORS
     rtapi_print_msg(RTAPI_MSG_DBG,"%s:%s(%d) called\n",
 		    __FILE__,__FUNCTION__, phase);
 #endif
