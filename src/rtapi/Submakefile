@@ -27,6 +27,15 @@ ULAPI_SRCS := \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
 
+ULAPISO := ../lib/ulapi.so
+$(ULAPISO): $(call TOOBJS, $(ULAPI_SRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(RT_LDFLAGS)
+
+TARGETS += $(ULAPISO)
 
 # RTAPI:  ../rtlib/*
 #
