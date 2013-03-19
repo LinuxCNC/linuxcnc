@@ -345,6 +345,7 @@ static void proc_clean(void)
     }
 }
 
+EXPORT_SYMBOL(rtapi_dir);
 
 #endif /* CONFIG_PROC_FS */
 #endif /* RTAPI_PROC_H */
