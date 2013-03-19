@@ -415,8 +415,3 @@ int _rtapi_exit(int module_id) {
 
 #endif  /* ULAPI */
 
-
-#ifdef EXPORT_SYMS
-EXPORT_SYMBOL(_rtapi_init);
-EXPORT_SYMBOL(_rtapi_exit);
-#endif

@@ -184,10 +184,3 @@ long long int _rtapi_get_clocks(void) {
 }
 
 
-#ifdef EXPORT_SYMS
-EXPORT_SYMBOL(_rtapi_clock_set_period);
-EXPORT_SYMBOL(_rtapi_get_time);
-EXPORT_SYMBOL(_rtapi_get_clocks);
-EXPORT_SYMBOL(_rtapi_delay);
-EXPORT_SYMBOL(_rtapi_delay_max);
-#endif  /* MODULE */

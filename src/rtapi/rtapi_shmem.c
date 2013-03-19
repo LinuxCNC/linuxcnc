@@ -499,9 +499,4 @@ int _rtapi_shmem_getptr(int shmem_id, void **ptr) {
     return 0;
 }
 
-#ifdef EXPORT_SYMS
-EXPORT_SYMBOL(_rtapi_shmem_new);
-EXPORT_SYMBOL(_rtapi_shmem_delete);
-EXPORT_SYMBOL(_rtapi_shmem_getptr);
-#endif  /* RTAPI */
 #endif  /* BUILD_SYS_KBUILD */
