@@ -490,7 +490,7 @@ int _rtapi_task_self(void) {
 
 #endif  /* RTAPI */
 
-#ifdef MODULE
+#ifdef EXPORT_SYMS
 EXPORT_SYMBOL(_rtapi_prio_highest);
 EXPORT_SYMBOL(_rtapi_prio_lowest);
 EXPORT_SYMBOL(_rtapi_prio_next_higher);
