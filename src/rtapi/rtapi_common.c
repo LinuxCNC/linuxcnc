@@ -42,7 +42,7 @@ module_data *module_array = NULL;
    functions
 */
 
-rtapi_switch_t rtapi_switch = {
+static rtapi_switch_t rtapi_switch_struct = {
     // init & exit functions
     .rtapi_init = &_rtapi_init,
     .rtapi_exit = &_rtapi_exit,
@@ -89,6 +89,8 @@ rtapi_switch_t rtapi_switch = {
     .rtapi_outw = &_rtapi_outw,
     .rtapi_inw = &_rtapi_inw,
 };
+
+rtapi_switch_t *rtapi_switch = &rtapi_switch_struct;
 
 // this is the only symbol exported by RTAPI
 #ifdef MODULE

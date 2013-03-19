@@ -10,13 +10,11 @@ INCLUDES += rtapi
 ##########################################
 # defaults for all thread styles
 
-# ULAPI:  ../lib/liblinuxcnchal.so
+# ULAPI:  ../lib/ulapi$THREADSTYLE.so (TBD)
 #
 # List of sources whose objects objects/rtapi/*.o link into
-# ../lib/liblinuxcnchal.so; see hal/Submakefile
+# ../lib/ulapi$THREADSTYLE.soiblinuxcnchal.so;
 #
-# hal/Submakefile includes these in USERSRCS so that .o files are
-# built, so no need to do that here
 ULAPI_SRCS := \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_task.c \
@@ -27,6 +25,7 @@ ULAPI_SRCS := \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
 
+$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ULAPISO := ../lib/ulapi.so
 $(ULAPISO): $(call TOOBJS, $(ULAPI_SRCS))
 	$(ECHO) Creating shared library $(notdir $@)
@@ -35,6 +34,7 @@ $(ULAPISO): $(call TOOBJS, $(ULAPI_SRCS))
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(RT_LDFLAGS)
 
+USERSRCS += $(ULAPI_SRCS)
 TARGETS += $(ULAPISO)
 
 # RTAPI:  ../rtlib/*
