@@ -90,6 +90,11 @@ rtapi_switch_t rtapi_switch = {
     .rtapi_inw = &_rtapi_inw,
 };
 
+// this is the only symbol exported by RTAPI
+#ifdef MODULE
+EXPORT_SYMBOL(rtapi_switch);
+#endif
+
 
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
