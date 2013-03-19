@@ -37,6 +37,60 @@ shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
 #endif
 
+
+/* define the rtapi_switch struct, with pointers to all rtapi_*
+   functions
+*/
+
+rtapi_switch_t rtapi_switch = {
+    // init & exit functions
+    .rtapi_init = &_rtapi_init,
+    .rtapi_exit = &_rtapi_exit,
+    // messaging functions
+    .rtapi_snprintf = &_rtapi_snprintf,
+    .rtapi_vsnprintf = &_rtapi_vsnprintf,
+    .rtapi_print = &_rtapi_print,
+    .rtapi_print_msg = &_rtapi_print_msg,
+    .rtapi_set_msg_level = &_rtapi_set_msg_level,
+    .rtapi_get_msg_level = &_rtapi_get_msg_level,
+#ifdef RTAPI
+    .rtapi_set_msg_handler = &_rtapi_set_msg_handler,
+    .rtapi_get_msg_handler = &_rtapi_get_msg_handler,
+#endif
+    // time functions
+#ifdef RTAPI
+    .rtapi_clock_set_period = &_rtapi_clock_set_period,
+    .rtapi_delay = &_rtapi_delay,
+    .rtapi_delay_max = &_rtapi_delay_max,
+#endif
+    .rtapi_get_time = &_rtapi_get_time,
+    .rtapi_get_clocks = &_rtapi_get_clocks,
+    // task functions
+    .rtapi_prio_highest = &_rtapi_prio_highest,
+    .rtapi_prio_lowest = &_rtapi_prio_lowest,
+    .rtapi_prio_next_higher = &_rtapi_prio_next_higher,
+    .rtapi_prio_next_lower = &_rtapi_prio_next_lower,
+#ifdef RTAPI
+    .rtapi_task_new = &_rtapi_task_new,
+    .rtapi_task_delete = &_rtapi_task_delete,
+    .rtapi_task_start = &_rtapi_task_start,
+    .rtapi_wait = &_rtapi_wait,
+    .rtapi_task_resume = &_rtapi_task_resume,
+    .rtapi_task_pause = &_rtapi_task_pause,
+    .rtapi_task_self = &_rtapi_task_self,
+#endif
+    // shared memory functions
+    .rtapi_shmem_new = &_rtapi_shmem_new,
+    .rtapi_shmem_delete = &_rtapi_shmem_delete,
+    .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
+    // i/o related functions
+    .rtapi_outb = &_rtapi_outb,
+    .rtapi_inb = &_rtapi_inb,
+    .rtapi_outw = &_rtapi_outw,
+    .rtapi_inw = &_rtapi_inw,
+};
+
+
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
 void init_rtapi_data_hook(rtapi_data_t * data);

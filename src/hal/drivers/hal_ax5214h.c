@@ -100,7 +100,9 @@
 #define FASTIO  
 
 #ifdef FASTIO
+#undef rtapi_inb
 #define rtapi_inb inb
+#undef rtapi_outb
 #define rtapi_outb outb
 #ifdef BUILD_SYS_USER_DSO
 #include <sys/io.h> 

@@ -51,7 +51,7 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 #endif
 
 #ifdef BUILD_SYS_USER_DSO
-long int rtapi_clock_set_period(long int nsecs) {
+long int _rtapi_clock_set_period(long int nsecs) {
 #ifndef RTAPI_TIME_NO_CLOCK_MONOTONIC
     struct timespec res = { 0, 0 };
 #endif
@@ -79,7 +79,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     return period;
 }
 #else  /* BUILD_SYS_KBUILD  */
-long int rtapi_clock_set_period(long int nsecs) {
+long int _rtapi_clock_set_period(long int nsecs) {
     RTIME counts, got_counts;
 
     if (nsecs == 0) {
@@ -120,7 +120,7 @@ long int rtapi_clock_set_period(long int nsecs) {
 // rtapi_delay_hook MUST be implemented by all threads systems
 void rtapi_delay_hook(long int nsec);
 
-void rtapi_delay(long int nsec)
+void _rtapi_delay(long int nsec)
 {
     if (nsec > max_delay) {
 	nsec = max_delay;
@@ -129,7 +129,7 @@ void rtapi_delay(long int nsec)
 }
 
 
-long int rtapi_delay_max(void)
+long int _rtapi_delay_max(void)
 {
     return max_delay;
 }
@@ -141,11 +141,11 @@ long int rtapi_delay_max(void)
 #ifdef HAVE_RTAPI_GET_TIME_HOOK
 long long int rtapi_get_time_hook(void);
 
-long long int rtapi_get_time(void) {
+long long int _rtapi_get_time(void) {
     return rtapi_get_time_hook();
 }
 #elif defined(RTAPI)
-long long int rtapi_get_time(void) {
+long long int _rtapi_get_time(void) {
 
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -153,7 +153,7 @@ long long int rtapi_get_time(void) {
 }
 
 #else /* ULAPI */
-long long rtapi_get_time(void)
+long long _rtapi_get_time(void)
 {
 	struct timeval tv;
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -167,7 +167,7 @@ long long rtapi_get_time(void)
 long long int rtapi_get_clocks_hook(void);
 #endif
 
-long long int rtapi_get_clocks(void) {
+long long int _rtapi_get_clocks(void) {
 #ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
     long long int retval;
 
@@ -185,9 +185,9 @@ long long int rtapi_get_clocks(void) {
 
 
 #ifdef MODULE
-EXPORT_SYMBOL(rtapi_clock_set_period);
-EXPORT_SYMBOL(rtapi_get_time);
-EXPORT_SYMBOL(rtapi_get_clocks);
-EXPORT_SYMBOL(rtapi_delay);
-EXPORT_SYMBOL(rtapi_delay_max);
+EXPORT_SYMBOL(_rtapi_clock_set_period);
+EXPORT_SYMBOL(_rtapi_get_time);
+EXPORT_SYMBOL(_rtapi_get_clocks);
+EXPORT_SYMBOL(_rtapi_delay);
+EXPORT_SYMBOL(_rtapi_delay_max);
 #endif  /* MODULE */

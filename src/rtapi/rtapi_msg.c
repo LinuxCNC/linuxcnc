@@ -50,11 +50,11 @@ static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 #ifdef RTAPI
 
-rtapi_msg_handler_t rtapi_get_msg_handler(void) {
+rtapi_msg_handler_t _rtapi_get_msg_handler(void) {
     return rtapi_msg_handler;
 }
 
-void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
+void _rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
     if (handler == NULL)
 	rtapi_msg_handler = default_rtapi_msg_handler;
     else
@@ -62,7 +62,7 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 }
 #endif  /* RTAPI */
 
-void rtapi_print(const char *fmt, ...) {
+void _rtapi_print(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
@@ -71,7 +71,7 @@ void rtapi_print(const char *fmt, ...) {
 }
 
 
-void rtapi_print_msg(int level, const char *fmt, ...) {
+void _rtapi_print_msg(int level, const char *fmt, ...) {
     va_list args;
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
@@ -81,7 +81,7 @@ void rtapi_print_msg(int level, const char *fmt, ...) {
     }
 }
 
-int rtapi_snprintf(char *buf, unsigned long int size,
+int _rtapi_snprintf(char *buf, unsigned long int size,
 		   const char *fmt, ...) {
     va_list args;
     int result;
@@ -92,12 +92,12 @@ int rtapi_snprintf(char *buf, unsigned long int size,
     return result;
 }
 
-int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt,
+int _rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt,
 		    va_list ap) {
     return vsnprintf(buf, size, fmt, ap);
 }
 
-int rtapi_set_msg_level(int level) {
+int _rtapi_set_msg_level(int level) {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
 	return -EINVAL;
     }
@@ -105,17 +105,17 @@ int rtapi_set_msg_level(int level) {
     return 0;
 }
 
-int rtapi_get_msg_level() { 
+int _rtapi_get_msg_level() {
     return msg_level;
 }
 
 #ifdef MODULE
-EXPORT_SYMBOL(rtapi_snprintf);
-EXPORT_SYMBOL(rtapi_vsnprintf);
-EXPORT_SYMBOL(rtapi_print);
-EXPORT_SYMBOL(rtapi_print_msg);
-EXPORT_SYMBOL(rtapi_set_msg_level);
-EXPORT_SYMBOL(rtapi_get_msg_level);
-EXPORT_SYMBOL(rtapi_set_msg_handler);
-EXPORT_SYMBOL(rtapi_get_msg_handler);
+EXPORT_SYMBOL(_rtapi_snprintf);
+EXPORT_SYMBOL(_rtapi_vsnprintf);
+EXPORT_SYMBOL(_rtapi_print);
+EXPORT_SYMBOL(_rtapi_print_msg);
+EXPORT_SYMBOL(_rtapi_set_msg_level);
+EXPORT_SYMBOL(_rtapi_get_msg_level);
+EXPORT_SYMBOL(_rtapi_set_msg_handler);
+EXPORT_SYMBOL(_rtapi_get_msg_handler);
 #endif

@@ -52,15 +52,15 @@ RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 #    define PRIO_LT(a,b) (a<b)
 #endif
 
-int rtapi_prio_highest(void) {
+int _rtapi_prio_highest(void) {
     return PRIO_HIGHEST;
 }
 
-int rtapi_prio_lowest(void) {
+int _rtapi_prio_lowest(void) {
     return PRIO_LOWEST;
 }
 
-int rtapi_prio_next_higher(int prio) {
+int _rtapi_prio_next_higher(int prio) {
     /* next higher priority for arg */
     prio PRIO_INCR;
 
@@ -73,7 +73,7 @@ int rtapi_prio_next_higher(int prio) {
     return prio;
 }
 
-int rtapi_prio_next_lower(int prio) {
+int _rtapi_prio_next_lower(int prio) {
     /* next lower priority for arg */
     prio PRIO_DECR;
 
@@ -94,7 +94,7 @@ int rtapi_prio_next_lower(int prio) {
 int rtapi_task_new_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_new(void (*taskcode) (void*), void *arg,
+int _rtapi_task_new(void (*taskcode) (void*), void *arg,
 		   int prio, int owner, unsigned long int stacksize, 
 		   int uses_fp, char *name, int cpu_id) {
     int task_id;
@@ -233,7 +233,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 int rtapi_task_delete_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_delete(int task_id) {
+int _rtapi_task_delete(int task_id) {
     task_data *task;
     int retval = 0;
 
@@ -296,10 +296,10 @@ int rtapi_task_delete(int task_id) {
 
 /* all threads systems must define this hook */
 int rtapi_task_start_hook(task_data *task, int task_id,
-			  unsigned long int period_nsec);
+			   unsigned long int period_nsec);
 
 #ifndef MODULE  /* userspace RTAPI */
-int rtapi_task_start(int task_id, unsigned long int period_nsec) {
+int _rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task_data *task;
 
     if (task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -322,7 +322,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     return rtapi_task_start_hook(task,task_id,0);
 }
 #else  /* kernel RTAPI */
-int rtapi_task_start(int task_id, unsigned long int period_nsec) {
+int _rtapi_task_start(int task_id, unsigned long int period_nsec) {
     int retval;
     task_data *task;
 
@@ -359,7 +359,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 int rtapi_task_stop_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_stop(int task_id) {
+int _rtapi_task_stop(int task_id) {
     task_data *task;
 
     if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -381,7 +381,7 @@ int rtapi_task_stop(int task_id) {
 int rtapi_task_pause_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_pause(int task_id) {
+int _rtapi_task_pause(int task_id) {
     task_data *task;
 #ifdef MODULE
     task_state_t oldstate;
@@ -425,7 +425,7 @@ int rtapi_task_pause(int task_id) {
 extern void rtapi_wait_hook(void);
 #endif
 
-void rtapi_wait(void) {
+void _rtapi_wait(void) {
 #ifdef HAVE_RTAPI_WAIT_HOOK
     rtapi_wait_hook();
 #endif
@@ -436,7 +436,7 @@ void rtapi_wait(void) {
 int rtapi_task_resume_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_resume(int task_id) {
+int _rtapi_task_resume(int task_id) {
     task_data *task;
 #ifdef MODULE
     int retval;
@@ -479,7 +479,7 @@ int rtapi_task_resume(int task_id) {
 int rtapi_task_self_hook(void);
 #endif
 
-int rtapi_task_self(void) {
+int _rtapi_task_self(void) {
 #ifdef HAVE_RTAPI_TASK_SELF_HOOK
     return rtapi_task_self_hook();
 #else
@@ -491,15 +491,15 @@ int rtapi_task_self(void) {
 #endif  /* RTAPI */
 
 #ifdef MODULE
-EXPORT_SYMBOL(rtapi_prio_highest);
-EXPORT_SYMBOL(rtapi_prio_lowest);
-EXPORT_SYMBOL(rtapi_prio_next_higher);
-EXPORT_SYMBOL(rtapi_prio_next_lower);
-EXPORT_SYMBOL(rtapi_task_new);
-EXPORT_SYMBOL(rtapi_task_delete);
-EXPORT_SYMBOL(rtapi_task_start);
-EXPORT_SYMBOL(rtapi_wait);
-EXPORT_SYMBOL(rtapi_task_resume);
-EXPORT_SYMBOL(rtapi_task_pause);
-EXPORT_SYMBOL(rtapi_task_self);
+EXPORT_SYMBOL(_rtapi_prio_highest);
+EXPORT_SYMBOL(_rtapi_prio_lowest);
+EXPORT_SYMBOL(_rtapi_prio_next_higher);
+EXPORT_SYMBOL(_rtapi_prio_next_lower);
+EXPORT_SYMBOL(_rtapi_task_new);
+EXPORT_SYMBOL(_rtapi_task_delete);
+EXPORT_SYMBOL(_rtapi_task_start);
+EXPORT_SYMBOL(_rtapi_wait);
+EXPORT_SYMBOL(_rtapi_task_resume);
+EXPORT_SYMBOL(_rtapi_task_pause);
+EXPORT_SYMBOL(_rtapi_task_self);
 #endif
