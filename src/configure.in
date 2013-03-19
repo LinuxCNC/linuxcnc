@@ -619,13 +619,19 @@ if test "$THREADS" = 'rtai' -o \(  "$THREADS" = 'xenomai-kernel' \); then
     AC_MSG_CHECKING([for location of kernel headers])
     AC_ARG_WITH(kernel-headers,
 	[  --with-kernel-headers=<directory>       Location for kernel headers],
-	[ KERNELDIR="$withval"	],
-	[ KERNELDIR="/usr/src/linux-headers-$KERNEL_VERSION" ])
+	[ KERNELDIRS="$withval"	],
+	[ KERNELDIRS="/usr/src/linux-headers-$KERNEL_VERSION";
+	  KERNELDIRS="$KERNELDIRS /usr/src/kernels/$KERNEL_VERSION" ])
 	
-    if test -d "$KERNELDIR"; then
-       AC_MSG_RESULT(using kernel headers from $KERNELDIR)
-    else
-       AC_MSG_ERROR([kernel header directory not found: $KERNELDIR ])
+    for DIR in $KERNELDIRS; do
+        if test -d "$DIR"; then
+	    KERNELDIR="$DIR"
+    	    AC_MSG_RESULT(using kernel headers from $KERNELDIR)
+	    break
+	fi
+    done
+    if test -z "$KERNELDIR"; then
+       AC_MSG_ERROR([kernel headers not found in: $KERNELDIR ])
     fi
 fi
 
