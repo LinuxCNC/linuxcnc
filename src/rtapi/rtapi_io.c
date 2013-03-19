@@ -79,7 +79,7 @@ unsigned short _rtapi_inw(unsigned int port) {
 #endif
 
 
-#ifdef MODULE
+#ifdef EXPORT_SYMS
 EXPORT_SYMBOL(_rtapi_outb);
 EXPORT_SYMBOL(_rtapi_inb);
 EXPORT_SYMBOL(_rtapi_outw);

@@ -109,7 +109,7 @@ int _rtapi_get_msg_level() {
     return msg_level;
 }
 
-#ifdef MODULE
+#ifdef EXPORT_SYMS
 EXPORT_SYMBOL(_rtapi_snprintf);
 EXPORT_SYMBOL(_rtapi_vsnprintf);
 EXPORT_SYMBOL(_rtapi_print);
