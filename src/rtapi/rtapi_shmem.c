@@ -61,7 +61,7 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 *                           USERLAND THREADS                           *
 ************************************************************************/
 
-int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
+int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     shmem_data *shmem;
     struct shmid_ds d;
     int i, ret;
@@ -164,7 +164,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 }
 
 
-int rtapi_shmem_getptr(int handle, void **ptr) {
+int _rtapi_shmem_getptr(int handle, void **ptr) {
     shmem_data *shmem;
     if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -181,7 +181,7 @@ int rtapi_shmem_getptr(int handle, void **ptr) {
 }
 
 
-int rtapi_shmem_delete(int handle, int module_id) {
+int _rtapi_shmem_delete(int handle, int module_id) {
     struct shmid_ds d;
     int r1, r2;
     shmem_data *shmem;
@@ -250,7 +250,7 @@ int rtapi_shmem_delete(int handle, int module_id) {
 *                            KERNEL THREADS                            *
 ************************************************************************/
 
-int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
+int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     int n;
     int shmem_id;
     shmem_data *shmem;
@@ -410,7 +410,7 @@ static void check_memlock_limit(const char *where) {
 #endif /* ULAPI */
 
 
-int rtapi_shmem_delete(int shmem_id, int module_id) {
+int _rtapi_shmem_delete(int shmem_id, int module_id) {
     shmem_data *shmem;
     int manage_lock;
 
@@ -500,8 +500,8 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr) {
 }
 
 #ifdef RTAPI
-EXPORT_SYMBOL(rtapi_shmem_new);
-EXPORT_SYMBOL(rtapi_shmem_delete);
-EXPORT_SYMBOL(rtapi_shmem_getptr);
+EXPORT_SYMBOL(_rtapi_shmem_new);
+EXPORT_SYMBOL(_rtapi_shmem_delete);
+EXPORT_SYMBOL(_rtapi_shmem_getptr);
 #endif  /* RTAPI */
 #endif  /* BUILD_SYS_KBUILD */

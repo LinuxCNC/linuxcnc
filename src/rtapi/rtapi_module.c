@@ -190,7 +190,7 @@ simply register that another module is using the RTAPI.
 For other RTOSes, things might be different, especially
 if the RTOS does not use modules. */
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
     int n, module_id;
     module_data *module;
 
@@ -228,7 +228,7 @@ int rtapi_init(const char *modname) {
     return module_id;
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
     int retval;
 
     rtapi_mutex_get(&(rtapi_data->mutex));
@@ -301,7 +301,7 @@ static int module_delete(int module_id) {
 
 extern rtapi_data_t *rtapi_init_hook();
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
     int n, module_id;
     module_data *module;
 
@@ -365,7 +365,7 @@ int rtapi_init(const char *modname) {
     return module_id;
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
     module_data *module;
     int n;
 
@@ -417,6 +417,6 @@ int rtapi_exit(int module_id) {
 
 
 #ifdef MODULE
-EXPORT_SYMBOL(rtapi_init);
-EXPORT_SYMBOL(rtapi_exit);
+EXPORT_SYMBOL(_rtapi_init);
+EXPORT_SYMBOL(_rtapi_exit);
 #endif
