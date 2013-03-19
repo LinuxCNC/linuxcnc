@@ -71,6 +71,8 @@ MODULE_LICENSE("GPL");
 #if defined(ULAPI)
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
+#include <stdlib.h>		/* exit() */
+#include <dlfcn.h>              /* for dlopen/dlsym ulapi-$THREADSTYLE.so */
 #endif
 
 char *hal_shmem_base = 0;
@@ -3411,7 +3413,7 @@ int hal_rtapi_detach()
 static void __attribute__ ((constructor)) ulapi_hal_lib_init(void);
 static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 
-#undef DEBUG_CONSTRUCTORS
+#define DEBUG_CONSTRUCTORS
 
 #ifdef DEBUG_CONSTRUCTORS
 #include <stdio.h>  // ok since ULAPI only
@@ -3420,13 +3422,50 @@ static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 // ULAPI-side initialization, executed at shared library load time
 // This will be executed before any function like hal_init() can be
 // called by using code.
+
+// this is the pointer through which _all_ RTAPI/ULAPI references go:
+rtapi_switch_t *rtapi_switch;
+static void *ulapi_so; // dlopen handle for ULAPI .so
+static char *ulapi_lib = "ulapi.so";
+
 static void ulapi_hal_lib_init(void)
 {
+    const char *errmsg;
+    rtapi_switch_t **symref;
+
 #ifdef DEBUG_CONSTRUCTORS
     // RTAPI isnt initialized here yet, so rtapi_print_msg wont work
     fprintf(stderr, "%s:%s(pid=%d) called\n",
 	    __FILE__,__FUNCTION__, getpid());
 #endif
+
+    // dynload the proper ulapi.so:
+    if ((ulapi_so = dlopen(ulapi_lib, RTLD_LAZY)) == NULL) {
+	errmsg = dlerror();
+#ifdef DEBUG_CONSTRUCTORS
+	fprintf(stderr,"HAL_LIB: FATAL - cant dlopen(%s): %s\n",
+		ulapi_lib, errmsg ? errmsg : "NULL");
+#endif
+	exit(1);
+    }
+    // resolve the pointer to rtapi_switch
+    if ((symref = (rtapi_switch_t **) dlsym(ulapi_so, "rtapi_switch")) != NULL) {
+	// at this point it is safe to call RTAPI functions
+	// fprintf(stderr,"successfully loaded ULAPI '%s': '%s'\n",
+	//         ulapi_lib, rtapi_switch->name);
+	fprintf(stderr,"successfully loaded ULAPI '%s' rtapi_switch=%p\n",
+		ulapi_lib, *symref);
+	rtapi_switch = *symref;
+
+    } else {
+#ifdef DEBUG_CONSTRUCTORS
+	errmsg = dlerror();
+	fprintf(stderr,"HAL_LIB: FATAL - resolving %s: cant dlsym(rtapi_switch): %s\n",
+		ulapi_lib, errmsg ? errmsg : "NULL");
+#endif
+	exit(1);
+    }
+    // and off we go!
 
     // previously the HAL shm segment was attached only during the
     // first hal_init(). Do that now during at shlib load time
@@ -3441,6 +3480,7 @@ static void ulapi_hal_lib_cleanup(void){
     fprintf(stderr, "%s:%s(pid=%d) called\n",
 	    __FILE__,__FUNCTION__, getpid());
     hal_rtapi_detach();
+    dlclose(ulapi_so);
 #endif
 }
 #endif
@@ -3582,4 +3622,3 @@ EXPORT_SYMBOL(halpr_find_pin_by_sig);
 #endif /* rtapi */
 
 
-rtapi_switch_t *rtapi_switch;
