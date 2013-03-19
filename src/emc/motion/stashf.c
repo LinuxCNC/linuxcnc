@@ -17,6 +17,7 @@
 
 #include "stashf.h"
 #include "dbuf.h"
+#include "rtapi.h"
 #include "rtapi_errno.h"
 #include "rtapi_string.h"
 #include <stdarg.h>
@@ -115,7 +116,6 @@ int stashf(struct dbuf_iter *o, const char *fmt, ...) {
 }
 
 #ifdef RTAPI
-extern int rtapi_snprintf(char *, unsigned long, const char *, ...);
 #define PRINT(...) rtapi_snprintf(buf, n, ## __VA_ARGS__)
 #else
 #define PRINT(...) snprintf(buf, n, ## __VA_ARGS__)
