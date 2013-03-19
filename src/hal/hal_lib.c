@@ -3580,3 +3580,6 @@ EXPORT_SYMBOL(halpr_find_funct_by_owner);
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 #endif /* rtapi */
+
+
+rtapi_switch_t *rtapi_switch;
