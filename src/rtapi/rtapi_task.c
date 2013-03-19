@@ -490,16 +490,3 @@ int _rtapi_task_self(void) {
 
 #endif  /* RTAPI */
 
-#ifdef EXPORT_SYMS
-EXPORT_SYMBOL(_rtapi_prio_highest);
-EXPORT_SYMBOL(_rtapi_prio_lowest);
-EXPORT_SYMBOL(_rtapi_prio_next_higher);
-EXPORT_SYMBOL(_rtapi_prio_next_lower);
-EXPORT_SYMBOL(_rtapi_task_new);
-EXPORT_SYMBOL(_rtapi_task_delete);
-EXPORT_SYMBOL(_rtapi_task_start);
-EXPORT_SYMBOL(_rtapi_wait);
-EXPORT_SYMBOL(_rtapi_task_resume);
-EXPORT_SYMBOL(_rtapi_task_pause);
-EXPORT_SYMBOL(_rtapi_task_self);
-#endif
