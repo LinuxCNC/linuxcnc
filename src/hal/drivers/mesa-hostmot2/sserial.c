@@ -630,6 +630,18 @@ int hm2_sserial_read_globals(hostmot2_t *hm2,
                     chan->globals[chan->num_globals - 1] = data; 
                 }
             }
+            else if (rectype == 0xB0){
+                char * type;
+                hm2_sserial_mode_t mode;
+                addr = hm2_sserial_get_bytes(hm2, chan, &mode, addr, 4);
+                addr = hm2_sserial_get_bytes(hm2, chan, &mode.NameString, addr, -1);
+                type = (mode.ModeType == 0x01)? "Software" : "Hardware";
+                rtapi_print("Board %s %s Mode %i = %s\n", 
+                            chan->name, 
+                            type,
+                            mode.ModeIndex, 
+                            mode.NameString);
+            }
         } while (addr > 0);
     }
     

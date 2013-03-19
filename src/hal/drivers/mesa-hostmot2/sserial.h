@@ -21,7 +21,7 @@
 
 #define HM2_SSERIAL_TYPE_8I20               0x30324938  // '8i20' as 4 ascii
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // More to be added later.
-#define HM2_SSERIAL_MAX_STRING_LENGTH       32
+#define HM2_SSERIAL_MAX_STRING_LENGTH       48
 
 //Commands etc
 #define LBPNONVOL_flag      0xCC000000
