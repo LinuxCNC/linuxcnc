@@ -1,0 +1,15 @@
+This is a simulation of an XYZ axis mill.
+with metric units
+
+The main purpose of this is to show the posibilities 
+offered by gscreen to design custom screens.
+
+This screen is based of the design of mocca, an GUI coded in FreePascal.
+
+gscreen and moccapy is using Python instead.
+
+Feel free to send any comment to
+
+gmoccapy@web.de
+
+
