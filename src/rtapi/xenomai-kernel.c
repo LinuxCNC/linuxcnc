@@ -118,10 +118,7 @@ long long int rtapi_get_clocks_hook(void) {
 
 void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
 				 RTIME *got_counts) {
-
-    *counts = rt_timer_ns2ticks((RTIME) nsecs);
-    rt_timer_set_mode(*counts);
-    rtapi_data->timer_period = *got_counts = rt_timer_ticks2ns(*counts);
+    rtapi_data->timer_period = *got_counts = (RTIME) nsecs; 
 }
 
 
