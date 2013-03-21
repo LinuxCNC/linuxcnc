@@ -226,6 +226,11 @@ class HandlerClass:
             else:
                 self.widgets["home_%s"%letter].set_text(" ")
 
+    def on_show_dtg_pressed(self, widget):
+        data = widget.get_active()
+        self.widgets.dtg_vbox.set_visible(data)
+        self.gscreen.set_show_dtg(data)
+
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
@@ -241,6 +246,7 @@ class HandlerClass:
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
         self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
         self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
+        self.widgets.show_dtg.connect("clicked", self.on_show_dtg_pressed)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -299,6 +305,8 @@ class HandlerClass:
         self.on_abs_colorbutton_color_set(None)
         self.on_rel_colorbutton_color_set(None)
         self.on_dtg_colorbutton_color_set(None)
+        self.widgets.show_dtg.set_active(self.data.show_dtg)
+        self.on_show_dtg_pressed(self.widgets.show_dtg)
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
