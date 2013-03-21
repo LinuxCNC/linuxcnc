@@ -3286,9 +3286,10 @@ static int emc_pendant(ClientData clientdata,
 		    inBytes[3] = inBytes[3] | 0xc0;
 		}
 	    }
-
-	    sprintf(interp->result, "%i %i %d %d %i", inBytes[0],
-		    inBytes[1], inBytes[2], inBytes[3], inBytes[4]);
+      char buf[80];
+	    snprintf(buf, sizeof(buf), "%i %i %d %d %i", inBytes[0], inBytes[1],
+        inBytes[2], inBytes[3], inBytes[4]);
+      Tcl_SetResult(interp, buf,TCL_VOLATILE);
 	    return TCL_OK;
 	}
     }
