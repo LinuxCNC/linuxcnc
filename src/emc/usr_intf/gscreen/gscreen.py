@@ -280,6 +280,7 @@ class Data:
         self.motion_line = 0
         self.id = 0
         self.dtg = 0.0
+        self.show_dtg = False
         self.velocity = 0.0
         self.delay = 0.0
         self.preppedtool = None
@@ -690,6 +691,7 @@ class Gscreen:
         self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
         self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
         self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
+        self.data.show_dtg = self.prefs.getpref('show_dtg', False, bool)
 
     def init_theme_pref(self):
         self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
