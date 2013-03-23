@@ -1,3 +1,26 @@
+ver. 0.8.6
+- all buttons on settings now with active back color "yellow"
+- added a button to set logging or not, will add later a option to 
+  store the logging in a hidden file
+- solved a bug switching fullscreen views, I missed to add 
+  a size request to window1 in glade file, 
+  smalest window possible = 979 x 782 
+- added a button to clear the statusbar information
+- new hal-pin jog_increment as float out pin
+- copied init increments from gscreen to gmoccapy and modified it
+  to not get added an contious at the end, I want it with first upper
+  letter and as first position, to not get problems while creating the 
+  buttons dynamecaly
+- removed some print commands
+- changed the test for gremlin DRO from preferences to button state
+- made hal pins to conect MPG Wheels to the sliders
+	* gscreen.spindle_overide_counts
+	* gscreen.feed_overide_counts
+	* gscreen.max_vel_counts
+	* gscreen.jog_speed_counts
+  Does anyone know, why the connection in postgui hal change the jog counts by one and 
+  modify this way the scale from 100 to 101?
+
 ver. 0.8.5
 - included a button to toggle gremlin fullview
   but getting out of the fullscreen mode will hide the DRO not

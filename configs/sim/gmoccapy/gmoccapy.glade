@@ -4,6 +4,8 @@
   <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
+    <property name="width_request">979</property>
+    <property name="height_request">782</property>
     <property name="title" translatable="yes">moccapy</property>
     <property name="icon">icon/Logo.png</property>
     <child>
@@ -20,6 +22,7 @@
                 </child>
               </object>
               <packing>
+                <property name="expand">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -52,8 +55,8 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
                                           </object>
                                         </child>
@@ -234,10 +237,12 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_markup">Show or hide tool path</property>
                                             <signal name="toggled" handler="on_tbtn_view_tool_path_toggled"/>
                                             <child>
                                               <object class="GtkImage" id="imimg_toll_path">
                                                 <property name="visible">True</property>
+                                                <property name="tooltip_markup">Show or hide tool path</property>
                                                 <property name="pixbuf">icon/toolpath.png</property>
                                               </object>
                                             </child>
@@ -256,6 +261,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_markup">Show or hide dimensions</property>
                                             <signal name="toggled" handler="on_tbtn_view_dimension_toggled"/>
                                             <child>
                                               <object class="GtkImage" id="img_dimensions">
@@ -691,7 +697,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="tooltip_markup">show distance to go in preview window</property>
+                                    <property name="tooltip_markup">show distance to go in DRO</property>
                                     <property name="xalign">0.43000000715255737</property>
                                     <signal name="toggled" handler="on_tbtn_dtg_toggled"/>
                                   </object>
@@ -813,8 +819,8 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="joint_number">1</property>
                                         <property name="reference_type">1</property>
                                         <property name="actual">False</property>
                                         <attributes>
@@ -842,8 +848,8 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="joint_number">2</property>
                                         <property name="reference_type">1</property>
                                         <property name="actual">False</property>
                                         <attributes>
@@ -871,7 +877,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="tooltip_markup">toogle between metric and imperial units</property>
+                                    <property name="tooltip_markup">toogle between relative and absolut coordinates</property>
                                     <signal name="toggled" handler="on_tbtn_rel_toggled"/>
                                   </object>
                                   <packing>
@@ -887,7 +893,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="tooltip_markup">toggle between metric and d imperial units</property>
+                                    <property name="tooltip_markup">toggle between metric and  imperial units</property>
                                     <signal name="toggled" handler="on_tbtn_units_toggled"/>
                                   </object>
                                   <packing>
@@ -1300,6 +1306,7 @@
                                                   <object class="GtkHScale" id="scl_max_vel">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
+                                                    <property name="tooltip_markup">adjust max vel of machine</property>
                                                     <property name="adjustment">adj_max_vel</property>
                                                     <property name="show_fill_level">True</property>
                                                     <property name="digits">0</property>
@@ -1364,6 +1371,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
+                                                        <property name="tooltip_markup">reset feed overide to 100 %</property>
                                                         <signal name="clicked" handler="on_btn_feed_100_clicked"/>
                                                       </object>
                                                       <packing>
@@ -1381,6 +1389,7 @@
                                                   <object class="GtkHScale" id="scl_feed">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
+                                                    <property name="tooltip_markup">adjust feed overide</property>
                                                     <property name="adjustment">adj_feed</property>
                                                     <property name="lower_stepper_sensitivity">on</property>
                                                     <property name="upper_stepper_sensitivity">on</property>
@@ -1444,6 +1453,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_markup">switch csswitch flood coolant</property>
                                                 <property name="image">img_coolant_off</property>
                                                 <signal name="toggled" handler="on_tbtn_flood_toggled"/>
                                               </object>
@@ -1460,6 +1470,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_markup">switch miswitch mist coolant</property>
                                                 <property name="image">img_mist_off</property>
                                                 <signal name="toggled" handler="on_tbtn_mist_toggled"/>
                                               </object>
@@ -1539,6 +1550,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
+                                                        <property name="tooltip_markup">reset spindle overide to 100 %</property>
                                                         <signal name="clicked" handler="on_btn_spindle_100_clicked"/>
                                                       </object>
                                                       <packing>
@@ -1556,6 +1568,7 @@
                                                   <object class="GtkHScale" id="scl_spindle">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
+                                                    <property name="tooltip_markup">adjust spindle overide</property>
                                                     <property name="adjustment">adj_spindle</property>
                                                     <property name="digits">0</property>
                                                     <signal name="value_changed" handler="on_scl_spindle_value_changed"/>
@@ -1585,6 +1598,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="tooltip_markup">turn on spindle counterclockwise</property>
                                                         <property name="draw_indicator">False</property>
                                                         <property name="group">rbt_stop</property>
                                                         <signal name="clicked" handler="on_rbt_reverse_clicked"/>
@@ -1603,6 +1617,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="tooltip_markup">turn on spindle clockwise</property>
                                                         <property name="draw_indicator">False</property>
                                                         <property name="group">rbt_stop</property>
                                                         <signal name="clicked" handler="on_rbt_forward_clicked"/>
@@ -1623,6 +1638,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="tooltip_markup">stop spindle</property>
                                                         <property name="active">True</property>
                                                         <property name="draw_indicator">False</property>
                                                         <signal name="clicked" handler="on_rbt_stop_clicked"/>
@@ -1651,15 +1667,15 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
+                                                        <property name="z2_color">#ffff00000000</property>
+                                                        <property name="max">6000</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
                                                         <property name="z1_border">0.80000001192092896</property>
                                                         <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="max">6000</property>
-                                                        <property name="text_template">%i</property>
                                                         <property name="target_color">#a0a02020f0f0</property>
-                                                        <property name="bg_color">#bebebebebebe</property>
+                                                        <property name="text_template">%i</property>
                                                         <property name="z1_color">#ffffffff0000</property>
-                                                        <property name="z2_color">#ffff00000000</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="bg_color">#bebebebebebe</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -2515,10 +2531,34 @@
                             <property name="visible">True</property>
                             <property name="label_xalign">0.5</property>
                             <child>
-                              <object class="GtkStatusbar" id="statusbar1">
+                              <object class="GtkHBox" id="hbox15">
                                 <property name="visible">True</property>
-                                <property name="spacing">2</property>
-                                <property name="has_resize_grip">False</property>
+                                <child>
+                                  <object class="GtkStatusbar" id="statusbar1">
+                                    <property name="visible">True</property>
+                                    <property name="spacing">2</property>
+                                    <property name="has_resize_grip">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_clear_statusbar">
+                                    <property name="label" translatable="yes">Clear</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="tooltip_markup">Clear statusbar message</property>
+                                    <signal name="clicked" handler="on_btn_clear_statusbar_clicked"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="padding">5</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                             </child>
                             <child type="label">
@@ -2580,7 +2620,7 @@
                     <child>
                       <object class="GtkTable" id="tbl_setup_page">
                         <property name="visible">True</property>
-                        <property name="n_columns">3</property>
+                        <property name="n_columns">2</property>
                         <child>
                           <object class="GtkTable" id="table9">
                             <property name="visible">True</property>
@@ -2589,6 +2629,7 @@
                             <child>
                               <object class="GtkComboBox" id="theme_choice">
                                 <property name="visible">True</property>
+                                <property name="tooltip_markup">select a theme to apply</property>
                                 <property name="model">lstst_themes</property>
                                 <signal name="changed" handler="on_theme_choice_changed"/>
                                 <child>
@@ -2621,6 +2662,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">select color for relative DRO</property>
                                 <property name="color">#000000000000</property>
                                 <signal name="color_set" handler="on_rel_colorbutton_color_set"/>
                               </object>
@@ -2658,6 +2700,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">select color for absolut DRO</property>
                                 <property name="color">#000000000000</property>
                                 <signal name="color_set" handler="on_abs_colorbutton_color_set"/>
                               </object>
@@ -2673,6 +2716,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">select color for distance to go DRO</property>
                                 <property name="color">#000000000000</property>
                                 <signal name="color_set" handler="on_dtg_colorbutton_color_set"/>
                               </object>
@@ -2697,6 +2741,7 @@
                             <child>
                               <object class="GtkFileChooserButton" id="audio_error_chooser">
                                 <property name="visible">True</property>
+                                <property name="tooltip_markup">select warning sound</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -2730,6 +2775,7 @@
                             <child>
                               <object class="GtkFileChooserButton" id="audio_alert_chooser">
                                 <property name="visible">True</property>
+                                <property name="tooltip_markup">select alert sound</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -2753,6 +2799,7 @@
                               <object class="GtkSpinButton" id="grid_size">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="tooltip_markup">select grid size for preview window</property>
                                 <property name="invisible_char">&#x25CF;</property>
                                 <property name="adjustment">adj_grid_size</property>
                                 <property name="digits">3</property>
@@ -2806,14 +2853,16 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                            <property name="x_padding">5</property>
+                            <property name="y_padding">5</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkTable" id="tbl_settings_button">
                             <property name="visible">True</property>
-                            <property name="n_rows">6</property>
+                            <property name="n_rows">8</property>
                             <property name="n_columns">2</property>
                             <property name="homogeneous">True</property>
                             <child>
@@ -2855,6 +2904,7 @@ Fullscreen</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">make the GUI fullscreen</property>
                                 <signal name="toggled" handler="on_btn_fullscreen1_toggled"/>
                               </object>
                             </child>
@@ -2864,6 +2914,7 @@ Fullscreen</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">Hide the pointer for touch screen use</property>
                                 <signal name="toggled" handler="on_hide_cursor_toggled"/>
                               </object>
                               <packing>
@@ -2878,6 +2929,7 @@ Offsets</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">show the offsets in preview window</property>
                                 <signal name="toggled" handler="on_show_offsets_toggled"/>
                               </object>
                               <packing>
@@ -2890,26 +2942,13 @@ Offsets</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="btn_shut_down">
-                                <property name="label">gtk-quit</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_stock">True</property>
-                                <signal name="clicked" handler="on_btn_exit_clicked"/>
-                              </object>
-                              <packing>
-                                <property name="top_attach">5</property>
-                                <property name="bottom_attach">6</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkToggleButton" id="tbtn_show_dtg">
                                 <property name="label" translatable="yes">Show
  DTG</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">show DTG in preview window</property>
                                 <signal name="toggled" handler="on_tbtn_show_dtg_toggled"/>
                               </object>
                               <packing>
@@ -2972,6 +3011,7 @@ Offsets</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_markup">show the dro in preview window</property>
                                 <signal name="toggled" handler="on_tbtn_show_dro_toggled"/>
                               </object>
                               <packing>
@@ -2981,14 +3021,78 @@ Offsets</property>
                                 <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkButton" id="btn_shut_down">
+                                <property name="label">gtk-quit</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="tooltip_markup">Close gmoccapy</property>
+                                <property name="use_stock">True</property>
+                                <signal name="clicked" handler="on_btn_exit_clicked"/>
+                              </object>
+                              <packing>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleButton" id="tbtn_log_actions">
+                                <property name="label" translatable="yes">Log Actions</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="tooltip_markup">Log all button actions and messages</property>
+                                <signal name="toggled" handler="on_tbtn_log_actions_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lbl_space4">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">	</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lbl_space5">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">	</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lbl_space6">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">	</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
-                            <property name="x_options">GTK_EXPAND</property>
-                            <property name="y_options">GTK_EXPAND</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                            <property name="x_padding">5</property>
+                            <property name="y_padding">5</property>
                           </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
                         </child>
                       </object>
                       <packing>
@@ -3117,6 +3221,7 @@ Offsets</property>
                 </child>
               </object>
               <packing>
+                <property name="expand">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
@@ -3250,6 +3355,7 @@ Offsets</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="tooltip_markup">show usersshow user tabs</property>
                     <signal name="toggled" handler="on_tbtn_user_tabs_toggled"/>
                   </object>
                   <packing>
@@ -3393,6 +3499,7 @@ preview</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_markup">make the preview as large as possible</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled"/>
                   </object>
                   <packing>
@@ -4891,8 +4998,8 @@ preview</property>
     <signal name="mode_auto" handler="on_hal_status_mode_auto"/>
     <signal name="mode_manual" handler="on_hal_status_mode_manual"/>
     <signal name="not_all_homed" handler="on_hal_status_not_all_homed"/>
-    <signal name="mode_mdi" handler="on_hal_status_mode_mdi"/>
     <signal name="state_on" handler="on_hal_status_state_on"/>
+    <signal name="mode_mdi" handler="on_hal_status_mode_mdi"/>
     <signal name="file_loaded" handler="on_hal_status_file_loaded"/>
     <signal name="all_homed" handler="on_hal_status_all_homed"/>
     <signal name="interp_idle" handler="on_hal_status_interp_idle"/>

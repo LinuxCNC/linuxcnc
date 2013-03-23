@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.8.5"
+_RELEASE = "0.8.6"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -76,8 +76,11 @@ class HandlerClass:
         self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actios are allowed
         self.wait_tool_change = False # this is needed to get back to manual mode after a tool change
         self.macrobuttons =[]     # The list of all macrios defined in the INI file
-        self.log = True           # Should all button clicks be loged? This will be later be 
-                                  # set through the setings page
+        self.log = False          # decide if the actions should be loged
+        self.fo_counts = 0        # we need this to calculate the diference in jog counts to change the feed overide slider
+        self.so_counts = 0        # we need this to calculate the diference in jog counts to change the spindle overide slider
+        self.jv_counts = 0        # we need this to calculate the diference in jog counts to change the jog_vel slider
+        self.mv_counts = 0        # we need this to calculate the diference in jog counts to change the max_speed slider
 
     def initialize_preferences(self):
         self.data.theme_name = 'Follow System Theme'
@@ -101,8 +104,6 @@ class HandlerClass:
         self.gscreen.init_tooleditor()
         self.gscreen.init_gremlin()
         self.gscreen.init_embeded_terminal()
-#        self.data.theme_name = self.gscreen.prefs.getpref('gtk_theme', 'Follow System Theme', str)
-#        print(self.data.theme_name)
         self.gscreen.init_themes()
         self.gscreen.init_hide_cursor()
         self.gscreen.init_audio()
@@ -148,15 +149,22 @@ class HandlerClass:
         self.widgets.rbt_view_X.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Y.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_mist.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
+        self.widgets.btn_fullscreen1.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_fullsize_preview.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.hide_cursor.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_log_actions.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_mist.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_optional_blocks.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_optional_stops.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_show_dro.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_show_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.show_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
 # ToDo The colors are to heavy, there should be a color choise
 #      to distingish the button groups like numbers, axis and others
@@ -180,6 +188,18 @@ class HandlerClass:
         # Now we will build the option buttons to select the Jog-rates
         # We do this dinamecely, because users are able to set them in INI File
         # because of space on the screen only 10 items are alowed
+        # jogging increments
+        self.data.jog_increments = []
+        increments = self.gscreen.inifile.find("DISPLAY", "INCREMENTS")
+        if increments:
+            if "," in increments:
+                self.data.jog_increments = [i.strip() for i in increments.split(",")]
+            else:
+                self.data.jog_increments = increments.split()
+        else:
+            self.data.jog_increments = ["Continuous","1,000","0,100","0,010","0,001"]
+            self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
+
         Anzahl = len(self.data.jog_increments)
         if Anzahl > 10:
             print(_("To many increments given in INI File for this screen"))
@@ -242,6 +262,8 @@ class HandlerClass:
         self.widgets.tbtn_optional_stops.set_active(not self.gscreen.prefs.getpref('opstop', False))
         self.widgets.tbtn_show_dro.set_active(self.gscreen.prefs.getpref('enable_dro', False))
         self.widgets.show_offsets.set_active(self.gscreen.prefs.getpref('show_offsets', False))
+        self.log = self.gscreen.prefs.getpref('log_actions', False, bool)
+        self.widgets.tbtn_log_actions.set_active(self.log)
         self.widgets.tbtn_show_dtg.set_active(self.gscreen.prefs.getpref('show_dtg', False))
         self.unlock_code = self.gscreen.prefs.getpref('unlock_code', '123', str) # get unlock code
 
@@ -283,9 +305,10 @@ class HandlerClass:
         self.units = self.gscreen.inifile.find("TRAJ", "LINEAR_UNITS")
         if self.units == "inch":
             self.widgets.tbtn_units.set_active(True)
-        print(self.gscreen.inifile.find("DISPLAY", "EMBED_TAB_COMMAND"))
         if not self.gscreen.inifile.find("DISPLAY", "EMBED_TAB_COMMAND"):
             self.widgets.tbtn_user_tabs.set_sensitive(False)
+        self.widgets.btn_clear_statusbar.emit("clicked") # Otherwise the message ready for homing will be displayed.
+                                                         # but this is not true, because the machine is not in On state
         
     def add_macro_button(self):
         macros = self.gscreen.inifile.findall("MACROS", "MACRO")
@@ -321,7 +344,6 @@ class HandlerClass:
         command = str("O<" + o_codes[0] + "> call")
         for code in o_codes[1:]:
             parameter = self.entry_dialog(data = None, header = _("Enter value:"), label=_("Set parameter %s to:")%code )
-            print(parameter)
             if parameter == False:
                 print(_("conversion error"))
                 self.gscreen.add_alarm_entry(_("Conversion error because off wrong entry for macro %s")%o_codes[0])
@@ -356,7 +378,12 @@ class HandlerClass:
             self.widgets.hal_tbtn_on.set_image(self.widgets.img_machine_off)
         else:
             self.widgets.hal_tbtn_notaus.set_image(self.widgets.img_emergency_off)
-
+# ToDo: find out why the values are modified by 1 on startup and correct this to avoid the 
+#       need of this clicks
+            # will need to click, otherwise we get 101 % after startup
+            self.widgets.btn_feed_100.emit("clicked")
+	    self.widgets.btn_spindle_100.emit("clicked")
+# ToDo: End
     # toggle machine on / off button
     def on_hal_tbtn_on_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("hal_tgbt_on_clicked")
@@ -513,14 +540,8 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("chk_ignore_limits_toggled %s"%widget.get_active())
         self.emc.override_limits(self.widgets.chk_ignore_limits.get_active())
 
-# ToDo: This is not working, and I don't know why
-# The Gremlin DRO is shown, and hideen, but it should not be hideen if
-# on the settings page the button Show DRO is active, in this case
-# self.gscreen.prefs.getpref('enable_dro') should return True.
-# The error I get is "'bool' object has no attribute 'lower'"
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("Fullsize Preview set to %s"%widget.get_active())
-        print(self.gscreen.prefs.getpref('enable_dro',"False"))
         if widget.get_active():
             self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
@@ -529,9 +550,9 @@ class HandlerClass:
         else:
             self.widgets.box_info.show()
             self.widgets.vbx_jog.show()
-            if self.gscreen.prefs.getpref('enable_dro', "False") == False:
+#            if self.gscreen.prefs.getpref('enable_dro', "False") == False:
+            if not self.widgets.tbtn_show_dro.get_active():
                 self.widgets.gremlin.set_property('enable_dro',False) 
-#ToDo: End
 
     # If button exit is klickt, press emergency button bevor closing the application
     def on_btn_exit_clicked(self, widget, data=None):
@@ -682,7 +703,7 @@ class HandlerClass:
         else:
             self.widgets.tbtn_mist.set_active(False)
 
-#ToDo: Make Hal Pins to be able to connect a MPG whell to the scale
+#ToDo: Make Hal Pins to be able to connect a MPG wheel to the scale
     # feed stuff
     def on_scl_feed_value_changed(self, widget, data=None):
         feed_override = self.widgets.scl_feed.get_value() / 100
@@ -706,6 +727,8 @@ class HandlerClass:
             self.distance = self.gscreen.parse_increment(data)
         else:
             self.distance = 0
+        self.gscreen.halcomp["jog_increment"] = self.distance
+
 #ToDo: Make Hal Pins to be able to connect a MPG whell to the scale
     def on_adj_jog_vel_value_changed(self, widget, data = None):
         self.emc.continuous_jog_velocity(widget.get_value())
@@ -940,6 +963,9 @@ class HandlerClass:
             self.widgets.ntb_button.set_current_page(0)
             self.widgets.ntb_main.set_current_page(0)
 
+    def on_btn_clear_statusbar_clicked(self, widget, data=None):
+        self.widgets.statusbar1.pop(self.gscreen.statusbar_id)
+
     # The offset settings, set to cero
     def on_btn_touch_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_touch_clicked")
@@ -1105,6 +1131,10 @@ class HandlerClass:
 
     def on_grid_size_value_changed(self, widget, data=None):
         self.gscreen.set_grid_size(widget)
+
+    def on_tbtn_log_actions_toggled(self, widget, data=None):
+        self.log = widget.get_active()
+        self.gscreen.prefs.putpref('log_actions', widget.get_active(), bool)
 
     def on_tbtn_show_dro_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("show_gremlin_DRO =  %s"%widget.get_active())
@@ -1520,6 +1550,57 @@ class HandlerClass:
             self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("v_button_%s"%v_button, hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_v_button_changed)
 
+        self.jog_increment = hal_glib.GPin(self.gscreen.halcomp.newpin('jog_increment', hal.HAL_FLOAT, hal.HAL_OUT))
+
+        self.feed_overide_counts = hal_glib.GPin(self.gscreen.halcomp.newpin('feed_overide_counts', hal.HAL_S32, hal.HAL_IN))
+        self.feed_overide_counts.connect("value_changed", self._on_fo_counts_changed, "scl_feed")
+        self.spindle_overide_counts = hal_glib.GPin(self.gscreen.halcomp.newpin('spindle_overide_counts', hal.HAL_S32, hal.HAL_IN))
+        self.spindle_overide_counts.connect("value_changed", self._on_so_counts_changed, "scl_spindle")
+        self.jog_speed_counts = hal_glib.GPin(self.gscreen.halcomp.newpin('jog_speed_counts', hal.HAL_S32, hal.HAL_IN))
+        self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "hal_scl_jog_vel")
+        self.max_vel_counts = hal_glib.GPin(self.gscreen.halcomp.newpin('max_vel_counts', hal.HAL_S32, hal.HAL_IN))
+        self.max_vel_counts.connect("value_changed", self._on_mv_counts_changed, "scl_max_vel")
+
+    def _on_fo_counts_changed(self, pin, widget):
+        counts = pin.get()
+        difference = counts - self.fo_counts
+        self.fo_counts = counts
+        val = self.widgets[widget].get_value() + difference
+        if val < 0: 
+            val = 0
+        if difference != 0: 
+            self.widgets[widget].set_value(val)
+
+    def _on_so_counts_changed(self, pin, widget):
+        counts = pin.get()
+        difference = counts - self.so_counts
+        self.so_counts = counts
+        val = self.widgets[widget].get_value() + difference
+        if val < 0: 
+            val = 0
+        if difference != 0: 
+            self.widgets[widget].set_value(val)
+
+    def _on_jv_counts_changed(self, pin, widget):
+        counts = pin.get()
+        difference = counts - self.jv_counts
+        self.jv_counts = counts
+        val = self.widgets[widget].get_value() + difference
+        if val < 0: 
+            val = 0
+        if difference != 0: 
+            self.widgets[widget].set_value(val)
+
+    def _on_mv_counts_changed(self, pin, widget):
+        counts = pin.get()
+        difference = counts - self.mv_counts
+        self.mv_counts = counts
+        val = self.widgets[widget].get_value() + difference
+        if val < 0: 
+            val = 0
+        if difference != 0: 
+            self.widgets[widget].set_value(val)
+
     # The actions of the buttons
     def _on_h_button_changed(self,pin):
         self.gscreen.add_alarm_entry("got h_button_signal %s"%pin.name)
@@ -1543,7 +1624,6 @@ class HandlerClass:
                 # this is the name of the button
                 button = index[1]
         if button:
-            print("Button ",button," is ",self.widgets[button].get_sensitive())
             # only emit a signal if the button is sensitive, otherwise
             # running actions may be interupted
             if self.widgets[button].get_sensitive() == False:
