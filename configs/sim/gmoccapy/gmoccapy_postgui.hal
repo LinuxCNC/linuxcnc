@@ -19,30 +19,30 @@ net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
 #                        Jogwheel / Handrad / Encoder                       #
 #############################################################################
 # Nun die ParPort Treiber laden und die Adressen festlegen
-loadrt probe_parport
-loadrt hal_parport cfg="0xcf00 out "
-setp parport.0.reset-time 500
-addf parport.0.read base-thread
-addf parport.0.write base-thread
-addf parport.0.reset base-thread
+#loadrt probe_parport
+#loadrt hal_parport cfg="0xcf00 out "
+#setp parport.0.reset-time 500
+#addf parport.0.read base-thread
+#addf parport.0.write base-thread
+#addf parport.0.reset base-thread
 
 # load the real-time encoder
 # if you do use all hal_pins from gmoccapy, you will have to modify num_chan
 # and add the other encoders to threads 
-loadrt encoder num_chan=1
-addf encoder.update-counters   servo-thread
-addf encoder.capture-position  servo-thread
+#loadrt encoder num_chan=1
+#addf encoder.update-counters   servo-thread
+#addf encoder.capture-position  servo-thread
 
 # disable 4 times encoder, otherwise each klick will ingreas jogwheel-count by 4 instead of 1
-setp encoder.0.x4-mode FALSE
+#setp encoder.0.x4-mode FALSE
 
 # connect jog signals to hardware / Signale an Hardware anschließen
-net Jogwheel-phA encoder.0.phase-A <= parport.0.pin-15-in
-net Jogwheel-phB encoder.0.phase-B <= parport.0.pin-13-in
+#net Jogwheel-phA encoder.0.phase-A <= parport.0.pin-15-in
+#net Jogwheel-phB encoder.0.phase-B <= parport.0.pin-13-in
 
 # connect encoder count, select the one you need
 #net Jogwheel-counts encoder.0.counts => gscreen.spindle_overide_counts 
-net Jogwheel-counts encoder.0.counts => gscreen.feed_overide_counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.feed_overide_counts 
 #net Jogwheel-counts encoder.0.counts => gscreen.max_vel_counts 
 #net Jogwheel-counts encoder.0.counts => gscreen.jog_speed_counts 
 
