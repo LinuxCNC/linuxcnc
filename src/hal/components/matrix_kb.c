@@ -2,8 +2,6 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include <linux/input.h>
-#include <linux/module.h>
-#include <linux/init.h>
 #include "hal.h"
 
 #define MAX_CHAN 8
@@ -73,7 +71,7 @@ void keyup(kb_inst_t *inst){
         return;
     }
     *inst->hal.key[r * inst->ncols + c] = 0;
-    
+#ifndef SIM    
     if(inst->keystroke){
         if (inst->param.code[r * inst->ncols + c]){
             input_report_key(inst->key_dev, 
@@ -82,6 +80,7 @@ void keyup(kb_inst_t *inst){
             input_sync(inst->key_dev);
         }
     }
+#endif
 }
 
 void keydown(kb_inst_t *inst){
@@ -100,6 +99,7 @@ void keydown(kb_inst_t *inst){
         return;
     }
     *inst->hal.key[r * inst->ncols + c] = 1;
+#ifndef SIM
     if (inst->keystroke){
         if (inst->param.code[r * inst->ncols + c]){
             input_report_key(inst->key_dev, 
@@ -108,6 +108,7 @@ void keydown(kb_inst_t *inst){
             input_sync(inst->key_dev);
         }
     }
+#endif
 }
 
 void loop(void *arg, long period){
@@ -277,6 +278,7 @@ int rtapi_app_main(void){
                     hal_exit(comp_id);
                     return -1;
                 }
+#ifndef SIM
                 if (inst->keystroke){
                     retval = hal_param_u32_newf(HAL_RW,
                                                 &inst->param.code[r * inst->ncols + c], 
@@ -290,6 +292,7 @@ int rtapi_app_main(void){
                         return -1;
                     }
                 }
+#endif
             }
         }
         
@@ -370,7 +373,7 @@ int rtapi_app_main(void){
             rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
             return -1;
         }
-        
+#ifndef SIM
         if (inst->keystroke){ // keyboard output needed
             inst->key_dev = input_allocate_device();
             if (!inst->key_dev) {
@@ -388,10 +391,11 @@ int rtapi_app_main(void){
             
             retval = input_register_device(inst->key_dev);
             if (retval) {
-                printk(KERN_ERR "button.c: Failed to register device\n");
+                rtapi_print_msg(RTAPI_MSG_ERR, "button.c: Failed to register device\n");
                 return -1;
             }
         }
+#endif
         
     }
     hal_ready(comp_id);
@@ -403,7 +407,9 @@ void rtapi_app_exit(void)
 {
     int i;
     hal_exit(comp_id);
+#ifndef SIM
     for (i = 0; i < kb->num_insts ; i++){
         if (kb->insts[i].keystroke) input_unregister_device(kb->insts[i].key_dev);
     }
+#endif
 }
