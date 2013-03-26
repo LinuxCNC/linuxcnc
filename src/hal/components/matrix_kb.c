@@ -59,17 +59,20 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names")
 void keyup(kb_inst_t *inst){
     int r, c;
     int keycode = *inst->hal.keycode & ~(inst->keydown | inst->keyup);
+
+    r = keycode >> inst->rowshift;
+    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
+    
+    if  (r < 0 
+         || c < 0
+         || r >= inst->nrows 
+         || c >= inst->ncols
+         || inst->hal.key[r * inst->ncols + c] == NULL){
+        return;
+    }
     
     if (inst->num_keys > 0) inst->num_keys--;
     
-    r = keycode >> inst->rowshift;
-    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
-
-    if (inst->hal.key[r * inst->ncols + c] == NULL 
-        || r >= inst->nrows 
-        || c >= inst->ncols){
-        return;
-    }
     *inst->hal.key[r * inst->ncols + c] = 0;
 #ifndef SIM    
     if(inst->keystroke){
@@ -82,22 +85,24 @@ void keyup(kb_inst_t *inst){
     }
 #endif
 }
-
 void keydown(kb_inst_t *inst){
     int r, c;
     int keycode = *inst->hal.keycode & ~(inst->keydown | inst->keyup);
     
+    r = keycode >> inst->rowshift;
+    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
+    
+    if  (r < 0 
+         || c < 0
+         || r >= inst->nrows 
+         || c >= inst->ncols
+         || inst->hal.key[r * inst->ncols + c] == NULL){
+        return;
+    }
+    
     if (inst->num_keys >= inst->param.rollover) return;
     inst->num_keys++;
     
-    r = keycode >> inst->rowshift;
-    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
-
-    if (inst->hal.key[r * inst->ncols + c] == NULL 
-        || r >= inst->nrows 
-        || c >= inst->ncols){
-        return;
-    }
     *inst->hal.key[r * inst->ncols + c] = 1;
 #ifndef SIM
     if (inst->keystroke){
@@ -111,7 +116,7 @@ void keydown(kb_inst_t *inst){
 #endif
 }
 
-void loop(void *arg, long period){
+    void loop(void *arg, long period){
     int c;
     hal_u32_t scan = 0;
     kb_inst_t *inst = arg;
@@ -405,11 +410,13 @@ int rtapi_app_main(void){
 
 void rtapi_app_exit(void)
 {
-    int i;
     hal_exit(comp_id);
 #ifndef SIM
-    for (i = 0; i < kb->num_insts ; i++){
-        if (kb->insts[i].keystroke) input_unregister_device(kb->insts[i].key_dev);
+    {
+        int i;
+        for (i = 0; i < kb->num_insts ; i++){
+            if (kb->insts[i].keystroke) input_unregister_device(kb->insts[i].key_dev);
+        }
     }
 #endif
 }
