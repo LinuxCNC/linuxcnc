@@ -1,3 +1,8 @@
+ver. 0.8.7
+- changed the button to delete status bar messages from text to icon
+- changed the INI files to display the side panels viceversa
+- made vcp_box.glade fit better in the screen
+
 ver. 0.8.6
 - all buttons on settings now with active back color "yellow"
 - added a button to set logging or not, will add later a option to 

@@ -1,33 +1,27 @@
 <?xml version="1.0"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <child>
       <object class="GtkTable" id="table1">
-        <property name="width_request">300</property>
         <property name="visible">True</property>
         <property name="n_rows">2</property>
-        <property name="n_columns">2</property>
         <child>
           <object class="HAL_Meter" id="hal_meter1">
+            <property name="width_request">200</property>
+            <property name="height_request">200</property>
             <property name="visible">True</property>
-            <property name="bg_color">#ffffffffffff</property>
+            <property name="max">3000</property>
             <property name="minorscale">100</property>
+            <property name="bg_color">#ffffffffffff</property>
             <property name="z0_color">#0000ffff0000</property>
             <property name="label">RPM</property>
             <property name="z1_color">#ffffffff0000</property>
-            <property name="z2_color">#ffff00000000</property>
             <property name="majorscale">500</property>
-            <property name="max">3000</property>
+            <property name="z2_color">#ffff00000000</property>
           </object>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <object class="GtkHBox" id="hbox1">
@@ -37,6 +31,7 @@
                 <property name="visible">True</property>
               </object>
               <packing>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -46,6 +41,7 @@
                 <property name="pick_color_off">#f6e0ebe201e9</property>
               </object>
               <packing>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -54,6 +50,7 @@
                 <property name="visible">True</property>
               </object>
               <packing>
+                <property name="fill">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
