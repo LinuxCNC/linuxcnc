@@ -322,6 +322,45 @@ written to stderr of the form
 sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
 
+Python filters should use the print function to output the result to Axis.
+
+This example program filters a file and adds a W axis to match the Z axis.
+It depends on there being a space between each axis word to work.
+
+----
+#! /usr/bin/env python
+
+import sys
+
+def main(argv):
+
+  openfile = open(argv[0], 'r')
+  file_in = openfile.readlines()
+  openfile.close()
+
+  file_out = []
+  for line in file_in:
+    # print line
+    if line.find('Z') != -1:
+      words = line.rstrip('\n')
+      words = words.split(' ')
+      newword = ''
+      for i in words:
+        if i[0] == 'Z':
+          newword = 'W'+ i[1:]
+      if len(newword) > 0:
+        words.append(newword)
+        newline = ' '.join(words)
+        file_out.append(newline)
+    else:
+      file_out.append(line)
+  for item in file_out:
+    print "%s" % item
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+----
+
 === [RS274NGC] Section[[sub:[RS274NGC]-section]]
 
 (((RS274NGC (inifile section))))
