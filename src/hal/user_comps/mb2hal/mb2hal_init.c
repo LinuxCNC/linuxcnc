@@ -704,12 +704,10 @@ retCode init_mb_tx()
 {
     char *fnct_name="init_mb_tx";
     int tx_counter;
-    mb_link_t *this_mb_link;
     mb_tx_t   *this_mb_tx;
 
     for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
         this_mb_tx = &gbl.mb_tx[tx_counter];
-        this_mb_link = &gbl.mb_links[this_mb_tx->mb_link_num];
 
         this_mb_tx->mb_tx_num = tx_counter;
         this_mb_tx->protocol_debug = (this_mb_tx->cfg_debug >= debugDEBUG)? 1 : 0;
