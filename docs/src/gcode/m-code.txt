@@ -16,6 +16,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>                     | Spindle Control
 |<<sec:M6-Tool-Change,M6>>                     | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>                     | Coolant Control
+|<<sec:M19>>                                   | Orient Spindle
 |<<sec:M48-M49-Override,M48 M49>>              | Feed & Spindle Overrides Enable/Disable
 |<<sec:M50-Feed-Override,M50>>                 | Feed Override Control
 |<<sec:M51-Spindle-Override,M51>>              | Spindle Override Control
@@ -168,6 +169,12 @@ classicladder.
 
 It is OK to use any of these commands, regardless of the current coolant
 state.
+
+[[sec:M19]]
+== M19 Orient Spindle
+(((M19 Orient Spindle)))
+
+* 'M19 R-' - rotate spindle 'R' degrees from 0
 
 [[sec:M48-M49-Override]]
 == M48, M49 Speed and Feed Override Control
