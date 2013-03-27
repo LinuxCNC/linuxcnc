@@ -536,52 +536,13 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html
 	python $(DOC_SRCDIR)/checklinks.py $^
-	if [ ! -z $(shell which checklink) ]; then \
-		rm -f .checklink.en.tmp; \
-		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_EN) | tee .checklink.en.tmp 2>&1 ; \
-		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.en.tmp ; \
-		BAD_LINKS=$$?; \
-		rm -f .checklink.tmp; \
-		if [ $$BAD_LINKS -eq 0 ]; then \
-			echo "***" 1>&2 ; \
-			echo "*** warning: bad links found in English docs!" 1>&2 ; \
-			echo "***" 1>&2 ; \
-			exit 1; \
-		else \
-			echo "***"; \
-			echo "*** language: English"; \
-			echo "*** all links are good!"; \
-			echo "***"; \
-		fi \
-	else \
-		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
-	fi
+	$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
 	python $(DOC_SRCDIR)/checklinks.py $^
-	if [ ! -z $(shell which checklink) ]; then \
-		rm -f .checklink.fr.tmp; \
-		checklink --quiet --exclude "http(s?)://" $(DOC_TARGETS_HTML_FR) | tee .checklink.fr.tmp 2>&1 ; \
-		egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.fr.tmp ; \
-		BAD_LINKS=$$?; \
-		rm -f .checklink.fr.tmp; \
-		if [ $$BAD_LINKS -eq 0 ]; then \
-			echo "***" 1>&2 ; \
-			echo "*** warning: bad links found in French docs!" 1>&2 ; \
-			echo "*** oh well, continuing anyway" 1>&2 ; \
-			echo "***" 1>&2 ; \
-			exit 0; \
-		else \
-			echo "***"; \
-			echo "*** language: French"; \
-			echo "*** all links are good!"; \
-			echo "***"; \
-		fi \
-	else \
-		echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2; \
-	fi
+	$(DOC_SRCDIR)/checkref French $^
 
 # These targets don't work yet since we don't have the associated translations
 checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html

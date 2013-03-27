@@ -286,7 +286,7 @@ appropriées sont connectées aux sorties dans le fichier HAL.
 (((M66 Contrôle d'entrée numerique et analogique)))
 
 ----
-M66 P- | E- <L->
+M66 P- | E- <L-> <Q->
 ----
 * _P-_ - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
 * _E-_ - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
@@ -301,10 +301,9 @@ l'entrée est stockée dans le paramètre #5399
 dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.
 * Le mode _0_ est le seul autorisé pour une entrée analogique.
 
-.Exemple de lignes avec M66
+.Exemple de ligne avec M66
 ----
-M66 P0 L3 (attend que l'entrée numérique 0 devienne haute)
-M66 E1 L1 (attend que l'entrée analogique 1 augmente)
+M66 P0 L3 Q5 (attend jusqu'à 5 secondes la montée de l'entrée numérique 0)
 ----
 
 * _M66_ attend un nouvel événement sur une entrée ou la fin de l'exécution
