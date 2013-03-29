@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.8.7"
+_RELEASE = "0.8.8"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -109,10 +109,10 @@ class HandlerClass:
         self.gscreen.init_audio()
 
         # and now our own ones
+        self.widgets.adj_max_vel.configure(self.data._maxvelocity*60, self.data._maxvelocity * 0.1, self.data._maxvelocity * 60 + 1, 1, 1, 1)
         self.widgets.adj_jog_vel.configure(self.data.jog_rate, 0, self.gscreen.data.jog_rate_max + 1, 1, 1, 1)
         self.widgets.adj_spindle.configure(100, 0, self.data.spindle_override_max * 100 + 1, 1, 1, 1)
         self.widgets.adj_feed.configure(100, 0, self.data.feed_override_max * 100 + 1, 1, 1, 1)
-        self.widgets.adj_max_vel.configure(self.data._maxvelocity*60, self.data._maxvelocity * 0.1, self.data._maxvelocity * 60 + 1, 1, 1, 1)
         self.widgets.window1.set_title("Gscreen-gmoccapy for linuxcnc %s"%_RELEASE)
         self.min_spindle_rev = self.gscreen.inifile.find("SPINDLE", "MIN_REV")
         self.max_spindle_rev = self.gscreen.inifile.find("SPINDLE", "MAX_REV")
@@ -215,7 +215,7 @@ class HandlerClass:
         rbt0.set_property("draw_indicator",False)
         rbt0.show()
         # the rest of the buttons are now added to the group
-        for increment in range(1,Anzahl):
+        for increment in range(0,Anzahl):
             rbt = "rbt%d"%(increment)
             rbt = gtk.RadioButton(rbt0, self.data.jog_increments[increment])
             rbt.connect("pressed", self.on_increment_changed,self.data.jog_increments[increment])
@@ -309,6 +309,9 @@ class HandlerClass:
             self.widgets.tbtn_user_tabs.set_sensitive(False)
         self.widgets.btn_clear_statusbar.emit("clicked") # Otherwise the message ready for homing will be displayed.
                                                          # but this is not true, because the machine is not in On state
+# ToDo: check in settings if the user like the highligning or not
+#        self.widgets.hal_sourceview.buf.set_language(None)
+# ToDo: End
         
     def add_macro_button(self):
         macros = self.gscreen.inifile.findall("MACROS", "MACRO")
@@ -352,11 +355,15 @@ class HandlerClass:
             if parameter != False or parameter == 0:
                 self.gscreen.add_alarm_entry(_("macro %s , parameter %s set to %f"%(o_codes[0],code,parameter)))
             command = command + " [" + str(parameter) + "] "
+# ToDo: Should not only clear the plot, but also the loaded programm?
+        self.widgets.gremlin.clear_live_plotter()
+# ToDo: End
         self.gscreen.mdi_control.user_command(command)
         for btn in self.macrobuttons:
             btn.set_sensitive(False)
         # we change the widget_image and use the button to interupt running macros
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
+        self.widgets.btn_show_kbd.set_property('tooltip-text',_('interupt running macro'))
         self.widgets.ntb_info.set_current_page(0)
 
     def on_hide_cursor_toggled(self, widget, data=None):
@@ -618,8 +625,8 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("rbt_reverse_clicked")
         if self.widgets.rbt_reverse.get_active():
             self.widgets.rbt_reverse.set_image(self.widgets.img_reverse_on)
-            self.widgets.hal_hbar_spindle_feedback.set_property("min",float(self.min_spindle_rev)*-1)
-            self.widgets.hal_hbar_spindle_feedback.set_property("max",float(self.max_spindle_rev)*-1)
+            self.widgets.hal_hbar_spindle_feedback.set_property('max',float(self.min_spindle_rev)*-1)
+            self.widgets.hal_hbar_spindle_feedback.set_property('min',float(self.max_spindle_rev)*-1)
             self._set_spindle(widget)
         else:
             self.widgets.rbt_reverse.set_image(self.widgets.img_reverse)
@@ -695,13 +702,19 @@ class HandlerClass:
         if self.data.flood:
             if not self.widgets.tbtn_flood.get_active():
                 self.widgets.tbtn_flood.set_active(True)
+                self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_on)
         else:
-            self.widgets.tbtn_flood.set_active(False)
+            if self.widgets.tbtn_flood.get_active():
+                self.widgets.tbtn_flood.set_active(False)
+                self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_off)
         if self.data.mist:
             if not self.widgets.tbtn_mist.get_active():
                 self.widgets.tbtn_mist.set_active(True)
+                self.widgets.tbtn_mist.set_image(self.widgets.img_mist_on)
         else:
-            self.widgets.tbtn_mist.set_active(False)
+            if self.widgets.tbtn_mist.get_active():
+                self.widgets.tbtn_mist.set_active(False)
+                self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
 #ToDo: Make Hal Pins to be able to connect a MPG wheel to the scale
     # feed stuff
@@ -729,10 +742,14 @@ class HandlerClass:
             self.distance = 0
         self.gscreen.halcomp["jog_increment"] = self.distance
 
-#ToDo: Make Hal Pins to be able to connect a MPG whell to the scale
     def on_adj_jog_vel_value_changed(self, widget, data = None):
+        if widget.get_value() > self.widgets.adj_max_vel.get_value():
+            widget.set_value(self.widgets.adj_max_vel.get_value())
         self.emc.continuous_jog_velocity(widget.get_value())
-#ToDo: End
+
+    def on_adj_max_vel_value_changed(self, widget, data = None):
+        if widget.get_value() < self.widgets.adj_jog_vel.get_value():
+            self.widgets.adj_jog_vel.set_value(widget.get_value())
 
 #ToDo: Make this able to reakt to more axis
     def on_hal_btn_jog_pressed(self, widget, data = None):
@@ -943,6 +960,7 @@ class HandlerClass:
             if self.log: self.gscreen.add_alarm_entry("btn_brake macro_clicked")
             self.gscreen.emc.abort()
             self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
+            self.widgets.btn_show_kbd.set_property('tooltip-text',_('This button will show or hide the keyboard'))
         if self.widgets.ntb_info.get_current_page() == 1:
             if self.log: self.gscreen.add_alarm_entry("btn_keyboard_clicked")
             self.widgets.ntb_info.set_current_page(0)
@@ -1212,7 +1230,7 @@ class HandlerClass:
             self.gscreen.add_alarm_entry(message)
             return
         if self.log: self.gscreen.add_alarm_entry("set_tool_with M61 Q%s"%tool)
-        if tool:
+        if tool or tool == 0:
             tool = int(tool)
             self.emc.set_mdi_mode()
             if widget == self.widgets.btn_change_tool:
@@ -1451,6 +1469,7 @@ class HandlerClass:
         self.widgets.ntb_jog.set_current_page(1)
         self.widgets.ntb_button.set_current_page(1)
         self.widgets.ntb_info.set_current_page(1)
+        self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_hal_status_state_estop(self,widget):
         self.gscreen.add_alarm_entry("estop")
@@ -1560,6 +1579,8 @@ class HandlerClass:
         self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "hal_scl_jog_vel")
         self.max_vel_counts = hal_glib.GPin(self.gscreen.halcomp.newpin('max_vel_counts', hal.HAL_S32, hal.HAL_IN))
         self.max_vel_counts.connect("value_changed", self._on_mv_counts_changed, "scl_max_vel")
+
+        self.widgets.btn_feed_100.emit('clicked')
 
     def _on_fo_counts_changed(self, pin, widget):
         counts = pin.get()

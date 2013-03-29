@@ -84,9 +84,9 @@ G3 I -15
 
 ; Aus dem Werkstück
 G3 X50 Y 50 Z1 I-7.5 J0
-G0 Z 30
+G0 Z 50
 
-G0 Z 30
+G0 Z 50
 G0 Y 50
 G0 X 50
 
