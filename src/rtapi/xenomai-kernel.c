@@ -11,6 +11,7 @@
 #include <native/types.h>		// TM_INFINITE
 #include <native/timer.h>		// rt_timer_*()
 // #include  <rtdk.h>
+#include "procfs_macros.h"		// PROC_PRINT()
 
 #else /* ULAPI */
 #include <errno.h>		/* errno */
@@ -27,6 +28,13 @@ static RT_HEAP shmem_heap_array[RTAPI_MAX_SHMEMS + 1];
 static RT_HEAP master_heap;
 static rthal_trap_handler_t old_trap_handler;
 static int rtapi_trap_handler(unsigned event, unsigned domid, void *data);
+static struct rt_stats_struct {
+    int rt_wait_error;		/* release point missed */
+    int rt_last_overrun;	/* last number of overruns reported by
+				   Xenomai */
+    int rt_total_overruns;	/* total number of overruns reported
+				   by Xenomai */
+} rt_stats;
 
 #else /* ULAPI */
 RT_HEAP ul_heap_desc;
@@ -39,9 +47,11 @@ RT_HEAP ul_heap_desc;
 ************************************************************************/
 /* fill out Xenomai-specific fields in rtapi_data */
 void init_rtapi_data_hook(rtapi_data_t * data) {
-    data->rt_wait_error = 0;
-    data->rt_last_overrun = 0;
-    data->rt_total_overruns = 0;
+#ifdef RTAPI
+    rt_stats.rt_wait_error = 0;
+    rt_stats.rt_last_overrun = 0;
+    rt_stats.rt_total_overruns = 0;
+#endif
 
 #if 0
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -187,9 +197,9 @@ void rtapi_wait_hook(void) {
 	break;
 
     case -ETIMEDOUT: // release point was missed
-	rtapi_data->rt_wait_error++;
-	rtapi_data->rt_last_overrun = overruns;
-	rtapi_data->rt_total_overruns += overruns;
+	rt_stats.rt_wait_error++;
+	rt_stats.rt_last_overrun = overruns;
+	rt_stats.rt_total_overruns += overruns;
 
 	if (error_printed < MAX_ERRORS) {
 	    task_id = rtapi_task_self();
@@ -409,3 +419,15 @@ void * rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rt_heap_delete(&shmem_heap_array[shmem_id]);
 }
+
+
+/***********************************************************************
+*                          rtapi_proc.h                                *
+************************************************************************/
+#ifdef RTAPI
+void rtapi_proc_read_status_hook() {
+    PROC_PRINT("  Wait errors = %i\n", rt_stats.rt_wait_error);
+    PROC_PRINT(" Last overrun = %i\n", rt_stats.rt_last_overrun);
+    PROC_PRINT("Total overruns = %i\n", rt_stats.rt_total_overruns);
+}
+#endif

@@ -127,9 +127,6 @@ typedef enum {
 typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
-#ifdef THREAD_MODULE_DATA
-    THREAD_MODULE_DATA;
-#endif
 } module_data;
 
 typedef enum {
@@ -155,9 +152,6 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
-#ifdef THREAD_TASK_DATA
-    THREAD_TASK_DATA;		/* task data defined in thread system */
-#endif
 } task_data;
 
 typedef struct {

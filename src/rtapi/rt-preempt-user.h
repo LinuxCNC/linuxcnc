@@ -16,25 +16,6 @@
 #include <sched.h>		// sched_get_priority_*()
 #include <pthread.h>		/* pthread_* */
 
-// extra task data
-#define THREAD_TASK_DATA			\
-    int deleted;				\
-    int destroyed;				\
-    int deadline_scheduling;			\
-    struct timespec next_time;			\
-						\
-    /* The realtime thread. */			\
-    pthread_t thread;				\
-    pthread_barrier_t thread_init_barrier;	\
-    void *stackaddr;				\
-						\
-    /* Statistics */				\
-    unsigned long minfault_base;		\
-    unsigned long majfault_base;		\
-    unsigned int failures
-
-// extra module data
-#define THREAD_MODULE_DATA int magic
 
 
 /* rtapi_io.c */
