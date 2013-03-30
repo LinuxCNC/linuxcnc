@@ -154,6 +154,14 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
 	which_cpu = T_CPU(task->cpu);
 #endif
 
+    // sanity check
+    if (strlen(task->name) > XNOBJECT_NAME_LEN-1) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rt_task_create: task name '%s' too long for Xenomai, length limit %d chars\n", 
+			task->name, XNOBJECT_NAME_LEN-1 );
+	return -EINVAL;
+    }
+
     // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
     // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a
     // task with FPU support enabled and which will be affine to CPU #1

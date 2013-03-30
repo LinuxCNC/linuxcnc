@@ -143,12 +143,7 @@ typedef enum {
 } task_state_t;
 
 typedef struct {
-#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
-					   somehow */
-    char name[XNOBJECT_NAME_LEN];
-#else
     char name[RTAPI_NAME_LEN];
-#endif
     int magic;
     int uses_fp;
     size_t stacksize;
