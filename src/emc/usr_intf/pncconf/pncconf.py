@@ -3884,7 +3884,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
                     comptype = "gpio"
-                    compnum = int(pinnum)+(concount*24)
+                    if '5i25' in boardname:
+                        compnum = int(pinnum)+(concount*16)
+                    else:
+                        compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
                     STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -5937,6 +5940,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
+                currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
 
                 # if the board has less then 24 pins hide the extra comboboxes
@@ -6254,6 +6258,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
                             else:
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                    elif '5i25' in currentboard:
+                         self.widgets[complabel].set_text("%03d:"%(concount*16+pin))# 5i25 mainboard GPIO
                     else:
                          self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if compnum == 100 and widgettext == firmptype:
