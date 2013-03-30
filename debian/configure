@@ -83,6 +83,10 @@ else
 fi
 
 case $DISTRIB_NAME in
+Ubuntu-12.10) # Quantal Quetzal
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,libmodbus-dev
+	TCLTK_VERSION=8.5
+	;;
 Ubuntu-12.04) # Precise Pangolin LTS
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,libmodbus-dev
 	TCLTK_VERSION=8.5
@@ -112,6 +116,8 @@ Debian-5.0*)
 	TCLTK_VERSION=8.4
 	;;
 *)
+        echo "unknown distribution: $DISTRIB_NAME"
+        echo "configuration may be wrong!"
 	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;

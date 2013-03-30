@@ -1461,6 +1461,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
     double delayLeft;           // delay time left of G4, M66..
+    int queuedMDIcommands;      // current length of MDI input queue
 };
 
 // declarations for EMC_TOOL classes

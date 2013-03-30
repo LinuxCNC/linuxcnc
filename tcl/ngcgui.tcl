@@ -430,6 +430,13 @@
 #     otherwise
 #        "."
 
+# 26. Ngcgui support for global variables as input parameters has been
+#     deprecated from its initial incorporation because of common
+#     concerns for maintenance of (user) global variables.
+#     LinuxCNC 2.6 and future releases will include numerous built-in
+#     global named readonly variables.
+#     Ngcgui support for input global variables is a declining feature
+#     to be removed for 2.6
 #-----------------------------------------------------------------------
 
 namespace eval ::ngcgui {
@@ -814,8 +821,18 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set gname [string range $gline 1 [expr -1+$i2]]
         # ignore name that includes a colon (:)
         if {[string first : $gname] > 0} break
-        # ignore _global named _featur:e
+        # ignore _global named _feature:
         if {"$gname" == "_feature:"} break
+
+        # ignore system named read-only variables:
+        # this will not be needed when support for globals ceases (2.6)
+        switch -exact $gname {
+           _lathe_diameter_mode -
+           _lathe_radius_mode   -
+           _vmajor              -
+           _vminor {break}
+        }
+
         if {![info exists ay($hdl,global,value,$gname)]} {
           set ay($hdl,global,value,$gname) ""
         }
@@ -3667,6 +3684,10 @@ proc ::ngcgui::pathto {fname  {mode info}} {
     set i 1
     foreach p $::ngc(any,paths) {
       set msg "$msg\n$i  $p"
+      set fullp [file normalize $p]
+      if {"$p" != "$fullp"} {
+        set msg "$msg\n== $fullp"
+      }
       incr i
     }
     set msg "$msg\n\n[_ "Check setting for"]: \[RS274NGC\]SUBROUTINE_PATH"

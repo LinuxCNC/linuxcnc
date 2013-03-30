@@ -104,13 +104,50 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
+extern struct _inittab builtin_modules[];
 int trace;
 
 Interp::Interp()
-    : log_file(0)
+    : log_file(stderr)  
 {
     _setup.init_once = 1;  
-    init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
+    init_named_parameters();  // need this before Python init.
+ 
+    if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
+	Error("Interp ctor: cant instantiate Python plugin");
+	return;
+    }
+
+    try {
+	// this import will register the C++->Python converter for Interp
+	bp::object interp_module = bp::import("interpreter");
+	
+	// use a boost::cref to avoid per-call instantiation of the
+	// Interp Python wrapper (used for the 'self' parameter in handlers)
+	// since interp.init() may be called repeatedly this would create a new
+	// wrapper instance on every init(), abandoning the old one and all user attributes
+	// tacked onto it, so make sure this is done exactly once
+	_setup.pythis =  boost::python::object(boost::cref(this));
+	
+	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
+	// besides 'this', eventually use proper instance names to handle
+	// several instances 
+	bp::scope(interp_module).attr("this") =  _setup.pythis;
+
+	// make "this" visible without importing interpreter explicitly
+	bp::object retval;
+	python_plugin->run_string("from interpreter import this", retval, false);
+    }
+    catch (bp::error_already_set) {
+	std::string exception_msg;
+	if (PyErr_Occurred()) {
+	    exception_msg = handle_pyerror();
+	} else
+	    exception_msg = "unknown exception";
+	bp::handle_exception();
+	PyErr_Clear();
+	Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+    }
 }
 
 
@@ -128,7 +165,6 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     struct tm *tm;
     va_list ap;
 
-    va_start(ap, fmt);
     if (flags & LOG_TIME) {
 	gettimeofday(&tv, NULL);
 	tm = localtime(&tv.tv_sec);
@@ -141,8 +177,11 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     if (flags & LOG_PID) {
 	fprintf(log_file, "%4d ",getpid());
     }
-    if (flags & LOG_FILENAME) {fprintf(log_file, "%s:%d: ",file,line);
+    if (flags & LOG_FILENAME) {
+        fprintf(log_file, "%s:%d: ",file,line);
     }
+
+    va_start(ap, fmt);
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
     va_end(ap);
@@ -881,36 +920,10 @@ int Interp::init()
           }
 
 	  // initialize the Python plugin singleton
-	  extern struct _inittab builtin_modules[];
-	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
-	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
-		  try {
-		      // this import will register the C++->Python converter for Interp
-		      bp::object interp_module = bp::import("interpreter");
-
-		      // use a boost::cref to avoid per-call instantiation of the 
-		      // Interp Python wrapper (used for the 'self' parameter in handlers)
-		      // since interp.init() may be called repeatedly this would create a new
-		      // wrapper instance on every init(), abandoning the old one and all user attributes
-		      // tacked onto it, so make sure this is done exactly once
-		      if (_setup.init_once)  
-			  _setup.pythis =  boost::python::object(boost::cref(this));
-
-		      // alias to 'interpreter.this' for the sake of ';py, .... ' comments
-		      bp::scope(interp_module).attr("this") =  _setup.pythis;
-		  }
-		  catch (bp::error_already_set) {
-		      std::string exception_msg;
-		      if (PyErr_Occurred()) {
-			  exception_msg = handle_pyerror();
-		      } else
-			  exception_msg = "unknown exception";
-		      bp::handle_exception();
-		      PyErr_Clear();
-		      Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
-		  }
-	      } else {
-		  Error("no Python plugin available");
+          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
+	      int status = python_plugin->configure(iniFileName,"PYTHON");
+	      if (status != PLUGIN_OK) {
+		  Error("Python plugin configure() failed, status = %d", status);
 	      }
 	  }
  
@@ -1048,6 +1061,7 @@ int Interp::init()
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
+  _setup.spindle_mode = CONSTANT_RPM;
 //_setup.speed_override set in Interp::synch
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
@@ -1690,9 +1704,10 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           pars[k] = value;
           if (k == required)
             required = _required_parameters[index++];
@@ -1753,7 +1768,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
 {
   FILE *infile;
   FILE *outfile;
-  char line[256];
+  char line[PATH_MAX];
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1763,8 +1778,9 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   if(access(filename, F_OK)==0) 
   {
     // rename as .bak
-    strcpy(line, filename);
-    strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    int r;
+    r = snprintf(line, sizeof(line), "%s%s", filename, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    CHKS((r >= (int)sizeof(line)), NCE_CANNOT_CREATE_BACKUP_FILE);
     CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
 
     // open backup for reading
@@ -1792,9 +1808,11 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable)
+        if (k > variable) {
+          fclose(infile);
+          fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        else if (k == variable) {
+        } else if (k == variable) {
           sprintf(line, "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)

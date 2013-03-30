@@ -17,57 +17,57 @@ include::common/overleaf.txt[]
 = HAL
 :leveloffset: 1
 
-include::hal/intro_pl.txt[]
+include::hal/intro.txt[]
 
-include::hal/tutorial_pl.txt[]
+include::hal/tutorial.txt[]
 
-include::hal/general_ref_pl.txt[]
+include::hal/general_ref.txt[]
 
-include::hal/canonical-devices_pl.txt[]
+include::hal/canonical-devices.txt[]
 
-include::hal/tools_pl.txt[]
+include::hal/tools.txt[]
 
-include::hal/basic_hal_pl.txt[]
+include::hal/basic_hal.txt[]
 
-include::hal/halshow_pl.txt[]
+include::hal/halshow.txt[]
 
-include::hal/components_pl.txt[]
+include::hal/components.txt[]
 
-include::hal/rtcomps_pl.txt[]
+include::hal/rtcomps.txt[]
 
-include::hal/parallel_port_pl.txt[]
+include::hal/parallel_port.txt[]
 
-include::hal/hal-examples_pl.txt[]
+include::hal/hal-examples.txt[]
 
-include::gui/halui_pl.txt[]
+include::gui/halui.txt[]
 
-include::hal/halui_examples_pl.txt[]
+include::hal/halui_examples.txt[]
 
-include::hal/comp_pl.txt[]
+include::hal/comp.txt[]
 
-include::hal/halmodule_pl.txt[]
+include::hal/halmodule.txt[]
 
 :leveloffset: 0
 = Hardware Drivers
 :leveloffset: 1
 
-include::drivers/AX5214H_pl.txt[]
+include::drivers/AX5214H.txt[]
 
-include::drivers/GS2_pl.txt[]
+include::drivers/GS2.txt[]
 
-include::drivers/hostmot2_pl.txt[]
+include::drivers/hostmot2.txt[]
 
-include::drivers/motenc_pl.txt[]
+include::drivers/motenc.txt[]
 
-include::drivers/opto22_pl.txt[]
+include::drivers/opto22.txt[]
 
-include::drivers/pico_ppmc_pl.txt[]
+include::drivers/pico_ppmc.txt[]
 
-include::drivers/pluto_p_pl.txt[]
+include::drivers/pluto_p.txt[]
 
-include::drivers/servo_to_go_pl.txt[]
+include::drivers/servo_to_go.txt[]
 
-include::common/GPLD_Copyright_pl.txt[]
+include::common/GPLD_Copyright.txt[]
 
 // = Index
 

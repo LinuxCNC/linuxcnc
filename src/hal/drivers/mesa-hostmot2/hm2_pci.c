@@ -33,7 +33,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
@@ -54,6 +54,7 @@ static int num_5i21 = 0;
 static int num_5i22 = 0;
 static int num_5i23 = 0;
 static int num_5i25 = 0;
+static int num_6i25 = 0;
 static int num_4i65 = 0;
 static int num_4i68 = 0;
 static int num_4i69 = 0;
@@ -117,6 +118,14 @@ static struct pci_device_id hm2_pci_tbl[] = {
         .device = HM2_PCI_DEV_MESA5I25,
         .subvendor = HM2_PCI_VENDORID_MESA,
         .subdevice = HM2_PCI_SSDEV_5I25,
+    },
+
+    // 6i25
+    {
+        .vendor =  HM2_PCI_VENDORID_MESA,
+        .device = HM2_PCI_DEV_MESA6I25,
+        .subvendor = HM2_PCI_VENDORID_MESA,
+        .subdevice = HM2_PCI_SSDEV_6I25,
     },
 
     // 4i68 (old SSID)
@@ -289,7 +298,7 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
         } while (count-- > 0);
 
         if (count == 0) {
-            THIS_ERR("FPGA did not come out of /INIT");
+            THIS_ERR("FPGA did not come out of /INIT\n");
             return -EIO;
         }
     }
@@ -486,10 +495,17 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
-        case HM2_PCI_SSDEV_5I25: {
-            LL_PRINT("discovered 5i25 at %s\n", pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
-            num_5i25 ++;
+        case HM2_PCI_SSDEV_5I25:
+        case HM2_PCI_SSDEV_6I25: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_5I25) {
+                LL_PRINT("discovered 5i25 at %s\n", pci_name(dev));
+                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
+                num_5i25 ++;
+            } else {
+                LL_PRINT("discovered 6i25 at %s\n", pci_name(dev));
+                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", num_6i25);
+                num_6i25 ++;
+            }
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "P3";
@@ -566,7 +582,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         }
 
         default: {
-            LL_ERR("unknown subsystem device id 0x%04x", dev->subsystem_device);
+            LL_ERR("unknown subsystem device id 0x%04x\n", dev->subsystem_device);
             return failed_errno = -ENODEV;
         }
     }
@@ -617,7 +633,8 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
-        case HM2_PCI_DEV_MESA5I25: {
+        case HM2_PCI_DEV_MESA5I25:
+        case HM2_PCI_DEV_MESA6I25: {
               // BAR 0 is 64K mem (32 bit)
             board->len = pci_resource_len(dev, 0);
             board->base = ioremap_nocache(pci_resource_start(dev,0), board->len);

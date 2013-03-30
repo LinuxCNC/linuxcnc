@@ -34,6 +34,7 @@ include::gui/gladevcp_fr.txt[]
 
 = Notions avancées
 :leveloffset: 1
+include::common/python-interface.txt[]
 include::motion/kinematics_fr.txt[]
 include::motion/tweaking_steppers_fr.txt[]
 include::motion/pid_theory_fr.txt[]

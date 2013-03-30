@@ -194,7 +194,7 @@ for call coils.
 === Section Display
 
 When you first start up Classic Ladder you get an empty Section
-Display window.
+Display window. Displayed is one empty rung.
 
 .Section Display Default Window[[cap:Section-Display-Default]]
 
@@ -295,16 +295,21 @@ ladder program is connected to!
 
 image::images/Editor.png[align="center"]
 
+* 'Add' - adds a rung after the selected rung
+* 'Insert' - inserts a rung before the selected rung
+* 'Delete' - deletes the selected rung
+* 'Modify' - opens the selected rung for editing
+
 Starting from the top left image:
 
- . Object Selector, Eraser
- . N.O. Input, N.C. Input, Rising Edge Input , Falling Edge Input
- . Horizontal Connection, Vertical Connection , Long Horizontal Connection
- . Timer IEC Block, Counter Block, Compare Variable
- . Old Timer Block, Old Monostable Block (These have been replaced by the
+* Object Selector, Eraser
+* N.O. Input, N.C. Input, Rising Edge Input , Falling Edge Input
+* Horizontal Connection, Vertical Connection , Long Horizontal Connection
+* Timer IEC Block, Counter Block, Compare Variable
+* Old Timer Block, Old Monostable Block (These have been replaced by the
    IEC Timer)
- . COILS - N.O. Output, N.C. Output, Set Output, Reset Output
- . Jump Coil, Call Coil, Variable Assignment
+* COILS - N.O. Output, N.C. Output, Set Output, Reset Output
+* Jump Coil, Call Coil, Variable Assignment
 
 A short description of each of the buttons:
 
@@ -497,7 +502,7 @@ most math symbols:
    equal), <> (not equal)
 * (, ) grouping
 * ^ (exponent),% (modulus),& (and),| (or),. - 
-* ABS (absolute), MOY (french for average) ,AVG (average)
+* ABS (absolute), MOY (French for average) ,AVG (average)
 
 For example ABS(%W2)=1, MOY(%W1,%W2)<3.
 
@@ -547,6 +552,12 @@ To assign the value of 12 to s32out bit 3 the syntax would be:
 ----
 %QW3=12
 ----
+
+[NOTE]
+When you assign a value to a variable with the variable assignment block
+the value is retained until you assign a new value using the variable
+assignment block. The last value assigned will be restored when LinuxCNC
+is started.
 
 The following figure shows an Assignment and a Comparison Example.
 %QW0 is a S32out bit and %IW0 is a S32in bit. In this case the HAL pin
@@ -970,7 +981,9 @@ Sections Manager window as shown above. In the Section Display window
 open the Editor. In the Editor window select Modify. Now a Properties
 window pops up and the Section Display shows a grid. The grid is one
 rung of ladder. The rung can contain branches. A simple rung has one
-input, a connector line and one output.
+input, a connector line and one output. A rung can have up to six
+horizontal branches. While it is possible to have more than one
+circuit in a run the results are not predictable.
 
 .Section Display with Grid[[cap:Section-Display-with-Grid]]
 

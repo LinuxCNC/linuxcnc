@@ -3,9 +3,11 @@
 o<manual_change> sub
 
 (we change feed, metric/in and potentially G90)
-(so mark as save caller state & auto-restore on return or endsub)
-
-M73
+(so record current modal state)
+(M73 is not useful here because it reverts G43 on return too)
+#<metric> = #<_metric>
+#<absolute> = #<_absolute>
+#<feed> = #<_feed>
 
 G21 (TLO and toolchange position is in mm as per ini)
 G90 (absolute)
@@ -31,11 +33,13 @@ M65 P #<_ini[pins]change> ; drop change pin
 ;see if we timed out
 O100 if [#5399 EQ -1]
         M65 P  #<_ini[pins]enable> ; disable table
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
 O100    return [-1] ; indicate timeout failure to epilog
 O100 endif
 
 O200 if [#<_selected_tool> EQ 0]   ; an unload.
         M65 P  #<_ini[pins]enable> ; disable table
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
 O200    return [1] ; indicate success
 O200 endif
 
@@ -55,6 +59,7 @@ G38.3 Z #<_ini[toolsensor]maxprobe>
 ; the milltask interpreter and 0 in the UI's
 
 O300 if [[#<_task> GT 0] and [#5070 EQ 0]]
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
 O300    return [-2] ; indicate probe contact failure to epilog
 O300 endif
 
@@ -81,6 +86,9 @@ G90 (absolute)
 ; move back to toolchange position: z, then xy
 g53 g0 Z #<_ini[change_position]z>
 g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
+
+; restore g20/21, g90/g91, feed
+O<restore> call [#<metric>] [#<absolute>] [#<feed>]
 
 ; succeed by returning a positive value
 o<manual_change> endsub [1]

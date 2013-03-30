@@ -1,0 +1,119 @@
+(info: G76 Threading, Specify driveline and offset, use NEGATIVE offset I for External Thread)
+
+; default values:
+; external thread example: xi=0.5,k=0.05,i=-0.03
+;                          for majordiam=0.94,minordiam=0.84,i=-0.03
+
+; internal thread example: xi=0.39,k=0.05,i=+0.03
+;                          for majordiam=0.94,minordiam=0.84,i=+0.03
+
+o<g76base> sub
+       #<toolno> =  #1 (= 10)
+          #<rpm> =  #2 (= 200  Spindle RPM)
+
+           #<xi> =  #3 (=  0.5 X: Xi driveline)
+           #<zi> =  #4 (= -0.5 Z: Zi driveline)
+
+; G76 required items:
+            #<p> =  #5 (=  0.125 P: Pitch, NEG for tpi)
+            #<z> =  #6 (= -1.0   Z: Zf final)
+            #<i> =  #7 (= -0.03  I: Thread peak offset)
+            #<k> =  #8 (=  0.05  K: Full thread depth)
+            #<j> =  #9 (=  0.015 J: Initial cut depth)
+
+; G76 optional items:
+            #<r> = #10 (=  1.0   R: Depth degression)
+            #<q> = #11 (= 29.5   Q: Compound slide angle)
+            #<h> = #12 (=  0     H: No. of spring passes)
+            #<e> = #13 (=  0.050 E: Taper dist =K typ)
+            #<l> = #14 (=  2     L: End Taper 0,1,2,3)
+
+; other:
+      #<spindir> = #15 (=3 Dir: Right=3 Left=4)
+         #<mode> = #16 (=8 G7/G8 Radius=8 Diam=7)
+      #<verbose> = #17 (=0 0:silent, 1:verbose)
+
+o<if00> if [#<p> LT 0]
+          #<p> = ABS[1 / #<p>]
+          (debug, g76base: Computed pitch = #<p> from tpi)
+o<if00> endif
+
+o<if10> if [ [#<l> NE 0] AND [#<l> NE 1] AND [#<l> NE 2] AND [#<l> NE 3] ]
+          (print,       q76base: Require: L = 0 or 1 or 2 or 3 - EXITING)
+          (debug,       q76base: Require: L = 0 or 1 or 2 or 3 - EXITING)
+          (AXIS,notify, q76base: Require: L = 0 or 1 or 2 or 3 - EXITING)
+          m2
+o<if10> endif
+
+o<if11> if [ [#<spindir> NE 3] AND [#<spindir> NE 4]]
+          (print,       q76base: Dir: 3 for RH 4 for LH - EXITING)
+          (debug,       q76base: Dir: 3 for RH 4 for LH - EXITING)
+          (AXIS,notify, q76base: Dir: 3 for RH 4 for LH - EXITING)
+          m2
+o<if11> endif
+
+o<if12> if [ [#<mode> NE 7] AND [#<mode> NE 8] ]
+          (print,       q76base: Mode: 7 for D 8 for R - EXITING)
+          (debug,       q76base: Mode: 7 for D 8 for R - EXITING)
+          (AXIS,notify, q76base: Mode: 7 for D 8 for R - EXITING)
+          m2
+o<if12> endif
+
+o<if20> if [#<_vmajor> lT 2.6]
+          ; no introspection on lathe radius/diameter mode
+          ; so allow only G8 (radius mode)
+o<if21>   if [#<mode> NE 8]
+            (print,       g76base: v2.5 requires G8 - EXITING)
+            (debug,       g76base: v2.5 requires G8 - EXITING)
+            (AXIS,notify, g76base: v2.5 requires G8 - EXITING)
+            m2
+o<if21>   endif
+o<if20> else
+          ; >= 2.6
+          ; use introspection on lathe radius/diameter mode
+          ; to restore mode
+o<if22>   if [#<_lathe_diameter_mode> EQ 1]
+            #<restore_mode> = 7 ; diam
+o<if22>   endif
+o<if23>   if [#<_lathe_radius_mode> EQ 1]
+            #<restore_mode> = 8 ; radius
+o<if23>   endif
+o<if24>   if [ [#<_lathe_diameter_mode> EQ 0] AND [ #<_lathe_radius_mode> EQ 0] ]
+            ; not supposed to happen:
+            (print,       g76base: unexpected lathe mode - EXITING)
+            (debug,       g76base: unexpected lathe mode - EXITING)
+            (AXIS,notify, g76base: unexpected lathe mode - EXITING)
+            m2
+o<if24>   endif
+o<if25>   if [ [#<_lathe_diameter_mode> EQ 1] AND [ #<_lathe_radius_mode> EQ 1] ]
+            ; not supposed to happen:
+            (print,       g76base: unexpected lathe mode - EXITING)
+            (debug,       g76base: unexpected lathe mode - EXITING)
+            (AXIS,notify, g76base: unexpected lathe mode - EXITING)
+            m2
+o<if25>   endif
+o<if20> endif
+
+G#<mode>
+
+o<if60>  if [#<verbose> GT 0]
+o<if70>    if [#<mode> EQ 7]
+             (debug, g76base: set G7 DIAMETER mode)
+o<if70>    else
+             (debug, g76base: set G8 RADIUS mode)
+o<if70>    endif
+o<if60>  endif
+
+o<loadtool> call [#<toolno>]
+
+M#<spindir> S#<rpm>
+
+G0 X#<xi> Z#<zi>
+
+G76 P#<p> Z#<z> I#<i> J#<j> R#<r> K#<k> Q#<q> H#<h> E#<e> L#<l>
+
+o<if80>  if [[#<_vmajor> GE 2.6] AND [#<verbose> GT 0]]
+           (debug, g76base restoring mode to G #<restore_mode>)
+o<if80>  endif
+
+o<g76base> endsub

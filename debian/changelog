@@ -1,3 +1,71 @@
+linuxcnc (1:2.5.2) lucid; urgency=low
+
+  * AXIS: Allow the setting of the top end of the Max Velocity slider
+    according to [DISPLAY]MAX_LINEAR_VELOCITY as the docs say
+  * Components: Fix mux16's debounce function
+  * Components: LCD character display driver
+  * Components: New multiclick component detects single, double, triple clicks
+  * Docs: Many improvements
+  * Gremlin: Better error reporting for gcode errors
+  * Gremlin: Fix rotated axes display
+  * Halui: Include tool length offsets in relative position outputs
+  * Hostmot2: Fixes to sserial
+  * Kins: Fix teleop jogging of ABC axes in the negative direction
+  * Modbus: Fix TCP communication time out error
+  * New config: Gecko G540
+  * New config: Smithy 1240combined_mm
+  * PID: Optional new error-previous-target mode to reduce ferrors detected
+    by motion.  This is especially useful for torque-mode loops and those
+    tunings that use large I gains
+  * pncconf: Many fixes
+  * PPMC: Better error checking for hardware problems causing miscommunication
+  * Tool Table: Many fixes to tool table handling, making tool tables on
+    nonrandom setups using mismatched tool and pocket numbers work correctly
+  * Translations: German for tooledit
+  * Translations: Many improvements to French
+  * Utilities: new latencyhistogram program that shows details about latency
+  * Utilities: sim_pin, a script that simulates writing to hal pins
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 03 Mar 2013 17:07:57 -0600
+
+linuxcnc (1:2.5.1) lucid; urgency=low
+
+  * Motion: fix incorrect spindle direction after G43 in CSS+M4 mode
+  * Interpreter: allow G10 L1 to set front/back angles when not 
+    also changing offsets
+  * Interpreter: correctly report G96/G97 mode to the UI
+  * Interpreter: explicitly set the default spindle mode at startup
+  * task: fix incorrect spindle speed display when switching mode
+    (Manual/MDI)
+  * PPMC: fix a bug that would cause missing encoder velocity pins on
+    some versions
+  * Hostmot2: Fix a couple of bugs affecting sserial (crash on
+    shutdown, memory leak)
+  * Hostmot2: Add support for 6i25
+  * AXIS: fix a surprise jog when the jog increment combobox was open
+  * AXIS: show S word in active gcode pane
+  * AXIS: rebranding
+  * Touchy: rebranding, change program path to ~/linuxcnc/nc_files
+  * Docs: improvements/clarifications to the halui.1 manpage
+  * Docs: improvements/clarifications to the gladevcp docs
+  * Docs: improvements/clarifications to the halcmd docs
+  * Docs: improvements/clarifications to the gcode docs
+  * Docs: fix misc typos, misspellings, grammar, and markup bugs
+  * Docs: updates to French translations
+  * GladeVCP: fix EMC_Action_Open
+  * GladeVCP: new default-value example
+  * tooledit: save/restore geometry, allow sorting on specific columns
+  * tooledit: bugfixes and i18n
+  * ngcgui: minor fixes and additions
+  * pncconf: lots of bug fixes and incremental improvements
+  * portability fix for Ubuntu Precise 12.04 LTS
+  * portability fix for Fedora 16
+  * Calibration: fix missing entries in tuning/calibration screens
+  * emcrsh: fix incorrect relative position report for some offset settings
+  * time.comp: fix hours wrapping at 60
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 29 Jul 2012 13:48:25 -0500
+
 linuxcnc (1:2.5.0) lucid; urgency=low
 
   * AXIS: dynamic tabs can embed other applications, including virtual

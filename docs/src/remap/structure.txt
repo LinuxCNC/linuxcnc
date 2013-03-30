@@ -1,5 +1,5 @@
 
-= Extending EMC
+= Extending LinuxCNC
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -32,10 +32,10 @@ requires resorting to changes at the 'C/C\+\+' language level. The latter
 is unpopular for good reasons - changing internals requires in-depth
 understanding of interpreter internals, and moreover brings its own
 set of support issues. While it is conceivable that certain patches
-might make their way into the main EMC2 distribution, the result of
+might make their way into the main LinuxCNC distribution, the result of
 this approach is a hodge-podge of special-case solutions.
 
-A good example for this deficiency is tool change support in EMC2:
+A good example for this deficiency is tool change support in LinuxCNC:
 while random toolchangers are well supported, it is next to impossible
 to reasonably define a configuration for a manual-toolchange machine
 with, for example, an automatic tool length offset switch being
@@ -107,11 +107,11 @@ somewhat cumbersome RS274NGC language at all.
 ==== A Word on Embedded Python
 
 Many people are familiar with 'extending' the Python interpreter by
-'C/C\+\+' modules, and this is heavily used in EMC2 to access Task,
+'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
 HAL and and Interpreter internals from Python scripts. 'Extending
 Python' basically means: your Python script executes as 'it is in the
 driver seat', and may access non-Python code by importing and using
-extension modules written in 'C/C\+\+'. Examples for this are the EMC2
+extension modules written in 'C/C\+\+'. Examples for this are the LinuxCNC
 `hal`, `gcode` and `emc` modules.
 
 Embedded Python is a bit different and and less commonly known: The
@@ -286,19 +286,19 @@ keyword-value pairs and currently are:
 `python=`'<Python function name>'::
 	Instead of calling an ngc O-word procedure call a Python
 	function. The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.oword`
+	`module_basename.oword`
 	module. Mutually exclusive with `ngc=`.
 
 `prolog=`'<Python function name>'::
 	Before executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap`
+	`module_basename.remap`
 	module. Optional.
 
 `epilog=`'<Python function name>'::
 	After executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap`
+	`module_basename.remap`
 	module. Optional.
 
 The `python`, `prolog` and `epilog` options require the Python
@@ -473,7 +473,7 @@ Assume the code is defined as
 `REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886`
 
 This instructs the interpreter to execute the Python function `g886`
-in the <<remap:module_basename, module basename>>`.remap` module
+in the `module_basename.remap` module
 which might look like so:
 
 [source,python]
@@ -585,13 +585,60 @@ The examples described so far can be found in
 'configs/sim/remap/getting-started' with complete working
 configurations.
 
+== Upgrading an existing configuration for remapping
+
+The minimal prerequisites for using `REMAP` statements are as follows:
+
+- the Python plugin must be activated by specifying a
+ `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the ini file.
+- the toplevel script needs to import the `remap` module, which can be
+ initially empty, but the import needs to be in place.
+- The Python interpreter needs to find the remap.py module above, so
+ the path to the directory where your Python modules live needs to be
+ added with  `[PYTHON]APPEND=<path-to-your-local-Python-directory>`
+- Recommended: import the `stdglue` handlers in the `remap` module. In
+ this case Python also needs to find `stdglue.py` - we just copy it
+ from the distribution so you can make local changes as
+ needed. Depending on your installation the path to `stdglue.py` might
+ vary. 
+
+Assuming your configuration lives under `/home/user/xxx` and the ini
+file is `/home/user/xxx/xxx.ini`, execute the following commands.
+
+[source,sh]
+---------------------------------------------------------------------
+$ cd /home/user/xxx
+$ mkdir python
+$ cd python
+$ cp /usr/share/doc/linuxcnc/examples/sample-configs/sim/remap/python-stdglue/stdglue.py .
+$ echo 'from stdglue import *' >remap.py
+$ echo 'import remap' >toplevel.py
+---------------------------------------------------------------------
+
+Now edit `/home/user/xxx/xxx.ini` and add the following:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[PYTHON]
+TOPLEVEL=/home/user/xxx/python/toplevel.py
+APPEND=/home/user/xxx/python
+---------------------------------------------------------------------
+
+Now verify that LinuxCNC comes up with no error messages - from a
+terminal window execute:
+
+[source,sh]
+---------------------------------------------------------------------
+$ cd /home/user/xxx
+$ linuxcnc xxx.ini
+---------------------------------------------------------------------
 
 
 == Remapping toolchange-related codes: T, M6, M61
 
 === Overview
 
-If you are unfamiliar with EMC2 internals, first read the
+If you are unfamiliar with LinuxCNC internals, first read the
 <<remap::how-toolchange-currently-works, How toolchange currently
 works>> section (dire but necessary).
 
@@ -889,6 +936,11 @@ M6 (use builtin M6 behaviour)
 o<mychange> endsub 
 m2
 ---------------------------------------------------------------------
+
+
+CAUTION: when redefining a builtin code, *do not specify any leading
+zeroes in G- or M-codes* - for example, say `REMAP=M1 ..`, not
+`REMAP=M01 ...`.
 
 See the `configs/sim/remap/extend-builtins` directory for a complete
 configuration which is the recommded starting point for own work
@@ -1822,7 +1874,7 @@ To use this approach:
 selection)
 - install the PyDev plugin from the
 http://pydev.org/updates[Pydev Update Site]
-- setup the EMC2 source tree as an Eclipse project
+- setup the LinuxCNC source tree as an Eclipse project
 - start the Pydev Debug Server in Eclipse
 - make sure the embedded Python code can find the `pydevd.py` module
 which comes with that plugin - it's buried somewhere deep under the
@@ -1907,7 +1959,7 @@ Note that the use of M61 currently requires the use of iocontrol-v2.
 
 === Currently unallocated G-codes: [[remap:unallocated-g-codes]]
 
-These codes are currently undefined in the current implementation of EMC2
+These codes are currently undefined in the current implementation of LinuxCNC
 and may be used to define new G-codes:
 
 FIXTHIS too verbose
@@ -2015,7 +2067,7 @@ G99.1 G99.2 G99.3 G99.4 G99.5 G99.6 G99.7 G99.8 G99.9
 
 === Currently unallocated M-codes: [[remap:unallocated-m-codes]]
 
-These codes are currently undefined in the current implementation of EMC2
+These codes are currently undefined in the current implementation of LinuxCNC
 and may be used to define new M-codes:
 
  M10
@@ -2544,7 +2596,7 @@ changing a Python file.
 
 . M61 (remapped or not) is broken in iocontrol and requires
 iocontrol-v2 to actually work.
-// A short survey of EMC2 execution
+// A short survey of LinuxCNC execution
 // Interpreter internals access - Python view
 // Task internals access - Python view
 ==  Build notes - Lucid (10.04)

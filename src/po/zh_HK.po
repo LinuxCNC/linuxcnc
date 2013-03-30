@@ -67,7 +67,6 @@ msgid "_Close"
 msgstr " 關閉(_C) "
 
 #: src/hal/utils/scope.c:126
-#, fuzzy
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
@@ -554,7 +553,7 @@ msgid "Unexpected realtime delay: check dmesg for details."
 msgstr "意外的實時延遲：檢查 dmesg 的詳細信息."
 
 #: src/emc/motion/control.c:263
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "In recent history there were\n"
@@ -790,15 +789,15 @@ msgstr "在坐標模式做剛性攻絲移動,需要啟動指令"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "不能做剛性攻絲移動當超過極限"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
-msgstr ""
+msgstr "不能添加剛性攻絲移動"
 
 #: src/emc/motion/command.c:1435
 msgid "need to be enabled, in teleop mode for teleop move"
-msgstr ""
+msgstr "需要激活遠程操作模式，才可作遠程運移動"
 
 #: src/emc/motion/command.c:1556 src/emc/motion/command.c:1605
 #, c-format
@@ -810,10 +809,10 @@ msgstr "joint %d: 太多的補償條目"
 msgid "joint %d: compensation values must increase"
 msgstr "joint %d: 補償值必須增加"
 
-#: src/emc/motion/command.c:1591 src/emc/motion/command.c:1640
+#: src/emc/motion/command.c:1591
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "無法識別的命令 %d"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
@@ -873,21 +872,21 @@ msgstr ""
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr ""
+msgstr "在歸零狀態,碰到極限 %d"
 
 #: src/emc/motion/homing.c:90
 #, c-format
 msgid "end of move in home state %d"
-msgstr ""
+msgstr "在歸零狀態,移動完結 %d"
 
 #: src/emc/motion/homing.c:185
 #, c-format
 msgid "unknown state '%d' during homing sequence"
-msgstr ""
+msgstr "在歸零程序時,不明的狀態 '%d'"
 
 #: src/emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr ""
+msgstr "當共享零開關閉上時,不能歸零"
 
 #: src/emc/motion/homing.c:290
 msgid ""
@@ -4902,8 +4901,8 @@ msgstr ""
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with LinuxCNC.\n"
@@ -12039,8 +12038,8 @@ msgstr "不能使用 G5.3沒有 G5.2先行"
 #: src/emc/rs274ngc/interp_convert.cc:183
 #, c-format
 msgid ""
-"You must specify a number of control points at least equal to the order L = "
-"%d"
+"You must specify a number of control points at least equal to the order L = %"
+"d"
 msgstr "您必須指定一個數字控制點至少等於順序L =％d"
 
 #: src/emc/rs274ngc/interp_convert.cc:212
@@ -13542,6 +13541,19 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:169
 msgid "Bug: call stack underrun"
+msgstr ""
+
+#: share/axis/tcl/axis.tcl:1711
+msgid ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with LinuxCNC.\n"
+"\n"
+"Visit the LinuxCNC web site: "
 msgstr ""
 
 #~ msgid "About TkEmc"

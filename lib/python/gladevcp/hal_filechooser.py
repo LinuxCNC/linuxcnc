@@ -113,11 +113,12 @@ class _EMC_FileChooser(_EMC_ActionBase):
         flt = FilterProgram(flt, filename, tmp, lambda r: r or self._load_file(tmp))
 
     def _load_file(self, filename):
-        self.linuxcnc.mode(linuxcnc.MODE_AUTO)
-        old = self.gstat.stat.file
-        self.linuxcnc.program_open(filename)
-        if old == filename:
-            self.gstat.emit('file-loaded', filename)
+        if filename:
+            self.linuxcnc.mode(linuxcnc.MODE_AUTO)
+            old = self.gstat.stat.file
+            self.linuxcnc.program_open(filename)
+            if old == filename:
+                self.gstat.emit('file-loaded', filename)
 
     def load_filters(self, inifile=None):
         inifile = inifile or os.environ.get('INI_FILE_NAME', '/dev/null')
@@ -134,11 +135,11 @@ class _EMC_FileChooser(_EMC_ActionBase):
 
     def _load_filters(self, inifile):
         def _e2p(n, el):
-            print "New filter %s: %s" % (n, el)
+            #print "New filter %s: %s" % (n, el)
             p = gtk.FileFilter()
             p.set_name(n)
             map(lambda s: p.add_pattern('*' + s), el)
-            print p
+            #print p
             return p
         all_extensions = [".ngc"]
         extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -159,7 +160,8 @@ class EMC_FileChooserDialog(gtk.FileChooserDialog, _EMC_FileChooser):
         self.connect('response', self.on_response)
 
     def on_response(self, w, response):
-        print ">>>", w, response
+        pass
+        #print ">>>", w, response
 
 class EMC_FileChooserButton(gtk.FileChooserButton, _EMC_FileChooser):
     __gtype_name__ = 'EMC_FileChooserButton'
@@ -176,12 +178,15 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
     fixed_file = gobject.property(type=str, default='', nick='Fixed file name')
 
     def _hal_init(self):
+        _EMC_FileChooser._hal_init(self)
         _EMC_Action._hal_init(self)
         self.currentfolder = os.path.expanduser("~/linuxcnc/nc_files")
 
+    def _load_filters(self, ini): pass
+
     def on_activate(self, w):
         if self.fixed_file:
-            self._button.load_file(self.fixed_file)
+            self.load_file(self.fixed_file)
             return
         dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
                 buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))

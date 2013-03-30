@@ -1,0 +1,36 @@
+; different_speeds.ngc
+; basic settings
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+; get tool
+T3 M6
+G43
+S2500
+M3
+
+G42
+F5000
+G01 X-10 Y-10 Z30
+
+G00 X0 Y0 Z0
+G01 X100 F500
+G01 Y100 F400
+/G01 X0 F300
+/G01 Y0 F250
+
+G0 Z 30
+G0 Y 50
+G0 X 50
+
+G40
+G49
+M5
+M2

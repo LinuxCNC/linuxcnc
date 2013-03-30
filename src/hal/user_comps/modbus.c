@@ -151,7 +151,8 @@ static unsigned int compute_response_size(modbus_param_t *mb_param,
   offset = mb_param->header_length;
 
   switch (query[offset + 1]) {
-    case 0x01: {
+    case 0x01:
+    case 0x02: {
       /* Header + nb values (code from force_multiple_coils) */
       int coil_count = (query[offset + 4] << 8) | query[offset + 5];
       response_size_computed = 3 +
@@ -209,7 +210,7 @@ int build_request_packet_tcp(int slave, int function, int start_addr,
 
   /* Length to fix later with set_packet_length_tcp (4 and 5) */
 
-  packet[6] = 0xFF;
+  packet[6] = slave;
   packet[7] = function;
   packet[8] = start_addr >> 8;
   packet[9] = start_addr & 0x00ff;
@@ -784,6 +785,7 @@ int force_multiple_coils(modbus_param_t *mb_param, int slave,
   int coil_check = 0;
   int status;
   int query_ret;
+  int pos = 0;
 
   unsigned char query[MAX_PACKET_SIZE];
 
@@ -800,7 +802,6 @@ int force_multiple_coils(modbus_param_t *mb_param, int slave,
 
   for (i = 0; i < byte_count; i++) {
     int bit;
-    int pos = 0;
 
     bit = 0x01;
     query[query_size] = 0;

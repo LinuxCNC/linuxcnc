@@ -196,7 +196,7 @@ what each one is.
 === Feed Rate
 
 How the feed rate is applied depends on if an axis involved with the
-move is a rotary axis. Read and understand the <<feed-rate,Feed Rate>>
+move is a rotary axis. Read and understand the <<sub:feed-rate,Feed Rate>>
 section if you have a rotary axis or a lathe.
 
 === Tool Radius Offset
@@ -207,7 +207,7 @@ moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
 is narrower than the cutter without any errors. See the 
-<<sec:cutter-radius-compensation,Cutter Radius Compensation>> Section
+<<sec:cutter-compensation,Cutter Compensation>> Section
 for more information.
 
 == Homing
@@ -276,11 +276,26 @@ them.
  - Clear any G92 offset with G92.1
  - Use the G54 coordinate system with G54
  - Set the G54 coordinate system to be the same as the 
-   machine coordinate system with G10 L2 P1 X0 Y0 Z0
+   machine coordinate system with G10 L2 P1 X0 Y0 Z0 R0
  - Turn off tool offsets with G49
  - Turn on the Relative Coordinate Display from the menu
 
 Now you should be at the machine origin X0 Y0 Z0 and the relative
 coordinate system should be the same as the machine coordinate system.
 
+== Machine Configurations
 
+The following diagram shows a typical mill showing direction of travel
+of the tool and the mill table and limit switches. Notice how the mill table
+moves in the opposite direction of the Cartesian coordinate system arrows
+shown by the 'Tool Direction' image. This makes the 'tool' move in the
+correct direction in relation to the material.
+
+.Mill Configuration
+image::images/mill-diagram.png[align="center"]
+
+The following diagram shows a typical lathe showing direction of travel
+of the tool and limit switches.
+
+.Lathe Configuration
+image::images/lathe-diagram.png[align="center"]

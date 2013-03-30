@@ -8,6 +8,8 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=3 num_pwmgens=1 num_stepgens=2"
+# set up the watchdog
+#setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
 loadrt trivkins
@@ -34,6 +36,7 @@ sets Enable TRUE
 #configure the spindle encoder
 setp hm2_5i20.0.encoder.00.scale 4096
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
+net Svel hm2_5i20.0.encoder.00.velocity motion.spindle-speed-in
 net Sidx hm2_5i20.0.encoder.00.index-enable => motion.spindle-index-enable
 
 #configure the spindle speed lowpass filter & PWM generator

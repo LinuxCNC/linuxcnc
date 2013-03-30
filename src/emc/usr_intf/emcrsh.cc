@@ -29,6 +29,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <getopt.h>
 
@@ -455,7 +456,7 @@ typedef struct {
   int commProt;
   char inBuf[256];
   char outBuf[4096];
-  char progName[256];} connectionRecType;
+  char progName[PATH_MAX];} connectionRecType;
 
 int port = 5007;
 int server_sockfd, client_sockfd;
@@ -588,17 +589,26 @@ static setCommandType lookupSetCommand(char *s)
 static int commandHello(connectionRecType *context)
 {
   char *pch;
-  
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   if (strcmp(pch, pwd) != 0) return -1;
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  strncpy(context->hostName, pch, sizeof(context->hostName));
+  if (context->hostName[sizeof(context->hostName)-1] != '\0') {
+    return -1;
+  }
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  context->linked = true;    
-  strcpy(context->version, pch);
+  strncpy(context->version, pch, sizeof(context->version));
+  if (context->version[sizeof(context->version)-1] != '\0') {
+    return -1;
+  }
+
+  context->linked = true;
   printf("Connected to %s\n", context->hostName);
   return 0;
 }
@@ -1055,15 +1065,17 @@ static cmdResponseType setTaskPlanInit(char *s, connectionRecType *context)
 static cmdResponseType setOpen(char *s, connectionRecType *context)
 {
   char *pch;
-  char fileStr[80];
-  
+
   pch = strtok(NULL, "\n\r\0");
   if (pch == NULL) return rtStandardError;
-  strcpy(context->progName, pch);
-//  strcpy(fileStr, "../../nc_files/");
-  strcpy(fileStr, defaultPath);
-  strcat(fileStr, pch);
-  if (sendProgramOpen(fileStr) != 0) return rtStandardError;
+
+  strncpy(context->progName, pch, sizeof(context->progName));
+  if (context->progName[sizeof(context->progName) - 1] != '\0') {
+    fprintf(stderr, "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)", (unsigned long)strlen(pch), (unsigned long)sizeof(context->progName));
+    return rtStandardError;
+  }
+
+  if (sendProgramOpen(context->progName) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1675,27 +1687,27 @@ static cmdResponseType getRelCmdPos(char *s, connectionRecType *context)
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 0)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g5x_offset.tran.x);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 1)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g5x_offset.tran.y);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 2)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g5x_offset.tran.z);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 3)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.a - emcStatus->task.g5x_offset.a - emcStatus->task.g5x_offset.a);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.a - emcStatus->task.g5x_offset.a - emcStatus->task.g92_offset.a);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 4)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.b - emcStatus->task.g5x_offset.b - emcStatus->task.g5x_offset.b);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.b - emcStatus->task.g5x_offset.b - emcStatus->task.g92_offset.b);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 5)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.c - emcStatus->task.g5x_offset.c - emcStatus->task.g5x_offset.c);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.c - emcStatus->task.g5x_offset.c - emcStatus->task.g92_offset.c);
     strcat(context->outBuf, buf);
     }
   return rtNoError;
@@ -1715,27 +1727,27 @@ static cmdResponseType getRelActPos(char *s, connectionRecType *context)
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 0)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g5x_offset.tran.x);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 1)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g5x_offset.tran.y);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 2)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g5x_offset.tran.z);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 3)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a - emcStatus->task.g5x_offset.a - emcStatus->task.g5x_offset.a);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a - emcStatus->task.g5x_offset.a - emcStatus->task.g92_offset.a);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 4)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b - emcStatus->task.g5x_offset.b - emcStatus->task.g5x_offset.b);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b - emcStatus->task.g5x_offset.b - emcStatus->task.g92_offset.b);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 5)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c - emcStatus->task.g5x_offset.c - emcStatus->task.g5x_offset.c);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c - emcStatus->task.g5x_offset.c - emcStatus->task.g92_offset.c);
     strcat(context->outBuf, buf);
     }
   return rtNoError;
@@ -1769,11 +1781,11 @@ static cmdResponseType getPosOffset(char *s, connectionRecType *context)
   
   if (s == NULL) {
     strcpy(context->outBuf, pPosOffset);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g5x_offset.tran.x));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g5x_offset.tran.y));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g5x_offset.tran.z));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z));
     strcat(context->outBuf, buf);
     sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
     strcat(context->outBuf, buf);
@@ -2590,6 +2602,8 @@ commandTokenType lookupToken(char *s)
   return i;
 }
   
+// handle the linuxcncrsh command in context->inBuf
+// return 0 on success, -1 on error, and -2 on unknown command
 int parseCommand(connectionRecType *context)
 {
   int ret = 0;
@@ -2638,14 +2652,14 @@ int parseCommand(connectionRecType *context)
 
 void *readClient(void *arg)
 {
-  char str[1600];
   char buf[1600];
-  unsigned int i, j;
+  int context_index;
+  int i;
   int len;
   connectionRecType *context;
-  
+
   signal(SIGPIPE, SIG_IGN);
-  
+
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2657,38 +2671,49 @@ void *readClient(void *arg)
   context->commMode = 0;
   context->commProt = 0;
   context->inBuf[0] = 0;
-  buf[0] = 0;
-  
+
+  context_index = 0;
+
   while (1) {
-    len = read(context->cliSock, &str, 1600);
-    if (len <= 0) goto finished;
-    str[len] = 0;
-    strcat(buf, str);
-    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
+    // We always start this loop with an empty buf, though there may be one
+    // partial line in context->inBuf[0..context_index].
+    len = read(context->cliSock, buf, sizeof(buf));
+    if (len < 0) {
+      fprintf(stderr, "linuxcncrsh: error reading from client: %s\n", strerror(errno));
+      goto finished;
+    }
+    if (len == 0) {
+      printf("linuxcncrsh: eof from client\n");
+      goto finished;
+    }
+
     if (context->echo && context->linked)
-      if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
-        fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
+      if(write(context->cliSock, buf, len) != (ssize_t)len) {
+        fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
       }
-    i = 0;
-    j = 0;
-    while (i <= strlen(buf)) {
-      if ((buf[i] != '\n') && (buf[i] != '\r')) {
-        context->inBuf[j] = buf[i];
-	j++;
-	}
-      else
-        if (j > 0)
-          {
-  	    context->inBuf[j] = 0;
-            if (parseCommand(context) == -1) goto finished;
-	    j = 0;
-	}
-        i++;	
-      }
-    buf[0] = 0;
-    } 
+
+    for (i = 0; i < len; i ++) {
+        if ((buf[i] != '\n') && (buf[i] != '\r')) {
+            context->inBuf[context_index] = buf[i];
+            context_index ++;
+            continue;
+        }
+
+        // if we get here, i is the index of a line terminator in buf
+
+        if (context_index > 0) {
+            int r;
+            // we have some bytes in the context buffer, parse them now
+            context->inBuf[context_index] = '\0';
+            r = parseCommand(context);
+            if (r == -1) goto finished;
+            context_index = 0;
+        }
+    }
+  }
 
 finished:
+  printf("linuxcncrsh: disconnecting client %s (%s)\n", context->hostName, context->version);
   close(context->cliSock);
   free(context);
   pthread_exit((void *)0);

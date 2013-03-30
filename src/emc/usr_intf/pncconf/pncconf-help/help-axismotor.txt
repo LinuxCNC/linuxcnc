@@ -12,7 +12,6 @@ Servo Info:
         FF0 - zero order feed forward
         FF1 - first order feed forward
         FF2 - second order feed forward
-        Bias - used to add / subtract a constant value to dac.
         Deadband - if the actual position is in this band
             of the commanded proportional control will not be added.
         Dac scale      - scales the output nominal is +-1 volt
@@ -34,7 +33,7 @@ Dac Scale:
     You could scale this to represent motor speed, voltage, duty cycle or anything
     else. Common settings would be duty cycle (scale of 1), voltage (scale of
     maximum voltage) or axis speed (scale of maximum axis speed in machine 
-    units per second). I reccomend axis speed.
+    units per second). I recommend axis speed.
     Note that scale is tied closely to dac max output.
 
     If Using PWM for spindle control for instance to control a VFD, then scale
@@ -44,6 +43,37 @@ Dac Scale:
     be 2000. Currently PNCconf does not use PID control for the spindle, so
     DAC max output does not limit the output. Usually the VFD can do this.
 
+Analog Min Limit
+Analog Max Limit
+Analog Scale:
+    The 5i25 spindle/analog outputs use these three settings to scale and range
+    the output voltage.
+    Min Limit is the minimum output eg -10 or 0 volts.
+    Max Limit is the Maximuim output eg 10 volts.
+    Scale sets the user units based on the maximuim output of 10 volts.
+    If you wish the units to be voltage then set the scale to 10
+    If you wish the units to be RPM (of say a VDF spindle) set the scale to the
+    maximuim RPM of the spindle with a 10 volt signal.
+    For an axis setting the scale at maximuim axis velocity (machine units per 
+    second) would make sense.
+
+    eg. scale to voltage, range of +- 10
+        Analog Min Limit = -10
+        Analog Max Limit = 10
+        Analog Scale =     10
+
+    eg. scale to RPM, range 0 to 3000 ( assumes 3000 rpm with a 10 volt output )
+        Analog Min Limit = 0
+        Analog Max Limit = 3000
+        Analog Scale =     3000
+        ( This would have an output between 0 and 10 volts )
+
+    eg. scale to RPM, range -3000 to 3000 ( assumes 6000 rpm with a 10 volt output )
+        Analog Min Limit = 3000
+        Analog Max Limit = 3000
+        Analog Scale =     6000
+        ( This would limit the output to +- 5 volts )
+
 Dac Max Output:
     Dac max output is a PID setting. (Currently the spindle does not use PID.)
     This is the maximum output that the dac can output to the amps. It is in the 
@@ -52,8 +82,9 @@ Dac Max Output:
     minimum rate. For instance if your scaling sets voltage and you want to limit
     voltage to 7 (as the daughter boards produce 10 volts maximum) set this to 7
 
-Brushless Control:
+Use BLDC Motor Commutation Control:
     Select this to use and configure the BLDC component.
+    You would use this with special daugther boards or odd situations.
     The BLDC component can be used to control brushless motors
     directly and for HALL sensor conversions. See the MAN pages.
     For HALL conversion one must select the HALL/GRAY signals
@@ -64,7 +95,7 @@ Brushless Control:
     Please send suggestions to EMC mail list or forum.
 
 Open loop servo test Button:
-    Use this test to confirm proper Dac output.
+    Use this test to confirm proper Dac output and encoder input.
     This is unavailable if using simulated realtime.
     It is important to confirm the motor turns in the positive
     direction when the positive jog button is pressed.
@@ -77,15 +108,34 @@ Open loop servo test Button:
     the axis a known distance and noting the encoder count. The encoder
     should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
+    The fast-dac / slow-dac options are preselect options so it is convienant
+    to switch between slow speed and fast speed. Set them to what you like - 
+    remember there is no ramping.
+    Bias - used to add / subtract a constant value to the dac. It can only be 
+    used for this test to tempararily stabilize a drifting motor - it will not 
+    be used in the regular PID control.
+
+    For testing purposes if you require an output true, for instance to force
+    a relay to close to allow the amplifier to be powered, select the 
+    'force-pin-true' output signal on the Mesa page. The openloop and tuning 
+    tests will then set the output true for the length of the test.
+
+    Note that 7i77 and 7i76 daughter boards need their field power supplied
+    or some of the HAL pins will not be made and could cause an error message.
 
 Spindle-at-speed settings:
-    Set the scaling so EMC knows when the spindle is close enough
+    Set the scaling so Linuxcnc knows when the spindle is close enough
     to the requested speed. A spindle encoder or spindle-at-speed 
     digital input signal is required for this.
+    There is the option of percent or RPM range.
+    If you leave percent at 100 then set the RPM difference that is acceptable.
+    Other wise set the RPM difference to 0 and set the percent that is acceptable.
+    The default is a difference of +-200 RPM. Maximuim is 500 RPM.
 
 Spindle display filter gain:
     If a spindle speed display was chosen, this sets the filter
     gain which helps stop the display from bouncing around.
+    The default gain is 1
 
 Stepper Info:
     This is for setting up the Stepper control loop:
@@ -151,3 +201,5 @@ Test / Tune Axis Button:
     pressing OK will transfer the settings to the axis page.
     pressing cancel will keep the existing settings.
 
+    Note that 7i77 and 7i76 daughter boards need their field power supplied
+    or some of the HAL pins will not be made and could cause an error message.

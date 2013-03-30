@@ -14,21 +14,23 @@ Typical steps for updating the tool table:
 * After homing load a tool with 'Tn M6' where 'n' is the tool number. 
 * Move tool to an established point using a gauge or take a test cut and
    measure.
+* Click the "Touch Off" button in the Manual Control tab (or hit the
+   End button on your keyboard).
 * Select 'Tool Table' in the Coordinate System drop down box.
 * Enter the gauge or measured dimension and select OK.
 
 The Tool Table will be changed with the correct Z length to make the
 DRO display the correct Z position and a G43 command will be issued so
 the new tool Z length will be in effect. Tool table touch off is only
-available when a tool is loaded with 'TnM6'.
+available when a tool is loaded with 'Tn M6'.
 
 .Touch Off Tool Table[[cap:Touch-Off-Tool]]
 
 image::images/ToolTable-TouchOff.png[align="center"]
 
-=== Using G10 L1
+=== Using G10 L1/L10/L11
 
-The G10 L1x command can be used to set tool table offsets:
+The G10 L1/L10/L11 commands can be used to set tool table offsets:
   (these are just quick summaries, see the G code section for full details)
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 
@@ -38,9 +40,10 @@ The G10 L1x command can be used to set tool table offsets:
                       (see <<sec:G10-L10,G10 L10>> for details)
 
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
-                      (see <<sec:G10-L11,G10 L10>> for details)
+                      (see <<sec:G10-L11,G10 L11>> for details)
 
-== Tool Table [[sec:tool-table]]
+[[sec:tool-table]]
+== Tool Table
 
 // carried over from machining_center.txt for salvage -mah
 
@@ -107,7 +110,11 @@ changed manually. The file can be edited with a text editor or be
 updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
 Section for an example of the lathe tool table format.
 The maximum number of entries in the tool table is 56.
-The maximum tool and pocket number is 99999. 
+The maximum tool and pocket number is 99999.
+
+The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the
+tool table. If you use a text editor make sure you reload the tool table in
+the GUI.
 
 === Tool Table Format 
 (((Tool-Table-Format)))
@@ -126,8 +133,8 @@ The maximum tool and pocket number is 99999.
 In general, the new tool table line format is:
 
  - ; - opening semicolon, no data
- - T - tool number, 0-99999 (you can have a large number of tools in inventory)
- - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - T - tool number, 0-99999 (tool numbers must be unique)
+ - P - pocket number, 1-99999 (pocket numbers must be unique)
  - X..W - tool offset on specified axis - floating-point
  - D - tool diameter - floating-point, absolute value
  - I - front angle (lathe only) - floating-point 
@@ -213,21 +220,21 @@ A complete description of the lathe entries can be found in the lathe
 section of the user manual <<cha:Lathe-Specifics,here>>. 
 
 The 'Diameter' column contains a real number. This number is used only
-if tool radius compensation is turned on using this tool. If the
+if cutter compensation is turned on using this tool. If the
 programmed path during compensation is the edge of the material being
 cut, this should be a positive real number representing the measured
 diameter of the tool. If the programmed path during compensation is the
 path of a tool whose diameter is nominal, this should be a small number
 (positive or negative, but near zero) representing only the difference 
 between the measured diameter of the tool and the nominal diameter. 
-If cutter radius compensation is not used with a tool, it does not 
+If cutter compensation is not used with a tool, it does not 
 matter what number is in this column.
 
 The 'Comment' column may optionally be used to describe the tool. Any 
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon. 
 
-=== Tool Changers
+=== [[sec:Tool-Changers]] Tool Changers
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'fixed location'. Information about configuring an LinuxCNC tool changer
@@ -262,14 +269,15 @@ are. T can be any number but P must be a number that makes sense for
 the machine.
 
 
-== Cutter Radius Compensation[[sec:cutter-radius-compensation]]
+[[sec:cutter-compensation]]
+== Cutter Compensation
 
-Cutter Radius Compensation allows the programmer to program the tool
+Cutter Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
 programmer must program the lead in move to be at least as long as the
 largest tool radius that might be used.
 
-There are two possible paths the cutter can take while cutter radius
+There are two possible paths the cutter can take while cutter
 compensation is on to the left or right side of a line when facing the
 direction of cutter motion from behind the cutter. To visualize this
 imagine you were standing on the part walking behind the tool as it
@@ -291,7 +299,7 @@ image::images/comp-path.png[align="center"]
 
 .Tool Table
 
-Cutter radius compensation uses the data from the tool table to
+Cutter compensation uses the data from the tool table to
 determine the offset needed. The data can be set at run time with G10
 L1.
 

@@ -88,7 +88,8 @@ changes as needed.
 
 This document is aimed at people who already know how to do this kind
 of hardware system integration, but who do not know how to connect the
-hardware to LinuxCNC. See Remote Start Example<<fig:Remote-Start-Example>>
+hardware to LinuxCNC. See the <<sec:Remote-Start-Example,Remote Start
+Example>> section in the HAL UI Examples documentation.
 
 image::images/remote-start.png[]
 
@@ -277,6 +278,9 @@ blocks::
 hal_ax5214h::
      (((hal-ax5214h))) A driver for the Axiom Measurement & Control AX5241H
     digital I/O board
+
+hal_gm::
+    (((hal-gm))) General Mechatronics GM6-PCI board
 
 hal_m5i20::
     (((hal-m5i20))) Mesa Electronics 5i20 board

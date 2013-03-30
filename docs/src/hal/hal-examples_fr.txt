@@ -199,4 +199,52 @@ vidée proprement, ce qui pourrait empêcher LinuxCNC de se charger.
 Pour tout savoir sur Halscope et Halrun <<sec:Intro-tutoriel, voir le
 tutoriel de HAL>>.
 
+== HAL en autonome
 
+Dans certains cas il peut être utile de lancer un écran GladeVCP avec juste HAL.
+Par exemple, nous avons un moteur pas à pas a piloter et tout ce qu'il nous faut
+pour notre application est une simple interface avec _Marche/Arrêt_ plutôt que
+charger une application de CNC complète.
+
+Dans l'exemple qui suit, nous allons créer ce simple panneau GladeVCP.
+
+.Syntaxe de base
+----
+# charge l'interface graphique winder.glade et la nome winder
+loadusr -Wn winder gladevcp -c winder -u handler.py winder.glade
+
+# charge les composants temps réel
+loadrt threads name1=fast period1=50000 fp1=0 name2=slow period2=1000000
+loadrt stepgen step_type=0 ctrl_type=v
+loadrt hal_parport cfg="0x378 out"
+
+# ajoute les fonctions aux threads
+addf stepgen.make-pulses fast
+addf stepgen.update-freq slow
+addf stepgen.capture-position slow
+addf parport.0.read fast
+addf parport.0.write fast
+
+# effectue les connections de hal
+net winder-step parport.0.pin-02-out <= stepgen.0.step
+net winder-dir parport.0.pin-03-out <= stepgen.0.dir
+net run-stepgen stepgen.0.enable <= winder.start_button
+
+
+
+# démarre les threads
+start
+
+# commenter la ligne suivante pendant les essais et utiliser le mode interactif
+pour voir les pins etc.
+# option halrun -I -f start.hal
+
+# attends que la GUI gladevcp nommée winder soit terminée
+waitusr winder
+
+# arrête tous les threads
+stop
+
+# décharge tous les composants de HAL avant de quitter
+unloadrt all
+----

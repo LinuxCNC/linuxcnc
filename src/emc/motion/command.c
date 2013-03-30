@@ -224,22 +224,14 @@ static int inRange(EmcPose pos, int id, char *move_type)
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-            if (id > 0)
-                reportError(_("%s move on line %d would exceed joint %d's positive limit"),
-                            move_type, id, joint_num);
-            else
-                reportError(_("%s move in MDI would exceed joint %d's positive limit"),
-                            move_type, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's positive limit"),
+			move_type, id, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-            if (id > 0)
-                reportError(_("%s move on line %d would exceed joint %d's negative limit"),
-                            move_type, id, joint_num);
-            else
-                reportError(_("%s move in MDI would exceed joint %d's negative limit"),
-                            move_type, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's negative limit"),
+			move_type, id, joint_num);
 	}
     }
     return in_range;
@@ -1478,12 +1470,6 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SET_SPINDLE_VEL:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_SPINDLE_VEL");
-	    emcmotStatus->spindle.speed = emcmotCommand->vel;
-            emcmotStatus->atspeed_next_feed = 1;
-	    break;
-	    
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
 

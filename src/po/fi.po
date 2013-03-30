@@ -34,7 +34,7 @@ msgstr ""
 
 #: hal/utils/meter.c:238 ../tcl/tkemc.tcl:764
 msgid "Hal Meter"
-msgstr ""
+msgstr "Hal-mittari"
 
 #: hal/utils/meter.c:287
 msgid "_Select"
@@ -108,7 +108,7 @@ msgstr ""
 
 #: hal/utils/scope.c:641
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL skooppi"
 
 #: hal/utils/scope.c:669
 msgid "Horizontal"
@@ -116,7 +116,7 @@ msgstr ""
 
 #: hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr ""
+msgstr "Valittu kanava"
 
 #: hal/utils/scope.c:683
 msgid "Run Mode"
@@ -133,7 +133,7 @@ msgstr ""
 #: hal/utils/scope.c:700 ../share/axis/tcl/axis.tcl:135
 #: ../share/axis/tcl/axis.tcl:1199
 msgid "Stop"
-msgstr ""
+msgstr "Seis"
 
 #: hal/utils/scope.c:703
 msgid "Normal"
@@ -149,7 +149,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:130
 msgid "Zoom"
-msgstr ""
+msgstr "Zoom"
 
 #: hal/utils/scope_horiz.c:131
 msgid " Pos "
@@ -198,7 +198,7 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:503
 msgid "Select Sample Rate"
-msgstr ""
+msgstr "Valitse näytteistysnopeus"
 
 #: hal/utils/scope_horiz.c:504
 msgid ""
@@ -280,12 +280,12 @@ msgstr ""
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1720
 #: ../share/axis/tcl/axis.tcl:1757
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: hal/utils/scope_horiz.c:713 hal/utils/scope_horiz.c:754
 #: ../tcl/bin/emccalib.tcl:91 ../tcl/bin/halconfig.tcl:103
 msgid "Quit"
-msgstr ""
+msgstr "Lopeta"
 
 #: hal/utils/scope_horiz.c:745
 msgid "Realtime thread(s) not running"
@@ -336,22 +336,22 @@ msgstr ""
 
 #: hal/utils/scope_horiz.c:1170
 msgid "nSec"
-msgstr ""
+msgstr "ns"
 
 #: hal/utils/scope_horiz.c:1173
 msgid "uSec"
-msgstr ""
+msgstr "us"
 
 #: hal/utils/scope_horiz.c:1177
 msgid "mSec"
-msgstr ""
+msgstr "m"
 
 #: hal/utils/scope_horiz.c:1181 emc/usr_intf/pncconf/pncconf.glade:1953
 #: emc/usr_intf/pncconf/pncconf.glade:2825
 #: emc/usr_intf/pncconf/pncconf.glade:3706
 #: emc/usr_intf/pncconf/pncconf.glade:4587
 msgid "Sec"
-msgstr ""
+msgstr "s"
 
 #: hal/utils/scope_horiz.c:1198 emc/usr_intf/stepconf/stepconf.glade:3664
 #: emc/usr_intf/stepconf/stepconf.glade:4040
@@ -359,15 +359,15 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:8281
 #: emc/usr_intf/pncconf/pncconf.glade:8458
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: hal/utils/scope_horiz.c:1201
 msgid "KHz"
-msgstr ""
+msgstr "kHz"
 
 #: hal/utils/scope_horiz.c:1205
 msgid "Mhz"
-msgstr ""
+msgstr "Mhz"
 
 #: hal/utils/scope_vert.c:403 hal/utils/scope_vert.c:1258
 #, c-format
@@ -378,7 +378,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:618
 msgid "Gain"
-msgstr ""
+msgstr "Vahvistus"
 
 #: hal/utils/scope_vert.c:630 hal/utils/scope_trig.c:252
 msgid "Pos"
@@ -406,7 +406,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:734
 msgid "AC Coupled"
-msgstr ""
+msgstr "AC-kytketty"
 
 #: hal/utils/scope_vert.c:769 hal/utils/scope_vert.c:1171
 #: hal/utils/scope_trig.c:367 ../tcl/bin/emccalib.tcl:229
@@ -453,7 +453,7 @@ msgstr ""
 
 #: hal/utils/scope_vert.c:1060
 msgid "Signals"
-msgstr ""
+msgstr "Signaalit"
 
 #: hal/utils/scope_vert.c:1061
 msgid "Parameters"
@@ -536,101 +536,103 @@ msgstr ""
 
 #: emc/motion/control.c:384
 msgid "G38.4 move finished without breaking contact."
-msgstr ""
+msgstr "G38.4-liike valmis, kosketus ei katkennut"
 
 #: emc/motion/control.c:387
 msgid "G38.2 move finished without making contact."
-msgstr ""
+msgstr "G38.2-liike valmis, ei kosketusta"
 
 #: emc/motion/control.c:401
 msgid "Probe tripped during non-probe MDI command."
-msgstr ""
+msgstr "Mittapää kosketti ajettaessa mittaukseen liittymätöntä MDI-käskyä"
 
 #: emc/motion/control.c:429
 msgid "Probe tripped during homing motion."
-msgstr ""
+msgstr "Mittapään kosketus ajettaessa kotiasemaan"
 
 #: emc/motion/control.c:433
 msgid "Probe tripped during a jog."
-msgstr ""
+msgstr "Mittapään kosketus käsiajolla"
 
 #: emc/motion/control.c:697
 msgid "motion stopped by enable input"
-msgstr ""
+msgstr "'enable'-tulo katkaisi"
 
 #: emc/motion/control.c:720
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr ""
+msgstr "virhe, nivel %d rajalla"
 
 #: emc/motion/control.c:732
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr ""
+msgstr "vahvistinvika nivelellä %d"
 
 #: emc/motion/control.c:741
 #, c-format
 msgid "joint %d following error"
-msgstr ""
+msgstr "seurantavirhe nivelellä %d"
 
 #: emc/motion/control.c:1423
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
-msgstr ""
+msgstr "Nivelen %d positiivinen ohjelmallinen raja ylitetty"
 
 #: emc/motion/control.c:1428
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr ""
+msgstr "Nivelen %d negatiivinen ohjelmallinen raja ylitetty"
 
 #: emc/motion/command.c:159
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr ""
+msgstr "Käsiajo ei onnistu, niveltä %d ei ole"
 
 #: emc/motion/command.c:163
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr ""
+msgstr "Niveltä %d ei voi ajaa maksimirajan yli"
 
 #: emc/motion/command.c:168
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr ""
+msgstr "Niveltä %d ei voi ajaa minimirajan yli"
 
 #: emc/motion/command.c:174
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr ""
+msgstr "Niveltä %d ei voi ajaa ohjelmallisen maksimirajan yli"
 
 #: emc/motion/command.c:179
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr ""
+msgstr "Niveltä %d ei voi ajaa ohjelmallisen minimirajan yli"
 
 #: emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr ""
+msgstr "%s liike rivillä %d ylittää nivelen %d positiivisen rajan"
 
 #: emc/motion/command.c:240
 #, c-format
 msgid "%s move in MDI would exceed joint %d's positive limit"
-msgstr ""
+msgstr "%s liike MDI-käskyssä ylittää nivelen %d positiivisen rajan"
 
 #: emc/motion/command.c:247
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr ""
+msgstr "%s liike rivillä %d ylittää nivelen %d negatiivisen rajan"
 
 #: emc/motion/command.c:250
 #, c-format
 msgid "%s move in MDI would exceed joint %d's negative limit"
-msgstr ""
+msgstr "%s liike MDI-käskyssä ylittää nivelen %d negatiivisen rajan"
 
 #: emc/motion/command.c:500
 msgid "all joints must be homed before going into coordinated mode"
 msgstr ""
+"kaikkien nivelien tulee olla kotiasemissaan ennen koordinoituun tilaan "
+"siirtymistä"
 
 #: emc/motion/command.c:521
 msgid "all joints must be homed before going into teleop mode"
@@ -638,7 +640,7 @@ msgstr ""
 
 #: emc/motion/command.c:675 emc/motion/command.c:741 emc/motion/command.c:814
 msgid "Can't jog joint in coordinated mode."
-msgstr ""
+msgstr "niveltä ei voi käsiajaa koordinoidussa tilassa"
 
 #: emc/motion/command.c:680 emc/motion/command.c:746 emc/motion/command.c:819
 msgid "Can't jog joint when not enabled."
@@ -646,11 +648,11 @@ msgstr ""
 
 #: emc/motion/command.c:685 emc/motion/command.c:824
 msgid "Can't jog any joints while homing."
-msgstr ""
+msgstr "Niveliä ei voi käsiajaa, koska kone on ajamassa kotiasemaan"
 
 #: emc/motion/command.c:751
 msgid "Can't jog any joint while homing."
-msgstr ""
+msgstr "Mitään niveltä ei voi käsiajaa samalla kun kone ajaa kotiasemaan."
 
 #: emc/motion/command.c:881
 msgid "need to be enabled, in coord mode for linear move"
@@ -2977,7 +2979,7 @@ msgstr ""
 
 #: ../tcl/ngcgui.tcl:3641
 msgid "File Not Found"
-msgstr ""
+msgstr "Tiedostoa ei löydy"
 
 #: ../tcl/ngcgui.tcl:3644
 msgid "Try to Continue"
@@ -4478,15 +4480,15 @@ msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1711
 msgid ""
-"EMC2/AXIS version $version\n"
+"LinuxCNC/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with EMC2.\n"
 "\n"
-"Visit the EMC web site: "
+"Visit the LinuxCNC web site: "
 msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1739
@@ -4543,7 +4545,7 @@ msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:2340
 msgid "Stop spindle [F9/F10]"
-msgstr ""
+msgstr "Pysäytä kara"
 
 #: ../share/axis/tcl/axis.tcl:2341
 msgid "Turn spindle Faster [F12]"
@@ -11114,7 +11116,7 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:66690
 msgid "motor steps per unit:"
-msgstr ""
+msgstr "moottorin askelia mittayksikkö kohden"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66700
 msgid "encoder pulses per unit:"
@@ -11134,7 +11136,7 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:66843
 msgid "RPM"
-msgstr ""
+msgstr "RPM"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66856
 msgid "Motor RPM at max speed:"
@@ -11146,11 +11148,11 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:66913
 msgid "Khz"
-msgstr ""
+msgstr "kHz"
 
 #: emc/usr_intf/pncconf/pncconf.glade:66928
 msgid "sec"
-msgstr ""
+msgstr "s"
 
 #: emc/usr_intf/pncconf/pncconf.glade:67028
 msgid "Distance to acheave max speed:"
@@ -11158,11 +11160,11 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:67056
 msgid "Resolution:"
-msgstr ""
+msgstr "Resoluutio:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:67084
 msgid "mm / encoder pulse"
-msgstr ""
+msgstr "mm / enkooderin pulssi"
 
 #: emc/usr_intf/pncconf/pncconf.glade:67102
 msgid "<b>Motion Data</b>"
@@ -11257,7 +11259,7 @@ msgstr ""
 
 #: emc/rs274ngc/interp_arc.cc:108 emc/rs274ngc/rs274ngc_return.hh:160
 msgid "Zero radius arc"
-msgstr ""
+msgstr "0-säteinen kaari"
 
 #: emc/rs274ngc/interp_arc.cc:112 emc/rs274ngc/interp_arc.cc:279
 #, c-format
@@ -11707,7 +11709,7 @@ msgstr ""
 
 #: emc/rs274ngc/interp_find.cc:170
 msgid "Cannot use polar coordinates with G53"
-msgstr ""
+msgstr "G53:n kanssa ei voi käyttää polarikoordinaatteja"
 
 #: emc/rs274ngc/interp_find.cc:266 emc/rs274ngc/interp_find.cc:271
 #: emc/rs274ngc/interp_find.cc:278 emc/rs274ngc/interp_find.cc:337
@@ -12540,7 +12542,7 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:174
 msgid "File not open"
-msgstr ""
+msgstr "Tiedosto ei ole avoinna"
 
 #: emc/rs274ngc/rs274ngc_return.hh:175
 msgid "Need tool prepared -Txx- for toolchange"
@@ -12576,7 +12578,7 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:183
 msgid "Out of memory"
-msgstr ""
+msgstr "Muisti loppu"
 
 #: emc/rs274ngc/rs274ngc_return.hh:184
 msgid "S word missing with G96"
@@ -12636,4 +12638,17 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1711
+msgid ""
+"EMC2/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with EMC2.\n"
+"\n"
+"Visit the EMC web site: "
 msgstr ""

@@ -222,7 +222,7 @@ int main(int argc, gchar * argv[])
     }
     hal_ready(comp_id);
     /* register an exit function to disconnect from the HAL */
-    g_atexit(exit_from_hal);
+    atexit(exit_from_hal);
     /* capture INT (ctrl-C) and TERM signals */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
@@ -239,6 +239,7 @@ int main(int argc, gchar * argv[])
     }
     gtk_widget_set_usize(GTK_WIDGET(main_window), width, height);
     gtk_window_set_policy(GTK_WINDOW(main_window), FALSE, FALSE, FALSE);
+    gtk_window_set_keep_above(GTK_WINDOW(main_window),TRUE);
     /* set main window title */
     gtk_window_set_title(GTK_WINDOW(main_window), win_name);
     /* this makes the application exit when the window is closed */
@@ -397,6 +398,8 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     /* create window if needed */
     if (probe->window == NULL) {
 	create_probe_window(probe);
+    }else{
+    gtk_window_present(GTK_WINDOW(probe->window));
     }
 
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));

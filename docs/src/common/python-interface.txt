@@ -1,0 +1,746 @@
+= Python Interface
+
+[[cha:python-interface]] (((Python Interface)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+This is work in progress by Michael Haberler. Comments, fixes, and
+addenda are welcome, especially for PositionLogger (A bit of intent, purpose and usage would help here!)
+
+== The linuxcnc Python module
+
+User interfaces control LinuxCNC activity by sending
+NML messages to the LinuxCNC task controller, and monitor results by
+observing the LinuxCNC status structure, as well as the error reporting channel.
+
+Programmatic access to NML is through a C++ API; however, the most
+important parts of the NML interface to LinuxCNC are also available to
+Python programs through the `linuxcnc` module.
+
+Beyond the NML interface to the command, status and error channels,
+the `linuxcnc` module also contains:
+
+- support for reading values from ini files
+- support for position logging  (???)
+
+
+== Usage Patterns for the LinuxCNC NML interface
+
+The general pattern for `linuxcnc` usage is roughly like this:
+
+- import the `linuxcnc` module
+- establish connections to the command, status and error NML channels as needed
+- poll the status channel, either periodically or as needed
+- before sending a command, determine from status whether it is in
+ fact OK to do so (for instance, there is no point in sending a 'Run'
+ command if task is in the ESTOP state, or the interpreter is not
+ idle)
+- send the command by using one of  the `linuxcnc`  command channel methods
+
+
+To retrieve messages from the error channel, poll the error channel
+periodically, and process any messages retrieved.
+
+- poll the status channel, either periodically or as needed
+- print any error message FIXME: explore the exception code
+
+`linuxcnc` also defines the `error` Python exception type to support error reporting.
+
+== Reading LinuxCNC status
+
+Here is a Python fragment to explore the contents of the
+`linuxcnc.stat` object which contains some 8ß0+ values (run while
+linuxcnc is running for typical values):
+
+[source,python]
+---------------------------------------------------------------------
+import sys
+import linuxcnc
+try:
+    s = linuxcnc.stat() # create a connection to the status channel
+    s.poll() # get current values 
+except linuxcnc.error, detail:
+    print "error", detail
+    sys.exit(1)
+for x in dir(s):
+    if not x.startswith('_'):
+        print x, getattr(s,x)
+---------------------------------------------------------------------
+
+Linuxcnc uses the default compiled-in path to the NML configuration
+file unless overridden, see <<sec:Python-reading-ini-values,Reading
+ini file values>> for an example.
+
+
+=== linuxcnc.stat attributes
+
+*acceleration* :: '(returns float)' -
+default acceleration, reflects the ini entry [TRAJ] DEFAULT_ACCELERATION.
+
+*active_queue*:: '(returns int)' -
+number of motions blending.
+
+*actual_position*:: '(returns tuple of floats)' -
+current trajectory position, (x y z a b c u v w) in machine units.
+
+*adaptive_feed_enabled*:: '(returns True/False)' -
+status of adaptive feedrate override (0/1).
+
+*ain*:: '(returns tuple of floats)' -
+current value of the analog input pins.
+
+*angular_units*:: '(returns string)' -
+reflects [TRAJ] ANGULAR_UNITS ini value.
+
+*aout*:: '(returns tuple of floats)' -
+current value of the analog output pins.
+
+*axes*:: '(returns string)' -
+reflects [TRAJ] AXES ini value.
+
+*axis*:: '(returns tuple of dicts)' -
+reflecting current axis values. See
+<<sec:The-Axis-dictionary,The axis dictionary>>.
+
+*axis_mask*:: '(returns integer)' -
+mask of axis available as defined by [TRAJ] COORDINATES in the ini
+file. Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64,
+V=128, W=256.
+
+*block_delete*:: '(returns integer)' -
+block delete currently on/off.
+
+*command*:: '(returns string)' -
+currently executing command.
+
+*current_line*:: '(returns integer)' -
+currently executing line, int.
+
+*current_vel*:: '(returns float)' -
+current velocity in Cartesian space.
+
+*cycle_time*:: '(returns string)' -
+reflects [TRAJ] CYCLE_TIME ini value (FIXME is this right?).
+
+*debug*:: '(returns integer)' -
+debug flag.
+
+*delay_left*:: '(returns float)' -
+remaining time on dwell (G4) command, seconds.
+
+*din*:: '(returns tuple of integers)' -
+current value of the digital input pins.
+
+*distance_to_go*:: '(returns float)' -
+remaining distance of current move, as reported by trajectory planner, in Cartesian space.
+
+*dout*:: '(returns tuple of integers)' -
+current value of the digital output pins.
+
+*dtg*:: '(returns tuple of 9 floats)' -
+remaining distance of current move, as reported by trajectory planner.
+
+*echo_serial_number*:: '(returns integer)' -
+The serial number of the last completed command sent by a UI
+to task. All commands carry a serial number. Once the command
+has been executed, its serial number is reflected in
+`echo_serial_number`.
+
+*enabled*:: '(returns integer)' -
+trajectory planner enabled flag.
+
+*estop*:: '(returns integer)' -
+estop flag.
+
+*exec_state*:: '(returns integer)' -
+task execution state. One of EXEC_ERROR, EXEC_DONE,
+EXEC_WAITING_FOR_MOTION, EXEC_WAITING_FOR_MOTION_QUEUE,
+EXEC_WAITING_FOR_PAUSE,EXEC_WAITING_FOR_MOTION_AND_IO,
+EXEC_WAITING_FOR_DELAY, EXEC_WAITING_FOR_SYSTEM_CMD.
+
+*feed_hold_enabled*:: '(returns integer)' -
+enable flag for feed hold.
+
+*feed_override_enabled*:: '(returns integer)' -
+enable flag for feed override.
+
+*feedrate*:: '(returns float)' -
+current feedrate.
+
+*file*:: '(returns string)' -
+currently executing gcode file.
+
+*flood*:: '(returns integer)' -
+flood enabled.
+
+*g5x_index*:: '(returns string)' -
+currently active coordinate system, G54=0, G55=1 etc.
+
+*g5x_offset*:: '(returns tuple of floats)' -
+offset of the currently active coordinate system.
+
+*g92_offset*:: '(returns tuple of floats)' -
+pose of the current g92 offset.
+
+*gcodes*:: '(returns tuple of 16 integers)' -
+currently active G-codes.
+
+*homed*:: '(returns integer)' -
+flag. 1 if homed.
+
+*id*:: '(returns integer)' -
+currently executing motion id.
+
+*inpos*:: '(returns integer)' -
+machine-in-position flag.
+
+*input_timeout*:: '(returns integer)' -
+flag for M66 timer in progress.
+
+*interp_state*:: '(returns integer)' -
+current state of RS274NGC interpreter. One of
+INTERP_IDLE, INTERP_READING, INTERP_PAUSED, INTERP_WAITING.
+
+*interpreter_errcode*:: '(returns integer)' -
+current RS274NGC interpreter return code. One of
+INTERP_OK, INTERP_EXIT, INTERP_EXECUTE_FINISH, INTERP_ENDFILE,
+INTERP_FILE_NOT_OPEN, INTERP_ERROR. 
+see src/emc/nml_intf/interp_return.hh
+
+*joint_actual_position*:: '(returns tuple of floats)' -
+actual joint positions.
+
+*joint_position*:: '(returns tuple of floats)' -
+Desired joint positions.
+
+*kinematics_type*:: '(returns integer)' -
+identity=1, serial=2, parallel=3, custom=4 .
+
+*limit*:: '(returns tuple of integers)' -
+axis limit masks. minHardLimit=1,
+maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8.
+
+*linear_units*:: '(returns string)' -
+reflects [TRAJ]LINEAR_UNITS ini value.
+
+*lube*:: '(returns integer)' -
+'lube on' flag.
+
+*lube_level*:: '(returns integer)' -
+reflects 'iocontrol.0.lube_level'.
+
+*max_acceleration*:: '(returns float)' -
+maximum  acceleration. reflects [TRAJ] MAX_ACCELERATION.
+
+*max_velocity*:: '(returns float)' -
+maximum  velocity. reflects [TRAJ] MAX_VELOCITY.
+
+*mcodes*:: '(returns tuple of 10 integers)' -
+currently active M-codes.
+
+*mist*:: '(returns integer)' -
+'mist on' flag.
+
+*motion_line*:: '(returns integer)' -
+source line number motion is currently executing. Relation
+to `id` unclear.
+
+*motion_mode*:: '(returns integer)' -
+motion mode.
+
+*motion_type*:: '(returns integer)' -
+trajectory planner mode. One of TRAJ_MODE_COORD,
+TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
+
+*optional_stop*:: '(returns integer)' -
+option stop flag.
+
+*paused*:: '(returns integer)' -
+`motion paused` flag.
+
+*pocket_prepped*:: '(returns integer)' -
+A Tx command completed, and this pocket is prepared. -1 if no
+prepared pocket.
+
+*poll()*:: -
+method to update current status attributes.
+
+*position*:: '(returns tuple of floats)' -
+trajectory position.
+
+*probe_tripped*:: '(returns integer)' -
+flag, true if probe has tripped (latch)
+
+*probe_val*:: '(returns integer)' -
+reflects value of the `motion.probe-input` pin.
+
+*probed_position*:: '(returns tuple of floats)' -
+position where probe tripped.
+
+*probing*:: '(returns integer)' -
+flag, 1 if a probe operation is in progress.
+
+*program_units*:: '(returns integer)' -
+one of CANON_UNITS_INCHES=1, CANON_UNITS_MM=2, CANON_UNITS_CM=3
+
+*queue*:: '(returns integer)' -
+current size of the trajectory planner queue.
+
+*queue_full*:: '(returns integer)' -
+the trajectory planner queue is full.
+
+*read_line*:: '(returns integer)' -
+line the RS274NGC interpreter is currently reading.
+
+*rotation_xy*:: '(returns float)' -
+current XY rotation angle around Z axis.
+
+*settings*:: '(returns tuple of 3 floats)' -
+current interpreter settings. settings[0] =
+sequence number, settings[1] = feed rate, settings[2] = speed.
+
+*spindle_brake*:: '(returns integer)' -
+value of the spindle brake flag.
+
+*spindle_direction*:: '(returns integer)' -
+rotational direction of the spindle. forward=1, reverse=-1.
+
+*spindle_enabled*:: '(returns integer)' -
+value of the spindle enabled flag.
+
+*spindle_increasing*:: '(returns integer)' -
+unclear.
+
+*spindle_override_enabled*:: '(returns integer)' -
+value of the spindle override enabled flag.
+
+*spindle_speed*:: '(returns float)' -
+spindle speed value, rpm, > 0: clockwise, < 0:
+counterclockwise.
+
+*spindlerate*:: '(returns float)' -
+spindle speed override scale.
+
+*state*:: '(returns integer)' -
+current command execution status. One of RCS_DONE,
+RCS_EXEC, RCS_ERROR.
+
+*task_mode*:: '(returns integer)' -
+current task mode. one of MODE_MDI, MODE_AUTO,
+MODE_MANUAL.
+
+*task_paused*:: '(returns integer)' -
+task paused flag.
+
+*task_state*:: '(returns integer)' -
+current task state. one of STATE_ESTOP,
+STATE_ESTOP_RESET, STATE_ON, STATE_OFF.
+
+*tool_in_spindle*:: '(returns integer)' -
+current tool number.
+
+*tool_offset*:: '(returns tuple of floats)' -
+offset values of the current tool.
+
+*tool_table*:: '(returns tuple of tool_results)' -
+list of tool entries. Each entry is a sequence of the following fields:
+id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
+woffset, diameter, frontangle, backangle, orientation. The id and orientation
+are integers and the rest are floats.
+
+*velocity*:: '(returns float)' -
+default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
+
+=== The `axis` dictionary [[sec:The-Axis-dictionary]]
+
+The axis configuration and status values are available through a list
+of per-axis dictionaries. Here's an example how to access an attribute
+of a particular axis:
+
+[source,python]
+---------------------------------------------------------------------
+import linuxcnc
+s = linuxcnc.stat() 
+s.poll() 
+print 'Axis 1 homed: ', s.axis[1]['homed']
+---------------------------------------------------------------------
+
+For each axis, the following dictionary keys are available:
+
+*axisType*:: '(returns integer)' -
+type of axis configuration parameter, reflects
+[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sub:[AXIS]-section, Axis
+ini configuration>> for details.
+
+*backlash*:: '(returns float)' -
+Backlash in machine units. configuration parameter, reflects [AXIS_x]BACKLASH.
+
+*enabled*:: '(returns integer)' -
+non-zero means enabled.
+
+*fault*:: '(returns integer)' -
+non-zero means axis amp fault.
+
+*ferror_current*:: '(returns float)' -
+current following error.
+
+*ferror_highmark*:: '(returns float)' -
+magnitude of max following error.
+
+*homed*:: '(returns integer)' -
+non-zero means has been homed.
+
+*homing*:: '(returns integer)' -
+non-zero means homing in progress.
+
+*inpos*:: '(returns integer)' -
+non-zero means in position.
+
+*input*:: '(returns float)' -
+current input position.
+
+*max_ferror*:: '(returns float)' -
+maximum following error. configuration
+parameter, reflects [AXIS_x]FERROR.
+
+*max_hard_limit*:: '(returns integer)' -
+non-zero means max hard limit exceeded.
+
+*max_position_limit*:: '(returns float)' -
+maximum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [AXIS_x]MAX_LIMIT.
+
+*max_soft_limit*::
+non-zero means `max_position_limit` was exceeded, int
+
+*min_ferror*:: '(returns float)' -
+configuration parameter, reflects [AXIS_x]MIN_FERROR.
+
+*min_hard_limit*:: '(returns integer)' -
+non-zero means min hard limit exceeded.
+
+*min_position_limit*:: '(returns float)' -
+minimum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [AXIS_x]MIN_LIMIT.
+
+*min_soft_limit*:: '(returns integer)' -
+non-zero means `min_position_limit` was exceeded.
+
+*output*:: '(returns float)' -
+commanded output position.
+
+*override_limits*:: '(returns integer)' -
+non-zero means limits are overridden.
+
+*units*:: '(returns float)' -
+units per mm, deg for linear, angular
+
+*velocity*:: '(returns float)' -
+current velocity.
+
+==  Preparing to send  commands 
+
+Some commands can always be sent, regardless of mode and state; for
+instance, the `linuxcnc.command.abort()` method can always be called. 
+
+Other commands may be sent only in appropriate state, and those tests
+can be a bit tricky. For instance, an MDI command can be sent only if:
+
+- ESTOP has not been triggered, and
+- the machine is turned on and
+- the axes are homed and
+- the interpreter is not running and
+- the mode is set to `MDI mode`
+
+so an appropriate test before sending an MDI command through
+`linuxcnc.command.mdi()` could be:
+
+[source,python]
+---------------------------------------------------------------------
+import linuxcnc
+s = linuxcnc.stat()
+c = linuxcnc.command() 
+
+def ok_for_mdi():
+    s.poll()
+    return not s.estop and s.enabled and s.homed and (s.interp_state == linuxcnc.INTERP_IDLE)
+
+if ok_for_mdi():
+   c.mode(linuxcnc.MODE_MDI)   
+   c.wait_complete() # wait until mode switch executed
+   c.mdi("G0 X10 Y20 Z30")
+---------------------------------------------------------------------
+
+==  Sending commands through `linuxcnc.command`
+
+Before sending a command, initialize a command channel like so:
+
+[source,python]
+---------------------------------------------------------------------
+import linuxcnc
+c = linuxcnc.command() 
+
+# Usage examples for some of the commands listed below:
+c.abort()
+
+c.auto(linuxcnc.AUTO_RUN, program_start_line)
+c.auto(linuxcnc.AUTO_STEP)
+c.auto(linuxcnc.AUTO_PAUSE)
+c.auto(linuxcnc.AUTO_RESUME)
+
+c.brake(linuxcnc.BRAKE_ENGAGE)
+c.brake(linuxcnc.BRAKE_RELEASE)
+
+c.flood(linuxcnc.FLOOD_ON)
+c.flood(linuxcnc.FLOOD_OFF)
+
+c.home(2)
+
+c.jog(linuxcnc.JOG_STOP, axis) 
+c.jog(linuxcnc.JOG_CONTINUOUS, axis, speed) 
+c.jog(linuxcnc.JOG_INCREMENT, axis, speed, increment)
+
+c.load_tool_table()
+
+c.maxvel(200.0)
+
+c.mdi("G0 X10 Y20 Z30")
+
+c.mist(linuxcnc.MIST_ON)
+c.mist(linuxcnc.MIST_OFF)
+
+c.mode(linuxcnc.MODE_MDI)   
+c.mode(linuxcnc.MODE_AUTO)   
+c.mode(linuxcnc.MODE_MANUAL)   
+
+c.override_limits()
+
+c.program_open("foo.ngc")
+c.reset_interpreter()
+
+c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orientation)
+---------------------------------------------------------------------
+=== `linuxcnc.command` attributes
+
+`serial`::
+	the current command serial number
+
+=== `linuxcnc.command` methods:
+
+`abort()`::
+	send EMC_TASK_ABORT message.
+
+`auto(int[, int])`:: 
+	run, step, pause or resume a program.
+
+`brake(int)`::
+	engage or release spindle brake.
+        
+`debug(int)`::
+	set debug level via EMC_SET_DEBUG message.
+
+`feedrate(float)`::
+	set the feedrate.
+
+`flood(int)`::
+	turn on/off flooding.
+
+`home(int)`::
+	home a given axis.
+
+`jog(int, int, [, int[,int]])`::
+	Syntax: +
+	jog(command, axis[, velocity[, distance]]) +
+	jog(linuxcnc.JOG_STOP, axis) +
+	jog(linuxcnc.JOG_CONTINUOUS, axis, velocity) +
+	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance) +
+	Constants: +
+	JOG_STOP (0) +
+	JOG_CONTINUOUS (1) +
+	JOG_INCREMENT (2)
+
+`load_tool_table()`::
+	reload the tool table.
+
+`maxvel(float)`::
+	set maximum velocity
+
+`mdi(string)`::
+	send an MDI command. Maximum 255 chars.
+
+`mist(int)`:: turn on/off mist. +
+	Syntax: +
+	mist(command) +
+	mist(linuxcnc.MIST_ON) [(1)] +
+	mist(linuxcnc.MIST_OFF) [(0)] +
+	Constants: +
+	MIST_ON (1) +
+	MIST_OFF (0)
+
+
+`mode(int)`::
+	set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
+
+`override_limits()`::
+	set the override axis limits flag.
+
+`program_open(string)`::
+	open an NGC file.
+
+`reset_interpreter()`::
+	reset the RS274NGC interpreter
+
+`set_adaptive_feed(int)`::
+	set adaptive feed flag
+
+`set_analog_output(int, float)`::
+	set analog output pin to value
+
+`set_block_delete(int)`::
+	set block delete flag
+
+`set_digital_output(int, int)`::
+	set digital output pin to value
+
+`set_feed_hold(int)`::
+	set feed hold on/off
+
+`set_feed_override(int)`::
+	set feed override on/off
+
+`set_max_limit(int, float)`::
+        set max position limit for a given axis
+
+`set_min_limit()`::
+        set min position limit for a given axis
+
+`set_optional_stop(int)`::
+	set optional stop on/off
+
+`set_spindle_override(int)`::
+	set spindle override flag
+
+`spindle(int)`::
+	set spindle direction. Argument one of SPINDLE_FORWARD,
+	SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
+	SPINDLE_DECREASE, or SPINDLE_CONSTANT.
+
+`spindleoverride(float)`::
+	set spindle override factor
+
+`state(int)`::
+	set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF
+
+`teleop_enable(int)`::
+	enable/disable teleop mode.
+
+`teleop_vector(float, float, float [,float, float, float])`::
+        set teleop destination vector
+
+`tool_offset(int, float, float, float, float, float, int)`::
+        set the tool offset. See usage example above.
+
+`traj_mode(int)`::
+	set trajectory mode. Mode is one of MODE_FREE, MODE_COORD, or
+	MODE_TELEOP.
+
+`unhome(int)`::
+	unhome a given axis.
+
+`wait_complete([float])`::
+	wait for completion of the last command sent. If timeout in
+	seconds not specified, default is 1 second.
+
+
+== Reading the error channel
+
+To handle error messages, connect to the error channel and
+periodically poll() it.
+
+Note that the NML channel for error messages has a queue (other than
+the command and status channels), which means
+that the first consumer of an error message deletes that message from
+the queue; whether your another error message consumer (e.g. Axis)
+will 'see' the message is dependent on timing. It is recommended to have just
+one error channel reader task in a setup.
+
+
+[source,python]
+---------------------------------------------------------------------
+import linuxcnc
+e = linuxcnc.error_channel()
+
+error = e.poll()
+
+if error: 
+    kind, text = error
+    if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+        typus = "error"
+    else:
+        typus = "info"
+        print typus, text
+---------------------------------------------------------------------
+
+
+== Reading ini file values [[sec:Python-reading-ini-values]]
+
+Here's an example for reading values from an ini file through the
+`linuxcnc.ini` object:
+
+[source,python]
+---------------------------------------------------------------------
+# run as:
+# python ini-example.py ~/emc2-dev/configs/sim/axis/axis_mm.ini
+
+import sys
+import linuxcnc
+
+inifile = linuxcnc.ini(sys.argv[1])
+
+# inifile.find() returns None if the key wasnt found - the
+# following idiom is useful for setting a default value:
+
+machine_name = inifile.find('EMC', 'MACHINE') or "unknown"
+print "machine name: ", machine_name
+
+# inifile.findall() returns a list of matches, or an empty list
+# if the key wasnt found:
+
+extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
+print "extensions: ", extensions
+
+# override default NML file by ini parameter if given
+nmlfile = inifile.find("EMC", "NML_FILE")
+if nmlfile:
+    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
+---------------------------------------------------------------------
+
+== The `linuxcnc.positionlogger` type
+
+Some usage hints can be gleaned from
+`src/emc/usr_intf/gremlin/gremlin.py`.
+
+
+=== members
+
+`npts`::
+	number of points.
+
+=== methods
+`start(float)`::
+	start the position logger and run every ARG seconds
+
+`clear()`::
+	clear the position logger
+
+`stop()`::
+	stop the position logger
+
+`call()`::
+	Plot the backplot now.
+
+`last([int])`::
+	Return the most recent point on the plot or None
+,

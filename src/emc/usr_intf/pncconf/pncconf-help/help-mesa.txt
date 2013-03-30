@@ -1,7 +1,7 @@
 Mesa setup page:
 
 Configuration Tab:
-    allows you to choose the firmware,
+    Allows you to choose the firmware,
     number of components / number of gpio, 
     frequency of pwm / pdm and the watchdog timeout.
     The base frequency should be set as per the Mesa daughter
@@ -13,16 +13,18 @@ Configuration Tab:
     by choosing less of each component frees up gpio
     press 'accept component changes' to have the connector 
     tabs reflect the changes
-    any signalnames you had already pick will be lost unless 
-    the component is the same as before the change
+    Any signalnames you had already pick will be lost unless 
+    the component is the same as before the change.
     Depending on the board chosen, the connector tabs will disapear
     if not available.
+    Sanity checks are available for some boards - these just remind you to
+    check some settings that are specific for the choosen board.
     The help page output tab will show the firmware PIN file,
-    which shows the default components, their chanel number
-    and their IO number. The IO number is useful for changing
-    some options such as stepper output pins to open drain.
+    which shows the default components, their channel number
+    and their Component number. The component number is useful for
+    changing some options such as stepper output pins to open drain.
     For instance: in firmware SVST8_4 to change stepper channel
-    0 to open drain outputs, find out their IO numbers.
+    0 to open drain outputs, find out their component numbers.
     step IO number = 48
     direction number = 49
     In your custom HAL file add the commands:
@@ -30,8 +32,13 @@ Configuration Tab:
     setp hm2_5i20.0.gpio.048.is_opendrain true
     setp hm2_5i20.0.gpio.049.is_opendrain true
 
-    note that this says GPIO but the IO number corresponds
+    note that this says GPIO but the component number corresponds
     to the stepper ouputs. See the manual for more options.
+
+    If you are using the 5i25 card with 2x7i77 or 2x7i76 firmware
+    but are only using one daughter board, deselecting half the components
+    (including half the sserial channels) will free up the extra
+    5i25 connector for GPIO, if desired.
 
 Connector Tabs:
     The available tabs are selected based on the 
@@ -94,6 +101,7 @@ Connector Tabs:
         Please see the Mesa daughter board documentaion for the most up-to-date
         recommendations for frequency and type. Here are the common ones: 
         The 7i33 daughter board requires PDM @ 6 MHz.
+        The 7i78 daughter board (for the 5i25) requires PDM @ 5 Mhz.
         The 7i29,7i30,7i40 require PWM @ 20 KHz
         the 7i48 and 7i49 require UDM @ 24 KHz
 
@@ -107,6 +115,12 @@ Connector Tabs:
         only step and direction stepgens are supported
         You select the STEP signal and the direction and enable
         signals are automatically setup
+        If you wish to have a slave stepper for a tandem axis
+        select a master axis and a tandem axis.
+        The tandem axis will be connected to the master axis command signal and
+        will be set at all the same settings as the master axis stepper, so the
+        stepper/driver should match. There is no facility to align these steppers
+        while homing, the slave simpily follows the master's command.
     
      POTENTIOMETER - A digital potentiometer used primaraly to control
         a spindle found with sserial card combo 5i25/7i76
@@ -119,9 +133,14 @@ Connector Tabs:
         7i70 I/O board
         7i71 I/O board
         7i76 I/O board works only with the 5i25 main board
+        7i77 I/O board works only with the 5i25 main board
+        7i78 breakout board works only with the 5i25 main board
         8i20 amplifier ( untested )
-        EMC supports 4 ports of 8 channels each of sserial
-        PNCconf only configures 4 channels of port 0 (so max 4 sserial boards)  
+        Linuxcnc supports 4 ports of 8 channels each of sserial
+        PNCconf only configures 5 channels of port 0 (so max 5 sserial boards -
+        note that some 5i25 daugther boards use some of the sserial channels 
+        internally.)
+        Note that some daughter boards use multiple sserial channels.
 
     You could change these options in a custom HAL file
     If you wish to connect a component to something in a 
@@ -164,7 +183,10 @@ Signal selection:
     PNCconf will not catch the error of setting two components 
     the same (If fact for GPIOO outputs this is fine anyways)
  
-
+    For testing purposes if you require an output true, for instance to force
+    a relay to close to allow the amplifier to be powered, select the 
+    'force-pin-true' output signal. The openloop and tuning tests will then
+    set the output true for the length of the test. 
 
 
     

@@ -13,19 +13,17 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::common/translator-needed_es.txt[]
-
 include::common/System_Requirements_es.txt[]
 
 include::common/Getting_EMC_es.txt[]
 
-include::common/Updating_EMC_es.txt[]
+include::common/Updating_EMC.txt[]
 
 include::quickstart/stepper_quickstart_es.txt[]
 
 include::config/stepconf_es.txt[]
 
-include::config/pncconf_es.txt[]
+include::config/pncconf.txt[]
 
 include::config/copy_and_run_es.txt[]
 

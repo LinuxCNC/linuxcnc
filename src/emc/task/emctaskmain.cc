@@ -132,7 +132,6 @@ NMLmsg *emcTaskCommand = 0;
 // signal handling code to stop main loop
 int done;
 static int emctask_shutdown(void);
-static int pseudoMdiLineNumber = MOTION_INVALID_ID + 1;
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
 
@@ -433,6 +432,11 @@ static int mdi_execute_wait = 0;
 // Side queue to store MDI commands
 static NML_INTERP_LIST mdi_execute_queue;
 
+// MDI input queue
+static NML_INTERP_LIST mdi_input_queue;
+#define  MAX_MDI_QUEUE 10
+static int max_mdi_queued_commands = MAX_MDI_QUEUE;
+
 /*
   checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
   to an interpreter list and a pointer to the EMC status, pops each NML
@@ -520,8 +524,6 @@ interpret_again:
 			    // record the line number and command
 			    emcStatus->task.readLine = emcTaskPlanLine();
 
-			    interp_list.set_line_number(emcStatus->task.
-							readLine);
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
 			    // and execute it
@@ -622,6 +624,7 @@ static void mdi_execute_abort(void)
     mdi_execute_next = 0;
 
     mdi_execute_queue.clear();
+    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
 
 static void mdi_execute_hook(void)
@@ -639,9 +642,33 @@ static void mdi_execute_hook(void)
 	return;
     }
 
-    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+    if (
+        (mdi_execute_level < 0)
+        && (mdi_execute_wait == 0)
+        && (mdi_execute_queue.len() > 0)
+        && (interp_list.len() == 0)
+        && (emcTaskCommand == NULL)
+    ) {
 	interp_list.append(mdi_execute_queue.get());
 	return;
+    }
+
+    // determine when a MDI command actually finishes normally.
+    if (interp_list.len() == 0 &&
+	emcTaskCommand == 0 &&
+	emcStatus->task.execState ==  EMC_TASK_EXEC_DONE && 
+	emcStatus->task.interpState != EMC_TASK_INTERP_IDLE && 
+	emcStatus->motion.traj.queue == 0 &&
+	emcStatus->io.status == RCS_DONE && 
+	!mdi_execute_wait && 
+	!mdi_execute_next) {
+
+	// finished. Check for dequeuing of queued MDI command is done in emcTaskPlan().
+	if (emc_debug & EMC_DEBUG_TASK_ISSUE)
+	    rcs_print("mdi_execute_hook: MDI command '%s' done (remaining: %d)\n",
+		      emcStatus->task.command, mdi_input_queue.len());
+	emcStatus->task.command[0] = 0;
+	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
     }
 
     if (!mdi_execute_next) return;
@@ -680,7 +707,6 @@ void readahead_waiting(void)
 		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 	    }
 	    emcStatus->task.readLine = 0;
-	    interp_list.set_line_number(0);
 	} else {
 	    // still executing
         }
@@ -909,8 +935,8 @@ static int emcTaskPlan(void)
 		// otherwise we can't handle it
 
 	    default:
-		emcOperatorError(0, _("can't do that (%s) in manual mode"),
-			emc_symbol_lookup(type));
+		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
+				 emc_symbol_lookup(type),(int) type);
 		retval = -1;
 		break;
 
@@ -1276,7 +1302,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1294,6 +1319,23 @@ static int emcTaskPlan(void)
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
+            case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // If there are no queued MDI commands and no commands
+                // in interp_list, then this new incoming MDI command
+                // can just be issued directly.  Otherwise we need to
+                // queue it and deal with it later.
+                if (
+                    (mdi_execute_queue.len() == 0)
+                    && (interp_list.len() == 0)
+                    && (emcTaskCommand == NULL)
+                ) {
+                    retval = emcTaskIssueCommand(emcCommand);
+                } else {
+                    mdi_execute_queue.append(emcCommand);
+                    retval = 0;
+                }
+                break;
+
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    case EMC_TOOL_SET_OFFSET_TYPE:
 		// send to IO
@@ -1306,8 +1348,8 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
-		emcOperatorError(0, _("can't do that (%s) in MDI mode"),
-			emc_symbol_lookup(type));
+		emcOperatorError(0, _("can't do that (%s:%d) in MDI mode"),
+			emc_symbol_lookup(type),(int) type);
 
 		retval = -1;
 		break;
@@ -2023,26 +2065,26 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+	// track interpState also during MDI - it might be an oword sub call
+	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
 	    if (command[0] == (char) 0xff) {
 		// Empty command recieved. Consider it is NULL
 		command = NULL;
-	    }
-
-	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
-		mdi_execute_queue.append(execute_msg);
-		break;
+	    } else {
+		// record initial MDI command
+		strcpy(emcStatus->task.command, execute_msg->command);
 	    }
 
 	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-		interp_list.set_line_number(++pseudoMdiLineNumber);
 		if (mdi_execute_level < 0)
 		    mdi_execute_level = level;
 	    }
 
-	    execRetval = emcTaskPlanExecute(command, pseudoMdiLineNumber);
+	    execRetval = emcTaskPlanExecute(command, 0);
 
 	    level = emcTaskPlanLevel();
 
@@ -2059,7 +2101,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    }
 		}
 	    }
-	    if (execRetval == INTERP_EXECUTE_FINISH) {
+	    switch (execRetval) {
+
+	    case INTERP_EXECUTE_FINISH:
 		// Flag MDI wait
 		mdi_execute_wait = 1;
 		// need to flush execution, so signify no more reading
@@ -2069,10 +2113,28 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		// it's success, so retval really is 0
 		retval = 0;
-	    } else if (execRetval != 0) {
-		// this causes the error msh on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		break;
+
+	    case INTERP_ERROR:
+		// emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
+		interp_list.clear();
+		// abort everything
+		emcTaskAbort();
+		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
+		emcSpindleAbort(); 
+		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP_IDLE
+		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
-	    } else {
+		break;
+
+	    case INTERP_EXIT:
+	    case INTERP_ENDFILE:
+	    case INTERP_FILE_NOT_OPEN:
+		// this caused the error msg on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
+		retval = -1;
+		break;
+
+	    default:
 		// other codes are OK
 		retval = 0;
 	    }
@@ -3026,6 +3088,11 @@ static int iniLoad(const char *filename)
     // configurable template for iocontrol reason display
     if (NULL != (inistring = inifile.Find("IO_ERROR", "TASK"))) {
 	io_error = strdup(inistring);
+    }
+
+    // max number of queued MDI commands
+    if (NULL != (inistring = inifile.Find("MDI_QUEUED_COMMANDS", "TASK"))) {
+	max_mdi_queued_commands = atoi(inistring);
     }
 
     // close it

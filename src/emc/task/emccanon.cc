@@ -341,11 +341,7 @@ static void send_g5x_msg(int index) {
     set_g5x_msg.origin.w = TO_EXT_LEN(canon.g5xOffset.w);
 
     if(canon.css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = canon.css_maximum;
-	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(canon.spindleSpeed);
     }
     interp_list.append(set_g5x_msg);
 }
@@ -370,11 +366,7 @@ static void send_g92_msg(void) {
     set_g92_msg.origin.w = TO_EXT_LEN(canon.g92Offset.w);
 
     if(canon.css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = canon.css_maximum;
-	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(canon.spindleSpeed);
     }
     interp_list.append(set_g92_msg);
 }
@@ -1595,7 +1587,7 @@ void SPINDLE_RETRACT_TRAVERSE()
 }
 
 void SET_SPINDLE_MODE(double css_max) {
-    canon.css_maximum = css_max;
+    canon.css_maximum = fabs(css_max);
 }
 
 void START_SPINDLE_CLOCKWISE()
@@ -1603,17 +1595,18 @@ void START_SPINDLE_CLOCKWISE()
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
+    canon.spindle_dir = 1;
 
     if(canon.css_maximum) {
 	if(canon.lengthUnits == CANON_UNITS_INCHES) 
 	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
 	else
 	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = canon.css_maximum;
-	emc_spindle_on_msg.factor = canon.css_numerator;
+	emc_spindle_on_msg.speed = canon.spindle_dir * canon.css_maximum;
+	emc_spindle_on_msg.factor = canon.spindle_dir * canon.css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = canon.spindleSpeed;
+	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
 	canon.css_numerator = 0;
     }
     interp_list.append(emc_spindle_on_msg);
@@ -1624,28 +1617,27 @@ void START_SPINDLE_COUNTERCLOCKWISE()
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
+    canon.spindle_dir = -1;
 
     if(canon.css_maximum) {
 	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = -12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
+	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    canon.css_numerator = -1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = canon.css_maximum;
-	emc_spindle_on_msg.factor = canon.css_numerator;
+	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
+	emc_spindle_on_msg.speed = canon.spindle_dir * canon.css_maximum;
+	emc_spindle_on_msg.factor = canon.spindle_dir * canon.css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = -canon.spindleSpeed;
+	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
 	canon.css_numerator = 0;
     }
-
-
     interp_list.append(emc_spindle_on_msg);
 }
 
 void SET_SPINDLE_SPEED(double r)
 {
     // speed is in RPMs everywhere
-    canon.spindleSpeed = r;
+    canon.spindleSpeed = fabs(r); // interp will never send negative anyway ...
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
@@ -1656,11 +1648,11 @@ void SET_SPINDLE_SPEED(double r)
 	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
 	else
 	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_speed_msg.speed = canon.css_maximum;
-	emc_spindle_speed_msg.factor = canon.css_numerator;
+	emc_spindle_speed_msg.speed = canon.spindle_dir * canon.css_maximum;
+	emc_spindle_speed_msg.factor = canon.spindle_dir * canon.css_numerator;
 	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-	emc_spindle_speed_msg.speed = canon.spindleSpeed;
+	emc_spindle_speed_msg.speed = canon.spindle_dir * canon.spindleSpeed;
 	canon.css_numerator = 0;
     }
     interp_list.append(emc_spindle_speed_msg);
@@ -1766,11 +1758,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     set_offset_msg.offset.w = TO_EXT_LEN(canon.toolOffset.w);
 
     if(canon.css_maximum) {
-	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-	emc_spindle_speed_msg.speed = canon.css_maximum;
-	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-	interp_list.append(emc_spindle_speed_msg);
+        SET_SPINDLE_SPEED(canon.spindleSpeed);
     }
     interp_list.append(set_offset_msg);
 }
@@ -2494,7 +2482,7 @@ int GET_EXTERNAL_FLOOD()
 double GET_EXTERNAL_SPEED()
 {
     // speed is in RPMs everywhere
-    return emcStatus->motion.spindle.speed;
+    return canon.spindleSpeed;
 }
 
 CANON_DIRECTION GET_EXTERNAL_SPINDLE()
@@ -2684,11 +2672,27 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
+// Returns the "home pocket" of the tool currently in the spindle, ie the
+// pocket that the current tool was loaded from.  Returns 0 if there is no
+// tool in the spindle.
 int GET_EXTERNAL_TOOL_SLOT()
 {
-    return emcStatus->io.tool.toolInSpindle;
+    int toolno = emcStatus->io.tool.toolInSpindle;
+    int pocket;
+
+    for (pocket = 1; pocket < CANON_POCKETS_MAX; pocket++) {
+        if (emcStatus->io.tool.toolTable[pocket].toolno == toolno) {
+            return pocket;
+        }
+    }
+
+    return 0;  // no tool in spindle
 }
 
+// If the tool changer has prepped a pocket (after a Txxx command) and is
+// ready to perform a tool change, return the currently prepped pocket
+// number.  If the tool changer is idle (because no Txxx command has been
+// run, or because an M6 tool change has completed), return -1.
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
     return emcStatus->io.tool.pocketPrepped;

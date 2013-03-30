@@ -295,7 +295,7 @@ int Interp::add_parameters(setup_pointer settings,
     // special cases:
     // N...add line number
     if (strchr(required,'n') || strchr(required,'N')) {
-	STORE("n",(double) block->line_number);
+	STORE("n",(double) cblock->saved_line_number);
     }
 
     // >...require positive feed
@@ -537,10 +537,13 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	if (sscanf(code + 1, "%d.%d", &g1, &g2) == 2) {
 	    gcode = g1 * 10 + g2;
 	}
-	if (( gcode == -1) &&  (sscanf(code + 1, "%d", &gcode) != 1)) {
-	    Error("code '%s' : cant parse G-code : %d:REMAP = %s",
-		  code, lineno, inistring);
-	    goto fail;
+	if ( gcode == -1) {
+	    if (sscanf(code + 1, "%d", &gcode) != 1) {
+		Error("code '%s' : cant parse G-code : %d:REMAP = %s",
+		      code, lineno, inistring);
+		goto fail;
+	    }
+	    gcode *= 10;
 	}
 	r.motion_code = gcode;
 	if (r.modal_group == -1) {

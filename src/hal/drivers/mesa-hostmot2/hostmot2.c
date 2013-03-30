@@ -53,7 +53,11 @@ RTAPI_MP_INT(debug_module_descriptors, "Developer/debug use only!  Enable debug 
 int debug_modules = 0;
 RTAPI_MP_INT(debug_modules, "Developer/debug use only!  Enable debug logging of the HostMot2\nModules used.");
 
+int use_serial_numbers = 0;
+RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration order (smart-serial only)");
 
+int sserial_baudrate = -1;
+RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
 
 
 // this keeps track of all the hm2 instances that have been registered by
@@ -93,6 +97,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_stepgen_process_tram_read(hm2, period);
     hm2_sserial_process_tram_read(hm2, period);
     hm2_bspi_process_tram_read(hm2, period);
+    //UARTS need to be explicity handled by an external component
 
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_raw_read(hm2);
@@ -117,6 +122,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
+    //UARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
 
     // these usually do nothing
@@ -198,13 +204,53 @@ int hm2_get_bspi(hostmot2_t** hm2, char *name){
     list_for_each(ptr, &hm2_list) {
         *hm2 = list_entry(ptr, hostmot2_t, list);
         if ((*hm2)->bspi.num_instances > 0) {
-            for (i = 0; i <= (*hm2)->bspi.num_instances ; i++) {
+            for (i = 0; i < (*hm2)->bspi.num_instances ; i++) {
                 if (!strcmp((*hm2)->bspi.instance[i].name, name)) {return i;}
             }
         }
     }
     return -1;
 }
+
+EXPORT_SYMBOL_GPL(hm2_get_uart);
+int hm2_get_uart(hostmot2_t** hm2, char *name){
+    struct list_head *ptr;
+    int i;
+    list_for_each(ptr, &hm2_list) {
+        *hm2 = list_entry(ptr, hostmot2_t, list);
+        if ((*hm2)->uart.num_instances > 0) {
+            for (i = 0; i < (*hm2)->uart.num_instances ; i++) {
+                if (!strcmp((*hm2)->uart.instance[i].name, name)) {return i;}
+            }
+        }
+    }
+    return -1;
+}
+
+EXPORT_SYMBOL_GPL(hm2_get_sserial);
+// returns a pointer to a remote struct
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, char *name){
+   // returns inst * 64 + remote index
+    struct list_head *ptr;
+    int i, j;
+    list_for_each(ptr, &hm2_list) {
+        *hm2 = list_entry(ptr, hostmot2_t, list);
+        if ((*hm2)->sserial.num_instances > 0) {
+            for (i = 0; i < (*hm2)->sserial.num_instances ; i++) {
+                for (j = 0; j < (*hm2)->sserial.instance[i].num_remotes; j++){
+                    if (strstr(name, (*hm2)->sserial.instance[i].remotes[j].name)) {
+                        return &((*hm2)->sserial.instance[i].remotes[j]);
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+
+
+
 
 
 // FIXME: the static automatic string makes this function non-reentrant
@@ -223,6 +269,8 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
         case HM2_GTAG_SMARTSERIAL:     return "Smart Serial Interface";
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
+        case HM2_GTAG_UART_RX:         return "UART Receive Channel";
+        case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -247,6 +295,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     for(i=0;i<4;i++) for(j=0;j<8;j++) hm2->config.sserial_modes[i][j]='0';
     hm2->config.num_stepgens = -1;
     hm2->config.num_bspis = -1;
+    hm2->config.num_uarts = -1;
     hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
@@ -286,6 +335,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             int i;
             int c = 0;
             token += 13;
+            int flag = 0;
             i = *token - '0';
             token += 1;
             if (i < 0 || i > 3 || *token != '='){
@@ -294,12 +344,20 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
                 goto fail;
             }
             for (token += 1 ; *token != 0; token++) {
-                if (((*token >= '0' && *token <= '9') || *token == 'x')
-                    && c < 8) {
+                if ((*token >= '0' && *token <= '9') && c < 8) {
+                    hm2->config.sserial_modes[i][c++] = *token;
+                    flag = 1;
+                }
+                else if (*token == 'x' && c < 8) {
                     hm2->config.sserial_modes[i][c++] = *token;
                 }
             }
-            if (i >= hm2->config.num_sserials){
+            
+            if (hm2->config.num_sserials == -1){
+                hm2->config.num_sserials = 0;
+            }
+                
+            if (i >= hm2->config.num_sserials && flag){
                 hm2->config.num_sserials = i + 1;
             }
 
@@ -310,7 +368,11 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_bspis=", 10) == 0) {
             token += 10;
             hm2->config.num_bspis = simple_strtol(token, NULL, 0);
- 
+
+        } else if (strncmp(token, "num_uarts=", 10) == 0) {
+            token += 10;
+            hm2->config.num_uarts = simple_strtol(token, NULL, 0);
+
         } else if (strncmp(token, "num_leds=", 9) == 0) {
             token += 9;
             hm2->config.num_leds = simple_strtol(token, NULL, 0);
@@ -346,6 +408,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.sserial_modes[3]);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    num_bspis=%d\n", hm2->config.num_bspis);
+    HM2_DBG("    num_uarts=%d\n", hm2->config.num_uarts);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
@@ -767,7 +830,12 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_BSPI:
                 md_accepted = hm2_bspi_parse_md(hm2, md_index);
                 break;
-
+                
+            case HM2_GTAG_UART_RX:
+            case HM2_GTAG_UART_TX:
+                md_accepted = hm2_uart_parse_md(hm2, md_index);
+                break;
+                
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;
@@ -978,6 +1046,8 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     memset(hm2, 0, sizeof(hostmot2_t));
 
     hm2->llio = llio;
+    hm2->use_serial_numbers = use_serial_numbers;
+    hm2->sserial.baudrate = sserial_baudrate;
 
     INIT_LIST_HEAD(&hm2->tram_read_entries);
     INIT_LIST_HEAD(&hm2->tram_write_entries);

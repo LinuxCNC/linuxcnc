@@ -66,6 +66,8 @@
 #error "Can't define both RTAPI and ULAPI!"
 #endif
 
+#include <stddef.h> // provides NULL
+
 /** Provide fixed length types of the form __u8, __s32, etc.  These
     can be used in both kernel and user space.  There are also types
     without the leading underscores, but they work in kernel space
@@ -834,9 +836,9 @@ RTAPI_BEGIN_DECLS
   MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
-#else /* version 2.6 */
+#else /* version 2.6 or later */
 
-#include <linux/param.h>
+#include <linux/module.h>
 
 #define RTAPI_MP_INT(var,descr)    \
   module_param(var, int, 0);       \

@@ -77,6 +77,7 @@ to another.
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 #include "simple_tp.h"
+#include "rtapi_limits.h"
 #include <stdarg.h>
 
 
@@ -84,7 +85,7 @@ to another.
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
 // this should be really be tested for in command.c 
 
-#define MOTION_INVALID_ID (-((int)(~0U>>1))-1)
+#define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
@@ -139,8 +140,6 @@ extern "C" {
 	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
 	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
         EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
-
-	EMCMOT_SET_SPINDLE_VEL,	/* set the spindle vel (>0 means forward, <0 means backward) */
 	EMCMOT_SPINDLE_ON,	/* start the spindle */
 	EMCMOT_SPINDLE_OFF,	/* stop the spindle */
 	EMCMOT_SPINDLE_INCREASE,	/* spindle faster */
