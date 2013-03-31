@@ -907,7 +907,7 @@ class Gscreen:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
     def init_sensitive_all_homed(self):
-        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1"]
+        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1","button_v0_6"]
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
@@ -916,19 +916,19 @@ class Gscreen:
     def init_sensitive_override_mode(self):
         self.data.sensitive_override_mode = ["spindle_preset","spindle_control","spindle_increase","spindle_decrease","s_display_fwd",
             "s_display_rev","button_graphics","button_homing","button_mode","button_h1_0","button_h1_2",
-                "button_h1_3","button_h1_4"]
+                "button_h1_3","button_h1_4","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_override_mode.append("axis_%s"% axis)
 
     def init_sensitive_graphics_mode(self):
         self.data.sensitive_graphics_mode = ["button_override","button_homing","button_mode",
-              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
+              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_graphics_mode.append("axis_%s"% axis)
 
     def init_sensitive_origin_mode(self):
         self.data.sensitive_origin_mode = ["button_override","button_graphics","button_homing","button_mode",
-                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
+                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_origin_mode.append("axis_%s"% axis)
     
@@ -1262,6 +1262,19 @@ class Gscreen:
         widget.destroy()
         self.data.entry_dialog = None
 
+    def on_tool_offset_entry_return(self,widget,result,calc,userdata,userdata2):
+        value = calc.get_value()
+        if result == gtk.RESPONSE_ACCEPT:
+            if value == None:
+                return
+            # if an axis is selected then set it
+            for axis in self.data.axis_list:
+                if self.widgets["axis_%s"%axis].get_active():
+                    print "tool %d, set in %s axis to- %f" %(self.data.tool_in_spindle,axis,value)
+                    self.mdi_control.touchoff(self.data.tool_in_spindle,axis,self.get_qualified_input(value))
+        widget.destroy()
+        self.data.entry_dialog = None
+
     def on_adj_overrides_entry_return(self,widget,result,calc,userdata,userdata2):
         data = calc.get_value()
         if result == gtk.RESPONSE_ACCEPT:
@@ -1386,6 +1399,8 @@ class Gscreen:
                 # Move to button
                 if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
                     self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+            elif number == 6:
+                self.tool_touchoff_checks()
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
             if number == 0: pass
@@ -2702,6 +2717,15 @@ class Gscreen:
             self.notify(_("INFO:"),_("No axis selected for origin touch-off"),INFO_ICON)
             return
         self.launch_numerical_input("on_offset_origin_entry_return")
+
+    def tool_touchoff_checks(self):
+        if len(self.data.active_axis_buttons) > 1:
+            self.notify(_("INFO:"),_("Can't tool touch-off multiple axes"),INFO_ICON)
+            return
+        if self.data.active_axis_buttons[0][0] == None:
+            self.notify(_("INFO:"),_("No axis selected for tool touch-off"),INFO_ICON)
+            return
+        self.launch_numerical_input("on_tool_offset_entry_return")
 
     # move axis to a position (while in manual mode)
     def move_to(self,data):
