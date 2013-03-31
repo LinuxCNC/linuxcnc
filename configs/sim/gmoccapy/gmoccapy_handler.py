@@ -454,6 +454,8 @@ class HandlerClass:
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.set_editable(True)
+        calc.entry.connect("activate", lambda w : dialog.emit('response',gtk.RESPONSE_ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(True)
         dialog.show_all()
