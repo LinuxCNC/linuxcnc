@@ -1,0 +1,31 @@
+ifeq ($(USE_HALREPORT),yes)
+ifeq ($(USE_PROTOBUF),yes)
+ifeq ($(USE_ZEROMQ),yes)
+
+PROFILE = # -pg
+
+REPORT_SRCS :=  $(addprefix hal/halreport/, \
+	halreport.c)
+
+REPORT_CCFLAGS := $(shell pkg-config libczmq libzmq --cflags)  $(PROFILE)
+REPORT_LDFLAGS := $(shell pkg-config libczmq libzmq --libs) $(PROFILE)
+
+REPORT_CCFLAGS := $(PROFILE) -DULAPI
+
+
+$(call TOOBJSDEPS, $(REPORT_SRCS)) : EXTRAFLAGS += $(REPORT_CCFLAGS)
+
+
+../bin/halreport: $(call TOOBJS, $(REPORT_SRCS)) \
+	../lib/liblinuxcnc-pb2.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(REPORT_LDFLAGS) $(PROTOC_C_LDFLAGS)
+
+USERSRCS += $(REPORT_SRCS)
+TARGETS += ../bin/halreport
+
+endif # USE_ZEROMQ
+endif # USE_PROTOBUF
+endif

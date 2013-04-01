@@ -1,0 +1,39 @@
+This is an experimental HAL component for LinuxCNC3.
+
+It covers the aspect of monitoring HAL pins for changes, and generating a
+status update message if so.
+
+* Required packages for ubuntu 12.04:
+    sudo apt-get install \
+            libzmq-dev libprotobuf-c0-dev protobuf-c-compiler \
+            python-protobuf.socketrpc python-protobuf protobuf-compiler \
+            libprotoc-dev libprotobuf-dev
+    install czmq from https://github.com/zeromq/czmq
+    install pyzmq from https://github.com/zeromq/pyzmq
+
+* Required packages for Debian squeeze
+  apt-get install libprotobuf-c0-dev  libprotobuf-c0 \
+	  protobuf-c-compiler libprotobuf-dev libprotobuf6 \
+	  libprotoc-dev protobuf-compiler  python-protobuf \
+	  libtool python-setuptools cython
+
+  install libzmq from https://github.com/zeromq/libzmq
+  install czmq from https://github.com/zeromq/czmq
+
+  install pyzmq with:
+     easy_install pyzmq
+
+* To resolve "Failed to remake makefile `Makefile'" for *pb* include files:
+    touch hal/halreport/*.proto # renew file timestamps
+    make # to generate protocol-buf files
+
+
+To run the application:
+
+- in a window, start
+  $ halcmd -f periodic-example.hal
+
+- in a second window, start
+  $ gladevcp -u zmqdemo.py zmqdemo.ui
+
+(see zmqdemo.py variable dest for addressing, as well as halreport.ini)
