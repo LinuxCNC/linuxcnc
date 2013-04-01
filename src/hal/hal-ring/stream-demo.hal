@@ -1,0 +1,28 @@
+# HAL Ring stream demo
+
+# this creates ring_0 in stream mode
+loadrt ringload num_rings=1 size=16386 mode=2
+
+loadrt ringread ring=ring_0
+
+loadrt ringwrite ring=ring_0
+
+# slow square signal on ringwrite.write
+# every edge on ringwrite.write causes a message to be queued
+loadrt charge_pump
+net square-wave charge-pump.out ringwrite.write
+
+# 1ms/1s
+loadrt threads name1=fast period1=1000000 name2=slow period2=1000000000
+
+# the 'dequeue and print message' thread function
+addf ringread  fast
+
+# the 'enqueue a message' function
+addf ringwrite fast
+
+addf charge-pump slow
+start
+
+# get going
+setp charge-pump.enable 1

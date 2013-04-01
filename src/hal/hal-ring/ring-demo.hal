@@ -1,0 +1,31 @@
+# HAL Ringbuffer demo
+
+# this creates the named rings ring_0 ... ring_3
+loadrt ringload num_rings=4 size=16386
+
+# attach to ring_2
+# on each
+loadrt ringread ring=ring_2
+
+# attach to ring_2 as well
+loadrt ringwrite ring=ring_2
+
+# slow square signal on ringwrite.write
+# every edge on ringwrite.write causes a message to be queued
+loadrt charge_pump
+net square-wave charge-pump.out ringwrite.write
+
+# 1ms/1s
+loadrt threads name1=fast period1=1000000 name2=slow period2=1000000000
+
+# the 'dequeue and print message' thread function
+addf ringread  fast
+
+# the 'enqueue a message' function
+addf ringwrite fast
+
+addf charge-pump slow
+start
+
+# get going
+setp charge-pump.enable 1

@@ -1,0 +1,113 @@
+Demo for HAL ringbuffer functions
+---------------------------------
+
+HAL ring buffers support non-blocking, variable-sized record queue
+operations between HAL components. The underlying model is a
+lock-free, single-reader, single-writer queue which does not require
+any operating system support and is extremely fast.
+
+In the linuxCNC context, HAL ringbuffers are intended to replace a
+variety of special-purpose messaging schemes like the ones used
+between task and motion, in halstreamer, halsampler and halscope, at
+the same time making those amenable to a networked messaging
+integration.
+
+For an introduction on lock-free programming, see:
+
+  http://preshing.com/20120612/an-introduction-to-lock-free-programming
+  http://julien.benoist.name/lockfree.html
+
+The definitive reference on the subject is:
+  Herlihy/Shavit:  The Art of Multiprocessor Programming, Morgan Kaufmann 2012.
+
+Original code by Pavel Shramov, 1/2013, http://psha.org.ru/cgit/psha/ring/ .
+HAL integration by Michael Haberler, 2/2013.
+
+
+Demo: messaging between RT components:
+--------------------------------------
+ $ halcmd -f ring-demo.hal
+
+Demo: sending messages from a Python program to an RT component:
+--------------------------------------
+ $ halcmd -f ringread.hal
+ $ python ringwrite.py
+
+
+Demo components:
+----------------
+src/hal/components: ringload.comp ringread.comp ringwrite.comp
+
+
+Ring buffer C API (HAL):
+========================
+
+Caveat: This code is safe to use ONLY for a single reader and a single writer. Readers and writers may NOT change roles.
+
+#include "hal_priv.h" // not public for now
+
+/* create a named ringbuffer, owned by comp module_id */
+int hal_ring_new(const char *name, int size, int module_id);
+
+/* delete a named ringbuffer */
+int hal_ring_delete(const char *name);
+
+/* make an existing ringbuffer accessible to a component */
+int hal_ring_attach(const char *name, ringbuffer_t **rb, int module_id);
+
+/* write a variable-sized record into the ringbuffer.
+ * record boundaries will be preserved.
+ * returns 0 on success,
+ * else errno:
+ *     ERANGE:  record greater than ring buffer (fatal)
+ *     EAGAIN:  currently not enough space in ring buffer (temporary)
+ */
+int hal_ring_write(ringbuffer_t *h, void * data, size_t sz);
+
+/* return pointer to data available, or NULL if ringbuffer empty
+ */
+void *hal_ring_next(ringbuffer_t *h);
+
+/* return size of the next readable record
+ * return -1 if ringbuffer empty
+ * NB: zero-sized records are supported
+ */
+ring_size_t hal_ring_next_size(ringbuffer_t *h);
+
+/* return a struct iovec to read the next record
+ */
+struct iovec hal_ring_next_iovec(ringbuffer_t *ring);
+
+/* advance ring buffer by one record after consuming data
+ * with hal_ring_next/hal_ring_next_size/hal_ring_next_iovec
+ *
+ * NB: without hal_ring_shift(), hal_ring_next/hal_ring_next_size/
+ * hal_ring_next_iovec are in effect a peek operation
+ */
+void hal_ring_shift(ringbuffer_t *h);
+
+/* returns the largest contiguous block available
+ * such that hal_ring_write(h, data, hal_ring_available(h))
+ * will succeed
+ */
+size_t hal_ring_available(const ringbuffer_t *ring);
+
+/* empty a ring.
+ *
+ * NB: only the reader should execute this function!
+ */
+void hal_ring_flush(ringbuffer_t *h);
+
+Todo:
+-----
+   add memory barriers for ARM SMP
+   add a non-destructive queue iterator (for motion lookeahead, for example)
+
+Nice to have:
+   a variant/option which overwrites the oldest entry when full
+      halstreamer uses this scheme
+
+   include an optional separate shared memory buffer of size given at creation time
+      message exchange and status reporting often go together
+
+   optionally add r/w mutexes to support multiple readers/multiple writers

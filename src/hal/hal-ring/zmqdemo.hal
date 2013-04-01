@@ -1,0 +1,25 @@
+# HAL Ringbuffer demo to work with zmqringpub.py and zmqringsub.py
+
+
+# this creates the named rings ring_0 ... ring_3
+loadrt ringload num_rings=4 size=16384
+
+# attach to ring_2, others will have a zero writer attribute
+loadrt ringwrite ring=ring_2
+
+# slow square signal on ringwrite.write
+# every edge on ringwrite.write causes a message to be queued
+loadrt charge_pump
+net square-wave charge-pump.out ringwrite.write
+
+# 0.5s
+loadrt threads name1=slow period1=500000000
+
+# the 'enqueue a message' function
+addf ringwrite slow
+
+addf charge-pump slow
+start
+
+# get going
+setp charge-pump.enable 1
