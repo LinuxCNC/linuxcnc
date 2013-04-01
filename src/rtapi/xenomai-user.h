@@ -9,7 +9,6 @@
 
 
 /* rtapi_common.h */
-#define REV_CODE 3
 
 /* this needs to be fixed
 #undefine RTAPI_NAME_LEN

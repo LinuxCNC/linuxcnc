@@ -37,7 +37,6 @@ static struct rt_stats_struct {
 } rt_stats;
 #endif  /* RTAPI */
 
-
 /* init_rtapi_data */
 #ifdef RTAPI
 void init_rtapi_data_hook(rtapi_data_t * data) {
@@ -49,51 +48,14 @@ void init_rtapi_data_hook(rtapi_data_t * data) {
 
 
 /* rtapi_init() and rtapi_exit() */
-typedef struct {
-    unsigned long mutex;
-    int           uuid;
-} uuid_data_t;
-
-#define UUID_KEY  0x48484c34 /* key for UUID for simulator */
-
 
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
 
 int _rtapi_init(const char *modname) {
-    static uuid_data_t* uuid_data   = 0;
-    static         int  uuid_mem_id = 0;
-    const static   int  uuid_id     = 0;
 
-    static char* uuid_shmem_base = 0;
-    int retval,id;
-    void *uuid_mem;
-
-    uuid_mem_id = rtapi_shmem_new(UUID_KEY,uuid_id,sizeof(uuid_data_t));
-    if (uuid_mem_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-        "rtapi_init: could not open shared memory for uuid\n");
-        rtapi_exit(uuid_id);
-        return -EINVAL;
-    }
-    retval = rtapi_shmem_getptr(uuid_mem_id,&uuid_mem);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-        "rtapi_init: could not access shared memory for uuid\n");
-        rtapi_exit(uuid_id);
-        return -EINVAL;
-    }
-    if (uuid_shmem_base == 0) {
-        uuid_shmem_base =        (char *) uuid_mem;
-        uuid_data       = (uuid_data_t *) uuid_mem;
-    }
-    rtapi_mutex_get(&uuid_data->mutex);
-        uuid_data->uuid++;
-        id = uuid_data->uuid;
-    rtapi_mutex_give(&uuid_data->mutex);
-
-    return id;
+    return _rtapi_next_module_id();
 }
 
 int _rtapi_exit(int module_id) {
@@ -101,13 +63,12 @@ int _rtapi_exit(int module_id) {
   return 0;
 }
 
-
 /***********************************************************************
 *                           rtapi_task.c                               *
 ************************************************************************/
 
 #ifdef RTAPI
-int rtapi_task_delete_hook(task_data *task, int task_id) {
+int _rtapi_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0)
@@ -117,7 +78,7 @@ int rtapi_task_delete_hook(task_data *task, int task_id) {
     return retval;
 }
 
-void rtapi_task_wrapper(void * task_id_hack) {
+void _rtapi_task_wrapper(void * task_id_hack) {
     int ret;
     int task_id = (int)(long) task_id_hack; // ugly, but I ain't gonna fix it
     task_data *task = &task_array[task_id];
@@ -151,7 +112,7 @@ void rtapi_task_wrapper(void * task_id_hack) {
 }
 
 
-int rtapi_task_start_hook(task_data *task, int task_id) {
+int _rtapi_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int retval;
 
@@ -163,14 +124,6 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     if (task->cpu > -1)  // explicitly set by threads, motmod
 	which_cpu = T_CPU(task->cpu);
 #endif
-
-    // sanity check
-    if (strlen(task->name) > XNOBJECT_NAME_LEN-1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rt_task_create: task name '%s' too long for Xenomai, length limit %d chars\n", 
-			task->name, XNOBJECT_NAME_LEN-1 );
-	return -EINVAL;
-    }
 
     // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
     // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a
@@ -188,7 +141,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
-				 rtapi_task_wrapper, (void *)(long)task_id))) {
+				 _rtapi_task_wrapper, (void *)(long)task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"rt_task_start failed, rc = %d\n", retval );
 	return -ENOMEM;
@@ -196,7 +149,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int rtapi_task_stop_hook(task_data *task, int task_id) {
+int _rtapi_task_stop_hook(task_data *task, int task_id) {
     int retval;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -207,15 +160,15 @@ int rtapi_task_stop_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int rtapi_task_pause_hook(task_data *task, int task_id) {
+int _rtapi_task_pause_hook(task_data *task, int task_id) {
     return rt_task_suspend( &ostask_array[task_id] );
 }
 
-int rtapi_task_resume_hook(task_data *task, int task_id) {
+int _rtapi_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-void rtapi_wait_hook() {
+void _rtapi_wait_hook() {
     unsigned long overruns;
     static int error_printed = 0;
     int task_id;
@@ -232,7 +185,7 @@ void rtapi_wait_hook() {
 	rt_stats.rt_total_overruns += overruns;
 
 	if (error_printed < MAX_ERRORS) {
-	    task_id = rtapi_task_self();
+	    task_id = _rtapi_task_self();
 	    task = &(task_array[task_id]);
 
 	    rtapi_print_msg
@@ -277,7 +230,7 @@ void rtapi_wait_hook() {
     }
 }
 
-int rtapi_task_self_hook(void) {
+int _rtapi_task_self_hook(void) {
     RT_TASK *ptr;
     int n;
 
@@ -308,14 +261,14 @@ int rtapi_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-void rtapi_delay_hook(long int nsec)
+void _rtapi_delay_hook(long int nsec)
 {
     long long int release = rt_timer_tsc() + nsec;
     while (rt_timer_tsc() < release);
 }
 #endif
 
-long long int rtapi_get_time_hook(void) {
+long long int _rtapi_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see
        CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
@@ -327,7 +280,7 @@ long long int rtapi_get_time_hook(void) {
    other disgusting, non-realtime oriented behavior.  But at least it
    doesn't take a week every time you call it.
 */
-long long int rtapi_get_clocks_hook(void) {
+long long int _rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
 }
