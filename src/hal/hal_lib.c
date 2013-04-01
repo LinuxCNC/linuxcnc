@@ -3736,7 +3736,6 @@ static void rtapi_hal_lib_cleanup_helper(void)
 /* only export symbols when we're building a kernel module */
 
 EXPORT_SYMBOL(hal_init);
-EXPORT_SYMBOL(hal_init_mode);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
@@ -3803,32 +3802,6 @@ EXPORT_SYMBOL(halpr_find_funct_by_owner);
 
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
-EXPORT_SYMBOL(hal_ring_new);
-EXPORT_SYMBOL(hal_ring_delete);
-EXPORT_SYMBOL(hal_ring_attach);
-
-EXPORT_SYMBOL(hal_ring_use_wmutex);
-EXPORT_SYMBOL(hal_ring_use_rmutex);
-
-EXPORT_SYMBOL(hal_record_write);
-EXPORT_SYMBOL(hal_record_next);
-EXPORT_SYMBOL(hal_record_next_size);
-EXPORT_SYMBOL(hal_record_next_vec);
-EXPORT_SYMBOL(hal_record_shift);
-EXPORT_SYMBOL(hal_record_write_space);
-EXPORT_SYMBOL(hal_record_flush);
-
-
-EXPORT_SYMBOL(hal_stream_get_read_vector);
-EXPORT_SYMBOL(hal_stream_get_write_vector);
-EXPORT_SYMBOL(hal_stream_read);
-EXPORT_SYMBOL(hal_stream_peek);
-EXPORT_SYMBOL(hal_stream_read_advance);
-EXPORT_SYMBOL(hal_stream_read_space);
-EXPORT_SYMBOL(hal_stream_flush);
-EXPORT_SYMBOL(hal_stream_write);
-EXPORT_SYMBOL(hal_stream_write_advance);
-EXPORT_SYMBOL(hal_stream_write_space);
 
 #endif /* rtapi */
 
