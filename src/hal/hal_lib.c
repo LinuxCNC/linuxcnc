@@ -78,6 +78,7 @@ MODULE_LICENSE("GPL");
 #include <stdlib.h>		/* exit() */
 #include <dlfcn.h>              /* for dlopen/dlsym ulapi-$THREADSTYLE.so */
 #include <assert.h>
+#include <limits.h>             // PATH_MAX
 #endif
 
 
@@ -2514,128 +2515,6 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
     /* if loop terminates, we reached end of list without finding a match */
     return 0;
 }
-
-/***********************************************************************
-*                     LOCAL FUNCTION CODE                              *
-************************************************************************/
-
-#ifdef RTAPI
-/* these functions are called when the hal_lib module is insmod'ed
-   or rmmod'ed.
-*/
-#if defined(BUILD_SYS_USER_DSO)
-#undef CONFIG_PROC_FS
-#endif
-
-#ifdef CONFIG_PROC_FS
-#include <linux/proc_fs.h>
-extern struct proc_dir_entry *rtapi_dir;
-static struct proc_dir_entry *hal_dir = 0;
-static struct proc_dir_entry *hal_newinst_file = 0;
-
-static int proc_write_newinst(struct file *file,
-        const char *buffer, unsigned long count, void *data)
-{
-    if(hal_data->pending_constructor) {
-        rtapi_print_msg(RTAPI_MSG_DBG,
-                "HAL: running constructor for %s %s\n",
-                hal_data->constructor_prefix,
-                hal_data->constructor_arg);
-        hal_data->pending_constructor(hal_data->constructor_prefix,
-                hal_data->constructor_arg);
-        hal_data->pending_constructor = 0;
-    }
-    return count;
-}
-
-static void hal_proc_clean(void) {
-    if(hal_newinst_file)
-        remove_proc_entry("newinst", hal_dir);
-    if(hal_dir)
-        remove_proc_entry("hal", rtapi_dir);
-    hal_newinst_file = hal_dir = 0;
-}
-static int hal_proc_init(void) {
-    if(!rtapi_dir) return 0;
-    hal_dir = create_proc_entry("hal", S_IFDIR, rtapi_dir);
-    if(!hal_dir) { hal_proc_clean(); return -1; }
-    hal_newinst_file = create_proc_entry("newinst", 0666, hal_dir);
-    if(!hal_newinst_file) { hal_proc_clean(); return -1; }
-    hal_newinst_file->data = NULL;
-    hal_newinst_file->read_proc = NULL;
-    hal_newinst_file->write_proc = proc_write_newinst;
-    return 0;
-}
-#else
-static int hal_proc_clean(void) { return 0; }
-static int hal_proc_init(void) { return 0; }
-#endif
-
-int rtapi_app_main(void)
-{
-    int retval;
-    void *mem;
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: loading kernel lib\n");
-
-    rtapi_hal_lib_init(MAIN_START); // call constructor
-
-    /* do RTAPI init */
-    lib_module_id = rtapi_init("HAL_LIB");
-    if (lib_module_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: ERROR: rtapi init failed\n");
-	return -EINVAL;
-    }
-    /* get HAL shared memory block from RTAPI */
-    lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
-
-    if (lib_mem_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: ERROR: could not open shared memory\n");
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(lib_mem_id, &mem);
-
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: ERROR: could not access shared memory\n");
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    /* set up internal pointers to shared mem and data structure */
-    hal_shmem_base = (char *) mem;
-    hal_data = (hal_data_t *) mem;
-    /* perform a global init if needed */
-    retval = init_hal_data();
-
-    if ( retval ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: ERROR: could not init shared memory\n");
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    retval = hal_proc_init();
-
-    if ( retval ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: ERROR: could not init /proc files\n");
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    //rtapi_printall();
-    rtapi_hal_lib_init(MAIN_END);
-
-    /* done */
-    rtapi_print_msg(RTAPI_MSG_DBG,
-	"HAL_LIB: kernel lib installed successfully\n");
-    return 0;
-}
-
-void rtapi_app_exit(void)
-{
-    hal_thread_t *thread;
 
 /***********************************************************************
 *                     LOCAL FUNCTION CODE                              *
