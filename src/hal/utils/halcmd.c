@@ -45,7 +45,7 @@
 #include "config.h"
 
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 FILE *halcmd_inifile = NULL;
 #endif
 
@@ -112,7 +112,7 @@ int halcmd_startup(int quiet) {
     if (comp_id < 0) {
         if (!quiet) {
             fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
-            fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
+            fprintf(stderr, "NOTE: 'rtapi' module must be loaded\n" );
         }
 	return -EINVAL;
     }
@@ -189,14 +189,19 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     char msglevel[20];
 
     /* now we need to fork, and then exec .... */
+#if 0
     /* disconnect from the HAL shmem area before forking */
     hal_exit(comp_id);
     comp_id = 0;
+#else
+    hal_rtapi_detach();
+#endif
     /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
 	/* fork failed */
 	halcmd_error("fork() failed\n");
+#if 0
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -205,6 +210,9 @@ pid_t hal_systemv_nowait(char *const argv[]) {
 	    exit(-1);
 	}
         hal_ready(comp_id);
+#else
+	hal_rtapi_attach();
+#endif
 	return -1;
     }
     if ( pid == 0 ) {
@@ -231,8 +239,10 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     }
     /* parent process */
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-
+    //#if 0
+    hal_rtapi_attach();
+    // comp_id = hal_init(comp_name);
+    //#endif
     return pid;
 }
 
@@ -249,7 +259,7 @@ int hal_systemv(char *const argv[]) {
 	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
 	exit(-1);
     }
-    hal_ready(comp_id);
+    //XXX FIXME hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
