@@ -111,7 +111,8 @@ SUBDIRS := \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
     hal/components hal/drivers hal/user_comps/devices \
-    hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
+    hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd \
+    hal/classicladder hal/utils hal \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \
@@ -122,7 +123,14 @@ SUBDIRS := \
     \
     po \
     \
-    ../docs/src
+    ../docs/src \
+    protobuf \
+    protobuf/components \
+    protobuf/examples \
+    hal/halgroups \
+    hal/halreport \
+    hal/remote \
+    hal/msgcomponents
 
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
@@ -435,13 +443,18 @@ modclean:
 depclean:
 	-rm -rf depends
 
-clean: depclean modclean
+clean: depclean modclean protobuf-clean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
+
+# cleanup protoc/protoc-c/nanopb generated files
+protobuf-clean:
+	-rm -f protobuf/generated/*
+
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
@@ -672,8 +685,12 @@ endif # userspace
 
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/hal/msgcomponents/Submakefile
+include $(BASEPWD)/protobuf/components/Submakefile
 # to pull FLAVOR_FLAGS - see Makefile.modinc.in
 include $(BASEPWD)/rtapi/Submakefile
+# to pull EXTRA_CFLAGS for nanopb
+include $(BASEPWD)/protobuf/Submakefile
 endif
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
@@ -696,6 +713,8 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(BASEPWD)/emc/nml_intf \
 	-I$(BASEPWD)/emc/kinematics \
 	-I$(BASEPWD)/emc/motion \
+	-I$(BASEPWD)/protobuf/generated \
+	-I$(BASEPWD)/protobuf/nanopb  \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math \
@@ -1036,6 +1055,7 @@ endif # end BUILD_SYS=user-dso
 
 # build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+#../rtlib/instance$(MODULE_EXT): $(addprefix objects/rt,$(instance-objs))
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
@@ -1121,6 +1141,7 @@ tags:
 	find . -type f -name '*.[ch]' |xargs etags -l c --append
 	find . -type f -name '*.cc' |xargs etags -l c++ --append
 	find . -type f -name '*.hh' |xargs etags -l c++ --append
+	find protobuf/proto -type f -name '*.proto' |xargs etags -l c++ --append
 
 .PHONY: swish
 swish:
