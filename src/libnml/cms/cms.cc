@@ -43,6 +43,8 @@ extern "C" {
 #include "linklist.hh"          /* LinkedList */
 #include "physmem.hh"
 
+int instance_no = 0;
+
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 
@@ -378,21 +380,25 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	    neutral_encoding_method = CMS_XDR_ENCODING;
 	    continue;
 	}
+	
+	char *instance_env = getenv("INSTANCE");
+	if (instance_env != NULL)
+	    instance_no = atoi(instance_env);
 
 	char *port_string;
 	if (NULL != (port_string = strstr(word[i], "STCP="))) {
 	    remote_port_type = CMS_STCP_REMOTE_PORT_TYPE;
-	    stcp_port_number =
+	    stcp_port_number = instance_no +
 		(int) strtol(port_string + 5, (char **) NULL, 0);
 	    continue;
 	} else if (NULL != (port_string = strstr(word[i], "TCP="))) {
 	    remote_port_type = CMS_TCP_REMOTE_PORT_TYPE;
-	    tcp_port_number =
+	    tcp_port_number = instance_no +
 		(int) strtol(port_string + 4, (char **) NULL, 0);
 	    continue;
 	} else if (NULL != (port_string = strstr(word[i], "UDP="))) {
 	    remote_port_type = CMS_UDP_REMOTE_PORT_TYPE;
-	    udp_port_number =
+	    udp_port_number = instance_no +
 		(int) strtol(port_string + 4, (char **) NULL, 0);
 	    continue;
 	}
