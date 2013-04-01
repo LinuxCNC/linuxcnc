@@ -41,11 +41,11 @@
 
 
 /* prototypes for hooks the kernel thread systems must implement */
-extern void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
+extern void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
 					  unsigned long int size);
-extern void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
+extern void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 					 unsigned long int size);
-extern void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
+extern void _rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 static void check_memlock_limit(const char *where);
 #endif
@@ -61,11 +61,12 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 *                           USERLAND THREADS                           *
 ************************************************************************/
 
-int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
+int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
     shmem_data *shmem;
     struct shmid_ds d;
     int i, ret;
     int is_new = 0;
+    int key = OS_KEY(userkey);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
@@ -304,7 +305,7 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 #endif
 		/* no, map it and save the address */
 		shmem_addr_array[shmem_id] = 
-		    rtapi_shmem_new_realloc_hook(shmem_id, key, size);
+		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size);
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "RTAPI: ERROR: failed to map shmem\n");
@@ -336,7 +337,7 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     /* find empty spot in shmem array */
     n = 1;
     while ((n <= RTAPI_MAX_SHMEMS) && (shmem_array[n].key != 0)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, OUR_API ": shmem %d occupuied \n",n);
+	rtapi_print_msg(RTAPI_MSG_DBG, OUR_API ": shmem %d occupuied \n",n);
 	n++;
     }
     if (n > RTAPI_MAX_SHMEMS) {
@@ -347,14 +348,14 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 	return -EMFILE;
     }
     /* we have space for the block data */
-    rtapi_print_msg(RTAPI_MSG_ERR, OUR_API ": using new shmem %d  \n",n);
+    rtapi_print_msg(RTAPI_MSG_DBG, OUR_API ": using new shmem %d  \n",n);
     shmem_id = n;
     shmem = &(shmem_array[n]);
 
     /* get shared memory block from OS and save its address */
 
     shmem_addr_array[shmem_id] =
-	rtapi_shmem_new_malloc_hook(shmem_id, key, size);
+	_rtapi_shmem_new_malloc_hook(shmem_id, key, size);
 
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
@@ -458,7 +459,7 @@ int _rtapi_shmem_delete(int shmem_id, int module_id) {
     }
     /* no other realtime users, free the shared memory from kernel space */
 
-    rtapi_shmem_delete_hook(shmem,shmem_id);
+    _rtapi_shmem_delete_hook(shmem,shmem_id);
 
 #ifdef RTAPI
     shmem_addr_array[shmem_id] = NULL;
