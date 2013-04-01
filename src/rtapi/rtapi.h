@@ -59,7 +59,14 @@
     information, go to www.linuxcnc.org.
 */
 
+/*
+  RTAPI_SERIAL should be bumped with changes that break compatibility
+  with previous versions.
+*/
+#define RTAPI_SERIAL 1
+
 #include "config.h"
+#include "rtapi_global.h"  
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
@@ -117,7 +124,11 @@ typedef __s64		s64;
 #define RTAPI_END_DECLS
 #endif
 
+#include <rtapi_support.h>
+
 RTAPI_BEGIN_DECLS
+
+
 
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
@@ -157,120 +168,18 @@ typedef int (*rtapi_exit_t)(int);
     rtapi_switch->rtapi_exit(module_id)
 extern int _rtapi_exit(int module_id);
 
+/** 'rtapi_next_module_id()' returns a globally unique int ID
+    
+ */
+typedef int (*rtapi_next_module_id_t)(void);
+#define rtapi_next_module_id()			\
+    rtapi_switch->rtapi_next_module_id()
+extern int _rtapi_next_module_id(void);
+
 /***********************************************************************
 *                      MESSAGING FUNCTIONS                             *
 ************************************************************************/
-/* implemented in rtapi_msg.c */
-#include <stdarg.h>		/* va_start and va_end macros */
-
-/** 'rtapi_snprintf()' works like 'snprintf()' from the normal
-    C library, except that it may not handle long longs.
-    It is provided here because some RTOS kernels don't provide
-    a realtime safe version of the function, and those that do don't provide
-    support for printing doubles.  On systems with a
-    good kernel snprintf(), or in user space, this function
-    simply calls the normal snprintf().  May be called from user,
-    init/cleanup, and realtime code.
-*/
-typedef int (*rtapi_snprintf_t)(char *, unsigned long int, const char*, ...);
-#define rtapi_snprintf(buf, size, fmt, arg...)		\
-    rtapi_switch->rtapi_snprintf(buf, size, fmt, ## arg)
-extern int _rtapi_snprintf(char *buf, unsigned long int size,
-			   const char *fmt, ...)
-    __attribute__((format(printf,3,4)));
-
-/** 'rtapi_vsnprintf()' works like 'vsnprintf()' from the normal
-    C library, except that it doesn't handle long longs.
-    It is provided here because some RTOS kernels don't provide
-    a realtime safe version of the function, and those that do don't provide
-    support for printing doubles.  On systems with a
-    good kernel vsnprintf(), or in user space, this function
-    simply calls the normal vsnrintf().  May be called from user,
-    init/cleanup, and realtime code.
-*/
-typedef int (*rtapi_vsnprintf_t)(char *, unsigned long, const char *,
-				 va_list);
-#define rtapi_vsnprintf(buf, size, fmt, ap)		\
-    rtapi_switch->rtapi_vsnprintf(buf, size, fmt, ap)
-extern int _rtapi_vsnprintf(char *buf, unsigned long size,
-			    const char *fmt, va_list ap);
-
-/** 'rtapi_print()' prints a printf style message.  Depending on the
-    RTOS and whether the program is being compiled for user space
-    or realtime, the message may be printed to stdout, stderr, or
-    to a kernel message log, etc.  The calling syntax and format
-    string is similar to printf except that floating point and
-    longlongs are NOT supported in realtime and may not be supported
-    in user space.  For some RTOS's, a 80 byte buffer is used, so the
-    format line and arguments should not produce a line more than
-    80 bytes long.  (The buffer is protected against overflow.)
-    Does not block, but  can take a fairly long time, depending on
-    the format string and OS.  May be called from user, init/cleanup,
-    and realtime code.
-*/
-typedef void (*rtapi_print_t)(const char *, ...);
-#define rtapi_print(fmt, arg...)		\
-    rtapi_switch->rtapi_print(fmt, ## arg)
-extern void _rtapi_print(const char *fmt, ...)
-    __attribute__((format(printf,1,2)));
-
-/** 'rtapi_print_msg()' prints a printf-style message when the level
-    is less than or equal to the current message level set by
-    rtapi_set_msg_level().  May be called from user, init/cleanup,
-    and realtime code.
-*/
-    typedef enum {
-	RTAPI_MSG_NONE = 0,
-	RTAPI_MSG_ERR,
-	RTAPI_MSG_WARN,
-	RTAPI_MSG_INFO,
-	RTAPI_MSG_DBG,
-	RTAPI_MSG_ALL
-    } msg_level_t;
-
-typedef void (*rtapi_print_msg_t)(int, const char *, ...);
-#define rtapi_print_msg(level, fmt, arg...)		\
-    rtapi_switch->rtapi_print_msg(level, fmt, ## arg)
-extern void _rtapi_print_msg(int level, const char *fmt, ...)
-    __attribute__((format(printf,2,3)));
-
-/** Set the maximum level of message to print.  In userspace code,
-    each component has its own independent message level.  In realtime
-    code, all components share a single message level.  Returns 0 for
-    success or -EINVAL if the level is out of range. */
-typedef int (*rtapi_set_msg_level_t)(int);
-#define rtapi_set_msg_level(level)		\
-    rtapi_switch->rtapi_set_msg_level(level)
-extern int _rtapi_set_msg_level(int level);
-
-/** Retrieve the message level set by the last call to rtapi_set_msg_level */
-typedef int (*rtapi_get_msg_level_t)(void);
-#define rtapi_get_msg_level()			\
-    rtapi_switch->rtapi_get_msg_level()
-extern int _rtapi_get_msg_level(void);
-
-/** 'rtapi_get_msg_handler' and 'rtapi_set_msg_handler' access the function
-    pointer used by rtapi_print and rtapi_print_msg.  By default, messages
-    appear in the kernel log, but by replacing the handler a user of the rtapi
-    library can send the messages to another destination.  Calling
-    rtapi_set_msg_handler with NULL restores the default handler. Call from
-    real-time init/cleanup code only.  When called from rtapi_print(),
-    'level' is RTAPI_MSG_ALL, a level which should not normally be used
-    with rtapi_print_msg().
-*/
-typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
-				   va_list ap);
-#ifdef RTAPI
-typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
-#define rtapi_set_msg_handler(handler)		\
-    rtapi_switch->rtapi_set_msg_handler(handler)
-extern void _rtapi_set_msg_handler(rtapi_msg_handler_t handler);
-
-typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
-#define rtapi_get_msg_handler()		\
-    rtapi_switch->rtapi_get_msg_handler()
-extern rtapi_msg_handler_t _rtapi_get_msg_handler(void);
-#endif
+// moved to rtapi_support.h 
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
@@ -742,28 +651,38 @@ extern unsigned short _rtapi_inw(unsigned int port);
 ************************************************************************/
 /** rtapi_switch contains pointers to the _rtapi_* functions declared
     above.  The struct is initialized in rtapi_common.c.
+
+    Each thread system needs a member in the thread_flavor_id_t enum,
+    and should set the macro THREAD_FLAVOR_ID to that enumerator.
 */
 
+// prototype for dummy rtapi placeholder function
+typedef int (*rtapi_dummy_t)(void);
+
+// a unique ID for each thread flavor
+// cant be an enum since cpp needs to evaluate this symbol
+#define RTAPI_POSIX_ID  0
+#define RTAPI_RT_PREEMPT_USER_ID 1
+#define RTAPI_XENOMAI_USER_ID 2
+#define RTAPI_RTAI_KERNEL_ID 3
+#define RTAPI_XENOMAI_KERNEL_ID 4
 typedef struct {
+    const char *git_version;
+    const char *thread_flavor_name; // for messsages
+    int  thread_flavor_id;
     // init & exit functions
     rtapi_init_t rtapi_init;
     rtapi_exit_t rtapi_exit;
-    // messaging functions
-    rtapi_snprintf_t rtapi_snprintf;
-    rtapi_vsnprintf_t rtapi_vsnprintf;
-    rtapi_print_t rtapi_print;
-    rtapi_print_msg_t rtapi_print_msg;
-    rtapi_set_msg_level_t rtapi_set_msg_level;
-    rtapi_get_msg_level_t rtapi_get_msg_level;
-#ifdef RTAPI
-    rtapi_set_msg_handler_t rtapi_set_msg_handler;
-    rtapi_get_msg_handler_t rtapi_get_msg_handler;
-#endif
+    rtapi_next_module_id_t rtapi_next_module_id;
     // time functions
 #ifdef RTAPI
     rtapi_clock_set_period_t rtapi_clock_set_period;
     rtapi_delay_t rtapi_delay;
     rtapi_delay_max_t rtapi_delay_max;
+#else
+    rtapi_dummy_t rtapi_clock_set_period;
+    rtapi_dummy_t rtapi_delay;
+    rtapi_dummy_t rtapi_delay_max;
 #endif
     rtapi_get_time_t rtapi_get_time;
     rtapi_get_clocks_t rtapi_get_clocks;
@@ -780,6 +699,14 @@ typedef struct {
     rtapi_task_resume_t rtapi_task_resume;
     rtapi_task_pause_t rtapi_task_pause;
     rtapi_task_self_t rtapi_task_self;
+#else
+    rtapi_dummy_t rtapi_task_new;
+    rtapi_dummy_t rtapi_task_delete;
+    rtapi_dummy_t rtapi_task_start;
+    rtapi_dummy_t rtapi_wait;
+    rtapi_dummy_t rtapi_task_resume;
+    rtapi_dummy_t rtapi_task_pause;
+    rtapi_dummy_t rtapi_task_self;
 #endif
     // shared memory functions
     rtapi_shmem_new_t rtapi_shmem_new;
@@ -792,8 +719,30 @@ typedef struct {
     rtapi_inw_t rtapi_inw;
 } rtapi_switch_t;
 
+// using code is responsible to define this:
+// this extern is not used within RTAPI
 extern rtapi_switch_t *rtapi_switch;
 
+/** 'rtapi_get_handle()' returns a pointer to the rtapi_switch 
+    structure, such that using code may refernce rtapi
+    methods.
+ */
+typedef rtapi_switch_t *(*rtapi_get_handle_t)(void);
+extern rtapi_switch_t *rtapi_get_handle(void);
+
+// exported by instance.c (kstyles) and rtapi_main.c (userlandRT)
+// configurable at rtapi.so module load time _only_
+extern int rtapi_instance;
+
+#ifdef ULAPI
+// technically this is part of instance but we're building the instance
+// module only for kernel thread systems where shared memory init has to
+// happen in-kernel
+typedef int  (*ulapi_main_t)(int, int, global_data_t **);
+typedef void (*ulapi_exit_t)(void);
+extern int ulapi_main(int instance, int flavor, global_data_t **global);
+extern void ulapi_exit(void);
+#endif
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *
@@ -807,11 +756,6 @@ extern rtapi_switch_t *rtapi_switch;
    the issue.
 */
 
-/* make sure a given kernel module is loaded.
-   might be needed for some usermode PCI drivers
-*/
-int rtapi_assure_module_loaded(const char *module);
-
 /** RTAPI_MP_INT() declares a single integer module parameter.
     RTAPI_MP_LONG() declares a single long module parameter.
     RTAPI_MP_STRING() declares a single string module parameter.
@@ -824,22 +768,7 @@ int rtapi_assure_module_loaded(const char *module);
     'num' is the number of elements in an array.
 */
 
-#if defined(BUILD_SYS_USER_DSO)
-#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
-#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
-#define MODULE_PARM(v,t) MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
-#define MODULE_PARM_DESC(v,t) MODULE_INFO2(const char*, description, v, t)
-#define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
-#define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
-#define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
-#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
-#define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
-    char rtapi_exported_##x[] = #x;
-#define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
-#define MODULE_DEVICE_TABLE(type, name)
-#endif
+#include <rtapi_export.h>
 
 #if !defined(BUILD_SYS_USER_DSO)
 #ifndef LINUX_VERSION_CODE
@@ -925,9 +854,6 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
-#if defined(BUILD_SYS_USER_DSO)
-extern long int simple_strtol(const char *nptr, char **endptr, int base);
-#endif
 
 RTAPI_END_DECLS
 
