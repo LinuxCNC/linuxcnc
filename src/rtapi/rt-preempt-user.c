@@ -14,30 +14,29 @@
 ************************************************************************/
 
 #include <unistd.h>		// getpid(), syscall()
-#include <time.h>               // clock_nanosleep()
-
-#ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
+
+#ifdef RTAPI
+
 #include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
 #include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
+#include <time.h>               // clock_nanosleep()
 
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
+
 #  ifndef RTAPI_POSIX
 static int error_printed;
 #  endif
-#endif  /* RTAPI */
-
-#define MODULE_OFFSET		32768
-
-#ifdef ULAPI
+#endif  // RTAPI
 
 int _rtapi_init(const char *modname) {
-	/* do nothing for ULAPI */
-	return getpid();
+
+
+    return _rtapi_next_module_id();
 }
 
 int _rtapi_exit(int module_id) {
@@ -45,71 +44,16 @@ int _rtapi_exit(int module_id) {
 	return 0;
 }
 
-#else /* RTAPI */
 
-int _rtapi_init(const char *modname) {
-    int n, module_id = -ENOMEM;
-    module_data *module;
 
-    /* say hello */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
 
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* find empty spot in module array */
-    n = 1;
-    while ((n <= RTAPI_MAX_MODULES) && (module_array[n].state != NO_MODULE)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_MODULES) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
-			n);
-	return -EMFILE;
-    }
-    /* we have space for the module */
-    module_id = n + MODULE_OFFSET;
-    module = &(module_array[n]);
-    /* update module data */
-    module->state = REALTIME;
-    if (modname != NULL) {
-	/* use name supplied by caller, truncating if needed */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
-    } else {
-	/* make up a name */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
-    }
-    rtapi_data->ul_module_count++;
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module '%s' loaded, ID: %d\n",
-	module->name, module_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return module_id;
-}
-
-int _rtapi_exit(int module_id) {
-    module_id -= MODULE_OFFSET;
-
-    if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
-	return -1;
-    /* Remove the module from the module_array. */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    module_array[module_id].state = NO_MODULE;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_exit: freed module slot %d, was %s\n",
-		    module_id, module_array[module_id].name);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-
-    return 0;
-}
-
+#ifdef RTAPI 
 static inline int task_id(task_data *task) {
     return (int)(task - task_array);
 }
 
-
 #ifndef RTAPI_POSIX
-static unsigned long rtapi_get_pagefault_count(task_data *task) {
+static unsigned long _rtapi_get_pagefault_count(task_data *task) {
     struct rusage rusage;
     unsigned long minor, major;
 
@@ -128,7 +72,7 @@ static unsigned long rtapi_get_pagefault_count(task_data *task) {
     return minor + major;
 }
 
-static void rtapi_reset_pagefault_count(task_data *task) {
+static void _rtapi_reset_pagefault_count(task_data *task) {
     struct rusage rusage;
 
     getrusage(RUSAGE_SELF, &rusage);
@@ -144,7 +88,7 @@ static void rtapi_reset_pagefault_count(task_data *task) {
 #endif
 
 
-static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
+static void _rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
     ns += tv->tv_nsec;
     while (ns > 1000000000) {
@@ -155,21 +99,21 @@ static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
     tv->tv_sec += s;
 }
 
-static void rtapi_key_alloc() {
+static void _rtapi_key_alloc() {
     pthread_key_create(&task_key, NULL);
 }
 
-static void rtapi_set_task(task_data *t) {
-    pthread_once(&task_key_once, rtapi_key_alloc);
+static void _rtapi_set_task(task_data *t) {
+    pthread_once(&task_key_once, _rtapi_key_alloc);
     pthread_setspecific(task_key, (void *)t);
 }
 
-static task_data *rtapi_this_task() {
-    pthread_once(&task_key_once, rtapi_key_alloc);
+static task_data *_rtapi_this_task() {
+    pthread_once(&task_key_once, _rtapi_key_alloc);
     return (task_data *)pthread_getspecific(task_key);
 }
 
-int rtapi_task_new_hook(task_data *task, int task_id) {
+int _rtapi_task_new_hook(task_data *task, int task_id) {
     void *stackaddr;
 
     stackaddr = malloc(task->stacksize);
@@ -185,7 +129,7 @@ int rtapi_task_new_hook(task_data *task, int task_id) {
 }
 
 
-void rtapi_task_delete_hook(task_data *task, int task_id) {
+void _rtapi_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
 
@@ -361,7 +305,7 @@ static int realtime_set_priority(task_data *task) {
 static void *realtime_thread(void *arg) {
     task_data *task = arg;
 
-    rtapi_set_task(task);
+    _rtapi_set_task(task);
 
     /* The task should not pagefault at all. So reset the counter now.
 
@@ -369,7 +313,7 @@ static void *realtime_thread(void *arg) {
      * taskcode init. This is noncritical and probably not worth
      * fixing. */
 #ifndef RTAPI_POSIX
-    rtapi_reset_pagefault_count(task);
+    _rtapi_reset_pagefault_count(task);
 #endif
 
     if (task->period < period)
@@ -389,7 +333,7 @@ static void *realtime_thread(void *arg) {
     pthread_barrier_wait(&task->thread_init_barrier);
 
     clock_gettime(CLOCK_MONOTONIC, &task->next_time);
-    rtapi_advance_time(&task->next_time, task->period, 0);
+    _rtapi_advance_time(&task->next_time, task->period, 0);
 
     /* call the task function with the task argument */
     task->taskcode(task->arg);
@@ -408,7 +352,7 @@ static void *realtime_thread(void *arg) {
     return NULL;
 }
 
-int rtapi_task_start_hook(task_data *task, int task_id) {
+int _rtapi_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
@@ -442,13 +386,13 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-void rtapi_task_stop_hook(task_data *task, int task_id) {
+void _rtapi_task_stop_hook(task_data *task, int task_id) {
     task->destroyed = 1;
 }
 
-int rtapi_wait_hook(void) {
+int _rtapi_wait_hook(void) {
     struct timespec ts;
-    task_data *task = rtapi_this_task();
+    task_data *task = _rtapi_this_task();
 #ifndef RTAPI_POSIX
     int msg_level = RTAPI_MSG_NONE;
 #endif
@@ -461,7 +405,7 @@ int rtapi_wait_hook(void) {
     else
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &task->next_time,
 			NULL);
-    rtapi_advance_time(&task->next_time, task->period, 0);
+    _rtapi_advance_time(&task->next_time, task->period, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     if (ts.tv_sec > task->next_time.tv_sec
 	|| (ts.tv_sec == task->next_time.tv_sec
@@ -485,7 +429,7 @@ int rtapi_wait_hook(void) {
 		 (long)ts.tv_sec, (long)ts.tv_nsec,
 		 (long)task->next_time.tv_sec,
 		 (long)task->next_time.tv_nsec,
-		 rtapi_get_pagefault_count(task));
+		 _rtapi_get_pagefault_count(task));
 	}
 #endif
     }
@@ -493,7 +437,7 @@ int rtapi_wait_hook(void) {
     return 0;
 }
 
-void rtapi_delay_hook(long int nsec)
+void _rtapi_delay_hook(long int nsec)
 {
     struct timespec t;
 
@@ -502,4 +446,4 @@ void rtapi_delay_hook(long int nsec)
     clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 }
 
-#endif /* ULAPI/RTAPI */
+#endif /* RTAPI */
