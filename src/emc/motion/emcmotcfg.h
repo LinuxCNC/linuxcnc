@@ -15,6 +15,8 @@
 #ifndef EMCMOTCFG_H
 #define EMCMOTCFG_H
 
+#include "rtapi_shmkeys.h"  // unified shm key management
+
 /* default name of EMCMOT ini file */
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
 						   touch */
@@ -35,12 +37,6 @@
 
 #define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */
 #define EMCMOT_ERROR_LEN 1024	/* how long error string can be */
-
-/*
-  Shared memory keys for simulated motion process. No base address
-  values need to be computed, since operating system does this for us
-  */
-#define DEFAULT_SHMEM_KEY 100
 
 /* default comm timeout, in seconds */
 #define DEFAULT_EMCMOT_COMM_TIMEOUT 1.0
