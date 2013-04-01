@@ -2062,7 +2062,10 @@ static void print_mem_status()
     hal_param_t *param;
 
     halcmd_output("HAL memory status\n");
-    halcmd_output("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
+    halcmd_output("  used/total shared memory:   %ld/%d\n", 
+		  (long)(global_data->hal_size - hal_data->shmem_avail),
+		  global_data->hal_size);
+
     // count components
     active = count_list(hal_data->comp_list_ptr);
     recycled = count_list(hal_data->comp_free_ptr);
