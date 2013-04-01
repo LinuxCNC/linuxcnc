@@ -1632,7 +1632,7 @@ static int doLoadUsr(char *args[])
             while(next) {
                 hal_comp_t *comp = SHMPTR(next);
                 next = comp->next_ptr;
-                if(strcmp(comp->name, new_comp_name) == 0 && comp->ready) {
+                if(strcmp(comp->name, new_comp_name) == 0 && (comp->state > COMP_INITIALIZING)) {
                     ready = 1;
                     break;
                 }
