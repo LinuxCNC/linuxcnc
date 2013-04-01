@@ -118,7 +118,6 @@ static int proc_read_status(char *page, char **start, off_t off,
     PROC_PRINT(" Last overrun = %i\n", rtapi_data->rt_last_overrun);
     PROC_PRINT("Total overruns = %i\n", rtapi_data->rt_total_overruns);
 #endif
-    PROC_PRINT("Message level = %i\n", msg_level);
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
@@ -218,15 +217,25 @@ static int proc_read_debug(char *page, char **start, off_t off,
 {
     PROC_PRINT_VARS;
     PROC_PRINT("******* RTAPI MESSAGES ******\n");
-    PROC_PRINT("  Message Level  = %i\n", msg_level);
-    PROC_PRINT("  ERROR messages = %s\n",
-	msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
+    PROC_PRINT("  Message Level  = RT:%i User:%i\n", 
+	       global_data->rt_msg_level,global_data->user_msg_level);
+    PROC_PRINT("RT ERROR messages = %s\n",
+	global_data->rt_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
     PROC_PRINT("WARNING messages = %s\n",
-	msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
+	global_data->rt_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
     PROC_PRINT("   INFO messages = %s\n",
-	msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
+	global_data->rt_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
     PROC_PRINT("  DEBUG messages = %s\n",
-	msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
+	global_data->rt_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
+
+    PROC_PRINT("User  ERROR messages = %s\n",
+	global_data->user_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
+    PROC_PRINT("WARNING messages = %s\n",
+	global_data->user_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
+    PROC_PRINT("   INFO messages = %s\n",
+	global_data->user_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
+    PROC_PRINT("  DEBUG messages = %s\n",
+	global_data->user_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
@@ -235,6 +244,7 @@ static int proc_write_debug(struct file *file,
     const char *buffer, unsigned long count, void *data)
 {
     char c;
+    int msg_level;
 
     /* copy 1 byte from user space */
     if (copy_from_user(&c, buffer, 1)) {
@@ -251,6 +261,7 @@ static int proc_write_debug(struct file *file,
 	if (msg_level > RTAPI_MSG_ALL) {
 	    msg_level = RTAPI_MSG_ALL;
 	}
+	global_data-> rt_msg_level =  msg_level;
     }
     /* tell whoever called us that we used all the data, even though we
        really only used the first byte */
