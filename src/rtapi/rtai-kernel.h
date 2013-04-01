@@ -4,8 +4,6 @@
 *               the RTAI thread system
 ********************************************************************/
 
-#define REV_CODE 1
-
 #include <rtai.h>
 #include <rtai_sched.h>
 #if RTAI > 2
