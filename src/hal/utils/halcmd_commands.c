@@ -513,8 +513,12 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
 #if defined(BUILD_SYS_USER_DSO)
     {
         char *argv[MAX_TOK];
+        char inst[50];
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+
         int m = 0, result;
         argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+	argv[m++] = inst;
         argv[m++] = "newinst";
         argv[m++] = comp_name;
         argv[m++] = inst_name;
@@ -1054,10 +1058,15 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
+    char inst[50];
+
 #if defined(BUILD_SYS_USER_DSO)
+    snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = inst;
     argv[m++] = "load";
     argv[m++] = mod_name;
     /* loop thru remaining arguments */
@@ -1089,8 +1098,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
             return -1;
         } else if (r >= sizeof(mod_path)) {
             // truncation!
-            halcmd_error("module path too long (max %lu) for %s/%s%s\n",
-			 sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
+            halcmd_error("module path too long (max %u) for %s/%s%s\n", sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
             return -1;
         }
     }
@@ -1312,18 +1320,21 @@ int do_unloadrt_cmd(char *mod_name)
 static int unloadrt_comp(char *mod_name)
 {
     int retval;
-    char *argv[4];
-
+    char *argv[10];
+    char inst[50];
+    int m=0;
 #if defined(BUILD_SYS_USER_DSO)
-    argv[0] = EMC2_BIN_DIR "/rtapi_app";
-    argv[1] = "unload";
+    snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = inst;
+    argv[m++] = "unload";
 #else
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "remove";
+    argv[m++] = EMC2_BIN_DIR "/linuxcnc_module_helper";
+    argv[m++] = "remove";
 #endif
-    argv[2] = mod_name;
+    argv[m++] = mod_name;
     /* add a NULL to terminate the argv array */
-    argv[3] = NULL;
+    argv[m++] = NULL;
 
     retval = hal_systemv(argv);
 
@@ -1438,7 +1449,9 @@ int do_loadusr_cmd(char *args[])
 	    comp_id );
 	exit(-1);
     }
-    hal_ready(comp_id);
+    // Not needed when using rtapi attach/detach since we're not doing the
+    // hal_exit()/hal_init()/hal_ready() dance
+    // hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0, exited=0;
         hal_comp_t *comp = NULL;
@@ -2092,6 +2105,8 @@ static void print_mem_status()
     active = count_list(hal_data->thread_list_ptr);
     recycled = count_list(hal_data->thread_free_ptr);
     halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
+    halcmd_output("RTAPI message level:  RT:%d User:%d\n",
+		  global_data->rt_msg_level, global_data->user_msg_level);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
