@@ -294,7 +294,7 @@ static int release_HAL_mutex(void)
         return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
-    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
+    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, global_data->hal_size);
     if (mem_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not open shared memory\n");
