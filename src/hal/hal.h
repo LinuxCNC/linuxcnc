@@ -146,6 +146,10 @@ RTAPI_BEGIN_DECLS
 #define HAL_LOCK_ALL      255   /* locks every action */
 
 
+// FIXME: move these paramters to a warm place
+#define USE_PIN_USER_ATTRIBUTES
+#define CHANGE_DETECT_EPSILON 0.0001
+
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
@@ -165,7 +169,156 @@ RTAPI_BEGIN_DECLS
     Call only from within user space or init/cleanup code, not from
     realtime code.
 */
-extern int hal_init(const char *name);
+//extern int hal_init(const char *name);
+
+/* traditional components have the following lifecycle:
+ * their type is set to TYPE_RT or TYPE_USER
+ * hal_init()  sets state to COMP_INITIALIZING
+ * hal_ready() will transition the state to COMP_READY
+ *
+ * hal_init(comp) is a way of specifying:
+ *   hal_init_mode(comp, TYPE_RT) (RTAPI)
+ *   hal_init_mode(comp, TYPE_USER) (ULAPI)
+ * to assure backwards compatibility.
+ *
+ * hal_bind() and hal_unbind() are undefined for MODE_LOCAL
+ * components and cause a warning message.
+ *
+ * a remote component differs as follows:
+ *
+ * hal_init_mode(comp, TYPE_REMOTE) sets state to COMP_INITIALIZING
+ * hal_ready() will transition the state to COMP_UNBOUND
+ * hal_bind(comp)   will transition state to  COMP_BOUND
+ * hal_unbind(comp) will transition state back to COMP_UNBOUND
+ *
+ * in both cases, hal_exit() will terminate the component.
+ *
+ * A remote component is conceptually a user component owned
+ * by the process creating the component, for instance halcmd.
+ * It can be repossessed to a different process by
+ *
+ * hal_reown(name, process id)
+ *
+ * the only consequence is that on 'halcmd unloadusr <remote component>
+ * this process will receive a signal to shut down.
+ *
+ * linking and unlinking of pins is possible as long as the
+ * component state != COMP_INITIALIZING.
+ */
+enum comp_type  {
+    TYPE_INVALID = 0,
+    TYPE_RT,
+    TYPE_USER,
+    TYPE_INSTANCE,
+    TYPE_REMOTE
+};
+
+enum comp_state {
+    COMP_INVALID = 0,
+    COMP_INITIALIZING,
+    COMP_UNBOUND,
+    COMP_BOUND,
+    COMP_READY
+};
+
+extern int hal_init_mode(const char *name, int mode);
+
+// backwards compatibility:
+static inline int hal_init(const char *name) {
+#ifdef RTAPI
+    return hal_init_mode(name, TYPE_RT);
+#else
+    return hal_init_mode(name, TYPE_USER);
+#endif
+}
+
+#if defined(ULAPI)
+extern int hal_bind(const char *comp);
+extern int hal_unbind(const char *comp);
+extern int hal_reown(const char *comp, int pid);
+extern int hal_disown(const char *comp_name, int pid);
+
+// introspection support: component and pin iterators
+// These functions are read-only with respect to HAL state.
+
+// The following structs are used to return values,
+// see usage example in hal/remote/reown.c
+
+typedef struct {
+    int type;			/* one of: TYPE_RT, TYPE_USER, TYPE_INSTANCE, TYPE_REMOTE */
+    int state;                  /* one of: COMP_INITIALIZING, COMP_UNBOUND, */
+                                /* COMP_BOUND, COMP_READY */
+    // the next two should be time_t, but kernel wont like them
+    // so fudge it as long int
+    long int last_update;            /* timestamp of last remote update */
+    long int last_bound;             /* timestamp of last bind operation */
+    long int last_unbound;           /* timestamp of last unbind operation */
+    int pid;			/* PID of component (user components only) */
+    char name[HAL_NAME_LEN + 1];	/* component name */
+    int insmod_args;		/* args passed to insmod when loaded */
+} hal_compstate_t;
+
+typedef struct {
+    //hal_data_u **value;
+    void **value;
+    int type;		/* data type */
+    int dir;		/* pin direction */
+    char name[HAL_NAME_LEN + 1];	/* pin name */
+    char owner_name[HAL_NAME_LEN + 1];	/* owning comp name */
+#ifdef USE_PIN_USER_ATTRIBUTES
+    double epsilon;
+    int flags;
+#endif
+} hal_pinstate_t;
+
+
+// component iterator
+// for each component, call the callback function iff:
+// - a NULL comp_name argument was given:
+//   this will cause all comps to be visited.
+// - a non-null comp_name argument will visit exactly
+//   that component with an exact name match (no prefix matching).
+//
+// cb_data can be used in any fashion and it is not inspected.
+//
+// return value: number of components visited, or error propagated from callback
+//
+// NB: the callback will be called with the RTAPI mutex locked, so dont call
+// hal_retrieve_pinstate from a hal_retrieve_compstate callback!
+
+typedef int(*hal_retrieve_compstate_callback_t)(hal_compstate_t *compstate,  void *cb_data);
+
+// return value:
+extern int hal_retrieve_compstate(const char *comp_name,
+				  hal_retrieve_compstate_callback_t callback,
+				  void *cb_data);
+
+// pin iterator
+// for each pin in component comp_name, call the
+// callback function iff:
+// - a NULL comp_name argument was given: this will
+//   cause all pins of all comps to be visited.
+// - a non-null comp_name argument will visit exactly
+//   that comp with an exact name match (no prefix matching).
+// - if the component was found, 1 is returned, else 0.
+//
+// cb_data can be used in any fashion and it is not inspected.
+// callback return values:
+//    0:   this signals 'continue iterating'
+//    >0:  this signals 'stop iteration and return count'
+//    <0:  this signals an error. Stop iterating and return the error code.
+//
+// if iteration runs to completion and the callback has never returned a
+// non-zero value, hal_retrieve_pinstate returns the number of pins visited.
+//
+// NB: the callback will be called with the RTAPI mutex locked
+
+typedef int(*hal_retrieve_pins_callback_t)(hal_pinstate_t *pinstate,  void *cb_data);
+extern int hal_retrieve_pinstate(const char *comp_name,
+				 hal_retrieve_pins_callback_t callback,
+				 void *cb_data);
+#endif
+
 
 /** 'hal_exit()' must be called before a HAL component exits, to
     free resources associated with the component.
@@ -244,6 +397,7 @@ extern int hal_rtapi_detach();
     Instead, realtime code simply does its job, accessing data
     using pointers that were set up by hal functions at startup.
 */
+
 
 /***********************************************************************
 *                     DATA RELATED TYPEDEFS                            *
