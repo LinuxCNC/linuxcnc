@@ -22,6 +22,9 @@ EOF
     esac
 }
 
+# set the default instance
+INSTANCE=`printf '%d' $INSTANCE`
+
 RUN_IN_PLACE=@RUN_IN_PLACE@
 if [ $RUN_IN_PLACE = yes ]; then
     # When using RIP make sure PATH includes the directory where rtapi_app
@@ -88,12 +91,14 @@ CheckConfig(){
             MOD="${MOD%$MODULE_EXT}"
             MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
         done
+	# always load rtapi first
+	#MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/instance$MODULE_EXT"
         if test $RTPREFIX = xenomai-kernel; then
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
             MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
   	else
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-            MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+            MODULES_UNLOAD="hal_lib rtapi  $MODULES_UNLOAD"
 	fi
         case "$MODULES" in
         *rtai_shm*)
@@ -109,7 +114,7 @@ CheckConfig(){
 CheckStatus(){
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
-        if [ -z "$($PIDOF rtapi_app)" ]; then
+        if [ -z "$($PIDOF rtapi_app:${INSTANCE})" ]; then
             exit 1
         else
             exit 0
@@ -159,22 +164,38 @@ Load(){
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
 
-	# this is the place to load a
-        # threadstyle-dependent userland RTAPI
-        # see also Unload()
-	rtapi_app load rtapi
-
-	rtapi_app load hal_lib
+	#echo Load: INSTANCE=$INSTANCE DEBUG=$DEBUG
 
 	if [ "$DEBUG" != "" ] ; then
-            rtapi_app msglevel  "$DEBUG"
+	    rtapi_app --instance=$INSTANCE \
+		--rtmsglevel=$DEBUG \
+		--usrmsglevel=$DEBUG \
+		--halsize=$HAL_SIZE 
+#		load rtapi
+	    rtapi_app --instance=$INSTANCE \
+		load hal_lib
+	else
+	    rtapi_app --instance $INSTANCE \
+		--halsize=$HAL_SIZE \
+		--rtmsglevel=$DEBUG \
+		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
+#		load rtapi 	    
+	    rtapi_app --instance=$INSTANCE \
+		load hal_lib  2>&1 >/dev/null
         fi
 
     ;;
     *)
         for MOD in $MODULES_LOAD ; do
-            $INSMOD $MOD || return $?
+	    # if loading instance.ko, tack on parameters
+	    if echo $MOD | grep rtapi.ko >/dev/null  ; then
+		$INSMOD $MOD hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
+		    rt_msg_level=$DEBUG user_msg_level=$DEBUG
+	    else
+		$INSMOD $MOD || return $?
+	    fi
         done
+	# this overrides 'instance msg_level' but allows debugging startup issues 
         if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
@@ -200,21 +221,39 @@ Unload(){
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
 
-	rtapi_app unload hal_lib
-	rtapi_app unload rtapi
+	if [ "$DEBUG" != "" ] ; then
+            rtapi_app --instance=$INSTANCE exit 
+	else
+            rtapi_app --instance=$INSTANCE exit            >/dev/null 2>&1
+        fi
 
-        rtapi_app exit 
 
 	# remove any linuxcnc-specific shm segments if they exist
-	if ipcs -m | grep 0x48414c32 >/dev/null; then
-	    ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
-	fi     
-        if ipcs -m | grep 0x90280A48 >/dev/null; then
-            ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
-	fi
-        if ipcs -m | grep 0x48484c34 >/dev/null; then
-            ipcrm -M 0x48484c34 2>/dev/null ;#  UUID_KEY
-	fi
+	# HAL_KEY  RTAPI_KEY GLOBAL_KEY DEFAULT_MOTION_SHMEM_KEY
+	# see src/rtapi/rtapi_shmkeys.h 
+
+	INSTKEY=`printf '%2.2d' $INSTANCE` 
+
+	ipcrm  -M 0x${INSTKEY}414c32 >/dev/null 2>&1
+	ipcrm  -M 0x${INSTKEY}280a48 >/dev/null 2>&1 
+	ipcrm  -M 0x${INSTKEY}154711 >/dev/null 2>&1 
+	ipcrm  -M 0x${INSTKEY}000064 >/dev/null 2>&1 | : 
+
+	# assorted module leftover shm segments
+	RE="("
+	RE=${RE}"0x"${INSTKEY}"5354[0-9a-f][0-9a-f]|"
+	RE=${RE}"0x"${INSTKEY}"5341[0-9a-f][0-9a-f]|"
+	RE=${RE}"0x"${INSTKEY}"4C522B|"
+	RE=${RE}"0x"${INSTKEY}"280A48|"
+	RE=${RE}"0x"${INSTKEY}"4150[0-9a-f][0-9a-f])"
+
+	CMD="`ipcs -m | egrep '"${RE}"' |cut -f1 -d' '`"
+
+	for i in $CMD 
+	do
+	    ipcrm -M $i
+	done
+
         ;;
     *)
         for module in $MODULES_UNLOAD ; do
