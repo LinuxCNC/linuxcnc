@@ -40,8 +40,8 @@
 /***********************************************************************
 *                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
+#include "rtapi_shmkeys.h"
 
-#define SCOPE_SHM_KEY  0x130CF406
 #define SCOPE_NUM_SAMPLES_DEFAULT 16000
 
 typedef enum {
