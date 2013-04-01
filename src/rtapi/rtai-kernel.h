@@ -4,8 +4,6 @@
 *               the RTAI thread system
 ********************************************************************/
 
-#define REV_CODE 1
-
 #include <rtai.h>
 #include <rtai_sched.h>
 #if RTAI > 2
@@ -44,3 +42,4 @@
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
 #define HAVE_RTAPI_TASK_SELF_HOOK
+
