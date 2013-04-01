@@ -7,6 +7,39 @@ INCLUDES += rtapi
 ../include/%.hh: ./rtapi/%.hh
 	cp  $^ $@
 
+# cflags for all sources, -DRTAPI or -DULAPI
+#
+# see bottom of this file and Makefile
+RT_CFLAGS :=
+# link flags for -DRTAPI/rtapi_app/rtapi.[ks]o and
+# ../lib/liblinuxcnchal.so
+#
+# see below and hal/Submakefile
+RT_LDFLAGS :=
+ULAPISO_LIBS :=
+# see enum thread_flavor_id in rtapi.h
+ifeq ($(THREADS),posix)
+FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=0
+RT_CFLAGS+=-pthread
+endif
+ifeq ($(THREADS),rt-preempt-user)
+FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=1
+endif
+ifeq ($(THREADS),xenomai-user)
+FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=2
+RT_CFLAGS +=   $(shell $(XENO_CONFIG) --skin=native  --ldflags)
+endif
+ifeq ($(THREADS),rtai)
+FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=3
+# these are needed to resolve rt_shm_alloc in ulapi.so
+ULAPISO_LIBS += /usr/realtime-`uname -r`/lib/liblxrt.a /usr/lib/libpthread.so
+endif
+ifeq ($(THREADS),xenomai-kernel)
+FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=4
+ULAPISO_LIBS +=  $(shell $(XENO_CONFIG) --skin=native  --ldflags)
+endif
+RT_CFLAGS += $(FLAVOR_FLAGS)
+
 ##########################################
 # defaults for all thread styles
 
@@ -20,22 +53,39 @@ ULAPI_SRCS := \
 	rtapi/rtapi_task.c \
 	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_time.c \
-	rtapi/rtapi_msg.c \
 	rtapi/rtapi_io.c \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
 
-$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+ULAPISO_SRCS := $(ULAPI_SRCS) \
+	rtapi/instance.c  \
+	rtapi/rtapi_support.c
+
+#$(warning ULAPISO_SRCS=$(ULAPISO_SRCS))
+
+#need to link against liblinuxcnchal.so so global_data is
+# resolved at loadtime
+$(call TOOBJSDEPS, $(ULAPISO_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ULAPISO := ../lib/ulapi.so
-$(ULAPISO): $(call TOOBJS, $(ULAPI_SRCS))
-	$(ECHO) Creating shared library $(notdir $@)
+$(ULAPISO): ../lib/liblinuxcnchal.so  $(call TOOBJS, $(ULAPISO_SRCS))
+	$(ECHO) Creating shared object $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(RT_LDFLAGS)
+	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
+	../lib/liblinuxcnchal.so
 
-USERSRCS += $(ULAPI_SRCS)
+
+USERSRCS += $(ULAPISO_SRCS)
 TARGETS += $(ULAPISO)
+
+# the instance RT module
+INSTANCE_SRCS := \
+	rtapi/instance.c \
+	rtapi/rtapi_support.c
+
+USERSRCS += $(INSTANCE_SRCS)
+
 
 # RTAPI:  ../rtlib/*
 #
@@ -44,15 +94,6 @@ TARGETS += $(ULAPISO)
 # date.
 
 
-# cflags for all sources, -DRTAPI or -DULAPI
-#
-# see bottom of this file and Makefile
-RT_CFLAGS := 
-# link flags for -DRTAPI/rtapi_app/rtapi.[ks]o and
-# ../lib/liblinuxcnchal.so
-#
-# see below and hal/Submakefile
-RT_LDFLAGS := 
 
 
 ##################################################################
@@ -73,9 +114,8 @@ endif # xenomai-user
 # rt-preempt-user and posix settings
 ifeq ($(THREADS_SOURCE),rt-preempt-user)
 
-#RT_CFLAGS +=  
+RT_CFLAGS +=  -pthread
 RT_LDFLAGS += -lpthread -lrt
-
 endif  # rt-preempt-user/posix
 
 
@@ -84,25 +124,27 @@ endif  # rt-preempt-user/posix
 #
 # C sources to compile -DRTAPI and link into ../bin/rtapi_app.  (Omit
 # the main .cc file.)  (Can this be pruned?)
-ifeq ($(USERMODE_PCI),yes)
-RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
-else
-RTAPI_SRCS := $(ULAPI_SRCS) 
-endif
+# ifeq ($(USERMODE_PCI),yes)
+# RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
+# else
+# RTAPI_SRCS := $(ULAPI_SRCS)
+# endif
 #
 # Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
 # despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
-USERSRCS +=  rtapi/sim_rtapi_app.cc
+USERSRCS +=  rtapi/sim_rtapi_app.cc rtapi/instance.c
+
 #
 # List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
 # see that target below
 #
 # These must be included in USERSRCS for .o files to be built
-#RTAPI_APP_OBJS := \
-#			objects/rtapi/sim_rtapi_app.o
+
 RTAPI_APP_OBJS := \
-	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_SRCS))) \
-			objects/rtapi/sim_rtapi_app.o
+	$(call TOOBJS, objects/rtapi/sim_rtapi_app.o \
+	objects/rtapi/rtapi_support.o \
+	objects/rtapi/rtapi_compat.o )
+
 #
 # Add RT_CFLAGS to sim_rtapi_app.cc compilation
 $(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS) $(LIBUDEV_CFLAGS)
@@ -110,7 +152,7 @@ $(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS) $(L
 # Build target
 ../bin/rtapi_app: $(RTAPI_APP_OBJS)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  $(LIBUDEV_LIBS) -ldl
+	$(Q)$(CXX)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  $(LIBUDEV_LIBS) -ldl
 TARGETS += ../bin/rtapi_app
 
 
@@ -130,7 +172,7 @@ else  # BUILD_SYS == kbuild
 # xenomai-kernel settings
 ifeq ($(THREADS),xenomai-kernel)
 
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
+RT_CFLAGS += $(shell $(XENO_CONFIG) --skin=native --cflags )
 RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
 endif  # xenomai-kernel
 
