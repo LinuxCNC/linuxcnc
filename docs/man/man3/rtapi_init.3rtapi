@@ -5,11 +5,14 @@ rtapi_init \- Sets up RTAPI
 
 .SH SYNTAX
 .HP
- int rtapi_init(const char *\fImodname\fR)
+ int rtapi_init(const char *\fImodname\fR, global_data_t **\fglobal\fR)
 
 .SH ARGUMENTS
 .IP \fImodname\fR
 The name of this rtapi module
+.IP \fIglobal\fR
+reference to the global data segment. Can be NULL if unused.
+
 
 .SH DESCRIPTION
 
