@@ -290,7 +290,7 @@ ARCHITECTURE=`$ARCHCMD`
 THREADS_SOURCE=""
 
 # xenomai equivalent of pkg-config
-XENO_CONFIG=
+XENO_CONFIG=/bin/true
 
 # whether to build drivers for userland with PCI shim support
 USERMODE_PCI=no
@@ -333,6 +333,17 @@ AC_ARG_WITH(platform,
     ])
 
 
+AC_MSG_CHECKING(whether to build programming examples)
+AC_ARG_ENABLE(examples,
+    [  --enable-examples      build included programming examples],
+    [
+	BUILD_EXAMPLES=yes
+        AC_MSG_RESULT([configuring to build example programs])
+    ],
+    [
+      AC_MSG_RESULT([not building example programs])
+      BUILD_EXAMPLES=no
+    ])
 
 AC_MSG_CHECKING(whether to build hardware drivers)
 AC_ARG_ENABLE(drivers,
@@ -936,6 +947,11 @@ if test "$BUILD_DRIVERS" = yes; then
 fi
 AC_SUBST(BUILD_DRIVERS)
 
+AC_SUBST(BUILD_EXAMPLES)
+if test "$BUILD_EXAMPLES" = yes; then
+   AC_DEFINE(BUILD_EXAMPLES, [], [build programming examples])
+fi
+
 if test "$USERMODE_PCI" = yes; then
    AC_DEFINE(USERMODE_PCI, [], [build PCI drivers with usermode PCI support])
 fi
@@ -1020,8 +1036,7 @@ AC_SUBST(THREADS_SOURCE)
 GIT_VERSION=unknown
 gitcmd=`which git`
 if test -n "$gitcmd"; then
-   #version=`$gitcmd describe --dirty --always`
-   version=`../scripts/get-version-from-git` 2>/dev/null
+   version=`(cd ..;scripts/get-version-from-git)` 2>/dev/null
    if test -n "$version"; then
       GIT_VERSION=$version
    fi
