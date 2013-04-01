@@ -737,7 +737,7 @@ PyObject *component_is_ready(PyObject *self, PyObject *args) {
 	return NULL;
     }
 
-    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != NULL);
+    return PyBool_FromLong(halpr_find_comp_by_name(name)->state > COMP_INITIALIZING);
 }
 
 PyObject *new_sig(PyObject *self, PyObject *args) {
