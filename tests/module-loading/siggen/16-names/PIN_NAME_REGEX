@@ -1,1 +1,1 @@
-../PIN_NAME_REGEX.names
+siggen[0-9]+\.amplitude([[:space:]].*$|$)

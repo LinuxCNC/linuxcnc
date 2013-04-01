@@ -1,1 +1,1 @@
-../PIN_NAME_REGEX.num_chan
+sim-encoder\.[0-9]\.speed([[:space:]].*$|$)
