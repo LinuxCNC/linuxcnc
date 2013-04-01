@@ -38,5 +38,43 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ 
 
+
+RINGMODULESRCS := hal/ringmodule.cc
+PYSRCS += $(RINGMODULESRCS)
+
+RINGMODULE := ../lib/python/ring.so
+
+# TODO: unifiy with boost.python configure support in master
+BOOST_PYTHON_LIBS := -lboost_python
+
+$(call TOOBJSDEPS, $(RINGMODULESRCS)): \
+	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
+
+$(RINGMODULE): $(call TOOBJS, $(RINGMODULESRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
+	$(BOOST_PYTHON_LIBS) \
+	$(shell python-config --libs)  $(HALLIB)
+
+
+# GROUPMODULESRCS := hal/groupmodule.cc
+# PYSRCS += $(GROUPMODULESRCS)
+
+# GROUPMODULE := ../lib/python/group.so
+
+# TODO: unifiy with boost.python configure support in master
+BOOST_PYTHON_LIBS := -lboost_python
+
+$(call TOOBJSDEPS, $(GROUPMODULESRCS)): \
+	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
+
+$(GROUPMODULE): $(call TOOBJS, $(GROUPMODULESRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
+	$(BOOST_PYTHON_LIBS) \
+	$(shell python-config --libs)  $(HALLIB)
+
+
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
-PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALMODULE) $(RINGMODULE) $(GROUPMODULE)
