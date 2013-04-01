@@ -61,7 +61,7 @@
 #ifdef HAL_SUPPORT
 #include "rtapi.h"
 #include "hal.h"
-#define CL_SHMEM_KEY 0x434C522b // "CLR+"
+#include "rtapi_shmkeys.h"
 int compId;
 static int ShmemId;
 #endif
