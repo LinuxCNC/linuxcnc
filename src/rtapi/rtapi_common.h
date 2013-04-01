@@ -73,6 +73,12 @@
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
 
+#if defined(BUILD_SYS_USER_DSO)
+#include <sys/ipc.h>		/* IPC_* */
+#include <sys/shm.h>
+#include <sys/types.h>  
+#endif
+
 #ifndef NULL
 #define NULL 0
 #endif
@@ -108,12 +114,9 @@ MODULE_LICENSE("GPL");
    are accessed by multiple different programs, both user processes
    and kernel modules.  If the structure layouts used by various
    programs don't match, that's bad.  So we have revision checking.
-   Whenever a module or program is loaded, the rev_code is checked
-   against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will fail.
-
-   Thread system header files should define the macro REV_CODE with a
-   unique integer value.
+   Whenever a module or program is loaded, thread_flavor_id and
+   serial is checked against the code in the shared memory area.  If
+   they don't match, the rtapi_init() call will fail.
   */
 
 /* These structs hold data associated with objects like tasks, etc. */
@@ -143,8 +146,13 @@ typedef enum {
 } task_state_t;
 
 typedef struct {
-    char name[RTAPI_NAME_LEN];
     int magic;
+#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
+					   somehow */
+    char name[XNOBJECT_NAME_LEN];
+#else
+    char name[RTAPI_NAME_LEN];
+#endif
     int uses_fp;
     size_t stacksize;
     int period;
@@ -183,7 +191,8 @@ typedef struct {
 
 typedef struct {
     int magic;			/* magic number to validate data */
-    int rev_code;		/* revision code for matching */
+    int serial;			/* revision code for matching */
+    int thread_flavor_id;	/* unique ID for each thread style: rtapi.h */
     unsigned long mutex;	/* mutex against simultaneous access */
     int rt_module_count;	/* loaded RT modules */
     int ul_module_count;	/* running UL processes */
@@ -204,8 +213,14 @@ typedef struct {
 
 /* rtapi_common.c */
 extern rtapi_data_t *rtapi_data;
-extern void init_rtapi_data(rtapi_data_t * data);
 
+#if defined(RTAPI) 
+extern void _init_rtapi_data(rtapi_data_t * data);
+#endif
+
+#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+extern int  _next_module_id(void);
+#endif
 
 /* rtapi_task.c */
 extern task_data *task_array;
@@ -216,10 +231,6 @@ extern task_data *task_array;
 extern RT_TASK *ostask_array[];
 #endif
 
-
-/* rtapi_msg.c */
-extern int msg_level;		/* needed in rtapi_proc.h */
-
 /* rtapi_time.c */
 #ifdef BUILD_SYS_USER_DSO
 extern int period;
@@ -228,12 +239,11 @@ extern long int max_delay;
 extern unsigned long timer_counts;
 #endif
 #ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-void rtapi_module_timer_stop(void);
+void _rtapi_module_timer_stop(void);
 #endif
 
 
 /* rtapi_shmem.c */
-#define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
 #define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
@@ -243,7 +253,7 @@ extern void *shmem_addr_array[];
 
 /* rtapi_module.c */
 #ifndef BUILD_SYS_USER_DSO
-extern int init_master_shared_memory(rtapi_data_t **rtapi_data);
+extern int _init_master_shared_memory(rtapi_data_t **rtapi_data);
 #endif
 extern module_data *module_array;
 
