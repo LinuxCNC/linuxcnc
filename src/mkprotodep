@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# for all *.proto files in $i
+# create dependencies for a set og extensions
+# directory for generated files is $2
+
+if [ $# -ne 2 ]
+then
+  echo "Usage: `basename $0` <protodir> <generated files dir>"
+  exit 1
+fi
+
+cd $1
+grep '^\s*import' *.proto | \
+tr -d '":;'|sed -e 's/\s*import//g' | \
+while read target dep ; do
+    t=`basename $target .proto`
+    d=`basename $dep .proto`
+    # generated file deps
+    for ext in pb.h npb.h pb-c.h pb.cc npb.c pb-c.c
+    do
+	echo $2/$t.$ext: $2/$d.$ext
+	echo $2/$t.$ext: $1/$dep
+    done
+    # also depend the dependency files on headers and sources
+    echo depends/$2/$t.pb.d: $2/$d.pb.h $2/$d.pb.cc
+    echo depends/$2/$t.pb-c.d: $2/$d.pb-c.h $2/$d.pb-c.c
+    echo depends/$2/$t.npb.d: $2/$d.npb.h $2/$d.npb.c
+done
