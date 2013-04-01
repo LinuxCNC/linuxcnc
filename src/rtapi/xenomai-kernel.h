@@ -4,8 +4,6 @@
 *               the Xenomai kernel thread system
 ********************************************************************/
 
-#define REV_CODE 2
-
 #include <nucleus/types.h>	/* XNOBJECT_NAME_LEN, RTIME */
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <native/heap.h>	/* RT_HEAP */
@@ -15,8 +13,6 @@
 */
 
 #define MASTER_HEAP "rtapi-heap"
-
-
 /* rtapi_common.c */
 // Init rt_stats for RTAPI
 #define HAVE_INIT_RTAPI_DATA_HOOK
@@ -41,7 +37,6 @@
 // #define RT_LINUX_USE_FPU
 
 #define HAVE_RTAPI_MODULE_INIT_HOOK
-
 
 /* rtapi_task.c */
 #define HAVE_RTAPI_TASK_NEW_HOOK
