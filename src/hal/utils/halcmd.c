@@ -169,6 +169,23 @@ struct halcmd_command halcmd_commands[] = {
     {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
     {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
+    {"newg",    FUNCT(do_newg_cmd),    A_TWO |  A_PLUS},
+    {"delg",    FUNCT(do_delg_cmd),    A_ONE },
+    {"newm",    FUNCT(do_newm_cmd),    A_TWO |  A_PLUS},
+    {"delm",    FUNCT(do_delm_cmd),    A_TWO },
+
+    {"newring", FUNCT(do_newring_cmd), A_TWO |  A_PLUS},
+    {"delring", FUNCT(do_delring_cmd), A_ONE },
+    {"ringdump", FUNCT(do_ringdump_cmd), A_ONE },
+    {"ringread", FUNCT(do_ringread_cmd), A_TWO | A_OPTIONAL },
+    {"ringwrite", FUNCT(do_ringwrite_cmd), A_TWO},
+
+    {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
+    {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},
+    {"ready",   FUNCT(do_ready_cmd),    A_ONE | A_OPTIONAL },
+    {"waitbound", FUNCT(do_waitbound_cmd), A_ONE| A_OPTIONAL  },
+    {"waitunbound", FUNCT(do_waitunbound_cmd), A_ONE| A_OPTIONAL  },
+
 };
 int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));
 

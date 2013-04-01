@@ -51,7 +51,10 @@ static const char *command_table[] = {
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
     "addf", "delf", "show", "list", "status", "save", "source",
     "start", "stop", "quit", "exit", "help", "alias", "unalias", 
-    "log",
+    "newg"," delg", "newm", "delm",
+    "newring","delring","ringdump","ringwrite","ringread",
+    "newcomp","newpin","ready","waitbound", "waitunbound",
+	"log",
     NULL,
 };
 
@@ -66,17 +69,20 @@ static const char *alias_table[] = {
 };
 
 static const char *show_table[] = {
-    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread",
+    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "group", "member",
+    "ring",
     NULL,
 };
 
 static const char *save_table[] = {
     "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
+    "group", "member", "ring",
     NULL,
 };
 
 static const char *list_table[] = {
-    "comp", "alias", "pin", "sig", "param", "funct", "thread",
+    "comp", "alias", "pin", "sig", "param", "funct", "thread", "group", "member",
+    "ring",
     NULL
 };
 
@@ -347,7 +353,7 @@ static char *usrcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(comp->type) continue;
+        if(comp->type == TYPE_RT) continue;
 	if(strncmp(text, comp->name, len) == 0)
             return strdup(comp->name);
     }
@@ -391,7 +397,7 @@ static char *rtcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(!comp->type) continue;
+        if(comp->type != TYPE_RT) continue;
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
     }
@@ -552,6 +558,44 @@ static char *loadrt_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *group_generator(const char *text, int state) {
+    static int len;
+    static int next;
+
+    if(!state) {
+        next = hal_data->group_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_group_t *group = SHMPTR(next);
+        next = group->next_ptr;
+        if ( strncmp(text, group->name, len) == 0 )
+            return strdup(group->name);
+    }
+    return NULL;
+}
+
+static char *ring_generator(const char *text, int state) {
+    static int len;
+    static int next;
+
+    if(!state) {
+        next = hal_data->ring_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_ring_t *ring = SHMPTR(next);
+        next = ring->next_ptr;
+        if ( strncmp(text, ring->rhdr.name, len) == 0 )
+            return strdup(ring->rhdr.name);
+    }
+    return NULL;
+}
+
+
+
 static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
@@ -595,6 +639,22 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
 
     if(startswith(buffer, "delsig ") && argno == 1) {
         result = func(text, signal_generator);
+    } else if(startswith(buffer, "delg ") && argno == 1) {
+        result = func(text, group_generator);
+    } else if(startswith(buffer, "delm ") && argno == 1) {
+        result = func(text, group_generator);
+
+    } else if(startswith(buffer, "newr ") && argno > 2) {
+	result = func(text, ring_generator);
+    } else if(startswith(buffer, "delr ") && argno == 1) {
+        result = func(text, ring_generator);
+    } else if(startswith(buffer, "ringdump ") && argno == 1) {
+	result = func(text, ring_generator);
+   } else if(startswith(buffer, "ringread ") && argno == 1) {
+	result = func(text, ring_generator);
+   } else if(startswith(buffer, "ringwrite ") && argno == 1) {
+	result = func(text, ring_generator);
+
     } else if(startswith(buffer, "linkps ") && argno == 1) {
         result = func(text, pin_generator);
     } else if(startswith(buffer, "linkps ") && argno == 2) {
@@ -605,6 +665,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "net ") && argno == 2) {
         check_match_type_signal(nextword(buffer));
         result = func(text, pin_generator);
+
+
     } else if(startswith(buffer, "net ") && argno > 2) {
         check_match_type_signal(nextword(buffer));
         if(match_type == -1) {
@@ -673,6 +735,10 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
+	    } else if (startswith(n, "group")) {
+                result = func(text, group_generator);
+	    } else if (startswith(n, "ring")) {
+                result = func(text, ring_generator);
             }
         }
     } else if(startswith(buffer, "show ")) {
@@ -690,6 +756,10 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
+            } else if (startswith(n, "group")) {
+                result = func(text, group_generator);
+	    } else if (startswith(n, "ring")) {
+                result = func(text, ring_generator);
             }
         }
     } else if(startswith(buffer, "save ") && argno == 1) {
@@ -732,6 +802,14 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         return func(text, loadusr_generator);
     } else if(startswith(buffer, "loadrt ") && argno == 1) {
         result = func(text, loadrt_generator);
+    } else if(startswith(buffer, "delg ") && argno == 1) {
+        result = func(text, group_generator);
+    } else if(startswith(buffer, "delm ") && argno == 1) {
+        result = func(text, group_generator);
+    } else if(startswith(buffer, "newm ") && argno == 1) {
+        result = func(text, group_generator);
+    } else if(startswith(buffer, "newm ") && argno == 2) {
+        result = func(text, signal_generator); // FIXME should be signal_and_pin_generator
     }
 
     rtapi_mutex_give(&(hal_data->mutex));
