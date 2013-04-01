@@ -1,0 +1,79 @@
+#ifeq ($(USE_MSGCOMP),yes)
+
+ifeq ($(USE_PROTOBUF),yes)
+
+MSGCOMP_DIR=hal/msgcomponents
+
+
+# kernel modules
+ifneq ($(KERNELRELEASE),)
+
+MSGCOMPS := $(patsubst $(BASEPWD)/%,%,\
+	$(wildcard $(BASEPWD)/$(MSGCOMP_DIR)/*.comp))
+include $(patsubst %.comp, \
+	$(BASEPWD)/objects/%.mak, $(MSGCOMPS))
+
+else
+# userland dso's
+MSGCOMPS := $(sort $(wildcard $(MSGCOMP_DIR)/*.comp))
+MSGCOMP_MANPAGES := $(patsubst $(MSGCOMP_DIR)/%.comp, ../docs/man/man9/%.9, $(MSGCOMPS))
+
+manpages: $(MSGCOMP_MANPAGES)
+
+TARGETS += manpages
+.PHONY: manpages
+
+ifeq ($(TRIVIAL_BUILD),no)
+-include $(patsubst %.comp, objects/%.mak, $(MSGCOMPS))
+Makefile: $(patsubst %.comp, objects/%.mak, $(MSGCOMPS))
+endif
+endif
+
+obj-m += $(patsubst $(MSGCOMP_DIR)/%.comp, %.o, $(MSGCOMPS))
+
+# ring creation demo module
+obj-m += ringload.o
+ringload-objs := $(MSGCOMP_DIR)/ringload.o
+
+../rtlib/ringload$(MODULE_EXT): $(addprefix objects/rt,$(ringload-objs))
+
+
+$(MSGCOMP_MANPAGES): ../docs/man/man9/%.9: $(MSGCOMP_DIR)/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --document -o $@ $<
+
+# use definition from src/hal/components/Submakefile
+objects/%.mak: %.comp $(MSGCOMP_DIR)/Submakefile
+
+modules: $(patsubst %.comp, objects/%.c, $(MSGCOMPS) $(MSGCOMP_DRIVERS))
+
+clean: clean-msgcomp-manpages
+clean-msgcomp-manpages:
+	-rm -f $(MSGCOMP_MANPAGES) $(MSGCOMP_DRIVER_MANPAGES)
+
+endif  # USE_PROTOBUF
+
+
+ifeq ($(BUILD_EXAMPLES),yes)
+
+RB_SRCS :=  $(addprefix hal/msgcomponents/, \
+	ringbench.c)
+
+RB_CCFLAGS := -g
+RB_LDFLAGS := -g -lpthread
+
+$(call TOOBJSDEPS, $(RB_SRCS)) : EXTRAFLAGS += $(RB_CCFLAGS) -O0
+
+../bin/ringbench: $(call TOOBJS, $(RB_SRCS)) \
+	../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RB_LDFLAGS)
+
+USERSRCS += $(RB_SRCS) $(RB_SRCS)
+TARGETS += ../bin/ringbench
+
+
+endif
+
+#endif

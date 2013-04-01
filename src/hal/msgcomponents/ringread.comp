@@ -1,0 +1,106 @@
+component ringread;
+
+pin out u32 underrun   "number of failed read attempts";
+pin out u32 received   "number of successful read attempts";
+
+function _;
+
+option singleton yes;
+option rtapi_app no;
+
+license "GPLv2 or later";
+
+;;
+
+#include "hal_priv.h"
+
+static char *ring = "ring_0";
+RTAPI_MP_STRING(ring,  "name of ring to attach");
+static ringbuffer_t rb;
+
+static char *name = "ringread";
+
+FUNCTION(_) {
+    ringvec_t vec[2];
+    size_t rsize;
+
+    if (rb.header->is_stream) {
+	// peek into the stream, non-copy mode
+	hal_stream_get_read_vector(&rb, vec);
+	rsize = vec[0].rv_len + vec[1].rv_len;
+	if (vec[0].rv_len) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): bytes=%d '%.*s",
+			    name, ring, rsize,
+			    vec[0].rv_len, (char *) vec[0].rv_base);
+	    if (vec[1].rv_len) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "%.*s",
+				vec[1].rv_len, (char *) vec[1].rv_base);
+	    }
+	    rtapi_print_msg(RTAPI_MSG_ERR, "'\n");
+
+	    // consume bytes read
+	    hal_stream_read_advance(&rb, rsize);
+	    received++;
+	} else
+	    underrun++;
+    } else {
+
+	if (hal_record_next_size(&rb) < 0) {
+	    // ring empty
+	    underrun++;
+	    return;
+	}
+	rsize = hal_record_next_size(&rb);
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): reclen=%d '%.*s', writer=%d\n",
+			name, ring, rsize, rsize,
+			(char *) hal_record_next(&rb),
+			rb.header->writer);
+	// consume record
+	hal_record_shift(&rb);
+	received++;
+    }
+}
+
+int rtapi_app_main(void)
+{
+    int retval;
+
+    // rtapi_set_msg_level(RTAPI_MSG_ALL);
+
+    comp_id = hal_init("ringread");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_init() failed: %d\n",
+			name, comp_id);
+	return -1;
+    }
+    if ((retval = hal_ring_attach(ring, &rb, comp_id))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
+			name, ring, retval);
+	return -1;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "%s: attached ring '%s' size=%d mode=%s"
+		    " rmutex=%d wmutex=%d reader=%d writer=%d\n",
+		    name, ring, rb.header->size,
+		    rb.header->is_stream ? "stream" : "record",
+		    hal_ring_use_rmutex(&rb), hal_ring_use_wmutex(&rb),
+		    rb.header->reader, rb.header->writer);
+
+    rb.header->reader = comp_id;
+    if ((retval = export(name, 0))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: export(ringread) failed: %d\n",
+			name, retval);
+	return -1;
+    }
+    hal_ready(comp_id);
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}
