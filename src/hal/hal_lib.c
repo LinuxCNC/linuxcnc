@@ -59,13 +59,13 @@
 #include "hal_priv.h"		/* HAL private decls */
 
 #include "rtapi_string.h"
-
 #ifdef RTAPI
 #include "rtapi_app.h"
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
 MODULE_LICENSE("GPL");
+#define assert(e)
 #endif /* RTAPI */
 
 #if defined(ULAPI)
@@ -77,15 +77,31 @@ MODULE_LICENSE("GPL");
 #include <unistd.h>		/* getpid() */
 #include <stdlib.h>		/* exit() */
 #include <dlfcn.h>              /* for dlopen/dlsym ulapi-$THREADSTYLE.so */
+#include <assert.h>
 #endif
+
+
 
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
 
- extern void  rtapi_verify(char *tag);
- extern void  rtapi_printall(void);
+static const char *git_version = GIT_VERSION;
+
+// pointer to the global data segment, initialized by calling the  
+// the ulapi.so ulapi_main() method (ULAPI) or by external reference
+// to the instance module (kernel modes)
+#if defined(BUILD_SYS_KBUILD) && defined(RTAPI) 
+extern global_data_t *global_data; // in instance.c */
+#else
+global_data_t *global_data;
+/* #ifdef MODULE */
+/* EXPORT_SYMBOL(global_data); */
+/* #endif */
+#endif
+
+extern void  rtapi_printall(void);
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -206,10 +222,8 @@ int hal_init(const char *name)
 	    "HAL: ERROR: component name '%s' is too long\n", name);
 	return -EINVAL;
     }
-
     // rtapi initialisation already done
     // since this happens through the constructor
-
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
 		    name);
     /* copy name to local vars, truncating if needed */
@@ -221,6 +235,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
 	return -EINVAL;
     }
+
     /* get mutex before manipulating the shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure name is unique in the system */
@@ -329,15 +344,12 @@ int hal_exit(int comp_id)
 #endif
     /* release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
-
     // the RTAPI resources are now released
     // on hal_lib shared library unload
-
     rtapi_exit(comp_id);
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component %02d removed, name = '%s'\n", comp_id, name);
-
 
     return 0;
 }
@@ -2625,7 +2637,147 @@ void rtapi_app_exit(void)
 {
     hal_thread_t *thread;
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
+/***********************************************************************
+*                     LOCAL FUNCTION CODE                              *
+************************************************************************/
+
+#ifdef RTAPI
+/* these functions are called when the hal_lib module is insmod'ed
+   or rmmod'ed.
+*/
+#if defined(BUILD_SYS_USER_DSO)
+#undef CONFIG_PROC_FS
+#endif
+
+#ifdef CONFIG_PROC_FS
+#include <linux/proc_fs.h>
+extern struct proc_dir_entry *rtapi_dir;
+static struct proc_dir_entry *hal_dir = 0;
+static struct proc_dir_entry *hal_newinst_file = 0;
+
+static int proc_write_newinst(struct file *file,
+        const char *buffer, unsigned long count, void *data)
+{
+    if(hal_data->pending_constructor) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                "HAL: running constructor for %s %s\n",
+                hal_data->constructor_prefix,
+                hal_data->constructor_arg);
+        hal_data->pending_constructor(hal_data->constructor_prefix,
+                hal_data->constructor_arg);
+        hal_data->pending_constructor = 0;
+    }
+    return count;
+}
+
+static void hal_proc_clean(void) {
+    if(hal_newinst_file)
+        remove_proc_entry("newinst", hal_dir);
+    if(hal_dir)
+        remove_proc_entry("hal", rtapi_dir);
+    hal_newinst_file = hal_dir = 0;
+}
+static int hal_proc_init(void) {
+    if(!rtapi_dir) return 0;
+    hal_dir = create_proc_entry("hal", S_IFDIR, rtapi_dir);
+    if(!hal_dir) { hal_proc_clean(); return -1; }
+    hal_newinst_file = create_proc_entry("newinst", 0666, hal_dir);
+    if(!hal_newinst_file) { hal_proc_clean(); return -1; }
+    hal_newinst_file->data = NULL;
+    hal_newinst_file->read_proc = NULL;
+    hal_newinst_file->write_proc = proc_write_newinst;
+    return 0;
+}
+#else
+static int hal_proc_clean(void) { return 0; }
+static int hal_proc_init(void) { return 0; }
+#endif
+
+int rtapi_app_main(void)
+{
+    int retval;
+    void *mem;
+
+    rtapi_switch = rtapi_get_handle();
+    rtapi_print_msg(RTAPI_MSG_DBG, 
+		    "HAL_LIB:%d loading RT support gd=%pp\n",rtapi_instance,global_data);
+    rtapi_hal_lib_init(MAIN_START); // call constructor
+
+    /* do RTAPI init */
+    lib_module_id = rtapi_init("HAL_LIB");
+    if (lib_module_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"HAL_LIB:%d ERROR: rtapi init failed\n",
+			rtapi_instance);
+	return -EINVAL;
+    }
+
+    // paranoia
+    if (global_data == NULL) {
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"HAL_LIB:%d ERROR: global_data == NULL\n",
+			rtapi_instance);
+	return -EINVAL;
+    }
+
+    /* get HAL shared memory block from RTAPI */
+    lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, global_data->hal_size);
+
+    if (lib_mem_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB:%d ERROR: could not open shared memory\n", 
+			rtapi_instance);
+	rtapi_exit(lib_module_id);
+	return -EINVAL;
+    }
+    /* get address of shared memory area */
+    retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB:%d ERROR: could not access shared memory\n",
+			rtapi_instance);
+	rtapi_exit(lib_module_id);
+	return -EINVAL;
+    }
+    /* set up internal pointers to shared mem and data structure */
+    hal_shmem_base = (char *) mem;
+    hal_data = (hal_data_t *) mem;
+    /* perform a global init if needed */
+    retval = init_hal_data();
+
+    if ( retval ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB:%d ERROR: could not init shared memory\n",
+			rtapi_instance);
+	rtapi_exit(lib_module_id);
+	return -EINVAL;
+    }
+    retval = hal_proc_init();
+
+    if ( retval ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB: ERROR:%d could not init /proc files\n",
+			rtapi_instance);
+	rtapi_exit(lib_module_id);
+	return -EINVAL;
+    }
+    //rtapi_printall();
+    rtapi_hal_lib_init(MAIN_END);
+
+    /* done */
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "HAL_LIB:%d kernel lib installed successfully\n",
+		    rtapi_instance);
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    hal_thread_t *thread;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, 
+		    "HAL_LIB:%d removing RT support\n",rtapi_instance);
     rtapi_hal_lib_cleanup(EXIT_START);
 
     hal_proc_clean();
@@ -2649,7 +2801,8 @@ void rtapi_app_exit(void)
     rtapi_hal_lib_cleanup(EXIT_END);
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
-	"HAL_LIB: kernel lib removed successfully\n");
+		    "HAL_LIB:%d RT support removed successfully\n",
+		    rtapi_instance);
 }
 
 /* this is the task function that implements threads in realtime */
@@ -2724,7 +2877,7 @@ static int init_hal_data(void)
 
 #if defined(RTAPI_XENOMAI_KERNEL)
     // xenomai heaps contain garbage
-    memset(hal_data, 0, HAL_SIZE);
+    memset(hal_data, 0, global_data->hal_size);
 #endif
 
     /* set version code so nobody else init's the block */
@@ -2751,7 +2904,7 @@ static int init_hal_data(void)
     hal_data->exact_base_period = 0;
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
-    hal_data->shmem_top = HAL_SIZE;
+    hal_data->shmem_top = global_data->hal_size;
     hal_data->lock = HAL_LOCK_NONE;
     /* done, release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
@@ -3350,8 +3503,15 @@ static void free_thread_struct(hal_thread_t * thread)
 *                     HAL Library constructor and destructors          *
 ************************************************************************/
 
+// this is the pointer through which _all_ RTAPI/ULAPI references go:
+// it must be initialized by calling rtapi_get_handle() in the 
+// pertaining module (rtapi.ko/rtapi.so/ulapi.so)
+
+rtapi_switch_t *rtapi_switch = NULL;
+EXPORT_SYMBOL(rtapi_switch);
+
+
 #ifdef ULAPI
-int debug_tors; // leave as extern so gdb can get at it
 
 int hal_rtapi_attach()
 {
@@ -3365,11 +3525,18 @@ int hal_rtapi_attach()
 	lib_module_id = rtapi_init(rtapi_name);
 	if (lib_module_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not not initialize RTAPI\n");
+		"HAL: ERROR: could not not initialize RTAPI - realtime not started?\n");
 	    return -EINVAL;
 	}
+
+	if (global_data == NULL) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "HAL: ERROR: RTAPI shutting down - exiting\n");
+	    exit(1);
+	}
+
 	/* get HAL shared memory block from RTAPI */
-	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, global_data->hal_size);
 	if (lib_mem_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: could not open shared memory\n");
@@ -3403,6 +3570,8 @@ int hal_rtapi_attach()
 
 int hal_rtapi_detach()
 {
+
+
     /* release RTAPI resources */
     rtapi_shmem_delete(lib_mem_id, lib_module_id);
     rtapi_exit(lib_module_id);
@@ -3423,68 +3592,183 @@ static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 // This will be executed before any function like hal_init() can be
 // called by using code.
 
-// this is the pointer through which _all_ RTAPI/ULAPI references go:
-rtapi_switch_t *rtapi_switch;
-
 // still need per-threadstyle path settuings here:
 static void *ulapi_so; // dlopen handle for ULAPI .so
-static char *ulapi_lib = "ulapi.so";
+static char *ulapi_lib = "ulapi";
+
+static flavor_ptr flavor;
+static char *libpath = EMC2_HOME "/lib";
+int rtapi_instance; 
+ 
+static ulapi_main_t ulapi_main_ref;
+static ulapi_exit_t ulapi_exit_ref;
 
 static void ulapi_hal_lib_init(void)
 {
+    int retval;
+    flavor_ptr f;
     const char *errmsg;
-    rtapi_switch_t **symref;
-    debug_tors = (getenv("DEBUG") != NULL);
+    rtapi_get_handle_t rtapi_get_handle;
+    char path[PATH_MAX];
+    char *fname = getenv("FLAVOR");
+    char *instance = getenv("INSTANCE");
+    char *lpath = getenv("LIBPATH");
+    char *debug_env = getenv("DEBUG");
+    int debug = RTAPI_MSG_INFO;
 
-    if (debug_tors)
-	// RTAPI isnt initialized here yet, so rtapi_print_msg wont work
-	fprintf(stderr, "%s:%s(pid=%d) called\n",
-		__FILE__,__FUNCTION__, getpid());
+    if (fname && ((flavor = flavor_byname(fname)) == NULL)) {
+	fprintf(stderr, 
+		"HAL_LIB: FLAVOR=%s: no such flavor -- valid flavors are:\n",
+		fname);
+	f = flavors;
+	while (f->name) {
+	    fprintf(stderr, "\t%s\n", f->name);
+	    f++;
+	} 
+	exit(1);
+    } else 
+	flavor = default_flavor();
+    if (lpath)
+	libpath = lpath;
+    if (instance != NULL)
+    	rtapi_instance = atoi(instance);
+    if (debug_env)
+	debug = atoi(debug_env);
+
+    rtapi_openlog("hal_lib",debug);
+    rtapi_set_msg_level(debug);
+
+    if (module_path(flavor, path,
+		    libpath, ulapi_lib,
+		    flavor->so_ext)) {
+	fprintf(stderr, "HAL_LIB: %s: cannot locate module %s\n", 
+			path, ulapi_lib);
+	exit(1);
+    }
 
     // dynload the proper ulapi.so:
-    if ((ulapi_so = dlopen(ulapi_lib, RTLD_LAZY)) == NULL) {
+    // FIXME PATH
+    if ((ulapi_so = dlopen(path, RTLD_GLOBAL|RTLD_LAZY))  == NULL) {
 	errmsg = dlerror();
-	fprintf(stderr,"HAL_LIB: FATAL - cant dlopen(%s): %s\n",
-		ulapi_lib, errmsg ? errmsg : "NULL");
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB: FATAL - cant dlopen(%s): %s\n",
+			ulapi_lib, errmsg ? errmsg : "NULL");
 	exit(1);
     }
-    // resolve the pointer to rtapi_switch
-    if ((symref = (rtapi_switch_t **) dlsym(ulapi_so, "rtapi_switch")) != NULL) {
-	// fprintf(stderr,"successfully loaded ULAPI '%s': '%s'\n",
-	//         ulapi_lib, rtapi_switch->name);
-	if (debug_tors)
-	    fprintf(stderr,"HAL_LIB: successfully loaded ULAPI '%s' rtapi_switch=%p\n",
-		    ulapi_lib, *symref);
-	rtapi_switch = *symref;
-	// XXX: check for rtapi_switch != NULL, and a signature in
-	// the datastructure here
 
-	// at this point it is safe to call RTAPI functions since the
-	// rtapi_switch pointer is now valid.
-    } else {
+    // resolve rtapi_switch getter function
+    dlerror();
+    if ((rtapi_get_handle = (rtapi_get_handle_t) 
+	 dlsym(ulapi_so, "rtapi_get_handle")) == NULL) {
 	errmsg = dlerror();
-	fprintf(stderr,"HAL_LIB: FATAL - resolving %s: cant dlsym(rtapi_switch): %s\n",
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB: FATAL - resolving %s: cant dlsym(rtapi_get_handle): %s\n",
+			ulapi_lib, errmsg ? errmsg : "NULL");
+	exit(1);
+    }
+    assert(rtapi_get_handle != NULL);
+    rtapi_switch = rtapi_get_handle();
+    assert(rtapi_switch != NULL);
+
+    // resolve main function
+    dlerror();
+    if ((ulapi_main_ref = (ulapi_main_t) dlsym(ulapi_so, "ulapi_main")) == NULL) {
+	errmsg = dlerror();
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB: FATAL - resolving %s: cant dlsym(ulapi_main): %s\n",
+			ulapi_lib, errmsg ? errmsg : "NULL");
+	exit(1);
+    }
+    // resolve exit function
+    dlerror();
+    if ((ulapi_exit_ref = (ulapi_exit_t) dlsym(ulapi_so, "ulapi_exit")) == NULL) {
+	errmsg = dlerror();
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL_LIB: FATAL - resolving %s: cant dlsym(ulapi_exit): %s\n",
 		ulapi_lib, errmsg ? errmsg : "NULL");
 	exit(1);
     }
-    // and off we go!
+    assert(ulapi_main_ref != NULL);
+    assert(ulapi_exit_ref != NULL);
+
+    // call the ulapi init method to retrieve the global segment
+    if ((retval = ulapi_main_ref(rtapi_instance, flavor->id, &global_data)) < 0) {
+	fprintf(stderr,
+		"HAL_LIB: FATAL - cannot attach to instance %d - realtime not started?\n",
+		rtapi_instance);
+	exit(1);	
+    }
+
+    // pretty bad - we loaded the wrong ulapi.so
+    if (flavor->id != rtapi_switch->thread_flavor_id) {
+	fprintf(stderr,"HAL_LIB: thread flavors disagree: hal_lib.c=%d rtapi=%d\n",
+		flavor->id, rtapi_switch->thread_flavor_id);
+    }
+
+    // sanity check - may be harmless
+    if (strcmp(git_version, rtapi_switch->git_version)) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+			"HAL_LIB: UP API warning - git versions disagree: hal_lib.c=%s %s=%s\n",
+			git_version, ulapi_lib, rtapi_switch->git_version);
+    }
+
+    // verify the ulapi-foo.so we just loaded is compatible with
+    // the running kernel if it has special prerequisites
+
+	
+    switch (rtapi_switch->thread_flavor_id) {
+    case  RTAPI_RT_PREEMPT_USER_ID:
+	if (!kernel_is_xenomai()) {
+	    fprintf(stderr,"HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is not RT_PREEMPT (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    case RTAPI_XENOMAI_KERNEL_ID:
+    case RTAPI_XENOMAI_USER_ID:
+	if (!kernel_is_xenomai()) {
+	    fprintf(stderr,"HAL_LIB: ERROR - Xenomai ULAPI loaded but kernel is not Xenomai (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    case RTAPI_RTAI_KERNEL_ID:
+	if (!kernel_is_rtai()) {
+	    fprintf(stderr,"HAL_LIB: ERROR - RTAI ULAPI loaded but kernel is not RTAI (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    default:
+	// no prerequisites for vanilla
+	break;
+    }
+
+    // at this point it is safe to call RTAPI functions since the
+    // rtapi_switch pointer is now valid and the stuff we loaded
+    // makes sense for the kernel running.
 
     // previously the HAL shm segment was attached only during the
-    // first hal_init(). Do that now during at shlib load time
-    // so the global HALCOMP can be created right away without
-    // waiting for somebody to do a hal_init()
+    // first hal_init(). Do that now at shlib load time instead of
+    // waiting for somebody to do the first hal_init()
+    // this enables use of the rtapi_data segment for shared state
+    // immediately, not just after the first hal_init(), whenever
+    // that might be (which might be never).
+
+    // this also initializes global_data.
     hal_rtapi_attach();
 }
 
 //  ULAPI-side cleanup. Called at shared library unload time.
 static void ulapi_hal_lib_cleanup(void)
 {
-    if (debug_tors)
-	fprintf(stderr, "%s:%s(pid=%d) called\n",
-		__FILE__,__FUNCTION__, getpid());
 
     // detach the RTAPI data segment
     hal_rtapi_detach();
+
+    // detach the global segment
+    ulapi_exit_ref();
+
     // unload ulapi shared object.
     dlclose(ulapi_so);
 }
@@ -3514,6 +3798,7 @@ static void ulapi_hal_lib_cleanup(void)
 // the 'phase' argument gives fine-grained control
 // about what should happen in which phase.
 
+static int once; // dont do this on every rtapi_app_main()
 static void rtapi_hal_lib_init(int phase)
 {
 #ifdef DEBUG_RTAPI_CONSTRUCTORS
@@ -3521,7 +3806,25 @@ static void rtapi_hal_lib_init(int phase)
 		    __FILE__,__FUNCTION__, phase);
 #endif
     switch (phase) {
+
     case MAIN_END:
+	// if rtapi_switch were NULL we would have crashed before
+	// rtapi.so/.ko loaded and accessible
+	if (!once) {
+
+	    // do all one-off RTAPI post-loading checks here
+	    if (rtapi_switch &&
+		strcmp(git_version,
+		       rtapi_switch->git_version)) {
+
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"HAL_LIB: RTAPI:%d warning - git versions disagree: hal_lib.c=%s %s=%s\n",
+				rtapi_instance, git_version,
+				"RTAPI", // any way to get at the module name here?
+				rtapi_switch->git_version);
+	    }
+	    once++;
+	}
 	break;
 
     default:
@@ -3531,10 +3834,6 @@ static void rtapi_hal_lib_init(int phase)
 
 static void rtapi_hal_lib_cleanup(int phase)
 {
-#ifdef DEBUG_RTAPI_CONSTRUCTORS
-    rtapi_print_msg(RTAPI_MSG_DBG,"%s:%s(%d) called\n",
-		    __FILE__,__FUNCTION__, phase);
-#endif
 }
 
 #if defined(BUILD_SYS_USER_DSO)
@@ -3558,6 +3857,7 @@ static void rtapi_hal_lib_cleanup_helper(void)
 /* only export symbols when we're building a kernel module */
 
 EXPORT_SYMBOL(hal_init);
+EXPORT_SYMBOL(hal_init_mode);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
@@ -3623,6 +3923,33 @@ EXPORT_SYMBOL(halpr_find_param_by_owner);
 EXPORT_SYMBOL(halpr_find_funct_by_owner);
 
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
+
+EXPORT_SYMBOL(hal_ring_new);
+EXPORT_SYMBOL(hal_ring_delete);
+EXPORT_SYMBOL(hal_ring_attach);
+
+EXPORT_SYMBOL(hal_ring_use_wmutex);
+EXPORT_SYMBOL(hal_ring_use_rmutex);
+
+EXPORT_SYMBOL(hal_record_write);
+EXPORT_SYMBOL(hal_record_next);
+EXPORT_SYMBOL(hal_record_next_size);
+EXPORT_SYMBOL(hal_record_next_vec);
+EXPORT_SYMBOL(hal_record_shift);
+EXPORT_SYMBOL(hal_record_write_space);
+EXPORT_SYMBOL(hal_record_flush);
+
+
+EXPORT_SYMBOL(hal_stream_get_read_vector);
+EXPORT_SYMBOL(hal_stream_get_write_vector);
+EXPORT_SYMBOL(hal_stream_read);
+EXPORT_SYMBOL(hal_stream_peek);
+EXPORT_SYMBOL(hal_stream_read_advance);
+EXPORT_SYMBOL(hal_stream_read_space);
+EXPORT_SYMBOL(hal_stream_flush);
+EXPORT_SYMBOL(hal_stream_write);
+EXPORT_SYMBOL(hal_stream_write_advance);
+EXPORT_SYMBOL(hal_stream_write_space);
 
 #endif /* rtapi */
 
