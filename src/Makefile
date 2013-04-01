@@ -1,6 +1,10 @@
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
-#OLD_SHELL := $(SHELL)
-#SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+# to trace make execution of make in more detail:
+#     make VV=1
+ifeq ("$(origin VV)", "command line")
+    OLD_SHELL := $(SHELL)
+    SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
+endif
 
 # Delete the default suffix rules
 .SUFFIXES:
@@ -349,10 +353,13 @@ HEADERS := \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
     rtapi/rtapi_common.h \
+    rtapi/rtapi_global.h \
+    rtapi/rtapi_shmkeys.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_support.h \
     rtapi/$(THREADS_SOURCE).h
 
 # need to do ths separately because the subdirectory is required
@@ -411,7 +418,8 @@ ifeq ($(THREADS),xenomai-kernel)
 endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
-	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
+	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) \
+	    RT_CFLAGS="$(RT_CFLAGS)" modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -666,6 +674,8 @@ endif # userspace
 
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
+# to pull FLAVOR_FLAGS - see Makefile.modinc.in
+include $(BASEPWD)/rtapi/Submakefile
 endif
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
@@ -694,7 +704,8 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
 	-fno-unsafe-math-optimizations \
 	$(call cc-option,-mieee-fp) \
 	$(call cc-option,-Wframe-larger-than=2560) \
-	$(KERNEL_MATH_CFLAGS)
+	$(KERNEL_MATH_CFLAGS) \
+	$(FLAVOR_FLAGS)
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -721,11 +732,12 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 
 # Sources for all thread systems
 rtapi-objs := \
+	rtapi/instance.o \
+	rtapi/rtapi_support.o \
 	rtapi/rtapi_common.o \
 	rtapi/rtapi_task.o \
 	rtapi/rtapi_shmem.o \
 	rtapi/rtapi_time.o \
-	rtapi/rtapi_msg.o \
 	rtapi/rtapi_io.o \
 	rtapi/$(THREADS_SOURCE).o
 # Kernel threads need rtapi_module.c
@@ -737,6 +749,8 @@ ifeq ($(BUILD_SYS),user-dso)
 rtapi-objs += rtapi/rtapi_pci.o
 # and rtapi_app_main/exit stubs
 rtapi-objs += rtapi/rtapi_main.o
+# and autodetect/compat checks
+rtapi-objs += rtapi/rtapi_compat.o
 endif
 
 
@@ -971,7 +985,8 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 
 ifeq ($(BUILD_SYS),user-dso)
-EXTRA_CFLAGS += -fPIC -Os
+EXTRA_CFLAGS += -fPIC $(OPT) $(FLAVOR_FLAGS) $(NANOPB_CFLAGS)
+
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
@@ -983,12 +998,12 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	$(Q)ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm $(RT_CFLAGS)
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG)  -DRTAPI $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
@@ -1023,9 +1038,7 @@ endif # end BUILD_SYS=user-dso
 
 # build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
-#ifneq "$(BUILD_SYS)" "user-dso"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
-#endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))
@@ -1060,6 +1073,7 @@ endif
 ifeq ($(TARGET_PLATFORM),raspberry)
 ../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
 endif
+
 
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
