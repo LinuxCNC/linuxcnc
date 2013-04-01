@@ -12,6 +12,8 @@
 * Last change: 
 ********************************************************************/
 
+extern int instance_no; // exported from cms.cc
+
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,8 +118,7 @@ rcs_sem_t *rcs_sem_open(key_t name, int oflag, /* int mode */ ...)
 	rcs_print_error("rcs_sem_open: invalid key %d\n", key);
 	return NULL;
     }
-
-    if ((semid = (rcs_sem_t) semget((key_t) key, 1, semflg)) == -1) {
+    if ((semid = (rcs_sem_t) semget((key_t) key + instance_no *100 , 1, semflg)) == -1) {
 	rcs_print_error("semget");
 	rcs_puts((char *) strerror(errno));
 	return NULL;
