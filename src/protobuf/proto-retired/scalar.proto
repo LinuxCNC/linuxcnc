@@ -1,0 +1,18 @@
+// XXX: unify this with HalType
+import "scalartype.proto";
+
+
+message ScalarValue {
+    required ScalarType type = 10;
+
+    // One of the following must be filled in,
+    // depending on type.
+    optional bytes   v_bytes  = 20;
+    optional int32   v_int32  = 30;
+    optional int64   v_int63  = 40;
+    optional uint32  v_uint32 = 50;
+    optional uint64  v_uint63 = 60;
+    optional double  v_double = 70;
+    optional string  v_string = 80;
+    optional bool    v_bool   = 90;
+}

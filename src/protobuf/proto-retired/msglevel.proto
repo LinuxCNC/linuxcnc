@@ -1,0 +1,9 @@
+enum MsgLevel {
+    // see enum msg_level_t in rtapi.h
+    RTAPI_MSG_NONE = 0;
+    RTAPI_MSG_ERR = 1;
+    RTAPI_MSG_WARN = 2;
+    RTAPI_MSG_INFO = 3;
+    RTAPI_MSG_DBG = 4;
+    RTAPI_MSG_ALL = 5;
+}

@@ -1,0 +1,44 @@
+ifeq ($(USE_PROTOBUF),yes)
+
+# loadable components for protobuf support
+
+# nanopb: the nanopb library code
+# pbmsgs: all message bindings from protbuf/proto
+#         compiled for nanopb use in RT components
+#
+# for usage examples, see src/hal/msgcomponents
+
+# NANOPB_CFLAGS is set in  protobuf/Submakefile
+# for msgcomponents when building an RT comp
+#
+# RT_CFLAGS is a kludge, but the archaic kbuild
+# doesnt understand CFLAGS_nanopb.o or cflags-y
+#
+RT_CFLAGS +=  $(NANOPB_CFLAGS)
+
+# strangely during kbuild symbols from protobuf/Submakefile vanish
+NANOPBDIR = protobuf/nanopb
+PBGENDIR =  protobuf/generated
+PBCOMPDIR = protobuf/components
+
+obj-m += nanopb.o
+
+nanopb-objs := $(PBCOMPDIR)/nanopb.o \
+	$(NANOPBDIR)/pb_encode.o \
+	$(NANOPBDIR)/pb_decode.o
+
+../rtlib/nanopb$(MODULE_EXT): $(addprefix objects/rt,$(nanopb-objs))
+
+obj-m += pbmsgs.o
+pbmsgs-objs := \
+	$(PBCOMPDIR)/pbmsgs.o	\
+	$(PBGENDIR)/types.npb.o \
+	$(PBGENDIR)/value.npb.o \
+	$(PBGENDIR)/object.npb.o  \
+	$(PBGENDIR)/message.npb.o \
+	$(PBGENDIR)/rtapi_message.npb.o \
+	$(PBGENDIR)/test.npb.o
+
+../rtlib/pbmsgs$(MODULE_EXT): $(addprefix objects/rt,$(pbmsgs-objs))
+
+endif # PROTOBUF

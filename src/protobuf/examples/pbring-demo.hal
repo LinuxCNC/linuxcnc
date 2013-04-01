@@ -1,0 +1,13 @@
+# load the protobuf library support component
+loadrt nanopb
+
+# load the protobuf message definitions support component
+loadrt pbmsgs
+
+# this will create the 'command' and 'response' rings if they dont exist
+loadrt pbring
+
+loadrt threads  period1=100000000
+addf pbring thread1
+
+start

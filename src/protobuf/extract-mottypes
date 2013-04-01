@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# extract fragment of proto defs for EMCMOT message types
+# this fragment should be included in protobuf/proto/types.proto
+# at the end of enum MsgType
+
+
+egrep "^[[:space:]]+EMCMOT_" $1 | \
+sed -e "s/^\s*//g" -e "s/,.*$//g"   -e 's/;.*$//g' -e 's/\s.*$//g' | uniq |\
+python -c "`cat <<OOK
+offset = 1001
+import fileinput
+
+for line in fileinput.input():
+
+    [sym] = line.rstrip().split('\t')
+
+    print "\tMT_%s\t\t= %d;" % (sym, offset)
+    offset += 1
+
+OOK
+`"

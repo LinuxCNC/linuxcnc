@@ -1,0 +1,316 @@
+#
+#  Protobuf support for LinuxCNC
+#
+#  build Python modules, C and C++ bindings from .proto files
+#  build nanopb C bindings for kernel & userland RT components (and embedded devices)
+#
+# to add a new message type:
+#     1. create a .proto file under protobuf/proto
+#     2. add the message type to protobuf/proto/types.proto
+#        enum MessageType, e.g. MT_EMC_OPERATOR_TEXT_TYPE
+#     3. if the message will be used in-kernel/RT components, consider using
+#        protobuf/nanopb.options to use fixed-size arrays for strings and
+#        repeated fields
+#     4. refer to the message type by including
+#        protobuf/generated/types.pb-c.h and use e.g.
+#        MESSAGE_TYPE_MT_EMC_OPERATOR_TEXT_TYPE
+#
+# to add a new encoding:
+#     1. add the encoding to protobuf/proto/types.proto
+#	 enum MessageEncoding (example: ENC_NML_MESSAGE)
+#     2. refer to the encoding by including
+#        protobuf/generated/types.pb-c.h and use
+#        MESSAGE_ENCODING__ENC_NML_MESSAGE
+#
+# This naming scheme looks a bit unwieldy, but it assures no name
+# collisions occur between various types.
+#
+#
+# TODO:
+#    generate compiled Python bindings for better performance, current options
+#    (sorted in decreasing order of shakiness/completeness at this time):
+#
+#    1: either use the PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION feature of
+#    google protobuf distro, or
+#    2. use http://evgenus.github.com/protocyt/ Cython-based bindings
+#    3: use https://github.com/Cue/fast-python-pb
+#
+# Michael Haberler 2/2013
+
+ifeq ($(USE_PROTOBUF),yes)
+
+PBDIR=protobuf
+PBGEN=$(PBDIR)/generated
+PROTODIR=$(PBDIR)/proto
+NANOPB := $(PBDIR)/nanopb
+NPBGENDIR :=  $(NANOPB)/generator
+
+# the directory where descriptor.proto lives:
+DESCDIR :=  $(shell pkg-config --variable=includedir protobuf)
+
+PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
+PBMSG := # protobuf/generated/pb_messages.h
+
+# C bindings library
+PROTOCLIB = ../lib/liblinuxcnc-pb2.so
+# C++ bindings library
+PROTOCXXLIB = ../lib/liblinuxcnc-pb2++.so
+# Nanopb C bindings library
+NANOPROTOCLIB := ../lib/liblinuxcnc-npb.so
+
+PROTOBUF_CXXFLAGS := `pkg-config --cflags protobuf`
+PROTOBUF_LDFLAGS := `pkg-config --libs protobuf`
+PROTOC = `which protoc`
+PROTOC_C = `which protoc-c`
+PROTOC_FLAGS :=
+PROTOC_C_FLAGS := -fPIC
+PROTOC_C_LDFLAGS := -lprotobuf-c
+PROTOCXX_LDFLAGS := -lprotobuf
+PROTOCXX_FLAGS :=
+PROTOCXX_CXX_FLAGS := -fPIC
+NANOPB_GENERATOR := $(NANOPB)/generator/nanopb_generator.py
+
+# NANOPB_CFLAGS are also passed to module build through
+# RT_CFLAGS - see protobuf/components/Submakefile
+NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<protobuf/pb-linuxcnc.h>'
+
+
+NANOPB_OPTIONS := $(PBDIR)/nanopb.options
+
+# any extra flags to protoc for nanopb
+PROTO_NANOPB_FLAGS :=
+
+# massage nanopb generated paths so makedeps stays happy
+NANOPB_GENERATOR_FLAGS := \
+	--extension=npb \
+	--generated-include-format=$(subst PBGEN,$(PBGEN),'\#include <PBGEN/%s>') \
+	--options-file=$(NANOPB_OPTIONS)  # -v # show option expansion
+
+# any extra flags to C compile nanopb bindings
+PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS) -fPIC
+
+# nanopb library .h/.c files
+NANOPB_INCS := $(wildcard $(NANOPB)/*.h)
+NANOPB_C_SRCS := $(wildcard $(NANOPB)/*.c)
+
+# headers which are to go into ../include
+NANOPB_INSTALL_INCS := $(subst $(NANOPB), \
+	../include,  \
+	$(NANOPB_INCS))
+
+PROTO_NANOPB_C_INCS := $(subst $(PROTODIR)/, \
+	$(PBGEN)/,  \
+	$(patsubst %.proto, %.npb.h, $(PROTO_SPECS)))
+
+PROTO_NANOPB_C_SRCS := $(subst $(PROTODIR)/, \
+	$(PBGEN)/,  \
+	$(patsubst %.proto, %.npb.c, $(PROTO_SPECS)))
+
+# derived Python bindings
+
+PROTO_PY_TARGETS := ../lib/python/nanopb_pb2.py
+PROTO_PY_TARGETS += $(subst $(PROTODIR)/, \
+	../lib/python/, \
+	$(patsubst %.proto, %_pb2.py, $(PROTO_SPECS)))
+
+# generated C includes
+PROTO_C_INCS := $(PBGEN)/nanopb.pb-c.h
+PROTO_C_INCS += $(PBGEN)/google/protobuf/descriptor.pb-c.h
+PROTO_C_INCS += $(subst $(PROTODIR)/, \
+	$(PBGEN)/,  \
+	$(patsubst %.proto, %.pb-c.h, $(PROTO_SPECS)))
+
+# generated C sources
+PROTO_C_SRCS := $(PBGEN)/nanopb.pb-c.c
+PROTO_C_SRCS += $(PBGEN)/google/protobuf/descriptor.pb-c.c
+PROTO_C_SRCS +=  $(subst $(PROTODIR)/, \
+	$(PBGEN)/, \
+	$(patsubst %.proto, %.pb-c.c, $(PROTO_SPECS)))
+
+# generated C++ includes
+PROTO_CXX_SRCS :=  $(PBGEN)/nanopb.pb.h
+PROTO_CXX_INCS += $(subst $(PROTODIR)/, \
+	$(PBGEN)/,  \
+	$(patsubst %.proto, %.pb.h, $(PROTO_SPECS)))
+
+# generated C++ sources
+PROTO_CXX_SRCS  :=  $(PBGEN)/nanopb.pb.cc
+PROTO_CXX_SRCS  +=  $(subst $(PROTODIR)/, \
+	$(PBGEN)/, \
+	$(patsubst %.proto, %.pb.cc, $(PROTO_SPECS)))
+
+
+# headers which are to go into ../include
+INSTALL_INCS := $(subst $(PBGEN), \
+	../include,  \
+	$(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS) $(PBMSG))
+
+# generate emctypes.proto from emc/nml_intf/emc.hh
+$(PBGEN)/emctypes.proto: emc/nml_intf/emc.hh protobuf/extract-nmltypes
+	$(ECHO) "extracting protobuf message types for NML from" $<
+	@mkdir -p $(PBGEN)
+	$(Q)protobuf/extract-nmltypes $< >$@
+
+# generate mottypes.proto from emc/motion/motion.h
+$(PBGEN)/mottypes.proto: emc/motion/motion.h protobuf/extract-mottypes
+	$(ECHO) "extracting protobuf message types for Motion from" $<
+	@mkdir -p $(PBGEN)
+	$(Q)protobuf/extract-mottypes $< >$@
+
+TARGETS += $(PBGEN)/emctypes.proto $(PBGEN)/mottypes.proto
+
+
+# generate .c/.h from proto files
+$(PBGEN)/%.pb-c.c $(PBGEN)/%.pb-c.h: $(PROTODIR)/%.proto
+	$(ECHO) "protoc-c processing $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC_C) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	 --c_out=./$(PBGEN)/ $<
+
+# generate descriptor..c/.h from proto files
+$(PBGEN)/google/protobuf/descriptor.pb-c.c \
+$(PBGEN)/google/protobuf/descriptor.pb-c.h: $(DESCDIR)/google/protobuf/descriptor.proto
+	$(ECHO) "protoc-c processing $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC_C) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--c_out=./$(PBGEN)/ $<
+
+# generate nanopb..c/.h from proto files
+$(PBGEN)/nanopb.pb-c.c \
+$(PBGEN)/nanopb.pb-c.h: $(NPBGENDIR)/nanopb.proto
+	$(ECHO) "protoc-c processing $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC_C) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--c_out=./$(PBGEN)/ $<
+
+# generate .cc/.h from proto files
+# for command.proto, generated files are: command.pb.cc	command.pb.h
+$(PBGEN)/%.pb.cc $(PBGEN)/%.pb.h: $(PROTODIR)/%.proto
+	$(ECHO) "protoc processing for C++ $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--cpp_out=./$(PBGEN)/ $<
+
+# generate nanopb.cc/.h from proto files
+$(PBGEN)/nanopb.pb.cc \
+$(PBGEN)/nanopb.pb.h: $(NPBGENDIR)/nanopb.proto
+	$(ECHO) "protoc processing $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--cpp_out=./$(PBGEN)/ $<
+
+# generate Python modules from proto files
+../lib/python/%_pb2.py: $(PROTODIR)/%.proto
+	$(ECHO) "protoc processing for Python $<"
+	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--python_out=../lib/python/ $<
+
+# generate Python modules from nanopb.proto
+# this is for the stock protobuf Python bindings -
+# adapt here if using one of the accelerated methods
+../lib/python/%_pb2.py: $(NPBGENDIR)/nanopb.proto
+	$(ECHO) "protoc processing for Python $<"
+	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	--python_out=../lib/python/ $<
+
+# Nanopb: generate *.npb.{c,h} from proto files
+# these depend on npb options
+$(PBGEN)/%.npb.c $(PBGEN)/%.npb.h: $(PROTODIR)/%.proto \
+	$(NANOPB_OPTIONS) $(NANOPB_GENERATOR)
+	$(ECHO) "protoc processing for nanopb $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC) $(PROTO_NANOPB_FLAGS) \
+	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(NPBGENDIR)/ \
+	--proto_path=$(DESCDIR)/ \
+	-o$(PBGEN)/`basename $< .proto`.npb $<
+	$(Q)python $(NANOPB_GENERATOR) \
+	$(NANOPB_GENERATOR_FLAGS) \
+	$(PBGEN)/`basename $< .proto`.npb
+
+# Nanopb C bindings library
+
+NANOPB_LIBSRCS = $(NANOPB_C_SRCS) $(PROTO_NANOPB_C_SRCS)
+$(call TOOBJSDEPS, $(NANOPB_LIBSRCS)) : EXTRAFLAGS += $(PROTO_NANOPB_CFLAGS)
+
+$(NANOPROTOCLIB).0: $(patsubst %.c,objects/%.o,$(NANOPB_LIBSRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+# C bindings library
+$(call TOOBJSDEPS, $(PROTO_C_SRCS)) : EXTRAFLAGS += $(PROTOC_C_FLAGS)
+
+$(PROTOCLIB).0: $(patsubst %.c,objects/%.o,$(PROTO_C_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
+	$(PROTOC_C_LDFLAGS)
+
+
+# C++ bindings library
+$(call TOOBJSDEPS, $(PROTO_CXX_SRCS)) : EXTRAFLAGS += $(PROTOCXX_CXX_FLAGS)
+
+$(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+# protoc/protoc-c generated headers are exported to ../include
+../include/%.h: ./$(PBGEN)/%.h
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+../include/%.hh: ./$(PBGEN)/%.hh
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+# as are the nanop library headers
+../include/%.h: ./$(NANOPB)/%.h
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+# TODO: retain the protoc/-c output?
+
+# those will be compiled
+USERSRCS +=  $(NANOPB_C_SRCS) $(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS)
+
+PYTARGETS += $(PROTO_PY_TARGETS)
+
+INCLUDES += $(PBGEN)
+INCLUDES += $(NANOPB)
+
+TARGETS += $(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS)
+TARGETS += $(INSTALL_INCS)
+TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
+	$(PROTOCLIB) $(PROTOCLIB).0 \
+	$(PROTOCXXLIB) $(PROTOCXXLIB).0
+
+modules userspace: $(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS) \
+	$(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS)
+
+endif # USE_PROTOBUF

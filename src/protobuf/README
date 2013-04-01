@@ -1,0 +1,169 @@
+This directory contains all code and build support for Google protobuf
+for use in LinuxCNC, and the Universal Message Header format
+specification plus some examples.
+
+Protobuf Bindings:
+------------------
+
+Currently built are:
+
+- the Python bindings by means of protoc as found here: http://code.google.com/p/protobuf/
+- the C++ bindings by means of protoc as above
+- the C bindings by means of protoc-c as found here: http://code.google.com/p/protobuf-c/
+- the C bindings by means of nanopb : http://code.google.com/p/nanopb
+
+The Python, C++, and protoc-c C bindings are 'general purpose' Linux userland usage.
+
+The nanopb bindings serve two additional purposes:
+
+- they work fine in kernel modules since there are minimal prerequisites,
+  and also very small code size. See hal/components/pbring.comp for an example.
+- they work on embedded devices, like an AVR, and can be compiled with a cross compiler
+  like avr-gcc.
+
+All protobufs message formats should go under src/protobuf/proto and
+are assumed to have a .proto extension.
+
+For the C and C++ bindings, all message formats are compiled and built
+into the following libraries:
+
+ C bindings: lib/liblinuxcnc-pb2.so
+ C++ bindings: lib/liblinuxcnc-pb2++.so
+ Nanopb C bindings, userland library build: liblinuxcnc-npb.so.0
+ Python bindings: lib/python/<message>_pb2.py
+  (corresponding to src/protobuf/proto/<message>.proto)
+
+Nanopb RT module support
+------------------------
+
+To en/decode protobuf messages in RT comps (kernel or userland), the
+nanopb library and all message bindings are compile into two loadable
+modules, nanopb and pbmsgs. These modules can be loaded with 'loadrt
+nanopb' and 'loadrt pbmsgs' but their only purpuse is to export
+functions to the RTAPI environment; they are not HAL components
+proper.
+
+This building takes place in protobuf/components.
+
+Using examples can be found under hal/msgcomponents.
+
+
+Include files:
+--------------
+
+C bindings:  #include "message.pb-c.h"  // to reference message.proto
+C++ bindings:  #include "message.pb.h"
+Nanopb C bindings:  #include "message.npb.h"  // to reference message.proto
+
+and link to the appropriate library.
+
+Python:  import message_pb2
+
+To use a protobuf Message (using the Command message as example):
+
+Python:  see src/protobuf/example/encode-decode.py
+C++: src/protobuf/example/encdec.cc and the Makefile therein
+C:  src/protobuf/mgsheader/wireformat.c and the Makefile therein
+
+
+    NB: the current message formats in src/protobuf/proto are just
+    examples to support src/hal/halreport and have no bearing on
+    eventual messages for production use.
+
+examples subdirectory:
+----------------------
+
+Messaging to/from HAL components:
+--------------------------------
+
+The experimental pbring component shows how RT components may receive
+or send protobuf-encoded messages through HAL rings. This works for
+all thread styles, user land or kernel, user or RT.
+
+This means protobuf messaging can be used end-to-end without any
+transcoding (like for instance is done now between task and motion).
+
+To try it out:
+
+ $ halcmd -f pbring-demo.hal
+ $ python pbring-demo.py
+
+Note this enables simple piping of protobuf text format messages into
+an application like pbring-demo.py - one could paste such a message
+into a web window, push 'submit' and the output will not only
+converted automatically/type-checked to the wire format - the
+recipient component actually understands that wire format; there is no
+necessity for 'clever intermediaries' anymore.
+
+So finally RT component interaction comes back home to the Unix shell
+- you can write motion commands in an editor, and pipe them into the
+realtime system - and have humanly readable responses too!
+
+This potentially extends to embedded devices like AVR's or PIC's as
+well since the nanopb bindings have a very small memory footprint. It
+is entirely feasible to hook such a microcontroller over, say, SPI
+into HAL/RTAPI and communicate through protobuf messages carried over
+SPI. (fill in USB, CAN, I2C etc for SPI as needed).
+
+example footprint for the nanopb decode and encode library functions
+for AVR's:
+
+ $ avr-gcc -I. -c *.c
+ $ avr-size *.o
+   text	   data	    bss	    dec	    hex	filename
+   7480	    242	      0	   7722	   1e2a	pb_decode.o
+   5016	     14	      0	   5030	   13a6	pb_encode.o
+
+The message descriptor files are much smaller, in the 10s to 100s of
+bytes per .proto file.
+
+HAL Rings:
+For a description of HAL ring theory and C API see the
+src/hal/hal-ring directory.  There are also some basic ring examples
+using C and Python, and demo RT components (ringload, ringwrite,
+ringread plus matching .hal files).
+
+
+Encoding/decoding using Python
+------------------------------
+
+src/protobuf/examples/encode-decode.py shows how to:
+
+- create Python protobuf message object and set attributes
+- convert that to and from wireline format
+- convert that to and from the Protobuf text format
+- convert that to and from a JSON encoding  (thanks to Pavel Shramov)
+
+all conversions entail the strict protobuf type checking against the
+underlying .proto file. Note also JSON messages are be fully
+typechecked.
+
+you might need to:  apt-get install python-simplejson
+
+Encoding/decoding in C++
+------------------------
+see src/protobuf/examples/encdec.cc - it does:
+
+- encode a protobuf message
+- convert to text format
+- parse from string
+
+Example C protobuf application
+------------------------------
+
+See src/hal/halreport - this uses the HAL group mechanism to report
+signal changes. halreport links against the C bindings library
+(lib/liblinuxcnc-pb2.so) generated in this directory.
+
+A matching Gladevcp demo application using protobufs can be found in
+src/hal/halreport/zmqdemo.py. This uses the Python bindings, also
+generated in this directory.
+
+
+Universal header format
+-----------------------
+Specification is in src/protobuf/mgsheader/README .
+
+To use the universal header from C/C++, include "msgheader.h" .
+
+A Python header packing/unpacking example is in src/protobuf/mgsheader/header.py .

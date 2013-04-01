@@ -1,0 +1,227 @@
+FIXME: this is outdated, its all a single protobuf Container now.
+
+
+
+
+The LinuxCNC Universal Message Format
+=====================================
+
+Michael Haberler 23/2/2013
+
+So far, messages used in LinuxCNC have assumed that message recipients
+are aware of the type of message they are receiving, and which
+encoding is associated with each type. Also, there was no standard
+specification how a message on the wire is supposed to look like,
+leading to a variety of ad-hoc messaging schemes, for instance when
+talking to peripheral hardware.
+
+The message header format defines a standard way of describing what is
+contained in a message. It is intended to make recipients robust and
+enable them to deal with different encodings as might be encountered
+during a migration between message encodings. It also enables message
+introspection and generating/parsing from an external representation
+if the encoding method supports this (protobufs does, NML does not).
+
+The format is based on the common TLV (type-length-value) notation
+used in modern protocols (see for example
+http://en.wikipedia.org/wiki/Type-length-value). Recipients of TLV
+encoded messages reliably can skip over unrecognized message types,
+and report the fact, which is impossible with current LinuxCNC wire
+formats.
+
+The message header is fixed in size. All scalar values in the message
+header are in network byte order. This means that you need to convert
+into host byte order before interpretation.
+
+The message header includes the following pieces of information:
+
+- a length field of the message payload [1]
+- the message type [2]
+- the encoding [2]
+
+The message type is to be taken from the enum MessageType as declared
+in src/protobuf/proto/types.proto . It uniquely describes the meaning
+of the message payload field, for instance an EMC_STAT message, or an
+RTAPI error message. It does NOT describe the encoding of the message
+payload. The value of an enum MessageType shall not be interpreted in
+any structured way, for instance bit masking or the like.
+
+The encoding field describes how the message payload is to be
+interpreted. It is to be taken from the enum MessageEncoding. When adding
+an ad-hoc message just to try something out, you might want to
+consider the MT_BLOB/ENC_BLOB type/encoding.
+
+Message Header Layout:
+======================
+
+The C layout of the message header is as follows (nbo_ implies network
+byte order):
+
+typedef struct message_header {
+    nbo_uint32 length;     // of the payload
+    nbo_uint16 type;       // message type as per enum MessageType
+    nbo_uint16 encoding;   // message type as per enum MessageEncoding
+} message_header_t;
+
+The size of the message header is 8 bytes. This assures that a
+directly following payload begins at a 64bit alignment boundary.
+
+The wire format of a message is to be as follows:
+
+                        1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Payload length                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |           Type                |        Encoding               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               /
+   /                            Payload [3]                        /
+   /                                                               /
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+[3] The payload may or may not follow directly after the message
+header. This depends on the transport mechanism used, see below. For
+instance with ZeroMQ, header and payload shall be sent as a two-part
+ZMQ multipart message.
+
+Wire formats:
+=============
+
+Depending on the underlying transport, different methods of passing
+the message to/from the transport are used. This depends on whether
+the transport supports message boundaries, or not. In case it does,
+using the boundary mechanism simplifies processing:
+
+
+TCP stream, serial links, SPI, I2C etc:
+---------------------------------------
+These transports do not support intra-message boundaries, hence the
+stream wire format as described under 'Message Header Layout' is
+used. In this case, the payload length field must be used to determine
+when a complete message has been read (see also the C example below).
+
+ZeroMQ:
+-------
+ZeroMQ supports message boundaries as well as multipart messages,
+which are sent/received 'in one go'. For ZeroMQ transports, the wire
+format shall be a multipart message; the first part being the message
+header of size 8, and the second part being the payload field. In this
+case, the header payload length field is redundant but SHALL be
+checked for equality with the length of the second part, and an error
+generated accordingly.
+
+Any other transports:
+---------------------
+
+--- please fill in as needed ---
+
+
+Reading and Interpreting the message:
+=====================================
+
+C example - receiving side:
+---------------------------
+// the following example assumes a stream wire format
+
+#include <arpa/inet.h>  // guarantees {ntoh,hton}{s,l}.
+
+  unsigned length, type, encoding;
+  message_header_t mhdr;
+  unisgned char buffer[LARGEVALUE];
+
+  assert(read(stream, &mhdr, sizeof(mhdr)) == 8);
+
+  length = ntohl(mhdr.length);
+  type = ntohl(mhdr.type);
+  encoding = ntohl(mhdr.encoding);
+
+  assert(read(stream, &buffer, length)) == length);
+
+  switch (type) {
+  // .. as needed
+  }
+
+C example - sending a message:
+------------------------------
+This assumes a ZeroMQ transport using the czmq C binding.
+
+#include <czmq.h>
+#include <arpa/inet.h>  // guarantees {ntoh,hton}{s,l}.
+
+  char *demo = "an operator message";
+
+  int length = strlen(demo);
+  int type =  MT_EMC_OPERATOR_TEXT_TYPE;
+  int encoding = ENC_ASCII_STRING;
+
+  message_header_t mhdr;
+  mhdr.length = htonl(length);
+  mhdr.type = htons(type);
+  mhdr.encoding = htons(encoding);
+
+  zmsg_t *message = zmsg_new();
+
+  // create a ZMQ multipart message
+  assert(zmsg_pushmem(message, &mhdr, sizeof(mhdr)) == 0);
+  assert(zmsg_addmem(message, demo, length) == 0);
+  // send it off
+  zmsg_send(message, zmqsocket);
+
+See also wireformat.c in this directory.
+
+
+Python example:
+---------------
+Encoding and decoding a message header:
+
+import struct
+import binascii
+
+length = 815
+type = 123
+encoding = 4711
+
+# encode to wire format, network byte order
+header = struct.pack("!IHH", length, type, encoding)
+
+print binascii.hexlify(header)
+
+# decode from wire format
+(rlength, rtype, rvalue) = struct.unpack("!IHH", header)
+print rlength, rtype, rvalue
+
+
+Adding a new message type or encoding:
+======================================
+
+Adding a message encoding:
+
+- Add a new encoding to the enum MsgEncoding in types.proto as needed.
+
+Adding a message encoding:
+
+- Add a new message type to the enum MessageType in types.proto as needed.
+- if the encoding is protobuf, add a corresponding proto file to src/protobuf/proto.
+- if the encoding is NML, follow the steps for defining a new NML
+  message, for instance as outlined here:
+  http://wiki.linuxcnc.org/cgi-bin/wiki.pl?CustomNMLMessage
+
+For an example, see the definition of RTAPI messages as protobuf
+encoding in src/protobuf/proto/rtapi_message.proto, and the
+corresponding enum values MT_RTAPI_MESSAGE and ENC_RTAPI_MESSAGE in
+types.proto.
+
+--
+
+[1] this is needed since protobuf encoded messages do not carry a
+length field and a wire format cannot be relied upon to always deliver
+a reliable message length (example: serial links).
+
+[2] the reason for not deriving the encoding 1:1 from the message type
+is: this aids migration and automatic conversion between message
+encodings. For instance, this wire format can transport NML messages
+as traditionally used in LinuxCNC, as well as any equivalent in, say,
+Protobuf or JSON encoding. One can start by wrapping existing NML
+messages into this wireformat, and switch to other encodings as deemed
+fit.

@@ -1,0 +1,39 @@
+import "types.proto";
+import "value.proto";
+
+
+enum CommandType {
+
+    SET_HAL_SIGNAL = 1;
+    LINK_PINS = 2;
+}
+
+enum ReplyRequired {
+    // NONE wont work with zmq REQ/REP sockets:
+    // they require a reply
+    // better to use XREQ/XREP
+    NONE = 1;
+    ON_RECEIVE = 2;
+    ON_PROCESSED = 4;
+}
+
+enum ReplyType {
+    DONE = 1;
+    ERROR = 2;
+}
+
+// 'apply Operation with a set of arguments'
+message Command {
+    required CommandType type = 1;
+    optional int32 serial = 20;
+    optional ReplyRequired rsvp = 30;
+    repeated Object args value = 50;
+}
+
+message Reply {
+    required ReplyType type = 1;
+    required CommandType request_type = 10;
+    required int32 request_serial = 20;
+    required int64 timestamp = 30;
+    optional string errormsg = 40;
+}

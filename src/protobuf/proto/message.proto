@@ -1,0 +1,108 @@
+// use a self-describing format as suggested in protobuf docs
+// and on the mailing list
+
+//package hal.bind;
+
+
+import "nanopb.proto";
+import "types.proto";
+import "object.proto";
+import "rtapi_message.proto";
+import "test.proto";
+
+message Command {
+    required CmdType              op = 10;
+    optional int32            serial = 20;
+    optional ReplyRequired    rsvp   = 30;
+    optional Originator       origin = 40;
+    repeated Object           args   = 50  [(nanopb).max_count = 20];
+    optional int32         timestamp = 60;
+}
+
+message Response {
+    required RespType        response = 5;
+    optional CmdType     in_reply_to = 10;
+    optional int32    request_serial = 20;
+    optional StatusType       status = 25;
+    optional Originator       origin = 30;
+    optional int64         timestamp = 40;
+    optional string         errormsg = 50  [(nanopb).max_size = 100];
+    repeated Object             args = 60  [(nanopb).max_count = 20];
+    repeated Object      failed_args = 70  [(nanopb).max_count = 20];
+}
+
+// container for legacy messages
+message NmlMessage {
+    required int32  type     = 10; // see src/emc/nml_intf/emc.hh
+    required bytes  payload  = 20;
+};
+
+
+// encoding is derived by inspecting the type field.
+// (this obviates the need for nested submessage types).
+//
+// All EMC NML Messages are encoded as bytes (tag7), however
+// the Container.type field carries the underlying EMC NML type:
+//
+// encoding:
+// if payload == NML:
+//    // stash the NML message into the nml bytes submessage:
+//    Container.nml = NML message(content, length)
+//    Container.type  = NML2PB(EMC_XXXX_TYPE)
+//
+// decoding:
+// if type(submessage) == nml: // tag 7
+//    nml_blob = Container.nml
+//    nml_type = PB2NML(Container.type) // retrieve EMC_XXXX_TYPE
+
+message Container {
+    // NB: do not change types and tags on the next 2 fields.
+    required fixed32      length          = 1;   // wiresize 5
+    required MsgType       type           = 2;   // encoded as varint
+
+    // protobuf-encoded submessages
+    // tags with values in the range 1 through 15 take one byte to encode
+
+    optional Command       command        = 4;
+    optional Response      response       = 5;
+    optional RTAPI_Message rtapi_message  = 6;
+    optional bytes         nml            = 7;  // legacy NML container
+    optional bytes         motion         = 8;  // legacy Motion container
+    optional bytes         wou            = 9;  // Arais Wishbone-over-USB
+    optional bytes         syslog         = 10;  // RFC5424 syslog(3) encoding
+
+
+    // tags in the range 16 through 2047 take two bytes.
+    // various blobs
+    optional string        ascii          = 100;
+    optional bytes         unicode        = 101;
+    optional string        gcode          = 102;
+    optional string        python         = 103;
+    optional bytes         pickle         = 104;
+    optional string        tcl            = 105;
+    optional string        xml            = 106;
+    optional string        json           = 107;
+    optional bytes         jpeg           = 108;
+    optional bytes         png            = 109;
+    optional bytes         tiff           = 110;
+    optional bytes         postscript     = 111;
+    optional bytes         svg            = 112;
+
+    // less commonly used types.
+
+    // firmware types. Add as needed
+    optional bytes         pru_firmware   = 2048;
+
+    // Mesanet firmware types: 3000 - 4000
+    optional bytes         mesa_5i20_firmware   = 3000;
+
+    // test message range: 5000-5100 - never used by core code
+    optional Test1         test1          = 5001;
+    optional Test2         test2          = 5002;
+    optional Test3         test3          = 5003;
+
+
+    // NB: do not use the numbers 19000 though 19999
+    // they are reserved for the Protocol Buffers implementation
+    // protoc will complain
+}

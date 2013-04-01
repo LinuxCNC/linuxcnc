@@ -1,0 +1,168 @@
+// everything we know about objects, including HAL objects
+
+
+import "nanopb.proto";
+import "types.proto";
+import "value.proto";
+
+// describes a RTAPI/HAL/LinuxCNC instance
+message Instance {
+    optional string        name     = 30  [(nanopb).max_size = 41];
+    optional sint32        id       = 40;
+}
+
+// describes an entity which may cause a message:
+// a process, a component, a thread, a group,
+// a remote component
+
+// used as an error detail
+
+message Originator {
+    optional OriginType    origin   = 10;
+    optional OriginDetail  detail   = 20;
+    optional string        name     = 30   [(nanopb).max_size = 41];
+    optional sint32        id       = 40;
+    optional Instance      instance = 50;
+}
+
+message Pin {
+    optional ScalarType  type       = 10;
+    optional string      name       = 20    [(nanopb).max_size = 41];
+    optional uint32      handle     = 25;
+
+    // One of the following must be filled in,
+    // depending on type.
+    optional bool          halbit   = 100;
+    optional double        halfloat = 101;
+    optional sint32        hals32   = 102;
+    optional uint32        halu32   = 103;
+
+    optional sint32      owner      = 40;
+    optional bool        linked     = 50;
+    optional string      oldname    = 60   [(nanopb).max_size = 41];
+
+    optional double      epsilon    = 80;
+    optional uint32      flags      = 90;
+}
+
+message Signal {
+    optional ScalarType  type       = 10;
+    optional string      name       = 20  [(nanopb).max_size = 41];
+    optional uint32      handle     = 25;
+
+    optional bool          halbit   = 100;
+    optional double        halfloat = 101;
+    optional sint32        hals32   = 102;
+    optional uint32        halu32   = 103;
+
+
+    optional uint32      readers    = 50;
+    optional uint32      writers    = 60;
+    optional uint32      bidirs     = 70;
+}
+
+message Param {
+    optional ScalarType  type       = 10;
+    optional string      name       = 20   [(nanopb).max_size = 41];
+    optional uint32      handle     = 25;
+
+    optional bool          halbit   = 100;
+    optional double        halfloat = 101;
+    optional sint32        hals32   = 102;
+    optional uint32        halu32   = 103;
+
+    optional HalParamDirection pdir = 50;
+    optional string      oldname    = 60   [(nanopb).max_size = 41];
+    optional sint32      owner      = 70;
+    optional sint32      runtime    = 80;
+    optional sint32      maytime    = 90;
+}
+
+message Function {
+    optional string      name       = 20   [(nanopb).max_size = 41];
+    optional uint32      handle     = 25;
+}
+
+message Thread {
+    optional string      name       = 20   [(nanopb).max_size = 41];
+    optional uint32      handle     = 25;
+    optional bool        uses_fp    = 30;
+    optional uint32      period     = 40;
+    optional sint32      prioritiy  = 50;
+    optional uint32      task_id    = 60;
+    optional uint32      cpu_id     = 70;
+    repeated Function    functions  = 80   [(nanopb).max_count = 100];
+}
+
+message Component {
+    optional string      name          = 20   [(nanopb).max_size = 41];
+    optional uint32      handle        = 25;
+    optional sint32      comp_id       = 30;
+    optional uint32      type          = 40;
+    optional uint32      state         = 50;
+    optional uint32      last_update   = 60;
+    optional uint32      last_bound    = 70;
+    optional uint32      last_unbound  = 80;
+    optional uint32      pid           = 90;
+    repeated string      args          = 100   [(nanopb).max_count = 20,
+						(nanopb).max_size = 41];
+}
+
+message Ring {
+    optional string      name          = 20  [(nanopb).max_size = 41];
+    optional uint32      handle        = 25;
+    optional sint32      owner         = 40;
+    optional bool        stream        = 50;
+    optional bool        wmutex        = 60;
+    optional bool        rmutex        = 70;
+    optional bool        rtapi_shm     = 80;
+    optional sint32      reader        = 90;
+    optional sint32      writer        = 100;
+    optional sint32      size          = 110;
+    optional sint32      scratchpad    = 120;
+}
+
+
+message Member {
+    optional ObjectType  type          = 10;
+    optional string      name          = 20  [(nanopb).max_size = 41];
+    optional uint32      handle        = 25;
+    optional sint32      userarg1      = 30;
+    optional double      epsilon       = 40;
+
+    optional bool             halbit   = 100;
+    optional double           halfloat = 101;
+    optional sint32           hals32   = 102;
+    optional uint32           halu32   = 103;
+
+}
+
+message Group {
+    optional string      name          = 20  [(nanopb).max_size = 41];
+    optional uint32      handle        = 25;
+    optional sint32      id            = 30;
+    optional sint32      userarg1      = 50;
+    optional sint32      userarg2      = 60;
+    optional sint32      serial        = 70;
+    repeated Member      member        = 80;
+}
+
+message Object {
+
+    required ObjectType  type      = 10;
+
+    optional Value       value     = 20;
+    optional Originator  origin    = 30;
+    optional Instance    instance  = 40;
+
+    // HAL Objects
+    optional Pin         pin       = 100;
+    optional Signal      signal    = 110;
+    optional Param       param     = 120;
+    optional Thread      thread    = 130;
+    optional Component   comp      = 140;
+    optional Ring        ring      = 150;
+    optional Group       group     = 160;
+    optional Member      member    = 170;
+    optional Function    function  = 180;
+}

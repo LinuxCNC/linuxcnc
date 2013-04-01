@@ -1,0 +1,34 @@
+
+// XXX: unify this with ScalarType
+enum HalType {
+    HAL_BIT = 1;
+    HAL_FLOAT = 2;
+    HAL_S32 = 3;
+    HAL_U32 = 4;
+    // HAL_STRING = 5;
+}
+
+enum HalPinDirection {
+    HAL_IN = 16;
+    HAL_OUT = 32;
+    HAL_IO = 48; // (HAL_IN | HAL_OUT),
+}
+
+enum HalParamDirection {
+    HAL_RO = 64;
+    HAL_RW = 192;
+}
+
+enum HalObjectType {
+    HAL_PIN = 1;
+    HAL_SIGNAL = 2;
+    HAL_PARAM = 3;
+    HAL_THREAD = 4;
+    HAL_FUNCT = 5;
+    HAL_ALIAS = 6;
+    HAL_COMPONENT = 7;
+    HAL_RING = 8;
+    HAL_GROUP = 9;
+    HAL_MEMBER_SIGNAL = 10;
+    HAL_MEMBER_PIN = 11;
+}
