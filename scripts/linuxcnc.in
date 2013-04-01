@@ -453,7 +453,8 @@ function Cleanup() {
         echo -n "Waiting for other session to finish exiting..."
 	WAIT=$KILL_TIMEOUT
 	while [ $WAIT -gt 1 ]; do
-            if ! [ -f $LOCKFILE ]; then
+	    if ! LinuxcncRunning ; then
+#            if ! [ -f $LOCKFILE ]; then
                 echo " Ok"
                 return 0
             fi
@@ -498,15 +499,22 @@ function Cleanup() {
     done < $NMLFILE
 
 
-    # remove lock file
-    if [ -f $LOCKFILE ] ; then
-	rm $LOCKFILE
-    fi
+    # # remove lock file
+    # if [ -f $LOCKFILE ] ; then
+    # 	rm $LOCKFILE
+    # fi
 
     echo "Cleanup done"
 }
 
-
+function LinuxcncRunning() {
+    # 135612177 is the integer ID of the GLOBAL data segment:
+    # (GLOBAL_KEY 0x08154711). it is universally present for 
+    # all thread styles build options, and removed by 
+    # RTAPI rtapi_app_exit(). Hence it is a more reliable
+    # indication for 'RTAPI running' than a lock file.
+    grep 135612177  /proc/sysvipc/shm >/dev/null 2>&1
+}
 
 ################################################################################
 # 4. done with function definitions, execution resumes here
@@ -514,10 +522,10 @@ function Cleanup() {
 
 # Name of lock file to check for that signifies that LinuxCNC is up,
 # to prevent multiple copies of controller
-LOCKFILE=/tmp/linuxcnc.lock
+LOCKILE=/tmp/linuxcnc.lock
 
 # Check for lock file
-if [ -f $LOCKFILE ]; then
+if LinuxcncRunning ; then
   if tty -s; then
     echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
@@ -551,7 +559,7 @@ trap 'Cleanup ; exit 0' SIGINT SIGTERM
 cd "$INI_DIR"
 
 # Create the lock file
-touch $LOCKFILE
+#touch $LOCKFILE
 
 ################################################################################
 # 4.1. pop up intro graphic
