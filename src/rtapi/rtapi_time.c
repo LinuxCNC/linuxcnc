@@ -46,7 +46,7 @@ unsigned long timer_counts;
 
 
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
+void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 				 RTIME *got_counts);
 #endif
 
@@ -101,7 +101,7 @@ long int _rtapi_clock_set_period(long int nsecs) {
     /* kernel thread systems should init counts and
        rtapi_data->timer_period using their own timer functions */
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-    rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
+    _rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
     timer_counts = got_counts;
 #endif
 
@@ -118,14 +118,14 @@ long int _rtapi_clock_set_period(long int nsecs) {
 #endif  /* BUILD_SYS_KBUILD  */
 
 // rtapi_delay_hook MUST be implemented by all threads systems
-void rtapi_delay_hook(long int nsec);
+void _rtapi_delay_hook(long int nsec);
 
 void _rtapi_delay(long int nsec)
 {
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    rtapi_delay_hook(nsec);
+    _rtapi_delay_hook(nsec);
 }
 
 
@@ -139,10 +139,10 @@ long int _rtapi_delay_max(void)
 /* The following functions are common to both RTAPI and ULAPI */
 
 #ifdef HAVE_RTAPI_GET_TIME_HOOK
-long long int rtapi_get_time_hook(void);
+long long int _rtapi_get_time_hook(void);
 
 long long int _rtapi_get_time(void) {
-    return rtapi_get_time_hook();
+    return _rtapi_get_time_hook();
 }
 #elif defined(RTAPI)
 long long int _rtapi_get_time(void) {
@@ -164,7 +164,7 @@ long long _rtapi_get_time(void)
 #endif /* HAVE_RTAPI_GET_TIME_HOOK */
 
 #ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-long long int rtapi_get_clocks_hook(void);
+long long int _rtapi_get_clocks_hook(void);
 #endif
 
 long long int _rtapi_get_clocks(void) {
@@ -179,7 +179,7 @@ long long int _rtapi_get_clocks(void) {
     rdtscll(retval);
     return retval;
 #else
-    return rtapi_get_clocks_hook();
+    return _rtapi_get_clocks_hook();
 #endif  /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 }
 
