@@ -57,7 +57,9 @@ RTFLAGS = @RTFLAGS@ \
 	$(call cc-option,-mieee-fp) \
 	-fno-unsafe-math-optimizations \
 	@KERNEL_MATH_CFLAGS@
-RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+RTFLAGS := $(RTOPT) -g -I. -I@RTDIR@/include $(RTFLAGS) \
+	-DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0 \
+	$(RT_CFLAGS)
 USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -71,11 +73,11 @@ EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/linuxcnc
 RTLIBDIR := @EMC2_RTLIB_DIR@
 LIBDIR := @libdir@
 endif
-EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
+EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)  
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) RT_CFLAGS="$(RT_CFLAGS)" V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o
@@ -85,7 +87,7 @@ install:
 endif
 
 ifeq ($(BUILDSYS),user-dso)
-EXTRA_CFLAGS += -DSIM -fPIC
+EXTRA_CFLAGS +=  -fPIC $(FLAVOR_FLAGS)
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
