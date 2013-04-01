@@ -1,0 +1,130 @@
+
+ô
+object.protonanopb.prototypes.protovalue.proto"+
+Instance
+name (	B’?)
+
+id( ("†
+
+Originator
+origin
+ (2.OriginType
+detail (2.OriginDetail
+name (	B’?)
+
+id( (
+instance2 (2	.Instance"Þ
+Pin
+type
+ (2.ScalarType
+name (	B’?)
+handle (
+halbitd (
+halfloate (
+hals32f (
+halu32g (
+owner( (
+linked2 (
+oldname< (	B’?)
+epsilonP (
+flagsZ ("¼
+Signal
+type
+ (2.ScalarType
+name (	B’?)
+handle (
+halbitd (
+halfloate (
+hals32f (
+halu32g (
+readers2 (
+writers< (
+bidirsF ("ô
+Param
+type
+ (2.ScalarType
+name (	B’?)
+handle (
+halbitd (
+halfloate (
+hals32f (
+halu32g (
+pdir2 (2.HalParamDirection
+oldname< (	B’?)
+ownerF (
+runtimeP (
+maytimeZ ("/
+Function
+name (	B’?)
+handle ("§
+Thread
+name (	B’?)
+handle (
+uses_fp (
+period( (
+	prioritiy2 (
+task_id< (
+cpu_idF (#
+	functionsP (2	.FunctionB’?d"Ä
+	Component
+name (	B’?)
+handle (
+comp_id (
+type( (
+state2 (
+last_update< (
+
+last_boundF (
+last_unboundP (
+pidZ (
+argsd (	B
+’?’?)"¿
+Ring
+name (	B’?)
+handle (
+owner( (
+stream2 (
+wmutex< (
+rmutexF (
+	rtapi_shmP (
+readerZ (
+writerd (
+sizen (
+
+scratchpadx ("­
+Member
+type
+ (2.ObjectType
+name (	B’?)
+handle (
+userarg1 (
+epsilon( (
+halbitd (
+halfloate (
+hals32f (
+halu32g ("…
+Group
+name (	B’?)
+handle (
+
+id (
+userarg12 (
+userarg2< (
+serialF (
+memberP (2.Member"Ò
+Object
+type
+ (2.ObjectType
+value (2.Value
+origin (2.Originator
+instance( (2	.Instance
+pind (2.Pin
+signaln (2.Signal
+paramx (2.Param
+thread‚ (2.Thread
+compŒ (2
+.Component
+ring– (2.Ring
+group  (2.Group
+memberª (2.Member
+function´ (2	.Function

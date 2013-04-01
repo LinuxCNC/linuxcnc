@@ -1,0 +1,58 @@
+
+º
+message.protonanopb.prototypes.protoobject.protortapi_message.proto
+test.proto"›
+Command
+op
+ (2.CmdType
+serial (
+rsvp (2.ReplyRequired
+origin( (2.Originator
+args2 (2.ObjectB’?
+	timestamp< ("‡
+Response
+response (2	.RespType
+in_reply_to
+ (2.CmdType
+request_serial (
+status (2.StatusType
+origin (2.Originator
+	timestamp( (
+errormsg2 (	B’?d
+args< (2.ObjectB’?#
+failed_argsF (2.ObjectB’?"+
+
+NmlMessage
+type
+ (
+payload ("‰
+	Container
+length (
+type (2.MsgType
+command (2.Command
+response (2	.Response%
+rtapi_message (2.RTAPI_Message
+nml (
+motion (
+wou	 (
+syslog
+ (
+asciid (	
+unicodee (
+gcodef (	
+pythong (	
+pickleh (
+tcli (	
+xmlj (	
+jsonk (	
+jpegl (
+pngm (
+tiffn (
+
+postscripto (
+svgp (
+pru_firmware€ (
+mesa_5i20_firmware¸ (
+test1‰' (2.Test1
+test2Š' (2.Test2
+test3‹' (2.Test3
