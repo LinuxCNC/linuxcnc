@@ -105,12 +105,17 @@ RTAPI_BEGIN_DECLS
    location that is part of the HAL shared memory block. */
 
 #define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
-                       ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
+                       ((char *)(ptr)) < (hal_shmem_base + global_data->hal_size) )
 
 /** The good news is that none of this linked list complexity is
     visible to the components that use this API.  Complexity here
     is a small price to pay for simplicity later.
 */
+
+#ifndef MAX
+#define MAX(x, y) (((x) > (y))?(x):(y))
+#endif
+
 
 /***********************************************************************
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
@@ -323,10 +328,9 @@ typedef struct {
    the structs will be fully protected, with a clean shutdown and
    meaningfull error messages in case of a mismatch.
 */
-
-#define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
+#include "rtapi_shmkeys.h"
 #define HAL_VER   0x0000000C	/* version code */
-#define HAL_SIZE  262000
+//#define HAL_SIZE  262000
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these
