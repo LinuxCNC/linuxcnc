@@ -52,6 +52,7 @@ extern int do_start_cmd();
 extern int do_stop_cmd();
 extern int do_help_cmd(char *command);
 extern int do_lock_cmd(char *command);
+extern int do_log_cmd(char *type, char *level);
 extern int do_unlock_cmd(char *command);
 extern int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 extern int do_newsig_cmd(char *name, char *type);

@@ -51,6 +51,7 @@ static const char *command_table[] = {
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
     "addf", "delf", "show", "list", "status", "save", "source",
     "start", "stop", "quit", "exit", "help", "alias", "unalias", 
+    "log",
     NULL,
 };
 
@@ -86,6 +87,10 @@ static const char *status_table[] = {
 
 static const char *pintype_table[] = {
     "bit", "float", "u32", "s32", 
+    NULL
+};
+static const char *log_table[] = {
+    "rt", "user",
     NULL
 };
 
@@ -695,6 +700,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = completion_matches_table(text, pintype_table, func);
     } else if(startswith(buffer, "lock ") && argno == 1) {
         result = completion_matches_table(text, lock_table, func);
+    } else if(startswith(buffer, "log ") && argno == 1) {
+        result = completion_matches_table(text, log_table, func);
     } else if(startswith(buffer, "unlock ") && argno == 1) {
         result = completion_matches_table(text, unlock_table, func);
     } else if(startswith(buffer, "addf ") && argno == 1) {
