@@ -647,7 +647,7 @@ def build_usr(tempdir, filename, mode, origfilename):
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
     f.close()
-    result = os.system("cd %s; make -S %s" % (tempdir, binname))
+    result = os.system("cd %s && make -S %s" % (tempdir, binname))
     if result != 0:
         raise SystemExit, os.WEXITSTATUS(result) or 1
     output = os.path.join(tempdir, binname)
@@ -669,7 +669,7 @@ def build_rt(tempdir, filename, mode, origfilename):
         target = "modules install"
     else:
         target = "modules"
-    result = os.system("cd %s; make -S %s" % (tempdir, target))
+    result = os.system("cd %s && make -S %s" % (tempdir, target))
     if result != 0:
         raise SystemExit, os.WEXITSTATUS(result) or 1
     if mode == COMPILE:
