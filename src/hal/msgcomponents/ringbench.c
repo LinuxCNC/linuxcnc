@@ -13,6 +13,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private API decls */
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 volatile int go, done, rdone = 0;
 static int comp_id;		/* component ID */

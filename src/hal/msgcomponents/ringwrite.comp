@@ -13,6 +13,8 @@ variable hal_bit_t write_prev;
 ;;
 
 #include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
+
 #define BUFFERSIZE 100
 
 static char *ring = "ring_0";

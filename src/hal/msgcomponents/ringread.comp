@@ -13,6 +13,7 @@ license "GPLv2 or later";
 ;;
 
 #include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 static char *ring = "ring_0";
 RTAPI_MP_STRING(ring,  "name of ring to attach");

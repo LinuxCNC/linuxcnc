@@ -166,6 +166,7 @@ $(PBGEN)/%.pb-c.c $(PBGEN)/%.pb-c.h: $(PROTODIR)/%.proto
 	@mkdir -p $(PBGEN)
 	$(Q)$(PROTOC_C) $(PROTOC_FLAGS) \
 	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(PROTODIR)/ \
 	--proto_path=$(NPBGENDIR)/ \
 	--proto_path=$(DESCDIR)/ \
 	 --c_out=./$(PBGEN)/ $<

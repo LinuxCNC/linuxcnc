@@ -3,6 +3,7 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private API decls */
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 /* module information */
 MODULE_AUTHOR("Michael Haberler");

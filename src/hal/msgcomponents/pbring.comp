@@ -15,6 +15,7 @@ license "GPLv2 or later";
 ;;
 
 #include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 // the nanopb library and compile message definitions are brought in once
 // by 'halcmd loadrt nanopb'

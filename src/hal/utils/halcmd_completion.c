@@ -42,6 +42,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 static int argno;
 

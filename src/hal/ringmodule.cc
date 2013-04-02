@@ -9,6 +9,7 @@
 
 #include "hal.h"
 #include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
 
 namespace bp = boost::python;
 
