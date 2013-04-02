@@ -36,8 +36,9 @@ typedef struct {
     size_t scratchpad_size;
     size_t size_mask;    // stream mode only
     size_t size;         // common to stream and record mode
-    size_t head;
-    size_t tail;
+    size_t head __attribute__((aligned(16)));
+    u64    generation;
+    size_t tail __attribute__((aligned(16)));
 } ringheader_t;
 
 typedef struct {
@@ -68,6 +69,13 @@ typedef struct {
     char *buf;           // the actual ring storage (either HALmem or RTAPI shmsegs)
     void *scratchpad;
 } ringbuffer_t;
+
+typedef struct
+{
+    const ringbuffer_t *ring;
+    u64   generation;
+    size_t offset;
+} ringiter_t;
 
 typedef struct {
     void * rv_base;
