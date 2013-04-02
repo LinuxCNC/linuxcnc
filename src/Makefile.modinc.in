@@ -107,10 +107,21 @@ getobjs = $(if $(filter undefined, $(origin $(1)-objs)), $(1).o, $($(1)-objs))
 getsrcs = $(patsubst %.o,%.c,$(call getobjs,$(1)))
 
 maks := $(patsubst %.o,.%.modinc,$(obj-m))
+$(foreach mod,$(patsubst %.o,%,$(obj-m)),\
+	$(eval $(mod).so: $(call getobjs,$(mod))))
+%.o: %.c
+	$(ECHO) Compiling realtime $<
+	$(Q)$(CC) -o $@ $(EXTRA_CFLAGS) -c $<
+
+IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 
 .PHONY: %.so
 %.so:
-	$(CC) -shared -o $@ $(EXTRA_CFLAGS) $(call getsrcs,$*)
+	$(ECHO) Linking $@
+	$(Q)ld -d -r -o $*.tmp $^
+	$(Q)if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary $*.tmp $*.exp; fi
+	$(Q)if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < $*.exp | grep -ve '^-G $$' | sort -u` $*.tmp; fi
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $*.tmp -lm
 endif
 
 ifeq ($(BUILDSYS),normal)
