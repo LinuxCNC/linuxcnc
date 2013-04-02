@@ -150,6 +150,7 @@ struct halcmd_command halcmd_commands[] = {
     {"loadrt",  FUNCT(do_loadrt_cmd),  A_ONE | A_PLUS },
     {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS },
     {"lock",    FUNCT(do_lock_cmd),    A_ONE | A_OPTIONAL },
+    {"log",     FUNCT(do_log_cmd),     A_TWO | A_OPTIONAL},
     {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
     {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
     {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL },
