@@ -41,6 +41,7 @@ int ring_init(ringbuffer_t *ring, size_t size, void * memory)
 	    return ENOMEM;
 	ring->header->size = size;
 	ring->header->head = ring->header->tail = 0;
+	ring->header->generation = 0;
     } else
 	ring->header = memory;
     ring->buf = (char *) (ring->header + 1);
