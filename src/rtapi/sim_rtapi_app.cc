@@ -332,7 +332,6 @@ static int slave(int fd, vector<string> args) {
 }
 
 static int master(int fd, vector<string> args) {
-    dlopen(NULL, RTLD_GLOBAL);
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     if(args.size()) { 
         int result = handle_command(args);
