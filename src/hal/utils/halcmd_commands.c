@@ -2963,7 +2963,7 @@ int do_newpin_cmd(char *comp_name, char *pin_name, char *type_name, char *args[]
     int retval;
     hal_type_t type = HAL_BIT; // shut up warnin
     hal_pin_dir_t dir = HAL_IN;
-    hal_comp_t *comp __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
     hal_pin_t *pin;
     char *s,*cp;
     double epsilon  = CHANGE_DETECT_EPSILON;

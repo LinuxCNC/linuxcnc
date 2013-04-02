@@ -94,16 +94,6 @@ typedef struct {
 #define USE_WMUTEX       _BIT(18)
 
 
-// auto-release the HAL mutex on scope exit
-// if a local variable is declared like so:
-//
-// int foo  __attribute__((cleanup(hal_autorelease_mutex)));
-//
-// then leaving foo's scope will cause halpr_release_lock() to be called
-// see http://git.mah.priv.at/gitweb?p=emc2-dev.git;a=shortlog;h=refs/heads/hal-lock-unlock
-// make sure the mutex is actually held in the using code when leaving scope!
-void hal_autorelease_mutex(void *variable);
-
 // generic ring methods for all modes:
 
 /* create a named ringbuffer, owned by comp module_id

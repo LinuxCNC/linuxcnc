@@ -487,6 +487,16 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
 
+// auto-release the HAL mutex on scope exit
+// if a local variable is declared like so:
+//
+// int foo  __attribute__((cleanup(halpr_autorelease_mutex)));
+//
+// then leaving foo's scope will cause halpr_release_lock() to be called
+// see http://git.mah.priv.at/gitweb?p=emc2-dev.git;a=shortlog;h=refs/heads/hal-lock-unlock
+// make sure the mutex is actually held in the using code when leaving scope!
+void halpr_autorelease_mutex(void *variable);
+
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

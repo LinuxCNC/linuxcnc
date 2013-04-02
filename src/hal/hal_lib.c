@@ -305,7 +305,7 @@ int hal_init_mode(const char *name, int type)
 #if defined(ULAPI)
 int hal_bind(const char *comp_name)
 {
-    hal_comp_t *comp __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
 
     rtapi_mutex_get(&(hal_data->mutex));
     comp = halpr_find_comp_by_name(comp_name);
@@ -334,7 +334,7 @@ int hal_bind(const char *comp_name)
 
 int hal_unbind(const char *comp_name)
 {
-    hal_comp_t *comp __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
 
     rtapi_mutex_get(&(hal_data->mutex));
     comp = halpr_find_comp_by_name(comp_name);
@@ -364,7 +364,7 @@ int hal_unbind(const char *comp_name)
 
 int hal_reown(const char *comp_name, int pid)
 {
-    hal_comp_t *comp __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
 
     rtapi_mutex_get(&(hal_data->mutex));
     comp = halpr_find_comp_by_name(comp_name);
@@ -399,7 +399,7 @@ int hal_reown(const char *comp_name, int pid)
 
 int hal_disown(const char *comp_name, int pid)
 {
-    hal_comp_t *comp __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
 
     rtapi_mutex_get(&(hal_data->mutex));
     comp = halpr_find_comp_by_name(comp_name);
@@ -442,7 +442,7 @@ int hal_retrieve_compstate(const char *comp_name,
     int next;
     int nvisited = 0;
     int result;
-    hal_comp_t *comp  __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
     hal_compstate_t state;
 
     if (hal_data == 0) {
@@ -505,7 +505,7 @@ int hal_retrieve_pinstate(const char *comp_name,
     int next;
     int nvisited = 0;
     int result;
-    hal_pin_t *pin __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_pin_t *pin __attribute__((cleanup(halpr_autorelease_mutex)));
     hal_comp_t *comp = NULL;
     hal_comp_t *owner;
     hal_pinstate_t pinstate;
@@ -3334,7 +3334,7 @@ int halpr_member_delete(const char *group, const char *member)
 
 #endif
 
-void hal_autorelease_mutex(void *variable)
+void halpr_autorelease_mutex(void *variable)
 {
     if (hal_data != NULL)
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -3360,9 +3360,13 @@ static hal_ring_t *find_ring_by_name(const char *name)
     return 0;
 }
 
+/***********************************************************************
+*                     Public HAL ring functions                        *
+************************************************************************/
+
 int hal_ring_new(const char *name, int size, int sp_size, int module_id, int flags)
 {
-    hal_ring_t *rbdesc, *ptr __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_ring_t *rbdesc, *ptr __attribute__((cleanup(halpr_autorelease_mutex)));
     int *prev, next, cmp;
     int req_size;     // size of ringbuffer_t.buf - depends on alignment per mode
     void *p;
@@ -3517,7 +3521,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 
 int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id)
 {
-    hal_ring_t *rbdesc __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int retval;
 
     if (hal_data == 0) {
@@ -3580,7 +3584,7 @@ int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id)
 
 int hal_ring_delete(const char *name, int force)
 {
-    hal_ring_t *rbdesc __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int next,*prev;
 
     if (hal_data == 0) {
@@ -3635,6 +3639,7 @@ int hal_ring_delete(const char *name, int force)
 		    "HAL: ERROR: hal_ring_delete: no such ring '%s'\n", name);
     return -EINVAL;
 }
+
 
 /***********************************************************************
 *                     LOCAL FUNCTION CODE                              *

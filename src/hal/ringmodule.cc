@@ -246,7 +246,7 @@ static int ring_delete(const char *name)
 static list ring_names (void)
 {
     bp::list result;
-    hal_ring_t *ring __attribute__((cleanup(hal_autorelease_mutex)));
+    hal_ring_t *ring __attribute__((cleanup(halpr_autorelease_mutex)));
     int next;
 
     rtapi_mutex_get(&(hal_data->mutex));
