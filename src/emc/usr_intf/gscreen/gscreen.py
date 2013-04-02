@@ -488,6 +488,9 @@ class Gscreen:
         else:
             self.initialize_preferences()
 
+        # check for ladder loaded
+        self.data.is_ladder = hal.component_exists('classicladder_rt')
+
         # get the system wide theme
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
@@ -1328,6 +1331,13 @@ class Gscreen:
     def on_halscope(self,*args):
         p = os.popen("halscope  > /dev/null &","w")
 
+    def on_ladder(self,*args):
+        if  hal.component_exists('classicladder_rt'):
+            p = os.popen("classicladder  &","w")
+        else:
+            self.notify(_("INFO:"),_("Classicladder realtime component not detected"),INFO_ICON)
+            self.add_alarm_entry(_("ladder not available - is the realtime component loaded?"))
+
     # estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         print "estopping / killing gscreen"
@@ -1711,6 +1721,7 @@ class Gscreen:
                         ["run_status","clicked", "on_status"],
                         ["run_halmeter","clicked", "on_halmeter"],
                         ["run_halscope","clicked", "on_halscope"],
+                        ["run_ladder","clicked", "on_ladder"],
                         ["hide_cursor","clicked", "on_hide_cursor"],
                         ["button_homing","clicked", "homing"],
                         ["button_override","clicked", "override"],
