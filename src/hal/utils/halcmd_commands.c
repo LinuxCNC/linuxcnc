@@ -933,6 +933,45 @@ static int get_type(char ***patterns) {
     return -1;
 }
 
+int do_log_cmd(char *type, char *level)
+{
+    char *lp = level;
+    int ivalue;
+
+    if (type == NULL) {
+	halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
+		  global_data->rt_msg_level, global_data->user_msg_level);
+	return 0;
+    }
+    if (level == NULL)  {
+	if (strcasecmp(type, "rt") == 0) {
+	    halcmd_output("%d\n", global_data->rt_msg_level);
+	} else if (strcasecmp(type, "user") == 0) {
+	    halcmd_output("%d\n", global_data->user_msg_level);
+	} else {
+	    halcmd_error("log: invalid loglevel type '%s' - expected 'rt' or 'user'\n", type);
+	    return -EINVAL;
+	}
+	return 0;
+    } 
+    ivalue = strtol(level, &lp, 0);
+    if ((*lp != '\0') && (!isspace(*lp))) {
+	/* invalid chars in string */
+	halcmd_error("value '%s' invalid for interger\n", level);
+	return -EINVAL;
+    } else {
+	if (strcasecmp(type, "rt") == 0) {
+	    global_data->rt_msg_level = ivalue;
+	} else if (strcasecmp(type, "user") == 0) {
+	    global_data->user_msg_level = ivalue;
+	} else {
+	    halcmd_error("log: invalid loglevel type '%s' - expected 'rt' or 'user'\n", type);
+	    return -EINVAL;
+	}
+	return 0;
+    }
+}
+
 int do_show_cmd(char *type, char **patterns)
 {
 
