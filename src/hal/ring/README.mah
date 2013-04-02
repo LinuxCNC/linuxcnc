@@ -1,0 +1,15 @@
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1 65536 16381
+Segmentation fault (core dumped)
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1 65536 8192
+Segmentation fault (core dumped)
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1 65536 4096
+dt=0.000000s, nsecs per msg: 0
+overruns 0 underruns 9249
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1000000 1000000 100
+dt=0.220000s, nsecs per msg: 220
+overruns 1169 underruns 3541810
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1000000 1000000 1000
+dt=0.400000s, nsecs per msg: 400
+overruns 302504 underruns 9930147
+mah@ubuntu-10:/bighome/mah/src/kernel-playground/ring-mah$ ./mttest 1000000 1000000 10000
+Segmentation fault (core dumped)
