@@ -139,7 +139,7 @@ static inline ring_size_t * _size_at(const ringbuffer_t *rb, const size_t off) /
  */
 static inline int hal_record_write_begin(ringbuffer_t *ring, void ** data, size_t sz)
 {
-    int free;
+    size_t free;
     ringheader_t *h = ring->header;
     size_t a = size_aligned(sz + sizeof(ring_size_t));
     if (a > h->size)
