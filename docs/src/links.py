@@ -3,6 +3,26 @@
 
 import os, sys
 
+if not hasattr(os.path, 'relpath'):
+    # backported from python2.6 posixpath.py, needed in python 2.5 and older
+    # (i.e., Ubuntu Hardy)
+    def relpath(path, start=curdir):
+        """Return a relative version of a path"""
+
+        if not path:
+            raise ValueError("no path specified")
+
+        start_list = abspath(start).split(sep)
+        path_list = abspath(path).split(sep)
+
+        # Work out how much of the filepath is shared by start and path.
+        i = len(commonprefix([start_list, path_list]))
+
+        rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return curdir
+    os.path.relpath = relpath
+
 path = '.'
 if len(sys.argv) < 3:
     sys.stderr.write("Usage: %s links.db link [path]\n" % sys.argv[0])
