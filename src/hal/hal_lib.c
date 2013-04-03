@@ -3492,6 +3492,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	rbdesc->rhdr.size_mask = rbdesc->rhdr.size -1;
     } else {
 	// default to MODE_RECORD
+	rbdesc->rhdr.generation = 0;
     }
 
     /* search list for 'name' and insert new structure */

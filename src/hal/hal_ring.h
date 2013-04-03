@@ -18,7 +18,7 @@ RTAPI_BEGIN_DECLS
 
 
 // record mode: Negative numbers are needed for skips
-typedef int ring_size_t;
+typedef s32 ring_size_t;
 
 // the ringbuffer shared data as exposed to a user
 // this is part of HAL shared memory and member of hal_ring_t
@@ -64,6 +64,7 @@ typedef struct {
 // the optional scratchpad, which is created if spsize is > 0
 // on hal_ring_new(). The scratchpad size is recorded in
 // ringheader_t.scratchpad_size.
+
 typedef struct {
     ringheader_t *header;
     char *buf;           // the actual ring storage (either HALmem or RTAPI shmsegs)
@@ -154,15 +155,12 @@ int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id);
  */
 //ring_size_t hal_record_next_size(ringbuffer_t *h);
 
-/* return a ringvec_t to read the next record
- */
-//ringvec_t hal_record_next_vec(ringbuffer_t *ring);
 
 /* advance ring buffer by one record after consuming data
- * with hal_record_next/hal_record_next_size/hal_record_next_iovec
+ * with hal_record_next/hal_record_next_size
  *
- * NB: without hal_record_shift(), hal_record_next/hal_record_next_size/
- * hal_record_next_iovec are in effect a peek operation
+ * NB: without hal_record_shift(), hal_record_next/hal_record_next_size
+ * are in effect a peek operation
  */
 //void hal_record_shift(ringbuffer_t *h);
 
@@ -186,113 +184,172 @@ int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id);
 #define RB_ALIGN 8
 
 // Round up X to closest upper alignment boundary
-static inline ring_size_t size_aligned(const ring_size_t x)
+static inline ring_size_t size_aligned(const ring_size_t x) // OK
 {
     return x + (-x & (RB_ALIGN - 1));
 }
 
-static inline ring_size_t * _size_at(const ringbuffer_t *rb, const size_t off)
+static inline ring_size_t * _size_at(const ringbuffer_t *rb, const size_t off) // OK
 {
     return (ring_size_t *) (rb->buf + off);
 }
 
-static inline int hal_record_write(ringbuffer_t *rb, void * data, size_t sz)
+/* hal_record_write_begin():
+ *
+ * begin a zero-copy write operation for at least sz bytes. This povides a buffer
+ * to write to within free ringbuffer space.
+ *
+ * return 0 if there is sufficient space for the requested size
+ * return EAGAIN if there is currently insufficient space
+ * return ERANGE if the write size exceeds the ringbuffer size.
+ *
+ * The write needs to be committed with a corresponding hal_record_write_end()
+ * operation whose size argument must be less or equal to the size requested in
+ * hal_record_write_begin().
+ */
+static inline int hal_record_write_begin(ringbuffer_t *ring, void ** data, size_t sz)
 {
     int free;
-    ringheader_t *h = rb->header;
+    ringheader_t *h = ring->header;
     size_t a = size_aligned(sz + sizeof(ring_size_t));
-
-    if (a > h->size) {
-	// printf("a=%d h->size=%d\n",a,h->size);
+    if (a > h->size)
 	return ERANGE;
-    }
-    // -1 + 1 is needed for head==tail
-    free = (h->size + h->head - h->tail - 1) % h->size + 1;
 
+    free = (h->size + h->head - h->tail - 1) % h->size + 1; // -1 + 1 is needed for head==tail
+
+    //printf("Free space: %d; Need %zd\n", free, a);
     if (free <= a) return EAGAIN;
     if (h->tail + a > h->size) {
 	if (h->head <= a)
 	    return EAGAIN;
-	// Wrap
-	*_size_at(rb, h->tail) = -1;
-
-	rtapi_smp_wmb();
-
-	h->tail = 0;
+	*data = _size_at(ring, 0) + 1;
+	return 0;
     }
-    *_size_at(rb, h->tail) = sz;
-    memmove(rb->buf + h->tail + sizeof(ring_size_t), data, sz);
-
-    rtapi_smp_wmb();
-
-    h->tail = (h->tail + a) % h->size;
+    *data = _size_at(ring, h->tail) + 1;
     return 0;
 }
 
-static inline void *hal_record_next(ringbuffer_t *rb)
+/* hal_record_write_end()
+ * 
+ * commit a zero-copy write to the ring which was started by hal_record_write_begin().
+ * sz on hal_record_write_end() must be less equal to the size requested in 
+ * the corresponding hal_record_write_begin().
+ */
+static inline int hal_record_write_end(ringbuffer_t *ring, void * data, size_t sz) 
 {
-    ringheader_t *h = rb->header;
-
-    if (h->head == h->tail)
-	return 0;
-
-    rtapi_smp_rmb();
-
-    return rb->buf + h->head + sizeof(ring_size_t);
-}
-
-static inline ring_size_t hal_record_next_size(ringbuffer_t *rb)
-{
-    ring_size_t sz;
-    ringheader_t *h = rb->header;
-
-    if (h->head == h->tail)
-	return -1;
-
-    sz = *_size_at(rb, h->head);
-    if (sz >= 0) return sz;
-
-    h->head = 0;
-    return hal_record_next_size(rb);
-}
-
-static inline ringvec_t hal_record_next_vec(ringbuffer_t *ring)
-{
-    ringvec_t vec;
-    ring_size_t size = hal_record_next_size(ring);
-
-    if (size < 0) {
-#ifdef __cplusplus
-	static const ringvec_t vec = { NULL, 0 };
-#else
-	static const ringvec_t vec = { .rv_base = NULL, .rv_len = 0 };
-#endif
-	return vec;
+    ringheader_t *h = ring->header;
+    size_t a = size_aligned(sz + sizeof(ring_size_t));
+    if (data == _size_at(ring, 0) + 1) {
+	// Wrap
+	*_size_at(ring, h->tail) = -1;
+	h->tail = 0;
     }
-    vec.rv_len = size;
-    vec.rv_base = hal_record_next(ring);
-    return vec;
+    *_size_at(ring, h->tail) = sz;
+    // mah: see [2]:144
+    // PaUtil_WriteMemoryBarrier(); ???
+
+    // mah: see [6]:69
+    // should this be CAS(&(h->tail, h->tail, h->tail+a) ?
+    h->tail = (h->tail + a) % h->size;
+    //printf("New head/tail: %zd/%zd\n", h->head, h->tail);
+    return 0;
 }
 
-static inline void hal_record_shift(ringbuffer_t *rb)
+/* hal_record_write()
+ * 
+ * copying write operation from an existing buffer. 
+ *
+ * return 0 if there is sufficient space
+ * return EAGAIN if there is currently insufficient space
+ * return ERANGE if the write size exceeds the ringbuffer size.
+ */
+static inline int hal_record_write(ringbuffer_t *rb, void * data, size_t sz) // OK
 {
-    ring_size_t size;
-    ringheader_t *h = rb->header;
-
-    if (h->head == h->tail)
-	return;
-
-    rtapi_smp_mb();
-
-    size = *_size_at(rb, h->head);
-    if (size < 0) {
-	h->head = 0;
-	return;
-    }
-    size = size_aligned(size + sizeof(ring_size_t));
-    h->head = (h->head + size) % h->size;
+    void * ptr;
+ 
+   int r = hal_record_write_begin(rb, &ptr, sz);
+    if (r) return r;
+    memmove(ptr, data, sz);
+    return hal_record_write_end(rb, ptr, sz);
 }
 
+/* internal use function
+ */
+static inline int _ring_read_at(const ringbuffer_t *ring, size_t offset,
+				const void **data, size_t *size) // OK
+{
+    ring_size_t *sz;
+    ringheader_t *h = ring->header;
+    if (offset == h->tail)
+	return EAGAIN;
+
+    // mah: see [2]:181
+    // PaUtil_ReadMemoryBarrier(); ???
+
+    //printf("Head/tail: %zd/%zd\n", h->head, h->tail);
+    sz = _size_at(ring, offset);
+    if (*sz < 0)
+        return _ring_read_at(ring, 0, data, size);
+
+    *size = *sz;
+    *data = sz + 1;
+    return 0;
+}
+
+/* hal_record_read()
+ * 
+ * non-copying read operation.
+ *
+ * Fail with EAGAIN if no data available.
+ * Otherwise set data to point to the current record, and size to the size of the
+ * current record.
+ *
+ * Note this is a 'peek' operation, it does not advance the read pointer to the next
+ * record. To actually consume the record, call hal_record_shift() after processing.
+ */
+static inline int hal_record_read(const ringbuffer_t *rb, const void **data, size_t *size)
+{
+    return _ring_read_at(rb, rb->header->head, data, size);
+}
+
+/* hal_record_next()
+ *
+ * test for data available. Return zero if none, else pointer to the data field
+ * of the next available record.
+ */
+static inline const void *hal_record_next(ringbuffer_t *rb)
+{
+    const void *data;
+    size_t size;
+    if (hal_record_read(rb, &data, &size)) return 0;
+    return data;
+}
+
+/* hal_record_next_size()
+ *
+ * retrieve the size of the next available record. 
+ * Return -1 if no data available.
+ *
+ * Note that zero-length records are supported and valid.
+ */
+static inline ring_size_t hal_record_next_size(ringbuffer_t *rb) // CHANGED
+{
+    const void *data;
+    size_t size;
+    if (hal_record_read(rb, &data, &size)) return -1;
+    return size;
+}
+
+/* hal_record_write_space()
+ * 
+ * return the size of the largest record which can be currently written
+ * without failure.
+ *
+ * Note this does not retrieve the amount of free space in the buffer which 
+ * might be larger than the value returned; however, this space maye not be written
+ * by records larger than returned by hal_record_write_space() (i.e. many small
+ * writes may be possible which are in sum larger than the value returned here).
+ */
 static inline size_t hal_record_write_space(const ringheader_t *h)
 {
     int avail = 0;
@@ -304,11 +361,101 @@ static inline size_t hal_record_write_space(const ringheader_t *h)
     return MAX(0, avail - (2 * RB_ALIGN));
 }
 
+/* hal_record_flush()
+ *
+ * clear the buffer. 
+ * NB: this is not thread safe.
+ */
 static inline void hal_record_flush(ringbuffer_t *rb)
 {
     ringheader_t *h = rb->header;
+    // FIXME - bump generation to invalidate iterator?
+    h->generation++;
     h->head = h->tail;
 }
+
+/* internal function */
+static ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) // OK
+{
+    ring_size_t size;
+    ringheader_t *h = ring->header;
+    if (h->head == h->tail)
+	return -1;
+    // mah: [2]:192
+    // PaUtil_FullMemoryBarrier(); ???
+    size = *_size_at(ring, offset);
+    if (size < 0)
+	return _ring_shift_offset(ring, 0);
+    size = size_aligned(size + sizeof(ring_size_t));
+    return (offset + size) % h->size;
+}
+
+/* hal_record_shift()
+ *
+ * consume a record in the ring buffer. 
+ * used with a corresponding hal_record_read().
+ *
+ * example processing loop:
+ *
+ * void *data;
+ * size_t size;
+ *
+ * while (hal_record_read(ring, &data, &size)) {
+ *    // process(data,size)
+ *    hal_record_shift(ring); 
+ * }
+ */
+static inline void hal_record_shift(ringbuffer_t *rb) // OK
+{
+    ring_size_t off = _ring_shift_offset(rb, rb->header->head);
+    if (off < 0) return;
+    rb->header->generation++;
+    rb->header->head = off;
+}
+
+// iterator functions
+
+static inline int hal_record_iter_init(const ringbuffer_t *ring,
+				       ringiter_t *iter) // OK
+{
+    iter->ring = ring;
+    iter->generation = ring->header->generation;
+    iter->offset = ring->header->head;
+    if (ring->header->generation != iter->generation)
+        return EAGAIN;
+    return 0;
+}
+
+static inline int hal_record_iter_invalid(const ringiter_t *iter)// OK
+{
+    if (iter->ring->header->generation > iter->generation)
+        return EINVAL;
+    return 0;
+}
+
+static inline int hal_record_iter_shift(ringiter_t *iter)// OK
+{
+    ring_size_t off;
+
+    if (hal_record_iter_invalid(iter)) return EINVAL;
+    off = _ring_shift_offset(iter->ring, iter->offset);
+    if (off < 0) return EAGAIN;
+//    printf("Offset to %zd\n", off);
+    iter->generation++;
+    iter->offset = off;
+    return 0;
+}
+
+static inline int hal_record_iter_read(const ringiter_t *iter,
+				       const void **data, size_t *size)// OK
+{
+    if (hal_record_iter_invalid(iter)) return EINVAL;
+
+//    printf("Read at %zd\n", iter->offset);
+    return _ring_read_at(iter->ring, iter->offset, data, size);
+}
+
+// observer accessors:
 
 static inline int hal_ring_isstream(ringbuffer_t *rb)
 {
@@ -347,9 +494,6 @@ static unsigned inline next_power_of_two(unsigned v) {
     v++;
     return v;
 }
-
-
-
 
 
 //  SMP barriers adapted from:
