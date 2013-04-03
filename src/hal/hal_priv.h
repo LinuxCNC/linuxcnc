@@ -225,7 +225,6 @@ typedef struct {
     int group_free_ptr;	        /* list of free group structs */
     int member_free_ptr;	/* list of free member structs */
     int ring_free_ptr;          /* list of free ring structs */
-    int ring_deleted_ptr;       /* list of deletd rings - keep for dangling refs */
 } hal_data_t;
 
 

@@ -2,6 +2,7 @@
 #define HAL_RING_H
 #include <rtapi.h>
 #include "rtapi_mbarrier.h"	/* memory barrier primitves */
+#include "rtapi_ring.h"	/* memory barrier primitves */
 
 #if defined(BUILD_SYS_USER_DSO)
 #include <stdbool.h>
@@ -16,42 +17,12 @@
 
 RTAPI_BEGIN_DECLS
 
-
-// record mode: Negative numbers are needed for skips
-typedef s32 ring_size_t;
-
-// the ringbuffer shared data as exposed to a user
-// this is part of HAL shared memory and member of hal_ring_t
-//
-// defaults: record mode, HAL memory, no rmutex/wmutex use
 typedef struct {
     char name[HAL_NAME_LEN + 1];  // ring HAL name
-    bool is_stream;      // record or stream mode
-    bool use_rtapishm;   // use RTAPI shm segment (default: HAL memory)
-    bool use_rmutex;     // hint to using code - use ringheader_t.rmutex
-    bool use_wmutex;     // hint to using code - use ringheader_t.wmutex
-
-    int reader, writer;  // HAL module id's - informational
-    unsigned long rmutex, wmutex; // optional use - if used by multiple readers/writers
-    size_t scratchpad_size;
-    size_t size_mask;    // stream mode only
-    size_t size;         // common to stream and record mode
-    size_t head __attribute__((aligned(16)));
-    u64    generation;
-    size_t tail __attribute__((aligned(16)));
-} ringheader_t;
-
-typedef struct {
     // private
     int next_ptr;		 // next ring in free list
-    int owner;                   // creating HAL module
-    // if rhdr.uses_rtapishm nonzero, use am RTAPI shm segment
-    int shm_handle;              // as returned by rtapi_shmem_new
-    int shm_key;                 // HAL_RING_SHM_KEY + running serial
-    //  if rhdr.uses_rtapishm nonzero, this points to HAL memory
-    unsigned int hal_buf_offset;
-    // public: the ring descriptor - this part is visible to using code
-    ringheader_t rhdr;
+    int ring_id;                 // RTAPI ring handle as returned by rtapi_ring_new
+    int owner;                   // creating HAL module 
 } hal_ring_t;
 
 // descriptor structure for an accessible (attached) ringbuffer
@@ -65,42 +36,7 @@ typedef struct {
 // on hal_ring_new(). The scratchpad size is recorded in
 // ringheader_t.scratchpad_size.
 
-typedef struct {
-    ringheader_t *header;
-    char *buf;           // the actual ring storage (either HALmem or RTAPI shmsegs)
-    void *scratchpad;
-} ringbuffer_t;
 
-typedef struct
-{
-    const ringbuffer_t *ring;
-    u64   generation;
-    size_t offset;
-} ringiter_t;
-
-typedef struct {
-    void * rv_base;
-    int rv_len;
-} ringvec_t;
-
-// mode flags passed in by hal_ring_new
-// exposed in ringheader_t.mode
-//#define MODE_RECORD      _BIT(0)
-#define MODE_STREAM      _BIT(1)
-
-// hal_ring_t.flags bits:
-//#define ALLOC_HALMEM         _BIT(2)  default
-#define ALLOC_RTAPISHMSEG    _BIT(3)
-// future non-HAL/RTAPI use:
-// #define ALLOC_MALLOC         _BIT(4)  // inproc use only
-// #define ALLOC_MMAP           _BIT(5)
-
-// force deallocation of RTAPI shm segment, and put ring descriptor onto free list
-// instead of deleted list (might not be a good idea if still in use)
-#define FORCE_DEALLOC    _BIT(16)
-
-#define USE_RMUTEX       _BIT(17)
-#define USE_WMUTEX       _BIT(18)
 
 
 // generic ring methods for all modes:
@@ -181,13 +117,7 @@ int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id);
  */
 //void hal_record_flush(ringbuffer_t *h);
 
-#define RB_ALIGN 8
 
-// Round up X to closest upper alignment boundary
-static inline ring_size_t size_aligned(const ring_size_t x) // OK
-{
-    return x + (-x & (RB_ALIGN - 1));
-}
 
 static inline ring_size_t * _size_at(const ringbuffer_t *rb, const size_t off) // OK
 {
@@ -462,10 +392,10 @@ static inline int hal_ring_isstream(ringbuffer_t *rb)
     return rb->header->is_stream;
 }
 
-static inline const char * hal_ring_name(ringbuffer_t *rb)
-{
-    return rb->header->name;
-}
+/* static inline const char * hal_ring_name(ringbuffer_t *rb) */
+/* { */
+/*     return rb->header->name; */
+/* } */
 
 static inline int hal_ring_use_wmutex(ringbuffer_t *rb)
 {
@@ -480,19 +410,6 @@ static inline int hal_ring_use_rmutex(ringbuffer_t *rb)
 static inline int hal_ring_scratchpad_size(ringbuffer_t *rb)
 {
     return rb->header->scratchpad_size;
-}
-
-// compute the next highest power of 2 of 32-bit v
-// http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-static unsigned inline next_power_of_two(unsigned v) {
-    v--;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v++;
-    return v;
 }
 
 

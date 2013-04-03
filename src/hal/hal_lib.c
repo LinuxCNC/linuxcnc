@@ -186,7 +186,7 @@ static void free_member_struct(hal_member_t * member);
 static hal_group_t *find_group_by_name(const char *group);
 static hal_group_t *find_group_of_member(const char *member);
 
-static void free_ring_struct(hal_ring_t * ring, int force);
+static void free_ring_struct(hal_ring_t * ring);
 static hal_ring_t *alloc_ring_struct(void);
 static ring_size_t size_aligned(ring_size_t x);
 
@@ -3338,6 +3338,10 @@ void halpr_autorelease_mutex(void *variable)
 {
     if (hal_data != NULL)
 	rtapi_mutex_give(&(hal_data->mutex));
+
+    // programming error
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: halpr_autorelease_mutex called before hal_data inited\n");
 }
 
 static hal_ring_t *find_ring_by_name(const char *name)
@@ -3349,7 +3353,7 @@ static hal_ring_t *find_ring_by_name(const char *name)
     next = hal_data->ring_list_ptr;
     while (next != 0) {
 	ring = SHMPTR(next);
-	if (strcmp(ring->rhdr.name, name) == 0) {
+	if (strcmp(ring->name, name) == 0) {
 	    /* found a match */
 	    return ring;
 	}
@@ -3368,14 +3372,13 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 {
     hal_ring_t *rbdesc, *ptr __attribute__((cleanup(halpr_autorelease_mutex)));
     int *prev, next, cmp;
-    int req_size;     // size of ringbuffer_t.buf - depends on alignment per mode
-    void *p;
-
-    static int ring_id = 0; // running id for new shm segments
+    int ring_id;
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_ring_new called before init\n");
+			"HAL: ERROR: hal_ring_new called before init\n");
+	// this will cause a second error message from halpr_autorelease_mutex()
+	// but not do any harm
 	return -EINVAL;
     }
 
@@ -3389,113 +3392,47 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
     }
     if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: ring name '%s' is too long\n", name);
+			"HAL: ERROR: ring name '%s' is too long\n", name);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_ring_new called while HAL locked\n");
+			"HAL: ERROR: hal_ring_new called while HAL locked\n");
 	return -EPERM;
     }
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating ring '%s'\n", name);
 
     // make sure no such ring name already exists
-    ptr = find_ring_by_name(name);
-    if (ptr != 0) {
+    if ((ptr = find_ring_by_name(name)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: ring '%s' already defined\n", name);
+			"HAL: ERROR: ring '%s' already defined\n", name);
 	return -EEXIST;
     }
-    /* allocate a new ring descriptor */
-    rbdesc = alloc_ring_struct();
-    if (rbdesc == 0) {
-	/* alloc failed */
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating ring '%s'\n", name);
+
+    // allocate a new ring descriptor 
+    if ((rbdesc = alloc_ring_struct()) == 0) {
+	// alloc failed 
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: insufficient memory for ring '%s'\n", name);
 	return -ENOMEM;
     }
 
-    rtapi_snprintf(rbdesc->rhdr.name, sizeof(rbdesc->rhdr.name), "%s", name);
+    // allocate the actual ring in the RTAPI layer
+    if ((ring_id = rtapi_ring_new(size, sp_size, module_id, flags)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL: ERROR: cant allocate ring '%s' (RTAPI)\n", name);
+
+	free_ring_struct(rbdesc); 
+	return -EEXIST;
+    }
+
+    rtapi_snprintf(rbdesc->name, sizeof(rbdesc->name), "%s", name);
     rbdesc->next_ptr = 0;
     rbdesc->owner = module_id;
+    rbdesc->ring_id = ring_id;
 
-    if (flags & MODE_STREAM) {
-	// stream mode buffers need to be a power of two sized
-	req_size = next_power_of_two(size);
-    } else {
-	// default to MODE_RECORD
-	// round up buffer size to closest upper alignment boundary
-	req_size = size_aligned(size);
-    }
-
-    // max-align the scratchpad too
-    rbdesc->rhdr.scratchpad_size = size_aligned(sp_size);
-
-    // make total allocation fit both ringbuffer and scratchpad
-    rbdesc->rhdr.size = req_size + rbdesc->rhdr.scratchpad_size;
-
-    // the actual ringbuffer storage is made accessible only
-    // through hal_ring_attach() on a per-user basis.
-    // here, only record stuff so hal_ring_attach can do that later.
-
-    if (flags & ALLOC_RTAPISHMSEG) {
-
-	rbdesc->rhdr.use_rtapishm = 1;
-
-	// allocate an RTAPI shm segment
-	// owned by the allocating HAL component
-	rbdesc->shm_key = HAL_RING_SHM_KEY + ring_id++;
-	if ((rbdesc->shm_handle = rtapi_shmem_new(rbdesc->shm_key,
-						  rbdesc->owner,
-						  rbdesc->rhdr.size)) < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "hal_ring_new: rtapi_shmem_new(0x%8.8x,%d,%d) failed: %d\n",
-			    rbdesc->shm_key, rbdesc->owner,
-			    rbdesc->rhdr.size, rbdesc->shm_handle);
-	    free_ring_struct(rbdesc, 1);
-	    return  -ENOMEM;
-	}
-	// rtapi_shmem_new() zeroes the memory, no need to do here
-
-     } else {
-
-	// default to HAL memory allocation
-	rbdesc->rhdr.use_rtapishm = 0;
-
-	// this is a bit tricky:
-	// We're holding the hal_data mutex at this point.
-	// hal_malloc() wants this too, so we would deadlock here
-	// instead just use the underlying shmalloc_up() function
-
-	// small rings might just live in HAL memory
-	if ((p = shmalloc_up(rbdesc->rhdr.size)) == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "hal_ring_new(%s): shmalloc_up(%d) failed\n",
-			    name, rbdesc->rhdr.size);
-	    free_ring_struct(rbdesc,1);
-	    return  -ENOMEM;
-	}
-	// hal_malloc doesnt zero allocated memory
-	memset(p, 0, rbdesc->rhdr.size);
-	// record buffer offset in descriptor
-	rbdesc->hal_buf_offset = SHMOFF(p);
-    }
-
-    // init the ringheader - mode indeptendent part
-    rbdesc->rhdr.rmutex = rbdesc->rhdr.wmutex = 0;
-    rbdesc->rhdr.reader = rbdesc->rhdr.writer = 0;
-    rbdesc->rhdr.head = rbdesc->rhdr.tail = 0;
-
-    // mode-dependent init
-    if (flags &  MODE_STREAM) {
-	rbdesc->rhdr.is_stream = 1;
-	rbdesc->rhdr.size_mask = rbdesc->rhdr.size -1;
-    } else {
-	// default to MODE_RECORD
-	rbdesc->rhdr.generation = 0;
-    }
-
-    /* search list for 'name' and insert new structure */
+    // search list for 'name' and insert new structure
     prev = &(hal_data->ring_list_ptr);
     next = *prev;
     while (1) {
@@ -3506,7 +3443,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	    return 0;
 	}
 	ptr = SHMPTR(next);
-	cmp = strcmp(ptr->rhdr.name, rbdesc->rhdr.name);
+	cmp = strcmp(ptr->name, rbdesc->name);
 	if (cmp > 0) {
 	    /* found the right place for it, insert here */
 	    rbdesc->next_ptr = next;
@@ -3520,7 +3457,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
     return 0;
 }
 
-int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id)
+int hal_ring_attach(const char *name, ringbuffer_t *rbptr, int module_id)
 {
     hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int retval;
@@ -3538,55 +3475,25 @@ int hal_ring_attach(const char *name, ringbuffer_t *rb, int module_id)
 	return -EINVAL;
     }
 
-    rb->header = &rbdesc->rhdr;
-
-    if (rbdesc->rhdr.use_rtapishm) {
-
-	if ((retval = rtapi_shmem_new(rbdesc->shm_key,
-				      module_id,
-				      rbdesc->rhdr.size)) < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "hal_ring_attach(%s): rtapi_shmem_new(key "
-			    "0x%8.8x owner %d size %d) failed:  %d\n",
-			    name, rbdesc->shm_key, module_id,
-			    rbdesc->rhdr.size, retval);
-	    return  -ENOMEM;
-	}
-
-	// shm handles must agree (cant use assert()) here, this might be in-kernel
-	if (retval != rbdesc->shm_handle) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "hal_ring_attach(%s): BUG: retval %d != rbdesc->shm_handle %d\n",
-			    name, retval, rbdesc->shm_handle);
-	    return -EINVAL;
-	}
-
-	if (rtapi_shmem_getptr(rbdesc->shm_handle, (void **)&rb->buf)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "hal_ring_attach: rtapi_shmem_getptr failed %d/%d\n",
-			    rbdesc->shm_handle, module_id);
-	    return -EINVAL;
-	}
-
-    } else {
-	rb->buf = SHMPTR(rbdesc->hal_buf_offset);
-
+    if ((retval = rtapi_ring_attach(rbdesc->ring_id, rbptr, module_id)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"hal_ring_attach(%s): rtapi_ring_attach failed %d\n",	
+			name, retval);
+	return -EINVAL;
     }
-
-    // set pointer to scratchpad if given - stored
-    // right behind buffer area
-    if (rbdesc->rhdr.scratchpad_size)
-	rb->scratchpad = rb->buf + rbdesc->rhdr.scratchpad_size;
-    else
-	rb->scratchpad = NULL;
-
     return 0;
 }
 
+// need hal_ring_detach here!!
+
+
+// this invalidates a reference obtained by hal_ring_attach()
+// once refcount reaches zero, the HAL ring struct is deleted too
 int hal_ring_delete(const char *name, int force)
 {
     hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int next,*prev;
+    int retval;
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -3602,31 +3509,40 @@ int hal_ring_delete(const char *name, int force)
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting ring '%s'\n", name);
 
-    /* search for the ring */
+    /* search for the HAL ring */
     prev = &(hal_data->ring_list_ptr);
     next = *prev;
     while (next != 0) {
 	rbdesc = SHMPTR(next);
-	if (strcmp(rbdesc->rhdr.name, name) == 0) {
+	if (strcmp(rbdesc->name, name) == 0) {
 	    /* this is the right ring */
 	    /* unlink from list */
 	    *prev = rbdesc->next_ptr;
 
-	    if (force) {
-		if (rbdesc->rhdr.use_rtapishm) {
-		    // delete the shared memory segment
-		    if (rtapi_shmem_delete(rbdesc->shm_handle, rbdesc->owner)) {
-			rtapi_print_msg(RTAPI_MSG_ERR,
-					"hal_ring_delete: rtapi_shmem_delete failed %d/%d\n",
-					rbdesc->shm_handle, rbdesc->owner);
-		    }
-		} else {
-		    // there's no hal_free() at this time
-		}
+	    // reduces refcount on ring_data
+	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, rbdesc->owner))) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"hal_ring_delete(%s): rtapi_ring_detach failed %d/%d\n",
+				rbdesc->name, rbdesc->ring_id, rbdesc->owner);
+		return retval;
 	    }
-	    // and delete it, linking it on the delete list
-	    // unless forced
-	    free_ring_struct(rbdesc, force );
+	    retval = rtapi_ring_refcount(rbdesc->ring_id);
+	    if (retval < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"BUG: hal_ring_delete(%s): rtapi_ring_refcount returned %d/%d\n",
+				rbdesc->name,
+				rbdesc->ring_id, retval);
+	    }
+	    if (retval == 0) {
+		rtapi_print_msg(RTAPI_MSG_INFO,
+				"hal_ring_delete(%s): unreferenced, deleting RTAPI ring %d\n",
+				rbdesc->name, rbdesc->ring_id);
+		free_ring_struct(rbdesc);
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_INFO,
+				"hal_ring_delete(%s/%d): still %d references\n",
+				rbdesc->name, rbdesc->ring_id, retval);
+	    }
 
 	    /* done */
 	    return 0;
@@ -3640,8 +3556,6 @@ int hal_ring_delete(const char *name, int force)
 		    "HAL: ERROR: hal_ring_delete: no such ring '%s'\n", name);
     return -EINVAL;
 }
-
-
 /***********************************************************************
 *                     LOCAL FUNCTION CODE                              *
 ************************************************************************/
@@ -3915,7 +3829,6 @@ static int init_hal_data(void)
     hal_data->group_free_ptr = 0;
     hal_data->member_free_ptr = 0;
     hal_data->ring_free_ptr = 0;
-    hal_data->ring_deleted_ptr = 0;
 
     //FIXME memset(&hal_data->groups, 0, sizeof(hal_data->groups));
     memset(&hal_data->group_trigger, 0, sizeof(hal_data->group_trigger));
@@ -4498,17 +4411,11 @@ static hal_ring_t *alloc_ring_struct(void)
     return p;
 }
 
-static void free_ring_struct(hal_ring_t * p, int force)
+static void free_ring_struct(hal_ring_t * p)
 {
-    if (force) {
-	/* add it to free list */
-	p->next_ptr = hal_data->ring_free_ptr;
-	hal_data->ring_free_ptr = SHMOFF(p);
-    } else {
-	/* add it to deleted list */
-	p->next_ptr = hal_data->ring_deleted_ptr;
-	hal_data->ring_deleted_ptr = SHMOFF(p);
-    }
+    /* add it to free list */
+    p->next_ptr = hal_data->ring_free_ptr;
+    hal_data->ring_free_ptr = SHMOFF(p);
 }
 
 

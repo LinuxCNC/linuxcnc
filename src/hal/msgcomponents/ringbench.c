@@ -264,9 +264,6 @@ int main(int argc, char **argv)
 	case 'r':
 	    conf.msglevel = atoi(optarg);
 	    break;
-	case 'R':
-	    conf.alloc =  ALLOC_RTAPISHMSEG;
-	    break;
 	case 'S':
 	    conf.mode = MODE_STREAM;
 	    break;

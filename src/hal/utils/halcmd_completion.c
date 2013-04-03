@@ -589,8 +589,8 @@ static char *ring_generator(const char *text, int state) {
     while(next) {
         hal_ring_t *ring = SHMPTR(next);
         next = ring->next_ptr;
-        if ( strncmp(text, ring->rhdr.name, len) == 0 )
-            return strdup(ring->rhdr.name);
+        if ( strncmp(text, ring->name, len) == 0 )
+            return strdup(ring->name);
     }
     return NULL;
 }

@@ -2292,7 +2292,7 @@ static void print_mem_status()
 
     // count rings
     active = count_list(hal_data->ring_list_ptr);
-    recycled = count_list(hal_data->ring_deleted_ptr);
+    recycled = count_list(hal_data->ring_free_ptr);
     halcmd_output("  active/deleted rings:       %d/%d\n", active, recycled);
 
     halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
@@ -2773,8 +2773,8 @@ static void print_ring_names(char **patterns)
     next_ring = hal_data->ring_list_ptr;
     while (next_ring != 0) {
 	rptr = SHMPTR(next_ring);
-	if ( match(patterns, rptr->rhdr.name) ) {
-	    halcmd_output("%s ", rptr->rhdr.name);
+	if ( match(patterns, rptr->name) ) {
+	    halcmd_output("%s ", rptr->name);
 	}
 	next_ring = rptr->next_ptr;
     }
@@ -2784,41 +2784,55 @@ static void print_ring_names(char **patterns)
 
 static void print_ring_info(char **patterns)
 {
-    int next_ring;
+    int next_ring, retval;
     hal_ring_t *rptr;
     ringheader_t *rh;
+    ringbuffer_t ringbuffer;
 
     if (scriptmode == 0) {
 	halcmd_output("Rings:\n");
-	halcmd_output("Name           Size       Type   Mem    Rdr Wrt Flags\n");
+	halcmd_output("Name           Size       Type   Mem    Rdr Wrt Ref Flags \n");
     }
+
     rtapi_mutex_get(&(hal_data->mutex));
     next_ring = hal_data->ring_list_ptr;
     while (next_ring != 0) {
 	rptr = SHMPTR(next_ring);
-	if ( match(patterns, rptr->rhdr.name) ) {
-	    rh = &rptr->rhdr;
-	    halcmd_output("%-14.14s %-10d %-6.6s %-6.6s %-3d %-3d",
-			  rptr->rhdr.name,
-			  rptr->rhdr.size,
+	if ( match(patterns, rptr->name) ) {
+	    // FIXME make HAL level operation
+	    if ((retval = rtapi_ring_attach(rptr->ring_id, &ringbuffer, comp_id))) {
+	    	halcmd_error("%s: rtapi_ring_attach(%d) failed ",
+	    		     rptr->name, rptr->ring_id);
+	    	goto failed;
+	    }
+	    rh = ringbuffer.header;
+	    halcmd_output("%-14.14s %-10d %-6.6s %-3d %-3d %-3d",
+			  rptr->name,
+			  rh->size,
 			  (rh->is_stream) ? "stream" : "record",
-			  (rh->use_rtapishm) ? "RTAPI" : "HAL",
-			  rptr->rhdr.reader,
-			  rptr->rhdr.writer);
+			  rh->reader,
+			  rh->writer,
+			  rtapi_ring_refcount(rptr->ring_id));
 	    if (rh->use_rmutex)
 		halcmd_output(" rmutex");
 	    if (rh->use_wmutex )
 		halcmd_output(" wmutex");
 	    if (rh->is_stream)
 		halcmd_output(" free:%d ",
-			      hal_stream_write_space(&rptr->rhdr));
+			      hal_stream_write_space(rh));
 	    else
 		halcmd_output(" recmax:%d ",
-			      hal_record_write_space(&rptr->rhdr));
+			      hal_record_write_space(rh));
 	    if (rh->scratchpad_size != 0)
 		halcmd_output(" scratchpad:%d ", rh->scratchpad_size);
 	    halcmd_output("\n");
+	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id))) {
+	    	halcmd_error("%s: rtapi_ring_dettach(%d) failed ",
+	    		     rptr->name, rptr->ring_id);
+	    	goto failed;
+	    }
 	}
+	failed:
 	next_ring = rptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -2850,11 +2864,7 @@ int do_newring_cmd(char *ring, char *ring_size, char **opt)
 	return -EINVAL;
     }
     for (i = 0; ((s = opt[i]) != NULL) && strlen(s); i++) {
-	if (!strcasecmp(s,"rtapi")) {
-	    mode |=  ALLOC_RTAPISHMSEG;
-	} else if  (!strcasecmp(s,"hal")) {
-	    // default
-	}  else if  (!strcasecmp(s,"rmutex")) {
+	if  (!strcasecmp(s,"rmutex")) {
 	    mode |=  USE_RMUTEX;
 	}  else if  (!strcasecmp(s,"wmutex")) {
 	    mode |=  USE_WMUTEX;
