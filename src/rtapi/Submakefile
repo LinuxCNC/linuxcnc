@@ -52,6 +52,7 @@ ULAPI_SRCS := \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_task.c \
 	rtapi/rtapi_shmem.c \
+	rtapi/rtapi_ring.c \
 	rtapi/rtapi_time.c \
 	rtapi/rtapi_io.c \
 	rtapi/$(THREADS_SOURCE).c \

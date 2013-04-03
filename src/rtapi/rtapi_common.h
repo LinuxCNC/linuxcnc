@@ -72,6 +72,7 @@
 #endif
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
+#include "rtapi_ring.h"	/* test_bit() et al. */
 
 #if defined(BUILD_SYS_USER_DSO)
 #include <sys/ipc.h>		/* IPC_* */
@@ -101,6 +102,7 @@ MODULE_LICENSE("GPL");
 #define RTAPI_MAX_MODULES	64
 #define RTAPI_MAX_TASKS		64
 #define RTAPI_MAX_SHMEMS	32
+#define RTAPI_MAX_RINGS	        32
 
 #define DEFAULT_MAX_DELAY	10000
 
@@ -181,6 +183,15 @@ typedef struct {
     void *mem;			/* pointer to the memory */
 } shmem_data;
 
+typedef struct {
+    int magic;			/* to check for valid handle */
+    int handle;                 /* index into shmem_array */
+    int key;                    /* RTAPI shm key */
+    int count;                  /* count of maps in this process */
+    int owner;                  /* module which created the ring */
+} ring_data;
+
+
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
    It resides in shared memory, where it can be accessed by both
@@ -205,6 +216,8 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
+    ring_data  ring_array[RTAPI_MAX_RINGS +1];  /* ringbuffer headers */
+
 #ifdef THREAD_RTAPI_DATA
     THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
 #endif
@@ -249,6 +262,11 @@ void _rtapi_module_timer_stop(void);
 
 extern shmem_data *shmem_array;
 extern void *shmem_addr_array[];
+
+/* rtapi_ring.c */
+#define RING_MAGIC   120756	/* random numbers used as signatures */
+extern ring_data *ring_array;
+
 
 
 /* rtapi_module.c */

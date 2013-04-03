@@ -37,8 +37,8 @@
 // from rtapi/rtapi_common.h
 #define RTAPI_KEY   0x00280A48	/* key used to open RTAPI shared memory */
 
-// HAL rings
-#define HAL_RING_SHM_KEY 0x00415000  
+// RTAPI rings
+#define RTAPI_RING_SHM_KEY 0x00415000  
 
 
 

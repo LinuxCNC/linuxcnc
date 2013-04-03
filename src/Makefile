@@ -757,6 +757,7 @@ rtapi-objs := \
 	rtapi/rtapi_common.o \
 	rtapi/rtapi_task.o \
 	rtapi/rtapi_shmem.o \
+	rtapi/rtapi_ring.o \
 	rtapi/rtapi_time.o \
 	rtapi/rtapi_io.o \
 	rtapi/$(THREADS_SOURCE).o

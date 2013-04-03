@@ -253,7 +253,7 @@ static list ring_names (void)
     next = hal_data->ring_list_ptr;
     while (next != 0) {
 	ring = (hal_ring_t *) SHMPTR(next);
-	result.append(ring->rhdr.name);
+	result.append(ring->name);
 	next = ring->next_ptr;
     }
     return result;
@@ -269,8 +269,6 @@ BOOST_PYTHON_MODULE(ring) {
     scope().attr("MODE_STREAM") = MODE_STREAM;
     scope().attr("USE_RMUTEX") = USE_RMUTEX;
     scope().attr("USE_WMUTEX") = USE_WMUTEX;
-    scope().attr("ALLOC_RTAPISHMSEG") = ALLOC_RTAPISHMSEG;
-    scope().attr("FORCE_DEALLOC") = FORCE_DEALLOC;
 
     class_<Ring,boost::noncopyable>("Ring", no_init)
 	.def("next", &Ring::next_buffer,

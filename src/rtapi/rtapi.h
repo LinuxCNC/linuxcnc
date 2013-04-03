@@ -102,6 +102,8 @@ typedef __s64		s64;
 # include <asm/types.h>
 #endif
 
+#include "rtapi_ring.h"
+
 /* LINUX_VERSION_CODE for rtapi_{module,io}.c */
 #ifdef MODULE
 #ifndef LINUX_VERSION_CODE
@@ -564,6 +566,30 @@ typedef int (*rtapi_shmem_getptr_t)(int, void **);
     rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
 extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
 
+/***********************************************************************
+*                        Ringbuffer related functions                  *
+************************************************************************/
+
+typedef int (*rtapi_ring_new_t) (int,int,int,int);
+#define rtapi_ring_new(size, sp_size, module_id, flags) \
+    rtapi_switch->rtapi_ring_new(size, sp_size, module_id, flags)
+extern int _rtapi_ring_new(int size, int sp_size, int module_id, int flags);
+
+typedef int (*rtapi_ring_attach_t) (int,ringbuffer_t *, int);
+#define rtapi_ring_attach(handle, ptr, module_id)			\
+    rtapi_switch->rtapi_ring_attach(handle, ptr, module_id)
+extern int _rtapi_ring_attach(int handle, ringbuffer_t *ptr, int module_id);
+
+typedef int (*rtapi_ring_detach_t) (int,int);
+#define rtapi_ring_detach(handle, module_id) \
+    rtapi_switch->rtapi_ring_detach(handle, module_id)
+extern int _rtapi_ring_detach(int handle, int module_id);
+
+typedef int (*rtapi_ring_refcount_t) (int);
+#define rtapi_ring_refcount(handle) \
+    rtapi_switch->rtapi_ring_refcount(handle)
+extern int _rtapi_ring_refcount(int handle);
+
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
@@ -712,6 +738,13 @@ typedef struct {
     rtapi_shmem_new_t rtapi_shmem_new;
     rtapi_shmem_delete_t rtapi_shmem_delete;
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
+
+    // ringbuffer functions
+    rtapi_ring_new_t rtapi_ring_new;
+    rtapi_ring_attach_t rtapi_ring_attach;
+    rtapi_ring_detach_t rtapi_ring_detach;
+    rtapi_ring_refcount_t rtapi_ring_refcount;
+
     // i/o related functions
     rtapi_outb_t rtapi_outb;
     rtapi_inb_t rtapi_inb;
@@ -729,6 +762,15 @@ extern rtapi_switch_t *rtapi_switch;
  */
 typedef rtapi_switch_t *(*rtapi_get_handle_t)(void);
 extern rtapi_switch_t *rtapi_get_handle(void);
+
+// autorelease the rtapi mutex on scope exit
+// declare a variable like so in the scope to be protected:
+//
+// foo_type foo __attribute__((cleanup(rtapi_autorelease_mutex)));
+//
+// make sure rtapi_mutex_get(&(rtapi_data->mutex));
+// is unconditionally called first thing on scope entry
+extern void rtapi_autorelease_mutex(void *variable);
 
 // exported by instance.c (kstyles) and rtapi_main.c (userlandRT)
 // configurable at rtapi.so module load time _only_

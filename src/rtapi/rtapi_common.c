@@ -35,11 +35,13 @@ rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
+ring_data *ring_array = local_rtapi_data.ring_array;
 #else
 rtapi_data_t *rtapi_data = NULL;
 task_data *task_array = NULL;
 shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
+ring_data *ring_array = NULL;
 #endif
 
 // in the RTAPI scenario,  
@@ -130,6 +132,13 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_shmem_new = &_rtapi_shmem_new,
     .rtapi_shmem_delete = &_rtapi_shmem_delete,
     .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
+
+    // ringbuffer functions
+    .rtapi_ring_new = &_rtapi_ring_new,
+    .rtapi_ring_attach = &_rtapi_ring_attach,
+    .rtapi_ring_detach = &_rtapi_ring_detach,
+    .rtapi_ring_refcount = &_rtapi_ring_refcount,
+
     // i/o related functions
     .rtapi_outb = &_rtapi_outb,
     .rtapi_inb = &_rtapi_inb,
@@ -142,6 +151,14 @@ rtapi_switch_t *rtapi_get_handle(void) {
     return &rtapi_switch_struct;
 }
 EXPORT_SYMBOL(rtapi_get_handle);
+
+void rtapi_autorelease_mutex(void *variable)
+{
+    if (rtapi_data != NULL)
+	rtapi_mutex_give(&(rtapi_data->mutex));
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "rtapi_autorelease_mutex: rtapi_data == NULL!\n");
+}
 
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
@@ -191,6 +208,24 @@ void init_rtapi_data(rtapi_data_t * data)
 	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
+    }
+    for (n = 0; n <= RTAPI_MAX_RINGS; n++) {
+	data->ring_array[n].magic = 0;
+	data->ring_array[n].handle = 0;
+	data->ring_array[n].key = 0;
+	data->ring_array[n].count = 0;
+	data->ring_array[n].owner = 0;
+	/* data->ring_array[n].ring.is_stream = 0; */
+	/* data->ring_array[n].ring.use_rmutex = 0; */
+	/* data->ring_array[n].ring.use_wmutex = 0; */
+	/* data->ring_array[n].ring.reader = 0; */
+	/* data->ring_array[n].ring.writer = 0; */
+	/* data->ring_array[n].ring.scratchpad_size = 0; */
+	/* data->ring_array[n].ring.size_mask = 0; */
+	/* data->ring_array[n].ring.size = 0; */
+	/* data->ring_array[n].ring.head = 0; */
+	/* data->ring_array[n].ring.generation = 0; */
+	/* data->ring_array[n].ring.tail = 0; */
     }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);
