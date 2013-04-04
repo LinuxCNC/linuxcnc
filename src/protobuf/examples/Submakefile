@@ -1,4 +1,6 @@
 ifeq ($(BUILD_EXAMPLES),yes)
+ifeq ($(USE_PROTOBUF),yes)
+
 
 PBEX := protobuf/examples
 
@@ -55,4 +57,5 @@ $(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
 USERSRCS += $(RTPRINTF_SRCS) $(ENCDEC_SRCS) $(RAWREAD_SRCS)
 TARGETS += ../bin/rtprintf ../bin/encdec ../bin/rawread ../include/container.h
 
+endif
 endif
