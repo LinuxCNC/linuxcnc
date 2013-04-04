@@ -775,7 +775,7 @@ class HandlerClass:
             self.distance = self.gscreen.parse_increment(data)
         else:
             self.distance = 0
-        self.gscreen.halcomp["jog_increment"] = self.distance
+        self.gscreen.halcomp["jog-increment"] = self.distance
 
     def on_adj_jog_vel_value_changed(self, widget, data = None):
         if widget.get_value() > self.widgets.adj_max_vel.get_value():
@@ -788,6 +788,10 @@ class HandlerClass:
 
 #ToDo: Make this able to reakt to more axis
     def on_hal_btn_jog_pressed(self, widget, data = None):
+        # only in manual mode we will allow jogging the axis at this development state
+        print(self.gscreen.emcstat.task_mode)
+        if not self.gscreen.emcstat.task_mode == _MANUAL:
+            return
         if widget == self.widgets.hal_btn_X_plus:
             axis = 0
             direction = 1
