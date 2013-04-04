@@ -76,13 +76,13 @@ class HandlerClass:
         self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actios are allowed
         self.wait_tool_change = False # this is needed to get back to manual mode after a tool change
         self.macrobuttons =[]     # The list of all macrios defined in the INI file
-        self.incr_rbt_list= []    # we use this list to add hal pin to the button later
         self.log = False          # decide if the actions should be loged
-        self.fo_counts = 0        # we need this to calculate the diference in jog counts to change the feed overide slider
-        self.so_counts = 0        # we need this to calculate the diference in jog counts to change the spindle overide slider
-        self.jv_counts = 0        # we need this to calculate the diference in jog counts to change the jog_vel slider
-        self.mv_counts = 0        # we need this to calculate the diference in jog counts to change the max_speed slider
-        self.no_increments = 0    # The number of increments given in INI File, because of space reasons we allow a max of 10
+        self.fo_counts = 0        # need to calculate diference in counts to change the feed overide slider
+        self.so_counts = 0        # need to calculate diference in counts to change the spindle overide slider
+        self.jv_counts = 0        # need to calculate diference in counts to change the jog_vel slider
+        self.mv_counts = 0        # need to calculate diference in counts to change the max_speed slider
+        self.incr_rbt_list= []    # we use this list to add hal pin to the button later
+        self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
         self.unlock = False       # this value will be set using the hal pin unlock settings
 
     def initialize_preferences(self):
@@ -1282,19 +1282,19 @@ class HandlerClass:
             self.gscreen.warning_dialog(_("Important Warning!"), True, message)
             self.gscreen.add_alarm_entry(message)
             return
-        if self.log: self.gscreen.add_alarm_entry("set_tool_with M61 Q%s"%tool)
         if tool or tool == 0:
             tool = int(tool)
             self.emc.set_mdi_mode()
             if widget == self.widgets.btn_change_tool:
                 self.gscreen.mdi_control.user_command("T%s M6"%tool)
+                if self.log: self.gscreen.add_alarm_entry("set_tool_with T%s M6"%tool)
             else:
                 self.gscreen.mdi_control.user_command("M61 Q%s"%tool)
+                if self.log: self.gscreen.add_alarm_entry("set_tool_with M61 Q%s"%tool)
             self.update_toolinfo(tool)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_button.set_current_page(0)
             self.wait_tool_change = True
-            self.on_hal_status_interp_idle(self)
         else:
             self.widgets.statusbar1.push(1,_("Could not understand entered tool number. Will not change anything"))
 
