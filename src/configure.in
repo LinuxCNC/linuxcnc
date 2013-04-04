@@ -122,8 +122,8 @@ AC_ARG_WITH(realtime,
 	    AC_MSG_ERROR([You must supply a path for --with-realtime.]) ;;
 	*)
 		case "$SIMULATOR" in
-		yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
-		*) RTDIR="$withval" ;;
+			yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
+			*) RTDIR="$withval" ;;
 		esac
 	;;
         esac])
