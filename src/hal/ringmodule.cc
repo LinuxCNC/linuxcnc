@@ -111,7 +111,7 @@ public:
 	return bp::object();
     }
 
-    void shift() {
+    int shift() {
 	if (is_stream) {
 	    PyErr_SetString(PyExc_IOError,
 			    "shift() with no argument is invalid for Record mode rings");
@@ -238,9 +238,9 @@ static  Ring *ring_create(const char *name, size_t size, int mode)
     return new Ring(name, size, mode);
 }
 
-static int ring_delete(const char *name)
+static int ring_detach(const char *name)
 {
-    return hal_ring_delete(name, 0);
+    return hal_ring_detach(name);
 }
 
 static list ring_names (void)
@@ -339,7 +339,7 @@ BOOST_PYTHON_MODULE(ring) {
     def("rings", ring_names);
     def("attach", ring_attach, return_value_policy<manage_new_object>());
     def("create", ring_create, return_value_policy<manage_new_object>());
-    def("delete", ring_delete);
+    def("detach", ring_detach);
 }
 
 // Future: migrate to Memoryview. See:

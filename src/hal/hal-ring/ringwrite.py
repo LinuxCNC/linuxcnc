@@ -3,7 +3,7 @@
 # list existing rings
 # attach to an existing ring and write a few messages
 # create a new ring
-# delete a ring
+# detach a ring
 
 import ring
 
@@ -44,5 +44,5 @@ if "firmware" not in rings:
         msg = "message %d" % (i)
         f.write(msg,len(msg))
 else:
-    # delete a ring
-    ring.delete("firmware")
+    # detach a ring
+    ring.detach("firmware")

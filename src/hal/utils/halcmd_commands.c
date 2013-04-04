@@ -2782,6 +2782,36 @@ static void print_ring_names(char **patterns)
     halcmd_output("\n");
 }
 
+#ifdef RINGDEBUG
+void dump_rings(const char *where, int attach, int detach)
+{
+    int next,retval;
+    hal_ring_t *rptr;
+    ringbuffer_t ringbuffer;
+
+    printf("place: %s attach=%d detach=%d\n", where, attach, detach);
+    next =  hal_data->ring_list_ptr;
+    while (next) {
+	rptr = SHMPTR(next);
+	printf("name=%s next=%d ring_id=%d owner=%d\n",
+	       rptr->name, rptr->next_ptr, rptr->ring_id, rptr->owner);
+	if (attach) {
+	    if ((retval = rtapi_ring_attach(rptr->ring_id, &ringbuffer, comp_id))) {
+	    	halcmd_error("%s: rtapi_ring_attach(%d) failed ",
+	    		     rptr->name, rptr->ring_id);
+	    }
+	}
+	if (detach) {
+
+	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id))) {
+	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
+	    		     rptr->name, rptr->ring_id);
+	    }
+	}
+	next = rptr->next_ptr;
+    }
+}
+#endif
 static void print_ring_info(char **patterns)
 {
     int next_ring, retval;
@@ -2789,9 +2819,17 @@ static void print_ring_info(char **patterns)
     ringheader_t *rh;
     ringbuffer_t ringbuffer;
 
+#ifdef RINGDEBUG
+    rtapi_mutex_get(&(hal_data->mutex));
+    dump_rings("print_ring_info",0,0);
+    dump_rings("print_ring_info",1,0);
+    dump_rings("print_ring_info",1,1);
+    rtapi_mutex_give(&(hal_data->mutex));
+#endif
+
     if (scriptmode == 0) {
 	halcmd_output("Rings:\n");
-	halcmd_output("Name           Size       Type   Mem    Rdr Wrt Ref Flags \n");
+	halcmd_output("Name           Size       Type   Rdr Wrt Ref Flags \n");
     }
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2806,6 +2844,9 @@ static void print_ring_info(char **patterns)
 	    	goto failed;
 	    }
 	    rh = ringbuffer.header;
+/* Name           Size       Type   Rdr Wrt Ref Flags  */
+/* ring_0         16392      record 0   0   2   recmax:16376  */
+
 	    halcmd_output("%-14.14s %-10d %-6.6s %-3d %-3d %-3d",
 			  rptr->name,
 			  rh->size,
@@ -2827,14 +2868,15 @@ static void print_ring_info(char **patterns)
 		halcmd_output(" scratchpad:%d ", rh->scratchpad_size);
 	    halcmd_output("\n");
 	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id))) {
-	    	halcmd_error("%s: rtapi_ring_dettach(%d) failed ",
+	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
 	    		     rptr->name, rptr->ring_id);
 	    	goto failed;
 	    }
 	}
-	failed:
 	next_ring = rptr->next_ptr;
     }
+ failed:
+
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }

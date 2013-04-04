@@ -247,7 +247,7 @@ static int do_load_cmd(string name, vector<string> args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[PATH_MAX];
-	
+
 	if (module_path(flavor, what,
 			rtlibpath, name.c_str(),
 			flavor->mod_ext)) {

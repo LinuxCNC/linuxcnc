@@ -156,8 +156,10 @@ void rtapi_autorelease_mutex(void *variable)
 {
     if (rtapi_data != NULL)
 	rtapi_mutex_give(&(rtapi_data->mutex));
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "rtapi_autorelease_mutex: rtapi_data == NULL!\n");
+    else 
+	// programming error
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_autorelease_mutex: rtapi_data == NULL!\n");
 }
 
 /* global init code */
@@ -181,6 +183,7 @@ void init_rtapi_data(rtapi_data_t * data)
     /* set version code and flavor ID so other modules can check it */
     data->serial = RTAPI_SERIAL;
     data->thread_flavor_id = THREAD_FLAVOR_ID;
+    data->ring_mutex = 0;
     /* and get busy */
     data->rt_module_count = 0;
     data->ul_module_count = 0;
@@ -213,19 +216,9 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->ring_array[n].magic = 0;
 	data->ring_array[n].handle = 0;
 	data->ring_array[n].key = 0;
+	data->ring_array[n].total_size = 0;
 	data->ring_array[n].count = 0;
 	data->ring_array[n].owner = 0;
-	/* data->ring_array[n].ring.is_stream = 0; */
-	/* data->ring_array[n].ring.use_rmutex = 0; */
-	/* data->ring_array[n].ring.use_wmutex = 0; */
-	/* data->ring_array[n].ring.reader = 0; */
-	/* data->ring_array[n].ring.writer = 0; */
-	/* data->ring_array[n].ring.scratchpad_size = 0; */
-	/* data->ring_array[n].ring.size_mask = 0; */
-	/* data->ring_array[n].ring.size = 0; */
-	/* data->ring_array[n].ring.head = 0; */
-	/* data->ring_array[n].ring.generation = 0; */
-	/* data->ring_array[n].ring.tail = 0; */
     }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);

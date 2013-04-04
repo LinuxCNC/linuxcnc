@@ -19,7 +19,6 @@ RTAPI_BEGIN_DECLS
 
 typedef struct {
     char name[HAL_NAME_LEN + 1];  // ring HAL name
-    // private
     int next_ptr;		 // next ring in free list
     int ring_id;                 // RTAPI ring handle as returned by rtapi_ring_new
     int owner;                   // creating HAL module 
@@ -50,7 +49,7 @@ typedef struct {
 int hal_ring_new(const char *name, int size, int spsize, int module_id, int mode);
 
 /* delete a named ringbuffer */
-int hal_ring_delete(const char *name, int force);
+int hal_ring_detach(const char *name);
 
 /* make an existing ringbuffer accessible to a component
  * rb must point to storage of type ringbuffer_t
@@ -291,18 +290,6 @@ static inline size_t hal_record_write_space(const ringheader_t *h)
     return MAX(0, avail - (2 * RB_ALIGN));
 }
 
-/* hal_record_flush()
- *
- * clear the buffer. 
- * NB: this is not thread safe.
- */
-static inline void hal_record_flush(ringbuffer_t *rb)
-{
-    ringheader_t *h = rb->header;
-    // FIXME - bump generation to invalidate iterator?
-    h->generation++;
-    h->head = h->tail;
-}
 
 /* internal function */
 static ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) // OK
@@ -335,12 +322,25 @@ static ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) /
  *    hal_record_shift(ring); 
  * }
  */
-static inline void hal_record_shift(ringbuffer_t *rb) // OK
+static inline int hal_record_shift(ringbuffer_t *rb) // OK
 {
     ring_size_t off = _ring_shift_offset(rb, rb->header->head);
-    if (off < 0) return;
+    if (off < 0) return EAGAIN;
     rb->header->generation++;
     rb->header->head = off;
+    return 0;
+}
+/* hal_record_flush()
+ *
+ * clear the buffer, and return the number of records flushed. 
+ */
+static inline int hal_record_flush(ringbuffer_t *rb)
+{
+    int count = 0;
+
+    while (!hal_record_shift(rb)) 
+	count++;
+    return count;
 }
 
 // iterator functions

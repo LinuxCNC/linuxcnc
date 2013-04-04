@@ -187,6 +187,7 @@ typedef struct {
     int magic;			/* to check for valid handle */
     int handle;                 /* index into shmem_array */
     int key;                    /* RTAPI shm key */
+    int total_size;             /* ringheader + buffer + scratchpad + alignment */
     int count;                  /* count of maps in this process */
     int owner;                  /* module which created the ring */
 } ring_data;
@@ -205,6 +206,7 @@ typedef struct {
     int serial;			/* revision code for matching */
     int thread_flavor_id;	/* unique ID for each thread style: rtapi.h */
     unsigned long mutex;	/* mutex against simultaneous access */
+    unsigned long ring_mutex;	/* layering RTAPI functions requires per-layer locks */
     int rt_module_count;	/* loaded RT modules */
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */

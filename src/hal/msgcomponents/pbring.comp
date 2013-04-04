@@ -44,8 +44,6 @@ static char *mod = "pbring";
 
 static int decode_msg(void *buf, int size, Container *container)
 {
-    unsigned length;
-    unsigned short typ, encoding;
     pb_istream_t stream;
 
     // asm("int $3"); // trap into gdb
@@ -193,5 +191,15 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    int retval;
+
+    if ((retval = hal_ring_detach(command)))
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: hal_ring_detach(%s) failed: %d\n",
+			mod, command, retval);
+   if ((retval = hal_ring_detach(response)))
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: hal_ring_detach(%s) failed: %d\n",
+			mod, response, retval);
     hal_exit(comp_id);
 }

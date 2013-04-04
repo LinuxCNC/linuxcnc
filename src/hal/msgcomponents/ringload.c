@@ -50,5 +50,16 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    int n, retval;
+    char ringname[HAL_NAME_LEN + 1];
+
+    for (n = 0; n < num_rings; n++) {
+	snprintf(ringname, HAL_NAME_LEN, "ring_%d",n);
+	if ((retval = hal_ring_detach(ringname))) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ringload: failed to detach ring %s: %d\n",
+			    ringname, retval);
+	}
+    }
     hal_exit(comp_id);
 }

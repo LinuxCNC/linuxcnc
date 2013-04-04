@@ -3338,10 +3338,10 @@ void halpr_autorelease_mutex(void *variable)
 {
     if (hal_data != NULL)
 	rtapi_mutex_give(&(hal_data->mutex));
-
-    // programming error
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: halpr_autorelease_mutex called before hal_data inited\n");
+    else
+	// programming error
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HAL: ERROR: halpr_autorelease_mutex called before hal_data inited\n");
 }
 
 static hal_ring_t *find_ring_by_name(const char *name)
@@ -3367,6 +3367,22 @@ static hal_ring_t *find_ring_by_name(const char *name)
 /***********************************************************************
 *                     Public HAL ring functions                        *
 ************************************************************************/
+
+void walk_rings(const char *where)
+{
+#ifdef RINGDEBUG
+    int next;
+    hal_ring_t *rbdesc;
+    printf("place: %s\n", where);
+    next =  hal_data->ring_list_ptr;
+    while (next) {
+	rbdesc = SHMPTR(next);
+	printf("name=%s next=%d ring_id=%d owner=%d\n",
+	       rbdesc->name, rbdesc->next_ptr, rbdesc->ring_id, rbdesc->owner);
+	next = rbdesc->next_ptr;
+    }
+#endif
+}
 
 int hal_ring_new(const char *name, int size, int sp_size, int module_id, int flags)
 {
@@ -3440,6 +3456,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	    /* reached end of list, insert here */
 	    rbdesc->next_ptr = next;
 	    *prev = SHMOFF(rbdesc);
+	    walk_rings("end");
 	    return 0;
 	}
 	ptr = SHMPTR(next);
@@ -3448,14 +3465,16 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	    /* found the right place for it, insert here */
 	    rbdesc->next_ptr = next;
 	    *prev = SHMOFF(rbdesc);
+	    walk_rings("right place");
+
 	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
 	next = *prev;
     }
-    return 0;
 }
+
 
 int hal_ring_attach(const char *name, ringbuffer_t *rbptr, int module_id)
 {
@@ -3484,12 +3503,10 @@ int hal_ring_attach(const char *name, ringbuffer_t *rbptr, int module_id)
     return 0;
 }
 
-// need hal_ring_detach here!!
-
-
 // this invalidates a reference obtained by hal_ring_attach()
-// once refcount reaches zero, the HAL ring struct is deleted too
-int hal_ring_delete(const char *name, int force)
+// once refcount of the underlying RTAPI ring reaches zero, 
+// the HAL ring struct is deleted as well
+int hal_ring_detach(const char *name)
 {
     hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int next,*prev;
@@ -3497,17 +3514,16 @@ int hal_ring_delete(const char *name, int force)
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_ring_delete called before init\n");
+			"HAL: ERROR: hal_ring_detach called before init\n");
 	return -EINVAL;
     }
-    /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_ring_delete called while HAL locked\n");
+			"HAL: ERROR: hal_ring_detach called while HAL locked\n");
 	return -EPERM;
     }
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting ring '%s'\n", name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: detaching ring '%s'\n", name);
 
     /* search for the HAL ring */
     prev = &(hal_data->ring_list_ptr);
@@ -3515,45 +3531,38 @@ int hal_ring_delete(const char *name, int force)
     while (next != 0) {
 	rbdesc = SHMPTR(next);
 	if (strcmp(rbdesc->name, name) == 0) {
-	    /* this is the right ring */
-	    /* unlink from list */
-	    *prev = rbdesc->next_ptr;
-
-	    // reduces refcount on ring_data
+	    // reduces RTAPI refcount in ring_data
 	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, rbdesc->owner))) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-				"hal_ring_delete(%s): rtapi_ring_detach failed %d/%d\n",
+				"hal_ring_detach(%s): rtapi_ring_detach failed %d/%d\n",
 				rbdesc->name, rbdesc->ring_id, rbdesc->owner);
 		return retval;
 	    }
-	    retval = rtapi_ring_refcount(rbdesc->ring_id);
-	    if (retval < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"BUG: hal_ring_delete(%s): rtapi_ring_refcount returned %d/%d\n",
-				rbdesc->name,
-				rbdesc->ring_id, retval);
-	    }
-	    if (retval == 0) {
-		rtapi_print_msg(RTAPI_MSG_INFO,
-				"hal_ring_delete(%s): unreferenced, deleting RTAPI ring %d\n",
+	    // delete the HAL name only once the RTAPI ring becomes
+	    // inaccessible
+	    if (rtapi_ring_refcount(rbdesc->ring_id) < 0) {
+		// the RTAPI ring structure has been freed, so free corresponding
+		// HAL ring structure as well.
+		rtapi_print_msg(RTAPI_MSG_DBG,
+				"hal_ring_detach(%s): RTAPI ring inaccessible, deleting HAL ring %d\n",
 				rbdesc->name, rbdesc->ring_id);
+		*prev = rbdesc->next_ptr;
 		free_ring_struct(rbdesc);
+		return 0;
 	    } else {
-		rtapi_print_msg(RTAPI_MSG_INFO,
-				"hal_ring_delete(%s/%d): still %d references\n",
-				rbdesc->name, rbdesc->ring_id, retval);
+		rtapi_print_msg(RTAPI_MSG_DBG,
+				"hal_ring_detach(%s/%d): still %d references\n",
+				rbdesc->name, rbdesc->ring_id,
+				rtapi_ring_refcount(rbdesc->ring_id));
 	    }
-
-	    /* done */
 	    return 0;
 	}
-	/* no match, try the next one */
 	prev = &(rbdesc->next_ptr);
 	next = *prev;
     }
-    /* if we get here, we didn't find a match */
+    // if we get here, we didn't find a match
     rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: hal_ring_delete: no such ring '%s'\n", name);
+		    "HAL: ERROR: hal_ring_detach: no such ring '%s'\n", name);
     return -EINVAL;
 }
 /***********************************************************************
@@ -4986,7 +4995,7 @@ EXPORT_SYMBOL(halpr_find_funct_by_owner);
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 EXPORT_SYMBOL(hal_ring_new);
-EXPORT_SYMBOL(hal_ring_delete);
+EXPORT_SYMBOL(hal_ring_detach);
 EXPORT_SYMBOL(hal_ring_attach);
 
 EXPORT_SYMBOL(hal_ring_use_wmutex);
