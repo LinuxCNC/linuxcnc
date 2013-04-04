@@ -7,13 +7,14 @@ cd src
 In the source directory, build LinuxCNC:
 
 ./autogen.sh  (this builds the configure script)
-./configure --enable-run-in-place
+./configure
 make clean
 make
 sudo make setuid
 
 to run the software go back to the top level directory, and issue:
 
+source scripts/rip-environment
 scripts/emc
 
 
