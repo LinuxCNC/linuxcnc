@@ -1,3 +1,23 @@
+ver. 0.8.9
+- new icon for btn_user_tabs
+- new icon for btn_fullsize_preview
+- all dialogs do react to keyboard input now
+- System theme has not been set properly on start up, fixed this.
+- added a new place for user tabs, within ntb_preview, showing then the tabs
+- added a test to show actual velocity in machine units.
+- added hal pins to be able to connect a hardware selection switch to jog_increment radio button
+- entering the edit mode sets the focus in the hal_sourceview widget, so working with keyboard
+  is possible without any cklick
+- After edditing the tool offsets in table, the button "Apply" will not only aply the changes to
+  tool table, but also to the tool in spindle, but only if G43 is in active g-codes
+- speeded up the tool change screen refresh, by adding self.on_hal_status_interp_idle(self)
+  in the button press event
+- added hal pins for joging the axis with hardware buttons for each axis in self.data.axis_list
+- deleted the metric button from settings page
+- changed hal_pin_names to use "-" insteadt of "_"
+- on tool table page I missed to add tool tip text to the buttons, I added them now
+- added a hal pin to unlock the settings page, so a key-switch can be used to unlock the page
+
 ver. 0.8.8
 - there was an error getting the increments from the INI file
   I begin counting from 1 instead of 0, that is why the first increment was missing
