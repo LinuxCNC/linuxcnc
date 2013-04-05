@@ -21,11 +21,11 @@
 #include "rtapi_common.h"
 #include "rtapi_ring.h"
 
-#ifdef BUILD_SYS_USER_DSO
+#if defined(BUILD_SYS_USER_DSO)
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 
-static void *ring_addr_array[RTAPI_MAX_RINGS + 1];
+void *ring_addr_array[RTAPI_MAX_RINGS + 1];
 #endif
 
 // rtapi_data->ring_mutex is a private lock for ring operations.
@@ -92,7 +92,8 @@ int _rtapi_ring_new(size_t size, size_t sp_size, int module_id, int flags)
 			rdptr->shmem_id);
 	return -ENOMEM;
     }
-#ifdef ULAPI
+
+#if defined(BUILD_SYS_USER_DSO)
     ring_addr_array[i] = rhptr; // record local mapping
 #endif
 
