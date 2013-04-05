@@ -34,7 +34,7 @@
 #else
 
 #ifdef MODULE
-#include <asm/bitops.h>
+#include <linux/bitops.h>
 #elif defined(__i386__)
 /* From <asm/bitops.h>
  * Copyright 1992, Linus Torvalds.
