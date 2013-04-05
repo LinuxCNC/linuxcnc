@@ -33,10 +33,10 @@ FUNCTION(_) {
 	sent++;
 
 	if (rb.header->is_stream) {
-	    if (hal_stream_write(&rb, buffer, length) != length)
+	    if (rtapi_stream_write(&rb, buffer, length) != length)
 		overrun++;
 	} else {
-	    if (hal_record_write(&rb, buffer, length))
+	    if (rtapi_record_write(&rb, buffer, length))
 		overrun++;
 	}
 	write_prev = write;

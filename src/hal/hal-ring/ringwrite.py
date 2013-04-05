@@ -8,6 +8,7 @@
 import ring
 
 rings = ring.rings()
+print "rings: ", rings
 
 def print_ring(r):
     print "name=%s size=%d reader=%d writer=%d " % (name,r.size,r.reader,r.writer),
@@ -16,7 +17,8 @@ def print_ring(r):
 for name in rings:
     r = ring.attach(name)
     print_ring(r)
-
+    ring.detach(name)
+    
 if "ring_0" in rings:
 
     # attach to existing ring

@@ -43,6 +43,7 @@ RINGMODULESRCS := hal/ringmodule.cc
 PYSRCS += $(RINGMODULESRCS)
 
 RINGMODULE := ../lib/python/ring.so
+RINGOBJS := objects/rtapi/rtapi_support.o
 
 # TODO: unifiy with boost.python configure support in master
 BOOST_PYTHON_LIBS := -lboost_python
@@ -53,6 +54,7 @@ $(call TOOBJSDEPS, $(RINGMODULESRCS)): \
 $(RINGMODULE): $(call TOOBJS, $(RINGMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
+	$(RINGOBJS) \
 	$(BOOST_PYTHON_LIBS) \
 	$(shell python-config --libs)  $(HALLIB)
 

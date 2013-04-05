@@ -1,12 +1,12 @@
 // XXX: make separate classes for Record and Stream rings
-// XXX: rhink about overwritable streams
-
+// XXX: think about overwritable streams
 // Python bindings for hal_ring_* methods
 //
 // Pavel Shramov & Michael Haberler 2/2013
 #include <boost/python.hpp>
 #include <string>
 
+#include "rtapi.h"
 #include "hal.h"
 #include "hal_priv.h"
 #include "hal_ring.h"	        /* ringbuffer declarations */
@@ -21,7 +21,7 @@ static void hal_startup(void)
     char name[HAL_NAME_LEN + 1];
     int retval;
 
-    // rtapi_set_msg_level(RTAPI_MSG_ALL);
+    rtapi_set_msg_level(RTAPI_MSG_ALL);
 
     rtapi_snprintf(name, sizeof(name), "pyring%d", getpid());
     comp_id = hal_init(name);
@@ -68,8 +68,8 @@ public:
 	    throw boost::python::error_already_set();
 	}
 	is_stream = rb.header->is_stream;
-	use_rmutex = hal_ring_use_rmutex(&rb);
-	use_wmutex = hal_ring_use_wmutex(&rb);
+	use_rmutex = rtapi_ring_use_rmutex(&rb);
+	use_wmutex = rtapi_ring_use_wmutex(&rb);
     }
 
     // create a new ring of given size and mode
@@ -106,7 +106,7 @@ public:
 			    "next_size() is invalid for Record mode rings");
 	    throw boost::python::error_already_set();
 	}
-	if ((retval = hal_record_next_size(&rb)) > -1)
+	if ((retval = rtapi_record_next_size(&rb)) > -1)
 	    return bp::object(retval);
 	return bp::object();
     }
@@ -117,7 +117,7 @@ public:
 			    "shift() with no argument is invalid for Record mode rings");
 	    throw boost::python::error_already_set();
 	}
-	return hal_record_shift(&rb);
+	return rtapi_record_shift(&rb);
     }
 
     void consume(int nbytes) {
@@ -128,7 +128,7 @@ public:
 			    "shift(int) is invalid for Stream mode rings");
 	    throw boost::python::error_already_set();
 	}
-	avail = hal_stream_read_space(rb.header);
+	avail = rtapi_stream_read_space(rb.header);
 	if (nbytes > (int) avail) {
 	    char msg[LINELEN];
 	    rtapi_snprintf(msg, sizeof(msg),
@@ -137,7 +137,7 @@ public:
 	    PyErr_SetString(PyExc_NameError, msg);
 	    throw boost::python::error_already_set();
 	}
-	hal_stream_read_advance(&rb, nbytes);
+	rtapi_stream_read_advance(&rb, nbytes);
     }
 
     int write(char *buf, size_t size) {
@@ -145,10 +145,10 @@ public:
 	char msg[LINELEN];
 
 	if (is_stream) {
-	    unsigned rsize = hal_stream_write(&rb, buf, size);
+	    unsigned rsize = rtapi_stream_write(&rb, buf, size);
 	    return  (rsize != size) ? rsize : 0;
 	} else {
-	    if ((retval = hal_record_write(&rb, buf, size)) == ERANGE) {
+	    if ((retval = rtapi_record_write(&rb, buf, size)) == ERANGE) {
 		// ERANGE: record greater than ring buffer (fatal)
 		rtapi_snprintf(msg, sizeof(msg),
 			       "write: record size %d greater than buffer size %d",
@@ -163,16 +163,16 @@ public:
 
     size_t available() const {
 	if (is_stream)
-	    return hal_stream_write_space(rb.header);
+	    return rtapi_stream_write_space(rb.header);
 	else
-	    return hal_record_write_space(rb.header);
+	    return rtapi_record_write_space(rb.header);
     }
 
     void flush() {
 	if (is_stream)
-	    hal_stream_flush(&rb);
+	    rtapi_stream_flush(&rb);
 	else
-	    hal_record_flush(&rb);
+	    rtapi_record_flush(&rb);
     }
 
     bp::object next_buffer()
@@ -180,26 +180,26 @@ public:
 	if (is_stream) {
 	    ringvec_t vec[2];
 
-	    hal_stream_get_read_vector(&rb, vec);
+	    rtapi_stream_get_read_vector(&rb, vec);
 	    if (vec[0].rv_len) {
 		bp::handle<> h(PyString_FromStringAndSize((const char *)vec[0].rv_base,
 							  vec[0].rv_len));
 		if (vec[1].rv_len == 0) {
-		    hal_stream_read_advance(&rb, vec[0].rv_len);
+		    rtapi_stream_read_advance(&rb, vec[0].rv_len);
 		    return bp::object(h);
 		} else {
 		    bp::handle<> h2(PyString_FromStringAndSize((const char *)vec[1].rv_base,
 							       vec[1].rv_len));
-		    hal_stream_read_advance(&rb, vec[0].rv_len + vec[1].rv_len);
+		    rtapi_stream_read_advance(&rb, vec[0].rv_len + vec[1].rv_len);
 		    return bp::object(h) + bp::object(h2);
 		}
 	    } else
 		return bp::object();
 	} else {
-	    ring_size_t size = hal_record_next_size(&rb);
+	    ring_size_t size = rtapi_record_next_size(&rb);
 	    if (size < 0)
 		return bp::object();
-	    bp::handle<> h(PyString_FromStringAndSize((const char *)hal_record_next(&rb), size));
+	    bp::handle<> h(PyString_FromStringAndSize((const char *)rtapi_record_next(&rb), size));
 	    return bp::object(h);
 	}
     }

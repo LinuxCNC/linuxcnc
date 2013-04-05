@@ -27,7 +27,7 @@ FUNCTION(_) {
 
     if (rb.header->is_stream) {
 	// peek into the stream, non-copy mode
-	hal_stream_get_read_vector(&rb, vec);
+	rtapi_stream_get_read_vector(&rb, vec);
 	rsize = vec[0].rv_len + vec[1].rv_len;
 	if (vec[0].rv_len) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): bytes=%d '%.*s",
@@ -40,24 +40,24 @@ FUNCTION(_) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "'\n");
 
 	    // consume bytes read
-	    hal_stream_read_advance(&rb, rsize);
+	    rtapi_stream_read_advance(&rb, rsize);
 	    received++;
 	} else
 	    underrun++;
     } else {
 
-	if (hal_record_next_size(&rb) < 0) {
+	if (rtapi_record_next_size(&rb) < 0) {
 	    // ring empty
 	    underrun++;
 	    return;
 	}
-	rsize = hal_record_next_size(&rb);
+	rsize = rtapi_record_next_size(&rb);
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): reclen=%d '%.*s', writer=%d\n",
 			name, ring, rsize, rsize,
-			(char *) hal_record_next(&rb),
+			(char *) rtapi_record_next(&rb),
 			rb.header->writer);
 	// consume record
-	hal_record_shift(&rb);
+	rtapi_record_shift(&rb);
 	received++;
     }
 }
@@ -87,7 +87,7 @@ int rtapi_app_main(void)
 		    " rmutex=%d wmutex=%d reader=%d writer=%d\n",
 		    name, ring, rb.header->size,
 		    rb.header->is_stream ? "stream" : "record",
-		    hal_ring_use_rmutex(&rb), hal_ring_use_wmutex(&rb),
+		    rtapi_ring_use_rmutex(&rb), rtapi_ring_use_wmutex(&rb),
 		    rb.header->reader, rb.header->writer);
 
     rb.header->reader = comp_id;

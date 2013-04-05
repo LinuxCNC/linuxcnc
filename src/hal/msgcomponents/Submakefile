@@ -1,15 +1,21 @@
 #ifeq ($(USE_MSGCOMP),yes)
 
-ifeq ($(USE_PROTOBUF),yes)
+#ifeq ($(USE_PROTOBUF),yes)
 
 MSGCOMP_DIR=hal/msgcomponents
 
+MSGCOMPS := \
+	 $(MSGCOMP_DIR)/remote.comp \
+	 $(MSGCOMP_DIR)/ringread.comp \
+	 $(MSGCOMP_DIR)/ringwrite.comp
+
+ifeq ($(USE_PROTOBUF),yes)
+MSGCOMPS += $(MSGCOMP_DIR)/pbring.comp
+endif
 
 # kernel modules
 ifneq ($(KERNELRELEASE),)
 
-MSGCOMPS := $(patsubst $(BASEPWD)/%,%,\
-	$(wildcard $(BASEPWD)/$(MSGCOMP_DIR)/*.comp))
 include $(patsubst %.comp, \
 	$(BASEPWD)/objects/%.mak, $(MSGCOMPS))
 
@@ -52,7 +58,7 @@ clean: clean-msgcomp-manpages
 clean-msgcomp-manpages:
 	-rm -f $(MSGCOMP_MANPAGES) $(MSGCOMP_DRIVER_MANPAGES)
 
-endif  # USE_PROTOBUF
+#endif  # USE_PROTOBUF
 
 
 ifeq ($(BUILD_EXAMPLES),yes)

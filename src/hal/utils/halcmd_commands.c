@@ -1121,11 +1121,10 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
+#if defined(BUILD_SYS_USER_DSO)
     char inst[50];
 
-#if defined(BUILD_SYS_USER_DSO)
     snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
-
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
@@ -1400,9 +1399,11 @@ static int unloadrt_comp(char *mod_name)
 {
     int retval;
     char *argv[10];
-    char inst[50];
     int m=0;
+
 #if defined(BUILD_SYS_USER_DSO)
+    char inst[50];
+
     snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
     argv[m++] = inst;
@@ -2860,10 +2861,10 @@ static void print_ring_info(char **patterns)
 		halcmd_output(" wmutex");
 	    if (rh->is_stream)
 		halcmd_output(" free:%d ",
-			      hal_stream_write_space(rh));
+			      rtapi_stream_write_space(rh));
 	    else
 		halcmd_output(" recmax:%d ",
-			      hal_record_write_space(rh));
+			      rtapi_record_write_space(rh));
 	    if (rh->scratchpad_size != 0)
 		halcmd_output(" scratchpad:%d ", rh->scratchpad_size);
 	    halcmd_output("\n");

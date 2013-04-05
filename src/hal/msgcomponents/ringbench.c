@@ -144,7 +144,7 @@ void *producer(void *arg)
 	    continue;
 	}
 	if (conf.mode == MODE_STREAM) {
-	    if (hal_stream_write(p->r, (const char *)&v, sizeof(v)) != sizeof(v)) {
+	    if (rtapi_stream_write(p->r, (const char *)&v, sizeof(v)) != sizeof(v)) {
 		p->wfail++;
 	    } else {
 		if (conf.verbose)
@@ -157,7 +157,7 @@ void *producer(void *arg)
 	    p->ctr++;
 	} else {
 
-	    retval = hal_record_write(p->r, &v, sizeof(v));
+	    retval = rtapi_record_write(p->r, &v, sizeof(v));
 	    if (retval)
 		p->wfail++;
 	    else {
@@ -177,7 +177,7 @@ void *producer(void *arg)
 void *consumer(void *arg)
 {
     consinfo_t *c = arg;
-    value_t *vp;
+    const value_t *vp;
     ring_size_t size;
 
     if (conf.verbose)
@@ -197,7 +197,7 @@ void *consumer(void *arg)
 	if (conf.mode == MODE_STREAM) {
 	} else {
 
-	    size = hal_record_next_size(c->r);
+	    size = rtapi_record_next_size(c->r);
 	    if (size < 0) {
 		if (rdone) {
 		    if (c->r->header->use_rmutex)
@@ -207,9 +207,9 @@ void *consumer(void *arg)
 		c->rfail++;
 	    } else {
 		assert(size == sizeof(value_t));
-		vp = hal_record_next(c->r);
+		vp = rtapi_record_next(c->r);
 		assert(vp->val == __sync_fetch_and_add (&ep[vp->tid],1));
-		hal_record_shift(c->r);
+		rtapi_record_shift(c->r);
 		c->rcnt++;
 	    }
 	    if (c->r->header->use_rmutex)
