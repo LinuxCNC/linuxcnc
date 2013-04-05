@@ -102,7 +102,6 @@ typedef __s64		s64;
 # include <asm/types.h>
 #endif
 
-#include "rtapi_ring.h"
 
 /* LINUX_VERSION_CODE for rtapi_{module,io}.c */
 #ifdef MODULE
@@ -115,6 +114,7 @@ typedef __s64		s64;
 #endif
 
 #include <rtapi_errno.h>
+#include <rtapi_ring.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
@@ -570,10 +570,10 @@ extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
 *                        Ringbuffer related functions                  *
 ************************************************************************/
 
-typedef int (*rtapi_ring_new_t) (int,int,int,int);
+typedef int (*rtapi_ring_new_t) (size_t, size_t, int, int);
 #define rtapi_ring_new(size, sp_size, module_id, flags) \
     rtapi_switch->rtapi_ring_new(size, sp_size, module_id, flags)
-extern int _rtapi_ring_new(int size, int sp_size, int module_id, int flags);
+extern int _rtapi_ring_new(size_t size, size_t sp_size, int module_id, int flags);
 
 typedef int (*rtapi_ring_attach_t) (int,ringbuffer_t *, int);
 #define rtapi_ring_attach(handle, ptr, module_id)			\
