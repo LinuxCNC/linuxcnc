@@ -118,10 +118,10 @@ static char **completion_matches_table(const char *text, const char **table, hal
 
 static hal_type_t match_type = -1;
 static int match_writers = -1;
-static hal_pin_dir_t match_direction = -1;
+static hal_pin_dir_t match_direction = HAL_DIR_UNSPECIFIED;
 
 static int direction_match(hal_pin_dir_t dir1, hal_pin_dir_t dir2) {
-    if(dir1 == -1 || dir2 == -1) return 1;
+    if(dir1 == HAL_DIR_UNSPECIFIED || dir2 == -1) return 1;
     return (dir1 | dir2) == HAL_IO;
 }
 
@@ -259,7 +259,7 @@ static char *signal_generator(const char *text, int state) {
     while(next) {
         hal_sig_t *sig = SHMPTR(next);
         next = sig->next_ptr;
-        if ( match_type != -1 && match_type != sig->type ) continue; 
+        if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != sig->type ) continue; 
         if ( !writer_match( match_direction, sig->writers ) ) continue;
 	if ( strncmp(text, sig->name, len) == 0 )
             return strdup(sig->name);
@@ -472,7 +472,7 @@ static char *pin_generator(const char *text, int state) {
         }
         if ( !writer_match( pin->dir, match_writers ) ) continue;
         if ( !direction_match( pin->dir, match_direction ) ) continue;
-        if ( match_type != -1 && match_type != pin->type ) continue; 
+        if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != pin->type ) continue; 
 	if ( strncmp(text, name, len) == 0 )
             return strdup(name);
     }
@@ -602,7 +602,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = func(text, pin_generator);
     } else if(startswith(buffer, "net ") && argno > 2) {
         check_match_type_signal(nextword(buffer));
-        if(match_type == -1) {
+        if(match_type == HAL_TYPE_UNSPECIFIED) {
             check_match_type_pin(nextword(nextword(buffer)));
             if(match_direction == HAL_IN) match_direction = -1;
         }
