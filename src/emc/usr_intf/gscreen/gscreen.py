@@ -689,10 +689,12 @@ class Gscreen:
         gobject.timeout_add(int(temp), self.periodic_status)
 
     def initialize_keybindings(self):
-        accel_group = gtk.AccelGroup()
-        self.widgets.window1.add_accel_group(accel_group)
-        self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
-
+        try:
+            accel_group = gtk.AccelGroup()
+            self.widgets.window1.add_accel_group(accel_group)
+            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
+        except:
+            pass
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
