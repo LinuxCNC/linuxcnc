@@ -3236,7 +3236,7 @@ static int generateEPS(const char *filename, int inColor,
          if ( curpix[ i++] > 0x7f) bitpixel |= 0x02;
          if ( curpix[ i++] > 0x7f) bitpixel |= 0x01;
       }
-      fprintf(fp, "%02hx", bitpixel);
+      fprintf(fp, "%02x", (int)bitpixel);
       if (++pos >= 40) {
          fprintf(fp, "\n%%");
          pos = 0;
@@ -3278,7 +3278,7 @@ static int generateEPS(const char *filename, int inColor,
    curpix = (unsigned char *) pixels;
    pos = 0;
    for (i = width * height * components; i > 0; i--) {
-      fprintf(fp, "%02hx", *curpix++);
+      fprintf(fp, "%02x", (int)*curpix++);
       if (++pos >= 40) {
 	 fprintf(fp, "\n");
 	 pos = 0;
