@@ -35,12 +35,15 @@ void *ring_addr_array[RTAPI_MAX_RINGS + 1];
 static void ring_autorelease_mutex(void *variable)
 {
     if (rtapi_data != NULL) {
+
+#if 0
 	// this is very likely a programming error: a scope
 	// was exited and the mutex not held there
 	if (!test_bit(0, &(rtapi_data->ring_mutex))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ring_autorelease_mutex: mutex not set!\n");
 	}
+#endif
 	rtapi_mutex_give(&(rtapi_data->ring_mutex));
     } else
 	// and this too
@@ -116,7 +119,7 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 {
     ring_data *rdptr  __attribute__((cleanup(ring_autorelease_mutex)));
     ringheader_t *rhptr;
-    int retval;
+    int retval, shmid;
 
     rtapi_mutex_get(&(rtapi_data->ring_mutex));
     if (handle < 0 || handle >= RTAPI_MAX_RINGS)
@@ -128,7 +131,17 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 #if defined(BUILD_SYS_KBUILD)
 	// the ringbuffer exists, but this module has not yet
 	// attached this ringbuffer.
-	if ((retval = _rtapi_shmem_getptr(rdptr->shmem_id, (void **)&rhptr))) {
+
+	rdptr->key = RTAPI_RING_SHM_KEY + handle;
+	if ((shmid = _rtapi_shmem_new(rdptr->key, module_id, 0)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_ring_attach(): rtapi_shmem_new(key "
+			    "0x%8.8x owner %d ) failed:  %d\n",
+			    rdptr->key, module_id, shmid);
+	    return  -ENOMEM;
+	}
+
+	if ((retval = _rtapi_shmem_getptr(shmid, (void **)&rhptr))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "_rtapi_ring_attach(%d): rtapi_shmem_getptr failed %d\n",
 			    handle, retval);

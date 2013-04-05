@@ -3542,7 +3542,7 @@ int hal_ring_detach(const char *name)
 	    }
 	    // delete the HAL name only once the RTAPI ring becomes
 	    // inaccessible
-	    if (rtapi_ring_refcount(rbdesc->ring_id) < 0) {
+	    if (rtapi_ring_refcount(rbdesc->ring_id) < 1) {
 		// the RTAPI ring structure has been freed, so free corresponding
 		// HAL ring structure as well.
 		rtapi_print_msg(RTAPI_MSG_DBG,
