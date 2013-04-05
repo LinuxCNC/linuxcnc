@@ -199,6 +199,16 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 
     // record usage
     set_bit(module_id, rdptr->bitmap);
+
+#ifdef ULAPI
+{
+    int i;
+    for (i = 0; i < RTAPI_MAX_RINGS; i++)
+	if (test_bit(i,rdptr->bitmap))
+	    printf("%d ",i);
+}
+#endif
+
     // fill in ringbuffer_t
     rtapi_ringbufer_init(rhptr, rbptr);
     return 0;

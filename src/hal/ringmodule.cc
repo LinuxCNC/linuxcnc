@@ -240,7 +240,7 @@ static  Ring *ring_create(const char *name, size_t size, int mode)
 
 static int ring_detach(const char *name)
 {
-    return hal_ring_detach(name);
+    return hal_ring_detach(name,comp_id);
 }
 
 static list ring_names (void)

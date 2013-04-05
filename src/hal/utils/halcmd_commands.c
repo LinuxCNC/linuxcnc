@@ -2813,6 +2813,7 @@ void dump_rings(const char *where, int attach, int detach)
     }
 }
 #endif
+
 static void print_ring_info(char **patterns)
 {
     int next_ring, retval;

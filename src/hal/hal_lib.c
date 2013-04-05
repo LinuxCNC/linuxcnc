@@ -3508,7 +3508,7 @@ int hal_ring_attach(const char *name, ringbuffer_t *rbptr, int module_id)
 // this invalidates a reference obtained by hal_ring_attach()
 // once refcount of the underlying RTAPI ring reaches zero, 
 // the HAL ring struct is deleted as well
-int hal_ring_detach(const char *name)
+int hal_ring_detach(const char *name, int module_id)
 {
     hal_ring_t *rbdesc __attribute__((cleanup(halpr_autorelease_mutex)));
     int next,*prev;
@@ -3534,10 +3534,10 @@ int hal_ring_detach(const char *name)
 	rbdesc = SHMPTR(next);
 	if (strcmp(rbdesc->name, name) == 0) {
 	    // reduces RTAPI refcount in ring_data
-	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, rbdesc->owner))) {
+	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, module_id))) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"hal_ring_detach(%s): rtapi_ring_detach failed %d/%d\n",
-				rbdesc->name, rbdesc->ring_id, rbdesc->owner);
+				rbdesc->name, rbdesc->ring_id, module_id);
 		return retval;
 	    }
 	    // delete the HAL name only once the RTAPI ring becomes

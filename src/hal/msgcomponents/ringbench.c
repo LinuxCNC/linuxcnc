@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 	    printf("p %d: ctr=%d ep=%d\n",i,pi[i].ctr,ep[i]);
 	assert(pi[i].ctr == ep[i]);
     }
-    hal_ring_detach(ringname);
+    hal_ring_detach(ringname, comp_id);
     hal_exit(comp_id);
     exit(0);
 }

@@ -31,7 +31,7 @@ typedef struct {
 int hal_ring_new(const char *name, int size, int spsize, int module_id, int mode);
 
 /* delete a named ringbuffer */
-int hal_ring_detach(const char *name);
+int hal_ring_detach(const char *name, int module_id);
 
 /* make an existing ringbuffer accessible to a component
  * rb must point to storage of type ringbuffer_t
