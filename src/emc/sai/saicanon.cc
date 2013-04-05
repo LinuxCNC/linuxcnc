@@ -534,13 +534,7 @@ void STRAIGHT_PROBE(int line_number,
   _probe_position_a = a; /*AA*/
   _probe_position_b = b; /*BB*/
   _probe_position_c = c; /*CC*/
-  if (distance == 0)
-    {
-      _program_position_x = _program_position_x;
-      _program_position_y = _program_position_y;
-      _program_position_z = _program_position_z;
-    }
-  else
+  if (distance != 0)
     {
       backoff = ((_length_unit_type == CANON_UNITS_MM) ? 0.254 : 0.01);
       _program_position_x = (x + (backoff * (dx / distance)));
