@@ -117,7 +117,7 @@ static int send_response(int type, int serial)
 }
 
 FUNCTION(_) {
-    int cmdsize = hal_record_next_size(&command_rb);
+    int cmdsize = rtapi_record_next_size(&command_rb);
     void *cmdbuffer;
     Container container;
 
@@ -126,14 +126,14 @@ FUNCTION(_) {
 	underrun++;
 	return;
     }
-    cmdbuffer = hal_record_next(&command_rb);
+    cmdbuffer = rtapi_record_next(&command_rb);
     if (!decode_msg(cmdbuffer, cmdsize, &container)) {
 	// reasonable processing here
 
 	// echo back selected fields
 	// send_response(MsgType_MT_COMMAND, command.serial);
     }
-    hal_record_shift(&command_rb);
+    rtapi_record_shift(&command_rb);
     received++;
 }
 
@@ -193,11 +193,11 @@ void rtapi_app_exit(void)
 {
     int retval;
 
-    if ((retval = hal_ring_detach(command)))
+    if ((retval = hal_ring_detach(command, comp_id)))
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: hal_ring_detach(%s) failed: %d\n",
 			mod, command, retval);
-   if ((retval = hal_ring_detach(response)))
+    if ((retval = hal_ring_detach(response, comp_id)))
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: hal_ring_detach(%s) failed: %d\n",
 			mod, response, retval);

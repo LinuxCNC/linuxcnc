@@ -63,10 +63,9 @@
   RTAPI_SERIAL should be bumped with changes that break compatibility
   with previous versions.
 */
-#define RTAPI_SERIAL 1
+#define RTAPI_SERIAL 2
 
 #include "config.h"
-#include "rtapi_global.h"  
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
@@ -115,6 +114,7 @@ typedef __s64		s64;
 
 #include <rtapi_errno.h>
 #include <rtapi_ring.h>
+#include <rtapi_global.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 

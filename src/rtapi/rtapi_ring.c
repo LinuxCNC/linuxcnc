@@ -119,7 +119,6 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 {
     ring_data *rdptr  __attribute__((cleanup(ring_autorelease_mutex)));
     ringheader_t *rhptr;
-    int retval, shmid;
 
     rtapi_mutex_get(&(rtapi_data->ring_mutex));
     if (handle < 0 || handle >= RTAPI_MAX_RINGS)
@@ -129,6 +128,8 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
     if (rdptr->magic == RING_MAGIC) {
 
 #if defined(BUILD_SYS_KBUILD)
+	int shmid, retval;
+
 	// the ringbuffer exists, but this module has not yet
 	// attached this ringbuffer.
 
@@ -153,7 +154,7 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 	if (rhptr == NULL) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "_rtapi_ring_attach(%d): BUG rhptr == NULL\n",
-			    handle, retval);
+			    handle);
 	    return -ENOMEM;
 	}
 #endif
@@ -166,7 +167,7 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 #else
 	// not yet attached, or non-existent
 	// test if the shm segment exists, else fail.
-	key_t key = OS_KEY(RTAPI_RING_SHM_KEY + handle);
+	key_t key = OS_KEY((RTAPI_RING_SHM_KEY + handle));
 
 	if ((shmget(key, 1, 0) == -1) && (errno == ENOENT)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -192,8 +193,8 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 			    rdptr->shmem_id);
 	    return -ENOMEM;
 	}
+	rhptr = ring_addr_array[handle];
 	rdptr->magic = RING_MAGIC;
-	rdptr->count++;
 #endif
     }
 

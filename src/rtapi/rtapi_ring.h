@@ -18,8 +18,8 @@
 #include "rtapi_mbarrier.h"
 #include "rtapi_string.h"
 
-#ifndef MAX
-#define MAX(x, y) (((x) > (y))?(x):(y))
+#ifndef MAXIMUM // MAX conflicts with definition in hal/drivers/pci_8255.c
+#define MAXIMUM(x, y) (((x) > (y))?(x):(y))
 #endif
 
 //RTAPI_BEGIN_DECLS
@@ -381,8 +381,8 @@ static inline size_t rtapi_record_write_space(const ringheader_t *h)
     if (h->tail < h->head)
         avail = h->head - h->tail;
     else
-        avail = MAX(h->head, h->size - h->tail);
-    return MAX(0, avail - (2 * RB_ALIGN));
+        avail = MAXIMUM(h->head, h->size - h->tail);
+    return MAXIMUM(0, avail - (2 * RB_ALIGN));
 }
 
 
