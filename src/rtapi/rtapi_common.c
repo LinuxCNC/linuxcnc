@@ -208,17 +208,17 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
-	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
+	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
     for (n = 0; n <= RTAPI_MAX_RINGS; n++) {
 	data->ring_array[n].magic = 0;
-	data->ring_array[n].handle = 0;
 	data->ring_array[n].key = 0;
-	data->ring_array[n].total_size = 0;
-	data->ring_array[n].count = 0;
 	data->ring_array[n].owner = 0;
+	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_RINGS +1); m++) {
+	    data->ring_array[n].bitmap[m] = 0;
+	}
     }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);
@@ -270,9 +270,9 @@ void _rtapi_printall(void) {
 		    rtapi_data);
     rtapi_print_msg(RTAPI_MSG_DBG, "  magic = %d\n",
 		    rtapi_data->magic);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  serial = %s\n",
+    rtapi_print_msg(RTAPI_MSG_DBG, "  serial = %d\n",
 		    rtapi_data->serial);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  thread_flavor_id = %d\n",
+    rtapi_print_msg(RTAPI_MSG_DBG, "  thread_flavor id = %d\n",
 		    rtapi_data->thread_flavor_id);
     rtapi_print_msg(RTAPI_MSG_DBG, "  mutex = %lu\n",
 		    rtapi_data->mutex);

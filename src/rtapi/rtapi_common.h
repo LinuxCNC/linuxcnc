@@ -185,11 +185,10 @@ typedef struct {
 
 typedef struct {
     int magic;			/* to check for valid handle */
-    int handle;                 /* index into shmem_array */
+    int shmem_id;               /* index into shmem_array */
     int key;                    /* RTAPI shm key */
-    int total_size;             /* ringheader + buffer + scratchpad + alignment */
-    int count;                  /* count of maps in this process */
     int owner;                  /* module which created the ring */
+    _DECLARE_BITMAP(bitmap, RTAPI_MAX_RINGS+1); /* which modules have ring attached */
 } ring_data;
 
 
@@ -268,7 +267,7 @@ extern void *shmem_addr_array[];
 /* rtapi_ring.c */
 #define RING_MAGIC   120756	/* random numbers used as signatures */
 extern ring_data *ring_array;
-
+extern void *ring_addr_array[];
 
 
 /* rtapi_module.c */
