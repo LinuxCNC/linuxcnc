@@ -777,8 +777,8 @@ AC_SUBST(GLIB_CFLAGS)
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
 
-AC_PATH_PROG(CXX,$CXX,"none")
-if test $CXX = "none"
+AC_PATH_PROG(CXX_PATH,$CXX,"none")
+if test $CXX_PATH = "none"
 then
     AC_MSG_ERROR([C++ compiler not found])
 fi

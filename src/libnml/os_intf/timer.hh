@@ -139,10 +139,7 @@ difficult */
     RCS_SEMAPHORE **sems;
 #endif
     int num_sems;
-    int sem_key;
     int id;
-    int create_sems;
-    int poller_pid;
     double clk_tck_val;
 };
 

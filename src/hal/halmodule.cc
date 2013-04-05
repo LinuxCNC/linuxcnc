@@ -263,6 +263,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U32: return PyLong_FromUnsignedLong(*(item->u->pin.u32));
             case HAL_S32: return PyInt_FromLong(*(item->u->pin.s32));
             case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     } else {
         switch(item->type) {
@@ -270,6 +271,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U32: return PyLong_FromUnsignedLong(item->u->param.u32);
             case HAL_S32: return PyInt_FromLong(item->u->param.s32);
             case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
     PyErr_Format(pyhal_error_type, "Invalid item type %d", item->type);
