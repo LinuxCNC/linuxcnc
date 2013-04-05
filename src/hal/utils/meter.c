@@ -222,7 +222,7 @@ int main(int argc, gchar * argv[])
     }
     hal_ready(comp_id);
     /* register an exit function to disconnect from the HAL */
-    g_atexit(exit_from_hal);
+    atexit(exit_from_hal);
     /* capture INT (ctrl-C) and TERM signals */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
