@@ -184,7 +184,6 @@ typedef struct {
     int shmem_id;               /* index into shmem_array */
     int key;                    /* RTAPI shm key */
     int owner;                  /* module which created the ring */
-    _DECLARE_BITMAP(bitmap, RTAPI_MAX_RINGS+1); /* which modules have ring attached */
 } ring_data;
 
 

@@ -33,7 +33,7 @@ typedef struct {
     __u8 is_stream;      // record or stream mode
     __u8 use_rmutex;     // hint to using code - use ringheader_t.rmutex
     __u8 use_wmutex;     // hint to using code - use ringheader_t.wmutex
-
+    int refcount;        // number of referencing entities (modules, threads..)
     int reader, writer;  // HAL module id's - informational // MOVE TO HAL LAYER FIXME
     unsigned long rmutex, wmutex; // optional use - if used by multiple readers/writers
     size_t scratchpad_size;
@@ -120,6 +120,12 @@ static inline size_t rtapi_ring_memsize(int flags, size_t size, size_t  sp_size)
 	rtapi_ring_scratchpad_alloc(sp_size);
 }
 
+static inline int rtapi_ring_refcount(ringheader_t *rhptr)
+{
+    return rhptr->refcount;
+}
+
+
 // initialize a ringbuffer header and storage as already allocated
 // with a size of rtapi_ring_memsize(flags, size, sp_size)
 // this will not clear the storage allocated.
@@ -143,13 +149,14 @@ static inline void rtapi_ringheader_init(ringheader_t *rhptr, int flags,
 	rhptr->is_stream = 0;
 	rhptr->generation = 0;
     }
+    rhptr->refcount = 1;
 }
 
 // given a ringheader_t *, initialize a ringbuffer_t
 // the latter is the per-user access structure and filled
 // in e.g. in rtapi_ring_attach()
 // ringbuffer_t must point to allocated memory
-static inline void rtapi_ringbufer_init(ringheader_t *rhptr, ringbuffer_t *rbptr)
+static inline void rtapi_ringbuffer_init(ringheader_t *rhptr, ringbuffer_t *rbptr)
 {
     // pass address of ringheader to caller
     rbptr->header = rhptr;

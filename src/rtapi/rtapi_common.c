@@ -137,7 +137,6 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_ring_new = &_rtapi_ring_new,
     .rtapi_ring_attach = &_rtapi_ring_attach,
     .rtapi_ring_detach = &_rtapi_ring_detach,
-    .rtapi_ring_refcount = &_rtapi_ring_refcount,
 
     // i/o related functions
     .rtapi_outb = &_rtapi_outb,
@@ -216,9 +215,6 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->ring_array[n].magic = 0;
 	data->ring_array[n].key = 0;
 	data->ring_array[n].owner = 0;
-	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_RINGS +1); m++) {
-	    data->ring_array[n].bitmap[m] = 0;
-	}
     }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);

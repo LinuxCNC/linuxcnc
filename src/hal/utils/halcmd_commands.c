@@ -2818,7 +2818,7 @@ static void print_ring_info(char **patterns)
 {
     int next_ring, retval;
     hal_ring_t *rptr;
-    ringheader_t *rh;
+    ringheader_t *rh, ringheader;
     ringbuffer_t ringbuffer;
 
 #ifdef RINGDEBUG
@@ -2831,7 +2831,7 @@ static void print_ring_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Rings:\n");
-	halcmd_output("Name           Size       Type   Rdr Wrt Ref Flags \n");
+	halcmd_output("Name           Size       Type   Own Rdr Wrt Ref Flags \n");
     }
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2845,17 +2845,25 @@ static void print_ring_info(char **patterns)
 	    		     rptr->name, rptr->ring_id);
 	    	goto failed;
 	    }
-	    rh = ringbuffer.header;
-/* Name           Size       Type   Rdr Wrt Ref Flags  */
-/* ring_0         16392      record 0   0   2   recmax:16376  */
+	    // take a snapshot; correct refcount below for the temporary attach
+	    memcpy(&ringheader, ringbuffer.header, sizeof(ringheader_t));
+	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id)) < 0) {
+	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
+	    		     rptr->name, rptr->ring_id);
+	    	goto failed;
+	    }
+	    rh = &ringheader;
+/* Name           Size       Type   Own Rdr Wrt Ref Flags  */
+/* ring_0         16392      record 0   0   0   2   recmax:16376  */
 
-	    halcmd_output("%-14.14s %-10d %-6.6s %-3d %-3d %-3d",
+	    halcmd_output("%-14.14s %-10d %-6.6s %-3d %-3d %-3d %-3d",
 			  rptr->name,
 			  rh->size,
 			  (rh->is_stream) ? "stream" : "record",
+			  rptr->owner,
 			  rh->reader,
 			  rh->writer,
-			  rtapi_ring_refcount(rptr->ring_id));
+			  rh->refcount-1);
 	    if (rh->use_rmutex)
 		halcmd_output(" rmutex");
 	    if (rh->use_wmutex )
@@ -2869,11 +2877,6 @@ static void print_ring_info(char **patterns)
 	    if (rh->scratchpad_size != 0)
 		halcmd_output(" scratchpad:%d ", rh->scratchpad_size);
 	    halcmd_output("\n");
-	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id))) {
-	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
-	    		     rptr->name, rptr->ring_id);
-	    	goto failed;
-	    }
 	}
 	next_ring = rptr->next_ptr;
     }

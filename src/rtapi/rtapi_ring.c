@@ -102,12 +102,11 @@ int _rtapi_ring_new(size_t size, size_t sp_size, int module_id, int flags)
 
     rtapi_ringheader_init(rhptr, flags, size, sp_size);
 
-    // record ancestry
-    // NB: creating a ring implies attaching to it as far as
-    // shm references go; the handle needs still to be retrieved
-    // by rtapi_ring_attach() but this will be idempotent with
-    // respect to module use in the bitmap
-    set_bit(module_id, rdptr->bitmap);
+    // once refcount is 0 in rtapi_ring_detach(), the 
+    // shm segment may be freed and a corresponding HAL name deleted
+    // the usage assumption is that the module creating the ring
+    // will detach on rtapi_app_exit() and hence delete the ring.
+    rhptr->refcount = 1;
 
     // mark as committed
     rdptr->magic = RING_MAGIC;
@@ -198,51 +197,24 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 #endif
     }
 
-    // record usage
-    set_bit(module_id, rdptr->bitmap);
-
-#ifdef ULAPI
-{
-    int i;
-    for (i = 0; i < RTAPI_MAX_RINGS; i++)
-	if (test_bit(i,rdptr->bitmap))
-	    printf("%d ",i);
-}
-#endif
-
+    // record usage in ringheader
+    rhptr->refcount++;
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "rtapi_ring_attach: handle=%d module=%d key=0x%x:  "
+		    "now %d users\n",
+		    handle, module_id, rdptr->key, rhptr->refcount);
     // fill in ringbuffer_t
-    rtapi_ringbufer_init(rhptr, rbptr);
+    rtapi_ringbuffer_init(rhptr, rbptr);
     return 0;
 }
 
-// return -EINVAL if not a successfully attached ring
-// else return the number of modules having the ring attached
-// NB: use rtapi_mutex here so we can call this from other functions
-// herein
-int _rtapi_ring_refcount(int handle)
-{
-    int i, count = 0;
-
-    ring_data *rdptr __attribute__((cleanup(rtapi_autorelease_mutex)));
-
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    if(handle < 0 || handle >= RTAPI_MAX_RINGS)
-	return -EINVAL;
-
-    rdptr = &ring_array[handle];
-    if (rdptr->magic != RING_MAGIC)
-	return -EINVAL;
-    for (i = 0; i < RTAPI_MAX_RINGS; i++)
-	if (test_bit(i, rdptr->bitmap))
-	    count++;
-    return count;
-}
-
+// returns < 0 on error or the remaining refcount for the ring
 int _rtapi_ring_detach(int handle, int module_id)
 {
     ring_data *rdptr __attribute__((cleanup(ring_autorelease_mutex)));
-    int count;
+    ringheader_t *rhptr;
 
+    rtapi_mutex_get(&(rtapi_data->ring_mutex));
     if(handle < 0 || handle >= RTAPI_MAX_RINGS)
 	return -EINVAL;
 
@@ -252,16 +224,28 @@ int _rtapi_ring_detach(int handle, int module_id)
     if (rdptr->magic != RING_MAGIC)
 	return -EINVAL;
 
-    clear_bit(module_id, rdptr->bitmap);
-    count = _rtapi_ring_refcount(handle);
-
-    if (count) {
-	// ring is still referenced.
+    // retrieve ringheader address to decrease refcount
+    if (_rtapi_shmem_getptr(rdptr->shmem_id, (void **)&rhptr)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
+			"_rtapi_ring_detach: rtapi_shmem_getptr failed %d\n",
+			rdptr->shmem_id);
+	return -ENOMEM;
+    }
+    rhptr->refcount--;
+
+    if (rhptr->refcount) {
+	// ring is still referenced.
+	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi_ring_detach: handle=%d module=%d key=0x%x:  "
 			"%d remaining users\n",
-			handle, module_id, rdptr->key, count);
-	return 0;
+			handle, module_id, rdptr->key, rhptr->refcount);
+	return rhptr->refcount;
+    } else {
+	rtapi_print_msg(RTAPI_MSG_DBG,
+			"rtapi_ring_detach: handle=%d module=%d key=0x%x:  "
+			"refcount 0, releasing\n",
+			handle, module_id, rdptr->key);
+
     }
     // release shm segment if use count dropped to zero:
     if (_rtapi_shmem_delete(rdptr->shmem_id, rdptr->owner)) {
