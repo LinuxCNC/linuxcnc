@@ -193,11 +193,11 @@ void rtapi_app_exit(void)
 {
     int retval;
 
-    if ((retval = hal_ring_detach(command, comp_id)))
+    if ((retval = hal_ring_detach(command, comp_id)) < 0)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: hal_ring_detach(%s) failed: %d\n",
 			mod, command, retval);
-    if ((retval = hal_ring_detach(response, comp_id)))
+    if ((retval = hal_ring_detach(response, comp_id)) < 0)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: hal_ring_detach(%s) failed: %d\n",
 			mod, response, retval);

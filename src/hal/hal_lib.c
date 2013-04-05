@@ -3533,8 +3533,8 @@ int hal_ring_detach(const char *name, int module_id)
     while (next != 0) {
 	rbdesc = SHMPTR(next);
 	if (strcmp(rbdesc->name, name) == 0) {
-	    // reduces RTAPI refcount in ring_data
-	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, module_id))) {
+	    // this returns the remaining refcount, or < 0 for error
+	    if ((retval = rtapi_ring_detach(rbdesc->ring_id, module_id)) < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"hal_ring_detach(%s): rtapi_ring_detach failed %d/%d\n",
 				rbdesc->name, rbdesc->ring_id, module_id);
@@ -3542,11 +3542,11 @@ int hal_ring_detach(const char *name, int module_id)
 	    }
 	    // delete the HAL name only once the RTAPI ring becomes
 	    // inaccessible
-	    if (rtapi_ring_refcount(rbdesc->ring_id) < 1) {
+	    if (retval == 0) {
 		// the RTAPI ring structure has been freed, so free corresponding
 		// HAL ring structure as well.
 		rtapi_print_msg(RTAPI_MSG_DBG,
-				"hal_ring_detach(%s): RTAPI ring inaccessible, deleting HAL ring %d\n",
+				"hal_ring_detach(%s): RTAPI ring freed, deleting HAL ring %d\n",
 				rbdesc->name, rbdesc->ring_id);
 		*prev = rbdesc->next_ptr;
 		free_ring_struct(rbdesc);
@@ -3555,7 +3555,7 @@ int hal_ring_detach(const char *name, int module_id)
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"hal_ring_detach(%s/%d): still %d references\n",
 				rbdesc->name, rbdesc->ring_id,
-				rtapi_ring_refcount(rbdesc->ring_id));
+				retval);
 	    }
 	    return 0;
 	}

@@ -93,7 +93,7 @@ static int rt_msglevel = RTAPI_MSG_INFO ;
 static int halsize = 262000; //FIXME
 static int instance_id; 
 static flavor_ptr flavor;
-static char *rtlibpath = EMC2_RTLIB_DIR;
+static const char *rtlibpath = EMC2_RTLIB_DIR;
 static int use_drivers = 0;
 
 static rtapi_switch_t *rtsw; // dont collide with rtapi_switch in hal_lib.so
@@ -481,7 +481,7 @@ static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
 
 static char proctitle[20];
 
-static int master(int argc, char **argv, int fd, vector<string> args) {
+static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
     int retval;
 

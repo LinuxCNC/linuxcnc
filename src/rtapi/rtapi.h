@@ -585,11 +585,7 @@ typedef int (*rtapi_ring_detach_t) (int,int);
     rtapi_switch->rtapi_ring_detach(handle, module_id)
 extern int _rtapi_ring_detach(int handle, int module_id);
 
-typedef int (*rtapi_ring_refcount_t) (int);
-#define rtapi_ring_refcount(handle) \
-    rtapi_switch->rtapi_ring_refcount(handle)
-extern int _rtapi_ring_refcount(int handle);
-
+// rtapi_ring_refcount(ringheader_t *ptr) defined in rtapi_ring.h
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
@@ -743,7 +739,6 @@ typedef struct {
     rtapi_ring_new_t rtapi_ring_new;
     rtapi_ring_attach_t rtapi_ring_attach;
     rtapi_ring_detach_t rtapi_ring_detach;
-    rtapi_ring_refcount_t rtapi_ring_refcount;
 
     // i/o related functions
     rtapi_outb_t rtapi_outb;
