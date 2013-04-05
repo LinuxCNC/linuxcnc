@@ -295,6 +295,8 @@ class Data:
         self.preset_spindle_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
+        self.key_event_up = 0
+        self.key_event_dwn = 0
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -626,6 +628,8 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
+        self.initialize_keybindings()
+
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
@@ -683,6 +687,14 @@ class Gscreen:
             temp = 100
         print _("timeout %d" % int(temp))
         gobject.timeout_add(int(temp), self.periodic_status)
+
+    def initialize_keybindings(self):
+        accel_group = gtk.AccelGroup()
+        self.widgets.window1.add_accel_group(accel_group)
+        self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
+
+        self.widgets.window1.connect('key_press_event', self.on_key_event,1)
+        self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
     def initialize_preferences(self):
         self.init_dro_pref()
@@ -1000,6 +1012,43 @@ class Gscreen:
             self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
 # *** GLADE callbacks ****
+
+    def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
+        print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
+        return True
+
+    def on_key_event(self,widget, event,signal):
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal
+        if event.state & gtk.gdk.CONTROL_MASK:
+            print "Control was being held down"
+        if event.state & gtk.gdk.MOD1_MASK:
+            print "Alt was being held down"
+        if event.state & gtk.gdk.SHIFT_MASK:
+            print "Shift was being held down"
+
+        if keyname == "Up":
+            if self.data.key_event_up == signal: return
+            self.do_key_jog(0,0,signal)
+            self.data.key_event_up = signal
+        elif keyname == "Down":
+            if self.data.key_event_dwn == signal: return
+            self.do_key_jog(0,1,signal)
+            self.data.key_event_dwn = signal
+        elif keyname == "Left":
+            self.do_key_jog(1,0,signal)
+        elif keyname == "Right":
+            self.do_key_jog(1,1,signal)
+        elif keyname == "Page_Up":
+            self.do_key_jog(2,0,signal)
+        elif keyname == "Page_Down":
+            self.do_key_jog(2,1,signal)
+        elif keyname in ("I","i") :
+            if signal: return
+            if event.state & gtk.gdk.SHIFT_MASK:
+                self.set_jog_increments(index_dir = -1)
+            else:
+                self.set_jog_increments(index_dir = 1)
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
@@ -2601,6 +2650,25 @@ class Gscreen:
                         jogincr = self.data.jog_increments[self.data.current_jogincr_index]
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
+
+    def do_key_jog(self,axis,direction,action):
+        if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # jog mode active:
+                    if not action: cmd = 0
+                    elif direction: cmd = 1
+                    else: cmd = -1
+                    self.emc.jogging(1)
+                    print self.data.jog_increments[self.data.current_jogincr_index]
+                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
+                        print "active axis jog:",axis
+                        self.emc.continuous_jog(axis,cmd)
+                    else:
+                        print "jog incremental"
+                        if cmd == 0: return # don't want release of button to stop jog
+                        self.mdi_control.mdi.emcstat.poll()
+                        if self.mdi_control.mdi.emcstat.state != 1: return
+                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+                        distance = self.parse_increment(jogincr)
+                        self.emc.incremental_jog(axis,cmd,distance)
 
     # spindle control
     def spindle_adjustment(self,direction,action):
