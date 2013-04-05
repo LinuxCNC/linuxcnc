@@ -188,7 +188,7 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
-	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
+	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
