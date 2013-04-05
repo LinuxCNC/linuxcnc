@@ -1797,6 +1797,13 @@ AH_TOP([/********************************************************************
 
 #define MM_PER_INCH 25.4
 #define INCH_PER_MM (1.0/25.4)
+
+/* RTAPI array sizes */
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
+#define RTAPI_MAX_RINGS	        32
+
 ])
 
 AH_VERBATIM([_GNU_SOURCE],

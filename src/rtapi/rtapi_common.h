@@ -98,11 +98,7 @@ MODULE_LICENSE("GPL");
 
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
-/* maximum number of various resources */
-#define RTAPI_MAX_MODULES	64
-#define RTAPI_MAX_TASKS		64
-#define RTAPI_MAX_SHMEMS	32
-#define RTAPI_MAX_RINGS	        32
+// RTAPI_MAX_* moved to config.h
 
 #define DEFAULT_MAX_DELAY	10000
 
