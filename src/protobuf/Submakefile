@@ -28,7 +28,7 @@
 #
 # TODO:
 #    generate compiled Python bindings for better performance, current options
-#    (sorted in decreasing order of shakiness/completeness at this time):
+#    (sorted in decreasing order of estimated stability/completeness at this time):
 #
 #    1: either use the PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION feature of
 #    google protobuf distro, or
@@ -48,7 +48,14 @@ NPBGENDIR :=  $(NANOPB)/generator
 # the directory where descriptor.proto lives:
 DESCDIR :=  $(shell pkg-config --variable=includedir protobuf)
 
-PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
+# the set of all proto specs generated files depend on
+PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto) 
+
+#	$(NPBGENDIR)/nanopb.proto \
+#	$(DESCDIR)/descriptor.proto
+
+USERSRCS += $(PROTO_SPECS)
+
 PBMSG := # protobuf/generated/pb_messages.h
 
 # C bindings library
@@ -73,7 +80,6 @@ NANOPB_GENERATOR := $(NANOPB)/generator/nanopb_generator.py
 # NANOPB_CFLAGS are also passed to module build through
 # RT_CFLAGS - see protobuf/components/Submakefile
 NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<protobuf/pb-linuxcnc.h>'
-
 
 NANOPB_OPTIONS := $(PBDIR)/nanopb.options
 
@@ -300,6 +306,16 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 # those will be compiled
 USERSRCS +=  $(NANOPB_C_SRCS) $(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS)
 
+GENERATED += \
+	protobuf/generated/google/protobuf/descriptor.pb-c.h \
+	protobuf/generated/google/protobuf/descriptor.pb-c.c \
+	protobuf/generated/nanopb.pb-c.h \
+	protobuf/generated/nanopb.pb.h	\
+	protobuf/generated/nanopb.pb-c.c \
+	protobuf/generated/nanopb.pb.cc \
+	$(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS) \
+	$(PROTO_C_INCS) $(PROTO_CXX_INCS) $(PROTO_NANOPB_C_INCS)
+
 PYTARGETS += $(PROTO_PY_TARGETS)
 
 INCLUDES += $(PBGEN)
@@ -313,5 +329,6 @@ TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
 
 modules userspace: $(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS) \
 	$(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS)
+
 
 endif # USE_PROTOBUF

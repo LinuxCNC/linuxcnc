@@ -159,8 +159,8 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
-$(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.proto, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.proto, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
 $(call TOOBJSDEPS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
@@ -173,7 +173,19 @@ CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
+
+protodeps: $(GENERATED)
+#	$(warning generated=$(GENERATED))
+	./mkprotodep -p protobuf/proto -p protobuf/nanopb/generator \
+	    -p  /usr/local/include/google/protobuf >depends/protodeps.d
+
+.PHONY: protodeps
+
 ifeq ($(TRIVIAL_BUILD),no)
+ifeq ($(USE_PROTOBUF),yes)
+Makefile:	protodeps
+-include depends/protodeps.d
+endif
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 -include $(DEPS)
