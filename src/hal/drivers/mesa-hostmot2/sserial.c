@@ -1386,10 +1386,11 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
     // Gets the bytes one at a time. This could be done more efficiently. 
     char *ptr;
     u32 data;
-
+    int string = size;
+    // -1 in size means "find null" for strings. -2 means don't lcase
+    
     ptr = (char*)buffer;
-    while(0 != size){ // -1 in size means "find null" for strings.
-        
+    while(0 != size){
         data = 0x4C000000 | addr++;
         hm2->llio->write(hm2->llio, chan->reg_cs_addr, &data, sizeof(u32));
         
@@ -1411,7 +1412,7 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
         if (size < 0) { // string data
             if (data == 0 || size < (-HM2_SSERIAL_MAX_STRING_LENGTH)){
                 size = 0; 
-            } else {
+            } else if (string > -2 && data >= 'A' && data <= 'Z') {
                 data |= 0x20; // lower case
             }
         } 
