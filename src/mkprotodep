@@ -113,7 +113,8 @@ while read target dep ; do
 	done
 	if [ -z $location ] ; then
 	    echo failed to locate $d in $DIRS >/dev/stderr
-	    exit 1
+	    continue
+	    #exit 1
 	fi
 	echo -e "$target:\t$location"
 

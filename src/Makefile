@@ -174,16 +174,20 @@ CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 
-protodeps: $(GENERATED)
+depends/protodeps.d: 
 #	$(warning generated=$(GENERATED))
-	./mkprotodep -p protobuf/proto -p protobuf/nanopb/generator \
-	    -p  /usr/local/include/google/protobuf >depends/protodeps.d
+	./mkprotodep -p protobuf/proto \
+            -e pb.h -e npb.h -e pb-c.h -e pb.cc -e npb.c -e pb-c.c \
+            -d depends -g protobuf/generated >depends/protodeps.d
 
-.PHONY: protodeps
+#	    -p protobuf/nanopb/generator \
+#	    -p  /usr/local/include/google/protobuf \
+
+#.PHONY: protodeps
 
 ifeq ($(TRIVIAL_BUILD),no)
 ifeq ($(USE_PROTOBUF),yes)
-Makefile:	protodeps
+Makefile:	depends/protodeps.d $(GENERATED)
 -include depends/protodeps.d
 endif
 # Find the dependency filenames, then include them all
