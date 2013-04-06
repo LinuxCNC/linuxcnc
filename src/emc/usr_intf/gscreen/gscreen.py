@@ -1001,6 +1001,10 @@ class Gscreen:
     def init_control_pins(self):
         self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.HAL_BIT, hal.HAL_IN))
         self.data['cycle_start'].connect('value-changed', self.on_cycle_start_changed)
+        self.data['abort'] = hal_glib.GPin(self.halcomp.newpin('abort', hal.HAL_BIT, hal.HAL_IN))
+        self.data['abort'].connect('value-changed', self.on_abort_changed)
+        self.data['feed_hold'] = hal_glib.GPin(self.halcomp.newpin('feed-hold', hal.HAL_BIT, hal.HAL_IN))
+        self.data['feed_hold'].connect('value-changed', self.on_feed_hold_changed)
 
     def initialize_manual_toolchange(self):
         # for manual tool change dialog
@@ -1055,7 +1059,6 @@ class Gscreen:
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
         h = self.halcomp
-        print h["cycle-start"]
         if not h["cycle-start"]: return
         if self.data.mode_order[0] == _AUTO:
             print "run program"
@@ -1063,6 +1066,17 @@ class Gscreen:
         elif self.data.mode_order[0] == _MDI:
             print "run MDI"
             self.widgets.hal_mdihistory.submit()
+
+    def on_abort_changed(self,hal_object):
+        print "abort change"
+        h = self.halcomp
+        if not h["abort"]: return
+        self.widgets.hal_action_stop.emit("activate")
+
+    def on_feed_hold_changed(self,hal_object):
+        print "feed-hold change"
+        h = self.halcomp
+        self.widgets.hal_toggleaction_pause.set_active(h["feed-hold"])
 
     # Here we create a manual tool change dialog
     # This can be overridden in a handler file
