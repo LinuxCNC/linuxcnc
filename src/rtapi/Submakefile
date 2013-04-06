@@ -130,4 +130,4 @@ endif  # BUILD_SYS == kbuild
 ##################################################################
 
 # Add RT_CFLAGS to ULAPI compilation
-$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS) 
