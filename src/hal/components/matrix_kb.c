@@ -34,7 +34,6 @@ typedef struct {
     int rowshift;
     int row;
     int num_keys;
-    int lastkey;
     hal_bit_t scan;
     hal_bit_t keystroke;
 }kb_inst_t;
@@ -131,16 +130,13 @@ void keydown(kb_inst_t *inst){
     }
     else
     {
-        if (*inst->hal.keycode == 0 && inst->lastkey == 0) return;
-        //lastkey is just to trap a 7i73 bug: keyup 0,0 == allup. 
-        if (*inst->hal.keycode & inst->keydown){
+        if (*inst->hal.keycode == 0x40) return;
+        if ((*inst->hal.keycode & inst->keydown) == inst->keydown){
             keydown(inst);
-            inst->lastkey = *inst->hal.keycode;
         }
-        else
+        else if ((*inst->hal.keycode & inst->keydown) == inst->keyup)
         {
             keyup(inst);
-            inst->lastkey = 0;
         }
     }
 }
@@ -188,7 +184,6 @@ int rtapi_app_main(void){
         inst->ncols = 0;
         inst->scan = 0;
         inst->keystroke = 0;
-        inst->lastkey = 0;
         inst->param.invert = 1;
         
         for(j = 0; config[i][j] !=0; j++){
@@ -221,7 +216,7 @@ int rtapi_app_main(void){
         }
         
         for (inst->rowshift = 1; inst->ncols > (1 << inst->rowshift); inst->rowshift++);
-        for (inst->keydown = 0x40, inst->keyup = 0x80
+        for (inst->keydown = 0xC0, inst->keyup = 0x80
              ; (inst->nrows << inst->rowshift) > inst->keydown
              ; inst->keydown <<= 1, inst->keyup <<= 1);
         

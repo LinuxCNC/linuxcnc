@@ -10,13 +10,12 @@
 matrix_kb \- Convert integers to HAL pins. Optionally scan a matrix of IO ports
 to create those integers.  
 .SH SYNOPSIS
-.B loadrt matrix_kb config=\fIRxCsk,RxCsk\fB... names=\fIname1,name2\fB...
+.B loadrt matrix_kb config=\fIRxCs,RxCs\fB... names=\fIname1,name2\fB...
 .P
 Creates a component configured for R rows and N columns of matrix keyboard. 
 
-If the \fBk\fR option is added then keyboard codes will be sent to the OS. If the
-\fBs\fR option is specified then a set of output rows will be cyclically toggled, and
-a set of input columns will be scanned. 
+If the \fBs\fR option is specified then a set of output rows will be cyclically
+toggled, and a set of input columns will be scanned. 
 
 The \fBnames\fR parameter is optional, but if used then the HAL pins and functions
 will use the specified names rather than the default ones. This can be useful
@@ -39,8 +38,9 @@ will be the keypad scancode from a Mesa 7i73. The default codes for keyup and
 keydown are based on the Mesa 7i73 specification with 0x40 indicating a keydown
 and 0x80 a keyup event. 
  If using the 7i73 it is important to match the keypad size
-jumpers with the HAL component. Valid configs for the 7i73 are 4x8, 8x8, 4x8k 
-and 8x8k. 
+jumpers with the HAL component. Valid configs for the 7i73 are 4x8 and 8x8. 
+Note that the component will only work properly with the version 12 (0xC) 7i73
+firmware. The firmware version is visible on the component parameters in HAL.
 
 In the optional scan-generation mode the \fBmatrix_kb.\fIN\fB.keycode\fR pin 
 changes to an output pin and a set of output row pins and input column pins are
