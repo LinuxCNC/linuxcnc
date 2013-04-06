@@ -1,8 +1,0 @@
-
-// cf hal.h: #define HAL_NAME_LEN  41
-
-message HalName {
-
-    required string            name      = 30   [(nanopb).max_size = 41];
-
-};
