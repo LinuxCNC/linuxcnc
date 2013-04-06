@@ -179,10 +179,12 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
+WORKAROUND_CFLAGS= $(HARDY_AMD64_WORKAROUND)
+
 # Compilation options.	Perhaps some of these should come from Makefile.inc?
 OPT := -Os
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
+CFLAGS := $(WORKAROUND_CFLAGS)  $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 
 ifeq ($(RUN_IN_PLACE),yes)
