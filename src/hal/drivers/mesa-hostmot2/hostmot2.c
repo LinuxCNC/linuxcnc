@@ -1192,7 +1192,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        uint32_t cookie;
+        __u32 cookie;
 
         if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
             HM2_ERR("error reading hm2 cookie\n");

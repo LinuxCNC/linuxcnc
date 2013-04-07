@@ -73,7 +73,7 @@ static int bitfile_do_big_chunk(const struct firmware *fw, bitfile_chunk_t *chun
         return -ENODATA;
     }
 
-    chunk->size = ((uint32_t)fw->data[*i] << 24) + ((uint32_t)fw->data[*i + 1] << 16) + ((uint32_t)fw->data[*i + 2] << 8) + fw->data[*i + 3];
+    chunk->size = ((__u32)fw->data[*i] << 24) + ((__u32)fw->data[*i + 1] << 16) + ((__u32)fw->data[*i + 2] << 8) + fw->data[*i + 3];
     (*i) += 4;
 
     if (*i + chunk->size > fw->size) {

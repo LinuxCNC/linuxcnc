@@ -123,9 +123,6 @@ typedef enum {
 typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
-#ifdef THREAD_MODULE_DATA
-    THREAD_MODULE_DATA;
-#endif
 } module_data;
 
 typedef enum {
@@ -139,12 +136,7 @@ typedef enum {
 } task_state_t;
 
 typedef struct {
-#if defined(RTAPI_XENOMAI_USER)		/* hopefully this can be removed
-					   somehow */
-    char name[XNOBJECT_NAME_LEN];
-#else
     char name[RTAPI_NAME_LEN];
-#endif
     int magic;
     int uses_fp;
     size_t stacksize;
@@ -156,9 +148,6 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
-#ifdef THREAD_TASK_DATA
-    THREAD_TASK_DATA;		/* task data defined in thread system */
-#endif
 } task_data;
 
 typedef struct {

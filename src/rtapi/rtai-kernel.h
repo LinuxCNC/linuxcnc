@@ -14,6 +14,9 @@
 #include <rtai_shm.h>
 #include <rtai_fifos.h>
 
+#ifdef MODULE
+#include <linux/delay.h>  // udelay()
+#endif 
 
 /* rtapi_module.c */
 #define RT_LINUX_USE_FPU

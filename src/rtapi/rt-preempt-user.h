@@ -12,29 +12,10 @@
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
 ************************************************************************/
-
+#include "config.h"
 #include <sched.h>		// sched_get_priority_*()
 #include <pthread.h>		/* pthread_* */
 
-// extra task data
-#define THREAD_TASK_DATA			\
-    int deleted;				\
-    int destroyed;				\
-    int deadline_scheduling;			\
-    struct timespec next_time;			\
-						\
-    /* The realtime thread. */			\
-    pthread_t thread;				\
-    pthread_barrier_t thread_init_barrier;	\
-    void *stackaddr;				\
-						\
-    /* Statistics */				\
-    unsigned long minfault_base;		\
-    unsigned long majfault_base;		\
-    unsigned int failures
-
-// extra module data
-#define THREAD_MODULE_DATA int magic
 
 
 /* rtapi_io.c */
@@ -59,3 +40,8 @@ inline unsigned char rtapi_inb_hook(unsigned int port) { return 0; }
 /* misc */
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS
+
+// hardy breakage
+#ifndef HAVE_CLOCK_GETRES
+#define RTAPI_TIME_NO_CLOCK_MONOTONIC
+#endif
