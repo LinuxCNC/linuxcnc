@@ -280,6 +280,7 @@ class Data:
         self.motion_line = 0
         self.id = 0
         self.dtg = 0.0
+        self.show_dtg = False
         self.velocity = 0.0
         self.delay = 0.0
         self.preppedtool = None
@@ -294,6 +295,8 @@ class Data:
         self.preset_spindle_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
+        self.key_event_up = 0
+        self.key_event_dwn = 0
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -487,6 +490,9 @@ class Gscreen:
         else:
             self.initialize_preferences()
 
+        # check for ladder loaded
+        self.data.is_ladder = hal.component_exists('classicladder_rt')
+
         # get the system wide theme
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
@@ -622,6 +628,8 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
+        self.initialize_keybindings()
+
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
         #print handlers
@@ -680,6 +688,16 @@ class Gscreen:
         print _("timeout %d" % int(temp))
         gobject.timeout_add(int(temp), self.periodic_status)
 
+    def initialize_keybindings(self):
+        try:
+            accel_group = gtk.AccelGroup()
+            self.widgets.window1.add_accel_group(accel_group)
+            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
+        except:
+            pass
+        self.widgets.window1.connect('key_press_event', self.on_key_event,1)
+        self.widgets.window1.connect('key_release_event', self.on_key_event,0)
+
     def initialize_preferences(self):
         self.init_dro_pref()
         self.init_theme_pref()
@@ -690,6 +708,7 @@ class Gscreen:
         self.data.abs_textcolor = self.prefs.getpref('abs_textcolor', '#0000FFFF0000', str)
         self.data.dtg_textcolor = self.prefs.getpref('dtg_textcolor', '#00000000FFFF', str)
         self.data.rel_textcolor = self.prefs.getpref('rel_textcolor', '#FFFF00000000', str)
+        self.data.show_dtg = self.prefs.getpref('show_dtg', False, bool)
 
     def init_theme_pref(self):
         self.data.theme_name = self.prefs.getpref('gtk_theme', 'Redmond', str)
@@ -905,7 +924,7 @@ class Gscreen:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
     def init_sensitive_all_homed(self):
-        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1"]
+        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1","button_v0_6"]
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
@@ -914,19 +933,19 @@ class Gscreen:
     def init_sensitive_override_mode(self):
         self.data.sensitive_override_mode = ["spindle_preset","spindle_control","spindle_increase","spindle_decrease","s_display_fwd",
             "s_display_rev","button_graphics","button_homing","button_mode","button_h1_0","button_h1_2",
-                "button_h1_3","button_h1_4"]
+                "button_h1_3","button_h1_4","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_override_mode.append("axis_%s"% axis)
 
     def init_sensitive_graphics_mode(self):
         self.data.sensitive_graphics_mode = ["button_override","button_homing","button_mode",
-              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0"]
+              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_graphics_mode.append("axis_%s"% axis)
 
     def init_sensitive_origin_mode(self):
         self.data.sensitive_origin_mode = ["button_override","button_graphics","button_homing","button_mode",
-                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4"]
+                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4","button_v0_6"]
         for axis in self.data.axis_list:
             self.data.sensitive_origin_mode.append("axis_%s"% axis)
     
@@ -995,6 +1014,43 @@ class Gscreen:
             self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
 # *** GLADE callbacks ****
+
+    def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
+        print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
+        return True
+
+    def on_key_event(self,widget, event,signal):
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal
+        if event.state & gtk.gdk.CONTROL_MASK:
+            print "Control was being held down"
+        if event.state & gtk.gdk.MOD1_MASK:
+            print "Alt was being held down"
+        if event.state & gtk.gdk.SHIFT_MASK:
+            print "Shift was being held down"
+
+        if keyname == "Up":
+            if self.data.key_event_up == signal: return
+            self.do_key_jog(0,0,signal)
+            self.data.key_event_up = signal
+        elif keyname == "Down":
+            if self.data.key_event_dwn == signal: return
+            self.do_key_jog(0,1,signal)
+            self.data.key_event_dwn = signal
+        elif keyname == "Left":
+            self.do_key_jog(1,0,signal)
+        elif keyname == "Right":
+            self.do_key_jog(1,1,signal)
+        elif keyname == "Page_Up":
+            self.do_key_jog(2,0,signal)
+        elif keyname == "Page_Down":
+            self.do_key_jog(2,1,signal)
+        elif keyname in ("I","i") :
+            if signal: return
+            if event.state & gtk.gdk.SHIFT_MASK:
+                self.set_jog_increments(index_dir = -1)
+            else:
+                self.set_jog_increments(index_dir = 1)
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
@@ -1071,6 +1127,7 @@ class Gscreen:
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
+        calc.entry.connect("activate", lambda w : self.data.preset_spindle_dialog.emit('response',gtk.RESPONSE_ACCEPT))
         self.data.preset_spindle_dialog.parse_geometry("400x400")
         self.data.preset_spindle_dialog.set_decorated(False)
         self.data.preset_spindle_dialog.show_all()
@@ -1101,6 +1158,7 @@ class Gscreen:
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
+        calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',gtk.RESPONSE_ACCEPT))
         self.data.index_tool_dialog.parse_geometry("400x400")
         self.data.index_tool_dialog.show_all()
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
@@ -1227,6 +1285,7 @@ class Gscreen:
         self.data.entry_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
+        calc.entry.connect("activate", lambda w : self.data.entry_dialog.emit('response',gtk.RESPONSE_ACCEPT))
         self.data.entry_dialog.parse_geometry("400x400")
         #self.data.entry_dialog.set_decorated(False)
         self.data.entry_dialog.connect("response", self[callback],calc,data,data2)
@@ -1254,6 +1313,19 @@ class Gscreen:
                     if not axis == "s":
                         self.mdi_control.set_axis(axis,self.get_qualified_input(value))
                         self.reload_plot()
+        widget.destroy()
+        self.data.entry_dialog = None
+
+    def on_tool_offset_entry_return(self,widget,result,calc,userdata,userdata2):
+        value = calc.get_value()
+        if result == gtk.RESPONSE_ACCEPT:
+            if value == None:
+                return
+            # if an axis is selected then set it
+            for axis in self.data.axis_list:
+                if self.widgets["axis_%s"%axis].get_active():
+                    print "tool %d, set in %s axis to- %f" %(self.data.tool_in_spindle,axis,value)
+                    self.mdi_control.touchoff(self.data.tool_in_spindle,axis,self.get_qualified_input(value))
         widget.destroy()
         self.data.entry_dialog = None
 
@@ -1309,6 +1381,13 @@ class Gscreen:
     # opens the halscope
     def on_halscope(self,*args):
         p = os.popen("halscope  > /dev/null &","w")
+
+    def on_ladder(self,*args):
+        if  hal.component_exists('classicladder_rt'):
+            p = os.popen("classicladder  &","w")
+        else:
+            self.notify(_("INFO:"),_("Classicladder realtime component not detected"),INFO_ICON)
+            self.add_alarm_entry(_("ladder not available - is the realtime component loaded?"))
 
     # estop machine before closing
     def on_window1_destroy(self, widget, data=None):
@@ -1381,6 +1460,8 @@ class Gscreen:
                 # Move to button
                 if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
                     self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+            elif number == 6:
+                self.tool_touchoff_checks()
             else: print "Vbutton %d_%d clicked but no function"% (mode,number)
         elif mode == 1:
             if number == 0: pass
@@ -1691,6 +1772,7 @@ class Gscreen:
                         ["run_status","clicked", "on_status"],
                         ["run_halmeter","clicked", "on_halmeter"],
                         ["run_halscope","clicked", "on_halscope"],
+                        ["run_ladder","clicked", "on_ladder"],
                         ["hide_cursor","clicked", "on_hide_cursor"],
                         ["button_homing","clicked", "homing"],
                         ["button_override","clicked", "override"],
@@ -2571,6 +2653,25 @@ class Gscreen:
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
+    def do_key_jog(self,axis,direction,action):
+        if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # jog mode active:
+                    if not action: cmd = 0
+                    elif direction: cmd = 1
+                    else: cmd = -1
+                    self.emc.jogging(1)
+                    print self.data.jog_increments[self.data.current_jogincr_index]
+                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
+                        print "active axis jog:",axis
+                        self.emc.continuous_jog(axis,cmd)
+                    else:
+                        print "jog incremental"
+                        if cmd == 0: return # don't want release of button to stop jog
+                        self.mdi_control.mdi.emcstat.poll()
+                        if self.mdi_control.mdi.emcstat.state != 1: return
+                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+                        distance = self.parse_increment(jogincr)
+                        self.emc.incremental_jog(axis,cmd,distance)
+
     # spindle control
     def spindle_adjustment(self,direction,action):
         if action and not self.widgets.s_display_fwd.get_active() and not self.widgets.s_display_rev.get_active():
@@ -2697,6 +2798,15 @@ class Gscreen:
             self.notify(_("INFO:"),_("No axis selected for origin touch-off"),INFO_ICON)
             return
         self.launch_numerical_input("on_offset_origin_entry_return")
+
+    def tool_touchoff_checks(self):
+        if len(self.data.active_axis_buttons) > 1:
+            self.notify(_("INFO:"),_("Can't tool touch-off multiple axes"),INFO_ICON)
+            return
+        if self.data.active_axis_buttons[0][0] == None:
+            self.notify(_("INFO:"),_("No axis selected for tool touch-off"),INFO_ICON)
+            return
+        self.launch_numerical_input("on_tool_offset_entry_return")
 
     # move axis to a position (while in manual mode)
     def move_to(self,data):

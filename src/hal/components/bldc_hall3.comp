@@ -232,7 +232,7 @@ static unsigned int P[]={
 FUNCTION(_){
     int i;
     double V;
-    if (pattern > 47 || pattern < 0){
+    if (pattern > 47){
         rtapi_print_msg(RTAPI_MSG_ERR, 
         "Only step patterns 0-47 are allowed, you have requested pattern %i\n",
         pattern);

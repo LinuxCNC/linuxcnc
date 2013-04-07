@@ -1,0 +1,38 @@
+
+
+setp halui.jog-speed 100
+
+
+net jog-selected-minus <= python-ui.jog-selected-minus
+net jog-selected-minus => halui.jog.selected.minus
+
+net jog-selected-plus <= python-ui.jog-selected-plus
+net jog-selected-plus => halui.jog.selected.plus
+
+
+net joint-0-select   <= python-ui.joint-0-select
+net joint-0-select   => halui.joint.0.select
+
+net joint-0-selected <= halui.joint.0.is-selected
+net joint-0-selected => python-ui.joint-0-selected
+
+net Xpos => python-ui.joint-0-position
+
+
+net joint-1-select   <= python-ui.joint-1-select
+net joint-1-select   => halui.joint.1.select
+
+net joint-1-selected <= halui.joint.1.is-selected
+net joint-1-selected => python-ui.joint-1-selected
+
+net Ypos => python-ui.joint-1-position
+
+
+net joint-2-select   <= python-ui.joint-2-select
+net joint-2-select   => halui.joint.2.select
+
+net joint-2-selected <= halui.joint.2.is-selected
+net joint-2-selected => python-ui.joint-2-selected
+
+net Zpos => python-ui.joint-2-position
+

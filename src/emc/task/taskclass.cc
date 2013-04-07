@@ -308,12 +308,12 @@ int emcTaskOnce(const char *filename)
 
     extern struct _inittab builtin_modules[];
     if (!PythonPlugin::instantiate(builtin_modules)) {
-	rcs_print("emcTaskOnce: cant instantiate Python plugin");
+	rcs_print("emcTaskOnce: cant instantiate Python plugin\n");
 	goto no_pytask;
     }
     if (python_plugin->configure(filename, "PYTHON") == PLUGIN_OK) {
 	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-	    rcs_print("emcTaskOnce: Python plugin configured");
+	    rcs_print("emcTaskOnce: Python plugin configured\n");
 	}
     } else {
 	goto no_pytask;

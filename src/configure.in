@@ -1495,12 +1495,6 @@ AC_SUBST(GLIB_CFLAGS)
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
 
-AC_PATH_PROG(CXX,$CXX,"none")
-if test $CXX = "none"
-then
-    AC_MSG_ERROR([C++ compiler not found])
-fi
-
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
@@ -1577,7 +1571,7 @@ fi
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --enable-build-documentation[=format]   Build documentation.
-              Format may be "pdf" or "html" if only one format is desired.],
+                          Format may be "pdf" or "html" if only one format is desired.],
     [
         case "$enableval" in
         Y*|y*|html,pdf|pdf,html)

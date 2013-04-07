@@ -28,17 +28,17 @@ extern "C" {
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
 
 class PHYSMEM_HANDLE;
-class PM_CARTESIAN;
-class PM_CYLINDRICAL;
-class PM_EULER_ZYX;
-class PM_EULER_ZYZ;
-class PM_HOMOGENEOUS;
-class PM_POSE;
-class PM_QUATERNION;
-class PM_ROTATION_MATRIX;
-class PM_ROTATION_VECTOR;
-class PM_RPY;
-class PM_SPHERICAL;
+struct PM_CARTESIAN;
+struct PM_CYLINDRICAL;
+struct PM_EULER_ZYX;
+struct PM_EULER_ZYZ;
+struct PM_HOMOGENEOUS;
+struct PM_POSE;
+struct PM_QUATERNION;
+struct PM_ROTATION_MATRIX;
+struct PM_ROTATION_VECTOR;
+struct PM_RPY;
+struct PM_SPHERICAL;
 class LinkedList;
 
 enum CMS_STATUS {

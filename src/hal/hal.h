@@ -244,6 +244,7 @@ extern char* hal_comp_name(int comp_id);
     or parameter.
 */
 typedef enum {
+    HAL_TYPE_UNSPECIFIED = -1,
     HAL_BIT = 1,
     HAL_FLOAT = 2,
     HAL_S32 = 3,
@@ -259,6 +260,7 @@ typedef enum {
 */
 
 typedef enum {
+    HAL_DIR_UNSPECIFIED = -1,
     HAL_IN = 16,
     HAL_OUT = 32,
     HAL_IO = (HAL_IN | HAL_OUT),
