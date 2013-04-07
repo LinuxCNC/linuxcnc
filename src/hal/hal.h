@@ -279,6 +279,7 @@ typedef enum {
 
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
+#define __KERNEL_STRICT_NAMES
 #include <linux/types.h>
 #ifdef __cplusplus
 typedef bool hal_bool;
