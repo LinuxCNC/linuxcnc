@@ -148,6 +148,16 @@ class mdi:
             self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
+    def set_tool_touchoff(self,tool,axis,value):
+        m = "G10 L10 P%d %s%f"%(tool,axis,value)
+        self.emcstat.poll()
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
+        self.emccommand.mdi(m)
+        self.emccommand.wait_complete()
+        self.emccommand.mdi("g43")
+
     def set_axis_origin(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
         self.emcstat.poll()
@@ -226,6 +236,12 @@ class mdi_control:
     def set_axis(self,axis,value):
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_axis_origin(axis,value)
+        self.mdi.emccommand.mode(premode)
+        self.mdi.emccommand.wait_complete()
+
+    def touchoff(self,tool,axis,value):
+        premode = self.mdi.emcstat.task_mode
+        self.mdi.set_tool_touchoff(tool,axis,value)
         self.mdi.emccommand.mode(premode)
         self.mdi.emccommand.wait_complete()
 

@@ -241,14 +241,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 inst->num_remotes += 1;
                 inst->tag |= 1<<c;
             } 
-            else if (hm2->config.sserial_modes[i][c] != 'x'){
-                HM2_ERR("Unsupported Device (%4s) found on sserial %d "
-                        "channel %d\n", (char*)&user1, i, c);
-            }
             
             // nothing connected, or masked by config or wrong baudrate or.....
             // make the pins into GPIO. 
-            if ((inst->tag & 1<<c) == 0){ 
+            else if (user1 == 0 
+                     || (inst->tag & 1<<c) == 0
+                     || hm2->config.sserial_modes[i][c] == 'x'){ 
                 for (pin = 0 ; pin < hm2->num_pins ; pin++){
                     if (hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
                         && (hm2->pin[pin].sec_pin & 0x0F) - 1  == c
@@ -257,7 +255,10 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                     }
                 }
             }
-
+            else if (hm2->config.sserial_modes[i][c] != 'x'){
+                HM2_ERR("Unsupported Device (%4s) found on sserial %d "
+                        "channel %d\n", (char*)&user1, i, c);
+            }
         }
         if (inst->num_remotes > 0){
             if (hm2_sserial_setup_channel(hm2, inst, count) < 0 ) {
@@ -629,6 +630,18 @@ int hm2_sserial_read_globals(hostmot2_t *hm2,
                     
                     chan->globals[chan->num_globals - 1] = data; 
                 }
+            }
+            else if (rectype == 0xB0){
+                char * type;
+                hm2_sserial_mode_t mode;
+                addr = hm2_sserial_get_bytes(hm2, chan, &mode, addr, 4);
+                addr = hm2_sserial_get_bytes(hm2, chan, &mode.NameString, addr, -1);
+                type = (mode.ModeType == 0x01)? "Software" : "Hardware";
+                rtapi_print("Board %s %s Mode %i = %s\n", 
+                            chan->name, 
+                            type,
+                            mode.ModeIndex, 
+                            mode.NameString);
             }
         } while (addr > 0);
     }
@@ -1110,6 +1123,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
                     *inst->command_reg_write = 0x800; // stop command
+                    break;
                 }
                 if (*inst->command_reg_read) {
                     if (doit_err_count < 6){ doit_err_count++; }
@@ -1233,6 +1247,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
                 break;
             case 0x20:// Do-nothing state for serious errors. require run pin to cycle
+                *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                 if ( ! *inst->run){*inst->state = 0x02;}
                 break;
             default: // Should never happen
@@ -1372,10 +1387,11 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
     // Gets the bytes one at a time. This could be done more efficiently. 
     char *ptr;
     u32 data;
-
+    int string = size;
+    // -1 in size means "find null" for strings. -2 means don't lcase
+    
     ptr = (char*)buffer;
-    while(0 != size){ // -1 in size means "find null" for strings.
-        
+    while(0 != size){
         data = 0x4C000000 | addr++;
         hm2->llio->write(hm2->llio, chan->reg_cs_addr, &data, sizeof(u32));
         
@@ -1397,7 +1413,7 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
         if (size < 0) { // string data
             if (data == 0 || size < (-HM2_SSERIAL_MAX_STRING_LENGTH)){
                 size = 0; 
-            } else {
+            } else if (string > -2 && data >= 'A' && data <= 'Z') {
                 data |= 0x20; // lower case
             }
         } 

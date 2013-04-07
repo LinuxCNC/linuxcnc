@@ -1665,7 +1665,8 @@ static void check_hal_changes()
 {
     hal_s32_t counts;
     int select_changed, joint;
-    hal_bit_t bit, js;
+    hal_bit_t bit;
+    int js;
     hal_float_t floatt;
     int jog_speed_changed;
 

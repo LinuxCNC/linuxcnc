@@ -29,9 +29,13 @@ class HandlerClass:
     def on_metric_select_clicked(self,widget):
         data = (self.data.dro_units -1) * -1
         self.gscreen.set_dro_units(data,False)
-        for i in ("1","2"):
-            for axis in ("dro_x","dro_y","dro_z"):
-                self.widgets[axis+i].set_property("display_units_mm",data)
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
 
     # This is a new method for our button
     # we selected this method name in the glade file as a signal callback 
@@ -161,6 +165,7 @@ class HandlerClass:
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
+        calc.entry.connect("activate", lambda w : dialog.emit('response',gtk.RESPONSE_ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(False)
         dialog.show_all()
@@ -222,6 +227,11 @@ class HandlerClass:
             else:
                 self.widgets["home_%s"%letter].set_text(" ")
 
+    def on_show_dtg_pressed(self, widget):
+        data = widget.get_active()
+        self.widgets.dtg_vbox.set_visible(data)
+        self.gscreen.set_show_dtg(data)
+
     # Connect to gscreens regular signals and add a couple more
     def connect_signals(self,handlers):
         self.gscreen.connect_signals(handlers)
@@ -237,6 +247,7 @@ class HandlerClass:
         self.widgets.rel_colorbutton.connect("color-set", self.on_rel_colorbutton_color_set)
         self.widgets.dtg_colorbutton.connect("color-set", self.on_dtg_colorbutton_color_set)
         self.widgets.unlock_number.connect("value-changed",self.gscreen.on_unlock_number_value_changed)
+        self.widgets.show_dtg.connect("clicked", self.on_show_dtg_pressed)
 
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
@@ -280,6 +291,7 @@ class HandlerClass:
         for i in self.data.axis_list:
             self.widgets["dro_%s1"%i].show()
             self.widgets["dro_%s2"%i].show()
+            self.widgets["dro_%s3"%i].show()
             self.widgets["axis_%s"%i].show()
             self.widgets["home_%s"%i].show()
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
@@ -294,6 +306,8 @@ class HandlerClass:
         self.on_abs_colorbutton_color_set(None)
         self.on_rel_colorbutton_color_set(None)
         self.on_dtg_colorbutton_color_set(None)
+        self.widgets.show_dtg.set_active(self.data.show_dtg)
+        self.on_show_dtg_pressed(self.widgets.show_dtg)
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.

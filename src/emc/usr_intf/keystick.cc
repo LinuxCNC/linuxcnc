@@ -1415,7 +1415,7 @@ static int iniLoad(const char *filename)
   int jogPol;
 
   // open it
-  if (-1 == inifile.Open(filename))
+  if (!inifile.Open(filename))
     {
       return -1;
     }

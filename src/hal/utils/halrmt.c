@@ -1269,7 +1269,7 @@ static int doDelsig(char *mod_name, connectionRecType *context)
       rtapi_mutex_give(&(hal_data->mutex));
       sigs[n][0] = '\0';
 
-      if ((sigs[0][0] == '\0')) {
+      if (sigs[0][0] == '\0') {
         /* desired signals not found */
         sprintf(errorStr, "HAL:%d: ERROR: no signals found to be deleted", linenumber);
         sockWriteError(nakStr, context);

@@ -71,9 +71,9 @@ From the top level directory, switch to the source directory:
 
 In the source directory, build LinuxCNC:
 
-  ./configure --enable-run-in-place
+  ./configure
   [or, if you do not have a realtime kernel:]
-  ./configure --enable-run-in-place --enable-simulator
+  ./configure --enable-simulator
 
   make clean
   make

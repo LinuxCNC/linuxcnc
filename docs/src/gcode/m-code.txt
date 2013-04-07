@@ -16,6 +16,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>                     | Spindle Control
 |<<sec:M6-Tool-Change,M6>>                     | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>                     | Coolant Control
+|<<sec:M19>>                                   | Orient Spindle
 |<<sec:M48-M49-Override,M48 M49>>              | Feed & Spindle Overrides Enable/Disable
 |<<sec:M50-Feed-Override,M50>>                 | Feed Override Control
 |<<sec:M51-Spindle-Override,M51>>              | Spindle Override Control
@@ -169,6 +170,12 @@ classicladder.
 It is OK to use any of these commands, regardless of the current coolant
 state.
 
+[[sec:M19]]
+== M19 Orient Spindle
+(((M19 Orient Spindle)))
+
+* 'M19 R-' - rotate spindle 'R' degrees from 0
+
 [[sec:M48-M49-Override]]
 == M48, M49 Speed and Feed Override Control
 (((M48, M49 Override Control)))
@@ -307,8 +314,7 @@ M66 P- | E- <L->
 
 .M66 Example Lines
 ----
-M66 P0 L3 (wait for digital input 0 to turn on)
-M66 E1 L1 (wait for analog input 1 to rise)
+M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)
 ----
 
 M66 wait on an input stops further execution of the program, until the
