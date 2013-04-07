@@ -33,7 +33,6 @@ static int error_printed;
 #  endif
 #endif  // RTAPI
 
-int _rtapi_init(const char *modname) {
 
 typedef struct {
     int deleted;
@@ -57,6 +56,7 @@ extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 
 #ifdef ULAPI
 
+int _rtapi_init(const char *modname) {
     return _rtapi_next_module_id();
 }
 
@@ -64,7 +64,7 @@ int _rtapi_exit(int module_id) {
 	/* do nothing for ULAPI */
 	return 0;
 }
-
+#endif
 
 
 
