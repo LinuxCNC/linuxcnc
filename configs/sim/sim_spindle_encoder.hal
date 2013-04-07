@@ -7,7 +7,7 @@ loadrt lowpass count=1
 loadrt near
 
 # this limit doesnt make any sense to me:
-setp limit2.0.maxv 500.0 # rpm/second
+setp limit2.0.maxv 5000.0 # rpm/second
 
 # encoder reset control
 # hook up motion controller's sync output
