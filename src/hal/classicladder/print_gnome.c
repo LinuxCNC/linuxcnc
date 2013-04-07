@@ -135,7 +135,7 @@ void DrawPrint( GnomePrintContext *gpc )
 				gnome_print_rgbimage( gpc, raw_image, the_width, the_height, rowstride);
 				gnome_print_grestore( gpc );
 				SizePageOffset = SizePageOffset-the_height-20;
-				gdk_pixbuf_unref( pixbuf_for_print );
+				g_object_unref( pixbuf_for_print );
 
 				if ( iCurrentLanguage==SECTION_IN_LADDER )
 				{

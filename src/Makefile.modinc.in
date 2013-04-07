@@ -58,6 +58,9 @@ RTFLAGS = @RTFLAGS@ \
 	-fno-unsafe-math-optimizations \
 	@KERNEL_MATH_CFLAGS@
 RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+ifeq ($(RTARCH),x86_64)
+EXTRA_CFLAGS += -msse -ffast-math -fno-unsafe-math-optimizations
+endif
 USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@

@@ -670,7 +670,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(RTFLAGS) \
+EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
 	-D__MODULE__ \
 	-I$(BASEPWD) \
 	-I$(BASEPWD)/libnml/linklist \
