@@ -384,6 +384,8 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_ring.h \
+    rtapi/rtapi_mbarrier.h \
     rtapi/rtapi_support.h \
     rtapi/$(THREADS_SOURCE).h 
 
