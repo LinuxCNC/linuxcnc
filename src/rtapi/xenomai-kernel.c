@@ -425,9 +425,12 @@ void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
 *                          rtapi_proc.h                                *
 ************************************************************************/
 #ifdef RTAPI
-void rtapi_proc_read_status_hook() {
+void rtapi_proc_read_status_hook(char *page, char **start, off_t off,
+				 int count, int *eof, void *data) {
+    PROC_PRINT_VARS;
     PROC_PRINT("  Wait errors = %i\n", rt_stats.rt_wait_error);
     PROC_PRINT(" Last overrun = %i\n", rt_stats.rt_last_overrun);
     PROC_PRINT("Total overruns = %i\n", rt_stats.rt_total_overruns);
+    PROC_PRINT_DONE;
 }
 #endif

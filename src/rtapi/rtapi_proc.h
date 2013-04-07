@@ -99,7 +99,8 @@ static struct proc_dir_entry *debug_file = 0;	/* /proc/rtapi/debug */
 // thread flavors may provide a function to make extra data available
 // in procfs
 #ifdef HAVE_RTAPI_READ_STATUS_HOOK
-void rtapi_proc_read_status_hook(void);
+void rtapi_proc_read_status_hook(char *page, char **start, off_t off,
+				 int count, int *eof, void *data);
 #endif
 
 static int proc_read_status(char *page, char **start, off_t off,
@@ -121,7 +122,7 @@ static int proc_read_status(char *page, char **start, off_t off,
 	PROC_PRINT(" Timer status = Stopped\n");
     }
 #ifdef HAVE_RTAPI_READ_STATUS_HOOK
-    rtapi_proc_read_status_hook();
+    rtapi_proc_read_status_hook(page, start, off, count, eof, data);
 #endif
     PROC_PRINT("Message level = %i\n", msg_level);
     PROC_PRINT("\n");
