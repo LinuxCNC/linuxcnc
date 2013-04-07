@@ -277,6 +277,7 @@ typedef enum {
 
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
+#define __KERNEL_STRICT_NAMES
 #include <linux/types.h>
 typedef volatile unsigned char hal_bit_t;
 typedef volatile __u32 hal_u32_t;
