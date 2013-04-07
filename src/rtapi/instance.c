@@ -533,6 +533,10 @@ static void init_global_data(global_data_t * data,
     data->rtapi_messages.refcount = 1;   // rtapi is 'attached'
     data->rtapi_messages.use_wmutex = 1; // hint only
 
+    // demon pids
+    data->rtapi_app_pid = 0;
+    data->rtapi_msgd_pid = 0;
+
     // make it accessible
     rtapi_ringbuffer_init(&data->rtapi_messages, &rtapi_message_buffer);
 

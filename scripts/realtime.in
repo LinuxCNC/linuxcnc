@@ -171,7 +171,6 @@ Load(){
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG \
 		--halsize=$HAL_SIZE 
-#		load rtapi
 	    rtapi_app --instance=$INSTANCE \
 		load hal_lib
 	else
@@ -179,10 +178,10 @@ Load(){
 		--halsize=$HAL_SIZE \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
-#		load rtapi 	    
 	    rtapi_app --instance=$INSTANCE \
 		load hal_lib  2>&1 >/dev/null
         fi
+	rtapi_msgd
 
     ;;
     *)
@@ -199,6 +198,7 @@ Load(){
         if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
+	rtapi_msgd
     esac
 }
 
@@ -227,6 +227,11 @@ Unload(){
             rtapi_app --instance=$INSTANCE exit            >/dev/null 2>&1
         fi
 
+	MSGD_PID=`pidof msgd:$INSTANCE`
+	if [ "$MSGD_PID" != "" ] ; then
+	    kill $MSGD_PID
+	fi
+
 
 	# remove any linuxcnc-specific shm segments if they exist
 	# HAL_KEY  RTAPI_KEY GLOBAL_KEY DEFAULT_MOTION_SHMEM_KEY
@@ -254,8 +259,13 @@ Unload(){
 	    ipcrm -M $i
 	done
 
+
         ;;
     *)
+	MSGD_PID=`pidof msgd:$INSTANCE`
+	if [ "$MSGD_PID" != "" ] ; then
+	    kill $MSGD_PID
+	fi
         for module in $MODULES_UNLOAD ; do
             $RMMOD $module
         done

@@ -97,7 +97,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	n = vsnprintf(msg->buf, RTPRINTBUFFERLEN, format, ap);
 	// commit write
 	rtapi_record_write_end(&rtapi_message_buffer, (void *) msg,
-			       sizeof(rtapi_msgheader_t) + n);
+			       sizeof(rtapi_msgheader_t) + n + 1); // trailing zero
 	rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     }
 }

@@ -56,6 +56,7 @@ typedef struct {
     int next_module_id;            // for userland threads module id's
     int hal_size;                  // make HAL data segment size configurable
     int rtapi_app_pid;
+    int rtapi_msgd_pid;
     int error_ring_full;
     int error_ring_locked;
     ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
