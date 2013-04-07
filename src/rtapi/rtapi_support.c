@@ -45,7 +45,11 @@ static int rt_msg_level = RTAPI_MSG_INFO; // RT space
 static int pp_msg_level = RTAPI_MSG_INFO; // per process only
 #endif
 
+#ifdef ULAPI
 ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
+# else
+extern ringbuffer_t rtapi_message_buffer; // instance.c
+#endif
 
 // most RT systems use printk()
 #ifndef RTAPI_PRINTK
@@ -54,8 +58,6 @@ ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
 
 #if defined(USE_MESSAGE_RING) 
 
-extern ringbuffer_t rtapi_message_buffer;
-static int mypid;
 
 // candidate for rtapi_ring.h
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
@@ -108,7 +110,7 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
     vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
     RTAPI_PRINTK(buf);
 #ifdef USE_MESSAGE_RING
-    vs_ring_write(level, buf);
+    vs_ring_write(level, buf, ap);
 #endif
 }
 
@@ -242,14 +244,14 @@ int rtapi_openlog(const char *tag, int level)
     return 0;
 }
 
-int rtapi_closelog()
+int rtapi_closelog(void)
 {    
     return 0;
 }
 
 #else
 
-int rtapi_closelog()
+int rtapi_closelog(void)
 {
 #ifdef USE_SYSLOG
     closelog();
