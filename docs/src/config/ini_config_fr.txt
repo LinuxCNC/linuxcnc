@@ -535,6 +535,47 @@ activeront la barre de progression d'AXIS qui donnera le pourcentage. Cette
 fonctionnalité devrait être utilisée par tous les filtres susceptibles de
 fonctionner pendant un long moment.
 
+Les filtres Python doivent utiliser la fonction _print_ pour sortir le résultat
+dans Axis.
+
+Cet exemple de programme filtre un fichier et ajoute un axe W correspondant à 
+l'axe Z. Il marchera selon la présence d'un espace entre chaque mot d'axe.
+
+----
+#! /usr/bin/env python
+
+import sys
+
+def main(argv):
+
+  openfile = open(argv[0], 'r')
+  file_in = openfile.readlines()
+  openfile.close()
+
+  file_out = []
+  for line in file_in:
+    # print line
+    if line.find('Z') != -1:
+      words = line.rstrip('\n')
+      words = words.split(' ')
+      newword = ''
+      for i in words:
+        if i[0] == 'Z':
+          newword = 'W'+ i[1:]
+      if len(newword) > 0:
+        words.append(newword)
+        newline = ' '.join(words)
+        file_out.append(newline)
+    else:
+      file_out.append(line)
+  for item in file_out:
+    print "%s" % item
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+----
+
+
 [[sub:Section-RS274NGC]]
 === Section [RS274NGC]
 

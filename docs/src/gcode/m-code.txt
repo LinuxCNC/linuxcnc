@@ -299,8 +299,7 @@ M66 P- | E- <L->
 
 .M66 Example Lines
 ----
-M66 P0 L3 (wait for digital input 0 to turn on)
-M66 E1 L1 (wait for analog input 1 to rise)
+M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)
 ----
 
 M66 wait on an input stops further execution of the program, until the

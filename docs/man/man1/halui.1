@@ -217,11 +217,20 @@ pin for requesting joint by joint jog mode
 .B halui.mode.manual\fR bit in \fR
 pin for requesting manual mode
 .TP
-.B Ihalui.mode.mdi\fR bit in \fR
+.B halui.mode.mdi\fR bit in \fR
 pin for requesting mdi mode
 .TP
 .B halui.mode.teleop\fR bit in \fR
 pin for requesting coordinated jog mode
+
+.SS mdi \fR(optional)
+.TP
+.B halui.mdi-command-XX\fR bit in
+\fBhalui\fR looks for ini variables named [HALUI]MDI_COMMAND, and
+exports a pin for each command it finds.  When the pin is driven TRUE,
+\fBhalui\fR runs the specified MDI command.  XX is a two digit number
+starting at 00.  If no [HALUI]MDI_COMMAND variables are set in the ini
+file, no halui.mdi-command-XX pins will be exported by halui.
 
 .SS mist
 .TP
