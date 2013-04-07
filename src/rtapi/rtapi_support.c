@@ -173,14 +173,14 @@ int rtapi_openlog(const char *tag, int level)
     return 0;
 }
 
-int rtapi_closelog()
+int rtapi_closelog(void)
 {
     return 0;
 }
 
 #else
 
-int rtapi_closelog()
+int rtapi_closelog(void)
 {
 #ifdef USE_SYSLOG
     closelog();
