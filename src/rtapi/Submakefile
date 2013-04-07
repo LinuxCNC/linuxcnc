@@ -53,7 +53,6 @@ ULAPI_SRCS := \
 	rtapi/rtapi_task.c \
 	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_time.c \
-	rtapi/rtapi_io.c \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
 

@@ -738,7 +738,6 @@ rtapi-objs := \
 	rtapi/rtapi_task.o \
 	rtapi/rtapi_shmem.o \
 	rtapi/rtapi_time.o \
-	rtapi/rtapi_io.o \
 	rtapi/$(THREADS_SOURCE).o
 # Kernel threads need rtapi_module.c
 ifeq ($(BUILD_SYS),kbuild)
