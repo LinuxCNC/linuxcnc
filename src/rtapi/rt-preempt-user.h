@@ -15,15 +15,6 @@
 
 
 
-/* rtapi_io.c */
-#ifdef RTAPI_IO		// only define these for rtapi_io.c
-#define HAVE_RTAPI_OUTB_HOOK
-inline void rtapi_outb_hook(unsigned char byte, unsigned int port) { return; }
-#define HAVE_RTAPI_INB_HOOK
-inline unsigned char rtapi_inb_hook(unsigned int port) { return 0; }
-#endif
-
-
 /* rtapi_task.c */
 #define PRIO_LOWEST sched_get_priority_min(SCHED_FIFO)
 #define PRIO_HIGHEST sched_get_priority_max(SCHED_FIFO)

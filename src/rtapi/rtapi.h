@@ -570,45 +570,10 @@ extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
 
-/** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outb() that is faster.
-*/
-typedef void (*rtapi_outb_t)(unsigned char, unsigned int);
-#define rtapi_outb(byte, port)				\
-    rtapi_switch->rtapi_outb(byte, port)
-extern void _rtapi_outb(unsigned char byte, unsigned int port);
+// the rtapi_inb()/rtapi_outb()/rtapi_inw()/rtapi_outw() functions have
+// moved to src/rtapi/rtapi_io.h, including documentation.
 
-/** 'rtapi_inb() gets a byte from 'port'.  Returns the byte.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inb() that is faster.
-*/
-typedef unsigned char (*rtapi_inb_t)(unsigned int);
-#define rtapi_inb(port)				\
-    rtapi_switch->rtapi_inb(port)
-extern unsigned char _rtapi_inb(unsigned int port);
-
-/** 'rtapi_outw() writes 'word' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outw() that is faster.
-*/
-typedef void (*rtapi_outw_t)(unsigned short, unsigned int);
-#define rtapi_outw(word, port)				\
-    rtapi_switch->rtapi_outw(word, port)
-extern void _rtapi_outw(unsigned short word, unsigned int port);
-
-/** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inw() that is faster.
-*/
-typedef unsigned short (*rtapi_inw_t)(unsigned int);
-#define rtapi_inw(port)				\
-    rtapi_switch->rtapi_inw(port)
-extern unsigned short _rtapi_inw(unsigned int port);
+#include "rtapi_io.h"
 
 #if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
@@ -713,11 +678,6 @@ typedef struct {
     rtapi_shmem_new_t rtapi_shmem_new;
     rtapi_shmem_delete_t rtapi_shmem_delete;
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
-    // i/o related functions
-    rtapi_outb_t rtapi_outb;
-    rtapi_inb_t rtapi_inb;
-    rtapi_outw_t rtapi_outw;
-    rtapi_inw_t rtapi_inw;
 } rtapi_switch_t;
 
 // using code is responsible to define this:

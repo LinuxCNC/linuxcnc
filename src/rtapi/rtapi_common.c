@@ -130,11 +130,6 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_shmem_new = &_rtapi_shmem_new,
     .rtapi_shmem_delete = &_rtapi_shmem_delete,
     .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
-    // i/o related functions
-    .rtapi_outb = &_rtapi_outb,
-    .rtapi_inb = &_rtapi_inb,
-    .rtapi_outw = &_rtapi_outw,
-    .rtapi_inw = &_rtapi_inw,
 };
 
 // any API, any style:
