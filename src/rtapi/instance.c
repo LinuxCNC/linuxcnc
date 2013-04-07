@@ -61,6 +61,7 @@ static int global_shmid;
 
 int rtapi_instance = 0; // exported copy - module params must be static
 global_data_t *global_data = NULL;
+ringbuffer_t error_buffer;   // error ring access strcuture
 
 // this variable is referenced only during startup before global_data
 // is attached so keep static
@@ -513,7 +514,7 @@ static void init_global_data(global_data_t * data,
     // separate message levels for RT and userland
     data->rt_msg_level = rt_level;
     data->user_msg_level = user_level;
-    
+
     // next value returned by rtapi_init (userland threads)
     // those dont use fixed sized arrays 
     data->next_module_id = 0;
@@ -523,6 +524,17 @@ static void init_global_data(global_data_t * data,
 
     // HAL segment size - module param to rtapi 'hal_size=n'
     data->hal_size = hal_size;
+
+    // init the error ring
+    rtapi_ringheader_init(&data->error_ring, 0, SIZE_ALIGN(ERROR_RING_SIZE), 0);
+    memset(&data->error_ring.buf[0], 0, SIZE_ALIGN(ERROR_RING_SIZE));
+
+    // prime it
+    data->error_ring.refcount = 1;   // rtapi is 'attached'
+    data->error_ring.use_wmutex = 1; // hint only
+
+    // make it accessible
+    rtapi_ringbuffer_init(&data->error_ring, &error_buffer);
 
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));

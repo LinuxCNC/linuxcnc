@@ -41,6 +41,9 @@
 */
 #include "rtapi_shmkeys.h"
 
+
+#define ERROR_RING_SIZE 32768
+
 // the universally shared global structure
 typedef struct {
     int magic;
@@ -53,6 +56,10 @@ typedef struct {
     int next_module_id;            // for userland threads module id's
     int hal_size;                  // make HAL data segment size configurable
     int rtapi_app_pid;
+    int error_ring_full;
+    int error_ring_locked;
+    ringheader_t error_ring;       // ringbuffer for error messages
+    char buf[SIZE_ALIGN(ERROR_RING_SIZE)];
 } global_data_t;
 
 #define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t

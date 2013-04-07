@@ -75,6 +75,10 @@ typedef struct {
 
 #define RB_ALIGN 8
 
+// record ring buffer size must be aligned on dword boundaries
+// macro variant of size_aligned() for allocating at compile time
+#define SIZE_ALIGN(x)  (x + (-x & (RB_ALIGN - 1)))
+
 // Round up X to closest upper alignment boundary
 static inline ring_size_t size_aligned(const ring_size_t x) // OK
 {

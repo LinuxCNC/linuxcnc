@@ -27,9 +27,16 @@
 static int rt_msg_level = RTAPI_MSG_INFO; // RT space
 #else  /* user land */
 #    include <stdio.h>		/* libc's vsnprintf() */
+
 #ifdef USE_SYSLOG
 #include <syslog.h>
 #endif
+
+#ifdef RTAPI // for now, fixme
+#define USE_ERROR_RING
+#endif
+
+
 static int pp_msg_level = RTAPI_MSG_INFO; // per process only
 #endif
 
@@ -38,6 +45,22 @@ static int pp_msg_level = RTAPI_MSG_INFO; // per process only
 #define RTAPI_PRINTK printk
 #endif
 
+#if defined(USE_ERROR_RING) 
+
+extern ringbuffer_t error_buffer; 
+void error_ring_write(const char *buf)
+{
+   if (global_data) {
+	if (rtapi_mutex_try(&error_buffer.header->wmutex)) {
+	    global_data->error_ring_locked++;
+	    return;
+	}
+	if (rtapi_record_write(&error_buffer, (void *) buf, strlen(buf)))
+	    global_data->error_ring_full++;
+	rtapi_mutex_give(&error_buffer.header->wmutex);
+    }
+}
+#endif
 
 #ifdef MODULE
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
@@ -45,6 +68,9 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
     char buf[RTPRINTBUFFERLEN];
     vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
     RTAPI_PRINTK(buf);
+#ifdef USE_ERROR_RING
+    error_ring_write(buf);
+#endif
 }
 
 #else /* user land */
