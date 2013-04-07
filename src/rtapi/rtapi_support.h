@@ -100,6 +100,29 @@ typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
 #endif // RTAPI
 
+typedef enum {
+	MSG_KERNEL = 0,
+	MSG_RTUSER = 1,
+	MSG_ULAPI = 2,
+} msg_origin_t;
+
+typedef enum {
+    MSG_ASCII    = 0,  // printf conversion already applied
+    MSG_STASHF   = 1,  // Jeff's stashf.c argument encoding
+    MSG_PROTOBUF = 2,  // encoded as protobuf RTAPI_Message
+} msg_encoding_t;
+
+#define TAGSIZE 16
+
+typedef struct {
+    msg_origin_t   origin;   // where is this coming from
+    int pid;                 // if User RT or ULAPI; 0 for kernel
+    int level;               // as passed in to rtapi_print_msg()
+    char tag[TAGSIZE];       // eg program or module name
+    msg_encoding_t encoding; // how to interpret buf
+    char buf[0];             // actual message
+} rtapi_msgheader_t;
+
 #define rtapi2syslog(level) (level+2)
 
 #if defined(ULAPI)

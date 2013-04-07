@@ -1,14 +1,12 @@
 #include "rtapi.h"
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <errno.h>
-
 #include <assert.h>
 
 #include <rtapi.h>
@@ -18,7 +16,12 @@ static int comp_id;
 static int instance_id;
 static int rt_msglevel;
 static int usr_msglevel;
+static ringbuffer_t rtapi_msg_buffer;   // rtapi ring access strcuture
+
 const char *progname;
+
+static const char *origins[] = { "kernel","rt","user" };
+//static const char *encodings[] = { "ascii","stashf","protobuf" };
 
 static void usage(int argc, char **argv) 
 {
@@ -46,8 +49,49 @@ static int setup_global()
 	return -1;
     }
     hal_ready(comp_id);
+    assert(global_data != NULL);
     return 0;
 }
+
+static int message_thread()
+{
+    rtapi_msgheader_t *msg;
+    size_t msg_size;
+    size_t payload_length;
+    int retval;
+
+    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_msg_buffer);
+    rtapi_msg_buffer.header->refcount++;
+
+    do {
+	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
+					   (void *) &msg, &msg_size)) == 0) {
+
+	    payload_length = msg_size - sizeof(rtapi_msgheader_t);
+
+	    fprintf(stderr, "%s:%d:%s:%d ",
+		    msg->tag, msg->pid, origins[msg->origin], msg->level);
+	    switch (msg->encoding) {
+	    case MSG_ASCII:
+		fprintf(stderr, "%.*s",payload_length, msg->buf);
+		break;
+	    case MSG_STASHF:
+		break;
+	    case MSG_PROTOBUF:
+		break;
+	    default: ;
+		// whine
+	    }
+	    rtapi_record_shift(&rtapi_msg_buffer);
+	}
+	sleep(1);
+    } while (1); // !global_data->shutting_down;
+
+    rtapi_msg_buffer.header->refcount--;
+
+    return 0;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -89,5 +133,7 @@ int main(int argc, char **argv)
     }
     if ((retval = setup_global()) != 0)
 	exit(retval);
+    // setup signal handlers to cleanup on exit
+    message_thread();
     exit(0);
 }

@@ -102,10 +102,11 @@ static global_data_t *gd;    // dont collide with global_data in instance.so
 #if 1
 // trap: try to collide on purpose - NB: externs
 // if there's symbol leakage, this should result in a segfault
-rtapi_switch_t *rtapi_switch = NULL; 
-global_data_t *global_data = NULL;  
-#endif 
+rtapi_switch_t *rtapi_switch = NULL;
+global_data_t *global_data = NULL;
+#endif
 
+//ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
 static int force_exit = 0;
 
 static int init_actions(int instance, int hal_size, int rtlevel, int userlevel);
@@ -114,7 +115,7 @@ static void exit_actions(void);
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
     if(!module) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
 		  "newinst: hal_lib is required, but not loaded\n");
         return -1;
     }
@@ -122,14 +123,14 @@ static int do_newinst_cmd(string type, string name, string arg) {
     hal_comp_t *(*find_comp_by_name)(char*) =
         DLSYM<hal_comp_t*(*)(char *)>(module, "halpr_find_comp_by_name");
     if(!find_comp_by_name) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
 		  "newinst: halpr_find_comp_by_name not found\n");
         return -1;
     }
 
     hal_comp_t *comp = find_comp_by_name((char*)type.c_str());
     if(!comp) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
 		  "newinst: component %s not found\n", type.c_str());
         return -1;
     }
@@ -270,7 +271,7 @@ static int do_load_cmd(string name, vector<string> args) {
 	// NB: the reference may NOT be called rtapi_switch or 
 	// it might hide rtapi_switch definitions in modules
 	if (rtsw == NULL) {
-	 
+
 	    rtapi_get_handle_t rtapi_get_handle;
     	    dlerror();
 	    rtapi_get_handle = (rtapi_get_handle_t) dlsym(module, "rtapi_get_handle");
@@ -301,8 +302,9 @@ static int do_load_cmd(string name, vector<string> args) {
 		      name.c_str(), result, strerror(-result));
 	    modules.erase(modules.find(name));
 	    return result;
-        } 
+        }
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n", name.c_str(), what);
+
 	// retrieve the address of the global segment
 	// this is set only after rtapi_app_main returns sucessfully
 	if (gd == NULL) {
@@ -313,16 +315,19 @@ static int do_load_cmd(string name, vector<string> args) {
 	    if (get_global_handle != NULL) {
 		gd = get_global_handle();
 		assert(gd != NULL);
-		rtapi_print_msg(RTAPI_MSG_DBG, 
-				"rtapi_app:%d global_data=%p retrieved\n", 
+		rtapi_print_msg(RTAPI_MSG_DBG,
+				"rtapi_app:%d global_data=%p retrieved\n",
 				instance_id, gd);
 
-	    } else
-		rtapi_print_msg(RTAPI_MSG_ERR, "foo: get_global_handle %s\n",dlerror());
+		// rtapi_ringbuffer_init(&gd->error_ring, &rtapi_message_buffer);
+		// rtapi_message_buffer.header->refcount++;
+		// start rtapi_message_buffer reading thread here
+		//
 
+	    }
 	}
 	return 0;
-    } 
+    }
     rtapi_print_msg(RTAPI_MSG_ERR, "%s: already loaded\n", name.c_str());
     return -1;
 }

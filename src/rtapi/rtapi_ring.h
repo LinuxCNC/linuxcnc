@@ -423,7 +423,7 @@ static ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) /
  * void *data;
  * size_t size;
  *
- * while (rtapi_record_read(ring, &data, &size)) {
+ * while (rtapi_record_read(ring, &data, &size) == 0) {
  *    // process(data,size)
  *    rtapi_record_shift(ring); 
  * }
