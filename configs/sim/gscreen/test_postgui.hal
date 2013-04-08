@@ -1,4 +1,4 @@
-net spindle-speed-limited gscreen.spindle-readout.in vcp_box.hal_meter1
+net spindle-speed-limited gscreen.spindle-readout-in vcp_box.hal_meter1
 net spindle-at-speed gscreen.spindle-at-speed
 
 unlinkp iocontrol.0.tool-change

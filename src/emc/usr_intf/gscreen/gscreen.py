@@ -974,22 +974,22 @@ class Gscreen:
         self.init_control_pins()
 
     def init_spindle_pins(self):
-        self.halcomp.newpin("spindle-readout.in", hal.HAL_FLOAT, hal.HAL_IN)
+        self.halcomp.newpin("spindle-readout-in", hal.HAL_FLOAT, hal.HAL_IN)
 
     def init_coolant_pins(self):
-        self.halcomp.newpin("aux-coolant-m7.out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("aux-coolant-m8.out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("mist-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("flood-coolant.out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("aux-coolant-m7-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("aux-coolant-m8-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("mist-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("flood-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
 
     def init_jog_pins(self):
         for axis in self.data.axis_list:
-            self.halcomp.newpin("jog-enable-%s.out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-enable.out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-increment.out", hal.HAL_FLOAT, hal.HAL_OUT)
-        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment.in', hal.HAL_S32, hal.HAL_IN))
+            self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("jog-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("jog-increment-out", hal.HAL_FLOAT, hal.HAL_OUT)
+        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.HAL_S32, hal.HAL_IN))
         #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
-        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate.in', hal.HAL_S32, hal.HAL_IN))
+        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.HAL_S32, hal.HAL_IN))
         #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
 
     # pins used for selecting an encoder to adjust overrides
@@ -2035,7 +2035,7 @@ class Gscreen:
         if not absolute == None:
             distance = absolute
             self.widgets.jog_increment.set_text("%f"%distance)
-            self.halcomp["jog-increment.out"] = distance
+            self.halcomp["jog-increment-out"] = distance
             print "index jog increments",distance
             return
         elif not index_dir == None:
@@ -2054,7 +2054,7 @@ class Gscreen:
         else:
             distance = self.parse_increment(jogincr)
         print "index jog increments",jogincr,distance
-        self.halcomp["jog-increment.out"] = distance
+        self.halcomp["jog-increment-out"] = distance
 
     def adjustment_buttons(self,widget,action,change=0):
         print "adjustment buttons"
@@ -3027,7 +3027,7 @@ class Gscreen:
         self.widgets.spindle_control.set_label(temp)
 
     def update_spindle_bar(self):
-        self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout.in"]))
+        self.widgets.s_display.set_value(abs(self.halcomp["spindle-readout-in"]))
         self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
@@ -3092,20 +3092,20 @@ class Gscreen:
     def update_aux_coolant_pins(self):
         # control aux_coolant  - For Dave Armstrong
         m7 = m8 = False
-        self.halcomp["aux-coolant-m8.out"] = False
-        self.halcomp["mist-coolant.out"] = False
-        self.halcomp["aux-coolant-m7.out"] = False
-        self.halcomp["flood-coolant.out"] = False
+        self.halcomp["aux-coolant-m8-out"] = False
+        self.halcomp["mist-coolant-out"] = False
+        self.halcomp["aux-coolant-m7-out"] = False
+        self.halcomp["flood-coolant-out"] = False
         if self.data.mist:
             if self.widgets.aux_coolant_m7.get_active():
-               self.halcomp["aux-coolant-m7.out"] = True
+               self.halcomp["aux-coolant-m7-out"] = True
             else:
-                self.halcomp["mist-coolant.out"] = True
+                self.halcomp["mist-coolant-out"] = True
         if self.data.flood:
             if self.widgets.aux_coolant_m8.get_active():
-                self.halcomp["aux-coolant-m8.out"] = True
+                self.halcomp["aux-coolant-m8-out"] = True
             else:
-                self.halcomp["flood-coolant.out"] = True
+                self.halcomp["flood-coolant-out"] = True
 
     def update_feed_speed_label(self):
         data = self.data.velocity
@@ -3173,13 +3173,13 @@ class Gscreen:
     def update_hal_jog_pins(self):
          for i in self.data.axis_list:
             if self.widgets.button_jog_mode.get_active() and self.widgets["axis_%s"%i].get_active():
-                self.halcomp["jog-enable-%s.out"%i] = True
+                self.halcomp["jog-enable-%s-out"%i] = True
             else:
-                self.halcomp["jog-enable-%s.out"%i] = False
+                self.halcomp["jog-enable-%s-out"%i] = False
             if self.widgets.button_jog_mode.get_active():
-                self.halcomp["jog-enable.out"] = True
+                self.halcomp["jog-enable-out"] = True
             else:
-                self.halcomp["jog-enable.out"] = False
+                self.halcomp["jog-enable-out"] = False
 
     # These pins set and unset enable pins for override adjustment
     # only true when the screen button is true and not in jog mode 

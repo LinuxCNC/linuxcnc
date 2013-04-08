@@ -1,4 +1,4 @@
-net spindle-speed-limited gscreen.spindle-readout.in
+net spindle-speed-limited gscreen.spindle-readout-in
 net spindle-at-speed gscreen.spindle-at-speed
 
 # unlink hal_manual_toolchange so we can connect to gscreen's
