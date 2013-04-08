@@ -41,7 +41,4 @@ inline unsigned char rtapi_inb_hook(unsigned int port) { return 0; }
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS
 
-// hardy breakage
-#ifndef HAVE_CLOCK_GETRES
-#define RTAPI_TIME_NO_CLOCK_MONOTONIC
-#endif
+
