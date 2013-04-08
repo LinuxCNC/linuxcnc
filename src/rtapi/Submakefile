@@ -20,10 +20,11 @@ ULAPISO_LIBS :=
 # see enum thread_flavor_id in rtapi.h
 ifeq ($(THREADS),posix)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=0
-RT_CFLAGS+=-pthread
+RT_CFLAGS+=-pthread -lrt
 endif
 ifeq ($(THREADS),rt-preempt-user)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=1
+RT_CFLAGS+=-pthread -lrt
 endif
 ifeq ($(THREADS),xenomai-user)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=2
