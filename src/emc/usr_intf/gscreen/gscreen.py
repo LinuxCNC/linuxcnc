@@ -889,9 +889,9 @@ class Gscreen:
             self.widgets.window1.fullscreen()
 
     def init_running_options(self):
-        self.widgets.button_h3_1.set_active(self.prefs.getpref('blockdel', False))
+        self.widgets.button_block_delete.set_active(self.prefs.getpref('blockdel', False))
         self.emc.blockdel(self.data.block_del)
-        self.widgets.button_h3_2.set_active(self.prefs.getpref('opstop', False))
+        self.widgets.button_option_stop.set_active(self.prefs.getpref('opstop', False))
         self.emc.opstop(self.data.op_stop)
 
     def init_hide_cursor(self):
@@ -913,39 +913,39 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the machine being on or off
     def init_sensitive_on_off(self):
-        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode","restart"]
+        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode","button_restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
     # buttons that need to be sensitive based on the interpeter runing or being idle
     def init_sensitive_run_idle(self):
-        self.data.sensitive_run_idle = ["button_edit","button_h3_0","button_h3_4","button_h3_5","button_h3_6","button_mode","restart"]
+        self.data.sensitive_run_idle = ["button_edit","button_load","button_mode","button_restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_run_idle.append("axis_%s"% axis)
 
     def init_sensitive_all_homed(self):
-        self.data.sensitive_all_homed = ["button_v0_0","button_v0_1","button_h1_1","button_v0_6"]
+        self.data.sensitive_all_homed = ["button_zero_origin","button_offset_origin","button_select_system","button_tool_set"]
 
     def init_sensitive_edit_mode(self):
-        self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
+        self.data.sensitive_edit_mode = ["button_mode","button_menu","button_graphics","button_override","button_restart","button_single_step","button_run",
             "ignore_limits"]
 
     def init_sensitive_override_mode(self):
         self.data.sensitive_override_mode = ["spindle_preset","spindle_control","spindle_increase","spindle_decrease","s_display_fwd",
-            "s_display_rev","button_graphics","button_homing","button_mode","button_h1_0","button_h1_2",
-                "button_h1_3","button_h1_4","button_v0_6"]
+            "s_display_rev","button_graphics","button_homing","button_mode","button_jog_mode","button_flood_coolant",
+                "button_mist_coolant","button_tool_editor","button_tool_set"]
         for axis in self.data.axis_list:
             self.data.sensitive_override_mode.append("axis_%s"% axis)
 
     def init_sensitive_graphics_mode(self):
         self.data.sensitive_graphics_mode = ["button_override","button_homing","button_mode",
-              "button_v0_0","button_v0_1","button_v0_2","button_v0_3","vmode0","button_v0_6"]
+              "button_zero_origin","button_offset_origin","button_plus","button_minus","vmode0","button_tool_set"]
         for axis in self.data.axis_list:
             self.data.sensitive_graphics_mode.append("axis_%s"% axis)
 
     def init_sensitive_origin_mode(self):
         self.data.sensitive_origin_mode = ["button_override","button_graphics","button_homing","button_mode",
-                "button_v0_0","button_v0_1","button_h1_0","button_h1_2","button_h1_3","button_h1_4","button_v0_6"]
+                "button_zero_origin","button_offset_origin","button_jog_mode","button_flood_coolant","button_mist_coolant","button_tool_editor","button_tool_set"]
         for axis in self.data.axis_list:
             self.data.sensitive_origin_mode.append("axis_%s"% axis)
     
@@ -1245,9 +1245,9 @@ class Gscreen:
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
         if self.widgets.button_graphics.get_active():
-            if self.widgets.button_h5_0.get_active():
+            if self.widgets.button_zoom.get_active():
                 self.widgets.gremlin.start_continuous_zoom(event.y)
-            elif self.widgets.button_h5_6.get_active():
+            elif self.widgets.button_rotate_v.get_active():
                 self.widgets.gremlin.select_prime(event.x,event.y)
             self.widgets.gremlin.set_mouse_start(event.x,event.y)
 
@@ -1262,21 +1262,21 @@ class Gscreen:
         if self.widgets.button_graphics.get_active():
             self.widgets.gremlin.set_property('use_default_controls',False)
             if self.data.hide_cursor:
-                if self.widgets.button_h5_0.get_active():
+                if self.widgets.button_zoom.get_active():
                     self.widgets.gremlin.continuous_zoom(event.y)
-                elif self.widgets.button_h5_4.get_active():
+                elif self.widgets.button_pan_v.get_active():
                     self.pan(event.x,event.y)
-                elif self.widgets.button_h5_5.get_active():
+                elif self.widgets.button_pan_h.get_active():
                     self.pan(event.x,event.y)
-                elif self.widgets.button_h5_6.get_active():
+                elif self.widgets.button_rotate_v.get_active():
                     self.rotate(event.x,event.y)
-                elif self.widgets.button_h5_7.get_active():
+                elif self.widgets.button_rotate_h.get_active():
                     self.rotate(event.x,event.y)
-            elif self.widgets.button_h5_0.get_active() or self.widgets.button_h5_4.get_active():
+            elif self.widgets.button_zoom.get_active() or self.widgets.button_pan_v.get_active():
                 return
-            elif self.widgets.button_h5_5.get_active() or self.widgets.button_h5_6.get_active():
+            elif self.widgets.button_pan_h.get_active() or self.widgets.button_rotate_v.get_active():
                 return
-            elif self.widgets.button_h5_7.get_active():
+            elif self.widgets.button_rotate_h.get_active():
                 return
             else:
                 self.widgets.gremlin.set_property('use_default_controls',True)
@@ -1423,80 +1423,71 @@ class Gscreen:
             self.widgets.button_mode.set_label(label[self.data.mode_order[0]])
             self.mode_changed(self.data.mode_order[0])
 
-    def on_button_offsets(self,widget):
+    def on_button_show_offsets_clicked(self,widget):
         self.toggle_offset_view()
 
-    def on_hbutton_clicked(self,widget,mode,number):
-            if mode == 0:
-                if number == 0: self.toggle_ignore_limits()
-                elif number == 2: self.home_all()
-                elif number == 3: self.home_selected()
-                elif number == 4: self.unhome_all()
-                elif number == 5: self.dro_toggle()
-                else: print "hbutton %d_%d clicked but no function"% (mode,number)
-            elif mode == 1:
-                if number == 0: self.jog_mode()
-                elif number == 1: self.origin_system()
-                elif number == 2: self.toggle_mist()
-                elif number == 3: self.toggle_flood()
-                elif number == 4: self.reload_tooltable()
-                elif number == 5: self.dro_toggle()
-                else: print "hbutton %d_%d clicked but no function"% (mode,number)
-            elif mode == 3:
-                if number == 1: self.toggle_block_delete()
-                elif number == 3: pass
-                elif number == 2: self.toggle_optional_stop()
-                elif number == 7: self.next_tab()
-                else: print "hbutton %d_%d clicked but no function"% (mode,number)
-            elif mode == 4:
-                self.toggle_overrides(widget,mode,number)
-            elif mode == 5:
-                if number == 1:pass
-                elif number == 2:pass
-                elif number == 3:self.clear_plot()
-                else: self.toggle_graphic_overrides(widget,mode,number)
-            else: print "hbutton %d_%d clicked but no function"% (mode,number)
+    # Horizontal buttons
+    def on_button_home_all_clicked(self,widget):
+        self.home_all()
+    def on_button_unhome_all_clicked(self,widget):
+        self.unhome_all()
+    def on_button_home_axis_clicked(self,widget):
+        self.home_selected()
+    def on_button_unhome_axis_clicked(self,widget):
+        self.unhome_selected()
+    def on_button_toggle_readout_clicked(self,widget):
+        self.dro_toggle()
 
-    def on_vbutton_clicked(self,widget,mode,number):
-        if mode == 0:
-            if number == 0: self.adjustment_buttons(widget,True)
-            elif number == 1:
-                # adjust overrrides
-                if self.widgets.button_override.get_active():
-                    self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
-                # offset origin
-                else:
-                    self.set_axis_checks()
-            elif number == 2: pass # using press and release signals
-            elif number == 3: pass # ditto
-            elif number == 4: pass
-            elif number == 5:
-                # Move to button
-                if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
-                    self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
-            elif number == 6:
-                self.tool_touchoff_checks()
-            else: print "Vbutton %d_%d clicked but no function"% (mode,number)
-        elif mode == 1:
-            if number == 0: pass
-            elif number == 1: pass
-            elif number == 2: pass
-            elif number == 3: pass
-            elif number == 4: pass
-            elif number == 5: pass
-            elif number == 6: pass
-            elif number == 7: pass
-            else: print "Vbutton %d_%d clicked but no function"% (mode,number)
+    def on_button_jog_mode_clicked(self,widget):
+        self.jog_mode()
+    def on_button_select_system_clicked(self,widget):
+        self.origin_system()
+    def on_button_flood_coolant_clicked(self,widget):
+        self.toggle_flood()
+    def on_button_mist_coolant_clicked(self,widget):
+        self.toggle_mist()
+    def on_button_tool_editor_clicked(self,widget):
+        self.reload_tooltable()
 
+    def on_button_block_delete_clicked(self,widget):
+        self.toggle_block_delete()
+    def on_button_option_stop_clicked(self,widget):
+        self.toggle_optional_stop()
+    def on_button_next_tab_clicked(self,widget):
+        self.next_tab()
+    def on_button_overrides_clicked(self,widget,button):
+        self.toggle_overrides(widget,button)
 
-    def on_button_v0_2_pressed(self,widget):
+    def on_button_clear_view_clicked(self,widget):
+        self.clear_plot()
+    def on_graphic_overrides_clicked(self,widget,button):
+        self.toggle_graphic_overrides(widget,button)
+
+    # vertical buttons
+    def on_button_plus_pressed(self,widget):
         self.adjustment_buttons(widget,True)
-    def on_button_v0_2_released(self,widget):
+    def on_button_plus_released(self,widget):
         self.adjustment_buttons(widget,False)
-    def on_button_v0_3_pressed(self,widget):
+    def on_button_minus_pressed(self,widget):
         self.adjustment_buttons(widget,True)
-    def on_button_v0_3_released(self,widget):
+    def on_button_minus_released(self,widget):
         self.adjustment_buttons(widget,False)
+    def on_offset_origin_clicked(self,widget):
+        # adjust overrrides
+        if self.widgets.button_override.get_active():
+            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+        # offset origin
+        else:
+            self.set_axis_checks()
+    def on_move_to_clicked(self,widget):
+        # Move-to button
+        # manual mode and jog mode active
+        if self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active():
+            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+
+    def on_tool_touchoff_clicked(self,widget):
+        print "touch"
+        self.tool_touchoff_checks()
 
     def on_mode_select_clicked(self,widget,event):
         maxpage = self.widgets.notebook_main.get_n_pages()
@@ -1590,23 +1581,25 @@ class Gscreen:
                     self.halcomp[pinname + "-response"] = 0
                 self.warning_dialog(boldtext,False,text,pinname)
 
-
-
-    def toggle_overrides(self,widget,mode,number):
-        print "overrides - button_h_%d_%d"%(mode,number)
-        for i in range(0,5):
-            if i == number:continue
-            button = "button_h%d_%d"% (mode,i)
+    def toggle_overrides(self,widget,data):
+        print "overrides - button_h_%s"% data
+        list = ('jog_speed','jog_increments','feed_override','spindle_override','rapid_override')
+        for i in (list):
+            print i,data
+            if i == data:continue
+            button = "button_%s"% (i)
+            print "block",button
             self.block(button)
             self.widgets[button].set_active(False)
             self.unblock(button)
         self.update_hal_override_pins()
 
-    def toggle_graphic_overrides(self,widget,mode,number):
-        print "graphic overrides - button_h_%d_%d"%(mode,number)
-        for i in range(0,8):
-            if i == number or i in(1,2,3):continue
-            button = "button_h%d_%d"% (mode,i)
+    def toggle_graphic_overrides(self,widget,data):
+        print "graphic overrides - button_%s"%data
+        list = ('zoom','pan_v','pan_h','rotate_v','rotate_h')
+        for i in (list):
+            if i == data:continue
+            button = "button_%s"% (i)
             self.block(button)
             self.widgets[button].set_active(False)
             self.unblock(button)
@@ -1760,89 +1753,131 @@ class Gscreen:
     # HAL pin signal call-backs are covered in the HAL pin initilization functions
     def connect_signals(self, handlers):
 
-        signal_list = [ ["unhome_axis","clicked", "unhome_selected"],
-                        ["button_estop","clicked", "on_estop_clicked"],
-                        ["gremlin","motion-notify-event", "on_gremlin_motion"],
-                        ["button_mode","button_press_event", "on_mode_clicked"],
-                        ["button_menu","button_press_event", "on_mode_select_clicked"],
-                        ["button_v0_2","pressed", "on_button_v0_2_pressed"],
-                        ["button_v0_2","released", "on_button_v0_2_released"],
-                        ["button_v0_3","pressed", "on_button_v0_3_pressed"],
-                        ["button_v0_3","released", "on_button_v0_3_released"],
-                        ["button_change_view","clicked", "on_button_change_view_clicked"],
-                        ["button_full_view","clicked", "on_button_full_view_clicked"],
-                        ["theme_choice","changed", "on_theme_choice_changed"],
-                        ["use_screen2","clicked", "on_use_screen2_pressed"],
-                        ["dro_units","clicked", "on_dro_units_pressed"],
-                        ["diameter_mode","clicked", "on_diameter_mode_pressed"],
-                        ["button_edit","toggled", "on_button_edit_clicked"],
-                        ["show_offsets","clicked", "on_show_offsets_pressed"],
-                        ["show_dtg","clicked", "on_show_dtg_pressed"],
-                        ["fullscreen1","clicked", "on_fullscreen1_pressed"],
-                        ["shut_down","clicked", "on_window1_destroy"],
-                        ["shut_down",'released',"hack_leave"],
-                        ["run_halshow","clicked", "on_halshow"],
-                        ["run_calibration","clicked", "on_calibration"],
-                        ["run_status","clicked", "on_status"],
-                        ["run_halmeter","clicked", "on_halmeter"],
-                        ["run_halscope","clicked", "on_halscope"],
-                        ["run_ladder","clicked", "on_ladder"],
-                        ["hide_cursor","clicked", "on_hide_cursor"],
-                        ["button_homing","clicked", "homing"],
-                        ["button_override","clicked", "override"],
-                        ["button_graphics","clicked", "graphics"],
-                        ["desktop_notify","toggled", "on_desktop_notify_toggled"],
-                        ["grid_size","value_changed", "set_grid_size"],
-                        ["spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
-                        ["spindle_control","clicked", "on_spindle_control_clicked"],
-                        ["spindle_preset","clicked", "on_preset_spindle"],
-                        ["spindle_increase","clicked", "on_spindle_speed_adjust"],
-                        ["spindle_decrease","clicked", "on_spindle_speed_adjust"],
-                        ["button_offsets","clicked", "on_button_offsets"],
-                        ["audio_error_chooser","update-preview", "update_preview"],
-                        ["audio_alert_chooser","update-preview", "update_preview"],
-                        ["hal_status","interp-idle", "on_hal_status_interp_idle"],
-                        ["hal_status","interp-run", "on_hal_status_interp_run"],
-                        ["hal_status","state-on", "on_hal_status_state_on"],
-                        ["hal_status","state-off", "on_hal_status_state_off"],
-                        ["hal_status","homed", "on_hal_status_axis_homed"],
-                        ["hal_status","all-homed", "on_hal_status_all_homed"],
-                        ["hal_status","not-all-homed", "on_hal_status_not_all_homed"],
-                        ["hal_status","file-loaded", "on_hal_status_file_loaded"],
-                        ["window1","destroy", "on_window1_destroy"],
-                        ["pop_statusbar","clicked", "on_pop_statusbar_clicked"],
-                        ["dtg_colorbutton","color-set", "on_dtg_colorbutton_color_set"],
-                        ["abs_colorbutton","color-set", "on_abs_colorbutton_color_set"],
-                        ["rel_colorbutton","color-set", "on_rel_colorbutton_color_set"],
-                        ["eventbox_gremlin","leave_notify_event", "on_eventbox_gremlin_leave_notify_event"],
-                        ["eventbox_gremlin","enter_notify_event", "on_eventbox_gremlin_enter_notify_event"],
-                        ["s_display_rev","toggled", "on_s_display_rev_toggled"],
-                        ["s_display_fwd","toggled", "on_s_display_fwd_toggled"],
-                        ["ignore_limits","clicked", "toggle_ignore_limits"],
-                        ["audio_error_chooser","selection_changed","change_sound","error"],
-                        ["audio_alert_chooser","selection_changed","change_sound","alert"],
-                        ["toggle_keyboard","clicked", "on_toggle_keyboard"],
-                        ["metric_select","clicked","on_metric_select_clicked"],
-                        ["restart","clicked", "launch_restart_dialog"],
-                        ["index_tool","clicked", "on_index_tool"],]
+        signal_list = [
+                        ["","button_estop","clicked", "on_estop_clicked"],
+                        ["","gremlin","motion-notify-event", "on_gremlin_motion"],
+                        ["","button_mode","button_press_event", "on_mode_clicked"],
+                        ["","button_menu","button_press_event", "on_mode_select_clicked"],
+                        ["","button_plus","pressed", "on_button_plus_pressed"],
+                        ["","button_plus","released", "on_button_plus_released"],
+                        ["","button_minus","pressed", "on_button_minus_pressed"],
+                        ["","button_minus","released", "on_button_minus_released"],
+                        ["","button_zero_origin","clicked", "adjustment_buttons",True],
+                        ["","button_offset_origin","clicked", "on_offset_origin_clicked"],
+
+                        ["","button_move_to","clicked", "on_move_to_clicked"],
+                        ["","button_tool_set","clicked", "on_tool_touchoff_clicked"],
+                        ["","button_change_view","clicked", "on_button_change_view_clicked"],
+                        ["","button_full_view","clicked", "on_button_full_view_clicked"],
+                        ["","button_home_all","clicked", "on_button_home_all_clicked"],
+                        ["","button_unhome_all","clicked", "on_button_unhome_all_clicked"],
+                        ["","button_home_axis","clicked", "on_button_home_axis_clicked"],
+                        ["","button_unhome_axis","clicked", "on_button_unhome_axis_clicked"],
+                        ["","button_toggle_readout","clicked", "on_button_toggle_readout_clicked"],
+                        ["","button_jog_mode","clicked", "on_button_jog_mode_clicked"],
+
+                        ["","button_select_system","clicked", "on_button_select_system_clicked"],
+                        ["","button_mist_coolant","clicked", "on_button_mist_coolant_clicked"],
+                        ["","button_flood_coolant","clicked", "on_button_flood_coolant_clicked"],
+                        ["","button_tool_editor","clicked", "on_button_tool_editor_clicked"],
+                        ["","button_toggle_readout2","clicked", "on_button_toggle_readout_clicked"],
+                        ["","button_show_offsets","clicked", "on_button_show_offsets_clicked"],
+                        ["","button_block_delete","clicked", "on_button_block_delete_clicked"],
+                        ["","button_option_stop","clicked", "on_button_option_stop_clicked"],
+                        ["","button_next_tab","clicked", "on_button_next_tab_clicked"],
+                ["block","button_jog_speed","clicked", "on_button_overrides_clicked","jog_speed"],
+
+                ["block","button_jog_increments","clicked", "on_button_overrides_clicked","jog_increments"],
+                ["block","button_feed_override","clicked", "on_button_overrides_clicked","feed_override"],
+                ["block","button_spindle_override","clicked", "on_button_overrides_clicked","spindle_override"],
+                ["block","button_rapid_override","clicked", "on_button_overrides_clicked","rapid_override"],
+                ["block","button_zoom","clicked", "on_graphic_overrides_clicked","zoom"],
+                ["block","button_pan_v","clicked", "on_graphic_overrides_clicked","pan_v"],
+                ["block","button_pan_h","clicked", "on_graphic_overrides_clicked","pan_h"],
+                ["block","button_rotate_v","clicked", "on_graphic_overrides_clicked","rotate_v"],
+                ["block","button_rotate_h","clicked", "on_graphic_overrides_clicked","rotate_h"],
+                        ["","button_clear_view","clicked", "on_button_clear_view_clicked"],
+
+                        ["","theme_choice","changed", "on_theme_choice_changed"],
+                        ["","use_screen2","clicked", "on_use_screen2_pressed"],
+                        ["","dro_units","clicked", "on_dro_units_pressed"],
+                        ["","diameter_mode","clicked", "on_diameter_mode_pressed"],
+                        ["","button_edit","toggled", "on_button_edit_clicked"],
+                        ["","show_offsets","clicked", "on_show_offsets_pressed"],
+                        ["","show_dtg","clicked", "on_show_dtg_pressed"],
+                        ["","fullscreen1","clicked", "on_fullscreen1_pressed"],
+                        ["","shut_down","clicked", "on_window1_destroy"],
+                        ["","shut_down",'released',"hack_leave"],
+
+                        ["","run_halshow","clicked", "on_halshow"],
+                        ["","run_calibration","clicked", "on_calibration"],
+                        ["","run_status","clicked", "on_status"],
+                        ["","run_halmeter","clicked", "on_halmeter"],
+                        ["","run_halscope","clicked", "on_halscope"],
+                        ["","run_ladder","clicked", "on_ladder"],
+                        ["","hide_cursor","clicked", "on_hide_cursor"],
+                        ["","button_homing","clicked", "homing"],
+                        ["","button_override","clicked", "override"],
+                        ["","button_graphics","clicked", "graphics"],
+
+                        ["","desktop_notify","toggled", "on_desktop_notify_toggled"],
+                        ["","grid_size","value_changed", "set_grid_size"],
+                        ["","spindle_start_rpm","value_changed", "set_spindle_start_rpm"],
+                        ["","spindle_control","clicked", "on_spindle_control_clicked"],
+                        ["","spindle_preset","clicked", "on_preset_spindle"],
+                        ["","spindle_increase","clicked", "on_spindle_speed_adjust"],
+                        ["","spindle_decrease","clicked", "on_spindle_speed_adjust"],
+                        ["","audio_error_chooser","update-preview", "update_preview"],
+                        ["","audio_alert_chooser","update-preview", "update_preview"],
+                        ["","hal_status","interp-idle", "on_hal_status_interp_idle"],
+
+                        ["","hal_status","interp-run", "on_hal_status_interp_run"],
+                        ["","hal_status","state-on", "on_hal_status_state_on"],
+                        ["","hal_status","state-off", "on_hal_status_state_off"],
+                        ["","hal_status","homed", "on_hal_status_axis_homed"],
+                        ["","hal_status","all-homed", "on_hal_status_all_homed"],
+                        ["","hal_status","not-all-homed", "on_hal_status_not_all_homed"],
+                        ["","hal_status","file-loaded", "on_hal_status_file_loaded"],
+                        ["","window1","destroy", "on_window1_destroy"],
+                        ["","pop_statusbar","clicked", "on_pop_statusbar_clicked"],
+                        ["","dtg_colorbutton","color-set", "on_dtg_colorbutton_color_set"],
+
+                        ["","abs_colorbutton","color-set", "on_abs_colorbutton_color_set"],
+                        ["","rel_colorbutton","color-set", "on_rel_colorbutton_color_set"],
+                        ["","eventbox_gremlin","leave_notify_event", "on_eventbox_gremlin_leave_notify_event"],
+                        ["","eventbox_gremlin","enter_notify_event", "on_eventbox_gremlin_enter_notify_event"],
+                ["block","s_display_rev","toggled", "on_s_display_rev_toggled"],
+                ["block","s_display_fwd","toggled", "on_s_display_fwd_toggled"],
+                        ["","ignore_limits","clicked", "toggle_ignore_limits"],
+                        ["","audio_error_chooser","selection_changed","change_sound","error"],
+                        ["","audio_alert_chooser","selection_changed","change_sound","alert"],
+                        ["","toggle_keyboard","clicked", "on_toggle_keyboard"],
+
+                        ["","metric_select","clicked","on_metric_select_clicked"],
+                        ["","button_restart","clicked", "launch_restart_dialog"],
+                        ["","button_index_tool","clicked", "on_index_tool"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
         # if so skip the call in the signal list
-        # else connect the signals based on how many arguments they have 
+        # else connect the signals based on how many arguments they have and if blockable
         for i in signal_list:
-            if i[2] in handlers:
-                print _("**** GSCREEN INFO: Overriding internal signal call to %s"% i[2])
+            if i[3] in handlers:
+                print _("**** GSCREEN INFO: Overriding internal signal call to %s"% i[3])
                 continue
             try:
-                if  i[0] in("s_display_rev","s_display_fwd"):
-                    j = "_sighandler_%s"% i[0]
-                    self.data[j] = int(self.widgets[i[0]].connect(i[1], self[i[2]]))
-                elif len(i) == 3:
-                        self.widgets[i[0]].connect(i[1], self[i[2]])
+                # add id # for blockable signals
+                if  i[0] == "block":
+                    j = "_sighandler_%s"% i[1]
+                    if len(i) == 4:
+                        self.data[j] = int(self.widgets[i[1]].connect(i[2], self[i[3]]))
+                    if len(i) == 5:
+                        self.data[j] = int(self.widgets[i[1]].connect(i[2], self[i[3]],i[4]))
                 elif len(i) == 4:
-                    self.widgets[i[0]].connect(i[1], self[i[2]],i[3])
+                        self.widgets[i[1]].connect(i[2], self[i[3]])
+                elif len(i) == 5:
+                    self.widgets[i[1]].connect(i[2], self[i[3]],i[4])
             except:
-                print ("**** GSCREEN WARNING: could not connect %s to %s"% (i[0],i[2]))
+                print ("**** GSCREEN WARNING: could not connect %s to %s"% (i[1],i[3]))
 
         # setup signals that can be blocked but not overriden 
         for axis in self.data.axis_list:
@@ -1852,23 +1887,6 @@ class Gscreen:
                 self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
             except:
                 pass
-
-        for mode in range(0,6):
-            for num in range(0,24):
-                cb = "button_h%d_%d"% (mode,num)
-                i = "_sighandler_button_h%d_%d"% (mode,num)
-                try:
-                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_hbutton_clicked,mode,num))
-                except:
-                    pass
-        for mode in range(0,2):
-            for num in range(0,11):
-                cb = "button_v%d_%d"% (mode,num)
-                i = "_sighandler_button_v%d_%d"% (mode,num)
-                try:
-                    self.data[i] = int(self.widgets[cb].connect("clicked", self.on_vbutton_clicked,mode,num))
-                except:
-                    pass
 
     def toggle_offset_view(self):
             data = self.data.plot_hidden
@@ -1889,7 +1907,10 @@ class Gscreen:
 
     def sensitize_widgets(self, widgetlist, value):
         for name in widgetlist:
-            self.widgets[name].set_sensitive(value)
+            try:
+                self.widgets[name].set_sensitive(value)
+            except:
+                print "**** GSCREEN WARNING: No widget named: %s to sensitize"%name
 
     def from_internal_linear_unit(self,v, unit=None):
         if unit is None:
@@ -2040,18 +2061,18 @@ class Gscreen:
         # is over ride adjustment selection active?
         if self.widgets.button_override.get_active():
             print "override"
-            if widget == self.widgets.button_v0_0:
+            if widget == self.widgets.button_zero_origin:
                 print "zero button",action
                 change = 0
                 absolute = True
-            elif widget == self.widgets.button_v0_1:
+            elif widget == self.widgets.button_offset_origin:
                 print "set at button",action
                 absolute = True
-            elif widget == self.widgets.button_v0_2:
+            elif widget == self.widgets.button_plus:
                 print "up button",action
                 change = 1
                 absolute = False
-            elif widget == self.widgets.button_v0_3:
+            elif widget == self.widgets.button_minus:
                 print "down button",action
                 change = -1
                 absolute = False
@@ -2061,68 +2082,68 @@ class Gscreen:
         # graphics adjustment
         elif self.widgets.button_graphics.get_active():
             inc = self.data.graphic_move_inc
-            if widget == self.widgets.button_v0_2:
+            if widget == self.widgets.button_plus:
                 print "up button",action
                 change = 1
-            elif widget == self.widgets.button_v0_3:
+            elif widget == self.widgets.button_minus:
                 print "down button",action
                 change = -1
-            if self.widgets.button_h5_0.get_active() and action:
+            if self.widgets.button_zoom.get_active() and action:
                 print "zoom"
                 if change == 1: self.zoom_in()
                 else: self.zoom_out()
-            elif self.widgets.button_h5_4.get_active() and action:
+            elif self.widgets.button_pan_v.get_active() and action:
                 print "pan vertical"
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.pan(0,-inc)
                 else: self.pan(0,inc)
-            elif self.widgets.button_h5_5.get_active() and action:
+            elif self.widgets.button_pan_h.get_active() and action:
                 print "pan horizontal"
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.pan(-inc,0)
                 else: self.pan(inc,0)
-            elif self.widgets.button_h5_6.get_active() and action:
+            elif self.widgets.button_rotate_v.get_active() and action:
                 print "rotate horiontal"
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.rotate(-inc,0)
                 else: self.rotate(inc,0)
-            elif self.widgets.button_h5_7.get_active() and action:
+            elif self.widgets.button_rotate_h.get_active() and action:
                 print "rotate horiontal"
                 self.widgets.gremlin.set_mouse_start(0,0)
                 if change == 1: self.rotate(0,-inc)
                 else: self.rotate(0,inc)
 
         # user coordinate system
-        elif self.widgets.button_h1_1.get_active():
-            if widget == self.widgets.button_v0_2 and action:
+        elif self.widgets.button_select_system.get_active():
+            if widget == self.widgets.button_plus and action:
                 print "up button",action
                 change = 1
-            elif widget == self.widgets.button_v0_3 and action:
+            elif widget == self.widgets.button_minus and action:
                 print "down button",action
                 change = -1
             else: return
             self.change_origin_system(None,change)
         # Jogging mode (This needs to be last)
-        elif self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # manual mode and jog mode active
+        elif self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active(): # manual mode and jog mode active
             # what axis is set
-            if widget == self.widgets.button_v0_0:
+            if widget == self.widgets.button_zero_origin:
                 print "zero button",action
                 self.zero_axis()
-            elif widget == self.widgets.button_v0_5:
+            elif widget == self.widgets.button_move_to:
                 print "move to button",action
                 self.move_to(change)
-            elif widget == self.widgets.button_v0_2:
+            elif widget == self.widgets.button_plus:
                 print "up button",action
                 self.do_jog(True,action)
-            elif widget == self.widgets.button_v0_3:
+            elif widget == self.widgets.button_minus:
                 print "down button",action
                 self.do_jog(False,action)
-            elif widget == self.widgets.button_v0_1:
+            elif widget == self.widgets.button_offset_origin:
                 self.set_axis_checks()
-        elif widget == self.widgets.button_v0_0:
+        elif widget == self.widgets.button_zero_origin:
             print "zero buttons"
             self.zero_axis()
-        elif widget == self.widgets.button_v0_1:
+        elif widget == self.widgets.button_offset_origin:
             print "set axis buttons"
             self.set_axis_checks()
 
@@ -2133,35 +2154,35 @@ class Gscreen:
                 change = self.get_qualified_input(number,_PERCENT_INPUT)/100
             else:
                 change = number
-            if self.widgets.button_h4_0.get_active() and action:
+            if self.widgets.button_feed_override.get_active() and action:
                 print "feed override"
                 if absolute:
                     self.set_feed_override(change,absolute)
                 else:
                     self.set_feed_override((change * self.data.feed_override_inc),absolute)
-            elif self.widgets.button_h4_1.get_active() and action:
+            elif self.widgets.button_spindle_override.get_active() and action:
                 print "spindle override"
                 if absolute:
                     self.set_spindle_override(change,absolute)
                 else:
                     self.set_spindle_override((change * self.data.spindle_override_inc),absolute)
-            elif self.widgets.button_h4_2.get_active() and action:
+            elif self.widgets.button_rapid_override.get_active() and action:
                 print "velocity override"
                 if absolute:
                     self.set_velocity_override(change,absolute)
                 else:
                     self.set_velocity_override((change * self.data.velocity_override_inc),absolute)
-            elif self.widgets.button_h4_3.get_active() and action:
+            elif self.widgets.button_jog_speed.get_active() and action:
                 print "jog speed adjustment"
-                if widget == self.widgets.button_v0_1:
+                if widget == self.widgets.button_offset_origin:
                     change = self.get_qualified_input(number)
                 if absolute:
                     self.set_jog_rate(absolute = change)
                 else:
                     self.set_jog_rate(step = (change * self.data.jog_rate_inc))
-            elif self.widgets.button_h4_4.get_active() and action:
+            elif self.widgets.button_jog_increments.get_active() and action:
                 print "jog increments adjustment"
-                if widget == self.widgets.button_v0_1:
+                if widget == self.widgets.button_offset_origin:
                     change = self.get_qualified_input(number)
                 if absolute:
                     self.set_jog_increments(absolute = change)
@@ -2170,7 +2191,7 @@ class Gscreen:
 
     def origin_system(self,*args):
         print "origin system button"
-        value = self.widgets.button_h1_1.get_active()
+        value = self.widgets.button_select_system.get_active()
         self.sensitize_widgets(self.data.sensitive_origin_mode,not value)
 
     def change_origin_system(self,system,direction=None):
@@ -2189,16 +2210,16 @@ class Gscreen:
             if len(self.data.active_axis_buttons) > 1:
                 for i in self.data.axis_list:
                     self.widgets["axis_%s"%i].set_active(False)
-            for i in range(0,4):
-                self.widgets["button_v0_%d"% i].set_sensitive(False)
+            for i in ('zero_origin','offset_origin','plus','minus'):
+                self.widgets["button_%s"% i].set_sensitive(False)
             self.widgets.mode0.hide()
             self.widgets.mode3.show()
             #self.widgets.button_mode.set_sensitive(False)
             self.widgets.button_override.set_sensitive(False)
             self.widgets.button_graphics.set_sensitive(False)
         else:
-            for i in range(0,4):
-                self.widgets["button_v0_%d"% i].set_sensitive(True)
+            for i in ('zero_origin','offset_origin','plus','minus'):
+                self.widgets["button_%s"% i].set_sensitive(True)
             self.widgets.mode3.hide()
             self.widgets.mode0.show()
             state = self.data.all_homed
@@ -2219,8 +2240,8 @@ class Gscreen:
                 self._tempholder.append(self.widgets[name].get_sensitive())
                 self.widgets[name].set_sensitive(False)
             self.widgets.vmode0.set_sensitive(True)
-            self.widgets.button_v0_2.set_sensitive(True)
-            self.widgets.button_v0_3.set_sensitive(True)
+            self.widgets.button_plus.set_sensitive(True)
+            self.widgets.button_minus.set_sensitive(True)
         else:
             self.widgets.mode5.hide()
             self.mode_changed(self.data.mode_order[0])
@@ -2240,13 +2261,13 @@ class Gscreen:
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.button_v0_0.set_label("Zero\n ")
-            self.widgets.button_v0_1.set_label("Set At\n ")
+            self.widgets.button_zero_origin.set_label("Zero\n ")
+            self.widgets.button_offset_origin.set_label("Set At\n ")
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.button_v0_0.set_label(_(" Zero\nOrigin"))
-            self.widgets.button_v0_1.set_label(_("Offset\nOrigin"))
+            self.widgets.button_zero_origin.set_label(_(" Zero\nOrigin"))
+            self.widgets.button_offset_origin.set_label(_("Offset\nOrigin"))
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acknowledge.
@@ -2574,7 +2595,8 @@ class Gscreen:
             self.prefs.putpref('dro_is_metric', data, bool)
 
     def toggle_optional_stop(self):
-        self.set_optional_stop(self.widgets.button_h3_2.get_active())
+        print "option stop"
+        self.set_optional_stop(self.widgets.button_option_stop.get_active())
 
     def set_optional_stop(self,data):
         self.prefs.putpref('opstop', data, bool)
@@ -2582,7 +2604,7 @@ class Gscreen:
         self.emc.opstop(data)
 
     def toggle_block_delete(self):
-        self.set_block_delete(self.widgets.button_h3_1.get_active())
+        self.set_block_delete(self.widgets.button_block_delete.get_active())
 
     def set_block_delete(self,data):
         print "block delete"
@@ -2608,7 +2630,7 @@ class Gscreen:
         self.data.active_axis_buttons = []
         for i in self.data.axis_list:
             num = "xyzabcuvws".index(i)
-            if self.widgets.button_h1_0.get_active() or self.widgets.button_homing.get_active():
+            if self.widgets.button_jog_mode.get_active() or self.widgets.button_homing.get_active():
                 if not self.widgets["axis_%s"%i] == widget:
                     # unselect axis / HAL pin
                     self.block("axis_%s"%i)
@@ -2625,16 +2647,16 @@ class Gscreen:
 
     # adjust sensitivity and labels of buttons
     def jog_mode(self):
-        print "jog mode:",self.widgets.button_h1_0.get_active()
+        print "jog mode:",self.widgets.button_jog_mode.get_active()
         # if muliple axis selected - unselect all of them
-        if len(self.data.active_axis_buttons) > 1 and self.widgets.button_h1_0.get_active():
+        if len(self.data.active_axis_buttons) > 1 and self.widgets.button_jog_mode.get_active():
             for i in self.data.axis_list:
                 self.widgets["axis_%s"%i].set_active(False)
-        if self.widgets.button_h1_0.get_active():
-            self.widgets.button_v0_5.set_label("Move To\nPosition")
+        if self.widgets.button_jog_mode.get_active():
+            self.widgets.button_move_to.set_label("Goto Position")
             self.emc.set_manual_mode()
         else:
-            self.widgets.button_v0_5.set_label("")
+            self.widgets.button_move_to.set_label("")
         self.update_hal_jog_pins()
         self.update_hal_override_pins()
 
@@ -2668,7 +2690,7 @@ class Gscreen:
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
     def do_key_jog(self,axis,direction,action):
-        if self.data.mode_order[0] == _MAN and self.widgets.button_h1_0.get_active(): # jog mode active:
+        if self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active(): # jog mode active:
                     if not action: cmd = 0
                     elif direction: cmd = 1
                     else: cmd = -1
@@ -2784,7 +2806,7 @@ class Gscreen:
             print "home axis %s" % self.data.active_axis_buttons[0][0]
             self.emc.home_selected(self.data.active_axis_buttons[0][1])
 
-    def unhome_selected(self,widget):
+    def unhome_selected(self):
         if len(self.data.active_axis_buttons) > 1:
             self.notify(_("INFO:"),_("Can't unhome multiple axis"),INFO_ICON)
             print self.data.active_axis_buttons
@@ -2825,7 +2847,7 @@ class Gscreen:
     # move axis to a position (while in manual mode)
     def move_to(self,data):
         if self.data.mode_order[0] == _MAN:# if in manual mode
-            if self.widgets.button_h1_0.get_active(): # jog mode active
+            if self.widgets.button_jog_mode.get_active(): # jog mode active
                 print "jog to position"
                 self.do_jog_to_position(data)
 
@@ -2925,7 +2947,7 @@ class Gscreen:
                 self.widgets.notebook_mode.show()
             self.widgets.hal_mdihistory.hide()
         if not mode == _MAN:
-            self.widgets.button_h1_0.set_active(False)
+            self.widgets.button_jog_mode.set_active(False)
             self.widgets.button_homing.set_active(False)
             self.widgets.button_homing.hide()
             self.widgets.spare.show()
@@ -3150,11 +3172,11 @@ class Gscreen:
 
     def update_hal_jog_pins(self):
          for i in self.data.axis_list:
-            if self.widgets.button_h1_0.get_active() and self.widgets["axis_%s"%i].get_active():
+            if self.widgets.button_jog_mode.get_active() and self.widgets["axis_%s"%i].get_active():
                 self.halcomp["jog-enable-%s.out"%i] = True
             else:
                 self.halcomp["jog-enable-%s.out"%i] = False
-            if self.widgets.button_h1_0.get_active():
+            if self.widgets.button_jog_mode.get_active():
                 self.halcomp["jog-enable.out"] = True
             else:
                 self.halcomp["jog-enable.out"] = False
@@ -3163,10 +3185,10 @@ class Gscreen:
     # only true when the screen button is true and not in jog mode 
     # (because jog mode may use the encoder for jogging)
     def update_hal_override_pins(self):
-        jogmode = not(self.widgets.button_h1_0.get_active())
-        fo = self.widgets.button_h4_0.get_active() and jogmode
-        so = self.widgets.button_h4_1.get_active() and jogmode
-        mv = self.widgets.button_h4_2.get_active() and jogmode
+        jogmode = not(self.widgets.button_jog_mode.get_active())
+        fo = self.widgets.button_feed_override.get_active() and jogmode
+        so = self.widgets.button_spindle_override.get_active() and jogmode
+        mv = self.widgets.button_rapid_override.get_active() and jogmode
         self.halcomp["f-override-enable-out"] = fo
         self.halcomp["s-override-enable-out"] = so
         self.halcomp["mv-override-enable-out"] = mv
