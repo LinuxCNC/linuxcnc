@@ -386,12 +386,6 @@ Components Section, Motion subsection, for more information.
 M68 will not function unless the appropriate motion.analog-out-nn pins are
 connected in your hal file to outputs.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-||||||| merged common ancestors
-<<<<<<< Temporary merge branch 1
-=======
->>>>>>> master
 == M70 Save Modal State[[sec:M70-Save-Modal-State]]
 (((M70 Save Modal State)))
 
