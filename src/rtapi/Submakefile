@@ -138,3 +138,4 @@ $(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/test_rtapi_vsnprintf
+
