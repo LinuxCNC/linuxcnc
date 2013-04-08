@@ -32,7 +32,7 @@ endif
 ifeq ($(THREADS),rtai)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=3
 # these are needed to resolve rt_shm_alloc in ulapi.so
-ULAPISO_LIBS += /usr/realtime-`uname -r`/lib/liblxrt.a /usr/lib/libpthread.so
+ULAPISO_LIBS += /usr/realtime-`uname -r`/lib/liblxrt.a -lpthread
 endif
 ifeq ($(THREADS),xenomai-kernel)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=4
