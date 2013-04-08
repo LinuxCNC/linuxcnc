@@ -628,7 +628,10 @@ class Gscreen:
         else:
            self.status.dro_commanded(0)
 
-        self.initialize_keybindings()
+        if "initialize_keybindings" in dir(self.handler_instance):
+            self.handler_instance.initialize_keybindings()
+        else:
+            self.initialize_keybindings()
 
         # TODO the user should be able to invoke this so they know what methods are available
         # and what handers are registered
