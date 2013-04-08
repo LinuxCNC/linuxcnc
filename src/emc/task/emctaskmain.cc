@@ -1380,28 +1380,22 @@ static int emcTaskPlan(void)
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-		// in MDI, and a command currently executing.
-		if (emcStatus->task.interpState != EMC_TASK_INTERP_IDLE) {
-		    // in MDI, and a command currently executing.
-		    if (mdi_input_queue.len() < max_mdi_queued_commands) {
-			// space left to queue it.
-			mdi_input_queue.append(emcCommand);
-			emcStatus->task.queuedMDIcommands = mdi_input_queue.len();
-			if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-			    rcs_print("MDI: queueing '%s' (queue len=%d)\n",
-				      execute_msg->command,mdi_input_queue.len());
-			}
-		    } else {
-			emcOperatorError(0, _("maximum number of queued MDI commands exceeded (%d)"),
-					 max_mdi_queued_commands);
-		    }
-		} else {
-		    emcStatus->task.queuedMDIcommands = 0;
-		    // MDI input queue empty. Go ahead and issue right away.
-		    retval = emcTaskIssueCommand(emcCommand);
-		}
-		break;
+            case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // If there are no queued MDI commands and no commands
+                // in interp_list, then this new incoming MDI command
+                // can just be issued directly.  Otherwise we need to
+                // queue it and deal with it later.
+                if (
+                    (mdi_execute_queue.len() == 0)
+                    && (interp_list.len() == 0)
+                    && (emcTaskCommand == NULL)
+                ) {
+                    retval = emcTaskIssueCommand(emcCommand);
+                } else {
+                    mdi_execute_queue.append(emcCommand);
+                    retval = 0;
+                }
+                break;
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    case EMC_TOOL_SET_OFFSET_TYPE:
 		// send to IO
