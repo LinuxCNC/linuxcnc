@@ -175,7 +175,7 @@ CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 
 depends/protodeps.d: 
-#	$(warning generated=$(GENERATED))
+	$(warning generated=$(GENERATED))
 	./mkprotodep -p protobuf/proto \
             -e pb.h -e npb.h -e pb-c.h -e pb.cc -e npb.c -e pb-c.c \
             -d depends -g protobuf/generated >depends/protodeps.d

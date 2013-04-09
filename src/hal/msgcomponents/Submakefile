@@ -21,7 +21,12 @@ include $(patsubst %.comp, \
 
 else
 # userland dso's
-MSGCOMPS := $(sort $(wildcard $(MSGCOMP_DIR)/*.comp))
+MSGCOMPS := \
+	$(MSGCOMP_DIR)/remote.comp \
+	$(MSGCOMP_DIR)/ringread.comp \
+	$(MSGCOMP_DIR)/ringwrite.comp
+
+
 MSGCOMP_MANPAGES := $(patsubst $(MSGCOMP_DIR)/%.comp, ../docs/man/man9/%.9, $(MSGCOMPS))
 
 manpages: $(MSGCOMP_MANPAGES)
