@@ -30,7 +30,7 @@ Demo: messaging between RT components:
 
 Demo: sending messages from a Python program to an RT component:
 --------------------------------------
- $ halcmd -f ringread.hal
+ $ halcmd -f recordread.hal
  $ python ringwrite.py
 
 

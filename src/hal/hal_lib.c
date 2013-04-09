@@ -3367,22 +3367,6 @@ static hal_ring_t *find_ring_by_name(const char *name)
 /***********************************************************************
 *                     Public HAL ring functions                        *
 ************************************************************************/
-void walk_rings(const char *where)
-{
-#ifdef ULAPI
-    int next;
-    hal_ring_t *rbdesc;
-    printf("place: %s\n", where);
-    next =  hal_data->ring_list_ptr;
-    while (next) {
-	rbdesc = SHMPTR(next);
-	printf("name=%s next=%d ring_id=%d owner=%d\n",
-	       rbdesc->name, rbdesc->next_ptr, rbdesc->ring_id, rbdesc->owner);
-	next = rbdesc->next_ptr;
-    }
-#endif
-}
-
 int hal_ring_new(const char *name, int size, int sp_size, int module_id, int flags)
 {
     hal_ring_t *rbdesc, *ptr __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -3455,7 +3439,6 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	    /* reached end of list, insert here */
 	    rbdesc->next_ptr = next;
 	    *prev = SHMOFF(rbdesc);
-	    walk_rings("end");
 	    return 0;
 	}
 	ptr = SHMPTR(next);
@@ -3464,8 +3447,6 @@ int hal_ring_new(const char *name, int size, int sp_size, int module_id, int fla
 	    /* found the right place for it, insert here */
 	    rbdesc->next_ptr = next;
 	    *prev = SHMOFF(rbdesc);
-	    walk_rings("right place");
-
 	    return 0;
 	}
 	/* didn't find it yet, look at next one */
@@ -3490,9 +3471,6 @@ int hal_ring_attach(const char *name, ringbuffer_t *rbptr, int module_id)
     if ((rbdesc = find_ring_by_name(name)) == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"hal_ring_attach: no such ring '%s'\n",	name);
-#ifdef ULAPI
-	walk_rings("post hal_ring_attach failure");
-#endif
 	return -EINVAL;
     }
 
