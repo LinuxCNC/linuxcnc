@@ -512,8 +512,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     for (size_t i = 1; i < argc; i++) {
 	memset(argv[i], '\0', strlen(argv[i]));
     }
-    rtapi_openlog(proctitle, rt_msglevel );
-
+    //rtapi_openlog(proctitle, rt_msglevel );
+    rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(rt_msglevel);
     rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started", instance_id);
 
@@ -659,7 +659,7 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d exiting%s", 
 	      instance_id,
 	      sig == SIGSEGV ? ", core dumped" : "");
-    rtapi_closelog();
+    //rtapi_closelog();
 
     if (gd)
 	gd->rtapi_app_pid = 0;

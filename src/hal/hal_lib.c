@@ -4707,7 +4707,7 @@ static void ulapi_hal_lib_init(void)
     if (debug_env)
 	debug = atoi(debug_env);
 
-    rtapi_openlog("hal_lib",debug);
+    rtapi_set_logtag("hal_lib");
     rtapi_set_msg_level(debug);
 
     if (module_path(flavor, path,

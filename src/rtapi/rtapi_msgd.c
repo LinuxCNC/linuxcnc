@@ -63,7 +63,6 @@ static int setup_global()
 }
 
 static void msgd_exit(int sig, siginfo_t *si, void *context)
-
 {
     if (global_data) {
 	global_data->rtapi_msgd_pid = 0;
@@ -71,7 +70,7 @@ static void msgd_exit(int sig, siginfo_t *si, void *context)
 	    rtapi_msg_buffer.header->refcount--;
     }
     hal_exit(comp_id);
-    syslog(LOG_INFO,"exiting - caught signal: %s", strsignal(sig));
+    syslog(LOG_INFO,"exiting - got signal: %s", strsignal(sig));
     exit(0);
 }
 
@@ -90,10 +89,8 @@ static int message_thread()
 
     do {
 	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
-					   (void *) &msg, &msg_size)) == 0) {
-
+					   (const void **) &msg, &msg_size)) == 0) {
 	    payload_length = msg_size - sizeof(rtapi_msgheader_t);
-
 
 	    switch (msg->encoding) {
 	    case MSG_ASCII:
@@ -101,10 +98,6 @@ static int message_thread()
 		while ((cp = strrchr(msg->buf,'\n')))
 		    *cp = '\0';
 
-		if (log_stderr)
-		    fprintf(stderr, "%d:%s:%d:%s %.*s\n",
-			    msg->level, msg->tag, msg->pid, origins[msg->origin],
-			    payload_length, msg->buf);
 		switch (msg->origin) {
 		case MSG_ULAPI:
 		    setlogmask(LOG_UPTO (rtapi2syslog(global_data->user_msg_level)));
@@ -152,16 +145,13 @@ int main(int argc, char **argv)
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
-
 	switch (c)	{
 	case 'f':
 	    foreground++;
 	    break;
-
 	case 'I':
 	    instance_id = atoi(optarg);
 	    break;
-
 	case 'p':
 	    poll_ms = atoi(optarg);
 	    break;
@@ -172,10 +162,8 @@ int main(int argc, char **argv)
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
 	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);
-	    //usage(argc, argv);
 	    exit(1);
 	    break;
-
 	default:
 	    usage(argc, argv);
 	    exit(0);
@@ -200,7 +188,7 @@ int main(int argc, char **argv)
         }
 
     }
-   // set new process name
+    // set new process name
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",instance_id);
     argv0_len = strlen(argv[0]);
     procname_len = strlen(proctitle);

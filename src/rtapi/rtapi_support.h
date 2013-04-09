@@ -100,6 +100,8 @@ typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
 #endif // RTAPI
 
+extern int rtapi_set_logtag(const char *fmt, ...);
+
 typedef enum {
 	MSG_KERNEL = 0,
 	MSG_RTUSER = 1,
@@ -126,8 +128,6 @@ typedef struct {
 #define rtapi2syslog(level) (level+2)
 
 #if defined(ULAPI)
-extern int rtapi_openlog(const char *tag, int level);
-extern int rtapi_closelog(void);
 
 /* make sure a given kernel module is loaded.
    might be needed for some usermode PCI drivers

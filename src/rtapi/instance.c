@@ -540,6 +540,8 @@ static void init_global_data(global_data_t * data,
     // make it accessible
     rtapi_ringbuffer_init(&data->rtapi_messages, &rtapi_message_buffer);
 
+    rtapi_set_logtag("rt");
+
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
     return;

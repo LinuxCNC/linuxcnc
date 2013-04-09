@@ -10,8 +10,6 @@
 *               RTAPI starts up
 ********************************************************************/
 
-#define USE_SYSLOG // FIXME
-#define USE_MESSAGE_RING
 
 #include "config.h"
 #include "rtapi.h"
@@ -22,19 +20,17 @@
 #ifdef MODULE
 #include "rtapi_app.h"
 
-#    include <stdarg.h>		/* va_* */
-#    include <linux/kernel.h>	/* kernel's vsnprintf */
+#include <stdarg.h>		/* va_* */
+#include <linux/kernel.h>	/* kernel's vsnprintf */
 
 static int rt_msg_level = RTAPI_MSG_INFO; // RT space
 #define MSG_ORIGIN MSG_KERNEL
+
 #else  /* user land */
+
 #include <stdio.h>		/* libc's vsnprintf() */
 #include <sys/types.h>
 #include <unistd.h>
-
-#ifdef USE_SYSLOG
-#include <syslog.h>
-#endif
 
 #ifdef RTAPI
 #define MSG_ORIGIN MSG_RTUSER
@@ -51,12 +47,12 @@ ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
 extern ringbuffer_t rtapi_message_buffer; // instance.c
 #endif
 
+static char logtag[TAGSIZE];
 // most RT systems use printk()
 #ifndef RTAPI_PRINTK
 #define RTAPI_PRINTK printk
 #endif
 
-#if defined(USE_MESSAGE_RING) 
 
 
 // candidate for rtapi_ring.h
@@ -92,7 +88,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 #endif
 	msg->level = level;
 	msg->encoding = MSG_ASCII;
-	strcpy(msg->tag, "notyet");
+	strncpy(msg->tag, logtag, sizeof(msg->tag));
 
 	n = vsnprintf(msg->buf, RTPRINTBUFFERLEN, format, ap);
 	// commit write
@@ -101,7 +97,6 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     }
 }
-#endif
 
 #ifdef MODULE
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
@@ -117,18 +112,7 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 #else /* user land */
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			       va_list ap) {
-#ifdef USE_MESSAGE_RING
     vs_ring_write(level, fmt, ap);
-#endif
-#ifdef USE_SYSLOG
-    vsyslog(rtapi2syslog(level), fmt, ap);
-#else
-    if (rtapi_get_msg_level() == RTAPI_MSG_ALL)
-	vfprintf(stdout, fmt, ap);
-    else
-	vfprintf(stderr, fmt, ap);
-#endif
-
 }
 #endif
 
@@ -146,7 +130,6 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 }
 
 
-
 // rtapi_get_msg_level and rtapi_set_msg_level moved here
 // since they access the global segment 
 // which might not exist during first use
@@ -154,7 +137,7 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 
 static int get_msg_level(void)
 {
-#if MODULE    
+#if MODULE
     if (global_data == 0)
 	return rt_msg_level;
     else
@@ -168,7 +151,7 @@ static int set_msg_level(int new_level)
 {
     int old_level;
 
-#if MODULE    
+#if MODULE
     if (global_data) {
 	old_level = global_data->rt_msg_level;
 	global_data->rt_msg_level = new_level;
@@ -190,12 +173,6 @@ int rtapi_set_msg_level(int level) {
 	return -EINVAL;
     }
     oldlevel = set_msg_level(level);
-    // FIXME cleanup logging 
-#ifdef USE_SYSLOG
-#ifndef MODULE    
-    setlogmask(LOG_UPTO (rtapi2syslog(level)));
-#endif
-#endif
     return oldlevel;
 }
 
@@ -214,7 +191,8 @@ void rtapi_print(const char *fmt, ...) {
 void rtapi_print_msg(int level, const char *fmt, ...) {
     va_list args;
 
-    if ((level <= rtapi_get_msg_level()) && (rtapi_get_msg_level() != RTAPI_MSG_NONE)) {
+    if ((level <= rtapi_get_msg_level()) && 
+	(rtapi_get_msg_level() != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	rtapi_msg_handler(level, fmt, args);
 	va_end(args);
@@ -237,39 +215,16 @@ int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt,
     return vsnprintf(buf, size, fmt, ap);
 }
 
-#ifdef MODULE
+int rtapi_set_logtag(const char *fmt, ...) {
+    va_list args;
+    int result;
 
-int rtapi_openlog(const char *tag, int level) 
-{
-    return 0;
+    va_start(args, fmt);
+    result = vsnprintf(logtag, sizeof(logtag), fmt, args);
+    va_end(args);
+    return result;
 }
 
-int rtapi_closelog(void)
-{    
-    return 0;
-}
-
-#else
-
-int rtapi_closelog(void)
-{
-#ifdef USE_SYSLOG
-    closelog();
-#endif
-    return 0;
-}
-
-int rtapi_openlog(const char *tag, int level) 
-{
-#ifdef USE_SYSLOG
-    int option = LOG_PID | LOG_NDELAY;
-    if (level > RTAPI_MSG_INFO)
-	option |= LOG_PERROR;
-    openlog (tag, option , LOG_LOCAL1);
-#endif
-    return 0;
-}
-#endif
 
 EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_set_msg_handler);
@@ -277,7 +232,6 @@ EXPORT_SYMBOL(rtapi_print_msg);
 EXPORT_SYMBOL(rtapi_print);
 EXPORT_SYMBOL(rtapi_snprintf);
 EXPORT_SYMBOL(rtapi_vsnprintf);
-EXPORT_SYMBOL(rtapi_openlog);
-EXPORT_SYMBOL(rtapi_closelog);
 EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
+EXPORT_SYMBOL(rtapi_set_logtag);
