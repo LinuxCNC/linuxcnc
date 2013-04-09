@@ -61,7 +61,7 @@ long long int _rtapi_get_time_hook(void) {
 #ifdef RTAPI
 int _rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
     /* get master shared memory block from OS and save its address */
-    *rtapi_data = rtai_kmalloc(OS_KEY(RTAPI_KEY), sizeof(rtapi_data_t));
+    *rtapi_data = rtai_kmalloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
     if (*rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open rtapi_data shared memory\n");
@@ -71,18 +71,18 @@ int _rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
 }
 
 void _rtapi_module_master_shared_memory_free(void) {
-    rtai_kfree(OS_KEY(RTAPI_KEY));
+    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
 }
 
 void _rtapi_module_cleanup_hook(void) {
-    rtai_kfree(OS_KEY(RTAPI_KEY));
+    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
 }
 
 
 #else /* ULAPI */
 rtapi_data_t *_rtapi_init_hook() {
     rtapi_data_t *result;
-    result = rtai_malloc(OS_KEY(RTAPI_KEY), sizeof(rtapi_data_t));
+    result = rtai_malloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
 
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
@@ -243,7 +243,7 @@ int _rtapi_task_self_hook(void) {
 /* needed for both RTAPI and ULAPI */
 
 void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+				    unsigned long int size, int instance) {
     rtapi_data_t * result;
     result = rtai_kmalloc(key, shmem_array[shmem_id].size);
     // the check for -1 here is because rtai_malloc (in at least
@@ -256,7 +256,7 @@ void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
 }
 
 void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-				  unsigned long int size) {
+				  unsigned long int size, int instance) {
     void * result;
     result = rtai_kmalloc(key, size);
 

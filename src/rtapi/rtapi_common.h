@@ -171,6 +171,7 @@ typedef struct {
     int key;			/* key to shared memory area */
     int id;			/* OS identifier for shmem */
     int count;                  /* count of maps in this process */
+    int instance;               // if this was a cross-instance attach
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */

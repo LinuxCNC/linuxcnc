@@ -225,7 +225,7 @@ int rtapi_set_logtag(const char *fmt, ...) {
     return result;
 }
 
-
+#ifdef RTAPI
 EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_set_msg_handler);
 EXPORT_SYMBOL(rtapi_print_msg);
@@ -235,3 +235,4 @@ EXPORT_SYMBOL(rtapi_vsnprintf);
 EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
 EXPORT_SYMBOL(rtapi_set_logtag);
+#endif

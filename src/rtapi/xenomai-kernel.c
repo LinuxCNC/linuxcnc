@@ -305,21 +305,22 @@ rtapi_data_t *_rtapi_init_hook() {
 
 #ifdef RTAPI
 void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+				    unsigned long int size, int instance) {
     rtapi_print_msg(RTAPI_MSG_ERR, 
 		    "RTAPI: UNSUPPORTED OPERATION - cannot map "
-		    "user segment %d into kernel\n",shmem_id);
+		    "user segment %d into kernel for instance %d\n",
+		    shmem_id, instance);
     return NULL;
 }
 
 #else  /* ULAPI */
 void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+				   unsigned long int size, int instance) {
     char shm_name[20];
     int retval;
     void *shmem_addr;
 
-    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, rtapi_instance);
+    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, instance);
 
     if (shmem_addr_array[shmem_id] == NULL) {
 	if ((retval = rt_heap_bind(&shmem_heap_array[shmem_id], shm_name,
@@ -349,12 +350,12 @@ void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
 
 #ifdef RTAPI
 void * _rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+				   unsigned long int size, int instance) {
     char shm_name[20];
     void *shmem_addr;
     int retval;
 
-    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, rtapi_instance);
+    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, instance);
     if ((retval = rt_heap_create(&shmem_heap_array[shmem_id], shm_name, 
 			    size, H_SHARED)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -373,15 +374,15 @@ void * _rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 
 #else  /* ULAPI */
 void * _rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+				   unsigned long int size, int instance) {
     char shm_name[20];
     void *shmem_addr;
     int retval;
 
-    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, rtapi_instance);
+    snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, instance);
 
     if (shmem_addr_array[shmem_id] == NULL) {
-	snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, rtapi_instance);
+	snprintf(shm_name, sizeof(shm_name), "shm-%d:%d", shmem_id, instance);
 	if ((retval = rt_heap_create(&shmem_heap_array[shmem_id], shm_name,
 				     size, H_SHARED))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, 

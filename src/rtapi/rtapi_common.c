@@ -130,6 +130,7 @@ static rtapi_switch_t rtapi_switch_struct = {
 #endif
     // shared memory functions
     .rtapi_shmem_new = &_rtapi_shmem_new,
+    .rtapi_shmem_new_inst = &_rtapi_shmem_new_inst,
     .rtapi_shmem_delete = &_rtapi_shmem_delete,
     .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
 
@@ -149,7 +150,9 @@ static rtapi_switch_t rtapi_switch_struct = {
 rtapi_switch_t *rtapi_get_handle(void) {
     return &rtapi_switch_struct;
 }
+#ifdef RTAPI
 EXPORT_SYMBOL(rtapi_get_handle);
+#endif
 
 void rtapi_autorelease_mutex(void *variable)
 {

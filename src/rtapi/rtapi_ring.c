@@ -165,8 +165,8 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 	return -ENOMEM;
 #else
 	// not yet attached, or non-existent
-	// test if the shm segment exists, else fail.
-	key_t key = OS_KEY((RTAPI_RING_SHM_KEY + handle));
+	// test if the shm segment exists, else fail. XXX LOCAL FOR NOW FIXME
+	key_t key = OS_KEY((RTAPI_RING_SHM_KEY + handle), rtapi_instance);
 
 	if ((shmget(key, 1, 0) == -1) && (errno == ENOENT)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -176,7 +176,7 @@ int _rtapi_ring_attach(int handle, ringbuffer_t *rbptr, int module_id)
 	}
 	// attach the shm segment; since we just tested for existence
 	// use size 0
-	rdptr->key = RTAPI_RING_SHM_KEY + handle;
+	rdptr->key = key;
 	if ((rdptr->shmem_id = _rtapi_shmem_new(rdptr->key, module_id, 0)) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_ring_attach(): rtapi_shmem_new(key "

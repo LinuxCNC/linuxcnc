@@ -13,7 +13,8 @@
 // this convention is also used for the global shm segment.
 
 // actual shm keys are constructed as follows:
-#define OS_KEY(key) (( key & 0x00ffffff) | ((rtapi_instance << 24) & 0xff000000))
+
+#define OS_KEY(key, instance) (( key & 0x00ffffff) | ((instance << 24) & 0xff000000))
 
 // formerly emcmotcfg.h
 #define DEFAULT_MOTION_SHMEM_KEY 0x00000064

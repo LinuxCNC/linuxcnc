@@ -547,6 +547,17 @@ typedef int (*rtapi_shmem_new_t)(int, int, unsigned long int);
 extern int _rtapi_shmem_new(int key, int module_id,
 			    unsigned long int size);
 
+/** 'rtapi_shmem_new_inst()' does the same for a particular instance.
+ **/
+
+typedef int (*rtapi_shmem_new_inst_t)(int, int, int, unsigned long int);
+#define rtapi_shmem_new_inst(key, instance, module_id, size)	\
+    rtapi_switch->rtapi_shmem_new_inst(key, instance, module_id, size)
+extern int _rtapi_shmem_new_inst(int key, int instance, int module_id,
+			    unsigned long int size);
+
+
+
 /** 'rtapi_shmem_delete()' frees the shared memory block associated
     with 'shmem_id'.  'module_id' is the ID of the calling module.
     Returns a status code.  Call only from within user or init/cleanup
@@ -732,6 +743,7 @@ typedef struct {
 #endif
     // shared memory functions
     rtapi_shmem_new_t rtapi_shmem_new;
+    rtapi_shmem_new_inst_t rtapi_shmem_new_inst;
     rtapi_shmem_delete_t rtapi_shmem_delete;
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
 

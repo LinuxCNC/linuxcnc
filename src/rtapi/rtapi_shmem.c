@@ -42,9 +42,9 @@
 
 /* prototypes for hooks the kernel thread systems must implement */
 extern void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-					  unsigned long int size);
+					   unsigned long int size, int instance);
 extern void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-					 unsigned long int size);
+					 unsigned long int size, int instance);
 extern void _rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 static void check_memlock_limit(const char *where);
@@ -61,12 +61,12 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 *                           USERLAND THREADS                           *
 ************************************************************************/
 
-int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
+int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
     struct shmid_ds d;
     int i, ret;
     int is_new = 0;
-    int key = OS_KEY(userkey);
+    int key = OS_KEY(userkey, instance);
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
@@ -90,7 +90,7 @@ int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
 
     // try to attach
     shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
-    if (shmem->id == -1) {  
+    if (shmem->id == -1) {
 	if (errno == ENOENT) {
 	    // nope, doesnt exist - create
 	    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
@@ -103,26 +103,26 @@ int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
 			    "key=0x%x size=%ld\n", key, size);
 	    return -ENOMEM;
 	}
-    } 
-  
+    }
+
     // get actual user/group and drop to ruid/rgid so removing is
     // always possible
     if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) "
-			"failed: %d '%s'\n", 
-			key, errno, strerror(errno));      
+			"failed: %d '%s'\n",
+			key, errno, strerror(errno));
     } else {
 	// drop permissions of shmseg to real userid/group id
-	if (!d.shm_perm.uid) { // uh, root perms 
+	if (!d.shm_perm.uid) { // uh, root perms
 	    d.shm_perm.uid = getuid();
 	    d.shm_perm.gid = getgid();
 	    if ((ret = shmctl(shmem->id, IPC_SET, &d)) < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_SET) "
-				"failed: %d '%s'\n", 
-				key, errno, strerror(errno));      
-	    } 
+				"failed: %d '%s'\n",
+				key, errno, strerror(errno));
+	    }
 	}
     }
     /* and map it into process space */
@@ -157,6 +157,7 @@ int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
     shmem->size = size;
     shmem->key = key;
     shmem->count = 1;
+    shmem->instance = instance;
 
     rtapi_mutex_give(&(rtapi_data->mutex));
 
@@ -251,7 +252,7 @@ int _rtapi_shmem_delete(int handle, int module_id) {
 *                            KERNEL THREADS                            *
 ************************************************************************/
 
-int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
+int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long int size) {
     int n;
     int shmem_id;
     shmem_data *shmem;
@@ -305,7 +306,7 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 #endif
 		/* no, map it and save the address */
 		shmem_addr_array[shmem_id] = 
-		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size);
+		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size, instance);
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "RTAPI: ERROR: failed to map shmem\n");
@@ -355,7 +356,7 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     /* get shared memory block from OS and save its address */
 
     shmem_addr_array[shmem_id] =
-	_rtapi_shmem_new_malloc_hook(shmem_id, key, size);
+	_rtapi_shmem_new_malloc_hook(shmem_id, key, size, instance);
 
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
@@ -375,7 +376,9 @@ int _rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 #endif  /* ULAPI */
     shmem->size = size;
     shmem->magic = SHMEM_MAGIC;
+    shmem->instance = instance;
     rtapi_data->shmem_count++;
+
     /* zero the first word of the shmem area */
     *((long int *) (shmem_addr_array[shmem_id])) = 0;
     /* announce the birth of a brand new baby shmem */
@@ -501,3 +504,10 @@ int _rtapi_shmem_getptr(int shmem_id, void **ptr) {
 }
 
 #endif  /* BUILD_SYS_KBUILD */
+
+
+// implement rtapi_shmem_new in terms of _rtapi_shmem_new_inst()
+
+int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
+    return _rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
+}

@@ -146,7 +146,7 @@ int global_app_main(void)
 #endif
 
 #if THREAD_FLAVOR_ID == RTAPI_RTAI_KERNEL_ID
-    result = rtai_kmalloc(OS_KEY(GLOBAL_KEY), sizeof(global_data_t));
+    result = rtai_kmalloc(OS_KEY(GLOBAL_KEY, rtapi_instance), sizeof(global_data_t));
 
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
@@ -154,8 +154,8 @@ int global_app_main(void)
     if ((result == (global_data_t*)-1) ||
 	(result == NULL)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d ERROR: rtai_kmalloc(0x%8.8x) failed\n", 
-		  rtapi_instance,OS_KEY(GLOBAL_KEY));
+			"INSTANCE:%d ERROR: rtai_kmalloc(0x%8.8x) failed\n", 
+			rtapi_instance,OS_KEY(GLOBAL_KEY, rtapi_instance));
 	return -ENOMEM;
     }
 #endif
@@ -164,14 +164,14 @@ int global_app_main(void)
 #ifdef RUN_WITHOUT_REALTIME
     // try attaching to existing instance - probably a bad idea
     // should be a straight fail here if it exists XXX FIXME
-    if ((retval = global_shm_attach(OS_KEY(GLOBAL_KEY), &result)) == -1) {
+    if ((retval = global_shm_attach(OS_KEY(GLOBAL_KEY,rtapi_instance), &result)) == -1) {
 	// nope, create
-	if ((retval = global_shm_init(OS_KEY(GLOBAL_KEY), &result)) < 0) {
+	if ((retval = global_shm_init(OS_KEY(GLOBAL_KEY,rtapi_instance), &result)) < 0) {
 	    return retval; // uh,oh
 	}
     }
 #else
-    if ((retval = global_shm_init(OS_KEY(GLOBAL_KEY), &result)) < 0) {
+    if ((retval = global_shm_init(OS_KEY(GLOBAL_KEY,rtapi_instance), &result)) < 0) {
 	return retval; // uh,oh
     }
 #endif
@@ -207,7 +207,7 @@ void global_app_exit(void)
     rt_heap_delete(&global_heap);
 #endif
 #if THREAD_FLAVOR_ID == RTAPI_RTAI_KERNEL_ID
-    rtai_kfree(OS_KEY(GLOBAL_KEY));
+    rtai_kfree(OS_KEY(GLOBAL_KEY,rtapi_instance));
 #endif
 #if defined(BUILD_SYS_USER_DSO)
     global_shm_free(global_shmid, global_data);
@@ -286,7 +286,7 @@ int global_detach_hook(void) {
 #if THREAD_FLAVOR_ID == RTAPI_RTAI_KERNEL_ID
 static int global_attach_hook() {
     global_data_t *result;
-    result = rtai_malloc(OS_KEY(GLOBAL_KEY), sizeof(global_data_t));
+    result = rtai_malloc(OS_KEY(GLOBAL_KEY,rtapi_instance), sizeof(global_data_t));
 
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
@@ -300,7 +300,7 @@ static int global_attach_hook() {
 }
 
 int global_detach_hook() {
-    rtai_free(OS_KEY(GLOBAL_KEY), *p);
+    rtai_free(OS_KEY(GLOBAL_KEY,rtapi_instance), *p);
 }
 #endif
 #endif
@@ -352,10 +352,10 @@ static int global_shm_attach(key_t key, global_data_t **global_data)
     int size = sizeof(global_data_t);
     void *rd;
 
-    if ((shm_id = shmget(OS_KEY(key), size, GLOBAL_DATA_PERMISSIONS)) < 0) {
+    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_DBG, 
 		  "INSTANCE:%d attach: global data data segment does not exist (0x%8.8x)\n",
-		  rtapi_instance, OS_KEY(key));
+		  rtapi_instance, OS_KEY(key,rtapi_instance));
 	return shm_id;
     }
 
@@ -398,10 +398,10 @@ static int global_shm_init(key_t key, global_data_t **global_data)
     struct shmid_ds d;
     void *rd;
 
-    if ((shm_id = shmget(OS_KEY(key), size, GLOBAL_DATA_PERMISSIONS)) > -1) {
+    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS)) > -1) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 		  "INSTANCE:%d global data segment already exists (key=0x%8.8x)\n", 
-		  rtapi_instance, OS_KEY(key));
+		  rtapi_instance, OS_KEY(key,rtapi_instance));
 	return -EEXIST;
     }
     if (errno != ENOENT) {
@@ -411,7 +411,7 @@ static int global_shm_init(key_t key, global_data_t **global_data)
 	return -EINVAL;
     }
     // nope, doesnt exist - create
-    if ((shm_id = shmget(OS_KEY(key), size, GLOBAL_DATA_PERMISSIONS | IPC_CREAT)) == -1) {
+    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS | IPC_CREAT)) == -1) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 		  "INSTANCE:%d shmget(key=0x%8.8x, IPC_CREAT): %d - %s\n", 
 		  rtapi_instance, key, errno, strerror(errno));
@@ -454,7 +454,7 @@ static int global_shm_init(key_t key, global_data_t **global_data)
     *global_data = rd;
     rtapi_print_msg(RTAPI_MSG_DBG, 
 	      "INSTANCE:%d global data data segment created (0x%8.8x)\n",
-	      rtapi_instance, OS_KEY(key));
+	      rtapi_instance, OS_KEY(key,rtapi_instance));
     return shm_id;
 }
 
