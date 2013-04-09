@@ -739,6 +739,7 @@ class Gscreen:
         self.data.show_offsets = self.prefs.getpref('show_offsets', True, bool)
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
+        self.data.embedded_keyboard = self.prefs.getpref('embedded_keyboard', True, bool)
 
     # initialize default widgets
     def initialize_widgets(self):
@@ -1737,20 +1738,46 @@ class Gscreen:
         self.prefs.putpref('desktop_notify', data, bool)
 
     # shows 'Onboard' virtual keyboard if available
+    # check for key_box widget - if there, embed Onboard in it.
+    # else launch an independant Onboard
+    # else error message
     def launch_keyboard(self,args="",x="",y=""):
         print args,x,y
         try:
-            self.data.ob = subprocess.Popen(["onboard",args,x,y])
+            if self.widgets.key_box and self.data.embedded_keyboard:
+                self.widgets.rightside_box.show()
+                self.widgets.key_box.show()
+                self.data.ob = subprocess.Popen(["onboard","--xid",args,x,y],
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       close_fds=True)
+                sid = self.data.ob.stdout.readline()
+                print"keyboard", sid # skip header line
+                socket = gtk.Socket()
+                socket.show()
+                self.widgets.key_box.add(socket)
+                socket.add_id(long(sid))
+            else:
+                self.data.ob = subprocess.Popen(["onboard",args,x,y])
         except:
-            print _("error with 'onboard' on screen keyboard program")
+            try:
+                self.data.ob = subprocess.Popen(["onboard",args,x,y])
+            except:
+                print _("Error with launching 'Onboard' on-screen keyboard program")
 
     def kill_keyboard(self):
         try:
+            self.widgets.key_box.hide()
             self.data.ob.kill()
             self.data.ob.terminate()
             self.data.ob = None
         except:
-            pass
+            try:
+                self.data.ob.kill()
+                self.data.ob.terminate()
+                self.data.ob = None
+            except:
+                pass
 
     # this installs local signals unless overriden by custom handlers
     # HAL pin signal call-backs are covered in the HAL pin initilization functions

@@ -296,6 +296,8 @@ class HandlerClass:
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
         self.widgets.tooledit1.set_font("sans 18")
+        if self.data.embedded_keyboard:
+            self.gscreen.launch_keyboard()
 
     def init_sensitive_edit_mode(self):
         self.data.sensitive_edit_mode = ["button_graphics","button_override","button_restart","button_cycle_start","button_single_step",

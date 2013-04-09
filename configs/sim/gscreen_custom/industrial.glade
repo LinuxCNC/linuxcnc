@@ -9,7 +9,7 @@
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>
         <property name="n_rows">11</property>
-        <property name="n_columns">7</property>
+        <property name="n_columns">8</property>
         <child>
           <object class="GtkNotebook" id="notebook_main">
             <property name="visible">True</property>
@@ -542,8 +542,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_y2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">1</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -556,8 +556,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_z2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">2</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -570,8 +570,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">3</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">3</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -584,8 +584,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">4</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">4</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -598,8 +598,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">5</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">5</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -612,8 +612,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">6</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">6</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -626,8 +626,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">8</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">8</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -640,8 +640,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">7</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">7</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -694,8 +694,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_y3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">1</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -708,8 +708,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_z3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">2</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -722,8 +722,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">3</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">3</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -736,8 +736,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">4</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">4</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -750,8 +750,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">5</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">5</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -764,8 +764,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">6</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">6</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -778,8 +778,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">8</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">8</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -792,8 +792,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">7</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">7</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -987,9 +987,9 @@
                                 <child>
                                   <object class="HAL_LED" id="led_mist">
                                     <property name="visible">True</property>
-                                    <property name="on_color">green</property>
                                     <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
+                                    <property name="on_color">green</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -1033,9 +1033,9 @@
                                 <child>
                                   <object class="HAL_LED" id="led_flood">
                                     <property name="visible">True</property>
-                                    <property name="on_color">green</property>
                                     <property name="off_color">black</property>
                                     <property name="led_shape">1</property>
+                                    <property name="on_color">green</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -1103,16 +1103,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
+                                <property name="z2_color">#ffff00000000</property>
+                                <property name="show_limits">False</property>
+                                <property name="text_template">%d</property>
                                 <property name="target_color">#e21911831183</property>
-                                <property name="z1_color">#ffffffff0000</property>
+                                <property name="z0_color">#0000ffff0000</property>
                                 <property name="target_value">500</property>
                                 <property name="max">2000</property>
-                                <property name="value">-7</property>
-                                <property name="z2_color">#ffff00000000</property>
-                                <property name="text_template">%d</property>
-                                <property name="show_limits">False</property>
                                 <property name="bg_color">#bebebebebebe</property>
-                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="value">-7</property>
+                                <property name="z1_color">#ffffffff0000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -1264,10 +1264,10 @@
                                             <child>
                                               <object class="HAL_LED" id="spindle-at-speed">
                                                 <property name="visible">True</property>
-                                                <property name="led_size">5</property>
-                                                <property name="on_color">Green</property>
                                                 <property name="off_color">black</property>
                                                 <property name="led_shape">1</property>
+                                                <property name="led_size">5</property>
+                                                <property name="on_color">Green</property>
                                               </object>
                                             </child>
                                           </object>
@@ -2045,9 +2045,9 @@ Notification</property>
                         <child>
                           <object class="HAL_LED" id="led_on">
                             <property name="visible">True</property>
-                            <property name="on_color">green</property>
                             <property name="off_color">black</property>
                             <property name="led_shape">1</property>
+                            <property name="on_color">green</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -2362,9 +2362,9 @@ Limits</property>
                         <child>
                           <object class="HAL_LED" id="led_ignore_limits">
                             <property name="visible">True</property>
-                            <property name="led_size">5</property>
                             <property name="off_color">black</property>
                             <property name="has_hal_pin">False</property>
+                            <property name="led_size">5</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -3190,8 +3190,8 @@ status</property>
                         <property name="visible">True</property>
                         <property name="off_color">black</property>
                         <property name="led_shape">1</property>
-                        <property name="is_on">True</property>
                         <property name="led_blink_rate">200</property>
+                        <property name="is_on">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -3329,6 +3329,38 @@ status</property>
             <property name="right_attach">7</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="rightside_box">
+            <child>
+              <object class="GtkHBox" id="key_box">
+                <property name="width_request">400</property>
+                <property name="visible">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="image1">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">8</property>
+            <property name="bottom_attach">11</property>
           </packing>
         </child>
         <child>
