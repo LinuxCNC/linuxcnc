@@ -133,6 +133,7 @@ RTAPI_BEGIN_DECLS
 #include <rtapi_errno.h>
 
 #define HAL_NAME_LEN     41	/* length for pin, signal, etc, names */
+#define MAX_NAMESPACES   16
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/

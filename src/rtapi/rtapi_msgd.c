@@ -203,10 +203,13 @@ int main(int argc, char **argv)
 
     openlog(proctitle, option , LOG_LOCAL1);
     setlogmask(LOG_UPTO(LOG_INFO));
-    syslog(LOG_INFO,"startup pid=%d", getpid());
+
 
     if ((retval = setup_global()) != 0)
 	exit(retval);
+
+    syslog(LOG_INFO,"startup instance=%s pid=%d",
+	   global_data->instance_name, getpid());
 
     if ((global_data->rtapi_msgd_pid != 0) && 
 	kill(global_data->rtapi_msgd_pid, 0) == 0) {

@@ -80,7 +80,7 @@ static int global_shm_free(int shm_id, global_data_t *global_data);
 
 static void init_global_data(global_data_t * data, 
 			     int instance_id, int hal_size, 
-			     int rtlevel, int userlevel);
+			     int rtlevel, int userlevel, const char *name);
 #endif
 
 #ifdef ULAPI
@@ -101,6 +101,8 @@ MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("Instance segment initialisation");
 MODULE_LICENSE("Dual BSD/GPL");
 
+static char *instance_name = "";	/* name of thread */
+RTAPI_MP_STRING(instance_name,"name of this instance")
 RTAPI_MP_INT(rtapi_instance, "instance ID");
 RTAPI_MP_INT(hal_size, "size of the HAL data segment");
 RTAPI_MP_INT(rt_msg_level, "debug message level (default=1)");
@@ -178,7 +180,7 @@ int global_app_main(void)
     global_data = result;
 
     init_global_data(global_data, rtapi_instance,
-		     hal_size, rt_msg_level, user_msg_level);
+		     hal_size, rt_msg_level, user_msg_level, instance_name);
 
 #if defined(BUILD_SYS_USER_DSO)
     // init rtapi
@@ -229,7 +231,7 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 
 #ifdef RUN_WITHOUT_REALTIME
     init_global_data(global_data, rtapi_instance,
-		     hal_size, rt_msg_level, user_msg_level);
+		     hal_size, rt_msg_level, user_msg_level, "FIXME");
 #endif
     *global = global_data;
 
@@ -493,7 +495,8 @@ static int global_shm_free(int shm_id, global_data_t *global_data)
 #ifdef RTAPI
 static void init_global_data(global_data_t * data, 
 			     int instance_id, int hal_size, 
-			     int rt_level, int user_level)
+			     int rt_level, int user_level,
+			     const char *name)
 {
     /* has the block already been initialized? */
     if (data->magic == GLOBAL_MAGIC) {
@@ -510,6 +513,14 @@ static void init_global_data(global_data_t * data,
     data->layout_version = GLOBAL_LAYOUT_VERSION;
 
     data->instance_id = instance_id;
+
+    // passed in from rtap.so/ko args
+    if (strlen(name) == 0) {
+	snprintf(data->instance_name,sizeof(data->instance_name), 
+		 "inst%d",rtapi_instance);
+    } else {
+	strncpy(data->instance_name,name, sizeof(data->instance_name));
+    }
 
     // separate message levels for RT and userland
     data->rt_msg_level = rt_level;

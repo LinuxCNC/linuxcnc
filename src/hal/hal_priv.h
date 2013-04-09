@@ -170,6 +170,45 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
 
+
+// visible in the per-namespace HAL data segment: 
+// the namespaces this HAL instance 'sees':
+typedef struct {
+    int  id;        // rtapi_instance of namespace
+    char name[RTAPI_NAME_LEN + 1];
+ } hal_namespace_t;
+
+// private mappings
+typedef struct {
+    char *shmbase;
+    char *hal_data;
+    // any rtapi or otherwise information needed to attach/detach the segment
+} hal_namespace_map_t;
+
+// per-process/kernel mappings
+// indexed by rtapi_instance of mapped namespace
+extern hal_namespace_map_t hal_mappings[]; 
+
+// namespace operations (move to hal.h XXX)
+// these operations affect the following globally visible 
+// fields in the local hal_data segment:
+//
+// the namespaces map adds/removes a new entry
+//
+// in the hal_data segment of the namespace being referred to,
+// hal_namespace_attach() increases the refcount
+// hal_namespace_attach() decreases it.
+
+extern int hal_namespace_attach(const char *name, int instance);
+
+extern int hal_namespace_detach_byname(const char *name);
+//extern int hal_namespace_detach_by_id(int instance);
+
+static inline char *my_shm_base(void)
+{
+    return hal_mappings[rtapi_instance].shmbase;
+}
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -181,6 +220,28 @@ typedef struct {
 typedef struct {
     int version;		/* version code for structs, etc */
     unsigned long mutex;	/* protection for linked lists, etc. */
+
+    // the namespaces this instance is aware of
+    hal_namespace_t namespaces[MAX_INSTANCES];
+    // to access a remote HAL namespace, it must be mapped
+    // assuming it is as "foo", the procedure to reference the namespace's
+    // hal_data is as follows:
+    // search namespaces.name for "foo"
+    // remote hal_data = hal_mappings[namespaces["foo"]].id
+
+    // introspection support: if all you have is a pointer to some hal_data
+    // instance, determine it's instance ID:
+    // this should be filled in RT space once hal_lib is first loaded
+    // ULAPI should never write to it
+    int hal_instance;
+    // this comes from global_data.instance_name and is to be considered
+    // a session constant:
+    char hal_instance_name[INSTANCE_NAME_LENGTH];
+
+    // every other HAL namespace referencing this namspace is expected to
+    // increase this on attach, and decrease this on detach:
+    int refcount;
+
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     constructor pending_constructor;
 			/* pointer to the pending constructor function */

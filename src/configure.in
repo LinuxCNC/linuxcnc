@@ -1804,6 +1804,8 @@ AH_TOP([/********************************************************************
 #define RTAPI_MAX_SHMEMS	32
 #define RTAPI_MAX_RINGS	        32
 
+#define MAX_INSTANCES           16
+
 ])
 
 AH_VERBATIM([_GNU_SOURCE],

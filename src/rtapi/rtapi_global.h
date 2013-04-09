@@ -43,6 +43,7 @@
 
 
 #define MESSAGE_RING_SIZE 32768
+#define INSTANCE_NAME_LENGTH 32
 
 // the universally shared global structure
 typedef struct {
@@ -50,6 +51,9 @@ typedef struct {
     int layout_version; 
     unsigned long mutex;
     int instance_id;
+    // this is set once on startup and is to be considered a constant
+    // throughout the session:
+    char instance_name[INSTANCE_NAME_LENGTH];
     int rtapi_thread_flavor; 
     int rt_msg_level;              // message level for RT 
     int user_msg_level;            // message level for non-RT 

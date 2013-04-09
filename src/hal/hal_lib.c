@@ -84,10 +84,12 @@ MODULE_LICENSE("GPL");
 #include <limits.h>             /* PATH_MAX */
 #endif
 
-
-
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
+
+// private mapping data
+hal_namespace_map_t hal_mappings[MAX_INSTANCES];
+
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
 
@@ -220,9 +222,6 @@ static void rtapi_hal_lib_init(int phase);
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
-
-
-
 int hal_init_mode(const char *name, int type)
 {
     int comp_id;
@@ -3790,6 +3789,13 @@ static int init_hal_data(void)
 
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
+
+    // namespace support
+    hal_data->refcount = 0;
+    hal_data->hal_instance = global_data->instance_id;
+    strcpy(hal_data->hal_instance_name, global_data->instance_name);
+    memset(hal_data->namespaces, 0, sizeof(hal_data->namespaces));
+
     /* initialize everything */
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
@@ -4558,8 +4564,10 @@ static void free_thread_struct(hal_thread_t * thread)
 // pertaining module (rtapi.ko/rtapi.so/ulapi.so)
 
 rtapi_switch_t *rtapi_switch = NULL;
-EXPORT_SYMBOL(rtapi_switch);
 
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_switch);
+#endif
 
 #ifdef ULAPI
 
@@ -4620,9 +4628,7 @@ int hal_rtapi_attach()
 
 int hal_rtapi_detach()
 {
-
-
-    /* release RTAPI resources */
+  /* release RTAPI resources */
     rtapi_shmem_delete(lib_mem_id, lib_module_id);
     rtapi_exit(lib_module_id);
     lib_mem_id = 0;
@@ -4764,8 +4770,6 @@ static void ulapi_hal_lib_init(void)
 
     // verify the ulapi-foo.so we just loaded is compatible with
     // the running kernel if it has special prerequisites
-
-	
     switch (rtapi_switch->thread_flavor_id) {
     case  RTAPI_RT_PREEMPT_USER_ID:
 	if (!kernel_is_xenomai()) {
@@ -4977,28 +4981,6 @@ EXPORT_SYMBOL(halpr_find_pin_by_sig);
 EXPORT_SYMBOL(hal_ring_new);
 EXPORT_SYMBOL(hal_ring_detach);
 EXPORT_SYMBOL(hal_ring_attach);
-
-/* EXPORT_SYMBOL(hal_ring_use_wmutex); */
-/* EXPORT_SYMBOL(hal_ring_use_rmutex); */
-
-/* EXPORT_SYMBOL(hal_record_write); */
-/* EXPORT_SYMBOL(hal_record_next); */
-/* EXPORT_SYMBOL(hal_record_next_size); */
-/* EXPORT_SYMBOL(hal_record_shift); */
-/* EXPORT_SYMBOL(hal_record_write_space); */
-/* EXPORT_SYMBOL(hal_record_flush); */
-
-
-/* EXPORT_SYMBOL(hal_stream_get_read_vector); */
-/* EXPORT_SYMBOL(hal_stream_get_write_vector); */
-/* EXPORT_SYMBOL(hal_stream_read); */
-/* EXPORT_SYMBOL(hal_stream_peek); */
-/* EXPORT_SYMBOL(hal_stream_read_advance); */
-/* EXPORT_SYMBOL(hal_stream_read_space); */
-/* EXPORT_SYMBOL(hal_stream_flush); */
-/* EXPORT_SYMBOL(hal_stream_write); */
-/* EXPORT_SYMBOL(hal_stream_write_advance); */
-/* EXPORT_SYMBOL(hal_stream_write_space); */
 
 #endif /* rtapi */
 
