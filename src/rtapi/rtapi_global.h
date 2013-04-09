@@ -61,6 +61,9 @@ typedef struct {
     int error_ring_locked;
     ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
     char buf[SIZE_ALIGN(MESSAGE_RING_SIZE)];
+    ringtrailer_t rtapi_messages_trailer;
+    // caveat - if rtapi_messages had a scratchpad, it would go here:
+    // char buf[SIZE_ALIGN(MESSAGE_RING_SCRATCHPAD_SIZE)];
 } global_data_t;
 
 #define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t

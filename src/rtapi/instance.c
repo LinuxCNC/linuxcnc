@@ -529,6 +529,9 @@ static void init_global_data(global_data_t * data,
     rtapi_ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
     memset(&data->rtapi_messages.buf[0], 0, SIZE_ALIGN(MESSAGE_RING_SIZE));
 
+    // sanity check
+    //assert(data->rtapi_messages.rhtrailer == &data->rtapi_messages_trailer);
+
     // prime it
     data->rtapi_messages.refcount = 1;   // rtapi is 'attached'
     data->rtapi_messages.use_wmutex = 1; // hint only
