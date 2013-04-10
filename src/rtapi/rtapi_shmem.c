@@ -140,7 +140,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 	memset(shmem->mem, 0, size);
     } else {
 	unsigned int i, pagesize;
-      
+
 	pagesize = sysconf(_SC_PAGESIZE);
 	for (i = 0; i < size; i += pagesize) {
 	    unsigned int x = *(volatile unsigned int *)
@@ -205,7 +205,7 @@ int _rtapi_shmem_delete(int handle, int module_id) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi_shmem_delete: handle=%d module=%d key=0x%x:  "
-			"%d remaining users\n", 
+			"%d remaining users\n",
 			handle, module_id, shmem->key, shmem->count);
 	return 0;
     }
@@ -216,25 +216,25 @@ int _rtapi_shmem_delete(int handle, int module_id) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_delete: shmdt(key=0x%x) "
 			"failed: %d '%s'\n",
-			shmem->key, errno, strerror(errno));      
+			shmem->key, errno, strerror(errno));
     }
     /* destroy the shared memory */
     r2 = shmctl(shmem->id, IPC_STAT, &d);
     if (r2 < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_shmem_delete: shm_ctl(0x%x, IPC_STAT) "
-			"failed: %d '%s'\n", 
-			shmem->key, errno, strerror(errno));      
+			"failed: %d '%s'\n",
+			shmem->key, errno, strerror(errno));
     }
     if(r2 == 0 && d.shm_nattch == 0) {
 	r2 = shmctl(shmem->id, IPC_RMID, &d);
 	if (r2 < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_shmem_delete: shm_ctl(0x%x, IPC_RMID) "
-			    "failed: %d '%s'\n", 
-			    shmem->key, errno, strerror(errno));      
+			    "failed: %d '%s'\n",
+			    shmem->key, errno, strerror(errno));
 	}
-    }  
+    }
 
     /* free the shmem structure */
     shmem->magic = 0;
@@ -305,7 +305,7 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 	    if (shmem->rtusers == 0) {
 #endif
 		/* no, map it and save the address */
-		shmem_addr_array[shmem_id] = 
+		shmem_addr_array[shmem_id] =
 		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size, instance);
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,

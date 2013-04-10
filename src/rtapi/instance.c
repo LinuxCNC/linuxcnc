@@ -14,9 +14,9 @@
 *               the last action of a RTAPI session shutdown.
 *
 *               In ULAPI:
-*               Linked into ulapi.so without module headers, it 
+*               Linked into ulapi.so without module headers, it
 *               just provides functions for instance initialisation
-*               to be used by hal_lib 
+*               to be used by hal_lib
 *
 ********************************************************************/
 
@@ -26,7 +26,7 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #endif // RTAPI
 #include "rtapi_global.h"       /* global_data_t */
-#include "rtapi_common.h"    
+#include "rtapi_common.h"
 
 #if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
 #include "xenomai-kernel.h"
