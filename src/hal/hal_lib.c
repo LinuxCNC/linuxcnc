@@ -70,6 +70,10 @@ MODULE_LICENSE("GPL");
 #define assert(e)
 #endif /* RTAPI */
 
+// private mapping data
+// this exists in RT, and each ULAPI process
+hal_namespace_map_t hal_mappings[MAX_INSTANCES];
+
 #if defined(ULAPI)
 // if loading the ulapi shared object fails, we dont have RTAPI
 // calls available for error messages, so fallback to stderr
@@ -87,8 +91,6 @@ MODULE_LICENSE("GPL");
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 
-// private mapping data
-hal_namespace_map_t hal_mappings[MAX_INSTANCES];
 
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
@@ -102,9 +104,6 @@ static const char *git_version = GIT_VERSION;
 extern global_data_t *global_data; // in instance.c */
 #else
 global_data_t *global_data;
-/* #ifdef MODULE */
-/* EXPORT_SYMBOL(global_data); */
-/* #endif */
 #endif
 
 extern void  rtapi_printall(void);
@@ -3660,6 +3659,11 @@ int rtapi_app_main(void)
 	rtapi_exit(lib_module_id);
 	return -EINVAL;
     }
+
+    // record local mappings - this will obsolete hal_shmem_base and hal_data
+    hal_mappings[rtapi_instance].shmbase = mem;
+    hal_mappings[rtapi_instance].hal_data = mem;
+
     retval = hal_proc_init();
 
     if ( retval ) {
@@ -3768,6 +3772,9 @@ static void thread_task(void *arg)
 
 static int init_hal_data(void)
 {
+    int inst;
+    hal_namespace_t *hnm;
+
     /* has the block already been initialized? */
     if (hal_data->version != 0) {
 	/* yes, verify version code */
@@ -3791,10 +3798,15 @@ static int init_hal_data(void)
     hal_data->version = HAL_VER;
 
     // namespace support
+    inst = global_data->instance_id; // shorthand
     hal_data->refcount = 0;
-    hal_data->hal_instance = global_data->instance_id;
-    strcpy(hal_data->hal_instance_name, global_data->instance_name);
+    hal_data->hal_instance = inst;
+ 
     memset(hal_data->namespaces, 0, sizeof(hal_data->namespaces));
+
+    // prime the mappings aray with our own enty:
+    hnm = &hal_data->namespaces[inst];
+    strncpy(hnm->name, global_data->instance_name, HAL_NAME_LEN);
 
     /* initialize everything */
     hal_data->comp_list_ptr = 0;
@@ -4555,10 +4567,55 @@ static void free_thread_struct(hal_thread_t * thread)
     hal_data->thread_free_ptr = SHMOFF(thread);
 }
 #endif /* RTAPI */
+
+/***********************************************************************
+*                     HAL namespace support                            *
+************************************************************************/
+
+// fundamentals: what is the flow of getting at an instance
+// try global and go from there
+// try haldata directly 
+
+// rather a)
+// ---> need global API
+
+int halpr_namespace_attach(int instance)
+{
+    // test if mapped already, return EEXIST
+    // test if instance exists by testing for global segment?
+    // test if RT running, else no HAL data shm segment
+    // attach HAL data segment
+    // record remote global_data->instance_name and instance in mappings
+    // bump refcount 'over there' under remote lock
+    // record mapping
+
+    return -EINVAL;
+}
+
+int halpr_namespace_detach(int instance)
+{
+    // test if mapped, return EINVAL if not
+    // check dangling references (pins, signals), fail if any
+    // decrease refcount 'over there' under remote lock
+    // detach the remote HAL data segment
+    // erase the mappings
+
+    return -EINVAL;
+}
+
+// usage iterator - retrieve remote references in pins, signals
+
+
+// list of parts needed:
+//
+// global instance test
+// remote HAL data exists test
+// dangling references test by instance
+
+
 /***********************************************************************
 *                     HAL Library constructor and destructors          *
 ************************************************************************/
-
 // this is the pointer through which _all_ RTAPI/ULAPI references go:
 // it must be initialized by calling rtapi_get_handle() in the 
 // pertaining module (rtapi.ko/rtapi.so/ulapi.so)
@@ -4620,6 +4677,11 @@ int hal_rtapi_attach()
 	    rtapi_exit(lib_module_id);
 	    return -EINVAL;
 	}
+
+	// record local mappings
+	hal_mappings[rtapi_instance].shmbase = mem;
+	hal_mappings[rtapi_instance].hal_data = mem;
+
 	rtapi_print_msg(RTAPI_MSG_DBG,
 		"HAL: hal_rtapi_attach(): HAL shm segment attached\n");
     }
@@ -4635,6 +4697,11 @@ int hal_rtapi_detach()
     lib_module_id = -1;
     hal_shmem_base = NULL;
     hal_data = NULL;
+
+    // disable local mappings
+    hal_mappings[rtapi_instance].shmbase = NULL;
+    hal_mappings[rtapi_instance].hal_data = NULL;
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "HAL: hal_rtapi_detach(): HAL shm segment detached\n");
     return 0;

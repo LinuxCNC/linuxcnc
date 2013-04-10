@@ -172,10 +172,10 @@ typedef struct {
 
 
 // visible in the per-namespace HAL data segment: 
-// the namespaces this HAL instance 'sees':
+// the namespaces this HAL instance 'sees', indexed by instance
 typedef struct {
-    int  id;        // rtapi_instance of namespace
-    char name[RTAPI_NAME_LEN + 1];
+    unsigned long flags; // TBD
+    char name[HAL_NAME_LEN + 1];
  } hal_namespace_t;
 
 // private mappings
@@ -199,10 +199,9 @@ extern hal_namespace_map_t hal_mappings[];
 // hal_namespace_attach() increases the refcount
 // hal_namespace_attach() decreases it.
 
-extern int hal_namespace_attach(const char *name, int instance);
+extern int halpr_namespace_attach(int instance);
 
-extern int hal_namespace_detach_byname(const char *name);
-//extern int hal_namespace_detach_by_id(int instance);
+extern int hal_namespace_detach(int instance);
 
 static inline char *my_shm_base(void)
 {
@@ -233,10 +232,7 @@ typedef struct {
     // instance, determine it's instance ID:
     // this should be filled in RT space once hal_lib is first loaded
     // ULAPI should never write to it
-    int hal_instance;
-    // this comes from global_data.instance_name and is to be considered
-    // a session constant:
-    char hal_instance_name[INSTANCE_NAME_LENGTH];
+    int hal_instance;  // FIXME not sure if needed
 
     // every other HAL namespace referencing this namspace is expected to
     // increase this on attach, and decrease this on detach:
