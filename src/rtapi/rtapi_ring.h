@@ -425,7 +425,7 @@ static inline size_t rtapi_record_write_space(const ringheader_t *h)
 
 
 /* internal function */
-static ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) // OK
+static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) // OK
 {
     ring_size_t size;
     ringheader_t *h = ring->header;
