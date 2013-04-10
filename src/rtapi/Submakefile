@@ -223,3 +223,27 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
 
+# shm attach test
+
+ATTACH_SRCS =  rtapi/attach.c
+ATTACH_OBJS := \
+	$(call TOOBJS, $(ATTACH_SRCS))
+
+
+$(call TOOBJSDEPS, $(ATTACH_SRCS)): \
+	EXTRAFLAGS += -DTEST  \
+	-I/usr/realtime-2.6.32-122-rtai/include/
+#	 $(shell $(XENO_CONFIG) --skin=native --cflags) 
+#
+
+../bin/attach: $(ATTACH_OBJS)  ../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ \
+	../lib/liblinuxcnchal.so \
+	 /usr/realtime-2.6.32-122-rtai/lib/liblxrt.a \
+	/usr/lib/libpthread.so \
+	-lrt -ldl
+
+USERSRCS += $(ATTACH_SRCS)
+TARGETS += ../bin/attach
+
