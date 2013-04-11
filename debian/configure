@@ -42,6 +42,10 @@ if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
 fi
 
 
+# This function autodetects the kernel type based on settings in
+# its /boot/config.  It looks at the kernel identified by $KERNEL and sets
+# $KTYPE to one of "rtai", "xenomai", "rt-preempt", or "vanilla", and sets
+# $DEFAULT_THREAD_STYLE appropriately.
 inspect_kernel() {
 
     KCONFIG="/boot/config-$KERNEL"
@@ -59,21 +63,17 @@ inspect_kernel() {
    
     #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
     if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	KTYPE=rtai
-	DEFAULT_THREAD_STYLE=rtai
-    else 
-	if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	    KTYPE=xenomai
-	    DEFAULT_THREAD_STYLE=xenomai-user
-	else 
-	    if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
-		KTYPE=rt-preempt
-		DEFAULT_THREAD_STYLE=rt-preempt-user
-	    else
-		KTYPE=vanilla
-		DEFAULT_THREAD_STYLE=posix
-	    fi
-	fi
+        KTYPE=rtai
+        DEFAULT_THREAD_STYLE=rtai
+    elif test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+        KTYPE=xenomai
+        DEFAULT_THREAD_STYLE=xenomai-user
+    elif test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
+        KTYPE=rt-preempt
+        DEFAULT_THREAD_STYLE=rt-preempt-user
+    else
+        KTYPE=vanilla
+        DEFAULT_THREAD_STYLE=posix
     fi
     #echo THREADS=$DEFAULT_THREAD_STYLE KTYPE=$KTYPE
 }
@@ -87,13 +87,19 @@ elif [ $1 = "sim" ]; then
     KERNEL="sim"
 elif [ $1 = "-a" ]; then
     KERNEL="$(uname -r)"
-    # if [ ! -d "/usr/realtime-$KERNEL" ]; then
-    #     KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-    #     if [ -z "$KERNEL" ]; then
-    #         echo "no realtime kernels found!"
-    #         exit 1
-    #     fi
-    # fi
+    inspect_kernel
+    if [ "$KTYPE" = "vanilla" ]; then
+        for KERNEL in $(ls -1 /boot/config-* | cut -d - -f 2-); do
+            inspect_kernel
+            if [ "$KTYPE" != "vanilla" ]; then
+                break
+            fi
+        done
+    fi
+    if [ "$KTYPE" = "vanilla" ]; then
+        echo "no realtime kernels found!"
+        exit 1
+    fi
 else
     KERNEL=$1
     inspect_kernel
@@ -171,10 +177,6 @@ Debian-5.0*)
 	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
-Debian-7.0*)
-	EXTRA_BUILD=dvipng
-	TCLTK_VERSION=8.5
-	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"
@@ -189,15 +191,15 @@ CONFLICT=linuxcnc-sim,linuxcnc-xenomai,linuxcnc-rtpreempt
 CONFLICT_DEV=linuxcnc-sim-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
 OLD_PACKAGE_NAME=emc2
 EXTRA_RECOMMENDS=hostmot2-firmware
-case $TARGET in
-    sim)
+
+case $KTYPE in
+    vanilla)
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
 	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
-	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
 	CONFLICT=linuxcnc,linuxcnc-xenomai,linuxcnc-rtpreempt
 	CONFLICT_DEV=linuxcnc-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
@@ -206,7 +208,49 @@ case $TARGET in
 
         # don't bother recommending hostmot2 firmware on sim
         EXTRA_RECOMMENDS=
-    ;;
+        ;;
+    rtai)
+        ;;
+    xenomai)
+        MODULE_PATH=usr/lib/linuxcnc/modules
+	MODULE_EXT=.so
+	KERNEL_DEPENDS=
+	KERNEL_HEADERS=libpth-dev
+        EXTRA_FILES="usr/bin/rtapi_app"
+	BUILD_SYS=user-dso
+
+	# linux-headers-$TARGET would be needed if one were to package
+	# xenomai-kernel threads (not recommended)
+
+	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
+	MAIN_PACKAGE_NAME=linuxcnc-xenomai
+
+	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
+	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-rtpreempt-dev
+	;;
+    rt-preempt)
+	MODULE_PATH=usr/lib/linuxcnc/modules
+	MODULE_EXT=.so
+	KERNEL_DEPENDS=
+	KERNEL_HEADERS=libpth-dev
+        EXTRA_FILES="usr/bin/rtapi_app"
+	BUILD_SYS=user-dso
+
+	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
+	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
+
+	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
+	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-xenomai-dev
+        ;;
+    *)
+        echo unknown kernel type $KTYPE
+        exit 1
+        ;;
+esac
+
+# I guess we need specific compiler versions to build against these old
+# kernels?  FIXME?
+case $KERNEL in
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
     ;;
@@ -219,50 +263,6 @@ case $TARGET in
     2.6.24-16-rtai)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
     ;;
-    2.6.32-122-rtai) ;;
-
-    # John Morris' Xenomai kernel
-    3.5.7-xenomai-2.6.2.1) 
-       
-        MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
-        EXTRA_FILES="usr/bin/rtapi_app"
-	BUILD_SYS=user-dso
-
-	# linux-headers-$TARGET would be needed if one were to package
-	# xenomai-kernel threads (not recommended)
-
-	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
-	DISTRIB_NAME=xenomai-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-xenomai
-
-	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
-	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-rtpreempt-dev
-	;;
-
-    # the wheezy RT-PREEMPT kernel
-    # Michael Haberler 'stab #1' at an rt-preempt kernel
-
-    3.2.0-4-rt-686-pae|3.4.13-rt-preempt-rt22+) 
-
-	MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
-        EXTRA_FILES="usr/bin/rtapi_app"
-	BUILD_SYS=user-dso
-
-	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
-	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
-
-	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
-	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-xenomai-dev
-    ;;
-    *)
-	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
 subst () {
@@ -277,7 +277,6 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
-    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
     -e "s|@TARGET@|$TARGET|g" \
     -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
@@ -324,4 +323,7 @@ for P in $DOCS_PACKAGES; do
 done
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+echo "successfully configured!"
+echo "    distribution: $DISTRIB_NAME"
+echo "    kernel type: $KTYPE"
+echo "    target/kernel version: $TARGET"
