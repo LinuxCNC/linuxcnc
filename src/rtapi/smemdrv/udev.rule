@@ -1,0 +1,8 @@
+# not complete:
+
+KERNEL=="shm" SUBSYSTEM=="rtapi" DRIVER==""
+
+
+#KERNEL=="device.0" SUBSYSTEM=="parrot" DRIVER=="" MODE="0666", #SYMLINK+="first",GROUP="dialout"
+#KERNEL=="device[1-9]*" SUBSYSTEM=="parrot" DRIVER=="" MODE="0666",GROUP="dialout"
+
