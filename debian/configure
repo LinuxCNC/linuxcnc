@@ -191,8 +191,9 @@ CONFLICT=linuxcnc-sim,linuxcnc-xenomai,linuxcnc-rtpreempt
 CONFLICT_DEV=linuxcnc-sim-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
 OLD_PACKAGE_NAME=emc2
 EXTRA_RECOMMENDS=hostmot2-firmware
-case $TARGET in
-    sim)
+
+case $KTYPE in
+    vanilla)
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
@@ -208,24 +209,10 @@ case $TARGET in
 
         # don't bother recommending hostmot2 firmware on sim
         EXTRA_RECOMMENDS=
-    ;;
-    2.6.12-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
-    ;;
-    2.6.15-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
-    ;;
-    2.6.22.6-magma|2.6.24-16-rtai)
-        KERNEL_HEADERS="$KERNEL_HEADERS"
-    ;;
-    2.6.24-16-rtai)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
-    ;;
-    2.6.32-122-rtai) ;;
-
-    # John Morris' Xenomai kernel
-    3.5.7-xenomai-2.6.2.1) 
-       
+        ;;
+    rtai)
+        ;;
+    xenomai)
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
@@ -243,12 +230,7 @@ case $TARGET in
 	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
 	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-rtpreempt-dev
 	;;
-
-    # the wheezy RT-PREEMPT kernel
-    # Michael Haberler 'stab #1' at an rt-preempt kernel
-
-    3.2.0-4-rt-686-pae|3.4.13-rt-preempt-rt22+) 
-
+    rt-preempt)
 	MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
@@ -262,9 +244,28 @@ case $TARGET in
 
 	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
 	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-xenomai-dev
-    ;;
+        ;;
     *)
-	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
+        echo unknown kernel type $KTYPE
+        exit 1
+        ;;
+esac
+
+# I guess we need specific compiler versions to build against these old
+# kernels?  FIXME?
+case $KERNEL in
+    2.6.12-magma)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
+    ;;
+    2.6.15-magma)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
+    ;;
+    2.6.22.6-magma|2.6.24-16-rtai)
+        KERNEL_HEADERS="$KERNEL_HEADERS"
+    ;;
+    2.6.24-16-rtai)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
+    ;;
 esac
 
 subst () {
