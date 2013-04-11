@@ -59,21 +59,17 @@ inspect_kernel() {
    
     #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
     if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	KTYPE=rtai
-	DEFAULT_THREAD_STYLE=rtai
-    else 
-	if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	    KTYPE=xenomai
-	    DEFAULT_THREAD_STYLE=xenomai-user
-	else 
-	    if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
-		KTYPE=rt-preempt
-		DEFAULT_THREAD_STYLE=rt-preempt-user
-	    else
-		KTYPE=vanilla
-		DEFAULT_THREAD_STYLE=posix
-	    fi
-	fi
+        KTYPE=rtai
+        DEFAULT_THREAD_STYLE=rtai
+    elif test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
+        KTYPE=xenomai
+        DEFAULT_THREAD_STYLE=xenomai-user
+    elif test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
+        KTYPE=rt-preempt
+        DEFAULT_THREAD_STYLE=rt-preempt-user
+    else
+        KTYPE=vanilla
+        DEFAULT_THREAD_STYLE=posix
     fi
     #echo THREADS=$DEFAULT_THREAD_STYLE KTYPE=$KTYPE
 }
