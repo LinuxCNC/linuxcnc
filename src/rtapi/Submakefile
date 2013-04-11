@@ -223,27 +223,45 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
 
-# shm attach test
-
-ATTACH_SRCS =  rtapi/attach.c
-ATTACH_OBJS := \
-	$(call TOOBJS, $(ATTACH_SRCS))
-
-
-$(call TOOBJSDEPS, $(ATTACH_SRCS)): \
-	EXTRAFLAGS += -DTEST  \
-	-I/usr/realtime-2.6.32-122-rtai/include/
-#	 $(shell $(XENO_CONFIG) --skin=native --cflags) 
+##################################################################
+#                     the rtapi_shm allocator module
+#                     the test module
+#                     the test client
 #
+#  taken from: http://www.embrisk.com/notes/shmem.html 
+#  Status: public domain
+#
+##################################################################
+ifeq ($(BUILD_SYS),kbuild)
 
-../bin/attach: $(ATTACH_OBJS)  ../lib/liblinuxcnchal.so
+RT_CFLAGS += -DSHMDEBUG \
+	-I$(BASEPWD)/rtapi/smemdrv \
+	-I$(BASEPWD)/rtapi/smemdrv/testmod
+
+#RT_LDFLAGS += 
+
+
+INCLUDES += rtapi/smemdrv
+obj-m += rtapishm.o
+rtapishm-objs := rtapi/smemdrv/embshmem.o
+../rtlib/rtapishm$(MODULE_EXT): $(addprefix objects/rt,$(rtapishm-objs))
+
+INCLUDES += rtapi/smemdrv
+obj-m += shmtest.o
+shmtest-objs := rtapi/smemdrv/testmod/test_embshmem.o
+../rtlib/shmtest$(MODULE_EXT): $(addprefix objects/rt,$(shmtest-objs))
+
+$(call TOOBJSDEPS, $(CLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
+
+CLIENT_SRCS =  rtapi/smemdrv/client.cc rtapi/smemdrv/shmemaccess.c
+CLIENT_OBJS := $(call TOOBJS, $(CLIENT_SRCS))
+
+../bin/client: $(CLIENT_OBJS)  
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ \
-	../lib/liblinuxcnchal.so \
-	 /usr/realtime-2.6.32-122-rtai/lib/liblxrt.a \
-	/usr/lib/libpthread.so \
-	-lrt -ldl
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  -lstdc++
 
-USERSRCS += $(ATTACH_SRCS)
-TARGETS += ../bin/attach
+USERSRCS += $(CLIENT_SRCS) #rtapi/smemdrv/embshmem.c rtapi/smemdrv/testmod/test_embshmem.c
+TARGETS += ../bin/client
+
+endif
 
