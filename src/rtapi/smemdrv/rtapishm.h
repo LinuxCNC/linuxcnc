@@ -34,4 +34,20 @@ extern void ShmemRelease(void);
 
 #endif // !__KERNEL__
 
+
+
+struct rtapishm_ioctlmsg {
+    int  id;
+    size_t size;
+    void *addr;
+};
+
+#define RTAPISHM_IOC_MAGIC    'r'
+
+#define IOC_RTAPISHM_EXISTS   _IOR(RTAPISHM_IOC_MAGIC, 1, int)
+#define IOC_RTAPISHM_CREATE   _IOR(RTAPISHM_IOC_MAGIC, 2, struct rtapishm_ioctlmsg)
+#define IOC_RTAPISHM_ATTACH   _IOW(RTAPISHM_IOC_MAGIC, 3, struct rtapishm_ioctlmsg)
+#define IOC_RTAPISHM_DELETE   _IOR(RTAPISHM_IOC_MAGIC, 4, struct rtapishm_ioctlmsg)
+
+
 #endif // RTPAISHMEM_H

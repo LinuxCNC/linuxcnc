@@ -13,7 +13,7 @@
 #include <string.h>
 
 #include "rtapishm.h"
-static const char *devName = "/dev/rtapishm";
+static const char *devName = "/dev/shm0";
 static int shmemLength;
 static void *shmem;
 
