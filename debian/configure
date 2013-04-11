@@ -171,10 +171,6 @@ Debian-5.0*)
 	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
-Debian-7.0*)
-	EXTRA_BUILD=dvipng
-	TCLTK_VERSION=8.5
-	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"
