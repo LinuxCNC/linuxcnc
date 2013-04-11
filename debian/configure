@@ -200,7 +200,6 @@ case $KTYPE in
 	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
-	DISTRIB_NAME=sim-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-sim
 	CONFLICT=linuxcnc,linuxcnc-xenomai,linuxcnc-rtpreempt
 	CONFLICT_DEV=linuxcnc-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
@@ -224,7 +223,6 @@ case $KTYPE in
 	# xenomai-kernel threads (not recommended)
 
 	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
-	DISTRIB_NAME=xenomai-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-xenomai
 
 	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
@@ -239,7 +237,6 @@ case $KTYPE in
 	BUILD_SYS=user-dso
 
 	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
-	DISTRIB_NAME=rtpreempt-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
 
 	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
@@ -280,7 +277,6 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
-    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
     -e "s|@TARGET@|$TARGET|g" \
     -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
@@ -327,4 +323,7 @@ for P in $DOCS_PACKAGES; do
 done
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+echo "successfully configured!"
+echo "    distribution: $DISTRIB_NAME"
+echo "    kernel type: $KTYPE"
+echo "    target/kernel version: $TARGET"
