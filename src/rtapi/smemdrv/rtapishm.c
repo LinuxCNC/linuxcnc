@@ -149,16 +149,18 @@ EXPORT_SYMBOL(rtapishm_get_memory);
 
 static void simple_vma_open(struct vm_area_struct *vma)
 {
-    printk("opening %p, private_data = %p\n", vma, vma->vm_private_data);
-    printk(KERN_NOTICE "Simple VMA open, virt %lx, phys %lx length %d private=%p\n",
+    printk(KERN_NOTICE "VMA open, virt %lx, phys %lx length %d private=%p\n",
 	   vma->vm_start, vma->vm_pgoff << PAGE_SHIFT,
 	   vma->vm_end - vma->vm_start,
 	   vma->vm_private_data);
+    // increase refcount here
 }
 static void simple_vma_close(struct vm_area_struct *vma)
 {
-    printk("releasing %p, private_data = %p\n", vma, vma->vm_private_data);
+    printk("VMA close releasing %p, private_data = %p\n", vma, vma->vm_private_data);
+    // decrease refcount here
 }
+
 static struct vm_operations_struct mmap_ops = {
     .open = simple_vma_open,
     .close = simple_vma_close,
@@ -188,6 +190,7 @@ static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
         err( "%s: remap of shared memory failed, %d", __func__, ret);
         return(ret);
     }
+    // make vma->vm_private_data point to the shmem entry
     vma->vm_ops = &mmap_ops;
     simple_vma_open(vma);
 
@@ -229,11 +232,10 @@ static int rtapishm_close(struct inode* inode, struct file* filp)
 
 static long rtapishm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-    int ret;
-    /* int val; */
-    /* struct rtapishm_ioctlmsg sm; */
+    int ret = 0;
+    int val;
+    struct rtapishm_ioctlmsg sm; 
 
-    dbg("%d", cmd);
 
     //    mutex_lock(&rtapishm_sysfs_mutex);
 
@@ -242,11 +244,22 @@ static long rtapishm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigne
 
     switch(cmd) {
     case IOC_RTAPISHM_EXISTS:
+	ret = copy_from_user(&val, (char *)arg, sizeof(int));
+
+	dbg("EXISTS: %d (ret=%d)", val, ret);
+
+	return -ENOENT;
 	break;
     case IOC_RTAPISHM_CREATE:
+	ret = copy_from_user(&sm, (char *)arg, sizeof(struct rtapishm_ioctlmsg));
+	dbg("CREATE: id=%d size=%d (ret=%d)", sm.id, sm.size, ret);
+
 	//ret = put_user(dev->rcache, (int __user *)arg);
 	break;
     case IOC_RTAPISHM_ATTACH:
+	sm.id = 4711;
+	sm.size = 4096;
+	ret = copy_to_user((char *)arg, &sm, sizeof(struct rtapishm_ioctlmsg));
 	break;
     case IOC_RTAPISHM_DELETE:
 	break;
