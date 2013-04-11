@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include "embshmem.h"
+#include "rtapishm.h"
 #include "testmod/testembshmem.h"
 
 int main(int argc, char **argv)

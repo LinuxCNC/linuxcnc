@@ -17,7 +17,7 @@
 #include <linux/mm.h>
 #include <linux/mman.h>
 
-#include "embshmem.h"
+#include "rtapishm.h"
 
 /*
  * Device related data.
@@ -32,13 +32,13 @@ static struct cdev *cdev_p;
 static void *allocArea;
 static void *memArea;
 static int memLength;
-static spinlock_t smemdrv_lock;
+static spinlock_t rtapishm_lock;
 
 /*
  * Allocate the shared memory.  This is called directly by other kernel routines that access
- * the shared memory, and indirectly by user space via smemdrv_mmap.
+ * the shared memory, and indirectly by user space via rtapishm_mmap.
  */
-extern int smemdrv_get_memory(int length, void **pointer)
+extern int rtapishm_get_memory(int length, void **pointer)
 {
     int i;
 
@@ -50,7 +50,7 @@ extern int smemdrv_get_memory(int length, void **pointer)
         void *newMemArea;
         unsigned long irqState;
         int memSize;
-        
+
         /*
          * For the memory mapping, we'll need to allocate a whole number of pages, so we'll need to
          * round the size up.  Then we need it to start on a page boundary, and as we don't know
@@ -64,7 +64,7 @@ extern int smemdrv_get_memory(int length, void **pointer)
             printk(KERN_CRIT "%s: Couldn't allocate memory to share\n", __func__);
             return(-ENOMEM);
         }
-    
+
         /*
          * memArea is the page aligned area we actually use.
          */
@@ -72,24 +72,24 @@ extern int smemdrv_get_memory(int length, void **pointer)
         memset(newMemArea, 0, length);
         printk(KERN_INFO "%s: allocArea %p, memArea %p, size %x\n", __func__, newAllocArea, 
                 newMemArea, memSize);
-    
+
         /*
          * Mark the pages as reserved.
          */
         for (i = 0; i < memSize; i+= PAGE_SIZE) {
                 SetPageReserved(virt_to_page(newMemArea + i));
         }
-    
+
         /*
          * While we were doing that, it's possible that someone else has got in and already
          * allocated the memory.  So check for that, and if so discard the memory we allocated.
          */
-        spin_lock_irqsave(&smemdrv_lock, irqState);
+        spin_lock_irqsave(&rtapishm_lock, irqState);
         if (memArea) {
             /*
              * Free the memory we just allocated.
              */
-            spin_unlock_irqrestore(&smemdrv_lock, irqState);
+            spin_unlock_irqrestore(&rtapishm_lock, irqState);
             kfree(newAllocArea);
         } else {
             /*
@@ -98,7 +98,7 @@ extern int smemdrv_get_memory(int length, void **pointer)
             memArea = newMemArea;
             allocArea = newAllocArea;
             memLength = length;
-            spin_unlock_irqrestore(&smemdrv_lock, irqState);
+            spin_unlock_irqrestore(&rtapishm_lock, irqState);
         }
     }
 
@@ -120,9 +120,9 @@ extern int smemdrv_get_memory(int length, void **pointer)
 
     return(0);
 }
-EXPORT_SYMBOL(smemdrv_get_memory);
+EXPORT_SYMBOL(rtapishm_get_memory);
 
-static int smemdrv_mmap(struct file *file, struct vm_area_struct *vma)
+static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
 {
     unsigned long length;
     int ret;
@@ -131,7 +131,7 @@ static int smemdrv_mmap(struct file *file, struct vm_area_struct *vma)
 
     length = vma->vm_end - vma->vm_start;
 
-    ret = smemdrv_get_memory(length, NULL);
+    ret = rtapishm_get_memory(length, NULL);
     if (ret != 0) {
         printk(KERN_CRIT "%s: Couldn't allocate shared memory for user space\n", __func__);
         return(ret);
@@ -154,7 +154,7 @@ static int smemdrv_mmap(struct file *file, struct vm_area_struct *vma)
  * This function is called whenever a process which has already opened the
  * device file attempts to read from it.
  */
-static ssize_t smemdrv_read(struct file *file, char __user * buffer, size_t length,
+static ssize_t rtapishm_read(struct file *file, char __user * buffer, size_t length,
         loff_t * offset)
 {
     printk(KERN_INFO "%s: len %d, offset %d\n", __func__, length, (int)(*offset));
@@ -170,26 +170,25 @@ static ssize_t smemdrv_read(struct file *file, char __user * buffer, size_t leng
             return(0);
         }
     }
-    
+
     copy_to_user(buffer, memArea + *offset, length);
     *offset += length;
 
     return(length);
 }
 
-static struct file_operations fileOps = {
+static struct file_operations rtapishm_fileops = {
     .owner = THIS_MODULE,
-    .read = smemdrv_read,
-    .mmap = smemdrv_mmap,
+    .read = rtapishm_read,
+    .mmap = rtapishm_mmap,
 };
 
-
-static int smemdrv_init(void) {
+static int rtapishm_init(void) {
     int ret;
 
-    printk(KERN_ERR "%s: initialising embshmem driver \n", __func__);
+    printk(KERN_ERR "%s: initialising rtapishm driver \n", __func__);
 
-    ret = alloc_chrdev_region(&myDevice, 0, 1, "embshmem");
+    ret = alloc_chrdev_region(&myDevice, 0, 1, "rtapishm");
     if (ret < 0) {
         printk(KERN_CRIT "%s: Couldn't allocate device number (%d).\n", __func__, ret);
         return(ret);
@@ -197,26 +196,27 @@ static int smemdrv_init(void) {
 
     
     cdev_p = cdev_alloc();
-    cdev_p->ops = &fileOps;
+    cdev_p->ops = &rtapishm_fileops;
     ret = cdev_add(cdev_p, myDevice, 1);
     if (ret) {
         printk(KERN_CRIT "%s: Couldn't add character device (%d)\n", __func__, ret);
         return(ret);
     }
 
-    spin_lock_init(&smemdrv_lock);
+    spin_lock_init(&rtapishm_lock);
     return 0;
 }
-    
-static void smemdrv_exit(void) {
-    printk(KERN_ERR "%s: embshmem driver exiting\n", __func__);
+
+static void rtapishm_exit(void) {
+    printk(KERN_ERR "%s: rtapishm driver exiting\n", __func__);
     cdev_del(cdev_p);
     unregister_chrdev_region(myDevice, 1);
+
     if (allocArea) {
         kfree(allocArea);
     }
 }
 
 MODULE_LICENSE("GPL");
-module_init(smemdrv_init);
-module_exit(smemdrv_exit);
+module_init(rtapishm_init);
+module_exit(rtapishm_exit);

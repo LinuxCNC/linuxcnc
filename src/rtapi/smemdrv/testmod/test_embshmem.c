@@ -11,7 +11,7 @@
 #include <linux/module.h>
 #include <linux/timer.h>
 
-#include "embshmem.h"
+#include "rtapishm.h"
 #include "testembshmem.h"
 
 #define TICK_TIME_MS 100
@@ -70,7 +70,7 @@ static int smemtest_init(void)
 
     INIT_WORK(&work, smemtest_work);
 
-    ret = smemdrv_get_memory(sizeof(struct ShmemStruct), (void **)&shmem);
+    ret = rtapishm_get_memory(sizeof(struct ShmemStruct), (void **)&shmem);
     if (ret) {
         printk(KERN_CRIT "%s: Failed to get shared memory, error %d\n", __func__, ret);
     }

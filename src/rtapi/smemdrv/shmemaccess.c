@@ -12,8 +12,8 @@
 #include <errno.h>
 #include <string.h>
 
-#include "embshmem.h"
-static const char *devName = "/dev/embshmem0";
+#include "rtapishm.h"
+static const char *devName = "/dev/rtapishm";
 static int shmemLength;
 static void *shmem;
 

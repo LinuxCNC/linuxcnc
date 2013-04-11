@@ -1,8 +1,8 @@
-#ifndef EMBSHMEM_H
-#define EMBSHMEM_H
+#ifndef RTAPISHMEM_H
+#define RTPAISHMEM_H
 
 #ifdef __KERNEL__
-extern int smemdrv_get_memory(int length, void **pointer);
+extern int rtapishm_get_memory(int length, void **pointer);
 #else // ! __KERNEL__
 
 #ifdef __cplusplus
@@ -17,4 +17,4 @@ extern void ShmemRelease(void);
 
 #endif // !__KERNEL__
 
-#endif // EMBSHMEM_H
+#endif // RTPAISHMEM_H
