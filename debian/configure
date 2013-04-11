@@ -87,13 +87,19 @@ elif [ $1 = "sim" ]; then
     KERNEL="sim"
 elif [ $1 = "-a" ]; then
     KERNEL="$(uname -r)"
-    # if [ ! -d "/usr/realtime-$KERNEL" ]; then
-    #     KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-    #     if [ -z "$KERNEL" ]; then
-    #         echo "no realtime kernels found!"
-    #         exit 1
-    #     fi
-    # fi
+    inspect_kernel
+    if [ "$KTYPE" = "vanilla" ]; then
+        for KERNEL in $(ls -1 /boot/config-* | cut -d - -f 2-); do
+            inspect_kernel
+            if [ "$KTYPE" != "vanilla" ]; then
+                break
+            fi
+        done
+    fi
+    if [ "$KTYPE" = "vanilla" ]; then
+        echo "no realtime kernels found!"
+        exit 1
+    fi
 else
     KERNEL=$1
     inspect_kernel
