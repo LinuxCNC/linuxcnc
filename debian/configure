@@ -42,6 +42,10 @@ if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
 fi
 
 
+# This function autodetects the kernel type based on settings in
+# its /boot/config.  It looks at the kernel identified by $KERNEL and sets
+# $KTYPE to one of "rtai", "xenomai", "rt-preempt", or "vanilla", and sets
+# $DEFAULT_THREAD_STYLE appropriately.
 inspect_kernel() {
 
     KCONFIG="/boot/config-$KERNEL"
