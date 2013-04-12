@@ -19,35 +19,25 @@
 #include <linux/uaccess.h>
 #include <linux/mm.h>
 #include <linux/mman.h>
+#include <linux/miscdevice.h>
 #include <linux/device.h>
-#include <linux/cdev.h>
 #include <linux/ioctl.h>
 
-#include "rtapi.h"
-#include "rtapi_common.h"
-
-#include "rtapishm.h"
+#include "shmdrv.h"
 
 static bool debug = false;
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable debug info (default: false)");
 
-static int count = 10;
-module_param(count, int, S_IRUGO);
-MODULE_PARM_DESC(count, "number of rtapi shm devices to create");
-
-//static DEFINE_MUTEX(rtapishm_lock); //FIXME
 
 /*
  * Device related data.
  */
-static int major;
-static struct class *class_rtapishm;
 
 struct shm_dev {
-    struct cdev cdev;
-    struct device *rtapishm_device;
-    shmem_data shmem[RTAPI_MAX_SHMEMS+1];
+    /* struct cdev cdev; */
+    /* struct device *shm_device; */
+    // shmem_data shmem[RTAPI_MAX_SHMEMS+1];
 };
 
 static struct shm_dev *devices;
@@ -59,7 +49,7 @@ static struct shm_dev *devices;
 static void *allocArea;
 static void *memArea;
 static int memLength;
-static spinlock_t rtapishm_lock;
+static spinlock_t shm_lock;
 
 //int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
 // int _rtapi_shmem_getptr(int handle, void **ptr) {
@@ -68,9 +58,9 @@ static spinlock_t rtapishm_lock;
 
 /*
  * Allocate the shared memory.  This is called directly by other kernel routines that access
- * the shared memory, and indirectly by user space via rtapishm_mmap.
+ * the shared memory, and indirectly by user space via shm_mmap.
  */
-extern int rtapishm_get_memory(int length, void **pointer)
+extern int shm_get_memory(int length, void **pointer)
 {
     int i;
 
@@ -93,7 +83,7 @@ extern int rtapishm_get_memory(int length, void **pointer)
         memSize = length + PAGE_SIZE - 1;
         newAllocArea = kmalloc(memSize, GFP_KERNEL);
         if (!newAllocArea) {
-            err( "%s: Couldn't allocate memory to share", __func__);
+            err("Couldn't allocate memory to share");
             return(-ENOMEM);
         }
 
@@ -116,12 +106,12 @@ extern int rtapishm_get_memory(int length, void **pointer)
          * While we were doing that, it's possible that someone else has got in and already
          * allocated the memory.  So check for that, and if so discard the memory we allocated.
          */
-        spin_lock_irqsave(&rtapishm_lock, irqState);
+        spin_lock_irqsave(&shm_lock, irqState);
         if (memArea) {
             /*
              * Free the memory we just allocated.
              */
-            spin_unlock_irqrestore(&rtapishm_lock, irqState);
+            spin_unlock_irqrestore(&shm_lock, irqState);
             kfree(newAllocArea);
         } else {
             /*
@@ -130,7 +120,7 @@ extern int rtapishm_get_memory(int length, void **pointer)
             memArea = newMemArea;
             allocArea = newAllocArea;
             memLength = length;
-            spin_unlock_irqrestore(&rtapishm_lock, irqState);
+            spin_unlock_irqrestore(&shm_lock, irqState);
         }
     }
 
@@ -152,14 +142,15 @@ extern int rtapishm_get_memory(int length, void **pointer)
 
     return(0);
 }
-EXPORT_SYMBOL(rtapishm_get_memory);
+EXPORT_SYMBOL(shm_get_memory);
 
 static void simple_vma_open(struct vm_area_struct *vma)
 {
-    printk(KERN_NOTICE "VMA open, virt %lx, phys %lx length %d private=%p\n",
-	   vma->vm_start, vma->vm_pgoff << PAGE_SHIFT,
-	   vma->vm_end - vma->vm_start,
-	   vma->vm_private_data);
+    dbg("VMA open, virt %lx, phys %lx length %ld private=%lx\n",
+	vma->vm_start, 
+	vma->vm_pgoff << PAGE_SHIFT,
+	vma->vm_end - vma->vm_start,
+	(unsigned long) vma->vm_private_data);
     // increase refcount here
 }
 static void simple_vma_close(struct vm_area_struct *vma)
@@ -173,7 +164,7 @@ static struct vm_operations_struct mmap_ops = {
     .close = simple_vma_close,
 };
 
-static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
+static int shm_mmap(struct file *file, struct vm_area_struct *vma)
 {
     unsigned long length;
     int ret;
@@ -181,14 +172,14 @@ static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
     // check file for private_data pointing to a shmem_data entry, fail if not
     // this must have been set by the ioctl ATTACH
 
-    dbg("%s(%ld) , prviate_data=0x%x", __func__, 
+    dbg("%s(%ld) , private_data=0x%lx",
+	__func__, 
 	vma->vm_end - vma->vm_start,
-	file->private_data
-	);
+	(unsigned long)file->private_data);
 
     length = vma->vm_end - vma->vm_start;
 
-    ret = rtapishm_get_memory(length, NULL);
+    ret = shm_get_memory(length, NULL);
     if (ret != 0) {
         err( "%s: Couldn't allocate shared memory for user space", __func__);
         return(ret);
@@ -214,7 +205,7 @@ static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
  * This function is called whenever a process which has already opened the
  * device file attempts to read from it.
  */
-static ssize_t rtapishm_read(struct file *file, char __user * buffer, size_t length,
+static ssize_t shm_read(struct file *file, char __user * buffer, size_t length,
 			     loff_t * offset)
 {
     info("%s: len %d, offset %d", __func__, length, (int)(*offset));
@@ -237,227 +228,161 @@ static ssize_t rtapishm_read(struct file *file, char __user * buffer, size_t len
     return(length);
 }
 
-static int rtapishm_close(struct inode* inode, struct file* filp)
+static int shm_close(struct inode* inode, struct file* filp)
 {
     dbg("");
     return 0;
 }
 
-static long rtapishm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     int ret = 0;
     int val;
-    struct rtapishm_ioctlmsg sm; 
+    struct shm_ioctlmsg sm; 
 
-    //    mutex_lock(&rtapishm_sysfs_mutex);
+    //    mutex_lock(&shm_sysfs_mutex);
 
     switch(cmd) {
-    case IOC_RTAPISHM_EXISTS:
+    case IOC_SHM_EXISTS:
 	ret = copy_from_user(&val, (char *)arg, sizeof(int));
 
 	dbg("EXISTS: %d (ret=%d)", val, ret);
 	break;
 
-    case IOC_RTAPISHM_CREATE:
-	ret = copy_from_user(&sm, (char *)arg, sizeof(struct rtapishm_ioctlmsg));
+    case IOC_SHM_CREATE:
+	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
 	dbg("CREATE: id=%d size=%d (ret=%d)", sm.id, sm.size, ret);
 
 	//ret = put_user(dev->rcache, (int __user *)arg);
 	break;
 
-    case IOC_RTAPISHM_ATTACH:
+    case IOC_SHM_ATTACH:
 	dbg("ATTACH");
 
 	sm.id = 4711;
 	sm.size = 4096;
-	ret = copy_to_user((char *)arg, &sm, sizeof(struct rtapishm_ioctlmsg));
-	file->private_data = 0x01020304;
+	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
+	file->private_data = (void *) 0x01020304;
 	break;
 
-    case IOC_RTAPISHM_DELETE:
+    case IOC_SHM_DELETE:
 	break;
 
     default:
 	ret = -EINVAL;
     }
-    //    mutex_unlock(&rtapishm_sysfs_mutex);
+    //    mutex_unlock(&shm_sysfs_mutex);
     return ret;
 }
 
 
-static int major;
-static struct class *class_rtapishm;
-static struct device *dev_rtapishm;
-
 static struct file_operations fileops = {
     .owner = THIS_MODULE,
-    .read = rtapishm_read,
-    .release = rtapishm_close,
-    .unlocked_ioctl = rtapishm_unlocked_ioctl,
-    .mmap = rtapishm_mmap,
+    .read = shm_read,
+    .release = shm_close,
+    .unlocked_ioctl = shm_unlocked_ioctl,
+    .mmap = shm_mmap,
 };
 
-static ssize_t sys_add_to_fifo(struct device* dev, struct device_attribute* attr, const char* buf, size_t count)
+static struct miscdevice shm_misc_dev = {
+	.minor	= MISC_DYNAMIC_MINOR,
+	.name	= DEVICE_NAME,
+	.fops	= &fileops,
+};
+
+
+static ssize_t sys_status(struct device* dev, struct device_attribute* attr, 
+			  const char* buf, size_t count)
 {
+    int ret;
     dbg("");
-    return count;
+    spin_lock_irq(&shm_lock);
+    ret = snprintf(buf, PAGE_SIZE, "%u\n", 0x4711);
+    spin_unlock_irq(&shm_lock);
+
+    return ret;
 }
 
-static ssize_t sys_reset(struct device* dev, struct device_attribute* attr, const char* buf, size_t count)
+static DEVICE_ATTR(status, S_IRUGO, sys_status, NULL);
+
+static struct attribute *shmdrv_sysfs_attrs[] = {
+	&dev_attr_status.attr,
+	NULL,
+};
+
+static const struct attribute_group shmdrv_sysfs_attr_group = {
+	.attrs = shmdrv_sysfs_attrs,
+};
+
+
+void shm_cleanup_module(void)
 {
     dbg("");
-    return count;
-}
 
-/* Declare the sysfs entries. The macros create instances of dev_attr_fifo and dev_attr_reset */
-static DEVICE_ATTR(fifo, S_IWUSR, NULL, sys_add_to_fifo);
-static DEVICE_ATTR(reset, S_IWUSR, NULL, sys_reset);
-
-
-/*
- * Set up the char_dev structure for this device.
- */
-static void rtapishm_setup_cdev(struct shm_dev *dev, int index)
-{
-    int err, devno = MKDEV(major, index);
-
-    cdev_init(&dev->cdev, &fileops);
-    dev->cdev.owner = THIS_MODULE;
-    dev->cdev.ops = &fileops;
-    err = cdev_add (&dev->cdev, devno, 1);
-    /* Fail gracefully if need be */
-    if (err)
-	warn("Error %d adding %s%d", err,  DEVICE_NAME, index);
-}
-
-void rtapishm_cleanup_module(void)
-{
-    int i ;
-    struct device *dev;
-    dev_t devno = MKDEV(major, 0);
-    dbg("");
-
-    /* Get rid of our char dev entries */
     if (devices) {
-	for (i = 0; i < count; i++) {
-	    cdev_del(&devices[i].cdev);
-	    dev = devices[i].rtapishm_device;
-	    device_destroy(class_rtapishm, MKDEV(major, i));
-	    dbg("device_destroy %s%d done", DEVICE_NAME, i);
-	}
+
 	kfree(devices);
 	dbg("devices freed");
     }
-
-    unregister_chrdev_region(devno, count);
-
-    if (class_rtapishm) {
-	class_unregister(class_rtapishm);
-	class_destroy(class_rtapishm);
-	dbg("class_destroy done");
-    }
 }
 
-void init_shmemdata(shmem_data *shmem_array)
-{
-    int n,m;
-    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
-	shmem_array[n].key = 0;
-	shmem_array[n].rtusers = 0;
-	shmem_array[n].ulusers = 0;
-	shmem_array[n].size = 0;
-	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) {
-	    shmem_array[n].bitmap[m] = 0;
-	}
-    }
-}
+/* void init_shmemdata(shmem_data *shmem_array) */
+/* { */
+/*     int n,m; */
+/*     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) { */
+/* 	shmem_array[n].key = 0; */
+/* 	shmem_array[n].rtusers = 0; */
+/* 	shmem_array[n].ulusers = 0; */
+/* 	shmem_array[n].size = 0; */
+/* 	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) { */
+/* 	    shmem_array[n].bitmap[m] = 0; */
+/* 	} */
+/*     } */
+/* } */
 
 
-static int rtapishm_init(void) {
-    void *ptr_err = NULL;
-    int retval, i;
+static int shmdrv_init(void) {
+    int retval;
+    struct device *this_device;
 
     dbg("");
 
-    if ((major = register_chrdev(0, DEVICE_NAME, &fileops)) < 0) {
-	err("failed to register device: error %d\n", major);
-	goto failed_chrdevreg;
+    retval =  misc_register(&shm_misc_dev);
+    if (retval) {
+	err("misc_register failed");
+	return retval;
     }
 
-    class_rtapishm = class_create(THIS_MODULE, CLASS_NAME);
-    if (IS_ERR(ptr_err = class_rtapishm)) {
-	err("failed to register device class '%s'\n", CLASS_NAME);
-	retval = PTR_ERR(class_rtapishm);
-	goto failed_classreg;
+    /* Create the sysfs files */
+    this_device = shm_misc_dev.this_device;
+
+    //    dev_set_drvdata(this_device, priv); // ??
+    retval = sysfs_create_group(&this_device->kobj, &shmdrv_sysfs_attr_group);
+    if (retval) {
+	err("Unable to create sysfs files: %d", retval);
+	misc_deregister(&shm_misc_dev);
+	return retval;
     }
 
-    devices = kzalloc(count * sizeof(struct shm_dev), GFP_KERNEL);
-    if (!devices) {
-	err("cant kzalloc shm_dev\n");
-	retval = -ENOMEM;
-	goto failed_chrdevreg;
-    }
-
-    for (i = 0; i < count; i++) {
-	rtapishm_setup_cdev(&devices[i], i);
-	devices[i].rtapishm_device = 
-	    device_create(class_rtapishm, NULL, MKDEV(major, i), 
-			  NULL, DEVICE_NAME "%u", i );
-	if (IS_ERR(devices[i].rtapishm_device)) {
-	    err("failed to create device '%s%d'\n", CLASS_NAME, i);
-	    retval = PTR_ERR(devices[i].rtapishm_device);
-	    goto failed_devreg;
-	}
-	init_shmemdata(devices[i].shmem);
-    }
-
-#if 0
-    dev_rtapishm = device_create(class_rtapishm, NULL, MKDEV(major, 0), NULL, DEVICE_NAME);
-    if (IS_ERR(ptr_err = dev_rtapishm)) {
-	err("failed to create device '%s_%s'", CLASS_NAME, DEVICE_NAME);
-	retval = PTR_ERR(dev_rtapishm);
-	goto failed_devreg;
-    }
-    /* Now we can create the sysfs endpoints (don't care about errors).
-     * dev_attr_fifo and dev_attr_reset come from the DEVICE_ATTR(...) earlier */
-    retval = device_create_file(dev_rtapishm, &dev_attr_fifo);
-    if (retval < 0) {
-	warn("failed to create write /sys endpoint - continuing without");
-    }
-    retval = device_create_file(dev_rtapishm, &dev_attr_reset);
-    if (retval < 0) {
-	warn("failed to create reset /sys endpoint - continuing without");
-    }
-#endif
-
-    spin_lock_init(&rtapishm_lock);
-
-    /* struct kobject *play_with_this = &dev_rtapishm->kobj; */
+    spin_lock_init(&shm_lock);
 
     return 0;
- failed_devreg:
-    /* class_destroy(class_rtapishm); */
- failed_classreg:
-    /* unregister_chrdev(major, DEVICE_NAME); */
-    rtapishm_cleanup_module();
-
- failed_chrdevreg:
-    return PTR_ERR(ptr_err);
 }
 
-static void rtapishm_exit(void) 
+static void shmdrv_exit(void) 
 {
     dbg("");
 
     if (allocArea) {
         kfree(allocArea);
     }
-    rtapishm_cleanup_module();
+    // shm_cleanup_module();
+    misc_deregister(&shm_misc_dev);
 }
 
 MODULE_AUTHOR(AUTHOR);
 MODULE_DESCRIPTION(DESCRIPTION);
 MODULE_VERSION(VERSION);
 MODULE_LICENSE("GPL");
-module_init(rtapishm_init);
-module_exit(rtapishm_exit);
+module_init(shmdrv_init);
+module_exit(shmdrv_exit);

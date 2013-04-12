@@ -242,9 +242,9 @@ RT_CFLAGS += -DSHMDEBUG \
 
 INCLUDES += rtapi/smemdrv
 
-obj-m += rtapishm.o
-rtapishm-objs := rtapi/smemdrv/rtapishm.o
-../rtlib/rtapishm$(MODULE_EXT): $(addprefix objects/rt,$(rtapishm-objs))
+obj-m += shmdrv.o
+shmdrv-objs := rtapi/smemdrv/shmdrv.o
+../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
 
 INCLUDES += rtapi/smemdrv/testmod
 

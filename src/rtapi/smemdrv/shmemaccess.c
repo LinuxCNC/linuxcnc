@@ -12,27 +12,11 @@
 #include <errno.h>
 #include <string.h>
 
-#include "rtapishm.h"
-static const char *devName = "/dev/shm0";
+#include "shmdrv.h"
+static const char *devName = DEVICE_NAME;
 static int shmemLength;
 static void *shmem;
 
-
-#if 0
-
-struct rtapishm_ioctlmsg {
-    int  id;
-    size_t size;
-    void *addr;
-};
-
-#define RTAPISHM_IOC_MAGIC    'r'
-
-#define IOC_RTAPISHM_EXISTS   _IOR(RTAPISHM_IOC_MAGIC, 1, int)
-#define IOC_RTAPISHM_CREATE   _IOR(RTAPISHM_IOC_MAGIC, 2, struct rtapishm_ioctlmsg)
-#define IOC_RTAPISHM_ATTACH   _IOW(RTAPISHM_IOC_MAGIC, 3, struct rtapishm_ioctlmsg)
-#define IOC_RTAPISHM_DELETE   _IOR(RTAPISHM_IOC_MAGIC, 4, struct rtapishm_ioctlmsg)
-#endif
 
 /*
  * Get a pointer to the shared memory block of specified length.
@@ -42,7 +26,7 @@ void *ShmemGet(int length)
     FILE *fp;
     int fd;
     int arg;
-    struct rtapishm_ioctlmsg sm; 
+    struct shm_ioctlmsg sm; 
 
     fp = fopen(devName, "r+");
     if (!fp) {
@@ -52,21 +36,21 @@ void *ShmemGet(int length)
     fd = fileno(fp);
 
     arg = 47;
-    if (ioctl(fd, IOC_RTAPISHM_EXISTS, &arg)) {
-	perror("IOC_RTAPISHM_EXISTS");
+    if (ioctl(fd, IOC_SHM_EXISTS, &arg)) {
+	perror("IOC_SHM_EXISTS");
     }
-    sm.id = 123;
+    sm.key = 123;
     sm.size = 252000;
     sm.addr = NULL;
 
-    if (ioctl(fd, IOC_RTAPISHM_CREATE, &sm)) {
-	perror("IOC_RTAPISHM_CREATE");
+    if (ioctl(fd, IOC_SHM_CREATE, &sm)) {
+	perror("IOC_SHM_CREATE");
     }
 
-    if (ioctl(fd, IOC_RTAPISHM_ATTACH, &sm)) {
-	perror("IOC_RTAPISHM_ATTACH");
+    if (ioctl(fd, IOC_SHM_ATTACH, &sm)) {
+	perror("IOC_SHM_ATTACH");
     }
-    printf("attach id=%d size=%d\n", sm.id, sm.size);
+    printf("attach key=%x id=%d size=%d\n", sm.key,sm.id, sm.size);
 
     shmem = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fd, 0);
     if (shmem == (void *)MAP_FAILED) {
