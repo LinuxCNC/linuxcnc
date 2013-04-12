@@ -264,5 +264,19 @@ CLIENT_OBJS := $(call TOOBJS, $(CLIENT_SRCS))
 USERSRCS += $(CLIENT_SRCS) #rtapi/smemdrv/embshmem.c rtapi/smemdrv/testmod/test_embshmem.c
 TARGETS += ../bin/client
 
+
+
+$(call TOOBJSDEPS, $(TESTCLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
+
+TESTCLIENT_SRCS =  rtapi/smemdrv/testclient.c rtapi/smemdrv/shmemaccess.c
+TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
+
+../bin/testclient: $(TESTCLIENT_OBJS)  
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^
+
+USERSRCS += $(TESTCLIENT_SRCS)
+TARGETS += ../bin/testclient
+
 endif
 

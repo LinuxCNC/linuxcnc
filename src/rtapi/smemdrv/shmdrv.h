@@ -35,20 +35,22 @@ extern void ShmemRelease(void);
 #endif // !__KERNEL__
 
 
-
 struct shm_ioctlmsg {
     int  key;
-    int id;
     size_t size;
+    size_t act_size;
     void *addr;
     int flags;
+    int id;
+    int n_kattach;
+    int n_uattach;
 };
 
 #define SHM_IOC_MAGIC    'r'
 
-#define IOC_SHM_EXISTS   _IOR(SHM_IOC_MAGIC, 1, int)
-#define IOC_SHM_CREATE   _IOR(SHM_IOC_MAGIC, 2, struct shm_ioctlmsg)
-#define IOC_SHM_ATTACH   _IOW(SHM_IOC_MAGIC, 3, struct shm_ioctlmsg)
+#define IOC_SHM_STATUS   _IOWR(SHM_IOC_MAGIC, 1, struct shm_ioctlmsg)
+#define IOC_SHM_CREATE   _IOWR(SHM_IOC_MAGIC, 2, struct shm_ioctlmsg)
+#define IOC_SHM_ATTACH   _IOWR(SHM_IOC_MAGIC, 3, struct shm_ioctlmsg)
 #define IOC_SHM_DELETE   _IOR(SHM_IOC_MAGIC, 4, struct shm_ioctlmsg)
 
 

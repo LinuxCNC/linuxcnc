@@ -18,14 +18,14 @@ static int shmemLength;
 static void *shmem;
 
 
+static int fd;
+
 /*
  * Get a pointer to the shared memory block of specified length.
  */
 void *ShmemGet(int length)
 {
     FILE *fp;
-    int fd;
-    int arg;
     struct shm_ioctlmsg sm; 
 
     fp = fopen(devName, "r+");
@@ -35,9 +35,11 @@ void *ShmemGet(int length)
     }
     fd = fileno(fp);
 
-    arg = 47;
-    if (ioctl(fd, IOC_SHM_EXISTS, &arg)) {
-	perror("IOC_SHM_EXISTS");
+
+    sm.key = 4711;
+
+    if (ioctl(fd, IOC_SHM_STATUS, &sm)) {
+	perror("IOC_SHM_STATUS");
     }
     sm.key = 123;
     sm.size = 252000;
@@ -50,7 +52,7 @@ void *ShmemGet(int length)
     if (ioctl(fd, IOC_SHM_ATTACH, &sm)) {
 	perror("IOC_SHM_ATTACH");
     }
-    printf("attach key=%x id=%d size=%d\n", sm.key,sm.id, sm.size);
+    printf("attach key=%x size=%d\n", sm.key,sm.size);
 
     shmem = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fd, 0);
     if (shmem == (void *)MAP_FAILED) {
@@ -71,7 +73,15 @@ void *ShmemGet(int length)
  */
 void ShmemRelease(void)
 {
+    struct shm_ioctlmsg sm; 
+
     if (shmem) {
+	sm.key = 4711;
+
+	if (ioctl(fd, IOC_SHM_DELETE, &sm)) {
+	    perror("IOC_SHM_DELETE");
+	}
+
         munmap(shmem, shmemLength);
     }
 }

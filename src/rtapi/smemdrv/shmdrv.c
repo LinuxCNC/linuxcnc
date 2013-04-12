@@ -29,101 +29,143 @@ static bool debug = false;
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable debug info (default: false)");
 
+static int nseg = 200;
+module_param(nseg, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(nseg, "number of shm segments (default: 200)");
 
-/*
- * Device related data.
- */
+/* static int uvmalloc = 1024*1024; */
+/* module_param(vmalloc, int, S_IRUGO | S_IWUSR); */
+/* MODULE_PARM_DESC(vmalloc, "memory size below which to use kmalloc, else use vmalloc; default 1M") */;
 
-struct shm_dev {
-    /* struct cdev cdev; */
-    /* struct device *shm_device; */
-    // shmem_data shmem[RTAPI_MAX_SHMEMS+1];
+
+static int nopen;
+
+struct shm_segment {
+    bool in_use;
+    int key;
+    size_t size;     // requested
+    size_t act_size; // aligned
+    int n_kattach;
+    int n_uattach;
+    void *kmem;
 };
 
-static struct shm_dev *devices;
+static struct shm_segment  *shm_segments;
 
 /*
  * allocArea is the memory block that we allocate, of which memArea points to the
  * bit we actually use.
  */
-static void *allocArea;
-static void *memArea;
-static int memLength;
+/* static void *allocArea; */
+/* static void *memArea; */
+/* static int memLength; */
 static spinlock_t shm_lock;
 
-//int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
-// int _rtapi_shmem_getptr(int handle, void **ptr) {
-//int _rtapi_shmem_delete(int handle, int module_id) {
 
+/**********************************************************************
+ *
+ * Memory management
+ *
+ **********************************************************************/
+static void *rvmalloc(unsigned long size)
+{
+        void *mem;
+        unsigned long adr;
 
+        size = PAGE_ALIGN(size);
+        mem = vmalloc_32(size);
+        if (!mem)
+                return NULL;
+
+        memset(mem, 0, size); /* Clear the ram out, no junk to the user */
+        adr = (unsigned long) mem;
+        while (size > 0) {
+                SetPageReserved(vmalloc_to_page((void *)adr));
+                adr += PAGE_SIZE;
+                size -= PAGE_SIZE;
+        }
+
+        return mem;
+}
+
+static void rvfree(void *mem, unsigned long size)
+{
+        unsigned long adr;
+
+        if (!mem)
+                return;
+
+        adr = (unsigned long) mem;
+        while ((long) size > 0) {
+                ClearPageReserved(vmalloc_to_page((void *)adr));
+                adr += PAGE_SIZE;
+                size -= PAGE_SIZE;
+        }
+        vfree(mem);
+}
+
+#if 0
 /*
- * Allocate the shared memory.  This is called directly by other kernel routines that access
- * the shared memory, and indirectly by user space via shm_mmap.
+ * Allocate the shared memory. 
  */
 extern int shm_get_memory(int length, void **pointer)
 {
     int i;
 
+    void *newAllocArea;
+    void *newMemArea;
+    unsigned long irqState;
+    int memSize;
+
     /*
-     * If the shared memory hasn't already been allocated, then allocate it.
+     * For the memory mapping, we'll need to allocate a whole number of pages, so we'll need to
+     * round the size up.  Then we need it to start on a page boundary, and as we don't know
+     * where kmalloc will put things, we need to add almost a whole extra page so that we can
+     * be sure we can find an area of the correct length somewhere in the page.
      */
-    if (!memArea) {
-        void *newAllocArea;
-        void *newMemArea;
-        unsigned long irqState;
-        int memSize;
-
-        /*
-         * For the memory mapping, we'll need to allocate a whole number of pages, so we'll need to
-         * round the size up.  Then we need it to start on a page boundary, and as we don't know
-         * where kmalloc will put things, we need to add almost a whole extra page so that we can
-         * be sure we can find an area of the correct length somewhere in the page.
-         */
-        length = (length + PAGE_SIZE + 1) & PAGE_MASK;
-        memSize = length + PAGE_SIZE - 1;
-        newAllocArea = kmalloc(memSize, GFP_KERNEL);
-        if (!newAllocArea) {
-            err("Couldn't allocate memory to share");
-            return(-ENOMEM);
-        }
-
-        /*
-         * memArea is the page aligned area we actually use.
-         */
-        newMemArea = (void *)(((unsigned long)newAllocArea + PAGE_SIZE - 1) & PAGE_MASK);
-        memset(newMemArea, 0, length);
-        info("%s: allocArea %p, memArea %p, size %x", __func__, newAllocArea, 
-	     newMemArea, memSize);
-
-        /*
-         * Mark the pages as reserved.
-         */
-        for (i = 0; i < memSize; i+= PAGE_SIZE) {
-	    SetPageReserved(virt_to_page(newMemArea + i));
-        }
-
-        /*
-         * While we were doing that, it's possible that someone else has got in and already
-         * allocated the memory.  So check for that, and if so discard the memory we allocated.
-         */
-        spin_lock_irqsave(&shm_lock, irqState);
-        if (memArea) {
-            /*
-             * Free the memory we just allocated.
-             */
-            spin_unlock_irqrestore(&shm_lock, irqState);
-            kfree(newAllocArea);
-        } else {
-            /*
-             * We still need some memory, so save the stuff we have.
-             */
-            memArea = newMemArea;
-            allocArea = newAllocArea;
-            memLength = length;
-            spin_unlock_irqrestore(&shm_lock, irqState);
-        }
+    length = (length + PAGE_SIZE + 1) & PAGE_MASK;
+    memSize = length + PAGE_SIZE - 1;
+    newAllocArea = kmalloc(memSize, GFP_KERNEL);
+    if (!newAllocArea) {
+	err("Couldn't allocate memory to share");
+	return(-ENOMEM);
     }
 
+    /*
+     * memArea is the page aligned area we actually use.
+     */
+    newMemArea = (void *)(((unsigned long)newAllocArea + PAGE_SIZE - 1) & PAGE_MASK);
+    memset(newMemArea, 0, length);
+    info("%s: allocArea %p, memArea %p, size %x", __func__, newAllocArea, 
+	 newMemArea, memSize);
+
+    /*
+     * Mark the pages as reserved.
+     */
+    for (i = 0; i < memSize; i+= PAGE_SIZE) {
+	SetPageReserved(virt_to_page(newMemArea + i));
+    }
+
+    /*
+     * While we were doing that, it's possible that someone else has got in and already
+     * allocated the memory.  So check for that, and if so discard the memory we allocated.
+     */
+    spin_lock_irqsave(&shm_lock, irqState);
+    if (memArea) {
+	/*
+	 * Free the memory we just allocated.
+	 */
+	spin_unlock_irqrestore(&shm_lock, irqState);
+	kfree(newAllocArea);
+    } else {
+	/*
+	 * We still need some memory, so save the stuff we have.
+	 */
+	memArea = newMemArea;
+	allocArea = newAllocArea;
+	memLength = length;
+	spin_unlock_irqrestore(&shm_lock, irqState);
+    }
     /*
      * We now have an allocated area - check that it's the right length.
      */
@@ -142,65 +184,113 @@ extern int shm_get_memory(int length, void **pointer)
 
     return(0);
 }
-EXPORT_SYMBOL(shm_get_memory);
+// EXPORT_SYMBOL(shm_get_memory);
+#endif
 
-static void simple_vma_open(struct vm_area_struct *vma)
+static void shmdrv_vma_open(struct vm_area_struct *vma)
 {
-    dbg("VMA open, virt %lx, phys %lx length %ld private=%lx\n",
+    int segno = (int) vma->vm_private_data;
+    struct shm_segment *seg = &shm_segments[segno];
+
+    dbg("VMA open, virt %lx, phys %lx length %ld segno=%d\n",
 	vma->vm_start, 
 	vma->vm_pgoff << PAGE_SHIFT,
 	vma->vm_end - vma->vm_start,
-	(unsigned long) vma->vm_private_data);
-    // increase refcount here
+	segno);
+
+    seg->n_uattach++;
 }
-static void simple_vma_close(struct vm_area_struct *vma)
+
+static void shmdrv_vma_close(struct vm_area_struct *vma)
 {
-    printk("VMA close releasing %p, private_data = %p\n", vma, vma->vm_private_data);
-    // decrease refcount here
+    int segno = (int) vma->vm_private_data;
+    struct shm_segment *seg = &shm_segments[segno];
+
+    printk("VMA close releasing %p, segno=%d\n", vma, segno);
+    seg->n_uattach--;
 }
 
 static struct vm_operations_struct mmap_ops = {
-    .open = simple_vma_open,
-    .close = simple_vma_close,
+    .open = shmdrv_vma_open,
+    .close = shmdrv_vma_close,
 };
 
 static int shm_mmap(struct file *file, struct vm_area_struct *vma)
 {
-    unsigned long length;
+    int length, segno;
     int ret;
+    struct shm_segment *seg;
 
     // check file for private_data pointing to a shmem_data entry, fail if not
     // this must have been set by the ioctl ATTACH
+    segno = (int) file->private_data;
 
-    dbg("%s(%ld) , private_data=0x%lx",
+    dbg("%s(%ld) , segno=%d",
 	__func__, 
 	vma->vm_end - vma->vm_start,
-	(unsigned long)file->private_data);
+	segno);
 
+    if (segno == -1) {
+	err("no segment associated with file");
+	return -EINVAL;
+    }
+
+    if ((segno < 0) || (segno > nseg-1)) {
+	err("invalid segmend index  %d, nseg=%d", segno, nseg);
+	return -EINVAL;
+    }
+
+    seg = &shm_segments[segno];
     length = vma->vm_end - vma->vm_start;
 
+    if (length > seg->size) {
+	err("segment %d: map size %d greater than segment size %d", 
+	    segno, length,seg->size);
+	return -EINVAL;
+    }
+   if (!seg->in_use) {
+       err("BUG: segment %d not in use", segno);
+	return -EINVAL;
+    }
+   if (!seg->kmem) {
+       err("BUG: segment %d kmem == NULL", segno);
+	return -EINVAL;
+    }
+
+#if 0
     ret = shm_get_memory(length, NULL);
     if (ret != 0) {
         err( "%s: Couldn't allocate shared memory for user space", __func__);
         return(ret);
     }
-
+#endif
     /*
      * Map the allocated memory into the calling processes address space.
      */
-    ret = remap_pfn_range(vma, vma->vm_start, virt_to_phys((void *)memArea) >> PAGE_SHIFT,
+    ret = remap_pfn_range(vma, vma->vm_start, 
+			  virt_to_phys((void *)seg->kmem) >> PAGE_SHIFT,
 			  length, vma->vm_page_prot);
     if (ret < 0) {
         err( "%s: remap of shared memory failed, %d", __func__, ret);
         return(ret);
     }
-    // make vma->vm_private_data point to the shmem entry
+    vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
     vma->vm_ops = &mmap_ops;
-    simple_vma_open(vma);
+    shmdrv_vma_open(vma);
 
     return(0);
 }
 
+static int shm_open(struct inode* inode, struct file* filp)
+{
+    filp->private_data = (void *) -1; // no valid segment associated
+
+    dbg("");
+    nopen++;
+    return 0;
+}
+
+#if 0
 /* 
  * This function is called whenever a process which has already opened the
  * device file attempts to read from it.
@@ -227,58 +317,191 @@ static ssize_t shm_read(struct file *file, char __user * buffer, size_t length,
 
     return(length);
 }
-
+#endif
 static int shm_close(struct inode* inode, struct file* filp)
 {
     dbg("");
+    nopen--;
     return 0;
+}
+
+static int find_shm_by_key(int key)
+{
+    int i;
+    struct shm_segment *segs = shm_segments;
+
+    for(i = 0; i < nseg; i++) {
+	if (segs[i].in_use && (key == segs[i].in_use))
+	    return i;
+    }
+    return -ENOENT;
+}
+
+static int find_free_shm_lot(void)
+{
+    int i;
+    struct shm_segment *segs = shm_segments;
+
+    for(i = 0; i < nseg; i++) {
+	if (!segs[i].in_use)
+	    return i;
+    }
+    return -EINVAL;
+}
+
+int free_segments(void)
+{
+    int n;
+    int fail = 0;
+    for (n = 0; n < nseg; n++) {
+	if (shm_segments[n].in_use) {
+	    if (shm_segments[n].n_kattach || 
+		shm_segments[n].n_uattach) {
+		err("segment %d still in use userattach=%d kattach=%d",
+		    n, shm_segments[n].n_uattach, shm_segments[n].n_kattach);
+		fail++;
+		continue;
+	    }
+	    rvfree(shm_segments[n].kmem, shm_segments[n].size);
+	}
+    }
+    return fail;
+}
+
+void init_shmemdata(void)
+{
+    int n;
+    for (n = 0; n < nseg; n++) {
+	shm_segments[n].in_use = 0;
+	shm_segments[n].key = 0;
+	shm_segments[n].size = 0;
+	shm_segments[n].act_size = 0;
+	shm_segments[n].n_kattach = 0;
+	shm_segments[n].n_uattach = 0;
+	shm_segments[n].kmem = 0;
+    }
 }
 
 static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     int ret = 0;
-    int val;
     struct shm_ioctlmsg sm; 
+    struct shm_segment *seg;
+    unsigned long irqState;
 
-    //    mutex_lock(&shm_sysfs_mutex);
+    spin_lock_irqsave(&shm_lock, irqState);
 
     switch(cmd) {
-    case IOC_SHM_EXISTS:
-	ret = copy_from_user(&val, (char *)arg, sizeof(int));
 
-	dbg("EXISTS: %d (ret=%d)", val, ret);
+    case IOC_SHM_STATUS:
+	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
+	if (ret < 0) {
+	    err("IOC_SHM_STATUS: copy_from_user %d", ret);
+	    goto done;
+	}
+	ret = find_shm_by_key(sm.key);
+	if (ret < 0) {
+	    err("IOC_SHM_STATUS: segemnt %x does not exist", ret);
+	    goto done;
+	}
+	seg = &shm_segments[ret];
+	sm.id = ret;
+	sm.n_kattach = seg->n_kattach;
+	sm.n_uattach = seg->n_uattach;
+	sm.size = seg->size;
+	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
+	if (ret < 0) {
+	    err("IOC_SHM_STATUS: copy_to_user %d", ret);
+	}
 	break;
 
     case IOC_SHM_CREATE:
 	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
-	dbg("CREATE: id=%d size=%d (ret=%d)", sm.id, sm.size, ret);
+	if (ret < 0) {
+	    err("IOC_SHM_CREATE: copy_from_user %d", ret);
+ 	    goto done;
+	}
+	ret = find_shm_by_key(sm.key);
+	if (ret > -1) {
+	    dbg("CREATE: shm segment exists: key=%x pos=%d", sm.key, ret);
+	    goto done;
+	}
+	ret = find_free_shm_lot();
+	if (ret < 0) {
+	    err("IOC_SHM_CREATE: all slots full, use larger nseg param (%d)", nseg);
+	    goto done;
+	}
+	seg = &shm_segments[ret];
+	seg->size = sm.size;
+	seg->kmem = rvmalloc(seg->size);
+	if (seg->kmem == NULL) {
+	    err("CREATE: rvmalloc fail size=%d", seg->size);
+	    ret = -ENOMEM;
+	    goto done;
+	}
+	seg->in_use = 1;
+	seg->key = sm.key;
+	file->private_data = (void *) ret; // record shm id for ensuing mmap
 
-	//ret = put_user(dev->rcache, (int __user *)arg);
+	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
+	if (ret < 0) {
+	    err("IOC_SHM_CREATE: copy_to_user %d", ret);
+	}
 	break;
 
     case IOC_SHM_ATTACH:
-	dbg("ATTACH");
+	// ch
+	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
+	if (ret < 0) {
+	    err("IOC_SHM_ATTACH: copy_from_user %d", ret);
+	    goto done;
+	}
+	ret = find_shm_by_key(sm.key);
+	if (ret < 0) {
+	    dbg("ATTACH: shm segment does not exist: key=%x pos=%d", sm.key, ret);
+	    goto done;
+	}
+	sm.id = ret;
+	seg = &shm_segments[ret];
+	sm.size =seg->size;
+	sm.n_kattach = seg->n_kattach;
+	sm.n_uattach = seg->n_uattach;
 
-	sm.id = 4711;
-	sm.size = 4096;
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
-	file->private_data = (void *) 0x01020304;
+	if (ret < 0) {
+	    err("IOC_SHM_ATTACH: copy_to_user %d", ret);
+	    goto done;
+	}
+	file->private_data = (void *) ret; // record shm id for ensuing mmap
 	break;
 
     case IOC_SHM_DELETE:
+	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
+	if (ret < 0) {
+	    err("IOC_SHM_DELETE: copy_from_user %d", ret);
+	    goto done;
+	}
+	ret = find_shm_by_key(sm.key);
+	if (ret < 0) {
+	    dbg("DELETE: shm segment does not exist: key=%x pos=%d", sm.key, ret);
+	    goto done;
+	}
+	// actually delete it
 	break;
 
     default:
 	ret = -EINVAL;
     }
-    //    mutex_unlock(&shm_sysfs_mutex);
+ done:
+    spin_unlock_irqrestore(&shm_lock, irqState);
     return ret;
 }
 
 
 static struct file_operations fileops = {
     .owner = THIS_MODULE,
-    .read = shm_read,
+    .open = shm_open,
+    //  .read = shm_read,
     .release = shm_close,
     .unlocked_ioctl = shm_unlocked_ioctl,
     .mmap = shm_mmap,
@@ -292,10 +515,11 @@ static struct miscdevice shm_misc_dev = {
 
 
 static ssize_t sys_status(struct device* dev, struct device_attribute* attr, 
-			  const char* buf, size_t count)
+			  char* buf, size_t count)
 {
     int ret;
     dbg("");
+
     spin_lock_irq(&shm_lock);
     ret = snprintf(buf, PAGE_SIZE, "%u\n", 0x4711);
     spin_unlock_irq(&shm_lock);
@@ -315,37 +539,20 @@ static const struct attribute_group shmdrv_sysfs_attr_group = {
 };
 
 
-void shm_cleanup_module(void)
-{
-    dbg("");
-
-    if (devices) {
-
-	kfree(devices);
-	dbg("devices freed");
-    }
-}
-
-/* void init_shmemdata(shmem_data *shmem_array) */
-/* { */
-/*     int n,m; */
-/*     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) { */
-/* 	shmem_array[n].key = 0; */
-/* 	shmem_array[n].rtusers = 0; */
-/* 	shmem_array[n].ulusers = 0; */
-/* 	shmem_array[n].size = 0; */
-/* 	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) { */
-/* 	    shmem_array[n].bitmap[m] = 0; */
-/* 	} */
-/*     } */
-/* } */
-
 
 static int shmdrv_init(void) {
     int retval;
     struct device *this_device;
 
     dbg("");
+
+    shm_segments = kzalloc(nseg * sizeof(struct shm_segment), GFP_KERNEL);
+    if (!shm_segments) {
+	err("cant kzalloc %d shm segment descriptors", nseg);
+	return -ENOMEM;
+    }
+
+    init_shmemdata();
 
     retval =  misc_register(&shm_misc_dev);
     if (retval) {
@@ -371,12 +578,21 @@ static int shmdrv_init(void) {
 
 static void shmdrv_exit(void) 
 {
+    int ret;
+
     dbg("");
 
-    if (allocArea) {
-        kfree(allocArea);
+    ret = free_segments();
+    if (ret) {
+	err("%d segments still in use", ret);
+	return -EBUSY;
     }
-    // shm_cleanup_module();
+    if (shm_segments)
+        kfree(shm_segments);
+
+    /* if (allocArea) */
+    /*     kfree(allocArea); */
+
     misc_deregister(&shm_misc_dev);
 }
 
@@ -386,3 +602,64 @@ MODULE_VERSION(VERSION);
 MODULE_LICENSE("GPL");
 module_init(shmdrv_init);
 module_exit(shmdrv_exit);
+
+
+//int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
+// int _rtapi_shmem_getptr(int handle, void **ptr) {
+//int _rtapi_shmem_delete(int handle, int module_id) {
+
+#if 0
+> I am trying to map a vmalloc kernel buffer to user
+> space using remap_page_range(). In my module, this
+> function returns success if we call mmap() from user
+> space, but i can not access content of vmalloc buffer
+> from user space. Pointer returned by mmap() syscall
+> seems pointing to other memory page which contains
+> zeros. I am using linux 2.6.10 kernel on Pentium 4
+> system.
+
+Look for "rvmalloc" in various drivers in the kernel source tree:
+you must SetPageReserved before remap_pfn_range (or remap_page_range)
+agrees to map the page, and ClearPageReserved before freeing after.
+
+    // allocate and prepare memory for our buffer
+    my_context->buf = kmalloc(BUFFER_SIZE, GFP_KERNEL);
+    /* mark pages reserved so that remap_pfn_range works */
+    for (vaddr = (unsigned long)my_context->buf;
+         vaddr < (unsigned long)my_context->buf + BUFFER_SIZE;
+         vaddr += PAGE_SIZE)
+        SetPageReserved(virt_to_page(vaddr));
+
+    /* clear pages reserved */
+    for (vaddr = (unsigned long)my_context->buf;
+         vaddr < (unsigned long)my_context->buf + BUFFER_SIZE;
+         vaddr += PAGE_SIZE)
+        ClearPageReserved(virt_to_page(vaddr));
+
+    kfree(my_context->buf);
+
+/*
+ * Guarantee that the kmalloc'd memory is cacheline aligned.
+ */
+void *
+xpc_kmalloc_cacheline_aligned(size_t size, gfp_t flags, void **base)
+{
+        /* see if kmalloc will give us cachline aligned memory by default */
+        *base = kmalloc(size, flags);
+        if (*base == NULL)
+                return NULL;
+
+        if ((u64)*base == L1_CACHE_ALIGN((u64)*base))
+                return *base;
+
+        kfree(*base);
+
+        /* nope, we'll have to do it ourselves */
+        *base = kmalloc(size + L1_CACHE_BYTES, flags);
+        if (*base == NULL)
+                return NULL;
+
+        return (void *)L1_CACHE_ALIGN((u64)*base);
+}
+
+#endif
