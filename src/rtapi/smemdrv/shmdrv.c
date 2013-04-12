@@ -22,6 +22,7 @@
 #include <linux/miscdevice.h>
 #include <linux/device.h>
 #include <linux/ioctl.h>
+#include <linux/sched.h> 
 
 #include "shmdrv.h"
 
@@ -46,55 +47,62 @@ struct shm_segment {
     size_t act_size; // aligned
     int n_kattach;
     int n_uattach;
+    int creator;  // pid or 0 for kernel
     void *kmem;
 };
 
 static struct shm_segment  *shm_segments;
 static spinlock_t shm_lock;
 
-static void *rvmalloc(unsigned long size)
+static int shm_malloc(struct shm_segment *seg)
 {
     void *mem;
     unsigned long adr;
+    size_t size;
 
-    size = PAGE_ALIGN(size);
+    size = PAGE_ALIGN(seg->size);
     mem = vmalloc_32(size);
     if (!mem)
-	return NULL;
+	return -ENOMEM;
 
-    memset(mem, 0, size); /* Clear the ram out, no junk to the user */
+    seg->act_size = size;
+    memset(mem, 0, size); 
     adr = (unsigned long) mem;
     while (size > 0) {
 	SetPageReserved(vmalloc_to_page((void *)adr));
 	adr += PAGE_SIZE;
 	size -= PAGE_SIZE;
     }
-
-    return mem;
+    seg->kmem = mem;
+    return 0;
 }
 
-static void rvfree(void *mem, unsigned long size)
+static void shm_free(struct shm_segment *seg)
 {
     unsigned long adr;
+    size_t size;
 
-    if (!mem)
+    if (!seg->kmem)
 	return;
 
-    adr = (unsigned long) mem;
+    adr = (unsigned long) seg->kmem;
+    size = seg->act_size;
     while ((long) size > 0) {
 	ClearPageReserved(vmalloc_to_page((void *)adr));
 	adr += PAGE_SIZE;
 	size -= PAGE_SIZE;
     }
-    vfree(mem);
+    vfree(seg->kmem);
 }
 
+
+// usage tracking
 static void shmdrv_vma_open(struct vm_area_struct *vma)
 {
     int segno = (int) vma->vm_private_data;
     struct shm_segment *seg = &shm_segments[segno];
 
-    dbg("VMA open, virt %lx, phys %lx length %ld segno=%d\n",
+    info("VMA open, virt %lx, phys %lx length %ld segno=%d",
 	vma->vm_start, 
 	vma->vm_pgoff << PAGE_SHIFT,
 	vma->vm_end - vma->vm_start,
@@ -108,7 +116,7 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
     int segno = (int) vma->vm_private_data;
     struct shm_segment *seg = &shm_segments[segno];
 
-    printk("VMA close releasing %p, segno=%d\n", vma, segno);
+    info("VMA close releasing %p, segno=%d", vma, segno);
     seg->n_uattach--;
 }
 
@@ -198,7 +206,7 @@ static int find_shm_by_key(int key)
     struct shm_segment *segs = shm_segments;
 
     for(i = 0; i < nseg; i++) {
-	if (segs[i].in_use && (key == segs[i].in_use))
+	if (segs[i].in_use && (key == segs[i].key))
 	    return i;
     }
     return -ENOENT;
@@ -219,17 +227,18 @@ static int find_free_shm_lot(void)
 int free_segments(void)
 {
     int n;
+    struct shm_segment *seg;
     int fail = 0;
     for (n = 0; n < nseg; n++) {
-	if (shm_segments[n].in_use) {
-	    if (shm_segments[n].n_kattach || 
-		shm_segments[n].n_uattach) {
+	seg = &shm_segments[n];
+	if (seg->in_use) {
+	    if (seg->n_kattach || seg->n_uattach) {
 		err("segment %d still in use userattach=%d kattach=%d",
-		    n, shm_segments[n].n_uattach, shm_segments[n].n_kattach);
+		    n, seg->n_uattach, seg->n_kattach);
 		fail++;
 		continue;
 	    }
-	    rvfree(shm_segments[n].kmem, shm_segments[n].size);
+	    shm_free(seg);
 	}
     }
     return fail;
@@ -245,6 +254,7 @@ void init_shmemdata(void)
 	shm_segments[n].act_size = 0;
 	shm_segments[n].n_kattach = 0;
 	shm_segments[n].n_uattach = 0;
+	shm_segments[n].creator = -1;
 	shm_segments[n].kmem = 0;
     }
 }
@@ -276,6 +286,8 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	sm.n_kattach = seg->n_kattach;
 	sm.n_uattach = seg->n_uattach;
 	sm.size = seg->size;
+	sm.act_size = seg->act_size;
+	sm.creator = seg->creator;
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
 	if (ret < 0) {
 	    err("IOC_SHM_STATUS: copy_to_user %d", ret);
@@ -300,17 +312,25 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	    goto done;
 	}
 	seg = &shm_segments[segno];
-	seg->size = sm.size;
-	seg->kmem = rvmalloc(seg->size);
-	if (seg->kmem == NULL) {
-	    err("CREATE: rvmalloc fail size=%d", seg->size);
-	    ret = -ENOMEM;
-	    goto done;
-	}
+	seg->creator = current->pid;
 	seg->in_use = 1;
 	seg->key = sm.key;
-	file->private_data = (void *) segno; // record shm id for ensuing mmap
+	seg->n_kattach = 0;
+	seg->n_uattach = 0;
+	seg->size = sm.size;
+	ret = shm_malloc(seg);
+	if (ret) {
+	    err("CREATE: shm_malloc fail size=%d", seg->size);
+	    goto done;
+	}
 
+	file->private_data = (void *) segno; // record shm id for ensuing mmap
+	sm.id = segno;
+	sm.n_kattach = seg->n_kattach;
+	sm.n_uattach = seg->n_uattach;
+	sm.size = seg->size;
+	sm.act_size = seg->act_size;
+	sm.creator = seg->creator;
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
 	if (ret < 0) {
 	    err("IOC_SHM_CREATE: copy_to_user %d", ret);
@@ -320,7 +340,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	break;
 
     case IOC_SHM_ATTACH:
-	// ch
+
 	ret = copy_from_user(&sm, (char *)arg, sizeof(struct shm_ioctlmsg));
 	if (ret < 0) {
 	    err("IOC_SHM_ATTACH: copy_from_user %d", ret);
@@ -336,13 +356,14 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	sm.size =seg->size;
 	sm.n_kattach = seg->n_kattach;
 	sm.n_uattach = seg->n_uattach;
+	sm.creator = seg->creator;
 
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_ioctlmsg));
 	if (ret < 0) {
 	    err("IOC_SHM_ATTACH: copy_to_user %d", ret);
 	    goto done;
 	}
-	file->private_data = (void *) ret; // record shm id for ensuing mmap
+	file->private_data = (void *) sm.id; // record shm id for ensuing mmap
 	ret = 0;
 	break;
 
@@ -384,41 +405,43 @@ static struct miscdevice shm_misc_dev = {
     .fops	= &fileops,
 };
 
-
 static ssize_t sys_status(struct device* dev, struct device_attribute* attr, 
 			  char* buf, size_t count)
 {
     int i;
-    size_t size, left = count - 80; // leave some space for "..." line
+    size_t size, written, left = PAGE_SIZE - 80; // leave some space for "..." line
     struct shm_segment *seg;
+    unsigned long irqState;
 
     dbg("");
+    spin_lock_irqsave(&shm_lock, irqState);
 
-
-    spin_lock_irq(&shm_lock);
-    size = snprintf(buf, PAGE_SIZE, "open fd's: %d\n", nopen);
+    size = scnprintf(buf, left, "open fd's: %d\n", nopen);
     left -= size;
     buf += size;
+    written = size;
     for (i = 0; i < nseg; i++) {
 	seg = &shm_segments[i];
 	if (seg->in_use) {
 	    if (left < 80) {
-		size += snprintf(buf, PAGE_SIZE, "...\n");
+		size = scnprintf(buf, left, "...\n");
 		left -= size;
+		written += size;
 		goto done;
 	    }
-	    size = snprintf(buf, PAGE_SIZE, 
-			    "%d: size=%d aligned=%d ul=%d k=%d mem=%p\n",
-			    i, seg->size, seg->act_size, seg-> n_uattach,
-			    seg->n_kattach, seg->kmem);
+	    size = scnprintf(buf, left,
+			    "%d: key=%d size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
+			     i, seg->key, seg->size, seg->act_size, seg-> n_uattach,
+			     seg->n_kattach, seg->creator, seg->kmem);
 	    left -= size;
+	    written += size;
 	    buf += size;
 	}
     }
 
  done:
-    spin_unlock_irq(&shm_lock);
-    return size;
+    spin_unlock_irqrestore(&shm_lock, irqState);
+    return written;
 }
 
 static DEVICE_ATTR(status, S_IRUGO, sys_status, NULL);
@@ -431,8 +454,6 @@ static struct attribute *shmdrv_sysfs_attrs[] = {
 static const struct attribute_group shmdrv_sysfs_attr_group = {
     .attrs = shmdrv_sysfs_attrs,
 };
-
-
 
 static int shmdrv_init(void) {
     int retval;

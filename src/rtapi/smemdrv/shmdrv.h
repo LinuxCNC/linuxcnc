@@ -44,6 +44,7 @@ struct shm_ioctlmsg {
     int id;
     int n_kattach;
     int n_uattach;
+    int creator;
 };
 
 #define SHM_IOC_MAGIC    'r'

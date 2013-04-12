@@ -53,6 +53,7 @@ int main(int argc, char **argv)
 	printf("actsize = %d \n", sm.act_size);
 	printf("n_uattach = %d \n", sm.n_uattach);
 	printf("n_kattach = %d \n", sm.n_kattach);
+	printf("creator = %d \n", sm.creator);
     }
 
     if (size) {
@@ -67,6 +68,7 @@ int main(int argc, char **argv)
 	    printf("actsize = %d \n", sm.act_size);
 	    printf("n_uattach = %d \n", sm.n_uattach);
 	    printf("n_kattach = %d \n", sm.n_kattach);
+	    printf("creator = %d \n", sm.creator);
 
 	    shmem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, 
 			 fd, 0);
@@ -77,32 +79,35 @@ int main(int argc, char **argv)
 		exit(1);
 	    }
 	    printf("Got shared memory - address %p\n", shmem);
+	    sleep(3600);
 	}
     } else {
 	sm.key = key;
 	if (ioctl(fd, IOC_SHM_ATTACH, &sm)) {
 	    perror("IOC_SHM_ATTACH");
 	} else {
-	    printf("create key = %d \n", key);
+	    printf("attach key = %d \n", key);
 	    printf("id = %d \n", sm.id);
 	    printf("size = %d \n", sm.size);
 	    printf("n_uattach = %d \n", sm.n_uattach);
 	    printf("n_kattach = %d \n", sm.n_kattach);
-
+	    printf("creator = %d \n", sm.creator);
 	}
-	printf("attach key=%x size=%d\n", sm.key,sm.size);
 
-	shmem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fd, 0);
+	shmem = mmap(NULL, sm.size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fd, 0);
 	if (shmem == (void *)MAP_FAILED) {
-	    fprintf(stderr, "Couldn't allocate shared memory.  Error %d\n", errno);
+	    fprintf(stderr, "Couldn't mmap after attach error %d\n", errno);
 	    perror(NULL);
 	    shmem = NULL;
 	    exit(1);
 	}
-	printf("Got shared memory - address %p\n", shmem);
-	sleep(3600);
-    }
+	printf("attached shared memory - address %p\n", shmem);
+	sleep(5);
+	printf("detaching shared memory\n");
+	if (munmap(shmem,sm.size))
+	    perror("munmap");
 
+    }
 
     fclose(fp);
     exit(0);
