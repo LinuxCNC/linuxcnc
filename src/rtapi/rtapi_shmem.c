@@ -24,7 +24,6 @@
 #endif
 
 
-#define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 #define SHM_PERMISSIONS	0666
 
 #ifdef BUILD_SYS_KBUILD
@@ -166,7 +165,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 }
 
 
-int _rtapi_shmem_getptr(int handle, void **ptr) {
+int _rtapi_shmem_getptr(int handle, int instance, void **ptr) {
     shmem_data *shmem;
     if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -183,7 +182,7 @@ int _rtapi_shmem_getptr(int handle, void **ptr) {
 }
 
 
-int _rtapi_shmem_delete(int handle, int module_id) {
+int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     struct shmid_ds d;
     int r1, r2;
     shmem_data *shmem;
@@ -414,7 +413,7 @@ static void check_memlock_limit(const char *where) {
 #endif /* ULAPI */
 
 
-int _rtapi_shmem_delete(int shmem_id, int module_id) {
+int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     shmem_data *shmem;
     int manage_lock;
 
@@ -489,7 +488,7 @@ int _rtapi_shmem_delete(int shmem_id, int module_id) {
     return 0;
 }
 
-int _rtapi_shmem_getptr(int shmem_id, void **ptr) {
+int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr) {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
 	return -EINVAL;
@@ -506,8 +505,16 @@ int _rtapi_shmem_getptr(int shmem_id, void **ptr) {
 #endif  /* BUILD_SYS_KBUILD */
 
 
-// implement rtapi_shmem_new in terms of _rtapi_shmem_new_inst()
+// implement rtapi_shmem_* calls  in terms of _rtapi_shmem_*_inst()
 
 int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
     return _rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
+}
+
+int _rtapi_shmem_getptr(int handle, void **ptr) {
+    return _rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr);
+}
+
+int _rtapi_shmem_delete(int handle, int module_id) {
+    return _rtapi_shmem_delete_inst(handle, rtapi_instance, module_id);
 }

@@ -105,6 +105,7 @@ MODULE_LICENSE("GPL");
 /* random numbers used as signatures */
 #define TASK_MAGIC		21979
 #define MODULE_MAGIC		30812
+#define SHMEM_MAGIC             25453
 
 #define MIN_STACKSIZE		32768
 

@@ -556,8 +556,6 @@ typedef int (*rtapi_shmem_new_inst_t)(int, int, int, unsigned long int);
 extern int _rtapi_shmem_new_inst(int key, int instance, int module_id,
 			    unsigned long int size);
 
-
-
 /** 'rtapi_shmem_delete()' frees the shared memory block associated
     with 'shmem_id'.  'module_id' is the ID of the calling module.
     Returns a status code.  Call only from within user or init/cleanup
@@ -568,6 +566,12 @@ typedef int (*rtapi_shmem_delete_t)(int, int);
     rtapi_switch->rtapi_shmem_delete(shmem_id, module_id)
 extern int _rtapi_shmem_delete(int shmem_id, int module_id);
 
+typedef int (*rtapi_shmem_delete_inst_t)(int, int, int);
+#define rtapi_shmem_delete_inst(shmem_id, instance, module_id)	\
+    rtapi_switch->rtapi_shmem_delete_inst(shmem_id, instance, module_id)
+extern int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
+
+
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
@@ -576,6 +580,11 @@ typedef int (*rtapi_shmem_getptr_t)(int, void **);
 #define rtapi_shmem_getptr(shmem_id, ptr)		\
     rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
 extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
+
+typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **);
+#define rtapi_shmem_getptr_inst(shmem_id, instance, ptr)	\
+    rtapi_switch->rtapi_shmem_getptr_inst(shmem_id, instance, ptr)
+extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr);
 
 /***********************************************************************
 *                        Ringbuffer related functions                  *
@@ -745,7 +754,9 @@ typedef struct {
     rtapi_shmem_new_t rtapi_shmem_new;
     rtapi_shmem_new_inst_t rtapi_shmem_new_inst;
     rtapi_shmem_delete_t rtapi_shmem_delete;
+    rtapi_shmem_delete_inst_t rtapi_shmem_delete_inst;
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
+    rtapi_shmem_getptr_inst_t rtapi_shmem_getptr_inst;
 
     // ringbuffer functions
     rtapi_ring_new_t rtapi_ring_new;
