@@ -36,6 +36,8 @@ static int count = 10;
 module_param(count, int, S_IRUGO);
 MODULE_PARM_DESC(count, "number of rtapi shm devices to create");
 
+//static DEFINE_MUTEX(rtapishm_lock); //FIXME
+
 /*
  * Device related data.
  */
@@ -58,6 +60,11 @@ static void *allocArea;
 static void *memArea;
 static int memLength;
 static spinlock_t rtapishm_lock;
+
+//int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
+// int _rtapi_shmem_getptr(int handle, void **ptr) {
+//int _rtapi_shmem_delete(int handle, int module_id) {
+
 
 /*
  * Allocate the shared memory.  This is called directly by other kernel routines that access
@@ -171,7 +178,13 @@ static int rtapishm_mmap(struct file *file, struct vm_area_struct *vma)
     unsigned long length;
     int ret;
 
-    printk(KERN_ERR "%s(%ld):", __func__, vma->vm_end - vma->vm_start);
+    // check file for private_data pointing to a shmem_data entry, fail if not
+    // this must have been set by the ioctl ATTACH
+
+    dbg("%s(%ld) , prviate_data=0x%x", __func__, 
+	vma->vm_end - vma->vm_start,
+	file->private_data
+	);
 
     length = vma->vm_end - vma->vm_start;
 
@@ -236,36 +249,36 @@ static long rtapishm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigne
     int val;
     struct rtapishm_ioctlmsg sm; 
 
-
     //    mutex_lock(&rtapishm_sysfs_mutex);
-
-    // copy_to_user((char *)arg, buf, 200);
-    // copy_from_user(buf, (char *)arg, len);
 
     switch(cmd) {
     case IOC_RTAPISHM_EXISTS:
 	ret = copy_from_user(&val, (char *)arg, sizeof(int));
 
 	dbg("EXISTS: %d (ret=%d)", val, ret);
-
-	return -ENOENT;
 	break;
+
     case IOC_RTAPISHM_CREATE:
 	ret = copy_from_user(&sm, (char *)arg, sizeof(struct rtapishm_ioctlmsg));
 	dbg("CREATE: id=%d size=%d (ret=%d)", sm.id, sm.size, ret);
 
 	//ret = put_user(dev->rcache, (int __user *)arg);
 	break;
+
     case IOC_RTAPISHM_ATTACH:
+	dbg("ATTACH");
+
 	sm.id = 4711;
 	sm.size = 4096;
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct rtapishm_ioctlmsg));
+	file->private_data = 0x01020304;
 	break;
+
     case IOC_RTAPISHM_DELETE:
 	break;
 
     default:
-	return -EINVAL;
+	ret = -EINVAL;
     }
     //    mutex_unlock(&rtapishm_sysfs_mutex);
     return ret;
