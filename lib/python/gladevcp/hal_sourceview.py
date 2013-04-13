@@ -46,7 +46,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
         self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
-        self.set_mark_category_background('motion', gtk.gdk.Color('#f44'))
+        self.set_mark_category_background('motion', gtk.gdk.Color('#ff0'))
 
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
