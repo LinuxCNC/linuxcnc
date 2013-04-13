@@ -444,10 +444,10 @@ AC_ARG_ENABLE(simulator,
                 SIMULATOR=yes
                 dnl RTS=simulator
 		THREADS=posix
-                dnl BUILD_SYS=user-dso
-		dnl BUILD_DRIVERS=no
-                dnl MODEXT=.so
-                dnl MODULE_DIR=${prefix}/lib/linuxcnc/modules
+                BUILD_SYS=user-dso
+		BUILD_DRIVERS=no
+                MODEXT=.so
+                MODULE_DIR=${prefix}/lib/linuxcnc/modules
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
