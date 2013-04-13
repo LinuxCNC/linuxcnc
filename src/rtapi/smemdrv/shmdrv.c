@@ -152,13 +152,13 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
 
     seg = &shm_segments[segno];
     length = vma->vm_end - vma->vm_start;
-#if 0
-    if (length > seg->size) {
+
+    if (length > seg->act_size) {
 	err("segment %d: map size %d greater than segment size %d", 
 	    segno, length,seg->size);
 	return -EINVAL;
     }
-#endif
+
     if (!seg->in_use) {
 	err("BUG: segment %d not in use", segno);
 	return -EINVAL;
@@ -229,6 +229,7 @@ int free_segments(void)
     int n;
     struct shm_segment *seg;
     int fail = 0;
+
     for (n = 0; n < nseg; n++) {
 	seg = &shm_segments[n];
 	if (seg->in_use) {
@@ -247,15 +248,18 @@ int free_segments(void)
 void init_shmemdata(void)
 {
     int n;
+    struct shm_segment *seg;
+
     for (n = 0; n < nseg; n++) {
-	shm_segments[n].in_use = 0;
-	shm_segments[n].key = 0;
-	shm_segments[n].size = 0;
-	shm_segments[n].act_size = 0;
-	shm_segments[n].n_kattach = 0;
-	shm_segments[n].n_uattach = 0;
-	shm_segments[n].creator = -1;
-	shm_segments[n].kmem = 0;
+	seg = &shm_segments[n];
+	seg->in_use = 0;
+	seg->key = 0;
+	seg->size = 0;
+	seg->act_size = 0;
+	seg->n_kattach = 0;
+	seg->n_uattach = 0;
+	seg->creator = -1;
+	seg->kmem = 0;
     }
 }
 
@@ -412,11 +416,28 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
     size_t size, written, left = PAGE_SIZE - 80; // leave some space for "..." line
     struct shm_segment *seg;
     unsigned long irqState;
+    int nsegments = 0;
+    int total_alloc = 0;
+    int total_alloc_aligned = 0;
+    int kattach = 0, uattach = 0;
 
     dbg("");
     spin_lock_irqsave(&shm_lock, irqState);
 
-    size = scnprintf(buf, left, "open fd's: %d\n", nopen);
+    // stats
+    for (i = 0; i < nseg; i++) {
+	seg = &shm_segments[i];
+	if (seg->in_use) {
+	    nsegments++;
+	    total_alloc += seg->size;
+	    total_alloc_aligned += seg->act_size;
+	    uattach += seg->n_uattach;
+	    kattach += seg->n_kattach;
+	}
+    }
+    size = scnprintf(buf, left, 
+		     "%d segment(s), open=%d uattach=%d kattach=%d total=%d aligned=%d\n", 
+		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned);
     left -= size;
     buf += size;
     written = size;
@@ -430,8 +451,9 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 		goto done;
 	    }
 	    size = scnprintf(buf, left,
-			    "%d: key=%d size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
-			     i, seg->key, seg->size, seg->act_size, seg-> n_uattach,
+			    "%d: key=%d/0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
+			     i, seg->key, seg->key, seg->size, seg->act_size, 
+			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);
 	    left -= size;
 	    written += size;

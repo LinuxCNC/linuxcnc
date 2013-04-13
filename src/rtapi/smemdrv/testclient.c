@@ -24,6 +24,18 @@ static int fd;
 int key = 4711;
 int size;
 
+void shmstatus(struct shm_ioctlmsg *sm, const char *tag)
+{
+    printf("%skey = %d (0x%x)\n", tag, sm->key,sm->key);
+    printf("id = %d \n", sm->id);
+    printf("size = %d \n", sm->size);
+    printf("act_size = %d \n", sm->act_size);
+    printf("n_uattach = %d \n", sm->n_uattach);
+    printf("n_kattach = %d \n", sm->n_kattach);
+    printf("creator = %d \n", sm->creator);
+}
+
+
 int main(int argc, char **argv)
 {
     FILE *fp;
@@ -47,13 +59,7 @@ int main(int argc, char **argv)
     if (ioctl(fd, IOC_SHM_STATUS, &sm)) {
 	perror("IOC_SHM_STATUS");
     } else {
-	printf("status key = %d \n", key);
-	printf("id = %d \n", sm.id);
-	printf("size = %d \n", sm.size);
-	printf("actsize = %d \n", sm.act_size);
-	printf("n_uattach = %d \n", sm.n_uattach);
-	printf("n_kattach = %d \n", sm.n_kattach);
-	printf("creator = %d \n", sm.creator);
+	shmstatus(&sm, "post IOC_SHM_STATUS\n");
     }
 
     if (size) {
@@ -62,13 +68,7 @@ int main(int argc, char **argv)
 	if (ioctl(fd, IOC_SHM_CREATE, &sm)) {
 	    perror("IOC_SHM_CREATE");
 	} else {
-	    printf("create key = %d \n", key);
-	    printf("id = %d \n", sm.id);
-	    printf("size = %d \n", sm.size);
-	    printf("actsize = %d \n", sm.act_size);
-	    printf("n_uattach = %d \n", sm.n_uattach);
-	    printf("n_kattach = %d \n", sm.n_kattach);
-	    printf("creator = %d \n", sm.creator);
+	    shmstatus(&sm, "post IOC_SHM_CREATE\n");
 
 	    shmem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, 
 			 fd, 0);
@@ -86,12 +86,7 @@ int main(int argc, char **argv)
 	if (ioctl(fd, IOC_SHM_ATTACH, &sm)) {
 	    perror("IOC_SHM_ATTACH");
 	} else {
-	    printf("attach key = %d \n", key);
-	    printf("id = %d \n", sm.id);
-	    printf("size = %d \n", sm.size);
-	    printf("n_uattach = %d \n", sm.n_uattach);
-	    printf("n_kattach = %d \n", sm.n_kattach);
-	    printf("creator = %d \n", sm.creator);
+	    shmstatus(&sm, "post IOC_SHM_ATTACH\n");
 	}
 
 	shmem = mmap(NULL, sm.size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fd, 0);
