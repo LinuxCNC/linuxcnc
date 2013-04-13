@@ -1,0 +1,2 @@
+
+KERNEL=="shmdrv", MODE="0666"

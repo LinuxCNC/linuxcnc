@@ -26,7 +26,7 @@ static int fd;
 void *ShmemGet(int length)
 {
     FILE *fp;
-    struct shm_ioctlmsg sm; 
+    struct shm_status sm; 
 
     fp = fopen(devName, "r+");
     if (!fp) {
@@ -73,14 +73,14 @@ void *ShmemGet(int length)
  */
 void ShmemRelease(void)
 {
-    struct shm_ioctlmsg sm; 
+    //struct shm_status sm; 
 
     if (shmem) {
-	sm.key = 4711;
+	/* sm.key = 4711; */
 
-	if (ioctl(fd, IOC_SHM_DELETE, &sm)) {
-	    perror("IOC_SHM_DELETE");
-	}
+	/* if (ioctl(fd, IOC_SHM_DETACH, &sm)) { */
+	/*     perror("IOC_SHM_DETACH"); */
+	/* } */
 
         munmap(shmem, shmemLength);
     }

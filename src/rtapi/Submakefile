@@ -232,43 +232,24 @@ TARGETS += ../bin/rtapi_msgd
 #  Status: public domain
 #
 ##################################################################
-ifeq ($(BUILD_SYS),kbuild)
+#ifeq ($(BUILD_SYS),kbuild)
 
 RT_CFLAGS += -DSHMDEBUG \
-	-I$(BASEPWD)/rtapi/smemdrv \
-	-I$(BASEPWD)/rtapi/smemdrv/testmod
-
-#RT_LDFLAGS += 
-
-INCLUDES += rtapi/smemdrv
+	-I$(BASEPWD)/rtapi/shmdrv
+INCLUDES += rtapi/shmdrv
 
 obj-m += shmdrv.o
-shmdrv-objs := rtapi/smemdrv/shmdrv.o
+shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
 
-INCLUDES += rtapi/smemdrv/testmod
-
-obj-m += test_embshmem.o
-test_embshmem-objs := rtapi/smemdrv/testmod/test_embshmem.o
-../rtlib/test_embshmem$(MODULE_EXT): $(addprefix objects/rt,$(test_embshmem-objs))
-
-$(call TOOBJSDEPS, $(CLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
-
-CLIENT_SRCS =  rtapi/smemdrv/client.cc rtapi/smemdrv/shmemaccess.c
-CLIENT_OBJS := $(call TOOBJS, $(CLIENT_SRCS))
-
-../bin/client: $(CLIENT_OBJS)  
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  -lstdc++
-
-USERSRCS += $(CLIENT_SRCS) #rtapi/smemdrv/embshmem.c rtapi/smemdrv/testmod/test_embshmem.c
-TARGETS += ../bin/client
-
+obj-m += testshmdrv.o
+testshmdrv-objs := rtapi/shmdrv/testshmdrv.o
+../rtlib/testshmdrv$(MODULE_EXT): $(addprefix objects/rt,$(testshmdrv-objs))
 
 
 $(call TOOBJSDEPS, $(TESTCLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
 
-TESTCLIENT_SRCS =  rtapi/smemdrv/testclient.c rtapi/smemdrv/shmemaccess.c
+TESTCLIENT_SRCS =  rtapi/shmdrv/testclient.c rtapi/shmdrv/shmdrvapi.c
 TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
 
 ../bin/testclient: $(TESTCLIENT_OBJS)  
@@ -278,5 +259,5 @@ TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
 USERSRCS += $(TESTCLIENT_SRCS)
 TARGETS += ../bin/testclient
 
-endif
+#endif
 

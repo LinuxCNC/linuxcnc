@@ -12,7 +12,16 @@
 #include <linux/timer.h>
 
 #include "shmdrv.h"
-#include "testembshmem.h"
+#include "testshmdrv.h"
+
+static int key = 1234;
+module_param(key, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(key, "segment id to attach to, or create; default 1234");
+
+static int size = 23423;
+module_param(size, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(size, "segment size");
+
 
 #define TICK_TIME_MS 100
 
@@ -52,8 +61,27 @@ void smemtest_timer_callback( unsigned long data )
 static int smemtest_init(void) 
 {
     int ret;
-    
+    struct shm_status sm;
+
     printk(KERN_ERR "%s: module initialising\n", __func__);
+
+    sm.key = key;
+    ret = shmdrv_status(&sm);
+    if (ret) { // segment doesnt exist
+	sm.size = size;
+	ret = shmdrv_create(&sm);
+	if (ret < 0) {
+	    err("cant create segment key=%d/%x", sm.key, sm.key);
+	    return ret;
+	}
+	// created ok
+    }
+    // shm segment exists, attach
+    ret = shmdrv_attach(&sm, (void **) &shmem);
+    if (ret) {
+	err("cant attach to segment key=%d/%x", sm.key, sm.key);
+	return ret;
+    }
 
     setup_timer(&testTimer, smemtest_timer_callback, 0);
     ret = mod_timer(&testTimer, jiffies + msecs_to_jiffies(TICK_TIME_MS));
@@ -70,22 +98,29 @@ static int smemtest_init(void)
 
     INIT_WORK(&work, smemtest_work);
 
-    ret = shm_get_memory(sizeof(struct ShmemStruct), (void **)&shmem);
-    if (ret) {
-        printk(KERN_CRIT "%s: Failed to get shared memory, error %d\n", __func__, ret);
-    }
+    info("module init ok");
 
     return(ret);
 }
-    
+
 static void smemtest_exit(void) 
 {
+    struct shm_status sm;
+    int ret;
+
     exiting = true;
     flush_workqueue(workqueue);
     destroy_workqueue(workqueue);
     del_timer_sync(&testTimer);
 
-    printk("<1>%s: module exiting\n", __func__);
+    if (shmem) {
+	sm.key = key;
+	ret = shmdrv_detach(&sm);
+	if (ret) {
+	    err("cant detach segment key=%d/%x", sm.key, sm.key);
+	}
+    }
+    info("module exiting");
 }
 
 MODULE_LICENSE("GPL");
