@@ -239,7 +239,7 @@ RT_CFLAGS += -DSHMDEBUG \
 	-I$(BASEPWD)/rtapi/shmdrv
 INCLUDES += rtapi/shmdrv
 
-ifeq ($(USE_SHMDRV),FOO) # disable for now
+ifeq ($(USE_SHMDRV),yes)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))

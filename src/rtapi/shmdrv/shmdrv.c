@@ -23,6 +23,8 @@
 #include <linux/device.h>
 #include <linux/ioctl.h>
 #include <linux/sched.h> 
+#include <linux/kallsyms.h>
+#include <linux/string.h>
 
 #include "shmdrv.h"
 
@@ -129,9 +131,14 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
     seg->n_uattach--;
 }
 
+//see http://stackoverflow.com/questions/654393/examining-mmaped-addresses-using-gdb
+// needed to get gdb to work on mmap'ed segments
+// since generic_access_phys() isnt exported, we need to patch it in in
+// the init code
 static struct vm_operations_struct mmap_ops = {
     .open = shmdrv_vma_open,
     .close = shmdrv_vma_close,
+    .access = 0,
 };
 
 static int shm_mmap(struct file *file, struct vm_area_struct *vma)
@@ -163,8 +170,8 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     length = vma->vm_end - vma->vm_start;
 
     if (length > seg->act_size) {
-	err("segment %d: map size %d greater than segment size %d", 
-	    segno, length,seg->size);
+	err("segment %d: map size %d greater than segment size %d/%d",
+	    segno, length,seg->act_size,seg->size);
 	return -EINVAL;
     }
 
@@ -188,7 +195,8 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
     vma->vm_ops = &mmap_ops;
     shmdrv_vma_open(vma);  // track usage
-
+    info("mmap seg %d size %d key %d/%x at %p",
+	 segno, seg->size, seg->key, seg->key, seg->kmem);
     return(0);
 }
 
@@ -362,6 +370,7 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
 	goto done;
     }
     seg = &shm_segments[ret];
+    shmstat->id = ret;
 
     // dont increment n_uattach, this will be handled during mmap()
     if (!pid) 
@@ -550,16 +559,18 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 
 	ret = shmdrv_attach_pid(&sm, NULL, current->pid);
 	if (ret < 0) {
-	    dbg("IOC_SHM_ATTACH: shm segment does not exist: key=%d ret=%d", sm.key, ret);
+	    err("IOC_SHM_ATTACH: shm segment does not exist: key=%d ret=%d", sm.key, ret);
 	    goto done;
 	}
-	sm.id = ret;
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_status));
 	if (ret < 0) {
 	    err("IOC_SHM_ATTACH: copy_to_user %d", ret);
 	    goto done;
 	}
 	file->private_data = (void *) sm.id; // record shm id for ensuing mmap
+	seg = &shm_segments[sm.id];
+	info("attached seg %d size %d key %d/%x at %p",
+	    sm.id, seg->size, seg->key, seg->key, seg->kmem);
 	ret = 0;
 	break;
 
@@ -661,6 +672,19 @@ static const struct attribute_group shmdrv_sysfs_attr_group = {
 static int shmdrv_init(void) {
     int retval;
     struct device *this_device;
+
+#if 0
+    char *sym_name = "generic_access_phys";
+    unsigned long sym_addr = 0;
+    // this oopses in gdb
+    sym_addr = kallsyms_lookup_name(sym_name);
+    if (sym_addr == 0)
+	err("symbol %s not found, debugging shm segments with gdb wont workd",sym_name);
+    else {
+	mmap_ops.access = (void *)sym_addr;
+	info("%s: found - debugging of shared memory segments enabled",sym_name);
+    }
+#endif
 
     dbg("");
 
