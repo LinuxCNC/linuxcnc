@@ -102,6 +102,9 @@ XENO_CONFIG=@XENO_CONFIG@
 
 USERMODE_PCI=@USERMODE_PCI@
 
+# shared memory kernel driver
+USE_SHMDRV=@USE_SHMDRV@
+
 # Google protobuf
 USE_PROTOBUF=@USE_PROTOBUF@
 

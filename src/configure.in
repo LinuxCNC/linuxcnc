@@ -368,6 +368,28 @@ AC_ARG_ENABLE(examples,
       BUILD_EXAMPLES=no
     ])
 
+AC_MSG_CHECKING(whether to use the common shared memory driver)
+AC_ARG_ENABLE(shmdrv,
+    [  --enable-shmdrv      use the common shared memory driver kernel module],
+    [
+        case "$enableval" in
+            Y*|y*)
+		USE_SHMDRV=yes
+                AC_MSG_RESULT([explicitly configuring for common shared memory driver kernel module])
+            ;;
+            N*|n*)
+		USE_SHMDRV=no
+                AC_MSG_RESULT([explicitly disabling shared memory driver kernel module])
+            ;;
+        esac
+	if test -z "USE_SHMDRV"; then
+	   AC_MSG_ERROR([ I dont understand $enableval, just yes or no ]) 
+	fi
+    ],
+    [
+      AC_MSG_RESULT([default is no])
+    ])
+
 AC_MSG_CHECKING(whether to build hardware drivers)
 AC_ARG_ENABLE(drivers,
     [  --enable-drivers      Build hardware drivers],
@@ -969,6 +991,11 @@ if test "$BUILD_DRIVERS" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
 AC_SUBST(BUILD_DRIVERS)
+
+if test "$USE_SHMDRV" = yes; then
+   AC_DEFINE(USE_SHMDRV, [], [use shm driver module])
+fi
+AC_SUBST(USE_SHMDRV)
 
 AC_SUBST(USE_PROTOBUF)
 if test "$USE_PROTOBUF" = yes; then
