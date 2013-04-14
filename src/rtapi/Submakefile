@@ -224,20 +224,21 @@ USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
 
 ##################################################################
-#                     the rtapi_shm allocator module
-#                     the test module
+#                     the shmdrv shared memory allocator module
+#                     the testsmdrv test module
 #                     the test client
 #
-#  taken from: http://www.embrisk.com/notes/shmem.html 
+#  loosely based on: http://www.embrisk.com/notes/shmem.html 
 #  Status: public domain
 #
 ##################################################################
-#ifeq ($(BUILD_SYS),kbuild)
+ifeq ($(USE_SHMDRV),yes)
 
 RT_CFLAGS += -DSHMDEBUG \
 	-I$(BASEPWD)/rtapi/shmdrv
 INCLUDES += rtapi/shmdrv
 
+ifeq ($(USE_SHMDRV),FOO) # disable for now
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
@@ -245,19 +246,19 @@ shmdrv-objs := rtapi/shmdrv/shmdrv.o
 obj-m += testshmdrv.o
 testshmdrv-objs := rtapi/shmdrv/testshmdrv.o
 ../rtlib/testshmdrv$(MODULE_EXT): $(addprefix objects/rt,$(testshmdrv-objs))
-
+endif
 
 $(call TOOBJSDEPS, $(TESTCLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
 
 TESTCLIENT_SRCS =  rtapi/shmdrv/testclient.c rtapi/shmdrv/shmdrvapi.c
 TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
 
-../bin/testclient: $(TESTCLIENT_OBJS)  
+../bin/testclient: $(TESTCLIENT_OBJS)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^
 
 USERSRCS += $(TESTCLIENT_SRCS)
 TARGETS += ../bin/testclient
 
-#endif
+endif
 

@@ -16,10 +16,13 @@
 #include <stdlib.h>		/* rand_r() */
 #include <unistd.h>		/* getuid(), getgid(), sysconf(),
 				   ssize_t, _SC_PAGESIZE */
+#include "rtapi/shmdrv/shmdrv.h"
+
 #else  /* BUILD_SYS_KBUILD */
 #  ifdef ULAPI
 #    include <sys/time.h>
 #    include <sys/resource.h>
+#    include "rtapi/shmdrv/shmdrv.h"
 #  endif
 #endif
 
@@ -62,6 +65,7 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 
 int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
+    struct shm_status sm;
     struct shmid_ds d;
     int i, ret;
     int is_new = 0;
@@ -85,53 +89,81 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     }
     shmem = &shmem_array[i];
 
-    /* now get shared memory block from OS */
+    if (shmdrv_available()) {
 
-    // try to attach
-    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
-    if (shmem->id == -1) {
-	if (errno == ENOENT) {
-	    // nope, doesnt exist - create
-	    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
+	sm.driver_fd = shmdrv_driver_fd();
+	sm.key = key;
+	sm.size = size;
+
+	ret = shmdrv_status(&sm); // check if exists
+
+	if (ret) {  // didnt exist, so create
+	    ret = shmdrv_create(&sm);
+	    if (!ret) {
+		rtapi_mutex_give(&(rtapi_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
+		return 0;
+	    }
 	    is_new = 1;
 	}
-	if (shmem->id == -1) {
-	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "Failed to allocate shared memory, "
-			    "key=0x%x size=%ld\n", key, size);
-	    return -ENOMEM;
-	}
-    }
 
-    // get actual user/group and drop to ruid/rgid so removing is
-    // always possible
-    if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) "
-			"failed: %d '%s'\n",
-			key, errno, strerror(errno));
-    } else {
-	// drop permissions of shmseg to real userid/group id
-	if (!d.shm_perm.uid) { // uh, root perms
-	    d.shm_perm.uid = getuid();
-	    d.shm_perm.gid = getgid();
-	    if ((ret = shmctl(shmem->id, IPC_SET, &d)) < 0) {
+	// now attach
+	ret = shmdrv_attach(&sm, &shmem->mem);
+	if (ret) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv attached failed key=0x%x size=%ld\n", key, size);
+	    return 0;
+	}
+    } else { // classic method - sysv IPC
+
+	/* now get shared memory block from OS */
+
+	// try to attach
+	shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
+	if (shmem->id == -1) {
+	    if (errno == ENOENT) {
+		// nope, doesnt exist - create
+		shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
+		is_new = 1;
+	    }
+	    if (shmem->id == -1) {
+		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
-				"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_SET) "
-				"failed: %d '%s'\n",
-				key, errno, strerror(errno));
+				"Failed to allocate shared memory, "
+				"key=0x%x size=%ld\n", key, size);
+		return -ENOMEM;
 	    }
 	}
-    }
-    /* and map it into process space */
-    shmem->mem = shmat(shmem->id, 0, 0);
-    if ((ssize_t) (shmem->mem) == -1) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
-			shmem->id, errno, strerror(errno));
-	return -errno;
+
+	// get actual user/group and drop to ruid/rgid so removing is
+	// always possible
+	if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) "
+			    "failed: %d '%s'\n",
+			    key, errno, strerror(errno));
+	} else {
+	    // drop permissions of shmseg to real userid/group id
+	    if (!d.shm_perm.uid) { // uh, root perms
+		d.shm_perm.uid = getuid();
+		d.shm_perm.gid = getgid();
+		if ((ret = shmctl(shmem->id, IPC_SET, &d)) < 0) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "rtapi_shmem_new: shm_ctl(key=0x%x, IPC_SET) "
+				    "failed: %d '%s'\n",
+				    key, errno, strerror(errno));
+		}
+	    }
+	}
+	/* and map it into process space */
+	shmem->mem = shmat(shmem->id, 0, 0);
+	if ((ssize_t) (shmem->mem) == -1) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
+			    shmem->id, errno, strerror(errno));
+	    return -errno;
+	}
     }
     /* Touch each page by either zeroing the whole mem (if it's a new
        SHM region), or by reading from it. */
@@ -164,8 +196,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     return i;
 }
 
-
-int _rtapi_shmem_getptr(int handle, int instance, void **ptr) {
+int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
     shmem_data *shmem;
     if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -180,7 +211,6 @@ int _rtapi_shmem_getptr(int handle, int instance, void **ptr) {
     *ptr = shmem->mem;
     return 0;
 }
-
 
 int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     struct shmid_ds d;
