@@ -64,6 +64,7 @@ struct shm_segment {
 static int nopen;
 static struct shm_segment  *shm_segments;
 static spinlock_t shm_lock, ll_lock;
+static int  shm_nonstandard_detach(struct shm_segment *segs);
 
 static int shm_malloc(struct shm_segment *seg)
 {
@@ -106,7 +107,6 @@ static void shm_free(struct shm_segment *seg)
     vfree(seg->kmem);
 }
 
-
 // usage tracking
 static void shmdrv_vma_open(struct vm_area_struct *vma)
 {
@@ -124,21 +124,75 @@ static void shmdrv_vma_open(struct vm_area_struct *vma)
 
 static void shmdrv_vma_close(struct vm_area_struct *vma)
 {
+    int ret;
     int segno = (int) vma->vm_private_data;
     struct shm_segment *seg = &shm_segments[segno];
 
     info("VMA close releasing %p, segno=%d", vma, segno);
     seg->n_uattach--;
+    if (gc && ((seg->n_uattach + seg->n_kattach) == 0)) {
+	// last reference gone away, gc true
+	if (seg->flags & OUTBOARD_MASK) {
+	    // a segment type requiring special massage
+	    ret = shm_nonstandard_detach(seg);
+	} else {
+	    // vanilla shm segment
+	    shm_free(seg);
+	    ret = 0;
+	}
+	info("unmap: gc segment %d key=%d/%x", segno, seg->key,seg->key);
+	seg->in_use = 0;
+    }
 }
 
-//see http://stackoverflow.com/questions/654393/examining-mmaped-addresses-using-gdb
+// see http://stackoverflow.com/questions/654393/examining-mmaped-addresses-using-gdb
 // needed to get gdb to work on mmap'ed segments
-// since generic_access_phys() isnt exported, we need to patch it in in
-// the init code
+// actually it doesnt work yet :-/
+
+static int shmdrv_generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
+            void *buf, int len, int write)
+{
+    void __iomem *maddr;
+    struct shm_segment *seg;
+    int segno,offset;
+
+    segno = (int) vma->vm_private_data;
+
+    if ((segno < 0) || (segno > nseg)) {
+	err("segno out of range: %d",segno);
+	return -EINVAL;
+    }
+
+    seg = &shm_segments[segno];
+
+    //int offset = (addr & (PAGE_SIZE-1)) - vma->vm_start;
+    offset = (addr) - vma->vm_start;
+
+    // likely a bug here: gdb doesnt fault anymore, but sees all zeroes
+    // when accessing a mmap()'d segment:
+
+    maddr = phys_to_virt(__pa(seg->kmem));
+    info("%d: maddr %p kmem %p len %d offset %d wr:%d",
+	 segno,maddr, seg->kmem, len,offset, write);
+
+    if (write)
+        memcpy_toio(maddr + offset, buf, len);
+    else
+        memcpy_fromio(buf, maddr + offset, len);
+
+    return len;
+}
+
+static inline int shmdrv_vma_access(struct vm_area_struct *vma, unsigned long addr,
+          void *buf, int len, int write)
+{
+    return shmdrv_generic_access_phys(vma, addr, buf, len, write);
+}
+
 static struct vm_operations_struct mmap_ops = {
-    .open = shmdrv_vma_open,
-    .close = shmdrv_vma_close,
-    .access = 0,
+    .open   = shmdrv_vma_open,
+    .close  = shmdrv_vma_close,
+    .access = shmdrv_vma_access,
 };
 
 static int shm_mmap(struct file *file, struct vm_area_struct *vma)
@@ -481,7 +535,7 @@ int shmdrv_detach(struct shm_status *shmstat)
 	    shm_free(seg);
 	    ret = 0;
 	}
-	err("gc segment %d key=%d/%x", segno, seg->key,seg->key);
+	info("gc segment %d key=%d/%x", segno, seg->key,seg->key);
 	seg->in_use = 0;
     }
  done:
@@ -586,7 +640,6 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
     return ret;
 }
 
-
 static struct file_operations fileops = {
     .owner = THIS_MODULE,
     .open = shm_open,
@@ -672,19 +725,6 @@ static const struct attribute_group shmdrv_sysfs_attr_group = {
 static int shmdrv_init(void) {
     int retval;
     struct device *this_device;
-
-#if 0
-    char *sym_name = "generic_access_phys";
-    unsigned long sym_addr = 0;
-    // this oopses in gdb
-    sym_addr = kallsyms_lookup_name(sym_name);
-    if (sym_addr == 0)
-	err("symbol %s not found, debugging shm segments with gdb wont workd",sym_name);
-    else {
-	mmap_ops.access = (void *)sym_addr;
-	info("%s: found - debugging of shared memory segments enabled",sym_name);
-    }
-#endif
 
     dbg("");
 
