@@ -100,20 +100,20 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 
 	if (ret) {  // didnt exist, so create
 	    ret = shmdrv_create(&sm);
-	    if (!ret) {
+	    if (ret) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
-		return 0;
+		return ret;
 	    }
 	    is_new = 1;
 	}
 
 	// now attach
 	ret = shmdrv_attach(&sm, &shmem->mem);
-	if (ret) {
+	if (ret < 0) {
 	    rtapi_mutex_give(&(rtapi_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv attached failed key=0x%x size=%ld\n", key, size);
-	    return 0;
+	    return ret;
 	}
     } else { // classic method - sysv IPC
 

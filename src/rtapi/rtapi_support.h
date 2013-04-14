@@ -91,6 +91,8 @@ extern int rtapi_get_msg_level(void);
 typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
 				   va_list ap);
 #ifdef RTAPI
+#endif // RTAPI
+
 typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
 
 extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
@@ -98,7 +100,6 @@ extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
 typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 
 extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
-#endif // RTAPI
 
 extern int rtapi_set_logtag(const char *fmt, ...);
 

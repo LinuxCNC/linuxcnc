@@ -95,6 +95,7 @@ static int instance_id;
 static flavor_ptr flavor;
 static const char *rtlibpath = EMC2_RTLIB_DIR;
 static int use_drivers = 0;
+static int foreground;
 
 static rtapi_switch_t *rtsw; // dont collide with rtapi_switch in hal_lib.so
 static global_data_t *gd;    // dont collide with global_data in instance.so
@@ -258,7 +259,7 @@ static int do_load_cmd(string name, vector<string> args) {
 			    strerror(errno));
             return -1;
 	}
-	
+
         void *module = modules[name] = dlopen(what, RTLD_GLOBAL |RTLD_LAZY);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
@@ -490,15 +491,16 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
     int retval;
 
-    pid_t pid = fork();
-    if (pid > 0) { // parent
-	exit(0);
+    if (!foreground) {
+	pid_t pid = fork();
+	if (pid > 0) { // parent
+	    exit(0);
+	}
+	if (pid < 0) { // fork failed
+	    perror("fork");
+	    exit(1);
+	}
     }
-    if (pid < 0) { // fork failed
-	perror("fork");
-	exit(1);
-    }
-
 
     // set new process name
     snprintf(proctitle, sizeof(proctitle), "rtapi:%d",instance_id);
@@ -675,7 +677,7 @@ static void
 exit_handler(void)
 {
     struct rusage rusage;
-	
+
     getrusage(RUSAGE_SELF, &rusage);
     if ((rusage.ru_majflt - majflt) > 0) {
 	// RTAPI already shut down here
@@ -697,14 +699,14 @@ static int harden_rt()
 	rtapi_print_msg(RTAPI_MSG_WARN, 
 		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
 		  strerror(errno));
-    
+
     // even when setuid root
     if (prctl(PR_SET_DUMPABLE, 1) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN, 
 		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
 		  errno, strerror(errno));
-    
-    configure_memory();    
+
+    configure_memory();
 
     if (getrusage(RUSAGE_SELF, &rusage)) {
 	rtapi_print_msg(RTAPI_MSG_WARN, 
@@ -721,7 +723,8 @@ static int harden_rt()
 	}
     }
 
-    setsid(); // Detach from the parent session
+    if (!foreground)
+	setsid(); // Detach from the parent session
 
     sigemptyset( &sig_act.sa_mask );
     sig_act.sa_handler = SIG_IGN; 
@@ -742,7 +745,7 @@ static int harden_rt()
 	// check if this user is member of group xenomai, and fail miserably if not
 	int numgroups;
 	gid_t *grouplist;
-	
+
 	struct group *gp = getgrnam("xenomai");
 	if (gp == NULL) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -751,7 +754,6 @@ static int harden_rt()
 		gd->rtapi_app_pid = 0;
 	    exit(1);
 	}
-  
 	numgroups = getgroups(0,NULL);
 	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
 	if (getgroups( numgroups, grouplist) != -1) {
@@ -775,7 +777,7 @@ static int harden_rt()
 	if (gd)
 	    gd->rtapi_app_pid = 0;
 	exit(1);
-	
+
     is_xenomai_member:
 	sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
 	rt_print_auto_init(1);
@@ -800,13 +802,22 @@ static int harden_rt()
     return 0;
 }
 
+#define RTPRINTBUFFERLEN 1024
+void foreground_rtapi_msg_handler(msg_level_t level, const char *fmt,
+				  va_list ap) {
+    char buf[RTPRINTBUFFERLEN];
+    vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
+    fprintf(stderr, buf);
+}
+
 static void usage(int argc, char **argv) 
 {
     printf("Usage:  %s [options]\n", argv[0]);
 }
 
 static struct option long_options[] = {
-    {"help",  no_argument,       0, 'h'},
+    {"help",  no_argument,          0, 'h'},
+    {"foreground",  no_argument,    0, 'F'},
     {"halsize",  required_argument, 0, 'H'},
     {"usrmsglevel", required_argument, 0, 'u'},
     {"rtmsglevel", required_argument, 0, 'r'},
@@ -825,21 +836,26 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hH:m:I:f:r:u:R:N",
+	c = getopt_long (argc, argv, "hH:m:I:f:r:u:R:NF",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
-     
+
 	switch (c)	{
 
 	case 'D':
 	    use_drivers = 1;
 	    break;
-     
+
+	case 'F':
+	    foreground = 1;
+	    rtapi_set_msg_handler(foreground_rtapi_msg_handler);
+	    break;
+
 	case 'H':
 	    halsize = atoi(optarg);
 	    break;
-     
+
 	case 'u':
 	    usr_msglevel = atoi(optarg);
 	    break;
@@ -874,7 +890,7 @@ int main(int argc, char **argv)
 	    //usage(argc, argv);
 	    exit(1);
 	    break;
-     
+
 	default:
 	    usage(argc, argv);
 	    exit(0);

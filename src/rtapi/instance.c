@@ -444,12 +444,13 @@ static int global_shm_init(key_t key, global_data_t **global_data)
 		rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv create failed key=0x%x size=%d\n", key, size);
 		return retval;
 	    }
+#if 0
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_ERR, 
 			    "INSTANCE:%d global data segment already exists (key=0x%8.8x)\n", 
 			    rtapi_instance, OS_KEY(key,rtapi_instance));
 	    return -EEXIST;
-
+#endif
 	}
 
 	// now attach
