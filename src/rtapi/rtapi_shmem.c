@@ -94,6 +94,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 	sm.driver_fd = shmdrv_driver_fd();
 	sm.key = key;
 	sm.size = size;
+	sm.flags = 0;
 
 	ret = shmdrv_status(&sm); // check if exists
 
@@ -216,6 +217,7 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     struct shmid_ds d;
     int r1, r2;
     shmem_data *shmem;
+    struct shm_status sm;
 
     if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -239,32 +241,47 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
 	return 0;
     }
 
-    /* unmap the shared memory */
-    r1 = shmdt(shmem->mem);
-    if (r1 < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_delete: shmdt(key=0x%x) "
-			"failed: %d '%s'\n",
-			shmem->key, errno, strerror(errno));
-    }
-    /* destroy the shared memory */
-    r2 = shmctl(shmem->id, IPC_STAT, &d);
-    if (r2 < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_delete: shm_ctl(0x%x, IPC_STAT) "
-			"failed: %d '%s'\n",
-			shmem->key, errno, strerror(errno));
-    }
-    if(r2 == 0 && d.shm_nattch == 0) {
-	r2 = shmctl(shmem->id, IPC_RMID, &d);
-	if (r2 < 0) {
+    if (shmdrv_available()) {
+	//sm.key = shmem->key;
+	sm.size = shmem->size;
+	sm.flags = 0;
+
+	r1 = shmdrv_detach(&sm, shmem->mem);
+	if (r1) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv detach failed key=0x%x size=%ld\n", 
+			    shmem->key, shmem->size);
+	    return r1;
+	}
+    } else {
+
+
+	/* unmap the shared memory */
+	r1 = shmdt(shmem->mem);
+	if (r1 < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "rtapi_shmem_delete: shm_ctl(0x%x, IPC_RMID) "
+			    "rtapi_shmem_delete: shmdt(key=0x%x) "
 			    "failed: %d '%s'\n",
 			    shmem->key, errno, strerror(errno));
 	}
+	/* destroy the shared memory */
+	r2 = shmctl(shmem->id, IPC_STAT, &d);
+	if (r2 < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_shmem_delete: shm_ctl(0x%x, IPC_STAT) "
+			    "failed: %d '%s'\n",
+			    shmem->key, errno, strerror(errno));
+	}
+	if(r2 == 0 && d.shm_nattch == 0) {
+	    r2 = shmctl(shmem->id, IPC_RMID, &d);
+	    if (r2 < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"rtapi_shmem_delete: shm_ctl(0x%x, IPC_RMID) "
+				"failed: %d '%s'\n",
+				shmem->key, errno, strerror(errno));
+	    }
+	}
     }
-
     /* free the shmem structure */
     shmem->magic = 0;
 

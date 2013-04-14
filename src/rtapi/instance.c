@@ -27,6 +27,7 @@
 #endif // RTAPI
 #include "rtapi_global.h"       /* global_data_t */
 #include "rtapi_common.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
 #if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
 #include "xenomai-kernel.h"
@@ -348,25 +349,41 @@ static int global_detach_hook() {
 #if defined(ULAPI) || defined(RUN_WITHOUT_REALTIME)
 static int global_shm_attach(key_t key, global_data_t **global_data) 
 {
-    int shm_id;
+    int shm_id, retval;
     int size = sizeof(global_data_t);
     void *rd;
+    struct shm_status sm;
 
-    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_DBG, 
-		  "INSTANCE:%d attach: global data data segment does not exist (0x%8.8x)\n",
-		  rtapi_instance, OS_KEY(key,rtapi_instance));
-	return shm_id;
-    }
+    if (shmdrv_available()) {
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+	sm.key = key;
+	sm.driver_fd = shmdrv_driver_fd();
+	retval = shmdrv_attach(&sm, &rd);
+	if (retval) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
+	    return retval;
+	}
+    } else {
 
-    // and map it into process space 
-    rd = shmat(shm_id, 0, 0);
-    if (((size_t) rd) == -1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d: ERROR shmat(%d) failed: %d - %s\n",
-		  rtapi_instance, shm_id, 
-		  errno, strerror(errno));
-	return -EINVAL;
+	if ((shm_id = shmget(OS_KEY(key,rtapi_instance), 
+			     size, GLOBAL_DATA_PERMISSIONS)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, 
+			    "INSTANCE:%d attach: global data data segment does not exist (0x%8.8x)\n",
+			    rtapi_instance, OS_KEY(key,rtapi_instance));
+	    return shm_id;
+	}
+
+	// and map it into process space 
+	rd = shmat(shm_id, 0, 0);
+	if (((size_t) rd) == -1) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d: ERROR shmat(%d) failed: %d - %s\n",
+			    rtapi_instance, shm_id, 
+			    errno, strerror(errno));
+	    return -EINVAL;
+	}
     }
     *global_data = rd;
     return shm_id;
@@ -376,15 +393,27 @@ static int global_shm_attach(key_t key, global_data_t **global_data)
 #ifdef ULAPI
 static int global_shm_detach(global_data_t *global_data) 
 {
-    int retval;
+    int retval,r1;
+    struct shm_status sm;
 
-    /* unmap the shared memory */
-    retval = shmdt(global_data);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d shmdt(%p) failed: %d - %s\n",
-		  rtapi_instance,global_data, errno, strerror(errno));      
-	return retval;
+    if (shmdrv_available()) {
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+	r1 = shmdrv_detach(&sm, global_data);
+	if (r1) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
+	    return r1;
+	}
+    } else {
+	/* unmap the shared memory */
+	retval = shmdt(global_data);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d shmdt(%p) failed: %d - %s\n",
+			    rtapi_instance,global_data, errno, strerror(errno));      
+	    return retval;
+	}
     }
     return 0;
 }
@@ -397,97 +426,150 @@ static int global_shm_init(key_t key, global_data_t **global_data)
     int size = sizeof(global_data_t);
     struct shmid_ds d;
     void *rd;
+    struct shm_status sm;
 
-    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS)) > -1) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-		  "INSTANCE:%d global data segment already exists (key=0x%8.8x)\n", 
-		  rtapi_instance, OS_KEY(key,rtapi_instance));
-	return -EEXIST;
-    }
-    if (errno != ENOENT) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-		  "INSTANCE:%d shmget(): unexpected - %d - %s\n", 
-		  rtapi_instance, errno,strerror(errno));
-	return -EINVAL;
-    }
-    // nope, doesnt exist - create
-    if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS | IPC_CREAT)) == -1) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-		  "INSTANCE:%d shmget(key=0x%8.8x, IPC_CREAT): %d - %s\n", 
-		  rtapi_instance, key, errno, strerror(errno));
-	return -EINVAL;
-    }
-    // get actual user/group and drop to ruid/rgid so removing is
-    // always possible
-    if ((retval = shmctl(shm_id, IPC_STAT, &d)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d  shm_ctl(key=0x%8.8x, IPC_STAT) failed: %d - %s\n", 
-		  rtapi_instance, key, errno, strerror(errno));  
-	return -EINVAL;
-    } else {
-	// drop permissions of shmseg to real userid/group id
-	if (!d.shm_perm.uid) { // uh, root perms 
-	    d.shm_perm.uid = getuid();
-	    d.shm_perm.gid = getgid();
-	    if ((retval = shmctl(shm_id, IPC_SET, &d)) < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-			  "INSTANCE:%d shm_ctl(key=0x%8.8x, IPC_SET) "
-			  "failed: %d '%s'\n", 
-			  rtapi_instance, key, errno, 
-			  strerror(errno));
-		return -EINVAL;
-	    } 
+    if (shmdrv_available()) {
+
+	sm.driver_fd = shmdrv_driver_fd();
+	sm.key = key;
+	sm.size = size;
+	sm.flags = 0;
+
+	retval = shmdrv_status(&sm); // check if exists
+
+	if (retval) {  // didnt exist, so create
+	    retval = shmdrv_create(&sm);
+	    if (retval) {
+		rtapi_mutex_give(&(rtapi_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv create failed key=0x%x size=%d\n", key, size);
+		return retval;
+	    }
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "INSTANCE:%d global data segment already exists (key=0x%8.8x)\n", 
+			    rtapi_instance, OS_KEY(key,rtapi_instance));
+	    return -EEXIST;
+
 	}
-    }
+
+	// now attach
+	retval = shmdrv_attach(&sm, &rd);
+	if (retval) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv attached failed key=0x%x size=%d\n", key, size);
+	    return retval;
+	}
+	shm_id = sm.id;
+    } else { // classic method - sysv IPC
+	if ((shm_id = shmget(OS_KEY(key,rtapi_instance), 
+			     size, GLOBAL_DATA_PERMISSIONS)) > -1) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "INSTANCE:%d global data segment already exists (key=0x%8.8x)\n", 
+			    rtapi_instance, OS_KEY(key,rtapi_instance));
+	    return -EEXIST;
+	}
+	if (errno != ENOENT) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "INSTANCE:%d shmget(): unexpected - %d - %s\n", 
+			    rtapi_instance, errno,strerror(errno));
+	    return -EINVAL;
+	}
+	// nope, doesnt exist - create
+	if ((shm_id = shmget(OS_KEY(key,rtapi_instance), size, GLOBAL_DATA_PERMISSIONS | IPC_CREAT)) == -1) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+			    "INSTANCE:%d shmget(key=0x%8.8x, IPC_CREAT): %d - %s\n", 
+			    rtapi_instance, key, errno, strerror(errno));
+	    return -EINVAL;
+	}
+	// get actual user/group and drop to ruid/rgid so removing is
+	// always possible
+	if ((retval = shmctl(shm_id, IPC_STAT, &d)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d  shm_ctl(key=0x%8.8x, IPC_STAT) failed: %d - %s\n", 
+			    rtapi_instance, key, errno, strerror(errno));  
+	    return -EINVAL;
+	} else {
+	    // drop permissions of shmseg to real userid/group id
+	    if (!d.shm_perm.uid) { // uh, root perms 
+		d.shm_perm.uid = getuid();
+		d.shm_perm.gid = getgid();
+		if ((retval = shmctl(shm_id, IPC_SET, &d)) < 0) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "INSTANCE:%d shm_ctl(key=0x%8.8x, IPC_SET) "
+				    "failed: %d '%s'\n", 
+				    rtapi_instance, key, errno, 
+				    strerror(errno));
+		    return -EINVAL;
+		} 
+	    }
+	}
   
-    // and map it into process space 
-    rd = shmat(shm_id, 0, 0);
-    if (((size_t) rd) == -1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d shmat(%d) failed: %d - %s\n",
-		  rtapi_instance, shm_id, 
-		  errno, strerror(errno));
-	return -EINVAL;
+	// and map it into process space 
+	rd = shmat(shm_id, 0, 0);
+	if (((size_t) rd) == -1) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d shmat(%d) failed: %d - %s\n",
+			    rtapi_instance, shm_id, 
+			    errno, strerror(errno));
+	    return -EINVAL;
+	}
+
     }
     // Touch each page by zeroing the whole mem
     memset(rd, 0, size);
     *global_data = rd;
     rtapi_print_msg(RTAPI_MSG_DBG, 
-	      "INSTANCE:%d global data data segment created (0x%8.8x)\n",
-	      rtapi_instance, OS_KEY(key,rtapi_instance));
+		    "INSTANCE:%d global data data segment created (0x%8.8x)\n",
+		    rtapi_instance, OS_KEY(key,rtapi_instance));
     return shm_id;
+
 }
 
 static int global_shm_free(int shm_id, global_data_t *global_data) 
 {
     struct shmid_ds d;
     int r1, r2;
+    struct shm_status sm;
 
-    /* unmap the shared memory */
-    r1 = shmdt(global_data);
-    if (r1 < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d shmdt(%p) failed: %d - %s\n",
-		  rtapi_instance,global_data, errno, strerror(errno));      
-	return -EINVAL;
-    }
-    /* destroy the shared memory */
-    r2 = shmctl(shm_id, IPC_STAT, &d);
-    if (r2 < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		  "INSTANCE:%d shm_ctl(%d, IPC_STAT) failed: %d - %s\n", 
-		  rtapi_instance, shm_id, errno, strerror(errno));      
-    }
-    if(r2 == 0 && d.shm_nattch == 0) {
-	r2 = shmctl(shm_id, IPC_RMID, &d);
+    if (shmdrv_available()) {
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+
+	r1 = shmdrv_detach(&sm, global_data);
+	if (r1) {
+	    rtapi_mutex_give(&(rtapi_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
+	    return r1;
+	}
+    } else {
+
+	/* unmap the shared memory */
+	r1 = shmdt(global_data);
+	if (r1 < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d shmdt(%p) failed: %d - %s\n",
+			    rtapi_instance,global_data, errno, strerror(errno));
+	    return -EINVAL;
+	}
+	/* destroy the shared memory */
+	r2 = shmctl(shm_id, IPC_STAT, &d);
 	if (r2 < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		      "INSTANCE:%d shm_ctl(%d, IPC_RMID) failed: %d - %s\n", 
-		     rtapi_instance, shm_id, errno, strerror(errno));   
+			    "INSTANCE:%d shm_ctl(%d, IPC_STAT) failed: %d - %s\n", 
+			    rtapi_instance, shm_id, errno, strerror(errno));
 	}
-    }  
+	if(r2 == 0 && d.shm_nattch == 0) {
+	    r2 = shmctl(shm_id, IPC_RMID, &d);
+	    if (r2 < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"INSTANCE:%d shm_ctl(%d, IPC_RMID) failed: %d - %s\n", 
+				rtapi_instance, shm_id, errno, strerror(errno));
+	    }
+	}
+    }
     return 0;
 }
+
 #endif // RTAPI
 #endif // BUILD_SYS_USER_DSO
 
