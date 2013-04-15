@@ -106,6 +106,7 @@ const char *Interp::interp_status(int status) {
 
 extern struct _inittab builtin_modules[];
 int trace;
+static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr)  
@@ -152,6 +153,7 @@ Interp::Interp()
 
 
 Interp::~Interp() {
+
     if(log_file) {
 	fclose(log_file);
 	log_file = 0;
@@ -734,6 +736,25 @@ int Interp::exit()
                             RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
                             file_name), _setup.parameters);
   reset();
+
+  // interpreter shutdown Python hook
+  if (python_plugin->is_callable(NULL, DELETE_FUNC)) {
+
+      bp::object retval, tupleargs, kwargs;
+      bp::list plist;
+
+      plist.append(_setup.pythis); // self
+      tupleargs = bp::tuple(plist);
+      kwargs = bp::dict();
+
+      python_plugin->call(NULL, DELETE_FUNC, tupleargs, kwargs, retval);
+      if (python_plugin->plugin_status() == PLUGIN_EXCEPTION) {
+	  ERM("pycall(%s):\n%s", INIT_FUNC,
+	      python_plugin->last_exception().c_str());
+	  // this likely wont make it to the UI's any more so bark on stderr
+	  fprintf(stderr, "%s\n",savedError);
+      }
+  }
 
   return INTERP_OK;
 }
@@ -1982,7 +2003,6 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
   }
 }
 
-static char savedError[LINELEN+1];
 void Interp::setError(const char *fmt, ...)
 {
     va_list ap;

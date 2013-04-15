@@ -729,6 +729,7 @@ typedef struct setup_struct
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
 #define INIT_FUNC  "__init__"
+#define DELETE_FUNC  "__delete__"
 
     // task calls upon interp.init() repeatedly
     // protect init() operations which are not idempotent
