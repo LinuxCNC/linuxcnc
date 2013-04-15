@@ -228,8 +228,11 @@ typedef struct {
 /* rtapi_common.c */
 extern rtapi_data_t *rtapi_data;
 
-#if defined(RTAPI) 
+#if defined(RTAPI) || defined(MODULE)
 extern void _init_rtapi_data(rtapi_data_t * data);
+extern void init_global_data(global_data_t * data, 
+			     int instance_id, int hal_size, 
+			     int rtlevel, int userlevel, const char *name);
 #endif
 
 #if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)

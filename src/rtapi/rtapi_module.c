@@ -22,18 +22,41 @@
 #  if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #    include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 #  endif
-
-// exported by instance.c
-extern int hal_size;
-
-// kernel styles do not support multiple instances
-// this just numbers this particular instance to fit with the scheme
-extern int rtapi_instance;
 #endif
 
 extern void init_rtapi_data(rtapi_data_t * data);
 
 #ifdef RTAPI
+MODULE_AUTHOR("Michael Haberler");
+MODULE_DESCRIPTION("RTAP support");
+MODULE_LICENSE("Dual BSD/GPL");
+
+// kernel styles do not support multiple instances
+// this just numbers this particular instance to fit with the scheme
+int rtapi_instance;
+
+static char *instance_name = "";
+static int hal_size = HAL_SIZE;                 // default size of HAL data segment
+static int rt_msg_level = RTAPI_MSG_INFO;	/* initial RT message printing level */ 
+static int user_msg_level = RTAPI_MSG_INFO;	/* initial User message printing level */ 
+
+RTAPI_MP_STRING(instance_name,"name of this instance")
+RTAPI_MP_INT(rtapi_instance, "instance ID");
+RTAPI_MP_INT(hal_size, "size of the HAL data segment");
+RTAPI_MP_INT(rt_msg_level, "debug message level (default=1)");
+RTAPI_MP_INT(user_msg_level, "debug message level (default=1)");
+EXPORT_SYMBOL(rtapi_instance);
+EXPORT_SYMBOL(global_data);
+
+global_data_t *global_data = NULL;
+ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+
+global_data_t *get_global_handle(void)
+{
+    return global_data;
+}
+EXPORT_SYMBOL(get_global_handle);
+
 /* the following are internal functions that do the real work associated
    with deleting tasks, etc.  They do not check the mutex that protects
    the internal data structures.  When someone calls an rtapi_xxx_delete()
@@ -53,45 +76,54 @@ extern void _rtapi_module_master_shared_memory_free(void);
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
 void _rtapi_module_init_hook(void);
 #endif
-extern int global_app_main(void);
-extern void global_app_exit(void);
 
 int init_module(void) {
     int n;
     struct shm_status sm;
     int retval;
 
-    global_app_main();
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
 		    rtapi_instance,
 		    rtapi_get_handle()->thread_flavor_name, 
 		    GIT_VERSION);
-#ifdef USE_SHMDRV
+
+    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    sm.size = sizeof(global_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_create(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: can create global segment: %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+    if ((retval = shmdrv_attach(&sm, (void **)&global_data)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: can attach global segment: %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
 
     sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
     sm.size = sizeof(rtapi_data_t);
     sm.flags = 0;
     if ((retval = shmdrv_create(&sm)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: shmdrv_create() returns %d\n",
+			"RTAPI:%d ERROR: can create rtapi segment: %d\n",
 			rtapi_instance, retval);
 	return -EINVAL;
     }
     if ((retval = shmdrv_attach(&sm, (void **)&rtapi_data)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: shmdrv_create() returns %d\n",
+			"RTAPI:%d ERROR: cant attach rtapi segment: %d\n",
 			rtapi_instance, retval);
 	return -EINVAL;
     }
-#else
-    /* get master shared memory block from OS and save its address */
-    res = _rtapi_module_master_shared_memory_init(&rtapi_data); 
-    if (res) return res;
-#endif
 
     /* perform a global init if needed */
+    /* this will take of any threads hook */
     init_rtapi_data(rtapi_data);
+
     /* check flavor and serial codes */
     if (rtapi_data->thread_flavor_id != THREAD_FLAVOR_ID) {
 	/* mismatch - release master shared memory block */
@@ -102,6 +134,23 @@ int init_module(void) {
 #ifndef USE_SHMDRV
 	_rtapi_module_master_shared_memory_free();
 #endif
+
+	sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+	if ((retval = shmdrv_detach(&sm)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			    rtapi_instance, retval);
+	}
+	sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+	if ((retval = shmdrv_detach(&sm)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			    rtapi_instance, retval);
+	}
 	return -EINVAL;
     }
     if (rtapi_data->serial != RTAPI_SERIAL) {
@@ -225,7 +274,6 @@ void cleanup_module(void) {
     proc_clean();
 #endif
 
-#ifdef USE_SHMDRV
     sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
     sm.size = sizeof(global_data_t);
     sm.flags = 0;
@@ -234,13 +282,16 @@ void cleanup_module(void) {
 			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
 			rtapi_instance, retval);
     }
-#else
-    /* perform thread system-specific module cleanups */
-    _rtapi_module_cleanup_hook();
-#endif
+    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    sm.size = sizeof(global_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_detach(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			rtapi_instance, retval);
+    }
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d Exit complete\n",
 		    rtapi_instance);
-    global_app_exit();
     return;
 }
 
@@ -365,44 +416,50 @@ static int module_delete(int module_id) {
 
 #else /* ULAPI */
 
-extern rtapi_data_t *_rtapi_init_hook();
+// extern rtapi_data_t *_rtapi_init_hook();
 
 int _rtapi_init(const char *modname) {
     int n, module_id;
     module_data *module;
-    int retval;
     struct shm_status sm;
+    int retval;
 
     /* say hello */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI:%d initing module %s\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d initing module %s\n", 
 		    rtapi_instance, modname);
-    /* get shared memory block from OS and save its address */
     errno = 0;
-#if 0
-    if (rtapi_data == NULL) {
-	if (shmdrv_available()) {
-	    sm.driver_fd = shmdrv_driver_fd();
-	    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
-	    sm.size = sizeof(rtapi_data_t);
-	    sm.flags = 0;
-	    retval = shmdrv_attach(&sm, (void **) &rtapi_data);
-	    if (retval < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv attach failed\n");
-		return retval;
-	    }
-	} else {
-	    if ((rtapi_data = _rtapi_init_hook()) == NULL)
-		return -ENOMEM;
+
+    // if not done yet, attach global and rtapi_data segments now
+    if (global_data == NULL) {
+	sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+	sm.size = sizeof(global_data_t);
+	sm.flags = 0;
+	if ((retval = shmdrv_attach(&sm, (void **)&global_data)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: can attach global segment: %d\n",
+			    rtapi_instance, retval);
+	    return -EINVAL;
+	}
+	sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+	sm.size = sizeof(rtapi_data_t);
+	sm.flags = 0;
+	if ((retval = shmdrv_attach(&sm, (void **)&rtapi_data)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: cant attach rtapi segment: %d\n",
+			    rtapi_instance, retval);
+	    return -EINVAL;
 	}
     }
-#endif
-    /* perform a global init if needed */
+
+    // I consider this dubious - there is no reason for ULAPI to start without
+    // rtapi_data already being inited: -mah
     init_rtapi_data(rtapi_data);
+
     /* check flavor and serial codes */
     if (rtapi_data->thread_flavor_id != THREAD_FLAVOR_ID) {
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: flavor mismatch %d vs %d\n",
+			"ULAPI:%d ERROR: flavor mismatch %d vs %d\n",
 			rtapi_instance, 
 			rtapi_data->thread_flavor_id, THREAD_FLAVOR_ID);
 	return -EINVAL;
@@ -410,7 +467,7 @@ int _rtapi_init(const char *modname) {
     if (rtapi_data->serial != RTAPI_SERIAL) {
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: serial mismatch %d vs %d\n",
+			"ULAPI:%d ERROR: serial mismatch %d vs %d\n",
 			rtapi_instance, rtapi_data->serial, RTAPI_SERIAL);
 	return -EINVAL;
     }
@@ -436,7 +493,7 @@ int _rtapi_init(const char *modname) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: reached module limit %d\n", 
+			"ULAPI:%d ERROR: reached module limit %d\n", 
 			rtapi_instance,n);
 	return -EMFILE;
     }
@@ -454,7 +511,7 @@ int _rtapi_init(const char *modname) {
     }
     rtapi_data->ul_module_count++;
     rtapi_mutex_give(&(rtapi_data->mutex));
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI:%d module '%s' inited, ID = %02d\n",
+    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d module '%s' inited, ID = %02d\n",
 		    rtapi_instance,module->name, module_id);
     return module_id;
 }

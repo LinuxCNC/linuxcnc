@@ -651,11 +651,9 @@ static void init_global_data(global_data_t * data,
 			     int rt_level, int user_level,
 			     const char *name)
 {
-    printk("init_global_data\n");
     /* has the block already been initialized? */
     if (data->magic == GLOBAL_MAGIC) {
 	/* yes, nothing to do */
-	printk("init_global_data GLOBAL_MAGIC already set!\n");
 	return;
     }
     /* no, we need to init it, grab mutex unconditionally */
@@ -694,9 +692,6 @@ static void init_global_data(global_data_t * data,
     // init the error ring
     rtapi_ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
     memset(&data->rtapi_messages.buf[0], 0, SIZE_ALIGN(MESSAGE_RING_SIZE));
-
-    // sanity check
-    //assert(data->rtapi_messages.rhtrailer == &data->rtapi_messages_trailer);
 
     // prime it
     data->rtapi_messages.refcount = 1;   // rtapi is 'attached'
