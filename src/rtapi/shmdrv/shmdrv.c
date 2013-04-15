@@ -1,36 +1,4 @@
-/*
-
-atomic_inc
-copy_from_user -> EFAULT
-
-http://lwn.net/Articles/189547/
-
-Some functions have been added to make it easy for kernel code to allocate a buffer with vmalloc() and map it into user space. They are:
-
-     void *vmalloc_user(unsigned long size);
-     void *vmalloc_32_user(unsigned long size);
-     int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
-                             unsigned long pgoff);
-
-The first two functions are a form of vmalloc() which obtain memory intended to be mapped into user space; among other things, they zero the entire range to avoid leaking data. vmalloc_32_user() allocates low memory only. A call to remap_vmalloc_range() will complete the job; it will refuse, however, to remap memory which has not been allocated with one of the two functions above. 
-
-vmalloc_user(#pages)
-
-int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
-+			unsigned long pgoff)
-+{
-+	unsigned int size = vma->vm_end - vma->vm_start;
-+
-+	if (!(vma->vm_flags & VM_USERMAP))
-+		return -EINVAL;
-+
-+	vma->vm_start = (unsigned long)(addr + (pgoff << PAGE_SHIFT));
-+	vma->vm_end = vma->vm_start + size;
-+
-+	return 0;
-+}
-
- * This driver provides a single shared memory area that can be accessed from user space and
+/* This driver provides a single shared memory area that can be accessed from user space and
  * from kernel space.
  *
  * Copyright (c) Embrisk Ltd 2012.
@@ -64,7 +32,7 @@ static bool debug = false;
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable debug info (default: false)");
 
-static bool gc = false;
+static bool gc = true;
 module_param(gc, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(gc, "delete segment on last detach (default: false)");
 
@@ -106,12 +74,10 @@ static int shm_malloc(struct shm_segment *seg)
 
     size = PAGE_ALIGN(seg->size);
     mem = vmalloc_user(size);
-    //    mem = vmalloc_32(size);
     if (!mem)
 	return -ENOMEM;
 
     seg->act_size = size;
-    //memset(mem, 0, size); 
     adr = (unsigned long) mem;
     while (size > 0) {
 	SetPageReserved(vmalloc_to_page((void *)adr));
@@ -173,15 +139,13 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
 	    shm_free(seg);
 	    ret = 0;
 	}
-	info("unmap: gc segment %d key=%d/%x", segno, seg->key,seg->key);
+	info("unmap: gc segment %d key=0x%8.8x", segno, seg->key);
 	seg->in_use = 0;
     }
 }
 
 // see http://stackoverflow.com/questions/654393/examining-mmaped-addresses-using-gdb
 // needed to get gdb to work on mmap'ed segments
-// actually it doesnt work yet :-/
-
 static int shmdrv_generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
             void *buf, int len, int write)
 {
@@ -197,13 +161,7 @@ static int shmdrv_generic_access_phys(struct vm_area_struct *vma, unsigned long 
     }
 
     seg = &shm_segments[segno];
-
-    //int offset = (addr & (PAGE_SIZE-1)) - vma->vm_start;
     offset = (addr) - vma->vm_start;
-
-    // likely a bug here: gdb doesnt fault anymore, but sees all zeroes
-    // when accessing a mmap()'d segment:
-
     maddr = phys_to_virt(__pa(seg->kmem));
     info("%d: maddr %p kmem %p len %d offset %d wr:%d",
 	 segno,maddr, seg->kmem, len,offset, write);
@@ -272,13 +230,6 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     }
 
     ret = remap_vmalloc_range(vma, seg->kmem, 0);
-
-#if 0
-    // Map the allocated memory into the calling processes address space.
-    ret = remap_pfn_range(vma, vma->vm_start, 
-			  virt_to_phys((void *)seg->kmem) >> PAGE_SHIFT,
-			  length, vma->vm_page_prot);
-#endif
     if (ret < 0) {
         err( "%s: remap_pfn_range() failed, %d", __func__, ret);
         return(ret);
@@ -429,7 +380,7 @@ int shmdrv_status(struct shm_status *shmstat)
 
     spin_lock(&ll_lock);
     if ((segno = find_shm_by_key(shmstat->key)) < 0) {
-	err("no such segment key=%d/0x%x", shmstat->key,shmstat->key);
+	err("no such segment key=0x%8.8x", shmstat->key);
 	ret = -EINVAL;
 	goto done;
     }
@@ -456,7 +407,7 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
     spin_lock(&ll_lock);
     ret = find_shm_by_key(shmstat->key);
     if (ret < 0) {
-	err("shm segment does not exist: key=%d ret=%d", 
+	err("shm segment does not exist: key=0x%8.8x ret=%d", 
 	    shmstat->key, ret);
 	goto done;
     }
@@ -486,7 +437,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
     }
     segno = find_shm_by_key(shmstat->key);
     if (segno > -1) {
-	err("shm segment exists: key=%x pos=%d", shmstat->key, segno);	
+	err("shm segment exists: key=0x%8.8x pos=%d", shmstat->key, segno);	
 	ret = -EINVAL;
 	goto done;
     }
@@ -515,7 +466,8 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	    ret = -ENOMEM;
     }
     if (ret) {
-	err("IOC_SHM_CREATE: shm_malloc fail size=%d", seg->size);
+	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x", 
+	    seg->size, seg->key);
 	goto done;
     }
     ret = segno;
@@ -549,15 +501,15 @@ int shmdrv_detach(struct shm_status *shmstat)
     spin_lock(&ll_lock);
     segno = find_shm_by_key(shmstat->key);
     if (segno < 0) {
-	err("shm segment does not exist: key=%d/%x",
-	    shmstat->key, shmstat->key);
+	err("shm segment does not exist: key=0x%8.8x",
+	    shmstat->key);
 	ret = -EINVAL;
 	goto done;
     }
     seg = &shm_segments[segno];
     if (seg->n_kattach == 0) {
-	err("shm segment not attached in-kernel: key=%d/%x",
-	    shmstat->key, shmstat->key);
+	err("shm segment not attached in-kernel: 0x%8.8x",
+	    shmstat->key);
 	ret = -EINVAL;
 	goto done;
     }
@@ -576,7 +528,7 @@ int shmdrv_detach(struct shm_status *shmstat)
 	    shm_free(seg);
 	    ret = 0;
 	}
-	info("gc segment %d key=%d/%x", segno, seg->key,seg->key);
+	info("gc segment %d key=0x%8.8x", segno, seg->key);
 	seg->in_use = 0;
     }
  done:
@@ -605,7 +557,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	ret = shmdrv_status(&sm);
 	if (ret < 0) {
-	    err("IOC_SHM_STATUS: segemnt %d does not exist", sm.key);
+	    err("IOC_SHM_STATUS: segemnt 0x%8.8x does not exist", sm.key);
 	    goto done;
 	}
 
@@ -623,8 +575,8 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	segno = shmdrv_create_pid(&sm, current->pid);
 	if (segno < 0) {
-	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=%d/0x%xsize=%d", 
-		sm.key, sm.key, sm.size);
+	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=0x%8.8x size=%d", 
+		sm.key,sm.size);
 	    goto done;
 	}
 	seg = &shm_segments[segno];
@@ -640,7 +592,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	if (ret < 0) {
 	    err("IOC_SHM_CREATE: copy_to_user %d", ret);
 	}
-	info("created seg %d size %d key %d at %p",
+	info("created seg %d size %d key 0x%8.8x at %p",
 	    segno, seg->size, seg->key, seg->kmem);
 	ret =  segno;
 	break;
@@ -655,7 +607,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 
 	ret = shmdrv_attach_pid(&sm, NULL, current->pid);
 	if (ret < 0) {
-	    err("IOC_SHM_ATTACH: shm segment does not exist: key=%d ret=%d", sm.key, ret);
+	    err("IOC_SHM_ATTACH: shm segment does not exist: key=0x%8.8x ret=%d", sm.key, ret);
 	    goto done;
 	}
 	ret = copy_to_user((char *)arg, &sm, sizeof(struct shm_status));
@@ -665,8 +617,8 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	file->private_data = (void *) sm.id; // record shm id for ensuing mmap
 	seg = &shm_segments[sm.id];
-	info("attached seg %d size %d key %d/%x at %p",
-	    sm.id, seg->size, seg->key, seg->key, seg->kmem);
+	info("attached seg %d size %d key 0x%8.8x key at %p",
+	    sm.id, seg->size, seg->key, seg->kmem);
 	ret = 0;
 	break;
 
@@ -738,8 +690,8 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 		goto done;
 	    }
 	    size = scnprintf(buf, left,
-			    "%d: key=%d/0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
-			     i, seg->key, seg->key, seg->size, seg->act_size, 
+			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
+			     i, seg->key, seg->size, seg->act_size, 
 			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);
 	    left -= size;
@@ -807,7 +759,6 @@ static void shmdrv_exit(void)
     ret = free_segments(1);
     if (ret) {
 	err("%d segments still in use", ret);
-	return -EBUSY;
     }
     if (shm_segments)
         kfree(shm_segments);

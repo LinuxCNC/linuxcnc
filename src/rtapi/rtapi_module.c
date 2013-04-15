@@ -28,8 +28,8 @@ extern void init_rtapi_data(rtapi_data_t * data);
 
 #ifdef RTAPI
 MODULE_AUTHOR("Michael Haberler");
-MODULE_DESCRIPTION("RTAP support");
-MODULE_LICENSE("Dual BSD/GPL");
+MODULE_DESCRIPTION("RTAPI module support");
+MODULE_LICENSE("GPL");
 
 // kernel styles do not support multiple instances
 // this just numbers this particular instance to fit with the scheme
@@ -120,8 +120,11 @@ int init_module(void) {
 	return -EINVAL;
     }
 
-    /* perform a global init if needed */
-    /* this will take of any threads hook */
+    /* perform a global init */
+    init_global_data(global_data, rtapi_instance,
+		     hal_size, rt_msg_level, user_msg_level, 
+		     instance_name);
+    /* this will take care of any threads flavor hook */
     init_rtapi_data(rtapi_data);
 
     /* check flavor and serial codes */
@@ -130,10 +133,6 @@ int init_module(void) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI: ERROR: flavor mismatch %d vs %d\n",
 			rtapi_data->thread_flavor_id, THREAD_FLAVOR_ID);
-
-#ifndef USE_SHMDRV
-	_rtapi_module_master_shared_memory_free();
-#endif
 
 	sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
 	sm.size = sizeof(global_data_t);
@@ -275,21 +274,24 @@ void cleanup_module(void) {
 #endif
 
     sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
-    sm.size = sizeof(global_data_t);
+    sm.size = sizeof(rtapi_data_t);
     sm.flags = 0;
     if ((retval = shmdrv_detach(&sm)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			"RTAPI:%d ERROR: detach rtapi returns %d\n",
 			rtapi_instance, retval);
     }
+    rtapi_data = NULL;
+
     sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
     sm.size = sizeof(global_data_t);
     sm.flags = 0;
     if ((retval = shmdrv_detach(&sm)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			"RTAPI:%d ERROR: detach global returns %d\n",
 			rtapi_instance, retval);
     }
+    global_data = NULL;
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d Exit complete\n",
 		    rtapi_instance);
     return;
@@ -450,7 +452,6 @@ int _rtapi_init(const char *modname) {
 	    return -EINVAL;
 	}
     }
-
     // I consider this dubious - there is no reason for ULAPI to start without
     // rtapi_data already being inited: -mah
     init_rtapi_data(rtapi_data);
