@@ -9,6 +9,7 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
 #ifdef BUILD_SYS_USER_DSO
 #include <sys/ipc.h>		/* IPC_* */
@@ -16,7 +17,6 @@
 #include <stdlib.h>		/* rand_r() */
 #include <unistd.h>		/* getuid(), getgid(), sysconf(),
 				   ssize_t, _SC_PAGESIZE */
-#include "rtapi/shmdrv/shmdrv.h"
 
 #else  /* BUILD_SYS_KBUILD */
 #  ifdef ULAPI
@@ -299,9 +299,10 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
 ************************************************************************/
 
 int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long int size) {
-    int n;
+    int n, retval;
     int shmem_id;
     shmem_data *shmem;
+    struct shm_status sm;
 
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
@@ -351,8 +352,21 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 	    if (shmem->rtusers == 0) {
 #endif
 		/* no, map it and save the address */
+#ifdef USE_SHMDRV
+		sm.key = key;
+		sm.size = size;
+		sm.flags = 0;
+		retval = shmdrv_attach(&sm, &shmem_addr_array[shmem_id]);
+		if (retval < 0) {
+		    rtapi_mutex_give(&(rtapi_data->mutex));
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "shmdrv attached failed key=0x%x size=%ld\n", key, size);
+		    return retval;
+		}
+#else
 		shmem_addr_array[shmem_id] =
 		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size, instance);
+#endif
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "RTAPI: ERROR: failed to map shmem\n");
@@ -400,10 +414,26 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
     shmem = &(shmem_array[n]);
 
     /* get shared memory block from OS and save its address */
-
+#ifdef USE_SHMDRV
+    sm.key = key;
+    sm.size = size;
+    sm.flags = 0;
+    retval = shmdrv_create(&sm);
+    if (retval) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
+	return retval;
+    }
+    retval = shmdrv_attach(&sm, &shmem_addr_array[shmem_id]);
+    if (retval < 0) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv attached failed key=0x%x size=%ld\n", key, size);
+	return retval;
+    }
+#else
     shmem_addr_array[shmem_id] =
 	_rtapi_shmem_new_malloc_hook(shmem_id, key, size, instance);
-
+#endif
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,

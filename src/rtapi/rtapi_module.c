@@ -13,6 +13,7 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
+#include "rtapi/shmdrv/shmdrv.h"
 
 
 #ifdef MODULE
@@ -57,6 +58,8 @@ extern void global_app_exit(void);
 
 int init_module(void) {
   int n, res;
+    struct shm_status sm;
+    int retval;
 
   global_app_main();
     /* say hello */
@@ -64,9 +67,28 @@ int init_module(void) {
 		    rtapi_instance,
 		    rtapi_get_handle()->thread_flavor_name, 
 		    GIT_VERSION);
+#ifdef USE_SHMDRV
+
+    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+    sm.size = sizeof(rtapi_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_create(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: shmdrv_create() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+    if ((retval = shmdrv_attach(&sm, (void **)&rtapi_data)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: shmdrv_create() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+#else
     /* get master shared memory block from OS and save its address */
     res = _rtapi_module_master_shared_memory_init(&rtapi_data); 
     if (res) return res;
+#endif
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check flavor and serial codes */
@@ -144,6 +166,8 @@ that fail to load properly, or fail to clean up after themselves */
 
 void cleanup_module(void) {
     int n;
+    struct shm_status sm;
+    int retval;
 
     if (rtapi_data == NULL) {
 	/* never got inited, nothing to do */
@@ -197,9 +221,20 @@ void cleanup_module(void) {
     proc_clean();
 #endif
 
+#ifdef USE_SHMDRV
+    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+    sm.size = sizeof(global_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_detach(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+#else
     /* perform thread system-specific module cleanups */
     _rtapi_module_cleanup_hook();
-
+#endif
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d Exit complete\n",
 		    rtapi_instance);
     global_app_exit();
@@ -333,6 +368,7 @@ int _rtapi_init(const char *modname) {
     int n, module_id;
     module_data *module;
 
+
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI:%d initing module %s\n", 
 		    rtapi_instance, modname);
@@ -341,7 +377,6 @@ int _rtapi_init(const char *modname) {
 
     if ((rtapi_data = _rtapi_init_hook()) == NULL)
 	return -ENOMEM;
-
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check flavor and serial codes */

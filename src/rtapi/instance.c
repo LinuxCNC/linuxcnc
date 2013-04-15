@@ -125,10 +125,27 @@ int global_app_main(void)
 {
     int retval;
     global_data_t *result;
+    struct shm_status sm;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "INSTANCE:%d startup %s\n", 
 	      rtapi_instance, GIT_VERSION);
-
+#ifdef USE_SHMDRV
+    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    sm.size = sizeof(global_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_create(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"INSTANCE:%d ERROR: shmdrv_create() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+    if ((retval = shmdrv_attach(&sm, (void **)&result)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"INSTANCE:%d ERROR: shmdrv_create() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+#else
 #if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
     if ((retval = rt_heap_create(&global_heap, GLOBAL_HEAP, 
 			    sizeof(global_data_t), H_SHARED)) != 0) {
@@ -160,7 +177,7 @@ int global_app_main(void)
 	return -ENOMEM;
     }
 #endif
-
+#endif
 #if defined(BUILD_SYS_USER_DSO)
 #ifdef RUN_WITHOUT_REALTIME
     // try attaching to existing instance - probably a bad idea
@@ -197,18 +214,32 @@ void rtapi_app_exit(void)
 void global_app_exit(void)
 #endif
 {
+    struct shm_status sm;
+    int retval;
+
     rtapi_print_msg(RTAPI_MSG_INFO, "INSTANCE:%d exit  %s\n", 
 	      rtapi_instance, GIT_VERSION);
 
 #if defined(BUILD_SYS_USER_DSO)
     real_rtapi_app_exit();
 #endif
-
+#ifdef USE_SHMDRV
+    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    sm.size = sizeof(global_data_t);
+    sm.flags = 0;
+    if ((retval = shmdrv_detach(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
+			rtapi_instance, retval);
+	return -EINVAL;
+    }
+#else
 #if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
     rt_heap_delete(&global_heap);
 #endif
 #if THREAD_FLAVOR_ID == RTAPI_RTAI_KERNEL_ID
     rtai_kfree(OS_KEY(GLOBAL_KEY,rtapi_instance));
+#endif
 #endif
 #if defined(BUILD_SYS_USER_DSO)
     global_shm_free(global_shmid, global_data);
