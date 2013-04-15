@@ -4876,7 +4876,6 @@ static void ulapi_hal_lib_init(void)
     // immediately, not just after the first hal_init(), whenever
     // that might be (which might be never).
 
-    // this also initializes global_data.
     hal_rtapi_attach();
 }
 

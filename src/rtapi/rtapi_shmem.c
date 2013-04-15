@@ -99,8 +99,8 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 	ret = shmdrv_status(&sm); // check if exists
 
 	if (ret) {  // didnt exist, so create
-	    ret = shmdrv_create(&sm);
-	    if (ret) {
+	    ret = shmdrv_create(&sm); 
+	    if (ret < 0) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
 		return ret;
@@ -418,8 +418,11 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
     sm.key = key;
     sm.size = size;
     sm.flags = 0;
+#ifdef ULAPI
+    sm.driver_fd = shmdrv_driver_fd();
+#endif
     retval = shmdrv_create(&sm);
-    if (retval) {
+    if (retval < 0) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
 	return retval;

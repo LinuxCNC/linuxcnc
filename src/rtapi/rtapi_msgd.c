@@ -39,7 +39,7 @@ static void usage(int argc, char **argv)
 static struct option long_options[] = {
     {"help",  no_argument,          0, 'h'},
     {"stderr",  no_argument,        0, 's'},
-    {"foreground",  no_argument,    0, 'f'},
+    {"foreground",  no_argument,    0, 'F'},
     {"instance", required_argument, 0, 'I'},
     {"pollms", required_argument, 0, 'p'},
     {0, 0, 0, 0}
@@ -141,12 +141,12 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hI:sp:",
+	c = getopt_long (argc, argv, "hI:sp:F",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
 	switch (c)	{
-	case 'f':
+	case 'F':
 	    foreground++;
 	    break;
 	case 'I':

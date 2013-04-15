@@ -89,6 +89,8 @@ int init_module(void) {
     res = _rtapi_module_master_shared_memory_init(&rtapi_data); 
     if (res) return res;
 #endif
+    printk("1 init_module rtapi_mutex=%lu\n",rtapi_data->mutex);
+
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check flavor and serial codes */
@@ -97,7 +99,10 @@ int init_module(void) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI: ERROR: flavor mismatch %d vs %d\n",
 			rtapi_data->thread_flavor_id, THREAD_FLAVOR_ID);
+
+#ifndef USE_SHMDRV
 	_rtapi_module_master_shared_memory_free();
+#endif
 	return -EINVAL;
     }
     if (rtapi_data->serial != RTAPI_SERIAL) {
@@ -154,6 +159,7 @@ int init_module(void) {
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
     _rtapi_module_init_hook();
 #endif
+    printk("3 init_module rtapi_mutex=%lu\n",rtapi_data->mutex);
 
     /* done */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d Init complete\n", 
@@ -367,7 +373,8 @@ extern rtapi_data_t *_rtapi_init_hook();
 int _rtapi_init(const char *modname) {
     int n, module_id;
     module_data *module;
-
+    int retval;
+    struct shm_status sm;
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI:%d initing module %s\n", 
@@ -375,8 +382,23 @@ int _rtapi_init(const char *modname) {
     /* get shared memory block from OS and save its address */
     errno = 0;
 
-    if ((rtapi_data = _rtapi_init_hook()) == NULL)
-	return -ENOMEM;
+    if (rtapi_data == NULL) {
+	if (shmdrv_available()) {
+	    sm.driver_fd = shmdrv_driver_fd();
+	    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+	    sm.size = sizeof(rtapi_data_t);
+	    sm.flags = 0;
+	    retval = shmdrv_attach(&sm, (void **) &rtapi_data);
+	    if (retval < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv attach failed\n");
+		return retval;
+	    }
+	} else {
+	    if ((rtapi_data = _rtapi_init_hook()) == NULL)
+		return -ENOMEM;
+	}
+    }
+    printf("1 rtapi_mutex=%lu\n",rtapi_data->mutex);
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check flavor and serial codes */
@@ -407,6 +429,8 @@ int _rtapi_init(const char *modname) {
     }
 
     /* get the mutex */
+    printf("3 rtapi_mutex=%lu\n",rtapi_data->mutex);
+
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* find empty spot in module array */
     n = 1;

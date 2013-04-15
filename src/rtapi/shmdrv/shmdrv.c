@@ -1,4 +1,35 @@
 /*
+
+atomic_inc
+copy_from_user -> EFAULT
+
+http://lwn.net/Articles/189547/
+
+Some functions have been added to make it easy for kernel code to allocate a buffer with vmalloc() and map it into user space. They are:
+
+     void *vmalloc_user(unsigned long size);
+     void *vmalloc_32_user(unsigned long size);
+     int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
+                             unsigned long pgoff);
+
+The first two functions are a form of vmalloc() which obtain memory intended to be mapped into user space; among other things, they zero the entire range to avoid leaking data. vmalloc_32_user() allocates low memory only. A call to remap_vmalloc_range() will complete the job; it will refuse, however, to remap memory which has not been allocated with one of the two functions above. 
+
+vmalloc_user(#pages)
+
+int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
++			unsigned long pgoff)
++{
++	unsigned int size = vma->vm_end - vma->vm_start;
++
++	if (!(vma->vm_flags & VM_USERMAP))
++		return -EINVAL;
++
++	vma->vm_start = (unsigned long)(addr + (pgoff << PAGE_SHIFT));
++	vma->vm_end = vma->vm_start + size;
++
++	return 0;
++}
+
  * This driver provides a single shared memory area that can be accessed from user space and
  * from kernel space.
  *
@@ -19,6 +50,7 @@
 #include <linux/uaccess.h>
 #include <linux/mm.h>
 #include <linux/mman.h>
+#include <linux/vmalloc.h>
 #include <linux/miscdevice.h>
 #include <linux/device.h>
 #include <linux/ioctl.h>
@@ -73,12 +105,13 @@ static int shm_malloc(struct shm_segment *seg)
     size_t size;
 
     size = PAGE_ALIGN(seg->size);
-    mem = vmalloc_32(size);
+    mem = vmalloc_user(size);
+    //    mem = vmalloc_32(size);
     if (!mem)
 	return -ENOMEM;
 
     seg->act_size = size;
-    memset(mem, 0, size); 
+    //memset(mem, 0, size); 
     adr = (unsigned long) mem;
     while (size > 0) {
 	SetPageReserved(vmalloc_to_page((void *)adr));
@@ -238,10 +271,14 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
 	return -EINVAL;
     }
 
+    ret = remap_vmalloc_range(vma, seg->kmem, 0);
+
+#if 0
     // Map the allocated memory into the calling processes address space.
     ret = remap_pfn_range(vma, vma->vm_start, 
 			  virt_to_phys((void *)seg->kmem) >> PAGE_SHIFT,
 			  length, vma->vm_page_prot);
+#endif
     if (ret < 0) {
         err( "%s: remap_pfn_range() failed, %d", __func__, ret);
         return(ret);
@@ -249,8 +286,8 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
     vma->vm_ops = &mmap_ops;
     shmdrv_vma_open(vma);  // track usage
-    info("mmap seg %d size %d key %d/%x at %p",
-	 segno, seg->size, seg->key, seg->key, seg->kmem);
+    info("mmap seg %d size %d key %d/%x at %p length %d",
+	 segno, seg->size, seg->key, seg->key, seg->kmem, length);
     return(0);
 }
 
@@ -472,7 +509,10 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	ret = shm_nonstandard_attach(seg);
     } else {
 	// vanilla shm segment
+
 	ret = shm_malloc(seg);
+	if (!seg->kmem)
+	    ret = -ENOMEM;
     }
     if (ret) {
 	err("IOC_SHM_CREATE: shm_malloc fail size=%d", seg->size);
@@ -500,6 +540,7 @@ int shmdrv_attach(struct shm_status *shmstat, void **shm)
 EXPORT_SYMBOL(shmdrv_attach);
 
 // kernel-only; userland refcount is taken care in munmap
+
 int shmdrv_detach(struct shm_status *shmstat)
 {
     struct shm_segment *seg;
@@ -601,6 +642,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	info("created seg %d size %d key %d at %p",
 	    segno, seg->size, seg->key, seg->kmem);
+	ret =  segno;
 	break;
 
     case IOC_SHM_ATTACH:

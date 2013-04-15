@@ -48,7 +48,7 @@ static RT_HEAP global_heap;
 #include "rtai-kernel.h"
 #endif // RTAPI_RTAI_KERNEL_ID
 
-#if defined(BUILD_SYS_USER_DSO)
+#if defined(BUILD_SYS_USER_DSO) || (defined(ULAPI) && defined(USE_SHMDRV))
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -87,7 +87,7 @@ static void init_global_data(global_data_t * data,
 #ifdef ULAPI
 #if (THREAD_FLAVOR_ID == RTAPI_POSIX_ID) || \
     (THREAD_FLAVOR_ID == RTAPI_RT_PREEMPT_USER_ID) || \
-    (THREAD_FLAVOR_ID == RTAPI_XENOMAI_USER_ID) 
+    (THREAD_FLAVOR_ID == RTAPI_XENOMAI_USER_ID) || defined(USE_SHMDRV)
 static int global_shm_attach(key_t key, global_data_t **global_data);
 static int global_shm_detach(global_data_t *global_data);
 #endif
@@ -257,10 +257,16 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 {
     int retval;
 
+#ifdef USE_SHMDRV
+    if ((retval = global_shm_attach(OS_KEY(GLOBAL_KEY,rtapi_instance),
+				    global))) {
+	return retval;
+    }
+#else
     if ((retval = global_attach_hook())) {
 	return retval;
     }
-
+#endif
 #ifdef RUN_WITHOUT_REALTIME
     init_global_data(global_data, rtapi_instance,
 		     hal_size, rt_msg_level, user_msg_level, "FIXME");
@@ -277,16 +283,28 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 
 void ulapi_exit(void)
 {
+    int retval;
+
     rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d %s exit\n",
 	      rtapi_instance,
 	      GIT_VERSION);
+#ifdef USE_SHMDRV
+    if ((retval = global_shm_detach(global_data))) {
+	return retval;
+    }
+#else
     global_detach_hook();
+#endif
     global_data = NULL;
 }
 
 #endif
 
 #ifdef ULAPI
+
+#ifdef USE_SHMDRV
+
+#else
 #if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
 static int global_attach_hook(void) {
     int retval;
@@ -375,6 +393,7 @@ static int global_detach_hook() {
     global_data = NULL;
     return 0;
 }
+#endif // USE_SHMDRV
 #endif // ULAPI
 
 #if defined(ULAPI) || defined(RUN_WITHOUT_REALTIME)
@@ -391,11 +410,11 @@ static int global_shm_attach(key_t key, global_data_t **global_data)
 	sm.key = key;
 	sm.driver_fd = shmdrv_driver_fd();
 	retval = shmdrv_attach(&sm, &rd);
-	if (retval) {
-	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv attach failed\n");
 	    return retval;
 	}
+	shm_id = retval;
     } else {
 
 	if ((shm_id = shmget(OS_KEY(key,rtapi_instance), 
@@ -431,7 +450,7 @@ static int global_shm_detach(global_data_t *global_data)
 	sm.size = sizeof(global_data_t);
 	sm.flags = 0;
 	r1 = shmdrv_detach(&sm, global_data);
-	if (r1) {
+	if (r1 < 0) {
 	    rtapi_mutex_give(&(rtapi_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
 	    return r1;
@@ -612,9 +631,11 @@ static void init_global_data(global_data_t * data,
 			     int rt_level, int user_level,
 			     const char *name)
 {
+    printk("init_global_data\n");
     /* has the block already been initialized? */
     if (data->magic == GLOBAL_MAGIC) {
 	/* yes, nothing to do */
+	printk("init_global_data GLOBAL_MAGIC already set!\n");
 	return;
     }
     /* no, we need to init it, grab mutex unconditionally */

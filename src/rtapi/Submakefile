@@ -261,5 +261,22 @@ TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
 USERSRCS += $(TESTCLIENT_SRCS)
 TARGETS += ../bin/testclient
 
+
+MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c rtapi/shmdrv/shmdrvapi.c
+
+# deadlock debugging help..
+$(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
+	EXTRAFLAGS =  -Wall -g -O0 \
+	 $(shell $(XENO_CONFIG) --skin=native --cflags)
+
+
+../bin/mutexwatch: $(call TOOBJS, $(MUTEXWATCH_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^
+
+
+USERSRCS += $(MUTEXWATCH_SRCS)
+TARGETS += ../bin/mutexwatch
+
 endif
 
