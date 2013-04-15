@@ -356,7 +356,9 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 		sm.key = key;
 		sm.size = size;
 		sm.flags = 0;
+#ifdef ULAPI
 		sm.driver_fd = shmdrv_driver_fd();
+#endif
 		retval = shmdrv_attach(&sm, &shmem_addr_array[shmem_id]);
 		if (retval < 0) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));

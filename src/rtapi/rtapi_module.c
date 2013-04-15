@@ -57,11 +57,11 @@ extern int global_app_main(void);
 extern void global_app_exit(void);
 
 int init_module(void) {
-  int n, res;
+    int n;
     struct shm_status sm;
     int retval;
 
-  global_app_main();
+    global_app_main();
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
 		    rtapi_instance,
@@ -89,7 +89,6 @@ int init_module(void) {
     res = _rtapi_module_master_shared_memory_init(&rtapi_data); 
     if (res) return res;
 #endif
-    printk("1 init_module rtapi_mutex=%lu\n",rtapi_data->mutex);
 
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
@@ -159,7 +158,6 @@ int init_module(void) {
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
     _rtapi_module_init_hook();
 #endif
-    printk("3 init_module rtapi_mutex=%lu\n",rtapi_data->mutex);
 
     /* done */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d Init complete\n", 
@@ -235,7 +233,6 @@ void cleanup_module(void) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"INSTANCE:%d ERROR: shmdrv_detach() returns %d\n",
 			rtapi_instance, retval);
-	return -EINVAL;
     }
 #else
     /* perform thread system-specific module cleanups */
@@ -381,7 +378,7 @@ int _rtapi_init(const char *modname) {
 		    rtapi_instance, modname);
     /* get shared memory block from OS and save its address */
     errno = 0;
-
+#if 0
     if (rtapi_data == NULL) {
 	if (shmdrv_available()) {
 	    sm.driver_fd = shmdrv_driver_fd();
@@ -398,7 +395,7 @@ int _rtapi_init(const char *modname) {
 		return -ENOMEM;
 	}
     }
-    printf("1 rtapi_mutex=%lu\n",rtapi_data->mutex);
+#endif
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check flavor and serial codes */
@@ -429,8 +426,6 @@ int _rtapi_init(const char *modname) {
     }
 
     /* get the mutex */
-    printf("3 rtapi_mutex=%lu\n",rtapi_data->mutex);
-
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* find empty spot in module array */
     n = 1;
