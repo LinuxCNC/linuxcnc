@@ -256,6 +256,7 @@ EXPORT_SYMBOL(global_app_exit);
 int ulapi_main(int instance, int flavor, global_data_t **global)
 {
     int retval;
+    struct shm_status sm;
 
 #ifdef USE_SHMDRV
     if ((retval = global_shm_attach(OS_KEY(GLOBAL_KEY,rtapi_instance),
@@ -272,6 +273,25 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 		     hal_size, rt_msg_level, user_msg_level, "FIXME");
 #endif
     *global = global_data;
+
+
+  if (rtapi_data == NULL) {
+	if (shmdrv_available()) {
+	    sm.driver_fd = shmdrv_driver_fd();
+	    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
+	    sm.size = sizeof(rtapi_data_t);
+	    sm.flags = 0;
+	    retval = shmdrv_attach(&sm, (void **) &rtapi_data);
+	    if (retval < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv attach failed\n");
+		return retval;
+	    }
+	} else {
+	    if ((rtapi_data = _rtapi_init_hook()) == NULL)
+		return -ENOMEM;
+	}
+    }
+
 
     rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d startup RT msglevel=%d halsize=%d %s\n", 
 	      rtapi_instance,
