@@ -766,32 +766,32 @@ endif
 
 # Subdirectory:  rtapi
 
-obj-$(CONFIG_RTAPI) += rtapi.o
+# obj-$(CONFIG_RTAPI) += rtapi.o
 
-# Sources for all thread systems
-rtapi-objs := \
-	rtapi/instance.o \
-	rtapi/rtapi_support.o \
-	rtapi/rtapi_common.o \
-	rtapi/rtapi_task.o \
-	rtapi/rtapi_shmem.o \
-	rtapi/rtapi_ring.o \
-	rtapi/rtapi_time.o \
-	rtapi/rtapi_io.o \
-	rtapi/$(THREADS_SOURCE).o
-# Kernel threads need rtapi_module.c
-ifeq ($(BUILD_SYS),kbuild)
-rtapi-objs += rtapi/rtapi_module.o
-endif
-# User threads need rtapi_pci.c
-ifeq ($(BUILD_SYS),user-dso)
-rtapi-objs += rtapi/rtapi_pci.o
-rtapi-objs += rtapi/shmdrv/shmdrvapi.o
-# and rtapi_app_main/exit stubs
-rtapi-objs += rtapi/rtapi_main.o
-# and autodetect/compat checks
-rtapi-objs += rtapi/rtapi_compat.o
-endif
+# # Sources for all thread systems
+# rtapi-objs := \
+# 	rtapi/instance.o \
+# 	rtapi/rtapi_support.o \
+# 	rtapi/rtapi_common.o \
+# 	rtapi/rtapi_task.o \
+# 	rtapi/rtapi_shmem.o \
+# 	rtapi/rtapi_ring.o \
+# 	rtapi/rtapi_time.o \
+# 	rtapi/rtapi_io.o \
+# 	rtapi/$(THREADS_SOURCE).o
+# # Kernel threads need rtapi_module.c
+# ifeq ($(BUILD_SYS),kbuild)
+# rtapi-objs += rtapi/rtapi_module.o
+# endif
+# # User threads need rtapi_pci.c
+# ifeq ($(BUILD_SYS),user-dso)
+# rtapi-objs += rtapi/rtapi_pci.o
+# rtapi-objs += rtapi/shmdrv/shmdrvapi.o
+# # and rtapi_app_main/exit stubs
+# rtapi-objs += rtapi/rtapi_main.o
+# # and autodetect/compat checks
+# rtapi-objs += rtapi/rtapi_compat.o
+# endif
 
 
 # Subdirectory: rtapi/examples (unneeded?)
@@ -1079,7 +1079,7 @@ endif # end BUILD_SYS=user-dso
 # build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 #../rtlib/instance$(MODULE_EXT): $(addprefix objects/rt,$(instance-objs))
-../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
+#../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))

@@ -163,6 +163,22 @@ TARGETS += ../bin/rtapi_app
 ##################################################################
 else  # BUILD_SYS == kbuild
 
+obj-$(CONFIG_RTAPI) += rtapi.o
+
+rtapi-objs := \
+	rtapi/rtapi_module.o \
+	rtapi/rtapi_support.o \
+	rtapi/rtapi_common.o \
+	rtapi/rtapi_task.o \
+	rtapi/rtapi_shmem.o \
+	rtapi/rtapi_ring.o \
+	rtapi/rtapi_time.o \
+	rtapi/rtapi_io.o \
+	rtapi/$(THREADS_SOURCE).o
+
+# rule for kernel module, moved from src/Makefile
+../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
+
 ################################################
 # rtai settings
 # ifeq ($(THREADS),rtai)
