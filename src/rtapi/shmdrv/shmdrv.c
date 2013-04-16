@@ -1,6 +1,8 @@
 /* This driver provides a single shared memory area that can be accessed from user space and
  * from kernel space.
  *
+ * NB: add 'vmalloc=128MB' or more to the kernel command line!
+ *
  * Copyright (c) Embrisk Ltd 2012.
  * This is public domain software with no warranty.
  *
@@ -62,6 +64,8 @@ struct shm_segment {
 };
 
 static int nopen;
+static int maxopen = -1;
+static size_t allocated, freed;
 static struct shm_segment  *shm_segments;
 static spinlock_t shm_lock, ll_lock;
 static int  shm_nonstandard_detach(struct shm_segment *segs);
@@ -77,6 +81,7 @@ static int shm_malloc(struct shm_segment *seg)
     if (!mem)
 	return -ENOMEM;
 
+    allocated += size;
     seg->act_size = size;
     adr = (unsigned long) mem;
     while (size > 0) {
@@ -104,6 +109,7 @@ static void shm_free(struct shm_segment *seg)
 	size -= PAGE_SIZE;
     }
     vfree(seg->kmem);
+    freed += size;
 }
 
 // usage tracking
@@ -286,6 +292,8 @@ static int shm_open(struct inode* inode, struct file* filp)
 
     dbg("");
     nopen++;
+    if (nopen > maxopen)
+	maxopen = nopen;
     return 0;
 }
 
@@ -325,6 +333,10 @@ int free_segments(int warn)
     int n;
     struct shm_segment *seg;
     int fail = 0;
+
+    info("open=%d alloced=%dK freed=%dK balance=%dK\n", 
+	 nopen, 
+	 allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 
     for (n = 0; n < nseg; n++) {
 	seg = &shm_segments[n];
@@ -675,8 +687,9 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	}
     }
     size = scnprintf(buf, left, 
-		     "%d segment(s), open=%d uattach=%d kattach=%d total=%d aligned=%d\n", 
-		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned);
+		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK\n", 
+		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned, 
+		     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
     left -= size;
     buf += size;
     written = size;
