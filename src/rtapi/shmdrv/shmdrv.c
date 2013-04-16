@@ -150,6 +150,7 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
     }
 }
 
+#ifdef USE_SHMDRV_ACCESS
 // see http://stackoverflow.com/questions/654393/examining-mmaped-addresses-using-gdb
 // needed to get gdb to work on mmap'ed segments
 static int shmdrv_generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
@@ -185,11 +186,14 @@ static inline int shmdrv_vma_access(struct vm_area_struct *vma, unsigned long ad
 {
     return shmdrv_generic_access_phys(vma, addr, buf, len, write);
 }
+#endif
 
 static struct vm_operations_struct mmap_ops = {
     .open   = shmdrv_vma_open,
     .close  = shmdrv_vma_close,
+#ifdef USE_SHMDRV_ACCESS
     .access = shmdrv_vma_access,
+#endif
 };
 
 static int shm_mmap(struct file *file, struct vm_area_struct *vma)
