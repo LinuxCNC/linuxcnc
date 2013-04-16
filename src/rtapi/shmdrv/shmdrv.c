@@ -28,7 +28,7 @@
 
 #include "shmdrv.h"
 
-static bool debug = false;
+static bool debug = true; // false;
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable debug info (default: false)");
 

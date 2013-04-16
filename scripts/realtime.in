@@ -93,6 +93,7 @@ CheckConfig(){
         done
 	# always load shmdrv first
 	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/shmdrv$MODULE_EXT"
+	MODULES_UNLOAD="$MODULES_UNLOAD shmdrv"
         if test $RTPREFIX = xenomai-kernel; then
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
             MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
@@ -267,6 +268,11 @@ Unload(){
 	    kill $MSGD_PID
 	fi
         for module in $MODULES_UNLOAD ; do
+	    if [ "$module" == "shmdrv" ] ; then
+                # shmdrv needs a bit of time until rtapi+hal_lib
+		# have detached shm segments
+		sleep 1
+	    fi
             $RMMOD $module
         done
     esac
