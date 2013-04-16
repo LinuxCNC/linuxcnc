@@ -78,12 +78,12 @@ $(ULAPISO): ../lib/liblinuxcnchal.so  $(call TOOBJS, $(ULAPISO_SRCS))
 USERSRCS += $(ULAPISO_SRCS) 
 TARGETS += $(ULAPISO)
 
-# the instance RT module
-INSTANCE_SRCS := \
-	rtapi/instance.c \
-	rtapi/rtapi_support.c
+# # the instance RT module
+# INSTANCE_SRCS := \
+# 	rtapi/instance.c \
+# 	rtapi/rtapi_support.c
 
-USERSRCS += $(INSTANCE_SRCS)
+# USERSRCS += $(INSTANCE_SRCS)
 
 
 # RTAPI:  ../rtlib/*
@@ -117,6 +117,24 @@ RT_CFLAGS +=  -pthread
 RT_LDFLAGS += -lpthread -lrt
 endif  # rt-preempt-user/posix
 
+# the rtapi.so module
+obj-$(CONFIG_RTAPI) += rtapi.o
+
+rtapi-objs := \
+	rtapi/rtapi_main.o \
+	rtapi/rtapi_support.o \
+	rtapi/rtapi_common.o \
+	rtapi/rtapi_task.o \
+	rtapi/rtapi_shmem.o \
+	rtapi/rtapi_ring.o \
+	rtapi/rtapi_time.o \
+	rtapi/rtapi_io.o \
+	rtapi/$(THREADS_SOURCE).o \
+	rtapi/shmdrv/shmdrvapi.o \
+	rtapi/rtapi_compat.o
+
+# rule for kernel module, moved from src/Makefile
+../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 
 ################################################
 # ../bin/rtapi_app
@@ -252,7 +270,7 @@ RT_CFLAGS += -DSHMDEBUG \
 	-I$(BASEPWD)/rtapi/shmdrv
 INCLUDES += rtapi/shmdrv
 
-ifeq ($(USE_SHMDRV),yes)
+ifeq ($(USE_SHMDRV),XXX)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))

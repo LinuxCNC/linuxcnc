@@ -87,46 +87,9 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 
 int ulapi_exit(int instance)
 {
-    int retval;
-    struct shm_status sm;
-
     rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d %s exit\n",
 		    instance,
 		    GIT_VERSION);
-
-    if (rtapi_data) {
-	if (shmdrv_available()) {
-	    sm.size = sizeof(rtapi_data_t);
-	    sm.key = OS_KEY(RTAPI_KEY, instance);
-	    sm.flags = 0;
-	    retval = shmdrv_detach(&sm, rtapi_data);
-	    if (retval < 0) {
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv detach failed\n");
-	    }
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv detach NIY\n");
-	    return -EINVAL;
-	}
-	rtapi_data = NULL;
-    }
-    if (global_data) {
-	if (shmdrv_available()) {
-	    sm.size = sizeof(global_data_t);
-	    sm.key = OS_KEY(GLOBAL_KEY, instance);
-	    sm.flags = 0;
-	    retval = shmdrv_detach(&sm, global_data);
-	    if (retval < 0) {
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach failed\n");
-		return retval;
-	    }
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv detach NIY\n");
-	    return -EINVAL;
-	}
-	global_data = NULL;
-    }
     return 0;
 }
 

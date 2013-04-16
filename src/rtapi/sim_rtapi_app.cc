@@ -807,7 +807,7 @@ void foreground_rtapi_msg_handler(msg_level_t level, const char *fmt,
 				  va_list ap) {
     char buf[RTPRINTBUFFERLEN];
     vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-    fprintf(stderr, buf);
+    fprintf(stderr, "%s", buf);
 }
 
 static void usage(int argc, char **argv) 

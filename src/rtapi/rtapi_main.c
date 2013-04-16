@@ -11,7 +11,9 @@
 
 #include "config.h"
 #include "rtapi.h"
+#include "rtapi_common.h"
 #include "rtapi_support.h"
+//#include "rtapi_compat.h"
 #include "rtapi/shmdrv/shmdrv.h"
 
 #include <sys/ipc.h>		/* IPC_* */
@@ -128,6 +130,7 @@ int rtapi_app_main(void)
 	global_data = NULL;
 	return -EINVAL;
     }
+    return 0;
 }
 
 void rtapi_app_exit(void)
@@ -163,7 +166,7 @@ EXPORT_SYMBOL(real_rtapi_app_exit);
 
 static int check_compatible()
 {
-    int retval = 0;
+    int retval = 1;
     const char *flavor_name = rtapi_get_handle()->thread_flavor_name;
 
     if (flavor_id == RTAPI_POSIX_ID)
@@ -173,8 +176,7 @@ static int check_compatible()
 	(flavor_id != RTAPI_XENOMAI_USER_ID)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d started %s RTAPI on a Xenomai kernel\n",
-			flavor_name,
-			rtapi_instance);
+			rtapi_instance,flavor_name);
 	return 0;
     }
 
@@ -182,17 +184,15 @@ static int check_compatible()
 	(flavor_id != RTAPI_RTAI_KERNEL_ID)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d started %s RTAPI on an RTAI kernel\n",
-			flavor_name,
-			rtapi_instance);
-	retval--;
+			rtapi_instance,flavor_name);
+	return 0;
     }
     if (kernel_is_rtpreempt() &&
 	(flavor_id != RTAPI_RT_PREEMPT_USER_ID)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d started %s RTAPI on an RT PREEMPT kernel\n",
-			flavor_name,
-			rtapi_instance);
-	retval--;
+			rtapi_instance,flavor_name);
+	return 0;
     }
     return retval;
 }
