@@ -60,12 +60,11 @@ ULAPI_SRCS := \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) 
 
 ULAPISO_SRCS := $(ULAPI_SRCS) \
-	rtapi/instance.c  \
+	rtapi/ulapi_main.c  \
 	rtapi/rtapi_support.c 
 
 #$(warning ULAPISO_SRCS=$(ULAPISO_SRCS))
 
-#need to link against liblinuxcnchal.so so global_data is 
 # resolved at loadtime
 $(call TOOBJSDEPS, $(ULAPISO_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ULAPISO := ../lib/ulapi.so
@@ -277,19 +276,17 @@ TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
 USERSRCS += $(TESTCLIENT_SRCS)
 TARGETS += ../bin/testclient
 
+# lock debugging help plus a bit of API example
+MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c \
+	rtapi/shmdrv/shmdrvapi.c
 
-MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c rtapi/shmdrv/shmdrvapi.c
-
-# deadlock debugging help..
 $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 	EXTRAFLAGS =  -Wall -g -O0 \
 	 $(shell $(XENO_CONFIG) --skin=native --cflags)
 
-
 ../bin/mutexwatch: $(call TOOBJS, $(MUTEXWATCH_SRCS))
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^
-
 
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch

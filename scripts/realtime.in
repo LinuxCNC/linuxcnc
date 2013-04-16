@@ -91,8 +91,8 @@ CheckConfig(){
             MOD="${MOD%$MODULE_EXT}"
             MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
         done
-	# always load rtapi first
-	#MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/instance$MODULE_EXT"
+	# always load shmdrv first
+	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/shmdrv$MODULE_EXT"
         if test $RTPREFIX = xenomai-kernel; then
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
             MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
@@ -186,7 +186,7 @@ Load(){
     ;;
     *)
         for MOD in $MODULES_LOAD ; do
-	    # if loading instance.ko, tack on parameters
+	    # if loading rtapi.ko, tack on parameters
 	    if echo $MOD | grep rtapi.ko >/dev/null  ; then
 		$INSMOD $MOD hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
 		    rt_msg_level=$DEBUG user_msg_level=$DEBUG

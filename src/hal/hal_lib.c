@@ -4886,8 +4886,8 @@ static void ulapi_hal_lib_cleanup(void)
     // detach the RTAPI data segment
     hal_rtapi_detach();
 
-    // detach the global segment
-    ulapi_exit_ref();
+    // detach the global and rtapi shm segments
+    ulapi_exit_ref(rtapi_instance);
 
     // unload ulapi shared object.
     dlclose(ulapi_so);

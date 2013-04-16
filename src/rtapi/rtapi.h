@@ -795,13 +795,12 @@ extern void rtapi_autorelease_mutex(void *variable);
 extern int rtapi_instance;
 
 #ifdef ULAPI
-// technically this is part of instance but we're building the instance
-// module only for kernel thread systems where shared memory init has to
-// happen in-kernel
+// the ulapi constructor and destructor
+// these attach/detach the global and rtapi shm segments to/from ULAPI
 typedef int  (*ulapi_main_t)(int, int, global_data_t **);
-typedef void (*ulapi_exit_t)(void);
+typedef int (*ulapi_exit_t)(int);
 extern int ulapi_main(int instance, int flavor, global_data_t **global);
-extern void ulapi_exit(void);
+extern int ulapi_exit(int instance);
 #endif
 
 /***********************************************************************
