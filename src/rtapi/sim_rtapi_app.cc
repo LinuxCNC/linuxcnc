@@ -462,15 +462,15 @@ static void exit_actions()
 {
     do_unload_cmd("hal_lib");
     do_unload_cmd("rtapi");
-    //    do_unload_cmd("instance");
     gd = NULL;
 }
 
 static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
 {
-    vector<string> args;
+    vector<string> args, noargs;
     string arg;
     char buff[100];
+    int retval;
 
     args.push_back(string("rtapi"));
     snprintf(buff, sizeof(buff), "rtapi_instance=%d", instance);
@@ -482,7 +482,10 @@ static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
     snprintf(buff, sizeof(buff), "user_msg_level=%d", userlevel);
     args.push_back(string(buff));
 
-    return do_load_cmd("rtapi", args);
+    retval =  do_load_cmd("rtapi", args);
+    if (retval)
+	return retval;
+    return do_load_cmd("hal_lib", noargs);
 }
 
 static char proctitle[20];
@@ -654,7 +657,7 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
 	for (j = 0; j < nptrs; j++) {
 	    char *s =  strings[j];
 	    if (s && strlen(s)) 
-		rtapi_print_msg(RTAPI_MSG_ERR,s);
+		rtapi_print_msg(RTAPI_MSG_ERR,"%s", s);
 	}
 	free(strings);
     }

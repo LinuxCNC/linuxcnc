@@ -172,15 +172,15 @@ Load(){
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG \
 		--halsize=$HAL_SIZE 
-	    rtapi_app --instance=$INSTANCE \
-		load hal_lib
+	    # rtapi_app --instance=$INSTANCE \
+	    # 	load hal_lib
 	else
 	    rtapi_app --instance $INSTANCE \
 		--halsize=$HAL_SIZE \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
-	    rtapi_app --instance=$INSTANCE \
-		load hal_lib  2>&1 >/dev/null
+	    # rtapi_app --instance=$INSTANCE \
+	    # 	load hal_lib  2>&1 >/dev/null
         fi
 	rtapi_msgd
 
