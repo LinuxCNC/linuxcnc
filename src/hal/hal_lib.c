@@ -4816,6 +4816,9 @@ static void ulapi_hal_lib_init(void)
 
     // call the ulapi init method to retrieve the global segment
     if ((retval = ulapi_main_ref(rtapi_instance, flavor->id, &global_data)) < 0) {
+
+	// FIXME improve error message
+	// check shmdrv, permissions
 	fprintf(stderr,
 		"HAL_LIB: FATAL - cannot attach to instance %d - realtime not started?\n",
 		rtapi_instance);
