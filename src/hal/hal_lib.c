@@ -4819,7 +4819,7 @@ static void ulapi_hal_lib_init(void)
 	fprintf(stderr,
 		"HAL_LIB: FATAL - cannot attach to instance %d - realtime not started?\n",
 		rtapi_instance);
-	exit(1);	
+	exit(1);
     }
 
     // pretty bad - we loaded the wrong ulapi.so
@@ -4839,12 +4839,13 @@ static void ulapi_hal_lib_init(void)
     // the running kernel if it has special prerequisites
     switch (rtapi_switch->thread_flavor_id) {
     case  RTAPI_RT_PREEMPT_USER_ID:
-	if (!kernel_is_xenomai()) {
+	if (!kernel_is_rtpreempt()) {
 	    fprintf(stderr,"HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is not RT_PREEMPT (%s, %s)\n",
 		    ulapi_lib, rtapi_switch->git_version);
 	    exit(1);
 	}
 	break;
+
     case RTAPI_XENOMAI_KERNEL_ID:
     case RTAPI_XENOMAI_USER_ID:
 	if (!kernel_is_xenomai()) {
@@ -4853,6 +4854,7 @@ static void ulapi_hal_lib_init(void)
 	    exit(1);
 	}
 	break;
+
     case RTAPI_RTAI_KERNEL_ID:
 	if (!kernel_is_rtai()) {
 	    fprintf(stderr,"HAL_LIB: ERROR - RTAI ULAPI loaded but kernel is not RTAI (%s, %s)\n",
@@ -4860,6 +4862,7 @@ static void ulapi_hal_lib_init(void)
 	    exit(1);
 	}
 	break;
+
     default:
 	// no prerequisites for vanilla
 	break;
@@ -4875,7 +4878,6 @@ static void ulapi_hal_lib_init(void)
     // this enables use of the rtapi_data segment for shared state
     // immediately, not just after the first hal_init(), whenever
     // that might be (which might be never).
-
     hal_rtapi_attach();
 }
 

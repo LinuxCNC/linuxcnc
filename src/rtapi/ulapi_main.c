@@ -33,7 +33,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-// not sure - delete FIXME
 global_data_t *get_global_handle(void)
 {
     return global_data;
@@ -128,6 +127,7 @@ int ulapi_exit(int instance)
 	}
 	global_data = NULL;
     }
+    return 0;
 }
 
 #endif // ULAPI

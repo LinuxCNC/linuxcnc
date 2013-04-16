@@ -63,8 +63,6 @@ ULAPISO_SRCS := $(ULAPI_SRCS) \
 	rtapi/ulapi_main.c  \
 	rtapi/rtapi_support.c 
 
-#$(warning ULAPISO_SRCS=$(ULAPISO_SRCS))
-
 # resolved at loadtime
 $(call TOOBJSDEPS, $(ULAPISO_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ULAPISO := ../lib/ulapi.so

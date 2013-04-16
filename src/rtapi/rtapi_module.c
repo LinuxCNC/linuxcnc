@@ -28,7 +28,7 @@ extern void init_rtapi_data(rtapi_data_t * data);
 
 #ifdef RTAPI
 MODULE_AUTHOR("Michael Haberler");
-MODULE_DESCRIPTION("RTAPI module support");
+MODULE_DESCRIPTION("RTAPI module support - kernel threads");
 MODULE_LICENSE("GPL");
 
 // kernel styles do not support multiple instances
@@ -43,8 +43,8 @@ static int user_msg_level = RTAPI_MSG_INFO;	/* initial User message printing lev
 RTAPI_MP_STRING(instance_name,"name of this instance")
 RTAPI_MP_INT(rtapi_instance, "instance ID");
 RTAPI_MP_INT(hal_size, "size of the HAL data segment");
-RTAPI_MP_INT(rt_msg_level, "debug message level (default=1)");
-RTAPI_MP_INT(user_msg_level, "debug message level (default=1)");
+RTAPI_MP_INT(rt_msg_level, "RT debug message level (default=3)");
+RTAPI_MP_INT(user_msg_level, "user debug message level (default=3)");
 EXPORT_SYMBOL(rtapi_instance);
 EXPORT_SYMBOL(global_data);
 
