@@ -79,7 +79,7 @@ static int shm_malloc(struct shm_segment *seg)
     size = PAGE_ALIGN(seg->size);
     mem = vmalloc_user(size);
     if (!mem) {
-	info("open=%d alloced=%dK freed=%dK balance=%dK\n",
+	err("vmalloc fail open=%d alloced=%dK freed=%dK balance=%dK\n",
 	     nopen,
 	     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 	return -ENOMEM;
@@ -121,7 +121,7 @@ static void shmdrv_vma_open(struct vm_area_struct *vma)
     int segno = (int) vma->vm_private_data;
     struct shm_segment *seg = &shm_segments[segno];
 
-    info("VMA open, virt %lx, phys %lx length %ld segno=%d",
+    dbg("VMA open, virt %lx, phys %lx length %ld segno=%d",
 	vma->vm_start, 
 	vma->vm_pgoff << PAGE_SHIFT,
 	vma->vm_end - vma->vm_start,
@@ -136,7 +136,7 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
     int segno = (int) vma->vm_private_data;
     struct shm_segment *seg = &shm_segments[segno];
 
-    info("VMA close releasing %p, segno=%d", vma, segno);
+    dbg("VMA close releasing %p, segno=%d", vma, segno);
     seg->n_uattach--;
     if (gc && ((seg->n_uattach + seg->n_kattach) == 0)) {
 	// last reference gone away, gc true
@@ -148,7 +148,7 @@ static void shmdrv_vma_close(struct vm_area_struct *vma)
 	    shm_free(seg);
 	    ret = 0;
 	}
-	info("unmap: gc segment %d key=0x%8.8x", segno, seg->key);
+	dbg("unmap: gc segment %d key=0x%8.8x", segno, seg->key);
 	seg->in_use = 0;
     }
 }
@@ -173,7 +173,7 @@ static int shmdrv_generic_access_phys(struct vm_area_struct *vma, unsigned long 
     seg = &shm_segments[segno];
     offset = (addr) - vma->vm_start;
     maddr = phys_to_virt(__pa(seg->kmem));
-    info("%d: maddr %p kmem %p len %d offset %d wr:%d",
+    dbg("%d: maddr %p kmem %p len %d offset %d wr:%d",
 	 segno,maddr, seg->kmem, len,offset, write);
 
     if (write)
@@ -250,7 +250,7 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
     vma->vm_ops = &mmap_ops;
     shmdrv_vma_open(vma);  // track usage
-    info("mmap seg %d size %d key %d/%x at %p length %d",
+    dbg("mmap seg %d size %d key %d/%x at %p length %d",
 	 segno, seg->size, seg->key, seg->key, seg->kmem, length);
     return(0);
 }
