@@ -172,15 +172,11 @@ Load(){
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG \
 		--halsize=$HAL_SIZE 
-	    # rtapi_app --instance=$INSTANCE \
-	    # 	load hal_lib
 	else
 	    rtapi_app --instance $INSTANCE \
 		--halsize=$HAL_SIZE \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
-	    # rtapi_app --instance=$INSTANCE \
-	    # 	load hal_lib  2>&1 >/dev/null
         fi
 	rtapi_msgd
 
@@ -240,12 +236,13 @@ Unload(){
 
 	INSTKEY=`printf '%2.2d' $INSTANCE` 
 
-	ipcrm  -M 0x${INSTKEY}414c32 >/dev/null 2>&1
-	ipcrm  -M 0x${INSTKEY}280a48 >/dev/null 2>&1 
-	ipcrm  -M 0x${INSTKEY}154711 >/dev/null 2>&1 
-	ipcrm  -M 0x${INSTKEY}000064 >/dev/null 2>&1 | : 
+	rm  -f  /dev/shm/0x${INSTKEY}414c32 >/dev/null 2>&1
+	rm  -f  /dev/shm/0x${INSTKEY}280a48 >/dev/null 2>&1 
+	rm  -f  /dev/shm/0x${INSTKEY}154711 >/dev/null 2>&1 
+	rm  -f  /dev/shm/0x${INSTKEY}000064 >/dev/null 2>&1 | : 
 
 	# assorted module leftover shm segments
+        # FIXTHIS
 	RE="("
 	RE=${RE}"0x"${INSTKEY}"5354[0-9a-f][0-9a-f]|"
 	RE=${RE}"0x"${INSTKEY}"5341[0-9a-f][0-9a-f]|"
