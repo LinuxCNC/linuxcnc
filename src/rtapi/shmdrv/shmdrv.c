@@ -486,7 +486,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	    ret = -ENOMEM;
     }
     if (ret) {
-	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x pid", 
+	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x pid %d", 
 	    seg->size, seg->key, pid);
 	goto done;
     }
