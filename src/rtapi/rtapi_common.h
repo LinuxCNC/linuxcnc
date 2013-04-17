@@ -239,12 +239,10 @@ extern void init_global_data(global_data_t * data,
 extern int  _next_module_id(void);
 #endif
 
-#if defined(BUILD_SYS_USER_DSO)
 // set first thing in rtapi_app_main
 extern int shmdrv_loaded;
 extern long page_size;  // for munmap
 #define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
-#endif
 
 /* rtapi_task.c */
 extern task_data *task_array;

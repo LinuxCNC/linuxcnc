@@ -62,7 +62,7 @@ static int setup_global()
 	    sm.flags = 0;
 	    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
 	    sm.driver_fd = shmdrv_driver_fd();
-	    retval = shmdrv_attach(&sm, (void **)global_data);
+	    retval = shmdrv_attach(&sm, (void **)&global_data);
 	    if (retval < 0) {
 		syslog(LOG_ERR,"global shmdrv attach failed %d\n", retval);
 		return retval;
