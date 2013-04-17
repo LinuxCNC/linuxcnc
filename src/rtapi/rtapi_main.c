@@ -133,14 +133,6 @@ void rtapi_app_exit(void)
     rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d exit\n",
 		    rtapi_instance);
 
-    retval = shm_common_detach(sizeof(global_data_t), global_data);
-    if (retval) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
-			rtapi_instance,  OS_KEY(GLOBAL_KEY, rtapi_instance), 
-			strerror(-retval));
-    }
-
     retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data);
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -148,6 +140,16 @@ void rtapi_app_exit(void)
 			rtapi_instance,  OS_KEY(GLOBAL_KEY, rtapi_instance), 
 			strerror(-retval));
     }
+    rtapi_data = NULL;
+
+    retval = shm_common_detach(sizeof(global_data_t), global_data);
+    if (retval) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
+			rtapi_instance,  OS_KEY(GLOBAL_KEY, rtapi_instance), 
+			strerror(-retval));
+    }
+    global_data = NULL;
 }
 
 static int check_compatible()

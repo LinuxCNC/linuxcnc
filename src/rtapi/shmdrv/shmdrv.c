@@ -78,9 +78,12 @@ static int shm_malloc(struct shm_segment *seg)
 
     size = PAGE_ALIGN(seg->size);
     mem = vmalloc_user(size);
-    if (!mem)
+    if (!mem) {
+	info("open=%d alloced=%dK freed=%dK balance=%dK\n",
+	     nopen,
+	     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 	return -ENOMEM;
-
+    }
     allocated += size;
     seg->act_size = size;
     adr = (unsigned long) mem;
@@ -450,6 +453,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
     if (shmstat->size <= 0) {
 	err("invalid size %d", shmstat->size);
 	ret = -EINVAL;
+	goto done;
     }
     segno = find_shm_by_key(shmstat->key);
     if (segno > -1) {
