@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
@@ -15,14 +16,16 @@
 #include <syslog.h>
 
 #include <rtapi.h>
-#include <hal.h>
+#include "rtapi/shmdrv/shmdrv.h"
 
-static int comp_id;
-static int instance_id;
+int rtapi_instance;
 static int log_stderr;
 static int foreground;
 static int poll_ms = 200; // default msg q checking interval
-
+static int shmdrv_loaded;
+static long page_size;
+static int global_fd;
+global_data_t *global_data;
 static ringbuffer_t rtapi_msg_buffer;   // rtapi ring access strcuture
 
 static const char *progname;
@@ -45,22 +48,46 @@ static struct option long_options[] = {
     {0, 0, 0, 0}
 };
 
-// for now go through hal_init to access global_data
-// until there's a global API
 static int setup_global()
 {
-    char hal_name[LINELEN];
-    snprintf(hal_name, sizeof(hal_name), "msgd%d", getpid());
+    int retval = 0;
+    struct shm_status sm;
 
-    if ((comp_id = hal_init(hal_name)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_init(%s) failed: HAL error code=%d\n",
-			progname, hal_name, comp_id);
-	return -1;
+    page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded  = shmdrv_available();
+
+    if (global_data == NULL) {
+	if (shmdrv_available()) {
+	    sm.size = sizeof(global_data_t);
+	    sm.flags = 0;
+	    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
+	    sm.driver_fd = shmdrv_driver_fd();
+	    retval = shmdrv_attach(&sm, (void **)global_data);
+	    if (retval < 0) {
+		syslog(LOG_ERR,"global shmdrv attach failed %d\n", retval);
+		return retval;
+	    }
+	} else {
+	    char segment_name[LINELEN];
+	    sprintf(segment_name, "0x%8.8x",OS_KEY(GLOBAL_KEY, rtapi_instance));
+
+	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
+				     (S_IREAD | S_IWRITE))) < 0) {
+		syslog(LOG_ERR,"ERROR: cant shm_open(%s) : %s\n",
+				segment_name, strerror(errno));
+		retval = errno;
+	    }
+	    if ((global_data = mmap(0, sizeof(global_data_t), (PROT_READ | PROT_WRITE),
+				MAP_SHARED, global_fd, 0)) == MAP_FAILED) {
+		syslog(LOG_ERR, "ERROR: mmap(%s) failed: %s\n",
+				segment_name, strerror(errno));
+		retval = errno;
+	    }
+	}
     }
-    hal_ready(comp_id);
-    assert(global_data != NULL);
-    return 0;
+    return retval;
 }
+
 
 static void msgd_exit(int sig, siginfo_t *si, void *context)
 {
@@ -69,7 +96,6 @@ static void msgd_exit(int sig, siginfo_t *si, void *context)
 	if (rtapi_msg_buffer.header != NULL)
 	    rtapi_msg_buffer.header->refcount--;
     }
-    hal_exit(comp_id);
     syslog(LOG_INFO,"exiting - got signal: %s", strsignal(sig));
     exit(0);
 }
@@ -150,7 +176,7 @@ int main(int argc, char **argv)
 	    foreground++;
 	    break;
 	case 'I':
-	    instance_id = atoi(optarg);
+	    rtapi_instance = atoi(optarg);
 	    break;
 	case 'p':
 	    poll_ms = atoi(optarg);
@@ -189,7 +215,7 @@ int main(int argc, char **argv)
 
     }
     // set new process name
-    snprintf(proctitle, sizeof(proctitle), "msgd:%d",instance_id);
+    snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
     argv0_len = strlen(argv[0]);
     procname_len = strlen(proctitle);
     max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
@@ -228,7 +254,7 @@ int main(int argc, char **argv)
     sig_act.sa_handler = SIG_IGN; 
     sig_act.sa_sigaction = NULL;
 
-    // prevent stopping of by ^Z
+    // prevent stopping by ^Z
     sigaction(SIGTSTP, &sig_act, (struct sigaction *) NULL); 
 
     sig_act.sa_sigaction = msgd_exit;

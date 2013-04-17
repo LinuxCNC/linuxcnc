@@ -240,17 +240,16 @@ TARGETS += ../bin/kdetect
 #                     the rtapi message demon
 ##################################################################
 
-RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c
+RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c rtapi/shmdrv/shmdrvapi.c
 RTAPI_MSGD_OBJS := \
 	$(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
 $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
-	EXTRAFLAGS += -DTEST  \
-	 $(shell $(XENO_CONFIG) --skin=native --cflags )
+	EXTRAFLAGS += -DTEST
 
-../bin/rtapi_msgd: $(RTAPI_MSGD_OBJS)  ../lib/liblinuxcnchal.so
+../bin/rtapi_msgd: $(RTAPI_MSGD_OBJS)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  ../lib/liblinuxcnchal.so -lrt -ldl
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
