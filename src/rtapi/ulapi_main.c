@@ -27,11 +27,17 @@
 #include "rtapi/shmdrv/shmdrv.h"
 
 #if defined(ULAPI)
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <sys/mman.h>
+#include <sys/types.h>          //shm_open
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <sys/types.h>
+
+static int global_fd, rtapi_fd;
 
 global_data_t *get_global_handle(void)
 {
@@ -58,9 +64,23 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 		return retval;
 	    }
 	} else {
-	    //TBD
-	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv attachNIY\n");
-	    return -EINVAL;
+	    char segment_name[LINELEN];
+	    sprintf(segment_name, "0x%8.8x",OS_KEY(GLOBAL_KEY, instance));
+
+	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
+				     (S_IREAD | S_IWRITE))) < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"RTAPI:%d ERROR: cant shm_open(%s) : %s\n",
+				rtapi_instance, segment_name, strerror(errno));
+		retval = errno;
+	    }
+	    if ((*global = mmap(0, sizeof(global_data_t), (PROT_READ | PROT_WRITE),
+				MAP_SHARED, global_fd, 0)) == MAP_FAILED) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"RTAPI:%d ERROR: mmap(%s) failed: %s\n",
+				rtapi_instance, segment_name, strerror(errno));
+		retval = errno;
+	    }
 	}
     }
     if (rtapi_data == NULL) {
@@ -75,17 +95,31 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 		return retval;
 	    }
 	} else {
-	    //TBD
-	    rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv attach NIY\n");
-	    return -EINVAL;
+	    char segment_name[LINELEN];
+	    sprintf(segment_name, "0x%8.8x",OS_KEY(RTAPI_KEY, instance));
+
+	    if((rtapi_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
+				     (S_IREAD | S_IWRITE))) < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"RTAPI:%d ERROR: cant shm_open(%s) : %s\n",
+				rtapi_instance, segment_name, strerror(errno));
+		retval = errno;
+	    }
+	    if ((rtapi_data = mmap(0, sizeof(rtapi_data_t), (PROT_READ | PROT_WRITE),
+				   MAP_SHARED, rtapi_fd, 0)) == MAP_FAILED) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"RTAPI:%d ERROR: mmap(%s) failed: %s\n",
+				rtapi_instance, segment_name, strerror(errno));
+		retval = errno;
+	    }
 	}
     }
-    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d startup RT msglevel=%d halsize=%d %s\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d startup RT msglevel=%d halsize=%d %s ret=%d\n", 
 		    rtapi_instance,
 		    global_data->rt_msg_level,
 		    global_data->hal_size,
-		    GIT_VERSION);
-    return 0;
+		    GIT_VERSION, retval);
+    return retval;
 }
 
 int ulapi_exit(int instance)

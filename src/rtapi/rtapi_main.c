@@ -116,7 +116,7 @@ int rtapi_app_main(void)
 	if (global_fd < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: cant shm_open(%s) - instance already started?: %s\n",
-			    rtapi_instance, segment_name, strerror(-errno));
+			    rtapi_instance, segment_name, strerror(errno));
 	    return -errno;
 	}
 	ftruncate(global_fd, sizeof(global_data_t));
@@ -124,7 +124,7 @@ int rtapi_app_main(void)
 			       MAP_SHARED, global_fd, 0)) == MAP_FAILED) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: mmap(%s) failed: %s\n",
-			    rtapi_instance, segment_name, strerror(-errno));
+			    rtapi_instance, segment_name, strerror(errno));
 	    return -errno;
 	}
 	sprintf(segment_name, "0x%8.8x",OS_KEY(RTAPI_KEY, rtapi_instance));
@@ -134,7 +134,7 @@ int rtapi_app_main(void)
 	if (rtapi_fd < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: cant shm_open(%s) - instance already started?: %s\n",
-			    rtapi_instance, segment_name, strerror(-errno));
+			    rtapi_instance, segment_name, strerror(errno));
 	    return -errno;
 	}
 	ftruncate(rtapi_fd, sizeof(rtapi_data_t));
@@ -142,7 +142,7 @@ int rtapi_app_main(void)
 			      MAP_SHARED, rtapi_fd, 0)) == MAP_FAILED) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: mmap(%s) failed: %s\n",
-			    rtapi_instance, segment_name, strerror(-errno));
+			    rtapi_instance, segment_name, strerror(errno));
 	    return -errno;
 	}
     }
@@ -180,14 +180,14 @@ int rtapi_app_main(void)
 	    if (munmap(global_data, PAGESIZE_ALIGN(sizeof(global_data_t)))) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"RTAPI:%d ERROR: munmap(global_data) failed: %s\n",
-				rtapi_instance, strerror(-errno));
+				rtapi_instance, strerror(errno));
 		retval = -errno;
 		global_data = NULL;
 	    }
 	    if (munmap(rtapi_data, PAGESIZE_ALIGN(sizeof(rtapi_data_t)))) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: munmap(rtapi_data) failed: %s\n",
-				rtapi_instance, strerror(-errno));
+				rtapi_instance, strerror(errno));
 		retval = -errno;
 		rtapi_data = NULL;
 	    }
@@ -228,13 +228,13 @@ void rtapi_app_exit(void)
 	if (munmap(global_data, PAGESIZE_ALIGN(sizeof(global_data_t)))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: munmap(global_data) failed: %s\n",
-			    rtapi_instance, strerror(-errno));
+			    rtapi_instance, strerror(errno));
 	    global_data = NULL;
 	}
 	if (munmap(rtapi_data, PAGESIZE_ALIGN(sizeof(rtapi_data_t)))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI:%d ERROR: munmap(rtapi_data) failed: %s\n",
-			    rtapi_instance, strerror(-errno));
+			    rtapi_instance, strerror(errno));
 	    rtapi_data = NULL;
 	}
     }
