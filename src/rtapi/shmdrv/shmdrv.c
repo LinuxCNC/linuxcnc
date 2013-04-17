@@ -451,13 +451,13 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 
     spin_lock(&ll_lock);
     if (shmstat->size <= 0) {
-	err("invalid size %d", shmstat->size);
+	err("invalid size %d pid %d", shmstat->size, pid);
 	ret = -EINVAL;
 	goto done;
     }
     segno = find_shm_by_key(shmstat->key);
     if (segno > -1) {
-	err("shm segment exists: key=0x%8.8x pos=%d", shmstat->key, segno);	
+	err("shm segment exists: key=0x%8.8x pos=%d pid %d", shmstat->key, segno, pid);	
 	ret = -EINVAL;
 	goto done;
     }
@@ -486,8 +486,8 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	    ret = -ENOMEM;
     }
     if (ret) {
-	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x", 
-	    seg->size, seg->key);
+	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x pid", 
+	    seg->size, seg->key, pid);
 	goto done;
     }
     ret = segno;
