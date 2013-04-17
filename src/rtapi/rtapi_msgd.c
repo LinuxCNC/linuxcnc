@@ -22,8 +22,8 @@ int rtapi_instance;
 static int log_stderr;
 static int foreground;
 static int poll_ms = 200; // default msg q checking interval
-static int shmdrv_loaded;
-static long page_size;
+int shmdrv_loaded;
+long page_size;
 static int global_fd;
 global_data_t *global_data;
 static ringbuffer_t rtapi_msg_buffer;   // rtapi ring access strcuture

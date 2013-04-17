@@ -18,6 +18,9 @@ global_data_t *global_data;
 rtapi_data_t *rtapi_data;
 hal_data_t *hal_data;
 
+int shmdrv_loaded;
+long page_size;
+
 int gm = -1;
 int rm = -1;
 int rrm = -1;
@@ -33,6 +36,9 @@ struct timespec looptime = {
 int main(int argc, char **argv)
 {
     struct shm_status sm; 
+
+    page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded = shmdrv_available();
 
     if (argc > 1)
 	rtapi_instance = atoi(argv[1]);

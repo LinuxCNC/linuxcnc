@@ -29,7 +29,6 @@
 #  endif
 #endif
 
-
 #define SHM_PERMISSIONS	0666
 
 #ifdef BUILD_SYS_KBUILD
@@ -44,13 +43,6 @@
 #  endif
 #endif
 
-
-/* prototypes for hooks the kernel thread systems must implement */
-extern void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-					   unsigned long int size, int instance);
-extern void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-					 unsigned long int size, int instance);
-extern void _rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 static void check_memlock_limit(const char *where);
 #endif
@@ -68,7 +60,6 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 
 int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
-    struct shm_status sm;
     int i, ret;
     int is_new = 0;
     int key = OS_KEY(userkey, instance);
@@ -91,60 +82,17 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     }
     shmem = &shmem_array[i];
 
-    if (shmdrv_available()) {
-
-	sm.driver_fd = shmdrv_driver_fd();
-	sm.key = key;
-	sm.size = size;
-	sm.flags = 0;
-
-	ret = shmdrv_status(&sm); // check if exists
-
-	if (ret) {  // didnt exist, so create
-	    ret = shmdrv_create(&sm); 
-	    if (ret < 0) {
-		rtapi_mutex_give(&(rtapi_data->mutex));
-		rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
-		return ret;
-	    }
-	    is_new = 1;
-	}
-
-	// now attach
-	ret = shmdrv_attach(&sm, &shmem->mem);
-	if (ret < 0) {
-	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "shmdrv attached failed key=0x%x size=%ld\n", key, size);
-	    return ret;
-	}
-    } else { 
-
-	/* now get shared memory block from OS */
-	char segment_name[LINELEN];
-	sprintf(segment_name, SHM_FMT, instance, key);
-	if ((shmem->id = shm_open(segment_name, 
-				 (O_CREAT | O_EXCL | O_RDWR),
-				  (S_IREAD | S_IWRITE))) > 0) {
-	    // initial creation
-	    ftruncate(shmem->id, size);
-	    is_new = 1;
-	} else if((shmem->id = shm_open(segment_name, (O_CREAT | O_RDWR),
-					(S_IREAD | S_IWRITE))) < 0) {
-	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: cant shm_open(%s) : %s\n",
-			    rtapi_instance, segment_name, strerror(errno));
-	    return -errno;
-	}
-	if((shmem->mem = mmap(0, size, (PROT_READ | PROT_WRITE),
-			       MAP_SHARED, shmem->id, 0)) == MAP_FAILED) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: mmap(%s) failed: %s\n",
-			    rtapi_instance, segment_name, strerror(errno));
-	    return -errno;
-	}
+    ret = shm_common_new(key, size, instance, &shmem->mem, 1);
+    if (ret > 0)
+	is_new = 1;
+    if (ret < 0) {
+	 rtapi_mutex_give(&(rtapi_data->mutex));
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "shm_common_new:%d failed key=0x%x size=%ld\n",
+			 instance, key, size);
+	 return ret;
     }
+
     /* Touch each page by either zeroing the whole mem (if it's a new
        SHM region), or by reading from it. */
     if (is_new) {
@@ -193,7 +141,6 @@ int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
 
 int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     shmem_data *shmem;
-    struct shm_status sm;
     int retval = 0;
 
     if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
@@ -218,35 +165,16 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
 	return 0;
     }
 
-    if (shmdrv_available()) {
-	//sm.key = shmem->key;
-	sm.size = shmem->size;
-	sm.flags = 0;
-
-	retval = shmdrv_detach(&sm, shmem->mem);
-	if (retval) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: shmdrv detach failed key=0x%x size=%ld\n", 
-			    rtapi_instance, shmem->key, shmem->size);
-	}
-    } else {
-
-	char segment_name[LINELEN];
-	sprintf(segment_name, SHM_FMT, instance, shmem->key);
-
-#if 0
-	if (shm_unlink(segment_name)) {
-	      rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI:%d shm_unlink(%s) : %s\n", 
-			      rtapi_instance, segment_name, strerror(errno));
-	}
-#endif
-	if (munmap(shmem->mem, PAGESIZE_ALIGN(shmem->size))) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: munmap(%s) failed: %s\n",
-			    rtapi_instance, segment_name, strerror(errno));
-	    retval = -errno;
-	}
+    retval = shm_common_detach(shmem->size, shmem->mem);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
+			instance, shmem->key, strerror(-retval));
     }
+
+    // XXX: probably shmem->mem should be set to NULL here to avoid
+    // references to already unmapped segments (and find them early)
+
     /* free the shmem structure */
     shmem->magic = 0;
     rtapi_mutex_give(&(rtapi_data->mutex));
@@ -313,7 +241,6 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 	    if (shmem->rtusers == 0) {
 #endif
 		/* no, map it and save the address */
-#ifdef USE_SHMDRV
 		sm.key = key;
 		sm.size = size;
 		sm.flags = 0;
@@ -327,10 +254,6 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 				    "shmdrv attached failed key=0x%x size=%ld\n", key, size);
 		    return retval;
 		}
-#else
-		shmem_addr_array[shmem_id] =
-		    _rtapi_shmem_new_realloc_hook(shmem_id, key, size, instance);
-#endif
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "RTAPI: ERROR: failed to map shmem\n");
@@ -378,7 +301,6 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
     shmem = &(shmem_array[n]);
 
     /* get shared memory block from OS and save its address */
-#ifdef USE_SHMDRV
     sm.key = key;
     sm.size = size;
     sm.flags = 0;
@@ -397,10 +319,6 @@ int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long in
 	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv attached failed key=0x%x size=%ld\n", key, size);
 	return retval;
     }
-#else
-    shmem_addr_array[shmem_id] =
-	_rtapi_shmem_new_malloc_hook(shmem_id, key, size, instance);
-#endif
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,

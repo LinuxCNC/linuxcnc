@@ -128,7 +128,7 @@ typedef struct {
 
 #define rtapi2syslog(level) (level+2)
 
-#if defined(ULAPI)
+#if defined(ULAPI) || defined(BUILD_SYS_USER_DSO)
 
 /* make sure a given kernel module is loaded.
    might be needed for some usermode PCI drivers
@@ -142,7 +142,7 @@ extern int kernel_is_xenomai();
 extern int kernel_is_rtai();
 extern int kernel_is_rtpreempt();
 
-#endif // BUILD_SYS_USER_DSO
+#endif 
 
 enum flavor_flags {
     FLAVOR_DOES_IO=1,

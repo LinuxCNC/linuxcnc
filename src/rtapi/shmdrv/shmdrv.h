@@ -61,6 +61,8 @@ extern int shmdrv_attach(struct shm_status *shmstat, void **shm);
 extern int shmdrv_detach(struct shm_status *shmstat, void *shm);
 extern int shmdrv_gc(void);
 extern void shmdrv_print_status(struct shm_status *sm, const char *tag);
+extern int shm_common_new(int key, int size, int instance, void **shmptr, int create);
+extern int shm_common_detach(int size, void *shmptr);
 
 #ifdef __cplusplus
 }
