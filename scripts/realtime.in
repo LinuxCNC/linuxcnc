@@ -194,6 +194,14 @@ Load(){
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
         fi
+
+	# ping is a noop which will finish only once rtapi_app
+	# is fully set up and responds. This closes a race condition where clients
+	# like halcmd might try to attach the HAL data segment before
+	# rtapi_app got around to creating it
+	rtapi_app --instance $INSTANCE ping
+
+	# unified logging
 	rtapi_msgd --instance=$INSTANCE
     ;;
 
