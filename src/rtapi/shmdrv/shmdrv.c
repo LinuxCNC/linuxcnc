@@ -109,7 +109,7 @@ static void shm_free(struct shm_segment *seg)
 	size -= PAGE_SIZE;
     }
     vfree(seg->kmem);
-    freed += size;
+    freed += seg->act_size;
 }
 
 // usage tracking
