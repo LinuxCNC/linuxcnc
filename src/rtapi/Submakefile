@@ -15,7 +15,7 @@ RT_CFLAGS :=
 # ../lib/liblinuxcnchal.so
 #
 # see below and hal/Submakefile
-RT_LDFLAGS := 
+RT_LDFLAGS := -lrt  # POSIX shm_open() etc
 ULAPISO_LIBS :=
 # see enum thread_flavor_id in rtapi.h
 ifeq ($(THREADS),posix)
