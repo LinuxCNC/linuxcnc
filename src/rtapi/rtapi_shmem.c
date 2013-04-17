@@ -423,8 +423,6 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     }
     /* no other realtime users, free the shared memory from kernel space */
 
-    _rtapi_shmem_delete_hook(shmem,shmem_id);
-
 #ifdef RTAPI
     shmem_addr_array[shmem_id] = NULL;
     shmem->rtusers = 0;

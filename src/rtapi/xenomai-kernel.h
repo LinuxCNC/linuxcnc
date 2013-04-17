@@ -12,8 +12,6 @@
 #define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
 */
 
-#define MASTER_HEAP "rtapi-heap"
-#define GLOBAL_HEAP "global-heap"
 /* add some fields to rtapi_data_t:
    rt_wait_error:		release point missed
    rt_last_overrun:		last number of overruns reported by Xenomai

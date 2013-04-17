@@ -65,9 +65,7 @@ EXPORT_SYMBOL(get_global_handle);
    needs to delete something, it calls these functions directly.
 */
 static int module_delete(int module_id);
-extern int _rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data);
 extern void _rtapi_module_cleanup_hook(void);
-extern void _rtapi_module_master_shared_memory_free(void);
 
 /***********************************************************************
 *                   INIT AND SHUTDOWN FUNCTIONS                        *
@@ -157,7 +155,6 @@ int init_module(void) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI: ERROR: serial mismatch '%d' vs '%d'\n",
 			rtapi_data->serial, RTAPI_SERIAL);
-	_rtapi_module_master_shared_memory_free();
 	return -EINVAL;
     }
     /* set up local pointers to global data */
