@@ -51,10 +51,8 @@ ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 static int flavor_id = THREAD_FLAVOR_ID;
 static int check_compatible();
-static int shmdrv_loaded;
-static long page_size;
 
-#define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
+
 
 global_data_t *get_global_handle(void)
 {
@@ -68,13 +66,12 @@ int rtapi_app_main(void)
     int retval, compatible;
 
     page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded  = shmdrv_available();
 
     rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d %s %s init\n",
 		    rtapi_instance,
 		    rtapi_get_handle()->thread_flavor_name,
 		    GIT_VERSION);
-
-    shmdrv_loaded  = shmdrv_available();
 
     if (shmdrv_loaded) {
 	sm.driver_fd = shmdrv_driver_fd();

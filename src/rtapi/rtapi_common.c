@@ -158,6 +158,11 @@ rtapi_switch_t *rtapi_get_handle(void) {
 EXPORT_SYMBOL(rtapi_get_handle);
 #endif
 
+#ifdef BUILD_SYS_USER_DSO
+int shmdrv_loaded;  // set in rtapi_app_main, and ulapi_main
+long page_size;     // set in rtapi_app_main
+#endif
+
 void rtapi_autorelease_mutex(void *variable)
 {
     if (rtapi_data != NULL)

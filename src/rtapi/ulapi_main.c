@@ -40,8 +40,11 @@ global_data_t *get_global_handle(void)
 
 int ulapi_main(int instance, int flavor, global_data_t **global)
 {
-    int retval;
+    int retval = 0;
     struct shm_status sm;
+
+    page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded  = shmdrv_available();
 
     if (global_data == NULL) {
 	if (shmdrv_available()) {

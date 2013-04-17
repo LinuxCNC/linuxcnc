@@ -229,7 +229,7 @@ typedef struct {
 extern rtapi_data_t *rtapi_data;
 
 #if defined(RTAPI) || defined(MODULE)
-extern void _init_rtapi_data(rtapi_data_t * data);
+extern void init_rtapi_data(rtapi_data_t * data);
 extern void init_global_data(global_data_t * data, 
 			     int instance_id, int hal_size, 
 			     int rtlevel, int userlevel, const char *name);
@@ -237,6 +237,13 @@ extern void init_global_data(global_data_t * data,
 
 #if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
 extern int  _next_module_id(void);
+#endif
+
+#if defined(BUILD_SYS_USER_DSO)
+// set first thing in rtapi_app_main
+extern int shmdrv_loaded;
+extern long page_size;  // for munmap
+#define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
 #endif
 
 /* rtapi_task.c */
