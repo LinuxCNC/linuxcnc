@@ -122,7 +122,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 
 	/* now get shared memory block from OS */
 	char segment_name[LINELEN];
-	sprintf(segment_name, "0x%8.8x",key);
+	sprintf(segment_name, SHM_FMT, instance, key);
 	if ((shmem->id = shm_open(segment_name, 
 				 (O_CREAT | O_EXCL | O_RDWR),
 				  (S_IREAD | S_IWRITE))) > 0) {
@@ -150,10 +150,9 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     if (is_new) {
 	memset(shmem->mem, 0, size);
     } else {
-	unsigned int i, pagesize;
+	unsigned int i;
 
-	pagesize = sysconf(_SC_PAGESIZE);
-	for (i = 0; i < size; i += pagesize) {
+	for (i = 0; i < size; i += page_size) {
 	    unsigned int x = *(volatile unsigned int *)
 		((unsigned char *)shmem->mem + i);
 	    /* Use rand_r to clobber the read so GCC won't optimize it
@@ -233,7 +232,8 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     } else {
 
 	char segment_name[LINELEN];
-	sprintf(segment_name, "0x%8.8x",shmem->key);
+	sprintf(segment_name, SHM_FMT, instance, shmem->key);
+
 #if 0
 	if (shm_unlink(segment_name)) {
 	      rtapi_print_msg(RTAPI_MSG_ERR,"RTAPI:%d shm_unlink(%s) : %s\n", 

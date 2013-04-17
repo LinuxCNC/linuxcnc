@@ -69,8 +69,8 @@ static int setup_global()
 	    }
 	} else {
 	    char segment_name[LINELEN];
-	    sprintf(segment_name, "0x%8.8x",OS_KEY(GLOBAL_KEY, rtapi_instance));
-
+	    sprintf(segment_name, SHM_FMT, rtapi_instance,
+		    OS_KEY(GLOBAL_KEY, rtapi_instance));
 	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
 				     (S_IREAD | S_IWRITE))) < 0) {
 		syslog(LOG_ERR,"ERROR: cant shm_open(%s) : %s\n",

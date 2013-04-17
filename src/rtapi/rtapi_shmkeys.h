@@ -41,6 +41,9 @@
 // RTAPI rings
 #define RTAPI_RING_SHM_KEY 0x00415000  
 
-
+// filename format in /dev/shm for POSIX shm_open() names:
+// 'linuxcnc-<rtapi_instance>-<key>
+// this makes it easier to delete all leftover segments in scripts/realtime:Unload
+#define SHM_FMT "/linuxcnc-%d-%8.8x"
 
 #endif // _RTAPI_SHMKEYS_H

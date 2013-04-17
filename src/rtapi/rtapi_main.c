@@ -109,7 +109,8 @@ int rtapi_app_main(void)
 	}
     } else {
 	char segment_name[LINELEN];
-	sprintf(segment_name, "0x%8.8x",OS_KEY(GLOBAL_KEY, rtapi_instance));
+	sprintf(segment_name, SHM_FMT, rtapi_instance,
+		OS_KEY(GLOBAL_KEY, rtapi_instance));
 	int global_fd = shm_open(segment_name, 
 				 (O_CREAT | O_EXCL | O_RDWR),
 				 (S_IREAD | S_IWRITE));
@@ -127,7 +128,8 @@ int rtapi_app_main(void)
 			    rtapi_instance, segment_name, strerror(errno));
 	    return -errno;
 	}
-	sprintf(segment_name, "0x%8.8x",OS_KEY(RTAPI_KEY, rtapi_instance));
+	sprintf(segment_name, SHM_FMT, rtapi_instance,
+		OS_KEY(RTAPI_KEY, rtapi_instance));
 	int rtapi_fd = shm_open(segment_name,
 				(O_CREAT | O_EXCL | O_RDWR),
 				(S_IREAD | S_IWRITE));

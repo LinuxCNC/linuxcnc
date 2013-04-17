@@ -65,8 +65,7 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 	    }
 	} else {
 	    char segment_name[LINELEN];
-	    sprintf(segment_name, "0x%8.8x",OS_KEY(GLOBAL_KEY, instance));
-
+	    sprintf(segment_name, SHM_FMT, instance, OS_KEY(GLOBAL_KEY, instance));
 	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
 				     (S_IREAD | S_IWRITE))) < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
@@ -96,7 +95,7 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 	    }
 	} else {
 	    char segment_name[LINELEN];
-	    sprintf(segment_name, "0x%8.8x",OS_KEY(RTAPI_KEY, instance));
+	    sprintf(segment_name, SHM_FMT, instance, OS_KEY(RTAPI_KEY, instance));
 
 	    if((rtapi_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
 				     (S_IREAD | S_IWRITE))) < 0) {

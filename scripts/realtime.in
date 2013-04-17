@@ -165,7 +165,23 @@ Load(){
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
 
-	#echo Load: INSTANCE=$INSTANCE DEBUG=$DEBUG
+        # check for instance running
+	# this is the case if the global segment exists
+        # and any processes exist which have it attached
+	GLOBALSEG=`printf '/dev/shm/linuxcnc-%d-%2.2d154711' $INSTANCE $INSTANCE` 
+	if fuser $GLOBALSEG >/dev/null 2>&1 ; then
+	    echo instance $INSTANCE already running!
+	    exit 1
+	fi
+
+	# check for any leftover shm keys from aborted previous sessions
+	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
+	SHMKEYS=`ls /dev/shm/${INSTKEY}* >/dev/null 2>&1`
+
+	if [ "$SHMKEYS" != "" ]  ; then
+	    echo "warning: leftover shared memory segments detected - removing: " $SHMKEYS
+	    rm  -f  "$SHMKEYS" >/dev/null 2>&1
+	fi
 
 	if [ "$DEBUG" != "" ] ; then
 	    rtapi_app --instance=$INSTANCE \
@@ -178,9 +194,9 @@ Load(){
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
         fi
-	rtapi_msgd
-
+	rtapi_msgd --instance=$INSTANCE
     ;;
+
     *)
         for MOD in $MODULES_LOAD ; do
 	    # if loading rtapi.ko, tack on parameters
@@ -191,11 +207,11 @@ Load(){
 		$INSMOD $MOD || return $?
 	    fi
         done
-	# this overrides 'instance msg_level' but allows debugging startup issues 
+	# help debugging startup issues 
         if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
-	rtapi_msgd
+	rtapi_msgd --instance=$INSTANCE
     esac
 }
 
@@ -229,34 +245,11 @@ Unload(){
 	    kill $MSGD_PID
 	fi
 
+	# remove any linuxcnc-specific POSIX shm segments if they exist
+	# see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-	# remove any linuxcnc-specific shm segments if they exist
-	# HAL_KEY  RTAPI_KEY GLOBAL_KEY DEFAULT_MOTION_SHMEM_KEY
-	# see src/rtapi/rtapi_shmkeys.h 
-
-	INSTKEY=`printf '%2.2d' $INSTANCE` 
-
-	rm  -f  /dev/shm/0x${INSTKEY}414c32 >/dev/null 2>&1
-	rm  -f  /dev/shm/0x${INSTKEY}280a48 >/dev/null 2>&1 
-	rm  -f  /dev/shm/0x${INSTKEY}154711 >/dev/null 2>&1 
-	rm  -f  /dev/shm/0x${INSTKEY}000064 >/dev/null 2>&1 | : 
-
-	# assorted module leftover shm segments
-        # FIXTHIS
-	RE="("
-	RE=${RE}"0x"${INSTKEY}"5354[0-9a-f][0-9a-f]|"
-	RE=${RE}"0x"${INSTKEY}"5341[0-9a-f][0-9a-f]|"
-	RE=${RE}"0x"${INSTKEY}"4C522B|"
-	RE=${RE}"0x"${INSTKEY}"280A48|"
-	RE=${RE}"0x"${INSTKEY}"4150[0-9a-f][0-9a-f])"
-
-	CMD="`ipcs -m | egrep '"${RE}"' |cut -f1 -d' '`"
-
-	for i in $CMD 
-	do
-	    ipcrm -M $i
-	done
-
+	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
+	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
 
         ;;
     *)
