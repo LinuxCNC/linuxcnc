@@ -283,7 +283,13 @@ obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
 else
-$(shell cd shmdrv; make)
+
+# build shmdrv.ko for the currently running kernel
+../rtlib/shmdrv.ko: rtapi/shmdrv/shmdrv.h rtapi/shmdrv/shmdrv.c
+	(cd rtapi/shmdrv; make clean modules)
+	cp rtapi/shmdrv/shmdrv.ko ../rtlib
+
+TARGETS += ../rtlib/shmdrv.ko
 endif
 
 # lock debugging help plus a bit of API example
