@@ -387,7 +387,8 @@ HEADERS := \
     rtapi/rtapi_ring.h \
     rtapi/rtapi_mbarrier.h \
     rtapi/rtapi_support.h \
-    rtapi/$(THREADS_SOURCE).h 
+    rtapi/$(THREADS_SOURCE).h \
+    rtapi/shmdrv/shmdrv.h
 
 # need to do ths separately because the subdirectory is required
 # ../include/string.h would wreak havoc because it's the 

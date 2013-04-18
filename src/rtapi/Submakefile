@@ -1,10 +1,15 @@
 INCLUDES += rtapi
 
-# this covers the userpci directory too, in a bit cludgy way
+# this covers the userpci and shmdrv directories too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
 	mkdir -p ../include/userpci
 	cp  $^ $@
+
 ../include/%.hh: ./rtapi/%.hh
+	cp  $^ $@
+
+../include/%.h: ./rtapi/shmdrv/%.h
+	mkdir -p ../include/shmdrv
 	cp  $^ $@
 
 # cflags for all sources, -DRTAPI or -DULAPI
@@ -55,7 +60,6 @@ ULAPI_SRCS := \
 	rtapi/rtapi_ring.c \
 	rtapi/rtapi_time.c \
 	rtapi/rtapi_io.c \
-	rtapi/shmdrv/shmdrvapi.c \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) 
 
@@ -66,17 +70,33 @@ ULAPISO_SRCS := $(ULAPI_SRCS) \
 # resolved at loadtime
 $(call TOOBJSDEPS, $(ULAPISO_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ULAPISO := ../lib/ulapi.so
-$(ULAPISO): ../lib/liblinuxcnchal.so  $(call TOOBJS, $(ULAPISO_SRCS))
+$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so  $(call TOOBJS, $(ULAPISO_SRCS))
 	$(ECHO) Creating shared object $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
+	../lib/liblinuxcncshm.so \
 	../lib/liblinuxcnchal.so
 
 
 USERSRCS += $(ULAPISO_SRCS) 
 TARGETS += $(ULAPISO)
+
+# make shmdrvapi.o a shared library, which gets around -fPIC
+# issues on amd64
+SHMDRVAPISRCS := rtapi/shmdrv/shmdrvapi.c 
+
+$(call TOOBJSDEPS, $(SHMDRVAPISRCS)): EXTRAFLAGS += -fPIC
+SHMDRVLIB := ../lib/liblinuxcncshm.so
+
+$(SHMDRVLIB).0: $(call TOOBJS, $(SHMDRVAPISRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(RT_LDFLAGS)
+TARGETS += $(SHMDRVLIB) 
 
 # RTAPI:  ../rtlib/*
 #
@@ -233,16 +253,15 @@ TARGETS += ../bin/kdetect
 #                     the rtapi message demon
 ##################################################################
 
-RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c rtapi/shmdrv/shmdrvapi.c
-RTAPI_MSGD_OBJS := \
-	$(call TOOBJS, $(RTAPI_MSGD_SRCS))
+RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c
+RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
 $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 	EXTRAFLAGS += -DTEST
 
-../bin/rtapi_msgd: $(RTAPI_MSGD_OBJS)
+../bin/rtapi_msgd: ../lib/liblinuxcncshm.so $(RTAPI_MSGD_OBJS)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ ../lib/liblinuxcncshm.so -lrt
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
@@ -272,29 +291,16 @@ testshmdrv-objs := rtapi/shmdrv/testshmdrv.o
 ../rtlib/testshmdrv$(MODULE_EXT): $(addprefix objects/rt,$(testshmdrv-objs))
 endif
 
-# $(call TOOBJSDEPS, $(TESTCLIENT_SRCS)): EXTRAFLAGS += -Wall -g -O0 -DENABLE_TRACE
-
-# TESTCLIENT_SRCS =  rtapi/shmdrv/testclient.c rtapi/shmdrv/shmdrvapi.c
-# TESTCLIENT_OBJS := $(call TOOBJS, $(TESTCLIENT_SRCS))
-
-# ../bin/testclient: $(TESTCLIENT_OBJS)
-# 	$(ECHO) Linking $(notdir $@)
-# 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
-
-# USERSRCS += $(TESTCLIENT_SRCS)
-# TARGETS += ../bin/testclient
-
 # lock debugging help plus a bit of API example
-MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c \
-	rtapi/shmdrv/shmdrvapi.c
+MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c
 
 $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 	EXTRAFLAGS =  -Wall -g -O0 \
 	 $(shell $(XENO_CONFIG) --skin=native --cflags)
 
-../bin/mutexwatch: $(call TOOBJS, $(MUTEXWATCH_SRCS))
+../bin/mutexwatch: ../lib/liblinuxcncshm.so $(call TOOBJS, $(MUTEXWATCH_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  -lrt
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  ../lib/liblinuxcncshm.so -lrt
 
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
