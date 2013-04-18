@@ -644,8 +644,10 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
-ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -ffast-math -fno-unsafe-math-optimizations
+ifneq ($(KERNELRELEASE),)
+ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
+EXTRA_CFLAGS += -msse
+endif
 endif
 
 ifeq "$(USE_STUBS)" "1"
@@ -807,6 +809,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
