@@ -20,26 +20,34 @@
 
 int shmdrv_debug;
 
+static const char *driver_name = "/dev/" DEVICE_NAME;
+
 int shmdrv_available(void)
 {
     struct stat st;
-    return !stat("/dev/" DEVICE_NAME, &st);
+    return !stat(driver_name, &st);
 }
 
 int shmdrv_driver_fd(void)
 {
-    struct stat st, retval;
-    int driver_fd = open("/dev/" DEVICE_NAME, O_RDWR);
-    if (driver_fd < 0) {
-    	retval = stat("/dev/" DEVICE_NAME, &st);
-	if (retval) {
-	switch (errno) {
-	}
-	} else {
-		// permission issue
+    struct stat st; 
+    int retval;
+    int driver_fd = open(driver_name, O_RDWR);
 
-	perror("cant open shared memory driver /dev/" DEVICE_NAME " - not loaded?");
-	return -ENOEM;
+    if (driver_fd < 0) {
+    	retval = stat(driver_name, &st);
+	if (retval) {
+	    fprintf(stderr,"shmdrv_driver_fd: error opening %s : %s\n",
+		    driver_name, strerror(errno));
+	    return -errno;
+	} else {
+	    // exists, but cant open - likely permissions
+	    if (access(driver_name,  R_OK|W_OK)) {
+		fprintf(stderr,"shmdrv_driver_fd: cant access %s - permission denied; shmdrv.rules not installed?\n",
+			driver_name);
+		return -EPERM;
+	    }
+	}
     }
     return driver_fd;
 }
