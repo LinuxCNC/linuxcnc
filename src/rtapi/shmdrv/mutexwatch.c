@@ -35,7 +35,7 @@ struct timespec looptime = {
 
 int main(int argc, char **argv)
 {
-    struct shm_status sm; 
+    int globalkey,rtapikey,halkey,retval;
 
     page_size = sysconf(_SC_PAGESIZE);
     shmdrv_loaded = shmdrv_available();
@@ -43,44 +43,45 @@ int main(int argc, char **argv)
     if (argc > 1)
 	rtapi_instance = atoi(argv[1]);
 
-    sm.driver_fd = shmdrv_driver_fd();
-    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
-    sm.size = sizeof(global_data_t);
-    sm.flags = 0;
+    globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
+    halkey = OS_KEY(HAL_KEY, rtapi_instance);
 
-    if (!shmdrv_attach(&sm, (void **)&global_data))
-	printf("global_data attached %p hal_size=%d\n", 
-	       global_data, global_data->hal_size);
+    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+			    rtapi_instance, (void **) &global_data, 0);
+     if (retval < 0)
+	 fprintf(stderr, "cannot attach global segment key=0x%x %s\n",
+		globalkey, strerror(-retval));
 
-    if ((global_data !=  NULL) && (global_data->magic != GLOBAL_MAGIC)) {
+    if (MMAP_OK(global_data) && (global_data->magic != GLOBAL_MAGIC)) {
 	printf("global_data MAGIC wrong: %x %x\n", global_data->magic, GLOBAL_MAGIC);
     }
 
-    sm.driver_fd = shmdrv_driver_fd();
-    sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
-    sm.size = sizeof(rtapi_data_t);
-    sm.flags = 0;
 
-    if (!shmdrv_attach(&sm, (void **)&rtapi_data))
-	printf("rtapi_data attached%p\n", rtapi_data);
+    retval = shm_common_new(rtapikey, sizeof(rtapi_data_t), 
+			    rtapi_instance, (void **) &rtapi_data, 0);
+    if (retval < 0)
+	 fprintf(stderr, "cannot attach rtapi segment key=0x%x %s\n",
+		rtapikey, strerror(-retval));
 
-    if (rtapi_data && (rtapi_data->magic != RTAPI_MAGIC)) {
+    if (MMAP_OK(rtapi_data) && (rtapi_data->magic != RTAPI_MAGIC)) {
 	    printf("rtapi_data MAGIC wrong: %x\n", rtapi_data->magic);
     }
 
-    sm.driver_fd = shmdrv_driver_fd();
-    sm.key = OS_KEY(HAL_KEY, rtapi_instance);
-    sm.size = global_data->hal_size; // sizeof(hal_data_t);
-    sm.flags = 0;
+    if (MMAP_OK(global_data)) {
+	// global_data is needed for actual size of the HAL data segment
+	retval = shm_common_new(halkey, global_data->hal_size, 
+				rtapi_instance, (void **) &hal_data, 0);
+	if (retval < 0)
+	    fprintf(stderr, "cannot attach hal segment key=0x%x %s\n",
+		    halkey, strerror(-retval));
 
-    if (!shmdrv_attach(&sm, (void **)&hal_data))
-	printf("hal_data attached%p\n", hal_data);
-
-    if (hal_data && (hal_data->version != HAL_VER)) {
+	if (MMAP_OK(hal_data) && (hal_data->version != HAL_VER)) {
 	    printf("hal_data HAL_VER wrong: %x\n", hal_data->version);
+	}
     }
 
-    if (!(global_data||rtapi_data||hal_data)) {
+    if (!(MMAP_OK(global_data) || MMAP_OK(rtapi_data) || MMAP_OK(hal_data))) {
 	printf("nothing to attach to!\n");
 	exit(1);
     }
@@ -89,19 +90,19 @@ int main(int argc, char **argv)
 	if (nanosleep(&looptime, &looptime))
 	    break;
 
-	if (global_data && (global_data->mutex != gm)) {
+	if (MMAP_OK(global_data) && (global_data->mutex != gm)) {
 	    printf("global_data->mutex: %ld\n", global_data->mutex);
 	    gm = global_data->mutex;
 	}
-	if (rtapi_data && (rtapi_data->ring_mutex != rrm)) {
+	if (MMAP_OK(rtapi_data) && (rtapi_data->ring_mutex != rrm)) {
 	    printf("rtapi_data->ring_mutex: %ld\n", rtapi_data->ring_mutex);
 	    rrm = rtapi_data->ring_mutex;
 	}
-	if (rtapi_data && (rtapi_data->mutex != rm)) {
+	if (MMAP_OK(rtapi_data) && (rtapi_data->mutex != rm)) {
 	    printf("rtapi_data->mutex: %ld\n", rtapi_data->mutex);
 	    rm = rtapi_data->mutex;
 	}
-	if (hal_data && (hal_data->mutex != hm)) {
+	if (MMAP_OK(hal_data) && (hal_data->mutex != hm)) {
 	    printf("hal_data->mutex: %ld\n", hal_data->mutex);
 	    hm = hal_data->mutex;
 	}
