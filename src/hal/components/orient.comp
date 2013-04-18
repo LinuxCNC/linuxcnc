@@ -72,26 +72,20 @@ FUNCTION(_) {
 
     if (enable) {
 	if (enable ^ last_enable) {       // positive edge on enable
-	    latched_position = position; // sample now
-	    revs = floor(latched_position); 
-	    spindle_angle = latched_position - revs;
-	    target_angle =  angle/360.0;
-	    switch (mode) {
-	    case 0: // shortest move
-		command = revs + target_angle; 
-		break;
-	    case 1: // always cw
-		if (target_angle < spindle_angle)
-		    command = revs + target_angle + 1.0;
-		else
-		    command = revs + target_angle;
-		break;
-	    case 2: // always ccw
-		if (target_angle > spindle_angle)
-		    command = revs + target_angle - 1.0;
-		else
-		    command = revs + target_angle;
-		break;
+            latched_position = position; // sample now
+            target_angle =  angle/360.0;
+            revs = floor(latched_position);
+            spindle_angle = latched_position - revs;
+            switch (mode) {
+            case 0: // shortest move
+                command = floor(latched_position+0.5-target_angle) + target_angle;
+                break;
+            case 1: // always cw
+                command = ceil(latched_position-target_angle)  + target_angle;
+                break;
+            case 2: // always ccw
+                command = floor(latched_position-target_angle) + target_angle ;
+                break;
 	    }
 	}
 	poserr = (position - command) * 360.0;

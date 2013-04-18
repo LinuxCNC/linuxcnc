@@ -280,8 +280,7 @@ class HandlerClass:
         self.gscreen.init_sensitive_graphics_mode()
         self.gscreen.init_sensitive_origin_mode()
         self.init_sensitive_edit_mode() # local function
-        self.data.sensitive_edit_mode.remove("button_menu")
-        for i in ("setup_button","mdi_button","run_button"):
+        for i in ("setup_button","mdi_button","run_button","tooledit_button","offsetpage_button","button_index_tool"):
             self.data.sensitive_override_mode.append(i)
             self.data.sensitive_graphics_mode.append(i)
             self.data.sensitive_origin_mode.append(i) 
@@ -297,10 +296,13 @@ class HandlerClass:
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
         self.widgets.tooledit1.set_font("sans 18")
+        if self.data.embedded_keyboard:
+            self.gscreen.launch_keyboard()
 
     def init_sensitive_edit_mode(self):
-        self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
-            "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits"]
+        self.data.sensitive_edit_mode = ["button_graphics","button_override","button_restart","button_cycle_start","button_single_step",
+            "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits",
+            "offsetpage_button"]
 
     def init_dro(self):
         self.on_abs_colorbutton_color_set(None)
