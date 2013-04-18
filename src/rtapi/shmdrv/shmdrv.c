@@ -79,7 +79,7 @@ static int shm_malloc(struct shm_segment *seg)
     size = PAGE_ALIGN(seg->size);
     mem = vmalloc_user(size);
     if (!mem) {
-	err("vmalloc fail open=%d alloced=%dK freed=%dK balance=%dK\n",
+	err("vmalloc fail open=%d alloced=%dK freed=%dK balance=%dK",
 	     nopen,
 	     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 	return -ENOMEM;
@@ -341,7 +341,7 @@ int free_segments(int warn)
     struct shm_segment *seg;
     int fail = 0;
 
-    info("open=%d alloced=%dK freed=%dK balance=%dK\n", 
+    info("open=%d alloced=%dK freed=%dK balance=%dK", 
 	 nopen, 
 	 allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 
@@ -695,7 +695,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	}
     }
     size = scnprintf(buf, left, 
-		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK\n", 
+		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK", 
 		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned, 
 		     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
     left -= size;
@@ -705,13 +705,13 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	seg = &shm_segments[i];
 	if (seg->in_use) {
 	    if (left < 80) {
-		size = scnprintf(buf, left, "...\n");
+		size = scnprintf(buf, left, "...");
 		left -= size;
 		written += size;
 		goto done;
 	    }
 	    size = scnprintf(buf, left,
-			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
+			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p",
 			     i, seg->key, seg->size, seg->act_size, 
 			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);
