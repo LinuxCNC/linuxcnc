@@ -37,8 +37,6 @@
 #include <syslog.h>
 #include <unistd.h>
 
-static int global_fd, rtapi_fd;
-
 global_data_t *get_global_handle(void)
 {
     return global_data;
@@ -47,77 +45,46 @@ global_data_t *get_global_handle(void)
 int ulapi_main(int instance, int flavor, global_data_t **global)
 {
     int retval = 0;
-    struct shm_status sm;
+    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
 
     page_size = sysconf(_SC_PAGESIZE);
     shmdrv_loaded  = shmdrv_available();
 
-    if (global_data == NULL) {
-	if (shmdrv_available()) {
-	    sm.size = sizeof(global_data_t);
-	    sm.flags = 0;
-	    sm.key = OS_KEY(GLOBAL_KEY, instance);
-	    sm.driver_fd = shmdrv_driver_fd();
-	    retval = shmdrv_attach(&sm, (void **)global);
-	    if (retval < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,"global shmdrv attach failed %d\n", retval);
-		return retval;
-	    }
-	} else {
-	    char segment_name[LINELEN];
-	    sprintf(segment_name, SHM_FMT, instance, OS_KEY(GLOBAL_KEY, instance));
-	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
-				     (S_IREAD | S_IWRITE))) < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"RTAPI:%d ERROR: cant shm_open(%s) : %s\n",
-				rtapi_instance, segment_name, strerror(errno));
-		retval = errno;
-	    }
-	    if ((*global = mmap(0, sizeof(global_data_t), (PROT_READ | PROT_WRITE),
-				MAP_SHARED, global_fd, 0)) == MAP_FAILED) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"RTAPI:%d ERROR: mmap(%s) failed: %s\n",
-				rtapi_instance, segment_name, strerror(errno));
-		retval = errno;
-	    }
-	}
-    }
-    if (rtapi_data == NULL) {
-	if (shmdrv_available()) {
-	    sm.driver_fd = shmdrv_driver_fd();
-	    sm.key = OS_KEY(RTAPI_KEY, instance);
-	    sm.size = sizeof(rtapi_data_t);
-	    sm.flags = 0;
-	    retval = shmdrv_attach(&sm, (void **) &rtapi_data);
-	    if (retval < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,"rtapi shmdrv attach failed\n");
-		return retval;
-	    }
-	} else {
-	    char segment_name[LINELEN];
-	    sprintf(segment_name, SHM_FMT, instance, OS_KEY(RTAPI_KEY, instance));
-
-	    if((rtapi_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
-				     (S_IREAD | S_IWRITE))) < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"RTAPI:%d ERROR: cant shm_open(%s) : %s\n",
-				rtapi_instance, segment_name, strerror(errno));
-		retval = errno;
-	    }
-	    if ((rtapi_data = mmap(0, sizeof(rtapi_data_t), (PROT_READ | PROT_WRITE),
-				   MAP_SHARED, rtapi_fd, 0)) == MAP_FAILED) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"RTAPI:%d ERROR: mmap(%s) failed: %s\n",
-				rtapi_instance, segment_name, strerror(errno));
-		retval = errno;
-	    }
-	}
-    }
-    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d startup RT msglevel=%d halsize=%d %s ret=%d\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG,"ULAPI:%d %s %s init\n",
 		    rtapi_instance,
-		    global_data->rt_msg_level,
-		    global_data->hal_size,
-		    GIT_VERSION, retval);
+		    rtapi_get_handle()->thread_flavor_name,
+		    GIT_VERSION);
+
+    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+			    rtapi_instance, (void **) &global_data, 0);
+     if (retval < 0) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "ULAPI:%d ERROR: cannot attach global segment key=0x%x %s\n",
+			 rtapi_instance, globalkey, strerror(-retval));
+	 goto done;
+    }
+    retval = shm_common_new(rtapikey, sizeof(rtapi_data_t), 
+			    rtapi_instance, (void **) &rtapi_data, 0);
+
+    if (retval < 0) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "ULAPI:%d ERROR: cannot attach rtapi segment key=0x%x %s\n",
+			 rtapi_instance, rtapikey, strerror(-retval));
+    }
+
+ done:
+    if (MMAP_OK(global_data) && MMAP_OK(rtapi_data)) {
+	rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d msglevel=%d/%d halsize=%d %s startup %s\n", 
+			rtapi_instance,
+			global_data->rt_msg_level,
+			global_data->user_msg_level,
+			global_data->hal_size,
+			GIT_VERSION, retval ? "FAILED" : "OK");
+    } else {
+	rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d init failed, realtime not running? global=%p rtapi=%p\n", 
+			rtapi_instance, global_data, rtapi_data);
+    }
     return retval;
 }
 
