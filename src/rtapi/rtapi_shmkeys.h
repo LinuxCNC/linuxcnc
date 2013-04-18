@@ -15,6 +15,7 @@
 // actual shm keys are constructed as follows:
 
 #define OS_KEY(key, instance) (( key & 0x00ffffff) | ((instance << 24) & 0xff000000))
+#define INSTANCE_OF(key)  (((key & 0xff000000) >> 24) & 0x000000ff)
 
 // formerly emcmotcfg.h
 #define DEFAULT_MOTION_SHMEM_KEY 0x00000064

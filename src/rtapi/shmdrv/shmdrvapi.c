@@ -202,3 +202,32 @@ int shm_common_detach(int size, void *shmptr)
 	return -errno;
     return 0;
 }
+
+int shm_common_exists(int key)
+{
+    struct shm_status sm;
+    int retval;
+
+    if (shmdrv_loaded) {
+	memset(&sm, 0, sizeof(struct shm_status));
+	sm.driver_fd = shmdrv_driver_fd();
+	sm.key = key;
+	sm.flags = 0;
+	retval =  shmdrv_status(&sm); 
+	close(sm.driver_fd);
+	return retval;
+    } else {
+	int shmfd;
+	char segment_name[LINELEN];
+
+	sprintf(segment_name, SHM_FMT, INSTANCE_OF(key), key);
+	if ((shmfd = shm_open(segment_name, O_RDWR,
+			      (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) < 0) {
+	    retval = -errno;
+	} else {
+	    close(shmfd);
+	    retval = 0;
+	}
+	return retval;
+    }
+}

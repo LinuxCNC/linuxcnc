@@ -70,6 +70,7 @@ extern int shmdrv_gc(void);
 extern void shmdrv_print_status(struct shm_status *sm, const char *tag);
 extern int shm_common_new(int key, int size, int instance, void **shmptr, int create);
 extern int shm_common_detach(int size, void *shmptr);
+extern int shm_common_exists(int key);
 
 #ifdef __cplusplus
 }
