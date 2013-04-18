@@ -47,6 +47,8 @@ extern int shmdrv_detach(struct shm_status *shmstat);
 
 #else // userland
 
+#include <sys/mman.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

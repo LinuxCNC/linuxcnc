@@ -14,6 +14,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_support.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
 #define RTPRINTBUFFERLEN 1024
 
@@ -112,7 +113,7 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			       va_list ap) {
     // during startup the global segment might not be
     // available yet, so use stderr until then
-    if (global_data) {
+    if (MMAP_OK(global_data)) {
 	vs_ring_write(level, fmt, ap);
     } else {
 	vfprintf(stderr, fmt, ap);
