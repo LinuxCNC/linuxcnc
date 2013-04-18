@@ -82,7 +82,7 @@ int _rtapi_ring_new(size_t size, size_t sp_size, int module_id, int flags)
     // allocate an RTAPI shm segment owned by the allocating module
     if ((rdptr->shmem_id = _rtapi_shmem_new(rdptr->key, module_id, total_size)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_ring_new: rtapi_shmem_new(0x%8.8x,%d,%d) failed: %d\n",
+			"rtapi_ring_new: rtapi_shmem_new(0x%8.8x,%d,%zu) failed: %d\n",
 			rdptr->key, module_id,
 			total_size, rdptr->shmem_id);
 	return  -ENOMEM;

@@ -79,7 +79,7 @@ static int shm_malloc(struct shm_segment *seg)
     size = PAGE_ALIGN(seg->size);
     mem = vmalloc_user(size);
     if (!mem) {
-	err("vmalloc fail open=%d alloced=%dK freed=%dK balance=%dK",
+	err("vmalloc fail open=%d alloced=%zuK freed=%zuK balance=%zuK",
 	     nopen,
 	     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 	return -ENOMEM;
@@ -228,7 +228,7 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     length = vma->vm_end - vma->vm_start;
 
     if (length > seg->act_size) {
-	err("segment %d: map size %d greater than segment size %d/%d",
+	err("segment %d: map size %d greater than segment size %zu/%zu",
 	    segno, length,seg->act_size,seg->size);
 	return -EINVAL;
     }
@@ -250,7 +250,7 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
     vma->vm_ops = &mmap_ops;
     shmdrv_vma_open(vma);  // track usage
-    dbg("mmap seg %d size %d key %d/%x at %p length %d",
+    dbg("mmap seg %d size %zu key %d/%x at %p length %d",
 	 segno, seg->size, seg->key, seg->key, seg->kmem, length);
     return(0);
 }
@@ -341,7 +341,7 @@ int free_segments(int warn)
     struct shm_segment *seg;
     int fail = 0;
 
-    info("open=%d alloced=%dK freed=%dK balance=%dK", 
+    info("open=%d alloced=%zuK freed=%zuK balance=%zuK", 
 	 nopen, 
 	 allocated >> 10, freed >> 10, (allocated-freed) >> 10);
 
@@ -450,7 +450,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 
     spin_lock(&ll_lock);
     if (shmstat->size <= 0) {
-	err("invalid size %d pid %d", shmstat->size, pid);
+	err("invalid size %zu pid %d", shmstat->size, pid);
 	ret = -EINVAL;
 	goto done;
     }
@@ -485,7 +485,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	    ret = -ENOMEM;
     }
     if (ret) {
-	err("IOC_SHM_CREATE: shm_malloc fail size=%d key=0x%8.8x pid %d", 
+	err("IOC_SHM_CREATE: shm_malloc fail size=%zu key=0x%8.8x pid %d", 
 	    seg->size, seg->key, pid);
 	goto done;
     }
@@ -594,7 +594,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	segno = shmdrv_create_pid(&sm, current->pid);
 	if (segno < 0) {
-	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=0x%8.8x size=%d", 
+	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=0x%8.8x size=%zu", 
 		sm.key,sm.size);
 	    goto done;
 	}
@@ -611,7 +611,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	if (ret < 0) {
 	    err("IOC_SHM_CREATE: copy_to_user %d", ret);
 	}
-	info("created seg %d size %d key 0x%8.8x at %p",
+	info("created seg %d size %zu key 0x%8.8x at %p",
 	    segno, seg->size, seg->key, seg->kmem);
 	ret =  segno;
 	break;
@@ -636,7 +636,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	file->private_data = (void *) sm.id; // record shm id for ensuing mmap
 	seg = &shm_segments[sm.id];
-	info("attached seg %d size %d key 0x%8.8x key at %p",
+	info("attached seg %d size %zu key 0x%8.8x key at %p",
 	    sm.id, seg->size, seg->key, seg->kmem);
 	ret = 0;
 	break;
@@ -694,7 +694,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	}
     }
     size = scnprintf(buf, left, 
-		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK\n", 
+		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%zuK freed=%zuK balance=%zuK\n", 
 		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned, 
 		     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
     left -= size;
@@ -710,7 +710,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 		goto done;
 	    }
 	    size = scnprintf(buf, left,
-			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
+			    "%d: key=0x%8.8x size=%zu aligned=%zu ul=%d k=%d creator=%d mem=%p\n",
 			     i, seg->key, seg->size, seg->act_size, 
 			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);

@@ -3124,13 +3124,12 @@ hal_group_t *find_group_by_name(const char *name)
 
 hal_group_t *find_group_of_member(const char *name)
 {
-    int n, nextg, nextm;
+    int nextg, nextm;
     hal_group_t *group;
     hal_member_t *member;
     hal_sig_t *sig;
 
     nextg = hal_data->group_list_ptr;
-    n = 0;
     while (nextg != 0) {
 	group = SHMPTR(nextg);
 	nextm = group->member_ptr;
@@ -3254,7 +3253,6 @@ int halpr_member_delete(const char *group, const char *member)
     hal_group_t *grp;
     hal_member_t  *mptr;
     hal_sig_t *sig;
-    int member_ptr;
     int *prev, next;
 
     if (hal_data == 0) {
@@ -3299,7 +3297,6 @@ int halpr_member_delete(const char *group, const char *member)
 			"HAL: ERROR: member_delete(): undefined member '%s'\n", member);
 	return -EINVAL;
     }
-    member_ptr =  SHMOFF(sig);
     rtapi_print_msg(RTAPI_MSG_DBG,"HAL: deleting signal '%s' from group '%s'\n",
 		    member, group);
 

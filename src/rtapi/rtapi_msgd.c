@@ -135,7 +135,7 @@ static int message_thread()
 		}
 		syslog(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
 		       msg->tag, msg->pid, origins[msg->origin],
-		       payload_length, msg->buf);
+		       (int) payload_length, msg->buf);
 		break;
 	    case MSG_STASHF:
 		break;
