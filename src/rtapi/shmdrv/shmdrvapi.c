@@ -28,11 +28,18 @@ int shmdrv_available(void)
 
 int shmdrv_driver_fd(void)
 {
+    struct stat st, retval;
     int driver_fd = open("/dev/" DEVICE_NAME, O_RDWR);
     if (driver_fd < 0) {
-	if (shmdrv_debug)
-	    perror("cant open shared memory driver /dev/" DEVICE_NAME " - not loaded?");
-	return -EPERM;
+    	retval = stat("/dev/" DEVICE_NAME, &st);
+	if (retval) {
+	switch (errno) {
+	}
+	} else {
+		// permission issue
+
+	perror("cant open shared memory driver /dev/" DEVICE_NAME " - not loaded?");
+	return -ENOEM;
     }
     return driver_fd;
 }
