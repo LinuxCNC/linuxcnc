@@ -53,8 +53,6 @@ static char logtag[TAGSIZE];
 #define RTAPI_PRINTK printk
 #endif
 
-
-
 // candidate for rtapi_ring.h
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
@@ -112,7 +110,13 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 #else /* user land */
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			       va_list ap) {
-    vs_ring_write(level, fmt, ap);
+    // during startup the global segment might not be
+    // available yet, so use stderr until then
+    if (global_data) {
+	vs_ring_write(level, fmt, ap);
+    } else {
+	vfprintf(stderr, fmt, ap);
+    }
 }
 #endif
 
