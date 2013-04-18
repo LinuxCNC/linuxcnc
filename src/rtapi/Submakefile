@@ -268,8 +268,7 @@ USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
 
 ##################################################################
-#                     the shmdrv shared memory allocator module
-#                     the testsmdrv test module
+#             the shmdrv shared memory allocator module
 #
 #  loosely based on: http://www.embrisk.com/notes/shmem.html 
 #  Status: public domain
@@ -283,10 +282,8 @@ ifeq ($(BUILD_SYS),kbuild)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
-
-obj-m += testshmdrv.o
-testshmdrv-objs := rtapi/shmdrv/testshmdrv.o
-../rtlib/testshmdrv$(MODULE_EXT): $(addprefix objects/rt,$(testshmdrv-objs))
+else
+$(shell cd shmdrv; make)
 endif
 
 # lock debugging help plus a bit of API example
