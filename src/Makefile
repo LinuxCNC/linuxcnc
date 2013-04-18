@@ -672,29 +672,19 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
-	-D__MODULE__ \
-	-I$(BASEPWD) \
-	-I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms \
-	-I$(BASEPWD)/libnml/rcs \
-	-I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf \
-	-I$(BASEPWD)/libnml/nml \
-	-I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath \
-	-I$(BASEPWD)/rtapi \
-	-I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf \
-	-I$(BASEPWD)/emc/kinematics \
-	-I$(BASEPWD)/emc/motion \
-	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
-	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
-	-fno-fast-math \
-	-fno-unsafe-math-optimizations \
-	$(call cc-option,-mieee-fp) \
-	$(call cc-option,-Wframe-larger-than=2560) \
-	$(KERNEL_MATH_CFLAGS)
+EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
+	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
+	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
+	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
+	$(call cc-option,-Wframe-larger-than=2560) $(KERNEL_MATH_CFLAGS)
+ifneq ($(KERNELRELEASE),)
+ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
+EXTRA_CFLAGS += -msse
+endif
+endif
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -918,6 +908,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
