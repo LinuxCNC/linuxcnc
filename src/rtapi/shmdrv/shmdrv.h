@@ -53,10 +53,12 @@ extern int shmdrv_detach(struct shm_status *shmstat);
 extern "C" {
 #endif // __cplusplus
 
+extern int shmdrv_loaded;
+extern long page_size;  // for munmap
+
 // an mmap() failure returns MAP_FAILED, not NULL, so test for both
 #define MMAP_OK(x) (((x) != NULL) && ((x) != MAP_FAILED))
-
-extern int shmdrv_debug;
+#define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
 
 extern int shmdrv_available(void);
 extern int shmdrv_driver_fd(void);

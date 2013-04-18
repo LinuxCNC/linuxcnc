@@ -242,7 +242,6 @@ extern int  _next_module_id(void);
 // set first thing in rtapi_app_main
 extern int shmdrv_loaded;
 extern long page_size;  // for munmap
-#define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
 
 /* rtapi_task.c */
 extern task_data *task_array;

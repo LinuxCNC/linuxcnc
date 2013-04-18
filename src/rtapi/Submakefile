@@ -270,19 +270,16 @@ TARGETS += ../bin/rtapi_msgd
 ##################################################################
 #                     the shmdrv shared memory allocator module
 #                     the testsmdrv test module
-#                     the test client
 #
 #  loosely based on: http://www.embrisk.com/notes/shmem.html 
 #  Status: public domain
 #
 ##################################################################
-ifeq ($(USE_SHMDRV),yes)
 
-RT_CFLAGS += -DSHMDEBUG \
-	-I$(BASEPWD)/rtapi/shmdrv
+RT_CFLAGS += -I$(BASEPWD)/rtapi/shmdrv
 INCLUDES += rtapi/shmdrv
 
-ifeq ($(USE_SHMDRV),xxx)
+ifeq ($(BUILD_SYS),kbuild)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 ../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
@@ -306,5 +303,4 @@ $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
 
-endif
 

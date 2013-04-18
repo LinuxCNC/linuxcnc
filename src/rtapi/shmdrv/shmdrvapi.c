@@ -14,11 +14,10 @@
 
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
-#include "rtapi_common.h"
+// #include "rtapi_common.h"
 #include "rtapi/shmdrv/shmdrv.h"
 #include "shmdrv.h"
 
-int shmdrv_debug;
 
 static const char *driver_name = "/dev/" DEVICE_NAME;
 
@@ -57,9 +56,6 @@ static int fd_ok(struct shm_status *shmstat)
     struct stat st;
     int retval = fstat(shmstat->driver_fd, &st);
     if (retval) {
-	if (shmdrv_debug)
-	    fprintf(stderr,"%s:%d: %s\n", __FUNCTION__, __LINE__,
-		    strerror(-retval));
 	return 0;
     }
     return S_ISCHR(st.st_mode);
@@ -94,9 +90,6 @@ int shmdrv_attach(struct shm_status *shmstat, void **shm)
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, 
 		shmstat->driver_fd, 0);
     if (*shm == (void *)MAP_FAILED) {
-	if (shmdrv_debug)
-	    fprintf(stderr,"%s:%d: %s\n", __FUNCTION__, __LINE__,
-		    strerror(-retval));
 	return errno;
     }
     return 0;
@@ -182,7 +175,8 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	    // initial creation
 	    if (fchown(shmfd, getuid(),getgid()))
 		perror("fchown");
-	    ftruncate(shmfd, size);
+	    if (ftruncate(shmfd, size))
+		perror("ftruncate");
 	    is_new = 1;
 	} else if((shmfd = shm_open(segment_name, O_RDWR,
 				    (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) < 0) {
