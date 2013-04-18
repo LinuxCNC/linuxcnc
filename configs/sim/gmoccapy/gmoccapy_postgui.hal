@@ -2,8 +2,8 @@
 #        moccapy_postgui.hal file from Norbert Schechner          #
 ###################################################################
 
-net spindle-speed-limited gscreen.hal_hbar_spindle_feedback
-net spindle-at-speed gscreen.hal_led_spindle_at_speed
+#net spindle-speed-limited gscreen.hal_hbar_spindle_feedback
+#net spindle-at-speed gscreen.hal_led_spindle_at_speed
 
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
