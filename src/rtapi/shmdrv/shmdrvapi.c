@@ -166,7 +166,7 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	    // initial creation
 	    ftruncate(shmfd, size);
 	    is_new = 1;
-	} else if((shmfd = shm_open(segment_name, (O_CREAT | O_RDWR),
+	} else if((shmfd = shm_open(segment_name, O_RDWR,
 				    (S_IREAD | S_IWRITE))) < 0) {
 	    // just attach, and that failed:
 	    return -errno;
