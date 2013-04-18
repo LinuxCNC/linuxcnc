@@ -9,7 +9,7 @@
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>
         <property name="n_rows">11</property>
-        <property name="n_columns">7</property>
+        <property name="n_columns">8</property>
         <child>
           <object class="GtkNotebook" id="notebook_main">
             <property name="visible">True</property>
@@ -542,8 +542,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_y2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">1</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -556,8 +556,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_z2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">2</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -570,8 +570,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">3</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">3</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -584,8 +584,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">4</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">4</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -598,8 +598,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">5</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">5</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -612,8 +612,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">6</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">6</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -626,8 +626,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">8</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">8</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -640,8 +640,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w2">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">7</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">7</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -694,8 +694,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_y3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">1</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -708,8 +708,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_z3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">2</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -722,8 +722,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_a3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">3</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">3</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -736,8 +736,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_b3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">4</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">4</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -750,8 +750,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_c3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">5</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">5</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -764,8 +764,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_u3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">6</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">6</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -778,8 +778,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_v3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">8</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">8</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -792,8 +792,8 @@
                                     <child>
                                       <object class="HAL_DRO" id="dro_w3">
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="joint_number">7</property>
                                         <property name="reference_type">2</property>
+                                        <property name="joint_number">7</property>
                                         <attributes>
                                           <attribute name="weight" value="heavy"/>
                                           <attribute name="scale" value="1.500000"/>
@@ -1103,16 +1103,16 @@
                             <child>
                               <object class="HAL_HBar" id="s_display">
                                 <property name="visible">True</property>
-                                <property name="bg_color">#bebebebebebe</property>
-                                <property name="z1_color">#ffffffff0000</property>
-                                <property name="target_color">#e21911831183</property>
-                                <property name="show_limits">False</property>
                                 <property name="z2_color">#ffff00000000</property>
-                                <property name="target_value">500</property>
-                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="show_limits">False</property>
                                 <property name="text_template">%d</property>
+                                <property name="target_color">#e21911831183</property>
+                                <property name="z0_color">#0000ffff0000</property>
+                                <property name="target_value">500</property>
                                 <property name="max">2000</property>
+                                <property name="bg_color">#bebebebebebe</property>
                                 <property name="value">-7</property>
+                                <property name="z1_color">#ffffffff0000</property>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
@@ -2078,7 +2078,7 @@ Notification</property>
                     <property name="visible">True</property>
                     <property name="homogeneous">True</property>
                     <child>
-                      <object class="GtkButton" id="button_v0_4">
+                      <object class="GtkButton" id="button_stop">
                         <property name="label" translatable="yes">Abort</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -2092,7 +2092,7 @@ Notification</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v0_0">
+                      <object class="GtkButton" id="button_zero_origin">
                         <property name="label"> Zero
 Origin</property>
                         <property name="visible">True</property>
@@ -2104,7 +2104,7 @@ Origin</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v0_1">
+                      <object class="GtkButton" id="button_offset_origin">
                         <property name="label">Offset
 Origin</property>
                         <property name="visible">True</property>
@@ -2116,7 +2116,7 @@ Origin</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v0_2">
+                      <object class="GtkButton" id="button_plus">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -2128,7 +2128,7 @@ Origin</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v0_3">
+                      <object class="GtkButton" id="button_minus">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -2139,7 +2139,7 @@ Origin</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v0_5">
+                      <object class="GtkButton" id="button_move_to">
                         <property name="label" translatable="yes">
 </property>
                         <property name="visible">True</property>
@@ -2177,7 +2177,7 @@ Origin</property>
                   <object class="GtkVBox" id="vmode1">
                     <property name="homogeneous">True</property>
                     <child>
-                      <object class="GtkToggleButton" id="button_v1_2">
+                      <object class="GtkToggleButton" id="button_auto_stop">
                         <property name="label" translatable="yes">Abort</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -2190,7 +2190,7 @@ Origin</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="button_v1_0">
+                      <object class="GtkToggleButton" id="button_cycle_start">
                         <property name="label" translatable="yes">Cycle
 Start</property>
                         <property name="visible">True</property>
@@ -2204,7 +2204,7 @@ Start</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="button_v1_1">
+                      <object class="GtkToggleButton" id="button_feed_hold">
                         <property name="label" translatable="yes">Feed
 Hold</property>
                         <property name="visible">True</property>
@@ -2218,7 +2218,7 @@ Hold</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v1_3">
+                      <object class="GtkButton" id="button_single_step">
                         <property name="label" translatable="yes">Single
  Step</property>
                         <property name="visible">True</property>
@@ -2232,7 +2232,7 @@ Hold</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="restart">
+                      <object class="GtkButton" id="button_restart">
                         <property name="label" translatable="yes">Run At
   Line</property>
                         <property name="visible">True</property>
@@ -2244,7 +2244,7 @@ Hold</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_v1_5">
+                      <object class="GtkButton" id="button_change_view2">
                         <property name="label" translatable="yes">Change 
   View</property>
                         <property name="can_focus">True</property>
@@ -2432,7 +2432,8 @@ Override</property>
               <object class="GtkHBox" id="mode3">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkToggleButton" id="button_h0_0">
+                  <object class="GtkButton" id="button_home_all">
+                    <property name="label" translatable="yes">Home All</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2442,7 +2443,8 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h0_1">
+                  <object class="GtkButton" id="button_home_axis">
+                    <property name="label" translatable="yes">Home Axis</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2452,19 +2454,17 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h0_2">
-                    <property name="label" translatable="yes">Home All</property>
+                  <object class="GtkLabel" id="label9">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h0_3">
-                    <property name="label" translatable="yes">Home Axis</property>
+                  <object class="GtkButton" id="button_unhome_all">
+                    <property name="label" translatable="yes">Unhome 
+    All</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2474,9 +2474,9 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h0_4">
-                    <property name="label" translatable="yes">Unhome 
-    All</property>
+                  <object class="GtkButton" id="button_unhome_axis">
+                    <property name="label" translatable="yes">Unhome
+   Axis</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -2486,19 +2486,15 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="unhome_axis">
-                    <property name="label" translatable="yes">Unhome
-   Axis</property>
+                  <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h0_5">
+                  <object class="GtkButton" id="button_toggle_readout">
                     <property name="label" translatable="yes">Toggle
 Readout</property>
                     <property name="can_focus">True</property>
@@ -2522,7 +2518,7 @@ Readout</property>
                 <property name="visible">True</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="HAL_ToggleButton" id="button_h1_0">
+                  <object class="HAL_ToggleButton" id="button_jog_mode">
                     <property name="label" translatable="yes">Jogging
   Mode</property>
                     <property name="visible">True</property>
@@ -2534,7 +2530,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h1_1">
+                  <object class="GtkToggleButton" id="button_select_system">
                     <property name="label" translatable="yes">Coordinate
   System</property>
                     <property name="visible">True</property>
@@ -2546,7 +2542,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h1_2">
+                  <object class="GtkButton" id="button_mist_coolant">
                     <property name="label" translatable="yes">Mist</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -2557,7 +2553,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h1_3">
+                  <object class="GtkButton" id="button_flood_coolant">
                     <property name="label" translatable="yes">Flood</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -2568,7 +2564,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="index_tool">
+                  <object class="GtkButton" id="button_index_tool">
                     <property name="label" translatable="yes">Index
  Tool</property>
                     <property name="visible">True</property>
@@ -2580,7 +2576,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h1_4">
+                  <object class="GtkButton" id="button_tool_editor">
                     <property name="label" translatable="yes"> Tool
 Editor</property>
                     <property name="can_focus">True</property>
@@ -2591,9 +2587,10 @@ Editor</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h1_5">
-                    <property name="label" translatable="yes">Toggle
-Readout</property>
+                  <object class="GtkButton" id="button_tool_set">
+                    <property name="label" translatable="yes">Tool
+ Set</property>
+                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                   </object>
@@ -2602,7 +2599,7 @@ Readout</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_offsets">
+                  <object class="GtkButton" id="button_show_offsets">
                     <property name="label" translatable="yes"> Show
 Offsets</property>
                     <property name="visible">True</property>
@@ -2705,7 +2702,7 @@ Offsets</property>
               <object class="GtkHBox" id="mode2">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="button_h3_0">
+                  <object class="GtkButton" id="button_load">
                     <property name="label" translatable="yes">  load
 program</property>
                     <property name="visible">True</property>
@@ -2718,7 +2715,15 @@ program</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h3_1">
+                  <object class="GtkLabel" id="label14">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="button_block_delete">
                     <property name="label" translatable="yes"> Block
 Delete</property>
                     <property name="visible">True</property>
@@ -2726,11 +2731,11 @@ Delete</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h3_2">
+                  <object class="GtkToggleButton" id="button_option_stop">
                     <property name="label" translatable="yes">Optional
   Stop</property>
                     <property name="visible">True</property>
@@ -2738,7 +2743,15 @@ Delete</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label16">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -2750,45 +2763,19 @@ View</property>
                     <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save</property>
-                    <property name="use_stock">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="button_h3_5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Save edits with a filename</property>
-                    <property name="use_stock">True</property>
-                  </object>
-                  <packing>
                     <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_">
+                  <object class="GtkLabel" id="label17">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h3_7">
+                  <object class="GtkButton" id="button_next_tab">
                     <property name="label" translatable="yes">Next
  Tab</property>
                     <property name="can_focus">True</property>
@@ -2807,7 +2794,7 @@ View</property>
               <object class="GtkHBox" id="mode4">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_0">
+                  <object class="GtkToggleButton" id="button_feed_override">
                     <property name="label" translatable="yes">   Feed
 Override</property>
                     <property name="visible">True</property>
@@ -2820,7 +2807,7 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_1">
+                  <object class="GtkToggleButton" id="button_spindle_override">
                     <property name="label" translatable="yes">Spindle
 Override</property>
                     <property name="visible">True</property>
@@ -2833,7 +2820,7 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_2">
+                  <object class="GtkToggleButton" id="button_rapid_override">
                     <property name="label" translatable="yes">  Rapid
 Override</property>
                     <property name="visible">True</property>
@@ -2846,18 +2833,15 @@ Override</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_5">
+                  <object class="GtkLabel" id="label20">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_3">
+                  <object class="GtkToggleButton" id="button_jog_speed">
                     <property name="label" translatable="yes">   Jog
 Speed</property>
                     <property name="visible">True</property>
@@ -2870,7 +2854,7 @@ Speed</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h4_4">
+                  <object class="GtkToggleButton" id="button_jog_increments">
                     <property name="label" translatable="yes">      Jog
 Increments</property>
                     <property name="visible">True</property>
@@ -2883,7 +2867,12 @@ Increments</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLabel" id="label45">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">6</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -2910,7 +2899,7 @@ Increments</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h5_3">
+                  <object class="GtkButton" id="button_clear_view">
                     <property name="label" translatable="yes">Clear
  Plot</property>
                     <property name="visible">True</property>
@@ -2922,17 +2911,15 @@ Increments</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h5_1">
+                  <object class="GtkLabel" id="label23">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h5_0">
+                  <object class="GtkToggleButton" id="button_zoom">
                     <property name="label" translatable="yes">Zoom</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -2944,7 +2931,7 @@ Increments</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h5_4">
+                  <object class="GtkToggleButton" id="button_pan_v">
                     <property name="label" translatable="yes">   Pan
 Vertical</property>
                     <property name="visible">True</property>
@@ -2957,7 +2944,7 @@ Vertical</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h5_5">
+                  <object class="GtkToggleButton" id="button_pan_h">
                     <property name="label" translatable="yes">     Pan
 Horizontal</property>
                     <property name="visible">True</property>
@@ -2970,7 +2957,7 @@ Horizontal</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h5_6">
+                  <object class="GtkToggleButton" id="button_rotate_h">
                     <property name="label" translatable="yes">  Rotate
 Horiontal</property>
                     <property name="visible">True</property>
@@ -2983,7 +2970,7 @@ Horiontal</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h5_7">
+                  <object class="GtkToggleButton" id="button_rotate_v">
                     <property name="label" translatable="yes"> Rotate
 Vertical</property>
                     <property name="visible">True</property>
@@ -3005,49 +2992,39 @@ Vertical</property>
               <object class="GtkHBox" id="mode6">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkToggleButton" id="button_h2_6">
+                  <object class="GtkLabel" id="label24">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="button_h2_7">
+                  <object class="GtkLabel" id="label26">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h2_8">
+                  <object class="GtkLabel" id="label31">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h2_9">
-                    <property name="label" translatable="yes">
-</property>
+                  <object class="GtkLabel" id="label40">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h3_10">
+                  <object class="GtkButton" id="button_save">
                     <property name="label" translatable="yes">Save</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -3059,7 +3036,7 @@ Vertical</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_h3_9">
+                  <object class="GtkButton" id="button_saveall">
                     <property name="label" translatable="yes">Save-As</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -3211,10 +3188,10 @@ status</property>
                     <child>
                       <object class="HAL_LED" id="led_estop">
                         <property name="visible">True</property>
-                        <property name="led_blink_rate">200</property>
-                        <property name="is_on">True</property>
                         <property name="off_color">black</property>
                         <property name="led_shape">1</property>
+                        <property name="led_blink_rate">200</property>
+                        <property name="is_on">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -3352,6 +3329,38 @@ status</property>
             <property name="right_attach">7</property>
             <property name="top_attach">9</property>
             <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="rightside_box">
+            <child>
+              <object class="GtkHBox" id="key_box">
+                <property name="width_request">400</property>
+                <property name="visible">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="image1">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">8</property>
+            <property name="bottom_attach">11</property>
           </packing>
         </child>
         <child>

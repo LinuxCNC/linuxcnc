@@ -23,18 +23,18 @@ net vel-ok-y <= wcomp_yvel.out
 net acc-ok-z <= wcomp_zacc.out
 net vel-ok-z <= wcomp_zvel.out
 
-setp wcomp_xacc.max 20.001
-setp wcomp_xacc.min -20.001
-setp wcomp_xvel.max 1.2001
-setp wcomp_xvel.min -1.2001
-setp wcomp_yacc.max 20.001
-setp wcomp_yacc.min -20.001
-setp wcomp_yvel.max 1.2001
-setp wcomp_yvel.min -1.2001
-setp wcomp_zacc.max 20.001
-setp wcomp_zacc.min -20.001
-setp wcomp_zvel.max 1.2001
-setp wcomp_zvel.min -1.2001
+setp wcomp_xacc.max 50.001
+setp wcomp_xacc.min -50.001
+setp wcomp_xvel.max 5.001
+setp wcomp_xvel.min -5.001
+setp wcomp_yacc.max 50.001
+setp wcomp_yacc.min -50.001
+setp wcomp_yvel.max 5.001
+setp wcomp_yvel.min -5.001
+setp wcomp_zacc.max 50.001
+setp wcomp_zacc.min -50.001
+setp wcomp_zvel.max 5.001
+setp wcomp_zvel.min -5.001
 
 loadrt match8 names=match_all
 

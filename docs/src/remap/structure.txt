@@ -1283,28 +1283,54 @@ although there is no explicit Python definition of this class (it's a
 'Boost.Python' wrapper instance) and hence receive the as the first
 parameter `self` which can be used to access internals.
 
-=== The Interpreter `__init__` function
+=== The Interpreter `__init__` and `__delete__` functions
 
 If the `TOPLEVEL`  module defines a function `__init__`, it will be
 called once the interpreter is fully configured (ini file read, and
-state synchronized with the world model):
+state synchronized with the world model). 
+
+If the `TOPLEVEL`  module defines a function `__delete__`, it will be
+called once before the interpreter is shutdown and after the persistent
+parameters have been saved to the `PARAMETER_FILE`.
+
+Note_ at this time, the `__delete__` handler does not work for
+interpreter instances created by importing the `gcode` module. If you
+need an equivalent functionality there (which is quite unlikely),
+please consider the Python `atexit` module.
 
 [source,python]
 ---------------------------------------------------------------------
 # this would be defined in the TOPLEVEL module
+
 def __init__(self):
     # add any one-time initialisation here
-    pass
+    if self.task:
+	# this is the milltask instance of interp
+	pass
+    else:
+	# this is a non-milltask instance of interp
+        pass
+
+def __delete__(self):
+    # add any cleanup/state saving actions here
+    if self.task: # as above
+	pass
+    else:
+        pass
 ---------------------------------------------------------------------
 
 This function may be used to initialize any Python-side attributes
 which might be needed later, for instance in remap or oword
-functions. If there are setup actions which are to happen only in the
-milltask Interpreter instance, this can be tested for by
+functions, and save or restore state beyond what `PARAMETER_FILE` provides.
+
+If there are setup or cleanup actions which are to happen only in the
+milltask Interpreter instance (as opposed to the interpreter instance
+which sits in the `gcode` Python module and serves preview/progress
+display purposes but nothing else), this can be tested for by
 <<cha:Axis-Preview-and-Remapped-code-execution,evaluating
 'self.task'>>.
 
-An example use of `__init__` can be found in
+An example use of `__init__` and `__delete__` can be found in
 'configs/sim/remap/cycle/python/toplevel.py' initialising attributes
 needed to handle cycles in 'configs/sim/remap/python-stdglue/stdglue.py'.
 
