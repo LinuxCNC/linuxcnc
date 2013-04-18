@@ -362,7 +362,6 @@ int free_segments(int warn)
 		if (warn)
 		    err("segment %d still in use by a kernel module kattach=%d",
 			n, seg->n_kattach);
-		continue;
 	    }
 	    shm_free(seg);
 	    info("segment %d deleted",n);
@@ -695,7 +694,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	}
     }
     size = scnprintf(buf, left, 
-		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK", 
+		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%dK freed=%dK balance=%dK\n", 
 		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned, 
 		     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
     left -= size;
@@ -705,13 +704,13 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	seg = &shm_segments[i];
 	if (seg->in_use) {
 	    if (left < 80) {
-		size = scnprintf(buf, left, "...");
+		size = scnprintf(buf, left, "...\n");
 		left -= size;
 		written += size;
 		goto done;
 	    }
 	    size = scnprintf(buf, left,
-			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p",
+			    "%d: key=0x%8.8x size=%d aligned=%d ul=%d k=%d creator=%d mem=%p\n",
 			     i, seg->key, seg->size, seg->act_size, 
 			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);
