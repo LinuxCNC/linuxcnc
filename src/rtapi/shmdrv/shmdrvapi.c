@@ -172,25 +172,31 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	// use POSIX shared memory
 
 	int shmfd;
+	mode_t old_umask;
 	char segment_name[LINELEN];
 	sprintf(segment_name, SHM_FMT, instance, key);
-
+	old_umask = umask(0); //S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 	if (create && ((shmfd = shm_open(segment_name, 
 					 (O_CREAT | O_EXCL | O_RDWR),
-					 (S_IREAD | S_IWRITE))) > 0)) {
+ 				(S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) > 0)) {
 	    // initial creation
+	    if (fchown(shmfd, getuid(),getgid()))
+		perror("fchown");
 	    ftruncate(shmfd, size);
 	    is_new = 1;
 	} else if((shmfd = shm_open(segment_name, O_RDWR,
-				    (S_IREAD | S_IWRITE))) < 0) {
+				    (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) < 0) {
 	    // just attach, and that failed:
+	    umask(old_umask);
 	    return -errno;
 	}
 	if((*shmptr = mmap(0, size, (PROT_READ | PROT_WRITE),
 			   MAP_SHARED, shmfd, 0)) == MAP_FAILED) {
 	    close(shmfd);
+	    umask(old_umask);
 	    return -errno;
 	}
+	umask(old_umask);
 	close(shmfd);
 	return is_new;
     }
