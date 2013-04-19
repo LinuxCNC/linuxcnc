@@ -229,9 +229,6 @@ void init_rtapi_data(rtapi_data_t * data)
 	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
-#if defined(USE_SHMDRV)
-    	data->shmem_array[n].mmap_fd = -1;
-#endif
     }
     for (n = 0; n <= RTAPI_MAX_RINGS; n++) {
 	data->ring_array[n].magic = 0;
