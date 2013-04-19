@@ -186,6 +186,7 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	}
 	if((*shmptr = mmap(0, size, (PROT_READ | PROT_WRITE),
 			   MAP_SHARED, shmfd, 0)) == MAP_FAILED) {
+	    perror("shm_common_new:mmap");
 	    close(shmfd);
 	    umask(old_umask);
 	    return -errno;
