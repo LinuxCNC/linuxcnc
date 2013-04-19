@@ -27,14 +27,24 @@ RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 // it does _not_ match the address of the RT_TASK structure it was 
 // created with
 RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
+
+static struct rt_stats_struct {
+    int rt_wait_error;		/* release point missed */
+    int rt_last_overrun;	/* last number of overruns reported by
+				   Xenomai */
+    int rt_total_overruns;	/* total number of overruns reported
+				   by Xenomai */
+} rt_stats;
 #endif  /* RTAPI */
 
 /* init_rtapi_data */
+#ifdef RTAPI
 void init_rtapi_data_hook(rtapi_data_t * data) {
-    data->rt_wait_error = 0;
-    data->rt_last_overrun = 0;
-    data->rt_total_overruns = 0;
+    rt_stats.rt_wait_error = 0;
+    rt_stats.rt_last_overrun = 0;
+    rt_stats.rt_total_overruns = 0;
 }
+#endif
 
 
 /* rtapi_init() and rtapi_exit() */
@@ -170,9 +180,9 @@ void _rtapi_wait_hook() {
 	break;
 
     case -ETIMEDOUT: // release point was missed
-	rtapi_data->rt_wait_error++;
-	rtapi_data->rt_last_overrun = overruns;
-	rtapi_data->rt_total_overruns += overruns;
+	rt_stats.rt_wait_error++;
+	rt_stats.rt_last_overrun = overruns;
+	rt_stats.rt_total_overruns += overruns;
 
 	if (error_printed < MAX_ERRORS) {
 	    task_id = _rtapi_task_self();

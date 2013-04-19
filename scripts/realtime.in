@@ -164,7 +164,6 @@ Load(){
     CheckKernel
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
-
         # check for instance running
 	# this is the case if the global segment exists
         # and any processes exist which have it attached
@@ -241,7 +240,6 @@ Unload(){
     CheckKernel
     case $RTPREFIX in
     posix|xenomai-user|rt-preempt-user)
-
 	if [ "$DEBUG" != "" ] ; then
             rtapi_app --instance=$INSTANCE exit 
 	else
@@ -258,7 +256,6 @@ Unload(){
 
 	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
 	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
-
         ;;
     *)
 	MSGD_PID=`pidof msgd:$INSTANCE`

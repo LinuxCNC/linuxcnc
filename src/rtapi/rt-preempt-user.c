@@ -33,9 +33,30 @@ static int error_printed;
 #  endif
 #endif  // RTAPI
 
+
+typedef struct {
+    int deleted;
+    int destroyed;
+    int deadline_scheduling;
+    struct timespec next_time;
+
+    /* The realtime thread. */
+    pthread_t thread;
+    pthread_barrier_t thread_init_barrier;
+    void *stackaddr;
+
+    /* Statistics */
+    unsigned long minfault_base;
+    unsigned long majfault_base;
+    unsigned int failures;
+} extra_task_data_t;
+
+extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
+
+
+#ifdef ULAPI
+
 int _rtapi_init(const char *modname) {
-
-
     return _rtapi_next_module_id();
 }
 
@@ -43,9 +64,6 @@ int _rtapi_exit(int module_id) {
 	/* do nothing for ULAPI */
 	return 0;
 }
-
-
-
 
 #ifdef RTAPI 
 static inline int task_id(task_data *task) {
@@ -60,14 +78,15 @@ static unsigned long _rtapi_get_pagefault_count(task_data *task) {
     getrusage(RUSAGE_SELF, &rusage);
     minor = rusage.ru_minflt;
     major = rusage.ru_majflt;
-    if (minor < task->minfault_base || major < task->majfault_base) {
+    if (minor < extra_task_data[task_id(task)].minfault_base || 
+	major < extra_task_data[task_id(task)].majfault_base) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi task %d %s: Got invalid fault counts.\n",
 			task_id(task), task->name);
 	return 0;
     }
-    minor -= task->minfault_base;
-    major -= task->majfault_base;
+    minor -= extra_task_data[task_id(task)].minfault_base;
+    major -= extra_task_data[task_id(task)].majfault_base;
 
     return minor + major;
 }
@@ -76,10 +95,10 @@ static void _rtapi_reset_pagefault_count(task_data *task) {
     struct rusage rusage;
 
     getrusage(RUSAGE_SELF, &rusage);
-    if (task->minfault_base != rusage.ru_minflt ||
-	task->majfault_base != rusage.ru_majflt) {
-	task->minfault_base = rusage.ru_minflt;
-	task->majfault_base = rusage.ru_majflt;
+    if (extra_task_data[task_id(task)].minfault_base != rusage.ru_minflt ||
+	extra_task_data[task_id(task)].majfault_base != rusage.ru_majflt) {
+	extra_task_data[task_id(task)].minfault_base = rusage.ru_minflt;
+	extra_task_data[task_id(task)].majfault_base = rusage.ru_majflt;
 	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi task %d %s: Reset pagefault counter\n",
 			task_id(task), task->name);
@@ -123,8 +142,8 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
 	return -ENOMEM;
     }
     memset(stackaddr, 0, task->stacksize);
-    task->stackaddr = stackaddr;
-    task->destroyed = 0;
+    extra_task_data[task_id].stackaddr = stackaddr;
+    extra_task_data[task_id].destroyed = 0;
     return task_id;
 }
 
@@ -134,23 +153,24 @@ void _rtapi_task_delete_hook(task_data *task, int task_id) {
     void *returncode;
 
     /* Signal thread termination and wait for the thread to exit. */
-    if (!task->deleted) {
-	task->deleted = 1;
-	err = pthread_join(task->thread, &returncode);
+    if (!extra_task_data[task_id].deleted) {
+	extra_task_data[task_id].deleted = 1;
+	err = pthread_join(extra_task_data[task_id].thread, &returncode);
 	if (err)
 	    rtapi_print_msg
 		(RTAPI_MSG_ERR, "pthread_join() on realtime thread failed\n");
     }
     /* Free the thread stack. */
-    free(task->stackaddr);
-    task->stackaddr = NULL;
+    free(extra_task_data[task_id].stackaddr);
+    extra_task_data[task_id].stackaddr = NULL;
 }
 
 static int realtime_set_affinity(task_data *task) {
     cpu_set_t set;
     int err, cpu_nr, use_cpu = -1;
 
-    pthread_getaffinity_np(task->thread, sizeof(set), &set);
+    pthread_getaffinity_np(extra_task_data[task_id(task)].thread,
+			   sizeof(set), &set);
     if (task->cpu > -1) { // CPU set explicitly
 	if (!CPU_ISSET(task->cpu, &set)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, 
@@ -179,7 +199,8 @@ static int realtime_set_affinity(task_data *task) {
     CPU_ZERO(&set);
     CPU_SET(use_cpu, &set);
 
-    err = pthread_setaffinity_np(task->thread, sizeof(set), &set);
+    err = pthread_setaffinity_np(extra_task_data[task_id(task)].thread,
+				 sizeof(set), &set);
     if (err) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%d %s: Failed to set CPU affinity to CPU %d (%s)\n",
@@ -256,7 +277,7 @@ static int realtime_set_priority(task_data *task) {
     struct sched_param_ex ex;
     struct sigaction sa;
 
-    task->deadline_scheduling = 0;
+    extra_task_data[task_id(task)].deadline_scheduling = 0;
     if (ENABLE_SCHED_DEADLINE) {
 	memset(&sa, 0, sizeof(sa));
 	sigemptyset(&sa.sa_mask);
@@ -283,7 +304,7 @@ static int realtime_set_priority(task_data *task) {
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO,
 			    "Running DEADLINE scheduling policy.\n");
-	    task->deadline_scheduling = 1;
+	    extra_task_data[task_id(task)].deadline_scheduling = 1;
 	    return 0;
 	}
     }
@@ -330,7 +351,7 @@ static void *realtime_thread(void *arg) {
 #endif
 
     /* We're done initializing. Open the barrier. */
-    pthread_barrier_wait(&task->thread_init_barrier);
+    pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
 
     clock_gettime(CLOCK_MONOTONIC, &task->next_time);
     _rtapi_advance_time(&task->next_time, task->period, 0);
@@ -342,13 +363,13 @@ static void *realtime_thread(void *arg) {
 	(RTAPI_MSG_ERR,
 	 "ERROR: reached end of realtime thread for task %d\n",
 	 task_id(task));
-    task->deleted = 1;
+    extra_task_data[task_id(task)].deleted = 1;
 
     return NULL;
  error:
     /* Signal that we're dead and open the barrier. */
-    task->deleted = 1;
-    pthread_barrier_wait(&task->thread_init_barrier);
+    extra_task_data[task_id(task)].deleted = 1;
+    pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
     return NULL;
 }
 
@@ -356,26 +377,30 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
-    task->deleted = 0;
+    extra_task_data[task_id].deleted = 0;
 
-    pthread_barrier_init(&task->thread_init_barrier, NULL, 2);
+    pthread_barrier_init(&extra_task_data[task_id].thread_init_barrier,
+			 NULL, 2);
     pthread_attr_init(&attr);
-    pthread_attr_setstack(&attr, task->stackaddr, task->stacksize);
+    pthread_attr_setstack(&attr, extra_task_data[task_id].stackaddr,
+			  task->stacksize);
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "About to pthread_create task %d\n", task_id);
-    retval = pthread_create(&task->thread, &attr, realtime_thread,
-			    (void *)task);
+    retval = pthread_create(&extra_task_data[task_id].thread,
+			    &attr, realtime_thread, (void *)task);
     rtapi_print_msg(RTAPI_MSG_DBG,"Created task %d\n", task_id);
     pthread_attr_destroy(&attr);
     if (retval) {
-	pthread_barrier_destroy(&task->thread_init_barrier);
+	pthread_barrier_destroy
+	    (&extra_task_data[task_id].thread_init_barrier);
 	rtapi_print_msg(RTAPI_MSG_ERR, "Failed to create realtime thread\n");
 	return -ENOMEM;
     }
     /* Wait for the thread to do basic initialization. */
-    pthread_barrier_wait(&task->thread_init_barrier);
-    pthread_barrier_destroy(&task->thread_init_barrier);
-    if (task->deleted) { /* The thread died in the init phase. */
+    pthread_barrier_wait(&extra_task_data[task_id].thread_init_barrier);
+    pthread_barrier_destroy(&extra_task_data[task_id].thread_init_barrier);
+    if (extra_task_data[task_id].deleted) {
+	/* The thread died in the init phase. */
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"Realtime thread initialization failed\n");
 	return -ENOMEM;
@@ -397,26 +422,27 @@ int _rtapi_wait_hook(void) {
     int msg_level = RTAPI_MSG_NONE;
 #endif
 
-    if (task->deleted)
+    if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
 
-    if (task->deadline_scheduling)
-	sched_wait_interval(TIMER_ABSTIME, &task->next_time, NULL);
+    if (extra_task_data[task_id(task)].deadline_scheduling)
+	sched_wait_interval(TIMER_ABSTIME,
+			    &extra_task_data[task_id(task)].next_time, NULL);
     else
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &task->next_time,
 			NULL);
     _rtapi_advance_time(&task->next_time, task->period, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    if (ts.tv_sec > task->next_time.tv_sec
-	|| (ts.tv_sec == task->next_time.tv_sec
-	    && ts.tv_nsec > task->next_time.tv_nsec)) {
-	task->failures++;
+    if (ts.tv_sec > extra_task_data[task_id(task)].next_time.tv_sec
+	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
+	    && ts.tv_nsec > extra_task_data[task_id(task)].next_time.tv_nsec)) {
+	extra_task_data[task_id(task)].failures++;
 #ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
-	if (task->failures == 1)
+	if (extra_task_data[task_id(task)].failures == 1)
 	    msg_level = RTAPI_MSG_ERR;
-	/* else if (task->failures < 10 ||		\
-	       (task->failures % 10000 == 0))  */
-	else if (task->failures < 10)
+	/* else if (extra_task_data[task_id(task)].failures < 10 ||
+	       (extra_task_data[task_id(task)].failures % 10000 == 0))  */
+	else if (extra_task_data[task_id(task)].failures < 10)
 	    msg_level = RTAPI_MSG_WARN;
 
 	if (msg_level != RTAPI_MSG_NONE) {
@@ -425,11 +451,11 @@ int _rtapi_wait_hook(void) {
 		 "ERROR: Missed scheduling deadline for task %d [%d times]\n"
 		 "Now is %ld.%09ld, deadline was %ld.%09ld\n"
 		 "Absolute number of pagefaults in realtime context: %lu\n",
-		 task_id(task), task->failures,
+		 task_id(task), extra_task_data[task_id(task)].failures,
 		 (long)ts.tv_sec, (long)ts.tv_nsec,
-		 (long)task->next_time.tv_sec,
-		 (long)task->next_time.tv_nsec,
-		 _rtapi_get_pagefault_count(task));
+		 (long)extra_task_data[task_id(task)].next_time.tv_sec,
+		 (long)extra_task_data[task_id(task)].next_time.tv_nsec,
+		 rtapi_get_pagefault_count(task));
 	}
 #endif
     }

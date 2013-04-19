@@ -44,7 +44,6 @@ FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=4
 ULAPISO_LIBS +=  $(shell $(XENO_CONFIG) --skin=native  --ldflags)
 endif
 RT_CFLAGS += $(FLAVOR_FLAGS)
-
 ##########################################
 # defaults for all thread styles
 
@@ -59,7 +58,6 @@ ULAPI_SRCS := \
 	rtapi/rtapi_shmem.c \
 	rtapi/rtapi_ring.c \
 	rtapi/rtapi_time.c \
-	rtapi/rtapi_io.c \
 	rtapi/$(THREADS_SOURCE).c \
 	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) 
 
@@ -142,7 +140,6 @@ rtapi-objs := \
 	rtapi/rtapi_shmem.o \
 	rtapi/rtapi_ring.o \
 	rtapi/rtapi_time.o \
-	rtapi/rtapi_io.o \
 	rtapi/$(THREADS_SOURCE).o \
 	rtapi/shmdrv/shmdrvapi.o \
 	rtapi/rtapi_compat.o
@@ -164,7 +161,6 @@ rtapi-objs := \
 # Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
 # despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
 USERSRCS +=  rtapi/sim_rtapi_app.cc 
-
 #
 # List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
 # see that target below
@@ -305,5 +301,3 @@ $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
-
-

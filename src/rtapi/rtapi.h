@@ -64,7 +64,6 @@
   with previous versions.
 */
 #define RTAPI_SERIAL 2
-
 #include "config.h"
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
@@ -83,6 +82,7 @@
     space, the non-underscore types should NEVER be used.
 */
 #if defined(BUILD_SYS_USER_DSO)
+#define __KERNEL_STRICT_NAMES
 # include <linux/types.h>
 #if !defined(__GNUC__) && defined(__STRICT_ANSI__)
 # include <stdint.h>
@@ -181,7 +181,7 @@ extern int _rtapi_next_module_id(void);
 /***********************************************************************
 *                      MESSAGING FUNCTIONS                             *
 ************************************************************************/
-// moved to rtapi_support.h 
+// moved to rtapi_support.h
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
@@ -571,11 +571,11 @@ typedef int (*rtapi_shmem_delete_inst_t)(int, int, int);
     rtapi_switch->rtapi_shmem_delete_inst(shmem_id, instance, module_id)
 extern int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
 
-
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
 */
+
 typedef int (*rtapi_shmem_getptr_t)(int, void **);
 #define rtapi_shmem_getptr(shmem_id, ptr)		\
     rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
@@ -610,46 +610,10 @@ extern int _rtapi_ring_detach(int handle, int module_id);
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
+// the rtapi_inb()/rtapi_outb()/rtapi_inw()/rtapi_outw() functions have
+// moved to src/rtapi/rtapi_io.h, including documentation.
 
-/** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outb() that is faster.
-*/
-typedef void (*rtapi_outb_t)(unsigned char, unsigned int);
-#define rtapi_outb(byte, port)				\
-    rtapi_switch->rtapi_outb(byte, port)
-extern void _rtapi_outb(unsigned char byte, unsigned int port);
-
-/** 'rtapi_inb() gets a byte from 'port'.  Returns the byte.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inb() that is faster.
-*/
-typedef unsigned char (*rtapi_inb_t)(unsigned int);
-#define rtapi_inb(port)				\
-    rtapi_switch->rtapi_inb(port)
-extern unsigned char _rtapi_inb(unsigned int port);
-
-/** 'rtapi_outw() writes 'word' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outw() that is faster.
-*/
-typedef void (*rtapi_outw_t)(unsigned short, unsigned int);
-#define rtapi_outw(word, port)				\
-    rtapi_switch->rtapi_outw(word, port)
-extern void _rtapi_outw(unsigned short word, unsigned int port);
-
-/** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inw() that is faster.
-*/
-typedef unsigned short (*rtapi_inw_t)(unsigned int);
-#define rtapi_inw(port)				\
-    rtapi_switch->rtapi_inw(port)
-extern unsigned short _rtapi_inw(unsigned int port);
+#include "rtapi_io.h"
 
 #if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
@@ -763,11 +727,6 @@ typedef struct {
     rtapi_ring_attach_t rtapi_ring_attach;
     rtapi_ring_detach_t rtapi_ring_detach;
 
-    // i/o related functions
-    rtapi_outb_t rtapi_outb;
-    rtapi_inb_t rtapi_inb;
-    rtapi_outw_t rtapi_outw;
-    rtapi_inw_t rtapi_inw;
 } rtapi_switch_t;
 
 // using code is responsible to define this:

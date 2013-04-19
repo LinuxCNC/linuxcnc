@@ -142,12 +142,6 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_ring_new = &_rtapi_ring_new,
     .rtapi_ring_attach = &_rtapi_ring_attach,
     .rtapi_ring_detach = &_rtapi_ring_detach,
-
-    // i/o related functions
-    .rtapi_outb = &_rtapi_outb,
-    .rtapi_inb = &_rtapi_inb,
-    .rtapi_outw = &_rtapi_outw,
-    .rtapi_inw = &_rtapi_inw,
 };
 
 // any API, any style:
@@ -174,6 +168,17 @@ void rtapi_autorelease_mutex(void *variable)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_autorelease_mutex: rtapi_data == NULL!\n");
 }
+
+// in the RTAPI scenario,
+// global_data is exported by instance.ko and referenced
+// by rtapi.ko and hal_lib.ko
+
+// in ULAPI, we have only hal_lib which calls 'down'
+// onto ulapi.so to init, so in this case global_data
+// is exported by hal_lib and referenced by ulapi.so
+
+extern global_data_t *global_data;
+
 
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype

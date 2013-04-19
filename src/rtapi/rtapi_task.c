@@ -130,6 +130,7 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
     task = &(task_array[task_id]);
 
     // if requested priority is invalid, release lock and return error
+
     if (PRIO_LT(prio,_rtapi_prio_lowest()) ||
 	PRIO_GT(prio,_rtapi_prio_highest())) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

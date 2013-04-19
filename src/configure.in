@@ -144,6 +144,9 @@ BUILD_SYS=""
 # tcl/linuxcnc.tcl.in
 SIMULATOR=no
 
+# a set of gcc/cpp flags to work around broken hardy amd64 rtai_lxrt.h
+HARDY_AMD64_WORKAROUND=""
+
 #----------------------------------------------------------------------------
 #
 # introduce new build categories as per:
@@ -497,10 +500,10 @@ AC_ARG_ENABLE(simulator,
                 SIMULATOR=yes
                 dnl RTS=simulator
 		THREADS=posix
-                dnl BUILD_SYS=user-dso
-		dnl BUILD_DRIVERS=no
-                dnl MODEXT=.so
-                dnl MODULE_DIR=${prefix}/lib/linuxcnc/modules
+                BUILD_SYS=user-dso
+		BUILD_DRIVERS=no
+                MODEXT=.so
+                MODULE_DIR=${prefix}/lib/linuxcnc/modules
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -852,6 +855,24 @@ case "$THREADS" in
 	# avoid a naming conflict with /usr/realtime/include/rtai.h
 	# this should probably be addressed more betterly
 	THREADS_SOURCE="rtai-kernel"
+
+	AC_MSG_CHECKING(if hardy amd64 workaround is required)
+	machine=`uname -m`
+	# test for broken hardy rtai amd64 includes
+	if test "$machine" = 'x86_64' ; then
+	    if test -f $RTDIR/include/asm-x86_64/rtai_lxrt.h ; then
+		if grep '#include <asm/asm-offsets.h>' $RTDIR/include/asm-x86_64/rtai_lxrt.h >/dev/null ; then
+		    HARDY_AMD64_WORKAROUND="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
+		    AC_MSG_RESULT(required)
+                else
+		    AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
+		fi
+	    else
+	  	AC_MSG_RESULT(strange, no such include file: rtai_lxrt.h)
+	    fi
+        else
+  	    AC_MSG_RESULT(no, not an amd64 build)
+        fi
     ;;
 
     rt-preempt-user|rt-preempt-kernel)
@@ -976,6 +997,8 @@ fi
 RTPREFIX=$THREADS
 
 
+AC_SUBST(HARDY_AMD64_WORKAROUND)
+
 AC_SUBST(SIMULATOR)
 AC_SUBST([RTNAME])
 
@@ -1011,7 +1034,6 @@ AC_SUBST(BUILD_EXAMPLES)
 if test "$BUILD_EXAMPLES" = yes; then
    AC_DEFINE(BUILD_EXAMPLES, [], [build programming examples])
 fi
-
 if test "$USERMODE_PCI" = yes; then
    AC_DEFINE(USERMODE_PCI, [], [build PCI drivers with usermode PCI support])
 fi
@@ -1541,7 +1563,7 @@ fi
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --enable-build-documentation[=format]   Build documentation.
-              Format may be "pdf" or "html" if only one format is desired.],
+                          Format may be "pdf" or "html" if only one format is desired.],
     [
         case "$enableval" in
         Y*|y*|html,pdf|pdf,html)
@@ -1850,7 +1872,10 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
 LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
+LIBS="$LIBS -lm -lrt"
+
+AC_CHECK_FUNCS(clock_getres)
+
 
 AC_MSG_CHECKING([for sincos function])
 sincos_ok=yes

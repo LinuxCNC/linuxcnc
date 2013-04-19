@@ -265,7 +265,6 @@ static int do_load_cmd(string name, vector<string> args) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
         }
-
 	// retrieve the address of rtapi_switch_struct
 	// so rtapi functions can be called and members
 	// access 
@@ -286,7 +285,6 @@ static int do_load_cmd(string name, vector<string> args) {
 				rtsw->git_version);
 	    }
 	}
-
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
@@ -537,7 +535,6 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     assert(gd != NULL);
     
     gd->rtapi_app_pid = getpid();
-
     if(args.size()) { 
         int result = handle_command(args);
         if(result != 0) return result;
@@ -629,7 +626,6 @@ static int configure_memory(void) {
 
 	return 0;
 }
-
 
 extern "C" void 
 backtrace_handler(int sig, siginfo_t *si, void *uctx)
@@ -757,6 +753,7 @@ static int harden_rt()
 		gd->rtapi_app_pid = 0;
 	    exit(1);
 	}
+
 	numgroups = getgroups(0,NULL);
 	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
 	if (getgroups( numgroups, grouplist) != -1) {

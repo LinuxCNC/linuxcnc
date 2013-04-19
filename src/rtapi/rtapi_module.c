@@ -22,6 +22,13 @@
 #  if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #    include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 #  endif
+
+// exported by instance.c
+extern int hal_size;
+
+// kernel styles do not support multiple instances
+// this just numbers this particular instance to fit with the scheme
+extern int rtapi_instance;
 #endif
 
 extern void init_rtapi_data(rtapi_data_t * data);
@@ -65,6 +72,7 @@ EXPORT_SYMBOL(get_global_handle);
    needs to delete something, it calls these functions directly.
 */
 static int module_delete(int module_id);
+
 extern void _rtapi_module_cleanup_hook(void);
 
 /***********************************************************************
@@ -74,12 +82,15 @@ extern void _rtapi_module_cleanup_hook(void);
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
 void _rtapi_module_init_hook(void);
 #endif
+extern int global_app_main(void);
+extern void global_app_exit(void);
 
 int init_module(void) {
     int n;
     struct shm_status sm;
     int retval;
 
+  global_app_main();
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
 		    rtapi_instance,
@@ -124,7 +135,6 @@ int init_module(void) {
 		     instance_name);
     /* this will take care of any threads flavor hook */
     init_rtapi_data(rtapi_data);
-
     /* check flavor and serial codes */
     if (rtapi_data->thread_flavor_id != THREAD_FLAVOR_ID) {
 	/* mismatch - release master shared memory block */
@@ -269,6 +279,9 @@ void cleanup_module(void) {
 #ifdef CONFIG_PROC_FS
     proc_clean();
 #endif
+
+  /* perform thread system-specific module cleanups */
+   // FIXME check if needed _rtapi_module_cleanup_hook();
 
     sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
     sm.size = sizeof(rtapi_data_t);

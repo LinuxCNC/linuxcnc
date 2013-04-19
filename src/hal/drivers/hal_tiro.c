@@ -62,14 +62,6 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#define FASTIO
-
-#if defined(FASTIO) && !defined(BUILD_SYS_USER_DSO)
-#define rtapi_inb inb
-#define rtapi_outb outb
-#include <asm/io.h>
-#endif
-
 /* module information */
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Tiro-PC104 board for EMC HAL");

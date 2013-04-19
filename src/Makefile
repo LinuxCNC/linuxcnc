@@ -210,10 +210,12 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
+WORKAROUND_CFLAGS= $(HARDY_AMD64_WORKAROUND)
+
 # Compilation options.	Perhaps some of these should come from Makefile.inc?
 OPT := -Os
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
+CFLAGS := $(WORKAROUND_CFLAGS)  $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 
 ifeq ($(RUN_IN_PLACE),yes)
@@ -380,6 +382,7 @@ HEADERS := \
     rtapi/rtapi_common.h \
     rtapi/rtapi_global.h \
     rtapi/rtapi_shmkeys.h \
+    rtapi/rtapi_io.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
@@ -719,7 +722,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(RTFLAGS) \
+EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
 	-D__MODULE__ \
 	-I$(BASEPWD) \
 	-I$(BASEPWD)/libnml/linklist \
@@ -975,6 +978,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o

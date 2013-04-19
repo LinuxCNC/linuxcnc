@@ -184,4 +184,3 @@ static int check_compatible()
     }
     return retval;
 }
-

@@ -80,6 +80,12 @@
 #include <sys/types.h>  
 #endif
 
+#if defined(BUILD_SYS_USER_DSO)
+#include <sys/ipc.h>		/* IPC_* */
+#include <sys/shm.h>
+#include <sys/types.h>
+#endif
+
 #ifndef NULL
 #define NULL 0
 #endif
@@ -129,9 +135,6 @@ typedef enum {
 typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
-#ifdef THREAD_MODULE_DATA
-    THREAD_MODULE_DATA;
-#endif
 } module_data;
 
 typedef enum {
@@ -162,9 +165,6 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
-#ifdef THREAD_TASK_DATA
-    THREAD_TASK_DATA;		/* task data defined in thread system */
-#endif
 } task_data;
 
 typedef struct {
