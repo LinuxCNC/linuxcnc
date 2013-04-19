@@ -21,7 +21,7 @@
 
 #ifdef RTAPI
 static rthal_trap_handler_t old_trap_handler;
-static int rtapi_trap_handler(unsigned event, unsigned domid, void *data);
+static int _rtapi_trap_handler(unsigned event, unsigned domid, void *data);
 static struct rt_stats_struct {
     int rt_wait_error;		/* release point missed */
     int rt_last_overrun;	/* last number of overruns reported by

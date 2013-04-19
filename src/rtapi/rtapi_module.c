@@ -23,9 +23,6 @@
 #    include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 #  endif
 
-// exported by instance.c
-extern int hal_size;
-
 // kernel styles do not support multiple instances
 // this just numbers this particular instance to fit with the scheme
 extern int rtapi_instance;
