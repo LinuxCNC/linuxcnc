@@ -446,6 +446,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
                     *inst->command_reg_write = 0x800; // stop command
+                    break;
                 }
                 if (*inst->command_reg_read) {
                     if (doit_err_count < 6){ doit_err_count++; }
@@ -509,6 +510,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
                 break;
             case 0x20:// Do-nothing state for serious errors. require run pin to cycle
+                *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                 if ( ! *inst->run){*inst->state = 0x02;}
                 break;
             default: // Should never happen

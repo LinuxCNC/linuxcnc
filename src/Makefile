@@ -184,10 +184,12 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
+WORKAROUND_CFLAGS= $(HARDY_AMD64_WORKAROUND)
+
 # Compilation options.	Perhaps some of these should come from Makefile.inc?
 OPT := -Os
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
+CFLAGS := $(WORKAROUND_CFLAGS)  $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 
 ifeq ($(RUN_IN_PLACE),yes)
@@ -406,13 +408,15 @@ ifeq ($(THREADS),xenomai-kernel)
 KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
 endif
 modules:
+ifeq ($(THREADS),xenomai-kernel)
 	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
 	    V=$(BUILD_VERBOSE) modules
+	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
+endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
 	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-	-cp rtapi/xeno_math/xeno_math.ko ../rtlib
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -678,29 +682,19 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(RTFLAGS) \
-	-D__MODULE__ \
-	-I$(BASEPWD) \
-	-I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms \
-	-I$(BASEPWD)/libnml/rcs \
-	-I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf \
-	-I$(BASEPWD)/libnml/nml \
-	-I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath \
-	-I$(BASEPWD)/rtapi \
-	-I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf \
-	-I$(BASEPWD)/emc/kinematics \
-	-I$(BASEPWD)/emc/motion \
-	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
-	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
-	-fno-fast-math \
-	-fno-unsafe-math-optimizations \
-	$(call cc-option,-mieee-fp) \
-	$(call cc-option,-Wframe-larger-than=2560) \
-	$(KERNEL_MATH_CFLAGS)
+EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
+	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
+	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
+	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
+	$(call cc-option,-Wframe-larger-than=2560) $(KERNEL_MATH_CFLAGS)
+ifneq ($(KERNELRELEASE),)
+ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
+EXTRA_CFLAGS += -msse
+endif
+endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 EXTRA_CFLAGS += -I$(BASEPWD)/hal/components/pru_support
@@ -860,8 +854,8 @@ endif
 endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)
-#CS#obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
+#obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -937,6 +931,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
@@ -1072,7 +1069,7 @@ ifeq ($(USERMODE_PCI),yes)
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
 ../rtlib/hm2_7i43$(MODULE_EXT): $(addprefix objects/rt,$(hm2_7i43-objs))
 ../rtlib/hm2_pci$(MODULE_EXT): $(addprefix objects/rt,$(hm2_pci-objs))
-#CS#../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
+../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs)) 
 endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)

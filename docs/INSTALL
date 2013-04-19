@@ -7,14 +7,15 @@ cd src
 In the source directory, build LinuxCNC:
 
 ./autogen.sh  (this builds the configure script)
-./configure --enable-run-in-place
+./configure
 make clean
 make
 sudo make setuid
 
 to run the software go back to the top level directory, and issue:
 
-scripts/emc
+source scripts/rip-environment
+linuxcnc
 
 
 Detailed description
@@ -23,14 +24,13 @@ Detailed description
 Run-time script
 ===============
 
-The runtime script is called emc, thus allowing you on an installed to just type
-'emc' and get it running.
-On a run-in-place system (e.g. the one you just got out of git), 
-the runscript is emc2/scripts/emc.
-When you just checked out a fresh copy of LinuxCNC, you'll see there is no 
-'scripts/emc', just a 'scripts/emc.in'.
-By running configure that one will get changed to 'scripts/emc'. configure will
-also replace some default values for your system (folders, paths, etc).
+The runtime script is called linuxcnc, thus allowing you on an installed
+to just type 'linuxcnc' and get it running.  On a run-in-place system
+(e.g. the one you just got out of git), the runscript is scripts/linuxcnc.
+When you just checked out a fresh copy of LinuxCNC, you'll see there is no
+'scripts/linuxcnc', just a 'scripts/linuxcnc.in'.  By running configure
+that one will get changed to 'scripts/linuxcnc'. configure will also
+replace some default values for your system (folders, paths, etc).
 
 
 Configure script
@@ -62,15 +62,16 @@ The simplest way to compile this package is:
 
   2. Type `make' to compile the package.
 
-  3. Type `scripts/emc` to test the software. 
+  3. Type `scripts/linuxcnc` to test the software.
   
 
 Optional Features
 =================
-   EMC is a software that can operate hardware only if a real time system has 
-been installed. Either RTLinux or RTAI. If you don't have any installed, you 
-cannot run LinuxCNC to control any machines. Please install one of the RT patches
-(refer to the documentation of the project on how to achieve that).
+   LinuxCNC can operate hardware only if a real time system has been
+installed. Either RTLinux or RTAI. If you don't have any installed,
+you cannot run LinuxCNC to control any machines. Please install one
+of the RT patches (refer to the documentation of the project on how to
+achieve that).
 
     However, it is possible to test LinuxCNC without a realtime system. This is 
 possible using a simulator mode, which doesn't allow hardware control. To
