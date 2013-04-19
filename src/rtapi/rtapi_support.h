@@ -90,6 +90,10 @@ extern int rtapi_get_msg_level(void);
 */
 typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
 				   va_list ap);
+
+// message handler which writes to ringbuffer if global is available
+extern void vs_ring_write(msg_level_t level, const char *format, va_list ap);
+
 #ifdef RTAPI
 #endif // RTAPI
 

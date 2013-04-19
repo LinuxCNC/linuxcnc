@@ -8,6 +8,15 @@ export LANG=C
 
 PIDOF=@PIDOF@
 
+# wait for a list of pids to all exit
+anywait(){
+    for pid in "$@"; do
+        while kill -0 "$pid"; do
+            sleep 0.5
+        done
+    done
+}
+
 CheckKernel() {
     case "@KERNEL_VERS@" in
     "") ;;
@@ -194,13 +203,13 @@ Load(){
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
         fi
 
-	# ping is a noop which will finish only once rtapi_app
-	# is fully set up and responds. This closes a race condition where clients
+	# the rtapi_msgd logging demon will wait in the foreground
+	# until the HAL data segment exists, confirming the RT stack
+	# is fully setup by rtapi_app, and only then disconnect into the
+	# background. This closes a race condition where clients
 	# like halcmd might try to attach the HAL data segment before
-	# rtapi_app got around to creating it
-	rtapi_app --instance $INSTANCE ping
+	# rtapi_app got around to creating it.
 
-	# unified logging
 	rtapi_msgd --instance=$INSTANCE
     ;;
 
@@ -236,6 +245,8 @@ CheckLoaded(){
     exit 1
 }
 
+
+
 Unload(){
     CheckKernel
     case $RTPREFIX in
@@ -246,14 +257,19 @@ Unload(){
             rtapi_app --instance=$INSTANCE exit            >/dev/null 2>&1
         fi
 
+	# wait until rtapi_msgd has vanished. This assures
+	# that the last user of the global data segment has vanished,
+	# making sure an immediate restart of realtime does not find
+	# shm segments still hanging around. The only realistic scenario
+	# which could trigger this is runtests.
 	MSGD_PID=`pidof msgd:$INSTANCE`
 	if [ "$MSGD_PID" != "" ] ; then
 	    kill $MSGD_PID
+	    anywait $MSGD_PID
 	fi
 
 	# remove any linuxcnc-specific POSIX shm segments if they exist
 	# see src/rtapi/rtapi_shmkeys.h: SHM_FMT
-
 	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
 	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
         ;;

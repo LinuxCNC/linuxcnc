@@ -51,7 +51,7 @@
 #include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/prctl.h>
-#if defined(RTAPI_XENOMAI_USER)  // FIXME BUILD_XENOMAI_USER
+#if defined(RTAPI_XENOMAI_USER) 
 #include <grp.h>
 #include <rtdk.h>
 #endif
@@ -87,27 +87,29 @@ static struct rusage rusage;
 static unsigned long minflt, majflt;
 
 static int harden_rt(void);
-static int usr_msglevel = RTAPI_MSG_INFO ; 
-static int rt_msglevel = RTAPI_MSG_INFO ; 
+static int usr_msglevel = RTAPI_MSG_INFO ;
+static int rt_msglevel = RTAPI_MSG_INFO ;
 
-static int halsize = 262000; //FIXME
-static int instance_id; 
+static int halsize = HAL_SIZE;
+static int instance_id;
 static flavor_ptr flavor;
 static const char *rtlibpath = EMC2_RTLIB_DIR;
 static int use_drivers = 0;
 static int foreground;
 
-static rtapi_switch_t *rtsw; // dont collide with rtapi_switch in hal_lib.so
-static global_data_t *gd;    // dont collide with global_data in instance.so
+// the following two variables, despite extern, are in fact private to rtapi_app
+// in the sense that they are not visible in the RT space (the namespace 
+// of dlopen'd modules); these are supposed to be 'ships in the night'
+// relative to any symbols exported by rtapi_app.
+// They are set once rtapi.so has been loaded by calling the 
+// rtapi_get_handle() and get_global_handle() methods in rtapi.so.
+// Once set, rtapi methods in rtapi.so can be called normally through
+// the rtapi_switch redirection (see rtapi.h).
+// NB: do _not_ call any rtapi_* methods before these variables are set
+// except for rtapi_msg* and friends (those do not go through the rtapi_switch).
+rtapi_switch_t *rtapi_switch;
+global_data_t *global_data; 
 
-#if 1
-// trap: try to collide on purpose - NB: externs
-// if there's symbol leakage, this should result in a segfault
-rtapi_switch_t *rtapi_switch = NULL;
-global_data_t *global_data = NULL;
-#endif
-
-//ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
 static int force_exit = 0;
 
 static int init_actions(int instance, int hal_size, int rtlevel, int userlevel);
@@ -267,22 +269,20 @@ static int do_load_cmd(string name, vector<string> args) {
         }
 	// retrieve the address of rtapi_switch_struct
 	// so rtapi functions can be called and members
-	// access 
-	// NB: the reference may NOT be called rtapi_switch or 
-	// it might hide rtapi_switch definitions in modules
-	if (rtsw == NULL) {
+	// access
+	if (rtapi_switch == NULL) {
 
 	    rtapi_get_handle_t rtapi_get_handle;
     	    dlerror();
 	    rtapi_get_handle = (rtapi_get_handle_t) dlsym(module, "rtapi_get_handle");
 	    if (rtapi_get_handle != NULL) {
-		rtsw = rtapi_get_handle();
-		assert(rtsw != NULL);
+		rtapi_switch = rtapi_get_handle();
+		assert(rtapi_switch != NULL);
 		rtapi_print_msg(RTAPI_MSG_DBG, 
 				"rtapi_app: handle:%d retrieved %s %s\n", 
 				instance_id,
-				rtsw->thread_flavor_name,
-				rtsw->git_version);
+				rtapi_switch->thread_flavor_name,
+				rtapi_switch->git_version);
 	    }
 	}
 	/// XXX handle arguments
@@ -306,23 +306,17 @@ static int do_load_cmd(string name, vector<string> args) {
 
 	// retrieve the address of the global segment
 	// this is set only after rtapi_app_main returns sucessfully
-	if (gd == NULL) {
+	if (global_data == NULL) {
 	    get_global_handle_t get_global_handle;
 
 	    dlerror();
 	    get_global_handle = (get_global_handle_t) dlsym(module, "get_global_handle");
 	    if (get_global_handle != NULL) {
-		gd = get_global_handle();
-		assert(gd != NULL);
+		global_data = get_global_handle();
+		assert(global_data != NULL);
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"rtapi_app:%d global_data=%p retrieved\n",
-				instance_id, gd);
-
-		// rtapi_ringbuffer_init(&gd->error_ring, &rtapi_message_buffer);
-		// rtapi_message_buffer.header->refcount++;
-		// start rtapi_message_buffer reading thread here
-		//
-
+				instance_id, global_data);
 	    }
 	}
 	return 0;
@@ -414,19 +408,19 @@ static int handle_command(vector<string> args) {
     } else if(args.size() == 2 && args[0] == "rtlevel") {
 	rt_msglevel = atoi(args[1].c_str());
 	rtapi_set_msg_level(rt_msglevel);
-	if (gd != NULL)
-	    gd->rt_msg_level = rt_msglevel;
+	if (global_data != NULL)
+	    global_data->rt_msg_level = rt_msglevel;
 	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d RT msglevel set to %d (%s)\n",
 		  instance_id, rt_msglevel,
-		  gd == NULL ? "local" : "global");
+		  global_data == NULL ? "local" : "global");
         return 0;
     } else if(args.size() == 2 && args[0] == "usrlevel") {
 	usr_msglevel = atoi(args[1].c_str());
-	if (gd != NULL)
-	    gd->user_msg_level = rt_msglevel;
+	if (global_data != NULL)
+	    global_data->user_msg_level = rt_msglevel;
 	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d User msglevel set to %d (%s)\n",
 		  instance_id, usr_msglevel,
-		  gd == NULL ? "local" : "global");
+		  global_data == NULL ? "local" : "global");
         return 0;
     } else if(args.size() == 2 && args[0] == "unload") {
         return do_unload_cmd(args[1]);
@@ -460,7 +454,8 @@ static void exit_actions()
 {
     do_unload_cmd("hal_lib");
     do_unload_cmd("rtapi");
-    gd = NULL;
+    // this will cause rtapi_app_msg_handler() to fall back to syslog
+    global_data = NULL;
 }
 
 static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
@@ -508,33 +503,33 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     size_t argv0_len = strlen(argv[0]);
     size_t procname_len = strlen(proctitle);
     size_t max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
-    
+
     strncpy(argv[0], proctitle, max_procname_len);
     memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
-    
+
     for (size_t i = 1; i < argc; i++) {
 	memset(argv[i], '\0', strlen(argv[i]));
     }
     //rtapi_openlog(proctitle, rt_msglevel );
     rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(rt_msglevel);
-    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started", instance_id);
+    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d", instance_id, getpid());
 
     // child:
     if ((retval = harden_rt())) {
-	fprintf(stderr, "rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", instance_id);
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", 
+			instance_id);
 	exit(retval);
     }
-    // dlopen(NULL, RTLD_GLOBAL);
-
 
     if (init_actions(instance_id, halsize, rt_msglevel, usr_msglevel)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "load(instance) failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "init_actions() failed\n");
 	exit(1);
     }
-    assert(gd != NULL);
-    
-    gd->rtapi_app_pid = getpid();
+    assert(global_data != NULL);
+
+    global_data->rtapi_app_pid = getpid();
     if(args.size()) { 
         int result = handle_command(args);
         if(result != 0) return result;
@@ -569,8 +564,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
         }
     } while(!force_exit);
 
-    if (gd)
-	gd->rtapi_app_pid = 0;
+    if (global_data)
+	global_data->rtapi_app_pid = 0;
 
     return 0;
 }
@@ -660,10 +655,9 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d exiting%s", 
 	      instance_id,
 	      sig == SIGSEGV ? ", core dumped" : "");
-    //rtapi_closelog();
 
-    if (gd)
-	gd->rtapi_app_pid = 0;
+    if (global_data)
+	global_data->rtapi_app_pid = 0;
 
     if (sig == SIGSEGV) {
 	sleep(1); // let syslog drain or we might loose
@@ -680,8 +674,9 @@ exit_handler(void)
     getrusage(RUSAGE_SELF, &rusage);
     if ((rusage.ru_majflt - majflt) > 0) {
 	// RTAPI already shut down here
-	rtapi_print_msg(RTAPI_MSG_WARN,"rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
-		  getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+	rtapi_print_msg(RTAPI_MSG_WARN,
+			"rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
+			getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
     }
 }
 
@@ -693,7 +688,7 @@ static int harden_rt()
     struct rlimit core_limit;
     core_limit.rlim_cur = RLIM_INFINITY;
     core_limit.rlim_max = RLIM_INFINITY;
-    
+
     if (setrlimit(RLIMIT_CORE, &core_limit) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN, 
 		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
@@ -714,7 +709,6 @@ static int harden_rt()
     } else {
 	minflt = rusage.ru_minflt;
 	majflt = rusage.ru_majflt;
-
 	if (atexit(exit_handler)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN, 
 		      "atexit() failed: %d '%s'\n",
@@ -749,8 +743,8 @@ static int harden_rt()
 	if (gp == NULL) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "the group 'xenomai' does not exist - xenomai userland support missing?\n");
-	    if (gd)
-		gd->rtapi_app_pid = 0;
+	    if (global_data)
+		global_data->rtapi_app_pid = 0;
 	    exit(1);
 	}
 
@@ -767,15 +761,15 @@ static int harden_rt()
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "getgroups() failed: %d - %s\n",
 			    errno, strerror(errno));
-	    if (gd)
-		gd->rtapi_app_pid = 0;
+	    if (global_data)
+		global_data->rtapi_app_pid = 0;
 	    exit(1);
 	}
 	rtapi_print_msg(RTAPI_MSG_ERR,"this user is not member of group xenomai");
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"please 'sudo adduser <username>  xenomai', logout and login again");
-	if (gd)
-	    gd->rtapi_app_pid = 0;
+	if (global_data)
+	    global_data->rtapi_app_pid = 0;
 	exit(1);
 
     is_xenomai_member:
@@ -802,12 +796,25 @@ static int harden_rt()
     return 0;
 }
 
-#define RTPRINTBUFFERLEN 1024
-void foreground_rtapi_msg_handler(msg_level_t level, const char *fmt,
+// normally rtapi_app will log through the message ringbuffer in the
+// global data segment. This isnt available initially, and during shutdown,
+// so switch to direct syslog during these time windows so we dont
+// loose log messages, even if they cant go through the ringbuffer
+void rtapi_app_msg_handler(msg_level_t level, const char *fmt,
+				va_list ap) {
+    // during startup the global segment might not be
+    // available yet, so use stderr until then
+    if (global_data) {
+	vs_ring_write(level, fmt, ap);
+    } else {
+	vsyslog(rtapi2syslog(level), fmt, ap);
+    }
+}
+
+// use this handler if -F/--foreground was given
+void stderr_rtapi_msg_handler(msg_level_t level, const char *fmt,
 				  va_list ap) {
-    char buf[RTPRINTBUFFERLEN];
-    vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-    fprintf(stderr, "%s", buf);
+    vfprintf(stderr, fmt, ap);
 }
 
 static void usage(int argc, char **argv) 
@@ -833,6 +840,10 @@ int main(int argc, char **argv)
     struct sockaddr_un addr = { AF_UNIX, "" };
     int c;
 
+    rtapi_set_msg_handler(rtapi_app_msg_handler);
+    openlog(argv[0], LOG_NDELAY, LOG_LOCAL1);
+    setlogmask(LOG_UPTO(LOG_DEBUG));
+
     while (1) {
 	int option_index = 0;
 	int curind = optind;
@@ -849,7 +860,7 @@ int main(int argc, char **argv)
 
 	case 'F':
 	    foreground = 1;
-	    rtapi_set_msg_handler(foreground_rtapi_msg_handler);
+	    rtapi_set_msg_handler(stderr_rtapi_msg_handler);
 	    break;
 
 	case 'H':
@@ -879,11 +890,11 @@ int main(int argc, char **argv)
 		while (f->name) {
 		    fprintf(stderr, "\t%s\n", f->name);
 		    f++;
-		} 
+		}
 		exit(1);
 	    }
 	    break;
- 
+
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
 	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);

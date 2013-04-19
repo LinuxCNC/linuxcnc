@@ -135,8 +135,6 @@ flavor_ptr flavor_byid(int flavor_id)
 flavor_ptr default_flavor(void)
 {
 
-   
-
     // hack around single target builds for now
     // force default to waht we built for
 #ifdef RTAPI_POSIX

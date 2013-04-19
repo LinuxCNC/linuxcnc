@@ -21,10 +21,12 @@
 int rtapi_instance;
 static int log_stderr;
 static int foreground;
-static int poll_ms = 200; // default msg q checking interval
+static int msg_poll_ms = 200; // default msg q checking interval
+static int rt_poll_ms = 300;  // polling timer until RT stack fully set up
+static int rt_stack_timeout_ms = 5000; // give up waiting for RT stack after 5 seconds
+
 int shmdrv_loaded;
 long page_size;
-static int global_fd;
 global_data_t *global_data;
 static ringbuffer_t rtapi_msg_buffer;   // rtapi ring access strcuture
 
@@ -48,42 +50,38 @@ static struct option long_options[] = {
     {0, 0, 0, 0}
 };
 
+// rtapi_app needs a while until rtapi.so is loaded and the shm segments
+// are visible. Need to wait here until the HAL data segment is present;
+// this means the RT stack is fully setup and can be attached to.
+// this prevents any following commands (e.g. halcmd) bumping into a half-setup
+// rtapi_app stack. Note we fork and disconnect into background only
+// after the HAL segment is ready.
+static int waitfor_rt_stack_ready()
+{
+    int halkey = OS_KEY(HAL_KEY, rtapi_instance);
+    struct timespec rtpoll = {0, rt_poll_ms * 1000 * 1000};
+
+    while (shm_common_exists(halkey) < 0) {
+	nanosleep(&rtpoll, NULL);
+	rt_stack_timeout_ms -= rt_poll_ms;
+	if (rt_stack_timeout_ms < 0) 
+	    return -1;
+    }
+    return 0;
+}
+
 static int setup_global()
 {
     int retval = 0;
-    struct shm_status sm;
+    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
 
-    page_size = sysconf(_SC_PAGESIZE);
-    shmdrv_loaded  = shmdrv_available();
-
-    if (global_data == NULL) {
-	if (shmdrv_available()) {
-	    sm.size = sizeof(global_data_t);
-	    sm.flags = 0;
-	    sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
-	    sm.driver_fd = shmdrv_driver_fd();
-	    retval = shmdrv_attach(&sm, (void **)&global_data);
-	    if (retval < 0) {
-		syslog(LOG_ERR,"global shmdrv attach failed %d\n", retval);
-		return retval;
-	    }
-	} else {
-	    char segment_name[LINELEN];
-	    sprintf(segment_name, SHM_FMT, rtapi_instance,
-		    OS_KEY(GLOBAL_KEY, rtapi_instance));
-	    if((global_fd = shm_open(segment_name, (O_CREAT | O_RDWR),
-				     (S_IREAD | S_IWRITE))) < 0) {
-		syslog(LOG_ERR,"ERROR: cant shm_open(%s) : %s\n",
-				segment_name, strerror(errno));
-		retval = errno;
-	    }
-	    if ((global_data = mmap(0, sizeof(global_data_t), (PROT_READ | PROT_WRITE),
-				MAP_SHARED, global_fd, 0)) == MAP_FAILED) {
-		syslog(LOG_ERR, "ERROR: mmap(%s) failed: %s\n",
-				segment_name, strerror(errno));
-		retval = errno;
-	    }
-	}
+    // since the HAL data segment has been determined to exist, global
+    // must exist here too or the RT stack wouldnt have become ready
+    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+			    rtapi_instance, (void **) &global_data, 0);
+    if (retval < 0) {
+	syslog(LOG_ERR, "MSGD:%d ERROR: cannot attach global segment key=0x%x %s\n",
+	       rtapi_instance, globalkey, strerror(-retval));
     }
     return retval;
 }
@@ -95,6 +93,8 @@ static void msgd_exit(int sig, siginfo_t *si, void *context)
 	global_data->rtapi_msgd_pid = 0;
 	if (rtapi_msg_buffer.header != NULL)
 	    rtapi_msg_buffer.header->refcount--;
+	shm_common_detach(sizeof(global_data_t), global_data);
+	global_data = NULL;
     }
     syslog(LOG_INFO,"exiting - got signal: %s", strsignal(sig));
     exit(0);
@@ -108,7 +108,7 @@ static int message_thread()
     int retval;
     char *cp;
 
-    struct timespec ts = {0, poll_ms * 1000 * 1000};
+    struct timespec ts = {0, msg_poll_ms * 1000 * 1000};
 
     rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_msg_buffer);
     rtapi_msg_buffer.header->refcount++;
@@ -163,6 +163,8 @@ int main(int argc, char **argv)
     size_t argv0_len, procname_len, max_procname_len;
 
     progname = argv[0];
+    page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded  = shmdrv_available();
 
     while (1) {
 	int option_index = 0;
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
 	    rtapi_instance = atoi(optarg);
 	    break;
 	case 'p':
-	    poll_ms = atoi(optarg);
+	    msg_poll_ms = atoi(optarg);
 	    break;
 	case 's':
 	    log_stderr++;
@@ -196,6 +198,14 @@ int main(int argc, char **argv)
 	}
     }
 
+    // block startup sequence until RT stack ready
+    if (waitfor_rt_stack_ready()) {
+	fprintf(stderr, "MSGD:%d ERROR: gave up waiting for rtapi_app to become ready\n",
+		   rtapi_instance);
+	exit(1);
+    }
+
+    // good to go
     if (!foreground) {
         pid = fork();
         if (pid < 0) {
@@ -229,7 +239,6 @@ int main(int argc, char **argv)
 
     openlog(proctitle, option , LOG_LOCAL1);
     setlogmask(LOG_UPTO(LOG_INFO));
-
 
     if ((retval = setup_global()) != 0)
 	exit(retval);
