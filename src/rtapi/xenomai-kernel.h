@@ -16,16 +16,13 @@
 
 #define MASTER_HEAP "rtapi-heap"
 
-/* add some fields to rtapi_data_t:
-   rt_wait_error:		release point missed
-   rt_last_overrun:		last number of overruns reported by Xenomai
-   rt_total_overruns:		total number of overruns reported by Xenomai */
-#define THREAD_RTAPI_DATA	\
-    int rt_wait_error;		\
-    int rt_last_overrun;	\
-    int rt_total_overruns
-/* ...and a hook to initialize it */
+
+/* rtapi_common.c */
+// Init rt_stats for RTAPI
 #define HAVE_INIT_RTAPI_DATA_HOOK
+
+/* rtapi_proc */
+#define HAVE_RTAPI_READ_STATUS_HOOK
 
 
 /* Priority functions settings */

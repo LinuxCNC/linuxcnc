@@ -27,15 +27,25 @@ RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 // it does _not_ match the address of the RT_TASK structure it was 
 // created with
 RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
+
+static struct rt_stats_struct {
+    int rt_wait_error;		/* release point missed */
+    int rt_last_overrun;	/* last number of overruns reported by
+				   Xenomai */
+    int rt_total_overruns;	/* total number of overruns reported
+				   by Xenomai */
+} rt_stats;
 #endif  /* RTAPI */
 
 
 /* init_rtapi_data */
+#ifdef RTAPI
 void init_rtapi_data_hook(rtapi_data_t * data) {
-    data->rt_wait_error = 0;
-    data->rt_last_overrun = 0;
-    data->rt_total_overruns = 0;
+    rt_stats.rt_wait_error = 0;
+    rt_stats.rt_last_overrun = 0;
+    rt_stats.rt_total_overruns = 0;
 }
+#endif
 
 
 /* rtapi_init() and rtapi_exit() */
@@ -154,6 +164,14 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
 	which_cpu = T_CPU(task->cpu);
 #endif
 
+    // sanity check
+    if (strlen(task->name) > XNOBJECT_NAME_LEN-1) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rt_task_create: task name '%s' too long for Xenomai, length limit %d chars\n", 
+			task->name, XNOBJECT_NAME_LEN-1 );
+	return -EINVAL;
+    }
+
     // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
     // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a
     // task with FPU support enabled and which will be affine to CPU #1
@@ -209,9 +227,9 @@ void rtapi_wait_hook() {
 	break;
 
     case -ETIMEDOUT: // release point was missed
-	rtapi_data->rt_wait_error++;
-	rtapi_data->rt_last_overrun = overruns;
-	rtapi_data->rt_total_overruns += overruns;
+	rt_stats.rt_wait_error++;
+	rt_stats.rt_last_overrun = overruns;
+	rt_stats.rt_total_overruns += overruns;
 
 	if (error_printed < MAX_ERRORS) {
 	    task_id = rtapi_task_self();
@@ -290,7 +308,7 @@ int rtapi_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-int rtapi_delay_hook(long int nsec)
+void rtapi_delay_hook(long int nsec)
 {
     long long int release = rt_timer_tsc() + nsec;
     while (rt_timer_tsc() < release);

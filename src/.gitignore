@@ -16,3 +16,4 @@ TAGS
 config.h.in
 configure
 modules.order
+linuxcncconfig.py-tmp

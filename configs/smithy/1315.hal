@@ -1,14 +1,23 @@
-# 5i20 config file for Smithy 924 Lathe
+# 5i20 config file for Smithy 1315 Lathe
 
-# load the hostmot2 driver, this doesnt do anything by itself, 
+# load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
-# for the production 924 lathe use SVST2_4_7I47.BIT
-loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=2 num_pwmgens=1 num_stepgens=2"
+loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=2 num_pwmgens=1 num_stepgens=2 enable_raw"
+
+# 13312 = 0x3400 = Encoder Sample Rate Register
+setp hm2_5i20.0.raw.write_address 13312
+# sample rate is clock (33 MHz)/SRR+2 = 33MHz/10 = 3.3MHz
+setp hm2_5i20.0.raw.write_data 8
+# write data
+setp hm2_5i20.0.raw.write_strobe 1
+
+# set up the watchdog
+#setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
 loadrt trivkins
@@ -24,17 +33,14 @@ loadusr -w classicladder --nogui 924.clp
 
 # load charge pump
 loadrt charge_pump
-
-#the Enable signal is used to permanently enable things
-newsig Enable bit
-sets Enable TRUE
+setp charge-pump.enable TRUE
 
 #configure the spindle encoder
 #encoder scale was 4800 on Pete's machine
 setp hm2_5i20.0.encoder.00.scale -4096
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Svel hm2_5i20.0.encoder.00.velocity motion.spindle-speed-in
-net Sidx hm2_5i20.0.encoder.00.index-enable => motion.spindle-index-enable
+net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
 
 #configure the spindle speed PWM generator
 net Scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
@@ -63,12 +69,12 @@ setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_2]STEPGEN_MAXVEL
 
 # connect position commands from motion module to step generator
-net Xpos-cmd axis.0.motor-pos-cmd => hm2_5i20.0.stepgen.00.position-cmd
-net Zpos-cmd axis.2.motor-pos-cmd => hm2_5i20.0.stepgen.01.position-cmd
+net Xpos-cmd axis.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
+net Zpos-cmd axis.2.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
 
 # connect position feedback from step generators to motion module
-net Xpos-fb hm2_5i20.0.stepgen.00.position-fb => axis.0.motor-pos-fb
-net Zpos-fb hm2_5i20.0.stepgen.01.position-fb => axis.2.motor-pos-fb
+net Xpos-fb hm2_5i20.0.stepgen.00.position-fb axis.0.motor-pos-fb
+net Zpos-fb hm2_5i20.0.stepgen.01.position-fb axis.2.motor-pos-fb
 
 # connect enable signals for amplifiers and step generators
 setp hm2_5i20.0.gpio.018.is_output TRUE
@@ -79,23 +85,24 @@ net Xen axis.0.amp-enable-out hm2_5i20.0.gpio.018.out hm2_5i20.0.stepgen.00.enab
 net Zen axis.2.amp-enable-out hm2_5i20.0.gpio.019.out hm2_5i20.0.stepgen.01.enable
 
 # enable velocity mode jogging
-net Enable axis.0.jog-vel-mode
-net Enable axis.2.jog-vel-mode
+setp axis.0.jog-vel-mode TRUE
+setp axis.2.jog-vel-mode TRUE
 
 # enable the PWM generator
-net Enable => hm2_5i20.0.pwmgen.00.enable
-
-# enable the charge pump
-net Enable => charge-pump.enable
+setp hm2_5i20.0.pwmgen.00.enable TRUE
 
 # connect the charge pump signal to an output
 setp hm2_5i20.0.gpio.022.is_output TRUE
-net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
+net chargepump hm2_5i20.0.gpio.022.out charge-pump.out
 
 # Safety Relay Monitoring Contacts
-net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in iocontrol.0.emc-enable-in
 # Run Switch
-net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
+loadrt debounce cfg=1
+setp debounce.0.delay 1000
+net key-on hm2_5i20.0.gpio.039.in_not debounce.0.0.in
+net machine-on debounce.0.0.out halui.machine.on
+
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
@@ -110,13 +117,13 @@ net Zpos_lim hm2_5i20.0.gpio.028.in axis.2.pos-lim-sw-in axis.2.home-sw-in
 net Zneg_lim hm2_5i20.0.gpio.030.in axis.2.neg-lim-sw-in
 
 #Tool Post Control Inputs
-net PrepNo iocontrol.0.tool-prep-number => classicladder.0.s32in-00
-net TC iocontrol.0.tool-change => classicladder.0.in-00
-net T1 hm2_5i20.0.gpio.032.in => classicladder.0.in-01
-net T2 hm2_5i20.0.gpio.034.in => classicladder.0.in-02
-net T3 hm2_5i20.0.gpio.036.in => classicladder.0.in-03
-net T4 hm2_5i20.0.gpio.038.in => classicladder.0.in-04
-net TP iocontrol.0.tool-prepare => classicladder.0.in-05
+net PrepNo iocontrol.0.tool-prep-number classicladder.0.s32in-00
+net TC iocontrol.0.tool-change classicladder.0.in-00
+net T1 hm2_5i20.0.gpio.032.in classicladder.0.in-01
+net T2 hm2_5i20.0.gpio.034.in classicladder.0.in-02
+net T3 hm2_5i20.0.gpio.036.in classicladder.0.in-03
+net T4 hm2_5i20.0.gpio.038.in classicladder.0.in-04
+net TP iocontrol.0.tool-prepare classicladder.0.in-05
 
 #Door Sensor
 net SS hm2_5i20.0.gpio.029.in
@@ -128,51 +135,49 @@ net SS hm2_5i20.0.gpio.029.in
 #KA1
 setp hm2_5i20.0.gpio.040.is_output TRUE
 setp hm2_5i20.0.gpio.040.invert_output TRUE
-net KA1 motion.spindle-forward => hm2_5i20.0.gpio.040.out
+net KA1 motion.spindle-forward hm2_5i20.0.gpio.040.out
 #KA2
 setp hm2_5i20.0.gpio.042.is_output TRUE
 setp hm2_5i20.0.gpio.042.invert_output TRUE
-net KA2 motion.spindle-reverse => hm2_5i20.0.gpio.042.out
+net KA2 motion.spindle-reverse hm2_5i20.0.gpio.042.out
 #Tool Post Control Outputs
-net TD classicladder.0.out-00 => iocontrol.0.tool-changed
-net TQ classicladder.0.out-03 => iocontrol.0.tool-prepared
+net TD classicladder.0.out-00 iocontrol.0.tool-changed
+net TQ classicladder.0.out-03 iocontrol.0.tool-prepared
 #KA3
 setp hm2_5i20.0.gpio.044.is_output TRUE
 setp hm2_5i20.0.gpio.044.invert_output TRUE
-net KA3 hm2_5i20.0.gpio.044.out => classicladder.0.out-01
+net KA3 hm2_5i20.0.gpio.044.out classicladder.0.out-01
 #KA4
 setp hm2_5i20.0.gpio.046.is_output TRUE
 setp hm2_5i20.0.gpio.046.invert_output TRUE
-net KA4 hm2_5i20.0.gpio.046.out => classicladder.0.out-02
+net KA4 hm2_5i20.0.gpio.046.out classicladder.0.out-02
 #Spindle Enable
 setp hm2_5i20.0.gpio.041.is_output TRUE
 setp hm2_5i20.0.gpio.041.invert_output TRUE
-net Enable => hm2_5i20.0.gpio.041.out
+setp hm2_5i20.0.gpio.041.out TRUE
 #Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
-net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+net M8 hm2_5i20.0.gpio.043.out iocontrol.0.coolant-flood
 # Mist Coolant
 setp hm2_5i20.0.gpio.045.is_output TRUE
 setp hm2_5i20.0.gpio.045.invert_output TRUE
-net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
+net M7 hm2_5i20.0.gpio.045.out iocontrol.0.coolant-mist
 
 # hook the functions to threads
 # read inputs
 addf hm2_5i20.0.read servo-thread
-addf hm2_5i20.0.read_gpio servo-thread
 # handle motion commands
 addf motion-command-handler servo-thread
 # run the motion controller
 addf motion-controller servo-thread
+# debounce the keyswitch
+addf debounce.0 servo-thread
 # refresh classicladder
 addf classicladder.0.refresh servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
-addf hm2_5i20.0.write_gpio servo-thread
 # pet the watchdog so he won't bite us!
 addf hm2_5i20.0.pet_watchdog servo-thread
 # toggle the charge pump
 addf charge-pump servo-thread
-
-
