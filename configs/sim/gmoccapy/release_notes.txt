@@ -1,3 +1,10 @@
+ver. 0.9.01
+- fixed a bug in keyhandling mentioned by Chris
+  * changing the jog velocity while jogging in continious caused by focus 
+    jumping from widget to widget when holding down a key
+  * Keyboard autorepeat caused moving the machine by several 
+    increments insteat of only one. 
+
 ver. 0.9.0
 - unlock settings now with tool tip text
 - I forgot an letter in hal pin feed-overide-counts

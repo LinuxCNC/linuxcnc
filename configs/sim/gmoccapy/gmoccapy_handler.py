@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.0"
+_RELEASE = "0.9.01"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -391,8 +391,24 @@ class HandlerClass:
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
 
+        # Only in manual mode jogging with keyboard is allowed
         if self.gscreen.emcstat.task_mode <> _MANUAL:
             return
+
+        # I set the focus explicity to estop, because otherwise the focus will jump around
+        # from widget to widget, this was the solution I found. May be there is a better way 
+        #to avoid that glade moves from widget to widget
+        self.widgets.tbtn_estop.grab_focus()
+
+        if keyname == "Escape":
+            self.gscreen.emc.estop(1)
+            return
+
+        # This will avoid excecuting the key press event several times caused by keyboard auto repeat
+        if signal and self.data.key_event_up == signal: 
+            return
+        else:
+            self.data.key_event_up = signal
 
         if keyname == "Up":
             widget = self.widgets.hal_btn_Y_plus
@@ -432,7 +448,7 @@ class HandlerClass:
                 self.on_hal_btn_jog_released(widget)
         else:
             print("This key has not been implementes yet")
-            
+
     def add_macro_button(self):
         macros = self.gscreen.inifile.findall("MACROS", "MACRO")
         num_macros = len(macros)
