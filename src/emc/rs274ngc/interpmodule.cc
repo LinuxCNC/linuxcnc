@@ -20,6 +20,12 @@ extern int _task;  // zero in gcodemodule, 1 in milltask
 #include "units.h"
 #include "array1.hh"
 
+extern void export_Internals();
+extern void export_Arrays();
+extern void export_Block();
+extern void export_EmcTypes();
+#include "paramclass.hh"
+
 namespace pp = pyplusplus::containers::static_sized;
 #include "interp_array_types.hh"
 
@@ -53,33 +59,6 @@ static  sub_context_array sub_context_wrapper ( Interp & inst) {
     return sub_context_array(inst._setup.sub_context);
 }
 
-static  g_modes_array g_modes_wrapper ( block & b) {
-    return g_modes_array(b.g_modes);
-}
-
-static  m_modes_array m_modes_wrapper ( block & b) {
-    return m_modes_array(b.m_modes);
-}
-
-static params_array saved_params_wrapper ( context &c) {
-    return params_array(c.saved_params);
-}
-
-static params_array params_wrapper ( block & b) {
-    return params_array(b.params);
-}
-
-static  active_g_codes_array saved_g_codes_wrapper ( context &c) {
-    return active_g_codes_array(c.saved_g_codes);
-}
-
-static  active_m_codes_array saved_m_codes_wrapper ( context &c) {
-    return active_m_codes_array(c.saved_m_codes);
-}
-
-static  active_settings_array saved_settings_wrapper ( context &c) {
-    return active_settings_array(c.saved_settings);
-}
 
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void setErrorMsg(Interp &interp, const char *s)
@@ -118,136 +97,15 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
-// access to named and numbered parameters via a pseudo-dictionary
-// either params["paramname"] or params[5400] is valid
-struct ParamClass {
-
-    Interp &interp;
-
-    ParamClass(Interp &i) : interp(i) {};
-    double getitem( bp::object sub)
-    {
-	double retval = 0;
-	if (IS_STRING(sub)) {
-	    char const* varname = bp::extract < char const* > (sub);
-	    int status;
-	    interp.find_named_param(varname, &status, &retval);
-	    if (!status)
-		throw std::runtime_error("parameter does not exist: " + std::string(varname));
-	} else
-	    if (IS_INT(sub)) {
-		int index = bp::extract < int > (sub);
-		retval = interp._setup.parameters[index];
-	    } else {
-		throw std::runtime_error("params subscript type must be integer or string");
-	    }
-	return retval;
-    }
-
-    double setitem(bp::object sub, double dvalue)
-    {
-	if (IS_STRING(sub)) {
-	    char const* varname = bp::extract < char const* > (sub);
-	    int status = interp.add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
-	    status = interp.store_named_param(&interp._setup,varname, dvalue, 0);
-	    if (status != INTERP_OK)
-		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
-
-	} else
-	    if (IS_INT(sub)) {
-		int index = bp::extract < int > (sub);
-		if ((index < 0) || (index > RS274NGC_MAX_PARAMETERS -1)) {
-		    std::stringstream sstr;
-		    sstr << "params subscript out of range : " << index << " - must be between 0 and " << RS274NGC_MAX_PARAMETERS;
-		    throw std::runtime_error(sstr.str());
-		}
-		interp._setup.parameters[index] = dvalue;
-		return dvalue;
-	    } else
-		throw std::runtime_error("params subscript type must be integer or string");
-	return dvalue;
-    }
-
-    bp::list namelist(context &c) const {
-	bp::list result;
-	for(parameter_map::iterator it = c.named_params.begin(); it != c.named_params.end(); ++it) {
-	    result.append( it->first);
-	}
-	return result;
-    }
-
-    bp::list locals() {
-	return namelist(interp._setup.sub_context[interp._setup.call_level]);
-    }
-
-    bp::list globals() {
-	return namelist(interp._setup.sub_context[0]);
-    }
-
-    bp::list operator()() const
-    {
-	bp::list result = namelist(interp._setup.sub_context[interp._setup.call_level]);
-	result.extend(namelist(interp._setup.sub_context[0]));
-	return result;
-    };
-
-    int length() { return RS274NGC_MAX_PARAMETERS;}
-};
 
 // FIXME not sure if this is really needed
 static  ParamClass param_wrapper ( Interp & inst) {
     return ParamClass(inst);
 }
 
-static bp::object emcpose_2_obj ( EmcPose &p) {
-    return  bp::object("x=%.4f y=%.4f z=%.4f a=%.4f b=%.4f c=%.4f u=%.4f v=%.4f w=%.4f" %
-	bp::make_tuple(p.tran.x,p.tran.y,p.tran.z,
-		       p.a,p.b,p.c,p.u,p.v,p.w));
-}
-static bp::object emcpose_str( EmcPose &p) {
-    return  bp::object("EmcPose(" + emcpose_2_obj(p) + ")");
-}
-
-static bp::object tool_str( CANON_TOOL_TABLE &t) {
-    return  bp::object("Tool(T%d D%.4f I%.4f J%.4f Q%d offset: " %
-		       bp::make_tuple(t.toolno,  t.diameter,
-				      t.frontangle,t.backangle, t.orientation) +
-		       emcpose_2_obj(t.offset) + ")");
-}
-
-static bp::object remap_str( remap_struct &r) {
-    return  bp::object("Remap(%s argspec=%s modal_group=%d prolog=%s ngc=%s python=%s epilog=%s) " %
-		       bp::make_tuple(r.name,r.argspec,r.modal_group,r.prolog_func,
-				      r.remap_ngc, r.remap_py, r.epilog_func));
-}
-
-static void tool_zero( CANON_TOOL_TABLE &t) {
-	t.toolno = -1;
-        ZERO_EMC_POSE(t.offset);
-	t.diameter = 0.0;
-        t.frontangle = 0.0;
-        t.backangle = 0.0;
-        t.orientation = 0;
-}
-
-static bp::object pmcartesian_str( PmCartesian &c) {
-    return  bp::object("PmCartesian(x=%.4f y=%.4f z=%.4f)" %
-		       bp::make_tuple(c.x,c.y,c.z));
-}
-
-static const char *get_comment(block &b) { return b.comment; };
-static const char *get_o_name(block &b) { return b.o_name; };
-
 static int get_task(Interp &i) { return _task; };
 static const char *get_filename(Interp &i) { return i._setup.filename; };
 static const char *get_linetext(Interp &i) { return i._setup.linetext; };
-
-static void  set_x(EmcPose &p, double value) { p.tran.x = value; }
-static void  set_y(EmcPose &p, double value) { p.tran.y = value; }
-static void  set_z(EmcPose &p, double value) { p.tran.z = value; }
-static double get_x(EmcPose &p) { return p.tran.x; }
-static double get_y(EmcPose &p) { return p.tran.y; }
-static double get_z(EmcPose &p) { return p.tran.z; }
 
 // those are exposed here because they look useful for regression testing
 static bool __equal(double a, double b) { return fabs(a - b) < TOLERANCE_EQUAL; }
@@ -387,199 +245,10 @@ BOOST_PYTHON_MODULE(interpreter) {
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
     def("nearest_int", &nearest_int);
 
-    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
-	.def_readwrite("x",&PmCartesian::x)
-	.def_readwrite("y",&PmCartesian::y)
-	.def_readwrite("z",&PmCartesian::z)
-	.def("__str__", &pmcartesian_str)
-	;
-
-
-    // leave EmcPose copyable/assignable because it's used as a parameter value (eg emcSetToolOffset)
-    class_<EmcPose>("EmcPose","EMC pose",no_init)
-	.def_readwrite("tran",&EmcPose::tran)
-	.add_property("x", &get_x, &set_x)
-	.add_property("y", &get_y, &set_y)
-	.add_property("z", &get_z, &set_z)
-	.def_readwrite("a",&EmcPose::a)
-	.def_readwrite("b",&EmcPose::b)
-	.def_readwrite("c",&EmcPose::c)
-	.def_readwrite("u",&EmcPose::u)
-	.def_readwrite("v",&EmcPose::v)
-	.def_readwrite("w",&EmcPose::w)
-	.def("__str__", &emcpose_str)
-	;
-
-    // leave CANON_TOOL_TABLE copyable/assignable because assignment is used a lot when fiddling
-    // with tooltable entries
-    class_<CANON_TOOL_TABLE >("CANON_TOOL_TABLE","Tool description" ,no_init)
-	.def_readwrite("toolno", &CANON_TOOL_TABLE::toolno)
-	.def_readwrite("offset", &CANON_TOOL_TABLE::offset)
-	.def_readwrite("diameter", &CANON_TOOL_TABLE::diameter)
-	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
-	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
-	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
-	.def("__str__", &tool_str)
-	.def("zero", &tool_zero)
-	;
-
-
-    class_<parameter_value_struct /*,noncopyable */>("ParameterValue") // ,no_init)
-	.def_readwrite("attr",&parameter_value_struct::attr)
-	.def_readwrite("value",&parameter_value_struct::value)
-	;
-
-    class_<parameter_map,noncopyable>("ParameterMap",no_init)
-        .def(map_indexing_suite<parameter_map>())
-	;
-
-
-    // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
-    class_<ParamClass>("Params","Interpreter parameters",no_init)
-	.def("__getitem__", &ParamClass::getitem)
-        .def("__setitem__", &ParamClass::setitem)
-        .def("__len__", &ParamClass::length)
-        .def("globals", &ParamClass::globals)
-        .def("locals", &ParamClass::locals)
-	.def("__call__", &ParamClass::operator());
-	;
-
-    class_ <context, noncopyable>("Context",no_init)
-	.def_readwrite("position",&context::position)
-	.def_readwrite("sequence_number",&context::sequence_number)
-	.def_readwrite("filename",  &context::filename)
-	.def_readwrite("subname",  &context::subName)
-	.add_property( "saved_params",
-		       bp::make_function( saved_params_w(&saved_params_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "saved_g_codes",
-		       bp::make_function( active_g_codes_w(&saved_g_codes_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "saved_m_codes",
-		       bp::make_function( active_m_codes_w(&saved_m_codes_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "saved_settings",
-		       bp::make_function( active_settings_w(&saved_settings_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.def_readwrite("context_status", &context::context_status)
-	.def_readwrite("named_params",  &context::named_params)
-
-	.def_readwrite("call_type",  &context::call_type)
-	.def_readwrite("tupleargs",  &context::tupleargs)
-	.def_readwrite("kwargs",  &context::kwargs)
-	.def_readwrite("py_return_type",  &context::py_return_type)
-	.def_readwrite("py_returned_double",  &context::py_returned_double)
-	.def_readwrite("py_returned_int",  &context::py_returned_int)
-	.def_readwrite("generator_next",  &context::generator_next)
-
-	;
-    // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
-    class_ <remap_struct /*, noncopyable */>("Remap" /*, no_init*/)
-	.def_readwrite("name",&remap::name)
-	.def_readwrite("argspec",&remap::argspec)
-	.def_readwrite("modal_group",&remap::modal_group)
-	.def_readwrite("prolog_func",&remap::prolog_func)
-	.def_readwrite("remap_py",&remap::remap_py)
-	.def_readwrite("remap_ngc",&remap::remap_ngc)
-	.def_readwrite("epilog_func",&remap::epilog_func)
-	.def_readwrite("motion_code",&remap::motion_code)
-	.def("__str__", &remap_str)
-
-	;
-
-    class_<remap_map,noncopyable>("RemapMap",no_init)
-        .def(map_indexing_suite<remap_map>())
-	;
-
-    class_ <block, noncopyable>("Block",no_init)
-	.def_readwrite("f_flag",&block::f_flag)
-	.def_readwrite("p_flag",&block::p_flag)
-	.def_readwrite("p_number",&block::p_number)
-	.def_readwrite("a_flag",&block::a_flag)
-	.def_readwrite("a_number",&block::a_number)
-	.def_readwrite("b_flag",&block::b_flag)
-	.def_readwrite("b_number",&block::b_number)
-	.def_readwrite("c_flag",&block::c_flag)
-	.def_readwrite("c_number",&block::c_number)
-	.def_readwrite("d_number_float",&block::d_number_float)
-	.def_readwrite("d_flag",&block::d_flag)
-	.def_readwrite("e_flag",&block::e_flag)
-	.def_readwrite("e_number",&block::e_number)
-	.def_readwrite("f_flag",&block::f_flag)
-	.def_readwrite("f_number",&block::f_number)
-	.def_readwrite("h_flag",&block::h_flag)
-	.def_readwrite("h_number",&block::h_number)
-	.def_readwrite("i_flag",&block::i_flag)
-	.def_readwrite("i_number",&block::i_number)
-	.def_readwrite("j_flag",&block::j_flag)
-	.def_readwrite("j_number",&block::j_number)
-	.def_readwrite("k_flag",&block::k_flag)
-	.def_readwrite("k_number",&block::k_number)
-	.def_readwrite("l_number",&block::l_number)
-	.def_readwrite("l_flag",&block::l_flag)
-	.def_readwrite("line_number",&block::line_number)
-	.def_readwrite("saved_line_number",&block::line_number)
-	.def_readwrite("n_number",&block::n_number)
-	.def_readwrite("motion_to_be",&block::motion_to_be)
-	.def_readwrite("m_count",&block::m_count)
-	.def_readwrite("user_m",&block::user_m)
-	.def_readwrite("p_number",&block::p_number)
-	.def_readwrite("p_flag",&block::p_flag)
-	.def_readwrite("q_number",&block::q_number)
-	.def_readwrite("q_flag",&block::q_flag)
-	.def_readwrite("r_flag",&block::r_flag)
-	.def_readwrite("r_number",&block::r_number)
-	.def_readwrite("s_flag",&block::s_flag)
-	.def_readwrite("s_number",&block::s_number)
-	.def_readwrite("t_flag",&block::t_flag)
-	.def_readwrite("t_number",&block::t_number)
-	.def_readwrite("u_flag",&block::u_flag)
-	.def_readwrite("u_number",&block::u_number)
-	.def_readwrite("v_flag",&block::v_flag)
-	.def_readwrite("v_number",&block::v_number)
-	.def_readwrite("w_flag",&block::w_flag)
-	.def_readwrite("w_number",&block::w_number)
-	.def_readwrite("x_flag",&block::x_flag)
-	.def_readwrite("x_number",&block::x_number)
-	.def_readwrite("y_flag",&block::y_flag)
-	.def_readwrite("y_number",&block::y_number)
-	.def_readwrite("z_flag",&block::z_flag)
-	.def_readwrite("z_number",&block::z_number)
-	.def_readwrite("radius_flag",&block::radius_flag)
-	.def_readwrite("radius",&block::radius)
-	.def_readwrite("theta_flag",&block::theta_flag)
-	.def_readwrite("theta",&block::theta)
-
-	.def_readwrite("offset",&block::offset)
-	.def_readwrite("o_type",&block::o_type)
-
-	// I hope someday I really understand this
-	.add_property("executing_remap", 
-		      make_getter(&block::executing_remap,return_value_policy<reference_existing_object>()),
-		      make_setter(&block::executing_remap,return_value_policy<reference_existing_object>()))
-
-	.def_readwrite("call_type",&block::call_type)
-	.def_readwrite("breadcrumbs",&block::breadcrumbs)
-	.def_readwrite("phase",&block::phase)
-	.def_readwrite("builtin_used",&block::builtin_used)
-
-	//  read-only
-	.add_property("comment",  &get_comment)
-	.add_property("o_name",   &get_o_name)
-
-	.add_property( "params",
-		       bp::make_function( params_w(&params_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	// arrays
-	.add_property( "m_modes",
-		       bp::make_function( m_modes_w(&m_modes_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "g_modes",
-		       bp::make_function( g_modes_w(&g_modes_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-
-	;
-
+    export_EmcTypes();
+    export_ParamClass();
+    export_Internals();
+    export_Block();
     class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
     InterpreterExceptionClass
 	.add_property("error_message", &InterpreterException::get_error_message)
@@ -737,18 +406,5 @@ BOOST_PYTHON_MODULE(interpreter) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
 
-
-    pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
-    pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
-    pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
-    pp::register_array_1< block, MAX_NESTED_REMAPS,
-	bp::return_internal_reference< 1, bp::default_call_policies > > ("BlocksArray");
-    pp::register_array_1< double, RS274NGC_MAX_PARAMETERS > ("ParametersArray");
-    pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX,
-	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
-    pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS,
-	bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
-    pp::register_array_1< int, 16> ("GmodesArray");
-    pp::register_array_1< int, 11> ("MmodesArray");
-    pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
+    export_Arrays();
 }

@@ -23,6 +23,11 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_python.cc \
 	interp_remap.cc \
 	canonmodule.cc \
+	pyparamclass.cc \
+	pyemctypes.cc \
+	pyinterp1.cc \
+	pyblock.cc \
+	pyarrays.cc \
 	interpmodule.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
