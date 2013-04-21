@@ -144,6 +144,9 @@ BUILD_SYS=""
 # tcl/linuxcnc.tcl.in
 SIMULATOR=no
 
+# a set of gcc/cpp flags to work around broken hardy amd64 rtai_lxrt.h
+HARDY_AMD64_WORKAROUND=""
+
 #----------------------------------------------------------------------------
 #
 # introduce new build categories as per:
@@ -283,6 +286,8 @@ TARGET_PLATFORM=""
 # Architecture. Use output of arch(1).
 ARCHITECTURE=`$ARCHCMD`
 
+# xenomai equivalent of pkg-config
+XENO_CONFIG=
 
 # Name of thread system source file to include, with no extension
 # e.g. 'rt-preempt-user'; used to generate #include "rt-preempt-user.h"
@@ -441,10 +446,10 @@ AC_ARG_ENABLE(simulator,
                 SIMULATOR=yes
                 dnl RTS=simulator
 		THREADS=posix
-                dnl BUILD_SYS=user-dso
-		dnl BUILD_DRIVERS=no
-                dnl MODEXT=.so
-                dnl MODULE_DIR=${prefix}/lib/linuxcnc/modules
+                BUILD_SYS=user-dso
+		BUILD_DRIVERS=no
+                MODEXT=.so
+                MODULE_DIR=${prefix}/lib/linuxcnc/modules
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -601,9 +606,10 @@ else
 fi
 
 # at this point, both THREADS and KCONFIG is set.
-# If required, dig for kernel-headers 
+# If required, dig for kernel-headers; we need this only for the kernel
+# thread styles
 
-if test "$THREADS" != posix; then
+if test "$THREADS" = 'rtai' -o \(  "$THREADS" = 'xenomai-kernel' \); then
 
    # we have a kernel config path; extract version
 
@@ -618,13 +624,19 @@ if test "$THREADS" != posix; then
     AC_MSG_CHECKING([for location of kernel headers])
     AC_ARG_WITH(kernel-headers,
 	[  --with-kernel-headers=<directory>       Location for kernel headers],
-	[ KERNELDIR="$withval"	],
-	[ KERNELDIR="/usr/src/linux-headers-$KERNEL_VERSION" ])
+	[ KERNELDIRS="$withval"	],
+	[ KERNELDIRS="/usr/src/linux-headers-$KERNEL_VERSION";
+	  KERNELDIRS="$KERNELDIRS /usr/src/kernels/$KERNEL_VERSION" ])
 	
-    if test -d "$KERNELDIR"; then
-       AC_MSG_RESULT(using kernel headers from $KERNELDIR)
-    else
-       AC_MSG_ERROR([kernel header directory not found: $KERNELDIR ])
+    for DIR in $KERNELDIRS; do
+        if test -d "$DIR"; then
+	    KERNELDIR="$DIR"
+    	    AC_MSG_RESULT(using kernel headers from $KERNELDIR)
+	    break
+	fi
+    done
+    if test -z "$KERNELDIR"; then
+       AC_MSG_ERROR([kernel headers not found in: $KERNELDIR ])
     fi
 fi
 
@@ -676,10 +688,20 @@ AC_ARG_ENABLE(usermode-pci,
     [
       # default: enable if TARGET_PLATFORM=PC and a userland thread style
       case "$THREADS" in
-           rt-preempt-user|xenomai-user|posix)
+
+      	   posix)
+	      if test "$TARGET_PLATFORM" = "PC" -a \( "$BUILD_DRIVERS" = "yes"  \) ; then
+  	      	 USERMODE_PCI=yes
+		 AC_MSG_RESULT([posix, but building drivers, so enabling USERMODE_PCI])
+		 else
+		 AC_MSG_RESULT([posix, not building drivers, so disabling USERMODE_PCI])
+	      fi 
+	      ;;
+
+           rt-preempt-user|xenomai-user)
                if test "$TARGET_PLATFORM" = "PC" ; then
 	           USERMODE_PCI=yes
-		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM - enable USERMODE_PCI for userland thread styles])
+		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM, threads $THREADS - enabling USERMODE_PCI])
 	       else
 	           AC_MSG_RESULT([disabling USERMODE_PCI since platform not PC: $TARGET_PLATFORM])
 	       fi
@@ -779,6 +801,24 @@ case "$THREADS" in
 	# avoid a naming conflict with /usr/realtime/include/rtai.h
 	# this should probably be addressed more betterly
 	THREADS_SOURCE="rtai-kernel"
+
+	AC_MSG_CHECKING(if hardy amd64 workaround is required)
+	machine=`uname -m`
+	# test for broken hardy rtai amd64 includes
+	if test "$machine" = 'x86_64' ; then
+	    if test -f $RTDIR/include/asm-x86_64/rtai_lxrt.h ; then
+		if grep '#include <asm/asm-offsets.h>' $RTDIR/include/asm-x86_64/rtai_lxrt.h >/dev/null ; then
+		    HARDY_AMD64_WORKAROUND="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
+		    AC_MSG_RESULT(required)
+                else
+		    AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
+		fi
+	    else
+	  	AC_MSG_RESULT(strange, no such include file: rtai_lxrt.h)
+	    fi
+        else
+  	    AC_MSG_RESULT(no, not an amd64 build)
+        fi
     ;;
 
     rt-preempt-user|rt-preempt-kernel)
@@ -903,6 +943,8 @@ fi
 RTPREFIX=$THREADS
 
 
+AC_SUBST(HARDY_AMD64_WORKAROUND)
+
 AC_SUBST(SIMULATOR)
 AC_SUBST([RTNAME])
 
@@ -1003,7 +1045,7 @@ AC_SUBST(THREADS_SOURCE)
 GIT_VERSION=unknown
 gitcmd=`which git`
 if test -n "$gitcmd"; then
-   version=`$gitcmd describe --dirty --always`
+   version=`(cd ..;scripts/get-version-from-git)` 2>/dev/null
    if test -n "$version"; then
       GIT_VERSION=$version
    fi
@@ -1280,6 +1322,7 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -1295,6 +1338,7 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
+AC_SUBST([GIT_VERSION])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -1446,7 +1490,7 @@ fi
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --enable-build-documentation[=format]   Build documentation.
-              Format may be "pdf" or "html" if only one format is desired.],
+                          Format may be "pdf" or "html" if only one format is desired.],
     [
         case "$enableval" in
         Y*|y*|html,pdf|pdf,html)
@@ -1742,7 +1786,10 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
 LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
+LIBS="$LIBS -lm -lrt"
+
+AC_CHECK_FUNCS(clock_getres)
+
 
 AC_MSG_CHECKING([for sincos function])
 sincos_ok=yes
@@ -2167,6 +2214,7 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
+AC_CONFIG_FILES([../scripts/latencyhistogram], [chmod +x ../scripts/latencyhistogram])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
@@ -2177,7 +2225,19 @@ AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
+AC_CONFIG_FILES(linuxcncconfig.py-tmp)
 AC_OUTPUT
+
+# clean up linuxcncconfig.py:
+# subsitute "yes" by True
+# subsitute "no" by False
+AC_MSG_RESULT(touching up ../lib/python/linuxcncconfig.py)
+sed -e 's/"yes"/True/g' -e 's/"no"/False/g' \
+    <linuxcncconfig.py-tmp \
+    >../lib/python/linuxcncconfig.py
+AC_MSG_CHECKING(usability of ../lib/python/linuxcncconfig.py)
+python ../lib/python/linuxcncconfig.py
+AC_MSG_RESULT(done)
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #

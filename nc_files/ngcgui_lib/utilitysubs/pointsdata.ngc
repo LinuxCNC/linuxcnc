@@ -17,12 +17,12 @@ o<if10> if [#<howmany> GT #<maxhowmany>]
           (AXIS,notify, pointsdata: howmany too big - EXITING)
           m2
 o<if10> endif
-o<if20> if [#<howmany> LT 2]
+o<if15> if [#<howmany> LT 2]
           (debug, pointsdata: howmany too small: #<howmany> - EXITING)
           (debug, pointsdata: howmany too small: #<howmany> - EXITING)
           (AXIS,notify, pointsdata: howmany too small - EXITING)
           m2
-o<if20> endif
+o<if15> endif
 
           #<i> = 2
       #<total> = 0

@@ -1,0 +1,4 @@
+
+loadrt pid num_chan=17
+show pin
+

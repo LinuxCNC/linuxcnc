@@ -118,7 +118,7 @@ long int rtapi_clock_set_period(long int nsecs) {
 #endif  /* BUILD_SYS_KBUILD  */
 
 // rtapi_delay_hook MUST be implemented by all threads systems
-int rtapi_delay_hook(long int nsec);
+void rtapi_delay_hook(long int nsec);
 
 void rtapi_delay(long int nsec)
 {

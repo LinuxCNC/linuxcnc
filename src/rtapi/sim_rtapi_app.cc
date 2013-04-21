@@ -444,7 +444,7 @@ static int configure_memory(void) {
 	return 0;
 }
 
-void signal_handler(int sig, siginfo_t *si, void *uctx)
+void backtrace_handler(int sig, siginfo_t *si, void *uctx)
 {
     void *bt[32];
     int nentries;
@@ -478,7 +478,7 @@ exit_handler(void)
 int main(int argc, char **argv) 
 {
     char *s;
-    struct sigaction backtrace_action;
+    struct sigaction sig_act;
 
     
     if ((s = getenv("MSGLEVEL")) != NULL) {
@@ -519,13 +519,21 @@ int main(int argc, char **argv)
 	}
     }
 
-    sigemptyset( &backtrace_action.sa_mask );
-    backtrace_action.sa_sigaction = signal_handler;
-    backtrace_action.sa_flags   = SA_SIGINFO;
+    setsid(); // Detach from the parent session
 
-    sigaction(SIGSEGV, &backtrace_action, (struct sigaction *) NULL);
-    sigaction(SIGILL,  &backtrace_action, (struct sigaction *) NULL);
-    sigaction(SIGFPE,  &backtrace_action, (struct sigaction *) NULL);
+    sigemptyset( &sig_act.sa_mask );
+    sig_act.sa_handler = SIG_IGN; 
+    sig_act.sa_sigaction = NULL;
+
+    // prevent stopping of RT threads by ^Z
+    sigaction(SIGTSTP, &sig_act, (struct sigaction *) NULL); 
+
+    sig_act.sa_sigaction = backtrace_handler;
+    sig_act.sa_flags   = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
 #if defined(RTAPI_XENOMAI_USER)
     // check if this user is member of group xenomai, and fail miserably if not
@@ -559,7 +567,7 @@ int main(int argc, char **argv)
     exit(1);
 
  is_xenomai_member:
-    sigaction(SIGXCPU, &backtrace_action, (struct sigaction *) NULL);
+    sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
     rt_print_auto_init(1);
 #endif
 

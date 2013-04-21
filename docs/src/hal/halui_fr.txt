@@ -45,19 +45,23 @@ Arrêt d'urgence:: (E-Stop)
  - halui.estop.reset (bit, out) - pin de requête de relâchement de l'arrêt d'urgence (E-Stop reset)
 
 Correcteur de vitesse d'avance:: (Feed override)
- - halui.feed-override.count-enable (bit, in) - doit être vraie pour activer le comptage.
- - halui.feed-override.counts (s32, in) - comptage depuis un codeur, par
+ - halui.feed-override.count-enable (bit, in) - doit être vraie pour que 
+_counts_ ou _direct-value_ soient opérationnels.
+ - halui.feed-override.counts (s32, in) - _counts_ * scale = FO pourcent. Peut
+être utilisé avec un codeur ou _direct-value_.
  - halui.feed-override.decrease (bit, in) - pin pour diminuer la correction (-=scale)
  - halui.feed-override.increase (bit, in) - pin pour augmenter la correction (+=scale)
- - halui.feed-override.direct-value (bit, in) - fausse lors de l'utilisation du codeur
- - halui.feed-override.scale (float, in) - pin pour positionner l'échelle des corrections possibles 
-   exemple pour modifier la correction de vitesse d'avance
+ - halui.feed-override.direct-value (bit, in) - fausse lors de l'utilisation un
+ codeur pour changer counts, vraie pour ajuster counts directement. La pin
+_count-enable_ doit être vraie.
+ - halui.feed-override.scale (float, in) - pin pour positionner l'échelle pour 
+accroître ou décroître la correction de vitesse d'avance.
  - halui.feed-override.value (float, out) - Valeur de la correction courante de vitesse d'avance
 
 Arrosage par gouttelettes:: (Mist) 
  - halui.mist.is-on (bit, out) - indique si l'arrosage par gouttelettes est actif
  - halui.mist.off (bit, in) - pin de requête d'arrêt de l'arrosage par gouttelettes
- - halui.mist.on (bit, in) - pin de requête de l'attosage par gouttelettes
+ - halui.mist.on (bit, in) - pin de requête de l'arrosage par gouttelettes
 
 Arrosage fluide:: (Flood)
  - halui.flood.is-on (bit, out) - indique si l'arrosage fluide est actif
@@ -127,10 +131,13 @@ Machine:: (Marche / Arrêt)
 Vitesse maximum::
 La vitesse linéaire maximum peut être ajustée entre 0 et la valeur de
 la variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
- - halui.max-velocity.count-enable (bit, in) - Si TRUE, la vitesse 
-   max est modifiée quand le comptage change
- - halui.max-velocity.counts (s32, in) - vous permet, en agissant sur un 
-   codeur, de modifier la vitesse max
+ - halui.max-velocity.count-enable (bit, in) - Doit être vraie pour que les 
+_counts_ ou _direct-value_ soit opérationnels.
+ - halui.max-velocity.counts (s32, in) - counts * scale = MV pourcent. Utilisable
+avec un codeur ou _direct-value_.
+ - halui.max-velocity.direct-value (bit, in) - faux quand un codeur est utilisé
+pour modifier _counts_, vraie pour ajuster _counts_ directement. La pin
+_count-enable_ doit être vraie.
  - halui.max-velocity.decrease (bit, in) - pin pour diminuer la vitesse max
  - halui.max-velocity.increase (bit, in) - pin pour augmenter la vitesse max
  - halui.max-velocity.scale (float, in) - Valeur appliquée sur le 
@@ -196,14 +203,14 @@ Programme:: (Program)
  - halui.program.stop (bit, in) - pin pour stopper un programme
 
 Correcteur de vitesse de broche:: (Spindle Override)
- - halui.spindle-override.count-enable (bit, in) - Si TRUE, la
-   correction de vitesse broche varie quand le comptage change.
+ - halui.spindle-override.count-enable (bit, in) - doit être vraie pour que
+_counts_ ou _direct-value_ soient opérationnels.
  - halui.spindle-override.counts (s32, in) - comptage depuis un codeur,
    par exemple pour modifier la correction de vitesse de broche
  - halui.spindle-override.decrease (bit, in) - pin pour diminuer la
    correction de vitesse de broche (-=scale)
- - halui.spindle-override.direct-value (bit, in) - false quand en utilisant l'encodeur de changer compte,
-    vrai lorsque la mise compte directement. Le count-activer `broches doit être vrai.
+ - halui.spindle-override.direct-value (bit, in) - fausse en utilisant un codeur
+pour modifier _counts_ directement. La pin _count-enable_ doit être vraie.
  - halui.spindle-override.increase (bit, in) - pin pour augmenter la
    correction de vitesse de broche (+=scale)
  - halui.spindle-override.scale (float, in) - pin pour positionner
@@ -229,6 +236,7 @@ Outil:: (Tool)
  - halui.tool.length-offset (float, out) - indique la correction de longueur d'outil appliquée
  - halui.tool.number (u32, out) - indique l'outil courant sélectionné
 
+[[sec:Exemple-Commande-Distante]]
 == Exemples de programme avec Halui
 
 Pour que ces exemples fonctionnent, il faut ajouter la ligne
@@ -253,9 +261,7 @@ la pin _halui.mode.is-auto_ sera TRUE.
 Si les deux entrées du composant _and2.0_ sont TRUE, la sortie _and2.0.out_ 
 sera TRUE également et le programme sera démarré. 
 
-[[fig:Remote-Start-Example]]
-.Exemple de commande à distance
-
+.Exemple de commande distante
 image::images/remote-start.png[]
 
 Les commandes de Hal pour accomplir ces actions sont les suivantes: 

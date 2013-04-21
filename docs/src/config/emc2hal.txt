@@ -4,7 +4,8 @@
 
 See also the man pages 'motion(9)'.
 
-== Motion [[sec:motion]]
+[[sec:motion]]
+== Motion
 
 These pins and parameters are created by the realtime 'motmod' module.
 This module provides a HAL interface for LinuxCNC’s motion planner.
@@ -412,7 +413,7 @@ iocontrol − accepts NML I/O commands, interacts with HAL in userspace.
 
 The signals are turned on and off in userspace - if you have strict
 timing requirements or simply need more i/o, consider using the realtime
-synchronized i/o provided by <<motion,motion>> instead.
+synchronized i/o provided by <<sec:motion,motion>> instead.
 
 === Pins (((iocontrol (HAL pins))))
 

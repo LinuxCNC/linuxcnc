@@ -82,8 +82,9 @@ Dac Max Output:
     minimum rate. For instance if your scaling sets voltage and you want to limit
     voltage to 7 (as the daughter boards produce 10 volts maximum) set this to 7
 
-Brushless Control:
+Use BLDC Motor Commutation Control:
     Select this to use and configure the BLDC component.
+    You would use this with special daugther boards or odd situations.
     The BLDC component can be used to control brushless motors
     directly and for HALL sensor conversions. See the MAN pages.
     For HALL conversion one must select the HALL/GRAY signals

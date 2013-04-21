@@ -25,8 +25,15 @@
 //  verify that the hostmot2 driver functions as it ought.
 //
 
+#include "config.h"
 
+#if defined(USERMODE_PCI)
+#include <sys/io.h>
+#include <rtapi.h>
+#include <rtapi/rtapi_pci.h>
+#else
 #include <linux/pci.h>
+#endif
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -47,7 +54,6 @@ MODULE_DESCRIPTION("Test pattern for the hostmot2 driver, does not talk to any h
 static char *config[HM2_TEST_MAX_BOARDS];
 static int num_config_strings = HM2_TEST_MAX_BOARDS;
 RTAPI_MP_ARRAY_STRING(config, HM2_TEST_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
-
 
 int test_pattern = 0;
 RTAPI_MP_INT(test_pattern, "The test pattern to show to the hostmot2 driver.");

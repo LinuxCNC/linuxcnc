@@ -1,0 +1,43 @@
+#!/bin/bash
+
+WARN_ON_FAILURE=0
+if [ "$1" = "--warn-on-failure" ]; then
+    WARN_ON_FAILURE=1
+    shift
+fi
+
+LANGUAGE="$1"
+shift
+
+FILES="$@"
+
+# it'd be nice to build-depend on checklinks, but it's not available in Lucid
+if [ -z $(which checklink) ]; then
+    echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2
+    exit 0
+fi
+
+
+rm -f .checklink.$LANGUAGE.tmp
+checklink --quiet --exclude "http(s?)://" $FILES | tee .checklink.$LANGUAGE.tmp 2>&1
+egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.$LANGUAGE.tmp
+BAD_LINKS=$?
+rm -f .checklink.$LANGUAGE.tmp
+
+if [ $BAD_LINKS -eq 0 ]; then
+    RET_VAL=1
+    echo "***" 1>&2
+    echo "*** warning: bad links found in $LANGUAGE docs!" 1>&2
+    if [ $WARN_ON_FAILURE -eq 1 ]; then
+        echo "*** oh well, continuing anyway" 1>&2
+        RET_VAL=0
+    fi
+    echo "***" 1>&2
+    exit $RET_VAL
+else
+    echo "***"
+    echo "*** language: $LANGUAGE"
+    echo "*** all links are good!"
+    echo "***"
+fi
+

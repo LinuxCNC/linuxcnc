@@ -22,6 +22,8 @@
 
 #if defined(USERMODE_PCI)
 #include <sys/io.h>
+#include <rtapi.h>
+#include <rtapi/rtapi_pci.h>
 #else
 #include <linux/pci.h>
 #endif

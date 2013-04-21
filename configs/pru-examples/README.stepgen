@@ -1,0 +1,90 @@
+stepgen.p is currently a very rough implementation of software step generation
+in PRU code.  This version is intended to be safe and generic rather than fast.
+
+In addition to step/dir generation, it is intended that other low-level
+features will be implmented with this code.  Currently usable functions include
+step/dir generation, a fairly traditional PWM, and a single-stage 14-bit 
+delta-sigma modulator.
+
+In general, each functional module is controlled by 8 32-bit values of state
+data.  Four of these are typically set by the driver to control operation of
+the high-speed task (ie: step rate/direction, PWM duty cycle/perioc), with the
+remaining four values used for internal state (ie: step accumulator).  This 
+usage is purly a convention at this point, and may be changed as required by
+any particular module.
+
+Currently, the code is not quite ready to launch LinuxCNC and hook to a
+machine, but it is possible to perform interesting tests.
+
+General usage guidelines:
+
+* Build LinuxCNC for a BeagleBone, as usual.
+
+* cd to the configs/pru-examples (where you found this file) and run make to
+  build the PRU code
+
+* Setup the BeagleBone I/O multiplexing and direction so the required PRU 
+  outputs are directly driven to the I/O pins.  There is a setup.sh batch
+  file in the pru-examples directory to assist with this.
+
+* Launch HAL:
+
+    halcmd -f stepgen.hal &
+
+* Click the top file bar that says "(None)" and load the stepgen.dgb file
+
+* Click the "pru" button to select PRU 1
+
+* Make sure the "stepping" button is not selected
+
+* Click the "reset" button to reset the PRU
+
+* Click the "continue" button to start the PRU running
+
+Optional:
+While the PRU is running, you can:
+  Press "snap" button to grab a snapshot of the current PRU state
+  Press "continuous" button to continuously grab snapshots
+  Press "stepping" button to halt the PRU
+  Press "continue" button with "stepping" pressed to single-step
+ 
+* Send a speed command to begin generating step pulses
+
+    halcmd setp hal_pru.speed 0x00500000
+    halcmd setp hal_pru.speed 0xffb00000
+
+    WARNING:
+    The top 5 bits of the stepgen speed MUST BE THE SAME!
+    In other words, the rate is currently a 27-bit sign extended value
+
+* Watch the Step and Direction outputs
+
+* Monitor the busy bit to see how much free time is left given the current
+  period setting
+
+* By default, the outputs will be:
+
+  Description	PRU Pin		Chip Pin Name	BeagleBone Pin
+  ============================================================
+  Busy		PRU1.r30.t0	lcd_data0	P8.45	GPIO2_6
+  Step		PRU1.r30.t2	lcd_data2	P8.43	GPIO2_8
+  Direction	PRU1.r30.t3	lcd_data3	P8.44	GPIO2_9
+
+  Other PRU1 outputs will have various PWM outputs, edit hal_pru.c to change
+
+  See the end of the stepgen.p file for a handy (but not yet complete) table 
+  of PRU I/O pins and how they map to the BeagleBone I/O connectors
+
+Advanced users:
+Play with the PRU data memory initialization in hal_pru.c:
+  setup_pru()
+  update_pru()
+
+Refer to the *_state structures in stepgen.p for details
+
+* Change the output pins used by the step/dir module
+
+* Change the operating mode to PWM or Delta-Sigma
+
+* Update hal_pru.c to pass more parameters to the PRU
+

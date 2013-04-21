@@ -30,12 +30,14 @@ import pango
 import rs274.glcanon
 import rs274.interpret
 import linuxcnc
+import gcode
 
 import time
-
+import re
 import tempfile
 import shutil
 import os
+import sys
 
 import thread
 
@@ -53,6 +55,10 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
         self.lathe_view_option = lathe_view_option
 
     def is_lathe(self): return self.lathe_view_option
+
+    def change_tool(self, pocket):
+        rs274.glcanon.GLCanon.change_tool(self,pocket)
+        rs274.interpret.StatMixin.change_tool(self,pocket)
 
 class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
               rs274.glcanon.GlCanonDraw):
@@ -128,15 +134,15 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.show_offsets = False
 
-	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
-	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
-	self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
+        self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
+        self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
 
-	live_axis_count = 0
-	for i,j in enumerate("XYZABCUVW"):
-	    if self.stat.axis_mask & (1<<i) == 0: continue
-	    live_axis_count += 1
-	self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+        live_axis_count = 0
+        for i,j in enumerate("XYZABCUVW"):
+            if self.stat.axis_mask & (1<<i) == 0: continue
+            live_axis_count += 1
+        self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
 
     def activate(self):
         glcontext = gtk.gtkgl.widget_get_gl_context(self)
@@ -179,7 +185,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def poll(self):
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -196,7 +205,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def realize(self, widget):
         self.set_current_view()
         s = self.stat
-        s.poll()
+        try:
+            s.poll()
+        except:
+            return
         self._current_file = None
 
         self.font_base, width, linespace = \
@@ -233,7 +245,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-            self.load_preview(filename, canon, unitcode, initcode)
+            result, seq = self.load_preview(filename, canon, unitcode, initcode)
+            if result > gcode.MIN_ERROR:
+                self.report_gcode_error(result, seq, filename)
+
         finally:
             shutil.rmtree(td)
 
@@ -244,10 +259,12 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY")
         if temp:
-            self.geometry = temp.upper()
+            geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
+            self.geometry = "".join(reversed(geometry))
         else:
             self.geometry = 'XYZ'
         return self.geometry
+
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
@@ -332,3 +349,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def scroll(self, widget, event):
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
+
+    def report_gcode_error(self, result, seq, filename):
+        error_str = gcode.strerror(result)
+        sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
+                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n")

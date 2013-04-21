@@ -22,7 +22,6 @@
 #define r2d(r) ((r)*180.0/PM_PI)
 
 struct haldata {
-    hal_float_t *tool_length;
     hal_float_t *pivot_length;
 } *haldata;
 
@@ -112,8 +111,6 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_new("5axiskins.tooloffset.z", HAL_IN, &(haldata->tool_length), comp_id);
-    if(result < 0) goto error;
     result = hal_pin_float_new("5axiskins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
     if(result < 0) goto error;
 

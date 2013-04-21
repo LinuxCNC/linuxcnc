@@ -782,15 +782,15 @@ msgstr "在坐標模式做剛性攻絲移動,需要啟動指令"
 
 #: src/emc/motion/command.c:1410
 msgid "can't do rigid tap move with limits exceeded"
-msgstr ""
+msgstr "不能做剛性攻絲移動當超過極限"
 
 #: src/emc/motion/command.c:1421
 msgid "can't add rigid tap move"
-msgstr ""
+msgstr "不能添加剛性攻絲移動"
 
 #: src/emc/motion/command.c:1435
 msgid "need to be enabled, in teleop mode for teleop move"
-msgstr ""
+msgstr "需要激活遠程操作模式，才可作遠程運移動"
 
 #: src/emc/motion/command.c:1556
 #, c-format
@@ -805,7 +805,7 @@ msgstr "joint %d: 補償值必須增加"
 #: src/emc/motion/command.c:1591
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "無法識別的命令 %d"
 
 #: src/emc/motion/motion.c:185
 msgid "MOTION: hal_init() failed\n"
@@ -865,21 +865,21 @@ msgstr ""
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr ""
+msgstr "在歸零狀態,碰到極限 %d"
 
 #: src/emc/motion/homing.c:90
 #, c-format
 msgid "end of move in home state %d"
-msgstr ""
+msgstr "在歸零狀態,移動完結 %d"
 
 #: src/emc/motion/homing.c:185
 #, c-format
 msgid "unknown state '%d' during homing sequence"
-msgstr ""
+msgstr "在歸零程序時,不明的狀態 '%d'"
 
 #: src/emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr ""
+msgstr "當共享零開關閉上時,不能歸零"
 
 #: src/emc/motion/homing.c:290
 msgid ""
@@ -4744,8 +4744,8 @@ msgstr ""
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris "
-"Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff "
+"Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with LinuxCNC.\n"
@@ -6733,9 +6733,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.glade:66274
 #: src/emc/usr_intf/pncconf/pncconf.glade:66505
 #: src/emc/usr_intf/pncconf/pncconf.glade:66570
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:3437
@@ -11877,8 +11875,8 @@ msgstr "不能使用 G5.3沒有 G5.2先行"
 #: src/emc/rs274ngc/interp_convert.cc:183
 #, c-format
 msgid ""
-"You must specify a number of control points at least equal to the order L = "
-"%d"
+"You must specify a number of control points at least equal to the order L = %"
+"d"
 msgstr "您必須指定一個數字控制點至少等於順序L =％d"
 
 #: src/emc/rs274ngc/interp_convert.cc:212
@@ -13171,6 +13169,19 @@ msgstr "R小於 U在週期VW平面"
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr "R小於 V的週期在UW平面"
+
+#: share/axis/tcl/axis.tcl:1711
+msgid ""
+"LinuxCNC/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with LinuxCNC.\n"
+"\n"
+"Visit the LinuxCNC web site: "
+msgstr ""
 
 #, fuzzy
 #~ msgid "fault %d during orient in progress"

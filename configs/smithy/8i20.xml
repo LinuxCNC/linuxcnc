@@ -5,7 +5,7 @@
     </label>
     <number>
         <halpin>"command"</halpin>
-        <format>"+4.2f"</format>
+        <format>"+4.0f"</format>
     </number>
   </hbox>
   <hbox>
@@ -14,7 +14,7 @@
     </label>
     <number>
       <halpin>"vel"</halpin>
-      <format>"+4.2f"</format>
+      <format>"+4.0f"</format>
     </number>
   </hbox>
   <hbox>

@@ -68,6 +68,8 @@
 #error "Can't define both RTAPI and ULAPI!"
 #endif
 
+#include <stddef.h> // provides NULL
+
 /** Provide fixed length types of the form __u8, __s32, etc.  These
     can be used in both kernel and user space.  There are also types
     without the leading underscores, but they work in kernel space
@@ -75,8 +77,11 @@
     space, the non-underscore types should NEVER be used.
 */
 #if defined(BUILD_SYS_USER_DSO)
+#define __KERNEL_STRICT_NAMES
 # include <linux/types.h>
+#if !defined(__GNUC__) && defined(__STRICT_ANSI__)
 # include <stdint.h>
+#endif
 # include <string.h>
 typedef __u8		u8;
 typedef __u16		u16;
@@ -715,9 +720,9 @@ int rtapi_assure_module_loaded(const char *module);
   MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
-#else /* version 2.6 */
+#else /* version 2.6 or later */
 
-#include <linux/param.h>
+#include <linux/module.h>
 
 #define RTAPI_MP_INT(var,descr)    \
   module_param(var, int, 0);       \

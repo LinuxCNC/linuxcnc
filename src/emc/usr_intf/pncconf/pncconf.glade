@@ -64315,7 +64315,7 @@ Charge Pump</property>
                                 <child>
                                   <widget class="GtkLabel" id="label403">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Use Brushless Motor Control&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Use BLDC Motor Commutation Control&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
                                   </widget>
                                 </child>
@@ -64754,7 +64754,7 @@ Scale</property>
                               <widget class="GtkSpinButton" id="xmaxacc">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1.5 1 10000 0.5 10 0</property>
+                                <property name="adjustment">1.5 1 50000 0.5 10 0</property>
                                 <property name="digits">1</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
                               </widget>

@@ -8,7 +8,11 @@ Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;
 
 static void halError(Tcl_Interp *interp, int result) {
-    Tcl_SetResult(interp, strerror(-result), TCL_VOLATILE);
+    // Usually, halcmd leaves a good string message via halcmd_error()
+    // but just in case, fall back to using the result of the halcmd api call as
+    // a negative errno value...
+    if(!*Tcl_GetStringResult(interp))
+	Tcl_SetResult(interp, strerror(-result), TCL_VOLATILE);
 }
 
 static int refcount = 0;
