@@ -18,6 +18,7 @@
 #endif
 
 
+#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
 // find a useable time stamp counter
 #ifndef MODULE			/* kernel has rdtscll in
 				   arch/x86/include/msr.h; does this
@@ -30,6 +31,7 @@
 #else
 #warning No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
+#endif
 #endif
 #endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 
